@@ -1,39 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262715AbVBYPJq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262725AbVBYPH6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262715AbVBYPJq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 10:09:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262714AbVBYPJp
+	id S262725AbVBYPH6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 10:07:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262718AbVBYPEn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 10:09:45 -0500
-Received: from rproxy.gmail.com ([64.233.170.196]:17333 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262716AbVBYPJ3 (ORCPT
+	Fri, 25 Feb 2005 10:04:43 -0500
+Received: from [61.145.102.93] ([61.145.102.93]:9220 "HELO mail.drnzxl.com")
+	by vger.kernel.org with SMTP id S262716AbVBYPDZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 10:09:29 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=jazEfcEVPb/xyEtIEBkNixkQTt72hUK0ZAIOm5K/FymqYeCb5ePH8ePkegyzl8hV3aH34Cux+Dyev3e5xsdl5Pf6+ngPt80HIfnwmhcHSCIa0bFqGD52715FeqtBPld5LcvRFbEdIdg6Zx7QDxJ7e9CmmAOieNyqrf4nKsDj7Zg=
-Message-ID: <1458d9610502250709388b07ab@mail.gmail.com>
-Date: Fri, 25 Feb 2005 20:39:28 +0530
-From: Sumit Narayan <talk2sumit@gmail.com>
-Reply-To: Sumit Narayan <talk2sumit@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: IDE via USB
+	Fri, 25 Feb 2005 10:03:25 -0500
+Reply-To: <drnzxl@pchome.com.tw>
+Message-ID: <001901c471f2$017f70d0$0300a8c0@xinyi>
+From: <David@vger.kernel.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: Plugs & Sockets
+Date: Fri, 25 Feb 2005 23:03:23 +0800
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Content-Type: text/plain;
+    charset="gb2312"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Dear Sir or Madam: 
 
-I have an external IDE connector through USB port. Where could I get
-the exact point inside the kernel, from where I would get information
-such as Block No., Request size, partition details for a particular
-request, _just_ before being sent to the disk.
+We understand from your information posted on internet that you are in the market for plugs & sockets. We would like to take this opportunity to introduce our company and products, with the hope that we may work with Bright Ideas Imports in the future. 
 
-Like, for a normal IDE, I could gather these details from inside the
-function __ide_do_rw_disk from "struct request". Is there anyway for
-finding out the same for a USB mass storage device?
+We are a professional company specializing in the manufacture and export of plugs, sockets & connecting-terminals. You may feel free to visit our online company introduction at http://andian.b2bleague.com  which includes our latest product line. 
 
-Thanks.
+Should any of these items be of interest to you, please let us know. We will be happy to give you a quotation upon receipt of your detailed requirements. 
+
+We look forward to receiving your enquires soon. 
+
+Sincerely, 
+
+David Chow (Mr.)
+Company: Andian Industry Co., Ltd.
+http://andian.b2bleague.com 
+E-mail: mickzhou@126.com 
+Tel: 86-757-27336845
+Fax: 86-757-27723669
+Cel: 86-13192690106
+
+
+
+

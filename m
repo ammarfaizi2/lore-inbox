@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262199AbVANW23@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262211AbVANW2Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262199AbVANW23 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 17:28:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262198AbVANW0C
+	id S262211AbVANW2Y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 17:28:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262199AbVANWZn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 17:26:02 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:43279 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262195AbVANWTM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 17:19:12 -0500
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: David Eger <eger@havoc.gtf.org>, linux-kernel@vger.kernel.org
-Subject: Re: gcc randomly crashes on my PowerBook with recent kernels...
-Date: Sat, 15 Jan 2005 00:19:05 +0200
-User-Agent: KMail/1.5.4
-References: <20050113185453.GA10195@havoc.gtf.org>
-In-Reply-To: <20050113185453.GA10195@havoc.gtf.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
+	Fri, 14 Jan 2005 17:25:43 -0500
+Received: from mailer.campus.mipt.ru ([194.85.82.4]:25013 "EHLO
+	mailer.campus.mipt.ru") by vger.kernel.org with ESMTP
+	id S262198AbVANWTf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 17:19:35 -0500
+Date: Sat, 15 Jan 2005 01:41:30 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: johnpol@2ka.mipt.ru
+Cc: linux-kernel@vger.kernel.org, Michal Ludvig <michal@logix.cz>,
+       Fruhwirth Clemens <clemens@endorphin.org>,
+       Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
+       cryptoapi@lists.logix.cz, "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH 1/2] CryptoAPI: prepare for processing multiple buffers
+ at a time
+Message-ID: <20050115014130.2dcd3f2e@zanzibar.2ka.mipt.ru>
+In-Reply-To: <20050115013103.05698f1a@zanzibar.2ka.mipt.ru>
+References: <20050115013103.05698f1a@zanzibar.2ka.mipt.ru>
+Reply-To: johnpol@2ka.mipt.ru
+Organization: MIPT
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501150019.05089.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 13 January 2005 20:54, David Eger wrote:
-> I apologize for the vagueness of the message, but for all ye TiBook users,
-> over the last couple months of kernels, I've noticed gcc (various versions
-> in the 3.0 series randomly), non-deterministically crashing on large builds.
+On Sat, 15 Jan 2005 01:31:03 +0300
+Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
 
-gcc is a very good hardware checker. :)
+> 
+> Crypto routing.
+> This feature allows the same session to be processed by several devices/algorithms. 
+> For example if you need to encrypt data and then sign it in TPM device you can create 
+> one route to encryption device and then route it to TPM device. (Note: this feature 
+> must be discussed since there is no time slice after session allocation, only in 
+> crypto_device->data_ready() method and there are locking issues in ->callback() method).
 
-I had a gcc crashing problem. Turned out to be RAM
-timing problem. memtest86 wasn't able to trigger it
-for me in overnight runs. gcc does it in seconds -
-if you find a "magic" set of compile options and source file.
+Actually it is already impleneted by 
+crypto_session_alloc();
+route manipulations
+crypto_session_add();
 
-As you correctly noticed, yu have more chances of hitting
-magic in large compiles.
+And sessions can be (re)routed inside crypto devices itself.
 
-I grabbed crashed gcc's command line from make log
-and ran it in endless loop.
-I had a crash (SIGSEGV due to mangled pointer) with ~10%
-probability.
---
-vda
+	Evgeniy Polyakov
 
+Only failure makes us experts. -- Theo de Raadt

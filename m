@@ -1,71 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267403AbTASJHM>; Sun, 19 Jan 2003 04:07:12 -0500
+	id <S265637AbTASJQI>; Sun, 19 Jan 2003 04:16:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267431AbTASJHM>; Sun, 19 Jan 2003 04:07:12 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:41745
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S267403AbTASJHL>; Sun, 19 Jan 2003 04:07:11 -0500
-Date: Sun, 19 Jan 2003 01:11:19 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: joe wagner <joe_D-.wagner@worldtechtribune.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Stall-man is Stall-ing
-In-Reply-To: <200301190330.AA33882268@worldtechtribune.com>
-Message-ID: <Pine.LNX.4.10.10301190053160.8260-100000@master.linux-ide.org>
+	id <S265670AbTASJQI>; Sun, 19 Jan 2003 04:16:08 -0500
+Received: from [203.98.141.86] ([203.98.141.86]:61961 "HELO
+	hkexma00.net.ufjia.com") by vger.kernel.org with SMTP
+	id <S265637AbTASJQH>; Sun, 19 Jan 2003 04:16:07 -0500
+Message-ID: <1042968307.97b1e35e284ed@www.ufjia.com>
+Date: Sun, 19 Jan 2003 17:25:07 +0800
+From: Anthony Kong <anthony.kong@ufjia.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: help! kernel panic
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="ISO-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+User-Agent: Internet Messaging Program (IMP) 4.0-cvs
+X-Originating-IP: 218.103.195.8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-http://www.pbs.org/cringely/pulpit/pulpit20030116.html
-http://eastbay.bizjournals.com/eastbay/stories/2003/01/20/story1.html
 
-I suspect I will get in trouble for this one, but whatever.
+Hi, all,
 
-http://www.linux-ide.org/pana0122a.jpg
+I have encountered this problem and hope someone may give me some idea on how to
+appoach this problem:
 
-This is the front page associated with "eastbay.bizjournals.com".
+When I try to shutdown a box, and when shutdown proceed to half-way, I see the
+following messages:
 
-***********
-Stall-man is Stall-ing
+Process swapper pid: 0 stackepage = c0341000
+...
+call_trace: run_time_list
+            bh_action
+            tasklet_hi_action
+            do_softirq
+            do_IRQ
+            pci_mmap_page_range
+            default_idle
+            apm_cpu_idle
+            default_ide
+            stext
+            cpu_idle
+           
+...
+bad EIP value
 
-    Special to
-   WorldTechTribune
-                                     Joseph D. Wagner
-***********
+...
 
-It must be a nice crap story if you have to self promote it.
-What do you get a penny per click?
-
-Just so you know some of us have bullet proof security, and will make it
-available when they drop the bomb.  Why teach them what they do not know?
-
-Goooleee Gomer ... Shazam! Why didn't I think of that first?
-
-I for one rag RMS the hardest, but bottom line is he may be a nutter, but
-he is our nutter!  At least he does not bounce on a trampoline or rock his
-chair like "DH Lawrence's Rocking Horse Winner".
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
+kernel panice: Aiee, Killing interrupt handle
 
 
-On Sun, 19 Jan 2003, joe wagner wrote:
 
-> ****************************************
-> 
-> Read the rest of the article at:
-> http://www.worldtechtribune.com/worldtechtribune/asparticles/buzz/bz01032003.asp
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+
+By this point the PC is halted.
+
+
+I am using Linux 2.4.19. I do not have any OOP file available. If you need more
+information please feel free to ask.
+
+
+Best regards,
+
+Anthony
+
+
+
+
+------------------------------------------------
+This mail sent from UFJIA - http://www.ufjia.com
 

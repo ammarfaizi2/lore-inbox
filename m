@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261700AbSJQRVk>; Thu, 17 Oct 2002 13:21:40 -0400
+	id <S261688AbSJQRQK>; Thu, 17 Oct 2002 13:16:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261588AbSJQRVk>; Thu, 17 Oct 2002 13:21:40 -0400
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:10654 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S261700AbSJQRUA>;
-	Thu, 17 Oct 2002 13:20:00 -0400
-Date: Thu, 17 Oct 2002 18:27:29 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Matthew Wilcox <willy@debian.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Add generic prefetch xor routines
-Message-ID: <20021017172729.GA29177@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Matthew Wilcox <willy@debian.org>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-References: <20021017180134.X15163@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021017180134.X15163@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4i
+	id <S261629AbSJQRPQ>; Thu, 17 Oct 2002 13:15:16 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17425 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261562AbSJQRO0>;
+	Thu, 17 Oct 2002 13:14:26 -0400
+Message-ID: <3DAEF15E.4030105@pobox.com>
+Date: Thu, 17 Oct 2002 13:20:30 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Adam J. Richter" <adam@yggdrasil.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][TRIVIAL] de2104x.c missing __devexit_p in 2.5.43
+References: <200210171714.KAA02527@baldur.yggdrasil.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 17, 2002 at 06:01:34PM +0100, Matthew Wilcox wrote:
- > 
- > Both PA-RISC and IA64 benefit from these generic prefetching routines.
- > Maybe other CPUs will too.
- > 
- > +	do {
- > +		prefetchw(p1+8);
- > +		prefetch(p2+8);
- > +		p1[0] ^= p2[0];
- > +		p1[1] ^= p2[1];
- > +		p1[2] ^= p2[2];
- > +		p1[3] ^= p2[3];
- > +		p1[4] ^= p2[4];
- > +		p1[5] ^= p2[5];
- > +		p1[6] ^= p2[6];
- > +		p1[7] ^= p2[7];
- > +		p1 += 8;
- > +		p2 += 8;
- > +	} while (--lines > 0);
+Adam J. Richter wrote:
+> 	I believe that there are motherboards that use a chipset from
+> Compaq that allows hot plugging and unplugging of ordinary PCI cards,
+> supported by drivers in linux-2.5.43/drivers/hotplug/cpq*.[ch].  At a
+> trade show, I saw a demo of a motherboard with such a capability (not
+> running Linux, but I think from Compaq).
 
-Won't this prefetch past the end of the buffer ?
-Some CPUs have problems with prefetching non-existant areas
-of RAM iirc. (Which is why the memcpy routines do a prefetching
-loop, and then a non prefetching loop to copy the tail).
 
-		Dave
+You are correct that all PCI cards are now hotpluggable.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
+My position is that _my_ driver will not be converted to be hotpluggable 
+until someone actually does so.  Until such a time, I prefer the space 
+savings that keeping it non-hotplug-able provides.
+
+	Jeff
+
+
+

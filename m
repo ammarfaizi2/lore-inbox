@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267552AbTAGXZ2>; Tue, 7 Jan 2003 18:25:28 -0500
+	id <S267098AbTAGXqr>; Tue, 7 Jan 2003 18:46:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267566AbTAGXZ2>; Tue, 7 Jan 2003 18:25:28 -0500
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:43023 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S267552AbTAGXZ1>; Tue, 7 Jan 2003 18:25:27 -0500
-Date: Wed, 8 Jan 2003 00:33:58 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Honest does not pay here ...
-Message-ID: <20030107233358.GC24664@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030107012429.GA12944@merlin.emma.line.org> <Pine.LNX.3.96.1030107112114.15952B-100000@gatekeeper.tmr.com>
+	id <S267577AbTAGXqr>; Tue, 7 Jan 2003 18:46:47 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:35600
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S267098AbTAGXqq>; Tue, 7 Jan 2003 18:46:46 -0500
+Subject: Re: observations on 2.5 config screens
+From: Robert Love <rml@tech9.net>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: "Robert P. J. Day" <rpjday@mindspring.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030107233012.GP6626@fs.tum.de>
+References: <Pine.LNX.4.44.0301011435300.27623-100000@dell>
+	 <20030107233012.GP6626@fs.tum.de>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1041982936.694.786.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1030107112114.15952B-100000@gatekeeper.tmr.com>
-User-Agent: Mutt/1.5.1i
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-3) 
+Date: 07 Jan 2003 18:42:16 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 07 Jan 2003, Bill Davidsen wrote:
+On Tue, 2003-01-07 at 18:30, Adrian Bunk wrote:
 
-> For Linux, there are not only dozens of kernel versions around, but the
-> uni and smp versions are not the same. Vendors who want to provide drivers
-> really want to provide the binary even if the module is open source, just
-> because the average person has no desire to build any part of a kernel.
+> Robert, could you comment on whether it's really needed to have the 
+> preemt option defined architecture-dependant?
+> 
+> After looking through the arch/*/Kconfig files it seems to me that the
+> most problematic things might be architecture-specific parts of other
+> architecturs that don't even offer PREEMPT and the depends on CPU_32 in
+> arch/arm/Kconfig.
 
-That's sad but true. Would there be a way to have universal interfaces
-that are always the same? I mean, I'd think that if all SMP stuff is
-conditionally compiled and optimized to nothing on a UP kernel that only
-has the do-nothing stubs (yes, it costs overhead), but if it cuts the
-maintenance workload down to half its former size, it'd be worth it.
+I think it should be there.  Plus, as you say, it is defined
+per-architecture.
 
-> So it is possible to release a driver and claim in good faith that it
-> works, and still not have it work with *your* system. Not because the
-> vendor is evil, incompetent, a "crook" (your term), dishonest, or even
-> that testing was poor, but because all kernels are very much not created
-> equal. 
+The real problem in my opinion is that the category is misnamed.  It is
+not "processor options" except for the first couple.  The majority of
+the options should be under a title of "core" or "architecture" or
+"system options" in my opinion.
 
-Well, if someone claims "Linux driver coming soon" and that driver gets
-never released, that'd qualify for the harsh term. If it claims Linux
-support but the performance is not on par with other OSs or similar
-hardware, that's no support either.
+	Robert Love
 
-> Try to understand why vendors want to ship binary modules and why they
-> don't always work before making accusations.
-
-Binary drivers can still be OpenSource, if they just ship with the
-source. Binary-only is the problem, and that is what I was referring to.
-Please excuse my causing misunderstandings.
-
-> All that said, an independent testing service would be of use to the
-> vendors, because they could find things before shipping and have someone
-> to share the blame if the module didn't work with another kernel.
-
-Indeed.

@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316217AbSGQSQG>; Wed, 17 Jul 2002 14:16:06 -0400
+	id <S316538AbSGQSYH>; Wed, 17 Jul 2002 14:24:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316223AbSGQSQG>; Wed, 17 Jul 2002 14:16:06 -0400
-Received: from server1.mvpsoft.com ([64.105.236.213]:36324 "HELO
-	server1.mvpsoft.com") by vger.kernel.org with SMTP
-	id <S316217AbSGQSQF>; Wed, 17 Jul 2002 14:16:05 -0400
-Message-ID: <3D35B66E.20604@mvpsoft.com>
-Date: Wed, 17 Jul 2002 14:24:46 -0400
-From: Chris Snyder <csnyder@mvpsoft.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020713
-X-Accept-Language: en-us, en
+	id <S316512AbSGQSXE>; Wed, 17 Jul 2002 14:23:04 -0400
+Received: from dsl-213-023-038-064.arcor-ip.net ([213.23.38.64]:39869 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S316465AbSGQSW4>;
+	Wed, 17 Jul 2002 14:22:56 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Robert Love <rml@tech9.net>
+Subject: Re: [patch 1/13] minimal rmap
+Date: Wed, 17 Jul 2002 20:26:39 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>
+References: <3D3500AA.131CE2EB@zip.com.au> <E17Ut3V-0004OY-00@starship> <1026929477.1085.19.camel@sinai>
+In-Reply-To: <1026929477.1085.19.camel@sinai>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Kernel panics on bootup
-References: <3D345AD7.1010509@mvpsoft.com>	<1026858432.1687.85.camel@irongate.swansea.linux.org.uk> 	<3D34956A.7030200@mvpsoft.com> <1026860686.1688.97.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17UtVY-0004On-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Tue, 2002-07-16 at 22:51, Chris Snyder wrote:
+On Wednesday 17 July 2002 20:11, Robert Love wrote:
+> On Wed, 2002-07-17 at 10:57, Daniel Phillips wrote:
+> > On Wednesday 17 July 2002 07:29, Andrew Morton wrote:
+> > > 11: The nightly updatedb run is still evicting everything.
+> > 
+> > That is not a problem with rmap per se, it's a result of not properly 
+> > handling streaming IO.  I don't think you want to get bogged down in this 
+> > detail at the moment, it will only distract from the real issues.  My 
+> > recommendation is to just pretend for the time being that this is correct 
+> > behaviour.
 > 
->>Thanks for the quick reply.  Would it be possible for me to get this 
->>working with only one processor, then?  The nosmp option doesn't let it 
->>boot.
-> 
-> 
-> Firstly check if the BIOS has any kind of "OS" or "Intel MP" options. If
-> it has an OS option try setting it to something Unixlike. 
-> 
-> Next build a completely non SMP kernel and see if that boots. Let me
-> know what that one does because the SMP failure should not have been a
-> crash regardless of what it found
-> 
+> A good argument for an O_STREAM... various semantics we can modify for
+> it.
 
-I poked around in the bios for any APIC settings or OS settings, and 
-found none.  I also couldn't find any configuration utilities that would 
-let me change any of those settings.  While playing around in the 
-diagnostics that are included with the server, I did find that it failed 
-an MP test.  That would explain rather nicely why it isn't working. 
-I'll have to convince the boss to let me spend more money now, since 
-even if I can get it booting, I don't want to be running a server with 
-buggy hardware.  Unless you're interested in getting the kernel to boot 
-on this thing, I'm not going to pursue this any further.  Thanks for 
-your help.
+It can be fixed in kernel too, it's just that the effort would be poorly
+spent at this point.  This is in roughly the same category as process-level
+paging policy: yes, if it's implemented properly the VM appears to work
+better and users will post nice things on lkml about it, but it's a red
+herring.  Such adjustments are better left for later in the cycle, when
+the smoke has cleared from the basic merge, and benchmarks should focus
+narrowly on behaviour that is actually affected by the change in scanning
+strategy.
 
+-- 
+Daniel

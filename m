@@ -1,28 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270326AbRHMR0e>; Mon, 13 Aug 2001 13:26:34 -0400
+	id <S270321AbRHMRdz>; Mon, 13 Aug 2001 13:33:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270321AbRHMR0Y>; Mon, 13 Aug 2001 13:26:24 -0400
-Received: from alto.i-cable.com ([210.80.60.4]:46549 "EHLO alto.i-cable.com")
-	by vger.kernel.org with ESMTP id <S270331AbRHMR0H>;
-	Mon, 13 Aug 2001 13:26:07 -0400
-Date: Tue, 14 Aug 2001 01:26:22 +0800 (HKT)
-From: lkthomas@hkicable.com
-Message-Id: <200108131726.BAA22366@alto.i-cable.com>
-To: linux-kernel-owner@vger.kernel.org
-Cc: laughing@shared-source.org
-Subject: hacks kernel suggestion... ( hardware device )
-X-Mailer: Gmail 0.7.0 (http://gmail.linuxpower.org)
+	id <S270333AbRHMRdp>; Mon, 13 Aug 2001 13:33:45 -0400
+Received: from [209.202.108.240] ([209.202.108.240]:15631 "EHLO
+	terbidium.openservices.net") by vger.kernel.org with ESMTP
+	id <S270321AbRHMRdb>; Mon, 13 Aug 2001 13:33:31 -0400
+Date: Mon, 13 Aug 2001 13:33:31 -0400 (EDT)
+From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.8-ac2 USB keyboard capslock hang
+In-Reply-To: <20010813131143.G3126@sventech.com>
+Message-ID: <Pine.LNX.4.33.0108131333010.3127-100000@terbidium.openservices.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 13 Aug 2001, Johannes Erdfelt wrote:
 
-well, I do not know a lot in kernel ( only know compile process )
-but I saw a problem there now
-some hardware driver in kernel that are not stable ( Alan try to port emu10k1 driver into kernel, but got a bad result )
-so I would like to suggest that to add a part to ac kernel -- driver testing kernel
-and people can report bugs , complain, ..etc
-after test completed, we can ask linus to add to standard kernel
-I think it's better than before
-maybe it's named ac1-driver1 ?
-:-)
+> Rosswell?
+>
+> JE
+
+Red Hat 7.2 beta, IIRC.
+
+-- 
+Ignacio Vazquez-Abrams  <ignacio@openservices.net>
+

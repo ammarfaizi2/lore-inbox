@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265575AbRGOCHp>; Sat, 14 Jul 2001 22:07:45 -0400
+	id <S265714AbRGOCkZ>; Sat, 14 Jul 2001 22:40:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265647AbRGOCHf>; Sat, 14 Jul 2001 22:07:35 -0400
-Received: from 64.5.206.104 ([64.5.206.104]:7174 "EHLO
-	terbidium.openservices.net") by vger.kernel.org with ESMTP
-	id <S265575AbRGOCH2>; Sat, 14 Jul 2001 22:07:28 -0400
-Date: Sat, 14 Jul 2001 22:07:17 -0400 (EDT)
-From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
-To: <aset@bellatlantic.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux USB boot hang
-In-Reply-To: <3B509CA6.6E7EE91@bellatlantic.com>
-Message-ID: <Pine.LNX.4.33.0107142205040.3475-100000@terbidium.openservices.net>
+	id <S265754AbRGOCkQ>; Sat, 14 Jul 2001 22:40:16 -0400
+Received: from fe030.worldonline.dk ([212.54.64.197]:6924 "HELO
+	fe030.worldonline.dk") by vger.kernel.org with SMTP
+	id <S265714AbRGOCkD>; Sat, 14 Jul 2001 22:40:03 -0400
+Message-ID: <3B512034.7080903@eisenstein.dk>
+Date: Sun, 15 Jul 2001 06:46:44 +0200
+From: Jesper Juhl <juhl@eisenstein.dk>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.4-ac8 i586; en-US; m18) Gecko/20010131 Netscape6/6.01
+X-Accept-Language: en, da
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
+To: linux-kernel@vger.kernel.org
+Subject: FYI: asm/amigahw.h: No such file or directory (2.4.7-pre6)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 14 Jul 2001 aset@bellatlantic.com wrote:
+Hi,
 
-> Hello,
->
-> I compiled and installed Linux-2.4.5smp on a dual 300 MHz Pentium II
-> running Red Hat 7.0 with gcc 2.96. The motherboard has two sets of USB
-> headers but there are no USB ports. If I configure the kernel with USB
-> modules, at boot linux complains repeatedly:
->
->     hub.c: Cannot  enable port 1 of hub 1, disabling port.
->     hub.c: Maybe USB cable is bad?
->     hub.c: Cannot enable port 2 of hub 1, disabling port.
->     hub.c: Maybe USB cable is bad?
->
->  I don't know how to get out of this, so I just wait for it to time out
-> to finish booting. If I don't configure the kernel for a USB controller
-> then the during the boot process it complains that it can't find the
-> usb-uhci module and the boot process hangs at sendmail. Again I wait for
-> the time-out for the boot process to finish.  How do I fix this dilemma.
-> Is there some way I can modifiy hub.c to stop looking for ports 1 and 2?
->
-> Thanks, from a Linux newbie.
->
-> Don Werder
-> aset@bellatlantic.net
+I just build kernel 2.4.7-pre6 and noticed the following message about a 
+missing file:
 
-Add "append=nousb" to lilo.conf. RH looks for this and skips loading the USB
-module if it exists.
+make -C zorro fastdep
+make[4]: Entering directory `/usr/src/linux-2.4.7-pre6/drivers/zorro'
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.7-pre6/include -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
+-fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i586  -E 
+-D__GENKSYMS__ zorro.c
+| /sbin/genksyms  -k 2.4.7 > 
+/usr/src/linux-2.4.7-pre6/include/linux/modules/zorro.ver.tmp
+zorro.c:20: asm/amigahw.h: No such file or directory
 
-It's not hanging at sendmail; it just can't find the IP address for your
-machine.
+I have no idea what this is about, and the kernel build fine - I just 
+thought that perhaps someone more knowlegeable than me might want to 
+know about it.
 
--- 
-Ignacio Vazquez-Abrams  <ignacio@openservices.net>
+
+Best regards,
+Jesper Juhl - juhl@eisenstein.dk
 

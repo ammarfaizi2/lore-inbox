@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132547AbRDQMbF>; Tue, 17 Apr 2001 08:31:05 -0400
+	id <S132582AbRDQMdh>; Tue, 17 Apr 2001 08:33:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132526AbRDQMaz>; Tue, 17 Apr 2001 08:30:55 -0400
-Received: from lange.hostnamen.sind-doof.de ([212.15.192.219]:33540 "HELO
-	xena.sind-doof.de") by vger.kernel.org with SMTP id <S132547AbRDQMal>;
-	Tue, 17 Apr 2001 08:30:41 -0400
-Date: Tue, 17 Apr 2001 14:08:59 +0200
-From: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-To: Russell Coker <russell@coker.com.au>
-Cc: linux-kernel@vger.kernel.org, rgooch@atnf.csiro.au
-Subject: Re: Mylex DAC vs RAM disk in 2.4.2 devfs
-Message-ID: <20010417140859.E4385@kallisto.sind-doof.de>
-Mail-Followup-To: Russell Coker <russell@coker.com.au>,
-	linux-kernel@vger.kernel.org, rgooch@atnf.csiro.au
-In-Reply-To: <01041713220107.28478@lyta>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <01041713220107.28478@lyta>; from russell@coker.com.au on Tue, Apr 17, 2001 at 01:22:01PM +0200
-X-Operating-System: Debian GNU/Linux (Linux 2.4.3-ac5-int1-nf20010413-dc1 i686)
-X-Disclaimer: Are you really taking me serious?
+	id <S132578AbRDQMd1>; Tue, 17 Apr 2001 08:33:27 -0400
+Received: from jffdns01.or.intel.com ([134.134.248.3]:8683 "EHLO
+	ganymede.or.intel.com") by vger.kernel.org with ESMTP
+	id <S132526AbRDQMdT>; Tue, 17 Apr 2001 08:33:19 -0400
+Message-ID: <07E6E3B8C072D211AC4100A0C9C5758302B271DB@hasmsx52.iil.intel.com>
+From: "Hen, Shmulik" <shmulik.hen@intel.com>
+To: "'LNML'" <linux-net@vger.kernel.org>,
+        "'LKML'" <linux-kernel@vger.kernel.org>
+Subject: change_mtu boundary checking error
+Date: Tue, 17 Apr 2001 05:29:05 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello,
 
-On Tue, Apr 17, 2001 at 01:22:01PM +0200, Russell Coker wrote:
+Going through the change_mtu() code in the kernel, I came across the default
+function supplied when calling ether_setup().
+I could see that eth_change_mtu() (drivers/net/net_init.c) does the
+following:
 
-> Mylex controllers for a long time.  I am willing to submit patches to the 
-> kernel and to devfsd if this suggestion is accepted and someone can suggest a 
-> good directory name for ram-disks (I don't want to have the same problem 
-> again).
+	if( (new_mtu < 68) || (new_mtu > 1500) )
+		return -EINVAL;
 
-What about simply "ramdisk"? ;-)
+Looking in include/linux/if_ether.h I found the following constants:
+#define ETH_ALEN		6	/* Octets in one ethernet addr */
+#define ETH_HLAN		14	/* Total octets in header. */
+#define ETH_ZLEN		60	/* Min. octets in frame sans FCS */
+#define ETH_DATA_LEN		1500	/* Max. octets in payload */
+#define ETH_FRAME_LEN	1514	/* Max. octets in frame sans FCS */
 
-Andreas
--- 
-"How do you pronounce SunOS?"  "Just like you hear it, with a big SOS"
-	-- dedicated to Roland Kaltefleiter
+
+Now, the high boundary seemed reasonable (ETH_FRAME_LEN - ETH_HLEN =
+ETH_DATA_LEN) which gives 1500, but why is the low boundary set to 68 ?
+According to my calculations, it should have been ETH_ZLEN - ETH_HLEN which
+gives 46.
+
+Doesn't mtu means only the payload size ?
+Where did the 68 come from ?
+
+
+	Thanks,
+	Shmulik Hen
+	Software Engineer
+	Linux Advanced Networking Services
+	Network Communications Group, Israel (NCGj)
+
 

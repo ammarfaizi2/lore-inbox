@@ -1,64 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261428AbUCAUbI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 15:31:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbUCAUaL
+	id S261430AbUCAU1i (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 15:27:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261423AbUCAU0s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 15:30:11 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:27627 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261423AbUCAU2s (ORCPT
+	Mon, 1 Mar 2004 15:26:48 -0500
+Received: from fw.osdl.org ([65.172.181.6]:9409 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261430AbUCAUZI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 15:28:48 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 1 Mar 2004 15:25:08 -0500
+Date: Mon, 1 Mar 2004 12:24:28 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: "Igor Yu. Zhbanov" <bsg@uniyar.ac.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: __buggy_fxsr_alignment() not found.
+Message-Id: <20040301122428.7dc96b00.rddunlap@osdl.org>
+In-Reply-To: <Pine.GSO.3.96.SK.1040229200132.17294A-100000@univ.uniyar.ac.ru>
+References: <Pine.GSO.3.96.SK.1040229200132.17294A-100000@univ.uniyar.ac.ru>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16451.40189.997259.379123@neuro.alephnull.com>
-Date: Mon, 1 Mar 2004 15:28:45 -0500
-From: Rik Faith <faith@redhat.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: okir@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] Light-weight Auditing Framework
-In-Reply-To: [Christoph Hellwig <hch@infradead.org>] Mon  1 Mar 2004 19:45:01 +0000
-References: <16451.25789.72815.763592@neuro.alephnull.com>
-	<20040301194501.A9080@infradead.org>
-X-Key: 7EB57214; 958B 394D AD29 257E 553F  E7C7 9F67 4BE0 7EB5 7214
-X-Url: http://www.redhat.com/
-X-Mailer: VM 7.17; XEmacs 21.4; Linux 2.4.22-1.2163.nptl (neuro)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon  1 Mar 2004 19:45:01 +0000,
-   Christoph Hellwig <hch@infradead.org> wrote:
-> On Mon, Mar 01, 2004 at 11:28:45AM -0500, Rik Faith wrote:
-> > This note describes a patch against 2.6.4-rc1-bk2 that provides a
-> > low-overhead system-call auditing framework for Linux that is usable by
-> > LSM components (e.g., SELinux).  Comments will be appreciated.
-> 
-> I haven't actually looked at the code, but why don't you use Olaf Kirch's
-> auditing framework that's used in production and already has gotten the
-> wizzbang certification you seem to be aiming at.
+On Sun, 29 Feb 2004 20:02:12 +0300 (MSK) Igor Yu. Zhbanov wrote:
 
-Different goals.  My goals are to provide a generic very-low-overhead
-auditing framework that can be used as a service by more complex systems
-(e.g., SELinux).  In contrast to Olaf's work, for example, my patch does
-not have intimate knowledge of system call parameters and semantics.
-This decreases the invasiveness of the patch and the work required for
-long-term maintainability.
+| Hello!
+| My system is:
+| AMD K6-II 450
+| Linux-2.4.24
+| glibc-2.2.5
+| 
+| I cannot compile 2.4.24 kernel because linker says:
+| init/main.o: In function `check_fpu':
+| init/main.o(.text.init+0x53): undefined reference to `__buggy_fxsr_alignment'
+| 
+| It's prototype is in inculude/asm-i386/bugs.h:
+| -----
+| /* Enable FXSR and company _before_ testing for FP problems. */
+|         /*
+|          * Verify that the FXSAVE/FXRSTOR data will be 16-byte aligned.
+|          */
+|         if (offsetof(struct task_struct, thread.i387.fxsave) & 15) {
+|               extern void __buggy_fxsr_alignment(void);
+|               __buggy_fxsr_alignment();
+| -----
+| But there is no realisation of this function in source files.
+| When I comment the lines above, everything works.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This function is not supposed to be defined anywhere.
+It is there to indicate a build error and to keep the kernel
+build from completing successfully.
 
-The price for this simplicity is that the "language" for describing
-which system calls to audit is also very simple (and is, therefore, not
-independently sufficient for certifications).  However, I assume that a
-system undergoing certification will be using SELinux or another
-security infrastructure that will make auditing _and_ other decisions
--- adding sophistication to the auditing infrastructure only duplicates
-the work that the security module will provide.
+For some reason, with your config (and CPU arch.) and compiler,
+the 'fxsave' field is not on a 16-byte alignment.  Have you applied
+any patches to 2.4.24?  What version of gcc are you using (gcc -v)?
 
-> Whether we want syscall auditing in mainline is a completely different
-> question..
-
-I believe we need a light-weight, maintainable framework that is
-versatile enough to be used for non-security purposes (e.g., debugging).
-In general, my patch meets these requirements since it provides very
-little that helps specifically with security (failure modes, loginuid,
-and small helper functions).
-
+--
+~Randy

@@ -1,1616 +1,2274 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261541AbULFPsK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261543AbULFP4F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261541AbULFPsK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 10:48:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261543AbULFPsK
+	id S261543AbULFP4F (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 10:56:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbULFP4F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 10:48:10 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:41382 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261541AbULFPqQ (ORCPT
+	Mon, 6 Dec 2004 10:56:05 -0500
+Received: from ns1.coraid.com ([65.14.39.133]:46827 "EHLO coraid.com")
+	by vger.kernel.org with ESMTP id S261543AbULFPxB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 10:46:16 -0500
-Date: Mon, 6 Dec 2004 16:45:37 +0100
-From: Jens Axboe <axboe@suse.de>
-To: =?iso-8859-1?Q?S=F8ren?= Lott <soren3@gmail.com>
-Cc: "Prakash K. Cheemplavam" <prakashkc@gmx.de>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, helge.hafting@hist.no
-Subject: Re: [PATCH] Time sliced CFQ #3
-Message-ID: <20041206154537.GE10498@suse.de>
-References: <20041204104921.GC10449@suse.de> <41B426D4.6080506@gmx.de> <20041206093517.GJ10498@suse.de> <41B45134.4040005@gmx.de> <20041206132749.GX10498@suse.de> <aa3a70450412060601552decbd@mail.gmail.com> <20041206150140.GD10498@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20041206150140.GD10498@suse.de>
+	Mon, 6 Dec 2004 10:53:01 -0500
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] ATA over Ethernet driver for 2.6.9
+From: Ed L Cashin <ecashin@coraid.com>
+Date: Mon, 06 Dec 2004 10:51:46 -0500
+Message-ID: <87acsrqval.fsf@coraid.com>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 06 2004, Jens Axboe wrote:
-> On Mon, Dec 06 2004, Søren Lott wrote:
-> > On Mon, 6 Dec 2004 14:27:50 +0100, Jens Axboe <axboe@suse.de> wrote:
-> > > http://www.kernel.org/pub/linux/kernel/people/axboe/patches/v2.6/2.6.10-rc3/cfq-time-slices-6.gz
-> > > 
-> > 
-> > would be possible get a patch against -mm4 ?
-> 
-> Sure, in fact I will move development to -mm instead.
+--=-=-=
 
-Here is one. Changes:
+The included patch allows the Linux kernel to use the ATA over
+Ethernet (AoE) network protocol to communicate with any block device
+that handles the AoE protocol.  The Coraid EtherDrive (R) Storage
+Blade is the first hardware using AoE.
 
-- Port to 2.6.10-rc2-mm4
+AoE devices on the LAN are accessable as block devices and can be used
+with filesystems, Software RAID, LVM, etc.
 
-- Change the 'is task running or about to run' to a much better sched.c
-  helper from Ingo.
+Like IP, AoE is an ethernet-level network protocol, registered with
+the IEEE.  Unlike IP, AoE is not routable.
 
-- Kill PF_SYNCWRITE, rely on WRITE_SYNC instead.
+This patch is released under the terms of the GPL.
 
- drivers/block/as-iosched.c  |    3 
- drivers/block/cfq-iosched.c |  706 ++++++++++++++++++++++++++++----------------
- drivers/block/ll_rw_blk.c   |   20 -
- fs/buffer.c                 |    4 
- fs/fs-writeback.c           |    2 
- fs/mpage.c                  |   31 +
- include/linux/blkdev.h      |    5 
- include/linux/sched.h       |    4 
- kernel/sched.c              |   37 ++
- 9 files changed, 525 insertions(+), 287 deletions(-)
+(We also have an AoE driver for the 2.4 kernel that we plan to release
+soon.)
 
-diff -urP -X /home/axboe/cdrom/exclude /opt/kernel/linux-2.6.10-rc2-mm4/drivers/block/as-iosched.c linux-2.6.10-rc2-mm4/drivers/block/as-iosched.c
---- /opt/kernel/linux-2.6.10-rc2-mm4/drivers/block/as-iosched.c	2004-12-06 16:07:50.000000000 +0100
-+++ linux-2.6.10-rc2-mm4/drivers/block/as-iosched.c	2004-12-06 16:11:27.000000000 +0100
-@@ -1415,8 +1415,7 @@
- 	struct as_rq *alias;
- 	int data_dir;
- 
--	if (rq_data_dir(arq->request) == READ
--			|| current->flags&PF_SYNCWRITE)
-+	if (rq_data_dir(arq->request) == READ || blk_rq_sync(arq->request))
- 		arq->is_sync = 1;
- 	else
- 		arq->is_sync = 0;
-diff -urP -X /home/axboe/cdrom/exclude /opt/kernel/linux-2.6.10-rc2-mm4/drivers/block/cfq-iosched.c linux-2.6.10-rc2-mm4/drivers/block/cfq-iosched.c
---- /opt/kernel/linux-2.6.10-rc2-mm4/drivers/block/cfq-iosched.c	2004-12-06 16:07:50.000000000 +0100
-+++ linux-2.6.10-rc2-mm4/drivers/block/cfq-iosched.c	2004-12-06 16:36:46.854550611 +0100
-@@ -22,21 +22,24 @@
- #include <linux/rbtree.h>
- #include <linux/mempool.h>
- 
--static unsigned long max_elapsed_crq;
--static unsigned long max_elapsed_dispatch;
--
- /*
-  * tunables
-  */
- static int cfq_quantum = 4;		/* max queue in one round of service */
- static int cfq_queued = 8;		/* minimum rq allocate limit per-queue*/
--static int cfq_service = HZ;		/* period over which service is avg */
- static int cfq_fifo_expire_r = HZ / 2;	/* fifo timeout for sync requests */
- static int cfq_fifo_expire_w = 5 * HZ;	/* fifo timeout for async requests */
- static int cfq_fifo_rate = HZ / 8;	/* fifo expiry rate */
- static int cfq_back_max = 16 * 1024;	/* maximum backwards seek, in KiB */
- static int cfq_back_penalty = 2;	/* penalty of a backwards seek */
- 
-+static int cfq_slice_sync = HZ / 10;
-+static int cfq_slice_async = HZ / 25;
-+static int cfq_slice_async_rq = 128;
-+static int cfq_slice_idle = HZ / 249;
+
+Provide support for ATA over Ethernet devices
+
+Signed-off-by: Ed L. Cashin <ecashin@coraid.com>
+
+
+--=-=-=
+Content-Disposition: inline; filename=patch-aoe-2.6-2
+
+diff -urpN linux-2.6.9/Documentation/aoe.txt linux-2.6.9-aoe/Documentation/aoe.txt
+--- linux-2.6.9/Documentation/aoe.txt	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6.9-aoe/Documentation/aoe.txt	2004-12-06 10:40:00.000000000 -0500
+@@ -0,0 +1,58 @@
++The EtherDrive (R) HOWTO for users of 2.6 kernels is found at ...
 +
-+static int cfq_max_depth = 4;
++  http://www.coraid.com/support/linux/EtherDrive-2.6-HOWTO.html
 +
- /*
-  * for the hash of cfqq inside the cfqd
-  */
-@@ -55,6 +58,7 @@
- #define list_entry_hash(ptr)	hlist_entry((ptr), struct cfq_rq, hash)
- 
- #define list_entry_cfqq(ptr)	list_entry((ptr), struct cfq_queue, cfq_list)
-+#define list_entry_fifo(ptr)	list_entry((ptr), struct request, queuelist)
- 
- #define RQ_DATA(rq)		(rq)->elevator_private
- 
-@@ -76,22 +80,18 @@
- #define rq_rb_key(rq)		(rq)->sector
- 
- /*
-- * threshold for switching off non-tag accounting
-- */
--#define CFQ_MAX_TAG		(4)
--
--/*
-  * sort key types and names
-  */
- enum {
- 	CFQ_KEY_PGID,
- 	CFQ_KEY_TGID,
-+	CFQ_KEY_PID,
- 	CFQ_KEY_UID,
- 	CFQ_KEY_GID,
- 	CFQ_KEY_LAST,
- };
- 
--static char *cfq_key_types[] = { "pgid", "tgid", "uid", "gid", NULL };
-+static char *cfq_key_types[] = { "pgid", "tgid", "pid", "uid", "gid", NULL };
- 
- /*
-  * spare queue
-@@ -103,6 +103,8 @@
- static kmem_cache_t *cfq_ioc_pool;
- 
- struct cfq_data {
-+	atomic_t ref;
++  It has many tips and hints!
 +
- 	struct list_head rr_list;
- 	struct list_head empty_list;
++CREATING DEVICE NODES
++
++  Two scripts are in scripts/aoe for assisting in creating device
++  nodes for using the aoe driver.  Usage is as follows.
++
++    rm -rf /dev/etherd
++    sh scripts/mkdevs /dev/etherd
++
++  ... or to make just one shelf's worth of block device nodes ...
++
++    sh mkshelf /dev/etherd 0
++
++  There is also an autoload script that shows how to edit
++  /etc/modprobe.conf to ensure that the aoe module is loaded when
++  necessary.
++
++USING DEVICE NODES
++
++  "cat /dev/etherd/stat" shows the status of discovered AoE devices on
++  your LAN:
++
++	root@nai root# cat /dev/etherd/stat
++	/dev/etherd/e15.3       eth0    up
++	/dev/etherd/e6.2        eth3    up
++	/dev/etherd/e6.4        eth3    up
++	/dev/etherd/e6.3        eth3    up
++	/dev/etherd/e6.9        eth3    up
++	/dev/etherd/e6.5        eth3    up
++	/dev/etherd/e6.7        eth3    up
++	/dev/etherd/e6.6        eth3    up
++	/dev/etherd/e6.8        eth3    up
++	/dev/etherd/e6.0        eth3    up
++	/dev/etherd/e6.1        eth3    up
++
++  "cat /dev/etherd/err" blocks, waiting for error diagnostic output,
++  like any retransmitted packets.
++
++  "echo interfaces eth2 eth4 > /dev/etherd/ctl" tells the aoe driver
++  to limit ATA over Ethernet traffic to eth2 and eth4.  AoE traffic
++  from untrusted networks should be ignored as a matter of security.
++
++  "echo discover > /dev/etherd/ctl" tells the driver to find out what
++  AoE devices are available.
++
++  The block devices are named like this:
++
++	e{shelf}.{slot}
++	e{shelf}.{slot}p{part}
++
++  ... so that "e0.2" is the third blade from the left (slot 2) in the
++  first shelf (shelf address zero).  That's the whole disk.  The first
++  partition on that disk would be "e0.2p1".
+diff -urpN linux-2.6.9/MAINTAINERS linux-2.6.9-aoe/MAINTAINERS
+--- linux-2.6.9/MAINTAINERS	2004-11-30 08:22:27.000000000 -0500
++++ linux-2.6.9-aoe/MAINTAINERS	2004-12-06 10:40:00.000000000 -0500
+@@ -329,6 +329,12 @@ L:	linux-atm-general@lists.sourceforge.n
+ W:	http://linux-atm.sourceforge.net
+ S:	Maintained
  
-@@ -114,8 +116,6 @@
++ATA OVER ETHERNET DRIVER
++P:	Ed L. Cashin
++M:	ecashin@coraid.com
++W:	http://www.coraid.com/support/linux
++S:	Supported
++
+ ATMEL WIRELESS DRIVER
+ P:	Simon Kelley
+ M:	simon@thekelleys.org.uk
+diff -urpN linux-2.6.9/drivers/Makefile linux-2.6.9-aoe/drivers/Makefile
+--- linux-2.6.9/drivers/Makefile	2004-11-30 08:22:33.000000000 -0500
++++ linux-2.6.9-aoe/drivers/Makefile	2004-12-06 10:40:00.000000000 -0500
+@@ -41,6 +41,7 @@ obj-$(CONFIG_DIO)		+= dio/
+ obj-$(CONFIG_SBUS)		+= sbus/
+ obj-$(CONFIG_ZORRO)		+= zorro/
+ obj-$(CONFIG_MAC)		+= macintosh/
++obj-$(CONFIG_ATA_OVER_ETH)	+= block/aoe/
+ obj-$(CONFIG_PARIDE) 		+= block/paride/
+ obj-$(CONFIG_TC)		+= tc/
+ obj-$(CONFIG_USB)		+= usb/
+diff -urpN linux-2.6.9/drivers/block/Kconfig linux-2.6.9-aoe/drivers/block/Kconfig
+--- linux-2.6.9/drivers/block/Kconfig	2004-11-30 08:22:33.000000000 -0500
++++ linux-2.6.9-aoe/drivers/block/Kconfig	2004-12-06 10:40:00.000000000 -0500
+@@ -357,5 +357,6 @@ config LBD
+ 	  bigger than 2TB.  Otherwise say N.
  
- 	unsigned int max_queued;
+ source "drivers/s390/block/Kconfig"
++source "drivers/block/aoe/Kconfig"
  
--	atomic_t ref;
--
- 	int key_type;
- 
- 	mempool_t *crq_pool;
-@@ -127,6 +127,14 @@
- 	int rq_in_driver;
- 
- 	/*
-+	 * schedule slice state info
-+	 */
+ endmenu
+diff -urpN linux-2.6.9/drivers/block/aoe/Kconfig linux-2.6.9-aoe/drivers/block/aoe/Kconfig
+--- linux-2.6.9/drivers/block/aoe/Kconfig	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6.9-aoe/drivers/block/aoe/Kconfig	2004-12-06 10:40:00.000000000 -0500
+@@ -0,0 +1,10 @@
++#
++# ATA over Ethernet configuration
++#
++config ATA_OVER_ETH
++	tristate "ATA over Ethernet support"
++	depends on NET
++	default m
++	help
++	This driver provides Support for ATA over Ethernet block
++	devices like the Coraid EtherDrive (R) Storage Blade.
+diff -urpN linux-2.6.9/drivers/block/aoe/Makefile linux-2.6.9-aoe/drivers/block/aoe/Makefile
+--- linux-2.6.9/drivers/block/aoe/Makefile	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6.9-aoe/drivers/block/aoe/Makefile	2004-12-06 10:40:00.000000000 -0500
+@@ -0,0 +1,6 @@
++#
++# Makefile for ATA over Ethernet
++#
++
++obj-$(CONFIG_ATA_OVER_ETH)	+= aoe.o
++aoe-objs := aoeblk.o aoechr.o aoecmd.o aoedev.o aoemain.o aoenet.o aoeutils.o
+diff -urpN linux-2.6.9/drivers/block/aoe/all.h linux-2.6.9-aoe/drivers/block/aoe/all.h
+--- linux-2.6.9/drivers/block/aoe/all.h	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6.9-aoe/drivers/block/aoe/all.h	2004-12-06 10:40:00.000000000 -0500
+@@ -0,0 +1,156 @@
++#include <linux/ctype.h>
++#include <linux/string.h>
++#include <linux/hdreg.h>
++#include <linux/blkdev.h>
++#include <linux/types.h>
++#include <linux/fs.h>
++#include <linux/module.h>
++#include <linux/blkpg.h>
++#include <linux/slab.h>
++#include <linux/skbuff.h>
++#include <linux/ioctl.h>
++#include <linux/if.h>
++#include <linux/netdevice.h>
++#include <linux/kdev_t.h>
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/poll.h>
++#include <linux/timer.h>
++#include <linux/genhd.h>
++#include <asm/uaccess.h>
++#include <asm/namei.h>
++#include <asm/semaphore.h>
++#include "u.h"
++#include "if_aoe.h"
++
++#define VER 2
++#define nil NULL
++#define nelem(A) (sizeof (A) / sizeof (A)[0])
++#define AOE_MAJOR 152
++#define ROOT_PATH "/dev/etherd/"
++#define PATHLEN (strlen(ROOT_PATH) + 8)
++#define MAX_ARGS 16
++#define DEVICE_NAME "aoe"
++#define DEVICE_NO_RANDOM
++#define SYSMINOR(aoemajor, aoeminor) ((aoemajor) * 10 + (aoeminor))
++#define AOEMAJOR(sysminor) ((sysminor) / 10)
++#define AOEMINOR(sysminor) ((sysminor) % 10)
++
++enum {
++	DEVFL_UP = 1,		/* device is installed in system and ready for AoE->ATA commands */
++	DEVFL_TKILL = (1<<1),	/* flag for timer to know when to kill self */
++	DEVFL_EXT = (1<<2),	/* device accepts lba48 commands */
++	DEVFL_CLOSEWAIT = (1<<3),	/* device is waiting for all closes to revalidate */
++	DEVFL_WC_UPDATE = (1<<4),	/* this device needs to update write cache status */
++	DEVFL_WORKON = (1<<4),
++
++	BUFFL_FAIL = 1,
++
++	MAXATADATA = 1024,
++	NPERSHELF = 10,
++	FREETAG = -1,
++};
++
++typedef struct Buf Buf;
++struct Buf {
++	Buf *next;
++	ulong flags;
++	ulong nframesout;
++	char *bufaddr;
++	ulong resid;
++	ulong bv_resid;
++	sector_t sector;
++	struct bio *bio;
++	struct bio_vec *bv;
++};
++
++typedef struct Bufq Bufq;
++struct Bufq {
++	Buf *head, *tail;
++};
++
++typedef struct Frame Frame;
++struct Frame {
++	int tag;
++	ulong waited;
++	Buf *buf;
++	char *bufaddr;
++	int writedatalen;
++	int ndata;
++	char data[sizeof (Aoehdr) + sizeof (Aoeahdr)];	/* largest possible */
++};
++
++typedef struct Aoedev Aoedev;
++struct Aoedev {
++	Aoedev *next;
++	uchar addr[6];		/* remote mac addr */
++	ushort flags;
++	ulong sysminor;
++	ulong aoemajor;
++	ulong aoeminor;
++	ulong nopen;		/* user count */
++	ulong rttavg;		/* round trip average of requests/responses */
++	u16 fw_ver;		/* version of blade's firmware */
++	struct work_struct work;/* disk create work struct */
++	struct gendisk *gd;
++	request_queue_t blkq;
++	struct hd_geometry geo; 
++	sector_t ssize;
 +	struct timer_list timer;
-+	struct work_struct unplug_work;
-+	struct cfq_queue *active_queue;
-+	unsigned int dispatch_slice;
++	spinlock_t lock;
++	struct net_device *ifp;	/* interface ed is attached to */
++	struct sk_buff *skblist;/* packets needing to be sent */
++	Bufq bufq;		/* queue of bh work */
++	Buf *inprocess;		/* the one we're currently working on */
++	ulong lasttag;		/* last tag sent */
++	ulong nframes;		/* number of frames below */
++	Frame *frames;
++};
 +
-+	/*
- 	 * tunables, see top of file
- 	 */
- 	unsigned int cfq_quantum;
-@@ -137,8 +145,10 @@
- 	unsigned int cfq_back_penalty;
- 	unsigned int cfq_back_max;
- 	unsigned int find_best_crq;
--
--	unsigned int cfq_tagged;
-+	unsigned int cfq_slice[2];
-+	unsigned int cfq_slice_async_rq;
-+	unsigned int cfq_slice_idle;
-+	unsigned int cfq_max_depth;
- };
- 
- struct cfq_queue {
-@@ -150,8 +160,6 @@
- 	struct hlist_node cfq_hash;
- 	/* hash key */
- 	unsigned long key;
--	/* whether queue is on rr (or empty) list */
--	int on_rr;
- 	/* on either rr or empty list of cfqd */
- 	struct list_head cfq_list;
- 	/* sorted list of pending requests */
-@@ -169,15 +177,19 @@
- 
- 	int key_type;
- 
--	unsigned long service_start;
--	unsigned long service_used;
--
--	unsigned int max_rate;
-+	unsigned long slice_start;
-+	unsigned long slice_end;
-+	unsigned long service_last;
- 
- 	/* number of requests that have been handed to the driver */
- 	int in_flight;
--	/* number of currently allocated requests */
--	int alloc_limit[2];
++int aoeblk_init(void);
++void aoeblk_exit(void);
++int aoeblk_make_request(request_queue_t *, struct bio *);
++void aoeblk_gdalloc(void *);
 +
-+	/* whether queue is on rr (or empty) list */
-+	unsigned int on_rr : 1;
-+	/* idle slice, waiting for new request submission */
-+	unsigned int wait_request : 1;
-+	/* idle slice, request added, now waiting to dispatch it */
-+	unsigned int must_dispatch : 1;
- };
- 
- struct cfq_rq {
-@@ -195,7 +207,6 @@
- 	unsigned int in_flight : 1;
- 	unsigned int accounted : 1;
- 	unsigned int is_sync   : 1;
--	unsigned int is_write  : 1;
- };
- 
- static struct cfq_queue *cfq_find_cfq_hash(struct cfq_data *, unsigned long);
-@@ -219,6 +230,8 @@
- 		default:
- 		case CFQ_KEY_TGID:
- 			return tsk->tgid;
-+		case CFQ_KEY_PID:
-+			return tsk->pid;
- 		case CFQ_KEY_UID:
- 			return tsk->uid;
- 		case CFQ_KEY_GID:
-@@ -406,67 +419,22 @@
- 		cfqq->next_crq = cfq_find_next_crq(cfqq->cfqd, cfqq, crq);
- }
- 
--static int cfq_check_sort_rr_list(struct cfq_queue *cfqq)
--{
--	struct list_head *head = &cfqq->cfqd->rr_list;
--	struct list_head *next, *prev;
--
--	/*
--	 * list might still be ordered
--	 */
--	next = cfqq->cfq_list.next;
--	if (next != head) {
--		struct cfq_queue *cnext = list_entry_cfqq(next);
--
--		if (cfqq->service_used > cnext->service_used)
--			return 1;
--	}
--
--	prev = cfqq->cfq_list.prev;
--	if (prev != head) {
--		struct cfq_queue *cprev = list_entry_cfqq(prev);
--
--		if (cfqq->service_used < cprev->service_used)
--			return 1;
--	}
--
--	return 0;
--}
--
--static void cfq_sort_rr_list(struct cfq_queue *cfqq, int new_queue)
-+static void cfq_resort_rr_list(struct cfq_queue *cfqq)
- {
- 	struct list_head *entry = &cfqq->cfqd->rr_list;
- 
--	if (!cfqq->on_rr)
--		return;
--	if (!new_queue && !cfq_check_sort_rr_list(cfqq))
--		return;
--
- 	list_del(&cfqq->cfq_list);
- 
- 	/*
--	 * sort by our mean service_used, sub-sort by in-flight requests
-+	 * sort by when queue was last serviced
- 	 */
- 	while ((entry = entry->prev) != &cfqq->cfqd->rr_list) {
- 		struct cfq_queue *__cfqq = list_entry_cfqq(entry);
- 
--		if (cfqq->service_used > __cfqq->service_used)
-+		if (!__cfqq->service_last)
-+			break;
-+		if (time_before(__cfqq->service_last, cfqq->service_last))
- 			break;
--		else if (cfqq->service_used == __cfqq->service_used) {
--			struct list_head *prv;
--
--			while ((prv = entry->prev) != &cfqq->cfqd->rr_list) {
--				__cfqq = list_entry_cfqq(prv);
--
--				WARN_ON(__cfqq->service_used > cfqq->service_used);
--				if (cfqq->service_used != __cfqq->service_used)
--					break;
--				if (cfqq->in_flight > __cfqq->in_flight)
--					break;
--
--				entry = prv;
--			}
--		}
- 	}
- 
- 	list_add(&cfqq->cfq_list, entry);
-@@ -479,16 +447,12 @@
- static inline void
- cfq_add_cfqq_rr(struct cfq_data *cfqd, struct cfq_queue *cfqq)
- {
--	/*
--	 * it's currently on the empty list
--	 */
--	cfqq->on_rr = 1;
--	cfqd->busy_queues++;
-+	BUG_ON(cfqq->on_rr);
- 
--	if (time_after(jiffies, cfqq->service_start + cfq_service))
--		cfqq->service_used >>= 3;
-+	cfqd->busy_queues++;
-+	cfqq->on_rr = 1;
- 
--	cfq_sort_rr_list(cfqq, 1);
-+	cfq_resort_rr_list(cfqq);
- }
- 
- static inline void
-@@ -512,10 +476,10 @@
- 		struct cfq_data *cfqd = cfqq->cfqd;
- 
- 		BUG_ON(!cfqq->queued[crq->is_sync]);
-+		cfqq->queued[crq->is_sync]--;
- 
- 		cfq_update_next_crq(crq);
- 
--		cfqq->queued[crq->is_sync]--;
- 		rb_erase(&crq->rb_node, &cfqq->sort_list);
- 		RB_CLEAR_COLOR(&crq->rb_node);
- 
-@@ -619,17 +583,13 @@
- {
- 	struct cfq_rq *crq = RQ_DATA(rq);
- 
--	if (crq) {
-+	if (crq && crq->accounted) {
- 		struct cfq_queue *cfqq = crq->cfq_queue;
- 
--		if (cfqq->cfqd->cfq_tagged) {
--			cfqq->service_used--;
--			cfq_sort_rr_list(cfqq, 0);
--		}
--
- 		crq->accounted = 0;
- 		cfqq->cfqd->rq_in_driver--;
- 	}
++int aoechr_init(void);
++void aoechr_exit(void);
++void aoechr_error(char *);
++void aoechr_hdump(char *, int len);
 +
- 	list_add(&rq->queuelist, &q->queue_head);
- }
- 
-@@ -640,9 +600,7 @@
- 	if (crq) {
- 		cfq_remove_merge_hints(q, crq);
- 		list_del_init(&rq->queuelist);
--
--		if (crq->cfq_queue)
--			cfq_del_crq_rb(crq);
-+		cfq_del_crq_rb(crq);
- 	}
- }
- 
-@@ -723,6 +681,121 @@
- 	cfq_remove_request(q, next);
- }
- 
-+static inline void cfq_set_active_queue(struct cfq_data *cfqd)
-+{
-+	struct cfq_queue *cfqq = NULL;
++void aoecmd_work(Aoedev *d);
++void aoecmd_cfg(ushort, uchar);
++void aoecmd_ata_rsp(struct sk_buff *);
++void aoecmd_cfg_rsp(struct sk_buff *);
 +
-+	if (!list_empty(&cfqd->rr_list)) {
-+		cfqq = list_entry_cfqq(cfqd->rr_list.next);
++int aoedev_init(void);
++void aoedev_exit(void);
++int aoedev_stat(char *, int, loff_t);
++Aoedev *aoedev_bymac(uchar *);
++Aoedev *aoedev_byminor(ulong);
++void aoedev_downdev(Aoedev *d);
++Aoedev *aoedev_set(ulong, uchar *, struct net_device *, ulong);
++int aoedev_busy(void);
++void aoedev_freedev(Aoedev *);
 +
-+		cfqq->slice_start = jiffies;
-+		cfqq->slice_end = 0;
-+		cfqq->wait_request = 0;
-+	}
++int aoenet_init(void);
++void aoenet_exit(void);
++void aoenet_xmit(struct sk_buff *);
++int is_aoe_netif(struct net_device *ifp);
++int set_aoe_iflist(int argc, char **argv);
 +
-+	cfqd->active_queue = cfqq;
-+}
++void bufq_enqueue(Bufq *, Buf *);
++Buf *bufq_dequeue(Bufq *);
++struct sk_buff *new_skb(struct net_device *, ulong);
++u64 mac_addr(char addr[6]);
++void *kallocz(ulong, ulong);
++u16 nhget16(uchar *);
++u32 nhget32(uchar *);
++void hnput16(uchar *, u16);
++void hnput32(uchar *, u32);
++u16 lhget16(uchar *);
++u32 lhget32(uchar *);
++u64 lhget64(uchar *);
 +
++enum { FQUOTE = (1<<0), FEMPTY = (1<<1) };
++int getfields(char *, char **, int, char *, int);
++#define tokenize(A, B, C) getfields(A, B, C, " \t\r\n", FQUOTE)
+diff -urpN linux-2.6.9/drivers/block/aoe/aoeblk.c linux-2.6.9-aoe/drivers/block/aoe/aoeblk.c
+--- linux-2.6.9/drivers/block/aoe/aoeblk.c	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6.9-aoe/drivers/block/aoe/aoeblk.c	2004-12-06 10:40:00.000000000 -0500
+@@ -0,0 +1,194 @@
 +/*
-+ * current cfqq expired its slice (or was too idle), select new one
++ * aoeblk.c
++ * block device routines
 + */
-+static inline void cfq_slice_expired(struct cfq_data *cfqd)
-+{
-+	struct cfq_queue *cfqq = cfqd->active_queue;
 +
-+	if (cfqq) {
-+		if (cfqq->wait_request)
-+			del_timer(&cfqd->timer);
++#include "all.h"
 +
-+		cfqq->service_last = jiffies;
-+		cfqq->must_dispatch = 0;
-+		cfqq->wait_request = 0;
-+
-+		if (cfqq->on_rr)
-+			cfq_resort_rr_list(cfqq);
-+
-+		cfqd->active_queue = NULL;
-+	}
-+
-+	cfqd->dispatch_slice = 0;
-+}
-+
-+static int cfq_arm_slice_timer(struct cfq_data *cfqd, struct cfq_queue *cfqq,
-+			       struct cfq_io_context *cic)
-+{
-+	WARN_ON(!RB_EMPTY(&cfqq->sort_list));
-+
-+	cfqq->wait_request = 1;
-+
-+	if (!cfqd->cfq_slice_idle)
-+		return 0;
-+
-+	/*
-+	 * don't arm a slice timer if we don't expect the task to run
-+	 * after the slice has ended
-+	 */
-+	if (cic) {
-+		unsigned long sched_time;
-+
-+		if (!cic->ioc->task)
-+			return 0;
-+
-+		sched_time = task_will_schedule_at(cic->ioc->task);
-+		if (sched_time && time_after(sched_time, cfqq->slice_end))
-+			return 0;
-+	}
-+
-+	if (!timer_pending(&cfqd->timer)) {
-+		unsigned long now = jiffies, slice_left;
-+
-+		slice_left = cfqq->slice_end - now - 1;
-+		cfqd->timer.expires = now + min(cfqd->cfq_slice_idle, (unsigned int)slice_left);
-+		add_timer(&cfqd->timer);
-+	}
-+
-+	return 1;
-+}
-+
-+/*
-+ * get next queue for service
-+ */
-+static struct cfq_queue *cfq_select_queue(struct cfq_data *cfqd)
-+{
-+	struct cfq_queue *cfqq = cfqd->active_queue;
-+	unsigned long now = jiffies;
-+
-+	cfqq = cfqd->active_queue;
-+	if (!cfqq)
-+		goto new_queue;
-+
-+	if (cfqq->must_dispatch)
-+		goto must_queue;
-+
-+	/*
-+	 * slice has expired
-+	 */
-+	if (time_after(jiffies, cfqq->slice_end))
-+		goto new_queue;
-+
-+	/*
-+	 * if queue has requests, dispatch one. if not, check if
-+	 * enough slice is left to wait for one
-+	 */
-+must_queue:
-+	if (!RB_EMPTY(&cfqq->sort_list))
-+		goto keep_queue;
-+	else if (time_before(now, cfqq->slice_end)) {
-+		if (cfq_arm_slice_timer(cfqd, cfqq, NULL))
-+			return NULL;
-+	}
-+
-+new_queue:
-+	cfq_slice_expired(cfqd);
-+	cfq_set_active_queue(cfqd);
-+keep_queue:
-+	return cfqd->active_queue;
-+}
-+
- /*
-  * we dispatch cfqd->cfq_quantum requests in total from the rr_list queues,
-  * this function sector sorts the selected request to minimize seeks. we start
-@@ -741,9 +814,7 @@
- 	list_del(&crq->request->queuelist);
- 
- 	last = cfqd->last_sector;
--	while ((entry = entry->prev) != head) {
--		__rq = list_entry_rq(entry);
--
-+	list_for_each_entry_reverse(__rq, head, queuelist) {
- 		if (blk_barrier_rq(crq->request))
- 			break;
- 		if (!blk_fs_request(crq->request))
-@@ -777,95 +848,104 @@
- 	if (time_before(now, cfqq->last_fifo_expire + cfqd->cfq_fifo_batch_expire))
- 		return NULL;
- 
--	crq = RQ_DATA(list_entry(cfqq->fifo[0].next, struct request, queuelist));
--	if (reads && time_after(now, crq->queue_start + cfqd->cfq_fifo_expire_r)) {
--		cfqq->last_fifo_expire = now;
--		return crq;
-+	if (reads) {
-+		crq = RQ_DATA(list_entry_fifo(cfqq->fifo[READ].next));
-+		if (time_after(now, crq->queue_start + cfqd->cfq_fifo_expire_r)) {
-+			cfqq->last_fifo_expire = now;
-+			return crq;
-+		}
- 	}
- 
--	crq = RQ_DATA(list_entry(cfqq->fifo[1].next, struct request, queuelist));
--	if (writes && time_after(now, crq->queue_start + cfqd->cfq_fifo_expire_w)) {
--		cfqq->last_fifo_expire = now;
--		return crq;
-+	if (writes) {
-+		crq = RQ_DATA(list_entry_fifo(cfqq->fifo[WRITE].next));
-+		if (time_after(now, crq->queue_start + cfqd->cfq_fifo_expire_w)) {
-+			cfqq->last_fifo_expire = now;
-+			return crq;
-+		}
- 	}
- 
- 	return NULL;
- }
- 
--/*
-- * dispatch a single request from given queue
-- */
--static inline void
--cfq_dispatch_request(request_queue_t *q, struct cfq_data *cfqd,
--		     struct cfq_queue *cfqq)
 +static int
-+__cfq_dispatch_requests(struct cfq_data *cfqd, struct cfq_queue *cfqq,
-+			int max_dispatch)
- {
--	struct cfq_rq *crq;
-+	int dispatched = 0, sync = 0;
++aoeblk_open(struct inode *inode, struct file *filp)
++{
++	Aoedev *d;
++	ulong flags;
 +
-+	BUG_ON(RB_EMPTY(&cfqq->sort_list));
++	d = (Aoedev *) inode->i_bdev->bd_disk->private_data;
++	spin_lock_irqsave(&d->lock, flags);
++	if (d->flags & DEVFL_UP) {
++		d->nopen++;
++		spin_unlock_irqrestore(&d->lock, flags);
++		return 0;
++	}
++	spin_unlock_irqrestore(&d->lock, flags);
++	return -ENODEV;
++}
 +
-+	do {
-+		struct cfq_rq *crq;
++static int
++aoeblk_release(struct inode *inode, struct file *filp)
++{
++	Aoedev *d;
++	ulong flags;
 +
-+		/*
-+		 * follow expired path, else get first next available
-+		 */
-+		if ((crq = cfq_check_fifo(cfqq)) == NULL) {
-+			if (cfqd->find_best_crq)
-+				crq = cfqq->next_crq;
-+			else
-+				crq = rb_entry_crq(rb_first(&cfqq->sort_list));
++	d = (Aoedev *) inode->i_bdev->bd_disk->private_data;
++
++	spin_lock_irqsave(&d->lock, flags);
++	if (--d->nopen == 0)
++	if ((d->flags & DEVFL_CLOSEWAIT)) {
++		d->flags &= ~DEVFL_CLOSEWAIT;
++		spin_unlock_irqrestore(&d->lock, flags);
++		aoecmd_cfg(d->aoemajor, d->aoeminor);
++		return 0;
++	}
++	spin_unlock_irqrestore(&d->lock, flags);
++
++	return 0;
++}
++
++int
++aoeblk_make_request(request_queue_t *q, struct bio *bio)
++{
++	Aoedev *d;
++	Buf *buf;
++	struct sk_buff *sl;
++	ulong flags;
++
++	blk_queue_bounce(q, &bio);
++
++	buf = kallocz(sizeof *buf, GFP_KERNEL);
++	if (buf == nil) {
++		printk(KERN_INFO "aoe: aoeblk_make_request: buf allocation "
++			"failure\n");
++		bio_endio(bio, bio->bi_size, -ENOMEM);
++		return 0;
++	}
++	buf->bio = bio;
++	buf->resid = bio->bi_size;
++	buf->sector = bio->bi_sector;
++	buf->bv = buf->bio->bi_io_vec;
++	buf->bv_resid = buf->bv->bv_len;
++	buf->bufaddr = page_address(buf->bv->bv_page) + buf->bv->bv_offset;
++
++	d = (Aoedev *) bio->bi_bdev->bd_disk->private_data;
++
++	spin_lock_irqsave(&d->lock, flags);
++
++	if ((d->flags & DEVFL_UP) == 0) {
++		printk(KERN_INFO "aoe: aoeblk_make_request: device %ld.%ld is not up\n",
++			d->aoemajor, d->aoeminor);
++		spin_unlock_irqrestore(&d->lock, flags);
++		kfree(buf);
++		bio_endio(bio, bio->bi_size, -ENXIO);
++		return 0;
++	}
++
++	bufq_enqueue(&d->bufq, buf);
++	aoecmd_work(d);
++
++	sl = d->skblist;
++	d->skblist = nil;
++
++	spin_unlock_irqrestore(&d->lock, flags);
++
++	aoenet_xmit(sl);
++	return 0;
++}
++
++static int
++aoeblk_ioctl(struct inode *inode, struct file *filp, uint cmd, ulong arg)
++{
++	Aoedev *d;
++
++	if (!arg)
++		return -EINVAL;
++
++	d = (Aoedev *) inode->i_bdev->bd_disk->private_data;
++	if ((d->flags & DEVFL_UP) == 0) {
++		printk(KERN_ERR "aoe: aoeblk_ioctl: disk not up\n");
++		return -ENODEV;
++	}
++
++	if (cmd == HDIO_GETGEO) {
++		d->geo.start = get_start_sect(inode->i_bdev);
++		if (!copy_to_user((void *) arg, &d->geo, sizeof d->geo))
++			return 0;
++		return -EFAULT;
++	}
++	printk(KERN_INFO "aoe: aoeblk_ioctl: unknown ioctl %d\n", cmd);
++
++	/* We should return -ENOTTY for unrecognized ioctls later
++	 * when everyone's running kernels that support it.  See,
++                * e.g., BLKFLSBUF in ioctl.c:blkdev_ioctl.
++                */
++	return -EINVAL;
++
++}
++
++static struct block_device_operations aoe_bdops = {
++	open:			aoeblk_open,
++	release:		aoeblk_release,
++	ioctl:			aoeblk_ioctl,
++	owner:			THIS_MODULE,
++};
++
++/* alloc_disk and add_disk can sleep */
++void
++aoeblk_gdalloc(void *vp)
++{
++	Aoedev *d = vp;
++	struct gendisk *gd;
++	ulong flags;
++	enum { NPARTITIONS = 16 };
++
++	gd = alloc_disk(NPARTITIONS);
++
++	spin_lock_irqsave(&d->lock, flags);
++
++	if (gd == nil) {
++		printk(KERN_CRIT "aoe: aoeblk_gdalloc: cannot allocate disk "
++			"structure for %ld.%ld\n", d->aoemajor, d->aoeminor);
++		d->flags &= ~DEVFL_WORKON;
++		spin_unlock_irqrestore(&d->lock, flags);
++		return;
++	}
++
++	blk_queue_make_request(&d->blkq, aoeblk_make_request);
++	gd->major = AOE_MAJOR;
++	gd->first_minor = d->sysminor * NPARTITIONS;
++	gd->fops = &aoe_bdops;
++	gd->private_data = d;
++	gd->capacity = d->ssize;
++	snprintf(gd->disk_name, sizeof gd->disk_name, "etherd/e%ld.%ld",
++		d->aoemajor, d->aoeminor);
++
++	gd->queue = &d->blkq;
++	d->gd = gd;
++	d->flags &= ~DEVFL_WORKON;
++	d->flags |= DEVFL_UP;
++
++	spin_unlock_irqrestore(&d->lock, flags);
++
++	add_disk(gd);
++
++	printk(KERN_INFO "aoe: %012llx e%lu.%lu v%04x has %llu "
++		"sectors\n", mac_addr(d->addr), d->aoemajor, d->aoeminor,
++		d->fw_ver, d->ssize);
++}
++
++void
++aoeblk_exit(void)
++{
++	unregister_blkdev(AOE_MAJOR, DEVICE_NAME);
++}
++
++int
++aoeblk_init(void)
++{
++	int n;
++
++	n = register_blkdev(AOE_MAJOR, DEVICE_NAME);
++	if (n < 0) {
++		printk(KERN_ERR "aoe: aoeblk_init: can't register major\n");
++		return n;
++	}
++	return 0;
++}
++
+diff -urpN linux-2.6.9/drivers/block/aoe/aoechr.c linux-2.6.9-aoe/drivers/block/aoe/aoechr.c
+--- linux-2.6.9/drivers/block/aoe/aoechr.c	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6.9-aoe/drivers/block/aoe/aoechr.c	2004-12-06 10:40:00.000000000 -0500
+@@ -0,0 +1,293 @@
++/*
++ * aoechr.c
++ * AoE character device driver for {ctl,raw,err} files
++ */
++
++#include "all.h"
++
++enum {
++	MINOR_CTL,
++	MINOR_STAT,
++	MINOR_ERR,
++	MSGSZ = 2048,
++	NARGS = 10,
++	NMSG = 100,		/* message backlog to retain */
++};
++
++typedef struct {
++	char *name;
++	int (*f)(int, char **);
++} Cmd;
++
++enum { EMFL_VALID = 1 };
++
++typedef struct ErrMsg ErrMsg;
++struct ErrMsg {
++	short flags;
++	short len;
++	char *msg;
++};
++
++static ErrMsg emsgs[NMSG];
++static int emsgs_head_idx, emsgs_tail_idx;
++static struct semaphore emsgs_sema;
++static spinlock_t emsgs_lock;
++static int nblocked_emsgs_readers;
++
++static int
++discover_cmd(int n, char **p)
++{
++	aoecmd_cfg(0xffff, 0xff);
++	return 0;
++}
++
++static int
++interfaces_cmd(int argc, char **argv)
++{
++	if (set_aoe_iflist(argc, argv)) {
++		printk(KERN_CRIT
++		       "%s: could not set inteface list: %s\n",
++		       __FUNCTION__, "too many interfaces");
++		return -1;
++	}
++	return 0;
++}
++
++static int
++cmd_handler(int argc, char *argv[])
++{
++	Cmd *cmdp;
++	static Cmd aoe_cmds[] = {
++		{ "discover", discover_cmd },
++		{ "interfaces", interfaces_cmd },
++		{ nil, nil }
++	};
++
++	for (cmdp = aoe_cmds; cmdp->name; cmdp++)
++		if (!strcmp(cmdp->name, *argv))
++			return cmdp->f(argc, argv);
++	return 0;
++}
++
++void
++aoechr_error(char *msg)
++{
++	ErrMsg *em;
++	char *mp;
++	ulong flags, n;
++
++	n = strlen(msg);
++
++	spin_lock_irqsave(&emsgs_lock, flags);
++
++	em = emsgs + emsgs_tail_idx;
++	if ((em->flags & EMFL_VALID)) {
++bail:		spin_unlock_irqrestore(&emsgs_lock, flags);
++		return;
++	}
++
++	mp = kmalloc(n, GFP_ATOMIC);
++	if (mp == nil) {
++		printk(KERN_CRIT "aoe: aoechr_error: allocation failure, len=%ld\n", n);
++		goto bail;
++	}
++
++	memcpy(mp, msg, n);
++	em->msg = mp;
++	em->flags |= EMFL_VALID;
++	em->len = n;
++
++	emsgs_tail_idx++;
++	emsgs_tail_idx %= nelem(emsgs);
++
++	spin_unlock_irqrestore(&emsgs_lock, flags);
++
++	if (nblocked_emsgs_readers)
++		up(&emsgs_sema);
++}
++
++#define PERLINE 16
++void
++aoechr_hdump(char *buf, int n)
++{
++	int bufsiz;
++	char *fbuf;
++	int linelen;
++	char *p, *e, *fp;
++
++	bufsiz = n * 3;			/* 2 hex digits and a space */
++	bufsiz += n / PERLINE + 1;	/* the newline characters */
++	bufsiz += 1;			/* the final '\0' */
++
++	fbuf = kmalloc(bufsiz, GFP_ATOMIC);
++	if (!fbuf) {
++		printk(KERN_INFO
++		       "%s: cannot allocate memory\n",
++		       __FUNCTION__);
++		return;
++	}
++	
++	for (p = buf; n <= 0;) {
++		linelen = n > PERLINE ? PERLINE : n;
++		n -= linelen;
++
++		fp = fbuf;
++		for (e=p+linelen; p<e; p++)
++			fp += sprintf(fp, "%2.2X ", *p & 255);
++		sprintf(fp, "\n");
++		aoechr_error(fbuf);
++	}
++
++	kfree(fbuf);
++}
++
++ssize_t
++aoechr_write(struct file *filp, const char *buf, size_t cnt, loff_t *offp)
++{
++	char *argv[NARGS];
++	char *str = kallocz(cnt+1, GFP_KERNEL);
++	int argc;
++	int ret = -1;
++
++	if (!str) {
++		printk(KERN_CRIT "aoe: aoechr_write: cannot allocate memory\n");
++		return ret;
++	}
++
++	if (copy_from_user(str, buf, cnt)) {
++		printk(KERN_INFO "aoe: aoechr_write: copy from user failed\n");
++		goto out;
++	}
++
++	switch ((unsigned long) filp->private_data) {
++	default:
++		printk(KERN_INFO "aoe: aoechr_write: can't write to that file.\n");
++		break;
++	case MINOR_CTL:
++		str[cnt] = '\0';
++		argc = tokenize(str, argv, NARGS);
++		if (!argc) 
++			printk(KERN_INFO "aoe: aoechr_write: parse error\n");
++		else if (cmd_handler(argc, argv))
++			ret = cnt;
++	}
++ out:
++	kfree(str);
++	return ret;
++}
++
++int
++aoechr_open(struct inode *inode, struct file *filp)
++{
++	int n;
++
++	n = MINOR(inode->i_rdev);
++	filp->private_data = (void *) (unsigned long) n;
++
++	switch (n) {
++	case MINOR_CTL:
++	case MINOR_ERR:
++	case MINOR_STAT:
++		return 0;
++	}
++	return -1;
++}
++
++int
++aoechr_rel(struct inode *inode, struct file *filp)
++{
++	return 0;
++}
++
++ssize_t
++aoechr_read(struct file *filp, char *buf, size_t cnt, loff_t *off)
++{
++	int n;
++	char *mp;
++	ErrMsg *em;
++	ssize_t len;
++	ulong flags;
++
++	n = (int) filp->private_data;
++	switch (n) {
++	case MINOR_ERR:
++		spin_lock_irqsave(&emsgs_lock, flags);
++loop:
++		em = emsgs + emsgs_head_idx;
++		if ((em->flags & EMFL_VALID) == 0) {
++			if (filp->f_flags & O_NDELAY) {
++				spin_unlock_irqrestore(&emsgs_lock, flags);
++				return -EAGAIN;
++			}
++			nblocked_emsgs_readers++;
++
++			spin_unlock_irqrestore(&emsgs_lock, flags);
++
++			n = down_interruptible(&emsgs_sema);
++
++			spin_lock_irqsave(&emsgs_lock, flags);
++
++			nblocked_emsgs_readers--;
++
++			if (n) {
++				spin_unlock_irqrestore(&emsgs_lock, flags);
++				return -ERESTARTSYS;
++			}
++			goto loop;
 +		}
++		if (em->len > cnt) {
++			spin_unlock_irqrestore(&emsgs_lock, flags);
++			return -EAGAIN;
++		}
++		mp = em->msg;
++		len = em->len;
++		em->msg = nil;
++		em->flags &= ~EMFL_VALID;
 +
-+		cfqd->last_sector = crq->request->sector + crq->request->nr_sectors;
++		emsgs_head_idx++;
++		emsgs_head_idx %= nelem(emsgs);
 +
-+		/*
-+		 * finally, insert request into driver list
-+		 */
-+		cfq_dispatch_sort(cfqd->queue, crq);
++		spin_unlock_irqrestore(&emsgs_lock, flags);
 +
-+		cfqd->dispatch_slice++;
-+		dispatched++;
-+		sync += crq->is_sync;
++		n = copy_to_user(buf, mp, len);
++		kfree(mp);
++		return n == 0 ? len : -EFAULT;
++	case MINOR_STAT:
++		n = aoedev_stat(buf, cnt, *off);
++		if (n > 0)
++			*off += n;
++		return n;
++	default:
++		return -EFAULT;
++	}
++}
 +
-+		if (RB_EMPTY(&cfqq->sort_list))
++struct file_operations aoe_fops = {
++	write:		aoechr_write,
++	read: 		aoechr_read,
++	open:		aoechr_open,
++	release:  	aoechr_rel,
++	owner:		THIS_MODULE,
++};
++
++int
++aoechr_init(void)
++{
++	int n;
++
++	n = register_chrdev(AOE_MAJOR, "aoechr", &aoe_fops);
++	if (n < 0) { 
++		printk(KERN_ERR "aoe: aoechr_init: can't register char device\n");
++		return n;
++	}
++	sema_init(&emsgs_sema, 0);
++	spin_lock_init(&emsgs_lock);
++	return 0;
++}
++
++void
++aoechr_exit(void)
++{
++	unregister_chrdev(AOE_MAJOR, "aoechr");
++}
++
+diff -urpN linux-2.6.9/drivers/block/aoe/aoecmd.c linux-2.6.9-aoe/drivers/block/aoe/aoecmd.c
+--- linux-2.6.9/drivers/block/aoe/aoecmd.c	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6.9-aoe/drivers/block/aoe/aoecmd.c	2004-12-06 10:40:00.000000000 -0500
+@@ -0,0 +1,583 @@
++/*
++ * aoecmd.c
++ * Filesystem request handling methods
++ */
++
++#include "all.h"
++
++#define TIMERTICK (HZ / 10)
++#define MINTIMER (2 * TIMERTICK)
++#define MAXTIMER (HZ << 1)
++#define MAXWAIT (60 * 3)	/* After MAXWAIT seconds, give up and fail dev */
++
++static struct sk_buff *
++skb_prepare(Aoedev *d, Frame *f)
++{
++	struct sk_buff *skb;
++	char *p;
++
++	skb = new_skb(d->ifp, f->ndata + f->writedatalen);
++	if (!skb) {
++		printk(KERN_INFO "aoe: skb_prepare: failure to allocate skb\n");
++		return nil;
++	}
++
++	p = skb->mac.raw;
++	memcpy(p, f->data, f->ndata);
++
++	if (f->writedatalen) {
++		p += sizeof(Aoehdr) + sizeof(Aoeahdr);
++		memcpy(p, f->bufaddr, f->writedatalen);
++	}
++
++	return skb;
++}
++
++static Frame *
++getframe(Aoedev *d, int tag)
++{
++	Frame *f, *e;
++
++	f = d->frames;
++	e = f + d->nframes;
++	for (; f<e; f++)
++		if (f->tag == tag)
++			return f;
++	return nil;
++}
++
++/*
++ * Leave the top bit clear so we have tagspace for userland.
++ * The bottom 16 bits are the xmit tick for rexmit/rttavg processing.
++ * This driver reserves tag -1 to mean "unused frame."
++ */
++static int
++newtag(Aoedev *d)
++{
++	register ulong n;
++
++	n = jiffies & 0xffff;
++	return n |= (++d->lasttag & 0x7fff) << 16;
++}
++
++static int
++aoehdr_atainit(Aoedev *d, Aoehdr *h)
++{
++	int n;
++
++	memcpy(h->src, d->ifp->dev_addr, sizeof h->src);
++	memcpy(h->dst, d->addr, sizeof h->dst);
++	hnput16(h->type, ETH_P_AOE);
++	h->verfl = AOE_HVER;
++	hnput16(h->major, d->aoemajor);
++	h->minor = d->aoeminor;
++	h->cmd = AOECMD_ATA;
++	hnput32(h->tag, n = newtag(d));
++	return n;
++}
++
++static void
++aoecmd_ata_rw(Aoedev *d, Frame *f)
++{
++	Aoehdr *h;
++	Aoeahdr *ah;
++	Buf *buf;
++	struct sk_buff *skb;
++	ulong bcnt;
++	register sector_t sector;
++	char writebit, extbit;
++
++	writebit = 0x10;
++	extbit = 0x4;
++
++	buf = d->inprocess;
++
++	sector = buf->sector;
++	bcnt = buf->bv_resid;
++	if (bcnt > MAXATADATA)
++		bcnt = MAXATADATA;
++
++	/* initialize the headers & frame */
++	h = (Aoehdr *) f->data;
++	ah = (Aoeahdr *) (h+1);
++	f->ndata = sizeof *h + sizeof *ah;
++	memset(h, 0, f->ndata);
++	f->tag = aoehdr_atainit(d, h);
++	f->waited = 0;
++	f->buf = buf;
++	f->bufaddr = buf->bufaddr;
++
++	/* set up ata header */
++	ah->scnt = bcnt >> 9;
++	ah->lba0 = sector;
++	ah->lba1 = sector >>= 8;
++	ah->lba2 = sector >>= 8;
++	ah->lba3 = sector >>= 8;
++	if (d->flags & DEVFL_EXT) {
++		ah->aflags |= AOEAFL_EXT;
++		ah->lba4 = sector >>= 8;
++		ah->lba5 = sector >>= 8;
++	} else {
++		extbit = 0;
++		ah->lba3 &= 0x0f;
++		ah->lba3 |= 0xe0;	/* LBA bit + obsolete 0xa0 */
++	}
++
++	if (bio_data_dir(buf->bio) == WRITE) {
++		ah->aflags |= AOEAFL_WRITE;
++		f->writedatalen = bcnt;
++	} else {
++		writebit = 0;
++		f->writedatalen = 0;
++	}
++
++	ah->cmdstat = WIN_READ | writebit | extbit;
++
++	/* mark all tracking fields and load out */
++	buf->nframesout += 1;
++	buf->bufaddr += bcnt;
++	buf->bv_resid -= bcnt;
++/* printk(KERN_INFO "aoe: bv_resid=%ld\n", buf->bv_resid); */
++	buf->resid -= bcnt;
++	buf->sector += bcnt >> 9;
++	if (buf->resid == 0) {
++		d->inprocess = nil;
++	} else if (buf->bv_resid == 0) {
++		buf->bv++;
++		buf->bv_resid = buf->bv->bv_len;
++		buf->bufaddr = page_address(buf->bv->bv_page) + buf->bv->bv_offset;
++	}
++
++	skb = skb_prepare(d, f);
++	if (skb) {
++		skb->next = d->skblist;
++		d->skblist = skb;
++	}
++}
++
++/* enters with d->lock held */
++void
++aoecmd_work(Aoedev *d)
++{
++	Frame *f;
++	Buf *buf;
++loop:
++	f = getframe(d, FREETAG);
++	if (f == nil)
++		return;
++	if (d->inprocess == nil) {
++		buf = bufq_dequeue(&d->bufq);
++		if (buf == nil)
++			return;
++/*printk(KERN_INFO "aoecmd_work: bi_size=%ld\n", buf->bio->bi_size); */
++		d->inprocess = buf;
++	}
++	aoecmd_ata_rw(d, f);
++	goto loop;
++}
++
++static void
++rexmit(Aoedev *d, Frame *f)
++{
++	struct sk_buff *skb;
++	Aoehdr *h;
++	char buf[128];
++	int n;
++
++	n = newtag(d);
++
++	snprintf(buf, sizeof buf,
++		"%15s e%ld.%ld oldtag=%08x@%08lx newtag=%08x\n",
++		"retransmit",
++		d->aoemajor, d->aoeminor, f->tag, jiffies, n);
++	aoechr_error(buf);
++
++	h = (Aoehdr *) f->data;
++	hnput32(h->tag, f->tag = n);
++
++	skb = skb_prepare(d, f);
++	if (skb) {
++		skb->next = d->skblist;
++		d->skblist = skb;
++	}
++}
++
++static int
++tsince(int tag)
++{
++	int n;
++
++	n = jiffies & 0xffff;
++	n -= tag & 0xffff;
++	if (n < 0)
++		n += 1<<16;
++	return n;
++}
++
++static void
++rexmit_timer(ulong vp)
++{
++	Aoedev *d;
++	Frame *f, *e;
++	struct sk_buff *sl;
++	register long timeout;
++	ulong flags, n;
++
++	d = (Aoedev *) vp;
++	sl = nil;
++
++	/* timeout is always ~150% of the moving average */
++	timeout = d->rttavg;
++	timeout += timeout >> 1;
++
++	spin_lock_irqsave(&d->lock, flags);
++
++	if (d->flags & DEVFL_TKILL) {
++tdie:		spin_unlock_irqrestore(&d->lock, flags);
++		return;
++	}
++	f = d->frames;
++	e = f + d->nframes;
++	for (; f<e; f++) {
++		if (f->tag != FREETAG)
++		if (tsince(f->tag) >= timeout) {
++			n = f->waited += timeout;
++			n /= HZ;
++			if (n > MAXWAIT) { /* waited too long.  device failure. */
++				aoedev_downdev(d);
++				goto tdie;
++			}
++			rexmit(d, f);
++		}
++	}
++
++	sl = d->skblist;
++	d->skblist = nil;
++	if (sl) {
++		n = d->rttavg <<= 1;
++		if (n > MAXTIMER)
++			d->rttavg = MAXTIMER;
++	}
++
++	d->timer.expires = jiffies + TIMERTICK;
++	add_timer(&d->timer);
++
++	spin_unlock_irqrestore(&d->lock, flags);
++
++	aoenet_xmit(sl);
++}
++
++static void
++ataid_complete(Aoedev *d, uchar *id)
++{
++	u64 ssize;
++	u16 n;
++
++	n = lhget16(id + (83<<1)); /* word 83: command set supported */
++	n |= lhget16(id + (86<<1)); /* word 86: command set/feature enabled */
++
++	if (n & (1<<10)) {	/* bit 10: LBA 48 */
++		d->flags |= DEVFL_EXT;
++
++		ssize = lhget64(id + (100<<1));	/* n lba48 sectors */
++
++		/* set as in ide-disk.c:init_idedisk_capacity */
++		d->geo.cylinders = ssize;
++		d->geo.cylinders /= (255 * 63);
++		d->geo.heads = 255;
++		d->geo.sectors = 63;
++	} else {
++		d->flags &= ~DEVFL_EXT;
++
++		ssize = lhget32(id + (60<<1));	/* n lba28 sectors */
++
++		/* NOTE: obsolete in ATA 6 */
++		d->geo.cylinders = lhget16(id + (54<<1));
++		d->geo.heads = lhget16(id + (55<<1));
++		d->geo.sectors = lhget16(id + (56<<1));
++	}
++	d->ssize = ssize;
++	d->geo.start = 0;
++	if (d->gd != nil) {
++		d->gd->capacity = ssize;
++		d->flags |= DEVFL_UP;
++		return;
++	}
++	if (d->flags & DEVFL_WORKON) {
++		printk(KERN_INFO "aoe: ataid_complete: can't schedule work, it's already on!  "
++			"(This really shouldn't happen).\n");
++		return;
++	}
++	INIT_WORK(&d->work, aoeblk_gdalloc, d);
++	schedule_work(&d->work);
++	d->flags |= DEVFL_WORKON;
++}
++
++static void
++calc_rttavg(Aoedev *d, int rtt)
++{
++	register long n;
++
++	n = rtt;
++	if (n < MINTIMER)
++		n = MINTIMER;
++	else if (n > MAXTIMER)
++		n = MAXTIMER;
++
++	/* g == .25; cf. Congestion Avoidance and Control, Jacobson & Karels; 1988 */
++	n -= d->rttavg;
++	d->rttavg += n >> 2;
++}
++
++void
++aoecmd_ata_rsp(struct sk_buff *skb)
++{
++	Aoedev *d;
++	Aoehdr *hin;
++	Aoeahdr *ahin, *ahout;
++	Frame *f;
++	Buf *buf;
++	struct sk_buff *sl;
++	register long n;
++	ulong flags;
++	char ebuf[128];
++	
++	hin = (Aoehdr *) skb->mac.raw;
++	d = aoedev_bymac(hin->src);
++	if (d == nil) {
++		snprintf(ebuf, sizeof ebuf, "aoecmd_ata_rsp: ata response "
++			"for unknown device %d.%d\n", nhget16(hin->major),
++			hin->minor);
++		aoechr_error(ebuf);
++		return;
++	}
++
++	spin_lock_irqsave(&d->lock, flags);
++
++	f = getframe(d, nhget32(hin->tag));
++	if (f == nil) {
++		spin_unlock_irqrestore(&d->lock, flags);
++		snprintf(ebuf, sizeof ebuf,
++			"%15s e%d.%d    tag=%08x@%08lx\n",
++			"unexpected rsp",
++			nhget16(hin->major), hin->minor,
++			nhget32(hin->tag),
++			jiffies);
++		aoechr_error(ebuf);
++		return;
++	}
++
++	calc_rttavg(d, tsince(f->tag));
++
++	ahin = (Aoeahdr *) (hin+1);
++	ahout = (Aoeahdr *) (f->data + sizeof (Aoehdr));
++	buf = f->buf;
++
++	if (ahin->cmdstat & 0xa9) {	/* these bits cleared on success */
++		printk(KERN_CRIT "aoe: aoecmd_ata_rsp: ata error cmd=%2.2Xh "
++			"stat=%2.2Xh\n", ahout->cmdstat, ahin->cmdstat);
++		if (buf)
++			buf->flags |= BUFFL_FAIL;
++	} else {
++		switch (ahout->cmdstat) {
++		case WIN_READ:
++		case WIN_READ_EXT:
++			n = ahout->scnt << 9;
++			if (skb->len - sizeof *hin - sizeof *ahin < n) {
++				printk(KERN_CRIT "aoe: aoecmd_ata_rsp: runt "
++					"ata data size in read.  skb->len=%d\n",
++					skb->len);
++				/* fail frame f?  just returning will rexmit. */
++				spin_unlock_irqrestore(&d->lock, flags);
++				return;
++			}
++			memcpy(f->bufaddr, ahin+1, n);
++		case WIN_WRITE:
++		case WIN_WRITE_EXT:
++			break;
++		case WIN_IDENTIFY:
++			if (skb->len - sizeof *hin - sizeof *ahin < 512) {
++				printk(KERN_INFO "aoe: aoecmd_ata_rsp: runt data size "
++					"in ataid.  skb->len=%d\n", skb->len);
++				spin_unlock_irqrestore(&d->lock, flags);
++				return;
++			}
++			ataid_complete(d, (char *) (ahin+1));
++			/* d->flags |= DEVFL_WC_UPDATE; */
++			break;
++		default:
++			printk(KERN_INFO "aoe: aoecmd_ata_rsp: unrecognized "
++				"outbound ata command %2.2Xh for %d.%d\n", 
++				ahout->cmdstat, nhget16(hin->major), hin->minor);
++		}
++	}
++
++	if (buf) {
++		buf->nframesout -= 1;
++		if (buf->nframesout == 0)
++		if (buf->resid == 0) {
++			n = !(buf->flags & BUFFL_FAIL);
++			bio_endio(buf->bio, buf->bio->bi_size, 0);
++			kfree(buf);
++		}
++	}
++
++	f->buf = nil;
++	f->tag = FREETAG;
++
++	aoecmd_work(d);
++
++	sl = d->skblist;
++	d->skblist = nil;
++
++	spin_unlock_irqrestore(&d->lock, flags);
++
++	aoenet_xmit(sl);
++}
++
++void
++aoecmd_cfg(ushort aoemajor, uchar aoeminor)
++{
++	Aoehdr *h;
++	Aoechdr *ch;
++	struct sk_buff *skb, *sl;
++	struct net_device *ifp;
++
++	sl = nil;
++
++	read_lock(&dev_base_lock);
++	for (ifp = dev_base; ifp; dev_put(ifp), ifp = ifp->next) {
++		dev_hold(ifp);
++		if (!is_aoe_netif(ifp))
++			continue;
++
++		skb = new_skb(ifp, sizeof *h + sizeof *ch);
++		if (skb == nil) {
++			printk(KERN_INFO "aoe: aoecmd_cfg: skb alloc failure\n");
++			continue;
++		}
++		h = (Aoehdr *) skb->mac.raw;
++		memset(h, 0, sizeof *h + sizeof *ch);
++
++		memset(h->dst, 0xff, sizeof h->dst);
++		memcpy(h->src, ifp->dev_addr, sizeof h->src);
++		hnput16(h->type, ETH_P_AOE);
++		h->verfl = AOE_HVER;
++		hnput16(h->major, aoemajor);
++		h->minor = aoeminor;
++		h->cmd = AOECMD_CFG;
++
++		skb->next = sl;
++		sl = skb;
++	}
++	read_unlock(&dev_base_lock);
++
++	aoenet_xmit(sl);
++}
++ 
++/*
++ * Since we only call this in one place (and it only prepares one frame)
++ * we just return the skb.  Usually we'd chain it up to the d->skblist.
++ */
++static struct sk_buff *
++aoecmd_ata_id(Aoedev *d)
++{
++	Aoehdr *h;
++	Aoeahdr *ah;
++	Frame *f;
++	struct sk_buff *skb;
++
++	f = getframe(d, FREETAG);
++	if (f == nil) {
++		printk(KERN_CRIT "aoe: aoecmd_ata_id: can't get a frame.  "
++			"This shouldn't happen.\n");
++		return nil;
++	}
++
++	/* initialize the headers & frame */
++	h = (Aoehdr *) f->data;
++	ah = (Aoeahdr *) (h+1);
++	f->ndata = sizeof *h + sizeof *ah;
++	memset(h, 0, f->ndata);
++	f->tag = aoehdr_atainit(d, h);
++	f->waited = 0;
++	f->writedatalen = 0;
++
++	/* this message initializes the device, so we reset the rttavg */
++	d->rttavg = MAXTIMER;
++
++	/* set up ata header */
++	ah->scnt = 1;
++	ah->cmdstat = WIN_IDENTIFY;
++	ah->lba3 = 0xa0;
++
++	skb = skb_prepare(d, f);
++
++	/* we now want to start the rexmit tracking */
++	d->flags &= ~DEVFL_TKILL;
++	d->timer.data = (ulong) d;
++	d->timer.function = rexmit_timer;
++	d->timer.expires = jiffies + TIMERTICK;
++	add_timer(&d->timer);
++
++	return skb;
++}
++ 
++void
++aoecmd_cfg_rsp(struct sk_buff *skb)
++{
++	Aoedev *d;
++	Aoehdr *h;
++	Aoechdr *ch;
++	ulong flags, bufcnt, sysminor, aoemajor;
++	struct sk_buff *sl;
++	enum { MAXFRAMES = 8, MAXSYSMINOR = 255 };
++
++	h = (Aoehdr *) skb->mac.raw;
++	ch = (Aoechdr *) (h+1);
++
++	/*
++	 * Enough people have their dip switches set backwards to
++	 * warrant a loud message for this special case.
++	 */
++	aoemajor = nhget16(h->major);
++	if (aoemajor == 0xfff) {
++		printk(KERN_CRIT "aoe: aoecmd_cfg_rsp: Warning: shelf "
++			"address is all ones.  Check shelf dip switches\n");
++		return;
++	}
++
++	sysminor = SYSMINOR(aoemajor, h->minor);
++	if (sysminor > MAXSYSMINOR) {
++		printk(KERN_INFO "aoe: aoecmd_cfg_rsp: sysminor %ld too "
++			"large\n", sysminor);
++		return;
++	}
++
++	bufcnt = nhget16(ch->bufcnt);
++	if (bufcnt > MAXFRAMES)	/* keep it reasonable */
++		bufcnt = MAXFRAMES;
++
++	d = aoedev_set(sysminor, h->src, skb->dev, bufcnt);
++	if (d == nil) {
++		printk(KERN_INFO "aoe: aoecmd_cfg_rsp: device set failure\n");
++		return;
++	}
++
++	spin_lock_irqsave(&d->lock, flags);
++
++	if (d->flags & (DEVFL_UP | DEVFL_CLOSEWAIT)) {
++		spin_unlock_irqrestore(&d->lock, flags);
++		return;
++	}
++
++	d->fw_ver = nhget16(ch->fwver);
++
++	/* we get here only if the device is new */
++	sl = aoecmd_ata_id(d);
++
++	spin_unlock_irqrestore(&d->lock, flags);
++
++	aoenet_xmit(sl);
++}
++
+diff -urpN linux-2.6.9/drivers/block/aoe/aoedev.c linux-2.6.9-aoe/drivers/block/aoe/aoedev.c
+--- linux-2.6.9/drivers/block/aoe/aoedev.c	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6.9-aoe/drivers/block/aoe/aoedev.c	2004-12-06 10:40:00.000000000 -0500
+@@ -0,0 +1,233 @@
++/*
++ * aoedev.c
++ * AoE device utility functions; maintains device list.
++ */
++
++#include "all.h"
++
++static Aoedev *devlist;
++static spinlock_t devlist_lock;
++
++int
++aoedev_stat(char *ubuf, int buflen, loff_t off)
++{
++	Aoedev *d;
++	ulong flags;
++	char buf[64];
++	int n, nlen = 0;
++	int n_skip;
++
++	for (n_skip = 0; ; ++n_skip) {
++		int i;
++		struct Aoedev dev;
++		
++		spin_lock_irqsave(&devlist_lock, flags);
++		for (d=devlist, i=0; d; d=d->next, ++i)
++			if (i == n_skip)
++				break;
++		if (d)
++			dev = *d;
++		spin_unlock_irqrestore(&devlist_lock, flags);
++
++		if (!d)
++			break;
++		if (buflen - nlen < sizeof buf)
 +			break;
 +
-+	} while (dispatched < max_dispatch);
- 
- 	/*
--	 * follow expired path, else get first next available
-+	 * if slice end isn't set yet, set it. if at least one request was
-+	 * sync, use the sync time slice value
- 	 */
--	if ((crq = cfq_check_fifo(cfqq)) == NULL) {
--		if (cfqd->find_best_crq)
--			crq = cfqq->next_crq;
--		else
--			crq = rb_entry_crq(rb_first(&cfqq->sort_list));
--	}
--
--	cfqd->last_sector = crq->request->sector + crq->request->nr_sectors;
-+	if (!cfqq->slice_end)
-+		cfqq->slice_end = cfqd->cfq_slice[!!sync] + jiffies;
- 
- 	/*
--	 * finally, insert request into driver list
-+	 * expire an async queue immediately if it has used up its slice
- 	 */
--	cfq_dispatch_sort(q, crq);
-+	if (!sync && cfqd->dispatch_slice >= cfqd->cfq_slice_async_rq)
-+		cfq_slice_expired(cfqd);
++		n = snprintf(buf, sizeof buf,
++			     "/dev/etherd/e%ld.%ld\t%s\t%s%s\n",
++			     dev.aoemajor, dev.aoeminor, dev.ifp->name,
++			     (dev.flags & DEVFL_UP) ? "up" : "down",
++			     (dev.flags & DEVFL_CLOSEWAIT) ? ",closewait" : "");
++		if (off > 0) {
++			off -= n;
++			continue;
++		}
++		if (nlen + n > buflen)
++			break;
++		if (copy_to_user(ubuf, buf, n))
++			return -EFAULT;
++		nlen += n, ubuf += n;
++	}
 +
-+	return dispatched;
- }
- 
- static int cfq_dispatch_requests(request_queue_t *q, int max_dispatch)
- {
- 	struct cfq_data *cfqd = q->elevator->elevator_data;
- 	struct cfq_queue *cfqq;
--	struct list_head *entry, *tmp;
--	int queued, busy_queues, first_round;
- 
- 	if (list_empty(&cfqd->rr_list))
- 		return 0;
- 
--	queued = 0;
--	first_round = 1;
--restart:
--	busy_queues = 0;
--	list_for_each_safe(entry, tmp, &cfqd->rr_list) {
--		cfqq = list_entry_cfqq(entry);
--
--		BUG_ON(RB_EMPTY(&cfqq->sort_list));
--
--		/*
--		 * first round of queueing, only select from queues that
--		 * don't already have io in-flight
--		 */
--		if (first_round && cfqq->in_flight)
--			continue;
--
--		cfq_dispatch_request(q, cfqd, cfqq);
--
--		if (!RB_EMPTY(&cfqq->sort_list))
--			busy_queues++;
--
--		queued++;
--	}
--
--	if ((queued < max_dispatch) && (busy_queues || first_round)) {
--		first_round = 0;
--		goto restart;
-+	cfqq = cfq_select_queue(cfqd);
-+	if (cfqq) {
-+		cfqq->wait_request = 0;
-+		cfqq->must_dispatch = 0;
-+		del_timer(&cfqd->timer);
-+		return __cfq_dispatch_requests(cfqd, cfqq, max_dispatch);
- 	}
- 
--	return queued;
++	return nlen;
++}
++
++Aoedev *
++aoedev_byminor(ulong sysminor)
++{
++	Aoedev *d;
++	ulong flags;
++
++	spin_lock_irqsave(&devlist_lock, flags);
++
++	for (d=devlist; d; d=d->next)
++		if (d->sysminor == sysminor)
++			break;
++
++	spin_unlock_irqrestore(&devlist_lock, flags);
++	return d;
++}
++
++Aoedev *
++aoedev_bymac(uchar *macaddr)
++{
++	Aoedev *d;
++	ulong flags;
++
++	spin_lock_irqsave(&devlist_lock, flags);
++
++	for (d=devlist; d; d=d->next)
++		if (!memcmp(d->addr, macaddr, 6))
++			break;
++
++	spin_unlock_irqrestore(&devlist_lock, flags);
++	return d;
++}
++
++/* called with devlist lock held */
++static Aoedev *
++aoedev_newdev(ulong nframes)
++{
++	Aoedev *d;
++	Frame *f, *e;
++
++	d = (Aoedev *) kallocz(sizeof *d, GFP_ATOMIC);
++	if (d == nil)
++		return nil;
++	f = (Frame *) kallocz(nframes * sizeof *f, GFP_ATOMIC);
++	if (f == nil) {
++		kfree(d);
++		return nil;
++	}
++
++	d->nframes = nframes;
++	d->frames = f;
++	e = f + nframes;
++	for (; f<e; f++)
++		f->tag = FREETAG;
++
++	spin_lock_init(&d->lock);
++	init_timer(&d->timer);
++
++	d->next = devlist;
++	devlist = d;
++
++	return d;
++}
++
++void
++aoedev_downdev(Aoedev *d)
++{
++	Frame *f, *e;
++	Buf *buf;
++	struct bio *bio;
++
++	d->flags |= DEVFL_TKILL;
++	del_timer(&d->timer);
++
++	f = d->frames;
++	e = f + d->nframes;
++	for (; f<e; f->tag = FREETAG, f->buf = nil, f++) {
++		if (f->tag == FREETAG || f->buf == nil)
++			continue;
++		buf = f->buf;
++		bio = buf->bio;
++		if (--buf->nframesout == 0) {
++			kfree(buf);
++			bio_endio(bio, bio->bi_size, -EIO);
++		}
++	}
++	d->inprocess = nil;
++
++	while ((buf = bufq_dequeue(&d->bufq))) {
++		bio = buf->bio;
++		kfree(buf);
++		bio_endio(bio, bio->bi_size, -EIO);
++	}
++
++	if (d->nopen)
++		d->flags |= DEVFL_CLOSEWAIT;
++	if (d->gd)
++		d->gd->capacity = 0;
++
++	d->flags &= ~DEVFL_UP;
++}
++
++Aoedev *
++aoedev_set(ulong sysminor, uchar *addr, struct net_device *ifp, ulong bufcnt)
++{
++	Aoedev *d;
++	ulong flags;
++
++	spin_lock_irqsave(&devlist_lock, flags);
++
++	for (d=devlist; d; d=d->next)
++		if (d->sysminor == sysminor
++		|| memcmp(d->addr, addr, sizeof d->addr) == 0)
++			break;
++
++	if (d == nil)
++	if ((d = aoedev_newdev(bufcnt)) == nil) {
++		spin_unlock_irqrestore(&devlist_lock, flags);
++		printk(KERN_INFO "aoe: aoedev_set: aoedev_newdev failure.\n");
++		return nil;
++	}
++
++	spin_unlock_irqrestore(&devlist_lock, flags);
++	spin_lock_irqsave(&d->lock, flags);
++
++	d->ifp = ifp;
++
++	if (d->sysminor != sysminor
++	|| memcmp(d->addr, addr, sizeof d->addr)
++	|| (d->flags & DEVFL_UP) == 0) {
++		aoedev_downdev(d); /* flushes outstanding frames */
++		memcpy(d->addr, addr, sizeof d->addr);
++		d->sysminor = sysminor;
++		d->aoemajor = AOEMAJOR(sysminor);
++		d->aoeminor = AOEMINOR(sysminor);
++	}
++
++	spin_unlock_irqrestore(&d->lock, flags);
++	return d;
++}
++
++void
++aoedev_freedev(Aoedev *d)
++{
++	if (d->gd) {
++		del_gendisk(d->gd);
++		put_disk(d->gd);
++	}
++	kfree(d->frames);
++	kfree(d);
++}
++
++void
++aoedev_exit(void)
++{
++	Aoedev *d;
++	ulong flags;
++
++	flush_scheduled_work();
++
++	while ((d = devlist)) {
++		devlist = d->next;
++
++		spin_lock_irqsave(&d->lock, flags);
++		aoedev_downdev(d);
++		spin_unlock_irqrestore(&d->lock, flags);
++
++		del_timer_sync(&d->timer);
++		aoedev_freedev(d);
++	}
++}
++
++int
++aoedev_init(void)
++{
++	spin_lock_init(&devlist_lock);
 +	return 0;
- }
- 
- static inline void cfq_account_dispatch(struct cfq_rq *crq)
- {
- 	struct cfq_queue *cfqq = crq->cfq_queue;
- 	struct cfq_data *cfqd = cfqq->cfqd;
--	unsigned long now, elapsed;
-+
-+	if (unlikely(!blk_fs_request(crq->request)))
-+		return;
- 
- 	/*
- 	 * accounted bit is necessary since some drivers will call
-@@ -874,37 +954,9 @@
- 	if (crq->accounted)
- 		return;
- 
--	now = jiffies;
--	if (cfqq->service_start == ~0UL)
--		cfqq->service_start = now;
--
--	/*
--	 * on drives with tagged command queueing, command turn-around time
--	 * doesn't necessarily reflect the time spent processing this very
--	 * command inside the drive. so do the accounting differently there,
--	 * by just sorting on the number of requests
--	 */
--	if (cfqd->cfq_tagged) {
--		if (time_after(now, cfqq->service_start + cfq_service)) {
--			cfqq->service_start = now;
--			cfqq->service_used /= 10;
--		}
--
--		cfqq->service_used++;
--		cfq_sort_rr_list(cfqq, 0);
--	}
--
--	elapsed = now - crq->queue_start;
--	if (elapsed > max_elapsed_dispatch)
--		max_elapsed_dispatch = elapsed;
--
- 	crq->accounted = 1;
--	crq->service_start = now;
--
--	if (++cfqd->rq_in_driver >= CFQ_MAX_TAG && !cfqd->cfq_tagged) {
--		cfqq->cfqd->cfq_tagged = 1;
--		printk("cfq: depth %d reached, tagging now on\n", CFQ_MAX_TAG);
--	}
-+	crq->service_start = jiffies;
-+	cfqd->rq_in_driver++;
- }
- 
- static inline void
-@@ -912,24 +964,24 @@
- {
- 	struct cfq_data *cfqd = cfqq->cfqd;
- 
--	WARN_ON(!cfqd->rq_in_driver);
--	cfqd->rq_in_driver--;
--
--	if (!cfqd->cfq_tagged) {
--		unsigned long now = jiffies;
--		unsigned long duration = now - crq->service_start;
--
--		if (time_after(now, cfqq->service_start + cfq_service)) {
--			cfqq->service_start = now;
--			cfqq->service_used >>= 3;
--		}
-+	if (crq->accounted) {
-+		WARN_ON(!cfqd->rq_in_driver);
-+		cfqd->rq_in_driver--;
-+	}
- 
--		cfqq->service_used += duration;
--		cfq_sort_rr_list(cfqq, 0);
-+	/*
-+	 * queue was preempted while this request was servicing
-+	 */
-+	if (cfqd->active_queue != cfqq)
-+		return;
- 
--		if (duration > max_elapsed_crq)
--			max_elapsed_crq = duration;
--	}
-+	/*
-+	 * this is still the active queue. if we have nothing to do and no
-+	 * more pending requests in flight, wait for a new sync request if
-+	 * this request was sync itself
-+	 */
-+	if (RB_EMPTY(&cfqq->sort_list) && crq->is_sync && !cfqq->in_flight)
-+		cfq_arm_slice_timer(cfqd, cfqq, crq->io_context);
- }
- 
- static struct request *cfq_next_request(request_queue_t *q)
-@@ -937,6 +989,9 @@
- 	struct cfq_data *cfqd = q->elevator->elevator_data;
- 	struct request *rq;
- 
-+	if (cfqd->rq_in_driver >= cfqd->cfq_max_depth)
-+		return NULL;
-+
- 	if (!list_empty(&q->queue_head)) {
- 		struct cfq_rq *crq;
- dispatch:
-@@ -964,6 +1019,8 @@
-  */
- static void cfq_put_queue(struct cfq_queue *cfqq)
- {
-+	struct cfq_data *cfqd = cfqq->cfqd;
-+
- 	BUG_ON(!atomic_read(&cfqq->ref));
- 
- 	if (!atomic_dec_and_test(&cfqq->ref))
-@@ -972,6 +1029,9 @@
- 	BUG_ON(rb_first(&cfqq->sort_list));
- 	BUG_ON(cfqq->on_rr);
- 
-+	if (unlikely(cfqd->active_queue == cfqq))
-+		cfqd->active_queue = NULL;
-+
- 	cfq_put_cfqd(cfqq->cfqd);
- 
- 	/*
-@@ -1033,6 +1093,18 @@
- 	spin_unlock_irqrestore(cfqd->queue->queue_lock, flags);
- }
- 
-+static void cfq_queue_remove(struct cfq_queue *cfqq)
-+{
-+	struct cfq_data *cfqd = cfqq->cfqd;
-+
-+	/*
-+	 * don't waste time waiting for the timer to expire for
-+	 * a dead process
-+	 */
-+	if (cfqq == cfqd->active_queue && del_timer(&cfqd->timer))
-+		kblockd_schedule_work(&cfqd->unplug_work);
 +}
 +
- static void cfq_free_io_context(struct cfq_io_context *cic)
- {
- 	kmem_cache_free(cfq_ioc_pool, cic);
-@@ -1044,6 +1116,7 @@
- static void cfq_exit_io_context(struct cfq_io_context *cic)
- {
- 	struct cfq_queue *cfqq = cic->cfqq;
-+	struct cfq_data *cfqd = cfqq->cfqd;
- 	struct list_head *entry = &cic->list;
- 	request_queue_t *q;
- 	unsigned long flags;
-@@ -1060,12 +1133,14 @@
- 
- 		q = __cic->cfqq->cfqd->queue;
- 		spin_lock(q->queue_lock);
-+		cfq_queue_remove(__cic->cfqq);
- 		cfq_put_queue(__cic->cfqq);
- 		spin_unlock(q->queue_lock);
- 	}
- 
--	q = cfqq->cfqd->queue;
-+	q = cfqd->queue;
- 	spin_lock(q->queue_lock);
-+	cfq_queue_remove(cfqq);
- 	cfq_put_queue(cfqq);
- 	spin_unlock(q->queue_lock);
- 
-@@ -1117,6 +1192,7 @@
- 		cic->ioc = ioc;
- 		cic->cfqq = __cfqq;
- 		atomic_inc(&__cfqq->ref);
-+		atomic_inc(&cfqd->ref);
- 	} else {
- 		struct cfq_io_context *__cic;
- 		unsigned long flags;
-@@ -1159,10 +1235,10 @@
- 		__cic->ioc = ioc;
- 		__cic->cfqq = __cfqq;
- 		atomic_inc(&__cfqq->ref);
-+		atomic_inc(&cfqd->ref);
- 		spin_lock_irqsave(&ioc->lock, flags);
- 		list_add(&__cic->list, &cic->list);
- 		spin_unlock_irqrestore(&ioc->lock, flags);
--
- 		cic = __cic;
- 		*cfqq = __cfqq;
- 	}
-@@ -1199,8 +1275,11 @@
- 			new_cfqq = kmem_cache_alloc(cfq_pool, gfp_mask);
- 			spin_lock_irq(cfqd->queue->queue_lock);
- 			goto retry;
--		} else
--			goto out;
-+		} else {
-+			cfqq = kmem_cache_alloc(cfq_pool, gfp_mask);
-+			if (!cfqq)
-+				goto out;
-+		}
- 
- 		memset(cfqq, 0, sizeof(*cfqq));
- 
-@@ -1216,7 +1295,7 @@
- 		cfqq->cfqd = cfqd;
- 		atomic_inc(&cfqd->ref);
- 		cfqq->key_type = cfqd->key_type;
--		cfqq->service_start = ~0UL;
-+		cfqq->service_last = 0;
- 	}
- 
- 	if (new_cfqq)
-@@ -1243,14 +1322,31 @@
- 
- static void cfq_enqueue(struct cfq_data *cfqd, struct cfq_rq *crq)
- {
--	crq->is_sync = 0;
--	if (rq_data_dir(crq->request) == READ || current->flags & PF_SYNCWRITE)
--		crq->is_sync = 1;
-+	struct cfq_queue *cfqq = crq->cfq_queue;
-+	struct request *rq = crq->request;
-+
-+	crq->is_sync = rq_data_dir(rq) == READ || blk_rq_sync(rq);
- 
- 	cfq_add_crq_rb(crq);
- 	crq->queue_start = jiffies;
- 
--	list_add_tail(&crq->request->queuelist, &crq->cfq_queue->fifo[crq->is_sync]);
-+	list_add_tail(&rq->queuelist, &cfqq->fifo[crq->is_sync]);
-+
-+	/*
-+	 * if we are waiting for a request for this queue, let it rip
-+	 * immediately and flag that we must not expire this queue just now
-+	 */
-+	if (cfqq->wait_request && cfqq == cfqd->active_queue) {
-+		request_queue_t *q = cfqd->queue;
-+
-+		cfqq->must_dispatch = 1;
-+		del_timer(&cfqd->timer);
-+
-+		if (!blk_queue_plugged(q))
-+			q->request_fn(q);
-+		else
-+			__generic_unplug_device(q);
-+	}
- }
- 
- static void
-@@ -1339,32 +1435,31 @@
- 	struct cfq_data *cfqd = q->elevator->elevator_data;
- 	struct cfq_queue *cfqq;
- 	int ret = ELV_MQUEUE_MAY;
-+	int limit;
- 
- 	if (current->flags & PF_MEMALLOC)
- 		return ELV_MQUEUE_MAY;
- 
- 	cfqq = cfq_find_cfq_hash(cfqd, cfq_hash_key(cfqd, current));
--	if (cfqq) {
--		int limit = cfqd->max_queued;
--
--		if (cfqq->allocated[rw] < cfqd->cfq_queued)
--			return ELV_MQUEUE_MUST;
--
--		if (cfqd->busy_queues)
--			limit = q->nr_requests / cfqd->busy_queues;
-+	if (unlikely(!cfqq))
-+		return ELV_MQUEUE_MAY;
- 
--		if (limit < cfqd->cfq_queued)
--			limit = cfqd->cfq_queued;
--		else if (limit > cfqd->max_queued)
--			limit = cfqd->max_queued;
-+	if (cfqq->allocated[rw] < cfqd->cfq_queued)
-+		return ELV_MQUEUE_MUST;
-+	if (cfqq->wait_request)
-+		return ELV_MQUEUE_MUST;
-+
-+	limit = cfqd->max_queued;
-+	if (cfqd->busy_queues)
-+		limit = q->nr_requests / cfqd->busy_queues;
-+
-+	if (limit < cfqd->cfq_queued)
-+		limit = cfqd->cfq_queued;
-+	else if (limit > cfqd->max_queued)
-+		limit = cfqd->max_queued;
- 
--		if (cfqq->allocated[rw] >= limit) {
--			if (limit > cfqq->alloc_limit[rw])
--				cfqq->alloc_limit[rw] = limit;
--
--			ret = ELV_MQUEUE_NO;
--		}
--	}
-+	if (cfqq->allocated[rw] >= limit)
-+		ret = ELV_MQUEUE_NO;
- 
- 	return ret;
- }
-@@ -1372,12 +1467,13 @@
- static void cfq_check_waiters(request_queue_t *q, struct cfq_queue *cfqq)
- {
- 	struct request_list *rl = &q->rq;
--	const int write = waitqueue_active(&rl->wait[WRITE]);
--	const int read = waitqueue_active(&rl->wait[READ]);
-+	const int writes = waitqueue_active(&rl->wait[WRITE]);
-+	const int reads = waitqueue_active(&rl->wait[READ]);
-+	struct cfq_data *cfqd = q->elevator->elevator_data;
- 
--	if (read && cfqq->allocated[READ] < cfqq->alloc_limit[READ])
-+	if (reads && cfqq->allocated[READ] < cfqd->max_queued)
- 		wake_up(&rl->wait[READ]);
--	if (write && cfqq->allocated[WRITE] < cfqq->alloc_limit[WRITE])
-+	if (writes && cfqq->allocated[WRITE] < cfqd->max_queued)
- 		wake_up(&rl->wait[WRITE]);
- }
- 
-@@ -1391,16 +1487,17 @@
- 
- 	if (crq) {
- 		struct cfq_queue *cfqq = crq->cfq_queue;
-+		const int rw = rq_data_dir(rq);
- 
- 		BUG_ON(q->last_merge == rq);
- 		BUG_ON(!hlist_unhashed(&crq->hash));
- 
-+		BUG_ON(!cfqq->allocated[rw]);
-+		cfqq->allocated[rw]--;
-+
- 		if (crq->io_context)
- 			put_io_context(crq->io_context->ioc);
- 
--		BUG_ON(!cfqq->allocated[crq->is_write]);
--		cfqq->allocated[crq->is_write]--;
--
- 		mempool_free(crq, cfqd->crq_pool);
- 		rq->elevator_private = NULL;
- 
-@@ -1470,9 +1567,7 @@
- 		crq->io_context = cic;
- 		crq->service_start = crq->queue_start = 0;
- 		crq->in_flight = crq->accounted = crq->is_sync = 0;
--		crq->is_write = rw;
- 		rq->elevator_private = crq;
--		cfqq->alloc_limit[rw] = 0;
- 		return 0;
- 	}
- 
-@@ -1486,6 +1581,44 @@
- 	return 1;
- }
- 
-+static void cfq_kick_queue(void *data)
-+{
-+	request_queue_t *q = data;
-+
-+	blk_run_queue(q);
-+}
-+
-+static void cfq_schedule_timer(unsigned long data)
-+{
-+	struct cfq_data *cfqd = (struct cfq_data *) data;
-+	struct cfq_queue *cfqq;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(cfqd->queue->queue_lock, flags);
-+
-+	if ((cfqq = cfqd->active_queue) != NULL) {
-+		/*
-+		 * expired
-+		 */
-+		if (time_after(jiffies, cfqq->slice_end))
-+			goto out;
-+
-+		/*
-+		 * not expired and it has a request pending, let it dispatch
-+		 */
-+		if (!RB_EMPTY(&cfqq->sort_list)) {
-+			cfqq->must_dispatch = 1;
-+			goto out_cont;
-+		}
-+	}
-+
-+out:
-+	cfq_slice_expired(cfqd);
-+out_cont:
-+	spin_unlock_irqrestore(cfqd->queue->queue_lock, flags);
-+	kblockd_schedule_work(&cfqd->unplug_work);
-+}
-+
- static void cfq_put_cfqd(struct cfq_data *cfqd)
- {
- 	request_queue_t *q = cfqd->queue;
-@@ -1494,6 +1627,8 @@
- 	if (!atomic_dec_and_test(&cfqd->ref))
- 		return;
- 
-+	blk_sync_queue(q);
-+
- 	/*
- 	 * kill spare queue, getting it means we have two refences to it.
- 	 * drop both
-@@ -1502,6 +1637,11 @@
- 	cfqq = __cfq_get_queue(cfqd, CFQ_KEY_SPARE, GFP_ATOMIC);
- 	cfq_put_queue(cfqq);
- 	cfq_put_queue(cfqq);
-+
-+	/*
-+	 * restore ->nr_requests
-+	 */
-+	q->nr_requests = BLKDEV_MAX_RQ;
- 	spin_unlock_irq(q->queue_lock);
- 
- 	blk_put_queue(q);
-@@ -1565,10 +1705,17 @@
- 	 * some requests. fairness is handled differently
- 	 */
- 	q->nr_requests = 1024;
--	cfqd->max_queued = q->nr_requests / 16;
-+	cfqd->max_queued = q->nr_requests / 8;
- 	q->nr_batching = cfq_queued;
--	cfqd->key_type = CFQ_KEY_TGID;
-+	cfqd->key_type = CFQ_KEY_PID;
- 	cfqd->find_best_crq = 1;
-+
-+	init_timer(&cfqd->timer);
-+	cfqd->timer.function = cfq_schedule_timer;
-+	cfqd->timer.data = (unsigned long) cfqd;
-+
-+	INIT_WORK(&cfqd->unplug_work, cfq_kick_queue, q);
-+
- 	atomic_set(&cfqd->ref, 1);
- 
- 	cfqd->cfq_queued = cfq_queued;
-@@ -1578,6 +1725,11 @@
- 	cfqd->cfq_fifo_batch_expire = cfq_fifo_rate;
- 	cfqd->cfq_back_max = cfq_back_max;
- 	cfqd->cfq_back_penalty = cfq_back_penalty;
-+	cfqd->cfq_slice[0] = cfq_slice_async;
-+	cfqd->cfq_slice[1] = cfq_slice_sync;
-+	cfqd->cfq_slice_async_rq = cfq_slice_async_rq;
-+	cfqd->cfq_slice_idle = cfq_slice_idle;
-+	cfqd->cfq_max_depth = cfq_max_depth;
- 
- 	return 0;
- out_spare:
-@@ -1624,7 +1776,6 @@
- 	return -ENOMEM;
- }
- 
--
- /*
-  * sysfs parts below -->
-  */
-@@ -1650,13 +1801,6 @@
- }
- 
- static ssize_t
--cfq_clear_elapsed(struct cfq_data *cfqd, const char *page, size_t count)
--{
--	max_elapsed_dispatch = max_elapsed_crq = 0;
--	return count;
--}
--
--static ssize_t
- cfq_set_key_type(struct cfq_data *cfqd, const char *page, size_t count)
- {
- 	spin_lock_irq(cfqd->queue->queue_lock);
-@@ -1664,6 +1808,8 @@
- 		cfqd->key_type = CFQ_KEY_PGID;
- 	else if (!strncmp(page, "tgid", 4))
- 		cfqd->key_type = CFQ_KEY_TGID;
-+	else if (!strncmp(page, "pid", 3))
-+		cfqd->key_type = CFQ_KEY_PID;
- 	else if (!strncmp(page, "uid", 3))
- 		cfqd->key_type = CFQ_KEY_UID;
- 	else if (!strncmp(page, "gid", 3))
-@@ -1704,6 +1850,11 @@
- SHOW_FUNCTION(cfq_find_best_show, cfqd->find_best_crq, 0);
- SHOW_FUNCTION(cfq_back_max_show, cfqd->cfq_back_max, 0);
- SHOW_FUNCTION(cfq_back_penalty_show, cfqd->cfq_back_penalty, 0);
-+SHOW_FUNCTION(cfq_slice_idle_show, cfqd->cfq_slice_idle, 1);
-+SHOW_FUNCTION(cfq_slice_sync_show, cfqd->cfq_slice[1], 1);
-+SHOW_FUNCTION(cfq_slice_async_show, cfqd->cfq_slice[0], 1);
-+SHOW_FUNCTION(cfq_slice_async_rq_show, cfqd->cfq_slice_async_rq, 0);
-+SHOW_FUNCTION(cfq_max_depth_show, cfqd->cfq_max_depth, 0);
- #undef SHOW_FUNCTION
- 
- #define STORE_FUNCTION(__FUNC, __PTR, MIN, MAX, __CONV)			\
-@@ -1729,6 +1880,11 @@
- STORE_FUNCTION(cfq_find_best_store, &cfqd->find_best_crq, 0, 1, 0);
- STORE_FUNCTION(cfq_back_max_store, &cfqd->cfq_back_max, 0, UINT_MAX, 0);
- STORE_FUNCTION(cfq_back_penalty_store, &cfqd->cfq_back_penalty, 1, UINT_MAX, 0);
-+STORE_FUNCTION(cfq_slice_idle_store, &cfqd->cfq_slice_idle, 0, UINT_MAX, 1);
-+STORE_FUNCTION(cfq_slice_sync_store, &cfqd->cfq_slice[1], 1, UINT_MAX, 1);
-+STORE_FUNCTION(cfq_slice_async_store, &cfqd->cfq_slice[0], 1, UINT_MAX, 1);
-+STORE_FUNCTION(cfq_slice_async_rq_store, &cfqd->cfq_slice_async_rq, 1, UINT_MAX, 0);
-+STORE_FUNCTION(cfq_max_depth_store, &cfqd->cfq_max_depth, 2, UINT_MAX, 0);
- #undef STORE_FUNCTION
- 
- static struct cfq_fs_entry cfq_quantum_entry = {
-@@ -1771,15 +1927,36 @@
- 	.show = cfq_back_penalty_show,
- 	.store = cfq_back_penalty_store,
- };
--static struct cfq_fs_entry cfq_clear_elapsed_entry = {
--	.attr = {.name = "clear_elapsed", .mode = S_IWUSR },
--	.store = cfq_clear_elapsed,
-+static struct cfq_fs_entry cfq_slice_sync_entry = {
-+	.attr = {.name = "slice_sync", .mode = S_IRUGO | S_IWUSR },
-+	.show = cfq_slice_sync_show,
-+	.store = cfq_slice_sync_store,
-+};
-+static struct cfq_fs_entry cfq_slice_async_entry = {
-+	.attr = {.name = "slice_async", .mode = S_IRUGO | S_IWUSR },
-+	.show = cfq_slice_async_show,
-+	.store = cfq_slice_async_store,
-+};
-+static struct cfq_fs_entry cfq_slice_async_rq_entry = {
-+	.attr = {.name = "slice_async_rq", .mode = S_IRUGO | S_IWUSR },
-+	.show = cfq_slice_async_rq_show,
-+	.store = cfq_slice_async_rq_store,
-+};
-+static struct cfq_fs_entry cfq_slice_idle_entry = {
-+	.attr = {.name = "slice_idle", .mode = S_IRUGO | S_IWUSR },
-+	.show = cfq_slice_idle_show,
-+	.store = cfq_slice_idle_store,
- };
- static struct cfq_fs_entry cfq_key_type_entry = {
- 	.attr = {.name = "key_type", .mode = S_IRUGO | S_IWUSR },
- 	.show = cfq_read_key_type,
- 	.store = cfq_set_key_type,
- };
-+static struct cfq_fs_entry cfq_max_depth_entry = {
-+	.attr = {.name = "max_depth", .mode = S_IRUGO | S_IWUSR },
-+	.show = cfq_max_depth_show,
-+	.store = cfq_max_depth_store,
-+};
- 
- static struct attribute *default_attrs[] = {
- 	&cfq_quantum_entry.attr,
-@@ -1791,7 +1968,11 @@
- 	&cfq_find_best_entry.attr,
- 	&cfq_back_max_entry.attr,
- 	&cfq_back_penalty_entry.attr,
--	&cfq_clear_elapsed_entry.attr,
-+	&cfq_slice_sync_entry.attr,
-+	&cfq_slice_async_entry.attr,
-+	&cfq_slice_async_rq_entry.attr,
-+	&cfq_slice_idle_entry.attr,
-+	&cfq_max_depth_entry.attr,
- 	NULL,
- };
- 
-@@ -1856,7 +2037,7 @@
- 	.elevator_owner =	THIS_MODULE,
- };
- 
--int cfq_init(void)
-+static int __init cfq_init(void)
- {
- 	int ret;
- 
-@@ -1864,17 +2045,34 @@
- 		return -ENOMEM;
- 
- 	ret = elv_register(&iosched_cfq);
--	if (!ret) {
--		__module_get(THIS_MODULE);
--		return 0;
--	}
-+	if (ret)
-+		cfq_slab_kill();
- 
--	cfq_slab_kill();
- 	return ret;
- }
- 
- static void __exit cfq_exit(void)
- {
-+	struct task_struct *g, *p;
-+	unsigned long flags;
-+
-+	read_lock_irqsave(&tasklist_lock, flags);
-+
-+	/*
-+	 * iterate each process in the system, removing our io_context
-+	 */
-+	do_each_thread(g, p) {
-+		struct io_context *ioc = p->io_context;
-+
-+		if (ioc && ioc->cic) {
-+			ioc->cic->exit(ioc->cic);
-+			cfq_free_io_context(ioc->cic);
-+			ioc->cic = NULL;
-+		}
-+	} while_each_thread(g, p);
-+
-+	read_unlock_irqrestore(&tasklist_lock, flags);
-+
- 	cfq_slab_kill();
- 	elv_unregister(&iosched_cfq);
- }
-diff -urP -X /home/axboe/cdrom/exclude /opt/kernel/linux-2.6.10-rc2-mm4/drivers/block/ll_rw_blk.c linux-2.6.10-rc2-mm4/drivers/block/ll_rw_blk.c
---- /opt/kernel/linux-2.6.10-rc2-mm4/drivers/block/ll_rw_blk.c	2004-12-06 16:07:50.000000000 +0100
-+++ linux-2.6.10-rc2-mm4/drivers/block/ll_rw_blk.c	2004-12-06 16:11:27.000000000 +0100
-@@ -1257,11 +1257,7 @@
- 	if (!blk_remove_plug(q))
- 		return;
- 
--	/*
--	 * was plugged, fire request_fn if queue has stuff to do
--	 */
--	if (elv_next_request(q))
--		q->request_fn(q);
-+	q->request_fn(q);
- }
- EXPORT_SYMBOL(__generic_unplug_device);
- 
-@@ -2153,7 +2149,6 @@
- 		return;
- 
- 	req->rq_status = RQ_INACTIVE;
--	req->q = NULL;
- 	req->rl = NULL;
- 
- 	/*
-@@ -2447,6 +2442,9 @@
- 	if (barrier)
- 		req->flags |= (REQ_HARDBARRIER | REQ_NOMERGE);
- 
-+	if (bio_sync(bio))
-+		req->flags |= REQ_SYNCHRONOUS;
-+
- 	req->errors = 0;
- 	req->hard_sector = req->sector = sector;
- 	req->hard_nr_sectors = req->nr_sectors = nr_sectors;
-@@ -2503,6 +2501,7 @@
- {
- 	struct request_list *rl = &q->rq;
- 	struct request *rq;
-+	int requeued = 0;
- 
- 	spin_lock_irq(q->queue_lock);
- 	clear_bit(QUEUE_FLAG_DRAIN, &q->queue_flags);
-@@ -2511,9 +2510,13 @@
- 		rq = list_entry_rq(q->drain_list.next);
- 
- 		list_del_init(&rq->queuelist);
--		__elv_add_request(q, rq, ELEVATOR_INSERT_BACK, 1);
-+		elv_requeue_request(q, rq);
-+		requeued++;
- 	}
- 
-+	if (requeued)
-+		q->request_fn(q);
-+
- 	spin_unlock_irq(q->queue_lock);
- 
- 	wake_up(&rl->wait[0]);
-@@ -3070,6 +3073,7 @@
- 	local_irq_save(flags);
- 	ioc = current->io_context;
- 	current->io_context = NULL;
-+	ioc->task = NULL;
- 	local_irq_restore(flags);
- 
- 	if (ioc->aic && ioc->aic->exit)
-@@ -3104,7 +3108,7 @@
- 	ret = kmem_cache_alloc(iocontext_cachep, gfp_flags);
- 	if (ret) {
- 		atomic_set(&ret->refcount, 1);
--		ret->pid = tsk->pid;
-+		ret->task = current;
- 		ret->last_waited = jiffies; /* doesn't matter... */
- 		ret->nr_batch_requests = 0; /* because this is 0 */
- 		ret->aic = NULL;
-diff -urP -X /home/axboe/cdrom/exclude /opt/kernel/linux-2.6.10-rc2-mm4/fs/buffer.c linux-2.6.10-rc2-mm4/fs/buffer.c
---- /opt/kernel/linux-2.6.10-rc2-mm4/fs/buffer.c	2004-12-06 16:08:06.000000000 +0100
-+++ linux-2.6.10-rc2-mm4/fs/buffer.c	2004-12-06 16:11:16.000000000 +0100
-@@ -347,7 +347,6 @@
- 		goto out_putf;
- 	}
- 
--	current->flags |= PF_SYNCWRITE;
- 	ret = filemap_fdatawrite(mapping);
- 
- 	/*
-@@ -362,7 +361,6 @@
- 	err = filemap_fdatawait(mapping);
- 	if (!ret)
- 		ret = err;
--	current->flags &= ~PF_SYNCWRITE;
- 
- out_putf:
- 	fput(file);
-@@ -387,7 +385,6 @@
- 
- 	mapping = file->f_mapping;
- 
--	current->flags |= PF_SYNCWRITE;
- 	ret = filemap_fdatawrite(mapping);
- 	down(&mapping->host->i_sem);
- 	err = file->f_op->fsync(file, file->f_dentry, 1);
-@@ -397,7 +394,6 @@
- 	err = filemap_fdatawait(mapping);
- 	if (!ret)
- 		ret = err;
--	current->flags &= ~PF_SYNCWRITE;
- 
- out_putf:
- 	fput(file);
-diff -urP -X /home/axboe/cdrom/exclude /opt/kernel/linux-2.6.10-rc2-mm4/fs/fs-writeback.c linux-2.6.10-rc2-mm4/fs/fs-writeback.c
---- /opt/kernel/linux-2.6.10-rc2-mm4/fs/fs-writeback.c	2004-12-06 16:08:06.000000000 +0100
-+++ linux-2.6.10-rc2-mm4/fs/fs-writeback.c	2004-12-06 16:11:27.000000000 +0100
-@@ -630,7 +630,6 @@
- 	int need_write_inode_now = 0;
- 	int err2;
- 
--	current->flags |= PF_SYNCWRITE;
- 	if (what & OSYNC_DATA)
- 		err = filemap_fdatawrite(mapping);
- 	if (what & (OSYNC_METADATA|OSYNC_DATA)) {
-@@ -643,7 +642,6 @@
- 		if (!err)
- 			err = err2;
- 	}
--	current->flags &= ~PF_SYNCWRITE;
- 
- 	spin_lock(&inode_lock);
- 	if ((inode->i_state & I_DIRTY) &&
-diff -urP -X /home/axboe/cdrom/exclude /opt/kernel/linux-2.6.10-rc2-mm4/fs/mpage.c linux-2.6.10-rc2-mm4/fs/mpage.c
---- /opt/kernel/linux-2.6.10-rc2-mm4/fs/mpage.c	2004-12-06 16:08:06.000000000 +0100
-+++ linux-2.6.10-rc2-mm4/fs/mpage.c	2004-12-06 16:11:27.000000000 +0100
-@@ -87,11 +87,16 @@
- 	return 0;
- }
- 
--struct bio *mpage_bio_submit(int rw, struct bio *bio)
-+struct bio *
-+mpage_bio_submit(int rw, struct bio *bio, struct writeback_control *wbc)
- {
- 	bio->bi_end_io = mpage_end_io_read;
--	if (rw == WRITE)
-+	if (rw == WRITE) {
-+		if (wbc->sync_mode == WB_SYNC_ALL)
-+			rw = WRITE_SYNC;
-+
- 		bio->bi_end_io = mpage_end_io_write;
-+	}
- 	submit_bio(rw, bio);
- 	return NULL;
- }
-@@ -285,7 +290,7 @@
- 	 * This page will go to BIO.  Do we need to send this BIO off first?
- 	 */
- 	if (bio && (*last_block_in_bio != blocks[0] - 1))
--		bio = mpage_bio_submit(READ, bio);
-+		bio = mpage_bio_submit(READ, bio, NULL);
- 
- alloc_new:
- 	if (bio == NULL) {
-@@ -298,12 +303,12 @@
- 
- 	length = first_hole << blkbits;
- 	if (bio_add_page(bio, page, length, 0) < length) {
--		bio = mpage_bio_submit(READ, bio);
-+		bio = mpage_bio_submit(READ, bio, NULL);
- 		goto alloc_new;
- 	}
- 
- 	if (buffer_boundary(&bh) || (first_hole != blocks_per_page))
--		bio = mpage_bio_submit(READ, bio);
-+		bio = mpage_bio_submit(READ, bio, NULL);
- 	else
- 		*last_block_in_bio = blocks[blocks_per_page - 1];
- out:
-@@ -311,7 +316,7 @@
- 
- confused:
- 	if (bio)
--		bio = mpage_bio_submit(READ, bio);
-+		bio = mpage_bio_submit(READ, bio, NULL);
- 	if (!PageUptodate(page))
- 	        block_read_full_page(page, get_block);
- 	else
-@@ -348,7 +353,7 @@
- 	pagevec_lru_add(&lru_pvec);
- 	BUG_ON(!list_empty(pages));
- 	if (bio)
--		mpage_bio_submit(READ, bio);
-+		mpage_bio_submit(READ, bio, NULL);
- 	return 0;
- }
- EXPORT_SYMBOL(mpage_readpages);
-@@ -364,7 +369,7 @@
- 	bio = do_mpage_readpage(bio, page, 1,
- 			&last_block_in_bio, get_block);
- 	if (bio)
--		mpage_bio_submit(READ, bio);
-+		mpage_bio_submit(READ, bio, NULL);
- 	return 0;
- }
- EXPORT_SYMBOL(mpage_readpage);
-@@ -517,7 +522,7 @@
- 	 * This page will go to BIO.  Do we need to send this BIO off first?
- 	 */
- 	if (bio && *last_block_in_bio != blocks[0] - 1)
--		bio = mpage_bio_submit(WRITE, bio);
-+		bio = mpage_bio_submit(WRITE, bio, wbc);
- 
- alloc_new:
- 	if (bio == NULL) {
-@@ -534,7 +539,7 @@
- 	 */
- 	length = first_unmapped << blkbits;
- 	if (bio_add_page(bio, page, length, 0) < length) {
--		bio = mpage_bio_submit(WRITE, bio);
-+		bio = mpage_bio_submit(WRITE, bio, wbc);
- 		goto alloc_new;
- 	}
- 
-@@ -567,7 +572,7 @@
- 	set_page_writeback(page);
- 	unlock_page(page);
- 	if (boundary || (first_unmapped != blocks_per_page)) {
--		bio = mpage_bio_submit(WRITE, bio);
-+		bio = mpage_bio_submit(WRITE, bio, wbc);
- 		if (boundary_block) {
- 			write_boundary_block(boundary_bdev,
- 					boundary_block, 1 << blkbits);
-@@ -579,7 +584,7 @@
- 
- confused:
- 	if (bio)
--		bio = mpage_bio_submit(WRITE, bio);
-+		bio = mpage_bio_submit(WRITE, bio, wbc);
- 	*ret = page->mapping->a_ops->writepage(page, wbc);
- 	/*
- 	 * The caller has a ref on the inode, so *mapping is stable
-@@ -731,7 +736,7 @@
- 	if (!is_range)
- 		mapping->writeback_index = index;
- 	if (bio)
--		mpage_bio_submit(WRITE, bio);
-+		mpage_bio_submit(WRITE, bio, wbc);
- 	return ret;
- }
- EXPORT_SYMBOL(mpage_writepages);
-diff -urP -X /home/axboe/cdrom/exclude /opt/kernel/linux-2.6.10-rc2-mm4/include/linux/blkdev.h linux-2.6.10-rc2-mm4/include/linux/blkdev.h
---- /opt/kernel/linux-2.6.10-rc2-mm4/include/linux/blkdev.h	2004-12-06 16:07:55.000000000 +0100
-+++ linux-2.6.10-rc2-mm4/include/linux/blkdev.h	2004-12-06 16:11:27.000000000 +0100
-@@ -73,7 +73,7 @@
-  */
- struct io_context {
- 	atomic_t refcount;
--	pid_t pid;
-+	struct task_struct *task;
- 
- 	/*
- 	 * For request batching
-@@ -209,6 +209,7 @@
- 	__REQ_PM_SHUTDOWN,	/* shutdown request */
- 	__REQ_BAR_PREFLUSH,	/* barrier pre-flush done */
- 	__REQ_BAR_POSTFLUSH,	/* barrier post-flush */
-+	__REQ_SYNCHRONOUS,	/* sync request */
- 	__REQ_NR_BITS,		/* stops here */
- };
- 
-@@ -236,6 +237,7 @@
- #define REQ_PM_SHUTDOWN	(1 << __REQ_PM_SHUTDOWN)
- #define REQ_BAR_PREFLUSH	(1 << __REQ_BAR_PREFLUSH)
- #define REQ_BAR_POSTFLUSH	(1 << __REQ_BAR_POSTFLUSH)
-+#define REQ_SYNCHRONOUS	(1 << __REQ_SYNCHRONOUS)
- 
- /*
-  * State information carried for REQ_PM_SUSPEND and REQ_PM_RESUME
-@@ -406,6 +408,7 @@
- #define blk_pc_request(rq)	((rq)->flags & REQ_BLOCK_PC)
- #define blk_noretry_request(rq)	((rq)->flags & REQ_FAILFAST)
- #define blk_rq_started(rq)	((rq)->flags & REQ_STARTED)
-+#define blk_rq_sync(rq)		((rq)->flags & REQ_SYNCHRONOUS)
- 
- #define blk_account_rq(rq)	(blk_rq_started(rq) && blk_fs_request(rq))
- 
-diff -urP -X /home/axboe/cdrom/exclude /opt/kernel/linux-2.6.10-rc2-mm4/include/linux/sched.h linux-2.6.10-rc2-mm4/include/linux/sched.h
---- /opt/kernel/linux-2.6.10-rc2-mm4/include/linux/sched.h	2004-12-06 16:07:55.000000000 +0100
-+++ linux-2.6.10-rc2-mm4/include/linux/sched.h	2004-12-06 16:11:27.000000000 +0100
-@@ -724,8 +724,7 @@
- #define PF_KSWAPD	0x00040000	/* I am kswapd */
- #define PF_SWAPOFF	0x00080000	/* I am in swapoff */
- #define PF_LESS_THROTTLE 0x00100000	/* Throttle me less: I clean memory */
--#define PF_SYNCWRITE	0x00200000	/* I am doing a sync write */
--#define PF_BORROWED_MM	0x00400000	/* I am a kthread doing use_mm */
-+#define PF_BORROWED_MM	0x00200000	/* I am a kthread doing use_mm */
- 
- #ifdef CONFIG_SMP
- extern int set_cpus_allowed(task_t *p, cpumask_t new_mask);
-@@ -753,6 +752,7 @@
- extern int task_nice(const task_t *p);
- extern int task_curr(const task_t *p);
- extern int idle_cpu(int cpu);
-+extern unsigned long task_will_schedule_at(const task_t *p);
- 
- void yield(void);
- 
-diff -urP -X /home/axboe/cdrom/exclude /opt/kernel/linux-2.6.10-rc2-mm4/kernel/sched.c linux-2.6.10-rc2-mm4/kernel/sched.c
---- /opt/kernel/linux-2.6.10-rc2-mm4/kernel/sched.c	2004-12-06 16:08:12.000000000 +0100
-+++ linux-2.6.10-rc2-mm4/kernel/sched.c	2004-12-06 16:11:27.000000000 +0100
-@@ -580,7 +580,7 @@
- static void dequeue_task(struct task_struct *p, prio_array_t *array)
- {
- 	array->nr_active--;
--	list_del(&p->run_list);
-+	list_del_init(&p->run_list);
- 	if (list_empty(array->queue + p->prio))
- 		__clear_bit(p->prio, array->bitmap);
- }
-@@ -823,6 +823,41 @@
- 	return cpu_curr(task_cpu(p)) == p;
- }
- 
-+/**
-+ * task_will_schedule_at - in how many ticks will the task run, most likely
-+ * @p: the task in question
+diff -urpN linux-2.6.9/drivers/block/aoe/aoemain.c linux-2.6.9-aoe/drivers/block/aoe/aoemain.c
+--- linux-2.6.9/drivers/block/aoe/aoemain.c	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6.9-aoe/drivers/block/aoe/aoemain.c	2004-12-06 10:40:00.000000000 -0500
+@@ -0,0 +1,84 @@
++/*
++ * aoemain.c
++ * Module initialization routines, discover timer
 + */
-+unsigned long task_will_schedule_at(const task_t *p)
++
++#include "all.h"
++
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Sam Hopkins <sah@coraid.com>");
++MODULE_DESCRIPTION("AoE block/char driver for 2.6.[0-9]+");
++
++enum { TINIT, TRUN, TKILL };
++
++static void
++discover_timer(ulong vp)
 +{
-+	/*
-+	 * Task is executing right now
-+	 */
-+	if (task_curr(p))
++	static struct timer_list t;
++	static volatile ulong die;
++	static spinlock_t lock;
++	ulong flags;
++	enum { DTIMERTICK = HZ * 60 }; /* one minute */
++
++	switch (vp) {
++	case TINIT:
++		init_timer(&t);
++		spin_lock_init(&lock);
++		t.data = TRUN;
++		t.function = discover_timer;
++		die = 0;
++	case TRUN:
++		spin_lock_irqsave(&lock, flags);
++		if (!die) {
++			t.expires = jiffies + DTIMERTICK;
++			add_timer(&t);
++		}
++		spin_unlock_irqrestore(&lock, flags);
++
++		aoecmd_cfg(0xffff, 0xff);
++		return;
++	case TKILL:
++		spin_lock_irqsave(&lock, flags);
++		die = 1;
++		spin_unlock_irqrestore(&lock, flags);
++
++		del_timer_sync(&t);
++	default:
++		return;
++	}
++}
++
++static void __exit
++aoe_exit(void)
++{
++	discover_timer(TKILL);
++
++	aoenet_exit();
++	aoeblk_exit();
++	aoechr_exit();
++	aoedev_exit();
++}
++
++static int __init
++aoe_init(void)
++{
++	int n, (**p)(void);
++	int (*fns[])(void) = { aoedev_init, aoechr_init, aoeblk_init, aoenet_init, nil };
++
++	for (p=fns; *p != nil; p++) {
++		n = (*p)();
++		if (n) {
++			aoe_exit();
++			printk(KERN_INFO "aoe: aoe_init: initialisation failure.\n");
++			return n;
++		}
++	}
++	printk(KERN_INFO "aoe: aoe_init: AoE v2.6-%d initialised.\n", VER);
++
++	discover_timer(TINIT);
++	return 0;
++}
++
++module_init(aoe_init);
++module_exit(aoe_exit);
++
+diff -urpN linux-2.6.9/drivers/block/aoe/aoenet.c linux-2.6.9-aoe/drivers/block/aoe/aoenet.c
+--- linux-2.6.9/drivers/block/aoe/aoenet.c	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6.9-aoe/drivers/block/aoe/aoenet.c	2004-12-06 10:40:00.000000000 -0500
+@@ -0,0 +1,168 @@
++/*
++ * aoenet.c
++ * Ethernet portion of AoE driver
++ */
++
++#include "all.h"
++
++#define NECODES 5
++
++static char *aoe_errlist[] =
++{
++	"no such error",
++	"unrecognized command code",
++	"bad argument parameter",
++	"device unavailable",
++	"config string present",
++	"unsupported version"
++};
++
++enum {
++	IFLISTSZ = 1024,
++};
++
++static char aoe_iflist[IFLISTSZ];
++
++int
++is_aoe_netif(struct net_device *ifp)
++{
++	register char *p, *r;
++	register int len;
++
++	if (aoe_iflist[0] == '\0')
++		return 1;
++
++	for (p = aoe_iflist; p && *p; p = r) {
++		r = strchr(p, ' ');
++		if (r)
++			len = r++ - p;
++		else
++			len = strlen(p);
++
++		if (strlen(ifp->name) == len
++		    && strncmp(ifp->name, p, len) == 0)
++			return 1;
++	}
++
++	return 0;
++}
++
++int
++set_aoe_iflist(int argc, char **argv)
++{
++	int i;
++	char *p = aoe_iflist;
++	char *end = p + IFLISTSZ;
++	int len;
++
++	for (i = 0; i < argc; p += len + 1, ++i) {
++		char *ifnam = argv[i];
++
++		len = strlen(ifnam);
++
++		if (p + len + 1 >= end) {
++			*p = '\0';
++			return -1;
++		}
++		strcpy(p, ifnam);
++		p[len] = ' ';
++	}
++
++	return 0;
++}
++
++static struct sk_buff *
++skb_check(struct sk_buff *skb)
++{
++	if (skb_is_nonlinear(skb))
++	if ((skb = skb_share_check(skb, GFP_ATOMIC)))
++	if (skb_linearize(skb, GFP_ATOMIC) < 0) {
++		dev_kfree_skb(skb);
++		return nil;
++	}
++	return skb;
++}
++
++void
++aoenet_xmit(struct sk_buff *sl)
++{
++	struct sk_buff *skb;
++
++	while ((skb = sl)) {
++		sl = sl->next;
++		skb->next = skb->prev = nil;
++		dev_queue_xmit(skb);
++	}
++}
++
++/* 
++ * (1) i have no idea if this is redundant, but i can't figure why
++ * the ifp is passed in if it is.
++ *
++ * (2) len doesn't include the header by default.  I want this. 
++ */
++static int
++aoenet_rcv(struct sk_buff *skb, struct net_device *ifp, struct packet_type *pt)
++{
++	Aoehdr *h;
++	ulong n;
++
++	skb = skb_check(skb);
++	if (!skb)
 +		return 0;
 +
-+	/*
-+	 * Task is not executing but on a runqueue - try to guess
-+	 * how much time it will take for it to run again, but using
-+	 * the current task's remaining ticks. This is not accurate,
-+	 * but a good guess. (We use the min() to avoid the small race
-+	 * that is due to us dereferencing the current task without
-+	 * locking)
-+	 */
-+	if (p->array)
-+		return min(cpu_curr(task_cpu(p))->time_slice,
-+					(unsigned int)MAX_SLEEP_AVG);
++	skb->dev = ifp;	/* (1) */
 +
-+	/*
-+	 * for blocked tasks, return half of the average sleep time.
-+	 * (because this is the average sleep-time we'll see if we
-+	 * sample the period randomly.)
-+	 */
-+	return NS_TO_JIFFIES(p->sleep_avg) / 2;
++	if (!is_aoe_netif(ifp))
++		goto exit;
++
++	skb->len += ETH_HLEN;	/* (2) */
++
++	h = (Aoehdr *) skb->mac.raw;
++	n = nhget32(h->tag);
++	if ((h->verfl & AOEFL_RSP) == 0 || (n & 1<<31))
++		goto exit;
++
++	if (h->verfl & AOEFL_ERR) {
++		n = h->err;
++		if (n > NECODES)
++			n = 0;
++		printk(KERN_CRIT "aoe: aoenet_rcv: error packet from %d.%d; "
++			"ecode=%d '%s'\n", nhget16(h->major), h->minor, 
++			h->err, aoe_errlist[n]);
++		goto exit;
++	}
++
++	switch (h->cmd) {
++	case AOECMD_ATA:
++		aoecmd_ata_rsp(skb);
++		break;
++	case AOECMD_CFG:
++		aoecmd_cfg_rsp(skb);
++		break;
++	default:
++		printk(KERN_INFO "aoe: aoenet_rcv: unknown cmd %d\n", h->cmd);
++	}
++exit:
++	dev_kfree_skb(skb);
++	return 0;
 +}
 +
-+EXPORT_SYMBOL_GPL(task_will_schedule_at);
++static struct packet_type aoe_pt = {
++	type:	__constant_htons(ETH_P_AOE),
++	func:	aoenet_rcv,
++};
 +
++int
++aoenet_init(void)
++{
++	dev_add_pack(&aoe_pt);
++	return 0;
++}
 +
- #ifdef CONFIG_SMP
- enum request_type {
- 	REQ_MOVE_TASK,
++void
++aoenet_exit(void)
++{
++	dev_remove_pack(&aoe_pt);
++}
++
+diff -urpN linux-2.6.9/drivers/block/aoe/aoeutils.c linux-2.6.9-aoe/drivers/block/aoe/aoeutils.c
+--- linux-2.6.9/drivers/block/aoe/aoeutils.c	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6.9-aoe/drivers/block/aoe/aoeutils.c	2004-12-06 10:40:00.000000000 -0500
+@@ -0,0 +1,183 @@
++/*
++ * utils.c
++ * utility functions that have no place in other modules.
++ */
++
++#include "all.h"
++
++void
++bufq_enqueue(Bufq *bufq, Buf *buf)
++{
++	if (bufq->tail)
++		bufq->tail->next = buf;
++	else
++		bufq->head = buf;
++	bufq->tail = buf;
++}
++
++Buf *
++bufq_dequeue(Bufq *bufq)
++{
++	Buf *buf;
++
++	buf = bufq->head;
++	if (buf == bufq->tail)
++		bufq->head = bufq->tail = nil;
++	else
++		bufq->head = buf->next;
++	return buf;
++}
++
++struct sk_buff *
++new_skb(struct net_device *if_dev, ulong len)
++{
++	struct sk_buff *skb;
++
++	skb = alloc_skb(len, GFP_ATOMIC);
++	if (skb) {
++		skb->nh.raw = skb->mac.raw = skb->data;
++		skb->dev = if_dev;
++		skb->protocol = __constant_htons(ETH_P_AOE);
++		skb->priority = 0;
++		skb_put(skb, len);
++		skb->next = skb->prev = nil;
++
++		/* tell the network layer not to perform IP checksums
++		 * or to get the NIC to do it
++		 */
++		skb->ip_summed = CHECKSUM_NONE;
++	}
++	return skb;
++}
++
++u64
++mac_addr(char addr[6])
++{
++	u64 n = 0;
++	char *p = (char *) &n;
++
++	memcpy(p + 2, addr, 6);	/* (sizeof addr != 6) */
++
++	return __be64_to_cpu(n);
++}
++
++/* rc style quoting and/or empty fields */
++int
++getfields(char *p, char **argv, int max, char *delims, int flags)
++{
++	uint n;
++
++	n=0;
++loop:
++	if (n >= max || *p == '\0')
++		return n;
++	if (!(flags & FEMPTY)) {
++		while (strchr(delims, *p))
++			p++;
++	} else if (strchr(delims, *p)) {
++		*p = '\0';
++		argv[n++] = p++;
++		goto loop;
++	}
++
++	switch (*p) {
++	case '\'':
++		if (flags & FQUOTE) {
++			argv[n++] = ++p;
++unq:
++			p = strchr(p, '\'');
++			if (p == NULL)
++				return n;
++			if (p[1] == '\'') {
++				strcpy(p, p+1);	/* too inefficient? */
++				p++;
++				goto unq;
++			}
++			break;
++		}
++	default:
++		argv[n++] = p;
++		do {
++			if (*++p == '\0')
++				return n;
++		} while (!strchr(delims, *p));
++	}
++	*p++ = '\0';
++	goto loop;
++}
++
++void *
++kallocz(ulong sz, ulong kmem)
++{
++	void *d;
++
++	d = kmalloc(sz, kmem);
++	if (d)
++		memset(d, 0, sz);
++	return d;
++}
++
++u16
++nhget16(uchar *p)
++{
++	u16 n;
++
++	n = p[0];
++	n <<= 8;
++	return n |= p[1];
++}
++
++u32
++nhget32(uchar *p)
++{
++	u32 n;
++
++	n = nhget16(p);
++	n <<= 16;
++	return n |= nhget16(p+2);
++}
++
++void
++hnput16(uchar *p, u16 n)
++{
++	p[1] = n;
++	p[0] = n >>= 8;
++}
++
++void
++hnput32(uchar *p, u32 n)
++{
++	hnput16(p+2, n);
++	hnput16(p, n >>= 16);
++}
++
++u16
++lhget16(uchar *p)
++{
++	u16 n;
++
++	n = p[1];
++	n <<= 8;
++	return n |= p[0];
++}
++
++u32
++lhget32(uchar *p)
++{
++	u32 n;
++
++	n = lhget16(p+2);
++	n <<= 16;
++	return n |= lhget16(p);
++}
++
++u64
++lhget64(uchar *p)
++{
++	u64 n;
++
++	n = lhget32(p+4);
++	n <<= 32;
++	return n |= lhget32(p);
++}
++
+diff -urpN linux-2.6.9/drivers/block/aoe/if_aoe.h linux-2.6.9-aoe/drivers/block/aoe/if_aoe.h
+--- linux-2.6.9/drivers/block/aoe/if_aoe.h	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6.9-aoe/drivers/block/aoe/if_aoe.h	2004-12-06 10:40:00.000000000 -0500
+@@ -0,0 +1,64 @@
++
++enum
++{
++	AOECMD_ATA,
++	AOECMD_CFG,
++
++	AOEFL_RSP = (1<<3),
++	AOEFL_ERR = (1<<2),
++
++	AOEAFL_EXT = (1<<6),
++	AOEAFL_DEV = (1<<4),
++	AOEAFL_ASYNC = (1<<1),
++	AOEAFL_WRITE = (1<<0),
++
++	AOECCMD_READ = 0,
++	AOECCMD_TEST,
++	AOECCMD_PTEST,
++	AOECCMD_SET,
++	AOECCMD_FSET,
++
++	AOE_HVER = 0x10,
++	ETH_P_AOE = 0x88a2,
++};
++
++typedef struct Aoehdr Aoehdr;
++struct Aoehdr
++{
++	uchar dst[6];
++	uchar src[6];
++	uchar type[2];
++	uchar verfl;
++	uchar err;
++	uchar major[2];
++	uchar minor;
++	uchar cmd;
++	uchar tag[4];
++};
++
++typedef struct Aoeahdr Aoeahdr;
++struct Aoeahdr
++{
++	uchar aflags;
++	uchar errfeat;
++	uchar scnt;
++	uchar cmdstat;
++	uchar lba0;
++	uchar lba1;
++	uchar lba2;
++	uchar lba3;
++	uchar lba4;
++	uchar lba5;
++	uchar res[2];
++};
++
++typedef struct Aoechdr Aoechdr;
++struct Aoechdr
++{
++	uchar bufcnt[2];
++	uchar fwver[2];
++	uchar res;
++	uchar aoeccmd;
++	uchar cslen[2];
++};
++
+diff -urpN linux-2.6.9/drivers/block/aoe/u.h linux-2.6.9-aoe/drivers/block/aoe/u.h
+--- linux-2.6.9/drivers/block/aoe/u.h	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6.9-aoe/drivers/block/aoe/u.h	2004-12-06 10:40:01.000000000 -0500
+@@ -0,0 +1,10 @@
++
++/*
++typedef unsigned short ushort;
++typedef unsigned int uint;
++typedef unsigned long ulong;
++typedef long long vlong;
++typedef unsigned long long uvlong;
++*/
++typedef unsigned char uchar;
++
+diff -urpN linux-2.6.9/scripts/aoe/autoload linux-2.6.9-aoe/scripts/aoe/autoload
+--- linux-2.6.9/scripts/aoe/autoload	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6.9-aoe/scripts/aoe/autoload	2004-12-06 10:40:01.000000000 -0500
+@@ -0,0 +1,17 @@
++#!/bin/sh
++# set aoe to autoload by installing the
++# aliases in /etc/modprobe.conf
++
++f=/etc/modprobe.conf
++
++if test ! -r $f || test ! -w $f; then
++	echo "cannot configure $f for module autoloading" 1>&2
++	exit 1
++fi
++
++grep major-152 $f >/dev/null
++if [ $? = 1 ]; then
++	echo alias block-major-152 aoe >> $f
++	echo alias char-major-152 aoe >> $f
++fi
++
+diff -urpN linux-2.6.9/scripts/aoe/mkdevs linux-2.6.9-aoe/scripts/aoe/mkdevs
+--- linux-2.6.9/scripts/aoe/mkdevs	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6.9-aoe/scripts/aoe/mkdevs	2004-12-06 10:40:01.000000000 -0500
+@@ -0,0 +1,31 @@
++#!/bin/sh
++# create all the device nodes for using the aoe driver
++
++n_shelves=10
++
++if test "$#" != "1"; then
++	echo "Usage: mkdevs {dir}" 1>&2
++	exit 1
++fi
++dir=$1
++
++MAJOR=152
++
++echo "Creating AoE devnode files in $dir ..."
++
++set -e
++
++mkdir -p $dir
++
++rm -f $dir/ctl
++mknod -m 0200 $dir/ctl c $MAJOR 0
++rm -f $dir/stat
++mknod -m 0400 $dir/stat c $MAJOR 1
++rm -f $dir/err
++mknod -m 0400 $dir/err c $MAJOR 2
++
++i=0
++while test $i -lt $n_shelves; do
++	sh -xc "`dirname $0`/mkshelf $dir $i"
++	i=`expr $i + 1`
++done
+diff -urpN linux-2.6.9/scripts/aoe/mkshelf linux-2.6.9-aoe/scripts/aoe/mkshelf
+--- linux-2.6.9/scripts/aoe/mkshelf	1969-12-31 19:00:00.000000000 -0500
++++ linux-2.6.9-aoe/scripts/aoe/mkshelf	2004-12-06 10:40:01.000000000 -0500
+@@ -0,0 +1,24 @@
++#! /bin/sh
++# create one shelf's worth of device nodes
++
++if test "$#" != "2"; then
++	echo "Usage: mkshelf {dir} {shelfaddress}" 1>&2
++	exit 1
++fi
++dir=$1
++shelf=$2
++MAJOR=152
++
++set -e
++
++minor=`echo 10 \* $shelf \* 16 | bc`
++for slot in `seq 0 9`; do
++	for part in `seq 0 15`; do
++		name=e$shelf.$slot
++		test "$part" != "0" && name=${name}p$part
++		rm -f $dir/$name
++		mknod -m 0660 $dir/$name b $MAJOR $minor
++
++		minor=`expr $minor + 1`
++	done
++done
 
+--=-=-=
 
 
 -- 
-Jens Axboe
+  Ed L Cashin <ecashin@coraid.com>
+
+--=-=-=--
 

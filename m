@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264472AbRFOS3t>; Fri, 15 Jun 2001 14:29:49 -0400
+	id <S264476AbRFOSc3>; Fri, 15 Jun 2001 14:32:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264477AbRFOS3k>; Fri, 15 Jun 2001 14:29:40 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:17927 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S264472AbRFOS3b>;
-	Fri, 15 Jun 2001 14:29:31 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200106151829.f5FITGp162144@saturn.cs.uml.edu>
-Subject: Re: Client receives TCP packets but does not ACK
-To: mblack@csihq.com (Mike Black)
-Date: Fri, 15 Jun 2001 14:29:16 -0400 (EDT)
-Cc: robert@kleemann.org (Robert Kleemann), linux-kernel@vger.kernel.org
-In-Reply-To: <025c01c0f598$f04d0f30$e1de11cc@csihq.com> from "Mike Black" at Jun 15, 2001 08:44:36 AM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S264479AbRFOScT>; Fri, 15 Jun 2001 14:32:19 -0400
+Received: from cnxtsmtp2.conexant.com ([198.62.9.253]:12729 "EHLO
+	cnxtsmtp2.conexant.com") by vger.kernel.org with ESMTP
+	id <S264476AbRFOScJ>; Fri, 15 Jun 2001 14:32:09 -0400
+From: dan.davidson@conexant.com
+Subject: Re: Lockup in 2.4.2 kernel ADSL PCI card ATM driver module
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.3  March 21, 2000
+Message-ID: <OF77846C57.423E75DC-ON86256A6C.0061CDB6@conexant.com>
+Date: Fri, 15 Jun 2001 13:13:17 -0500
+X-MIMETrack: Serialize by Router on NPBSMTP1/Server/Conexant(Release 5.0.7 |March 21, 2001) at
+ 06/15/2001 11:31:59 AM
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Black writes:
 
-> I'm concerned that you're probably just overruning your IP stack:
-...
-> TCP is NOT a guaranteed protocol -- you can't just blast data from one port
-> to another and expect it to work.
+I apologize to all for my first post!
 
-Yes you can. This is why we have TCP in fact.
+To partly answer my own poorly documented problem:-
 
-> a tcp-write is NOT guaranteed -- and as you've seen -- a recv() isn't either
-> (that's why you need timeouts).
-> You're probably overrunning the tcp buffer on your "print" statement and
-> truncating a block.
-> I don't see where you're checking for        EAGAIN or EWOULDBLOCK (see man
-> send).
+First, once the code added for the debugger (int3) was removed from
+the driver, the driver worked fine with kernel version 2.4.2-ac28 (but
+still not with 2.4.2-2rh or 2.4.2).
 
-You do have to check for partial writes due to the UNIX API.
-Then check for EAGAIN and EINTR at least.
+Second, with sincere apologies to all (some suffer from brain
+lapses more than others), I neglected to mention that the system
+hangs, in both 2.4.2-2rh and 2.4.2 kernels, when the driver
+performs:
+    ...
+    save_flags(flags);
+    cli();
+    ...
+    TimeRemain = interruptible_sleep_on_timeout(&pEvent->WaitQue,
+WaitTime);
+    restore_flags(flags);
+    ...
 
-> You need a layer-7 protocol that will guarantee your transactions -- once
-> you're client acks/naks your server I'll bet everything works hunky-dory.
-> If you're not familiar with the OSI model
-> http://www.csihq.com/~mike/students/networking/iso/isomodel.html
+Again note that there were not any code changes to the driver,
+with the results that the driver worked for 2.4.0 and 2.4.2-ac28
+but did not work for 2.4.2-2rh or 2.4.2.
 
-You don't need that crap. TCP/IP doesn't even fit the OSI model,
-and we're missing much of the OSI stack AFAIK. (Do we have that
-thing with 10-byte addresses? I think not.)
+Does anyone know if there was a bug introduced between 2.4.0 and 2.4.2
+in the interruptible sleep area that was fixed by 2.4.2-ac28?
+If not, then there might still be a timing related problem in our
+driver (or possibly the kernel).
+
+Thanks again,
+Dan Davidson
+dan.davidson@conexant.com
+Conexant Systems, Inc.
+
+

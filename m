@@ -1,42 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268634AbRG3WR5>; Mon, 30 Jul 2001 18:17:57 -0400
+	id <S268653AbRG3WQ1>; Mon, 30 Jul 2001 18:16:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268654AbRG3WRm>; Mon, 30 Jul 2001 18:17:42 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:41349 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S268651AbRG3WQ0>;
-	Mon, 30 Jul 2001 18:16:26 -0400
-To: Gregory Maxwell <greg@linuxpower.cx>
-Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        Torrey Hoffman <torrey.hoffman@myrio.com>, ignacio@openservices.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: Test mail
-In-Reply-To: <D52B19A7284D32459CF20D579C4B0C0211C971@mail0.myrio.com>
-	<200107301919.f6UJJH7227019@saturn.cs.uml.edu>
-	<20010730143355.A4226@xi.linuxpower.cx>
-Organization: Jan at Appel
-From: Jan Nieuwenhuizen <janneke@gnu.org>
-Date: 31 Jul 2001 00:15:51 +0200
-In-Reply-To: <20010730143355.A4226@xi.linuxpower.cx> (Gregory Maxwell's message of "Mon, 30 Jul 2001 14:33:55 -0400")
-Message-ID: <m31ymynjvs.fsf@appel.lilypond.org>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/20.7
+	id <S268642AbRG3WQR>; Mon, 30 Jul 2001 18:16:17 -0400
+Received: from suntan.tandem.com ([192.216.221.8]:7094 "EHLO suntan.tandem.com")
+	by vger.kernel.org with ESMTP id <S267023AbRG3WQM>;
+	Mon, 30 Jul 2001 18:16:12 -0400
+Message-ID: <3B65DA0E.9736346D@compaq.com>
+Date: Mon, 30 Jul 2001 15:05:02 -0700
+From: "Brian J. Watson" <Brian.J.Watson@compaq.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>, Larry McVoy <lm@bitmover.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Richard Guenther <rguenth@tat.physik.uni-tuebingen.de>,
+        Andi Kleen <ak@suse.de>, Bill Pringlemeir <bpringle@sympatico.ca>
+Subject: Re: [PATCH 2.4.7] generic hash table implementation
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Gregory Maxwell <greg@linuxpower.cx> writes:
+> Thanks to everyone who participated in the 'Common hash table implementation'
+> thread. With your comments in mind, I molded Richard's code into something
+> that might work for the kernel community (and Linus).
+> 
+> Included in the following patch are the generic hash implementation,
+> documentation, and some test code. The test code will be stripped out when
+> it's time to submit the patch for inclusion. To turn on the test code, set
+> HASH_TEST to 1.
+> 
+> Before submitting, we probably want to port one or more kernel hash tables
+> onto the generic implementation. I was thinking about porting the dcache
+> sometime next week if I have time, then running it on my laptop to see if
+> there's any problems.
+> 
+> Let me know what you think.
+> 
 
-> On Mon, Jul 30, 2001 at 03:19:17PM -0400, Albert D. Cahalan wrote:
-> There already are readers of LKML who filter listmail from
-> Outlook/'Internet
 
-  /hotmail.com
+Sorry. My last message had a bogus reply address (bwatson@sandbass.cpqcorp.net). I'm used to using Netscape mail, but since Netscape has no good
+way to send inline patches unscathed, I used the mail command. I forgot that mail wouldn't know to use my correct reply address, and instead
+would use the account name on my laptop.
 
-> mail server' into /dev/null.
+To make a long story short, my correct reply address is Brian.J.Watson@compaq.com. Please copy me if you have comments about my adaptation of
+Richard's generic hash implementation.
 
 -- 
-Jan Nieuwenhuizen <janneke@gnu.org> | GNU LilyPond - The music typesetter
-http://www.xs4all.nl/~jantien       | http://www.lilypond.org
+Brian Watson                | "The common people of England... so 
+Linux Kernel Developer      |  jealous of their liberty, but like the 
+Open SSI Clustering Project |  common people of most other countries 
+Compaq Computer Corp        |  never rightly considering wherein it 
+Los Angeles, CA             |  consists..."
+                            |     -Adam Smith, Wealth of Nations, 1776
 
+mailto:Brian.J.Watson@compaq.com
+http://opensource.compaq.com/

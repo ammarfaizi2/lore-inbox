@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267605AbTAHAGD>; Tue, 7 Jan 2003 19:06:03 -0500
+	id <S267573AbTAHASF>; Tue, 7 Jan 2003 19:18:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267646AbTAHAGD>; Tue, 7 Jan 2003 19:06:03 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:46852 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267605AbTAHAGD>; Tue, 7 Jan 2003 19:06:03 -0500
-Date: Wed, 8 Jan 2003 00:14:36 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Robert Love <rml@tech9.net>
-Cc: Adrian Bunk <bunk@fs.tum.de>, "Robert P. J. Day" <rpjday@mindspring.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: observations on 2.5 config screens
-Message-ID: <20030108001436.A14505@flint.arm.linux.org.uk>
-Mail-Followup-To: Robert Love <rml@tech9.net>, Adrian Bunk <bunk@fs.tum.de>,
-	"Robert P. J. Day" <rpjday@mindspring.com>,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0301011435300.27623-100000@dell> <20030107233012.GP6626@fs.tum.de> <1041982936.694.786.camel@phantasy>
-Mime-Version: 1.0
+	id <S267612AbTAHASF>; Tue, 7 Jan 2003 19:18:05 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:2577 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S267573AbTAHASB>; Tue, 7 Jan 2003 19:18:01 -0500
+Message-ID: <3E1B6B23.40A3C939@linux-m68k.org>
+Date: Wed, 08 Jan 2003 01:04:51 +0100
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andre Hedrick <andre@pyxtechnologies.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux iSCSI Initiator, OpenSource (fwd) (Re: Gauntlet Set NOW!)
+References: <Pine.LNX.4.10.10301071439190.421-100000@master.linux-ide.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1041982936.694.786.camel@phantasy>; from rml@tech9.net on Tue, Jan 07, 2003 at 06:42:16PM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 07, 2003 at 06:42:16PM -0500, Robert Love wrote:
-> On Tue, 2003-01-07 at 18:30, Adrian Bunk wrote:
-> > Robert, could you comment on whether it's really needed to have the 
-> > preemt option defined architecture-dependant?
-> > 
-> > After looking through the arch/*/Kconfig files it seems to me that the
-> > most problematic things might be architecture-specific parts of other
-> > architecturs that don't even offer PREEMPT and the depends on CPU_32 in
-> > arch/arm/Kconfig.
+Hi,
+
+Andre Hedrick wrote:
+
+> > > Please continue to think of TCP checksums as valid for a data transport,
+> > > you data will be gone soon enough.
+> > >
+> > > Initiator == Controller
+> > > Target == Disk
+> > > iSCSI == cable or ribbon
+> > >
+> > > Please turn off the CRC on your disk drive and see if you still have data.
+> >
+> > This maybe works as PR, but otherwise it's crap.
 > 
-> I think it should be there.  Plus, as you say, it is defined
-> per-architecture.
+> So, please turn off the CRC's in your onboard storage today and see how
+> long it lasts.
+
+If you want to compare apples with apples, you should rather tell me how
+I turn off the checksumming of my nic.
+
+> > With a network protocol you have multiple possibilities to increase the
+> > reliability. The lower you do it in the network layer the easier is it
+> > to put it into hardware and to optimize it and the more generically it's
+> > usable. Doing it in the protocol is only the last resort. The iSCSI
+> > protocol is a nice protocol - if you ignore all the crap the hardware
+> > vendors put in (that stuff only makes sense if you want to produce ultra
+> > cheap hardware).
 > 
-> The real problem in my opinion is that the category is misnamed.  It is
-> not "processor options" except for the first couple.  The majority of
-> the options should be under a title of "core" or "architecture" or
-> "system options" in my opinion.
+> I will be happy to see everyone turn off the CRC's on the data and headers
+> on their products or the open sources ones which fail to follow the rules.
+> I am well away of everyones contempt for standards.
 
-On ARM, it doesn't appear under "processor options" but under
-"General Setup", which is where it fits best, along with the other
-general core features of the kernel.  It does depend on a processor
-option, but there should not be any problem with that.  ARM _does
-not_ support preempt on 26-bit ARM CPUs, so we _explicitly_ disallow
-selection of that configuration.
+You know RFC2119?
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+bye, Roman

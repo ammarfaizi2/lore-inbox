@@ -1,60 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262046AbTHTQtp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 12:49:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbTHTQto
+	id S262047AbTHTQt5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 12:49:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbTHTQt5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 12:49:44 -0400
-Received: from d12lmsgate-2.de.ibm.com ([194.196.100.235]:4556 "EHLO
-	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
-	id S262046AbTHTQtl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 12:49:41 -0400
-Message-ID: <3F43A631.50308@zurich.ibm.com>
-Date: Wed, 20 Aug 2003 18:47:45 +0200
-From: Roman Pletka <rap@zurich.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020903
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Stephan von Krawczynski <skraw@ithnet.com>
-CC: bloemsaa@xs4all.nl, davem@redhat.com, alan@lxorguk.ukuu.org.uk,
-       willy@w.ods.org, richard@aspectgroup.co.uk, carlosev@newipnet.com,
-       lamont@scriptkiddie.org, davidsen@tmr.com, marcelo@conectiva.com.br,
-       netdev@oss.sgi.com, linux-net@vger.kernel.org, layes@loran.com,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-References: <353568DCBAE06148B70767C1B1A93E625EAB58@post.pc.aspectgroup.co.uk>	<20030819145403.GA3407@alpha.home.local>	<20030819170751.2b92ba2e.skraw@ithnet.com>	<20030819085717.56046afd.davem@redhat.com>	<20030819185219.116fd259.skraw@ithnet.com>	<3F43891E.9060204@zurich.ibm.com> <20030820175504.07658147.skraw@ithnet.com>
-X-Enigmail-Version: 0.63.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Aug 2003 12:49:57 -0400
+Received: from gsd.di.uminho.pt ([193.136.20.132]:42901 "EHLO
+	bbb.lsd.di.uminho.pt") by vger.kernel.org with ESMTP
+	id S262047AbTHTQtv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 12:49:51 -0400
+Date: Wed, 20 Aug 2003 17:49:49 +0100
+From: Luciano Miguel Ferreira Rocha <luciano@lsd.di.uminho.pt>
+To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>
+Cc: linux-kernel@vger.kernel.org, spiridonov@gamic.com
+Subject: Re: how to turn off, or to clear read cache?
+Message-ID: <20030820164949.GA5613@lsd.di.uminho.pt>
+Mail-Followup-To: Luciano Miguel Ferreira Rocha <luciano@lsd.di.uminho.pt>,
+	=?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@users.sourceforge.net>,
+	linux-kernel@vger.kernel.org, spiridonov@gamic.com
+References: <200308201322.h7KDMQga000797@81-2-122-30.bradfords.org.uk> <3F437646.4050107@gamic.com> <yw1x8ypocv63.fsf@users.sourceforge.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <yw1x8ypocv63.fsf@users.sourceforge.net>
+User-Agent: Mutt/1.4.1i
+X-Disclaimer: 'Author of this message is not responsible for any harm done to reader's computer.'
+X-Organization: 'GSD'
+X-Section: 'BIC'
+X-Priority: '1 (Highest)'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephan von Krawczynski wrote:
- >On Wed, 20 Aug 2003 16:43:42 +0200
- >Roman Pletka <rap@zurich.ibm.com> wrote:
- >
- >
- >>Please read carefully what you have quoted:
- >>It says: *An* implementation... and then goes on with a citation of RFC 826.
- >>A simple citation does not make a valid standard yet. It just refers to it
- >>as an example for this specific issue. That's all.
- >
- >
- >Sorry, but my reading is this "An implementation of the ( Address Resolution
- >Protocol (ARP) [LINK:2] ) ..."
- >Do you understand what I mean?
- >
- >If you insist on RFC-826 being only one of several (possible) ARP
- >implementations, can you then please name an RFC where ARP as a protocol is
- >clearly defined? I mean there must be one, or not?
+On Wed, Aug 20, 2003 at 03:31:32PM +0200, Måns Rullgård wrote:
+> Sergey Spiridonov <spiridonov@gamic.com> writes:
+> 
+> >>> I need to make some performance tests. I need to switch off or to
+> >>> clear read cache, so that consequent reading of the same file will
+> >>> take the same amount of time.
+> >>>
+> >>>Is there an easy way to do it, without rebuilding the kernel?
+> >> Unmount and remount the filesystem.
+> >
+> >
+> > Would
+> >
+> > # mount -o remount
+> >
+> > do the job?
+> 
+> no
 
-This is not the point. As has already been mentioned some days ago by davem
-RFC 826 explicitely states at the beginning that it is not the specification
-of an Internet Standard and thats what I meant.
+What about dd if=/dev/hda bs=8M count=$(awk '/MemTotal/ { printf "%d", $2/4096 }' /proc/meminfo) ?
 
-So let's stop spinning round on this.
+Will it clear the cache?
 
--- Roman
-
-
+Regards,
+Luciano Rocha

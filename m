@@ -1,86 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261691AbTIOXKa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 19:10:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261695AbTIOXKa
+	id S261722AbTIOXVZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 19:21:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbTIOXVZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 19:10:30 -0400
-Received: from smtp12.eresmas.com ([62.81.235.112]:31195 "EHLO
-	smtp12.eresmas.com") by vger.kernel.org with ESMTP id S261691AbTIOXKS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 19:10:18 -0400
-Message-ID: <3F6646C9.8030808@wanadoo.es>
-Date: Tue, 16 Sep 2003 01:10:01 +0200
-From: Xose Vazquez Perez <xose@wanadoo.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: gl, es, en
+	Mon, 15 Sep 2003 19:21:25 -0400
+Received: from [141.154.95.10] ([141.154.95.10]:34015 "EHLO peabody.ximian.com")
+	by vger.kernel.org with ESMTP id S261722AbTIOXVR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 19:21:17 -0400
+Message-ID: <3F664941.6000206@ximian.com>
+Date: Mon, 15 Sep 2003 19:20:33 -0400
+From: Kevin Breit <mrproper@ximian.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b) Gecko/20030901 Thunderbird/0.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Tosatti <marcelo.tosatti@cyclades.com.br>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] changes at SubmittingDrivers
-X-Enigmail-Version: 0.63.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------040302040402060404030802"
-X-Spam-Score: -0.6
+To: Chris Meadors <clubneon@hereintown.net>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Need fixing of a rebooting system
+References: <1063496544.3164.2.camel@localhost.localdomain>	 <Pine.LNX.4.53.0309131945130.3274@montezuma.fsmlabs.com>	 <3F6450D7.7020906@ximian.com>	 <Pine.LNX.4.53.0309140904060.22897@montezuma.fsmlabs.com>	 <1063561687.10874.0.camel@localhost.localdomain>	 <Pine.LNX.4.53.0309141741050.5140@montezuma.fsmlabs.com>	 <3F64FEAF.1070601@ximian.com>	 <Pine.LNX.4.53.0309142055560.5140@montezuma.fsmlabs.com>	 <1063650478.1516.0.camel@localhost.localdomain>	 <1063653132.224.32.camel@clubneon.priv.hereintown.net>	 <3F66249A.3020308@ximian.com> <1063664654.19299.10.camel@clubneon.clubneon.com>
+In-Reply-To: <1063664654.19299.10.camel@clubneon.clubneon.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040302040402060404030802
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Chris Meadors wrote:
 
-hi,
+>On Mon, 2003-09-15 at 16:44, Kevin Breit wrote:
+>
+>  
+>
+>>/proc/cpuinfo says:
+>>
+>>model name:   Celeron (Coppermine)
+>>
+>>So my configuration for the first 5 main menu items that are enabled in 
+>>makeconfig are:
+>>
+>>* Prompt for developer and/or incomplete code/drivers
+>>  * Select only drivers expected to compile cleanly
+>>  * Select only drivers that don't need compile-time external firmware
+>>
+>>* Support for paging of anonymous memory
+>>   * System V IPC
+>>   * BSD Process Accounting
+>>   * Sysctl support
+>>* Subarchitecture Type (PC-compatible)
+>>* Processor family (Pentium-II/Celeron(pre-Coppermine))
+>>    
+>>
+>
+>You can pick the Pentium-III here, since you have a Coppermine core
+>Celeron.  But this will almost surely not be any part of the solution to
+>the problem.
+>  
+>
+I didn't think it would make a difference.
 
-Trivial changes. Maybe Alan Cox wants to change 2.2 maintainer :-?
+>>* Preemptible Kernel
+>>* Machine Check Exception
+>>* /dev/cpu/microcode
+>>* /dev/cpu/*/msr
+>>* /dev/cpu/*/cpuid
+>>* BIOS Enhanced Disk Drive calls determine boot disk
+>>    
+>>
+>
+>I'd turn this off, just to see if it makes any change.  It says it is
+>"believed to be safe", but it is experimental, and your controller BIOS
+>almost surely does not support it.
+>  
+>
+I turned this off.  I'll report my findings shortly.
 
--thanks-
--- 
-Que trabajen los romanos, que tienen el pecho de lata.
+>>* Power Management support
+>>   *Full ACPI Support (minus the ASUS Laptop Extras and Toshiba Laptop 
+>>Extras)
+>>
+>>Do you see anything in that list which I should look into ditching first?
+>>    
+>>
+>
+>Other than the EDD setting, I see nothing.  What do you have in the next
+>choice after ACPI, the APM stuff?
+>  
+>
+I have all the ACPI stuff enabled and no APM enabled.  I do not have 
+ACPI debuggging statements enabled.
 
---------------040302040402060404030802
-Content-Type: text/plain;
- name="SubmittingDrivers.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="SubmittingDrivers.diff"
+>Also, can you see anything on the screen before it reboots?  There is
+>nothing after "Uncompressing kernel..."?  Just boom, it reboots?
+>  
+>
+It says Uncompressing kernel....................gives the message saying 
+the uncompression is done and then reboots.  The time between finishing 
+the uncompression and rebooting is about .1 sec.
 
---- linux/Documentation/SubmittingDrivers	2003-01-16 04:26:18.000000000 +0100
-+++ linux.new/Documentation/SubmittingDrivers	2003-09-16 01:04:34.000000000 +0200
-@@ -25,21 +25,23 @@
- ------------------------
- 
- Linux 2.0:
--	No new drivers are accepted for this kernel tree
-+	Only _critical_ and security patches are accepted.
-+	No new drivers are accepted for this kernel tree.
- 
- Linux 2.2:
--	If the code area has a general maintainer then please submit it to
--	the maintainer listed in MAINTAINERS in the kernel file. If the
--	maintainer does not respond or you cannot find the appropriate
--	maintainer then please contact Alan Cox <alan@lxorguk.ukuu.org.uk>
-+	The same rules apply as 2.2. The final contact point for submissions
-+	is Alan Cox <alan@lxorguk.ukuu.org.uk>.
- 
- Linux 2.4:
--	The same rules apply as 2.2. The final contact point for Linux 2.4 
--	submissions is Marcelo Tosatti <marcelo@conectiva.com.br>.
-+	If the code area has a general maintainer then please submit it to
-+	the maintainer listed in MAINTAINERS in the kernel file. If the
-+	maintainer does not respond or you can not find the appropriate
-+	maintainer then please contact Marcelo Tosatti
-+	<marcelo.tosatti@cyclades.com.br>.
- 
--Linux 2.5:
-+Linux 2.6:
- 	The same rules apply as 2.4 except that you should follow linux-kernel
--	to track changes in API's. The final contact point for Linux 2.5
-+	to track changes in API's. The final contact point for Linux 2.6
- 	submissions is Linus Torvalds <torvalds@transmeta.com>.
- 
- What Criteria Determine Acceptance
+>There isn't much that can trigger a reboot that early on.
+>  
+>
+I figured that, which is why I am asking for help about where to disable 
+things?
 
---------------040302040402060404030802--
+Thanks
+
+Kevin Breit
 

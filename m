@@ -1,57 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273345AbTHKU3u (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 16:29:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273403AbTHKU3u
+	id S272948AbTHKUYP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 16:24:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272961AbTHKUYP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 16:29:50 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:27273 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S273345AbTHKU3s
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 16:29:48 -0400
-Date: Mon, 11 Aug 2003 22:27:55 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, axboe@suse.de
-Subject: Re: test3 oops on Compaq 8500R
-Message-ID: <20030811222755.C1246@electric-eye.fr.zoreil.com>
-References: <Pine.LNX.4.44.0308111552350.1734-100000@logos.cnet> <Pine.LNX.4.53.0308111509160.26153@montezuma.mastecende.com>
+	Mon, 11 Aug 2003 16:24:15 -0400
+Received: from kknd.mweb.co.za ([196.2.45.79]:32675 "EHLO kknd.mweb.co.za")
+	by vger.kernel.org with ESMTP id S272910AbTHKUYJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 16:24:09 -0400
+Subject: Re: Linux 2.6.0-test3: logo patch
+From: Martin Schlemmer <azarah@gentoo.org>
+Reply-To: azarah@gentoo.org
+To: James Simmons <jsimmons@infradead.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0308111825150.2275-100000@phoenix.infradead.org>
+References: <Pine.LNX.4.44.0308111825150.2275-100000@phoenix.infradead.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-OluGLL3AHVZ9nmYEWYan"
+Message-Id: <1060633476.31865.24.camel@nosferatu.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.53.0308111509160.26153@montezuma.mastecende.com>; from zwane@linuxpower.ca on Mon, Aug 11, 2003 at 03:13:11PM -0400
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Mon, 11 Aug 2003 22:24:36 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo <zwane@linuxpower.ca> :
-[...]
-> NULL disk->queue->queuedata, what does the following (possibly 
-> fundamentally flawed) patch do?
 
-Hmmm...
+--=-OluGLL3AHVZ9nmYEWYan
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-DAC960_Probe()
--> DAC960_DetectController()
-   ->   for (i = 0; i < DAC960_MaxLogicalDrives; i++) {
-        	Controller->disks[i] = alloc_disk(1<<DAC960_MaxPartitionsBits);
-	        if (!Controller->disks[i])
-        	        goto Failure;
-	        Controller->disks[i]->private_data = (void *)i;
-	        Controller->disks[i]->queue = Controller->RequestQueue;
-	}
--> DAC960_InitializeController()
-   -> DAC960_RegisterBlockDevice()
-      -> RequestQueue = blk_init_queue(DAC960_RequestFunction,...);
-  	 if (!RequestQueue) {
-                 unregister_blkdev(MajorNumber, "dac960");
-                 return false;
-         }
-         Controller->RequestQueue = RequestQueue;
+On Mon, 2003-08-11 at 19:25, James Simmons wrote:
+> > Right, this fixes the 'no logo' issue - anybody have any idea why
+> > I now have two logo's ? :)
+>=20
+> Do you have two CPUs ?
 
-Controller->disks[i]->queue = ... should be done once Controller->RequestQueue
-is set imho.
+Right, this is what you get when you live in a third world country :P
 
---
-Ueimor
+
+Thanks,
+
+--=20
+
+Martin Schlemmer
+
+
+
+
+--=-OluGLL3AHVZ9nmYEWYan
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/N/uEqburzKaJYLYRArT8AJsHMYWSFXYfXGUo/aidW9OlidpsVACgjlU9
+55AP/KX5dX0XHRHCXQ9/f9I=
+=rzir
+-----END PGP SIGNATURE-----
+
+--=-OluGLL3AHVZ9nmYEWYan--
+

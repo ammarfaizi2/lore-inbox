@@ -1,73 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261802AbUKPUNq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261818AbUKPUr0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261802AbUKPUNq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 15:13:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261770AbUKPUMB
+	id S261818AbUKPUr0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 15:47:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261815AbUKPUr0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 15:12:01 -0500
-Received: from alog0040.analogic.com ([208.224.220.55]:16512 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261792AbUKPUJn
+	Tue, 16 Nov 2004 15:47:26 -0500
+Received: from dsl254-100-205.nyc1.dsl.speakeasy.net ([216.254.100.205]:44750
+	"EHLO memeplex.com") by vger.kernel.org with ESMTP id S261790AbUKPUqK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 15:09:43 -0500
-Date: Tue, 16 Nov 2004 15:09:30 -0500 (EST)
-From: linux-os <linux-os@chaos.analogic.com>
-Reply-To: linux-os@analogic.com
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Work around a lockup?
-In-Reply-To: <Pine.LNX.4.53.0411162038490.8374@yvahk01.tjqt.qr>
-Message-ID: <Pine.LNX.4.61.0411161456030.983@chaos.analogic.com>
-References: <Pine.LNX.4.53.0411162038490.8374@yvahk01.tjqt.qr>
+	Tue, 16 Nov 2004 15:46:10 -0500
+From: "Andrew A." <aathan-linux-kernel-1542@cloakmail.com>
+To: "Andrew A." <aathan-linux-kernel-1542@cloakmail.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: pthread_cond_signal not waking thread
+Date: Tue, 16 Nov 2004 15:45:56 -0500
+Message-ID: <NFBBICMEBHKIKEFBPLMCKEPHJMAA.aathan-linux-kernel-1542@cloakmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <16794.25535.97260.366902@thebsh.namesys.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Nov 2004, Jan Engelhardt wrote:
 
-> Hello,
->
->
-> I am currently looking into an issue where a host sporadically locks up. I will
-> retrieve the SYSRQ+P tomorrow when I am back at the machine.
-> Until then, here's the real question:
->
-> Given that some kernel code (possibly a module) runs in an infinite loop, and
-> thus not giving back control to the user (in an UP environment), is there a
-> possibility to force a schedule?
-> Something like the normal scheduler does to processes ("you got your timeslice,
-> and not more"), but also when they are in kernel mode.
->
->
->
-> Jan Engelhardt
-> --
+Nikita:
 
-No driver code should ever wait forever. Some module code may
-be broken where the writter assumed that some bit must eventually
-be set or some FIFO must eventually empty, etc. Hardware breaks.
+I am running 2.6.10-rc1-bk7 ... what version of the kernel are you talking about?  The link you included does not work.
 
-Every loop in kernel code, not just in drivers, needs some way
-"out" if things don't go according to plan. To do that, you
-have a course timer called "jiffies" and you have finer granularity
-from counted-spin-loops. Never assume anything. DMA may never
-complete, UART data-ready bits may never be true, SNICS (Network)
-controllers may never be able to receive data, etc. Always have
-a way to nicely fail a hardware interface request.
+A.
 
-If you need to wait a long time for something, you can execute
-schedule_timeout(n) in your counted loop. This will give up
-the CPU to other tasks while you are waiting. More sophisticated
-code sleeps until interrupted, etc. Of course, the interrupt
-may never happen so your driver needs to plan for that too.
+-----Original Message-----
+From: Nikita Danilov [mailto:nikita@clusterfs.com]
+Sent: Tuesday, November 16, 2004 3:32 PM
+To: Andrew A.
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: pthread_cond_signal not waking thread
 
-There are numerous examples of kernel driver code where
-the CPU schedules while the code waits for some event. But,
-beware, that some procedures are being removed and some
-methods are broken by design. Copy the code in newer drivers.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by John Ashcroft.
-                  98.36% of all statistics are fiction.
+Andrew A. writes:
+ > 
+ > 
+ > Below is a sysrq-t dump (relevant process is called "tt1"), and a
+ > post I sent to ACE user group describing a situation I am seeing
+ > where a pthread_cond_signal() call sometimes does not wake up the
+ > thread waiting on the condition variable, despite a call to
+ > sched_yield() following the pthread_cond_signal().  All threads are
+ > running at equal priorities under SCHED_RR.
+ > 
+
+I experienced similar thing. Switching to the latest
+http://linux.bkbits.net/linux-2.5 (done about 10 hours ago), (as advised
+by Arjan van de Ven) fixed it.
+
+Nikita.
+
+
+

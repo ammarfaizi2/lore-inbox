@@ -1,43 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261281AbUKSHJ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261287AbUKSHNR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261281AbUKSHJ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 02:09:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261287AbUKSHJ5
+	id S261287AbUKSHNR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 02:13:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbUKSHNR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 02:09:57 -0500
-Received: from fw.osdl.org ([65.172.181.6]:2797 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261281AbUKSHJz (ORCPT
+	Fri, 19 Nov 2004 02:13:17 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:38080 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261287AbUKSHNM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 02:09:55 -0500
-Date: Thu, 18 Nov 2004 23:09:53 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Len Brown <len.brown@intel.com>
-Cc: Chris Wright <chrisw@osdl.org>, Adrian Bunk <bunk@stusta.de>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.10-rc2 doesn't boot (if no floppy device)
-Message-ID: <20041118230948.W2357@build.pdx.osdl.net>
-References: <20041115152721.U14339@build.pdx.osdl.net> <1100819685.987.120.camel@d845pe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1100819685.987.120.camel@d845pe>; from len.brown@intel.com on Thu, Nov 18, 2004 at 06:14:46PM -0500
+	Fri, 19 Nov 2004 02:13:12 -0500
+Date: Fri, 19 Nov 2004 02:12:58 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Chris Wright <chrisw@osdl.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Ross Kendall Axe <ross.axe@blueyonder.co.uk>, <netdev@oss.sgi.com>,
+       Stephen Smalley <sds@epoch.ncsc.mil>,
+       lkml <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH] linux 2.9.10-rc1: Fix oops in unix_dgram_sendmsg when
+ using SELinux and SOCK_SEQPACKET
+In-Reply-To: <20041118230109.V2357@build.pdx.osdl.net>
+Message-ID: <Xine.LNX.4.44.0411190209090.8343-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Len Brown (len.brown@intel.com) wrote:
-> Chris,
+On Thu, 18 Nov 2004, Chris Wright wrote:
+
+> > (Also now ignores any supplied address per 
+> > http://www.opengroup.org/onlinepubs/009695399/functions/sendto.html)
 > 
-> Please apply this debug patch and boot with
-> apic=debug acpi_dbg_level=1
+> Nitpick, but I missed where it said ignore the address.  And it seems
+> counter intuitive to provide address, only to have it ignored and
+> delivered elsewhere.
 
-Len, unfortunately the disk drive went south on my laptop.  So testing
-will take a bit longer as I piece things back together.
+For sendto():
+  "If the socket is connection-mode, dest_addr shall be ignored."
 
-thanks,
--chris
+For sendmsg():
+  "If the socket is connection-mode, the destination address in msghdr 
+   shall be ignored."
+
+I agree that it's counter intuitive (and surely an application bug), but
+some feedback I've had suggests we follow the spec.
+
+
+- James
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+James Morris
+<jmorris@redhat.com>
+
+

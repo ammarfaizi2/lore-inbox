@@ -1,70 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276840AbRJKT7v>; Thu, 11 Oct 2001 15:59:51 -0400
+	id <S276824AbRJKUIk>; Thu, 11 Oct 2001 16:08:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276824AbRJKT7e>; Thu, 11 Oct 2001 15:59:34 -0400
-Received: from freeside.toyota.com ([63.87.74.7]:19206 "EHLO toyota.com")
-	by vger.kernel.org with ESMTP id <S276836AbRJKT7N>;
-	Thu, 11 Oct 2001 15:59:13 -0400
-Message-ID: <3BC5FA12.F8E5C91E@lexus.com>
-Date: Thu, 11 Oct 2001 12:59:14 -0700
-From: J Sloan <jjs@lexus.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Tim Moore <timothymoore@bigfoot.com>
-CC: linux-kernel@vger.kernel.org
-Subject: [OT] Re: Which kernel (Linus or ac)?
-In-Reply-To: <XFMail.20011011094548.jkp@riker.nailed.org> <3BC5E152.3D81631@bigfoot.com> <3BC5E3AF.588D0A55@lexus.com> <3BC5EB56.21B4EF88@bigfoot.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S276831AbRJKUIb>; Thu, 11 Oct 2001 16:08:31 -0400
+Received: from cs.columbia.edu ([128.59.16.20]:669 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id <S276824AbRJKUIP>;
+	Thu, 11 Oct 2001 16:08:15 -0400
+Date: Thu, 11 Oct 2001 16:08:39 -0400
+Message-Id: <200110112008.f9BK8dP20700@buggy.badula.org>
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: "Matthew S. Hallacy" <poptix@techmonkeys.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: eepro100.c bug on 10Mbit half duplex (kernels 2.4.5 / 2.4.10 / 2.4.11pre6 / 2.4.11 / 2.4.10ac11)
+In-Reply-To: <20011011114208.N11846@techmonkeys.org>
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.8-ac9 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Moore wrote:
+On Thu, 11 Oct 2001 11:42:08 -0600, Matthew S. Hallacy <poptix@techmonkeys.org> wrote:
 
-> Observations based on Roswell 2 and identical Abit BP6's: faster disk
-> I/O and kernel builds (same options), smoother X11 performance (SVGA),
-> higher LAN network I/O (switched LNE100TX) under heavy loads, and, none
-> of the recent latency or VM issues.
+> I currently have the equivalent of 8 of these in my system (Compaq NC3131,
+> quad ethernet..)
+> 
+>  Bus  2, device   4, function  0:
+>    Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100] (rev 5).
+>                                           ^^^^
 
-You might have a pathological case there, it's
-not unheard of -
+Umm, no, that's actually an 82558 rev B. pci.ids should be updated to 
+have "Intel Corporation 8255[7-9]" for this id, because Intel can't make 
+up their minds to change the PCI id when they release a new product.
 
-But just out of curiosity, are you comparing the
-stock kernel shipped with roswell, which is of
-necessity safe, bland and generic, to your own
-optimized, hand configured, custom compiled
-2.2 kernel?
+rev 1-3 are 82557, rev 4-5 are 82558, rev 6-8 are 82559.
 
-Just compiling a 2.4.9-ac by hand gave me 30%
-benchmark improvement over the kernel that
-shipped with roswell, so be sure to compare
-apples with apples!
+> it is the same chip, this particular interface is 10mbit/half duplex, and
+> all the interfaces transfer 1G+/day (some small files, some larger than 500 megs)
+> with no problems, I should note this:
+> 
+> eth0: OEM i82557/i82558 10/100 Ethernet, DE:AD:BA:BE:CA:FE, IRQ 10.
+>  Receiver lock-up bug exists -- enabling work-around.
+>  ^^^^^^^^^^^^^^^^^^^^
 
-> As for features, I don't need any
-> new feature specific to 2.4.
+The OEM probably forgot to initialized the eeprom correctly, because 
+82558 rev B and higher don't have this bug. Anyway, the workaround is 
+pretty harmless.
 
-iptables is one biggie for me -
+Ion
 
-> I see your point but everything since 2.2.19p2 been stable for my NFS
-> and app server testing needs as well as primary desktop machine.
-
-As long as it does the job, no rush to upgrade -
-
-I have some very busy servers running 2.2.17,
-which have uptimes near 500 days - I'm in no
-hurry to upgrade those - but for any new installs,
-a Red Hat or Suse 2.4-based distro is the only
-thing that makes any sense to me -
-
-With all the talk about "instability" in the 2.4
-series, the fact is, you run a 2.4 distro kernel
-that has been painstakingly patched & brutally
-QA'd the way e.g. Red Hat does, and you will
-have stability.
-
-cu
-
-jjs
-
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.

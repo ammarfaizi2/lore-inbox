@@ -1,248 +1,241 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317539AbSGTVbW>; Sat, 20 Jul 2002 17:31:22 -0400
+	id <S317542AbSGTVe0>; Sat, 20 Jul 2002 17:34:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317540AbSGTVbW>; Sat, 20 Jul 2002 17:31:22 -0400
-Received: from monster.nni.com ([216.107.0.51]:56070 "EHLO admin.nni.com")
-	by vger.kernel.org with ESMTP id <S317539AbSGTVbT>;
-	Sat, 20 Jul 2002 17:31:19 -0400
-Date: Sat, 20 Jul 2002 17:32:22 -0400
-From: Andrew Rodland <arodland@noln.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -ac] Panicking in morse code v3
-Message-Id: <20020720173222.3286fcbb.arodland@noln.com>
-In-Reply-To: <20020719011300.548d72d5.arodland@noln.com>
-References: <20020719011300.548d72d5.arodland@noln.com>
-X-Mailer: Sylpheed version 0.7.8claws55 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S317541AbSGTVe0>; Sat, 20 Jul 2002 17:34:26 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:57335 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S317540AbSGTVeX>; Sat, 20 Jul 2002 17:34:23 -0400
+Subject: Re: [PATCH] for_each_pgdat
+From: Robert Love <rml@tech9.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>, akpm@zip.com.au,
+       riel@conectiva.com.br, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <Pine.LNX.4.44.0207201359350.1576-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0207201359350.1576-100000@home.transmeta.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 20 Jul 2002 14:37:19 -0700
+Message-Id: <1027201039.1085.812.camel@sinai>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Once more Mr. unnamed sent me some suggestions, and once more I've
-merged [my own adaptation of] them in. Also, I took an attempt to make
-it somewhat more platform-independent, and re-organize. The original
-panic_blink was in pc_keyb.c, and was guarded by an #ifdef __i386__ .
-v3 moves the generic code out of pc_keyb (and into panic.c). It should
-be able to blink on anything that uses pc_keyb (i386, some ARM, and
-some MIPS, apparently), and should be able to beep on anything that
-defines kd_mksound to do something (currently only i386). Also the code
-has been reorganized so as to be easier to read and follow, and there
-are a few more punctuation characters.
+On Sat, 2002-07-20 at 14:00, Linus Torvalds wrote:
 
-Yes, I actually _am_ trying to turn this into something useful.
-Now, I don't have a 2.5 tree, and probably wouldn't understand it if I
-did, but I get a feeling that this won't be so incredibly easy to port,
-thanks to having everything use the input layer. Or am I wrong?
+> Ok guys, you three (and whoever else wants to play? ;) fight it out amonst
+> yourselves, I'll wait for the end result (iow: I'll just ignore both
+> patches for now).
 
---hobbs
+No no... the issues are fairly orthogonal.
 
-Patch follows
+Attached is a patch with the for_each_pgdat implementation and
+s/node_next/pgdat_next/ per Martin.
 
-diff -u -r linux.old/drivers/char/pc_keyb.c linux.new/drivers/char/pc_keyb.c
---- linux.old/drivers/char/pc_keyb.c	Fri Jul 19 18:56:36 2002
-+++ linux.new/drivers/char/pc_keyb.c	Sat Jul 20 13:18:40 2002
-@@ -1244,41 +1244,13 @@
- #endif /* CONFIG_PSMOUSE */
+If Bill wants to convert pgdats to lists that is fine but is another
+step.  Let's get in this first batch and that can be done off this.
+
+Patch is against 2.5.27, please apply.
+
+	Robert Love
+
+diff -urN linux-2.5.27/arch/ia64/mm/init.c linux/arch/ia64/mm/init.c
+--- linux-2.5.27/arch/ia64/mm/init.c	Sat Jul 20 12:11:15 2002
++++ linux/arch/ia64/mm/init.c	Sat Jul 20 14:27:15 2002
+@@ -167,10 +167,10 @@
  
+ #ifdef CONFIG_DISCONTIGMEM
+ 	{
+-		pg_data_t *pgdat = pgdat_list;
++		pg_data_t *pgdat;
  
--static int blink_frequency = HZ/2;
-+void pckbd_blink (char led) {
-+		led = led ? (0x01 | 0x04) : 0x00;
+ 		printk("Free swap:       %6dkB\n", nr_swap_pages<<(PAGE_SHIFT-10));
+-		do {
++		for_each_pgdat(pgdat) {
+ 			printk("Node ID: %d\n", pgdat->node_id);
+ 			for(i = 0; i < pgdat->node_size; i++) {
+ 				if (PageReserved(pgdat->node_mem_map+i))
+@@ -184,8 +184,7 @@
+ 			printk("\t%d reserved pages\n", reserved);
+ 			printk("\t%d pages shared\n", shared);
+ 			printk("\t%d pages swap cached\n", cached);
+-			pgdat = pgdat->node_next;
+-		} while (pgdat);
++		}
+ 		printk("Total of %ld pages in page table cache\n", pgtable_cache_size);
+ 		printk("%d free buffer pages\n", nr_free_buffer_pages());
+ 	}
+diff -urN linux-2.5.27/include/linux/mmzone.h linux/include/linux/mmzone.h
+--- linux-2.5.27/include/linux/mmzone.h	Sat Jul 20 12:11:05 2002
++++ linux/include/linux/mmzone.h	Sat Jul 20 14:28:57 2002
+@@ -136,7 +136,7 @@
+ 	unsigned long node_start_mapnr;
+ 	unsigned long node_size;
+ 	int node_id;
+-	struct pglist_data *node_next;
++	struct pglist_data *pgdat_next;
+ } pg_data_t;
  
--/* Tell the user who may be running in X and not see the console that we have 
--   panic'ed. This is to distingush panics from "real" lockups. 
--   Could in theory send the panic message as morse, but that is left as an
--   exercise for the reader.  */ 
--void panic_blink(void)
--{ 
--	static unsigned long last_jiffie;
--	static char led;
--	/* Roughly 1/2s frequency. KDB uses about 1s. Make sure it is 
--	   different. */
--	if (!blink_frequency) 
--		return;
--	if (jiffies - last_jiffie > blink_frequency) {
--		led ^= 0x01 | 0x04;
- 		while (kbd_read_status() & KBD_STAT_IBF) mdelay(1); 
- 		kbd_write_output(KBD_CMD_SET_LEDS);
- 		mdelay(1); 
- 		while (kbd_read_status() & KBD_STAT_IBF) mdelay(1); 
- 		mdelay(1); 
- 		kbd_write_output(led);
--		last_jiffie = jiffies;
+ extern int numnodes;
+@@ -163,6 +163,20 @@
+ 
+ extern pg_data_t contig_page_data;
+ 
++/**
++ * for_each_pgdat - helper macro to iterate over all nodes
++ * @pgdat - pointer to a pg_data_t variable
++ *
++ * Meant to help with common loops of the form
++ * pgdat = pgdat_list;
++ * while(pgdat) {
++ * 	...
++ * 	pgdat = pgdat->pgdat_next;
++ * }
++ */
++#define for_each_pgdat(pgdat) \
++	for (pgdat = pgdat_list; pgdat; pgdat = pgdat->pgdat_next)
++
+ #ifndef CONFIG_DISCONTIGMEM
+ 
+ #define NODE_DATA(nid)		(&contig_page_data)
+diff -urN linux-2.5.27/mm/bootmem.c linux/mm/bootmem.c
+--- linux-2.5.27/mm/bootmem.c	Sat Jul 20 12:11:12 2002
++++ linux/mm/bootmem.c	Sat Jul 20 14:28:52 2002
+@@ -49,7 +49,7 @@
+ 	bootmem_data_t *bdata = pgdat->bdata;
+ 	unsigned long mapsize = ((end - start)+7)/8;
+ 
+-	pgdat->node_next = pgdat_list;
++	pgdat->pgdat_next = pgdat_list;
+ 	pgdat_list = pgdat;
+ 
+ 	mapsize = (mapsize + (sizeof(long) - 1UL)) & ~(sizeof(long) - 1UL);
+@@ -339,12 +339,11 @@
+ 	pg_data_t *pgdat = pgdat_list;
+ 	void *ptr;
+ 
+-	while (pgdat) {
++	for_each_pgdat(pgdat)
+ 		if ((ptr = __alloc_bootmem_core(pgdat->bdata, size,
+ 						align, goal)))
+ 			return(ptr);
+-		pgdat = pgdat->node_next;
 -	}
--}  
--
--static int __init panicblink_setup(char *str)
--{
--    int par;
--    if (get_option(&str,&par)) 
--	    blink_frequency = par*(1000/HZ);
--    return 1;
++
+ 	/*
+ 	 * Whoops, we cannot satisfy the allocation request.
+ 	 */
+diff -urN linux-2.5.27/mm/numa.c linux/mm/numa.c
+--- linux-2.5.27/mm/numa.c	Sat Jul 20 12:11:12 2002
++++ linux/mm/numa.c	Sat Jul 20 14:29:11 2002
+@@ -109,20 +109,20 @@
+ 	spin_lock_irqsave(&node_lock, flags);
+ 	if (!next) next = pgdat_list;
+ 	temp = next;
+-	next = next->node_next;
++	next = next->pgdat_next;
+ 	spin_unlock_irqrestore(&node_lock, flags);
+ #endif
+ 	start = temp;
+ 	while (temp) {
+ 		if ((ret = alloc_pages_pgdat(temp, gfp_mask, order)))
+ 			return(ret);
+-		temp = temp->node_next;
++		temp = temp->pgdat_next;
+ 	}
+ 	temp = pgdat_list;
+ 	while (temp != start) {
+ 		if ((ret = alloc_pages_pgdat(temp, gfp_mask, order)))
+ 			return(ret);
+-		temp = temp->node_next;
++		temp = temp->pgdat_next;
+ 	}
+ 	return(0);
  }
--
--/* panicblink=0 disables the blinking as it caused problems with some console
--   switches. otherwise argument is ms of a blink period. */
--__setup("panicblink=", panicblink_setup);
--
-diff -u -r linux.old/kernel/panic.c linux.new/kernel/panic.c
---- linux.old/kernel/panic.c	Fri Jul 19 18:56:36 2002
-+++ linux.new/kernel/panic.c	Sat Jul 20 17:28:41 2002
-@@ -16,6 +16,8 @@
- #include <linux/init.h>
- #include <linux/sysrq.h>
- #include <linux/interrupt.h>
-+#include <linux/vt_kern.h>
-+#include <linux/pc_keyb.h>
+diff -urN linux-2.5.27/mm/page_alloc.c linux/mm/page_alloc.c
+--- linux-2.5.27/mm/page_alloc.c	Sat Jul 20 12:11:07 2002
++++ linux/mm/page_alloc.c	Sat Jul 20 14:29:25 2002
+@@ -480,7 +480,7 @@
+ 	unsigned int i, sum = 0;
+ 	pg_data_t *pgdat;
  
- asmlinkage void sys_sync(void);	/* it's really int */
+-	for (pgdat = pgdat_list; pgdat; pgdat = pgdat->node_next)
++	for (pgdat = pgdat_list; pgdat; pgdat = pgdat->pgdat_next)
+ 		for (i = 0; i < MAX_NR_ZONES; ++i)
+ 			sum += pgdat->node_zones[i].free_pages;
  
-@@ -28,9 +30,132 @@
- 	panic_timeout = simple_strtoul(str, NULL, 0);
+@@ -489,10 +489,10 @@
+ 
+ static unsigned int nr_free_zone_pages(int offset)
+ {
+-	pg_data_t *pgdat = pgdat_list;
++	pg_data_t *pgdat;
+ 	unsigned int sum = 0;
+ 
+-	do {
++	for_each_pgdat(pgdat) {
+ 		zonelist_t *zonelist = pgdat->node_zonelists + offset;
+ 		zone_t **zonep = zonelist->zones;
+ 		zone_t *zone;
+@@ -503,9 +503,7 @@
+ 			if (size > high)
+ 				sum += size - high;
+ 		}
+-
+-		pgdat = pgdat->node_next;
+-	} while (pgdat);
++	}
+ 
+ 	return sum;
+ }
+@@ -529,13 +527,12 @@
+ #if CONFIG_HIGHMEM
+ unsigned int nr_free_highpages (void)
+ {
+-	pg_data_t *pgdat = pgdat_list;
++	pg_data_t *pgdat;
+ 	unsigned int pages = 0;
+ 
+-	while (pgdat) {
++	for_each_pgdat(pgdat)
+ 		pages += pgdat->node_zones[ZONE_HIGHMEM].free_pages;
+-		pgdat = pgdat->node_next;
+-	}
++
+ 	return pages;
+ }
+ #endif
+@@ -627,7 +624,7 @@
+ 					K(zone->pages_low),
+ 					K(zone->pages_high));
+ 			
+-		tmpdat = tmpdat->node_next;
++		tmpdat = tmpdat->pgdat_next;
+ 	}
+ 
+ 	printk("( Active:%lu inactive:%lu dirty:%lu writeback:%lu free:%u )\n",
+diff -urN linux-2.5.27/mm/vmscan.c linux/mm/vmscan.c
+--- linux-2.5.27/mm/vmscan.c	Sat Jul 20 12:11:08 2002
++++ linux/mm/vmscan.c	Sat Jul 20 14:29:35 2002
+@@ -471,7 +471,7 @@
+ 		pgdat = pgdat_list;
+ 		do
+ 			need_more_balance |= kswapd_balance_pgdat(pgdat);
+-		while ((pgdat = pgdat->node_next));
++		while ((pgdat = pgdat->pgdat_next));
+ 	} while (need_more_balance);
+ }
+ 
+@@ -499,7 +499,7 @@
+ 		if (kswapd_can_sleep_pgdat(pgdat))
+ 			continue;
+ 		return 0;
+-	} while ((pgdat = pgdat->node_next));
++	} while ((pgdat = pgdat->pgdat_next));
+ 
  	return 1;
  }
--
- __setup("panic=", panic_setup);
- 
-+static int blink_setting = 1;
-+
-+/* Tell the user who may be running in X and not see the console that we have 
-+   panic'ed. This is to distingush panics from "real" lockups. 
-+   Could in theory send the panic message as morse, but that is left as an
-+   exercise for the reader.  
-+	And now it's done! LED and speaker morse code by Andrew Rodland 
-+	<arodland@noln.com>, with improvements based on suggestions from
-+	linux@horizon.com.
-+*/ 
-+
-+static const unsigned char morsetable[] = {
-+	/*  !   "    #  $     %  &    '	 	 */
-+	    0, 0122, 0, 0310, 0, 0, 0163,
-+	/*  (       )  *  +    ,     -    .      /	 */
-+	    055, 0155, 0, 0, 0163, 0141, 0152, 0051,
-+	/* 0-9 */
-+	    077, 076, 074, 070, 060, 040, 041, 043, 047, 057,
-+	/*  :     ;     <   =    >   ?    @  */
-+	    0107, 0125, 0, 0061, 0, 0114, 0,
-+	/* A-I */
-+	   006, 021, 025, 011, 002, 024, 013, 020, 004,
-+	/* J-R */
-+	   036, 015, 022, 007, 005, 017, 026, 033, 012,
-+	/* S-Z */
-+	   010, 003, 014, 030, 016, 031, 035, 023,
-+	/* [  \  ]  ^  */
-+	   0, 0, 0, 0,
-+	/* _ */
-+	   0154
-+
-+};
-+
-+#define DITLEN (HZ / 5)
-+#define DAHLEN 3 * DITLEN
-+#define SPACELEN 7 * DITLEN
-+
-+#define FREQ 844
-+
-+
-+#if (defined(__i386__) && defined(CONFIG_VT)) || defined(CONFIG_PC_KEYB)
-+#define do_blink(x) pckbd_blink(x)
-+#else
-+#define do_blink(x) 0
-+#endif
-+
-+void panic_blink(char * buf)
-+{ 
-+	static unsigned long next_jiffie = 0;
-+	static char * bufpos = 0;
-+	static unsigned char morse = 0;
-+	static char state = 1;
-+	
-+	if (!blink_setting) 
-+		return;
-+
-+	if (!buf)
-+		buf="Panic lost?";
-+
-+
-+	if (bufpos && time_after (next_jiffie, jiffies)) {
-+		return; /* Waiting for something. */
-+	}
-+
-+	if (state) { /* Coming off of a blink. */
-+		if (blink_setting & 0x01)
-+			do_blink(0);
-+
-+		state = 0;
-+
-+		if(morse > 1) { /* Not done yet, just a one-dit pause. */
-+			next_jiffie = jiffies + DITLEN;
-+		} else { /* Get a new char, and figure out how much space. */
-+			
-+			if(!bufpos)
-+				bufpos = (char *)buf; /* First time through */
-+
-+			if(!*bufpos) {
-+				bufpos = (char *)buf; /* Repeating */
-+				next_jiffie = jiffies + SPACELEN;
-+			} else {
-+				next_jiffie = jiffies + DAHLEN; /* Inter-letter space */
-+			}
-+
-+			if (*bufpos >= '!' && *bufpos <= '_') {
-+				morse = morsetable[*bufpos - '!'];
-+			} else if (*bufpos >= 'a' && *bufpos <= 'z') {
-+				morse = morsetable[*bufpos - 'a' + 'A' - '!'];
-+			} else {
-+				next_jiffie = jiffies + SPACELEN; /*Space -- For a total of 7*/
-+				state = 1; /* And bring us back here when we're done */
-+			}
-+			bufpos ++;
-+		}
-+	} else { /* Starting a new blink. We have valid code in morse. */
-+		int len;
-+
-+		len = (morse & 001) ? DAHLEN : DITLEN;
-+
-+		if (blink_setting & 0x02)
-+			kd_mksound(FREQ, len);
-+		
-+		next_jiffie = jiffies + len;
-+
-+		if (blink_setting & 0x01)
-+			do_blink(1);
-+		state = 1;
-+		morse >>= 1;
-+	}
-+}  
-+
-+static int __init panicblink_setup(char *str)
-+{
-+    int par;
-+    if (get_option(&str,&par)) 
-+	    blink_setting = par;
-+    return 1;
-+}
-+
-+/* panicblink=0 disables the blinking as it caused problems with some console
-+   switches. otherwise argument is ms of a blink period. */
-+__setup("panicblink=", panicblink_setup);
-+
-+
- /**
-  *	panic - halt the system
-  *	@fmt: The text string to print
-@@ -96,10 +221,7 @@
- #endif
- 	sti();
- 	for(;;) {
--#if defined(__i386__) && defined(CONFIG_VT) 
--		extern void panic_blink(void);
--		panic_blink(); 
--#endif
-+		panic_blink(buf); 
- 		CHECK_EMERGENCY_SYNC
- 	}
- }
+
 

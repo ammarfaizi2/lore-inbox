@@ -1,71 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261425AbREUNOX>; Mon, 21 May 2001 09:14:23 -0400
+	id <S261345AbREUNMx>; Mon, 21 May 2001 09:12:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261426AbREUNOO>; Mon, 21 May 2001 09:14:14 -0400
-Received: from tomts8.bellnexxia.net ([209.226.175.52]:64400 "EHLO
-	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S261425AbREUNN5>; Mon, 21 May 2001 09:13:57 -0400
-From: "Justin Slootsky" <slootsky@bigfoot.com>
-To: <mec@shout.net>, <linux-kernel@vger.kernel.org>
-Subject: kernel-source-2.2.19 - error in menuconfig
-Date: Mon, 21 May 2001 09:14:52 -0400
-Message-ID: <001101c0e1f8$05a4cf80$0602a8c0@chase.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook 8.5, Build 4.71.2173.0
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
-Importance: Normal
+	id <S261425AbREUNMo>; Mon, 21 May 2001 09:12:44 -0400
+Received: from venus.postmark.net ([207.244.122.71]:62477 "HELO
+	venus.postmark.net") by vger.kernel.org with SMTP
+	id <S261345AbREUNMa>; Mon, 21 May 2001 09:12:30 -0400
+Message-ID: <20010521115016.5262.qmail@venus.postmark.net>
+Mime-Version: 1.0
+From: J Brook <jbk@postmark.net>
+To: linux-kernel@vger.kernel.org
+Cc: manfred@colorfullife.com
+Subject: Re: tulip driver BROKEN in 2.4.5-pre4
+Date: Mon, 21 May 2001 11:50:16 +0000
+Content-Type: text/plain; charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I downloaded the .deb package for kernel-source-2.2.19.
+> Could you post the output of
+> 
+> #tulip-diag -mm -aa -f
+> 
+> with the broken driver?
+> Some code that's required for Linksys Tulip clones was moved
+> from pnic specific part into the generic part, perhaps that
+> causes problems.
 
-I tried to run make menuconfig and the following happened...
+Here is the output from the kernels I've tested to try to get the
+driver working:
 
-> bash-2.05# make menuconfig
-> rm -f include/asm
-> ( cd include ; ln -sf asm-i386 asm)
-> make -C scripts/lxdialog all
-> make[1]: Entering directory
-`/usr/src/kernel-source-2.2.19/scripts/lxdialog'
-> make[1]: Leaving directory
-`/usr/src/kernel-source-2.2.19/scripts/lxdialog'
-> /bin/sh scripts/Menuconfig arch/i386/config.in
-> Using defaults found in .config
-> Preparing scripts: functions, parsingawk: cannot open "MCmenu19" for
-output (Too many open files)
-> Awk died with error code 2. Giving up.
-> .scripts/Menuconfig: ./MCmenu0: line 34: syntax error near unexpected
-token `}'
-> scripts/Menuconfig: ./MCmenu0: line 34: `}'
-> .....scripts/Menuconfig: ./MCmenu13: line 89: syntax error: unexpected end
-of file
-> .............done.
+2.4.4-ac6, this kernel works!
 
-then the following error showed up, so I'm reporting it as requested.
+tulip-diag.c:v2.06 1/8/2001 Donald Becker (becker@scyld.com)
+ http://www.scyld.com/diag/index.html
+Index #1: Found a Digital DC21041 Tulip adapter at 0xd800.
+Digital DC21041 Tulip chip registers at 0xd800:
+ 0x00: ffe08000 ffffffff ffffffff 0129f000 0129f200 fc660000 fffe2002
+ffffebef
+ 0x40: fffe0000 ffff03ff ffffffff fffe0000 000001c8 ffffef05 ffffff3f
+ffff0008
+ Port selection is half-duplex.
+ Transmit started, Receive started, half-duplex.
+  The Rx process state is 'Waiting for packets'.
+  The Tx process state is 'Idle'.
+  The transmit unit is set to store-and-forward.
+  The NWay status register is 000001c8.
+   No MII transceivers found!
+  Internal autonegotiation state is 'Autonegotiation disabled'.
 
-| Menuconfig has encountered a possible error in one of the kernel's
-| configuration files and is unable to continue.  Here is the error
-| report:
-|
-|  Q> scripts/Menuconfig: MCmenu0: command not found
-|
-| Please report this to the maintainer <mec@shout.net>.  You may also
-| send a problem report to <linux-kernel@vger.kernel.org>.
-|
-| Please indicate the kernel version you are trying to configure and
-| which menu you were trying to enter when this error occurred.
-|
-| make: *** [menuconfig] Error
+--------------------------------------------------------------
+
+2.4.5-pre4 this kernel doesn't work
+
+tulip-diag.c:v2.06 1/8/2001 Donald Becker (becker@scyld.com)
+ http://www.scyld.com/diag/index.html
+Index #1: Found a Digital DC21041 Tulip adapter at 0xd800.
+Digital DC21041 Tulip chip registers at 0xd800:
+ 0x00: ffe08000 ffffffff ffffffff 0129e000 0129e200 fc660000 fffe2202
+ffffebef
+ 0x40: fffe0000 ffff03ff ffffffff fffe0000 000050c8 ffffef01 ffffffff
+ffff0008
+ Port selection is full-duplex.
+ Transmit started, Receive started, full-duplex.
+  The Rx process state is 'Waiting for packets'.
+  The Tx process state is 'Idle'.
+  The transmit unit is set to store-and-forward.
+  The NWay status register is 000050c8.
+   No MII transceivers found!
+  Internal autonegotiation state is 'Negotiation complete'.
+
+--------------------------------------------------------------
+
+2.4.4-ac9 with tulip 1.1.7 driver (from sf.net/projects/tulip)
+
+tulip-diag.c:v2.06 1/8/2001 Donald Becker (becker@scyld.com)
+ http://www.scyld.com/diag/index.html
+Index #1: Found a Digital DC21041 Tulip adapter at 0xd800.
+Digital DC21041 Tulip chip registers at 0xd800:
+ 0x00: ffe08000 ffffffff ffffffff 0129f000 0129f200 fc660000 fffe2202
+ffffebef
+ 0x40: fffe0000 ffff03ff ffffffff fffe0000 000050c8 ffffef01 ffffffff
+ffff0008
+ Port selection is full-duplex.
+ Transmit started, Receive started, full-duplex.
+  The Rx process state is 'Waiting for packets'.
+  The Tx process state is 'Idle'.
+  The transmit unit is set to store-and-forward.
+  The NWay status register is 000050c8.
+   No MII transceivers found!
+  Internal autonegotiation state is 'Negotiation complete'.
 
 
+ Let me know if I can provide any more useful information about the
+driver problem.
 
-Justin Slootsky
-slootsky@bigfoot.com
-
+    John
+----------------
+jbk@postmark.net
 

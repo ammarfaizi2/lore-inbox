@@ -1,87 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129083AbQJ1Jao>; Sat, 28 Oct 2000 05:30:44 -0400
+	id <S129092AbQJ1Jcy>; Sat, 28 Oct 2000 05:32:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129092AbQJ1Jaf>; Sat, 28 Oct 2000 05:30:35 -0400
-Received: from cus.org.uk ([212.1.130.85]:59398 "EHLO moo.cus.org.uk")
-	by vger.kernel.org with ESMTP id <S129083AbQJ1Jab>;
-	Sat, 28 Oct 2000 05:30:31 -0400
-Date: Sat, 28 Oct 2000 10:29:55 +0100 (BST)
-From: Riley Williams <rhw@moo.cus.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Obviously-correct patch to 2.2.17
-Message-ID: <Pine.LNX.4.21.0010281028310.11719-200000@moo.cus.org.uk>
+	id <S129280AbQJ1Jco>; Sat, 28 Oct 2000 05:32:44 -0400
+Received: from james.kalifornia.com ([208.179.0.2]:42833 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S129092AbQJ1Jc1>; Sat, 28 Oct 2000 05:32:27 -0400
+Message-ID: <39FA9D27.838E9010@kalifornia.com>
+Date: Sat, 28 Oct 2000 02:32:23 -0700
+From: David Ford <david@kalifornia.com>
+Reply-To: david+validemail@kalifornia.com
+Organization: Talon Technology, Intl.
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="30692738-7395909-972725395=:11719"
+CC: linux-kernel@vger.kernel.org
+Subject: Re: pcmcia in test10pre6
+In-Reply-To: <648.39f967c2.1f52d@trespassersw.daria.co.uk> <648.39f967c2.1f52d@trespassersw.daria.co.uk> <20001027105109.B5628@vger.timpanogas.org> <2e99.39f9d427.d8a80@trespassersw.daria.co.uk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Jonathan Hudson wrote:
 
---30692738-7395909-972725395=:11719
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+> In article <20001027105109.B5628@vger.timpanogas.org>,
+>         "Jeff V. Merkey" <jmerkey@vger.timpanogas.org> writes:
+>
+> JVM> Grab the pcmcia off sourceforge.  It seems to build and work.  The stuff
+> JVM> in 2.4 at present is still somewhat broken.  I worked on this until 2:00
+> JVM> last night getting it to build with 2.4.
+>
+> Couldn't get 3.1.21 to build (you using something later from CVS ?). [
+> CONFIG_X86_L1_CACHE_SHIFT not defined in the right places].
+>
+> Droping the test5 modules/drivers into the pcmcia modules directory
+> works fine.
 
-Hi Alan.
+10-6 includes and DH pcmcia simply don't get along, for some reason several of
+the client drivers in the pcmcia package don't compile due to the above not
+being defined.  I hacked it in for my copy simply because I needed it right then
+and there.  I -don't- have an acceptable patch.  What I have is a gross
+include-until-it-works.
 
-This patch simply corrects a couple of comments in the said file to
-reflect what the code actually does rather than (presumably) what the
-code used to do at some time in the distant past.
+-d
 
-In my case, I've been working on a patch for the kernel that uses
-these facilities, and was getting confused because of the discrepancy
-between what the comments say and what actually happens. It wasn't
-until I realised that the comments were just plain wrong that I was
-able to sort the thing out, so I'm submitting this patch to prevent
-others having the same problem.
+--
+      "There is a natural aristocracy among men. The grounds of this are
+      virtue and talents", Thomas Jefferson [1742-1826], 3rd US President
 
-Incidentally, the code as it stands actually simplifies the patch I
-was working on considerably, and I regard this as a useful feature as
-a result.
 
-I don't have the latest 2.4-pre kernel to hand to check, but it's
-quite likely that this patch can also be applied to that with the same
-results.
 
-Best wishes from Riley.
-
- * Copyright (C) 2000, Memory Alpha Systems.
- * All rights and wrongs reserved.
-
-+----------------------------------------------------------------------+
-| There is something frustrating about the quality and speed of Linux  |
-| development, ie., the quality is too high and the speed is too high, |
-| in other words, I can implement this XXXX feature, but I bet someone |
-| else has already done so and is just about to release their patch.   |
-+----------------------------------------------------------------------+
- * http://www.memalpha.cx/Linux/Kernel/
-
---30692738-7395909-972725395=:11719
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="printk.diff"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.21.0010281029550.11719@moo.cus.org.uk>
-Content-Description: Patch to kernel/printk.c
-Content-Disposition: attachment; filename="printk.diff"
-
-LS0tIGxpbnV4LTIuMi4xNy9rZXJuZWwvcHJpbnRrLmN+CVdlZCBPY3QgMjcg
-MDE6NTM6NDIgMTk5OQ0KKysrIGxpbnV4LTIuMi4xNy9rZXJuZWwvcHJpbnRr
-LmMJU2F0IE9jdCAyOCAxMDowMToyMCAyMDAwDQpAQCAtMTA5LDEyICsxMDks
-MTIgQEANCiAgKiBDb21tYW5kcyB0byBkb19zeXNsb2c6DQogICoNCiAgKiAJ
-MCAtLSBDbG9zZSB0aGUgbG9nLiAgQ3VycmVudGx5IGEgTk9QLg0KICAqIAkx
-IC0tIE9wZW4gdGhlIGxvZy4gQ3VycmVudGx5IGEgTk9QLg0KICAqIAkyIC0t
-IFJlYWQgZnJvbSB0aGUgbG9nLg0KLSAqIAkzIC0tIFJlYWQgdXAgdG8gdGhl
-IGxhc3QgNGsgb2YgbWVzc2FnZXMgaW4gdGhlIHJpbmcgYnVmZmVyLg0KKyAq
-IAkzIC0tIFJlYWQgYWxsIG1lc3NhZ2VzIHJlbWFpbmluZyBpbiB0aGUgcmlu
-ZyBidWZmZXIuDQotICogCTQgLS0gUmVhZCBhbmQgY2xlYXIgbGFzdCA0ayBv
-ZiBtZXNzYWdlcyBpbiB0aGUgcmluZyBidWZmZXINCisgKiAJNCAtLSBSZWFk
-IGFuZCBjbGVhciBhbGwgbWVzc2FnZXMgcmVtYWluaW5nIGluIHRoZSByaW5n
-IGJ1ZmZlcg0KICAqIAk1IC0tIENsZWFyIHJpbmcgYnVmZmVyLg0KICAqIAk2
-IC0tIERpc2FibGUgcHJpbnRrJ3MgdG8gY29uc29sZQ0KICAqIAk3IC0tIEVu
-YWJsZSBwcmludGsncyB0byBjb25zb2xlDQogICoJOCAtLSBTZXQgbGV2ZWwg
-b2YgbWVzc2FnZXMgcHJpbnRlZCB0byBjb25zb2xlDQogICovDQo=
---30692738-7395909-972725395=:11719--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263811AbTLTDzt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 22:55:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263812AbTLTDzt
+	id S263823AbTLTEBp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 23:01:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263824AbTLTEBp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 22:55:49 -0500
-Received: from mail-06.iinet.net.au ([203.59.3.38]:49044 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S263811AbTLTDzr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 22:55:47 -0500
-Message-ID: <3FE3C840.4000702@cyberone.com.au>
-Date: Sat, 20 Dec 2003 14:55:44 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
+	Fri, 19 Dec 2003 23:01:45 -0500
+Received: from smtp809.mail.sc5.yahoo.com ([66.163.168.188]:46242 "HELO
+	smtp809.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263823AbTLTEBo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Dec 2003 23:01:44 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: psmouse synchronization loss under load
+Date: Fri, 19 Dec 2003 23:01:37 -0500
+User-Agent: KMail/1.5.4
+References: <E1AXWpR-0000Zm-00@calista.eckenfels.6bone.ka-ip.net>
+In-Reply-To: <E1AXWpR-0000Zm-00@calista.eckenfels.6bone.ka-ip.net>
 MIME-Version: 1.0
-To: Huo Zhigang <zghuo@ncic.ac.cn>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: lmbench 2.4.20-8(RH9), 2.4.20, 2.6.0
-References: <20031220034548.GA4809@lucent>
-In-Reply-To: <20031220034548.GA4809@lucent>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200312192301.37809.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Huo Zhigang(???) wrote:
-
->Howdy, 
+On Friday 19 December 2003 09:26 pm, Bernd Eckenfels wrote:
+> In article <20031220015131.GB9834@vitelus.com> you wrote:
+> > On a Dell laptop whenever I run a program that takes the full CPU, my
+> > mouse pointer goes insane and thrashes my X session every few
+> > minutes.
 >
->Is the network performance of 2.6.0 so bad or my test
->totally wrong?
+> On my older system with 2.6.0 kernel i have currently this problem,
+> whenever APM tries to suspend the system. It will log that it was busy
+> (screen shortly gets black) and after that the genius ps2 mouse behaves
+> like you expected. Unplugging it helps.
 >
->Could anyone tell me how to dig into performance
->optimization of linux?
->
 
-This has come up a few times, but nobody is too worried about it.
-I have profiles showing that more than double the amount of time
-is spent in copying data for the same amount of work.
+You might want to give my input patches a try. Although they unlikely to fix
+the problem that you can't suspend they should correctly restore keyboard
+and mouse (PS/2) on resume (both APM and new suspend methods supported)
+and I am very interested in results.
 
-Its worth noting though, that it is "networking" over localhost.
-I expect the numbers for remote networking are better, but don't
-have a good network setup to test it.
+The patches are at http://www.geocities.com/dt_or/input 
+They are against -test11 but I think will apply to 2.6.0-final.
 
-Do you have any real applications (not benchmarks) that have
-performance problems?
-
-
+Dmitry 

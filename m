@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261390AbUKXAPg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261357AbUKXAJp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261390AbUKXAPg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 19:15:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261369AbUKXAPc
+	id S261357AbUKXAJp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 19:09:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbUKWRdq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 19:15:32 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:23308 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261390AbUKXANd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 19:13:33 -0500
-Date: Wed, 24 Nov 2004 01:13:28 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Roland Dreier <roland@topspin.com>
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: Re: [PATCH][RFC/v2][2/21] Add core InfiniBand support
-Message-ID: <20041124001328.GE2927@stusta.de>
-References: <20041123814.rXLIXw020elfd6Da@topspin.com> <20041123814.m1N7Tf2QmSCq9s5q@topspin.com>
+	Tue, 23 Nov 2004 12:33:46 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:896 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S261348AbUKWQRh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 11:17:37 -0500
+Cc: openib-general@openib.org
+In-Reply-To: <20041123816.bPLXoHbNS6amekEO@topspin.com>
+X-Mailer: Roland's Patchbomber
+Date: Tue, 23 Nov 2004 08:16:15 -0800
+Message-Id: <20041123816.baaAyOggjbry3R4e@topspin.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041123814.m1N7Tf2QmSCq9s5q@topspin.com>
-User-Agent: Mutt/1.5.6+20040907i
+To: linux-kernel@vger.kernel.org
+From: Roland Dreier <roland@topspin.com>
+X-SA-Exim-Connect-IP: 127.0.0.1
+X-SA-Exim-Mail-From: roland@topspin.com
+Subject: [PATCH][RFC/v2][19/21] Document InfiniBand ioctl use
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 23 Nov 2004 16:16:20.0834 (UTC) FILETIME=[C4EC2420:01C4D177]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 23, 2004 at 08:14:19AM -0800, Roland Dreier wrote:
-> Add implementation of core InfiniBand support.  This can be thought of
-> as a midlayer that provides an abstraction between low-level hardware
-> drivers and upper level protocols (such as IP-over-InfiniBand).
->
-> Signed-off-by: Roland Dreier <roland@topspin.com>
->
->
-> --- /dev/null 1970-01-01 00:00:00.000000000 +0000
-> +++ linux-bk/drivers/infiniband/Kconfig       2004-11-23 
-08:10:16.399144313 -$
-> @@ -0,0 +1,11 @@
-> +menu "InfiniBand support"
-> +
-> +config INFINIBAND
-> +     tristate "InfiniBand support"
-> +     default n
->...
+Add the 0x1b ioctl magic number used by ib_umad module to
+Documentation/ioctl-number.txt.
 
-This "default n" has no effect.
+Signed-off-by: Roland Dreier <roland@topspin.com>
 
-cu
-Adrian
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+--- linux-bk.orig/Documentation/ioctl-number.txt	2004-11-23 08:09:54.932309534 -0800
++++ linux-bk/Documentation/ioctl-number.txt	2004-11-23 08:10:24.016021218 -0800
+@@ -72,6 +72,7 @@
+ 0x09	all	linux/md.h
+ 0x12	all	linux/fs.h
+ 		linux/blkpg.h
++0x1b	all	InfiniBand Subsystem	<http://www.openib.org/>
+ 0x20	all	drivers/cdrom/cm206.h
+ 0x22	all	scsi/sg.h
+ '#'	00-3F	IEEE 1394 Subsystem	Block for the entire subsystem
 

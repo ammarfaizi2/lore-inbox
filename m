@@ -1,53 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317351AbSGXPOM>; Wed, 24 Jul 2002 11:14:12 -0400
+	id <S317338AbSGXPRj>; Wed, 24 Jul 2002 11:17:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317355AbSGXPOM>; Wed, 24 Jul 2002 11:14:12 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:60865 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S317351AbSGXPOL>;
-	Wed, 24 Jul 2002 11:14:11 -0400
-Date: Wed, 24 Jul 2002 17:15:13 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: [PATCH] penguin logo code
-Message-ID: <Pine.GSO.4.21.0207241714220.5289-100000@vervain.sonytel.be>
+	id <S317348AbSGXPRj>; Wed, 24 Jul 2002 11:17:39 -0400
+Received: from [196.26.86.1] ([196.26.86.1]:57736 "HELO
+	infosat-gw.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S317338AbSGXPRi>; Wed, 24 Jul 2002 11:17:38 -0400
+Date: Wed, 24 Jul 2002 17:38:29 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@linux-box.realnet.co.sz
+To: Ian Soboroff <ian.soboroff@nist.gov>
+Cc: Muli Ben-Yehuda <mulix@actcom.co.il>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Boot problem, 2.4.19-rc3-ac1
+In-Reply-To: <9cffzy95g39.fsf@rogue.ncsl.nist.gov>
+Message-ID: <Pine.LNX.4.44.0207241734320.17209-100000@linux-box.realnet.co.sz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 24 Jul 2002, Ian Soboroff wrote:
 
-### Comments for changeset
-The penguin logo resides in normal RAM, not in frame buffer memory, so we must
-not use fb_readb()
+> Anyone have a clue on the IDE part of my question? ;-)
 
-### Comments for drivers/video/fbcon.c
-The penguin logo resides in normal RAM, not in frame buffer memory, so we must
-not use fb_readb()
+Oh.. yeah that, erm dunno. Hopefully someone with an idea will chime in 
+soon.
 
---- linux-2.4.19-rc3/drivers/video/fbcon.c	Fri Feb 22 16:28:32 2002
-+++ linux-m68k-2.4.19-rc3/drivers/video/fbcon.c	Mon Jul 22 21:45:01 2002
-@@ -2417,7 +2417,7 @@
- 		else
- 		    dst = fb + y1*line + x/8;
- 		for( x1 = 0; x1 < LOGO_LINE; ++x1 )
--		    fb_writeb(fb_readb(src++) ^ inverse, dst++);
-+		    fb_writeb(*src++ ^ inverse, dst++);
- 	    }
- 	    done = 1;
- 	}
+Cheers,
+	Zwane
 
-Gr{oetje,eeting}s,
+Or.. you can try find the last working -ac
 
-						Geert
+-- 
+function.linuxpower.ca
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
 

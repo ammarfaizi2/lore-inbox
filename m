@@ -1,223 +1,139 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261960AbTFBGqX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 02:46:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261969AbTFBGqX
+	id S261969AbTFBGvZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 02:51:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbTFBGvY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 02:46:23 -0400
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:13966 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S261960AbTFBGqT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 02:46:19 -0400
-Message-Id: <5.1.0.14.2.20030602084908.00aed558@pop.t-online.de>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 02 Jun 2003 08:59:28 +0200
+	Mon, 2 Jun 2003 02:51:24 -0400
+Received: from web10708.mail.yahoo.com ([216.136.130.216]:52923 "HELO
+	web10708.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261969AbTFBGvW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 02:51:22 -0400
+Message-ID: <20030602070446.39795.qmail@web10708.mail.yahoo.com>
+Date: Mon, 2 Jun 2003 00:04:46 -0700 (PDT)
+From: BalaKrishna Mallipeddi <bkmallipeddi@yahoo.com>
+Subject: Problem : While adding a new system call to Montavista Linux on PPC architecture
 To: linux-kernel@vger.kernel.org
-From: margitsw@t-online.de (Margit Schubert-While)
-Subject: PCI cache line messages 2.4/2.5
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="=====================_3116100==_"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=====================_3116100==_
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Hi,
+    While adding a new System call in Montavista linux
+on ppc architecture  i am getting error:
+      
+I implemented the system call and compiled the kernel.
+The kernel is compiled succesfully. While testing the
+system call by writing a user program i am getting
+error as ollows:
 
-Getting this with 2.5.70(-bk)  :
-PCI: cache line size of 128 is not supported by device 00:1d.7
+test_syscall.c: In function `rfs_open':
+test_syscall.c:4: `__NR_rfs_open' undeclared (first
+use in this function)
+test_syscall.c:4: (Each undeclared identifier is
+reported only once
+test_syscall.c:4: for each function it appears in.)
 
-and this with 2.4.2(0,1,pre,rc) :
-PCI: 00:1d.7 PCI cache line size set incorrectly (0 bytes) by BIOS/FW.
-PCI: 00:1d.7 PCI cache line size corrected to 128.
 
-This is the onboard USB EHCI (Intel D845 PESV).
-lspci below.
+How I implemented the system call is as follows:
+All the paths i have given is from the montavista
+Linux source tree.
+1) Call Implementation:
+    I coded my system call in the directory "kernel"  
+ of the Linux source tree with the name "rfs_open.c". 
+ 
+The system call is as follows:
 
-What's going on ?
+    #include <linux/rfs_open.h>
+                                                      
+                            asmlinkage int
+sys_rfs_open(void)
+    {
+        printk("I am rfs_open\n");
+        return 0;
+    }
 
-Margit
---=====================_3116100==_
-Content-Type: application/octet-stream; name="lspci"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="lspci"
+2) Added a library function:
+    I added my library function in the directory
+"include/linux" with the name "rfs_open.h". The
+function is as follows:
+    
+    #ifndef _LINUX_RFS_OPEN_H
+    #define _LINUX_RFS_OPEN_H
+                                                      
+                         
+    #include <linux/linkage.h>
+    #include <linux/unistd.h>
+                                                      
+                         
+        _syscall0(int,rfs_open);
+                                                      
+                         
+    #endif
 
-MDA6MDAuMCBIb3N0IGJyaWRnZTogSW50ZWwgQ29ycC4gODI4NDVHL0dMIFtCcm9va2RhbGUtR10g
-Q2hpcHNldCBIb3N0IEJyaWRnZSAocmV2IDAyKQoJU3Vic3lzdGVtOiBJbnRlbCBDb3JwLiA4Mjg0
-NUcvR0wgW0Jyb29rZGFsZS1HXSBDaGlwc2V0IEhvc3QgQnJpZGdlCglDb250cm9sOiBJL08tIE1l
-bSsgQnVzTWFzdGVyKyBTcGVjQ3ljbGUtIE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBw
-aW5nLSBTRVJSKyBGYXN0QjJCLQoJU3RhdHVzOiBDYXArIDY2TWh6LSBVREYtIEZhc3RCMkIrIFBh
-ckVyci0gREVWU0VMPWZhc3QgPlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9ydCsgPlNFUlItIDxQRVJS
-LQoJTGF0ZW5jeTogMAoJUmVnaW9uIDA6IE1lbW9yeSBhdCBmODAwMDAwMCAoMzItYml0LCBwcmVm
-ZXRjaGFibGUpIFtzaXplPTY0TV0KCUNhcGFiaWxpdGllczogW2U0XSAjMDkgWzYxMDVdCglDYXBh
-YmlsaXRpZXM6IFthMF0gQUdQIHZlcnNpb24gMi4wCgkJU3RhdHVzOiBSUT0zMSBTQkErIDY0Yml0
-LSBGVysgUmF0ZT14MSx4Mix4NAoJCUNvbW1hbmQ6IFJRPTAgU0JBKyBBR1ArIDY0Yml0LSBGVy0g
-UmF0ZT14NAoKMDA6MDEuMCBQQ0kgYnJpZGdlOiBJbnRlbCBDb3JwLiA4Mjg0NUcvR0wgW0Jyb29r
-ZGFsZS1HXSBDaGlwc2V0IEFHUCBCcmlkZ2UgKHJldiAwMikgKHByb2ctaWYgMDAgW05vcm1hbCBk
-ZWNvZGVdKQoJQ29udHJvbDogSS9PKyBNZW0rIEJ1c01hc3RlcisgU3BlY0N5Y2xlLSBNZW1XSU5W
-LSBWR0FTbm9vcC0gUGFyRXJyLSBTdGVwcGluZy0gU0VSUisgRmFzdEIyQi0KCVN0YXR1czogQ2Fw
-LSA2Nk1oeisgVURGLSBGYXN0QjJCKyBQYXJFcnItIERFVlNFTD1mYXN0ID5UQWJvcnQtIDxUQWJv
-cnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0KCUxhdGVuY3k6IDMyCglCdXM6IHByaW1hcnk9MDAs
-IHNlY29uZGFyeT0wMSwgc3Vib3JkaW5hdGU9MDEsIHNlYy1sYXRlbmN5PTMyCglJL08gYmVoaW5k
-IGJyaWRnZTogMDAwMGMwMDAtMDAwMGNmZmYKCU1lbW9yeSBiZWhpbmQgYnJpZGdlOiBmZjgwMDAw
-MC1mZjhmZmZmZgoJUHJlZmV0Y2hhYmxlIG1lbW9yeSBiZWhpbmQgYnJpZGdlOiBkNjkwMDAwMC1m
-NjlmZmZmZgoJQnJpZGdlQ3RsOiBQYXJpdHktIFNFUlItIE5vSVNBLSBWR0ErIE1BYm9ydC0gPlJl
-c2V0LSBGYXN0QjJCLQoKMDA6MWQuMCBVU0IgQ29udHJvbGxlcjogSW50ZWwgQ29ycC4gODI4MDFE
-QiBVU0IgKEh1YiAjMSkgKHJldiAwMikgKHByb2ctaWYgMDAgW1VIQ0ldKQoJU3Vic3lzdGVtOiBJ
-bnRlbCBDb3JwLjogVW5rbm93biBkZXZpY2UgNTM1NgoJQ29udHJvbDogSS9PKyBNZW0tIEJ1c01h
-c3RlcisgU3BlY0N5Y2xlLSBNZW1XSU5WLSBWR0FTbm9vcC0gUGFyRXJyLSBTdGVwcGluZy0gU0VS
-Ui0gRmFzdEIyQi0KCVN0YXR1czogQ2FwLSA2Nk1oei0gVURGLSBGYXN0QjJCKyBQYXJFcnItIERF
-VlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9ydC0gPlNFUlItIDxQRVJSLQoJTGF0
-ZW5jeTogMAoJSW50ZXJydXB0OiBwaW4gQSByb3V0ZWQgdG8gSVJRIDE2CglSZWdpb24gNDogSS9P
-IHBvcnRzIGF0IGU4MDAgW3NpemU9MzJdCgowMDoxZC4xIFVTQiBDb250cm9sbGVyOiBJbnRlbCBD
-b3JwLiA4MjgwMURCIFVTQiAoSHViICMyKSAocmV2IDAyKSAocHJvZy1pZiAwMCBbVUhDSV0pCglT
-dWJzeXN0ZW06IEludGVsIENvcnAuOiBVbmtub3duIGRldmljZSA1MzU2CglDb250cm9sOiBJL08r
-IE1lbS0gQnVzTWFzdGVyKyBTcGVjQ3ljbGUtIE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0
-ZXBwaW5nLSBTRVJSLSBGYXN0QjJCLQoJU3RhdHVzOiBDYXAtIDY2TWh6LSBVREYtIEZhc3RCMkIr
-IFBhckVyci0gREVWU0VMPW1lZGl1bSA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0g
-PFBFUlItCglMYXRlbmN5OiAwCglJbnRlcnJ1cHQ6IHBpbiBCIHJvdXRlZCB0byBJUlEgMTkKCVJl
-Z2lvbiA0OiBJL08gcG9ydHMgYXQgZTg4MCBbc2l6ZT0zMl0KCjAwOjFkLjIgVVNCIENvbnRyb2xs
-ZXI6IEludGVsIENvcnAuIDgyODAxREIgVVNCIChIdWIgIzMpIChyZXYgMDIpIChwcm9nLWlmIDAw
-IFtVSENJXSkKCVN1YnN5c3RlbTogSW50ZWwgQ29ycC46IFVua25vd24gZGV2aWNlIDUzNTYKCUNv
-bnRyb2w6IEkvTysgTWVtLSBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3At
-IFBhckVyci0gU3RlcHBpbmctIFNFUlItIEZhc3RCMkItCglTdGF0dXM6IENhcC0gNjZNaHotIFVE
-Ri0gRmFzdEIyQisgUGFyRXJyLSBERVZTRUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJv
-cnQtID5TRVJSLSA8UEVSUi0KCUxhdGVuY3k6IDAKCUludGVycnVwdDogcGluIEMgcm91dGVkIHRv
-IElSUSAxOAoJUmVnaW9uIDQ6IEkvTyBwb3J0cyBhdCBlYzAwIFtzaXplPTMyXQoKMDA6MWQuNyBV
-U0IgQ29udHJvbGxlcjogSW50ZWwgQ29ycC4gODI4MDFEQiBVU0IgRUhDSSBDb250cm9sbGVyIChy
-ZXYgMDIpIChwcm9nLWlmIDIwIFtFSENJXSkKCVN1YnN5c3RlbTogSW50ZWwgQ29ycC46IFVua25v
-d24gZGV2aWNlIDUzNTYKCUNvbnRyb2w6IEkvTy0gTWVtKyBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0g
-TWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlIrIEZhc3RCMkItCglTdGF0
-dXM6IENhcCsgNjZNaHotIFVERi0gRmFzdEIyQisgUGFyRXJyLSBERVZTRUw9bWVkaXVtID5UQWJv
-cnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0KCUxhdGVuY3k6IDAKCUludGVycnVw
-dDogcGluIEQgcm91dGVkIHRvIElSUSAyMwoJUmVnaW9uIDA6IE1lbW9yeSBhdCBmZmFmZmMwMCAo
-MzItYml0LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT0xS10KCUNhcGFiaWxpdGllczogWzUwXSBQ
-b3dlciBNYW5hZ2VtZW50IHZlcnNpb24gMgoJCUZsYWdzOiBQTUVDbGstIERTSS0gRDEtIEQyLSBB
-dXhDdXJyZW50PTM3NW1BIFBNRShEMCssRDEtLEQyLSxEM2hvdCssRDNjb2xkKykKCQlTdGF0dXM6
-IEQwIFBNRS1FbmFibGUtIERTZWw9MCBEU2NhbGU9MCBQTUUtCglDYXBhYmlsaXRpZXM6IFs1OF0g
-IzBhIFsyMDgwXQoKMDA6MWUuMCBQQ0kgYnJpZGdlOiBJbnRlbCBDb3JwLiA4MjgwMUJBL0NBL0RC
-IFBDSSBCcmlkZ2UgKHJldiA4MikgKHByb2ctaWYgMDAgW05vcm1hbCBkZWNvZGVdKQoJQ29udHJv
-bDogSS9PKyBNZW0rIEJ1c01hc3RlcisgU3BlY0N5Y2xlLSBNZW1XSU5WLSBWR0FTbm9vcC0gUGFy
-RXJyLSBTdGVwcGluZy0gU0VSUisgRmFzdEIyQi0KCVN0YXR1czogQ2FwLSA2Nk1oei0gVURGLSBG
-YXN0QjJCKyBQYXJFcnItIERFVlNFTD1mYXN0ID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5T
-RVJSLSA8UEVSUisKCUxhdGVuY3k6IDAKCUJ1czogcHJpbWFyeT0wMCwgc2Vjb25kYXJ5PTAyLCBz
-dWJvcmRpbmF0ZT0wMiwgc2VjLWxhdGVuY3k9MzIKCUkvTyBiZWhpbmQgYnJpZGdlOiAwMDAwZDAw
-MC0wMDAwZGZmZgoJTWVtb3J5IGJlaGluZCBicmlkZ2U6IGZmOTAwMDAwLWZmOWZmZmZmCglQcmVm
-ZXRjaGFibGUgbWVtb3J5IGJlaGluZCBicmlkZ2U6IGY2YTAwMDAwLWY2YWZmZmZmCglCcmlkZ2VD
-dGw6IFBhcml0eS0gU0VSUisgTm9JU0EtIFZHQS0gTUFib3J0LSA+UmVzZXQtIEZhc3RCMkItCgow
-MDoxZi4wIElTQSBicmlkZ2U6IEludGVsIENvcnAuIDgyODAxREIgSVNBIEJyaWRnZSAoTFBDKSAo
-cmV2IDAyKQoJQ29udHJvbDogSS9PKyBNZW0rIEJ1c01hc3RlcisgU3BlY0N5Y2xlKyBNZW1XSU5W
-LSBWR0FTbm9vcC0gUGFyRXJyLSBTdGVwcGluZy0gU0VSUisgRmFzdEIyQi0KCVN0YXR1czogQ2Fw
-LSA2Nk1oei0gVURGLSBGYXN0QjJCKyBQYXJFcnItIERFVlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRB
-Ym9ydC0gPE1BYm9ydC0gPlNFUlItIDxQRVJSLQoJTGF0ZW5jeTogMAoKMDA6MWYuMSBJREUgaW50
-ZXJmYWNlOiBJbnRlbCBDb3JwLiA4MjgwMURCIElDSDQgSURFIChyZXYgMDIpIChwcm9nLWlmIDhh
-IFtNYXN0ZXIgU2VjUCBQcmlQXSkKCVN1YnN5c3RlbTogSW50ZWwgQ29ycC46IFVua25vd24gZGV2
-aWNlIDUzNTYKCUNvbnRyb2w6IEkvTy0gTWVtLSBCdXNNYXN0ZXItIFNwZWNDeWNsZS0gTWVtV0lO
-Vi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlItIEZhc3RCMkItCglTdGF0dXM6IENh
-cC0gNjZNaHotIFVERi0gRmFzdEIyQisgUGFyRXJyLSBERVZTRUw9bWVkaXVtID5UQWJvcnQtIDxU
-QWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0KCUludGVycnVwdDogcGluIEEgcm91dGVkIHRv
-IElSUSAxOAoJUmVnaW9uIDA6IEkvTyBwb3J0cyBhdCA8dW5hc3NpZ25lZD4gW2Rpc2FibGVkXQoJ
-UmVnaW9uIDE6IEkvTyBwb3J0cyBhdCA8dW5hc3NpZ25lZD4gW2Rpc2FibGVkXQoJUmVnaW9uIDI6
-IEkvTyBwb3J0cyBhdCA8dW5hc3NpZ25lZD4gW2Rpc2FibGVkXQoJUmVnaW9uIDM6IEkvTyBwb3J0
-cyBhdCA8dW5hc3NpZ25lZD4gW2Rpc2FibGVkXQoJUmVnaW9uIDQ6IEkvTyBwb3J0cyBhdCBmZmEw
-IFtkaXNhYmxlZF0gW3NpemU9MTZdCglSZWdpb24gNTogTWVtb3J5IGF0IDIwMDAwMDAwICgzMi1i
-aXQsIG5vbi1wcmVmZXRjaGFibGUpIFtkaXNhYmxlZF0gW3NpemU9MUtdCgowMDoxZi4zIFNNQnVz
-OiBJbnRlbCBDb3JwLiA4MjgwMURCIFNNQnVzIChyZXYgMDIpCglTdWJzeXN0ZW06IEludGVsIENv
-cnAuOiBVbmtub3duIGRldmljZSA1MzU2CglDb250cm9sOiBJL08rIE1lbS0gQnVzTWFzdGVyLSBT
-cGVjQ3ljbGUtIE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSLSBGYXN0
-QjJCLQoJU3RhdHVzOiBDYXAtIDY2TWh6LSBVREYtIEZhc3RCMkIrIFBhckVyci0gREVWU0VMPW1l
-ZGl1bSA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItCglJbnRlcnJ1cHQ6
-IHBpbiBCIHJvdXRlZCB0byBJUlEgMTcKCVJlZ2lvbiA0OiBJL08gcG9ydHMgYXQgZTAwMCBbc2l6
-ZT0zMl0KCjAwOjFmLjUgTXVsdGltZWRpYSBhdWRpbyBjb250cm9sbGVyOiBJbnRlbCBDb3JwLiA4
-MjgwMURCIEFDJzk3IEF1ZGlvIChyZXYgMDIpCglTdWJzeXN0ZW06IEludGVsIENvcnAuOiBVbmtu
-b3duIGRldmljZSAwMTA2CglDb250cm9sOiBJL08rIE1lbSsgQnVzTWFzdGVyKyBTcGVjQ3ljbGUt
-IE1lbVdJTlYtIFZHQVNub29wLSBQYXJFcnItIFN0ZXBwaW5nLSBTRVJSLSBGYXN0QjJCLQoJU3Rh
-dHVzOiBDYXArIDY2TWh6LSBVREYtIEZhc3RCMkIrIFBhckVyci0gREVWU0VMPW1lZGl1bSA+VEFi
-b3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0gPFBFUlItCglMYXRlbmN5OiAwCglJbnRlcnJ1
-cHQ6IHBpbiBCIHJvdXRlZCB0byBJUlEgMTcKCVJlZ2lvbiAwOiBJL08gcG9ydHMgYXQgZTQwMCBb
-c2l6ZT0yNTZdCglSZWdpb24gMTogSS9PIHBvcnRzIGF0IGUwODAgW3NpemU9NjRdCglSZWdpb24g
-MjogTWVtb3J5IGF0IGZmYWZmODAwICgzMi1iaXQsIG5vbi1wcmVmZXRjaGFibGUpIFtzaXplPTUx
-Ml0KCVJlZ2lvbiAzOiBNZW1vcnkgYXQgZmZhZmY0MDAgKDMyLWJpdCwgbm9uLXByZWZldGNoYWJs
-ZSkgW3NpemU9MjU2XQoJQ2FwYWJpbGl0aWVzOiBbNTBdIFBvd2VyIE1hbmFnZW1lbnQgdmVyc2lv
-biAyCgkJRmxhZ3M6IFBNRUNsay0gRFNJLSBEMS0gRDItIEF1eEN1cnJlbnQ9Mzc1bUEgUE1FKEQw
-KyxEMS0sRDItLEQzaG90KyxEM2NvbGQrKQoJCVN0YXR1czogRDAgUE1FLUVuYWJsZS0gRFNlbD0w
-IERTY2FsZT0wIFBNRS0KCjAxOjAwLjAgVkdBIGNvbXBhdGlibGUgY29udHJvbGxlcjogQVRJIFRl
-Y2hub2xvZ2llcyBJbmMgUmFkZW9uIFJWMjAwIFFXIFtSYWRlb24gNzUwMF0gKHByb2ctaWYgMDAg
-W1ZHQV0pCglTdWJzeXN0ZW06IFVua25vd24gZGV2aWNlIDE3YWY6MjAwMgoJQ29udHJvbDogSS9P
-KyBNZW0rIEJ1c01hc3RlcisgU3BlY0N5Y2xlLSBNZW1XSU5WLSBWR0FTbm9vcC0gUGFyRXJyLSBT
-dGVwcGluZysgU0VSUisgRmFzdEIyQi0KCVN0YXR1czogQ2FwKyA2Nk1oeisgVURGLSBGYXN0QjJC
-KyBQYXJFcnItIERFVlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRBYm9ydC0gPE1BYm9ydC0gPlNFUlIt
-IDxQRVJSLQoJTGF0ZW5jeTogMzIgKDIwMDBucyBtaW4pLCBjYWNoZSBsaW5lIHNpemUgMDgKCUlu
-dGVycnVwdDogcGluIEEgcm91dGVkIHRvIElSUSAxNgoJUmVnaW9uIDA6IE1lbW9yeSBhdCBlMDAw
-MDAwMCAoMzItYml0LCBwcmVmZXRjaGFibGUpIFtzaXplPTI1Nk1dCglSZWdpb24gMTogSS9PIHBv
-cnRzIGF0IGM4MDAgW3NpemU9MjU2XQoJUmVnaW9uIDI6IE1lbW9yeSBhdCBmZjhmMDAwMCAoMzIt
-Yml0LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT02NEtdCglFeHBhbnNpb24gUk9NIGF0IGZmOGMw
-MDAwIFtkaXNhYmxlZF0gW3NpemU9MTI4S10KCUNhcGFiaWxpdGllczogWzU4XSBBR1AgdmVyc2lv
-biAyLjAKCQlTdGF0dXM6IFJRPTQ3IFNCQSsgNjRiaXQtIEZXLSBSYXRlPXgxLHgyLHg0CgkJQ29t
-bWFuZDogUlE9MzEgU0JBKyBBR1ArIDY0Yml0LSBGVy0gUmF0ZT14NAoJQ2FwYWJpbGl0aWVzOiBb
-NTBdIFBvd2VyIE1hbmFnZW1lbnQgdmVyc2lvbiAyCgkJRmxhZ3M6IFBNRUNsay0gRFNJLSBEMSsg
-RDIrIEF1eEN1cnJlbnQ9MG1BIFBNRShEMC0sRDEtLEQyLSxEM2hvdC0sRDNjb2xkLSkKCQlTdGF0
-dXM6IEQwIFBNRS1FbmFibGUtIERTZWw9MCBEU2NhbGU9MCBQTUUtCgowMjowMS4wIFNDU0kgc3Rv
-cmFnZSBjb250cm9sbGVyOiBBZGFwdGVjIEFIQS0zOTYwRCAvIEFJQy03ODk5QSBVMTYwL20gKHJl
-diAwMSkKCVN1YnN5c3RlbTogQWRhcHRlYyBBSEEtMzk2MEQgVTE2MC9tCglDb250cm9sOiBJL08t
-IE1lbSsgQnVzTWFzdGVyKyBTcGVjQ3ljbGUtIE1lbVdJTlYrIFZHQVNub29wLSBQYXJFcnItIFN0
-ZXBwaW5nLSBTRVJSKyBGYXN0QjJCLQoJU3RhdHVzOiBDYXArIDY2TWh6KyBVREYtIEZhc3RCMkIr
-IFBhckVyci0gREVWU0VMPW1lZGl1bSA+VEFib3J0LSA8VEFib3J0LSA8TUFib3J0LSA+U0VSUi0g
-PFBFUlItCglMYXRlbmN5OiAzMiAoMTAwMDBucyBtaW4sIDYyNTBucyBtYXgpLCBjYWNoZSBsaW5l
-IHNpemUgMDgKCUludGVycnVwdDogcGluIEEgcm91dGVkIHRvIElSUSAyMgoJQklTVCByZXN1bHQ6
-IDAwCglSZWdpb24gMDogSS9PIHBvcnRzIGF0IGQ0MDAgW2Rpc2FibGVkXSBbc2l6ZT0yNTZdCglS
-ZWdpb24gMTogTWVtb3J5IGF0IGZmOWZlMDAwICg2NC1iaXQsIG5vbi1wcmVmZXRjaGFibGUpIFtz
-aXplPTRLXQoJRXhwYW5zaW9uIFJPTSBhdCBmZjlhMDAwMCBbZGlzYWJsZWRdIFtzaXplPTEyOEtd
-CglDYXBhYmlsaXRpZXM6IFtkY10gUG93ZXIgTWFuYWdlbWVudCB2ZXJzaW9uIDIKCQlGbGFnczog
-UE1FQ2xrLSBEU0ktIEQxLSBEMi0gQXV4Q3VycmVudD0wbUEgUE1FKEQwLSxEMS0sRDItLEQzaG90
-LSxEM2NvbGQtKQoJCVN0YXR1czogRDAgUE1FLUVuYWJsZS0gRFNlbD0wIERTY2FsZT0wIFBNRS0K
-CjAyOjAxLjEgU0NTSSBzdG9yYWdlIGNvbnRyb2xsZXI6IEFkYXB0ZWMgQUhBLTM5NjBEIC8gQUlD
-LTc4OTlBIFUxNjAvbSAocmV2IDAxKQoJU3Vic3lzdGVtOiBBZGFwdGVjIEFIQS0zOTYwRCBVMTYw
-L20KCUNvbnRyb2w6IEkvTy0gTWVtKyBCdXNNYXN0ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVisgVkdB
-U25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlIrIEZhc3RCMkItCglTdGF0dXM6IENhcCsgNjZN
-aHorIFVERi0gRmFzdEIyQisgUGFyRXJyLSBERVZTRUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQt
-IDxNQWJvcnQtID5TRVJSLSA8UEVSUi0KCUxhdGVuY3k6IDMyICgxMDAwMG5zIG1pbiwgNjI1MG5z
-IG1heCksIGNhY2hlIGxpbmUgc2l6ZSAwOAoJSW50ZXJydXB0OiBwaW4gQiByb3V0ZWQgdG8gSVJR
-IDIxCglCSVNUIHJlc3VsdDogMDAKCVJlZ2lvbiAwOiBJL08gcG9ydHMgYXQgZDgwMCBbZGlzYWJs
-ZWRdIFtzaXplPTI1Nl0KCVJlZ2lvbiAxOiBNZW1vcnkgYXQgZmY5ZmYwMDAgKDY0LWJpdCwgbm9u
-LXByZWZldGNoYWJsZSkgW3NpemU9NEtdCglFeHBhbnNpb24gUk9NIGF0IGZmOWMwMDAwIFtkaXNh
-YmxlZF0gW3NpemU9MTI4S10KCUNhcGFiaWxpdGllczogW2RjXSBQb3dlciBNYW5hZ2VtZW50IHZl
-cnNpb24gMgoJCUZsYWdzOiBQTUVDbGstIERTSS0gRDEtIEQyLSBBdXhDdXJyZW50PTBtQSBQTUUo
-RDAtLEQxLSxEMi0sRDNob3QtLEQzY29sZC0pCgkJU3RhdHVzOiBEMCBQTUUtRW5hYmxlLSBEU2Vs
-PTAgRFNjYWxlPTAgUE1FLQoKMDI6MDQuMCBOZXR3b3JrIGNvbnRyb2xsZXI6IEFWTSBBdWRpb3Zp
-c3VlbGxlcyBNS1RHICYgQ29tcHV0ZXIgU3lzdGVtIEdtYkggQTEgSVNETiBbRnJpdHpdIChyZXYg
-MDIpCglTdWJzeXN0ZW06IEFWTSBBdWRpb3Zpc3VlbGxlcyBNS1RHICYgQ29tcHV0ZXIgU3lzdGVt
-IEdtYkggRlJJVFohQ2FyZCBJU0ROIENvbnRyb2xsZXIKCUNvbnRyb2w6IEkvTysgTWVtKyBCdXNN
-YXN0ZXItIFNwZWNDeWNsZS0gTWVtV0lOVi0gVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNF
-UlIrIEZhc3RCMkItCglTdGF0dXM6IENhcC0gNjZNaHotIFVERi0gRmFzdEIyQisgUGFyRXJyLSBE
-RVZTRUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0KCUlu
-dGVycnVwdDogcGluIEEgcm91dGVkIHRvIElSUSAxNwoJUmVnaW9uIDA6IE1lbW9yeSBhdCBmZjlm
-ZGMwMCAoMzItYml0LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT0zMl0KCVJlZ2lvbiAxOiBJL08g
-cG9ydHMgYXQgZGMwMCBbc2l6ZT0zMl0KCjAyOjA1LjAgU0NTSSBzdG9yYWdlIGNvbnRyb2xsZXI6
-IEFkYXB0ZWMgQUlDLTc4NjEgKHJldiAwMykKCVN1YnN5c3RlbTogQWRhcHRlYyBBSEEtMjk0MEFV
-IFNpbmdsZQoJQ29udHJvbDogSS9PLSBNZW0rIEJ1c01hc3RlcisgU3BlY0N5Y2xlLSBNZW1XSU5W
-KyBWR0FTbm9vcC0gUGFyRXJyLSBTdGVwcGluZy0gU0VSUisgRmFzdEIyQi0KCVN0YXR1czogQ2Fw
-KyA2Nk1oei0gVURGLSBGYXN0QjJCKyBQYXJFcnItIERFVlNFTD1tZWRpdW0gPlRBYm9ydC0gPFRB
-Ym9ydC0gPE1BYm9ydC0gPlNFUlItIDxQRVJSLQoJTGF0ZW5jeTogMzIgKDEwMDBucyBtaW4sIDEw
-MDBucyBtYXgpLCBjYWNoZSBsaW5lIHNpemUgMDgKCUludGVycnVwdDogcGluIEEgcm91dGVkIHRv
-IElSUSAxOAoJUmVnaW9uIDA6IEkvTyBwb3J0cyBhdCBkMDAwIFtkaXNhYmxlZF0gW3NpemU9MjU2
-XQoJUmVnaW9uIDE6IE1lbW9yeSBhdCBmZjlmYzAwMCAoMzItYml0LCBub24tcHJlZmV0Y2hhYmxl
-KSBbc2l6ZT00S10KCUV4cGFuc2lvbiBST00gYXQgZmY5ZTAwMDAgW2Rpc2FibGVkXSBbc2l6ZT02
-NEtdCglDYXBhYmlsaXRpZXM6IFtkY10gUG93ZXIgTWFuYWdlbWVudCB2ZXJzaW9uIDEKCQlGbGFn
-czogUE1FQ2xrLSBEU0krIEQxLSBEMi0gQXV4Q3VycmVudD0wbUEgUE1FKEQwLSxEMS0sRDItLEQz
-aG90LSxEM2NvbGQtKQoJCVN0YXR1czogRDAgUE1FLUVuYWJsZS0gRFNlbD0wIERTY2FsZT0wIFBN
-RS0KCjAyOjA4LjAgRXRoZXJuZXQgY29udHJvbGxlcjogSW50ZWwgQ29ycC4gODI4MDFCRCBQUk8v
-MTAwIFZFIChMT00pIEV0aGVybmV0IENvbnRyb2xsZXIgKHJldiA4MikKCVN1YnN5c3RlbTogSW50
-ZWwgQ29ycC46IFVua25vd24gZGV2aWNlIDMwMTUKCUNvbnRyb2w6IEkvTysgTWVtKyBCdXNNYXN0
-ZXIrIFNwZWNDeWNsZS0gTWVtV0lOVisgVkdBU25vb3AtIFBhckVyci0gU3RlcHBpbmctIFNFUlIr
-IEZhc3RCMkItCglTdGF0dXM6IENhcCsgNjZNaHotIFVERi0gRmFzdEIyQisgUGFyRXJyLSBERVZT
-RUw9bWVkaXVtID5UQWJvcnQtIDxUQWJvcnQtIDxNQWJvcnQtID5TRVJSLSA8UEVSUi0KCUxhdGVu
-Y3k6IDMyICgyMDAwbnMgbWluLCAxNDAwMG5zIG1heCksIGNhY2hlIGxpbmUgc2l6ZSAwOAoJSW50
-ZXJydXB0OiBwaW4gQSByb3V0ZWQgdG8gSVJRIDIwCglSZWdpb24gMDogTWVtb3J5IGF0IGZmOWZi
-MDAwICgzMi1iaXQsIG5vbi1wcmVmZXRjaGFibGUpIFtzaXplPTRLXQoJUmVnaW9uIDE6IEkvTyBw
-b3J0cyBhdCBkZjAwIFtzaXplPTY0XQoJQ2FwYWJpbGl0aWVzOiBbZGNdIFBvd2VyIE1hbmFnZW1l
-bnQgdmVyc2lvbiAyCgkJRmxhZ3M6IFBNRUNsay0gRFNJKyBEMSsgRDIrIEF1eEN1cnJlbnQ9MG1B
-IFBNRShEMCssRDErLEQyKyxEM2hvdCssRDNjb2xkKykKCQlTdGF0dXM6IEQwIFBNRS1FbmFibGUt
-IERTZWw9MCBEU2NhbGU9MiBQTUUtCgo=
---=====================_3116100==_--
+3) Got the system call number:
+   I assigned a number to my system call in the file
+unistd.h in the directory "include/asm", where "asm"
+links to "asm-ppc". The line added in unistd.h is as
+follows:
+     #define __NR_rfs_open           208
 
+4) Created entry in the System call table:
+   I created an entry in the System Call table which
+is in the file misc.S( for i386 architecture this
+System call table is in entry.S) in the directory
+"arch/ppc/kernel/misc.S" The line added in misc.S is
+as follows:
+    .long sys_rfs_open
+
+5)  Updated the Makefile for my system call to be
+compiled and linked in to the kernel. After updating 
+it is as follows:
+  export-objs = signal.o sys.o kmod.o context.o
+ksyms.o pm.o exec_domain.o \
+  printk.o cpufreq.o trace.o rfs_open.o 
+                                                      
+                         
+  obj-y     = sched.o fork.o exec_domain.o panic.o
+printk.o \
+  module.o exit.o itimer.o info.o time.o softirq.o
+resource.o \
+  sysctl.o acct.o capability.o ptrace.o timer.o user.o
+\
+  signal.o sys.o kmod.o context.o rfs_open.o          
+  
+6) I compiled the kernel  and it is successfully
+compiled.
+
+7) My system call testing program looks as follows:
+
+   #include <sys/syscall.h>
+   #include <stdio.h>
+   #include <errno.h>
+   _syscall0(int,rfs_open);
+
+   int main()
+   {
+        rfs_open();
+        return(0);
+   }
+
+   I am greatful if any one help me.
+
+Thanks & regards
+BalaKrishna Mallipeddi.
+
+=====
+BalaKrishna Mallipeddi
+Member Technical Staff Software
+Innomedia Technologies Pvt. Ltd.,
+#3278, 12th Main, HAL 2nd stage,
+Bangalore-560008,
+INDIA
+Phone : 5278389 + 123
+
+__________________________________
+Do you Yahoo!?
+Yahoo! Calendar - Free online calendar with sync to Outlook(TM).
+http://calendar.yahoo.com

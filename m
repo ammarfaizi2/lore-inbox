@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269786AbRIHUGk>; Sat, 8 Sep 2001 16:06:40 -0400
+	id <S269646AbRIHUCj>; Sat, 8 Sep 2001 16:02:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270025AbRIHUGb>; Sat, 8 Sep 2001 16:06:31 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:33801 "EHLO
-	mailout03.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S269786AbRIHUGQ>; Sat, 8 Sep 2001 16:06:16 -0400
-Message-ID: <3B9A7A08.9AF4D0E5@t-online.de>
-Date: Sat, 08 Sep 2001 22:05:28 +0200
-From: SPATZ1@t-online.de (Frank Schneider)
-X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.3-test i686)
-X-Accept-Language: en
+	id <S269786AbRIHUCb>; Sat, 8 Sep 2001 16:02:31 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48393 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S269646AbRIHUCN>; Sat, 8 Sep 2001 16:02:13 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Re2: LOADLIN and 2.4 kernels
+Date: 8 Sep 2001 13:02:05 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9ndtft$6ci$1@cesium.transmeta.com>
+In-Reply-To: <51.10cc64a8.28cb50f8@aol.com>
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: MPS 1.1 against MPS 1.4 ?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello...
+Followup to:  <51.10cc64a8.28cb50f8@aol.com>
+By author:    Floydsmith@aol.com
+In newsgroup: linux.dev.kernel
+> 
+> Yes, indeed, not loading himem does solve the problem I had. But, do to the 
+> fact that I need extented memory (for a DOS ramdisk) and for some TSR(s) 
+> (like smartdrv) for a LS-120 boot disk I use as both a Linux and DOS "rescue" 
+> disk, I need "himem".
+> 
 
-I just noticed that i can inside my BIOS switch from MPS (Multi
-Processor Specification ?) 1.1 to 1.4, the later is noticed as "for
-future use", but when i enable it, the kernel says in dmesg that he
-found a MPS 1.4...so it seems to work, at least it claims to.
+Someone reported to me that LOADLIN consistently fails to load kernels
+> 1 MB both with and without A20 changes; probably it tries to use the
+old "sector count" field in the kernel.  This would explain what we
+have observed, and so I consider this matter closed as far as I'm
+concerned.  LOADLIN needs to be updated to continue to be useful, and
+I don't know if Hans is still around, even.
 
-Question:
-Whats the difference between MPS 1.1 and 1.4 from Kernel-sight, the
-system (ASUS P2B-DS, now Dual PIII/850/100 and 2.4.3, RH7.1) ran 2 years
-with MPS 1.1 and PIII/450/100-CPUs on Kernel 2.2.12, so i see no need to
-flip this switch and go to MPS 1.4...or does it make sense with the
-2.4.x Kernels now ?
+	-hpa
 
-Interesting is that with MPS 1.1 the Kernel puts three devices (aic7xxx,
-usb-uhci and eth0) on IRQ 10, with MPS 1.4 it puts the same three
-devices on IRQ 19...so there seems to be difference.
-
-Solong..
-Frank.
-
---
-Frank Schneider, <SPATZ1@T-ONLINE.DE>.                           
-Microsoft isn't the answer.
-Microsoft is the question, and the answer is NO.
-... -.-
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

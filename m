@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284890AbSADUgO>; Fri, 4 Jan 2002 15:36:14 -0500
+	id <S284924AbSADUso>; Fri, 4 Jan 2002 15:48:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288758AbSADUes>; Fri, 4 Jan 2002 15:34:48 -0500
-Received: from svr3.applink.net ([206.50.88.3]:15877 "EHLO svr3.applink.net")
-	by vger.kernel.org with ESMTP id <S288747AbSADUdq>;
-	Fri, 4 Jan 2002 15:33:46 -0500
-Message-Id: <200201042033.g04KXUSr000737@svr3.applink.net>
-Content-Type: text/plain; charset=US-ASCII
-From: Timothy Covell <timothy.covell@ashavan.org>
-Reply-To: timothy.covell@ashavan.org
-To: Bernd Eckenfels <usenet2001-12@lina.inka.de>, linux-kernel@vger.kernel.org
-Subject: Re: Two hdds on one channel - why so slow?
-Date: Fri, 4 Jan 2002 14:29:46 -0600
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <E16MZG4-0001ch-00@sites.inka.de>
-In-Reply-To: <E16MZG4-0001ch-00@sites.inka.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S288747AbSADUsf>; Fri, 4 Jan 2002 15:48:35 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:62609
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S284924AbSADUsY>; Fri, 4 Jan 2002 15:48:24 -0500
+Date: Fri, 4 Jan 2002 15:33:05 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Dave Jones <davej@suse.de>
+Cc: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+        Vojtech Pavlik <vojtech@suse.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Lionel Bouton <Lionel.Bouton@free.fr>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ISA slot detection on PCI systems?
+Message-ID: <20020104153305.C20097@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Dave Jones <davej@suse.de>,
+	"Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+	Vojtech Pavlik <vojtech@suse.cz>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Lionel Bouton <Lionel.Bouton@free.fr>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.3.96.1020104211143.829K-100000@delta.ds2.pg.gda.pl> <Pine.LNX.4.33.0201042128360.20620-100000@Appserv.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0201042128360.20620-100000@Appserv.suse.de>; from davej@suse.de on Fri, Jan 04, 2002 at 09:31:14PM +0100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 04 January 2002 12:40, Bernd Eckenfels wrote:
-> In article <200201041725.g04HPwSr031984@svr3.applink.net> you wrote:
-> > Why go Fibre Channel when Firewire is really starting to catch on?
->
-> Because Firewire is Consumer electronics and nearly dead. Dont now of
-> Enterpise Solutions with Firewire. Besides there is no switching support
-> for it.
->
-> I am happy to see those FC-S/ATA Controlers soon :)
->
-> Greetings
-> Bernd
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Dave Jones <davej@suse.de>:
+> Indeed. Something I'm trying to convey to Eric, but I don't think
+> he realises just how many pooched BIOSen there are out there.
+> His conservative estimate of '150 entries in the blacklist'
+> is possibly off by an order of 10 times or more.
 
+Are there even 1500 distinct PC motherboard designs in *existence*? :-)
 
-Checkout http://www.sancube.com. to see what I'm looking for.  Also,
-I'm hoping to see native ieee1394b disk drives (maybe Serial ATA
-will help, but it's not an external solution IIRC).
+Think, Dave.  The DMI standard dates from 1998.  For there to be 1500
+entries on the blacklist, someone would have to have been cranking out
+*500* PCI-capable, DMI-supporting motherboard designs a year each and
+every one of which lies about having ISA slots.
 
+This seems...implausible.
 -- 
-timothy.covell@ashavan.org.
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+It would be thought a hard government that should tax its people one tenth 
+part.	-- Benjamin Franklin

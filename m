@@ -1,63 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268480AbUHLA67@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268370AbUHLAwt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268480AbUHLA67 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 20:58:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268467AbUHLAxB
+	id S268370AbUHLAwt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 20:52:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268365AbUHLA1l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 20:53:01 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:51409 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S268470AbUHLAS6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 20:18:58 -0400
-Date: Thu, 12 Aug 2004 02:18:48 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Arnd Bergmann <arnd@arndb.de>, Christoph Hellwig <hch@infradead.org>,
-       wli@holomorphy.com, davem@redhat.com, geert@linux-m68k.org,
-       schwidefsky@de.ibm.com, linux390@de.ibm.com, sparclinux@vger.kernel.org,
-       linux-m68k@lists.linux-m68k.org, linux-kernel@vger.kernel.org,
-       kbuild-devel@lists.sourceforge.net
-Subject: Re: architectures with their own "config PCMCIA"
-Message-ID: <20040812001848.GW26174@fs.tum.de>
-References: <20040807170122.GM17708@fs.tum.de> <20040807181051.A19250@infradead.org> <20040807172518.GA25169@fs.tum.de> <200408072013.01168.arnd@arndb.de> <20040811201725.GJ26174@fs.tum.de> <Pine.LNX.4.58.0408112223140.20634@scrub.home>
+	Wed, 11 Aug 2004 20:27:41 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:59300 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268363AbUHKXzI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 19:55:08 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc3-O5
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Florian Schmidt <mista.tapas@gmx.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>,
+       Paul Davis <paul@linuxaudiosystems.com>
+In-Reply-To: <20040811124342.GA17017@elte.hu>
+References: <20040729222657.GA10449@elte.hu>
+	 <20040801193043.GA20277@elte.hu> <20040809104649.GA13299@elte.hu>
+	 <20040810132654.GA28915@elte.hu> <1092174959.5061.6.camel@mindpipe>
+	 <20040811073149.GA4312@elte.hu> <20040811074256.GA5298@elte.hu>
+	 <1092210765.1650.3.camel@mindpipe> <20040811090639.GA8354@elte.hu>
+	 <20040811141649.447f112f@mango.fruits.de>  <20040811124342.GA17017@elte.hu>
+Content-Type: text/plain
+Message-Id: <1092268536.1090.7.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0408112223140.20634@scrub.home>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 11 Aug 2004 19:55:36 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 11, 2004 at 11:45:21PM +0200, Roman Zippel wrote:
-
-> Hi,
-
-Hi Roman,
-
-> On Wed, 11 Aug 2004, Adrian Bunk wrote:
+On Wed, 2004-08-11 at 08:43, Ingo Molnar wrote:
+> * Florian Schmidt <mista.tapas@gmx.net> wrote:
 > 
-> > Roman, is it intentional that PCMCIA!=n is true if there's no PCMCIA 
-> > option, or is it simply a bug?
+> > > i'm currently running a loop of mlockall-test 100MB on a 466 MHz
+> > > Celeron, and not a single blip on the radar with a 1000 usecs
+> > > threshold, after 1 hour of runtime ...
+> > 
+> > I suppose you're not using jackd. As i have noticed that these
+> > critical sections only get reported when jackd is running. It seems
+> > jackd is producing a certain kind of load which exposes them..
 > 
-> Yes, undefined symbols have a (string) value of "" . Maybe it's time to 
-> add a warning for such comparisons...
+> so you can only trigger the latencies via mlockall-test if jackd is also 
+> running? Or do the latencies only trigger in jackd (and related 
+> programs)?
+> 
+> if the later, then i'm wondering whether any of the audio code turns off
+> caching for specific pages or does DMA to user pages, or mmap()s device
+> (PCI) memory?
+> 
 
-is there any strong reason why undefined symbols aren't equivalent to 
-symbols with a value of "n"?
+I believe that jackd may do all of these.  I am adding Paul Davis to the
+cc: list as he would know better.
 
-Many !=n seems to be bogus (especially ones from the automatic 
-transition to the new Kconfig) and I'll audit them. But rewriting valid 
-FOO!=n to (FOO=y || FOO=m) doesn't sound like an improvement.
+Whatever is going on, it only happens at jackd startup.  Jackd does not
+report an xrun because the developers added code not to report an xrun
+within the first 64 frames, so this message would not confuse users.
 
-> bye, Roman
+There is definitely some subtle bug in the preempt-timing patch, because
+I am getting reports of long non-preemptible sections, which do not
+correspond to an xrun in jackd - if these were real then even a 400usec
+non-preemptible section would cause an xrun.  I do not seem to get many
+xruns during normal jackd operation.
 
-cu
-Adrian
+If, during initialization, jackd called some function that could sleep
+*after* starting the PCM, for example if it tried to allocate memory in
+the same thread as the audio, this would cause an xrun, because the
+soundcard interrupt would occur, but jackd would not be woken up because
+it is sleeping on some other resource, correct?  Then, when jackd
+eventually woke up, it would see that a lot of time had passed, and
+report an xrun.  This would look the same as if jackd had been ready to
+run and had not been scheduled in time.
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Lee
 

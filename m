@@ -1,57 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271827AbTGXX2I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 19:28:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271828AbTGXX2I
+	id S271825AbTGXX0P (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 19:26:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271827AbTGXX0P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 19:28:08 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:10417 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S271827AbTGXX1i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 19:27:38 -0400
-Date: Fri, 25 Jul 2003 01:42:36 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Dominik Brugger <ml.dominik83@gmx.net>
-Cc: Florian Weimer <fw@deneb.enyo.de>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.0-test1] ACPI slowdown
-Message-ID: <20030724234236.GC434@elf.ucw.cz>
-References: <878yqpptez.fsf@deneb.enyo.de> <20030723114421.34eb7149.dominik83@gmx.net> <87el0gv3g9.fsf@deneb.enyo.de> <20030724112850.0e311b7a.ml.dominik83@gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030724112850.0e311b7a.ml.dominik83@gmx.net>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+	Thu, 24 Jul 2003 19:26:15 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:31237 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S271825AbTGXX0M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 19:26:12 -0400
+Date: Fri, 25 Jul 2003 00:41:17 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: Richard Drummond <lists@rcdrummond.net>
+cc: linux-fbdev-devel@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] [PATCH] Big-endian fixes for tdfxfb in 2.4.21
+In-Reply-To: <200307190434.08829.lists@rcdrummond.net>
+Message-ID: <Pine.LNX.4.44.0307250040290.7845-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > Could you post the output of "tail /proc/acpi/thermal_zone/THRM/*"?
-> > Thanks.
-> 
-> $ tail /proc/acpi/thermal_zone/THRM/*
-> ==> /proc/acpi/thermal_zone/THRM/cooling_mode <==
-> cooling mode:            active
-> 
-> ==> /proc/acpi/thermal_zone/THRM/polling_frequency <==
-> <polling disabled>
-> 
-> ==> /proc/acpi/thermal_zone/THRM/state <==
-> state:                   ok
-> 
-> ==> /proc/acpi/thermal_zone/THRM/temperature <==
-> temperature:             37 C
-> 
-> ==> /proc/acpi/thermal_zone/THRM/trip_points <==
-> critical (S5):           70 C
-> passive:                 70 C: tc1=4 tc2=3 tsp=60 devices=0xdff6cde8
-> active[0]:               70 C: devices=0xdff64d68
+> Ooops. I apologize. It turns out that I didn't test this as thoroughly as I 
+> had thought. Although the Voodoo3 works perfectly, 16-bit and 32-bit modes  
+> are still broken on the Voodoo4.
 
-This is clearly wrong.... But it is probably is not causing your
-slowdown as 37 < 70.
+I have a Voodoo 5 so I can give it a try this week end. I don't have docs 
+on the latest cards. I will apply the patch to 2.5.X this weekend.
 
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+
+
+

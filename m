@@ -1,54 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267633AbTA3XZv>; Thu, 30 Jan 2003 18:25:51 -0500
+	id <S267654AbTAaAIB>; Thu, 30 Jan 2003 19:08:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267651AbTA3XZv>; Thu, 30 Jan 2003 18:25:51 -0500
-Received: from [195.208.223.237] ([195.208.223.237]:5504 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S267633AbTA3XZu>; Thu, 30 Jan 2003 18:25:50 -0500
-Date: Fri, 31 Jan 2003 02:34:19 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: David Brownell <david-b@pacbell.net>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Anton Blanchard <anton@samba.org>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: pci_set_mwi() ... why isn't it used more?
-Message-ID: <20030131023419.A652@localhost.park.msu.ru>
-References: <3E2C42DF.1010006@pacbell.net> <20030120190055.GA4940@gtf.org> <3E2C4FFA.1050603@pacbell.net> <20030130135215.GF6028@krispykreme> <3E3951E3.7060806@pacbell.net> <20030130195944.A4966@jurassic.park.msu.ru> <3E39706D.6080400@pacbell.net>
+	id <S267655AbTAaAIB>; Thu, 30 Jan 2003 19:08:01 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:24758 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267654AbTAaAIA>; Thu, 30 Jan 2003 19:08:00 -0500
+Subject: [RFC][PATCH] linux-2.4.21-pre4_tsc-lost-tick_A0
+From: john stultz <johnstul@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1043972238.19049.27.camel@w-jstultz2.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3E39706D.6080400@pacbell.net>; from david-b@pacbell.net on Thu, Jan 30, 2003 at 10:35:25AM -0800
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 30 Jan 2003 16:17:18 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 30, 2003 at 10:35:25AM -0800, David Brownell wrote:
-> I think the first answer is better, but it looks like 2.5.59 will
-> set the pci cache line size to 16 bytes not 128 bytes in that case.
+All,
+	Occasionally due to hardware or software, its possible to miss multiple
+timer interrupts. This can cause small inconsistencies in time as well
+as time drifting behind other systems. 
 
-Yes, and it looks dangerous as the device would transfer incomplete
-cache lines with MWI...
+This patch checks each timer interrupt, using the TSC, if we have missed
+any ticks. Then if so, compensates jiffies for them. I have already
+submitted a patch for 2.4 which does this for the cyclone-timer based
+code, and I've been testing a version for 2.5 for all time sources (in
+-mm6, I believe). 
 
-> Another option would be to do like SPARC64 and set the cacheline
-> sizes as part of DMA enable (which is what I'd first thought of).
-> And have the breakage test in the ARCH_PCI_MWI code -- something
-> that sparc64 doesn't do, fwiw.
+Since this code affects more users then the cyclone-based version, I
+want to be more careful and get more testing in the 2.5 tree before I
+submit this. However, just so people wanting it can play with it and
+test it themselves, I wanted to send this out for comments. 
 
-Actually I think there is nothing wrong if we'll try to be a bit
-more aggressive with MWI and move all of this into generic
-pci_set_master().
-To do it safely, we need
-- kind of "broken_mwi" field in the struct pci_dev for buggy devices,
-  it can be set either by PCI quirks or by driver before pci_set_master()
-  call;
-- arch-specific pci_cache_line_size() function/macro (instead of
-  SMP_CACHE_BYTES) that returns either actual CPU cache line size
-  or other safe value (including 0, which means "don't enable MWI");
-- check that the device does support desired cache line size, i.e.
-  read back the value that we've written into the PCI_CACHE_LINE_SIZE
-  register and if it's zero (or dev->broken_mwi == 1) don't enable MWI.
+I'm already somewhat cautious that loops_per_jiffy isn't going to cut it
+with this patch (I'm thinking fast_gettimeoffset_quotient would probably
+be better). So please let me know if you find any issues with this
+patch.
 
-Thoughts?
+thanks
+-john
 
-Ivan.
+diff -Nru a/arch/i386/kernel/time.c b/arch/i386/kernel/time.c
+--- a/arch/i386/kernel/time.c	Thu Jan 30 16:03:19 2003
++++ b/arch/i386/kernel/time.c	Thu Jan 30 16:03:19 2003
+@@ -657,6 +657,7 @@
+ 	if(use_cyclone)
+ 		mark_timeoffset_cyclone();
+ 	else if (use_tsc) {
++		unsigned long delta = last_tsc_low;
+ 		/*
+ 		 * It is important that these two operations happen almost at
+ 		 * the same time. We do the RDTSC stuff first, since it's
+@@ -700,6 +701,13 @@
+ 		   momentarily as they flip back to zero */
+ 		if (count == LATCH) {
+ 			count--;
++		}
++
++		/* lost tick compensation */
++		delta = last_tsc_low - delta;
++		if(delta >= 2*loops_per_jiffy){
++			delta = (delta/loops_per_jiffy)-1;
++			jiffies += delta;
+ 		}
+ 
+ 		count = ((LATCH-1) - count) * TICK_SIZE;
+
+
+

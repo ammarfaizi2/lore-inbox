@@ -1,21 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261859AbSI3AXB>; Sun, 29 Sep 2002 20:23:01 -0400
+	id <S261876AbSI3AYb>; Sun, 29 Sep 2002 20:24:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261863AbSI3AXB>; Sun, 29 Sep 2002 20:23:01 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:4523 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261859AbSI3AXA>;
-	Sun, 29 Sep 2002 20:23:00 -0400
-Date: Sun, 29 Sep 2002 17:21:36 -0700 (PDT)
-Message-Id: <20020929.172136.79546522.davem@redhat.com>
-To: ak@suse.de
-Cc: hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Use __attribute__((malloc)) for gcc 3.2
+	id <S261877AbSI3AYb>; Sun, 29 Sep 2002 20:24:31 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:7083 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261876AbSI3AYa>;
+	Sun, 29 Sep 2002 20:24:30 -0400
+Date: Sun, 29 Sep 2002 17:22:54 -0700 (PDT)
+Message-Id: <20020929.172254.42500513.davem@redhat.com>
+To: arjanv@fenrus.demon.nl
+Cc: perex@suse.cz, torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ALSA update [6/10] - 2002/07/20
 From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <p733crssjdl.fsf@oldwotan.suse.de>
-References: <20020929152731.GA10631@averell.suse.lists.linux.kernel>
-	<20020929182643.C8564@infradead.org.suse.lists.linux.kernel>
-	<p733crssjdl.fsf@oldwotan.suse.de>
+In-Reply-To: <1033326744.2419.9.camel@localhost.localdomain>
+References: <Pine.LNX.4.33.0209292050390.591-100000@pnote.perex-int.cz>
+	<1033326744.2419.9.camel@localhost.localdomain>
 X-FalunGong: Information control.
 X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
@@ -24,10 +23,14 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andi Kleen <ak@suse.de>
-   Date: 29 Sep 2002 21:09:26 +0200
+   From: Arjan van de Ven <arjanv@fenrus.demon.nl>
+   Date: 29 Sep 2002 21:12:23 +0200
    
-   No, with gcc 3.2 it doesn't seem to make much difference.
+   what is wrong with the PCI DMA API that makes ALSA wants a private
+   interface/implementation ?
 
-Because -fno-strict-aliasing is still in CFLAGS.  Your
-change is pointless until that situation changes.
+It makes the layers not have to know what the BUS is, and this can all
+be deleted when everything goes through a generic struct device and
+assosciated OPS.
+
+I think ALSA is definitely doing the right thing here.

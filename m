@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130522AbRBKWf7>; Sun, 11 Feb 2001 17:35:59 -0500
+	id <S130390AbRBKXGR>; Sun, 11 Feb 2001 18:06:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130600AbRBKWfs>; Sun, 11 Feb 2001 17:35:48 -0500
-Received: from rmx460-mta.mail.com ([165.251.48.47]:24457 "EHLO
-	rmx460-mta.mail.com") by vger.kernel.org with ESMTP
-	id <S130522AbRBKWfn>; Sun, 11 Feb 2001 17:35:43 -0500
-Message-ID: <385378057.981930849661.JavaMail.root@web395-wra.mail.com>
-Date: Sun, 11 Feb 2001 17:34:04 -0500 (EST)
-From: Frank Davis <fdavis112@juno.com>
-To: alan@lxorguk.ukuu.org.uk
-Subject: 2.4.1-ac10 compile error
-CC: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Mailer: mail.com
-X-Originating-IP: 151.201.242.91
+	id <S130642AbRBKXGH>; Sun, 11 Feb 2001 18:06:07 -0500
+Received: from asbestos.linuxcare.com.au ([203.17.0.30]:48633 "EHLO halfway")
+	by vger.kernel.org with ESMTP id <S130390AbRBKXF6>;
+	Sun, 11 Feb 2001 18:05:58 -0500
+From: Rusty Russell <rusty@linuxcare.com.au>
+To: Pavel Machek <pavel@suse.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Hot swap CPU support for 2.4.1 
+In-Reply-To: Your message of "Sun, 11 Feb 2001 00:29:55 BST."
+             <20010211002955.I7877@bug.ucw.cz> 
+Date: Mon, 12 Feb 2001 10:05:35 +1100
+Message-Id: <E14S5Ym-0003m4-00@halfway>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-    I received the following while compiling 2.4.1-ac10:
-...
-make[3]: *** No rule to make target '/usr/src/linux/drivers/pci/devlist.h', needed by names.o'. Stop
-make[3]: Leaving directory '/usr/src/linux/drivers/pci'
-make[2]: *** [first_rule] Error 2
-...
+In message <20010211002955.I7877@bug.ucw.cz> you write:
+> This is not quite right:
+> 
+> @@ -1643,7 +1643,7 @@
+>                 printk(KERN_NOTICE "apm: disabled on user
+> request.\n");
+>                 return -ENODEV;
+>         }
+> -       if ((smp_num_cpus > 1) && !power_off) {
+> +       if ((num_online_cpus() > 1) && !power_off) {
+>                 printk(KERN_NOTICE "apm: disabled - APM is not SMP
+> 
+> I do not think it is safe to call APM when there is just CPU #5
+> running. smp_num_cpus in this context means "if we ever had more than
+> boot cpu".
 
-I haven't looked into it, but the addition was between 2.4.1-ac9 and 2.4.1-ac10. 2.4.2-pre3 didn't have this problem.
+Um, it's not safe to call APM in SMP full stop: we try anyway.
+However, this code changes nothing since it's only run at boot.
 
-Regards,
-Frank
-
-
+Cheers,
+Rusty.
+--
+Premature optmztion is rt of all evl. --DK
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280291AbRKKU0G>; Sun, 11 Nov 2001 15:26:06 -0500
+	id <S280531AbRKKUb6>; Sun, 11 Nov 2001 15:31:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280531AbRKKUZ5>; Sun, 11 Nov 2001 15:25:57 -0500
-Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:39411 "EHLO
-	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S280291AbRKKUZh>; Sun, 11 Nov 2001 15:25:37 -0500
-Date: Sun, 11 Nov 2001 21:25:27 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: "Paulo J. Matos aka PDestroy" <pocm@rnl.ist.utl.pt>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Compiling manually
-Message-ID: <20011111212527.C773@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <m3k7wxkzy2.fsf@localhost.localdomain>
-Mime-Version: 1.0
+	id <S280764AbRKKUbt>; Sun, 11 Nov 2001 15:31:49 -0500
+Received: from ns2.wticorp.com ([209.185.218.3]:49925 "HELO
+	exchange.wticorp.com") by vger.kernel.org with SMTP
+	id <S280531AbRKKUbb>; Sun, 11 Nov 2001 15:31:31 -0500
+Message-ID: <3BEEE054.B645C700@wticorp.com>
+Date: Sun, 11 Nov 2001 12:32:20 -0800
+From: Dennis Vadura <dvadura@wticorp.com>
+Organization: Web Tools International
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: torvalds@transmeta.com
+Subject: Kernel 2.4.14 - drivers/block/loop.c fails to link
+In-Reply-To: <3BEEDE50.9E91BD99@wticorp.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <m3k7wxkzy2.fsf@localhost.localdomain>; from pocm@rnl.ist.utl.pt on Sun, Nov 11, 2001 at 04:57:41PM +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 11, 2001 at 04:57:41PM +0000, Paulo J. Matos aka PDestroy wrote:
-> How can I remove optimization from that file only or maybe
-> compile the file manually and then don't let make compile the
-> file again?
+Deleted reference to deactivate_page. Tested patch by mounting 
+and reading RH 7.2 ISO images and all seemed fine.
 
-CFLAGS_$(your_target_file) := -O0 
-
-or
-
-CFLAGS_$(your_target_file) := -O1 
-
-should do, what you want.
-
-Regards
-
-Ingo Oeser
--- 
-In der Wunschphantasie vieler Mann-Typen [ist die Frau] unsigned und
-operatorvertraeglich. --- Dietz Proepper in dasr
+--- linux-2.4.14/drivers/block/loop.c   Thu Oct 25 13:58:34 2001
++++ linux/drivers/block/loop.c  Sun Nov 11 12:01:29 2001
+@@ -207,7 +207,6 @@
+                index++;
+                pos += size;
+                UnlockPage(page);
+-               deactivate_page(page);
+                page_cache_release(page);
+        }
+        return 0;
+@@ -218,7 +217,6 @@
+        kunmap(page);
+ unlock:
+        UnlockPage(page);
+-       deactivate_page(page);
+        page_cache_release(page);
+ fail:
+        return -1;

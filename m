@@ -1,43 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261648AbSIXLa3>; Tue, 24 Sep 2002 07:30:29 -0400
+	id <S261649AbSIXLaa>; Tue, 24 Sep 2002 07:30:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261650AbSIXLa2>; Tue, 24 Sep 2002 07:30:28 -0400
-Received: from angband.namesys.com ([212.16.7.85]:59787 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S261648AbSIXLa1>; Tue, 24 Sep 2002 07:30:27 -0400
-Date: Tue, 24 Sep 2002 15:35:40 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Hans Reiser <reiser@namesys.com>
-Cc: Jakob Oestergaard <jakob@unthought.net>, linux-kernel@vger.kernel.org
-Subject: Re: ReiserFS buglet
-Message-ID: <20020924153540.A25934@namesys.com>
-References: <20020924072455.GE2442@unthought.net> <20020924132110.A22362@namesys.com> <20020924092720.GF2442@unthought.net> <20020924134816.A23185@namesys.com> <20020924100338.GH2442@unthought.net> <20020924142521.C23185@namesys.com> <3D904CC2.4080607@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <3D904CC2.4080607@namesys.com>
-User-Agent: Mutt/1.3.22.1i
+	id <S261650AbSIXLaa>; Tue, 24 Sep 2002 07:30:30 -0400
+Received: from [217.167.51.129] ([217.167.51.129]:41945 "EHLO zion.wanadoo.fr")
+	by vger.kernel.org with ESMTP id <S261649AbSIXLa2>;
+	Tue, 24 Sep 2002 07:30:28 -0400
+From: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>
+To: "Richard Zidlicky" <rz@linux-m68k.org>,
+       "Andre Hedrick" <andre@linux-ide.org>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: IDE janitoring comments
+Date: Tue, 24 Sep 2002 13:35:35 +0200
+Message-Id: <20020924113535.11318@192.168.4.1>
+In-Reply-To: <20020924112732.B1060@linux-m68k.org>
+References: <20020924112732.B1060@linux-m68k.org>
+X-Mailer: CTM PowerMail 4.0.1 carbon <http://www.ctmdev.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+>I need different transfer functions depending on whether drive
+>control data(like IDENT,SMART) or HD sectors are to be transfered. 
+>Control data requires byteswapping to correct bus-byteorder
+>whereas sector r/w has to be raw for compatibility.
+>
+>So that will require 2 additional iops pointers and some change
+>in ide_handler_parser or ide_cmd_type_parser to select the
+>appropriate version depending on the drive command.
 
-On Tue, Sep 24, 2002 at 03:30:10PM +0400, Hans Reiser wrote:
+No, it doesn't. There are already separate iops for control
+and datas, typically {in,out}{b,w,l} are for control (though
+only "b" versions are really useful and {in,out}s{b,w,l} are
+for datas.
 
-> >>It's a question of which errors one wishes to handle, and which you
-> >>simply choose to ignore.
-> >Yes, that's true. Reiserfs chose to not handle any HW errors, this is even
-> >written somewhere in our FAQ.
-> No, this is not true.  We handle IO errors.  We do not attempt to handle 
+There are cases where ide_{input,output}_data my try to
+"re-invent" the "s" functions with a loop of non-s ones,
+but you shouldn't have to care about that case. It might
+actually work for you because of your weird wiring, but it's
+definitely broken for other BE archs, and so drive->slow
+shouldn't be set on anything but x86.
 
-Ok, IO errors is not kind of HW errors I meant.
-I meant broken HW that does not behave like it should behave according
-to specs (i.e. writing other data than we asked it, damaging memory
-content and stuff).
+Actually, the whole set of iops could probably be shrunk
+down to just {in,out}b for control and {in,out}s{w,l} for
+datas. Though we probably want, ultimately, to change that
+to some different (higher level ?) kind of abstraction.
 
-> every imaginable hardware error because no one can.  If your CPU 
-> overheats, our code makes no effort to compensate for it.
+Ben.
 
-Bye,
-    Oleg
+

@@ -1,71 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbVACOKH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbVACOPn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbVACOKH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 09:10:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261455AbVACOKG
+	id S261455AbVACOPn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 09:15:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbVACOPn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 09:10:06 -0500
-Received: from [213.146.154.40] ([213.146.154.40]:4584 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261366AbVACOJn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 09:09:43 -0500
-Date: Mon, 3 Jan 2005 14:09:38 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Patrick Gefre <pfg@sgi.com>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       matthew@wil.cx
-Subject: Re: [PATCH] 2.6.10 Altix : ioc4 serial driver support
-Message-ID: <20050103140938.GA20070@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Patrick Gefre <pfg@sgi.com>, linux-kernel@vger.kernel.org,
-	matthew@wil.cx
-References: <200412220028.iBM0SB3d299993@fsgi900.americas.sgi.com> <20041222134423.GA11750@infradead.org> <41C9D0B8.9000208@sgi.com>
+	Mon, 3 Jan 2005 09:15:43 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:27147 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S261455AbVACOPf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 09:15:35 -0500
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+From: Arjan van de Ven <arjan@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       "Jack O'Quin" <joq@io.com>
+In-Reply-To: <20050103140359.GA19976@infradead.org>
+References: <1104374603.9732.32.camel@krustophenia.net>
+	 <20050103140359.GA19976@infradead.org>
+Content-Type: text/plain
+Date: Mon, 03 Jan 2005 15:15:27 +0100
+Message-Id: <1104761727.4192.14.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41C9D0B8.9000208@sgi.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 22, 2004 at 01:53:28PM -0600, Patrick Gefre wrote:
-> Christoph Hellwig wrote:
+On Mon, 2005-01-03 at 14:03 +0000, Christoph Hellwig wrote:
+> On Wed, Dec 29, 2004 at 09:43:22PM -0500, Lee Revell wrote:
+> > The realtime LSM has been previously explained on this list.  Its
+> > function is to allow selected nonroot users to run RT tasks.  The most
+> > common application is low latency audio with JACK, http://jackit.sf.net.
+> > 
+> > Several people have reported that 2.6.10 is the best kernel yet for
+> > audio latency, see
+> > http://ccrma-mail.stanford.edu/pipermail/planetccrma/2004-December/007341.html.    If the realtime LSM were merged, then this would be the last step to making low latency audio work well with the stock kernel.
+> > 
+> > We (the authors and the Linux audio community) would like to request its
+> > inclusion in the next -mm release, with the eventual goal of having it
+> > in mainline.
+> > 
+> > This is identical to the last version Jack O'Quin posted (but didn't cc:
+> > Andrew, or make clear that we would like this added to -mm), so I
+> > preserved his Signed-Off-By.
 > 
-> >So both claim the same PCI ID?  In this case you need to creat a small
-> >shim driver that exports a pseudo-bus to the serial and ide driver using
-> >the driver model.  You must never return an error from ->probe if you
-> >actually use that particular device.
-> >
-> 
-> Has this been done before ? Any example I can use ??
+> This is far too specialized.  And option to the capability LSM to grant 
+> capabilities to certain uids/gids sounds like the better choise - and
+> would also allow to get rid of the magic hugetlb uid horrors.
+those can go away anyway now that there is an rlimit to achieve the
+exact same thing.....
 
-Well, just about any secondary bus (e.g. usb, iee1394, i2c) works that way,
-but I guess all those examples are a little too complicated for your example.
-the PPC OCP stuff might be a better example as it's an on-chip pseudo-bus,
-otoh it's a top-level bus and not parented by PCI.
+I can see the point of making an rlimit like thing instead for both the
+nice levels allowed and maybe the "can do rt" bit
 
-> >The second argumnet to writeX (and readX) is actually void __iomem *,
-> >but to see the difference you need to run sparse (from sparse.bkbits.net)
-> >over the driver.  Please store all I/O addresses in void __iomem * pointers
-> >in your structures and avoid the cast here and in all the other places.
-> >
-> 
-> So then I'd have to declare the end elements as:
-> void __iomem foo;
-> 
-> They are 32 bit values, so it's OK to assume that void __iomem is 32bits ?
-
-Hmm?  void __iomem must only ever be used as a pointer and passed to
-readX/writeX.  Pointer arithmetics are allowed and it's treated equally
-to char * for that (GCC extension)
-
-> >no need to cast the return value from kmalloc (dito for the other places)
-> >
-> 
-> Why is that ? Seems if kmalloc returns a void * and the left side is not, a 
-> casting is appropriate ?
-
-void * is magic in C and can be assigned to any pointer and vice versa.
 

@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131341AbRCMXll>; Tue, 13 Mar 2001 18:41:41 -0500
+	id <S131163AbRCMXqv>; Tue, 13 Mar 2001 18:46:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131349AbRCMXlb>; Tue, 13 Mar 2001 18:41:31 -0500
-Received: from gear.torque.net ([204.138.244.1]:1810 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S131341AbRCMXlT>;
-	Tue, 13 Mar 2001 18:41:19 -0500
-Message-ID: <3AAEB041.9C4AC923@torque.net>
-Date: Tue, 13 Mar 2001 18:41:53 -0500
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i586)
-X-Accept-Language: en
+	id <S131238AbRCMXqm>; Tue, 13 Mar 2001 18:46:42 -0500
+Received: from saarinen.org ([203.79.82.14]:9123 "EHLO vimfuego.saarinen.org")
+	by vger.kernel.org with ESMTP id <S131478AbRCMXqd>;
+	Tue, 13 Mar 2001 18:46:33 -0500
+From: "Juha Saarinen" <juha@saarinen.org>
+To: "Pete Toscano" <pete@toscano.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: APIC  usb MPS 1.4 and the 2.4.2 kernel
+Date: Wed, 14 Mar 2001 12:48:36 +1300
+Message-ID: <LNBBIBDBFFCDPLBLLLHFGEFGJGAA.juha@saarinen.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.2ac20
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <20010313183105.H5626@bubba.toscano.org>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> David Balazic wrote:
-> > 
-> > Nathan Walp (faceprint@faceprint.com) wrote :
-> > 
-> > > Also, sometime between ac7 and ac18 (spring break kept me from testing
-> > > stuff inbetween), i assume during the new aic7xxx driver merge, the
-> > > order of detection got changed, and now the ide-scsi virtual host is
-> > > host0, and my 29160N is host1. Is this on purpose? It messed up a
-> > > bunch of my stuff as far as /dev and such are concerned.
-> > 
-> > SCSI adapters are enumerated randomly(*) , relying on certain numbering
-> > will get you into trouble, sooner or later.
-> > There is no commonly accepted solution, AFAIK.
-> > The same thing can happent to disk enumeration ( sdb becomes sdc )
-> > or partition enumeration ( hda6 becomes hda5 ).
-> > 
-> > * - theoreticaly no, but practicaly yes ( most of the time )
-> 
-> SCSI adapters are given host numbers in a random order?  Even with no
-> hardware changes?  Does this make less than sense to anyone else?  Every
-> kernel EVER up till now has had the real scsi cards (in some particular
-> order) then ide-scsi.  Have I just been lucky???
+:: AFAIK, the option to compile w/o APIC is only for UP systems.  If you
+:: want to use both of your processors, you have to compile in APIC
+:: support, but just disable it when loading the kernel (ie. for lilo,
+:: 'append="noapic"')
 
-Built in scsi adapter drivers are probed in the order in
-which they appear in drivers/scsi/Makefile (in the lk 2.4
-series). Adapters can be assigned to host numbers using
-the "scsihosts" kernel boot option (but this will not
-differentiate between 2 adapters controlled by the same 
-driver (e.g. 2 29160 cards)). Scsi buses are scanned for
-devices in ascending order.
+I haven't seen the beginning of the APIC/VIA/Tyan thread, but isn't there a
+way to check if the APIC's OK, instead of resorting to workarounds like the
+above?
 
-If you have lots of SCSI devices then devfs is your friend.
+:: That would explain why it works for me.  Now, if only I didn't have
+:: devices that need to have their BIOSes upgraded via a Windows .exe...
 
-Doug Gilbert
+;-).
+
+That's a good point, actually. I can't recall a single BIOS or device BIOS
+flasher that works under anything but DOS (or in some cases, Windows). Is
+there any work being done on this for Linux?
+
+-- Juha
+

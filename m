@@ -1,42 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261556AbVA2Ukn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbVA2Uk3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261556AbVA2Ukn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 15:40:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVA2Ukn
+	id S261552AbVA2Uk3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 15:40:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261556AbVA2Uk2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 15:40:43 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43218 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261556AbVA2Uki (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 15:40:38 -0500
-Date: Sat, 29 Jan 2005 20:40:36 +0000
-From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Jon Smirl <jonsmirl@gmail.com>, ee21rh@surrey.ac.uk,
-       linux-kernel@vger.kernel.org
+	Sat, 29 Jan 2005 15:40:28 -0500
+Received: from out011pub.verizon.net ([206.46.170.135]:32926 "EHLO
+	out011.verizon.net") by vger.kernel.org with ESMTP id S261552AbVA2UkV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Jan 2005 15:40:21 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: None, usuallly detectable by casual observers
+To: linux-kernel@vger.kernel.org, Jon Smirl <jonsmirl@gmail.com>
 Subject: Re: OpenOffice crashes due to incorrect access permissions on /dev/dri/card*
-Message-ID: <20050129204036.GA1750@gallifrey>
-References: <pan.2005.01.29.10.44.08.856000@surrey.ac.uk> <E1CurmR-0000H8-00@calista.eckenfels.6bone.ka-ip.net> <pan.2005.01.29.12.49.13.177016@surrey.ac.uk> <pan.2005.01.29.13.02.51.478976@surrey.ac.uk> <9e473391050129112525f4947@mail.gmail.com> <1107030966.24676.28.camel@krustophenia.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Sat, 29 Jan 2005 15:40:19 -0500
+User-Agent: KMail/1.7
+Cc: ee21rh@surrey.ac.uk
+References: <pan.2005.01.29.10.44.08.856000@surrey.ac.uk> <pan.2005.01.29.13.02.51.478976@surrey.ac.uk> <9e473391050129112525f4947@mail.gmail.com>
+In-Reply-To: <9e473391050129112525f4947@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1107030966.24676.28.camel@krustophenia.net>
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/2.6.5 (i686)
-X-Uptime: 20:40:13 up  8:05,  2 users,  load average: 0.00, 0.04, 0.01
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200501291540.19667.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out011.verizon.net from [151.205.42.183] at Sat, 29 Jan 2005 14:40:20 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Lee Revell (rlrevell@joe-job.com) wrote:
-> 
-> Stupid question: what the heck does OO use DRI for?  I googled and came
-> up empty.
+On Saturday 29 January 2005 14:25, Jon Smirl wrote:
+>On Sat, 29 Jan 2005 13:02:51 +0000, Richard Hughes 
+<ee21rh@surrey.ac.uk> wrote:
+>> On Sat, 29 Jan 2005 12:49:16 +0000, Richard Hughes wrote:
+>> > Note, that strace glxgears gives exactly the same output, going
+>> > from 0 to 14 and then seg-faulting, so it's *not just a oo
+>> > problem*.
+>>
+>> I know it's bad to answer your own post, but here goes.
+>>
+>> I changed my /etc/udev/permissions.d/50-udev.permissions config to
+>> read:
+>>
+>> dri/*:root:root:0666
+>>
+>> changing it from
+>>
+>> dri/*:root:root:0660
+>>
+>> And oowriter and glxgears work from bootup. Shall I file a bug
+>> with udev?
+>
+>Your user ID needs to belong to group DRI.
 
-It does pointless 3D objects in its drawing package.
+Humm, scratching head here.  My /etc/group file contains no references 
+to dri, but as root at least, it works just fine, X-6.8.1 here.
 
-Dave
- -----Open up your eyes, open up your mind, open up your code -------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.32% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

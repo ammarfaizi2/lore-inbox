@@ -1,37 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280357AbRKGKab>; Wed, 7 Nov 2001 05:30:31 -0500
+	id <S280435AbRKGKfl>; Wed, 7 Nov 2001 05:35:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280419AbRKGKaW>; Wed, 7 Nov 2001 05:30:22 -0500
-Received: from t2.redhat.com ([199.183.24.243]:64765 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S280357AbRKGKaF>; Wed, 7 Nov 2001 05:30:05 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <E161Pyh-0003hb-00@the-village.bc.nu> 
-In-Reply-To: <E161Pyh-0003hb-00@the-village.bc.nu> 
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux@hazard.jcu.cz (Jan Marek),
-        linux-kernel@vger.kernel.org (linux-kernel)
-Subject: Re: Cannot unlock spinlock... Was: Problem in yenta.c, 2nd edition 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 07 Nov 2001 10:29:59 +0000
-Message-ID: <14838.1005128999@redhat.com>
+	id <S280450AbRKGKfc>; Wed, 7 Nov 2001 05:35:32 -0500
+Received: from bacon.van.m-l.org ([208.223.154.200]:11392 "EHLO
+	bacon.van.m-l.org") by vger.kernel.org with ESMTP
+	id <S280435AbRKGKfS>; Wed, 7 Nov 2001 05:35:18 -0500
+Date: Wed, 7 Nov 2001 05:35:17 -0500 (EST)
+From: George Greer <greerga@m-l.org>
+X-X-Sender: <greerga@bacon.van.m-l.org>
+To: <linux-kernel@vger.kernel.org>
+Subject: keve-ntd (linux 2.2 and gcc 3 sillies)
+Message-ID: <Pine.LNX.4.33.0111070527490.2769-100000@bacon.van.m-l.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hm, this is funny:
 
-alan@lxorguk.ukuu.org.uk said:
->  Can you disable the winmodem in the BIOS at all. I've seen similar
-> reports of audio hangs where the IRQ was shared by a lucent winmodem -
-> no idea why since it ought to be passive and minding its own business.
+5 (ntd) S 1 1 1 0 -1 64 0 0 0 0 0 2239187 0 0 11 0 0 0 76 0 0 2147483647 
+3221225472 3223473832 0 0 0 0 2147483647 65536 0 3223678300 0 0 0 1
+0 0 0 0 0 0 0
 
-We know enough about that hardware to turn the IRQ off from Linux, don't we?
-If it's a common problem, we could make a PCI quirk for it.
+Name:   ntd
+State:  R (running)
+Pid:    5
+PPid:   1
+Uid:    0       0       0       0
+Gid:    0       0       0       0
+Groups:
+SigPnd: 0000000000000000
+SigBlk: 00000000ffffffff
+SigIgn: 0000000000010000
+SigCgt: 0000000000000000
+CapInh: 0000000000000000
+CapPrm: 00000000ffffffff
+CapEff: 00000000fffffeff
 
---
-dwmw2
+Judging by the PID, that was supposed to be 'keventd'.  It must be upset
+over losing part of its name, although right now it just seems content with
+eating up 60% of my CPU time:
 
+  PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM COMMAND
+    5 root      19   0     0    0     0 RW   62.3  0.0 ntd
+
+Problem is apparently that it was GCC 3.0.  Serves me right for forgetting
+that even though 2.2.19 was compiled with egcs 1.1.2, I've upgraded
+compilers since then.  Oh well.  Since I am sending this e-mail from the
+machine it isn't too bad. Now to dig up a suitable compiler...
+
+-- 
+George Greer, greerga@m-l.org
+http://www.m-l.org/~greerga/
 

@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261931AbUB1XjG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Feb 2004 18:39:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbUB1XjG
+	id S261943AbUB1XsY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Feb 2004 18:48:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbUB1XsY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Feb 2004 18:39:06 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:30372 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S261931AbUB1XjE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Feb 2004 18:39:04 -0500
-Date: Sun, 29 Feb 2004 00:39:03 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: Pavel Machek <pavel@suse.cz>
-Cc: discuss@x86-64.org, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: scp running too slow
-Message-ID: <20040228233903.GA14238@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Pavel Machek <pavel@suse.cz>, discuss@x86-64.org,
-	kernel list <linux-kernel@vger.kernel.org>
-References: <20040228222942.GA736@elf.ucw.cz>
+	Sat, 28 Feb 2004 18:48:24 -0500
+Received: from elektra.telenet-ops.be ([195.130.132.49]:31136 "EHLO
+	elektra.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S261943AbUB1XsW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Feb 2004 18:48:22 -0500
+Date: Sun, 29 Feb 2004 00:47:44 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [WATCHDOG] v2.6.3 pcwd_usb-watchdog
+Message-ID: <20040229004744.E30061@infomag.infomag.iguana.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040228222942.GA736@elf.ucw.cz>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 28, 2004 at 11:29:42PM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> I'm copying huge file from x86-64 machine to i386.
-> 
-> x86-64 is running 2.6.3-bk, today from Linus' cvs. tg3 driver. It
-> shows pretty high CPU load (like 98% CPU), and is not even able to
-> reach 1MB/sec. When x86-64 machine was running 2.4, I was able to get
-> >4MB/sec...
+Hi Linus, Andrew,
 
-Could you provide slightly more data? like the output of vmstat 1 or a
-tcpdump. Also, is a transfer going the other way faster, does -C none help
-etc.
+please do a
+
+	bk pull http://linux-watchdog.bkbits.net/linux-2.6-watchdog
+
+This will update the following files:
+
+ drivers/char/watchdog/Kconfig    |   22 +
+ drivers/char/watchdog/Makefile   |    3 
+ drivers/char/watchdog/pcwd_usb.c |  810 +++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 834 insertions(+), 1 deletion(-)
+
+through these ChangeSets:
+
+<wim@iguana.be> (04/02/29 1.1628)
+   [WATCHDOG] v2.6.3 pcwd_usb-watchdog
+   
+   Add the Berkshire Products USB-PC Watchdog driver
 
 
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+The ChangeSets can also be looked at on:
+	http://linux-watchdog.bkbits.net:8080/linux-2.6-watchdog
+
+Greetings,
+Wim.
+

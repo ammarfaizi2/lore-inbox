@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263609AbTHWNgA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 09:36:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263611AbTHWNf7
+	id S263285AbTHWNdP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 09:33:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263059AbTHWNdP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 09:35:59 -0400
-Received: from [193.10.185.236] ([193.10.185.236]:45072 "HELO
-	smtp.dormnet.his.se") by vger.kernel.org with SMTP id S263609AbTHWNf6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 09:35:58 -0400
-Date: Sat, 23 Aug 2003 15:35:41 +0200
-From: Patrick =?ISO-8859-1?Q?B=F6rjesson?= <psycho@rift.ath.cx>
-To: linux-kernel@vger.kernel.org
-Subject: Problem with memstick for Sony DSC-P9
-Message-Id: <20030823153541.652e1f3f.psycho@rift.ath.cx>
-Organization: HiS
-X-Mailer: Sylpheed version 0.9.4claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sat, 23 Aug 2003 09:33:15 -0400
+Received: from [203.145.184.221] ([203.145.184.221]:31243 "EHLO naturesoft.net")
+	by vger.kernel.org with ESMTP id S263430AbTHWNdN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Aug 2003 09:33:13 -0400
+Subject: [PATCH 2.6.0-test4] wait.h: fix spin_lock_irqrestore typo
+From: Vinay K Nallamothu <vinay-rc@naturesoft.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
+Date: 23 Aug 2003 19:25:28 +0530
+Message-Id: <1061646928.1141.33.camel@lima.royalchallenge.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got a Sony DSC-P9 digital camera and when trying to use Sony's own
-memstick I can't mount it over USB. When using a Lexar memstick there's
-no problem at all. The error-message I get from mount when trying to
-mount the Sony stick is:
-mount: you must specify the filesystem type
-And when specifying vfat that the Lexar memstick uses I get a wrong
-fs-type error instead.
-Anyone know which filesystem I should use or is it a lost cause getting
-the Sony memstick working?
+Hi Linus,
 
-Patrick Börjesson
+A small patch to fix a spin_lock typo in the macro add_wait_queue_cond
 
--- 
-Public key id: 4C5AB0BF
-Public key available at search.keyserver.net[:11371]
+Vinay
+
+--- linux-2.6.0-test4/include/linux/wait.h	2003-07-15 17:22:56.000000000 +0530
++++ linux-2.6.0-test4-nvk/include/linux/wait.h	2003-08-23 19:08:36.000000000 +0530
+@@ -232,7 +232,7 @@
+ 			_raced = 1;				\
+ 			__remove_wait_queue((q), (wait));	\
+ 		}						\
+-		spin_lock_irqrestore(&(q)->lock, flags);	\
++		spin_unlock_irqrestore(&(q)->lock, flags);	\
+ 		_raced;						\
+ 	})
+ 
+

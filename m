@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263146AbTCLLQs>; Wed, 12 Mar 2003 06:16:48 -0500
+	id <S263155AbTCLLgO>; Wed, 12 Mar 2003 06:36:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263147AbTCLLQs>; Wed, 12 Mar 2003 06:16:48 -0500
-Received: from ATuileries-102-2-1-196.abo.wanadoo.fr ([193.251.178.196]:3222
-	"EHLO mojito.idtect.net") by vger.kernel.org with ESMTP
-	id <S263146AbTCLLQr>; Wed, 12 Mar 2003 06:16:47 -0500
-Message-ID: <3E6F199E.5000001@ruault.com>
-Date: Wed, 12 Mar 2003 12:27:26 +0100
-From: Charles-Edouard Ruault <kernel@ruault.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [kernel 2.4.21-pre5 : process stuck in D state
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S263157AbTCLLgO>; Wed, 12 Mar 2003 06:36:14 -0500
+Received: from rth.ninka.net ([216.101.162.244]:18858 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S263155AbTCLLgN>;
+	Wed, 12 Mar 2003 06:36:13 -0500
+Subject: Re: [PATCH][COMPAT] compat_sys_fcntl{,64} 1/9 Generic part
+From: "David S. Miller" <davem@redhat.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, schwidefsky@de.ibm.com,
+       arnd@arndb.de, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0303112124000.12804-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0303112124000.12804-100000@home.transmeta.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1047469604.15904.1.camel@rth.ninka.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 12 Mar 2003 03:46:45 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+On Tue, 2003-03-11 at 21:26, Linus Torvalds wrote:
 
-i've been running kernel 2.4.21-preX series for a while on my ASUS A7V8X 
-motherboard ( with an athlon XP 2400+ )  and i've noticed the following 
-annoying problem.
-Very often, mozilla ( 1.2.1 ) dies and is stuck in D state, waiting on a 
-semaphore, here's the output of ps :
+> Yes, this looks much more sane. If you _really_ want to be anal about 
+> typechecking (and also checking that nobody can possibly use a user 
+> pointer incorrectly), you make
+> 
+> 	typedef struct {
+> 		unsigned int val;
+> 	} compat_uptr_t;
 
-ps -elf | grep mozill
-000 S userX 2615  1462  0  69   0    -   972 wait4  00:50 ? 
-00:00:00 /bin/sh /usr/local/mozilla/run-mozilla.sh 
-/usr/local/mozilla/mozilla-bin
-000 D userX   2621  2615  0  69   0    - 13623 down   00:50 ? 
-00:00:02 /usr/local/mozilla/mozilla-bin
+Be careful, these kind of "int in a struct" things end up being
+passed to functions on the stack instead of registers :-(
 
-Has anyone noticed the same behaviour ? Is this a well known problem ?
-Thanks for your help.
-Regards
-
-Charles-Edouard Ruault
+This is why we don't do any of the fancy type-checking
+page table types on Sparc unless you edit the header files.
 

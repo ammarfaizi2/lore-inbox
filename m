@@ -1,59 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264176AbVBEL0V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261811AbVBELeR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264176AbVBEL0V (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 06:26:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264102AbVBEL0V
+	id S261811AbVBELeR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 06:34:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262650AbVBELeR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 06:26:21 -0500
-Received: from fw.osdl.org ([65.172.181.6]:16577 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264759AbVBEL0L convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 06:26:11 -0500
-Date: Sat, 5 Feb 2005 03:26:05 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Laurent Riffard <laurent.riffard@free.fr>
-Cc: linux-kernel@vger.kernel.org,
-       "viro@parcelfarce.linux.theplanet.co.uk" 
-	<viro@parcelfarce.linux.theplanet.co.uk>,
-       Matt Mackall <mpm@selenic.com>
-Subject: Re: 2.6.11-rc3-mm1 : can't insmod dm-mod
-Message-Id: <20050205032605.764eedac.akpm@osdl.org>
-In-Reply-To: <4204880A.3010703@free.fr>
-References: <20050204103350.241a907a.akpm@osdl.org>
-	<4204880A.3010703@free.fr>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Sat, 5 Feb 2005 06:34:17 -0500
+Received: from mailhub2.nextra.sk ([195.168.1.110]:12811 "EHLO toe.nextra.sk")
+	by vger.kernel.org with ESMTP id S261811AbVBELeJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 06:34:09 -0500
+Message-ID: <4204AF64.9060201@rainbow-software.org>
+Date: Sat, 05 Feb 2005 12:35:00 +0100
+From: Ondrej Zary <linux@rainbow-software.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: Jon Smirl <jonsmirl@gmail.com>, ncunningham@linuxmail.org,
+       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
+       ACPI List <acpi-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Reliable video POSTing on resume
+References: <e796392205020221387d4d8562@mail.gmail.com> <420217DB.709@gmx.net> <4202A972.1070003@gmx.net> <20050203225410.GB1110@elf.ucw.cz> <1107474198.5727.9.camel@desktop.cunninghams> <4202DF7B.2000506@gmx.net> <1107485504.5727.35.camel@desktop.cunninghams> <9e4733910502032318460f2c0c@mail.gmail.com> <20050204074454.GB1086@elf.ucw.cz> <9e473391050204093837bc50d3@mail.gmail.com> <20050205093550.GC1158@elf.ucw.cz>
+In-Reply-To: <20050205093550.GC1158@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Laurent Riffard <laurent.riffard@free.fr> wrote:
->
-> Le 04.02.2005 19:33, Andrew Morton a écrit :
->  > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc3/2.6.11-rc3-mm1/
->  >
+Pavel Machek wrote:
+> Hi!
 > 
->  loading dm-mod module fails with this message :
 > 
->  FATAL: Error inserting dm-mod
->  (/lib/modules/2.6.11-rc3-mm1/kernel/drivers/md/dm-mod.ko): Device or resource busy
+>>>We already try to do that, but it hangs on 70% of machines. See
+>>>Documentation/power/video.txt.
+>>
+>>We know that all of these ROMs are run at power on so they have to
+>>work. This implies that there must be something wrong with the
+>>environment the ROM are being run in. Video ROMs make calls into the
+>>INT vectors of the system BIOS. If these haven't been set up yet
+>>running the VBIOS is sure to hang.  Has someone with ROM source and
+>>the appropriate debugging tools tried to debug one of these hangs?
+>>Alternatively code could be added to wakeup.S to try and set these up
+>>or dump the ones that are there and see if they are sane.
 > 
->  The following line appears in dmesg :
 > 
->  register_blkdev: failed to get major for device-mapper
+> Rumors say that notebooks no longer have video bios at C000h:0; rumors
+> say that video BIOS on notebooks is simply integrated into main system
+> BIOS. I personaly do not know if rumors are true, but PCs are ugly
+> machines....
 
-You've enabled CONFIG_BASE_SMALL and so the major_names[] hashtable has
-just one element.  device-mapper uses dynamic major allocation, the range
-of which is limited to the size of the top-level major_names[] array.  You
-ran out of slots and register_blkdev() failed.
+On systems with integrated graphics chips, there is no separate ROM chip 
+for Video BIOS. Instead, it's integrated into system BIOS (this is true 
+for onboard SCSI and pseudo-RAID controllerss too). During early 
+initialization, system BIOS decompresses and initializes these BIOSes 
+(if these is a PCI vendor ID and device ID match). (There is nothing 
+wrong with this - BIOSes on PCI cards should not be run directly from 
+the card's ROM but copied to RAM and executed from there instead 
+according to PCI spec.)
+After the POST is complete, the BIOSes are shadowed in RAM so Video BIOS 
+is at C000:0 - so you can run DOS for example.
 
-So for now I guess we must drop base-small-shrink-major_names-hash.patch.
-
-Al, that code looks rather crappy.  Shouldn't we be using an idr tree or
-something?
-
-Also, we can never generate a major number of zero if the caller passed in
-major=0.  How come?
-
-
+-- 
+Ondrej Zary

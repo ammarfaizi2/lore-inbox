@@ -1,63 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275682AbRJBQ6m>; Tue, 2 Oct 2001 12:58:42 -0400
+	id <S275716AbRJBRAw>; Tue, 2 Oct 2001 13:00:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275739AbRJBQ6d>; Tue, 2 Oct 2001 12:58:33 -0400
-Received: from ns.suse.de ([213.95.15.193]:55309 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S275682AbRJBQ6Z> convert rfc822-to-8bit;
-	Tue, 2 Oct 2001 12:58:25 -0400
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] NFSv3 symlink bug
-X-Yow: I'm using my X-RAY VISION to obtain a rare glimpse of the
- INNER WORKINGS of this POTATO!!
-From: Andreas Schwab <schwab@suse.de>
-Date: 02 Oct 2001 18:58:53 +0200
-Message-ID: <jelmiuj7w2.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.0.107
+	id <S275778AbRJBRAm>; Tue, 2 Oct 2001 13:00:42 -0400
+Received: from robur.slu.se ([130.238.98.12]:38406 "EHLO robur.slu.se")
+	by vger.kernel.org with ESMTP id <S275716AbRJBRAc>;
+	Tue, 2 Oct 2001 13:00:32 -0400
+From: Robert Olsson <Robert.Olsson@data.slu.se>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15289.62283.695135.525478@robur.slu.se>
+Date: Tue, 2 Oct 2001 19:03:07 +0200
+To: Ben Greear <greearb@candelatech.com>
+Cc: Benjamin LaHaise <bcrl@redhat.com>, jamal <hadi@cyberus.ca>,
+        linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru,
+        Robert Olsson <Robert.Olsson@data.slu.se>, Ingo Molnar <mingo@elte.hu>,
+        netdev@oss.sgi.com
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+In-Reply-To: <3BB956D3.AE0FCC54@candelatech.com>
+In-Reply-To: <20011001210445.D15341@redhat.com>
+	<Pine.GSO.4.30.0110012127410.28105-100000@shell.cyberus.ca>
+	<20011002011351.A20025@redhat.com>
+	<3BB956D3.AE0FCC54@candelatech.com>
+X-Mailer: VM 6.92 under Emacs 19.34.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The NFSv3 server in the 2.4.10 kernel has a bug in the symlink
-implementation.  The target pathname of the symlink is not necessarily
-zero terminated when passed to vfs_symlink.  This does not happen with
-NFSv2, because it explicitly zero terminates the string when decoding it
-from XDR (xdr_decode_string does this), but NFSv3 uses
-xdr_decode_string_inplace.  As a result you may get a spurious
-ENAMETOOLONG when trying to create a symbolic link on a NFSv3 mounted
-filesystem (if the length of the target path is a multiple of four).  If
-you don't get an error the created symlink will have random characters
-appended, which exposes kernel memory to user space (that's why it's a
-security problem).
 
-This patch changes the NFSv3 xdr function to use xdr_decode_string for the
-symlink target, which seems to be the easiest solution.  I also considered
-adding an additional parameter to vfs_symlink to pass the length, but that
-requires changes in each and every filesystem and changes the VFS API.
-That could be a task for 2.5.x.
 
---- linux/fs/nfsd/nfs3xdr.c.~1~	Fri Sep 21 06:02:01 2001
-+++ linux/fs/nfsd/nfs3xdr.c	Tue Oct  2 16:12:27 2001
-@@ -99,7 +99,11 @@
- 	char		*name;
- 	int		i;
+Hello!
+
+Jamal mentioned some about the polling efforts for Linux. I can give some
+experimental data here with GIGE. Motivation, implantation etc is in paper 
+to presented at USENIX Oakland. 
+
+Below a IP forwarding test. Injected 10 Million 64 byte packets into eth0 at 
+a speed of 890.000 p/s received and routed and TX:ed on eth1.
+
+PIII @ 933 MHz. Kernel UP 2.4.10 with polling patch the are NIC's e1000 
+eth0 (irq=24) and eth1 (irq=26)
+
+
+Iface   MTU Met  RX-OK RX-ERR RX-DRP RX-OVR  TX-OK TX-ERR TX-DRP TX-OVR Flags
+eth0   1500   0 4031309 7803725 7803725 5968699     22      0      0      0 BRU
+eth1   1500   0     18      0      0      0 4031305      0      0      0 BRU
+
+
+The RX-ERR, RX-DRP are bugs from the e1000 driver. Anyway we getting 40% of 
+packet storm routed. With a estimated throughput is about 350.000 p/s 
+
+ irq       CPU0       
+ 24:      80652   IO-APIC-level  e1000
+ 26:         41   IO-APIC-level  e1000
+
+The for RX (polling) we use only 24 interrupts. TX is mitigated (not polled) 
+in this run. We see a lot more interrupts for same amount of packets. I think 
+we can actually tune this a bit... And I should also say that RxIntDelay=0
+(e1000 driver). So there is no latency before the driver register for polling 
+by kernel.
+
+USER       PID %CPU %MEM  SIZE   RSS TTY STAT START   TIME COMMAND
+root         3  3.0  0.0     0     0  ?  SWN  12:51   0:11 (ksoftirqd_CPU0)
+
+The polling (softirq) now handled by ksoftirqd  but I have seen a path from 
+Ingo that schedules without the need for ksoftirqd.
+
+Also note that during poll we disable only RX interrupts so all other device
+interrupts/functions are handled properly.
+
+And tulip variants of this is in production use and seems very solid. The 
+kernel code part holds ANK-trademark. :-)
+
+Cheers.
  
--	if ((p = xdr_decode_string_inplace(p, namp, lenp, NFS3_MAXPATHLEN)) != NULL) {
-+	/*
-+	 * Cannot use xdr_decode_string_inplace here, the name must be
-+	 * zero terminated for vfs_symlink.
-+	 */
-+	if ((p = xdr_decode_string(p, namp, lenp, NFS3_MAXPATHLEN)) != NULL) {
- 		for (i = 0, name = *namp; i < *lenp; i++, name++) {
- 			if (*name == '\0')
- 				return NULL;
-
-Andreas.
-
--- 
-Andreas Schwab                                  "And now for something
-Andreas.Schwab@suse.de				completely different."
-SuSE Labs, SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+						--ro

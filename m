@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266996AbRGQUKQ>; Tue, 17 Jul 2001 16:10:16 -0400
+	id <S267005AbRGQULg>; Tue, 17 Jul 2001 16:11:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267001AbRGQUKH>; Tue, 17 Jul 2001 16:10:07 -0400
-Received: from moutvdom00.kundenserver.de ([195.20.224.149]:48228 "EHLO
-	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S266996AbRGQUJ6> convert rfc822-to-8bit; Tue, 17 Jul 2001 16:09:58 -0400
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Christian =?iso-8859-1?q?Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>
-To: "Dominick, David" <David.Dominick@delta.com>, linux-kernel@vger.kernel.org
-Subject: Re: sound?!?!!?
-Date: Tue, 17 Jul 2001 22:08:42 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <BDEE1F50C0C6D411BBB600204840D7B40124F17D@satlrccdmrus25.delta-air.com>
-In-Reply-To: <BDEE1F50C0C6D411BBB600204840D7B40124F17D@satlrccdmrus25.delta-air.com>
+	id <S267002AbRGQUL0>; Tue, 17 Jul 2001 16:11:26 -0400
+Received: from dragonfire3.delta.com ([205.174.22.22]:36707 "EHLO
+	satlmsghub03.delta-air.com") by vger.kernel.org with ESMTP
+	id <S267001AbRGQULO> convert rfc822-to-8bit; Tue, 17 Jul 2001 16:11:14 -0400
+Message-ID: <BDEE1F50C0C6D411BBB600204840D7B40124F17E@satlrccdmrus25.delta-air.com>
+From: "Dominick, David" <David.Dominick@delta.com>
+To: =?ISO-8859-1?Q?=27Christian_Borntr=E4ger=27?= 
+	<linux-kernel@borntraeger.net>,
+        linux-kernel@vger.kernel.org
+Subject: RE: sound?!?!!?
+Date: Tue, 17 Jul 2001 16:11:11 -0400
 MIME-Version: 1.0
-Message-Id: <01071722084200.03038@Einstein.P-netz>
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> it is most likely a problem with me, but I have tried everything and I keep
+thanks, but yeah I tried both of those. I am trying to change the memory
+addresses for the card itself in the bios now.
+
+-----Original Message-----
+From: Christian Bornträger [mailto:linux-kernel@borntraeger.net]
+Sent: Tuesday, July 17, 2001 4:09 PM
+To: Dominick, David; linux-kernel@vger.kernel.org
+Subject: Re: sound?!?!!?
+
+
+> it is most likely a problem with me, but I have tried everything and I
+keep
 > getting the error that device not found or busy. I get this rather I use
 
 Possibly you already tried this, then ignore my ideas:
 
 First idea:
-It might be a stupid idea, as I don´t know your Toshiba but try to change the 
+It might be a stupid idea, as I don´t know your Toshiba but try to change
+the 
 PnP OS option in the BIOS. (from yes to no or from no to yes)
 If you don´t have success set it back, of course.
 

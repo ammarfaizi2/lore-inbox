@@ -1,32 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265259AbRF0FFR>; Wed, 27 Jun 2001 01:05:17 -0400
+	id <S264728AbRFXVJp>; Sun, 24 Jun 2001 17:09:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265258AbRF0FFH>; Wed, 27 Jun 2001 01:05:07 -0400
-Received: from [211.208.192.221] ([211.208.192.221]:3588 "HELO
-	asdfgh@yahoo.co.kr") by vger.kernel.org with SMTP
-	id <S265256AbRF0FE7>; Wed, 27 Jun 2001 01:04:59 -0400
-From: <comzon@atozpia.com>
-To: linux-kernel@vger.kernel.org
-Subject: =?ISO-8859-1?Q?pc=B0=FC=B7=C3=C1=A4=BA=B8=C0=D4=B4=CF=B4=D9?=
-Date: Wed, 27 Jun 2001 13:09:43
-Message-Id: <790.623323.849760@asdfgh@yahoo.co.kr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S264722AbRFXVJf>; Sun, 24 Jun 2001 17:09:35 -0400
+Received: from ezri.xs4all.nl ([194.109.253.9]:12489 "HELO ezri.xs4all.nl")
+	by vger.kernel.org with SMTP id <S264737AbRFXVJQ>;
+	Sun, 24 Jun 2001 17:09:16 -0400
+Date: Sun, 24 Jun 2001 23:09:14 +0200 (CEST)
+From: Eric Lammerts <eric@lammerts.org>
+To: Rasmus Andersen <rasmus@jaquet.dk>
+cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+        <linux-kernel@vger.kernel.org>, <dhinds@zen.stanford.edu>
+Subject: Re: [PATCH] add kmalloc check in drviers/pcmcia/rsrc_mgr.c (245-ac16)
+In-Reply-To: <20010624230126.F847@jaquet.dk>
+Message-ID: <Pine.LNX.4.33.0106242306310.3517-100000@ally.lammerts.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-최신형PC
-CPU……….933 (인텔)
-RAM………128 (삼성정품133)
-HDD………30 G
-MONITER.17"(삼성77E)
+On Sun, 24 Jun 2001, Rasmus Andersen wrote:
+> On Sun, Jun 24, 2001 at 10:52:31PM +0200, Eric Lammerts wrote:
+> [...]
+> > There are zillions of functions called 'init_module' in the kernel.
+> > I think my suggestion was better (and it had a \n at the end!)
+>
+> Agreed. Actually, 'ouch' on point two :) BTW, was it intentional
+> that you dropped the maintainer from the recipient-list back then?
 
-모두43만원
+No, sorry.
 
-관심있으세요
+Eric
 
- http://comzon.atozpia.com/news/news.html
-
-이리로 오세요

@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272324AbTG3XDF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 19:03:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272327AbTG3XDF
+	id S272318AbTG3XCT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 19:02:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272324AbTG3XCT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 19:03:05 -0400
-Received: from mail.ccur.com ([208.248.32.212]:30225 "EHLO exchange.ccur.com")
-	by vger.kernel.org with ESMTP id S272324AbTG3XDB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 19:03:01 -0400
-Date: Wed, 30 Jul 2003 19:02:54 -0400
-From: Joe Korty <joe.korty@ccur.com>
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] nonbug: PF_LESS_THROTTLE
-Message-ID: <20030730230253.GA15044@tsunami.ccur.com>
-Reply-To: joe.korty@ccur.com
+	Wed, 30 Jul 2003 19:02:19 -0400
+Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:3575 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S272318AbTG3XCQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 19:02:16 -0400
+Subject: Re: Dell 2650 Dual Xeon freezing up frequently
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: nelsonis@earthlink.net
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3F283E3A.7060200@earthlink.net>
+References: <3F283E3A.7060200@earthlink.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1059605809.10452.13.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 30 Jul 2003 23:56:49 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Although the value that PF_LESS_THROTTLE has does work, it may not be
-the value that was intended for it.
+On Mer, 2003-07-30 at 22:52, Ian S. Nelson wrote:
+> I'm running a RedHat 2.4.20 kernel on some 2650's   all dual xeon 
+> (pentium 4 jacksonized  so it looks like 4 procsessors)  2 have 1GB of 
+> RAM and 1 has 2GB of RAM.   THey all wedge, some times after a few 
+> minutes,  sometimes after hours.
 
-Joe
+With tg3 networking. If so make sure you either have a current errata or
+switch to the broadcom provided driver and that may help.
 
-
-
---- linux-2.6.0-test2/include/linux/sched.h.orig	2003-07-27 12:57:39.000000000 -0400
-+++ linux-2.6.0-test2/include/linux/sched.h	2003-07-30 18:52:42.000000000 -0400
-@@ -485,7 +485,7 @@
- #define PF_FSTRANS	0x00020000	/* inside a filesystem transaction */
- #define PF_KSWAPD	0x00040000	/* I am kswapd */
- #define PF_SWAPOFF	0x00080000	/* I am in swapoff */
--#define PF_LESS_THROTTLE 0x01000000	/* Throttle me less: I clena memory */
-+#define PF_LESS_THROTTLE 0x00100000	/* Throttle me less: I clena memory */
- #define PF_SYNCWRITE	0x00200000	/* I am doing a sync write */
- #define PF_READAHEAD	0x00400000	/* I am doing read-ahead */
- 

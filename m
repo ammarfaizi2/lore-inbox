@@ -1,29 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbUKHH1c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261771AbUKHH2x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261763AbUKHH1c (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 02:27:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261767AbUKHH1c
+	id S261771AbUKHH2x (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 02:28:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbUKHH2F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 02:27:32 -0500
-Received: from smtp802.mail.sc5.yahoo.com ([66.163.168.181]:31336 "HELO
+	Mon, 8 Nov 2004 02:28:05 -0500
+Received: from smtp802.mail.sc5.yahoo.com ([66.163.168.181]:31848 "HELO
 	smtp802.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261763AbUKHH06 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S261764AbUKHH06 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 8 Nov 2004 02:26:58 -0500
 From: Dmitry Torokhov <dtor_core@ameritech.net>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 1/3] Add drvctl default device attribute
-Date: Mon, 8 Nov 2004 02:23:54 -0500
+Subject: [PATCH 2/3] Add drvctl handler to PCI bus
+Date: Mon, 8 Nov 2004 02:25:56 -0500
 User-Agent: KMail/1.6.2
 Cc: Tejun Heo <tj@home-tj.org>, Greg KH <greg@kroah.com>,
        rusty@rustcorp.com.au, mochel@osdl.org
-References: <20041104074330.GG25567@home-tj.org> <20041105063237.GA28308@home-tj.org> <200411080223.07639.dtor_core@ameritech.net>
-In-Reply-To: <200411080223.07639.dtor_core@ameritech.net>
+References: <20041104074330.GG25567@home-tj.org> <200411080223.07639.dtor_core@ameritech.net> <200411080223.56536.dtor_core@ameritech.net>
+In-Reply-To: <200411080223.56536.dtor_core@ameritech.net>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200411080223.56536.dtor_core@ameritech.net>
+Message-Id: <200411080225.58532.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -31,228 +31,170 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 ===================================================================
 
 
-ChangeSet@1.1961, 2004-11-08 02:03:59-05:00, dtor_core@ameritech.net
-  Driver core: add "drvctl" default device attribute that allows
-               userspace request execution of bus-specific actions
-               for devices. Used to manually control driver and
-               device binding/unbinding/rebinding, causes execution
-               of bus->drvctl() helper. Expects commands in form of
-               "CMD [DRIVER NAME] [ARG ARG...]]".
-  
-               Serio bus's drvctl rearranged to accept the following
-               commands: "detach", "attach <driver>", "rescan", and
-               "reconnect".
+ChangeSet@1.1962, 2004-11-08 02:06:19-05:00, dtor_core@ameritech.net
+  PCI: Add devctl method to PCI bus. The following commands are
+       available: "detach", "attach <driver>", and "rescan".
   
   Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 
 
- drivers/base/interface.c    |   74 +++++++++++++++++++++++++++++++++++++++++++-
- drivers/input/serio/serio.c |   61 +++++++++++++++++-------------------
- include/linux/device.h      |    4 +-
- 3 files changed, 106 insertions(+), 33 deletions(-)
+ pci-driver.c |   58 ++++++++++++++++++++++++++++++++++++++++++++--------------
+ 1 files changed, 44 insertions(+), 14 deletions(-)
 
 
 ===================================================================
 
 
 
-diff -Nru a/drivers/base/interface.c b/drivers/base/interface.c
---- a/drivers/base/interface.c	2004-11-08 02:10:34 -05:00
-+++ b/drivers/base/interface.c	2004-11-08 02:10:34 -05:00
-@@ -13,6 +13,7 @@
- #include <linux/err.h>
- #include <linux/stat.h>
- #include <linux/string.h>
-+#include <linux/ctype.h>
+diff -Nru a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
+--- a/drivers/pci/pci-driver.c	2004-11-08 02:20:22 -05:00
++++ b/drivers/pci/pci-driver.c	2004-11-08 02:20:22 -05:00
+@@ -186,7 +186,7 @@
+  *                    PCI device id structure
+  * @ids: array of PCI device id structures to search in
+  * @dev: the PCI device structure to match against
+- * 
++ *
+  * Used by a driver to check whether a PCI device present in the
+  * system is in its list of supported devices.Returns the matching
+  * pci_device_id structure or %NULL if there is no match.
+@@ -204,12 +204,12 @@
  
  /**
-  *	detach_state - control the default power state for the device.
-@@ -42,10 +43,81 @@
- 	return n;
- }
- 
--static DEVICE_ATTR(detach_state, 0644, detach_show, detach_store);
-+/**
-+ *	drvctl - controls device and driver binding.
+  * pci_device_probe_static()
+- * 
 + *
-+ *	Writing to the attribute causes execution of bus-specific drvctl()
-+ *	helper that is used to disconnect device from its driver or rebind
-+ *	device to a specific driver.
-+ *	Commands are expected in the following format:
-+ *	CMD [DRIVER_NAME] [ARG ARG ARG]
-+ *	drvctl handler is free to mangle the args string.
-+ */
-+
-+#define GET_WORD(x)					\
-+do {							\
-+	while (isspace(*args)) args++;			\
-+	(x) = args;					\
-+	while (*args && !isspace(*args)) args++;	\
-+	if (isspace(*args)) {				\
-+		save_chr = *args;			\
-+		*args++ = '\0';				\
-+	}						\
-+} while (0)						\
- 
-+static ssize_t drvctl_store(struct device * dev, const char * buf, size_t count)
+  * returns 0 and sets pci_dev->driver when drv claims pci_dev, else error.
+  */
+ static int
+ pci_device_probe_static(struct pci_driver *drv, struct pci_dev *pci_dev)
+-{		   
 +{
-+	int retval = -ENOSYS;
-+	struct device_driver *drv = NULL;
-+	char *str, *action, *drv_name, *args;
-+	char save_chr = 0;
-+
-+	if (!dev->bus->drvctl)
-+		return -ENOSYS;
-+
-+	/* copy buffer so we can mangle it */
-+	if (!(args = str = kmalloc(count + 1, GFP_KERNEL)))
-+		return -ENOMEM;
-+
-+	memcpy(str, buf, count);
-+	str[count] = '\0';
-+
-+	GET_WORD(action);
-+	GET_WORD(drv_name);
-+
-+	if (*drv_name) {
-+		if (!(drv = driver_find(drv_name, dev->bus))) {
-+			/*
-+			 * if this is not a name of existing driver
-+			 * merge it with thye rest of the string and
-+			 * pass to drvctl as 'args'
-+			 */
-+			if (*args)
-+				*--args = save_chr;
-+			args = drv_name;
-+		}
-+	}
-+
-+	while (*args == ' ') args++;
-+
-+	pr_debug("drvctl -  action: '%s', driver: '%s', args: '%s'\n",
-+		 action, drv ? drv->name : "", args);
-+
-+	retval = dev->bus->drvctl(dev, action, drv, args);
-+
-+	if (drv)
-+		put_driver(drv);
-+	kfree(str);
-+
-+	return (retval < 0) ? retval : count;
-+}
-+#undef GET_WORD
-+
-+static DEVICE_ATTR(detach_state, 0644, detach_show, detach_store);
-+static DEVICE_ATTR(drvctl, 0200, NULL, drvctl_store);
+ 	int error = -ENODEV;
+ 	const struct pci_device_id *id;
  
- struct attribute * dev_default_attrs[] = {
- 	&dev_attr_detach_state.attr,
-+	&dev_attr_drvctl.attr,
- 	NULL,
- };
-diff -Nru a/drivers/input/serio/serio.c b/drivers/input/serio/serio.c
---- a/drivers/input/serio/serio.c	2004-11-08 02:10:34 -05:00
-+++ b/drivers/input/serio/serio.c	2004-11-08 02:10:34 -05:00
-@@ -246,36 +246,6 @@
- 	return sprintf(buf, "%s\n", serio->name);
+@@ -227,13 +227,13 @@
+ 
+ /**
+  * __pci_device_probe()
+- * 
++ *
+  * returns 0  on success, else error.
+  * side-effect: pci_dev->driver is set to drv when drv claims pci_dev.
+  */
+ static int
+ __pci_device_probe(struct pci_driver *drv, struct pci_dev *pci_dev)
+-{		   
++{
+ 	int error = 0;
+ 
+ 	if (!pci_dev->driver && drv->probe) {
+@@ -314,7 +314,7 @@
  }
  
--static ssize_t serio_rebind_driver(struct device *dev, const char *buf, size_t count)
--{
--	struct serio *serio = to_serio_port(dev);
--	struct device_driver *drv;
--	int retval;
--
--	retval = down_interruptible(&serio_sem);
--	if (retval)
--		return retval;
--
--	retval = count;
--	if (!strncmp(buf, "none", count)) {
--		serio_disconnect_port(serio);
--	} else if (!strncmp(buf, "reconnect", count)) {
--		serio_reconnect_port(serio);
--	} else if (!strncmp(buf, "rescan", count)) {
--		serio_disconnect_port(serio);
--		serio_connect_port(serio, NULL);
--	} else if ((drv = driver_find(buf, &serio_bus)) != NULL) {
--		serio_disconnect_port(serio);
--		serio_connect_port(serio, to_serio_driver(drv));
--		put_driver(drv);
--	} else {
--		retval = -EINVAL;
--	}
--
--	up(&serio_sem);
--
--	return retval;
--}
  
- static ssize_t serio_show_bind_mode(struct device *dev, char *buf)
+-/* 
++/*
+  * Default resume method for devices that have no driver provided resume,
+  * or not even a driver at all.
+  */
+@@ -394,10 +394,10 @@
+ /**
+  * pci_register_driver - register a new pci driver
+  * @drv: the driver structure to register
+- * 
++ *
+  * Adds the driver structure to the list of registered drivers.
+- * Returns a negative value on error, otherwise 0. 
+- * If no error occured, the driver remains registered even if 
++ * Returns a negative value on error, otherwise 0.
++ * If no error occured, the driver remains registered even if
+  * no device was claimed during registration.
+  */
+ int pci_register_driver(struct pci_driver *drv)
+@@ -425,7 +425,7 @@
+ /**
+  * pci_unregister_driver - unregister a pci driver
+  * @drv: the driver structure to unregister
+- * 
++ *
+  * Deletes the driver structure from the list of registered PCI drivers,
+  * gives it a chance to clean up by calling its remove() function for
+  * each device it was responsible for, and marks those devices as
+@@ -447,7 +447,7 @@
+  * pci_dev_driver - get the pci_driver of a device
+  * @dev: the device to query
+  *
+- * Returns the appropriate pci_driver structure or %NULL if there is no 
++ * Returns the appropriate pci_driver structure or %NULL if there is no
+  * registered driver for the device.
+  */
+ struct pci_driver *
+@@ -457,7 +457,7 @@
+ 		return dev->driver;
+ 	else {
+ 		int i;
+-		for(i=0; i<=PCI_ROM_RESOURCE; i++)
++		for(i = 0; i <= PCI_ROM_RESOURCE; i++)
+ 			if (dev->resource[i].flags & IORESOURCE_BUSY)
+ 				return &pci_compat_driver;
+ 	}
+@@ -468,12 +468,12 @@
+  * pci_bus_match - Tell if a PCI device structure has a matching PCI device id structure
+  * @ids: array of PCI device id structures to search in
+  * @dev: the PCI device structure to match against
+- * 
++ *
+  * Used by a driver to check whether a PCI device present in the
+  * system is in its list of supported devices.Returns the matching
+  * pci_device_id structure or %NULL if there is no match.
+  */
+-static int pci_bus_match(struct device * dev, struct device_driver * drv) 
++static int pci_bus_match(struct device * dev, struct device_driver * drv)
  {
-@@ -302,7 +272,6 @@
- 
- static struct device_attribute serio_device_attrs[] = {
- 	__ATTR(description, S_IRUGO, serio_show_description, NULL),
--	__ATTR(drvctl, S_IWUSR, NULL, serio_rebind_driver),
- 	__ATTR(bind_mode, S_IWUSR | S_IRUGO, serio_show_bind_mode, serio_set_bind_mode),
- 	__ATTR_NULL
- };
-@@ -597,6 +566,35 @@
- 	up(&serio_sem);
+ 	const struct pci_dev * pci_dev = to_pci_dev(dev);
+ 	struct pci_driver * pci_drv = to_pci_driver(drv);
+@@ -490,6 +490,35 @@
+ 	return pci_bus_match_dynids(pci_dev, pci_drv);
  }
  
-+static int serio_rebind_driver(struct device *dev, const char *action,
-+			       struct device_driver *drv, char *args)
++/*
++ * This is PCI bus's drvctl method that handles manual device binding.
++ */
++static int pci_rebind_driver(struct device *dev, const char *action,
++			     struct device_driver *drv, char *args)
 +{
-+	struct serio *serio = to_serio_port(dev);
-+	int retval;
-+
-+	retval = down_interruptible(&serio_sem);
-+	if (retval)
-+		return retval;
++	int retval = 0;
 +
 +	if (!strcmp(action, "detach")) {
-+		serio_disconnect_port(serio);
-+	} else if (!strcmp(action, "reconnect")) {
-+		serio_reconnect_port(serio);
++		down_write(&dev->bus->subsys.rwsem);
++		device_release_driver(dev);
++		up_write(&dev->bus->subsys.rwsem);
 +	} else if (!strcmp(action, "rescan")) {
-+		serio_disconnect_port(serio);
-+		serio_connect_port(serio, NULL);
++		down_write(&dev->bus->subsys.rwsem);
++		device_release_driver(dev);
++		device_attach(dev);
++		up_write(&dev->bus->subsys.rwsem);
 +	} else if (!strcmp(action, "attach") && drv) {
-+		serio_disconnect_port(serio);
-+		serio_connect_port(serio, to_serio_driver(drv));
++		down_write(&dev->bus->subsys.rwsem);
++		device_release_driver(dev);
++		driver_probe_device(drv, dev);
++		up_write(&dev->bus->subsys.rwsem);
 +	} else {
 +		retval = -EINVAL;
 +	}
 +
-+	up(&serio_sem);
-+
 +	return retval;
 +}
 +
- static void serio_set_drv(struct serio *serio, struct serio_driver *drv)
- {
- 	down(&serio->drv_sem);
-@@ -661,6 +659,7 @@
- 
- 	serio_bus.dev_attrs = serio_device_attrs;
- 	serio_bus.drv_attrs = serio_driver_attrs;
-+	serio_bus.drvctl = serio_rebind_driver;
- 	bus_register(&serio_bus);
- 
- 	return 0;
-diff -Nru a/include/linux/device.h b/include/linux/device.h
---- a/include/linux/device.h	2004-11-08 02:10:34 -05:00
-+++ b/include/linux/device.h	2004-11-08 02:10:34 -05:00
-@@ -59,7 +59,9 @@
- 	struct driver_attribute	* drv_attrs;
- 
- 	int		(*match)(struct device * dev, struct device_driver * drv);
--	int		(*hotplug) (struct device *dev, char **envp, 
-+	int		(*drvctl)(struct device * dev, const char * action,
-+				  struct device_driver * drv, char * args);
-+	int		(*hotplug) (struct device *dev, char **envp,
- 				    int num_envp, char *buffer, int buffer_size);
- 	int		(*suspend)(struct device * dev, u32 state);
- 	int		(*resume)(struct device * dev);
+ /**
+  * pci_dev_get - increments the reference count of the pci device structure
+  * @dev: the device being referenced
+@@ -534,6 +563,7 @@
+ 	.name		= "pci",
+ 	.match		= pci_bus_match,
+ 	.hotplug	= pci_hotplug,
++	.drvctl		= pci_rebind_driver,
+ 	.suspend	= pci_device_suspend,
+ 	.resume		= pci_device_resume,
+ 	.dev_attrs	= pci_dev_attrs,

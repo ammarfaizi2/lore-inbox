@@ -1,81 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265489AbTIDSkp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 14:40:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265478AbTIDSjt
+	id S265478AbTIDSnq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 14:43:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265487AbTIDSnp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 14:39:49 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:52876 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S265491AbTIDSik
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 14:38:40 -0400
-Date: Thu, 4 Sep 2003 19:38:19 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Hugh Dickins <hugh@veritas.com>, Rusty Russell <rusty@rustcorp.com.au>,
+	Thu, 4 Sep 2003 14:43:45 -0400
+Received: from fw.osdl.org ([65.172.181.6]:6630 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265478AbTIDSnG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 14:43:06 -0400
+Date: Thu, 4 Sep 2003 11:42:54 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jamie Lokier <jamie@shareable.org>
+cc: Hugh Dickins <hugh@veritas.com>, Rusty Russell <rusty@rustcorp.com.au>,
        Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       linux-kernel@vger.kernel.org
+       <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] Alternate futex non-page-pinning and COW fix
-Message-ID: <20030904183819.GF30394@mail.jlokier.co.uk>
-References: <Pine.LNX.4.44.0309031924430.2462-100000@localhost.localdomain> <Pine.LNX.4.44.0309031201170.31853-100000@home.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0309031201170.31853-100000@home.osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.44.0309041139130.6676-100000@home.osdl.org>
+Message-ID: <Pine.LNX.4.44.0309041142070.6676-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> > Of course (not).  That's the point, they do work on private mappings, but
-> > the semantics are different on private mappings from on shared mappings:
-> > on private mappings they're private to the mm, on shared mappings they're
-> > shared with other mms (via the shared file).
-> 
-> Repeat after me: private read-only mappings are 100% equivalent to shared
-> read-only mappings. No ifs, buts, or maybes. This is a FACT. It's a fact 
-> codified in many years of Linux implementation, but it's a fact outside of 
-> that too.
 
-Thanks Linus.  I already knew this, I was in the audience of the old
-thread about MAP_COPY, remember? :)
+[ Oops. Forgot the actual patch. ]
 
-Please read below and think about it, because I'm convinced from your
-3 emails later in this thread that you haven't thought about how COW
-should interact with futexes.
+On Thu, 4 Sep 2003, Linus Torvalds wrote:
+>
+> How about something like this [ ... ]
 
-If you don't have time, skip to the last paragraph.
+THIS. 
 
+		Linus
 
-The new futexes key off (mm,address) for a private mapping, and
-(file,offset) for a shared mapping.  That is actually a user-visible
-distinction, so I have to explain and justify it.
+===== mm/mprotect.c 1.23 vs edited =====
+--- 1.23/mm/mprotect.c	Wed Jul  2 21:22:38 2003
++++ edited/mm/mprotect.c	Thu Sep  4 11:12:09 2003
+@@ -224,7 +224,7 @@
+ asmlinkage long
+ sys_mprotect(unsigned long start, size_t len, unsigned long prot)
+ {
+-	unsigned long nstart, end, tmp;
++	unsigned long flags, nstart, end, tmp;
+ 	struct vm_area_struct * vma, * next, * prev;
+ 	int error = -EINVAL;
+ 
+@@ -239,6 +239,12 @@
+ 	if (end == start)
+ 		return 0;
+ 
++	/*
++	 * FIXME! This assumes that PROT_xxx == VM_xxxx for READ, WRITE, EXEC
++	 * That does happen to be true, but it's ugly.. mmap() gets this right.
++	 */
++	flags = prot & (VM_READ | VM_WRITE | VM_EXEC);
++
+ 	down_write(&current->mm->mmap_sem);
+ 
+ 	vma = find_vma_prev(current->mm, start, &prev);
+@@ -257,7 +263,7 @@
+ 			goto out;
+ 		}
+ 
+-		newflags = prot | (vma->vm_flags & ~(PROT_READ | PROT_WRITE | PROT_EXEC));
++		newflags = flags | (vma->vm_flags & ~(VM_READ | VM_WRITE | VM_EXEC));
+ 		if ((newflags & ~(newflags >> 4)) & 0xf) {
+ 			error = -EACCES;
+ 			goto out;
 
-Private writable mapping: futex must be mm-local, obviously.  This is
-a bug in the old futex code, which could be fixed as you say by
-forcibly COWing the page.  But that's unnecessary: (mm,address) is fine.
-
-Shared writable mapping: futex must be shared, obviously.
-
-Read-only mapping: as yous say, private and shared are the same for a
-read-only mapping, until you call mprotect() if you're permitted.
-Anything which breaks that is wrong.
-
-So what shall a futex do on a read-only mapping.  First, does it even
-make sense?  A: Yes it does.  If I hand you a scoreboard file and tell
-you to wait for changes to words in it, it's a legitimate use of
-futexes on a read-only mapping.
-
-Ok, now we understand that _this_ read-only mapping should not be mm-local.
-
-But Linux does something weird at this point, if the new futex code's
-hash keys on VM_SHARED.
-
-If I hand you a scoreboard file opened O_RDWR, your futexes are keyed
-on file pages.  But if I open it O_RDONLY, your futexes are mm-local.
-
-  * I contend that the user-visible behaviour of a mapping should
-  * _not_ depend on whether the file was opened with O_RDWR or O_RDONLY.
-
-Thanks,
--- Jamie

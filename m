@@ -1,82 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280751AbRKSXXa>; Mon, 19 Nov 2001 18:23:30 -0500
+	id <S280149AbRKSX2L>; Mon, 19 Nov 2001 18:28:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280762AbRKSXXV>; Mon, 19 Nov 2001 18:23:21 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:26616
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S280751AbRKSXXQ>; Mon, 19 Nov 2001 18:23:16 -0500
-Date: Mon, 19 Nov 2001 15:23:10 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.15-pre6 Changelog
-Message-ID: <20011119152310.B11351@mikef-linux.matchmail.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	id <S280203AbRKSX2B>; Mon, 19 Nov 2001 18:28:01 -0500
+Received: from h24-78-175-24.nv.shawcable.net ([24.78.175.24]:51587 "EHLO
+	oof.localnet") by vger.kernel.org with ESMTP id <S280149AbRKSX1w>;
+	Mon, 19 Nov 2001 18:27:52 -0500
+Date: Mon, 19 Nov 2001 15:27:45 -0800
+From: Simon Kirby <sim@netnation.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: VM-related Oops: 2.4.15pre1
+Message-ID: <20011119152745.A27716@netnation.com>
+In-Reply-To: <20011119095631.A24617@netnation.com> <Pine.LNX.4.33.0111190958230.8205-100000@penguin.transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=unknown-8bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.33.0111190958230.8205-100000@penguin.transmeta.com>
 User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.4.15-pre6:
+On Mon, Nov 19, 2001 at 10:03:34AM -0800, Linus Torvalds wrote:
 
-pre6:
- - Russell King: /proc/cpuinfo for ARM
- - Paul Mackerras: PPC update (cpuinfo etc)
- - Nicolas Aspert: fix Intel 8xx agptlb flush
- - Marko Myllynen: "Lindent" doesn't really need bash ;)
- - Alexander Viro: /proc/cpuinfo for s390/s390x/sh, /proc/pci cleanup
- - Alexander Viro: make lseek work on seqfiles
+> It looks like it's a bog-standard page, that was just free'd (probably
+> because of page->count corruption) while it was still in the page cache.
+> Now, how that page->count corruption actually happened, I have no idea,
+> which is why I suspect you had other earlier oopses that left the machine
+> in an inconsistent state.
 
-pre5:
- - Greg KH: enable hotplug driver support
- - Andrea Arcangeli: remove bogus sanity check
- - David Mosberger: /proc/cpuinfo and scsi scatter-gather for ia64
- - David Hinds: 16-bit pcmcia network driver updates/cleanups
- - Hugh Dickins: remove some stale code from VM
- - David Miller: /proc/cpuinfo for sparc, sparc fork bug fix, network
-   fixes, warning fixes
- - Peter Braam: intermezzo update
- - Greg KH: USB updates
- - Ivan Kokshaysky: /proc/cpuinfo for alpha
- - David Woodhouse: jffs2 - remove dead code, remove gcc3 warning
- - Hugh Dickins: fix kiobuf page allocation/deallocation
+Well, I found out what file has the bog-standard page.
 
-pre4:
- - Mikael Pettersson: make proc_misc happy without modules
- - Arjan van de Ven: clean up acpitable implementation ("micro-acpi")
- - Anton Altaparmakov: LDM partition code update
- - Alan Cox: final (yeah, sure) small missing pieces
- - Andrey Savochkin/Andrew Morton: eepro100 config space save/restore over suspend
- - Arjan van de Ven: remove power from pcmcia socket on card remove
- - Greg KH: USB updates
- - Neil Brown: multipath updates
- - Martin Dalecki: fix up some "asmlinkage" routine markings
+open("/home/stevendi//.htaccess", O_RDONLY|O_LARGEFILE) = 4
+fstat64(0x4, 0x80ea000)                 = 0
+fcntl(4, F_SETFD, FD_CLOEXEC)           = 0
+fstat64(0x4, 0xbfffd878)                = 0
+old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x401d3000
+read(4,  <unfinished ...>
++++ killed by SIGSEGV +++
 
-pre3:
- - Alan Cox: more driver merging
- - Al Viro: make ext2 group allocation more readable
+Every time that file is read, it Oopses.  It would probably be quite
+difficult to find something that would exploit a kernel race on this
+particular file (they are very rarely modified).
 
-pre2:
- - Ivan Kokshaysky: fix alpha dec_and_lock with modules, for alpha config entry
- - Kai Germaschewski: ISDN updates
- - Jeff Garzik: network driver updates, sysv fs update
- - Kai Mäkisara: SCSI tape update
- - Alan Cox: large drivers merge
- - Nikita Danilov: reiserfs procfs information
- - Andrew Morton: ext3 merge
- - Christoph Hellwig: vxfs livelock fix
- - Trond Myklebust: NFS updates
- - Jens Axboe: cpqarray + cciss dequeue fix
- - Tim Waugh: parport_serial base_baud setting
- - Matthew Dharm: usb-storage Freecom driver fixes
- - Dave McCracken: wait4() thread group race fix
+I suppose rebooting would be the only way to get rid of the broken page,
+as it doesn't seem to have cleared up by itself.
 
-pre1:
- - me: fix page flags race condition Andrea found
- - David Miller: sparc and network updates
- - various: fix loop driver that thought it was part of the VM system
- - me: teach DRM about VM_RESERVED
- - Alan Cox: more merging
+Simon-
+
+[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
+[       sim@stormix.com       ][       sim@netnation.com        ]
+[ Opinions expressed are not necessarily those of my employers. ]

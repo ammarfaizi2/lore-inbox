@@ -1,90 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278584AbRJSSfE>; Fri, 19 Oct 2001 14:35:04 -0400
+	id <S278587AbRJSSkE>; Fri, 19 Oct 2001 14:40:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278585AbRJSSep>; Fri, 19 Oct 2001 14:34:45 -0400
-Received: from pak200.pakuni.net ([207.91.34.200]:45296 "EHLO
-	smp.paktronix.com") by vger.kernel.org with ESMTP
-	id <S278584AbRJSSej>; Fri, 19 Oct 2001 14:34:39 -0400
-Date: Fri, 19 Oct 2001 13:44:37 -0500 (CDT)
-From: "Matthew G. Marsh" <mgm@paktronix.com>
-X-X-Sender: <mgm@netmonster.pakint.net>
-To: Christopher Friesen <cfriesen@nortelnetworks.com>
-cc: <kuznet@ms2.inr.ac.ru>, <linux-kernel@vger.kernel.org>
-Subject: Re: how to see manually specified proxy arp entries using "ip neigh"
-In-Reply-To: <3BCF36BE.DE10E221@nortelnetworks.com>
-Message-ID: <Pine.LNX.4.31.0110191340330.17932-100000@netmonster.pakint.net>
+	id <S278592AbRJSSjz>; Fri, 19 Oct 2001 14:39:55 -0400
+Received: from air-1.osdl.org ([65.201.151.5]:61708 "EHLO osdlab.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S278589AbRJSSjl>;
+	Fri, 19 Oct 2001 14:39:41 -0400
+Date: Fri, 19 Oct 2001 11:40:14 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@osdlab.pdx.osdl.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] New Driver Model for 2.5
+In-Reply-To: <20011020030138.A22096@beernut.flames.org.au>
+Message-ID: <Pine.LNX.4.33.0110191127100.17647-100000@osdlab.pdx.osdl.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Oct 2001, Christopher Friesen wrote:
 
-> kuznet@ms2.inr.ac.ru wrote:
->
-> > > I (and others) have asked this a couple times here and on the netdev list, and
-> > > so far nobody has answered it (not even negatively).
-> >
-> > :-) And me answered to this hundred of times: "no way". :-)
->
-> Whee, an answer!
->
-> > Ability to add/delete them with "ip neigh" will be removed in the next
-> > snapshot as well. The feature is obsolete.
->
-> Oh?  Let me present a scenario in which I use it and then you can tell me how
-> better to do it.
->
-> I'm using the ethertap device (in 2.2, tun/tap in 2.4 should be similar) to pass
-> stuff up to userspace. I have an ethernet link.  I want the kernel to proxy arp
-> for the ip address assigned to the ethertap device with the mac address of the
-> NIC, without enabling proxy arping for any other addresses.
+> Am I correct in thinking that the current "state of play" after these recent
+> discussions is a 3 step suspend process, following an algorithm similar to:
 
-Not needed. Any address assigned to an "internal" device (tun/tap, dummy,
-etc) is pingable and arpable from any other address on the system
-(assuming rp_filter is set correctly per interface). I use this "feature"
-all the time and there was even a big argument over "loose vs. strict"
-host replies back in the Spring of 2001 about this.
+Yes. After some discussion, I think we need a 3-step process. I will be
+updating the docs today.
 
-> Currently I have been doing this by manually setting proxy arping on the NIC for
-> the IP address assigned to the ethertap device.  If this feature is going to be
-> removed, then how should I be doing this?
+> If this is approximately the right idea, then how will write_out_state work if
+> the device(s) that this operation uses aren't accepting requests anymore
+> (because they've done suspend_save_state)?  Is it that "Stop accepting
+> requests" is actually "Stop accepting requests that will cause a change in the
+> device state"?  In that case, devices that can have the state written out to
+> them will be limited to those where the act of writing it out will never cause
+> such a request, right?
 
-If an IP address is routed to on the external network then it will be
-available. It does _not_ matter what interface that address is assigned
-to. EX:
+That's an interesting question, and one that depends on the answer to
+several questions.
 
-ip addr add 10.1.1.1/24 dev dummy0
-ip link set dev dummy0 up
+The mechanism for going to sleep is dependent first on the architecture
+and secondly on the power managment scheme. It is up to the scheme to work
+out the finer details concerning it.
 
-now ping 10.1.1.1 from another machine on eth0 that has an appropriate
-route. I suspect what is really biting you is that your rp_filters are way
-too restrictive on your machine.
+(That's not a copout; we're just not likely to have a generic suspend
+routine. Even if every implementation is using the same mechanism, I don't
+know if it could ever be consolidated into one singular body of code.)
 
-> Thanks,
->
-> Chris
->
-> --
-> Chris Friesen                    | MailStop: 043/33/F10
-> Nortel Networks                  | work: (613) 765-0557
-> 3500 Carling Avenue              | fax:  (613) 765-2986
-> Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+So then, how do we do suspend to disk? All the progress in that area has
+been made by swsusp. I don't know the finer details of how it works, so
+I'm not about to comment on how to make it work or modify it to better fit
+our needs. Maybe someone from that camp could comment on whether or not
+the 3-stage model would completely screw them or not? Or, how to make it
+work under this model? Or if it even matters?
 
---------------------------------------------------
-Matthew G. Marsh,  President
-Paktronix Systems LLC
-1506 North 59th Street
-Omaha  NE  68104
-Phone: (402) 932-7250 x101
-Email: mgm@paktronix.com
-WWW:  http://www.paktronix.com
---------------------------------------------------
+	-pat
+
+
+
 

@@ -1,91 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263500AbUCZRX3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 12:23:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263608AbUCZRX3
+	id S263608AbUCZRYV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 12:24:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263609AbUCZRYV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 12:23:29 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:41968 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263500AbUCZRXZ (ORCPT
+	Fri, 26 Mar 2004 12:24:21 -0500
+Received: from [199.45.143.226] ([199.45.143.226]:48797 "EHLO 192.168.100.4")
+	by vger.kernel.org with ESMTP id S263608AbUCZRYQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 12:23:25 -0500
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: 2.6.5-rc2-mm2 ipc hang fix
-Date: Fri, 26 Mar 2004 09:16:44 -0800
-User-Agent: KMail/1.4.1
-Cc: andrew <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-References: <40638D1F.C296F528@us.ibm.com> <4063C65E.3030608@colorfullife.com>
-In-Reply-To: <4063C65E.3030608@colorfullife.com>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_WB17K2Y3ESS10V26LVKH"
-Message-Id: <200403260916.44464.pbadari@us.ibm.com>
+	Fri, 26 Mar 2004 12:24:16 -0500
+Subject: Re: [ANNOUNCE] new reiser4 snapshot released.
+From: Jonathan Briggs <jbriggs@esoft.com>
+Cc: Reiserfs mail-list <Reiserfs-List@Namesys.COM>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <16484.24086.167505.94478@laputa.namesys.com>
+References: <16484.24086.167505.94478@laputa.namesys.com>
+Content-Type: text/plain
+Organization: eSoft, Inc.
+Message-Id: <1080321833.19218.7.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7jb) 
+Date: Fri, 26 Mar 2004 10:23:54 -0700
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2004-03-26 at 09:45, Nikita Danilov wrote:
+> Hello,
+> 
+> new reiser4 snapshot against 2.6.5-rc2 is available at
+> 
+> http://www.namesys.com/snapshots/2004.03.26/
+> 
+> It is mainly bug-fixing release. See READ.ME for the list of fixes and
+> caveats.
 
---------------Boundary-00=_WB17K2Y3ESS10V26LVKH
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+A definition of fibration:
+http://mathworld.wolfram.com/Fibration.html
 
-On Thursday 25 March 2004 09:57 pm, Manfred Spraul wrote:
-> badari wrote:
-> >--- linux/ipc/sem.c     2004-03-26 05:19:22.833959160 -0800
-> >+++ linux.new/ipc/sem.c 2004-03-26 05:19:57.047757872 -0800
-> >@@ -972,8 +972,10 @@ static struct sem_undo *find_undo(int se
-> >        if(sma=3D=3DNULL)
-> >                goto out;
-> >        un =3D ERR_PTR(-EIDRM);
-> >-       if (sem_checkid(sma,semid))
-> >+       if (sem_checkid(sma,semid)) {
-> >+               sem_unlock(sma);
-> >                goto out_unlock;
-> >+       }
-> >        nsems =3D sma->sem_nsems;
-> >        sem_unlock(sma);
->
-> [snip]
->
-> > out_unlock:
-> >         unlock_semundo();
-> > out:
-> >         return un;
-> > }
->
-> Thanks for finding the bug - out_unlock unlocks the wrong spinlock,
-> that's why I didn't notice it while searching for the bug.
-> But I think your fix is wrong: the "goto out_unlock" must be replaced
-> with "goto out": the semundo spinlock is not held.
+I'm going to have to study math for about a year before I understand all
+that, I think.
 
-Yes. You are correct. semundo lock is not held.=20
-Here is the updated patch.
+It's a good thing we won't have to understand "fiber bundles",
+"paracompact topological space" and the "homotopy lifting property" to
+USE Reiser4.
 
-Thanks,
-Badari
---------------Boundary-00=_WB17K2Y3ESS10V26LVKH
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="undo.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="undo.patch"
+*grin*
 
---- linux/ipc/sem.c	2004-03-26 05:19:22.833959160 -0800
-+++ linux.new/ipc/sem.c	2004-03-26 20:59:46.496258680 -0800
-@@ -972,8 +972,10 @@ static struct sem_undo *find_undo(int se
- 	if(sma==NULL)
- 		goto out;
- 	un = ERR_PTR(-EIDRM);
--	if (sem_checkid(sma,semid))
--		goto out_unlock;
-+	if (sem_checkid(sma,semid)) {
-+		sem_unlock(sma);
-+		goto out;
-+	}
- 	nsems = sma->sem_nsems;
- 	sem_unlock(sma);
- 
+If I missed the discussion or a web page, I am sorry.  But could someone
+post a quick explanation or pointer to one about this fibration plugin? 
+What does it do and what effects will it have?
 
---------------Boundary-00=_WB17K2Y3ESS10V26LVKH--
+-- 
+Jonathan Briggs
+jbriggs@esoft.com
 

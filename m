@@ -1,35 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267566AbTAQP7p>; Fri, 17 Jan 2003 10:59:45 -0500
+	id <S267542AbTAQPzq>; Fri, 17 Jan 2003 10:55:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267569AbTAQP7p>; Fri, 17 Jan 2003 10:59:45 -0500
-Received: from stingr.net ([212.193.32.15]:35084 "EHLO hq.stingr.net")
-	by vger.kernel.org with ESMTP id <S267566AbTAQP7o>;
-	Fri, 17 Jan 2003 10:59:44 -0500
-Date: Fri, 17 Jan 2003 19:08:40 +0300
-From: Paul P Komkoff Jr <i@stingr.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: eepro100 - 802.1q - mtu size
-Message-ID: <20030117160840.GR12676@stingr.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030117145357.GA1139@paradigm.rfc822.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20030117145357.GA1139@paradigm.rfc822.org>
-User-Agent: Agent Darien Fawkes
-X-Mailer: Intel Ultra ATA Storage Driver
-X-RealName: Stingray Greatest Jr
-Organization: Department of Fish & Wildlife
+	id <S267543AbTAQPzq>; Fri, 17 Jan 2003 10:55:46 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:44708 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S267542AbTAQPzp>; Fri, 17 Jan 2003 10:55:45 -0500
+Date: Fri, 17 Jan 2003 10:04:38 -0600 (CST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: unresolved symbols building 2.5.59
+In-Reply-To: <Pine.LNX.4.44.0301171055180.8002-100000@dell>
+Message-ID: <Pine.LNX.4.44.0301171003250.15056-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Replying to Florian Lohoff:
-> Why is this patch not integerated yet ?
+On Fri, 17 Jan 2003, Robert P. J. Day wrote:
 
-Because newer and better e100 driver, which accepts tagged frames and
-handles it properly, already in the tree
+> 
+> tail end of "make modules_install":
+> 
+> if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.59; fi
+> depmod: *** Unresolved symbols in /lib/modules/2.5.59/kernel/drivers/i2c/i2c-proc.ko
+> depmod: 	i2c_check_functionality
+> depmod: 	i2c_smbus_xfer
+> depmod: 	i2c_check_addr
+> depmod: 	i2c_adapter_id
+> depmod: *** Unresolved symbols in /lib/modules/2.5.59/kernel/fs/cramfs/cramfs.ko
+> depmod: 	zlib_inflate
+> depmod: 	zlib_inflate_workspacesize
+> depmod: 	zlib_inflateInit_
+> depmod: 	zlib_inflateReset
+> depmod: 	zlib_inflateEnd
+> 
+>   the first one seems to be i2c-proc looking for symbols in i2c-core,
+> which i selected and which was built.
+> 
+>   the second seems to be that cramfs needs zlib_inflate, which once
+> again i selected and which was built.
 
--- 
-Paul P 'Stingray' Komkoff Jr /// (icq)23200764 /// (http)stingr.net
- This message represents the official view of the voices in my head
+Which version of module-init-tools do you have? (see 
+Documentation/Changes)
+
+--Kai
+
+

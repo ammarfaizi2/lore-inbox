@@ -1,76 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261751AbUB0JpV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 04:45:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbUB0JpV
+	id S261761AbUB0Jpt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 04:45:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbUB0Jpt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 04:45:21 -0500
-Received: from fungus.teststation.com ([212.32.186.211]:63753 "EHLO
-	fungus.teststation.com") by vger.kernel.org with ESMTP
-	id S261751AbUB0JpP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 04:45:15 -0500
-Date: Fri, 27 Feb 2004 10:45:05 +0100 (CET)
-From: Urban Widmark <urban@teststation.com>
-X-X-Sender: puw@cola.local
-To: Alain Fauconnet <alain@ait.ac.th>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: smbfs broken in 2.4.25? (Too many open files in system)
-In-Reply-To: <20040227022300.GA8072@ait.ac.th>
-Message-ID: <Pine.LNX.4.44.0402271018090.15220-100000@cola.local>
+	Fri, 27 Feb 2004 04:45:49 -0500
+Received: from zadnik.org ([194.12.244.90]:217 "EHLO lugburz.zadnik.org")
+	by vger.kernel.org with ESMTP id S261761AbUB0Jpq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 04:45:46 -0500
+Date: Fri, 27 Feb 2004 11:45:26 +0200 (EET)
+From: Grigor Gatchev <grigor@zadnik.org>
+To: Rik van Riel <riel@redhat.com>
+Cc: Jesse Pollard <jesse@cats-chateau.net>,
+       Timothy Miller <miller@techsource.com>,
+       Christer Weinigel <christer@weinigel.se>,
+       Nikita Danilov <Nikita@Namesys.COM>, <root@chaos.analogic.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: A Layered Kernel: Proposal
+In-Reply-To: <Pine.LNX.4.44.0402261211510.5629-100000@chimarrao.boston.redhat.com>
+Message-ID: <Pine.LNX.4.44.0402271138510.26240-100000@lugburz.zadnik.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Feb 2004, Alain Fauconnet wrote:
-
-> Looking   at   the   code   of   both   versions,   it   seems    that
-> smb_proc_getattr_95()  (where  the  patch  you've  posted  lies)  uses
-> smb_proc_getattr_trans2_std()  whereas  the   old   code   seemed   to
-> completely avoid it in the W95 code path:
-> 
-> >From 2.4.24's ./fs/smbfs/proc.c:
-> ========================================================================
->         /*
->          * Select whether to use core or trans2 getattr.
->          * Win 95 appears to break with the trans2 getattr.
->          */
->         if (server->opt.protocol < SMB_PROTOCOL_LANMAN2 ||
->             (server->mnt->flags & (SMB_MOUNT_OLDATTR|SMB_MOUNT_WIN95)) ) {  
->                 result = smb_proc_getattr_core(server, dir, fattr);
->         } else {
->                 if (server->mnt->flags & SMB_MOUNT_DIRATTR)
->                         result = smb_proc_getattr_ff(server, dir, fattr);
->                 else
->                         result = smb_proc_getattr_trans2(server, dir, fattr);
->         }
-> ========================================================================
-
-Yes, I know.
-
-Unfortunately we want the trans2 version when reading directories, the
-core version does not understand "long" filenames. The previous 2.4 code
-does that, but uses the "core" version for getting file attributes.
-
-The problem with using two different requests is that they have different
-resolutions on file modification times. The core can only return odd- or
-even-numbered seconds (I forget which). This makes programs like 'tar'
-complain if the date they read from the dir does not always match the date
-they read from getattr.
 
 
-Now, when looking at the output of ethereal it re-reads attributes for the
-/ inode a lot. It's not supposed to do a refresh if it thinks it has a
-fairly recent copy, see smb_revalidate_inode and SMB_MAX_AGE. That could 
-be making this problem worse.
+On Thu, 26 Feb 2004, Rik van Riel wrote:
 
+> On Thu, 26 Feb 2004, Jesse Pollard wrote:
+>
+> > Until you add IPSEC...
+> >
+> > Unless the TOE has the same security support (encrypt some packets, not
+> > others, require verification from some networks, not others,...), and
+> > flexibility that the Linux network stack has, and ...
+>
+> Exactly.  I just don't see TOE as a viable option for
+> networking, so I'm not too worried about not supporting
+> it.
 
-> Am I completely off track here?
+It depends. Some of these integrated gadgets aren't very successful;
+others, however, are. Compare true modems to winmodems, or modern
+videocards with built-in rendering etc to bare ones. Also, on embedded
+systems with very tight memory and speed requirements, a TOE card may be a
+bad, but the only available solution.
 
-No, but you didn't know the background.
+So, IMO, a proposed kernel model must have the means to support similar
+devices. Some will be bad, but some may be good.
 
-Btw, if you mount using the "oldattr" mount option you should get the
-"core" behaviour back.
-
-/Urban
 

@@ -1,62 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268393AbUGXJ3T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268405AbUGXJnv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268393AbUGXJ3T (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jul 2004 05:29:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268395AbUGXJ3S
+	id S268405AbUGXJnv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jul 2004 05:43:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268406AbUGXJnv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jul 2004 05:29:18 -0400
-Received: from out009pub.verizon.net ([206.46.170.131]:18684 "EHLO
-	out009.verizon.net") by vger.kernel.org with ESMTP id S268393AbUGXJ3R
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jul 2004 05:29:17 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Organization: Organization: undetectable
+	Sat, 24 Jul 2004 05:43:51 -0400
+Received: from levante.wiggy.net ([195.85.225.139]:9364 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id S268405AbUGXJnu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jul 2004 05:43:50 -0400
+Date: Sat, 24 Jul 2004 11:43:49 +0200
+From: Wichert Akkerman <wichert@wiggy.net>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [FC1], 2.6.8-rc2 kernel, new motherboard problems
-Date: Sat, 24 Jul 2004 05:29:16 -0400
-User-Agent: KMail/1.6
-References: <Pine.LNX.4.44.0407211334260.3000-100000@mail.birdvet.org> <1090649207.1006.12.camel@mindpipe> <20040724061058.GB31385@taniwha.stupidest.org>
-In-Reply-To: <20040724061058.GB31385@taniwha.stupidest.org>
-MIME-Version: 1.0
+Subject: Re: [patch] kernel events layer
+Message-ID: <20040724094349.GB15995@wiggy.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <4956.1090644161@ocs3.ocs.com.au> <1090645238.2296.37.camel@localhost> <20040724011129.54971669.akpm@osdl.org> <1090647444.2296.54.camel@localhost> <1090648973.2296.68.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407240529.16575.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [151.205.53.197] at Sat, 24 Jul 2004 04:29:16 -0500
+In-Reply-To: <1090648973.2296.68.camel@localhost>
+User-Agent: Mutt/1.5.6+20040523i
+X-SA-Exim-Connect-IP: <locally generated>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 24 July 2004 02:10, Chris Wedgwood wrote:
->On Sat, Jul 24, 2004 at 02:06:47AM -0400, Lee Revell wrote:
->> I am not talking about them releasing driver code, I am just
->> talking about datasheets so we can write our own driver, something
->> that tells you which bits to write to which registers to get it to
->> do $FOO.
->
->nv traditionally are very poor in this respect
->
->> Their net cost: $0.
->
->they claimed that it would give competitors too much insight to
-> their hardware (obviously true since nobody else makes 3D-hardware
-> or network controllers)
+All the current netlink messages are structs with basic data with a
+variable list of attributes. This is easy to parse and all current
+netlink tools support uniformly. Is it intentional that you are now
+switching to text data that needs to be parsed? Your patch seems
+to have RFC822-style headers that would work perfectly as standard
+netlink attributes to a message.
 
-Excuse me, but just exactly what is considered to be "3d"?  The screen 
-I'm looking at is a 17" nearly flat crt, and damned sharp considering 
-this NEC 5FG is now at least 10 years old, and I've never seen 
-anything on it that could be construed to be "3d", not even in my 
-wildest, had too many beers or Black Jacks dreams.
-
-Methinks its an overused advertizing phrase that should be tossed in 
-the bin (and miss-use of it prosecuted as false advertizing) until 
-such time as it can actually, without any special glasses, display an 
-image with true depth.
+Wichert.
 
 -- 
-Cheers, Gene
-There are 4 boxes to be used in defense of liberty. 
-Soap, ballot, jury, and ammo.
-Please use in that order, starting now.  -Ed Howdershelt, Author
-Additions to this message made by Gene Heskett are Copyright 2004, 
-Maurice E. Heskett, all rights reserved.
+Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
+http://www.wiggy.net/                   It is hard to make things simple.

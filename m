@@ -1,37 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289815AbSCOLAD>; Fri, 15 Mar 2002 06:00:03 -0500
+	id <S289817AbSCOK7x>; Fri, 15 Mar 2002 05:59:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290120AbSCOK7z>; Fri, 15 Mar 2002 05:59:55 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:10882 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S289815AbSCOK7k>;
-	Fri, 15 Mar 2002 05:59:40 -0500
-Date: Thu, 14 Mar 2002 14:02:11 +0000
+	id <S290289AbSCOK6R>; Fri, 15 Mar 2002 05:58:17 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:10114 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S290120AbSCOK6B>;
+	Fri, 15 Mar 2002 05:58:01 -0500
+Date: Thu, 14 Mar 2002 14:13:42 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        LKML <linux-kernel@vger.kernel.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Olivier Galibert <galibert@pobox.com>, LKML <linux-kernel@vger.kernel.org>
 Subject: Re: [patch] My AMD IDE driver, v2.7
-Message-ID: <20020314140210.A37@toy.ucw.cz>
-In-Reply-To: <Pine.LNX.4.33.0203111431340.15427-100000@penguin.transmeta.com> <20020311234553.A3490@ucw.cz> <3C8DDFC8.5080501@evision-ventures.com> <20020312165937.A4987@ucw.cz> <3C8E28A1.1070902@evision-ventures.com> <20020312172134.A5026@ucw.cz> <3C8E2C2C.2080202@evision-ventures.com> <20020312173301.C5026@ucw.cz> <3C8E3025.4070409@evision-ventures.com> <20020312175044.A5228@ucw.cz>
+Message-ID: <20020314141342.B37@toy.ucw.cz>
+In-Reply-To: <Pine.LNX.4.33.0203111829550.1153-100000@home.transmeta.com> <3C8D69E3.3080908@mandrakesoft.com> <20020311223439.A2434@zalem.nrockv01.md.comcast.net> <3C8D8061.4030503@mandrakesoft.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20020312175044.A5228@ucw.cz>; from vojtech@suse.cz on Tue, Mar 12, 2002 at 05:50:44PM +0100
+In-Reply-To: <3C8D8061.4030503@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Mon, Mar 11, 2002 at 11:13:21PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi
 
-> You may happen to have the numbers, though - that should be enough.
-> 
-> Btw, I have a CMD640B based PCI card lying around here, but never
-> managed to get it generate any interrupts, though the rest seems to be
-> working.
+> Under more restricted domains, root cannot bit-bang the interface. 
+>  s/CAP_SYS_RAWIO/CAP_DEVICE_CMD/ for the raw cmd ioctl interface.  Have 
 
-Attach it to the timer interrupt -- that should do it for testing. Simplest
-way is to make ide timeouts HZ/100 and killing "lost interrupt" msg ;-).
+Nobody uses capabilities these days, right?
 
+> The filter is useful for other reasons like correctness, as well.
+
+If you want to test if it works, you just disallow that access altogether.
+It is usually not needed , anyway.
 								Pavel
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,

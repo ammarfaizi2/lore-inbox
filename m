@@ -1,55 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261305AbTJAIKj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 04:10:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbTJAIKj
+	id S261970AbTJAIEi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 04:04:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261971AbTJAIEf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 04:10:39 -0400
-Received: from babyruth.hotpop.com ([204.57.55.14]:20186 "EHLO
-	babyruth.hotpop.com") by vger.kernel.org with ESMTP id S261305AbTJAIKi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 04:10:38 -0400
-Subject: Re: [PATCH] 2.6: joydev is too eager claiming input devices
-From: Dan <overridex@punkass.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
-       Vojtech Pavlik <vojtech@suse.cz>
-In-Reply-To: <20030924232912.7e41d9f9.akpm@osdl.org>
-References: <1064459037.19555.3.camel@nazgul.overridex.net>
-	 <200309250012.48522.dtor_core@ameritech.net>
-	 <20030924232912.7e41d9f9.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1064995829.14483.8.camel@nazgul.overridex.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 01 Oct 2003 04:10:29 -0400
-Content-Transfer-Encoding: 7bit
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
+	Wed, 1 Oct 2003 04:04:35 -0400
+Received: from mail.tactel.se ([195.22.66.197]:19933 "EHLO mail.tactel.se")
+	by vger.kernel.org with ESMTP id S261970AbTJAIEW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 04:04:22 -0400
+To: Peter Chubb <peter@chubb.wattle.id.au>
+Subject: Re: Radeon framebuffer problems i 2.6.0-test6
+Message-ID: <1064995393.3f7a8a411bf1f@mail.tactel.se>
+Date: Wed, 01 Oct 2003 10:03:13 +0200 (CEST)
+From: Pontus Fuchs <pontus.fuchs@tactel.se>
+Cc: linux-kernel@vger.kernel.org, ajoshi@shell.unixbox.com
+References: <7gisna11e1.fsf@serena.fsr.ku.dk> <16250.4701.976132.141380@wombat.chubb.wattle.id.au>
+In-Reply-To: <16250.4701.976132.141380@wombat.chubb.wattle.id.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.6
+X-Originating-IP: 213.143.39.32
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-09-25 at 02:29, Andrew Morton wrote:
-> Dmitry Torokhov <dtor_core@ameritech.net> wrote:
-> >
-> > Could you please try the following patch (it is incremental against the 
-> >  previous one and should apply to the -mm)
-> 
-> I ran that patch[1] past Vojtech yesterday and he then fixed the problem
-> which it was addressing by other means within his tree.
-> 
-> So what we should do is to ask Vojtech to share that change with us so Dan
-> can test it, please.
-> 
-> 
-> [1] ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test5/2.6.0-test5-mm4/broken-out/joydev-exclusions.patch
-> 
+Hi,
 
-Hi again,
+Quoting Peter Chubb <peter@chubb.wattle.id.au>:
+> Try this patch that's been floating around for a while.
+> 
+> Ani, can you please push this patch to Linus?  It fixes the Radeon
+> problems for a lot of people.
 
-I'm using 2.6.0-test6 right now with Dmitry's fix and it works fine,
-still waiting for Vojtech's code to test out -Dan
+In addition I need the following patch for radeonfb to work on my Asus L5.
+See http://bugs.xfree86.org/show_bug.cgi?id=561 for more info.
 
+--- radeonfb.c.orig	2003-09-20 11:47:53.000000000 +0200
++++ radeonfb.c	2003-10-01 09:38:23.000000000 +0200
+@@ -1099,7 +1099,7 @@
+ 	printk("radeonfb: detected DFP panel size from BIOS: %dx%d\n",
+ 		rinfo->panel_xres, rinfo->panel_yres);
+ 
+-	for(i=0; i<20; i++) {
++	for(i=0; i<21; i++) {
+ 		tmp0 = rinfo->bios_seg + readw(tmp+64+i*2);
+ 		if (tmp0 == 0)
+ 			break;
+
+Pontus Fuchs
 

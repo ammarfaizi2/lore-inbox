@@ -1,83 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263636AbUCYW0p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 17:26:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263676AbUCYW0p
+	id S263679AbUCYW3G (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 17:29:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263677AbUCYW3G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 17:26:45 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:48111 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S263636AbUCYW0h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 17:26:37 -0500
-Date: Thu, 25 Mar 2004 23:26:29 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>, Neil Brown <neilb@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: -mm: md-merging-fix causes ICE with gcc 2.95
-Message-ID: <20040325222628.GB16746@fs.tum.de>
-References: <20040323232511.1346842a.akpm@osdl.org>
+	Thu, 25 Mar 2004 17:29:06 -0500
+Received: from gprs214-160.eurotel.cz ([160.218.214.160]:17537 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S263679AbUCYW2B (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 17:28:01 -0500
+Date: Thu, 25 Mar 2004 23:27:45 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Nigel Cunningham <ncunningham@users.sourceforge.net>
+Cc: Suspend development list <swsusp-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: -nice tree [was Re: [Swsusp-devel] Re: swsusp problems [was Re: Your opinion on the merge?]]
+Message-ID: <20040325222745.GE2179@elf.ucw.cz>
+References: <20040323233228.GK364@elf.ucw.cz> <opr5d7ad0b4evsfm@smtp.pacific.net.th> <20040325014107.GB6094@elf.ucw.cz> <200403250857.08920.matthias.wieser@hiasl.net> <1080247142.6679.3.camel@calvin.wpcb.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040323232511.1346842a.akpm@osdl.org>
-User-Agent: Mutt/1.4.2i
+In-Reply-To: <1080247142.6679.3.camel@calvin.wpcb.org.au>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 23, 2004 at 11:25:11PM -0800, Andrew Morton wrote:
->...
-> Changes since 2.6.5-rc2-mm1:
->...
-> +md-merging-fix.patch
-> 
->  Fix RAID merging problem.
->...
+Hi!
 
-I got the following compile error in 2.6.5-rc2-mm3 using the gcc 2.95 
-from Debian unstable on i386:
+> By the way, here's an example where having the /proc interface is a good
+> thing: which do you use? zip compression, lzf compression or no
+> compression? Until recently I always used lzf compression. I just
 
-<--  snip  -->
+We should select one, and drop the others.
 
-...
-  CC      drivers/md/linear.o
-drivers/md/linear.c: In function `linear_mergeable_bvec':
-drivers/md/linear.c:84: Internal compiler error:
-drivers/md/linear.c:84: internal error--unrecognizable insn:
-(insn/i 49 47 210 (parallel[ 
-            (set (reg:SI 0 %eax)
-                (asm_operands ("") ("=a") 0[ 
-                        (reg:DI 1 %edx)
-                    ] 
-                    [ 
-                        (asm_input:DI ("A"))
-                    ]  ("drivers/md/linear.c") 41))
-            (set (reg:SI 1 %edx)
-                (asm_operands ("") ("=d") 1[ 
-                        (reg:DI 1 %edx)
-                    ] 
-                    [ 
-                        (asm_input:DI ("A"))
-                    ]  ("drivers/md/linear.c") 41))
-        ] ) -1 (insn_list 44 (nil))
-    (nil))
-cpp0: output pipe has been closed
-make[2]: *** [drivers/md/linear.o] Error 1
+gzip is useless for almost everyone -> gets little testing -> is
+probably broken.
 
-<--  snip  -->
+> upgraded my laptop's hard drive, and found I wasn't getting the
+> performance improvements in suspending I expected. It turns out that the
+> CPU is now the limiting factor. Because I had the /proc interface, I
+> could easily adjust the debug settings to show me throughput and then
+> try a couple of suspend cycles with compression enabled and with it
+> disabled. Without the /proc interface, I would have had to have
+> recompiled the kernel to switch settings. (I didn't try gzip because I
+> knew it wasn't going to be a contender for me).
 
-
-I know that this is on the first hand a compiler bug, but gcc 2.95 is 
-although no longer supported by the gcc developers still the recommended 
-compiler for the kernel.
-
-
-cu
-Adrian
-
+Kernel could automagically select the right one.. But I'd prefer for
+only "non compressed" part to reach mainline for 2.6. Feature freeze
+was few months ago, and "adding possibility to compress swsusp data"
+does not sound like a bugfix to me...
+								Pavel
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

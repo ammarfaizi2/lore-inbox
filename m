@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264463AbRFZK5b>; Tue, 26 Jun 2001 06:57:31 -0400
+	id <S264589AbRFZLIO>; Tue, 26 Jun 2001 07:08:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264401AbRFZK5L>; Tue, 26 Jun 2001 06:57:11 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:31243 "HELO mx.in-addr.de")
-	by vger.kernel.org with SMTP id <S264421AbRFZK5E>;
-	Tue, 26 Jun 2001 06:57:04 -0400
-Date: Tue, 26 Jun 2001 12:57:04 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: "SATHISH.J" <sathish.j@tatainfotech.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: using gdb to debug kernel
-Message-ID: <20010626125704.A2205@marowsky-bree.de>
-In-Reply-To: <Pine.LNX.4.10.10106261020270.7781-100000@blrmail> <Pine.LNX.4.10.10106261529420.1654-100000@blrmail>
+	id <S264635AbRFZLIF>; Tue, 26 Jun 2001 07:08:05 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:41231 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S264589AbRFZLHu>; Tue, 26 Jun 2001 07:07:50 -0400
+Date: Tue, 26 Jun 2001 14:07:42 +0300
+From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
+To: "Stephen C. Tweedie" <sct@redhat.com>
+Cc: ext3-users@redhat.com, linux-kernel@vger.kernel.org,
+        Florian Lohoff <flo@rfc822.org>
+Subject: Re: Oops in iput
+Message-ID: <20010626140742.V1503@niksula.cs.hut.fi>
+In-Reply-To: <20010625201612.A701@paradigm.rfc822.org> <20010625194213.J18856@redhat.com> <20010626110933.R1503@niksula.cs.hut.fi> <20010626115651.A9176@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.16i
-In-Reply-To: <Pine.LNX.4.10.10106261529420.1654-100000@blrmail>; from "SATHISH.J" on 2001-06-26T15:31:04
-X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010626115651.A9176@redhat.com>; from sct@redhat.com on Tue, Jun 26, 2001 at 11:56:51AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2001-06-26T15:31:04,
-   "SATHISH.J" <sathish.j@tatainfotech.com> said:
+On Tue, Jun 26, 2001 at 11:56:51AM +0100, you [Stephen C. Tweedie] claimed:
+> Hi,
+> 
+> On Tue, Jun 26, 2001 at 11:09:33AM +0300, Ville Herva wrote:
+> 
+> > Well, I for one use the 2.2 ide patches extensively (on almost all of my
+> > machines, including a heavy-duty backup server)
+> 
+> It is highly hardware-dependent.  A huge amount of effort was spent
+> early in 2.4 getting blacklists and hardware tweaks right to work
+> around problems with specific chipsets with ide udma.  Just because it
+> works for one person doesn't give you any confidence that it won't
+> trash data for somebody else.
 
-> I would like to know how I can use gdb to debug some function in the
-> kernel. Please help me out with this detail.
+Well, the report said 'Intel BX chipset' - that's as solid as chipsets get
+(to loosely quote Alan). Almost all of my boxes are BX (one has HPT366 in
+addition, and another one was changed to Via686a recently), and I imagine
+that BX gets most testing since it is very common chipset. Moreover, it only
+does UDMA33, not any fancy 66 or 100 stuff (although I haven't had problems
+with those either on HPT366, HPT370 nor 686a).
 
-The easiest way would be user-mode-linux, hosted on sourceforge.net.
+As said, it could be the ide patch, but surely there are other just as
+likely suspects as well.
 
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
 
--- 
-Perfection is our goal, excellence will be tolerated. -- J. Yahl
+-- v --
 
+v@iki.fi

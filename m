@@ -1,67 +1,190 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265315AbUGMPjl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265237AbUGMPzZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265315AbUGMPjl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 11:39:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265359AbUGMPjl
+	id S265237AbUGMPzZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 11:55:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265399AbUGMPzZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 11:39:41 -0400
-Received: from rzfoobar.is-asp.com ([217.11.194.155]:1196 "EHLO mail.isg.de")
-	by vger.kernel.org with ESMTP id S265315AbUGMPjh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 11:39:37 -0400
-Message-ID: <40F40238.3080103@isg.de>
-Date: Tue, 13 Jul 2004 17:39:36 +0200
-From: Lutz Vieweg <lkv@isg.de>
-Organization: Innovative Software AG
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040322 wamcom.org
-X-Accept-Language: de, German, en
+	Tue, 13 Jul 2004 11:55:25 -0400
+Received: from adsl-65-68-136-66.dsl.stlsmo.swbell.net ([65.68.136.66]:14208
+	"EHLO demigod.technicalworks.net") by vger.kernel.org with ESMTP
+	id S265237AbUGMPzE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 11:55:04 -0400
+Message-ID: <008b01c468f2$48824dd0$010a300a@drightler2k>
+From: "Dwayne Rightler" <drightler@technicalogic.com>
+To: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>,
+       <linux-kernel@vger.kernel.org>
+Cc: "Dhruv Matani" <dhruvbird@gmx.net>
+References: <2E314DE03538984BA5634F12115B3A4E62E881@email1.mitretek.org>
+Subject: Re: DriveReady SeekComplete Error...
+Date: Tue, 13 Jul 2004 10:57:36 -0500
 MIME-Version: 1.0
-To: Michael Clark <michael@metaparadigm.com>
-Cc: Robin Holt <holt@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: How to find out which pages were copied-on-write?
-References: <40EACC0C.6060606@isg.de> <20040709113125.GA8897@lnx-holt.americas.sgi.com> <40EF0346.4040407@isg.de> <40EFA4C8.1050409@metaparadigm.com> <40F2C882.7070406@isg.de> <40F36216.1080603@metaparadigm.com> <40F3DDC4.7060104@isg.de> <40F3F993.6040602@metaparadigm.com>
-In-Reply-To: <40F3F993.6040602@metaparadigm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1409
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+X-Spam-DCC: :
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Clark wrote:
-> On 07/13/04 21:04, Lutz Vieweg wrote:
-> 
->>> You don't use mmap for speed but rather for convenience.
->>
->> But isn't an advantage with mmap() that there's no need for the kernel
->> to copy what is to be written to a dedicated buffer? The kernel
->> could initiate DMA writes directly from the working memory...
-> 
-> Yes, but page faults are expensive too. Each time a page is written
-> out it needs to be marked read only again and will cause a page fault
-> for the next write access from userspace. For certain workloads this
-> can easily add up to more than copy_(to|from)_user in read/write.
+The CONFIG_IDEDISK_MULTI_MODE setting makes no difference as seen below:
 
-But I would need exactly the same number of pagefaults if I implemented
-the "mark-dirty-on-write" logic in userspace using SIGSEGV and signal
-handlers, as it is done by the LPSM software...
+demigod:~# uname -a
+Linux demigod 2.6.7-kexec #2 Tue Jul 13 08:31:56 CDT 2004 i686 GNU/Linux
 
-> read/write also gives you more explicit control on IO batching and
-> scheduling (when to read or write). Less need for the kernel to employ
-> tricks to effectively coaslesce IOs on dirtied pages or sense
-> streaming access patterns.
+demigod:~# zgrep CONFIG_IDEDISK_MULTI_MODE /proc/config.gz
+CONFIG_IDEDISK_MULTI_MODE=y
 
-But if the kernel would turn a private copy of a c-o-w page into a
-"dirty"-page that is marked for writing out to disk, another process
-could mmap() the very same page even before it has been written to disk,
-while if I write out dirty pages using write() in userspace, other
-processes probably won't notice before all the data has reached the disk,
-which could take quite some time.
+demigod:~# dmesg | grep ^hda
+hda: SAMSUNG SV2044D, ATA DISK drive
+hda: max request size: 128KiB
+hda: 39862368 sectors (20409 MB) w/472KiB Cache, CHS=39546/16/63
+hda: DMA disabled
+hda: dma_timer_expiry: dma status == 0x61
+hda: DMA timeout error
+hda: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest }
+hda: dma_timer_expiry: dma status == 0x61
+hda: DMA timeout error
+hda: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest }
+hda: dma_timer_expiry: dma status == 0x61
+hda: DMA timeout error
+hda: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest }
+hda: DMA disabled
 
-And unlike the user space application, the kernel knows which writes
-go to which physical disk so it can e.g. make better use of striping.
+##########################################
 
-Regards,
+demigod:~# uname -a
+Linux demigod 2.6.7-kexec #1 Mon Jul 5 11:30:36 CDT 2004 i686 GNU/Linux
 
-Lutz Vieweg
+demigod:~# zgrep CONFIG_IDEDISK_MULTI_MODE /proc/config.gz
+# CONFIG_IDEDISK_MULTI_MODE is not set
+
+demigod:~# dmesg | grep ^hda
+hda: SAMSUNG SV2044D, ATA DISK drive
+hda: max request size: 128KiB
+hda: 39862368 sectors (20409 MB) w/472KiB Cache, CHS=39546/16/63
+hda: DMA disabled
+hda: dma_timer_expiry: dma status == 0x61
+hda: DMA timeout error
+hda: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest }
+hda: dma_timer_expiry: dma status == 0x61
+hda: DMA timeout error
+hda: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest }
+hda: DMA disabled
+hda: dma_timer_expiry: dma status == 0x41
+hda: DMA timeout error
+hda: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest }
+hda: dma_timer_expiry: dma status == 0x61
+hda: DMA timeout error
+hda: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest }
+----- Original Message ----- 
+From: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>
+To: "Dwayne Rightler" <drightler@technicalogic.com>;
+<linux-kernel@vger.kernel.org>
+Cc: "Dhruv Matani" <dhruvbird@gmx.net>
+Sent: Tuesday, July 13, 2004 7:44 AM
+Subject: RE: DriveReady SeekComplete Error...
 
 
+> <*>     Include IDE/ATA-2 DISK support
+> [*]       Use multi-mode by default
+>
+> Have you tried recompiling the kernel and checking off the second option
+> show above?
+>
+> CONFIG_IDEDISK_MULTI_MODE
+> If you get this error, try to say Y here:
+> hda: set_multmode: status=0x51 { DriveReady SeekComplete Error }
+> hda: set_multmode: error=0x04 { DriveStatusError }
+> If in doubt, say N.
+>
+>
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org
+> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Dwayne Rightler
+> Sent: Tuesday, July 13, 2004 8:33 AM
+> To: linux-kernel@vger.kernel.org
+> Cc: Dhruv Matani
+> Subject: Re: DriveReady SeekComplete Error...
+>
+> I have a similar problem with a Samsung hard drive. Model SV2044D.  The
+> output of 'hdparm -i' below indicates it supports several multiword and
+> ultra DMA modes but if i run the drive in anything other than PIO mode
+> it
+> gets DMA timeouts and SeekComplete Errors.  This has been on every
+> kernel I
+> can recall in the 2.4 and 2.6 series.
+>
+> demigod:~# hdparm -i /dev/hda
+>
+> /dev/hda:
+>
+>  Model=SAMSUNG SV2044D, FwRev=MM200-53, SerialNo=0228J1FN905733
+>  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+>  RawCHS=16383/16/63, TrkSize=34902, SectSize=554, ECCbytes=4
+>  BuffType=DualPortCache, BuffSize=472kB, MaxMultSect=16, MultSect=16
+>  CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=39862368
+>  IORDY=yes, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+>  PIO modes:  pio0 pio1 pio2 pio3 pio4
+>  DMA modes:  mdma0 mdma1 mdma2
+>  UDMA modes: udma0 udma1 udma2 udma3 *udma4
+>  AdvancedPM=no WriteCache=enabled
+>  Drive conforms to: ATA/ATAPI-4 T13 1153D revision 17:  1 2 3 4
+>
+>  * signifies the current active mode
+>
+>
+>
+> ----- Original Message ----- 
+> From: "Dhruv Matani" <dhruvbird@gmx.net>
+> To: <linux-kernel@vger.kernel.org>
+> Sent: Tuesday, July 13, 2004 7:30 AM
+> Subject: DriveReady SeekComplete Error...
+>
+>
+> > Hi,
+> > I've been getting this error for my brand new (2 months old) Samsung
+> > HDD. The model Number is: SV0411N, and it is a 40GB disk. I'm using
+> the
+> > kernel version 2.4.20-8 provided by RedHat. When I used RH-7.2(before
+> > upgrading to RH-9), the same HDD worked fine. Also, when I
+> re-installed
+> > RH-7.2, it worked fine?
+> >
+> > Any suggestions?
+> >
+> > Please cc me the reply, sine I'm not subscribed.
+> > Thanks ;-)
+> >
+> > -- 
+> >         -Dhruv Matani.
+> > http://www.geocities.com/dhruvbird/
+> >
+> > As a rule, man is a fool. When it's hot, he wants it cold.
+> > When it's cold he wants it hot. He always wants what is not.
+> > -Anon.
+> >
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

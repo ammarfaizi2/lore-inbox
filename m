@@ -1,109 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261195AbVCABph@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261217AbVCABr7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261195AbVCABph (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 20:45:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261197AbVCABpg
+	id S261217AbVCABr7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 20:47:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbVCABr6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 20:45:36 -0500
-Received: from bender.bawue.de ([193.7.176.20]:39072 "EHLO bender.bawue.de")
-	by vger.kernel.org with ESMTP id S261195AbVCABpW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 20:45:22 -0500
-Date: Tue, 1 Mar 2005 02:45:14 +0100
-From: Joerg Sommrey <jo@sommrey.de>
-To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.6.11-rc5: Promise SATA150 TX4 failure
-Message-ID: <20050301014514.GA10653@sommrey.de>
-Mail-Followup-To: Joerg Sommrey <jo@sommrey.de>,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>
+	Mon, 28 Feb 2005 20:47:58 -0500
+Received: from h80ad25cd.async.vt.edu ([128.173.37.205]:25610 "EHLO
+	h80ad25cd.async.vt.edu") by vger.kernel.org with ESMTP
+	id S261197AbVCABrw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 20:47:52 -0500
+Message-Id: <200503010147.j211lUsf024781@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: updating mtime for char/block devices? 
+In-Reply-To: Your message of "Tue, 01 Mar 2005 01:45:47 +0100."
+             <4223BB3B.4060309@gmx.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <42225CEE.1030104@gmx.net> <1109576878.6298.49.camel@laptopd505.fenrus.org>
+            <4223BB3B.4060309@gmx.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: multipart/signed; boundary="==_Exmh_1109641650_3594P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 28 Feb 2005 20:47:30 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+--==_Exmh_1109641650_3594P
+Content-Type: text/plain; charset=us-ascii
 
-a problem that was introduced between 2.6.10-ac9 and 2.6.10-ac11 made
-it's way into 2.6.11-rc5.  While taking a backup onto a SCSI-streamer one
-of my RAID1-arrays gets corrupted.  Afterwards the system hangs and
-isn't even bootable.  Need to raidhotadd the failed partition in single
-user mode to get the box working again. Error messages:
+On Tue, 01 Mar 2005 01:45:47 +0100, Carl-Daniel Hailfinger said:
 
-Mar  1 01:46:15 bear kernel: ata2: status=0x51 { DriveReady SeekComplete Error }
-Mar  1 01:46:15 bear kernel: ata2: called with no error (51)!
-Mar  1 01:46:15 bear kernel: ata2: status=0x51 { DriveReady SeekComplete Error }
-Mar  1 01:46:15 bear kernel: ata2: called with no error (51)!
-Mar  1 01:46:15 bear kernel: ata2: status=0x51 { DriveReady SeekComplete Error }
-Mar  1 01:46:15 bear kernel: ata2: called with no error (51)!
-Mar  1 01:46:15 bear kernel: ata2: status=0x51 { DriveReady SeekComplete Error }
-Mar  1 01:46:15 bear kernel: ata2: called with no error (51)!
-Mar  1 01:46:15 bear kernel: ata2: status=0x51 { DriveReady SeekComplete Error }
-Mar  1 01:46:15 bear kernel: ata2: called with no error (51)!
-Mar  1 01:46:15 bear kernel: SCSI error : <2 0 0 0> return code = 0x8000002
-Mar  1 01:46:15 bear kernel: sdc: Current: sense key: Medium Error
-Mar  1 01:46:15 bear kernel:     Additional sense: Unrecovered read error - auto
-reallocate failed
-Mar  1 01:46:15 bear kernel: end_request: I/O error, dev sdc, sector 52694606
-Mar  1 01:46:15 bear kernel: raid1: Disk failure on sdc2, disabling device.
-Mar  1 01:46:15 bear kernel: ^IOperation continuing on 1 devices
-Mar  1 01:46:15 bear kernel: raid1: sdc2: rescheduling sector 12499976
-Mar  1 01:46:16 bear kernel: ata2: status=0x51 { DriveReady SeekComplete Error }
-Mar  1 01:46:16 bear kernel: ata2: called with no error (51)!
-Mar  1 01:46:16 bear kernel: SCSI error : <2 0 0 0> return code = 0x8000002
-Mar  1 01:46:16 bear kernel: sdc: Current: sense key: Medium Error
-Mar  1 01:46:16 bear kernel:     Additional sense: Unrecovered read error - auto
-reallocate failed
-Mar  1 01:46:16 bear kernel: end_request: I/O error, dev sdc, sector 52694614
-Mar  1 01:46:16 bear kernel: ata2: status=0x51 { DriveReady SeekComplete Error }
-Mar  1 01:46:16 bear kernel: ata2: called with no error (51)!
-Mar  1 01:46:16 bear kernel: SCSI error : <2 0 0 0> return code = 0x8000002
-Mar  1 01:46:16 bear kernel: sdc: Current: sense key: Medium Error
-Mar  1 01:46:16 bear kernel:     Additional sense: Unrecovered read error - auto
-reallocate failed
-Mar  1 01:46:16 bear kernel: end_request: I/O error, dev sdc, sector 52694622
-Mar  1 01:46:16 bear kernel: raid1: sdc2: rescheduling sector 12499984
-Mar  1 01:46:16 bear kernel: ata2: status=0x51 { DriveReady SeekComplete Error }
-Mar  1 01:46:16 bear kernel: ata2: called with no error (51)!
-Mar  1 01:46:16 bear kernel: SCSI error : <2 0 0 0> return code = 0x8000002
-Mar  1 01:46:16 bear kernel: sdc: Current: sense key: Medium Error
-Mar  1 01:46:16 bear kernel:     Additional sense: Unrecovered read error - auto
-reallocate failed
-Mar  1 01:46:16 bear kernel: end_request: I/O error, dev sdc, sector 52694630
-Mar  1 01:46:16 bear kernel: raid1: sdc2: rescheduling sector 12500000
-Mar  1 01:46:16 bear kernel: RAID1 conf printout:
-Mar  1 01:46:16 bear kernel:  --- wd:1 rd:2
-Mar  1 01:46:16 bear kernel:  disk 0, wo:0, o:1, dev:sdb2
-Mar  1 01:46:16 bear kernel:  disk 1, wo:1, o:0, dev:sdc2
-Mar  1 01:46:16 bear kernel: RAID1 conf printout:
-Mar  1 01:46:16 bear kernel:  --- wd:1 rd:2
-Mar  1 01:46:16 bear kernel:  disk 0, wo:0, o:1, dev:sdb2
-Mar  1 01:46:16 bear kernel: raid1: sdb2: redirecting sector 12499976 to another
-mirror
-Mar  1 01:46:16 bear kernel: raid1: sdb2: redirecting sector 12499984 to another
-mirror
-Mar  1 01:46:16 bear kernel: raid1: sdb2: redirecting sector 12500000 to another
-mirror
-Mar  1 01:46:16 bear kernel: ata1: status=0x51 { DriveReady SeekComplete Error }
-Mar  1 01:46:16 bear kernel: ata1: called with no error (51)!
-Mar  1 01:46:16 bear kernel: ata1: status=0x51 { DriveReady SeekComplete Error }
-Mar  1 01:46:16 bear kernel: ata1: called with no error (51)!
-Mar  1 01:46:16 bear kernel: ata1: status=0x51 { DriveReady SeekComplete Error }
-Mar  1 01:46:16 bear kernel: ata1: called with no error (51)!
-Mar  1 01:46:16 bear kernel: ata1: status=0x51 { DriveReady SeekComplete Error }
-Mar  1 01:46:16 bear kernel: ata1: called with no error (51)!
-Mar  1 01:46:16 bear kernel: ata1: status=0x51 { DriveReady SeekComplete Error }
-Mar  1 01:46:16 bear kernel: ata1: called with no error (51)!
-Mar  1 01:46:16 bear kernel: SCSI error : <1 0 0 0> return code = 0x8000002
-Mar  1 01:46:16 bear kernel: sdb: Current: sense key: Medium Error
+> Sorry for not specifying my real problem which is preventing disk access
+> when my laptop is running on battery.
+> 
+> Can I prevent mtime updates for all device files? Mounting /dev readonly
+> would certainly help, but for that to work I'd have to move /dev to a
+> different filesystem, right?
 
-etc. until hard reboot.
+Or do what Fedora Core 3 does and use 'udev' to manage a /dev on a tmpfs file system.
 
-The failing array consists of two partitions of two SATA disks connected
-to a Promise SATA150 TX4 controller.
+--==_Exmh_1109641650_3594P
+Content-Type: application/pgp-signature
 
--jo
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
--- 
--rw-r--r--  1 jo users 63 2005-03-01 02:26 /home/jo/.signature
+iD8DBQFCI8mycC3lWbTT17ARAkmhAJ98Cjr1NdmQqULcsgjAg6F4YiuXZwCgvyDq
+Xxt6km2FioFofh+oTirkxLk=
+=jDgG
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1109641650_3594P--

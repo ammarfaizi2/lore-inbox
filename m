@@ -1,68 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135900AbRD3U41>; Mon, 30 Apr 2001 16:56:27 -0400
+	id <S135905AbRD3VCH>; Mon, 30 Apr 2001 17:02:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135902AbRD3U4Q>; Mon, 30 Apr 2001 16:56:16 -0400
-Received: from pop.gmx.net ([194.221.183.20]:57166 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S135900AbRD3U4E>;
-	Mon, 30 Apr 2001 16:56:04 -0400
-Date: Mon, 30 Apr 2001 22:55:57 +0200
-From: Daniel Elstner <daniel.elstner@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: reiserfs+lndir problem [was: 2.4.4 SMP: spurious EOVERFLOW "Value too large for defined data type"]
-Message-Id: <20010430225557.3f28d1b0.daniel@master.daniel.homenet>
-In-Reply-To: <20010430220943.1d140e95.daniel@master.daniel.homenet>
-In-Reply-To: <20010430205609.36599ccd.daniel@master.daniel.homenet>
-	<20010430220943.1d140e95.daniel@master.daniel.homenet>
-X-Mailer: Sylpheed version 0.4.64 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S135904AbRD3VB4>; Mon, 30 Apr 2001 17:01:56 -0400
+Received: from nemesis.ncsl.nist.gov ([129.6.57.210]:6528 "EHLO
+	nemesis.ncsl.nist.gov") by vger.kernel.org with ESMTP
+	id <S135902AbRD3VBs>; Mon, 30 Apr 2001 17:01:48 -0400
+Date: Mon, 30 Apr 2001 17:01:39 -0400
+From: Olivier Galibert <galibert@pobox.com>
+To: linux-acenic@SunSITE.auc.dk, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+Subject: [patch] Acenic tigon 1 support fix
+Message-ID: <20010430170138.A1085@nemesis.ncsl.nist.gov>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	linux-acenic@SunSITE.auc.dk, linux-kernel@vger.kernel.org,
+	torvalds@transmeta.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+A typo prevents the tigon 1 firmware to be included when tigon 1
+support is active.  Null pointer dereference in
+ace_load_firmware->ace_copy as a result.
 
-unfortunately I have to correct me again.
-The problem seems unrelated to the kernel version or SMP/UP
-(though only 2.4.[34] tried yet).
+Patch trivial and even tested (aka, the module loads without oopsing
+with a tigon 1 inside).
 
-Apparently it's a reiserfs/symlink problem.
-I tried doing the lndir on an ext2 partition, sources still
-on reiserfs. And it worked just fine!
+  OG.
 
-Sorry for the rather large amount of noise, I hope it's
-finally correct now :)
-
--- Daniel
-
-> the problem occurs only after setting up a parallel build tree with
-> lndir, removing the whole symlink tree, and running lndir again.
-> Maybe an reiserfs bug?
-> 
-> -- Daniel
-> 
-> > With kernel 2.4.4 SMP, I get some spurios errors from several
-> > user-space programs. Unfortunately it's hard to reproduce, I had most
-> > luck with the XFree86-4.0.3 build. When doing `make World', soon cpp0
-> > (called by imake) dies with the following error message:
-> > 
-> > cpp0: : Value too large for defined data type
-> > 
-> > The message seems to correspond to EOVERFLOW in gcc's libiberty.
-> > When calling imake directly, it fails 1 out of 10-20 times.
-> > I couldn't reproduce this with calling cpp directly.
-> > 
-> > I also got a lot of that messages once at shutdown,
-> > as init was trying to umount /proc.
-> > 
-> > The error occurs neither with 2.4.3 SMP nor with 2.4.4 UP.
-> > (I'm using reiserfs, too.)
-> > 
-> > ABIT VP6
-> > dual P3 866
-> > gcc version 2.95.4 20010319 (prerelease)
-> > binutils 2.11
-> > glibc 2.2.3
-> > 
-> > Could you please give me further advice how to track this down?
+--- linux/drivers/net/acenic_firmware.h	Tue Mar  6 22:28:33 2001
++++ linux-2.4.4/drivers/net/acenic_firmware.h	Mon Apr 30 16:51:25 2001
+@@ -17,7 +17,7 @@
+ #define tigonFwSbssLen 0x38
+ #define tigonFwBssAddr 0x00015dd0
+ #define tigonFwBssLen 0x2080
+-#ifndef CONFIG_ACENIC_OMIT_TIGON_I
++#ifdef CONFIG_ACENIC_OMIT_TIGON_I
+ #define tigonFwText 0
+ #define tigonFwData 0
+ #define tigonFwRodata 0

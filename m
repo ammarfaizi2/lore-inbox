@@ -1,20 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261381AbVC0UnL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261539AbVC0UpR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261381AbVC0UnL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 15:43:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbVC0UnK
+	id S261539AbVC0UpR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 15:45:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbVC0UpP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 15:43:10 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:24592 "HELO
+	Sun, 27 Mar 2005 15:45:15 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:28944 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261381AbVC0UlW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 15:41:22 -0500
-Date: Sun, 27 Mar 2005 22:41:19 +0200
+	id S261551AbVC0Uox (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Mar 2005 15:44:53 -0500
+Date: Sun, 27 Mar 2005 22:44:47 +0200
 From: Adrian Bunk <bunk@stusta.de>
-To: adaplas@pol.net
-Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/video/console/fbcon.c: fix a check after use
-Message-ID: <20050327204119.GY4285@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] drivers/net/pcmcia/nmclan_cs.c: fix a check after use
+Message-ID: <20050327204447.GA4285@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,23 +23,32 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 This patch fixes a check after use found by the Coverity checker.
 
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.12-rc1-mm1-full/drivers/video/console/fbcon.c.old	2005-03-23 04:53:20.000000000 +0100
-+++ linux-2.6.12-rc1-mm1-full/drivers/video/console/fbcon.c	2005-03-23 04:53:44.000000000 +0100
-@@ -906,10 +906,13 @@ static void fbcon_init(struct vc_data *v
- 	struct vc_data *svc = *default_mode;
- 	struct display *t, *p = &fb_display[vc->vc_num];
- 	int logo = 1, new_rows, new_cols, rows, cols, charcnt = 256;
--	int cap = info->flags;
-+	int cap;
+--- linux-2.6.12-rc1-mm1-full/drivers/net/pcmcia/nmclan_cs.c.old	2005-03-23 05:04:00.000000000 +0100
++++ linux-2.6.12-rc1-mm1-full/drivers/net/pcmcia/nmclan_cs.c	2005-03-23 05:04:30.000000000 +0100
+@@ -1090,20 +1090,22 @@
+ ---------------------------------------------------------------------------- */
+ static irqreturn_t mace_interrupt(int irq, void *dev_id, struct pt_regs *regs)
+ {
+   struct net_device *dev = (struct net_device *) dev_id;
+   mace_private *lp = netdev_priv(dev);
+-  kio_addr_t ioaddr = dev->base_addr;
++  kio_addr_t ioaddr;
+   int status;
+   int IntrCnt = MACE_MAX_IR_ITERATIONS;
  
- 	if (info_idx == -1 || info == NULL)
- 	    return;
+   if (dev == NULL) {
+     DEBUG(2, "mace_interrupt(): irq 0x%X for unknown device.\n",
+ 	  irq);
+     return IRQ_NONE;
+   }
+ 
++  ioaddr = dev->base_addr;
 +
-+	cap = info->flags;
-+
- 	if (vc != svc || logo_shown == FBCON_LOGO_DONTSHOW ||
- 	    (info->fix.type == FB_TYPE_TEXT))
- 		logo = 0;
+   if (lp->tx_irq_disabled) {
+     printk(
+       (lp->tx_irq_disabled?
+        KERN_NOTICE "%s: Interrupt with tx_irq_disabled "
+        "[isr=%02X, imr=%02X]\n": 
 

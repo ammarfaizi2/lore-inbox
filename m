@@ -1,45 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264883AbTLFARu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 19:17:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbTLFARu
+	id S264368AbTLFAPb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 19:15:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264600AbTLFAPN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 19:17:50 -0500
-Received: from gaia.cela.pl ([213.134.162.11]:59400 "EHLO gaia.cela.pl")
-	by vger.kernel.org with ESMTP id S264868AbTLFARr (ORCPT
+	Fri, 5 Dec 2003 19:15:13 -0500
+Received: from legolas.restena.lu ([158.64.1.34]:58564 "EHLO smtp.restena.lu")
+	by vger.kernel.org with ESMTP id S264368AbTLFAPJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 19:17:47 -0500
-Date: Sat, 6 Dec 2003 01:15:20 +0100 (CET)
-From: Maciej Zenczykowski <maze@cela.pl>
-To: Matthew Wilcox <willy@debian.org>
-cc: Erez Zadok <ezk@cs.sunysb.edu>,
-       =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Phillip Lougher <phillip@lougher.demon.co.uk>,
-       Kallol Biswas <kbiswas@neoscale.com>, <linux-kernel@vger.kernel.org>,
-       "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
-Subject: Re: partially encrypted filesystem
-In-Reply-To: <20031205202838.GD29469@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.44.0312060112450.11626-100000@gaia.cela.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 5 Dec 2003 19:15:09 -0500
+Subject: Re: Catching NForce2 lockup with NMI watchdog - found?
+From: Craig Bradney <cbradney@zip.com.au>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <3FD1199E.2030402@gmx.de>
+References: <DCB9B7AA2CAB7F418919D7B59EE45BAF49F87E@mail-sc-6.nvidia.com>
+	 <3FD1199E.2030402@gmx.de>
+Content-Type: text/plain
+Message-Id: <1070669706.3987.4.camel@athlonxp.bradney.info>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 06 Dec 2003 01:15:06 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But the genius is that you don't need to calculate anything.  If the
-> data block turns out to be incompressible (those damn .tar.bz2s!), you
-> just write the block in-place.  If it is compressible, you write as much
-> into that block's entry as you need and leave a gap.  The underlying
-> file system doesn't write any data there.  There's no need for an index
-> file -- you know exactly where to start reading each block.
+On Sat, 2003-12-06 at 00:49, Prakash K. Cheemplavam wrote:
+> Hi,
+> 
+> *maybe* I found the bugger, at least I got APIC more stable (need to 
+> test whether oit is really stable, compiling kernel right now...):
+> 
+> It is a problem with CPU disconnect function. I tried various parameters 
+> in bios and turned cpu disconnect off, and tada, I could do several 
+> subsequent hdparms and machine is running! As CPU disconnect is a ACPI 
+> state, if I am not mistkaen, I think there is something broken in ACPI 
+> right now or in APIC and cpu disconnect triggers the bug.
+> 
+> Maybe now my windows environment is stable, as well. It was much more 
+> stable with cpu disconnect and apic, nevertheless seldomly locked up.
+> 
+> 
+> So gals and guys, try disabling cpu disconnect in bios and see whether 
+> aopic now runs stable.
 
-You are pushing this down to the file system.  I'd venture too say that 
-this will majorly stress the fs code, make its indexing slower and 
-majorly fragment the file on disk (if it's later overwritten).  Sure - you 
-have less work to do (less to code) - but the end effect might be 
-painful, especially on often written files (if the file ain't written to 
-then there are much better compression solutions).
+> I have an Abit NF7-S Rev2.0 with Bios 2.0.
 
-Cheers,
-MaZe.
+> 
+> Prakash
+
+I rebooted and checked in my BIOS, I dont seem to have "CPU Disconnect"?
+Is there another name. I also downloaded the motherboard manual for your
+NF7-S and cant find it there either?
+
+Craig
 
 

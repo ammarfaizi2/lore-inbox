@@ -1,33 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284727AbRLEVD0>; Wed, 5 Dec 2001 16:03:26 -0500
+	id <S284710AbRLEVEK>; Wed, 5 Dec 2001 16:04:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284728AbRLEVDU>; Wed, 5 Dec 2001 16:03:20 -0500
-Received: from mail.gmx.de ([213.165.64.20]:1767 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S284710AbRLEVCG>;
-	Wed, 5 Dec 2001 16:02:06 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Sebastian Roth <xsebbi@gmx.de>
-Reply-To: xsebbi@gmx.de
-Message-Id: <200112052011.1186@xsebbi.de>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: smbfs questions
-Date: Wed, 5 Dec 2001 20:13:22 +0100
-X-Mailer: KMail [version 1.3.2]
+	id <S284728AbRLEVDj>; Wed, 5 Dec 2001 16:03:39 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:24057 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S284729AbRLEVD0>; Wed, 5 Dec 2001 16:03:26 -0500
+Date: Wed, 05 Dec 2001 13:02:24 -0800
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Larry McVoy <lm@bitmover.com>
+cc: Rik van Riel <riel@conectiva.com.br>,
+        Lars Brinkhoff <lars.spam@nocrew.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, hps@intermeta.de,
+        linux-kernel@vger.kernel.org
+Subject: Re: SMP/cc Cluster description [was Linux/Pro]
+Message-ID: <2534997012.1007557344@mbligh.des.sequent.com>
+In-Reply-To: <20011205111115.T11801@work.bitmover.com>
+X-Mailer: Mulberry/2.0.8 (Win32)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi there!
+>> If I give you 16 SMP systems, each with 4 processors and a gigabit
+>> ethernet card, and connect those ethers through a switch, would that
+>> be sufficient hardware?
+> 
+> You've completely misunderstood the message, sorry, I must not have been clear.
 
-this is my first posting here, so please report bugs to me. :-)
+Oops ... that's twice now ;-) Maybe I'm reading it with too many preconceived
+notions of what you're doing from conversations I've had with other people
+about ccClusters. I'll try to do a mental reset, and start from a clean slate.
 
-Ok, I wants to write an better documentation (text-file) for smbfs. So, can 
-you tell me, who is the smbfs-maintainer, developer, please?
+> What I am proposing is to cluster *OS* images on a *single* SMP as a way of
+> avoiding most of the locks necessary to scale up a single OS image on the 
+> same number of CPUs.
 
-Thanks and
+Which, to me, makes the whole thing much less interesting, since there aren't
+SMP systems about that are really large that I know of anyway. Scaling to 
+the size of current SMP systems is a much less difficult problem than scaling
+to the size of NUMA systems.
 
-Bye,
-Sebastian
+BUT ... much of the rest of the message I sent you still applies anyway.
+You can create virtual "pools" or "resource domains" within an SMP system
+in the same way nodes exist on NUMA and work from the starting point of
+a single OS image, instead of multiple.
+
+The main advantage of starting with a single OS image, as I see it, is
+that you have a system that works fine, but performs badly, from the
+outset. Makes it easier to do development on - that's where I have the
+NUMA-Q platform at the moment - it thinks it's an SMP box.
+
+Martin.
 

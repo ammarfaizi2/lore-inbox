@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319745AbSIMSfM>; Fri, 13 Sep 2002 14:35:12 -0400
+	id <S319744AbSIMSas>; Fri, 13 Sep 2002 14:30:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319748AbSIMSfM>; Fri, 13 Sep 2002 14:35:12 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:10880 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S319745AbSIMSfL>;
-	Fri, 13 Sep 2002 14:35:11 -0400
-Date: Fri, 13 Sep 2002 19:03:48 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Remco Post <r.post@sara.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: writing OOPS/panic info to nvram?
-Message-ID: <20020913170347.GA7096@elf.ucw.cz>
-References: <20020906100650.D35@toy.ucw.cz> <4DE1BD2E-C4CD-11D6-9C2C-000393911DE2@sara.nl>
+	id <S319743AbSIMS3d>; Fri, 13 Sep 2002 14:29:33 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:2315 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S319745AbSIMS2s>;
+	Fri, 13 Sep 2002 14:28:48 -0400
+Date: Fri, 13 Sep 2002 11:30:03 -0700
+From: Greg KH <greg@kroah.com>
+To: marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
+Subject: Re: [BK PATCH] PCI Hotplug changes for 2.4.20-pre7
+Message-ID: <20020913183003.GE26589@kroah.com>
+References: <20020913182846.GA26589@kroah.com> <20020913182903.GB26589@kroah.com> <20020913182930.GC26589@kroah.com> <20020913182945.GD26589@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4DE1BD2E-C4CD-11D6-9C2C-000393911DE2@sara.nl>
+In-Reply-To: <20020913182945.GD26589@kroah.com>
 User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> >>driver oopses... Maybe do something like:
-> >>
-> >>if there is enough space on disk && ..., use that else
-> >>if there is a swap over nfs && ..., use that else
-> >>if there is a tape drive attaced and a tape is present and it is
-> >>writeable... else
-> >>if there is nvram available use that
-> >
-> >You just killed any data you had on the tape... too bad.
-> >								Pavel
-> 
-> Yes, so, or you just saved that oops that has been bugging you for 
-> months... (And yes I'm probably one of those rare people that has 
-> tapedrives attached that are not used for anything usefull).
-
-If it was bugging you for months, then you'd have probably copied it
-using paper and pencil already. cli(); while(1); at the end of oops
-handler is not *that* hard to do.
-								Pavel
--- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.663   -> 1.664  
+#	   drivers/pci/pci.c	1.32    -> 1.33   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/09/13	greg@kroah.com	1.664
+# [PATCH] export pci_scan_bus, as the IBM pci hotplug driver needs it.
+# 
+# --------------------------------------------
+#
+diff -Nru a/drivers/pci/pci.c b/drivers/pci/pci.c
+--- a/drivers/pci/pci.c	Fri Sep 13 10:57:19 2002
++++ b/drivers/pci/pci.c	Fri Sep 13 10:57:19 2002
+@@ -2153,6 +2153,7 @@
+ EXPORT_SYMBOL(pci_add_new_bus);
+ EXPORT_SYMBOL(pci_do_scan_bus);
+ EXPORT_SYMBOL(pci_scan_slot);
++EXPORT_SYMBOL(pci_scan_bus);
+ #ifdef CONFIG_PROC_FS
+ EXPORT_SYMBOL(pci_proc_attach_device);
+ EXPORT_SYMBOL(pci_proc_detach_device);

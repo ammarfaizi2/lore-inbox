@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263742AbTLXRXM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Dec 2003 12:23:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263758AbTLXRXM
+	id S263464AbTLXRcK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Dec 2003 12:32:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263539AbTLXRcK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Dec 2003 12:23:12 -0500
-Received: from moutng.kundenserver.de ([212.227.126.183]:32207 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S263742AbTLXRXL convert rfc822-to-8bit (ORCPT
+	Wed, 24 Dec 2003 12:32:10 -0500
+Received: from nevyn.them.org ([66.93.172.17]:61392 "EHLO nevyn.them.org")
+	by vger.kernel.org with ESMTP id S263464AbTLXRcI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Dec 2003 12:23:11 -0500
-To: Sven K=?iso-8859-15?q?=F6?=hler <skoehler@upb.de>
+	Wed, 24 Dec 2003 12:32:08 -0500
+Date: Wed, 24 Dec 2003 12:32:05 -0500
+From: Daniel Jacobowitz <dan@debian.org>
+To: "Amit S. Kale" <amitkale@emsyssoft.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: allow process or user to listen on priviledged ports?
-References: <bscg1m$1eg$1@sea.gmane.org>
-From: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
-Date: Wed, 24 Dec 2003 18:23:07 +0100
-Message-ID: <87oetynn9g.fsf@goat.bogus.local>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Portable Code, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8BIT
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:fa0178852225c1084dbb63fc71559d78
+Subject: Re: KGDB: automatic loading of modules in gdb
+Message-ID: <20031224173205.GA27219@nevyn.them.org>
+Mail-Followup-To: "Amit S. Kale" <amitkale@emsyssoft.com>,
+	linux-kernel@vger.kernel.org
+References: <200312231818.03072.amitkale@emsyssoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200312231818.03072.amitkale@emsyssoft.com>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sven Köhler <skoehler@upb.de> writes:
+On Tue, Dec 23, 2003 at 06:18:02PM +0530, Amit S. Kale wrote:
+> Hi,
+> 
+> I have integrated a couple of kgdb features from TimeSys Linux distribution.
+> 
+> 1.  Automatic loading of module files in gdb:
+> A special version of gdb is provided with this feature. It can detect loading 
+> and unloading of modules in a kernel. Whenever a module is loaded, gdb loads 
+> the module object file and makes it available for debugging. loadmodule.sh 
+> script is no longer needed.
 
-> my problem is, that i want an application to listen on a priviledged
-> port (e.g. port 80) and to run as a "normal" unpriviledged user
->
-> So is there any machanism to bind that permission (to listen on a
-> priviledged tcp-port) to a specific user or a specific process?
+Have you or TimeSys, oh, I don't know, considered sending information
+about this feature to the GDB developers so that KGDB does not require
+a custom version of the GDB client?
 
-Of course, there is :-)
-<http://www.olafdietsche.de/linux/accessfs/>
-
-Regards, Olaf.
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265099AbUGIQz3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265098AbUGIRFM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265099AbUGIQz3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 12:55:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265106AbUGIQz3
+	id S265098AbUGIRFM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 13:05:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265101AbUGIRFM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 12:55:29 -0400
-Received: from lug.demon.co.uk ([80.177.165.112]:14697 "EHLO lug.demon.co.uk")
-	by vger.kernel.org with ESMTP id S265099AbUGIQz1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 12:55:27 -0400
-From: David Johnson <dj@david-web.co.uk>
-Reply-To: linux-kernel@vger.kernel.org
-To: Martin Ziegler <mz@newyorkcity.de>
-Subject: Re: NFS no longer working ?
-Date: Fri, 9 Jul 2004 17:55:20 +0100
-User-Agent: KMail/1.6.2
-References: <8232A615C6D0B05C09DBF242@soho>
-In-Reply-To: <8232A615C6D0B05C09DBF242@soho>
-Cc: linux-kernel@vger.kernel.org
+	Fri, 9 Jul 2004 13:05:12 -0400
+Received: from dns.toxicfilms.tv ([150.254.37.24]:39318 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S265098AbUGIRFG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 13:05:06 -0400
+X-Qmail-Scanner-Mail-From: solt@dns.toxicfilms.tv via dns
+X-Qmail-Scanner-Rcpt-To: linux-kernel@vger.kernel.org
+X-Qmail-Scanner: 1.22 (Clear:RC:0(150.254.37.14):SA:0(0.0/5.0):. Processed in 3.333739 secs)
+Date: Fri, 9 Jul 2004 19:05:02 +0200
+From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+X-Mailer: SecureBat! Lite (v2.10.02) UNREG / CD5BF9353B3B7091
+Reply-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+X-Priority: 3 (Normal)
+Message-ID: <76430384.20040709190502@dns.toxicfilms.tv>
+To: linux-kernel@vger.kernel.org
+Subject: TCP BIC problems - make it off by default ?
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <200407091755.20756.dj@david-web.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 09 Jul 2004 17:40, you wrote:
-> Hi All,
->
-> just installed kernel version 2.6.7 on RedHat 8.0. Unfortunately i'm no
-> longer able to use NFS. Are there any recent issues ? For a detailed
-> problem description please see below. Any help is appreciated.
->
+Hi,
 
-Did you update nfs-utils to the minimum required as detailed in 
-Documentation/Changes?
+Since 2.6.7 I have had problems with my server downloading and people
+uploading to the server. The throughput was never higher than 4kB/s
 
-David.
+I have found that when /proc/sys/net/ipv4/tcp_bic is 1 (which is the
+default) I am experiencing this behaviour. When I switch it off.
+It's back to normal again.
 
--- 
-David Johnson
-http://www.david-web.co.uk/
+I have read that BIC is for super high speed, long distance links,
+which are not the most common links in the wild, so maybe it would
+be better to turn tcp_bic to 0 by default so as not to ruin the links
+of innocent upgraders.
+
+I am no guru, but BIC maybe failing at my end because, my LAN is 100Mb
+ethernet, the Internet link is an old 10Mb fddi half duplex, and the
+links on the MAN ring are (i think) 155Mb ATM links.
+
+Maybe that's a very bad combination, or some devices on my network,
+especially the firewall (checkpoint) may react weird.
+
+Anyway, because of that tcp_bic may cause problems and because it is
+use will not be common anyway, maybe it would be better to mark it off
+by default.
+
+Regards,
+Maciej
+
+

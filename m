@@ -1,77 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131799AbRATVCf>; Sat, 20 Jan 2001 16:02:35 -0500
+	id <S132548AbRATVIr>; Sat, 20 Jan 2001 16:08:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132572AbRATVCZ>; Sat, 20 Jan 2001 16:02:25 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:36360 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131799AbRATVCW>; Sat, 20 Jan 2001 16:02:22 -0500
-Date: Sat, 20 Jan 2001 13:01:54 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Kai Henningsen <kaih@khms.westfalen.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Is sendfile all that sexy?
-In-Reply-To: <7uDh9tbHw-B@khms.westfalen.de>
-Message-ID: <Pine.LNX.4.10.10101201247330.10602-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132517AbRATVI2>; Sat, 20 Jan 2001 16:08:28 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:28000 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S130230AbRATVIW>; Sat, 20 Jan 2001 16:08:22 -0500
+Date: Sat, 20 Jan 2001 22:05:21 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: kuznet@ms2.inr.ac.ru
+Cc: mingo@elte.hu, torvalds@transmeta.com, raj@cup.hp.com,
+        linux-kernel@vger.kernel.org, davem@redhat.com
+Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
+Message-ID: <20010120220521.C5274@athlon.random>
+In-Reply-To: <20010120203023.A5274@athlon.random> <200101201939.WAA05326@ms2.inr.ac.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200101201939.WAA05326@ms2.inr.ac.ru>; from kuznet@ms2.inr.ac.ru on Sat, Jan 20, 2001 at 10:39:36PM +0300
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jan 20, 2001 at 10:39:36PM +0300, kuznet@ms2.inr.ac.ru wrote:
+> Much saner behaviour wrt latency (and perfect clarity) overweights
 
+IMHO latency can be fixed in a much better way using ioctl(SIOCPUSH) after the
+last write() plus we could also add a MSG_NOMORE to set in the last send().
+MSG_NOMORE would be not anonymous-capable but it would have zero syscall cost
+compared to SIOCPUSH.
 
-On 20 Jan 2001, Kai Henningsen wrote:
-> 
-> Then again, I could easily see those I/O devices go the general embedded  
-> route, which in a decade or two could well mean they run some sort of  
-> embedded Linux on the controller.
-> 
-> Which would make some features rather easy to implement.
+This would also address when the stack still delays something by mistake, and
+yes it must still delay something sometime (even if not in my example)
+otherwise setsockopt(TCP_NODELAY) is a noop. Whatever heuristic you use it
+can't get right all the cases because it misses information that it can't
+recover by guessing the right thing to do.  Legacy userspace will run still
+fine, optimized software will take advantage of the new capability of the
+stack.
 
-I'm not worried about a certain class of features. I will predict, for
-example, that disk subsystems etc will continue to get smarter, to the
-point where most people will end up just buying a "file server" whenever
-they buy a disk. THOSE kinds of features are the obvious ones when you
-have devices that get smarter, and the kinds of features people are
-willing to pay for.
+In short instead of decreasing merging capabilities of the stack IMHO it's
+better to give the information from userspace to the stack to let it know when
+it must stop to do merging. This way the stack will always do the right thing.
 
-The things I find really doubtful is that somebody would be so silly as to
-make the low-level electrical protocol be anything but a simple direct
-point-to-point link. Shared buses just do not scale, and they also have
-some major problems with true high-performance GBps bandwidth. 
-
-Look at where ethernet is today. Ten years ago most people used it as a
-bus. These days almost everybody thinks of ethernet as point-to-point,
-with switches and hubs to make it look nothing like the bus of yore. You
-just don't connect multiple devices to one wire any more.
-
-The advantage of direct point-to-point links is that it's a hell of a lot
-faster, and it's also much easier to distribute - the links don't have to
-be in lock-step any more etc. It's perfectly ok to have one really
-high-performance link for devices that need it, and a few low-performance
-links in the same system do not bog the fast one down.
-
-But point-to-point also means that you don't get any real advantage from
-doing things like device-to-device DMA. Because the links are
-asynchronous, you need buffers in between them anyway, and there is no
-bandwidth advantage of not going through the hub if the topology is a
-pretty normal "star" kind of thing. And you _do_ want the star topology,
-because in the end most of the bandwidth you want concentrated at the
-point that uses it.
-
-The exception to this will be when you hav esmart devices that
-_internally_ also have the same kind of structure, and you have a RAID
-device with multiple disks in a star around the raid controller. Then
-you'll find the raid controller doing raid rebuilds etc without the data
-ever coming off that "local star" - but this is not something that the OS
-will even get involved in other than sending the raid controller the
-command to start the rebuild. It's not a "device-device" transfer in that
-bigger sense - it's internal to the raid unit.
-
-Just wait. My crystal ball is infallible.
-
-		Linus
-
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

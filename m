@@ -1,58 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289815AbSBKPJU>; Mon, 11 Feb 2002 10:09:20 -0500
+	id <S289823AbSBKPlD>; Mon, 11 Feb 2002 10:41:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289817AbSBKPJK>; Mon, 11 Feb 2002 10:09:10 -0500
-Received: from host194.steeleye.com ([216.33.1.194]:41746 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S289815AbSBKPIx>; Mon, 11 Feb 2002 10:08:53 -0500
-Message-Id: <200202111508.g1BF8fu01678@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: pazke@orbita1.ru (Andrey Panin),
-        James.Bottomley@HansenPartnership.com (James Bottomley),
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH: NEW ARCHITECTURE FOR 2.5.3] support for NCR voyager 
-In-Reply-To: Message from Alan Cox <alan@lxorguk.ukuu.org.uk> 
-   of "Mon, 11 Feb 2002 13:41:11 GMT." <E16aGhj-0006cu-00@the-village.bc.nu> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 11 Feb 2002 10:08:41 -0500
-From: James Bottomley <James.Bottomley@HansenPartnership.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S289829AbSBKPkx>; Mon, 11 Feb 2002 10:40:53 -0500
+Received: from www.microgate.com ([216.30.46.105]:63496 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP
+	id <S289823AbSBKPkg>; Mon, 11 Feb 2002 10:40:36 -0500
+Message-ID: <001701c1b312$24448ca0$0c00a8c0@diemos>
+From: "Paul Fulghum" <paulkf@microgate.com>
+To: <reddog83@chartermi.net>, <davej@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <auto-000058815980@front2.chartermi.net>
+Subject: Re: [PATCH] 2.5.3-dj5 synclink.c fix so that it compiles
+Date: Mon, 11 Feb 2002 09:38:23 -0600
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's historical creep.
+> This is a temp fix for thje synclink.c file in drivers/char it work's for
+me
+> so DJ will you please apply this patch.
+> Thank you Victor Torres.
+> All it does it removes the #error please convert me to
+> Documentation/DMA-mapping.txt
+> it compiles and work's great for me.
+> Please apply
 
-Initially the question about being Voyager was asked immediately below 
-CONFIG_MCA, which was then at the top level.  Then that got wrapped by if != 
-VISW, so it ends up looking like this.
+There is nothing in the DMA-mapping.txt that
+applies to the PCI version of the synclink adapter
+(which does not do DMA to/from system memory).
 
-How about:
+The ISA version of the synclink adapter does do
+ISA DMA bus master transfers. After reading
+DMA-mapping.txt twice it is unclear what changes
+need to be applied. The documentation seems to imply
+that ISA devices need to make some pci_xxx calls.
+I'm not sure how this works when there is no PCI bus.
 
-if [ "$CONFIG_VISWS" != "y" ]; then
-    bool 'MCA support' CONFIG_MCA
-else
-    define_bool CONFIG_MCA n
-fi
+For now, removing the #error line should work fine
+for the PCI adapter and probably for the ISA as well.
 
-if [ "$CONFIG_MCA" = "y" ]; then
-    bool '   Support for the NCR Voyager Architecture' CONFIG_VOYAGER
-    define_bool CONFIG_X86_TSC n
-fi
+I will look at this again as time allows.
 
-Actually, this also exposes a bug, the last statement should be:
+I usually wait 6-12 months after the new development
+kernel opens before attempting to sync my drivers
+to the latest changes. This avoids most of the eat-your-file-system
+phase, prevents wasting time chasing after a rapidly changing API,
+and still leaves another 12 months for tweaking.
 
-if [ "$CONFIG_MCA" = "y" ]; then
-    bool '   Support for the NCR Voyager Architecture' CONFIG_VOYAGER
-    if [ "$CONFIG_VOYAGER" = "y"]; then
-        define_bool CONFIG_X86_TSC n
-    fi
-fi
-
-Since MCA machines may use the pentium TSC but voyager may not.
-
-James
-
+Paul Fulghum, paulkf@microgate.com
+Microgate Corporation, www.microgate.com
 

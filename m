@@ -1,64 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266007AbRF1QJJ>; Thu, 28 Jun 2001 12:09:09 -0400
+	id <S266008AbRF1QLJ>; Thu, 28 Jun 2001 12:11:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266008AbRF1QI7>; Thu, 28 Jun 2001 12:08:59 -0400
-Received: from spc.esa.lanl.gov ([128.165.46.232]:6272 "HELO spc.esa.lanl.gov")
-	by vger.kernel.org with SMTP id <S266007AbRF1QIw>;
-	Thu, 28 Jun 2001 12:08:52 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Steven Cole <scole@lanl.gov>
-Reply-To: scole@lanl.gov
-To: alan@lxorguk.ukuu.org.uk
-Subject: 2.4.5-ac20 problems with drivers/net/Config.in and make xconfig
-Date: Thu, 28 Jun 2001 10:05:58 -0600
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
+	id <S266012AbRF1QK7>; Thu, 28 Jun 2001 12:10:59 -0400
+Received: from mail1.danielind.com ([12.19.96.6]:29201 "EHLO
+	mail1.danielind.com") by vger.kernel.org with ESMTP
+	id <S266008AbRF1QKw>; Thu, 28 Jun 2001 12:10:52 -0400
+Message-ID: <3B3B57F3.FE7F81B5@daniel.com>
+Date: Thu, 28 Jun 2001 11:14:43 -0500
+From: Vipin Malik <vipin.malik@daniel.com>
+Organization: Daniel Industries
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.13 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01062810055901.01131@spc.esa.lanl.gov>
-Content-Transfer-Encoding: 7BIT
+To: chuckw@altaserv.net
+CC: Aaron Lehmann <aaronl@vitelus.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        David Woodhouse <dwmw2@infradead.org>, alan@lxorguk.ukuu.org.uk,
+        jffs-dev@axis.com, linux-kernel@vger.kernel.org
+Subject: Re: Cosmetic JFFS patch.
+In-Reply-To: <Pine.LNX.4.33.0106280732480.10308-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got this familiar error with make xconfig and 2.4.5-ac20 (same as 2.4.6-pre6)
+A /proc/credits maybe?
 
-drivers/net/Config.in: 149: can't handle dep_bool/dep_mbool/dep_tristate condition
-make[1]: *** [kconfig.tk] Error 1
-make[1]: Leaving directory `/usr/src/linux-2.4.5-ac20/scripts'
-make: *** [xconfig] Error 2
+Vipin
 
-I applied this patch written by Keith Owens (thanks Keith):
 
---- linux/drivers/net/Config.in.original	Thu Jun 28 09:52:02 2001
-+++ linux/drivers/net/Config.in	Thu Jun 28 09:52:25 2001
-@@ -146,7 +146,11 @@
-       tristate '  NE/2 (ne2000 MCA version) support' CONFIG_NE2_MCA
-       tristate '  IBM LAN Adapter/A support' CONFIG_IBMLANA
-    fi
--   dep_bool '  EISA, VLB, PCI and on board controllers' CONFIG_NET_PCI
-+   if [ "$CONFIG_ISA" = "y" -o "$CONFIG_EISA" = "y" -o "$CONFIG_PCI" = "y" ]; then
-+     bool '  EISA, VLB, PCI and on board controllers' CONFIG_NET_PCI
-+   else
-+     define_bool CONFIG_NET_PCI n
-+   fi
-    if [ "$CONFIG_NET_PCI" = "y" ]; then
-       dep_tristate '    AMD PCnet32 PCI support' CONFIG_PCNET32 $CONFIG_PCI
-       dep_tristate '    Adaptec Starfire support (EXPERIMENTAL)' CONFIG_ADAPTEC_STARFIRE $CONFIG_PCI $CONFIG_EXPERIMENTAL
 
-And then I got:
 
-[root@spc linux]# make xconfig
-rm -f include/asm
-( cd include ; ln -sf asm-i386 asm)
-make -C scripts kconfig.tk
-make[1]: Entering directory `/usr/src/linux-2.4.5-ac20/scripts'
-cat header.tk >> ./kconfig.tk
-./tkparse < ../arch/i386/config.in >> kconfig.tk
-make[1]: *** [kconfig.tk] Error 139
-make[1]: Leaving directory `/usr/src/linux-2.4.5-ac20/scripts'
-make: *** [xconfig] Error 2
+chuckw@altaserv.net wrote:
 
-So, I used the old reliable make menuconfig, and it worked OK and 
-2.4.5-ac20 built successfully.
+> > > Linux NET4.0 for Linux 2.4
+> > > Based upon Swansea University Computer Society NET3.039
+> >
+> > The later line is not something of interest to most people, and if it
+> > happens to be they can research it rather than being force-fed history
+> > on bootup.
+>
+> I've never met a single person who shared that opinion. In fact, quite the
+> contrary. It's the main source of currency in this space. If you can't
+> toot your own horn and/or share credit what's all of this open source
+> stuff worth? We aren't all Mother Theresa now...
+>
+> -Chuck
 
-Steven

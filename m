@@ -1,49 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278042AbRKNWFz>; Wed, 14 Nov 2001 17:05:55 -0500
+	id <S278163AbRKNWFz>; Wed, 14 Nov 2001 17:05:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278163AbRKNWFp>; Wed, 14 Nov 2001 17:05:45 -0500
-Received: from ns2.cypress.com ([157.95.67.5]:57340 "EHLO ns2.cypress.com")
-	by vger.kernel.org with ESMTP id <S278085AbRKNWFh>;
-	Wed, 14 Nov 2001 17:05:37 -0500
-Message-ID: <3BF2EA76.6010702@cypress.com>
-Date: Wed, 14 Nov 2001 16:04:38 -0600
-From: Thomas Dodd <ted@cypress.com>
-User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:0.9.5+) Gecko/20011112
-X-Accept-Language: en-US, en-GB, en, de-DE, de-AT, 
+	id <S278085AbRKNWFq>; Wed, 14 Nov 2001 17:05:46 -0500
+Received: from chamber.cco.caltech.edu ([131.215.48.55]:25568 "EHLO
+	chamber.cco.caltech.edu") by vger.kernel.org with ESMTP
+	id <S278042AbRKNWFe>; Wed, 14 Nov 2001 17:05:34 -0500
+From: "Alex Adriaanse" <alex_a@caltech.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: LFS stopped working
+Date: Wed, 14 Nov 2001 14:05:21 -0800
+Message-ID: <JIEIIHMANOCFHDAAHBHOOEOLCMAA.alex_a@caltech.edu>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Keith Owens <kaos@ocs.com.au>
-Subject: Re: Modutils can't handle long kernel names
-In-Reply-To: <13690.1005366589@ocs3.intra.ocs.com.au>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hey,
 
+I've been running 2.4.14 for a few days now.  I needed LFS support, so I
+recompiled glibc 2.1.3 with the new 2.4 headers, and after that I could
+create large files (e.g. using dd if=/dev/zero of=test bs=1M count=0
+seek=3000) just fine.
 
-Keith Owens wrote:
+However, as of yesterday, I couldn't create files bigger than 2GB anymore.
+I did not change kernels, nor did I mess with libc or anything else (I did
+some Debian package upgrades/installations/recompiles, but I don't think
+they should affect this) - I'm not quite sure what happened.  Now commands
+such as the dd command I mentioned above will die with the message "File
+size limit exceeded", leaving a 2GB file behind.  Rebooting didn't solve
+anything.  My ulimits seem to be fine (file size = unlimited).
 
-> On Fri, 9 Nov 2001 23:23:43 +0100, 
-> andersg@0x63.nu wrote:
->>On Fri, Nov 09, 2001 at 04:34:00PM +1100, Keith Owens wrote:
->>> It is not a modutils problem, it is a fixed restriction on the size of
->>> the uname() fields, modutils just uses what uname -r gives it.
+The last few lines of the strace on the dd command above shows the
+following:
+open("/dev/zero", O_RDONLY|0x8000)      = 0
+close(1)                                = 0
+open("test", O_RDWR|O_CREAT|0x8000, 0666) = 1
+ftruncate64(0x1, 0xbb800000, 0, 0, 0x1) = 0
+--- SIGXFSZ (File size limit exceeded) ---
++++ killed by SIGXFSZ +++
 
-> +uts_len		:= 64
-> +uts_truncate	:= sed -e 's/\(.\{1,$(uts_len)\}\).*/\1/'
+Also, cat'ing two 2GB files together into one big 4GB file (cat file1 file2
+> file3) just dies after creating a 2GB file, whereas it used to work fine
+(if I remember correctly).  Doing an strace on it ends with the following
+lines:
+write(1, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 4096)
+= 4096
+read(3, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 4096) =
+4096
+write(1, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 4096)
+= 4095
+write(1, "\0", 1)                       = -1 EFBIG (File too large)
+--- SIGXFSZ (File size limit exceeded) ---
++++ killed by SIGXFSZ +++
 
+I'm doing this on a ReiserFS filesystem, but trying it on an ext2 partition
+yields the same results.
 
-Should this be a fixed length of 64?
-Or should it be grabbed form a header somewhere?
-So when/if SYS_NMLN/_UTSNAME_LENGTH is changed
-longer strings can be used? I check and Solaris 8
-defines SYS_NMLN as 257.
+Any suggestions?
 
-Would this break cross-comiling badly?
-Are other libc headers needed in the build?
+Thanks,
 
-	-Thomas
-
+Alex
 

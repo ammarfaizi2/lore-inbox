@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264694AbTF2Th7 (ORCPT <rfc822;willy@w.ods.org>);
+	id S264829AbTF2Th7 (ORCPT <rfc822;willy@w.ods.org>);
 	Sun, 29 Jun 2003 15:37:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262577AbTF2ThX
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264694AbTF2Thc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 15:37:23 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:26248 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S264144AbTF2TgU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 15:36:20 -0400
-Date: Sun, 29 Jun 2003 20:50:03 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Ricardo Galli <gallir@uib.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Dell vs. GPL
-Message-ID: <20030629195003.GF26258@mail.jlokier.co.uk>
-References: <200306291624.47221.gallir@uib.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200306291624.47221.gallir@uib.es>
-User-Agent: Mutt/1.4.1i
+	Sun, 29 Jun 2003 15:37:32 -0400
+Received: from smtp-out.comcast.net ([24.153.64.116]:41824 "EHLO
+	smtp-out.comcast.net") by vger.kernel.org with ESMTP
+	id S264088AbTF2TgO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 15:36:14 -0400
+Date: Sun, 29 Jun 2003 15:48:06 -0400
+From: rmoser <mlmoser@comcast.net>
+Subject: Re: File System conversion -- ideas
+In-reply-to: <3EFF4177.6000705@post.pl>
+To: "Leonard Milcin Jr." <thervoy@post.pl>, linux-kernel@vger.kernel.org
+Message-id: <200306291548060930.02159FEE@smtp.comcast.net>
+MIME-version: 1.0
+X-Mailer: Calypso Version 3.30.00.00 (3)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+References: <200306291011.h5TABQXB000391@81-2-122-30.bradfords.org.uk>
+ <20030629132807.GA25170@mail.jlokier.co.uk> <3EFEEF8F.7050607@post.pl>
+ <200306291445470220.01DC8D9F@smtp.comcast.net> <3EFF3FFA.60806@post.pl>
+ <3EFF4177.6000705@post.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ricardo Galli wrote:
-> Indeed. Those people don't realise that their "copyright" law is different to 
-> the almost the rest of the world. 
 
-> In most of Europe there in no "The Copyright", but "authors' or
-> moral rights" ("derechos de autor", "droit d'auteur") and
-> "exploitation rights" (or economic rights).
 
-> Author/moral rights cannot be jeopardized.
+*********** REPLY SEPARATOR  ***********
 
-Except when the work is a computer program.  Check the law sometime!
 
-I recall there is a special exception for computer programs in either
-UK or EU law - I forget which, perhaps both.  This exception means
-that if I compose some music for a publisher, I cannot give up moral
-rights to the work - which means I always have a right to be credited
-as author or something like that, and nobody can take that away.
-However, if I compose a computer program for a publisher, my moral
-right to be credited _is_ taken away.
+>Ok, I forgot about enterprise users with lots of data, and probably
+>lacking free space, so I missed a point.
+>
 
-This _only_ applies to computer programmers.  Bah!
+Yeppers.  Also that the eventual goal (at least in  my mind) is to allow
+this to be done on a running r/w filesystem safely, which isn't as tough
+a problem as it sounds.
 
--- Jamie
+>--
+>"Unix IS user friendly... It's just selective about who its friends are."
+>                                                        -- Tollef Fog Heen
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+
+
+

@@ -1,49 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264683AbTFLBXT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 21:23:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264690AbTFLBXT
+	id S264684AbTFLBUd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 21:20:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264685AbTFLBUd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 21:23:19 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:29594
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S264683AbTFLBXL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 21:23:11 -0400
-Date: Thu, 12 Jun 2003 03:37:36 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Chris Mason <mason@suse.com>,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       Jens Axboe <axboe@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Georg Nikodym <georgn@somanetworks.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>
-Subject: Re: [PATCH] io stalls
-Message-ID: <20030612013736.GI1500@dualathlon.random>
-References: <1055292839.24111.180.camel@tiny.suse.com> <20030611010628.GO26270@dualathlon.random> <1055296630.23697.195.camel@tiny.suse.com> <20030611021030.GQ26270@dualathlon.random> <1055353360.23697.235.camel@tiny.suse.com> <20030611181217.GX26270@dualathlon.random> <1055356032.24111.240.camel@tiny.suse.com> <20030611183503.GY26270@dualathlon.random> <3EE7D1AA.30701@cyberone.com.au> <20030612012951.GG1500@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030612012951.GG1500@dualathlon.random>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Wed, 11 Jun 2003 21:20:33 -0400
+Received: from inconnu.isu.edu ([134.50.8.55]:62099 "EHLO inconnu.isu.edu")
+	by vger.kernel.org with ESMTP id S264684AbTFLBUY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 21:20:24 -0400
+Date: Wed, 11 Jun 2003 19:34:03 -0600 (MDT)
+From: I Am Falling I Am Fading <skuld@anime.net>
+X-X-Sender: skuld@inconnu.isu.edu
+To: Dave Jones <davej@codemonkey.org.uk>
+cc: linux-kernel@vger.kernel.org, <gregor.essers@web.de>
+Subject: Re: Via KT400 and AGP 8x Support
+In-Reply-To: <20030611094441.GE14706@suse.de>
+Message-ID: <Pine.LNX.4.44.0306111922110.8476-100000@inconnu.isu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 12, 2003 at 03:29:51AM +0200, Andrea Arcangeli wrote:
-> static void get_request_wait_wakeup(request_queue_t *q, int rw)
-> {
-> 	/*
-> 	 * avoid losing an unplug if a second __get_request_wait did the
-> 	 * generic_unplug_device while our __get_request_wait was
-> 	 * running
-> 	 * w/o the queue_lock held and w/ our request out of the queue.
-> 	 */
-> 	if (waitqueue_active(&q->wait_for_requests))
-> 		run_task_queue(&tq_disk);
+On Wed, 11 Jun 2003, Dave Jones wrote:
 
-btw, that was the old version, Chris did it right
-s/run_task_queue(&tq_disk)/__generic_unplug_device(q)/
+> On Wed, Jun 11, 2003 at 02:28:24AM -0600, I Am Falling I Am Fading wrote:
+> 
+>  > I've had this problem as well.
+>  > 
+>  > What I've been able to do is to use a backport for one of the 2.4.21-pre*
+>  > series, and move the code forward to the current 2.4.21-rc's .
+> 
+> That's not a proper fix. The agp code in 2.4.21pre supports the KT400
+> only in AGP2.0 mode. When you put an AGP3.0 (x8) card in the slot,
+> the chipset configures itself into AGP3 mode, and registers change
+> meaning.
+> 
+>  > Here's info on the relevant patch:
+>  > http://lists.insecure.org/lists/linux-kernel/2003/Mar/3999.html
+> 
+> Very, very dated now. Many fixes have gone into the agp code since
+> 2.5.64, on which that backport is based.
 
-Andrea
+I'm aware that it doesn't work right, unfortunately getting AGP3.0 working 
+at all under the 2.4 kernel doesn't have any real solution, with the 
+exception of nVidia's binary-only drivers for the nForce2. 
+
+This solution at least initializes some stuff and allows me to use the ATI 
+drivers for 2D acceleration on my KT400-based board, whcih didn't work 
+before I applied that patch. Consequently, it's the best solution I have 
+now for people who want to use their R3xx-series ATI cards on AGP3.0 
+systems. 
+
+The only other solution is to kick your card down into AGP 2.0 mode, which 
+most BIOSes do not allow you to do in software. Instead what you have to 
+do is cut/unsolder traces on your video card for the pins used for AGP 3.0 
+detection. This is a near-permanent and horrible solution but it does get 
+everything working. :-/ 
+
+Dave, if you have a better solution for the 2.4 kernel I'd be very, very 
+happy to see it. :-( Unfortunately I'm not a good enough coder to write 
+proper AGP3.0 support for the 2.4 kernel myself, and can only shuffle 
+other people's code around.
+
+Someday 2.6 is going to fix all this but it's just not ready yet, and 
+while it's fun to run a 2.5 kernel it's not something I would recommend to 
+someone else (aside from this, it wouldn't fix his situation since the ATI 
+binary-only drivers puke on 2.5).
+
+I despair at the DRI project ever getting back in gear -- it's in horrible 
+disarray and the development list is now 75% spam. Some good improvements 
+came thanks to a donation from the Weather Channel, but it's not enough to 
+provide comprehensive support. :-( Maybe there needs to be a "save DRI" 
+fund. :-/
+
+-----
+James Sellman -- ISU CoE-CS/ISLUG Linux Lab Admin   |"Lum, did you just see
+----------------------------------------------------| a hentai rabbit flying
+skuld@inconnu.isu.edu      |   // A4000/604e/60 128M| through the air?"
+skuld@anime.net            | \X/  A500/20 3M        |   - Miyake Shinobu
+

@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313779AbSDHWEV>; Mon, 8 Apr 2002 18:04:21 -0400
+	id <S313777AbSDHWDk>; Mon, 8 Apr 2002 18:03:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313780AbSDHWDm>; Mon, 8 Apr 2002 18:03:42 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52229 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S313779AbSDHWCo>;
-	Mon, 8 Apr 2002 18:02:44 -0400
-Date: Mon, 8 Apr 2002 23:02:39 +0100
-From: "Dr. David Alan Gilbert" <gilbertd@nospam.treblig.org>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-Cc: Christoph Hellwig <hch@infradead.org>, Robert Love <rml@tech9.net>,
-        "Kuppuswamy, Priyadarshini" <Priyadarshini.Kuppuswamy@compaq.com>,
-        linux-kernel@vger.kernel.org
+	id <S313780AbSDHWDj>; Mon, 8 Apr 2002 18:03:39 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:23430 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S313777AbSDHWB7>; Mon, 8 Apr 2002 18:01:59 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 8 Apr 2002 15:08:37 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: "J.A. Magallon" <jamagallon@able.es>
+cc: "Kuppuswamy, Priyadarshini" <Priyadarshini.Kuppuswamy@compaq.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: system call for finding the number of cpus??
-Message-ID: <20020408220239.GK612@gallifrey>
-In-Reply-To: <20020408222742.A28352@infradead.org> <Pine.LNX.4.33.0204081735330.10199-100000@coffee.psychology.mcmaster.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/2.4.18 (i686)
-X-Uptime: 22:53:52 up 3 days,  2:31,  5 users,  load average: 2.00, 2.26, 2.52
+In-Reply-To: <20020408215814.GC13043@werewolf.able.es>
+Message-ID: <Pine.LNX.4.44.0204081506460.1498-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Mark Hahn (hahn@physics.mcmaster.ca) wrote:
-> > See http://people.nl.linux.org/~hch/cpuinfo/ for details.
-> 
-> egads.  "grep -ci bogo /proc/cpuinfo" then.
+On Mon, 8 Apr 2002, J.A. Magallon wrote:
 
-Hmm, cpuinfo is a very human readable file, I wouldn't use it to do
-things like that.
+>
+> On 2002.04.08 Davide Libenzi wrote:
+> >On Mon, 8 Apr 2002, Kuppuswamy, Priyadarshini wrote:
+> >
+> >> Hi!
+> >>   I have a script that is using the /cpu/procinfo file to determine the
+> >> number of cpus present in the system. But I would like to implement it
+> >> using a system call rather than use the environment variables?? I
+> >> couldn't find a system call for linux that would give me the result.
+> >> Could anyone please let me know if there is one for redhat linux??
+> >
+> >sysconf(_SC_NPROCESSORS_CONF);
+> >
+>
+> I din't really trusted you, so digged inside includes till bits/confname.h
+> Why the h*ll the manpage about sysconf does not talk about that ?????
 
-I suggest /proc/stat whose format appears to be designed for machine
-reading and which has a 'cpu0' and 'cpu1' line on this here dual
-processor box; and from 2.4.x on it seems to have a cpu0 even on
-uniprocessor; so I suggest:
+.h files usually changes ofter than man pages mainly because developers
+like to code not to document
 
-grep "^cpu[0-9][0-9]* " /proc/stat
 
-But I'd actually go and ask the CPU hotswap guys - they must have a way
-of getting a handle on this (hey does that mean you might have cpu0,
-cpu1, cpu3 .... ?)
 
-Me thinks the format of these /proc files needs documenting - is there
-anything already?
+- Davide
 
-Dave
 
- ---------------- Have a happy GNU millennium! ----------------------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM, SPARC and HP-PA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/

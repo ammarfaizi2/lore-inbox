@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261400AbREMMIL>; Sun, 13 May 2001 08:08:11 -0400
+	id <S261252AbREMMl2>; Sun, 13 May 2001 08:41:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261401AbREMMIB>; Sun, 13 May 2001 08:08:01 -0400
-Received: from thimm.dialup.fu-berlin.de ([160.45.217.207]:35076 "EHLO
-	pua.physik.fu-berlin.de") by vger.kernel.org with ESMTP
-	id <S261400AbREMMHt>; Sun, 13 May 2001 08:07:49 -0400
-Date: Sun, 13 May 2001 13:55:55 +0200
-From: Axel Thimm <Axel.Thimm@physik.fu-berlin.de>
-To: Eric Olson <ejolson@unr.edu>
-Cc: linux-kernel@vger.kernel.org,
-        Jens Dreger <Jens.Dreger@physik.fu-berlin.de>,
-        David Hansen <David.Hansen@physik.fu-berlin.de>
-Subject: Re: FastTrack100+2.4.4 panic
-Message-ID: <20010513135555.C9805@pua.nirvana>
-In-Reply-To: <200105130635.f4D6ZWX10800@equinox.unr.edu>
+	id <S261403AbREMMlS>; Sun, 13 May 2001 08:41:18 -0400
+Received: from stine.vestdata.no ([195.204.68.10]:14093 "EHLO
+	stine.vestdata.no") by vger.kernel.org with ESMTP
+	id <S261252AbREMMlL>; Sun, 13 May 2001 08:41:11 -0400
+Date: Sun, 13 May 2001 14:41:05 +0200
+From: =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>
+To: linux-kernel@vger.kernel.org
+Subject: Re: undeleting files with from reiserfs
+Message-ID: <20010513144105.A7466@vestdata.no>
+In-Reply-To: <20010513033946.A32539@dandelion.darkorb.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200105130635.f4D6ZWX10800@equinox.unr.edu>; from ejolson@unr.edu on Sat, May 12, 2001 at 11:35:32PM -0700
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Mailer: Mutt 0.95.5i
+In-Reply-To: <20010513033946.A32539@dandelion.darkorb.net>; from Gabriel Rocha on Sun, May 13, 2001 at 03:39:46AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 12, 2001 at 11:35:32PM -0700, Eric Olson wrote:
-> I am having trouble with the 2.4.4 kernel using MSI 694D Pro AR dual
-> PIII processor motherboard with onboard Promise ATA100.
-> 
-> I have four nearly identically configured motherboards, two of which
-> have the Promise ATA100 and two which do not.  There are no disks
-> hooked to the Promise controller and I am not using it.  However, the
-> motherboards with the Promise controller panic soon after the Promise
-> detection lines
-> 
-> PDC20265: IDE controller on PCI bus 00 dev 60
-> PDC20265: chipset revision 2
-> PDC20265: not 100% native mode: will probe irqs later
+On Sun, May 13, 2001 at 03:39:46AM -0400, Gabriel Rocha wrote:
+> ok, i screwed up and there went my 2 gigs of mp3's...i feel stupid, i
+> figure, what the heck, i can take this as the perfect oportunity to
+> leanr how to undelete stuff...lo and behold, i find tons of info on how
+> to undelete from a ext2 filesystem...nothing on reiser...pointers on
+> docs would be really appreciated, as would any help anyone  can give me.
+> thanks. --gabe
 
-The same happens on an MSI 6330 v3.0 (Turbo). I also tried 2.4.4-ac5 which
-does not show this behaviour. The ac series have some patches related to
-FastTrack/PDC20265, try it out.
+Reiserfs dosn't support undelete.
 
-BTW, do your MSI boards have a VIA chipset? If yes, do you get any IRQ
-conflicts in your dmesg output?
+However, there if you run reiserfsck with option --rebuild-tree, it will
+rebuild the tree, and probably relink your deleted files. Read the
+man-page and back up your partition first.
 
-Regards, Axel.
+You can find reiserfsprogs-3.x.0j.tar.gz at ftp.namesys.com.
+
+
 -- 
-Axel.Thimm@physik.fu-berlin.de
+Ragnar Kjørstad
+Big Storage

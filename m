@@ -1,64 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbRAEG1x>; Fri, 5 Jan 2001 01:27:53 -0500
+	id <S129267AbRAEGbo>; Fri, 5 Jan 2001 01:31:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129267AbRAEG1n>; Fri, 5 Jan 2001 01:27:43 -0500
-Received: from 209.102.21.2 ([209.102.21.2]:29711 "EHLO dragnet.seagull.net")
-	by vger.kernel.org with ESMTP id <S129183AbRAEG10>;
-	Fri, 5 Jan 2001 01:27:26 -0500
-Message-ID: <3A5538DE.92066D9A@goingware.com>
-Date: Fri, 05 Jan 2001 03:00:46 +0000
-From: "Michael D. Crawford" <crawford@goingware.com>
-Organization: GoingWare Inc. - Expert Software Development and Consulting
-X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.4.0-prerelease-ac5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: How to Power off with ACPI/APM?
+	id <S130329AbRAEGbe>; Fri, 5 Jan 2001 01:31:34 -0500
+Received: from ganymede.isdn.uiuc.edu ([192.17.19.210]:28167 "EHLO
+	ganymede.isdn.uiuc.edu") by vger.kernel.org with ESMTP
+	id <S129267AbRAEGbV>; Fri, 5 Jan 2001 01:31:21 -0500
+Date: Fri, 5 Jan 2001 00:31:07 -0600
+From: Bill Wendling <wendling@ganymede.isdn.uiuc.edu>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Miles Lane <miles@megapathdsl.net>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.0ac1
+Message-ID: <20010105003107.C19392@ganymede.isdn.uiuc.edu>
+In-Reply-To: <3A556195.5090902@megapathdsl.net> <20334.978674744@kao2.melbourne.sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20334.978674744@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Fri, Jan 05, 2001 at 05:05:44PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> How is each of your setups, ie, what is compiled in kernel and what is 
-> a module ? My guess is: 
-> - ACPI+APM in kernel: ACPI wins 
-> - APM in kernel, ACPI module; APM starts, blocks ACPI 
-> - and so on.... 
+Also sprach Keith Owens:
+} On Thu, 04 Jan 2001 21:54:29 -0800, 
+} Miles Lane <miles@megapathdsl.net> wrote:
+} >make[4]: Entering directory `/usr/src/linux/drivers/acpi'
+} >/usr/src/linux/Rules.make:224: *** Recursive variable `CFLAGS' references itself (eventually).  Stop.
+} 
+} In drivers/acpi/Makefile, delete the line
+} 
+} $(MODINCL)/%.ver: CFLAGS = -I./include $(CFLAGS)
+} 
+} You will be able to compile but acpi may not work with module symbol
+} versions, so do not select module symbol versions.
+} 
+Changing that line to:
 
-Nope.  If they're both in the kernel, APM wins.
+$(MODINCL)/%.ver: CFLAGS := -I./include $(CFLAGS)
 
-When I built with both ACPI and APM, and then APM ran first.  ACPI started up in
-the kernel, commented that APM was already there, and exited.
-
-Many folks have given me tips on getting power off to work, I'll screw around to
-see if I can get it to go.  But I guess the fact that ACPI exits if APM is
-enabled is a real bug.
-
-I know it's hip, cool and efficient to use modules but I often start by
-hardwiring things into the kernel because I may not have stuff set up right yet
-to load the modules after getting the new kernel.  Just saying Y instead of M
-often makes things work without further trouble.
-
-CONFIG_PM=y
-CONFIG_ACPI=y
-CONFIG_APM=y
-# CONFIG_APM_IGNORE_USER_SUSPEND is not set
-# CONFIG_APM_DO_ENABLE is not set
-# CONFIG_APM_CPU_IDLE is not set
-# CONFIG_APM_DISPLAY_BLANK is not set
-# CONFIG_APM_RTC_IS_GMT is not set
-# CONFIG_APM_ALLOW_INTS is not set
-# CONFIG_APM_REAL_MODE_POWER_OFF is not set
-
+might work as well...
 
 -- 
-Michael D. Crawford
-GoingWare Inc. - Expert Software Development and Consulting
-http://www.goingware.com/
-crawford@goingware.com
-
-   Tilting at Windmills for a Better Tomorrow.
+|| Bill Wendling			wendling@ganymede.isdn.uiuc.edu
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130317AbRDCSDt>; Tue, 3 Apr 2001 14:03:49 -0400
+	id <S132399AbRDCSF7>; Tue, 3 Apr 2001 14:05:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132399AbRDCSDj>; Tue, 3 Apr 2001 14:03:39 -0400
-Received: from [209.81.55.6] ([209.81.55.6]:53260 "EHLO cyclades.com")
-	by vger.kernel.org with ESMTP id <S130317AbRDCSDd>;
-	Tue, 3 Apr 2001 14:03:33 -0400
-Date: Tue, 3 Apr 2001 11:00:37 -0700 (PDT)
-From: Ivan Passos <lists@cyclades.com>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-cc: Linux PPP List <linux-ppp@vger.kernel.org>
-Subject: MLPPP in kernels 2.2.x w/ PPP v2.4.1
-Message-ID: <Pine.LNX.4.30.0104031042540.25537-100000@intra.cyclades.com>
+	id <S132400AbRDCSFt>; Tue, 3 Apr 2001 14:05:49 -0400
+Received: from raven.toyota.com ([63.87.74.200]:63749 "EHLO raven.toyota.com")
+	by vger.kernel.org with ESMTP id <S132399AbRDCSFi>;
+	Tue, 3 Apr 2001 14:05:38 -0400
+Message-ID: <3ACA10C7.FB117A53@lexus.com>
+Date: Tue, 03 Apr 2001 11:04:56 -0700
+From: J Sloan <jjs@toyota.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Trevor Nichols <ocdi@ocdi.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: uninteruptable sleep
+In-Reply-To: <Pine.BSF.4.33.0104040122330.63187-100000@ocdi.sb101.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Trevor Nichols wrote:
 
-Hello, everyone,
+> > Its a kernel bug if it gets stuck like this. You need to provide more info
+> > though - what file system, what devices, how much memory. Also ps can give you
+> > the wait address of a process stuck in 'D' state which is valuable for debug
+>
+> ps xl:
+>   F   UID   PID  PPID PRI  NI   VSZ  RSS WCHAN  STAT TTY        TIME  COMMAND
+> 040  1000  1230     1   9   0 24320    4 down_w D    ?          0:00  /home/data/mozilla/obj/dist/bin/mozi
+>
+> [I'm not exactly sure how to get the wait address if it isn't shown above]
+>
 
-The quick question: if I install PPP 2.4.1 in a Linux box w/ kernel 2.2.x,
-will I have support to MLPPP??
+Try this:
 
-Now, the explanation for my doubt. I've seen several (actually 3)
-different MLPPP implementations for older versions of PPP/pppd (namely
-2.3.5 and 2.3.11). I'd like to know if once I install PPP 2.4.1 in a
-system w/ kernel 2.2.x, I kill my need for these kind of patches in order
-to support MLPPP. Or would I still need some kind of patch, even for PPP
-2.4.1, to have MLPPP support in kernels 2.2.x??
+ps -eo pid,stat,pcpu,nwchan,wchan=WIDE-WCHAN-COLUMN -o args
 
-I know that for kernels 2.4.x these patches are not needed.
 
-Thanks in advance for your help!
+cu
 
-Later,
-Ivan
+Jup
 

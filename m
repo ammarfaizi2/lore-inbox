@@ -1,34 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318500AbSHEN4D>; Mon, 5 Aug 2002 09:56:03 -0400
+	id <S318486AbSHENyq>; Mon, 5 Aug 2002 09:54:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318501AbSHEN4C>; Mon, 5 Aug 2002 09:56:02 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:35832 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S318500AbSHEN4C>; Mon, 5 Aug 2002 09:56:02 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20020804100921.GA1353@junk> 
-References: <20020804100921.GA1353@junk>  <28360.1028454667@ocs3.intra.ocs.com.au> 
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19 make allyesconfig - errors and warnings 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 05 Aug 2002 14:59:25 +0100
-Message-ID: <23913.1028555965@redhat.com>
+	id <S318487AbSHENyq>; Mon, 5 Aug 2002 09:54:46 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:13573 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S318486AbSHENyp>; Mon, 5 Aug 2002 09:54:45 -0400
+Date: Mon, 5 Aug 2002 10:57:53 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Daniel Phillips <phillips@arcor.de>
+cc: Andrew Morton <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Rmap speedup
+In-Reply-To: <E17biDi-0000w7-00@starship>
+Message-ID: <Pine.LNX.4.44L.0208051056440.23404-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 5 Aug 2002, Daniel Phillips wrote:
 
-jamagallon@able.es said:
->  The only way to clean that for future is to include David Woodhouse's
->  shared zlib patch. It cleans jffs2 and some more things. 
+> > Despite the fact that the number of pte_chain references in
+> > page_add/remove_rmap now just averages two in that test.
+>
+> It's weird that it only averages two.  It's a four way and your running
+> 10 in parallel, plus a process to watch for completion, right?
 
-Should be going into 2.4.20-pre1.
+I explained this one in the comment above the declaration of
+struct pte_chain ;)
 
---
-dwmw2
+ * A singly linked list should be fine for most, if not all, workloads.
+ * On fork-after-exec the mapping we'll be removing will still be near
+ * the start of the list, on mixed application systems the short-lived
+ * processes will have their mappings near the start of the list and
+ * in systems with long-lived applications the relative overhead of
+ * exit() will be lower since the applications are long-lived.
 
+cheers,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,48 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263037AbSJGNAc>; Mon, 7 Oct 2002 09:00:32 -0400
+	id <S263020AbSJGNKx>; Mon, 7 Oct 2002 09:10:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263038AbSJGNAc>; Mon, 7 Oct 2002 09:00:32 -0400
-Received: from sprocket.loran.com ([209.167.240.9]:48379 "EHLO
-	ottonexc1.peregrine.com") by vger.kernel.org with ESMTP
-	id <S263037AbSJGNAb>; Mon, 7 Oct 2002 09:00:31 -0400
-Subject: Re: The end of embedded Linux?
-From: Dana Lacoste <dana.lacoste@peregrine.com>
-To: Gigi Duru <giduru@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20021007053805.95762.qmail@web13204.mail.yahoo.com>
-References: <20021007053805.95762.qmail@web13204.mail.yahoo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 07 Oct 2002 09:06:07 -0400
-Message-Id: <1033995967.10498.6.camel@dlacoste.ottawa.loran.com>
+	id <S263019AbSJGNKx>; Mon, 7 Oct 2002 09:10:53 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:62849 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S263020AbSJGNKw>;
+	Mon, 7 Oct 2002 09:10:52 -0400
+Date: Mon, 7 Oct 2002 15:16:18 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: input layer strangeness
+Message-ID: <20021007151618.A1560@ucw.cz>
+References: <3D9A74CF.8C8585E7@digeo.com> <20021002080952.B17477@ucw.cz> <3D9A8E34.7BC5E91A@digeo.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3D9A8E34.7BC5E91A@digeo.com>; from akpm@digeo.com on Tue, Oct 01, 2002 at 11:12:04PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-10-07 at 01:38, Gigi Duru wrote:
-> --- Mark Hahn <hahn@physics.mcmaster.ca> wrote:
-> > have you actually tried?
-> didn't need to. already told you what size the bare
-> bones 2.5 is, and I doubt it will get any smaller. au
-> contraire...
+On Tue, Oct 01, 2002 at 11:12:04PM -0700, Andrew Morton wrote:
+> Vojtech Pavlik wrote:
+> > 
+> > On Tue, Oct 01, 2002 at 09:23:43PM -0700, Andrew Morton wrote:
+> > >
+> > > It's been doing this ever since the input layer changes:
+> > >
+> > > - open a few xterms
+> > > - press the spacebar, leave pressed
+> > > - start waggling the mouse about
+> > > - stop pressing spacebar, keep waggling the mouse about,
+> > >   across the xterms
+> > >
+> > > The keystrokes *never* stop coming.  Just the continuous mouse
+> > > activity causes a stream of keyboard input, at seemingly the normal
+> > > autorepeat rate. I can keep them coming for 30 seconds, just by
+> > > moving the mouse.
+> > 
+> > Do they stop coming when you stop moving the mouse or they don't stop at
+> > all? The first would be quite interesting, the second would probably be
+> > a missed key release event due to keyboard controller overload by the
+> > mouse.
+> 
+> They stop immediately if I stop moving the mouse.
+> 
+> > > In practice, it's irritating because it's quite easy to get a
+> > > stream of erroneous input dumped into the wrong windows.
+> > >
+> > > It's a vanilla dual pentium with an AT keyboard and a PS/2
+> > > mouse.
+> > 
+> > Can you check if it happens also on UP? Just want to know if it might be
+> > a SMP issue ...
+> 
+> Will do.
 
-But you didn't post your .config file, what options you
-had enabled or disabled, what your hardwsre platform is,
-an analysis of where the bloat is taking place, or any
-other thing that would allow for anyone here to help you.
+Results? It also might be the keyboard controller in your machine
+starves the keyboard input pipe when the mouse is moving and flooding it
+with data. This way the release event from the keyboard doesn't come
+until you stop moving the mouse. Can you verify that with
+I8042_DEBUG_INPUT? Thanks.
 
-You've also been told that the VM is in that kernel (and
-from what I understand it can't be removed) so you're using
-a kernel which almost definitely isn't configured properly
-for your hardware platform.
-
-The GPL issue is important, but that's not the issue here :
-LKML helps those who help themselves.  All you're doing is
-whining and complaining, so I'm left with no reason NOT to
-killfile you.
-
-Dana Lacoste
-Ottawa, Canada
-
+-- 
+Vojtech Pavlik
+SuSE Labs

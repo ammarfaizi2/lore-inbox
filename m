@@ -1,39 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265590AbSKADa3>; Thu, 31 Oct 2002 22:30:29 -0500
+	id <S265586AbSKAD0z>; Thu, 31 Oct 2002 22:26:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265591AbSKADa3>; Thu, 31 Oct 2002 22:30:29 -0500
-Received: from dp.samba.org ([66.70.73.150]:5546 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S265590AbSKADa0>;
-	Thu, 31 Oct 2002 22:30:26 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: "Matt D. Robinson" <yakker@aparity.com>
-Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
-Subject: Re: [lkcd-devel] Re: What's left over. 
-In-reply-to: Your message of "Thu, 31 Oct 2002 17:19:02 -0800."
-             <Pine.LNX.4.44.0210311718140.23393-100000@nakedeye.aparity.com> 
-Date: Fri, 01 Nov 2002 13:59:30 +1100
-Message-Id: <20021101033654.B324B2C0A4@lists.samba.org>
+	id <S265587AbSKAD0z>; Thu, 31 Oct 2002 22:26:55 -0500
+Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:57523 "EHLO
+	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S265586AbSKAD0x>;
+	Thu, 31 Oct 2002 22:26:53 -0500
+Date: Fri, 1 Nov 2002 03:32:08 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Andreas Dilger <adilger@clusterfs.com>, Andi Kleen <ak@muc.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: New nanosecond stat patch for 2.5.44
+Message-ID: <20021101033208.GA31592@bjl1.asuk.net>
+References: <20021030221724.GA25231@bjl1.asuk.net> <Pine.LNX.3.96.1021031203329.22444D-100000@gatekeeper.tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.3.96.1021031203329.22444D-100000@gatekeeper.tmr.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0210311718140.23393-100000@nakedeye.aparity.com> you 
-write:
-> On Fri, 1 Nov 2002, Rusty Russell wrote:
-> |>The mini-oopser has different aims than LCKD: they want to debug one
-> |>system, I want to make sure we're reaping OOPS reports from those 99%
-> |>of desktop users who run X and simply reboot when their machine
-> |>crashes once a month.
+Bill Davidsen wrote:
+> > Oh, the inode of a file which is open does remain in core.  It's just
+> > that between runs of a program like "make", the file's aren't open are
+> > they?
 > 
-> I'd like to incorporate the mini-oopser as an LKCD dump method.
-> I'll chat with you off-line about this.  Shouldn't be that
-> difficult to do.
+> I thought we were talking about parallel make, rather than "between runs."
 
-That would defeat the "mini" part 8)
+A parallel build often does call "make" separately many times, in
+parallel but not guaranteed to overlap all file opens.  Between those,
+the files are closed.
 
-Cheers,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+> Your point is valid, but given the certainty that the inode has been
+> recently used, hopefully the kernel is smart on releasing them.
+
+That's a "hopefully", and it depends on how much RAM you have as well
+as pure luck.  I can live with that for building programs at home, but
+there are many applications where "hopefully" affecting correctness of
+behaviour is not acceptable.
+
+> My first thought is that the commonly used filesystems, other than ext2,
+> do or will support high resolution time. NFS is its own nasty little
+> problem.
+
+Do they support nanosecond time, though, or do they round it to
+microseconds or something like that?
+
+> [stuff about atime]
+
+There seems to be general agreement that atime is not a very important
+value, with which I concur.  (Why do we even bother with nanosecond atimes?)
+
+I am only concerned about mtime, which is very useful indeed when we
+talk about building things which can detect changes to files.
+
+Andi, I belive there is space in every architecture's stat64 (i.e. all
+those that have one) for a word describing the mtime resolution.  If I
+code a patch to create that field, would you be interested?
+
+-- Jamie

@@ -1,95 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266465AbUI0JEv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266473AbUI0JHt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266465AbUI0JEv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 05:04:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266376AbUI0JEv
+	id S266473AbUI0JHt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 05:07:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266519AbUI0JHs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 05:04:51 -0400
-Received: from nessie.weebeastie.net ([220.233.7.36]:11648 "EHLO
-	theirongiant.lochness.weebeastie.net") by vger.kernel.org with ESMTP
-	id S266467AbUI0JDm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 05:03:42 -0400
-Date: Mon, 27 Sep 2004 19:03:43 +1000
-From: CaT <cat@zip.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: davem@davemloft.net, jgarzik@pobox.com, linux-net@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: strange network slowness in 2.6 unless pingflooding
-Message-ID: <20040927090342.GA1794@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 27 Sep 2004 05:07:48 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:417 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S266473AbUI0JHU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 05:07:20 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: Greg KH <greg@kroah.com>
+Subject: Re: Is there a user space pci rescan method?
+Date: Mon, 27 Sep 2004 11:14:44 +0200
+User-Agent: KMail/1.7
+Cc: Jan Dittmer <jdittmer@ppp0.net>, linux-kernel@vger.kernel.org,
+       Hotplug List <pcihpd-discuss@lists.sourceforge.net>
+References: <E8F8DBCB0468204E856114A2CD20741F2C13E2@mail.local.ActualitySystems.com> <200409241432.06748@bilbo.math.uni-mannheim.de> <20040924145542.GA17147@kroah.com>
+In-Reply-To: <20040924145542.GA17147@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Organisation: Furball Inc.
-User-Agent: Mutt/1.5.6+20040722i
+Message-Id: <200409271114.44774@bilbo.math.uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> > to get all slots and try to enable the device. We have tested it once
+> > with a special PCI debugging board where we can electrically disable the
+> > PCI bus so we don't kill our hardware. The problem was that on reenabling
+> > a interrupt storm killed the machine, I don't remember the exact problem.
+> > IIRC it looked like the kernel found the device but the PCI bridge got
+> > confused by the new device (or something like this). I don't know if
+> > there is a way to survive this situation as the bridges in "normal"
+> > hardware are not hotplug aware. Greg?
+>
+> Hm, don't know, but that's the whole reason people want this, so it
+> should work :)
 
-This is still happening. I ran the same set of tests on a totally
-different network, with my xircom  realport ethernet card (tulip
-driver - 16bit) and from linux to linux and windows to linux. Scrolling
-through a message in mutt eventually slows down and if I lift my finger
-off the enter key whilst it's slow the scrolling keeps going, as if it
-was all bufferd. If I do a pingflood (ping -f) from a machine to my
-laptop it's all fine.
+IMHO they want it for testing logical removal, hot removal without hardware 
+support is just too dangerous to test with dummyphp. Or what am I missing?
 
-I am also now running 2.6.9-rc1-mm4.
+> The main reason I don't like showing _all_ possible pci devices like
+> dummyphp does is that it doesn't handle adding a new device (like you
+> just said), and the fact that you forgot to handle pci domains.  If you
+> add support for PCI domains, then the list of files in that directory
+> will pretty much be unusable.
 
-Help? :/
+Ehm? Did you read the code? I use the PCI domains of the slots and buses. And 
+by default there are only slots with devices in it shown now.
 
------ Forwarded message from CaT <cat@zip.com.au> -----
+> Please just add the "rescan" support to fakephp, and everyone will be
+> happy...
 
-Date: 	Thu, 19 Aug 2004 12:03:40 +1000
-From: CaT <cat@zip.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Whacky 2.6 network behaviour
-Organisation: Furball Inc.
-X-Mailing-List: 	linux-kernel@vger.kernel.org
+That can't be. I hate fakephp ;)
 
-I have an SSH session across a 100mb network from my desktop to my
-laptop. It's mostly ok but when I scroll line-by-line on a message
-with mutt it can fo really fast for a bit and then slows down to
-almost a line per second and keeps going after I take my finger off
-the enter key. 
-
-If I pingflood the laptop from the desktop things improve drastically
-and I only get a few freezes here and there. If I pingflood with 60000
-byte packets things get a little better but then a severe loss of
-pings occurs. Each time the pings are lost my SSH connection also
-freezes.
-
-If I ping a different host from my desktop (like my gateway) I get no
-pingloss with 60000 byte packets (though this doesn't help with the
-scrolling issues. :)
-
-If I ping my desktop from my laptop with 60000 byte packets, the freezes
-are totally gone and I get no pingloss. If I ping my gateway from my
-laptop with 60000 byte packets I also get no pingloss and the freezes
-are also gone.
-
-My desktop is using kernel 2.6.7, my laptop 2.6.8.1 and the gw 2.4.27.
-Cards in use are: desktop: 3com 3c59x; laptop: e100 (intels); gw:
- e100 (intels). CPUs are: desktop: P3 600; laptop: P3 700; gw: p3 500.
-
-(Hmm. Spoke too soon. There is still SOME packet loss but it's more a
-freak thing rather then a repeated occurance - I've only seen it once
-for the last two cases and I've been flood pinging for the laptop for
-the majority of this message).
-
-I'll be more then happy to do any debugging/diag but I need to know
-what is needed and, if need be, how to get it so if any help is requried
-please shout and I'll get on it ASAP.
-
--- 
-    Red herrings strewn hither and yon.
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
------ End forwarded message -----
-
--- 
-    Red herrings strewn hither and yon.
+Eike

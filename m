@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261478AbSJDFmG>; Fri, 4 Oct 2002 01:42:06 -0400
+	id <S261491AbSJDFtt>; Fri, 4 Oct 2002 01:49:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261491AbSJDFmG>; Fri, 4 Oct 2002 01:42:06 -0400
-Received: from fmr01.intel.com ([192.55.52.18]:8403 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S261478AbSJDFmF>;
-	Fri, 4 Oct 2002 01:42:05 -0400
-Message-ID: <A9EA4AD6F6B9D511BBED00508B66C69A04B37715@fmsmsx111.fm.intel.com>
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: "'twoller@crystal.cirrus.com'" <twoller@crystal.cirrus.com>,
-       "'audio@crystal.cirrus.com'" <audio@crystal.cirrus.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: cs4281 driver fix
-Date: Thu, 3 Oct 2002 22:47:36 -0700 
+	id <S261496AbSJDFtt>; Fri, 4 Oct 2002 01:49:49 -0400
+Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:48875 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S261491AbSJDFtt>;
+	Fri, 4 Oct 2002 01:49:49 -0400
+Message-ID: <3D9D2D3D.8010208@candelatech.com>
+Date: Thu, 03 Oct 2002 22:55:09 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+To: "Rick A. Hohensee" <rickh@Capaccess.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: an open letter to George Soros
+References: <fc.0010c7b2005dd2a80010c7b2005dd2a8.5dd2c5@Capaccess.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch below fixes a oops problem (in cs4281 sound driver) during system
-reboot.
+Rick A. Hohensee wrote:
 
-thanks,
-suresh
+>         I have written two better systems languages than C; osimplay and
+>         H3sm.
 
- diff -Nru linux-2.5.39/sound/oss/cs4281/cs4281m.c~
-linux-2.5.39/sound/oss/cs4281/cs4281m.c
---- linux-2.5.39/sound/oss/cs4281/cs4281m.c~    Thu Oct  3 20:56:19 2002
-+++ linux-2.5.39/sound/oss/cs4281/cs4281m.c     Thu Oct  3 22:33:16 2002
-@@ -4437,7 +4437,7 @@
+Holy shit!
 
- // ---------------------------------------------------------------------
+You happen to have a tigon3 driver in forth that will work? ;)
 
--static void __devinit cs4281_remove(struct pci_dev *pci_dev)
-+static void __devexit cs4281_remove(struct pci_dev *pci_dev)
- {
-        struct cs4281_state *s = pci_get_drvdata(pci_dev);
-        // stop DMA controller
-@@ -4467,7 +4467,7 @@
-        name:"cs4281",
-        id_table:cs4281_pci_tbl,
-        probe:cs4281_probe,
--       remove:cs4281_remove,
-+       remove:__devexit_p(cs4281_remove),
-        suspend:CS4281_SUSPEND_TBL,
-        resume:CS4281_RESUME_TBL,
- };
+Ben, who is not under the influence of the Man, for what it's worth!
+
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
+

@@ -1,36 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316662AbSFDUX3>; Tue, 4 Jun 2002 16:23:29 -0400
+	id <S316684AbSFDUWn>; Tue, 4 Jun 2002 16:22:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316674AbSFDUX2>; Tue, 4 Jun 2002 16:23:28 -0400
-Received: from 198.216-123-194-0.interbaun.com ([216.123.194.198]:23815 "EHLO
-	mail.harddata.com") by vger.kernel.org with ESMTP
-	id <S316662AbSFDUX0>; Tue, 4 Jun 2002 16:23:26 -0400
-Date: Tue, 4 Jun 2002 14:23:17 -0600
-From: Michal Jaegermann <michal@harddata.com>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com
-Subject: Re: kernel 2.5.20 on alpha (RE: [patch] Re: kernel 2.5.18 on alpha)
-Message-ID: <20020604142317.B18238@mail.harddata.com>
-In-Reply-To: <000101c20bd5$b8f24560$010b10ac@sbp.uptime.at> <Pine.LNX.4.33.0206040749530.654-100000@geena.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S316695AbSFDUWm>; Tue, 4 Jun 2002 16:22:42 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46866 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S316684AbSFDUWk>; Tue, 4 Jun 2002 16:22:40 -0400
+Date: Tue, 4 Jun 2002 13:23:04 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrew Morton <akpm@zip.com.au>
+cc: Chris Mason <mason@suse.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 12/16] fix race between writeback and unlink
+In-Reply-To: <3CFD1FF0.4A02CE96@zip.com.au>
+Message-ID: <Pine.LNX.4.44.0206041320280.29100-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 04, 2002 at 08:19:49AM -0700, Patrick Mochel wrote:
-> 
-> The short of it: 2.5.19 introduced a struct bus_type that describes each
-> bus type in the system.
 
-Which immediately collided with 'static struct bus_type {...}'
-hidden in drivers/net/tulip/de4x5.c and, as result, the later does
-not compile anymore.  These two "bus_types" are quite dissimilar. :-)
 
-An obvious and trivial fix was to globally replace "bus_type"
-in de4x5.c with "de4x5_bus_type" (or this should be done in some
-other manner).
+On Tue, 4 Jun 2002, Andrew Morton wrote:
+>
+> But after the vma has been destroyed (the application did exit()),
+> the dirty pagecache data against the sparse mapped file still
+> hasn't been written, and still doesn't have a disk mapping.
+>
+> So in this case, we have an inode which still has pending block
+> allocations which has no struct file's pointing at it.  Or
+> am I wrong?
 
-  Michal
+I think you're right..
+
+> The current preallocation will screw up is when there's a
+> large-and-sparse file which has blocks being allocated against it
+> at two or more offsets.  And those allocations are for a large number
+> of blocks, and they are proceeding slowly.
+
+Sure. However, I don't think it should come as any surprise to anybody
+that trying to write to two different points in the same file is a bad
+idea. _regardless_ of whether you do pre-allocation or not, and whether
+the pre-allocation is on the inode or file level.
+
+I'd still love to see a "fast and slightly stupid" allocator for both
+blocks and inodes, and have some infrastructure to do run-time defragging
+in the background.
+
+		Linus
+

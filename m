@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263714AbTJORUf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 13:20:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263715AbTJORUf
+	id S263654AbTJORRG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 13:17:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263698AbTJORRF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 13:20:35 -0400
-Received: from 224.Red-217-125-129.pooles.rima-tde.net ([217.125.129.224]:12530
-	"HELO cocodriloo.com") by vger.kernel.org with SMTP id S263714AbTJORUd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 13:20:33 -0400
-Date: Wed, 15 Oct 2003 19:20:30 +0200
-From: Antonio Vargas <wind@cocodriloo.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Antonio Vargas <wind@cocodriloo.com>,
-       Daniel Blueman <daniel.blueman@gmx.net>, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] [2.4.21] 8139too 'too much work at interrupt'...
-Message-ID: <20031015172030.GA20098@wind.cocodriloo.com>
-References: <16084.1065694106@www3.gmx.net> <20031009163530.GA7001@wind.cocodriloo.com> <3F8C3A48.5090703@pobox.com>
+	Wed, 15 Oct 2003 13:17:05 -0400
+Received: from fw.osdl.org ([65.172.181.6]:18101 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263654AbTJORRD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 13:17:03 -0400
+Date: Wed, 15 Oct 2003 10:20:29 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Jones <davej@redhat.com>
+Cc: pavel@ucw.cz, wli@holomorphy.com, linux-kernel@vger.kernel.org
+Subject: Re: mem=16MB laptop testing
+Message-Id: <20031015102029.58971c62.akpm@osdl.org>
+In-Reply-To: <20031015153212.GA5197@redhat.com>
+References: <20031014105514.GH765@holomorphy.com>
+	<20031014045614.22ea9c4b.akpm@osdl.org>
+	<20031015121208.GA692@elf.ucw.cz>
+	<20031015125109.GQ16158@holomorphy.com>
+	<20031015132054.GA840@elf.ucw.cz>
+	<20031015153212.GA5197@redhat.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F8C3A48.5090703@pobox.com>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 14, 2003 at 02:02:48PM -0400, Jeff Garzik wrote:
-> Antonio Vargas wrote:
-> >This happens to me also on 2.4.18 and 2.4.19 (yes, I know they are old).
-> >
-> >Happens about once every 5 months, with the box running at
-> >about 1 month uptime per reboot (home server, there is no UPS)
+Dave Jones <davej@redhat.com> wrote:
+>
+> [PATCH] memsetup fixes (again)
+> 
+>  The mem= fixes from Red Hat's tree had a small bug:
+>  if mem= was not actually used with the additional features, but
+>  int plain old way, is used the value as the size of memory it
+>  wants, not the upper limit.  The problem with this is that there
+>  is a small difference due to memory holes.
+>  				    
+>  I had one report of a person using mem= to reduce memory size for
+>  a broken i386 chipset thaty only supports 64MB cached and the rest
+>  as mtd/slram device for swap.  I got broken as the boundaries changed.
 > 
 > 
-> It's fairly normal for this event to occur.  It's due to the 8139 
-> hardware..  sometimes (perhaps during a DoS or ping flood) you can 
-> receive far more tiny packets than the driver wishes to deal with in a 
-> single interrupt.
-> 
-> The real solution is to convert the driver to NAPI...
-> 
-> 	Jeff
+>  Assuming this patch is correct, it needs forward porting to 2.6
 
-NAPI is the method where you block hardware interrupts and
-then handle the data by periodic polling? I wonder how could
-I get this error, given that my network is a 10Mbit one ;)
+I'll queue up a patch to do that.
 
--- 
-winden/network
 
-1. Dado un programa, siempre tiene al menos un fallo.
-2. Dadas varias lineas de codigo, siempre se pueden acortar a menos lineas.
-3. Por induccion, todos los programas se pueden
-   reducir a una linea que no funciona.

@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268453AbRGXUck>; Tue, 24 Jul 2001 16:32:40 -0400
+	id <S268451AbRGXUbk>; Tue, 24 Jul 2001 16:31:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268452AbRGXUcb>; Tue, 24 Jul 2001 16:32:31 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:49937 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S268449AbRGXUcY>; Tue, 24 Jul 2001 16:32:24 -0400
-Date: Tue, 24 Jul 2001 17:32:26 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Patrick Dreker <patrick@dreker.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>, <phillips@bonn-fries.net>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Optimization for use-once pages
-In-Reply-To: <E15P8jB-0000Au-00@wintermute>
-Message-ID: <Pine.LNX.4.33L.0107241731400.20326-100000@duckman.distro.conectiva>
+	id <S268453AbRGXUba>; Tue, 24 Jul 2001 16:31:30 -0400
+Received: from hibernia.clubi.ie ([212.17.32.129]:65435 "HELO
+	fogarty.jakma.org") by vger.kernel.org with SMTP id <S268451AbRGXUbO>;
+	Tue, 24 Jul 2001 16:31:14 -0400
+Date: Tue, 24 Jul 2001 21:31:25 +0100 (IST)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: <paul@fogarty.jakma.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Dominik Kubla <kubla@sciobyte.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: Arp problem
+In-Reply-To: <E15P58j-0000K2-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0107242128470.13997-100000@fogarty.jakma.org>
+X-NSA: iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas
+X-Dumb-Filters: aryan marijuiana cocaine heroin hardcore cum pussy porn teen tit sex lesbian group
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tue, 24 Jul 2001, Patrick Dreker wrote:
+On Tue, 24 Jul 2001, Alan Cox wrote:
 
-	[snip program with mmap()]
+> The default Linux, Solaris setup is the standard. Take it up with the IETF
+> if you don't like it.
 
-> I have tested this on my Athlon 600 with 128 Megs of RAM, and it
-> does not make any difference whether I use plain 2.4.7 or
-> 2.4.5-use-once.
+fair enough..
 
-As expected. Only programs using generic_file_{read,write}()
-will be impacted at the moment.
+however, in the interests of flexibility and kindness to admins who
+have to deal with legacy setups, is or would it be possible to make
+linux be able to fully route packets between interfaces bound to the
+same device?
 
-regards,
-
-Rik
---
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
-
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+thanks,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org
+PGP5 key: http://www.clubi.ie/jakma/publickey.txt
+-------------------------------------------
+Fortune:
+I've finally learned what "upward compatible" means.  It means we get to
+keep all our old mistakes.
+		-- Dennie van Tassel
 

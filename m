@@ -1,42 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264490AbUEDQZl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264511AbUEDQdi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264490AbUEDQZl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 12:25:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264502AbUEDQZl
+	id S264511AbUEDQdi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 12:33:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264515AbUEDQdi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 12:25:41 -0400
-Received: from mail.kroah.org ([65.200.24.183]:49349 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264490AbUEDQZj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 12:25:39 -0400
-Date: Tue, 4 May 2004 09:22:52 -0700
-From: Greg KH <greg@kroah.com>
-To: Alexander ZVYAGIN <Alexander.Zviagine@cern.ch>
+	Tue, 4 May 2004 12:33:38 -0400
+Received: from AGrenoble-101-1-2-5.w193-253.abo.wanadoo.fr ([193.253.227.5]:22450
+	"EHLO awak.dyndns.org") by vger.kernel.org with ESMTP
+	id S264511AbUEDQdh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 12:33:37 -0400
+Subject: Re: [Announce] Intel PRO/Wireless 2200BG 802.11bg project
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: James Ketrenos <jketreno@linux.jf.intel.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problems with USB/Sound.
-Message-ID: <20040504162252.GC20453@kroah.com>
-References: <200405041135.55950.Alexander.Zviagine@cern.ch>
+In-Reply-To: <4097C103.4040905@linux.intel.com>
+References: <4097C103.4040905@linux.intel.com>
+Content-Type: text/plain
+Date: Tue, 04 May 2004 18:24:53 +0200
+Message-Id: <1083687894.3577.13.camel@speedy.priv.grenoble.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200405041135.55950.Alexander.Zviagine@cern.ch>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.5.7 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 04, 2004 at 11:35:55AM +0200, Alexander ZVYAGIN wrote:
-> Hello,
-> 
-> It seems that linux  2.6.5 has some problems with my USB ports...
-> See config-1, dmesg-1.
-> 
-> Whatever I connect to the USB ports, I see no reaction at all.
+On Tue, 2004-05-04 at 11:12 -0500, James Ketrenos wrote:
+> Intel is pleased to announce the launch of an open source project to 
+> support the Intel PRO/Wireless 2200BG Network Connection miniPCI adapter 
+> (IPW2200). 
 
-Care to file a bug at bugzilla.kernel.org for this?
+Hi,
 
-Also, don't attach your log files to the bug in compressed form, makes
-it a lot harder to read...
+it's probably a FAQ, but why don't you put technical specs and Windows
+driver sourcecode on the site ? These must be available somewhere in
+Intel I guess...
 
-thanks,
+	Xav
 
-greg k-h

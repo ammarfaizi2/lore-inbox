@@ -1,77 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbVBWVeQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261573AbVBWVhO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261604AbVBWVeQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 16:34:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVBWVeJ
+	id S261573AbVBWVhO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 16:37:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbVBWVhI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 16:34:09 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:12460 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261604AbVBWVbz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 16:31:55 -0500
-Date: Wed, 23 Feb 2005 21:31:16 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: "Ammar T. Al-Sayegh" <ammar@kunet.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at mm/rmap.c:483!
-In-Reply-To: <009d01c519e8$166768b0$7101a8c0@shrugy>
-Message-ID: <Pine.LNX.4.61.0502232108500.14780@goblin.wat.veritas.com>
-References: <009d01c519e8$166768b0$7101a8c0@shrugy>
+	Wed, 23 Feb 2005 16:37:08 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:14807 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261573AbVBWVgw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 16:36:52 -0500
+Message-ID: <421CF878.1080109@tmr.com>
+Date: Wed, 23 Feb 2005 16:41:12 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: Wichert Akkerman <wichert@wiggy.net>
+CC: Jeff Garzik <jgarzik@pobox.com>,
+       Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>,
+       Matthias-Christian Ott <matthias.christian@tiscali.de>,
+       =?ISO-8859-1?Q?Rog=E9rio_Brito?= <rbrito@ime.usp.br>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: 2.6.11rc4: irq 5, nobody cared
+References: <421A2D8F.3050704@pobox.com><421A2D8F.3050704@pobox.com> <20050221194227.GH6722@wiggy.net>
+In-Reply-To: <20050221194227.GH6722@wiggy.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Feb 2005, Ammar T. Al-Sayegh wrote:
+Wichert Akkerman wrote:
+> Previously Jeff Garzik wrote:
 > 
-> I recently installed Fedora RC3 on a new server.
-> The kernel is 2.6.10-1.741_FC3smp.
-
-I can't really speak for Fedora RC3 kernels,
-perhaps there's some special patch in there that happens to
-trigger it for you, but certainly there have been occasional
-other reports of this BUG with vanilla kernel.org kernels.
-
-> The server
-> crashes every few days. When I examine /var/log/messages,
-> I find the following line just before the crash:
+>>You should add this to your procmailrc :)
+>>
+>># Nuke duplicate messages
+>>:0 Wh: msgid.lock
+>>| $FORMAIL -D 32768 msgid.cache
 > 
-> Feb 22 23:50:35 hostname kernel: ------------[ cut here ]------------
-> Feb 22 23:50:35 hostname kernel: kernel BUG at mm/rmap.c:483!
 > 
-> No further debug lines are given to diagnose the
-> source of the problem.
+> That has the nasty side-effect of spreading messages for a single
+> discussion amongst many different mailboxes depending on which path
+> happens to be the first to deliver an email to you.
 
-It's odd that you get no more lines, but it doesn't really
-matter in this case.  Sadly, the debug info accompanying this
-BUG has done very little to shed light on its causes (and it's
-on my todo list to change it to something less of a hindrance).
+It depends on how you process your mail, if you move to folders with 
+determanent logic, checking various lists in order, then it always does 
+the same thing. If you use the list header it could do what you suggest. 
+I personally push a lot of the mailing lists to a news (usenet) server, 
+since it allows a single copy of a message to be indexed in multiple 
+groups, and some clients will skip what you have seen better than others.
 
-> I have been using kernel 2.4 for few years now without
-> any problem. This is the first time I see this problem
-> with kernel 2.6. I'm not sure if this is related to
-> the kernel itself, the new hardware, or some other
-> installed software. I'm thinking about downgrading to
-> kernel 2.4. Do you think this will resolve this issue?
-
-Downgrading to 2.4 will most certainly stop that particular
-BUG, since 2.4 has no equivalent.  But it won't necessarily
-fix the underlying issue.
-
-> Any suggestion on what else I can do to mitigate this
-> problem?
-
-The first thing to do is to give memtest86 a good (say
-overnight) run.  Many of the rmap.c BUG reporters have
-subsequently found memtest86 failures, and we believe those
-instances are accounted for by bad memory.  And if that's so
-in your case, you don't really want to be running 2.4 on it.
-
-But not all cases could be accounted in that way.  If you
-report back that memtest86 ran cleanly, then I'll have to
-rework a debug patch against your Fedora RC3 kernel to try
-to give us more info - though quite possibly you cannot afford
-such experiments on this server, and will revert to 2.4 for now.
-
-Hugh
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

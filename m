@@ -1,30 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262906AbTDJTXS (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 15:23:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263290AbTDJTXS (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 15:23:18 -0400
-Received: from vitelus.com ([64.81.243.207]:31505 "EHLO vitelus.com")
-	by vger.kernel.org with ESMTP id S262906AbTDJTXR (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Apr 2003 15:23:17 -0400
-Date: Thu, 10 Apr 2003 12:34:20 -0700
-From: Aaron Lehmann <aaronl@vitelus.com>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Cc: Grzegorz Jaskiewicz <gj@pointblue.com.pl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ATAPI cdrecord issue 2.5.67
-Message-ID: <20030410193420.GD429@vitelus.com>
-References: <1049983308.888.5.camel@gregs> <1049984188.887.11.camel@gregs> <1049986391.599.6.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id S262894AbTDJTWP (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 15:22:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262906AbTDJTWP (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 15:22:15 -0400
+Received: from mail-5.tiscali.it ([195.130.225.151]:25029 "EHLO
+	mail-5.tiscali.it") by vger.kernel.org with ESMTP id S262894AbTDJTWO (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 15:22:14 -0400
+From: Lorenzo Allegrucci <l.allegrucci@tiscali.it>
+Organization: -ENOENT
+To: linux-kernel@vger.kernel.org
+Subject: ext2/3 fragments support
+Date: Thu, 10 Apr 2003 21:35:19 +0000
+User-Agent: KMail/1.5.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1049986391.599.6.camel@teapot.felipe-alfaro.com>
-User-Agent: Mutt/1.5.3i
+Message-Id: <200304102135.19381.l.allegrucci@tiscali.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 10, 2003 at 04:53:11PM +0200, Felipe Alfaro Solana wrote:
-> ide-scsi is still broken in 2.5... don't know if it's gonna get fixed or
-> deprecated as ATAPI support is working.
 
-I don't like ide-scsi, but I need to use cdrdao to burn vcds. I wish
-someone would patch it to support 2.5.x ATAPI.
+Fragments support on ext2/3 filesystems seems disabled
+or non fully functional.
+Are there any plans to implement fragments?
+
+Bye
+

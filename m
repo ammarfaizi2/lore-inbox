@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262243AbTJIO4j (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 10:56:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbTJIO4j
+	id S262268AbTJIO5W (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 10:57:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbTJIO5W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 10:56:39 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:2176 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262243AbTJIO4h
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 10:56:37 -0400
-Date: Thu, 9 Oct 2003 10:56:37 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: mmap strangeness in 2.4.22
-Message-ID: <Pine.LNX.4.53.0310091055470.1274@chaos>
+	Thu, 9 Oct 2003 10:57:22 -0400
+Received: from fw.osdl.org ([65.172.181.6]:4541 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262268AbTJIO5P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 10:57:15 -0400
+Date: Thu, 9 Oct 2003 07:56:07 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andi Kleen <ak@colin2.muc.de>
+cc: Andi Kleen <ak@muc.de>, <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       <bos@serpentine.com>
+Subject: Re: [PATCH] Fix mlockall for PROT_NONE mappings
+In-Reply-To: <20031009145235.GA47202@colin2.muc.de>
+Message-ID: <Pine.LNX.4.44.0310090754280.1694-100000@home.osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I have a shared memory segment called 0xdeadface,
-shown below.
+On 9 Oct 2003, Andi Kleen wrote:
+> 
+> That is exactly what the patch is doing.
 
-When active, readable, writable, etc., it shows up
-in /proc/NNN/maps as (deleted). How/why would this
-be?
+No it's not.
 
-Also, `cat mem` in any /proc/NNN subdirectory returns
-"No such process" when `cat` tries to read it.
+What I'm asking for is a simple
 
+	if (vma->vm_flags & VM_READ)
+		make_pages_readable();
 
-Output from cat /proc/MYPID/maps:
+kind of thing. A couple of one-liners in the _callers_, not a horribly 
+ugly change way down the stack.
 
-08048000-0804b000 r-xp 00000000 08:11 457876     /root/Message-Based/monitor/monitor
-0804b000-0804c000 rw-p 00002000 08:11 457876     /root/Message-Based/monitor/monitor
-0804c000-08075000 rwxp 00000000 00:00 0
-40000000-40013000 r-xp 00000000 08:11 393742     /root/Message-Based/clib/ld.so
-40013000-40014000 rw-p 00012000 08:11 393742     /root/Message-Based/clib/ld.so
-40014000-40015000 rw-p 00000000 00:00 0
-40015000-4001c000 r-xp 00000000 08:11 964822     /root/Message-Based/lib/llib.so
-4001c000-4001d000 rw-p 00006000 08:11 964822     /root/Message-Based/lib/llib.so
-4001d000-40030000 r-xp 00000000 08:11 394079     /root/Message-Based/clib/crt.so
-40030000-40031000 rw-p 00012000 08:11 394079     /root/Message-Based/clib/crt.so
-40031000-400d2000 rw-s 00000000 00:04 0          /SYSVdeadface (deleted)
-bfffe000-c0000000 rwxp fffff000 00:00 0
+Flags are ugly. Multi-value flags that have magic constants are worse. 
+This patch deserves to die.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+		Linus
 

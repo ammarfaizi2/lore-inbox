@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265222AbSLPE7h>; Sun, 15 Dec 2002 23:59:37 -0500
+	id <S262395AbSLPFHQ>; Mon, 16 Dec 2002 00:07:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265236AbSLPE7h>; Sun, 15 Dec 2002 23:59:37 -0500
-Received: from out002pub.verizon.net ([206.46.170.141]:19585 "EHLO
-	out002.verizon.net") by vger.kernel.org with ESMTP
-	id <S265222AbSLPE7g>; Sun, 15 Dec 2002 23:59:36 -0500
-Message-ID: <3DFD510C.5C535881@verizon.net>
-Date: Sun, 15 Dec 2002 20:05:32 -0800
-From: "Randy.Dunlap" <randy.dunlap@verizon.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: torvalds@transmeta.com, braam@clusterfs.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.52 fix intermezzo build (trivial)
-Content-Type: multipart/mixed;
- boundary="------------7EC42F80D08709A13CB83D74"
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at out002.verizon.net from [4.64.197.173] at Sun, 15 Dec 2002 23:07:24 -0600
+	id <S264729AbSLPFHQ>; Mon, 16 Dec 2002 00:07:16 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:30986 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262395AbSLPFHP>;
+	Mon, 16 Dec 2002 00:07:15 -0500
+Date: Sun, 15 Dec 2002 21:13:00 -0800
+From: Greg KH <greg@kroah.com>
+To: Colin Paul Adams <colin@colina.demon.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Alcatel speedtouch USB driver and SMP.
+Message-ID: <20021216051300.GB12884@kroah.com>
+References: <m3n0n7hi52.fsf@colina.demon.co.uk> <20021215075913.GB2180@kroah.com> <m3hedfhd5l.fsf@colina.demon.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m3hedfhd5l.fsf@colina.demon.co.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------7EC42F80D08709A13CB83D74
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Sun, Dec 15, 2002 at 08:58:14AM +0000, Colin Paul Adams wrote:
+> >>>>> "Greg" == Greg KH <greg@kroah.com> writes:
+> 
+>     Greg> On Sun, Dec 15, 2002 at 07:10:33AM +0000, Colin Paul Adams
+>     Greg> wrote:
+>     >> Can anyone tell me if the speedtouch driver is SMP safe yet?
+> 
+>     Greg> Which driver?  I know of at least 3 different ones :(
+> 
+> drivers/usb/misc/speedtouch.c
 
-Hi,
+Ah good, you're using one that the source is available for :)
+I think the developer has said it will work on SMP machines, but what
+problems are you having, and have you asked the author of the code?
 
-This allows intermezzo to build in 2.5.52.
-Is this OK, Peter?
+> Where are the others?
 
-~Randy
---------------7EC42F80D08709A13CB83D74
-Content-Type: text/plain; charset=us-ascii;
- name="intermez-build-2552.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="intermez-build-2552.patch"
+I don't know, but I know they are out there...
 
---- ./fs/intermezzo/Makefile%IMZ	Sun Dec 15 18:08:13 2002
-+++ ./fs/intermezzo/Makefile	Sun Dec 15 20:01:06 2002
-@@ -5,7 +5,7 @@
- obj-$(CONFIG_INTERMEZZO_FS) += intermezzo.o
- 
- intermezzo-objs := cache.o dcache.o dir.o ext_attr.o file.o fileset.o \
--	           inode.o io_daemon.o journal.o journal_ext2.o journal_ext3.o \
-+	           inode.o journal.o journal_ext2.o journal_ext3.o \
- 	           journal_obdfs.o journal_reiserfs.o journal_tmpfs.o journal_xfs.o \
- 	           kml_reint.o kml_unpack.o methods.o presto.o psdev.o replicator.o \
- 	           super.o sysctl.o upcall.o vfs.o
+thanks,
 
---------------7EC42F80D08709A13CB83D74--
-
+greg k-h

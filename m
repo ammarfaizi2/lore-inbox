@@ -1,83 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313167AbSEAQfz>; Wed, 1 May 2002 12:35:55 -0400
+	id <S313293AbSEAQpB>; Wed, 1 May 2002 12:45:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313448AbSEAQfy>; Wed, 1 May 2002 12:35:54 -0400
-Received: from unthought.net ([212.97.129.24]:1672 "HELO mail.unthought.net")
-	by vger.kernel.org with SMTP id <S313167AbSEAQfy>;
-	Wed, 1 May 2002 12:35:54 -0400
-Date: Wed, 1 May 2002 18:35:53 +0200
-From: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>
-To: Kent Borg <kentborg@borg.org>
-Cc: Arjan van de Ven <arjanv@redhat.com>,
-        Jaime Medrano <overflow@eurielec.etsit.upm.es>,
-        linux-kernel@vger.kernel.org
-Subject: Re: raid1 performance
-Message-ID: <20020501183553.D31556@unthought.net>
-Mail-Followup-To: =?iso-8859-1?Q?Jakob_=D8stergaard?= <jakob@unthought.net>,
-	Kent Borg <kentborg@borg.org>, Arjan van de Ven <arjanv@redhat.com>,
-	Jaime Medrano <overflow@eurielec.etsit.upm.es>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0204301411210.4658-100000@cuatro.eurielec.etsit.upm.es> <3CCE9038.F4C830B4@redhat.com> <20020430102148.D4470@borg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2i
+	id <S313314AbSEAQpA>; Wed, 1 May 2002 12:45:00 -0400
+Received: from vir2.relay.fluke.com ([129.196.184.26]:34064 "EHLO
+	vir2.relay.fluke.com") by vger.kernel.org with ESMTP
+	id <S313293AbSEAQpA>; Wed, 1 May 2002 12:45:00 -0400
+Date: Wed, 1 May 2002 09:45:01 -0700 (PDT)
+From: David Dyck <dcd@tc.fluke.com>
+To: Stuart MacDonald <stuartm@connecttech.com>
+cc: Alan Modra <alan@linuxcare.com>, Kiyokazu SUTO <suto@ks-and-ks.ne.jp>,
+        Andrew Morton <andrewm@uow.edu.au>,
+        Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+        Kanoj Sarcar <kanoj@sgi.com>,
+        Christer Weinigel <wingel@hog.ctrl-c.liu.se>,
+        Robert Schwebel <robert@schwebel.de>,
+        Juergen Beisert <jbeisert@eurodsn.de>, "Theodore Ts'o" <tytso@mit.edu>,
+        Sapan Bhatia <sapan@corewars.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: changes between 2.2.20 and 2.4.x 'broke' select() from detecting
+ input characters in my serial /dev/ttyS0 program
+In-Reply-To: <00f501c1f121$6b7614c0$294b82ce@connecttech.com>
+Message-ID: <Pine.LNX.4.33.0205010940370.3792-100000@dd.tc.fluke.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 01 May 2002 16:49:21.0561 (UTC) FILETIME=[24775890:01C1F130]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 30, 2002 at 10:21:48AM -0400, Kent Borg wrote:
-> On Tue, Apr 30, 2002 at 01:38:16PM +0100, Arjan van de Ven wrote, very
-> roughly: 
-> [that RAID 1 is only as fast in reading as the fastest disk because of
-> seeking over alternate blocks, and ]
-> 
-> > The only way to get the "1 thread sequential read" case faster is by
-> > modifying the disk layout to be
-> > 
-> > Disk 1: ACEGIKBDFHJ
-> > Disk 2: ACEGIKBDFHJ
-> > 
-> > where disk 1 again reads block A, and disk 2 reads block B.  To read
-> > block C, disk 1 doesn't have to move it's head or read a dummy block
-> > away, it can read block C sequention, and disk 2 can read block D
-> > that way.
-> >
-> > That way the disks actually each only read the relevant blocks in a
-> > sequential way and you get (in theory) 2x the performance of 1 disk.
-> 
-> I am confused.  
-> 
-> Assuming a big enough read is requested to allow a parallelizing to
-> two disks, why can't the second disk be told not to read alternate
-> blocks but to start reading sequential blocks starting half way up the
-> request?
+On Wed, 1 May 2002 at 11:03 -0400, Stuart MacDonald <stuartm@connecttech.co...:
 
-This is *not* as simple as it sounds.  Believe me, I spent a week trying...
+> CREAD handling was changed to be correct; recently, but I don't know
+> exactly when. The 2.4 vs 2.2 difference sounds about right though.
+> Previously CREAD had been incorrectly handled by the driver and hadn't
+> been changed because some apps would break. Now data is correctly
+> ignored on receive when CREAD is off.
+>
+> When you talk about the "O_WRONLY channel" and the "O_RDONLY channel"
+> you're not actually referring to separate things. Each serial port is
+> represented in the kernel as one entity that may be opened different
+> ways, possibly multiple times.
+>
+> When you turn off CREAD in your write side, you turn off CREAD for the
+> whole port, including the read only side. This is not a bug in the
+> driver.
 
-However, with ext2 (and other filesystems as well), a large sequential file
-read is *not* sequential on the disk.  You should actually see better performance
-on RAID-1 than on a single disk for very large reads, becuase some of the lookups
-needed (block indirection or whatever) will be run by the "best" disk in the given
-situation.
+Thanks for your response.  (thanks also the the other
+folks that responded). It makes sense to me that 2 open calls
+to the same "/dev/ttyS0" should map to the same driver and kernel
+structure, so there is only one place that CREAD effects.
 
-> 
-> Also, why does hdparm give me significantly faster read numbers on
-> /dev/md<whatever> than it does on /dev/hd<whatever>?  I had assumed
-> there was parallelizing going on.  Does this mean I would get a speed
-> improvement if I ran my single disk notebook as a single disk RAID 1
-> because there is some bigger or better buffering going on in that code
-> even without parallelizing?
+To bad that the 2.2 code was in error, but I can work around with that.
 
-hdparm is not a good benchmark for this.
+ David
 
-Use bonnie, bonnie++, tiotest, or even 'dd' with *huge* files.
-
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:

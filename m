@@ -1,62 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266615AbSLCXWO>; Tue, 3 Dec 2002 18:22:14 -0500
+	id <S266623AbSLCXaN>; Tue, 3 Dec 2002 18:30:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266623AbSLCXWO>; Tue, 3 Dec 2002 18:22:14 -0500
-Received: from ns1.triode.net.au ([202.147.124.1]:56768 "EHLO
-	iggy.triode.net.au") by vger.kernel.org with ESMTP
-	id <S266615AbSLCXWN>; Tue, 3 Dec 2002 18:22:13 -0500
-Message-ID: <3DED3E88.3020609@torque.net>
-Date: Wed, 04 Dec 2002 10:30:16 +1100
-From: Douglas Gilbert <dougg@torque.net>
-Reply-To: dougg@torque.net
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ide-scsi] "structure has no member named `tag'"
-Content-Type: multipart/mixed;
- boundary="------------040006010407010800070302"
+	id <S266626AbSLCXaN>; Tue, 3 Dec 2002 18:30:13 -0500
+Received: from dp.samba.org ([66.70.73.150]:16343 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S266623AbSLCXaM>;
+	Tue, 3 Dec 2002 18:30:12 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Erlend Aasland <erlend-a@ux.his.no>
+Cc: bfennema@falcon.csc.calpoly.edu, dave@trylinux.com,
+       linux_udf@hpesjro.fc.hp.com, linux-kernel@vger.kernel.org
+Subject: Re: [TRIVIAL PATCH 2.5] get rid of CONFIG_UDF_RW (i386) 
+In-reply-to: Your message of "Tue, 03 Dec 2002 13:51:20 BST."
+             <20021203125120.GA2417@johanna5.ux.his.no> 
+Date: Wed, 04 Dec 2002 10:37:04 +1100
+Message-Id: <20021203233744.AA03F2C29E@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040006010407010800070302
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In message <20021203125120.GA2417@johanna5.ux.his.no> you write:
+> I noticed that CONFIG_UDF_RW is not used anywhere, so I removed it from all
+> the defconfigs.
 
-"Rusty Lynch" <rusty@linux.co.intel.com> wrote
- >
- > There was a discussion on this at
- > http://marc.theaimsgroup.com/?t=103861087100001&r=1&w=2
- >
- > To get past this you can just change the line to compare
- > ->name instead ->tag until the real fix lands.
+But it's used in 2.4.20.  It *looks* like it's on by default in 2.5,
+but I just want the authors to confirm that the option isn't coming
+back.
 
-For lk 2.5.50-bk3 that attached patch should work.
+Ben, Dave?
 
-Doug Gilbert
+Rusty.
 
+> diff -urN linux-2.5.50/arch/i386/defconfig linux-2.5.50-eaa/arch/i386/defconfig
+> --- linux-2.5.50/arch/i386/defconfig	Tue Oct 22 00:13:57 2002
+> +++ linux-2.5.50-eaa/arch/i386/defconfig	Tue Dec  3 00:48:05 2002
+> @@ -804,7 +804,6 @@
+>  CONFIG_EXT2_FS=y
+>  # CONFIG_SYSV_FS is not set
+>  CONFIG_UDF_FS=y
+> -# CONFIG_UDF_RW is not set
+>  # CONFIG_UFS_FS is not set
+>  # CONFIG_UFS_FS_WRITE is not set
+>  # CONFIG_XFS_FS is not set
+> 
 
-
---------------040006010407010800070302
-Content-Type: text/plain;
- name="ide-scsi_2550mike.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ide-scsi_2550mike.diff"
-
---- linux/drivers/scsi/ide-scsi.c	2002-11-23 13:01:23.000000000 +1100
-+++ linux/drivers/scsi/ide-scsi.c2550mike	2002-12-01 00:44:26.000000000 +1100
-@@ -764,7 +764,7 @@
- 
- 	if (disk) {
- 		struct Scsi_Device_Template **p = disk->private_data;
--		if (strcmp((*p)->tag, "sg") == 0)
-+		if (strcmp((*p)->scsi_driverfs_driver.name, "sg") == 0)
- 			return test_bit(IDESCSI_SG_TRANSFORM, &scsi->transform);
- 	}
- 	return test_bit(IDESCSI_TRANSFORM, &scsi->transform);
-
---------------040006010407010800070302--
-
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,119 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261985AbULVNT5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261603AbULVN0w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261985AbULVNT5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 08:19:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261986AbULVNT5
+	id S261603AbULVN0w (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 08:26:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261963AbULVN0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 08:19:57 -0500
-Received: from main.gmane.org ([80.91.229.2]:10626 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261985AbULVNTw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 08:19:52 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Ed L Cashin <ecashin@coraid.com>
-Subject: Re: [PATCH] ATA over Ethernet driver for 2.6.10-rc3-bk11
-Date: Wed, 22 Dec 2004 08:19:50 -0500
-Message-ID: <87hdme31xl.fsf@coraid.com>
-References: <87k6rhc4uk.fsf@coraid.com>
-	<1103356085.3369.140.camel@sfeldma-mobl.dsl-verizon.net>
+	Wed, 22 Dec 2004 08:26:52 -0500
+Received: from yue.linux-ipv6.org ([203.178.140.15]:56842 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S261603AbULVN0u
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Dec 2004 08:26:50 -0500
+Date: Wed, 22 Dec 2004 22:26:54 +0900 (JST)
+Message-Id: <20041222.222654.126619836.yoshfuji@linux-ipv6.org>
+To: kaber@trash.net
+Cc: davem@davemloft.net, 7atbggg02@sneakemail.com,
+       linux-kernel@vger.kernel.org, solt2@dns.toxicfilms.tv,
+       yoshfuji@linux-ipv6.org
+Subject: Re: what/where is ss tool ?
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <41C96F24.2050409@trash.net>
+References: <012f01c4e81f$f4bddbd0$0e25fe0a@pysiak>
+	<20041222122758.GB6627@m.safari.iki.fi>
+	<41C96F24.2050409@trash.net>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: adsl-34-231-146.asm.bellsouth.net
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-Cancel-Lock: sha1:6XShcQQDlsEspKXU0fB/NKZ9i+k=
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Scott Feldman <sfeldma@pobox.com> writes:
+In article <41C96F24.2050409@trash.net> (at Wed, 22 Dec 2004 13:57:08 +0100), Patrick McHardy <kaber@trash.net> says:
 
-...
->> +static char aoe_iflist[IFLISTSZ];
->> +
->> +int
->> +is_aoe_netif(struct net_device *ifp)
->> +{
->> +       register char *p, *q;
->> +       register int len;
->> +
->> +       if (aoe_iflist[0] == '\0')
->> +               return 1;
->> +
->> +       for (p = aoe_iflist; *p; p = q + strspn(q, WHITESPACE)) {
->> +               q = p + strcspn(p, WHITESPACE);
->> +               if (q != p)
->> +                       len = q - p;
->> +               else
->> +                       len = strlen(p); /* last token in aoe_iflist
-> */
->> +
->> +               if (strlen(ifp->name) == len && !strncmp(ifp->name, p,
-> len))
->> +                       return 1;
->> +               if (q == p)
->> +                       break;
->> +       }
->> +
->> +       return 0;
->> +}
->
-> This is getting called for every skb received.  Do you really want to
-> walk a string array looking for "eth0" or "eth1" for every receive
-> packet?  Maybe making the locals "register" helps speed things up.  :-)
->
-> Seriously, can you achieve the same by registering the packet type
-> handler for each dev and let netif_receive_skb() do the check for
-> skb->dev == packet_type->dev?
+> ===== net/ipv4/Kconfig 1.23 vs edited =====
+> --- 1.23/net/ipv4/Kconfig	2004-11-03 21:20:02 +01:00
+> +++ edited/net/ipv4/Kconfig	2004-12-22 13:52:14 +01:00
+> @@ -355,7 +355,10 @@
+>  	default y
+>  	---help---
+>  	  Support for TCP socket monitoring interface used by native Linux
+> -	  tools such as ss.
+> +	  tools such as ss. ss is included in iproute2, currently downloadable
+> +	  at http://developer.osdl.org/dev/iproute2/. If you want IPv6 support
+> +	  and have selected IPv6 as a module, you need to built this as a
+> +	  module too.
+>  	  
 
-We'd like to keep state in the driver in order to be able to control
-both outgoing and incoming traffic.  I'm not sure this check will
-become a performance problem, but anyone with who can measure it is
-welcome to speak up.  I suspect that optimizing this now would be a
-case of premature optimization.
+would you enclose URL by <>, like <http://...>?
 
->> + * (1) i have no idea if this is redundant, but i can't figure why
->> + * the ifp is passed in if it is.
->
-> This isn't necessary - see deliver_skb()
-
-Thanks.  That looks like the only place our packet handler is called.
-
->> +       skb->len += ETH_HLEN;   /* (2) */
->
-> You want to do a skb_push(skb, ETH_HLEN) here instead to keep skb->len
-> and skb->data corresponding (basically to undo the skb->pull() in
-> eth_type_trans()).  skb->mac.raw will still be correct.
-
-Thanks.
-
-...
->> +       if (h->verfl & AOEFL_ERR) {
->> +               n = h->err;
->> +               if (n > NECODES)
->> +                       n = 0;
->> +               printk(KERN_CRIT "aoe: aoenet_rcv: error packet from
-> %d.%d; "
->> +                       "ecode=%d '%s'\n",
->> +                      __be16_to_cpu(*((u16 *) h->major)), h->minor,
->> +                       h->err, aoe_errlist[n]);
->> +               goto exit;
->> +       }
->
-> Is there a better way to handle errors than flooding the log?
-
-These errors haven't happened much, but if they did, I'd want
-everybody to know.  Would you suggest a per-device counter to limit
-how many times this message gets printed?  
-
->> +       dev_kfree_skb(skb);
->
-> kfree_skb() should be enough.
-
-Hmm.  It's just a macro for kfree_skb, but I thought that
-dev_kfree_skb is the more correct one for us to call.  I mean, if
-dev_kfree_skb isn't supposed to be called here, then what's it for?
-
--- 
-  Ed L Cashin <ecashin@coraid.com>
-
+--yoshfuji

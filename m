@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbVASGij@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbVASGuE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261602AbVASGij (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 01:38:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbVASGih
+	id S261604AbVASGuE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 01:50:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbVASGuE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 01:38:37 -0500
-Received: from ylpvm29-ext.prodigy.net ([207.115.57.60]:34210 "EHLO
-	ylpvm29.prodigy.net") by vger.kernel.org with ESMTP id S261602AbVASGib
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 01:38:31 -0500
-Date: Tue, 18 Jan 2005 22:37:13 -0800
-From: Tony Lindgren <tony@atomide.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Pavel Machek <pavel@ucw.cz>, George Anzinger <george@mvista.com>,
-       john stultz <johnstul@us.ibm.com>, Andrea Arcangeli <andrea@suse.de>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Con Kolivas <kernel@kolivas.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] dynamic tick patch
-Message-ID: <20050119063713.GB26932@atomide.com>
-References: <20050119000556.GB14749@atomide.com> <1106108467.4500.169.camel@gaston> <20050119050701.GA19542@atomide.com> <1106112525.4534.175.camel@gaston>
+	Wed, 19 Jan 2005 01:50:04 -0500
+Received: from fw.osdl.org ([65.172.181.6]:41651 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261604AbVASGt7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 01:49:59 -0500
+Date: Tue, 18 Jan 2005 22:49:57 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+       Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] consolidate arch specific resource.h headers
+Message-ID: <20050118224957.I24171@build.pdx.osdl.net>
+References: <20050118161056.H469@build.pdx.osdl.net> <20050119011950.GA15685@ti64.telemetry-investments.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1106112525.4534.175.camel@gaston>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20050119011950.GA15685@ti64.telemetry-investments.com>; from brugolsky@telemetry-investments.com on Tue, Jan 18, 2005 at 08:19:50PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Benjamin Herrenschmidt <benh@kernel.crashing.org> [050118 21:29]:
-> Hrm... reading more of the patch & Martin's previous work, I'm not sure
-> I like the idea too much in the end... The main problem is that you are
-> just "replaying" the ticks afterward, which I see as a problem for
-> things like sched_clock() which returns the real current time, no ?
+* Bill Rugolsky Jr. (brugolsky@telemetry-investments.com) wrote:
+> On Tue, Jan 18, 2005 at 04:10:56PM -0800, Chris Wright wrote:
+> > +#define INIT_RLIMITS					\
+> > +{							\
+> > +	{ RLIM_INFINITY, RLIM_INFINITY },		\
+> > +	{ RLIM_INFINITY, RLIM_INFINITY },		\
+> > +	{ RLIM_INFINITY, RLIM_INFINITY },		\
+> > +	{      _STK_LIM, _STK_LIM_MAX  },		\
+> > +	{             0, RLIM_INFINITY },		\
+> > +	{ RLIM_INFINITY, RLIM_INFINITY },		\
+> > +	{             0,             0 },		\
+> > +	{      INR_OPEN,     INR_OPEN  },		\
+> > +	{   MLOCK_LIMIT,   MLOCK_LIMIT },		\
+> > +	{ RLIM_INFINITY, RLIM_INFINITY },		\
+> > +	{ RLIM_INFINITY, RLIM_INFINITY },		\
+> > +	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
+> > +	{ MQ_BYTES_MAX, MQ_BYTES_MAX },			\
+> > +}
+> 
+> While you are rooting around in there, perhaps this block
+> should be converted to C99 initializer syntax, to avoid
+> problems if arch-specific changes are later introduced?
 
-Well so far I haven't found problems with time. Since sched_clock()
-returns the hw time, how does it cause a problem? Do you have some
-example in mind? Maybe there's something I haven't even considered
-yet.
+Yes, I had considered the same.  I had checked a couple arches and with
+proper designated initializers, that bit would not need to be duplicated.
 
-> I'll toy a bit with my own implementation directly using Martin's work
-> and see what kind of improvement I really get on ppc laptops.
-
-I'd be interested in what you come up with :)
-
-Tony
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

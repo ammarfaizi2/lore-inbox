@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264048AbUDFW3Z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 18:29:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264049AbUDFW3Z
+	id S264049AbUDFWaX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 18:30:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264050AbUDFWaX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 18:29:25 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:29201 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S264048AbUDFW3X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 18:29:23 -0400
-Date: Wed, 7 Apr 2004 02:29:22 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Stefan Wanner <stefan.wanner@postmail.ch>
-Cc: Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc3: Parse error in traps.c on Alpha
-Message-ID: <20040407022922.A841@den.park.msu.ru>
-References: <3B75AEAB-8807-11D8-A1B6-000393C43976@postmail.ch>
+	Tue, 6 Apr 2004 18:30:23 -0400
+Received: from karnickel.franken.de ([193.141.110.11]:27145 "EHLO
+	karnickel.franken.de") by vger.kernel.org with ESMTP
+	id S264049AbUDFWaQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 18:30:16 -0400
+Subject: Re: [linux-usb-devel] Re: Oops with bluetooth dongle
+From: Erik Tews <erik@debian.franken.de>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Alex Riesen <fork0@users.sourceforge.net>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44L0.0404061654560.6345-100000@ida.rowland.org>
+References: <Pine.LNX.4.44L0.0404061654560.6345-100000@ida.rowland.org>
+Content-Type: text/plain
+Message-Id: <1081290256.3515.12.camel@tpl.lokalnetz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B75AEAB-8807-11D8-A1B6-000393C43976@postmail.ch>; from stefan.wanner@postmail.ch on Tue, Apr 06, 2004 at 10:16:05PM +0200
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 07 Apr 2004 00:24:17 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 06, 2004 at 10:16:05PM +0200, Stefan Wanner wrote:
-> I still have this problem in 2.6.5
-...
-> > arch/alpha/kernel/traps.c: In function `opDEC_check':
-> > arch/alpha/kernel/traps.c:55: parse error before `['
-...
-> > gcc version 2.95.4 20011002 (Debian prerelease)
+Am Di, den 06.04.2004 schrieb Alan Stern um 22:59:
+> Please, folks, don't just say it oopses.  Post a crash dump so I have
+> some chance of figuring out what's going wrong!
+> 
+> So many people have reported problems with the USB bluetooth driver that I
+> can't keep them straight.  Some of them crashed in usb_set_interface(),
+> and the patch I sent out should have fixed that.  Others crashed in
+> hcd_giveback_urb(), and others crashed elsewhere.  This will require more 
+> than a single fix.
 
-This can be compiled only with gcc version >= 3.1.
+OK, my problem is that I cannot see anything because the kernel freezes
+and I got X running, so no oops is visible.
 
-Richard, should we explicitly state the minimal gcc
-version requirement for 2.6 on Alpha somewhere,
-or just change the opDEC inline asm to use older syntax?
-To me, both ways look acceptable.
+I will apply your patch and see what happens. Perhaps I can get some
+more info using kdb and a console.
 
-Ivan.

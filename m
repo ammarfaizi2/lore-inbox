@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281420AbRKTWM4>; Tue, 20 Nov 2001 17:12:56 -0500
+	id <S281428AbRKTWQQ>; Tue, 20 Nov 2001 17:16:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281435AbRKTWMr>; Tue, 20 Nov 2001 17:12:47 -0500
-Received: from cerebus.wirex.com ([65.102.14.138]:17149 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S281441AbRKTWMf>; Tue, 20 Nov 2001 17:12:35 -0500
-Date: Tue, 20 Nov 2001 14:05:48 -0800
-From: Chris Wright <chris@wirex.com>
-To: Luis Miguel Correia Henriques <umiguel@alunos.deis.isec.pt>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: copy to user
-Message-ID: <20011120140548.A12208@figure1.int.wirex.com>
-Mail-Followup-To: Luis Miguel Correia Henriques <umiguel@alunos.deis.isec.pt>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.31.0111202040180.23000-100000@mail.deis.isec.pt>
+	id <S281435AbRKTWQG>; Tue, 20 Nov 2001 17:16:06 -0500
+Received: from c1473286-a.stcla1.sfba.home.com ([24.176.137.160]:1040 "HELO
+	ocean.lucon.org") by vger.kernel.org with SMTP id <S281428AbRKTWP4>;
+	Tue, 20 Nov 2001 17:15:56 -0500
+Date: Tue, 20 Nov 2001 14:15:51 -0800
+From: "H . J . Lu" <hjl@lucon.org>
+To: "Torvalds; Linus" <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: PATCH: Don't check NFS root when root= is given
+Message-ID: <20011120141551.A1239@lucon.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.31.0111202040180.23000-100000@mail.deis.isec.pt>; from umiguel@alunos.deis.isec.pt on Tue, Nov 20, 2001 at 08:54:42PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Luis Miguel Correia Henriques (umiguel@alunos.deis.isec.pt) wrote:
-> The reason that I need it to spend CPU time is that I'm developing a fault
-> injector. The purpose of a fault injection tool is, as you could imagine,
-> to test some critical systems and it's capacity to recover from fails. The
-> reason for changing the code of a process is that process must be delayed
-> but without leaving the CPU - everything must look like nothing wrong is
-> happening, except for other processes that are waiting for something from
-> the delayed process...
+When the kernel is configured with NFS root, we should be able to pass
+root=/dev/sda1 to kernel. mount_root in fs/super.c checks:
 
-with ptrace(2) you can write into the program's .bss, whatever...add a
-little shellcode and you're dangerous ;-)
+#ifdef CONFIG_ROOT_NFS
+        if (MAJOR(ROOT_DEV) != UNNAMED_MAJOR)
+                goto skip_nfs;
+	....
 
--chris
+I think net/ipv4/ipconfig.c should do same.
+
+
+H.J.
+--- linux/net/ipv4/ipconfig.c~	Tue Nov 20 14:11:09 2001
++++ linux/net/ipv4/ipconfig.c	Tue Nov 20 11:10:01 2001
+@@ -1144,7 +1144,9 @@ static int __init ip_auto_config(void)
+ 	 */
+ 	if (ic_myaddr == INADDR_NONE ||
+ #ifdef CONFIG_ROOT_NFS
+-	    (root_server_addr == INADDR_NONE && ic_servaddr == INADDR_NONE) ||
++	    (MAJOR(ROOT_DEV) == UNNAMED_MAJOR
++	     && root_server_addr == INADDR_NONE
++	     && ic_servaddr == INADDR_NONE) ||
+ #endif
+ 	    ic_first_dev->next) {
+ #ifdef IPCONFIG_DYNAMIC

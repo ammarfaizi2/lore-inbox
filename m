@@ -1,56 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262767AbTLDAoC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 19:44:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262782AbTLDAoC
+	id S262782AbTLDAqQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 19:46:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262784AbTLDAqQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 19:44:02 -0500
-Received: from mail.kroah.org ([65.200.24.183]:41101 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262767AbTLDAn5 (ORCPT
+	Wed, 3 Dec 2003 19:46:16 -0500
+Received: from holomorphy.com ([199.26.172.102]:14031 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262782AbTLDAqP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 19:43:57 -0500
-Date: Wed, 3 Dec 2003 16:24:14 -0800
-From: Greg KH <greg@kroah.com>
-To: "Collins, Bernard F. (Skip)" <Bernard.Collins@jhuapl.edu>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Visor USB hang
-Message-ID: <20031204002414.GI21541@kroah.com>
-References: <E37E01957949D611A4C30008C7E691E20915BBFC@aples3.dom1.jhuapl.edu>
+	Wed, 3 Dec 2003 19:46:15 -0500
+Date: Wed, 3 Dec 2003 16:46:11 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Ethan Weinstein <lists@stinkfoot.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: HT apparently not detected properly on 2.4.23
+Message-ID: <20031204004611.GX8039@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Ethan Weinstein <lists@stinkfoot.org>, linux-kernel@vger.kernel.org
+References: <3FCE2F8E.90104@stinkfoot.org> <20031203224023.GV8039@holomorphy.com> <3FCE74B0.9010506@stinkfoot.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E37E01957949D611A4C30008C7E691E20915BBFC@aples3.dom1.jhuapl.edu>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <3FCE74B0.9010506@stinkfoot.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 03, 2003 at 05:36:01PM -0500, Collins, Bernard F. (Skip) wrote:
-> > > I am running 2.4.23 on a RedHat 9 system. Whenever I try to sync my
-> > > Visor Deluxe, the system hangs/freezes soon after I press the sync 
-> > > button on my cradle. Trying to find the cause of the problem, I 
-> > > preloaded the usbserial and visor modules with "debug=1". Nothing 
-> > > obviously wrong appears in the logs. The last message before the 
-> > > system freezes is a usb-uhci.c interrupt message.
-> > 
-> > Can you show the log with that enabled?
-> 
-> If you mean debug=1 enabled, the log excerpt I posted was generated with
-> both the usbserial and visor modules modprobed with debug=1. Perhaps I am
-> mistaken in assuming that my approach actually enables debugging. I
-> modprobed both modules and hit the hotsync button. I am assuming that
-> hotplug does not override the manually loaded module parameters. 
+On Wed, Dec 03, 2003 at 06:41:36PM -0500, Ethan Weinstein wrote:
+> Ok, setting CONFIG_NR_CPUS=8 does indeed solve the HT issue, looks like 
+> it was the numbering scheme:
 
-but then no user program tried to talk to the device.  I don't see any
-accesses to the device in your logs.  Any oops messages?
+Something like this might do the trick. NR_CPUS is already checked
+indirectly via max_cpus.
 
-> > What happens if you use the uhci.o module instead of usb-uhci.o?
-> 
-> That is not terribly convenient to test right now. Can you suggest a simple
-> way to unload usb-uhci and load uhci without disabling my usb keyboard and
-> mouse?
 
-	rmmod usb-uhci && modprobe uhci
+-- wli
 
-thanks,
 
-greg k-h
+===== arch/i386/kernel/smpboot.c 1.17 vs edited =====
+--- 1.17/arch/i386/kernel/smpboot.c	Mon Nov  3 05:48:33 2003
++++ edited/arch/i386/kernel/smpboot.c	Wed Dec  3 16:45:27 2003
+@@ -1106,7 +1106,7 @@
+ 	 */
+ 	Dprintk("CPU present map: %lx\n", phys_cpu_present_map);
+ 
+-	for (bit = 0; bit < NR_CPUS; bit++) {
++	for (bit = 0; bit < BITS_PER_LONG; bit++) {
+ 		apicid = cpu_present_to_apicid(bit);
+ 		
+ 		/* don't try to boot BAD_APICID */

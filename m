@@ -1,85 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262629AbTDMWi0 (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 18:38:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262635AbTDMWiZ (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 18:38:25 -0400
-Received: from [62.75.136.201] ([62.75.136.201]:62861 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S262629AbTDMWiX (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Apr 2003 18:38:23 -0400
-Message-ID: <3E99E9A5.7090302@g-house.de>
-Date: Mon, 14 Apr 2003 00:50:13 +0200
-From: Christian <evil@g-house.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.3) Gecko/20030312
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.67 alpha compile failure (solved but nfsd Oopses now)
-References: <kirk-1030412154541.A0214377@hydra.colinet.de> <yw1xllyfv6yf.fsf@zaphod.guide>
-In-Reply-To: <yw1xllyfv6yf.fsf@zaphod.guide>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id S262642AbTDMWgs (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 18:36:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262649AbTDMWgs (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 18:36:48 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:57550 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S262642AbTDMWgr (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Apr 2003 18:36:47 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Mon, 14 Apr 2003 00:48:33 +0200 (MEST)
+Message-Id: <UTC200304132248.h3DMmXb29042.aeb@smtp.cwi.nl>
+To: akpm@digeo.com, linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] smb-diff
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Måns Rullgård schrieb:
-> See my message with subject "[PATCH] Fix cond_syscall macro on Alpha".
+Samba receives a 64+64 bit device number. Instead of throwing all
+away and only preserving 8+8 we can now preserve 32+32.
 
-yes, indees. the patch applied (with an error when using patch
---verbose) and 2.5.67 compiled perfectly. i sa w the thread about this
-thing on the redhat-AXP list, but i don't know anything about the deeper
-interactions between kernel and glibc, sorry.
-from a user's point of view i could say: "yes, let it go in 2.5.68" :-)
+Andries
 
 
-besides:
-now i have a kernel oops when starting the kernel-nfs-server:
-
-------------
-
-lila:~# /etc/init.d/nfs-kernel-server start
-Apr 14 00:31:08 lila kernel: Unable to handle kernel paging request at
-virtual address 2834362d657a6973
-Apr 14 00:31:08 lila kernel: rpc.nfsd(22279): Oops 0
-Apr 14 00:31:08 lila kernel: pc = [<fffffc0000314748>]  ra =
-[<fffffc0000312ec0>]  ps = 0007    Not tainted
-Apr 14 00:31:08 lila kernel: v0 = 0000000000000000  t0 =
-0000000000000000  t1 = fffffc0000314744
-Apr 14 00:31:08 lila kernel: t2 = fffffc0000560848  t3 =
-fffffc000055fba0  t4 = 0000000000000001
-Apr 14 00:31:08 lila kernel: t5 = 2834362d657a6973  t6 =
-000000000000001c  t7 = fffffc00031f8000
-Apr 14 00:31:08 lila kernel: s0 = 0000000000000000  s1 =
-fffffc000034e0d0  s2 = 0000000000000000
-Apr 14 00:31:08 lila kernel: s3 = 000000011ffff3e4  s4 =
-0000000000000000  s5 = fffffc0003840000
-Apr 14 00:31:08 lila kernel: s6 = 0000000000000801
-Apr 14 00:31:08 lila kernel: a0 = 2834362d657a6973  a1 =
-0000000000000028  a2 = 0000000000000001
-Apr 14 00:31:08 lila kernel: a3 = 0000000000000028  a4 =
-0000000000000001  a5 = 0000000000000000
-Apr 14 00:31:08 lila kernel: t8 = 0000000000000000  t9 =
-fffffc0000540848  t10= fffffc0003ff31c8
-Apr 14 00:31:08 lila kernel: t11= fffffc00005c3010  pv =
-fffffc0000314300  at = fffffffc002e6b84
-Apr 14 00:31:08 lila kernel: gp = fffffc0000560848  sp = fffffc00031fbcd8
-Apr 14 00:31:08 lila kernel: Trace:fffffc0000312ec0 fffffc0000379408
-fffffc000034e050 fffffc0000379b78 fffffc000034e0d4 fffffc0000397e3c
-fffffc0000313134 fffffc0000313090
-Apr 14 00:31:08 lila kernel: Code: 3c900001  3cb00000  47f60401
-e43fff1d  c3ffff21  47ff0401 <2cb00000> 2cf00003
-
-Starting NFS kernel daemon: nfsd/etc/init.d/nfs-kernel-server: line 79:
-22279 Segmentation fault      start-stop-daemon --start --quiet --exec
-$PREFIX/sbin/rpc.nfsd -- $RPCNFSDCOUNT
-  mountd.
-lila:~#
-
---------------
-(could be that the order is a bit messed up, i copied the kernel oops
-from /var/log/messages between "start" and "segfault".)
-
-
-Thank you very much,
-Christian.
-
-
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/smbfs/proc.c b/fs/smbfs/proc.c
+--- a/fs/smbfs/proc.c	Tue Apr  8 09:36:43 2003
++++ b/fs/smbfs/proc.c	Sat Apr 12 13:33:39 2003
+@@ -2085,7 +2085,6 @@
+ void smb_decode_unix_basic(struct smb_fattr *fattr, char *p)
+ {
+ 	/* FIXME: verify nls support. all is sent as utf8? */
+-	__u64 devmajor, devminor;
+ 
+ 	fattr->f_unix = 1;
+ 	fattr->f_mode = 0;
+@@ -2112,9 +2111,10 @@
+ 	fattr->f_mode |= smb_filetype_to_mode(WVAL(p, 56));
+ 
+ 	if (S_ISBLK(fattr->f_mode) || S_ISCHR(fattr->f_mode)) {
+-		devmajor = LVAL(p, 60);
+-		devminor = LVAL(p, 68);
+-		fattr->f_rdev = ((devmajor & 0xFF) << 8) | (devminor & 0xFF);
++		__u64 major = LVAL(p, 60);
++		__u64 minor = LVAL(p, 68);
++
++		fattr->f_rdev = MKDEV(major & 0xffffffff, minor & 0xffffffff);
+ 	}
+ 	fattr->f_mode |= LVAL(p, 84);
+ }
+@@ -3008,7 +3008,7 @@
+  */
+ int
+ smb_proc_setattr_unix(struct dentry *d, struct iattr *attr,
+-		      int major, int minor)
++		      unsigned int major, unsigned int minor)
+ {
+ 	struct smb_sb_info *server = server_from_dentry(d);
+ 	u64 nttime;
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/smbfs/proto.h b/fs/smbfs/proto.h
+--- a/fs/smbfs/proto.h	Thu Jan  2 14:32:11 2003
++++ b/fs/smbfs/proto.h	Sat Apr 12 13:34:38 2003
+@@ -27,7 +27,7 @@
+ extern void smb_decode_unix_basic(struct smb_fattr *fattr, char *p);
+ extern int smb_proc_getattr(struct dentry *dir, struct smb_fattr *fattr);
+ extern int smb_proc_setattr(struct dentry *dir, struct smb_fattr *fattr);
+-extern int smb_proc_setattr_unix(struct dentry *d, struct iattr *attr, int major, int minor);
++extern int smb_proc_setattr_unix(struct dentry *d, struct iattr *attr, unsigned int major, unsigned int minor);
+ extern int smb_proc_settime(struct dentry *dentry, struct smb_fattr *fattr);
+ extern int smb_proc_dskattr(struct super_block *sb, struct statfs *attr);
+ extern int smb_proc_read_link(struct smb_sb_info *server, struct dentry *d, char *buffer, int len);

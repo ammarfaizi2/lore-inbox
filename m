@@ -1,35 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268084AbUHKPn5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268086AbUHKP7H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268084AbUHKPn5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 11:43:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268085AbUHKPn5
+	id S268086AbUHKP7H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 11:59:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268088AbUHKP7H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 11:43:57 -0400
-Received: from mailer.nec-labs.com ([138.15.108.3]:3292 "EHLO
-	mailer.nec-labs.com") by vger.kernel.org with ESMTP id S268084AbUHKPn4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 11:43:56 -0400
-Message-ID: <411A3EBE.8070405@nec-labs.com>
-Date: Wed, 11 Aug 2004 08:43:58 -0700
-From: Lei Yang <leiyang@nec-labs.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040114
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-       Kernel Newbies Mailing List <kernelnewbies@nl.linux.org>
-Subject: Compression algorithm in cloop
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 11 Aug 2004 11:59:07 -0400
+Received: from fw.osdl.org ([65.172.181.6]:60304 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268086AbUHKP7E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 11:59:04 -0400
+Date: Wed, 11 Aug 2004 08:36:46 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Diffie <diffie@gmail.com>
+Cc: akpm@osdl.org, bjorn.helgaas@hp.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc4-mm1
+Message-Id: <20040811083646.3b01813b.rddunlap@osdl.org>
+In-Reply-To: <9dda349204081020337de13352@mail.gmail.com>
+References: <9dda349204081020337de13352@mail.gmail.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Aug 2004 15:43:55.0831 (UTC) FILETIME=[02A63C70:01C47FBA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, 10 Aug 2004 23:33:30 -0400 Diffie wrote:
 
-I am trying to do some experiment on compression ratios with cloop. I 
-know that currently cloop uses zlib. How can I change it to other 
-algorithms? Where should I start from? Really a newbie to this, 
-appreciate any comments and suggestions!!
+| Folks,
+| 
+| 2.6.8-rc4-mm1 panics when booting (aic7xxx) with lots of SCSI ABORT
+| and sens code errors.
+| IDE ports give also failed probe messages.
+| 
+| This is on AMD/nForce2 based system under Slackware 10.0 with
+| 2.6.8-rc4-mm1 kernel compiled using GCC 3.3.4. Last kernel that worked
+| was 2.6.8-rc3-mm1.
+| 
+| The 2.6.8-rc3-mm2 flag pci=routeirq which Andrew suggested works and
+| boots this kernel.
+| 
+| Below is the full dmesg/lspci output.
 
-TIA.
-Lei
+Where are the aic7xxx panics?
+
+Please use your kernel boot log message file(s) or
+maybe 'dmesg -s100000' to get the complete message log.
+
+
+--
+~Randy

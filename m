@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267475AbRGQWDr>; Tue, 17 Jul 2001 18:03:47 -0400
+	id <S267480AbRGQWOw>; Tue, 17 Jul 2001 18:14:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267469AbRGQWDh>; Tue, 17 Jul 2001 18:03:37 -0400
-Received: from thebsh.namesys.com ([212.16.0.238]:18183 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S267457AbRGQWDc>; Tue, 17 Jul 2001 18:03:32 -0400
-Message-ID: <3B54B5F9.8484715F@namesys.com>
-Date: Wed, 18 Jul 2001 02:02:33 +0400
-From: Hans Reiser <reiser@namesys.com>
-Organization: Namesys
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en, ru
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Craig Soules <soules@happyplace.pdl.cmu.edu>, linux-kernel@vger.kernel.org
+	id <S267481AbRGQWOl>; Tue, 17 Jul 2001 18:14:41 -0400
+Received: from ECE.CMU.EDU ([128.2.236.200]:61341 "EHLO ece.cmu.edu")
+	by vger.kernel.org with ESMTP id <S267480AbRGQWOc>;
+	Tue, 17 Jul 2001 18:14:32 -0400
+Date: Tue, 17 Jul 2001 18:14:26 -0400 (EDT)
+From: Craig Soules <soules@happyplace.pdl.cmu.edu>
+To: Hans Reiser <reiser@namesys.com>
+cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
 Subject: Re: NFS Client patch
-In-Reply-To: <Pine.LNX.3.96L.1010709131315.16113O-200000@happyplace.pdl.cmu.edu.suse.lists.linux.kernel> <oupbsmueyv8.fsf@pigdrop.muc.suse.de>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <3B54B5F9.8484715F@namesys.com>
+Message-ID: <Pine.LNX.3.96L.1010717180713.13980K-100000@happyplace.pdl.cmu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> 
-> Craig Soules <soules@happyplace.pdl.cmu.edu> writes:
-> 
-> > Our system does automatic directory compaction through the use of a tree
-> > structure, and so the cookie needs to be invalidated.  Also, any other
-> > file system whicih does immediate directory compaction would require this.
-> 
-> Actually all the file systems who do that on Linux (JFS, XFS, reiserfs)
-> have fixed the issue properly server side, by adding a layer that generates
-> stable cookies. You should too.
-> 
-> -Andi
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+On Wed, 18 Jul 2001, Hans Reiser wrote:
+> I take issue with the word "properly".  We have bastardized our FS design to do it.  NFS should not
+> be allowed to impose stable cookie maintenance on filesystems, it violates layering.  Simply
+> returning the last returned filename is so simple to code, much simpler than what we have to do to
+> cope with cookies.  Linux should fix the protocol for NFS, not ask Craig to screw over his FS
+> design.  Not that I think that will happen.....
 
-I take issue with the word "properly".  We have bastardized our FS design to do it.  NFS should not
-be allowed to impose stable cookie maintenance on filesystems, it violates layering.  Simply
-returning the last returned filename is so simple to code, much simpler than what we have to do to
-cope with cookies.  Linux should fix the protocol for NFS, not ask Craig to screw over his FS
-design.  Not that I think that will happen.....
+Unfortunately to comply with NFSv2, the cookie cannot be larger than
+32-bits.  I believe this oversight has been correct in later NFS versions.
 
-Hans
+I do agree that forcing the underlying fs to "fix" itself for NFS is the
+wrong solution. I can understand their desire to follow unix semantics
+(although I don't entirely agree with them), so until I think up a more
+palatable solution for the linux community, I will just keep my patches to
+myself :)
+
+Craig
+

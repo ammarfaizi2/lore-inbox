@@ -1,78 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130694AbQLLNAl>; Tue, 12 Dec 2000 08:00:41 -0500
+	id <S130685AbQLLNAv>; Tue, 12 Dec 2000 08:00:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130685AbQLLNAV>; Tue, 12 Dec 2000 08:00:21 -0500
-Received: from smtp03.mrf.mail.rcn.net ([207.172.4.62]:21995 "EHLO
-	smtp03.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S130272AbQLLNAH>; Tue, 12 Dec 2000 08:00:07 -0500
-Message-ID: <3A361A2F.6BE5D6B0@haque.net>
-Date: Tue, 12 Dec 2000 07:29:35 -0500
-From: "Mohammad A. Haque" <mhaque@haque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en
+	id <S130836AbQLLNAl>; Tue, 12 Dec 2000 08:00:41 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:4101 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130272AbQLLNAa>; Tue, 12 Dec 2000 08:00:30 -0500
+Subject: Re: CPU attachent and detachment in a running Linux system
+To: Heiko.Carstens@de.ibm.com
+Date: Tue, 12 Dec 2000 12:32:12 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <C12569B3.0024DA06.00@d12mta01.de.ibm.com> from "Heiko.Carstens@de.ibm.com" at Dec 12, 2000 07:42:29 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-test12 not liking high disk i/o
-In-Reply-To: <Pine.LNX.4.30.0012120650060.9714-100000@viper.haque.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E145obO-000186-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Weird. I just booted from a test12 kernel I compiled (under test11) from
-completely clean sources
-and tried this again and no problems. I'm just gonna put this down as a
-fluke unless someone else someone else sees it or I lockup again.
+> thanks for your input but I think it won't work this way because the value
+> of smp_num_cpus needs to be increased by one right before a new cpu gets
+> started. Then one can imagine the following situation at one of the cpus
+> that needs to be captured:
 
-The only problem I have now is unresolved symbols in some scsi related
-modules.
+This is fine providing the code is aware of the potential race. You capture
+all the CPUs up the count by one, set the new cpu going and wait for it
+to jump to being captured (even though not by an interrupt) ?
 
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.0-test12/kernel/drivers/i2o/i2o_scsi.o
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.0-test12/kernel/drivers/scsi/aic7xxx.o
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.0-test12/kernel/drivers/scsi/ide-scsi.o
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.0-test12/kernel/drivers/scsi/sg.o
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.0-test12/kernel/drivers/scsi/st.o
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.0-test12/kernel/drivers/usb/storage/usb-storage.o
+> I still wonder what you and other people think about the idea of an
+> interface where the parts of the kernel with per-cpu dependencies should
+> register two functions...
 
+The other approach would be too make sure the per CPU structures allocated
+which consume little memory have space already for the extra processors - eg
+with the arrays of pointers etc
 
-"Mohammad A. Haque" wrote:
-> 
-> If anyone is interested, this is what I am doing before it blows up
-> everytime...
-> 
-> sudo tar zxfv ~mhaque/linux-2.4.0-test5.tar.gz
-> cd linux
-> cat ~mhaque/kernel-patches/patch-2.4.0-test? ~mhaque/kernel-patches/patch-2.4.0-test1? | sudo patch -p1
-> sudo make mrproper
-> sudo cp ~/kernel-config .config
-> sudo make oldconfig
-> sudo make dep bzImage modules modules_install install
-> 
-> On Tue, 12 Dec 2000, Mohammad A. Haque wrote:
-> 
-> > Hey guys,
-> >
-> > Any one else experiencing problems when they do lots of disk activity
-> > in test12?
-> >
-
--- 
-
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/ 
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

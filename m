@@ -1,40 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265854AbTAFDQc>; Sun, 5 Jan 2003 22:16:32 -0500
+	id <S265939AbTAFDTq>; Sun, 5 Jan 2003 22:19:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265857AbTAFDQc>; Sun, 5 Jan 2003 22:16:32 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:29875 "EHLO
+	id <S265885AbTAFDRo>; Sun, 5 Jan 2003 22:17:44 -0500
+Received: from fencepost.gnu.org ([199.232.76.164]:37299 "EHLO
 	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S265854AbTAFDQb>; Sun, 5 Jan 2003 22:16:31 -0500
+	id <S265865AbTAFDQx>; Sun, 5 Jan 2003 22:16:53 -0500
 From: Richard Stallman <rms@gnu.org>
-To: mark@mark.mielke.cc
-CC: billh@gnuppy.monkey.org, paul@clubi.ie, riel@conectiva.com.br,
-       Hell.Surfers@cwctv.net, linux-kernel@vger.kernel.org
-In-reply-to: <20030105013219.GA13159@mark.mielke.cc> (message from Mark Mielke
-	on Sat, 4 Jan 2003 20:32:19 -0500)
-Subject: Re: Why is Nvidia given GPL'd code to use in non-free drivers?
+To: mark@justirc.net
+CC: linux-kernel@vger.kernel.org
+In-reply-to: <3E177535.D84F4867@justirc.net> (message from Mark Rutherford on
+	Sat, 04 Jan 2003 18:58:45 -0500)
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
 Reply-to: rms@gnu.org
-References: <20030102013736.GA2708@gnuppy.monkey.org> <Pine.LNX.4.44.0301020245080.8691-100000@fogarty.jakma.org> <20030102055859.GA3991@gnuppy.monkey.org> <20030102061430.GA23276@mark.mielke.cc> <E18UIZS-0006Cr-00@fencepost.gnu.org> <20030103075134.GA31357@mark.mielke.cc> <E18UYSe-0004v1-00@fencepost.gnu.org> <20030104011926.GB4472@mark.mielke.cc> <E18Uxy2-00047M-00@fencepost.gnu.org> <20030105013219.GA13159@mark.mielke.cc>
-Message-Id: <E18VNsx-0008RO-00@fencepost.gnu.org>
-Date: Sun, 05 Jan 2003 22:25:07 -0500
+References: <FKEAJLBKJCGBDJJIPJLJEEOPDPAA.scott@coyotegulch.com> <E18UxyT-0004AE-00@fencepost.gnu.org> <3E177535.D84F4867@justirc.net>
+Message-Id: <E18VNtK-0008Tq-00@fencepost.gnu.org>
+Date: Sun, 05 Jan 2003 22:25:30 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Traditional (not *REAL*) visionaries that have incomplete visions, where
-    the vision cannot be easily transferred from person to person without
-    mutating, or losing its scope, are forced to sustain their efforts as
-    a physical effort.
+    I think that everyone knows the connection between the Linux kernel and GNU.
 
-    *REAL* visions are like viruses. All you need to do is transfer the vision
-    from one person to the next, and each time the image is transferred, the
-    next person takes up the cross as their own, with all of the energy and
-    motivation that the original visionary possessed.
+I wish that were true.  Most of the people who know about the system
+have heard of "Linux" but they have not heard of GNU.  Geeks often
+think they know, but what they know is often wrong; for instance, they
+often say that "GNU is the name of a collection of tools that are used
+in Linux."  (See http://www.gnu.org/gnu/gnu-linux-faq.html#tools.)
 
-These definitions equate "real" with "complete" with "transmitted
-perfectly reliability".  I don't agree with that equation, but you and
-I both observe that the vision of free software transmits with less
-than perfect reliability.
-
-Many successful social movements have been less than "real" in your
-terms.   Success requires persistent work.
 

@@ -1,69 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261952AbVATVkO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262048AbVATVmX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261952AbVATVkO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Jan 2005 16:40:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262018AbVATVkO
+	id S262048AbVATVmX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Jan 2005 16:42:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262019AbVATVmW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Jan 2005 16:40:14 -0500
-Received: from [81.23.229.73] ([81.23.229.73]:13029 "EHLO mail.eduonline.nl")
-	by vger.kernel.org with ESMTP id S261952AbVATVkG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Jan 2005 16:40:06 -0500
-From: Norbert van Nobelen <Norbert@edusupport.nl>
-Organization: EduSupport
-To: "Trever L. Adams" <tadams-lists@myrealbox.com>
-Subject: Re: LVM2
-Date: Thu, 20 Jan 2005 22:40:02 +0100
-User-Agent: KMail/1.6.2
-References: <1106250687.3413.6.camel@localhost.localdomain>
-In-Reply-To: <1106250687.3413.6.camel@localhost.localdomain>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Thu, 20 Jan 2005 16:42:22 -0500
+Received: from almesberger.net ([63.105.73.238]:10756 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S262018AbVATVlr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Jan 2005 16:41:47 -0500
+Date: Thu, 20 Jan 2005 18:39:51 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: tglx@linutronix.de, Roman Zippel <zippel@linux-m68k.org>,
+       Tim Bird <tim.bird@am.sony.com>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>
+Subject: Re: [RFC] Instrumentation (was Re: 2.6.11-rc1-mm1)
+Message-ID: <20050120183951.A17570@almesberger.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200501202240.02951.Norbert@edusupport.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A logical volume in LVM will not handle more than 2TB. You can tie together 
-the LVs in a volume group, thus going over the 2TB limit. Choose your 
-filesystem well though, some have a 2TB limit too.
+[ 3rd try. Apologies to Karim, Thomas, and Roman, who apparently also
+  received my previous attempts. For some reason, one of my upstream
+  DNS servers decided to send me highly bogus MX records. ]
 
-Disk size: What are you doing with it. 500GB disks are ATA (maybe SATA). ATA 
-is good for low end servers or near line storage, SATA can be used equally to 
-SCSI (I am going to suffer for this remark).
+Karim Yaghmour wrote:
+> Might I add that this is part of the problem ... No personal
+> offence intended, but there's been _A LOT_ of things said about
+> LTT that were based on third-hand account and no direct contact
+> with the toolset/code.
 
-RAID5 in software works pretty good (survived a failed disk, and recovered 
-another failing raid in 1 month). Hardware is better since you don't have a 
-boot partition left which is usually just present on one disk (you can mirror 
-that yourself ofcourse).
+Sigh, yes, guilty as charged ...
 
-Regards,
+At least today, I have a good excuse: my cable modem died, and I
+couldn't possibly have download things to look at :)
 
-Norbert van Nobelen
+> > As far as kprobes go, then you still need to have some form or another
+> > of marking the code for key events, unless you keep maintaining a set
+> > of kprobes-able points separately, which really makes it unusable for
+> > the rest of us, as the users of LTT have discovered over time (having
+> > to create a new patch for every new kernel that comes out.)
 
-On Thursday 20 January 2005 20:51, you wrote:
-> I recently saw Alan Cox say on this list that LVM won't handle more than
-> 2 terabytes. Is this LVM2 or LVM? What is the maximum amount of disk
-> space LVM2 (or any other RAID/MIRROR capable technology that is in
-> Linus's kernel) handle? I am talking with various people and we are
-> looking at Samba on Linux to do several different namespaces (obviously
-> one tree), most averaging about 3 terabytes, but one would have in
-> excess of 20 terabytes. We are looking at using 320 to 500 gigabyte
-> drives in these arrays. (How? IEEE-1394. Which brings a question I will
-> ask in a second email.)
->
-> Is RAID 5 all that bad using this software method? Is RAID 5 available?
->
-> Trever Adams
-> --
-> "They that can give up essential liberty to obtain a little temporary
-> safety deserve neither liberty nor safety." -- Benjamin Franklin, 1759
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Yes, I think you will need some set of "pads" in the code, where you
+can attach probes. I'm not sure how many, though. An alternative, at
+least in some cases, would be to move such things into separate
+functions, so that you could put the probe just at function entry.
+Then add a comment that this function isn't supposed to be torn
+apart without dire need.
+
+> > Generating new interrupts is simply unacceptable for LTT's functionality.
+
+Absolutely. If I remember correctly, this is in the process of being
+addressed in kprobes. You basically have the following choices:
+
+ - if the probe target is an instruction long enough, replace it with
+   a jump or call (that's what I think the kprobes folks are working
+   on. I remember for sure that they were thinking about it.)
+ - if the probe target is in a basic block with enough room after the
+   target, see above (needs feedback from compiler or assembler)
+ - if all else fails, add some NOPs (i.e. the marker approach)
+
+> I have received very little feedback on this suggestion,
+
+Probably because everybody saw that it was good :-)
+
+> As for the location of ltt trace points, then they are very rarely
+> at function boundaries. Here's a classic:
+> 		prepare_arch_switch(rq, next);
+> 		ltt_ev_schedchange(prev, next);
+> 		prev = context_switch(rq, prev, next);
+
+Yes, in some cases, you don't have a choice but to add some marker.
+
+> > Removing this data would require more data for each event to
+> > be logged, and require parsing through the trace before reading it in
+> > order to obtain markers allowing random access.
+
+So you need seeking, even in the presence of fine-grained control
+over what gets traced in the first place ? (As opposed to extracting
+the interesting data from the full trace, given that the latter
+shouldn't contain too much noise.)
+
+> If I understand you correctly, you are talking about the fact that
+> the transport layer's management of the buffers is syncrhonized
+> with some user-space entity that consumes the buffers produced
+> and talks back to relayfs (albeit indirectly) to let it know that
+> said buffers are now available?
+
+Or that they have been consumed. My question is just whether this
+kind of aggregation is something you need.
+
+> I have nothing against kprobes. People keep refering to it as if
+> it magically made all the related problems go away, and it doesn't.
+
+Yes, I know just too well :-) In umlsim, I have pretty much the
+same problems, and the solutions aren't always nice. So far, I've
+been lucky enough that I could almost always find a suitable
+function entry to abuse.
+
+However, since a kprobes-based mechanism is - in the worst case,
+i.e. when needing markup - as good as direct calls to LTT, and gives
+you a lot more flexibility if things aren't quite as hostile, I
+think it makes sense to focus on such a solution.
+
+> Nothing precludes us to move in this direction once something is
+> in the kernel, it's all currently hidden away in a .h, and it would
+> be the same with this.
+
+Yup, but you could move even more intelligence outside the kernel.
+All you really need in the kernel is a place to put the probe,
+plus some debugging information to tell you where you find the
+data (the latter possibly combined with gently coercing the
+compiler to put it at some accessible place).
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbULTArH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261368AbULTAs6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261363AbULTArH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Dec 2004 19:47:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261365AbULTArH
+	id S261368AbULTAs6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Dec 2004 19:48:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261365AbULTAs6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Dec 2004 19:47:07 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:51901 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261363AbULTArD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Dec 2004 19:47:03 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Ari Pollak <aripollak@gmail.com>
-Subject: Re: 2.6.10-rc3-mm1: swsusp
-Date: Mon, 20 Dec 2004 01:47:00 +0100
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <200412181852.31942.rjw@sisk.pl> <cq50gt$ppc$1@sea.gmane.org>
-In-Reply-To: <cq50gt$ppc$1@sea.gmane.org>
+	Sun, 19 Dec 2004 19:48:58 -0500
+Received: from fsmlabs.com ([168.103.115.128]:36267 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S261369AbULTAst (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Dec 2004 19:48:49 -0500
+Date: Sun, 19 Dec 2004 17:48:51 -0700 (MST)
+From: Zwane Mwaikambo <zwane@fsmlabs.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+cc: Linus Torvalds <torvalds@osdl.org>
+Subject: [PATCH] Boottime allocated GDTs and doublefault handler
+Message-ID: <Pine.LNX.4.61.0412191730330.18272@montezuma.fsmlabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412200147.00859.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 19 of December 2004 23:48, Ari Pollak wrote:
-> Rafael J. Wysocki wrote:
-> > Still, unfortunately, today it crashed on suspend and I wasn't able to get 
-any 
-> > useful information related to the crash,
-> 
-> Have you tried an -rc3-bk13 snapshot? Some changes went in related to 
-> ALSA drivers and swsusp/ACPI suspend, perhaps it will fix the problem.
+GDTs on SMP tend to be above the current ptr_ok limits since they are 
+boottime allocated. How does the following new arbitrary limit look?
 
-Unfortunately, I have no time for playing with -bk kernels.  I'll wait for 
--rc4 or 2.6.10 or maybe Andrew will include this fixes into -mm before?
+Signed-off-by: Zwane Mwaikambo <zwane@fsmlabs.com>
 
-Greets,
-RJW
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Index: linux-2.6.10-rc3-mm1/arch/i386/kernel/doublefault.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.10-rc3-mm1/arch/i386/kernel/doublefault.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 doublefault.c
+--- linux-2.6.10-rc3-mm1/arch/i386/kernel/doublefault.c	13 Dec 2004 14:26:45 -0000	1.1.1.1
++++ linux-2.6.10-rc3-mm1/arch/i386/kernel/doublefault.c	20 Dec 2004 00:21:31 -0000
+@@ -13,7 +13,7 @@
+ static unsigned long doublefault_stack[DOUBLEFAULT_STACKSIZE];
+ #define STACK_START (unsigned long)(doublefault_stack+DOUBLEFAULT_STACKSIZE)
+ 
+-#define ptr_ok(x) ((x) > PAGE_OFFSET && (x) < PAGE_OFFSET + 0x1000000)
++#define ptr_ok(x) ((x) > PAGE_OFFSET && (x) < PAGE_OFFSET + 0x2000000)
+ 
+ static void doublefault_fn(void)
+ {

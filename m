@@ -1,45 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264137AbTL2Uy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 15:54:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264292AbTL2Uy2
+	id S261775AbTL2U5c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 15:57:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262745AbTL2U5c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 15:54:28 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:10502 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264137AbTL2Uy0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 15:54:26 -0500
-Date: Mon, 29 Dec 2003 20:54:22 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Ryan Lackey <ryan@venona.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: cisco airo problem on apm reinsert w/ 2.6.0-*
-Message-ID: <20031229205422.D30785@flint.arm.linux.org.uk>
-Mail-Followup-To: Ryan Lackey <ryan@venona.com>,
-	linux-kernel@vger.kernel.org
-References: <20031229190636.GA2100@metacolo.com>
+	Mon, 29 Dec 2003 15:57:32 -0500
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:55813 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S261775AbTL2U53 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 15:57:29 -0500
+Subject: Re: 2.6.0-mm2
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: ramon.rey@hispalinux.es
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+In-Reply-To: <1072727943.1064.15.camel@debian>
+References: <20031229013223.75c531ed.akpm@osdl.org>
+	 <1072727943.1064.15.camel@debian>
+Content-Type: text/plain; charset=UTF-8
+Message-Id: <1072731446.5170.4.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20031229190636.GA2100@metacolo.com>; from ryan@venona.com on Mon, Dec 29, 2003 at 07:06:36PM +0000
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
+Date: Mon, 29 Dec 2003 21:57:26 +0100
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 29, 2003 at 07:06:36PM +0000, Ryan Lackey wrote:
-> Since at least 2.6.0-test7, I've had problems when re-inserting my cisco
-> airo 340 pc card after sleeping the system.  It doesn't happen 100% of
-> the time, but happens about 90% of the time -- I haven't figured out a
-> pattern yet.  Once this happens, I have to reboot before the card will
-> work again.
+On Mon, 2003-12-29 at 20:59, Ramon Rey Vicente wrote:
+> El lun, 29-12-2003 a las 10:32, Andrew Morton escribió:
+> 
+> > +atapi-mo-support-update.patch
+> > +atapi-mo-support-timeout-fix.patch
+> > 
+> >  ATAPI CDROM fixups.
+> 
+> This happen with 2.6.0-mm1 and -mm2. With 2.6.0 all is OK.
+> 
+> rrey@debian:~$ cdrecord cdrom-1.iso
+> Cdrecord-Clone 2.01a19 (i686-pc-linux-gnu) Copyright (C) 1995-2003 Jörg
+> Schilling
+> scsidev: '/udev/hdc'
+> devname: '/udev/hdc'
+> scsibus: -2 target: -2 lun: -2
+> Warning: Open by 'devname' is unintentional and not supported.
+> cdrecord.mmap: No such file or directory. Cannot open '/udev/hdc'.
+> Cannot open SCSI driver.
+> cdrecord.mmap: For possible targets try 'cdrecord -scanbus'. Make sure
+> you are root.
+> cdrecord.mmap: For possible transport specifiers try 'cdrecord
+> dev=help'.
+> cdrecord.mmap: Also make sure that you have loaded the sg driver and the
+> driver for
+> cdrecord.mmap: SCSI hardware, eg. ide-scsi if you run IDE/ATAPI drives
+> over
+> cdrecord.mmap: ide-scsi emulation. For more information, install the
+> cdrtools-doc
+> cdrecord.mmap: package and read
+> /usr/share/doc/cdrecord/README.ATAPI.setup .
+> 
+> The /udev/hdc have 
+> brw-rw-rw-    1 root     cdrw      22,   0 2003-12-29 20:52 /udev/hdc
 
-I think a patch appeared on lkml a while ago which fixes this problem,
-but I'm unsure what the end result was.  It's caused by the airo module
-trying to second-guess the kernels behaviour and coming out with the
-wrong answer.
+The same happens here. cdrecord is broken under -mm, but works fine with
+plain 2.6.0.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core

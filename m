@@ -1,33 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262202AbSJFVX3>; Sun, 6 Oct 2002 17:23:29 -0400
+	id <S262194AbSJFVUz>; Sun, 6 Oct 2002 17:20:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262207AbSJFVX2>; Sun, 6 Oct 2002 17:23:28 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:20982 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262202AbSJFVX1>; Sun, 6 Oct 2002 17:23:27 -0400
-Subject: Re: Hangs in 2.4.19 and 2.4.20-pre5 (IDE-related?)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jan-Hinnerk Reichert <jan-hinnerk_reichert@hamburg.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200210062156.43637.jan-hinnerk_reichert@hamburg.de>
-References: <200210061608.51459.jan-hinnerk_reichert@hamburg.de>
-	<1033921540.21282.2.camel@irongate.swansea.linux.org.uk> 
-	<200210062156.43637.jan-hinnerk_reichert@hamburg.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Oct 2002 22:38:18 +0100
-Message-Id: <1033940298.21282.47.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S262202AbSJFVUz>; Sun, 6 Oct 2002 17:20:55 -0400
+Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:49288 "EHLO
+	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S262194AbSJFVUy>; Sun, 6 Oct 2002 17:20:54 -0400
+Date: Sun, 6 Oct 2002 18:26:17 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Larry McVoy <lm@bitmover.com>
+cc: jbradford@dial.pipex.com, <linux-kernel@vger.kernel.org>
+Subject: Re: New BK License Problem?
+In-Reply-To: <20021006113824.P29486@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44L.0210061823380.22735-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-10-06 at 20:56, Jan-Hinnerk Reichert wrote:
-> Thanks, I didn't knew that.
-> 
-> Anyway, could the new PCI layer increase IDE-DMA stability on systems other 
-> than i845?
+On Sun, 6 Oct 2002, Larry McVoy wrote:
 
-It only related to initialization
+> If we decided to GPL it, I don't see how it would make sense for us
+> to do so for any reasonable price.
+
+Not only that, but GPLing bitkeeper while you still have a large
+TODO list seems like a bad thing for the software.
+
+Once the TODO list has shrunk to zero and the whole bitkeeper
+team wants to move on to new and exciting things, maybe then it
+might make sense to GPL bitkeeper ...
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Spamtraps of the month:  september@surriel.com trac@trac.org
 

@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265108AbSLBXBs>; Mon, 2 Dec 2002 18:01:48 -0500
+	id <S265114AbSLBXDY>; Mon, 2 Dec 2002 18:03:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265114AbSLBXBs>; Mon, 2 Dec 2002 18:01:48 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:1540 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S265108AbSLBXBr>;
-	Mon, 2 Dec 2002 18:01:47 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200212022320.gB2NKS2J000315@darkstar.example.net>
-Subject: More intellegent bad block reallocation in software?
-To: linux-kernel@vger.kernel.org
-Date: Mon, 2 Dec 2002 23:20:28 +0000 (GMT)
-X-Mailer: ELM [version 2.5 PL6]
+	id <S265125AbSLBXDY>; Mon, 2 Dec 2002 18:03:24 -0500
+Received: from 5-106.ctame701-1.telepar.net.br ([200.193.163.106]:14758 "EHLO
+	5-106.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S265114AbSLBXDX>; Mon, 2 Dec 2002 18:03:23 -0500
+Date: Mon, 2 Dec 2002 21:10:03 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Willy Tarreau <willy@w.ods.org>
+cc: Jens Axboe <axboe@suse.de>, Andrew Morton <akpm@digeo.com>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       <linux-kernel@vger.kernel.org>, Con Kolivas <conman@kolivas.net>
+Subject: Re: [PATCH] 2.4.20-rmap15a
+In-Reply-To: <20021202204509.GA21070@alpha.home.local>
+Message-ID: <Pine.LNX.4.44L.0212022107421.15981-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is it possible, or at least feasible for certain disk devices, to
-disable the firmware-level re-allocation of bad blocks, (note: I am
-aware that disks typically have many bad blocks that are reliant on
-ECC to function - I am refering to completely bad blocks, that are
-replaced with a 'spare' block), and do this in software?
+On Mon, 2 Dec 2002, Willy Tarreau wrote:
 
-The reason I'm asking, is because presumably the 'spare' blocks are
-kept at the end or the disk, or at least all in one place, (or
-possibly throughout the disk in each ZBR zone).  If this is the case,
-then reading a single large file which is, according to the
-filesystem, all in consecutive blocks, could involve several seeks to
-the area where the spare blocks are.
+>   - not one, but two elevators, one for read requests, one for write requests.
+>   - we would process one of the request queues (either reads or writes), and
+>     after a user-settable amount of requests processed, we would switch to the
 
-My idea is that we could allocate one block out of every ten to be a
-spare block, (which would reduce disk capacity by 10%), and then if a
-block needed to be re-allocated, we could allocate one from the same
-cylinder, therefore removing the need for the heads to seek across the
-disk.
+OK, lets for the sake of the argument imagine such an
+elevator, with Read and Write queues for the following
+block numbers:
 
-How easily could this be added to existing filesystems?  Presumably
-we'd need extra functionality in both filesystem code and the IDE and
-SCSI code, and I realise that it might be completely impossible,
-without custom firmware on the disk.  It's an interesting idea
-though.
+R:  1 3 4 5 6 20 21 22 100 110 111
 
-John.
+W:  2 15 16 17 18 50 52 53
+
+Now imagine what switching randomly between these queues
+would do for disk seeks. Especially considering that some
+of the writes can be "sandwiched" in-between the reads...
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://guru.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+

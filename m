@@ -1,37 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262517AbUJ0RMj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262552AbUJ0RRi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262517AbUJ0RMj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 13:12:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262525AbUJ0RL7
+	id S262552AbUJ0RRi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 13:17:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262516AbUJ0RQj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 13:11:59 -0400
-Received: from build.arklinux.osuosl.org ([128.193.0.51]:53646 "EHLO
-	mail.arklinux.org") by vger.kernel.org with ESMTP id S262517AbUJ0Q03
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 12:26:29 -0400
-From: Bernhard Rosenkraenzer <bero@arklinux.org>
-Organization: LINUX4MEDIA GmbH
-To: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: 2.6.10-rc1-mm1 doesn't compile on x86_64
-Date: Wed, 27 Oct 2004 18:21:36 +0200
-User-Agent: KMail/1.7
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Wed, 27 Oct 2004 13:16:39 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:39071 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262542AbUJ0RMc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 13:12:32 -0400
+Subject: Re: Would auto setting CONFIG_RTC make sense when building SMP
+	kernel?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0410262108041.3277@dragon.hygekrogen.localhost>
+References: <Pine.LNX.4.61.0410262108041.3277@dragon.hygekrogen.localhost>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410271821.37339.bero@arklinux.org>
+Message-Id: <1098893383.4304.21.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 27 Oct 2004 17:09:44 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-arch/x86_64/kernel/built-in.o(.text+0x6265): In function `timer_resume':
-: undefined reference to `is_hpet_enabled'
-arch/x86_64/kernel/built-in.o(.init.text+0x862b): In function 
-`pci_iommu_init':
-: undefined reference to `agp_amd64_init'
-arch/x86_64/kernel/built-in.o(.init.text+0x8639): In function 
-`pci_iommu_init':
-: undefined reference to `agp_copy_info'
-make: *** [.tmp_vmlinux1] Error 1
+On Maw, 2004-10-26 at 20:13, Jesper Juhl wrote:
+> Isn't it always desirable to be able to set the clock in an SMP compatible 
+> fashion if the kernel is indeed build for SMP?
 
-Will debug later unless someone beats me to it.
+Probably it is best to just move it to CONFIG_EMBEDDED. Without the
+driver the clock binary bitbangs the cmos and that isnt safe non SMP
+either nowdays
+

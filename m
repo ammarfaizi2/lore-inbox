@@ -1,29 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261502AbRE1W46>; Mon, 28 May 2001 18:56:58 -0400
+	id <S261505AbRE1XFt>; Mon, 28 May 2001 19:05:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261488AbRE1W4s>; Mon, 28 May 2001 18:56:48 -0400
-Received: from tartu.cyber.ee ([193.40.32.242]:21522 "EHLO tartu.cyber.ee")
-	by vger.kernel.org with ESMTP id <S261502AbRE1W4l>;
-	Mon, 28 May 2001 18:56:41 -0400
-From: Meelis Roos <mroos@linux.ee>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch]: ide dma timeout retry in pio
-In-Reply-To: <20010528231809.A29504@work.bitmover.com>
-User-Agent: tin/1.4.1-19991201 ("Polish") (UNIX) (Linux/2.4.5 (i586))
-Message-Id: <E154VwD-0005CB-00@roos.tartu-labor>
-Date: Tue, 29 May 2001 00:56:37 +0200
+	id <S261513AbRE1XFj>; Mon, 28 May 2001 19:05:39 -0400
+Received: from hssx-sktn-167-47.sasknet.sk.ca ([142.165.167.47]:19474 "HELO
+	mail.thock.com") by vger.kernel.org with SMTP id <S261505AbRE1XF0>;
+	Mon, 28 May 2001 19:05:26 -0400
+Message-ID: <3B12D212.28C2B01D@bigfoot.com>
+Date: Mon, 28 May 2001 16:32:50 -0600
+From: Dylan Griffiths <Dylan_G@bigfoot.com>
+X-Mailer: Mozilla 4.73 [en] (X11; U; Linux 2.2.19 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Broken memory init on VIA KX133
+In-Reply-To: <E154UXz-0003Yl-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-LM> For what it is worth, in the recent postings I made about this topic, you
-LM> suggested that it was bad cabling, I swapped the cabling, same problem.
-LM> I swapped the mother board from Abit K7T to ASUS A7V and all cables worked
-LM> fine.
+Alan Cox wrote:
+> >       I'm wondering if anyone knows/has a fix for memory past 64mb not
+being
+> > detected (unless you use append="mem=...M" in lilo) on the Via VT8371
+> > [KX133] North bridge.   (Please CC any replies since I'm off kernel list
+> > atm.)
+> 
+> Consult your BIOS vendor
 
-Similar info about KT7 - changing cables (both 30 and 80 wire) on Abit KT7 did
-not help, still CRC errors (with all disks tried). So it looks like some KT7
-boards have problems with IDE interface cabling or smth. like that.
+Actually, I just did some additional testing (as this was not an issue with
+FreebSD 4.2, Win2k, Win98 on the same hardware).  The problem I describe was
+fixed in 2.2.19 -- where Linux now properly uses e820 instead of a legacy
+BIOS call to determine memory size.
 
--- 
-Meelis Roos (mroos@linux.ee)
+--
+    www.kuro5hin.org -- technology and culture, from the trenches.

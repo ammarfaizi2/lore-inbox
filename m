@@ -1,61 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261470AbTCTOFn>; Thu, 20 Mar 2003 09:05:43 -0500
+	id <S261474AbTCTOGv>; Thu, 20 Mar 2003 09:06:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261472AbTCTOFn>; Thu, 20 Mar 2003 09:05:43 -0500
-Received: from mailproxy.de.uu.net ([192.76.144.34]:60352 "EHLO
-	mailproxy.de.uu.net") by vger.kernel.org with ESMTP
-	id <S261470AbTCTOFm>; Thu, 20 Mar 2003 09:05:42 -0500
-Message-ID: <7A5D4FEED80CD61192F2001083FC1CF9065139@CHARLY>
-From: "Filipau, Ihar" <ifilipau@sussdd.de>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: read() & close()
-Date: Thu, 20 Mar 2003 15:14:52 +0100
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
+	id <S261476AbTCTOGv>; Thu, 20 Mar 2003 09:06:51 -0500
+Received: from moutng.kundenserver.de ([212.227.126.186]:61681 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S261474AbTCTOGu>; Thu, 20 Mar 2003 09:06:50 -0500
+X-KENId: 00003529KEN0072C10B
+X-KENRelayed: 00003529KEN0072C10B@PCDR800
+Date: Thu, 20 Mar 2003 15:14:21 +0100
+From: "Christoph Baumann" <cb@sorcus.com>
+Subject: ptrace patch
+To: <linux-kernel@vger.kernel.org>
+Reply-To: "Christoph Baumann" <cb@sorcus.com>
+Message-Id: <001d01c2eeeb$02112b00$2265a8c0@dirtyentw>
+Mime-Version: 1.0
 Content-Type: text/plain;
-	charset="koi8-r"
+   charset="iso-8859-1"
+X-Priority: 3
+Organization: SORCUS Computer GmbH
+Content-Transfer-Encoding: 7bit
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello All!
+FYI:
+The ptrace patch at
+http://www.hardrock.org/kernel/2.4.20/linux-2.4.20-ptrace.patch does not
+seem to work.
+I tried the exploit at http://sinuspl.net/ptrace/isec-ptrace-kmod-exploit.c
+on a machine running the patched kernel and it still brought up a root
+shell.
 
-    [ CC me please - I'm not subscribed ]
 
-    I have a question which goes to 2.2 kernels times.
-    But I expect newer kernels do the same.
+Mit freundlichen Gruessen / Best regards
+Dipl.-Phys. Christoph Baumann
+---
+SORCUS Computer GmbH
+Im Breitspiel 11 c
+D-69126 Heidelberg
 
-    I have/had a simple issue with multi-threaded programs:
+Tel.: +49(0)6221/3206-0
+Fax: +49(0)6221/3206-66
 
-    one thread is doing blocking read(fd) or poll({fd}) on 
-    file/socket.
-
-    another thread is doing close(fd).
-
-    I expected first thread will unblock with some kind 
-    of error - but nope! It is blocked!
-
-    Is it expected behaviour?
-
-    I was implementing couple of char device 
-    drivers and I was putting wake_up_interruptible() 
-    into close(). Nice feature - but not more.
-
-    Does it really matters?
-    What standards do say about this? - I have none of 
-    them :-(   
-
-P. S. Subject looks correct from point of view of bash:
-"read() &" and then "close()" does nothing - %1 can only 
-be killed ;)
-
---- Regards&Wishes! With respect
----       Ihar "Philips" Filipau and Phil for friends
-
-- - - - - - - - - - - - - - - - - - - - - - - - -
-MCS/Mathematician - System Programmer
-Ihar Filipau 
-Software entwickler @ SUSS MicroTec Test Systems GmbH, 
-Suss-Strasse 1, D-01561 Sacka (bei Dresden)
-e-mail: ifilipau@sussdd.de  tel: +49-(0)-352-4073-327
-fax: +49-(0)-352-4073-700   web: http://www.suss.com/

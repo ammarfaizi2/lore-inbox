@@ -1,77 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264969AbSKSKSu>; Tue, 19 Nov 2002 05:18:50 -0500
+	id <S264888AbSKSKZ7>; Tue, 19 Nov 2002 05:25:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264984AbSKSKSu>; Tue, 19 Nov 2002 05:18:50 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:20565 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S264969AbSKSKSt>; Tue, 19 Nov 2002 05:18:49 -0500
-To: Andy Pfiffer <andyp@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Werner Almesberger <wa@almesberger.net>,
-       Suparna Bhattacharya <suparna@in.ibm.com>,
-       "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, Mike Galbraith <efault@gmx.de>,
-       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-       Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [ANNOUNCE][CFT] kexec for v2.5.48 && kexec-tools-1.7 -- Success Story!
-References: <Pine.LNX.4.44.0211091901240.2336-100000@home.transmeta.com>
-	<m1vg349dn5.fsf@frodo.biederman.org> <1037055149.13304.47.camel@andyp>
-	<m1isz39rrw.fsf@frodo.biederman.org> <1037148514.13280.97.camel@andyp>
-	<m1k7jb3flo.fsf_-_@frodo.biederman.org>
-	<m1el9j2zwb.fsf@frodo.biederman.org>
-	<m11y5j2r9t.fsf_-_@frodo.biederman.org>
-	<1037668241.10400.48.camel@andyp>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 19 Nov 2002 03:25:08 -0700
-In-Reply-To: <1037668241.10400.48.camel@andyp>
-Message-ID: <m1isyt26wr.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S264889AbSKSKZ7>; Tue, 19 Nov 2002 05:25:59 -0500
+Received: from rrzs2.rz.uni-regensburg.de ([132.199.1.2]:9167 "EHLO
+	rrzs2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id <S264888AbSKSKZ6>; Tue, 19 Nov 2002 05:25:58 -0500
+Date: Tue, 19 Nov 2002 11:33:00 +0100
+From: Christian Guggenberger 
+	<Christian.Guggenberger@physik.uni-regensburg.de>
+To: "Karsten 'soohrt' Desler" <linux-kernel@ml.soohrt.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20-rc1-ac4 HPT374 doesn't find connected ide drives
+Message-ID: <20021119113300.C23008@pc9391.uni-regensburg.de>
+References: <20021119105955.A23008@pc9391.uni-regensburg.de> <20021119102338.GA24510@sit0.ifup.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20021119102338.GA24510@sit0.ifup.net>; from linux-kernel@ml.soohrt.org on Tue, Nov 19, 2002 at 11:23:38 +0100
+X-Mailer: Balsa 1.2.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Pfiffer <andyp@osdl.org> writes:
-
-> On Mon, 2002-11-18 at 00:53, Eric W. Biederman wrote:
-> > kexec is a set of systems call that allows you to load another kernel
-> > from the currently executing Linux kernel.  The current implementation
-> > has only been tested, and had the kinks worked out on x86, but the
-> > generic code should work on any architecture.
+On 19.11.2002   11:23 Karsten 'soohrt' Desler wrote:
+> > I have the same board, and the controller works fine for me in 2.5.4*, as
+> > 2.4-ac doesn't contain xfs suport. I only have one drive attached, but as I
 > 
-> Great News, Eric.  For the first time *ever* I got a kexec reboot to
-> work on my most troublesome machine (see below).
-
-Cool.  I was pretty certain it would get into Linux but the fact the device
-drivers are not hanging up is a real plus.
- 
-> Current .config settings:
-> # CONFIG_SMP is not set
-> CONFIG_X86_GOOD_APIC=y
-> # CONFIG_X86_UP_APIC is not set
-> CONFIG_KEXEC=y
+> > remember I first had to configure the (raid) controller' BIOS (Ctrl-H at
+> boot
+> > time) (even for just a bunch of disks) before using the drives. But I'm not
 > 
-> Oddly, kexec_test still hangs.
-> # ./kexec-1.7 --force ./kexec_test-1.7
-[snip...]
-> <hang>
+> > 100%ly sure.
+> 
+> I've "been in" the controller BIOS a few times, but never configured
+> anything because I'm using the linux md driver.
 
-Yep.  I really haven't tracked and fixed the cause of the hang,
-I just avoided the issue entirely.  Eventually I will come back
-and look into what it takes to improve the odds of having BIOS calls,
-work.  --real-mode restores the old kexec behavior.
+Maybe U would try 2.5.48, just to see if it works then.
+When I'm back home in about 7 hours, I'll check my bios settings, maybe this 
+could help you.
+  
+> > ANother QUestion: Did you ever get the onboard via-rhine NIC working with
+> > IO-APIC (both BIOS and kernel) enabled?
+> 
+> No I didn't.
+> via-rhine.c:v1.10-LK1.1.14  May-3-2002  Written by Donald Becker
+>   http://www.scyld.com/network/via-rhine.html
+> eth1: VIA VT6102 Rhine-II at 0xcc00, 00:04:61:43:88:d9, IRQ 16.
+> eth1: MII PHY found at address 1, status 0x7849 advertising 05e1 Link 0000.
+> eth1: Setting full-duplex based on MII #1 link partner capability of 45e1.
+> ...
+> eth1: Transmit timed out, status 0003, PHY status 786d, resetting...
+> eth1: reset did not complete in 10 ms.
+> NETDEV WATCHDOG: eth1: transmit timed out
+> 
 
-All of the real changes were to the user space code.  The kernel
-patch stayed the same.
+thats just too bad, last I managed to get it working with IO-APICs for the 
+first time, but i simply was too tired to remember what things I did. I can't 
+reproduce it anymore:( this NIC's driving me crazy.
 
-> Complete kernel boot-up log attached below.  I'm going to try to find my
-> other 576MB of RAM with the right command-line magic... ;^)
+Christian
 
-Or you can write a routine to gather that information dynamically and send
-me a patch for /sbin/kexec.  Though it may take another proc file to do
-that one properly.
-
-Eric

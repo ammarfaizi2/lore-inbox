@@ -1,74 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270720AbTHOTCP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 15:02:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270707AbTHOSeU
+	id S272575AbTHOTO7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 15:14:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272577AbTHOTO7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 14:34:20 -0400
-Received: from mail.kroah.org ([65.200.24.183]:61058 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S270713AbTHOSZg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 14:25:36 -0400
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10609719484044@kroah.com>
-Subject: Re: [PATCH] Driver Core fixes for 2.6.0-test3
-In-Reply-To: <10609719481470@kroah.com>
-From: Greg KH <greg@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Fri, 15 Aug 2003 11:25:48 -0700
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org
+	Fri, 15 Aug 2003 15:14:59 -0400
+Received: from cimice4.lam.cz ([212.71.168.94]:51412 "EHLO beton.cybernet.src")
+	by vger.kernel.org with ESMTP id S272575AbTHOTO6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 15:14:58 -0400
+Date: Fri, 15 Aug 2003 23:15:13 +0200
+From: Clock <clock@twibright.com>
+To: Alistair J Strachan <alistair@devzero.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: nforce2 lockups
+Message-ID: <20030815231513.A5681@beton.cybernet.src>
+References: <df962fdf9006.df9006df962f@us.army.mil> <200308151738.08965.alistair@devzero.co.uk> <20030815210601.A5452@beton.cybernet.src> <200308151847.20128.alistair@devzero.co.uk>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200308151847.20128.alistair@devzero.co.uk>; from alistair@devzero.co.uk on Fri, Aug 15, 2003 at 06:47:20PM +0100
+X-Orientation: Gay
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1152.2.4, 2003/08/14 16:53:55-07:00, greg@kroah.com
+On Fri, Aug 15, 2003 at 06:47:20PM +0100, Alistair J Strachan wrote:
+> On Friday 15 August 2003 20:06, Clock wrote:
+> [SNIP]
+> >
+> > I have had three boards with nforce2 replaced (all of them Soltek
+> > SL75FRN2-L) and all three did the same. However it seemed the frequency of
+> > the crashes varies with actual piece of board.
+> 
+> That's certainly interesting.
+> 
+> >
+> > The crashes aren't in software - bare 'cat /dev/hda > /dev/null' is
+> > often to lock up the machine to the point that poweroff fails.
+> 
+> [root] 06:43 PM [/home/alistair] time cat /dev/discs/disc0/disc > /dev/null
+> (I ctrl-C'd here)
+> 
+> real    1m23.275s
+> user    0m0.979s
+> sys     0m12.608s
+> 
+> I don't know how obvious the problem is on your machine, but it's clearly not 
+> an issue on this nForce2. When I was referring to software, that included the 
+> kernel i.e., I suspect it isn't a design fault.
 
-Remove usage of struct device.name from pcmcia layer
+It seems to occur fairly often just after boot time. When you try later,
+you usually fail in an attempt to lockup the machine and have to freshly RESET
+(not ctrl-alt-del!) the machine to get the behaviour back.
 
-
- drivers/pcmcia/i82365.c       |    3 ---
- drivers/pcmcia/tcic.c         |    3 ---
- drivers/pcmcia/yenta_socket.c |    2 +-
- 3 files changed, 1 insertion(+), 7 deletions(-)
-
-
-diff -Nru a/drivers/pcmcia/i82365.c b/drivers/pcmcia/i82365.c
---- a/drivers/pcmcia/i82365.c	Fri Aug 15 11:16:00 2003
-+++ b/drivers/pcmcia/i82365.c	Fri Aug 15 11:16:00 2003
-@@ -1361,9 +1361,6 @@
- static struct platform_device i82365_device = {
- 	.name = "i82365",
- 	.id = 0,
--	.dev = {
--		.name = "i82365",
--	},
- };
- 
- static int __init init_i82365(void)
-diff -Nru a/drivers/pcmcia/tcic.c b/drivers/pcmcia/tcic.c
---- a/drivers/pcmcia/tcic.c	Fri Aug 15 11:16:00 2003
-+++ b/drivers/pcmcia/tcic.c	Fri Aug 15 11:16:00 2003
-@@ -372,9 +372,6 @@
- static struct platform_device tcic_device = {
- 	.name = "tcic-pcmcia",
- 	.id = 0,
--	.dev = {
--		.name = "tcic-pcmcia",
--	},
- };
- 
- 
-diff -Nru a/drivers/pcmcia/yenta_socket.c b/drivers/pcmcia/yenta_socket.c
---- a/drivers/pcmcia/yenta_socket.c	Fri Aug 15 11:16:00 2003
-+++ b/drivers/pcmcia/yenta_socket.c	Fri Aug 15 11:16:00 2003
-@@ -899,7 +899,7 @@
- 
- 	/* We must finish initialization here */
- 
--	if (!socket->cb_irq || request_irq(socket->cb_irq, yenta_interrupt, SA_SHIRQ, socket->dev->dev.name, socket)) {
-+	if (!socket->cb_irq || request_irq(socket->cb_irq, yenta_interrupt, SA_SHIRQ, pci_name(socket->dev), socket)) {
- 		/* No IRQ or request_irq failed. Poll */
- 		socket->cb_irq = 0; /* But zero is a valid IRQ number. */
- 		init_timer(&socket->poll_timer);
-
+Cl<

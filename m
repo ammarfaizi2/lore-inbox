@@ -1,38 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269493AbUINQXV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269504AbUINQXW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269493AbUINQXV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 12:23:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269504AbUINQNo
+	id S269504AbUINQXW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 12:23:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269511AbUINQSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 12:13:44 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:63677 "EHLO
+	Tue, 14 Sep 2004 12:18:41 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:1470 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S269485AbUINQIv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 12:08:51 -0400
-Subject: Re: Changes to ide-probe.c in 2.6.9-rc2 causing improper detection
+	id S269536AbUINQOv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 12:14:51 -0400
+Subject: Re: Linux 2.4.27 SECURITY BUG - TCP Local and REMOTE(verified)
+	Denial of Service Attack
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jens Axboe <axboe@suse.de>
-Cc: Jeff Garzik <jgarzik@pobox.com>, "C.Y.M." <syphir@syphir.sytes.net>,
+To: Paul Jakma <paul@clubi.ie>
+Cc: Ville Hallivuori <vph@iki.fi>,
+       Toon van der Pas <toon@hout.vanvergehaald.nl>,
+       Wolfpaw - Dale Corse <admin@wolfpaw.net>, kaukasoi@elektroni.ee.tut.fi,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040914152509.GA27892@suse.de>
-References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA9mKu6AlYok2efOpJ3sb3O+KAAAAQAAAAjtLAU+gqyUq8AePOBiNtXQEAAAAA@syphir.sytes.net>
-	 <20040914060628.GC2336@suse.de>
-	 <1095156346.16572.2.camel@localhost.localdomain>
-	 <41470BBD.7060700@pobox.com>  <20040914152509.GA27892@suse.de>
+In-Reply-To: <Pine.LNX.4.61.0409141553260.23011@fogarty.jakma.org>
+References: <002301c498ee$1e81d4c0$0200a8c0@wolf>
+	 <1095008692.11736.11.camel@localhost.localdomain>
+	 <20040912192331.GB8436@hout.vanvergehaald.nl>
+	 <Pine.LNX.4.61.0409130413460.23011@fogarty.jakma.org>
+	 <Pine.LNX.4.61.0409130425440.23011@fogarty.jakma.org>
+	 <20040913201113.GA5453@vph.iki.fi>
+	 <Pine.LNX.4.61.0409141553260.23011@fogarty.jakma.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1095174305.16988.12.camel@localhost.localdomain>
+Message-Id: <1095174633.16990.19.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 14 Sep 2004 16:05:05 +0100
+Date: Tue, 14 Sep 2004 16:10:36 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2004-09-14 at 16:25, Jens Axboe wrote:
-> Alan says it's unsafe for some of his flash cards, and I do believe they
-> say they have write caching enabled.
+On Maw, 2004-09-14 at 15:55, Paul Jakma wrote:
+> Hmm, yes, I hadnt thought of the attack-mitigating aspects of 
+> graceful restart. Though, without other measures, the session is 
+> still is open to abuse (send RST every second).
 
-It'll crash one of the flashcards doing that and the IT8212, but neither
-the flash cards nor the IT8212 are SATA so its less of a concern there.
-Still wrong really though.
+Its more than that given port randomization, quite a lot more. Of course
+its much easier to just send "must fragment, size 68" icmp replies and
+guess them that way. This is spectacularly more effective and various
+vendors highly invalid rst acking crap won't save you.
+
 

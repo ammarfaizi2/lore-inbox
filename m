@@ -1,62 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263277AbUCNEam (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 23:30:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263284AbUCNEal
+	id S263284AbUCNEe0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 23:34:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263285AbUCNEe0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 23:30:41 -0500
-Received: from FW-30-241.go.retevision.es ([62.174.241.30]:7766 "EHLO
-	nebula.ghetto") by vger.kernel.org with ESMTP id S263277AbUCNEaj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 23:30:39 -0500
-Date: Sun, 14 Mar 2004 05:30:38 +0100
-To: linux-kernel@vger.kernel.org
-Subject: Re: drivers/usb/class/usblp.c: usblp0: on fire
-Message-ID: <20040314043037.GA1020@larroy.com>
-Reply-To: piotr@larroy.com
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <pan.2004.03.14.03.35.52.138779@triplehelix.org>
+	Sat, 13 Mar 2004 23:34:26 -0500
+Received: from holomorphy.com ([207.189.100.168]:14604 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263100AbUCNEeY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Mar 2004 23:34:24 -0500
+Date: Sat, 13 Mar 2004 20:34:20 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.3-mm4 scsi_delete_timer() oops
+Message-ID: <20040314043420.GL655@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	James Bottomley <James.Bottomley@steeleye.com>,
+	SCSI Mailing List <linux-scsi@vger.kernel.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20040314041047.GK655@holomorphy.com> <1079238471.1759.74.camel@mulgrave>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <pan.2004.03.14.03.35.52.138779@triplehelix.org>
+In-Reply-To: <1079238471.1759.74.camel@mulgrave>
 User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: piotr@larroy.com (Pedro Larroy)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 13, 2004 at 07:35:53PM -0800, Joshua Kwan wrote:
-> Hi,
-> 
-> $SUBJECT pretty much scared the hell out of me...
-> 
-> I noticed something fishy going on with USB in 2.6.4, maybe before. I am
-> having lots of trouble printing using usblp. Once, I got the
-> aforementioned message, and sometimes I get 
-> 
-> usb 2-1: control timeout on ep0in
-> 
-> Many times repeated. The bottom line is that I cannot print and I'm not
-> sure whether it's something I forgot to configure after reinstalling this
-> box, or something with the kernel. Could I be enlightented?
-> 
-> -- 
-> Joshua Kwan
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+On Sat, 2004-03-13 at 23:10, William Lee Irwin III wrote:
+>> Mar 13 19:41:59 holomorphy kernel: EIP:    0060:[<00000000>]    Not tainted VLI
+> [...]
+>> Mar 13 19:41:59 holomorphy kernel:  [<c0358076>] scsi_delete_timer+0x16/0x30
+>> Mar 13 19:41:59 holomorphy kernel:  [<c0373de9>] ahc_linux_run_complete_queue+0x69/0xd0
+
+On Sat, Mar 13, 2004 at 11:27:50PM -0500, James Bottomley wrote:
+> This trace doesn't make sense to me.  A null EIP usually indicates
+> jumping through a NULL function pointer.  There are no fptr derefs in
+> scsi_delete_timer.  Also ahc_linux_run_complete_queue doesn't call
+> scsi_delete_timer.
+> Could you try to reproduce and get a more meaningful backtrace?
+
+I'm pretty stumped as to what's going on with this. The stack is
+moderately deep. It's also possible a fair fraction of the stuff is
+garbage off the end of the stack and the real leaf routine is buried.
 
 
-It happens the same to me in 2.6.4, seems to work in 2.6.3 and in 2.6.4-mm1
-
-Regards.
-
--- 
-Pedro Larroy Tovar | Linux & Network consultant |  piotr%member.fsf.org 
-
-Software patents are a threat to innovation in Europe please check: 
-	http://www.eurolinux.org/     
+-- wli

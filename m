@@ -1,51 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311360AbSCNHqh>; Thu, 14 Mar 2002 02:46:37 -0500
+	id <S311149AbSCNHzh>; Thu, 14 Mar 2002 02:55:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311149AbSCNHq0>; Thu, 14 Mar 2002 02:46:26 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:5134 "HELO mail.pha.ha-vel.cz")
-	by vger.kernel.org with SMTP id <S311072AbSCNHqS>;
-	Thu, 14 Mar 2002 02:46:18 -0500
-Date: Thu, 14 Mar 2002 08:46:15 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Daniela Engert <dani@ngrt.de>,
-        Shawn Starr <spstarr@sh0n.net>, LKML <linux-kernel@vger.kernel.org>,
-        Martin Dalecki <martin@dalecki.de>
-Subject: Re: [patch] PIIX rewrite patch, pre-final
-Message-ID: <20020314084615.A31998@ucw.cz>
-In-Reply-To: <20020314083038.A31923@ucw.cz> <Pine.LNX.4.10.10203132334450.21396-100000@master.linux-ide.org>
+	id <S311381AbSCNHz0>; Thu, 14 Mar 2002 02:55:26 -0500
+Received: from kiruna.synopsys.com ([204.176.20.18]:23206 "HELO
+	kiruna.synopsys.com") by vger.kernel.org with SMTP
+	id <S311149AbSCNHzQ>; Thu, 14 Mar 2002 02:55:16 -0500
+Date: Thu, 14 Mar 2002 08:54:56 +0100
+From: Alex Riesen <Alexander.Riesen@synopsys.com>
+To: Larry McVoy <lm@work.bitmover.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4 and BitKeeper
+Message-ID: <20020314085456.B13186@riesen-pc.gr05.synopsys.com>
+Reply-To: Alexander.Riesen@synopsys.com
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.21.0203140141450.4725-100000@freak.distro.conectiva> <3C904437.7080603@candelatech.com> <20020313224255.F9010@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10203132334450.21396-100000@master.linux-ide.org>; from andre@linux-ide.org on Wed, Mar 13, 2002 at 11:36:30PM -0800
+In-Reply-To: <20020313224255.F9010@work.bitmover.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 13, 2002 at 11:36:30PM -0800, Andre Hedrick wrote:
+Just tried it:
+$ bk clone -rv2.4.18-pre8 linux-2.5 linux-2.4
+remote: ERROR-rev v2.4.18-pre8 doesn't exist
 
-> On Thu, 14 Mar 2002, Vojtech Pavlik wrote:
-> 
-> > On Thu, Mar 14, 2002 at 08:24:02AM +0100, Daniela Engert wrote:
-> > > On Thu, 14 Mar 2002 07:52:58 +0100, Vojtech Pavlik wrote:
-> > > 
-> > > >> This will benifit PIIX3 chipsets? :)
-> > > >It should.
-> > > 
-> > > Are you aware of the batches of broken PIIX3 chips ?
+no, that's not a problem for me
+-alex
+
+
+On Wed, Mar 13, 2002 at 10:42:55PM -0800, Larry McVoy wrote:
+> On Wed, Mar 13, 2002 at 11:33:27PM -0700, Ben Greear wrote:
+> > Can you plz tell me (us) what the bk clone command is?
 > > 
-> > I don't know of any IDE-related errata for the PIIX3 chip. At least
-> > Intel didn't publish any and there doesn't seem to be any workarounds in
-> > the original piix.c code, only a statement stating that the PIIX3 UDMA
-> > is broken, however, as far as I know, PIIX3 isn't UDMA capable at all.
+> > I tried:
+> > 
+> >   bk clone bk://linux24.bkbits.net//linux-2.4
+> > 
+> > and
+> > 
+> >   bk clone bk://linux24.bkbits.net///linux-2.4
 > 
-> 27296302.pdf    82371SB (PIIX3) Timing Specification
-> 29765804.pdf    INTEL 82371FB (PIIX) and 82371SB (PIIX3) SPECIFICATION UPDATE
-
-Gee, thanks, like if I haven't read those twice over already. No mention
-of UDMA (or SDMA in Intel speech), or any IDE errata anyway.
-
--- 
-Vojtech Pavlik
-SuSE Labs
+> Hi, Linus & Marcelo agreed that the right place for this is
+> 
+> 	bk://linux.bkbits.net/linux-2.4
+> 
+> and I just put it there, let me know if that doesn't work.
+> 
+> Also, if you have a linux-2.5 BK tree, you can save yourself a lot of 
+> bandwidth by doing the following:
+> 
+> 	bk clone -rv2.4.18-pre8 linux-2.5 linux-2.4
+> 	cd linux-2.4
+> 	bk parent bk://linux.bkbits.net/linux-2.4
+> 	bk pull
+> 
+> That will get you back to the baseline you should already have and 
+> then just update your tree with what Marcelo added recently.
+> 
+> You don't have to do that, and for those of you with fast DSL lines you
+> can skip, I don't care, but if you are trying to get a 2.4 tree over a
+> modem, this is much much faster.
+> -- 
+> ---
+> Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

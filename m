@@ -1,64 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbUFMWO1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbUFMWS6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261231AbUFMWO1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jun 2004 18:14:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbUFMWO1
+	id S261234AbUFMWS6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jun 2004 18:18:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbUFMWS6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jun 2004 18:14:27 -0400
-Received: from ns1.g-housing.de ([62.75.136.201]:4300 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S261231AbUFMWOZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jun 2004 18:14:25 -0400
-Message-ID: <40CCD1BD.6090509@g-house.de>
-Date: Mon, 14 Jun 2004 00:14:21 +0200
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040605)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andreas Schmidt <andy@space.wh1.tu-dresden.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Frequent system freezes after kernel bug
-References: <20040612183742.GE1733@rocket> <20040612202023.GA22145@taniwha.stupidest.org> <20040612214947.GI1733@rocket> <40CB9B84.4030502@g-house.de> <20040613175134.GO1733@rocket>
-In-Reply-To: <20040613175134.GO1733@rocket>
-X-Enigmail-Version: 0.83.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Sun, 13 Jun 2004 18:18:58 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:23564 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261234AbUFMWS4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jun 2004 18:18:56 -0400
+Date: Mon, 14 Jun 2004 08:18:40 +1000
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IDE update for 2.6.7-rc3 [1/12]
+Message-ID: <20040613221840.GA31354@gondor.apana.org.au>
+References: <E1BZQSC-0006vd-00@gondolin.me.apana.org.au> <200406132001.44262.bzolnier@elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200406132001.44262.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sun, Jun 13, 2004 at 08:01:44PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> 
+> This makes ordering of IDE devices different in Debian-2.6
+> and vanilla 2.4/2.6, doesn't sound like a good thing to do.
 
-Andreas Schmidt wrote:
-| _did_ happen again. So, what do you suggest? (Sorry if that sounds
-| obnoxious, but I'm really a bit confused about this stuff...)
+If IDE is built-in, the ordering is exactly the same.
 
-sorry to confuse. no, i'm not able to tell any relevant information from
-your oops. i must say that it just occured *to me* that we had different
-oopses and lockups with fcdsl and fcpci (!) modules, which were hard to
-reproduce too.
+> Ideally ordering should be controlled by user-space. :-)
 
-you said:
-| This box runs under Debian stable; I noticed these particular bugs
-| starting with kernel 2.4.24. Yesterday, I updated from 2.4.25 to
-
-so 2.4.23 did work? would be strange, since patch-2.4.24.b2 is only
-2,5KB in size and touches very few things. good for you: if 2.4.23 is
-really working and 2.4.24 is not, you could back out the changes and see
-what it gives.
-
-just my 2¢,
-Christian.
-- --
-BOFH excuse #179:
-
-multicasts on broken packets
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFAzNG8+A7rjkF8z0wRAo4XAJ9wP6X38jyICqmB7ATYSyc2N6l/BgCfQnVf
-TkJlP1NWnExS6uub5KEHesk=
-=DoAL
------END PGP SIGNATURE-----
+If IDE is built as a module, then the ordering is still controlled
+by user space.
+-- 
+Visit Openswan at http://www.openswan.org/
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

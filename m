@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313715AbSDPPqT>; Tue, 16 Apr 2002 11:46:19 -0400
+	id <S313720AbSDPPsp>; Tue, 16 Apr 2002 11:48:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313716AbSDPPqS>; Tue, 16 Apr 2002 11:46:18 -0400
-Received: from jalon.able.es ([212.97.163.2]:9384 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S313715AbSDPPqR>;
-	Tue, 16 Apr 2002 11:46:17 -0400
-Date: Tue, 16 Apr 2002 17:46:08 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Oliver Xymoron <oxymoron@waste.org>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        wli@holomorphy.com
-Subject: Re: [PATCH] for_each_zone / for_each_pgdat
-Message-ID: <20020416154608.GA2694@werewolf.able.es>
-In-Reply-To: <Pine.LNX.4.44L.0204161156330.1960-100000@imladris.surriel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.3.4
+	id <S313719AbSDPPsk>; Tue, 16 Apr 2002 11:48:40 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:32773 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S313722AbSDPPsR>; Tue, 16 Apr 2002 11:48:17 -0400
+Subject: Re: [PATCH] 2.5.8 IDE 36
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Tue, 16 Apr 2002 17:05:44 +0100 (BST)
+Cc: david.lang@digitalinsight.com (David Lang),
+        dalecki@evision-ventures.com (Martin Dalecki),
+        vojtech@suse.cz (Vojtech Pavlik),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <Pine.LNX.4.33.0204160825160.1167-100000@penguin.transmeta.com> from "Linus Torvalds" at Apr 16, 2002 08:30:12 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16xVSi-0000FN-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Doing it with a loopback like interface at a higher level is the much 
+> saner operation - I understand why Martin removed the byteswap support, 
+> and agree with it 100%. It just didn't make any sense from a driver 
+> standpoint.
 
-On 2002.04.16 Rik van Riel wrote:
->On Tue, 16 Apr 2002, Oliver Xymoron wrote:
->> On Mon, 15 Apr 2002, Linus Torvalds wrote:
->> > On Mon, 15 Apr 2002, Linus Torvalds wrote:
->> > >
->> > > Which requires the user to use something like
->> > >
->> > > 	for_each_zone(zone) {
->> > > 		...
->> > > 	} end_zone;
->
->> Ugh. If we're going to use such ugly things, it would be nice if they were
->> do_zone/while_zone instead of being suggestive of a for loop.
->
->Ummm, it _is_ a for loop.
->
+We need to support partitioning on loopback devices in that case.
 
-Perhaps a silly change like
+> The only reason byteswapping exists is a rather historical one: Linux did 
+> the wrong thing for "insw/outsw" on big-endian architectures at one point 
+> (it byteswapped the data).
 
-for_all_zone -> forall_zone
-for_all_page -> forall_page
+A small number of other setups people wired the IDE the quick and easy
+way and their native format is indeed ass backwards - some M68K disks and
+the Tivo are examples of that. Interworking requires byteswapping and the
+ability to handle byteswapped partition tables.
 
-changes the point of view of some people. Some languages implement a 'forall'
-iteration. And looks better...
+Given the ability to see partitions on loop devices all works out I think
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.3 (Cooker) for i586
-Linux werewolf 2.4.19-pre6-jam2 #2 SMP Tue Apr 16 00:29:36 CEST 2002 i686
+Alan

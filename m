@@ -1,47 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271372AbTHHOIH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 10:08:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271374AbTHHOIH
+	id S271364AbTHHOOK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 10:14:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271365AbTHHOOK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 10:08:07 -0400
-Received: from pub237.cambridge.redhat.com ([213.86.99.237]:42989 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id S271372AbTHHOIF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 10:08:05 -0400
-Subject: Re: Reiser4 status: benchmarked vs. V3 (and ext3)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Jussi Laako <jussi.laako@pp.inet.fi>
-Cc: Yury Umanets <umka@namesys.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1059239696.3036.4.camel@vaarlahti.uworld>
-References: <3F1EF7DB.2010805@namesys.com>
-	 <1059062380.29238.260.camel@sonja>
-	 <16160.4704.102110.352311@laputa.namesys.com>
-	 <1059093594.29239.314.camel@sonja>
-	 <16161.10863.793737.229170@laputa.namesys.com>
-	 <1059142851.6962.18.camel@sonja>
-	 <1059143985.19594.3.camel@haron.namesys.com>
-	 <1059181687.10059.5.camel@sonja>
-	 <1059203990.21910.13.camel@haron.namesys.com>
-	 <1059239696.3036.4.camel@vaarlahti.uworld>
-Content-Type: text/plain
-Message-Id: <1060351682.25209.482.camel@passion.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.1 (dwmw2) 
-Date: Fri, 08 Aug 2003 15:08:02 +0100
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Aug 2003 10:14:10 -0400
+Received: from mail.eris.qinetiq.com ([128.98.1.1]:34865 "HELO
+	mail.eris.qinetiq.com") by vger.kernel.org with SMTP
+	id S271364AbTHHOOH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 10:14:07 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Mark Watts <m.watts@eris.qinetiq.com>
+Organization: QinetiQ
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: Innovision EIO DM-8301H/R SATA cards...
+Date: Fri, 8 Aug 2003 15:11:27 +0100
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+References: <200308081408.16564.m.watts@eris.qinetiq.com> <3F33A3EB.9030108@pobox.com>
+In-Reply-To: <3F33A3EB.9030108@pobox.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200308081511.28238.m.watts@eris.qinetiq.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-07-26 at 18:14, Jussi Laako wrote:
-> Most Linux filesystems can't be used properly with flash devices because
-> of unability to handle write errors caused by flash wearing out. FS
-> should mark the block as bad and relocate the data.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-This is typically done by the pseudo-filesystem (FTL, NFTL, etc.) which
-is used to emulate a hard drive on flash storage; the 'real' file system
-itself doesn't need to do it for itself. 
 
--- 
-dwmw2
+> Mark Watts wrote:
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
+> >
+> >
+> > My local supplier has started doing some SATA cards....
+> >
+> > http://www.ivmm.com/eio/products_sata_pci_host.html
+> >
+> >
+> > The chip on the board i the screenshot looks vaguely like a Silicon Image
+> > chip - - am I correct in thinking that these are supported in linux?
+>
+> If they are Silicon Image, yes, they are supported.
+
+Great stuff - can someone confirm whether I still need to do the folloing for 
+the latest 2.4.22 kernels in order to get good performance?
+
+# hdparm -d1 -X66 /dev/hdX
+# echo "max_kb_per_request:15" > /proc/.ide/hdX/settings
+
+Cheers,
+
+Mark.
+
+- -- 
+Mark Watts
+Senior Systems Engineer
+QinetiQ TIM
+St Andrews Road, Malvern
+GPG Public Key ID: 455420ED
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE/M6+QBn4EFUVUIO0RAsTlAJ47iXTKk7/VUEk/V5AdLe/5FcJODwCg+9MK
+lli1yAzptbJho+gqpF/zxHc=
+=DSWc
+-----END PGP SIGNATURE-----
 

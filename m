@@ -1,22 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263531AbTLJAAz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 19:00:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263537AbTLJAAz
+	id S262610AbTLJAPa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 19:15:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262707AbTLJAPa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 19:00:55 -0500
-Received: from modemcable067.88-70-69.mc.videotron.ca ([69.70.88.67]:36480
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S263531AbTLJAAx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 19:00:53 -0500
-Date: Tue, 9 Dec 2003 18:59:49 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+	Tue, 9 Dec 2003 19:15:30 -0500
+Received: from hibernia.jakma.org ([213.79.33.168]:37005 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP id S262610AbTLJAP2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 19:15:28 -0500
+Date: Wed, 10 Dec 2003 00:15:17 +0000 (GMT)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: paul@fogarty.jakma.org
 To: William Lee Irwin III <wli@holomorphy.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test11-wli-1
-In-Reply-To: <20031209233523.GS8039@holomorphy.com>
-Message-ID: <Pine.LNX.4.58.0312091859330.2313@montezuma.fsmlabs.com>
-References: <20031204200120.GL19856@holomorphy.com> <20031209233523.GS8039@holomorphy.com>
+cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Joe Thornber <thornber@sistina.com>, linux-kernel@vger.kernel.org
+Subject: Re: Device-mapper submission for 2.4
+In-Reply-To: <20031209235823.GT8039@holomorphy.com>
+Message-ID: <Pine.LNX.4.56.0312100005270.30298@fogarty.jakma.org>
+References: <Pine.LNX.4.44.0312092047450.1289-100000@logos.cnet>
+ <Pine.LNX.4.56.0312092329280.30298@fogarty.jakma.org> <20031209235823.GT8039@holomorphy.com>
+X-NSA: iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -24,15 +28,24 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Tue, 9 Dec 2003, William Lee Irwin III wrote:
 
-> On Thu, Dec 04, 2003 at 12:01:20PM -0800, William Lee Irwin III wrote:
-> > Successfully tested on a Thinkpad T21. Any feedback regarding
-> > performance would be very helpful. Desktop users should notice top(1)
-> > is faster, kernel hackers that kernel compiles are faster, and highmem
-> > users should see much less per-process lowmem overhead.
->
-> Bill Davidsen reported an issue where compiled kernel images aren't
-> properly distinguished from mainline kernels' by installation scripts.
->
-> The following patch should resolve this:
+> Just apply the patch if you're for some reason terrified of 2.6.
 
-Argh, i've been screaming about this for ages...
+Or get RedHat or Fedora to apply the patch.
+
+Its a slightly safer bet though to have it in stock 2.4, guarantees
+it will be there if one needs it 2 years down the road when upgrading
+some box. (and non-LVM users wont be compiling it in).
+
+So personally I'd rather Marcelo included it, being paranoid about
+having support for access to data.
+
+> -- wli
+
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
+	warning: do not ever send email to spam@dishone.st
+Fortune:
+"If you want to travel around the world and be invited to speak at a lot
+of different places, just write a Unix operating system."
+(By Linus Torvalds)

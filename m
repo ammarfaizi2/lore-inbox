@@ -1,36 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261693AbTDFN2I (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 09:28:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262879AbTDFN2I (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 09:28:08 -0400
-Received: from smtp01.web.de ([217.72.192.180]:1039 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S261693AbTDFN2H (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 09:28:07 -0400
+	id S262879AbTDFNa2 (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 09:30:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262961AbTDFNa2 (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 09:30:28 -0400
+Received: from smtp03.web.de ([217.72.192.158]:27403 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S262879AbTDFNa1 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 09:30:27 -0400
 From: Michael Buesch <freesoftwaredeveloper@web.de>
-To: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
+To: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
 Subject: Re: Serial port over TCP/IP
-Date: Sun, 6 Apr 2003 15:39:00 +0200
+Date: Sun, 6 Apr 2003 15:41:50 +0200
 User-Agent: KMail/1.5
-References: <200304061447.46393.freesoftwaredeveloper@web.de> <20030406131132.GJ639@gallifrey>
-In-Reply-To: <20030406131132.GJ639@gallifrey>
+References: <200304061335.h36DZfY06199@verdi.et.tudelft.nl>
+In-Reply-To: <200304061335.h36DZfY06199@verdi.et.tudelft.nl>
 Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200304061539.00494.freesoftwaredeveloper@web.de>
+Message-Id: <200304061541.50959.freesoftwaredeveloper@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 06 April 2003 15:11, Dr. David Alan Gilbert wrote:
-> I keep thinking that it would be nice to have a mechanism for user space
-> char devices; it would have to have a mechanism to pass all the ioctls
-> to the process that dealt with it.
+On Sunday 06 April 2003 15:35, Rob van Nieuwkerk wrote:
+> No need for kernel support.  This simple shell-script is what I use for
+> a project at the moment.
+> [...]
 
-But wouldn't this make too much overhead, if implemented all in userspace?
-I say this, because nbd is also implemented in user- und kernel-space.
+thanks. :)
 
-Regards Michael Buesch. 
+Regards Michael Buesch.
 
 -- 
 My homepage: http://www.8ung.at/tuxsoft

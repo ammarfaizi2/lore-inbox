@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271825AbTG2OJn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 10:09:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271816AbTG2OHc
+	id S271737AbTG2OR6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 10:17:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271817AbTG2OR4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 10:07:32 -0400
-Received: from windsormachine.com ([206.48.122.28]:55302 "EHLO
-	router.windsormachine.com") by vger.kernel.org with ESMTP
-	id S271815AbTG2OH0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 10:07:26 -0400
-Date: Tue, 29 Jul 2003 10:07:23 -0400 (EDT)
-From: Mike Dresser <mdresser_l@windsormachine.com>
+	Tue, 29 Jul 2003 10:17:56 -0400
+Received: from iv.ro ([194.105.28.94]:60709 "HELO iv.ro") by vger.kernel.org
+	with SMTP id S271737AbTG2ORx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 10:17:53 -0400
+Date: Tue, 29 Jul 2003 17:31:51 +0300
+From: Jani Monoses <jani@iv.ro>
 To: linux-kernel@vger.kernel.org
-Subject: RE: DMA not supported with Intel ICH4 I/O controller?
-In-Reply-To: <1059442100.1868.13.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.56.0307291006090.7175@router.windsormachine.com>
-References: <PMEMILJKPKGMMELCJCIGCEJCCDAA.kfrazier@mdc-dayton.com>
- <1059442100.1868.13.camel@dhcp22.swansea.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: timeout (110) with bluez usb uhci  2.4.21
+Message-Id: <20030729173151.048c2bb8.jani@iv.ro>
+X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Jul 2003, Alan Cox wrote:
+The same problem here as the one raported about a week ago by Florian
+Lohoff. I have two USB bluetooth dongles. One of them (ambicom
+bt2000) does not like being hotplugged in it gives that timeout message
+after saying it was an error in interrupt.The other (blue-gene bt320)
+can be connected/disconncted and it works fine.
+The same problem shows with 2.4.22-pre7
+If the usb-uhci module is reloaded while the dongle is in it finds it.
+The problem as shown by debug messages in uhci seems to be error in the
+interrupt handler for uhci. The status register is 2 which is io/error I
+think and it says the frame was corrupted.
+So I changed the handler to return when that's the status and only go on
+if status is 1 which I think is normal usb interrupt transfer not an
+error condition. This way probably the usb stack retries again and the
+dongle is found after a few seconds and can be plugged in and out.
+I have seen in other threads that somebody made usb_get_address retry on
+error to achieve the same effect...
+can some workaround by somebody who knows what's happening be put in the
+kernel because google shows that quite a few people are bitten by this
+110 error message with uhci/ohci and various usb devices not only BT.
 
-> 2.4.20 or later should do it. Red Hat 9 current errata, probably the current errata
-> kernels of other vendors too.
->
-> hdparm -d /dev/hda will tell you
->
-
-I had thought it was a hard drive as well, since that's what everyone
-elses problem with DMA turns out to be.  Turns out it's a piece of
-hardware they're working on that has problems.
-
-Unless I misunderstood again :)
-Mike
+thanks
+Jani

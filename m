@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272650AbRIMBGG>; Wed, 12 Sep 2001 21:06:06 -0400
+	id <S272651AbRIMBju>; Wed, 12 Sep 2001 21:39:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272651AbRIMBF4>; Wed, 12 Sep 2001 21:05:56 -0400
-Received: from [212.94.174.5] ([212.94.174.5]:2564 "HELO pridamix.molteni.net")
-	by vger.kernel.org with SMTP id <S272650AbRIMBFh>;
-	Wed, 12 Sep 2001 21:05:37 -0400
-Message-ID: <3BA00671.358F1633@molteni.net>
-Date: Thu, 13 Sep 2001 03:05:53 +0200
-From: Olivier Molteni <olivier@molteni.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: nfs client oops, all 2.4 kernels
-In-Reply-To: <20010910100202.A14106@www.creditminders.com>
-		<15261.53031.349271.425562@charged.uio.no> <shsitep7ts9.fsf@charged.uio.no>
+	id <S272661AbRIMBjl>; Wed, 12 Sep 2001 21:39:41 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:45820
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S272651AbRIMBjc>; Wed, 12 Sep 2001 21:39:32 -0400
+Date: Wed, 12 Sep 2001 18:39:49 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ext3-2.4-0.9.9
+Message-ID: <20010912183949.G25683@mikef-linux.matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <3B991346.7393E7AF@zip.com.au> <20010908045952.P7672@emma1.emma.line.org> <999921805.903.6.camel@phantasy>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <999921805.903.6.camel@phantasy>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
+On Sat, Sep 08, 2001 at 12:03:24AM -0400, Robert Love wrote:
+> I went ahead and rediffed ext3-0.9.9 against 2.4.9-ac10.  Find it
+> attached (65k, 17k gzipped).
+> 
+> Ted's ext3 directory speedup still applies cleanly, of course.
+> 
+> Still using ext3-0.9.9 + dir speed up, now on ac10, with no problems.
+> 
 
-> >>>>> " " == Trond Myklebust <trond.myklebust@fys.uio.no> writes:
->
->      > Could you check if the appended patch works?
->
+Can someone point me to that dir speed up patch?  I've looked on kernel
+newbies for Tso's page, google searches found old dev archives for ext2, and
+a patch against 2.4.4 for directory indexing....
 
-Hi,
+Is there anything I should know before trying this?
 
-I have just finished to test with 4 PCs doing intensive lock/unlock on several NFS
-files for 3 hours... it seems to work !
-I will now test with the initial mail application, but if I will post again only if the
-test fails...
-
-Thank's a lot again !!
-
-Cheers,
-Olivier.
-
-
+Mike

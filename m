@@ -1,73 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261190AbREMNL2>; Sun, 13 May 2001 09:11:28 -0400
+	id <S261264AbREMNad>; Sun, 13 May 2001 09:30:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261264AbREMNLT>; Sun, 13 May 2001 09:11:19 -0400
-Received: from adsl-204-0-249-112.corp.se.verio.net ([204.0.249.112]:56053
-	"EHLO tabby.cats-chateau.net") by vger.kernel.org with ESMTP
-	id <S261190AbREMNLH>; Sun, 13 May 2001 09:11:07 -0400
-From: Jesse Pollard <jesse@cats-chateau.net>
-Reply-To: jesse@cats-chateau.net
-To: Alexander Viro <viro@math.psu.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: mount /dev/hdb2 /usr; swapon /dev/hdb2 keeps flooding
-Date: Sun, 13 May 2001 08:04:26 -0500
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-Cc: BERECZ Szabolcs <szabi@inf.elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0105121939310.11973-100000@weyl.math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0105121939310.11973-100000@weyl.math.psu.edu>
+	id <S261342AbREMNaX>; Sun, 13 May 2001 09:30:23 -0400
+Received: from ecstasy.ksu.ru ([193.232.252.41]:57479 "EHLO ecstasy.ksu.ru")
+	by vger.kernel.org with ESMTP id <S261264AbREMNaJ>;
+	Sun, 13 May 2001 09:30:09 -0400
+X-Pass-Through: Kazan State University network
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Art Boulatov <art@ksu.ru>
+Organization: Kazan State University
+To: "mirabilos" <eccesys@topmail.de>
+Subject: Re: Linux support for Microsoft dynamic disks?
+Date: Sun, 13 May 2001 17:22:52 +0400
+X-Mailer: KMail [version 1.2]
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <5.1.0.14.2.20010513000214.00ab3810@pop.cus.cam.ac.uk> <5.1.0.14.2.20010513105120.00ac37e0@pop.cus.cam.ac.uk> <01f001c0db9e$ef41b370$0100a8c0@homeip.net>
+In-Reply-To: <01f001c0db9e$ef41b370$0100a8c0@homeip.net>
 MIME-Version: 1.0
-Message-Id: <01051308104500.22790@tabby>
-Content-Transfer-Encoding: 7BIT
+Message-Id: <01051317225200.00874@artsystems.ksu.ru>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 12 May 2001, Alexander Viro wrote:
->On Sun, 13 May 2001, Alan Cox wrote:
->
->> > > root@kama3:/home/szabi# cat /proc/mounts
->> > > /dev/hdb2 /usr ext2 rw 0 0
->> > > root@kama3:/home/szabi# swapon /dev/hdb2
->> > 
->> > - Doctor, it hurts when I do it!
->> > - Don't do it, then.
->> > 
->> > Just what behaviour had you expected?
->> 
->> EBUSY would be somewhat nicer.
->
->Probably. Try to convince Linus that we need such exclusion. All stuff
->needed to implement it is already there - see blkdev_open() for details.
->OTOH, as long as kernel itself survives that... In this case I can see
->the point in "give them enough rope" approach.
+On Sunday 13 May 2001 03:15 pm, mirabilos wrote:
 
-It doesn't matter .... The device is not a swap partition - from the
-original message:
-> root@kama3:/home/szabi# swapon /dev/hdb2
-> set_blocksize: b_count 1, dev ide0(3,66), block 2, from c0126b48
-> set_blocksize: b_count 1, dev ide0(3,66), block 3, from c0126b48
-> set_blocksize: b_count 1, dev ide0(3,66), block 4, from c0126b48
-> set_blocksize: b_count 1, dev ide0(3,66), block 5, from c0126b48
-> set_blocksize: b_count 1, dev ide0(3,66), block 6, from c0126b48
-> set_blocksize: b_count 1, dev ide0(3,66), block 7, from c0126b48
-> set_blocksize: b_count 1, dev ide0(3,66), block 8, from c0126b48
-> set_blocksize: b_count 1, dev ide0(3,66), block 1, from c0126b48
-> Unable to find swap-space signature
-> swapon: /dev/hdb2: Invalid argument
+> ................
+> I had (on a 2G disk) a NTFS, a FAT and some Linux partitions. It even
+> refused
+> to convert to dynamic disk. When it finally did, my Linux partitions
+> vanished.
+> You need this support to even be able to use linux on that disk... btw
+> .........................
 
-The error message is quite clear (the set blocksize isn't, but that
-is during the identification and isn't an error, but appears to be
-a status..).
+It is actiually possible to have both Linux and Windows 2000/Windows XP with 
+dynamic disk on the same hard drive for now.
 
-If you are going to swap on a mounted file system, then you have to
-specify a swap file, formatted for swap.
+The thing is you have first to install Windows XP, leaving  required space 
+for the Linux install, and convert the drive to dynamic disk.
+When it is sucessfully converted you can reboot from linux floppy and "resize"
+the last partition on the disk to the place where the free space actually 
+begins.
+Now it's possible to create some partitions here to install Linux.
+The point is Windows still thinks there is an unpartioned space there,
+where you just put your Linux distro :)
 
-The message that was output says exactly what is needed for protecting
-against configuration errors.
+But thats not the option anyway,
+and recognising dynamic disks would be a much better solution :). 
 
--- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: jesse@cats-chateau.net
+Art.
 
-Any opinions expressed are solely my own.

@@ -1,55 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261963AbSJVB5l>; Mon, 21 Oct 2002 21:57:41 -0400
+	id <S262042AbSJVCKJ>; Mon, 21 Oct 2002 22:10:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261972AbSJVB5l>; Mon, 21 Oct 2002 21:57:41 -0400
-Received: from main.gmane.org ([80.91.224.249]:17872 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id <S261963AbSJVB5j>;
-	Mon, 21 Oct 2002 21:57:39 -0400
-To: linux-kernel@vger.kernel.org
-X-Injected-Via-Gmane: http://gmane.org/
-Path: not-for-mail
-From: Nicholas Wourms <nwourms@netscape.net>
-Subject: Re: [PATCH] 2.5.44: lkcd (9/9): dump driver and build files
-Date: Mon, 21 Oct 2002 22:04:39 -0400
-Message-ID: <ap2bk3$b0t$1@main.gmane.org>
-References: <200210211016.g9LAG5J21214@nakedeye.aparity.com> <20021021172112.C14993@sgi.com>
-Reply-To: nwourms@netscape.net
-NNTP-Posting-Host: 130.127.121.177
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Trace: main.gmane.org 1035252164 11293 130.127.121.177 (22 Oct 2002 02:02:44 GMT)
-X-Complaints-To: usenet@main.gmane.org
-NNTP-Posting-Date: Tue, 22 Oct 2002 02:02:44 +0000 (UTC)
-User-Agent: KNode/0.7.2
+	id <S262046AbSJVCKJ>; Mon, 21 Oct 2002 22:10:09 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5638 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262042AbSJVCKH>;
+	Mon, 21 Oct 2002 22:10:07 -0400
+Message-ID: <3DB4B4F8.5060205@pobox.com>
+Date: Mon, 21 Oct 2002 22:16:24 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Adam Kropelin <akropel1@rochester.rr.com>
+CC: VDA@port.imtp.ilyichevsk.odessa.ua, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5: ewrk3 cli/sti removal by VDA
+References: <20021019021340.GA8388@www.kroptech.com> <3DB49D81.6000607@pobox.com> <20021022020932.GA13818@www.kroptech.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-
-> On Mon, Oct 21, 2002 at 03:16:05AM -0700, Matt D. Robinson wrote:
->> diff -Naur linux-2.5.44.orig/drivers/dump/Makefile
->> linux-2.5.44.lkcd/drivers/dump/Makefile
->> --- linux-2.5.44.orig/drivers/dump/Makefile  Wed Dec 31 16:00:00 1969
->> +++ linux-2.5.44.lkcd/drivers/dump/Makefile  Sat Oct 19 12:39:15 2002
->> @@ -0,0 +1,30 @@
->> +#
->> +# Makefile for the dump device drivers.
->> +#
->> +# 12 June 2000, Christoph Hellwig <schch@pe.tu-clausthal.de>
->> +# Rewritten by Matt D. Robinson (yakker@sourceforge.net) for
->> +# the dump directory.
+Adam Kropelin wrote:
+> On Mon, Oct 21, 2002 at 08:36:17PM -0400, Jeff Garzik wrote:
 > 
-> *cough* is that an old mail address and I can't even remember having
-> touched that file.. :)  What about remoing that note..
+>>Adam Kropelin wrote:
+>>
+>>>Below is a patch from Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> 
+>>>which
+>>>removes cli/sti in the ewrk3 driver. It tests out fine here with SMP & 
+>>>preempt.
+>>
+>>Applied and then cleaned up...  ETHTOOL_PHYS_ID needs to use 
+>>schedule_timeout(), and using typeof should be avoided.
 > 
+> 
+> The patch below (against yours) should fix ETHTOOL_PHYS_ID again. Let me
+> know if I got it wrong. Was my prior use of
+> wait_event_interruptible_tiumeout actually broken or rather
+> just a lot more complicated than it needed to be?
 
-Didn't this used to be an SGI project?  Perhaps that is where you might have 
-"touched" it.
+broken in 2.4 -and- more complicated than it needed to be in 2.5.x ;-)
 
-Cheers,
-Nicholas
+
+> I didn't find any use of typeof. If you point me to it I'll fix that up,
+> too.
+
+I fixed it up... grep your original patch.  typeof() was used because 
+lp->pktStats was an anonymous structure with no defined typename.  I 
+moved the struct out and gave it a name.
+
+
+> Thanks for bearing with me. I'm climbing the clue-ladder as fast as I
+> can... ;)
+
+hehe, thanks for doing the patches and the testing... :)
+
+
+> --- linux-2.5.44/drivers/net/ewrk3.c	Mon Oct 21 22:01:01 2002
+> +++ linux-2.5.44/drivers/net/ewrk3.c.new	Mon Oct 21 21:58:13 2002
+
+quick review says it looks good, I'll make another pass over it with my 
+brain switched on, and apply or comment as it warrants :)
+
+	Jeff
 
 
 

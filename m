@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288498AbSAHWRg>; Tue, 8 Jan 2002 17:17:36 -0500
+	id <S288499AbSAHWTq>; Tue, 8 Jan 2002 17:19:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288499AbSAHWR1>; Tue, 8 Jan 2002 17:17:27 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:9230 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S288498AbSAHWRL>; Tue, 8 Jan 2002 17:17:11 -0500
-Message-ID: <3C3B6E96.8FB0341A@zip.com.au>
-Date: Tue, 08 Jan 2002 14:11:34 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Michael H. Warfield" <mhw@wittsend.com>
-CC: David Weinehall <tao@acc.umu.se>, Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Ivan Passos <ivan@cyclades.com>, linux-kernel@vger.kernel.org
-Subject: Re: Serial Driver Name Question (kernels 2.4.x)
-In-Reply-To: <3C33E0D3.B6E932D6@zip.com.au> <3C33BCF3.20BE9E92@cyclades.com> <200201030637.g036bxe03425@vindaloo.ras.ucalgary.ca> <200201062012.g06KCIu16158@vindaloo.ras.ucalgary.ca> <3C38BC19.72ECE86@zip.com.au> <200201070636.g076asR25565@vindaloo.ras.ucalgary.ca> <3C3A7DA7.381D033D@zip.com.au>, <3C3A7DA7.381D033D@zip.com.au>; <20020108071548.J5235@khan.acc.umu.se> <3C3A9048.CB80061A@zip.com.au>,
-		<3C3A9048.CB80061A@zip.com.au> <20020108165851.B26294@alcove.wittsend.com>
+	id <S288503AbSAHWTh>; Tue, 8 Jan 2002 17:19:37 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:18702 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S288499AbSAHWT3>;
+	Tue, 8 Jan 2002 17:19:29 -0500
+Date: Tue, 8 Jan 2002 14:17:20 -0800
+From: Greg KH <greg@kroah.com>
+To: "Ian S. Nelson" <nelcomp@attglobal.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: __FUNCTION__
+Message-ID: <20020108221719.GA15986@kroah.com>
+In-Reply-To: <3C3B664B.3060103@intel.com> <3C3B6BD2.9070201@attglobal.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3C3B6BD2.9070201@attglobal.net>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Tue, 11 Dec 2001 20:13:21 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Michael H. Warfield" wrote:
+On Tue, Jan 08, 2002 at 02:59:46PM -0700, Ian S. Nelson wrote:
 > 
-> The trouble there is the problem with conventional lock files under
-> /var/lock which only use the base name of the device name so cua/42
-> and cuf/42 both have the same lock file of /var/lock/LCK..42 and
-> would collide.
+> I suspect this might be about as religious an issue as there is but has 
+> anyone thought about coming up with some "standard" debugging macros, 
+> perhaps something that can be configured at compile time from the 
+> configuration for everyone to use everywhere?  I've got my own debug 
+> macros,  essentially a printk with the file, function and line added 
+> wrapped in #ifdef DEBUG.  I've seen several other schemes in other parts 
+> of the kernel and now some of them aren't correct.
 
-OK, thanks.  So it looks like we stick with
+Jeff Garzik and others have talked about unifying the network driver's
+debug statements and levels with a common set of macros and level
+values.  I want to do the same thing with the USB drivers, but was
+waiting for them to finalize their scheme first (and hopefully use the
+same thing.)
 
-	http://www.zip.com.au/~akpm/linux/2.4/2.4.18-pre2/tty_name.patch
+So yes, I think there can be some kind of "standard" debugging macros,
+but the "standard" will probably be limited to a subset of the kernel.
 
-Which just puts %d's at the end of all the device names in the
-non-devfs case.
-
-I'll have another go at that patch, check for missed drivers,
-then send it out again.  OK?
+greg k-h

@@ -1,148 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261363AbTC3Orl>; Sun, 30 Mar 2003 09:47:41 -0500
+	id <S261385AbTC3OwJ>; Sun, 30 Mar 2003 09:52:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261369AbTC3Orl>; Sun, 30 Mar 2003 09:47:41 -0500
-Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:54282 "EHLO
-	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id <S261363AbTC3Orh>; Sun, 30 Mar 2003 09:47:37 -0500
-Date: Sun, 30 Mar 2003 23:58:09 +0900 (JST)
-Message-Id: <20030330.235809.70243437.yoshfuji@linux-ipv6.org>
-To: davem@redhat.com, kuznet@ms2.inr.ac.ru
-CC: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, usagi@linux-ipv6.org,
-       yoshfuji@linux-ipv6.org, pioppo@ferrara.linux.it
-Subject: [PATCH] IPv6: Don't assign a same IPv6 address on a same interface
- (is Re: IPv6 duplicate address bugfix)
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <20030330.220829.129728506.yoshfuji@linux-ipv6.org>
-References: <20030330122705.GA18283@ferrara.linux.it>
-	<20030330.220829.129728506.yoshfuji@linux-ipv6.org>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+	id <S261387AbTC3OwJ>; Sun, 30 Mar 2003 09:52:09 -0500
+Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:58793 "HELO
+	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S261385AbTC3OwH>; Sun, 30 Mar 2003 09:52:07 -0500
+Subject: 2.5: Can't unmount fs after using NFS
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1049036587.600.9.camel@teapot>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-2022-jp
+X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
+Date: 30 Mar 2003 17:03:07 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20030330.220829.129728506.yoshfuji@linux-ipv6.org> (at Sun, 30 Mar 2003 22:08:29 +0900 (JST)), YOSHIFUJI Hideaki / 吉藤英明 <yoshfuji@linux-ipv6.org> says:
+Hi,
 
-> And, patch does not seem optimal. I'd take a look at very soon.
+Since I started testing 2.5 on my NFS server, I'm having problems
+unmounting filesystems that were exported by NFS (of course, before
+trying to unmount, I stopped NFS):
 
-Here's our patch based on our fix in August, 2001.
-Question: should we use spin_lock_bh() instead of spin_lock()?
+glass:~# cat /etc/mtab
+/dev/hda2 / ext3 rw,noatime 0 0
+none /proc proc rw 0 0
+usbdevfs /proc/bus/usb usbdevfs rw 0 0
+/dev/hda3 /data ext3 rw,noatime 0 0
+none /dev/pts devpts rw,gid=5,mode=620 0 0
+none /dev/shm tmpfs rw 0 0
+/dev/hdb2 /media ext3 rw,noatime 0 0
 
---------
-Don't assign a same IPv6 address on a same interface.
-This patch is against linux-2.5.66.
-We believe this fix should be suitable on linux-2.4 tree.
-(This patch itself conflicts at the first chunk...)
+glass:~# cat /etc/exports
+/data   192.168.0.100(rw,no_root_squash) 192.168.0.0/24(ro)
+/media  192.168.0.100(rw,no_root_squash)
 
-Thanks in advance.
+glass:~# /etc/init.d/nfs stop
 
--------------------------------------------------------------------
-Patch-Name: Don't assign a same IPv6 address on a same interface
-Patch-Id: FIX_2_5_66_ADDRCONF_DUPADDR-20030330
-Patch-Author: YOSHIFUJI Hideaki / USAGI Project <yoshfuji@linux-ipv6.org>
-Credit: Yuji SEKIYA / USAGI Project <sekiya@linux-ipv6.org>,
-	YOSHIFUJI Hideaki / USAGI Project <yoshfuji@linux-ipv6.org>,
-	Simone Piunno <pioppo@ferrara.linux.it>
--------------------------------------------------------------------
-Index: net/ipv6/addrconf.c
-===================================================================
-RCS file: /cvsroot/usagi/usagi-backport/linux25/net/ipv6/addrconf.c,v
-retrieving revision 1.1.1.9
-retrieving revision 1.1.1.9.2.3
-diff -u -r1.1.1.9 -r1.1.1.9.2.3
---- net/ipv6/addrconf.c	25 Mar 2003 04:33:45 -0000	1.1.1.9
-+++ net/ipv6/addrconf.c	30 Mar 2003 13:50:41 -0000	1.1.1.9.2.3
-@@ -30,6 +30,8 @@
-  *						address validation timer.
-  *	YOSHIFUJI Hideaki @USAGI	:	Privacy Extensions (RFC3041)
-  *						support.
-+ *	Yuji SEKIYA @USAGI		:	Don't assign a same IPv6
-+ *						address on a same interface.
-  */
- 
- #include <linux/config.h>
-@@ -126,6 +128,8 @@
- static void addrconf_rs_timer(unsigned long data);
- static void ipv6_ifa_notify(int event, struct inet6_ifaddr *ifa);
- 
-+static int ipv6_chk_same_addr(const struct in6_addr *addr, struct net_device *dev);
-+
- static struct notifier_block *inet6addr_chain;
- 
- struct ipv6_devconf ipv6_devconf =
-@@ -492,10 +496,21 @@
- {
- 	struct inet6_ifaddr *ifa;
- 	int hash;
-+	static spinlock_t lock = SPIN_LOCK_UNLOCKED;
-+
-+	spin_lock(&lock);
-+
-+	/* Ignore adding duplicate addresses on an interface */
-+	if (ipv6_chk_same_addr(addr, idev->dev)) {
-+		spin_unlock(&lock);
-+		ADBG(("ipv6_add_addr: already assigned\n"));
-+		return NULL;
-+	}
- 
- 	ifa = kmalloc(sizeof(struct inet6_ifaddr), GFP_ATOMIC);
- 
- 	if (ifa == NULL) {
-+		spin_unlock(&lock);
- 		ADBG(("ipv6_add_addr: malloc failed\n"));
- 		return NULL;
- 	}
-@@ -514,6 +529,7 @@
- 	if (idev->dead) {
- 		read_unlock(&addrconf_lock);
- 		kfree(ifa);
-+		spin_unlock(&lock);
- 		return NULL;
- 	}
- 
-@@ -551,6 +567,7 @@
- 	in6_ifa_hold(ifa);
- 	write_unlock_bh(&idev->lock);
- 	read_unlock(&addrconf_lock);
-+	spin_unlock(&lock);
- 
- 	notifier_call_chain(&inet6addr_chain,NETDEV_UP,ifa);
- 
-@@ -921,6 +938,23 @@
- 		    !(ifp->flags&IFA_F_TENTATIVE)) {
- 			if (dev == NULL || ifp->idev->dev == dev ||
- 			    !(ifp->scope&(IFA_LINK|IFA_HOST)))
-+				break;
-+		}
-+	}
-+	read_unlock_bh(&addrconf_hash_lock);
-+	return ifp != NULL;
-+}
-+
-+static
-+int ipv6_chk_same_addr(const struct in6_addr *addr, struct net_device *dev)
-+{
-+	struct inet6_ifaddr * ifp;
-+	u8 hash = ipv6_addr_hash(addr);
-+
-+	read_lock_bh(&addrconf_hash_lock);
-+	for(ifp = inet6_addr_lst[hash]; ifp; ifp=ifp->lst_next) {
-+		if (ipv6_addr_cmp(&ifp->addr, addr) == 0) {
-+			if (dev != NULL && ifp->idev->dev == dev)
- 				break;
- 		}
- 	}
+glass:~# umount /media
+umount: /media: device is busy
 
--- 
-Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
-GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+glass:~# umount /data
+umount: /data: device is busy
+
+glass:~# dmesg|tail
+hdb: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+hdb: drive_cmd: error=0x04 { DriveStatusError }
+kjournald starting.  Commit interval 5 seconds
+EXT3-fs warning: maximal mount count reached, running e2fsck is
+recommended
+EXT3 FS 2.4-0.9.16, 02 Dec 2001 on ide0(3,66), internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
+nfsd: last server has exited
+nfsd: unexporting all filesystems
+nfsd: last server has exited
+nfsd: unexporting all filesystems
+
+glass:~# umount -f /media
+umount2: Device or resource busy
+umount: /media: device is busy
+
+glass:~# fuser -vu /media
+
+                     USER        PID ACCESS COMMAND
+/media               root     kernel mount  /media
+
+glass:~# fuser -vu /data
+
+                     USER        PID ACCESS COMMAND
+/data                root     kernel mount  /data
+
+glass:~# cat /etc/fstab
+/dev/hda3               /data                   ext3   
+defaults,noatime     1 2
+/dev/hda2               /                       ext3   
+defaults,noatime     1 1
+/dev/hda1               /boot                   ext3   
+defaults,noauto      0 0
+/dev/hdb2               /media                  ext3   
+defaults,noauto,noatime 0 0
+none                    /dev/pts                devpts 
+gid=5,mode=620       0 0
+none                    /proc                   proc   
+defaults             0 0
+none                    /dev/shm                tmpfs  
+defaults             0 0
+#/dev/hdb1               swap                    swap   
+defaults             0 0
+/dev/cdrw               /mnt/cdrw           udf,iso9660
+noauto,owner,ro      0 0
+/dev/hdc                /cdrom                  auto   
+ro,noauto,user,exec  0 0
+/dev/scd0               /cdrecorder             auto   
+ro,noauto,user,exec  0 0
+
+Is this a bug? This didn't happen with 2.4.
+
+Thanks!
+
+________________________________________________________________________
+        Felipe Alfaro Solana
+   Linux Registered User #287198
+http://counter.li.org
+

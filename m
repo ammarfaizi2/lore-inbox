@@ -1,95 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269291AbUJQTry@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269276AbUJQTuf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269291AbUJQTry (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 15:47:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269335AbUJQTrx
+	id S269276AbUJQTuf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 15:50:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269272AbUJQTuf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 15:47:53 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:17369 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269291AbUJQTqw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 15:46:52 -0400
-To: linux-kernel@vger.kernel.org
-Subject: K8 Errata #93: adjusting address to a fixup block
-From: Alexandre Oliva <aoliva@redhat.com>
-Organization: Red Hat Global Engineering Services Compiler Team
-Date: 17 Oct 2004 16:46:49 -0300
-Message-ID: <orr7nxyvo6.fsf@livre.redhat.lsd.ic.unicamp.br>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Sun, 17 Oct 2004 15:50:35 -0400
+Received: from postfix3-1.free.fr ([213.228.0.44]:5303 "EHLO
+	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S269276AbUJQTsL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Oct 2004 15:48:11 -0400
+Message-ID: <4172CC6C.1010108@free.fr>
+Date: Sun, 17 Oct 2004 21:47:56 +0200
+From: Laurent Riffard <laurent.riffard@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.2) Gecko/20040804
+X-Accept-Language: fr-fr, fr, en
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="=-=-="
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
+       Alan Stern <stern@rowland.harvard.edu>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>, Paul Fulghum <paulkf@microgate.com>
+Subject: Re: [patch, 2.6.9-rc4-mm1] fix rmmod uhci_hcd oops
+References: <Pine.LNX.4.44L0.0410151318580.1052-100000@ida.rowland.org> <1097861761.2820.18.camel@deimos.microgate.com> <1097872927.5119.5.camel@krustophenia.net> <1097874840.2915.18.camel@deimos.microgate.com> <20041016160737.GA19630@elte.hu>
+In-Reply-To: <20041016160737.GA19630@elte.hu>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig9626CE6311C081DA8305D157"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
-
-While I investigated the problem of probing the touchpad on a Compaq
-Presario r3004, I'd sometimes get the K8 Errata #93 warning.  One of
-my theories was that we might be missing some fix up because of the
-Errata, or adjusting an address that wasn't the current-instruction
-address, so I came up with this patch.  It turned out to make no
-difference, but it still feels like an improvement to me, since some
-day we might be resuming from halt into a fix-up block.  Thoughts?
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig9626CE6311C081DA8305D157
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
 
---=-=-=
-Content-Type: text/x-patch
-Content-Disposition: attachment; filename=linux-2.6.9-k8errata93.patch
+Ingo Molnar wrote:
+> this patch fixes the rmmod oops reported by Paul Fulghum. It is
+> caused by the generic-irqs subsystem creating multiple
+> /proc/irq/<nr>/<name> directory entries with the same name which
+> then confuses procfs upon module removal.
+> 
+> Ingo
 
---- arch/x86_64/mm/fault.c.k8errata93	2004-10-17 08:49:45.000000000 -0300
-+++ arch/x86_64/mm/fault.c	2004-10-17 11:14:40.000000000 -0300
-@@ -188,9 +188,12 @@
-    Try to work around it here.
-    Note we only handle faults in kernel here. */
- 
--static int is_errata93(struct pt_regs *regs, unsigned long address) 
-+static int is_errata93(struct pt_regs *regs, unsigned long address,
-+		       unsigned long error_code)
- {
- 	static int warned;
-+	if ((error_code & 16) == 0)
-+		return 0;
- 	if (address != regs->rip)
- 		return 0;
- 	if ((address >> 32) != 0) 
-@@ -202,6 +205,8 @@
- 			printk(errata93_warning); 		
- 			warned = 1;
- 		}
-+		printk(KERN_DEBUG "is_errata93 adjusted %lx to %lx\n",
-+		       regs->rip, address);
- 		regs->rip = address;
- 		return 1;
- 	}
-@@ -253,6 +258,7 @@
- 	const struct exception_table_entry *fixup;
- 	int write;
- 	siginfo_t info;
-+	int errata93_return = 0;
- 
- #ifdef CONFIG_CHECKING
- 	{ 
-@@ -463,8 +469,11 @@
-  	if (is_prefetch(regs, address, error_code))
-  		return;
- 
--	if (is_errata93(regs, address))
--		return; 
-+	if (is_errata93(regs, address, error_code)) {
-+		errata93_return = 1;
-+		goto no_context;
-+	} else if (errata93_return)
-+		return;
- 
- /*
-  * Oops. The kernel tried to access some bad page. We'll have to
+This patch fixed the problem for me.
 
---=-=-=
+For information, here is the the contents of my /proc/interrupts :
+>            CPU0       
+>   0:    1085029          XT-PIC  timer
+>   1:       4473          XT-PIC  i8042
+>   2:          0          XT-PIC  cascade
+>   5:     129799          XT-PIC  eth0, Ensoniq AudioPCI, uhci_hcd, uhci_hcd
+>   8:          1          XT-PIC  rtc
+>   9:          0          XT-PIC  acpi
+>  10:          2          XT-PIC  ohci1394
+>  12:      16872          XT-PIC  i8042
+>  14:      12803          XT-PIC  ide0
+>  15:         78          XT-PIC  ide1
+> NMI:          0 
+> LOC:          0 
+> ERR:          0
+> MIS:          0
 
+and the contents of /proc/irq/5/ :
+> /proc/irq/5/:
+> total 0
+> dr-xr-xr-x  2 root root 0 oct 17 21:45 Ensoniq AudioPCI/
+> dr-xr-xr-x  2 root root 0 oct 17 21:45 eth0/
+> dr-xr-xr-x  2 root root 0 oct 17 21:45 uhci_hcd/
+> 
+> /proc/irq/5/Ensoniq AudioPCI:
+> total 0
+> 
+> /proc/irq/5/eth0:
+> total 0
+> 
+> /proc/irq/5/uhci_hcd:
+> total 0
+
+Thank you, Paul and Ingo.
 
 -- 
-Alexandre Oliva             http://www.ic.unicamp.br/~oliva/
-Red Hat Compiler Engineer   aoliva@{redhat.com, gcc.gnu.org}
-Free Software Evangelist  oliva@{lsd.ic.unicamp.br, gnu.org}
+laurent
 
---=-=-=--
+
+--------------enig9626CE6311C081DA8305D157
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFBcsx2UqUFrirTu6IRApR8AJ4+HhNBpKKtgO4VqPTCz1zn0CdPhQCfWulB
+KbLkXX921Rurn4w84TNrauw=
+=vdkO
+-----END PGP SIGNATURE-----
+
+--------------enig9626CE6311C081DA8305D157--

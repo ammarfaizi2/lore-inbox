@@ -1,71 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265230AbTAAXuT>; Wed, 1 Jan 2003 18:50:19 -0500
+	id <S265238AbTABABp>; Wed, 1 Jan 2003 19:01:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265236AbTAAXuT>; Wed, 1 Jan 2003 18:50:19 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:46091 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S265230AbTAAXuS>; Wed, 1 Jan 2003 18:50:18 -0500
-Date: Wed, 1 Jan 2003 23:58:42 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] more procfs bits for !CONFIG_MMU
-Message-ID: <20030101235842.A3044@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org
-References: <20030102000522.A6137@lst.de> <Pine.LNX.4.44.0301011539070.12809-100000@home.transmeta.com>
-Mime-Version: 1.0
+	id <S265242AbTABABp>; Wed, 1 Jan 2003 19:01:45 -0500
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:51626 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S265238AbTABABo>; Wed, 1 Jan 2003 19:01:44 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Date: Thu, 2 Jan 2003 11:09:51 +1100
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0301011539070.12809-100000@home.transmeta.com>; from torvalds@transmeta.com on Wed, Jan 01, 2003 at 03:43:05PM -0800
+Content-Transfer-Encoding: 7bit
+Message-ID: <15891.33615.121943.544956@notabene.cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RAID0 problems with 2.4.21-BK current
+In-Reply-To: message from Marc-Christian Petersen on Sunday December 29
+References: <200212292012.11556.m.c.p@wolk-project.de>
+X-Mailer: VM 7.07 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 01, 2003 at 03:43:05PM -0800, Linus Torvalds wrote:
+On Sunday December 29, m.c.p@wolk-project.de wrote:
+> Hi Neil,
 > 
-> On Thu, 2 Jan 2003, Christoph Hellwig wrote:
-> >
-> > To avoid ifdef hell I extented the task_foo() abstraction already
-> > present in array.c a bit and the actual implementations now live
-> > in task_mmu.c and task_nommu.c.
+> this:
 > 
-> Please do "proc_mmu.c" and "proc_nommu.c", and move the non-task-related 
-> parts there too (ie move "pid_maps_read()" there too, and just make the 
-> no-mmu version of it be empty or whatever, ok?)
-
-I can add an empty stub function, but that doesn't help to reduce the
-ifdef mess as there is no /proc/<pid>/maps on nommu at all so we don't
-have the struct file_operations and more important can't register it.
-
-Maybe I need to make adding new entries for /proc/<pid>/ dynamic so
-proc_mmu.c can just call
-
-	create_proc_pid_entry("stats", &proc_maps_operations, ...)
-
-> > --- 1.4/fs/proc/Makefile	Sat Dec 14 07:38:56 2002
-> > +++ edited/fs/proc/Makefile	Wed Jan  1 13:45:28 2003
-> > @@ -9,6 +9,12 @@
-> >  proc-objs    := inode.o root.o base.o generic.o array.o \
-> >  		kmsg.o proc_tty.o proc_misc.o kcore.o
-> >  
-> > +ifeq ($(CONFIG_MMU),y)
-> > +proc-objs    += task_mmu.o
-> > +else
-> > +proc-objs    += task_nommu.o
-> > +endif
+> http://linux.bkbits.net:8080/linux-2.4/patch@1.884.1.69?nav=index.html|ChangeSet@-2w|cset@1.884.1.69
 > 
-> Isn't it much nicer to just write this something like
+> patch breaks at least RAID 0 recognition at boottime (infinite loop) and also 
+> breaks mkraid /dev/md0. Never stops, State D.
 > 
-> 	proc-mmu-y = proc_mmu.o
-> 	proc-mmu-n = proc_nommu.o
-> 
-> 	obj-y += $(proc-mmu-$(CONFIG_MMU))
-> 
-> instead, and avoid conditionals?
+> Ripping the patch out helps.
 
-Could be done.  Maybe Kai even has an even nicer generic version? :)
-The new makefiles really need some docs..
+Is your raid0 ontop of a raid1 ???
+If so, this patch is needed.
 
+NeilBrown
+
+--------------------------------------------------------
+Set BH_Locked when accessing MD superblocks
+
+Some silly drivers (like raid1 !!) want  BH_Locked to be set on all IO,
+so we humour them by setting the bit when doing superblock IO.
+
+ ----------- Diffstat output ------------
+ ./drivers/md/md.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff ./drivers/md/md.c~current~ ./drivers/md/md.c
+--- ./drivers/md/md.c~current~	2002-12-17 15:20:57.000000000 +1100
++++ ./drivers/md/md.c	2003-01-02 11:05:20.000000000 +1100
+@@ -489,7 +489,7 @@ static int sync_page_io(kdev_t dev, unsi
+ 	init_buffer(&bh, bh_complete, &event);
+ 	bh.b_rdev = dev;
+ 	bh.b_rsector = sector;
+-	bh.b_state	= (1 << BH_Req) | (1 << BH_Mapped);
++	bh.b_state	= (1 << BH_Req) | (1 << BH_Mapped) | (1 << BH_Locked);
+ 	bh.b_size = size;
+ 	bh.b_page = page;
+ 	bh.b_reqnext = NULL;

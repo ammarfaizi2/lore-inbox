@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129485AbQJ3SWF>; Mon, 30 Oct 2000 13:22:05 -0500
+	id <S129055AbQJ3S10>; Mon, 30 Oct 2000 13:27:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129546AbQJ3SVz>; Mon, 30 Oct 2000 13:21:55 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:19296 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129042AbQJ3SVq>; Mon, 30 Oct 2000 13:21:46 -0500
-Date: Mon, 30 Oct 2000 19:21:27 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Cc: Chris Evans <chris@scary.beasts.org>, Ingo Molnar <mingo@elte.hu>,
-        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18Pre Lan Performance Rocks!
-Message-ID: <20001030192127.H21935@athlon.random>
-In-Reply-To: <Pine.LNX.4.21.0010301755210.26279-100000@ferret.lmh.ox.ac.uk> <39FDB775.45E5653C@timpanogas.org>
-Mime-Version: 1.0
+	id <S129042AbQJ3S1P>; Mon, 30 Oct 2000 13:27:15 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:13132 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129055AbQJ3S1F>; Mon, 30 Oct 2000 13:27:05 -0500
+Subject: Re: Linux-2.4.0-test9 not Open Source
+To: dwmw2@infradead.org (David Woodhouse)
+Date: Mon, 30 Oct 2000 18:27:54 +0000 (GMT)
+Cc: greg@linuxpower.cx (Gregory Maxwell), alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org,
+        markster@linux-support.net (Mark Spencer)
+In-Reply-To: <Pine.LNX.4.21.0010301653230.14004-100000@imladris.demon.co.uk> from "David Woodhouse" at Oct 30, 2000 05:01:51 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <39FDB775.45E5653C@timpanogas.org>; from jmerkey@timpanogas.org on Mon, Oct 30, 2000 at 11:01:25AM -0700
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13qJf1-00076z-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 30, 2000 at 11:01:25AM -0700, Jeff V. Merkey wrote:
-> If we implement a ring 0 Linux, all of this will remain intact with the
-> need to 
-> port modules into the kernel at all.  
+> I'll assume for the moment that I'm liable to suffer some form of brain
+> h=E6morrhage and go along with this dastardly plan - so enlighten me. H=
+> ow
+> would I conspire with M-Systems to do so?
 
-I don't understand what you mean sorry, could you elaborate?
+Not a lot. Even if you joined M-Systems you could make no difference. In fact
+as it stands now M-Systems are the one bunch of people in the world who cannot
+in fact distribute the code because they would be placing their own restriction
+on it or have to grant patent rights ;)
 
-Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

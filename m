@@ -1,53 +1,148 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261314AbTHSTrF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 15:47:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbTHSTpF
+	id S261335AbTHSTZH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 15:25:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbTHSTXd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 15:45:05 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:398 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S261300AbTHSToQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 15:44:16 -0400
-Date: Tue, 19 Aug 2003 12:37:11 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: dang@fprintf.net, ak@muc.de, lmb@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-Message-Id: <20030819123711.2f79fcf8.davem@redhat.com>
-In-Reply-To: <200308191938.h7JJcpBC004873@turing-police.cc.vt.edu>
-References: <mdtk.Zy.1@gated-at.bofh.it>
-	<mgUv.3Wb.39@gated-at.bofh.it>
-	<mgUv.3Wb.37@gated-at.bofh.it>
-	<miMw.5yo.31@gated-at.bofh.it>
-	<m365ktxz3k.fsf@averell.firstfloor.org>
-	<1061320620.3744.16.camel@athena.fprintf.net>
-	<200308191938.h7JJcpBC004873@turing-police.cc.vt.edu>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+	Tue, 19 Aug 2003 15:23:33 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:24448 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261305AbTHSTXF (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 15:23:05 -0400
+Message-Id: <200308191922.h7JJMqBC004447@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Narayan Desai <desai@mcs.anl.gov>, linux-kernel@vger.kernel.org
+Subject: Re: weird pcmcia problem 
+In-Reply-To: Your message of "Tue, 19 Aug 2003 19:19:48 BST."
+             <20030819191948.C23670@flint.arm.linux.org.uk> 
+From: Valdis.Kletnieks@vt.edu
+References: <87u18efpsc.fsf@mcs.anl.gov> <200308190447.h7J4l0Vq004410@turing-police.cc.vt.edu> <200308191816.h7JIGNBC002405@turing-police.cc.vt.edu>
+            <20030819191948.C23670@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_-1097139492P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Tue, 19 Aug 2003 15:22:52 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Aug 2003 15:38:51 -0400
-Valdis.Kletnieks@vt.edu wrote:
+--==_Exmh_-1097139492P
+Content-Type: text/plain; charset=us-ascii
 
-> % ip route sho
-> 198.82.168.0/24 dev eth1  proto kernel  scope link  src 198.82.168.169 
-> 128.173.12.0/22 dev eth3  proto kernel  scope link  src 128.173.14.107 
-> 127.0.0.0/8 dev lo  scope link 
-> default via 128.173.12.1 dev eth3 
+On Tue, 19 Aug 2003 19:19:48 BST, Russell King said:
 
-Please set the preferred source for eth1 to $(IP_OF_ETH1)
-and the preferred source for eth3 to $(IP_OF_ETH3) then
-do this:
+> That wasn't expected.
 
-bash# echo "1" >/proc/sys/net/ipv4/conf/eth1/arp_filter
-bash# echo "1" >/proc/sys/net/ipv4/conf/eth3/arp_filter
+Well, I hadn't tried any Yenta patch on top of -mm2, so I wasn't sure..
 
-This also will make applications connecting using unspecified
-source addresses behave more sanely as well.
+> Can you provide all the following information please:
+> 
+> - make/model of machine
 
-The thing you claim is the right thing to do is the wrong thing
-to do in environments other than your own.
+Dell Latitude C840
+
+> - type of cardbus bridge (from lspci)
+
+
+02:01.0 CardBus bridge: Texas Instruments PCI4451 PC card Cardbus Controller
+        Subsystem: Dell Computer Corporation: Unknown device 00d5
+
+> - type of card (pcmcia or cardbus)
+
+%  cardctl ident 2
+  product info: "Dell", "TrueMobile 1150 Series PC Card", "Version 01.01", ""
+  manfid: 0x0156, 0x0002
+  function: 6 (network)
+
+> - make/model of card
+
+> - full kernel dmesg (including yenta, card services messages)
+
+Aug 19 14:04:19 turing-police kernel: Yenta: CardBus bridge found at 0000:02:01.0 [1028:00d5]
+Aug 19 14:04:19 turing-police kernel: Yenta: Using CSCINT to route CSC interrupts to PCI
+Aug 19 14:04:19 turing-police kernel: Yenta: Routing CardBus interrupts to PCI
+Aug 19 14:04:19 turing-police kernel: Yenta: ISA IRQ list 00b8, PCI irq9
+Aug 19 14:04:19 turing-police kernel: Socket status: 30000020
+Aug 19 14:04:19 turing-police kernel: PCI: Enabling device 0000:02:01.1 (0000 -> 0002)
+Aug 19 14:04:19 turing-police kernel: Yenta: CardBus bridge found at 0000:02:01.1 [1028:00d5]
+Aug 19 14:04:19 turing-police kernel: Yenta: Using CSCINT to route CSC interrupts to PCI
+Aug 19 14:04:19 turing-police kernel: Yenta: Routing CardBus interrupts to PCI
+Aug 19 14:04:19 turing-police kernel: Yenta: ISA IRQ list 00b8, PCI irq9
+Aug 19 14:04:19 turing-police kernel: Socket status: 30000006
+Aug 19 14:04:19 turing-police kernel: Yenta: CardBus bridge found at 0000:02:03.0 [12a3:ab01]
+Aug 19 14:04:19 turing-police kernel: Yenta: Enabling burst memory read transactions
+Aug 19 14:04:19 turing-police kernel: Yenta: Using CSCINT to route CSC interrupts to PCI
+Aug 19 14:04:20 turing-police kernel: Yenta: Routing CardBus interrupts to PCI
+Aug 19 14:04:20 turing-police kernel: Yenta: ISA IRQ list 0000, PCI irq9
+Aug 19 14:04:20 turing-police kernel: Socket status: 30000010
+
+Aug 19 14:04:24 turing-police kernel: cs: memory probe 0x0c0000-0x0fffff: excluding 0xc0000-0xcffff 0xe0000-0xfffff
+Aug 19 14:04:24 turing-police kernel: eth1: Station identity 001f:0001:0008:000a
+Aug 19 14:04:24 turing-police kernel: eth1: Looks like a Lucent/Agere firmware version 8.10
+Aug 19 14:04:24 turing-police kernel: eth1: Ad-hoc demo mode supported
+Aug 19 14:04:24 turing-police kernel: eth1: IEEE standard IBSS ad-hoc mode supported
+Aug 19 14:04:24 turing-police kernel: eth1: WEP supported, 104-bit key
+Aug 19 14:04:25 turing-police kernel: eth1: MAC address 00:02:2D:5C:11:48
+Aug 19 14:04:25 turing-police kernel: eth1: Station name "HERMES I"
+Aug 19 14:04:25 turing-police kernel: eth1: ready
+Aug 19 14:04:25 turing-police kernel: eth1: index 0x01: Vcc 3.3, irq 9, io 0x0100-0x013f
+Aug 19 14:04:25 turing-police kernel: eth1: New link status: Connected (0001)
+Aug 19 14:04:25 turing-police kernel: eth1: no IPv6 routers present
+
+Aug 19 14:34:14 turing-police dhcpcd[746]: sending DHCP_REQUEST for 198.82.168.169 to 198.82.247.67
+Aug 19 14:34:14 turing-police dhcpcd[746]: sendto: Socket operation on non-socket
+Aug 19 14:34:14 turing-police dhcpcd[746]: broadcasting DHCP_REQUEST for 198.82.168.169
+Aug 19 14:34:14 turing-police dhcpcd[746]: sendto: Socket operation on non-socket
+Aug 19 14:34:14 turing-police dhcpcd[746]: dhcpStop: ioctl SIOCSIFADDR: Inappropriate ioctl for device
+Aug 19 14:34:14 turing-police dhcpcd[746]: dhcpStop: ioctl SIOCSIFFLAGS: Inappropriate ioctl for device
+Aug 19 14:34:14 turing-police dhcpcd[746]: broadcasting DHCP_DISCOVER
+Aug 19 14:34:14 turing-police dhcpcd[746]: broadcastAddr option is missing in DHCP server response. Assuming 198.82.168.255
+Aug 19 14:34:14 turing-police dhcpcd[746]: broadcasting second DHCP_DISCOVER
+
+Aug 19 14:34:14 turing-police dhcpcd[746]: DHCP_OFFER received from  (198.82.247.67)
+Aug 19 14:34:14 turing-police dhcpcd[746]: broadcasting DHCP_REQUEST for 198.82.168.169 
+
+> - cardmgr messages from system log
+
+Aug 19 14:04:13 turing-police pcmcia:  cardmgr.
+Aug 19 14:04:13 turing-police cardmgr[657]: starting, version is 3.1.31
+Aug 19 14:04:13 turing-police rc: Starting pcmcia:  succeeded
+Aug 19 14:04:13 turing-police modprobe: FATAL: Module /dev/cm_657_2 not found. 
+Aug 19 14:04:13 turing-police modprobe: FATAL: Module /dev/cm_657_5 not found. 
+Aug 19 14:04:13 turing-police modprobe: FATAL: Module /dev/cm_657_8 not found. 
+Aug 19 14:04:13 turing-police modprobe: FATAL: Module /dev/cm_657_11 not found.
+Aug 19 14:04:13 turing-police cardmgr[657]: watching 3 sockets
+Aug 19 14:04:13 turing-police cardmgr[657]: Card Services release does not match
+Aug 19 14:04:13 turing-police cardmgr[657]: socket 0: CardBus hotplug device
+Aug 19 14:04:14 turing-police cardmgr[657]: socket 2: Intersil PRISM2 11 Mbps Wireless Adapter 
+Aug 19 14:04:14 turing-police cardmgr[657]: executing: 'modprobe hermes'
+Aug 19 14:04:14 turing-police cardmgr[657]: + FATAL: Module hermes not found.
+Aug 19 14:04:14 turing-police cardmgr[657]: modprobe exited with status 1
+Aug 19 14:04:14 turing-police cardmgr[657]: module /lib/modules/2.6.0-test3-mm3/pcmcia/hermes.o not available
+Aug 19 14:04:14 turing-police cardmgr[657]: executing: 'modprobe orinoco'
+Aug 19 14:04:14 turing-police cardmgr[657]: + FATAL: Module orinoco not found.
+Aug 19 14:04:14 turing-police cardmgr[657]: modprobe exited with status 1
+Aug 19 14:04:14 turing-police cardmgr[657]: module /lib/modules/2.6.0-test3-mm3/pcmcia/orinoco.o not available
+Aug 19 14:04:15 turing-police cardmgr[657]: executing: './network start eth1'
+Aug 19 14:04:15 turing-police /etc/hotplug/net.agent: invoke ifup eth1
+
+Looking at an earlier boot, the only difference seems to be that net.agent is now
+invoking 'ifup'...
+
+Now to figure out why the 100mbit Ethernet won't answer ARP if the wireless card is up,
+I suspect it's related to that other thread...  :)
+
+--==_Exmh_-1097139492P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/QnkMcC3lWbTT17ARAlAnAKCGyQ6JssDtRuhix1OQ7TwxjAzWEgCgxy2b
+RJlTSinOLONUmM8Op+qPuWc=
+=eHUR
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-1097139492P--

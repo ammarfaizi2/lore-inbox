@@ -1,42 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270644AbTHAAaZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 20:30:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274867AbTHAAaZ
+	id S270633AbTHAAdm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 20:33:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270636AbTHAAdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 20:30:25 -0400
-Received: from [66.212.224.118] ([66.212.224.118]:43277 "EHLO
-	hemi.commfireservices.com") by vger.kernel.org with ESMTP
-	id S270644AbTHAAaV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 20:30:21 -0400
-Date: Thu, 31 Jul 2003 20:18:41 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Andrew Morton <akpm@osdl.org>, mbligh@aracnet.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Panic on 2.6.0-test1-mm1
-In-Reply-To: <20030801001538.GK15452@holomorphy.com>
-Message-ID: <Pine.LNX.4.53.0307312012170.3779@montezuma.mastecende.com>
-References: <5110000.1059489420@[10.10.2.4]> <20030731223710.GI15452@holomorphy.com>
- <20030731224148.GJ15452@holomorphy.com> <20030731154020.61e15723.akpm@osdl.org>
- <20030801001538.GK15452@holomorphy.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 31 Jul 2003 20:33:22 -0400
+Received: from c-780372d5.012-136-6c756e2.cust.bredbandsbolaget.se ([213.114.3.120]:24757
+	"EHLO pomac.netswarm.net") by vger.kernel.org with ESMTP
+	id S270633AbTHAAdR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 20:33:17 -0400
+Subject: [SHED][IO-SHED] Are we missing the big picture?
+From: Ian Kumlien <pomac@vapor.com>
+To: linux-kernel@vger.kernel.org
+Cc: pomac@vapor.com
+Content-Type: text/plain
+Message-Id: <1059697921.30747.54.camel@big.pomac.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 01 Aug 2003 02:32:02 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Jul 2003, William Lee Irwin III wrote:
+Hi all,
 
-> I don't believe it would be valuable to push it on the grounds of
-> performance, as the performance characteristics of modern midrange i386
-> systems don't have such high remote access penalties.
+I have been following the sheduler and interactivity discussions closely
+but via the marc.theaimsgroup.com archive, So i might be behind etc...
+=P
 
-Others might be interested to know about the effects (performance, memory 
-consumption etc) nonetheless, regardless of how large or negligible. It 
-helps in finding out where to start looking when things improve (or regress).
+[Note: sorry if i sound like mr.know-it-all etc, just trying to get a
+point across]
 
-Thanks for the work anyway,
-	Zwane
+Anyways, i think that the AS discussions that i have seen has missed
+some points. Getting the processes priority in AS is one thing, but fist
+of all i think there should be a stand off layer. Let me explain:
+
+I liked Jens Axobe's 'CBQ' alike implementation (based on the idea of
+Andrea A. (afair i have the names right) since it does the most
+important thing... which is *nothing* when there is no load (ie, pass
+trough).
+
+AS might be/is the best damn io sheduler for loaded machines but when
+there is no load, it's overhead. So in my opinion there should be
+something that first warrants the usage of AS before it's actually
+engaged.
+
+And, if it's only engaged during high load, additions like basing the
+requests priority on the process/tasks priority would make total sense,
+adding the 'wakeup on wait' or what it was would also make total
+sense... But how many of your machines uses the disk 100% of the time?
+(in the real world... )
+
+I don't know how 'CBQ' was implemented but any 'we are under load now'
+trigger would do it for me.
+
+Please see to it that my CC is included in any discussions =)
+
+PS. Or was it a version of SFQ? in that case s/CBQ/SFQ/g
+DS.
+
 -- 
-function.linuxpower.ca
+Ian Kumlien <pomac@vapor.com>
+

@@ -1,75 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261262AbTKHCj2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Nov 2003 21:39:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261484AbTKHCj2
+	id S261546AbTKHCsW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Nov 2003 21:48:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbTKHCsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 21:39:28 -0500
-Received: from mail-05.iinet.net.au ([203.59.3.37]:60872 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S261262AbTKHCj1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 21:39:27 -0500
-Message-ID: <3FAC575A.5070907@cyberone.com.au>
-Date: Sat, 08 Nov 2003 13:39:22 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
+	Fri, 7 Nov 2003 21:48:21 -0500
+Received: from web21010.mail.yahoo.com ([216.136.227.64]:52905 "HELO
+	web21010.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261546AbTKHCsU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 21:48:20 -0500
+Message-ID: <20031108024819.25606.qmail@web21010.mail.yahoo.com>
+Date: Fri, 7 Nov 2003 18:48:19 -0800 (PST)
+From: Itay Ben-Yaacov <nib_maps@yahoo.com>
+Subject: Re: 2.6.0_test6: CONFIG_I8K produces wrong/no keycodes for specialbuttons
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: rob@landley.net
-CC: Linus Torvalds <torvalds@osdl.org>, bill davidsen <davidsen@tmr.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
-References: <Pine.LNX.4.44.0311061143300.1842-100000@home.osdl.org> <200311070313.53958.rob@landley.net>
-In-Reply-To: <200311070313.53958.rob@landley.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Hi,
 
-Rob Landley wrote:
+I have a Dell I8200 as well.  I tried to dig into this a bit, and came up with the following.  
+The basic problem is the new (wrt 2.4) mandatory passage through the input layer.
+In 2.4, under X, the keyboard was in RAW mode, and the server got the scancodes and did whatever
+it did with them.  In a vt, the keyboard is in XLATE mode, and complains it cannot process these
+keys, but who cares.
 
->On Thursday 06 November 2003 13:45, Linus Torvalds wrote:
->
->>On 6 Nov 2003, bill davidsen wrote:
->>
->>>I'm not sure what you mean by faster, burning runs at device limited
->>>speed in CPU time in the  less than 1% range if you remember to enable
->>>DMA. The last time I looked DMA didn't work in either kernel if write
->>>size was not a multiple of 1k, (or 2k?) has that changed?
->>>
->>DMA works fine
->>
->>	IF YOU DON'T USE IDE-SCSI
->>
->>Don't use it. Please. There's no point.
->>
->>It's much more readable to do
->>
->>	cdrecord dev=/dev/hdc
->>
->>than it is to do some stupid "scan SCSI devices" + "dev=0,1,0" or similar
->>totally incomprehensible crap that doesn't even work right.
->>
->>
->>>I'm not sure what you meant by faster, so don't think I'm disagreeing
->>>with you.
->>>
->>Faster as in "it uses DMA for everything, so you can actually burn at full
->>speed without having to worry about it or sucking up CPU".
->>
->>		Linus
->>
->
->Note this still doesn't mean you can scroll large X windows for two or three 
->seconds at a time without burning a coaster.
->
->I had high hopes with the new scheduler, but no.  (Maybe if I niced the heck 
->out of cdrecord...)
->
+Now, in 2.6, the keyboard ALWAYS translates keys, passes them translated through the input layer,
+and on the other side, if we are under X, it un-translates them to emulate the good old RAW mode. 
+So thhere are two issues:  first, atkbd.c must be taught how to translate these keys to something
+meaningful.  Since in 2.4 they are not translated at all, I just had to come up with SOMETHING.  I
+am not sure these are the best keycodes to translate to, but they will do for the time being. 
+Then, keyboard.c must be taught how to un-translate these back to the good old e0 01 -- e0 04.
 
-RT processes should work well with the scheduler. renicing if it is not
-RT will help a little bit, but it doesn't do much to help maximum latency.
+So check tou the patch below and tell me what you think.
+
+Thanks,
+Itay
 
 
+diff -u -r linux-2.6.0-test9/drivers/char/keyboard.c linux-2.6.0-test9.new/drivers/char/keyboard.c
+--- linux-2.6.0-test9/drivers/char/keyboard.c	2003-10-25 14:43:27.000000000 -0400
++++ linux-2.6.0-test9.new/drivers/char/keyboard.c	2003-11-06 21:33:00.000000000 -0500
+@@ -944,7 +944,7 @@
+ 	 80, 81, 82, 83, 43, 85, 86, 87, 88,115,119,120,121,375,123, 90,
+ 	284,285,309,298,312, 91,327,328,329,331,333,335,336,337,338,339,
+ 	367,288,302,304,350, 92,334,512,116,377,109,111,373,347,348,349,
+-	360, 93, 94, 95, 98,376,100,101,321,316,354,286,289,102,351,355,
++	360,257,258,259,260,376,100,101,321,316,354,286,289,102,351,355,
+ 	103,104,105,275,287,279,306,106,274,107,294,364,358,363,362,361,
+ 	291,108,381,281,290,272,292,305,280, 99,112,257,258,359,270,114,
+ 	118,117,125,374,379,115,112,125,121,123,264,265,266,267,268,269,
+diff -u -r linux-2.6.0-test9/drivers/input/keyboard/atkbd.c
+linux-2.6.0-test9.new/drivers/input/keyboard/atkbd.c
+--- linux-2.6.0-test9/drivers/input/keyboard/atkbd.c	2003-10-25 14:44:30.000000000 -0400
++++ linux-2.6.0-test9.new/drivers/input/keyboard/atkbd.c	2003-11-06 21:04:46.000000000 -0500
+@@ -65,13 +65,13 @@
+ 	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+ 	  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,255,
+ 	  0,  0, 92, 90, 85,  0,137,  0,  0,  0,  0, 91, 89,144,115,  0,
+-	217,100,255,  0, 97,165,164,  0,156,  0,  0,140,115,  0,  0,125,
+-	173,114,  0,113,152,163,151,126,128,166,  0,140,  0,147,  0,127,
++	217,100,255,  0, 97,165,130,  0,156,  0,  0,140,115,  0,131,125,
++	173,114,  0,113,152,163,132,126,128,166,  0,140,  0,147,  0,127,
+ 	159,167,115,160,164,  0,  0,116,158,  0,150,166,  0,  0,  0,142,
+ 	157,  0,114,166,168,  0,  0,213,155,  0, 98,113,  0,163,  0,138,
+ 	226,  0,  0,  0,  0,  0,153,140,  0,255, 96,  0,  0,  0,143,  0,
+ 	133,  0,116,  0,143,  0,174,133,  0,107,  0,105,102,  0,  0,112,
+-	110,111,108,112,106,103,  0,119,  0,118,109,  0, 99,104,119
++	110,111,108,112,106,103,129,119,  0,118,109,  0, 99,104,119
+ };
+ 
+ static unsigned char atkbd_set3_keycode[512] = {
+
+
+__________________________________
+Do you Yahoo!?
+Protect your identity with Yahoo! Mail AddressGuard
+http://antispam.yahoo.com/whatsnewfree

@@ -1,164 +1,482 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262462AbVDAGu7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262536AbVDAHBr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262462AbVDAGu7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 01:50:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262517AbVDAGu7
+	id S262536AbVDAHBr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 02:01:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262551AbVDAHBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 01:50:59 -0500
-Received: from colo.lackof.org ([198.49.126.79]:39863 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S262462AbVDAGtb (ORCPT
+	Fri, 1 Apr 2005 02:01:47 -0500
+Received: from dea.vocord.ru ([217.67.177.50]:25484 "EHLO vocord.com")
+	by vger.kernel.org with ESMTP id S262536AbVDAHBL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 01:49:31 -0500
-Date: Thu, 31 Mar 2005 23:51:20 -0700
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Jim Gifford <maillist@jg555.com>
-Cc: Grant Grundler <grundler@parisc-linux.org>,
-       LKML <linux-kernel@vger.kernel.org>, jgarzik@pobox.com,
-       pdh@colonel-panic.org
-Subject: Re: 64bit build of tulip driver
-Message-ID: <20050401065120.GD29734@colo.lackof.org>
-References: <424AE9E0.8040601@jg555.com> <20050331161206.GB19219@colo.lackof.org> <424CC566.3080007@jg555.com>
+	Fri, 1 Apr 2005 02:01:11 -0500
+Subject: Re: connector.c
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Reply-To: johnpol@2ka.mipt.ru
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050331173026.3de81a05.akpm@osdl.org>
+References: <20050331173026.3de81a05.akpm@osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-al5iwwQQOg+gSkF7/vGa"
+Organization: MIPT
+Date: Fri, 01 Apr 2005 11:07:18 +0400
+Message-Id: <1112339238.9334.66.camel@uganda>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <424CC566.3080007@jg555.com>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Fri, 01 Apr 2005 11:00:59 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 31, 2005 at 07:52:06PM -0800, Jim Gifford wrote:
-> Grant
->    Thanx for your feedback. I got it working, but I don't think the 
-> patch is the best. Here is the patch, and the information, but if you 
-> can recommend a different way to fix it, let me know.
 
-I can not "reccomend" one. I can suggest other things to try
-since I'm very skeptical this patch will get accepted by
-the maintainer (Jeff Garzik). He's normally wants a much
-better explanation of the problem than "this works".
+--=-al5iwwQQOg+gSkF7/vGa
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+On Thu, 2005-03-31 at 17:30 -0800, Andrew Morton wrote:
+> Some belated comments...
+>=20
+>=20
+> >=20
+> > module_param(unit, int, 0);
+> > module_param(cn_idx, uint, 0);
+> > module_param(cn_val, uint, 0);
+>=20
+> MODULE_PARM_DESC needed, please.
 
-> The patch was done by Peter Horton.
-> Here is the link to the full patch, 
-> http://ftp.jg555.com/patches/raq2/linux/linux-2.6.11.6-raq2_fix-2.patch
-> but here is the section for this issue
+Yep.
 
-Jim,
-You have other changes to tulip_core.c:
-+                               /* Avoid a chip errata by prefixing a dummy entr
-y. Don't do
-+                                  this on the ULI526X as it triggers a differen
-t problem */
-....
+> > static DEFINE_SPINLOCK(notify_lock);
+> > static LIST_HEAD(notify_list);
+> >=20
+> > static struct cn_dev cdev;
+> >=20
+> > int cn_already_initialized =3D 0;
+> >=20
+> > /*
+> >  * msg->seq and msg->ack are used to determine message genealogy.
+> >  * When someone sends message it puts there locally unique sequence=20
+> >  * and random acknowledge numbers.
+> >  * Sequence number may be copied into nlmsghdr->nlmsg_seq too.
+> >  *
+> >  * Sequence number is incremented with each message to be sent.
+> >  *
+> >  * If we expect reply to our message,=20
+> >  * then sequence number in received message MUST be the same as in orig=
+inal message,
+> >  * and acknowledge number MUST be the same + 1.
+> >  *
+> >  * If we receive message and it's sequence number is not equal to one w=
+e are expecting,=20
+> >  * then it is new message.
+> >  * If we receive message and it's sequence number is the same as one we=
+ are expecting,
+> >  * but it's acknowledge is not equal acknowledge number in original mes=
+sage + 1,
+> >  * then it is new message.
+> >  *
+> >  */
+>=20
+> This comment looks crappy in an 80-col xterm.
 
+Does anyone still use it? :)
 
-Picking a few nits:
-o comment extends past 80 columns - please wrap before 80 columns
-o *Which* chip errata?
-o *Which* other problem?
-o I prefer diffs with "-p" when reviewing patches so I know which
-  function is getting mangled.
+> What happens if we expect a reply to our message but userspace never send=
+s
+> one?  Does the kernel leak memory?  Do other processes hang?
 
--                       /* No media table either */
--                       tp->flags &= ~HAS_MEDIA_TABLE;
-+                      /* Ensure our media table fixup get's applied */
-+                      memcpy(ee_data + 16, ee_data, 8);
+It is only advice, one may easily skip seq/ack initialization.
+I could remove it totally from the header, but decided to=20
+place it to force people to use more reliable protocols over netlink
+by introducing such overhead.
 
-This isn't likely to get far either unless it's better explained.
-You don't have to explain it to me, now. But have something handy
-if you want jgarzik to accept it.
+> > void cn_netlink_send(struct cn_msg *msg, u32 __groups)
+> > {
+> > 	struct cn_callback_entry *n, *__cbq;
+> > 	unsigned int size;
+> > 	struct sk_buff *skb, *uskb;
+> > 	struct nlmsghdr *nlh;
+> > 	struct cn_msg *data;
+> > 	struct cn_dev *dev =3D &cdev;
+> > 	u32 groups =3D 0;
+> > 	int found =3D 0;
+> >=20
+> > 	if (!__groups)
+> > 	{
+>=20
+> Wrong indenting.
 
+Yep, my fault...
 
-> @@ -1628,6 +1631,16 @@
->                 }
->         }
-> 
-> +#if defined(CONFIG_MIPS_COBALT) && defined(CONFIG_MIPS64)
-> +        /*
-> +         * something very bad is happening. without this
-> +         * cache flush the PHY can't be read. I've tried
-> +         * various ins & outs, delays etc but only a call
-> +         * to printk or this flush seems to fix it ... help!
-> +         */
-> +        flush_cache_all();
-> +#endif
+> > 		spin_lock_bh(&dev->cbdev->queue_lock);
+> > 		list_for_each_entry_safe(__cbq, n, &dev->cbdev->queue_list, callback_=
+entry) {
+> > 			if (cn_cb_equal(&__cbq->cb->id, &msg->id)) {
+> > 				found =3D 1;
+> > 				groups =3D __cbq->group;
+> > 			}
+> > 		}
+> > 		spin_unlock_bh(&dev->cbdev->queue_lock);
+> >=20
+> > 		if (!found) {
+> > 			printk(KERN_ERR "Failed to find multicast netlink group for callback=
+[0x%x.0x%x]. seq=3D%u\n",
+> > 			       msg->id.idx, msg->id.val, msg->seq);
+>=20
+> Needs wrapping.
+>=20
+> > 			return;
+> > 		}
+> > 	}
+> > 	else
+> > 		groups =3D __groups;
+> >=20
+> > 	size =3D NLMSG_SPACE(sizeof(*msg) + msg->len);
+> >=20
+> > 	skb =3D alloc_skb(size, GFP_ATOMIC);
+>=20
+> GFP_ATOMIC is quite unreliable.  Better to find a way to use GFP_KERNEL h=
+ere.
 
-The code immediately before this calls tulip_select_media().
-Code paths exist in tulip_select_media() where the last thing the
-driver does to the NIC is io_write(). This could easily be a posted
-write flush problem. Does replacing flush_cache_all() with 
-"ioread32(ioaddr + CSR12)" also work?
+It can be used in bh context, my first TODO entryf for connector is
+provideing
+extended API with GFP flags provided by caller.
 
-Can you find out how long one has to wait after banging
-on CSR12 before it's safe to call tulip_find_mii()?
+> > 	if (!skb) {
+> > 		printk(KERN_ERR "Failed to allocate new skb with size=3D%u.\n", size)=
+;
+> > 		return;
+> > 	}
+>=20
+> Surely we should return -ENOMEM here?  How is the caller to know that the
+> send attempt worked?
 
-How long does flush_cache_all() take in microseconds?
+It is notification area, notification may fail and original applicant
+can not=20
+and should not know about it.
+If it was direct call, then error must be propagated to the caller,=20
+but indirect notification is not.
 
-It's possible this is a very fast PPC chip and it's executing the
-code path between tulip_select_media() and tulip_find_mii()
-faster than the chips can finish dealing with the writes to CSR12.
-I'd consider this issue if flushing posted PCI writes doesn't help.
+> > 	nlh =3D NLMSG_PUT(skb, 0, msg->seq, NLMSG_DONE, size - sizeof(*nlh));
+> >=20
+> > 	data =3D (struct cn_msg *)NLMSG_DATA(nlh);
+>=20
+> Unneeded typecast.
 
-The tulip changes I maintain in parisc-linux port deal with
-similar issues where the driver is not following the specified
-timing requirements.
-Search google for "tulip 802.3 22.2.4 Management functions"
-or look into http://cvs.parisc-linux.org/linux-2.6/.
+Is it really an issue?
+I try to always dereference void pointer to the given type...
 
+> > 	memcpy(data, msg, sizeof(*data) + msg->len);
+> > #if 0
+> > 	printk("%s: len=3D%u, seq=3D%u, ack=3D%u, group=3D%u.\n",
+> > 	       __func__, msg->len, msg->seq, msg->ack, groups);
+> > #endif
+> > =09
+> > 	NETLINK_CB(skb).dst_groups =3D groups;
+> >=20
+> > 	uskb =3D skb_clone(skb, GFP_ATOMIC);
+> > 	if (uskb) {
+> > 		netlink_unicast(dev->nls, uskb, 0, 0);
+> > 	}
+>=20
+> Unneeded {}
 
-> +
->         /* Find the connected MII xcvrs.
->            Doing this in open() would allow detecting external xcvrs
->            later, but takes much time. */
-> 
-> >Are there any config option differences? 
-> >e.g. MWI or MMIO options enabled on 64-bit but not 32-bit?
->
-> I verified that there are no differences.
+Ok.
 
-ok. thanks.
+> > 	netlink_broadcast(dev->nls, skb, 0, groups, GFP_ATOMIC);
+>=20
+> GFP_ATOMIC is quite undesirable.
 
-...
-> Applied the patch, here is the output
-> 
-> 0000:00:07.0: tulip_stop_rxtx() failed (CSR5 0xf0660000 CSR6 0xb3862002)
-...
+It will be changed to provided GFP flags by caller soon.
 
-Sorry, I don't have time to decode what these mean right now.
-But I think the publicly available tulip chips docs sufficiently
-explain what the registers mean and what state the chip is in.
+> >=20
+> > static int cn_call_callback(struct cn_msg *msg, void (*destruct_data) (=
+void *), void *data)
+>=20
+> 80 cols
+>=20
+> > {
+> > 	struct cn_callback_entry *n, *__cbq;
+> > 	struct cn_dev *dev =3D &cdev;
+> > 	int found =3D 0;
+> >=20
+> > 	spin_lock_bh(&dev->cbdev->queue_lock);
+> > 	list_for_each_entry_safe(__cbq, n, &dev->cbdev->queue_list, callback_e=
+ntry) {
+>=20
+> 80 cols
 
-> I was able to get some more information on the bootup sequence with the 
-> updates.
-> Here is the output now from the driver
-> 
-> Linux Tulip driver version 1.1.13 (May 11, 2002)
-> PCI: Enabling device 0000:00:07.0 (0045 -> 0047)
-> tulip0: Old format EEPROM on 'Cobalt Microserver' board.  Using 
-> substitute media control info.
-> tulip0:  EEPROM default media type Autosense.
-> tulip0:  Index #0 - Media MII (#11) described by a 21142 MII PHY (3) block.
-> tulip0: ***WARNING***: No MII transceiver found!
+Grrr....
 
-ok. I assume this is unpatched.
+> > 		if (cn_cb_equal(&__cbq->cb->id, &msg->id)) {
+> > 			__cbq->cb->priv =3D msg;
+> >=20
+> > 			__cbq->ddata =3D data;
+> > 			__cbq->destruct_data =3D destruct_data;
+> >=20
+> > 			queue_work(dev->cbdev->cn_queue, &__cbq->work);
+> > 			found =3D 1;
+> > 			break;
+> > 		}
+> > 	}
+> > 	spin_unlock_bh(&dev->cbdev->queue_lock);
+> >=20
+> > 	return found;
+> > }
+>=20
+> Why is spin_lock_bh() being used here?
 
-thanks,
-grant
+skb may be delivered in soft irq context, and may race with sending.
+And actually it can be sent from irq context, like it is done in test
+module.
 
-> eth0: Digital DS21143 Tulip rev 65 at ffffffffb0001400, 
-> 00:10:E0:00:32:DE, IRQ 19.
-> PCI: Enabling device 0000:00:0c.0 (0005 -> 0007)
-> tulip1: Old format EEPROM on 'Cobalt Microserver' board.  Using 
-> substitute media control info.
-> tulip1:  EEPROM default media type Autosense.
-> tulip1:  Index #0 - Media MII (#11) described by a 21142 MII PHY (3) block.
-> tulip1: ***WARNING***: No MII transceiver found!
-> eth1: Digital DS21143 Tulip rev 65 at ffffffffb0001480, 
-> 00:10:E0:00:32:DF, IRQ 20.
-> 
-> 
-> -- 
-> ----
-> Jim Gifford
-> maillist@jg555.com
+> > static int __cn_rx_skb(struct sk_buff *skb, struct nlmsghdr *nlh)
+> > {
+> > 	u32 pid, uid, seq, group;
+> > 	struct cn_msg *msg;
+> >=20
+> > 	pid =3D NETLINK_CREDS(skb)->pid;
+> > 	uid =3D NETLINK_CREDS(skb)->uid;
+> > 	seq =3D nlh->nlmsg_seq;
+> > 	group =3D NETLINK_CB((skb)).groups;
+> > 	msg =3D (struct cn_msg *)NLMSG_DATA(nlh);
+> >=20
+> > 	if (NLMSG_SPACE(msg->len + sizeof(*msg)) !=3D nlh->nlmsg_len) {
+> > 		printk(KERN_ERR "skb does not have enough length: "
+> > 				"requested msg->len=3D%u[%u], nlh->nlmsg_len=3D%u, skb->len=3D%u.\n=
+",
+>=20
+> 80 cols (all over the place)
+
+Ok...
+
+> > static void cn_notify(struct cb_id *id, u32 notify_event)
+> > {
+> > 	struct cn_ctl_entry *ent;
+> >=20
+> > 	spin_lock_bh(&notify_lock);
+> > 	list_for_each_entry(ent, &notify_list, notify_entry) {
+> > 		int i;
+> > 		struct cn_notify_req *req;
+> > 		struct cn_ctl_msg *ctl =3D ent->msg;
+> > 		int a, b;
+> >=20
+> > 		a =3D b =3D 0;
+> > 	=09
+> > 		req =3D (struct cn_notify_req *)ctl->data;
+> > 		for (i=3D0; i<ctl->idx_notify_num; ++i, ++req) {
+>=20
+> 		for (i =3D 0; i < ctl->idx_notify_num; i++, req++) {
+>=20
+> > 			if (id->idx >=3D req->first && id->idx < req->first + req->range) {
+> > 				a =3D 1;
+> > 				break;
+> > 			}
+> > 		}
+> > 	=09
+> > 		for (i=3D0; i<ctl->val_notify_num; ++i, ++req) {
+> > 			if (id->val >=3D req->first && id->val < req->first + req->range) {
+> > 				b =3D 1;
+> > 				break;
+> > 			}
+> > 		}
+> >=20
+> > 		if (a && b) {
+> > 			struct cn_msg m;
+> > 		=09
+> > 			printk(KERN_INFO "Notifying group %x with event %u about %x.%x.\n",=20
+> > 					ctl->group, notify_event,=20
+> > 					id->idx, id->val);
+> >=20
+> > 			memset(&m, 0, sizeof(m));
+> > 			m.ack =3D notify_event;
+> >=20
+> > 			memcpy(&m.id, id, sizeof(m.id));
+> > 			cn_netlink_send(&m, ctl->group);
+> > 		}
+>=20
+> What's all the above code doing?  What do `a' and `b' mean?  Needs
+> commentary and better-chosen identifiers.
+
+It searches for idx and val to match requested notification,=20
+if "a" is true - idx is found, if b - val is found.
+
+> > 	}
+> > 	spin_unlock_bh(&notify_lock);
+> > }
+> >=20
+> > int cn_add_callback(struct cb_id *id, char *name, void (*callback) (voi=
+d *))
+> > {
+> > 	int err;
+> > 	struct cn_dev *dev =3D &cdev;
+> > 	struct cn_callback *cb;
+> >=20
+> > 	cb =3D kmalloc(sizeof(*cb), GFP_KERNEL);
+> > 	if (!cb) {
+> > 		printk(KERN_INFO "%s: Failed to allocate new struct cn_callback.\n",
+> > 		       dev->cbdev->name);
+> > 		return -ENOMEM;
+> > 	}
+> >=20
+> > 	memset(cb, 0, sizeof(*cb));
+> >=20
+> > 	snprintf(cb->name, sizeof(cb->name), "%s", name);
+>=20
+> scnprintf?
+
+Returned value is ignored here, so they do not differ.
+Will change it though.
+
+> > 	memcpy(&cb->id, id, sizeof(cb->id));
+> > 	cb->callback =3D callback;
+> >=20
+> > 	atomic_set(&cb->refcnt, 0);
+> >=20
+> > 	err =3D cn_queue_add_callback(dev->cbdev, cb);
+> > 	if (err) {
+> > 		kfree(cb);
+> > 		return err;
+> > 	}
+> > 		=09
+> > 	cn_notify(id, 0);
+> >=20
+> > 	return 0;
+> > }
+> >=20
+> > void cn_del_callback(struct cb_id *id)
+> > {
+> > 	struct cn_dev *dev =3D &cdev;
+> > 	struct cn_callback_entry *n, *__cbq;
+> >=20
+> > 	list_for_each_entry_safe(__cbq, n, &dev->cbdev->queue_list, callback_e=
+ntry) {
+> > 		if (cn_cb_equal(&__cbq->cb->id, id)) {
+> > 			cn_queue_del_callback(dev->cbdev, __cbq->cb);
+> > 			cn_notify(id, 1);
+> > 			break;
+> > 		}
+> > 	}
+> > }
+>=20
+> Doesn't this list walk need locking?
+
+Ugh, you are tight, I totally wrong here.
+It requires dev->queue_lock to be hold.
+
+> Please document all functions with comments.  Functions which constitute
+> part of the external API should be commented using the kernel-doc format.
+
+There is Documentation/connector/connector.txt which describes all
+exported functions and structures.
+Should it be ported to docbook?
+
+> > static void cn_callback(void * data)
+> > {
+> > 	struct cn_msg *msg =3D (struct cn_msg *)data;
+> > 	struct cn_ctl_msg *ctl;
+> > 	struct cn_ctl_entry *ent;
+> > 	u32 size;
+> > =20
+> > 	if (msg->len < sizeof(*ctl)) {
+> > 		printk(KERN_ERR "Wrong connector request size %u, must be >=3D %u.\n"=
+,=20
+> > 				msg->len, sizeof(*ctl));
+> > 		return;
+> > 	}
+> > =09
+> > 	ctl =3D (struct cn_ctl_msg *)msg->data;
+> >=20
+> > 	size =3D sizeof(*ctl) + (ctl->idx_notify_num + ctl->val_notify_num)*si=
+zeof(struct cn_notify_req);
+> >=20
+> > 	if (msg->len !=3D size) {
+> > 		printk(KERN_ERR "Wrong connector request size %u, must be =3D=3D %u.\=
+n",=20
+> > 				msg->len, size);
+> > 		return;
+> > 	}
+> >=20
+> > 	if (ctl->len + sizeof(*ctl) !=3D msg->len) {
+> > 		printk(KERN_ERR "Wrong message: msg->len=3D%u must be equal to inner_=
+len=3D%u [+%u].\n",=20
+> > 				msg->len, ctl->len, sizeof(*ctl));
+> > 		return;
+> > 	}
+> >=20
+> > 	/*
+> > 	 * Remove notification.
+> > 	 */
+> > 	if (ctl->group =3D=3D 0) {
+> > 		struct cn_ctl_entry *n;
+> > 	=09
+> > 		spin_lock_bh(&notify_lock);
+> > 		list_for_each_entry_safe(ent, n, &notify_list, notify_entry) {
+> > 			if (cn_ctl_msg_equals(ent->msg, ctl)) {
+> > 				list_del(&ent->notify_entry);
+> > 				kfree(ent);
+> > 			}
+> > 		}
+> > 		spin_unlock_bh(&notify_lock);
+> >=20
+> > 		return;
+> > 	}
+> >=20
+> > 	size +=3D sizeof(*ent);
+> >=20
+> > 	ent =3D kmalloc(size, GFP_ATOMIC);
+>=20
+> Another GFP_ATOMIC :(  In what context can this function be called?
+
+It is called from BH context.
+It is only one place that can not be moved to the different GFP
+allocation,
+but it is notification area, that is quite rarely used as fas as I can
+see...
+
+> > 	{
+> > 		int i;
+> > 		struct cn_notify_req *req;
+>=20
+> May as well move these up to the top of the function, save the ugly inden=
+t.
+>=20
+> > 		printk("Notify group %x for idx: ", ctl->group);
+> >=20
+> > 		req =3D (struct cn_notify_req *)ctl->data;
+> > 		for (i=3D0; i<ctl->idx_notify_num; ++i, ++req) {
+> > 			printk("%u-%u ", req->first, req->first+req->range-1);
+> > 		}
+>=20
+> Unneeded braces.
+>=20
+> This file is full of trailing whitespace, btw.  Please fix that up, then
+> find a new editor.
+>=20
+> > 		printk("\nNotify group %x for val: ", ctl->group);
+> >=20
+> > 		for (i=3D0; i<ctl->val_notify_num; ++i, ++req) {
+> > 			printk("%u-%u ", req->first, req->first+req->range-1);
+> > 		}
+>=20
+> Braces.
+
+It is debug code and I will remove it.
+
+--=20
+        Evgeniy Polyakov
+
+Crash is better than data corruption -- Arthur Grabowski
+
+--=-al5iwwQQOg+gSkF7/vGa
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBCTPMmIKTPhE+8wY0RApJ4AKCB5VxboJTV9mHFPz6YS44vLJ8i2QCgkmpC
+OQl8qiYbq4P3ekdPTQf/8D0=
+=Tdyl
+-----END PGP SIGNATURE-----
+
+--=-al5iwwQQOg+gSkF7/vGa--
+

@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267199AbUHOWpY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267205AbUHOWrO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267199AbUHOWpY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 18:45:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267209AbUHOWpY
+	id S267205AbUHOWrO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 18:47:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267209AbUHOWrO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 18:45:24 -0400
-Received: from gate.crashing.org ([63.228.1.57]:54676 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S267199AbUHOWpV (ORCPT
+	Sun, 15 Aug 2004 18:47:14 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:37255 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S267205AbUHOWrK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 18:45:21 -0400
-Subject: Re: page fault fastpath: Increasing SMP scalability by introducing
-	pte locks?
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: linux-ia64@vger.kernel.org,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Anton Blanchard <anton@samba.org>
-In-Reply-To: <Pine.LNX.4.58.0408150630560.324@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0408150630560.324@schroedinger.engr.sgi.com>
-Content-Type: text/plain
-Message-Id: <1092609485.9538.27.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 16 Aug 2004 08:38:06 +1000
-Content-Transfer-Encoding: 7bit
+	Sun, 15 Aug 2004 18:47:10 -0400
+Date: Mon, 16 Aug 2004 00:47:05 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+Subject: Re: menuconfig displays dependencies [Was: select FW_LOADER ->
+ depends HOTPLUG]
+In-Reply-To: <20040815174028.GM1387@fs.tum.de>
+Message-ID: <Pine.LNX.4.61.0408160043270.12687@scrub.home>
+References: <20040809195656.GX26174@fs.tum.de> <20040809203840.GB19748@mars.ravnborg.org>
+ <Pine.LNX.4.58.0408100130470.20634@scrub.home> <20040810084411.GI26174@fs.tum.de>
+ <20040810211656.GA7221@mars.ravnborg.org> <Pine.LNX.4.58.0408120027330.20634@scrub.home>
+ <20040814074953.GA20123@mars.ravnborg.org> <20040814210523.GG1387@fs.tum.de>
+ <Pine.LNX.4.61.0408151932370.12687@scrub.home> <20040815174028.GM1387@fs.tum.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-08-15 at 23:50, Christoph Lameter wrote:
-> Well this is more an idea than a real patch yet. The page_table_lock
-> becomes a bottleneck if more than 4 CPUs are rapidly allocating and using
-> memory. "pft" is a program that measures the performance of page faults on
-> SMP system. It allocates memory simultaneously in multiple threads thereby
-> causing lots of page faults for anonymous pages.
+Hi,
 
-Just a note: on ppc64, we already have a PTE lock bit, we use it to
-guard against concurrent hash table insertion, it could be extended
-to the whole page fault path provided we can guarantee we will never
-fault in the hash table on that PTE while it is held. This shouldn't
-be a problem as long as only user pages are locked that way (which
-should be the case with do_page_fault) provided update_mmu_cache()
-is updated to not take this lock, but assume it already held.
+On Sun, 15 Aug 2004, Adrian Bunk wrote:
 
-Ben.
+> And what's the correct handling of dependencies the selected symbol has?
+> 
+> FW_LOADER depends on HOTPLUG, and this was the issue that started the 
+> whole thread.
 
+The use of select is already a crotch here, so there's no real correct 
+handling. There are a few possibilities:
+- if you select FW_LOADER, you have to select HOTPLUG too
+- if you select FW_LOADER, you have to depend on HOTPLUG
+- FW_LOADER itself can select HOTPLUG
 
+bye, Roman

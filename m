@@ -1,47 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263454AbVCEAhP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263289AbVCEAhN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263454AbVCEAhP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 19:37:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263425AbVCEATT
+	id S263289AbVCEAhN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 19:37:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263485AbVCEA2u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 19:19:19 -0500
-Received: from mail.dif.dk ([193.138.115.101]:38582 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S263429AbVCEAFC (ORCPT
+	Fri, 4 Mar 2005 19:28:50 -0500
+Received: from fire.osdl.org ([65.172.181.4]:708 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S263183AbVCEAXf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 19:05:02 -0500
-Date: Sat, 5 Mar 2005 01:06:02 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Antonino Daplas <adaplas@pol.net>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH][Trivial] Kconfig help text update for config FB_NVIDIA
-Message-ID: <Pine.LNX.4.62.0503050101580.2794@dragon.hygekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 4 Mar 2005 19:23:35 -0500
+Date: Fri, 4 Mar 2005 16:23:31 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.11-mm1 "nobh" support for ext3 writeback mode
+Message-Id: <20050304162331.4a7dfdb8.akpm@osdl.org>
+In-Reply-To: <1109980952.7236.39.camel@dyn318077bld.beaverton.ibm.com>
+References: <1109980952.7236.39.camel@dyn318077bld.beaverton.ibm.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Badari Pulavarty <pbadari@us.ibm.com> wrote:
+>
+> @@ -1646,13 +1659,34 @@ static int ext3_block_truncate_page(hand
+>  	unsigned blocksize, iblock, length, pos;
+>  	struct inode *inode = mapping->host;
+>  	struct buffer_head *bh;
+> -	int err;
+> +	int err = 0;
+>  	void *kaddr;
+>  
+>  	blocksize = inode->i_sb->s_blocksize;
+>  	length = blocksize - (offset & (blocksize - 1));
+>  	iblock = index << (PAGE_CACHE_SHIFT - inode->i_sb->s_blocksize_bits);
+>  
+> +	if (test_opt(inode->i_sb, NOBH) && !page_has_buffers(page)) {
+> +		if (!PageUptodate(page)) {
+> +			err = mpage_readpage(page, ext3_get_block);
+> +			if ((err == 0) && !PageUptodate(page))
+> +				wait_on_page_locked(page);
+> +			lock_page(page);
+> +		}
+> +		if (err == 0 && PageUptodate(page)) {
+> +			kaddr = kmap_atomic(page, KM_USER0);
+> +			memset(kaddr + offset, 0, length);
+> +			flush_dcache_page(page);
+> +			kunmap_atomic(kaddr, KM_USER0);
+> +			set_page_dirty(page);
+> +			goto unlock;
+> +		}
+> +		/* 
 
-Tiny trivial patch to fix up the help text for config FB_NVIDIA, cut 
-against 2.6.11-mm1
+What's all this doing?  (It needs comments please - it's very unobvious).
+
+Dropping and reacquiring the page lock in the middle of the truncate there
+is a bit of a worry - need to think about that.
+
+Err, yes, it's buggy - page reclaim can come in, grab the page lock and
+whip the page off the mapping.  We end up with an anonymous page and we
+then start trying to write it into the file and all sorts of things.
 
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+This bit:
 
---- linux-2.6.11-mm1-orig/drivers/video/Kconfig	2005-03-05 00:39:33.000000000 +0100
-+++ linux-2.6.11-mm1/drivers/video/Kconfig	2005-03-05 00:56:36.000000000 +0100
-@@ -619,12 +619,11 @@ config FB_NVIDIA
- 	help
- 	  This driver supports graphics boards with the nVidia chips, TNT
- 	  and newer. For very old chipsets, such as the RIVA128, then use
--	  the the rivafb.
-+	  the rivafb.
- 	  Say Y if you have such a graphics board.
- 
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called nvidiafb.
--          none yet
- 
- config FB_NVIDIA_I2C
-        bool "Enable DDC Support"
+			if ((err == 0) && !PageUptodate(page))
+				wait_on_page_locked(page);
 
-
+can simply be removed.  We're about to lock the page anyway.

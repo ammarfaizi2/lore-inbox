@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314835AbSGIMoX>; Tue, 9 Jul 2002 08:44:23 -0400
+	id <S315120AbSGIMut>; Tue, 9 Jul 2002 08:50:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315120AbSGIMoW>; Tue, 9 Jul 2002 08:44:22 -0400
-Received: from [199.128.236.1] ([199.128.236.1]:40457 "EHLO
-	intranet.reeusda.gov") by vger.kernel.org with ESMTP
-	id <S314835AbSGIMoV>; Tue, 9 Jul 2002 08:44:21 -0400
-Message-ID: <630DA58AD01AD311B13A00C00D00E9BC05D2020B@CSREESSERVER>
-From: "Martinez, Michael - CSREES/ISTM" <MMARTINEZ@intranet.reeusda.gov>
-To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
-       "Martinez, Michael - CSREES/ISTM" <MMARTINEZ@intranet.reeusda.gov>
-Cc: linux-kernel@vger.kernel.org
+	id <S315171AbSGIMus>; Tue, 9 Jul 2002 08:50:48 -0400
+Received: from pD9E238F8.dip.t-dialin.net ([217.226.56.248]:59102 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S315120AbSGIMuq>; Tue, 9 Jul 2002 08:50:46 -0400
+Date: Tue, 9 Jul 2002 06:53:15 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: "Martinez, Michael - CSREES/ISTM" <MMARTINEZ@intranet.reeusda.gov>
+cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
 Subject: RE: list of compiled in support
-Date: Tue, 9 Jul 2002 08:47:37 -0400 
+In-Reply-To: <630DA58AD01AD311B13A00C00D00E9BC05D2020B@CSREESSERVER>
+Message-ID: <Pine.LNX.4.44.0207090652410.10105-100000@hawkeye.luckynet.adm>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Okay. this would require a little C code right? is there a shell command
-line tool I could use instead?
+Hi,
 
-Michael Martinez
-System Administrator (Contractor)
-Information Systems and Technology Management
-CSREES - United States Department of Agriculture
-(202) 720-6223
+On Tue, 9 Jul 2002, Martinez, Michael - CSREES/ISTM wrote:
+> Okay. this would require a little C code right? is there a shell command
+> line tool I could use instead?
 
+What exactly is your intention? IPX networking from a shell script?
 
------Original Message-----
-From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
-Sent: Tuesday, July 09, 2002 6:20 AM
-To: MMARTINEZ@intranet.reeusda.gov
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: list of compiled in support
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 
-
-> How does one tell if a kernel has compiled in support for ipx?
-
-Open an AF_IPX socket

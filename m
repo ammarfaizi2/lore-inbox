@@ -1,64 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261399AbSJYN33>; Fri, 25 Oct 2002 09:29:29 -0400
+	id <S261402AbSJYN0X>; Fri, 25 Oct 2002 09:26:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261409AbSJYN33>; Fri, 25 Oct 2002 09:29:29 -0400
-Received: from pop.gmx.de ([213.165.64.20]:28750 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S261399AbSJYN32>;
-	Fri, 25 Oct 2002 09:29:28 -0400
-Message-ID: <001901c27c2a$beb68ae0$6400a8c0@mikeg>
-From: "Mike Galbraith" <EFAULT@gmx.de>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "Thomas Molina" <tmolina@cox.net>, <linux-kernel@vger.kernel.org>
-References: <5.1.0.14.2.20021020192952.00b95e80@pop.gmx.net><5.1.0.14.2.20021021192410.00b4ffb8@pop.gmx.net><m18z0os1iz.fsf@frodo.biederman.org><007501c27b37$144cf240$6400a8c0@mikeg> <m1bs5in1zh.fsf@frodo.biederman.org>
-Subject: Re: loadlin with 2.5.?? kernels
-Date: Fri, 25 Oct 2002 15:30:54 +0200
+	id <S261405AbSJYN0X>; Fri, 25 Oct 2002 09:26:23 -0400
+Received: from gate.gau.hu ([192.188.242.65]:62688 "EHLO gate.gau.hu")
+	by vger.kernel.org with ESMTP id <S261402AbSJYN0P>;
+	Fri, 25 Oct 2002 09:26:15 -0400
+Date: Fri, 25 Oct 2002 15:32:25 +0200 (CEST)
+From: Cajoline <cajoline@andaxin.gau.hu>
+To: linux-kernel@vger.kernel.org
+Subject: ASUS TUSL2-C and Promise Ultra100 TX2
+Message-ID: <Pine.LNX.4.44.0210251530530.4572-100000@andaxin.gau.hu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello.
 
------ Original Message -----
-From: "Eric W. Biederman" <ebiederm@xmission.com>
-To: "Mike Galbraith" <EFAULT@gmx.de>
-Cc: "Thomas Molina" <tmolina@cox.net>; <linux-kernel@vger.kernel.org>
-Sent: Friday, October 25, 2002 2:21 PM
-Subject: Re: loadlin with 2.5.?? kernels
+I recently setup a box with the following components:
+Intel Celeron 1300 MHz
+ASUS TUSL2-C motherboard
+2 x Promise Ultra100 TX2 controllers
 
+Any 2.4 kernel I have tried on this machine displays this strange
+behavior: any drives attached to the PDC controllers only work at udma
+mode 2 (UDMA33).
+I have tried removing either one of the controllers, removing display and
+network adapters, changing PCI slots, anything I could think of. It
+doesn't make any difference.
+I even tried to force udma 5, for example, with hdparm -X69 /dev/hdX, but
+that didn't work either.
+I finally tried another Promise Ultra66 controller I have. That works as
+expected: the drives are detected as udma 4 (UDMA66).
 
-> "Mike Galbraith" <EFAULT@gmx.de> writes:
->
-> > (sorry, I have to use this pos at work)
-> >
-> > Yes.  .31 exploded on me after boot, but did not do the violent
-reboot
-> > during boot.
->
-> Earlier you had said it was .38 or so where the failures kicked in,
-> so I figured it was some other problem.
+What's even funnier is that if I try to copy files from a filesystem on a
+drive attached to a PDC20268 and a drive attached to the motherboard
+controller (PIIX4 chipset), the system eventually locks up (after about 3
+GB).
+What I mean by this is that there are no errors whatsoever, from the
+kernel ide driver, from the filesystem, nothing at all. It just stops
+responding to anything: login at the console, shell commands, network
+daemons, everything stops working. You can't even reboot it - a hard reset
+is required.
 
-(that was someone else)
+And apart from this, there are no errors in general, nothing out of the
+ordinary in the boot messages, except for the fact that hard disks are
+detected as UDMA(33).
 
-> > > If it is really the gdt I have some old patches that roughly do
-the
-> > > right thing, and I just need to dust them off.
-> >
-> > You dust them off, and I'll be more than happy to test them.  I keep
-> > entirely too many kernels resident to want to use lilo.
->
-> Here you are.
-> The following patch cleans up and removes unnecessary dependencies
-from
-> the x86 boot path.
+So I have come to the conclusion there must be some rather bizarre
+incompatibility between the PDCs and this motherboard.
+Let me note that the PDC controllers do work just fine with other older
+motherboards. And another thing, during boot-up, the PDCs do show the
+drives attached to it, detected at the right udma mode.
 
-Much appreciated.  I will test/report back.
+I was wondering if anyone has come across this specific problem. I browsed
+thoroughly through the list archives, but I didn't find any mention of the
+specific motherboard, or even the PIIX4 chipset and these controllers.
+I know there is probably no way I can get this hardware to work together,
+yet I'm curious to know if this has occurred to someone else as well.
 
-    -Mike
+Regards,
+Cajoline Leblanc
 

@@ -1,33 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269770AbRHQGs0>; Fri, 17 Aug 2001 02:48:26 -0400
+	id <S269778AbRHQGw4>; Fri, 17 Aug 2001 02:52:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269756AbRHQGsQ>; Fri, 17 Aug 2001 02:48:16 -0400
-Received: from mail11.speakeasy.net ([216.254.0.211]:19721 "EHLO
-	mail11.speakeasy.net") by vger.kernel.org with ESMTP
-	id <S269735AbRHQGsI>; Fri, 17 Aug 2001 02:48:08 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: safemode <safemode@speakeasy.net>
-To: linux-kernel@vger.kernel.org
-Subject: question about tmpfs
-Date: Fri, 17 Aug 2001 02:48:20 -0400
-X-Mailer: KMail [version 1.3.1]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010817064809Z269735-760+2777@vger.kernel.org>
+	id <S269777AbRHQGwq>; Fri, 17 Aug 2001 02:52:46 -0400
+Received: from freya.yggdrasil.com ([209.249.10.20]:26255 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S269778AbRHQGwe>; Fri, 17 Aug 2001 02:52:34 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Thu, 16 Aug 2001 23:52:47 -0700
+Message-Id: <200108170652.XAA07329@baldur.yggdrasil.com>
+To: davem@redhat.com
+Subject: Re: 2.4.9 does not compile
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I looked in the documentation for something about tmpfs and looked around for 
-some obvious tmpfs source but couldn't find any to figure out how to know 
-when/if it's doing what it's supposed to.  when i ls the dir it's mounted to 
-i get nothing and this is what df gives me.
-Filesystem           1k-blocks    Used    Available Use% Mounted on
-tmpfs                   144108        0        144108       0%       /dev/shm
+>   	The macro "min(n1,n2)", is a very standard practice in C
+>   programming.
 
-There are some mounting options that i did not use, just let it go to 
-defaults, and i've got a fair amount of shared memory programs open and i'm 
-just unable to tell if this is working correctly and if not how to fix it.  
-If anyone can point me to the right place to look that would be great.  
-Hopefully this kernel, 2.4.9, will not cause mozilla to start getting 
-retarded after 5 days of uptime.  
+>If min() in it's "very standard practice" form is broken at
+>the core, breaking it like I have is a fix.
+
+	Granted, in some cases, I am in favor of the Linux kernel
+being the innovator in violating some prevailing standards that I
+regard as sufficientliy "broken at the core", like, say, the
+popularity of really long variable names.  However, I think just about
+nobody else in this discussion accepts the major premise of that
+syllogism that min(n1,n2) is "broken to the core", at least not
+to the degree that changing it that way is a fix.
+
+>Let this go till Linus returns from Finland in a week or so,
+>I'm sure he'll be more than happy to state why he wanted
+>me to do these changes.
+
+	OK.
+
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

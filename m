@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288987AbSAZCSh>; Fri, 25 Jan 2002 21:18:37 -0500
+	id <S288990AbSAZC1Q>; Fri, 25 Jan 2002 21:27:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288990AbSAZCRL>; Fri, 25 Jan 2002 21:17:11 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:22789 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S288987AbSAZCQn>; Fri, 25 Jan 2002 21:16:43 -0500
-Message-ID: <3C521003.991A690B@zip.com.au>
-Date: Fri, 25 Jan 2002 18:10:12 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S289000AbSAZC1H>; Fri, 25 Jan 2002 21:27:07 -0500
+Received: from ns.suse.de ([213.95.15.193]:58884 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S288998AbSAZC04>;
+	Fri, 25 Jan 2002 21:26:56 -0500
+Date: Sat, 26 Jan 2002 03:26:55 +0100
+From: Andi Kleen <ak@suse.de>
 To: Linus Torvalds <torvalds@transmeta.com>
-CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] syscall latency improvement #1
-In-Reply-To: <p73y9il7vlr.fsf@oldwotan.suse.de> <Pine.LNX.4.33.0201251741430.16917-100000@penguin.transmeta.com>
+Message-ID: <20020126032655.A13340@wotan.suse.de>
+In-Reply-To: <20020126030341.A9651@wotan.suse.de> <Pine.LNX.4.33.0201251810270.16989-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0201251810270.16989-100000@penguin.transmeta.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Fri, Jan 25, 2002 at 06:14:25PM -0800, Linus Torvalds wrote:
 > 
-> It should be eminently testable. Just remove the cli from the standard
-> kernel, and do before-and-after tests.
+> On Sat, 26 Jan 2002, Andi Kleen wrote:
+> > On Fri, Jan 25, 2002 at 05:53:57PM -0800, Linus Torvalds wrote:
+> > >
+> > > On 26 Jan 2002, Andi Kleen wrote:
+> > > >
+> > > > It doesn't explain the Athlon speedups. On athlon cli is ~4 cycles.
+> > >
+> > > .. and it probably serializes the instruction stream.
+> >
+> > I have word from AMD engineering that it doesn't stall the pipeline
+> > or serializes.
 > 
+> Note that it may not be the "cli" itself - the "iret" may be slower if it
+> has to enable interrupts that were disabled before. Ie the iret microcode
+> may have the equivalent of
 
-#include <unistd.h>
+[...]
 
-main()
-{
-        int i = 100 * 1000 * 1000;
+Yes that could explain it. I ignored it on x86-64 because it always uses
+SYSCALL/SYSRET (at least for 64bit)  @)
 
-        while (i--)
-                getpid();
-}
+The real fix for that would be support of SYSENTER/SYSCALL on 32bit too
+(more likely SYSENTER because it's supported by Athlons and SYSCALL is too 
+broken on K6 to be usable) 
 
-With cli:
-	./a.out  22.05s user 15.31s system 99% cpu 37.361 total
+An int $0x80 does a awful lot of locked cycles for example and IRET is 
+also not exactly a speed daemon and very complex.
 
-without cli: 
-	./a.out  18.29s user 17.42s system 99% cpu 35.731 total
-
-
-That's 4.6%.  Intel P3.
-
-It's also 306 cycles per iteration.  So the cli added 14 cycles.
-
--
+SYSENTER/SYSEXIT would be likely a much bigger win than nanooptimizations of 
+a few cycles around this.
+-Andi

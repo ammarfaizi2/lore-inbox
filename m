@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265544AbUEZMd6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265554AbUEZMeK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265544AbUEZMd6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 08:33:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265552AbUEZMd6
+	id S265554AbUEZMeK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 08:34:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265552AbUEZMeK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 08:33:58 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:6272 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S265544AbUEZMd4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 08:33:56 -0400
-Date: Wed, 26 May 2004 08:33:47 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Buddy Lumpkin <b.lumpkin@comcast.net>
-cc: "'Denis Vlasenko'" <vda@port.imtp.ilyichevsk.odessa.ua>,
-       orders@nodivisions.com, Linux kernel <linux-kernel@vger.kernel.org>
+	Wed, 26 May 2004 08:34:10 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:51885 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265555AbUEZMeG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 08:34:06 -0400
+Date: Wed, 26 May 2004 08:30:59 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+cc: Buddy Lumpkin <b.lumpkin@comcast.net>,
+       "'William Lee Irwin III'" <wli@holomorphy.com>,
+       <orders@nodivisions.com>, <linux-kernel@vger.kernel.org>
 Subject: RE: why swap at all?
-In-Reply-To: <S265514AbUEZMDj/20040526120339Z+1733@vger.kernel.org>
-Message-ID: <Pine.LNX.4.53.0405260813440.858@chaos>
-References: <S265514AbUEZMDj/20040526120339Z+1733@vger.kernel.org>
+In-Reply-To: <200405261341.10384.vda@port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <Pine.LNX.4.44.0405260828180.30062-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 26 May 2004, Denis Vlasenko wrote:
 
-Gentlemen,
+> No. Unfortunately, userspace programs grow in size as fast
+> as your RAM. Because typically developers do not think
+> about size of their program until it starts to outgrow
+> their RAM.
 
-There is not enough RAM address-space in even 64-bit machines
-to do a sort/merge of even a typical inventory with all the
-keys present in RAM. So you need multiple tasks, each with
-as much of the 64-bit address-space occupied by RAM, as
-possible. Even then, you need to do partial sorts, etc.
+It's worse than that.  Way worse.
 
-It's not "bloat-ware" that requires getting as much free RAM
-as possible for an application, but the business of doing business.
-So, performance of data-intensive work such as the sort/merge
-is improved by writing the contents of sleeping tasks RAM to
-a storage device and using that RAM. It's just that simple.
+The speed of hard disks doesn't grow anywhere near as
+fast as the size of memory and applications. This means
+that over the last years, swapping in any particular
+application has gotten SLOWER than it used to be ...
 
-Many years ago, there was a small company that tried to sell
-a sort/merge engine (a dedicated CPU) to Digital because the
-problems with handling large databases was well known and
-interactive performance on VAX/11-750 machines sucked when
-database applications were being run (because their pages
-were being swapped). Of course the NIH syndrome took its
-toll and nobody ever got such an engine. The result being
-that everybody has performance problems when database
-operations are being run --even today, with different
-machines.
+This means that even though the VM is way smarter than
+it used to be, the visibility of any wrong decision has
+increased.
 
-Any data-intensive application needs as much RAM as possible and
-that's never quite enough for best performance.
+I wonder if there's a way we could change the VM so it
+could recover faster from any mistakes it made, instead
+of trying to prevent it from making any mistakes (those
+will happen anyway, the VM can't predict the future).
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

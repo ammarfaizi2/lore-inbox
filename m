@@ -1,94 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263266AbTCNHd5>; Fri, 14 Mar 2003 02:33:57 -0500
+	id <S263269AbTCNHfX>; Fri, 14 Mar 2003 02:35:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263265AbTCNHd5>; Fri, 14 Mar 2003 02:33:57 -0500
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:58375 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S263264AbTCNHdx>; Fri, 14 Mar 2003 02:33:53 -0500
-Message-Id: <200303140709.h2E79Ju06461@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Mike Anderson <andmike@us.ibm.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Problem with aacraid driver in 2.5.63-bk-latest
-Date: Fri, 14 Mar 2003 09:05:58 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: dougg@torque.net, Mark Haverkamp <markh@osdl.org>,
-       Christoffer Hall-Frederiksen <hall@jiffies.dk>,
-       linux-scsi@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux aacraid devel <linux-aacraid-devel@dell.com>
-References: <20030228133037.GB7473@jiffies.dk> <1047517604.23902.39.camel@irongate.swansea.linux.org.uk> <20030313005046.GB14373@beaverton.ibm.com>
-In-Reply-To: <20030313005046.GB14373@beaverton.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S263271AbTCNHfX>; Fri, 14 Mar 2003 02:35:23 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:5388 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S263269AbTCNHfR>; Fri, 14 Mar 2003 02:35:17 -0500
+Date: Fri, 14 Mar 2003 08:45:30 +0100
+From: Jurriaan <thunder7@xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.64: ioremap_nocache() failes with 1 gigabyte memory, works with 512 Mb?
+Message-ID: <20030314074530.GA1673@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Message-Flag: Still using Outlook? Please Upgrade to real software!
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 March 2003 02:50, Mike Anderson wrote:
-> The patch below is something Patrick and I where discussing though I
-> believe he indicated that I should print out the value we where
-> setting the queue_depth to. It was only compiled and not tested on
-> any devices.
->
-> -andmike
+I reported a problem with the tdfxfb framebuffer yesterday, where it
+said:
 
---- 1.96/drivers/scsi/scsi.c    Fri Feb 21 13:46:58 2003
-+++ edited/drivers/scsi/scsi.c  Wed Mar 12 16:05:42 2003
-@@ -926,15 +926,28 @@
-        /*
-         * refuse to set tagged depth to an unworkable size
-         */
--       if(tags <= 0)
--               return;
-+       if(tags <= 0) {
-+                       printk(KERN_WARNING "(scsi%d:%d:%d:%d) "
-+                               "%s, tag value to small\n"
-+                               "disabled\n", SDpnt->host->host_no,
+fb: Can't remap 3Dfx Voodoo5 register area.
 
-Please do not split message into several lines.
-There are several reasons why you shouldn't do it.
+when loading the module. On compiling the framebuffer into the kernel,
+it oopsed.
 
-+                               SDpnt->channel, SDpnt->id, SDpnt->lun,
-+                               __FUNCTION__); 
-+
-+               SDpnt->queue_depth = 1;
-+       }
-        /*
--        * Limit max queue depth on a single lun to 256 for now.  Remember,
--        * we allocate a struct scsi_command for each of these and keep it
--        * around forever.  Too deep of a depth just wastes memory.
-+        * Limit max queue depth on a single lun to 256 for now.
-+        * Too deep of a depth just wastes memory.
-         */
--       if(tags > 256)
--               return;
-+       if(tags > 256) {
-+                       printk(KERN_WARNING "(scsi%d:%d:%d:%d) "
-+                               "%s, tag value to big\n"
-+                               "disabled\n", SDpnt->host->host_no,
+Andrew Morton advised
+> 
+> http://www.kernel.org/pub/linux/kernel/v2.5/testing/cset/cset-1.1068.1.17-to-1.1104.txt.gz
+> 
+That file doesn't exist, but there exists a cset-1.1104.txt file. That's
+about the framepointer and gcc-2.96, whereas I use 
 
-Same here.
+Reading specs from /usr/lib/gcc-lib/i386-linux/3.2.3/specs
+<snip>
+gcc version 3.2.3 20030309 (Debian prerelease)
 
-+                               SDpnt->channel, SDpnt->id, SDpnt->lun,
-+                               __FUNCTION__); 
-+
-+               SDpnt->queue_depth = 256;
-+       }
- 
-        spin_lock_irqsave(&device_request_lock, flags);
-        SDpnt->queue_depth = tags;
-@@ -949,9 +962,10 @@
-                        break;
-                default:
-                        printk(KERN_WARNING "(scsi%d:%d:%d:%d) "
--                               "scsi_adjust_queue_depth, bad queue type, "
-+                               "%s, bad queue type, "
-                                "disabled\n", SDpnt->host->host_no,
--                               SDpnt->channel, SDpnt->id, SDpnt->lun); 
-+                               SDpnt->channel, SDpnt->id, SDpnt->lun,
-+                               __FUNCTION__); 
-                case 0:
-                        SDpnt->ordered_tags = SDpnt->simple_tags = 0;
-                        SDpnt->queue_depth = tags;
+a somewhat more advanced version :-)
+
+Anyway, since it fails as a module, I think I just get a failed call to
+ioremap_nocache() in drivers/video/tdfxfb.c.
+
+Now I added some information to the printk, and I now know:
+
+fb: Can't remap 3Dfx Voodoo5 register area. (start d0000000 length 8000000)
+
+If I boot my kernel with 'mem=512M' I can use the framebuffer just fine
+(well, it doesn't work and writes funky patters to the screen, but at
+least ioremap_nocache() works fine).
+
+What is the reason ioremap_nocache() fails? Is this something that can
+be prevented? I am not entirely clear on what is happening anyway (real
+memory, virtual memory, nocache-memory, io-memory - a little bit above
+my head :-) ).
+
+Kind regards,
+Jurriaan
+-- 
+A stone makes a splash when it strikes the water, Lisseut had thought,
+standing by this same shore on the day she'd arrived near the end of
+autumn, but no sound at all as it sinks down to the lake's deep bed.
+	Guy Gavriel Kay - A Song for Narbonne
+GNU/Linux 2.5.64 SMP/ReiserFS 3948 bogomips load av: 0.21 0.22 0.20

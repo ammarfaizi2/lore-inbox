@@ -1,106 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262834AbVDASKM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262705AbVDASNc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262834AbVDASKM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 13:10:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262835AbVDASKM
+	id S262705AbVDASNc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 13:13:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262832AbVDASNc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 13:10:12 -0500
-Received: from stat16.steeleye.com ([209.192.50.48]:6324 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S262834AbVDASJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 13:09:58 -0500
-Subject: Re: [PATCH scsi-misc-2.6 01/13] scsi: don't use
-	blk_insert_request() for requeueing
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Tejun Heo <htejun@gmail.com>
-Cc: Jens Axboe <axboe@suse.de>, SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050401050109.GB11318@htj.dyndns.org>
-References: <20050331090647.FEDC3964@htj.dyndns.org>
-	 <20050331090647.BA0001D5@htj.dyndns.org>
-	 <1112291600.5619.19.camel@mulgrave> <20050401050109.GB11318@htj.dyndns.org>
-Content-Type: text/plain
-Date: Fri, 01 Apr 2005 12:09:48 -0600
-Message-Id: <1112378988.5776.18.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
-Content-Transfer-Encoding: 7bit
+	Fri, 1 Apr 2005 13:13:32 -0500
+Received: from alog0397.analogic.com ([208.224.222.173]:32925 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262705AbVDASNX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 13:13:23 -0500
+Date: Fri, 1 Apr 2005 13:13:04 -0500 (EST)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Low file-system performance for 2.6.11 compared to 2.4.26
+In-Reply-To: <424C9217.9000205@yahoo.com.au>
+Message-ID: <Pine.LNX.4.61.0504011252300.14297@chaos.analogic.com>
+References: <Pine.LNX.4.61.0503311129360.4710@chaos.analogic.com>
+ <424C9217.9000205@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-04-01 at 14:01 +0900, Tejun Heo wrote:
-> > Well, REQ_SPECIAL is the signal to the mid-layer that we've allocated
-> > the resources necessary to process the command, so in practice it will
-> > be turned on for every requeue request (because we set it when the
-> > command is prepared),
-> 
->  Sorry, but where?  AFAICT, only blk_insert_request() and
-> scsi_init_io() on sgtable allocation failure set REQ_SPECIAL during
-> scsi midlayer processing.  This patch replaces blk_insert_request()
-> with blk_requeue_request() and the next patch removes REQ_SPECIAL
-> setting in scsi_init_io().
-> 
->  REQ_SPECIAL is currently overloaded to mean two different things.
-> 
->  * The request is a special request.
->  * The request has been requeued using scsi_queue_insert().
->    i.e. It has been prepped.
+On Thu, 31 Mar 2005, Nick Piggin wrote:
 
-But its true meaning is defined by the block layer (since it's a block
-flag).  It's supposed to mean that the ->special field of the request is
-in use to carry data meaningful to the underlying driver.  SCSI sets it
-on that basis.
+> linux-os wrote:
+>>
+>> For those interested, some file-system tests and a test-tools
+>> are attached.
+>>
+>
+> I'll give it a run when I get a chance. Thanks.
+> In the meantime, can you try with different io schedulers?
+>
 
-So, if I understand correctly, based on the fact that the current block
-code in fact never bothers with REQ_SPECIAL, but only checks req-
->special, you're proposing that we need never actually set REQ_SPECIAL
-when making use of the ->special field?  Thus you want to use
-REQ_SPECIAL to distinguish between internally generated commands and
-external commands?  That sounds fine as long as the block API gets
-updated to reflect this (comments in linux/blkdev.h shoudl be fine).
+I was trying to emulate some old servers that had new
+kernels installed. These servers are used to send medical
+images around. One used to get a 512x512x16-bit image to
+a work-station in a few hundred milliseconds. It takes
+seconds with the newer kernels. I found out that the
+SCSI disk(s) were running continuously and sampled
+their I/O patterns. The 'C' code comes very close
+to emulating that.
 
-> > The other reason I don't like this is that we've been trying hard to
-> > sweep excess block knowledge out of the mid-layer.  I don't think
-> > REQ_SOFTBARRIER is anything we really have to know about.
-> 
->  We currently requeue using two different block functions.
-> 
->  * blk_insert_request(): this function does two things
-> 	1. enqueue special requests
-> 	2. turn on REQ_SPECIAL|REQ_SOFTBARRIER and call
-> 	   blk_requeue_request().  This is used only by scsi midlayer.
->  * blk_requeue_request()
-> 
->  REQ_SOFTBARRIER tells the request queue that other requests shouldn't
-> pass this one.  We need this to be set for prepped requests;
-> otherwise, it may, theoretically, deadlock (unprepped request waiting
-> for the prepped request back in the queue).  So, the current code
-> 
->  * depends on blk_insert_request() sets REQ_SOFTBARRIER when
->    requeueing.  It works but nothing in the interface or semantics
->    is clear about it.  Why expect a request reinserted using
->    blk_insert_request() gets REQ_SOFTBARRIER turned on while a request
->    reinserted with blk_requeue_request() doesn't?  or why are there
->    two different paths doing mostly the same thing with slightly
->    different semantics?
->  * requeueing using blk_requeue_request() in scsi_request_fn() doesn't
->    turn on either REQ_SPECIAL or REQ_SOFTBARRIER.  Missing REQ_SPECIAL
->    is okay, as we have the extra path in prep_fn (if it ever gets requeued
->    due to medium failure, so gets re-prepped), but missing
->    REQ_SOFTBARRIER can *theoretically* cause problem.
-> 
->  So, it's more likely becoming less dependent on unobvious behavior of
-> block layer.  As we need the request to stay on top, we tell the block
-> layer to do so, instead of depending on blk_insert_request()
-> unobviously doing it for us.
+The installation involved an "ugrade" to linux-2.6.5-1.358
+that came with a RedHat Fedora distibution. The provided
+code will even HALT that distibution. Everything goes
+into the 'D' state and waits forever (at least overnight).
 
-But that's the point.  This is non obvious behaviour in the block layer,
-so SCSI doesn't want to know about it (and the block maintainer won't
-want to trawl through the SCSI and other block drivers altering it if it
-changes).  If the bug is that the block layer isn't setting it on all
-our requeues where it should, then either we're using the wrong API or
-the block layer API is buggy.
+Later versions like linux-2.6.8 will run to completion
+but with verrry slow through-put.
 
-James
+Never versions, like linux-2.6.11 will run, but with a strange
+slowness, everything in 'D' and the file-system can end up with
+missing files.
 
+The SCSI controller is AIC7XXX, and the fs is ext3 with jbd, just
+as it comes from Red Hat.
 
+>> Also, my .signature disappeared during the file-system tests.
+>> There were no errors and e2fsck thinks everything is fine!
+>>
+>
+> You seem to be constantly plagued by gremlins. I don't
+> know whether to laugh or cry.
+>
+
+I test many, many (too many) systems as part of my job. When
+somebody writes a hardware device-driver and I get to check it,
+sometimes it blows up or doesn't otherwise work. I then test the
+bare kernel(s) and I often find some really strange things going
+on.
+
+For instance, there was a recent change that make the BKL be
+held during an ioctl(). This has devistating performance
+consequences with a lot of drivers. For instance, the stuff
+that writes CD/ROMs. It does a lot of the work using ioctl(),
+the firewire drivers also use ioctl() for I/O.
+
+>
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

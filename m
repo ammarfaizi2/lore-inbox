@@ -1,601 +1,232 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288842AbSAIFtY>; Wed, 9 Jan 2002 00:49:24 -0500
+	id <S288854AbSAIGEt>; Wed, 9 Jan 2002 01:04:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288843AbSAIFtH>; Wed, 9 Jan 2002 00:49:07 -0500
-Received: from boo-mda02.boo.net ([216.200.67.22]:64519 "EHLO
-	boo-mda02.boo.net") by vger.kernel.org with ESMTP
-	id <S288842AbSAIFsx>; Wed, 9 Jan 2002 00:48:53 -0500
-Message-Id: <3.0.6.32.20020109005455.007bf4d0@boo.net>
-X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
-Date: Wed, 09 Jan 2002 00:54:55 -0500
+	id <S288853AbSAIGEj>; Wed, 9 Jan 2002 01:04:39 -0500
+Received: from node10450.a2000.nl ([24.132.4.80]:896 "EHLO awacs.dhs.org")
+	by vger.kernel.org with ESMTP id <S288854AbSAIGE2>;
+	Wed, 9 Jan 2002 01:04:28 -0500
+Date: Wed, 9 Jan 2002 07:04:27 +0100
+From: Pascal Haakmat <a.haakmat@chello.nl>
 To: linux-kernel@vger.kernel.org
-From: Jason Papadopoulos <jasonp@boo.net>
-Subject: [PATCH] page coloring for the 2.2.20 kernel
+Subject: 2.4.16 Oopses under load in __wake_up 
+Message-ID: <20020109070427.A803@awacs.dhs.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I got a few Oopses under load on a 2.4.16 SMP kernel with XFS and low
+latency patches. Although the virtual consoles appear to be dead (that is,
+there is no video; I can switch to them and log in), the system is still
+running, and I can still start X (with video) and log in via ssh to type
+this [shortly before I tried to send this message, the machine locked up
+solid after all; /var/log/messages shows 3 more Oopses in __wake_up preceded
+by an Oops in poll_freewait before everything goes dark].
 
-Hello. The following patch modifies the free list handling in the
-2.2.20 kernel so that round-robin page coloring is performed.
+I have absolutely no idea what any of this means, probably it's already
+fixed or just user error, but these Oopses are very similar to another
+recent Oops that was reported on lkml (which got no replies):
 
-The code seems to be stable. It's fast, handles allocation of 
-contiguous pages by color, and uses the hierarchical nature of the
-free list to manufacture pages of the correct color when they are
-not queued up already.
-
-On an Alpha with a 2MB L2 cache, kernel compiles are 1-2% faster
-and number crunching code that allocates big arrays runs much
-faster and more reliably.
-
-If somebody can try out the patch on other than an Alpha, or can
-throw benchmarks at it, I'd be grateful. The 2.4 series kernel seems
-to use the same methods to allocate pages, so in principle the same
-modifications apply.
-
-Please copy responses to this address, since I'm not subscribed to
-LKML.
-
-Thanks,
-jasonp
-
--------------------------------------------------------------------
-diff -ruN linux-2.2.20/drivers/char/Config.in
-linux-2.2.20a/drivers/char/Config.in
---- linux-2.2.20/drivers/char/Config.in	Mon Dec 10 02:17:35 2001
-+++ linux-2.2.20a/drivers/char/Config.in	Wed Dec 19 00:42:55 2001
-@@ -118,6 +118,7 @@
-   endmenu
- fi
- 
-+tristate 'Page Coloring' CONFIG_PAGE_COLORING
- 
- tristate '/dev/nvram support' CONFIG_NVRAM
- bool 'Enhanced Real Time Clock Support' CONFIG_RTC
-diff -ruN linux-2.2.20/drivers/char/Makefile
-linux-2.2.20a/drivers/char/Makefile
---- linux-2.2.20/drivers/char/Makefile	Mon Dec 10 02:17:35 2001
-+++ linux-2.2.20a/drivers/char/Makefile	Sat Dec 22 11:12:18 2001
-@@ -729,6 +729,11 @@
- M_OBJS          += $(sort $(filter     $(module-list), $(obj-m)))
- 
- 
-+ifeq ($(CONFIG_PAGE_COLORING),m)
-+  CONFIG_PAGE_COLORING_MODULE=y
-+  M_OBJS += page_color.o
-+endif
-+
- include $(TOPDIR)/Rules.make
- 
- fastdep:
-diff -ruN linux-2.2.20/drivers/char/page_color.c
-linux-2.2.20a/drivers/char/page_color.c
---- linux-2.2.20/drivers/char/page_color.c	Wed Dec 31 19:00:00 1969
-+++ linux-2.2.20a/drivers/char/page_color.c	Tue Jan  8 01:04:52 2002
-@@ -0,0 +1,166 @@
-+/*
-+ *	This module implements page coloring, a systematic way
-+ * 	to get the most performance out of the expensive cache
-+ *	memory your computer has. At present the code is *only*
-+ *	to be built as a loadable kernel module.
-+ *
-+ *	After building the kernel and rebooting, load the module
-+ *	and specify the cache size to use, like so:
-+ *
-+ *	insmod <path to page_color.o> cache_size=X
-+ *
-+ *	where X is the size of the largest cache your system has.
-+ *	For machines with three cache levels (Alpha 21164, AMD K6-III)
-+ *	this will be the size in bytes of the L3 cache, and for all
-+ *	others it will be the size of the L2 cache. If your system
-+ *	doesn't have at least L2 cache, fer cryin' out loud GET SOME!
-+ *	When specifying the cache size you can use 'K' or 'M' to signify
-+ *	kilobytes or megabytes, respectively. In any case, the cache
-+ *	size *must* be a power of two.
-+ * 
-+ * 	insmod will create a module called 'page_color' which changes
-+ *	the way Linux allocates pages from the free list. Once a page 
-+ *	is given to another process the page coloring code will forget 
-+ *	about it; thus it's always safe to start and stop the module 
-+ *	while other processes are running.
-+ *
-+ *	If linux is configured for a /proc filesystem, the module will
-+ *	also create /proc/page_color as a means of reporting statistics.
-+ *
-+ *	This program is free software; you can redistribute it and/or
-+ *	modify it under the terms of the GNU General Public License
-+ *	as published by the Free Software Foundation; either version
-+ *	2 of the License, or (at your option) any later version.
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/module.h>
-+#include <linux/version.h>
-+#include <linux/types.h>
-+#include <linux/errno.h>
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/string.h>
-+#include <linux/malloc.h>
-+#include <asm/page.h>
-+#include <linux/mm.h>
-+#include <linux/proc_fs.h>
-+
-+extern unsigned int page_coloring;
-+extern unsigned int page_miss_count;
-+extern unsigned int page_hit_count;
-+extern unsigned int page_colors;
-+extern unsigned long *page_color_table;
-+extern spinlock_t page_alloc_lock;
-+
-+void fill_color_pool(void);
-+void empty_color_pool(void);
-+unsigned int page_color_alloc(void);
-+
-+#if defined(__alpha__)
-+#define CACHE_SIZE_GUESS (4*1024*1024)
-+#elif defined(__i386__)
-+#define CACHE_SIZE_GUESS (256*1024)
-+#else
-+#define CACHE_SIZE_GUESS (1*1024*1024)
-+#endif 
-+
-+#ifdef CONFIG_PROC_FS
-+
-+int page_color_getinfo(char *buf, char **start, off_t fpos, 
-+			int length, int dummy)
-+{
-+        char *p = buf;
-+
-+        p += sprintf(p, "colors: %d\n", page_colors);
-+        p += sprintf(p, "hits: %d\n", page_hit_count);
-+        p += sprintf(p, "misses: %d\n", page_miss_count);
-+
-+        return p - buf;
-+}
-+
-+static struct proc_dir_entry page_color_proc_entry = {
-+        0, 
-+	10, 
-+	"page_color", 
-+	S_IFREG | S_IRUGO, 
-+	1, 0, 0, 
-+	0, 0, 
-+	page_color_getinfo
-+};
-+
-+#endif
-+
-+
-+#define	page_color_init	init_module
-+
-+void cleanup_module(void)
-+{
-+	unsigned long flags;
-+
-+	printk("page_color: terminating page coloring\n");
-+
-+#ifdef CONFIG_PROC_FS
-+	proc_unregister( &proc_root, page_color_proc_entry.low_ino );
-+#endif
-+
-+	spin_lock_irqsave(&page_alloc_lock, flags);
-+	empty_color_pool();
-+	page_coloring = 0;
-+	spin_unlock_irqrestore(&page_alloc_lock, flags);
-+
-+	kfree(page_color_table);
-+}
-+
-+static char *cache_size;
-+MODULE_PARM(cache_size, "s");
-+
-+__initfunc(int page_color_init(void))
-+{
-+	unsigned int cache_size_int;
-+	unsigned int alloc_size;
-+	unsigned long flags;
-+
-+	if (cache_size) {
-+		cache_size_int = simple_strtoul(cache_size, 
-+					(char **)NULL, 10);
-+		if ( strchr(cache_size, 'M') || 
-+		     strchr(cache_size, 'm') )
-+			cache_size_int *= 1024*1024;
-+
-+		if ( strchr(cache_size, 'K') || 
-+		     strchr(cache_size, 'k') )
-+			cache_size_int *= 1024;
-+	} 
-+	else {
-+		cache_size_int = CACHE_SIZE_GUESS;
-+	}
-+
-+	if( (-cache_size_int & cache_size_int) != cache_size_int ) {
-+		printk ("page_color: cache size is not a power of two\n");
-+		return 1;
-+	}
-+
-+	page_colors = cache_size_int / PAGE_SIZE;
-+	page_hit_count = 0;
-+	page_miss_count = 0;
-+	alloc_size = page_color_alloc();
-+	page_color_table = (unsigned long *)kmalloc(alloc_size, GFP_KERNEL);
-+	if (!page_color_table) {
-+		printk("page_color: memory allocation failed\n");
-+		return 1;
-+	}
-+	memset(page_color_table, 0, alloc_size);
-+
-+ 	spin_lock_irqsave(&page_alloc_lock, flags);
-+	fill_color_pool();
-+	page_coloring = 1;
-+ 	spin_unlock_irqrestore(&page_alloc_lock, flags);
-+
-+#ifdef CONFIG_PROC_FS
-+	proc_register( &proc_root, &page_color_proc_entry );
-+#endif
-+
-+	printk("page_color: starting with %d colors\n", page_colors );
-+	return 0;
-+}
-diff -ruN linux-2.2.20/include/linux/sched.h
-linux-2.2.20a/include/linux/sched.h
---- linux-2.2.20/include/linux/sched.h	Mon Dec 10 02:27:47 2001
-+++ linux-2.2.20a/include/linux/sched.h	Tue Jan  1 16:45:52 2002
-@@ -353,6 +353,11 @@
- 
- /* oom handling */
- 	int oom_kill_try;
-+
-+#ifdef CONFIG_PAGE_COLORING_MODULE
-+	unsigned int color_init;
-+	unsigned int color_offset;
-+#endif
- };
- 
- /*
-diff -ruN linux-2.2.20/kernel/ksyms.c linux-2.2.20a/kernel/ksyms.c
---- linux-2.2.20/kernel/ksyms.c	Mon Dec 10 02:17:38 2001
-+++ linux-2.2.20a/kernel/ksyms.c	Mon Jan  7 21:09:21 2002
-@@ -447,4 +447,24 @@
- EXPORT_SYMBOL(_etext); 
- EXPORT_SYMBOL(module_list); 
- 
-+#ifdef CONFIG_PAGE_COLORING_MODULE
-+extern unsigned int page_coloring;
-+extern unsigned int page_miss_count;
-+extern unsigned int page_hit_count;
-+extern unsigned int page_colors;
-+extern unsigned long *page_color_table;
-+extern spinlock_t page_alloc_lock;
-+void fill_color_pool(void);
-+void empty_color_pool(void);
-+unsigned int page_color_alloc(void);
- 
-+EXPORT_SYMBOL_NOVERS(page_coloring);
-+EXPORT_SYMBOL_NOVERS(page_miss_count);
-+EXPORT_SYMBOL_NOVERS(page_hit_count);
-+EXPORT_SYMBOL_NOVERS(page_colors);
-+EXPORT_SYMBOL_NOVERS(page_color_table);
-+EXPORT_SYMBOL_NOVERS(page_alloc_lock);
-+EXPORT_SYMBOL_NOVERS(fill_color_pool);
-+EXPORT_SYMBOL_NOVERS(empty_color_pool);
-+EXPORT_SYMBOL_NOVERS(page_color_alloc);
-+#endif
-diff -ruN linux-2.2.20/mm/page_alloc.c linux-2.2.20a/mm/page_alloc.c
---- linux-2.2.20/mm/page_alloc.c	Fri Mar 30 19:51:18 2001
-+++ linux-2.2.20a/mm/page_alloc.c	Mon Jan  7 22:36:42 2002
-@@ -74,6 +74,257 @@
- 	prev->next = next;
- }
- 
-+#ifdef CONFIG_PAGE_COLORING_MODULE
-+
-+unsigned int page_coloring = 0;
-+unsigned int page_miss_count;
-+unsigned int page_hit_count;
-+unsigned int page_colors = 0;
-+struct free_area_struct *page_color_table;
-+struct free_area_struct *queues[NR_MEM_TYPES][NR_MEM_LISTS];
-+
-+#define COLOR(x)  ((x) & cache_mask)
-+
-+unsigned int page_color_alloc(void)
-+{
-+	return NR_MEM_TYPES * sizeof(struct free_area_struct) *
-+				( 2 * page_colors + NR_MEM_LISTS );
-+}
-+
-+void fill_color_pool(void)
-+{
-+	/* For each of the NR_MEM_LISTS queues in
-+	   free_area[], move the queued pages into
-+	   a separate array of queues, one queue per
-+	   distinct page color. empty_color_pool()
-+	   reverses the process.
-+	   
-+	   This code and empty_color_pool() must be
-+	   called atomically. */
-+
-+	int i, j, k;
-+	unsigned int num_colors, cache_mask;
-+	unsigned long map_nr;
-+	struct free_area_struct *area, *old_area, **qptr;
-+	struct page *page;
-+ 
-+ 	cache_mask = page_colors - 1;
-+	area = page_color_table;
-+
-+	for(k = 0; k < NR_MEM_TYPES; k++) {
-+		num_colors = page_colors;
-+		qptr = queues[k];
-+		old_area = free_area[k];
-+
-+		for(i = 0; i<NR_MEM_LISTS; i++) {
-+			qptr[i] = area;
-+			for(j = 0; j < num_colors; j++) {
-+				init_mem_queue(area + j);
-+				area[j].map = old_area->map;
-+				area[j].count = 0;
-+			}
-+	
-+			for(j = 0; j < old_area->count; j++) {
-+				page = memory_head(old_area);
-+				page = page->next;
-+				remove_mem_queue(page);
-+				map_nr = page - mem_map;
-+				add_mem_queue(area + 
-+					(COLOR(map_nr) >> i), page);
-+			}
-+	
-+			old_area++;
-+			area += num_colors;
-+			if (num_colors > 1)
-+				num_colors >>= 1;
-+		}
-+	}
-+}
-+
-+void empty_color_pool(void)
-+{
-+	int i, j, k, m;
-+	unsigned int num_colors;
-+	struct free_area_struct *area, *old_area, **qptr;
-+	struct page *page;
-+ 
-+	for(m = 0; m < NR_MEM_TYPES; m++) {
-+ 		old_area = free_area[m];
-+		qptr = queues[m];
-+		num_colors = page_colors;
-+
-+		for(i = 0; i < NR_MEM_LISTS; i++) {
-+			area = qptr[i];
-+			old_area->count = 0;
-+
-+			for(j = 0; j < num_colors; j++) {
-+				for(k = 0; k < area[j].count; k++) {
-+					page = memory_head(area + j);
-+					page = page->next;
-+					remove_mem_queue(page);
-+					add_mem_queue(old_area, page);
-+				}
-+			}
-+			old_area++;
-+			if (num_colors > 1)
-+				num_colors >>= 1;
-+		}
-+	}
-+}
-+
-+unsigned int rand_carry = 0x01234567;
-+unsigned int rand_seed = 0x89abcdef;
-+
-+#define MULT 2131995753
-+
-+static inline unsigned int get_rand(void) 
-+{
-+	/* A multiply-with-carry random number generator by 
-+	   George Marsaglia. The period is about 1<<63, and
-+	   each call to get_rand() returns 32 random bits */
-+
-+	unsigned long long prod;
-+
-+	prod = (unsigned long long)rand_seed * 
-+	       (unsigned long long)MULT + 
-+	       (unsigned long long)rand_carry;
-+	rand_seed = (unsigned int)prod;
-+	rand_carry = (unsigned int)(prod >> 32);
-+
-+	return rand_seed;
-+}
-+
-+unsigned long alloc_page_by_color(unsigned long order, unsigned long type)
-+{
-+	unsigned int i;
-+	unsigned int mask, color;
-+	struct free_area_struct *area, *old_area, **qptr;
-+	struct page *prev, *ret;
-+	unsigned long map_nr;
-+ 	unsigned int cache_mask = page_colors - 1;
-+
-+	/* If this process hasn't asked for free pages
-+	   before, assign it a random starting color. */
-+
-+	if (current->color_init != current->pid) {
-+		current->color_init = current->pid;
-+		current->color_offset = COLOR(get_rand());
-+	}
-+
-+	/* Round the target color to look for up to the
-+	   next 1<<order boundary. */
-+
-+	mask = (1 << order) - 1;
-+	color = current->color_offset;
-+	color = COLOR((color + mask) & ~mask);
-+	current->color_offset = color;
-+
-+	/* Find out early if there are no free pages at all. */
-+
-+	qptr = queues[type];
-+	old_area = free_area[type];
-+
-+	for(i = order; i < NR_MEM_LISTS; i++)
-+		if (old_area[i].count)
-+			break;
-+	
-+	if (i == NR_MEM_LISTS)
-+		return 0;
-+
-+	/* The memory allocation is guaranteed to succeed
-+	   (although we may not find the correct color) */
-+
-+	while(1) {
-+		for(i = order; i < NR_MEM_LISTS; i++) {
-+			area = qptr[i] + (color >> i);
-+			if (area->count)
-+				goto alloc_page_done;
-+		}
-+
-+		page_miss_count++;
-+		color = COLOR(color + (1<<order));
-+	} 
-+
-+alloc_page_done:
-+	prev = memory_head(area);
-+	ret = prev->next;
-+	(prev->next = ret->next)->prev = prev;
-+	map_nr = ret - mem_map;
-+	change_bit(map_nr >> (1+i), area->map);
-+	nr_free_pages -= 1 << order;
-+	area->count--;
-+	old_area[i].count--;
-+
-+	while (i > order) {
-+
-+		/* Return 1<<order contiguous pages out of 
-+		   the 1<<i available now. Without page coloring
-+		   it would suffice to keep chopping the number of
-+		   pages in half and return the last 1<<order of
-+		   them. Here, the bottom bits of the index to 
-+		   return must match the target color. We have to 
-+		   keep chopping 1<<i in half but we can
-+		   only ignore the halves that don't match the 
-+		   bit pattern of the target color. */
-+
-+		i--;
-+		mask = 1 << i;
-+		area = qptr[i];
-+		old_area[i].count++;
-+		change_bit(map_nr >> (1+i), area->map);
-+		if (color & mask) {
-+			add_mem_queue(area + (COLOR(map_nr) >> i), ret);
-+			map_nr += mask;
-+			ret += mask;
-+		}
-+		else {
-+			add_mem_queue(area + (COLOR(map_nr + mask) >> i), 
-+							ret + mask);
-+		}
-+	}
-+	atomic_set(&ret->count, 1);
-+	current->color_offset = COLOR(color + (1<<order));
-+	page_hit_count++;
-+	return PAGE_OFFSET + (map_nr << PAGE_SHIFT);
-+}
-+
-+void free_pages_by_color(unsigned long map_nr, unsigned long mask,
-+			unsigned long order, unsigned long index,
-+			unsigned long type)
-+{
-+	/* Works in the same way as __free_pages_ok, 
-+	   except that the mem_queue operations are 
-+	   color-dependent. */
-+	
-+	int i;
-+	struct free_area_struct *area, *old_area, **qptr;
-+ 	unsigned int cache_mask = page_colors - 1;
-+
-+	i = order;
-+	old_area = free_area[type];
-+	qptr = queues[type];
-+	area = qptr[i];
-+	nr_free_pages -= mask;
-+
-+	while (mask + (1 << (NR_MEM_LISTS-1))) {
-+		if (!test_and_change_bit(index, area->map))
-+			break;
-+		remove_mem_queue(mem_map + (map_nr ^ -mask));
-+		area[COLOR(map_nr ^ -mask) >> i].count--;
-+		old_area[i].count--;
-+		mask <<= 1;
-+		i++;
-+		area = qptr[i];
-+		index >>= 1;
-+		map_nr &= mask;
-+	}
-+
-+	add_mem_queue(area + (COLOR(map_nr) >> i), mem_map + map_nr);
-+	old_area[i].count++;
-+}
-+
-+#endif	/* CONFIG_PAGE_COLORING_MODULE */
-+
- /*
-  * Free_page() adds the page to the free lists. This is optimized for
-  * fast normal cases (no error jumps taken normally).
-@@ -116,6 +367,13 @@
- 	unsigned long mask = (~0UL) << order;
- 	unsigned long index = map_nr >> (1 + order);
- 
-+#ifdef CONFIG_PAGE_COLORING_MODULE
-+	if (page_coloring == 1) {
-+		free_pages_by_color(map_nr, mask, order, index, type);
-+		return;
-+	}
-+#endif
-+
- 	area = free_area[type] + order;
- 	__free_pages_ok(map_nr, mask, area, index);
- }
-@@ -137,6 +395,15 @@
- 	map_nr &= mask;
- 
- 	spin_lock_irqsave(&page_alloc_lock, flags);
-+
-+#ifdef CONFIG_PAGE_COLORING_MODULE
-+	if (page_coloring == 1) {
-+		free_pages_by_color(map_nr, mask, order, index, type);
-+		spin_unlock_irqrestore(&page_alloc_lock, flags);
-+		return;
-+	}
-+#endif
-+
- 	area = free_area[type] + order;
- 	__free_pages_ok(map_nr, mask, area, index);
- 	spin_unlock_irqrestore(&page_alloc_lock, flags);
-@@ -306,6 +573,19 @@
- 		}
- 	}
- ok_to_allocate:
-+
-+#ifdef CONFIG_PAGE_COLORING_MODULE
-+	if (page_coloring == 1) {
-+		unsigned long page = 0;
-+		if (!(gfp_mask & __GFP_DMA))
-+			page = alloc_page_by_color(order, 0);
-+		if (!page)
-+			page = alloc_page_by_color(order, 1);
-+		spin_unlock_irqrestore(&page_alloc_lock, flags);
-+		return page;
-+	}
-+#endif
-+
- 	/* if it's not a dma request, try non-dma first */
- 	if (!(gfp_mask & __GFP_DMA))
- 		RMQUEUE_TYPE(order, 0);
+http://linux-kernel.skylab.org/20011125/msg02034.html
 
 
+*** Software:
+
+- Running 'while true; do nmap 192.168.1.1; done' from another machine,
+  to fake some semblance of network activity.
+  
+- Running 'while true; do ossrecord test.wav & sleep 5; kill $!; done'
+  to fake some semblance of audio/file I/O.
+
+- Running the following program to fake a bit of memory pressure:
+
+#include <unistd.h>
+void main() {
+   int s=1024*1024*600;
+   int c=1024;
+   int i,j;
+   char *p;
+   for(j=0; j<c; j++) {
+      printf("%d: grabbing %d bytes...\n",j,s);
+      p=(char *)malloc(s);
+      for(i=0; i<s; i+=1024)
+	p[i]=2;
+      printf("%d: sleeping...\n",j,s);
+      sleep(10);
+      free(p);
+   }
+}
+
+
+*** Hardware:
+
+600MHz dual PIII, SuperMicro P6DGU 440GX board w/AIC7890, 512MB of RAM,
+three IDE disks and SCSI CDROM + CDRW. I've selected MPS 1.1 in the BIOS
+because with MPS 1.4 the machine locks up hard after some use (perhaps this
+will turn out to be the case with MPS 1.1 as well, but it _seems_ better).
+
+
+*** Oops #1:
+
+ksymoops 2.3.4 on i686 2.4.16-xfs-ll.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.16-xfs-ll/ (default)
+     -m /usr/src/linux/System.map (default)
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+Reading Oops report from the terminal
+Jan  9 05:12:32 awacs kernel: Unable to handle kernel paging request at virtual address 00026200
+Jan  9 05:12:53 awacs kernel: c0113a53
+Jan  9 05:12:53 awacs kernel: *pde = 00000000
+Jan  9 05:12:53 awacs kernel: Oops: 0000
+Jan  9 05:12:53 awacs kernel: CPU:    0
+Jan  9 05:12:53 awacs kernel: EIP:    0010:[__wake_up+67/208]    Not tainted
+Jan  9 05:12:53 awacs kernel: EFLAGS: 00010087
+Jan  9 05:12:53 awacs kernel: eax: dbc3e980   ebx: c0325044   ecx: 00026200   edx: 00000001
+Jan  9 05:12:53 awacs kernel: esi: dbc3e984   edi: dbc3e980   ebp: c748ddbc   esp: c748dd9c
+Jan  9 05:12:53 awacs kernel: ds: 0018   es: 0018   ss: 0018
+Jan  9 05:12:53 awacs kernel: Process ossrecord (pid: 19479, stackpage=c748d000)
+Jan  9 05:12:53 awacs kernel: Stack: dbc3e000 c748dedf dbc3e980 00000000 dbc3e984 00000001 00000282 00000001 
+Jan  9 05:12:53 awacs kernel:        c748dedf c01e9410 dbc3d000 dbc3e000 00000017 00000017 00000202 c131ac80 
+Jan  9 05:12:53 awacs kernel:        c0178e75 ddc04460 00000000 00000000 00001000 40019000 00000000 c748de30 
+Jan  9 05:12:53 awacs kernel: Call Trace: [n_tty_receive_buf+3516/3580] [_pagebuf_file_write+365/552] [pty_write+296/308] [opost_block+401/416] [<e097a325>] 
+Jan  9 05:12:53 awacs kernel:    [<e090a0d6>] [write_chan+336/500] [tty_write+546/648] [write_chan+0/500] [sys_write+146/200] [system_call+51/56] 
+Jan  9 05:12:53 awacs kernel: Code: 8b 01 85 45 fc 74 67 31 c0 9c 8f 45 ec fa f0 fe 0d 00 04 33 
+Using defaults from ksymoops -t elf32-i386 -a i386
+
+Trace; e090a0d6 <[soundbase]oss_audio_read+3a6/3f0>
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   8b 01                     mov    (%ecx),%eax
+Code;  00000002 Before first symbol
+   2:   85 45 fc                  test   %eax,0xfffffffc(%ebp)
+Code;  00000005 Before first symbol
+   5:   74 67                     je     6e <_EIP+0x6e> 0000006e Before first symbol
+Code;  00000007 Before first symbol
+   7:   31 c0                     xor    %eax,%eax
+Code;  00000009 Before first symbol
+   9:   9c                        pushf  
+Code;  0000000a Before first symbol
+   a:   8f 45 ec                  popl   0xffffffec(%ebp)
+Code;  0000000d Before first symbol
+   d:   fa                        cli    
+Code;  0000000e Before first symbol
+   e:   f0 fe 0d 00 04 33 00      lock decb 0x330400
+
+
+*** Oops #2:
+
+ksymoops 2.3.4 on i686 2.4.16-xfs-ll.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.16-xfs-ll/ (default)
+     -m /boot/System.map (specified)
+
+Jan  9 05:13:31 awacs kernel: Unable to handle kernel paging request at virtual address fffe0d00
+Jan  9 05:13:31 awacs kernel: c0113a53
+Jan  9 05:13:31 awacs kernel: *pde = 00003063
+Jan  9 05:13:31 awacs kernel: Oops: 0000
+Jan  9 05:13:31 awacs kernel: CPU:    1
+Jan  9 05:13:31 awacs kernel: EIP:    0010:[__wake_up+67/208]    Not tainted
+Jan  9 05:13:31 awacs kernel: EFLAGS: 00013087
+Jan  9 05:13:31 awacs kernel: eax: dbe6d75c   ebx: c0325014   ecx: fffe0d00   edx: 00000001
+Jan  9 05:13:31 awacs kernel: esi: dbe6d760   edi: dbe6d75c   ebp: dd97de50   esp: dd97de30
+Jan  9 05:13:31 awacs kernel: ds: 0018   es: 0018   ss: 0018
+Jan  9 05:13:31 awacs kernel: Process X (pid: 802, stackpage=dd97d000)
+Jan  9 05:13:31 awacs kernel: Stack: dbe6d75c df83f420 df83f474 df30a420 dbe6d760 00000001 00003286 00000001 
+Jan  9 05:13:31 awacs kernel:        df30a420 c0245fe2 db7a7720 00000020 c027bdde df83f420 00000020 dbe2e780 
+Jan  9 05:13:31 awacs kernel:        dd97deec c027bb80 dbe2e780 df83f420 00000000 df83f420 df83f760 00000000 
+Jan  9 05:13:32 awacs kernel: Call Trace: [sock_def_readable+54/96] [unix_stream_sendmsg+606/804] [unix_stream_sendmsg+0/804] [sock_sendmsg+129/164] [unix_stream_sendmsg+0/804] [sock_readv_writev+140/152] [sock_writev+54/64] [do_readv_writev+391/600] [update_process_times+32/152] [sys_writev+65/84] [system_call+51/56] 
+Jan  9 05:13:32 awacs kernel: Code: 8b 01 85 45 fc 74 67 31 c0 9c 8f 45 ec fa f0 fe 0d 00 04 33 
+Using defaults from ksymoops -t elf32-i386 -a i386
+
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   8b 01                     mov    (%ecx),%eax
+Code;  00000002 Before first symbol
+   2:   85 45 fc                  test   %eax,0xfffffffc(%ebp)
+Code;  00000005 Before first symbol
+   5:   74 67                     je     6e <_EIP+0x6e> 0000006e Before first symbol
+Code;  00000007 Before first symbol
+   7:   31 c0                     xor    %eax,%eax
+Code;  00000009 Before first symbol
+   9:   9c                        pushf  
+Code;  0000000a Before first symbol
+   a:   8f 45 ec                  popl   0xffffffec(%ebp)
+Code;  0000000d Before first symbol
+   d:   fa                        cli    
+Code;  0000000e Before first symbol
+   e:   f0 fe 0d 00 04 33 00      lock decb 0x330400
+
+
+*** Oops #3:
+
+ksymoops 2.3.4 on i686 2.4.16-xfs-ll.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.16-xfs-ll/ (default)
+     -m /usr/src/linux/System.map (default)
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+Reading Oops report from the terminal
+Jan  9 05:13:33 awacs kernel:  <1>Unable to handle kernel NULL pointer dereference at virtual address 00000000
+Jan  9 05:13:34 awacs kernel: c0113a53
+Jan  9 05:13:35 awacs kernel: *pde = 00000000
+Jan  9 05:13:35 awacs kernel: Oops: 0000
+Jan  9 05:13:36 awacs kernel: CPU:    0
+Jan  9 05:13:36 awacs kernel: EIP:    0010:[__wake_up+67/208]    Not tainted
+Jan  9 05:13:36 awacs kernel: EFLAGS: 00010083
+Jan  9 05:13:36 awacs kernel: eax: dbcf6f3c   ebx: c032502c   ecx: 00000000   edx: 00000001
+Jan  9 05:13:36 awacs kernel: esi: dbcf6f40   edi: dbcf6f3c   ebp: dd55fe50   esp: dd55fe30
+Jan  9 05:13:36 awacs kernel: ds: 0018   es: 0018   ss: 0018
+Jan  9 05:13:37 awacs kernel: Process gnome-session (pid: 806, stackpage=dd55f000)
+Jan  9 05:13:37 awacs kernel: Stack: dbcf6f3c df83faa0 df844080 00000286 dbcf6f40 00000000 00000286 00000001 
+Jan  9 05:13:37 awacs kernel:        c180df60 c0245f37 df83faa0 df8440d4 c027a436 df83faa0 dbcf6d40 dbcf6c20 
+Jan  9 05:13:37 awacs kernel:        c180d1e0 dbea22e0 df83faa0 00000001 dd2079e0 c027a7de df844080 00000000 
+Jan  9 05:13:37 awacs kernel: Call Trace: [sock_def_wakeup+51/64] [unix_release_sock+386/728] [unix_release+26/36] [sock_release+18/96] [sock_close+57/64] 
+Jan  9 05:13:37 awacs kernel: Code: 8b 01 85 45 fc 74 67 31 c0 9c 8f 45 ec fa f0 fe 0d 00 04 33 
+Using defaults from ksymoops -t elf32-i386 -a i386
+
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   8b 01                     mov    (%ecx),%eax
+Code;  00000002 Before first symbol
+   2:   85 45 fc                  test   %eax,0xfffffffc(%ebp)
+Code;  00000005 Before first symbol
+   5:   74 67                     je     6e <_EIP+0x6e> 0000006e Before first symbol
+Code;  00000007 Before first symbol
+   7:   31 c0                     xor    %eax,%eax
+Code;  00000009 Before first symbol
+   9:   9c                        pushf  
+Code;  0000000a Before first symbol
+   a:   8f 45 ec                  popl   0xffffffec(%ebp)
+Code;  0000000d Before first symbol
+   d:   fa                        cli    
+Code;  0000000e Before first symbol
+   e:   f0 fe 0d 00 04 33 00      lock decb 0x330400
+
+
+1 warning issued.  Results may not be reliable.
 

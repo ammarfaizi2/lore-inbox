@@ -1,34 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318691AbSG0DnM>; Fri, 26 Jul 2002 23:43:12 -0400
+	id <S318692AbSG0DsR>; Fri, 26 Jul 2002 23:48:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318692AbSG0DnM>; Fri, 26 Jul 2002 23:43:12 -0400
-Received: from domino1.resilience.com ([209.245.157.33]:40400 "EHLO
-	intranet.resilience.com") by vger.kernel.org with ESMTP
-	id <S318691AbSG0DnM>; Fri, 26 Jul 2002 23:43:12 -0400
+	id <S318693AbSG0DsR>; Fri, 26 Jul 2002 23:48:17 -0400
+Received: from member.michigannet.com ([207.158.188.18]:50192 "EHLO
+	member.michigannet.com") by vger.kernel.org with ESMTP
+	id <S318692AbSG0DsR>; Fri, 26 Jul 2002 23:48:17 -0400
+Date: Fri, 26 Jul 2002 23:50:42 -0400
+From: Paul <set@pobox.com>
+To: Matt Simonsen <matt@careercast.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to mount "multimedia" audio cdroms
+Message-ID: <20020727035042.GI27089@squish.home.loc>
+Mail-Followup-To: Paul <set@pobox.com>,
+	Matt Simonsen <matt@careercast.com>, linux-kernel@vger.kernel.org
+References: <1027708015.3260.17.camel@mattlaptop.careercast.com>
 Mime-Version: 1.0
-Message-Id: <p05111a0fb967c6b3e8d9@[10.128.7.49]>
-In-Reply-To: <1027735557.15951.3.camel@irongate.swansea.linux.org.uk>
-References: <5009AD9521A8D41198EE00805F85F18F219A7E@sembo111.teknor.com> 
- <3D41C544.9090702@unix.sh>
- <1027735557.15951.3.camel@irongate.swansea.linux.org.uk>
-Date: Fri, 26 Jul 2002 20:44:27 -0700
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-From: Jonathan Lundell <linux@lundell-bros.com>
-Subject: Re: Handling NMI in a kernel module
-Cc: <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1027708015.3260.17.camel@mattlaptop.careercast.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 3:05 AM +0100 2002-07-27, Alan Cox wrote:
->I've been tracking other lists. The current state is very much that we
->need the dual notifier. I now have some draft code that allows us to do
->this even on hardware that doesn't support it, and where the read()
->function gets told when an event is about to occur
+Matt Simonsen <matt@careercast.com>, on Fri Jul 26, 2002 [11:26:55 AM] said:
+> Is there a way to mount multimedia audio cds under Linux so that instead
+> of the .inf file and video you can listen to the audio tracks?
+> 
+> Thanks
+> Matt
+> 
+> 
+	Hi;
 
-I'd be grateful for a copy of the draft code. We've done a machine 
-with a hardware-based two-stage watchdog, and are in the process of 
-implementing one on a more-vanilla piece of hardware.
--- 
-/Jonathan Lundell.
+	I dont know if this will do what you want, or no. I also
+dont know how active it is...
+
+http://www.elis.rug.ac.be/~ronsse/cdfs/
+
+Paul
+set@pobox.com
+
+---
+CDfs is a file system for Linux systems that `exports' all tracks
+and boot images on a CD as normal files. These files can then be
+mounted (e.g. for ISO and boot images), copied, played (audio and
+VideoCD tracks)... The primary goal for developing this file
+system was to `unlock' information
+in old ISO images. For instance, if you have a multisession CD
+with two ISO images that both contain the file 'a', you only see
+the file 'a' in the second session if you use the iso9660 file
+system: 
+---

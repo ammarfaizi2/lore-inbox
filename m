@@ -1,66 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261522AbVBNTGo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261527AbVBNTN3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261522AbVBNTGo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 14:06:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261430AbVBNTGo
+	id S261527AbVBNTN3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 14:13:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbVBNTN3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 14:06:44 -0500
-Received: from mail.kroah.org ([69.55.234.183]:58852 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261522AbVBNTGl (ORCPT
+	Mon, 14 Feb 2005 14:13:29 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:14547 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S261527AbVBNTN0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 14:06:41 -0500
-Date: Mon, 14 Feb 2005 11:06:19 -0800
-From: Greg KH <greg@kroah.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
+	Mon, 14 Feb 2005 14:13:26 -0500
 Subject: Re: avoiding pci_disable_device()...
-Message-ID: <20050214190619.GA9241@kroah.com>
-References: <4210021F.7060401@pobox.com>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Greg KH <greg@kroah.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20050214190619.GA9241@kroah.com>
+References: <4210021F.7060401@pobox.com>  <20050214190619.GA9241@kroah.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1108404478.23141.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4210021F.7060401@pobox.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 14 Feb 2005 18:08:01 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 13, 2005 at 08:42:55PM -0500, Jeff Garzik wrote:
+> > I'm hoping one or two things will happen now:
+> > * janitors fix up the other PCI drivers along these lines
+> > * improve the PCI API so that pci_request_regions() is axiomatic
 > 
-> Currently, in almost every PCI driver, if pci_request_regions() fails -- 
-> indicating another driver is using the hardware -- then 
-> pci_disable_device() is called on the error path, disabling a device 
-> that another driver is using
-> 
-> To call this "rather rude" is an understatement :)
-> 
-> Fortunately, the ugliness is mitigated in large part by the PCI layer 
-> helping to make sure that no two drivers bind to the same PCI device. 
-> Thus, in the vast majority of cases, pci_request_regions() -should- be 
-> guaranteed to succeed.
-> 
-> However, there are oddball cases like mixed PCI/ISA devices (hello IDE) 
-> or cases where a driver refers a pci_dev other than the primary, where 
-> pci_request_regions() and request_regions() still matter.
+> Do you have any suggestions for how to do this?
 
-But this is a very small subset of pci devices, correct?
+One would be to keep an "enabler" count.
 
-> As a result, I have committed the attached patch to libata-2.6.  In many 
-> cases, it is a "semantic fix", addressing the case
-> 
-> 	* pci_request_regions() indicates hardware is in use
-> 	* we rudely disable the in-use hardware
-> 
-> that would not occur in practice.
-> 
-> But better safe than sorry.  Code cuts cut-n-pasted all over the place.
-> 
-> I'm hoping one or two things will happen now:
-> * janitors fix up the other PCI drivers along these lines
-> * improve the PCI API so that pci_request_regions() is axiomatic
+If the device is enabled at boot then set it to one (video, legacy IDE
+etc) and it never gets back to zero. Otherwise set it to zero and it
+goes up and down with the last [ab]user clearing it to zero and turning
+it off. That also deals with the "who disables" question for power
+mismanagement where the same problem occurs
 
-Do you have any suggestions for how to do this?
+Alan
 
-thanks,
-
-greg k-h

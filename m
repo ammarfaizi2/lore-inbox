@@ -1,63 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261497AbVCCEzU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261401AbVCCEz0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261497AbVCCEzU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 23:55:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbVCCEzT
+	id S261401AbVCCEz0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 23:55:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261342AbVCCEve
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 23:55:19 -0500
-Received: from gate.crashing.org ([63.228.1.57]:53203 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261530AbVCCEx1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 23:53:27 -0500
-Subject: Re: radeonfb blanks my monitor
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: =?ISO-8859-1?Q?Fr=E9d=E9ric?= "L. W. Meunier" <2@pervalidus.net>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.62.0503030134200.311@darkstar.example.net>
-References: <Pine.LNX.4.62.0503022347070.311@darkstar.example.net>
-	 <1109823010.5610.161.camel@gaston>
-	 <Pine.LNX.4.62.0503030134200.311@darkstar.example.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Thu, 03 Mar 2005 15:50:51 +1100
-Message-Id: <1109825452.5611.163.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 8bit
+	Wed, 2 Mar 2005 23:51:34 -0500
+Received: from vms040pub.verizon.net ([206.46.252.40]:56451 "EHLO
+	vms040pub.verizon.net") by vger.kernel.org with ESMTP
+	id S261265AbVCCEvM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 23:51:12 -0500
+Date: Wed, 02 Mar 2005 23:51:07 -0500
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: RFD: Kernel release numbering
+In-reply-to: <20050302191740.0d37ff4d.akpm@osdl.org>
+To: linux-kernel@vger.kernel.org
+Reply-to: gene.heskett@verizon.net
+Message-id: <200503022351.07817.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
+ <200503022114.20214.gene.heskett@verizon.net>
+ <20050302191740.0d37ff4d.akpm@osdl.org>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-03-03 at 01:39 -0300, Frédéric L. W. Meunier wrote:
-> On Thu, 3 Mar 2005, Benjamin Herrenschmidt wrote:
-> 
-> > On Wed, 2005-03-02 at 23:51 -0300, Frédéric L. W. Meunier wrote:
-> >> I just replaced my Matrox G400 with a Jetway Radeon 9600LE
-> >> (256Mb). If I run 'modprobe radeonfb', the monitor blanks out
-> >> and the power on light keeps flashing.
-> >>
-> >> What may be wrong ? Using 2.6.11.
-> >
-> > Do you have a way to capture the dmesg log produced ?
-> 
-> These are the lines before I have to use SysRq.
-> 
-> Mar  2 15:16:45 darkstar kernel: radeonfb: Found Intel x86 BIOS ROM Image
-> Mar  2 15:16:45 darkstar kernel: radeonfb: Retreived PLL infos from BIOS
-> Mar  2 15:16:45 darkstar kernel: i2c-algo-bit.o: dvi passed test.
-> Mar  2 15:16:45 darkstar kernel: i2c-algo-bit.o: vga passed test.
-> Mar  2 15:16:46 darkstar kernel: radeonfb: Monitor 1 type CRT found
-> Mar  2 15:16:46 darkstar kernel: radeonfb: EDID probed
-> Mar  2 15:16:46 darkstar kernel: radeonfb: Monitor 2 type no found
-> 
-> BTW, I don't know if it could be related, but my motherboard 
-> only supports AGP 4x
+On Wednesday 02 March 2005 22:17, Andrew Morton wrote:
+>Gene Heskett <gene.heskett@verizon.net> wrote:
+>> Ditto for the 1394 fixes that have been upstream for at
+>>  least a month, maybe more.
+>
+>-mm always holds the latest 1394 tree.  So you can run -mm, or just
+> snarf bk-ieee1394.patch from the broken-out directory.
+>
+Thanks Andrew.  If this is the same as I pulled from svn 2 weeks ago, 
+it does need to be pushed on down the line.
 
-There should be more than these... Does it continue booting afte the
-screen goes blank or not at all ? Can you send the full dmesg log too ?
-Also, enable radeonfb verbose debug in the config.
-
-> > Also, does it work if radeonfb is built-in ?
-> 
-> I'll try later. Time to sleep.
-
-Ok, thanks.
-
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.34% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

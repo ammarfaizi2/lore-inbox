@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262917AbUC2M7V (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 07:59:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262904AbUC2MaD
+	id S262879AbUC2M7W (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 07:59:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262874AbUC2M3p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 07:30:03 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:44219 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262850AbUC2MRs (ORCPT
+	Mon, 29 Mar 2004 07:29:45 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:23482 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S262879AbUC2MQv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 07:17:48 -0500
-Date: Mon, 29 Mar 2004 04:16:17 -0800
+	Mon, 29 Mar 2004 07:16:51 -0500
+Date: Mon, 29 Mar 2004 04:16:10 -0800
 From: Paul Jackson <pj@sgi.com>
 To: linux-kernel@vger.kernel.org
 Cc: mbligh@aracnet.com, akpm@osdl.org, wli@holomorphy.com, haveblue@us.ibm.com,
        colpatch@us.ibm.com
-Subject: [PATCH] mask ADT:  remove x86_64 topology.h cpumask hack  [20/22]
-Message-Id: <20040329041617.2c3c1034.pj@sgi.com>
+Subject: [PATCH] mask ADT:  simplify i386/mach-es7000 cpumask use [18/22]
+Message-Id: <20040329041610.45510cf5.pj@sgi.com>
 Organization: SGI
 X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
@@ -24,56 +24,43 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch_20_of_22 - Remove cpumask hack from asm-x86_64/topology.h
-	This file had the cpumask cpu_online_map as type
-	unsigned long, instead of type cpumask_t, for no good
-	reason that I could see.  So I changed it.  Everywhere
-	else, cpu_online_map is already of type cpumask_t.
+Patch_18_of_22 - Optimize i386 cpumask macro usage.
+	Optimize a bit of cpumask code for asm-i386/mach-es7000
+	Code untested, unreviewed.  Feedback welcome.
 
-diffstat Patch_20_of_22:
- topology.h |   10 +++++-----
- 1 files changed, 5 insertions(+), 5 deletions(-)
+diffstat Patch_18_of_22:
+ mach_ipi.h |    5 ++---
+ 1 files changed, 2 insertions(+), 3 deletions(-)
 
 # This is a BitKeeper generated patch for the following project:
 # Project Name: Linux kernel tree
 # This patch format is intended for GNU patch command version 2.5 or higher.
 # This patch includes the following deltas:
-#	           ChangeSet	1.1726  -> 1.1727 
-#	include/asm-x86_64/topology.h	1.7     -> 1.8    
+#	           ChangeSet	1.1724  -> 1.1725 
+#	include/asm-i386/mach-es7000/mach_ipi.h	1.2     -> 1.3    
 #
 # The following is the BitKeeper ChangeSet Log
 # --------------------------------------------
-# 04/03/29	pj@sgi.com	1.1727
-# Respecify cpu_online_map as actual cpumask_t, instead of unsigned long hack.
+# 04/03/29	pj@sgi.com	1.1725
+# Optimize i386 cpumask macro usage.  Code untested and unreviewed.
+# Feedback welcome.
 # --------------------------------------------
 #
-diff -Nru a/include/asm-x86_64/topology.h b/include/asm-x86_64/topology.h
---- a/include/asm-x86_64/topology.h	Mon Mar 29 01:04:06 2004
-+++ b/include/asm-x86_64/topology.h	Mon Mar 29 01:04:06 2004
-@@ -10,18 +10,18 @@
- /* Map the K8 CPU local memory controllers to a simple 1:1 CPU:NODE topology */
+diff -Nru a/include/asm-i386/mach-es7000/mach_ipi.h b/include/asm-i386/mach-es7000/mach_ipi.h
+--- a/include/asm-i386/mach-es7000/mach_ipi.h	Mon Mar 29 01:04:03 2004
++++ b/include/asm-i386/mach-es7000/mach_ipi.h	Mon Mar 29 01:04:03 2004
+@@ -10,9 +10,8 @@
  
- extern int fake_node;
--/* This is actually a cpumask_t, but doesn't matter because we don't have
--   >BITS_PER_LONG CPUs */
--extern unsigned long cpu_online_map;
-+extern cpumask_t cpu_online_map;
- 
- #define cpu_to_node(cpu)		(fake_node ? 0 : (cpu))
- #define parent_node(node)		(node)
- #define node_to_first_cpu(node) 	(fake_node ? 0 : (node))
- #define node_to_cpumask(node)	(fake_node ? cpu_online_map : (1UL << (node)))
- 
--static inline unsigned long pcibus_to_cpumask(int bus)
-+static inline cpumask_t pcibus_to_cpumask(int bus)
+ static inline void send_IPI_allbutself(int vector)
  {
--	return mp_bus_to_cpumask[bus] & cpu_online_map; 
-+	cpumask_t tmp;
-+	cpus_and(tmp, mp_bus_to_cpumask[bus], cpu_online_map);
-+	return tmp;
+-	cpumask_t mask = cpumask_of_cpu(smp_processor_id());
+-	cpus_complement(mask);
+-	cpus_and(mask, mask, cpu_online_map);
++	cpumask_t mask = cpu_online_map;
++	cpu_clear(smp_processor_id(), mask);
+ 	if (!cpus_empty(mask))
+ 		send_IPI_mask(mask, vector);
  }
- 
- #define NODE_BALANCE_RATE 30	/* CHECKME */ 
 
 
 -- 

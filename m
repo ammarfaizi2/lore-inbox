@@ -1,91 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbVCQTJZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbVCQTM0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261161AbVCQTJZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 14:09:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbVCQTJZ
+	id S261190AbVCQTM0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 14:12:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbVCQTM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 14:09:25 -0500
-Received: from indigo.cs.bgu.ac.il ([132.72.42.23]:23945 "EHLO
-	indigo.cs.bgu.ac.il") by vger.kernel.org with ESMTP id S261161AbVCQTJQ
+	Thu, 17 Mar 2005 14:12:26 -0500
+Received: from alog0335.analogic.com ([208.224.222.111]:669 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261190AbVCQTMX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 14:09:16 -0500
-Subject: binfmt_elf padzero problems
-From: Nir Tzachar <tzachar@cs.bgu.ac.il>
-Reply-To: tzachar@cs.bgu.ac.il
-To: linux-kernel@vger.kernel.org
-Cc: juhl-lkml@dif.dk, akpm@osdl.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-skHqWKUx+jLLLmhCRgNk"
-Organization: bgu
-Date: Thu, 17 Mar 2005 21:10:09 +0200
-Message-Id: <1111086609.12193.27.camel@nexus.cs.bgu.ac.il>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-X-Spam-Flag: NO
+	Thu, 17 Mar 2005 14:12:23 -0500
+Date: Thu, 17 Mar 2005 14:08:13 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: "Peter W. Morreale" <peter_w_morreale@hotmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel memory limits?
+In-Reply-To: <BAY101-F3858D9AE9F3222CAB9AB3CC1490@phx.gbl>
+Message-ID: <Pine.LNX.4.61.0503171401030.22694@chaos.analogic.com>
+References: <BAY101-F3858D9AE9F3222CAB9AB3CC1490@phx.gbl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 17 Mar 2005, Peter W. Morreale wrote:
 
---=-skHqWKUx+jLLLmhCRgNk
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> (I did not see this addressed in the FAQs...)
+>
+> How much physical memory can the 2.4.26 kernel address in kernel context on 
+> x86?
+>
 
-hello.
+All of it.
 
-i am seeing a problem(?) with the patch described at:
-http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D109865760703851&w=3D2
-i'm using vanilla 2.6.11 (not .1/.2/.3/.4 ...)
+> What about DMA memory?
+>
 
-the short version:
-padzero does not alway do the right thing (more correctly, it's caller,
-load_elf_binary).
-=20
-the longer version:
+All of it, too. The old DMA controller(s) could only address 16 MB
+because that's all the page-registers allowed. Bus-mastering DMA
+off the PCI/Bus has no such limitation. Most have DMA controllers
+that use scatter-lists so RAM doesn't even have to be contiguous,
+only properly allocated (in pages) and nailed down with no caching.
 
-padzero calls clear_user. clear_user first checks if the address passed
-is writable. if it is not, an error is returned.=20
-the problem manifest itself when the area being cleared is not
-writable... this should not normally happen in the context of
-load_elf_binary, however it _can_ happen with the following assembly
-code (intel syntax):
+> Local rumor says ~1GB.  But this makes little sense given a 32-bit address.
+>
 
-section .text
-global _start
-_start:
-        mov eax,0x1
-        mov ebx,0x0
-        int 0x80
-        hlt
+If you are looking for a dynamic buffer in DMA-able RAM, you probably
+can only use aout 1GB, but that's not how to do DMA.
 
-assembled with nasm -f elf, produces a binary with a bss segment of zero
-size, aligned to 1, and one program header.
-now, the when calling padzero, elf_bss holds an address which belongs
-to .text (since no (fake)program header for .bss wad created), i.e; not
-writable....
-when padzero is called, it tries to clean the rest of the .text section,
-which clearly results with an error.....
+> Where in the source can I learn more about this?
+>
 
-thus, my (very) small binary always segfaults under 2.6.11+ ....
+../linux-`uname -r`/mm
 
-on the other hand, i can be dead wrong.. if so, id like to know why...
+> Thanks,
+> -PWM
 
-p.s. please cc me, im not subscribed,
---=20
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D
-Nir Tzachar.
-
---=-skHqWKUx+jLLLmhCRgNk
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBCOdYRIHR+zI+Dam4RAns9AJ9jYzJEgUO1QEthoPJJvkv31D8klgCdFTd6
-EvQ8Dd6tVv/rc9UnZnZxpcw=
-=5JzB
------END PGP SIGNATURE-----
-
---=-skHqWKUx+jLLLmhCRgNk--
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

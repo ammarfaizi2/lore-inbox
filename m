@@ -1,79 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268916AbUHUIwY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268914AbUHUI4i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268916AbUHUIwY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 04:52:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268915AbUHUIwY
+	id S268914AbUHUI4i (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 04:56:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268915AbUHUI4i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 04:52:24 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:523 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S268916AbUHUIwT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 04:52:19 -0400
-Date: Sat, 21 Aug 2004 10:51:55 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: "Theodore Ts'o" <tytso@mit.edu>, Andries Brouwer <aeb@cwi.nl>,
-       Pankaj Agarwal <pankaj@pnpexports.com>, Andreas Schwab <schwab@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: how to identify filesystem type
-Message-ID: <20040821085155.GB5771@pclin040.win.tue.nl>
-References: <001901c485cc$208c3a60$9159023d@dreammachine> <je657fzchp.fsf@sykes.suse.de> <000901c486c9$40d92e60$6d59023d@dreammachine> <20040820204656.GW8967@schnapps.adilger.int> <20040820215858.GA5771@pclin040.win.tue.nl> <20040821032520.GA15772@thunk.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040821032520.GA15772@thunk.org>
-User-Agent: Mutt/1.4.1i
-X-Spam-DCC: : kweetal.tue.nl 1074; Body=1 Fuz1=1 Fuz2=1
+	Sat, 21 Aug 2004 04:56:38 -0400
+Received: from a26.t1.student.liu.se ([130.236.221.26]:13786 "EHLO
+	mail.drzeus.cx") by vger.kernel.org with ESMTP id S268914AbUHUI4g
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Aug 2004 04:56:36 -0400
+Message-ID: <41270EB4.5030104@drzeus.cx>
+Date: Sat, 21 Aug 2004 10:58:28 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040704)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Timer allocates too many ports
+References: <4126600F.4050302@drzeus.cx>	<20040820140503.67d23479.rddunlap@osdl.org>	<41266C5D.7000908@drzeus.cx> <20040820144106.46fb3b1b.rddunlap@osdl.org>
+In-Reply-To: <20040820144106.46fb3b1b.rddunlap@osdl.org>
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 20, 2004 at 11:25:21PM -0400, Theodore Ts'o wrote:
+Randy.Dunlap wrote:
 
-> > Consequently, "blkid" is a really bad name. It gives no indication
-> > of the guessed nature of its results.
-> > 
-> > (I see that my current version is also broken:
-> > # blkid -v
-> > blkid 1.0.0 (12-Feb-2003)
-> > # blkid
-> > ...
-> > /dev/sda4: LABEL="ZIP-100" UUID="34D8-1C07" TYPE="msdos" 
-> > /dev/sda1: UUID="1ac5969c-8fdf-4f69-934a-c6103d93c05d" TYPE="ext2" 
-> > /dev/sdb4: LABEL="ZIP-100" UUID="34D8-1C07" TYPE="msdos" 
-> > /dev/sdb1: LABEL="CF_CARD032M" UUID="2001-1207" TYPE="msdos" 
-> > ...
-> > Here no /dev/sda1 and no /dev/sdb4 exist.)
-> 
-> Blkid deliberately doesn't revalidate devices without any command-line
-> arguments, because certain devices might timeout or block for a
-> long-time.  If you use "blkid /dev/sdb4", or use the library
-> interfaces, it will revalidate any entries found in the cache file
-> before returning them.
+>On Fri, 20 Aug 2004 23:25:49 +0200 Pierre Ossman wrote:
+>
+>
+>| I do not know which file contains this allocation so I haven't been able 
+>| to change it. Any ideas?
+>
+>Sure, arch/i386/kernel/setup.c, near line 221 (in 2.6.8.1):
+>
+>	.name	= "timer",
+>	.start	= 0x0040,
+>	.end	= 0x005f,
+>	.flags	= IORESOURCE_BUSY | IORESOURCE_IO
+>
+>Just split that into 2 entries in the standard_io_resources[] array
+>and it's done.
+>
+>  
+>
+Thanks. That worked perfectly. Who is the responsible maintainer for 
+this part of the kernel? When my driver is ready to be added to the 
+Linus' kernel I need to have this changed.
 
-Yes:
+Rgds
+Pierre
 
-# blkid
-...
-/dev/sda4: LABEL="ZIP-100" UUID="34D8-1C07" TYPE="msdos"
-/dev/sda1: UUID="1ac5969c-8fdf-4f69-934a-c6103d93c05d" TYPE="ext2" 
-/dev/sdb4: LABEL="ZIP-100" UUID="34D8-1C07" TYPE="msdos" 
-...
-# blkid /dev/sda1
-# blkid /dev/sdb4
-# blkid
-...
-/dev/sda4: LABEL="ZIP-100" UUID="34D8-1C07" TYPE="msdos"
-/dev/sda1: UUID="1ac5969c-8fdf-4f69-934a-c6103d93c05d" TYPE="ext2"
-/dev/sdb4: LABEL="ZIP-100" UUID="34D8-1C07" TYPE="msdos"
-...
-#
-
-So, the cache file is not updated.
-Moreover, the cache file has never been correct - there is only
-one ZIP drive here and it is /dev/sda. The disk inside has only
-one nonempty partition, and it is /dev/sda4.
-The command # blkid -c /dev/null does not list these two bogus
-entries, and a new /etc/blkid.tab is written, but a subsequent
-command # blkid again lists the bogus entries.
-Doing # rm /etc/blkid.tab* by hand helps.
-
-Andries

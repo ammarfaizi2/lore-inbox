@@ -1,89 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261459AbTI3Ne6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 09:34:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbTI3Ne6
+	id S261448AbTI3N0R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 09:26:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbTI3NZB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 09:34:58 -0400
-Received: from itaqui.terra.com.br ([200.176.3.19]:2009 "EHLO
-	itaqui.terra.com.br") by vger.kernel.org with ESMTP id S261459AbTI3Nez
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 09:34:55 -0400
-Message-ID: <3F7986C2.1030101@terra.com.br>
-Date: Tue, 30 Sep 2003 10:36:02 -0300
-From: Felipe W Damasio <felipewd@terra.com.br>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
-MIME-Version: 1.0
-To: marcelo.tosatti@cyclades.com.br
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       chas@cmf.nrl.navy.mil
-Subject: [PATCH 2.4] Fix bug in atm/he.c
-Content-Type: multipart/mixed;
- boundary="------------080002020404020003070906"
+	Tue, 30 Sep 2003 09:25:01 -0400
+Received: from panda.sul.com.br ([200.219.150.4]:11535 "EHLO ns.sul.com.br")
+	by vger.kernel.org with ESMTP id S261375AbTI3NYw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 09:24:52 -0400
+Date: Tue, 30 Sep 2003 10:21:34 -0300
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: keyboard repeat / sound [was Re: Linux 2.6.0-test6]
+Message-ID: <20030930132134.GA17242@cathedrallabs.org>
+References: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org> <20030928085902.GA3742@k3.hellgate.ch> <20030929151643.GA15992@ucw.cz> <20030930075024.GA1620@squish.home.loc> <20030930125126.GA24122@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030930125126.GA24122@ucw.cz>
+From: aris@cathedrallabs.org (Aristeu Sergio Rozanski Filho)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080002020404020003070906
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+> This is because it is the same as on the latest 2.4 kernel. 2.6 used
+> software autorepeat up to test6. Now, because of hardware bugs, it was
+> necessary to switch back to hardware autorepeat, like 2.4 uses.
+and it fixes the problem with my notebook's keyboard, thanks :)
 
-Hi Marcelo,
+> Interesting. This probably has much to do with mouse acceleration
+> settings. What was done was that the mouse report rate was made LOWER
+> (60 compared to 200) to cure problems with some systems that couldn't
+> handle the high report rate.
+> 
+> This makes the movement per report larger and thus the acceleration
+> formula in XFree then works more aggressively.
+test6 was the first 2.5/2.6 kernel that psmouse_noext=1 wasn't necessary
+to make my synaptics touchpad work. but i noticed it's much more
+sensible (with leads to be very difficult to hit xmms' pause button :)
+than using it with noext option. is anyone working in an user level
+application to configure 2.6's synaptics touchpad driver?
 
-	Patch against 2.4.23-pre5.
+thanks again for your effort
 
-	Backport of the fix the Chas applied in 2.6 kernel.
-
-	If copy_from_user returns != 0, it means the the regs structure 
-wasn't filled correctly, and since its fields are used to determine 
-which ioctl the user is requesting the kernel could oops.
-
-	And as long as we're covering the subject, the patch also audits 
-copy_to_user on the same function to check a possible failure to copy 
-  the result back to userspace.
-
-	These bugs were found by smatch.
-
-	Please consider applying.
-
-	Thanks,
-
-Felipe
-
---------------080002020404020003070906
-Content-Type: text/plain;
- name="atm_he-copy.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="atm_he-copy.patch"
-
---- linux-2.4.23-pre5/drivers/atm/he.c.orig	2003-09-22 11:41:20.000000000 -0300
-+++ linux-2.4.23-pre5/drivers/atm/he.c	2003-09-22 11:44:50.000000000 -0300
-@@ -2866,8 +2866,10 @@
- 			if (!capable(CAP_NET_ADMIN))
- 				return -EPERM;
- 
--			copy_from_user(&reg, (struct he_ioctl_reg *) arg,
--						sizeof(struct he_ioctl_reg));
-+			if (copy_from_user(&reg, (struct he_ioctl_reg *) arg,
-+						sizeof(struct he_ioctl_reg)))
-+				return -EFAULT;
-+				
- 			spin_lock_irqsave(&he_dev->global_lock, flags);
- 			switch (reg.type) {
- 				case HE_REGTYPE_PCI:
-@@ -2891,8 +2893,9 @@
- 			}
- 			spin_unlock_irqrestore(&he_dev->global_lock, flags);
- 			if (err == 0)
--				copy_to_user((struct he_ioctl_reg *) arg, &reg,
--							sizeof(struct he_ioctl_reg));
-+				if (copy_to_user((struct he_ioctl_reg *) arg, &reg,
-+							sizeof(struct he_ioctl_reg)))
-+					return -EFAULT;
- 			break;
- 		default:
- #ifdef CONFIG_ATM_HE_USE_SUNI
-
---------------080002020404020003070906--
+--
+aris
 

@@ -1,70 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267386AbUI2S5s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268816AbUI2Stk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267386AbUI2S5s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 14:57:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268839AbUI2SzS
+	id S268816AbUI2Stk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 14:49:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268805AbUI2Ssn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 14:55:18 -0400
-Received: from fw.osdl.org ([65.172.181.6]:59099 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268819AbUI2Stt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 14:49:49 -0400
-Date: Wed, 29 Sep 2004 11:49:43 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: akpm@osdl.org, torvalds@osdl.org
-Cc: riel@redhat.com, linux-kernel@vger.kernel.org
-Subject: [PATCH 4/4] mlockall() take mmap_sem a bit later
-Message-ID: <20040929114943.T1924@build.pdx.osdl.net>
-References: <20040929114244.Q1924@build.pdx.osdl.net> <20040929114538.R1924@build.pdx.osdl.net> <20040929114754.S1924@build.pdx.osdl.net>
+	Wed, 29 Sep 2004 14:48:43 -0400
+Received: from smtp05.web.de ([217.72.192.209]:13707 "EHLO smtp05.web.de")
+	by vger.kernel.org with ESMTP id S268824AbUI2SrC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 14:47:02 -0400
+Date: Wed, 29 Sep 2004 20:46:56 +0200
+From: Gundolf Kiefer <gundolf.kiefer@web.de>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Jens Axboe <axboe@suse.de>, gundolfk@web.de,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: IRQ blocking when reading audio CDs
+Message-ID: <20040929184656.GK1100@lilienthal>
+Reply-To: gundolfk@web.de
+References: <20040926120849.GG3134@lilienthal> <20040927055234.GA2288@suse.de> <1096399282.2852.24.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040929114754.S1924@build.pdx.osdl.net>; from chrisw@osdl.org on Wed, Sep 29, 2004 at 11:47:54AM -0700
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <1096399282.2852.24.camel@krustophenia.net>
+X-Mailer: Balsa 1.4.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In sys_mlockall(), flags validation and can_do_mlock() check don't
-require holding mmap_sem.  Move down_write() down a bit, and adjust
-appropriately.
+Ok, I applied Andrew Morton's updated CDROMREADAUDIO DMA patch from Jan 2003 
+(http://lwn.net/Articles/19386/) to kernel 2.4.25, and everything seems to 
+work fine now.
 
-Signed-off-by: Chris Wright <chrisw@osdl.org>
+Thanks, Jens & Lee!
 
---- 2.6.9-rc2/mm/mlock.c~move_sem	2004-09-28 23:46:01.000000000 -0700
-+++ 2.6.9-rc2/mm/mlock.c	2004-09-29 00:22:25.625969360 -0700
-@@ -119,7 +119,7 @@ asmlinkage long sys_mlock(unsigned long 
- 	lock_limit >>= PAGE_SHIFT;
- 
- 	/* check against resource limits */
--	if ( (locked <= lock_limit) || capable(CAP_IPC_LOCK))
-+	if ((locked <= lock_limit) || capable(CAP_IPC_LOCK))
- 		error = do_mlock(start, len, 1);
- 	up_write(&current->mm->mmap_sem);
- 	return error;
-@@ -167,7 +167,6 @@ asmlinkage long sys_mlockall(int flags)
- 	unsigned long lock_limit;
- 	int ret = -EINVAL;
- 
--	down_write(&current->mm->mmap_sem);
- 	if (!flags || (flags & ~(MCL_CURRENT | MCL_FUTURE)))
- 		goto out;
- 
-@@ -175,6 +174,8 @@ asmlinkage long sys_mlockall(int flags)
- 	if (!can_do_mlock())
- 		goto out;
- 
-+	down_write(&current->mm->mmap_sem);
-+
- 	lock_limit = current->rlim[RLIMIT_MEMLOCK].rlim_cur;
- 	lock_limit >>= PAGE_SHIFT;
- 
-@@ -182,8 +183,8 @@ asmlinkage long sys_mlockall(int flags)
- 	if (!(flags & MCL_CURRENT) || (current->mm->total_vm <= lock_limit) ||
- 	    capable(CAP_IPC_LOCK))
- 		ret = do_mlockall(flags);
--out:
- 	up_write(&current->mm->mmap_sem);
-+out:
- 	return ret;
- }
- 
+
+On 2004.09.28 21:21 Lee Revell wrote:
+> On Mon, 2004-09-27 at 01:52, Jens Axboe wrote:
+>> On Sun, Sep 26 2004, Gundolf Kiefer wrote:
+>> > Dear Jens (& Christoph),
+>> >
+>> > on my media PC (a Pentium II 350 MHz running Debian Woody with Kernel
+>> > 2.4.25), I have problems using LIRC 0.6.6 with a serial IR reveiver when
+> at
+>> > the same time some application (cdparanoia, xmms/Audio CD reader) is
+>> > reading audio data from a CD.
+>> 
+>> Upgrade to 2.6, it can use DMA for cdda extraction. If you cannot for
+>> some reason, Andrew had an ide-cd hack to enable dma in 2.4 for this.
+> 
+> Seems like it should also work in PIO mode as long as unmask_irq is set.
+> 
+> Lee
+> 

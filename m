@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261840AbTJWWnt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 18:43:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbTJWWnt
+	id S261841AbTJWWu6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 18:50:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261850AbTJWWu6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 18:43:49 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:27862 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261840AbTJWWnr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 18:43:47 -0400
-Date: Fri, 24 Oct 2003 00:43:38 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Greg KH <greg@kroah.com>
-Cc: David Brownell <dbrownell@users.sourceforge.net>,
-       Dave Hollis <dhollis@davehollis.com>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: 2.4.23-pre8: usbnet.c doesn't compile with gcc 2.95
-Message-ID: <20031023224338.GG21490@fs.tum.de>
-References: <Pine.LNX.4.44.0310222116270.1364-100000@logos.cnet> <20031023194748.GH11807@fs.tum.de> <20031023220303.GA21242@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031023220303.GA21242@kroah.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 23 Oct 2003 18:50:58 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:28428 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261841AbTJWWu5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 18:50:57 -0400
+Date: Thu, 23 Oct 2003 23:50:48 +0100 (BST)
+From: James Simmons <jsimmons@infradead.org>
+To: Ben Collins <bcollins@debian.org>
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [FBDEV UPDATE] Newer patch.
+In-Reply-To: <20031023144315.GA667@phunnypharm.org>
+Message-ID: <Pine.LNX.4.44.0310232343410.21561-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 23, 2003 at 03:03:03PM -0700, Greg KH wrote:
-> On Thu, Oct 23, 2003 at 09:47:49PM +0200, Adrian Bunk wrote:
-> > I'm getting the following compile error in 2.4.23-pre8 with gcc 2.95:
-> 
-> This can be fixed with this patch.  I'll send it to Marcelo in the next
-> batch of USB fixes.
 
-Thanks, I can confirm that this patch fixes it.
+> The cursor has changed from a nice underline to a solid white block. 
 
-> thanks,
-> 
-> greg k-h
+I seen the problem. Its the wrong color for the background color for the 
+cursor. I haven't been able to figure out why it went wrong. The specs are 
+not to clear on this.
 
-cu
-Adrian
+> Not only that,
+> but the block is bigger than the font it is over (if I am on top of
+> adjacent letters, it covers the entire letter I am on, plus a couple of
+> pixels of the letter to the right).
 
--- 
+Ug. That code is straight from the old driver. Will fix.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+> In additition, the cursor now disappears while typing, and navigating
+> around (on the command line left and right, or even in an editor when
+> moving the cursor up and down). This disappearing while typing or
+> navigating is _really_ annoying. If I go left or right a lot, I have to
+> keep stopping to see where the cursor actually is.
+
+I seen this problem last night with the NVIDIA fbdev driver. I think I 
+know what the problem is. I will try a fix tonight. 
+
 

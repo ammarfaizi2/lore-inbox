@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266540AbSKGNSv>; Thu, 7 Nov 2002 08:18:51 -0500
+	id <S266545AbSKGNWV>; Thu, 7 Nov 2002 08:22:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266541AbSKGNSv>; Thu, 7 Nov 2002 08:18:51 -0500
-Received: from surf.cadcamlab.org ([156.26.20.182]:14745 "EHLO
-	surf.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S266540AbSKGNSu>; Thu, 7 Nov 2002 08:18:50 -0500
-Date: Thu, 7 Nov 2002 07:22:45 -0600
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: kbuild-devel <kbuild-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [kbuild] Possibility to sanely link against off-directory .so
-Message-ID: <20021107132245.GO4182@cadcamlab.org>
-References: <20021106185230.GD5219@pasky.ji.cz> <20021106212952.GB1035@mars.ravnborg.org> <20021106220347.GE5219@pasky.ji.cz> <20021107100021.GL4182@cadcamlab.org> <Pine.LNX.4.44.0211071149200.13258-100000@serv> <20021107114747.GM4182@cadcamlab.org> <Pine.LNX.4.44.0211071258550.13258-100000@serv> <20021107123753.GN4182@cadcamlab.org> <Pine.LNX.4.44.0211071352270.13258-100000@serv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211071352270.13258-100000@serv>
-User-Agent: Mutt/1.4i
-From: Peter Samuelson <peter@cadcamlab.org>
+	id <S266544AbSKGNWV>; Thu, 7 Nov 2002 08:22:21 -0500
+Received: from mail.epost.de ([193.28.100.167]:31390 "EHLO mail.epost.de")
+	by vger.kernel.org with ESMTP id <S266542AbSKGNWU>;
+	Thu, 7 Nov 2002 08:22:20 -0500
+From: "Mike Greubel" <mike.greubel1@epost.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: Support for ATARAID-Card with CMD680 chipset
+Date: Thu, 7 Nov 2002 14:30:57 +0100
+Message-ID: <000001c28661$e85ffe30$e664a8c0@mike>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-[Roman Zippel]
-> New features will be added and only the parser that comes with the kernel 
-> will understand them. It's less likley that the library API will change.
+I wan't to install Linux on a Raid0-Partition, which is created with a
+Raid-Controller. The chipset is CMD680. This chipset is allready known
+from linux, but it seems there is no way to get an hardware array
+working. Maybe I'm to dumb to do it. I don't know, how to write a driver
+or a patch.
 
-Even if this is true - I'll grant you that it may be - let the vendor
-package /usr/bin/qconf as a shell script that links /usr/lib/qconf.o
-with -lqt and $(LINUX)/scripts/kconfig/libkconfig.a .  It's a little
-unorthodox, but it removes the hackery of figuring out how HOSTCC is
-supposed to build a shared library and whether any magic is needed at
-runtime.  Removes the need for the horrible stuff libtool was invented
-for, in other words.
+Hope that there is a way to get it work.
 
-Remember, the whole point of HOSTCC is to support a build environment
-different from the compile target - arbitrarily different, even.
+Sorry for my bad english.
 
-Peter
+You guys are doing a great job!
+
+Mike Greubel
+

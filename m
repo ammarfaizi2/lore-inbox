@@ -1,93 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283591AbRLRBdb>; Mon, 17 Dec 2001 20:33:31 -0500
+	id <S283537AbRLRBqN>; Mon, 17 Dec 2001 20:46:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283581AbRLRBdW>; Mon, 17 Dec 2001 20:33:22 -0500
-Received: from chmls16.mediaone.net ([24.147.1.151]:63109 "EHLO
-	chmls16.mediaone.net") by vger.kernel.org with ESMTP
-	id <S283439AbRLRBdE>; Mon, 17 Dec 2001 20:33:04 -0500
-Subject: Re: Poor performance during disk writes
-From: jlm <jsado@mediaone.net>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1008637755.2501.9.camel@localhost.localdomain>
-In-Reply-To: <1008636811.226.0.camel@PC2> 
-	<1008637755.2501.9.camel@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 17 Dec 2001 20:36:07 -0500
-Message-Id: <1008639370.226.2.camel@PC2>
-Mime-Version: 1.0
+	id <S283586AbRLRBqE>; Mon, 17 Dec 2001 20:46:04 -0500
+Received: from mail.myrio.com ([63.109.146.2]:15602 "HELO smtp1.myrio.com")
+	by vger.kernel.org with SMTP id <S283585AbRLRBpp>;
+	Mon, 17 Dec 2001 20:45:45 -0500
+Message-ID: <D52B19A7284D32459CF20D579C4B0C0211CB08@mail0.myrio.com>
+From: Torrey Hoffman <torrey.hoffman@myrio.com>
+To: "'andersen@codepoet.org'" <andersen@codepoet.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+        "'viro@math.psu.edu'" <viro@math.psu.edu>
+Subject: ramdisk corruption problems - was: RE: pivot_root and initrd kern
+	el panic woes
+Date: Mon, 17 Dec 2001 17:44:54 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2001-12-17 at 20:09, Reid Hekman wrote:
+Thanks to Erik Anderson and Al Viro, your responses to my first
+report helped me to produce this much more accurate report.
 
-> Specific kernel version, df, & hdparm output would all be helpful. 
-/usr 24> uname -a
-Linux PC2 2.4.16 #1 Sun Dec 2 15:26:09 EST 2001 i586 unknown
-/usr 25> df . 
-Filesystem           1k-blocks      Used Available Use% Mounted on
-/dev/hdb1              6047724   3472788   2267728  61% /usr
-/usr 26> hdparm -I /dev/hdb
+I've narrowed it down quite a bit.  It's a problem with ramdisk 
+corruption on some 2.4 kernels, not specifically initrd, and 
+definitely not a problem with booting initrd.  
 
-/dev/hdb:
+executive summary:
+  dd'ing from /dev/ram0 usually produces a corrupted ramdisk
+  image.
 
-non-removable ATA device, with non-removable media
-        Model Number:           ST320413A                               
-        Serial Number:          6ED2305M            
-        Firmware Revision:      3.39    
-Standards:
-        Supported: 1 2 3 4 5 
-        Likely used: 5
-Configuration:
-        Logical         max     current
-        cylinders       16383   16383
-        heads           16      16
-        sectors/track   63      63
-        bytes/track:    0               (obsolete)
-        bytes/sector:   0               (obsolete)
-        current sector capacity: 16514064
-        LBA user addressable sectors = 39102336
-Capabilities:
-        LBA, IORDY(can be disabled)
-        Buffer size: 512.0kB    Queue depth: 1
-        Standby timer values: spec'd by standard
-        r/w multiple sector transfer: Max = 16  Current = 16
-        DMA: mdma0 mdma1 *mdma2 udma0 udma1 udma2 udma3 udma4 udma5 
-             Cycle time: min=120ns recommended=120ns
-        PIO: pio0 pio1 pio2 pio3 pio4 
-             Cycle time: no flow control=240ns  IORDY flow control=120ns
-Commands/features:
-        Enabled Supported:
-           *    READ BUFFER cmd
-           *    WRITE BUFFER cmd
-           *    Host Protected Area feature set
-           *    look-ahead
-           *    write cache
-           *    Power Management feature set
-                Security Mode feature set
-                SMART feature set
-                SET MAX security extension
-           *    DOWNLOAD MICROCODE cmd
-Security: 
-        Master password revision code = 65534
-                supported
-        not     enabled
-        not     locked
-        not     frozen
-        not     expired: security count
-        not     supported: enhanced erase
-HW reset results:
-        CBLID- above Vih
-        Device num = 1
-Checksum: correct
+This is reproducible on:
+ 2.4.12 
+ 2.4.16 
+ 2.4.17-pre2 + low-latency patch + custom tweaks 
 
-My hdb hard drive is where I found the problem originally. Also, I'm
-running the ext2 filesystem.
+However, I cannot reproduce the problem on:
+ 2.4.8-26mdk  (default Mandrake 8.1 kernel)
+ 2.4.9 
 
--- 
-MACINTOSH = Machine Always Crashes If Not The Operating System Hangs
-"Life would be so much easier if we could just look at the source code."
-- Dave Olson
+On 2.4.10, I can't do the test, seems like ramdisk was *really*
+broken on that kernel.  (no room on ramdisk after mke2fs???)
 
+I now have a simple script that checks for the problem and was 
+tried on each of the kernels listed above:
+
+---------------------------------------------------
+#!/bin/bash
+
+umount /dev/ram0
+./rootfs/bin/busybox freeramdisk /dev/ram0
+
+mke2fs -m0 /dev/ram0 4000
+mount -t ext2 /dev/ram0 /mnt/ramdisk
+cp -a rootfs/* /mnt/ramdisk
+umount /dev/ram0
+dd if=/dev/ram0 of=initrd bs=1k count=4000 
+
+dd if=initrd of=/dev/ram0 bs=1k count=4000 
+mount -t ext2 /dev/ram0 /mnt/ramdisk
+
+diff -q -r /mnt/ramdisk/bin ./rootfs/bin
+diff -q -r /mnt/ramdisk/lib ./rootfs/lib
+
+---------------------------------------------------
+
+On kernels with the problem, the scripted diff reports that most 
+(or all?) the binaries and libraries are corrupt.  This contradicts 
+my earlier problem report, sorry about that. 
+
+I'm eager to help track this down, I can test patches, supply 
+more information, give you a tar.gz of the contents of my rootfs,
+or do whatever it takes.   In the meantime I've gone back to 
+the default Mandrake 2.4.8 kernel.  It's noticably slower. :-(
+
+
+A few loose ends...
+
+Erik Andersen wrote:
+> Any particular reason you are using a version of busybox that is 
+> quite old?  You really should get a newer release -- I've fixed a 
+> lot of bugs since then.
+
+Yes, that is one of the reasons I'm working on this again - I'm 
+updating my old initrd with the new kernel and the latest versions 
+of all the tools I'm using, including busybox.  BTW, thanks 
+for your work on busybox, it's great.
+
+[...]
+
+> Can you sucessfully chroot into your rootfs dir?
+
+Good suggestion, that helped set me on the right track to finding
+the problem.  I can chroot into my rootfs "source" directory, but 
+(unsurprisingly) attempting to chroot to a corrupted image segfaults,
+that's how I discovered the corruption, not sure how I missed it 
+before.  I'll blame it on Friday afternoon confusion.
+
+Torrey

@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268186AbTBNFmx>; Fri, 14 Feb 2003 00:42:53 -0500
+	id <S268190AbTBNFvn>; Fri, 14 Feb 2003 00:51:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268188AbTBNFmx>; Fri, 14 Feb 2003 00:42:53 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:57359 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S268186AbTBNFmw>; Fri, 14 Feb 2003 00:42:52 -0500
-Date: Fri, 14 Feb 2003 05:52:44 +0000
-From: "'Christoph Hellwig '" <hch@infradead.org>
-To: Osamu Tomita <tomita@cinet.co.jp>
-Cc: "'jsimmons@infradead.org '" <jsimmons@infradead.org>,
-       "'Linux Kernel Mailing List '" <linux-kernel@vger.kernel.org>,
-       "'Alan Cox '" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCHSET] PC-9800 subarch. support for 2.5.60 (12/34) consol e
-Message-ID: <20030214055244.A18305@infradead.org>
-Mail-Followup-To: 'Christoph Hellwig ' <hch@infradead.org>,
-	Osamu Tomita <tomita@cinet.co.jp>,
-	"'jsimmons@infradead.org '" <jsimmons@infradead.org>,
-	'Linux Kernel Mailing List ' <linux-kernel@vger.kernel.org>,
-	'Alan Cox ' <alan@lxorguk.ukuu.org.uk>
-References: <E6D19EE98F00AB4DB465A44FCF3FA46903A332@ns.cinet.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E6D19EE98F00AB4DB465A44FCF3FA46903A332@ns.cinet.co.jp>; from tomita@cinet.co.jp on Fri, Feb 14, 2003 at 11:50:09AM +0900
+	id <S268210AbTBNFvn>; Fri, 14 Feb 2003 00:51:43 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:43855
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S268190AbTBNFvl>; Fri, 14 Feb 2003 00:51:41 -0500
+Date: Fri, 14 Feb 2003 01:00:04 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Sahara Workshop <workshop@cpt.saharapc.co.za>
+cc: KML <linux-kernel@vger.kernel.org>
+Subject: Re: Problems with 2.5.*'s SCSI headers and cdrtools
+In-Reply-To: <1045201685.5971.78.camel@workshop.saharact.lan>
+Message-ID: <Pine.LNX.4.50.0302140056410.3518-100000@montezuma.mastecende.com>
+References: <1045201685.5971.78.camel@workshop.saharact.lan>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 14, 2003 at 11:50:09AM +0900, Osamu Tomita wrote:
-> > Please set CONFIG_KANJI in the Kconfig file and in general
-> > the CONFIG_KANJI usere look really messy.  I don't think it's
-> > easy to get them cleaned up before 2.6, you might get in contact
-> > with James who works on the console layer to properly integrate them.
-> I think too, CONFIG_KANJI needs cleanup.
+On Fri, 14 Feb 2003, Sahara Workshop wrote:
 
-I think the major point here is:  PC98 support does have a fair chance
-to get into 2.6 (with a little bit more work).  Kanji console support
-certainly won't go in.  Maybe you'll remove Kanji support for the
-patchkit submitted for inclusion - this will make reviewing the rest
-easier.
+> 
+> Kernel 2.5.5x (have not tried earlier) and 2.5.60 's scsi/scsi.h do
+> not have like in 2.4 the 'include <features.h>', or as it may seem
+> to need an 'include <types.h>', and thus cdrtools for one do not
+> compile.
+> 
+> The take I get on this from Jorg is that he feels its a problem
+> kernel side.  Comments ?
+> 
+> Attached is a patch that get cdrtools-2.01a2 to compile.
 
+Good heavens that's ugly, shouldn't you be using userland header files and 
+not the ones from 'Kernel du jour'? Is your /usr/include/linux pointing to 
+your current kernel? If that's the case.. don't do that.
+
+What were Joerg's justifications again?
+
+	Zwane
+
+Aside: Are Sahara shipping computers with bleeding edge Linux 
+configurations? ;)
+
+-- 
+function.linuxpower.ca

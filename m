@@ -1,58 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262803AbULRAut@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262793AbULRAzh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262803AbULRAut (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 19:50:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262550AbULRAut
+	id S262793AbULRAzh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 19:55:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262805AbULRAzh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 19:50:49 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:60690 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262793AbULRAub (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 19:50:31 -0500
-Date: Sat, 18 Dec 2004 01:50:27 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Steven Whitehouse <steve@chygwyn.com>
-Cc: patrick@tykepenguin.com, Steve Whitehouse <SteveW@ACM.org>,
-       linux-decnet-user@lists.sourceforge.net, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] net/decnet/: misc possible cleanups
-Message-ID: <20041218005027.GC21288@stusta.de>
-References: <20041214125838.GC23151@stusta.de> <20041214133235.GB10131@souterrain.chygwyn.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041214133235.GB10131@souterrain.chygwyn.com>
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 17 Dec 2004 19:55:37 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:32184 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S262793AbULRAz2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 19:55:28 -0500
+Date: Sat, 18 Dec 2004 01:52:08 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Dave Hansen <haveblue@us.ibm.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       geert@linux-m68k.org, ralf@linux-mips.org,
+       linux-mm <linux-mm@kvack.org>
+Subject: Re: [patch] [RFC] make WANT_PAGE_VIRTUAL a config option
+In-Reply-To: <1103320106.7864.6.camel@localhost>
+Message-ID: <Pine.LNX.4.61.0412180020220.793@scrub.home>
+References: <E1Cf3bP-0002el-00@kernel.beaverton.ibm.com> 
+ <Pine.LNX.4.61.0412170133560.793@scrub.home>  <1103244171.13614.2525.camel@localhost>
+  <Pine.LNX.4.61.0412170150080.793@scrub.home>  <1103246050.13614.2571.camel@localhost>
+  <Pine.LNX.4.61.0412170256500.793@scrub.home>  <1103257482.13614.2817.camel@localhost>
+  <Pine.LNX.4.61.0412171132560.793@scrub.home>  <1103299179.13614.3551.camel@localhost>
+  <Pine.LNX.4.61.0412171818090.793@scrub.home> <1103320106.7864.6.camel@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 14, 2004 at 01:32:35PM +0000, Steven Whitehouse wrote:
+Hi,
 
-> Hi,
+On Fri, 17 Dec 2004, Dave Hansen wrote:
 
-Hi Steven,
+> > > No.  But, I do think that most of the very basic VM structures do, as it
+> > > stands.  That's limited to struct page, zone, and pgdat as I see it
+> > > now.  
+> > 
+> > Why do you want to put these into separate headers?
+> 
+> It enables you do do static inlines accessing struct page members
+> anywhere you want, such as in asm/mmzone.h, like in my example. 
 
->...
-> Also, when I was writing the routing code - a lot of the design was "borrowed"
-> from the ipv4 routing code. It might be worth doing a comparison to see where
-> the two have diverged (something I used to do now and again) to pick up any
-> bugs I'd inadvertently copied over, if you are working on clean ups in this
-> area,
+And by that you add more header dependencies.
+We have basically this situation:
 
-unfortunately, I'm not working especially in this area.
+	foo.h (struct foo; inline foo();) <-> bar.h (struct bar; inline bar();)
 
-I'm currently going through the complete kernel sources searching for 
-global code that can be made static or even removed.
+Almost every time we had such recursive dependencies, we simply rip one 
+element out and put it into a separate header:
 
-> Steve.
+	foo.h (inline foo();)
+		-> bar.h (struct bar; inline bar();)
+			-> foo_struct.h (struct foo;)
 
-cu
-Adrian
+Repeat this often enough and we end up with millions of small header 
+files. Instead we can reorder everything a little and can do this:
 
--- 
+	foo.h (inline foo(); inline bar();)
+		-> foo_types.h (struct foo; struct bar;)
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+In your case don't put the inline functions into asm/mmzone.h and we 
+should merge the various definition into fewer header files.
 
+> > > The dependencies aren't very twisted at all.  In fact, I don't think any
+> > > of those are deeper than two.  More importantly, I never have to cope
+> > > with 'struct page;' keeping me from doing arithmetic. 
+> > 
+> > You may be surprised. :)
+> > Play around with "mkdir test; echo 'obj-y = test.o' > test/Makefile; echo 
+> > '#include <linux/foo.h>' > test/test.c; make test/test.i 
+> > CFLAGS_test.o=--trace-includes".
+> 
+> I'm not sure what you're getting at.
+> 
+> 	make: *** No rule to make target `test/test.i'.  Stop.
+
+Sorry, I forgot to mention that you have to do this inside a kernel tree.
+
+bye, Roman

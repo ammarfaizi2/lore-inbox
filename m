@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272656AbRIGNeg>; Fri, 7 Sep 2001 09:34:36 -0400
+	id <S272665AbRIGODa>; Fri, 7 Sep 2001 10:03:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272659AbRIGNe0>; Fri, 7 Sep 2001 09:34:26 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:11388 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S272656AbRIGNeQ>; Fri, 7 Sep 2001 09:34:16 -0400
-Date: Fri, 7 Sep 2001 15:34:25 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: David Mosberger <davidm@hpl.hp.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] proposed fix for ptrace() SMP race
-Message-ID: <20010907153425.P11329@athlon.random>
-In-Reply-To: <20010907032801.N11329@athlon.random> <E15fAdr-0000r7-00@the-village.bc.nu>
+	id <S272666AbRIGODK>; Fri, 7 Sep 2001 10:03:10 -0400
+Received: from lxmayr6.informatik.tu-muenchen.de ([131.159.44.50]:2688 "EHLO
+	lxmayr6.informatik.tu-muenchen.de") by vger.kernel.org with ESMTP
+	id <S272665AbRIGOC7>; Fri, 7 Sep 2001 10:02:59 -0400
+Date: Fri, 7 Sep 2001 16:03:15 +0200
+From: Ingo Rohloff <rohloff@in.tum.de>
+To: epic@scyld.com, linux-kernel@vger.kernel.org
+Subject: epic100.c, gcc-2.95.2 compiler bug!
+Message-ID: <20010907160315.D621@lxmayr6.informatik.tu-muenchen.de>
+In-Reply-To: <20010903130404.B1064@lxmayr6.informatik.tu-muenchen.de> <20010907160159.C621@lxmayr6.informatik.tu-muenchen.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E15fAdr-0000r7-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Sep 07, 2001 at 02:41:11AM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20010907160159.C621@lxmayr6.informatik.tu-muenchen.de>; from rohloff@lxmayr6.informatik.tu-muenchen.de on Fri, Sep 07, 2001 at 04:01:59PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 07, 2001 at 02:41:11AM +0100, Alan Cox wrote:
-> > +#ifdef CONFIG_SMP
-> > +	rmb(); /* read child->has_cpu after child->state */
-> > +	while (child->has_cpu);
-> 		rep_nop();
-> 
-> otherwise your PIV will overheat
+Hi,
 
-indeed correct (OTOH it's a so small window [not like a contended
-spinlock] that I wonder if it will make a difference in real life ;)
+I posted an error report about the epic100.c module about one
+week before.
+The sympotms were lot's of messages of this in /var/log/messages:
+"kernel: eth0: Too much work at interrupt, IntrStatus=0x008d0004"
 
-Andrea
+After one week of really frustrating debugging and incrementally
+morphing the working version of the driver I got into the (for
+me) non-working linux-2.4.9 version I finally found out what was
+going on: the linux-2.4.9 driver has no bug!
+
+BEWARE: DON'T USE gcc-2.95.2!
+I compiled the linux-2.4.9 version with gcc-2.95.2.
+And I can _definitely_ confirm that epic100.c triggers a compiler
+bug. (I have the erronous assembler code on my harddisk if anyone is
+interested.)
+
+Compile the same module with gcc-2.95.3 and the bug is gone
+(at least in my case. The assembler code is different and correct.)
+
+conclusion:
+Don't use gcc-2.95.2 to compile your kernel!
+
+so long
+  Ingo Rohloff
+

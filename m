@@ -1,102 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317694AbSHaQ50>; Sat, 31 Aug 2002 12:57:26 -0400
+	id <S317755AbSHaRKO>; Sat, 31 Aug 2002 13:10:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317742AbSHaQ50>; Sat, 31 Aug 2002 12:57:26 -0400
-Received: from ppp-217-133-221-247.dialup.tiscali.it ([217.133.221.247]:60034
-	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
-	id <S317694AbSHaQ5Z>; Sat, 31 Aug 2002 12:57:25 -0400
-Subject: [PATCH] Fix panic if pnpbios is enabled and speed up its check in
-	do_trap
-From: Luca Barbieri <ldb@ldb.ods.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-djuxB/rqjsQf1WyVkGK6"
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 31 Aug 2002 19:01:45 +0200
-Message-Id: <1030813305.1458.17.camel@ldb>
+	id <S317772AbSHaRKO>; Sat, 31 Aug 2002 13:10:14 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:43279 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317755AbSHaRKN>; Sat, 31 Aug 2002 13:10:13 -0400
+Date: Sat, 31 Aug 2002 18:14:38 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.32-bug
+Message-ID: <20020831181438.A2047@flint.arm.linux.org.uk>
+References: <E17ktU0-00035E-00@flint.arm.linux.org.uk> <20020831140007.C781@nightmaster.csn.tu-chemnitz.de>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020831140007.C781@nightmaster.csn.tu-chemnitz.de>; from ingo.oeser@informatik.tu-chemnitz.de on Sat, Aug 31, 2002 at 02:00:08PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Aug 31, 2002 at 02:00:08PM +0200, Ingo Oeser wrote:
+> Hi Rusty,
 
---=-djuxB/rqjsQf1WyVkGK6
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Grr.
 
-This patch fixes the pnpbios CS check to check for the correct values
-(it wasn't up to date with the various GDT reshuffles), moves it inside
-the kernel mode check, modifies it so that it takes less instructions
-and marks it with unlikely().
+> On Fri, Aug 30, 2002 at 10:39:12PM +0100, Russell King wrote:
+> > This patch appears not to be in 2.5.32, but applies cleanly.
+> > 
+> > This patch moves BUG() and PAGE_BUG() from asm/page.h into asm/bug.h.
+> > 
+> > We also fix up linux/dcache.h, which included asm/page.h for the sole
+> > purpose of getting the BUG() definition.
+> > 
+> > Since linux/kernel.h makes use of BUG(), asm/bug.h is included there
+> > as well.
+> > --- orig/include/asm-cris/bug.h	Thu Jan  1 01:00:00 1970
+> > +++ linux/include/asm-cris/bug.h	Sun Jan  6 11:46:09 2002
+> > @@ -0,0 +1,12 @@
+> > +#ifndef _CRIS_BUG_H
+> > +#define _CRIS_BUG_H
+> > +
+> > +#define BUG() do { \
+> > +  printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
+> > +} while (0)
+> > +
+> > +#define PAGE_BUG(page) do { \
+> > +         BUG(); \
+> > +} while (0)
+> > +
+> > +#endif
+> 
+> These kind of implementation of BUG() is not very useful. Callers
+> of BUG() and BUG_ON() assume, that the thread is aborted and do
+> nothing to fixup after BUG(). 
 
-Note that the 2.5.32 version of this check will cause the kernel to
-always panic since it checks for the kernel segments and will thus
-decide to jump to the pnpbios fault handler without being in pnpbios.
-pnpbios_core.c instead seems to use the correct values.
+Nevertheless, its not up to me to change the implementation that an
+architecture has chosen.  That's for the individual port maintainers
+to fix.
 
-diff --exclude-from=/home/ldb/src/linux-exclude -urNdp linux-2.5.32/arch/i386/kernel/traps.c linux-2.5.32_pnpbelow/arch/i386/kernel/traps.c
---- linux-2.5.32/arch/i386/kernel/traps.c	2002-08-27 21:26:36.000000000 +0200
-+++ linux-2.5.32_pnpbelow/arch/i386/kernel/traps.c	2002-08-31 18:43:06.000000000 +0200
-@@ -311,21 +311,6 @@ static void inline do_trap(int trapnr, i
- 	if (vm86 && regs->eflags & VM_MASK)
- 		goto vm86_trap;
- 
--#ifdef CONFIG_PNPBIOS		
--	if (regs->xcs == 0x60 || regs->xcs == 0x68)
--	{
--		extern u32 pnp_bios_fault_eip, pnp_bios_fault_esp;
--		extern u32 pnp_bios_is_utter_crap;
--		pnp_bios_is_utter_crap = 1;
--		printk(KERN_CRIT "PNPBIOS fault.. attempting recovery.\n");
--		__asm__ volatile(
--			"movl %0, %%esp\n\t"
--			"jmp *%1\n\t"
--			: "=a" (pnp_bios_fault_esp), "=b" (pnp_bios_fault_eip));
--		panic("do_trap: can't hit this");
--	}
--#endif	
--
- 	if (!(regs->xcs & 3))
- 		goto kernel_trap;
- 
-@@ -341,7 +326,23 @@ static void inline do_trap(int trapnr, i
- 	}
- 
- 	kernel_trap: {
--		unsigned long fixup = search_exception_table(regs->eip);
-+		unsigned long fixup;
-+#ifdef CONFIG_PNPBIOS
-+		if (unlikely((regs->xcs | 8) == 0x88)) /* 0x80 or 0x88 */
-+		{
-+			extern u32 pnp_bios_fault_eip, pnp_bios_fault_esp;
-+			extern u32 pnp_bios_is_utter_crap;
-+			pnp_bios_is_utter_crap = 1;
-+			printk(KERN_CRIT "PNPBIOS fault.. attempting recovery.\n");
-+			__asm__ volatile(
-+				"movl %0, %%esp\n\t"
-+				"jmp *%1\n\t"
-+				: "=a" (pnp_bios_fault_esp), "=b" (pnp_bios_fault_eip));
-+			panic("do_trap: can't hit this");
-+		}
-+#endif	
-+		
-+		fixup = search_exception_table(regs->eip);
- 		if (fixup)
- 			regs->eip = fixup;
- 		else	
+This patch only cleans up the include for the bug stuff so its in a
+less silly place.  There are _zero_ functional code changes.
 
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
---=-djuxB/rqjsQf1WyVkGK6
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQA9cPZ5djkty3ft5+cRAtFLAKDC8X5n0EjAqXdDDRyV8qOi5Y4/IwCcCjBX
-22Lzb3Mo4GTa8m5uz4RuXXg=
-=6GIZ
------END PGP SIGNATURE-----
-
---=-djuxB/rqjsQf1WyVkGK6--

@@ -1,58 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261892AbUL0XSU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261996AbUL0XWe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261892AbUL0XSU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 18:18:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbUL0XSU
+	id S261996AbUL0XWe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 18:22:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbUL0XWe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 18:18:20 -0500
-Received: from pfepb.post.tele.dk ([195.41.46.236]:21798 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261892AbUL0XSQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 18:18:16 -0500
-Date: Tue, 28 Dec 2004 00:19:34 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Georg Prenner <georg.prenner@aon.at>, linux-kernel@vger.kernel.org
-Subject: Re: make errors (make clean, make menuconfig) make -C /usr/src/linux-2.6.10 O=/usr/src/linux-2.6.10 menuconfig
-Message-ID: <20041227231934.GA9251@mars.ravnborg.org>
-Mail-Followup-To: Georg Prenner <georg.prenner@aon.at>,
-	linux-kernel@vger.kernel.org
-References: <41D08472.6010404@aon.at> <20041227224833.GA8206@mars.ravnborg.org>
+	Mon, 27 Dec 2004 18:22:34 -0500
+Received: from rproxy.gmail.com ([64.233.170.195]:10139 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261996AbUL0XWd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 18:22:33 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=pL/yCedIyKN4kzDRtM1Cg0po+044a9eq5kxR0lhg6CJd4wbnvWp3ysHMRJKNdX5/Qzl7vLA4OZnSlR5i6aV5RcattdLfAEqvr+O9JK1TIxyVHSgjhYRSzg+ffi2er/oqvQ7Ifv7MXoVSAt0k5N6CJ3zW/rn9Yw22Z4Zeat6yJEs=
+Message-ID: <a36005b5041227152268e68af9@mail.gmail.com>
+Date: Mon, 27 Dec 2004 15:22:32 -0800
+From: Ulrich Drepper <drepper@gmail.com>
+Reply-To: Ulrich Drepper <drepper@gmail.com>
+To: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux-VServer <vserver@list.linux-vserver.org>
+Subject: Re: The Future of Linux Capabilities ...
+In-Reply-To: <20041227014041.GA30550@mail.13thfloor.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041227224833.GA8206@mars.ravnborg.org>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20041227014041.GA30550@mail.13thfloor.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 27, 2004 at 11:48:33PM +0100, Sam Ravnborg wrote:
-> > I am having a problem when executing "make menuconfig" on my fresh 
-> > extracted 2.6.10 kernel.
-> > 
-> > The error message is like this:
-> > 
-> > make -C /usr/src/linux-2.6.10 O=/usr/src/linux-2.6.10 menuconfig
-> > make -C /usr/src/linux-2.6.10 O=/usr/src/linux-2.6.10 menuconfig
-> > make -C /usr/src/linux-2.6.10 O=/usr/src/linux-2.6.10 menuconfig
-> > make -C /usr/src/linux-2.6.10 O=/usr/src/linux-2.6.10 menuconfig
-...
+On Mon, 27 Dec 2004 02:40:41 +0100, Herbert Poetzl <herbert@13thfloor.at> wrote:
+>   II)   add 32 (or more) sub-capabilities which depend
+>         on the parent capability to be usable, and add
+>         appropriate syscalls for them.
+> 
+>         example: CAP_IPC_LOCK gets two subcapabilities
+>         (e.g. SCAP_SHM_LOCK and SCAP_MEM_LOCK) which
 
-It is the following code snippet that causes the troubles:
----
-outputmakefile:
-        $(Q)if /usr/bin/env test ! $(srctree) -ef $(objtree); then \
-        $(CONFIG_SHELL) $(srctree)/scripts/mkmakefile
----
+I won't try to say anything about III, but I is not really suitable,
+it breaks code currently using capabilities.  Or at least makes them
+less secure.  With sub-capabilities the interface diverges from the
+POSIX capabilities interfaces, but at least one can keep backward
+compatibilities.
 
-I've now tried differents way to reproduce the error without luck.
-You are the second person reporting this - and I assumed from fitst
-poster this was a symlink issue. But I cannot reporduce it here.
-
-One person coul not locate /usr/bin/env - but that did not trigger
-anythin renaming that file to something else.
-
-Could you please drop a mail with full log what you do before seeing
-this bug.
-
-	Sam
-
+An alternative would be to keep the existing capabilities, and add new
+ones for all the cases which need splitting.  If the old value is
+set/reset, all the split-out values are "magically" affected as well. 
+This would help keeping the interfaces in line with POSIX and no
+additions to the userlevel libcap would be needed.  Yes, new cap[gs]et
+syscalls would be needed, but this fact is hidden from the user.

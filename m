@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268085AbUH2QhO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268098AbUH2Qle@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268085AbUH2QhO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 12:37:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268087AbUH2QhO
+	id S268098AbUH2Qle (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 12:41:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268102AbUH2Qle
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 12:37:14 -0400
-Received: from gprs214-40.eurotel.cz ([160.218.214.40]:40844 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S268085AbUH2QhK (ORCPT
+	Sun, 29 Aug 2004 12:41:34 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:6313 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S268098AbUH2Qlc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 12:37:10 -0400
-Date: Sun, 29 Aug 2004 18:36:54 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Erik Rigtorp <erik@rigtorp.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] make swsusp produce nicer screen output
-Message-ID: <20040829163654.GH3046@elf.ucw.cz>
-References: <20040820152317.GA7118@linux.nu> <20040823174217.GC603@openzaurus.ucw.cz> <20040823200858.GA4593@linux.nu> <20040824214929.GA490@openzaurus.ucw.cz> <20040829135403.GA8182@linux.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 29 Aug 2004 12:41:32 -0400
+From: Jesse Barnes <jbarnes@sgi.com>
+To: Anton Blanchard <anton@samba.org>
+Subject: Re: sched_domains + NUMA issue
+Date: Sun, 29 Aug 2004 09:40:31 -0700
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
+       nathanl@austin.ibm.com
+References: <20040829111855.GB26072@krispykreme>
+In-Reply-To: <20040829111855.GB26072@krispykreme>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040829135403.GA8182@linux.nu>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408290940.31903.jbarnes@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sunday, August 29, 2004 4:18 am, Anton Blanchard wrote:
+> Hi,
+>
+> We are seeing errors in the sched domains debug code when SMT + NUMA is
+> enabled. Nathan pointed out that the recent change to limit the number
+> of nodes in a scheduling group may be causing this - in particular
+> sched_domain_node_span.
+>
+> It looks like ia64 are the only ones implementing a reasonable
+> node_distance, the others just do:
+>
+> #define node_distance(from,to) (from != to)
+>
+> On these architectures I wonder if we should disable the
+> sched_domain_node_span code since we will just get a random grouping of
+> cpus.
 
-> > > > Well, it looks nice, be sure to submit smooth version :-).
-> > > I'm working on it :).
-> > 
-> > > > I'd leave dots here. Its usefull to see if it done something or not.
-> > > 
-> > > Well, it will display a spinning thingy that is updated every time
-> > > shrink_all_memory(10000) returns. Maybe you want to see how much memory was
-> > > freed?
-> > 
-> > Yes, it is quite important to see how many pages were freed even after
-> > freeing stopped. "done (1234 pages freed)" would solve it...
-> Added code for this in the new patch
+Hmm... for now that's probably a good idea.  There's no CONFIG_NUMA_* value we 
+could key off of to figure out if node_distance is sane, so it's probably our 
+only option.
 
-Okay, wait with that pushing. I merged it here, and did some speedups
-(big) in the meantime. Percents for copying memory should no longer be
-neccessary.
-
-								Pavel
-
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Jesse

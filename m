@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264670AbRFZTpB>; Tue, 26 Jun 2001 15:45:01 -0400
+	id <S265104AbRFZTrw>; Tue, 26 Jun 2001 15:47:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265101AbRFZTov>; Tue, 26 Jun 2001 15:44:51 -0400
-Received: from goblin.sharat.co.il ([62.90.60.186]:48648 "EHLO
-	goblin.sharat.co.il") by vger.kernel.org with ESMTP
-	id <S264670AbRFZTog>; Tue, 26 Jun 2001 15:44:36 -0400
-Date: Tue, 26 Jun 2001 22:44:09 +0300
-From: Ilya Konstantinov <lkml@future.galanet.net>
+	id <S265103AbRFZTrn>; Tue, 26 Jun 2001 15:47:43 -0400
+Received: from alog0081.analogic.com ([208.224.220.96]:16900 "EHLO
+	quark.analogic.com") by vger.kernel.org with ESMTP
+	id <S265102AbRFZTrf>; Tue, 26 Jun 2001 15:47:35 -0400
+Date: Tue, 26 Jun 2001 15:51:33 -0400 (EDT)
+From: "Richard B. Johnson" <johnson@quark.analogic.com>
+Reply-To: rjohnson@analogic.com
 To: linux-kernel@vger.kernel.org
-Subject: Finding out the name behind a /dev/dsp device
-Message-ID: <20010626224409.A24182@goblin.sharat.co.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
+Subject: Duplicate IP ??
+Message-ID: <Pine.LNX.3.95.1010626154101.14565A-100000@quark.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear LKML,
 
-(Please CC your replies to me, since I'm not subscribed)
+I just got a bunch of messages from vger.kernel.org, sent to
+root@chaos.analogic.com, claiming a "local configuration error"
+and some kind of a loop.
 
-How can I find out the module name which handles a /dev/dsp* device
-and/or the full name of the Sound Card I'd be addressing by it?
+There is no configuration that has changed on that machine for
+at least two years although our firewall got updated last week
+to fix the ECN bug.
 
-For /dev/mixer* devices, there's a SOUND_MIXER_INFO ioctl to retrieve
-the Mixer chip name, but I couldn't find a similar call for /dev/dsp
-devices. Parsing /etc/modules.conf doesn't seem correct, since a single
-module can support multiple installed cards of the same type (thus
-creating /dev/dsp entries for multiple cards), and since drivers can be
-compiled statically.
+I checked with ns.uu.net to see if the machine address was still
+resolvable, it is.
 
-This functionality is essential when building an application which
-prompts the user to select a Sound Output Device from a list of
-installed sound cards (avoiding exposing the user to a plain list of
-dsp devices). Using the mixer chip's name isn't exactly friendly, and
-still doesn't let you know which dsp device belongs to which mixer.
+I can `telnet vger.kernel.org 25`. That connectivity works.
+So I don't get any mail from vger.kernel.org.  What goes?
+
+Dick Johnson
+
+

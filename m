@@ -1,72 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262706AbUKMBpp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262670AbUKLXlv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262706AbUKMBpp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 20:45:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262747AbUKMBmg
+	id S262670AbUKLXlv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 18:41:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262725AbUKLXj7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 20:42:36 -0500
-Received: from gate.crashing.org ([63.228.1.57]:61366 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262688AbUKMBkP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 20:40:15 -0500
-Subject: Re: [Linux-fbdev-devel] Re: [PATCH] fbdev: Fix IO access in rivafb
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Guido Guenther <agx@sigxcpu.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, adaplas@pol.net,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20041112191852.GA4536@bogon.ms20.nix>
-References: <200411080521.iA85LbG6025914@hera.kernel.org>
-	 <200411090402.22696.adaplas@hotpop.com>
-	 <Pine.LNX.4.58.0411081211270.2301@ppc970.osdl.org>
-	 <200411090608.02759.adaplas@hotpop.com>
-	 <Pine.LNX.4.58.0411081422560.2301@ppc970.osdl.org>
-	 <20041112125125.GA3613@bogon.ms20.nix>
-	 <Pine.LNX.4.58.0411120755570.2301@ppc970.osdl.org>
-	 <20041112191852.GA4536@bogon.ms20.nix>
-Content-Type: text/plain
-Date: Sat, 13 Nov 2004 12:39:32 +1100
-Message-Id: <1100309972.20511.103.camel@gaston>
+	Fri, 12 Nov 2004 18:39:59 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:40854 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262664AbUKLXWd convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Nov 2004 18:22:33 -0500
+X-Fake: the user-agent is fake
+Subject: Re: [PATCH] PCI fixes for 2.6.10-rc1
+User-Agent: Mutt/1.5.6i
+In-Reply-To: <11003017171930@kroah.com>
+Date: Fri, 12 Nov 2004 15:21:57 -0800
+Message-Id: <1100301717158@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-11-12 at 20:18 +0100, Guido Guenther wrote:
+ChangeSet 1.2026.66.20, 2004/11/10 16:44:40-08:00, hannal@us.ibm.com
 
-> O.k., it was the __raw_{write,read}b which broke things, not the
-> "alignment". This one works:
-> 
-> diff -u -u linux-2.6.10-rc1-mm5.orig/drivers/video/riva/riva_hw.h linux-2.6.10-rc1-mm5/drivers/video/riva/riva_hw.h
-> --- linux-2.6.10-rc1-mm5.orig/drivers/video/riva/riva_hw.h	2004-11-12 13:42:54.000000000 +0100
-> +++ linux-2.6.10-rc1-mm5/drivers/video/riva/riva_hw.h	2004-11-12 17:39:22.000000000 +0100
-> @@ -75,8 +75,8 @@
->   */
->  #include <asm/io.h>
->  
-> -#define NV_WR08(p,i,d)  (__raw_writeb((d), (void __iomem *)(p) + (i)))
-> -#define NV_RD08(p,i)    (__raw_readb((void __iomem *)(p) + (i)))
-> +#define NV_WR08(p,i,d)  (writeb((d), (void __iomem *)(p) + (i)))
-> +#define NV_RD08(p,i)    (readb((void __iomem *)(p) + (i)))
+[PATCH] ide.c: replace pci_find_device with pci_dev_present
 
-Interesting. The only difference here should be barriers. I hate the
-lack of barriers in that driver ... I'm not sure the driver may not have
-other bugs related to the lack of them in the 16 and 32 bits accessors.
-It does use non-barrier version on purpose in some accel ops though,
-when filling the fifo with pixels, but that's pretty much the only case
-where it makes sense.
+As pci_find_device is going away it needs to be replaced. In this case the dev
+returned from pci_find_device was not being used so pci_dev_present was the
+appropriate replacement.
 
-> There aren't any, I actually attached the wrong patch. The non-working
-> version has __raw_{read,write}b8 instead of {read,write}b8. In 2.6.9
-> riva_hw.h used {in,out}_8 for NV_{RD,WR}08 so using the "non-raw"
-> writeb/readb now looks correct since these map to {in,out}_8 now.
+This has been compile and boot tested on a T22.
 
-{in,out}_8 are ppc-specific things that are identical to readb/writeb
-indeed, with barriers.
+Signed-off-by: Hanna Linder <hannal@us.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
-Ben.
 
+ drivers/ide/ide.c |    7 ++++++-
+ 1 files changed, 6 insertions(+), 1 deletion(-)
+
+
+diff -Nru a/drivers/ide/ide.c b/drivers/ide/ide.c
+--- a/drivers/ide/ide.c	2004-11-12 15:12:26 -08:00
++++ b/drivers/ide/ide.c	2004-11-12 15:12:26 -08:00
+@@ -335,11 +335,16 @@
+ 
+ int ide_system_bus_speed (void)
+ {
++	static struct pci_device_id pci_default[] = {
++		{ PCI_DEVICE(PCI_ANY_ID, PCI_ANY_ID) },
++		{ }
++	};
++
+ 	if (!system_bus_speed) {
+ 		if (idebus_parameter) {
+ 			/* user supplied value */
+ 			system_bus_speed = idebus_parameter;
+-		} else if (pci_find_device(PCI_ANY_ID, PCI_ANY_ID, NULL) != NULL) {
++		} else if (pci_dev_present(pci_default)) {
+ 			/* safe default value for PCI */
+ 			system_bus_speed = 33;
+ 		} else {
 

@@ -1,100 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263265AbSJCNSW>; Thu, 3 Oct 2002 09:18:22 -0400
+	id <S263303AbSJCMy4>; Thu, 3 Oct 2002 08:54:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263261AbSJCNSW>; Thu, 3 Oct 2002 09:18:22 -0400
-Received: from unthought.net ([212.97.129.24]:9445 "EHLO mail.unthought.net")
-	by vger.kernel.org with ESMTP id <S263253AbSJCNST>;
-	Thu, 3 Oct 2002 09:18:19 -0400
-Date: Thu, 3 Oct 2002 15:23:50 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: Kernel mailing list <linux-kernel@vger.kernel.org>,
-       linux-raid@vger.kernel.org
-Subject: Re: AARGH! Please help. IDE controller fsckup
-Message-ID: <20021003132349.GE7350@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-	Kernel mailing list <linux-kernel@vger.kernel.org>,
-	linux-raid@vger.kernel.org
-References: <200210021516.46668.roy@karlsbakk.net> <200210031225.11283.roy@karlsbakk.net> <20021003114020.GD7350@unthought.net> <200210031513.28459.roy@karlsbakk.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200210031513.28459.roy@karlsbakk.net>
-User-Agent: Mutt/1.3.28i
+	id <S263311AbSJCMy4>; Thu, 3 Oct 2002 08:54:56 -0400
+Received: from tbaytel3.tbaytel.net ([206.47.150.179]:15765 "EHLO tbaytel.net")
+	by vger.kernel.org with ESMTP id <S263303AbSJCMyz> convert rfc822-to-8bit;
+	Thu, 3 Oct 2002 08:54:55 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Garrett Kajmowicz <gkajmowi@tbaytel.net>
+Reply-To: gkajmowi@tbaytel.net
+Organization: Garrett Kajmowicz
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH, TRIVIAL] 2.4.20-pre8, Intermezzo configuration
+Date: Thu, 3 Oct 2002 08:56:05 -0400
+User-Agent: KMail/1.4.1
+Cc: braam@clusterfs.com
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200210030856.05809.gkajmowi@tbaytel.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 03, 2002 at 03:13:28PM +0200, Roy Sigurd Karlsbakk wrote:
-> > > I have used presistent superblocks, but md0,1,2,3 will be differently
-> > > ordered if I change the disk order... At least I think so. It surely
-> > > didn't work.
-> >
-> > No. md0 would stay md0.  This is another effect of using superblocks,
-> > and in fact this is also (ironically) more or less the only argument
-> > *against* using them   :)
-> >
-> > (Imagine inserting a disk which knows that it is disk 0 of md0 into some
-> > machine that already has a perfectly fine md0 running)
-> 
-> ok. so. theoretically - as long as the system finds all 16 drives, I should be 
-> able to shuffle them around and attach them to whichever controller there is? 
-> right?
+This is a patch to push the config line for the Intermezzo filesystem into a 
+seperate file.  Please see:
+http://garrett.dyndns.biz
+for why I would like this done.
 
-It will not reattach your disks (you need to move cables to do that),
-but it will know "First disk of md0" from "Second disk of md0"
-regardless of whether those disks are /dev/hda or /dev/sdg.
+Thank you.
 
-You can shuffle your disks around as much as you please.  When the RAID
-code looks at your disks, it will read their superblocks and correctly
-make the first disk of md0 the first disk of md0, and so forth,
-regardless of the actual device name of the disk.
+-	Garrett Kajmowicz
+gkajmowi@tbaytel.net
 
-> 
-> ok.
-> 
-> now, I've replaced the faulty controller, and booting up. the new controller 
-> is also (like the old one) a CMD649...
-> 
+diff -Nru linux-2.4.19old/fs/Config.in linux-2.4.19new/fs/Config.in
+--- linux-2.4.19old/fs/Config.in        2002-10-01 08:22:21.000000000 -0400
++++ linux-2.4.19new/fs/Config.in        2002-10-03 08:50:32.000000000 -0400
+@@ -99,7 +99,7 @@
+    comment 'Network File Systems'
 
-RAID doesn't care about controllers.
-
-RAID without persistent superblocks cares about disk device names.
-
-RAID with persistent superblocks don't care about disk device names.
-
-> hæ?
-
-Øh?
-
-> 
-> it works. but it surely didn't work last time...
-> 
-
-Good for you  :)
-
-> thanks
-> 
-> > > But ... with persistent superblock - is it possible to fsckup the raid?
-> >
-> > You're root, it is indeed possible  :)
-> 
-> er - yes. I more meant like 'automagically'
-
-It will only automagically screw up your arrays if you shuffle disks
-between machines (mix several RAID arrays from other systems in one
-system)  (you can of course move all your disks to one new machine, if
-it has none of it's original RAIDed disks left).
-
-Just don't mix disks with persistent superblocks from multiple machines
-into one single machine.  Unless you know exactly what you're doing.
-
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+    dep_tristate 'Coda file system support (advanced network fs)' 
+CONFIG_CODA_FS $CONFIG_INET
+-   dep_tristate 'InterMezzo file system support (replicating fs) 
+(EXPERIMENTAL)' CONFIG_INTERMEZZO_FS $CONFIG_INET $CONFIG_EXPERIMENTAL
++   source fs/intermezzo/Config.in
+    dep_tristate 'NFS file system support' CONFIG_NFS_FS $CONFIG_INET
+    dep_mbool '  Provide NFSv3 client support' CONFIG_NFS_V3 $CONFIG_NFS_FS
+    dep_bool '  Root file system on NFS' CONFIG_ROOT_NFS $CONFIG_NFS_FS 
+$CONFIG_IP_PNP
+diff -Nru linux-2.4.19old/fs/intermezzo/Config.in 
+linux-2.4.19new/fs/intermezzo/Config.in
+--- linux-2.4.19old/fs/intermezzo/Config.in     1969-12-31 19:00:00.000000000 
+-0500
++++ linux-2.4.19new/fs/intermezzo/Config.in     2002-10-03 08:52:13.000000000 
+-0400
+@@ -0,0 +1 @@
++dep_tristate 'InterMezzo file system support (replicating fs) (EXPERIMENTAL)' 
+CONFIG_INTERMEZZO_FS $CONFIG_INET $CONFIG_EXPERIMENTAL

@@ -1,31 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262474AbSJTMvc>; Sun, 20 Oct 2002 08:51:32 -0400
+	id <S262547AbSJTNLc>; Sun, 20 Oct 2002 09:11:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262479AbSJTMvc>; Sun, 20 Oct 2002 08:51:32 -0400
-Received: from modemcable061.219-201-24.mtl.mc.videotron.ca ([24.201.219.61]:32953
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S262474AbSJTMvc>; Sun, 20 Oct 2002 08:51:32 -0400
-Date: Sun, 20 Oct 2002 08:42:05 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Zac Hansen <xaxxon@chopper.slackworks.com>
-cc: Nicholas Wourms <nwourms@netscape.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: Bitkeeper outrage, old and new
-In-Reply-To: <Pine.LNX.4.44.0210200155580.4306-100000@chopper.slackworks.com>
-Message-ID: <Pine.LNX.4.44.0210200841330.20993-100000@montezuma.mastecende.com>
+	id <S262568AbSJTNLc>; Sun, 20 Oct 2002 09:11:32 -0400
+Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:13185 "EHLO
+	dad.molina") by vger.kernel.org with ESMTP id <S262547AbSJTNLb>;
+	Sun, 20 Oct 2002 09:11:31 -0400
+Date: Sun, 20 Oct 2002 08:17:16 -0500 (CDT)
+From: Thomas Molina <tmolina@cox.net>
+X-X-Sender: tmolina@dad.molina
+To: Mike Galbraith <efault@gmx.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: loadlin with 2.5.?? kernels
+In-Reply-To: <5.1.0.14.2.20021020144138.00b40438@wen-online.de>
+Message-ID: <Pine.LNX.4.44.0210200814210.6555-100000@dad.molina>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Oct 2002, Zac Hansen wrote:
+On Sun, 20 Oct 2002, Mike Galbraith wrote:
 
-> This email, is also off topic for the lkml, which is why I'm not posting 
-> to everyone on the list.
+> Greetings,
+> 
+> I hadn't had time to build/test kernels since 2.5.8-pre3.  I now find that 
+> loadlin doesn't work on my box any more.  Is this a known problem?  If so, 
+> when did it quit working?  (loadlin obsolete?  other?)
 
-Thanks for sparing us...
+I'm carrying an open problem report from Rene Blokland on this issue.  
+What version of the kernel did you try?
 
--- 
-function.linuxpower.ca
 

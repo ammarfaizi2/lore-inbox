@@ -1,51 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261282AbTCYAFi>; Mon, 24 Mar 2003 19:05:38 -0500
+	id <S261273AbTCYADH>; Mon, 24 Mar 2003 19:03:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261281AbTCYAFi>; Mon, 24 Mar 2003 19:05:38 -0500
-Received: from zok.SGI.COM ([204.94.215.101]:33509 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S261282AbTCYAFh>;
-	Mon, 24 Mar 2003 19:05:37 -0500
-Date: Mon, 24 Mar 2003 16:16:44 -0800
-From: Jeremy Brown <mee@sgi.com>
+	id <S261281AbTCYADH>; Mon, 24 Mar 2003 19:03:07 -0500
+Received: from iucha.net ([209.98.146.184]:52068 "EHLO mail.iucha.net")
+	by vger.kernel.org with ESMTP id <S261273AbTCYADG>;
+	Mon, 24 Mar 2003 19:03:06 -0500
+Date: Mon, 24 Mar 2003 18:14:14 -0600
 To: Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Linux 2.5.66
-Message-ID: <20030325001644.GA35311@miine.engr.sgi.com>
-Mail-Followup-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-ID: <20030325001414.GX18830@iucha.net>
 References: <Pine.LNX.4.44.0303241524050.1741-100000@penguin.transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="H7BIH7T1fRJ3RGOi"
 Content-Disposition: inline
 In-Reply-To: <Pine.LNX.4.44.0303241524050.1741-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.4i
+X-message-flag: Outlook: Where do you want [your files] to go today?
+X-gpg-key: http://iucha.net/florin_iucha.gpg
+X-gpg-fingerprint: 41A9 2BDE 8E11 F1C5 87A6  03EE 34B3 E075 3B90 DFE4
+User-Agent: Mutt/1.5.3i
+From: florin@iucha.net (Florin Iucha)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I encountered a minor build failure in fs/cramfs, which I was able to
-fix with the following patch. I'm not sure if it's exactly the right
-fix - does the original author really mean to have zeroes for those
-values? Anyway, please consider applying to 2.5.66 if it's okay.
 
-Jeremy Brown
+--H7BIH7T1fRJ3RGOi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+drivers/char/genrtc.c:100: warning: static declaration for
+`gen_rtc_interrupt' follows non-static
+drivers/char/genrtc.c: In function `gen_rtc_timer':
+drivers/char/genrtc.c:135: warning: comparison of distinct pointer
+types lacks a cast
+drivers/char/genrtc.c: In function `gen_rtc_open':
+drivers/char/genrtc.c:358: warning: `MOD_INC_USE_COUNT' is deprecated
+(declared
+at include/linux/module.h:431)
+drivers/char/genrtc.c: In function `gen_rtc_release':
+drivers/char/genrtc.c:377: warning: `MOD_DEC_USE_COUNT' is deprecated
+(declared
+at include/linux/module.h:443)
+drivers/char/genrtc.c: In function `gen_rtc_proc_output':
+drivers/char/genrtc.c:453: void value not ignored as it ought to be
+drivers/char/genrtc.c:498: `RTC_BATT_BAD' undeclared (first use in
+this function)
+drivers/char/genrtc.c:498: (Each undeclared identifier is reported
+only once
+drivers/char/genrtc.c:498: for each function it appears in.)
 
+florin
 
---- linux-2.5.66/fs/cramfs/inode.c.orig 2003-03-24 16:01:07.000000000 -0800
-+++ linux-2.5.66/fs/cramfs/inode.c      2003-03-24 16:09:18.000000000 -0800
-@@ -43,6 +43,7 @@
- static struct inode *get_cramfs_inode(struct super_block *sb, struct cramfs_inode * cramfs_inode)
- {
-        struct inode * inode = new_inode(sb);
-+       struct timespec zerotime = {0, 0};
+--=20
 
-        if (inode) {
-                inode->i_mode = cramfs_inode->mode;
-@@ -51,7 +52,7 @@
-                inode->i_blocks = (cramfs_inode->size - 1) / 512 + 1;
-                inode->i_blksize = PAGE_CACHE_SIZE;
-                inode->i_gid = cramfs_inode->gid;
--               inode->i_mtime = inode->i_atime = inode->i_ctime = 0;
-+               inode->i_mtime = inode->i_atime = inode->i_ctime = zerotime;
-                inode->i_ino = CRAMINO(cramfs_inode);
-                /* inode->i_nlink is left 1 - arguably wrong for directories,
-                   but it's the best we can do without reading the directory
+"NT is to UNIX what a doughnut is to a particle accelerator."
+
+--H7BIH7T1fRJ3RGOi
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+f59WNLPgdTuQ3+QRAiEIAKCOgLbuA7ocMWBwc/eVoYkQxWJgEwCdEy3q
+pq1NAzU88qKz8SoBRm7pW24=
+=xZ+X
+-----END PGP SIGNATURE-----
+
+--H7BIH7T1fRJ3RGOi--

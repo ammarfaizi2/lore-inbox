@@ -1,58 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264155AbTLAX4h (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 18:56:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264238AbTLAX4h
+	id S264265AbTLBAB3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 19:01:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264266AbTLBAB3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 18:56:37 -0500
-Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:24202 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S264155AbTLAX4g
+	Mon, 1 Dec 2003 19:01:29 -0500
+Received: from ugw.utcc.utoronto.ca ([128.100.102.3]:18696 "HELO
+	ugw.utcc.utoronto.ca") by vger.kernel.org with SMTP id S264265AbTLBAB2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 18:56:36 -0500
-Subject: Re: Linux 2.4 future
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: "Peter C. Norton" <spacey-linux-kernel@lenin.nu>
-Cc: Christoph Hellwig <hch@infradead.org>, Ian Kent <raven@themaw.net>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20031201213651.GK18176@lenin.nu>
-References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet>
-	 <Pine.LNX.4.44.0312012302310.9674-100000@raven.themaw.net>
-	 <20031201153316.B3879@infradead.org>  <20031201213651.GK18176@lenin.nu>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-yOdZaoFoszoe3Q4aoFax"
-Organization: Red Hat, Inc.
-Message-Id: <1070322894.5260.5.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 02 Dec 2003 00:54:54 +0100
+	Mon, 1 Dec 2003 19:01:28 -0500
+To: linux-kernel@vger.kernel.org
+cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, ralf@linux-mips.org
+Subject: drivers/char/rtc.c compile failure in current 2.4 BitKeeper tree:
+Date: Mon, 1 Dec 2003 19:01:17 -0500
+From: Chris Siebenmann <cks@utcc.utoronto.ca>
+Message-Id: <03Dec1.190119est.6025@ugw.utcc.utoronto.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ I'm compiling for SMP x86 and getting:
+	make[3]: Entering directory `/homes/hawkwind/u0/cks/sys/linux-BK/drivers/char'
+	gcc -D__KERNEL__ -I/homes/hawkwind/u0/cks/sys/linux-BK/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686   -nostdinc -iwithprefix include -DKBUILD_BASENAME=rtc  -c -o rtc.o rtc.c
+	rtc.c: In function `rtc_init':
+	rtc.c:772: `RTC_IOMAPPED' undeclared (first use in this function)
+	rtc.c:772: (Each undeclared identifier is reported only once
+	rtc.c:772: for each function it appears in.)
+	rtc.c:773: `RTC_IO_EXTENT' undeclared (first use in this function)
+	rtc.c: In function `rtc_exit':
+	rtc.c:873: `RTC_IOMAPPED' undeclared (first use in this function)
+	rtc.c:874: `RTC_IO_EXTENT' undeclared (first use in this function)
+	make[3]: *** [rtc.o] Error 1
 
---=-yOdZaoFoszoe3Q4aoFax
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+It looks like the MIPS changes require these to be defined in
+include/asm-*/mc146818rtc.h (or included files) for all architectures
+(previously RTC_IO_EXTENT was defined in rtc.c and RTC_IOMAPPED didn't
+exist), but only MIPS has been updated to do this. From looking at the
+diffs to rtc.c, it looks like the correct additions are just:
 
-On Mon, 2003-12-01 at 22:36, Peter C. Norton wrote:
-`
-> encouraging the distros to get behind autofs4 (hint hint, redhat,
-> hint).
+	#define RTC_IO_EXTENT	0x10	/* Only really two ports, but...	*/
+	#define	RTC_IOMAPPED	0
 
-I suspect you'll have a really hard time finding ANY distro that still
-wants to actively develop new products on a 2.4 codebase.
-
-
---=-yOdZaoFoszoe3Q4aoFax
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/y9TOxULwo51rQBIRAu+vAKCpbLvyPCY/HGMUKAJpqN6k8j+s2wCbBc6V
-z7Y2Vm5aEgFEdkUIwPSoF58=
-=jVZy
------END PGP SIGNATURE-----
-
---=-yOdZaoFoszoe3Q4aoFax--
+	- cks

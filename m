@@ -1,56 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262451AbTESMtZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 08:49:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262454AbTESMtZ
+	id S262444AbTESMrT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 08:47:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262445AbTESMrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 08:49:25 -0400
-Received: from mail.cpt.sahara.co.za ([196.41.29.142]:497 "EHLO
-	workshop.saharact.lan") by vger.kernel.org with ESMTP
-	id S262451AbTESMtX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 08:49:23 -0400
-Subject: Re: Recent changes to sysctl.h breaks glibc
-From: Martin Schlemmer <azarah@gentoo.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       KML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030519124539.B8868@infradead.org>
-References: <1053289316.10127.41.camel@nosferatu.lan>
-	 <20030518204956.GB8978@holomorphy.com>
-	 <1053292339.10127.45.camel@nosferatu.lan>
-	 <20030519063813.A30004@infradead.org>
-	 <1053341023.9152.64.camel@workshop.saharact.lan>
-	 <20030519124539.B8868@infradead.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1053348984.9142.98.camel@workshop.saharact.lan>
+	Mon, 19 May 2003 08:47:19 -0400
+Received: from 213-84-67-167.adsl.xs4all.nl ([213.84.67.167]:39856 "EHLO
+	samba-pdc") by vger.kernel.org with ESMTP id S262444AbTESMrS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 08:47:18 -0400
+Subject: timer interrupts on HP machines
+From: Edwin Top <e.top@uzorg.nl>
+To: linux-kernel@vger.kernel.org
+Organization: Uzorg BV
+Message-Id: <1053349215.15402.31.camel@vmware-test.uzorg>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3- 
-Date: 19 May 2003 14:56:25 +0200
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 19 May 2003 15:00:16 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-05-19 at 13:45, Christoph Hellwig wrote:
-> On Mon, May 19, 2003 at 12:43:44PM +0200, Martin Schlemmer wrote:
-> > Ok, lets say we stop doing that.  How do anything user side find
-> > out specifics at compile time related to the kernel it should run
-> > on ?
-> 
-> They don't.  You can run the same userspace on a wide range of kernels.
-> I'd just leave the job of selcting your headers to the distro vendor -
-> if they are too stupid to get their headers sanitized I'd
-> just use a different distro.
-> 
+I saw some discussion on this list about HP netserver hardware having
+problems with time running forwards & backwards.
 
-Ok, so say they use LFS ?
+Some people tried some MP spec settings in the BIOS and it worked, some
+people said it did not work for them.
 
-Point is just that people like you keep on bitching about not
-using sanitized kernel headers, but do nothing about it, or
-until today have said nothing about 'sanitized headers'.
+We are having the same problem here with around 12 (!) servers here
+every now and then and are not getting any helpfull support from HP.
 
+Could someone who had the problem (discussed in February 2003 here)
+contact me and tell me if they are still experiencing the problem or
+tell me how they solved it?
 
+I am suspecting that it is a HP firmware problem, but specifically
+triggered by the linux kernel.
+
+Cheers,
 -- 
-Martin Schlemmer
+Edwin Top <e.top@uzorg.nl>
+Uzorg BV
+
+The person who says it cannot be done should not interrupt the person doing it.
+--Chinese Proverb
 
 

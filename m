@@ -1,58 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261930AbUK3CiZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbUK3Ci0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261930AbUK3CiZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 21:38:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbUK3CBI
+	id S261925AbUK3Ci0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 21:38:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbUK3Chs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 21:01:08 -0500
-Received: from baikonur.stro.at ([213.239.196.228]:55434 "EHLO
-	baikonur.stro.at") by vger.kernel.org with ESMTP id S261821AbUK3B5b
+	Mon, 29 Nov 2004 21:37:48 -0500
+Received: from mail1.webmaster.com ([216.152.64.168]:18706 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP id S261956AbUK3Ccp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 20:57:31 -0500
-Subject: [patch 07/11] Subject: ifdef typos: drivers_net_wireless_wavelan_cs.c
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, domen@coderock.org,
-       rddunlap@osdl.org
-From: janitor@sternwelten.at
-Date: Tue, 30 Nov 2004 02:57:28 +0100
-Message-ID: <E1CYxGj-0002sU-2F@sputnik>
+	Mon, 29 Nov 2004 21:32:45 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: "Bernard Normier" <bernard@zeroc.com>
+Cc: <jonathan@jonmasters.org>, <linux-kernel@vger.kernel.org>
+Subject: RE: Concurrent access to /dev/urandom
+Date: Mon, 29 Nov 2004 18:31:50 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKAEFPACAB.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+Importance: Normal
+In-Reply-To: <Pine.LNX.4.61.0411300041290.816@mercury.sdinet.de>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Mon, 29 Nov 2004 18:08:14 -0800
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Mon, 29 Nov 2004 18:08:18 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> On Mon, 29 Nov 2004, Bernard Normier wrote:
+>
+> >>> I use /dev/urandom to generate UUIDs by reading 16 random bytes from
+> >>> /dev/urandom (very much like e2fsprogs' libuuid).
+> >>
+> >> Why not use /dev/random for such data instead?
+> >
+> > A UUID generator that blocks from time to time waiting for
+> entropy would not
+> > be usable.
+>
+> Especially when used on a box without any effective entropy source - like
+> praktically most cheap servers stashed away into some rack.
 
-wavelan.p.h defines *_ERROR
-wavelan_cs.p.h defines *_ERRORS
-Since only second one is included, change #ifdefs
+	Assuming most of your cheap servers are running some version of the Intel
+Pentium or comparable, they have wonderful entropy sources. Nobody can
+predict the oscillator offset between the crystals in the network cards on
+both ends and the TSC. This entropy source is mined by the kernel.
 
-Signed-off-by: Domen Puncer <domen@coderock.org>
-Acked-by: Randy Dunlap <rddunlap@osdl.org>
-Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+	DS
 
----
 
- linux-2.6.10-rc2-bk13-max/drivers/net/wireless/wavelan_cs.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-diff -puN drivers/net/wireless/wavelan_cs.c~ifdef-drivers_net_wireless_wavelan_cs drivers/net/wireless/wavelan_cs.c
---- linux-2.6.10-rc2-bk13/drivers/net/wireless/wavelan_cs.c~ifdef-drivers_net_wireless_wavelan_cs	2004-11-30 02:41:40.000000000 +0100
-+++ linux-2.6.10-rc2-bk13-max/drivers/net/wireless/wavelan_cs.c	2004-11-30 02:41:40.000000000 +0100
-@@ -950,7 +950,7 @@ wv_diag(struct net_device *	dev)
- 		  OP0_DIAGNOSE, SR0_DIAGNOSE_PASSED))
-     ret = TRUE;
- 
--#ifdef DEBUG_CONFIG_ERROR
-+#ifdef DEBUG_CONFIG_ERRORS
-   printk(KERN_INFO "wavelan_cs: i82593 Self Test failed!\n");
- #endif
-   return(ret);
-@@ -3463,7 +3463,7 @@ wv_ru_stop(struct net_device *	dev)
-   /* If there was a problem */
-   if(spin <= 0)
-     {
--#ifdef DEBUG_CONFIG_ERROR
-+#ifdef DEBUG_CONFIG_ERRORS
-       printk(KERN_INFO "%s: wv_ru_stop(): The chip doesn't want to stop...\n",
- 	     dev->name);
- #endif
-_

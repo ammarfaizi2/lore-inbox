@@ -1,66 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262274AbUCSJ4t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 04:56:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbUCSJ4t
+	id S262104AbUCSJ4O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 04:56:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262274AbUCSJ4O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 04:56:49 -0500
-Received: from 10fwd.cistron-office.nl ([62.216.29.197]:5532 "EHLO
-	smtp.cistron-office.nl") by vger.kernel.org with ESMTP
-	id S262274AbUCSJ4o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 04:56:44 -0500
-From: "Miquel van Smoorenburg" <miquels@cistron.net>
-To: akpm@osdl.org
-Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4-mm2
-X-Newsgroups: lists.linux.kernel
-In-Reply-To: <20040318235200.25c376a9.akpm@osdl.org>
-References: <20040314172809.31bd72f7.akpm@osdl.org>
-	<200403181737.i2IHbCE09261@mail.osdl.org>
-	<20040318100615.7f2943ea.akpm@osdl.org>
-	<20040318192707.GV22234@suse.de>
-	<20040318191530.34e04cb2.akpm@osdl.org>
-	<20040319073919.GY22234@suse.de>
-Organization: Cistron Group
+	Fri, 19 Mar 2004 04:56:14 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:19726 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262104AbUCSJ4J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 04:56:09 -0500
+Date: Fri, 19 Mar 2004 09:56:00 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Matthew Wilcox <willy@debian.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@zip.com.au>,
+       Greg KH <greg@kroah.com>, David Mosberger <davidm@hpl.hp.com>,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: [2/3] Use insert_resource in pci_claim_resource
+Message-ID: <20040319095600.A9678@flint.arm.linux.org.uk>
+Mail-Followup-To: Matthew Wilcox <willy@debian.org>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@zip.com.au>,
+	Greg KH <greg@kroah.com>, David Mosberger <davidm@hpl.hp.com>,
+	linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+References: <20040318235024.GH25059@parcelfarce.linux.theplanet.co.uk> <20040318235217.GJ25059@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E1B4Gjz-0003BI-00@subspace.cistron-office.nl>
-Date: Fri, 19 Mar 2004 10:56:35 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040318235217.GJ25059@parcelfarce.linux.theplanet.co.uk>; from willy@debian.org on Thu, Mar 18, 2004 at 11:52:17PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20040318235200.25c376a9.akpm@osdl.org> you write:
->Jens Axboe <axboe@suse.de> wrote:
->>  I thought about this last night, and I have a better idea that gets the
->>  same accomplished. The problem right now is indeed that we aren't
->>  tracking who needs to be unplugged, like we used to. The solution is to
->>  do the exact same style plugging (with block helpers) that we used to,
->>  except the plug_list is maintained in the driver. So when you do
->>  dm_unplug(), it doesn't _have_ to iterate the full device list, only
->>  those that do need kicking.
->
->Yes, it would be nice but I fear that it gets complicated.
->
->Is it not the case that two dm maps can refer to the same queue?  Say, one
->map uses /dev/hda1 and another map uses /dev/hda2?
->
->If so, then when the /dev/hda queue is plugged we need to tell both the
->higher-level maps that this queue needs an unplug.  So blk_plug_device()
->and the various unplug functions need to perform upcalls to an arbitrary
->number of higher-level drivers, and those drivers need to keep track of the
->currently-plugged queues without adding data structures to the
->request_queue structure.
->
->It can be done of course, but could get messy.
+On Thu, Mar 18, 2004 at 11:52:17PM +0000, Matthew Wilcox wrote:
+> On ia64, the parent resources are not necessarily PCI resources and
+> so won't get found by pci_find_parent_resource.  Use the shiny new
+> insert_resource() function instead, which I think we would have used
+> here had it been available at the time.
 
-I implemented exactly this for the congestion stuff. It
-isn't perfect, but perhaps it is of some use:
-                                                                                
-https://www.redhat.com/archives/linux-lvm/2004-February/msg00215.html
+I think we want to preserve the existing behaviour rather than change
+it.  We really do want to request the device resource against its
+immediate parent because that is the way PCI works - if a devices
+resources don't fall within the parent bus resources, we want to
+know about it.
 
-It got shot down because it was too complicated..
+May I suggest that ia64 sets the parent bus resources appropriately,
+which should relieve this problem (iow, pci_root_bus->resource[0..3])?
+If pci_find_parent_resource() is returning the wrong thing, its likely
+that other users of this function will also be getting the wrong answer.
 
-Mike.
 -- 
-Netu, v qba'g yvxr gur cynvagrkg :)
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

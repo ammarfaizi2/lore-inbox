@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270995AbTG1GiN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 02:38:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272608AbTG1GiN
+	id S272674AbTG1Gpp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 02:45:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272678AbTG1Gpp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 02:38:13 -0400
-Received: from [211.167.76.68] ([211.167.76.68]:16072 "HELO soulinfo")
-	by vger.kernel.org with SMTP id S270995AbTG1GiM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 02:38:12 -0400
-Date: Mon, 28 Jul 2003 14:56:36 +0800
-From: hugang <hugang@soulinfo.com>
-To: Voicu Liviu <pacman@mscc.huji.ac.il>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: vmware version >=4
-Message-Id: <20030728145636.70fd45de.hugang@soulinfo.com>
-In-Reply-To: <3F24BA60.9050503@mscc.huji.ac.il>
-References: <3F24BA60.9050503@mscc.huji.ac.il>
-X-Mailer: Sylpheed version 0.9.0claws (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 28 Jul 2003 02:45:45 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:45217
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S272674AbTG1Gpn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 02:45:43 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Mike Galbraith <efault@gmx.de>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: [patch] sched-2.6.0-test1-G6, interactivity changes
+Date: Mon, 28 Jul 2003 17:05:01 +1000
+User-Agent: KMail/1.5.2
+Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0307271535590.22937-100000@localhost.localdomain> <5.2.1.1.2.20030728065857.01bc9708@pop.gmx.net>
+In-Reply-To: <5.2.1.1.2.20030728065857.01bc9708@pop.gmx.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
- =?ISO-8859-1?Q?=CA=D5=BC=FE=C8=CB=A3=BA:?= Voicu Liviu <pacman@mscc.huji.ac.il>
- =?ISO-8859-1?Q?=B3=AD=CB=CD=A3=BA:?= linux-kernel@vger.kernel.org
+Content-Disposition: inline
+Message-Id: <200307281705.01471.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Jul 2003 08:53:36 +0300
-Voicu Liviu <pacman@mscc.huji.ac.il> wrote:
+On Mon, 28 Jul 2003 16:04, Mike Galbraith wrote:
+> to recharge his sleep_avg.  He stays low priority.  Kobiashi-maru:  X can't
 
-> Hi,
-> I know there is a patch to make vmware compile against kernel >=2.5x
-> Any one could help me?
-> Thanks,
-> 
-> -- 
+> Conclusion accuracy/inaccuracy aside, I'd like to see if anyone else can
+> reproduce that second scenario.
 
-http://ftp.cvut.cz/vmware/vmware-any-any-update37.tar.gz
+Yes I can reproduce it, but we need the Kirk approach and cheat. Some 
+workaround for tasks that have fallen onto the expired array but shouldn't be 
+there needs to be created. But first we need to think of one before we can 
+create one...
 
--- 
-Hu Gang / Steve
-Email        : hugang@soulinfo.com, steve@soulinfo.com
-GPG FinePrint: 4099 3F1D AE01 1817 68F7  D499 A6C2 C418 86C8 610E
-http://soulinfo.com/~hugang/HuGang.asc
-ICQ#         : 205800361
-Registered Linux User : 204016
+Con
+

@@ -1,96 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261471AbULIHc4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261487AbULIHtL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261471AbULIHc4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 02:32:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbULIHc4
+	id S261487AbULIHtL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 02:49:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261489AbULIHtL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 02:32:56 -0500
-Received: from admingilde.org ([213.95.21.5]:59354 "EHLO mail.admingilde.org")
-	by vger.kernel.org with ESMTP id S261471AbULIHct (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 02:32:49 -0500
-Date: Thu, 9 Dec 2004 08:32:33 +0100
-From: Martin Waitz <tali@admingilde.org>
+	Thu, 9 Dec 2004 02:49:11 -0500
+Received: from rrzmta2.rz.uni-regensburg.de ([132.199.1.17]:6372 "EHLO
+	rrzmta2.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id S261487AbULIHtE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 02:49:04 -0500
+From: "Ulrich Windl" <ulrich.windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
 To: john stultz <johnstul@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] new timeofday core subsystem (v.A1)
-Message-ID: <20041209073233.GB4663@admingilde.org>
-Mail-Followup-To: john stultz <johnstul@us.ibm.com>,
-	linux-kernel@vger.kernel.org
-References: <1102470914.1281.27.camel@cog.beaverton.ibm.com> <1102470997.1281.30.camel@cog.beaverton.ibm.com> <20041208202713.GA4663@admingilde.org> <1102555933.1281.301.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="wq9mPyueHGvFACwf"
-Content-Disposition: inline
-In-Reply-To: <1102555933.1281.301.camel@cog.beaverton.ibm.com>
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
-User-Agent: Mutt/1.5.6+20040907i
-X-Hashcash: 0:041209:johnstul@us.ibm.com:86c99ec6249c3e1e
-X-Hashcash: 0:041209:linux-kernel@vger.kernel.org:70488d6a98f0c551
-X-Spam-Score: -12.9 (------------)
+Date: Thu, 09 Dec 2004 08:47:20 +0100
+MIME-Version: 1.0
+Subject: Re: [RFC] New timeofday proposal (v.A1)
+Cc: lkml <linux-kernel@vger.kernel.org>, tim@physik3.uni-rostock.de,
+       george anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich.Windl@rz.uni-regensburg.de, Len Brown <len.brown@intel.com>,
+       linux@dominikbrodowski.de, David Mosberger <davidm@hpl.hp.com>,
+       Andi Kleen <ak@suse.de>, paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, greg kh <greg@kroah.com>,
+       Patricia Gaughen <gone@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
+       Max <amax@us.ibm.com>, mahuja@us.ibm.com
+Message-ID: <41B81119.19559.EE57A05@rkdvmks1.ngate.uni-regensburg.de>
+In-reply-to: <1102535891.1281.148.camel@cog.beaverton.ibm.com>
+References: <Pine.LNX.4.58.0412081114590.27324@schroedinger.engr.sgi.com>
+X-mailer: Pegasus Mail for Windows (4.21c)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Content-Conformance: HerringScan-0.25/Sophos-P=3.88.0+V=3.88+U=2.07.079+R=06 December 2004+T=97715@20041209.074751Z
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 8 Dec 2004 at 11:58, john stultz wrote:
 
---wq9mPyueHGvFACwf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+[...]
+> behavior of adjtimex().  We need to be able to implement the following
+> adjustments within a single tick:
+> 
+> 1. Adjust the frequency by 500ppm for 10usecs 
 
-hoi :)
+What do you mean by "for 10usecs"?
 
-On Wed, Dec 08, 2004 at 05:32:13PM -0800, john stultz wrote:
-> Ah, actually, you missed something. The remainder you propose above is
-> in units of cycles multiplied by mult. Thus to get it back to just
-> cycles, we have to divide. So:
->=20
-> 	ret *=3D ts->mult;
-> 	if (rem)
-> 		*rem =3D (ret & (1 << ts->shift -1))/mult;
-> 	ret >>=3D ts->shift;
+> 2. After that adjust the frequency by 30ppm for the rest of the tick.
 
-you are of course right
+I'm not sure what you are taling about: plain old adjtime() or the NTP kernel 
+interface?
 
-> Agreed?
+[...]
+> I may have asked this before, but w/ 32 bit mult and shifts, how
+> granular can these adjustments be?
 
-well, divisions are always slow and we would loose precision again.
+Independent of any bits, the precision should be up to 1ns for reading and setting 
+the clock, and as a consequence you might provide internal fractional nanoseconds 
+(if you want to have a truly stable nanosecond clock model). If we get this right, 
+there will be peace in this area until the wires in a PC are significantly shorter 
+than 30cm (I think this is how far the light goes in 1ns). ;-)
 
-I have another suggestion: just keep the remainder in units of
-cycles*mult.
+> 
+> Also additional complications arise when we have multiple things (like
+> cpufreq) playing with the timesource frequency values as well. 
 
-	ret *=3D ts->mult
-	if (rem) {
-		ret +=3D *rem;
-		*rem =3D ret & (1 << ts->shift -1);
-	}
-	ret >>=3D ts->shift
+I see a bug difference between precise time keeping and "playing" with 
+timesources.
 
-and remove the offset_base adjustion below.
-
---=20
-Martin Waitz
-
---wq9mPyueHGvFACwf
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBt/+Rj/Eaxd/oD7IRAmKIAJ9DZimOuXHT+LxPiQpI1ScoGu4HHACfSdfT
-I/3/mGkMwVF2KEYo4eglGoo=
-=SwuA
------END PGP SIGNATURE-----
-
---wq9mPyueHGvFACwf--
+Regards,
+Ulrich
 

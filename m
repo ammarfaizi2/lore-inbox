@@ -1,39 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129684AbRBBMdy>; Fri, 2 Feb 2001 07:33:54 -0500
+	id <S129056AbRBBMsC>; Fri, 2 Feb 2001 07:48:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129742AbRBBMdo>; Fri, 2 Feb 2001 07:33:44 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:64005 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129736AbRBBMda>; Fri, 2 Feb 2001 07:33:30 -0500
-Subject: Re: [reiserfs-list] ReiserFS Oops (2.4.1, deterministic, symlink related)
-To: kas@informatics.muni.cz (Jan Kasprzak)
-Date: Fri, 2 Feb 2001 12:34:19 +0000 (GMT)
-Cc: reiser@namesys.com (Hans Reiser), linux-kernel@vger.kernel.org,
-        reiserfs-list@namesys.com
-In-Reply-To: <20010202131623.A6082@informatics.muni.cz> from "Jan Kasprzak" at Feb 02, 2001 01:16:23 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129100AbRBBMrx>; Fri, 2 Feb 2001 07:47:53 -0500
+Received: from buserror.convergence.de ([212.84.236.5]:60151 "EHLO wintermute")
+	by vger.kernel.org with ESMTP id <S129056AbRBBMrh>;
+	Fri, 2 Feb 2001 07:47:37 -0500
+Message-ID: <3A7AAC4F.FA9BB97D@convergence.de>
+Date: Fri, 02 Feb 2001 13:47:11 +0100
+From: Szymon Polom <polom@convergence.de>
+Organization: convergence integrated media GmbH
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Fredrik Vraalsen <vraalsen@cs.uiuc.edu>, axboe@suse.de,
+        torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        livid-dev@linuxvideo.org,
+        "Peter Rasmussen (udgaard)" <plr@udgaard.com>
+Subject: Re: [livid-dev] [Patch] DVD bugfix in ide-cd.c
+In-Reply-To: <200102012210.XAA00328@udgaard.com>
+			<sz2u26d4tt8.fsf@kazoo.cs.uiuc.edu> <sz2lmrp4qib.fsf_-_@kazoo.cs.uiuc.edu> <3A7AA8BE.B302C8D8@convergence.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14OfPx-0006Pq-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hans Reiser wrote:
-> : This is why our next patch will detect the use of gcc 2.96, and complain, in the
-> : reiserfs Makefile.
-> : 
-> 	OK, thanks. It works with older compiler (altough I use gcc 2.96
-> for a long time for compiling various 2.[34] kernels without problem).
+Hello,
 
-Ok which 2.96 compiler do you have. I need to get this one chased down since
-its probably also going to be in the current gcc CVS branches heading for 3.0
+Szymon Polom wrote:
 
-2.96-69 should be ok (thats the one I've been using without trouble). The 
-original one with RH 7.0 off the CD does miscompile a few kernel things.
+> Fredrik Vraalsen wrote:
+> >
+> > This is a small patch to Linux kernel 2.4.1 that fixes a problem with
+> > DVD playback in OMS (Open Media System).  With the stock 2.4.1 kernel
+> > OMS will only play up to a certain point on the DVD before it complains
+> > about no more data left on input (basically read() returns 0).  This
+> > patch reverts a change between 2.4.0 and 2.4.1.
+> 
+> What's wrong with the people maintaining the source? The bug has been
+> fixed in 2.2.18 and 2.4.0-test8. I can't imagine how the bug has been
+> "implemented" in 2.4.1 again.
+> 
+> Any ideas?
 
+I have to revoke my statement. The cached toc problem i meant was in
+cdrom_get_toc_entry() not in cdrom_read_toc().
+
+Bye... SP.
+-- 
+Szymon Polom                              polom@convergence.de
+convergence integrated media GmbH         http://www.convergence.de
+Rosenthaler Str. 51                       fon: +49(0)30-72 62 06 68 
+D-10178 Berlin                            fax: +49(0)30-72 62 06 55
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

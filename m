@@ -1,50 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317297AbSFRDVv>; Mon, 17 Jun 2002 23:21:51 -0400
+	id <S317293AbSFRDYr>; Mon, 17 Jun 2002 23:24:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317295AbSFRDVu>; Mon, 17 Jun 2002 23:21:50 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:2041 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S317294AbSFRDVt> convert rfc822-to-8bit; Mon, 17 Jun 2002 23:21:49 -0400
-From: David Schwartz <davids@webmaster.com>
-To: <mgix@mgix.com>, <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.61 (1025) - Licensed Version
-Date: Mon, 17 Jun 2002 20:21:48 -0700
-In-Reply-To: <AMEKICHCJFIFEDIBLGOBCEEECBAA.mgix@mgix.com>
-Subject: RE: Question about sched_yield()
+	id <S317300AbSFRDYq>; Mon, 17 Jun 2002 23:24:46 -0400
+Received: from rrcs-sw-24-153-135-82.biz.rr.com ([24.153.135.82]:11921 "HELO
+	UberGeek") by vger.kernel.org with SMTP id <S317293AbSFRDYo>;
+	Mon, 17 Jun 2002 23:24:44 -0400
+Subject: [Possibly OT] Re: /proc/scsi/map
+From: Austin Gonyou <austin@digitalroadkill.net>
+To: Doug Ledford <dledford@redhat.com>
+Cc: Kurt Garloff <kurt@garloff.de>,
+       Linux SCSI list <linux-scsi@vger.kernel.org>,
+       Linux kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020617224046.A6590@redhat.com>
+References: <20020615133606.GC11016@gum01m.etpnet.phys.tue.nl>
+	 <20020617180818.C30391@redhat.com>
+	 <20020617230648.GA3448@gum01m.etpnet.phys.tue.nl>
+	  <20020617224046.A6590@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 17 Jun 2002 22:24:40 -0500
+Message-Id: <1024370680.5490.8.camel@UberGeek>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <20020618032149.AAA841@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->>    This neither says nor implies anything about CPU usage. It simply says
->>that
->>the current thread will yield and be put at the end of the list.
->
->If so, please enlighten me as to when, why, and what for you would use
->sched_yield.
+On Mon, 2002-06-17 at 21:40, Doug Ledford wrote:
+> On Tue, Jun 18, 2002 at 01:06:48AM +0200, Kurt Garloff wrote:
+> > Hi Doug,
+> > 
+> .... 
+> > In case you just add controllers, you just need to make sure you get them the
+> > same numbers again. A solution for this exists already:
+> > * For a kernel where SCSI low-level drivers are loaded as modules,
+> >   you just need to keep the order constant
+> > * For compiled in SCSI drivers, use scsihosts=
+> 
+....
+> No, this is not true.  If you add a new controller (for some new disks in 
+> a new external enclosure or whatever), and that controller uses the same 
+> driver as other controller(s) in your system, then you have no guarantee 
+> of order.  For example, adding a 4th aic7xxx controller to your system 
+> might or might not place the new controller at the end of the list 
+> depending on PCI scan order, etc.  There simply is *no* guarantee here of 
+> any consistent naming, so don't bother trying to claim there is.
+> 
 
-	Generally because you can't do something until some other thread/process 
-does something, so you give it a chance to finish immediately before trying 
-something a more expensive way.
+Taking a bit of an example from Veritas, would it be, at all, feasible
+if n+ blocks were used at the end of the disk or partition(beginning
+maybe?), to write a specific identifier that is unique to a specific
+controller, or to make note of the drive serial number and store that on
+the disk somewhere in some agreed upon understood way. 
 
->If willingly and knowingly relinquinshing a CPU does not make it possible
->for other processes to use what would otherwise have been your very own 
->slice
->of processing time then what could it be used for, I really wonder.
+Much like the private region on a veritas disk or volume. With the extra
+accounting, which should only be needed during boot, or during
+disk/volume manipulation, one could conceivably always have a sane
+device map, all the time. 
 
-	It does! That's what it's for.
+As to the rest of the comments lower down on the original mail, I'd say
+that this is *a lot* of trouble, versus the opposite, but if implemented
+properly would be highly useful. Using LVM and the like, which does
+something like this, seems to be fine for most people(even when moving
+disks around, etc), but this ability, without the overhead of LVM in the
+mix would seem a good idea for some. 
 
->Second, I have tried to run my misconception on various other OS'es I have
->access to:Win2k, Mac OSX and OpenBSD, and suprinsingly enough, all of them
->seem to be sharing my twisted views of How Things Should Be (tm).
-
-	Just because they do what you naively expect doesn't validate your 
-expectations.
-
-	DS
-
-
+Just my $.02
+TIA
+-- 
+Austin Gonyou <austin@digitalroadkill.net>

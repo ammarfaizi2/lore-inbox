@@ -1,35 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129027AbRBGXjm>; Wed, 7 Feb 2001 18:39:42 -0500
+	id <S129107AbRBGXK6>; Wed, 7 Feb 2001 18:10:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129032AbRBGXjd>; Wed, 7 Feb 2001 18:39:33 -0500
-Received: from fungus.teststation.com ([212.32.186.211]:57562 "EHLO
-	fungus.svenskatest.se") by vger.kernel.org with ESMTP
-	id <S129027AbRBGXjX>; Wed, 7 Feb 2001 18:39:23 -0500
-Date: Thu, 8 Feb 2001 00:39:16 +0100 (CET)
-From: Urban Widmark <urban@teststation.com>
-To: <JShaw@jbwere.com.au>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.x and oops on 'mount -t smbfs'
-In-Reply-To: <974A613A43EED311ACBD00508B5EF8C1D66DEF@meexc04.jbwere.com.au>
-Message-ID: <Pine.LNX.4.30.0102080036110.4033-100000@cola.teststation.com>
+	id <S129135AbRBGXKj>; Wed, 7 Feb 2001 18:10:39 -0500
+Received: from hilbert.umkc.edu ([134.193.4.60]:50697 "HELO tesla.umkc.edu")
+	by vger.kernel.org with SMTP id <S129107AbRBGXKe>;
+	Wed, 7 Feb 2001 18:10:34 -0500
+Message-ID: <3A81D5B4.9CBC9B0D@kasey.umkc.edu>
+Date: Wed, 07 Feb 2001 17:09:40 -0600
+From: "David L. Nicol" <david@kasey.umkc.edu>
+Organization: University of Missouri - Kansas City   supercomputing infrastructure
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+CC: "Miller, Brendan" <Brendan.Miller@Dialogic.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: bidirectional named pipe?
+In-Reply-To: <E14OxTz-0007yS-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Feb 2001 JShaw@jbwere.com.au wrote:
+Alan Cox wrote:
+> 
+> > I'm porting some software to Linux that requires use of a bidirectional,
+> > named pipe.  The architecture is as follows:  A server creates a named pipe
+> 
+> Pipes are not bidirectional in Linux. We follow traditional non stream
+> behaviour
+> 
+> > /dev/spx".  I experiemented with socket-based pipes under Linux, but I
+> > couldn't gain access to them by open()ing the name.  Is there help?  I
+> 
+> AF_UNIX sockets are bidirectional but like all sockets use bind() and
+> connect().
 
-> I've compiled a number of 2.4.1 and 2.4.0 kernels (actually supports the 4GB
-> RAM!!!  Yay!!!!), and I have only one more problem to sort out.  Under
-> 2.4.x, the mount completes successfully, but 'ls /net' causes an OOPS: 0000.
+How hard would it be to add? The limitation on fifos that you get the same
+one every time you open it makes some things tricky -- the server has to
+move the fifo and mkfifo a new one to replace its data with something else,
+for instance, which is not atomic.
 
-Try http://www.hojdpunkten.ac.se/054/samba/smbfs-2.4.1-pre10-cache-2.patch
+I don't understand, in the original problem, how the server opens
+the named bipipe differently from the servers, to be on one end rather than
+the other.
 
-Let me know if it works for you or not.
-(patch should be ok with 2.4.0 or 2.4.1)
+A way to map a file name to a socket pair would be nice, the first to open
+it could get one end of it and everyone else would get the other end, or there
+would be a switch.
 
-/Urban
+You could patch the file system code, I wonder how deep the changes would have
+to be, if you did it in terms of lots of fifos.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

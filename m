@@ -1,67 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262909AbUDLOSX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Apr 2004 10:18:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262910AbUDLOSW
+	id S262906AbUDLOST (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Apr 2004 10:18:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262910AbUDLOSS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Apr 2004 10:18:22 -0400
-Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:24552 "EHLO
-	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
-	id S262909AbUDLOSR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Apr 2004 10:18:17 -0400
-Message-ID: <407AA51F.5020205@myrealbox.com>
-Date: Mon, 12 Apr 2004 07:18:07 -0700
-From: Andy Lutomirski <luto@myrealbox.com>
-User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
-X-Accept-Language: en-us, en
+	Mon, 12 Apr 2004 10:18:18 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:9904 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262906AbUDLOSP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Apr 2004 10:18:15 -0400
+From: Kevin Corry <kevcorry@us.ibm.com>
+To: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] Device-Mapper 1/9
+Date: Mon, 12 Apr 2004 09:18:04 -0500
+User-Agent: KMail/1.6
+References: <200404120912.45870.kevcorry@us.ibm.com>
+In-Reply-To: <200404120912.45870.kevcorry@us.ibm.com>
 MIME-Version: 1.0
-To: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
-CC: Andrew Morton <akpm@osdl.org>, Andy Lutomirski <luto@myrealbox.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: fix must_not_trace_exec() test
-References: <20040410200551.31866667.akpm@osdl.org> <878yh1y1gs.fsf@goat.bogus.local>
-In-Reply-To: <878yh1y1gs.fsf@goat.bogus.local>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200404120918.04115.kevcorry@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf Dietsche wrote:
+Fix 64/32 bit ioctl problems.
 
-> Andrew Morton <akpm@osdl.org> writes:
-> 
-> 
-> Although, I'd rather not lump together unrelated tests without
-> renaming must_not_trace_exec(). Btw, can someone enlighten me what
-> this atomic_read() test is all about.
-
-Oops... your fix is obviously correct.
-
-I assumed that the test was to check if the caller is a thread, but that sounds 
-odd -- wouldn't it stop being a thread after the exec anyway?  Maybe that part 
-happens after compute_creds, so this prevents a race?  Although I don't see how 
-it could be triggered if the thread never entered usermode before getting a new 
-fs/files/sighand.
-
-Anyone?
-
-> 
-> Regards, Olaf.
-> 
-> diff -urN a/security/commoncap.c b/security/commoncap.c
-> --- a/security/commoncap.c	Mon Apr 12 10:38:17 2004
-> +++ b/security/commoncap.c	Mon Apr 12 11:10:38 2004
-> @@ -118,9 +118,9 @@
->  static inline int must_not_trace_exec (struct task_struct *p)
->  {
->  	return ((p->ptrace & PT_PTRACED) && !(p->ptrace & PT_PTRACE_CAP))
-> -		|| atomic_read(&current->fs->count) > 1
-> -		|| atomic_read(&current->files->count) > 1
-> -		|| atomic_read(&current->sighand->count) > 1;
-> +		|| atomic_read(&p->fs->count) > 1
-> +		|| atomic_read(&p->files->count) > 1
-> +		|| atomic_read(&p->sighand->count) > 1;
->  }
->  [...]
-
---Andy
+--- diff/include/linux/compat_ioctl.h	2004-04-03 21:38:19.000000000 -0600
++++ source/include/linux/compat_ioctl.h	2004-04-09 09:41:45.000000000 -0500
+@@ -123,6 +123,19 @@
+ COMPATIBLE_IOCTL(STOP_ARRAY_RO)
+ COMPATIBLE_IOCTL(RESTART_ARRAY_RW)
+ /* DM */
++COMPATIBLE_IOCTL(DM_VERSION_32)
++COMPATIBLE_IOCTL(DM_LIST_DEVICES_32)
++COMPATIBLE_IOCTL(DM_DEV_CREATE_32)
++COMPATIBLE_IOCTL(DM_DEV_REMOVE_32)
++COMPATIBLE_IOCTL(DM_DEV_RENAME_32)
++COMPATIBLE_IOCTL(DM_DEV_SUSPEND_32)
++COMPATIBLE_IOCTL(DM_DEV_STATUS_32)
++COMPATIBLE_IOCTL(DM_DEV_WAIT_32)
++COMPATIBLE_IOCTL(DM_TABLE_LOAD_32)
++COMPATIBLE_IOCTL(DM_TABLE_CLEAR_32)
++COMPATIBLE_IOCTL(DM_TABLE_DEPS_32)
++COMPATIBLE_IOCTL(DM_TABLE_STATUS_32)
++COMPATIBLE_IOCTL(DM_LIST_VERSIONS_32)
+ COMPATIBLE_IOCTL(DM_VERSION)
+ COMPATIBLE_IOCTL(DM_LIST_DEVICES)
+ COMPATIBLE_IOCTL(DM_DEV_CREATE)
+--- diff/include/linux/dm-ioctl.h	2004-04-03 21:36:13.000000000 -0600
++++ source/include/linux/dm-ioctl.h	2004-04-09 09:41:45.000000000 -0500
+@@ -200,6 +200,34 @@
+ 	DM_LIST_VERSIONS_CMD,
+ };
+ 
++/*
++ * The dm_ioctl struct passed into the ioctl is just the header
++ * on a larger chunk of memory.  On x86-64 and other
++ * architectures the dm-ioctl struct will be padded to an 8 byte
++ * boundary so the size will be different, which would change the
++ * ioctl code - yes I really messed up.  This hack forces these
++ * architectures to have the correct ioctl code.
++ */
++#ifdef CONFIG_COMPAT
++typedef char ioctl_struct[308];
++#define DM_VERSION_32       _IOWR(DM_IOCTL, DM_VERSION_CMD, ioctl_struct)
++#define DM_REMOVE_ALL_32    _IOWR(DM_IOCTL, DM_REMOVE_ALL_CMD, ioctl_struct)
++#define DM_LIST_DEVICES_32  _IOWR(DM_IOCTL, DM_LIST_DEVICES_CMD, ioctl_struct)
++
++#define DM_DEV_CREATE_32    _IOWR(DM_IOCTL, DM_DEV_CREATE_CMD, ioctl_struct)
++#define DM_DEV_REMOVE_32    _IOWR(DM_IOCTL, DM_DEV_REMOVE_CMD, ioctl_struct)
++#define DM_DEV_RENAME_32    _IOWR(DM_IOCTL, DM_DEV_RENAME_CMD, ioctl_struct)
++#define DM_DEV_SUSPEND_32   _IOWR(DM_IOCTL, DM_DEV_SUSPEND_CMD, ioctl_struct)
++#define DM_DEV_STATUS_32    _IOWR(DM_IOCTL, DM_DEV_STATUS_CMD, ioctl_struct)
++#define DM_DEV_WAIT_32      _IOWR(DM_IOCTL, DM_DEV_WAIT_CMD, ioctl_struct)
++
++#define DM_TABLE_LOAD_32    _IOWR(DM_IOCTL, DM_TABLE_LOAD_CMD, ioctl_struct)
++#define DM_TABLE_CLEAR_32   _IOWR(DM_IOCTL, DM_TABLE_CLEAR_CMD, ioctl_struct)
++#define DM_TABLE_DEPS_32    _IOWR(DM_IOCTL, DM_TABLE_DEPS_CMD, ioctl_struct)
++#define DM_TABLE_STATUS_32  _IOWR(DM_IOCTL, DM_TABLE_STATUS_CMD, ioctl_struct)
++#define DM_LIST_VERSIONS_32 _IOWR(DM_IOCTL, DM_LIST_VERSIONS_CMD, ioctl_struct)
++#endif
++
+ #define DM_IOCTL 0xfd
+ 
+ #define DM_VERSION       _IOWR(DM_IOCTL, DM_VERSION_CMD, struct dm_ioctl)

@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266196AbTLIJuE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 04:50:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264321AbTLIJuA
+	id S264321AbTLIJvK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 04:51:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264394AbTLIJvJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 04:50:00 -0500
-Received: from rcum.uni-mb.si ([164.8.2.10]:37357 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id S264354AbTLIJtP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 04:49:15 -0500
-Date: Tue, 09 Dec 2003 10:47:32 +0100
-From: Domen Puncer <domen@coderock.org>
-Subject: [PATCH 2.4.23, 2.6.0-test11] fix d_type in readdir in isofs
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Message-id: <200312091047.33015.domen@coderock.org>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: KMail/1.5.4
+	Tue, 9 Dec 2003 04:51:09 -0500
+Received: from 216-239-45-4.google.com ([216.239.45.4]:33407 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id S264382AbTLIJuk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 04:50:40 -0500
+Message-ID: <3FD59AD8.1060507@google.com>
+Date: Tue, 09 Dec 2003 01:50:16 -0800
+From: Paul Menage <menage@google.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Arjan van de Ven <arjanv@redhat.com>
+CC: agrover@groveronline.com, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: ACPI global lock macros
+References: <3FD59441.2000202@google.com> <1070962573.5223.2.camel@laptop.fenrus.com> <3FD5990A.9020908@google.com> <20031209094356.GA19702@devserv.devel.redhat.com>
+In-Reply-To: <20031209094356.GA19702@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Arjan van de Ven wrote:
+>>>maybe the odd thing is that it exists at all?
+>>>(eg why does ACPI need to have it's own locking primitives...)
+>>
+>>Because the ACPI spec defines its own locking protocol for 
+>>synchronization between the OS and the BIOS.
+> 
+> 
+> ... which can't be written based on linux locks ?
 
-Played with scandir, and noticed iso9660's files d_type is always 0,
-so here's a fix.
+I assume (hope!) there's already a higher-level linux lock serializing 
+access to acpi_acquire_global_lock() although I've not delved deeply 
+into the code. This is the lock described on p112 of 
+http://www.acpi.info/DOWNLOADS/ACPIspec-2-0c.pdf, which has the 
+semantics that if the OS wants to take the lock while the BIOS holds it, 
+it sets a bit and waits for an interrupt from the BIOS. I don't see that 
+it could be naturally implemented using a linux lock.
 
-If there are no objections i'll try to fix some other filesystems too.
-
-2.6.0-test11:
---- c/fs/isofs/dir.c	2003-08-23 01:58:53.000000000 +0200
-+++ a/fs/isofs/dir.c	2003-12-09 10:29:21.000000000 +0100
-@@ -230,7 +230,8 @@
- 			}
- 		}
- 		if (len > 0) {
--			if (filldir(dirent, p, len, filp->f_pos, inode_number, DT_UNKNOWN) < 0)
-+			if (filldir(dirent, p, len, filp->f_pos, inode_number,
-+					(de->flags[0]&2)?DT_DIR:DT_REG) < 0)
- 				break;
- 		}
- 		filp->f_pos += de_len;
-
-
-2.4.23:
---- linux-2.4.23-clean/fs/isofs/dir.c	2002-02-25 20:38:08.000000000 +0100
-+++ linux-2.4.23/fs/isofs/dir.c	2003-12-09 10:28:58.000000000 +0100
-@@ -230,7 +230,8 @@
- 			}
- 		}
- 		if (len > 0) {
--			if (filldir(dirent, p, len, filp->f_pos, inode_number, DT_UNKNOWN) < 0)
-+			if (filldir(dirent, p, len, filp->f_pos, inode_number,
-+					(de->flags[0]&2)?DT_DIR:DT_REG) < 0)
- 				break;
- 		}
- 		filp->f_pos += de_len;
+Paul
 

@@ -1,71 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264977AbUEYRIJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264982AbUEYRMH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264977AbUEYRIJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 13:08:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264980AbUEYRII
+	id S264982AbUEYRMH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 13:12:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264980AbUEYRMH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 13:08:08 -0400
-Received: from Mail.MNSU.EDU ([134.29.1.12]:58542 "EHLO mail.mnsu.edu")
-	by vger.kernel.org with ESMTP id S264977AbUEYRHY (ORCPT
+	Tue, 25 May 2004 13:12:07 -0400
+Received: from mail.skule.net ([216.235.14.165]:32643 "EHLO mail.skule.net")
+	by vger.kernel.org with ESMTP id S264984AbUEYRJd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 13:07:24 -0400
-Message-ID: <40B37D4A.9000304@mnsu.edu>
-Date: Tue, 25 May 2004 12:07:22 -0500
-From: "Jeffrey E. Hundstad" <jeffrey.hundstad@mnsu.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040514
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "A. op de Weegh" <aopdeweegh@rockopnh.nl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Granting some root permissions to certain users
-References: <jbm.20040525185001.f766d1ea@TOSHIBA>
-In-Reply-To: <jbm.20040525185001.f766d1ea@TOSHIBA>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 25 May 2004 13:09:33 -0400
+Date: Tue, 25 May 2004 13:09:31 -0400
+From: Mark Frazer <mark@mjfrazer.org>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: [OT] scatter-gather ops within host memory on a PC
+Message-ID: <20040525170931.GE10775@mjfrazer.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Message-Flag: Outlook not so good.
+Organization: Detectable, well, not really
+X-Fry: Where's Captain Bender? Off catastrophizing some other planet?
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A. o de Weegh,
+I'd like to aggregate a bunch of ethernet packet payloads into a single
+large buffer after examining the packet headers to determine the order of
+the packets.  The data volume makes offloading this to a DMA controller
+desirable.
 
-We use a kernel patch called trustees to do just what you're talking 
-about.  Unfortunately the patch hasn't really been kept up-to-date.  I 
-wish something *like* this could be included in the standard kernel, but 
-I guess I understand why it's not also.
+Do PC chipsets have DMA controllers on them to do these scatter-gather
+operations?  I know a lot of embedded SoC processors do, but am not
+to familiar with the current PC chipsets.
 
-Here's a link to trustees: http://trustees.sourceforge.net/
+I've glanced at the NFS code but haven't studied it a lot.
+rxrpc/transport.c seems to copy some data around, so I assume that linux
+uses the host processor to gather the individual ethernet packets into
+pages that go into the page cache.
 
-You could also use ACLs to give your teachers permissions, but that 
-tends to take a lot of work imho, but it's what were looking at to 
-replace trustees when I can no longer get it to patch into kernels.
+Are there any good books anyone would recommend on PC architecture?
 
-Here's a link to Linux ACL: http://acl.bestbits.at/
-
+thanks
+-mark
 -- 
-jeffrey hundstad
-
-
-A. op de Weegh wrote:
-
->Hi all,
->At our school, we have a installed Fedora Core 1 on a machine which acts as a 
->server. Our students may store reports and other products, that they have 
->created for their lessons, on this machine. Also the teachers have an 
->account.
-> 
->I would like the teachers to have list access on ALL directories. Just as the 
->root user has. I wouldn't like the teachers to have all root permissions, but 
->they should only be able to list ALL directories available. Viewing only, no 
->writing.
-> 
->Any idea how I can achieve this?
-> 
->Thanx,
->Alex
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->  
->
+The laws of science be a harsh mistress. - Bender

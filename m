@@ -1,69 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263187AbTCLO2L>; Wed, 12 Mar 2003 09:28:11 -0500
+	id <S263190AbTCLObT>; Wed, 12 Mar 2003 09:31:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263190AbTCLO2L>; Wed, 12 Mar 2003 09:28:11 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:24068 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id <S263187AbTCLO2J>; Wed, 12 Mar 2003 09:28:09 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200303121440.h2CEemKr000671@81-2-122-30.bradfords.org.uk>
-Subject: Re: [T-Shirt] BK->CVS (real time mirror) (fwd)
-To: linux-kernel@vger.kernel.org
-Date: Wed, 12 Mar 2003 14:40:48 +0000 (GMT)
-X-Mailer: ELM [version 2.5 PL6]
+	id <S263192AbTCLObT>; Wed, 12 Mar 2003 09:31:19 -0500
+Received: from mail-08.iinet.net.au ([203.59.3.40]:56325 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id <S263190AbTCLObR>;
+	Wed, 12 Mar 2003 09:31:17 -0500
+Message-ID: <002101c2e8a5$8358d4c0$2400a8c0@compaq3>
+From: "David Shirley" <dave@cs.curtin.edu.au>
+To: <vda@port.imtp.ilyichevsk.odessa.ua>, <linux-kernel@vger.kernel.org>
+References: <041b01c2e86a$870822f0$64070786@synack> <200303121340.h2CDe3u30029@Port.imtp.ilyichevsk.odessa.ua> <000a01c2e89e$e9ab9c50$2400a8c0@compaq3> <200303121353.h2CDrhu30117@Port.imtp.ilyichevsk.odessa.ua>
+Subject: Re: Help, eth0: transmit timed out!
+Date: Wed, 12 Mar 2003 22:41:48 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="koi8-r"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Forwarded as suggested :-)
+Tried a different NIC, another 3c905c.
 
-Date: Wed, 12 Mar 2003 06:24:51 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: John Bradford <john@grabjohn.com>
-Subject: Re: [T-Shirt] BK->CVS (real time mirror)
+Yeah i know about the modules thing, i turned it off
+in case that was the problem.
 
-You should post this, it's a hoot!  Thanks.
+D
+----- Original Message ----- 
+From: "Denis Vlasenko" <vda@port.imtp.ilyichevsk.odessa.ua>
+To: "David Shirley" <dave@cs.curtin.edu.au>; <linux-kernel@vger.kernel.org>
+Sent: Wednesday, March 12, 2003 9:50 PM
+Subject: Re: Help, eth0: transmit timed out!
 
-On Wed, Mar 12, 2003 at 11:48:37AM +0000, John Bradford wrote:
-> Hi Larry,
+
+> On 12 March 2003 15:54, David Shirley wrote:
+> > Its strange we have another machine, exact same setup,
+> > hardware/software and it doesn't have any problems.
 > 
-> The latest discussions on LKML about the BK->CVS gateway just inspired
-> a mental image of a T-Shirt printed thus:
+> Did you try to swap some hardware? NIC would be the first
+> to swap.
 > 
->                           |          |
->                           |          |
->        __________________/            \___________________
->       /                                                   \
->      /                                                     \
->     /                                                       \
->    /      /|                                         |\      \
->   /       ||                                         ||       \
->   |       ||     > > > Hi Larry, BK is evil,         ||       |
->   |       ||     please make a BK->CVS gateway.      ||       |
->   |       ||                                         ||       |
->   |       ||     > > Well...  OK, I guess I can      ||       |
->   |       ||     do that without hurting my          ||       |
->   |       ||     business.                           ||       |
->   |       ||                                         ||       |
->   |       ||     > Larry, this BK->CVS gateway       ||       |
->   |       ||     is pure evil!!!                     ||       |
->   |       ||                                         ||       |
->   |_______||                                         ||_______|
->            |                                         |         
->            |                                         |         
->            |                                         |         
->            |                                         |         
->            |                                         |         
->            |                                         |         
->            |                                         |         
->            |                                         |         
->            |                                         |         
+> > The other thing is that sometimes the machine freezes totally,
+> > and othertimes it comes back after 30 secs??
 > 
-> John.
-
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+> If it's a driver problem, anything is possible.
+> 
+> > FYI: Its not a modular kernel, but ill try the printk thing.
+> 
+> Modular one will be far easier (faster) to play with.
+> You just unload the module, recompile and reload.
+> No reboot cycles.
+> --
+> vda
+> 

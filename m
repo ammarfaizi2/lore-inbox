@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261218AbSKRBG5>; Sun, 17 Nov 2002 20:06:57 -0500
+	id <S261318AbSKRBQJ>; Sun, 17 Nov 2002 20:16:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261286AbSKRBG4>; Sun, 17 Nov 2002 20:06:56 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:28891 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S261218AbSKRBG4>;
-	Sun, 17 Nov 2002 20:06:56 -0500
-Message-Id: <200211180113.gAI1Dtm24089@zeus.kernel.org>
-Content-Type: text/plain; charset="US-ASCII"
-Date: Mon, 18 Nov 2002 01:11:08 +0000
-To: linux-kernel@vger.kernel.org
-From: Andre Botelho <mail@mlmblueprint.com>
-X-Mailer: Version 5.0
-Subject: Hi
-Organization: 
+	id <S261290AbSKRBQJ>; Sun, 17 Nov 2002 20:16:09 -0500
+Received: from blowme.phunnypharm.org ([65.207.35.140]:23050 "EHLO
+	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
+	id <S261286AbSKRBQI>; Sun, 17 Nov 2002 20:16:08 -0500
+Date: Sun, 17 Nov 2002 20:23:02 -0500
+From: Ben Collins <bcollins@debian.org>
+To: Shanti Katta <katta@csee.wvu.edu>
+Cc: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Compiling packages from source on Ultrasparc
+Message-ID: <20021118012302.GD544@phunnypharm.org>
+References: <1037581211.30240.17.camel@indus.csee.wvu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1037581211.30240.17.camel@indus.csee.wvu.edu>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
+On Sun, Nov 17, 2002 at 08:00:11PM -0500, Shanti Katta wrote:
+> Hi,
+> I understand that userland is 32-bit on Ultrasparc. I am trying to
+> compile user-mode-linux on Ultrasparc, and I guess I need to compile it
+> in 32-bit mode for it to run as a normal user-level process. UML make
+> use of certain files in asm-{base-arch} during compilation. Now, to
+> compile uml in 32-bit mode, I did not include any flags in
+> makefiles(like -m64, -mcpu=ultrasparc) that would include 64-bit
+> specific asm code.
+> My question is that, what difference does it make when I compile UML, in
+> a sparc32 shell, as compared to the above process without executing the
+> sparc32 shell. I understand that if compiled in sparc32 shell, it
+> recognizes the host-arch as "sparc" instead of "sparc64". But other than
+> that, does it make any other difference? I am also not sure, which is
+> the right method for compiling UML.
+> Any pointers will be appreciated.
 
-I was just surfing on Anzwers when I found your 
-website http://lwn.net/Articles/11015/.
+To compile it as a 32bit app, use the sparc32 wrapper to be safe, or
+pass sparc as the target arch for UML.
 
-I love it!
-I appreciate the content and design quality.
-
-My name is André Botelho and I'd like to help. 
-I thought that because we are in the same industry,
-and you could be interested in some information I have. 
-
-If you want to read it, simply reply to this email with a 
-blank message and I will email it to you. 
-
-
-Best Regards, 
-
-André Botelho
-
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

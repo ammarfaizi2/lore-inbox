@@ -1,57 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263888AbTIBVzt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 17:55:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263893AbTIBVzt
+	id S263820AbTIBVr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 17:47:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263754AbTIBVr5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 17:55:49 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:40711 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S263888AbTIBVzp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 17:55:45 -0400
-Date: Tue, 2 Sep 2003 23:55:43 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: steveb@unix.lancs.ac.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: corruption with A7A266+200GB disk?
-Message-ID: <20030902235543.B1627@pclin040.win.tue.nl>
-References: <E19uBCi-00054b-00@wing0.lancs.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 2 Sep 2003 17:47:57 -0400
+Received: from mta01-svc.ntlworld.com ([62.253.162.41]:51091 "EHLO
+	mta01-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id S263765AbTIBVpq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 17:45:46 -0400
+From: James Clark <jimwclark@ntlworld.com>
+Reply-To: jimwclark@ntlworld.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: Driver Model
+Date: Tue, 2 Sep 2003 22:44:55 +0100
+User-Agent: KMail/1.5
+Cc: Patrick Mochel <mochel@osdl.org>
+References: <Pine.LNX.4.44.0309021420570.5614-100000@cherise>
+In-Reply-To: <Pine.LNX.4.44.0309021420570.5614-100000@cherise>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <E19uBCi-00054b-00@wing0.lancs.ac.uk>; from steveb@unix.lancs.ac.uk on Tue, Sep 02, 2003 at 02:28:16PM +0100
+Message-Id: <200309022244.55500.jimwclark@ntlworld.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 02, 2003 at 02:28:16PM +0100, steveb@unix.lancs.ac.uk wrote:
+Before I posted my original question I read Patrick's very helpful overview of 
+the Driver Model (www.amc.com.au/lca/loopback/papers/ 
+Patrick_Mochel/Patrick_Mochel.pdf). 
 
-> I just got a new 200GB disk (WDC WD2000JB) for my home machine (Asus A7A266,
-> Ali chipset). I put some partitions on it like so:
->   hda1:   100MB - /boot
->   hda2:  8192MB - /
->   hda3:  1024MB - swap
->   hda4:  the rest (about 190GB I guess) - /home
-> 
-> I find that when I mkfs on /home, I get massive filesystem corruption on /
-> When I fsck / (and restore the deleted files) I get massive filesystem corruption on /home.
-> 
-> so...anyone else seen this? Is it a known driver problem?
+The reason I posed the question, as a newcomer to kernel development, moving 
+from WIN32 DDK development (sorry!) to Linux is that I was very surprised by 
+the module interface. 
 
-No doubt wraparound at 137 GB. (2^28 sectors of 2^9 bytes gives a 2^37 byte,
-that is 128 GiB limit; to get past this you need support for lba48)
+Would a more rigid 'plugin' interface and the concequent move from mainly 
+'source' modules to binary 'plugins' (still with source-code available for 
+all to see) mean that (a) Kernel was smaller (2) Had to be 
+released/recompiled less (4) Was EVEN more stable and (4) 'plugins' were more 
+portable across releases and easier to install ?
 
-Recently we discussed a case where Linux decided that the hardware
-could not handle lba48 but forgot to adapt the total capacity.
-That was a Linux bug.
+I love Linux but this seems to be holding it back...
 
-In fact, if I am not mistaken, the idea that that hardware could not
-handle lba48 was due to a misunderstanding. That was another Linux bug.
+James
 
-Maybe these have now been fixed in some kernel versions.
 
-So, you must check (i) what Linux thinks your hardware can do, and
-(ii) what your hardware can do in reality.
-Maybe the former can be seen in /proc/ide/hdX/settings under "address"
-or so.
+
+On Tuesday 02 Sep 2003 10:29 pm, Patrick Mochel wrote:
+> > 1. Will the move to a more uniform driver model in 2.6 increase the
+> > chances of a given binary driver working with a 2.6+ kernel.
+>
+> Not necessarily. A binary driver still needs to be compiled for a specific
+> version of a kernel. And, if it's not already working, the new driver
+> model definitely won't help. :)
+>
+> > 2. Will the new model reduce the use/need for kernel modules. Would this
+> > be a good thing if functionality could be implemented in a driver instead
+> > of a module.
+>
+> No, it will not reduce usage of modules. The driver model has nothing to
+> do with whether something is compiled as a module or not.
+>
+> > 3. Will the practice of deliberately breaking some binary only 'tainted'
+> > modules prevent take up of Linux. Isn't this taking things too far?
+>
+> This is a loaded question, but ultimately it's a vendor issue. Most people
+> do and will use vendor kernels. What they do with their kernel interfaces
+> and how well they support binary modules is their beef.
+>
+>
+> 	Pat
 

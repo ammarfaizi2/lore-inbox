@@ -1,27 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132755AbRDIOFJ>; Mon, 9 Apr 2001 10:05:09 -0400
+	id <S132756AbRDIOJU>; Mon, 9 Apr 2001 10:09:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132756AbRDIOEt>; Mon, 9 Apr 2001 10:04:49 -0400
-Received: from nakyup.mizi.com ([203.239.30.70]:45529 "EHLO nakyup.mizi.com")
-	by vger.kernel.org with ESMTP id <S132755AbRDIOEi>;
-	Mon, 9 Apr 2001 10:04:38 -0400
-Date: Mon, 9 Apr 2001 23:04:33 +0900
-From: "Young-Ho. Cha" <ganadist@nakyup.mizi.com>
-To: linux-kernel@vger.kernel.org
-Subject: SMP kernel has died in using usb keyboard
-Message-ID: <20010409230433.A16892@nakyup.mizi.com>
-Mime-Version: 1.0
+	id <S132757AbRDIOJK>; Mon, 9 Apr 2001 10:09:10 -0400
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:53764
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S132756AbRDIOIy>; Mon, 9 Apr 2001 10:08:54 -0400
+Date: Mon, 09 Apr 2001 09:08:59 -0500
+From: Chris Mason <mason@suse.com>
+To: xOr <xor@x-o-r.net>, linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: kernel oops in reiserfs under 2.4.2-ac28 and 2.4.3-ac3
+ when rming files
+Message-ID: <204760000.986825339@tiny>
+In-Reply-To: <01040815431900.00242@rogue>
+X-Mailer: Mulberry/2.0.6b4 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi kernel hackers.
 
-I have found problem in using usb keyboard.
 
-non-SMP kernel has no problem, but SMP kernel has died pressing numlock key twice.
+On Sunday, April 08, 2001 03:43:19 PM -0500 xOr <xor@x-o-r.net> wrote:
 
-anybody has patch against that?
+> [1.] kernel oops in reiserfs under 2.4.2-ac28 and 2.4.3-ac3 when rming
+> files 
+
+Ok, reiserfs must be picking the wrong member in an array of function
+pointers, probably on a bad item from disk.  We're testing some code from
+Alexander Zarochentcev that tries to detect this kind of thing, I'll
+forward it to you off list.
+ 
+thanks,
+Chris
+

@@ -1,76 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131228AbRBRAsk>; Sat, 17 Feb 2001 19:48:40 -0500
+	id <S130565AbRBRAwL>; Sat, 17 Feb 2001 19:52:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132165AbRBRAsb>; Sat, 17 Feb 2001 19:48:31 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:28690 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S131228AbRBRAsT>;
-	Sat, 17 Feb 2001 19:48:19 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: "J . A . Magallon" <jamagallon@able.es>
-cc: Hugh Dickins <hugh@veritas.com>, Paul Gortmaker <p_gortmaker@yahoo.com>,
-        linux-kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] a more efficient BUG() macro 
-In-Reply-To: Your message of "Sun, 18 Feb 2001 01:33:53 BST."
-             <20010218013353.A1331@werewolf.able.es> 
+	id <S132127AbRBRAwB>; Sat, 17 Feb 2001 19:52:01 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:63243 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S130565AbRBRAvo>; Sat, 17 Feb 2001 19:51:44 -0500
+Date: Sat, 17 Feb 2001 18:51:37 -0600
+To: Dennis <dennis@etinc.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux stifles innovation...
+Message-ID: <20010217185137.C28785@cadcamlab.org>
+In-Reply-To: <3A8CF1FE.16672.10105D@localhost> <3A8CF1FE.16672.10105D@localhost> <01021613494900.00295@tabby> <5.0.0.25.0.20010216170349.01efc030@mail.etinc.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 18 Feb 2001 11:48:13 +1100
-Message-ID: <19480.982457293@ocs3.ocs-net>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <5.0.0.25.0.20010216170349.01efc030@mail.etinc.com>; from dennis@etinc.com on Fri, Feb 16, 2001 at 05:27:31PM -0500
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 18 Feb 2001 01:33:53 +0100, 
-"J . A . Magallon" <jamagallon@able.es> wrote:
->Try this:
->a.h:
->#define hello printf("%d at %s\n",__LINE__,__FILE__)
->
->a.c:
->#include <stdio.h>
->#include "a.h"
->
->int main()
->{
->    hello;
->    hello;
->    return 0;
->}
->
->werewolf:~/ko> gcc a.c -o a
->werewolf:~/ko> a
->6 at a.c
->7 at a.c
 
+[Dennis]
+> For example, if there were six different companies that marketed
+> ethernet drivers for the eepro100, you'd have a choice of which one
+> to buy..perhaps with different "features" that were of value to
+> you. Instead, you have crappy GPL code that locks up under load, and
+> its not worth spending corporate dollars to fix it because you have
+> to give away your work for free under GPL. And since there is a
+> "free" driver that most people can use, its not worth building a
+> better mousetrap either because the market is too small. So, the
+> handful of users with problems get to "fit it themselves", most of
+> whom cant of course.
 
-But ....
+You may have a point but device drivers are a piss-poor example.  Say
+Linux does take over the world, and eepro100 continues to lock up under
+load.  Who loses?  Intel.  People will quit buying their motherboards
+and PCI cards.  So for whom is it worth spending corporate dollars
+fixing eepro100?  Again, Intel.  If word were to get out "avoid Intel
+network cards, the driver is crap", you can bet they will fix it.
 
-a.h
-static inline void hello(void) { printf("%d at %s\n",__LINE__,__FILE__); }
+If this hasn't happened yet, it's because Intel doesn't see enough
+market in Linux to bother.  And if so, so what?  There are plenty of
+motherboards with pcnet32 and 3c9xx chips.
 
-a.c
-#include <stdio.h>
-#include "a.h"
-
-int main()
-{
-    hello();
-    hello();
-    return 0;
-}
-
-# ./a
-1 at a.h
-1 at a.h
-
-Most uses of BUG() in headers use inline functions instead of #define.
-48 occurrences of BUG() in include/{linux,asm-i386}, only 2 are in
-#define.
-
->As I said before, my choose would be the __func__ + __LINE__ predefined macros.
->I would prefer to see 'bug in my_buggy_device_init(), line 42'. And you can
->even drop the __LINE__ part.
-
-Function names are not unique, especially when you get into modules.
-
+Peter

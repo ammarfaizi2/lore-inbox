@@ -1,72 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261402AbTIAIPd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 04:15:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbTIAIPc
+	id S263561AbTIAIf2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 04:35:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263592AbTIAIf2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 04:15:32 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:34567 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261402AbTIAIPa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 04:15:30 -0400
-Date: Mon, 1 Sep 2003 09:15:24 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: "Paul J.Y. Lahaie" <pjlahaie@steamballoon.com>
-Cc: Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
+	Mon, 1 Sep 2003 04:35:28 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:28159 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S263561AbTIAIfU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 04:35:20 -0400
+Date: Mon, 1 Sep 2003 10:34:47 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jamie Lokier <jamie@shareable.org>
+cc: Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
 Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
-Message-ID: <20030901091524.A15370@flint.arm.linux.org.uk>
-Mail-Followup-To: "Paul J.Y. Lahaie" <pjlahaie@steamballoon.com>,
-	Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
-References: <20030829053510.GA12663@mail.jlokier.co.uk> <1062188787.4062.21.camel@elenuial.steamballoon.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1062188787.4062.21.camel@elenuial.steamballoon.com>; from pjlahaie@steamballoon.com on Fri, Aug 29, 2003 at 04:26:28PM -0400
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+In-Reply-To: <20030901055804.GG748@mail.jlokier.co.uk>
+Message-ID: <Pine.GSO.4.21.0309011027310.5048-100000@waterleaf.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This looks like an old kernel on your NetWinder.  Later 2.4 kernels
-should get this right (by marking the pages uncacheable in user space.)
-
-However, when I tried this program, it seemed to have some unexpected
-results, sometimes claiming that its too slow, sometimes that the
-store buffer isn't coherent, and sometimes saying that the cache
-isn't coherent.
-
-Oddly, davem's cache aliasing test program works every time.
-
-It's something which I need to look into, but I don't know when I'm
-going to find the time to delve into the memory management stuff.
-
-On Fri, Aug 29, 2003 at 04:26:28PM -0400, Paul J.Y. Lahaie wrote:
-> Corel NetWinder (275MHz StrongARM)
-> Test separation: 4096 bytes: FAIL - cache not coherent
-> Test separation: 8192 bytes: FAIL - cache not coherent
-> Test separation: 16384 bytes: FAIL - cache not coherent
-> Test separation: 32768 bytes: FAIL - cache not coherent
-> Test separation: 65536 bytes: FAIL - cache not coherent
-> Test separation: 131072 bytes: FAIL - cache not coherent
-> Test separation: 262144 bytes: FAIL - cache not coherent
-> Test separation: 524288 bytes: FAIL - cache not coherent
-> Test separation: 1048576 bytes: FAIL - cache not coherent
-> Test separation: 2097152 bytes: FAIL - cache not coherent
-> Test separation: 4194304 bytes: FAIL - cache not coherent
-> Test separation: 8388608 bytes: FAIL - cache not coherent
-> Test separation: 16777216 bytes: FAIL - cache not coherent
-> VM page alias coherency test: failed; will use copy buffers instead
+On Mon, 1 Sep 2003, Jamie Lokier wrote:
+> Geert Uytterhoeven wrote:
+> > Are you also interested in m68k? ;-)
+> > 
+> > cassandra:/tmp# time ./test
+> > Test separation: 4096 bytes: FAIL - store buffer not coherent
 > 
-> cat /proc/cpuinfo
-> Processor       : StrongARM-110 rev 3 (v4l)
-> BogoMIPS        : 185.95
-> Features        : swp half 26bit fastmult
->  
-> Hardware        : Rebel-NetWinder
-> Revision        : 52ff
-> Serial          : 00000000000008bf
+> Especially!  I hadn't expected to see any machine that would print
+> "store buffer not coherent".  It means that if there's an L1 cache, it
+> is coherent, but any store-then-load bypass in the CPU pipeline is
+> using the virtual address with no rollback after MMU translation.
+> 
+> I had thought it would only be the case with chips using an external
+> MMU, but now that I think about it, the older simpler chips aren't
+> going to bother with things like pipeline rollback wherever they can
+> get away without it!
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+As you probably know the 68020 had an external MMU (68551, or Sun-3 or Apollo
+MMU). Probably Motorola didn't bother to change the behavior when the MMU got
+integrated in later generations (68030 and up).
+
+BTW, probably you want us to run your test program on other m68k boxes? Mine
+got a 68040, that leaves us with:
+  - 68020+68551
+  - 68020+Sun-3 MMU
+  - 68030
+  - 68060
+
+For linux-m68k: You can find the test program source in Jamie's original
+posting on lkml. For your convenience, I put a binary for m68k at
+http://home.tvd.be/cr26864/Linux/m68k/jamie_test.gz. Just tell us the
+program's output and give us a copy of your /proc/cpuinfo. Thanks!
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

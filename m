@@ -1,31 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131871AbRAGNgF>; Sun, 7 Jan 2001 08:36:05 -0500
+	id <S131955AbRAGNhP>; Sun, 7 Jan 2001 08:37:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131955AbRAGNf4>; Sun, 7 Jan 2001 08:35:56 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:35086 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131871AbRAGNfg>; Sun, 7 Jan 2001 08:35:36 -0500
-Subject: Re: [PATCH] mptctl.c memory leak on failure
-To: acme@conectiva.com.br (Arnaldo Carvalho de Melo)
-Date: Sun, 7 Jan 2001 13:37:15 +0000 (GMT)
-Cc: Steve.Ralston@lsil.com, alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20010107011226.C8362@conectiva.com.br> from "Arnaldo Carvalho de Melo" at Jan 07, 2001 01:12:26 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132057AbRAGNhF>; Sun, 7 Jan 2001 08:37:05 -0500
+Received: from isis.its.uow.edu.au ([130.130.68.21]:5803 "EHLO
+	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S131955AbRAGNhB>; Sun, 7 Jan 2001 08:37:01 -0500
+Message-ID: <3A58725F.A1E3CD37@uow.edu.au>
+Date: Mon, 08 Jan 2001 00:42:55 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Christian Loth <chris@gidayu.max.uni-duisburg.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: DHCP Problems with 3com 3c905C Tornado
+In-Reply-To: <20010104123139.A15097@gidayu.max.uni-duisburg.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14FG0b-0002dZ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> kmalloc and the comment: the buffer is used for DMA but the kmalloc doesn't
-> has GFP_DMA, maybe I'm missing something here, its about time for me to
+Christian Loth wrote:
+> 
+> Hello all,
+> 
+>   I recently installed a system with the 3c905C
+> NIC on RedHat 6.2. In our network, IP adresses
+> are granted via DHCP, although every host has
+> a fixed IP instead of a dynamic IP pool. The IP
+> is statically coupled with the MAC adresses of
+> our network.
 
-It should be kmalloc (or 2.4 wise pci_alloc_* I guess eventually). Its driven
-by 32bit busmaster DMA. Its non ISA so it doesnt need GFP_DMA
+Christian,
+
+I was able to reproduce this.  All sorts of wierd stuff.
+
+All the problems magically disappeared after upgrading
+to pump-0.8.6.
+
+You wouldn't *believe* how hard it is to find a pump
+tarball, so I've put one at
+
+	http://www.uow.edu.au/~andrewm/pump-0.8.6.tar.gz
+
+-
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,34 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261833AbVAYGUn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261663AbVAYG0W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261833AbVAYGUn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 01:20:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbVAYGUV
+	id S261663AbVAYG0W (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 01:26:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261836AbVAYG0W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 01:20:21 -0500
-Received: from mail.kroah.org ([69.55.234.183]:11495 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261833AbVAYGUM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 01:20:12 -0500
-Date: Mon, 24 Jan 2005 22:19:05 -0800
-From: Greg KH <greg@kroah.com>
-To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [1/1] superio: remove unneded exports and make some functions static.
-Message-ID: <20050125061905.GC2215@kroah.com>
-References: <20050124021516.5d1ee686.akpm@osdl.org> <20050124122541.GG3515@stusta.de> <20050124123448.GA29631@infradead.org> <1106571899.25992.21.camel@uganda> <1106574971.25992.27.camel@uganda> <1106576044.25992.30.camel@uganda>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1106576044.25992.30.camel@uganda>
-User-Agent: Mutt/1.5.6i
+	Tue, 25 Jan 2005 01:26:22 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:29932 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261663AbVAYG0I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 01:26:08 -0500
+Message-ID: <41F5E686.1080205@comcast.net>
+Date: Tue, 25 Jan 2005 01:26:14 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Complex logging in the kernel
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 24, 2005 at 05:14:04PM +0300, Evgeniy Polyakov wrote:
-> Remove unneded exports and make some functions static.
-> 
-> Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Applied, thanks.
+What systems exist for complex logging and security auditing in the kernel?
 
-greg k-h
+For example, let's say I wanted to register my specific code (i.e. a
+security module) to log, and adjust to log level N.  I also want another
+module to log at log level L, which is lower than N.  I want to print
+logs at log level N..+2 and below to the console, but silently log all
+log messages >N+2 to the syslog.
+
+Anything?
+
+If there's nothing, I'll write one.  Shouldn't be too hard.
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFB9eaGhDd4aOud5P8RAlacAKCBztJpKckHnYHrfyiUxiHOdIBqXACgjuoA
+Wk8hEbKRKWSWGsLZ1WGqKto=
+=zYCD
+-----END PGP SIGNATURE-----

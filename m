@@ -1,61 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264506AbTEJU7Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 16:59:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264508AbTEJU7Y
+	id S264510AbTEJVBx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 17:01:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264511AbTEJVBx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 16:59:24 -0400
-Received: from crack.them.org ([146.82.138.56]:9856 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id S264506AbTEJU7X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 16:59:23 -0400
-Date: Sat, 10 May 2003 17:11:54 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: Adam Majer <adamm@galacticasoftware.com>
-Cc: Bernhard Kaindl <bk@suse.de>, linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: ptrace secfix does NOT work... :(
-Message-ID: <20030510211154.GA4559@nevyn.them.org>
-Mail-Followup-To: Adam Majer <adamm@galacticasoftware.com>,
-	Bernhard Kaindl <bk@suse.de>, linux-kernel@vger.kernel.org,
-	Marcelo Tosatti <marcelo@conectiva.com.br>
-References: <Pine.LNX.4.44.0305082310230.12720-200000@wotan.suse.de> <20030510205249.GA1179@galacticasoftware.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 10 May 2003 17:01:53 -0400
+Received: from amsfep11-int.chello.nl ([213.46.243.20]:49960 "EHLO
+	amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
+	id S264510AbTEJVBi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 17:01:38 -0400
+From: Jos Hulzink <josh@stack.nl>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: irq balancing: performance disaster
+Date: Sun, 11 May 2003 01:18:10 +0200
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030510205249.GA1179@galacticasoftware.com>
-User-Agent: Mutt/1.5.1i
+Message-Id: <200305110118.10136.josh@stack.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 10, 2003 at 03:52:49PM -0500, Adam Majer wrote:
-> On Fri, May 09, 2003 at 12:05:52AM +0200, Bernhard Kaindl wrote:
-> > Hello,
-> > 
-> > The attached patch cleans up the too restrictive checks which were
-> > included in the original ptrace/kmod secfix posted by Alan Cox
-> > and applies on top of a clean 2.4.20-rc1 source tree.
-> 
-> But the ptrace hole is _NOT_ fixed... :(
+Hi,
 
-This is the exploit which makes itself suid.  Did you leave it suid
-before retesting it?
+While tackling bug 699, it became clear to me that irq balancing is the cause 
+of the performance problems I, and all people using the SMP kernel Mandrake 
+9.1 ships, are dealing with. I got the problems with 2.5.69 too. After 
+disabling irq balancing, the system is remarkably faster, and much more 
+responsive. 
 
-> adamm@polaris:~/test$ uname -r
-> 2.4.21-rc2
-> \u@\h:\w\$ ls -ltr hehe
-> -rw-------    1 root     root           17 May 10 15:44 hehe
-> \u@\h:\w\$ whoami
-> root
-> \u@\h:\w\$ cat hehe
-> I can see you!!
->                                                                                                               
-> \u@\h:\w\$ rm hehh
-> \u@\h:\w\$ ls -ltr hehe
-> ls: hehe: No such file or directory
+For those interested in the issue, please look at bug 699.
 
-Huh?
-
--- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+Jos

@@ -1,74 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131609AbRCSUxY>; Mon, 19 Mar 2001 15:53:24 -0500
+	id <S131630AbRCSUwO>; Mon, 19 Mar 2001 15:52:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131617AbRCSUxP>; Mon, 19 Mar 2001 15:53:15 -0500
-Received: from [64.64.109.142] ([64.64.109.142]:11269 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S131609AbRCSUxH>; Mon, 19 Mar 2001 15:53:07 -0500
-Message-ID: <3AB67134.762CFF32@didntduck.org>
-Date: Mon, 19 Mar 2001 15:51:00 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.73 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Otto Wyss <otto.wyss@bluewin.ch>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Linux should better cope with power failure
-In-Reply-To: <Pine.LNX.3.95.1010319150027.9639A-100000@chaos.analogic.com>
+	id <S131631AbRCSUvz>; Mon, 19 Mar 2001 15:51:55 -0500
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:11225 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S131630AbRCSUvw>; Mon, 19 Mar 2001 15:51:52 -0500
+Date: Mon, 19 Mar 2001 15:50:56 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: USB Mouse Problem in 2.4 Kernels - 2.2.18 Works Fine
+Message-ID: <20010319155056.C23687@devserv.devel.redhat.com>
+In-Reply-To: <20010317221129.A15218@devserv.devel.redhat.com> <200103181152.f2IBqLV06565@mail.redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200103181152.f2IBqLV06565@mail.redhat.com>; from aleidenf@bigpond.net.au on Sun, Mar 18, 2001 at 10:50:32PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" wrote:
+> From: Andree Leidenfrost <aleidenf@bigpond.net.au>
+> To: Pete Zaitcev <zaitcev@redhat.com>
+> Cc: linux-kernel@vger.kernel.org
+> Date: 18 Mar 2001 22:50:32 +1100
 > 
-> On Mon, 19 Mar 2001, Otto Wyss wrote:
+> > > I am experiencing problems with a USB mouse: The machine boots, X 
+> > > starts, I log on, everything works as expected. When I restart X or just 
+> > > change to an alpha terminal and back to x the mouse does not work any 
+> > > more.  [...]
+> > > Hardware is an ASUS K7V motherboard (VIA chip set), [...]
+> > > T: Bus=01 Lev=02 Prnt=02 Port=02 Cnt=02 Dev#= 5 Spd=1.5 MxCh= 0 
+
+> > Unfortunately, I do not have a hardware that exibits this.
+> > If would be invaluable someone enabled
+> > dbg() in devices/usb/hub.c only, [...]
+
+> > ....................  [cable pulled, putting it back]
+> > hub.c: port 1 connection change
+> > hub.c: port 1, portstatus 301, change 1, 1.5 Mb/s
+> > hub.c: port 1, portstatus 100, change 0, 12 Mb/s
+> > hub.c: port 1 of hub 1 not enabled, trying reset again...
+
+> Here is the output of a 2.2.18 kernel with the above patch:
 > 
-> > Lately I had an USB failure, leaving me without any access to my system
-> > since I only use an USB-keyboard/-mouse. All I could do in that
-> > situation was switching power off and on after a few minutes of
-> > inactivity. From the impression I got during the following startup, I
-> > assume Linux (2.4.2, EXT2-filesystem) is not very suited to any power
-> > failiure or manually switching it off. Not even if there wasn't any
-> > activity going on.
-> >
-> > Shouldn't a good system allways try to be on the save side? Shouldn't
-> > Linux try to be more fail save? There is currently much work done in
-> > getting high performance during high activity but it seems there is no
-> > work done at all in getting a save system during low/no activity. I
-> > think this is a major drawback and should be addressed as fast as
-> > possible. Bringing a system to save state should allway have a high priority.
-> >
-> > How could this be accomplished:
-> > 1. Flush any dirty cache pages as soon as possible. There may not be any
-> > dirty cache after a certain amount of idle time.
-> > 2. Keep open files in a state where it doesn't matter if they where
-> > improperly closed (if possible).
-> > 3. Swap may not contain anything which can't be discarded. Otherwise
-> > swap has to be treated as ordinary disk space.
-> >
-> > These actions are not filesystem dependant. It might be that certain
-> > filesystem cope better with power failiure than others but still it's
-> > much better not to have errors instead to fix them.
-> >
-> > Don't we tell children never go close to any abyss or doesn't have
-> > alpinist a saying "never go to the limits"? So why is this simple rule
-> > always broken with computers?
-> >
-> 
-> Unix and other such variants have what's called a Virtual File System
-> (VFS).  The idea behind this is to keep as much recently-used file stuff
-> in memory so that the system can be as fast as if you used a RAM disk
-> instead of real physical (slow) hard disks. If you can't cope with this,
-> use DOS. 
+> ....................  [cable pulled, putting it back]
+> Mar 18 22:41:53 aurich kernel: hub.c: port 3 connection change
+> Mar 18 22:41:53 aurich kernel: hub.c: portstatus 301, change 1, 1.5 Mb/s
+> Mar 18 22:41:54 aurich kernel: hub.c: portstatus 303, change 10, 1.5 Mb/s
 
-At the very least the disk should be consistent with memory.  If the
-dirty pages aren't written back to the disk (but not necessarily removed
-from memory) after a reasonable idle period, then there is room for
-improvement.
+The following patch reverts the code path to that of 2.2 and fixes
+the condition on the Andree's box:
 
---
+--- linux-2.4.2-0.1.19/drivers/usb/hub.c	Tue Mar 13 12:04:05 2001
++++ linux-2.4.2-0.1.19-p3/drivers/usb/hub.c	Mon Mar 19 12:03:42 2001
+@@ -583,6 +583,12 @@
+ 		return;
+ 	}
+ 
++	/* zaitcev RHbug #23670 - 1.5Mb/s mice die when switching VCs */
++	if (portstatus & USB_PORT_STAT_LOW_SPEED) {
++		wait_ms(400);
++		delay = HUB_LONG_RESET_TIME;
++	}
++
+ 	down(&usb_address0_sem);
+ 
+ 	tempstr = kmalloc(1024, GFP_KERNEL);
 
-				Brian Gerst
+I asked USB maintainers to consider it.
+
+-- Pete

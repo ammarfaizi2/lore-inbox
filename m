@@ -1,85 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270034AbUJTL2g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270229AbUJTLdx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270034AbUJTL2g (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 07:28:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270032AbUJTL2L
+	id S270229AbUJTLdx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 07:33:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270125AbUJTLdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 07:28:11 -0400
-Received: from mxsf21.cluster1.charter.net ([209.225.28.221]:2285 "EHLO
-	mxsf21.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S270034AbUJTL13 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 07:27:29 -0400
-X-Ironport-AV: i="3.85,154,1094443200"; 
-   d="scan'208"; a="359565554:sNHT12668472"
-Subject: [PATCH] Make kbtab play nice with wacom_drv in Xorg/XFree86
-From: Dave Ahlswede <mightyquinn@charter.net>
-Reply-To: mightyquinn@letterboxes.org
-To: linux-kernel@vger.kernel.org
-Cc: vojtech@suse.cz
-Content-Type: text/plain
-Date: Wed, 20 Oct 2004 07:27:21 -0400
-Message-Id: <1098271641.26932.12.camel@sayuki>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Oct 2004 07:33:50 -0400
+Received: from smtp1.netcabo.pt ([212.113.174.28]:22343 "EHLO smtp.netcabo.pt")
+	by vger.kernel.org with ESMTP id S270201AbUJTLdL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 07:33:11 -0400
+Message-ID: <15773.195.245.190.94.1098271919.squirrel@195.245.190.94>
+In-Reply-To: <20041020104005.GA1813@elte.hu>
+References: <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu>
+    <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu>
+    <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu>
+    <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu>
+    <20041020100424.GA32396@elte.hu>
+    <11742.195.245.190.93.1098268363.squirrel@195.245.190.93>
+    <20041020104005.GA1813@elte.hu>
+Date: Wed, 20 Oct 2004 12:31:59 +0100 (WEST)
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
+From: "Rui Nuno Capela" <rncbc@rncbc.org>
+To: "Ingo Molnar" <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, "Lee Revell" <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       "Bill Huey" <bhuey@lnxw.com>, "Adam Heath" <doogie@debian.org>,
+       "Florian Schmidt" <mista.tapas@gmx.net>,
+       "Thomas Gleixner" <tglx@linutronix.de>,
+       "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>,
+       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+X-OriginalArrivalTime: 20 Oct 2004 11:33:06.0806 (UTC) FILETIME=[91A5C160:01C4B698]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In its current state, the kbtab driver can be made to work with the
-XF86/Xorg Wacom driver, but only once per modprobe. If X is restarted,
-the driver won't report any input events. This is because the driver
-always reports the pen tool as being in use, and the information doesn't
-seem to be passed after the first time the device is opened.
+Ingo Molnar wrote:
+>
+>Rui Nuno Capela wrote:
+>> >
+>> > - fix block-loopback assert reported by Mark H Johnson, Matthew L
+>> >   Foster and Rui Nuno Capela. (usually triggers during 'make install'
+>> >   of a kernel compile.)
+>> >
+>>
+>> Is this fix already on U8 ? I don't seem to get out of mkinitrd (which
+>> is triggered by kernel make install).
+>
+> please re-download -U8, i've updated it a couple of minutes after
+> uploading it, but apparently not fast enough :-| Sorry!
+>
 
-This patch fixes the issue by causing the driver to briefly report the
-pen not in use each time the device is opened. 
+OK. No problem.... and yes, mkinitrd (make install) works again.
 
-Also, while the specs say the tablet is supposed to have 256 levels of
-pressure sensitivity, it only seems to report 0-127 on both tablets that
-I have access to. This patch changes the reported bounds to cooperate
-better with Gimp 2.1.
 
-To actually use this in X, it may require the latest stable driver from
-http://linuxwacom.sourceforge.net
---Dave Ahlswede
+>> OTOH, still on my laptop (P4/UP) I'm getting this very often:
+>>
+>> RTNL: assertion failed at net/ipv4/devinet.c (1049)
+>
+> yeah - this too was an oversight i fixed in the latest upload.
 
-(Please CC me personally with any replies, as I'm not subscribed to the
-list-- thanks!)
+I don't think so. I still see plenty of those here.
 
-Patch follows:
---- linux-2.6.7-orig/drivers/usb/input/kbtab.c	2004-06-16 01:18:38 -0400
-+++ linux-2.6.7-da1/drivers/usb/input/kbtab.c	2004-08-08 11:08:00 -0400
-@@ -13,6 +13,9 @@
-  * v0.0.2 - Updated, works with 2.5.62 and 2.4.20;
-  *           - added pressure-threshold modules param code from
-  *              Alex Perry <alex.perry@ieee.org>
-+ *           - fixed so driver always reports the pen tool in use
-+ *              after first device open, and max pressure limit(?)
-+ *              Dave Ahlswede <mightyquinn@letterboxes.org>
-  */
- 
- #define DRIVER_VERSION "v0.0.2"
-@@ -105,9 +108,10 @@
- {
- 	struct kbtab *kbtab = dev->private;
- 
--	if (kbtab->open++)
-+	if (kbtab->open++) {
-+		input_report_key(dev, BTN_TOOL_PEN, 0);
- 		return 0;
--
-+	}
- 	kbtab->irq->dev = kbtab->usbdev;
- 	if (usb_submit_urb(kbtab->irq, GFP_KERNEL)) {
- 		kbtab->open--;
-@@ -160,7 +164,7 @@
- 
- 	kbtab->dev.absmax[ABS_X] = 0x2000;
- 	kbtab->dev.absmax[ABS_Y] = 0x1750;
--	kbtab->dev.absmax[ABS_PRESSURE] = 0xff;
-+	kbtab->dev.absmax[ABS_PRESSURE] = 0x7F;
- 	
- 	kbtab->dev.absfuzz[ABS_X] = 4;
- 	kbtab->dev.absfuzz[ABS_Y] = 4;
+Is there an even more recent U8? I think you should consider add some dot
+numbering to each of the uploads... ;)
+
+Bye now.
+-- 
+rncbc aka Rui Nuno Capela
+rncbc@rncbc.org
 
 

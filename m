@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129460AbQKFTsu>; Mon, 6 Nov 2000 14:48:50 -0500
+	id <S129401AbQKFTuT>; Mon, 6 Nov 2000 14:50:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129392AbQKFTsj>; Mon, 6 Nov 2000 14:48:39 -0500
-Received: from ns.sysgo.de ([213.68.67.98]:38390 "EHLO rob.devdep.sysgo.de")
-	by vger.kernel.org with ESMTP id <S129350AbQKFTsh>;
-	Mon, 6 Nov 2000 14:48:37 -0500
-From: Robert Kaiser <rob@sysgo.de>
-Reply-To: rob@sysgo.de
-To: linux-kernel@vger.kernel.org
-Subject: Re: setup.S: A20 enable sequence (once again) 
-Date: Mon, 6 Nov 2000 20:29:00 +0100
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
+	id <S129631AbQKFTuJ>; Mon, 6 Nov 2000 14:50:09 -0500
+Received: from 4dyn150.delft.casema.net ([195.96.105.150]:49413 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S129401AbQKFTt6>; Mon, 6 Nov 2000 14:49:58 -0500
+Message-Id: <200011061949.UAA31584@cave.bitwizard.nl>
+Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
+In-Reply-To: <E13sqAB-0006RI-00@the-village.bc.nu> from Alan Cox at "Nov 6, 2000
+ 05:34:30 pm"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Mon, 6 Nov 2000 20:49:49 +0100 (MET)
+CC: Alon Ziv <alonz@usa.net>, David Woodhouse <dwmw2@infradead.org>,
+        linux-kernel@vger.kernel.org
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-Message-Id: <00110620483000.11673@rob>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This doesn't really work.  Neither the fast A20 gate nor the KBC is
-> guaranteed to have immediate effect (on most systems they won't.)
+Alan Cox wrote:
+> A simple more generic solution is to do this
 
-In that case, maybe I should do repeated calls to a20_check with a
-(not too big) retry count after the port 92 write ?
+[....]
 
-Problem is, it happens to work this way on all hardware I have access to,
-so I can't really reproduce such timing problems. Anyone ?
+> 	if exists && is from this boot then && is right size
+> 		read data into __persistent ELF section
+> 	endif
 
+Alan, why are you stating "if it's from this boot"? I can think that
+maybe you want to keep stuff across boots too. Maybe once we're at it,
+have two sections. One that is persistent across boots, the other
+isn't.
 
-> What's worse, once you have done an "out" to the KBC you need to
-> finish the sequence.  I need to think about this for a bit.
+				Roger. 
 
-??? I'm not touching the KBC if the port 92 access was successful at
-enableing A20. If, however, A20 is still disabled, I'm doing the same KBC
-sequence as the original code, so there shouldn't be any incomplete KBC
-interactions (unless I mistyped something...).
-
-> (Arguably, what you're doing is running on completely nonstandard
-> hardware, which may need a CONFIG_ option.  However, if we can avoid
-> it I guess it's better.)
-
-That was exactly my intention :-)
-
-
-----------------------------------------------------------------
-Robert Kaiser                         email: rkaiser@sysgo.de
-SYSGO RTS GmbH
-Am Pfaffenstein 14                    phone: (49) 6136 9948-762
-D-55270 Klein-Winternheim / Germany   fax:   (49) 6136 9948-10
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+*       Common sense is the collection of                                *
+******  prejudices acquired by age eighteen.   -- Albert Einstein ********
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

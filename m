@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266578AbUBLUyg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 15:54:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266589AbUBLUyd
+	id S266593AbUBLVCY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 16:02:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266596AbUBLVAp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 15:54:33 -0500
-Received: from gate.crashing.org ([63.228.1.57]:46231 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S266578AbUBLUyZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 15:54:25 -0500
-Subject: Re: Radeon fb patch
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Panagiotis Papadakos <papadako@csd.uoc.gr>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.58.0402121944170.12860@thanatos.csd.uch.gr>
-References: <Pine.GSO.4.58.0402121944170.12860@thanatos.csd.uch.gr>
-Content-Type: text/plain
-Message-Id: <1076619057.12771.17.camel@gaston>
+	Thu, 12 Feb 2004 16:00:45 -0500
+Received: from ss1000-dmz.ms.mff.cuni.cz ([195.113.20.8]:44206 "EHLO
+	ss1000.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S266593AbUBLU5M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 15:57:12 -0500
+Date: Thu, 12 Feb 2004 21:57:08 +0100
+From: Rudo Thomas <rudo@matfyz.cz>
+To: linux-kernel@vger.kernel.org
+Subject: bug, or is it? - SCHED_RR and FPU related
+Message-ID: <20040212205708.GA1679@ss1000.ms.mff.cuni.cz>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 13 Feb 2004 07:50:58 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i-ja.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-02-13 at 04:59, Panagiotis Papadakos wrote:
-> I tried to compile bk2 with the new radeofb patch, but it failed.
-> The problem exists if you have enabled drm for radeon, because
-> radeon_engine_reset is declared twice, once in drivers/char/drm/
-> radeon_cp.c and the second time in drivers/video/aty/radeon_accel.c.
-> The attached patch just renames radeon_engine_reset to
-> radeonfb_engine_reset in drivers/video/aty and also radeon_engine_init
-> to radeonfb_engine_init just for consistency. It compiles fine, but shows
-> garbage on my notebook. Don't know if it is my patch or the new radeonfb
-> code.
+Hello.
 
-Thanks. I used to call radeonfb_ exposed routines to the outside world
-and radeon_ internal ones, but your fix is probably the simplest way to
-get out of the conflict with DRI indeed.
+I have stumbled upon a grave bug, I think. I can reproduce a hard lock-up using
+xmms and a buggy plugin - only SysRq-B helps. I managed to narrow it down to
+"0.5/NAN"-like operation. It only causes a complete hang when xmms is run with
+SCHED_RR priority. Otherwise, only xmms hangs. Unfortunately, I was not able to
+create a working proof-of-concept program.
 
-What kind of grabage do you get ? Can you re-enable DEBUG in radeonfb.h
-and send me a dmesg log after boot ? Did the "old" radeonfb work
-properly ? Also, what is the native resolution of your flat panel ?
+The question is - is this a kernel bug, OR something that cannot be prevented
+from happening when using SCHED_RR policy?
 
-Ben.
+Tried with 2.6.3-rc[12] and glibc-2.3.2 (-r9 gentoo) with nptl support (if that
+matters).
 
+Have a nice day.
 
+Rudo.

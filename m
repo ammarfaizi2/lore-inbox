@@ -1,44 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269774AbUJGKQC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267330AbUJGK2q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269774AbUJGKQC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 06:16:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269779AbUJGKQB
+	id S267330AbUJGK2q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 06:28:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267381AbUJGK2q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 06:16:01 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11790 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S269774AbUJGKPw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 06:15:52 -0400
-Date: Thu, 7 Oct 2004 11:15:41 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: 2.6.9-rc3-mm3
-Message-ID: <20041007111541.D10716@flint.arm.linux.org.uk>
-Mail-Followup-To: Jesper Juhl <juhl-lkml@dif.dk>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Christoph Hellwig <hch@infradead.org>
-References: <20041007015139.6f5b833b.akpm@osdl.org> <Pine.LNX.4.61.0410071159010.13059@jjulnx.backbone.dif.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.61.0410071159010.13059@jjulnx.backbone.dif.dk>; from juhl-lkml@dif.dk on Thu, Oct 07, 2004 at 12:04:22PM +0200
+	Thu, 7 Oct 2004 06:28:46 -0400
+Received: from ts2-075.twistspace.com ([217.71.122.75]:27568 "EHLO entmoot.nl")
+	by vger.kernel.org with ESMTP id S267330AbUJGK2o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 06:28:44 -0400
+Message-ID: <000401c4ac60$db477df0$161b14ac@boromir>
+From: "Martijn Sipkema" <msipkema@sipkema-digital.com>
+To: "Adam Heath" <doogie@debian.org>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+References: <4164CB02.2030607@kegel.com> <20041007080414.GA28999@outpost.ds9a.nl> <Pine.LNX.4.58.0410070328010.1194@gradall.private.brainfood.com> <021b01c4ac59$cbe92ea0$161b14ac@boromir> <Pine.LNX.4.58.0410070506400.1194@gradall.private.brainfood.com>
+Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+Date: Thu, 7 Oct 2004 12:29:06 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1437
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 07, 2004 at 12:04:22PM +0200, Jesper Juhl wrote:
-> After recieving some feedback from Christoph Hellwig I believe this is 
-> probably a better version of the patch (no reason not to use the 
-> access_ok checking version of copy_to_user) :
+From: "Adam Heath" <doogie@debian.org>
+Sent: Thursday, October 07, 2004 11:07
 
-Except that we've validated the user pointer _before_ performing any
-of the ioctl handling itself, so the non-__ copy_to_user is fairly
-redundant.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+> On Thu, 7 Oct 2004, Martijn Sipkema wrote:
+> 
+> > > > It does not matter - this behaviour should not be depended upon. There are
+> > > > lots of other reasons why a packet might in fact not be available, kernels
+> > > > are allowed to drop UDP packets at will.
+> > >
+> > > I've been lurking and reading this thread with great interest.  I had been
+> > > leaning towards thinking the kernel was wrong, until I read this email.
+> > >
+> > > This is a very excellent point.
+> >
+> > No, it isn't. If the kernel drops a UDP packet, select() should not return
+> > indicating available data.
+> 
+> The kernel can drop a packet after select() returns, and before read() is
+> called.  That's the whole point of *U*DP.
+
+I don't think that is the point of UDP and I don't think the kernel should
+do that, but there are two options for handling this:
+
+If recvmsg() blocks until valid data is available then so should select().
+If recvmsg() returns an error on invalid data then select() would indicate the
+socket() as ready without knowing if the data was valid.
+
+
+--ms
+

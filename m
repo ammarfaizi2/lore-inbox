@@ -1,40 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264765AbTCFBPB>; Wed, 5 Mar 2003 20:15:01 -0500
+	id <S267449AbTCFBO3>; Wed, 5 Mar 2003 20:14:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267686AbTCFBOw>; Wed, 5 Mar 2003 20:14:52 -0500
-Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:27448 "EHLO w-patman.des")
-	by vger.kernel.org with ESMTP id <S264765AbTCFBOq>;
-	Wed, 5 Mar 2003 20:14:46 -0500
-Date: Wed, 5 Mar 2003 17:13:47 -0800
-From: Patrick Mansfield <patmans@us.ibm.com>
+	id <S264765AbTCFBO3>; Wed, 5 Mar 2003 20:14:29 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11525 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S264644AbTCFBOZ>; Wed, 5 Mar 2003 20:14:25 -0500
+Date: Wed, 5 Mar 2003 17:22:20 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
 To: Andries.Brouwer@cwi.nl
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org, <linux-scsi@vger.kernel.org>
 Subject: Re: 2.5.63/64 do not boot: loop in scsi_error
-Message-ID: <20030305171347.A17467@beaverton.ibm.com>
-References: <UTC200303060101.h2611cg08660.aeb@smtp.cwi.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <UTC200303060101.h2611cg08660.aeb@smtp.cwi.nl>; from Andries.Brouwer@cwi.nl on Thu, Mar 06, 2003 at 02:01:38AM +0100
+In-Reply-To: <UTC200303060101.h2611cg08660.aeb@smtp.cwi.nl>
+Message-ID: <Pine.LNX.4.44.0303051721570.3061-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries -
 
-On Thu, Mar 06, 2003 at 02:01:38AM +0100, Andries.Brouwer@cwi.nl wrote:
+On Thu, 6 Mar 2003 Andries.Brouwer@cwi.nl wrote:
+>
 > See that 2.5.64 came out - good. Time to send the next dev_t patch.
 > Unfortunately 2.5.63 and 2.5.64 do not boot.
+> 
+> A moment ago I looked at what goes wrong, and it turns out that
+> scsi_error is activated
 
-Did you try the patch to scsi_error.c Mike A. recently posted?
+See if this fixes it..
 
-> [I can make 2.5.64 boot if I make sure no errors ever occur.
-> That means that I must disable get_evpd_page, get_serialnumber,
-> get_cachetype that my old stuff doesnt know about.
-> If I do that all is well.]
+		Linus
 
-That sucks - even if error handling recovers from them.
+---
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1088  -> 1.1089 
+#	drivers/scsi/scsi_error.c	1.38    -> 1.39   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/03/05	andmike@us.ibm.com	1.1089
+# [PATCH] Fix SCSI error handler abort case
+# 
+# I had my list empty checks reversed if aborting and bus device reset
+# failed.  The condition that causes the error handler to run is still
+# unknown.
+# --------------------------------------------
+#
+diff -Nru a/drivers/scsi/scsi_error.c b/drivers/scsi/scsi_error.c
+--- a/drivers/scsi/scsi_error.c	Wed Mar  5 17:21:56 2003
++++ b/drivers/scsi/scsi_error.c	Wed Mar  5 17:21:56 2003
+@@ -1490,9 +1490,9 @@
+ 			       struct list_head *work_q,
+ 			       struct list_head *done_q)
+ {
+-	if (scsi_eh_bus_device_reset(shost, work_q, done_q))
+-		if (scsi_eh_bus_reset(shost, work_q, done_q))
+-			if (scsi_eh_host_reset(work_q, done_q))
++	if (!scsi_eh_bus_device_reset(shost, work_q, done_q))
++		if (!scsi_eh_bus_reset(shost, work_q, done_q))
++			if (!scsi_eh_host_reset(work_q, done_q))
+ 				scsi_eh_offline_sdevs(work_q, done_q);
+ }
+ 
 
--- Patrick Mansfield

@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264144AbTKZLjD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 06:39:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264155AbTKZLjD
+	id S264155AbTKZLvI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 06:51:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264156AbTKZLvH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 06:39:03 -0500
-Received: from smithers.nildram.co.uk ([195.112.4.54]:32524 "EHLO
-	smithers.nildram.co.uk") by vger.kernel.org with ESMTP
-	id S264144AbTKZLjB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 06:39:01 -0500
-Date: Wed, 26 Nov 2003 11:39:02 +0000
-From: Joe Thornber <thornber@sistina.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Linux Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch 3/5] dm: make v4 of the ioctl interface the default
-Message-ID: <20031126113901.GC463@reti>
-References: <20031125162451.GA524@reti> <20031125163313.GD524@reti> <3FC387A0.8010600@backtobasicsmgmt.com> <20031125170503.GG524@reti> <20031125172949.GE17907@wiggy.net> <20031125201825.B27307@uk.sistina.com> <20031125234510.GG12662@fs.tum.de>
+	Wed, 26 Nov 2003 06:51:07 -0500
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:42913 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S264155AbTKZLvG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 06:51:06 -0500
+Subject: Re: 2.4.20-18 size-4096 memory leaks
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: yuval yeret <yuval_yeret@hotmail.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <BAY2-F65DwLK4adtttY00010f98@hotmail.com>
+References: <BAY2-F65DwLK4adtttY00010f98@hotmail.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1069847462.2031.3.camel@sisko.scot.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031125234510.GG12662@fs.tum.de>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 26 Nov 2003 11:51:02 +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 26, 2003 at 12:45:11AM +0100, Adrian Bunk wrote:
-> On Tue, Nov 25, 2003 at 08:18:25PM +0000, Alasdair G Kergon wrote:
-> > On Tue, Nov 25, 2003 at 06:29:49PM +0100, Wichert Akkerman wrote:
-> > > 'last few months' is extremely short for a migration path. Can't we
-> > > ditch the v1 interface in 2.7 and allow people to migrate slowly?
-> > 
-> > People still using LVM2/device-mapper userspace components that 
-> > don't support v4 really should upgrade them to fix some significant
-> > (unrelated) issues with those old versions.
-> >...
-> 
-> The point is IMHO a different one:
-> 
-> Kill the v1 interface before 2.6.0 or in 2.7 .
-> 
-> It's never a good idea to remove something inside a stable kernel series
-> (e.g. the DRI support for XFree86 4.0 will never be removed from 2.4).
+Hi,
 
-Agreed, we'd like to do it before 2.6.0.
+On Wed, 2003-11-26 at 09:29, yuval yeret wrote:
 
-- Joe
+> I saw a discussion around similar problems in 2.6.0 (2.6.0-test5/6 (and 
+> probably 7 too) size-4096 memory leak - http://lkml.org/lkml/2003/10/17/5 )
+> and an ext3 patch was suggested by Andrew Morton.
+> 
+> From a brief look the code in 2.4 it seems like the patch might be relevant 
+> here as well. Is the size-4096 leak a known issue for 2.4 ?
+> Is the 2.6 patch applicable in 2.4 as well ?
+
+No.  The journal_release_buffer() code is not used, or even enabled, on
+2.4.  There is one set of patches which can use it on 2.4 --- the EA/ACL
+code does, but only for extended attributes, and the leak mentioned
+above only affects release_buffer() on bitmap buffers.
+
+Cheers,
+ Stephen
+
+

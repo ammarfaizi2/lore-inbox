@@ -1,77 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267710AbSLGCYo>; Fri, 6 Dec 2002 21:24:44 -0500
+	id <S267708AbSLGC2l>; Fri, 6 Dec 2002 21:28:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267708AbSLGCYn>; Fri, 6 Dec 2002 21:24:43 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:50674 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S267707AbSLGCYm>;
-	Fri, 6 Dec 2002 21:24:42 -0500
-Message-ID: <3DF15C0F.AA512B57@mvista.com>
-Date: Fri, 06 Dec 2002 18:25:19 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Jim Houston <jim.houston@ccur.com>,
-       Stephen Rothwell <sfr@canb.auug.org.au>,
-       LKML <linux-kernel@vger.kernel.org>, anton@samba.org,
-       "David S. Miller" <davem@redhat.com>, ak@muc.de, davidm@hpl.hp.com,
-       schwidefsky@de.ibm.com, ralf@gnu.org, willy@debian.org
-Subject: Re: [PATCH] compatibility syscall layer (lets try again)
-References: <Pine.LNX.4.44.0212061450330.1101-100000@penguin.transmeta.com>
-Content-Type: multipart/mixed;
- boundary="------------F22A0451E4D90F96CEF6B33F"
+	id <S267707AbSLGC2l>; Fri, 6 Dec 2002 21:28:41 -0500
+Received: from gen3-newburypark5-192.vnnyca.adelphia.net ([207.175.226.192]:11767
+	"EHLO dave.home") by vger.kernel.org with ESMTP id <S267708AbSLGC2k>;
+	Fri, 6 Dec 2002 21:28:40 -0500
+Date: Fri, 6 Dec 2002 18:36:16 -0800
+From: David Ashley <dash@xdr.com>
+Message-Id: <200212070236.gB72aG513528@dave.home>
+To: alan@lxorguk.ukuu.org.uk
+Subject: Re: 2.4.18 beats 2.5.50 in hard drive access????
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>Ok that would explain why DMA is off on it. The disk puzzles me - for an
+>OSB4 the code should be selecting MWDMA2
 
-This is a multi-part message in MIME format.
---------------F22A0451E4D90F96CEF6B33F
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In the BIOS I tried AUTO on all the drives. I have to explicitly enable
+32 bit IO in the bios for each drive, it came up default off. I just enabled
+it because 32 bit IO sounded better, but maybe it's not. I didn't try it
+with it off. I also tried USER on all the drives where I can then set
+the IO mode. There were 5 PIO settings possible plus 2 DMA things, which
+I think were UDMA but I can't recall exactly. On all of those I chose the
+UDMA2. Otherwise all the settings were identical to what AUTO set them.
 
-Linus Torvalds wrote:
-> 
-> On Fri, 6 Dec 2002, Jim Houston wrote:
-> >
-> > I know it would be a few extra lines of assembly code but it would be
-> > nice if the restart routine had the original arguments.
-> 
-> It's not even extra code on x86, since we don't stomp on any of the
-> arguments, and they will all have the same values when returning. So on
-> x86, we could see the arguments by just adding parameters to the
-> sys_restart_syscall() function.
-> 
+Whether AUTO or USER made no difference in performance or in the kernel
+messages.
 
-Would you consider this small change?
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
---------------F22A0451E4D90F96CEF6B33F
-Content-Type: text/plain; charset=us-ascii;
- name="reg_sug.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="reg_sug.patch"
+I also have multi device support/raid 0/raid 5 enabled. The drives are
+not partitioned, I use the drive itself in the /dev/md0 array. That's
+why I get the kernel partition error messages.
 
---- linux-2.5.50-bk4-hrposix/arch/i386/kernel/signal.c	Fri Dec  6 18:17:06 2002
-+++ linux/arch/i386/kernel/singnal.c	Fri Dec  6 18:20:05 2002
-@@ -507,8 +507,8 @@
- 		/* If so, check system call restarting.. */
- 		switch (regs->eax) {
-                        case -ERESTART_RESTARTBLOCK:
--                               current_thread_info()->restart_block.fn = do_no_restart_syscall;
- 			case -ERESTARTNOHAND:
-+                               current_thread_info()->restart_block.fn = do_no_restart_syscall;
- 				regs->eax = -EINTR;
- 				break;
- 
+I can try some stuff (except a reboot, until Monday). I'm off site now and
+can't bring the machine down, but harmless experiments are ok, if there is
+anything you want me to try.
 
-
---------------F22A0451E4D90F96CEF6B33F--
-
+-Dave

@@ -1,66 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270335AbTGWOFo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 10:05:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270346AbTGWOFo
+	id S270326AbTGWOKV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 10:10:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270368AbTGWOKU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 10:05:44 -0400
-Received: from noose.gt.owl.de ([62.52.19.4]:31496 "EHLO noose.gt.owl.de")
-	by vger.kernel.org with ESMTP id S270335AbTGWOFd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 10:05:33 -0400
-Date: Wed, 23 Jul 2003 16:20:35 +0200
-From: Florian Lohoff <flo@rfc822.org>
-To: Max Krasnyansky <maxk@qualcomm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.21] bluez/usb-ohci bulk_msg timeout
-Message-ID: <20030723142035.GA956@paradigm.rfc822.org>
-References: <20030718173214.GD15430@paradigm.rfc822.org> <5.1.0.14.2.20030721100313.0759df08@unixmail.qualcomm.com>
+	Wed, 23 Jul 2003 10:10:20 -0400
+Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:27384 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S270326AbTGWOKQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 10:10:16 -0400
+Subject: Re: kernel bug in socketpair()
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: David Korn <dgk@research.att.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       gsf@research.att.com
+In-Reply-To: <200307231332.JAA26197@raptor.research.att.com>
+References: <200307231332.JAA26197@raptor.research.att.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1058970007.5520.68.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ZPt4rx8FFjLCG7dd"
-Content-Disposition: inline
-In-Reply-To: <5.1.0.14.2.20030721100313.0759df08@unixmail.qualcomm.com>
-Organization: rfc822 - pure communication
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 23 Jul 2003 15:20:08 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mer, 2003-07-23 at 14:32, David Korn wrote:
+> The first problem is that files created with socketpair() are not accessible
+> via /dev/fd/n or /proc/$$/fd/n where n is the file descriptor returned
+> by socketpair().  Note that this is not a problem with pipe().
 
---ZPt4rx8FFjLCG7dd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This is intentional - sockets do not have an "open" operation currently.
 
-On Mon, Jul 21, 2003 at 10:06:19AM -0700, Max Krasnyansky wrote:
-> At 10:32 AM 7/18/2003, Florian Lohoff wrote:
->=20
-> >Hi,
-> >since 2.4.21 + mh2 bluez patch i am seeing these errors. 2.4.20 + mh7
-> >bluez patch did not show these errors. Results are very instable
-> >Bluetooth connections.
-> Those errors don't seem to be related to the driver update. But you could
-> try this. In drivers/bluetooth/hci_usb.h set HCI_MAX_BULK_TX define to 1 =
-(instead of 4)
-> and rebuild the module. Does it make any difference ?
+> The second problem is that if fchmod(fd,S_IWUSR) is applied to the write end
+> of a pipe(),  it causes the read() end to also be write only so that
+> opening  /dev/fd/n for read fails.
 
-Doesnt help at all - So the OHCI changes are to blame ?
 
-Flo
---=20
-Florian Lohoff                  flo@rfc822.org             +49-171-2280134
-                        Heisenberg may have been here.
+That doesn't directly suprise me. Our pipes are BSD style not streams
+pipes. One thing that means is that the pipe itself is a single inode.
 
---ZPt4rx8FFjLCG7dd
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/HpmzUaz2rXW+gJcRAqXLAKDkIX9eQq/iNMmXru2I5K9tUJijdgCfebKN
-4cg0+3SAYqCMvutre/AKJYk=
-=+cs6
------END PGP SIGNATURE-----
-
---ZPt4rx8FFjLCG7dd--

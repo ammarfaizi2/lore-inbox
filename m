@@ -1,68 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266427AbUIPVVm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267951AbUIPVYM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266427AbUIPVVm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 17:21:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266491AbUIPVVl
+	id S267951AbUIPVYM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 17:24:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266351AbUIPVYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 17:21:41 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.51]:9696 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S266427AbUIPVVP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 17:21:15 -0400
-Date: Thu, 16 Sep 2004 23:21:11 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Matthias Urlichs <smurf@smurf.noris.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: offtopic: how to break huge patch into smaller independent patches?
-Message-ID: <20040916212111.GC31479@MAIL.13thfloor.at>
-Mail-Followup-To: Matthias Urlichs <smurf@smurf.noris.de>,
-	linux-kernel@vger.kernel.org
-References: <41474B15.8040302@nortelnetworks.com> <20040914201210.GE13788@redhat.com> <pan.2004.09.16.21.11.47.825104@smurf.noris.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <pan.2004.09.16.21.11.47.825104@smurf.noris.de>
-User-Agent: Mutt/1.4.1i
+	Thu, 16 Sep 2004 17:24:12 -0400
+Received: from h66-38-154-67.gtcust.grouptelecom.net ([66.38.154.67]:32669
+	"EHLO pbl.ca") by vger.kernel.org with ESMTP id S266561AbUIPVXt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 17:23:49 -0400
+Message-ID: <414A04F6.8040106@pbl.ca>
+Date: Thu, 16 Sep 2004 16:26:14 -0500
+From: Aleksandar Milivojevic <amilivojevic@pbl.ca>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: argv null terminated in main()?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 16, 2004 at 11:11:48PM +0200, Matthias Urlichs wrote:
-> Hi, Dave Jones wrote:
-> 
-> > diffsplit will split it into a patch-per-file, which could be
-> > a good start. If you have multiple changes touching the same file
-> > however, things get a bit more fun, and you get to spend a lot
-> > of time in your favorite text editor glueing bits together.
-> 
-> You can rip the bits apart instead, and leave the glueing and rip-patching
-> to the computer.
-> 
-> - edit patch file:
->   - delete all the parts you don't want applied; freely hand-edit stuff,
->     and don't worry about the pesky line numbers
->   - save to new patch file
-> - run "rediff" to fix up the new file
-> - run "interdiff" to create a second, clean patch file
->   containing just the deleted parts
-> - iterate until finished
-> 
-> All of this is part of the nice patchutils package.
-> 
-> NB: if all else fails, use espdiff(1).
+I was looking for info on this question on web and in documentation, but 
+couldn't find it documented anywhere.
 
-yes, this often helps me to get it right, where the
-other patchutils seem to fail, but the option parsing
-code seems to be broken :)
+The question is, after call to execve() system call, and after new image 
+is loaded, is argv (as passed to main() function of new program) NULL 
+terminated or not in Linux?
 
-# espdiff -h
-espdiff: invalid option -- h
-Try `cat --help' for more information.
-     ~~~
+So far I found article from Ritchie saying that argv[argc] was -1 up to 
+Unix Sixth Edition (1975), and than it was changed to NULL starting from 
+Seventh Edition (in 1979) and than later same behaviour was carried over 
+to 32V and BSD.  Looking at the man page for exec(2) on Solaris, which 
+is System V derivate, the documentation still states the same 
+(argv[argc] is guaranteed to be NULL).
 
-> -- 
-> Matthias Urlichs
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+But how about Linux kernel?  What (if anything) is copied or filled into 
+argv[argc] by execve()?
+
+Documentation for execve() on Linux doesn't state it explicitly, but one 
+could find himself lured into beleiving that argv[argc] should be NULL. 
+  It says "The argument vector and environment can be accessed by the 
+called program's main function, when it  is  defined as int main(int 
+argc, char *argv[], char *envp[])".  Because original vector as passed 
+to execve was NULL terminated.
+
+I've looked in the kernel source code (just a glance), and by looking at 
+copy_strings function in exec.c, it seems as argv[argc] might be 
+undefined (it seems that loop copies only first argc - 1 elements of 
+argv).  But I might be wrong.
+
+-- 
+Aleksandar Milivojevic <amilivojevic@pbl.ca>    Pollard Banknote Limited
+Systems Administrator                           1499 Buffalo Place
+Tel: (204) 474-2323 ext 276                     Winnipeg, MB  R3T 1L7

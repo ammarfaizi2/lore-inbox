@@ -1,179 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317352AbSGOGYw>; Mon, 15 Jul 2002 02:24:52 -0400
+	id <S317351AbSGOGXI>; Mon, 15 Jul 2002 02:23:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317354AbSGOGYw>; Mon, 15 Jul 2002 02:24:52 -0400
-Received: from sj-msg-core-1.cisco.com ([171.71.163.11]:4841 "EHLO
-	sj-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
-	id <S317352AbSGOGYt>; Mon, 15 Jul 2002 02:24:49 -0400
-Date: Mon, 15 Jul 2002 11:57:39 +0530 (IST)
-From: Manik Raina <manik@cisco.com>
-To: torvalds@transmeta.com, <linux-kernel@vger.kernel.org>
-Subject: [PATCH, 2.5] : Adding counters to BSD process accounting
-Message-ID: <Pine.GSO.4.44.0207151154460.23890-100000@cbin2-xdm1.cisco.com>
+	id <S317352AbSGOGXH>; Mon, 15 Jul 2002 02:23:07 -0400
+Received: from mail.gmx.de ([213.165.64.20]:61076 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S317351AbSGOGXG>;
+	Mon, 15 Jul 2002 02:23:06 -0400
+Message-ID: <009701c22bc8$c8bd54e0$1c6fa8c0@hyper>
+From: "Christian Ludwig" <cl81@gmx.net>
+To: "Tom Oehser" <tom@toms.net>
+Cc: "Daniel Phillips" <phillips@arcor.de>,
+       "Ville Herva" <vherva@niksula.hut.fi>,
+       "Linux Kernel Mailinglist" <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0207121011260.23208-100000@conn6m.toms.net>
+Subject: Re: bzip2 support against 2.4.18
+Date: Mon, 15 Jul 2002 08:28:01 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Tom Oehser wrote on Friday, July 12, 2002 4:21 PM:
+> I chose the name bz2bzImage and have been using it on tomsrtbt since
+2.0.0,
+> the reason I chose it was to make as clear as possible that it is still a
+> big/compressed image and that the bz2 is additional/different.  I get a
+lot
+> of confusion from users who assume that bzImage *already* has something to
+do
+> with bzip2.  I tried to convey that it was a "Bzip2-Big-Compressed-image"
+> rather than a "normal" "Big-Compressed-image".  I still prefer it to
+either
+> bz2Image or bzImage.? or bzip2Image.  But I don't really care.
 
-This  patch  keeps account of the number of bytes read/written by a
-process in it's lifetime.
+Fine, I am just working on a new version of the patch, where the make target
+'bz2bzImage' disappears. The kernel compression will be a CONFIG option,
+too. This is possible, because in the original patch you only changed
+'misc.c' to support bzip2. I will release the new version of the patch
+within this week (I hope).
 
-This may be a  good estimate of how IO bound a process is.
-This change is integrated with the BSD process accounting feature. Please
-review the changes and if you're ok with it, please apply to the 2.5 tree.
+The ramdisk compression is already a CONFIG option. You can choose between
+gzip/bzip2 ramdisk compression, or you can even select both.
 
-thanks,
-Manik
+> Note, I have gotten it to work fine with a 4MB machine on 2.2.x, so 2.4.x
+> will probably work on 4MB also in some smaller kernel configurations.
+Also,
+> the speed penalty was not problematic even on 486 machines.  See my post a
+> few months ago for details.  But, overall, it is fine on an 8MB 486, and I
+> think it is useful enough in embedded and floppy and flash environments
+that
+> it would be worthwhile.
 
+Kernel 2.4 is much bigger than kernel 2.2. With very small configurations
+this should work on 4MB machines as well. You have to try. My kernel was
+580kB bzip2 compressed, this one didn't work on 4MB.
 
-diff -u -U 6 -r --show-c-function -H linux-2.5.24/fs/read_write.c work/fs/read_write.c
---- linux-2.5.24/fs/read_write.c	Fri Jun 21 04:23:54 2002
-+++ work/fs/read_write.c	Tue Jul  9 15:10:55 2002
-@@ -8,12 +8,13 @@
- #include <linux/stat.h>
- #include <linux/fcntl.h>
- #include <linux/file.h>
- #include <linux/uio.h>
- #include <linux/smp_lock.h>
- #include <linux/dnotify.h>
-+#include <linux/acct.h>
+> Does your mod of my patch support configuring the normal vs. "small"
+option?
+> Also, does it support choosing the compression-level-number?  Does it
+support
+> using gzip/bzip2 one for the kernel and the other for the ramdisk in
+either
+> combination?  My original patch was only "small", disabled gzip, and I
+think
+> used "-9" compression for both the kernel and the ramdisk.
 
- #include <asm/uaccess.h>
+Choosing a compression level is (still) not supported, but choosing any
+combination of gzip/bzip2 is already implemented. I wonder if it is useful
+to have compression-level-numbers? The patch uses '-9' compression in any
+case (gzip/bzip2 kernel/ramdisk).
 
- struct file_operations generic_ro_fops = {
- 	llseek:		generic_file_llseek,
- 	read:		generic_file_read,
-@@ -214,12 +215,14 @@ asmlinkage ssize_t sys_read(unsigned int
- 	file = fget(fd);
- 	if (file) {
- 		ret = vfs_read(file, buf, count, &file->f_pos);
- 		fput(file);
- 	}
+Have fun.
 
-+	acct_read_add(ret);
-+
- 	return ret;
- }
+    - Christian
 
- asmlinkage ssize_t sys_write(unsigned int fd, const char * buf, size_t count)
- {
- 	struct file *file;
-@@ -227,12 +230,14 @@ asmlinkage ssize_t sys_write(unsigned in
-
- 	file = fget(fd);
- 	if (file) {
- 		ret = vfs_write(file, buf, count, &file->f_pos);
- 		fput(file);
- 	}
-+
-+	acct_write_add(ret);
-
- 	return ret;
- }
-
- asmlinkage ssize_t sys_pread(unsigned int fd, char *buf,
- 			     size_t count, loff_t pos)
-diff -u -U 6 -r --show-c-function -H linux-2.5.24/include/linux/acct.h work/include/linux/acct.h
---- linux-2.5.24/include/linux/acct.h	Fri Jun 21 04:23:46 2002
-+++ work/include/linux/acct.h	Tue Jul  9 15:13:08 2002
-@@ -54,12 +54,14 @@ struct acct
- 	comp_t		ac_minflt;		/* Accounting Minor Pagefaults */
- 	comp_t		ac_majflt;		/* Accounting Major Pagefaults */
- 	comp_t		ac_swaps;		/* Accounting Number of Swaps */
- 	__u32		ac_exitcode;		/* Accounting Exitcode */
- 	char		ac_comm[ACCT_COMM + 1];	/* Accounting Command Name */
- 	char		ac_pad[10];		/* Accounting Padding Bytes */
-+	__u64           ac_read;                /* Accounting bytes read */
-+	__u64           ac_write;               /* Accountind bytes written */
- };
-
- /*
-  *  accounting flags
-  */
- 				/* bit set when the process ... */
-@@ -75,14 +77,26 @@ struct acct
-
- #include <linux/config.h>
-
- #ifdef CONFIG_BSD_PROCESS_ACCT
- extern void acct_auto_close(struct super_block *sb);
- extern int acct_process(long exitcode);
-+
-+static inline void acct_read_add (ssize_t count)
-+{
-+	if (count) current->read += count;
-+}
-+
-+static inline void acct_write_add (ssize_t count)
-+{
-+	if (count) current->write += count;
-+}
- #else
- #define acct_auto_close(x)	do { } while (0)
- #define acct_process(x)		do { } while (0)
-+#define acct_read_add(x)        do { } while (0)
-+#define acct_write_add(x)       do { } while (0)
- #endif
-
- #endif	/* __KERNEL */
-
- #endif	/* _LINUX_ACCT_H */
-diff -u -U 6 -r --show-c-function -H linux-2.5.24/include/linux/sched.h work/include/linux/sched.h
---- linux-2.5.24/include/linux/sched.h	Fri Jun 21 04:23:44 2002
-+++ work/include/linux/sched.h	Tue Jul  9 14:18:14 2002
-@@ -361,12 +361,17 @@ struct task_struct {
- /* Protection of (de-)allocation: mm, files, fs, tty */
- 	spinlock_t alloc_lock;
-
- /* journalling filesystem info */
- 	void *journal_info;
- 	struct dentry *proc_dentry;
-+
-+#ifdef    CONFIG_BSD_PROCESS_ACCT
-+/* process accounting info */
-+	u64  read, write;
-+#endif  /* CONFIG_BSD_PROCESS_ACCT */
- };
-
- extern void __put_task_struct(struct task_struct *tsk);
- #define get_task_struct(tsk) do { atomic_inc(&(tsk)->usage); } while(0)
- #define put_task_struct(tsk) \
- do { if (atomic_dec_and_test(&(tsk)->usage)) __put_task_struct(tsk); } while(0)
-diff -u -U 6 -r --show-c-function -H linux-2.5.24/kernel/acct.c work/kernel/acct.c
---- linux-2.5.24/kernel/acct.c	Fri Jun 21 04:23:53 2002
-+++ work/kernel/acct.c	Tue Jul  9 15:04:41 2002
-@@ -38,12 +38,15 @@
-  *  OK, that's better. ANOTHER race and leak in BSD variant. There always
-  *  is one more bug... 10/11/98, AV.
-  *
-  *	Oh, fsck... Oopsable SMP race in do_process_acct() - we must hold
-  * ->mmap_sem to walk the vma list of current->mm. Nasty, since it leaks
-  * a struct file opened for write. Fixed. 2/6/2000, AV.
-+ *
-+ *  Added support for number of bytes read/written per process.
-+ *                                              - Manik Raina
-  */
-
- #include <linux/config.h>
- #include <linux/mm.h>
- #include <linux/slab.h>
- #include <linux/acct.h>
-@@ -351,13 +354,14 @@ static void do_acct_process(long exitcod
- 	ac.ac_io = encode_comp_t(0 /* current->io_usage */);	/* %% */
- 	ac.ac_rw = encode_comp_t(ac.ac_io / 1024);
- 	ac.ac_minflt = encode_comp_t(current->min_flt);
- 	ac.ac_majflt = encode_comp_t(current->maj_flt);
- 	ac.ac_swaps = encode_comp_t(current->nswap);
- 	ac.ac_exitcode = exitcode;
--
-+	ac.ac_read = current->read;
-+	ac.ac_write = current->write;
- 	/*
-          * Kernel segment override to datasegment and write it
-          * to the accounting file.
-          */
- 	fs = get_fs();
- 	set_fs(KERNEL_DS);
 

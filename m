@@ -1,64 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129736AbQLHC2v>; Thu, 7 Dec 2000 21:28:51 -0500
+	id <S129666AbQLHCfc>; Thu, 7 Dec 2000 21:35:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130396AbQLHC2l>; Thu, 7 Dec 2000 21:28:41 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:22144 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129736AbQLHC2c>; Thu, 7 Dec 2000 21:28:32 -0500
-Date: Thu, 7 Dec 2000 20:58:01 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Rainer Mager <rmager@vgkk.com>
-cc: linux-kernel@vger.kernel.org
+	id <S129868AbQLHCfW>; Thu, 7 Dec 2000 21:35:22 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:21253 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S129666AbQLHCfR>; Thu, 7 Dec 2000 21:35:17 -0500
+Date: Thu, 7 Dec 2000 20:04:16 -0600
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Rainer Mager <rmager@vgkk.com>, linux-kernel@vger.kernel.org
 Subject: Re: Signal 11
-In-Reply-To: <NEBBJBCAFMMNIHGDLFKGMEFHCIAA.rmager@vgkk.com>
-Message-ID: <Pine.LNX.3.95.1001207205043.5530A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20001207200415.O6567@cadcamlab.org>
+In-Reply-To: <NEBBJBCAFMMNIHGDLFKGMEFHCIAA.rmager@vgkk.com> <Pine.LNX.3.95.1001207205043.5530A-100000@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.3.95.1001207205043.5530A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Thu, Dec 07, 2000 at 08:58:01PM -0500
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Dec 2000, Rainer Mager wrote:
 
-> Hi all,
+[Dick Johnson]
+> Do:
 > 
-> 	I've searched around for a answer to this with no real luck yet. If anyone
-> has some ideas I'd be very grateful.
+> char main[]={0xff,0xff,0xff,0xff};
 
-Signal 11 just means that you "seg-faulted". This is usually caused
-by a coding error. However, if you have tools (like the C compiler)
-that has been running fine, but starts to seg-fault, this points to
-the very real possibility of a hardware error.
+Oh come on, at least pick an *interesting* invalid opcode:
 
-Modern RAM (with no error correction), running outside of its
-timing specifications, is often the culpret. Even power supplies can
-cause this problem. All you need is a single-bit error in a pointer's
-value and -- signal 11.
+  char main[]={0xf0,0x0f,0xc0,0xc8};	/* try also on NT (: */
 
-Also, a bad opcode fetched from RAM with an error, also traps to
-the same handler.
-
-Do:
-
-char main[]={0xff,0xff,0xff,0xff};
-
-
-Compile and run this (it will compile!). You will see what
-bad opcodes will do.
-
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

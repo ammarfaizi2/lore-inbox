@@ -1,92 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267023AbTB0Vd1>; Thu, 27 Feb 2003 16:33:27 -0500
+	id <S267104AbTB0VhQ>; Thu, 27 Feb 2003 16:37:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267043AbTB0VdY>; Thu, 27 Feb 2003 16:33:24 -0500
-Received: from covert.black-ring.iadfw.net ([209.196.123.142]:49926 "EHLO
-	covert.brown-ring.iadfw.net") by vger.kernel.org with ESMTP
-	id <S267023AbTB0Vbx>; Thu, 27 Feb 2003 16:31:53 -0500
-Date: Thu, 27 Feb 2003 15:38:19 -0600
-From: Art Haas <ahaas@airmail.net>
-To: Neil Brown <neilb@cse.unsw.edu.au>, linux-raid@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] C99 initiailzers for xor.h
-Message-ID: <20030227213819.GB8116@debian>
+	id <S267106AbTB0VhP>; Thu, 27 Feb 2003 16:37:15 -0500
+Received: from packet.digeo.com ([12.110.80.53]:8580 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267104AbTB0VhP>;
+	Thu, 27 Feb 2003 16:37:15 -0500
+Date: Thu, 27 Feb 2003 13:44:03 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: Rising io_load results Re: 2.5.63-mm1
+Message-Id: <20030227134403.776bf2e3.akpm@digeo.com>
+In-Reply-To: <200302280822.09409.kernel@kolivas.org>
+References: <20030227025900.1205425a.akpm@digeo.com>
+	<200302280822.09409.kernel@kolivas.org>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 27 Feb 2003 21:47:27.0026 (UTC) FILETIME=[D1C93920:01C2DEA9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Con Kolivas <kernel@kolivas.org> wrote:
+>
+> 
+> This started some time around 2.5.62-mm3 with the io_load results on contest 
+> benchmarking (http://contest.kolivas.org) rising with each run.
+> ...
+> Mapped:       4294923652 kB
 
-This patch converts the file to use C99 initializers. It's against the
-current BK.
+Well that's gotta hurt.  This metric is used in making writeback decisions. 
+Probably the objrmap patch.
 
-Art Haas
-
-===== include/asm-generic/xor.h 1.2 vs edited =====
---- 1.2/include/asm-generic/xor.h	Mon Oct 21 03:13:10 2002
-+++ edited/include/asm-generic/xor.h	Thu Feb 27 10:27:14 2003
-@@ -678,35 +678,35 @@
- }
- 
- static struct xor_block_template xor_block_8regs = {
--	name: "8regs",
--	do_2: xor_8regs_2,
--	do_3: xor_8regs_3,
--	do_4: xor_8regs_4,
--	do_5: xor_8regs_5,
-+	.name = "8regs",
-+	.do_2 = xor_8regs_2,
-+	.do_3 = xor_8regs_3,
-+	.do_4 = xor_8regs_4,
-+	.do_5 = xor_8regs_5,
- };
- 
- static struct xor_block_template xor_block_32regs = {
--	name: "32regs",
--	do_2: xor_32regs_2,
--	do_3: xor_32regs_3,
--	do_4: xor_32regs_4,
--	do_5: xor_32regs_5,
-+	.name = "32regs",
-+	.do_2 = xor_32regs_2,
-+	.do_3 = xor_32regs_3,
-+	.do_4 = xor_32regs_4,
-+	.do_5 = xor_32regs_5,
- };
- 
- static struct xor_block_template xor_block_8regs_p = {
--	name: "8regs_prefetch",
--	do_2: xor_8regs_p_2,
--	do_3: xor_8regs_p_3,
--	do_4: xor_8regs_p_4,
--	do_5: xor_8regs_p_5,
-+	.name = "8regs_prefetch",
-+	.do_2 = xor_8regs_p_2,
-+	.do_3 = xor_8regs_p_3,
-+	.do_4 = xor_8regs_p_4,
-+	.do_5 = xor_8regs_p_5,
- };
- 
- static struct xor_block_template xor_block_32regs_p = {
--	name: "32regs_prefetch",
--	do_2: xor_32regs_p_2,
--	do_3: xor_32regs_p_3,
--	do_4: xor_32regs_p_4,
--	do_5: xor_32regs_p_5,
-+	.name = "32regs_prefetch",
-+	.do_2 = xor_32regs_p_2,
-+	.do_3 = xor_32regs_p_3,
-+	.do_4 = xor_32regs_p_4,
-+	.do_5 = xor_32regs_p_5,
- };
- 
- #define XOR_TRY_TEMPLATES			\
--- 
-They that can give up essential liberty to obtain a little temporary safety
-deserve neither liberty nor safety.
- -- Benjamin Franklin, Historical Review of Pennsylvania, 1759

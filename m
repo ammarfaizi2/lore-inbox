@@ -1,37 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267185AbTAPRHE>; Thu, 16 Jan 2003 12:07:04 -0500
+	id <S267158AbTAPRCM>; Thu, 16 Jan 2003 12:02:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267187AbTAPRHE>; Thu, 16 Jan 2003 12:07:04 -0500
-Received: from hexagon.stack.nl ([131.155.140.144]:17932 "EHLO
-	hexagon.stack.nl") by vger.kernel.org with ESMTP id <S267185AbTAPRHD>;
-	Thu, 16 Jan 2003 12:07:03 -0500
-Date: Thu, 16 Jan 2003 18:15:54 +0100 (CET)
-From: Jos Hulzink <josh@stack.nl>
-To: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Why does a thread not sleep ?
-Message-ID: <20030116175941.U29316-100000@snail.stack.nl>
+	id <S267160AbTAPRCM>; Thu, 16 Jan 2003 12:02:12 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:46341 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S267158AbTAPRCL>;
+	Thu, 16 Jan 2003 12:02:11 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200301161711.h0GHBKMS001969@darkstar.example.net>
+Subject: Open source hardware
+To: linux-kernel@vger.kernel.org
+Date: Thu, 16 Jan 2003 17:11:20 +0000 (GMT)
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+I've been reading some of the threads about the GPL, and binary-only
+drivers, and I'm suprised that nobody has brought up open source
+hardware, (or rather, the lack of it).
 
-In a driver, in the bottom half of an interrupt handler, I use
-set_task_state (task, TASK_INTERRUPTIBLE) to make a task sleeping.
-Sometimes (about 50 % of the cases), the task wakes up immediately again,
-even though no signals are sent to the task. I tried TASK_UNINTERRUPTIBLE
-and TASK_STOPPED too, but the same thing happens.
+Open source hardware more or less sidesteps the whole issue of
+closed-source drivers - an open source driver would be so easy to
+write with all the specifications available that there would be very
+little point in writing a closed-source driver.
 
-Can it be the task state is returned to TASK_RUNNING again in some
-situations by other code ? Should I use locking, even on uniprocessor
-systems ? Can a modification of the task state get lost in some situations
-? I know about SMP related issues, but this doesn't even work on UP
-kernels.
+At the moment there is not very much open source hardware, and what
+does exist is generally peripherals, and not things like CPUs, but I
+expect this will change soon, mainly because it would be easy to
+develop a cheap, and simple CPU that is designed for multi-processor
+use from the beginning.
 
-In other words: I don't get it. Help would be appreciated.
+This means that each CPU would be cheap and easy to produce, (simple
+design = high yeild from each wafer, and mass production = low cost
+per unit).  Typical machines would have several orders of magnitude
+more processors than those of conventional design, (E.G. 4 to 16 for a
+desktop), but they would be far cheaper, because anybody would be free
+to fabricate the CPUs.
 
-Thanks,
+So, basically, the idea is to design a low-cost,
+low-computational-power CPU, which works well in multi-processor
+configurations, and make the specification open source.  Anybody could
+make the processors, and building a machine of a given computational
+power would be cheaper using them than using conventional CPUs.
 
-Jos
+I personally expect to see this within 10 years.
+
+John.

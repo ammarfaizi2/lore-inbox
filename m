@@ -1,61 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261745AbVCUTOK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261873AbVCUTNf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261745AbVCUTOK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 14:14:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261666AbVCUTOJ
+	id S261873AbVCUTNf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 14:13:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbVCUTNf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 14:14:09 -0500
-Received: from isilmar.linta.de ([213.239.214.66]:45262 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S261745AbVCUTNz (ORCPT
+	Mon, 21 Mar 2005 14:13:35 -0500
+Received: from mail1.skjellin.no ([80.239.42.67]:55230 "EHLO mx1.skjellin.no")
+	by vger.kernel.org with ESMTP id S261861AbVCUTM5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 14:13:55 -0500
-Date: Mon, 21 Mar 2005 20:13:53 +0100
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Norbert Preining <preining@logic.at>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH 1/1] pcmcia: select crc32 in Kconfig for PCMCIA [Was: Re: pcmcia compile problems in 2.6.11-mm4 and above]
-Message-ID: <20050321191353.GA13659@isilmar.linta.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	Norbert Preining <preining@logic.at>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20050321150143.GB14614@gamma.logic.tuwien.ac.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050321150143.GB14614@gamma.logic.tuwien.ac.at>
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 21 Mar 2005 14:12:57 -0500
+Message-ID: <423F1CB3.2040803@tomt.net>
+Date: Mon, 21 Mar 2005 20:12:51 +0100
+From: Andre Tomt <andre@tomt.net>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Carlos Fernandez Sanz <cfs-lk@nisupu.com>, linux-kernel@vger.kernel.org
+Subject: Re: Status of SATA support
+References: <423EB3B0.8070500@nisupu.com> <423F0A5F.1010200@pobox.com> <423F0BE0.9090606@tomt.net> <423F0E09.50101@pobox.com>
+In-Reply-To: <423F0E09.50101@pobox.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 21, 2005 at 04:01:43PM +0100, Norbert Preining wrote:
-> HI Andrew!
+Jeff Garzik wrote:
+> Andre Tomt wrote:
 > 
-> Compiling 2.6.12-rc1-mm1 with the attached config gives me an error
-> while compiling pcmcia (I made a make oldconfig)
-> drivers/built-in.o(.text+0xaf2a2): In function `pcmcia_check_driver':
-> : undefined reference to `crc32_le'
-> drivers/built-in.o(.text+0xafef1): In function `pcmcia_bus_hotplug':
-> : undefined reference to `crc32_le'
+>> Jeff Garzik wrote:
+>>
+>>> Carlos Fernandez Sanz wrote:
+>>>
+>>>> Since this document is a bit our of date:
+>>>>
+>>>> http://linux.yyz.us/sata/sata-status.html
+>>>
+>>>
+>>>
+>>>
+>>> What's out-of-date about that URL?
+>>>
+>>>     Jeff
+>>>
+>>
+>> A update on the Marvell status? :-P
 > 
-> compiling pcmcia modular works.
+> No Marvell status change, so no need to update...
 
-That's a missing dependency on CONFIG_CRC32. Could you check whether this
-patch helps, please?
+My main point is that if its listed as "in progress", other parties that 
+are interrested in developing a driver would most likely think it is on 
+the way and thus just wait it out instead. We both know it has stalled ;-)
 
+>> Anyway, is there any of the current work on Marvell available 
+>> somewhere, so that someone could possibly pick up on it?
+> 
+> It's mainly a skeleton that I would rather not release.  Someone with 
+> docs (and you need docs) could re-create it in ten seconds.
 
-PCMCIA needs CRC32.
+Whats missing? Manpower? Hardware?
 
-Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
-
-Index: linux-2.6.12-rc1/drivers/pcmcia/Kconfig
-===================================================================
---- linux-2.6.12-rc1.orig/drivers/pcmcia/Kconfig	2005-03-21 20:07:42.000000000 +0100
-+++ linux-2.6.12-rc1/drivers/pcmcia/Kconfig	2005-03-21 20:12:00.000000000 +0100
-@@ -42,6 +42,7 @@
- 
- config PCMCIA
- 	tristate "16-bit PCMCIA support"
-+	select CRC32
- 	default y
- 	---help---
- 	   This option enables support for 16-bit PCMCIA cards. Most older
+Are anyone planning AHCI based PCI-X/PCI-E boards? :-)

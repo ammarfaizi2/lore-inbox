@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265075AbUGGLsi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265083AbUGGLvg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265075AbUGGLsi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 07:48:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265083AbUGGLsi
+	id S265083AbUGGLvg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 07:51:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265084AbUGGLvg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 07:48:38 -0400
-Received: from web41103.mail.yahoo.com ([66.218.93.19]:16421 "HELO
-	web41103.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265075AbUGGLsh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 07:48:37 -0400
-Message-ID: <20040707114836.29295.qmail@web41103.mail.yahoo.com>
-Date: Wed, 7 Jul 2004 04:48:36 -0700 (PDT)
-From: tom st denis <tomstdenis@yahoo.com>
-Subject: Re: Prohibited attachment type (was 0xdeadbeef)
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.53.0407070715380.17430@chaos>
+	Wed, 7 Jul 2004 07:51:36 -0400
+Received: from mlf.linux.rulez.org ([192.188.244.13]:7175 "EHLO
+	mlf.linux.rulez.org") by vger.kernel.org with ESMTP id S265083AbUGGLvd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 07:51:33 -0400
+Date: Wed, 7 Jul 2004 13:51:28 +0200 (MEST)
+From: Szakacsits Szabolcs <szaka@sienet.hu>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Andries Brouwer <aebr@win.tue.nl>,
+       "Patrick J. LoPresti" <patl@users.sourceforge.net>, bug-parted@gnu.org,
+       Steffen Winterfeldt <snwint@suse.de>, Thomas Fehr <fehr@suse.de>,
+       linux-kernel@vger.kernel.org, Andrew Clausen <clausen@gnu.org>,
+       buytenh@gnu.org, msw@redhat.com
+Subject: Re: Restoring HDIO_GETGEO semantics for 2.6 (was: Re: [RFC] Restoring
+ HDIO_GETGEO semantics)
+In-Reply-To: <Pine.LNX.4.58.0407071304190.20635@scrub.home>
+Message-ID: <Pine.LNX.4.21.0407071324580.7176-100000@mlf.linux.rulez.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- "Richard B. Johnson" <root@chaos.analogic.com> wrote:
-> Tom is correct. A literal constant defaults to 'int'.
 
-I did a bit more messing around with GCC and it seems in 
+On Wed, 7 Jul 2004, Roman Zippel wrote:
 
-int x = 4;
-if (x == 0xDEADBEEF) { ... }
+> At this point we either complete the job and remove this ioctl or we 
+> restore the 2.4 behaviour (maybe with a deprecated warning).
 
-It will warn that 0xDEADBEEF is unsigned (which it isn't).  Either
-there is an obscure clause in the C standard [I personally don't have a
-copy of C99 nor do I plan on reading it for this] or GCC cause an
-incorrect diagnostic [which isn't in violation of the standards...]
+Well, yes. Perhaps a competent guy/gal could even fix most of the broken
+2.4 cases during the same time, e.g. by using EDD, if possible and make
+sense. But somehow I doubt anybody would take this nasty retore&fix
+challange and actually it's even possible.
 
-Really GCC should just warn that 0xDEADBEEF is not a valid int constant
-[for portability sake...].   It's simple, any constant > 16-bits should
-have a UL/L or ULL/LL suffix.
+I also say, things might rely on the 2.6 behavior now, thus they might be
+broken by the restoration. They should be investigated to prevent
+deserving another brown paper bag.
 
-Tom
+Andries says, it's not a kernel issue because he is going on vacation soon
+(that's why he's off-topic all the time, wanting to adjust only the easy
+user space quickly).
 
+	Szaka
 
-	
-		
-__________________________________
-Do you Yahoo!?
-New and Improved Yahoo! Mail - 100MB free storage!
-http://promotions.yahoo.com/new_mail 

@@ -1,36 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316649AbSGLQdD>; Fri, 12 Jul 2002 12:33:03 -0400
+	id <S316576AbSGLQii>; Fri, 12 Jul 2002 12:38:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316659AbSGLQdC>; Fri, 12 Jul 2002 12:33:02 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:62479 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S316649AbSGLQdB>; Fri, 12 Jul 2002 12:33:01 -0400
-Date: Fri, 12 Jul 2002 18:35:46 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: JorgP <jorgp@bartnet.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: What is the most stable kernel to date?
-Message-ID: <20020712163546.GO29993@louise.pinerecords.com>
-References: <120401c229be$58fee4e0$2db2950c@vulcan>
+	id <S316659AbSGLQih>; Fri, 12 Jul 2002 12:38:37 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:47347 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S316576AbSGLQig>; Fri, 12 Jul 2002 12:38:36 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Fri, 12 Jul 2002 10:39:28 -0600
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ext2 'remount' problem
+Message-ID: <20020712163928.GH8738@clusterfs.com>
+Mail-Followup-To: "Richard B. Johnson" <root@chaos.analogic.com>,
+	Linux kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.3.95.1020712085149.271A-100000@chaos.analogic.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <120401c229be$58fee4e0$2db2950c@vulcan>
-User-Agent: Mutt/1.4i
-X-OS: GNU/Linux 2.4.19-pre10/sparc SMP
-X-Uptime: 38 days, 1:09
+In-Reply-To: <Pine.LNX.3.95.1020712085149.271A-100000@chaos.analogic.com>
+User-Agent: Mutt/1.3.28i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Has anyone conducted any tests to determine what is the most stable (as in
-> reliable) kernel available?
+On Jul 12, 2002  08:53 -0400, Richard B. Johnson wrote:
+> If file-systems are mounted upon boot with 'defaults' as options
+> 
+> like /etc/fstab...
+> /dev/sdc1			/alt		ext2	defaults  0   2
+> 
+> mount -o remount,rw,noatime /alt
+> 
+> The result is (correctly)
+> /dev/sdc1 /alt ext2 rw,noatime 0 0
+> 
+> Now, if I shut down the system, properly dismounting all the drives,
+> then I reboot, the drives that were re-mounted end up being fscked
+> due to 'was not cleanly unmounted' inference. Nothing wrong is found.
+> 
+> Now, if I mount the drives "noatime" from the start, i.e., from
+> /etc/fstab upon startup, there are no such errors upon re-boot.
 
-There is no such test because there's no way to describe "being stable"
-in formulas.
+There was once a problem that if you mounted a filesystem and crashed
+shortly thereafter the filesystem would mistakenly be marked clean and
+not checked when it should be, but I haven't heard the opposite problem.
 
-You might as well like to stick with a kernel that has worked for you
-for a long enough time. If you don't need the features of 2.4, go with
-2.2-latest.
+I did a quick check (just mounting an ext2 filesystem on 2.4.18 from bash,
+remounting, then unmounting) and everything worked as expected.  Could
+you try doing your test and running "dumpe2fs -h /dev/foo" between each
+step to check the filesystem state.  It should be "not clean" until the
+filesystem is unmounted, at which point it should be "clean".
 
-T.
+Also try doing the unmount steps manually before shutdown to see if it
+is a timing issue.  If you have writeback cache enabled on your disks
+and this is not being flushed to the oxide before power is lost you may
+not just be having an fsck problem, but also a data loss/corruption
+problem.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
+

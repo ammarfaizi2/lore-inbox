@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264255AbUFNVKx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264398AbUFNVMW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264255AbUFNVKx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 17:10:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264444AbUFNVKx
+	id S264398AbUFNVMW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 17:12:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264444AbUFNVMW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 17:10:53 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:19867 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S264255AbUFNVKv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 17:10:51 -0400
-Date: Mon, 14 Jun 2004 23:19:40 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH 4/5] kbuild: make clean improved
-Message-ID: <20040614211940.GA15555@mars.ravnborg.org>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-References: <20040614204029.GA15243@mars.ravnborg.org> <20040614204655.GE15243@mars.ravnborg.org> <20040614215034.K14403@flint.arm.linux.org.uk>
+	Mon, 14 Jun 2004 17:12:22 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:4215 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S264398AbUFNVMI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jun 2004 17:12:08 -0400
+Date: Mon, 14 Jun 2004 14:21:28 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Andi Kleen <ak@muc.de>
+Cc: anton@samba.org, ak@muc.de, linux-kernel@vger.kernel.org,
+       lse-tech@projects.sourceforge.net
+Subject: Re: NUMA API observations
+Message-Id: <20040614142128.4da12a8d.pj@sgi.com>
+In-Reply-To: <20040614161749.GA62265@colin2.muc.de>
+References: <20040614153638.GB25389@krispykreme>
+	<20040614161749.GA62265@colin2.muc.de>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040614215034.K14403@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 14, 2004 at 09:50:34PM +0100, Russell King wrote:
-> On Mon, Jun 14, 2004 at 10:46:55PM +0200, Sam Ravnborg wrote:
-> >  # Directories & files removed with 'make clean'
-> >  CLEAN_DIRS  += $(MODVERDIR)
-> > -CLEAN_FILES +=	vmlinux System.map \
-> > +CLEAN_FILES +=	vmlinux System.map .version .config.old \
-> >                  .tmp_kallsyms* .tmp_version .tmp_vmlinux*
+Andi wrote:
+> How should a user space application sanely discover the cpumask_t
+> size needed by the kernel?  Whoever designed that was on crack.
 > 
-> Why should 'make clean' remove the build version?  Traditionally,
-> this has been preserved until 'make mrproper'.
+> I will probably make it loop and double the buffer until EINVAL
+> ends or it passes a page and add a nasty comment.
 
-In the 2.4 days people had to do 'make clean' very often.
-For the 2.6 kernel this is no longer needed, so when cleaning up
-we want to be effective.
+I agree that a loop is needed.  And yes someone didn't do a very
+good job of designing this interface.
 
-.version only really pays off when doing a lot of consecutive
-build on the _same_ kernel src.
+I posted a piece of code that gets a usable upper bound on cpumask_t
+size, suitable for application code to size mask buffers to be used
+in these system calls.
 
-And make clean is often used in combination with kernel patching,
-especially when renaming files: mv mm/slab.c.old mm/slab.c for example.
+See the lkml article:
 
-Here we start over with some new src, so it make sense to start over
-with the version?
+  http://groups.google.com/groups?selm=fa.hp225re.1v68ei0%40ifi.uio.no
 
-	Sam
+Or search in google groups for "cpumasksz".
+
+This article was posted:
+
+    Date: 2004-06-04 09:20:13 PST 
+
+in a long thread under the Subject of:
+
+    [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based implementation
+
+Feel free to steal it, or to ignore it, if you find it easier to
+write your version than to read mine.
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

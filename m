@@ -1,107 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129054AbRBCI6g>; Sat, 3 Feb 2001 03:58:36 -0500
+	id <S129124AbRBCI7g>; Sat, 3 Feb 2001 03:59:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129124AbRBCI60>; Sat, 3 Feb 2001 03:58:26 -0500
-Received: from Huntington-Beach.Blue-Labs.org ([208.179.0.198]:52844 "EHLO
-	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S129054AbRBCI6L>; Sat, 3 Feb 2001 03:58:11 -0500
-Message-ID: <3A7BC808.E9BF5B44@linux.com>
-Date: Sat, 03 Feb 2001 00:57:45 -0800
-From: David Ford <david@linux.com>
-Organization: Blue Labs Software
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-CC: Ion Badulescu <ionut@moisil.cs.columbia.edu>,
-        Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org,
-        reiserfs-list@namesys.com, Jan Kasprzak <kas@informatics.muni.cz>
-Subject: Re: [reiserfs-list] ReiserFS Oops (2.4.1, deterministic, symlink 
- related)
-In-Reply-To: <E14OoD8-0007GI-00@the-village.bc.nu>
-Content-Type: multipart/mixed;
- boundary="------------EE56B0CAEBA3E919AFC2862A"
-To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
+	id <S129252AbRBCI70>; Sat, 3 Feb 2001 03:59:26 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:3083 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S129124AbRBCI7J>;
+	Sat, 3 Feb 2001 03:59:09 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Fix for include/linux/fs.h in 2.4.0 kernels 
+In-Reply-To: Your message of "03 Feb 2001 08:48:54 -0000."
+             <m2d7d0up6x.fsf@barnowl.demon.co.uk> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 03 Feb 2001 19:59:02 +1100
+Message-ID: <14353.981190742@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------EE56B0CAEBA3E919AFC2862A
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On 03 Feb 2001 08:48:54 +0000, 
+Graham Murray <graham@barnowl.demon.co.uk> wrote:
+>So what is your advice?  Would the "correct" action be to take a
+>snapshot of the appropriate kernel directories against which glibc is
+>built? (ie to copy the directories (or those files needed) to
+>/usr/include/asm and /usr/include/linux)
 
-How about a simple patch to the top level makefile that checks the gcc
-version then prints a distinct message ..'this compiler hasn't been approved
-for compiling the kernel', sleeping for one second, then continuing on.  This
-solution doesn't stop compiling and makes a visible indicator without forcing
-anything.
+This has all been thrashed out before.  Read the threads
 
-Sample attached.
-
--d
-
-Alan Cox wrote:
-
-> > As it stands, there is no way to determine programatically whether
-> > gcc-2.96 is broken or now. The only way to do it is to check the RPM
-> > version -- which, needless to say, is a bit difficult to do from the
-> > C code about to be compiled. So I can't really blame Hans if he decides
-> > to outlaw gcc-2.96[.0] for reiserfs compiles.
->
-> Oh I can see why Hans wants to cut down his bug reporting load. I can also
-> say from experience it wont work. If you put #error in then everyone will
-> mail him and complain it doesnt build, if you put #warning in nobody will
-> read it and if you dont put anything in you get the odd bug report anyway.
->
-> Basically you can't win and unfortunately a shrink wrap forcing the user
-> to read the README file for the kernel violates the GPL ..
->
-> Jaded, me ?
->
-> Alan
-
---
-  There is a natural aristocracy among men. The grounds of this are virtue and talents. Thomas Jefferson
-  The good thing about standards is that there are so many to choose from. Andrew S. Tanenbaum
-
-
-
---------------EE56B0CAEBA3E919AFC2862A
-Content-Type: text/plain; charset=us-ascii;
- name="lkml-gccversion.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="lkml-gccversion.patch"
-
---- Makefile.orig	Sat Feb  3 00:48:26 2001
-+++ Makefile	Sat Feb  3 00:45:00 2001
-@@ -253,11 +253,23 @@
- 		-o vmlinux
- 	$(NM) vmlinux | grep -v '\(compiled\)\|\(\.o$$\)\|\( [aUw] \)\|\(\.\.ng$$\)\|\(LASH[RL]DI\)' | sort > System.map
- 
--symlinks:
-+symlinks: gccversioncheck
- 	rm -f include/asm
- 	( cd include ; ln -sf asm-$(ARCH) asm)
- 	@if [ ! -d include/linux/modules ]; then \
- 		mkdir include/linux/modules; \
-+	fi
-+
-+gccversioncheck:
-+	@gccversion=`${HOSTCC} --version`;\
-+	echo Using gcc version: $$gccversion;\
-+	if [ "x$${gccversion}" != "x2.95.2" ]; then \
-+		echo "********************************************************************"; \
-+		echo "***  This compiler version is not approved for compiling the kernel"; \
-+		echo "***  version: " $$HOSTCC $$gccversion ; \
-+		echo "***  Please consider this when reporting bugs" ;\
-+		echo "********************************************************************"; \
-+		sleep 1; \
- 	fi
- 
- oldconfig: symlinks
-
---------------EE56B0CAEBA3E919AFC2862A--
+http://www.mail-archive.com/linux-kernel@vger.rutgers.edu/2000-month-07/msg04096.html
+http://www.mail-archive.com/linux-kernel@vger.kernel.org/msg18256.html
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

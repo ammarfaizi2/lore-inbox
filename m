@@ -1,108 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279722AbRKIJ3q>; Fri, 9 Nov 2001 04:29:46 -0500
+	id <S279684AbRKIJdq>; Fri, 9 Nov 2001 04:33:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279739AbRKIJ3h>; Fri, 9 Nov 2001 04:29:37 -0500
-Received: from d12lmsgate-2.de.ibm.com ([195.212.91.200]:35038 "EHLO
-	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S279722AbRKIJ3X> convert rfc822-to-8bit; Fri, 9 Nov 2001 04:29:23 -0500
-Importance: Normal
-Subject: Re: if (a & X || b & ~Y) in dasd.c
-To: Kevin <kevin@pheared.net>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, <linux-kernel@vger.kernel.org>,
-        "BOEBLINGEN LINUX390" <LINUX390@de.ibm.com>
-X-Mailer: Lotus Notes Release 5.0.4a  July 24, 2000
-Message-ID: <OF8658D049.3695DA65-ONC1256AFF.00336535@de.ibm.com>
-From: "Carsten Otte" <COTTE@de.ibm.com>
-Date: Fri, 9 Nov 2001 11:29:54 +0100
-X-MIMETrack: Serialize by Router on D12ML033/12/M/IBM(Release 5.0.8 |June 18, 2001) at
- 09/11/2001 10:29:15
-MIME-Version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 8BIT
+	id <S279739AbRKIJdh>; Fri, 9 Nov 2001 04:33:37 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:33032 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S279684AbRKIJdW>; Fri, 9 Nov 2001 04:33:22 -0500
+Date: Fri, 9 Nov 2001 10:32:54 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Riley Williams <rhw@memalpha.cx>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: Linux updates RTC secretly when clock synchronizes
+Message-ID: <20011109103254.B2620@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20011108132639.A14160@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.21.0111082252500.14996-100000@Consulate.UFP.CX>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0111082252500.14996-100000@Consulate.UFP.CX>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Pete, Hi Kevin,
+Hi!
 
-it's just like Kevin explained, the singe &/|/~ are bit operations
-while &&/|| are logical operations. The bit operations are handled
-before the logical ones (am I correct?)- so compiler-wise this should
-be fine.
-Sure, one should use some paranthesises to make things clearer,
-but why are you examining  such ancient code? 2.2.14. seems a little
-bit historical for me. The current dasd device driver is much more
-readable and better designed (is redesigned in the 2.4 series).
-
-mit freundlichem Gruß / with kind regards
-Carsten Otte
-
-IBM Deutschland Entwicklung GmbH
-Linux for 390/zSeries Development - Device Driver Team
-Phone: +49/07031/16-4076
-IBM internal phone: *120-4076
---
-We are Linux.
-Resistance indicates that you're missing the point!
+> >>>> least as KERN_DEBUG if not as KERN_NOTICE) whenever the RTC is
+> >>>> written to. It's too important a subsystem to be left hidden like
+> >>>> it currently is.
+> 
+> >>> This can be as well done in userland, enforced by whoever does rtc
+> >>> writes, no?
+> 
+> >> If some idiot writes a hwclock replacement that doesn't do logging...
+> 
+> > Then it is *his* problem. That's no excuse for putting it into kernel.
+> 
+> So you believe viruses are a good thing to have? Sorry, I have to
+> disagree with you.
 
 
-Kevin <kevin@pheared.net> on 11/08/2001 10:10:51 PM
-
-Please respond to Kevin <kevin@pheared.net>
-
-To:   Pete Zaitcev <zaitcev@redhat.com>
-cc:   Carsten Otte/Germany/IBM@IBMDE, <linux-kernel@vger.kernel.org>,
-      BOEBLINGEN LINUX390/Germany/IBM@IBMDE
-Subject:  Re: if (a & X || b & ~Y) in dasd.c
-
-
-
-On Thu, 8 Nov 2001, Pete Zaitcev wrote:
-
-[zaitce] Date: Thu, 8 Nov 2001 15:57:49 -0500
-[zaitce] From: Pete Zaitcev <zaitcev@redhat.com>
-[zaitce] To: Cotte@de.ibm.com
-[zaitce] Cc: linux-kernel@vger.kernel.org, Linux390@de.ibm.com
-[zaitce] Subject: if (a & X || b & ~Y) in dasd.c
-[zaitce]
-[zaitce] Carsten and others:
-[zaitce]
-[zaitce] this code in 2.2.14 looks suspicious to me:
-[zaitce]
-[zaitce] ./drivers/s390/block/dasd.c:
-[zaitce]         /* first of all lets try to find out the appropriate
-era_action */
-[zaitce]         if (stat->flag & DEVSTAT_FLAG_SENSE_AVAIL ||
-[zaitce]             stat->dstat & ~(DEV_STAT_CHN_END | DEV_STAT_DEV_END))
-{
-[zaitce]                 /* anything abnormal ? */
-[zaitce]                 if (device->discipline->examine_error == NULL ||
-[zaitce]                     stat->flag & DEVSTAT_HALT_FUNCTION) {
-[zaitce]                         era = dasd_era_fatal;
-[zaitce]                 } else {
-[zaitce]                         era = device->discipline->examine_error
-(cqr, stat);
-[zaitce]                 }
-[zaitce]                 DASD_DRIVER_DEBUG_EVENT (1, dasd_int_handler,"
-era_code %d",
-[zaitce]                                          era);
-[zaitce]         }
-[zaitce]
-[zaitce] Are you sure any parenthesises are not needed here?
-
-I'm not going to pretend to know what the code is accomplishing, but as
-a matter of C, those &'s aren't the same as &&'s and will get executed as
-the || is tested.  So the first one will get &'ded and if false then the
-second will and if neither return true then we move on.
-
-Or, perhaps I'm being an idiot and misunderstanding the question and the
-code.  In that case, I'll pretend I didn't say anything.  :)
-
--[ kevin@pheared.net                 devel.pheared.net ]-
--[ Rather be forgotten, than remembered for giving in. ]-
--[ ZZ = g ^ (xb * xa) mod p      g = h^{(p-1)/q} mod p ]-
+> Take the position of a sysadmin who can't understand why the system
+> clock on his computer keeps getting randomly changed under Linux, and
+> has verified using another operating system that it isn't a hardware
+> problem, then ask yourself what said sysadmin would expect from the
+> kernel to help him/her track the problem down. Would said sysadmin
+> prefer to be told...
+> 
+>  1. "Look in the system log - you'll get a message every time any
+>     program writes to the RTC."
+> 
+>  2. "Sorry, you'll have to go through every piece of software on
+>     your system and find the one that's updating the system clock
+>     that shouldn't be."
+> 
+> According to your comments, you prefer (2). I most definitely prefer
+> (1).
 
 
+Hmm, and if some malicious software insmods kernel module to work
+around your printk()?
 
-
-
+We are talking root only here. If sofware with uid 0 is malicious, you
+have big problems.
+								Pavel
+-- 
+Casualities in World Trade Center: 6453 dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

@@ -1,174 +1,211 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261945AbVBIV4z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261941AbVBIWFB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261945AbVBIV4z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 16:56:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261941AbVBIV4z
+	id S261941AbVBIWFB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 17:05:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbVBIWFB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 16:56:55 -0500
-Received: from ozlabs.org ([203.10.76.45]:16297 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261945AbVBIV4Z (ORCPT
+	Wed, 9 Feb 2005 17:05:01 -0500
+Received: from fw.osdl.org ([65.172.181.6]:15023 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261941AbVBIWEv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 16:56:25 -0500
-MIME-Version: 1.0
+	Wed, 9 Feb 2005 17:04:51 -0500
+Date: Wed, 9 Feb 2005 14:04:40 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Kylene Hall <kjhall@us.ibm.com>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       Emily Ratliff <emilyr@us.ibm.com>, Tom Lendacky <toml@us.ibm.com>,
+       tpmdd-devel@lists.sourceforge.net
+Subject: Re: [tpmdd-devel] Re: [PATCH 1/1] tpm: update tpm sysfs file ownership - updated version
+Message-ID: <20050209140440.J469@build.pdx.osdl.net>
+References: <Pine.LNX.4.58.0501281539340.6360@jo.austin.ibm.com> <Pine.LNX.4.58.0501311322380.9872@jo.austin.ibm.com> <Pine.LNX.4.58.0502031034290.18135@jo.austin.ibm.com> <Pine.LNX.4.58.0502041405230.22211@jo.austin.ibm.com> <20050204205226.GA26780@kroah.com> <1107553040.22140.30.camel@jo.austin.ibm.com> <20050204215134.GA27433@kroah.com> <Pine.LNX.4.58.0502091201110.3969@jo.austin.ibm.com> <20050209181736.GA23422@kroah.com> <Pine.LNX.4.58.0502091431160.4398@jo.austin.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16906.34562.379000.336836@cargo.ozlabs.ibm.com>
-Date: Thu, 10 Feb 2005 08:56:18 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: akpm@osdl.org
-Cc: anton@samba.org, ahuja@austin.ibm.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] PPC64 collect and export low-level cpu usage statistics
-X-Mailer: VM 7.19 under Emacs 21.3.1
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.58.0502091431160.4398@jo.austin.ibm.com>; from kjhall@us.ibm.com on Wed, Feb 09, 2005 at 02:35:34PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-POWER5 machines have a per-hardware-thread register which counts at a
-rate which is proportional to the percentage of cycles on which the
-cpu dispatches an instruction for this thread (if the thread gets all
-the dispatch cycles it counts at the same rate as the timebase
-register).  This register is also context-switched by the hypervisor.
-Thus it gives a fine-grained measure of the actual cpu usage by the
-thread over time.
+* Kylene Hall (kjhall@us.ibm.com) wrote:
+> diff -uprN linux-2.6.10/drivers/char/tpm/tpm_atmel.c linux-2.6.10-tpm/drivers/char/tpm/tpm_atmel.c
+> --- linux-2.6.10/drivers/char/tpm/tpm_atmel.c	2005-02-04 15:03:03.000000000 -0600
+> +++ linux-2.6.10-tpm/drivers/char/tpm/tpm_atmel.c	2005-02-09 14:12:30.711621784 -0600
+> @@ -131,6 +131,7 @@ static struct tpm_vendor_specific tpm_at
+>  	.req_complete_mask = ATML_STATUS_BUSY | ATML_STATUS_DATA_AVAIL,
+>  	.req_complete_val = ATML_STATUS_DATA_AVAIL,
+>  	.base = TPM_ATML_BASE,
+> +	.attr = TPM_DEVICE_ATTRS,
+>  	.miscdev.fops = &atmel_ops,
+>  };
+>  
+> diff -uprN linux-2.6.10/drivers/char/tpm/tpm.c linux-2.6.10-tpm/drivers/char/tpm/tpm.c
+> --- linux-2.6.10/drivers/char/tpm/tpm.c	2005-02-04 15:03:03.000000000 -0600
+> +++ linux-2.6.10-tpm/drivers/char/tpm/tpm.c	2005-02-09 14:12:30.695624216 -0600
+> @@ -213,7 +213,7 @@ static u8 pcrread[] = {
+>  	0, 0, 0, 0		/* PCR index */
+>  };
+>  
+> -static ssize_t show_pcrs(struct device *dev, char *buf)
+> +ssize_t show_pcrs(struct device *dev, char *buf)
 
-This patch adds code to read this register every timer interrupt and
-on every context switch.  The total over all virtual processors is
-available through the existing /proc/ppc64/lparcfg file, giving a
-way to measure the total cpu usage over the whole partition.
+This is too generic a name for global namespace.
 
-Andrew, this is relatively non-invasive, but nevertheless you may
-prefer to put it in -mm until 2.6.11 is out.
+>  {
+>  	u8 data[READ_PCR_RESULT_SIZE];
+>  	ssize_t len;
+> @@ -245,8 +245,7 @@ static ssize_t show_pcrs(struct device *
+>  	}
+>  	return str - buf;
+>  }
+> -
+> -static DEVICE_ATTR(pcrs, S_IRUGO, show_pcrs, NULL);
+> +EXPORT_SYMBOL_GPL(show_pcrs);
+>  
+>  #define  READ_PUBEK_RESULT_SIZE 314
+>  static u8 readpubek[] = {
+> @@ -255,7 +254,7 @@ static u8 readpubek[] = {
+>  	0, 0, 0, 124,		/* TPM_ORD_ReadPubek */
+>  };
+>  
+> -static ssize_t show_pubek(struct device *dev, char *buf)
+> +ssize_t show_pubek(struct device *dev, char *buf)
 
-Signed-off-by: Manish Ahuja <ahuja@austin.ibm.com>
-Signed-off-by: Paul Mackerras <paulus@samba.org>
+same here
 
-diff -urN linux-2.5/arch/ppc64/kernel/lparcfg.c test/arch/ppc64/kernel/lparcfg.c
---- linux-2.5/arch/ppc64/kernel/lparcfg.c	2005-01-06 13:13:08.000000000 +1100
-+++ test/arch/ppc64/kernel/lparcfg.c	2005-02-09 22:38:05.508190616 +1100
-@@ -33,8 +33,9 @@
- #include <asm/cputable.h>
- #include <asm/rtas.h>
- #include <asm/system.h>
-+#include <asm/time.h>
- 
--#define MODULE_VERS "1.5"
-+#define MODULE_VERS "1.6"
- #define MODULE_NAME "lparcfg"
- 
- /* #define LPARCFG_DEBUG */
-@@ -214,13 +215,20 @@
- }
- 
- static unsigned long get_purr(void);
--/* ToDo:  get sum of purr across all processors.  The purr collection code
-- * is coming, but at this time is still problematic, so for now this
-- * function will return 0.
-- */
-+
-+/* Track sum of all purrs across all processors. This is used to further */
-+/* calculate usage values by different applications                       */
-+
- static unsigned long get_purr(void)
- {
- 	unsigned long sum_purr = 0;
-+	int cpu;
-+	struct cpu_usage *cu;
-+
-+	for_each_cpu(cpu) {
-+		cu = &per_cpu(cpu_usage_array, cpu);
-+		sum_purr += cu->current_tb;
-+	}
- 	return sum_purr;
- }
- 
-diff -urN linux-2.5/arch/ppc64/kernel/process.c test/arch/ppc64/kernel/process.c
---- linux-2.5/arch/ppc64/kernel/process.c	2005-01-29 09:58:49.000000000 +1100
-+++ test/arch/ppc64/kernel/process.c	2005-02-10 08:09:22.428216944 +1100
-@@ -51,6 +51,7 @@
- #include <asm/cputable.h>
- #include <asm/sections.h>
- #include <asm/tlbflush.h>
-+#include <asm/time.h>
- 
- #ifndef CONFIG_SMP
- struct task_struct *last_task_used_math = NULL;
-@@ -168,6 +169,8 @@
- 
- #endif /* CONFIG_ALTIVEC */
- 
-+DEFINE_PER_CPU(struct cpu_usage, cpu_usage_array);
-+
- struct task_struct *__switch_to(struct task_struct *prev,
- 				struct task_struct *new)
- {
-@@ -206,6 +209,21 @@
- 	new_thread = &new->thread;
- 	old_thread = &current->thread;
- 
-+/* Collect purr utilization data per process and per processor wise */
-+/* purr is nothing but processor time base                          */
-+
-+#if defined(CONFIG_PPC_PSERIES)
-+	if (cur_cpu_spec->firmware_features & FW_FEATURE_SPLPAR) {
-+		struct cpu_usage *cu = &__get_cpu_var(cpu_usage_array);
-+		long unsigned start_tb, current_tb;
-+		start_tb = old_thread->start_tb;
-+		cu->current_tb = current_tb = mfspr(SPRN_PURR);
-+		old_thread->accum_tb += (current_tb - start_tb);
-+		new_thread->start_tb = current_tb;
-+	}
-+#endif
-+
-+
- 	local_irq_save(flags);
- 	last = _switch(old_thread, new_thread);
- 
-diff -urN linux-2.5/arch/ppc64/kernel/time.c test/arch/ppc64/kernel/time.c
---- linux-2.5/arch/ppc64/kernel/time.c	2005-01-22 09:25:41.000000000 +1100
-+++ test/arch/ppc64/kernel/time.c	2005-02-10 08:09:34.412257896 +1100
-@@ -334,6 +334,14 @@
- 	}
- #endif
- 
-+/* collect purr register values often, for accurate calculations */
-+#if defined(CONFIG_PPC_PSERIES)
-+	if (cur_cpu_spec->firmware_features & FW_FEATURE_SPLPAR) {
-+		struct cpu_usage *cu = &__get_cpu_var(cpu_usage_array);
-+		cu->current_tb = mfspr(SPRN_PURR);
-+	}
-+#endif
-+
- 	irq_exit();
- 
- 	return 1;
-diff -urN linux-2.5/include/asm-ppc64/processor.h test/include/asm-ppc64/processor.h
---- linux-2.5/include/asm-ppc64/processor.h	2005-01-17 08:47:37.000000000 +1100
-+++ test/include/asm-ppc64/processor.h	2005-02-09 22:38:05.528187576 +1100
-@@ -562,7 +562,9 @@
- 	double		fpr[32];	/* Complete floating point set */
- 	unsigned long	fpscr;		/* Floating point status (plus pad) */
- 	unsigned long	fpexc_mode;	/* Floating-point exception mode */
--	unsigned long	pad[3];		/* was saved_msr, saved_softe */
-+	unsigned long	start_tb;	/* Start purr when proc switched in */
-+	unsigned long	accum_tb;	/* Total accumilated purr for process */
-+	unsigned long	pad;		/* was saved_msr, saved_softe */
- #ifdef CONFIG_ALTIVEC
- 	/* Complete AltiVec register set */
- 	vector128	vr[32] __attribute((aligned(16)));
-diff -urN linux-2.5/include/asm-ppc64/time.h test/include/asm-ppc64/time.h
---- linux-2.5/include/asm-ppc64/time.h	2005-01-06 13:13:10.000000000 +1100
-+++ test/include/asm-ppc64/time.h	2005-02-09 22:38:05.529187424 +1100
-@@ -102,5 +102,14 @@
- unsigned mulhwu_scale_factor(unsigned, unsigned);
- void div128_by_32( unsigned long dividend_high, unsigned long dividend_low,
- 		   unsigned divisor, struct div_result *dr );
-+
-+/* Used to store Processor Utilization register (purr) values */
-+
-+struct cpu_usage {
-+        u64 current_tb;  /* Holds the current purr register values */
-+};
-+
-+DECLARE_PER_CPU(struct cpu_usage, cpu_usage_array);
-+
- #endif /* __KERNEL__ */
- #endif /* __PPC64_TIME_H */
+>  {
+>  	u8 data[READ_PUBEK_RESULT_SIZE];
+>  	ssize_t len;
+> @@ -308,7 +307,7 @@ static ssize_t show_pubek(struct device 
+>  	return str - buf;
+>  }
+>  
+> -static DEVICE_ATTR(pubek, S_IRUGO, show_pubek, NULL);
+> +EXPORT_SYMBOL_GPL(show_pubek);
+>  
+>  #define CAP_VER_RESULT_SIZE 18
+>  static u8 cap_version[] = {
+> @@ -329,7 +328,7 @@ static u8 cap_manufacturer[] = {
+>  	0, 0, 1, 3
+>  };
+>  
+> -static ssize_t show_caps(struct device *dev, char *buf)
+> +ssize_t show_caps(struct device *dev, char *buf)
+
+and here.
+
+>  {
+>  	u8 data[READ_PUBEK_RESULT_SIZE];
+>  	ssize_t len;
+> @@ -362,7 +361,26 @@ static ssize_t show_caps(struct device *
+>  	return str - buf;
+>  }
+>  
+> -static DEVICE_ATTR(caps, S_IRUGO, show_caps, NULL);
+> +EXPORT_SYMBOL_GPL(show_caps);
+> +
+> +ssize_t store_cancel(struct device *dev, const char *buf,
+> +			    size_t count)
+
+and here
+
+> +{
+> +	struct tpm_chip *chip = dev_get_drvdata(dev);
+> +	if (chip == NULL)
+> +		return 0;
+> +
+
+Do you want any extra protection besides mode bits (S_IWUSR | S_IWGRP)?
+How privileged should this operation be?
+
+> +	chip->vendor->cancel(chip);
+> +
+> +	down(&chip->timer_manipulation_mutex);
+> +	if (timer_pending(&chip->device_timer))
+> +		mod_timer(&chip->device_timer, jiffies);
+> +	up(&chip->timer_manipulation_mutex);
+> +
+> +	return count;
+> +}
+> +
+> +EXPORT_SYMBOL_GPL(store_cancel);
+>  
+>  /*
+>   * Device file system interface to the TPM
+> @@ -524,6 +542,7 @@ EXPORT_SYMBOL_GPL(tpm_read);
+>  void tpm_remove_hardware(struct device *dev)
+>  {
+>  	struct tpm_chip *chip = dev_get_drvdata(dev);
+> +	int i;
+>  
+>  	if (chip == NULL) {
+>  		dev_err(dev, "No device data found\n");
+> @@ -539,9 +558,8 @@ void tpm_remove_hardware(struct device *
+>  	dev_set_drvdata(dev, NULL);
+>  	misc_deregister(&chip->vendor->miscdev);
+>  
+> -	device_remove_file(dev, &dev_attr_pubek);
+> -	device_remove_file(dev, &dev_attr_pcrs);
+> -	device_remove_file(dev, &dev_attr_caps);
+> +	for ( i = 0; i < TPM_NUM_ATTR; i++ ) 
+> +		device_remove_file(dev, &chip->vendor->attr[i]);
+>  
+>  	dev_mask[chip->dev_num / 32] &= !(1 << (chip->dev_num % 32));
+>  
+> @@ -663,10 +681,9 @@ dev_num_search_complete:
+>  
+>  	list_add(&chip->list, &tpm_chip_list);
+>  
+> -	device_create_file(dev, &dev_attr_pubek);
+> -	device_create_file(dev, &dev_attr_pcrs);
+> -	device_create_file(dev, &dev_attr_caps);
+> -
+> +	for ( i = 0; i < TPM_NUM_ATTR; i++ ) 
+> +		device_create_file(dev, &chip->vendor->attr[i]);		
+> +		
+>  	return 0;
+>  }
+>  
+> diff -uprN linux-2.6.10/drivers/char/tpm/tpm.h linux-2.6.10-tpm/drivers/char/tpm/tpm.h
+> --- linux-2.6.10/drivers/char/tpm/tpm.h	2005-02-04 15:03:03.000000000 -0600
+> +++ linux-2.6.10-tpm/drivers/char/tpm/tpm.h	2005-02-09 14:12:30.702623152 -0600
+> @@ -25,11 +25,23 @@
+>  #include <linux/miscdevice.h>
+>  
+>  #define TPM_TIMEOUT msecs_to_jiffies(5)
+> +#define TPM_NUM_ATTR 4
+>  
+>  /* TPM addresses */
+>  #define	TPM_ADDR			0x4E
+>  #define	TPM_DATA			0x4F
+>  
+> +extern ssize_t show_pubek(struct device *, char *);
+> +extern ssize_t show_pcrs(struct device *, char *);
+> +extern ssize_t show_caps(struct device *, char *);
+> +extern ssize_t store_cancel(struct device *, const char *, size_t);
+> +
+> +#define TPM_DEVICE_ATTRS { \
+> +	__ATTR(pubek, S_IRUGO, show_pubek, NULL), \
+> +	__ATTR(pcrs, S_IRUGO, show_pcrs, NULL), \
+> +	__ATTR(caps, S_IRUGO, show_caps, NULL), \
+> +	__ATTR(cancel, S_IWUSR | S_IWGRP, NULL, store_cancel) }
+
+This doesn't look like the right way to go.  
+
+> +
+>  struct tpm_chip;
+>  
+>  struct tpm_vendor_specific {
+> @@ -42,6 +54,7 @@ struct tpm_vendor_specific {
+>  	void (*cancel) (struct tpm_chip *);
+>  	u8 (*status) (struct tpm_chip *);
+>  	struct miscdevice miscdev;
+> +	struct device_attribute attr[TPM_NUM_ATTR];
+
+So every device will have the same attrs?  If so, make that whole struct
+exported (not the individual show/store methods) and reference that in
+each driver.
+
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

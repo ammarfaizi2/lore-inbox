@@ -1,70 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263371AbUDZTHM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263370AbUDZTFi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263371AbUDZTHM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 15:07:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263365AbUDZTHL
+	id S263370AbUDZTFi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 15:05:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263340AbUDZTFh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 15:07:11 -0400
-Received: from chiapa.terra.com.br ([200.154.55.224]:9916 "EHLO
-	chiapa.terra.com.br") by vger.kernel.org with ESMTP id S263371AbUDZTGV
+	Mon, 26 Apr 2004 15:05:37 -0400
+Received: from linux.us.dell.com ([143.166.224.162]:7265 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S263324AbUDZTFX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 15:06:21 -0400
-Message-ID: <408D5E59.1090009@terra.com.br>
-Date: Mon, 26 Apr 2004 16:09:13 -0300
-From: Felipe W Damasio <felipewd@terra.com.br>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adrian Yee <brewt-linux-kernel@brewt.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 8139too not running s3 suspend/resume pci fix
-References: <GMail.1082958599.119234554.04321010111@brewt.org>
-In-Reply-To: <GMail.1082958599.119234554.04321010111@brewt.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 26 Apr 2004 15:05:23 -0400
+Date: Mon, 26 Apr 2004 14:03:24 -0500
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: akpm@osdl.org
+Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] efibootmgr location change
+Message-ID: <20040426190324.GB32755@lists.us.dell.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="24zk1gE8NUlDmwG9"
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi Adrian,
 
-Adrian Yee wrote:
-> +	pci_set_power_state (pdev, 3);
-> +	pci_save_state (pdev, tp->pci_state);
-> +
->  	if (!netif_running (dev))
->  		return 0;
->  
-> @@ -2571,9 +2574,6 @@ static int rtl8139_suspend (struct pci_d
->  
->  	spin_unlock_irqrestore (&tp->lock, flags);
->  
-> -	pci_set_power_state (pdev, 3);
-> -	pci_save_state (pdev, tp->pci_state);
-> -
->  	return 0;
->  }
+--24zk1gE8NUlDmwG9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-	IMHO, there's no problem in doing "pci_save_state (pdev, 
-tp->pci_state)" before the suspend code..but I'm more confortable with 
-leaving the set_power_state at the end of that path, since if the 
-interface is down, we don't want to leave it in cold state.
+I moved the home of the efibootmgr utility from domsch.com to
+linux.dell.com.  Note the move in drivers/firmware/Kconfig, also note
+version 0.5.0-test3 or above is necessary.=20
 
-> @@ -2583,10 +2583,10 @@ static int rtl8139_resume (struct pci_de
->  	struct net_device *dev = pci_get_drvdata (pdev);
->  	struct rtl8139_private *tp = dev->priv;
->  
-> -	if (!netif_running (dev))
-> -		return 0;
->  	pci_restore_state (pdev, tp->pci_state);
->  	pci_set_power_state (pdev, 0);
-> +	if (!netif_running (dev))
-> +		return 0;
->  	rtl8139_init_ring (dev);
->  	rtl8139_hw_start (dev);
->  	netif_device_attach (dev);
+Thanks,
+Matt
 
-	Same thing here.
+--=20
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
 
-	Cheers,
+--- linux-2.6.5.orig/drivers/firmware/Kconfig	2004-04-24 06:58:08.000000000=
+ -0400
++++ linux-2.6.5/drivers/firmware/Kconfig	2004-04-27 03:57:17.723835477 -0400
+@@ -27,11 +27,11 @@ config EFI_VARS
+ 	  write, create, and destroy EFI variables through this interface.
+=20
+ 	  Note that using this driver in concert with efibootmgr requires=20
+-	  at least test release version 0.5.0-test1 or later, which is=20
++	  at least test release version 0.5.0-test3 or later, which is=20
+ 	  available from Matt Domsch's website located at:
+-	  http://domsch.com/linux/ia64/efibootmgr/testing/efibootmgr-0.5.0-test1.=
+tar.gz
++	  http://linux.dell.com/efibootmgr/testing/efibootmgr-0.5.0-test3.tar.gz
+=20
+ 	  Subsequent efibootmgr releases may be found at:
+-	  http://domsch.com/linux/ia64/efibootmgr
++	  http://linux.dell.com/efibootmgr
+=20
+ endmenu
 
-Felipe
+--24zk1gE8NUlDmwG9
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFAjVz8Iavu95Lw/AkRAmpNAJ9Qq8sG7rrvgZbPhDjczqktApy35gCgh/eB
+yY4PnuVw5wvBmFhVjV+ppyo=
+=bWPJ
+-----END PGP SIGNATURE-----
+
+--24zk1gE8NUlDmwG9--

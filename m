@@ -1,67 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261820AbVAMXnG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261815AbVAMXnG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261820AbVAMXnG (ORCPT <rfc822;willy@w.ods.org>);
+	id S261815AbVAMXnG (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 13 Jan 2005 18:43:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261828AbVAMXjE
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261829AbVAMXmn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 18:39:04 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:42936 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261824AbVAMXev
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 18:34:51 -0500
-Date: Thu, 13 Jan 2005 15:34:46 -0800
-From: Greg KH <greg@kroah.com>
-To: Luca Falavigna <dktrkranz@gmail.com>
-Cc: vamsi_krishna@in.ibm.com, prasanna@in.ibm.com,
-       Nathan Lynch <nathanl@austin.ibm.com>, suparna@in.ibm.com,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Kprobes /proc entry
-Message-ID: <20050113233446.GA2710@kroah.com>
-References: <41E2AC82.8020909@gmail.com> <20050110181445.GA31209@kroah.com> <1105479077.17592.8.camel@pants.austin.ibm.com> <20050111213400.GB18422@kroah.com> <41E70234.50900@gmail.com>
+	Thu, 13 Jan 2005 18:42:43 -0500
+Received: from wproxy.gmail.com ([64.233.184.192]:26902 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261781AbVAMXbL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 18:31:11 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type;
+        b=eHc30+8jcfca0rEyDaAdeQT3EDvtp2brHKQ4+6l3yvpXcalVUiZWjH901IGY0w+UfWB4vBxLnGXmkURGC9kCDEA35vX+q0rgwu+5LOwJ6jyo07XSMpBy+vIPod+GJOsS8E+MoQQDAphlpDPHU3WVumBfAap9Dal4kYYvMwllPwI=
+Message-ID: <8746466a0501131531782a77bc@mail.gmail.com>
+Date: Thu, 13 Jan 2005 16:31:11 -0700
+From: Dave <dave.jiang@gmail.com>
+Reply-To: Dave <dave.jiang@gmail.com>
+To: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       smaurer@teja.com, linux@arm.linux.org.uk, dsaxena@plexity.net,
+       drew.moseley@intel.com, mporter@kernel.crashing.org
+Subject: [PATCH 4/5] Convert resource to u64 from unsigned long
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41E70234.50900@gmail.com>
-User-Agent: Mutt/1.5.6i
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_708_4636185.1105659071477"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 14, 2005 at 12:20:20AM +0100, Luca Falavigna wrote:
-> 
-> +#ifdef CONFIG_DEBUG_FS
+------=_Part_708_4636185.1105659071477
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-This ifdef should not be needed.
+These are changes for ARM platform as far as I was able to test
 
-> +int kprobes_open(struct inode *inode, struct file *file)
+Signed-off-by: Dave Jiang (dave.jiang@gmail.com)
 
-Shouldn't these calls be static?
+-- 
+-= Dave =-
 
-> +{
-> +	try_module_get(THIS_MODULE);
+Software Engineer - Advanced Development Engineering Team 
+Storage Component Division - Intel Corp. 
+mailto://dave.jiang @ intel
+http://sourceforge.net/projects/xscaleiop/
+----
+The views expressed in this email are
+mine alone and do not necessarily 
+reflect the views of my employer
+(Intel Corp.).
 
-Check the return value of this call?
+------=_Part_708_4636185.1105659071477
+Content-Type: application/octet-stream; name="patch-arm_u64fix"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="patch-arm_u64fix"
 
->  static int __init init_kprobes(void)
->  {
->  	int i, err = 0;
-> @@ -140,6 +233,16 @@
->  	for (i = 0; i < KPROBE_TABLE_SIZE; i++)
->  		INIT_HLIST_HEAD(&kprobe_table[i]);
-> 
-> +#ifdef CONFIG_DEBUG_FS
-
-ifdef not needed.
-
-> +	if(!(kprobes_dir = debugfs_create_dir("kprobes", NULL)))
-> +		return -ENODEV;
-> +	if(!(kprobes_list = debugfs_create_file("list", S_IRUGO, kprobes_dir,
-> +					  	NULL, &kprobes_fops))) {
-> +		debugfs_remove(kprobes_dir);
-> +		return -ENODEV;
-> +	}
-
-You never delete this file or directory on module unload, do you?
-
-thanks,
-
-greg k-h
+ZGlmZiAtTmF1ciBsaW51eC0yLjYuMTEtcmMxL2FyY2gvYXJtL2tlcm5lbC9iaW9zMzIuYyBsaW51
+eC0yLjYuMTEtcmMxLXU2NC9hcmNoL2FybS9rZXJuZWwvYmlvczMyLmMKLS0tIGxpbnV4LTIuNi4x
+MS1yYzEvYXJjaC9hcm0va2VybmVsL2Jpb3MzMi5jCTIwMDQtMTItMjQgMTQ6MzQ6MzEuMDAwMDAw
+MDAwIC0wNzAwCisrKyBsaW51eC0yLjYuMTEtcmMxLXU2NC9hcmNoL2FybS9rZXJuZWwvYmlvczMy
+LmMJMjAwNS0wMS0xMyAxMTo0NTo0MS44Mjk0NjI5MjggLTA3MDAKQEAgLTMwNCw3ICszMDQsNyBA
+QAogc3RhdGljIHZvaWQgX19kZXZpbml0CiBwZGV2X2ZpeHVwX2RldmljZV9yZXNvdXJjZXMoc3Ry
+dWN0IHBjaV9zeXNfZGF0YSAqcm9vdCwgc3RydWN0IHBjaV9kZXYgKmRldikKIHsKLQl1bnNpZ25l
+ZCBsb25nIG9mZnNldDsKKwl1NjQgb2Zmc2V0OwogCWludCBpOwogCiAJZm9yIChpID0gMDsgaSA8
+IFBDSV9OVU1fUkVTT1VSQ0VTOyBpKyspIHsKQEAgLTYxOSw5ICs2MTksOSBAQAogICogd2hpY2gg
+bWlnaHQgYmUgbWlycm9yZWQgYXQgMHgwMTAwLTB4MDNmZi4uCiAgKi8KIHZvaWQgcGNpYmlvc19h
+bGlnbl9yZXNvdXJjZSh2b2lkICpkYXRhLCBzdHJ1Y3QgcmVzb3VyY2UgKnJlcywKLQkJCSAgICB1
+bnNpZ25lZCBsb25nIHNpemUsIHVuc2lnbmVkIGxvbmcgYWxpZ24pCisJCQkgICAgdTY0IHNpemUs
+IHU2NCBhbGlnbikKIHsKLQl1bnNpZ25lZCBsb25nIHN0YXJ0ID0gcmVzLT5zdGFydDsKKwl1NjQg
+c3RhcnQgPSByZXMtPnN0YXJ0OwogCiAJaWYgKHJlcy0+ZmxhZ3MgJiBJT1JFU09VUkNFX0lPICYm
+IHN0YXJ0ICYgMHgzMDApCiAJCXN0YXJ0ID0gKHN0YXJ0ICsgMHgzZmYpICYgfjB4M2ZmOwpkaWZm
+IC1OYXVyIGxpbnV4LTIuNi4xMS1yYzEvYXJjaC9hcm0va2VybmVsL3NldHVwLmMgbGludXgtMi42
+LjExLXJjMS11NjQvYXJjaC9hcm0va2VybmVsL3NldHVwLmMKLS0tIGxpbnV4LTIuNi4xMS1yYzEv
+YXJjaC9hcm0va2VybmVsL3NldHVwLmMJMjAwNS0wMS0xMyAxNDozOTo0MC4xOTc1ODk3NjggLTA3
+MDAKKysrIGxpbnV4LTIuNi4xMS1yYzEtdTY0L2FyY2gvYXJtL2tlcm5lbC9zZXR1cC5jCTIwMDUt
+MDEtMTMgMTE6NDU6NDEuODMwNDYyNzc2IC0wNzAwCkBAIC0xMTUsOSArMTE1LDIzIEBACiAgKiBT
+dGFuZGFyZCBtZW1vcnkgcmVzb3VyY2VzCiAgKi8KIHN0YXRpYyBzdHJ1Y3QgcmVzb3VyY2UgbWVt
+X3Jlc1tdID0gewotCXsgIlZpZGVvIFJBTSIsICAgMCwgICAgIDAsICAgICBJT1JFU09VUkNFX01F
+TQkJCX0sCi0JeyAiS2VybmVsIHRleHQiLCAwLCAgICAgMCwgICAgIElPUkVTT1VSQ0VfTUVNCQkJ
+fSwKLQl7ICJLZXJuZWwgZGF0YSIsIDAsICAgICAwLCAgICAgSU9SRVNPVVJDRV9NRU0JCQl9CisJ
+eyAKKwkJLm5hbWUgPSAiVmlkZW8gUkFNIiwgICAKKwkJLnN0YXJ0ID0gMCwgICAgIAorCQkuZW5k
+ID0gMCwgICAgIAorCQkuZmxhZ3MgPSBJT1JFU09VUkNFX01FTQkJCQorCX0sCisJeyAKKwkJLm5h
+bWUgPSAiS2VybmVsIHRleHQiLCAKKwkJLnN0YXJ0ID0gMCwgICAgIAorCQkuZW5kID0gMCwgICAg
+IAorCQkuZmxhZ3MgPSBJT1JFU09VUkNFX01FTQkJCQorCX0sCisJeyAKKwkJLm5hbWUgPSAiS2Vy
+bmVsIGRhdGEiLCAKKwkJLnN0YXJ0ID0gMCwgICAgIAorCQkuZW5kID0gMCwgICAgIAorCQkuZmxh
+Z3MgPSBJT1JFU09VUkNFX01FTQkJCX0KIH07CiAKICNkZWZpbmUgdmlkZW9fcmFtICAgbWVtX3Jl
+c1swXQpAQCAtMTI1LDkgKzEzOSwyNCBAQAogI2RlZmluZSBrZXJuZWxfZGF0YSBtZW1fcmVzWzJd
+CiAKIHN0YXRpYyBzdHJ1Y3QgcmVzb3VyY2UgaW9fcmVzW10gPSB7Ci0JeyAicmVzZXJ2ZWQiLCAg
+ICAweDNiYywgMHgzYmUsIElPUkVTT1VSQ0VfSU8gfCBJT1JFU09VUkNFX0JVU1kgfSwKLQl7ICJy
+ZXNlcnZlZCIsICAgIDB4Mzc4LCAweDM3ZiwgSU9SRVNPVVJDRV9JTyB8IElPUkVTT1VSQ0VfQlVT
+WSB9LAotCXsgInJlc2VydmVkIiwgICAgMHgyNzgsIDB4MjdmLCBJT1JFU09VUkNFX0lPIHwgSU9S
+RVNPVVJDRV9CVVNZIH0KKwl7IAorCQkubmFtZSA9ICJyZXNlcnZlZCIsICAgIAorCQkuc3RhcnQg
+PSAweDNiYywgCisJCS5lbmQgPSAweDNiZSwgCisJCS5mbGFncyA9IElPUkVTT1VSQ0VfSU8gfCBJ
+T1JFU09VUkNFX0JVU1kgCisJfSwKKwl7IAorCQkubmFtZSA9ICJyZXNlcnZlZCIsICAgIAorCQku
+c3RhcnQgPSAweDM3OCwgCisJCS5lbmQgPSAweDM3ZiwgCisJCS5mbGFncyA9IElPUkVTT1VSQ0Vf
+SU8gfCBJT1JFU09VUkNFX0JVU1kgCisJfSwKKwl7IAorCQkubmFtZSA9ICJyZXNlcnZlZCIsICAg
+IAorCQkuc3RhcnQgPSAweDI3OCwgCisJCS5lbmQgPSAweDI3ZiwgCisJCS5mbGFncyA9IElPUkVT
+T1VSQ0VfSU8gfCBJT1JFU09VUkNFX0JVU1kgCisJfQogfTsKIAogI2RlZmluZSBscDAgaW9fcmVz
+WzBdCgpkaWZmIC1OYXVyIGxpbnV4LTIuNi4xMS1yYzEvaW5jbHVkZS9hc20tYXJtL21hY2gvcGNp
+LmggbGludXgtMi42LjExLXJjMS11NjQvaW5jbHVkZS9hc20tYXJtL21hY2gvcGNpLmgKLS0tIGxp
+bnV4LTIuNi4xMS1yYzEvaW5jbHVkZS9hc20tYXJtL21hY2gvcGNpLmgJMjAwNC0xMi0yNCAxNDoz
+NDo0NS4wMDAwMDAwMDAgLTA3MDAKKysrIGxpbnV4LTIuNi4xMS1yYzEtdTY0L2luY2x1ZGUvYXNt
+LWFybS9tYWNoL3BjaS5oCTIwMDUtMDEtMTMgMTE6NDU6NDEuODQzNDYwODAwIC0wNzAwCkBAIC0y
+OCw3ICsyOCw3IEBACiBzdHJ1Y3QgcGNpX3N5c19kYXRhIHsKIAlzdHJ1Y3QgbGlzdF9oZWFkIG5v
+ZGU7CiAJaW50CQlidXNucjsJCS8qIHByaW1hcnkgYnVzIG51bWJlcgkJCSovCi0JdW5zaWduZWQg
+bG9uZwltZW1fb2Zmc2V0OwkvKiBidXMtPmNwdSBtZW1vcnkgbWFwcGluZyBvZmZzZXQJKi8KKwl1
+NjQJCW1lbV9vZmZzZXQ7CS8qIGJ1cy0+Y3B1IG1lbW9yeSBtYXBwaW5nIG9mZnNldAkqLwogCXVu
+c2lnbmVkIGxvbmcJaW9fb2Zmc2V0OwkvKiBidXMtPmNwdSBJTyBtYXBwaW5nIG9mZnNldAkJKi8K
+IAlzdHJ1Y3QgcGNpX2J1cwkqYnVzOwkJLyogUENJIGJ1cwkJCQkqLwogCXN0cnVjdCByZXNvdXJj
+ZSAqcmVzb3VyY2VbM107CS8qIFByaW1hcnkgUENJIGJ1cyByZXNvdXJjZXMJCSovCg==
+------=_Part_708_4636185.1105659071477--

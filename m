@@ -1,183 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261803AbVAMX3i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261806AbVAMX3j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261803AbVAMX3i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 18:29:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbVAMX1h
+	id S261806AbVAMX3j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 18:29:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261768AbVAMXSz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 18:27:37 -0500
-Received: from smtp1.libero.it ([193.70.192.51]:61341 "EHLO smtp1.libero.it")
-	by vger.kernel.org with ESMTP id S261778AbVAMXWZ (ORCPT
+	Thu, 13 Jan 2005 18:18:55 -0500
+Received: from fw.osdl.org ([65.172.181.6]:64481 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261806AbVAMXPS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 18:22:25 -0500
-Message-ID: <41E70234.50900@gmail.com>
-Date: Fri, 14 Jan 2005 00:20:20 +0100
-From: Luca Falavigna <dktrkranz@gmail.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: it, it-it, en-us, en
-MIME-Version: 1.0
-To: vamsi_krishna@in.ibm.com, prasanna@in.ibm.com
-CC: Greg KH <greg@kroah.com>, Nathan Lynch <nathanl@austin.ibm.com>,
-       suparna@in.ibm.com, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Kprobes /proc entry
-References: <41E2AC82.8020909@gmail.com> <20050110181445.GA31209@kroah.com> <1105479077.17592.8.camel@pants.austin.ibm.com> <20050111213400.GB18422@kroah.com>
-In-Reply-To: <20050111213400.GB18422@kroah.com>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Thu, 13 Jan 2005 18:15:18 -0500
+Date: Thu, 13 Jan 2005 15:15:14 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
+       Marek Habersack <grendel@caudium.net>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Greg KH <greg@kroah.com>, Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: thoughts on kernel security issues
+Message-ID: <20050113151514.I24171@build.pdx.osdl.net>
+References: <20050112161227.GF32024@logos.cnet> <Pine.LNX.4.58.0501121148240.2310@ppc970.osdl.org> <20050112174203.GA691@logos.cnet> <1105627541.4624.24.camel@localhost.localdomain> <20050113194246.GC24970@beowulf.thanes.org> <20050113200308.GC3555@redhat.com> <Pine.LNX.4.58.0501131206340.2310@ppc970.osdl.org> <1105644461.4644.102.camel@localhost.localdomain> <Pine.LNX.4.58.0501131255590.2310@ppc970.osdl.org> <1105651504.4624.150.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1105651504.4624.150.camel@localhost.localdomain>; from alan@lxorguk.ukuu.org.uk on Thu, Jan 13, 2005 at 09:25:07PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+* Alan Cox (alan@lxorguk.ukuu.org.uk) wrote:
+> On Iau, 2005-01-13 at 21:03, Linus Torvalds wrote:
+> > On Thu, 13 Jan 2005, Alan Cox wrote:
+> >  - no embargo, no rules, but "private" in the sense that it's supposed to 
+> >    be for kernel developers only or at least people who won't take 
+> >    advantage of it.
+> > 
+> >    _I_ think this is the one that makes sense. No hard rules, but private 
+> >    enough that people won't feel _guilty_ about reporting problems. Right 
+> >    now I sometimes get private email from people who don't want to point
+> >    out some local DoS or similar, and that can certainly get lost in the
+> >    flow.
+> 
+> And also not passed on to vendors and other folks which is a pita and
+> this would fix
+> > 
+> >  - _short_ embargo, for kernel-only. I obviously believe that vendor-sec 
+> >    is whoring itself for security firms and vendors. I believe there would 
+> >    be a place for something with stricter rules on disclosure.
+> 
+> Seems these two could be the same list with a bit of respect for users
+> wishes and common sense.
 
-Voilà! Here is kprobes debug patch via debugfs.
+I think they should be the same.  I hope the draft security contact bits
+reflect that.
 
-
-
-- --- ./kernel/kprobes.c	2005-01-13 20:41:11.000000000 +0100
-+++ ./kernel/kprobes.c	2005-01-13 20:39:27.000000000 +0100
-@@ -33,6 +33,9 @@
- #include <linux/hash.h>
- #include <linux/init.h>
- #include <linux/module.h>
-+#include <linux/fs.h>
-+#include <linux/debugfs.h>
-+#include <linux/kallsyms.h>
- #include <asm/cacheflush.h>
- #include <asm/errno.h>
- #include <asm/kdebug.h>
-@@ -131,6 +134,96 @@
- 	unregister_kprobe(&jp->kp);
- }
-
-+#ifdef CONFIG_DEBUG_FS
-+int kprobes_open(struct inode *inode, struct file *file)
-+{
-+	try_module_get(THIS_MODULE);
-+	return 0;
-+}
-+
-+int kprobes_release(struct inode *inode, struct file *file)
-+{
-+	module_put(THIS_MODULE);
-+	return 0;
-+}
-+
-+void kprobes_list_info(struct kprobe *k, char *p)
-+{
-+	ssize_t len = 0;
-+	char *module, namebuf[KSYM_NAME_LEN+1];
-+	const char *hook, *func;
-+	unsigned long off, size, handler, addr = (unsigned long)k->addr;
-+
-+	if(k->pre_handler) {
-+		handler = (unsigned long)k->pre_handler;
-+		func = kallsyms_lookup(addr, &size, &off, &module, namebuf);
-+		len += sprintf(p + len, "PRE\t0x%lx(%s+%#lx)\t",
-+			       addr, func, off);
-+		hook = kallsyms_lookup(handler, &size, &off, &module, namebuf);
-+		len += sprintf(p + len, "0x%lx(%s)\t%s\n", handler, hook,
-+			       strlen(module) ? module : "[built-in]");
-+	}
-+	if(k->post_handler) {
-+		handler = (unsigned long)k->post_handler;
-+		func = kallsyms_lookup(addr, &size, &off, &module, namebuf);
-+		len += sprintf(p + len, "POST\t0x%lx(%s+%#lx)\t",
-+			       addr, func, off);
-+		hook = kallsyms_lookup(handler, &size, &off, &module, namebuf);
-+		len += sprintf(p + len, "0x%lx(%s)\t%s\n", handler, hook,
-+			       strlen(module) ? module : "[built-in]");
-+	}
-+	if(k->fault_handler) {
-+		handler = (unsigned long)k->fault_handler;
-+		func = kallsyms_lookup(addr, &size, &off, &module, namebuf);
-+		len += sprintf(p + len, "FAULT\t0x%lx(%s+%#lx)\t",
-+			       addr, func, off);
-+		hook = kallsyms_lookup(handler, &size, &off, &module, namebuf);
-+		len += sprintf(p + len, "0x%lx(%s)\t%s\n", handler, hook,
-+			       strlen(module) ? module : "[built-in]");
-+	}
-+	if(k->break_handler) {
-+		handler = (unsigned long)k->break_handler;
-+		func = kallsyms_lookup(addr, &size, &off, &module, namebuf);
-+		len += sprintf(p + len, "BREAK\t0x%lx(%s+%#lx)\t",
-+			       addr, func, off);
-+		hook = kallsyms_lookup(handler, &size, &off, &module, namebuf);
-+		len += sprintf(p + len, "0x%lx(%s)\t%s\n", handler, hook,
-+			       strlen(module) ? module : "[built-in]");
-+	}
-+}
-+
-+ssize_t kprobes_read(struct file *file, char __user *buf,
-+			 size_t size, loff_t *off)
-+{
-+	int i;
-+	char *data = "";
-+	ssize_t len = 0;
-+	struct hlist_head *head;
-+	struct hlist_node *node;
-+	struct kprobe *k;
-+	
-+	spin_lock(&kprobe_lock);
-+	for(i = 0; i < KPROBE_TABLE_SIZE; i++) {
-+		head = &kprobe_table[i];
-+		hlist_for_each(node, head) {
-+			if((k = hlist_entry(node, struct kprobe, hlist))) {
-+				kprobes_list_info(k, data + len);
-+				len = strlen(data);
-+			}
-+		}
-+	}
-+	spin_unlock(&kprobe_lock);
-+	return simple_read_from_buffer(buf, size, off, data, len);
-+}
-+
-+struct dentry *kprobes_dir, *kprobes_list;
-+struct file_operations kprobes_fops = {
-+	.open = kprobes_open,
-+	.read = kprobes_read,
-+	.release = kprobes_release
-+	};
-+#endif
-+
- static int __init init_kprobes(void)
- {
- 	int i, err = 0;
-@@ -140,6 +233,16 @@
- 	for (i = 0; i < KPROBE_TABLE_SIZE; i++)
- 		INIT_HLIST_HEAD(&kprobe_table[i]);
-
-+#ifdef CONFIG_DEBUG_FS
-+	if(!(kprobes_dir = debugfs_create_dir("kprobes", NULL)))
-+		return -ENODEV;
-+	if(!(kprobes_list = debugfs_create_file("list", S_IRUGO, kprobes_dir,
-+					  	NULL, &kprobes_fops))) {
-+		debugfs_remove(kprobes_dir);
-+		return -ENODEV;
-+	}
-+#endif
-+
- 	err = register_die_notifier(&kprobe_exceptions_nb);
- 	return err;
-
-Signed-off-by: Luca Falavigna <dktrkranz@gmail.com>
-
-
-
-Regards,
-
-					Luca
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iQEVAwUBQecCMxZrwl7j21nOAQKEawf/csjjWfFF/UlsN5qZQ3QyYJ1lTSSvuKnh
-5ttGdB0hI3Qra+CIR6A/2qhUVomNTV4fcf80R6pMqOmUY61FmYFx2Mv6cRs4fqK3
-BoLlOYYAKv3x5dgePdmI3n5ENss3UUYfTG5zd5ng3Qo2IqjwI/L2CR/CM1peXRV1
-EXjhTmwU78c+0PLYHPwglDxawfkDO62AyMGqcytg0wFnDDfhjbIHrt48ynl6EIwL
-oPvxQteQYSp15hRxAQbMRDz/1mzlhNMXZX6dKE15XrE31mk5P/iEaNadInv5r4DU
-1ZFEpV0nKuJkmxSA4nVJHtLO7R+lqzkmFBmTBn9HT6Mh0U76aryixA==
-=zQ7Z
------END PGP SIGNATURE-----
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

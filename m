@@ -1,44 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269017AbUJENDm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269014AbUJENG7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269017AbUJENDm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 09:03:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269014AbUJENDm
+	id S269014AbUJENG7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 09:06:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269019AbUJENG7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 09:03:42 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:50352 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S269017AbUJENDb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 09:03:31 -0400
-Subject: Re: [PATCH 2.6] pci-hplj.c: replace pci_find_device with
-	pci_get_device
-From: David Woodhouse <dwmw2@infradead.org>
-To: Ralf Baechle <ralf@linux-mips.org>
-Cc: Hanna Linder <hannal@us.ibm.com>, linux-kernel@vger.kernel.org,
-       kernel-janitors@lists.osdl.org, greg@kroah.com
-In-Reply-To: <20041004214107.GA2160@linux-mips.org>
-References: <281940000.1096925207@w-hlinder.beaverton.ibm.com>
-	 <20041004214107.GA2160@linux-mips.org>
-Content-Type: text/plain
-Message-Id: <1096981395.30942.859.camel@hades.cambridge.redhat.com>
+	Tue, 5 Oct 2004 09:06:59 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25052 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269014AbUJENGv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 09:06:51 -0400
+Date: Tue, 5 Oct 2004 08:27:52 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Jeff Moyer <jmoyer@redhat.com>
+Cc: linux-kernel@vger.kernel.org, mingo@redhat.com, sct@redhat.com
+Subject: Re: [patch rfc] towards supporting O_NONBLOCK on regular files
+Message-ID: <20041005112752.GA21094@logos.cnet>
+References: <16733.50382.569265.183099@segfault.boston.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Tue, 05 Oct 2004 14:03:16 +0100
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16733.50382.569265.183099@segfault.boston.redhat.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-10-04 at 23:41 +0200, Ralf Baechle wrote:
-> Except that piece of code isn't for an RM[23]00 but a HP Laserjet (yes,
-> that paper eating thing ;-) and hasn't seen any update or feedback from
-> the original submitters since the original submission, so the entire HPLJ
-> code is a candidate for removal ...
+On Fri, Oct 01, 2004 at 04:57:50PM -0400, Jeff Moyer wrote:
+> This patch makes an attempt at supporting the O_NONBLOCK flag for regular
+> files.  It's pretty straight-forward.  One limitation is that we still call
+> into the readahead code, which I believe can block.  However, if we don't
+> do this, then an application which only uses non-blocking reads may never
+> get it's data.
+> 
+> Comments welcome.
 
-Any idea precisely what model, and how to get it installed? 
-eBay calls... :)
+Hi Jeff,
 
--- 
-dwmw2
+Curiosity: Is this defined in any UNIX standard?
 
+Adv. Programming in the UNIX environment says:
+
+12.2 Nonblocking I/O
+
+"Nonblocking I/O lets us issue an I/O operation, such as open, read,
+or write and not have it block forever. If the operation cannot be 
+completed, return is made immediately with an error noting that 
+the operation would have blocked."
+
+He is talking about read's on descriptors (pipe's, devices, etc) which 
+block in case of no data present, not about filesystem IO.
+
+But here we create our own semantics of O_NONBLOCK on read() of 
+fs IO. As you say page_cache_readahead can block for one
+trying to allocate pages, possibly while submitting IO too.
+
+The patch is cool - might be nice to check if SuS or someone else
+specificies behaviour and try to match if so?
+
+> 
+> -Jeff
+> 
+> --- linux-2.6.8/mm/filemap.c.orig	2004-09-30 16:33:46.881129560 -0400
+> +++ linux-2.6.8/mm/filemap.c	2004-09-30 16:34:12.109294296 -0400
+> @@ -720,7 +720,7 @@ void do_generic_mapping_read(struct addr
+>  	unsigned long index, end_index, offset;
+>  	loff_t isize;
+>  	struct page *cached_page;
+> -	int error;
+> +	int error, nonblock = filp->f_flags & O_NONBLOCK;
+>  	struct file_ra_state ra = *_ra;
+>  
+>  	cached_page = NULL;
+> @@ -755,10 +755,20 @@ find_page:
+>  		page = find_get_page(mapping, index);
+>  		if (unlikely(page == NULL)) {
+>  			handle_ra_miss(mapping, &ra, index);
+> +			if (nonblock) {
+> +				desc->error = -EWOULDBLOCK;
+> +				break;
+> +			}
+>  			goto no_cached_page;
+>  		}
+> -		if (!PageUptodate(page))
+> +		if (!PageUptodate(page)) {
+> +			if (nonblock) {
+> +				page_cache_release(page);
+> +				desc->error = -EWOULDBLOCK;
+> +				break;
+> +			}
+>  			goto page_not_up_to_date;
+> +		}
+>  page_ok:
+>  
+>  		/* If users can be writing to this page using arbitrary
+> @@ -1004,7 +1014,7 @@ __generic_file_aio_read(struct kiocb *io
+>  			desc.error = 0;
+>  			do_generic_file_read(filp,ppos,&desc,file_read_actor);
+>  			retval += desc.written;
+> -			if (!retval) {
+> +			if (!retval || desc.error) {
+>  				retval = desc.error;
+>  				break;
+>  			}

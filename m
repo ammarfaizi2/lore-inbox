@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265081AbTAET2d>; Sun, 5 Jan 2003 14:28:33 -0500
+	id <S265094AbTAETbe>; Sun, 5 Jan 2003 14:31:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265085AbTAET2c>; Sun, 5 Jan 2003 14:28:32 -0500
-Received: from fep04-mail.bloor.is.net.cable.rogers.com ([66.185.86.74]:28732
-	"EHLO fep04-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id <S265077AbTAET2b>; Sun, 5 Jan 2003 14:28:31 -0500
-Message-ID: <3E188956.9090907@splentec.com>
-Date: Sun, 05 Jan 2003 14:36:54 -0500
-From: Luben Tuikov <luben@splentec.com>
-Organization: Splentec Ltd.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
+	id <S265092AbTAETbe>; Sun, 5 Jan 2003 14:31:34 -0500
+Received: from tag.witbe.net ([81.88.96.48]:56327 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id <S265085AbTAETbd>;
+	Sun, 5 Jan 2003 14:31:33 -0500
+From: "Paul Rolland" <rol@as2917.net>
+To: "'Randy.Dunlap'" <rddunlap@osdl.org>
+Cc: "'Andrew S. Johnson'" <andy@asjohnson.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [2.5.54 + ACPI] Slow [Was: Re: [2.5.53] So sloowwwww......]
+Date: Sun, 5 Jan 2003 20:40:04 +0100
+Message-ID: <013701c2b4f2$3f3e0670$2101a8c0@witbe>
 MIME-Version: 1.0
-To: Andries.Brouwer@cwi.nl
-CC: mdharm-kernel@one-eyed-alien.net, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: inquiry in scsi_scan.c
-References: <UTC200301051307.h05D7da08203.aeb@smtp.cwi.nl>
-In-Reply-To: <UTC200301051307.h05D7da08203.aeb@smtp.cwi.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep04-mail.bloor.is.net.cable.rogers.com from [24.43.191.223] using ID <tluben@rogers.com> at Sun, 5 Jan 2003 14:36:16 -0500
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
+In-Reply-To: <Pine.LNX.4.33L2.0301051133340.13312-100000@dragon.pdx.osdl.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl wrote:
+Hello,
+
+> | | acpi= kernel parameters, I tried :
+> | |  - acpi=no-idle
+> |
+> | This one (above) is the correct syntax.
+> | Looking at the code, it only takes effect if you are using 
+> only 1 CPU.
 > 
-> The SCSI code has no means of knowing the actual length transferred,
-> so has no choice but to believe the length byte in the reply.
-> But the USB code does the transferring itself, and knows precisely
-> how many bytes were transferred. If 36 bytes were transferred and
-> the additional length byte is 0, indicating a length of 5, then the
-> USB code can fix the response and change the additional length byte
-> to 31, indicating a length of 36. That way the SCSI code knows that
-> not 5 but 36 bytes are valid, and it gets actual vendor and model strings.
-> 
+> Sorry, I was looking at old source code.
+> apm=no-idle isn't in 2.5.54.
 
-And what if the transport is *not* USB? Or they used
-a similar firmware of their device server in another
-product which used another transport?
+Too bad...
+Does this mean there is no easy way to have ACPI running correctly
+on my machine ?
+If anyone knows ACPI code, please tell me if you want me to run
+some specific code to understand what's going on...
 
-I suggest that this device is blacklisted in that
-SCSI Core would know that the ADDITIONAL LENGTH field
-in the INQURY response is incorrectly set (to 0).
-I.e. leave it to the interpreter.
-
-A transport is *not* supposed to peek and poke in the
-data it transfers!
-
--- 
-Luben
-
+Regards,
+Paul
 

@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277162AbRJHWCf>; Mon, 8 Oct 2001 18:02:35 -0400
+	id <S277166AbRJHWDZ>; Mon, 8 Oct 2001 18:03:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277165AbRJHWCZ>; Mon, 8 Oct 2001 18:02:25 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:49938 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S277162AbRJHWCN>; Mon, 8 Oct 2001 18:02:13 -0400
-Subject: Re: A note on APIC bus latency
-To: jlundell@pobox.com (Jonathan Lundell)
-Date: Mon, 8 Oct 2001 23:08:13 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <p0510030bb7e7ca4c5533@[207.213.214.37]> from "Jonathan Lundell" at Oct 08, 2001 02:51:19 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S277168AbRJHWDG>; Mon, 8 Oct 2001 18:03:06 -0400
+Received: from web14708.mail.yahoo.com ([216.136.224.125]:57357 "HELO
+	web14708.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S277165AbRJHWC6>; Mon, 8 Oct 2001 18:02:58 -0400
+Message-ID: <20011008220328.2217.qmail@web14708.mail.yahoo.com>
+Date: Mon, 8 Oct 2001 15:03:28 -0700 (PDT)
+From: Peter Moscatt <pmoscatt@yahoo.com>
+Subject: Can't exec /usr/sbin/sendmail  (After Kernel Install) ??
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15qiZJ-00023i-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> A message exchange (IO-APIC sends an interrupt message; CPU sends 
-> back an EOI message) requires from 35 to 48 APIC bus clocks, or 2-3 
-> microseconds. That gets to be pretty significant compared to packet 
-> times, especially at Gbit speeds, but even at 100 MHz, and is the 
-> time required to burst a thousand bytes or more at faster PCI rates.
-> 
-> It's also likely to be significant for inter-processor interrupts, 
-> though I don't know what the implications are here.
+I have just recently compiled my first kernel (2.4.10)
+onto my Mandrake 8.0 system.
 
-The big implication so far has been some extremely horrible to debug 
-irq handling bugs where drivers such as the i810 audio assumed that the
-disable of an irq on the pci device was immediate once then pci write
-and a pci read to force posting completed. 
+All seems to be working fine, so I had a look at the
+'dmesg' file in /var/log just to see it any errors
+were appearing.
 
-There are impacts on things like TLB shootdowns where the latency impacts
-an SMP crosscall. I'm not sure how bad the impact is on the bigger numa
-boxes as I notice Martin uses multiple sends for that
+I have noticed that the following is occuring:
 
-Alan
+Oct 8 19:46:53 qld anacron[818]: Job 'cron.daily'
+terminate (mailing output)
+Oct 8 19:46:53 qld anacron[1302]: Can't exec
+/usr/sbin/sendmail: No such file or directory
+Oct 8 19:46:53 qld anacron[818]: Tried to mail output
+to job 'cron.daily', but mailer process
+(/usr/sbin/sendmail) exited with status 1
+Oct 8 19:46:53 qld anacron[818]: Normal exit (1 jobs
+run)
+
+
+Is it just a matter or installing sendmail and all
+will be sweet again ?
+
+Pete
+
+__________________________________________________
+Do You Yahoo!?
+NEW from Yahoo! GeoCities - quick and easy web site hosting, just $8.95/month.
+http://geocities.yahoo.com/ps/info1

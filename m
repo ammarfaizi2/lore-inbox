@@ -1,106 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131446AbRD1Ipi>; Sat, 28 Apr 2001 04:45:38 -0400
+	id <S132606AbRD1JXR>; Sat, 28 Apr 2001 05:23:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131477AbRD1Ip3>; Sat, 28 Apr 2001 04:45:29 -0400
-Received: from relay03.cablecom.net ([62.2.33.103]:60678 "EHLO
-	relay03.cablecom.net") by vger.kernel.org with ESMTP
-	id <S131446AbRD1IpW>; Sat, 28 Apr 2001 04:45:22 -0400
-Message-ID: <3AEA831A.6707BEF@bluewin.ch>
-Date: Sat, 28 Apr 2001 10:45:11 +0200
-From: Otto Wyss <otto.wyss@bluewin.ch>
-Reply-To: otto.wyss@bluewin.ch
-X-Mailer: Mozilla 4.76 (Macintosh; U; PPC)
-X-Accept-Language: de,en
+	id <S132623AbRD1JXH>; Sat, 28 Apr 2001 05:23:07 -0400
+Received: from [209.195.52.31] ([209.195.52.31]:2828 "HELO [209.195.52.31]")
+	by vger.kernel.org with SMTP id <S132606AbRD1JWx>;
+	Sat, 28 Apr 2001 05:22:53 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: valery <valery.brasseur@atosorigin.com>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Date: Sat, 28 Apr 2001 01:14:03 -0700 (PDT)
+Subject: Re: linux and high volume web sites
+In-Reply-To: <3AEA86DF.696CD1A7@atosorigin.com>
+Message-ID: <Pine.LNX.4.33.0104280109430.15628-100000@dlang.diginsite.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: Framebuffer does not handle kernel parameter when compiled as a 
- module
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have two almost identical computers with different graphic cards (ATI
-RageII, Matrox G200). I'd like to have the framebuffer devices compiled
-as modules, but then the kernel parameters from lilo (i.e. append =
-"video=atyfb:800x600@72") doesn't work. Afterwards switching with fbset
-works. It seems as if the switching of the resolution is handled before
-the corresponding module is loaded. Is there any solution to this
-problem (besides compiling into the kernel) or is this a bug?
+watch the resonate heartbeat and see if it is getting lost in the network
+traffic (the resonate logs will show missing heartbeat packets). think
+seriously of setting the resonate stuff to run at a higher priority so
+that it doesn't get behind.
 
-O. Wyss
+depending on how high your network traffic is seriously look at putting in
+a second nic and switch to move the NFS traffic off the network that has
+the internet traffic and hearbeat.
 
------------------------------------------------------------------------------------------
-/usr/src/linux$> sh scripts/ver_linux
-[...]
-Linux Johann 2.4.3 #7 Son Apr 29 10:12:30 CEST 2001 i586 unknown
+I had the same problem with central dispatch a couple years ago when first
+implementing it. the exact details of the problem that I ran into should
+have been fixed by now (mostly having to do with large number of virtual
+IP addresses) but the symptoms were the same.
 
-Gnu C                  2.95.4
-Gnu make               3.79.1
-binutils               2.11.90.0.5
-util-linux             2.11b
-modutils               2.4.2
-e2fsprogs              1.19
-Linux C Library        2.2.2
-Dynamic linker (ldd)   2.2.2
-Procps                 2.0.7
-Net-tools              1.58
-Console-tools          0.2.3
-Sh-utils               2.0.11
-Modules Loaded         nls_iso8859-1 binfmt_misc atyfb udf smbfs 3c509
-ide-scsi sr_mod sg sd_mod aic7xxx loop
+David Lang
 
------------------------------------------------------------------------------------------
-/usr/src/linux$> most current.conf
 
-#
-#
-CONFIG_X86=y
-CONFIG_ISA=y
-# CONFIG_SBUS is not set
+ On
+Sat, 28 Apr 2001, valery wrote:
 
-#
-# Code maturity level options
-#
-CONFIG_EXPERIMENTAL=y
-
-#
-# Loadable module support
-#
-CONFIG_MODULES=y
-CONFIG_MODVERSIONS=y
-CONFIG_KMOD=y
-
-[...]
-#
-# Console drivers
-#
-CONFIG_VGA_CONSOLE=y
-CONFIG_VIDEO_SELECT=y
-# CONFIG_MDA_CONSOLE is not set
-
-#
-# Frame-buffer support
-#
-CONFIG_FB=y
-CONFIG_DUMMY_CONSOLE=y
-[...]
-CONFIG_FB_VESA=y
-[...]
-CONFIG_VIDEO_SELECT=y
-CONFIG_FB_MATROX=m
-CONFIG_FB_MATROX_MILLENIUM=y
-[...]
-CONFIG_FB_MATROX_G100=y
-[...]
-CONFIG_FB_ATY=m
-CONFIG_FB_ATY128=m
-[...]
-CONFIG_FBCON_CFB8=y
-CONFIG_FBCON_CFB16=y
-CONFIG_FBCON_CFB24=y
-CONFIG_FBCON_CFB32=y
-[...]
-CONFIG_FONT_8x8=y
-CONFIG_FONT_8x16=y
+> Date: Sat, 28 Apr 2001 11:01:19 +0200
+> From: valery <valery.brasseur@atosorigin.com>
+> To: linux kernel <linux-kernel@vger.kernel.org>
+> Subject: linux and high volume web sites
+>
+> I have a high volume web site under linux :
+> kernel is 2.2.17
+> hardware is 5 bi-PIII 700Mhz / 512Mb, eepro100
+> all server are diskless (nfs on an netapp filer) except for tmp and swap
+>
+> dispatch is done by the Resonate product
+>
+> web server is apache+php (something like 400 processes), database
+> backend is a mysql on the same hardware
+>
+>
+> in high volume from time to time machines are "freezing" then after a
+> few seconds they "reappear" and response timne is
+>
+>
+> how can I investigate all these problems ?
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

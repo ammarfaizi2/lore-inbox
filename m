@@ -1,199 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277539AbRJESQc>; Fri, 5 Oct 2001 14:16:32 -0400
+	id <S273854AbRJESQM>; Fri, 5 Oct 2001 14:16:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277541AbRJESQY>; Fri, 5 Oct 2001 14:16:24 -0400
-Received: from chaos.ao.net ([205.244.242.21]:23458 "EHLO chaos.ao.net")
-	by vger.kernel.org with ESMTP id <S277539AbRJESQO>;
-	Fri, 5 Oct 2001 14:16:14 -0400
-Message-Id: <200110051816.f95IGRW2008474@vulpine.ao.net>
-To: linux-kernel@vger.kernel.org
-Subject: Wierd /proc/cpuinfo with 2.4.11-pre4
-Date: Fri, 05 Oct 2001 14:16:27 -0400
-From: Dan Merillat <harik@chaos.ao.net>
+	id <S277541AbRJESQD>; Fri, 5 Oct 2001 14:16:03 -0400
+Received: from paloma14.e0k.nbg-hannover.de ([62.159.219.14]:58872 "HELO
+	paloma14.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S277539AbRJESPx>; Fri, 5 Oct 2001 14:15:53 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Olaf Zaplinski <o.zaplinski@mediascape.de>
+Subject: Re: Linux 2.4.11-pre4
+Date: Fri, 5 Oct 2001 20:15:22 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1551862685.1002279242@mbligh.des.sequent.com>
+In-Reply-To: <1551862685.1002279242@mbligh.des.sequent.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <20011005181559Z277539-760+21205@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Freitag, 5. Oktober 2001 19:54 schrieb Martin J. Bligh:
+> > Odd. Compiles for me with and without SMP support turned on.
+>
+> My fault. I'd tested this on SMP and Uniproc, but not uniproc with
+> IO apic support. Try this patch:
 
->From dmesg:
-CPU: Before vendor init, caps: 000001bf 00000000 00000000, vendor = 0
-Intel Pentium with F0 0F bug - workaround enabled.
-Intel old style machine check architecture supported.
-Intel old style machine check reporting enabled on CPU#0.
-CPU: After vendor init, caps: 000001bf 00000000 00000000 00000000
-CPU:     After generic, caps: 000001bf 00000000 00000000 00000000
-CPU:             Common caps: 000001bf 00000000 00000000 00000000
-CPU: Intel Pentium 75 - 200 stepping 0b
-Checking 'hlt' instruction... OK.
+Yes, I have UP with UP_IOAPIC enabled.
+Shall I test it or run my disk test over night?
 
-Looks normal.  Let's see /proc/cpuinfo...
+Thanks for your fast fix.
+I have some short hiccup during this "test site".
+So I can't type that fast...
 
-processor	: 0
-vendor_id	: GenuineIntel
-cpu family	: 5
-model		: 2
-model name	: Pentium 75 - 200
-stepping	: 11
-cpu MHz		: 132.634
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: yes
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 1
-wp		: yes
-flags		: fpu vme de pse tsc msr mce cx8
-bogomips	: 264.60
+-Dieter
 
-processor	: 1
-vendor_id	: unknown
-cpu family	: 0
-model		: 0
-model name	: unknown
-stepping	: 16
-cpu MHz		: 132.634
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: yes
-coma_bug	: yes
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 0
-wp		: yes
-flags		: fpu vme de pse tsc 3dnow lrti
-bogomips	: 0.02
+> --- smp.h.old	Fri Oct  5 10:46:40 2001
+> +++ smp.h	Fri Oct  5 10:48:37 2001
+> @@ -31,9 +31,20 @@
+>  #  define INT_DELIVERY_MODE 1     /* logical delivery broadcast to all
+> procs */ # endif
+>  #else
+> +# define INT_DELIVERY_MODE 0     /* physical delivery on LOCAL quad */
+>  # define TARGET_CPUS 0x01
+>  #endif
+>
+> +#ifndef clustered_apic_mode
+> + #ifdef CONFIG_MULTIQUAD
+> +  #define clustered_apic_mode (1)
+> +  #define esr_disable (1)
+> + #else /* !CONFIG_MULTIQUAD */
+> +  #define clustered_apic_mode (0)
+> +  #define esr_disable (0)
+> + #endif /* CONFIG_MULTIQUAD */
+> +#endif
+> +
+>  #ifdef CONFIG_SMP
+>  #ifndef ASSEMBLY
+>
+> @@ -76,16 +87,6 @@
+>  extern volatile int physical_apicid_to_cpu[MAX_APICID];
+>  extern volatile int cpu_to_logical_apicid[NR_CPUS];
+>  extern volatile int logical_apicid_to_cpu[MAX_APICID];
+> -
+> -#ifndef clustered_apic_mode
+> - #ifdef CONFIG_MULTIQUAD
+> -  #define clustered_apic_mode (1)
+> -  #define esr_disable (1)
+> - #else /* !CONFIG_MULTIQUAD */
+> -  #define clustered_apic_mode (0)
+> -  #define esr_disable (0)
+> - #endif /* CONFIG_MULTIQUAD */
+> -#endif
+>
+>  /*
+>   * General functions that each host system must provide.
 
-processor	: 2
-vendor_id	: ú⁄0¿œ0¿
-cpu family	: 156
-model		: 48
-model name	: 
-stepping	: 192
-cpu MHz		: 132.634
-cache size	: 0 KB
-fdiv_bug	: yes
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 0
-wp		: yes
-flags		: fpu de tsc msr pae mce apic pge cmov pat clflush dts ia64 recovery longrun lrti
-bogomips	: 644790.84
+-- 
+Dieter N¸tzel
+Graduate Student, Computer Science
 
-processor	: 3
-vendor_id	: L£)¿
-cpu family	: 86
-model		: 41
-model name	: ∏⁄0¿∏œ0¿
-stepping	: 192
-cache size	: 0 KB
-fdiv_bug	: no
-hlt_bug		: yes
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 1048575
-wp		: no
-flags		: syscall 3dnowext 3dnow
-bogomips	: 0.00
+University of Hamburg
+Department of Computer Science
+Cognitive Systems Group
+Vogt-Kˆlln-Straﬂe 30
+D-22527 Hamburg, Germany
 
-processor	: 4
-vendor_id	: ÖØ)¿ÅØ)¿}Ø)¿yØ)¿uØ)¿pØ)¿
-cpu family	: 0
-model		: 0
-model name	: uØ)¿pØ)¿
-stepping	: 0
-cpu MHz		: 132.634
-fdiv_bug	: yes
-hlt_bug		: yes
-f00f_bug	: yes
-coma_bug	: yes
-fpu		: no
-fpu_exception	: no
-cpuid level	: 1
-wp		: no
-flags		: fpu tsc msr pae mce apic pge cmov pat clflush dts ia64 syscall 3dnowext 3dnow recovery lrti cxmmx centaur_mcr
-bogomips	: 0.00
-
-processor	: 5
-vendor_id	: unknown
-cpu family	: 0
-model		: 0
-model name	: unknown
-stepping	: 0
-fdiv_bug	: yes
-hlt_bug		: yes
-f00f_bug	: no
-coma_bug	: yes
-fpu		: no
-fpu_exception	: no
-cpuid level	: 0
-wp		: no
-flags		: cxmmx k6_mtrr cyrix_arr
-bogomips	: 0.00
-
-processor	: 6
-vendor_id	: unknown
-cpu family	: 0
-model		: 0
-model name	: unknown
-stepping	: 0
-cache size	: 0 KB
-fdiv_bug	: no
-hlt_bug		: yes
-f00f_bug	: no
-coma_bug	: no
-fpu		: no
-fpu_exception	: no
-cpuid level	: 0
-wp		: no
-flags		:
-bogomips	: 0.00
-
-processor	: 7
-vendor_id	: unknown
-cpu family	: 0
-model		: 0
-model name	: unknown
-stepping	: 0
-cache size	: 515 KB
-fdiv_bug	: no
-hlt_bug		: yes
-f00f_bug	: yes
-coma_bug	: yes
-fpu		: no
-fpu_exception	: no
-cpuid level	: 0
-wp		: no
-flags		:
-bogomips	: 644464.70
-
-
-Wow!  That's pretty impressive, a new kernel build gives me an 
-additional _7_ CPUs!
-
-Interesting bits of .config:
-
-CONFIG_M586TSC=y
-CONFIG_X86_MSR=y
-CONFIG_X86_CPUID=y
-CONFIG_NOHIGHMEM=y
-# CONFIG_HIGHMEM4G is not set
-# CONFIG_HIGHMEM64G is not set
-# CONFIG_MATH_EMULATION is not set
-CONFIG_MTRR=y
-# CONFIG_SMP is not set
-# CONFIG_X86_UP_APIC is not set
-# CONFIG_X86_UP_IOAPIC is not set
-
-Won't compile with UP APIC turned on, as others have noted.
-
-Aside from /bin/ps getting confused about the system capabilities, it
-seems stable.
-
---Dan
-
+email: nuetzel@kogs.informatik.uni-hamburg.de
+@home: Dieter.Nuetzel@hamburg.de

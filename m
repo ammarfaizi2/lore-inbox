@@ -1,85 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261854AbTARA4p>; Fri, 17 Jan 2003 19:56:45 -0500
+	id <S261900AbTARB6v>; Fri, 17 Jan 2003 20:58:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261857AbTARA4o>; Fri, 17 Jan 2003 19:56:44 -0500
-Received: from packet.digeo.com ([12.110.80.53]:50307 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261854AbTARA4n>;
-	Fri, 17 Jan 2003 19:56:43 -0500
-Date: Fri, 17 Jan 2003 17:05:16 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: ext3-users@redhat.com, linux-kernel@vger.kernel.org
-Subject: [patch 2.4] Fix ext3 scheduling storm and lockup
-Message-Id: <20030117170516.2e184b82.akpm@digeo.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S261934AbTARB6u>; Fri, 17 Jan 2003 20:58:50 -0500
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:39951 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S261900AbTARB6u>; Fri, 17 Jan 2003 20:58:50 -0500
+Message-ID: <3E28B099.4E85C56D@linux-m68k.org>
+Date: Sat, 18 Jan 2003 02:40:41 +0100
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: questions about config files, I2C and hardware sensors (2.5.59)
+References: <Pine.LNX.4.44.0301170636120.13098-100000@dell>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 18 Jan 2003 01:05:36.0437 (UTC) FILETIME=[B57D9E50:01C2BE8D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-This patch fixes an inefficiency and potential system lockup in the 2.4
-kernel's ext3 filesystem.  The problem has been present since 2.4.20-pre5. 
-This patch is applicable to 2.4.20.  A copy is at
+"Robert P. J. Day" wrote:
 
-http://www.zip.com.au/~akpm/linux/patches/2.4/2.4.20/ext3-scheduling-storm.patch
+>   so the issues:
+> 
+> 1) trivial: comment is wrong, there is no dependency on
+>    EXPERIMENTAL
 
-Anyone who is using tasks which have realtime scheduling policy on ext3
-systems should apply this change.
+This has to be answered by the I2C maintainer.
 
+> 2) since, in the sourcing Kconfig file, I2C_PROC *already* depends
+>    on I2C, is there any practical value in having the dependency
+>    "I2C && I2C_PROC".  wouldn't "depends on I2C_PROC" be sufficient?
 
-Details:
+Yes.
 
-At the start of do_get_write_access() we have this logic:
+> 3) finally, given that the comment at the top is adamant that
+>    all of these options depend on I2C and I2C_PROC, wouldn't it
+>    be cleaner to just make the menu itself say:
+> 
+>    menu "I2C HW Sensors Mainboard Support"
+>         depends on I2C && I2C_PROC              (or just I2C_PROC)
+>         ...
+> 
+>    and let the internal options inherit this dependency?
 
-	repeat:
-		lock_buffer(jh->bh);
-		...
-		unlock_buffer(jh->bh);
-		...
-		if (jh->j_list == BJ_Shadow) {
-			sleep_on_buffer(jh->bh);
-			goto repeat;
-		}
+Yes, the menu entry needs the dependencies as well.
 
-The problem is that the unlock_buffer() will wake up anyone who is sleeping
-in the sleep_on_buffer().
-
-So if task A is asleep in sleep_on_buffer() and task B now runs
-do_get_write_access(), task B will wake task A by accident.  Task B will then
-sleep on the buffer and task A will loop, will run unlock_buffer() and then
-wake task B.
-
-Net effect: the system does 100,000 context switches/sec until I/O completes
-against the buffer and kjournald changes the value of jh->j_list.
-
-Unless task A and task B happen to both have realtime scheduling policy - if
-they do then kjournald will never run.  The state is never cleared and your
-box locks up.
-
-
-The fix is to not do the `goto repeat;' until the buffer has been taken off
-the shadow list.  So we don't go and wake up the other waiter(s) until they
-can actually proceed to use the buffer.
-
-
-
-diff -puN fs/jbd/transaction.c~ext3-scheduling-storm fs/jbd/transaction.c
---- 24/fs/jbd/transaction.c~ext3-scheduling-storm	2003-01-16 02:45:19.000000000 -0800
-+++ 24-akpm/fs/jbd/transaction.c	2003-01-16 02:45:19.000000000 -0800
-@@ -669,7 +669,8 @@ repeat:
- 			spin_unlock(&journal_datalist_lock);
- 			unlock_journal(journal);
- 			/* commit wakes up all shadow buffers after IO */
--			sleep_on(&jh2bh(jh)->b_wait);
-+			wait_event(jh2bh(jh)->b_wait,
-+						jh->b_jlist != BJ_Shadow);
- 			lock_journal(journal);
- 			goto repeat;
- 		}
-
-_
+bye, Roman
 

@@ -1,63 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269457AbUJSPcl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269467AbUJSPfT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269457AbUJSPcl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 11:32:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269467AbUJSPcl
+	id S269467AbUJSPfT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 11:35:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269470AbUJSPfT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 11:32:41 -0400
-Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:12866 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S269457AbUJSPcj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 11:32:39 -0400
-Subject: Re: Fwd: [Bug 3592] New: pppd "IPCP: timeout sending
-	Config-Requests"
-From: Paul Fulghum <paulkf@microgate.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@redhat.com>
-In-Reply-To: <1098195468.8467.7.camel@deimos.microgate.com>
-References: <20041019131240.A20243@flint.arm.linux.org.uk>
-	 <1098195468.8467.7.camel@deimos.microgate.com>
-Content-Type: text/plain
-Message-Id: <1098199942.2857.7.camel@deimos.microgate.com>
+	Tue, 19 Oct 2004 11:35:19 -0400
+Received: from mo01.iij4u.or.jp ([210.130.0.20]:18668 "EHLO mo01.iij4u.or.jp")
+	by vger.kernel.org with ESMTP id S269467AbUJSPeH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 11:34:07 -0400
+Date: Wed, 20 Oct 2004 00:33:51 +0900
+From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+To: Andrew Morton <akpm@osdl.org>
+Cc: yuasa@hh.iij4u.or.jp, ralf@linux-mips.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] mips: fixed MIPS Makefile
+Message-Id: <20041020003351.4f9ee7c0.yuasa@hh.iij4u.or.jp>
+X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 19 Oct 2004 10:32:22 -0500
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-10-19 at 09:17, Paul Fulghum wrote:
-> This looks like the tty locking changes from Alan Cox.
-> 
-> The tty_io.c do_tty_hangup() no longer switches
-> the line discipline back to N_TTY, so ppp_async.c
-> is not aware of the hangup (ldisc->close not called).
-> 
-> The following is a snippet from tty_io.c:
-> 
-> 	/* Defer ldisc switch */
-> 	/* tty_deferred_ldisc_switch(N_TTY);
-> 	
-> 	  This should get done automatically when the port closes and
-> 	  tty_release is called */
-> 
-> I'll setup a test connection and verify this.
+The MIPS Makefile was changed so that the offset of data section
+may not be dependent on a specific machine header file.
 
-I have verified the problem as described above.
+Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
 
-PPP line disciplines rely on the previous behavior
-of calling ldisc->close on hangup as a method for
-indicating hangup to the line discipline.
-This is explicitly called out in the PPP ldisc comments.
-Other line disciplines may also rely on this behavior.
-
-Alan's changes also added the ldisc->hangup() method
-to indicate hangup, but all the line disciplines
-must be modified to implement this method.
-
--- 
-Paul Fulghum
-paulkf@microgate.com
-
+diff -urN -X dontdiff a-orig/arch/mips/Makefile a/arch/mips/Makefile
+--- a-orig/arch/mips/Makefile	Tue Oct 19 06:53:06 2004
++++ a/arch/mips/Makefile	Tue Oct 19 23:33:51 2004
+@@ -527,6 +527,7 @@
+ #load-$(CONFIG_SGI_IP27)	+= 0xa80000000001c000
+ ifdef CONFIG_MAPPED_KERNEL
+ load-$(CONFIG_SGI_IP27)		+= 0xc001c000
++dataoffset-$(CONFIG_SGI_IP27)	+= 0x01000000
+ else
+ load-$(CONFIG_SGI_IP27)		+= 0x8001c000
+ endif
+@@ -625,6 +626,15 @@
+ endif
+ 
+ #
++# If you need data offset, please set up as follows.
++#
++# dataoffset-$(CONFIG_FOO) := <data offset value>
++# 
++
++DATAOFFSET	:= $(shell if [ -z $(dataoffset-y) ] ; then echo "0"; \
++			   else echo $(dataoffset-y); fi ;)
++
++#
+ # Some machines like the Indy need 32-bit ELF binaries for booting purposes.
+ # Other need ECOFF, so we build a 32-bit ELF binary for them which we then
+ # convert to ECOFF using elf2ecoff.
+@@ -644,7 +654,7 @@
+ CPPFLAGS_vmlinux.lds := \
+ 	-D"LOADADDR=$(load-y)" \
+ 	-D"JIFFIES=$(JIFFIES)" \
+-	-imacros $(srctree)/include/asm-$(ARCH)/sn/mapped_kernel.h
++	-D"DATAOFFSET=$(DATAOFFSET)"
+ 
+ AFLAGS		+= $(cflags-y)
+ CFLAGS		+= $(cflags-y)
+diff -urN -X dontdiff a-orig/arch/mips/kernel/vmlinux.lds.S a/arch/mips/kernel/vmlinux.lds.S
+--- a-orig/arch/mips/kernel/vmlinux.lds.S	Tue Oct 19 06:53:46 2004
++++ a/arch/mips/kernel/vmlinux.lds.S	Tue Oct 19 23:08:15 2004
+@@ -49,7 +49,7 @@
+ 
+   /* writeable */
+   .data : {			/* Data */
+-    . = . + MAPPED_OFFSET;	/* for CONFIG_MAPPED_KERNEL */
++    . = . + DATAOFFSET;		/* for CONFIG_MAPPED_KERNEL */
+     *(.data.init_task)
+ 
+     *(.data)
+diff -urN -X dontdiff a-orig/include/asm-mips/sn/mapped_kernel.h a/include/asm-mips/sn/mapped_kernel.h
+--- a-orig/include/asm-mips/sn/mapped_kernel.h	Tue Oct 19 06:54:07 2004
++++ a/include/asm-mips/sn/mapped_kernel.h	Tue Oct 19 23:08:15 2004
+@@ -39,13 +39,11 @@
+ #define MAPPED_KERN_RW_TO_PHYS(x) \
+ 				((unsigned long)MAPPED_ADDR_RW_TO_PHYS(x) | \
+ 				MAPPED_KERN_RW_PHYSBASE(get_compact_nodeid()))
+-#define MAPPED_OFFSET			16777216
+ 
+ #else /* CONFIG_MAPPED_KERNEL */
+ 
+ #define MAPPED_KERN_RO_TO_PHYS(x)	(x - CKSEG0)
+ #define MAPPED_KERN_RW_TO_PHYS(x)	(x - CKSEG0)
+-#define MAPPED_OFFSET			0
+ 
+ #endif /* CONFIG_MAPPED_KERNEL */
+ 

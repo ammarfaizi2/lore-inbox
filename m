@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270898AbTGQUkO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 16:40:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270908AbTGQUkO
+	id S270916AbTGQUlb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 16:41:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270920AbTGQUla
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 16:40:14 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:8928 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S270898AbTGQUkK convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 16:40:10 -0400
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: RE: 2.6.0-test1-ac2 issues / Toshiba Laptop keyboard
-Date: Thu, 17 Jul 2003 13:55:03 -0700
-Message-ID: <F760B14C9561B941B89469F59BA3A847E9704D@orsmsx401.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.0-test1-ac2 issues / Toshiba Laptop keyboard
-Thread-Index: AcNMk4BYEQU1resIQXaqRR34qsaMxwAEd5OA
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "Alvaro Lopes" <alvieboy@alvie.com>,
-       "Ralf Hildebrandt" <Ralf.Hildebrandt@charite.de>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 17 Jul 2003 20:55:03.0644 (UTC) FILETIME=[B20431C0:01C34CA5]
+	Thu, 17 Jul 2003 16:41:30 -0400
+Received: from fusilli.4news.com.br ([200.246.225.77]:63114 "EHLO
+	fusilli.alltv.com.br") by vger.kernel.org with ESMTP
+	id S270916AbTGQUkm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 16:40:42 -0400
+Subject: Filesystem corruption? (i7505 chipset, RAID5)
+From: Cesar Suga <sartre@linuxbr.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1058452916.2794.18.camel@sartre.alltv.com.br>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 
+Date: 17 Jul 2003 11:41:56 -0300
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Alvaro Lopes [mailto:alvieboy@alvie.com] 
-> I have the same problem here with a toshiba satellite (with 
-> 2.6.0-test1).  It boots ok, then when I reboot it stops 
-> before loading 
-> lilo (pure blank screen with only cursor on it). If I switch 
-> off/on it 
-> goes OK.
-> 
-> This wasn't happening in 2.5.66. ACPI S3 suspend/resume is 
-> working fine 
-> though. Could this be related to ACPI in any way?
+	Hello,
 
-ACPI S3 works???
+	In these days I've bought a Tyan i7505 board with a single Xeon
+processor. I noticed its GART would only be supported in 2.5.53. So I
+compiled 2.5.75 and everything was okay. (Hyperthreading on)
 
-The screen and all devices work after resume?
+	I have five SCSI HDDs in an Adaptec AHA-2940UW card in RAID5 (software,
+obviously), one as a spare disk. /dev/md0 had an ext3 partition. The
+graphics card is a Radeon 9000 Pro (64M). X 4.3.0. 1024M system memory.
+No devfs compiled. EtherExpress Pro/100 onboard card.
 
--- Andy
+	Rebooting the system with the new 2.6.0-test1 kernel was okay after
+replacing 2.5.75. After starting X, I noticed the CPU usage was at 100%.
+I switched to a terminal and logged. ls itself gave me ext3 errors and
+when I switched back to 2.5.75 the array was entirely damaged (could not
+repair at all, so I do not have .config to report)
+
+	Would it be something introduced in the sync_fs() fix or something?
+
+	I can give further reports, if needed, installing a distribution in a
+separate hard disk.
+
+--
+-- Cesar Suga <sartre@linuxbr.com>
+--
+
+

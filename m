@@ -1,65 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316446AbSHRWjD>; Sun, 18 Aug 2002 18:39:03 -0400
+	id <S316465AbSHRWmA>; Sun, 18 Aug 2002 18:42:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316465AbSHRWjD>; Sun, 18 Aug 2002 18:39:03 -0400
-Received: from monster.nni.com ([216.107.0.51]:54798 "EHLO admin.nni.com")
-	by vger.kernel.org with ESMTP id <S316446AbSHRWjC>;
-	Sun, 18 Aug 2002 18:39:02 -0400
-Date: Sun, 18 Aug 2002 18:41:35 -0400
-From: Andrew Rodland <arodland@noln.com>
-To: Ed Sweetman <safemode@speakeasy.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: cerberus errors on 2.4.19 (ide dma related)
-Message-Id: <20020818184135.66fe0ba2.arodland@noln.com>
-In-Reply-To: <1029695363.1357.5.camel@psuedomode>
-References: <Pine.GSO.4.21.0208180509540.2495-100000@weyl.math.psu.edu>
-	<1029662182.2970.23.camel@psuedomode>
-	<1029694235.520.9.camel@psuedomode>
-	<6un0rkuiyg.fsf@zork.zork.net>
-	<1029695363.1357.5.camel@psuedomode>
-X-Mailer: Sylpheed version 0.8.1claws38 (GTK+ 1.2.10; i386-debian-linux-gnu)
+	id <S316491AbSHRWmA>; Sun, 18 Aug 2002 18:42:00 -0400
+Received: from smtp.actcom.co.il ([192.114.47.13]:23006 "EHLO
+	lmail.actcom.co.il") by vger.kernel.org with ESMTP
+	id <S316465AbSHRWl7>; Sun, 18 Aug 2002 18:41:59 -0400
+Subject: Re: Alloc and lock down large amounts of memory
+From: Gilad Ben-Yossef <gilad@benyossef.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Bhavana Nagendra <Bhavana.Nagendra@3dlabs.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1029673097.15859.19.camel@irongate.swansea.linux.org.uk>
+References: <23B25974812ED411B48200D0B774071701248520@exchusa03.intense3d.com> 
+	<1029672587.12504.88.camel@sake> 
+	<1029673097.15859.19.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 19 Aug 2002 01:45:38 +0300
+Message-Id: <1029710739.15645.66.camel@gby.benyossef.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.282Vh:JMiTZ4?S"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.282Vh:JMiTZ4?S
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+On Sun, 2002-08-18 at 15:18, Alan Cox wrote:
+> On Sun, 2002-08-18 at 13:09, Gilad Ben-Yossef wrote:
+> > >     Can 256M be allocated using vmalloc, if so is it swappable?
+> > 
+> > It can be alloacted via vmalloc and AFAIK it is not swappable by
+> > default. This doesn't sound like a very good idea though.
+> 
+> There isnt enough address space for vmalloc to grab 256Mb. If you want
+> that much then you need to handle the fact its in page arrays not
+> virtually linear yourself.
 
-On 18 Aug 2002 14:29:23 -0400
-Ed Sweetman <safemode@speakeasy.net> wrote:
+Oopss... indeed. 256M is twice the entire vmalloc address space to be
+exact. 
 
-> I know i have no device nodes.  I removed them all before installing
-> devfs.  
+Thanks for correcting my mistake ;-)
 
-Well then you have no device nodes without devfs. D'uh? :)
+Gilad.
 
-> the devfs documentation says it doesn't need to have devfs
-> mounted to work, but this doesn't seem to be true at all.
+-- 
+Gilad Ben-Yossef <gilad@benyossef.com>
+http://benyossef.com
 
-No, the devfs documentation says that it is "safe" to have devfs
-compiled in and not use it -- you will just use the standard /dev. It
-does not imply in any way that you will be using devfs if you don't
-mount it, it says that if you choose _not_ to use devfs, then it will be
-able to fall cleanly back to standard /dev. In other words,
-CONFIG_DEVFS_FS provides the _ability_ to use devfs, not a
-_requirement_. 
+"Money talks, bullshit walks and GNU awks."
+  -- Shachar "Sun" Shemesh, debt collector for the GNU/Yakuza
 
-That's all it says.
-To assume that it means anything else would be incredibly silly.
-
---=.282Vh:JMiTZ4?S
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9YCKlQ3MWXxdwvVwRAqYCAKCdUreDeQoeuNaB9ZRoMvl7tqvskgCgjiqn
-2AKPpc43dttz0ccOP67Bct8=
-=RxEN
------END PGP SIGNATURE-----
-
---=.282Vh:JMiTZ4?S--

@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261375AbSKMNmH>; Wed, 13 Nov 2002 08:42:07 -0500
+	id <S261365AbSKMNjx>; Wed, 13 Nov 2002 08:39:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261433AbSKMNmH>; Wed, 13 Nov 2002 08:42:07 -0500
-Received: from [195.110.114.159] ([195.110.114.159]:30759 "EHLO trinityteam.it")
-	by vger.kernel.org with ESMTP id <S261375AbSKMNmG>;
-	Wed, 13 Nov 2002 08:42:06 -0500
-Date: Wed, 13 Nov 2002 14:51:57 +0100 (CET)
-From: <ricci@esentar.trinityteam.it>
-To: Freaky <freaky@bananateam.nl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PDC20276 Linux driver
-In-Reply-To: <1037192260.1501.1.camel@darkstar>
-Message-ID: <Pine.LNX.4.21.0211131440310.11123-100000@esentar.trinityteam.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261375AbSKMNjx>; Wed, 13 Nov 2002 08:39:53 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:13 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S261365AbSKMNjw>; Wed, 13 Nov 2002 08:39:52 -0500
+Date: Wed, 13 Nov 2002 14:46:42 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       alan@redhat.com
+Subject: Re: Kill obsolete and  unused suspend/resume code from IDE
+Message-ID: <20021113134642.GE10168@atrey.karlin.mff.cuni.cz>
+References: <20021112175154.GA6881@elf.ucw.cz> <1037126927.9383.5.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1037126927.9383.5.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
+> With the shutdown/cleanup split so the locking works out you might
+> actually be able to do what you want (although I dont think you can get
+> all the locking logic right yet because some of it is still hosed in the
+> ide core). Also take a glance at the SC1200 driver with regards to the
+> sysfs based power management handling.
 
-On 13 Nov 2002, Freaky wrote:
+I'll take a look.
 
-> I couldn't install slackware at all, even with my home compiled kernel.
-> It just doesn't recognize the /dev/ataraid/d?p? drives and tells me
-> there are no disks with ext2 filesystems when I try to start setup.
+> [Linus you can apply this if you want - it fixes
+> 	Serverworks /proc
+> 	Adds SC1200
+> 	Short term fix for simplex DMA devices
+> 	Fixes PCMCIA ide eject
+> 	Splits IDE I/O from the registration code
+> 	Makes the argument names saner
+> ]
+> 
+>  	int		(*standby)(ide_drive_t *);
+>  	int		(*suspend)(ide_drive_t *);
+>  	int		(*resume)(ide_drive_t *);
 
-You can simply mount /dev/ataraid/d?p? on /mnt and start  the slackware
-installation setup script skipping the selection of the target, the swap
-and the lilo configuration; after istallation is completed, you can edit
-/etc/fstab and /etc/lilo.conf as you whish.
+Can you show me who calls these 3 callbacks?
 
-> You need the ataraid drivers for the pdc don't you?
-I compiled the kernel with PDC202XX driver, with ataraid and with FastTrak
-ataraid driver.
-
-> How did you compile pdc without ataraid?
-I tryed to compile pdc202xx and not ataraid to try to use software raid.
-Is this the answer you were lookig for?
-
-In all the cases my pdc20276 hangs after about half a gigabyte written
-into any disk.
-
+								Pavel
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

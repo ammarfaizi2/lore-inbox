@@ -1,121 +1,148 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317951AbSGWFBk>; Tue, 23 Jul 2002 01:01:40 -0400
+	id <S317953AbSGWFUn>; Tue, 23 Jul 2002 01:20:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317953AbSGWFBk>; Tue, 23 Jul 2002 01:01:40 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:46469 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S317951AbSGWFBj>; Tue, 23 Jul 2002 01:01:39 -0400
-Date: Mon, 22 Jul 2002 23:04:45 -0600
-Message-Id: <200207230504.g6N54jW24260@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: martin@dalecki.de
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.27 devfs
-In-Reply-To: <3D3C48D5.6080500@evision.ag>
-References: <Pine.LNX.4.44.0207201218390.1230-100000@home.transmeta.com>
-	<3D3BE1DD.3040803@evision.ag>
-	<200207221728.g6MHSkY15219@vindaloo.ras.ucalgary.ca>
-	<3D3C48D5.6080500@evision.ag>
+	id <S317955AbSGWFUn>; Tue, 23 Jul 2002 01:20:43 -0400
+Received: from DaVinci.coe.neu.edu ([129.10.32.95]:46049 "EHLO
+	DaVinci.coe.neu.edu") by vger.kernel.org with ESMTP
+	id <S317953AbSGWFUm>; Tue, 23 Jul 2002 01:20:42 -0400
+Date: Tue, 23 Jul 2002 01:25:33 -0400 (EDT)
+From: Mauricio Martinez <mauricio@coe.neu.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: Oops on cdu31a kernel 2.4.18
+Message-ID: <Pine.GSO.4.33.0207230124090.24685-100000@Bars.coe.neu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcin Dalecki writes:
-> Richard Gooch wrote:
-> > Marcin Dalecki writes:
-> > 
-> >>Kill two inlines which are notwhere used and which don't make sense
-> >>in the case someone is not compiling devfs at all.
-> > 
-> > 
-> > Rejected. Linus, please don't apply this bogus patch. External patches
-> > and drivers rely on the inline stubs so that #ifdef CONFIG_DEVFS_FS
-> > isn't needed.
-> 
-> Dare to actually *name* one of them?
 
-Apart from my own sdmany patch, other people have contacted me about
-this feature and said they were making use of it. I don't bother
-tracking everyone who uses my code. I've got better things to do.
+I get a kernel oops while trying to read a SONY CDU33A device,
+connected via a SoundBlaster 16 ISA card, with kernels 2.4.19-rc3 and 2.4.18
+The platform is i586 classic, gcc 2.95.3
 
-In any case, I don't *need* to justify it to you, particularly not
-when the compiler completely optimises the inline stubs away. There is
-*zero* benefit to removing them, and doing so only breaks external
-code.
+In /etc/modules.conf I have:
 
-> You didn't think doing devfs_fs_kernel.h. One simple sample from there:
-> 
-> devfs_get_maj_min(devfs_get_handle_from_inode((inode))
+ alias block-major-15 cdu31a
+ options cdu31a cdu31a_port=0x0230
 
-You've managed to pick a function that I'm not thrilled about
-either. But it has been necessary.
+so the driver can be loaded as a kernel module
 
-> Everybody would expect the following to be only a single function:
-> 
-> extern devfs_handle_t devfs_get_handle (devfs_handle_t dir, const char
-> extern devfs_handle_t devfs_find_handle (devfs_handle_t dir, const char
+----------------------------------------------
+Command line:
 
-devfs_get_handle() is the preferred interface. For compatibility
-reasons, devfs_find_handle() remains. However, if you look at the
-implementation for devfs_find_handle(), you'll notice that it's marked
-for removal. But I believe in stable interfaces, so I want to give
-people time to transition.
+ air:~# mount /dev/sonycd /mnt -t iso9660
+ mount: block device /dev/sonycd is write-protected, mounting read-only
 
-> And it was of course too hard to unify ops and handle:
-> 
-> extern void *devfs_get_ops (devfs_handle_t de);
-> extern void devfs_put_ops (devfs_handle_t de);
+ air:~# lsmod
+ Module                  Size  Used by    Not tainted
+ cdu31a                 22912   1  (autoclean)
+ cdrom                  26976   0  (autoclean) [cdu31a]
+ isofs                  24704   1  (autoclean)
+ inflate_fs             17920   0  (autoclean) [isofs]
 
-Huh? They are different animals.
+ air:~# cd /cdrom
+ air:/cdrom# ls
+ 0msvideo/  302avi/  commdlg.dll*  gbut256/    ngme.ini*      setup.exe*
+ 101avi/    401avi/  eesc.dll*     groft.win*  ngmecl.exe*
+ 301avi/    501avi/  gbut16/       ngme.hlp*   openanim.avi*
 
-> You couldn't resist adding the redundant devfs_ prefix overall in the 
-> kernel:
-> 
-> extern devfs_register_chrdev (unsigned int major, const char *name,
->                                    struct file_operations *fops);
-> extern int devfs_register_blkdev (unsigned int major, const char *name,
->                                    struct block_device_operations *bdops);
-> extern int devfs_unregister_chrdev (unsigned int major, const char *name);
-> extern int devfs_unregister_blkdev (unsigned int major, const char *name);
+ air:/cdrom# cp setup.exe ~
+ Unable to handle kernel paging request at virtual address c283f020
+  printing eip:
+ c2837025
+.. blah blah
+ Code: f3 6c 8b 44 24 20 29 05 c4 a9 83 c2 01 05 70 ab 83 c2 83 3d
+  Segmentation fault
 
-These do subtly different things than the non "devfs_" versions.
+----------------------------------------------
+ksymoops says:
 
-> Three different allocators and deallocators for one single subsystem,
-> preserving the illusion that there is in linux a real difference between 
-> major and minor numbers...
-> 
-> extern int devfs_alloc_major (char type);
-> extern void devfs_dealloc_major (char type, int major);
-> extern kdev_t devfs_alloc_devnum (char type);
-> extern void devfs_dealloc_devnum (char type, kdev_t devnum);
+ksymoops 2.4.5 on i586 2.4.19-rc3.  Options used
+     -v /usr/src/linux/vmlinux (specified)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.19-rc3/ (default)
+     -m /usr/src/linux/System.map (default)
 
-Well, there *is* a difference between major and minor numbers. The two
-different interfaces service different driver requirements.
-Fortunately, one interface is built on top of the other.
+Unable to handle kernel paging request at virtual address c283f020
+c2837025
+*pde = 0106c067
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c2837025>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010286
+eax: c193c004   ebx: 00004000   ecx: ffffc800   edx: 00000232
+esi: 00000000   edi: c283f020   ebp: c193c000   esp: c1843e60
+ds: 0018   es: 0018   ss: 0018
+Process cp (pid: 379, stackpage=c1843000)
+Stack: 00000000 0007b095 00004000 c1843edc 00000000 c28372ab c193c000 00004000
+       00000020 00000000 00000000 c1843edc 00079d08 c1843ed8 00000020 c1842000
+       00000000 00004000 c283785a c193c000 00079d08 00000020 c1843edc c1843ed8
+Call Trace:    [<c28372ab>] [<c283785a>] [<c0120000>] [<c016f894>] [<c011647c>]
+  [<c013011e>] [<c0121060>] [<c01218cb>] [<c0121d2a>] [<c0121c00>] [<c012c696>]
+  [<c01086e3>]
+Code: f3 6c 8b 44 24 20 29 05 c4 a9 83 c2 01 05 70 ab 83 c2 83 3d
 
-> extern int devfs_alloc_unique_number (struct unique_numspace *space);
-> extern void devfs_dealloc_unique_number (struct unique_numspace *space,
->                                           int number);
 
-These are completely unrelated to device numbers, so there's no point
-even comparing them.
+>>EIP; c2837025 <[cdu31a]input_data+a9/e4>   <=====
 
-> If flags are invalid -> add an invalid flag! instead of value return 
-> through pointer.
-> 
-> static inline int devfs_get_flags (devfs_handle_t de, unsigned int *flags)
-> {
->      return 0;
-> }
+>>eax; c193c004 <_end+16e8170/25bf16c>
+>>ebx; 00004000 Before first symbol
+>>ecx; ffffc800 <END_OF_CODE+3d7c0e81/????>
+>>edi; c283f020 <.bss.end+36a1/????>
+>>ebp; c193c000 <_end+16e816c/25bf16c>
+>>esp; c1843e60 <_end+15effcc/25bf16c>
 
-That's a spurious objection. The return value indicates whether the
-entry was valid or not. That is quite separate from flag values.
-Mixing data types by overloading the return value is not a sensible
-approach.
+Trace; c28372ab <[cdu31a]read_data_block+24b/3bc>
+Trace; c283785a <[cdu31a]do_cdu31a_request+43e/5bc>
+Trace; c0120000 <do_munmap+154/234>
+Trace; c016f894 <generic_unplug_device+20/28>
+Trace; c011647c <__run_task_queue+50/5c>
+Trace; c013011e <block_sync_page+16/1c>
+Trace; c0121060 <___wait_on_page+a8/d4>
+Trace; c01218cb <do_generic_file_read+2cb/414>
+Trace; c0121d2a <generic_file_read+7e/12c>
+Trace; c0121c00 <file_read_actor+0/ac>
+Trace; c012c696 <sys_read+96/f0>
+Trace; c01086e3 <system_call+33/40>
 
-				Regards,
+Code;  c2837025 <[cdu31a]input_data+a9/e4>
+00000000 <_EIP>:
+Code;  c2837025 <[cdu31a]input_data+a9/e4>   <=====
+   0:   f3 6c                     repz insb (%dx),%es:(%edi)   <=====
+Code;  c2837027 <[cdu31a]input_data+ab/e4>
+   2:   8b 44 24 20               mov    0x20(%esp,1),%eax
+Code;  c283702b <[cdu31a]input_data+af/e4>
+   6:   29 05 c4 a9 83 c2         sub    %eax,0xc283a9c4
+Code;  c2837031 <[cdu31a]input_data+b5/e4>
+   c:   01 05 70 ab 83 c2         add    %eax,0xc283ab70
+Code;  c2837037 <[cdu31a]input_data+bb/e4>
+  12:   83 3d 00 00 00 00 00      cmpl   $0x0,0x0
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+----------------------------------------------
+
+Finally, from /usr/src/linux/.config
+ #
+ # Old CD-ROM drivers (not SCSI, not IDE)
+ #
+ CONFIG_CD_NO_IDESCSI=y
+ # CONFIG_AZTCD is not set
+ # CONFIG_GSCD is not set
+ # CONFIG_SBPCD is not set
+ # CONFIG_MCD is not set
+ # CONFIG_MCDX is not set
+ # CONFIG_OPTCD is not set
+ # CONFIG_CM206 is not set
+ # CONFIG_SJCD is not set
+ # CONFIG_ISP16_CDI is not set
+ CONFIG_CDU31A=m
+ # CONFIG_CDU535 is not set
+
+----------------------------------------------
+Same behavior with CONFIG_CDU31A=y
+BTW Audio CDs can be read without any problem.
+
+Thank you.
+

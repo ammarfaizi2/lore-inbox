@@ -1,60 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263605AbTKXE6G (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Nov 2003 23:58:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263609AbTKXE6G
+	id S263622AbTKXFTQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 00:19:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263625AbTKXFTQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Nov 2003 23:58:06 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:3219 "EHLO
-	grelber.thyrsus.com") by vger.kernel.org with ESMTP id S263605AbTKXE6D
+	Mon, 24 Nov 2003 00:19:16 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:51106 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S263622AbTKXFTL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Nov 2003 23:58:03 -0500
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: Adam Belay <ambx1@neo.rr.com>
-Subject: Re: The plug and play menu is ISA only?
-Date: Sun, 23 Nov 2003 22:47:39 -0600
-User-Agent: KMail/1.5
-Cc: M?ns Rullg?rd <mru@kth.se>, linux-kernel@vger.kernel.org
-References: <200311212041.22604.rob@landley.net> <200311230104.02083.rob@landley.net> <20031123231913.GH30835@neo.rr.com>
-In-Reply-To: <20031123231913.GH30835@neo.rr.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 24 Nov 2003 00:19:11 -0500
+Date: Sun, 23 Nov 2003 21:19:10 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: linux-kernel@vger.kernel.org, hpa@zytor.com
+Subject: data from kernel.bkbits.net
+Message-ID: <20031124051910.GA2766@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	linux-kernel@vger.kernel.org, hpa@zytor.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200311232247.39627.rob@landley.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 23 November 2003 17:19, Adam Belay wrote:
-> Yes, I'm planning on doing so in 2.7, along with some additional
-> restructuring. Perhaps the entire "plug and play" menu could be moved in
-> 2.6.1 to bus options.
->
-> Thanks,
-> Adam
 
-I've got a number of changes I want to make to the menuconfig layout, but the 
-feature freeze was coming down by the time I started getting actual patches 
-done.  (The bunzip patch is on the back burner for similar reasons.)
+I've been trying to get all the data off the drives on the machine which
+was broken into.  I have a feeling that whoever this was was hiding stuff
+in the file system because both drives will not fsck clean nor will they
+completely read.
 
-Let me know when you have something to test and I'll try to take a look, and 
-possibly clean up my own menuconfig to-do list to something legible and 
-bounce it off you.  (Things like "Universal Serial Bus is a bus, we have a 
-buses menu, but USB is not under it, why?".  The config layout is somewhere 
-between "random" and "looney" at this point, actually...)
+I've managed to get most of the data off but not all.  Given that I've put
+about 3 days into this I'm pretty much done.  If someone else wants to look
+at the drives I can make them available, let me know.  But just reading the
+main drive makes the kernel (Fedora 1) kill the tar process as below (it
+also managed to wack the system enough that it overwrote the NVRAM with
+garbage).  It hasn't been a fun weekend.
 
-And in 2.6.1, can we finally move MPT fusion support into the SCSI menu?  I've 
-been harping on this forever, most recently submitting a patch in August...
+3w-xxxx: scsi0: Command failed: status = 0xc7, flags = 0x1b, unit #3.
+3w-xxxx: scsi0: Command failed: status = 0xc7, flags = 0x1b, unit #3.
+3w-xxxx: scsi0: AEN: WARNING: ATA port timeout: Port #3.
+3w-xxxx: scsi0: AEN: WARNING: ATA port timeout: Port #3.
+3w-xxxx: scsi0: Reset succeeded.
+3w-xxxx: scsi0: Command failed: status = 0xc7, flags = 0x1b, unit #3.
+3w-xxxx: scsi0: Command failed: status = 0xc7, flags = 0x1b, unit #3.
+3w-xxxx: scsi0: Command failed: status = 0xc7, flags = 0x1b, unit #3.
+3w-xxxx: scsi0: Command failed: status = 0xc7, flags = 0x1b, unit #3.
+3w-xxxx: scsi0: Command failed: status = 0xc7, flags = 0x1b, unit #3.
+3w-xxxx: scsi0: Command failed: status = 0xc7, flags = 0x1b, unit #3.
+3w-xxxx: scsi0: AEN: WARNING: ATA port timeout: Port #3.
+3w-xxxx: scsi0: AEN: WARNING: ATA port timeout: Port #3.
+3w-xxxx: scsi0: AEN: WARNING: ATA port timeout: Port #3.
+3w-xxxx: scsi0: AEN: WARNING: ATA port timeout: Port #3.
+3w-xxxx: scsi0: AEN: WARNING: ATA port timeout: Port #3.
+3w-xxxx: scsi0: AEN: WARNING: ATA port timeout: Port #3.
+3w-xxxx: scsi0: Reset succeeded.
+Unable to handle kernel paging request at virtual address 4954507d
+ printing eip:
+c015a129
+*pde = 00000000
+Oops: 0000
+3w-xxxx sd_mod sis900 ipt_REJECT ipt_state ip_conntrack iptable_filter ip_tables sg scsi_mod keybdev mousedev hid input ehci-hcd usb-uhci usbcore ext3 jbd  
+CPU:    0
+EIP:    0060:[<c015a129>]    Not tainted
+EFLAGS: 00010a97
 
-http://lkml.org/lkml/2003/8/1/28
+EIP is at find_inode [kernel] 0x19 (2.4.22-1.2115.nptl)
+eax: 00000000   ebx: 49545055   ecx: 0000000f   edx: c1640000
+esi: 00000000   edi: c1655868   ebp: 0027ace1   esp: cea97ea4
+ds: 0068   es: 0068   ss: 0068
+Process tar (pid: 2816, stackpage=cea97000)
+Stack: db99a05c 00000000 0000002a dacd43c0 c1655868 0027ace1 df9db800 c015a452 
+       df9db800 0027ace1 c1655868 00000000 00000000 dacd43c0 dd476d40 df9db800 
+       dd476d40 c0173669 df9db800 0027ace1 00000000 00000000 fffffff4 dacd442c 
+Call Trace:   [<c015a452>] iget4_locked [kernel] 0x52 (0xcea97ec0)
+[<c0173669>] ext2_lookup [kernel] 0x69 (0xcea97ee8)
+[<c014f197>] real_lookup [kernel] 0xc7 (0xcea97f08)
+[<c014f88a>] link_path_walk [kernel] 0x59a (0xcea97f24)
+[<c014fb67>] path_lookup [kernel] 0x37 (0xcea97f60)
+[<c014fdf9>] __user_walk [kernel] 0x49 (0xcea97f70)
+[<c014bddf>] sys_lstat64 [kernel] 0x1f (0xcea97f8c)
+[<c01099df>] system_call [kernel] 0x33 (0xcea97fc0)
 
-But I've been intermittently bugging the list about it for over two years 
-now...
 
-http://linux-kernel.skylab.org/20010923/msg00093.html
-
-Yeah, it's small and cosmetic.  But it's annoying. :)
-
-Rob
+Code: 39 6b 28 89 de 75 f1 8b 44 24 20 39 83 a0 00 00 00 75 e5 8b 
+ 
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

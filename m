@@ -1,79 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269844AbTGKJS4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 05:18:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266644AbTGKJS4
+	id S269856AbTGKJcS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 05:32:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269857AbTGKJcS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 05:18:56 -0400
-Received: from notes.hallinto.turkuamk.fi ([195.148.215.149]:15633 "EHLO
-	notes.hallinto.turkuamk.fi") by vger.kernel.org with ESMTP
-	id S269844AbTGKJSy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 05:18:54 -0400
-Message-ID: <3F0E85E6.7050001@kolumbus.fi>
-Date: Fri, 11 Jul 2003 12:39:50 +0300
-From: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
+	Fri, 11 Jul 2003 05:32:18 -0400
+Received: from village.ehouse.ru ([193.111.92.18]:61453 "EHLO mail.ehouse.ru")
+	by vger.kernel.org with ESMTP id S269856AbTGKJb7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 05:31:59 -0400
+From: "Sergey S. Kostyliov" <rathamahata@php4.ru>
+Reply-To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Bug 898] New: Very HIGH File & VM system latencies and system stop responding while extracting big tar  archive file.
+Date: Fri, 11 Jul 2003 13:46:39 +0400
+User-Agent: KMail/1.5
+References: <111930000.1057904059@[10.10.2.4]>
+In-Reply-To: <111930000.1057904059@[10.10.2.4]>
 MIME-Version: 1.0
-To: YOSHIFUJI@vger.kernel.org
-CC: pekkas@netcore.fi, mika.liljeberg@welho.com, andre@tomt.net,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       yoshfuji@linux-ipv6.org
-Subject: Re: 2.4.21+ - IPv6 over IPv4 tunneling b0rked
-References: <20030711.143926.599349332.yoshfuji@linux-ipv6.org>	<Pine.LNX.4.44.0307111143470.26262-100000@netcore.fi> <20030711.180449.126456521.yoshfuji@linux-ipv6.org>
-X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
- 18, 2001) at 11.07.2003 12:34:59,
-	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
- 22, 2002) at 11.07.2003 12:34:23,
-	Serialize complete at 11.07.2003 12:34:23
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Message-Id: <200307111346.39731.rathamahata@php4.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Who adds the subnet router anycast address, kernel itself? Since what? I 
-don't see this in 2.5.
+Hello all,
 
---Mika
+On Friday 11 July 2003 10:14, Martin J. Bligh wrote:
+> http://bugme.osdl.org/show_bug.cgi?id=898
+>
+>            Summary: Very HIGH File & VM system latencies and system stop
+>                     responding while extracting big tar  archive file.
+>     Kernel Version: 2.5.75
+>             Status: NEW
+>           Severity: high
+>              Owner: bugme-janitors@lists.osdl.org
+>          Submitter: bakhtiar@softhome.net
+>
+>
+> Distribution:Slackware v7.1 : glibc v2.1.3
+> Hardware Environment: P!!! 550 MHz, 256 MB RAM. HP Brio BA600
 
+The same issues here with 2.5.7{4,5}. IO-intencive task got stuck in 'D'
+state (bk,rsync,tar - it really doesn't matter). I think a have to get decoded
+Alt-SysRq-T for this tasks next time. 
 
-YOSHIFUJI Hideaki / ???? wrote:
-
->In article <Pine.LNX.4.44.0307111143470.26262-100000@netcore.fi> (at Fri, 11 Jul 2003 11:46:00 +0300 (EEST)), Pekka Savola <pekkas@netcore.fi> says:
->
->  
->
->>>I don't like this
->>>while I would be ok to have configuration option
->>>not to support anycast.
->>>      
->>>
->>With "not to support anycast" you probably meant "not to support
->>subnet-router anycast address [automatically, in the kernel, as now]" ?  
->>These are entirely different things.
->>    
->>
->
->I meant disabling anycast entirely.
->
->  
->
->>(Note that if there's a user-level API for setting anycast addresses, one 
->>could kick the subnet-router anycast address out of the kernel too.  
->>Whether that's desirable is another thing.)
->>    
->>
->
->We have but we cannot; it is refcnt'ed.
->
->--yoshfuji
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-
-
+-- 
+                   Best regards,
+                   Sergey S. Kostyliov <rathamahata@php4.ru>
+                   Public PGP key: http://sysadminday.org.ru/rathamahata.asc

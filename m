@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263100AbVAFWSY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263125AbVAFWXw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263100AbVAFWSY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 17:18:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263113AbVAFWSX
+	id S263125AbVAFWXw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 17:23:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263123AbVAFWXr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 17:18:23 -0500
-Received: from newpeace.netnation.com ([204.174.223.7]:37086 "EHLO
-	peace.netnation.com") by vger.kernel.org with ESMTP id S263100AbVAFWSH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 17:18:07 -0500
-Date: Thu, 6 Jan 2005 14:18:02 -0800
-From: Simon Kirby <sim@netnation.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6.10-bk7] Oops: ide_dma_timeout_retry
-Message-ID: <20050106221801.GB1760@netnation.com>
-References: <20050105233359.GA2327@netnation.com> <1105023683.24896.213.camel@localhost.localdomain> <20050106192357.GA1760@netnation.com> <1105040975.17176.245.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1105040975.17176.245.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 6 Jan 2005 17:23:47 -0500
+Received: from mail.dif.dk ([193.138.115.101]:33975 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S263126AbVAFWXL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 17:23:11 -0500
+Date: Thu, 6 Jan 2005 23:34:39 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Andrew Walrond <andrew@walrond.org>
+Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: No swap can be dangerous (was Re: swap on RAID (was Re: swp -
+ Re: ext3 journal on software raid))
+In-Reply-To: <200501062208.39563.andrew@walrond.org>
+Message-ID: <Pine.LNX.4.61.0501062333260.3430@dragon.hygekrogen.localhost>
+References: <41DC9420.5030701@h3c.com> <20050106093811.GB99565@caffreys.strugglers.net>
+ <41DD798F.8030902@h3c.com> <200501062208.39563.andrew@walrond.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 06, 2005 at 08:18:22PM +0000, Alan Cox wrote:
+On Thu, 6 Jan 2005, Andrew Walrond wrote:
 
-> Don't think it got discussed on l/k. Dunno if its in the 2.6.10bk code
-> yet either
+> On Thursday 06 January 2005 17:46, Mike Hardy wrote:
+> >
+> > You are correct that I was getting at the zero swap argument - and I
+> > agree that it is vastly different from simply not expecting it. It is
+> > important to know that there is no inherent need for swap in the kernel
+> > though - it is simply used as more "memory" (albeit slower, and with
+> > some optimizations to work better with real memory) and if you don't
+> > need it, you don't need it.
+> >
 > 
->         rq->errors = 0;
->                                                                                 
->         if (!rq->bio)
->                 goto out;
->                                                                                 
->         rq->sector = rq->bio->bi_sector;
->         rq->current_nr_sectors = bio_iovec(rq->bio)->bv_len >> 9;
->         rq->hard_cur_sectors = rq->current_nr_sectors;
->         rq->buffer = bio_data(rq->bio);
-> out:
->         return ret;
+> If I recollect a recent thread on LKML correctly, your 'no inherent need for 
+> swap' might be wrong.
 > 
+> I think the gist was this: the kernel can sometimes needs to move bits of 
+> memory in order to free up dma-able ram, or lowmem. If I recall correctly, 
+> the kernel can only do this move via swap, even if there is stacks of free 
+> (non-dmaable or highmem) memory.
 > 
-> Is how the code should look at the end of ide_dma_timeout_retry (plus
-> your rq == NULL check I imagine)
+> I distinctly remember the moral of the thread being "Always mount some swap, 
+> if you can"
+> 
+> This might have changed though, or I might have got it completely wrong. - 
+> I've cc'ed LKML incase somebody more knowledgeable can comment...
+> 
 
-The only difference with the code in 2.6.10 (ide-io.c is currently
-unchanged in bk9) is rq->buffer is set to NULL instead of
-bio_data(rq->bio)... I suppose this is the corruption fix?
+http://kerneltrap.org/node/view/3202
 
-Simon-
+
+-- 
+Jesper Juhl
+
+

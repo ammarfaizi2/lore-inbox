@@ -1,30 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263012AbRFQWUg>; Sun, 17 Jun 2001 18:20:36 -0400
+	id <S263015AbRFQWVG>; Sun, 17 Jun 2001 18:21:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263015AbRFQWU0>; Sun, 17 Jun 2001 18:20:26 -0400
-Received: from h0000f8512160.ne.mediaone.net ([24.91.225.89]:34809 "EHLO
-	dragon.universe") by vger.kernel.org with ESMTP id <S263012AbRFQWUV>;
-	Sun, 17 Jun 2001 18:20:21 -0400
-Date: Sun, 17 Jun 2001 18:16:41 -0400
-From: newsreader@mediaone.net
-To: linux-kernel@vger.kernel.org
-Subject: halting does not shutdown with 2.4.6pre3
-Message-ID: <20010617181640.A828@dragon.universe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S263020AbRFQWU4>; Sun, 17 Jun 2001 18:20:56 -0400
+Received: from mail1.rdc2.bc.home.com ([24.2.10.84]:16043 "EHLO
+	mail1.rdc2.bc.home.com") by vger.kernel.org with ESMTP
+	id <S263015AbRFQWUo>; Sun, 17 Jun 2001 18:20:44 -0400
+Date: Sun, 17 Jun 2001 15:17:41 -0700 (PDT)
+From: Daniel Bertrand <d.bertrand@ieee.ca>
+X-X-Sender: <d_bertra@kilrogg>
+To: Dylan Griffiths <Dylan_G@bigfoot.com>
+cc: emu10k1-devel <emu10k1-devel@opensource.creative.com>,
+        Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Emu10k1-devel] Re: Buggy emu10k1 drivers.
+In-Reply-To: <3B2C8BFE.299BD47@bigfoot.com>
+Message-ID: <Pine.LNX.4.33.0106171449470.2175-100000@kilrogg>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am using the same .config
-file with previous 2.4 kernel.
-But I don't know whether it started
-with 2.4.6pre3 or not.  I have
-also applied the latest patch from reiserfs.org
+On Sun, 17 Jun 2001, Dylan Griffiths wrote:
 
-I have intel i810, celeron 566, 384MB
+> 	Kernel 2.4.5 has a working emu10k1 driver (all apps which hung with
+> 2.2.19's driver worked fine, none of the working ones stopped working).
+> Could we perhaps see this backported to the 2.2.20 prepatches so that us 2.2
+> lovers can enjoy working sound?
 
-Thanks
+Can you give the CVS driver a try? Snapshots are available here:
+http://opensource.creative.com/snapshot.html
+
+The driver in the kernel is based on a CVS snapshot from last summer, the
+problem may be fixed in CVS. Also, the CVS driver is a common driver for
+2.2 and 2.4 (with some #ifdef), so it may be useful to see if it works for
+you on 2.4.5 but not on 2.2.19.
+
+
+-- 
+Daniel Bertrand
 

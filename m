@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317816AbSHCVNs>; Sat, 3 Aug 2002 17:13:48 -0400
+	id <S317918AbSHCVTO>; Sat, 3 Aug 2002 17:19:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317817AbSHCVNs>; Sat, 3 Aug 2002 17:13:48 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:15861 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317816AbSHCVNr>; Sat, 3 Aug 2002 17:13:47 -0400
-Subject: Re: Problem with AHA152X driver in 2.4.19
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Marc Lefranc <lefranc.m@free.fr>
+	id <S317922AbSHCVTO>; Sat, 3 Aug 2002 17:19:14 -0400
+Received: from dsl-213-023-022-101.arcor-ip.net ([213.23.22.101]:21181 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S317918AbSHCVTN>;
+	Sat, 3 Aug 2002 17:19:13 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Andrew Morton <akpm@zip.com.au>
+Subject: [PATCH] Rmap speedup... call for testing
+Date: Sat, 3 Aug 2002 23:24:09 +0200
+X-Mailer: KMail [version 1.3.2]
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <p6r65yrlvt1.fsf@free.fr>
-References: <p6r65yrlvt1.fsf@free.fr>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 03 Aug 2002 23:35:14 +0100
-Message-Id: <1028414114.1760.40.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+References: <E17aiJv-0007cr-00@starship> <E17aptH-0008DR-00@starship> <3D4B692B.46817AD0@zip.com.au>
+In-Reply-To: <3D4B692B.46817AD0@zip.com.au>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17b6Nd-0002gh-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-08-03 at 18:02, Marc Lefranc wrote:
->------------------------------------------------
-> Aug  3 17:44:55 socrate kernel: Unable to handle kernel NULL pointer dereference
->  at virtual address 0000001b
-> Aug  3 17:44:55 socrate kernel:  printing eip:
-> Aug  3 17:44:55 socrate kernel: c68a21d9
-> Aug  3 17:44:55 socrate kernel: *pde = 00000000
-> Aug  3 17:44:55 socrate kernel: Oops: 0000
-> Aug  3 17:44:55 socrate kernel: CPU:    0
-> Aug  3 17:44:55 socrate kernel: EIP:    0010:[<c68a21d9>]    Not tainted
-> Aug  3 17:44:55 socrate kernel: EFLAGS: 00010002
-> Aug  3 17:44:55 socrate kernel: eax: 00000000   ebx: c2575000   ecx: c26e9e30   
-> edx: c1d9a240
+On Saturday 03 August 2002 07:24, Andrew Morton wrote:
+> No joy, I'm afraid.
 
-You need to run through the oops through the ksymoops decoder (see
-REPORTING-BUGS in the kernel)
+We need to eliminate some variables.  People, can we please have some smp 
+results for 2 way or whatever-way for the exact kernel I used:
+
+   http://www.kernel.org/pub/linux/kernel/v2.4/linux-2.4.18.tar.bz2
+   http://www.kernel.org/pub/linux/kernel/v2.4/testing/old/patch-2.4.19-pre7.bz2
+   http://surriel.com/patches/2.4/2.4.19p7-rmap-13b
+
+With and without this patch:
+
+   http://people.nl.linux.org/~phillips/patches/rmap.speedup-2.4.19-pre7
+
+Using this script:
+
+   http://people.nl.linux.org/~phillips/patches/lots_of_forks.sh
+
+time sh lots_of_forks.sh
+
+Thanks.
+
+-- 
+Daniel

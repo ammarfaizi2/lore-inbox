@@ -1,66 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135356AbRARUoP>; Thu, 18 Jan 2001 15:44:15 -0500
+	id <S135594AbRARUpp>; Thu, 18 Jan 2001 15:45:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135447AbRARUoG>; Thu, 18 Jan 2001 15:44:06 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:28510 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S135270AbRARUn5>; Thu, 18 Jan 2001 15:43:57 -0500
-Date: Thu, 18 Jan 2001 21:44:32 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: kuznet@ms2.inr.ac.ru
-Cc: linux-kernel@vger.kernel.org
+	id <S135567AbRARUpf>; Thu, 18 Jan 2001 15:45:35 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:34067 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S135529AbRARUpZ>;
+	Thu, 18 Jan 2001 15:45:25 -0500
+Date: Thu, 18 Jan 2001 21:44:57 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Rick Jones <raj@cup.hp.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        "David S. Miller" <davem@redhat.com>
 Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
-Message-ID: <20010118214432.F28276@athlon.random>
-In-Reply-To: <20010118203802.D28276@athlon.random> <200101181959.WAA08376@ms2.inr.ac.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200101181959.WAA08376@ms2.inr.ac.ru>; from kuznet@ms2.inr.ac.ru on Thu, Jan 18, 2001 at 10:59:11PM +0300
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+In-Reply-To: <20010118212441.E28276@athlon.random>
+Message-ID: <Pine.LNX.4.30.0101182135180.2034-100000@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 18, 2001 at 10:59:11PM +0300, kuznet@ms2.inr.ac.ru wrote:
-> Hello!
-> 
-> > I'm all for TCP_CORK but it has the disavantage of two syscalls for doing the
-> 
-> MSG_MORE was invented to allow to collapse this to 0 of syscalls. 8)
 
-Yes, I know.
+On Thu, 18 Jan 2001, Andrea Arcangeli wrote:
 
-> > A new ioctl on the socket should be able to do that (and ioctl looks ligther
-> > than a setsockopt, ok ignoring actually the VFS is grabbing the big lock
-> > until we relase it in sock_ioctl, ugly, but I feel good ignoring this fact as
-> > it will gets fixed eventually and this is userspace API that will stay longer).
-> 
-> setsockopt() exists, which does not have the flaw. (SOL_SOCKET, TCP_DOPUSH)
-> or something like this. Actually, I would convert TCP_CORK to set of flags
+> Agreed. However since TCP_CORK logic is more generic than MSG_MORE
+> [...]
 
-That is ok for me after all, as said I thought ioctl was conceptually the
-right place but setsockopt TCP_PUSH or TCP_DOPUSH are certainly fine too in
-practice.
+why? TCP_CORK is equivalent to MSG_MORE, it's just a different
+representation of the same issue. TCP_CORK needs an extra syscall (in the
+case of a push event - which might be rare), the MSG_MORE solution needs
+an extra flag (which is merged with other flags in the send() case).
 
-> (1 is reserved for current corking), but I feel this operation is more generic
-> and should be moved to SOL_SOCKET level.
+> > i believe it should rather be a new setsockopt TCP_CORK value (or a new
+> > setsockopt constant), not an ioctl. Eg. a value of 2 to TCP_CORK could
+> > mean 'force packet boundary now if possible, and dont touch TCP_CORK
+> > state'.
+>
 
-Agreed. (btw everything != 0 is reseved for current corking as far as the code
-is concerned ;)
+> Doing PUSH from setsockopt(TCP_CORK) looked obviously wrong because it
+> isn't setting any socket state, [...]
 
-> BTW I see no reasons not to move BKL down for ioctl().
+well, neither is clearing/setting TCP_CORK ...
 
-No theorical reason indeed. But pratically moving the BKL down into the
-callback means a big patch due the zillon of device drivers out there in and
-out the tree and it may end to hurting somebody who is upgrading from 2.4.0 to
-2.4.1 and using a driver out of the tree. I believe it's one of the things that
-should be done in an unstable branch for those kind of pratical reasons
-(however I'm not the one who will complain if that happens during 2.4.x but I'm
-not either the one who suggests that because I couldn't complain the
-complains ;).
+> and also because the SIOCPUSH has nothing specific with TCP_CORK, as
+> said it can be useful also to flush the last fragment of data pending
+> in the send queue without having to wait all the unacknowledged data
+> to be acknowledged from the receiver when TCP_NODELAY isn't set.
 
-Andrea
+huh? in what way does the following:
+
+{
+        int val = 1;
+        setsockopt(req->sock, IPPROTO_TCP, TCP_CORK,
+			(char *)&val,sizeof(val));
+        val = 0;
+        setsockopt(req->sock, IPPROTO_TCP, TCP_CORK,
+			(char *)&val,sizeof(val));
+}
+
+differ from what you posted. It does the same in my opinion. Maybe we are
+not talking about the same thing?
+
+> Changing the semantics of setsockopt(TCP_CORK, 2) would also break
+> backwards compatibility with all 2.[24].x kernels out there.
+
+[this is nitpicking. I'm quite sure all the code uses '1' as the value,
+not 2.]
+
+	Ingo
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263228AbTAJGka>; Fri, 10 Jan 2003 01:40:30 -0500
+	id <S263215AbTAJGjO>; Fri, 10 Jan 2003 01:39:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263256AbTAJGka>; Fri, 10 Jan 2003 01:40:30 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:23685 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S263228AbTAJGk0>;
-	Fri, 10 Jan 2003 01:40:26 -0500
-Date: Thu, 09 Jan 2003 22:40:06 -0800 (PST)
-Message-Id: <20030109.224006.102700508.davem@redhat.com>
-To: andersg@0x63.nu
-Cc: Niels.denOtter@surfnet.nl, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.55: local symbols in net/ipv6/af_inet6.o
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030109231834.GD3345@gagarin>
-References: <20030109091025.GW31387@surly.surfnet.nl>
-	<20030109231834.GD3345@gagarin>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S263228AbTAJGjO>; Fri, 10 Jan 2003 01:39:14 -0500
+Received: from web20508.mail.yahoo.com ([216.136.226.143]:4129 "HELO
+	web20508.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S263215AbTAJGjO>; Fri, 10 Jan 2003 01:39:14 -0500
+Message-ID: <20030110064758.12782.qmail@web20508.mail.yahoo.com>
+Date: Thu, 9 Jan 2003 22:47:58 -0800 (PST)
+From: Manish Lachwani <m_lachwani@yahoo.com>
+Subject: Re: DMA timeouts on Promise 20267 IDE card
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <233C89823A37714D95B1A891DE3BCE5202AB1B7F@xch-a.win.zambeel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Anders Gustafsson <andersg@0x63.nu>
-   Date: Fri, 10 Jan 2003 00:18:34 +0100
 
-   On Thu, Jan 09, 2003 at 10:10:26AM +0100, Niels den Otter wrote:
-   > The reference_discarded.pl script says following:
-   >  pangsit:/usr/src/linux/net> perl ~otter/reference_discarded.pl 
-   >  Finding objects, 245 objects, ignoring 0 module(s)
-   >  Finding conglomerates, ignoring 11 conglomerate(s)
-   >  Scanning objects
-   >  Error: ./ipv6/af_inet6.o .init.text refers to 000003e4 R_386_PC32 .exit.text
-   >  Done
-   > 
-   > I tried both gcc-2.95 & gcc-3.2.2 .
-   
-   This patch shoul fix it, the problem is that cleanup_ipv6_mibs can't be
-   __exit as it's called on ipv6_init's errorpath.
-   
-I've applied your patch, thanks.
+ check the CRC count on the first drive, hda. Its
+ 65584 !!! Thats huge. This
+ CRC values result in UDMA downgrades. Also, check
+ the reallocation sector
+ count. A high value here means possible timeouts.
+ With high reallocation
+ sector count, there could be multiple mappings a
+ drive would have to look
+ into to get to the proper sector. You should change
+ the drive hda and also
+ the cable. Then try again. 
+ 
+ Thanks
+ Manish
+ 
+
+
+__________________________________________________
+Do you Yahoo!?
+Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
+http://mailplus.yahoo.com

@@ -1,77 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278450AbRK1RXZ>; Wed, 28 Nov 2001 12:23:25 -0500
+	id <S278492AbRK1R1q>; Wed, 28 Nov 2001 12:27:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278381AbRK1RXQ>; Wed, 28 Nov 2001 12:23:16 -0500
-Received: from rcum.uni-mb.si ([164.8.2.10]:32267 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S278450AbRK1RXD>;
-	Wed, 28 Nov 2001 12:23:03 -0500
-Date: Wed, 28 Nov 2001 18:22:59 +0100
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: Re: Journaling pointless with today's hard disks?
-To: cw@f00f.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Message-id: <3C051D73.79AA08AB@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
+	id <S278522AbRK1R1g>; Wed, 28 Nov 2001 12:27:36 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:50931 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S278492AbRK1R10>;
+	Wed, 28 Nov 2001 12:27:26 -0500
+Date: Wed, 28 Nov 2001 10:27:15 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Christoph Hellwig <hch@caldera.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.1-pre2 does not compile
+Message-ID: <20011128102715.R730@lynx.no>
+Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200111272209.fARM9tk18991@ns.caldera.de> <Pine.LNX.4.33.0111271628430.1629-100000@penguin.transmeta.com> <20011128135508.A21418@caldera.de> <20011128092600.Q730@lynx.no> <20011128174250.A17582@caldera.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <20011128174250.A17582@caldera.de>; from hch@caldera.de on Wed, Nov 28, 2001 at 05:42:50PM +0100
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood (cw@f00f.org) wrote :
+On Nov 28, 2001  17:42 +0100, Christoph Hellwig wrote:
+> On Wed, Nov 28, 2001 at 09:26:00AM -0700, Andreas Dilger wrote:
+> > What would be nice in the case of drivers that don't use the new error
+> > handling code is to add something like:
+> > 
+> > #warning "Uses obsolete SCSI error code, see Documentation/2.5/scsi-error.txt"
+> > 
+> > for a hint as to the reason why it no longer compiles, and a short guide
+> > on how to update the drivers.
+> 
+> I already thought about that - as the old error handling code is selected
+> by setting a member in a struct to '1' I don't see any easy way to do so...
 
-> On Sat, Nov 24, 2001 at 02:03:11PM +0100, Florian Weimer wrote: 
-> 
->     When the drive is powered down during a write operation, the 
->     sector which was being written has got an incorrect checksum 
->     stored on disk. So far, so good---but if the sector is read 
->     later, the drive returns a *permanent*, *hard* error, which can 
->     only be removed by a low-level format (IBM provides a tool for 
->     it). The drive does not automatically map out such sectors. 
-> 
-> AVOID SUCH DRIVES... I have both Seagate and IBM SCSI drives which a 
-> are hot-swappable in a test machine that I used for testing various 
-> journalling filesystems a while back for reliability. 
-> 
-> Some (many) of those tests involved removed the disk during writes 
-> (literally) and checking the results afterwards.
+I'm thinking about a compile-time #warning/#error, that at least tells an
+interested party where to start looking for how to fix this.  It could be
+anywhere in the affected driver source file (preferrably at the top, so it
+is hit before the compiler exits because of too many other errors).  It
+would just be a matter of cut-n-paste a single line into every file which
+previously used the old error-handling code.
 
-What do you mean by "removed the disk" ?
+I presume that the nature of this change will either cause compile errors
+anyways (because of missing struct definitions), or linker errors (because
+of missing functions).  I think that having a #warning at compile time will
+at least avoid a whole bunch of "this driver doesn't compile, help me"
+emails, and may also help someone to actually update the driver rather than
+giving up because they have no idea where to begin looking for the fix.
 
-- rm /dev/hda ? :-)
-- disconnect the disk from the SCSI or ATA bus ?
-- from the power supply ?
-- both ?
-- something else ?
+Actually, what would also be nice is to include the kernel version where
+this change happened, so that interested parties could also see what changes
+where necessary to bring about this fix.  In this case (removing the old
+error handling support), it probably doesn't help much, but in Jens' BIO
+changes it _would_ be very helpful to know when a major change was made
+so potential fixers can "follow along" with the changes rather than having
+to reverse-engineer it 50 releases from now (along with the 33 other major
+changes that have been made along the way).  Even now, with the BIO +
+SCSI error handling changes there are a lot of SCSI drivers with problems
+and it won't be "obvious" how to fix them later on.
 
-> 
-> The drives were set not to write-cache (they don't by default, but all 
-> my IDE drives do, so maybe this is a SCSI thing?) 
-> 
-> At no point did I ever see a partial write or corrupted sector; nor 
-> have I seen any appear in the grown table, so as best as I can tell 
-> even under removal with sustain writes there are SOME DRIVES WHERE 
-> THIS ISN'T A PROBLEM. 
-> 
-> Now, since EMC, NetApp, Sun, HP, Compaq, etc. all have products which 
-> presumable depend on this behavior, I don't think it's going to go 
-> away, it perhaps will just become important to know which drives are 
-> brain-damaged and list them so people can avoid them. 
-> 
-> As this will affect the Windows world too consumer pressure will 
-> hopefully rectify this problem. 
-> 
->   --cw 
-> 
-> P.S. Write-caching in hard-drives is insanely dangerous for 
->      journalling filesystems and can result in all sorts of nasties. 
->      I recommend people turn this off in their init scripts (perhaps I 
->      will send a patch for the kernel to do this on boot, I just 
->      wonder if it will eat some drives). 
+Cheers, Andreas
 
--- 
-David Balazic
---------------
-"Be excellent to each other." - Bill S. Preston, Esq., & "Ted" Theodore Logan
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PS - are you sure the old error handling code was selected with a '1' and
+     not with a '0' for "use_new_eh_code"?
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+

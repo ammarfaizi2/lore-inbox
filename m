@@ -1,83 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266908AbSKZUX1>; Tue, 26 Nov 2002 15:23:27 -0500
+	id <S266631AbSKZUd7>; Tue, 26 Nov 2002 15:33:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266911AbSKZUX1>; Tue, 26 Nov 2002 15:23:27 -0500
-Received: from ma-northadams1b-112.bur.adelphia.net ([24.52.166.112]:17536
-	"EHLO ma-northadams1b-112.bur.adelphia.net") by vger.kernel.org
-	with ESMTP id <S266908AbSKZUX0>; Tue, 26 Nov 2002 15:23:26 -0500
-Date: Tue, 26 Nov 2002 15:30:43 -0500
-From: Eric Buddington <eric@ma-northadams1b-112.nad.adelphia.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.49: "hdb: cannot handle device with more than 16 heads"
-Message-ID: <20021126150325.A157@ma-northadams1b-112.nad.adelphia.net>
-Reply-To: ebuddington@wesleyan.edu
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1038335905.2658.65.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Tue, Nov 26, 2002 at 06:38:25PM +0000
-Organization: ECS Labs
-X-Eric-Conspiracy: there is no conspiracy
+	id <S266652AbSKZUd7>; Tue, 26 Nov 2002 15:33:59 -0500
+Received: from modemcable017.51-203-24.mtl.mc.videotron.ca ([24.203.51.17]:9711
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S266631AbSKZUd6>; Tue, 26 Nov 2002 15:33:58 -0500
+Date: Tue, 26 Nov 2002 15:43:41 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: chrisl@vmware.com
+cc: USB Devel <linux-usb-users@lists.sourceforge.net>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: EHCI Kernel panic on current BK 2.5
+In-Reply-To: <20021126184536.GB1519@vmware.com>
+Message-ID: <Pine.LNX.4.50.0211261532020.1462-100000@montezuma.mastecende.com>
+References: <20021126184536.GB1519@vmware.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 26, 2002 at 06:38:25PM +0000, Alan Cox wrote:
-> On Tue, 2002-11-26 at 17:50, Eric Buddington wrote:
-> > This is 2.5.49, compiled for i386 with almost all modules using
-> > gcc-3.2.  On my PII Omnibook 4100, the messages stop after the first
-> > hda: message (where it would normally identify the drive). The same
-> > problem existed in 2.4.48.
-> > 
-> > When booting on my Athlon (hda:Maxtor 5T040H4, hdb: Maxtor 90840D6), I
-> > get the following boot messages:
-> 
-> Looks like you used the old MFM/RLL driver for hda. That wont work with
-> new drives. 
+On Tue, 26 Nov 2002 chrisl@vmware.com wrote:
 
-Thanks. Disks and partitions are now recognized, but root still won't
-mount. Reiserfs (the root fs) is compiled in, along with IDE disk
-support.  I tried getting rid of the advanced partitopn types options,
-which eliminated the MS-DOS partition table message, but did not
-otherwise change things.
+> I try to setup the usb 2.0 hard disk on my desktop in 2.5.
+> It works great with uhci driver. (2.4 and 2.5).
+>
+> When I try modprobe ehci-hcd in 2.5. Kernel panic. It seems
+> that kernel OOPS inside the panic handle code again.
+>
+> I can't get the full OOPS from the serial console either.
+>
+> I am typing it here. I can only see the last screen.
+> It might have some typo and emotion.
+>
+> EIP is at scheduler_tick+0x92/0x360
+> eax: 00000000 ebx: 00000000 ecx: 00000001  edx: 00000003
+> esi: dd5e3000 edi: 00000001 ebp: dd5b9ed0  esp: dd5b9ec0
+> ds: 0068   es: 0068  ss:068
+> Process (pid:26, threadinfo=dd5b8000 task=dd5e3000)
+> Stack: 0000002 000000 0000001 000000 dd5b9f80
 
-The hdc error is also unexpected, unless it's simply the result of no
-CD in the drive.
+Possibly it could be this?
 
-I hope this isn't another silly thing I'm missing.
+/* Task might have expired already, but not scheduled off yet */
+if (p->array != rq->active) {
+	set_tsk_need_resched(p); <-- [1]
+	return;
+}
 
--Eric
+static inline void set_ti_thread_flag(struct thread_info *ti, int flag)
+{
+	set_bit(flag,&ti->flags); <-- [2]
+}
 
----------------------------------------------------------------------
+static __inline__ void set_bit(int nr, volatile unsigned long * addr)
+{
+	__asm__ __volatile__( LOCK_PREFIX
+		"btsl %1,%0"
+		:"=m" (ADDR)
+		:"Ir" (nr));
+}
 
-pty: 256 Unix98 ptys configured
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 66MHz system bus speed for PIO modes
-hda: Maxtor 5T040H4, ATA DISK drive
-hdb: Maxtor 90840D6, ATA DISK drive
-hdc: _NEC CD-RW NR-7800A, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: host protected area => 1
-hda: 80043264 sectors (40982 MB) w/2048KiB Cache, CHS=4982/255/63
- /dev/ide/host0/bus0/target0/lun0:<7>ldm_validate_partition_table(): Found an MS
--DOS partition table, not a dynamic disk.
- p1 p4
-hdb: host protected area => 1
-hdb: 16406208 sectors (8400 MB) w/256KiB Cache, CHS=1021/255/63
- /dev/ide/host0/bus0/target1/lun0:<7>ldm_validate_partition_table(): Found an MS
--DOS partition table, not a dynamic disk.
- p1
-end_request: I/O error, dev hdc, sector 0
-hdc: ATAPI 40X CD-ROM CD-R/RW drive, 2048kB Cache
-Uniform CD-ROM driver Revision: 3.12
-serio: i8042 AUX port at 0x60,0x64 irq 12
-input: AT Set 2 keyboard on isa0060/serio0
-serio: i8042 KBD port at 0x60,0x64 irq 1
-NET4: Linux TCP/IP 1.0 for NET4.0
-IP: routing cache hash table of 2048 buckets, 16Kbytes
-TCP: Hash tables configured (established 16384 bind 32768)
-Linux IP multicast router 0.06 plus PIM-SM
-VFS: Cannot open root device "hda1" or 03:01
-Please append a correct "root=" boot option
-Kernel panic: VFS: Unable to mount root fs on 03:01
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   0f ab 50 08               bts    %edx,0x8(%eax)
+Code;  00000004 Before first symbol
+   4:   8d 65 f4                  lea    0xfffffff4(%ebp),%esp
+
+So addr was NULL it seems, perhaps we're not supposed to be in here in the
+first place ?
+
+-- 
+function.linuxpower.ca

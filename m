@@ -1,48 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129204AbQKEKAn>; Sun, 5 Nov 2000 05:00:43 -0500
+	id <S129050AbQKEKNQ>; Sun, 5 Nov 2000 05:13:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129415AbQKEKAd>; Sun, 5 Nov 2000 05:00:33 -0500
-Received: from smtp.abac.com ([216.55.128.5]:10247 "EHLO smtp.abac.com")
-	by vger.kernel.org with ESMTP id <S129204AbQKEKAT>;
-	Sun, 5 Nov 2000 05:00:19 -0500
-Message-ID: <3A052FA9.50802@abac.com>
-Date: Sun, 05 Nov 2000 02:00:09 -0800
-From: Jeremiah Savage <jeremiahsavage@abac.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-test8 i686; en-US; m18) Gecko/20001103
-X-Accept-Language: en
+	id <S129098AbQKEKNF>; Sun, 5 Nov 2000 05:13:05 -0500
+Received: from www.medex.hu ([212.108.197.8]:62988 "EHLO www.medex.hu")
+	by vger.kernel.org with ESMTP id <S129050AbQKEKMr>;
+	Sun, 5 Nov 2000 05:12:47 -0500
+Date: Sun, 5 Nov 2000 11:12:48 +0100 (CET)
+From: Kesmarki Attila <danthe@www.medex.hu>
+To: Jan Dvorak <johnydog@go.cz>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: tdfx fb with SUN12x22 font on 2.4.0-test10
+In-Reply-To: <20001104230923.A8498@napalm.go.cz>
+Message-ID: <Pine.LNX.4.10.10011051051100.648-100000@www.medex.hu>
 MIME-Version: 1.0
-To: kladi@z.zgs.de, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-test10 does not boot
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Klaus Dittrich wrote:
- > [1.] Kernel 2.4.0-test10 does not boot
- > [2.] I installed 2.4.0-test10 in the same manner and on the same disk
- > I did with 2.4.0-test8 which boots an runs.
- > I use an ASUS-P2B-DS with 2xPII-350 and BIOS 1013BETA005.
- > After rebooting the last message is "Uncompressing the kernel .." and
- > then the system hangs.
- > I have read that using dma by default made trouble so I made a new
- > kernel without this feature but with the same bad result.
- >
- > [3.] Kernel 2.4.0-test10
 
+The tdfxfb driver has not too many features in the current kernel.
+For example, it is restriceted to use 8 bit width fonts only...
 
-I've had the same problem with an ASUS-P2B PII-400 system.
-2.4.0test8 is able to boot, but test9 and test10 do not.
-I'm running current Debian/Woody:
-	gcc_2.95.2	
-	libc6_2.1.96	
-	binutils_2.10.0.27
-	make_3.79.1
+You can enable this support by modifying the display_switch structs in the
+tdfxfb.c. You need to replace all the
+"fontwidthmask: FONTWIDTH(8)" with "fontwidthmask: ~1"
 
+It may work, because it is implemented in the driver, just not tested yet.     
 
-Jeremiah
-(not subscribed)
+Or, if you need a better 3dfx support, you can use my driver.
+(http://www.medex.hu/~danthe/tdfx)
+
+/Attila Kesmarki
+
+On Sat, 4 Nov 2000, Jan Dvorak wrote:
+
+> Hi,
+> 
+> i am getting 
+> 
+> Nov  4 21:50:22 napalm kernel: Adding Swap: 48188k swap-space (priority -1)
+> Nov  4 21:50:25 napalm kernel: fbcon_setup: No support for fontwidth 12
+> Nov  4 21:50:25 napalm kernel: fbcon_setup: type 0 (aux 0, depth 8) not supported
+> Nov  4 21:50:25 napalm kernel: fbcon_setup: No support for fontwidth 12
+> Nov  4 21:50:25 napalm kernel: fbcon_setup: type 0 (aux 0, depth 8) not supported
+> ...
+> 
+> when using tdfx framebuffer driver on voodoo3 pci with SUN12x22 font.
+> But, the driver and the font (nice font, really) is working just fine.
+> So ... where is the magic ? I bet that >8 font width wasn't supported but
+> now it is.
+> 
+> .config attached
+> 
+> Thanks,
+> 
+> Jan Dvorak <johnydog@go.cz>
+> 
+ 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

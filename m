@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277232AbRJDVTo>; Thu, 4 Oct 2001 17:19:44 -0400
+	id <S277236AbRJDVVY>; Thu, 4 Oct 2001 17:21:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277234AbRJDVTe>; Thu, 4 Oct 2001 17:19:34 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:10768 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S277232AbRJDVT1>; Thu, 4 Oct 2001 17:19:27 -0400
-Subject: Re: [POT] Which journalised filesystem ?
-To: andre.dahlqvist@telia.com (=?iso-8859-1?Q?Andr=E9?= Dahlqvist)
-Date: Thu, 4 Oct 2001 22:25:12 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011003173448.C2337@telia.com> from "=?iso-8859-1?Q?Andr=E9?= Dahlqvist" at Oct 03, 2001 05:34:48 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S277234AbRJDVVO>; Thu, 4 Oct 2001 17:21:14 -0400
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:15284 "EHLO
+	mailout01.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S277237AbRJDVU5>; Thu, 4 Oct 2001 17:20:57 -0400
+Date: 04 Oct 2001 21:28:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <8ADlR04Xw-B@khms.westfalen.de>
+In-Reply-To: <Pine.GSO.4.21.0110041153560.28270-100000@weyl.math.psu.edu>
+Subject: Re: Security question: "Text file busy" overwriting executables but no
+X-Mailer: CrossPoint v3.12d.kh7 R/C435
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15pFzU-0004H7-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <Pine.LNX.4.33.0110040842320.8350-100000@penguin.transmeta.com> <Pine.GSO.4.21.0110041153560.28270-100000@weyl.math.psu.edu>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Alan mentioned this was something to do with the IBM hard disk
-> > having strange write-cache properties that confuse ext3.
-> 
-> Which IBM harddrive(s) does this? How can one check if it does?
+viro@math.psu.edu (Alexander Viro)  wrote on 04.10.01 in <Pine.GSO.4.21.0110041153560.28270-100000@weyl.math.psu.edu>:
 
-Its not specifically IBM, there are two sets of things to watch out for
+>
+> On Thu, 4 Oct 2001, Linus Torvalds wrote:
+>
+> >    In short, now you need filesystem versioning at a per-page level etc.
+>
+> *ding* *ding* *ding* we have a near winner.  Remember, folks, Hurd had been
+> started by people who not only don't understand UNIX, but detest it.
+> ITS/TWENEX refugees.  And semantics in question comes from there -
+> they had "open and make sure that anyone who tries to modify will get
+> a new version, leaving one we'd opened unchanged".
 
--	Cache flush as a nop/unimplemented. This is legal in all but the
-	most recent ATA specification. The spec has been tightened so that
-	problem will go in time
+Sounds to me like it could be done ... *if* you had per-process filesystem  
+snapshot capability.
 
--	Some IBM laptop drives appeared to fail to write back the cache on
-	machine shutdown/suspend etc. The exact rights/wrongs/details on
-	that one haven't been pinned down because the folks concerned
-	swapped a couple of drives for different ones, saw the problem
-	vanish and being a large organisation had the supplier replace the
-	other fifty odd. 
+Of course, that's using ICBMs to swat mosquitos. I don't recommend it just  
+for implementing a mmap() flag.
 
-Alan
+MfG Kai

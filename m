@@ -1,52 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269559AbTGaQuu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 12:50:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274814AbTGaQuu
+	id S274836AbTGaREJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 13:04:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274845AbTGaREJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 12:50:50 -0400
-Received: from mail.kroah.org ([65.200.24.183]:19924 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S269559AbTGaQut (ORCPT
+	Thu, 31 Jul 2003 13:04:09 -0400
+Received: from dsl081-067-005.sfo1.dsl.speakeasy.net ([64.81.67.5]:1986 "EHLO
+	renegade") by vger.kernel.org with ESMTP id S274836AbTGaRDz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 12:50:49 -0400
-Date: Thu, 31 Jul 2003 09:50:56 -0700
-From: Greg KH <greg@kroah.com>
-To: Flameeyes <daps_mls@libero.it>
-Cc: Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test2, sensors and sysfs
-Message-ID: <20030731165056.GA3622@kroah.com>
-References: <1059669362.23100.12.camel@laurelin>
+	Thu, 31 Jul 2003 13:03:55 -0400
+Date: Thu, 31 Jul 2003 10:03:45 -0700
+From: Zack Brown <zbrown@tumblerings.org>
+To: "Ata, John" <John.Ata@DigitalNet.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: incompatible open modes
+Message-ID: <20030731170345.GJ6693@renegade>
+References: <6DED202D454D3B4EB7D98A7439218D610C9AB7@vahqex2.gfgsi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1059669362.23100.12.camel@laurelin>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <6DED202D454D3B4EB7D98A7439218D610C9AB7@vahqex2.gfgsi.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 31, 2003 at 06:36:02PM +0200, Flameeyes wrote:
-> Hi,
-> I need to know the system temperature for check some stability problems,
-> under 2.4 I was using lm_sensors patches, using i2c-viapro as i2c bus
-> and via686a as chip driver (I'm using a via 686 southbridge, see the
-> lspci output attached), and I was able to use sensors for see the
-> temperatures.
-> With the 2.6.0-test2 (and all earlier kernels since 2.5.69), I'm not
-> able anymore to see the temperature, nor with sensor (or libsensor
-> library) nor with sysfs (that, AFAIK, should be the new method to access
-> sensors data).
-> The only i2c device that I can see in the sysfs is the tuner of my
-> bt-based tv card.
-> I tried either with i2c-viapro and via686a as modules, and built-in in
-> kernel. Nothing	changes. Also dmesg doesn't output anything.
-> I have missed something?
+Hi John,
 
-What sensor drivers are you using in 2.4?  Are these drivers even
-present in 2.6?  Remember, a lot of them have not been ported yet.
+The best place to ask is on the linux-kernel mailing list (CCed).
 
-And yes, libsensors does not work right now for 2.6, you should be able
-to get the sensor info yourself out of sysfs.
+Good luck,
+Zack
 
-thanks,
+On Thu, Jul 31, 2003 at 12:09:14PM -0400, Ata, John wrote:
+>    Hi Zach,
+> 
+>    I don't know if you're the right contact... just wondered how I go about
+>    getting information as to the intent of the Linux kernel... the manpage on
+>    "open" states that if a file is opened "O_RDONLY|O_TRUNC", the O_TRUNC is
+>    either ignored or an error is returned.  The 2.4 kernel appears to
+>    cheerfully truncate the file on open.  I wondered which behavior is
+>    actually intended.
+> 
+>    Thanks for your time...
+> 
+>    Take care,
+>    ------
+>    John G. Ata
+>    DigitalNet, LLC
+>    XTS-400 Software Development
+>    MailTo:John.Ata@DigitalNet.com
+>    Phone:(703) 563-8092
+> 
+>    O_TRUNC
+>                  If the file already exists and is a regular file  and  the 
+>    open
+>                  mode  allows  writing  (i.e.,  is O_RDWR or O_WRONLY) it
+>    will be
+>                  truncated to length 0.  If the file is a FIFO or terminal
+>    device
+>                  file,  the  O_TRUNC  flag  is  ignored.  Otherwise the
+>    effect of
+>                  O_TRUNC is unspecified.  (On many  Linux  versions  it 
+>    will  be
+>                  ignored; on other versions it will return an error.)
 
-greg k-h
+-- 
+Zack Brown

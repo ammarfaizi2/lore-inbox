@@ -1,42 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265290AbUEZChy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265293AbUEZCuN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265290AbUEZChy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 22:37:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265292AbUEZChy
+	id S265293AbUEZCuN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 22:50:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265294AbUEZCuN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 22:37:54 -0400
-Received: from fw.osdl.org ([65.172.181.6]:60369 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265290AbUEZChx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 22:37:53 -0400
-Date: Tue, 25 May 2004 19:37:21 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: AKIYAMA Nobuyuki <akiyama.nobuyuk@jp.fujitsu.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] NMI trigger switch support for debugging
-Message-Id: <20040525193721.7c71f61d.akpm@osdl.org>
-In-Reply-To: <40B400D1.1080602@jp.fujitsu.com>
-References: <40B1BEAC.30500@jp.fujitsu.com>
-	<20040524023453.7cf5ebc2.akpm@osdl.org>
-	<40B3F484.4030405@jp.fujitsu.com>
-	<20040525184148.613b3d6e.akpm@osdl.org>
-	<40B400D1.1080602@jp.fujitsu.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 25 May 2004 22:50:13 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55737 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265293AbUEZCuL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 22:50:11 -0400
+Message-ID: <40B405D5.5080407@pobox.com>
+Date: Tue, 25 May 2004 22:49:57 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Matthew Wilcox <willy@debian.org>, Arjan van de Ven <arjanv@redhat.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [BK PATCH] PCI Express patches for 2.4.27-pre3
+References: <20040524210146.GA5532@kroah.com> <1085468008.2783.1.camel@laptop.fenrus.com> <20040525080006.GA1047@kroah.com> <20040525113231.GB29154@parcelfarce.linux.theplanet.co.uk> <20040525125452.GC3118@logos.cnet> <20040525130116.GA16852@devserv.devel.redhat.com> <20040525132413.GD29154@parcelfarce.linux.theplanet.co.uk> <20040525144149.GB7252@kroah.com>
+In-Reply-To: <20040525144149.GB7252@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-AKIYAMA Nobuyuki <akiyama.nobuyuk@jp.fujitsu.com> wrote:
->
-> Sorry, I resend document and patch.
+Greg KH wrote:
+> As no one really has PCI Express devices at this time, who knows how
 
-Great, thanks.  Updates to Documentation/kernel-parameters.txt and
-Documentation/filesystems/proc.txt would be nice.
+This is not really true...
 
-
-If the machine locks up with interrupts enabled we can use sysrq-T and
-sysrq-P.  If it locks up with interrupts disabled the NMI watchdog will
-automatically produce the same info as your patch.  So what advantage does
-the patch add?

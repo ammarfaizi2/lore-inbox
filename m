@@ -1,27 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261474AbSIPM10>; Mon, 16 Sep 2002 08:27:26 -0400
+	id <S261407AbSIPMfO>; Mon, 16 Sep 2002 08:35:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261464AbSIPM1Z>; Mon, 16 Sep 2002 08:27:25 -0400
-Received: from 62-190-219-96.pdu.pipex.net ([62.190.219.96]:55047 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S261408AbSIPM1V>; Mon, 16 Sep 2002 08:27:21 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200209161239.g8GCdpgO001846@darkstar.example.net>
-Subject: Re: [PATCH] Experimental IDE oops dumper v0.1
-To: linux-kernel@vger.kernel.org
-Date: Mon, 16 Sep 2002 13:39:51 +0100 (BST)
-Cc: alan@redhat.com, rusty@rustcorp.com.au
-In-Reply-To: <200209161218.g8GCI7301692@devserv.devel.redhat.com> from "Alan Cox" at Sep 16, 2002 08:18:07 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261408AbSIPMfO>; Mon, 16 Sep 2002 08:35:14 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:17391
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261407AbSIPMfN>; Mon, 16 Sep 2002 08:35:13 -0400
+Subject: Re: To Anyone with a Radeon 7500 board and the ali developer
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "David S. Miller" <davem@redhat.com>
+Cc: alex14641@yahoo.com, TheUnforgiven@attbi.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20020915.220131.104193664.davem@redhat.com>
+References: <20020916042625.55842.qmail@web40509.mail.yahoo.com> 
+	<20020915.220131.104193664.davem@redhat.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 16 Sep 2002 13:42:11 +0100
+Message-Id: <1032180131.1191.7.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Talking about dumping oopsen, would there be any usefulness in outputting crash data to the PC speaker, using a slow, (~300 bps) modulation that would survive being captured on a cassette using a walkman with a microphone, then decoded using a userspace program from a sampled .au file?
+On Mon, 2002-09-16 at 06:01, David S. Miller wrote:
+>    From: Alex Davis <alex14641@yahoo.com>
+>    Date: Sun, 15 Sep 2002 21:26:25 -0700 (PDT)
+> 
+>    Just out of curiosity, do you have AGPMode set to any value other than "1"
+>    in your XF86Config file? If so, try setting it to "1".
+>    
+> More importantly, set it to whatever value you have configured in
+> your BIOS setup.  There are lots of chipsets for which the AGP
+> mode change is not implemented fully/correctly in the AGP kernel
+> drivers.
 
-Just thought it might be easily implementable, as it doesn't have any pre-requisits, (other than having a PC speaker, which *almost* everybody has).
-
-John.
+What is sad is the is an AGP standardised way to read this and XFree86
+still, all these years on, doesn't do it by default.

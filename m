@@ -1,46 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262609AbTJTPaY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 11:30:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262610AbTJTPaY
+	id S262671AbTJTPie (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 11:38:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262672AbTJTPie
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 11:30:24 -0400
-Received: from fed1mtao06.cox.net ([68.6.19.125]:12161 "EHLO
-	fed1mtao06.cox.net") by vger.kernel.org with ESMTP id S262609AbTJTPaW
+	Mon, 20 Oct 2003 11:38:34 -0400
+Received: from rtlab.med.cornell.edu ([140.251.145.175]:46266 "EHLO
+	openlab.rtlab.org") by vger.kernel.org with ESMTP id S262671AbTJTPic
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 11:30:22 -0400
-Date: Mon, 20 Oct 2003 08:30:20 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Meelis Roos <mroos@linux.ee>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PPC & 2.6.0-test3: wrong mem size & hang on ifconfig
-Message-ID: <20031020153020.GA6062@ip68-0-152-218.tc.ph.cox.net>
-References: <20031014232511.GA17741@ip68-0-152-218.tc.ph.cox.net> <Pine.GSO.4.44.0310201655210.18000-100000@math.ut.ee>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.44.0310201655210.18000-100000@math.ut.ee>
-User-Agent: Mutt/1.5.4i
+	Mon, 20 Oct 2003 11:38:32 -0400
+Date: Mon, 20 Oct 2003 11:38:17 -0400 (EDT)
+From: "Calin A. Culianu" <calin@ajvar.org>
+X-X-Sender: <calin@rtlab.med.cornell.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: Rereading the Partition Table (ioctl BLKRRPART)
+Message-ID: <Pine.LNX.4.33L2.0310201121350.17966-100000@rtlab.med.cornell.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 20, 2003 at 04:55:39PM +0300, Meelis Roos wrote:
-> > Can you apply the following patch (2.6)?  I'm expecting it to print out that
-> > it hard-codes to 32mb.
-> 
-> > +		puts("Hard-coded\n");
-> 
-> Yes, hard-coded.
+Hi all,
 
-Okay, thanks.  I now know what the problem is.  We no longer probe OF to
-get the memory size.  What I'm going to do is to take one of the patches
-that has existed for a while now to put back the code needed so that we
-can still talk with OF, and we'll add in a test for that as well.  I
-hope to have time this week to do it.
+I was adminning one of my IDE hard drives the other day, taking an
+existing partition and slicing and dicing it a bit to break it out into a
+few partitions, and was slightly annoyed by something that has always been
+true in Linux (and in any OS really):  the need to completely unmount all
+partitions on a drive (getting the usecount for the entire device to 0) in
+order to successfully re-read the partition table.  In many cases if the
+drive also has the rootfs on it, this effectively means rebooting.
 
-Just curious, what bridge is in this machine (an output of lspci would
-do fine, too).  Thanks.
+Anyhow, in my quest to keep my uptime as high as possible, I was wondering
+how feasible it would be to make the BLKRRPART ioctl a little more
+flexible, so that in some cases a reboot wouldn't be required.
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Of course, if you modify a parition that is currently in use (ie: has a
+mounted fs), then a reboot would be necessary.  Also, if you insert new
+partitions in such a way that existing partitions would be 'renumbered',
+perhaps a reboot would still be necessary.
+
+However, consider the following case:
+
+1. You have a disk with some unused space at the end, say hda5.  Your
+    Rootfs is hda1, and your swapfs is hda2. (hda5 is not mounted.)
+
+2. You repartition hda5 into hda5 and hda6 (by splitting it in two).
+
+3. You would like the changes to take effect (meaning hda6 now points to a
+   real block device, and hda5 is now resized) immediately, without a
+   reboot.
+
+4. You issue the BLKRRPART ioctl. (well, not you, but, say, cfdisk or
+   fdisk does)
+
+5. The linux kernel groks the partition table, realizes that even though
+   hda has a usecount > 0, the partition table changes are ok, since
+   they don't cause any insanity.. so the kernel resizes hda5 in its data
+   structures, and registers hda6.  It returns 0 for success.
+
+6. Your uptime is not affected since you don't have to reboot.
+
+7. PROFIT!!!! :)
+
+
+Well, what do you guys think?  I am tempted to just hack the sources now
+to get this working for myself, but before I start I am afraid maybe the
+situation isn't quite so simple... or there might be something I am
+overlooking.  Can someone with more experience in the kernel share their
+thoughts on this?
+
+Thanks!
+
+-Calin
+
+
+
+

@@ -1,59 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284887AbRLFAPs>; Wed, 5 Dec 2001 19:15:48 -0500
+	id <S284842AbRLFAQT>; Wed, 5 Dec 2001 19:16:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284886AbRLFAP2>; Wed, 5 Dec 2001 19:15:28 -0500
-Received: from mail.xmailserver.org ([208.129.208.52]:526 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S284879AbRLFAPV>; Wed, 5 Dec 2001 19:15:21 -0500
-Date: Wed, 5 Dec 2001 16:26:21 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Mike Kravetz <kravetz@us.ibm.com>
-cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Scheduler Cleanup
-In-Reply-To: <20011205154618.B24407@w-mikek2.des.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.40.0112051619480.1644-100000@blue1.dev.mcafeelabs.com>
+	id <S284860AbRLFAQK>; Wed, 5 Dec 2001 19:16:10 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15624 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S284890AbRLFAP7>; Wed, 5 Dec 2001 19:15:59 -0500
+Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
+To: pavel@suse.cz (Pavel Machek)
+Date: Thu, 6 Dec 2001 00:20:49 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), akpm@zip.com.au (Andrew Morton),
+        davidel@xmailserver.org (Davide Libenzi),
+        lm@bitmover.com (Larry McVoy),
+        phillips@bonn-fries.net (Daniel Phillips),
+        hps@intermeta.de (Henning Schmiedehausen),
+        jgarzik@mandrakesoft.com (Jeff Garzik), linux-kernel@vger.kernel.org
+In-Reply-To: <20011204232240.A117@elf.ucw.cz> from "Pavel Machek" at Dec 04, 2001 11:22:41 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16BmHS-00089l-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Dec 2001, Mike Kravetz wrote:
+> that was just before 2.4 because that was when I got it... Don't flush
+> drivers too fast, please... If you kill drivers during 2.5, people
+> will not notice, and even interesting drivers will get killed. Killing
+> them during 2.6.2 might be better.
 
-> On Wed, Dec 05, 2001 at 03:44:42PM -0800, Davide Libenzi wrote:
-> > Anyway me too have verified an increased latency with sched_yield() test
-> > and next days I'm going to try the real one with the cycle counter
-> > sampler.
-> > I've a suspect, but i've to see the disassembly of schedule() before
-> > talking :)
->
-> One thing to note is that possible acquisition of the runqueue
-> lock was reintroduced in sys_sched_yield().  From looking at
-> the code, it seems the purpose was to ?add fairness? in the case
-> of multiple yielders.  Is that correct Ingo?
+They need to die before 2.6. I'm all for leaving the code present and the
+ability to select
 
-Yep, suppose you've three running tasks A, B and C ( in that order ) and
-suppose A and B are yield()ing.
-You get:
+	Expert
+		Drivers that need fixing
+			Clockwork scsi controller, windup mark 2
 
-A B A B A B A B A B A ...
+in 2.6 so that people do fix them
 
-until the priority of A or B drops, then C has a chance to execute.
-Since with the new counter decay code priority remains up until a sudden
-drop, why don't we decrease counter by K ( 1? ) for each sched_yield() call ?
-In this way we can easily avoid the above pattern in case of multiple
-yield()ers.
-
-
-
-PS: sched_yield() code is very important because it is used inside the
-pthread spinlock() wait path for a bunch of times before falling into
-usleep().
-
-
-
-- Davide
-
-
-
+Alan

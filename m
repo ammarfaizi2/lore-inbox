@@ -1,63 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316860AbSFVKgz>; Sat, 22 Jun 2002 06:36:55 -0400
+	id <S316792AbSFUU5n>; Fri, 21 Jun 2002 16:57:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316861AbSFVKgy>; Sat, 22 Jun 2002 06:36:54 -0400
-Received: from pD9E235A7.dip.t-dialin.net ([217.226.53.167]:45786 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S316860AbSFVKgx>; Sat, 22 Jun 2002 06:36:53 -0400
-Date: Sat, 22 Jun 2002 04:36:53 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [Q] change_parent() - would this work?
-Message-ID: <Pine.LNX.4.44.0206220435310.4307-100000@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316794AbSFUU5m>; Fri, 21 Jun 2002 16:57:42 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:18450 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id <S316792AbSFUU5l>;
+	Fri, 21 Jun 2002 16:57:41 -0400
+Date: Fri, 21 Jun 2002 22:57:41 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.24 doesn't compile on Alpha
+Message-ID: <20020621205741.GN24903@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20020621064835.GA13502@alpha.of.nowhere> <000301c2191e$5a4a3080$010b10ac@sbp.uptime.at> <20020621141957.GA22555@alpha.of.nowhere> <20020621192405.A749@jurassic.park.msu.ru> <20020621203726.GA2308@alpha.of.nowhere>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="YuJye9aIuN0w6xGV"
+Content-Disposition: inline
+In-Reply-To: <20020621203726.GA2308@alpha.of.nowhere>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux mail 2.4.18 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-My question is: would this work?
+--YuJye9aIuN0w6xGV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Index: thunder-2.5/include/linux/sched.h
-===================================================================
-RCS file: thunder-2.5/include/linux/sched.h,v
-retrieving revision 1.2
-diff -u -r1.2 thunder-2.5/include/linux/sched.h
---- thunder-2.5/include/linux/sched.h	22 Jun 2002 01:51:33 -0000	1.2
-+++ thunder-2.5/include/linux/sched.h	22 Jun 2002 10:33:57 -0000
-@@ -716,6 +716,7 @@
- 
- #define remove_parent(p)	list_del_init(&(p)->sibling)
- #define add_parent(p, parent)	list_add_tail(&(p)->sibling,&(parent)->children)
-+#define change_parent(p)	list_move_tail(&(p)->sibling,&(parent)->children)
- 
- #define REMOVE_LINKS(p) do {				\
- 	list_del_init(&(p)->tasks);			\
-Index: thunder-2.5/kernel/exit.c
-===================================================================
-RCS file: thunder-2.5/kernel/exit.c,v
-retrieving revision 1.1.1.1
-diff -u -r1.1.1.1 thunder-2.5/kernel/exit.c
---- thunder-2.5/kernel/exit.c	20 Jun 2002 22:53:49 -0000	1.1.1.1
-+++ thunder-2.5/kernel/exit.c	22 Jun 2002 10:33:57 -0000
-@@ -636,8 +636,7 @@
- 
- 				/* move to end of parent's list to avoid starvation */
- 				write_lock_irq(&tasklist_lock);
--				remove_parent(p);
--				add_parent(p, p->parent);
-+				change_parent(p, p->parent);
- 				write_unlock_irq(&tasklist_lock);
- 				retval = ru ? getrusage(p, RUSAGE_BOTH, ru) : 0; 
- 				if (!retval && stat_addr) 
+On Fri, 2002-06-21 22:37:26 +0200, Jurriaan on Alpha <thunder7@xs4all.nl>
+wrote in message <20020621203726.GA2308@alpha.of.nowhere>:
+> From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+> Date: Fri, Jun 21, 2002 at 07:24:05PM +0400
+> > On Fri, Jun 21, 2002 at 04:19:57PM +0200, Jurriaan on Alpha wrote:
+> > > I tried #define smp_num_cpus 1 in include/asm-alpha/smp.h (the non-smp
+> > > section) but the same line in include/asm/mmu_context.h works - for a
+> > > while.
+> >=20
+> > I'm running 2.5.24 on sx164 with following (unfinished - SMP is broken)
+> > patch.
+> >=20
+> This patchs helps a lot; now I get:
+> drivers/built-in.o(.data+0x37118): undefined reference to `local symbols =
+in discarded section .text.exit'
 
-							Regards,
-							Thunder
---
-"You must cut down the mighties tree in the forest with - a herring!"
-					-- chief of the knights who to
-					   recently said "NIH"
+I think this "bug" appears with some binutils some weeks/months old. Try
+to upgrade them.
 
+I'm not hitting this bug, but for me, ./arch/alpha/kernel/head.o isn't
+build (actually, there aren't any .o files in that directory), even if
+I try to explicitely compile head.o by 'make arch/alpha/kernel/head.o'.
+Any hints there?
+
+MfG, JBG
+
+--=20
+Jan-Benedict Glaw   .   jbglaw@lug-owl.de   .   +49-172-7608481
+	 -- New APT-Proxy written in shell script --
+	   http://lug-owl.de/~jbglaw/software/ap2/
+
+--YuJye9aIuN0w6xGV
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9E5NEHb1edYOZ4bsRAuRtAJwKAfswcyPJmmVtS+bHkELwcoNK7QCfaAg4
+8KBSeabnV4buYbGAAxL4OKI=
+=GvgV
+-----END PGP SIGNATURE-----
+
+--YuJye9aIuN0w6xGV--

@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280392AbRJaSbc>; Wed, 31 Oct 2001 13:31:32 -0500
+	id <S280398AbRJaSdm>; Wed, 31 Oct 2001 13:33:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280393AbRJaSbW>; Wed, 31 Oct 2001 13:31:22 -0500
-Received: from ns.caldera.de ([212.34.180.1]:45464 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S280392AbRJaSbQ>;
-	Wed, 31 Oct 2001 13:31:16 -0500
-Date: Wed, 31 Oct 2001 19:31:48 +0100
-From: Christoph Hellwig <hch@caldera.de>
-To: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        torvalds@transmeta.com
-Subject: Re: [PATCH] init/main.c/root_dev_names - another one #ifdef
-Message-ID: <20011031193148.A12919@caldera.de>
-Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
-	linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	torvalds@transmeta.com
-In-Reply-To: <20011030182810.B800@lynx.no> <200110311728.f9VHSE207521@ns.caldera.de> <20011031112055.D16554@lynx.no>
+	id <S280400AbRJaSdd>; Wed, 31 Oct 2001 13:33:33 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:63108 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S280398AbRJaSd0>;
+	Wed, 31 Oct 2001 13:33:26 -0500
+Date: Wed, 31 Oct 2001 10:32:41 -0800 (PST)
+Message-Id: <20011031.103241.45747017.davem@redhat.com>
+To: alex.buell@tahallah.demon.co.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [sparc] Weird ioctl() bug in 2.2.19 (fwd)
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0110311827530.19987-100000@tahallah.demon.co.uk>
+In-Reply-To: <20011031.092954.115906622.davem@redhat.com>
+	<Pine.LNX.4.33.0110311827530.19987-100000@tahallah.demon.co.uk>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011031112055.D16554@lynx.no>; from adilger@turbolabs.com on Wed, Oct 31, 2001 at 11:20:55AM -0700
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 31, 2001 at 11:20:55AM -0700, Andreas Dilger wrote:
-> This seems kind of ugly - an array holding each device name?  The patch
-> I have rather puts a function to generate the device names when needed
-> (which is probably not very often, unless GFS does something wierd).
+   From: Alex Buell <alex.buell@tahallah.demon.co.uk>
+   Date: Wed, 31 Oct 2001 18:28:28 +0000 (GMT)
 
-*nod*
+   On Wed, 31 Oct 2001, David S. Miller wrote:
+   
+   >   cp src/linux/include/linux/soundcard.h /usr/include/linux/soundcard.h
+   
+   Unfortunately, these files are identical, which is why it is so strange!
 
-> I take it your patch is only the "bare bones" part which shows what is
-> changed?
+I'm pretty sure the ioctl numbers are wrong, and that is what
+is causing the problem.
 
-Well, it's a patch that tries to be not intrusive, it just crates the hooks
-the two blockdevice drivers in the OpenGFS tree can use.
+Print out from your app the ioctl number it uses (you've done
+this already) and have the kernel do similar.  If they are different
+you know that at least I was on the right track.
 
-	Christoph
+It's easy to figure out some value in the kernel without even
+rebooting, just add to like some source file:
 
--- 
-Of course it doesn't work. We've performed a software upgrade.
+int foo = IOCTL_VALUE_I_WANT;
+
+Then do "make drivers/sbus/audio/whatever.s"
+and look at the assembler file for the value it
+ended up using :-)
+
+Franks a lot,
+David S. Miller
+davem@redhat.com

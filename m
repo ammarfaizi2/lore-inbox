@@ -1,110 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261851AbUCLABe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 19:01:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261854AbUCLABe
+	id S261860AbUCLACY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 19:02:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261865AbUCLACY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 19:01:34 -0500
-Received: from dp.samba.org ([66.70.73.150]:46742 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S261851AbUCLAB3 (ORCPT
+	Thu, 11 Mar 2004 19:02:24 -0500
+Received: from mail.kroah.org ([65.200.24.183]:17847 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261860AbUCLACR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 19:01:29 -0500
-Date: Fri, 12 Mar 2004 10:56:35 +1100
-From: Anton Blanchard <anton@samba.org>
-To: torvalds@osdl.org
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] fix ppc64 in kernel syscalls
-Message-ID: <20040311235635.GF16751@krispykreme>
+	Thu, 11 Mar 2004 19:02:17 -0500
+Date: Thu, 11 Mar 2004 15:55:43 -0800
+From: Greg KH <greg@kroah.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, "James H. Cloos Jr." <cloos@jhcloos.com>
+Subject: Re: evbug.ko
+Message-ID: <20040311235543.GA26269@kroah.com>
+References: <m3n06x4o0q.fsf@lugabout.jhcloos.org> <200403042238.13924.dtor_core@ameritech.net> <20040308213241.GE16396@kroah.com> <200403100138.41453.dtor_core@ameritech.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <200403100138.41453.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Mar 10, 2004 at 01:38:36AM -0500, Dmitry Torokhov wrote:
+> On Monday 08 March 2004 04:32 pm, Greg KH wrote:
+> > On Thu, Mar 04, 2004 at 10:38:13PM -0500, Dmitry Torokhov wrote:
+> > > On Wednesday 03 March 2004 04:30 pm, James H. Cloos Jr. wrote:
+> > > > Any idea what might modprobe evbug.ko w/o operator intervention?
+> > > > 
+> > > 
+> > > It's new hotplug scripts. Put modules you do not want to be automatically
+> > > loaded even if they think they have hardware/facilities to bind to into
+> > > /etc/hotplug/blacklist
+> > > 
+> > > I, for example, have evbug, joydev, tsdev and eth1394 there.
+> > > 
+> > > Greg, any chance adding evbug to the default version of hotplug package?
+> > 
+> > Care to send me a patch for it?
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> > 
+> 
+> Ok, here it is, against today's CVS..
 
-Hi,
+Applied, thanks.
 
-Thanks to some great debugging work by Olaf Hering and Marcus Meissner
-it has been noticed that the current ppc64 syscall code is corrupting
-4 bytes past errno. Why we even bothered to set errno beats me, its
-unusable in the kernel.
-
-Since we had to reinstate the inline syscall code we can go back to
-using it for those few syscalls that we call. Especially now with 
-Randy's syscall prototype cleanup we should be calling them directly
-but we can do that sometime later.
-
-Anton
-
-===== arch/ppc64/kernel/misc.S 1.76 vs edited =====
---- 1.76/arch/ppc64/kernel/misc.S	Mon Mar  1 13:24:56 2004
-+++ edited/arch/ppc64/kernel/misc.S	Fri Mar 12 10:08:58 2004
-@@ -565,35 +565,6 @@
- 	ld	r30,-16(r1)
- 	blr
- 
--	.section	".toc","aw"
--.SYSCALL_ERRNO:
--	.tc errno[TC],errno
--
--	.section	".text"
--	.align 3
--	
--#define SYSCALL(name) \
--_GLOBAL(name) \
--	li	r0,__NR_##name; \
--	sc; \
--	bnslr; \
--	ld	r4,.SYSCALL_ERRNO@toc(2); \
--	std	r3,0(r4); \
--	li	r3,-1; \
--	blr
--
--#define __NR__exit __NR_exit
--
--SYSCALL(setsid)
--SYSCALL(open)
--SYSCALL(read)
--SYSCALL(write)
--SYSCALL(lseek)
--SYSCALL(close)
--SYSCALL(dup)
--SYSCALL(execve)
--SYSCALL(waitpid)
--
- #ifdef CONFIG_PPC_ISERIES	/* hack hack hack */
- #define ppc_rtas	sys_ni_syscall
- #endif
-===== include/asm-ppc64/unistd.h 1.28 vs edited =====
---- 1.28/include/asm-ppc64/unistd.h	Thu Feb 26 16:42:07 2004
-+++ edited/include/asm-ppc64/unistd.h	Fri Mar 12 10:20:24 2004
-@@ -399,15 +399,19 @@
- /*
-  * System call prototypes.
-  */
--extern pid_t setsid(void);
--extern int write(int fd, const char *buf, off_t count);
--extern int read(int fd, char *buf, off_t count);
--extern off_t lseek(int fd, off_t offset, int count);
--extern int dup(int fd);
--extern int execve(const char *file, char **argv, char **envp);
--extern int open(const char *file, int flag, int mode);
--extern int close(int fd);
--extern pid_t waitpid(pid_t pid, int *wait_stat, int options);
-+static inline _syscall3(int, execve, __const__ char *, file, char **, argv,
-+			char **,envp)
-+static inline _syscall3(int, open, __const__ char *, file, int, flag, int, mode)
-+static inline _syscall1(int, close, int, fd)
-+static inline _syscall1(int, dup, int, fd)
-+static inline _syscall3(int, read, int, fd, char *, buf , off_t, count)
-+static inline _syscall3(int, write, int, fd, __const__ char *, buf, off_t,
-+			count)
-+static inline _syscall0(pid_t, setsid)
-+static inline _syscall3(off_t, lseek, int, fd, off_t, offset, int, count)
-+static inline _syscall3(pid_t, waitpid, pid_t, pid, int *, wait_stat, int,
-+			options)
-+
- #endif /* __KERNEL_SYSCALLS__ */
- 
- asmlinkage unsigned long sys_mmap(unsigned long addr, size_t len,
+greg k-h

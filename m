@@ -1,48 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S135181AbQK0ApN>; Sun, 26 Nov 2000 19:45:13 -0500
+        id <S135214AbQK0Aqx>; Sun, 26 Nov 2000 19:46:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132202AbQK0ApD>; Sun, 26 Nov 2000 19:45:03 -0500
-Received: from oracle.clara.net ([195.8.69.94]:5132 "EHLO oracle.clara.net")
-        by vger.kernel.org with ESMTP id <S135179AbQK0Aos>;
-        Sun, 26 Nov 2000 19:44:48 -0500
-From: "Phil Randal" <phil@rebee.clara.co.uk>
-To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-Date: Mon, 27 Nov 2000 00:14:47 -0000
+        id <S135215AbQK0Aqn>; Sun, 26 Nov 2000 19:46:43 -0500
+Received: from nifty.blue-labs.org ([208.179.0.193]:55408 "EHLO
+        nifty.Blue-Labs.org") by vger.kernel.org with ESMTP
+        id <S135214AbQK0Aqb>; Sun, 26 Nov 2000 19:46:31 -0500
+Message-ID: <3A21A7D9.9CE7077B@linux.com>
+Date: Sun, 26 Nov 2000 16:16:26 -0800
+From: David Ford <david@linux.com>
+Organization: Blue Labs
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: problem with hp C1537A tape drives
-CC: <linux-kernel@vger.kernel.org>
-Message-ID: <3A21A777.4647.14F4E60@localhost>
-In-Reply-To: <Pine.LNX.4.30.0011261900130.892-100000@rossi.itg.ie>
-In-Reply-To: <Pine.LNX.4.30.0011261508340.3007-100000@filesrv1.baby-dragons.com>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] modutils 2.3.20 and beyond
+In-Reply-To: <20001126163655.A1637@vger.timpanogas.org> <E140AZB-0002Qh-00@the-village.bc.nu> <20001126164556.B1665@vger.timpanogas.org> <3A21968B.5CDB12BF@haque.net> <20001126170334.B1787@vger.timpanogas.org>
+Content-Type: multipart/mixed;
+ boundary="------------2E94DA9F219E10186317B6B1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------2E94DA9F219E10186317B6B1
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-> 	Hello Paul & Phil ,  Ouch !,  is this media that loose on the
-> 	substrate that it leaves that much behind ?  Or is it something
-> 	else ?  I'd really like to know what the problem is  ,  as I am
-> 	seriously looking at putting DDS-III & IV 's into my backup
-> 	schemes .  Tia ,  JimL
+"Jeff V. Merkey" wrote:
 
-Apparently yes - the Compaq manual says that new tapes shed a 
-lot, and that cleaning has to be more frequent with them.  They
-recommend (this is from memory) cleaning the tape drive after
-just 6 hours use of a new tape, then less frequently thereafter.
+> On Sun, Nov 26, 2000 at 06:02:35PM -0500, Mohammad A. Haque wrote:
+> > I'd rather have Anaconda changed rather than special casing standard
+> > utils to account for distro handling.
+>
+> Great.  Then tell RedHat to rewrite it without the need for these switches.
+> They will say NO.  It's a trivial change, and would save me a lot of hours
+> rewriting scripts.  I did it once, but if RedHat has standardized on this
+> set of switches, why not add them as alias commands?  It's a trivial
+> patch.
 
-I figured after reading the manual that a weekly clean should
-normally suffice.
+Then let RedHat maintain their version of modutils.  RedHat isn't the
+standard, nor should RedHat dictate to authors, nor should other distributions
+and persons be affected by RedHat's methods.
 
-Phil
+If you don't like it, replace your depmod with a script that strips that flag
+before calling the original depmod.
+
+-d
 
 
-Phil
---------------------------------------------------------------------
-Phil Randal                           Home: phil@rebee.clara.co.uk
-Worcester, UK                               http://www.rebee.clara.net
+--------------2E94DA9F219E10186317B6B1
+Content-Type: text/x-vcard; charset=us-ascii;
+ name="david.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Description: Card for David Ford
+Content-Disposition: attachment;
+ filename="david.vcf"
+
+begin:vcard 
+n:Ford;David
+x-mozilla-html:TRUE
+adr:;;;;;;
+version:2.1
+email;internet:david@kalifornia.com
+title:Blue Labs Developer
+x-mozilla-cpt:;14688
+fn:David Ford
+end:vcard
+
+--------------2E94DA9F219E10186317B6B1--
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314505AbSESP5v>; Sun, 19 May 2002 11:57:51 -0400
+	id <S314529AbSESP7B>; Sun, 19 May 2002 11:59:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314512AbSESP5t>; Sun, 19 May 2002 11:57:49 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:34322 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S314505AbSESP5V>; Sun, 19 May 2002 11:57:21 -0400
-Date: Sun, 19 May 2002 17:57:14 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: David Eduardo Gomez Noguera <davidgn@servidor.unam.mx>
-Cc: kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with swap partition.
-Message-ID: <20020519155714.GA25044@louise.pinerecords.com>
-In-Reply-To: <1021824299.2430.7.camel@hikaru>
+	id <S314556AbSESP67>; Sun, 19 May 2002 11:58:59 -0400
+Received: from ns.suse.de ([213.95.15.193]:49423 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S314529AbSESP6i>;
+	Sun, 19 May 2002 11:58:38 -0400
+Date: Sun, 19 May 2002 17:58:38 +0200
+From: Dave Jones <davej@suse.de>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: nVidia NIC/IDE/something support?
+Message-ID: <20020519175838.I15417@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <200205191514.g4JFEsV13608@mail.pronto.tv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.99i
-X-OS: Linux/sparc 2.2.21-rc4-ext3-0.0.7a SMP (up 3 days, 9:15)
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Disk /dev/hdc: 16 heads, 63 sectors, 77545 cylinders
-> 
-> Nr AF  Hd Sec  Cyl  Hd Sec  Cyl    Start     Size ID
->  1 00   1   1    0  15  63   65       63    66465 83
->  2 00   0   1   66  15  63 1023    66528 77952672 83
->  3 00  15  63 1023  15  63 1023 78019200   146160 82
->  4 00   0   0    0   0   0    0        0        0 00
-> 
-> The 3'rd partition is a Linux Swap,
-> /dev/hdc3         77401     77545     73080   82  Linux swap
-> 
-> but swapon -a gives
-> swapon: /dev/hdc5: Invalid argument
+On Sun, May 19, 2002 at 05:14:54PM +0200, Roy Sigurd Karlsbakk wrote:
+ > I just bought this Asus board, A7N266-VM, with nVidia IDE, LAN and god knows 
+ > chipset. Linux doesn't understand it, and I really want it... Any plans of 
+ > supporting this? See below for /proc/pci output.
 
+It's an nForce chipset. To the best of my knowledge, there are no
+public specs for this beast, so your only hope is probably to bug
+nVidia.
 
-$ vi /etc/fstab
-(change 'hdc5' to 'hdc3'.)
-$ mkswap /dev/hdc3 && swapon -a
-
-and then please
-$ man 5 fstab
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

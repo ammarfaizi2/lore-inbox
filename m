@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290673AbSARK7G>; Fri, 18 Jan 2002 05:59:06 -0500
+	id <S290669AbSARK5d>; Fri, 18 Jan 2002 05:57:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290663AbSARK6u>; Fri, 18 Jan 2002 05:58:50 -0500
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:3592 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S290668AbSARK5c>; Fri, 18 Jan 2002 05:57:32 -0500
-Date: Fri, 18 Jan 2002 10:57:24 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Thomas Hood <jdthood@mail.com>
+	id <S290664AbSARK5X>; Fri, 18 Jan 2002 05:57:23 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:40337 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S290668AbSARK5N>;
+	Fri, 18 Jan 2002 05:57:13 -0500
+Date: Fri, 18 Jan 2002 02:55:54 -0800 (PST)
+Message-Id: <20020118.025554.133432828.davem@redhat.com>
+To: fabien.ribes@cgey.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Combined APM patch
-Message-ID: <20020118105724.A31497@flint.arm.linux.org.uk>
-In-Reply-To: <1010762545.788.2.camel@thanatos> <20020111154016.D31366@flint.arm.linux.org.uk> <1011350629.1275.15.camel@thanatos>
+Subject: Re: Oops in sock_poll
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3C47E46C.2E322EC6@cgey.com>
+In-Reply-To: <3C470105.ED9DDCE@cgey.com>
+	<20020117.131224.108809922.davem@redhat.com>
+	<3C47E46C.2E322EC6@cgey.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1011350629.1275.15.camel@thanatos>; from jdthood@mail.com on Fri, Jan 18, 2002 at 05:43:48AM -0500
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 18, 2002 at 05:43:48AM -0500, Thomas Hood wrote:
-> On Fri, 2002-01-11 at 10:40, Russell King wrote:
-> > On Fri, Jan 11, 2002 at 10:22:24AM -0500, Thomas Hood wrote:
-> > > if someone later wants to modify the code to make
-> > > this variable non-static, the comment tells that person that
-> > > the variable will need an initializer.
-> > 
-> > Whether a variable is static or not doesn't change whether it ends up in
-> > the bss segment or not.
-> 
-> It does make a difference if the variable definitions are inside
-> a function; the non-static variable is on the stack and is not
-> initialized to zero.
+   From: Fabien Ribes <fabien.ribes@cgey.com>
+   Date: Fri, 18 Jan 2002 09:01:32 +0000
 
-I should really ignore this mail, but, sigh.
+   "David S. Miller" wrote:
+   > 
+   > Can you reproduce this with a more recent kernel?  Anything
+   > >=2.4.9 (this includes all Red Hat errata kernels therefore)
+   > would be sufficient.
 
-I know this.  I was commenting on your code and the comment you made which,
-in the context you were applying it, wasn't correct.
+   The kernel used is customized in many ways, it is a long work to upgrade
 
-Hope this clears up the confusion.
-
-> I understand that every static or top-level global variable
-> is initialized to zero; but is it not useful to note when
-> the code _relies upon_ this zero-initialization?  
-
-Of course, I'm not disputing that.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Then I can't help you... there have probably been many
+networking bugs fixed since 2.4.9

@@ -1,77 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266911AbUBSIHV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 03:07:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266953AbUBSIHV
+	id S266953AbUBSIKh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 03:10:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267033AbUBSIKh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 03:07:21 -0500
-Received: from b075150.adsl.hansenet.de ([62.109.75.150]:23183 "EHLO
-	sfhq.hn.org") by vger.kernel.org with ESMTP id S266911AbUBSIHT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 03:07:19 -0500
-Message-ID: <40346EAD.5010403@portrix.net>
-Date: Thu, 19 Feb 2004 09:07:09 +0100
-From: Jan Dittmer <j.dittmer@portrix.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?UTF-8?B?77+9?= <leandro@dutra.fastmail.fm>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ext3 on raid5 failure
-References: <400A5FAA.5030504@portrix.net> <20040118180232.GD1748@srv-lnx2600.matchmail.com> <20040119153005.GA9261@thunk.org> <pan.2004.02.19.02.32.37.90698@dutra.fastmail.fm>
-In-Reply-To: <pan.2004.02.19.02.32.37.90698@dutra.fastmail.fm>
-X-Enigmail-Version: 0.82.4.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigD46A14152414480784897B1D"
-Content-Transfer-Encoding: 8bit
+	Thu, 19 Feb 2004 03:10:37 -0500
+Received: from mail.shareable.org ([81.29.64.88]:1414 "EHLO mail.shareable.org")
+	by vger.kernel.org with ESMTP id S266953AbUBSIKe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 03:10:34 -0500
+Date: Thu, 19 Feb 2004 08:10:27 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: tridge@samba.org, "H. Peter Anvin" <hpa@zytor.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: UTF-8 and case-insensitivity
+Message-ID: <20040219081027.GB4113@mail.shareable.org>
+References: <Pine.LNX.4.58.0402171859570.2686@home.osdl.org> <4032D893.9050508@zytor.com> <Pine.LNX.4.58.0402171919240.2686@home.osdl.org> <16435.55700.600584.756009@samba.org> <Pine.LNX.4.58.0402181422180.2686@home.osdl.org> <Pine.LNX.4.58.0402181427230.2686@home.osdl.org> <16435.60448.70856.791580@samba.org> <Pine.LNX.4.58.0402181457470.18038@home.osdl.org> <16435.61622.732939.135127@samba.org> <Pine.LNX.4.58.0402181511420.18038@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0402181511420.18038@home.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigD46A14152414480784897B1D
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-
-Leandro Guimarães Faria Corsetti Dutra wrote:
-> On Mon, 19 Jan 2004 10:30:05 -0500, Theodore Ts'o wrote:
+Linus Torvalds wrote:
+> >  > Why do you focus on linear directory scans?
+> > 
+> > Because a large number of file operations are on filenames that don't
+> > exist. I have to *prove* they don't exist.
 > 
+> And you only need to do that ONCE per name.
 > 
->>>On Sun, Jan 18, 2004 at 11:27:54AM +0100, Jan Dittmer wrote:
->>>
->>>>EXT3-fs error (device dm-1): ext3_readdir: bad entry in directory
->>>>#9783034: rec_len % 4 != 0 - offset=0, inode=1846971784,
->>>>rec_len=33046, name_len=154
->>>>Aborting journal on device dm-1.
->>>>ext3_abort called.
->>>>EXT3-fs abort (device dm-1): ext3_journal_start: Detected aborted
->>>>journal Remounting filesystem read-only
-> 
-> 
-> 	Has this been resolved?  I have a machine due to enter production, am
-> considering going back to 2.4 if there is no further information.
-> 
-> 
+> There is zero reason to do it over and over again, and there is zero 
+> reason to push case insensitivity deep into the filesystem.
 
-I haven't tried it with 2.6 since this incident. But considering that 
-the machine in question crashed a couple of times afterwards, it may 
-well be, that a hardware fault caused this initially. But I simply don't 
-dare to put 2.6 again on this machine as I've no real backup of most of 
-the data, and restoring some 100 gb from cds is really annoying.
+Linus, while I agree with you wholeheartedly on everything else in
+this thread - how can Samba only do that lookup ONCE per name if a
+client is issuing many requests for non-existent opens or stats?
 
-Jan
+Example: A client has a search path for executables or libraries.
 
---------------enigD46A14152414480784897B1D
-Content-Type: application/pgp-signature
+Each time SomeThing.DLL is looked up by the client, it will issue an
+open() for each entry in the path, until it finds the file it wants.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+For each request, Samba must readdir() every directory in the path
+until the file is found.
 
-iD8DBQFANG6zLqMJRclVKIYRAiBIAJ46FIewccuvhxjKye92kAGKfNLwzwCeIphM
-A4Is3lIqzFWDGzWjcl+I67Y=
-=6zme
------END PGP SIGNATURE-----
+If a directory doesn't change between requests, Samba can use dnotify
+to cache the negative lookups.
 
---------------enigD46A14152414480784897B1D--
+However, if any change occurs in a directory, or if the directory is
+not dnotify-capable, Samba is not allowed to cache these negative
+results: It has to do the readdir() for _every_ request.
+
+-- Jamie

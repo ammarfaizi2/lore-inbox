@@ -1,67 +1,169 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265654AbSJXUcl>; Thu, 24 Oct 2002 16:32:41 -0400
+	id <S265636AbSJXUgv>; Thu, 24 Oct 2002 16:36:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265653AbSJXUck>; Thu, 24 Oct 2002 16:32:40 -0400
-Received: from port326.ds1-brh.adsl.cybercity.dk ([217.157.160.207]:51512 "EHLO
-	mail.jaquet.dk") by vger.kernel.org with ESMTP id <S265652AbSJXUcj>;
-	Thu, 24 Oct 2002 16:32:39 -0400
-Date: Thu, 24 Oct 2002 22:38:47 +0200
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] CONFIG_TINY
-Message-ID: <20021024223847.C18085@jaquet.dk>
-References: <20021023215117.A29134@jaquet.dk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="JWEK1jqKZ6MHAcjA"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021023215117.A29134@jaquet.dk>; from rasmus@jaquet.dk on Wed, Oct 23, 2002 at 09:51:17PM +0200
-X-PGP-Key: http://www.jaquet.dk/rasmus/pubkey.asc
-X-PGP-Fingerprint: 925A 8E4B 6D63 1C22 BFB9  29CF 9592 4049 9E9E 26CE
+	id <S265647AbSJXUgv>; Thu, 24 Oct 2002 16:36:51 -0400
+Received: from fw-az.mvista.com ([65.200.49.158]:54255 "EHLO
+	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
+	id <S265636AbSJXUgl>; Thu, 24 Oct 2002 16:36:41 -0400
+Message-ID: <3DB85BFC.2080009@mvista.com>
+Date: Thu, 24 Oct 2002 13:45:48 -0700
+From: Steven Dake <sdake@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: James Bottomley <James.Bottomley@steeleye.com>
+CC: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [RFC] Advanced TCA SCSI Disk Hotswap
+References: <200210242002.g9OK27W03864@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+James
+Some responses below:
 
---JWEK1jqKZ6MHAcjA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+James Bottomley wrote:
 
-On Wed, Oct 23, 2002 at 09:51:17PM +0200, Rasmus Andersen wrote:
-> printk: So far I have defined {i,d,n,w}prink corresponding to
-> KERN_ {INFO,DEBUG,NOTICE,WARNING} and have converted files to
-> use this. Higher levels are left untouched.
->=20
-[...]
->=20
->    text    data     bss     dec     hex filename
->  478109   50337  254560  783006   bf29e vmlinux   (woo! :)
->=20
-> (Patch at www.jaquet.dk/kernel/config_tiny/2.5.43-printk)
+>sdake@mvista.com said:
+>  
+>
+>>I plan to produce a now patch that dumps the filesystem interface and
+>>replaces it with driverfs files in /sys/bus/scsi.  These things take
+>>time, but I hope to be  finished by October 25th. 
+>>    
+>>
+>
+>OK, that's good, thanks.
+>
+>  
+>
+>>The current remove interface is unmaintained, doesn't contain locking,
+>> and requires laborious string processing resulting in slow results.
+>>    
+>>
+>
+>It is maintained (well, I was planning on looking after it).  The locking can 
+>be added (the 1st part of your patch).  It does two in kernel strncmps.  
+>That's not really slow by most definitions.
+>  
+>
+The locking most definately needs to be added to the kernel.  I'm 
+surprised the original
+patch didn't contain any locking, but then again, my first patch didn't 
+either :)
 
-Memo to me: Dont use the kernel compiled to check #define
-correctness for enabling printk output to measure the kernel
-size when prinkt is disabled. New, better kernel size:
+>  
+>
+>>Further there is  no usage information (which means the usage must
+>>come by looking at  drivers/scsi/scsi.c which is beyond most typical
+>>users).
+>>    
+>>
+>
+>I don't really think it's the job of the kernel to conatin usage information.  
+>That's the job of the user level documentation.
+>  
+>
+I've gotten mixed feedback on this.  I'll add you to the list that 
+doesn't like this.
 
-   text    data     bss     dec     hex filename
- 475629   50913  252512  779054   be32e vmlinux
+perhaps it should be removed (even though it takes up minimal memory).
 
+>  
+>
+>>Imagine scanning each disk in driverfs looking at its WWN attribute
+>>(if  it has one) until a match is found.  Assume there are 16 FC
+>>devices.  That is  several hundred syscalls just to complete one
+>>hotswap operation. 
+>>    
+>>
+>
+>Why is speed so important?
+>  
+>
+Telecoms and Datacoms have told me in numerous conversations that a hotswap
+operation should occur in 20msec.  I've arbitrarily set 10msec as my 
+target to
+ensure that I meet the worse-case bus-is-loaded responses during scans, etc.
 
-Regards,=20
-  Rasmus
+I can't mention the names of the telecoms, but several with 10000+ employees
+have mentioned it.
 
---JWEK1jqKZ6MHAcjA
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+>  
+>
+>>This requires the adaptor to maintain a mapping of WWNs to SCSI IDs,
+>>however, this is already required by most FibreChannel firmware I've
+>>seen (and hence is available  in the driver database already). 
+>>    
+>>
+>
+>There will be a point where for a large number of drivers, a linear scan even 
+>in the kernel will be slower than a good DB lookup in userspace.
+>  
+>
+This may be true, but most systems will only have at most 4-5 devices. 
+ Theres only
+so much room on PCI for FC devices :)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
+>  
+>
+>>Hotplugs on FibreChannel don't trigger "events".  What they can do is
+>>LIP (loop initialization procedure) if the device has been configured
+>>in it's SCSI code pages to  do such a thing.  Since this is device
+>>specific I'd hate to rely on it for hotswap. 
+>>    
+>>
+>
+>They don't now, but they should.  The LIP protocol makes the FC driver aware 
+>of the gain or loss of devices.  This should be communicated to the mid-layer 
+>and then trigger a hotplug event.  Someone needs to write this, I was just 
+>wondering if you might.
+>  
+>
+I like the idea and it was something I was considering for early next 
+year.  Its driver
+dependent and until a FC driver is in the kernel, theres not much point 
+yet :)
 
-iD8DBQE9uFpWlZJASZ6eJs4RAi+aAJ0VcnNKP6U1tcxsZ9jEbD8heun8wgCeMuj9
-1s5NVFozvidCgpUYen1JCkE=
-=V4x5
------END PGP SIGNATURE-----
+Keep in mind also that a LIP is not always generated on an insertion and 
+isn't generated
+on a removal at all.  This makes insertion easy but removal still 
+requires user intervention.
 
---JWEK1jqKZ6MHAcjA--
+In Advanced TCA (what spawned this work) a button is pressed to indicate 
+hotswap removal
+which makes for easy detection of hotswap events.  This is why there are 
+kernel interfaces
+for removal and insertion (so a kernel driver can be written to detect 
+the button press
+and remove the devices from the os data structures and then light a blue 
+led indicating
+safe for removal).
+
+>  
+>
+>>I think this would be too slow.  10 msec for my entire hotswap is
+>>available.  If you calculate 2msec for the actual hotswap disk
+>>operation, that leaves 8 msec for the rest of the mess.  Scanning
+>>through tables or scanning tens or hundreds of files through hundreds
+>>of  syscalls may betoo slow. 
+>>    
+>>
+>
+>Where does the 10ms figure come from?
+>  
+>
+See above
+
+Thanks James for reading the code and giving comments!
+
+>James
+>
+>
+>
+>
+>  
+>
+

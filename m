@@ -1,19 +1,20 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280818AbRKOM52>; Thu, 15 Nov 2001 07:57:28 -0500
+	id <S280821AbRKONG7>; Thu, 15 Nov 2001 08:06:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280819AbRKOM5S>; Thu, 15 Nov 2001 07:57:18 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:25231 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S280818AbRKOM5F>;
-	Thu, 15 Nov 2001 07:57:05 -0500
-Date: Thu, 15 Nov 2001 04:55:35 -0800 (PST)
-Message-Id: <20011115.045535.99284023.davem@redhat.com>
-To: viro@math.psu.edu
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [CFT][PATCH] pci/proc.c cleanup
+	id <S280820AbRKONGj>; Thu, 15 Nov 2001 08:06:39 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:31887 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S280821AbRKONGd>;
+	Thu, 15 Nov 2001 08:06:33 -0500
+Date: Thu, 15 Nov 2001 05:04:22 -0800 (PST)
+Message-Id: <20011115.050422.22124595.davem@redhat.com>
+To: mmark@koala.ichpw.zabrze.pl
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: What Athlon chipset is most stable in Linux?
 From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.GSO.4.21.0111150100500.2244-100000@weyl.math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0111150100500.2244-100000@weyl.math.psu.edu>
+In-Reply-To: <200111151258.fAFCweo02291@koala.ichpw.zabrze.pl>
+In-Reply-To: <E163xe2-0004IM-00@the-village.bc.nu>
+	<200111151258.fAFCweo02291@koala.ichpw.zabrze.pl>
 X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
@@ -21,18 +22,15 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Alexander Viro <viro@math.psu.edu>
-   Date: Thu, 15 Nov 2001 01:01:45 -0500 (EST)
+   From: "Marek Mentel" <mmark@koala.ichpw.zabrze.pl>
+   Date: Thu, 15 Nov 2001 14:57:31 -0500 (EST)
    
-   	It works here and applies both to 2.4.15-pre* and 2.4.13-ac*.
-   Please, test - it's pretty straightforward and if there is no complaints
-   I'm submitting that for inclusion into the tree.
+   Is Matrox G200 on this list ( or where can I find this  document ? )
+   I am not addicted to Q3  :) , but testing my DRI configuration
+   Q3 locks my system in 2-3   min after game start   . 
 
-I like this patch but I would change one thing.
+Ask AMD, they won't tell us...
 
-"start,next,stop" sound like global kernel helper functions, not PCI
-SEQ specific helpers, why not name them pci_seq_start et al. instead?
+My rule has been, if AGP usage makes it hang under Linux it must be on
+their list.  Does this answer your question? :-)
 
-That pci_devices list does need locking, particularly with the PCI hot
-plug stuff in the tree now.  But PCMCIA could already change the list
-after boot too if I'm not mistaken.

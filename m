@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289169AbSAGLMA>; Mon, 7 Jan 2002 06:12:00 -0500
+	id <S289175AbSAGLPA>; Mon, 7 Jan 2002 06:15:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289175AbSAGLLu>; Mon, 7 Jan 2002 06:11:50 -0500
-Received: from [213.140.14.139] ([213.140.14.139]:39296 "HELO
-	markolaptop.markoer.net") by vger.kernel.org with SMTP
-	id <S289169AbSAGLLg>; Mon, 7 Jan 2002 06:11:36 -0500
-Date: Mon, 7 Jan 2002 12:11:26 +0100
-From: Marco Ermini <markoer@firenze.linux.it>
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-Cc: werner.lx@verizon.net, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Re: Framebuffer...Why oh Why???
-Message-Id: <20020107121126.1e4d5594.markoer@firenze.linux.it>
-In-Reply-To: <Pine.LNX.4.33.0201070835400.18265-100000@netfinity.realnet.co.sz>
-In-Reply-To: <Pine.LNX.4.33.0201070835400.18265-100000@netfinity.realnet.co.sz>
-X-Mailer: Sylpheed version 0.6.6claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +"Lyz`Yqn/[+nPre_'A|Svg7k)orL^8-Ry6&@(Al;#ibq)H/"{g<eE,VkFB2lW_"!['Y0;c n~/~.$Y~(MLz'=#v;V9OuYhg9QH:`M5xNTS-V[7~`{M&wQKq#27w,_kNPxyF__Ppk\`h)-9
+	id <S289174AbSAGLOv>; Mon, 7 Jan 2002 06:14:51 -0500
+Received: from mail.merconic.com ([62.96.220.180]:24764 "HELO
+	mail.merconic.com") by vger.kernel.org with SMTP id <S289175AbSAGLOa>;
+	Mon, 7 Jan 2002 06:14:30 -0500
+Date: Mon, 7 Jan 2002 12:14:24 +0100
+From: "marc. h." <heckmann@hbe.ca>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cerberus on 2.4.17-rc2 UP
+Message-ID: <20020107121423.A4345@hbe.ca>
+In-Reply-To: <20011220135904.B32516@hbe.ca> <Pine.LNX.4.21.0112211454140.7313-100000@freak.distro.conectiva>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- boundary="=.rg+eTBboaE3DKQ"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0112211454140.7313-100000@freak.distro.conectiva>; from marcelo@conectiva.com.br on Fri, Dec 21, 2001 at 02:56:34PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.rg+eTBboaE3DKQ
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-
-On Mon, 7 Jan 2002 08:36:59 +0200 (SAST), Zwane Mwaikambo
-<zwane@linux.realnet.co.sz> wrote:
-
-> Do you have CONFIG_MTRR enabled?
+On Fri, Dec 21, 2001 at 02:56:34PM -0200, Marcelo Tosatti wrote:
 > 
-> Regards,
-> 	Zwane Mwaikambo
+> Can you please run Cerberus again and give me more information ?
 
-Yes. Upgrading to the new XFree from RedHat's rawhide (and "degrading" from
-kernel 2.5.0 to 2.4.18-pre1) solved the problem.
+ok, I *finally* got it to deadlock again.. trick is to run 2 simultaneous
+cerberus runs.. same symptoms, pings, can change VC's, hard drive light
+constantly on but silent and no blinks. I had sysrq turned on this time (tested
+before the run), but once deadlocked, doing Alt+SysRQ+8, Alt+SysRQ+T, etc would
+print nothing at all.. 
 
-bye
+-m
+
+> 
+> I want Alt+SysRQ+T, Alt+SysRQ+M and Alt+SysRQ+P output.
+> 
+> If those keys simply print the sysrq header, please try Alt+SysRQ+8 then
+> the above again.
+> 
+> Thanks
+> 
+> On Thu, 20 Dec 2001, marc. h. wrote:
+> 
+> > I tried out the latest cerberus from
+> > http://people.redhat.com/bmatthews/cerberus/ on a UP redhat-7.2 box. I ran the
+> > standard non-destructive RedHat tests.
+> > 
+> > It ran for about 14 hours and then became unresponsive..  machine still ping'ed
+> > , I could switch VC's scroll up on console, but that's it. Could not log in,
+> > etc.. Another point is that the hard drive light remained on but it was not
+> > seeking, it seemed dead silent.
+> 
 
 -- 
-Marco Ermini
-http://www.markoer.org
-Perche' perdere tempo ad imparare quando l'ignoranza e' istantanea? (Hobbes)
-
---=.rg+eTBboaE3DKQ
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-
-iD8DBQE8OYJgtGvmygIFswwRAvktAJwMCTYgtfQrhsSzk/hhq+1RcmtFBwCfSO6T
-716ugjtfctTByCKu7vFaZhc=
-=Akic
------END PGP SIGNATURE-----
-
---=.rg+eTBboaE3DKQ--
-
+	C3C5 9226 3C03 CDF7 2EF1  029F 4CAD FBA4 F5ED 68EB
+	key: http://people.hbesoftware.com/~heckmann/

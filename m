@@ -1,64 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263909AbUBODzd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Feb 2004 22:55:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263927AbUBODzd
+	id S263898AbUBODxn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Feb 2004 22:53:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263909AbUBODxn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Feb 2004 22:55:33 -0500
-Received: from relay.pair.com ([209.68.1.20]:41225 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S263909AbUBODzb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Feb 2004 22:55:31 -0500
-X-pair-Authenticated: 24.126.73.164
-Message-ID: <402EECA4.4020703@kegel.com>
-Date: Sat, 14 Feb 2004 19:51:00 -0800
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en, de-de
-MIME-Version: 1.0
-To: Herbert Poetzl <herbert@13thfloor.at>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Kernel Cross Compiling
-References: <402E8D1A.4000106@kegel.com> <20040214220726.GA13479@MAIL.13thfloor.at>
-In-Reply-To: <20040214220726.GA13479@MAIL.13thfloor.at>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 14 Feb 2004 22:53:43 -0500
+Received: from atari.saturn5.com ([209.237.231.200]:17068 "HELO
+	atari.saturn5.com") by vger.kernel.org with SMTP id S263898AbUBODxm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Feb 2004 22:53:42 -0500
+Date: Sat, 14 Feb 2004 19:53:41 -0800
+From: Steve Simitzis <steve@saturn5.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: "Feldman, Scott" <scott.feldman@intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: e1000 problems in 2.6.x
+Message-ID: <20040215035341.GF1040@saturn5.com>
+References: <C6F5CF431189FA4CBAEC9E7DD5441E0102229F6F@orsmsx402.jf.intel.com> <20040215023226.GE1040@saturn5.com> <402EE603.8020106@tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <402EE603.8020106@tmr.com>
+User-Agent: Mutt/1.3.28i
+X-gestalt: heart, barbed wire
+X-Cat: calico
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Poetzl wrote:
->>Wouldn't it be easier to use http://kegel.com/crosstool
->>which already builds good toolchains for just about every
->>CPU type?
-> 
-> 
-> yeah Dan, I thought about that, and I guess I'll
-> give that _another_ try soon, the reason I didn't
-> choose that path, simply was, that I didn't want
-> to compile the (g)libc, because I really do not 
-> need it at all (kernel does not use/require that)
-> and I didn't want to deal with that one too ...
+On 02/14/04, Bill Davidsen <davidsen@tmr.com> wrote: 
 
-Makes sense.  Simpler is better.
+> 1 - check your cables in case 2.6 is checking (or not) something
+> 2 - set your NIC half to match the switch and see if there's a different 
+> problem.
 
-> btw, what archs did you verify? didn't find a 
-> 'success' list or something like that, probably
-> missed it somehow, anyway, currently I managed
-> to compile binutils and gcc for:
-> 
->  alpha, arm, cris, hppa/64, i386, ia64, m68k,
->  mips/64, ppc/64, s390, sh/4, sparc/64, v850,
->  x86_64 ...
+rebooting to 2.4.22 results in a perfectly working network connection,
+even with auto-negotiate on both the card and the switch. so i am
+hestitant to blame the cables or the hardware. unless, of course, my
+cables have the ability to detect which OS i'm running. :)
 
-I think I got most of those built except for hppa, ppc/64,
-sparc/64, and v850.  (I've only run the gcc regression
-tests on ppc405, ppc750, and sh4 so far, but hope to test more
-later.)
-Also, IBM seems to be using a variant of my script for ppc64.
-- Dan
+the result is 100% predictable: boot to 2.6.x, network problems. change
+the settings on the device or the switch - network problems. boot
+back to 2.4.22 with auto-negotiate everywhere, perfect connection. alas.
 
 -- 
-US citizens: if you're considering voting for Bush, look at these first:
-http://www.misleader.org/
-http://www.cbc.ca/news/background/arar/
-http://www.house.gov/reform/min/politicsandscience/
+
+steve simitzis : /sim' - i - jees/
+          pala : saturn5 productions
+ www.steve.org : 415.282.9979
+  hath the daemon spawn no fire?
+

@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261832AbUCSVTJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 16:19:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261850AbUCSVTJ
+	id S262044AbUCSViQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 16:38:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262130AbUCSViQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 16:19:09 -0500
-Received: from cfcafw.sgi.com ([198.149.23.1]:51957 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261832AbUCSVTG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 16:19:06 -0500
-Date: Fri, 19 Mar 2004 15:14:57 -0600
-From: Robin Holt <holt@sgi.com>
-To: Ragnar =?iso-8859-1?Q?Kj=F8rstad?= <kernel@ragnark.vestdata.no>
-Cc: Tim Schmielau <tim@physik3.uni-rostock.de>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Arthur Corliss <corliss@digitalmages.com>,
-       Albert Cahalan <albert@users.sourceforge.net>
-Subject: Re: [patch,rfc] BSD accounting format rework
-Message-ID: <20040319211457.GA19662@lnx-holt>
-References: <Pine.LNX.4.53.0403161414150.19052@gockel.physik3.uni-rostock.de> <Pine.LNX.4.53.0403191424480.19032@gockel.physik3.uni-rostock.de> <20040319191916.GQ1066@vestdata.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040319191916.GQ1066@vestdata.no>
-User-Agent: Mutt/1.4.1i
+	Fri, 19 Mar 2004 16:38:16 -0500
+Received: from 1-2-2-1a.has.sth.bostream.se ([82.182.130.86]:28849 "EHLO
+	K-7.stesmi.com") by vger.kernel.org with ESMTP id S262044AbUCSViN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 16:38:13 -0500
+Message-ID: <405B681F.3050702@stesmi.com>
+Date: Fri, 19 Mar 2004 22:37:35 +0100
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7a) Gecko/20040219
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+CC: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: CDFS
+References: <Pine.LNX.4.44.0403191640460.3892-100000@einstein.homenet> <Pine.LNX.4.53.0403191200120.3752@chaos>
+In-Reply-To: <Pine.LNX.4.53.0403191200120.3752@chaos>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> One idea is to add the size of the structure to log. The start of the
-> struct could be something like:
-> struct acct_base {
-> 	char flags;
-> 	char ac_version;
-> 	__u16 ac_size;
-> }
-> 
-> This makes future extentions easier in two seperate ways:
-> Userspace acct can recognize futuristic data structures. It will, of
-> course, not be able to process them, but it can warn the user and then
-> continue on to the next struct.
-> 
-> Also, it would make it possible to add new fields at the end of the
-> structure _without_ bumping the version-number. (Like an extention to
-> the same format). When userspace find a v2 struct bigger that it's
-> "struct acct_v2" it can parse the first part of the data with struct
-> acct_v2 and just ignore the rest. This makes it trivial to add new
-> fields without breaking userspace.
+Hi.
 
-How about breaking the ac_version structure down as two nibbles?  One
-half being the major version and the other half being a minor version.
-The major version, when changed, means the structure is no longer compatible.
-The minor version can be changed when existing fields are not modified
-in either form or function.
+> Script started on Fri Mar 19 12:01:38 2004
+> # umount /mnt
+> # umount /mnt
+> umount: /mnt: not mounted
+> # umount -t iso9660 /dev/cdrom /mnt
+^^^^^^^^
 
-Robin
+use "mount" instead of "umount" to mount something.
+
+> mount: wrong fs type, bad option, bad superblock on /dev/cdrom,
+>        or too many mounted file systems
+> # exit
+> Script done on Fri Mar 19 12:04:49 2004
+
+// Stefan

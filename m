@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283594AbRLMIcJ>; Thu, 13 Dec 2001 03:32:09 -0500
+	id <S283591AbRLMIet>; Thu, 13 Dec 2001 03:34:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283591AbRLMIb7>; Thu, 13 Dec 2001 03:31:59 -0500
-Received: from ns.muni.cz ([147.251.4.33]:4745 "EHLO aragorn.ics.muni.cz")
-	by vger.kernel.org with ESMTP id <S283618AbRLMIbt>;
-	Thu, 13 Dec 2001 03:31:49 -0500
-Date: Thu, 13 Dec 2001 09:31:46 +0100
-From: Jan Kasprzak <kas@informatics.muni.cz>
-To: watermodem <aquamodem@ameritech.net>
-Cc: Johannes Erdfelt <johannes@erdfelt.com>, linux-kernel@vger.kernel.org
+	id <S283618AbRLMIea>; Thu, 13 Dec 2001 03:34:30 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:58885 "HELO
+	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
+	id <S283591AbRLMIeV>; Thu, 13 Dec 2001 03:34:21 -0500
+Date: Thu, 13 Dec 2001 09:34:17 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Peter Svensson <petersv@psv.nu>
+Cc: Johannes Erdfelt <johannes@erdfelt.com>,
+        Jan Kasprzak <kas@informatics.muni.cz>, linux-kernel@vger.kernel.org
 Subject: Re: USB mouse disconnect/reconnect
-Message-ID: <20011213093146.E18394@informatics.muni.cz>
-In-Reply-To: <20011211222014.A13443@informatics.muni.cz> <20011211164059.C8227@sventech.com> <20011212103748.C14688@informatics.muni.cz> <3C18114F.F9C7A25A@ameritech.net>
+Message-ID: <20011213093417.A8564@suse.cz>
+In-Reply-To: <20011212221120.A7400@suse.cz> <Pine.LNX.4.33.0112130905350.1086-100000@cheetah.psv.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3C18114F.F9C7A25A@ameritech.net>; from aquamodem@ameritech.net on Wed, Dec 12, 2001 at 08:24:15PM -0600
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0112130905350.1086-100000@cheetah.psv.nu>; from petersv@psv.nu on Thu, Dec 13, 2001 at 09:06:46AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-watermodem wrote:
-: On a machine at work with a Logitech USB MouseMan+ and no extension
-: cable and a M$ usb keyboard I see the same thing.  Machine is a 
-: Dell with PII-400 and BX chipset.
-:   Happens during the night when not in use.
-: 
-	My mouse is Genius Netscroll, and it also happens during the night
-when not in use. It cannot be a power saving, though, because I run
-distributed.net client on this machine. Chipset is VIA KT133. There is
-an interesting thinng though: I don't see disconnects/reconnects on the
-USB keyboard, which is connected via the identical 5m USB extension cable
-as the USB mouse.
+On Thu, Dec 13, 2001 at 09:06:46AM +0100, Peter Svensson wrote:
+> On Wed, 12 Dec 2001, Vojtech Pavlik wrote:
+> 
+> > Most active extension cables don't look like hubs. They have the
+> > electric part of the hub built in, but not the logic one. They're
+> > invisible on the USB bus.
+> 
+> The ones I have seen do act as a hub, and are visible from the host 
+> computer.
 
-	I can try to plug the mouse into another USB port.
-
--Y.
+I guess I'll have to get me some of those as a replacement to those I
+have.
 
 -- 
-| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
-| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
-| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
-Having your own personal custom language dialect might be tempting but it is
-normally something only the lisp community do.                    (Alan Cox)
+Vojtech Pavlik
+SuSE Labs

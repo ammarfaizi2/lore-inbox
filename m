@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272855AbTG3M4t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 08:56:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272856AbTG3M4t
+	id S272876AbTG3Msz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 08:48:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272872AbTG3Msz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 08:56:49 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:33285 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S272855AbTG3M4s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 08:56:48 -0400
-Subject: Re: [PATCH] O11int for interactivity
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1059557903.3f27920f97d4a@kolivas.org>
-References: <200307301038.49869.kernel@kolivas.org>
-	 <1059553792.548.2.camel@teapot.felipe-alfaro.com>
-	 <200307301040.38858.m.c.p@wolk-project.de>
-	 <1059557903.3f27920f97d4a@kolivas.org>
-Content-Type: text/plain
-Message-Id: <1059569806.525.2.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3.99 
-Date: Wed, 30 Jul 2003 14:56:46 +0200
+	Wed, 30 Jul 2003 08:48:55 -0400
+Received: from moutng.kundenserver.de ([212.227.126.184]:50397 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S272870AbTG3Msx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 08:48:53 -0400
+From: Christian =?iso-8859-15?q?Borntr=E4ger?= 
+	<christian@borntraeger.net>
+To: Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org
+Subject: Re: Linux v2.6.0-test2
+Date: Wed, 30 Jul 2003 14:48:42 +0200
+User-Agent: KMail/1.5.2
+References: <E19hp35-0000U6-00@gondolin.me.apana.org.au>
+In-Reply-To: <E19hp35-0000U6-00@gondolin.me.apana.org.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307301448.42899.christian@borntraeger.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-07-30 at 11:38, Con Kolivas wrote:
+On Wednesday 30 July 2003 13:23, Herbert Xu wrote:
+> Christian Borntr?ger <christian@borntraeger.net> wrote:
+> > Linus Torvalds wrote:
+> >> Herbert Xu:
+> >>   o [IPSEC]: Make reqids 32-bits
+> >
+> > Is this the reason why I can connect
+> > 2.6.0-test1 with 2.6.0-test1
+> > 2.6.0-test2 with 2.6.0-test2
+> >
+> > but 2.6.0-test1 cannot connect to 2.6.0-test2 with ipsec?
+>
+> Does it work after you recompile your user space tools against
+> headers from 2.6.0-test2?
 
-> The obvious question still needs to be asked here. How does vanilla compare to
-> vanilla +O11.1?
+I recompiled ipsec-tools and it solved the problem. 
 
-Vanilla has serious interactivity problems for me. Vanilla + O11.1 is
-the second best scheduler I've ever used (the best is clearly O10). So
-this, indeed, are good news, at least for me :-)
+thanks and cheers
+
+Christian
 

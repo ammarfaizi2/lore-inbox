@@ -1,63 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262956AbTEBPpP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 11:45:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262957AbTEBPpP
+	id S263150AbTEBUiJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 16:38:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263156AbTEBUiJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 11:45:15 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28315 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262956AbTEBPpN
+	Fri, 2 May 2003 16:38:09 -0400
+Received: from mailrelay2.lanl.gov ([128.165.4.103]:39626 "EHLO
+	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP id S263150AbTEBUiI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 11:45:13 -0400
-Message-ID: <3EB29566.4000903@pobox.com>
-Date: Fri, 02 May 2003 11:57:26 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Jeff Muizelaar <muizelaar@rogers.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/4] NE2000 driver updates
-References: <3EB15127.2060409@rogers.com>	 <1051817031.21546.23.camel@dhcp22.swansea.linux.org.uk>	 <3EB1ADEC.6080007@rogers.com> <1051884070.23249.4.camel@dhcp22.swansea.linux.org.uk>
-In-Reply-To: <1051884070.23249.4.camel@dhcp22.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 2 May 2003 16:38:08 -0400
+Subject: Re: 2.5.68-mm4
+From: Steven Cole <elenstev@mesatop.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <20030502133405.57207c48.akpm@digeo.com>
+References: <20030502020149.1ec3e54f.akpm@digeo.com>
+	 <1051905879.2166.34.camel@spc9.esa.lanl.gov>
+	 <20030502133405.57207c48.akpm@digeo.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1051908541.2166.40.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
+Date: 02 May 2003 14:49:02 -0600
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Gwe, 2003-05-02 at 00:29, Jeff Muizelaar wrote:
+On Fri, 2003-05-02 at 14:34, Andrew Morton wrote:
+> Steven Cole <elenstev@mesatop.com> wrote:
+> >
+> > For what it's worth, kexec has worked for me on the following
+> > two systems.
+> > ...
+> > 00:03.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 08)
 > 
->>Are we stuck with Space.c forever? Anyone have any plans for replacing 
->>it with something more driver-model friendly?
-> 
-> 
-> Is it worth the effort. Why not just let the old isa stuff live out its
-> life in peace ?
+> Are you using eepro100 or e100?  I found that e100 failed to bring up the
+> interface on restart ("failed selftest"), but eepro100 was OK.
 
+CONFIG_EEPRO100=y
+# CONFIG_EEPRO100_PIO is not set
+# CONFIG_E100 is not set
 
-I'm glad you asked.  :)
+I can test E100 again to verify if that would help.
 
-For the major families of ISA net drivers, I am craving massive 
-consolidation.  People continue to use this stuff in embedded systems 
-and simulators, long past when the original cards disappear into the 
-ether, too.  Considering that operations are inevitably IO bound, I am 
-even willing to spend a few (admittedly costly) extra cycles chasing 
-some additional function pointer de-refs, if we could massively shrink 
-the size and number of NE2000/lance/82596 drivers out there.
+Also, I found that if I mistyped the argument to do-kexec.sh, the
+system would stay up, but the interface would get hosed, fixable with
+/etc/rc.d/init.d/network restart.
 
-I guarantee these drivers are gonna be with us for many years to come, 
-and designers wanting to bang out a quick-and-easy MAC will create Yet 
-Another NE2000 Clone.[1]
+Otherwise, kexec works fine here so far over about a dozen reboots on
+both machines.
 
-Did I mention that a GIGE ne2000 card exists?
-
-	Jeff
-
-
-
-[1] of course, with decent, free MAC and PHY cores at www.opencores.org, 
-maybe we can convince hardware makers to use a better design.  </plug>
+Steven
 

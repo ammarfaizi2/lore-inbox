@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131145AbRCGSXh>; Wed, 7 Mar 2001 13:23:37 -0500
+	id <S131142AbRCGS1R>; Wed, 7 Mar 2001 13:27:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131144AbRCGSXX>; Wed, 7 Mar 2001 13:23:23 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:29958 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131143AbRCGSXC>; Wed, 7 Mar 2001 13:23:02 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: Hashing and directories
-Date: 7 Mar 2001 10:21:56 -0800
-Organization: Transmeta Corporation
-Message-ID: <985u84$2ku$1@penguin.transmeta.com>
-In-Reply-To: <000201c0a71f$3a48fae0$5517fea9@local> <20010307171020.A10607@pcep-jamie.cern.ch> <003701c0a722$f6b02700$5517fea9@local>
+	id <S131151AbRCGS1H>; Wed, 7 Mar 2001 13:27:07 -0500
+Received: from csa.iisc.ernet.in ([144.16.67.8]:49932 "EHLO csa.iisc.ernet.in")
+	by vger.kernel.org with ESMTP id <S131143AbRCGS0z>;
+	Wed, 7 Mar 2001 13:26:55 -0500
+Date: Wed, 7 Mar 2001 23:56:12 +0530 (IST)
+From: Sourav Sen <sourav@csa.iisc.ernet.in>
+To: kernelnewbies@humbolt.nl.linux.org, lkml <linux-kernel@vger.kernel.org>
+Subject: 2.4.2-ac
+Message-ID: <Pine.SOL.3.96.1010307234516.22645A-100000@kohinoor.csa.iisc.ernet.in>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <003701c0a722$f6b02700$5517fea9@local>,
-Manfred Spraul <manfred@colorfullife.com> wrote:
->
->exec_mmap currenly avoids mm_alloc()/activate_mm()/mm_drop() for single
->threaded apps, and that would become impossible.
->I'm not sure how expensive these calls are.
 
-They aren't that expensive: activate_mm() needs to flush the TLB, but we
-do that anyway in the re-use case too, so on the whole the expense is
-limited to having to do the extra allocation.
+Hi,
+	I have patched 2.4.2 with patch-2.4.2-ac9. At make xconfig turned
+all kernel hacking options on. Then make dep and make bzImage went on ok.
+But when I put the image path in lilo.conf and ran /sbin/lilo it said
+kernel /abc/pqr/..../vmlinux is too big.
 
-That expense might be at least partially offset by being able to do some
-things more simply - right now the mm re-use case actually has to be
-more careful than I really like for security and protection reasons, for
-example.  We've had bugs in this area before - simplifying it would be
-nice.  And it also gets rid of the special cases. 
+	Whats going wrong. My gcc is egcs-2.91.66. The running kernel is
+2.2.14-5.0.
 
-I don't think the patches to do this should be all that huge, but who
-knows? It's not a trivial part of the kernel.
+thanks
+sourav
+--------------------------------------------------------------------------------
+SOURAV SEN    MSc(Engg.) CSA IISc BANGALORE URL : www2.csa.iisc.ernet.in/~sourav 
+ROOM NO : N-78      TEL :(080)309-2454(HOSTEL)          (080)309-2906 (COMP LAB) 
+--------------------------------------------------------------------------------
+"the fault, dear Brutas, lies not in our stars, but in our memory systems"
+								-Shakespeare
 
-		Linus

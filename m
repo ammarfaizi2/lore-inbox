@@ -1,52 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130747AbQLaUOr>; Sun, 31 Dec 2000 15:14:47 -0500
+	id <S130866AbQLaUUt>; Sun, 31 Dec 2000 15:20:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130866AbQLaUOi>; Sun, 31 Dec 2000 15:14:38 -0500
-Received: from waste.org ([209.173.204.2]:31764 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S130747AbQLaUO3>;
-	Sun, 31 Dec 2000 15:14:29 -0500
-Date: Sun, 31 Dec 2000 13:44:03 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Mobile PII vs PIII was Re: test13-pre[37] hangs my VAIO on boot
-In-Reply-To: <Pine.LNX.4.30.0012311151210.20511-100000@waste.org>
-Message-ID: <Pine.LNX.4.30.0012311314540.31886-100000@waste.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130895AbQLaUU3>; Sun, 31 Dec 2000 15:20:29 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:6155 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S130866AbQLaUUV>;
+	Sun, 31 Dec 2000 15:20:21 -0500
+Date: Sun, 31 Dec 2000 20:49:53 +0100
+From: Andi Kleen <ak@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: test13-pre5
+Message-ID: <20001231204953.A25617@gruyere.muc.suse.de>
+In-Reply-To: <20001231182127.A24348@gruyere.muc.suse.de> <Pine.LNX.4.10.10012310924500.4029-100000@penguin.transmeta.com> <20001231200741.F28963@mea-ext.zmailer.org> <92o0l7$h5v$1@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <92o0l7$h5v$1@penguin.transmeta.com>; from torvalds@transmeta.com on Sun, Dec 31, 2000 at 11:15:51AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 31 Dec 2000, Oliver Xymoron wrote:
+On Sun, Dec 31, 2000 at 11:15:51AM -0800, Linus Torvalds wrote:
+> In article <20001231200741.F28963@mea-ext.zmailer.org>,
+> Matti Aarnio  <matti.aarnio@zmailer.org> wrote:
+> >
+> >	Actually nothing SMP specific in that problem sphere.
+> >	Alpha has  load-locked/store-conditional  pair for
+> >	this type of memory accesses to automatically detect,
+> >	and (conditionally) restart the operation - to form
+> >	classical  ``locked-read-modify-write'' operations.
+> 
+> Sure, we could make the older alphas use ldl_l stl_c for byte accesses,
+> but if you thought byte accesses on those machines were kind-of slow
+> before, just WAIT until that happens.
 
-> My VAIO PCG-Z505SX locks up at "Uncompressing kernel", power cycling
-> required to reboot. Unpatched test12 works fine with same config. System
-> is debian-testing with gcc 2.95.2, kernel built with make-kpkg.
+The older Alphas would just typedef x8/x16 (or granular_u8, granular_u16
+or whatever it is called) to u32 and be the same as today. Just most
+other boxes would benefit.
 
-Ok, I lied. Looks like the working test12 I had was compiled differently.
+This actually all assumes that gcc really uses the byte instructions
+for byte stores in structures, which is to be determined.
 
-> CONFIG_M686FXSR=y
-...
-> CONFIG_X86_WP_WORKS_OK=y
-> CONFIG_X86_INVLPG=y
-> CONFIG_X86_CMPXCHG=y
-> CONFIG_X86_BSWAP=y
-> CONFIG_X86_POPAD_OK=y
-> CONFIG_X86_L1_CACHE_SHIFT=5
-> CONFIG_X86_TSC=y
-> CONFIG_X86_GOOD_APIC=y
-> CONFIG_X86_PGE=y
-> CONFIG_X86_USE_PPRO_CHECKSUM=y
-> CONFIG_X86_FXSR=y
-> CONFIG_X86_XMM=y
-
-My VAIO has a Mobile Pentium II. Which means it is indeed a 686 with FXSR,
-but no XMM. There are of course locking primitives that change with the
-presence of CONFIG_X86_XMM.
-
---
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
-
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

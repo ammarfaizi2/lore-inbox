@@ -1,74 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261735AbVDEOAd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261739AbVDEOCw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261735AbVDEOAd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 10:00:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261739AbVDEOAd
+	id S261739AbVDEOCw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 10:02:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbVDEOCw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 10:00:33 -0400
-Received: from smtp10.wanadoo.fr ([193.252.22.21]:24273 "EHLO
-	smtp10.wanadoo.fr") by vger.kernel.org with ESMTP id S261735AbVDEOAY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 10:00:24 -0400
-X-ME-UUID: 20050405140023268.4195E2400179@mwinf1004.wanadoo.fr
-Date: Tue, 5 Apr 2005 15:57:01 +0200
-To: Humberto Massa <humberto.massa@almg.gov.br>
+	Tue, 5 Apr 2005 10:02:52 -0400
+Received: from heavensgate.debian.net ([213.41.173.23]:5517 "EHLO
+	heavensgate.debian.net") by vger.kernel.org with ESMTP
+	id S261739AbVDEOCq convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 10:02:46 -0400
+Subject: Re: non-free firmware in kernel modules, aggregation and unclear
+	copyright notice.
+From: Josselin Mouette <joss@debian.org>
+To: Adrian Bunk <bunk@stusta.de>
 Cc: debian-legal@lists.debian.org, debian-kernel@lists.debian.org,
        linux-kernel@vger.kernel.org
-Subject: Re: non-free firmware in kernel modules, aggregation and unclear copyright notice.
-Message-ID: <20050405135701.GA24361@pegasos>
-References: <h-GOHD.A.KL.s2aUCB@murphy> <42527E89.4040506@almg.gov.br>
+In-Reply-To: <20050404193204.GD4087@stusta.de>
+References: <20050404100929.GA23921@pegasos>
+	 <87ekdq1xlp.fsf@sanosuke.troilus.org> <20050404141647.GA28649@pegasos>
+	 <20050404175130.GA11257@kroah.com>
+	 <20050404190518.GA17087@wonderland.linux.it>
+	 <20050404193204.GD4087@stusta.de>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Tue, 05 Apr 2005 16:05:07 +0200
+Message-Id: <1112709907.30856.17.camel@silicium.ccc.cea.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <42527E89.4040506@almg.gov.br>
-User-Agent: Mutt/1.5.6+20040907i
-From: Sven Luther <sven.luther@wanadoo.fr>
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 05, 2005 at 09:03:21AM -0300, Humberto Massa wrote:
-> Theodore Ts'o wrote:
+Le lundi 04 avril 2005 à 21:32 +0200, Adrian Bunk a écrit :
+> On Mon, Apr 04, 2005 at 09:05:18PM +0200, Marco d'Itri wrote:
+> > On Apr 04, Greg KH <greg@kroah.com> wrote:
+> > 
+> > > What if we don't want to do so?  I know I personally posted a solution
+> > Then probably the extremists in Debian will manage to kill your driver,
+> > like they did with tg3 and others.
 > 
-> > You know, the fact that Red Hat, SuSE, Ubuntu, and pretty much all
-> > other commercial distributions have not been worried about getting
-> > sued for this alleged GPL'ed violation makes it a lot harder for me
-> > (and others, I'm sure) take Debian's concerns seriously.
+> And as they are doing with e.g. the complete gcc documentation.
 > 
-> I said in other e-mail, and I will repeat: it's not their (Debian's) 
-> fault. Their responsibility is greater. Why? Because when RedHat puts 
-> something it shouldn't in their distro it's *their* assets that will 
-> answer for some copyright violation damages. In Debian's case, it's the 
-> assets of: some DDs, the mirror network, derived-distro distributors, CD 
-> vendors, etc... This is just a case of Debian being "fiscally 
-> responsible", i.e., not treating other people's money as trash.
+> No documentation for the C compiler (not even a documentation of the 
+> options) will be neither fun for the users of Debian nor for the Debian 
+> maintainers - but it's the future of Debian...
 
-This is where you are wrong, and i believe this is caused because you don't
-understand how debian works on this.
+You are mixing apples and oranges. The fact that the GFDL sucks has
+nothing to do with the firmware issue. With the current situation of
+firmwares in the kernel, it is illegal to redistribute binary images of
+the kernel. Full stop. End of story. Bye bye. Redhat and SuSE may still
+be willing to distribute such binary images, but it isn't our problem.
 
-The ftp-master are the ones reviewing the licencing problems, and they are the
-ones handling the infrastructure, and putting their responsability on the
-stake. If they feel that some piece of software has dubious legal issues which
-come at a risk of having them personally come on the receiving end of a legal
-case, then they will say, no, we don't distribute this software, and that is
-the end of it.
-
-The other point is that other entities, like redhat, or suse (which is now
-novel and thus ibm) and so have stronger backbones, and can more easily muster
-the ressources to fight of a legal case, even one which is a dubious one,
-especially given the particularities of the US judicial system, where it is
-less important to be right, and more important to have lot of money to throw
-at your legal machine. Debian has nothing such, and SPI which would stand for
-this, is not really upto it either, so in this case, apart from all ideology
-and fanatism, it is for purely pragmatic reasons that they don't distribute
-undistributable files from the non-free part of our archive. You would do the
-same in their case.
-
-Also, you have to ask yourself what the above mentioned companies where to do
-if they where to be made aware of the issue, and ask their lawyers to attend
-this. Also you have to consider the case of some of those companies ending in
-the arms of a legally predative company and pulling another SCO at us.
-
-Friendly,
-
-Sven Luther
+Putting the firmwares outside the kernel makes them distributable. Some
+distributions will want to include them, some others not. But the
+important point is that it makes that redistribution legal.
+-- 
+ .''`.           Josselin Mouette        /\./\
+: :' :           josselin.mouette@ens-lyon.org
+`. `'                        joss@debian.org
+   `-  Debian GNU/Linux -- The power of freedom
 

@@ -1,60 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261192AbVAWDMh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVAWDT0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261192AbVAWDMh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 22:12:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbVAWDMh
+	id S261165AbVAWDT0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 22:19:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbVAWDT0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 22:12:37 -0500
-Received: from mail.dif.dk ([193.138.115.101]:12747 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261192AbVAWDMe (ORCPT
+	Sat, 22 Jan 2005 22:19:26 -0500
+Received: from news.suse.de ([195.135.220.2]:32474 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261165AbVAWDTX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 22:12:34 -0500
-Date: Sun, 23 Jan 2005 04:02:12 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Andi Kleen <ak@muc.de>
-Cc: Felipe Alfaro Solana <lkml@mac.com>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       linux-kernel@vger.kernel.org, Buck Huppmann <buchk@pobox.com>,
-       Neil Brown <neilb@cse.unsw.edu.au>,
-       Andreas Gruenbacher <agruen@suse.de>,
-       "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
-       Andrew Morton <akpm@osdl.org>, Olaf Kirch <okir@suse.de>
-Subject: Re: [patch 1/13] Qsort
-In-Reply-To: <m1r7kc27ix.fsf@muc.de>
-Message-ID: <Pine.LNX.4.61.0501230357580.2748@dragon.hygekrogen.localhost>
-References: <20050122203326.402087000@blunzn.suse.de> <20050122203618.962749000@blunzn.suse.de>
- <Pine.LNX.4.58.0501221257440.1982@shell3.speakeasy.net>
- <FB9BAC88-6CE2-11D9-86B4-000D9352858E@mac.com> <m1r7kc27ix.fsf@muc.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 22 Jan 2005 22:19:23 -0500
+Date: Sun, 23 Jan 2005 04:19:21 +0100
+From: Andi Kleen <ak@suse.de>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Matt Mackall <mpm@selenic.com>, "Theodore Ts'o" <tytso@mit.edu>,
+       Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH 1/12] random pt4: Create new rol32/ror32 bitops
+Message-ID: <20050123031921.GA1660@wotan.suse.de>
+References: <200501222113_MC3-1-940A-5393@compuserve.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200501222113_MC3-1-940A-5393@compuserve.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 23 Jan 2005, Andi Kleen wrote:
-
-> Felipe Alfaro Solana <lkml@mac.com> writes:
-> >
-> > AFAIK, XOR is quite expensive on IA32 when compared to simple MOV
-> > operatings. Also, since the original patch uses 3 MOVs to perform the
-> > swapping, and your version uses 3 XOR operations, I don't see any
-> > gains.
+On Sat, Jan 22, 2005 at 09:10:40PM -0500, Chuck Ebbert wrote:
+> On Fri, 21 Jan 2005 at 15:41:06 -0600 Matt Mackall wrote:
 > 
-> Both are one cycle latency for register<->register on all x86 cores
-> I've looked at. What makes you think differently?
+> > Add rol32 and ror32 bitops to bitops.h
 > 
-> -Andi (who thinks the glibc qsort is vast overkill for kernel purposes
-> where there are only small data sets and it would be better to use a 
-> simpler one optimized for code size)
-> 
-How about a shell sort?  if the data is mostly sorted shell sort beats 
-qsort lots of times, and since the data sets are often small in-kernel, 
-shell sorts O(n^2) behaviour won't harm it too much, shell sort is also 
-faster if the data is already completely sorted. Shell sort is certainly 
-not the simplest algorithm around, but I think (without having done any 
-tests) that it would probably do pretty well for in-kernel use... Then 
-again, I've known to be wrong :)
+> Can you test this patch on top of yours?  I did it on 2.6.10-ac10 but it
+> should apply OK.  Compile tested and booted, but only random.c is using it
+> in my kernel.
 
+Does random really use variable rotates? For constant rotates 
+gcc detects the usual C idiom and turns it transparently into
+the right machine instruction.
 
--- 
-Jesper Juhl
+If that's the case I would use it because it'll avoid some messy 
+code everywhere.
 
+-Andi

@@ -1,77 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264503AbUJET3y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264500AbUJETfA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264503AbUJET3y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 15:29:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264443AbUJET3y
+	id S264500AbUJETfA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 15:35:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263770AbUJETfA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 15:29:54 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:33979 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264386AbUJET3c (ORCPT
+	Tue, 5 Oct 2004 15:35:00 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:16877 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S264500AbUJETe5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 15:29:32 -0400
-Subject: Re: Linux-2.6.5-1.358 and Fedora
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: "Johnson, Richard" <rjohnson@analogic.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.61.0410052100110.2913@dragon.hygekrogen.localhost>
-References: <Pine.LNX.4.53.0410051413520.3024@quark.analogic.com>
-	 <Pine.LNX.4.61.0410052100110.2913@dragon.hygekrogen.localhost>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-5mk8A8hGYCZ5ENTfpEPB"
-Organization: Red Hat UK
-Message-Id: <1097004565.9975.25.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 05 Oct 2004 21:29:26 +0200
+	Tue, 5 Oct 2004 15:34:57 -0400
+Date: Tue, 5 Oct 2004 21:34:27 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Hanna Linder <hannal@us.ibm.com>
+cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       kernel-janitors@lists.osdl.org, Greg Kroah-Hartman <greg@kroah.com>,
+       Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: [PATCH 2.6] hades-pci.c: replace pci_find_device with pci_get_device
+In-Reply-To: <280230000.1096924777@w-hlinder.beaverton.ibm.com>
+Message-ID: <Pine.GSO.4.61.0410052134120.9981@waterleaf.sonytel.be>
+References: <280230000.1096924777@w-hlinder.beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 4 Oct 2004, Hanna Linder wrote:
+> As pci_find_device is going away I have replaced this call with pci_get_device.
+> If anyone has access to a Hades Atari clone to test this one I would appreciate it..
 
---=-5mk8A8hGYCZ5ENTfpEPB
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Applied, thanks!
 
-On Tue, 2004-10-05 at 21:15, Jesper Juhl wrote:
-> On Tue, 5 Oct 2004, Johnson, Richard wrote:
+Gr{oetje,eeting}s,
 
-> Only do that if you are sure your systems bootloader configuration is abl=
-e=20
-> to deal with it. Maybe Fedora is configured so that "make install" can=20
-> work, I wouldn't know I'm a Slackware user myself.
+						Geert
 
-on Fedora, make install will do the bootloader thing automatically
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-
-> Could it be you accidentally installed your new modules in the same=20
-> location as the old ones or that your initrd holds modules compiled for a=
-=20
-> different kernel than the one you just build - did you remember to update=
-=20
-> your initrd?
-
-it can't be an accident; the kernel source that ship in Fedora have a
-special "custom" added to the EXTRAVERSION to prevent accidents where
-people who are learning and follow a kernel building howto overwrite the
-"known good" kernel, but instead things get installed in a parallel dir
-with a different EXTRAVERSION.
-
-If Richard overwrote his modules anyway he must have hacked the Makefile
-himself to deliberately cause this, at which point... well saw wind
-harvest storm ;)
-
-
-
---=-5mk8A8hGYCZ5ENTfpEPB
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBYvYVpv2rCoFn+CIRAgqRAJ0UVVCueCmClB+m7SLCSGzMeLeOAwCgkmUR
-5pzgGU24gzjVOsfCHH3SS9Y=
-=pmWK
------END PGP SIGNATURE-----
-
---=-5mk8A8hGYCZ5ENTfpEPB--
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,37 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261662AbSJYWZc>; Fri, 25 Oct 2002 18:25:32 -0400
+	id <S261668AbSJYWWj>; Fri, 25 Oct 2002 18:22:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261661AbSJYWVp>; Fri, 25 Oct 2002 18:21:45 -0400
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:52228 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S261662AbSJYWQy>;
-	Fri, 25 Oct 2002 18:16:54 -0400
-Date: Fri, 25 Oct 2002 15:21:18 -0700
-From: Greg KH <greg@kroah.com>
-To: Jonathan Hudson <jonathan@daria.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB scanner (2.5.4x) Fail to access minor
-Message-ID: <20021025222118.GA31634@kroah.com>
-References: <8c1.3db9c10b.90442@trespassersw.daria.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <8c1.3db9c10b.90442@trespassersw.daria.co.uk>
-User-Agent: Mutt/1.4i
+	id <S261666AbSJYWWc>; Fri, 25 Oct 2002 18:22:32 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38160 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261645AbSJYWTn>;
+	Fri, 25 Oct 2002 18:19:43 -0400
+Message-ID: <3DB9C4E3.2030905@pobox.com>
+Date: Fri, 25 Oct 2002 18:25:39 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Robert Love <rml@tech9.net>
+CC: Daniel Phillips <phillips@arcor.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>,
+       "'Dave Jones'" <davej@codemonkey.org.uk>,
+       "'akpm@digeo.com'" <akpm@digeo.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'chrisl@vmware.com'" <chrisl@vmware.com>,
+       "'Martin J. Bligh'" <mbligh@aracnet.com>
+Subject: Re: [PATCH] hyper-threading information in /proc/cpuinfo
+References: <F2DBA543B89AD51184B600508B68D4000ECE7046@fmsmsx103.fm.intel.com>	<1035584076.13032.96.camel@irongate.swansea.linux.org.uk> 	<E185CbL-0008R5-00@starship> <1035583810.1501.4004.camel@phantasy>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 25, 2002 at 10:09:15PM +0000, Jonathan Hudson wrote:
-> 
-> The probing finds the minor 48, but the USB_SCN_MINOR() macro in open
-> results in the minor transposed to 0. This obviously causes the 
-> !p_scn_table[scn_minor] test to fail, dmesg follows:
-> (/dev/usbscanner0 is 180,48)
+Robert Love wrote:
 
-A bit better patch was posted to linux-usb-devel a week or so ago.  It
-hasn't been applied as there is some other work going on in this area to
-clean up a lot of common code, but until then, you should grab it.
+>On Fri, 2002-10-25 at 18:06, Daniel Phillips wrote:
+>
+>  
+>
+>>On Saturday 26 October 2002 00:14, Alan Cox wrote:
+>>
+>>    
+>>
+>>>Im just wondering what we would then use to describe a true multiple cpu
+>>>on a die x86. Im curious what the powerpc people think since they have
+>>>this kind of stuff - is there a generic terminology they prefer ?
+>>>      
+>>>
+>>MIPS also has it, for N=2.
+>>    
+>>
+>
+>Yep, neat chip :)
+>
+>POWER4 calls the technology "Chip-Multiprocessing (CMP)" but I have
+>never seen terminology for referring to the on-core processors
+>individually.
+>
+>They do call the SMT units "threads" obviously, however, so if Alan is
+>OK with it maybe we should go with Jun's opinion and name the field
+>"thread" ?
+>  
+>
 
-thanks,
+"thread" already has another use.  Let's not let the idiocy [most 
+likely] perpetrated by marketing folks to filter down to the useful 
+technical level.  :)
 
-greg k-h
+Sorta like Intel and their re-re-use of "IPF."  It's only going to 
+increase confusion.
+
+    Jeff
+
+
+
+
+

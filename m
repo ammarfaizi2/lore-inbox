@@ -1,40 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268448AbUIWN0H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268452AbUIWN1P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268448AbUIWN0H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 09:26:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268450AbUIWN0G
+	id S268452AbUIWN1P (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 09:27:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268453AbUIWN1O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 09:26:06 -0400
-Received: from zamok.crans.org ([138.231.136.6]:57574 "EHLO zamok.crans.org")
-	by vger.kernel.org with ESMTP id S268448AbUIWNZ4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 09:25:56 -0400
-Message-ID: <4152CF01.3060403@crans.org>
-Date: Thu, 23 Sep 2004 15:26:25 +0200
-From: =?ISO-8859-1?Q?Mathieu_B=E9rard?= <Mathieu.Berard@crans.org>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Patrick McHardy <kaber@trash.net>
+	Thu, 23 Sep 2004 09:27:14 -0400
+Received: from postfix3-2.free.fr ([213.228.0.169]:29575 "EHLO
+	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S268452AbUIWN1G
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 09:27:06 -0400
+From: Duncan Sands <baldrick@free.fr>
+To: Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: external modules make clean doesn't do much
+Date: Thu, 23 Sep 2004 15:26:59 +0200
+User-Agent: KMail/1.6.2
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops with racoon and linux-2.6.9-rc2-mm1
-References: <41520074.3080706@crans.org> <41524CEE.2020508@trash.net>
-In-Reply-To: <41524CEE.2020508@trash.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <200408311347.52754.baldrick@free.fr> <20040831170148.GB7310@mars.ravnborg.org>
+In-Reply-To: <20040831170148.GB7310@mars.ravnborg.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200409231526.59656.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick McHardy wrote:
-> Should be fixed by this patch.
+On Tuesday 31 August 2004 19:01, Sam Ravnborg wrote:
+> On Tue, Aug 31, 2004 at 01:47:52PM +0200, Duncan Sands wrote:
+> > make clean for an external module only seems to clean
+> > .tmp_versions:
+> > 
+> > $ make clean
+> > make -C /lib/modules/2.6.9-rc1/build M=`pwd` clean
+> > make[1]: Entering directory `/home/duncan/Linux/linux-2.5'
+> >   CLEAN   /home/duncan/SpeedTouch/.tmp_versions
+> > make[1]: Leaving directory `/home/duncan/Linux/linux-2.5'
+> > $
+> > 
+> > This leaves all the .o etc files which doesn't sound right...
+> Nope - let me try.
 > 
+> sam@mars rtl8180 $ ls *o
+> built-in.o   r8180_if.o        rtl8180.ko     rtl8180.o
+> priv_part.o  r8180_pci_init.o  rtl8180.mod.o  usercopy.o
+> sam@mars rtl8180 $ make -C ~/bk/kbuild M=$PWD clean
+> make: Entering directory `/home/sam/bk/kbuild'
+>   CLEAN   /home/sam/bk/external/rtl8180/.tmp_versions
+> make: Leaving directory `/home/sam/bk/kbuild'
+> sam@mars rtl8180 $ ls *o
+> ls: *o: No such file or directory
+> sam@mars rtl8180 $ cat Makefile
+> obj-m           := rtl8180.o
+> rtl8180-y       += r8180_if.o r8180_pci_init.o usercopy.o
+> rtl8180-y       += priv_part.o
+>   
+> 
+> Looks to be OK here.
+> Please let me see the Makefile you use for SpeedTouch
 
-Hi,
-I've applied your patch against 2.6.9-rc2-mm2.
-It seems to work perfectly now.
+Hi Sam, as I mentioned in another mail, if you get to your
+current working directory via a symlink, then clean doesn't
+work properly (this was the problem I hit).  Did you work out
+what's going on?
 
-Thank You.
+Thanks for your help,
 
--- 
-Mathieu Berard
-
+Duncan.

@@ -1,62 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262011AbREQQcn>; Thu, 17 May 2001 12:32:43 -0400
+	id <S262023AbREQQdX>; Thu, 17 May 2001 12:33:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262019AbREQQce>; Thu, 17 May 2001 12:32:34 -0400
-Received: from [206.14.214.140] ([206.14.214.140]:62727 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S262011AbREQQcZ>; Thu, 17 May 2001 12:32:25 -0400
-Date: Thu, 17 May 2001 09:26:27 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: "H. Peter Anvin" <hpa@transmeta.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Jonathan Lundell <jlundell@pobox.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        viro@math.psu.edu
-Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <E150BXx-0004js-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.10.10105170902110.13202-100000@www.transvirtual.com>
+	id <S262019AbREQQdN>; Thu, 17 May 2001 12:33:13 -0400
+Received: from mail.muc.eurocyber.net ([195.143.108.5]:61655 "EHLO
+	mail.muc.eurocyber.net") by vger.kernel.org with ESMTP
+	id <S262026AbREQQdE>; Thu, 17 May 2001 12:33:04 -0400
+Message-ID: <3B03F9F9.FA032E4B@TeraPort.de>
+Date: Thu, 17 May 2001 18:19:05 +0200
+From: "Martin.Knoblauch" <Martin.Knoblauch@TeraPort.de>
+Organization: TeraPort GmbH
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-ac9 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: make menuconfig - cosmetic question
+In-Reply-To: <Pine.LNX.3.96.1010517151441.14658A-100000@medusa.sparta.lu.se> <3B03EE1E.5A050E1B@TeraPort.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > > USB disks are required (haha etc) to have serial numbers. Firewire similarly
-> > > has unique disk identifiers.
-> > 
-> > How about for other device classes?
+"Martin.Knoblauch" wrote:
 > 
-> Keyboards and mice dont which is a real pig because it prevents you using
-> dual head, two usb keyboards and 2 usb mice for a dual user box (assuming
-> someone fixed the console code mess to cope with multiple console users as
-> a concept)
+> 
+>  Not sure whether this is worth to put into the next release - maybe
+> someone can spend two minutes to crosscheck.
+> 
 
-Wrong!! I already have a multi-desktop system running at home. I have two
-PS/2 keyboards, Sun keyboard, and a USB keyboard hooked up to my system. I
-only have two monitors/video cards so I only have two VTs going at the
-same time. I even managed to get two X servers running on each VT
-independent of each other. This was not ease but it is possible. 
-   I can tell you I didn't use any type of id system. How do I deal with
-devices like multiple sound cards (yes I have that too) in a multidesktop
-environment? With file permission on the device nodes. I created
-different groups for different desktops. With a little tweaking with PAM
-when I login to a specific workstation I'm automatically added to a
-certain desktop group. I can't access any devices that belong to another 
-desktop group. When I logout I'm removed from that group. Now xdm needs a
-little hacking to make this work. 
-   The beauty of this approach is the admin determines which devices
-belong to which desktop. Now for hotpluggable devices when they plugged
-back in a device they just unplugged and they don't end up on the same
-device that new device will belong to no one. They can use some userland
-utility then to grab the device. In this case it is first come first
-serve. Surely when you plug in your device you are NOT going to steal a
-device in use but one that is avaliable. Now what if two people unplug
-their mice at the same time and plug them back in and they are mixed up.
-Again I think a userland utility can solve this problem. Here you would
-need to be root to fix the problem. 
+ This looks more complete. 
 
+lx/linux > diff -u scripts/Menuconfig.orig scripts/Menuconfig
+--- scripts/Menuconfig.orig     Thu May 17 17:19:21 2001
++++ scripts/Menuconfig  Thu May 17 18:10:22 2001
+@@ -74,7 +74,10 @@
+ # - Implemented new functions: define_tristate(), define_int(),
+define_hex(),
+ #   define_string(), dep_bool().
+ #
+-
++# 17 May 2001, Martin Knoblauch, <knobi@knobisoft.de>
++# - Fix output of comment strings to .config/autoconfig.h so that they
+equal
++#   the comments from "make [old]config"
++#
+
+ #
+ # Change this to TRUE if you prefer all kernel options listed
+@@ -1240,7 +1243,7 @@
+        }
+ 
+        function mainmenu_option () {
+-               comment_is_option=TRUE
++               :
+        }
+ 
+        function endmenu () {
+@@ -1248,9 +1251,7 @@
+        }
+ 
+        function comment () {
+-               if [ "$comment_is_option" ]
+-               then
+-                       comment_is_option=
++
+                        echo        >>$CONFIG
+                        echo "#"    >>$CONFIG
+                        echo "# $1" >>$CONFIG
+@@ -1260,7 +1261,6 @@
+                        echo "/*"    >>$CONFIG_H
+                        echo " * $1" >>$CONFIG_H
+                        echo " */"   >>$CONFIG_H
+-               fi
+        }
+ 
+        echo -n "."
+
+Martin
+PS: This time without vcard ...
+-- 
+------------------------------------------------------------------
+Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
+TeraPort GmbH            |    Phone:  +49-89-510857-309
+IT Services              |    Fax:    +49-89-510857-111
+http://www.teraport.de   |    Mobile: +49-170-4904759

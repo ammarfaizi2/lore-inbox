@@ -1,108 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131542AbQLFOCd>; Wed, 6 Dec 2000 09:02:33 -0500
+	id <S131533AbQLFOCd>; Wed, 6 Dec 2000 09:02:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131548AbQLFOCX>; Wed, 6 Dec 2000 09:02:23 -0500
-Received: from cannet.com ([206.156.188.2]:35090 "HELO mail.cannet.com")
-	by vger.kernel.org with SMTP id <S131542AbQLFOCM>;
-	Wed, 6 Dec 2000 09:02:12 -0500
-Message-ID: <003201c05f88$db6fc4a0$7930000a@hcd.net>
-From: "Timothy A. DeWees" <whtdrgn@mail.cannet.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Kernel boot params
-Date: Wed, 6 Dec 2000 08:31:31 -0500
+	id <S131542AbQLFOCY>; Wed, 6 Dec 2000 09:02:24 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:14855 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S131533AbQLFOCL>;
+	Wed, 6 Dec 2000 09:02:11 -0500
+Message-ID: <3A2E3FB5.3993FE29@innominate.com>
+Date: Wed, 06 Dec 2000 14:31:33 +0100
+From: Juri Haberland <juri.haberland@innominate.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-	protocol="application/x-pkcs7-signature";
-	micalg=SHA1;
-	boundary="----=_NextPart_000_002D_01C05F5E.F0DDB4C0"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2314.1300
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
+Subject: Re: All INNOMINATE linux-list feeds are now killed...
+In-Reply-To: <Pine.LNX.4.21.0012061126130.18930-100000@duckman.distro.conectiva>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Rik van Riel wrote:
+> 
+> On Wed, 6 Dec 2000, Juri Haberland wrote:
+> 
+> > We deeply regret this and apologize honestly, but also would
+> > like to resubscribe...
+> 
+> Could you make it a one-way list this time?
+> These two-way lists always give horrible problems
+> and I would hate to killfile all of innominate ;)
 
-------=_NextPart_000_002D_01C05F5E.F0DDB4C0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Allright, I think we have choice :-/
+Sorry again...
 
-Kernel Hackers,
+Juri 
 
-    Could someone be so kind to point me to a page where I can find
-a list of parameters I can pass to a kernel on boot.  I am looking for 
-a way to load drivers at boot (like if a RAID controller fails - and I 
-don't have the exact replacement: how can I load a new driver).  I 
-am really just looking for the doc.  Thanks in advance!
-
---
-Kind Regards,
-Timothy A. DeWees
-
-------=_NextPart_000_002D_01C05F5E.F0DDB4C0
-Content-Type: application/x-pkcs7-signature;
-	name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="smime.p7s"
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIII7jCCAqEw
-ggIKoAMCAQICAwMkHDANBgkqhkiG9w0BAQQFADCBlDELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdl
-c3Rlcm4gQ2FwZTEUMBIGA1UEBxMLRHVyYmFudmlsbGUxDzANBgNVBAoTBlRoYXd0ZTEdMBsGA1UE
-CxMUQ2VydGlmaWNhdGUgU2VydmljZXMxKDAmBgNVBAMTH1BlcnNvbmFsIEZyZWVtYWlsIFJTQSAx
-OTk5LjkuMTYwHhcNMDAwODI1MTQyNDE2WhcNMDEwODI1MTQyNDE2WjBEMR8wHQYDVQQDExZUaGF3
-dGUgRnJlZW1haWwgTWVtYmVyMSEwHwYJKoZIhvcNAQkBFhJ3aHRkcmduQGNhbm5ldC5jb20wgZ8w
-DQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBALJ5dJTLACq2XOImvdzV+9+ljLAiKyoPWnDKTx8wPW+P
-ImV8VRO+DZMG62LqIkwZRwUcwDkPVC1l2NTsiPeTs+V2Wq88MDod6ykAvmGq7b33fuMzrzhGkT1i
-gRzVnvAjfOObtS6rXJBo/O4QHh7M9Mgghqw+G+Iaj/KmW6HZ+CgrAgMBAAGjUDBOMB0GA1UdEQQW
-MBSBEndodGRyZ25AY2FubmV0LmNvbTAMBgNVHRMBAf8EAjAAMB8GA1UdIwQYMBaAFIir8WCDZlX0
-5FjHRh3AYb0j18OMMA0GCSqGSIb3DQEBBAUAA4GBAK7NQGi7lypyRqBIJqNsb3ttb9uqk/svWipd
-X6rFV3GYgajI0G2APE+2auJaySEzLP/awRURG4PzCP6Lj4gYGwOaOMgCa43H/OyMnlv07G2KcaZk
-9uFMUZf4lnDVFYlG7U/Ugvkoqcyd9Euomjs81SibcmQUqq3RCw6/+zKOXTzvMIIDFDCCAn2gAwIB
-AgIBCzANBgkqhkiG9w0BAQQFADCB0TELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdlc3Rlcm4gQ2Fw
-ZTESMBAGA1UEBxMJQ2FwZSBUb3duMRowGAYDVQQKExFUaGF3dGUgQ29uc3VsdGluZzEoMCYGA1UE
-CxMfQ2VydGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lvbjEkMCIGA1UEAxMbVGhhd3RlIFBlcnNv
-bmFsIEZyZWVtYWlsIENBMSswKQYJKoZIhvcNAQkBFhxwZXJzb25hbC1mcmVlbWFpbEB0aGF3dGUu
-Y29tMB4XDTk5MDkxNjE0MDE0MFoXDTAxMDkxNTE0MDE0MFowgZQxCzAJBgNVBAYTAlpBMRUwEwYD
-VQQIEwxXZXN0ZXJuIENhcGUxFDASBgNVBAcTC0R1cmJhbnZpbGxlMQ8wDQYDVQQKEwZUaGF3dGUx
-HTAbBgNVBAsTFENlcnRpZmljYXRlIFNlcnZpY2VzMSgwJgYDVQQDEx9QZXJzb25hbCBGcmVlbWFp
-bCBSU0EgMTk5OS45LjE2MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCzaVqX1NAWC3q1xV3p
-IZwjcs0STEv3fs/H+8pyJPRCUqxXleN7YXoXhOf9cjk4lLTq7WWnkgZeveBl9hm7lHl2TD65aHB1
-hBz0EXQAvAUsTwkDFzHM9EHUcsamXeKIRLCLLsRN8fDWhT5s85WUeJF+QOmc0Y0VV47Cc+Uw3kb1
-TwIDAQABozcwNTASBgNVHRMBAf8ECDAGAQH/AgEAMB8GA1UdIwQYMBaAFHJJwnM0xlX0C3ZygX53
-9IfnxrIOMA0GCSqGSIb3DQEBBAUAA4GBAGvGWekx+um27LED2N9ycv6RYEjqxlXde/BnjsZhcOdt
-wqU32J23FyhWBYvdXHVvxpGQxmxmcRPQEHxrkW+G4CE2LcHX6rIJrc8tbcaDUpv7u/6ch538t+l0
-kuRcl678fqzKDW9yemcsa3P1hvmd9QBu9B0Hzp2egmMp75MJflXeMIIDLTCCApagAwIBAgIBADAN
-BgkqhkiG9w0BAQQFADCB0TELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdlc3Rlcm4gQ2FwZTESMBAG
-A1UEBxMJQ2FwZSBUb3duMRowGAYDVQQKExFUaGF3dGUgQ29uc3VsdGluZzEoMCYGA1UECxMfQ2Vy
-dGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lvbjEkMCIGA1UEAxMbVGhhd3RlIFBlcnNvbmFsIEZy
-ZWVtYWlsIENBMSswKQYJKoZIhvcNAQkBFhxwZXJzb25hbC1mcmVlbWFpbEB0aGF3dGUuY29tMB4X
-DTk2MDEwMTAwMDAwMFoXDTIwMTIzMTIzNTk1OVowgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxX
-ZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUgVG93bjEaMBgGA1UEChMRVGhhd3RlIENvbnN1bHRp
-bmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24gU2VydmljZXMgRGl2aXNpb24xJDAiBgNVBAMTG1Ro
-YXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTErMCkGCSqGSIb3DQEJARYccGVyc29uYWwtZnJlZW1h
-aWxAdGhhd3RlLmNvbTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA1GnX1LCUZFtx6UfYDFG2
-6nKRsIRefS0Nj3sS34UldSh0OkIsYyeflXtL734Zhx2G6qPduc6WZBrCFG5ErHzmj+hND3EfQDim
-AKOHePb5lIZererAXnbr2RSjXW56fAylS1V/Bhkpf56aJtVquzgkCGqYx7Hao5iR/Xnb5VrEHLkC
-AwEAAaMTMBEwDwYDVR0TAQH/BAUwAwEB/zANBgkqhkiG9w0BAQQFAAOBgQDH7JJ+Tvj1lqVnYiqk
-8E0RYNBvjWBYYawmu1I1XAjPMPuoSpaKH2JCI4wXD/S6ZJwXrEcp352YXtJsYHFcoqzceePnbgBH
-H7UNKOgCneSa/RP0ptl8sfjcXyMmCZGAc9AUG95DqYMl8uacLxXK/qarigd1iwzdUYRr5PjRznei
-gTGCAgAwggH8AgEBMIGcMIGUMQswCQYDVQQGEwJaQTEVMBMGA1UECBMMV2VzdGVybiBDYXBlMRQw
-EgYDVQQHEwtEdXJiYW52aWxsZTEPMA0GA1UEChMGVGhhd3RlMR0wGwYDVQQLExRDZXJ0aWZpY2F0
-ZSBTZXJ2aWNlczEoMCYGA1UEAxMfUGVyc29uYWwgRnJlZW1haWwgUlNBIDE5OTkuOS4xNgIDAyQc
-MAkGBSsOAwIaBQCggbowGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcN
-MDAxMjA2MDgzMTMyWjAjBgkqhkiG9w0BCQQxFgQUpmKrEJVbIORdp0GpeljhE0QXWlIwWwYJKoZI
-hvcNAQkPMU4wTDAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwICAUAwBwYF
-Kw4DAgcwDQYIKoZIhvcNAwICASgwBwYFKw4DAh0wDQYJKoZIhvcNAQEBBQAEgYCSH3+ap8qwLpnq
-9KBZQeK3cg2umwX9c5qn4pFZGS+PqMjQhc4hE0vGSa2kjxkROo4vNHZCdogd32QmuLNSWgSS4Zr+
-t79qFo+kBQuJ6HwMNHts97hOcl4mSCd2dakzBOgt1l+e/UUf7zv7vZu0/K9O6rJtCcICTBRgMFsT
-iVrO5wAAAAAAAA==
-
-------=_NextPart_000_002D_01C05F5E.F0DDB4C0--
-
+-- 
+juri.haberland@innominate.com
+system engineer                                         innominate AG
+clustering & security                            the linux architects
+tel: +49-30-308806-45   fax: -77            http://www.innominate.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

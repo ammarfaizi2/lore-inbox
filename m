@@ -1,63 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269604AbUI3Wzc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269602AbUI3WzX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269604AbUI3Wzc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 18:55:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269606AbUI3Wzb
+	id S269602AbUI3WzX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 18:55:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269606AbUI3WzW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 18:55:31 -0400
-Received: from scanner1.mail.elte.hu ([157.181.1.137]:47581 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S269604AbUI3WzC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 18:55:02 -0400
-Date: Fri, 1 Oct 2004 00:56:40 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: Stack traces in 2.6.9-rc2-mm4
-Message-ID: <20040930225640.GA6441@elte.hu>
-References: <6.1.2.0.2.20040927184123.019b48b8@tornado.reub.net> <20040927085744.GA32407@elte.hu> <1096326753l.5222l.2l@werewolf.able.es> <20040928072123.GA15177@elte.hu> <1096581484l.9853l.0l@werewolf.able.es>
+	Thu, 30 Sep 2004 18:55:22 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:53956 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S269602AbUI3Wy7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 18:54:59 -0400
+Subject: [patch] inotify: rename slab-related stuff
+From: Robert Love <rml@novell.com>
+To: John McCutchan <ttb@tentacle.dhs.org>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <1096410792.4365.3.camel@vertex>
+References: <1096410792.4365.3.camel@vertex>
+Content-Type: multipart/mixed; boundary="=-cCa4ia+DrVqeFe4M6FPt"
+Date: Thu, 30 Sep 2004 18:53:36 -0400
+Message-Id: <1096584816.4203.98.camel@betsy.boston.ximian.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1096581484l.9853l.0l@werewolf.able.es>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Evolution 2.0.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* J.A. Magallon <jamagallon@able.es> wrote:
+--=-cCa4ia+DrVqeFe4M6FPt
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-> Sep 30 23:54:41 werewolf pumpd[9843]: intf: broadcast: 255.255.255.255
-> Sep 30 23:54:41 werewolf pumpd[9843]: intf: network: 82.198.40.0
-> Sep 30 23:54:41 werewolf kernel: using smp_processor_id() in preemptible 
-> code: pump/9843
-> Sep 30 23:54:41 werewolf kernel:  [smp_processor_id+135/141] 
-> smp_processor_id+0x87/0x8d
-> Sep 30 23:54:41 werewolf kernel:  [<b011bc8f>] smp_processor_id+0x87/0x8d
-> Sep 30 23:54:41 werewolf kernel:  [pg0+1079594592/1337930752] 
-> death_by_timeout+0x11/0x65 [ip_conntrack]
-> Sep 30 23:54:41 werewolf kernel:  [<f099fe60>] death_by_timeout+0x11/0x65 
-> [ip_conntrack]
+Hey, John.
 
-does the patch below fix these for you?
+Following patch renames some slab-related stuff.
 
-	Ingo
+First rename the "kevent_cache" variable to "event_cachep".  The name
+"kevent" sounds too close to the kernel event layer, which is going in.
+And the 'p' suffix is the standard for slab cache variables.  No idea
+why.
 
---- include/linux/netfilter_ipv4/ip_conntrack.h.orig
-+++ include/linux/netfilter_ipv4/ip_conntrack.h
-@@ -311,7 +311,7 @@ struct ip_conntrack_stat
- 	unsigned int expect_delete;
- };
+Second rename the "watcher_cache" variable to "watch_cachep" as the
+thing is now a watch object, not a watcher.  Also, same thing with the
+'p'.
+
+We do not have to worry about namespace, since the variables are local
+to the file.
+
+Finally, give the slab caches more descriptive user-visible names:
+"inotify_watch_cache" and "inotify_event_cache".
+
+Patch is on top of 0.11.0 and my past indiscretions.
+
+	Robert Love
+
+
+--=-cCa4ia+DrVqeFe4M6FPt
+Content-Disposition: attachment; filename=inotify-rename-slab-stuff-1.patch
+Content-Type: text/x-patch; name=inotify-rename-slab-stuff-1.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+rename slab-related things
+
+Signed-Off-By: Robert Love <rml@novell.com>
+
+ drivers/char/inotify.c |   18 +++++++++---------
+ 1 files changed, 9 insertions(+), 9 deletions(-)
+
+diff -urN linux-inotify/drivers/char/inotify.c linux/drivers/char/inotify.c
+--- linux-inotify/drivers/char/inotify.c	2004-09-30 18:44:21.131858232 -0400
++++ linux/drivers/char/inotify.c	2004-09-30 18:48:10.334014208 -0400
+@@ -46,8 +46,8 @@
+ #define MAX_INOTIFY_QUEUED_EVENTS 256	/* max events queued on the dev*/
  
--#define CONNTRACK_STAT_INC(count) (__get_cpu_var(ip_conntrack_stat).count++)
-+#define CONNTRACK_STAT_INC(count) (per_cpu(ip_conntrack_stat, _smp_processor_id()).count++)
+ static atomic_t watcher_count;
+-static kmem_cache_t *watcher_cache;
+-static kmem_cache_t *kevent_cache;
++static kmem_cache_t *watch_cachep;
++static kmem_cache_t *event_cachep;
  
- /* eg. PROVIDES_CONNTRACK(ftp); */
- #define PROVIDES_CONNTRACK(name)                        \
+ /* For debugging */
+ static int inotify_debug_flags;
+@@ -139,7 +139,7 @@
+ {
+ 	struct inotify_kernel_event *kevent;
+ 
+-	kevent = kmem_cache_alloc(kevent_cache, GFP_ATOMIC);
++	kevent = kmem_cache_alloc(event_cachep, GFP_ATOMIC);
+ 	if (!kevent) {
+ 		iprintk(INOTIFY_DEBUG_ALLOC,
+ 			"failed to alloc kevent (%d,%d)\n", wd, mask);
+@@ -181,7 +181,7 @@
+ 	kevent->event.mask = 0;
+ 
+ 	iprintk(INOTIFY_DEBUG_ALLOC, "free'd kevent %p\n", kevent);
+-	kmem_cache_free(kevent_cache, kevent);
++	kmem_cache_free(event_cachep, kevent);
+ }
+ 
+ #define inotify_dev_has_events(dev) (!list_empty(&dev->events))
+@@ -321,7 +321,7 @@
+ {
+ 	struct inotify_watch *watcher;
+ 
+-	watcher = kmem_cache_alloc(watcher_cache, GFP_KERNEL);
++	watcher = kmem_cache_alloc(watch_cachep, GFP_KERNEL);
+ 	if (!watcher) {
+ 		iprintk(INOTIFY_DEBUG_ALLOC,
+ 			"failed to allocate watcher (%p,%d)\n", inode, mask);
+@@ -344,7 +344,7 @@
+ 		iprintk(INOTIFY_DEBUG_ERRORS,
+ 			"Could not get wd for watcher %p\n", watcher);
+ 		iprintk(INOTIFY_DEBUG_ALLOC, "free'd watcher %p\n", watcher);
+-		kmem_cache_free(watcher_cache, watcher);
++		kmem_cache_free(watch_cachep, watcher);
+ 		return NULL;
+ 	}
+ 
+@@ -361,7 +361,7 @@
+ {
+ 	inotify_dev_put_wd(dev, watcher->wd);
+ 	iprintk(INOTIFY_DEBUG_ALLOC, "free'd watcher %p\n", watcher);
+-	kmem_cache_free(watcher_cache, watcher);
++	kmem_cache_free(watch_cachep, watcher);
+ }
+ 
+ /*
+@@ -975,11 +975,11 @@
+ 
+ 	inotify_debug_flags = INOTIFY_DEBUG_NONE;
+ 
+-	watcher_cache = kmem_cache_create("watcher_cache",
++	watch_cachep = kmem_cache_create("inotify_watch_cache",
+ 			sizeof(struct inotify_watch), 0, SLAB_PANIC,
+ 			NULL, NULL);
+ 
+-	kevent_cache = kmem_cache_create("kevent_cache",
++	event_cachep = kmem_cache_create("inotify_event_cache",
+ 			sizeof(struct inotify_kernel_event), 0,
+ 			SLAB_PANIC, NULL, NULL);
+ 
+
+--=-cCa4ia+DrVqeFe4M6FPt--
+

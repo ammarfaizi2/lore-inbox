@@ -1,62 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129657AbRBFJE4>; Tue, 6 Feb 2001 04:04:56 -0500
+	id <S129792AbRBFJNV>; Tue, 6 Feb 2001 04:13:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129924AbRBFJEr>; Tue, 6 Feb 2001 04:04:47 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:16132 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S129657AbRBFJEb>;
-	Tue, 6 Feb 2001 04:04:31 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: John R Lenton <john@grulic.org.ar>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Oops on UHCI module unload (2.4.2-pre1) 
-In-Reply-To: Your message of "Tue, 06 Feb 2001 05:40:40 -0300."
-             <20010206054040.B692@grulic.org.ar> 
-Mime-Version: 1.0
+	id <S129924AbRBFJNK>; Tue, 6 Feb 2001 04:13:10 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:64671 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S129792AbRBFJNG>; Tue, 6 Feb 2001 04:13:06 -0500
+To: Paul <set@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VM question (ramfs abuse)
+In-Reply-To: <20010123205315.A4662@werewolf.able.es>
+	<m3lmrqrspv.fsf@linux.local> <20010203234550.A507@squish>
+	<m3zog2n6ec.fsf@linux.local> <20010205210540.A10316@squish>
+From: Christoph Rohland <cr@sap.com>
+In-Reply-To: <20010205210540.A10316@squish>
+Message-ID: <m3ofwgb4q7.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 06 Feb 2001 20:04:24 +1100
-Message-ID: <3630.981450264@ocs3.ocs-net>
+Date: 06 Feb 2001 10:18:33 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Feb 2001 05:40:40 -0300, 
-John R Lenton <john@grulic.org.ar> wrote:
->When trying to figure out how to get USB to work (it was the MPS
->setting, more in other post) I got a repeatable Oops (is it an
->oops? it doesn't say "Oops!" like I thought they do).
+Hi Paul,
 
-The kernel makes you guess what the error messages are, to add some
-spice to life :-)
+On Mon, 5 Feb 2001, set@pobox.com wrote:
+> Christoph Rohland <cr@sap.com>, on Sun Feb 04, 2001 [10:53:26 AM] said:
+> @>Paul <set@pobox.com> writes:
+> @>> I finally managed to coax the cursor over to mutt and quit it. Then things
+> @>> were instantly fine and I could remove 'blob'.
+> @>> 	My question is, why wasnt any swap used during this time? Ramfs
+> @>> may not have any backing store?
+> @>
+> @>Because RAMFS lives in _physical_ ram. Grab my tmpfs patch and you
+> @>will have ramfs + swapping and accounting. But set a limit (Mount
+> @>option size) to it before doing anything like 
+> @>'dd if=/dev/zero of=blob' ;-)
+> @>
+> 	Dear Christoph;
+> 
+> 	First, thankyou for the reply. Heh. Meant to send to the list,
+> but got only you. Oh well.
+> 	I have been testing tmpfs on 2.4.1. I havent encountered any
+> problems, but I have a question. (with a limit, the pathological dd worked
+> just fine :) For fun, I did a
+> 'time (make dep && make clean && make bzImage)' using 2.2.18, 2.4.1, and
+> various fs's as /tmp. (reiser, ext2, ramfs, tmpfs) Both using and not
+> using the -pipe gcc option during the build.
+> 	I was somewhat suprised that each time was the same (within, like
+> 1/10th of a percent)
 
->Attached are two ksymoops outputs, for the two times I did this.
+You probably have to stress some more since the page cache is _very_
+effective on Linux. I can bring down a kernel compile on a 8way
+machine with parallel make from ~44 seconds to ~40 seconds which is a
+real speedup ;-)
 
-  Error (expand_objects): cannot stat(/lib/modules/2.4.2-pre1/kernel/drivers/usb/uhci.o) for uhci
-  Error (expand_objects): cannot stat(/lib/modules/2.4.2-pre1/kernel/drivers/usb/usbcore.o) for usbcore
-  Error (expand_objects): cannot stat(/lib/modules/2.4.2-pre1/kernel/drivers/input/mousedev.o) for mousedev
-  Error (expand_objects): cannot stat(/lib/modules/2.4.2-pre1/kernel/drivers/input/input.o) for input
-  Feb  4 04:32:20 burocracia kernel: Unable to handle kernel paging request at virtual address d10ff9e8
+Actually I really doubt a real speed benefit for normal users with
+tmpfs but there may be other benefits:
 
-ksymoops could not find the modules you loaded.  Did you rename, delete
-or overwrite /lib/modules/2.4.2-pre1 between the oops and the time you
-ran ksymoops?
+- 'add swap on any device and your tmpfs grows' can be really valuable. 
+- Automatic cleanup of /tmp on reboot
+- No traces of temporary files on backing store may help the crypto
+  people. (But no if you swap that argument is hosed.)
+- ???
 
-  Error (expand_objects): cannot stat(/lib/modules/2.4.2-pre1/kernel/drivers/usb/uhci.o) for uhci
-  Error (expand_objects): cannot stat(/lib/modules/2.4.2-pre1/kernel/drivers/usb/usbcore.o) for usbcore
-  Warning (expand_objects): object /lib/modules/2.4.2-pre1/kernel/drivers/net/ppp_deflate.o for module ppp_deflate has changed since load
-  Warning (expand_objects): object /lib/modules/2.4.2-pre1/kernel/drivers/net/bsd_comp.o for module bsd_comp has changed since load
-  Warning (expand_objects): object /lib/modules/2.4.2-pre1/kernel/drivers/net/ppp_async.o for module ppp_async has changed since load
-  Warning (expand_objects): object /lib/modules/2.4.2-pre1/kernel/drivers/net/ppp_generic.o for module ppp_generic has changed since load
-  Warning (expand_objects): object /lib/modules/2.4.2-pre1/kernel/drivers/net/slhc.o for module slhc has changed since load
+There are some people out there which really wanted to have this and
+it was a minor task to add the full support to shm fs.
 
-ksymoops could could not find some modules, those it could find have
-changed since the oops.  I would treat all your traces with suspicion,
-the base data is very unreliable.  Try to reproduce with current
-modules, instead of modules that have changed since the oops.
-
-BTW, do not specify -O unless you have a good reason to ignore objects,
-which you don't.  You should supply a system map with -m instead of
-suppressing it with -M.
+Greetings
+		Christoph
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

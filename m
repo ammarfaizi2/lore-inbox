@@ -1,72 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbVAJTqU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262633AbVAKCqG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262453AbVAJTqU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 14:46:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262484AbVAJTof
+	id S262633AbVAKCqG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 21:46:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262643AbVAKCls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 14:44:35 -0500
-Received: from mail1.webmaster.com ([216.152.64.168]:38412 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S262480AbVAJTY0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 14:24:26 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: <linux-os@analogic.com>, "Patrick J. LoPresti" <patl@curl.com>
-Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
-Subject: RE: /dev/random vs. /dev/urandom
-Date: Mon, 10 Jan 2005 11:24:21 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKKEMKAPAB.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
-Importance: Normal
-In-Reply-To: <Pine.LNX.4.61.0501100735210.19253@chaos.analogic.com>
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Mon, 10 Jan 2005 11:00:20 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Mon, 10 Jan 2005 11:00:20 -0800
+	Mon, 10 Jan 2005 21:41:48 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:39355 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262632AbVAJVUr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 16:20:47 -0500
+Date: Mon, 10 Jan 2005 13:20:38 -0800
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: kj <kernel-janitors@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: [UPDATE PATCH] block/pg: replace pg_sleep() with msleep()
+Message-ID: <20050110212038.GG9186@us.ibm.com>
+References: <20050110164703.GD14307@nd47.coderock.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050110164703.GD14307@nd47.coderock.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sorry, slightly inaccurate description...
 
-> In the first place, the problem was to display the error of using
-> an ANDing operation to truncate a random number.
+On Mon, Jan 10, 2005 at 05:47:03PM +0100, Domen Puncer wrote:
+> Patchset of 171 patches is at http://coderock.org/kj/2.6.10-bk13-kj/
+> 
+> Quick patch summary: about 30 new, 30 merged, 30 dropped.
+> Seems like most external trees are merged in -linus, so i'll start
+> (re)sending old patches.
 
-	Except there is no error.
+<snip>
 
-> In the limit,
-> one could AND with 0 and show that all randomness has been removed.
+> msleep_interruptible-drivers_block_pg.patch
 
-	Of course. Any time you truncate something, you are removing something from
-it.
+Please consider replacing with the following patch:
 
-> However, those who know nothing about the theory would then
-> probably jump upon this as a "special case" even though it usn't.
+Description: Use msleep()/ssleep() instead of pg_sleep() to guarantee
+the task delays as expected. TASK_INTERRUPTIBLE is used in the original code,
+however there is no check on the return values / for signals, thus I believe
+TASK_UNINTERRUPTIBLE (and hence msleep()) is more appropriate. Change pg_sleep()
+to use TASK_UNINTERRUPTIBLE as well.
 
-	Nope, no special case. Truncate all the way, remove everything. Truncate
-part of the way, remove something.
-
-	If you have a random number between 0 and 32767, and you want a random
-number between 0 and 255, you are going to have to remove some of the
-randomness from the input number. So long as the input random numbers are
-uniform and the truncation maps the same number of inputs to each output,
-any truncation scheme is as good as any other. Specifically, ANDing is as
-good as dividing, is as good as any other scheme as far as the quality of
-the output is concerned.
-
-	Where things get complicated is where the number of possible outputs does
-not divide evenly into the number of possible inputs. For example,
-truncating a random number between 0 and 32767 to one between 0 and 9. There
-are some algorithms to do this, but ANDing is insufficient.
-
-	DS
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
 
 
+--- 2.6.10-v/drivers/block/paride/pg.c	2004-12-24 13:35:25.000000000 -0800
++++ 2.6.10/drivers/block/paride/pg.c	2005-01-10 12:21:34.000000000 -0800
+@@ -295,7 +295,7 @@ static inline u8 DRIVE(struct pg *dev)
+ 
+ static void pg_sleep(int cs)
+ {
+-	current->state = TASK_INTERRUPTIBLE;
++	set_current_state(TASK_UNINTERRUPTIBLE);
+ 	schedule_timeout(cs);
+ }
+ 
+@@ -409,7 +409,7 @@ static int pg_reset(struct pg *dev)
+ 	write_reg(dev, 6, DRIVE(dev));
+ 	write_reg(dev, 7, 8);
+ 
+-	pg_sleep(20 * HZ / 1000);
++	msleep(20);
+ 
+ 	k = 0;
+ 	while ((k++ < PG_RESET_TMO) && (status_reg(dev) & STAT_BUSY))

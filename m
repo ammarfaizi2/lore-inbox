@@ -1,46 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264762AbUDWIlt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264763AbUDWIsl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264762AbUDWIlt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Apr 2004 04:41:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264764AbUDWIls
+	id S264763AbUDWIsl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Apr 2004 04:48:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264764AbUDWIsk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Apr 2004 04:41:48 -0400
-Received: from hauptpostamt.charite.de ([193.175.66.220]:33471 "EHLO
-	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
-	id S264762AbUDWIlr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Apr 2004 04:41:47 -0400
-Date: Fri, 23 Apr 2004 10:41:40 +0200
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: nvidia binary driver broken with 2.6.6-rc{1,2}, reverting a -mm patch makes it work
-Message-ID: <20040423084140.GN8599@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <4088D1E3.1050901@xs4all.nl> <20040423083041.GK8599@charite.de> <200404231037.09329@WOLK>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
+	Fri, 23 Apr 2004 04:48:40 -0400
+Received: from pop.gmx.net ([213.165.64.20]:21175 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264763AbUDWIsi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Apr 2004 04:48:38 -0400
+X-Authenticated: #4512188
+Message-ID: <4088D861.7080601@gmx.de>
+Date: Fri, 23 Apr 2004 10:48:33 +0200
+From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040413)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Len Brown <len.brown@intel.com>
+CC: Jesse Allen <the3dfxdude@hotmail.com>, Craig Bradney <cbradney@zip.com.au>,
+       ross@datscreative.com.au, christian.kroener@tu-harburg.de,
+       linux-kernel@vger.kernel.org, "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+       Jamie Lokier <jamie@shareable.org>, Daniel Drake <dan@reactivated.net>,
+       Ian Kumlien <pomac@vapor.com>, a.verweij@student.tudelft.nl,
+       Allen Martin <AMartin@nvidia.com>
+Subject: Re: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH]
+ for idle=C1halt, 2.6.5
+References: <200404131117.31306.ross@datscreative.com.au>	 <200404131703.09572.ross@datscreative.com.au>	 <1081893978.2251.653.camel@dhcppc4>	 <200404160110.37573.ross@datscreative.com.au>	 <1082060255.24425.180.camel@dhcppc4>	 <1082063090.4814.20.camel@amilo.bradney.info>	 <1082578957.16334.13.camel@dhcppc4> <4086E76E.3010608@gmx.de>	 <1082587298.16336.138.camel@dhcppc4>  <20040422163958.GA1567@tesore.local>	 <1082654469.16333.351.camel@dhcppc4> <1082669345.16332.411.camel@dhcppc4>
+In-Reply-To: <1082669345.16332.411.camel@dhcppc4>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <200404231037.09329@WOLK>
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>:
-
-> > $ uname -a
-> > Linux hummus2 2.6.6-rc2-bk1 #1 Thu Apr 22 14:15:08 CEST 2004 i686
-> > GNU/Linux
-> > nvidia works like a charm here.
+Len Brown wrote:
+> On Thu, 2004-04-22 at 13:21, Len Brown wrote:
 > 
-> that's the problem. It works for many people, for many others not. It always 
+> 
+>>>As for your patch, I get a fast timer, and gain about 1 sec per 5 minutes.
+>>>The only patch that seemed to work without a fast timer so far was the one 
+>>>removed by Linus in a testing version.  The AN35N has the timer override 
+>>>bug.
+>>
+>>Hmm, I didn't notice fast time on my FN41, i'll look for it.
+>>
+>>I'm not familiar with the "one removed by Linux in a testing version",
+>>perhaps you could point me to that?
+> 
+> 
+> date seems to gain 9sec/hour on my Shuttle/SN41G2/FN41 when using IOAPIC
+> timer.
 
-Oh shit!
+Do you get lock-ups wihtout the timer_ack/C1halt patch? If yes, this may 
+be the cause. I remember someone finding out that Ross' patch made the 
+timer actually slower which resulted in stable operation. Maciej found 
+out, not connecting the timer at all made it stabke as well. So is there 
+a possibility to sync both timers?
 
-> worked fine for me too but I had to rip that out of my 2.6-WOLK tree to 
-> satisfy all people using wolk and lack of knowledge to fix that by myself.
+According to a recent post, builöding kernel with SMP makes it stable, 
+as well, but I haven't tested.
 
--- 
-Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
-Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
-Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-916
-IT-Zentrum Standort Campus Mitte                          AIM.  ralfpostfix
+> booted with "noapic" for XT-PIC timer, it stays locked
+> onto my wristwatch after an hour.  If the workaround is disabled,
+> and XT-PIC timer is used, it matches the "noapic" behaviour -- no drift.
+> 
+> I can't explain it.  I think it is a timer problem independent of the
+> IRQ routing.
+> 
+> -Len
+> 
+> ps. when i ran in XT-PIC mode there were lots of ERR's registered in
+> /proc/interrupts -- doesn't look healthy.
+> 
+> 
+> 
+> 
+

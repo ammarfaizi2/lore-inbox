@@ -1,26 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261885AbUKZXtu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262434AbUKZXtu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261885AbUKZXtu (ORCPT <rfc822;willy@w.ods.org>);
+	id S262434AbUKZXtu (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 26 Nov 2004 18:49:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262436AbUKZTp3
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbUKZTpg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 14:45:29 -0500
+	Fri, 26 Nov 2004 14:45:36 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:4291 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262435AbUKZT1a (ORCPT
+	by vger.kernel.org with ESMTP id S262434AbUKZT13 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:27:30 -0500
-Date: Fri, 26 Nov 2004 00:09:37 +0100
+	Fri, 26 Nov 2004 14:27:29 -0500
+Date: Fri, 26 Nov 2004 00:22:47 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: Helge Hafting <helge.hafting@hist.no>
-Cc: Amit Gud <amitgud1@gmail.com>, linux-kernel@vger.kernel.org,
-       reiserfs-list@namesys.com
-Subject: Re: file as a directory
-Message-ID: <20041125230937.GA2909@elf.ucw.cz>
-References: <2c59f00304112205546349e88e@mail.gmail.com> <41A1FFFC.70507@hist.no>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Suspend 2 merge: 14/51: Disable page alloc failure message when suspending
+Message-ID: <20041125232247.GH2711@elf.ucw.cz>
+References: <1101292194.5805.180.camel@desktop.cunninghams> <1101294838.5805.245.camel@desktop.cunninghams> <20041125181529.GE1417@openzaurus.ucw.cz> <1101419381.27250.38.camel@desktop.cunninghams> <20041125215641.GH2488@elf.ucw.cz> <1101422779.27250.102.camel@desktop.cunninghams>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41A1FFFC.70507@hist.no>
+In-Reply-To: <1101422779.27250.102.camel@desktop.cunninghams>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -28,36 +27,27 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> Such support may happen for a few fs'es - people who
-> want this will then use those fses.  Those who don't
-> like the ideas will use others.
-> 
-> >(.tar, .tar.gz, ...) support in the VFS itself, and of course
-> >transparent to any fs and any user-land application. There are many
-> >archive FSs around, but how feasible would it be to implement the
-> >archive file support in the VFS at dentry-level? I'd be happy to share
-> >my proposal.
-> >
+> > > Agreed. I wasn't seriously suggesting changing everywhere to be
+> > > GFP_NOWARN. Perhaps I should be more explicit in what I'm saying here.
+> > > The problem isn't just suspend trying to allocate memory. It's
+> > > _ANYTHING_ that might be running trying to allocate memory while we're
+> > > eating memory. (Remember that we don't just call shrink_all_memory, but
+> > > also allocate that memory so other processes don't grab it and stop us
+> > > making forward progress). As a result, they're going to scream when they
+> > > can't allocate a page.
 > > 
-> >
-> You won't get .tar or .tar.gz support in the VFS, for a few simple reasons:
-> 1. .tar and .tar.gz are complicated formats, and are therefore better
->   left to userland.  You can get some of the same effect by using a shared
->   library that redefines fopen() and fread() though.  It'll work fine for
->   the vast majority of apps that happens to use the C library.
+> > Hmm, that does not look too healthy. That means that userland programs
+> > will see all kinds of weird error conditions that normally
+> > "almost-can't-happen" during normal usage.
+> 
+> Failure to allocate memory should be something any caller to get_*_page 
+> deals with, so if they don't, are we to be blamed?
 
-It is not same effect -- with shared library you get no caching. And
-that hurts a lot.
+Well, you'll have things like select() returning -ENOMEM. Applications
+will not be too happpy. We can probably live with that, but it is not
+nice.
 
->   It is hard to make a guaranteed bug-free decompressor that
->   is efficient and works with a finite amount of memory.  The kernel
->   needs all that - userland doesn't.
-
-If you have bug in decompressor, you are screwed, anyway, because you
-get remote user exploit when mozilla gets the file from
-web. Oops. [Ok, you at least do not get remote root exploit, but...]
-
-								Pavel 
+								Pavel
 -- 
 People were complaining that M$ turns users into beta-testers...
 ...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

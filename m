@@ -1,70 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270683AbRHJX0l>; Fri, 10 Aug 2001 19:26:41 -0400
+	id <S270685AbRHJX2b>; Fri, 10 Aug 2001 19:28:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270684AbRHJX0c>; Fri, 10 Aug 2001 19:26:32 -0400
-Received: from neon-gw.transmeta.com ([63.209.4.196]:59151 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S270683AbRHJX0N>; Fri, 10 Aug 2001 19:26:13 -0400
-Date: Fri, 10 Aug 2001 16:26:00 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: Jamie Lokier <lk@tantalophile.demon.co.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: /proc/<n>/maps getting _VERY_ long
-In-Reply-To: <3B745990.7040808@zytor.com>
-Message-ID: <Pine.LNX.4.33.0108101618270.1045-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S270687AbRHJX2V>; Fri, 10 Aug 2001 19:28:21 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:55058 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S270686AbRHJX2E>; Fri, 10 Aug 2001 19:28:04 -0400
+Date: Fri, 10 Aug 2001 19:24:18 -0400
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Raghava Raju <vraghava_raju@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: __asm__ usage ????
+Message-ID: <20010810192418.M1004@arthur.ubicom.tudelft.nl>
+In-Reply-To: <20010810195004.18859.qmail@web20008.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010810195004.18859.qmail@web20008.mail.yahoo.com>; from vraghava_raju@yahoo.com on Fri, Aug 10, 2001 at 12:50:04PM -0700
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Aug 10, 2001 at 12:50:04PM -0700, Raghava Raju wrote:
 
-On Fri, 10 Aug 2001, H. Peter Anvin wrote:
->
-> Note that it isn't very hard to deal with *that* problem, *if you want
-> to*... you just need to maintain a shadow data structure in the same
-> format as the page tables and stuff your software bits in there.
+>    I want some basic insights into assembly level code
+> emmbedded in C language. Following is the code of
+> PowerPc ambedded in C languagge:
+> 
+> unsigned long old,mask, *p;
+> 
+> 	__asm__ __volatile__(SMP_WMB "\
+> 1:	lwarx 	%0,0,%3
+> 	andc  	%0,%0,%2
+> 	stwcx 	%0,0,%3
+> 	bne 	1b"
+> 	SMP_MB
+> 	: "=&r" (old), "=m" (*p)
+> 	: "r" (mask), "r" (p), "m" (*p)
+> 	: "cc");
+> 
+> 	1) what does these things denote: __volatile__,
+> SMP_WMB, SMP_MB, "r","=&r","=m",
+> "cc" and 1: .
 
-Actually, this is what Linux already does.
+>From http://www.kernelnewbies.org/links/ :
 
-The Linux page tables _are_ a "shadow data structure", and are
-conceptually independent from the hardware page tables (or hash table, or
-whatever the actual hardware uses to actually fill in the TLB).
+  http://www-106.ibm.com/developerworks/linux/library/l-ia.html
+  http://www.uwsg.indiana.edu/hypermail/linux/kernel/9804.2/0953.html
 
-This is most clearly seen on CPU's that don't have traditional page table
-trees, but use software fill TLB's, hashes, or other things in hardware.
 
-> Whether or not that is a good idea is another issue entirely, however,
-> on some level it would make sense to separate protection from all the
-> other VM things...
+Erik
 
-I think that the current Linux approach is much superior - the page tables
-are conceptually a separate shadow data structure, but the way things are
-set up, you can choose to make the mapping from the shadow data structure
-to the actual hardware data structures be a 1:1 mapping.
-
-This does mean that we do NOT want to make the Linux shadow page tables
-contain stuff that is not easy to translate to hardware page tables.
-Tough. It's a trade-off: either you overspecify the kernel page tables
-(and take the hit of having to keep two separate page tables), or you say
-"the kernel page tables are weaker than we could make them", and you get
-the optimization of being able to "fold" them on top of the hardware page
-tables.
-
-I'm 100% convinced that the Linux VM does the right choice - we optimize
-for the important case, and I will claim that it is _really_ hard for
-anybody to make a VM that is as efficient and as fast as the Linux one.
-
-Proof: show me a full-fledged VM setup that even comes _close_ in
-performance, and gives the protection and the flexibility that the Linux
-one does.
-
-And yes, we do have _another_ shadow data structure too. It's called the
-vm_area_struct, aka "vma", and we do not artificially limit ourself to
-trying to look like hardware on that one.
-
-Which brings us back to the original question, and answers it: we already
-do all of this, and we do it RIGHT. We optimize for the right things.
-
-		Linus
-
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

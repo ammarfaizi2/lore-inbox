@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130304AbQKQXyF>; Fri, 17 Nov 2000 18:54:05 -0500
+	id <S129289AbQKRAD4>; Fri, 17 Nov 2000 19:03:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130271AbQKQXxz>; Fri, 17 Nov 2000 18:53:55 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:31858 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130180AbQKQXxm>; Fri, 17 Nov 2000 18:53:42 -0500
-Subject: Re: [PATCH] CONFIG_EISA note in Documentation/Configure.help
-To: aeb@veritas.com (Andries Brouwer)
-Date: Fri, 17 Nov 2000 23:24:15 +0000 (GMT)
-Cc: p_gortmaker@yahoo.com (Paul Gortmaker), linux-kernel@vger.kernel.org
-In-Reply-To: <20001117230146.A173@veritas.com> from "Andries Brouwer" at Nov 17, 2000 11:01:46 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13wurh-0001GT-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S129302AbQKRADr>; Fri, 17 Nov 2000 19:03:47 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:13774 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S129289AbQKRADk>;
+	Fri, 17 Nov 2000 19:03:40 -0500
+Date: Sat, 18 Nov 2000 00:33:28 +0100 (MET)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200011172333.AAA128995.aeb@aak.cwi.nl>
+To: koenig@tat.physik.uni-tuebingen.de, torvalds@transmeta.com
+Subject: Re: BUG: isofs broken (2.2 and 2.4)
+Cc: Andries.Brouwer@cwi.nl, aeb@veritas.com, emoenke@gwdg.de, eric@andante.org,
+        kobras@tat.physik.uni-tuebingen.de, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> My code does something like
-> 
-> /*
->  * EISA board N has a 4-byte ID that can be read from 0xNc80-0xNc83
->  * return 0 for success, -1 for failure (no EISA card in slot) and
->  * 1 when a card is present but still needs to be configured.
->  */
-> static int
-> get_eisa_id(int board, char *id) {
+Linus:
 
-This is actually a lot like the MCA bus needs but with a slightly different
-API.
+> How about this version (full patch against test10 - it includes a
+> slightly corrected version of my earlier dir.c patch)?
 
-Some clues here
+> It's entirely untested, but it looks good and compiles. Ship it!
 
-http://www.google.com/search?q=cache:www.korpse.freeserve.co.uk/hardware/pnp/html/escd.html+eisa+data+format&hl=en
+There are three files that have to be changed.
+You changed dir.c yesterday, and namei.c today
+but still have to do inode.c.
 
-but the original seems to have gone from korpse 8(
+Your stuff resembles my stuff. In namei.c I also replaced the 15
+lines following
+	} else if (dir->i_sb->u.isofs_sb.s_mapping == 'n') {
+by the line
+	dlen = isofs_name_translate(dpnt, dlen, page);
 
+But now that you did two-thirds of the job I take it you'll
+also do the third part? It is again precisely the same stuff.
 
-Microsoft have escd.rtf that documents the escd in terms of eisa records thus
-gives clues
-
+Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

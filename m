@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318744AbSIFPjI>; Fri, 6 Sep 2002 11:39:08 -0400
+	id <S318743AbSIFPjx>; Fri, 6 Sep 2002 11:39:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318743AbSIFPjH>; Fri, 6 Sep 2002 11:39:07 -0400
-Received: from windsormachine.com ([206.48.122.28]:27144 "EHLO
-	router.windsormachine.com") by vger.kernel.org with ESMTP
-	id <S318744AbSIFPhi>; Fri, 6 Sep 2002 11:37:38 -0400
-Date: Fri, 6 Sep 2002 11:42:05 -0400 (EDT)
-From: Mike Dresser <mdresser_l@windsormachine.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: DevilKin <devilkin-lkml@blindguardian.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: ide drive dying?
-In-Reply-To: <1031326747.10612.47.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.33.0209061141190.30387-100000@router.windsormachine.com>
+	id <S318746AbSIFPjw>; Fri, 6 Sep 2002 11:39:52 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:31648 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S318743AbSIFPjo>;
+	Fri, 6 Sep 2002 11:39:44 -0400
+Message-ID: <3D78CD5D.9060002@colorfullife.com>
+Date: Fri, 06 Sep 2002 17:44:29 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Imran Badr" <imran.badr@cavium.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Calculating kernel logical address ..
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6 Sep 2002, Alan Cox wrote:
+> adr = user_address;
+> pgd_offset(current->mm, adr);
+> 
+> if (!pgd_none(*pgd)) {
+> 	pmd = pmd_offset(pgd, adr);
+> 	if (!pmd_none(*pmd)) {
+> 		ptep = pte_offset(pmd, adr);
+> 		pte = *ptep;
+> 		if(pte_present(pte)) {
+> 			kaddr  = (unsigned long) page_address(pte_page(pte));
+> 			kaddr |= (adr & (PAGE_SIZE - 1));
+> 		}
+> 	}
+> }
+> 
+> Will this code always give me correct kernel logical address?
+> 
+What about
 
-> On Fri, 2002-09-06 at 16:26, Mike Dresser wrote:
-> > eBAY, and buy yourself a new drive.  You can pickup 80 gig drives for
-> > around 80 bucks nowadays.  I used to recommend Maxtors, until they said
-> > they're cutting their warranty to one year from three.  I don't know what
-> > to use anymore.
->
-> At current drive density and reliabilities - raid. Software raid setups
-> are so cheap there is little point not running RAID on IDE nowdays
->
-Well, I was looking more on the side of the Windows PC's here at the
-office, it's a bit expensive to start running raid on those.
+	kmalloc_buffer+(user_address-vma->vm_start)
 
-Mike
+?
+A driver should avoid accessing the page tables.
+
+--
+	Manfred
 

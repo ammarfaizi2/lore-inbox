@@ -1,34 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262297AbVAEIOV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262314AbVAEIcO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262297AbVAEIOV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 03:14:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262308AbVAEIOU
+	id S262314AbVAEIcO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 03:32:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262323AbVAEIcO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 03:14:20 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26053 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262297AbVAEIOT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 03:14:19 -0500
-Date: Wed, 5 Jan 2005 08:14:15 +0000
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Coywolf Qi Hunt <coywolf@gmail.com>
-Cc: krishna <krishna.c@globaledgesoft.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Con Kolivas <lkml@kolivas.org>
-Subject: Re: How to write elegant C coding
-Message-ID: <20050105081415.GH26051@parcelfarce.linux.theplanet.co.uk>
-References: <41DB8CC3.3040305@globaledgesoft.com> <2cd57c90050104234934ab6201@mail.gmail.com>
+	Wed, 5 Jan 2005 03:32:14 -0500
+Received: from main.gmane.org ([80.91.229.2]:51108 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262314AbVAEIcJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 03:32:09 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+Subject: Re: starting with 2.7
+Date: Wed, 05 Jan 2005 13:33:14 +0500
+Message-ID: <crg8lv$opr$1@sea.gmane.org>
+References: <20050104031229.GE26856@postel.suug.ch> <200501041850.20446.gene.heskett@verizon.net> <20050105053701.GB24263@alpha.home.local> <200501050204.05708.gene.heskett@verizon.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2cd57c90050104234934ab6201@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: dsa.physics.usu.ru
+User-Agent: KNode/0.8.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 05, 2005 at 03:49:07PM +0800, Coywolf Qi Hunt wrote:
-> I'd say better to study compile theory and a kind of compiler source code.
+Gene Heskett wrote:
 
-Yes, gcc source definitely makes a great cautionary tale about the need of
-writing elegant code and dreadful results of not doing so.
+> FWIW Willy, I did build a couple of the rc's there (coming up on
+> 2.6.8), now of course entropy has set in and I couldn't prove it, the
+> space has been reclaimed, whatever.  My point is that the rc's didn't
+> bite me, only the final, and it bit hard.
+
+Your point is correct: I still use 2.6.8-rc3 on dsa.physics.usu.ru, and NFS
+works perfectly in the internal 192.168.0.x network. So testing -rc* gives
+nothing here.
+
+> Again, to TPTB, give us a few days to beat on it in the rc mode, then
+> rename whats working to final.  In the meantime, I'm back to beating
+> on Ingo's stuff for the moment.
+
+-- 
+Alexander E. Patrakov
+

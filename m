@@ -1,35 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264579AbRFPDxn>; Fri, 15 Jun 2001 23:53:43 -0400
+	id <S264580AbRFPER3>; Sat, 16 Jun 2001 00:17:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264580AbRFPDxX>; Fri, 15 Jun 2001 23:53:23 -0400
-Received: from www.wen-online.de ([212.223.88.39]:33553 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S264579AbRFPDxW>;
-	Fri, 15 Jun 2001 23:53:22 -0400
-Date: Sat, 16 Jun 2001 05:52:39 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-cc: Leon Breedt <ljb@devco.net>, <linux-kernel@vger.kernel.org>
+	id <S264581AbRFPERT>; Sat, 16 Jun 2001 00:17:19 -0400
+Received: from odin.sinectis.com.ar ([216.244.192.158]:1546 "EHLO
+	mail.sinectis.com.ar") by vger.kernel.org with ESMTP
+	id <S264580AbRFPERH>; Sat, 16 Jun 2001 00:17:07 -0400
+Date: Sat, 16 Jun 2001 01:17:50 -0300
+From: John R Lenton <john@grulic.org.ar>
+To: linux-kernel@vger.kernel.org
 Subject: Re: [patch] nonblinking VGA block cursor
-In-Reply-To: <200106151921.f5FJLsc03635@saturn.cs.uml.edu>
-Message-ID: <Pine.LNX.4.33.0106160546100.408-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20010616011750.A8450@grulic.org.ar>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0106160546100.408-100000@mikeg.weiden.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="r5Pyd7+fXNt84Ff3"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0106160546100.408-100000@mikeg.weiden.de>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Jun 2001, Albert D. Cahalan wrote:
 
-> Of course FreeBSD has a block cursor. It was easy to program,
-> and it seems nice to the pot-smoking hippies out in Berkeley.
-> FreeBSD doesn't define standards. FreeBSD breaks standards.
-> (zombie creation, "ps -ef", partition tables, pty allocation...)
-> Gee, kind of like Microsoft, except Microsoft got the cursor right!
->
-> Ever wonder why IBM supports Linux instead of FreeBSD? Hmmm?
+--r5Pyd7+fXNt84Ff3
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I bet it has more to do with growth curves than cursor style :)
+On Sat, Jun 16, 2001 at 05:52:39AM +0200, Mike Galbraith wrote:
+> On Fri, 15 Jun 2001, Albert D. Cahalan wrote:
+> > Ever wonder why IBM supports Linux instead of FreeBSD? Hmmm?
+>=20
+> I bet it has more to do with growth curves than cursor style :)
 
-	-Mike
+don't kid yourself. cursor style is the #1 reason for OS adoption
+in the US.
 
+--=20
+John Lenton (john@grulic.org.ar) -- Random fortune:
+24 horas num dia, 24 cervejas numa caixa. Coincid=EAncia?
+
+--r5Pyd7+fXNt84Ff3
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7Kt3ugPqu395ykGsRAgrqAKC/DEvJuFHdF+ybzIszG/qqc9KWYwCgjKwh
+f3m1jYfuwgtb6idzPUUDrAE=
+=ocDW
+-----END PGP SIGNATURE-----
+
+--r5Pyd7+fXNt84Ff3--

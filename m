@@ -1,43 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287010AbSABWGY>; Wed, 2 Jan 2002 17:06:24 -0500
+	id <S287011AbSABWHo>; Wed, 2 Jan 2002 17:07:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286853AbSABWGP>; Wed, 2 Jan 2002 17:06:15 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:18819
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S284886AbSABWF4>; Wed, 2 Jan 2002 17:05:56 -0500
-Date: Wed, 2 Jan 2002 15:05:48 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Richard Henderson <rth@redhat.com>, Momchil Velikov <velco@fadata.bg>,
-        linux-kernel@vger.kernel.org, gcc@gcc.gnu.org,
-        linuxppc-dev@lists.linuxppc.org,
-        Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Corey Minyard <minyard@acm.org>
-Subject: Re: [PATCH] C undefined behavior fix
-Message-ID: <20020102220548.GL1803@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <87g05py8qq.fsf@fadata.bg> <20020102190910.GG1803@cpe-24-221-152-185.az.sprintbbd.net> <20020102133632.C10362@redhat.com>
-Mime-Version: 1.0
+	id <S286853AbSABWHZ>; Wed, 2 Jan 2002 17:07:25 -0500
+Received: from [217.9.226.246] ([217.9.226.246]:36480 "HELO
+	merlin.xternal.fadata.bg") by vger.kernel.org with SMTP
+	id <S284886AbSABWHO>; Wed, 2 Jan 2002 17:07:14 -0500
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Oliver Xymoron <oxymoron@waste.org>,
+        vda <vda@port.imtp.ilyichevsk.odessa.ua>, linux-kernel@vger.kernel.org
+Subject: Re: Extern variables in *.c files
+In-Reply-To: <02010216180403.01928@manta>
+	<Pine.LNX.4.43.0201021322120.30079-100000@waste.org>
+	<3C337EF1.4C7C72AB@zip.com.au>
+From: Momchil Velikov <velco@fadata.bg>
+In-Reply-To: <3C337EF1.4C7C72AB@zip.com.au>
+Date: 03 Jan 2002 00:07:18 +0200
+Message-ID: <87ell8wgo9.fsf@fadata.bg>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020102133632.C10362@redhat.com>
-User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 02, 2002 at 01:36:32PM -0800, Richard Henderson wrote:
-> On Wed, Jan 02, 2002 at 12:09:10PM -0700, Tom Rini wrote:
-> > 2) Add -ffreestanding to the CFLAGS of arch/ppc/kernel/prom.o (If this
-> > optimization comes back on with this flag later on, it would be a
-> > compiler bug, yes?)
-> 
-> No.  You still have the problem of using pointer arithmetic past
-> one past the end of the object.
+>>>>> "Andrew" == Andrew Morton <akpm@zip.com.au> writes:
 
-Well, the problem is that we aren't running where the compiler thinks we
-are yet.  So what would the right fix be for this?
+Andrew> Oliver Xymoron wrote:
+>> 
+>> On Wed, 2 Jan 2002, vda wrote:
+>> 
+>> > I grepped kernel *.c (not *.h!) files for extern variable definitions.
+>> > Much to my surprize, I found ~1500 such defs.
+>> >
+>> > Isn't that bad C code style? What will happen if/when type of variable gets
+>> > changed? (int->long).
+>> 
+>> Yes; Int->long won't change anything on 32-bit machines and will break
+>> silently on 64-bit ones. The trick is finding appropriate places to put
+>> such definitions so that all the things that need them can include them
+>> without circular dependencies.
+>> 
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+Andrew> Isn't there some way to get the linker to detect the differing
+Andrew> sizes?
+`--warn-common'
+     Warn when a common symbol is combined with another common symbol
+     or with a symbol definition.  Unix linkers allow this somewhat
+     sloppy practice, but linkers on some other operating systems do
+     not.  This option allows you to find potential problems from
+     combining global symbols.  Unfortunately, some C libraries use
+     this practice, so you may get some warnings about symbols in the
+     libraries as well as in your programs.
+
+Regards,
+-velco
+

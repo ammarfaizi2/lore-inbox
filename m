@@ -1,42 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314389AbSEIVkC>; Thu, 9 May 2002 17:40:02 -0400
+	id <S314393AbSEIVmP>; Thu, 9 May 2002 17:42:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314392AbSEIVkB>; Thu, 9 May 2002 17:40:01 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:50684 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S314389AbSEIVkB>; Thu, 9 May 2002 17:40:01 -0400
-Subject: Re: x86 question: Can a process have > 3GB memory?
-From: Robert Love <rml@tech9.net>
-To: tchiwam <tchiwam@ees2.oulu.fi>
-Cc: linux-kernel@vger.kernel.org, Rik van Riel <riel@conectiva.com.br>,
-        Gerrit Huizenga <gh@us.ibm.com>, Clifford White <ctwhite@us.ibm.com>,
-        oliendm@us.ibm.com
-In-Reply-To: <Pine.LNX.4.44.0205100020140.31628-100000@st0>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-4) 
-Date: 09 May 2002 14:40:10 -0700
-Message-Id: <1020980411.880.93.camel@summit>
+	id <S314394AbSEIVmP>; Thu, 9 May 2002 17:42:15 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:31241 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S314393AbSEIVmN>;
+	Thu, 9 May 2002 17:42:13 -0400
+Date: Thu, 9 May 2002 13:42:06 -0700
+From: Greg KH <greg@kroah.com>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [BK PATCH] PCI Hotplug changes for 2.5.14
+Message-ID: <20020509204205.GA18958@kroah.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.26i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-05-09 at 14:24, tchiwam wrote:
 
-> How about other architectures ? like PowerPc.
-> Last calculation I did used 11GB of ram (no swap) on a big Number
-> Muncher... Would it be nice to use the same code for testing on 32
-> architectures with swap ?
+Pull from:  bk://linuxusb.bkbits.net/pci_hp-2.5
 
-All 32-bit architectures have a 4GB address space, 64-bit architectures
-obviously have a much bigger one (depends on the arch how many bits are
-used for the address space).
 
-PPC obviously does not have the dumb physical memory limitations x86
-has, however.
+ drivers/hotplug/ibmphp.h           |   18 ++-
+ drivers/hotplug/ibmphp_core.c      |  208 ++++++++++++++++++++++++++++---------
+ drivers/hotplug/ibmphp_ebda.c      |   65 +++++++----
+ drivers/hotplug/ibmphp_hpc.c       |   29 +----
+ drivers/hotplug/pci_hotplug_core.c |    8 -
+ 5 files changed, 226 insertions(+), 102 deletions(-)
+------
 
-Anyhow, Rik's mmap trick will work on any arch, not just x86.
+ChangeSet@1.558, 2002-05-09 13:44:44-07:00, greg@kroah.com
+  PCI Hotplug core
+  
+  removed pcihpfs_statfs(), as it's not used anymore.
 
-	Robert Love
+ drivers/hotplug/pci_hotplug_core.c |    8 --------
+ 1 files changed, 8 deletions(-)
+------
+
+ChangeSet@1.557, 2002-05-09 13:15:51-07:00, greg@kroah.com
+  IBM PCI Hotplug driver
+  
+  update the ibm pci hotplug driver to the latest version.  Contains lots of
+  small bugfixes and added features for new hardware.
+
+ drivers/hotplug/ibmphp.h      |   18 ++-
+ drivers/hotplug/ibmphp_core.c |  208 ++++++++++++++++++++++++++++++++----------
+ drivers/hotplug/ibmphp_ebda.c |   65 ++++++++-----
+ drivers/hotplug/ibmphp_hpc.c  |   29 ++---
+ 4 files changed, 226 insertions(+), 94 deletions(-)
+------
 

@@ -1,64 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131745AbRAPQ6K>; Tue, 16 Jan 2001 11:58:10 -0500
+	id <S132222AbRAPRBA>; Tue, 16 Jan 2001 12:01:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132206AbRAPQ6A>; Tue, 16 Jan 2001 11:58:00 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:56069 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S131745AbRAPQ5q>;
-	Tue, 16 Jan 2001 11:57:46 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Chad Miller <cmiller@surfsouth.com>
-Date: Tue, 16 Jan 2001 17:56:34 MET-1
+	id <S132023AbRAPRAk>; Tue, 16 Jan 2001 12:00:40 -0500
+Received: from mail2.megatrends.com ([155.229.80.11]:24081 "EHLO
+	mail2.megatrends.com") by vger.kernel.org with ESMTP
+	id <S131652AbRAPRAf>; Tue, 16 Jan 2001 12:00:35 -0500
+Message-ID: <1355693A51C0D211B55A00105ACCFE64E95194@ATL_MS1>
+From: Venkatesh Ramamurthy <Venkateshr@ami.com>
+To: "'Eddie Williams'" <Eddie.Williams@steeleye.com>,
+        Venkatesh Ramamurthy <Venkateshr@ami.com>
+Cc: "'arjan@fenrus.demon.nl'" <arjan@fenrus.demon.nl>,
+        linux-kernel@vger.kernel.org,
+        "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>
+Subject: RE: Linux not adhering to BIOS Drive boot order? 
+Date: Tue, 16 Jan 2001 11:56:13 -0500
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: matroxfb on 2.4.0 / PCI: Failed to allocate...
-CC: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.40
-Message-ID: <12C0E7CE41C0@vcnet.vc.cvut.cz>
+X-Mailer: Internet Mail Service (5.5.2448.0)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 Jan 01 at 19:22, Chad Miller wrote:
 
-> I worry about some PCI initialization output (from dmesg):
+> Why is this a SCSI ML problem?  The problem is that the OS can't figure
+> out 
+> where to mount root from.  Sounds like an OS problem.
+> I think the file system label is the leading candidate to solve this.  One
 > 
-> # PCI: Probing PCI hardware
-> # Unknown bridge resource 0: assuming transparent
-> # PCI: Using IRQ router VIA [1106/0686] at 00:07.0
-> # PCI: Cannot allocate resource region 0 of device 01:00.0
-> # PCI: Failed to allocate resource 0 for Matrox Graphics, Inc. MGA G400 AGP
-> [...]
+> really does not care if the root disk is called /dev/sda or /dev/fred.
+> All 
+> one cares is that you can boot your system and the right disks are
+> mounted.  
+> What I have seen so far with the fs label this either does solve this
+> today or 
+> it can solve this.  I notice today on some systems the entries in
+> /etc/fstab 
+> already are "deviceless" in that it does not have the disk/partition but 
+> simply the disk label.
 > 
-> That `device 01:00.0' is obviously the AGP MGA.  'dmesg' continues later
-> with...
+> Can lilo use a label for the root disk also?  I have not looked into that
+> yet. 
+>  If it does not can it?  When I noticed the use of the label in /etc/fstab
+> my 
+> first thought was "alright, someone is solving this problem."  I have not 
+> taken the time - not a burning issue with me right now - to see if this is
+> all 
+> done yet though.
 > 
-> # matroxfb: Matrox Millennium G400 MAX (AGP) detected
-> # i2c-core.o: i2c core module
-> # i2c-algo-bit.o: i2c bit algorithm module
-> # i2c-core.o: driver maven registered.  [...]
+> Keep in mind that the example where /dev/sda is where root lies is that
+> "easy" 
+> case.  The hard case is what happens if someone installs on /dev/sdg.  Now
+> 
+> they boot up with a disk array turned off.  Is the mid-layer going to
+> figure 
+> out that what is now /dev/sda suppose to be /dev/sdg?  Or they install to 
+> /dev/sdb and /dev/sda goes bad so they pull it out?
+	[Venkatesh Ramamurthy]   If we can truly go for label based mouting
+and lilo'ing this would solve the problem. Anybody doing this?
 
-What does 'lspci -v' say?
 
-Are you sure that you do not have 'matroxfb: control registers are not
-available, matroxfb disabled', or 'matroxfb: video RAM is not available
-in PCI address space, matroxfb disabled' messages?
 
-Also, when request_mem_region(ctrl, 16K, "matroxfb MMIO") or
-request_mem_region(videoram, 32M, "matroxfb FB") fails (f.e. when
-both regions are uninitialized they overlaps, so second request_mem_region
-fails), there is a bug that no error message is printed
-in such case, as matroxfb assumes that if request_mem_region failed,
-it was because of some other driver already controls this hardware.
-
-You should make sure that (1) you have only one VGA in machine and
-(2) your BIOS is not buggy. Changing any of these two conditions should
-enable matroxfb to run (G400 is not very well supported as second head;
-you can experiment with 'memtype' matroxfb option, but...)
-                                            Petr Vandrovec
-                                            vandrove@vc.cvut.cz
-                                            
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

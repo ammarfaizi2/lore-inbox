@@ -1,62 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269926AbTGKMch (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 08:32:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269922AbTGKM3w
+	id S269923AbTGKM3k (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 08:29:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269922AbTGKM2p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 08:29:52 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59339 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S269915AbTGKM31
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 08:29:27 -0400
-Message-ID: <3F0EB10E.6070500@pobox.com>
-Date: Fri, 11 Jul 2003 08:43:58 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Fri, 11 Jul 2003 08:28:45 -0400
+Received: from village.ehouse.ru ([193.111.92.18]:32786 "EHLO mail.ehouse.ru")
+	by vger.kernel.org with ESMTP id S269915AbTGKM1J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 08:27:09 -0400
+From: "Sergey S. Kostyliov" <rathamahata@php4.ru>
+Reply-To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
+To: linux-kernel@vger.kernel.org
+Subject: [Fixed] Re: [Bug 898] New: Very HIGH File & VM system latencies and system stop responding while extracting big tar archive file.
+Date: Fri, 11 Jul 2003 16:41:49 +0400
+User-Agent: KMail/1.5
 MIME-Version: 1.0
-To: Dan Aloni <da-x@gmx.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: auto-bk-get
-References: <20030710184429.GA28366@callisto.yi.org> <3F0DD5F6.5060302@pobox.com> <20030711052539.GA9586@callisto.yi.org>
-In-Reply-To: <20030711052539.GA9586@callisto.yi.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307111641.49453.rathamahata@php4.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Aloni wrote:
-> On Thu, Jul 10, 2003 at 05:09:10PM -0400, Jeff Garzik wrote:
-> 
->>Dan Aloni wrote:
->>
->>>For kernel developers which are BitKeeper users, 
->>>
->>>auto-bk-get is an on-demand 'bk get' libc wrapper tool.
->>>
->>>It means that you don't need to run 'bk -r get' in order to build 
->>>the kernel. Instead, you just run 'make config' or 'make bzImage', 
->>>using auto-bk-get in a clean repository and auto-bk-get will 
->>>only 'bk get' the files you need from the repository (one of my
->>>test cases showed only 2800 out of 14000 files were checked out). 
->>
->>
->>No offense, but, it would probably be easier to fix the few remaining 
->>places where the makefile system does not automatically check out the files.
->>
->>It works great for everything except the Kconfig stuff, IIRC.
-> 
-> 
-> It's not just that. Does make and the build system alone allow you 
-> to build in an entirely different tree? (i.e check out and recreate
-> the directory structure somewhere else, leaving the repository clean or
-> even on a read-only media).
+On Friday 11 July 2003 14:45, Andrew Morton wrote:
+> Nick Piggin <piggin@cyberone.com.au> wrote:
+> > You're sure 2.5.74 got processes stuck in D? That means its possibly
+> >  a driver bug. If you can get 2.5.75 to hang, please also try with
+> >  elevator=deadline. Thank you.
 
+Yes it hangs also with both 2.5.74 and 2.5.75 elevatot=deadline
 
-Yes, that's Sam Ravnborg's (sp?) srcdir != objdir work.
+>
+> No, this will be the reiserfs bug.
 
-	Jeff
+Yes, this was a real fix.
 
+Thank you all for your quick response :).
 
-
+>
+> --- 25/fs/reiserfs/tail_conversion.c~reiserfs-dirty-memory-fix        
+2003-07-10
+> 22:22:54.000000000 -0700 +++
+> 25-akpm/fs/reiserfs/tail_conversion.c 2003-07-10 22:22:54.000000000 -0700
+> @@ -191,7 +191,7 @@ unmap_buffers(struct page *page, loff_t
+>       bh = next ;
+>        } while (bh != head) ;
+>        if ( PAGE_SIZE == bh->b_size ) {
+> -     ClearPageDirty(page);
+> +     clear_page_dirty(page);
+>        }
+>      }
+>    }
+>
+> _
+-- 
+                   Best regards,
+                   Sergey S. Kostyliov <rathamahata@php4.ru>
+                   Public PGP key: http://sysadminday.org.ru/rathamahata.asc

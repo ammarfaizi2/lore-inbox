@@ -1,46 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264371AbRFHVty>; Fri, 8 Jun 2001 17:49:54 -0400
+	id <S264379AbRFHWAg>; Fri, 8 Jun 2001 18:00:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264374AbRFHVtp>; Fri, 8 Jun 2001 17:49:45 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:1291 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264371AbRFHVtg>; Fri, 8 Jun 2001 17:49:36 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: Linux kernel headers violate RFC2553
-Date: 8 Jun 2001 14:49:29 -0700
-Organization: A poorly-installed InterNetNews site
-Message-ID: <9frh99$7bi$1@penguin.transmeta.com>
-In-Reply-To: <20010608195719.A4862@fefe.de> <15137.8668.590390.10485@pizda.ninka.net> <20010608211247.A12925@codeblau.de>
+	id <S264376AbRFHWA0>; Fri, 8 Jun 2001 18:00:26 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:7684 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264355AbRFHWAO>; Fri, 8 Jun 2001 18:00:14 -0400
+Subject: Re: [CHECKER] 15 probable security holes in 2.4.5-ac8
+To: engler@csl.Stanford.EDU (Dawson Engler)
+Date: Fri, 8 Jun 2001 22:58:11 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, mc@cs.Stanford.EDU
+In-Reply-To: <200106082134.OAA12792@csl.Stanford.EDU> from "Dawson Engler" at Jun 08, 2001 02:34:01 PM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E158UGh-0003Hl-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010608211247.A12925@codeblau.de>,
-Felix von Leitner  <leitner@fefe.de> wrote:
->Thus spake David S. Miller (davem@redhat.com):
->>  > glibc works around this, but the diet libc uses the kernel headers and
->>  > thus exports the wrong API to user land.
->> Don't user kernel headers for userspace.
->
->What choice do I have?
->Duplicate everything and then be out of sync when the specs change?
+> [BUG]  dataxferlen is never checked.
+> /u2/engler/mc/oses/linux/2.4.5-ac8/drivers/scsi/megaraid.c:4108:megadev_ioctl: ERROR:RANGE:3825:4108: Using user length "dataxferlen" as argument to "copy_from_user" [type=LOCAL] [state = any_check] set by 'copy_from_user':3825 [val=28300]
 
-Yes.
+Yep. Fixed - privileged ioctl fortunately
 
-Even more preferably - write user-space headers that have _only_ the
-minimum amount of code in them. The kernel headers have a lot of cruft
-that is kernel-only, and that means that if you compile user space using
-them, your compiles will be slower than they should be.
+> static int moxaload320b(int cardno, unsigned char * tmp, int len)
+> {
+>         unsigned long baseAddr;
+>         int i;
 
-The basic issue is that the kernel will _refuse_ to follow the
-"namespace of the day" rules of C89, C99, POSIX, BSD, SuS, GNU .. the
-list goes on. The kernel headers are not meant to be used in user space,
-and will not have the strict namespace rules that a lot of standards
-spend so much time playing with.
+Fixed - privileged anyway
 
-There aren't that many things that are actually useful in the kernel
-headers anyway.  Most of them (like the IPv6 stuff) are really specified
-in other places in the first place. 
+> ---------------------------------------------------------
+> [BUG]  d.idx is an int: < 0 = bad news.
+> /u2/engler/mc/oses/linux/2.4.5-ac8/drivers/char/drm/i810_dma.c:1413:i810_copybuf: ERROR:RANGE:1409:1413: Using user length "idx"as an array index for "buflist" set by 'copy_from_user':1409 [val=400]
+> 	if(!_DRM_LOCK_IS_HELD(dev->lock.hw_lock->lock)) {
+> 		DRM_ERROR("i810_dma called without lock held\n");
 
-		Linus
+Fixed - nasty
+
+> [BUG]  ouch.  (routine also uses it as an index)
+> /u2/engler/mc/oses/linux/2.4.5-ac8/drivers/usb/se401.c:1290:se401_ioctl: ERROR:RANGE:1286:1290: Using user length "frame"as an array index for "frame" set by 'copy_from_user':1286 [val=400]
+
+Uggh..
+
+> [BUG]  ouch x 2: no check either way.
+> /u2/engler/mc/oses/linux/2.4.5-ac8/drivers/char/drm/mga_state.c:835:mga_iload: ERROR:RANGE:827:835: Using user length "idx"as an array index for "buflist" set by 'copy_from_user':827 [val=800]
+
+Nasty - left for the X folks to fix
+
+> [BUG] (but i'm not sure whey we're missing the initial irq).
+> /u2/engler/mc/oses/linux/2.4.5-ac8/drivers/net/hamradio/scc.c:1772:scc_net_ioctl: ERROR:RANGE:1762:1772: Using user length "irq"as an array index for "Ivec" set by 'copy_from_user':1762 [val=1000]
+> 			if (!arg) return -EFAULT;
+
+Thats a real bug for other reaosns. the iRQ might be > 16 on APIC using hosts
+or non x86
+
+Both fixed
+
+> [BUG]  usbvideo_GetFrame can fail, but result is not checked before index.
+> /u2/engler/mc/oses/linux/2.4.5-ac8/drivers/usb/usbvideo.c:1596:usbvideo_v4l_ioctl: ERROR:RANGE:1572:1596: Using user length "frameNum"as an array index for "frame" set by 'copy_from_user':1572 [val=2400]
+> 		}
+
+Fixed
+
+> ---------------------------------------------------------
+> [BUG] pretty sure, though the code is convoluted.
+> /u2/engler/mc/oses/linux/2.4.5-ac8/drivers/media/video/zr36067.c:3505:do_zoran_ioctl: ERROR:RANGE:3435:3505: Using user length "norm"as an array index for "cardnorms" [val=7000]
+
+Done
+

@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319373AbSIFUcO>; Fri, 6 Sep 2002 16:32:14 -0400
+	id <S319378AbSIFUdT>; Fri, 6 Sep 2002 16:33:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319376AbSIFUcO>; Fri, 6 Sep 2002 16:32:14 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22279 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S319373AbSIFUcO>;
-	Fri, 6 Sep 2002 16:32:14 -0400
-Date: Fri, 6 Sep 2002 21:36:52 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Corey Minyard <minyard@acm.org>
-Cc: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Version 2 of the Linux IPMI driver
-Message-ID: <20020906213652.G26580@parcelfarce.linux.theplanet.co.uk>
-References: <20020906201856.F26580@parcelfarce.linux.theplanet.co.uk> <3D790F2E.1050306@acm.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D790F2E.1050306@acm.org>; from minyard@acm.org on Fri, Sep 06, 2002 at 03:25:18PM -0500
+	id <S319380AbSIFUdT>; Fri, 6 Sep 2002 16:33:19 -0400
+Received: from 2-210.ctame701-1.telepar.net.br ([200.193.160.210]:48514 "EHLO
+	2-210.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S319378AbSIFUdS>; Fri, 6 Sep 2002 16:33:18 -0400
+Date: Fri, 6 Sep 2002 17:37:45 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: "Woller, Thomas" <tom.woller@cirrus.com>
+cc: linux-kernel@vger.kernel.org
+Subject: RE: cs4281 & select in 2.4
+In-Reply-To: <973C11FE0E3ED41183B200508BC7774C05233F8A@csexchange.crystal.cirrus.com>
+Message-ID: <Pine.LNX.4.44L.0209061735200.1857-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 06, 2002 at 03:25:18PM -0500, Corey Minyard wrote:
-> You access a device as a filesystem?  That's bizarre.  It's a device, 
-> and they call them "devices" in the kernel for a reason.  Why would you 
-> want to do this?  Especially with devfs, the whole device numbering 
-> problem goes away.  You could easily make it a misc device.
+On Fri, 6 Sep 2002, Woller, Thomas wrote:
 
-The point is to get away from using character devices where we don't need
-them (and we really don't need them in most places).  Plus, there's no
-dependency on devfs with this approach.
+> Toshiba refused to lend us any laptops after repeated requests,
+> so all the toshiba work has been without a unit to test with.
+> There is at least one (that i remember) specific fix for toshiba
+> systems in the driver.
+> also does recording work at all?
 
-> Plus, your patch misses a lot of places where IPMI is going.
+Works fine with kpsk and other programs that just read.
+It seems to break only with select()
 
-Oh, I'm quite aware of the limitations of my driver.  I just don't
-want to see yet another character device + ioctl interface going into
-the kernel when it's really not necessary.  
+> so, look at cs4281_setup_record_src(), and maybe commenting out
+> the toshiba specific code concerning the recording sources might
+> make a difference. or if the unit is NOT recognized, then forcing
+> the code to setup as your unit as a 1640CDT and see if that
+> helps.
 
-> And it wasn't stupid to call your "driver" BMC.  That's exactly what it 
-> is.  It's not IPMI, it's a KCS BMC interface (hooked in as a filesystem).
+I'll switch the debugging on and I'll see if anything
+happens.
 
-Right, but it should probably be addressed as /dev/ipmi since what we're
-doing is sending IPMI messages.
+regards,
 
+Rik
 -- 
-Revolutions do not require corporate support.
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Spamtraps of the month:  september@surriel.com trac@trac.org
+

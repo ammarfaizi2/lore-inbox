@@ -1,57 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266921AbRHKKQM>; Sat, 11 Aug 2001 06:16:12 -0400
+	id <S267419AbRHKK0m>; Sat, 11 Aug 2001 06:26:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267419AbRHKKQC>; Sat, 11 Aug 2001 06:16:02 -0400
-Received: from smtp012.mail.yahoo.com ([216.136.173.32]:53262 "HELO
-	smtp012.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S266921AbRHKKPw>; Sat, 11 Aug 2001 06:15:52 -0400
-X-Apparently-From: <quintaq@yahoo.co.uk>
-Date: Sat, 11 Aug 2001 11:16:37 +0100
-From: quintaq@yahoo.co.uk
-To: <linux-kernel@vger.kernel.org>
-Subject: Errors compiling emu10k1 module under 2.4.8
-Reply-To: quintaq@yahoo.co.uk
-X-Mailer: Sylpheed version 0.5.2 (GTK+ 1.2.8; i686-pc-linux-gnu)
+	id <S267449AbRHKK0c>; Sat, 11 Aug 2001 06:26:32 -0400
+Received: from lanm-pc.com ([64.81.97.118]:48629 "EHLO golux.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S267419AbRHKK0R>;
+	Sat, 11 Aug 2001 06:26:17 -0400
+Date: Sat, 11 Aug 2001 06:23:49 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Kernel lockups on dual-Athlon board -- help wanted
+Message-ID: <20010811062349.A1769@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Message-Id: <20010811101557Z266921-760+224@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Gary Sandine of Los Alamos Computers and I are attempting to qualify
+Linux on a Tyan 2462 K7 Thunder motherboard -- dual Athlon 1200 MP
+chips supported by an AMD 760 chipset.  We have been seeing mysterious
+lockups during commands to build things from source, like kernels and X.
 
-I just d/ld the 2.4.8 patch and compilation of emu10k1 fails with :
+We've been trying to track down the problem for about sixteen hours
+and have gathered quite a bit of data, but don't have a theory to  explain
+it.
 
-main.o(.modinfo+0x20): multiple definition of `__module_author'
-joystick.o(.modinfo+0x80): first defined here
-ld: Warning: size of symbol `__module_author' changed from 67 to 81 in
-main.o
-main.o(.modinfo+0x80): multiple definition of `__module_description'
-joystick.o(.modinfo+0xe0): first defined here
-ld: Warning: size of symbol `__module_description' changed from 83 to 96 in
-main.o
-main.o: In function `init_module':
-main.o(.text+0x1878): multiple definition of `init_module'
-joystick.o(.text+0x240): first defined here
-ld: Warning: size of symbol `init_module' changed from 64 to 67 in main.o
-main.o: In function `cleanup_module':
-main.o(.text+0x18bc): multiple definition of `cleanup_module'
-joystick.o(.text+0x280): first defined here
-make[3]: *** [emu10k1.o] Error 1
+First, we have established that this is a real kernel hang, not just a 
+bad device state:
 
-etc
+A. Lockups can be induced in either console or X mode.  A reliable way to 
+   induce them is to run `make clean' on an X tree (any sufficiently 
+   long-running command seems to do it).
 
-Has my patching gone awry or is this a bug ?
+B. We logged in over the network, started a top(1) in the network
+   session, induced the hang on the console, and watch top(1) freeze.
+   So 
 
-I am not subscribed to the list, so a cc'd reply would be nice.
+C. The magic AltSysRq command is ineffective when the lockups happen.
 
-Thanks,
+Here's what we know about it:
 
-Geoff
+1. Lockups never occur under a uniprocessor kernel.
 
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
+2. Configuring APM and ACPI out of the kernel does not prevent the lockups.
+   Disabling ACPI and power management doesn't stop them either.
 
+3. Changing kernels from 2.4.3 to 2.4.7 doesn't prevent the lockups.
+
+4. The SMP kernel built for either PII or AMD (no APM, no ACPI) locks up.
+
+5. There is an undocumented BIOS setting "Use PCI Interrupt Entries in 
+   MP table."  By default it is on.  Turning it off doesn't prevent the
+   lockups.
+
+6. Here's a weird one.  When the kernel is running, the power switch
+   has to be pressed down for 4 seconds to power down the machine.  But
+   during a lockup it powers down the machine instantly.
+
+What we're seeing suggests some bad interaction between the SMP
+support and the hardware.  But item 7 hints that power management
+could be involved, even though we have it configured out.
+
+Anybody have a brilliant insight?  Suggestions for further tests?
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+Government should be weak, amateurish and ridiculous. At present, it
+fulfills only a third of the role.
+	-- Edward Abbey

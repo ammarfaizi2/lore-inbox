@@ -1,26 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262808AbRE0QVl>; Sun, 27 May 2001 12:21:41 -0400
+	id <S262810AbRE0Q2u>; Sun, 27 May 2001 12:28:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262800AbRE0QVb>; Sun, 27 May 2001 12:21:31 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:61963 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262799AbRE0QVZ>; Sun, 27 May 2001 12:21:25 -0400
-Subject: Re: [PATCH][2.4.5] buz.c compile errors
-To: sembera@centrum.cz (Jan Sembera)
-Date: Sun, 27 May 2001 17:19:03 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3B111566.6070507@centrum.cz> from "Jan Sembera" at May 27, 2001 01:55:34 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S262813AbRE0Q2k>; Sun, 27 May 2001 12:28:40 -0400
+Received: from [213.128.193.148] ([213.128.193.148]:23054 "EHLO linuxhacker.ru")
+	by vger.kernel.org with ESMTP id <S262810AbRE0Q2g>;
+	Sun, 27 May 2001 12:28:36 -0400
+Date: Sun, 27 May 2001 20:28:14 +0400
+From: Oleg Drokin <green@linuxhacker.ru>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: VIA IDE no go with 2.4.5-ac1
+Message-ID: <20010527202814.A23079@linuxhacker.ru>
+In-Reply-To: <20010527144337.A15235@linuxhacker.ru> <E1543FE-0001zX-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E1543Fv-0001ze-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E1543FE-0001zX-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, May 27, 2001 at 05:18:20PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have written a patch for buz.c for 2.4.5, it should be solution, but i 
-> don't know it really works, I don't have such hardware available.
+Hello!
 
-It doesnt work. The entire buz driver is totally broken and to be discarded
+On Sun, May 27, 2001 at 05:18:20PM +0100, Alan Cox wrote:
+> >   Vanilla 2.4.5 boots ok, but 2.4.5-ac1 finishes kernel initialisation and
+> >   starts to print "hda: lost interrupt", I guess this is related to VIA IDE
+> >   updates in AC kernels. Config for vanilla and AC kernel is the same.
+> >   Here are the kernel logs from 2.4.5 and 2.4.5-ac1 (collected with serial
+> > ACPI: Core Subsystem version [20010208]
+> > ACPI: Subsystem enabled
+> > ACPI: Not using ACPI idle
+> > ACPI: System firmware supports: S0 S1 S4 S5
+> > hda: lost interrupt
+> > hda: lost interrupt
+> Does this still happen if you build without ACPI support. Also does
+> 'noapic' have any impact ?
+I will try this and report.
+I received this patch from Carlos E Gorges <carlos@techlinux.com.br>,
+that allows my box to boot, but DMA is not enabled by default
+(and needs to be explicitly enabled by hdparm -d1 /dev/hda) regardless of
+what is written at boot time.
+
+--- drivers/ide/via82cxxx.c.orig	Sun May 27 08:10:47 2001
++++ drivers/ide/via82cxxx.c	Sun May 27 08:11:13 2001
+@@ -105,7 +105,7 @@
+ 	{ "vt8233",	PCI_DEVICE_ID_VIA_8233_0,   0x00, 0x2f, VIA_UDMA_100 },
+ 	{ "vt8231",	PCI_DEVICE_ID_VIA_8231,     0x00, 0x2f, VIA_UDMA_66 },
+ #endif
+-	{ "vt82c686b",	PCI_DEVICE_ID_VIA_82C686,   0x40, 0x4f, VIA_UDMA_100 | VIA_BAD_PIO },
++	{ "vt82c686b",	PCI_DEVICE_ID_VIA_82C686,   0x40, 0x4f, VIA_UDMA_100 },
+ 	{ "vt82c686a",	PCI_DEVICE_ID_VIA_82C686,   0x10, 0x2f, VIA_UDMA_66 },
+ 	{ "vt82c686",	PCI_DEVICE_ID_VIA_82C686,   0x00, 0x0f, VIA_UDMA_33 | VIA_BAD_CLK66 },
+ 	{ "vt82c596b",	PCI_DEVICE_ID_VIA_82C596,   0x10, 0x2f, VIA_UDMA_66 },
+
+Bye,
+    Oleg

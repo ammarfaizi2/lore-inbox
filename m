@@ -1,53 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269248AbUINJxs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269250AbUINJ4A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269248AbUINJxs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 05:53:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269249AbUINJxr
+	id S269250AbUINJ4A (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 05:56:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269249AbUINJ4A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 05:53:47 -0400
-Received: from rdrz.de ([217.160.107.209]:7582 "HELO rdrz.de")
-	by vger.kernel.org with SMTP id S269248AbUINJxc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 05:53:32 -0400
-Date: Tue, 14 Sep 2004 11:53:30 +0200
-From: Raphael Zimmerer <killekulla@rdrz.de>
-To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org
-Subject: [PATCH 1/2] ide: remove obsolete CONFIG_BLK_DEV_ADMA
-Message-ID: <20040914095330.GF9994@rdrz.de>
-Reply-To: linux-ide@vger.kernel.org, Raphael Zimmerer <killekulla@rdrz.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 14 Sep 2004 05:56:00 -0400
+Received: from mail-relay-1.tiscali.it ([213.205.33.41]:22247 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S269250AbUINJzm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 05:55:42 -0400
+From: Lorenzo Allegrucci <l_allegrucci@despammed.com>
+Organization: -ENOENT
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.9-rc1-mm5
+Date: Tue, 14 Sep 2004 12:00:36 +0200
+User-Agent: KMail/1.7
+Cc: linux-kernel@vger.kernel.org
+References: <20040913015003.5406abae.akpm@osdl.org>
+In-Reply-To: <20040913015003.5406abae.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200409141200.36074.l_allegrucci@despammed.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Raphael Zimmerer <killekulla@rdrz.de>
+On Monday 13 September 2004 10:50, Andrew Morton wrote:
+> Due to master.kernel.org being on the blink, 2.6.9-rc1-mm5 Is currently at
+>
+>  http://www.zip.com.au/~akpm/linux/patches/2.6.9-rc1-mm5/
+>
+> and will later appear at
+>
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6
+>.9-rc1-mm5/
 
-In drivers/ide/Kconfig there's a hidden config-item named BLK_DEV_ADMA.
-Nowhere in the sources are any references to this item, so this option
-simply is obsolete.
+100% reproducible under heavy IO load:
 
-This patch removes the according item from drivers/ide/Kconfig.
-
-Signed-off-by: Raphael Zimmerer <killekulla@rdrz.de>
----
-
- drivers/ide/Kconfig |    5 -----
- 1 files changed, 5 deletions(-)
-
---- linux-2.6.8.1/drivers/ide/Kconfig	2004-08-16 10:00:50.000000000 +0200
-+++ linux-2.6.8.1-no-BLK_DEV_ADMA/drivers/ide/Kconfig	2004-09-13 17:37:51.000000000 +0200
-@@ -457,11 +457,6 @@ config IDEDMA_ONLYDISK
- 
- 	  Generally say N here.
- 
--config BLK_DEV_ADMA
--	bool
--	depends on PCI && BLK_DEV_IDEPCI
--	default BLK_DEV_IDEDMA_PCI
--
- config BLK_DEV_AEC62XX
- 	tristate "AEC62XX chipset support"
- 	help
+Sep 14 11:42:59 odyssey kernel: journal_bmap: journal block not found at 
+offset 2060 on hda12
+Sep 14 11:42:59 odyssey kernel: Aborting journal on device hda12.
+Sep 14 11:42:59 odyssey kernel: EXT3-fs error (device hda12) in 
+ext3_dirty_inode: IO failure
+Sep 14 11:43:00 odyssey kernel: ext3_abort called.
+Sep 14 11:43:00 odyssey kernel: EXT3-fs error (device hda12): 
+ext3_journal_start: Detected aborted journal
+Sep 14 11:43:00 odyssey kernel: Remounting filesystem read-only
+Sep 14 11:43:00 odyssey kernel: ext3_reserve_inode_write: aborting 
+transaction: Journal has aborted in __ext3_journal_get_write_access<2>EXT3-fs 
+error (device hda12) in ext3_reserve_inode_write: Journal has aborted
+Sep 14 11:43:00 odyssey kernel: ext3_reserve_inode_write: aborting 
+transaction: Journal has aborted in __ext3_journal_get_write_access<2>EXT3-fs 
+error (device hda12) in ext3_reserve_inode_write: Journal has aborted
+Sep 14 11:43:00 odyssey kernel: EXT3-fs error (device hda12) in 
+ext3_orphan_del: Journal has aborted
+Sep 14 11:43:00 odyssey kernel: EXT3-fs error (device hda12) in ext3_truncate: 
+Journal has aborted
+Sep 14 11:43:00 odyssey kernel: EXT3-fs error (device hda12) in 
+start_transaction: Journal has aborted
+Sep 14 11:43:01 odyssey last message repeated 17 times
+Sep 14 11:43:01 odyssey kernel: or (device hda12) in start_transaction: 
+Journal has aborted
+Sep 14 11:43:01 odyssey kernel: EXT3-fs error (device hda12) in 
+start_transaction: Journal has aborted
+Sep 14 11:43:02 odyssey last message repeated 53 times
+Sep 14 11:43:02 odyssey kernel: EXT3-fs error (device hda12) in staror (device 
+hda12) in start_transaction: Journal has aborted
+Sep 14 11:43:02 odyssey kernel: EXT3-fs error (device hda12) in 
+start_transaction: Journal has aborted
+Sep 14 11:43:03 odyssey last message repeated 53 times
+Sep 14 11:43:03 odyssey kernel: EXT3-fs error (device hda12) in staror (device 
+hda12) in start_transaction: Journal has aborted
+Sep 14 11:43:03 odyssey kernel: EXT3-fs error (device hda12) in 
+start_transaction: Journal has aborted
+Sep 14 11:43:34 odyssey last message repeated 147542 times

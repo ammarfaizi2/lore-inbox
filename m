@@ -1,36 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266128AbSKFV0b>; Wed, 6 Nov 2002 16:26:31 -0500
+	id <S266114AbSKFVVT>; Wed, 6 Nov 2002 16:21:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266141AbSKFV0a>; Wed, 6 Nov 2002 16:26:30 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:43534 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S266128AbSKFV03>;
-	Wed, 6 Nov 2002 16:26:29 -0500
-Date: Wed, 6 Nov 2002 22:32:44 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Up silly limit on .config line length
-Message-ID: <20021106213244.GC1035@mars.ravnborg.org>
-Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
-	Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-References: <20021105233844.J24606@flint.arm.linux.org.uk> <Pine.LNX.4.44.0211061425280.6949-100000@serv>
+	id <S266143AbSKFVVT>; Wed, 6 Nov 2002 16:21:19 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:18385 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S266114AbSKFVVR>;
+	Wed, 6 Nov 2002 16:21:17 -0500
+Subject: [PATCH] linux-2.5.46_timer-tsc-cleanup_A0.patch
+From: john stultz <johnstul@us.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 06 Nov 2002 13:26:14 -0800
+Message-Id: <1036617975.6098.169.camel@cog>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211061425280.6949-100000@serv>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 06, 2002 at 02:32:30PM +0100, Roman Zippel wrote:
-> 
-> I was already wondering, how much I should allow. :)
-> But I'd rather set an arbitrary limit (and warn) than allowing an 
-> arbitrary long string.
-Since this has an unknown effect it should give an error, not just a
-warning.
-In the case raised by Russell an error would have been better, he would
-never try to boot the kernel in that case.
+Linus, 
+	Here is the cleanup patch mentioned earlier that removes
+fast_gettimeoffset_quotient from the global namespace. Where used it was
+replaced by cpu_khz. The patch also yanks an unused variable.
 
-	Sam
+please apply,
+
+thanks
+-john
+
+diff -Nru a/arch/i386/kernel/smpboot.c b/arch/i386/kernel/smpboot.c
+--- a/arch/i386/kernel/smpboot.c	Wed Nov  6 13:22:56 2002
++++ b/arch/i386/kernel/smpboot.c	Wed Nov  6 13:22:56 2002
+@@ -181,8 +181,6 @@
+ 
+ #define NR_LOOPS 5
+ 
+-extern unsigned long fast_gettimeoffset_quotient;
+-
+ /*
+  * accurate 64-bit/32-bit division, expanded to 32-bit divisions and 64-bit
+  * multiplication. Not terribly optimized but we need it at boot time only
+@@ -222,7 +220,8 @@
+ 
+ 	printk("checking TSC synchronization across %u CPUs: ", num_booting_cpus());
+ 
+-	one_usec = ((1<<30)/fast_gettimeoffset_quotient)*(1<<2);
++	/* convert from kcyc/sec to cyc/usec */
++	one_usec = cpu_khz / 1000;
+ 
+ 	atomic_set(&tsc_start_flag, 1);
+ 	wmb();
+diff -Nru a/arch/i386/kernel/timers/timer_tsc.c b/arch/i386/kernel/timers/timer_tsc.c
+--- a/arch/i386/kernel/timers/timer_tsc.c	Wed Nov  6 13:22:56 2002
++++ b/arch/i386/kernel/timers/timer_tsc.c	Wed Nov  6 13:22:56 2002
+@@ -15,7 +15,6 @@
+ extern int x86_udelay_tsc;
+ extern spinlock_t i8253_lock;
+ 
+-static int use_tsc;
+ /* Number of usecs that the last interrupt was delayed */
+ static int delay_at_last_interrupt;
+ 
+@@ -26,7 +25,7 @@
+  * Equal to 2^32 * (1 / (clocks per usec) ).
+  * Initialized in time_init.
+  */
+-unsigned long fast_gettimeoffset_quotient;
++static unsigned long fast_gettimeoffset_quotient;
+ 
+ static unsigned long get_offset_tsc(void)
+ {
+@@ -260,7 +259,6 @@
+ 		unsigned long tsc_quotient = calibrate_tsc();
+ 		if (tsc_quotient) {
+ 			fast_gettimeoffset_quotient = tsc_quotient;
+-			use_tsc = 1;
+ 			/*
+ 			 *	We could be more selective here I suspect
+ 			 *	and just enable this for the next intel chips ?
+
+

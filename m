@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264377AbTKZWA6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 17:00:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264378AbTKZWA6
+	id S264352AbTKZWRX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 17:17:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264351AbTKZWRX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 17:00:58 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:29466 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S264377AbTKZWA5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 17:00:57 -0500
-Date: Wed, 26 Nov 2003 17:00:53 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Beaver in Detox!
-In-Reply-To: <Pine.LNX.4.58.0311261239510.1524@home.osdl.org>
-Message-ID: <Pine.LNX.4.44.0311261658510.22777-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 26 Nov 2003 17:17:23 -0500
+Received: from dp.samba.org ([66.70.73.150]:30130 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264352AbTKZWRW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 17:17:22 -0500
+Date: Wed, 26 Nov 2003 18:25:53 +1100
+From: Anton Blanchard <anton@samba.org>
+To: Jack Steiner <steiner@sgi.com>
+Cc: Jes Sorensen <jes@trained-monkey.org>, Alexander Viro <viro@math.psu.edu>,
+       Andrew Morton <akpm@osdl.org>,
+       "William Lee Irwin, III" <wli@holomorphy.com>,
+       linux-kernel@vger.kernel.org, jbarnes@sgi.com
+Subject: Re: hash table sizes
+Message-ID: <20031126072553.GF26811@krispykreme>
+References: <16323.23221.835676.999857@gargle.gargle.HOWL> <20031125204814.GA19397@sgi.com> <20031125211611.GE26811@krispykreme> <20031125231108.GA5675@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031125231108.GA5675@sgi.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Nov 2003, Linus Torvalds wrote:
 
-> Please don't even bother sending me patches, because I'll be stuffing my
-> face away from email over the next few days. And after that it will be
-> up to Andrew to say how to go on from here.
+> That was a concern to me too. However, on IA64, all page structs are
+> in the vmalloc region (it isnt allocated by vmalloc but is in the same
+> region as vmalloc'ed pages. They are mapped with 16k pages instead of
+> the 64MB pages used for memory allocated by kmalloc).
+> 
+> Before switching to 16K pages for the page structs, we made numerous
+> performance measurements. As far as we could tell, there was no
+> performce degradation caused by the smaller pages. It seems to me that
+> if page structs are ok being mapped by 16k pages, the hash tables
+> would be ok too. 
 
-Does that mean you'll be ready to flame proposed 2.7 changes
-soon, even if integrating them will be a few months into the
-future ? ;)
+OK, on ppc64 with a 4kB base pagesize Id be more worried about using the
+vmalloc region.
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
-
+Anton

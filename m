@@ -1,43 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129051AbRBNB6K>; Tue, 13 Feb 2001 20:58:10 -0500
+	id <S129055AbRBNCFn>; Tue, 13 Feb 2001 21:05:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129055AbRBNB6A>; Tue, 13 Feb 2001 20:58:00 -0500
-Received: from nat-pool.corp.redhat.com ([199.183.24.200]:44139 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S129051AbRBNB5s>; Tue, 13 Feb 2001 20:57:48 -0500
-Date: Tue, 13 Feb 2001 20:57:43 -0500 (EST)
-From: Elliot Lee <sopwith@redhat.com>
-X-X-Sender: <sopwith@devserv.devel.redhat.com>
-Reply-To: <sopwith@redhat.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Driver for Casio Cassiopia Fiva touchscreen, help with conversion
- to 2.4
-Message-ID: <Pine.LNX.4.32.0102132034540.20720-100000@devserv.devel.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129066AbRBNCFc>; Tue, 13 Feb 2001 21:05:32 -0500
+Received: from vp175097.reshsg.uci.edu ([128.195.175.97]:24585 "EHLO
+	moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
+	id <S129055AbRBNCFW>; Tue, 13 Feb 2001 21:05:22 -0500
+Date: Tue, 13 Feb 2001 18:05:19 -0800
+Message-Id: <200102140205.f1E25Je02309@moisil.dev.hydraweb.com>
+From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
+To: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
+Cc: Gerard Roudier <groudier@club-internet.fr>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Donald Becker <becker@scyld.com>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>,
+        Jes Sorensen <jes@linuxcare.com>
+Subject: Re: [PATCH] starfire reads irq before pci_enable_device.
+In-Reply-To: <200102132029.f1DKTGM01731@moisil.dev.hydraweb.com>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.18 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Available at http://people.redhat.com/~sopwith/fidmour-linux.c is a driver
-for the touch screen used on the Cassiopia Fiva MPC-501 pen computer. It
-is a rather Bad Hack (seeing as it was built rather blindly to mimic the
-behaviour of the Windows driver, and has IRQ/port hardcoded in), but it
-works for me with the 2.2.16 kernel.
+On Tue, 13 Feb 2001 12:29:16 -0800, Ion Badulescu <ionut@moisil.cs.columbia.edu> wrote:
+> On Tue, 13 Feb 2001 07:06:44 -0600 (CST), Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com> wrote:
+> 
+>> On 12 Feb 2001, Jes Sorensen wrote:
+>>> In fact one has to look out for this and disable the feature in some
+>>> cases. On the acenic not disabling Memory Write and Invalidate costs
+>>> ~20% on performance on some systems.
+>> 
+>> And in another message, On Mon, 12 Feb 2001, David S. Miller wrote:
+>>> 3) The acenic/gbit performance anomalies have been cured
+>>>    by reverting the PCI mem_inval tweaks.
+>> 
+>> Just to be clear, acenic should or should not use MWI?
 
-The device outputs 5 byte packets - 1 status byte, 2 bytes each for X & Y
-coordinates. The devel branch of GTK+ has support for /dev/fidmour in the
-Linux framebuffer backend (gtk+/gdk/linux-fb/gdkmouse-fb.c), should you
-wish to see a code sample.
+With the zerocopy patch, acenic always disables MWI by default.
 
-I'm wondering if anyone has a resource that would provide information on
-porting this driver to the 2.4 kernel.
+>> And can a general rule be applied here?  Newer Tulip hardware also
+>> has the ability to enable/disable MWI usage, IIRC.
+> 
+> And so do eepro100 and starfire. On the eepro100 we're enabling MWI 
+> unconditionally, and on the starfire we disable it unconditionally...
+> 
+> I should probably take a look at acenic's use of PCI_COMMAND_INVALIDATE
+> to see when it gets activated. Some benchmarking would probably help,
+> too -- maybe later today.
 
-I would welcome comments on this driver, or on the MPC-501 and Linux in
-general. Bonus points to anyone who actually understands why the driver
-works and how the hardware works. :)
+I did some testing with starfire, and the results are inconclusive --
+at least on my P-III is makes absolutely no difference. Does it make
+a difference on other architectures? sparc64, ia64 maybe? 
 
-Hope this helps,
--- Elliot
-Who me? I just wander from room to room.
+I should probably rephrase this: MWI makes no difference on i386, but
+it is claimed that using MWI *reduces* performance on some systems.
+Are there any systems on which MWI *increases* performance?
 
+I've added some code to the starfire driver that allows changing the
+use of MWI at module load time, just in case. By default, it activates
+it.
+
+Ion
+
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.

@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316544AbSG1PxK>; Sun, 28 Jul 2002 11:53:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316882AbSG1PxK>; Sun, 28 Jul 2002 11:53:10 -0400
-Received: from kweetal.tue.nl ([131.155.2.7]:47990 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S316544AbSG1PxJ>;
-	Sun, 28 Jul 2002 11:53:09 -0400
-Date: Sun, 28 Jul 2002 17:56:26 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Greg KH <greg@kroah.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.5.28
-Message-ID: <20020728155626.GC26862@win.tue.nl>
-In-Reply-To: <1027553482.11881.5.camel@sonja.de.interearth.com> <Pine.LNX.4.44.0207241803410.4293-100000@home.transmeta.com> <20020727235726.GB26742@win.tue.nl> <20020728024739.GA28873@kroah.com>
+Return-Path: <linux-kernel-owner+ralf=40uni-koblenz.de@vger.kernel.org>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S318217AbSG3GQ0>; Tue, 30 Jul 2002 02:16:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S318218AbSG3GQ0>; Tue, 30 Jul 2002 02:16:26 -0400
+Received: from [213.154.76.114] ([213.154.76.114]:35123 "EHLO SPHINX.ftf.sn") by vger.kernel.org with ESMTP id <S318217AbSG3GQ0>; Tue, 30 Jul 2002 02:16:26 -0400
+Date: Mon, 29 Jul 2002 23:56:45 +0200
+From: internet-revolucija@email.com
+X-Priority: 3
+To: linux-kernel@vger.kernel.org
+Subject: *Internet Revolucija*
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+Content-Transfer-Encoding: 7bit
+Message-ID: <SPHINXpZ5PM6LBBglhR00004f44@SPHINX.ftf.sn>
+X-OriginalArrivalTime: 29 Jul 2002 22:00:36.0020 (UTC) FILETIME=[5E136740:01C2374B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 27, 2002 at 07:47:39PM -0700, Greg KH wrote:
+Lijepi pozdrav!
 
-> On Sun, Jul 28, 2002 at 01:57:26AM +0200, Andries Brouwer wrote:
-> > My third candidate is USB. Systems without USB are clearly more stable.
-> 
-> Hm, then that would imply that all of my systems are unstable :)
-> 
-> Seriously, I don't know of any outstanding 2.5 USB issues that cause
-> oopses right now, or effect stability.  Any problems that people are
-> having, they sure are not telling me, or the other USB developers
-> about...
+Jeste li culi za CASHevolution?
+Revolucija u internet marketingu!
 
-I reported an oops at shutdown and provided the trivial fix.
-It is the the standard kernel since 2.5.26, I think.
+CASHevolution sistem je vise godina u tajnosti razradivan od najvecih marketinskih i internet eksperata, a tek 17.05.2002 je poceo sa poslovanjem.
+U samo prva 2 tjedna otkako je nasa tvrtka pocela sa radom, rijec "CASHevolution" popela se medu 100 najtrazenijih internet pojmova!
 
-But there are still other oopses at shutdown for 2.5.27.
+OVO JE TRENUTNO NAJBOLJE PLACENI AFFILATE PROGRAM NA INTERNETU!
 
-For 2.5.29 I reported
-"> I booted 2.5.29 earlier this evening and was greeted by
- > kernel BUG at transport.c: 351 and
- > kernel BUG at scsiglue.c: 150.
- > (And the usb-storage module now hangs initializing; rmmod fails,
- > reboot is necessary.)"
+Zasto CASHevolution isplacuje tako visoke zarade?
+Odgovor na to pitanje, kao i ostala koja ce Vas zanimati, mozete vidjeti na ovim stranicama:
+http://www.online-business4u.com/CASHevolution/
 
-Further improvement of usb-storage is possible.
+Pod pokroviteljstvom Americkih investicijskih klubova, pod vodstvom visokokvalificiranih strucnjaka, 
+broj ljudi koji prihvacaju CASHevolution raste ogromnom brzinom.
 
-Andries
+CASHevolution ima posve drugaciji program ostvarivanja zarade od ostalih slicnih programa.
+Ne morate nista kupovati, klikati na linkove, citati tudu postu, stvar je mnogo jednostavnija. 
+Ne vjerujete? Procitajte, vrlo je logicno.
+
+Saznajte medu prvima!
+
+
+
+
+Ovu ponudu dobili ste samo jedan puta i vise Vas necu kontaktirati ukoliko to sami ne zatrazite.

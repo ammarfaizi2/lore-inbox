@@ -1,49 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261949AbVDCXGD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261950AbVDCXJF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261949AbVDCXGD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 19:06:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbVDCXGD
+	id S261950AbVDCXJF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 19:09:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261955AbVDCXJF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 19:06:03 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:52358 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261949AbVDCXFy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 19:05:54 -0400
-Date: Mon, 4 Apr 2005 00:05:51 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Dag Arne Osvik <da@osvik.no>
-Cc: Andreas Schwab <schwab@suse.de>, Stephen Rothwell <sfr@canb.auug.org.au>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Use of C99 int types
-Message-ID: <20050403230551.GX8859@parcelfarce.linux.theplanet.co.uk>
-References: <424FD9BB.7040100@osvik.no> <20050403220508.712e14ec.sfr@canb.auug.org.au> <424FE1D3.9010805@osvik.no> <jezmwgxa5v.fsf@sykes.suse.de> <425072A4.7080804@osvik.no>
+	Sun, 3 Apr 2005 19:09:05 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:27836 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S261950AbVDCXIo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 19:08:44 -0400
+Date: Sun, 3 Apr 2005 16:08:07 -0700
+From: Paul Jackson <pj@engr.sgi.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: kenneth.w.chen@intel.com, torvalds@osdl.org, nickpiggin@yahoo.com.au,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch] sched: auto-tune migration costs [was: Re: Industry db
+ benchmark result on recent 2.6 kernels]
+Message-Id: <20050403160807.35381385.pj@engr.sgi.com>
+In-Reply-To: <20050403152413.GA26631@elte.hu>
+References: <200504020100.j3210fg04870@unix-os.sc.intel.com>
+	<20050402145351.GA11601@elte.hu>
+	<20050402215332.79ff56cc.pj@engr.sgi.com>
+	<20050403070415.GA18893@elte.hu>
+	<20050403043420.212290a8.pj@engr.sgi.com>
+	<20050403071227.666ac33d.pj@engr.sgi.com>
+	<20050403152413.GA26631@elte.hu>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <425072A4.7080804@osvik.no>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 04, 2005 at 12:48:04AM +0200, Dag Arne Osvik wrote:
-> unsigned long happens to coincide with uint_fast32_t for x86 and x86-64, 
-> but there's no guarantee that it will on other architectures.  And, at 
-> least in theory, long may even provide less than 32 bits.
+Ingo wrote:
+> if you create a sched-domains hierarchy (based on the SLIT tables, or in 
+> whatever other way) that matches the CPU hierarchy then you'll 
+> automatically get the proper distances detected.
 
-To port on such platform we'd have to do a lot of rewriting - so much that
-the impact of this issue will be lost in noise.
+Yes - agreed.  I should push in the direction of improving the
+SN2 sched domain hierarchy.
 
-Look, it's very simple:
-	* too many people blindly assume that all world is 32bit l-e.
-	* too many of those who try to do portable code have very little
-idea of what that means - see the drivers that try and mix e.g. size_t with
-int, etc.
-	* stdint is not widely understood, to put it mildly.
-	* ...fast... types have very unfortunate names - these are guaranteed
-to create a lot of confusion.
-	* pretty much everything in the kernel assumes that
-4 = sizeof(int) <=
-sizeof(long) = sizeof(pointer) = sizeof(size_t) = sizeof(ptrdiff_t) <=
-sizeof(long long) = 8
-and any platform that doesn't satisfy the above will require very serious
-work on porting anyway.
+
+Would be a good idea to rename 'cpu_distance()' to something more
+specific, like 'cpu_dist_ndx()', and reserve the generic name
+'cpu_distance()' for later use to return a scaled integer distance,
+rather like 'node_distance()' does now.  For example, 'cpu_distance()'
+might, someday, return integer values such as:
+
+	40  217  252  253
+
+as are displayed (in tenths) in the debug line:
+
+---------------------
+cacheflush times [4]: 4.0 (4080540) 21.7 (21781380) 25.2 (25259428) 25.3 (25372682)
+---------------------
+
+(that is, the integer (long)cost / 100000 - one less zero).
+
+I don't know that we have any use, yet, for this 'cpu_distance()' as a
+scaled integer value.  But I'd be more comfortable reserving that name
+for that purpose.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

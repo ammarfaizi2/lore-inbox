@@ -1,58 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261999AbUCQTcV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 14:32:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbUCQTcU
+	id S262005AbUCQTe2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 14:34:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbUCQTe2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 14:32:20 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:48145 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261999AbUCQTcQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 14:32:16 -0500
-Date: Wed, 17 Mar 2004 19:32:06 +0000
-From: Christoph Hellwig <hch@infradead.org>
+	Wed, 17 Mar 2004 14:34:28 -0500
+Received: from verein.lst.de ([212.34.189.10]:3257 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S262005AbUCQTeZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Mar 2004 14:34:25 -0500
+Date: Wed, 17 Mar 2004 20:34:16 +0100
+From: Christoph Hellwig <hch@lst.de>
 To: Jeff Garzik <jgarzik@pobox.com>
-Cc: "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-raid@vger.kernel.org,
+Cc: "Justin T. Gibbs" <Justin_Gibbs@adaptec.com>, linux-raid@vger.kernel.org,
        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: "Enhanced" MD code avaible for review
-Message-ID: <20040317193206.A17987@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+Subject: Re: [Fwd: "Enhanced" MD code avaible for review]
+Message-ID: <20040317193416.GA24542@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
 	Jeff Garzik <jgarzik@pobox.com>,
-	"Justin T. Gibbs" <gibbs@scsiguy.com>, linux-raid@vger.kernel.org,
+	"Justin T. Gibbs" <Justin_Gibbs@adaptec.com>,
+	linux-raid@vger.kernel.org,
 	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <459805408.1079547261@aslan.scsiguy.com> <4058A481.3020505@pobox.com>
+References: <405899E8.8070806@pobox.com> <20040317183756.GA23667@lst.de> <2241002704.1079549645@aslan.btc.adaptec.com> <20040317190117.GA23968@lst.de> <2260532704.1079550351@aslan.btc.adaptec.com> <20040317190916.GA24118@lst.de> <4058A6FB.6080602@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <4058A481.3020505@pobox.com>; from jgarzik@pobox.com on Wed, Mar 17, 2004 at 02:18:25PM -0500
+In-Reply-To: <4058A6FB.6080602@pobox.com>
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 17, 2004 at 02:18:25PM -0500, Jeff Garzik wrote:
-> > 	o Allow fully pluggable meta-data modules
+On Wed, Mar 17, 2004 at 02:28:59PM -0500, Jeff Garzik wrote:
+> If early userspace isn't ready, it sounds like a choice between 
+> "nothing" and "it works".
 > 
-> yep, needed
+> We want a clean, tasteful solution, sure.  But I think we can work 
+> within the confines of the existing 2.6 API, and not postpone this stuff 
+> under early userspace is ready.
 
-Well, this is pretty much the EVMS route we all heavily argued against.
-Most of the metadata shouldn't be visible in the kernel at all.
-
-> > 	o Improve the ability of MD to auto-configure arrays.
-> 
-> hmmmm.  Maybe in my language this means "improve ability for low-level 
-> drivers to communicate RAID support to upper layers"?
-
-I think he's talking about the deprecated raid autorun feature.  Again
-something that is completely misplaced in the kernel.  (ågain EVMS light)
-
-> > 	o Support multi-level arrays transparently yet allow
-> > 	  proper event notification across levels when the
-> > 	  topology is known to MD.
-> 
-> I'll need to see the code to understand what this means, much less 
-> whether it is needed ;-)
-
-I think he mean the broken inter-driver raid stacking mentioned below.
-Why do I have to thing of EVMS when for each feature?..
+Umm, early userspace works nicely, you don't need the klibc and
+initramfs buzzwords for that, good 'ol initrd still works and people
+actually use it, e.g. for dm.
 

@@ -1,94 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262131AbUKDNej@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262220AbUKDNg1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262131AbUKDNej (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 08:34:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262220AbUKDNej
+	id S262220AbUKDNg1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 08:36:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbUKDNg1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 08:34:39 -0500
-Received: from sartre.ispvip.biz ([209.118.182.154]:7356 "HELO
-	sartre.ispvip.biz") by vger.kernel.org with SMTP id S262131AbUKDNec
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 08:34:32 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm2-V0.7.7
-From: "Michael J. Cohen" <mjc@unre.st>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "K.R. Foley" <kr@cybsft.com>, sboyce@blueyonder.co.uk,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1099573171.7876.0.camel@optie.uni.325i.org>
-References: <4189108C.2050804@blueyonder.co.uk>
-	 <41892899.6080400@cybsft.com> <41897119.6030607@blueyonder.co.uk>
-	 <418988A6.4090902@cybsft.com> <20041104100634.GA29785@elte.hu>
-	 <1099563805.30372.2.camel@localhost> <1099567061.7911.4.camel@localhost>
-	 <20041104114545.GA3722@elte.hu>
-	 <1099573171.7876.0.camel@optie.uni.325i.org>
-Content-Type: text/plain
-Date: Thu, 04 Nov 2004 08:34:22 -0500
-Message-Id: <1099575262.8110.1.camel@optie.uni.325i.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+	Thu, 4 Nov 2004 08:36:27 -0500
+Received: from imap.gmx.net ([213.165.64.20]:44523 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262220AbUKDNgM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 08:36:12 -0500
+X-Authenticated: #21910825
+Message-ID: <418A303E.1050709@gmx.net>
+Date: Thu, 04 Nov 2004 14:35:58 +0100
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.6) Gecko/20040114
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Matt Domsch <Matt_Domsch@dell.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: boot option for CONFIG_EDD_SKIP_MBR?
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-11-04 at 07:59 -0500, Michael J. Cohen wrote:
-> On Thu, 2004-11-04 at 12:45 +0100, Ingo Molnar wrote:
-> > * Michael J. Cohen <mjc@unre.st> wrote:
-> > 
-> > > Turned off the debugging stuff to fix this one :/
-> > > 
-> > > might_sleep issue at swap_on and firefox causes oopsen.
-> > > 
-> > > dmesg is 120k+ so here:
-> > > 
-> > > http://325i.org/software/2.6.10-rc1-mm2-RT-V0.7.8.dmesg
-> > 
-> > does the patch below fix the fbcon problem? (if any new oops happens or
-> > old one triggers again then please re-post the syslog or serial console
-> > capture)
-> > 
-> > 	Ingo
-> > 
-> > --- linux/drivers/video/console/fbcon.c.orig
-> > +++ linux/drivers/video/console/fbcon.c
-> > @@ -1051,7 +1051,14 @@ static void fbcon_cursor(struct vc_data 
-> >  	struct display *p = &fb_display[vc->vc_num];
-> >  	int y = real_y(p, vc->vc_y);
-> >   	int c = scr_readw((u16 *) vc->vc_pos);
-> > +#ifdef CONFIG_PREEMPT_REALTIME
-> > +	unsigned long flags;
-> > +#endif
-> >  
-> > +#ifdef CONFIG_PREEMPT_REALTIME
-> > +	local_save_flags(flags);
-> > +	local_irq_enable();
-> > +#endif
-> >  	ops->cursor_flash = 1;
-> >  	if (mode & CM_SOFTBACK) {
-> >  		mode &= ~CM_SOFTBACK;
-> > @@ -1069,6 +1076,9 @@ static void fbcon_cursor(struct vc_data 
-> >  	ops->cursor(vc, info, p, mode, get_color(vc, info, c, 1),
-> >  		    get_color(vc, info, c, 0));
-> >  	vbl_cursor_cnt = CURSOR_DRAW_DELAY;
-> > +#ifdef CONFIG_PREEMPT_REALTIME
-> > +	local_irq_restore(flags);
-> > +#endif
-> >  }
-> >  
-> >  static int scrollback_phys_max = 0;
-> 
-> Works fine so far. still have to deal with e1000 though...
-> 
-> ------
+Hi Matt,
 
-I just managed to hardlock it reproducibly with no useful output on
-serial.
+[please CC: me on replies]
+having had problems (inifinte hang on boot) with some Fujitsu
+Siemens Scenic computers when EDD was enabled, I asked myself
+if it would be possible to add a boot option edd=nombr and
+possibly also another boot option edd=off to the EDD code in
+the kernel. These would correspond to CONFIG_EDD_SKIP_MBR
+and CONFIG_EDD, respectively.
+That way, distributors could use the benefits of enabled
+EDD on working machines and provide customers with the
+ability to switch off EDD on broken machines, all with the
+same kernel.
+Yes, option parsing before entering protected mode is ugly,
+but the vga setup code does it, too.
 
-light network activity, bonnie++, and using xmms w/ jack.  Locks up
-within a few seconds of starting bonnie++
+What do you think?
 
-tried my hardest (sysreq, even kgdb) and I couldn't get it to let me do
-anything :(
-
-------
-Michael Cohen
-
+Regards,
+Carl-Daniel
+-- 
+http://www.hailfinger.org/

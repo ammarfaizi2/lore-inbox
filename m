@@ -1,88 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267641AbTAHBDi>; Tue, 7 Jan 2003 20:03:38 -0500
+	id <S267622AbTAHA7F>; Tue, 7 Jan 2003 19:59:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267642AbTAHBDi>; Tue, 7 Jan 2003 20:03:38 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:9741 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S267641AbTAHBDg>; Tue, 7 Jan 2003 20:03:36 -0500
-Date: Tue, 7 Jan 2003 17:10:41 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: venom@sns.it
-cc: Larry McVoy <lm@bitmover.com>, Matthias Andree <matthias.andree@gmx.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Honest does not pay here ...
-In-Reply-To: <Pine.LNX.4.43.0301080152130.25245-100000@cibs9.sns.it>
-Message-ID: <Pine.LNX.4.10.10301071659480.421-100000@master.linux-ide.org>
+	id <S267625AbTAHA7F>; Tue, 7 Jan 2003 19:59:05 -0500
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:10539 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id <S267622AbTAHA7E>; Tue, 7 Jan 2003 19:59:04 -0500
+Message-ID: <3E1B79DD.6040000@hotmail.com>
+Date: Tue, 07 Jan 2003 17:07:41 -0800
+From: walt <wa1ter@hotmail.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.2b) Gecko/20021128
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux iSCSI Initiator, OpenSource (fwd) (Re: Gauntlet Set NOW!)
+References: <fa.hjtum4v.fki8p1@ifi.uio.no> <fa.kccjmvv.13go3jp@ifi.uio.no>
+In-Reply-To: <fa.hjtum4v.fki8p1@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andre Hedrick wrote:
 
-Luigi,
+> Richard,
+>
+> Can you admit the follow, that GPL has everything to control
+> redistribution, and has ZERO context for copyright.  The holders of the
+> copyright control the issues.
 
-You forgot one thing.  None of us can control what the end user does.
-If a vendor tells the enduser to alter the 2.5/2.6 kernel and recompile.
-What are you going to do?
+RMS didn't understand this paragraph, and neither did I.  Would you
+please clarify?
 
-Add a clause where the enduser can not change the source code or apply a
-patch to do it for them?
+> See your whole hook is "Derivative Works" well, I implimented a protocol.
+> It works regardless of platform or OS.  All it uses are simple and
+> standard kernel services.
 
-Funny, you lost your rights to do that w/ GPL, as did I.
 
-*sigh*
+If you did this because of RMS or his GPL then I think all of us owe him
+a big 'thank you'.
 
-Andre Hedrick
-LAD Storage Consulting Group
+Andre, I've been following this list for at least two years.  Although I
+contribute nothing except an occasional bug report I care about what
+happens here and I and I care about the people who do contribute.  I know
+that includes you -- in a big way.
 
-On Wed, 8 Jan 2003 venom@sns.it wrote:
+Please let me make some observations:
 
-> 
-> well, I was forgetting to specify,
-> queues are kernel threads, and that is quite
-> optimum expecially on SMP systems.
-> One big advantage is that conflicts possibilities are
-> (should be) less than minimal.
-> 
-> Luigi
-> 
-> On Tue, 7 Jan 2003, Larry McVoy wrote:
-> 
-> > Date: Tue, 7 Jan 2003 16:30:50 -0800
-> > From: Larry McVoy <lm@bitmover.com>
-> > To: venom@sns.it
-> > Cc: Matthias Andree <matthias.andree@gmx.de>, linux-kernel@vger.kernel.org,
-> >      andre@linux-ide.org
-> > Subject: Re: Honest does not pay here ...
-> >
-> >
-> > > In very semplicistic words:
-> > > In 2.5/2.6 kernels, non GPL modules have a big
-> > > penalty, because they cannot create their own queue, but have to use a default
-> > > one.
-> >
-> > I may be showing my ignorance here (won't be the first time) but this makes
-> > me wonder if Linux could provide a way to do "user level drivers".  I.e.,
-> > drivers which ran in kernel mode but in the context of a process and had
-> > to talk to the real kernel via pipes or whatever.  It's a fair amount of
-> > plumbing but could have the advantage of being a more stable interface
-> > for the drivers.
-> >
-> > If you think about it, drivers are more or less open/close/read/write/ioctl.
-> > They need kernel privileges to do their thing but don't need (and shouldn't
-> > have) access to all the guts of the kernel.
-> >
-> > Can any well traveled driver people see this working or is it nuts?
-> > --
-> > ---
-> > Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm
-> >
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+1) I admire anyone who speaks more than one language.  I suspect that
+    includes you.
+
+2) Much of the time I don't know what the hell you're talking about.
+    (I'll bet you a Porsche that I'm not the only one ;-)
+
+3) You'll make back your expenses a lot faster if you'll get rid of
+    the Porsche.
+
+4) I thank you for all your contributions to Open Source.  I benefit
+    from your work every day and I want you to know that I appreciate it.
 

@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262957AbUBZTqg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 14:46:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262943AbUBZTqf
+	id S262970AbUBZTtt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 14:49:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262965AbUBZTtr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 14:46:35 -0500
-Received: from phoenix.infradead.org ([213.86.99.234]:53773 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262957AbUBZTpu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 14:45:50 -0500
-Date: Thu, 26 Feb 2004 19:45:47 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Otto Solares <solca@guug.org>
-cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] fbdv/fbcon pending problems
-In-Reply-To: <20040226194020.GF17390@guug.org>
-Message-ID: <Pine.LNX.4.44.0402261941520.20525-100000@phoenix.infradead.org>
+	Thu, 26 Feb 2004 14:49:47 -0500
+Received: from mtaw6.prodigy.net ([64.164.98.56]:9205 "EHLO mtaw6.prodigy.net")
+	by vger.kernel.org with ESMTP id S262970AbUBZTsP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 14:48:15 -0500
+Message-ID: <403E4D66.3040608@matchmail.com>
+Date: Thu, 26 Feb 2004 11:47:50 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040209)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Timothy Miller <miller@techsource.com>
+CC: Peter Williams <peterw@aurema.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] O(1) Entitlement Based Scheduler
+References: <Pine.GSO.4.03.10402260834530.27582-100000@swag.sw.oz.au> <403D3E47.4080501@techsource.com> <403D576A.6030900@aurema.com> <403D5D32.4010007@matchmail.com> <403E1A7A.6030804@techsource.com>
+In-Reply-To: <403E1A7A.6030804@techsource.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> Exactly, that's the whole point, if you want userland accel you must disable
-> kernel land accel.  That's was my question against acceleration work inside
-> the kernel.  Nobody use it in userland and is the stability devil in fbdev.
-> If you want acceleration in userland there is mesa-solo or directfb or console-sdl.
+Timothy Miller wrote:
+> How about this:
 > 
-> In short acceleration belongs to specialized libs not the kernel.
-> 
-> Why accel it is needed for font drawing?, i am pretty sure my 8bit video old
-> sparc doesn't have any accel and is pretty capable for drawing fonts.
+> The kernel tracks CPU usage, time slice expiration, and numerous other 
+> statistics, and exports them to userspace through /proc or somesuch. 
+> Then a user-space daemon adjusts priority.  This could work, but it 
+> would be sluggish in adjusting priorities.
 
-Because we are going to run into graphics hardware that don't have 
-framebuffers. The solution is the one we are approaching now. That fbcon 
-be a client like userland apps to the accel engine. You will see it will 
-all work out :-)
-
+Userspace shouldn't have to poll, especially if there needs to be low 
+latency in the interaction.

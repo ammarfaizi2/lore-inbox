@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316824AbSGBQra>; Tue, 2 Jul 2002 12:47:30 -0400
+	id <S316825AbSGBQvW>; Tue, 2 Jul 2002 12:51:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316825AbSGBQr3>; Tue, 2 Jul 2002 12:47:29 -0400
-Received: from s1.relay.oleane.net ([195.25.12.48]:27333 "HELO
-	s1.relay.oleane.net") by vger.kernel.org with SMTP
-	id <S316824AbSGBQr3>; Tue, 2 Jul 2002 12:47:29 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Werner Almesberger <wa@almesberger.net>, Keith Owens <kaos@ocs.com.au>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [OKS] Module removal
-Date: Tue, 2 Jul 2002 18:50:19 +0200
-Message-Id: <20020702165019.29700@smtp.adsl.oleane.com>
-In-Reply-To: <20020702133658.I2295@almesberger.net>
-References: <20020702133658.I2295@almesberger.net>
-X-Mailer: CTM PowerMail 3.1.2 F <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S316826AbSGBQvV>; Tue, 2 Jul 2002 12:51:21 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:1796 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S316825AbSGBQvV>; Tue, 2 Jul 2002 12:51:21 -0400
+Date: Tue, 2 Jul 2002 18:53:47 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [OKS] O(1) scheduler in 2.4
+Message-ID: <20020702165347.GN19132@louise.pinerecords.com>
+References: <20020701234432.GC1697@werewolf.able.es> <Pine.LNX.4.43.0207021802260.29588-100000@cibs9.sns.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.43.0207021802260.29588-100000@cibs9.sns.it>
+User-Agent: Mutt/1.4i
+X-OS: GNU/Linux 2.4.19-pre10/sparc SMP
+X-Uptime: 28 days, 6:44
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> It's not really just the module information. If I can, say, get
->> callbacks from something even after I unregister, I may well
->> have destroyed the data I need to process the callbacks, and
->> oops or worse.
->
->Actually, if module exit synchronizes properly, even the
->return-after-removal case shouldn't exist, because we'd simply
->wait for this call to return.
->
->Hmm, interesting. Did I just make the whole problem go away,
->or is travel fatigue playing tricks on my brain ? :-)
-
-That was one of the solutions proposed by Rusty, that is basically
-waiting for all CPUs to have scheduled upon exit from module_exit
-and before doing the actual removal.
-
-Ben.
+> > >> What's the issue?
+> > >
+> > >a) We're at 2.4.19-rc1 right now.  It would be horribly
+> > >counterproductive to put O(1) in right now.
+> >
+> > .20-pre1 would be a good start, but my hope is that this reserved for
+> > the vm updates from -aa ;).
+> 
+> If I am not wrong in the AA tree the O(1) scheduler has been merged, so
+> there is an opportunity do update booth ;).
 
 
+... and then hope the thing doesn't turn into a suicide booth.
+
+
+T.

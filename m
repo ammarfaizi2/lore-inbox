@@ -1,52 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261435AbVBBF7n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261476AbVBBGFM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261435AbVBBF7n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 00:59:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbVBBF7n
+	id S261476AbVBBGFM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 01:05:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbVBBGFL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 00:59:43 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:45518 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261435AbVBBF7l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 00:59:41 -0500
-Date: Tue, 1 Feb 2005 21:59:36 -0800
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       zaitcev@redhat.com
-Subject: Re: Patch to add usbmon
-Message-ID: <20050201215936.029be631@localhost.localdomain>
-In-Reply-To: <1107293870.9652.76.camel@pegasus>
-References: <20050131212903.6e3a35e5@localhost.localdomain>
-	<20050201071000.GF20783@kroah.com>
-	<20050201003218.478f031e@localhost.localdomain>
-	<1107256383.9652.26.camel@pegasus>
-	<20050201095526.0ee2e0f4@localhost.localdomain>
-	<1107293870.9652.76.camel@pegasus>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.14; i386-redhat-linux-gnu)
+	Wed, 2 Feb 2005 01:05:11 -0500
+Received: from jose.lug.udel.edu ([128.175.60.112]:50358 "HELO
+	mail.lug.udel.edu") by vger.kernel.org with SMTP id S261477AbVBBGFF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 01:05:05 -0500
+From: ross@lug.udel.edu
+Date: Wed, 2 Feb 2005 01:05:05 -0500
+To: Timothy Miller <theosib@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ALSA HELP: Crackling and popping noises with via82xx
+Message-ID: <20050202060505.GA18324@jose.lug.udel.edu>
+References: <9871ee5f05020118343effed7@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9871ee5f05020118343effed7@mail.gmail.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 01 Feb 2005 22:37:50 +0100, Marcel Holtmann <marcel@holtmann.org> wrote:
+On Tue, Feb 01, 2005 at 09:34:59PM -0500, Timothy Miller wrote:
+> Basically, I get random poppling and crackling noises out of my
+> speakers.  Sometimes it's silent, and sometimes, it crackles and pops
+> for minutes at a time.  It's really disturbing, really, because it
+> happens suddenly, sometimes very loudly, and usually when I'm
+> concentrating.  :)
 
-> I think if cat is the prefered tool for viewing this file then it should
-> be more human readable. If not, then a binary format should be choosen.
-> Maybe we can implement both. Is this possible?
+The few times I've used the via82xx on my mobo (ASUS KT400, forget the
+model number), I've run into some applications that behave similarly.
+I never got it randomly - it always happened when an app (ie, xmms)
+would open the device and think it was in 44.1kHz when it was really
+running at 48kHz.
 
-Yes. Now you know why files were split as they were.
+I do music work on my box, so I've gotta stick with ALSA, but I've
+found for common stuff the ALSA interfaces suck pretty bad - nothing
+seems to know how to open the devices properly.  As a result, I mostly
+use OSS emulation for non-music related things - Frank Barknecht has
+info at http://alsa.opensrc.org/index.php?page=DmixPlugin on setting
+this up.  Runing all my audio through that fixes the problem, since it
+just resample everything to the running rate.
 
-> > But if you or someone else were to hack on something like usbdump(1),
-> > it would be peachy, I think.
-> 
-> I can start with usbdump if we agree on an interface. I personally would
-> prefer a binary interface for that.
+-- 
+Ross Vandegrift
+ross@lug.udel.edu
 
-If you want to start scoping it, it's fine by me. I was going to concentrate
-on fixing what's needed first, such as getting control setup packets captured
-and things like that.
-
--- Pete
+"The good Christian should beware of mathematicians, and all those who
+make empty prophecies. The danger already exists that the mathematicians
+have made a covenant with the devil to darken the spirit and to confine
+man in the bonds of Hell."
+	--St. Augustine, De Genesi ad Litteram, Book II, xviii, 37

@@ -1,70 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265451AbTFSU3L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 16:29:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265453AbTFSU3L
+	id S265435AbTFSU3v (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 16:29:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265460AbTFSU3v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 16:29:11 -0400
-Received: from web14802.mail.yahoo.com ([216.136.224.218]:15457 "HELO
-	web14802.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S265451AbTFSU3J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 16:29:09 -0400
-Message-ID: <20030619204308.39271.qmail@web14802.mail.yahoo.com>
-Date: Thu, 19 Jun 2003 13:43:08 -0700 (PDT)
-From: Venkat <rpraneshnews@yahoo.com>
-Subject: Linux IDE & RAID Rebuid Issue
-To: linux-kernel@vger.kernel.org
-Cc: srikumarss@yahoo.com, rpraneshnews@yahoo.com
+	Thu, 19 Jun 2003 16:29:51 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:5131 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S265435AbTFSU3o
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 16:29:44 -0400
+Date: Thu, 19 Jun 2003 16:36:39 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Larry McVoy <lm@bitmover.com>
+cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: SCM domains [was Re: Linux 2.5.71]
+In-Reply-To: <20030618043527.GA21723@work.bitmover.com>
+Message-ID: <Pine.LNX.3.96.1030619163421.12009A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-I have two IDE controllers in my mother board 
-(Serverworks and Silicon Image CMD 680) . I have two
-Maxtor IDE Drives(same model, same capacity) connected
-to the IDE controllers (One drive per controller). 
-Linux detects the drives but the number of heads
-reported by the controller/BIOS/Linux is different.
-For one drive linux reports 64 heads and for the other
-drive it reports 255 heads. This is causing a problem
-with RAID rebuilding. The below text explains the
-problem in detail.
+On Tue, 17 Jun 2003, Larry McVoy wrote:
 
-I create a RAID drive across both the drives.I want to
-create a 512 MB partition on both the drives, but
-Redhat installatiion program creates 512MB partition
-on one drive and 520MB partition on the other drive. I
-assume that this discrepanies is due to different Head
-count.
+> On Tue, Jun 17, 2003 at 09:11:07PM -0700, H. Peter Anvin wrote:
+> > Followup to:  <20030618011455.GF542@hopper.phunnypharm.org>
+> > By author:    Ben Collins <bcollins@debian.org>
+> > In newsgroup: linux.dev.kernel
+> > > > 
+> > > > I have no problem setting up CNAMEs in kernel.org if people are OK with
+> > > > it.  Setting up actual servers is another matter.
+> > > 
+> > > CNAMES on kernel.org would be perfect.
+> > > 
+> > 
+> > So right now cvs, svn and bk all -> kernel.bkbits.net?
+> 
+> We only need cvs and svn; bk is hosted at linux.bkbits.net.
 
-This is OK when the RAID drives are created, because
-the RAID drive takes the smallest size(512MB)
+Why would you *not* have bk.kernel.org as a CNAME? For ease of memory,
+etc, it makes sense to do that. If someone knows about cvs.kernel.org,
+they are more likely to guess the bk address. And vice-versa, of course.
 
-But the problem happens when the one of the drives is
-pulled out and a new partition of same size is created
-and the RAID drives are rebuilt. When i create the
-same size partition on the new drive using FDISK, it
-is not exactly the size i want (512MB). It creates a
-509 MB Partition on the new drive. This causes the MD
-RAID driver to fail the rebuild.
-The new drive is also of the same type and same model
-as the drive pulled out.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-So i assume that if Linux reports the same head count
-for the both the drives, the problem should be solved.
-I am not an expert on Linux IDE subtree. Can anyone
-explain or give a fix?
-
-If anyone needs more info please feel free to contact
-me.
-Thanks
-Venkatesh
-PS:
-Please CC me on replies as i am not subsribed to the list.
-
-__________________________________
-Do you Yahoo!?
-SBC Yahoo! DSL - Now only $29.95 per month!
-http://sbc.yahoo.com

@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268045AbRG2PeO>; Sun, 29 Jul 2001 11:34:14 -0400
+	id <S268033AbRG2P0p>; Sun, 29 Jul 2001 11:26:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268047AbRG2PeE>; Sun, 29 Jul 2001 11:34:04 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:38156 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268045AbRG2Pd5>; Sun, 29 Jul 2001 11:33:57 -0400
-Date: Sun, 29 Jul 2001 08:30:19 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Hugh Dickins <hugh@veritas.com>
-cc: Ingo Molnar <mingo@elte.hu>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] hold cow while breaking
-In-Reply-To: <Pine.LNX.4.21.0107291404410.897-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33.0107290827430.7119-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268045AbRG2P0e>; Sun, 29 Jul 2001 11:26:34 -0400
+Received: from cabal.xs4all.nl ([213.84.101.140]:43525 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id <S268033AbRG2P02>;
+	Sun, 29 Jul 2001 11:26:28 -0400
+Date: Sun, 29 Jul 2001 17:26:30 +0200
+From: Wichert Akkerman <wichert@wiggy.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        Debian-Devel List <debian-devel@lists.debian.org>
+Cc: Jean Charles Delepine <delepine@u-picardie.fr>,
+        Herbert Xu <herbert@debian.org>,
+        Manoj Srivastava <srivasta@debian.org>
+Subject: Re: make rpm
+Message-ID: <20010729172630.A22503@wiggy.net>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	linux-kernel@vger.kernel.org,
+	Debian-Devel List <debian-devel@lists.debian.org>,
+	Jean Charles Delepine <delepine@u-picardie.fr>,
+	Herbert Xu <herbert@debian.org>,
+	Manoj Srivastava <srivasta@debian.org>
+In-Reply-To: <20010730004916.A2359@broken.wedontsleep.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010730004916.A2359@broken.wedontsleep.org>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+Previously Steve Kowalik wrote:
+> make-kpkg --revision=${KERNELRELEASE} kernel_image",surely?
 
-On Sun, 29 Jul 2001, Hugh Dickins wrote:
->
-> do_wp_page() COW breaking is now very slightly unsafe.  Please don't
-> ask me to provide a test case! but the pte_same() check after regetting
-> page_table_lock is not quite enough to guarantee that the old_page was
-> not reaped, reused for something else, copy_cow_paged while containing
-> that other data, freed and then reused for precisely its original pte.
+No, the package revision is completely seperate from the kernel
+release version.
 
-Oh, but it is.
+Wichert.
 
-We do hold the MM semaphore over the whole sequence, so there's no way the
-page table entry can be replaced by anything else than a non-present one
-(ie vmscan can swap it out, but nothing can swap it in because of the
-lock).
 
-So yes, we may copy data that is "garbage", but re-testing the page table
-will make sure that if it was garbage we will never use it.
 
-		Linus
-
+-- 
+  _________________________________________________________________
+ /       Nothing is fool-proof to a sufficiently talented fool     \
+| wichert@wiggy.net                   http://www.liacs.nl/~wichert/ |
+| 1024D/2FA3BC2D 576E 100B 518D 2F16 36B0  2805 3CB8 9250 2FA3 BC2D |

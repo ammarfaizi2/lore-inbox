@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264188AbTEWU50 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 16:57:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264189AbTEWU50
+	id S264192AbTEWU7H (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 16:59:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264193AbTEWU7H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 16:57:26 -0400
-Received: from odpn1.odpn.net ([212.40.96.53]:14572 "EHLO odpn1.odpn.net")
-	by vger.kernel.org with ESMTP id S264188AbTEWU5Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 16:57:25 -0400
-To: linux-kernel@vger.kernel.org
-From: "Gabor Z. Papp" <gzp@myhost.mynet>
-Subject: Re: Linux 2.4.21-rc3 [net-pf-4, devfs audio, drm radeon]
-References: <Pine.LNX.4.55L.0305221915450.1975@freak.distro.conectiva>
-Organization: Who, me?
-User-Agent: tin/1.5.18-20030515 ("Peephole") (UNIX) (Linux/2.4.21-rc3-gzp2 (i686))
-Message-ID: <4698.3ece8e46.c94d4@gzp1.gzp.hu>
-Date: Fri, 23 May 2003 21:10:30 -0000
+	Fri, 23 May 2003 16:59:07 -0400
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:52619 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S264192AbTEWU7E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 16:59:04 -0400
+Message-ID: <3ECE9C6C.70103@myrealbox.com>
+Date: Fri, 23 May 2003 15:10:52 -0700
+From: walt <wa1ter@myrealbox.com>
+User-Agent: Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.4b) Gecko/20030517
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: karbas-lkml@frontier.tky.hut.fi
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Tigon3 auto-negotiation and force media
+References: <fa.jus6v70.biufpm@ifi.uio.no>
+In-Reply-To: <fa.jus6v70.biufpm@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Marcelo Tosatti <marcelo@conectiva.com.br>:
+Kari Kallioinen wrote:
+> Hi,
+> 
+> I have a problem with broadcomm 5700 based card.
+> It's autonegotiating a wrong media and I can't change the parameters of another
+> end of link. So how I can force specified media technology with tg3-driver?
+> Mii-tool doesn't seem to work and I didn't find any option for tg3-module.
 
-| Here goes the third release candidate of 2.4.21.
+I have the same chip on my motherboard and I have found that doing an
+'ifconfig down' followed by 'ifconfig up' will make the chip work.
+(You may need to restore the default route after doing the above.
+Or, if you have an appropriate initscript in /etc/rc.d or /etc/init.d
+you can just use it to restart the network -- same idea but less trouble.)
 
-A few comments:
+BTW, how do can you tell that the media choice is wrong?  'ifconfig' doesn't
+give me that information.
 
-kmod: failed to exec /sbin/modprobe -s -k net-pf-4, errno = 2
 
-appears since 2.4.18 or so, dunno what really mean.
-net-pf-4 set to off in modules.conf...
-
-devfs_register(audio): could not append to parent, err: -17
-
-New in -rc3. Soundcard:
-02:09.0 Multimedia audio controller: ESS Technology ES1988 Allegro-1 (rev 12)
-Using alsa driver 0.9.3c.
-
-And finally:
-
-[drm] Initialized radeon 1.1.1 20010405 on minor 0
-[drm:radeon_unlock] *ERROR* Process 100 using kernel context 0
-
-00:01.0 PCI bridge: Intel Corp. 82830 830 Chipset AGP Bridge (rev 04) (prog-if 00 [Normal decode])
-01:00.0 VGA compatible controller: ATI Technologies Inc Radeon Mobility M6 LY (prog-if 00 [VGA])
 

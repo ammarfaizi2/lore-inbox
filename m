@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311263AbSCLQMn>; Tue, 12 Mar 2002 11:12:43 -0500
+	id <S311261AbSCLQTD>; Tue, 12 Mar 2002 11:19:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311264AbSCLQMe>; Tue, 12 Mar 2002 11:12:34 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:28938 "EHLO
+	id <S311265AbSCLQSy>; Tue, 12 Mar 2002 11:18:54 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:33802 "EHLO
 	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S311263AbSCLQMV>; Tue, 12 Mar 2002 11:12:21 -0500
-Message-ID: <3C8E28A1.1070902@evision-ventures.com>
-Date: Tue, 12 Mar 2002 17:11:13 +0100
+	id <S311261AbSCLQSl>; Tue, 12 Mar 2002 11:18:41 -0500
+Message-ID: <3C8E2A1F.4050607@evision-ventures.com>
+Date: Tue, 12 Mar 2002 17:17:35 +0100
 From: Martin Dalecki <dalecki@evision-ventures.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
 X-Accept-Language: en-us, pl
@@ -43,30 +43,20 @@ Vojtech Pavlik wrote:
 > 
 > Hmm, ok. Try this. It shouldn't change any functionality, yet makes a
 > small step towards cleaning the chipset specific drivers.
-> 
-> Reading through them as I was doing the changes, I found out that most
-> of them compute the timings incorrectly. Because of that I also removed
-> the pio blacklist (which is going to come back in a more powerful form,
-> merged together with the DMA blacklist), because that one is based on
-> ancient experiments with the broken CMD640 chip and a driver which
-> doesn't get the timings correct either. The blacklist is plain invalid.
 
-Amen to this. May "the force" be with you! (I mean the force in you fingers!)
 
-AS you may know I was once (an eon ago)
-during the Marc Lord "era" involved in the initial developement of the cmd640
-support. And well we got it working, but after that some friend got to the idea
-of the black list and my disk went from georgious 5M/sec to only lame 2.8M/sec
-rates (remember it was a conner 400MB drive then one of those "buggy" Quantums!)
-for no good reason. I was long time patching every single kernel those time for
-this. So if anything I very well know that the list found there is both:
-obsolete and invalid. Further on my CMD640 code wasn't even trying to compute
-the timing values in any dynamic ways. I was just using the original tables from
-CMD directly, but unfortunately the maintainer enjoyed Z/ ring arithmetics too
-much ;-)
+OK the patch looks fine. Taken. Still I have some notes:
 
-> I plan to focus on the most important drivers first, to fix and clean
-> them, working with the authors where possible.
+1. Let's start calling stuff ATA and not IDE. (AT-Attachment is it
+and not just Integrated Device Electornics.) OK?
 
-PIIX na VIA comes to mind first ;-)...
+2. I quite don't like the nested #include directives in ide-timing.h.
+    It's cleaner to include the needed headers in front of usage
+    of ide-timing.h. (Just s small note.... not really important...)
+
+3. I wellcome that the MIN MAX macros there are gone. In fact
+I have yerstoday just done basically the same ;-). (Will just have to
+revert it now.
+
+Patch swallowed.
 

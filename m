@@ -1,49 +1,68 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314707AbSE0JOk>; Mon, 27 May 2002 05:14:40 -0400
+	id <S314938AbSE0JPV>; Mon, 27 May 2002 05:15:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314829AbSE0JOj>; Mon, 27 May 2002 05:14:39 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:48378 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S314707AbSE0JOi>; Mon, 27 May 2002 05:14:38 -0400
-Subject: Re: PROBLEM: memory corruption with i815 chipset variant
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Nicolas Aspert <Nicolas.Aspert@epfl.ch>
-Cc: Alessandro Morelli <alex@alphac.it>, linux-kernel@vger.kernel.org
-In-Reply-To: <3CF1F4C0.5080201@epfl.ch>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 27 May 2002 11:17:00 +0100
-Message-Id: <1022494620.11859.207.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S314906AbSE0JPT>; Mon, 27 May 2002 05:15:19 -0400
+Received: from mail.pixelwings.com ([194.152.163.212]:17415 "EHLO
+	pixelwings.com") by vger.kernel.org with ESMTP id <S314829AbSE0JPO> convert rfc822-to-8bit;
+	Mon, 27 May 2002 05:15:14 -0400
+Date: Mon, 27 May 2002 11:15:09 +0200 (CEST)
+From: Clemens Schwaighofer <cs@pixelwings.com>
+X-X-Sender: gullevek@lynx.piwi.intern
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.5.18-dj1 with gcc 3.1 ...
+Message-ID: <Pine.LNX.4.44.0205271112500.23516-100000@lynx.piwi.intern>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-05-27 at 09:56, Nicolas Aspert wrote:
-> OK, I have a patch almost ready to do that except, I am not sure about 
-> what to do for those 3 bits...
-> 
-> The *usual* call is :
-> 	pci_write_config_dword(agp_bridge.dev, INTEL_ATTBASE,
-> 			       agp_bridge.gatt_bus_addr);
-> 
-> Where 'gatt_bus_addr' is returned from a 'virt_to_phys' on 
-> 'gatt_table_real'.
-> 
-> Should I mask those three bits out when writing or write
-> 'gatt_bus_addr >> 3' instead ? I am not too sure about the assumptions 
-> that can be made about what returns 'virt_to_phys' ...
+Hi,
 
-virt_to_phys returns you the CPU physical (after the MMU) address of the
-memory in question. You'd want to check the documentation but assuming
-the base is still written as an address in bytes then you'd want to do 
-something like
+I just tried to compile 2.5.18-dj1 with gcc 3.1 and it failed with NTFS as 
+module:
 
-	if(agp_bridge.gatt_bus_addr & ~0x1FFFFFFF)
-		panic("gatt bus addr too high");
-	pci_read_config_dword(agp_bridge.dev, INTEL_ATTBASE, &addr);
-	addr&=~0x1FFFFFFF;
-	addr|=agp_bridge.gatt_bus_addr;
-	pci_write_config_dword(agp_bridge.dev, INTEL_ATTBASE, &addr);
+gcc -D__KERNEL__ -I/usr/src/kernel/2.5.18-dj1/linux-2.5.18/include -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+-fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 
+-DMODULE -DMODVERSIONS -include 
+/usr/src/kernel/2.5.18-dj1/linux-2.5.18/include/linux/modversions.h 
+-DNTFS_VERSION=\"2.0.7\" -DDEBUG  -DKBUILD_BASENAME=aops  -c -o aops.o 
+aops.c
+In file included from attrib.h:31,
+                 from debug.h:31,
+                 from ntfs.h:40,
+                 from aops.c:30:
+layout.h:299: unnamed fields of type other than struct or union are not 
+allowed
+layout.h:1450: unnamed fields of type other than struct or union are not 
+allowed
+layout.h:1466: unnamed fields of type other than struct or union are not 
+allowed
+layout.h:1715: unnamed fields of type other than struct or union are not 
+allowed
+layout.h:1892: unnamed fields of type other than struct or union are not 
+allowed
+layout.h:2052: unnamed fields of type other than struct or union are not 
+allowed
+layout.h:2064: unnamed fields of type other than struct or union are not 
+allowed
+make[2]: *** [aops.o] Error 1
+make[2]: Leaving directory 
+`/usr/src/kernel/2.5.18-dj1/linux-2.5.18/fs/ntfs'
+make[1]: *** [_modsubdir_ntfs] Error 2
+make[1]: Leaving directory `/usr/src/kernel/2.5.18-dj1/linux-2.5.18/fs'
+make: *** [_mod_fs] Error 2
+
+rest of the system is redhat 7.3 out of the box only gcc 3.1 was installed 
+from rawhide rpms
+
+-- 
+"Der Krieg ist ein Massaker von Leuten, die sich nicht kennen, zum
+Nutzen von Leuten, die sich kennen, aber nicht massakrieren"
+- Paul Valéry (1871-1945)
+mfg, Clemens Schwaighofer                       PIXELWINGS Medien GMBH
+Kandlgasse 15/5, A-1070 Wien                      T: [+43 1] 524 58 50
+JETZT NEU! MIT FEWA GEWASCHEN       -->      http://www.pixelwings.com
 

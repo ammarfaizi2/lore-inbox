@@ -1,82 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264319AbTL3BfZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 20:35:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264320AbTL3BfY
+	id S264303AbTL3Bog (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 20:44:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264308AbTL3Bog
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 20:35:24 -0500
-Received: from wblv-224-192.telkomadsl.co.za ([165.165.224.192]:29889 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S264319AbTL3BfR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 20:35:17 -0500
-Subject: Re: 2.6.0 performance problems
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: azarah@nosferatu.za.org
-To: Dave Jones <davej@redhat.com>
-Cc: Thomas Molina <tmolina@cablespeed.com>, Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20031230012715.GA30369@redhat.com>
-References: <Pine.LNX.4.58.0312291647410.5288@localhost.localdomain>
-	 <Pine.LNX.4.58.0312291420370.1586@home.osdl.org>
-	 <Pine.LNX.4.58.0312291803420.5835@localhost.localdomain>
-	 <1072741422.25741.67.camel@nosferatu.lan>
-	 <Pine.LNX.4.58.0312291913270.5835@localhost.localdomain>
-	 <20031230012715.GA30369@redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-flRWkNAKKHZYQIDHT+z7"
-Message-Id: <1072748264.25741.79.camel@nosferatu.lan>
+	Mon, 29 Dec 2003 20:44:36 -0500
+Received: from mtaw4.prodigy.net ([64.164.98.52]:51442 "EHLO mtaw4.prodigy.net")
+	by vger.kernel.org with ESMTP id S264303AbTL3Bod (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 20:44:33 -0500
+Date: Mon, 29 Dec 2003 17:44:29 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [2.4] Is a negative rsect in /proc/partitions normal?
+Message-ID: <20031230014429.GL1882@matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 30 Dec 2003 03:37:44 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm running 2.4.23-rc5, and I've been running bonnie, burnMMX and burnK7 for
+the last few days on my 3 drive md raid5 array, and I noticed that my
+rsects[1] have gone negative.  I might consider this normal but /proc/stat
+(which only shows hda) doesn't show any negative numbers for the same
+stats[2]
 
---=-flRWkNAKKHZYQIDHT+z7
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Is this a bug?
 
-On Tue, 2003-12-30 at 03:27, Dave Jones wrote:
-> On Mon, Dec 29, 2003 at 07:17:23PM -0500, Thomas Molina wrote:
->=20
->  > > >  UDMA modes: udma0 udma1 *udma2 udma3 udma4
->  > > >  AdvancedPM=3Dyes: mode=3D0x80 (128) WriteCache=3Denabled
->  > > >  Drive conforms to: ATA/ATAPI-5 T13 1321D revision 1:
->  > > Any reason it is currently set to udma2 where it support udma4 ?
->  >=20
->  > Not really.  The question was what mode the disk was running in.  This=
- is=20
->  > what it defaults to.  This is a laptop drive that only runs at 5400RPM=
-. =20
->  > Would changing the mode to udma4 make a dramatic difference? =20
->=20
-> It's not uncommon for a laptop to have a hard disk which supports
-> higher DMA modes than what the IDE chipset supports.
-> My aging Intel 440BX based VAIO has a disk in the same configuration
-> as yours, supports udma4, but chipset only goes up to udma2.
->=20
+[1]
+major minor  #blocks  name     rio rmerge rsect ruse wio wmerge wsect wuse running use aveq
 
-Right, or as somebody else pointed out, it might not be a 80-pin cable.
+   9     0  319388032 md0 0 0 0 0 0 0 0 0 0 0 0
+   9     1      96256 md1 0 0 0 0 0 0 0 0 0 0 0
+  56     0  160086528 hdi 240438349 1318355451 -414508366 16504630 101146331 1132637971 1281537580 24939164 -3 18108868 28693926
+  56     1      96358 hdi1 58 28 178 1500 102 41 292 1710 0 3170 3210
+  56     2     289170 hdi2 0 0 0 0 0 0 0 0 0 0 0
+  56     3  159694132 hdi3 240438290 1318355420 -414508552 16503120 101146229 1132637930 1281537288 24937454 0 19884967 309062
+  33     0  160086528 hde 240516418 1321486397 -388859454 40325686 90645794 1146603482 1312002136 18444936 -3 14785505 12315041
+  33     1     289138 hde1 0 0 0 0 0 0 0 0 0 0 0
+  33     2  159790522 hde2 240516417 1321486394 -388859462 40325686 90645794 1146603482 1312002136 18444936 0 24147141 26883069
+   3     0  160086528 hda 240675036 1318323453 -412885008 27008859 110939441 1126008079 1306648420 28401642 -3 24294848 41908774
+   3     1      96358 hda1 44 53 200 610 102 41 292 1470 0 2010 2080
+   3     2     289170 hda2 207445 623814 6650072 2773650 7261 19429 224992 63170 0 1882590 2837130
+   3     3  159694132 hda3 240467546 1317699583 -419535288 24234589 110932078 1125988609 1306423136 28337002 0 4327510 10687939
 
-Lets rephrase - does it also run in udma2 mode with 2.4 ?  And did
-you check readahead?  In 2.6 it seems that a bigger value is better -
-I for instance have to set it to 8192 to have the same performance as
-in 2.4 ...
-
-
---=20
-Martin Schlemmer
-
---=-flRWkNAKKHZYQIDHT+z7
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQA/8NboqburzKaJYLYRAkepAJ9rUypdcD03let3nZk8dCnq0ByK1gCeOx/o
-G6TZ5OwKzWBHkCgPNI9LGfQ=
-=bhw0
------END PGP SIGNATURE-----
-
---=-flRWkNAKKHZYQIDHT+z7--
-
+[2]
+cpu  73561013 1160924 31161337 40771206
+cpu0 73561013 1160924 31161337 40771206
+page 1152185038 1257557610
+swap 834055 28177
+intr 1291475450 146654480 8 0 0 4 0 1 0 4 0 0 0 0 0 351908342 0 341855446 0 331412420 0 0 0 0 119644745 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+disk_io: (3,0):(352031779,240762616,3890919112,111269163,1325101012) 
+ctxt 2665965022
+btime 1071282031
+processes 889037

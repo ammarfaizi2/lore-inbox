@@ -1,76 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275268AbTHMP5f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 11:57:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275269AbTHMP5f
+	id S275250AbTHMPwo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 11:52:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275254AbTHMPwo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 11:57:35 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:63903 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S275268AbTHMP5b
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 11:57:31 -0400
-Subject: Ltp regression test results for 2.6.0-test3, bk1, mm1, mm2
-From: Paul Larson <plars@linuxtestproject.org>
-To: lkml <linux-kernel@vger.kernel.org>,
-       ltp-results <ltp-results@lists.sourceforge.net>, linstab@osdl.org
-Content-Type: text/plain
+	Wed, 13 Aug 2003 11:52:44 -0400
+Received: from ns2.eclipse.net.uk ([212.104.129.133]:44043 "EHLO
+	smtp2.ex.eclipse.net.uk") by vger.kernel.org with ESMTP
+	id S275250AbTHMPwn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 11:52:43 -0400
+From: Ian Hastie <lkml@ordinal.freeserve.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Realtek network card
+Date: Wed, 13 Aug 2003 16:52:40 +0100
+User-Agent: KMail/1.5.3
+References: <20030813133059.616f0faa.skraw@ithnet.com>
+In-Reply-To: <20030813133059.616f0faa.skraw@ithnet.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 13 Aug 2003 10:57:14 -0500
-Message-Id: <1060790234.27851.2883.camel@plars>
-Mime-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200308131652.41798.lkml@ordinal.freeserve.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are the results of some automated nightly regression tests I've
-been running with LTP.  This is similar to what Mark Peloquin has been
-releasing here, but with a focus on LTP functional/regression testing
-rather than performance.  For right now, this just includes the
-runalltests.sh script, but may be expanded to include other LTP (and
-possibly non-ltp) tests in the future.  These tests are all done on a
-4-way PIII 700, 4GB, debian unstable, with frequent updates and
-refreshes of the LTP cvs tree.  There are also detailed results and
-system info you can browse to from the links listed below.  Please let
-me know if this is useful and how it can be made more useful.
+On Wednesday 13 Aug 2003 12:30, Stephan von Krawczynski wrote:
+> Hello all,
+>
+> does anybody know how to make the below work (neiter 2.2.25 nor 2.4.21 seem
+> to recognise it):
+>
+> lspci --vv:
+>
+> 00:08.0 Ethernet controller: Realtek Semiconductor Co., Ltd.: Unknown
+> device 8131 (rev 10) Subsystem: Realtek Semiconductor Co., Ltd.: Unknown
+> device 8139
 
-Thanks,
-Paul Larson
+Do you know what make and model the card actually is?  I know it what it 
+appears to be, but it'd be best to know for sure.
 
-2.6.0-test3 vs 2.6.0-test3-bk1
-http://developer.osdl.org/dev/ltp/results/2.6.0-test3-vs-2.6.0-test3-bk1/
-Test Name      2.6.0-test3        2.6.0-test3-bk1     Regression  Improvement
------------------------------------------------------------------------------
-alarm03        FAIL               FAIL                    N            N
-getgroups03    FAIL               FAIL                    N            N
-nanosleep02    FAIL               FAIL                    N            N
-setegid01      FAIL               FAIL                    N            N
-swapoff01      FAIL               FAIL                    N            N
-swapoff02      FAIL               FAIL                    N            N
-
-2.6.0-test3 vs 2.6.0-test3-mm1
-http://developer.osdl.org/dev/ltp/results/2.6.0-test3-vs-2.6.0-test3-mm1/
-Test Name      2.6.0-test3        2.6.0-test3-mm1     Regression  Improvement
------------------------------------------------------------------------------
-alarm03        FAIL               FAIL                    N            N
-getgroups03    FAIL               FAIL                    N            N
-nanosleep02    FAIL               FAIL                    N            N
-setegid01      FAIL               FAIL                    N            N
-swapoff01      FAIL               FAIL                    N            N
-swapoff02      FAIL               FAIL                    N            N
-
-
-2.6.0-test3-mm1 vs 2.6.0-test3-mm2
-http://developer.osdl.org/dev/ltp/results/2.6.0-test3-mm1-vs-2.6.0-test3-mm2/
-Test Name      2.6.0-test3-mm1    2.6.0-test3-mm2     Regression  Improvement
------------------------------------------------------------------------------
-alarm03        FAIL               FAIL                    N            N
-getgroups03    FAIL               FAIL                    N            N
-nanosleep02    FAIL               FAIL                    N            N
-setegid01      FAIL               PASS [1]                N            Y
-swapoff01      FAIL               FAIL                    N            N
-swapoff02      FAIL               FAIL                    N            N
-
-[1] setegid started passing here because I ran an apt-get dist-upgrade
-and got an updated (fixed) version of glibc between these two test
-runs.  So it should be passing from now on.
+-- 
+Ian.
 

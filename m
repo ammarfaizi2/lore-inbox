@@ -1,67 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286356AbRLTTqJ>; Thu, 20 Dec 2001 14:46:09 -0500
+	id <S286351AbRLTTuJ>; Thu, 20 Dec 2001 14:50:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286354AbRLTTpv>; Thu, 20 Dec 2001 14:45:51 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:3210
+	id <S286357AbRLTTt7>; Thu, 20 Dec 2001 14:49:59 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:4746
 	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S286351AbRLTTpJ>; Thu, 20 Dec 2001 14:45:09 -0500
-Date: Thu, 20 Dec 2001 14:32:47 -0500
+	id <S286351AbRLTTtm>; Thu, 20 Dec 2001 14:49:42 -0500
+Date: Thu, 20 Dec 2001 14:37:19 -0500
 From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Configure.help editorial policy
-Message-ID: <20011220143247.A19377@thyrsus.com>
+To: Steven Cole <scole@lanl.gov>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
+Message-ID: <20011220143719.A19803@thyrsus.com>
 Reply-To: esr@thyrsus.com
 Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
+	Steven Cole <scole@lanl.gov>, linux-kernel@vger.kernel.org
+In-Reply-To: <200112201721.KAA05522@tstac.esa.lanl.gov> <20011220135213.B18128@thyrsus.com> <200112201851.LAA05800@tstac.esa.lanl.gov>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
+In-Reply-To: <200112201851.LAA05800@tstac.esa.lanl.gov>; from scole@lanl.gov on Thu, Dec 20, 2001 at 12:32:40PM -0700
 Organization: Eric Conspiracy Secret Labs
 X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I guess it's a pretty quiet week in kernel-hacker land.  Must be,
-otherwise people would have better things to do than argue over KB
-vs. KiB.  The alternative would be to conclude that significant
-portions of the lkml population prefer flaming to coding, and that
-couldn't possibly be the case, could it?
+Steven Cole <scole@lanl.gov>:
+> I've obviously been wrong all along on this, but I had always assumed
+> (incorrectly) that mega when applied to binary things really meant 
+> 2 to the 20th, and that the confusion came from disk manufacturers who
+> chose whatever definition made their products seem bigger.
+> 
+> So, if we really want to be pedantically correct, let's all swallow 
+> _really_ hard, and go all the way on this.  Or, are the UGLY changes
+> below actually technically wrong?
 
-Let me make a couple of things clear:
-
-I am by no means in love with the new abbreviations described at
-<http://physics.nist.gov/cuu/Units/binary.html>.  I have the same 
-reflexes as the rest of you -- they kind of make me want to gag.
-
-If there is a clear consensus from lkml, I will be happy to back
-out this change.  Perhaps this terminological standard does not
-meet a real need, perhaps it will be rejected by most engineers and 
-deserves to wither on the vine.  It's happened before.
-
-However.  In the *absence* of a clear consensus, I will follow best
-practices.  Best practice in editing a technical or standards document
-is to (a) avoid ambiguous usages, seek clarity and precision; and (b)
-to use, follow and reference international standards.
-
-In fact, the first time David Woodhouse submitted this change, some
-months ago, I rejected it.  I have since, reluctantly, concluded
-that I was wrong to do so.  So when he re-submitted, I merged in
-the patch.
-
-My personal esthetic distaste for the new terminology (gack!  "kibi" 
-sounds like something I would feed my cat!) is less important
-than following best practices.  I'm hoping it will seem less ugly as it
-becomes more familiar.
-
-I don't like my duty much in this instance.  But my duty is clear.
+Alas, I don't know.
 -- 
 		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-"As to the species of exercise, I advise the gun. While this gives [only]
-moderate exercise to the body, it gives boldness, enterprise, and independence
-to the mind.  Games played with the ball and others of that nature, are too
-violent for the body and stamp no character on the mind. Let your gun,
-therefore, be the constant companion to your walks."
-        -- Thomas Jefferson, writing to his teenaged nephew.
+No kingdom can be secured otherwise than by arming the people.  The possession
+of arms is the distinction between a freeman and a slave. 
+        -- "Political Disquisitions", a British republican tract of 1774-1775

@@ -1,44 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315265AbSGJNuz>; Wed, 10 Jul 2002 09:50:55 -0400
+	id <S317300AbSGJNxg>; Wed, 10 Jul 2002 09:53:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315277AbSGJNuy>; Wed, 10 Jul 2002 09:50:54 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22028 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S315265AbSGJNuw>; Wed, 10 Jul 2002 09:50:52 -0400
-Subject: Re: BKL removal
-To: jlnance@intrex.net
-Date: Wed, 10 Jul 2002 15:17:14 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020710093101.C1446@tricia.dyndns.org> from "jlnance@intrex.net" at Jul 10, 2002 09:31:01 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S317329AbSGJNxf>; Wed, 10 Jul 2002 09:53:35 -0400
+Received: from mail.gmx.net ([213.165.64.20]:6766 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S317300AbSGJNxd>;
+	Wed, 10 Jul 2002 09:53:33 -0400
+Message-ID: <003d01c22819$ba1818b0$1c6fa8c0@hyper>
+From: "Christian Ludwig" <cl81@gmx.net>
+To: "Kernel.org" <linux-kernel@vger.kernel.org>
+Subject: bzip2 support against 2.4.18
+Date: Wed, 10 Jul 2002 15:57:27 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E17SIHK-00078r-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, Jul 09, 2002 at 11:21:25PM +0100, Alan Cox wrote:
-> > 
-> > There are lots of them hiding 8)
-> 
-> Just out of curisoty.  If I remember correctly SMP came to Linux when
-> Caldera hired you to make it work.  Did you invent the BKL?
+Hey,
 
-Caldera bought the hardware, rather than hiring me. Having said that at
-the time the dual P90 board + processors was not exactly cheap. The board
-btw is alive and well and currently owned by Dave Jones.
+I think it's time to have bzip2 support in the kernel. I know the discussion
+about the speed and memory issues that are around with this. But everything
+in this patch is optional. You may use these new features if you want, you
+do not have to use them...
 
-As far as the locking goes I invented the big kernel lock, but the basis of
-that is all taken directly from "Unix systems for modern architectures"
-by Schimmel which is required reading for anyone who cares about caches,
-SMP and locking. 
+This is a testing version of the patch. Only apply this if you really want
+to play around with it a little bit. I know too less persons, who have the
+time/fancy to test it (including myself). If you find errors in it feel free
+to go on developing the patch yourself! Just CC a copy to me.
+This patch consists actually of two parts:
 
-	I'd prefer the trees to be separate for testing purposes: it 
-	doens't	make much sense to have SMP support as a normal kernel 
-	feature when most people won't have SMP anyway"
-			-- Linus Torvalds
+1. A kernel bzip2 compression patch. The kernel will be compressed with
+bzip. Therefore you have to type "make bz2bzImage" at the prompt after the
+kernel configuration. This part is architecture dependent and was
+implemented only for i386 based PCs right now.
 
-Alan
+2. A ramdisk bzip2 compression support patch. The ramdisk/initrd recongnises
+now bzip2 compressed ramdisk images, loads and decompresses them. You can
+choose between gzip and bzip2 (or even both) in the kernel configuration.
+
+These two parts cannot be split up, because both are using the same
+decompression code in "linux/lib/bzip2_inflate.c".
+
+I have adapted this kernel hack by Tom Oehser (tom@toms.net). He wrote this
+for kernel 2.2 and I ported it to 2.4.18 and cleaned up the code.
+
+You will find the diff here:
+    http://chrissicool.piranho.com/patch-2.4.x-bzip2-i386
+
+Known bugs:
+    - gzip crc support was corrupted in file "rd.c", function
+"flush_window()"
+      [maybe it can be fixed, but time is money...]
+    - too less testing time was invested
+
+Best regards,
+
+    - Christian
+
+

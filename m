@@ -1,26 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280190AbRKIVsH>; Fri, 9 Nov 2001 16:48:07 -0500
+	id <S280191AbRKIVxR>; Fri, 9 Nov 2001 16:53:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280195AbRKIVrt>; Fri, 9 Nov 2001 16:47:49 -0500
-Received: from users.724.com ([209.226.22.12]:18007 "EHLO inftormail04.724.com")
-	by vger.kernel.org with ESMTP id <S280191AbRKIVr2>;
-	Fri, 9 Nov 2001 16:47:28 -0500
-Message-ID: <95BF70C5ECA5D41197EC00D0B73EBB67016E982C@inftormail04.724.com>
-From: ANTIGEN_INFTORMAIL04 <ANTIGEN_INFTORMAIL04@724.com>
-To: "'Ronny.Lampert@eed.ericsson.se'" <Ronny.Lampert@eed.ericsson.se>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Antigen found =*.eml file
-Date: Fri, 9 Nov 2001 16:47:26 -0500 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
+	id <S280192AbRKIVxH>; Fri, 9 Nov 2001 16:53:07 -0500
+Received: from zero.tech9.net ([209.61.188.187]:23313 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S280191AbRKIVwt>;
+	Fri, 9 Nov 2001 16:52:49 -0500
+Subject: Re: [PATCH] Adding KERN_INFO to some printks #2
+From: Robert Love <rml@tech9.net>
+To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <01110923315804.00807@nemo>
+In-Reply-To: <E162JGL-0004KH-00@the-village.bc.nu> 
+	<01110923315804.00807@nemo>
 Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.1+cvs.2001.11.07.16.47 (Preview Release)
+Date: 09 Nov 2001 16:52:39 -0500
+Message-Id: <1005342760.1209.20.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Antigen for Exchange found Re_ CPQARRAY driver horribly broken in 2_4_14.eml
-matching =*.eml file filter.
-The file is currently Removed.  The message, "Re: 2.4.14: crashing on heavy
-swap-load with SmartArray", was
-sent from Linux Kernel Developer  and was discovered in IMC Queues\Inbound
-located at 724 Solutions Inc./DEVL/INFTORMAIL04.
+On Fri, 2001-11-09 at 18:31, vda wrote:
+> What amazes me to no end is how Alan can be so active.
+> Alan, you are something. Really. :-)
+
+Didn't you hear?  I think Linus broke the news awhile back: Alan has the
+uncanny ability to fork() himself infinitely many times.  And he has no
+resource contention, so he scales O(1).
+
+	Robert Love
+

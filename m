@@ -1,59 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262190AbVDFMmw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262135AbVDFMrA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262190AbVDFMmw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 08:42:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262202AbVDFMmM
+	id S262135AbVDFMrA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 08:47:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262146AbVDFMq7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 08:42:12 -0400
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:2982 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S262201AbVDFMj6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 08:39:58 -0400
-Date: Wed, 6 Apr 2005 14:39:47 +0200
-To: Andrew Morton <akpm@osdl.org>
-Cc: pavel@ucw.cz, linux-kernel@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] Re: It's getting worse: 2.6.12-rc2-mm1 and suspend2ram
-Message-ID: <20050406123947.GA31958@gamma.logic.tuwien.ac.at>
-References: <20050405181628.GB6879@gamma.logic.tuwien.ac.at> <20050405204107.GD1380@elf.ucw.cz> <20050405210041.GA16263@gamma.logic.tuwien.ac.at> <20050405211340.GF1380@elf.ucw.cz> <20050405221903.GA21196@gamma.logic.tuwien.ac.at> <20050405183144.50ed3a9c.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050405183144.50ed3a9c.akpm@osdl.org>
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+	Wed, 6 Apr 2005 08:46:59 -0400
+Received: from gizmo03ps.bigpond.com ([144.140.71.13]:16100 "HELO
+	gizmo03ps.bigpond.com") by vger.kernel.org with SMTP
+	id S262135AbVDFMqx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 08:46:53 -0400
+Message-ID: <4253DA3A.5040703@bigpond.net.au>
+Date: Wed, 06 Apr 2005 22:46:50 +1000
+From: Doug Gray <dgra1233@bigpond.net.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [Fwd: Hyperthreading on dual Xeon VME board]
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Die, 05 Apr 2005, Andrew Morton wrote:
-> > 2.6.12-rc2 suspends and resumes with the very same config file (well,
-> > after running make oldconfig) without any problem.
-> > 
-> > So there is a change in -mm1 which triggers this. Should I start with
-> > backing out bk-acpi? or anything else?
-> 
-> bk-acpi would be a good choice.  It might be easier to start with
-> 2.6.12-rc2 and add stuff, see when it breaks.
+Folks,
 
-Ok, 
-	2.6.12-rc2		suspend and resumes works
-	   + bk-acpi.patch	immediate reboot at resume.
+How can I get Hyperthreading working on my dual Xeon board when the BIOS does not contain the ACPI
+support module?
 
-> bk-acpi and bk-driver-core would be prime suspects.
+Is there a magic set of kernel options that will get the kernel to start the Hyperthreaded CPUs?
 
-I didn't try bk-driver-core.
+Background:
 
-Best wishes
+I am having a problem with a dual (physical) Xeon VME single board (from GMS model V269)) getting
+hyperthreading up and going on the CPUs.  Two physical CPUs are recognised but not the
 
-Norbert
+I have Fedora Core 3 installed with the SMP kernel now upgraded (rpm) to 2.6.10
 
--------------------------------------------------------------------------------
-Dr. Norbert Preining <preining AT logic DOT at>             Università di Siena
-sip:preining@at43.tuwien.ac.at                             +43 (0) 59966-690018
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-SCREEB (n.)
-To make the noise of a nylon anorak rubbing against a pair of corduroy
-trousers.
-			--- Douglas Adams, The Meaning of Liff
+The board manufacturer has not included the ACPI module in the BIOS (AMIBIOS8) for their own
+reasons.  GMS position is that this is only a power management function and users of this board
+would not require power manangement.
+
+The BIOS Northbridge (Serverworks GC-LE) support does have a switch option to enable hyperthreading,
+this is enabled.
+
+As I understand ACPI the BIOS passes configuration information about the CPUs to the Linux Kernel
+which then know how to initialise the Hyperthreading CPUs.
+
+Apparently Windows does not require this information from the Kernel to run Hyperthreading so
+naturally GMS (the board manufacturer) is not willing to spend the effort to get ht on Linux sorted out.
+
+On booting the Linux dmesg shows the message "ACPI: Unable to locate RSDP"  which I interpret to
+mean the Kernel is unable to find the resource information table which should have been setup by the
+BIOS.
+
+I have tried the kernel parameter acpi=ht but this did nothing to activate the ht activity.
+
+Does this make sense?
+Hoping someone can give me some clues.
+Doug
+
+

@@ -1,64 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261204AbUBZWlb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 17:41:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261200AbUBZWla
+	id S261217AbUBZWo1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 17:44:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbUBZWo1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 17:41:30 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:16523 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261221AbUBZWkf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 17:40:35 -0500
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, arjanv@redhat.com, davej@redhat.com,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: raid 5 with >= 5 members broken on x86
-References: <orznb5leqs.fsf@free.redhat.lsd.ic.unicamp.br>
-	<Pine.LNX.4.58.0402261329450.7830@ppc970.osdl.org>
-	<or1xohpjzn.fsf@free.redhat.lsd.ic.unicamp.br>
-	<Pine.LNX.4.58.0402261426460.7830@ppc970.osdl.org>
-From: Alexandre Oliva <aoliva@redhat.com>
-Organization: Red Hat Global Engineering Services Compiler Team
-Date: 26 Feb 2004 19:40:21 -0300
-In-Reply-To: <Pine.LNX.4.58.0402261426460.7830@ppc970.osdl.org>
-Message-ID: <or8yipforu.fsf@free.redhat.lsd.ic.unicamp.br>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Thu, 26 Feb 2004 17:44:27 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:36576 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261217AbUBZWnn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 17:43:43 -0500
+Date: Thu, 26 Feb 2004 23:43:34 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: rmk@arm.linux.org.uk, spyro@f2s.com, Scott Bambrough <scottb@rebel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] remove kernel 2.0 #ifdef's from arm{,26} code
+Message-ID: <20040226224333.GW5499@fs.tum.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 26, 2004, Linus Torvalds <torvalds@osdl.org> wrote:
+The patch below removes #ifdef's for kernel 2.0 from 
+arch/arm{,26}/nwfpe/fpmodule.c .
 
->> > There is nothing to say that gcc wouldn't do a re-load or something
->> > in between, so you really need to tell the _first_ ask about it.
+Please apply
+Adrian
 
->> The only other reload it could do is an input reload of p4 and p5,
->> which, again, doesn't matter, because p4 and p5 are dead anyway.
 
-> Ok. That's the missing piece. The thing is wrong, but we don't care, 
-> because even if gcc saves the old values for some silly reload, they're 
-> dead and uninteresting.
-
-Yup.
-
-> Ok. I did the silly one-liner
-
-That's good enough for me.  I tested that before trying this better
-approach, and it worked.
-
-> but if the "don't care" approach really improves code generation,
-> feel free to send one that fixes both the P5 and PII cases..
-
-It's not the code generation that is improved, it's just that we can
-then refrain from pushing and popping something that nobody cares
-about.  It would have worked to just assign a random value to p4 and
-p5 after the asm loop; it would be dead anyway.  As long as we made
-sure p4 and p5 weren't shared with anything else before, that is.
-
--- 
-Alexandre Oliva   Enjoy Guarana', see http://www.ic.unicamp.br/~oliva/
-Happy GNU Year!                     oliva@{lsd.ic.unicamp.br, gnu.org}
-Red Hat GCC Developer                 aoliva@{redhat.com, gcc.gnu.org}
-Free Software Evangelist                Professional serial bug killer
+--- linux-2.6.3-mm4/arch/arm26/nwfpe/fpmodule.c.old	2004-02-26 23:40:02.000000000 +0100
++++ linux-2.6.3-mm4/arch/arm26/nwfpe/fpmodule.c	2004-02-26 23:41:14.000000000 +0100
+@@ -46,10 +46,9 @@
+ 
+ #ifdef MODULE
+ void fp_send_sig(unsigned long sig, PTASK p, int priv);
+-#if LINUX_VERSION_CODE > 0x20115
++
+ MODULE_AUTHOR("Scott Bambrough <scottb@rebel.com>");
+ MODULE_DESCRIPTION("NWFPE floating point emulator");
+-#endif
+ 
+ #else
+ #define fp_send_sig	send_sig
+--- linux-2.6.3-mm4/arch/arm/nwfpe/fpmodule.c.old	2004-02-26 23:40:56.000000000 +0100
++++ linux-2.6.3-mm4/arch/arm/nwfpe/fpmodule.c	2004-02-26 23:41:07.000000000 +0100
+@@ -50,10 +50,9 @@
+ 
+ #ifdef MODULE
+ void fp_send_sig(unsigned long sig, struct task_struct *p, int priv);
+-#if LINUX_VERSION_CODE > 0x20115
++
+ MODULE_AUTHOR("Scott Bambrough <scottb@rebel.com>");
+ MODULE_DESCRIPTION("NWFPE floating point emulator (" NWFPE_BITS " precision)");
+-#endif
+ 
+ #else
+ #define fp_send_sig	send_sig

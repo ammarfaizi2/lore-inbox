@@ -1,41 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279575AbRJ2WRS>; Mon, 29 Oct 2001 17:17:18 -0500
+	id <S279576AbRJ2WYT>; Mon, 29 Oct 2001 17:24:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279576AbRJ2WRI>; Mon, 29 Oct 2001 17:17:08 -0500
-Received: from ibis.worldnet.net ([195.3.3.14]:51716 "EHLO ibis.worldnet.net")
-	by vger.kernel.org with ESMTP id <S279575AbRJ2WQz>;
-	Mon, 29 Oct 2001 17:16:55 -0500
-Message-ID: <3BDDD55C.56EDE4E0@worldnet.fr>
-Date: Mon, 29 Oct 2001 23:17:00 +0100
-From: Laurent Deniel <deniel@worldnet.fr>
-Organization: Home
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en, fr
-MIME-Version: 1.0
-To: willy tarreau <wtarreau@yahoo.fr>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Ethernet NIC dual homing
-In-Reply-To: <20011029133921.74466.qmail@web20508.mail.yahoo.com> <3BDDB51C.4095AF84@worldnet.fr>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S279577AbRJ2WYK>; Mon, 29 Oct 2001 17:24:10 -0500
+Received: from cs6625129-123.austin.rr.com ([66.25.129.123]:49158 "HELO
+	dragon.taral.net") by vger.kernel.org with SMTP id <S279576AbRJ2WX5>;
+	Mon, 29 Oct 2001 17:23:57 -0500
+Date: Mon, 29 Oct 2001 16:24:33 -0600
+From: Taral <taral@taral.net>
+To: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: /proc/net/ip_conntrack problems
+Message-ID: <20011029162433.D18498@taral.net>
+In-Reply-To: <20011028220854.A17685@taral.net> <3974.1004329672@kao2.melbourne.sgi.com> <20011028223651.B17685@taral.net> <20011029131916.D20280@mikef-linux.matchmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="q9KOos5vDmpwPx9o"
+Content-Disposition: inline
+In-Reply-To: <20011029131916.D20280@mikef-linux.matchmail.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Laurent Deniel wrote:
-> 
-> Currently only the link status is used to monitor a NIC.
-> So it would be nice if an ioctl was available to force a NIC switch-over
-> (especially in active-backup policy). This could be used by a user-space
-> daemon in case for instance no traffic is detected.
-> 
-> I see that the bonding driver is included in 2.2.18, what is its status
-> in 2.4.x ?
-> 
-> Regards,
-> 
-> Laurent
 
-Hmm, it seems that a lot of good stuff (e.g. ARP monitoring and
-SIOCBONDCHANGEACTIVE ioctl) are implemented in the bonding patch for 2.4.13.
-Will it be included in the mainstream 2.4.x kernel or is it a 2.5 thing ?
+--q9KOos5vDmpwPx9o
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Oct 29, 2001 at 01:19:16PM -0800, Mike Fedyk wrote:
+> Because you would need the buffer size to hit the moving target of any of
+> the boundaries of the lines.  So you would need (for the example above)
+> buffer sizes of:
+> 153
+> 291
+> 460
+> 611
+> 778
+> 778
+>=20
+> 16k blocks would hold all of those...
+
+Wrong again. /proc/net/ip_conntrack has code to support incrementally
+reading the file. It's broken, I'm just not sure _how_ it's broken.
+
+--=20
+Taral <taral@taral.net>
+This message is digitally signed. Please PGP encrypt mail to me.
+"Any technology, no matter how primitive, is magic to those who don't
+understand it." -- Florence Ambrose
+
+--q9KOos5vDmpwPx9o
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAjvd1yEACgkQoQQF8xCPwJRiQACfdcl7vtZ4gqmSpA8uWDE8MVkM
+60wAnRbHwEwC4LnlUv7MOpg/XtAnYDBw
+=Ymjd
+-----END PGP SIGNATURE-----
+
+--q9KOos5vDmpwPx9o--

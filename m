@@ -1,45 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288677AbSADPqh>; Fri, 4 Jan 2002 10:46:37 -0500
+	id <S287436AbSADQQB>; Fri, 4 Jan 2002 11:16:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288675AbSADPq1>; Fri, 4 Jan 2002 10:46:27 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34064 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S288674AbSADPqL>;
-	Fri, 4 Jan 2002 10:46:11 -0500
-Message-ID: <3C35CE40.836D3552@mandrakesoft.com>
-Date: Fri, 04 Jan 2002 10:46:08 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
+	id <S287440AbSADQPu>; Fri, 4 Jan 2002 11:15:50 -0500
+Received: from tele-2.inweb.net.uk ([212.38.64.10]:19716 "EHLO
+	tele2.inweb.co.uk") by vger.kernel.org with ESMTP
+	id <S287436AbSADQPe>; Fri, 4 Jan 2002 11:15:34 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Steve Wright <stevew@cwazy.co.uk>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: /proc/kmsg memory usage ?
+Date: Fri, 4 Jan 2002 16:15:24 +0000
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-To: esr@thyrsus.com
-CC: Erik Andersen <andersen@codepoet.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: LSB1.1: /proc/cpuinfo
-In-Reply-To: <20020103190219.B27938@thyrsus.com> <Pine.GSO.4.21.0201031944320.23693-100000@weyl.math.psu.edu> <20020103195207.A31252@thyrsus.com> <20020104081802.GC5587@codepoet.org> <20020104071940.A10172@thyrsus.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <02010416152401.00607@box.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric S. Raymond" wrote:
-> I'm not very worried about this.  On modern machines int == long
+Hello,
 
-I have been attempting to hammer this incorrect assumption out of
-people's brains for years, and have submitted many patches to Linus [1]
-over time, removing such crud from the kernel.
+I am hoping someone here can point me towards the right documentation / web 
+page.
 
-Such an assumption is blatantly non-portable, rendering your code
-fragile.
+I want to find out what happens to kernel messages in /proc/kmsg if they are 
+not read.
 
-	Jeff, longtime alpha owner
-
-
-
-[1] and other userland maintainers
-
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
+Specifically, 
+Are they cleared after a specified amount of time (eg every 24 hours) ?
+Are they cleared when they occupy a maximum size ?
+If they are not read will the memory they occupy grow indefinately ?

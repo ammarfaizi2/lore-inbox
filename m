@@ -1,23 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269125AbRHBU1m>; Thu, 2 Aug 2001 16:27:42 -0400
+	id <S269120AbRHBUaW>; Thu, 2 Aug 2001 16:30:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269118AbRHBU1d>; Thu, 2 Aug 2001 16:27:33 -0400
-Received: from pc1-cwbl2-0-cust80.cdf.cable.ntl.com ([62.252.63.80]:61678 "EHLO
+	id <S269118AbRHBUaM>; Thu, 2 Aug 2001 16:30:12 -0400
+Received: from pc1-cwbl2-0-cust80.cdf.cable.ntl.com ([62.252.63.80]:63726 "EHLO
 	bagpuss.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S269115AbRHBU1S>; Thu, 2 Aug 2001 16:27:18 -0400
+	id <S269144AbRHBUaD>; Thu, 2 Aug 2001 16:30:03 -0400
 From: Alan Cox <alan@bagpuss.swansea.linux.org.uk>
-Message-Id: <200107292127.f6TLRpC01583@bagpuss.swansea.linux.org.uk>
-Subject: Re: [Linux Diffserv] Re: [PATCH] Inbound Connection Control mechanism:
-To: samudrala@us.ibm.com (Sridhar Samudrala)
-Date: Sun, 29 Jul 2001 17:27:50 -0400 (EDT)
-Cc: hadi@cyberus.ca (jamal), diffserv-general@lists.sourceforge.net,
-        kuznet@ms2.inr.ac.ru, alan@lxorguk.ukuu.org.uk,
-        linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-        rusty@rustcorp.com.au, thiemo@sics.se,
-        samudrala@us.ibm.com (Sridhar Samudrala),
-        tewarir@us.ibm.com (Renu Tewari), dmfreim@us.ibm.com
-In-Reply-To: <Pine.LNX.4.21.0107301359350.23307-100000@w-sridhar2.des.sequent.com> from "Sridhar Samudrala" at Jul 30, 2001 03:08:34 PM
+Message-Id: <200107292058.f6TKwUU01512@bagpuss.swansea.linux.org.uk>
+Subject: Re: harddisk suddenly locked?!
+To: tanner@ffii.org (Thomas Tanner)
+Date: Sun, 29 Jul 2001 16:58:30 -0400 (EDT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <MABBKEJEMCFLBEDCGCDNGEABCAAA.tanner@ffii.org> from "Thomas Tanner" at Jul 31, 2001 01:00:07 PM
 X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -25,10 +20,14 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Our patch can be used along with SYN policing to prioritize incoming
-> connection requests on a socket. SYN policing can be used to limit 
-> the rate of a particular class, but it cannot be used to prioritize a 
+>  A locked drive rejects all media access commands.
+>  When a new master password is set, the drive won't be locked.
+>  Setting a new user password locks the drive the next time it is powered-on.
+> 
+>  Something must have sent a lock command to my hd. Maybe a bug in the IDE
+> code?
 
-No. Because you cant prove the packets are not spoofed. An attacker 
-becomes able to block classes
+Or someone broke into the box and did it. In fact given this feature
+is actually enabled on ibm disks Im amazed the windows viruses havent
+all started doing it
 

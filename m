@@ -1,193 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269492AbUI3UiX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269416AbUI3UoT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269492AbUI3UiX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 16:38:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269474AbUI3Uh0
+	id S269416AbUI3UoT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 16:44:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269471AbUI3UoT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 16:37:26 -0400
-Received: from serio.al.rim.or.jp ([202.247.191.123]:33942 "EHLO
-	serio.al.rim.or.jp") by vger.kernel.org with ESMTP id S269495AbUI3UgK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 16:36:10 -0400
-Message-ID: <415C6E30.1020705@yk.rim.or.jp>
-Date: Fri, 01 Oct 2004 05:36:00 +0900
-From: Chiaki <ishikawa@yk.rim.or.jp>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: ja, en-us, en
+	Thu, 30 Sep 2004 16:44:19 -0400
+Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:51652 "EHLO
+	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id S269416AbUI3UjS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 16:39:18 -0400
+From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+To: Alan Cox <alan@redhat.com>
+Subject: Re: PATCH: minor IDE clean up I noticed
+Date: Thu, 30 Sep 2004 20:05:36 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20040930175430.GA688@devserv.devel.redhat.com>
+In-Reply-To: <20040930175430.GA688@devserv.devel.redhat.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Chiaki <ishikawa@yk.rim.or.jp>,
-       Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
-Subject: Re: FSCK message suppressed during booting? (2.6.9-rc2)
-References: <E1CCtxn-00075V-00@calista.eckenfels.6bone.ka-ip.net> <415C2B6C.6050401@yk.rim.or.jp>
-In-Reply-To: <415C2B6C.6050401@yk.rim.or.jp>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200409302005.36089.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chiaki wrote:
-> Bernd Eckenfels wrote:
+
+fixed 4 days ago in ide-dev-2.6 :)
+
+On Thursday 30 September 2004 19:54, Alan Cox wrote:
+> Nowdays a drive always has a driver
 > 
->> In article <415B5034.6060809@yk.rim.or.jp> you wrote:
->>
->>> That is, under previous 2.4.xx kernel, I would have gotten
->>> "The disk was not unmounted cleanly. Running fsck." or
->>> some such message and fsck printed its
->>> progress bar using ASCII characters.
->>
->>
->>
->> Well, this is not a kernel function, your Distribution is calling fsck in
->> the bootup scripts, and fsck is calling the filesystem specific
->> implementation and this is checking if fsck is needed.
->>
->> If you do not get this messages anymore contact your linux distribution
->> provider.
->>
->>
 > 
-> Thank you for the comment.
-> 
-> Well, I have installed 2.6.9-rc2 on my own after having used
-> Debian with my own updated kernel 2.4.2x series for a few years now.
-> I certainly upgraded moduleutil and other packages to run
-> 2.6.9-rc2, but have not specifically updated fsck.
-> (I DID ran apt-get -u update and apt-get -u upgrade to pick up
-> the latest packages a week ago or so.).
-> 
-> Agreed that the starting fsck under stock Debian scheme
-> may depend on 2.4.xx features which may not be available
-> on 2.6.yy series kernel. I will get in contact with fsck
-> package (or boot script) maintainer to see
-> if we can improve this.
-> 
->  >Do you habe maybe a journalling filesystem? Or do you have set some 
-> flags to
->  > force the skip of fsck (/fastboot)
->  >
-> 
-> Well, I am running 2.6.9-rc2 from loadlin as follows.
-> 
-> loadlin 269rc2 root=/dev/sda6 ro vga=3 scsihosts=sym53c8xx:tmscsim
-> 
-> I noticed the fsck message lines were missing on the reboot after
-> a hard-hung forced me to hit reset button in the end.
-> The message lines were missing, but it seems that fsck
-> certainly was running invisibly. Thus the
-> boot sequence halted as if the computer got hung again
-> until fsck finished and bootting continued. This was very
-> annoying.
-> 
-
-
-OK, maybe I was not clear enough in the first post.
-
-Fsck seemed to run during the reboot
-after a reset button was hit to recover from a hard hung.
-
-However, NO OUTPUT message from fsck is shown on the console.
-It progressed silently : I could hear the disk access
-(head movement) and this made me very uncomfortable.
-With a test kernel accessing disk furiously without
-telling me what it does during otherwise smooth booting
-process after a hard reset, I may need to consider
-the chance of kernel running wild and trashing the file system.
-So that is why I rebooted the system using 2.4.xx which I have
-used for quite a long time to make sure that the file system(s)
-are fsck'ed and then cleanly remounted.
-
-Anyway, before contacting the Debian package maintainer, I found
-the following.
-IF during the booting the environment variable TERM
-is set to "dumb", "network", "unknown" or not set at all
-the progressive horizontal bar display (-C option to fsck)
-is disabled in the Debian startup script.
-
-Maybe the TERM setup for console during booting has changed between
-kernel 2.4.2x and 2.6.9-rc2?
-
-
-A little more detail:
-
-I checked the Debian startup script myself.
-Now I notice that if the fsck is invoked in a startup script and $TERM is
-set to "dumb" or "network" or "unknown" or not set at all, this
-progress bar display (-C option to fsck)
-is not done by the Debian start up script.
-
-Maybe between 2.4.2x and 2.6.9-rc2,
-the boot console $TERM setting changed?
-
---- begin Excerpt from /etc/init.d/checkroot.sh
-
-if [ "$doswap" = yes ]
-then
-	[ "$VERBOSE" != no ] && echo "Activating swap."
-	swapon -a 2> /dev/null
-fi
-
-	... omission...
-
-#
-#	The actual checking is done here.
-#
-if [ "$rootcheck" = yes ]
-then
-	if [ -f /forcefsck ]
-	then
-		force="-f"
-	else
-		force=""
-	fi
-
-	if [ "$FSCKFIX" = yes ]
-	then
-		fix="-y"
-	else
-		fix="-a"
-	fi
-
-	spinner="-C"
-	case "$TERM" in
-		dumb|network|unknown|"")
-			spinner="" ;;
-	esac
-	# This Linux/s390 special case should go away.
-	if [ "${KERNEL}:${MACHINE}" = Linux:s390 ]
-	then
-		spinner=""
-	fi
-
-	echo "Checking root file system..."
-	fsck $spinner $force $fix -t $roottype $rootdev
-	FSCKCODE=$?
-
---- end Excerpt
-
-
-I think I saw Activating Swap message.  But I am not sure if I saw
-"Checking root file system..." message during a reboot after the RESET
-button was hit due to a hung.  I was not paying attention to that.
-But definitely, I didn't see at all the
-growing ASCII character-base horizontal bar with a spinning char on
-the right (/ - \ |).  This is a way to show progress bar. This is
-shown with the -C option to fsck. I usually see this progressive
-bar for fsck during reboot under 2.4.2x kernel.
-So obviously "-C" is reset to "". I am NOT using s390 :-)
-
-(OR the output from this shell is eaten by some other mechanism.
-  I need to understand the stdio/stdout setting of the shell
-  invoking this script further.)
-
-I will check with the maintainer of Debian package further.
-
-
-
-
--- 
-int main(void){int j=2003;/*(c)2003 cishikawa. */
-char t[] ="<CI> @abcdefghijklmnopqrstuvwxyz.,\n\"";
-char *i ="g>qtCIuqivb,gCwe\np@.ietCIuqi\"tqkvv is>dnamz";
-while(*i)((j+=strchr(t,*i++)-(int)t),(j%=sizeof t-1),
-(putchar(t[j])));return 0;}/* under GPL */
+> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.9rc3/drivers/ide/ide-proc.c linux-2.6.9rc3/drivers/ide/ide-proc.c
+> --- linux.vanilla-2.6.9rc3/drivers/ide/ide-proc.c	2004-09-30 15:35:48.169975152 +0100
+> +++ linux-2.6.9rc3/drivers/ide/ide-proc.c	2004-09-30 16:33:46.423200288 +0100
+> @@ -365,20 +365,7 @@
+>  	{
+>  		unsigned short *val = (unsigned short *) page;
+>  		
+> -		/*
+> -		 *	The current code can't handle a driverless
+> -		 *	identify query taskfile. Now the right fix is
+> -		 *	to add a 'default' driver but that is a bit
+> -		 *	more work. 
+> -		 *
+> -		 *	FIXME: this has to be fixed for hotswap devices
+> -		 */
+> -		 
+> -		if(DRIVER(drive))
+> -			err = taskfile_lib_get_identify(drive, page);
+> -		else	/* This relies on the ID changes */
+> -			val = (unsigned short *)drive->id;
+> -
+> +		err = taskfile_lib_get_identify(drive, page);
+>  		if(!err)
+>  		{						
+>  			char *out = ((char *)page) + (SECTOR_WORDS * 4);

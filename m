@@ -1,26 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266189AbUHOROH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264147AbUHOR2b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266189AbUHOROH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 13:14:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266199AbUHOROH
+	id S264147AbUHOR2b (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 13:28:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbUHOR2a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 13:14:07 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:65413 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S266189AbUHOROE (ORCPT
+	Sun, 15 Aug 2004 13:28:30 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:3718 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S264147AbUHOR23 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 13:14:04 -0400
-Date: Sun, 15 Aug 2004 19:13:58 +0200 (CEST)
+	Sun, 15 Aug 2004 13:28:29 -0400
+Date: Sun, 15 Aug 2004 19:28:28 +0200 (CEST)
 From: Roman Zippel <zippel@linux-m68k.org>
 X-X-Sender: roman@scrub.home
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: bunk@fs.tum.de, johnpol@2ka.mipt.ru, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] let W1 select NET
-In-Reply-To: <20040813100040.3fce00db.rddunlap@osdl.org>
-Message-ID: <Pine.LNX.4.61.0408151907540.12687@scrub.home>
-References: <20040813101717.GS13377@fs.tum.de> <Pine.LNX.4.58.0408131231480.20635@scrub.home>
- <1092394019.12729.441.camel@uganda> <Pine.LNX.4.58.0408131253000.20634@scrub.home>
- <20040813110137.GY13377@fs.tum.de> <Pine.LNX.4.58.0408131312390.20634@scrub.home>
- <20040813100040.3fce00db.rddunlap@osdl.org>
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: Adrian Bunk <bunk@fs.tum.de>, linux-kernel@vger.kernel.org
+Subject: Re: menuconfig displays dependencies [Was: select FW_LOADER ->
+ depends HOTPLUG]
+In-Reply-To: <20040814074953.GA20123@mars.ravnborg.org>
+Message-ID: <Pine.LNX.4.61.0408151925260.12687@scrub.home>
+References: <20040809195656.GX26174@fs.tum.de> <20040809203840.GB19748@mars.ravnborg.org>
+ <Pine.LNX.4.58.0408100130470.20634@scrub.home> <20040810084411.GI26174@fs.tum.de>
+ <20040810211656.GA7221@mars.ravnborg.org> <Pine.LNX.4.58.0408120027330.20634@scrub.home>
+ <20040814074953.GA20123@mars.ravnborg.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -28,18 +29,17 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-On Fri, 13 Aug 2004, Randy.Dunlap wrote:
+On Sat, 14 Aug 2004, Sam Ravnborg wrote:
 
-> | Abusing select is really the wrong answer. What is needed is an improved 
-> | user interface, which allows to search through the kconfig information or 
-> | even can match hardware information to a driver and aids the user in 
-> | selecting the required dependencies.
-> 
-> Nice idea.  So are there places where SELECT is the right thing to do,
-> i.e., it's required?  (examples, please)
+> +void expr_get_dep_txt(struct expr *e, char *t)
 
-Select should be used for utility functions like CRC32, which often don't 
-need their own prompt (except where some external module might need it, 
-and a "default m" might suffice here).
+What's wrong with expr_print()?
+
+> +	if (menu->sym && menu->sym->dep)
+> +		expr_get_dep_txt(menu->sym->dep, t);
+
+The dep field of the symbol isn't used currently (it's left from the 
+converter).
+Did you already look at the similiar code in qconf.cc?
 
 bye, Roman

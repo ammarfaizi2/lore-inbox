@@ -1,77 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263171AbTFTPUS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 11:20:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263176AbTFTPUS
+	id S262297AbTFTPZV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 11:25:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263176AbTFTPZU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 11:20:18 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:7376 "EHLO smtp.bitmover.com")
-	by vger.kernel.org with ESMTP id S263171AbTFTPUO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 11:20:14 -0400
-Date: Fri, 20 Jun 2003 08:34:10 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Michael Poole <mdpoole@troilus.org>
-Cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
-Message-ID: <20030620153410.GC17563@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Michael Poole <mdpoole@troilus.org>, Larry McVoy <lm@bitmover.com>,
-	linux-kernel@vger.kernel.org
-References: <1056027789.3ef1b48d3ea2e@support.tuxbox.dk> <03061908145500.25179@tabby> <20030619141443.GR29247@fs.tum.de> <bcsolt$37m$2@news.cistron.nl> <20030619165916.GA14404@work.bitmover.com> <20030620001217.G6248@almesberger.net> <20030620120910.3f2cb001.skraw@ithnet.com> <20030620142436.GB14404@work.bitmover.com> <20030620143012.GC14404@work.bitmover.com> <87vfv0bxsb.fsf@sanosuke.troilus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87vfv0bxsb.fsf@sanosuke.troilus.org>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+	Fri, 20 Jun 2003 11:25:20 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:7949 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S262297AbTFTPZS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 11:25:18 -0400
+Date: Fri, 20 Jun 2003 08:38:07 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Xavier Bestel <xavier.bestel@free.fr>
+cc: Nuno Silva <nuno.silva@vgertech.com>, Samphan Raruenrom <samphan@thai.com>,
+       Vojtech Pavlik <vojtech@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Crusoe's persistent translation on linux?
+In-Reply-To: <1056100114.2978.31.camel@nomade>
+Message-ID: <Pine.LNX.4.44.0306200832120.25872-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 20, 2003 at 10:59:00AM -0400, Michael Poole wrote:
-> Larry McVoy <lm@bitmover.com> writes:
+
+On 20 Jun 2003, Xavier Bestel wrote:
 > 
-> > I realized after I sent that that maybe the point was too subtle.
-> > Open source is great, I use it, I love it, no problem there.  However,
-> > *if* I'm correct that what is happening is basically a process of copying,
-> > and *if* open source kills off the companies producing the products which
-> > are being copied, then open source slowly grinds to a halt in terms of
-> > creating anything new.
-> 
-> This is such an inane hypothesis I'm not sure why I bother responding.
+> Did you just write: "the Crusoe has special backdoors built-in which
+> would allow a userspace program to takeover the machine, and Transmeta
+> choose security through obscurity to avoid this problem" ?
 
-Lots of people claimed the world was flat because they couldn't imagine
-anything beyond the horizon.  
+No. Quite the reverse. I just effectively wrote "you _cannot_ do that".  
+And we won't even tell the details of _how_ you cannot do that.
 
-I don't think the point I'm making is that much of a stretch.  Look at 
-Sun - it's been the source of many of the things in Linux.  There is no
-question, in my mind at least, that Linux is putting Sun out of business.
-Sun used to do 10% of their annual revenue on Wall Street.  Wall Street
-businesses are moving to Linux in droves.  That's an example of what I
-call killing off the host.
+In fact, even inside transmeta you cannot do that, without having a
+specially blessed version of the flash that allows upgrades. If you ever
+see a machine with a prominent notice saying "CMS upgraded to development
+version", then that's a hint that it's a machine that TMTA developers
+could change.
 
-I'm sure you can muddy the waters by saying that Sun has other problems
-and I won't go there.  I think enough people can see that Linux is hurting
-Sun, that's all I wanted to get across.
+But even then you'd have to know how to change it.
 
-Maybe there will always be another host to come along and so we have an
-uneasy truce where each time a new cool thing comes along the community
-copies it, if they do it fast and well enough, that host goes away.
+Think of it like the Intel microcode update, except on steroids. Big 
+steroids.
 
-It would be a zillion times better, in my mind, if there was significant
-effort in creating business models which allow open source to be self
-sustaining.  Rather than beating up on each and every company that
-doesn't just GPL everything and hand it over, it would be nice if this
-community was trying to find ways to be healthy without any dependency
-on the companies which are creating the ideas which are being copied.
-That way, if those companies go away, open source is self sustaining.
+		Linus
 
-That would be nothing but a good thing.  If I'm right, it's a really 
-important thing, if I'm wrong, it's still a fine thing to have open
-source have more ways to support itself.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

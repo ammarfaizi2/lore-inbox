@@ -1,41 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266782AbUHURPv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266790AbUHURZH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266782AbUHURPv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 13:15:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266790AbUHURPv
+	id S266790AbUHURZH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 13:25:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266793AbUHURZH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 13:15:51 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:19152 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S266768AbUHURPr (ORCPT
+	Sat, 21 Aug 2004 13:25:07 -0400
+Received: from mx.inch.com ([216.223.198.27]:57353 "EHLO util.inch.com")
+	by vger.kernel.org with ESMTP id S266790AbUHURZA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 13:15:47 -0400
-Date: Sat, 21 Aug 2004 19:15:36 +0200 (MEST)
-Message-Id: <200408211715.i7LHFa8q024927@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: James.Bottomley@SteelEye.com
-Subject: Re: 2.6.8.1-mm3
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+	Sat, 21 Aug 2004 13:25:00 -0400
+Date: Sat, 21 Aug 2004 13:26:46 -0400
+From: John McGowan <jmcgowan@inch.com>
+To: linux-kernel@vger.kernel.org
+Subject: kernel 2.6.8.1: memory leak? cdrecord problem?
+Message-ID: <20040821172646.GA8781@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 21 Aug 2004 12:02:24 -0400, James Bottomley wrote:
-> On Sat, 2004-08-21 at 10:43, Mikael Pettersson wrote:
-> > On Fri, 20 Aug 2004 03:19:19 -0700, Andrew Morton wrote:
-> > >ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.8.1/2.6.8.1-mm3/
-> > ...
-> > > bk-scsi.patch
-> > 
-> > This one is broken. It causes the kernel to emit a bogus
-> > "program $PROG is using a deprecated SCSI ioctl, please convert it to SG_IO"
-> > message whenever user-space open(2)s a SCSI block device, even
-> > though user-space never did any ioctl() on it.
-> 
-> A simple open of /dev/sda from userland doesn't exhibit this behaviour
-> for me.  What sort of device is this?  And what is the program?
+KERNEL 2.6.8.1: Memory leak? CDrecord problem?
 
-It happens on my USB flash memory stick, which uses USB_STORAGE and BLK_DEV_SD.
-A simple open(2) is enough to trigger the message. I'm about to try -mm3 on a
-different machine which has a "true" SCSI controller/disk combo. (I should
-have checked that first, sorry.)
+-----------------------------------
+KERNEL 2.6.7: compiled cdrecord.
+ Works fine. Burns data disks fine.
+ Burns audio disks fine.
 
-/Mikael
+UPGRADED TO KERNEL 2.6.8.1 (using the patches):
+ Used version of cdrecord compiled under 2.7
+ Burns data disks fine.
+ I have 256 Meg RAM (and 500+ Meg swap).
+ Burning a 400+Meg wav file to audio CD (40+minute
+ radio show) causes, after 130-180Meg have been
+ burned (depending on what I am running):
+
+   OUT OF MEMORY: closing down atd
+
+  and memory keeps being used up:
+ 
+   OUT OF MEMORY: closing down cupsd
+   OUT OF MEMORY: closing down crond
+   (etc.)
+  
+  If I am lucky, cdrecord gets closed down before
+  something critical gets killed.
+  Often I am unlucky.
+
+UNDER KERNEL 2.6.8.1:
+ Recompiled cdrecord under 2.6.8.1.
+ Burns data disks fine.
+ Burning a 400+ Meg wav file to audio CD causes:
+
+   OUT OF MEMORY: closing down atd
+   OUT OF MEMORY: closing down cupsd
+   OUT OF MEMORY: closing down crond
+   (etc.)
+
+(Fedora Core1; kernel upgraded to (now) 2.6.7
+               (I went back to 2.6.7 so I could
+                burn audio CDs)
+               Using Pioneer DVD burner with ATAPI
+               (dev=ATAPI:0,0,0 in cdrecord) interface.)

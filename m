@@ -1,61 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316599AbSGLQBR>; Fri, 12 Jul 2002 12:01:17 -0400
+	id <S316600AbSGLQDH>; Fri, 12 Jul 2002 12:03:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316600AbSGLQBQ>; Fri, 12 Jul 2002 12:01:16 -0400
-Received: from speech.braille.uwo.ca ([129.100.109.30]:54227 "EHLO
-	speech.braille.uwo.ca") by vger.kernel.org with ESMTP
-	id <S316599AbSGLQBP>; Fri, 12 Jul 2002 12:01:15 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Advice saught on math functions
-References: <E17T2P5-0003DF-00@the-village.bc.nu>
-From: Kirk Reiser <kirk@braille.uwo.ca>
-Date: 12 Jul 2002 12:04:00 -0400
-In-Reply-To: <E17T2P5-0003DF-00@the-village.bc.nu>
-Message-ID: <x7hej5djbj.fsf@speech.braille.uwo.ca>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
+	id <S316601AbSGLQDG>; Fri, 12 Jul 2002 12:03:06 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:57579 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S316600AbSGLQDF>; Fri, 12 Jul 2002 12:03:05 -0400
+Date: Fri, 12 Jul 2002 21:40:08 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Maneesh Soni <maneesh@in.ibm.com>, LKML <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Subject: Re: [Lse-tech] Re: [RFC] dcache scalability patch (2.4.17)
+Message-ID: <20020712214008.A22916@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20020712193935.B13618@in.ibm.com> <Pine.GSO.4.21.0207121021430.11261-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.GSO.4.21.0207121021430.11261-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Fri, Jul 12, 2002 at 10:29:53AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+On Fri, Jul 12, 2002 at 10:29:53AM -0400, Alexander Viro wrote:
+> On Fri, 12 Jul 2002, Maneesh Soni wrote:
+> 
+> > Here is the dcache scalability patch (cleaned up) as disscussed in 
+> > the previous post to lkml by Dipankar. The patch uses RCU for doing fast
+> > dcache lookup. It also does lazy updates to lru list of dentries to
+> > avoid doing write operations while doing lookup.
+> 
+> Where is
+> 	* version for 2.5.<current>
+> 	* analysis of benefits in real-world situations for 2.5 version?
 
-> This is how Nicholas stuff works, you can still get the kernel messages
-> by scrolling back. I'm told this meets S508.
+I know that 2.5 patches are available, but Maneesh will probably
+respond to this on Monday.
 
-I don't give two shits about S508.  For one thing that is a
-U.S. statute.  It has no relevance here.
-
-> Actually some of this is true for sighted people. You only get console
-> messages after PCI is initialised, until then they are queued away or
-> only on serial console.
-
-Even though, pci gets initialized pretty early in the boot sequence
-doesn't it?  Considerably before init?
+I am working on getting 2.5 measurements done. BTW, would you consider
+specweb99 reasonably real-world ? If not, do you have any suggestions 
+for benchmarks ? I suspect that dbench wouldn't cut it ;-).
 
 > 
-> If you are using a conventional BIOS then the first kernel messages being
-> readable as they occur versus just after seems to have only a little value.
-> If you have a fully accessible LinuxBIOS thats something quite different.
-> In that case can you use a Linuxbios hook for the console speech until
-> user space takes over ?
+> Patch adds complexity and unless you can show that it gives significant
+> benefits outside of pathological situations, it's not going in.
 
-I don't really know.  I haven't had time to really get into the BIOS
-accessibility yet.  I know for serial synths we can turn serial on in
-lilo and at least hear what is going on.  Without modifying lilo for
-each synth other than serial we have no way of knowing whether we have
-the full lilo prompt or what.
+Fair enough.
 
-If we could modify a linux BIOS and then flash it onto any flashable
-BIOS that would be really useful.
+> 
+> Note: measurements on 2.4 do not make sense; reduction of cacheline
+> bouncing between 2.4 and 2.5 will change the results anyway and
 
-  Kirk
+Quite possible. Our performance measurements have been far
+behind and we are catching up now. You may expect 2.5 numbers soon.
 
+> if any of these patches are going to be applied to 2.4, reduction of
+> cacheline bouncing on ->d_count is going to go in before that one.
 
+That is an issue we need to work on. We can do some cache event
+profiling to understand the extent of the d_count cacheline bouncing.
+At the same time, it seems that the dcache_lock cacheline is also
+bouncing around and it is probably more shared than the dentries 
+for / or /usr. One thing for sure - RCU based lookup of dcache
+makes it difficult to optimize on dget()s. We will have to figure
+out a way to do this.
+
+Thanks
 -- 
-
-Kirk Reiser				The Computer Braille Facility
-e-mail: kirk@braille.uwo.ca		University of Western Ontario
-phone: (519) 661-3061
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

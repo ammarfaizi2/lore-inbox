@@ -1,56 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130076AbQLSVbW>; Tue, 19 Dec 2000 16:31:22 -0500
+	id <S129352AbQLSVoq>; Tue, 19 Dec 2000 16:44:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130078AbQLSVbN>; Tue, 19 Dec 2000 16:31:13 -0500
-Received: from [213.237.20.108] ([213.237.20.108]:18030 "EHLO ns.geekboy.dk")
-	by vger.kernel.org with ESMTP id <S130076AbQLSVbI>;
-	Tue, 19 Dec 2000 16:31:08 -0500
-Date: Tue, 19 Dec 2000 22:05:30 +0100
-From: Torben Mathiasen <torben@kernel.dk>
-To: Francois Romieu <romieu@cogenit.fr>
-Cc: Rasmus Andersen <rasmus@jaquet.dk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] Converting drivers/net/rcpci45.c to new PCI API
-Message-ID: <20001219220530.A1643@torben>
-In-Reply-To: <20001219004604.B761@jaquet.dk> <20001219095906.A5764@se1.cogenit.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001219095906.A5764@se1.cogenit.fr>; from romieu@cogenit.fr on Tue, Dec 19, 2000 at 09:59:06AM +0100
-X-OS: Linux 2.4.0-test13-pre2 
+	id <S129406AbQLSVof>; Tue, 19 Dec 2000 16:44:35 -0500
+Received: from waste.org ([209.173.204.2]:60256 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S129352AbQLSVoZ>;
+	Tue, 19 Dec 2000 16:44:25 -0500
+Date: Tue, 19 Dec 2000 15:13:03 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>, <Andries.Brouwer@cwi.nl>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: set_rtc_mmss: can't update from 0 to 59
+In-Reply-To: <200012180846.eBI8kNY20521@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.30.0012191510570.18938-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 19 2000, Francois Romieu wrote:
+On Mon, 18 Dec 2000, Russell King wrote:
 
-[deleted]
-
-> > -	if (pci_enable_device(pdev))
-> > -		break;
-> > -	pci_set_master(pdev);
-> > +	unregister_netdev(dev);
-> > +	iounmap((void *)dev->base_addr);
-> > +        free_irq(dev->irq, dev);
-> 
-> I'd rather inhibit irq first then release the ressources.
-> +       free_irq(dev->irq, dev);
-> +	iounmap((void *)dev->base_addr);
-> +	unregister_netdev(dev);
+> Matthew Dharm writes:
+> > Ahh... I think I see.  While the math says "if the diference between the
+> > real time and the cmos time is less than 30 min", it doesn't recognize that
+> > the time difference between 2:59 and 3:00 is only 1 min.
 >
+> Which is intentional.
+>
+> > True enough...  but, the question is, how do we fix this?
+>
+> Why do you think it needs fixing?
+>
+> Think about what happens when the current time according to the CMOS is
+> 2:59:00 and Linux thinks its 3:01:20.  We only write the minutes and
+> seconds, so if we did write, the CMOS clock then becomes 2:01:20.
+> Oops, we just lost an hour.  Next time you reboot, you'll find the
+> time out by an hour or more depending on how many corrections of this
+> type have been done.
+>
+> So, why don't we update the hours and be done with it?  We would have to
+> play the same game with the days of the month vs hours.  Also, we don't
+> know if the CMOS clock is programmed for UTC time or not (the kernel's
+> idea of time is UTC.  Your CMOS may be programmed for EST for instance).
 
-You should release the irq when the adapter is closed, not removed,
-unless there's some special case that can't be handled if you take
-ints during init.
-
-And why would you unregister your netdev after releasing resources?
-
-
+Sounds like its still broken then - there are time zones which are not
+even multiples of 60 minutes.
 
 -- 
-Torben Mathiasen <torben@kernel.dk>
-Linux ThunderLAN maintainer 
-http://tlan.kernel.dk
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262283AbVAJO4b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262285AbVAJO7T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262283AbVAJO4b (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 09:56:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262284AbVAJO4b
+	id S262285AbVAJO7T (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 09:59:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262284AbVAJO7S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 09:56:31 -0500
-Received: from fed1rmmtao09.cox.net ([68.230.241.30]:30171 "EHLO
-	fed1rmmtao09.cox.net") by vger.kernel.org with ESMTP
-	id S262283AbVAJO4R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 09:56:17 -0500
-Date: Mon, 10 Jan 2005 07:56:15 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 2.6.10-mm2] Use the new preemption code [3/3]
-Message-ID: <20050110145615.GC2226@smtp.west.cox.net>
-References: <20050110013508.1.patchmail@tglx> <1105318804.17853.5.camel@tglx.tec.linutronix.de>
+	Mon, 10 Jan 2005 09:59:18 -0500
+Received: from ns.lbox.cz ([62.129.50.35]:21692 "EHLO ns.lbox.cz")
+	by vger.kernel.org with ESMTP id S262285AbVAJO7P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 09:59:15 -0500
+Subject: Re: Re: Support for > 2GB swap partitions?
+From: Nikola Ciprich <extmaillist@linuxbox.cz>
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0501100504460.27243@p500>
+References: <Pine.LNX.4.61.0501091933090.29064@p500>
+	 <Pine.LNX.4.60.0501100142070.27893@alpha.polcom.net>
+	 <Pine.LNX.4.61.0501100504460.27243@p500>
+Content-Type: text/plain
+Date: Mon, 10 Jan 2005 15:59:03 +0100
+Message-Id: <1105369143.3629.2.camel@develbox.linuxbox.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1105318804.17853.5.camel@tglx.tec.linutronix.de>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Antivirus: scanned on linuxbox by AVP 5.0 (aveserver), data 101033 records (22-10-2004)
+X-Spam-Razor: N/A
+X-Spam-Score: N/A (whitelist)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 10, 2005 at 02:00:04AM +0100, Thomas Gleixner wrote:
+the reason is, that fdisk did set swap partition, but it did not set
+swap header as it's not its task (as is not creating filesystems).
+mkswap must be always used while creating new swap partitions/files.
 
-> This patch adjusts the PPC entry code to use the fixed up
-> preempt_schedule() handling in 2.6.10-mm2
+On Mon, 2005-01-10 at 05:09 -0500, Justin Piszcz wrote:
+> Oops, for some reason when I created the partitions with fdisk it did not 
+> create the swap parititon correctly even though I specified it was type 
+> swap.  mkswap /dev/sda2 && swapon /dev/sda2 fixed the problem, thanks.
 > 
-> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-> 
-> ---
->  entry.S |    4 ++--
->  1 files changed, 2 insertions(+), 2 deletions(-)
-> ---
-> Index: 2.6.10-mm1/arch/ppc/kernel/entry.S
-> ===================================================================
-> --- 2.6.10-mm1/arch/ppc/kernel/entry.S  (revision 141)
-> +++ 2.6.10-mm1/arch/ppc/kernel/entry.S  (working copy)
-> @@ -624,12 +624,12 @@
->         beq+    restore
->         andi.   r0,r3,MSR_EE    /* interrupts off? */
->         beq     restore         /* don't schedule if so */
-> -1:     lis     r0,PREEMPT_ACTIVE@h
-> +1:     li      r0,1
 
-Perhaps I just don't have enough context, but is there good reason to
-use a magic constant instead of a define ?
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/

@@ -1,83 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263409AbTECTjq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 15:39:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263410AbTECTjq
+	id S263370AbTECUQm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 16:16:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263410AbTECUQm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 15:39:46 -0400
-Received: from port-212-202-172-137.reverse.qdsl-home.de ([212.202.172.137]:38812
-	"EHLO jackson.localnet") by vger.kernel.org with ESMTP
-	id S263409AbTECTjp convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 15:39:45 -0400
-Date: Sat, 03 May 2003 21:55:34 +0200 (CEST)
-Message-Id: <20030503.215534.846937682.rene.rebe@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.21-rc1 VM swaps out too much
-From: Rene Rebe <rene.rebe@gmx.net>
-X-Mailer: Mew version 3.1 on XEmacs 21.4.12 (Portable Code)
+	Sat, 3 May 2003 16:16:42 -0400
+Received: from dsl-62-3-122-162.zen.co.uk ([62.3.122.162]:18580 "EHLO
+	marx.trudheim.com") by vger.kernel.org with ESMTP id S263370AbTECUQl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 May 2003 16:16:41 -0400
+Subject: Re: centrino
+From: Anders Karlsson <anders@trudheim.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1051975317.24563.12.camel@dhcp22.swansea.linux.org.uk>
+References: <20030502183222.GA30189@heat>
+	 <1051975317.24563.12.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-CF44ticpuw1d0ClTmyWg"
+Organization: Trudheim Technology Limited
+Message-Id: <1051993739.3976.64.camel@marx>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Spam-Score: 0.0 (/)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19C36k-0002Kl-KX*o0Bu/bLsuUQ*
+X-Mailer: Ximian Evolution 1.2.4Rubber Turnip 
+Date: 03 May 2003 21:29:00 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-somewhere in the 2.4.21-xx series (currently running -rc1 here) seems
-to be a VM regression, that results in quite hefty swap-outs. The box
-is an Athlon-XP with 512MB RAM, running batched gcc jobs (distribution
-builds taking three days and more...). But the box is used a normal
-workstation, too. My normal desktop programs constantly need to get
-swapped-in - quite annoying. This only start to happen after an uptime
-of a day.
+--=-CF44ticpuw1d0ClTmyWg
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-So the CPU:
+On Sat, 2003-05-03 at 16:21, Alan Cox wrote:
 
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 6
-model name      : AMD Athlon(tm) 4 Processor
-stepping        : 2
-cpu MHz         : 1460.481
-cache size      : 256 KB
+> > The wireless doesn't work in any kernel, and Intel have
+> > stated specifically on their web site that they have no
+> > plans for any future Linux driver for that device.
+>=20
+> There are awkward issues there certainly.
 
-$ cat /proc/meminfo
-        total:    used:    free:  shared: buffers:  cached:
-Mem:  527351808 519213056  8138752        0 88793088 328437760
-Swap: 537214976 184963072 352251904
-MemTotal:       514992 kB
-MemFree:          7948 kB
-MemShared:           0 kB
-Buffers:         86712 kB
-Cached:         252328 kB
-SwapCached:      68412 kB
-Active:         276828 kB
-Inactive:       177468 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       514992 kB
-LowFree:          7948 kB
-SwapTotal:      524624 kB
-SwapFree:       343996 kB
+Alan, have you had any better luck talking to Intel than I had? At least
+you are a well known person in the Linux environment and have a lot more
+clout than when a complete nobody like me tries to get their attention.
+Getting the wireless working would be a great step forward.
 
-$ uptime
- 21:52:41 up 4 days, 23:55,  4 users,  load average: 2.14, 2.47, 2.32
+> > The Centrino package is altogether hostile to Linux.
+>=20
+> Time may change that. The ATI/ALi chipset AMD laptops like the Compaq
+> z9xx were really Linux hostile. Now with the right stuff in place and
+> some things fixed (some working around their bugs, some fixing ours)
+> they work really well.
+>=20
+> Centrino ultimately is a help - the laptop chipset space is
+> consolidating and there are less and less variations appearing. That
+> helps us because there is less to support. Its the same as with X and
+> IDE and other things nowdays - we get a lot less deeply weird hardware
+> to fight.
 
-$ cat /proc/version
-Linux version 2.4.21-rc1 (root@jackson) (gcc version 3.2.2) #1 Mon Apr 28 00:36:17 CEST 2003
+Eventually things will work in favour of linux. It usually does. The
+time it might take to get there is a variable factor though. Personally
+I thought Centrino was a good idea. I normally don't like 'Chipzilla'
+but in this instance I think they did a good thing.
 
-More data available on request.
+Regards,
 
-- René
+/Anders
 
---  
-René Rebe - Europe/Germany/Berlin
-e-mail:   rene@rocklinux.org, rene.rebe@gmx.net
-web:      http://www.rocklinux.org/people/rene http://gsmp.tfh-berlin.de/rene/
+--=-CF44ticpuw1d0ClTmyWg
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Anyone sending unwanted advertising e-mail to this address will be
-charged $25 for network traffic and computing time. By extracting my
-address from this message or its header, you agree to these terms.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2-rc1-SuSE (GNU/Linux)
+
+iD8DBQA+tCaLLYywqksgYBoRAnToAKCvHCw0agrGAdzrLrNPGUmMVI2i/QCgwZpp
+u/duDH52WCqzzWS3qhdK7F4=
+=o9BP
+-----END PGP SIGNATURE-----
+
+--=-CF44ticpuw1d0ClTmyWg--
+

@@ -1,71 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263908AbTDNTQX (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 15:16:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263911AbTDNTQX (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 15:16:23 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:55050 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id S263908AbTDNTQU (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 15:16:20 -0400
-Date: Mon, 14 Apr 2003 21:28:01 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Andries.Brouwer@cwi.nl, Andrew Morton <akpm@digeo.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] kdevt-diff
-In-Reply-To: <Pine.LNX.4.44.0304141133390.19302-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0304142103290.5042-100000@serv>
-References: <Pine.LNX.4.44.0304141133390.19302-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S263902AbTDNTPN (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 15:15:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263904AbTDNTPN (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 15:15:13 -0400
+Received: from [12.47.58.203] ([12.47.58.203]:20195 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S263902AbTDNTPL (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 15:15:11 -0400
+Date: Mon, 14 Apr 2003 12:26:59 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: maneesh@in.ibm.com
+Cc: dipankar@in.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch] dentry_stat fix
+Message-Id: <20030414122659.308b3260.akpm@digeo.com>
+In-Reply-To: <20030414180910.B27092@in.ibm.com>
+References: <20030414144417.A27092@in.ibm.com>
+	<20030414021448.08ff05a5.akpm@digeo.com>
+	<20030414180910.B27092@in.ibm.com>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 14 Apr 2003 19:26:54.0145 (UTC) FILETIME=[CE663310:01C302BB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Mon, 14 Apr 2003, Linus Torvalds wrote:
-
-> > Expansion into what?
+Maneesh Soni <maneesh@in.ibm.com> wrote:
+>
+> On Mon, Apr 14, 2003 at 02:14:48AM -0700, Andrew Morton wrote:
+> > Maneesh Soni <maneesh@in.ibm.com> wrote:
+> > >
+> > > This patch the corrects the dentry_stat.nr_unused calculation.
+> > 
+> > OK, I didn't even know we had a bug in there...
+> > 
+> > btw, can you explain to me why shrink_dcache_anon() and select_parent() are
+> > putting dentries at the wrong end of dentry_unused?
+> prune_dcache() picks up from this end in first round. It will reset the 
+> DCACHE_REFERENCED flag and will put it to the front of dentry_unused list.
 > 
-> That's the point - Andries patch is a pure extension of the number space 
-> into user space. 
-> 
-> If you think that clashes with anything else, than that "anything else" is 
-> _broken_. 
 
-It doesn't has to clash, but it only encourages waste. Encoding all kinds 
-of information into dev_t has to plan for the worst case and that's the 
-only reason to immediately go to 64 bits and most of the number space is 
-simply unused and wasted.
+Sorry, but I still don't understand why they're being put at the "oldest" end
+of dentry_unused.
 
-> > The knowledge about dev_t is already reduced to a minimum in a lot of 
-> > block device drivers. register_blkdev() is already pretty much a dummy and 
-> > not a requirement anymore.
-> 
-> So why do you think Andries patch clashes?
-> 
-> Also, I don't think your patch is proper. The point about having a single
-> disk number space means that IDE and SCSI disks would show up there too -
-> users simply shouldn't need to care about the differences (which is not
-> just major numbers, but also the silly difference in how the partitioning
-> splits minor numbers).
+Also, shrink_dcache_anon() does:
 
-Look at it this way: the whole range from 0 to ... is one big major 
-number, so old device numbers show up their as well.
-Only user space "knows" about the special from some of the bits, but the 
-kernel certainly doesn't care.
+	prune_dcache(found);
 
-> But at the same time, for backwards compatibility clearly they have to
-> show up in the _old_ places too. Which really implies that there needs to
-> be a mapping function for the old numbers into the proper block device
-> queues etc, so that people can still use the old /dev nodes when they
-> upgrade their kernel.
-
-Why should the kernel care about this? Most programs only want to open 
-/dev/sd... Until the system tools are updated they will only see the old 
-numbers anyway, later they won't care anymore either.
-You didn't want that a device shows twice under devfs (e.g. as sda and 
-scsi/host0/bus0/target0/lun0). How is that suddenly different?
-
-bye, Roman
-
+I hope we're not assuming that all the dentries which were just added will be
+freed?  They hae the referenced bit set, and new dentries can be added...

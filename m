@@ -1,62 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289293AbSA1Rkg>; Mon, 28 Jan 2002 12:40:36 -0500
+	id <S289300AbSA1RlE>; Mon, 28 Jan 2002 12:41:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289294AbSA1RkY>; Mon, 28 Jan 2002 12:40:24 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:44041 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S289293AbSA1RkM>; Mon, 28 Jan 2002 12:40:12 -0500
-Date: Mon, 28 Jan 2002 09:39:25 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Josh MacDonald <jmacd@CS.Berkeley.EDU>
-cc: <linux-kernel@vger.kernel.org>, <reiserfs-list@namesys.com>,
-        <reiserfs-dev@namesys.com>
-Subject: Re: Note describing poor dcache utilization under high memory pressure
-In-Reply-To: <20020128091338.D6578@helen.CS.Berkeley.EDU>
-Message-ID: <Pine.LNX.4.33.0201280930130.1557-100000@penguin.transmeta.com>
+	id <S289298AbSA1Rkz>; Mon, 28 Jan 2002 12:40:55 -0500
+Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:59402 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id <S289294AbSA1Rkq>; Mon, 28 Jan 2002 12:40:46 -0500
+Date: Mon, 28 Jan 2002 18:38:45 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: <simon@baydel.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: unresolved symbols __udivdi3 and __umoddi3
+In-Reply-To: <3C54D1CB.23664.50D4C3@localhost>
+Message-ID: <Pine.LNX.4.33.0201281829570.1964-100000@gans.physik3.uni-rostock.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Mon, 28 Jan 2002, Josh MacDonald wrote:
+> > If 64-bit arithmetics cannot be avoided, the do_div64() macro defined in
+> > include/asm/div64.h comes in handy.
+> >   mod = do_div((unsigned long) x, (long) y)
+> > will set  x  to the quotient x/y  and  mod  to the remainder  x%y .
 >
-> So, it would seem that the dcache and kmem_slab_cache memory allocator
-> could benefit from a way to shrink the dcache in a less random way.
-> Any thoughts?
+> I have looked at this header file and I do not understand the asm
+> syntax.
+>
+> In particular the only x86 div instruction I know only returns a 32 bit
+> div result. Because I don't understand the div64 header I cannot
+> see how a 64 bit result is calculated.
+>
 
-The way I want to solve this problem generically is to basically get rid
-of the special-purpose memory shrinkers, and have everything done with one
-unified interface, namely the physical-page-based "writeout()" routine. We
-do that for the page cache, and there's nothing that says that we couldn't
-do the same for all other caches, including very much the slab allocator.
+Sorry, there are (platform-dependent) restrictions that I forgot to
+mention. I think do_div(x,y) should work for all platforms if
+y < 2^16 and x/y < 2^32, but I may stand corrected.
 
-Thus any slab user that wants to, could just register their own per-page
-memory pressure logic. The dcache "reference" bit would go away, to be
-replaced by a per-page reference bit (that part could be done already, of
-course, and might help a bit on its own).
+Actually, Momchil Velikov just pointed out that some archs only do 32 bit
+divs in do_div64, where at least the C code from asm-parisc/div64.h
+should be used.
 
-Basically, the more different "pools" of memory we have, the harder it
-gets to balance them. Clearly, the optimal number of pools from a
-balancing standpoint is just a single, direct physical pool.
-
-Right now we have several pools - we have the pure physical LRU, we have
-the virtual mapping (where scanning is directly tied to the physical LRU,
-but where the separate pool still _does_ pose some problems), and we have
-separate balancing for inodes, dentries and quota. And there's no question
-that it hurts us under memory pressure.
-
-(There's a related question, which is whether other caches might also
-benefit from being able to grow more - right now there are some caches
-that are of a limited size partly because they have no good way of
-shrinking back on demand).
-
-I am, for example, very interested to see if Rik can get the overhead of
-the rmap stuff down low enough that it's not a noticeable hit under
-non-VM-pressure. I'm looking at the issue of doing COW on the page tables
-(which really is a separate issue), because it might make it more
-palatable to go with the rmap approach.
-
-			Linus
+Tim
 

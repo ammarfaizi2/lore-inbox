@@ -1,109 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262473AbTENQhl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 12:37:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262524AbTENQhh
+	id S262620AbTENQno (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 12:43:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262623AbTENQno
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 12:37:37 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:50953 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S262473AbTENQhX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 12:37:23 -0400
-Date: Wed, 14 May 2003 09:49:42 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: David Howells <dhowells@redhat.com>
-cc: linux-kernel@vger.kernel.org, <linux-fsdevel@vger.kernel.org>,
-       <openafs-devel@openafs.org>
-Subject: Re: [PATCH] PAG support, try #2
-In-Reply-To: <24225.1052909011@warthog.warthog>
-Message-ID: <Pine.LNX.4.44.0305140924040.3107-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 14 May 2003 12:43:44 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:35567 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262620AbTENQnl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 12:43:41 -0400
+Date: Wed, 14 May 2003 09:57:57 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6 must-fix list, v3
+Message-ID: <20030514165757.GA2378@kroah.com>
+References: <20030514032712.0c7fa0d1.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030514032712.0c7fa0d1.akpm@digeo.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 14 May 2003, David Howells wrote:
+On Wed, May 14, 2003 at 03:27:12AM -0700, Andrew Morton wrote:
 > 
-> Here's a revised patch for adding PAG support that incorporates suggestions
-> and corrections I've been sent.
+> Quite a lot of changes here.  Mostly additions, but some things have been
+> crossed off.
+> 
+> Also at ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/must-fix
 
-I still really don't like this, and think it needs to be thought through a 
-_lot_ more.  I also think this is _way_ waaaay too late to get into 
-2.6.x anyway.
+Here's a patch against must-fix-3.txt that consolodates the 4 different
+places people are complaining about a lack of PCI device locking, and
+put the bugzilla bug number for it.
 
-Anyway, the thing I think is just fundamentally broken about this is
+As soon as I finish this OLS paper, I'm going to work on finally fixing
+this...
 
- - I'm convinced this is designed for AFS, and not for any practical use.
-   For example, the "PAG" identifier (pag_t) is not any bigger than 
-   "uid_t", which means that there is no sane way to map users onto pags 
-   without just making them 1:1.
+thanks,
 
-   Which looks like a frigging _bad_ design, one that doesn't take account
-   of what a normal user (and current AFS/Kerberos users are by design
-   _not_ normal users) might want to have through something like "pam".
+greg k-h
 
- - A token can be on only one pag, which means that you have to duplicate 
-   tokens and then have a very hard time revocing them if you want to. In 
-   other words, you can never give another user (which by implication is
-   always another pag in my mind) a token, since you've now effectively 
-   lost the ability to invalidate it (the other user gets a copy of the 
-   token).
-
-   End result: again, this looks like it is designed for the _wrong_ usage 
-   of sharing a whole PAG or sharing nothing at all. Which is probably 
-   what current AFS users do, but it sounds inflexible and _wrong_ to me. 
-   The main PAG usage I personally envision would be something where the
-   PAG contains the decryption key to a filesystem or similar, which 
-   definitely is something where you (a) want to have multiple keys and
-   (b)  you want to have multiple PAG's that can share some keys without
-   being the same PAG.
-
-I suspect both of these problems could be fixed by another level of
-indirection: a "user credential" is really a "list of PAG's", with the PAG
-being a "list of keys". Joining a PAG _adds_ that PAG to the user 
-credentials, instead of replacing the old credentials with the new one.
-
-And "pag_t" needs to be bigger, at least 64 bits. That, together with the
-"credential == 'list of PAG'" thing means that you can choose to do things
-like:
-
- - high bits zero, low bits match the UID (ie all users automatically get 
-   their own "private PAG", PAM just does the joining automatically)
-
-   I personally _require_ this. End of discussion. Anything that doesn't 
-   allow for user-friendly automatic PAG's is, in my not-so-humble 
-   opinion, a total waste of time, and complete CRAP.
-
-   Did I make my opinion clear enough? In other words, when I log in, I 
-   want to automatically get certain credentials, and I consider the
-   log-in sequence to be sufficient security for those credentials. 
-
-   Anything that isn't designed for this is WRONG.
-
- - high bits "group pattern", low bits "GUID" - same thing as UID. Some 
-   PAG's are automatically associated with the _group_ ID of the person. 
-   When I log in, and I'm in the "engineering" group, I should
-   automatically get access to the "engineering PAG". 
-
- - users can controlledly join other PAGs as they wish (ie if you want to 
-   have credentials that are on top of the automatic user credentials, you
-   have to join them explicitly, which migth require a stronger password
-   or something)
-
-   This allows for the "extra" credentials, and it also allows for users 
-   joining each others PAG's at least temporarily. It also allows things 
-   like extra groups outside of the traditional scope of groups (ie you 
-   can set up ad-hoc groups by creating a new PAG, and letting others join
-   it).
-
-Anyway, I htink the current patch is totally unusable for any reasonable 
-MIS setup (ie you couldn't make it useful as a PAM addition even if you 
-tried), and is totally special-cased for one (not very interesting, to me) 
-use.
-
-And I think this will be a 2.7.x issue, if only because you guys will need 
-to convince me that I'm wrong.
-
-		Linus
-
+--- must-fix-3.txt.original	Wed May 14 09:46:43 2003
++++ must-fix-3.txt	Wed May 14 09:52:47 2003
+@@ -115,7 +115,11 @@
+ 
+ - alan: Some cardbus crashes the system
+ 
+-- alan: Hotplug locking is hosed
++- We have multiple drivers walking the pci device lists and also using
++  things like pci_find_device in unsafe ways with no refcounting.  I think
++  we have to make pci_find_device etc refcount somewhere and add
++  pci_device_put as was done with networking.
++  http://bugzilla.kernel.org/show_bug.cgi?id=709
+ 
+ drivers/pcmcia/
+ ---------------
+@@ -567,17 +571,8 @@
+ drivers
+ =======
+ 
+-- Alan: We have multiple drivers walking the pci device lists and also
+-  using things like pci_find_device in unsafe ways with no refcounting.  I
+-  think we have to make pci_find_device etc refcount somewhere and add
+-  pci_device_put as was done with networking.
+-
+ - Some network drivers don't even build
+ 
+-- Alan: PCI hotplug is unsafe (locking is totally screwed)
+-
+-- Ditto cardbus
+-
+ - Alan: Cardbus/PCMCIA requires all Russell's stuff is merged to do
+   multiheader right and so on
+ 

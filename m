@@ -1,56 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278630AbRJVT6T>; Mon, 22 Oct 2001 15:58:19 -0400
+	id <S278862AbRJVUB3>; Mon, 22 Oct 2001 16:01:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278858AbRJVT6J>; Mon, 22 Oct 2001 15:58:09 -0400
-Received: from cx552039-a.elcjn1.sdca.home.com ([24.177.44.17]:17598 "EHLO
-	tigger.unnerving.org") by vger.kernel.org with ESMTP
-	id <S278630AbRJVT6B>; Mon, 22 Oct 2001 15:58:01 -0400
-Date: Mon, 22 Oct 2001 12:56:47 -0700 (PDT)
-From: Gregory Ade <gkade@bigbrother.net>
-X-X-Sender: <gkade@tigger.unnerving.org>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: bill davidsen <davidsen@tmr.com>, <linux-kernel@vger.kernel.org>
+	id <S278783AbRJVUBJ>; Mon, 22 Oct 2001 16:01:09 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:16704 "EHLO
+	deathstar.prodigy.com") by vger.kernel.org with ESMTP
+	id <S278851AbRJVUBC>; Mon, 22 Oct 2001 16:01:02 -0400
+Date: Mon, 22 Oct 2001 16:01:31 -0400
+Message-Id: <200110222001.f9MK1VP16160@deathstar.prodigy.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: Linux 2.2.20pre10
-In-Reply-To: <Pine.LNX.4.33L.0110221432490.22127-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.33.0110221245530.31371-100000@tigger.unnerving.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Newsgroups: linux.dev.kernel
+In-Reply-To: <86256AED.0068A63B.00@smtpnotes.altec.com>
+Organization: TMR Associates, Schenectady NY
+From: davidsen@tmr.com (bill davidsen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+In article <86256AED.0068A63B.00@smtpnotes.altec.com> Wayne.Brown@altec.com wrote:
+| 
+| 
+| I certainly can't argue with your logic.  :-)
+| 
+| Actually, I believe there are some decent, honest, well-meaning people in our
+| government.  It's just that they seldom have much influence on policy.  :-(
 
-On Mon, 22 Oct 2001, Rik van Riel wrote:
+  After watching the VM wars here, how can you doubt that decent,
+honest, well-meaning, and at least in the case of VM, competent people
+can have very different ideas of how to solve a problem? Do you think
+good people don't ever propose very bad solutions to problem? Just look
+a release 2.4.11-ohshit.
 
-> That's tough, they're a democratic country, they can
-> change the law if it hurts them too much.
+  Write to your politicians, and try to find out who does NSA secure
+linux. How happy can they be not to get security fixes? Do they have to
+stop publishing? Are people coming in black helicopters to dismantle
+CERT, long our line of defense?
 
-No, it's a Republic.  More specifically, a representative democracy, which
-means that we're at the mercy of the people we've given license to
-represent us.  They make all sorts of promises to get in office, and then
-go do their own damn thing anyway.
+  Stop trying to demonize politicians and start writing letters. State
+the FACTS clearly without coming off as a hothead or worse, and you can
+convince a staffer, which is the way in. Local elections are this year,
+I bet your local candidate will give you a few minutes and if convinced
+would would at least try to get you a five minutes on the phone with a
+congressman. Then you need to be cool and informative.
 
-Unfortunately, the people I vote for never make it in to office, but
-that's fodder for an entirely off-topic debate (flamewar?) on American
-Politics.  But, because I at least voted, I reserve the right to bitch
-about what the people in office are doing. =)
+  Contact the local VFW and try to get someone interested. Soldiers
+know about operating without intelligence information, and they often
+have contacts. IBM is spending big bucks on TV ads for Linux, don't
+hesitate to mention that trying to get the ear of a politician. Let
+them, know this is not a bunch of hackers. 
 
-I've written my representatives and voiced my opinions, but apparently
-I'm of such a small minority that I think I'm being ignored.
+  Start using the system instead of whining about it. You don't need
+money to rock the boat, just the perception that you are a reasonable
+person pointing out a problem.
 
-- -- 
-Gregory K. Ade <gkade@unnerving.org>
-http://unnerving.org/~gkade
-OpenPGP Key ID: EAF4844B  keyserver: pgpkeys.mit.edu
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE71HoGeQUEYOr0hEsRAuf1AKCEwe84VvLtomt1KYvSRWMIQCozhQCfZHrM
-WjIEixxaffGjwl6aecjHxew=
-=wkYl
------END PGP SIGNATURE-----
-
+-- 
+bill davidsen <davidsen@tmr.com>
+  His first management concern is not solving the problem, but covering
+his ass. If he lived in the middle ages he'd wear his codpiece backward.
 

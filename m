@@ -1,65 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312254AbSFDOYp>; Tue, 4 Jun 2002 10:24:45 -0400
+	id <S312619AbSFDO1y>; Tue, 4 Jun 2002 10:27:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312590AbSFDOYo>; Tue, 4 Jun 2002 10:24:44 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35595 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S312254AbSFDOYl>;
-	Tue, 4 Jun 2002 10:24:41 -0400
-Date: Tue, 4 Jun 2002 15:24:42 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: "Theodore Ts'o" <tytso@mit.edu>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: [PATCH] Remove SERIAL_IO_GSC
-Message-ID: <20020604152442.P10366@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S312681AbSFDO1x>; Tue, 4 Jun 2002 10:27:53 -0400
+Received: from [62.245.135.174] ([62.245.135.174]:47284 "EHLO mail.teraport.de")
+	by vger.kernel.org with ESMTP id <S312619AbSFDO1v> convert rfc822-to-8bit;
+	Tue, 4 Jun 2002 10:27:51 -0400
+From: "Martin.Knoblauch" <Martin.Knoblauch@teraport.de>
+Reply-To: Martin.Knoblauch@teraport.de
+Organization: TeraPort GmbH
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19-pre9-ac3: Build problem
+Date: Tue, 4 Jun 2002 16:27:45 +0200
+User-Agent: KMail/1.4.1
+In-Reply-To: <200206040935.34870.Martin.Knoblauch@teraport.de>
+MIME-Version: 1.0
+Message-Id: <200206041627.45953.Martin.Knoblauch@teraport.de>
+X-MIMETrack: Itemize by SMTP Server on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
+ 06/04/2002 04:27:45 PM,
+	Serialize by Router on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
+ 06/04/2002 04:27:52 PM,
+	Serialize complete at 06/04/2002 04:27:52 PM
+Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 04 June 2002 09:35, Martin.Knoblauch wrote:
+>
+>  This works fine. Next I make a change to the configuration (any change)
+> and do
+>
+> make dep clean
+> make bzimage
+>
+>  bzImage fails with:
+>
 
-We never needed this, and it should be removed -- I recently saw someone
-copy it blindly into another file.
+ a kind soul pointed out that I should do:
 
-diff -urNX build-tools/dontdiff linux-upstream/drivers/char/serial.c linux-pa/drivers/char/serial.c
---- linux-upstream/drivers/char/serial.c	Tue Jun  4 07:58:09 2002
-+++ linux-pa/drivers/char/serial.c	Mon Feb 25 17:44:54 2002
-@@ -418,10 +426,6 @@
- 	case SERIAL_IO_MEM:
- 		return readb((unsigned long) info->iomem_base +
- 			     (offset<<info->iomem_reg_shift));
--#ifdef CONFIG_SERIAL_GSC
--	case SERIAL_IO_GSC:
--		return gsc_readb(info->iomem_base + offset);
--#endif
- 	default:
- 		return inb(info->port + offset);
- 	}
-@@ -441,11 +445,6 @@
- 		writeb(value, (unsigned long) info->iomem_base +
- 			      (offset<<info->iomem_reg_shift));
- 		break;
--#ifdef CONFIG_SERIAL_GSC
--	case SERIAL_IO_GSC:
--		gsc_writeb(value, info->iomem_base + offset);
--		break;
--#endif
- 	default:
- 		outb(value, info->port+offset);
- 	}
-diff -urNX build-tools/dontdiff linux-upstream/include/linux/serial.h linux-pa/include/linux/serial.h
---- linux-upstream/include/linux/serial.h	Tue Jun  4 07:59:51 2002
-+++ linux-pa/include/linux/serial.h	Thu Nov 29 08:50:01 2001
-@@ -80,7 +80,6 @@
- #define SERIAL_IO_PORT	0
- #define SERIAL_IO_HUB6	1
- #define SERIAL_IO_MEM	2
--#define SERIAL_IO_GSC	3
- 
- struct serial_uart_config {
- 	char	*name;
+make clean dep
+make bzimage
 
+instead. Works. Learned a new trick :-)
+
+Martin
 -- 
-Revolutions do not require corporate support.
+------------------------------------------------------------------
+Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
+TeraPort GmbH            |    Phone:  +49-89-510857-309
+C+ITS                    |    Fax:    +49-89-510857-111
+http://www.teraport.de   |    Mobile: +49-170-4904759
+

@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286825AbSCFXeh>; Wed, 6 Mar 2002 18:34:37 -0500
+	id <S286959AbSCFXfz>; Wed, 6 Mar 2002 18:35:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286959AbSCFXe3>; Wed, 6 Mar 2002 18:34:29 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61193 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S286825AbSCFXeP>; Wed, 6 Mar 2002 18:34:15 -0500
-Message-ID: <3C86A765.2000301@zytor.com>
-Date: Wed, 06 Mar 2002 15:33:57 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en, sv
+	id <S287134AbSCFXfq>; Wed, 6 Mar 2002 18:35:46 -0500
+Received: from c007-h013.c007.snv.cp.net ([209.228.33.220]:47835 "HELO
+	c007.snv.cp.net") by vger.kernel.org with SMTP id <S286959AbSCFXfc>;
+	Wed, 6 Mar 2002 18:35:32 -0500
+X-Sent: 6 Mar 2002 23:35:26 GMT
+Message-ID: <3C86A7B6.2BF312FD@bigfoot.com>
+Date: Wed, 06 Mar 2002 15:35:18 -0800
+From: Tim Moore <timothymoore@bigfoot.com>
+Organization: Yoyodyne Propulsion Systems, Inc.
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.21pre2-Ole i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Daniel Phillips <phillips@bonn-fries.net>
-CC: Benjamin LaHaise <bcrl@redhat.com>, Jeff Dike <jdike@karaya.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Arch option to touch newly allocated pages
-In-Reply-To: <3C84F449.8090404@zytor.com> <E16ikc5-00032P-00@starship.berlin> <20020306182026.F866@redhat.com> <E16ikng-00032Z-00@starship.berlin>
+To: linux-kernel@vger.kernel.org
+Subject: Re: laptop losing 4 seconds every 17 minutes [SOLVED]
+In-Reply-To: <3C2E65F3.D54E8048@bigfoot.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-
+Tim Moore wrote:
 > 
-> Instead of providing constructive suggestions on how to solve the problem so that
-> memory overcommit works properly in this case, I see people telling Jeff there is
-> no problem.  I think Jeff has a little more of a clue than that.
->  
+> Toshiba 320CT, 2.2.20.  I noticed a 'synchronization lost' pattern in
+> xntpd logs.
+> 
+> Ran a test loop with 'ntpdate -q' to my LAN time server at 1 second
+> intervals and discovered the laptop is losing precisely 4 seconds (jump)
+> every 17 minutes.
+> 
+> There are no unusual cron jobs, nor does any obvious process trigger as
+> far as top output shows.  There is an Abit KA7 using the same kernel,
+> ntp server and client setup, and on the same LAN with no issues.
 
+Every 1020 seconds the system would freeze, including RTC, for 4
+seconds.  In this case '1020+4' had no tangible meaning.  The problem
+was a bad NiMH RTC battery.
 
-Jeff has clue, but you, Daniel, quite frankly could take a cue.  You nseem
-to be jumping into arguments just for the sake of them, but without ever
-contribute anything useful.
-
-Please do us all a favour and shut up for once.
-
-	-hpa
-
-
+rgds,
+tim.
+--

@@ -1,87 +1,140 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266505AbUBRMgq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 07:36:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbUBRMgq
+	id S266913AbUBRNDp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 08:03:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266880AbUBRNC0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 07:36:46 -0500
-Received: from mail019.syd.optusnet.com.au ([211.29.132.73]:15262 "EHLO
-	mail019.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S266505AbUBRMgn convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 07:36:43 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.6.3-ck1
-Date: Wed, 18 Feb 2004 23:36:22 +1100
-User-Agent: KMail/1.6
-MIME-Version: 1.0
+	Wed, 18 Feb 2004 08:02:26 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:65513 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S266204AbUBRNBL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 08:01:11 -0500
+Date: Wed, 18 Feb 2004 18:35:42 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
+       Andrew Morton <akpm@osdl.org>, "Martin J. Bligh" <mjbligh@us.ibm.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>, Matt Mackall <mpm@selenic.com>,
+       Christian Borntraeger <CBORNTRA@de.ibm.com>
+Subject: [RFC][4/6] Sysfs backing store release 0.1
+Message-ID: <20040218130542.GF1255@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <20040218130211.GB1255@in.ibm.com> <20040218130306.GC1255@in.ibm.com> <20040218130411.GD1255@in.ibm.com> <20040218130501.GE1255@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200402182336.31420.kernel@kolivas.org>
+In-Reply-To: <20040218130501.GE1255@in.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Updated patchset
+ fs/sysfs/bin.c |   52 +++++++++++++++++++---------------------------------
+ 1 files changed, 19 insertions(+), 33 deletions(-)
 
-http://kernel.kolivas.org
+diff -puN fs/sysfs/bin.c~sysfs-leaves-bin fs/sysfs/bin.c
+--- linux-2.6.3-mm1/fs/sysfs/bin.c~sysfs-leaves-bin	2004-02-18 15:26:53.000000000 +0530
++++ linux-2.6.3-mm1-maneesh/fs/sysfs/bin.c	2004-02-18 15:27:02.000000000 +0530
+@@ -17,8 +17,10 @@
+ static int
+ fill_read(struct dentry *dentry, char *buffer, loff_t off, size_t count)
+ {
+-	struct bin_attribute * attr = dentry->d_fsdata;
+-	struct kobject * kobj = dentry->d_parent->d_fsdata;
++	struct sysfs_dirent * sd_attr = dentry->d_fsdata;
++	struct bin_attribute * attr = sd_attr->s_element;
++	struct sysfs_dirent * sd_kobj = dentry->d_parent->d_fsdata;
++	struct kobject * kobj = sd_kobj->s_element;
+ 
+ 	return attr->read(kobj, buffer, off, count);
+ }
+@@ -60,8 +62,10 @@ read(struct file * file, char __user * u
+ static int
+ flush_write(struct dentry *dentry, char *buffer, loff_t offset, size_t count)
+ {
+-	struct bin_attribute *attr = dentry->d_fsdata;
+-	struct kobject *kobj = dentry->d_parent->d_fsdata;
++	struct sysfs_dirent * sd_attr = dentry->d_fsdata;
++	struct bin_attribute * attr = sd_attr->s_element;
++	struct sysfs_dirent * sd_kobj = dentry->d_parent->d_fsdata;
++	struct kobject * kobj = sd_kobj->s_element;
+ 
+ 	return attr->write(kobj, buffer, offset, count);
+ }
+@@ -94,8 +98,10 @@ static ssize_t write(struct file * file,
+ 
+ static int open(struct inode * inode, struct file * file)
+ {
+-	struct kobject * kobj = kobject_get(file->f_dentry->d_parent->d_fsdata);
+-	struct bin_attribute * attr = file->f_dentry->d_fsdata;
++	struct sysfs_dirent * sd_kobj = file->f_dentry->d_parent->d_fsdata;
++	struct kobject * kobj = kobject_get(sd_kobj->s_element);
++	struct sysfs_dirent * sd_attr = file->f_dentry->d_fsdata;
++	struct bin_attribute * attr = sd_attr->s_element;
+ 	int error = -EINVAL;
+ 
+ 	if (!kobj || !attr)
+@@ -122,7 +128,8 @@ static int open(struct inode * inode, st
+ 
+ static int release(struct inode * inode, struct file * file)
+ {
+-	struct kobject * kobj = file->f_dentry->d_parent->d_fsdata;
++	struct sysfs_dirent * sd = file->f_dentry->d_parent->d_fsdata;
++	struct kobject * kobj = sd->s_element;
+ 	u8 * buffer = file->private_data;
+ 
+ 	if (kobj) 
+@@ -131,7 +138,7 @@ static int release(struct inode * inode,
+ 	return 0;
+ }
+ 
+-static struct file_operations bin_fops = {
++struct file_operations bin_fops = {
+ 	.read		= read,
+ 	.write		= write,
+ 	.llseek		= generic_file_llseek,
+@@ -148,31 +155,10 @@ static struct file_operations bin_fops =
+ 
+ int sysfs_create_bin_file(struct kobject * kobj, struct bin_attribute * attr)
+ {
+-	struct dentry * dentry;
+-	struct dentry * parent;
+-	int error = 0;
+-
+-	if (!kobj || !attr)
+-		return -EINVAL;
+-
+-	parent = kobj->dentry;
+-
+-	down(&parent->d_inode->i_sem);
+-	dentry = sysfs_get_dentry(parent,attr->attr.name);
+-	if (!IS_ERR(dentry)) {
+-		dentry->d_fsdata = (void *)attr;
+-		error = sysfs_create(dentry,
+-				     (attr->attr.mode & S_IALLUGO) | S_IFREG,
+-				     NULL);
+-		if (!error) {
+-			dentry->d_inode->i_size = attr->size;
+-			dentry->d_inode->i_fop = &bin_fops;
+-		}
+-		dput(dentry);
+-	} else
+-		error = PTR_ERR(dentry);
+-	up(&parent->d_inode->i_sem);
+-	return error;
++	if (kobj && kobj->dentry && attr) 
++		return sysfs_add_file(kobj->dentry, &attr->attr, 
++					SYSFS_KOBJ_BIN_ATTR);
++	return -EINVAL;
+ }
+ 
+ 
 
-Description:
-am6
-Autoregulates the virtual memory swappiness.
-
-batch8
-Batch scheduling.
-+Updated batch logic to return cpu to non batch tasks asap
-+Numa compile
-
-iso2
-Isochronous scheduling (non privileged low latency non-RT scheduling)
-+Bypass file i/o and idle detection in interactivity estimation of SCHED_ISO 
-tasks 
-
-smtbase3
-Base patch for hyperthread modifications
-+Added SMT_SIBLING_IMPACT to reflect the percentage impact running a task on a 
-sibling has. When a merge with sched_domains is done, this will be 
-configurable for each architecture as this value will decrease as SMT designs 
-improve.
-
-smttweak2
-Tiny performance enhancements for hyperthreading
-
-smtnice4
-Make "nice" hyperthread smart
-+Minor bugfix
-+Support for SMT_SIBLING_IMPACT to allow +niced tasks to run proportionately 
-longer according to the value of SSI
-
-smtbatch4
-Make batch scheduling hyperthread smart
-
-cfqioprio
-Complete Fair Queueing disk scheduler and I/O priorities
-
-schedioprio
-Set initial I/O priorities according to cpu scheduling policy and nice
-
-sng204
-Supermount-NG v2.0.4
-
-
-I've also synced the bootsplash patch with these but it doesn't complete 
-booting on some machines so I've left this in the experimental dir for 2.6.3.
-
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFAM1xJZUg7+tp6mRURAgimAKCTUiHSaTa/8jP9yLOa5uSawWRhewCeNRdY
-Jm8GjM7VeKq2bNRnRRk18T8=
-=labP
------END PGP SIGNATURE-----
+_
+-- 
+Maneesh Soni
+Linux Technology Center, 
+IBM Software Lab, Bangalore, India
+email: maneesh@in.ibm.com
+Phone: 91-80-25044999 Fax: 91-80-5268553
+T/L : 9243696

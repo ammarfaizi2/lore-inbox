@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129903AbRALVb7>; Fri, 12 Jan 2001 16:31:59 -0500
+	id <S130673AbRALVia>; Fri, 12 Jan 2001 16:38:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135268AbRALVbw>; Fri, 12 Jan 2001 16:31:52 -0500
-Received: from colorfullife.com ([216.156.138.34]:62213 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S129903AbRALVbo>;
-	Fri, 12 Jan 2001 16:31:44 -0500
-Message-ID: <3A5F77B1.90AE31CE@colorfullife.com>
-Date: Fri, 12 Jan 2001 22:31:29 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
+	id <S132063AbRALViT>; Fri, 12 Jan 2001 16:38:19 -0500
+Received: from femail1.rdc1.on.home.com ([24.2.9.88]:29924 "EHLO
+	femail1.rdc1.on.home.com") by vger.kernel.org with ESMTP
+	id <S130673AbRALViE>; Fri, 12 Jan 2001 16:38:04 -0500
+Message-ID: <3A5F791F.BCC236C1@Home.net>
+Date: Fri, 12 Jan 2001 16:37:35 -0500
+From: Shawn Starr <Shawn.Starr@Home.net>
+Organization: Visualnet
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Frank de Lange <frank@unternet.org>
-CC: mingo@elte.hu, Linus Torvalds <torvalds@transmeta.com>,
-        dwmw2@infradead.org, linux-kernel@vger.kernel.org,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardwarerelated?
-In-Reply-To: <Pine.LNX.4.30.0101122136180.2772-100000@e2> <3A5F6F07.88564D5B@colorfullife.com> <20010112220729.D27809@unternet.org>
-Content-Type: text/plain; charset=us-ascii
+To: Donald Becker <becker@scyld.com>, vortex@scyld.com,
+        linux-kernel@vger.kernel.org
+Subject: [PROBLEM]: Strange network problems with 2.4.0 and 3c59x.o
+In-Reply-To: <Pine.LNX.4.10.10101020019010.8957-100000@vaio.greennet> <3A51D40F.48B9ADB9@home.net>
+Content-Type: text/plain; charset=iso-8859-15
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frank de Lange wrote:
-> 
-> On Fri, Jan 12, 2001 at 09:54:31PM +0100, Manfred Spraul wrote:
-> > I have found one combination that doesn't hang with the unpatched
-> > 8390.c, but network throughput is down to 1/2. I hope that's due to the
-> > debugging changes.
-> 
-> Hm, could it be that the fact that network throughput is halved causes the
-> problem not to appear?
+Here's something strange that i've been noticing with 2.4.0. Some websites I am
+unable to access now. For example:
 
-No. The problem is still there. But now lots of losts packets instead of
-a total hang.
+http://www.scotiabank.ca/simplify/index.html
 
-Due to the modification of mask_irq now disable_irq_nosync and
-enable_irq act as if I would press SysRQ+q every millisecond, and thus
-the io apic is immediatly reset when it got stuck.
+if your in Canada and you have Scotia banking online, try and access their
+banking sites. It will just hang. However upon trying the same in Windows 2000
+(cough). The site works fine.
 
-Btw, my initial assumption about EOI to masked interrupt must be wrong:
-2.2 always first masks the irq, then it sends the EOI, and 2.2 doesn't
-hang.
+Could there be a network driver issue as even trying with telnet port 80 fails
+as well?
 
---
-	Manfred
+Im not sure on this one this seems bizarre. I have the same problem with
+www.workopolis.com, theglobeandmail.com, perhaps there's some sort of packet or
+frame not being processed properly?
+
+I can ICMP ping all the sites fine and i can access them from other shells.
+I have spoken to some of their engineers and they say that there is nothing
+blocking/no firewalls configured to deny access to theses sites.
+
+If there's any information you need I'd be glad to try and figure this one out.
+
+Shawn S.
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

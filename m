@@ -1,65 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262224AbVCCUAO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262160AbVCCUI5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262224AbVCCUAO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 15:00:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262162AbVCCTwe
+	id S262160AbVCCUI5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 15:08:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbVCCUIz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 14:52:34 -0500
-Received: from smtp-out.hotpop.com ([38.113.3.61]:12484 "EHLO
-	smtp-out.hotpop.com") by vger.kernel.org with ESMTP id S261720AbVCCTvF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 14:51:05 -0500
-From: "Antonino A. Daplas" <adaplas@hotpop.com>
-Reply-To: adaplas@pol.net
-To: Adrian Bunk <bunk@stusta.de>, adaplas@pol.net
-Subject: Re: RFC: disallow modular framebuffers
-Date: Fri, 4 Mar 2005 03:50:42 +0800
-User-Agent: KMail/1.5.4
-Cc: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <20050301024118.GF4021@stusta.de> <200503012115.29023.adaplas@hotpop.com> <20050303165649.GF4608@stusta.de>
-In-Reply-To: <20050303165649.GF4608@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 3 Mar 2005 15:08:55 -0500
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:18579
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262277AbVCCUH5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 15:07:57 -0500
+Date: Thu, 3 Mar 2005 12:04:08 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: torvalds@osdl.org, tglx@linutronix.de, bunk@stusta.de, greg@kroah.com,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RFD: Kernel release numbering
+Message-Id: <20050303120408.746f49a8.davem@davemloft.net>
+In-Reply-To: <42276AF5.3080603@pobox.com>
+References: <Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org>
+	<42268749.4010504@pobox.com>
+	<20050302200214.3e4f0015.davem@davemloft.net>
+	<42268F93.6060504@pobox.com>
+	<4226969E.5020101@pobox.com>
+	<20050302205826.523b9144.davem@davemloft.net>
+	<4226C235.1070609@pobox.com>
+	<20050303080459.GA29235@kroah.com>
+	<4226CA7E.4090905@pobox.com>
+	<Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>
+	<20050303170808.GG4608@stusta.de>
+	<1109877336.4032.47.camel@tglx.tec.linutronix.de>
+	<Pine.LNX.4.58.0503031135190.25732@ppc970.osdl.org>
+	<42276AF5.3080603@pobox.com>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503040350.51163.adaplas@hotpop.com>
-X-HotPOP: -----------------------------------------------
-                   Sent By HotPOP.com FREE Email
-             Get your FREE POP email at www.HotPOP.com
-          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 04 March 2005 00:56, Adrian Bunk wrote:
-> On Tue, Mar 01, 2005 at 09:15:27PM +0800, Antonino A. Daplas wrote:
-> > On Tuesday 01 March 2005 10:41, Adrian Bunk wrote:
-> > > Hi,
-> > >
-> > > while looking how to fix modular FB_SAVAGE_* (both FB_SAVAGE_I2C=m and
-> > > FB_SAVAGE_ACCEL=m are currently broken) I asked myself:
-> >
-> > BTW, what's the problem with the above?
->
->   #if defined(CONFIG_FB_SAVAGE_ACCEL)
->
-> doesn't work with FB_SAVAGE_ACCEL=m, and
->
->   #if defined(CONFIG_FB_SAVAGE_ACCEL) ||
-> defined(CONFIG_FB_SAVAGE_ACCEL_MODULE)
->
-> would break with FB_SAVAGE=y and FB_SAVAGE_ACCEL=m.
->
+On Thu, 03 Mar 2005 14:52:21 -0500
+Jeff Garzik <jgarzik@pobox.com> wrote:
 
-I see.
+> I disagree it's unsolvable:
+> 
+> 1) At some point in the -rc cycle, you put your foot down and say 
+> "nothing but bugfixes."
 
->
-> Is there any reason for these being three modules?
-> It seems the best solution would be to make this one module composed of
-> up to three object files?
+Linus actually did, as Andrew showed you, and it was actually followed
+quite well.
 
-Yes.
+You keep ignoring this evidence, why?
 
-Tony
-
+You can quiet me up about this by showing counter evidence to what
+Andrew pointed out to you.
 

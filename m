@@ -1,61 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261532AbRERURf>; Fri, 18 May 2001 16:17:35 -0400
+	id <S261534AbRERUUp>; Fri, 18 May 2001 16:20:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261534AbRERURZ>; Fri, 18 May 2001 16:17:25 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:49161 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S261532AbRERURU>; Fri, 18 May 2001 16:17:20 -0400
-Date: Fri, 18 May 2001 17:12:01 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-Cc: Mike Galbraith <mikeg@wen-online.de>, <linux-kernel@vger.kernel.org>,
-        <linux-mm@kvack.org>
-Subject: Re: Linux 2.4.4-ac10
-In-Reply-To: <20010518205843.T806@nightmaster.csn.tu-chemnitz.de>
-Message-ID: <Pine.LNX.4.33.0105181710540.5251-100000@duckman.distro.conectiva>
+	id <S261543AbRERUUf>; Fri, 18 May 2001 16:20:35 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:3474 "HELO havoc.gtf.org")
+	by vger.kernel.org with SMTP id <S261534AbRERUUU>;
+	Fri, 18 May 2001 16:20:20 -0400
+Message-ID: <3B0583FF.D25F4379@mandrakesoft.com>
+Date: Fri, 18 May 2001 16:20:15 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: viro@math.psu.edu, rddunlap@att.net, jack@suse.cz,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: PATCH 2.4.5.3 (try 2): quota initcall
+In-Reply-To: <3B058003.81A01B77@mandrakesoft.com>
+Content-Type: multipart/mixed;
+ boundary="------------CCC3A2DEAFE25A301B9883A1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 May 2001, Ingo Oeser wrote:
-> On Fri, May 18, 2001 at 03:23:03PM -0300, Rik van Riel wrote:
+This is a multi-part message in MIME format.
+--------------CCC3A2DEAFE25A301B9883A1
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-> > "such a tradeoff" ?
-> >
-> > While this sounds reasonable, I have to point out that
-> > up to now nobody has described exactly WHAT tradeoff
-> > they'd like to make tunable and why...
->
-> Amount of pages reclaimed from swapout_mm() versus amount of
-> pages reclaimed from caches.
->
-> A value that says: "use XX% of my main memory for RSS of
-> processes, even if I run heavy disk loadf now" would be nice.
->
-> For general purpose machines, where I run several services but
-> also play games, this would allow both to survive.
->
-> The external services would go slower. Who cares, if some CVS
-> updates or NFS services go slower, if I can play my favorite game
-> at full speed? ;-)
+Doh!  I should really turn on that quota compile options... <brown ppr
+bag>
 
-Remember that the executable and data of that game reside
-in the filesystem cache. This "double counting" makes it
-quite a bit harder to actually implement what seems like
-a simple tradeoff.
+Much better patch attached.
 
-regards,
+-- 
+Jeff Garzik      | "Do you have to make light of everything?!"
+Building 1024    | "I'm extremely serious about nailing your
+MandrakeSoft     |  step-daughter, but other than that, yes."
+--------------CCC3A2DEAFE25A301B9883A1
+Content-Type: text/plain; charset=us-ascii;
+ name="quota-initcall-2.4.5.3.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="quota-initcall-2.4.5.3.patch"
 
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+Index: linux_2_4/fs/dquot.c
+diff -u linux_2_4/fs/dquot.c:1.1.1.50 linux_2_4/fs/dquot.c:1.1.1.50.4.2
+--- linux_2_4/fs/dquot.c:1.1.1.50	Tue May 15 04:36:48 2001
++++ linux_2_4/fs/dquot.c	Fri May 18 13:18:36 2001
+@@ -1343,13 +1343,12 @@
+ }
+ 
+ 
+-void __init dquot_init_hash(void)
++static int __init dquot_init(void)
+ {
+ 	printk(KERN_NOTICE "VFS: Diskquotas version %s initialized\n", __DQUOT_VERSION__);
+-
+-	memset(dquot_hash, 0, sizeof(dquot_hash));
+-	memset((caddr_t)&dqstats, 0, sizeof(dqstats));
++	return 0;
+ }
++__initcall(dquot_init);
+ 
+ /*
+  * Definitions of diskquota operations.
+Index: linux_2_4/init/main.c
+diff -u linux_2_4/init/main.c:1.1.1.62 linux_2_4/init/main.c:1.1.1.62.4.2
+--- linux_2_4/init/main.c:1.1.1.62	Tue May 15 04:37:56 2001
++++ linux_2_4/init/main.c	Fri May 18 13:18:36 2001
+@@ -108,9 +108,6 @@
+ #if defined(CONFIG_SYSVIPC)
+ extern void ipc_init(void);
+ #endif
+-#if defined(CONFIG_QUOTA)
+-extern void dquot_init_hash(void);
+-#endif
+ 
+ /*
+  * Boot command-line arguments
+@@ -579,9 +576,6 @@
+ #endif
+ #if defined(CONFIG_SYSVIPC)
+ 	ipc_init();
+-#endif
+-#if defined(CONFIG_QUOTA)
+-	dquot_init_hash();
+ #endif
+ 	check_bugs();
+ 	printk("POSIX conformance testing by UNIFIX\n");
 
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+--------------CCC3A2DEAFE25A301B9883A1--
 

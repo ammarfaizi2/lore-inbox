@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267640AbTA3Vbh>; Thu, 30 Jan 2003 16:31:37 -0500
+	id <S267643AbTA3Voh>; Thu, 30 Jan 2003 16:44:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267641AbTA3Vbh>; Thu, 30 Jan 2003 16:31:37 -0500
-Received: from packet.digeo.com ([12.110.80.53]:10423 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267640AbTA3Vbb>;
-	Thu, 30 Jan 2003 16:31:31 -0500
-Message-ID: <3E399B93.90B32D12@digeo.com>
-Date: Thu, 30 Jan 2003 13:39:31 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.51 i686)
+	id <S267644AbTA3Voh>; Thu, 30 Jan 2003 16:44:37 -0500
+Received: from daimi.au.dk ([130.225.16.1]:30926 "EHLO daimi.au.dk")
+	by vger.kernel.org with ESMTP id <S267643AbTA3Vog>;
+	Thu, 30 Jan 2003 16:44:36 -0500
+Message-ID: <3E399EEE.407D5B6@daimi.au.dk>
+Date: Thu, 30 Jan 2003 22:53:50 +0100
+From: Kasper Dupont <kasperd@daimi.au.dk>
+Organization: daimi.au.dk
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.18-19.7.xsmp i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Oliver Xymoron <oxymoron@waste.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5] Report write errors to applications
-References: <20030129060916.GA3186@waste.org> <20030128232929.4f2b69a6.akpm@digeo.com> <20030129162411.GB3186@waste.org> <20030129134205.3e128777.akpm@digeo.com> <20030130211212.GB4357@waste.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Jan 2003 21:39:31.0860 (UTC) FILETIME=[12FFA540:01C2C8A8]
+To: Hugo Mills <hugo-lkml@carfax.org.uk>
+CC: sundara raman <sundararamand@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: doubts in INIT - while system booting up
+References: <20030126170034.30209.qmail@web20507.mail.yahoo.com> <20030126172837.GA1196@carfax.org.uk>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Xymoron wrote:
+Hugo Mills wrote:
 > 
-> On Wed, Jan 29, 2003 at 01:42:05PM -0800, Andrew Morton wrote:
-> > Oliver Xymoron <oxymoron@waste.org> wrote:
-> > >
-> > > > - fsync_buffers_list() will handle them and will return errors to the fsync()
-> > > > caller.  We only need to handle those buffers which were stripped
-> > > > asynchronously by VM activity.
-> > >
-> > > Are we guaranteed that we'll get a try_to_free_buffers after IO
-> > > completion and before sync? I haven't dug through this path much.
+> On Sun, Jan 26, 2003 at 09:00:34AM -0800, sundara raman wrote:
+> 
+> > 8) while system booting up, it shows the following
+> > error
 > >
-> > Think so.  That's the only place where buffers are detached.  Otherwise,
-> > fsync_buffers_list() looks at them all.
+> >        INIT: Id "x" respawing too fast: disabled for 5
+> > minutes
 > 
-> The other problem here is that by the time we're in
-> try_to_free_buffers we no longer know that we're looking at a harmless
-> stale page (readahead?) or a write error, which is why Linus had me
-> make the separate end_buffer functions. So I don't think this pans out
-> - thoughts?
+>    It's not a kernel problem -- there's something broken in your X
+> Windows configuration. xdm (or kdm or gdm) keeps trying to start and
+> fails, and init is restarting it, and it fails...
 
-If the buffer has buffer_req and !buffer_uptodate and !buffer_locked
-we know that it was submitted for IO, that the IO has completed, and
-that it failed.
+I have recently had the same problem when I forgot to include some
+driver in the kernel which was required by my X configuration.
+
+-- 
+Kasper Dupont -- der bruger for meget tid på usenet.
+For sending spam use mailto:aaarep@daimi.au.dk
+for(_=52;_;(_%5)||(_/=5),(_%5)&&(_-=2))putchar(_);

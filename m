@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266969AbSLQT6u>; Tue, 17 Dec 2002 14:58:50 -0500
+	id <S267070AbSLQUEh>; Tue, 17 Dec 2002 15:04:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266998AbSLQT6u>; Tue, 17 Dec 2002 14:58:50 -0500
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:14005
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id <S266969AbSLQT6t>; Tue, 17 Dec 2002 14:58:49 -0500
-Message-ID: <3DFF83C5.6000007@redhat.com>
-Date: Tue, 17 Dec 2002 12:06:29 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20021216
-X-Accept-Language: en-us, en
+	id <S267071AbSLQUEh>; Tue, 17 Dec 2002 15:04:37 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:58121 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267070AbSLQUEe>; Tue, 17 Dec 2002 15:04:34 -0500
+Message-ID: <3DFF8520.7030600@transmeta.com>
+Date: Tue, 17 Dec 2002 12:12:16 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021119
+X-Accept-Language: en, sv
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: "H. Peter Anvin" <hpa@transmeta.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Matti Aarnio <matti.aarnio@zmailer.org>,
-       Hugh Dickins <hugh@veritas.com>, Dave Jones <davej@codemonkey.org.uk>,
-       Ingo Molnar <mingo@elte.hu>,
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+       Dave Jones <davej@codemonkey.org.uk>, Ingo Molnar <mingo@elte.hu>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Intel P6 vs P7 system call performance
-References: <Pine.LNX.4.44.0212171132530.1095-100000@home.transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0212171132530.1095-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0212162204300.1800-100000@home.transmeta.com> 	<3DFF772E.2050107@transmeta.com> <1040158171.20765.23.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1040158171.20765.23.camel@irongate.swansea.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+Alan Cox wrote:
+> On Tue, 2002-12-17 at 19:12, H. Peter Anvin wrote:
+> 
+>>The complexity only applies to nonsynchronized TSCs though, I would
+>>assume.  I believe x86-64 uses a vsyscall using the TSC when it can
+>>provide synchronized TSCs, and if it can't it puts a normal system call
+>>inside the vsyscall in question.
+> 
+> 
+> For x86-64 there is the hpet timer, which is a lot saner but I don't
+> think we can mmap it
+> 
 
-> The thing is, gettimeofday() isn't _that_ special. It's just not worth a
-> vsyscall of it's own, I feel. Where do you stop? Do we do getpid() too?
+It's only necessary, though, when TSC isn't usable.  TSC is psycho fast
+when it's available.  Just about anything is saner than the old 8042 or
+whatever it is called timer chip, though...
 
-This is why I'd say mkae no distinction at all.  Have the first
-nr_syscalls * 8 bytes starting at 0xfffff000 as a jump table.  We can
-transfer to a different slot for each syscall.  Each slot then could be
-a PC-relative jump to the common sysenter code or to some special code
-sequence which is also in the global page.
+	-hpa
 
-If we don't do this now and it seems desirable in future we wither have
-to introduce a second ABI for the vsyscall stuff (ugly!) or you'll have
-to do the demultiplexing yourself in the code starting at 0xfffff000.
-
-
--- 
---------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
 

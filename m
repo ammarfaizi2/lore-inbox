@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287375AbRL3Kbg>; Sun, 30 Dec 2001 05:31:36 -0500
+	id <S287379AbRL3Kw2>; Sun, 30 Dec 2001 05:52:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287377AbRL3Kb1>; Sun, 30 Dec 2001 05:31:27 -0500
-Received: from mail.libertysurf.net ([213.36.80.91]:48171 "EHLO
-	mail.libertysurf.net") by vger.kernel.org with ESMTP
-	id <S287375AbRL3KbQ> convert rfc822-to-8bit; Sun, 30 Dec 2001 05:31:16 -0500
-Date: Sun, 30 Dec 2001 12:33:24 +0100 (CET)
-From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-X-X-Sender: <groudier@gerard>
-To: Linux <linux-kernel@vger.kernel.org>
-Subject: Bounce from andre@linuxdiskcert.org
-In-Reply-To: <3C2BE2010004B5F3@mail.libertysurf.net>
-Message-ID: <20011230122500.E859-100000@gerard>
+	id <S287380AbRL3KwS>; Sun, 30 Dec 2001 05:52:18 -0500
+Received: from p15.dynadsl.ifb.co.uk ([194.105.168.15]:2188 "HELO smeg")
+	by vger.kernel.org with SMTP id <S287379AbRL3KwB>;
+	Sun, 30 Dec 2001 05:52:01 -0500
+From: "Lee Packham" <lpackham@mswinxp.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: [BUG] 2.5.1-dj8 - IDE CD-ROM
+Date: Sun, 30 Dec 2001 10:51:22 -0000
+Message-ID: <000101c1911f$eba8b380$010ba8c0@lee>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello Andre,
+On a VIA KT266a chipset motherboard with a standard IDE CD-ROM device I
+get input/output errors on all iso9660 + joilet CD's. I don't have any
+basic CDs to try.
 
-I already said you that my replies get not accepted by your email agents.
+On 2.4.10-2.4.16 it works fine. Am just about to test on 2.4.17 but
+thought I would post this now. I am using the same .config from 2.4.10
+in 2.5.1-dj8 if that helps.
 
-If you want to post to an open list then you want to accept messages from
-people subscribed to that list. Doing different is just impoliteness.
-
-  Gérard.
-
-On Sun, 30 Dec 2001, Mail Delivery Service wrote:
-
->  - These recipients of your message have been processed by the mail server:
->
-> andre@linuxdiskcert.org; Action: Failed; Status: 5.3.0 (other or undefined mail system status)
->     Remote MTA mail.linuxdiskcert.org: network error
->
->  - SMTP protocol diagnostic: 550 <groudier@free.fr>... We don't accept mail from spammers
+Lee Packham
 

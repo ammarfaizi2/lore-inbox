@@ -1,68 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279877AbRJ3GpE>; Tue, 30 Oct 2001 01:45:04 -0500
+	id <S279882AbRJ3HCJ>; Tue, 30 Oct 2001 02:02:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279878AbRJ3Goz>; Tue, 30 Oct 2001 01:44:55 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:12299 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S279877AbRJ3Goj>; Tue, 30 Oct 2001 01:44:39 -0500
-Message-ID: <3BDE4B56.F90300C5@zip.com.au>
-Date: Mon, 29 Oct 2001 22:40:22 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.13-ac2 i686)
-X-Accept-Language: en
+	id <S279881AbRJ3HCA>; Tue, 30 Oct 2001 02:02:00 -0500
+Received: from suphys.physics.usyd.edu.au ([129.78.129.1]:7615 "EHLO
+	suphys.physics.usyd.edu.au") by vger.kernel.org with ESMTP
+	id <S279880AbRJ3HBp>; Tue, 30 Oct 2001 02:01:45 -0500
+Date: Tue, 30 Oct 2001 18:02:07 +1100 (EST)
+From: Tim Connors <tcon@Physics.usyd.edu.au>
+To: Marko Rauhamaa <marko@pacujo.nu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Need blocking /dev/null
+In-Reply-To: <20011030035221.6E5611FE7D@varmo.pacujo.nu>
+Message-ID: <Pine.SOL.3.96.1011030180024.12360A-100000@suphys.physics.usyd.edu.au>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: i/o stalls on 2.4.14-pre3 with ext3
-In-Reply-To: <Pine.LNX.4.21.0110292120340.16895-100000@admin> <3BDE161A.D8289730@zip.com.au> <9rl9ag$7su$1@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Mon, 29 Oct 2001, Marko Rauhamaa wrote:
+
+> > > I noticed that I need a pseudodevice that opens normally but blocks all
+> > > reads (and writes). The only way out would be through a signal. Neither
+> > 
+> > Try using a pipe
 > 
-> In article <3BDE161A.D8289730@zip.com.au>,
-> Andrew Morton  <akpm@zip.com.au> wrote:
-> >
-> >ext3's problem is that it is unable to react to VM pressure
-> >for metadata (buffercache) pages.  Once upon a time it did
-> >do this, but we backed it out because it involved mauling
-> >core kernel code.  So at present we only react to VM pressure
-> >for data pages.
+> You're right. This is what I wanted to do:
 > 
-> Note that the new VM has some support in place for the low-level
-> filesystem reacting to VM pressure. In particular, one thing the fs can
-> do is to look at the PG_launder bit (for pages) and PG_launder bit (for
-> buffers), to figure out if the IO is due to memory pressure.
-
-We don't get that far, unfortunately.  ext3's problem is that the data
-journalling (and its consequent ordering requirements) mean that a bare
-try_to_free_buffers() will always fail, because we're holding elevated
-refcounts against the buffers.  This is why we added an a_op here.  To
-give the fs a chance to strip its stuff off the page before
-try_to_free_buffers() has its try.
-
-> There are two really silly request bugs in 2.4.14-pre3. I'd suggest
-> trying pre5 which cleans up other things too, but even more notably
-> should fix the request queue thinkos.
+>    while true
+>    do
+>        ssh -R a:b:c host
+>        sleep 10
+>    done </dev/never >/dev/null
 > 
+> But I could do it like this:
+> 
+>    while true
+>    do
+>        sleep 100000
+>    done |
+>    while true
+>    do
+>        ssh -R a:b:c host
+>        sleep 10
+>    done >/dev/null
 
-Hum.   I did a quick test here.  cvs checkout of a kernel
-tree with source and dest both on the same platter.  Using
-ext2:
+Highly elegant :)
 
-2.4.13: 	1:34
-2.4.14-pre3:	1:28
-2.4.14-pre5:	1:37
+How bout just `mkfifo /tmp/blockme`
+and read on /tmp/blockme - just don't write to it!
 
-We need more silly bugs.
+-- 
+TimC -- http://www.physics.usyd.edu.au/~tcon/
 
-I'll poke at it a bit more.  One perennial problem which
-we face is that there isn't, IMO, a good set of tests for tracking
-changes in thoughput.  All the tools which are readily available
-are good for stress testing and silly corner cases but they
-don't seem to model real-world workloads well.
+> cat ~/.signature
+CPU time limit exceeded (core dumped)
 
--

@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261856AbUKRSOJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262803AbUKRSQi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261856AbUKRSOJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 13:14:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbUKRSMG
+	id S262803AbUKRSQi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 13:16:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262845AbUKRSOZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 13:12:06 -0500
-Received: from mail17.bluewin.ch ([195.186.18.64]:27356 "EHLO
-	mail17.bluewin.ch") by vger.kernel.org with ESMTP id S261856AbUKRSKq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 13:10:46 -0500
-Date: Thu, 18 Nov 2004 19:10:45 +0100
-From: Roger Luethi <rl@hellgate.ch>
-To: linux-kernel@vger.kernel.org
-Subject: VIA Rhine WOL
-Message-ID: <20041118181045.GC28972@k3.hellgate.ch>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Operating-System: Linux 2.6.10-rc2 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.6i
+	Thu, 18 Nov 2004 13:14:25 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:38612 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S262841AbUKRSJ2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Nov 2004 13:09:28 -0500
+Message-Id: <200411181808.iAII8ECH009759@laptop11.inf.utfsm.cl>
+To: Avi Kivity <avi@argo.co.il>
+cc: Keith Owens <kaos@ocs.com.au>, Hugh Dickins <hugh@veritas.com>,
+       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] WTF is VLI? 
+In-Reply-To: Message from Avi Kivity <avi@argo.co.il> 
+   of "Thu, 18 Nov 2004 17:47:14 +0200." <419CC402.7080109@argo.co.il> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
+Date: Thu, 18 Nov 2004 15:08:13 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got quite a few reports regarding WOL and via-rhine. Here's some
-information so people can find it:
+Avi Kivity <avi@argo.co.il> said:
 
-Rhine hardware can often do WOL without any support from the operating
-system, i.e. the hardware will wake-up upon receiving a magic packet
-even if you have no OS installed. That's meant for legacy OSes like DOS.
+[...]
 
-A WOL-aware OS has a more fine-grained control over Rhine WOL. For one,
-it can turn WOL off. It can also configure the type of events that will
-wake the system.
+> ksymoops can disasemble the entire code line, but starting at different 
+> offsets (up to the maximum instruction length) from the start. the first 
+> disassembly to include the program counter in the output would be deemed 
+> correct.
 
-The via-rhine code has changed in the 2.6.9/2.6.10 time frame: Legacy
-WOL is turned off (mostly), so it will not work unless you explicitly
-tell the driver to enable WOL. You can do this using ethtool(8).
-
-If WOL used to work with your Rhine hardware and now all of a sudden
-doesn't, check first if you enabled WOL using ethtool.
-
-Roger
+There might be several... I see no reason to consider the first one
+correct.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,52 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313724AbSD1GD5>; Sun, 28 Apr 2002 02:03:57 -0400
+	id <S313882AbSD1G7N>; Sun, 28 Apr 2002 02:59:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313882AbSD1GD5>; Sun, 28 Apr 2002 02:03:57 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:57335 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S313724AbSD1GD4>;
-	Sun, 28 Apr 2002 02:03:56 -0400
-Message-ID: <3CCB9080.EA1E0DB0@mvista.com>
-Date: Sat, 27 Apr 2002 23:02:40 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Why HZ on i386 is 100 ?
-In-Reply-To: <E171Ym8-0000iP-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
+	id <S314360AbSD1G7M>; Sun, 28 Apr 2002 02:59:12 -0400
+Received: from wind.he.net ([216.218.129.2]:60676 "EHLO wind.he.net")
+	by vger.kernel.org with ESMTP id <S313882AbSD1G7M>;
+	Sun, 28 Apr 2002 02:59:12 -0400
+Date: Sat, 27 Apr 2002 23:55:41 -0700
+Mime-Version: 1.0 (Apple Message framework v481)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Subject: 2.5.9,2.5.10 kernel compile, +SMP?
+From: "Ron Pagani / San Francisco / San Jose, CA" <lists@ronpagani.com>
+To: LKML <linux-kernel@vger.kernel.org>
 Content-Transfer-Encoding: 7bit
+Message-Id: <F4439967-5A74-11D6-B3D0-0030657B7B46@ronpagani.com>
+X-Mailer: Apple Mail (2.481)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > > I remain unconvinced. Firstly the timer changes do not have to
-> > > occur at schedule rate unless your implementaiton is incredibly naiive.
-> >
-> > OK, I'll bite, how do you stop a task at the end of its slice if you
-> > don't set up a timer event for that time?
-> 
-> At high scheduling rate you task switch more often than you hit the timer,
-> so you want to handle it in a lazy manner most of the time. Ie so long as
-> the timer goes off before the time slice expire why frob it
+Folks:
 
-So then we test for this condition (avoiding races, of course) and if
-so, what?  We will have a timer interrupt prior to the slice end, and
-will have to make this decision all over again.  However, the real rub
-is that we have to keep track of elapsed time and account for that (i.e.
-shorten the remaining slice) not only in the timer interrupt, but each
-context switch.  We are still doing more work each schedule and making
-it "smaller" just puts off the inevitable, i.e. at some level of
-scheduling activity we will accumulate more time in this accounting code
-than in the current "flat" or constant overhead way of doing things.
-> 
+Compile config question...
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Real time sched:  http://sourceforge.net/projects/rtsched/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+Single processor machine (Pentium III)
+
+SMP comes default "ON" in my 2.5.10 and 2.5.9 config; why is it that if 
+I turn it off (since I'm only using one processor) the build breaks?  I 
+can post the part it chokes on (I recall something regarding 
+cpu_number)...
+
+I this a broken config issue, or is someone/thing have a SMP dependency 
+in the 2.5 series?
+
+TIA
+Ron
+

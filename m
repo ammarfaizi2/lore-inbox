@@ -1,61 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264384AbUADBSR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 20:18:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264405AbUADBSR
+	id S264286AbUADB1j (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 20:27:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264405AbUADB1j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 20:18:17 -0500
-Received: from findaloan.ca ([66.11.177.6]:44430 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id S264384AbUADBSP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 20:18:15 -0500
-Date: Sat, 3 Jan 2004 20:16:26 -0500
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Linus Torvalds <torvalds@osdl.org>, Rob Love <rml@ximian.com>,
-       rob@landley.net, Pascal Schmidt <der.eremit@email.de>,
-       linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-Subject: Re: udev and devfs - The final word
-Message-ID: <20040104011626.GB6398@mark.mielke.cc>
-Mail-Followup-To: Andries Brouwer <aebr@win.tue.nl>,
-	Linus Torvalds <torvalds@osdl.org>, Rob Love <rml@ximian.com>,
-	rob@landley.net, Pascal Schmidt <der.eremit@email.de>,
-	linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-References: <200401010634.28559.rob@landley.net> <1072970573.3975.3.camel@fur> <20040101164831.A2431@pclin040.win.tue.nl> <1072972440.3975.29.camel@fur> <Pine.LNX.4.58.0401021238510.5282@home.osdl.org> <20040103040013.A3100@pclin040.win.tue.nl> <Pine.LNX.4.58.0401022033010.10561@home.osdl.org> <20040103141029.B3393@pclin040.win.tue.nl> <Pine.LNX.4.58.0401031423180.2162@home.osdl.org> <20040104000840.A3625@pclin040.win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 3 Jan 2004 20:27:39 -0500
+Received: from gizmo05bw.bigpond.com ([144.140.70.15]:408 "HELO
+	gizmo05bw.bigpond.com") by vger.kernel.org with SMTP
+	id S264286AbUADB1g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jan 2004 20:27:36 -0500
+From: Srihari Vijayaraghavan <harisri@bigpond.com>
+To: linux-kernel@vger.kernel.org
+Subject: agpgart issue on 2.6.1-rc1-bk3 (x86-64)
+Date: Sun, 4 Jan 2004 12:28:22 +1100
+User-Agent: KMail/1.5.4
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040104000840.A3625@pclin040.win.tue.nl>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200401041228.22987.harisri@bigpond.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 04, 2004 at 12:08:40AM +0100, Andries Brouwer wrote:
-> On Sat, Jan 03, 2004 at 02:27:47PM -0800, Linus Torvalds wrote:
-> > And then a high-quality implementation actually ends up being 
-> > _detrimental_. It's hiding problems that can still happen, they just 
-> > happen rarely enough that the bugs don't get found and fixed.
-> Empty talk. This is not about finding and fixing bugs.
-> We know very precisely what properties the NFS protocol has.
-> Now one can have a system that works as well as possible with NFS.
-> And one can have a worse system.
+Hello,
 
-It seems to me that as long as /dev is always a local mount (tmpfs in
-the case of an NFS-root installation), it doesn't really matter. Maintaining
-system-specific information on a remote machine seems dirty, and something
-that shouldn't be *expected* to work. You wouldn't expect /proc to work
-over NFS, would you? :-)
+I see this message in the 2.6.1-rc3-bk3 kernel log:
+agpgart: Detected AGP bridge 0
+agpgart: Too many northbridges for AGP
 
-mark
+This results in <100 FPS in glxgears, and I am unable to play the tuxracer 
+game :-). With 2.6.0-x8664-1 however I get 450 FPS (approx), and all was 
+well.
 
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+Upon applying this patch (making it identical to 2.6.0-x86-64 that is):
+--- 2.6.1-rc1-bk3/drivers/char/agp/amd64-agp.c.orig     2004-01-04 
+01:06:20.000000000 +1100
++++ 2.6.1-rc1-bk3/drivers/char/agp/amd64-agp.c  2004-01-04 01:06:50.000000000 
++1100
+@@ -16,11 +16,7 @@
+ #include "agp.h"
 
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
+ /* Will need to be increased if AMD64 ever goes >8-way. */
+-#ifdef CONFIG_SMP
+ #define MAX_HAMMER_GARTS   8
+-#else
+-#define MAX_HAMMER_GARTS   1
+-#endif
 
-                           http://mark.mielke.cc/
+ /* PTE bits. */
+ #define GPTE_VALID     1
+
+Of course that maybe a wrong approach. But that makes things a lot better, and 
+I see this message in the kernel log:
+agpgart: Detected AGP bridge 0
+agpgart: Maximum main memory to use for agp memory: 941M
+agpgart: AGP aperture is 128M @ 0xd0000000
+
+And the number of FPS in glxgears is back to normal (450 FPS approx).
+
+Here is the 'lspci' information from my K8T800 chipset based Gigabyte 
+GA-K8VNXP board (and there seems to be 4 AMD K8 north bridges):
+00:00.0 Host bridge: VIA Technologies, Inc.: Unknown device 3188 (rev 01)
+00:01.0 PCI bridge: VIA Technologies, Inc.: Unknown device b188
+00:0e.0 RAID bus controller: Integrated Technology Express, Inc.: Unknown 
+device 8212 (rev 11)
+00:0f.0 RAID bus controller: VIA Technologies, Inc.: Unknown device 3149 (rev 
+80)
+00:0f.1 IDE interface: VIA Technologies, Inc. 
+VT82C586A/B/VT82C686/A/B/VT8233/A/C/VT8235 PIPC Bus Master IDE (rev 06)
+00:10.0 USB Controller: VIA Technologies, Inc. USB (rev 81)
+00:10.1 USB Controller: VIA Technologies, Inc. USB (rev 81)
+00:10.2 USB Controller: VIA Technologies, Inc. USB (rev 81)
+00:10.3 USB Controller: VIA Technologies, Inc. USB (rev 81)
+00:10.4 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 86)
+00:11.0 ISA bridge: VIA Technologies, Inc.: Unknown device 3227
+00:11.5 Multimedia audio controller: VIA Technologies, Inc. VT8233/A/8235 AC97 
+Audio Controller (rev 60)
+00:12.0 Ethernet controller: VIA Technologies, Inc. VT6102 [Rhine-II] (rev 78)
+00:13.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8169 (rev 10)
+00:14.0 FireWire (IEEE 1394): Texas Instruments: Unknown device 8025 (rev 01)
+00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
+00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
+00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
+00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
+01:00.0 VGA compatible controller: ATI Technologies Inc Radeon RV100 QY 
+[Radeon 7000/VE]
+
+Of course CONFIG_SMP is not set in my .config.
+
+Thanks
+Hari
 

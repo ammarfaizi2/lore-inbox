@@ -1,147 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261755AbTCLQzz>; Wed, 12 Mar 2003 11:55:55 -0500
+	id <S261801AbTCLQ6R>; Wed, 12 Mar 2003 11:58:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261756AbTCLQzz>; Wed, 12 Mar 2003 11:55:55 -0500
-Received: from saintmail.net ([207.54.173.29]:46513 "EHLO mail.saintmail.net")
-	by vger.kernel.org with ESMTP id <S261755AbTCLQzv>;
-	Wed, 12 Mar 2003 11:55:51 -0500
-From: "Christopher Meredith" <theophile@saintmail.net>
-Reply-to: theophile@saintmail.net
-To: linux-kernel@vger.kernel.org
-Subject: PowerNow!, cpufreq, and swsusp
-X-Mailer: Quality Web Email v3.0r, http://netwinsite.com/refw.htm
-Date: Wed, 12 Mar 2003 12:06:33 -0500
-Message-id: <3e6f6919.1546.10699@saintmail.net>
+	id <S261792AbTCLQ6P>; Wed, 12 Mar 2003 11:58:15 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:36367 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S261789AbTCLQ6N>; Wed, 12 Mar 2003 11:58:13 -0500
+Date: Wed, 12 Mar 2003 18:08:51 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Dana Lacoste <dana.lacoste@peregrine.com>
+cc: "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
+In-Reply-To: <1047486659.16704.161.camel@dlacoste.ottawa.loran.com>
+Message-ID: <Pine.LNX.4.44.0303121801580.32518-100000@serv>
+References: <20030312034330.GA9324@work.bitmover.com> <20030312041621.GE563@phunnypharm.org>
+ <20030312085517.GK811@suse.de> <20030312032614.G12806@schatzie.adilger.int>
+  <b4nmau$3d0$1@cesium.transmeta.com> <1047486659.16704.161.camel@dlacoste.ottawa.loran.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just compiled the 2.5.63 kernel with the intention of
-getting support for certain features of my laptop. I;ve got
-a Mobile Athlon XP 1800+ w/ PowerNow! technology and was
-hoping to use it, as well as be able to "hibernate" the
-machine.
+Hi,
 
->From .config:
+On 12 Mar 2003, Dana Lacoste wrote:
 
-#
-# Power management options (ACPI, APM)
-#
-CONFIG_PM=y
-CONFIG_SOFTWARE_SUSPEND=y
+> Seriously, if CVS loses all that data, is that BK's fault?  BK's so
+> powerful because it has more information than anyone else, but it's
+> not their fault (and it's not proprietary data) that no-one else can
+> deal with the data when it's exported, now is it????
 
-#
-# ACPI Support
-#
-CONFIG_ACPI=y
-# CONFIG_ACPI_HT_ONLY is not set
-CONFIG_ACPI_BOOT=y
-# CONFIG_ACPI_SLEEP is not set
-CONFIG_ACPI_AC=y
-CONFIG_ACPI_BATTERY=y
-CONFIG_ACPI_BUTTON=y
-CONFIG_ACPI_FAN=y
-CONFIG_ACPI_PROCESSOR=y
-CONFIG_ACPI_THERMAL=y
-# CONFIG_ACPI_TOSHIBA is not set
-CONFIG_ACPI_DEBUG=y
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SYSTEM=y
-CONFIG_APM=m
-# CONFIG_APM_IGNORE_USER_SUSPEND is not set
-# CONFIG_APM_DO_ENABLE is not set
-# CONFIG_APM_CPU_IDLE is not set
-# CONFIG_APM_DISPLAY_BLANK is not set
-# CONFIG_APM_RTC_IS_GMT is not set
-# CONFIG_APM_ALLOW_INTS is not set
-# CONFIG_APM_REAL_MODE_POWER_OFF is not set
+That's not the point. Larry does not own the data in the Linux repository, 
+this was one of the conditions for the bk usage, so Larry cannot say, that 
+you only get all the data if you use bk. If cvs can't represent all the 
+information, we have to find another solution.
 
-#
-# CPU Frequency scaling
-#
-CONFIG_CPU_FREQ=y
-# CONFIG_CPU_FREQ_PROC_INTF is not set
-# CONFIG_CPU_FREQ_24_API is not set
-CONFIG_CPU_FREQ_TABLE=y
+bye, Roman
 
-#
-# CPUFreq processor drivers
-#
-# CONFIG_X86_ACPI_CPUFREQ is not set
-# CONFIG_X86_POWERNOW_K6 is not set
-CONFIG_X86_POWERNOW_K7=y
-# CONFIG_X86_GX_SUSPMOD is not set
-# CONFIG_X86_SPEEDSTEP is not set
-# CONFIG_X86_P4_CLOCKMOD is not set
-# CONFIG_X86_LONGRUN is not set
-# CONFIG_X86_LONGHAUL is not set
-
-
-And from /var/log/messages:
-
-Mar 11 00:55:49 Judea kernel: powernow: AMD K7 CPU detected.
-Mar 11 00:55:49 Judea kernel: powernow: PowerNOW! Technology
-present. Can scale: frequency and voltage.
-Mar 11 00:55:49 Judea kernel: powernow: Found PSB header at
-c00f1920
-Mar 11 00:55:49 Judea kernel: powernow: Table version: 0x12
-Mar 11 00:55:49 Judea kernel: powernow: Flags: 0x0 (Mobile
-voltage regulator)
-Mar 11 00:55:49 Judea kernel: powernow: Settling Time: 100
-microseconds.
-Mar 11 00:55:50 Judea kernel: powernow: Has 14 PST tables.
-(Only dumping ones relevant to this CPU).
-Mar 11 00:55:50 Judea kernel: powernow: PST:4 (@c00f1978)
-Mar 11 00:55:50 Judea kernel: powernow:  cpuid: 0x780^Ifsb:
-133^ImaxFID: 0x1^Istartvid: 0x9
-Mar 11 00:55:50 Judea kernel: powernow:    FID: 0x4 (5.0x
-[665MHz])^IVID: 0x13 (1.200V)
-Mar 11 00:55:50 Judea kernel: powernow:    FID: 0x6 (6.0x
-[798MHz])^IVID: 0x13 (1.200V)
-Mar 11 00:55:50 Judea kernel: powernow:    FID: 0xa (8.0x
-[1064MHz])^IVID: 0x13 (1.200V)
-Mar 11 00:55:50 Judea kernel: powernow:    FID: 0xe (10.0x
-[1330MHz])^IVID: 0xb (1.450V)
-Mar 11 00:55:50 Judea kernel: powernow:    FID: 0x1 (11.5x
-[1529MHz])^IVID: 0x9 (1.550V)
-Mar 11 00:55:50 Judea kernel: powernow: Minimum speed 665
-MHz. Maximum speed 1529 MHz.
-
-
->From /etc/lilo.conf:
-# LILO configuration file
-# generated by 'liloconfig'
-#
-# Start LILO global section
-append="hdc=ide-scsi, resume=/dev/hda3"
-boot = /dev/hda
-compact        # faster, but won't work on all systems.
-prompt
-
-
-When I boot, I get a message that no resume image was found
-(which is fine) and it boots normally. However, the
-documentation for swsusp says the following:
-"You need to append resume=/dev/your_swap_partition to
-kernel command line. Then you suspend by echo 4 >
-/proc/acpi/sleep."
-
-As shown above, that line has been entered into lilo.conf,
-however, /proc/acpi/sleep does not exist. What is the
-problem here?
-
-Also, cpufreq doesn't seem to do anything. Should it be
-working automatically? Even when the machine sits unattended
-for over 8 hours, the fan never turns off and the cpu
-temperature is consustently 69-70 degrees C. What must I do
-here? Thanks for your help!
-
-~Christopher
-
-
----------------------------------------
-Use SaintMail! - http://www.saintmail.net

@@ -1,40 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285629AbRLRGpN>; Tue, 18 Dec 2001 01:45:13 -0500
+	id <S283777AbRLRJO2>; Tue, 18 Dec 2001 04:14:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285631AbRLRGpD>; Tue, 18 Dec 2001 01:45:03 -0500
-Received: from bitmover.com ([192.132.92.2]:60814 "EHLO bitmover.bitmover.com")
-	by vger.kernel.org with ESMTP id <S285629AbRLRGo7>;
-	Tue, 18 Dec 2001 01:44:59 -0500
-Date: Mon, 17 Dec 2001 22:44:54 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Troy Benjegerdes <hozer@drgw.net>, Andre Hedrick <andre@linux-ide.org>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Domian Validation (Re: 2.5.1 - intermediate bio stuff..)
-Message-ID: <20011217224454.Y23507@work.bitmover.com>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Troy Benjegerdes <hozer@drgw.net>,
-	Andre Hedrick <andre@linux-ide.org>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011218000432.C25200@altus.drgw.net> <Pine.LNX.4.33.0112172210470.2416-100000@penguin.transmeta.com>
+	id <S285632AbRLRJOS>; Tue, 18 Dec 2001 04:14:18 -0500
+Received: from gateway-2.hyperlink.com ([213.52.152.2]:62220 "EHLO
+	core-gateway-1.hyperlink.com") by vger.kernel.org with ESMTP
+	id <S285631AbRLRJOJ>; Tue, 18 Dec 2001 04:14:09 -0500
+Subject: Re: [PATCH] Re: 2.5.1 compile error
+From: "Martin A. Brooks" <martin@jtrix.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.21.0112171345040.3992-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0112171345040.3992-100000@weyl.math.psu.edu>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-8t4eOp27EvYN8NabXIEs"
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 18 Dec 2001 09:14:04 +0000
+Message-Id: <1008666844.6860.41.camel@unhygienix>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.33.0112172210470.2416-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Dec 17, 2001 at 10:12:21PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 17, 2001 at 10:12:21PM -0800, Linus Torvalds wrote:
-> No. Sound software engineering principles is to design good interfaces,
-> and make the low level code adhere to them.
 
-Last week, Linus Torvalds wrote:
-> I _am_ claiming that the people who think you "design" software are
-> seriously simplifying the issue, and don't actually realize how they
-> themselves work.
+--=-8t4eOp27EvYN8NabXIEs
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-So which is it?
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+On Mon, 2001-12-17 at 18:51, Alexander Viro wrote:
+> Please, apply.
+
+Works for me. I now have another compilation error but I'll report that
+separately.
+
+Thanks
+
+--=20
+Martin A. Brooks   Systems Administrator
+Jtrix Ltd          t: +44 7395 4990
+57-59 Neal Street  f: +44 7395 4991
+London, WC2H 9PP   e: martin@jtrix.com
+
+--=-8t4eOp27EvYN8NabXIEs
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQA8HwjcwgE0gTKdDoYRAhNRAKCqYB1+i76dJu29u8BGczQnz8ZKegCaAhOb
+eOJJVJ9jEvUFKZtqNIs4efo=
+=mHnX
+-----END PGP SIGNATURE-----
+
+--=-8t4eOp27EvYN8NabXIEs--
+

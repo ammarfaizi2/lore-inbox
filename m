@@ -1,156 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293210AbSB1Jrx>; Thu, 28 Feb 2002 04:47:53 -0500
+	id <S293038AbSB1J1q>; Thu, 28 Feb 2002 04:27:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293216AbSB1Jpt>; Thu, 28 Feb 2002 04:45:49 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:48392 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S293210AbSB1JoB>; Thu, 28 Feb 2002 04:44:01 -0500
-Message-ID: <3C7DFB9C.6A9F41F5@aitel.hist.no>
-Date: Thu, 28 Feb 2002 10:42:52 +0100
-From: Helge Hafting <helgehaf@aitel.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.5-dj2 i686)
-X-Accept-Language: no, en, en
+	id <S293203AbSB1JZm>; Thu, 28 Feb 2002 04:25:42 -0500
+Received: from unicef.org.yu ([194.247.200.148]:59915 "EHLO unicef.org.yu")
+	by vger.kernel.org with ESMTP id <S293206AbSB1JYT>;
+	Thu, 28 Feb 2002 04:24:19 -0500
+Date: Thu, 28 Feb 2002 10:20:15 +0100 (CET)
+From: Davidovac Zoran <zdavid@unicef.org.yu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: lonely wolf <wolfy@pcnet.ro>, Mark Hahn <hahn@physics.mcmaster.ca>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: disk transfer speed problem
+In-Reply-To: <E16gDmU-0006PG-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0202281007410.14351-100000@unicef.org.yu>
 MIME-Version: 1.0
-To: "Allo! Allo!" <lachinois@hotmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Kernel module ethics.
-In-Reply-To: <F82zxvoEaZWNaBJjvmZ00001183@hotmail.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Allo! Allo!" wrote:
-> 
-> Hi,
-> 
-> The company for whom I work wants to make a linux driver for some of its
-> hardware. On my side I would like the driver to be completely open sourced,
-> and from a customer point of view, its a big plus (a real PITA to maintain
-> closed sourced drivers). On the other hand, the company wants a clear way to
-> make "profit" from the work while still catering to it's customers whish to
-> recompile the driver for just about any kernel version.
 
-Make profit by selling hardware!  And by selling support - i.e.
-customer wants the driver customized in some way, but don't want
-to do it himself for fear of screwing up or having to
-constantly track changing kernels.
- 
-> Here is what they propose... I do not know if what they are proposing is
-> "going too far" regarding kernel module ethics, but I thought I'd ask the
-> question here and see what other people think.
-> 
-> The hardware needs a firmware to run. Since this firmware is under NDA, the
-> first compromise is to write the main part of the driver GPL but keep the
-> firmware of the card in binary format. The driver can then load the firmware
-> separately and this should not infringe on the GPL and I'm quite ok with
-> this requirement. Now the problem is that any of our competitor's cards will
-> work with the same closed sourced firmware and GPL engine. In pure
-> capitalist thinking, the company finds this particularly troublesome...
+On Wed, 27 Feb 2002, Alan Cox wrote:
 
-How can a closed-source driver help you?  Even such a driver may be
-pirated and used on the competitors card.  But you choose to trust
-people in that situation.  If you trust people that much you might
-as well release an open-source driver with a clause that it may only
-be used with _your_ company's cards.  Or provide the _firmware_
-with a strict licence and trust they don't pirate that.
+> Date: Wed, 27 Feb 2002 23:46:42 +0000 (GMT)
+> From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+> To: lonely wolf <wolfy@pcnet.ro>
+> Cc: Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
+>
+> > > >  Timing buffered disk reads:  64 MB in  3.24 seconds = 19.75 MB/sec
+> > >
+> > > well, 109 MB/s is pretty low for buffer-cache reads; this reflects
+> > > the relative crippled-ness of your cpu/dram/chipset.
+> >
+> > well... i would't name a Celeron 900 MHz crippled. PC133 is the best the
+> > board gets... and now the speed is lower then the previous server which was
+> > an Athlon 600 pluggede in an Asus VIA KX133 based mobo.
+>
+> I get 25MB/sec off my i815 board. It is pretty starved - I seem stuck at
+> about 25MB/sec total even doing hdparm across both controllers.
+>
+> Using an external video card might make a small difference
+> -
+on kernel 2.2.20 with andre ata100 patches ported from 2.2.19 to 2.2.20
+on asus i815 board.
+Kernel 2.4.17 results are similar about 35MB/sec
 
-The ideal way (for us customers) is if your company and the others with
-similiar hardware agree on sharing the development cost of a 
-GPL driver.  Nobody loose from paying for a driver the others can use.
-Capitalist competition is still possible:
-* extra features, quality & reliability are selling points
-* pricing, advertising
-* trying to manufacture in cheaper ways than the others
+I got this results, machine is under small workload.
 
-Sharing the cost of development makes a lot of sense because the
-others *will* come up with their own linux drivers anyway if
-it turns out to be money in selling hardware to linux users.
-All loose by making separate drivers.
+root@MEGANET:~# hdparm -tT /dev/hda
 
-Also the cost of a GPL driver isn't merely shared - it could be
-real low as you probably can get away with fewer developers.
-You may be able to find someone who write a driver for free 
-if given a few free cards and _good_ documentation.
+/dev/hda:
+ Timing buffer-cache reads:   128 MB in  0.96 seconds =133.33 MB/sec
+ Timing buffered disk reads:  64 MB in  1.73 seconds = 36.99 MB/sec
 
-Then there is the issue of maintenance costs.  They are high
-for a closed linux driver, because Linus is not afraid of
-making source-incompatible changes.  A driver in the
-official source tree will usually be fixed for you - a
-closed driver is _your_ problem with customers screaming
-until they get a update.  Maybe they buy from another vendor
-in the meantime.
+root@MEGANET:~# hdparm -i /dev/hda
 
-If your boss don't buy any of this, consider tweaking the 
-firmware to work with your card only, instead
-of closing the driver.
- 
-> The other compromise is to write a closed source part that would not permit
-> the driver to work with another card supporting the same chipset. Is this
-> kind of practice generally accepted or is it frowned upon? The motive of the
-> company is quite clear. If people want to "improve" the driver, they can
-> only improve it for their hardware, not the competitors. There is also a big
-> marketing sales pitch that goes like "we support linux, the others
-> don&#8217;t..."
+/dev/hda:
 
-"Supporting linux" can be a lot more than "we provide drivers and the
-others don't"
+ Model=MAXTOR 6L040J2, FwRev=A93.0500, SerialNo=662131534628
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+ RawCHS=16383/16/63, TrkSize=32256, SectSize=21298, ECCbytes=4
+ BuffType=DualPortCache, BuffSize=1819kB, MaxMultSect=16, MultSect=off
+ CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=78177792
+ IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes: pio0 pio1 pio2 pio3 pio4
+ DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 *udma5 udma6
+ AdvancedPM=no
+ Drive Supports : ATA/ATAPI-5 T13 1321D revision 1 : ATA-1 ATA-2 ATA-3
+ATA-4
+ATA-5
 
-Consider:  This sales pitch will be used to sell to _linux users_.
-So, it must match the mindset of linux people.
+root@MEGANET:~# hdparm -v /dev/hda
 
-This:
-"We provide GPL drivers for our cards (may or may not work with some
-others)
-and extensive docs and perhaps test cards for serious developers"
+/dev/hda:
+ multcount    =  0 (off)
+ I/O support  =  0 (default 16-bit)
+ unmaskirq    =  0 (off)
+ using_dma    =  1 (on)
+ keepsettings =  0 (off)
+ nowerr       =  0 (off)
+ readonly     =  0 (off)
+ readahead    =  8 (on)
+ geometry     = 4866/255/63, sectors = 78177792, start = 0
 
-Sounds a hell of a lot better than:
-"We provide a closed source driver for linux, artifically crippled so it
-won't work with similiar cards from other manufacturers."
+other details:
 
-Clueful linux users will know that the first driver _will work_ with
-any future kernel and bugs _will_ be fixed because everybody have
-access to it.  And they will go for your card rather than the
-competitor because of this.  The price difference for
-hardware is probably small anyway and there could be ever so slight
-incompatibilities with the non-supportive manufacturers card.
-Performance will be high because volunteers don't merely fix
-bugs, they also try out new cool algorithms and ideas.
-And users know the card will be supported even after you stop
-selling it.  That _is_ a selling point today.
+Intel machine check reporting enabled on CPU#0.
+128K L2 cache (4 way)
+CPU: L2 Cache: 128K
+CPU: Intel Pentium III (Coppermine) stepping 0a
+Checking 386/387 coupling... OK, FPU using exception 16 error reporting.
+Checking 'hlt' instruction... OK.
+POSIX conformance testing by UNIFIX
+mtrr: v1.35a (19990819) Richard Gooch (rgooch@atnf.csiro.au)
+PCI: PCI BIOS revision 2.10 entry at 0xf0e30
+PCI: Using configuration type 1
+PCI: Probing PCI hardware
+Linux agpgart interface v0.99 (c) Jeff Hartmann
+agpgart: Maximum main memory to use for agp memory: 203M
+agpgart: Detected Intel i815 chipset
+agpgart: AGP aperture is 32M @ 0xfc000000
 
-They will also know that the second case driver _will_
-lag behind kernel development by many months and bugs will take a long
-time to fix - if ever.  Performance may not be as good as it could be.
-Suddenly someone release a pc with a new bus trick that improves
-performance, but your boss might not allocate 50 hours for implementing
-that for "last years hardware".  
-
-Is all linux users this clueful?  I don't know.  Probably those
-who runs servers, and of course those who post recommendations
-when the newbies ask "what hardware should I buy when setting
-up a linux machine".  You _don't_ want to go into the FAQs as
-ill-supported!
+Zoran
 
 
-> It's like if Nvidia did not have linux drivers and ASUS wanted to ship a
-> card with a linux driver that only works with asus cards even though there
-> is one from leadtek with the exact same chipset (assuming that ASUS cannot
-> change the internals of the card).
-> 
-> Is the second compromise just "going too far"? Is this better than simply
-> having a 100% closed source driver?
-
-Generally, the more open the better.  Keep in mind that buying
-hw that needs a closed-source driver is something we do _only_ when
-no competing product with a GPL driver exist.  Your competitors
-might go the GPL way even if you don't.  Many users of closed drivers
-do so because they converted a machine from windows to linux.
-If they buy specifically for linux, they buy something well-supported.
-And the ideal then is a driver in the official tree.  The second
-best is a open source driver that might get into the tree - it just
-hasn't happened yet.  A closed driver at least initiates a web search
-for other harware...
-
-Helge Hafting

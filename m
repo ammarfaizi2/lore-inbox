@@ -1,67 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262014AbUKJOch@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261893AbUKJOZI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262014AbUKJOch (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 09:32:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261997AbUKJOZn
+	id S261893AbUKJOZI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 09:25:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261991AbUKJOUv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 09:25:43 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:44514 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261982AbUKJOVL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 09:21:11 -0500
-Date: Wed, 10 Nov 2004 14:20:42 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Brent Casavant <bcasavan@sgi.com>
-cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andi Kleen <ak@suse.de>,
-       "Adam J. Richter" <adam@yggdrasil.com>, <colpatch@us.ibm.com>,
-       <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: [PATCH] Use MPOL_INTERLEAVE for tmpfs files
-In-Reply-To: <Pine.SGI.4.58.0411092020550.101942@kzerza.americas.sgi.com>
-Message-ID: <Pine.LNX.4.44.0411101406360.2806-100000@localhost.localdomain>
+	Wed, 10 Nov 2004 09:20:51 -0500
+Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:28600 "HELO
+	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261987AbUKJOTK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 09:19:10 -0500
+From: Karsten Wiese <annabellesgarden@yahoo.de>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.23
+Date: Wed, 10 Nov 2004 15:20:43 +0100
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
+References: <20041021132717.GA29153@elte.hu> <200411101452.36007.annabellesgarden@yahoo.de> <20041110150136.GA8668@elte.hu>
+In-Reply-To: <20041110150136.GA8668@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200411101520.43192.annabellesgarden@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Nov 2004, Brent Casavant wrote:
-> On Tue, 9 Nov 2004, Hugh Dickins wrote:
+Am Mittwoch 10 November 2004 16:01 schrieb Ingo Molnar:
 > 
-> > Doesn't quite play right with what was my "NULL sbinfo" convention.
+> * Karsten Wiese <annabellesgarden@yahoo.de> wrote:
 > 
-> Howso?  I thought it played quite nicely with it.  We've been using
-> NULL sbinfo as an indicator that an inode is from tmpfs rather than
-> from SysV or /dev/zero.  Or at least that's the way my brain was
-> wrapped around it.
-
-That was the case you cared about, but remember I extended yours so
-that tmpfs mounts could also suppress limiting, and get NULL sbinfo.
-
-> The NULL sbinfo scheme worked perfectly for me, with very little hassle.
-
-Yes, it would have worked just right for the important cases.
-
-> > but they're two hints that I should rework that to get out of people's
-> > way.  I'll do a patch for that, then another something like yours on
-> > top, for you to go back and check.
+> > Hi
+> > 
+> > On SMP/HT/P4 I get:
+> >  BUG: lock held at task exit time!
 > 
-> Is this something imminent, or on the "someday" queue?  Just asking
-> because I'd like to avoid doing additional work that might get thrown
-> away soon.
-
-I understand your concern ;)  I'm working on it, today or tomorrow.
-
-> > I'm irritated to realize that we can't change the default for SysV
-> > shared memory or /dev/zero this way, because that mount is internal.
+> > sh/5429: BUG in __up_mutex at /home/ka/kernel/2.6/linux-2.6.9-rc1-mm3-RT/kernel/rt.c:1064
+> > BUG: sleeping function called from invalid context sh(5429) at /home/ka/kernel/2.6/linux-2.6.9-rc1-mm3-RT/kernel/rt.c:1314
+> > in_atomic():1 [00000003], irqs_disabled():0
 > 
-> Well, the only thing preventing this is that I stuck the flag into
-> sbinfo, since it's an filesystem-wide setting.  I don't see any reason
-> we couldn't add a new flag in the inode info flag field instead.  I
-> think there would also be some work to set pvma.vm_end more precisely
-> (in mpol_shared_policy_init()) in the SysV case.
+> hm, apparently something leaked a BKL count. Unfortunately we dont know
+> precisely what did it, only that it happened. Did this happen during
+> bootup, or during normal use. Can you trigger it arbitrarily?
 
-It's not a matter of where to store the info, it's that we don't have
-a user interface for remounting something that's not mounted anywhere.
-
-Hugh
-
+Yes, it always happens, when callling ./cvscompile script of a project, that is mounted via nfs.
+Haven't tried to do that ./cvscompile locally, should I?

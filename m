@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266908AbSL3LWQ>; Mon, 30 Dec 2002 06:22:16 -0500
+	id <S266888AbSL3LTs>; Mon, 30 Dec 2002 06:19:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266927AbSL3LWQ>; Mon, 30 Dec 2002 06:22:16 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:59843 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S266908AbSL3LWO>;
-	Mon, 30 Dec 2002 06:22:14 -0500
-Date: Mon, 30 Dec 2002 11:29:11 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Ville Herva <vherva@twilight.cs.hut.fi>, linux-kernel@vger.kernel.org
-Subject: Re: Intel P6 vs P7 system call performance
-Message-ID: <20021230112911.GB11633@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Ville Herva <vherva@niksula.cs.hut.fi>,
-	linux-kernel@vger.kernel.org
-References: <200212090830.gB98USW05593@flux.loup.net> <at2l1t$g5n$1@penguin.transmeta.com> <20021209193649.GC10316@suse.de> <at2rv7$fkr$1@cesium.transmeta.com> <20021228203706.GD1258@niksula.cs.hut.fi>
+	id <S266898AbSL3LTs>; Mon, 30 Dec 2002 06:19:48 -0500
+Received: from phoenix.infradead.org ([195.224.96.167]:29197 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S266888AbSL3LTr>; Mon, 30 Dec 2002 06:19:47 -0500
+Date: Mon, 30 Dec 2002 11:28:08 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Felix Domke <tmbinc@elitedvb.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Indention - why spaces?
+Message-ID: <20021230112808.A26934@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Felix Domke <tmbinc@elitedvb.net>, linux-kernel@vger.kernel.org
+References: <3E0FAF70.5040006@elitedvb.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021228203706.GD1258@niksula.cs.hut.fi>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3E0FAF70.5040006@elitedvb.net>; from tmbinc@elitedvb.net on Mon, Dec 30, 2002 at 03:29:04AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 28, 2002 at 10:37:06PM +0200, Ville Herva wrote:
+On Mon, Dec 30, 2002 at 03:29:04AM +0100, Felix Domke wrote:
+> Hi kernel hackers,
+> 
+> yes, i know http://www.purists.org/linux/#indent .
+> 
+> my question is just: what's the matter of NOT using tabs instead of 
+> spaces? i think there must be one, otherwise everybody would use tabs.
+> 
+> I know the thing about "more than 3 levels of indention *suck*" (but i'm 
+> not sure if i have really understand this yet in my coding style, but 
+> who cares..), but i like tab characters more than spaces, simply because 
+> it removes all the discussion about the best indention width. some 
+> people use ~180 character-consoles, some use 80 ones.Whats the reason of 
+> not giving the freedom to choose whatever he likes?
+> 
+> i don't want to change anything, i just like to know WHY people use 
+> spaces. are they somehow unportable? (i don't think so)
 
- > > SYSCALL is AMD.  SYSENTER is Intel, and is likely to be significantly
- > Now that Linus has killed the dragon and everybody seems happy with the
- > shiny new SYSENTER code, let just add one more stupid question to this
- > thread: has anyone made benchmarks on SYSCALL/SYSENTER/INT80 on Athlon? Is
- > SYSCALL worth doing separately for Athlon (and perhaps Hammer/32-bit mode)?
+spaces are a workaround for broken editors.  But Linux developers have a
+"use the best tool for your job" approach so we don't care :)
 
-Its something I wondered about too. Even if it isn't a win for K7,
-it's possible that the K6 family may benefit from SYSCALL support.
-Maybe even the K5 if it was around that early ? (too lazy to check pdf's)
+As someone pointed to a paper by a mozilla hacker in this thread here's
+another advice:  don't use mozilla to send non mime-encoded patches, they
+even implemented their brain-dead tab expansion policy in their mailer.
 
-		Dave
+*sigh*
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs

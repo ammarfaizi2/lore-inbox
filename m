@@ -1,56 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270588AbRHIUwX>; Thu, 9 Aug 2001 16:52:23 -0400
+	id <S267670AbRHIU5D>; Thu, 9 Aug 2001 16:57:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270590AbRHIUwN>; Thu, 9 Aug 2001 16:52:13 -0400
-Received: from h131s117a129n47.user.nortelnetworks.com ([47.129.117.131]:17045
-	"HELO pcard0ks.ca.nortel.com") by vger.kernel.org with SMTP
-	id <S270588AbRHIUwA>; Thu, 9 Aug 2001 16:52:00 -0400
-Message-ID: <3B72F821.36E0B18C@nortelnetworks.com>
-Date: Thu, 09 Aug 2001 16:52:49 -0400
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
-X-Accept-Language: en
+	id <S266827AbRHIU4y>; Thu, 9 Aug 2001 16:56:54 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:5 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S270597AbRHIU4t>; Thu, 9 Aug 2001 16:56:49 -0400
+Date: Thu, 9 Aug 2001 17:55:59 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: marc heckmann <heckmann@hbesoftware.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: 2.4.8-pre7: still buffer cache problems
+In-Reply-To: <32774.213.7.60.90.997365391.squirrel@webmail.hbesoftware.com>
+Message-ID: <Pine.LNX.4.33L.0108091749580.1439-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-Cc: Sampsa Ranta <sampsa@netsonic.fi>, Alan Cox <laughing@shared-source.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.7-ac9 (breaks ATM connect)
-In-Reply-To: <Pine.LNX.4.33.0108092210260.31580-100000@nalle.netsonic.fi> <Pine.LNX.4.33.0108092225440.31580-100000@nalle.netsonic.fi> <15218.62166.839967.47354@pizda.ninka.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
-> 
-> Sampsa Ranta writes:
->  > Pardon me, bugs come in too easy..
->  >
->  > -           vci != ATM_VCI_ANY && vci >> dev->ci_range.vci_bits))
->  > +           vci != ATM_VCI_ANY && vci >= 1 << dev->ci_range.vci_bits))
->  >
-> 
-> This is rediculious, why has this expression changed when right
-> above it is the same thing:
-> 
->           vpi >> dev->ci_range.vpi_bits) || (vci != ATM_VCI_UNSPEC &&
-> 
-> Shouldn't we be changing that "vpi >> dev->ci_range.vpi_bits" boolean
-> test as well?
+On Thu, 9 Aug 2001, marc heckmann wrote:
 
-Am I missing something?  As long as vci is unsigned isn't (vci >>
-dev->ci_range.vci_bits) as a boolean value exactly the same thing as (vci >= 1
-<< dev->ci_range.vci_bits) ?
+> While 2.4.8-pre7 definitely fixes the "dd if=/dev/zero
+> of=bigfile bs=1000k count=bignumber" case. The "dd if=/dev/hda
+> of=/dev/null" is still quite broken for me.
 
-As an example, take vci = 10001b and dev->ci_range.vci_bits = 4.  The answer
-works out the same either way.
+OK, there is no obvious way to do do drop-behind on
+buffer cache pages, but I think we can use a quick
+hack to make the system behave well under the presence
+of large amounts of buffer cache pages.
 
-Chris
+What we could do is, in refill_inactive_scan(), just
+moving buffer cache pages to the inactive list regardless
+of page aging when there are too many buffercache pages
+around in the system.
+
+Does the patch below help you ?
+
+regards,
+
+Rik
+--
+IA64: a worthy successor to the i860.
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+--- linux-2.4.7-ac7/mm/vmscan.c.buffer	Thu Aug  9 17:54:24 2001
++++ linux-2.4.7-ac7/mm/vmscan.c	Thu Aug  9 17:55:09 2001
+@@ -708,6 +708,8 @@
+  * This function will scan a portion of the active list to find
+  * unused pages, those pages will then be moved to the inactive list.
+  */
++#define too_many_buffers (atomic_read(&buffermem_pages) > \
++		(num_physpages * buffer_mem.borrow_percent / 100))
+ int refill_inactive_scan(zone_t *zone, unsigned int priority, int target)
+ {
+ 	struct list_head * page_lru;
+@@ -770,6 +772,18 @@
+ 				page_active = 1;
+ 			}
+ 		}
++
++		/*
++		 * If the amount of buffer cache pages is too
++		 * high we just move every buffer cache page we
++		 * find to the inactive list. Eventually they'll
++		 * be reclaimed there...
++		 */
++		if (page->buffers && !page->mapping && too_many_buffers) {
++			deactivate_page_nolock(page);
++			page_active = 0;
++		}
++
+ 		/*
+ 		 * If the page is still on the active list, move it
+ 		 * to the other end of the list. Otherwise we exit if
+

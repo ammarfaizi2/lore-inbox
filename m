@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130680AbQKNFHm>; Tue, 14 Nov 2000 00:07:42 -0500
+	id <S130604AbQKNFc7>; Tue, 14 Nov 2000 00:32:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130681AbQKNFHc>; Tue, 14 Nov 2000 00:07:32 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:47887 "EHLO
+	id <S130670AbQKNFcu>; Tue, 14 Nov 2000 00:32:50 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:51215 "EHLO
 	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S130680AbQKNFHM>; Tue, 14 Nov 2000 00:07:12 -0500
-Date: Mon, 13 Nov 2000 22:37:01 -0600
-To: Stefan Sassenberg <Stefan.Sassenberg@ipk.fhg.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Bug-report: menuconfig
-Message-ID: <20001113223701.D18203@wire.cadcamlab.org>
-In-Reply-To: <20001113135655.C639912@kuerbis.ipk.fhg.de>
+	id <S130604AbQKNFch>; Tue, 14 Nov 2000 00:32:37 -0500
+Date: Mon, 13 Nov 2000 23:02:10 -0600
+To: Torsten.Duwe@caldera.de
+Cc: Chris Evans <chris@scary.beasts.org>, linux-kernel@vger.kernel.org
+Subject: Re: Modprobe local root exploit
+Message-ID: <20001113230210.F18203@wire.cadcamlab.org>
+In-Reply-To: <14864.6812.849398.988598@ns.caldera.de> <Pine.LNX.4.21.0011131655430.22139-100000@ferret.lmh.ox.ac.uk> <14864.12007.216381.254700@ns.caldera.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001113135655.C639912@kuerbis.ipk.fhg.de>; from Stefan.Sassenberg@ipk.fhg.de on Mon, Nov 13, 2000 at 01:56:55PM +0100
+In-Reply-To: <14864.12007.216381.254700@ns.caldera.de>; from duwe@caldera.de on Mon, Nov 13, 2000 at 07:11:51PM +0100
 From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Note for future reference: please report configuration and build bugs
-to linux-kbuild@torque.net.  Speaking for myself, I am much more likely
-to notice it there, as the volume is a lot lower than l-k. (:
+[Torsten Duwe]
+> +	for (p = module_name; *p; p++)
+> +	{
+> +	  if (isalnum(*p) || *p == '_' || *p == '-')
+> +	    continue;
+> +
+> +	  return -EINVAL;
+> +	}
 
-[Stefan Sassenberg]
-> When I set CONFIG_MD_BOOT to 'y' and then set neither
-> CONFIG_MD_LINEAR nor CONFIG_MD_STRIPED to 'y' then although
-> CONFIG_MD_BOOT is not changeable anymore it is always set. This leads
-> to an error when linking the kernel because of an unresolved symbol
-> "md_device_setup" (or similar).
-
-I cannot reproduce this.  Yes, the CONFIG_MD_BOOT option is still
-selected while invisible from the menu, but after exiting menuconfig it
-does not appear in the .config file.
-
-Can you send me the buggy .config that Menuconfig generated?
+I think you just broke at least some versions of devfs.  I don't
+remember if the feature is still around, but I know it *used* to be
+possible to request_module("/dev/foobar"), which requires '/' in the
+name.
 
 Peter
 -

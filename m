@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270760AbTHFQhc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 12:37:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270763AbTHFQgB
+	id S270655AbTHFQ3a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 12:29:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270650AbTHFQ2Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 12:36:01 -0400
-Received: from mail.kroah.org ([65.200.24.183]:130 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S270760AbTHFQfT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 12:35:19 -0400
-Date: Wed, 6 Aug 2003 09:35:29 -0700
-From: Greg KH <greg@kroah.com>
-To: Ruben Puettmann <ruben@puettmann.net>
-Cc: linux-kernel@vger.kernel.org, linux-usb-users@lists.sourceforge.net
-Subject: Re: [Linux-usb-users] 2.4.22-pre10-ac1 after resume from suspend usb not aviable
-Message-ID: <20030806163529.GB6209@kroah.com>
-References: <20030805143254.GA5844@puettmann.net> <20030806055732.GC6966@kroah.com> <20030806090525.GA10564@puettmann.net>
+	Wed, 6 Aug 2003 12:28:25 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:23793 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S269994AbTHFQ1G
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 12:27:06 -0400
+Subject: Re: [NFS] [PATCH] kNFSd: Fixes a problem with inode clean up for
+	vxfs
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Steve Dickson <SteveD@redhat.com>
+Cc: Neil Brown <neilb@cse.unsw.edu.au>, nfs@lists.sourceforge.net,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3F3128A4.8030305@RedHat.com>
+References: <3F3128A4.8030305@RedHat.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-o/De8bAfzzfWEsgBpkvx"
+Organization: Red Hat, Inc.
+Message-Id: <1060187198.14950.0.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030806090525.GA10564@puettmann.net>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-2) 
+Date: Wed, 06 Aug 2003 18:26:39 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 06, 2003 at 11:05:26AM +0200, Ruben Puettmann wrote:
-> On Tue, Aug 05, 2003 at 10:57:32PM -0700, Greg KH wrote:
-> > On Tue, Aug 05, 2003 at 04:32:54PM +0200, Ruben Puettmann wrote:
-> > > 
-> > > Suspend works if radeonfb is not loaded. But after resume from suspend
-> > > all USB devices are not aviable. If I try to start the hotplug manager
-> > > new I got this Errors: 
-> > 
-> > Try unloading all usb drivers before suspending, that should work
-> > better.
-> > 
-> 
-> That can not be the solution. It's a not nice workaround.
 
-Heh, that's the only sure way to do this reliably right now for 2.4,
-sorry.
+--=-o/De8bAfzzfWEsgBpkvx
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-greg k-h
+On Wed, 2003-08-06 at 18:11, Steve Dickson wrote:
+> , vfat, ntfs
+
+you can't NFS export vfat..... for lots of other reasons
+
+--=-o/De8bAfzzfWEsgBpkvx
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/MSw+xULwo51rQBIRAqXoAJ40I8A2IPMHm6BFFVggwIGpVNgTGgCeMym6
+MGx6XwPdZNctBeoklxZ25aw=
+=1AoM
+-----END PGP SIGNATURE-----
+
+--=-o/De8bAfzzfWEsgBpkvx--

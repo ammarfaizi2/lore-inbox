@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261908AbUKPXT1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262097AbUKPXYP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261908AbUKPXT1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 18:19:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbUKPXRw
+	id S262097AbUKPXYP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 18:24:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbUKPXWC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 18:17:52 -0500
-Received: from out010pub.verizon.net ([206.46.170.133]:11449 "EHLO
-	out010.verizon.net") by vger.kernel.org with ESMTP id S261889AbUKPXPy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 18:15:54 -0500
-Message-ID: <419A8A27.3040102@verizon.net>
-Date: Tue, 16 Nov 2004 18:15:51 -0500
-From: Jim Nelson <james4765@verizon.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: A M <alim1993@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: [OT]Re: Accessing program counter registers from within C or Aseembler.
-References: <20041116212015.32217.qmail@web51901.mail.yahoo.com>
-In-Reply-To: <20041116212015.32217.qmail@web51901.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out010.verizon.net from [209.158.220.243] at Tue, 16 Nov 2004 17:15:53 -0600
+	Tue, 16 Nov 2004 18:22:02 -0500
+Received: from mx1.uidaho.edu ([129.101.155.248]:33158 "EHLO mx1.uidaho.edu")
+	by vger.kernel.org with ESMTP id S261910AbUKPXUt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 18:20:49 -0500
+Date: Tue, 16 Nov 2004 15:20:42 -0800 (PST)
+From: Thomas DuBuisson <dubu0874@uidaho.edu>
+Subject: XFRM / DF Flag / Fragmentation Needed
+X-X-Sender: dubu0874@hurricane.csrv.uidaho.edu
+To: linux-kernel@vger.kernel.org
+Message-id: <Pine.GSO.4.56.0411161447340.7679@hurricane.csrv.uidaho.edu>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+X-SpamDetails: rule=notspam policy= score=0 mlx=0 adultscore=0 adjust=0 engine=2.5.0-04111100 definitions=2.5.0-04111100
+X-SpamScore: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A M wrote:
-> Hello, 
-> 
-> Does anybody know how to access the address of the
-> current executing instruction in C while the program
-> is executing? 
-> 
-> Also, is there a method to load a program image from
-> memory not a file (an exec that works with a memory
-> address)? Mainly I am looking for a method that brings
-> a program image into memory modify parts of it and
-> start the in-memory modified version. 
-> 
-> Can anybody think of a method to replace a thread
-> image without replacing the whole process image? 
-> 
-> Thanks, 
-> 
-> Ali
-> 
+I know this sounds like the same Black Hole topic you have heard before
+but I couldn't find a case like mine online so please hear me out.
 
-The Shellcoder's Handbook is probably the best book out there on the kind of stuff 
-you're talking about.  Just be prepared - it's written on a rather advanced level.
+I am having a problem when I am tunneling packets (in this case
+large scp packets) through an IPsec tunnel and I am getting ICMP
+'Fragmentation Needed' after this point in time the application (cvs
+update) stalls.  The setup is effectively A<--2 ipsec tunnels-->B<-->C
+After A establishes an SSH connection with C and tries to transfer the
+patches the size of a packet from A destined for C is quickly reaches 1500
+while the MTU
+to A is ~1400.  At this point A sends an ICMP 'Fragmentation Needed'
+packet to its self (see xfrm_output.c xfrm4_tunnel_check_size(...)).  It
+seems this packet is never acted on - it just disappears into the
+loopback interface.  The proper mtu trial/error process never takes
+place.
+
+Hasily formed theory:
+Could xfrm, seeing an IP(actually, esp) packet, expects the app to handle
+it(returning EMSGSIZE) while SSH, using TCP, expects the kernel to handle
+it?
+
+If not, can something throw me a suggestion or a link?
+
+Please CC me as I am not on this list.
+
+Thanks for any replies, if you want any more information feel free to ask.
+Tom

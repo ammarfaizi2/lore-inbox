@@ -1,57 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318404AbSGaQuy>; Wed, 31 Jul 2002 12:50:54 -0400
+	id <S318405AbSGaRD3>; Wed, 31 Jul 2002 13:03:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318405AbSGaQuy>; Wed, 31 Jul 2002 12:50:54 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35333 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318404AbSGaQux>;
-	Wed, 31 Jul 2002 12:50:53 -0400
-Message-ID: <3D481855.35A64873@zip.com.au>
-Date: Wed, 31 Jul 2002 10:03:17 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3-ac3 i686)
-X-Accept-Language: en
+	id <S318407AbSGaRD3>; Wed, 31 Jul 2002 13:03:29 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:34742 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S318405AbSGaRD2>; Wed, 31 Jul 2002 13:03:28 -0400
+Date: Wed, 31 Jul 2002 12:06:52 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: Roman Zippel <zippel@linux-m68k.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] automatic module_init ordering 
+In-Reply-To: <20020731044324.2B39A451D@lists.samba.org>
+Message-ID: <Pine.LNX.4.44.0207311201000.19799-100000@chaos.physics.uiowa.edu>
 MIME-Version: 1.0
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-CC: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: BUG at rmap.c:212
-References: <AE2FE25828@vcnet.vc.cvut.cz>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr Vandrovec wrote:
+On Wed, 31 Jul 2002, Rusty Russell wrote:
+
+> My PARAM code actually maps - to _ in parameter parsing, for exactly
+> this reason.  And only a complete idiot would put , in a module name,
+> so I don't care 8)
+
+Tell that to the author of 53c7,8xx.o ;)
+
+> > - It's possible that objects are linked into more than one module - I 
+> >   suppose this shouldn't be a problem, since these objects hopefully
+> >   don't have a module_init() nor do they export symbols. Not sure if your
+> >   patch did handle this.
 > 
-> ...
-> > > Probably because of your code did not do anything special when
-> > > 'Not found. This should NEVER happen!' code path triggers.
-> > Of course, ntpd is probably running into a different problem,
-> > but the printk's enabled with DEBUG_RMAP should give us some
-> > hints.
+> There's one piece of code I know which is linked in three places, and
+> has a module parameter (net/ipv4/netfilter/ip_conntrack_core.c, linked
+> into ipfwadm.o ipchains.o and ip_conntrack.o.
 > 
-> No nvidia here. Boot, start X, quit X, run updatedb, reboot...
-> cat /proc/`pidof ntpd`/maps says that it has mmaped only ntpd and
-> few libraries from /lib. I hope that printed values will have
-> some value for you. And btw, ntpd uses some mlock*() call, it has status
-> 'SL' in process list. Do you know how to find what memory it has locked?
+> As it happens, the configuration doesn't allow more than one to be
+> built in (they can all be modules though), so it's not actually a
+> problem even after parameter unification.
 
-It's good that this it nice and reproducible, thanks.
+Hmmh, I think that'll need some testing. It will be fine if only one of 
+the three is "y", the others being "n/undef". However, it looks like it's 
+possible to have sth like "m/m/y", which would go wrong with the current 
+approach.
 
-Linus, can we please not have that BUG() in 2.5.30?
+--Kai
 
 
---- 2.5.29/mm/rmap.c~no-bug	Wed Jul 31 09:58:47 2002
-+++ 2.5.29-akpm/mm/rmap.c	Wed Jul 31 09:58:53 2002
-@@ -205,8 +205,6 @@ void page_remove_rmap(struct page * page
- 	}
- 	printk("\n");
- 	printk(KERN_ERR "page_remove_rmap: driver cleared PG_reserved ?\n");
--#else
--	BUG();
- #endif
- 
- out:
-
-.

@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261907AbTA1XsI>; Tue, 28 Jan 2003 18:48:08 -0500
+	id <S262089AbTA1X5n>; Tue, 28 Jan 2003 18:57:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261934AbTA1XsH>; Tue, 28 Jan 2003 18:48:07 -0500
-Received: from sex.inr.ac.ru ([193.233.7.165]:9379 "HELO sex.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S261907AbTA1XsH>;
-	Tue, 28 Jan 2003 18:48:07 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200301282356.CAA30301@sex.inr.ac.ru>
-Subject: Re: [TEST FIX] Re: SSH Hangs in 2.5.59 and 2.5.55 but not 2.4.x,
-To: davem@redhat.com (David S. Miller)
-Date: Wed, 29 Jan 2003 02:56:41 +0300 (MSK)
-Cc: benoit-lists@fb12.de, dada1@cosmosbay.com, cgf@redhat.com, andersg@0x63.nu,
-       lkernel2003@tuxers.net, linux-kernel@vger.kernel.org, tobi@tobi.nu
-In-Reply-To: <20030128.123413.51821993.davem@redhat.com> from "David S. Miller" at Jan 28, 3 12:34:13 pm
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+	id <S262190AbTA1X5n>; Tue, 28 Jan 2003 18:57:43 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:16012 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262089AbTA1X5m>;
+	Tue, 28 Jan 2003 18:57:42 -0500
+Subject: Re: 2.5.59-dcl2
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1043794298.10153.241.camel@dell_ss3.pdx.osdl.net>
+References: <1043794298.10153.241.camel@dell_ss3.pdx.osdl.net>
+Content-Type: text/plain
+Organization: Open Source Devlopment Lab
+Message-Id: <1043798822.10150.318.camel@dell_ss3.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 28 Jan 2003 16:07:02 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Missed one item in the credits.
 
-> Alexey, most solid report is that 2.5.43-bk1 makes bug appear.
-> This is good because it sort of narrows things down.
+Also, added the Nick Piggin's anticipaatory i/o scheduler (via -mm5)
+to 2.5.59-dcl2 to evaluate the performance impact under different loads.
 
-Now I do not think so. It looks like some old beast just got manifested.
 
-It happens when 2 short consecutive segments are lost.
-Funny thing happen when retransmitting.
-First, I do not see collapsing, which must be succesfull in this case.
-So, the first segment is retransmitted alone, but the second is never
-retransmitted, tcp even prefers to retransmit the third one. Something
-is already bad, queue is broken in an interesting way, the impression is
-that... that... that tcp did collapsing, but "forgot" to modify skb length.
+> 2.5.59-osdl2:
+> . Dac960 error retry                    (Dave Olien)
+> 
+> 2.5.59-dcl2:
+> . Lost timer tick compensation          (John Stultz)
+> . Improved boot time TSC synchronization (Jim Houston)
+> . Lockless gettimeofday                 (Andi Kleen, me)
+> . Performance monitoring counters for x86 (Mikael Pettersson)
+> 
+> 2.5.59-osdl1:
+> . Bug fix for vmlinux.ld.S		(Kai Germaschewski)
+> . Update to LKCD for multiple schemes   (Bharata B Rao)
+> . Bug fixes for LKCD locking            (me)
+> . Improved i386 fatal event notifiers   (me)
+> . Kprobe using notify_die               (me)
+> 
+> 2.5.59-dcl1:
+> .  RCU statistics                   (Dipankar Sarma)
+> .  Scheduler tunables               (Robert Love)
 
-Hey! Interesting thing has just happened, it is the first time when I found
-the bug formulating a senstence while writing e-mail not while peering
-to code. :-)
 
-Shheit, look into tcp_retrans_try_collapse():
-
-                if (skb->ip_summed != CHECKSUM_HW) {
-                        memcpy(skb_put(skb, next_skb_size), next_skb->data, nex$                        skb->csum = csum_block_add(skb->csum, next_skb->csum, s$                }
- 
-
-WHERE IS skb_put and copy when skb->ip_summed==CHECKSUM_HW??!!
-
-So, the fix is move of memcpy() line out of if clause.
-
-Alexey

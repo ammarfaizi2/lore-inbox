@@ -1,36 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262322AbRENRKR>; Mon, 14 May 2001 13:10:17 -0400
+	id <S262332AbRENRJR>; Mon, 14 May 2001 13:09:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262344AbRENRKH>; Mon, 14 May 2001 13:10:07 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:35846 "EHLO
+	id <S262330AbRENRJH>; Mon, 14 May 2001 13:09:07 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:34054 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262322AbRENRJr>; Mon, 14 May 2001 13:09:47 -0400
-Subject: Re: Not a typewriter
-To: meissner@spectacle-pond.org (Michael Meissner)
-Date: Mon, 14 May 2001 18:01:42 +0100 (BST)
-Cc: vonbrand@sleipnir.valparaiso.cl (Horst von Brand),
-        mharris@opensourceadvocate.org (Mike A. Harris), Wayne.Brown@altec.com,
-        hacksaw@hacksaw.org (Hacksaw),
-        linux-kernel@vger.kernel.org (Linux Kernel mailing list)
-In-Reply-To: <20010514112554.A10909@munchkin.spectacle-pond.org> from "Michael Meissner" at May 14, 2001 11:25:54 AM
+	id <S262322AbRENRI7>; Mon, 14 May 2001 13:08:59 -0400
+Subject: Re: Minor numbers
+To: Andries.Brouwer@cwi.nl
+Date: Mon, 14 May 2001 18:04:31 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk, R.E.Wolff@bitwizard.nl, aqchen@us.ibm.com,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com
+In-Reply-To: <UTC200105141705.TAA09642.aeb@vlet.cwi.nl> from "Andries.Brouwer@cwi.nl" at May 14, 2001 07:05:19 PM
 X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14zLj4-0000zO-00@the-village.bc.nu>
+Message-Id: <E14zLln-0000zx-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> IIRC, the 6 character linker requirement came from when the Bell Labs folk
-> ported the C compiler the IBM mainframe world, not from the early UNIX (tm)
-> world.  During the original ANSI C meetings, I got the sense from the IBM rep,
+> No. Inside the kernel the dev_t type does not really occur.
+> The exercise is essentially the patch that I sent last month or so.
 
-6 character linker name limits are very old. Honeywell L66 GCOS3/TSS which I
-had the dubious pleasure of experiencing and which is a direct derivative of
-GECOS and thus relevant to the era like many 36bit boxes uses 6 char link names
+mknod takes a 32bit input
+the stat64 padding only has room for 32bits
 
-Why - well because 6 BCD characters fit in a 36bit word and its a single compare
-to check symbol matches
+The kernel representation internally I dont care about, its probably a pointer
+not a 32:32 though
 

@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290264AbSAXUzV>; Thu, 24 Jan 2002 15:55:21 -0500
+	id <S290296AbSAXU5l>; Thu, 24 Jan 2002 15:57:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290290AbSAXUzL>; Thu, 24 Jan 2002 15:55:11 -0500
-Received: from dns.uni-trier.de ([136.199.8.101]:42664 "EHLO
+	id <S290294AbSAXU5b>; Thu, 24 Jan 2002 15:57:31 -0500
+Received: from dns.uni-trier.de ([136.199.8.101]:49832 "EHLO
 	rzmail.uni-trier.de") by vger.kernel.org with ESMTP
-	id <S290289AbSAXUzA>; Thu, 24 Jan 2002 15:55:00 -0500
-Date: Thu, 24 Jan 2002 21:54:56 +0100 (CET)
+	id <S290289AbSAXU5R> convert rfc822-to-8bit; Thu, 24 Jan 2002 15:57:17 -0500
+Date: Thu, 24 Jan 2002 21:57:15 +0100 (CET)
 From: Daniel Nofftz <nofftz@castor.uni-trier.de>
 X-X-Sender: nofftz@infcip10.uni-trier.de
-To: Hans-Peter Jansen <hpj@urpla.net>
+To: =?iso-8859-1?Q?Rasmus_B=F8g_Hansen?= <moffe@amagerkollegiet.dk>
 cc: Daniel Nofftz <nofftz@castor.uni-trier.de>,
-        Ed Sweetman <ed.sweetman@wmich.edu>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [patch] amd athlon cooling on kt266/266a chipset
-In-Reply-To: <20020124123548.91B4F65F@shrek.lisa.de>
-Message-ID: <Pine.LNX.4.40.0201242152370.9957-100000@infcip10.uni-trier.de>
+In-Reply-To: <Pine.LNX.4.44.0201241337450.1663-100000@grignard.amagerkollegiet.dk>
+Message-ID: <Pine.LNX.4.40.0201242155090.9957-100000@infcip10.uni-trier.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Jan 2002, Hans-Peter Jansen wrote:
+On Thu, 24 Jan 2002, Rasmus Bøg Hansen wrote:
 
-> You can see, enough idleness...
+> I tried your patch. I get the message above (I have a KT133A). With only
+> APM enabled, it makes no difference; witch ACPI, temp goes from 47C ->
+> 38C without stability problems nor preformance drops.
 >
-> The question is, why amd_disconnect=true causes this distortion. I tend to
-> believe that dis-/reconnecting CPU takes simply too long in this scenario.
 
-hmmm ... yes ... this would be my idea too ... maybee the dis-reconnect
-procedure is to slow on "slow" computers to grant undisrupted audio or
-video streams ...
+ahhh ... good to hear a "working"-feedback from someone with an kt133a
+chipset :)
 
-i have no problem with this ... maybee caus i have a "faster" cpu ?
+> However, after disabling APM and enabling ACPI, my system won't power
+> off anymore :-(
+
+hmmm ... i noticed this to on my computer ... i have not searched until
+now, why this happens ... (to much to do) ... maybe i look later whether i
+can find something, or anyone else has a hint ...
 
 daniel
-
 
 # Daniel Nofftz
 # Sysadmin CIP-Pool Informatik

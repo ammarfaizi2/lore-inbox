@@ -1,58 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262431AbVCXISk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262713AbVCXI2D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262431AbVCXISk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 03:18:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262713AbVCXISk
+	id S262713AbVCXI2D (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 03:28:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262717AbVCXI2D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 03:18:40 -0500
-Received: from ns1.lanforge.com ([66.165.47.210]:1423 "EHLO www.lanforge.com")
-	by vger.kernel.org with ESMTP id S262431AbVCXISi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 03:18:38 -0500
-Message-ID: <424277DB.5000504@candelatech.com>
-Date: Thu, 24 Mar 2005 00:18:35 -0800
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041020
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lennert Buytenhek <buytenh@wantstofly.org>
-CC: "'netdev@oss.sgi.com'" <netdev@oss.sgi.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PCI interrupt problem: e1000 & Super-Micro X6DVA motherboard
-References: <42421FF2.7050501@candelatech.com> <20050324081003.GA23453@xi.wantstofly.org>
-In-Reply-To: <20050324081003.GA23453@xi.wantstofly.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Mar 2005 03:28:03 -0500
+Received: from apate.telenet-ops.be ([195.130.132.57]:45011 "EHLO
+	apate.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S262713AbVCXI16 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 03:27:58 -0500
+Date: Thu, 24 Mar 2005 09:27:43 +0100
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org, clucas@rotomalug.org, domen@coderock.org
+Subject: [WATCHDOG] wdt285.c-printk-patch
+Message-ID: <20050324082743.GF4909@infomag.infomag.iguana.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lennert Buytenhek wrote:
-> On Wed, Mar 23, 2005 at 06:03:30PM -0800, Ben Greear wrote:
-> 
-> 
->>I have two 4-port e1000 NICs in the system, on a riser card.
-> 
-> 
-> How is the riser card wired?  F.e. does it have a single edge
-> connector, and provides two PCI slots, or does it have a tiny
-> additional edge connector that routes REQ#/GNT#/INTx from a
-> nearby PCI slot, etc.?
 
-It has an edge connector, a full 64-bit ribbon connector, and
-a 32-bit ribon connector.  As far as I can tell, there are no
-shared signals.
+Hi Linus, Andrew,
 
-It is made by Adex electronics, and is part number:  P/NPCITX3S1 884-335-185
+please do a
 
-I tried two different systems, and the problem is identical, so I believe
-it is not a hardware manufacturing glitch.  It may be a hardware design
-issue in either the riser or the motherboard.  Or a BIOS PCI irq mapping
-problem...
+	bk pull http://linux-watchdog.bkbits.net/linux-2.6-watchdog
 
-Ben
+This will update the following files:
 
--- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
+ drivers/char/watchdog/wdt285.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
+through these ChangeSets:
+
+<wim@iguana.be> (05/03/24 1.2191)
+   [WATCHDOG] wdt285.c-printk-patch
+   
+   printk() calls should include appropriate KERN_* constant.
+                                                                                                    
+   Signed-off-by: Christophe Lucas <clucas@rotomalug.org>
+   Signed-off-by: Domen Puncer <domen@coderock.org>
+   Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+
+
+The ChangeSets can also be looked at on:
+	http://linux-watchdog.bkbits.net:8080/linux-2.6-watchdog
+
+For completeness, I added the patches below.
+
+Greetings,
+Wim.
+
+================================================================================
+diff -Nru a/drivers/char/watchdog/wdt285.c b/drivers/char/watchdog/wdt285.c
+--- a/drivers/char/watchdog/wdt285.c	2005-03-24 09:23:57 +01:00
++++ b/drivers/char/watchdog/wdt285.c	2005-03-24 09:23:57 +01:00
+@@ -204,11 +204,11 @@
+ 	if (retval < 0)
+ 		return retval;
+ 
+-	printk("Footbridge Watchdog Timer: 0.01, timer margin: %d sec\n",
++	printk(KERN_INFO "Footbridge Watchdog Timer: 0.01, timer margin: %d sec\n",
+ 	       soft_margin);
+ 
+ 	if (machine_is_cats())
+-		printk("Warning: Watchdog reset may not work on this machine.\n");
++		printk(KERN_WARNING "Warning: Watchdog reset may not work on this machine.\n");
+ 	return 0;
+ }
+ 

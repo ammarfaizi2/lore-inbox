@@ -1,34 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281446AbRKFDhf>; Mon, 5 Nov 2001 22:37:35 -0500
+	id <S281448AbRKFDkq>; Mon, 5 Nov 2001 22:40:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281448AbRKFDh0>; Mon, 5 Nov 2001 22:37:26 -0500
-Received: from skynet.das.ucdavis.edu ([169.237.54.109]:43272 "EHLO
-	www.mtc.dhs.org") by vger.kernel.org with ESMTP id <S281446AbRKFDhI>;
-	Mon, 5 Nov 2001 22:37:08 -0500
-Date: Mon, 5 Nov 2001 19:39:29 -0800 (PST)
-From: Terminator <jimmy@mtc.dhs.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: kernel 2.4.14 compiling fail for loop device
-Message-ID: <Pine.LNX.4.33.0111051936090.18663-100000@www.mtc.dhs.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281449AbRKFDkg>; Mon, 5 Nov 2001 22:40:36 -0500
+Received: from cc192618-b.oakrdg1.tn.home.com ([65.8.221.188]:14242 "EHLO
+	rdb.linux-help.org") by vger.kernel.org with ESMTP
+	id <S281448AbRKFDkd>; Mon, 5 Nov 2001 22:40:33 -0500
+Date: Mon, 5 Nov 2001 22:43:26 -0500
+From: R Dicaire <rdicaire@ardynet.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.14 loop.o module problem
+Message-Id: <20011105224326.730aa3c7.rdicaire@ardynet.com>
+X-Mailer: Sylpheed version 0.6.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I tried to compile 2.4.14 with loop back device as kernel module, and
-got the following error. It seems it's removed from
+Errors compiling 2.4.14...
 
-ld -m elf_i386 -T /usr/src/linux-2.4.14/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
-         drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/ide/idedriver.o drivers/cdrom/driver.o drivers/pci/driver.o drivers/pnp/pnp.o drivers/video/video.o \
-        net/network.o \
-        /usr/src/linux-2.4.14/arch/i386/lib/lib.a /usr/src/linux-2.4.14/lib/lib.a /usr/src/linux-2.4.14/arch/i386/lib/lib.a \
-        --end-group \
-        -o vmlinux
-drivers/block/block.o: In function `lo_send':
-drivers/block/block.o(.text+0x86bf): undefined reference to `deactivate_page'
-drivers/block/block.o(.text+0x8709): undefined reference to `deactivate_page'
+While compiling the modules:
+
+loop.c: In function `lo_send':
+loop.c:210: warning: implicit declaration of function `deactivate_page'
 
 
+While installing the modules:
+
+find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{} pcmcia
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.14; fi
+depmod: *** Unresolved symbols in /lib/modules/2.4.14/kernel/drivers/block/loop.o
+depmod:         deactivate_page
+
+gcc 2.95.3
+
+GNU binutils-2.11.90.0.19
+
+Please respond to this email address, I'm not on the list, thanks.

@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319681AbSIMPCx>; Fri, 13 Sep 2002 11:02:53 -0400
+	id <S319669AbSIMPHY>; Fri, 13 Sep 2002 11:07:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319682AbSIMPCx>; Fri, 13 Sep 2002 11:02:53 -0400
-Received: from mnh-1-17.mv.com ([207.22.10.49]:59652 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S319681AbSIMPCw>;
-	Fri, 13 Sep 2002 11:02:52 -0400
-Message-Id: <200209131612.LAA02596@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: Nikita Danilov <Nikita@Namesys.COM>
-Cc: linux-kernel@vger.kernel.org, user-mode-linux-user@lists.sourceforge.net,
-       Reiserfs developers mail-list <Reiserfs-Dev@Namesys.COM>
-Subject: Re: [reiserfs-dev] Re: UML 2.5.34 
-In-Reply-To: Your message of "Fri, 13 Sep 2002 17:31:24 +0400."
-             <15745.59564.28543.921212@laputa.namesys.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 13 Sep 2002 11:12:12 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S319673AbSIMPHY>; Fri, 13 Sep 2002 11:07:24 -0400
+Received: from pD952AD04.dip.t-dialin.net ([217.82.173.4]:31213 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S319669AbSIMPHX>; Fri, 13 Sep 2002 11:07:23 -0400
+Date: Fri, 13 Sep 2002 09:12:30 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: syam <syam@cisco.com>
+cc: Richard Zidlicky <rz@linux-m68k.org>, <linux-kernel@vger.kernel.org>
+Subject: RE: Kernel 2.4.19 Oops error
+In-Reply-To: <BOEAKBEECIJEDIMOJJJOOEGKCEAA.syam@cisco.com>
+Message-ID: <Pine.LNX.4.44.0209130911150.10048-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nikita@Namesys.COM said:
-> pte_addr_t and CLOCK_TICK_RATE were undefined. 
+Hi,
 
-Undefined WHERE?  You could send me a snippet of your build log.
+On Fri, 13 Sep 2002, syam wrote:
+> Will running memtest fix the corruption?
 
-> By the way, I am talking about Linus BK tree, rather than patches you
-> have posted.
+No, but it will detect holes in your memory. Sometimes this bad memory can 
+be blacklisted, but badness is known to spread...
 
-I would not have sent it to Linus if it didn't build.  Like I said, it builds
-here fine.  I want to know where it breaks, so I can see it for myself, so
-I can be sure the fix is right.
+If the memory is just too hot, youre well off. Otherwise you might have to 
+get some new.
 
-				Jeff
+
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
 

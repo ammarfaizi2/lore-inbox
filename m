@@ -1,78 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263481AbTD0RWK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Apr 2003 13:22:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264687AbTD0RWK
+	id S264700AbTD0RZO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Apr 2003 13:25:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264701AbTD0RZO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Apr 2003 13:22:10 -0400
-Received: from smtp012.mail.yahoo.com ([216.136.173.32]:52488 "HELO
-	smtp012.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263481AbTD0RWJ convert rfc822-to-8bit (ORCPT
+	Sun, 27 Apr 2003 13:25:14 -0400
+Received: from imap.gmx.net ([213.165.64.20]:33517 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264700AbTD0RZN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Apr 2003 13:22:09 -0400
-From: Michael Buesch <fsdeveloper@yahoo.de>
-To: Larry McVoy <lm@bitmover.com>
-Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
-Date: Sun, 27 Apr 2003 19:34:07 +0200
-User-Agent: KMail/1.5.1
-References: <Pine.LNX.4.44.0304232012400.19176-100000@home.transmeta.com> <20030427142106.GA24244@merlin.emma.line.org> <20030427165959.GC6820@work.bitmover.com>
-In-Reply-To: <20030427165959.GC6820@work.bitmover.com>
+	Sun, 27 Apr 2003 13:25:13 -0400
+Message-Id: <5.2.0.9.2.20030427193908.0220bee8@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Sun, 27 Apr 2003 19:41:53 +0200
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: Houston, I think we have a problem
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200304271934.21780.fsdeveloper@yahoo.de>
+In-Reply-To: <32170000.1051464570@[10.10.2.4]>
+References: <5.2.0.9.2.20030427191459.00caed60@pop.gmx.net>
+ <5.2.0.9.2.20030427090009.01f89870@pop.gmx.net>
+ <5.2.0.9.2.20030427090009.01f89870@pop.gmx.net>
+ <5.2.0.9.2.20030427191459.00caed60@pop.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+At 10:29 AM 4/27/2003 -0700, Martin J. Bligh wrote:
+> >> > To reproduce this 100% of the time, simply compile virgin 2.5.68
+> >> > up/preempt, reduce your ram to 128mb, and using gcc-2.95.3 as to not
+> >> > overload the vm, run a make -j30 bzImage in an ext3 partition on a
+> >> > P3/500 single ide disk box.  No, you don't really need to meet all of
+> >> > those restrictions... you'll see the problem on a big hairy chested
+> >> > box as well, just not as bad as I see it on my little box.  The first
+> >> > symptom of the problem you will notice is a complete lack of swap
+> >> > activity along with highly improbable quantities of unused ram were
+> >> > all those hungry cc1's getting regular CPU feedings.
+> >>
+> >> Yes, that's why I don't use ext3 ;-) It's known broken, akpm is fixing
+> >> it.
+> >
+> > I'm not at all convinced (must say I wouldn't mind at _all_ being
+> > convinced) that it's ext3... that just _seems_ to be worst easily
+> > reproducible case for some un-(expletive deleted)-known reason.
+>
+>Well, that's easy to test. Mount the fs as ext2, and see if it goes away.
 
-On Sunday 27 April 2003 18:59, Larry McVoy wrote:
-> The open source community, in my opinion, is certainly a contributing
-> factor in the emergence of the DMCA and DRM efforts.  This community
-> thinks it is perfectly acceptable to copy anything that they find useful.
 
-Oh no. My opinion points exactly 180 degrees to the other side.
-You can't say: "The whole community is evil" if only a few people are.
-And IMHO that are only a _few_ people.
-I think most people of the opensource community know exactly about
-copyrights and so on and don't violate them.
+Sure, btdt very first thing, and that's why I'm not convinced that ext3 is 
+the core problem.  I see "it" in ext2 as well, just less so.
 
-> Take a look at some of the recent BK flamewars and over and over you
-> will see people saying "we'll clone it".   That's not unique to BK,
-> it's the same with anything else which is viewed as useful.  And nobody
-> sees anything wrong with that, or copying music, whatever.  "If it's
-> useful, take it" is the attitude.
-
-But: They don't illegaly steal bk. They make their own software for
-which _they_ own the copyright. I think it is their good right to do so.
-
-> Corporations are certainly watching things like our efforts with
-> BitKeeper, as well as the other companies who are trying to play nice
-> with the open source world.  What are they learning?  That if you don't
-> lock it up, the open source world has no conscience, no respect, and will
-> steal anything that isn't locked down.  Show me a single example of the
-> community going "no, we can't take that, someone else did all the work
-> to produce it, we didn't".  Good luck finding it.  Instead you get "hey,
-> that's cool, let's copy it".  With no acknowledgement that the creation
-> of the product took 100x the effort it takes to copy the product.
-
-I see no problem here.
-But in the future software patents will prevent it :P
-
-- -- 
-Regards Michael Büsch
-http://www.8ung.at/tuxsoft
- 19:24:16 up  7:31,  1 user,  load average: 1.00, 1.00, 1.07
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+rBSdoxoigfggmSgRAhJnAJ9LmwYmgV5aYD0ao/DVOdIN0f+ieACghWUL
-fPZm/m0G2+yaszGn7fD7hio=
-=rIkH
------END PGP SIGNATURE-----
+         -Mike 
 

@@ -1,105 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262715AbRE0C1d>; Sat, 26 May 2001 22:27:33 -0400
+	id <S262720AbRE0Cce>; Sat, 26 May 2001 22:32:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262716AbRE0C1X>; Sat, 26 May 2001 22:27:23 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:55247 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S262715AbRE0C1P>;
-	Sat, 26 May 2001 22:27:15 -0400
-Message-ID: <3B1065FD.3F8D7EDF@mandrakesoft.com>
-Date: Sat, 26 May 2001 22:27:09 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: cesar.da.silva@cyberdude.com
-Cc: kernellist <linux-kernel@vger.kernel.org>
-Subject: Re: Please help me fill in the blanks.
-In-Reply-To: <20010527021808.80979.qmail@web13407.mail.yahoo.com>
+	id <S262719AbRE0CcY>; Sat, 26 May 2001 22:32:24 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:34130 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S262716AbRE0CcQ>; Sat, 26 May 2001 22:32:16 -0400
+Date: Sun, 27 May 2001 04:32:09 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.5aa1
+Message-ID: <20010527043208.G1834@athlon.random>
+In-Reply-To: <20010526193310.A1834@athlon.random> <15120.23023.903912.358739@pizda.ninka.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <15120.23023.903912.358739@pizda.ninka.net>; from davem@redhat.com on Sat, May 26, 2001 at 06:35:43PM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cesar Da Silva wrote:
-> The features that I'm wondering about are:
-> * Dynamic Processor Resilience
+On Sat, May 26, 2001 at 06:35:43PM -0700, David S. Miller wrote:
+> 
+> Andrea Arcangeli writes:
+>  > 00_eepro100-64bit-1
+>  > 
+>  > 	Fixes a 64bit bug that was generating false positives and memory
+>  > 	corruption.
+>  > 
+>  > 	(recommended)
+> 
+> Good spotting, I've put this into my tree ;-)
 
-is this fault tolerance?  I think if a CPU croaks, you are dead.
+fine, thanks!
 
-There are patches for hot swap cpu support, but I haven't seen any CPU
-fault tolerance patches that can handle a dead processor
+>  > 00_eepro100-alpha-1
+>  > 
+>  > 	Possibly fix the eepro100 transmitter hang on alpha by doing atomic PIO
+>  > 	updates to avoid the clear_suspend to be lost.
+>  > 	
+>  > 	(recommended)
+> 
+> The correct fix is to create {set,clear,change}_bit{8,16,32}()
+> routines architectures may implement.  The comment there in eepro100.c
 
-> * Dynamic Memory Resilience
+Agreed.
 
-RAM fault tolerance?  There was a patch a long time ago which detected
-bad ram, and would mark those memory clusters as unuseable at boot. 
-However that is clearly not dynamic.
+> indicates the those defines are simply wrong for anything other than
+> x86, not just Alpha.
 
-If your memory croaks, your kernel will experience random corruptions
+The defines are ok but according to Matt they're not using atomic
+operations, infact they works fine until you beat them hard. Infact I
+guess it may trigger even in x86 in theory, I suspect it doesn't trigger
+by luck, I think we should at least declare the __u16 pointer as
+volatile or gcc may be free to do whatever it does on alpha without
+using the bitops. The patch is actually using an #ifdef __alpha__
+because it relys on the fact alpha internally does the 32bit accesses
+with the bitops (so it doesn't mess with the other registers).
 
-> * Dynamic Page Sizing
+>  > 00_ipv6-null-oops-1
+>  > 
+>  > 	Fixes null pointer oops.
+>  > 
+>  > 	(recommended)
+> 
+> Please delete this, a proper fix is in 2.4.5, and in fact your
+> added NULL test will never pass now :-)
 
-no
+I forgotten it, Alan noticed it too. thanks for the reminder.
 
-> * Live Upgrade
+>  > 10_no-virtual-1
+>  > 
+>  > 	Avoids wasting tons of memory if highmem is not selected (like
+>  > 	in all the 64bit ports).
+>  > 
+>  > 	(nice to have)
+> 
+> I experimented with computing the address every time on sparc64 and
+> the performance actually went down slightly, it turned out it's
+> quicker to load from an in-cache page struct member than compute the
+> offset each time.
 
-LOBOS will let one Linux kernel boot another, but that requires a boot
-step, so it is not a live upgrade.  so, no, afaik
+Ok, then I will add define_bool CONFIG_NO_PAGE_VIRTUAL y to sparc and
+sparc64.
 
-> * Alternative I/O Pathing
+> It's probably not an issue on ix86, but who knows.
 
-be less vague
+On modern x86 it should be faster to compute it to save dcache, memory
+bandwith and ram.
 
-> * HSM
+Thanks for the review!
 
-patches exist, I believe
-
-> * TCP selective acknowledgement (SACK)
-
-yes
-
-> * Service Location Protocol (SLP)
-
-don't know
-
-> * ATM IP switching
-
-yes, I believe
-
-> * SOCKS 5 support
-
-yes, via userspace apps/libs
-
-> * Multilink PPP
-
-yes
-
-> * TCP/IP Gratuitous ARP (RFC 2002)
-
-not sure
-
-> * Path MTU Discovery (RFC 1191)
-
-yes
-
-> * Path MTU Discovery over UDP
-
-not sure, but I think so
-
-> * IP Multipath Routing
-
-yes
-
-> The questions I have about the features above are:
-> * Are any of the above features implemented in the
-> kernel? If yes, where can I read (url-link  to the
-> article, paper... please) about it?
-
-http://google.com/
-
--- 
-Jeff Garzik      | Disbelief, that's why you fail.
-Building 1024    |
-MandrakeSoft     |
+Andrea

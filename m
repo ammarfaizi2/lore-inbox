@@ -1,102 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270069AbTGMVTP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 17:19:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270403AbTGMVTP
+	id S270408AbTGMVXR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 17:23:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270409AbTGMVXR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 17:19:15 -0400
-Received: from main.gmane.org ([80.91.224.249]:31973 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S270069AbTGMVTN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 17:19:13 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jan Rychter <jan@rychter.com>
-Subject: 2.4.22-pre5: rmmod i810_audio caused an oops
-Date: Sun, 13 Jul 2003 14:34:50 -0700
-Message-ID: <m2smpayuth.fsf@tnuctip.rychter.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
-X-Complaints-To: usenet@main.gmane.org
-X-Spammers-Please: blackholeme@rychter.com
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:DbwLuLZ3yqq+TdEDoN8G15YNgZ4=
+	Sun, 13 Jul 2003 17:23:17 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:2253 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S270408AbTGMVXH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 17:23:07 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Jan Dittmer <j.dittmer@portrix.net>
+Date: Mon, 14 Jul 2003 07:37:27 +1000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16145.53527.749969.347814@gargle.gargle.HOWL>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org
+Subject: Re: 'NFS stale file handle' with 2.5
+In-Reply-To: message from Jan Dittmer on Saturday July 12
+References: <3F1068C9.1070900@portrix.net>
+X-Mailer: VM 7.16 under Emacs 21.3.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
-Content-Transfer-Encoding: quoted-printable
+On Saturday July 12, j.dittmer@portrix.net wrote:
+> Hi,
+> 
+> I'm experiencing really big problems with nfs on 2.5 - and I'm a bit 
+> stuck debugging.
+> 
+> Server:
+> Pentium II SMP Dual Server with Raid5/dm and nfs running 2.5.7[045][-mm]
+> 
+> Clients:
+> Athlon, same kernels
+> P3 800, same kernels and 2.4
+> 
+> Problem:
+> Accessing the nfs shares on the Server gives lots of 'nfs stale file 
+> handles', making it unusuable. A simple cp from nfs to nfs triggers it 
+> in a matter of seconds.
+> The shares are mounted with (hard,intr), that used to work with 2.4.20 
+> on the server, but I also tried no option, only hard and only soft, 
+> problem persists. Also I tried to remove nfs_directio from the build and 
+> only compiled in nfs2, all the same.
+> Being curious whats wrong I set up an export on the P3 800 and mounted 
+> it from the athlon (both running 2.5.75-mm1). This seems to work fine 
+> (just tested for 10 minutes or so, but typically the problem is 
+> triggered much earlier).
+> I also tried enabling the VERBOSE_DEBUG define in nfs source. But that 
+> doesn't give any more information.
+> Only one line that gets my attention:
+> NFS: giant filename in readdir (len 0x2f0a0969)
 
-Typing 'rmmod i810_audio' proced this oops. Perhaps that's useful info.
-I can't reproduce this at will -- this happened after unloading alsa,
-loading i810_audio, then trying to unload it.
+This makes me a bit suspicious of hardware, probably networking.  It
+really looks like data is getting corrupted between client and server.
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000004
-d09dccdf
-*pde =3D 00000000
-Oops: 0002
-CPU:    0
-EIP:    0010:[<d09dccdf>]    Tainted: P Z
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010246
-eax: 00000000   ebx: cfb295a0   ecx: d09df9b8   edx: 00000000
-esi: cf6f85f8   edi: cf6f8400   ebp: 00000003   esp: c8e0ff5c
-ds: 0018   es: 0018   ss: 0018
-Process rmmod (pid: 10044, stackpage=3Dc8e0f000)
-Stack: 00000000 d09e54b9 cfb295a0 00000000 cfe2dc00 d09e7240 d09e1000 bfffe=
-b08=20
-       c01f7996 cfe2dc00 d09e1000 fffffff0 d09e58aa d09e7240 c01181f3 d09e1=
-000=20
-       fffffff0 cb610000 bfffeb08 c0117597 d09e1000 00000000 c8e0e000 00000=
-001=20
-Call Trace:    [<d09e54b9>] [<d09e7240>] [<c01f7996>] [<d09e58aa>] [<d09e72=
-40>]
-  [<c01181f3>] [<c0117597>] [<c01086df>]
-Code: 89 50 04 89 02 c7 03 00 00 00 00 c7 43 04 00 00 00 00 ff 05=20
+The fact that two different servers behaved differently while both
+running the same kernel, sees to support the hardware theory.
 
+Maybe if you could get a tcpdump (-s 1500 port 2049) on both the server and the
+client  I could have a look at the filehandles as see if I can see why
+they are 'stale', and whether it could be a hardware problem.
 
->>EIP; d09dccdf <[ac97_codec]ac97_release_codec+1b/58>   <=3D=3D=3D=3D=3D
+NeilBrown
 
->>ebx; cfb295a0 <_end+f820788/10501248>
->>ecx; d09df9b8 <[ac97_codec]codec_sem+0/13>
->>esi; cf6f85f8 <_end+f3ef7e0/10501248>
->>edi; cf6f8400 <_end+f3ef5e8/10501248>
->>esp; c8e0ff5c <_end+8b07144/10501248>
-
-Trace; d09e54b9 <[ac97_codec].data.end+5aee/9695>
-Trace; d09e7240 <[ac97_codec].data.end+7875/9695>
-Trace; c01f7996 <pci_unregister_driver+3a/54>
-Trace; d09e58aa <[ac97_codec].data.end+5edf/9695>
-Trace; d09e7240 <[ac97_codec].data.end+7875/9695>
-Trace; c01181f3 <free_module+17/98>
-Trace; c0117597 <sys_delete_module+f3/1b0>
-Trace; c01086df <system_call+33/38>
-
-Code;  d09dccdf <[ac97_codec]ac97_release_codec+1b/58>
-00000000 <_EIP>:
-Code;  d09dccdf <[ac97_codec]ac97_release_codec+1b/58>   <=3D=3D=3D=3D=3D
-   0:   89 50 04                  mov    %edx,0x4(%eax)   <=3D=3D=3D=3D=3D
-Code;  d09dcce2 <[ac97_codec]ac97_release_codec+1e/58>
-   3:   89 02                     mov    %eax,(%edx)
-Code;  d09dcce4 <[ac97_codec]ac97_release_codec+20/58>
-   5:   c7 03 00 00 00 00         movl   $0x0,(%ebx)
-Code;  d09dccea <[ac97_codec]ac97_release_codec+26/58>
-   b:   c7 43 04 00 00 00 00      movl   $0x0,0x4(%ebx)
-Code;  d09dccf1 <[ac97_codec]ac97_release_codec+2d/58>
-  12:   ff 05 00 00 00 00         incl   0x0
-
-=2D-J.
-
---=-=-=
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/EdB7Lth4/7/QhDoRAqLtAJ9IOspBPVcaadFkSdRQEczt1F9bnACfdFjB
-e2gifcQMQnSt6CSbVweq0l0=
-=c9dP
------END PGP SIGNATURE-----
---=-=-=--
-
+> 
+> I'm really lost here. What can I try/do to further narrow this down? Any 
+> specific kernel revision I could try to go back, notice that already 
+> 2.5.70 triggered it. With 2.4 on the server nothing of this happens.
+> Only thing left is to try booting the server without smp support, but I 
+> get some 'hde: lost interrupt' messages and it doesn't boot.
+> Note that I also tried to export a partition not on dm. Filesystem is 
+> ext3. I also tried the patches you posted some days ago in another thread.
+> 
+> Thanks for any suggestions,
+> 
+> Jan
+> 
+> # grep NFS .config
+> CONFIG_NFS_FS=m
+> CONFIG_NFS_V3=y
+> CONFIG_NFS_V4=y
+> CONFIG_NFS_DIRECTIO=y
+> CONFIG_NFSD=m
+> CONFIG_NFSD_V3=y
+> CONFIG_NFSD_V4=y
+> CONFIG_NFSD_TCP=y
+> 
+> 
+> -- 
+> Linux rubicon 2.5.75-mm1-jd10 #1 SMP Sat Jul 12 19:40:28 CEST 2003 i686
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

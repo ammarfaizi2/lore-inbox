@@ -1,68 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264278AbUHNRhA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264346AbUHNRl1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264278AbUHNRhA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 13:37:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264371AbUHNRhA
+	id S264346AbUHNRl1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 13:41:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264371AbUHNRl0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 13:37:00 -0400
-Received: from rproxy.gmail.com ([64.233.170.198]:51903 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S264278AbUHNRg5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 13:36:57 -0400
-Message-ID: <2a4f155d0408141036e114001@mail.gmail.com>
-Date: Sat, 14 Aug 2004 20:36:57 +0300
-From: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
-Reply-To: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Latest 2.6 kernels broke debugging of threaded applications
+	Sat, 14 Aug 2004 13:41:26 -0400
+Received: from viefep18-int.chello.at ([213.46.255.21]:42541 "EHLO
+	viefep18-int.chello.at") by vger.kernel.org with ESMTP
+	id S264346AbUHNRlX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 13:41:23 -0400
+Date: Sat, 14 Aug 2004 19:52:33 +0200
+To: linux-kernel@vger.kernel.org
+Subject: [OOPS] 2.6.8 and ingress scheduling
+Message-ID: <20040814175233.GA3617@lazy.shacknet.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040803i
+From: lkml@lazy.shacknet.nu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+hello,
 
-I am having weird problems with gdb & latest 2.6 kernels
+the last line (filter add) in the "wondershaper" script does sth. to the
+kernel, that lets it panic on receiving network packets.
 
-I tested 2.6.6,.2.6.7,.2.6.8 and they all have the same problem. When
-I try to debug a threaded application in gdb applications freezes and
-gdb doesn't output anything. strace shows this interesting piece at
-the point the application freezes :
+now, if I could capture the trace, that was great... nothing is on disk,
+its also more than fits on the screen, and no scrollback exists.
 
-<snip>
+please cc answers/questions,
 
---- SIGCHLD (Child exited) @ 0 (0) ---
-sigreturn()                             = ? (mask now [RTMIN])
-wait4(-1, [{WIFSTOPPED(s) && WSTOPSIG(s) == SIGTRAP}], 0, NULL) = 17055
-ptrace(PTRACE_GETREGS, 17055, 0, 0xbfffea60) = 0
-ptrace(PTRACE_PEEKUSER, 17055, offsetof(struct user, u_debugreg) + 24,
-[0xffff4ff0]) = 0
-ptrace(PTRACE_PEEKTEXT, 17055, 0x4000af40, [0x5de58955]) = 0
-ptrace(PTRACE_PEEKTEXT, 17055, 0x4000af40, [0x5de58955]) = 0
-ptrace(PTRACE_POKEDATA, 17055, 0x4000af40, 0x5de589cc) = 0
-ptrace(PTRACE_CONT, 17055, 0, SIG_0)    = 0
-wait4(-1, [{WIFSTOPPED(s) && WSTOPSIG(s) == SIGTRAP} | 0x30000], 0,
-NULL) = 17055
---- SIGCHLD (Child exited) @ 0 (0) ---
-sigreturn()                             = ? (mask now [RTMIN])
---- SIGCHLD (Child exited) @ 0 (0) ---
-sigreturn()                             = ? (mask now [RTMIN])
-ptrace(0x4201 /* PTRACE_??? */, 17055, 0, 0xbfffec08) = 0
-wait4(17062, [{WIFSTOPPED(s) && WSTOPSIG(s) == SIGSTOP}], __WCLONE,
-NULL) = 17062
-ptrace(PTRACE_DETACH, 17062, 0, SIG_0)  = 0
-wait4(-1,
+regards,
 
-</snip>
-
-Debugging works fine with 2.4.26 and 2.6.8-rc4-mm1. Any ideas?
-
-P.S: I am on a Slackware 10 box.
-
-Cheers,
-ismail
+peter
 
 
--- 
-Time is what you make of it
+
+PS: excerpt from wondershaper script:
+
+[...]
+tc qdisc add dev $DEV handle ffff: ingress
+# filter *everything* to it (0.0.0.0/0), drop everything that's
+# coming in too fast:
+
+tc filter add dev $DEV parent ffff: protocol ip prio 50 u32 match ip src \
+   0.0.0.0/0 police rate ${DOWNLINK}kbit burst 10k drop flowid :1
+
+
+
+PPS: likely relevant lines from .config
+
+# QoS and/or fair queueing
+#
+CONFIG_NET_SCHED=y
+# CONFIG_NET_SCH_CLK_JIFFIES is not set
+# CONFIG_NET_SCH_CLK_GETTIMEOFDAY is not set
+CONFIG_NET_SCH_CLK_CPU=y
+CONFIG_NET_SCH_CBQ=y
+CONFIG_NET_SCH_HTB=y
+CONFIG_NET_SCH_HFSC=y
+CONFIG_NET_SCH_PRIO=y
+CONFIG_NET_SCH_RED=y
+CONFIG_NET_SCH_SFQ=y
+CONFIG_NET_SCH_TEQL=y
+CONFIG_NET_SCH_TBF=y
+CONFIG_NET_SCH_GRED=y
+CONFIG_NET_SCH_DSMARK=y
+# CONFIG_NET_SCH_NETEM is not set
+CONFIG_NET_SCH_INGRESS=y
+CONFIG_NET_QOS=y
+CONFIG_NET_ESTIMATOR=y
+CONFIG_NET_CLS=y
+CONFIG_NET_CLS_TCINDEX=y
+CONFIG_NET_CLS_ROUTE4=y
+CONFIG_NET_CLS_ROUTE=y
+CONFIG_NET_CLS_FW=y
+CONFIG_NET_CLS_U32=y
+# CONFIG_CLS_U32_PERF is not set
+# CONFIG_NET_CLS_IND is not set
+CONFIG_NET_CLS_RSVP=y
+# CONFIG_NET_CLS_RSVP6 is not set
+# CONFIG_NET_CLS_ACT is not set
+CONFIG_NET_CLS_POLICE=y

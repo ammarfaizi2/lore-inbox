@@ -1,76 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287750AbSAAFfJ>; Tue, 1 Jan 2002 00:35:09 -0500
+	id <S287752AbSAAFh7>; Tue, 1 Jan 2002 00:37:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287752AbSAAFfA>; Tue, 1 Jan 2002 00:35:00 -0500
-Received: from femail30.sdc1.sfba.home.com ([24.254.60.20]:3501 "EHLO
-	femail30.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S287750AbSAAFer>; Tue, 1 Jan 2002 00:34:47 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: Daniel Phillips <phillips@bonn-fries.net>, Larry McVoy <lm@bitmover.com>,
-        Benjamin LaHaise <bcrl@redhat.com>
-Subject: Re: The direction linux is taking
-Date: Mon, 31 Dec 2001 16:33:03 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: Oliver Xymoron <oxymoron@waste.org>,
-        Christer Weinigel <wingel@hog.ctrl-c.liu.se>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20011229190600.2556C36DE6@hog.ctrl-c.liu.se> <20011229140410.A13883@work.bitmover.com> <E16Ky48-0003hT-00@starship.berlin>
-In-Reply-To: <E16Ky48-0003hT-00@starship.berlin>
+	id <S287755AbSAAFht>; Tue, 1 Jan 2002 00:37:49 -0500
+Received: from inreach-gw1.idiom.com ([209.209.13.26]:33542 "EHLO
+	smile.idiom.com") by vger.kernel.org with ESMTP id <S287752AbSAAFhg>;
+	Tue, 1 Jan 2002 00:37:36 -0500
+Message-ID: <3C314A73.E94328E9@obviously.com>
+Date: Tue, 01 Jan 2002 00:34:43 -0500
+From: Bryce Nesbitt <bryce@obviously.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020101053446.HLQO11986.femail30.sdc1.sfba.home.com@there>
+To: cs@zip.com.au
+CC: linux-kernel@vger.kernel.org, Lionel Bouton <Lionel.Bouton@free.fr>,
+        Andries.Brouwer@cwi.nl
+Subject: Re: Why would a valid DVD show zero files on Linux?
+In-Reply-To: <E16L2G8-00050T-00@the-village.bc.nu> <3C307464.2253E26@obviously.com> <20020101103753.A13046@zapff.research.canon.com.au>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 31 December 2001 03:45 am, Daniel Phillips wrote:
-> On December 29, 2001 11:04 pm, Larry McVoy wrote:
-> > On Sat, Dec 29, 2001 at 04:03:34PM -0500, Benjamin LaHaise wrote:
-> > > On Sat, Dec 29, 2001 at 11:37:49AM -0800, Larry McVoy wrote:
-> > > > If you have N people trying to patch the same file, you'll require N
-> > > > releases and some poor shlep is going to have to resubmit their patch
-> > > > N-1 times before it gets in.
-> > >
-> > > Wrong.  Most patches are independant, and even touch different
-> > > functions.
-> >
-> > Really?  And the data which shows this absolute statement to be true is
-> > where?  I'm happy to believe data, but there is no data here.
->
-> Ben's right.  Most patches are independant because the work divides itself
-> up that way, because people talk about this stuff (on IRC) and cooperate,
-> and because the tree structure evolves to support the natural divisions ;)
+Cameron Simpson wrote:
+> 
+> On Mon, Dec 31, 2001 at 09:21:24AM -0500, Bryce Nesbitt <bryce@obviously.com> wrote:
+> | Alan Cox wrote:
+> | > The autodetection is working. Your DVD has a UDF file system on it and a
+> | > blank iso9660 one.
+> | Understood.   However, why can't that combination "just work"?  Changing
+> | /etc/fstab every time I switch between sticking in a CD-ROM and DVD-ROM is not cool.
+> | Certainly that "other operating system" does not make me do that.
+> 
+> I do this via autofs, and just say /mnt/dvd when I want UDF and /mnt/cdrom
+> when I want a CDROM. It does depend on having my eyes open when I stick
+> the medium in the drive...
+> 
+> Of course, this merely bypasses the autodetection.
 
-In a fan club, saying "andrea's the MM guy, talk to him" is only natural.  
-It's a meritocracy, he's alpha geek on call in that area right now.
+Ok, I admit, I do the same thing.  I manually mount.  But let's get in
+the head of a user, why should they care what type of 5 inch round shiny
+thing they just inserted?
 
-In a fortune 500 bureaucracy, people are largely supposed to be 
-interchangeable cogs.  People's worth is measured in dollars, and somebody 
-worth $70k a year should be swappable with somebody else worth $70k/year.  
-(It's a bit more complex than that, there's certifications and experience, 
-but somebody with a BA and 2 years experience working on inflatable widgets 
-should be exchangeable with somebody else with a BA and 2 years experience 
-working on inflatable widgets.  If not, they'll "get up to speed", it's just 
-a question of acquiring experience...)
+Are there any cases where udf filesystems are present on cdrom's that should
+be read as iso9660?  Someone mentioned it's a hard heuristic to figure out
+which fake filename the empty iso9660 filesystem uses.  How about, instead,
+pick the larger of the two filesystems if both are present.
 
-So having a single point of failure in the development process...  It's 
-unthinkable.  What if that guy decides to retire?  What if he gets hit by a 
-bus.  What if the competition hires him away?  What if he DEMANDS MORE MONEY? 
- (It's all about money in a corporation.  It's all numbers.  The bottom line. 
- So if the whole project depends on one guy, logically he'll ask for as much 
-salary as the project's worth.  That's a lot of how management thinks.)
-
-So if you DO have someone breaking down the project into subsections, it's 
-unlikely to be a developer, it would be a manager assigning areas of 
-responsibility.  And shuffling them around from time to time so nobody gets 
-the idea they can't be replaced.  But it's easiest just to scatter 
-tasks over the group and keep things mixed up all the time...
-
-Fan clubs are all individuals.  Bureaucracies try to eliminate the 
-individual: the automated assembly line with no humans in it is the 
-bureaucratic ideal...
-
-Totally different paradigm.
-
-Rob
+			-Bryce

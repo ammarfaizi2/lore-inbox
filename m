@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266409AbUBFEPI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 23:15:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266416AbUBFEPI
+	id S266463AbUBFEJG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 23:09:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266464AbUBFEJG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 23:15:08 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:13009 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S266409AbUBFEPF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 23:15:05 -0500
-Date: Thu, 5 Feb 2004 23:15:00 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Jamie Lokier <jamie@shareable.org>, Andi Kleen <ak@suse.de>,
-       <johnstul@us.ibm.com>, <drepper@redhat.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] linux-2.6.2-rc2_vsyscall-gtod_B1.patch
-In-Reply-To: <20040205214348.GK31926@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0402052314360.5933-100000@chimarrao.boston.redhat.com>
+	Thu, 5 Feb 2004 23:09:06 -0500
+Received: from fmr09.intel.com ([192.52.57.35]:54757 "EHLO hermes.hd.intel.com")
+	by vger.kernel.org with ESMTP id S266463AbUBFEI7 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 23:08:59 -0500
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: [Infiniband-general] Getting an Infiniband access layer in theLinux kernel
+Date: Thu, 5 Feb 2004 20:07:56 -0800
+Message-ID: <A20D5638D741DD4DBAAB80A95012C0AE01B2BDD3@orsmsx409.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Infiniband-general] Getting an Infiniband access layer in theLinux kernel
+Thread-Index: AcPsLs89w9yLLeYgQ3eZJ/EqsnTR3QAAxrlwAA0dx2A=
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "Tillier, Fabian" <ftillier@infiniconsys.com>, "Greg KH" <greg@kroah.com>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, "Hefty, Sean" <sean.hefty@intel.com>,
+       <linux-kernel@vger.kernel.org>, <hozer@hozed.org>,
+       "Woodruff, Robert J" <woody@co.intel.com>,
+       "Magro, Bill" <bill.magro@intel.com>, <woody@jf.intel.com>,
+       <infiniband-general@lists.sourceforge.net>
+X-OriginalArrivalTime: 06 Feb 2004 04:07:57.0287 (UTC) FILETIME=[CD5ED770:01C3EC66]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Feb 2004, Andrea Arcangeli wrote:
+> From: Tillier, Fabian
+> ...
+>
+> Having atomic operations return a value allows one to do something like
+> test for zero when decrementing an atomic variable such as a reference
+> count, to determine whether final cleanup should proceed.  This removes
+> the need for an actual spinlock protecting the reference count.  As you
+> know, reading the value post-decrement does not guarantee that said
+> value reflects the result of only that decrement operation.  It would be
+> catastrophic if two threads checked the value of a reference count
+> without proper synchronization - they could both end up running the
+> cleanup code with undesired (and perhaps catastrophic) results.
 
-> However I'm unsure if you want all applications to be relocated
-> ranodmly, and in turn if you want the vsyscalls relocated for all apps,
-> exactly because this carry a cost. I think it should be optional.
+atomic_dec_and_test() does just that (asm/atomic.h).
 
-If you think extra security should be optional, please don't
-argue against it completely.
-
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
-
+Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own (and my fault)

@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130743AbRBFAuN>; Mon, 5 Feb 2001 19:50:13 -0500
+	id <S132071AbRBFA4Z>; Mon, 5 Feb 2001 19:56:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132071AbRBFAuE>; Mon, 5 Feb 2001 19:50:04 -0500
-Received: from baldur.fh-brandenburg.de ([195.37.0.5]:36247 "HELO
-	baldur.fh-brandenburg.de") by vger.kernel.org with SMTP
-	id <S130743AbRBFAtq>; Mon, 5 Feb 2001 19:49:46 -0500
-Date: Tue, 6 Feb 2001 01:31:12 +0100 (MET)
-From: Roman Zippel <zippel@fh-brandenburg.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "Stephen C. Tweedie" <sct@redhat.com>,
-        Manfred Spraul <manfred@colorfullife.com>,
-        Christoph Hellwig <hch@caldera.de>, Steve Lord <lord@sgi.com>,
-        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
-In-Reply-To: <Pine.LNX.4.10.10102051118210.31206-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.10.10102060052330.20184-100000@zeus.fh-brandenburg.de>
+	id <S135357AbRBFA4Q>; Mon, 5 Feb 2001 19:56:16 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:56006 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S132071AbRBFA4F>;
+	Mon, 5 Feb 2001 19:56:05 -0500
+Date: Tue, 6 Feb 2001 00:56:22 +0000 (GMT)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: <paul@fogarty.jakma.org>
+To: Samuel Flory <sflory@valinux.com>
+cc: Josh Durham <jmd@aoe.vt.edu>, <reiserfs-list@namesys.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [reiserfs-list] NFS and reiserfs
+In-Reply-To: <3A7F0492.AD31A2FC@valinux.com>
+Message-ID: <Pine.LNX.4.31.0102060050500.10669-100000@fogarty.jakma.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 5 Feb 2001, Samuel Flory wrote:
 
-On Mon, 5 Feb 2001, Linus Torvalds wrote:
+> someone (you?) talking about v3 issues with SGI boxes under 2.4 on the
+> nfs list.  I didn't much pay much attention as it wasn't an issue I
+> could help with.
 
-> This all proves that the lowest level of layering should be pretty much
-> noting but the vectors. No callbacks, no crap like that. That's already a
-> level of abstraction away, and should not get tacked on. Your lowest level
-> of abstraction should be just the "area". Something like
-> 
-> 	struct buffer {
-> 		struct page *page;
-> 		u16 offset, length;
-> 	};
-> 
-> 	int nr_buffers:
-> 	struct buffer *array;
-> 
-> should be the low-level abstraction. 
+that might have been me...
 
-Does it has to be vectors? What about lists? I'm thinking about this for
-some time now and I think lists are more flexible. At higher level we can
-easily generate a list of pages and in a lower level you can still split
-them up as needed. It would be basically the same structure, but you
-could use it everywhere with the same kind of operations.
+the issues were related to how IRIX nfs client expects server to
+behave wrt to device files and other special files. First problemo
+was fixed, second one (FIFOs) is apparently undefined for NFS.
 
-bye, Roman
+also have problems with linux needing a bit of tuning wrt to NFS over
+lossy links. (eg a 10<->100MB bridging hub).
+
+but these are very very specific issues. IME if you have a good
+network connection and you don't need IRIX to be diskless hanging off
+a Linux NFS server then NFSv3 works extremely well.
+
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org
+PGP5 key: http://www.clubi.ie/jakma/publickey.txt
+-------------------------------------------
+Fortune:
+The price one pays for pursuing any profession, or calling, is an intimate
+knowledge of its ugly side.
+		-- James Baldwin
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,59 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129319AbQLOVwR>; Fri, 15 Dec 2000 16:52:17 -0500
+	id <S129352AbQLOV6H>; Fri, 15 Dec 2000 16:58:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129352AbQLOVwH>; Fri, 15 Dec 2000 16:52:07 -0500
-Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:33040 "EHLO
-	almesberger.net") by vger.kernel.org with ESMTP id <S129319AbQLOVv5>;
-	Fri, 15 Dec 2000 16:51:57 -0500
-Date: Fri, 15 Dec 2000 22:21:17 +0100
+	id <S129511AbQLOV55>; Fri, 15 Dec 2000 16:57:57 -0500
+Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:34576 "EHLO
+	almesberger.net") by vger.kernel.org with ESMTP id <S129352AbQLOV5v>;
+	Fri, 15 Dec 2000 16:57:51 -0500
+Date: Fri, 15 Dec 2000 22:27:07 +0100
 From: Werner Almesberger <Werner.Almesberger@epfl.ch>
-To: LA Walsh <law@sgi.com>
-Cc: Alexander Viro <viro@math.psu.edu>, lkml <linux-kernel@vger.kernel.org>
+To: Joe deBlaquiere <jadb@redhat.com>
+Cc: ferret@phonewave.net, Alexander Viro <viro@math.psu.edu>,
+        LA Walsh <law@sgi.com>, lkml <linux-kernel@vger.kernel.org>
 Subject: Re: Linus's include file strategy redux
-Message-ID: <20001215222117.S573@almesberger.net>
-In-Reply-To: <20001215152137.K599@almesberger.net> <NBBBJGOOMDFADJDGDCPHAENMCJAA.law@sgi.com>
+Message-ID: <20001215222707.T573@almesberger.net>
+In-Reply-To: <20001215152137.K599@almesberger.net> <Pine.LNX.3.96.1001215090857.16439A-100000@tarot.mentasm.org> <20001215184644.R573@almesberger.net> <3A3A7F25.2050203@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <NBBBJGOOMDFADJDGDCPHAENMCJAA.law@sgi.com>; from law@sgi.com on Fri, Dec 15, 2000 at 10:10:39AM -0800
+In-Reply-To: <3A3A7F25.2050203@redhat.com>; from jadb@redhat.com on Fri, Dec 15, 2000 at 02:29:25PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-LA Walsh wrote:
-> 	I think in my specific case, perhaps, linux/malloc.h *is* a public
-> interface that is to be included by module writers and belongs in the
-> 'public interface dir -- and that's great.  But it includes files like
-> 'slab.h' which are kernel mm-specific that may change in the future.
+Joe deBlaquiere wrote:
+> My solution to this has always been to make a cross compiler environment 
 
-As far as I understand the scenario you're describing, this seems to
-be the only problem. <public>/malloc.h shouldn't need to include
-<private>/slab.h.
+;-))) I think lots of people would really enjoy to have "build a
+cross-gcc" added to the prerequisites for installing some driver
+module ;-)
 
-If there's anything <private>/slab.h provides (either directly or
-indirectly) that is needed in <public>/malloc.h, that should either be
-in another public header, or malloc.h actually shouldn't depend on it.
+I know, it's not *that* bad. But it still adds quite a few possible
+points of failure. Also, it adds a fair amount of overhead to any
+directory name change or creation of a new kernel tree.
 
-Exception: opaque types; there one would have to go via a __ identifier,
-i.e.
+> The other advantage to this is that I can switch my host environment 
+> (within reason - compatible host glibcs, ok) and not have to change the 
+> target compiler.
 
-<public>/foo.h defines  struct __foo ...;
-<public>/bar.h includes <public>/foo.h
-               and uses #define FOOSIZE sizeof(struct __foo)
-<private>/foo.h either  typedef struct __foo foo_t;
-                or      #define foo __foo  /* ugly */
-
-Too bad there's no  typedef struct __foo struct foo;
-
-I don't think restructuring the headers in this way would cause
-a long period of instability. The main problem seems to be to
-decide what is officially private and what isn't.
-
-> 	Any other solution, as I see it, would break existing module code.
-
-Hmm, I think what I've outlined above wouldn't break more code than
-your approach. Obviously, modiles currently using "private" interfaces
-are in trouble either way.
+Hmm, I don't quite understand what you mean here.
 
 - Werner
 

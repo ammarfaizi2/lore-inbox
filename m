@@ -1,39 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263979AbRFWO5r>; Sat, 23 Jun 2001 10:57:47 -0400
+	id <S264041AbRFWPTJ>; Sat, 23 Jun 2001 11:19:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263973AbRFWO5h>; Sat, 23 Jun 2001 10:57:37 -0400
-Received: from t2.redhat.com ([199.183.24.243]:37617 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S263979AbRFWO5W>; Sat, 23 Jun 2001 10:57:22 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20010623164218.D840@jaquet.dk> 
-In-Reply-To: <20010623164218.D840@jaquet.dk> 
-To: Rasmus Andersen <rasmus@jaquet.dk>
-Cc: jffs-dev@axis.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] add kmalloc checking to fs/jffs/intrep.c (245-ac16) 
+	id <S264067AbRFWPTA>; Sat, 23 Jun 2001 11:19:00 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:31763 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S264041AbRFWPSq>;
+	Sat, 23 Jun 2001 11:18:46 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Der Herr Hofrat <der.herr@hofr.at>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: sizeof problem in kernel modules 
+In-Reply-To: Your message of "Sat, 23 Jun 2001 16:54:20 +0200."
+             <200106231454.f5NEsKu14812@kanga.hofr.at> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 23 Jun 2001 15:57:16 +0100
-Message-ID: <20304.993308236@redhat.com>
+Date: Sun, 24 Jun 2001 01:18:39 +1000
+Message-ID: <16231.993309519@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 23 Jun 2001 16:54:20 +0200 (CEST), 
+Der Herr Hofrat <der.herr@hofr.at> wrote:
+>struct { short x; long y; short z; }bad_struct;
+>struct { long y; short x; short z; }good_struct;
+>I would expect both structs to be 8byte in size , or atleast the same size !
+>but good_struct turns out to be 8bytes and bad_struct 12 .
 
-rasmus@jaquet.dk said:
->  The following patch adds some checks for kmalloc returning NULL to fs/
-> jffs/intrep.c along with some way of getting that propagated back.
-> Applies against 245ac16 and 246p5. These dereferences were reported by
-> the Stanford team a way back. 
-
-Fixed in my tree at about the same time the FTL code was, a month or so ago,
-along with some more important bugs. I haven't yet got round to feeding the
-updates to Linus - that's next on my list after the MTD stuff which is in
-2.4.6. 
-
---
-dwmw2
-
+Read any C book about field alignment and padding in structures.
+Nothing to do with the kernel or modules.
 

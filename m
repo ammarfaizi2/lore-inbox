@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268356AbRGWVit>; Mon, 23 Jul 2001 17:38:49 -0400
+	id <S267930AbRGWVva>; Mon, 23 Jul 2001 17:51:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268354AbRGWVij>; Mon, 23 Jul 2001 17:38:39 -0400
-Received: from iris.ncsl.nist.gov ([129.6.57.209]:4333 "EHLO
-	iris.ncsl.nist.gov") by vger.kernel.org with ESMTP
-	id <S268356AbRGWViV>; Mon, 23 Jul 2001 17:38:21 -0400
-Date: Mon, 23 Jul 2001 17:38:27 -0400
-From: Martial MICHEL <martial@users.sourceforge.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.7 : video4linux driver problem (missing files for "zoran")
-Message-ID: <20010723173827.A32322@iris.ncsl.nist.gov>
-Reply-To: Martial MICHEL <martial@users.sourceforge.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S267931AbRGWVvU>; Mon, 23 Jul 2001 17:51:20 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:47764 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S267930AbRGWVvE>; Mon, 23 Jul 2001 17:51:04 -0400
+Date: Mon, 23 Jul 2001 15:50:54 -0600
+Message-Id: <200107232150.f6NLosh13126@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
+        Linus Torvalds <torvalds@transmeta.com>, Jeff Dike <jdike@karaya.com>,
+        user-mode-linux-user <user-mode-linux-user@lists.sourceforge.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>, Jan Hubicka <jh@suse.cz>
+Subject: Re: user-mode port 0.44-2.4.7
+In-Reply-To: <20010723231136.E16919@athlon.random>
+In-Reply-To: <Pine.LNX.4.33.0107231259520.13272-100000@penguin.transmeta.com>
+	<3B5C8C96.FE53F5BA@nortelnetworks.com>
+	<20010723231136.E16919@athlon.random>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-	When trying to    compile 2.4.7 kernel including the    "Zoran
-ZR36057/36060" entry (into "Multimedia devices->Video For Linux"), the
-compilation process complete on an error message :
---------------------
-ld -m elf_i386 -T /usr/src/linux-2.4.7/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o \
-        --start-group \
-        arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
-         drivers/acpi/acpi.o drivers/parport/driver.o drivers/char/char.o drivers/block/block.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o drivers/ide/idedriver.o drivers/scsi/scsidrv.o drivers/cdrom/driver.o drivers/sound/sounddrivers.o drivers/pci/driver.o drivers/pnp/pnp.o drivers/video/video.o drivers/usb/usbdrv.o drivers/input/inputdrv.o drivers/i2c/i2c.o \
-        net/network.o \
-        /usr/src/linux-2.4.7/arch/i386/lib/lib.a /usr/src/linux-2.4.7/lib/lib.a /usr/src/linux-2.4.7/arch/i386/lib/lib.a \
-        --end-group \
-        -o vmlinux
-drivers/media/media.o(.data+0x14): undefined reference to `init_zoran_cards'
-make: *** [vmlinux] Error 1
---------------------
-	After performing  a    quick    check,  it   appears      that
-"init_zoran_cards" is never fully defined  in the kernel sources, only
-referenced :
---------------------
-find -name "*.c" | xargs fgrep init_zoran_cards
-./drivers/media/video/videodev.c:extern int init_zoran_cards(struct video_init *);
-./drivers/media/video/videodev.c:       {"zoran", init_zoran_cards},
---------------------
-	Would it  be  possible to get  the  missing files in  order to
-compile this driver ?
+Andrea Arcangeli writes:
+> cases if the code breaks in the actual usages of xtime it is likely that
+> gcc is doing something stupid in terms of performance. but GCC if it
+> wants to is allowed to compile this code:
+> 
+> 	printf("%lx\n", xtime.tv_sec);
+> 
+> as:
+> 
+> 	unsigned long sec = xtime.tv_sec;
+> 	if (sec != xtime.tv_sec)
+> 		BUG();
+> 	printf("%lx\n", sec);
 
-						Hope that helps,
+And if it does that, it's stupid. Why on earth would GCC add extra
+code to check if a value hasn't changed? I want it to produce
+efficient code. What's next? Wrap checking?
+    printk ("You've just wrapped an integer: press [ENTER] to confirm,
+	    [NT] to ignore   ");
 
-PS  : Please send me  a copy of  an answer to this e-mail  as I am not
-subscribed to this ML
+				Regards,
 
--- 
-  Martial MICHEL
-E-mail    : martial@users.sourceforge.net
-Home page : http://www.loria.fr/~michel/
-PBM       : http://pbm.sourceforge.net/
-DLC       : http://dlc.sourceforge.net/
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

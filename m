@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266749AbTBTT31>; Thu, 20 Feb 2003 14:29:27 -0500
+	id <S266805AbTBTT3t>; Thu, 20 Feb 2003 14:29:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266805AbTBTT31>; Thu, 20 Feb 2003 14:29:27 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:28336 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S266749AbTBTT30>;
-	Thu, 20 Feb 2003 14:29:26 -0500
-Date: Thu, 20 Feb 2003 20:36:26 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Zwane Mwaikambo <zwane@holomorphy.com>, Chris Wedgwood <cw@f00f.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: doublefault debugging (was Re: Linux v2.5.62 --- spontaneous
- reboots)
-In-Reply-To: <Pine.LNX.4.44.0302201015150.1589-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0302202034270.2013-100000@localhost.localdomain>
+	id <S266806AbTBTT3t>; Thu, 20 Feb 2003 14:29:49 -0500
+Received: from 251.017.dsl.syd.iprimus.net.au ([210.50.55.251]:14998 "EHLO
+	file1.syd.nuix.com.au") by vger.kernel.org with ESMTP
+	id <S266805AbTBTT3s> convert rfc822-to-8bit; Thu, 20 Feb 2003 14:29:48 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Song Zhao <song.zhao@nuix.com.au>
+Reply-To: song.zhao@nuix.com.au
+Organization: Nuix
+To: thunder7@xs4all.nl
+Subject: Re: Supermicro X5DL8-GG (ServerWorks Grandchampion LE chipset) slow
+Date: Fri, 21 Feb 2003 06:39:23 -0500
+User-Agent: KMail/1.4.3
+References: <200302202034.28676.song.zhao@nuix.com.au> <200302202201.15977.song.zhao@nuix.com.au> <20030220110616.GA21293@middle.of.nowhere>
+In-Reply-To: <20030220110616.GA21293@middle.of.nowhere>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200302210639.23304.song.zhao@nuix.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 20 Feb 2003 06:06 am, Jurriaan wrote:
+> From: Song Zhao <song.zhao@nuix.com.au>
+> Date: Thu, Feb 20, 2003 at 10:01:15PM -0500
+>
+> > > > Also, this board can't even boot with 8x 1GB memory modules plugged
+> > > > in (8 DIMM slots in total). This is a relative new board and I can't
+> > > > find anything relevant on the net.
+> > >
+> > > "can't boot" as in crashes halfway during linux or doesn't even start
+> > > lilo?
+> >
+> > It doesn't even start Lilo, it hangs after it checks memory, 3ware card
+> > and network card.
+>
+> A bios issue? That would be something for the people you bought it from,
+> then.
 
-hm, i think i can see the SMP race.
-
-the last put_task_struct() can also be done by procfs - and nothing keeps
-it from freeing the task in __put_task_struct(), while the task struct is
-after its final put_task_struct(), but before the switch_to().
-
-this does not explain the UP crash though.
-
-	Ingo
-
-
+Our supplier is in the process of contacting Supermicro about it. My other 
+Supermicro X5DP8-G2 (E7501 chipset) is running beautifully. 

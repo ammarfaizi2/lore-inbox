@@ -1,83 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266736AbTAZQvU>; Sun, 26 Jan 2003 11:51:20 -0500
+	id <S266792AbTAZRAP>; Sun, 26 Jan 2003 12:00:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266792AbTAZQvT>; Sun, 26 Jan 2003 11:51:19 -0500
-Received: from web20507.mail.yahoo.com ([216.136.226.142]:40278 "HELO
-	web20507.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S266736AbTAZQvS>; Sun, 26 Jan 2003 11:51:18 -0500
-Message-ID: <20030126170034.30209.qmail@web20507.mail.yahoo.com>
-Date: Sun, 26 Jan 2003 09:00:34 -0800 (PST)
-From: sundara raman <sundararamand@yahoo.com>
-Subject: doubts in INIT - while system booting up
-To: Linux-Kernel@vger.kernel.org
-MIME-Version: 1.0
+	id <S266840AbTAZRAP>; Sun, 26 Jan 2003 12:00:15 -0500
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:7177 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S266792AbTAZRAO>; Sun, 26 Jan 2003 12:00:14 -0500
+Date: Sun, 26 Jan 2003 18:09:27 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Aic7xxx 6.2.28 and Aic79xx 1.3.0 Released
+Message-ID: <20030126170927.GA14059@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <739810000.1043382396@aslan.scsiguy.com> <20030123.202727.102788332.davem@redhat.com> <756820000.1043384077@aslan.scsiguy.com> <20030123.205853.127871890.davem@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030123.205853.127871890.davem@redhat.com>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 23 Jan 2003, David S. Miller wrote:
 
-I got some error while reconfiguring & rebooting the
-kernel(version 2.4.7-10) in the Redhat linux 7.2 for
-DiffServ support.
+> I'm glad that we've established that we both provide endless amounts
+> of comedy for each other.
+> 
+> Look Justin, the fact remains that you get paid top dollar to maintain
+> the Linux Adaptec driver.  If you can't be bothered to reliably
+> integrate fixes that show up in Linus's and Marcelo's tree, then
+> that's regretfully sad given your circumstances.
+> 
+> Now that is what makes me laugh!
 
-I followed the steps for reconfiguring & rebuilding
-the kernel. 
+David,
 
-1) I downloaded kernel-source-2.4.7-10.rpm from the
-internet.
-2) After extracting, i got the "Linux" folder in
-/usr/src path.
-3) I edited the following commands in /usr/src/linux
-path
+this is not how distributed development can work. The communication
+clearly is broken here.
 
-	#make xconfig
-	#make dep
-	#make clean
-	#nohup make bzImage
-	#make modules
-	#make modules_install
-	#cp /usr/src/linux/arch/i386/boot/bzImage
-/boot/linix-ds
-	
-4) I added the "lilo.conf" file in /etc path like
-	
-	image=/boot/linux-ds
-	label=DiffServ
-	read-only
-	root=/dev/hda6
+Regardless of whether Linus' tree is broken or no, ALWAYS Cc: the fixes
+-- even if trivial -- to the driver maintainer.  It's as simple as that.
 
-5) I run "/sbin/lilo" file.
-6) after rebooting the system,lilo shows the DiffServ
-label.
-7) I selected that label.
-8) while system booting up, it shows the following
-error
+Same about complaints. If a tree breaks, complaining to the maintainer
+in addition to Linus/Marcelo/Alan may yield a "Linus' merge is
+incomplete, here's the missing bit" message from the maintainer.
 
-	 INIT: Id "x" respawing too fast: disabled for 5
-minutes
+It's all about communication. If maintainers drown in messages, they'll
+tell this (Linus for example is notorious for dropping messages).
 
+I don't mean to offend anyone, but what you expect looks like
+clairvoyance to me, regardless of whether Justin gets paid or not, this
+is simply not reasonable to expect.
 
-Please help me.
-what will i do?
+Unless someone comes up with a "watchmydriver" script that checks the
+ChangeSet figures of a set of files after every bk pull and complains if
+Linus' tree complains unauthorized ChangeSets. I'm not sure if there is
+an invariant tag that remains across getting bk patches applied or if
+real diffs are needed. Larry or other BK experts might know more.
 
-
-Best Reagrds
-D.SUndara Raman
-	
-
-
-=====
-------------------------
-D. Sundara Raman
-150 Ettayapuram Road
-Kovilpatti, Tamilnadu
-India. 628 501.
-Phone : 04632 - 27267
-sundararamand@yahoo.com
-
-__________________________________________________
-Do you Yahoo!?
-Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
-http://mailplus.yahoo.com
+-- 
+Matthias Andree

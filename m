@@ -1,98 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262610AbVCPOqg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262605AbVCPOoO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262610AbVCPOqg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 09:46:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262608AbVCPOpw
+	id S262605AbVCPOoO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 09:44:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262609AbVCPOmm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 09:45:52 -0500
-Received: from gw1.cosmosbay.com ([62.23.185.226]:36510 "EHLO
-	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S262610AbVCPOmw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 09:42:52 -0500
-Message-ID: <423845DF.7080701@cosmosbay.com>
-Date: Wed, 16 Mar 2005 15:42:39 +0100
-From: Eric Dumazet <dada1@cosmosbay.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
-X-Accept-Language: fr, en-us, en
+	Wed, 16 Mar 2005 09:42:42 -0500
+Received: from hermine.aitel.hist.no ([158.38.50.15]:5639 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S262605AbVCPOly (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 09:41:54 -0500
+Message-ID: <4238467A.3030907@aitel.hist.no>
+Date: Wed, 16 Mar 2005 15:45:14 +0100
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-os@analogic.com
-CC: Ian Campbell <ijc@hellion.org.uk>, Tom Felker <tfelker2@uiuc.edu>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Bogus buffer length check in linux-2.6.11  read()
-References: <Pine.LNX.4.61.0503151257450.12264@chaos.analogic.com>  <200503152056.16287.tfelker2@uiuc.edu>  <Pine.LNX.4.61.0503160724120.16304@chaos.analogic.com> <1110979800.3057.69.camel@icampbell-debian> <Pine.LNX.4.61.0503160848420.16718@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0503160848420.16718@chaos.analogic.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Roland Scheidegger <rscheidegger_lists@hispeed.ch>
+CC: Dave Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org,
+       dri-devel@lists.sourceforge.net
+Subject: Re: Another drm/dri lockup - when moving the mouse
+References: <423802E6.1020308@aitel.hist.no> <423822FA.6020501@hispeed.ch>
+In-Reply-To: <423822FA.6020501@hispeed.ch>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [172.16.8.80]); Wed, 16 Mar 2005 15:42:34 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os wrote:
+Roland Scheidegger wrote:
 
-> 
-> 
-> I don't know how much more precise I could have been. I show the
-> code that will cause the observed condition. I explain that this
-> condition is new, that it doesn't correspond to the previous
-> behavior.
-> 
-> Never before was some buffer checked for length before some data
-> was written to it. The EFAULT is supposed to occur IFF a write
-> attempt occurs outside the caller's accessible address space.
-> This used to be done by hardware during the write to user-space.
-> This had zero impact upon performance. Now there is some
-> software added that adds CPU cycles, subtracts performance,
-> and cannot possibly do anything useful.
-> 
-> Also, the code was written to show the problem. The code
-> is not designed to be an example of good coding practice.
-> 
-> The actual problem observed with the new kernel was
-> when some legacy code used gets() instead of fgets().
-> The call returned immediately with an EFAULT because
-> the 'C' runtime library put some value that the kernel
-> didn't 'like' (4096 bytes) in the subsequent read.
+> Helge Hafting wrote:
+>
+>> I have reported this before, but now I have some more data.
+>>
+>> I have an office pc with this video card:
+>> VGA compatible controller: ATI Technologies Inc Radeon RV100 QY 
+>> [Radeon 7000/VE]
+>>
+>> In previous reports I found that starting xfree or xorg with dri support
+>> cause a hang after a little while.  It seems that this only happens when
+>> the mouse moves.  Something I didn't discover before because there
+>> are lots of unplanned mouse movements - the thing is sensitive and jumps
+>> a pixel now and then when I move stuff on the desk.
+>
+> What xorg / xfree / drm versions are you talking about?
+>
+>> Taking care not to move the mouse, I can start X and run glxgears
+>> with acceleration.  The slightest mouse movement during 3D activity
+>> kills the machine instantly so it only responds to the reset button.  
+>> Mouse
+>> movement without 3D activity may or may not kill the pc.
+>>
+>> Could there be a problem where 3D-stuff and code to move the mouse
+>> "steps on each other toes" somehow?  Or some way to test this further,
+>> by disabling the mouse or force some kind of software fallback for
+>> the mouse cursor?
+>
+> You could use Option "SWcursor" "true".
 
+This didn't help.  The cursor was definitely SW, flashing on and off
+when over a scrolling xterm. The machine still died quickly.
 
-If you use a buggy program, that had a hidden bug now exposed because 
-of different kernel checks, dont complain, and use your brain.
+> Since it crashes even without 3d sometimes, the problem does not seem 
+> to be related to dri (as in, dri driver). Sounds more like it's 
+> related to CP activity. Not sure what would cause this, there seem to 
+> be a lot of mouse cursor movement crashes reported lately... Do you 
+> have a USB mouse whose controller shares the IRQ with the graphic card 
+> maybe?
 
-If you do
+The card gets IRQ 16, which isn't shared with anything in this machine.
 
-$ export VAR1=" A very very very very long chain just to be sure my 
-environnement (which is placed at the top of the stack at exec() time) 
-will use at least 4 Kb  : then my litle buggy program will run if I 
-type few chars but destroy my stack if I type a long string or if I 
-use : cat longfile | ./xxx : So I wont complain again on lkml that I 
-am sooooo lazy. Oh what could I type now, I'm tired, maybe I can copy 
-this string to others variables. Yes... sure...."
-$ export VAR2=$VAR1
-$ export VAR3=$VAR1
-$ export VAR4=$VAR1
-$ export VAR5=$VAR1
-Then check your env size is large enough
-$ env|wc -c
-    4508
-$ ./xxx
-./xxx 2>/dev/null
-
-Apparently the kernel thinks 4096 is a good length!
-
-So what ? Your program works well now, on a linux-2.6.11 typical 
-machine. Ready to buffer overflow again.
-
-Maybe you can pay me $1000 :)
-
-Eric Dumazet
-> 
-> This is code for which there are no sources available
-> and it is required to be used, cannot be replaced,
-> cannot be thrown away and costs about US$ 10,000
-> from a company that is no longer in business.
-> 
-> Somebody's arbitrary and capricious addition of spook
-> code destroyed an application's functionality.
-> 
-> Cheers,
-> Dick Johnson
-
+Helge Hafting

@@ -1,61 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268191AbUHKT0s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268055AbUHKT3x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268191AbUHKT0s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 15:26:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268187AbUHKT0s
+	id S268055AbUHKT3x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 15:29:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268053AbUHKT3w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 15:26:48 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:65456 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268011AbUHKT0i
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 15:26:38 -0400
-Message-ID: <411A72E0.2010301@pobox.com>
-Date: Wed, 11 Aug 2004 15:26:24 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+	Wed, 11 Aug 2004 15:29:52 -0400
+Received: from ns1.g-housing.de ([62.75.136.201]:51934 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S268194AbUHKT3j (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 15:29:39 -0400
+Message-ID: <411A739D.1040000@g-house.de>
+Date: Wed, 11 Aug 2004 21:29:33 +0200
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040715)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Arvind Autar <arvind.autar@gmail.com>
-CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
-       B.Zolnierkiewicz@elka.pw.edu.pl
-Subject: Re: SATA issue's
-References: <80c0fd0e040731150713ca0e6c@mail.gmail.com>
-In-Reply-To: <80c0fd0e040731150713ca0e6c@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux-kernel <linux-kernel@vger.kernel.org>
+CC: vortex@scyld.com, netdev@oss.sgi.com, nfs@lists.sourceforge.net,
+       debian-kernel@lists.debian.org
+Subject: oops with 2.6.8-rc4 (ipv6 / nfs / 3c59x related?)
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arvind Autar wrote:
-> So, here I'm, trying to setup a box.
-> I installed debian sarge with 2.4.25-1-386. It ran fine, but didn't
-> work with my s-ata disk.
-> 
-> I grabbed 2.6.8-rc2 and 2.6.8-rc1-mm1. Bot gave me the same results.
-> 
-> My ata disk uses Amd74xx Adn the s-ata siimage/sata_sil . The amd74
-> got compiled in as * because that's the disk where linux got
-> installed. siimage/sata_sil got copmiled as a module, I needed the
-> disk to mount my fat32 partition so I could get to mine music files. I
-> booted both kernels both of them started to freeze after a while. So I
-> started to look in the log files and found this: (see attachment)208K
-> Unfortunately I don't have any debugging(?) info from the Amd74xx all
-> I know is that it gives some error about kernel bug at
-> drivers/ide/ide-10.c:112 and it makes my computer probably freeze. I
-> even booted with: 'noirqdebug' but the results I got where
-> 
-> SCSI subsystem initialized
-> ACPI : PCI interrupt 0000:01:0b[A] -> GSI 11(level , low ) -> IRQ 11
-> ata1 : SATA max UDMA / 100 cmd 0xE0B8E080 ctl 0xE0B8E08A bmdma 0xE0B8E000 irq 11
-> ata2 : SATA max UDMA / 100 cmd 0xE0B8E0C0 ctl 0xE0B8E0CA bmdma 0xE0B8E008 irq 11
-> and then there was a freeze
-> 
-> I hope this problem gets solved soon.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+hi list,
 
-Most likely you need to update your BIOS, or boot with "noapic", or boot 
-with "pci=noacpi", or similar.
+yesterday i encounterd several oopses with my "server". the subject of
+this mail is just plain saying that it is all "2.6.8-rc4's fault". the
+reality however turned out to be much more complex and confusing so i
+try to recapitulate in a chronologically way:
 
-	Jeff
+- - the box (debian/unstable, i368 [PentiumIII] ) was running for 28 days
+with 2.6.7-ck5 (no other patches but the -ck5 [1] )
 
+- - ipv6 transition interface was down again, i had to start the freenet6
+client again, to setup sit1. then i tried from a nfs-client to use this
+interface by issuing "tracepath6" comamnds when i noticed my nfs-server
+(the pIII-box) was dead. i could not catch the oops, had no digicam at
+hand / was too lazy to write, i'll tell later on that.
 
+- - rebooted same kernel, tried again locally (setup sit1, tracepath6 to
+some ipv6 host) -> the box oopsed and locked up. (SYSRQ-s|u did not
+succeed, only SYSRQ-b...rebooting)
+
+- - ok, 2.6.8-rc4 is out anyway, time to update. compiled, booted, setup
+sit1, tracepath6....-> the box oopsed and locked up.
+
+- - am i too dumb to boot my self-built kernels? perhaps, so i used
+kernel-image-2.6.7-1-686 from debian. again: i set up sit1, tracepath6
+to some host -> ha! it did not lock up instantly, but tracepath6 gave
+not results, so i CTRL-C'ed it and received a message:
+
+KERNEL: assertion (!atomic_read(&sk->sk_wmem_alloc)) failed at
+net/ipv4/af_inet.c (155)
+
+everytime i CTRL-C'ed i received this message. and 2.6.7-1-686 was still
+alive....for a few minutes. when i used my nfs-client to issue
+tracepath6 commands, the box oopsed but this time the oops mad it to the
+disk [2]. then it locked up, and the screen filled with traces.
+
+- - today i got a camera so i was able to catch the oops [3] + [4]. now
+the confusing part: i rememberd the oopses from the 2.6.8-rc4: they were
+ the same as [3] is showing, so it seemed to be related to the 3c59x
+module. i even suspected (sudden) harware problems so i changed the NIC
+to another 3c59x card. hm, the 3c59x oopses were gone indeed (somehow i
+still doubt the card is damaged), but the nfs related oopses occured
+with 2.6.7-1-i686 *and* 2.6.8-rc4 [4] + [5].
+
+- - so, the nfs-related oopses were  100% reproducable when i used the
+nfs-shares on the client (both 2.6.7-1-686 and 2.6.8-rc4)
+
+- - somehow ipv6 was always involved, i could not trigger the oops when
+ipv6 was not loaded/sit1 was not setup.
+
+- - vanilla 2.6.7 seems not affected, 2.6.8-rc[1..3] are also ok
+(2.6.8-rc3 is running atm).
+
+i hope i did not mix something up here. yes, maybe this report has to
+split up into one ipv6 and one nfs report. i hope [3], [4], [5] are
+helpful to find out what the oops was all about. (the "Tainted" flags in
+the 2.6.7-1-686 kernels came from loop-aes modules:
+"loop: no version for "struct_module" found: kernel tainted.")
+
+sorry for the crossposting (please delete rcpts if not applicable)
+Thank you for your commments.
+Christian.
+
+[1] http://ck.kolivas.org/patches/2.6/2.6.7/2.6.7-ck5/patch-2.6.7-ck5.bz2
+
+[2] http://nerdbynature.de/bits/sheep/2.6.8/2.6.7-1-686.oops
+
+[3] http://nerdbynature.de/bits/sheep/2.6.8/2.6.7-1-686.oops_3c59x.jpg
+[4] http://nerdbynature.de/bits/sheep/2.6.8/2.6.7-1-686.oops_nfs.jpg
+[5] http://nerdbynature.de/bits/sheep/2.6.8/2.6.8-rc4.oops_nfs.jpg
+
+everything:
+   http://nerdbynature.de/bits/sheep/2.6.8/
+
+- --
+BOFH excuse #78:
+
+Yes, yes, its called a design limitation
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBGnOd+A7rjkF8z0wRAqK2AJ96DxaNdgXBRbDJvhZUNChmh9kDugCdFyIa
+n5wJaT5zXePq7xakS2SuPsA=
+=SkFV
+-----END PGP SIGNATURE-----

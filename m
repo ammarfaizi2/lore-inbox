@@ -1,132 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261764AbTJFX6K (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 19:58:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261768AbTJFX6K
+	id S261762AbTJGAP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 20:15:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261763AbTJGAP2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 19:58:10 -0400
-Received: from [38.119.218.103] ([38.119.218.103]:48514 "HELO
-	mail.bytehosting.com") by vger.kernel.org with SMTP id S261764AbTJFX6D
+	Mon, 6 Oct 2003 20:15:28 -0400
+Received: from mail2-116.ewetel.de ([212.6.122.116]:14493 "EHLO
+	mail2.ewetel.de") by vger.kernel.org with ESMTP id S261762AbTJGAP1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 19:58:03 -0400
-X-Qmail-Scanner-Mail-From: drunk@conwaycorp.net via digital.bytehosting.com
-X-Qmail-Scanner: 1.20rc3 (Clear:RC:1:. Processed in 0.109313 secs)
-Date: Mon, 6 Oct 2003 18:57:59 -0500
-From: Nathan <kraken@drunkmonkey.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test6[-mm4] boot failure on alpha
-Message-ID: <20031006235759.GA26127@wang-fu.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AhhlLboLdkugWU4S"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Mon, 6 Oct 2003 20:15:27 -0400
+Date: Tue, 7 Oct 2003 02:15:23 +0200 (CEST)
+From: Pascal Schmidt <der.eremit@email.de>
+To: Greg KH <greg@kroah.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC 0/6] Backing Store for sysfs
+In-Reply-To: <20031006191004.GA12979@kroah.com>
+Message-ID: <Pine.LNX.4.44.0310070210580.32013-100000@neptune.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 6 Oct 2003, Greg KH wrote:
 
---AhhlLboLdkugWU4S
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Systems like this are not uncommon, I agree.  But also for systems like
+> this, the current code works just fine (small number of fixed devices.)
+> I haven't heard anyone complain about memory usage for a normal system
+> (99.9% of the systems out there.)
 
+I'd like my kernel to have as small a footprint as possible. Allocated
+memory that is almost never used is waste. It may not be much, but 
+"add little to little and you will have a big pile". Whatever, we're
+not the big pile yet and I'm not concerned enough to cook up patches.
 
-I'm having a problem getting 2.6.0-test6 and/or 2.6.0-test6-mm4 to boot
-on my AS2100.  It boots and runs fine with 2.4.21.  The following is what
-I get when I boot -test6-mm4 (although it stops at the same point with
-vanilla -test6).  Any suggestions, comments, or requests for further
-information are welcome.
+> Also,  remember that in 2.7 I'm going to make device numbers random so
+> you will have to use something like udev to control your /dev tree.
+> Slowly weaning yourself off of a static /dev during the next 2 years or
+> so might be a good idea :)
 
+I guess by then we'll have an excellent udev version with no known
+bugs. ;) However, requiring more and more packages to be installed just
+to boot a system is also not something I like much.
 
-aboot: starting kernel boot/vmlinuz-2.6.0-test6-mm4 with arguments ro root=
-=3D/dev/sda1 console=3DttyS0,9600n8
-Linux version 2.6.0-test6-mm4 (root@buddha) (gcc version 3.3.2 20030908 (De=
-bian prerelease)) #1 SMP Mon Oct 6 18:14:06 CDT 2003
-Booting on Sable using machine vector Sable from SRM
-Major Options: SMP LEGACY_START VERBOSE_MCHECK MAGIC_SYSRQ=20
-Command line: ro root=3D/dev/sda1 console=3DttyS0,9600n8
-memcluster 0, usage 1, start        0, end      256
-memcluster 1, usage 0, start      256, end    65527
-memcluster 2, usage 1, start    65527, end    65536
-freeing pages 256:384
-freeing pages 811:65527
-reserving pages 811:812
-t2_init_arch: enabling SG TLB, IOCSR was 0xfe000084230a8190
-SMP: 4 CPUs probed -- cpu_present_mask =3D f
-On node 0 totalpages: 65527
-  DMA zone: 65527 pages, LIFO batch:8
-  Normal zone: 0 pages, LIFO batch:1
-  HighMem zone: 0 pages, LIFO batch:1
-Building zonelist for node : 0
-Kernel command line: ro root=3D/dev/sda1 console=3DttyS0,9600n8
-PID hash table entries: 2048 (order 11: 32768 bytes)
-Using epoch =3D 1952
-Turning on RTC interrupts.
-Console: colour VGA+ 80x25
-Memory: 512960k/524216k available (2056k kernel code, 8840k reserved, 301k =
-data, 440k init)
-Calibrating delay loop... 545.60 BogoMIPS
-Dentry cache hash table entries: 65536 (order: 6, 524288 bytes)
-Inode-cache hash table entries: 32768 (order: 5, 262144 bytes)
-Mount-cache hash table entries: 512 (order: 0, 8192 bytes)
-POSIX conformance testing by UNIFIX
-per-CPU timeslice cutoff: 374.48 usecs.
-task migration cache decay timeout: 0 msecs.
-SMP starting up secondaries.
-Starting migration thread for cpu 0
-Bringing up 1
-Calibrating delay loop... 547.16 BogoMIPS
-CPU 1 IS NOW UP!
-Starting migration thread for cpu 1
-Bringing up 2
-Calibrating delay loop... 547.16 BogoMIPS
-CPU 2 IS NOW UP!
-Starting migration thread for cpu 2
-Bringing up 3
-Calibrating delay loop... 549.72 BogoMIPS
-CPU 3 IS NOW UP!
-Starting migration thread for cpu 3
-CPUS done 4
-SMP: Total of 4 processors activated (2195.89 BogoMIPS).
-NET: Registered protocol family 16
-EISA bus registered
-PCI: Bus 1, bridge: 0000:00:07.0
-  IO window: 9000-9fff
-  MEM window: 01100000-011fffff
-  PREFETCH window: disabled.
-PCI: Bus 2, bridge: 0000:00:08.0
+-- 
+Ciao,
+Pascal
 
-----
-When I boot with 2.4.21, the PCI lines look like:
-
-PCI: Bus 1, bridge: Digital Equipment Corporation DECchip 21050
-  IO window: 9000-9fff
-  MEM window: 01100000-011fffff
-  PREFETCH window: disabled.
-PCI: Bus 2, bridge: Digital Equipment Corporation DECchip 21152
-  IO window: a000-afff
-  MEM window: 01200000-012fffff
-  PREFETCH window: 01300000-013fffff
-
-
---=20
-Nathan Poznick <kraken@drunkmonkey.org>
-
-Debt is a prolific mother of folly and of crime. - Benjamin Disraeli
-
-
---AhhlLboLdkugWU4S
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/ggGHYOn9JTETs+URAj8AAKCIvrKljpfgslKjZREuZpfU1YK9hQCePzLf
-lH8U3nNrR31TQvhpbq+6jgI=
-=f42Q
------END PGP SIGNATURE-----
-
---AhhlLboLdkugWU4S--

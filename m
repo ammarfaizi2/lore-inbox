@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268421AbUHQU3m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266704AbUHQUlg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268421AbUHQU3m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 16:29:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268415AbUHQU2w
+	id S266704AbUHQUlg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 16:41:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268420AbUHQUlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 16:28:52 -0400
-Received: from cmm219.neoplus.adsl.tpnet.pl ([83.31.140.219]:30980 "EHLO
-	cnj25.neoplus.adsl.tpnet.pl") by vger.kernel.org with ESMTP
-	id S268416AbUHQU2Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 16:28:25 -0400
-Date: Tue, 17 Aug 2004 22:30:13 +0200
-From: Jakub Bogusz <qboosh@pld-linux.org>
-To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: 2.6.8.1 - unresolved xfrm symbols in ip6_tunnel
-Message-ID: <20040817203013.GA31993@satan.blackhosts>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 17 Aug 2004 16:41:36 -0400
+Received: from mail2.aster.pl ([212.76.33.39]:55429 "EHLO mail2.astercity.net")
+	by vger.kernel.org with ESMTP id S266704AbUHQUk5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 16:40:57 -0400
+From: authn <opacki@acn.waw.pl>
+Reply-To: opacki@acn.waw.pl
+To: linux-kernel@vger.kernel.org
+Subject: Getting the "file struct" problem.
+Date: Tue, 17 Aug 2004 22:41:35 +0200
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+Organization: DsTool Lab
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408172241.35933.opacki@acn.waw.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've just got:
+Hello,
+I need to have a uid of an owner of a some file. And i do like:
 
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.6.8.1; fi
-WARNING: /lib/modules/2.6.8.1/kernel/net/ipv6/ip6_tunnel.ko needs unknown symbol xfrm6_tunnel_register
-WARNING: /lib/modules/2.6.8.1/kernel/net/ipv6/ip6_tunnel.ko needs unknown symbol xfrm6_tunnel_deregister
-
-with
-CONFIG_IPV6_TUNNEL=m
-and no XFRM (it wasn't selected by IPV6_TUNNEL and it's not possible to
-select it standalone - XFRM is selected only by some options which
-I don't use).
-
-So I think that IPV6_TUNNEL should select or depend on XFRM...
-or usage of the above symbols should depend on CONFIG_XFRM ||
-CONFIG_XFRM_MODULE?
-
-
+struct file *filep;
+filep=filp_open(filename, 0, 0);
+        if (IS_ERR(filep))
+                return -EIO;
+And then i just follow by filep->f_dentry->d_inode->i_uid. But this solution 
+doesnt work in all cases. The case where it doesnt work is a file with 
+permissions like /bin/su
+-rws--x--x  1 root bin 35780 Jun 21 21:20 /bin/su*
+Where read permission has only root. Then i got I/O error. How to solve it ? 
+Maybe there is some other way to get the dentry struct of a file?
 -- 
-Jakub Bogusz    http://cyber.cs.net.pl/~qboosh/
+Regards
+apacz

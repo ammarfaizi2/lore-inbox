@@ -1,43 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261347AbRFCDsI>; Sat, 2 Jun 2001 23:48:08 -0400
+	id <S262685AbRFCD5t>; Sat, 2 Jun 2001 23:57:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261786AbRFCDrs>; Sat, 2 Jun 2001 23:47:48 -0400
-Received: from mail.mesatop.com ([208.164.122.9]:59143 "EHLO thor.mesatop.com")
-	by vger.kernel.org with ESMTP id <S261347AbRFCDrl>;
-	Sat, 2 Jun 2001 23:47:41 -0400
-Content-Type: text/plain;
-  charset="windows-1251"
-From: Steven Cole <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
+	id <S261839AbRFCD5j>; Sat, 2 Jun 2001 23:57:39 -0400
+Received: from ncc1701.cistron.net ([195.64.68.38]:44304 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S261786AbRFCD5X>; Sat, 2 Jun 2001 23:57:23 -0400
+From: dth@trinity.hoho.nl (Danny ter Haar)
+Subject: Re: Intellimouse in 2.4.5-ac7
+Date: Sun, 3 Jun 2001 03:57:19 +0000 (UTC)
+Organization: Holland Hosting
+Message-ID: <9fccis$qr0$1@voyager.cistron.net>
+In-Reply-To: <Pine.GSO.4.33.0106030331110.28653-100000@iridanos.csd.uch.gr> <991529658.691.0.camel@phantasy>
+X-Trace: voyager.cistron.net 991540639 27488 195.64.82.84 (3 Jun 2001 03:57:19 GMT)
+X-Complaints-To: abuse@cistron.nl
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.5-ac7 fix for rivers/net/wireless/Config.in problem
-Date: Sat, 2 Jun 2001 21:43:04 -0600
-X-Mailer: KMail [version 1.2]
-Cc: alan@lxorguk.ukuu.org.uk
-MIME-Version: 1.0
-Message-Id: <01060221430401.19545@localhost.localdomain>
-Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got the following error from make xconfig:
+Robert Love  <rml@tech9.net> wrote:
+>i am running ac7 right now (and was running ac6 with the patch) and my
+>IntelliMouse works fine.
 
-drivers/net/wireless/Config.in: 5: can't handle dep_bool/dep_mbool/dep_tristate condition
-make[1]: *** [kconfig.tk] Error 1
+SOmetimes my laptop doesn't see my intellithingy as well (ac5)
+Reconnecting the mouse helpes to force recognising it.
+Mayby the same with ac6 ?
 
-Here is a little micro patch to change the dep_tristate into a plain vanilla tristate.
+Danny
 
-Steven
+-- 
+Holland Hosting
+www.hoho.nl      info@hoho.nl
 
---- linux/drivers/net/wireless/Config.in.ac7    Sat Jun  2 21:27:18 2001
-+++ linux/drivers/net/wireless/Config.in        Sat Jun  2 21:32:59 2001
-@@ -2,7 +2,7 @@
- # Wireless LAN device configuration
- #
- 
--dep_tristate '  Cisco/Aironet 34X/35X/4500/4800 ISA and PCI cards' CONFIG_AIRO
-+   tristate '  Cisco/Aironet 34X/35X/4500/4800 ISA and PCI cards' CONFIG_AIRO
- 
- if [ "$CONFIG_ALL_PPC" = "y" ]; then
-    tristate '  Apple Airport support (built-in)' CONFIG_APPLE_AIRPORT

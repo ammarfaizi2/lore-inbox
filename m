@@ -1,63 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268236AbUHUG3e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268153AbUHUG33@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268236AbUHUG3e (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 02:29:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268424AbUHUG3e
+	id S268153AbUHUG33 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 02:29:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268236AbUHUG33
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 02:29:34 -0400
-Received: from herkules.viasys.com ([194.100.28.129]:16578 "HELO
-	mail.viasys.com") by vger.kernel.org with SMTP id S268236AbUHUG3a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 02:29:30 -0400
-Date: Sat, 21 Aug 2004 09:29:27 +0300
-From: Ville Herva <vherva@viasys.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: petr@vandrovec.name, linux-kernel@vger.kernel.org,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: 2.6.8.1-mm2 breaks vmware
-Message-ID: <20040821062927.GM23741@viasys.com>
-Reply-To: vherva@viasys.com
-References: <20040820104230.GH23741@viasys.com> <20040820035142.3bcdb1cb.akpm@osdl.org> <20040820131825.GI23741@viasys.com> <20040820144304.GF8307@viasys.com> <20040820151621.GJ23741@viasys.com> <20040820114518.49a65b69.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 21 Aug 2004 02:29:29 -0400
+Received: from yacht.ocn.ne.jp ([222.146.40.168]:41711 "EHLO
+	smtp.yacht.ocn.ne.jp") by vger.kernel.org with ESMTP
+	id S268153AbUHUG31 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Aug 2004 02:29:27 -0400
+From: mita akinobu <amgta@yacht.ocn.ne.jp>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Subject: Re: [PATCH] shows Active/Inactive on per-node meminfo
+Date: Sat, 21 Aug 2004 15:29:37 +0900
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Matthew Dobson <colpatch@us.ibm.com>
+References: <200408210302.25053.amgta@yacht.ocn.ne.jp> <200408201448.22566.jbarnes@engr.sgi.com>
+In-Reply-To: <200408201448.22566.jbarnes@engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040820114518.49a65b69.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-Operating-System: Linux herkules.viasys.com 2.4.27
+Message-Id: <200408211529.37839.amgta@yacht.ocn.ne.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 20, 2004 at 11:45:18AM -0700, you [Andrew Morton] wrote:
-> > 
-> >  --8<-----------------------------------------------------------------------
-> >  vmmon: Your kernel is br0ken. get_user_pages(current, current->mm, b7dd1000, 1, 1, 0, &page, NULL) returned -14.
-> >  vmmon: I'll try accessing page tables directly, but you should know that your
-> >  vmmon: kernel is br0ken and you should uninstall all additional patches you vmmon: have installed!
-> >  vmmon: FYI, copy_from_user(b7dd1000) returns 0 (if not 0 maybe your kernel is not br0ken)
-> >  --8<-----------------------------------------------------------------------
-> > 
-> >  warning, but vmware appears to work now (well apart from altgr not working,
-> >  but that has been broken since 2.4 -> 2.6 transition.)
-> > 
-> >  I'm still not 100% which of the patches causes that get_user_pages()
-> >  warning.
-> 
-> If you could work that out sometime, it would help.
+On Saturday 21 August 2004 03:48, Jesse Barnes wrote:
+> Just FYI, loops like this are going to be very slow on a large machine.
+> Iterating over every node in the system involves a TLB miss on every
+> iteration along with an offnode reference and possibly cacheline demotion.
 
-* 2.6.8.1-mm2 minus just dev-mem-restriction-patch.patch fixes the "cannot
-  allocate memory" problem.
+get_zone_counts() is used by max_sane_readahead(), and
+max_sane_readahead() is often called in filemap_nopage().
 
-* 2.6.8.1-mm2 minus dev-mem-restriction-patch.patch and
-  get_user_pages-handle-VM_IO.patch fixes both the "cannot allocate memory"
-  and "get_user_pages() returns -EFAULT" problems.
-
-"Cannot allocate memory" may be specific to older vmware 3.2.0 since it
-hasn't been reported by anyone else (even though the patch is present in
-Fedora). 
+If iterating over every node is going to be very slow, the following change
+would have a little bit of improvement on a large machine?
 
 
+--- linux-2.6.8.1-mm3/mm/readahead.c.orig	2004-08-21 15:18:08.924273720 +0900
++++ linux-2.6.8.1-mm3/mm/readahead.c	2004-08-21 15:22:31.123413392 +0900
+@@ -572,6 +572,6 @@ unsigned long max_sane_readahead(unsigne
+ 	unsigned long inactive;
+ 	unsigned long free;
+ 
+-	get_zone_counts(&active, &inactive, &free);
++	__get_zone_counts(&active, &inactive, &free, NODE_DATA(numa_node_id()));
+ 	return min(nr, (inactive + free) / 2);
+ }
 
--- v -- 
 
-v@iki.fi
 

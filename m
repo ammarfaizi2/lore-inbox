@@ -1,39 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbVBIUSy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261911AbVBIUas@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261932AbVBIUSy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 15:18:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261922AbVBIULQ
+	id S261911AbVBIUas (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 15:30:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261914AbVBIUas
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 15:11:16 -0500
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:39385
+	Wed, 9 Feb 2005 15:30:48 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:59865
 	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261917AbVBIUKD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 15:10:03 -0500
-Date: Wed, 9 Feb 2005 12:09:11 -0800
+	id S261911AbVBIUaj convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 15:30:39 -0500
+Date: Wed, 9 Feb 2005 12:30:04 -0800
 From: "David S. Miller" <davem@davemloft.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: sfr@canb.auug.org.au, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       davem@redhat.com, chrisw@osdl.org
-Subject: Re: [patch, BK] clean up and unify asm-*/resource.h files
-Message-Id: <20050209120911.421eb5d5.davem@davemloft.net>
-In-Reply-To: <20050209180219.GC23554@elte.hu>
-References: <20050209093927.GA9726@elte.hu>
-	<20050210020333.7941fa6e.sfr@canb.auug.org.au>
-	<20050209180219.GC23554@elte.hu>
+To: Einar =?ISO-8859-1?Q?L=FCck?= <lkml@einar-lueck.de>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [PATCH 2/2] ipv4 routing: multipath with cache support,
+ 2.6.10-rc3
+Message-Id: <20050209123004.2d65e1cf.davem@davemloft.net>
+In-Reply-To: <420A715D.7050106@einar-lueck.de>
+References: <41C6B54F.2020604@einar-lueck.de>
+	<20050202172333.4d0ad5f0.davem@davemloft.net>
+	<420A1011.1030602@einar-lueck.de>
+	<20050209120157.18dc75c1.davem@davemloft.net>
+	<420A715D.7050106@einar-lueck.de>
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
 X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Feb 2005 19:02:19 +0100
-Ingo Molnar <mingo@elte.hu> wrote:
+On Wed, 09 Feb 2005 21:23:57 +0100
+Einar Lück <lkml@einar-lueck.de> wrote:
 
-> New patch below.
- ...
-> this patch does the final consolidation of asm-*/resource.h file,
-> without changing any of the rlimit definitions on any architecture.
+> We do not want per-flow multipathing. We want per connection
+> multipathing with fast route lookups (that's why we have all routes in
+> the cache). That is exactly what we implemented. Our tests prove that
+> a connection keeps its route as long as it lives (the dstentry remains
+> associated with the socket). That's why I do not really understand why
+> our approach hurts long lasting connections in any way. Can you
+> explain your point more precisely?
 
-I'm fine with this.
+This was brought up before.  It's the case where the system is acting
+as a router, you have to consider that case and not just the one where
+the local system is where the connections are originating from.
+
+Your trick only works because of how routes are cached per-socket.
+Once you get into the realm of traffic going through the machine as
+a router, the trick stops to work.

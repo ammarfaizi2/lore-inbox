@@ -1,87 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267872AbUJDJVS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267864AbUJDJdq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267872AbUJDJVS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 05:21:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267882AbUJDJVS
+	id S267864AbUJDJdq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 05:33:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267882AbUJDJdq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 05:21:18 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:5607 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S267872AbUJDJVO (ORCPT
+	Mon, 4 Oct 2004 05:33:46 -0400
+Received: from gprs214-21.eurotel.cz ([160.218.214.21]:59521 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S267864AbUJDJdo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 05:21:14 -0400
-Message-ID: <416117A1.25DE5FCE@tv-sign.ru>
-Date: Mon, 04 Oct 2004 13:28:01 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, dev@sw.ru, torvalds@osdl.org
-Subject: Re: [PATCH] alternate stack dump fix.
-References: <41602238.A828A852@tv-sign.ru>
-		<20041003100603.6429acdd.akpm@osdl.org>
-		<41610845.E03B482D@tv-sign.ru> <20041004012731.2634bff8.akpm@osdl.org>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+	Mon, 4 Oct 2004 05:33:44 -0400
+Date: Mon, 4 Oct 2004 11:33:30 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] -mm swsusp: copy_page is harmfull
+Message-ID: <20041004093330.GA7614@elf.ucw.cz>
+References: <200409292014.i8TKEhov023334@hera.kernel.org> <1096847414.23142.42.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1096847414.23142.42.camel@gaston>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Hi!
+
+> > 	[PATCH] -mm swsusp: copy_page is harmfull
+> > 	
+> > 	From: Pavel Machek <pavel@ucw.cz>
+> > 	
+> > 	This is my fault from long time ago: copy_page can't be used for copying
+> > 	task struct, therefore we can't use it in swsusp.
 > 
-> In that case I'm not understanding you.  Are you saying that your patch
-> fixes the same problem as that which Kirill's patch fixed?
+> Hi !
+> 
+> Just curious, but why ?
 
-It seems to me, yes.
+Nigel already provided right explanation.
 
-Here the pseudo code for CONFIG_FRAME_POINTER:
+> It would be useful to have this in platform code, I don't see why I couldn't
+> use copy_page() on ppc and I suspect it will be more efficient than memcpy
+> since it has specific optimisations due to the fact that we are known to be
+> fully aligned and the size of the copy is a constant aligned power of 2.
 
-int valid_stack_ptr(struct thread_info *tinfo, void *p)
-{
-	return	p > (void *)tinfo &&
-		p < (void *)tinfo + THREAD_SIZE - 3;
-}
-
-long print_context_stack(thread_info *tinfo, long *stack, long ebp)
-{
-	while (valid_stack_ptr(tinfo, ebp))
-	{
-		print_symbol("%s", *(ebp+4));
-		ebp = *(unsigned long *)ebp;
-	}
-
-	return ebp;
-}
-
-void show_trace(struct task_struct *task, unsigned long * stack)
-{
-	while (1) {
-		struct thread_info *context = (struct thread_info *)
-			((unsigned long)stack & (~(THREAD_SIZE - 1)));
-
-		ebp = print_context_stack(context, stack, ebp);
-
-		stack = (unsigned long*)context->previous_esp;
-		if (!stack)
-			break;
-		printk(" =======================\n");
-	}
-}
-
-show_trace() now does not use task argument in the main
-loop. Instead, it converts stack to thread_info* context,
-and passes it to print_context_stack() and (implicitly)
-to valid_stack_ptr().
-
-valid_stack_ptr() does not care now whether or not it is
-irq stack, it just does bounds checking.
-
-Please note, i simply deleted this printk("Stack pointer is garbage"),
-it can be restored, if neccessary.
-
-Did i miss something?
-
-> That wasn't at all clear from your earlier comments.
-
-Yes, sorry.
-
-Oleg.
+Hmm but does it matter? Is that operation really that slow on ppc?
+This whole copy takes maybe second on x86, other operations are way
+slower...
+									Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

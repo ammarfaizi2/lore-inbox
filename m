@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262418AbTAEBqU>; Sat, 4 Jan 2003 20:46:20 -0500
+	id <S262414AbTAEBpc>; Sat, 4 Jan 2003 20:45:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262449AbTAEBqU>; Sat, 4 Jan 2003 20:46:20 -0500
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:18193 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S262418AbTAEBqR>; Sat, 4 Jan 2003 20:46:17 -0500
-Date: Sun, 5 Jan 2003 02:54:44 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: Andreas Dilger <adilger@turbolabs.com>
-Subject: Documentation/BK-usage/bksend problems?
-Message-ID: <20030105015444.GE29511@merlin.emma.line.org>
-Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
-	Andreas Dilger <adilger@turbolabs.com>
-Mime-Version: 1.0
+	id <S262418AbTAEBpb>; Sat, 4 Jan 2003 20:45:31 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:27967 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S262414AbTAEBpb>; Sat, 4 Jan 2003 20:45:31 -0500
+To: tomlins@cam.org
+CC: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.54: Re: [PATCH][CFT] kexec (rewrite) for 2.5.52
+References: <fa.efrhc1v.46m3b3@ifi.uio.no> <fa.jrc2dtv.1n26pa1@ifi.uio.no>
+	<20030104232405.8A80FE7B6@oscar.casa.dyndns.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 04 Jan 2003 18:53:00 -0700
+In-Reply-To: <20030104232405.8A80FE7B6@oscar.casa.dyndns.org>
+Message-ID: <m1fzs8jrb7.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Ed Tomlinson <tomlins@cam.org> writes:
 
-is bksend in wide use?
+> Just so you do not feel that kexec (.52 rewrite) is always failing in 
+> 2.5.54 - it not.  I am using it for most of my boots here.  Aside from
+> an intermittant hang starting usb, its worked very well.  I have not 
+> installed any of your other patches.  (ie. 2.5.54+kexec+myownpatch)
 
-I tried to use it to send a patch to ntp-stable with  the help of this
-tool, and figured that the gnupatch part always omitted the first
-version if you give it a range such as
+Thanks, I think.
 
-bksend -r1.838..1.839.
+It good except that it make mean the problem is harder to reproduce,
+making debugging harder.
 
-The changes are fine, for 1.838 and 1.839, but the patch itself only
-contains the effects of 1.839. The attached gzip_uu wrapped bk
-"receive"able stuff is fine again and contains both ChangeSets.
+If you are not doing SMP, UP-IOAPIC or > 4GB of ram the other patches
+should not be an issue.
 
-It seems as though it would take "diff 1.839 against 1.838" for bk gnupatch
-and "changesets 1.838 to 1.839 inclusively" for bk send.
-
-If that matters:
-
-BitKeeper/Free version is bk-2.1.6-pre5 20020330075529 for x86-glibc22-linux
-
--- 
-Matthias Andree
+Eric

@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263798AbTEFPQA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 11:16:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263802AbTEFPP7
+	id S263790AbTEFPLT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 11:11:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263796AbTEFPLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 11:15:59 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:2025 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S263798AbTEFPP6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 11:15:58 -0400
-Date: Tue, 06 May 2003 07:20:51 -0700 (PDT)
-Message-Id: <20030506.072051.45141886.davem@redhat.com>
-To: dipankar@in.ibm.com
-Cc: wli@holomorphy.com, akpm@digeo.com, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
+	Tue, 6 May 2003 11:11:19 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:32226 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S263790AbTEFPLP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 11:11:15 -0400
+Date: Tue, 6 May 2003 20:55:55 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
 Subject: Re: 2.5.69-mm1
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030506152555.GC9875@in.ibm.com>
-References: <20030506110907.GB9875@in.ibm.com>
-	<1052222542.983.27.camel@rth.ninka.net>
-	<20030506152555.GC9875@in.ibm.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Message-ID: <20030506152555.GC9875@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20030504231650.75881288.akpm@digeo.com> <20030505210151.GO8978@holomorphy.com> <20030506110907.GB9875@in.ibm.com> <1052222542.983.27.camel@rth.ninka.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1052222542.983.27.camel@rth.ninka.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Dipankar Sarma <dipankar@in.ibm.com>
-   Date: Tue, 6 May 2003 20:55:55 +0530
+On Tue, May 06, 2003 at 05:02:22AM -0700, David S. Miller wrote:
+> On Tue, 2003-05-06 at 04:09, Dipankar Sarma wrote:
+> > That brings me to the point - with the fget-speedup patch, we should
+> > probably change ->file_lock back to an rwlock again. We now take this
+> > lock only when fd table is shared and under such situation the rwlock
+> > should help. Andrew, it that ok ?
+> 
+> rwlocks believe it or not tend not to be superior over spinlocks,
+> they actually promote cache line thrashing in the case they
+> are actually being effective (>1 parallel reader)
 
-   On Tue, May 06, 2003 at 05:02:22AM -0700, David S. Miller wrote:
-   > rwlocks believe it or not tend not to be superior over spinlocks,
-   > they actually promote cache line thrashing in the case they
-   > are actually being effective (>1 parallel reader)
-   
-   Provided there isn't a very heavy contention among readers for the
-   spin_lock.
+Provided there isn't a very heavy contention among readers for the spin_lock.
+There is no evidence that this happens with ->file_lock as
+spin_lock, so I guess we are ok for now. We should probably watch out
+for some multi-threaded programs (Java->posix-threads ?) on
+large smp boxes though.
 
-Even if there are thousands of readers trying to get the lock
-at the same time, unless your hold time is significant these
-readers will merely thrash the cache getting the rwlock_t.
-And then thrash it again to release the rwlock_t.
-
-This is especially true if the spinlock lives in the same cache
-lines as the data it protects.
-
-All of this is magnified on NUMA.
+Thanks
+Dipankar

@@ -1,27 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272980AbRJEUZS>; Fri, 5 Oct 2001 16:25:18 -0400
+	id <S272838AbRJEU1s>; Fri, 5 Oct 2001 16:27:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272838AbRJEUZI>; Fri, 5 Oct 2001 16:25:08 -0400
-Received: from quechua.inka.de ([212.227.14.2]:12552 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S272773AbRJEUYx>;
-	Fri, 5 Oct 2001 16:24:53 -0400
-From: Bernd Eckenfels <ecki@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [POT] Which journalised filesystem ?
-In-Reply-To: <m1669uyuqy.fsf@frodo.biederman.org>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.10-xfs (i686))
-Message-Id: <E15pbX5-0007do-00@calista.inka.de>
-Date: Fri, 05 Oct 2001 22:25:19 +0200
+	id <S272773AbRJEU1i>; Fri, 5 Oct 2001 16:27:38 -0400
+Received: from butterblume.comunit.net ([192.76.134.57]:3589 "EHLO
+	butterblume.comunit.net") by vger.kernel.org with ESMTP
+	id <S272838AbRJEU11>; Fri, 5 Oct 2001 16:27:27 -0400
+Date: Fri, 5 Oct 2001 22:27:55 +0200 (CEST)
+From: Sven Koch <haegar@sdinet.de>
+X-X-Sender: <haegar@space.comunit.de>
+To: <thunder7@xs4all.nl>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: can I use an udma-pci card on an alpha?
+In-Reply-To: <20011005205909.A6286@middle.of.nowhere>
+Message-ID: <Pine.LNX.4.33.0110052215310.38-100000@space.comunit.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <m1669uyuqy.fsf@frodo.biederman.org> you wrote:
-> Definentily.  We want a write-barrier however we can get it.
+On Fri, 5 Oct 2001 thunder7@xs4all.nl wrote:
 
-Does that mean we can or we can't? Is there a flush write cache operation in
-ATA? I asume there is one in SCSI?
+> I had a spare CMD646 udma-card lying around, and put it in my alpha
+> (PWS500au). Everything boots fine, but there seems to be no HD
+> recognized:
 
-Greetings
-Bernd
+[...]
+
+> Is the bios (which is x86) strictly necessary to set up the drives? I
+> tried searching the web for 'udma on alpha' etc. but found nothing.
+
+I am using a Promise 20267 in an DEC Alpha XL 300 with kernel 2.4.10-ac4.
+
+That machine has no bios-support for IDE-Drives, but the kernel (booting
+from the ncr scsi-controller) detects my 60gb ibm-disk without problems
+and does about 20mb/s.
+
+I've got one real problem:
+When I do a "shutdown -r now", the machine is completely dead when loading
+the ide-driver after booting up (module).
+The only way to get the machine up again is power-cycling.
+"shutdown -h now" followed by power-cycle works.
+
+And just now, trying to find out the exact harddisk-model for this mail:
+# cat /proc/ide/ide2/hde/identify
+-> *boom*, machine dead, network unreachable
+
+Shit - will have to drive to work tomorrow to get my private webserver
+back running :(
+
+c'ya
+sven
+
+-- 
+
+The Internet treats censorship as a routing problem, and routes around it.
+(John Gilmore on http://www.cygnus.com/~gnu/)
+

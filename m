@@ -1,52 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261563AbSKDRIY>; Mon, 4 Nov 2002 12:08:24 -0500
+	id <S261415AbSKDRE0>; Mon, 4 Nov 2002 12:04:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261642AbSKDRIX>; Mon, 4 Nov 2002 12:08:23 -0500
-Received: from adsl-67-120-62-187.dsl.lsan03.pacbell.net ([67.120.62.187]:55563
-	"EHLO exchange.macrolink.com") by vger.kernel.org with ESMTP
-	id <S261563AbSKDRIX>; Mon, 4 Nov 2002 12:08:23 -0500
-Message-ID: <11E89240C407D311958800A0C9ACF7D1A33C8F@EXCHANGE>
-From: Ed Vance <EdV@macrolink.com>
-To: "'Werner Almesberger'" <wa@almesberger.net>
-Cc: "'Richard B. Johnson'" <root@chaos.analogic.com>,
-       Ken Ryan <newsryan@leesburg-geeks.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: RE: [STATUS 2.5] October 30, 2002
-Date: Mon, 4 Nov 2002 09:14:55 -0800 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S261563AbSKDRE0>; Mon, 4 Nov 2002 12:04:26 -0500
+Received: from louise.pinerecords.com ([212.71.160.16]:62468 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S261415AbSKDREZ>; Mon, 4 Nov 2002 12:04:25 -0500
+Date: Mon, 4 Nov 2002 18:10:55 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Nikita Danilov <Nikita@Namesys.COM>
+Cc: Alexander Zarochentcev <zam@Namesys.COM>, Hans Reiser <reiser@Namesys.COM>,
+       lkml <linux-kernel@vger.kernel.org>, Oleg Drokin <green@Namesys.COM>,
+       umka <umka@Namesys.COM>
+Subject: Re: [BK][PATCH] Reiser4, will double Linux FS performance, pleaseapply
+Message-ID: <20021104171055.GD8606@louise.pinerecords.com>
+References: <200210312334.18146.Dieter.Nuetzel@hamburg.de> <3DC1B2FA.8010809@namesys.com> <3DC1D63A.CCAD78EF@digeo.com> <3DC1D885.6030902@namesys.com> <3DC1D9D0.684326AC@digeo.com> <3DC1DF02.7060307@namesys.com> <20021101102327.GA26306@louise.pinerecords.com> <15810.46998.714820.519167@crimson.namesys.com> <20021102133824.GL28803@louise.pinerecords.com> <15814.25070.118410.47102@laputa.namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15814.25070.118410.47102@laputa.namesys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, November 01, 2002 at 4:33 PM, Werner Almesberger wrote:
-> Ed Vance wrote:
-> > functional as long as he can keep up. For the memory, the many separate 
-> > bit error events would cause only correctable errors, as long as the 
-> > scrubbing can keep up.
+>  > Hi,
+>  > 
+>  > Another one: trying to build 2.5.45 off a reiser4 mountpoint, I get:
+>  > 
+>  > reiser4[pdflush(7)]: flush_scan_extent (fs/reiser4/flush.c:3127)[nikita-2732]:
+>  > WARNING: Flush raced against extent->tail
+>  > reiser4[pdflush(7)]: jnode_flush (fs/reiser4/flush.c:1024)[jmacd-16739]:
+>  > WARNING: flush failed: -11
+>  > jnode_flush failed with err = -11
 > 
-> Don't those bit errors have a Poissonian character ? If so, it's
-> impossible to "keep up". All you can do is make the interval small
-> enough that, on average, it takes a long time until you get hit
-> twice (or more often) in that interval.
+> Can you please try the following patch to the fs/reiser4/flush.c:
+> ----------------------------------------------------------------------
+> --- /tmp/flush.c	Mon Nov  4 14:32:21 2002
+> +++ flush.c	Mon Nov  4 14:32:32 2002
+> @@ -3149,7 +3149,8 @@ flush_scan_extent(flush_scan * scan, int
+>  				   only. Will be removed. */
+>  				warning("nikita-2732", 
+>  					"Flush raced against extent->tail");
+> -				ret = -EAGAIN;
+> +				scan->stop = 1;
+> +				ret = 0;
+>  				goto exit;
+>  			}
+>  			assert("jmacd-1230", item_is_extent(&scan->parent_coord));
 
-Yes.
-> 
-> A better example would be car tires on roads with many randomly
-> distributed sharp objects (i.e. such that age does not significantly
-> change the odds of tire damage): you can keep going as long as you
-> can get a flat tire fixed before another tire gets punctured. But
-> sometimes, you may end up with two flat tires, and need a tow truck.
-> 
-I was just trying to get across the reversible nature of this kind 
-of externally induced error. Richard's analogy was that scrubbing memory 
-is like picking scabs. Perhaps immune reaction would be closer, because 
-it tends to detect and fix small problems before they become big problems.
-I don't think anybody is going to be convinced here. Sounds like the 
-issue is not a lack of information. I like your car analogy - I had 
-a very similar road trip between Missouri and Florida. 
+Seems to fix the flush errors, however, I can still see the race warnings.
+Worse though, at one point I stumbled upon the following:
 
-Best regards,
-Ed
+$ df /ap
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sda2              1490332 -73786976294838198272   1498808 101% /ap
+
+This was right after I hit the reset button while compiling the kernel
+off a reiser4 mountpoint, went on to finish the build after reboot and
+then "rm -rf"'d the whole source tree (i.e. there was nothing on the
+filesystem again).
+
+reiser4.o is 20021031 plus the rmdir leak fix from this thread plus
+your patch above.
+
+>  > ... after which r4 crashes completely --
+>  > Starts to hog all cpu time and umount() never goes through.
+> 
+> Try to wait a bit more and check whether any more "WARNING: Too many
+> iterations" appear, OK?
+
+Jup, now all I get is the race warnings.
+
+-- 
+tomas szepe <szepe@pinerecords.com>

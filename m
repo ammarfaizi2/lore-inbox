@@ -1,47 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263051AbTJYVrT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Oct 2003 17:47:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263056AbTJYVrT
+	id S262901AbTJYVok (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Oct 2003 17:44:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262921AbTJYVok
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Oct 2003 17:47:19 -0400
-Received: from relay01.uchicago.edu ([128.135.12.136]:30360 "EHLO
-	relay01.uchicago.edu") by vger.kernel.org with ESMTP
-	id S263051AbTJYVrO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Oct 2003 17:47:14 -0400
-Date: Sat, 25 Oct 2003 16:47:13 -0500 (CDT)
-From: Ryan Reich <ryanr@uchicago.edu>
-Reply-To: Ryan Reich <ryanr@uchicago.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel context 0 and 2.4.22-ck2
-Message-ID: <Pine.LNX.4.58.0310251637020.599@ryanr.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 25 Oct 2003 17:44:40 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:62963 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S262901AbTJYVoi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Oct 2003 17:44:38 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Sat, 25 Oct 2003 23:44:19 +0200 (MEST)
+Message-Id: <UTC200310252144.h9PLiJ502790.aeb@smtp.cwi.nl>
+To: davem@redhat.com
+Subject: [patch] posix compliance for send(to)
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting the following error on boot:
+POSIX 1003.1-2001, 2003 edition
+(see http://www.opengroup.org/onlinepubs/007904975/toc.htm)
+says about send():
 
-Oct 25 16:35:08 (none) kernel: [drm] Initialized radeon 1.7.0 20020828 on minor
-0
-Oct 25 16:35:08 (none) kernel: [drm:radeon_unlock] *ERROR* Process 373 using
-kernel context 0
+  The send() function shall send a message only
+  when the socket is connected
 
-Process 373 being X.
+and gives the error returns
 
-This prevents me from getting direct rendering in X.  I compiled a vanilla
-2.4.22 and found that this error does not occur there, and the only patches I
-have on my current kernel are ck2, an i2c patch which has nothing to do with
-this because the error appeared before I put it in, and the ck2-fix patch, which
-doesn't seem to have corrected the problem.  I do not think it has anything to
-do with grsecurity, since I enabled sysctl there and left all the security
-measures unconfigured, to no effect.
+[ENOTCONN]
+  The socket is not connected or otherwise has not had the peer
+  pre-specified.
+[EPIPE]
+  The socket is shut down for writing, or the socket is connection-mode
+  and is no longer connected. In the latter case, and if the socket is of
+  type SOCK_STREAM, the SIGPIPE signal is generated to the calling thread.
 
-If it's an error in the code I am manifestly unqualified to fix it myself, but I
-could go digging for more information if anyone needs it (and can give a
-specific command to execute).
+However, currently (2.6.0-test6) I see EPIPE and SIGPIPE
+for a send() on a fresh, non-connected socket.
 
-Hardware-wise, I'm using a Radeon 7000 QY card on a Shuttle motherboard with all
-NForce2 chipset, and an Athlon 2600+ CPU.
+I suppose the below patch fixes this, but have not checked
+details of the state machine.
 
-Ryan Reich
+Andries
+
+diff -u --recursive --new-file -X /linux/dontdiff a/net/ipv4/tcp.c b/net/ipv4/tcp.c
+--- a/net/ipv4/tcp.c	Mon Jun 23 04:44:14 2003
++++ b/net/ipv4/tcp.c	Sat Oct 25 22:46:44 2003
+@@ -1044,6 +1044,10 @@
+ 	flags = msg->msg_flags;
+ 	timeo = sock_sndtimeo(sk, flags & MSG_DONTWAIT);
+ 
++	err = -ENOTCONN;
++	if (sk->sk_state == TCP_CLOSE && !sock_flag(sk, SOCK_DONE))
++		goto out_err;
++
+ 	/* Wait for a connection to finish. */
+ 	if ((1 << sk->sk_state) & ~(TCPF_ESTABLISHED | TCPF_CLOSE_WAIT))
+ 		if ((err = wait_for_tcp_connect(sk, flags, &timeo)) != 0)

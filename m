@@ -1,39 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129436AbRADFPt>; Thu, 4 Jan 2001 00:15:49 -0500
+	id <S129324AbRADFU7>; Thu, 4 Jan 2001 00:20:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132823AbRADFPj>; Thu, 4 Jan 2001 00:15:39 -0500
-Received: from waste.org ([209.173.204.2]:16145 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S129436AbRADFPe>;
-	Thu, 4 Jan 2001 00:15:34 -0500
-Date: Wed, 3 Jan 2001 23:15:31 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Alexander Viro <viro@math.psu.edu>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-        Ext2 development mailing list 
-	<ext2-devel@lists.sourceforge.net>
-Subject: Re: [Ext2-devel] Re: [RFC] ext2_new_block() behaviour
-In-Reply-To: <Pine.GSO.4.21.0101032355040.19195-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.30.0101032309050.1971-100000@waste.org>
+	id <S129436AbRADFUt>; Thu, 4 Jan 2001 00:20:49 -0500
+Received: from pop.gmx.net ([194.221.183.20]:16806 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S129324AbRADFUh>;
+	Thu, 4 Jan 2001 00:20:37 -0500
+From: Norbert Breun <nbreun@gmx.de>
+Reply-To: nbreun@gmx.de
+Organization: private
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.0-prerelease: System dies after leaving XF86_4.0.2
+Date: Thu, 4 Jan 2001 06:15:45 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01010406154500.01435@nmb>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Jan 2001, Alexander Viro wrote:
+Hallo,
 
-> > I bet it long predates dcache though..
->
-> Not too likely. <checking CVS> It went in in 2.1.93. Apr 2 1998...
-> Dcache was there ~50 versions before that.
+I've tested 2.4.0prerelease pure - ac1-ac2-ac3-ac4-ac5 and my system crashed 
+whenever I left X. 
+Having switched back to 2.4.0-test13pre7 all is fine. 
+I'm no developer, so if you need more information, give me some hints.
 
-Huh. Is there anything that prevents fragmentation in, say, growing
-maildirs, where there's nothing but locality to hold the directory inode
-in cache?
-
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
-
+kind regards
+Norbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

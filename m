@@ -1,94 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268031AbUJVW0n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268177AbUJVWbN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268031AbUJVW0n (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 18:26:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268040AbUJVW00
+	id S268177AbUJVWbN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 18:31:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268040AbUJVW3o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 18:26:26 -0400
-Received: from out008pub.verizon.net ([206.46.170.108]:24466 "EHLO
-	out008.verizon.net") by vger.kernel.org with ESMTP id S268031AbUJVVth
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 17:49:37 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-U10.2
-Date: Fri, 22 Oct 2004 17:49:35 -0400
-User-Agent: KMail/1.7
-Cc: Ingo Molnar <mingo@elte.hu>, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Alexander Batyrshin <abatyrshin@ru.mvista.com>
-References: <20041014234202.GA26207@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu>
-In-Reply-To: <20041022175633.GA1864@elte.hu>
+	Fri, 22 Oct 2004 18:29:44 -0400
+Received: from dev.tequila.jp ([128.121.50.153]:9234 "EHLO dev.tequila.jp")
+	by vger.kernel.org with ESMTP id S268232AbUJVW2P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 18:28:15 -0400
+Message-ID: <4179896A.8070804@tequila.co.jp>
+Date: Sat, 23 Oct 2004 07:27:54 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+Organization: TEQUILA\Japan
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.3) Gecko/20040926 Thunderbird/0.8 Mnenhy/0.6.0.104
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Timothy Miller <miller@techsource.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+References: <4176E08B.2050706@techsource.com>
+In-Reply-To: <4176E08B.2050706@techsource.com>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410221749.35306.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [151.205.58.180] at Fri, 22 Oct 2004 16:49:35 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 22 October 2004 13:56, Ingo Molnar wrote:
->i have released the -U10.2 Real-Time Preemption patch, which can be
->downloaded from:
->
->  http://redhat.com/~mingo/realtime-preempt/
->
->this is a fixes-only release.
->
->Changes since -U10:
->
-> - fixed a big bug present ever since: the BKL got dropped when a
->   spinlock-mutex was acquired and it scheduled away. This reduced
-> the locking efficiency of the BKL. A number of outstanding problems
-> could be affected, in particular this should fix the tty locking
-> breakage reported by Alexander Batyrshin and Adam Heath. UP and SMP
-> systems are affected too, with SMP systems having a higher chance
-> to trigger this condition.
->
-> - tulip.c breakage fix from Thomas Gleixner
->
-> - tg3 and 3c59x fixes.
->
-> - made the hardirq threads SCHED_FIFO by default. They get
-> priorities between 25 and 50, depending on the irq #. (this is
-> pretty random but i found no better scheme.) Made the softirq
-> thread SCHED_FIFO by default as well, albeit this probably will
-> have to change. These changes should make it easier to debug a hung
-> system.
->
->to create a -U10.2 tree from scratch, the patching order is:
->
->   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.9.tar.bz2
-> +
-> http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9/2.
->6.9-mm1/2.6.9-mm1.bz2 +
-> http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.9-mm
->1-U10.2
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Mmm, I get a 404 page not found. when I click on  on thsi link.
+On 10/21/2004 07:02 AM, Timothy Miller wrote:
 
-> Ingo
->-
->To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+Most important feature for me: Dual Head with speed & fastness on both
+heads. Independent resolutions on each head, without loosing speed.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.28% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+lg, clemens
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBeYlqjBz/yQjBxz8RArYJAKDN7JWwaVTkgnv0UeDw77ai3QZ2DwCg3hae
+daWt43Qu4WA+jKAmfjsOY1g=
+=Yosg
+-----END PGP SIGNATURE-----

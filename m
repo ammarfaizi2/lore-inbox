@@ -1,18 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317219AbSF1TYs>; Fri, 28 Jun 2002 15:24:48 -0400
+	id <S317461AbSF1Twh>; Fri, 28 Jun 2002 15:52:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317212AbSF1TYr>; Fri, 28 Jun 2002 15:24:47 -0400
-Received: from code13.unixpunx.org ([205.158.23.142]:56043 "HELO
+	id <S317447AbSF1Twg>; Fri, 28 Jun 2002 15:52:36 -0400
+Received: from code13.unixpunx.org ([205.158.23.142]:55681 "HELO
 	code13.unixpunx.org") by vger.kernel.org with SMTP
-	id <S317144AbSF1TYq>; Fri, 28 Jun 2002 15:24:46 -0400
+	id <S317445AbSF1Twg>; Fri, 28 Jun 2002 15:52:36 -0400
 Reply-To: ew@unixpunx.net
-From: ew@unixpunx.net
-To: cdeng@io.iol.unh.edu
+From: ew@unixpunx.net (Eric Weiss)
+To: linux-kernel@vger.kernel.org
 Subject: Re: kernel BUG
-Cc: linux-kernel@vger.kernel.org
-Date: Fri, 28 Jun 2002 12:26:50 -700
-Message-Id: <3d1cb87a967243.98166500@>
+Date: Fri, 28 Jun 2002 12:54:40 -700
+Message-Id: <3d1cbf00ac6bb1.05920024@>
 X-Authenticated-IP: [12.81.77.212]
 X-Mailer: ePOP  1.21 R2 (http://www.UniRechner.de/)
 MIME-version: 1.0
@@ -37,7 +36,7 @@ in linux/drivers/scsi/scsi_lib.c:scsi_io_completion() to scatterlists for HighMe
 support, along with two extra members (page & offset) to struct scatterlist in
 include/linux/scatterlist.h.
 
-                                          Eric Weiss
+                                               Eric Weiss
 
 ___________________________________________________________
 

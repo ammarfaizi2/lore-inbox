@@ -1,94 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270644AbRHWWXm>; Thu, 23 Aug 2001 18:23:42 -0400
+	id <S270640AbRHWW2x>; Thu, 23 Aug 2001 18:28:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270640AbRHWWXc>; Thu, 23 Aug 2001 18:23:32 -0400
-Received: from darkwing.uoregon.edu ([128.223.142.13]:20353 "EHLO
-	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
-	id <S270644AbRHWWXY>; Thu, 23 Aug 2001 18:23:24 -0400
-Date: Thu, 23 Aug 2001 15:23:54 -0700 (PDT)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: <joelja@twin.uoregon.edu>
-To: Fred <fred@arkansaswebs.com>
-cc: Ajit Jena <ajit@cc.iitb.ac.in>, <linux-kernel@vger.kernel.org>
-Subject: Re: Quantum DLT 4000 issues
-In-Reply-To: <01082313484201.12044@bits.linuxball>
-Message-ID: <Pine.LNX.4.33.0108231517220.8468-100000@twin.uoregon.edu>
+	id <S270645AbRHWW2m>; Thu, 23 Aug 2001 18:28:42 -0400
+Received: from wb2-a.mail.utexas.edu ([128.83.126.136]:3338 "HELO
+	mail.utexas.edu") by vger.kernel.org with SMTP id <S270640AbRHWW2g>;
+	Thu, 23 Aug 2001 18:28:36 -0400
+Message-ID: <3B858317.DC124532@mail.utexas.edu>
+Date: Thu, 23 Aug 2001 16:26:31 -0600
+From: "Bobby D. Bryant" <bdbryant@mail.utexas.edu>
+Organization: (I do not speak for) The University of Texas at Austin (nor they for 
+ me).
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-ac2 i686)
+X-Accept-Language: en,fr,de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: LKML <linux-kernel@vger.kernel.org>
+CC: Adam Schrotenboer <ajschrotenboer@lycosmail.com>
+Subject: Re: [Very-OT] Best Mobo to get for Linux 2.4.x
+In-Reply-To: <3B857D61.3000108@lycosmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A cd-burner is hardly a replacement for a 35gb native tape format...
+[much snippage]
 
-I'd probably run a cleaning tape through the drive a couple times to
-start, try a fresh tape in the drive, isolate it on it's own scsi
-interface if there are other devices connected on the same bus, and have
-the drive evaluated and serviced by hp in roughly that order...
+Adam Schrotenboer wrote:
 
-joelja
-
-On Thu, 23 Aug 2001, Fred wrote:
-
-> I read somewhere - recently - that 60% of ALL tape backups fail. If that's
-> so, I'd recommend that you ditch the tape drive. (get a cd burner! or another
->  hard drive)
+> Looking for an AMD T-Bird 1.2 GHz.
 >
-> Fred
+> I need suggestions on which mobo to get.
 >
->  _________________________________________________
-> On Thursday 23 August 2001 10:52 am, Ajit Jena wrote:
-> > Hi All,
-> >
-> > I need your expert advice on the following issue:
-> >
-> > I saw some messages on the Linux kernel mailing list about DLT 4000
-> > tape drives.
-> >
-> > We have a Quantum DLT 4000 1/15 drive connected to an HP9000 system.
-> > This is a SCSI device connected on the Wide SCSI port. I have all kinds
-> > of driver problems on the HP system. My tar backups abort randomly saying
-> > media error.
-> >
-> > I was wondering if I can connect the same drive to a Linux box having
-> > wide SCSI interface. Do u think this is a workable proposition ? What
-> > extra hardware/software I need to procure ? Please advise.
-> >
-> > Thanks for your time.
-> >
-> > Regards.
-> >
-> > --ajit
-> >
-> > |---------------------------------------------------------------------|
-> > | Ajit K. Jena                          Phone :                       |
-> > |                                          Office +91-22-5767751      |
-> > | Computer Centre                                 +91-22-5722545 x8750|
-> > | Indian Institute of Technology           Home   +91-22-5722545 x8068|
-> > | POWAI, Mumbai                         Fax   :        +91-22-5723894 |
-> > | PIN 400076, India                     Email :    ajit@cc.iitb.ac.in |
-> > |---------------------------------------------------------------------|
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> I'm assuming that there is no support for the ALi MAGiK1, so my options
+> are limited to the VIA KT{133,266}or the AMD 760, and unfortunately as
+> of today, my vendor doesn't have any mobos w/ the KT266.
 >
+> DDR
+> Asus A7A266
 
--- 
---------------------------------------------------------------------------
-Joel Jaeggli				       joelja@darkwing.uoregon.edu
-Academic User Services			     consult@gladstone.uoregon.edu
-     PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E
---------------------------------------------------------------------------
-It is clear that the arm of criticism cannot replace the criticism of
-arms.  Karl Marx -- Introduction to the critique of Hegel's Philosophy of
-the right, 1843.
+I've been running the A7A266 w/ PC133 for a few months, and am very happy
+with it.  (It is supposed to support DDR too, but I have not tried it.)
+
+A bit pricey for a m.b., but it works.
+
+FWIW, it uses the ALi M1647 north and ALi M1535D+ south.  The kernel
+mis-recognizes the latter as a ALI15X3, but it still works.
+
+And since we're on the subject (again), I'll mention (again) that I have a
+couple of bogo-howtos for this board at
+http://www.cs.utexas.edu/users/bdbryant/howtos/hardware/asus-a7a266/.
+
+Good luck,
+
+Bobby Bryant
+Austin, Texas
+
+p.s. - Browse the archives carefully before buying any Athlon m.b. with a VIA
+chipset.
 
 

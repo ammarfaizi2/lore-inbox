@@ -1,43 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263481AbTCNTpE>; Fri, 14 Mar 2003 14:45:04 -0500
+	id <S263478AbTCNTmM>; Fri, 14 Mar 2003 14:42:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263482AbTCNTpE>; Fri, 14 Mar 2003 14:45:04 -0500
-Received: from packet.digeo.com ([12.110.80.53]:51585 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S263481AbTCNTpD>;
-	Fri, 14 Mar 2003 14:45:03 -0500
-Date: Fri, 14 Mar 2003 11:55:43 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: adilger@clusterfs.com, bzzz@tmi.comex.ru, linux-kernel@vger.kernel.org,
-       ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] Re: [PATCH] concurrent block allocation for ext2
- against 2.5.64
-Message-Id: <20030314115543.4078c581.akpm@digeo.com>
-In-Reply-To: <20030314192631.8935342AF9@mx01.nexgo.de>
-References: <m3el5bmyrf.fsf@lexa.home.net>
-	<m3of4fgjob.fsf@lexa.home.net>
-	<20030313165641.H12806@schatzie.adilger.int>
-	<20030314192631.8935342AF9@mx01.nexgo.de>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S263481AbTCNTmM>; Fri, 14 Mar 2003 14:42:12 -0500
+Received: from quake.mweb.co.za ([196.2.45.76]:40084 "EHLO quake.mweb.co.za")
+	by vger.kernel.org with ESMTP id <S263478AbTCNTmK>;
+	Fri, 14 Mar 2003 14:42:10 -0500
+Date: Fri, 14 Mar 2003 21:53:19 +0200
+From: Bongani Hlope <bonganilinux@mweb.co.za>
+To: Martin Schlemmer <azarah@gentoo.org>
+Cc: mquiros@ugr.es, linux-kernel@vger.kernel.org
+Subject: Re: make modules_install fail: depmod *** Unresolved symbols
+ (official
+Message-Id: <20030314215319.78baf4e6.bonganilinux@mweb.co.za>
+In-Reply-To: <1047651405.3503.103.camel@workshop.saharact.lan>
+References: <E18tpXR-0007oI-00@rammstein.mweb.co.za>
+	<1047651405.3503.103.camel@workshop.saharact.lan>
+X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i586-mandrake-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 14 Mar 2003 19:55:40.0212 (UTC) FILETIME=[B068DF40:01C2EA63]
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=.72w'r'WJhIqzAr"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips <phillips@arcor.de> wrote:
->
-> Ext2 should be thought of as a showcase for best 
-> filesystem coding practices.
+--=.72w'r'WJhIqzAr
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Yes.  It is the reference block-backed filesystem for the VFS and VM API.  If
-a feature is added to core kernel, ext2 gets to use it first, and ext2 is the
-place to look to see "how is it done".
+On Fri, 14 Mar 2003 16:16:45 +0200
+Martin Schlemmer <azarah@gentoo.org> wrote:
 
-Arguably, minixfs should be playing that role, and it is close.  But it is
-now missing a few things.
+> On Fri, 2003-03-14 at 16:03, bonganilinux@mweb.co.za wrote:
+> > > 			Granada, 14-3-2002
+> > > 
+> > > Hello, I downloaded kernel 2.4.20 and compiled it sucessfully a month
+> > > ago without any aparent problem. Yesterday I tried to compile it again
+> > > in the same computer just changing a couple of small things in the
+> > > configuration (agpart and the network card changed from "module" to
+> > > "yes").
+> > > 
+> > > make dep, make bzImage and make modules went apparently well (expect for
+> > > a few apparently non-important warnings with bzImage of the type
+> > > Warning: indirect call without '*' when compiling pci-pc and apm).
+> > > 
+> > > But when I try make modules_install, I've got a lot of error messages.
+> > > For each module I've got one line like:
+> > > 
+> > > depmod:  *** Unresolved symbols in
+> > > /lib/modules/2.4.20/kernel/arch/i386/kernel/microcode.o
+> > > 
+> > > followed by a number of lines of the type
+> > > 
+> > > depmod:     misc_deregister
+> > > depmod:     __generic_copy_from_use
+> > > depmod:     .....
+> > 
+> > Download, compile and install Rusty's latest module-init-tools
+> > ftp.kernel.org/pub/linux/kernel/people/rusty/modules
+> > 
+> 
+> Errr, he got 2.4.20, not 2.5.48+ ....
+> 
+> Miguel:  Not a real fix, but try compiling microcode.o into the
+>          kernel and not as a module ...
+> 
+> 
 
-ext2 is also scarily quick.
+Oops sorry I missed that (I've seen to many depmod errors after a cooker update
+and 2.5 compile bad  me :{ )
 
+--=.72w'r'WJhIqzAr
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+cjM3+pvEqv8+FEMRAloPAJ9zGLWZV/wh1RBo/5DtuIx0ToIkuQCfe25/
+XhET+FUX/kqanwu7CKk5S4A=
+=dUG2
+-----END PGP SIGNATURE-----
+
+--=.72w'r'WJhIqzAr--

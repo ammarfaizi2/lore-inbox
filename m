@@ -1,25 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265034AbSJWO6v>; Wed, 23 Oct 2002 10:58:51 -0400
+	id <S265046AbSJWPD5>; Wed, 23 Oct 2002 11:03:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265036AbSJWO6v>; Wed, 23 Oct 2002 10:58:51 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:18566 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S265034AbSJWO6t>; Wed, 23 Oct 2002 10:58:49 -0400
-Date: Wed, 23 Oct 2002 11:06:51 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-cc: "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-kernel@vger.kernel.org
+	id <S265047AbSJWPD5>; Wed, 23 Oct 2002 11:03:57 -0400
+Received: from magic.adaptec.com ([208.236.45.80]:57508 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP
+	id <S265046AbSJWPDz>; Wed, 23 Oct 2002 11:03:55 -0400
+Date: Wed, 23 Oct 2002 09:09:37 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: vda@port.imtp.ilyichevsk.odessa.ua
+cc: linux-kernel@vger.kernel.org
 Subject: Re: EISA AIC7XXX not detected
+Message-ID: <365640000.1035385777@aslan.btc.adaptec.com>
 In-Reply-To: <200210231448.g9NEmJp04017@Port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.LNX.3.95.1021023105914.13301B-100000@chaos.analogic.com>
+References: <200210231448.g9NEmJp04017@Port.imtp.ilyichevsk.odessa.ua>
+X-Mailer: Mulberry/3.0.0a4 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-
-On Wed, 23 Oct 2002, Denis Vlasenko wrote:
 
 > Hi,
 > 
@@ -34,30 +36,10 @@ On Wed, 23 Oct 2002, Denis Vlasenko wrote:
 > 
 > I'd like to stick printks here and there in driver source,
 > thought you may have some advice.
-> 
-> In particular, is this relevant?
-> "kmod: failed to exec /sbin/modprobe -s -k scsi_hostadapter, errno = 2"
-> --
 
-Yes. You need to load aic7xxx.o, the SCSI driver. in /etc/modules.conf
-you need:
+Since you seem to have enabled the EISA/VLB probe in your config,
+I don't know why your controller is not probed.
 
-alias scsi_hostadapter scsi_mod
-alias scsi_hostadapter sd_mod
-alias scsi_hostadapter aic7xxx
-
-alias block-major-8 sd_mod
-alias block-major-11 sr_mod
-alias char-major-9 st
-
-
-That should get your SCSI stuff running including tape and CDROM.
-
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-   Bush : The Fourth Reich of America
-
+--
+Justin
 

@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137193AbREKSA4>; Fri, 11 May 2001 14:00:56 -0400
+	id <S137197AbREKSNq>; Fri, 11 May 2001 14:13:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137196AbREKSAq>; Fri, 11 May 2001 14:00:46 -0400
-Received: from idiom.com ([216.240.32.1]:63500 "EHLO idiom.com")
-	by vger.kernel.org with ESMTP id <S137193AbREKSAf>;
-	Fri, 11 May 2001 14:00:35 -0400
-Message-ID: <3AFBC643.42631F5C@namesys.com>
-Date: Fri, 11 May 2001 04:00:20 -0700
-From: Hans Reiser <reiser@namesys.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14cl i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: hps@intermeta.de, linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
-Subject: Re: [reiserfs-dev] Re: reiserfs, xfs, ext2, ext3
-In-Reply-To: <E14yH0c-0001Q8-00@the-village.bc.nu>
+	id <S137199AbREKSNh>; Fri, 11 May 2001 14:13:37 -0400
+Received: from adsl-64-168-227-89.dsl.sntc01.pacbell.net ([64.168.227.89]:26122
+	"EHLO brian-laptop.dyn.us.mvd") by vger.kernel.org with ESMTP
+	id <S137196AbREKSNS>; Fri, 11 May 2001 14:13:18 -0400
+Date: Fri, 11 May 2001 11:13:00 -0700
+From: "Brian J. Murrell" <brian@mountainviewdata.com>
+To: linux-kernel@vger.kernel.org
+Cc: Russell King <rmk@arm.linux.org.uk>
+Subject: Re: [PATCH] ip autoconfig with modules, kernel 2.4
+Message-ID: <20010511111300.A27378@brian-laptop.us.mvd>
+In-Reply-To: <20010510094953.C28095@brian-laptop.us.mvd> <20010510180039.D9771@flint.arm.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <20010510180039.D9771@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Thu, May 10, 2001 at 06:00:39PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Thu, May 10, 2001 at 06:00:39PM +0100, Russell King wrote:
+> 
+> Hmm, if you've got userspace up and running, and loaded kernel
+> modules using insmod, then what's wrong about running a dhcp,
+> bootp or rarp client from userspace?
 
-> > Are you referring to Neil Brown's nfs operations patch as being as ugly as
-> > hell, or something else?  Just want to understand what you are saying before
-> > arguing.....
->
-> Andi has sent me some stuff to look at. He listed four implementations and I've
-> only seen two of them
+In theory, and for just ip configuration, nothing.
 
-did you see an implementation which adds operations to VFS and is written by Neil
-Brown (with reiserfs portions by Chris and Nikita)?
+I should have given more information though.  My goal is actually to
+NFSRoot the machine being booted.  I could not determine a way to get
+the "root path" attribute given by the dhcp/bootp server from
+userspace back to the kernel so that it can
+"change_root()/mount_root()" with it.  I seem to recall there was a
+proc interface for doing this at one time (in the 2.2 kernel) but it
+seemed to have went away.
 
->
->
-> > NFS is ugly as hell, and we just try to conform to whatever is the latest trend
-> > expected to be accepted since I really don't care so long as it works and
-> > doesn't uglify ReiserFS more than necessary.  If you have another approach, one
-> > that is less ugly, please let us know.  This is the first I have heard someone
->
-> Oh believe me we agree in great detail where the -problem- is. Unfortunately
-> the spec is kind of stuck.  Its finding a minimally invasive solution for 2.4
-> pending fixing it properly in 2.5
->
-> Alan
+> You can then drop the
+> kernel space IP autoconfiguration code.
 
-Tell us what to code for, and so long as it doesn't involve looking up files by
-their 32 bit inode numbers we'll probably be happy to code to it.  The Neil Brown
-stuff is already coded for though.
+If there were a way to tell the kernel, from userspace, for
+change_root()/mount_root() where the nfsroot path was, yes.  I have
+been hunting through all of the (nfs) root mount code and I don't see
+it.  It looks like it can be set either on the command line, or by the
+kernel implementation of bootp.  Am I missing it somewhere?
 
-Hans
+b.
 

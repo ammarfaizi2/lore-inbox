@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266463AbUFQM24@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266472AbUFQMap@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266463AbUFQM24 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 08:28:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266468AbUFQM2z
+	id S266472AbUFQMap (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 08:30:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266471AbUFQM3k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 08:28:55 -0400
-Received: from p060192.ppp.asahi-net.or.jp ([221.113.60.192]:20467 "EHLO
-	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S266463AbUFQM2w
+	Thu, 17 Jun 2004 08:29:40 -0400
+Received: from p060192.ppp.asahi-net.or.jp ([221.113.60.192]:21747 "EHLO
+	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S266469AbUFQM3E
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 08:28:52 -0400
-Date: Thu, 17 Jun 2004 21:28:46 +0900
-Message-ID: <m2k6y6wept.wl%ysato@users.sourceforge.jp>
+	Thu, 17 Jun 2004 08:29:04 -0400
+Date: Thu, 17 Jun 2004 21:29:00 +0900
+Message-ID: <m2hdtawepf.wl%ysato@users.sourceforge.jp>
 From: Yoshinori Sato <ysato@users.sourceforge.jp>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: linux kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] H8/300 update (1/3) ptrace fix
+Subject: [PATCH] H8/300 update (3/3) smc9194 driver 
 User-Agent: Wanderlust/2.11.24 (Wonderwall) SEMI/1.14.6 (Maruoka)
  FLIM/1.14.6 (Marutamachi) APEL/10.6 Emacs/21.3 (i386-pc-linux-gnu)
  MULE/5.0 (SAKAKI)
@@ -23,100 +23,170 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- Kconfig typo fix
-- PTRACE_PEEKUSER read process info support
-- exr restore fix
-- ptrace register offset fix
+- H8/300 target support
+- fixed irq support
+- high address (>0xffff) i/o fix
 
 -- 
 Yoshinori Sato
 <ysato@users.sourceforge.jp>
 
-diff -ru -X .exclude-diff linux-2.6.7/arch/h8300/Kconfig linux-2.6.7-h8300/arch/h8300/Kconfig
---- linux-2.6.7/arch/h8300/Kconfig	2004-06-16 14:19:44.000000000 +0900
-+++ linux-2.6.7-h8300/arch/h8300/Kconfig	2004-06-07 00:50:45.000000000 +0900
-@@ -223,7 +223,7 @@
+diff -ru -X .exclude-diff linux-2.6.7/drivers/net/smc9194.c linux-2.6.7-h8300/drivers/net/smc9194.c
+--- linux-2.6.7/drivers/net/smc9194.c	2004-06-16 14:19:44.000000000 +0900
++++ linux-2.6.7-h8300/drivers/net/smc9194.c	2004-06-17 18:17:36.000000000 +0900
+@@ -94,16 +94,51 @@
+ #define USE_32_BIT 1
+ #endif
  
- config CONFIG_SH_STANDARD_BIOS
- 	bool "Use gdb protocol serial console"
--	depends on (!H8300H_SIM && H8S_SIM)
-+	depends on (!H8300H_SIM && !H8S_SIM)
- 	help
- 	  serial console output using GDB protocol.
- 	  Require eCos/RedBoot
-diff -ru -X .exclude-diff linux-2.6.7/arch/h8300/kernel/ptrace.c linux-2.6.7-h8300/arch/h8300/kernel/ptrace.c
---- linux-2.6.7/arch/h8300/kernel/ptrace.c	2004-06-16 14:19:09.000000000 +0900
-+++ linux-2.6.7-h8300/arch/h8300/kernel/ptrace.c	2004-06-17 20:28:05.000000000 +0900
-@@ -116,18 +116,36 @@
- 		case PTRACE_PEEKUSR: {
- 			unsigned long tmp;
- 			
--			if ((addr & 3) || addr < 0 || addr >= sizeof(struct user))
-+			if ((addr & 3) || addr < 0 || addr >= sizeof(struct user)) {
- 				ret = -EIO;
-+				break ; 
-+			}
- 			
--			tmp = 0;  /* Default return condition */
-+		        ret = 0;  /* Default return condition */
- 			addr = addr >> 2; /* temporary hack. */
++#if defined(__H8300H__) || defined(__H8300S__)
++#define NO_AUTOPROBE
++#undef insl
++#undef outsl
++#define insl(a,b,l)  io_insl_noswap(a,b,l)
++#define outsl(a,b,l) io_outsl_noswap(a,b,l)
++#endif
 +
- 			if (addr < H8300_REGS_NO)
- 				tmp = h8300_get_reg(child, addr);
- 			else {
--				ret = -EIO;
--				break ;
-+				switch(addr) {
-+				case 49:
-+					tmp = child->mm->start_code;
-+					break ;
-+				case 50:
-+					tmp = child->mm->start_data;
-+					break ;
-+				case 51:
-+					tmp = child->mm->end_code;
-+					break ;
-+				case 52:
-+					tmp = child->mm->end_data;
-+					break ;
-+				default:
-+					ret = -EIO;
-+				}
- 			}
--			ret = put_user(tmp,(unsigned long *) data);
-+			if (!ret)
-+				ret = put_user(tmp,(unsigned long *) data);
- 			break ;
- 		}
- 
-diff -ru -X .exclude-diff linux-2.6.7/arch/h8300/platform/h8s/entry.S linux-2.6.7-h8300/arch/h8300/platform/h8s/entry.S
---- linux-2.6.7/arch/h8300/platform/h8s/entry.S	2004-06-16 14:19:52.000000000 +0900
-+++ linux-2.6.7-h8300/arch/h8300/platform/h8s/entry.S	2004-06-17 00:29:35.000000000 +0900
-@@ -83,6 +83,7 @@
- 	mov.l	@(LER0-LER1:16,sp),er1		/* restore ER0 */
- 	mov.l	er1,@er0
- 	mov.w	@(LEXR-LER1:16,sp),r1		/* restore EXR */
-+	mov.b	r1l,r1h
- 	mov.w	r1,@(8:16,er0)
- 	mov.w	@(LCCR-LER1:16,sp),r1		/* restore the RET addr */
- 	mov.b	r1l,r1h
-@@ -214,7 +215,6 @@
- 	jsr	@SYMBOL_NAME(syscall_trace)
- 	bra	SYMBOL_NAME(ret_from_exception):8
- 
--
- SYMBOL_NAME_LABEL(ret_from_fork)
- 	mov.l	er2,er0
- 	jsr	@SYMBOL_NAME(schedule_tail)
-diff -ru -X .exclude-diff linux-2.6.7/arch/h8300/platform/h8s/ptrace_h8s.c linux-2.6.7-h8300/arch/h8300/platform/h8s/ptrace_h8s.c
---- linux-2.6.7/arch/h8300/platform/h8s/ptrace_h8s.c	2004-06-16 14:19:01.000000000 +0900
-+++ linux-2.6.7-h8300/arch/h8300/platform/h8s/ptrace_h8s.c	2004-06-02 23:33:03.000000000 +0900
-@@ -23,7 +23,7 @@
- static const int h8300_register_offset[] = {
- 	PT_REG(er1), PT_REG(er2), PT_REG(er3), PT_REG(er4),
- 	PT_REG(er5), PT_REG(er6), PT_REG(er0), PT_REG(orig_er0),
--	PT_REG(ccr), PT_REG(pc), PT_REG(exr)
-+	PT_REG(ccr), PT_REG(pc),  0,           PT_REG(exr)
+ /*
+  .the SMC9194 can be at any of the following port addresses.  To change,
+  .for a slightly different card, you can add it to the array.  Keep in
+  .mind that the array must end in zero.
+ */
+-static unsigned int smc_portlist[] __initdata = { 
+-	0x200, 0x220, 0x240, 0x260, 0x280, 0x2A0, 0x2C0, 0x2E0,
+-	0x300, 0x320, 0x340, 0x360, 0x380, 0x3A0, 0x3C0, 0x3E0, 0
++
++struct devlist {
++	unsigned int port;
++	unsigned int irq;
  };
  
- /* read register */
++#if defined(CONFIG_H8S_EDOSK2674)
++static struct devlist smc_devlist[] __initdata = { 
++	{.port = 0xf80000, .irq = 16},
++	{.port = 0,        .irq = 0 },
++};
++#else
++static struct devlist smc_devlist[] __initdata = { 
++	{.port = 0x200, .irq = 0},
++	{.port = 0x220, .irq = 0},
++	{.port = 0x240, .irq = 0},
++	{.port = 0x260, .irq = 0},
++	{.port = 0x280, .irq = 0},
++	{.port = 0x2A0, .irq = 0},
++	{.port = 0x2C0, .irq = 0},
++	{.port = 0x2E0, .irq = 0},
++	{.port = 0x300, .irq = 0},
++	{.port = 0x320, .irq = 0},
++	{.port = 0x340, .irq = 0},
++	{.port = 0x360, .irq = 0},
++	{.port = 0x380, .irq = 0},
++	{.port = 0x3A0, .irq = 0},
++	{.port = 0x3C0, .irq = 0},
++	{.port = 0x3E0, .irq = 0},
++	{.port = 0,     .irq = 0},
++};
++#endif
+ /*
+  . Wait time for memory to be free.  This probably shouldn't be
+  . tuned that much, as waiting for this means nothing else happens
+@@ -466,7 +501,7 @@
+ static int smc_wait_to_send_packet( struct sk_buff * skb, struct net_device * dev )
+ {
+ 	struct smc_local *lp = netdev_priv(dev);
+-	unsigned short ioaddr 	= dev->base_addr;
++	unsigned int ioaddr 	= dev->base_addr;
+ 	word 			length;
+ 	unsigned short 		numPages;
+ 	word			time_out;
+@@ -580,7 +615,7 @@
+ 	byte	 		packet_no;
+ 	struct sk_buff * 	skb = lp->saved_skb;
+ 	word			length;
+-	unsigned short		ioaddr;
++	unsigned int		ioaddr;
+ 	byte			* buf;
+ 
+ 	ioaddr = dev->base_addr;
+@@ -635,7 +670,11 @@
+ #ifdef USE_32_BIT
+ 	if ( length & 0x2  ) {
+ 		outsl(ioaddr + DATA_1, buf,  length >> 2 );
++#if !defined(__H8300H__) && !defined(__H8300S__)
+ 		outw( *((word *)(buf + (length & 0xFFFFFFFC))),ioaddr +DATA_1);
++#else
++		ctrl_outw( *((word *)(buf + (length & 0xFFFFFFFC))),ioaddr +DATA_1);
++#endif
+ 	}
+ 	else
+ 		outsl(ioaddr + DATA_1, buf,  length >> 2 );
+@@ -691,9 +730,12 @@
+ struct net_device * __init smc_init(int unit)
+ {
+ 	struct net_device *dev = alloc_etherdev(sizeof(struct smc_local));
+-	unsigned *port;
++	static struct devlist *smcdev = smc_devlist;
+ 	int err = 0;
+ 
++#ifndef NO_AUTOPROBE
++	smcdev = smc_devlist;
++#endif
+ 	if (!dev)
+ 		return ERR_PTR(-ENODEV);
+ 
+@@ -711,11 +753,11 @@
+ 	} else if (io != 0) {	/* Don't probe at all. */
+ 		err = -ENXIO;
+ 	} else {
+-		for (port = smc_portlist; *port; port++) {
+-			if (smc_probe(dev, *port) == 0)
++		for (;smcdev->port; smcdev++) {
++			if (smc_probe(dev, smcdev->port) == 0)
+ 				break;
+ 		}
+-		if (!*port)
++		if (!smcdev->port)
+ 			err = -ENODEV;
+ 	}
+ 	if (err)
+@@ -741,6 +783,7 @@
+ */
+ int __init smc_findirq( int ioaddr )
+ {
++#ifndef NO_AUTOPROBE
+ 	int	timeout = 20;
+ 	unsigned long cookie;
+ 
+@@ -795,6 +838,14 @@
+ 
+ 	/* and return what I found */
+ 	return probe_irq_off(cookie);
++#else /* NO_AUTOPROBE */
++	struct devlist *smcdev;
++	for (smcdev = smc_devlist; smcdev->port; smcdev++) {
++		if (smcdev->port == ioaddr)
++			return smcdev->irq;
++	}
++	return 0;
++#endif
+ }
+ 
+ /*----------------------------------------------------------------------
+@@ -863,6 +914,7 @@
+ 		retval = -ENODEV;
+ 		goto err_out;
+ 	}
++#if !defined(CONFIG_H8S_EDOSK2674)
+ 	/* well, we've already written once, so hopefully another time won't
+  	   hurt.  This time, I need to switch the bank register to bank 1,
+ 	   so I can access the base address register */
+@@ -877,6 +929,10 @@
+ 		retval = -ENODEV;
+ 		goto err_out;
+ 	}
++#else
++	(void)base_address_register; /* Warning suppression */
++#endif
++	
+ 
+ 	/*  check if the revision register is something that I recognize.
+ 	    These might need to be added to later, as future revisions

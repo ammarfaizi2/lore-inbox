@@ -1,33 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262205AbULRLOX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262212AbULRLdt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262205AbULRLOX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Dec 2004 06:14:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262212AbULRLOX
+	id S262212AbULRLdt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Dec 2004 06:33:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262862AbULRLdt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Dec 2004 06:14:23 -0500
-Received: from mail-ex.suse.de ([195.135.220.2]:42931 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262205AbULRLOV (ORCPT
+	Sat, 18 Dec 2004 06:33:49 -0500
+Received: from wproxy.gmail.com ([64.233.184.199]:18207 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262212AbULRLdr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Dec 2004 06:14:21 -0500
-Date: Sat, 18 Dec 2004 12:14:20 +0100
-From: Andi Kleen <ak@suse.de>
-To: Bart De Schuymer <bdschuym@pandora.be>
-Cc: Andi Kleen <ak@suse.de>, Crazy AMD K7 <snort2004@mail.ru>,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: do_IRQ: stack overflow: 872..
-Message-ID: <20041218111420.GE338@wotan.suse.de>
-References: <1131604877.20041218092730@mail.ru.suse.lists.linux.kernel> <p73zn0ccaee.fsf@verdi.suse.de> <1103368330.3566.15.camel@localhost.localdomain>
+	Sat, 18 Dec 2004 06:33:47 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=LxUV8nO6VlhWuiaWl9WZU7Y2/3l4J2sc8Ad/Jf6uLOCoh/BQsRJ2r2sCzbKM0t7ggdDleVqMimLRi01T9nLFHCfwFjOeJFcexm0FgyCrIrX78kD7sM8kTV6sTOhAEp1WxGQOFkFnAvXotRuSdyC06ch6Jic6h0FJgSxBkdWNAu4=
+Message-ID: <2d7d2dd2041218033339ad23a1@mail.gmail.com>
+Date: Sat, 18 Dec 2004 11:33:47 +0000
+From: Simon Burke <simon.burke@gmail.com>
+Reply-To: Simon Burke <simon.burke@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: BSD UFS2 support
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1103368330.3566.15.camel@localhost.localdomain>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The bridge-nf code does not use recursive function calls and there is no
-> long consecutive function calling. Furthermore, there is no function in
-> the bridge-nf code that uses a large part of the stack.
+Hi, im mainly a lurker but need to ask whether the newer freeBSD fs
+(UFS2) is readable and writable.
 
-Just take a look at the backtrace in the original post. It clearly
-shows a problem. And it points strongly towards br-netfilter.
+I have googled a round to find that i can mount / as read only but no
+more. Is it possible to mount my /usr partition within the BSD slice.
+(ie i want to get ot /usr/home/$user/
 
+
+-- 
+Theres no place like ::1
+
+Thanks,
+SimonB

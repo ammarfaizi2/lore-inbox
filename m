@@ -1,40 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131606AbQLPNol>; Sat, 16 Dec 2000 08:44:41 -0500
+	id <S131565AbQLPOKC>; Sat, 16 Dec 2000 09:10:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131565AbQLPNob>; Sat, 16 Dec 2000 08:44:31 -0500
-Received: from d14144.upc-d.chello.nl ([213.46.14.144]:60292 "EHLO
-	amadeus.home.nl") by vger.kernel.org with ESMTP id <S131376AbQLPNoW>;
-	Sat, 16 Dec 2000 08:44:22 -0500
-Message-Id: <m147H9p-000OX2C@amadeus.home.nl>
-Date: Sat, 16 Dec 2000 14:13:49 +0100 (CET)
-From: arjan@fenrus.demon.nl (Arjan van de Ven)
-To: chas@pcscs.com (Charles Wilkins)
-Subject: Re: kernel software raid support
-cc: linux-kernel@vger.kernel.org
-X-Newsgroups: fenrus.linux.kernel
-In-Reply-To: <008201c06760$7ecd9ee0$2b6e60cf@pcscs.com>
-User-Agent: tin/pre-1.4-981002 ("Phobia") (UNIX) (Linux/2.2.18pre19 (i586))
+	id <S131665AbQLPOJw>; Sat, 16 Dec 2000 09:09:52 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:17210 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S131565AbQLPOJk>; Sat, 16 Dec 2000 09:09:40 -0500
+Date: Sat, 16 Dec 2000 14:39:10 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Chris Mason <mason@suse.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, J Sloan <jjs@toyota.com>,
+        Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [lkml]Re: VM problems still in 2.2.18
+Message-ID: <20001216143910.A25150@inspiron.random>
+In-Reply-To: <E146zsJ-0001fT-00@the-village.bc.nu> <Pine.LNX.4.10.10012160244200.30931-100000@home.suse.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10012160244200.30931-100000@home.suse.com>; from mason@suse.com on Sat, Dec 16, 2000 at 02:49:40AM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <008201c06760$7ecd9ee0$2b6e60cf@pcscs.com> you wrote:
+On Sat, Dec 16, 2000 at 02:49:40AM -0800, Chris Mason wrote:
+> GFP_BUFFER.  As far as I know that should be safe, but the change is
 
-> Would anybody happen to have a current list of working patches for a
-> decent implementation of software raid1 using the 2.2.18 kernel that
-> employs some level of read performance that exceeds that of 1 harddisk?
+Yes that's ok.
 
-This may seem odd, but it is actually not possible to get a sequential read
-performance > 1 harddisk with RAID1 for single-threaded ussage patterns, given
-the current on-disk structures.
-
-I have a hack in my (2.4) tree that works around this limitation, but the
-on-disk format is incompatible with the stock kernel, so it is no candidate
-for inclusion...
-
-
-Greetings,
-   Arjan van de Ven
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

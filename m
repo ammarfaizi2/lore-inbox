@@ -1,77 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261757AbSJJQjr>; Thu, 10 Oct 2002 12:39:47 -0400
+	id <S261688AbSJJQrL>; Thu, 10 Oct 2002 12:47:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261807AbSJJQjr>; Thu, 10 Oct 2002 12:39:47 -0400
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:31895 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S261757AbSJJQjp>; Thu, 10 Oct 2002 12:39:45 -0400
-To: linux-kernel@vger.kernel.org
-Cc: torvalds@transmeta.com, marcelo@conectiva.com.br
-Subject: [PATCH] 2.5.40: fix chmod/chown on procfs
-From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
-Date: Thu, 10 Oct 2002 18:45:03 +0200
-Message-ID: <87zntm8cq8.fsf@goat.bogus.local>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
- i386-debian-linux)
-MIME-Version: 1.0
+	id <S261664AbSJJQrL>; Thu, 10 Oct 2002 12:47:11 -0400
+Received: from host194.steeleye.com ([66.206.164.34]:62982 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S261688AbSJJQrK>; Thu, 10 Oct 2002 12:47:10 -0400
+Message-Id: <200210101652.g9AGqrB02791@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: William Lee Irwin III <wli@holomorphy.com>,
+       "Adam J. Richter" <adam@yggdrasil.com>, mingo@redhat.com,
+       johnstul@us.ibm.com, James.Bottomley@HansenPartnership.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Patch?: linux-2.5.41 multiprocessor vs. CONFIG_X86_TSC 
+In-Reply-To: Message from William Lee Irwin III <wli@holomorphy.com> 
+   of "Thu, 10 Oct 2002 05:17:57 PDT." <20021010121757.GY12432@holomorphy.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Thu, 10 Oct 2002 09:52:53 -0700
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch allows to change uid, gid and mode of files and directories
-located in procfs.
+On Thu, Oct 10, 2002 at 05:02:12AM -0700, Adam J. Richter wrote:
+> 	2. Are there x86 multiprocessors that Linux runs on that lack the
+> 	   Time Stamp Counter feature?  If so, I would welcome any
+> 	   suggestions or requests on how best to fix arch/i386/smpboot.c.
 
-Without this patch you can change uid, gid and mode as long as the
-file is open. As soon as you close the file, it reverts back to its
-default, which is root:root and readonly usually.
+> It's useless on NUMA-Q. The assumption is that they're synchronized
+> and it's infeasible to synchronize them without elaborate fixup
+> machinery on the things, which can at best fake it.
 
-This patch is tested with 2.5.40, but applies to 2.5.41 as well.
-Comments?
+> wrt. Voyager et al. James Bottomley is the right person to ask.
 
-Regards, Olaf.
+> As far as active development on NUMA-Q and x440 in the timer arena
+> goes, John Stultz knows best. 
 
---- a/fs/proc/generic.c	Sat Oct  5 18:45:53 2002
-+++ b/fs/proc/generic.c	Thu Oct 10 17:48:10 2002
-@@ -165,6 +165,24 @@
-     return -EINVAL;
- }
- 
-+static int proc_notify_change(struct dentry *dentry, struct iattr *iattr)
-+{
-+	struct inode *inode = dentry->d_inode;
-+	int error = inode_setattr(inode, iattr);
-+	if (!error) {
-+		struct proc_dir_entry *de = PDE(inode);
-+		de->uid = inode->i_uid;
-+		de->gid = inode->i_gid;
-+		de->mode = inode->i_mode;
-+	}
-+
-+	return error;
-+}
-+
-+static struct inode_operations proc_file_inode_operations = {
-+	.setattr	= proc_notify_change,
-+};
-+
- /*
-  * This function parses a name such as "tty/driver/serial", and
-  * returns the struct proc_dir_entry for "/proc/tty/driver", and
-@@ -368,6 +386,7 @@
-  */
- static struct inode_operations proc_dir_inode_operations = {
- 	.lookup		= proc_lookup,
-+	.setattr	= proc_notify_change,
- };
- 
- static int proc_register(struct proc_dir_entry * dir, struct proc_dir_entry * dp)
-@@ -393,6 +412,8 @@
- 	} else if (S_ISREG(dp->mode)) {
- 		if (dp->proc_fops == NULL)
- 			dp->proc_fops = &proc_file_operations;
-+		if (dp->proc_iops == NULL)
-+			dp->proc_iops = &proc_file_inode_operations;
- 	}
- 	return 0;
- }
+Voyager is in the same boat as NUMA-Q.  The machines can have up to eight CPU 
+card slots and each slot can take up to a quad CPU card (with the clock 
+generator on the CPU card) so TSCs cannot synchronise accross the quads.  
+Worse, for voyager, the CPUs and clocks can be radically different frequencies 
+(I run a dual quad system here with one quad at 100MHz and one at 166MHz)
+
+Voyager can also run with ancient dyad 486 CPU cards (I still have some) which 
+do lack the TSC feature entirely.  However, I don't use the smpboot.c file to 
+boot with, so if you want changes in there that's fine by me, I'll just hook 
+the voyager boot sequence into them.
+
+James
+
+

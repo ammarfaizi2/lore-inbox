@@ -1,46 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262410AbUCEKra (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 05:47:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262448AbUCEKra
+	id S262448AbUCEKsf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 05:48:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262452AbUCEKsf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 05:47:30 -0500
-Received: from mailgw.cvut.cz ([147.32.3.235]:60048 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S262410AbUCEKr3 (ORCPT
+	Fri, 5 Mar 2004 05:48:35 -0500
+Received: from mail.gmx.net ([213.165.64.20]:62870 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262448AbUCEKsc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 05:47:29 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Date: Fri, 5 Mar 2004 11:47:08 +0200
+	Fri, 5 Mar 2004 05:48:32 -0500
+X-Authenticated: #4512188
+Message-ID: <40485B02.4020604@gmx.de>
+Date: Fri, 05 Mar 2004 11:48:34 +0100
+From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040216)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [TRIVIAL][PATCH]:/proc/fs/nfsd/
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, okir@monad.swb.de,
-       obelix123@toughguy.net
-X-mailer: Pegasus Mail v3.50
-Message-ID: <16B99F21693@vcnet.vc.cvut.cz>
+To: Nick Piggin <piggin@cyberone.com.au>
+CC: linux-kernel <linux-kernel@vger.kernel.org>, Jason Cox <jpcox@iastate.edu>,
+       Autar022@planet.nl
+Subject: Re: nicksched v30
+References: <4048204E.8000807@cyberone.com.au>
+In-Reply-To: <4048204E.8000807@cyberone.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  5 Mar 04 at 21:08, Neil Brown wrote:
-> > The following patch fixes it.
+Nick Piggin wrote:
+> http://www.kerneltrap.org/~npiggin/v30.gz
 > 
-> Does it need fixing??
-> 
-> If you remove this, then people who compile a kernel without nfsd
-> support, and then later decide to compile an nfsd module and load it,
-> will not be able to mount the nfsd filesystem at the right place.
+> Applies to kernel 2.6.4-rc1-mm2.
+> Run X at about nice -10 or -15.
+> Please report interactivity problems with the default scheduler
+> before using this one etc etc.
 
-> I think it is a very small cost, and a measurable gain, to leave it
-> there.
+So far i noticed:
 
-Maybe I'm stupid, but why cannot knfsd module create fs/nfsd
-directory at module load? That way you can do insmod/modprobe followed 
-by mount() to do that. And if you'll fiddle with do_mount a bit
-(so that get_fs_type() is invoked before walking mount path)
-you can do it even without modprobing knfsd in advance, by just
-doing 'mount none /proc/fs/nfsd -t nfsd'.
-                                                Petr Vandrovec
+with default scheduler:
 
+When I run emerge sync (I am on gentoo) and finally the cache on disk 
+gets updated (very heavy disk activity), default scheduler (in 
+conjunction with cfq, haven' tried other) causes a schmall pause of 1-2 
+seconds when I use my browser, ie mouse cursor is ok, but I cannot 
+scroll for that time.
+
+your scheduler: I tried it with the "love-sources", so maybe that patch 
+"steel300" incorporated was already a bit outdated, but I dunno. It had 
+the same version as above.  When I click on a link in thunderbird and it 
+opens up in firefox (is started and just a new tab is created) the 
+mouses stutters for a brief moment. This didn't happen with default 
+scheduler. I dunno if above sympton happens with yours.
+
+I haven't reniced X withy our patch. But I did it once and I didn't see 
+much of a difference. (I dunno if the mouse stutter went away then...)
+
+bye,
+
+Prakash

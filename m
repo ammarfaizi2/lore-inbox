@@ -1,66 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263460AbTIHSSP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 14:18:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263467AbTIHSSP
+	id S263463AbTIHS0c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 14:26:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263464AbTIHS0b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 14:18:15 -0400
-Received: from dodge.jordet.nu ([217.13.8.142]:7586 "EHLO dodge.hybel")
-	by vger.kernel.org with ESMTP id S263460AbTIHSSN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 14:18:13 -0400
-Subject: Re: New ATI FireGL driver supports 2.6 kernel
-From: Stian Jordet <liste@jordet.nu>
-To: Mika Liljeberg <mika.liljeberg@welho.com>
-Cc: linux-kernel@vger.kernel.org, dri-users@lists.sourceforge.net
-In-Reply-To: <1063044345.1895.10.camel@hades>
-References: <1063044345.1895.10.camel@hades>
-Content-Type: text/plain
-Message-Id: <1063045080.21991.13.camel@chevrolet.hybel>
+	Mon, 8 Sep 2003 14:26:31 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:47503 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S263463AbTIHS0b
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 14:26:31 -0400
+Date: Mon, 8 Sep 2003 19:26:03 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Hugh Dickins <hugh@veritas.com>, Ulrich Drepper <drepper@redhat.com>,
+       Jamie Lokier <lk@tantalophile.demon.co.uk>,
+       Andrew Morton <akpm@osdl.org>, Stephen Hemminger <shemminger@osdl.org>,
+       torvalds@transmeta.com, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Re: today's futex changes
+Message-ID: <20030908182603.GE27097@mail.jlokier.co.uk>
+References: <Pine.LNX.4.44.0309061723160.1470-100000@localhost.localdomain> <20030908102309.0AC4E2C013@lists.samba.org> <20030908175140.GC27097@mail.jlokier.co.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Mon, 08 Sep 2003 18:18:01 +0000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030908175140.GC27097@mail.jlokier.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-man, 08.09.2003 kl. 18.05 skrev Mika Liljeberg:
-> Hi All,
-> 
-> Just in case anyone is interested, ATI has released version 3.2.5 of
-> their FireGL driver for XFree86. The driver supports all their high end
-> graphics cards. This is the first version that has DRM support for the
-> 2.6 series of kernels.
+Jamie Lokier wrote:
+> It is probably worth adding a jhash_3longs() to jhash.h, which does
+> one call to __hash_mix() on 32-bit, two calls on 64-bit, and avoids
+> the loop in both cases.
 
-Well.. Not really :)
+Bob Jenkins has a 64-bit version of the mixing function, which we
+aren't using.  It would be better to use a single iteration of that in
+jhash_3longs().
 
-chevrolet:/lib/modules/fglrx/build_mod/2.6.x# make
-make -C /lib/modules/2.6.0-test4/build
-SUBDIRS=/lib/modules/fglrx/build_mod/2.6.x modules
-make[1]: Entering directory `/usr/src/linux-2.6.0-test4'
-make[2]: `arch/i386/kernel/asm-offsets.s' is up to date.
-*** Warning: Overriding SUBDIRS on the command line can cause
-***          inconsistencies
-  CC [M]  /lib/modules/fglrx/build_mod/2.6.x/agp3.o
-  CC [M]  /lib/modules/fglrx/build_mod/2.6.x/nvidia-agp.o
-  CC [M]  /lib/modules/fglrx/build_mod/2.6.x/agpgart_be.o
-  CC [M]  /lib/modules/fglrx/build_mod/2.6.x/i7505-agp.o
-  CC [M]  /lib/modules/fglrx/build_mod/2.6.x/firegl_public.o
-/lib/modules/fglrx/build_mod/2.6.x/firegl_public.c: In function
-`firegl_stub_open':
-/lib/modules/fglrx/build_mod/2.6.x/firegl_public.c:421: error: called
-object is not a function
-/lib/modules/fglrx/build_mod/2.6.x/firegl_public.c: In function
-`__ke_inode_rdev_minor':
-/lib/modules/fglrx/build_mod/2.6.x/firegl_public.c:847: warning:
-implicit declaration of function `minor'
-make[2]: *** [/lib/modules/fglrx/build_mod/2.6.x/firegl_public.o] Error
-1
-make[1]: *** [/lib/modules/fglrx/build_mod/2.6.x] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.6.0-test4'
-make: *** [kmod_build] Error 2
-chevrolet:/lib/modules/fglrx/build_mod/2.6.x#
+See:
+	http://burtleburtle.net/bob/hash/evahash.html#hash64
 
-Regards,
-Stian
-
+-- Jamie

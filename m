@@ -1,46 +1,104 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316855AbSE3UBV>; Thu, 30 May 2002 16:01:21 -0400
+	id <S316856AbSE3UBl>; Thu, 30 May 2002 16:01:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316856AbSE3UBU>; Thu, 30 May 2002 16:01:20 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:20999 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S316855AbSE3UBT>;
-	Thu, 30 May 2002 16:01:19 -0400
-Date: Thu, 30 May 2002 12:59:42 -0700
-From: Greg KH <greg@kroah.com>
-To: Luca Barbieri <ldb@ldb.ods.org>
-Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [2.4] ATM driver for the Alcatel SpeedTouch USB DSL modem
-Message-ID: <20020530195942.GA29522@kroah.com>
-In-Reply-To: <1022782402.1920.130.camel@ldb> <20020530184817.GB28893@kroah.com> <1022787238.1921.185.camel@ldb>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Thu, 02 May 2002 18:56:56 -0700
+	id <S316857AbSE3UBl>; Thu, 30 May 2002 16:01:41 -0400
+Received: from inet-mail2.oracle.com ([148.87.2.202]:2769 "EHLO
+	inet-mail2.oracle.com") by vger.kernel.org with ESMTP
+	id <S316856AbSE3UBi>; Thu, 30 May 2002 16:01:38 -0400
+Message-ID: <3CF6843C.6090101@oracle.com>
+Date: Thu, 30 May 2002 21:57:48 +0200
+From: Alessandro Suardi <alessandro.suardi@oracle.com>
+Organization: Oracle Support Services
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020516
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.19 OOPS in pcmcia setup code
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 30, 2002 at 09:33:58PM +0200, Luca Barbieri wrote:
-> > Because of these dependencies (and the fact that the maintainer doesn't
-> > want it added yet) I will not apply this patch.
-> That's ok (right now). Application of it should only be considered after
-> discussion here and after the maintainer responds.
-> 
-> > Sending this to linux-usb-devel might be a better place, instead of
-> > bothering linux-kernel.
-> Should I have sent the first two patches to linux-kernel, the ATM SAR to
-> linux-atm-general and the SpeedTouch driver to linux-usb-devel?
-> How should I have handled the fact that the SpeedTouch and ATM SAR
-> patches depend on main kernel patches and the fact that the SpeedTouch
-> patch includes ATM code (since it is for an ATM device attached to the
-> USB bus)?
+decoded oops follows, 100% reproducable.
 
-Well, if you want a ATM patch added, you need to send it to the ATM
-maintainer (but I don't know if there is one right now or not.)  And if
-you want a USB driver added to the USB tree, you need to send it to the
-USB maintainer.  So cross-posting to all of these lists is probably a
-good idea :)
+Dell Latitude CPxJ750GT, PIII-750, Xircom RBEM56G100-TX,
+  kernel compiled with GCC 3.1. NB, 2.5.18 compiled with
+  GCC 3.1 works fine.
 
-greg k-h
+I tried recompiling with RH7.3 GCC but I still get an oops
+  on boot - I can't decode it since it scrolls maybe a dozen
+  screenfuls before stopping, so here's the GCC 3.1 one:
+
+
+ksymoops 2.4.4 on i686 2.5.18.  Options used
+       -v /usr/src/linux-2.5.19/vmlinux (specified)
+       -K (specified)
+       -L (specified)
+       -o /lib/modules/2.5.19 (specified)
+       -m /boot/System.map-2.5.19 (specified)
+
+No modules in ksyms, skipping objects
+CPU:    0
+EIP:    0010:[<c02cd3db>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010296
+eax: cff57720   ebx: c13b69ec   ecx: c13b6800   edx: c0207846
+esi: c02f6794   edi: c13b6800   ebp: c13b6800   esp: cff5bb18
+ds: 0018   es: 0018   ss: 0018
+Stack: 0000000b 00000003 0000000b c13b6800 00026572 00038001 115dffff 00000000
+         00000000 00000000 00000000 cff57720 00000000 00000000 00000000 00000002
+         00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+Call Trace: [<c02043c7>] [<c020430f>] [<c0204286>] [<c0205ad7>] [<c0204c9a>]
+              [<c0120290>] [<c011d7e2>] [<c011d7c5>] [<c0207f50>] [<c0105000>] [<c011d6c7>]
+              [<c0105000>] [<c0105081>] [<c0105000>] [<c01057de>] [<c0105060>]
+Code: 62 6f 72 61 74 6f 72 79 00 54 72 69 54 65 63 68 00 54 65 78
+
+  >>EIP; c02cd3db <timer_bug_msg+227db/2b9a0>   <=====
+Trace; c02043c7 <unreset_socket+a7/140>
+Trace; c020430f <reset_socket+4f/60>
+Trace; c0204286 <setup_socket+b6/f0>
+Trace; c0205ad7 <pcmcia_register_client+277/2a0>
+Trace; c0204c9a <pcmcia_bind_device+8a/f0>
+Trace; c0120290 <process_timeout+0/10>
+Trace; c011d7e2 <register_proc_table+b2/130>
+Trace; c011d7c5 <register_proc_table+95/130>
+Trace; c0207f50 <ds_event+0/90>
+Trace; c0105000 <_stext+0/0>
+Trace; c011d6c7 <register_sysctl_table+67/90>
+Trace; c0105000 <_stext+0/0>
+Trace; c0105081 <init+21/190>
+Trace; c0105000 <_stext+0/0>
+Trace; c01057de <kernel_thread+2e/40>
+Trace; c0105060 <init+0/190>
+Code;  c02cd3db <timer_bug_msg+227db/2b9a0>
+00000000 <_EIP>:
+Code;  c02cd3db <timer_bug_msg+227db/2b9a0>   <=====
+     0:   62 6f 72                  bound  %ebp,0x72(%edi)   <=====
+Code;  c02cd3de <timer_bug_msg+227de/2b9a0>
+     3:   61                        popa
+Code;  c02cd3df <timer_bug_msg+227df/2b9a0>
+     4:   74 6f                     je     75 <_EIP+0x75> c02cd450 <timer_bug_msg+22850/2b9a0>
+Code;  c02cd3e1 <timer_bug_msg+227e1/2b9a0>
+     6:   72 79                     jb     81 <_EIP+0x81> c02cd45c <timer_bug_msg+2285c/2b9a0>
+Code;  c02cd3e3 <timer_bug_msg+227e3/2b9a0>
+     8:   00 54 72 69               add    %dl,0x69(%edx,%esi,2)
+Code;  c02cd3e7 <timer_bug_msg+227e7/2b9a0>
+     c:   54                        push   %esp
+Code;  c02cd3e8 <timer_bug_msg+227e8/2b9a0>
+     d:   65 63 68 00               arpl   %bp,%gs:0x0(%eax)
+Code;  c02cd3ec <timer_bug_msg+227ec/2b9a0>
+    11:   54                        push   %esp
+Code;  c02cd3ed <timer_bug_msg+227ed/2b9a0>
+    12:   65                        gs
+Code;  c02cd3ee <timer_bug_msg+227ee/2b9a0>
+    13:   78 00                     js     15 <_EIP+0x15> c02cd3f0 <timer_bug_msg+227f0/2b9a0>
+
+
+--alessandro
+
+   "the hands that build / can also pull down
+     even the hands of love"
+                              (U2, "Exit")
+
+

@@ -1,53 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266586AbRHAKu1>; Wed, 1 Aug 2001 06:50:27 -0400
+	id <S266641AbRHAK7S>; Wed, 1 Aug 2001 06:59:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266580AbRHAKuR>; Wed, 1 Aug 2001 06:50:17 -0400
-Received: from sundiver.zdv.Uni-Mainz.DE ([134.93.174.136]:50160 "HELO
-	duron.intern.kubla.de") by vger.kernel.org with SMTP
-	id <S266583AbRHAKuI>; Wed, 1 Aug 2001 06:50:08 -0400
-Date: Wed, 1 Aug 2001 12:49:56 +0200
-From: Dominik Kubla <kubla@sciobyte.de>
-To: Riley Williams <rhw@MemAlpha.CX>
-Cc: Matti Aarnio <matti.aarnio@zmailer.org>,
-        christophe barb? <christophe.barbe@lineo.fr>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Virii on vger.kernel.org lists
-Message-ID: <20010801124956.B2154@intern.kubla.de>
-In-Reply-To: <Pine.LNX.4.33.0107311858360.23876-100000@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0107311858360.23876-100000@infradead.org>
-User-Agent: Mutt/1.3.18i
-X-No-Archive: yes
-Restrict: no-external-archive
+	id <S266606AbRHAK7I>; Wed, 1 Aug 2001 06:59:08 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:55821 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S266641AbRHAK6x>;
+	Wed, 1 Aug 2001 06:58:53 -0400
+From: Andrew Tridgell <tridge@valinux.com>
+To: marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org, riel@conectiva.com.br
+In-Reply-To: <Pine.LNX.4.21.0108010504160.9379-100000@freak.distro.conectiva>
+	(message from Marcelo Tosatti on Wed, 1 Aug 2001 05:13:52 -0300 (BRT))
+Subject: Re: 2.4.8preX VM problems
+Reply-To: tridge@valinux.com
+In-Reply-To: <Pine.LNX.4.21.0108010504160.9379-100000@freak.distro.conectiva>
+Message-Id: <20010801105419.8F078424A@lists.samba.org>
+Date: Wed,  1 Aug 2001 03:54:19 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 31, 2001 at 07:02:18PM +0100, Riley Williams wrote:
+Marcelo,
 
-> Is there any way we can set up an automatic virus scan of all
-> attachments at vger, and have it deal with any virii at source?
+> The following patch sets the zone free target to freepages.high. Can you
+> test it ? (I tried here and got the expected results)
 
-Yes: www.amavis.org
+Running just that patch against 2.4.8pre3 gives:
 
-> Come to that, is there a decent Linux-based virus scanner around?
+[root@fraud /root]# ~/readfiles /dev/ddisk 
+198 MB    198.084 MB/sec
+386 MB    188.634 MB/sec
+570 MB    183.827 MB/sec
+743 MB    172.5 MB/sec
+810 MB    67.0501 MB/sec
+862 MB    52.1381 MB/sec
+901 MB    37.9501 MB/sec
+957 MB    55.8253 MB/sec
+998 MB    41.1541 MB/sec
+1046 MB    48.1661 MB/sec
+1088 MB    40.3898 MB/sec
+1140 MB    50.8782 MB/sec
+1183 MB    42.5749 MB/sec
+1229 MB    46.1378 MB/sec
+1275 MB    44.8515 MB/sec
+1319 MB    43.5389 MB/sec
+1368 MB    47.5747 MB/sec
+1411 MB    42.8134 MB/sec
 
-The german antivirus tool AntiVir is free for personal use (www.free-av.com)
-and i am pretty sure they would sponsor a version for the list server if asked
-(if linux-kernel would be considered commercial use).
 
-But even better would be to also use the procmail sanitizer:
-  ftp://ftp.rubyriver.com/pub/jhardin/antispam/procmail-security.html
+which is much better, but is pretty poor performance for a null
+device.
 
-It does not scan for virii but defangs attachments and html tags so that
-braindamaged apps would not automatically execute the required interpreter
-for the virus.
+Running with that latest patch plus the patch you sent previously
+gives roughly the same result. Also, kswapd chews lots of cpu during
+these runs:
 
-Dominik Kubla
--- 
-ScioByte GmbH, Zum Schiersteiner Grund 2, 55127 Mainz (Germany)
-Phone: +49 6131 550 117  Fax: +49 6131 610 99 16
+CPU0 states:  0.0% user, 79.0% system,  0.0% nice, 20.4% idle
+CPU1 states:  0.2% user, 77.1% system,  0.0% nice, 22.1% idle
+Mem:  2059088K av,  892256K used, 1166832K free,       0K shrd,  784972K buff
+Swap: 1052216K av,       0K used, 1052216K free                   10072K cached
 
-GnuPG: 717F16BB / A384 F5F1 F566 5716 5485  27EF 3B00 C007 717F 16BB
+  PID USER     PRI  NI  SIZE  RSS SHARE LC STAT %CPU %MEM   TIME COMMAND
+  608 root      19   0   452  452   328  1 R    95.2  0.0   1:23 readfiles
+    5 root      14   0     0    0     0  1 SW   58.3  0.0   0:52 kswapd
+    6 root       9   0     0    0     0  1 RW    2.1  0.0   0:01 kreclaimd
+

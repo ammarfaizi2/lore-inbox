@@ -1,81 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263672AbUCYW5B (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 17:57:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263669AbUCYWyb
+	id S263669AbUCYW5C (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 17:57:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263665AbUCYWyI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 17:54:31 -0500
-Received: from mail-09.iinet.net.au ([203.59.3.41]:16587 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S263664AbUCYWxr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 17:53:47 -0500
-Subject: Re: ANYONE? Re: SMP + Hyperthreading / Asus PCDL Deluxe / Kernel
-	2.4.x 2.6.x / Crash/Freeze
-From: Sven Dowideit <svenud@ozemail.com.au>
-Reply-To: svenud@ozemail.com.au
-To: Richard Browning <richard@redline.org.uk>
-Cc: Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Len Brown <len.brown@intel.com>, Zwane Mwaikambo <zwane@linuxpower.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-In-Reply-To: <200403251304.56877.richard@redline.org.uk>
-References: <Pine.LNX.4.44.0403240740480.2318-100000@poirot.grange>
-	 <1080214330.982.10.camel@sven>  <200403251304.56877.richard@redline.org.uk>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-6Ks0elqry8biWg9T1fB2"
-Organization: http://www.home.org.au
-Message-Id: <1080254860.23157.3.camel@dually>
+	Thu, 25 Mar 2004 17:54:08 -0500
+Received: from gprs214-160.eurotel.cz ([160.218.214.160]:19841 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S263659AbUCYWwn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 17:52:43 -0500
+Date: Thu, 25 Mar 2004 23:52:28 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Nigel Cunningham <ncunningham@users.sourceforge.net>
+Cc: Michael Frank <mhf@linuxmail.org>,
+       Jonathan Sambrook <jonathan.sambrook@dsvr.co.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Swsusp mailing list <swsusp-devel@lists.sourceforge.net>
+Subject: Re: swsusp is not reliable. Face it. [was Re: [Swsusp-devel] Re: swsusp problems]
+Message-ID: <20040325225228.GG2179@elf.ucw.cz>
+References: <1079659165.15559.34.camel@calvin.wpcb.org.au> <200403232352.58066.dtor_core@ameritech.net> <20040324102233.GC512@elf.ucw.cz> <200403240748.31837.dtor_core@ameritech.net> <20040324151831.GB25738@atrey.karlin.mff.cuni.cz> <20040324202259.GJ20333@jsambrook> <opr5dwwgzi4evsfm@smtp.pacific.net.th> <20040325221348.GB2179@elf.ucw.cz> <1080250397.6679.28.camel@calvin.wpcb.org.au>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 26 Mar 2004 09:47:41 +1100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1080250397.6679.28.camel@calvin.wpcb.org.au>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---=-6Ks0elqry8biWg9T1fB2
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> > swsusp1 fails your test, swsusp2 fails your test, and pmdisk fails it,
+> > too. If half of memory is used by kmalloc(), there's no sane way to
+> > make suspend-to-disk working. And swsusp[12] does not. Granted, half
+> > of memory kmalloc-ed is unusual situation, but it can theoreticaly
+> > happen. Try mem=8M or something.
+> 
+> Of course if you do have 8M memory, you're not going to care about
+> suspending to disk anyway :>. Note too that suspend2 will eat memory
+> until it can suspend. It doesn't livelock because it grabs the memory it
+> frees immediately and if it can't free enough, it gives up and exits
+> cleanly. You'll know almost instantly if your suspend is going to
+> succeed or fail: once you start seeing the image written, the only thing
+> that will stop it is media/hardware failure or user intervention.
 
-same as you - dual 2.8G Xeon - though my crash seems to be happening
-both with and without HT :(
+Yep, swsusp2 will 
 
-sven
+a) either fail and exit cleanly
 
-On Fri, 2004-03-26 at 00:04, Richard Browning wrote:
-> > just to mess you up a bit :)
-> >
-> > I've just gotten one of these boxen for work
-> >
-> > and running win2003 its nice and stable,
-> >
-> > EXCEPT
-> >
-> > when i play quake, when i locks up hard after some random amount of
-> > time. Also, if I use the ATI driver setup to rotate the screen by
-> > 90degrees, it resets instantly.
-> >
-> > so i'm wondering if there's not an issue with the radeon 9600pro and
-> > this mobo..
-> >
-> > i'm goint to wack a matrox card into it in the next few days just to se=
-e
->=20
-> Which processors - is HT enabled?
->=20
-> R
+b) or suspend to disk and powerdown
 
---=-6Ks0elqry8biWg9T1fB2
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAY2GMPAwzu0QrW+kRApKvAKCTA6PMYAK50Qlcrv0qAJQstVS3mACghNyd
-JGw5cFxd4Ch0gy/WXW8Cz60=
-=dNvd
------END PGP SIGNATURE-----
-
---=-6Ks0elqry8biWg9T1fB2--
-
+. And that's correct behaviour. Michael apparently wants suspend that
+always suspends, and never refuses, but not even swsusp2 can do
+that.
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

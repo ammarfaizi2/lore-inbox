@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288749AbSADUbN>; Fri, 4 Jan 2002 15:31:13 -0500
+	id <S288752AbSADUbc>; Fri, 4 Jan 2002 15:31:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288747AbSADUbC>; Fri, 4 Jan 2002 15:31:02 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:16780 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S284842AbSADUaw>;
-	Fri, 4 Jan 2002 15:30:52 -0500
-Date: Fri, 4 Jan 2002 23:28:10 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Andrey Nekrasov <andy@spylog.ru>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] O(1) scheduler, 2.4.17-A1, 2.5.2-pre7-A1.
-In-Reply-To: <Pine.NEB.4.43.0201042111580.19208-100000@mimas.fachschaften.tu-muenchen.de>
-Message-ID: <Pine.LNX.4.33.0201042324210.14208-100000@localhost.localdomain>
+	id <S284842AbSADUbW>; Fri, 4 Jan 2002 15:31:22 -0500
+Received: from ns.suse.de ([213.95.15.193]:38161 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S288747AbSADUbQ>;
+	Fri, 4 Jan 2002 15:31:16 -0500
+Date: Fri, 4 Jan 2002 21:31:14 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: "Eric S. Raymond" <esr@thyrsus.com>, Vojtech Pavlik <vojtech@suse.cz>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Lionel Bouton <Lionel.Bouton@free.fr>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ISA slot detection on PCI systems?
+In-Reply-To: <Pine.GSO.3.96.1020104211143.829K-100000@delta.ds2.pg.gda.pl>
+Message-ID: <Pine.LNX.4.33.0201042128360.20620-100000@Appserv.suse.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 4 Jan 2002, Maciej W. Rozycki wrote:
 
-On Fri, 4 Jan 2002, Adrian Bunk wrote:
+>  That seems impossible in the real world.  I don't think it's possible to
+> detect physical connectors on a PCB for any bus -- I've even seen boards
+> with soldering spots for bus connectors but no connectors themselves.
 
-> It seems the following part of your patch broke it (net/ipv4/ipconfig.c
-> includes include/linux/sched.h; linux/tty.h includes linux/major.h that
-> defines UNNAMED_MAJOR):
->
-> --- linux/include/linux/sched.h.orig    Thu Jan  3 18:49:58 2002
-> +++ linux/include/linux/sched.h Fri Jan  4 15:27:20 2002
-> @@ -21,7 +21,6 @@
->  #include <asm/mmu.h>
->
->  #include <linux/smp.h>
-> -#include <linux/tty.h>
->  #include <linux/sem.h>
->  #include <linux/signal.h>
->  #include <linux/securebits.h>
+I agree. The best you can do is make educated guesses...
 
-thanks for the detective work - i've reverted this part of the 2.4.17
-patch and have uploaded the -A2 patch.
+> Relying on reporting anything optional being done right by a BIOS is an
+> illusion -- even mandatory things are screwed in many PC BIOSes.
 
-	Ingo
+Indeed. Something I'm trying to convey to Eric, but I don't think
+he realises just how many pooched BIOSen there are out there.
+His conservative estimate of '150 entries in the blacklist'
+is possibly off by an order of 10 times or more.
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 

@@ -1,45 +1,39 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <155052-19607>; Fri, 22 Jan 1999 09:23:13 -0500
-Received: by vger.rutgers.edu id <154679-19607>; Fri, 22 Jan 1999 08:28:37 -0500
-Received: from slip139-92-91-241.tel.il.ibm.net ([139.92.91.241]:1160 "HELO hexagon.org" ident: "qmailr") by vger.rutgers.edu with SMTP id <154221-19608>; Fri, 22 Jan 1999 07:37:09 -0500
-Message-ID: <19990122144223.A1812@hexagon>
-Date: Fri, 22 Jan 1999 14:42:23 +0200
-From: Nimrod Zimerman <zimerman@deskmail.com>
-To: Linux Kernel mailing list <linux-kernel@vger.rutgers.edu>
-Subject: Re: arca-vm-26
-Mail-Followup-To: Linux Kernel mailing list <linux-kernel@vger.rutgers.edu>
-References: <36A76D5C.379635A2@packetengines.com> <Pine.LNX.3.96.990121205408.1387G-100000@laser.bogus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <Pine.LNX.3.96.990121205408.1387G-100000@laser.bogus>; from Andrea Arcangeli on Thu, Jan 21, 1999 at 08:56:12PM +0100
+Received: by vger.rutgers.edu via listexpand id <154410-19607>; Sat, 23 Jan 1999 10:07:21 -0500
+Received: by vger.rutgers.edu id <154007-19608>; Sat, 23 Jan 1999 10:07:11 -0500
+Received: from noc.nyx.net ([206.124.29.3]:2930 "EHLO noc.nyx.net" ident: "mail") by vger.rutgers.edu with ESMTP id <154582-19608>; Sat, 23 Jan 1999 10:05:59 -0500
+Date: Sat, 23 Jan 1999 08:12:29 -0700 (MST)
+From: Colin Plumb <colin@nyx.net>
+Message-Id: <199901231512.IAA03481@nyx10.nyx.net>
+X-Nyx-Envelope-Data: Date=Sat Jan 23 08:12:29 1999, Sender=colin, Recipient=, Valsender=colin@localhost
+To: alan@packetengines.com
+Subject: Re: Random number generator for skiplists
+Cc: linux-kernel@vger.rutgers.edu
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-On Thu, Jan 21, 1999 at 08:56:12PM +0100, Andrea Arcangeli wrote:
+Skip lists are a handy data structure, but the fact that the nodes
+are variable-sized is something of an implementation hassle.
 
-> > I do not wish to start a religious war about data structures.  Have you considered
-> > the relatively new data structure called a 'skip list'?  I have replaced several
-> 
-> Never heard about them.
+An RNG for the purpose is not hard to concoct; George Marsaglia
+recently posted some good building blocks to a few relevant newsgroups
+(sci.stat.math,sci.math,sci.math.num-analysis,sci.crypt,sci.physics).
 
-Pretty nice beasts. When I learned about them, I didn't quite consider them
-a better alternative to various trees, but I guess smarter people (smarter
-people with more time) have studied them extensively enough to show that
-they are indeed a better choice at times.
+Here's his KISS (keep it simple, stupid) generator.
+All variables are 32-bit quantities.  You can use any of the
+three sub-generators as well.
 
-The implementation is indeed simple. Far simpler than any self-balancing
-tree (tough one has to admit that writing a B+ tree implementation is an
-endless source of fun). Analyzing the complexity, at least in the variant
-I've learned, isn't all that straight forward, as the algorithm is
-probabilistic.
+static unsigned z=362436069, w=521288629, jsr=123456789, jcong=380116160;
+/* Any non-zero seeds will do */
+#define znew  ((z=36969*(z&65535)+(z>>16))<<16)
+#define wnew  ((w=18000*(w&65535)+(w>>16))&65535)
+#define MWC   (znew+wnew)
+#define SHR3  (jsr ^= jsr<<17, jsr ^= jsr>>13, jsr ^= jsr<<5)
+#define CONG  (jcong=69069*jcong+1234567)
+#define KISS  ((MWC^CONG)+SHR3)
 
-Anyway, a reference 'on the web' is http://wannabe.guru.org/alg/node35.html
-(it is a very extensive reference of various algorithms. A must keep in your
-bookmark file if your bank account doesn't look all that good...). I just
-saw that it has a reference to the original paper presenting the data
-structure, and this might make an interesting reading.
-
-                                                   Nimrod
+He also has some longer-period table-driven generators.
+-- 
+	-Colin
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

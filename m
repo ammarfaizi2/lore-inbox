@@ -1,51 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287854AbSANR4m>; Mon, 14 Jan 2002 12:56:42 -0500
+	id <S287848AbSANR6M>; Mon, 14 Jan 2002 12:58:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287848AbSANR4c>; Mon, 14 Jan 2002 12:56:32 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:5592 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S287854AbSANR4S>;
-	Mon, 14 Jan 2002 12:56:18 -0500
-Date: Mon, 14 Jan 2002 12:56:15 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: [RFLART] kdev_t in ioctls
-Message-ID: <Pine.GSO.4.21.0201141227260.224-100000@weyl.math.psu.edu>
+	id <S287863AbSANR56>; Mon, 14 Jan 2002 12:57:58 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:47365 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S287848AbSANR4r>; Mon, 14 Jan 2002 12:56:47 -0500
+Subject: Re: ISA hardware discovery -- the elegant solution
+To: babydr@baby-dragons.com (Mr. James W. Laferriere)
+Date: Mon, 14 Jan 2002 18:08:32 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), esr@thyrsus.com,
+        cate@debian.org (Giacomo Catenazzi),
+        linux-kernel@vger.kernel.org (Linux Kernel List)
+In-Reply-To: <Pine.LNX.4.44.0201141254001.3238-100000@filesrv1.baby-dragons.com> from "Mr. James W. Laferriere" at Jan 14, 2002 12:55:19 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16QBX6-0002Op-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Linus, at least some ioctls (e.g. lvm ones) pass kdev_t from/to
-userland.  While the common policy with ioctls is "anything goes", this
-kind of abuse is IMNSHO over the top.
+> 	Hello All ,  And what mechanism is going to be used for an -all-
+> 	compiled in kernel ?  Everyone and there brother is so enamoured
+> 	of Modules .  Not everyone uses nor will use modules .
 
-	Example: ioctl(fd, VG_CREATE, ptr) expects the following:
-at ptr -
-struct {
-	/* bunch of sane fields */
-        struct proc_dir_entry *proc;	/* ignored */
-        pv_t *pv[ABS_MAX_PV + 1];
-        lv_t *lv[ABS_MAX_LV + 1];
-      	/* bunch of stuff */
-}
+For 2.5 if things go to plan there will be no such thing as a "compiled in"
+driver. They simply are not needed with initramfs holding what were once the
+"compiled in" modules.
 
-and pointers in the second array are to the following:
-struct {
-	/* lots of stuff */
-        kdev_t lv_dev;
-	/* lots of other stuff */
-}
-
-They _are_ dereferenced and values of ptr->lv[i]->lv_dev are stored in
-kernel data structures.  And used afterwards.  As kdev_t.
-
-The same goes for the rest of LVM ioctls - pretty much all of them
-pull such stunts.  I'm not going to comment on harmless gross indecencies
-like struct proc_dir_entry * passed from the userland (and fortunately
-ignored), but kdev_t instances are _not_ harmless.
-
-Public statement along the lines "any API that passes kdev_t values
-across the kernel boundary is unacceptable" would be a nice thing...
+Alan
 

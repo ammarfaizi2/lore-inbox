@@ -1,38 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317602AbSIEO2j>; Thu, 5 Sep 2002 10:28:39 -0400
+	id <S317597AbSIEO0S>; Thu, 5 Sep 2002 10:26:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317606AbSIEO2j>; Thu, 5 Sep 2002 10:28:39 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:52457 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S317602AbSIEO2i>;
-	Thu, 5 Sep 2002 10:28:38 -0400
-Date: Thu, 05 Sep 2002 07:26:11 -0700 (PDT)
-Message-Id: <20020905.072611.56130710.davem@redhat.com>
-To: rsreelat@in.ibm.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: patch for IA64: fix do_sys32_msgrcv bad address error.
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <OFFB350C4A.BB78D4E6-ON65256C2B.004CF605@in.ibm.com>
-References: <OFFB350C4A.BB78D4E6-ON65256C2B.004CF605@in.ibm.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S317603AbSIEO0R>; Thu, 5 Sep 2002 10:26:17 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:13052
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317602AbSIEO0R>; Thu, 5 Sep 2002 10:26:17 -0400
+Subject: Re: [PATCH] 2.4.20-pre5-ac2: Promise Controller LBA48 DMA fixed
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mike Isely <isely@pobox.com>
+Cc: "Henning P.  " Schmiedehausen <hps@intermeta.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0209050908350.10556-100000@grace.speakeasy.net>
+References: <Pine.LNX.4.44.0209050908350.10556-100000@grace.speakeasy.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 05 Sep 2002 15:31:48 +0100
+Message-Id: <1031236308.6603.4.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "R Sreelatha" <rsreelat@in.ibm.com>
-   Date: Thu, 5 Sep 2002 19:46:40 +0530
+On Thu, 2002-09-05 at 15:12, Mike Isely wrote:
+> Yes that is true.  But this is Andre's code and it seemed to me to be
+> more important to follow his style.  But whatever...
 
-   In sys_ia32.c file, in the do_sys32_msgrcv() function call,  the value of
-   ipck.msgp is interpreted as a 64 bit address, whereas it is a 32 bit
-   address.
-   Hence, do_sys32_msgrcv() finally returns EFAULT(bad address) error.
-   The patch below takes care of this by type casting ipck.msgp to type u32.
-   The patch is created for 2.5.32 version of the kernel.
-   
-It's still broken.
+Its a good general rule but for the IDE, break it ;)
 
-Fix this instead by declaring ipc_kludge with the proper
-32-bit types.  This is why the identical code works on
-sparc64 for sparc32 emulation. :-)

@@ -1,36 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265100AbUFGWVo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265096AbUFGW1L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265100AbUFGWVo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 18:21:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265101AbUFGWVn
+	id S265096AbUFGW1L (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 18:27:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265103AbUFGW1L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 18:21:43 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:731 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265100AbUFGWVi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 18:21:38 -0400
-Subject: [PATCH] 2.6.6 memory allocation checks in
-From: Steve French <smfltc@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: torque@ukrpost.net
-Content-Type: text/plain
-Organization: IBM
-Message-Id: <1086646703.5214.10.camel@stevef95.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 07 Jun 2004 17:18:23 -0500
-Content-Transfer-Encoding: 7bit
+	Mon, 7 Jun 2004 18:27:11 -0400
+Received: from smcc.demon.nl ([212.238.157.128]:40464 "HELO smcc.demon.nl")
+	by vger.kernel.org with SMTP id S265096AbUFGW1G convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 18:27:06 -0400
+From: "Nemosoft Unv." <webcam@smcc.demon.nl>
+To: Greg KH <greg@kroah.com>
+Subject: Re: small patch: enable pwc usb camera driver
+Date: Tue, 8 Jun 2004 00:27:04 +0200
+User-Agent: KMail/1.6.1
+Cc: kai.engert@gmx.de, linux-kernel@vger.kernel.org
+References: <40C466FB.1040309@kuix.de> <20040607202036.GA6185@kroah.com>
+In-Reply-To: <20040607202036.GA6185@kroah.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200406080027.04577@smcc.demon.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Adds memory allocation checks in cifs_parse_mount_options().
-> ./linux-2.6.6-modified/fs/cifs/connect.c |    4 ++++
-> 1 files changed, 4 insertions(+)
+On Monday 07 June 2004 22:20, Greg KH wrote:
+> On Mon, Jun 07, 2004 at 03:00:43PM +0200, Kai Engert wrote:
+> > The attached patch enables the pwc driver included with kernel
+> > 2.6.7-rc2
+> >
+> > It also removes the warnings during compilation.
+> > However, note that I blindly duplicated the release approach used by
+> > other usb camera drivers, replacing the current no-op.
+> >
+> > The driver works for me with a Logitech QuickCam Notebook Pro and
+> > GnomeMeeting.
+>
+> Nice, thanks, I've applied this.  
 
-I pushed the change to the project tree
-	bk://cifs.bkbits.net/linux-2.5cifs
-and will send that in with the next group of cifs bk changesets later in
-the week.
+Don't use this. It will BUG() your kernel hard, because of a double free(). 
 
-Thanks.
+> It's amazing how long it took for this to be fixed... :(
+
+I could start a big *bleep*ing rant about this, but I´ll save that for some 
+other time.
+
+ - Nemosoft
 

@@ -1,45 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261462AbUDCAt5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 19:49:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbUDCAt5
+	id S261474AbUDCBFm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 20:05:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbUDCBFm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 19:49:57 -0500
-Received: from mail.shareable.org ([81.29.64.88]:23702 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261462AbUDCAt4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 19:49:56 -0500
-Date: Sat, 3 Apr 2004 01:49:47 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>, mj@ucw.cz,
-       jack@ucw.cz, "Patrick J. LoPresti" <patl@users.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cowlinks v2
-Message-ID: <20040403004947.GI653@mail.shareable.org>
-References: <20040329171245.GB1478@elf.ucw.cz> <s5g7jx31int.fsf@patl=users.sf.net> <20040329231635.GA374@elf.ucw.cz> <20040402165440.GB24861@wohnheim.fh-wedel.de> <20040402180128.GA363@elf.ucw.cz> <20040402181707.GA28112@wohnheim.fh-wedel.de> <20040402182357.GB410@elf.ucw.cz> <20040402200921.GC653@mail.shareable.org> <20040402213933.GB246@elf.ucw.cz> <406DE280.6050109@nortelnetworks.com>
+	Fri, 2 Apr 2004 20:05:42 -0500
+Received: from fw.osdl.org ([65.172.181.6]:36509 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261474AbUDCBFc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 20:05:32 -0500
+Date: Fri, 2 Apr 2004 17:02:07 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Andrew Morton <akpm@osdl.org>, len.brown@intel.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Strange output from exportfs in 2.6.5-rc3-mm1
+Message-Id: <20040402170207.17d5dabc.rddunlap@osdl.org>
+In-Reply-To: <20040331220744.5fc69f2d.akpm@osdl.org>
+References: <20040331030439.GA23306@outblaze.com>
+	<20040331144031.360c2c3f.rddunlap@osdl.org>
+	<20040331213902.147036f3.akpm@osdl.org>
+	<20040331214417.41ea2635.rddunlap@osdl.org>
+	<20040331220744.5fc69f2d.akpm@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <406DE280.6050109@nortelnetworks.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Friesen wrote:
-> Could you not change it back to a normal inode when refcount becomes 1? 
+On Wed, 31 Mar 2004 22:07:44 -0800 Andrew Morton wrote:
 
-You can only do that if the cowid object has a pointer to the last
-remaining reference to it.  That's possible, but more complicated and
-would incur a little more I/O per cow operation.
+| "Randy.Dunlap" <rddunlap@osdl.org> wrote:
+| >
+| > | You probably didn't have modversions enabled?
+| > 
+| >  Not the first time; I did the second time, but when I booted,
+| >  it rebooted for me during early init (repeatable).  :(
+| >  (P4 2-proc)  Then I went home.  I can look into this more
+| >  tomorrow... or is this a known issue?
+| 
+| Not a known issue.  I can take a look if you want to send the .config.
+| 
+| (Again.  Sometimes I think ln -s /usr/src/linux/.config .signature)
 
-> Or if you didn't want to do that always (say if you knew there would 
-> be more references being created soon) you could at least have some kind 
-> of cleanup tool that you could manually run on a filesystem to clean it up?
 
-fsck could do it.  It's not a big deal though: simply looking up the
-inode through the last remaining path can also clean it up.  Until
-them, it's very little space used: the same as a short symlink.
+2.6.5-mm[134] all reset for me during early boot... if I have ACPI
+enabled.  -mm3 boots fine with ACPI disabled.
 
--- Jamie
+This is on an IBM P4 XEON 2-proc (1.7 GHz) system.
+I added some early printk's during start_kernel() but I could
+never see them.
+
+Len, what do you need on this?
+
+--
+~Randy
+"We have met the enemy and he is us."  -- Pogo (by Walt Kelly)

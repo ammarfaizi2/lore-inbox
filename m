@@ -1,81 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289444AbSAJNqo>; Thu, 10 Jan 2002 08:46:44 -0500
+	id <S289441AbSAJNhn>; Thu, 10 Jan 2002 08:37:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289443AbSAJNqf>; Thu, 10 Jan 2002 08:46:35 -0500
-Received: from rcum.uni-mb.si ([164.8.2.10]:52490 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S289444AbSAJNqX>;
-	Thu, 10 Jan 2002 08:46:23 -0500
-Date: Thu, 10 Jan 2002 14:46:19 +0100
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: Re: Simple local DOS
-To: matthias.andree@stud.uni-dortmund.de,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Message-id: <3C3D9B2B.2DDB72CB@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
+	id <S289440AbSAJNhd>; Thu, 10 Jan 2002 08:37:33 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:63142 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S289441AbSAJNhX>; Thu, 10 Jan 2002 08:37:23 -0500
+Date: Thu, 10 Jan 2002 15:37:02 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Henrique de Moraes Holschuh <hmh@debian.org>
+Cc: linux-kernel@vger.kernel.org, Jani Forssell <jani.forssell@viasys.com>
+Subject: Re: Via KT133 pci corruption: stock 2.4.18pre2 oopses as well
+Message-ID: <20020110133702.GB34841@niksula.cs.hut.fi>
+In-Reply-To: <20020109235722.L1200@niksula.cs.hut.fi> <Pine.LNX.4.21.0201100025440.14057-100000@tux.rsn.bth.se> <20020110100101.A25366@khazad-dum>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020110100101.A25366@khazad-dum>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree (matthias.andree@stud.uni-dortmund.de) wrote :
-
-> On Wed, 09 Jan 2002, David Balazic wrote: 
+On Thu, Jan 10, 2002 at 10:01:02AM -0200, you [Henrique de Moraes Holschuh] claimed:
 > 
-> > 
-> > log in on some virtual terminal, then run the following line 
-> > in a bourne type shell, like bash : 
-> > 
-> > X 2>&1 | less 
-> > 
-> > A reboot "fixes" it. We want to reach windows level quality on desktop 
-> > after all, don't we ? 
-> 
-> You can also fix that by a remote login,
+> The IDE corruption and lockups you can fix, just apply the latest IDE
+> patches, the 2.4.18pre IDE subsystem is not to be used on a KT133, it will
+> not work at all if you give it a slightly bigger load on the promise
+> controller, for example.
 
-How do I pull a network connection and a terminal out of a hat ?
-Where do I get the hat ?
-read : it is a sandalone system.
+We just tried with 2.4.18pre2 + Hedrick ATA patch, but it oopsed just like
+2.4.18pre2 vanilla. I reckon the ide corruption will also happen if we leave
+the "ping -f" out of the equation.
 
-> chvt,
+This is propably a pci issue, not an ide issue.
 
-how do I start chvt if I have a locked up console system ?
+ 
+-- v --
 
-> or by just not piping X 
-
-I didn't do it on purpose to lock up my system and risk FS corruption
-durin unclean reboot. I was interested in the server output and " 2>&1 | less"
-is the logical way to do that.
-
-I could also "solve" this problem by not running linux. And I can "solve" all
-gcc bugs by not using gcc. Those are not solutions. Not to me at least.
-
-> output into interactive programs. tail -f is a viable workaround -- and 
-
-tail -f ? what is the difference between :
-$ X 2>&1 | tail -f
-and
-$ X 
-?
-
-> all this is off-topic on linux-kernel,
-
-non-root user locked up the console code. console code is part of kernel.
-it is a kernel topic.
-
-> it's your own dumbness that makes 
-> you do these things. Better run kdm, gdm or xdm or something and you're 
-> not having this problem.
-
-My own dumbness ? Did you also say that ping-of-death is not a problem ?
-After all it is just the dumbness of people who send out broken ping packets,
-no ? And if a computer crashes , businesses lose time and money, you pop up and
-explain "no it is not really lost money/time, because it was caused by dumbness !".
-
--- 
-David Balazic
---------------
-"Be excellent to each other." - Bill S. Preston, Esq., & "Ted" Theodore Logan
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+v@iki.fi

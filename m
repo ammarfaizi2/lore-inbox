@@ -1,30 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265120AbRFUTHu>; Thu, 21 Jun 2001 15:07:50 -0400
+	id <S265124AbRFUTIa>; Thu, 21 Jun 2001 15:08:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265125AbRFUTHk>; Thu, 21 Jun 2001 15:07:40 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:15364 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S265120AbRFUTH0>; Thu, 21 Jun 2001 15:07:26 -0400
+	id <S265125AbRFUTIU>; Thu, 21 Jun 2001 15:08:20 -0400
+Received: from isimail.interactivesi.com ([207.8.4.3]:30986 "HELO
+	dinero.interactivesi.com") by vger.kernel.org with SMTP
+	id <S265124AbRFUTIJ>; Thu, 21 Jun 2001 15:08:09 -0400
+Date: Thu, 21 Jun 2001 14:08:02 -0500
+From: Timur Tabi <ttabi@interactivesi.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <200106211904.PAA10433@mah21awu.cas.org>
+In-Reply-To: <qi1bhC.A.lfF.ZEkM7@dinero.interactivesi.com> from "Timur Tabi" at Jun 21, 2001 01:46:48 PM
 Subject: Re: Controversy over dynamic linking -- how to end the panic
-To: wweng@kencast.com (Wei Weng)
-Date: Thu, 21 Jun 2001 20:06:19 +0100 (BST)
-Cc: ttabi@interactivesi.com (Timur Tabi), linux-kernel@vger.kernel.org
-In-Reply-To: <993153729.7844.3.camel@Monet> from "Wei Weng" at Jun 21, 2001 04:01:58 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15D9mV-0001wf-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: The Polarbar Mailer; version=1.19a; build=73
+Message-ID: <sxMyWB.A.NBB.TYkM7@dinero.interactivesi.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > the stdio.h, I'd tell him to go screw himself.
-> What is the difference between including kernel header file and
-> including GPLed header file? 
+** Reply to message from Mike Harrold <mharrold@cas.org> on Thu, 21 Jun 2001
+15:04:21 -0400 (EDT)
 
-There are real differences between programs and interface definitions. At this
-point you get into law and the like and its probably best you read up on it
-from a reputable source not l/k
+
+> Not to mention utterly unenforceable. Consider:
+> 
+> 1) Oracle Corp. builds their database for Linux on a Linux system.
+> 2) Said system comes with standard header files, which happen in this case to
+>    be GPL'd header files.
+> 3) Oracle Corp.'s database becomes GPL.
+> 
+> There's not a court in the civilised world that would uphold the GPL in that
+> scenario.
+
+I do believe, however, that in these cases the header files in question are
+under the LGPL, which does specifically allow linking and #including in non-GPL
+and non-LGPL code.
+
+In my opinion, this whole thing would just go away (including some of
+Microsoft's anti-GPL rants), if the FSF officially declared that under the GPL,
+#including a GPL header file does NOT force your code to be also GPL.
+
+
+-- 
+Timur Tabi - ttabi@interactivesi.com
+Interactive Silicon - http://www.interactivesi.com
 

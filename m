@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129415AbRAIOBo>; Tue, 9 Jan 2001 09:01:44 -0500
+	id <S129226AbRAIOBz>; Tue, 9 Jan 2001 09:01:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129226AbRAIOBZ>; Tue, 9 Jan 2001 09:01:25 -0500
-Received: from rhlx01.fht-esslingen.de ([134.108.34.10]:46234 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id <S129741AbRAIOBP>; Tue, 9 Jan 2001 09:01:15 -0500
-Date: Tue, 9 Jan 2001 15:01:11 +0100 (CET)
-From: Nils Philippsen <nils@fht-esslingen.de>
-Reply-To: <nils@fht-esslingen.de>
-To: Felix Maibaum <f.maibaum@tu-bs.de>
-cc: linux <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.0 bug in SHM an via-rhine or is it my fault?
-In-Reply-To: <3A5B170E.F48872A@tu-bs.de>
-Message-ID: <Pine.LNX.4.30.0101091457330.8600-100000@rhlx01.fht-esslingen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	id <S130231AbRAIOBp>; Tue, 9 Jan 2001 09:01:45 -0500
+Received: from [216.101.162.242] ([216.101.162.242]:38786 "EHLO
+	pizda.ninka.net") by vger.kernel.org with ESMTP id <S129324AbRAIOB3>;
+	Tue, 9 Jan 2001 09:01:29 -0500
+Date: Tue, 9 Jan 2001 05:42:48 -0800
+Message-Id: <200101091342.FAA02414@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: trond.myklebust@fys.uio.no
+CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+In-Reply-To: <shs4rz8vnmf.fsf@charged.uio.no> (message from Trond Myklebust on
+	09 Jan 2001 14:52:40 +0100)
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+In-Reply-To: <200101080124.RAA08134@pizda.ninka.net> <shs4rz8vnmf.fsf@charged.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Jan 2001, Felix Maibaum wrote:
+   From: Trond Myklebust <trond.myklebust@fys.uio.no>
+   Date: 09 Jan 2001 14:52:40 +0100
 
-> My SHM stopped working!
-> everything was fine in test12, and after that all I got was "no space
-> left on device".
-> Has anything changed that one should know about? I mounted shm like it's
-> written in the help, and on a friends celeron SMP machine it works fine,
-> I just don't know what I did wrong.
+   I don't really want to be chiming in with another 'make it a kiobuf',
+   but given that you already have written 'do_tcp_sendpages()' why did
+   you make sock->ops->sendpage() take the single page as an argument
+   rather than just have it take the 'struct page **'?
 
-You used a buggy version of powertweak which set kernel.shmall to 0 in
-/etc/sysctl.conf. Remove the offending line in /etc/sysctl.conf and either
-reboot the machine or "echo 2097152 > /proc/sys/kernel/shmall".
+It was like that to begin with.  But to do it cleanly you have to pass
+in not a vector of "pages" but a vector of "page+offset+len" triplets.
 
-Ciao,
-Nils
--- 
- Nils Philippsen / Berliner Straﬂe 39 / D-71229 Leonberg // +49.7152.209647
-nils@wombat.dialup.fht-esslingen.de / nils@fht-esslingen.de / nils@redhat.de
-   The use of COBOL cripples the mind; its teaching should, therefore, be
-   regarded as a criminal offence.                  -- Edsger W. Dijkstra
+Linus hated it, and I understood why, so I reverted the API to be
+single page based.
+
+   I would have thought one of the main interests of doing something
+   like this would be to allow us to speed up large writes to the
+   socket for ncpfs/knfsd/nfs/smbfs/...
+
+This is what TCP_CORK/MSG_MORE et al. are all for, things get
+coalesced perfectly.  Sending in a vector of pages seems nice, but
+none of the page cache infrastructure works like this, all of the core
+routines work on a page at a time.  It actually simplifies a lot.
+
+The writepage interface optimizes large file writes to a socket just
+fine.
+
+Later,
+David S. Miller
+davem@redhat.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

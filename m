@@ -1,114 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbULAAST@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261312AbULAASN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261254AbULAAST (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 19:18:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbULAAQQ
+	id S261312AbULAASN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 19:18:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbULAARk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 19:16:16 -0500
-Received: from mail.kroah.org ([69.55.234.183]:34020 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261195AbULAAOO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 19:14:14 -0500
-Subject: Re: [PATCH] I2C fixes for 2.6.10-rc2
-In-Reply-To: <1101860019530@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Tue, 30 Nov 2004 16:13:39 -0800
-Message-Id: <11018600193653@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
+	Tue, 30 Nov 2004 19:17:40 -0500
+Received: from mail.kroah.org ([69.55.234.183]:44516 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261232AbULAAOV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 19:14:21 -0500
+Date: Tue, 30 Nov 2004 16:05:55 -0800
 From: Greg KH <greg@kroah.com>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [BK PATCH] More USB fixes for 2.6.10-rc2
+Message-ID: <20041201000555.GA27171@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2223.2.9, 2004/11/29 15:07:15-08:00, aris@cathedrallabs.org
+Hi,
 
-[PATCH] i2c-ite: get rid of cli()/sti()
+Here are a number of tiny USB fixes for 2.6.10-rc2.  There is also a
+documentation update in here too.
 
-I found only this one. Next time I'll try to make better grep
-expressions :^)
+Please pull from:
+	bk://kernel.bkbits.net/gregkh/linux/usb-2.6
 
-[I2C] i2c-ite: get rid of cli()/sti()
+Patches will be posted to linux-usb-devel as a follow-up thread for
+those who want to see them.
 
-Signed-off-by: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+thanks,
 
-
- drivers/i2c/busses/i2c-ite.c |   31 +++++++++++++++++++++++--------
- 1 files changed, 23 insertions(+), 8 deletions(-)
+greg k-h
 
 
-diff -Nru a/drivers/i2c/busses/i2c-ite.c b/drivers/i2c/busses/i2c-ite.c
---- a/drivers/i2c/busses/i2c-ite.c	2004-11-30 16:00:43 -08:00
-+++ b/drivers/i2c/busses/i2c-ite.c	2004-11-30 16:00:43 -08:00
-@@ -62,6 +62,7 @@
- static struct iic_ite gpi;
- static wait_queue_head_t iic_wait;
- static int iic_pending;
-+static spinlock_t lock;
- 
- /* ----- local functions ----------------------------------------------	*/
- 
-@@ -108,6 +109,7 @@
- static void iic_ite_waitforpin(void) {
- 
-    int timeout = 2;
-+   long flags;
- 
-    /* If interrupts are enabled (which they are), then put the process to
-     * sleep.  This process will be awakened by two events -- either the
-@@ -116,24 +118,36 @@
-     * of time and return.
-     */
-    if (gpi.iic_irq > 0) {
--	cli();
-+	spin_lock_irqsave(&lock, flags);
- 	if (iic_pending == 0) {
--		interruptible_sleep_on_timeout(&iic_wait, timeout*HZ );
--	} else
-+		spin_unlock_irqrestore(&lock, flags);
-+		if (interruptible_sleep_on_timeout(&iic_wait, timeout*HZ)) {
-+			spin_lock_irqsave(&lock, flags);
-+			if (iic_pending == 1) {
-+				iic_pending = 0;
-+			}
-+			spin_unlock_irqrestore(&lock, flags);
-+		}
-+	} else {
- 		iic_pending = 0;
--	sti();
-+		spin_unlock_irqrestore(&lock, flags);
-+	}
-    } else {
-       udelay(100);
-    }
- }
- 
- 
--static void iic_ite_handler(int this_irq, void *dev_id, struct pt_regs *regs) 
-+static irqreturn_t iic_ite_handler(int this_irq, void *dev_id,
-+							struct pt_regs *regs)
- {
--	
--   iic_pending = 1;
-+	spin_lock(&lock);
-+	iic_pending = 1;
-+	spin_unlock(&lock);
-+
-+	wake_up_interruptible(&iic_wait);
- 
--   wake_up_interruptible(&iic_wait);
-+	return IRQ_HANDLED;
- }
- 
- 
-@@ -221,6 +235,7 @@
- 
- 	iic_ite_data.data = (void *)piic;
- 	init_waitqueue_head(&iic_wait);
-+	spin_lock_init(&lock);
- 	if (iic_hw_resrc_init() == 0) {
- 		if (i2c_iic_add_bus(&iic_ite_ops) < 0)
- 			return -ENODEV;
+ Documentation/usb/gadget_serial.txt |  332 ++++++++++++++++++++++++++++++++++++
+ drivers/base/firmware_class.c       |    2 
+ drivers/block/ub.c                  |    9 
+ drivers/usb/Makefile                |    1 
+ drivers/usb/core/message.c          |    7 
+ drivers/usb/core/urb.c              |    8 
+ drivers/usb/core/usb.c              |    2 
+ drivers/usb/core/usb.h              |   15 +
+ drivers/usb/gadget/ether.c          |   14 +
+ drivers/usb/gadget/file_storage.c   |    2 
+ drivers/usb/gadget/gadget_chips.h   |    6 
+ drivers/usb/gadget/serial.c         |    3 
+ drivers/usb/gadget/zero.c           |    2 
+ drivers/usb/host/ehci-hcd.c         |    8 
+ drivers/usb/host/ehci-hub.c         |    3 
+ drivers/usb/host/ehci-q.c           |    2 
+ drivers/usb/host/ohci-q.c           |    2 
+ drivers/usb/host/uhci-hcd.c         |    5 
+ drivers/usb/input/ati_remote.c      |    5 
+ drivers/usb/input/hid-core.c        |    3 
+ drivers/usb/input/touchkitusb.c     |   19 +-
+ drivers/usb/net/usbnet.c            |    2 
+ drivers/usb/serial/io_edgeport.c    |    7 
+ drivers/usb/serial/visor.c          |    3 
+ drivers/usb/storage/Kconfig         |   15 +
+ drivers/usb/storage/unusual_devs.h  |    8 
+ include/linux/usbdevice_fs.h        |   25 --
+ 27 files changed, 456 insertions(+), 54 deletions(-)
+-----
+
+<dfries:mail.win.org>:
+  o USB: fix for HID field index
+
+Al Borchers:
+  o USB Gadget: gadget serial documentation
+
+Armijn Hemel:
+  o USB: add ati_remote.c device id
+
+Daniel Ritz:
+  o USB touchkitusb: module_param to swap axes
+
+David Brownell:
+  o USB: ax8817x/usbnet, no GFP_KERNEL blocking in_irq
+  o USB: "sparse -Wcontext" and USB HCDs
+  o USB: usb_sg_*() unlink deadlock fix
+  o USB: fix Genesys GL880S EHCI
+
+Dmitry Krivoschokov:
+  o USB Gadget: add and use gadget_is_pxa27x()
+
+Greg Kroah-Hartman:
+  o USB: move a internal usbfs only structure out of a public header file
+  o USB: minor Makefile fix
+  o USB: fix oops in io_edgeport.c driver
+  o USB: fix dev_dbg() call in visor.c
+
+Marcel Holtmann:
+  o fix unnecessary increment in firmware_class_hotplug() and USB core
+
+Pete Zaitcev:
+  o ub: oops with preempt ("Sahara Workshop")
+  o ub: flag day - major 180
+
+Phil Dibowitz:
+  o USB Storage: Add unusual_devs entry for another yakumo camera
+
+Randy Dunlap:
+  o usb-storage should enable scsi disk in Kconfig
+
+Roger Luethi:
+  o USB visor: Don't count outstanding URBs twice
+
+Stephen Hemminger:
+  o usb_unlink_urb: ratelimit warning
 

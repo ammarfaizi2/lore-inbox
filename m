@@ -1,79 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312484AbSDJJ2P>; Wed, 10 Apr 2002 05:28:15 -0400
+	id <S312558AbSDJJlB>; Wed, 10 Apr 2002 05:41:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312558AbSDJJ2O>; Wed, 10 Apr 2002 05:28:14 -0400
-Received: from dsl-213-023-030-077.arcor-ip.net ([213.23.30.77]:47013 "EHLO
-	duron.intern.kubla.de") by vger.kernel.org with ESMTP
-	id <S312484AbSDJJ2O>; Wed, 10 Apr 2002 05:28:14 -0400
-Date: Wed, 10 Apr 2002 11:28:07 +0200
-From: Dominik Kubla <kubla@sciobyte.de>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: "Alexis S. L. Carvalho" <alexis@cecm.usp.br>, linux-kernel@vger.kernel.org
-Subject: Re: implementing soft-updates
-Message-ID: <20020410092807.GA4015@duron.intern.kubla.de>
-In-Reply-To: <20020409184605.A13621@cecm.usp.br> <200204100041.g3A0fSj00928@saturn.cs.uml.edu>
+	id <S312559AbSDJJlA>; Wed, 10 Apr 2002 05:41:00 -0400
+Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:46862 "EHLO
+	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S312558AbSDJJlA>; Wed, 10 Apr 2002 05:41:00 -0400
+Date: Wed, 10 Apr 2002 10:40:55 +0100
+To: benh@kernel.crashing.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Radeon frame buffer driver
+Message-ID: <20020410094055.GA789@berserk.demon.co.uk>
+Mail-Followup-To: benh@kernel.crashing.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20020410001249.GA2010@berserk.demon.co.uk> <20020410090638.1550@mailhost.mipsys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.3.28i
-X-No-Archive: yes
-Restrict: no-external-archive
+From: Peter Horton <pdh@berserk.demon.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 09, 2002 at 08:41:28PM -0400, Albert D. Cahalan wrote:
-...
-> While ext2 fsck doesn't guarantee anything, in practice it is far
-> more reliable than ufs fsck. If you change the algorithms to be
-> like those used by BSD, then you may lose some of the ability to
-> recover. Remember, fsck isn't just for power failures. It tries
-> to piece together a filesystem that has suffered disk corruption
-> caused by attackers, kernel bugs, fdisk screwups, MS-DOS writing
-> past the end of a partition, Windows NT Disk Manager, viruses,
-> disk head crashes, and every other cause you can imagine. If you
-> change fsck to make BSD-style assumptions about write ordering,
-> you weaken the ability to deal with disasters.
+On Wed, Apr 10, 2002 at 11:06:38AM +0200, benh@kernel.crashing.org wrote:
+> >Another installment of the Radeon frame buffer driver patch (still
+> >against 2.4.19-pre2).
+> >
+> >* All colour modes > 8bpp are now DIRECTCOLOR (Geert inspired).
+> >
+> >* Driver now uses 'ypan' to speed up scrolling even further.
+> >
+> >* Fix CRTC pitch to match accelerator pitch (800x600x256 works again).
+> >
+> >Driver seems okay now, plays nicely with X etc. etc. Please test if you
+> >can
+> >
+> >P.
+> 
+> I really don't like all the hacks related to the palette in 15/16/32bpp 
+> mode. You shouldn't affect whatever palette gets passed from userland or
+> apps that rely on full access to the gamma table will fail. Also, iirc,
+> the chip's palette in 16 bits mode is 64 entries and 32 in 15 bpp, you
+> can verify this by seeing how much entries get passed by xfbdev when
+> it configures the 1:1 color ramp. The old code worked except for the
+> cursor in console mode which tends to have crazy colors, I think due to
+> fbdev code brokenness but I'm too sure about that last one.
+> 
 
-I disagree. In fact the current  BSD softupdate code guarantees that all
-that ever  happens is that  freed blocks are  not entered into  the free
-block list. Something  fsck can fix in background on  a life system. See
-M. Kirk McKusicks BSDcon 02 paper 'Running fsck in background.'
+Please look at code.
 
-Your argument  that faulty hardware  may create havoc with  your on-disk
-data structures  is something every  file system  is prone to  unless it
-uses  a  raw-read-after-write  for checking  purposes.  Something  which
-definitely kills disk performance.
+In 32bpp mode user space can set all 256 palette indices.
 
-The background  fsck capability, just  like journalling or  logging, are
-typically only in needed in 24/7 systems (sure, they are nice to have in
-your home  system, but do  you _REALLY_ need  them? i don't!)  and those
-system  typically are  run on  proven  hardware which  is operated  well
-within the specs. So please don't construct these kinds of arguments.
+In 15 bit mode user space can set all 32 palette indices.
 
-The fact that the BSD FFS in it's currently released version (which does
-not include snapshot and background fsck capability) is considered to be
-one of the more reliable file  systems around, even when softupdates are
-enabled, speaks  for itself.  So please  just as  you don't  want horror
-stories about Linux ext2 spread: don't do it yourself.
+In 16bpp mode user space can set all 32 palette indices for red and
+blue, and all 64 palette indices for green.
 
-Alexis, if you're looking for a rewarding Linux project, don't focus too
-much  on softupdates,  the majority  of linux  users/developers couldn't
-care less.  I wonder  sometimes if  this is perhaps  because BSD  did it
-first?
+The reason 16bpp mode fails when using "fbtv" is that "fbtv" only
+initialises the first 32 palette indices for green, but the captured
+video uses all 64 values. I patched "fbtv" to initialise all 64 indices
+and it worked fine. I think this is a bug in "fbtv" (and other such
+apps).
 
-Read  M. Kirk  McKusick's  paper  on fsck  and  snapshots  (it's in  the
-proceedings  of this  years BSDcon,  available from Usenix)  and try  to
-implement the snapshot capability for  ext2/ext3. Everyone of us who has
-to do live backups of production systems  will thank you if you get that
-development started. I  found that Mr. McKusick is somebody  who is very
-helpful towards people  trying to understand his work, so  you might get
-help  from  him  if you  get  stuck.  OTOH  if  you avoid  the  buzzword
-'softupdates' many Linux file system  hackers will be much more inclined
-to help you out with the Linux part.
+There is a hack in the code to support "fbtv" in 16bpp mode, but it is
+only used if you pass the driver the "fb16fix" flag, and it limits the
+green component to 5 bits. I used it for testing but it doesn't need to
+live any longer. If people want to use "fbtv" they should use 15 or 32
+bit mode.
 
-Yours,
-  Dominik Kubla
--- 
-"Those who would give up essential Liberty to purchase a little
-temporary Safety deserve neither Liberty nor Safety." (Benjamin Franklin)
+Test it, in all modes, I have.
+
+The other hack is one that sets the top indices in the palette to white
+when palette index 0 is set. This is needed for the soft cursor to work
+as the soft cursor just flips all the bits in each pixel, which doesn't
+work in DIRECTCOLOR modes. Other drivers do similiar things. I've
+started to look at using the accelerator engine for flipping the cursor
+but there are locking issues involved which I want to get right.
+
+P.

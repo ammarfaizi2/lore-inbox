@@ -1,59 +1,443 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262813AbVCWGV6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262814AbVCWGY0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262813AbVCWGV6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 01:21:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262815AbVCWGV5
+	id S262814AbVCWGY0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 01:24:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262815AbVCWGY0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 01:21:57 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:31938 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262813AbVCWGVa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 01:21:30 -0500
-Date: Wed, 23 Mar 2005 07:21:16 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-01
-Message-ID: <20050323062116.GA31626@elte.hu>
-References: <20050319191658.GA5921@elte.hu> <20050320174508.GA3902@us.ibm.com> <20050321085332.GA7163@elte.hu> <20050321090122.GA8066@elte.hu> <20050321090622.GA8430@elte.hu> <20050322054345.GB1296@us.ibm.com> <20050322072413.GA6149@elte.hu> <20050322092331.GA21465@elte.hu> <20050322093201.GA21945@elte.hu> <20050323044849.GA1294@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050323044849.GA1294@us.ibm.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 23 Mar 2005 01:24:26 -0500
+Received: from gw1.cosmosbay.com ([62.23.185.226]:21223 "EHLO
+	gw1.cosmosbay.com") by vger.kernel.org with ESMTP id S262814AbVCWGVy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 01:21:54 -0500
+Message-ID: <42410AFA.6050404@cosmosbay.com>
+Date: Wed, 23 Mar 2005 07:21:46 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: buakaw@buakaw.homelinux.net
+CC: linux-kernel@vger.kernel.org
+Subject: Re: dst cache overflow
+References: <1144.192.168.0.37.1111351868.squirrel@buakaw.homelinux.net>	<20050321194022.491060c7.akpm@osdl.org>	<1297.192.168.0.37.1111480783.squirrel@buakaw.homelinux.net>	<20050322161657.GA18925@linuxace.com>	<20050322190726.e1jiyi25xws0okss@buakaw.homelinux.net>	<42408A2C.8060103@cosmosbay.com> <20050323001439.lwhm92er5cs4s8c8@buakaw.homelinux.net>
+In-Reply-To: <20050323001439.lwhm92er5cs4s8c8@buakaw.homelinux.net>
+Content-Type: multipart/mixed;
+ boundary="------------060508060904000406040101"
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.6 (gw1.cosmosbay.com [62.23.185.226]); Wed, 23 Mar 2005 07:21:33 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------060508060904000406040101
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 
-* Paul E. McKenney <paulmck@us.ibm.com> wrote:
-
-> !!!  The difference is that in the stock kernel, rcu_check_callbacks()
-> is invoked from irq.  In PREEMPT_RT, it is invoked from process
-> context and appears to be preemptible.  This means that
-> rcu_advance_callbacks() can be preempted, resulting in all sorts of
-> problems.  Need to disable preemption over this.
-
-we can disable preemption in the PREEMPT_RT kernel too, but only for
-code we know the maximum execution length of. I.e. we dont want want to
-disable preemption while processing the callback _list_, but we can use
-preemption-off to protect the per-cpu data structures.
-
-> There are probably other bugs of this sort, I will track them down.
+buakaw@buakaw.homelinux.net a écrit :
 > 
-> But, just to make sure I understand -- if I have preempt disabled over
-> all accesses to a per-CPU variable, and that variable is -not-
-> accessed from a real interrupt handler, then I am safe without a lock,
-> right?
+> 
+> grep . /proc/sys/net/ipv4/route/*
+> 
+> /proc/sys/net/ipv4/route/error_burst:5000
+> /proc/sys/net/ipv4/route/error_cost:1000
+> grep: /proc/sys/net/ipv4/route/flush: Invalid argument
+> /proc/sys/net/ipv4/route/gc_elasticity:8
+> /proc/sys/net/ipv4/route/gc_interval:60
+> /proc/sys/net/ipv4/route/gc_min_interval:0
+> /proc/sys/net/ipv4/route/gc_min_interval_ms:500
+> /proc/sys/net/ipv4/route/gc_thresh:4096
+> /proc/sys/net/ipv4/route/gc_timeout:300
+> /proc/sys/net/ipv4/route/max_delay:10
+> /proc/sys/net/ipv4/route/max_size:65536
+> /proc/sys/net/ipv4/route/min_adv_mss:256
+> /proc/sys/net/ipv4/route/min_delay:2
+> /proc/sys/net/ipv4/route/min_pmtu:552
+> /proc/sys/net/ipv4/route/mtu_expires:600
+> /proc/sys/net/ipv4/route/redirect_load:20
+> /proc/sys/net/ipv4/route/redirect_number:9
+> /proc/sys/net/ipv4/route/redirect_silence:20480
+> /proc/sys/net/ipv4/route/secret_interval:600
+> 
+> 
+> cat /proc/net/stat/rt_cache
+> 
+> entries  in_hit in_slow_tot in_no_route in_brd in_martian_dst 
+> in_martian_src out_hit out_slow_tot out_slow_mc  gc_total gc_ignored 
+> gc_goal_miss
+> gc_dst_overflow in_hlist_search out_hlist_search
+> 000000b9  02e05549 01fa47b9 00000000 00000000 00016e03 00000022 00251b22 
+> 00083e65 0000fe7e 00000008 00f15fc6 00f064e8 0000ebe8 0000eb57 08703a77
+> 000087cf
+> 000000b9  00000000 00000000 00000000 00000000 00000000 00000000 00000000 
+> 0001105a 000027ed 00000002 0000018f 00000171 0000000e 00000009 00000000
+> 00003217
 
-correct, assuming that the pointer you get to the per-CPU data is truly
-pointing to the current CPU's data. (i.e. the current->rcu_data pointer
-approach breaks this assumption.)
+OK, route cache settings are hard to tune.
 
-	Ingo
+Try these settings :
+
+echo 1 >/proc/sys/net/ipv4/route/gc_interval
+echo 2 >/proc/sys/net/ipv4/route/gc_elasticity
+echo 150 >/proc/sys/net/ipv4/route/gc_timeout
+echo 8192 >/proc/sys/net/ipv4/route/gc_thresh
+
+You might want to boot adding this "rhash_entries=8192" in your kernel boot string (append="rhash_entries=8192" in lilo.conf)
+(If you change rhash_entries, change also /proc/sys/net/ipv4/route/gc_thresh accordingly)
+
+You might also try this patch.
+
+Eric Dumazet
+
+--------------060508060904000406040101
+Content-Type: text/plain;
+ name="diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="diff"
+
+--- linux-2.6.11/net/ipv4/route.c	2005-03-17 11:19:45.000000000 +0100
++++ linux-2.6.11-ed/net/ipv4/route.c	2005-03-21 12:01:23.000000000 +0100
+@@ -54,6 +54,8 @@
+  *		Marc Boucher	:	routing by fwmark
+  *	Robert Olsson		:	Added rt_cache statistics
+  *	Arnaldo C. Melo		:	Convert proc stuff to seq_file
++ *      Eric Dumazet            :       hashed spinlocks and rt_check_expire() fixes.
++ *				:	bugfix in rt_cpu_seq_show()
+  *
+  *		This program is free software; you can redistribute it and/or
+  *		modify it under the terms of the GNU General Public License
+@@ -107,12 +109,13 @@
+ #define IP_MAX_MTU	0xFFF0
+ 
+ #define RT_GC_TIMEOUT (300*HZ)
++#define RT_GC_INTERVAL (RT_GC_TIMEOUT/10) /* rt_check_expire() scans 1/10 of the table each round */
+ 
+ static int ip_rt_min_delay		= 2 * HZ;
+ static int ip_rt_max_delay		= 10 * HZ;
+ static int ip_rt_max_size;
+ static int ip_rt_gc_timeout		= RT_GC_TIMEOUT;
+-static int ip_rt_gc_interval		= 60 * HZ;
++static int ip_rt_gc_interval		= RT_GC_INTERVAL;
+ static int ip_rt_gc_min_interval	= HZ / 2;
+ static int ip_rt_redirect_number	= 9;
+ static int ip_rt_redirect_load		= HZ / 50;
+@@ -124,6 +127,7 @@
+ static int ip_rt_min_pmtu		= 512 + 20 + 20;
+ static int ip_rt_min_advmss		= 256;
+ static int ip_rt_secret_interval	= 10 * 60 * HZ;
++static int ip_rt_debug ;
+ static unsigned long rt_deadline;
+ 
+ #define RTprint(a...)	printk(KERN_DEBUG a)
+@@ -197,8 +201,24 @@
+ 
+ struct rt_hash_bucket {
+ 	struct rtable	*chain;
+-	spinlock_t	lock;
+-} __attribute__((__aligned__(8)));
++};
++
++#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
++/*
++ * Instead of using one spinlock for each rt_hash_bucket, we use a table of fixed size spinlocks
++ */
++# define RT_HASH_LOCK_SZ 256
++	static spinlock_t	rt_hash_lock[RT_HASH_LOCK_SZ];
++# define rt_hash_lock_addr(slot) &rt_hash_lock[slot & (RT_HASH_LOCK_SZ - 1)]
++# define rt_hash_lock_init()	{ \
++		int i; \
++		for (i = 0; i < RT_HASH_LOCK_SZ; i++) \
++			spin_lock_init(&rt_hash_lock[i]); \
++		}
++#else
++# define rt_hash_lock_addr(slot) NULL
++# define rt_hash_lock_init()
++#endif
+ 
+ static struct rt_hash_bucket 	*rt_hash_table;
+ static unsigned			rt_hash_mask;
+@@ -393,7 +413,7 @@
+ 	struct rt_cache_stat *st = v;
+ 
+ 	if (v == SEQ_START_TOKEN) {
+-		seq_printf(seq, "entries  in_hit in_slow_tot in_no_route in_brd in_martian_dst in_martian_src  out_hit out_slow_tot out_slow_mc  gc_total gc_ignored gc_goal_miss gc_dst_overflow in_hlist_search out_hlist_search\n");
++		seq_printf(seq, "entries  in_hit in_slow_tot in_slow_mc in_no_route in_brd in_martian_dst in_martian_src  out_hit out_slow_tot out_slow_mc  gc_total gc_ignored gc_goal_miss gc_dst_overflow in_hlist_search out_hlist_search\n");
+ 		return 0;
+ 	}
+ 	
+@@ -470,7 +490,7 @@
+ 		rth->u.dst.expires;
+ }
+ 
+-static int rt_may_expire(struct rtable *rth, unsigned long tmo1, unsigned long tmo2)
++static __inline__ int rt_may_expire(struct rtable *rth, unsigned long tmo1, unsigned long tmo2)
+ {
+ 	unsigned long age;
+ 	int ret = 0;
+@@ -516,45 +536,93 @@
+ /* This runs via a timer and thus is always in BH context. */
+ static void rt_check_expire(unsigned long dummy)
+ {
+-	static int rover;
+-	int i = rover, t;
++	static unsigned int rover;
++	static unsigned int effective_interval = RT_GC_INTERVAL;
++	static unsigned int cached_gc_interval = RT_GC_INTERVAL;
++	unsigned int i, goal;
+ 	struct rtable *rth, **rthp;
+ 	unsigned long now = jiffies;
++	unsigned int freed = 0 , t0;
++	u64 mult;
+ 
+-	for (t = ip_rt_gc_interval << rt_hash_log; t >= 0;
+-	     t -= ip_rt_gc_timeout) {
+-		unsigned long tmo = ip_rt_gc_timeout;
+-
++	if (cached_gc_interval != ip_rt_gc_interval) { /* ip_rt_gc_interval may have changed with sysctl */
++		cached_gc_interval = ip_rt_gc_interval;
++		effective_interval = cached_gc_interval;
++	}
++	/* Computes the number of slots we should examin in this run :
++	 * We want to perform a full scan every ip_rt_gc_timeout, and
++	 * the timer is started every 'effective_interval' ticks.
++	 * so goal = (number_of_slots) * (effective_interval / ip_rt_gc_timeout)
++	 */
++	mult = ((u64)effective_interval) << rt_hash_log;
++	do_div(mult, ip_rt_gc_timeout);
++	goal = (unsigned int)mult;
++
++	i = atomic_read(&ipv4_dst_ops.entries) << 3;
++	if (i > ip_rt_max_size) {
++		goal <<= 1; /* be more aggressive */
++		i >>= 1;
++		if (i > ip_rt_max_size) {
++			goal <<= 1; /* be more aggressive */
++			i >>= 1;
++			if (i > ip_rt_max_size) {
++				goal <<= 1; /* be more aggressive */
++				now++; /* give us one more tick (time) to do our job */
++			}
++		}
++	}
++	if (goal > rt_hash_mask) goal = rt_hash_mask + 1;
++	t0 = goal;
++	i = rover ;
++	for ( ; goal > 0; goal--) {
+ 		i = (i + 1) & rt_hash_mask;
+ 		rthp = &rt_hash_table[i].chain;
+-
+-		spin_lock(&rt_hash_table[i].lock);
+-		while ((rth = *rthp) != NULL) {
+-			if (rth->u.dst.expires) {
+-				/* Entry is expired even if it is in use */
+-				if (time_before_eq(now, rth->u.dst.expires)) {
++		if (*rthp) {
++			unsigned long tmo = ip_rt_gc_timeout;
++			spin_lock(rt_hash_lock_addr(i));
++			while ((rth = *rthp) != NULL) {
++				if (rth->u.dst.expires) {
++					/* Entry is expired even if it is in use */
++					if (time_before_eq(now, rth->u.dst.expires)) {
++						tmo >>= 1;
++						rthp = &rth->u.rt_next;
++						continue;
++					}
++				} else if (!rt_may_expire(rth, tmo, ip_rt_gc_timeout)) {
+ 					tmo >>= 1;
+ 					rthp = &rth->u.rt_next;
+ 					continue;
+ 				}
+-			} else if (!rt_may_expire(rth, tmo, ip_rt_gc_timeout)) {
+-				tmo >>= 1;
+-				rthp = &rth->u.rt_next;
+-				continue;
++	
++				/* Cleanup aged off entries. */
++				*rthp = rth->u.rt_next;
++				freed++;
++				rt_free(rth);
+ 			}
+-
+-			/* Cleanup aged off entries. */
+-			*rthp = rth->u.rt_next;
+-			rt_free(rth);
++			spin_unlock(rt_hash_lock_addr(i));
+ 		}
+-		spin_unlock(&rt_hash_table[i].lock);
+-
+ 		/* Fallback loop breaker. */
+ 		if (time_after(jiffies, now))
+ 			break;
+ 	}
+ 	rover = i;
+-	mod_timer(&rt_periodic_timer, now + ip_rt_gc_interval);
++	if (goal != 0) {
++		/* Not enough time to perform our job, try to adjust the timer.
++		 * Firing the timer sooner means less planned work.
++		 * We allow the timer to be 1/8 of the sysctl value.
++		 */
++		effective_interval = (effective_interval + cached_gc_interval/8)/2;
++	}
++	else {
++		/* We finished our job before time limit, try to increase the timer
++		 * The limit is the sysctl value, we use a weight of 3/1 to
++		 * increase slowly.
++		 */
++		effective_interval = (3*effective_interval + cached_gc_interval + 3)/4;
++	}
++	if (ip_rt_debug & 1)
++		printk(KERN_WARNING "rt_check_expire() : %u freed, goal=%u/%u, interval=%u ticks\n", freed, goal, t0, effective_interval);
++	mod_timer(&rt_periodic_timer, jiffies + effective_interval);
+ }
+ 
+ /* This can run from both BH and non-BH contexts, the latter
+@@ -570,11 +638,11 @@
+ 	get_random_bytes(&rt_hash_rnd, 4);
+ 
+ 	for (i = rt_hash_mask; i >= 0; i--) {
+-		spin_lock_bh(&rt_hash_table[i].lock);
++		spin_lock_bh(rt_hash_lock_addr(i));
+ 		rth = rt_hash_table[i].chain;
+ 		if (rth)
+ 			rt_hash_table[i].chain = NULL;
+-		spin_unlock_bh(&rt_hash_table[i].lock);
++		spin_unlock_bh(rt_hash_lock_addr(i));
+ 
+ 		for (; rth; rth = next) {
+ 			next = rth->u.rt_next;
+@@ -704,7 +772,7 @@
+ 
+ 			k = (k + 1) & rt_hash_mask;
+ 			rthp = &rt_hash_table[k].chain;
+-			spin_lock_bh(&rt_hash_table[k].lock);
++			spin_lock_bh(rt_hash_lock_addr(k));
+ 			while ((rth = *rthp) != NULL) {
+ 				if (!rt_may_expire(rth, tmo, expire)) {
+ 					tmo >>= 1;
+@@ -715,7 +783,7 @@
+ 				rt_free(rth);
+ 				goal--;
+ 			}
+-			spin_unlock_bh(&rt_hash_table[k].lock);
++			spin_unlock_bh(rt_hash_lock_addr(k));
+ 			if (goal <= 0)
+ 				break;
+ 		}
+@@ -792,7 +860,7 @@
+ 
+ 	rthp = &rt_hash_table[hash].chain;
+ 
+-	spin_lock_bh(&rt_hash_table[hash].lock);
++	spin_lock_bh(rt_hash_lock_addr(hash));
+ 	while ((rth = *rthp) != NULL) {
+ 		if (compare_keys(&rth->fl, &rt->fl)) {
+ 			/* Put it first */
+@@ -813,7 +881,7 @@
+ 			rth->u.dst.__use++;
+ 			dst_hold(&rth->u.dst);
+ 			rth->u.dst.lastuse = now;
+-			spin_unlock_bh(&rt_hash_table[hash].lock);
++			spin_unlock_bh(rt_hash_lock_addr(hash));
+ 
+ 			rt_drop(rt);
+ 			*rp = rth;
+@@ -854,7 +922,7 @@
+ 	if (rt->rt_type == RTN_UNICAST || rt->fl.iif == 0) {
+ 		int err = arp_bind_neighbour(&rt->u.dst);
+ 		if (err) {
+-			spin_unlock_bh(&rt_hash_table[hash].lock);
++			spin_unlock_bh(rt_hash_lock_addr(hash));
+ 
+ 			if (err != -ENOBUFS) {
+ 				rt_drop(rt);
+@@ -895,7 +963,7 @@
+ 	}
+ #endif
+ 	rt_hash_table[hash].chain = rt;
+-	spin_unlock_bh(&rt_hash_table[hash].lock);
++	spin_unlock_bh(rt_hash_lock_addr(hash));
+ 	*rp = rt;
+ 	return 0;
+ }
+@@ -962,7 +1030,7 @@
+ {
+ 	struct rtable **rthp;
+ 
+-	spin_lock_bh(&rt_hash_table[hash].lock);
++	spin_lock_bh(rt_hash_lock_addr(hash));
+ 	ip_rt_put(rt);
+ 	for (rthp = &rt_hash_table[hash].chain; *rthp;
+ 	     rthp = &(*rthp)->u.rt_next)
+@@ -971,7 +1039,7 @@
+ 			rt_free(rt);
+ 			break;
+ 		}
+-	spin_unlock_bh(&rt_hash_table[hash].lock);
++	spin_unlock_bh(rt_hash_lock_addr(hash));
+ }
+ 
+ void ip_rt_redirect(u32 old_gw, u32 daddr, u32 new_gw,
+@@ -2569,6 +2637,23 @@
+ 		.strategy	= &sysctl_jiffies,
+ 	},
+ 	{
++		.ctl_name	= NET_IPV4_ROUTE_GC_INTERVAL_MS,
++		.procname	= "gc_interval_ms",
++		.data		= &ip_rt_gc_interval,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= &proc_dointvec_ms_jiffies,
++		.strategy	= &sysctl_ms_jiffies,
++	},
++	{
++		.ctl_name	= NET_IPV4_ROUTE_GC_DEBUG,
++		.procname	= "gc_debug",
++		.data		= &ip_rt_debug,
++		.maxlen		= sizeof(int),
++		.mode		= 0644,
++		.proc_handler	= &proc_dointvec,
++	},
++	{
+ 		.ctl_name	= NET_IPV4_ROUTE_REDIRECT_LOAD,
+ 		.procname	= "redirect_load",
+ 		.data		= &ip_rt_redirect_load,
+@@ -2718,7 +2803,7 @@
+ 
+ int __init ip_rt_init(void)
+ {
+-	int i, order, goal, rc = 0;
++	int order, goal, rc = 0;
+ 
+ 	rt_hash_rnd = (int) ((num_physpages ^ (num_physpages>>8)) ^
+ 			     (jiffies ^ (jiffies >> 7)));
+@@ -2766,14 +2851,12 @@
+ 	for (rt_hash_log = 0; (1 << rt_hash_log) != rt_hash_mask; rt_hash_log++)
+ 		/* NOTHING */;
+ 
+-	rt_hash_mask--;
+-	for (i = 0; i <= rt_hash_mask; i++) {
+-		spin_lock_init(&rt_hash_table[i].lock);
+-		rt_hash_table[i].chain = NULL;
+-	}
++	memset(rt_hash_table, 0, rt_hash_mask * sizeof(struct rt_hash_bucket));
++	rt_hash_lock_init();
+ 
+-	ipv4_dst_ops.gc_thresh = (rt_hash_mask + 1);
+-	ip_rt_max_size = (rt_hash_mask + 1) * 16;
++	ipv4_dst_ops.gc_thresh = rt_hash_mask;
++	ip_rt_max_size = rt_hash_mask * 16;
++	rt_hash_mask--;
+ 
+ 	rt_cache_stat = alloc_percpu(struct rt_cache_stat);
+ 	if (!rt_cache_stat)
+--- linux-2.6.11/include/linux/sysctl.h	2005-03-17 18:37:13.000000000 +0100
++++ linux-2.6.11-ed/include/linux/sysctl.h	2005-03-17 18:36:57.000000000 +0100
+@@ -367,6 +367,8 @@
+ 	NET_IPV4_ROUTE_MIN_ADVMSS=17,
+ 	NET_IPV4_ROUTE_SECRET_INTERVAL=18,
+ 	NET_IPV4_ROUTE_GC_MIN_INTERVAL_MS=19,
++	NET_IPV4_ROUTE_GC_INTERVAL_MS=20,
++	NET_IPV4_ROUTE_GC_DEBUG=21,
+ };
+ 
+ enum
+
+--------------060508060904000406040101--

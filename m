@@ -1,63 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267535AbTBQVX5>; Mon, 17 Feb 2003 16:23:57 -0500
+	id <S267540AbTBQVpf>; Mon, 17 Feb 2003 16:45:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267536AbTBQVX5>; Mon, 17 Feb 2003 16:23:57 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:35280 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267535AbTBQVX4>;
-	Mon, 17 Feb 2003 16:23:56 -0500
-Date: Mon, 17 Feb 2003 13:30:28 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: mingo@redhat.com, torvalds@transmeta.com
+	id <S267541AbTBQVpf>; Mon, 17 Feb 2003 16:45:35 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:22532 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S267540AbTBQVpe>;
+	Mon, 17 Feb 2003 16:45:34 -0500
+Date: Mon, 17 Feb 2003 22:55:32 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] fix Documentation/cli-sti-removal.txt thinko
-Message-Id: <20030217133028.4fd505f2.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Subject: [PATCH] fix warning in kernel/dma.c
+Message-ID: <20030217215532.GA8984@mars.ravnborg.org>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+When compiling without PROC_FS enabled a warning is issued about
+proc_dma_show defined but not used.
+Move both versions of proc_dma_show inside the #ifdef CONFIG_PROC_FS
 
-Please apply to 2.5.61.
-
-The 3 lines being deleted are repeated from above (in same file).
-I pulled the 2 lines being added from an earlier version of the patch.
-
---
-~Randy
+	Sam
 
 
-patch_name:	cli-fixdoc.patch
-patch_version:	2003-02-17.13:15:29
-author:		Randy.Dunlap <rddunlap@osdl.org>
-description:	correct cli-sti-removal.txt cut-n-paste'os
-product:	Linux
-product_versions: linux-2561
-changelog:	_
-URL:		_
-requires:	_
-conflicts:	_
-diffstat:	=
- cli-sti-removal.txt |    5 ++---
- 1 files changed, 2 insertions(+), 3 deletions(-)
-
-
-diff -Naur ./Documentation/cli-sti-removal.txt%CLI ./Documentation/cli-sti-removal.txt
---- ./Documentation/cli-sti-removal.txt%CLI	Fri Feb 14 15:51:21 2003
-+++ ./Documentation/cli-sti-removal.txt	Mon Feb 17 13:15:09 2003
-@@ -121,9 +121,8 @@
+===== kernel/dma.c 1.5 vs edited =====
+--- 1.5/kernel/dma.c	Wed Aug 28 09:53:26 2002
++++ edited/kernel/dma.c	Mon Feb 17 22:30:17 2003
+@@ -98,6 +98,22 @@
  
- another related change is that synchronize_irq() now takes a parameter:
- synchronize_irq(irq). This change too has the purpose of making SMP
--to make the transition easier, we've still kept the cli(), sti(),
--save_flags() and restore_flags() macros defined on UP systems - but
--their usage will be phased out until the 2.6 kernel is released.
-+synchronization more lightweight - this way you can wait for your own
-+interrupt handler to finish, no need to wait for other IRQ sources.
+ } /* free_dma */
  
++#else
++
++int request_dma(unsigned int dmanr, const char *device_id)
++{
++	return -EINVAL;
++}
++
++void free_dma(unsigned int dmanr)
++{
++}
++
++#endif
++
++#ifdef CONFIG_PROC_FS
++
++#ifdef MAX_DMA_CHANNELS
+ static int proc_dma_show(struct seq_file *m, void *v)
+ {
+ 	int i;
+@@ -110,27 +126,14 @@
+ 	}
+ 	return 0;
+ }
+-
+ #else
+-
+-int request_dma(unsigned int dmanr, const char *device_id)
+-{
+-	return -EINVAL;
+-}
+-
+-void free_dma(unsigned int dmanr)
+-{
+-}
+-
+ static int proc_dma_show(struct seq_file *m, void *v)
+ {
+ 	seq_puts(m, "No DMA\n");
+ 	return 0;
+ }
++#endif /* MAX_DMA_CHANNELS */
  
- why were these changes done? The main reason was the architectural burden
+-#endif
+-
+-#ifdef CONFIG_PROC_FS
+ static int proc_dma_open(struct inode *inode, struct file *file)
+ {
+ 	char *buf = kmalloc(PAGE_SIZE, GFP_KERNEL);

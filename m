@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267448AbTBIVNE>; Sun, 9 Feb 2003 16:13:04 -0500
+	id <S267456AbTBIVjY>; Sun, 9 Feb 2003 16:39:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267453AbTBIVNE>; Sun, 9 Feb 2003 16:13:04 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:6669 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267448AbTBIVNE>; Sun, 9 Feb 2003 16:13:04 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Cyrix III processor and kernel boot problem
-Date: 9 Feb 2003 13:22:16 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <b26gq8$ks1$1@cesium.transmeta.com>
-References: <3E43C79A.2010506@autistici.org> <1044631346.14350.17.camel@irongate.swansea.linux.org.uk>
+	id <S267457AbTBIVjY>; Sun, 9 Feb 2003 16:39:24 -0500
+Received: from 2-118.ctame702-5.telepar.net.br ([200.140.236.118]:45696 "EHLO
+	PolesApart.wox.org") by vger.kernel.org with ESMTP
+	id <S267456AbTBIVjX>; Sun, 9 Feb 2003 16:39:23 -0500
+Message-ID: <3E46CCD1.60903@PolesApart.dhs.org>
+Date: Sun, 09 Feb 2003 19:49:05 -0200
+From: Alexandre Pereira Nunes <alex@PolesApart.dhs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pt-BR; rv:1.2.1) Gecko/20021130
+X-Accept-Language: pt-br, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+To: linux-kernel@vger.kernel.org
+Subject: video4linux API question
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <1044631346.14350.17.camel@irongate.swansea.linux.org.uk>
-By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
-In newsgroup: linux.dev.kernel
->
-> On Fri, 2003-02-07 at 14:50, c1cc10 wrote:
-> > I've found out that the Cyrix III has no CMOV instruction and that this 
-> > could be the problem.
-> 
-> It is
-> 
-> gcc told to build for i686 assumes that cmov is present. Much of the 
-> code advantage for i686 comes from cmov so it makes sense to do that
-> I guess.
-> 
+Hi,
 
-Yep.  The other name for the option, -mach=pentiumpro, really is the
-more proper name.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: cris ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+In v4l v1 api, is there a way to get the "active" (current) video input (channel)?
+I mean, I can use VIDIOCSCHAN to tell the channel i want, but I can't 
+use (i.e.) VIDIOCGCHAN to see what is the selected channel between different programs.
+It seems that it could be of some use, since there is already some state stored
+in the driver (at least in bttv I can use for example one interactive program for setting
+input parameters (bright/contrast/whatever) and then let these settings in effect for another,
+non-interactive capture daemon, for example.
+
+Of course there are some implications in doing it this way, but that is exactly my question: if there are some
+provisions for something like that (settings remaining throught multiple sessions) planned in th API,
+or if I can't rely in this behaviour at all.
+
+
+Also, are there any provisions for multiple programs open()ing the same device simultaneously?
+
+
+What about v4l 2, in both issues?
+
+
+Thanks in advance,
+
+
+Alexandre
+
+
+

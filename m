@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314674AbSEPUdx>; Thu, 16 May 2002 16:33:53 -0400
+	id <S314675AbSEPUen>; Thu, 16 May 2002 16:34:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314675AbSEPUdw>; Thu, 16 May 2002 16:33:52 -0400
-Received: from dsl-213-023-040-248.arcor-ip.net ([213.23.40.248]:47590 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S314674AbSEPUdv>;
-	Thu, 16 May 2002 16:33:51 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Anton Altaparmakov <aia21@cantab.net>,
-        Peter Chubb <peter@chubb.wattle.id.au>
-Subject: Re: [PATCH] remove 2TB block device limit
-Date: Thu, 16 May 2002 22:32:37 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com, axboe@suse.de, akpm@zip.com.au,
-        martin@dalecki.de, neilb@cse.unsw.edu.au
-In-Reply-To: <Pine.SOL.3.96.1020514023250.22385B-100000@virgo.cus.cam.ac.uk>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E178RvR-0008To-00@starship>
+	id <S314682AbSEPUem>; Thu, 16 May 2002 16:34:42 -0400
+Received: from laclinux.com ([216.254.39.66]:6291 "EHLO laclinux.com")
+	by vger.kernel.org with ESMTP id <S314675AbSEPUeh>;
+	Thu, 16 May 2002 16:34:37 -0400
+Date: Thu, 16 May 2002 14:34:41 -0600
+From: G Sandine <lkml@laclinux.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: knfsd misses occasional writes
+Message-ID: <20020516143441.A4322@laclinux.com>
+In-Reply-To: <3CE250A5.47F71DF@uab.ericsson.se> <15586.20989.992591.474108@notabene.cse.unsw.edu.au> <3CE38E9D.986ACF7F@uab.ericsson.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 May 2002 03:36, Anton Altaparmakov wrote:
-> ...And yes at the
-> moment the pagecache limit is also a problem which we just ignore in the
-> hope that the kernel will have gone to 64 bits by the time devices grow
-> that large as to start using > 32 bits of blocks/pages...
+On Thu, May 16, 2002 at 12:49:01PM +0200, Sverker Wiberg wrote:
+> Neil Brown wrote:
+> > On Wednesday May 15, Sverker.Wiberg@uab.ericsson.se wrote:
+> > > When copying lots of small files from multiple NFS clients to a kNFSd
+> > > filesystem (i.e. doing backup of a cluster), exported with `sync', I
+> > > find that some few files (1 out of 1000) were silently truncated to zero
+>                                                   ^^^^^^^^
+>                                                   no errors reported 
+> > 
+> > How are you mounting the file systems on the clients?
+> > The symptoms sound exactly like you are using "soft" mounts.  "soft"
+> > is a very bad mount option.  Use "hard".
+> >
+> > If you aren't using "soft", let me know and I will look harder.
+> 
+> Errrm, I am using "soft" mounts, as I (we) want the clients to survive
+> server restarts.
+> But shouldn't those timeouts become errors over at the clients?
 
-PAGE_CACHE_SIZE can also grow, so 32 bit architectures are further away
-from the page cache limit on than it seems.
+I have seen this too, with a file system exported with rw,no_root_squash
+and mounted hard,intr.  We were running vanilla 2.4.18 on the server
+and clients.  We have a text file on the server serving to record
+employees' time, and one day the time clock file remained a text file
+but was truncated to zero.  All further punch ins/punch outs did not
+record in the truncated file (user names, dates, and times should have
+appended).  Deleting and recreating the text file on a client returned
+behavior to normal.  No error messages whatsoever, and it has worked
+fine for two weeks as we watch for the behavior to repeat.
 
--- 
-Daniel
+Regards,
+Gary S.

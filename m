@@ -1,136 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265027AbTFRAMU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 20:12:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265028AbTFRAMT
+	id S265029AbTFRASe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 20:18:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265030AbTFRASe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 20:12:19 -0400
-Received: from r2d2.aoltw.net ([64.236.137.26]:54480 "EHLO netscape.com")
-	by vger.kernel.org with ESMTP id S265027AbTFRALm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 20:11:42 -0400
-Message-ID: <3EEFB165.5070208@netscape.com>
-Date: Tue, 17 Jun 2003 17:25:09 -0700
-From: jgmyers@netscape.com (John Myers)
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030529
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Joel Becker <jlbec@evilplan.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>
-Subject: Re: [PATCH 2.5.71-mm1] aio process hang on EINVAL
-References: <1055810609.1250.1466.camel@dell_ss5.pdx.osdl.net> <3EEE6FD9.2050908@netscape.com> <20030617085408.A1934@in.ibm.com> <1055884008.1250.1479.camel@dell_ss5.pdx.osdl.net> <3EEFAC58.905@netscape.com> <20030618001534.GJ7895@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20030618001534.GJ7895@parcelfarce.linux.theplanet.co.uk>
-Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms060601090503000803010906"
+	Tue, 17 Jun 2003 20:18:34 -0400
+Received: from [198.184.232.17] ([198.184.232.17]:2689 "EHLO
+	swordfish.capgemini.hu") by vger.kernel.org with ESMTP
+	id S265029AbTFRASd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 20:18:33 -0400
+Date: Wed, 18 Jun 2003 02:33:14 +0200
+From: Nagy Gabor <linux42@freemail.c3.hu>
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.70 module autoloading problem
+Message-ID: <20030618003314.GC2413@swordfish.capgemini.hu>
+References: <20030606141710.GA254@swordfish.capgemini.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030606141710.GA254@swordfish.capgemini.hu>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a cryptographically signed message in MIME format.
+On 03-Jun-06 16:17, Nagy Gabor wrote:
+> Hi!
+> 
+> I wanted to test 2.5, and so I did with 2.5.67 first, then with 2.5.70
+> 
+> I have installed  the module-init-tools 0.9.11-1 debian package, and now
+> some of my modules work automatically under 2.5 too, others don't get
+> autoloaded.
+> 
+> I don't know if this is a bug in the kernel (kmod), or just something has
+> changed so much without warning, that it breaks other things.
 
---------------ms060601090503000803010906
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+I have changed kmod.c to print every module name it tries to load.
+I noted that it tried to load char-major-10-1 (psaux), and isofs, and
+that kmod did not print the message when accessing /dev/input/mousr
 
-Joel Becker wrote:
-
->POSIX 1003.1 says this about aio_read() and aio_write():
->	If an error condition is encountered during queuing, the function
->	call shall return without having initiated or queued the request.
->
->If you intend to ever allow a POSIX wrapper to these interfaces (I have
->one, for instance), you need to return EINVAL, EBADF, and the like from
->io_submit().
->
-No, you just declare that those errors happend "after queuing."
-
->A user has to handle EAGAIN, so io_submit() cannot return void, and you
->already have error handling logic here.
->  
->
-EAGAIN error handling does not require contextual information about the 
-operation being queued.  Error handling logic that knows about the 
-context of the operation queued already has to exist in the 
-io_getevents() processing.
-
-
---------------ms060601090503000803010906
-Content-Type: application/x-pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIL0zCC
-A9YwggM/oAMCAQICBAIAAeYwDQYJKoZIhvcNAQEFBQAwRTELMAkGA1UEBhMCVVMxGDAWBgNV
-BAoTD0dURSBDb3Jwb3JhdGlvbjEcMBoGA1UEAxMTR1RFIEN5YmVyVHJ1c3QgUm9vdDAeFw0w
-MTA2MDExMjQ3MDBaFw0wNDA2MDEyMzU5MDBaMIGTMQswCQYDVQQGEwJVUzELMAkGA1UECBMC
-Q0ExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5lIElu
-YzEZMBcGA1UECxMQQU9MIFRlY2hub2xvZ2llczEnMCUGA1UEAxMeSW50cmFuZXQgQ2VydGlm
-aWNhdGUgQXV0aG9yaXR5MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDi718sdkOJSxpf
-s+X4qm+LL4FNZ/+9Sg9jLsTchfaeLEkmIP8AF+SIiGne/YNX4KMRGRGq1ty877PSFS5Uxm58
-v9m5w0bTCQWE5VNcSO2EhZoOOz0WB1zws3mrmhClvMGk0XhMBuVkQfwFJWMm6+8Mx25UoYzO
-VFe2H5LashJLjQIDAQABo4IBgjCCAX4wTQYDVR0fBEYwRDBCoECgPoY8aHR0cDovL3d3dzEu
-dXMtaG9zdGluZy5iYWx0aW1vcmUuY29tL2NnaS1iaW4vQ1JML0dURVJvb3QuY2dpMB0GA1Ud
-DgQWBBQp27Itg35/iyO7wsxmuTnoKfMChjBmBgNVHSAEXzBdMEYGCiqGSIb4YwECAQUwODA2
-BggrBgEFBQcCARYqaHR0cDovL3d3dy5iYWx0aW1vcmUuY29tL0NQUy9PbW5pUm9vdC5odG1s
-MBMGAyoDBDAMMAoGCCsGAQUFBwIBMFgGA1UdIwRRME+hSaRHMEUxCzAJBgNVBAYTAlVTMRgw
-FgYDVQQKEw9HVEUgQ29ycG9yYXRpb24xHDAaBgNVBAMTE0dURSBDeWJlclRydXN0IFJvb3SC
-AgGjMCsGA1UdEAQkMCKADzIwMDEwNjAxMTI0NzMwWoEPMjAwMzA5MDEyMzU5MDBaMA4GA1Ud
-DwEB/wQEAwIBBjAPBgNVHRMECDAGAQH/AgEBMA0GCSqGSIb3DQEBBQUAA4GBAEpiDtn6RncE
-CmwN3f7SIjmZEAquiC2GPVeE5hIkN2n7WV7iEbD5n6RXhoppHwZj0X3uMzZJECAPH5cXLCds
-PWw5BHviReiHG1S2YEFtHa4F8535OjSa43trTHH466grg7A1kEwZaHHt8GMiXsJb7CB6tbBR
-c+kH7oFndnlT95XUMIID+DCCA2GgAwIBAgICbfowDQYJKoZIhvcNAQEFBQAwgZMxCzAJBgNV
-BAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UEBxMNTW91bnRhaW4gVmlldzEbMBkGA1UEChMS
-QW1lcmljYSBPbmxpbmUgSW5jMRkwFwYDVQQLExBBT0wgVGVjaG5vbG9naWVzMScwJQYDVQQD
-Ex5JbnRyYW5ldCBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwHhcNMDMwNjAzMDA1NjI3WhcNMDMx
-MTMwMDA1NjI3WjB9MQswCQYDVQQGEwJVUzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5j
-MRcwFQYKCZImiZPyLGQBARMHamdteWVyczEjMCEGCSqGSIb3DQEJARYUamdteWVyc0BuZXRz
-Y2FwZS5jb20xEzARBgNVBAMTCkpvaG4gTXllcnMwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJ
-AoGBAK/NyY2CaWvkVG9fLKJvcJauEYngiqm3s4wwDjlMlhbRhRkLqzimtHIKOq3uJj/c6DwL
-f1MhgLZJFDjQwpZO6XDOmmFnFP78G6bH0wd8oGyR309Lx/chgHS9uZqoBWnBa2vQw4KVIPAd
-NNmRhh/29ruE+DdrCUj8de/vyJuGu6QNAgMBAAGjggFuMIIBajAOBgNVHQ8BAf8EBAMCBSAw
-HQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMEMEMGCWCGSAGG+EIBDQQ2FjRJc3N1ZWQg
-YnkgTmV0c2NhcGUgQ2VydGlmaWNhdGUgTWFuYWdlbWVudCBTeXN0ZW0gNC41MIGPBgNVHREE
-gYcwgYSBFGpnbXllcnNAbmV0c2NhcGUuY29tgRBqZ215ZXJzQG1jb20uY29tgRNqb2huX215
-ZXJzQG1jb20uY29tgRdqb2huX215ZXJzQG5ldHNjYXBlLmNvbYEXam9obmdteWVyc0BuZXRz
-Y2FwZS5jb22BE2pvaG5nbXllcnNAbWNvbS5jb20wHwYDVR0jBBgwFoAUKduyLYN+f4sju8LM
-Zrk56CnzAoYwQQYIKwYBBQUHAQEENTAzMDEGCCsGAQUFBzABhiVodHRwOi8vY2VydGlmaWNh
-dGVzLm5ldHNjYXBlLmNvbS9vY3NwMA0GCSqGSIb3DQEBBQUAA4GBAFo11Z0i3LS3v79ERUII
-kQw/Of200mw1k4qgUe5+ZCHJCT/NMUGpsVufSQhLHsAxgUtOsQU7Llcgkv2HxSJ0YcI339p1
-fEh6cWL4g8UL/tq6Xgxa9JBDwZ0TXcaOR1Ue+boWazl1O9wAGVZLZbmhpAtK/rR0Xtubw5lL
-eLeJOK5jMIID+TCCA2KgAwIBAgICbfswDQYJKoZIhvcNAQEEBQAwgZMxCzAJBgNVBAYTAlVT
-MQswCQYDVQQIEwJDQTEWMBQGA1UEBxMNTW91bnRhaW4gVmlldzEbMBkGA1UEChMSQW1lcmlj
-YSBPbmxpbmUgSW5jMRkwFwYDVQQLExBBT0wgVGVjaG5vbG9naWVzMScwJQYDVQQDEx5JbnRy
-YW5ldCBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwHhcNMDMwNjAzMDA1NjI3WhcNMDMxMTMwMDA1
-NjI3WjB9MQswCQYDVQQGEwJVUzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRcwFQYK
-CZImiZPyLGQBARMHamdteWVyczEjMCEGCSqGSIb3DQEJARYUamdteWVyc0BuZXRzY2FwZS5j
-b20xEzARBgNVBAMTCkpvaG4gTXllcnMwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMcZ
-B138GfG/ZBtJtdSEKALNz7NxibeihURffNrSGi53bXO/jcmBqkdHTCd3tpwmdXGWYkymXO56
-t15Mj1eaq85VcATNhl7O9n8DDjktYgsh8yXptYLfED5BEWtrlaBOPgGpBG11X9YafUMRy2Ki
-mwKcaDvqY7ZTxiA64u9GkuqRAgMBAAGjggFvMIIBazAPBgNVHQ8BAf8EBQMDB4AAMB0GA1Ud
-JQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDBDBglghkgBhvhCAQ0ENhY0SXNzdWVkIGJ5IE5l
-dHNjYXBlIENlcnRpZmljYXRlIE1hbmFnZW1lbnQgU3lzdGVtIDQuNTCBjwYDVR0RBIGHMIGE
-gRRqZ215ZXJzQG5ldHNjYXBlLmNvbYEQamdteWVyc0BtY29tLmNvbYETam9obl9teWVyc0Bt
-Y29tLmNvbYEXam9obl9teWVyc0BuZXRzY2FwZS5jb22BF2pvaG5nbXllcnNAbmV0c2NhcGUu
-Y29tgRNqb2huZ215ZXJzQG1jb20uY29tMB8GA1UdIwQYMBaAFCnbsi2Dfn+LI7vCzGa5Oegp
-8wKGMEEGCCsGAQUFBwEBBDUwMzAxBggrBgEFBQcwAYYlaHR0cDovL2NlcnRpZmljYXRlcy5u
-ZXRzY2FwZS5jb20vb2NzcDANBgkqhkiG9w0BAQQFAAOBgQDLhP1VKAUm7V4tbVY4eI/QY1O0
-LahSTyvFj4sF+pAHcRi9rXVnOYCvGKDS3cRxkraJnwKbrtUeCTlkt207yaqHkXNPGMEXK5a/
-Zq/woS11zjrri3vDkykfF/VfSKsaa0E6GJ0lrC6/IdZsdXCHd3SmuuC3X+Gq2uVRytDh5bl/
-UTGCA1QwggNQAgEBMIGaMIGTMQswCQYDVQQGEwJVUzELMAkGA1UECBMCQ0ExFjAUBgNVBAcT
-DU1vdW50YWluIFZpZXcxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5lIEluYzEZMBcGA1UECxMQ
-QU9MIFRlY2hub2xvZ2llczEnMCUGA1UEAxMeSW50cmFuZXQgQ2VydGlmaWNhdGUgQXV0aG9y
-aXR5AgJt+zAJBgUrDgMCGgUAoIICDzAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqG
-SIb3DQEJBTEPFw0wMzA2MTgwMDI1MDlaMCMGCSqGSIb3DQEJBDEWBBSc3BkIFxwGaU1ewVYz
-+pK8NVygIDBSBgkqhkiG9w0BCQ8xRTBDMAoGCCqGSIb3DQMHMA4GCCqGSIb3DQMCAgIAgDAN
-BggqhkiG9w0DAgIBQDAHBgUrDgMCBzANBggqhkiG9w0DAgIBKDCBqwYJKwYBBAGCNxAEMYGd
-MIGaMIGTMQswCQYDVQQGEwJVUzELMAkGA1UECBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZp
-ZXcxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5lIEluYzEZMBcGA1UECxMQQU9MIFRlY2hub2xv
-Z2llczEnMCUGA1UEAxMeSW50cmFuZXQgQ2VydGlmaWNhdGUgQXV0aG9yaXR5AgJt+jCBrQYL
-KoZIhvcNAQkQAgsxgZ2ggZowgZMxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UE
-BxMNTW91bnRhaW4gVmlldzEbMBkGA1UEChMSQW1lcmljYSBPbmxpbmUgSW5jMRkwFwYDVQQL
-ExBBT0wgVGVjaG5vbG9naWVzMScwJQYDVQQDEx5JbnRyYW5ldCBDZXJ0aWZpY2F0ZSBBdXRo
-b3JpdHkCAm36MA0GCSqGSIb3DQEBAQUABIGACECuNz6TseXdPwlOEkAqIAlZRknfDHbhcww0
-yARFvJRn1u0wST2BsjxXxxG8GwUUafhKg0YNYDGHWBeJ1mwPqTYdUh5IyyusCpXoaBFVQAwi
-/53/17eS8xjvVUEOdgMmO/u92ZmWaDH7+mMQsxwMyR04hyZeqEODycK9nKfeJI0AAAAAAAA=
---------------ms060601090503000803010906--
-
+Regards,
+G

@@ -1,255 +1,135 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261486AbSLaNV7>; Tue, 31 Dec 2002 08:21:59 -0500
+	id <S262425AbSLaNmS>; Tue, 31 Dec 2002 08:42:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262692AbSLaNV7>; Tue, 31 Dec 2002 08:21:59 -0500
-Received: from ophelia.ess.nec.de ([193.141.139.8]:24966 "EHLO
-	ophelia.ess.nec.de") by vger.kernel.org with ESMTP
-	id <S261486AbSLaNVN>; Tue, 31 Dec 2002 08:21:13 -0500
-From: Erich Focht <efocht@ess.nec.de>
-To: "Martin J. Bligh" <mbligh@aracnet.com>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>
-Subject: [PATCH 2.5.53] NUMA scheduler (2/3)
-Date: Tue, 31 Dec 2002 14:29:55 +0100
-User-Agent: KMail/1.4.3
-Cc: Robert Love <rml@tech9.net>, Ingo Molnar <mingo@elte.hu>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-References: <200211061734.42713.efocht@ess.nec.de> <200212181721.39434.efocht@ess.nec.de> <200212311429.04382.efocht@ess.nec.de>
-In-Reply-To: <200212311429.04382.efocht@ess.nec.de>
+	id <S262692AbSLaNmS>; Tue, 31 Dec 2002 08:42:18 -0500
+Received: from rrcs-midsouth-24-172-39-28.biz.rr.com ([24.172.39.28]:39436
+	"EHLO maunzelectronics.com") by vger.kernel.org with ESMTP
+	id <S262425AbSLaNmQ>; Tue, 31 Dec 2002 08:42:16 -0500
+Message-ID: <3E11A07C.AE33D2E5@justirc.net>
+Date: Tue, 31 Dec 2002 08:49:49 -0500
+From: Mark Rutherford <mark@justirc.net>
+X-Mailer: Mozilla 4.8 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_V5KZG16IAOLW9RXR0GH7"
-Message-Id: <200212311429.55142.efocht@ess.nec.de>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+References: <Pine.LNX.4.10.10212310412290.421-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-scanner: scanned by Inflex 1.0.12.3 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I doubt this would 'destroy the community'...
+Do I like it? Nope.
+But here is the way I look at it...
+Nvidia provides the driver, and it works. it means I can use their cards in
+Linux.
+the Linux drivers, are in my opinion far more superior than the Window$
+drivers.
+After all, you do get the kernel module source code....
+Another thing you must realise is that these companies want to stay in
+buisness and
+just the fact that Nvidia has a linux driver probably torques m$ off as it is
+they do not want to upset this company, lets face it, they are barbaric and
+they are cabable of
+bringing hardware makers to their knees if they wanted to.
+They even have a *BSD driver now....
+I like Nvidia, because they provide me with a driver that I can use, and it
+works.
+I also recall reading that they have code in their driver(s) that belongs to a
+third party, making it
+hard to release the source to the driver without upsetting the third party.
+perhaps one day, they will be able to.
+I dont think we should fault them, at least they give us something, we need to
+focus on the companies that
+give us NOTHING.
 
---------------Boundary-00=_V5KZG16IAOLW9RXR0GH7
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+end of rant :)
 
-=2E.. the second patch ...
 
-On Tuesday 31 December 2002 14:29, Erich Focht wrote:
-> Here comes the minimal NUMA scheduler built on top of the O(1) load
-> balancer rediffed for 2.5.53 with some changes in the core part. As
-> suggested by Michael, I added the cputimes_stat patch, as it is
-> absolutely needed for understanding the scheduler behavior.
+
+Andre Hedrick wrote:
+
+> On Tue, 31 Dec 2002 Hell.Surfers@cwctv.net wrote:
 >
-> The three patches:
-> 01-numa-sched-core-2.5.53-24.patch: core NUMA scheduler infrastructure
->   providing a node aware load_balancer. Cosmetic changes + more comment=
-s.
+> > Why does the community continue to make pacts with a company that
+> > steals from its rivals, makes pacts with M$, and refuses to clearly GPL
+> > and open source its work on drivers, there is a clear difference between
+> > their use of GPL files, and what the GPL says they can do. You cannot
+> > expect embedded kernel developers to GPL, if you excuse Nvidia, its a
+> > vain hope to grab M$ users, but in the long run it destroys the
+> > community.
+> >
+> > Dean. Three ways to kill yourself, and ive been drove in one...
 >
-> 02-numa-sched-ilb-2.5.53-21.patch: initial load balancing, selects
->   least loaded node & CPU at exec().
+> Well let's see:
 >
-> 03-cputimes_stat-2.5.53.patch: adds back to the kernel per CPU user
->   and system time statistics for each process in /proc/PID/cpu. Needed
->   for evaluating scheduler behavior and performance of tasks running
->   on SMP and NUMA systems.
+> You have no money to hire lawyers.
+> You whine about an issue, that people with lawyers will roast you alive.
 >
-> Regards,
-> Erich
+> Are you a customer of Nvidia?
+> If you are not, you have no legal ground to invoke GPL PERIOD!
+> If you are a customer, check to see that they have a GPL/GNU wrapper which
+> is open source and attachs a clean LGPL library object, iirc.
+>
+> Since, there is still a legal and valid LGPL regardless of what FSF has to
+> say, there are revisions of GPL which permit various usages.  Now there
+> are people like yourself who, again have no money, have no lawyers, have
+> a whine, and whimpers over issues that stretch beyond the general scope.
+>
+> Recall the kernel is capable of rejecting non-gpl binary modules; yet it
+> does not!  Regardless of the original intent or scope of the "tainting
+> process", it created more grey than clarity.
+>
+> Now until the kernel forcable rejects loading binary closed source
+> modules, it defaults to quietly approved of the concept regardless what
+> you think, feel, or care.
+>
+> Now what is not clear?
+>
+> If the kernel forces vendors to choose between closed source support or
+> loose the competive edge in their market space, enjoy hunting for the old
+> dusty video cards from the past.  You just limited the scope of hardware
+> which will run on Linux with any usability.
+>
+> Now given the kernel is now so well mixed between people in the past,
+> current, and dead developers (sigh Leonard Z :-(( ), how are you going to
+> hurd all togather to agree on a single point?
+>
+> So you submitted a patch, whippty flip ... neither you or I control the
+> license of the kernel.  If Linus does not like the content of a patch or a
+> file generated, well it is toast.  Also where does it state a patch is
+> defined as "GPL patch"?
+>
+> Think a little harder first, cause I and many others will be on the side
+> of slapping down your arguements about preventing binary modules from
+> being loaded.  Key point! "LOADED" not "LINKED".  For the meatballs who
+> think that dumping /proc/kcore is an effective way of generating a newly
+> linked file, remember you created the file, not the owners of the module.
+>
+> Prove you can boot a cat /proc/kcore > vmlinux and you have now linked a
+> closed source object with an open source kernel.  Using your logic from
+> above, you are now the offending person to GPL.  You committed the act of
+> linking the two permanetly.
+>
+> Time for bed, ranting is over ...
+>
+> Cheers,
+>
+> Andre Hedrick
+> LAD Storage Consulting Group
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
---------------Boundary-00=_V5KZG16IAOLW9RXR0GH7
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="02-numa-sched-ilb-2.5.53-21.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="02-numa-sched-ilb-2.5.53-21.patch"
+--
+Regards,
+Mark Rutherford
+mark@justirc.net
 
-diff -urN a/fs/exec.c b/fs/exec.c
---- a/fs/exec.c	2002-12-24 06:20:03.000000000 +0100
-+++ b/fs/exec.c	2002-12-31 14:15:45.000000000 +0100
-@@ -1024,6 +1024,8 @@
- 	int retval;
- 	int i;
- 
-+	sched_balance_exec();
-+
- 	file = open_exec(filename);
- 
- 	retval = PTR_ERR(file);
-diff -urN a/include/linux/sched.h b/include/linux/sched.h
---- a/include/linux/sched.h	2002-12-31 13:02:18.000000000 +0100
-+++ b/include/linux/sched.h	2002-12-31 14:17:13.000000000 +0100
-@@ -160,7 +160,6 @@
- extern void scheduler_tick(int user_tick, int system);
- extern unsigned long cache_decay_ticks;
- 
--
- #define	MAX_SCHEDULE_TIMEOUT	LONG_MAX
- extern signed long FASTCALL(schedule_timeout(signed long timeout));
- asmlinkage void schedule(void);
-@@ -447,8 +446,18 @@
- 
- #ifdef CONFIG_NUMA
- extern void build_node_data(void);
-+extern void sched_balance_exec(void);
-+extern void node_nr_running_init(void);
-+#define nr_running_inc(rq) atomic_inc(rq->node_ptr); \
-+	rq->nr_running++
-+#define nr_running_dec(rq) atomic_dec(rq->node_ptr); \
-+	rq->nr_running--
- #else
- #define build_node_data() {}
-+#define sched_balance_exec() {}
-+#define node_nr_running_init() {}
-+#define nr_running_inc(rq) rq->nr_running++
-+#define nr_running_dec(rq) rq->nr_running--
- #endif
- 
- extern void set_user_nice(task_t *p, long nice);
-diff -urN a/init/main.c b/init/main.c
---- a/init/main.c	2002-12-24 06:19:46.000000000 +0100
-+++ b/init/main.c	2002-12-31 14:15:45.000000000 +0100
-@@ -489,6 +489,7 @@
- 
- 	migration_init();
- #endif
-+	node_nr_running_init();
- 	spawn_ksoftirqd();
- }
- 
-diff -urN a/kernel/sched.c b/kernel/sched.c
---- a/kernel/sched.c	2002-12-31 13:46:03.000000000 +0100
-+++ b/kernel/sched.c	2002-12-31 14:15:45.000000000 +0100
-@@ -153,6 +153,7 @@
- 	task_t *curr, *idle;
- 	prio_array_t *active, *expired, arrays[2];
- 	int prev_nr_running[NR_CPUS];
-+	atomic_t * node_ptr;
- 
- 	task_t *migration_thread;
- 	struct list_head migration_queue;
-@@ -356,7 +357,7 @@
- 		p->prio = effective_prio(p);
- 	}
- 	enqueue_task(p, array);
--	rq->nr_running++;
-+	nr_running_inc(rq);
- }
- 
- /*
-@@ -364,7 +365,7 @@
-  */
- static inline void deactivate_task(struct task_struct *p, runqueue_t *rq)
- {
--	rq->nr_running--;
-+	nr_running_dec(rq);
- 	if (p->state == TASK_UNINTERRUPTIBLE)
- 		rq->nr_uninterruptible++;
- 	dequeue_task(p, p->array);
-@@ -851,9 +852,9 @@
- static inline void pull_task(runqueue_t *src_rq, prio_array_t *src_array, task_t *p, runqueue_t *this_rq, int this_cpu)
- {
- 	dequeue_task(p, src_array);
--	src_rq->nr_running--;
-+	nr_running_dec(src_rq);
- 	set_task_cpu(p, this_cpu);
--	this_rq->nr_running++;
-+	nr_running_inc(this_rq);
- 	enqueue_task(p, this_rq->active);
- 	/*
- 	 * Note that idle threads have a prio of MAX_PRIO, for this test
-@@ -2293,6 +2294,83 @@
- 
- #endif
- 
-+#if CONFIG_NUMA
-+static atomic_t node_nr_running[MAX_NUMNODES] ____cacheline_maxaligned_in_smp = {[0 ...MAX_NUMNODES-1] = ATOMIC_INIT(0)};
-+
-+__init void node_nr_running_init(void)
-+{
-+	int i;
-+
-+	for (i = 0; i < NR_CPUS; i++) {
-+		cpu_rq(i)->node_ptr = &node_nr_running[__cpu_to_node(i)];
-+	}
-+	return;
-+}
-+
-+/*
-+ * If dest_cpu is allowed for this process, migrate the task to it.
-+ * This is accomplished by forcing the cpu_allowed mask to only
-+ * allow dest_cpu, which will force the cpu onto dest_cpu.  Then
-+ * the cpu_allowed mask is restored.
-+ */
-+static void sched_migrate_task(task_t *p, int dest_cpu)
-+{
-+	unsigned long old_mask;
-+
-+	old_mask = p->cpus_allowed;
-+	if (!(old_mask & (1UL << dest_cpu)))
-+		return;
-+	/* force the process onto the specified CPU */
-+	set_cpus_allowed(p, 1UL << dest_cpu);
-+
-+	/* restore the cpus allowed mask */
-+	set_cpus_allowed(p, old_mask);
-+}
-+
-+/*
-+ * Find the least loaded CPU.  Slightly favor the current CPU by
-+ * setting its runqueue length as the minimum to start.
-+ */
-+static int sched_best_cpu(struct task_struct *p)
-+{
-+	int i, minload, load, best_cpu, node = 0;
-+
-+	best_cpu = task_cpu(p);
-+	if (cpu_rq(best_cpu)->nr_running <= 2)
-+		return best_cpu;
-+
-+	minload = 10000000;
-+	for (i = 0; i < numnodes; i++) {
-+		load = atomic_read(&node_nr_running[i]);
-+		if (load < minload) {
-+			minload = load;
-+			node = i;
-+		}
-+	}
-+	minload = 10000000;
-+	loop_over_node(i,node) {
-+		if (!cpu_online(i))
-+			continue;
-+		if (cpu_rq(i)->nr_running < minload) {
-+			best_cpu = i;
-+			minload = cpu_rq(i)->nr_running;
-+		}
-+	}
-+	return best_cpu;
-+}
-+
-+void sched_balance_exec(void)
-+{
-+	int new_cpu;
-+
-+	if (numnodes > 1) {
-+		new_cpu = sched_best_cpu(current);
-+		if (new_cpu != smp_processor_id())
-+			sched_migrate_task(current, new_cpu);
-+	}
-+}
-+#endif /* CONFIG_NUMA */
-+
- #if CONFIG_SMP || CONFIG_PREEMPT
- /*
-  * The 'big kernel lock'
-@@ -2354,6 +2432,10 @@
- 		spin_lock_init(&rq->lock);
- 		INIT_LIST_HEAD(&rq->migration_queue);
- 		atomic_set(&rq->nr_iowait, 0);
-+#if CONFIG_NUMA
-+		rq->node_ptr = &node_nr_running[0];
-+#endif /* CONFIG_NUMA */
-+
- 
- 		for (j = 0; j < 2; j++) {
- 			array = rq->arrays + j;
-
---------------Boundary-00=_V5KZG16IAOLW9RXR0GH7--
 

@@ -1,59 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265636AbSLQUJv>; Tue, 17 Dec 2002 15:09:51 -0500
+	id <S267110AbSLQUTb>; Tue, 17 Dec 2002 15:19:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265767AbSLQUJv>; Tue, 17 Dec 2002 15:09:51 -0500
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:18613
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id <S265636AbSLQUJt>; Tue, 17 Dec 2002 15:09:49 -0500
-Message-ID: <3DFF8668.9080209@redhat.com>
-Date: Tue, 17 Dec 2002 12:17:44 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20021216
-X-Accept-Language: en-us, en
+	id <S267112AbSLQUTb>; Tue, 17 Dec 2002 15:19:31 -0500
+Received: from smtp804.mail.sc5.yahoo.com ([66.163.168.183]:47881 "HELO
+	smtp804.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id <S267110AbSLQUT3>; Tue, 17 Dec 2002 15:19:29 -0500
+From: "Joseph D. Wagner" <wagnerjd@prodigy.net>
+To: <redhat-devel-list@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Problem Compiling Linux Kernel 2.4.20
+Date: Tue, 17 Dec 2002 14:27:32 -0600
+Message-ID: <002901c2a60a$bbb65e10$b273d73f@joe>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Matti Aarnio <matti.aarnio@zmailer.org>, Hugh Dickins <hugh@veritas.com>,
-       Dave Jones <davej@codemonkey.org.uk>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, hpa@transmeta.com
-Subject: Re: Intel P6 vs P7 system call performance
-References: <Pine.LNX.4.44.0212171159440.1095-100000@home.transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0212171159440.1095-100000@home.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+In-Reply-To: <1040146480.5653.0.camel@stantz.corp.sgi.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+It (make xconfig) works fine on the 2.4.18-3 kernel that comes pre-installed
+with Redhat 7.3.  It just doesn't work with the kernel I downloaded from
+http://www.kernel.org (version 2.4.20).
 
-> ===== arch/i386/kernel/sysenter.c 1.1 vs edited =====
-> --- 1.1/arch/i386/kernel/sysenter.c	Mon Dec 16 21:39:04 2002
-> +++ edited/arch/i386/kernel/sysenter.c	Tue Dec 17 11:39:39 2002
-> @@ -48,14 +48,14 @@
->  		0xc3			/* ret */
->  	};
->  	static const char sysent[] = {
-> -		0x55,			/* push %ebp */
->  		0x51,			/* push %ecx */
->  		0x52,			/* push %edx */
-> +		0x55,			/* push %ebp */
->  		0x89, 0xe5,		/* movl %esp,%ebp */
->  		0x0f, 0x34,		/* sysenter */
-> +		0x5d,			/* pop %ebp */
->  		0x5a,			/* pop %edx */
->  		0x59,			/* pop %ecx */
-> -		0x5d,			/* pop %ebp */
->  		0xc3			/* ret */
+-----Original Message-----
+From: redhat-devel-list-admin@redhat.com
+[mailto:redhat-devel-list-admin@redhat.com] On Behalf Of Florin Andrei
+Sent: Tuesday, December 17, 2002 11:35 AM
+To: redhat-devel-list@redhat.com
+Subject: RE: Problem Compiling Linux Kernel 2.4.20
 
-Instead of duplicating the push/pop %ebp just use the first one by using
+On Mon, 2002-12-16 at 14:45, Joseph D. Wagner wrote:
+> 
+> [root@localhost linux-2.4.20]# make xconfig
+> cat header.tk >> ./kconfig.tk
+> ./tkparse < ../arch/i386/config.in >> kconfig.tk
+> -: 6: unknown command
+> make[1]: *** [kconfig.tk] Error 1
 
-  movl 12(%ebo), %ebp
-
-in the kernel code or remove the first.  The later is better, smaller code.
+Did you installed the Tcl and Tk stuff?
 
 -- 
---------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
+Florin Andrei
+
+When it comes to discussing Linux, some people become temporarily
+insane.
+
+
+
+_______________________________________________
+Redhat-devel-list mailing list
+Redhat-devel-list@redhat.com
+https://listman.redhat.com/mailman/listinfo/redhat-devel-list
 

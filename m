@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265886AbTAJSt7>; Fri, 10 Jan 2003 13:49:59 -0500
+	id <S266638AbTAJTBj>; Fri, 10 Jan 2003 14:01:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266243AbTAJSsy>; Fri, 10 Jan 2003 13:48:54 -0500
-Received: from mail.set-software.de ([193.218.212.121]:25302 "EHLO
-	gateway.local.net") by vger.kernel.org with ESMTP
-	id <S266228AbTAJSsf> convert rfc822-to-8bit; Fri, 10 Jan 2003 13:48:35 -0500
-From: Michael Knigge <Michael.Knigge@set-software.de>
-Date: Fri, 10 Jan 2003 18:56:52 GMT
-Message-ID: <20030110.18565214@knigge.local.net>
-Subject: Stupid SMBUS question...
-To: <linux-kernel@vger.kernel.org>
-X-Mailer: Mozilla/3.0 (compatible; StarOffice/5.1; Win32)
-X-Priority: 3 (Normal)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	id <S266435AbTAJTBg>; Fri, 10 Jan 2003 14:01:36 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:4755
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266930AbTAJTB3>; Fri, 10 Jan 2003 14:01:29 -0500
+Subject: Re: Fastest possible UDMA - how?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Michael Knigge <Michael.Knigge@set-software.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030110.18485381@knigge.local.net>
+References: <20030110.18485381@knigge.local.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1042228590.32431.10.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 10 Jan 2003 19:56:31 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 2003-01-10 at 18:48, Michael Knigge wrote:
+> Hi all,
+> 
+> is it somehow possible to determine what is the fastest UDMA-Mode my 
+> IDE-Controller supports - independant of the chipset?
 
-I'm working on a tool that can display information of a computer's 
-hardware. For this I want to parse the SMBIOS-Structure. I know that I 
-could search /proc/kcore for the "_SM_" eyecatcher, but I wonder if 
-there is a "easier" way to get the information (so the tool don't have 
-to run setuid-root).
-
-Is there a way? 
-
-
-Thank you in advance and have a nice weekend,
-  Michael
-
-
-
+Not really. You have to know the specific device to know how to
+query the modes it supports (if indeed you can query and don't have
+the driver knowing by type)
 

@@ -1,71 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261335AbVC2TvC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbVC2Ty0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261335AbVC2TvC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 14:51:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261341AbVC2TuW
+	id S261362AbVC2Ty0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 14:54:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbVC2TyZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 14:50:22 -0500
-Received: from omx1-ext.sgi.com ([192.48.179.11]:39651 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261335AbVC2TuH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 14:50:07 -0500
-Date: Tue, 29 Mar 2005 13:50:02 -0600 (CST)
-From: Patrick Gefre <pfg@sgi.com>
+	Tue, 29 Mar 2005 14:54:25 -0500
+Received: from smtp9.poczta.onet.pl ([213.180.130.49]:64677 "EHLO
+	smtp9.poczta.onet.pl") by vger.kernel.org with ESMTP
+	id S261350AbVC2Twt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 14:52:49 -0500
+Message-ID: <4249B2B8.1090807@poczta.onet.pl>
+Date: Tue, 29 Mar 2005 21:55:36 +0200
+From: Wiktor <victorjan@poczta.onet.pl>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Cc: Patrick Gefre <pfg@sgi.com>
-Message-Id: <20050329195002.30693.4700.sendpatchset@attica.americas.sgi.com>
-In-Reply-To: <20050329194956.30693.94506.sendpatchset@attica.americas.sgi.com>
-References: <20050329194956.30693.94506.sendpatchset@attica.americas.sgi.com>
-Subject: [PATCH 2.6.12 2/2] Altix ioc4 serial - set a better timeout/threshold
+Subject: [RFD] 'nice' attribute for executable files
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-Set the timeout and threshold to better values.
+recently i had to run some program (xmms) with lowered nice value as 
+normal user. to do that i had to su to the root account and then execute 
+nice --5 xmms. but, then xmms was run as root and X server refused 
+connection, so i had to do second su from root account. (total: su nice 
+--5 su wixor xmms). what's more, i thought that entering root password 
+each time i want to run something with lowered nice is rather boring. 
+furthermore, on many systems root may want to make users able to run 
+some program with lowered nice, but not from root account and without 
+having to know the root password... i've found a way to do this using 
+shell scripts combined with suid bit and strange fils ownerships, but it 
+is absolute diseaster.
 
+so i thought that it would be nice to add an attribute to file 
+(changable only for root) that would modify nice value of process when 
+it starts. if there is one byte free in ext2/3 file metadata, maybe it 
+could be used for that? i think that it woundn't be more dangerous than 
+setuid bit.
 
-Signed-off-by: Patrick Gefre <pfg@sgi.com>
+Does it all make any sense?
+thanks for responses
 
-
-
-
-Index: linux-2.5-ioc4/drivers/serial/ioc4_serial.c
-===================================================================
---- linux-2.5-ioc4.orig/drivers/serial/ioc4_serial.c	2005-03-24 13:56:48.230417236 -0600
-+++ linux-2.5-ioc4/drivers/serial/ioc4_serial.c	2005-03-24 13:58:35.560294893 -0600
-@@ -1272,8 +1272,9 @@
- 	 * and set the rx threshold to that amount.  There are 4 chars
- 	 * per ring entry, so we'll divide the number of chars that will
- 	 * arrive in timeout by 4.
-+	 * So .... timeout * baud / 10 / HZ / 4, with HZ = 100.
- 	 */
--	threshold = timeout * port->ip_baud / 10 / HZ / 4;
-+	threshold = timeout * port->ip_baud / 4000;
- 	if (threshold == 0)
- 		threshold = 1;	/* otherwise we'll intr all the time! */
- 
-@@ -1285,8 +1286,10 @@
- 
- 	writel(port->ip_sscr, &port->ip_serial_regs->sscr);
- 
--	/* Now set the rx timeout to the given value */
--	timeout = timeout * IOC4_SRTR_HZ / HZ;
-+	/* Now set the rx timeout to the given value
-+	 * again timeout * IOC4_SRTR_HZ / HZ
-+	 */
-+	timeout = timeout * IOC4_SRTR_HZ / 100;
- 	if (timeout > IOC4_SRTR_CNT)
- 		timeout = IOC4_SRTR_CNT;
- 
-@@ -1380,7 +1383,7 @@
- 	if (port->ip_tx_lowat == 0)
- 		port->ip_tx_lowat = 1;
- 
--	set_rx_timeout(port, port->ip_rx_timeout);
-+	set_rx_timeout(port, 2);
- 
- 	return 0;
- }
-
--- 
-
+--
+wixor
+May the Source be with you

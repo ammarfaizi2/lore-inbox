@@ -1,56 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316608AbSGGWqv>; Sun, 7 Jul 2002 18:46:51 -0400
+	id <S316609AbSGGWsq>; Sun, 7 Jul 2002 18:48:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316610AbSGGWqu>; Sun, 7 Jul 2002 18:46:50 -0400
-Received: from [209.184.141.189] ([209.184.141.189]:12524 "HELO UberGeek")
-	by vger.kernel.org with SMTP id <S316608AbSGGWqt>;
-	Sun, 7 Jul 2002 18:46:49 -0400
-Subject: Re: Reg. segmentation fault on sparc with gcc-3.0 (ld)
-From: Austin Gonyou <austin@digitalroadkill.net>
-To: Shanti Katta <katta@csee.wvu.edu>
-Cc: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <1026081797.7057.10.camel@indus>
-References: <1026081797.7057.10.camel@indus>
-Content-Type: text/plain
+	id <S316610AbSGGWsp>; Sun, 7 Jul 2002 18:48:45 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:4300 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S316609AbSGGWsm>;
+	Sun, 7 Jul 2002 18:48:42 -0400
+Message-ID: <3D28C3F0.7010506@us.ibm.com>
+Date: Sun, 07 Jul 2002 15:42:56 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Thunder from the hill <thunder@ngforever.de>
+CC: Greg KH <greg@kroah.com>,
+       kernel-janitor-discuss 
+	<kernel-janitor-discuss@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: BKL removal
+References: <Pine.LNX.4.44.0207071551180.10105-100000@hawkeye.luckynet.adm>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Organization: 
-X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
-Date: 07 Jul 2002 17:49:22 -0500
-Message-Id: <1026082162.11740.1.camel@UberGeek>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I would have to recommend you try 3.1. I've had issues compiling lots of
-stuff with 3.0, until 3.0.4, but still 3.1 has been much better. The
-issues were just odd, and I can't really say what fixed them exactly,
-but rebuilding problematic programs, with gcc 3.1, made my problems go
-away. Usual things were spurious segfaults for no apparent reason. GDB
-couldn't even help, not really.
+Thunder from the hill wrote:
 
-On Sun, 2002-07-07 at 17:43, Shanti Katta wrote:
-> Hi,
-> When I try to compile user-mode-linux on UltraSparc-I, I get the
-> following error message during linking:
-> 
-> gcc-3.0 -o mk_task mk_task_user.o mk_task_kern.o
-> collect2: ld terminated with signal 11 [Segmentation fault], core dumped
-> 
-> I could not get any help regarding this error on the web. Is it because
-> of some sparc 32/64 oddities or it has something to do with the
-> compiler?
-> 
-> Any pointers will be appreciated
-> 
-> Thank you,
-> -Regards
-> -Shanti
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+ >> "As long as I comment [and understand] why I am using the BKL."
+ >> would be a bit more accurate.  How many places in the kernel have
+ >> you seen comments about what the BKL is actually doing?  Could
+ >> you point me to some of your comments where _you_ are using the
+ >> BKL?  Once you fully understand why it is there, the extra step
+ >> of removal is usually very small.
+ >
+ > Old Blue, could you please bring me an example on where in USB the
+ > bkl shouldn't be used, but is?  And can you explain why it's wrong
+ > to use bkl there?
+
+Old Blue?  23 isn't _that_ old!
+
+BKL use isn't right or wrong -- it isn't a case of creating a deadlock 
+or a race.  I'm picking a relatively random function from "grep -r 
+lock_kernel * | grep /usb/".  I'll show what I think isn't optimal 
+about it.
+
+"up" is a local variable.  There is no point in protecting its 
+allocation.  If the goal is to protect data inside "up", there should 
+probably be a subsystem-level lock for all "struct uhci_hcd"s or a 
+lock contained inside of the structure itself.  Is this the kind of 
+example you're looking for?
+
+  static int uhci_proc_open(struct inode *inode, struct file *file)
+  {
+         const struct proc_dir_entry *dp = PDE(inode);
+         struct uhci_hcd *uhci = dp->data;
+         struct uhci_proc *up;
+         unsigned long flags;
+         int ret = -ENOMEM;
+
+-       lock_kernel();
+
+         up = kmalloc(sizeof(*up), GFP_KERNEL);
+         if (!up)
+                 goto out;
+
+         up->data = kmalloc(MAX_OUTPUT, GFP_KERNEL);
+         if (!up->data) {
+                 kfree(up);
+                 goto out;
+         }
+
++       lock_kernel();
+         spin_lock_irqsave(&uhci->frame_list_lock, flags);
+         up->size = uhci_sprint_schedule(uhci, up->data, MAX_OUTPUT);
+         spin_unlock_irqrestore(&uhci->frame_list_lock, flags);
+
+         file->private_data = up;
++ 
+unlock_kernel();
+
+         ret = 0;
+  out:
+-       unlock_kernel();
+         return ret;
+  }
+
+
+
 -- 
-Austin Gonyou <austin@digitalroadkill.net>
+Dave Hansen
+haveblue@us.ibm.com
+
+

@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268401AbTBNOQS>; Fri, 14 Feb 2003 09:16:18 -0500
+	id <S268400AbTBNOPT>; Fri, 14 Feb 2003 09:15:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268402AbTBNOQR>; Fri, 14 Feb 2003 09:16:17 -0500
-Received: from hugin.diku.dk ([130.225.96.144]:14596 "HELO hugin.diku.dk")
-	by vger.kernel.org with SMTP id <S268401AbTBNOPX>;
-	Fri, 14 Feb 2003 09:15:23 -0500
-Date: Fri, 14 Feb 2003 15:25:15 +0100 (MET)
-From: Peter Finderup Lund <firefly@diku.dk>
-To: Robert Dewar <dewar@gnat.com>
-cc: tjm@codegen.com, <discuss@x86-64.org>, <linux-kernel@vger.kernel.org>,
-       <peter@jazz-1.trumpet.com.au>
-Subject: Re: [discuss] Re: [Bug 350] New: i386 context switch very slow
- compared to 2.4 due to wrmsr (performance)
-In-Reply-To: <20030214140336.501F2F2D7B@nile.gnat.com>
-Message-ID: <Pine.LNX.4.44L0.0302141520570.4760-100000@ask.diku.dk>
+	id <S268401AbTBNOPT>; Fri, 14 Feb 2003 09:15:19 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:40710 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S268400AbTBNOPS>; Fri, 14 Feb 2003 09:15:18 -0500
+Date: Fri, 14 Feb 2003 15:24:48 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Werner Almesberger <wa@almesberger.net>
+cc: Rusty Russell <rusty@rustcorp.com.au>, <kuznet@ms2.inr.ac.ru>,
+       <davem@redhat.com>, <kronos@kronoz.cjb.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Migrating net/sched to new module interface
+In-Reply-To: <20030214105338.E2092@almesberger.net>
+Message-ID: <Pine.LNX.4.44.0302141500540.1336-100000@serv>
+References: <20030214120628.208112C464@lists.samba.org>
+ <Pine.LNX.4.44.0302141410540.1336-100000@serv> <20030214105338.E2092@almesberger.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Feb 2003, Robert Dewar wrote:
+Hi,
 
-> > > The only way to get from long-mode back to legacy-mode is to reset the
-> > > processor.  It can be done in software but you will likely lose interrupts.
-> >
-> > Smartdrv.sys and triple-faults come back, all is forgiven!  ;)
->
-> I have an idea, perhaps we can make the keyboard controller recognize a special
-> command that will reset the processor :-) :-)
+On Fri, 14 Feb 2003, Werner Almesberger wrote:
 
-What if there was an undocumented instruction otherwise only used for
-testing and CPU in-circuit-emulation to load all the internal state of the
-CPU from memory?  Maybe that would work?
+> The module changes only make this a little worse, because they
+> follow the philosophy that this can't be fixed, so try_module_get
+> and friends try to implement the right kind of locking for unload
+> races (but for little else) without tripping over those "unfixable"
+> bugs.
 
--Peter
+If you see these bugs as "unfixable", you already gave up and you end up 
+putting one band-aid over another, each only solving part of the problem.
+Please try work with me here and we might find a more general solution.
+I could just post possible solutions, but as long nobody understands the 
+problem, they will be rejected anyway.
 
-
-
+bye, Roman
 

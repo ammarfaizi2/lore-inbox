@@ -1,81 +1,129 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132627AbRDOLjR>; Sun, 15 Apr 2001 07:39:17 -0400
+	id <S132633AbRDOMZK>; Sun, 15 Apr 2001 08:25:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132629AbRDOLi6>; Sun, 15 Apr 2001 07:38:58 -0400
-Received: from cdsl18.ptld.uswest.net ([209.180.170.18]:47208 "HELO
-	galen.magenet.net") by vger.kernel.org with SMTP id <S132627AbRDOLi4>;
-	Sun, 15 Apr 2001 07:38:56 -0400
-Date: Sun, 15 Apr 2001 04:38:37 -0700
-From: Joseph Carter <knghtbrd@debian.org>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: nicholas@petreley.com, linux-kernel@vger.kernel.org
-Subject: Re: usb-uhci.c problems in latest kernels?
-Message-ID: <20010415043836.C15118@debian.org>
-In-Reply-To: <20010414213546.A1590@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="f0KYrhQ4vYSV2aJu"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <20010414213546.A1590@devserv.devel.redhat.com>; from zaitcev@redhat.com on Sat, Apr 14, 2001 at 09:35:46PM -0400
-X-Operating-System: Linux galen 2.4.3-ac4+lm+bttv
-X-No-Junk-Mail: Spam will solicit a hostile reaction, at the very least.
+	id <S132636AbRDOMZA>; Sun, 15 Apr 2001 08:25:00 -0400
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:1731 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S132633AbRDOMYs>; Sun, 15 Apr 2001 08:24:48 -0400
+From: Christoph Rohland <cr@sap.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Rik van Riel <riel@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: shmem_getpage_locked() / swapin_readahead() race in 2.4.4-pre3
+In-Reply-To: <Pine.LNX.4.21.0104141244510.1786-100000@freak.distro.conectiva>
+Organisation: SAP LinuxLab
+Message-ID: <m3zodiqt1v.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="=-=-="
+Date: 15 Apr 2001 13:54:08 +0200
+X-SAP: out
+X-SAP: out
+X-SAP: out
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--=-=-=
 
---f0KYrhQ4vYSV2aJu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi,
 
-On Sat, Apr 14, 2001 at 09:35:46PM -0400, Pete Zaitcev wrote:
-> > usb-uhci.c: interrupt, status 3, frame# 1876=20
->=20
-> This is a known problem, here is the discussion that I initiated
-> on linux-usb-devel:
->=20
->  http://marc.theaimsgroup.com/?t=3D98609508500001&w=3D2&r=3D1
->=20
-> The right fix is to comment that printout out.
-> In fact, that is what I commited for Red Hat 7.1 release.
+On Sat, 14 Apr 2001, Marcelo Tosatti wrote:
+> There is a nasty race between shmem_getpage_locked() and
+> swapin_readahead() with the new shmem code (introduced in 2.4.3-ac3
+> and merged in the main tree in 2.4.4-pre3):
+> 
+> shmem_getpage_locked() finds a page in the swapcache and moves it to
+> the pagecache as an shmem page, freeing the swapcache and the swap
+> map entry for this page. (which causes a BUG() in mm/shmem.c:353
+> since the swap map entry is being used)
+> 
+> In the meanwhile, swapin_readahead() is allocating a page and adding
+> it to the swapcache.
 
-I'm not sure of that.  Sometimes keys get "stuck" in the down position
-with my USB keyboard (mechanical switches, so the keys themselves are not
-sticking) and usually when that happens I can find a line like the one
-quoted above in the logs.  Also, occasionally my mouse goes black (one of
-the optical Logitech's) with a similar line and must be disconnected and
-reconnected to work again.  Again, similar line in the logs.
+Oh, I was just chasing this also. 
 
-Nothing fatal happens.  Pressing another key fixes the keyboard and my old
-fashioned USB ball mouse ;) works fine.
+> I don't see any clean fix for this one.
 
+I think the actual check for swap_count is not necessary: If
+swapin_readahead allocates a new swap_cache page for the entry, that's
+not a real bug. On memory pressure this page will be reclaimed.
 
-> Some people suggest to switch to uhci instead of usb-uhci,
-> which helps precisely because it does not have a corresponding
-> printk.
+Actually we have to make shmem much more unfriendly to the swap cache
+to make it correct: I think we have to drop the whole drop swap cache
+pages on truncate logic since it uses lookup_swap_cache and
+delete_from_swap_cache which both lock the page, while holding a
+spinlock :-(
 
-I've seen similar suggestions for people with AMD-based systems.
+The appended patch implements both changes and relies on the page
+stealer to shrink the swap cache. 
 
---=20
-Joseph Carter <knghtbrd@debian.org>                Free software developer
+It also integrates fixes which Marcelo did send earlier.
 
-Change the Social Contract?  BWAHAHAHAHAHAHAHAHAHAHAHA.
-	-- Branden Robinson
+Greetings
+		Christoph
 
 
---f0KYrhQ4vYSV2aJu
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+--=-=-=
+Content-Disposition: attachment; filename=patch-2.4.4-tmpfs-fixes
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: 1024D/DCF9DAB3  20F6 2261 F185 7A3E 79FC  44F9 8FF7 D7A3 DCF9 DAB3
+--- 2.4.4-pre3/mm/shmem.c	Sat Apr 14 11:12:54 2001
++++ u2.4.3/mm/shmem.c	Sun Apr 15 13:45:58 2001
+@@ -123,10 +123,19 @@
+ 		entry = *ptr;
+ 		*ptr = (swp_entry_t){0};
+ 		freed++;
++#if 0
++                /*
++		 * This does not work since it may sleep while holding
++		 * a spinlock 
++		 *
++		 * We rely on the page stealer to free up the
++		 * allocated swap space later
++		 */
+ 		if ((page = lookup_swap_cache(entry)) != NULL) {
+ 			delete_from_swap_cache(page);
+ 			page_cache_release(page);	
+ 		}
++#endif
+ 		swap_free (entry);
+ 	}
+ 	return freed;
+@@ -236,8 +245,10 @@
+ 	
+ 	/* Only move to the swap cache if there are no other users of
+ 	 * the page. */
+-	if (atomic_read(&page->count) > 2)
+-		goto out;
++	if (atomic_read(&page->count) > 2){
++		set_page_dirty(page);
++ 		goto out;
++	}
+ 	
+ 	inode = page->mapping->host;
+ 	info = &inode->u.shmem_i;
+@@ -348,9 +359,6 @@
+ 		if (TryLockPage(page)) 
+ 			goto wait_retry;
+ 
+-		if (swap_count(page) > 2)
+-			BUG();
+-		
+ 		swap_free(*entry);
+ 		*entry = (swp_entry_t) {0};
+ 		delete_from_swap_cache_nolock(page);
+@@ -432,6 +440,7 @@
+ 		*ptr = NOPAGE_SIGBUS;
+ 	return error;
+ sigbus:
++	up (&inode->i_sem);
+ 	*ptr = NOPAGE_SIGBUS;
+ 	return -EFAULT;
+ }
 
-iEYEARECAAYFAjrZiDwACgkQj/fXo9z52rNX3wCgq8p1OuftDLIkB9toFOLSt0S3
-cQUAnRMGsG3/Fo9qaU8L5tQQY6BGaNot
-=Hvic
------END PGP SIGNATURE-----
+--=-=-=--
 
---f0KYrhQ4vYSV2aJu--

@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261982AbUCCJmI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 04:42:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbUCCJmI
+	id S262290AbUCCJpV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 04:45:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262320AbUCCJpV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 04:42:08 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:24330 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261982AbUCCJlx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 04:41:53 -0500
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: jmorris@redhat.com (James Morris), linux-kernel@vger.kernel.org
-Subject: Re: Mysterious string truncation in 2.4.25 kernel
-Organization: Core
-In-Reply-To: <Xine.LNX.4.44.0403030043380.32045-100000@thoron.boston.redhat.com>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.7.4-20031226 ("Taransay") (UNIX) (Linux/2.4.25-1-686-smp (i686))
-Message-Id: <E1AySsn-0006zH-00@gondolin.me.apana.org.au>
-Date: Wed, 03 Mar 2004 20:41:41 +1100
+	Wed, 3 Mar 2004 04:45:21 -0500
+Received: from 10fwd.cistron-office.nl ([62.216.29.197]:60392 "EHLO
+	smtp.cistron-office.nl") by vger.kernel.org with ESMTP
+	id S262290AbUCCJpP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 04:45:15 -0500
+Date: Wed, 3 Mar 2004 10:45:10 +0100
+From: Miquel van Smoorenburg <miquels@cistron.nl>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: per-cpu blk_plug_list
+Message-ID: <20040303094509.GA8779@cistron.nl>
+References: <cistron.B05667366EE6204181EABE9C1B1C0EB50211E5C8@scsmsx401.sc.intel.com> <cistron.20040302211309.500f43fb.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040302211309.500f43fb.akpm@osdl.org>
+X-NCC-RegID: nl.cistron
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Morris <jmorris@redhat.com> wrote:
-> On Tue, 2 Mar 2004, Glen Nakamura wrote:
+According to Andrew Morton:
+>  And also having looked at Miquel's (currently slightly defective)
+>  implementation of the any_congested() API for devicemapper:
 > 
->> Of course, perhaps 0 should passed instead of "" for data_page?
->> 
->> -    err = do_mount ("none", "/dev", "devfs", 0, "");
->> +    err = do_mount ("none", "/dev", "devfs", 0, 0);
->>
->> Comments?
+>  ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.4-rc1/2.6.4-rc1-mm1/broken-out/queue-congestion-dm-implementation.patch
 > 
-> Yes, the devfs fix above is needed if the data_page patch has been 
-> applied.  
+>  I am thinking that an appropriate way of solving the blk_run_queues() lock
+>  contention problem is to nuke the global plug list altogther and make the
+>  unplug function a method in struct backing_device_info.
 > 
-> This is the case in 2.6, but not 2.4.25.
+>  This is conceptually the appropriate place to put it - it is almost always
+>  the case that when we run blk_run_queues() it is on behalf of an
+>  address_space, and the few remaining case can be simply deleted -
+>  mm/mempool.c is the last one I think.
+> 
+>  The implementation of backing_dev_info.unplug() would have to run the
+>  unplug_fn of every queue which contributes to the top-level queue (the
+>  thing which the address_space is sitting on top of).
 
-Hmm the data_page line is in my copy of 2.4.25...
--- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+But then you need a pointer to the queue. In that case,
+you might as well put the congested_fn pointer in the request_queue
+too. Then you get something like
+https://www.redhat.com/archives/linux-lvm/2004-February/msg00203.html
+(though I'd replace "rw" with "bdi_bits" like in the current patch).
+
+Mike.

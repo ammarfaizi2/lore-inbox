@@ -1,47 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131737AbRCQTPw>; Sat, 17 Mar 2001 14:15:52 -0500
+	id <S131140AbRCQTDW>; Sat, 17 Mar 2001 14:03:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131740AbRCQTPm>; Sat, 17 Mar 2001 14:15:42 -0500
-Received: from www.wen-online.de ([212.223.88.39]:53777 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S131737AbRCQTP2>;
-	Sat, 17 Mar 2001 14:15:28 -0500
-Date: Sat, 17 Mar 2001 20:13:44 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Will Newton <will@misconception.org.uk>
-cc: Tim Waugh <twaugh@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: VIA audio and parport in 2.4.2
-In-Reply-To: <Pine.LNX.4.33.0103171744430.4733-100000@dogfox.localdomain>
-Message-ID: <Pine.LNX.4.33.0103171951340.440-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131734AbRCQTDM>; Sat, 17 Mar 2001 14:03:12 -0500
+Received: from Xenon.Stanford.EDU ([171.64.66.201]:4586 "EHLO
+	Xenon.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S131140AbRCQTDF>; Sat, 17 Mar 2001 14:03:05 -0500
+Date: Sat, 17 Mar 2001 11:02:15 -0800
+From: Andy Chou <acc@CS.Stanford.EDU>
+To: Mitchell Blank Jr <mitch@sfgoth.com>
+Cc: Junfeng Yang <yjf@stanford.edu>, linux-kernel@vger.kernel.org,
+        mc@CS.Stanford.EDU
+Subject: Re: [CHECKER] 120 potential dereference to invalid pointers errors for linux 2.4.1
+Message-ID: <20010317110215.A21529@Xenon.Stanford.EDU>
+Reply-To: acc@CS.Stanford.EDU
+In-Reply-To: <Pine.GSO.4.31.0103170126540.14147-100000@elaine24.Stanford.EDU> <20010317043154.B67406@sfgoth.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+User-Agent: Mutt/1.1.1i
+In-Reply-To: <20010317043154.B67406@sfgoth.com>; from mitch@sfgoth.com on Sat, Mar 17, 2001 at 04:31:54AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 Mar 2001, Will Newton wrote:
+> > [BUG] fore200e_kmalloc can return NULL
+> > /u2/acc/oses/linux/2.4.1/drivers/atm/fore200e.c:2032:fore200e_get_esi: ERROR:NULL:2020:2032: Using unknown ptr "prom" illegally! set by 'fore200e_kmalloc':2020
+> 
+> I don't see the bug - there is an explicit "if(!prom) return -ENOMEM;" after
+> the allocation.  It looks fine to me.
 
-> On Sat, 17 Mar 2001, Mike Galbraith wrote:
->
-> > > messages.1:Mar  8 22:49:00 dogfox kernel: spurious 8259A interrupt: IRQ7.
-> >
-> > I see these once in a while too in 2.4.x, and only when copying largish
-> > files between boxes.  NIC is IRQ-10, but the spurious interrupt is always
-> > IRQ-7.  I'm not using the printer port for anything on this box.  It only
-> > happens here when the network is going full bore for at least a few secs.
->
-> With the VIA chipset?
+We checked 2.4.1; it appears that by 2.4.2 someone had already fixed it :)
 
-Yes.
-
-> There definitely seems to be something wrong in the IRQ handling on this
-> board. e.g. when I insmod the sound driver it just sits there on IRQ 10,
-> getting no interrupts. Unfortunately I don't know enough about Linux
-> internals to really investigate this further.
-
-No device I'm using has irq troubles.. at least nothing obvious.  I've
-no idea if the spurious irq is VIA chipset related or not.. only that
-it's a fairly recent arrival.  All devices work fine here.
-
-	-Mike
-
+-Andy

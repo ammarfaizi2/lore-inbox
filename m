@@ -1,48 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318140AbSGWQ6T>; Tue, 23 Jul 2002 12:58:19 -0400
+	id <S318189AbSGWRGX>; Tue, 23 Jul 2002 13:06:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318141AbSGWQ6T>; Tue, 23 Jul 2002 12:58:19 -0400
-Received: from ns1.systime.ch ([194.147.113.1]:28934 "EHLO mail.systime.ch")
-	by vger.kernel.org with ESMTP id <S318140AbSGWQ6S>;
-	Tue, 23 Jul 2002 12:58:18 -0400
-From: "Martin Brulisauer" <martin@uceb.org>
-To: George France <france@handhelds.org>
-Date: Tue, 23 Jul 2002 19:01:07 +0200
-Subject: Re: kbuild 2.5.26 - arch/alpha
-CC: linux-kernel@vger.kernel.org
-Message-ID: <3D3DA7F3.9275.1480075C@localhost>
-References: <3D3D6B3B.25754.1392D3FD@localhost>
-In-reply-to: <02072311055101.22920@shadowfax.middleearth>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+	id <S318184AbSGWRFu>; Tue, 23 Jul 2002 13:05:50 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:37541 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S318177AbSGWREv>; Tue, 23 Jul 2002 13:04:51 -0400
+Date: Tue, 23 Jul 2002 13:08:00 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200207231708.g6NH80218466@devserv.devel.redhat.com>
+To: dmarkh@cfl.rr.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: bigphysarea
+In-Reply-To: <mailman.1027420021.27849.linux-kernel2news@redhat.com>
+References: <mailman.1027420021.27849.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 23 Jul 2002, at 11:05, George France wrote:
-> that version for a while until it is stable.  In the past few months most of 
-> the efforts have been spent on 2.4.9.  Currently there have been discussions 
-> in regard to:
-> 
-> 1) porting all those patches for 2.4.9 forward to 2.4.[18-19] and 2.5.x.  
+> [...] We have been using the bigphysarea patch and seems
+> to do what we need for this card. We have been using it sice the beginning to the 2.4 
+> series kernel. My question is, is this patch still nessessary or is there possibly a
+> way do do this now without the patch?
 
-I am currently running 2.4.18 from SuSE without any (major) 
-problems. I found it here:
-ftp://ftp.suse.com/pub/people/sf/axp/7.1/RPMS/kernel-source-
-2.4.18.SuSE-0.alpha.rpm.
-Then I took arch/alpha/kernel/core_cia.c from version 2.4.12
-(the current version does not run on XLT's booting with MILO;
-the latest one is 2.4.12).
+I think Pauline never bothered to submit it. In Welsh's times
+it was considered too esoteric for inclusion, but nowdays we
+carry so much bloat that I'd think bigphysarea can be included.
+If you want it included, take over the issue and bug Linus.
 
-> 2) taking a look at the latest 2.5.x in the next few weeks, as we are aware 
-> that 2.5.x does not compile on Alpha.
-
-Hopefully I can fix core_cia.c to run on XLT's (it's hard to find any 
-documentation on this toppic) and arch/alpha/kernel/setup.c for 
-machines booting with linload.exe/MILO because the hwrpb
-struct is built by MILO and does not match the one booting from
-SRM (eg. empty percpu struct resulting in a cpucount of zero
-in /proc/cpuinfo).
-
-Regards,
-Martin
-
+-- Pete

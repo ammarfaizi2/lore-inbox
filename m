@@ -1,40 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261183AbVAAV1E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261168AbVAAVbk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261183AbVAAV1E (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 Jan 2005 16:27:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261185AbVAAV1E
+	id S261168AbVAAVbk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 Jan 2005 16:31:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbVAAVbk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 Jan 2005 16:27:04 -0500
-Received: from orcas.net ([66.92.223.130]:13227 "EHLO orcas.net")
-	by vger.kernel.org with ESMTP id S261183AbVAAV1B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 Jan 2005 16:27:01 -0500
-Date: Sat, 1 Jan 2005 13:26:45 -0800 (PST)
-From: Terry Hardie <terryh@orcas.net>
-To: Bill Davidsen <davidsen@tmr.com>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Asus P4C800-E Deluxe and Intel Pro/1000
-In-Reply-To: <41D70885.3080208@tmr.com>
-Message-ID: <Pine.LNX.4.58.0501011326120.3717@orcas.net>
-References: <41D5C459.8050601@tmr.com><6.1.1.1.0.20041108074026.01dead50@ptg1.spd.analog.com>
- <Pine.LNX.4.58.0412311715190.3717@orcas.net> <41D70885.3080208@tmr.com>
+	Sat, 1 Jan 2005 16:31:40 -0500
+Received: from smtp811.mail.sc5.yahoo.com ([66.163.170.81]:54638 "HELO
+	smtp811.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261168AbVAAVbi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 Jan 2005 16:31:38 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9 & 2.6.10 unresponsive to keyboard upon bootup
+Date: Sat, 1 Jan 2005 16:31:36 -0500
+User-Agent: KMail/1.6.2
+Cc: Roey Katz <roey@sdf.lonestar.org>
+References: <Pine.NEB.4.61.0501010814490.26191@sdf.lonestar.org>
+In-Reply-To: <Pine.NEB.4.61.0501010814490.26191@sdf.lonestar.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200501011631.36884.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 1 Jan 2005, Bill Davidsen wrote:
+On Saturday 01 January 2005 03:27 am, Roey Katz wrote:
+> Hello,
+> 
+> Upon bootup, kernels 2.6.9 and 2.6.10 do not respond to keyboard input 
+> (e.g., I enter a few chars at the prompt but I see nothing).  I can SSH 
+> into the system, though, but I don't know what to do from there. I used 
+> the .config from my 2.6.7 kernel, which works properly (I did run 'make 
+> oldconfig'). In all .config files, I have the following:
+> 
+>   CONFIG_INPUT_KEYBOARD=y
+>   CONFIG_KEYBOARD_ATKBD=y
+>   # CONFIG_KEYBOARD_SUNKBD is not set
+>   # CONFIG_KEYBOARD_LKKBD is not set
+>   # CONFIG_KEYBOARD_XTKBD is not set
+>   # CONFIG_KEYBOARD_NEWTON is not set
+> 
+> So that looks OK... I also SSH'd into the system, did a 'cat 
+> /dev/input/event0' and typed on the system's keyboard, but 'cat' 
+> remained silent. Perhaps there is a better way to see if the system is 
+> recognizing the keyboard input (or even seeing the keyboard 
+> itself).  I give up.. what am I doing wrong???
+> 
 
-> > Since I flashed my bios, no more problems, so I've had no more failures
->
-> I hesitate to try that, since the web page says you must use "real DOS"
-> and gives instructions for creating the FD using that. Since I lack both
-> DOS and a floppy, that does present problems...
+What does /proc/bus/input/devices show? Do you have Synaptics touchpad/
+driver in your box?
 
-Not even a windows XP machine you can use to make a boot floppy?
-
----
-Terry Hardie					terry@net.com
-SHOUTip System Architect & Principal Engineer	ICQ#: 977679
-net.com, 6900 Paseo Padre Parkway
-Fremont, CA 94555, USA				V: +1-510-574-2366
+-- 
+Dmitry

@@ -1,95 +1,202 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132506AbRA2Po4>; Mon, 29 Jan 2001 10:44:56 -0500
+	id <S132549AbRA2Ppp>; Mon, 29 Jan 2001 10:45:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132549AbRA2Pop>; Mon, 29 Jan 2001 10:44:45 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:18953 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S132506AbRA2Poc>;
-	Mon, 29 Jan 2001 10:44:32 -0500
-Date: Mon, 29 Jan 2001 08:44:10 -0700
-From: yodaiken@fsmlabs.com
-To: Joe deBlaquiere <jadb@redhat.com>
-Cc: Andrew Morton <andrewm@uow.edu.au>, yodaiken@fsmlabs.com,
-        Nigel Gamble <nigel@nrg.org>, linux-kernel@vger.kernel.org,
-        linux-audio-dev@ginette.musique.umontreal.ca
-Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0
-Message-ID: <20010129084410.B32652@hq.fsmlabs.com>
-In-Reply-To: <200101220150.UAA29623@renoir.op.net> <Pine.LNX.4.05.10101211754550.741-100000@cosmic.nrg.org>, <Pine.LNX.4.05.10101211754550.741-100000@cosmic.nrg.org>; <20010128061428.A21416@hq.fsmlabs.com> <3A742A79.6AF39EEE@uow.edu.au> <3A74462A.80804@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4us
-In-Reply-To: <3A74462A.80804@redhat.com>; from Joe deBlaquiere on Sun, Jan 28, 2001 at 10:17:46AM -0600
+	id <S132928AbRA2Pp0>; Mon, 29 Jan 2001 10:45:26 -0500
+Received: from colorfullife.com ([216.156.138.34]:19724 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S132549AbRA2PpS>;
+	Mon, 29 Jan 2001 10:45:18 -0500
+Message-ID: <3A758DEA.832F605D@colorfullife.com>
+Date: Mon, 29 Jan 2001 16:36:10 +0100
+From: Manfred <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1-pre11 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] getting rid of tqueue_lock
+Content-Type: multipart/mixed;
+ boundary="------------67E602F21A95EF7945D44498"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 28, 2001 at 10:17:46AM -0600, Joe deBlaquiere wrote:
-> A recent example I came across is in the MTD code which invokes the 
-> erase algorithm for CFI memory. This algorithm spews a command sequence 
-> to the flash chips followed by a list of sectors to erase. Following 
-> each sector adress, the chip will wait for 50usec for another address, 
-> after which timeout it begins the erase cycle. With a RTLinux-style 
-> approach the driver is eventually going to fail to issue the command in 
-> time. There isn't any logic to detect and correct the preemption case, 
-> so it just gets confused and thinks the erase failed. Ergo, RTLinux and 
-> MTD are mutually exclusive. (I should probably note that I do not intend 
-> this as an indictment of RTLinux or MTD, but just an example of why 
-> preemption breaks the Linux driver model).
+This is a multi-part message in MIME format.
+--------------67E602F21A95EF7945D44498
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Only if your RTLinux application is running. In other words, you cannot
-commit more than 100% of cpu cycle time and expect to deliver.
-I think one of the common difficulties with realtime is that time-shared
-systems with virtual memory make people used to elastic resource
-limits and real-time has unforgiving time limits.
+I noticed that the tasks queues still rely on the global tqueue_lock
+spinlock, instead of a per-taskqueue lock.
 
+The patch is virtually transparent for task queue users: all users
+except ieee1394 use DECLARE_TASK_QUEUE.
 
+I admit that the tqueue_lock isn't that often used (numbers from sgi's
+lockstat)
 
-> 
-> So what is the solution in the preemption case? Should we re-write every 
-> driver to handle the preemption? Do we need a cli_yes_i_mean_it() for 
-> the cases where disabling interrupts is _absolutely_ required? Do we 
-> push drivers like MTD down into preemptable-Linux? Do we push all 
-> drivers down?
-> In the meantime, fixing the few places where the kernel spends an 
-> extended period of time performing a task makes sense to me. If you're 
-> going to be busy for a while it is 'courteous' to allow the scheduler a 
-> chance to give some time to other threads. Of course it's hard to know 
-> when to draw the line.
-
-Or what is the tradeoff or whether  a deadlock will follow. 
-step 1: memory manager thread frees a few pages and is courteous
-step 2: bunch of thrashing and eventually all processes stall
-step 3: go to step 1
-
-alternative
-step 1: memory manager thread frees enough pages for some processes to
-        advance to termination
-step 2: all is well
-
-and make up 100 similar scenarios. And this is why "preemptive"
-OS's tend to add such abominations as "priority inheritance" which 
-make failure cases rarer and harder to diagnose or complex schedulers
-that spend a significant fraction of cpu time trying to figure out
-what process should advance or ...
+* 10000 users/min during 'find / -xdev -uid 4711' (1.2% of all spinlock
+calls)
+* 60000 users/min during 'dd if=/dev/hda of=/dev/null' (~1.1% of all
+spinlock calls).
 
 
-> 
-> So now I am starting to wonder about what needs to be profiled. Is there 
-> a mechanism in place now to measure the time spent with interrupts off, 
-> for instance? I know this has to have been quantified to some extent, right?
-> 
-> -- 
-> Joe deBlaquiere
-> Red Hat, Inc.
-> 307 Wynn Drive
-> Huntsville AL, 35805
-> voice : (256)-704-9200
-> fax   : (256)-837-3839
+--
+	Manfred
+--------------67E602F21A95EF7945D44498
+Content-Type: text/plain; charset=us-ascii;
+ name="patch-tqueue"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-tqueue"
 
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
+// $Header$
+// Kernel Version:
+//  VERSION = 2
+//  PATCHLEVEL = 4
+//  SUBLEVEL = 1
+//  EXTRAVERSION =-pre11
+--- 2.4/drivers/char/n_r3964.c	Mon Dec 11 21:57:28 2000
++++ build-2.4/drivers/char/n_r3964.c	Mon Jan 29 14:54:29 2001
+@@ -1185,13 +1185,15 @@
+     /*
+      * Make sure that our task queue isn't activated.  If it
+      * is, take it out of the linked list.
++     * FIXME: buggy, another cpu might be in the middle of
++     *		__run_task_queue().
+      */
+-    spin_lock_irqsave(&tqueue_lock, flags);
++    spin_lock_irqsave(&tq_timer.lock, flags);
+     if (pInfo->bh_1.sync)
+     	list_del(&pInfo->bh_1.list);
+     if (pInfo->bh_2.sync)
+     	list_del(&pInfo->bh_2.list);
+-    spin_unlock_irqrestore(&tqueue_lock, flags);
++    spin_unlock_irqrestore(&tq_timer.lock, flags);
+ 
+    /* Remove client-structs and message queues: */
+     pClient=pInfo->firstClient;
+--- 2.4/include/linux/tqueue.h	Thu Jan  4 23:50:46 2001
++++ build-2.4/include/linux/tqueue.h	Mon Jan 29 14:54:29 2001
+@@ -42,10 +42,21 @@
+ 	void *data;			/* argument to function */
+ };
+ 
+-typedef struct list_head task_queue;
++typedef struct {
++	struct list_head list;
++	spinlock_t lock;
++} task_queue;
+ 
+-#define DECLARE_TASK_QUEUE(q)	LIST_HEAD(q)
+-#define TQ_ACTIVE(q)		(!list_empty(&q))
++#define TASK_QUEUE_INIT(name) { LIST_HEAD_INIT(name.list), SPIN_LOCK_UNLOCKED }
++
++#define INIT_TASK_QUEUE(ptr) do { \
++	INIT_LIST_HEAD(&(ptr)->list); \
++	spin_lock_init(&(ptr)->lock); \
++} while (0)
++
++
++#define DECLARE_TASK_QUEUE(q)	task_queue q = TASK_QUEUE_INIT(q)
++#define TQ_ACTIVE(q)		(!list_empty(&(q).list))
+ 
+ extern task_queue tq_timer, tq_immediate, tq_disk;
+ 
+@@ -72,20 +83,18 @@
+  * interrupt.
+  */
+ 
+-extern spinlock_t tqueue_lock;
+-
+ /*
+  * Queue a task on a tq.  Return non-zero if it was successfully
+  * added.
+  */
+-static inline int queue_task(struct tq_struct *bh_pointer, task_queue *bh_list)
++static inline int queue_task(struct tq_struct *bh_pointer, task_queue *tq)
+ {
+ 	int ret = 0;
+ 	if (!test_and_set_bit(0,&bh_pointer->sync)) {
+ 		unsigned long flags;
+-		spin_lock_irqsave(&tqueue_lock, flags);
+-		list_add_tail(&bh_pointer->list, bh_list);
+-		spin_unlock_irqrestore(&tqueue_lock, flags);
++		spin_lock_irqsave(&tq->lock, flags);
++		list_add_tail(&bh_pointer->list, &tq->list);
++		spin_unlock_irqrestore(&tq->lock, flags);
+ 		ret = 1;
+ 	}
+ 	return ret;
+@@ -97,10 +106,10 @@
+ 
+ extern void __run_task_queue(task_queue *list);
+ 
+-static inline void run_task_queue(task_queue *list)
++static inline void run_task_queue(task_queue *tq)
+ {
+-	if (TQ_ACTIVE(*list))
+-		__run_task_queue(list);
++	if (TQ_ACTIVE(*tq))
++		__run_task_queue(tq);
+ }
+ 
+ #endif /* _LINUX_TQUEUE_H */
+--- 2.4/kernel/timer.c	Sun Dec 10 18:53:19 2000
++++ build-2.4/kernel/timer.c	Mon Jan 29 14:54:29 2001
+@@ -323,8 +323,6 @@
+ 	spin_unlock_irq(&timerlist_lock);
+ }
+ 
+-spinlock_t tqueue_lock = SPIN_LOCK_UNLOCKED;
+-
+ void tqueue_bh(void)
+ {
+ 	run_task_queue(&tq_timer);
+--- 2.4/kernel/ksyms.c	Mon Jan 29 14:53:44 2001
++++ build-2.4/kernel/ksyms.c	Mon Jan 29 14:54:29 2001
+@@ -372,7 +372,6 @@
+ 
+ #ifdef CONFIG_SMP
+ /* Various random spinlocks we want to export */
+-EXPORT_SYMBOL(tqueue_lock);
+ 
+ /* Big-Reader lock implementation */
+ EXPORT_SYMBOL(__brlock_array);
+--- 2.4/kernel/softirq.c	Fri Dec 29 23:07:24 2000
++++ build-2.4/kernel/softirq.c	Mon Jan 29 14:54:29 2001
+@@ -289,15 +289,15 @@
+ 	open_softirq(HI_SOFTIRQ, tasklet_hi_action, NULL);
+ }
+ 
+-void __run_task_queue(task_queue *list)
++void __run_task_queue(task_queue *tq)
+ {
+ 	struct list_head head, *next;
+ 	unsigned long flags;
+ 
+-	spin_lock_irqsave(&tqueue_lock, flags);
+-	list_add(&head, list);
+-	list_del_init(list);
+-	spin_unlock_irqrestore(&tqueue_lock, flags);
++	spin_lock_irqsave(&tq->lock, flags);
++	list_add(&head, &tq->list);
++	list_del_init(&tq->list);
++	spin_unlock_irqrestore(&tq->lock, flags);
+ 
+ 	next = head.next;
+ 	while (next != &head) {
+--- 2.4/drivers/ieee1394/ieee1394_core.c	Mon Oct  2 04:53:07 2000
++++ build-2.4/drivers/ieee1394/ieee1394_core.c	Mon Jan 29 14:54:29 2001
+@@ -100,6 +100,7 @@
+ 
+         INIT_LIST_HEAD(&packet->list);
+         sema_init(&packet->state_change, 0);
++        INIT_TASK_QUEUE(&packet->complete_tq);
+         packet->state = unused;
+         packet->generation = get_hpsb_generation();
+         packet->data_be = 1;
+
+
+--------------67E602F21A95EF7945D44498--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,71 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313569AbSDQLye>; Wed, 17 Apr 2002 07:54:34 -0400
+	id <S313571AbSDQMIg>; Wed, 17 Apr 2002 08:08:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313571AbSDQLyd>; Wed, 17 Apr 2002 07:54:33 -0400
-Received: from mfep2.odn.ne.jp ([143.90.131.180]:13612 "EHLO t-mta2.odn.ne.jp")
-	by vger.kernel.org with ESMTP id <S313569AbSDQLyc>;
-	Wed, 17 Apr 2002 07:54:32 -0400
-Message-ID: <000701c1e604$a1ff3800$370383d3@kanda>
-From: "=?iso-2022-jp?B?GyRCP0BFRDRwR24bKEI=?=" <mokanda@ams.odn.ne.jp>
-To: <linux-kernel@vger.kernel.org>
-Cc: <mokanda@itg.hitachi.co.jp>
-Subject: ls SYS1.PARMLIB or Mainframe FS from Hitachi
-Date: Wed, 17 Apr 2002 20:40:08 +0900
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-2022-jp"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S313784AbSDQMIf>; Wed, 17 Apr 2002 08:08:35 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:33548 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S313571AbSDQMIf>;
+	Wed, 17 Apr 2002 08:08:35 -0400
+Date: Wed, 17 Apr 2002 14:08:17 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.8 IDE oops (TCQ breakage?)
+Message-ID: <20020417120817.GA800@suse.de>
+In-Reply-To: <200204161749.TAA16333@harpo.it.uu.se> <3CBD45BD.4040209@evision-ventures.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Apr 17 2002, Martin Dalecki wrote:
+> Mikael Pettersson wrote:
+> >I have a 486 box which ran 2.5.7 fine, but 2.5.8 oopses during
+> >boot at the BUG_ON() in drivers/ide/ide-disk.c, line 360:
+> >
+> >	if (drive->using_tcq) {
+> >		int tag = ide_get_tag(drive);
+> >
+> >		BUG_ON(drive->tcq->active_tag != -1);
+> 
+> OK it could be that the tca goesn't get allocated if there
+> was no chipset selected. Lets have a look...
 
-Hitachi Ltd. Japan has developed a Mainframe OS compatible
-file system on Linux, and will make the source code available in GPL.
+Add a drive->using_dma check to ide_dma_queued_on in ide-tcq.c, it needs
+to look like this:
 
-The file system is named "mainframe file system" or mffs for short
-and can access disks formatted by Hitachi's VOS3 operating system
-and its compatibles : )
+ide_tcq_dmaproc()
+{
 
-Reading and writing a plain sequential file
-(DSORG=PS RECFM=F,FB,V,VB in mainframe jargon) is possible.
-Partitioned dataset members
-(Do not care if it dose not make sense to you.)
-can be read.
-Ebcdic to ascii character code translation can be performed.
-So, for example, you can cat SYS1.PARMLIB/IAASYS00.
-File metadata update is still under development, so you cannot create
-nor extend a file.
+	...
 
-Mainframe file system is designed in hope to replace lengthy
-file transfer batch jobs. Existing mainframe volumes can be
-mounted and accessed directly from Linux running on mainframes.
+		case ide_dma_queued_off:
+			enable_tcq = 0;
+		case ide_dma_queued_on:
+			if (!drive->using_dma)
+				return 1;
+			return ide_enable_queued(drive, enable_tcq);
+		default:
+			break;
+	}
 
-Let me say again. NO FILE TRANSFERS from/to mainframes.
+that should fix it.
 
-Hitachi has modified the disk driver code under drivers/s390/block
-so that mffs can issue arbitrary disk commands such as READ TRACK.
-
-All the source code will be available in GPL in May 2002
-under http://www.hitachi.co.jp/Prod/comp/soft1/linux_m/download.html
-
-References
-[1] Hitachi's press release in Japanese language
-http://www.hitachi.co.jp/New/cnews/2001/1002/index.html
-[2] Nikkei Linux article in Japanese, Dec. 2001, Nikkei Business
-Publications, Inc.
-[3] Mainframe file system on Windows NT and AIX - Towards heterogeneous
-cluster file share?, Motohiro Kanda, CMG (Computer Measurement Group) 1999
-Annual Conference, in English
-
-Hope you like it.
---
-mokanda@itg.hitachi.co.jp
-Motohiro Kanda   Hitachi Ltd. Japan
-
+-- 
+Jens Axboe
 

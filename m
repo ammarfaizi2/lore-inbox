@@ -1,70 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268640AbTBZFLD>; Wed, 26 Feb 2003 00:11:03 -0500
+	id <S268644AbTBZFRV>; Wed, 26 Feb 2003 00:17:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268643AbTBZFLD>; Wed, 26 Feb 2003 00:11:03 -0500
-Received: from lucidpixels.com ([66.45.37.187]:15369 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id <S268640AbTBZFLC>;
-	Wed, 26 Feb 2003 00:11:02 -0500
-Message-ID: <3E5C4ECD.7020806@lucidpixels.com>
-Date: Wed, 26 Feb 2003 00:21:17 -0500
-From: jpiszcz <jpiszcz@lucidpixels.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id <S268645AbTBZFRV>; Wed, 26 Feb 2003 00:17:21 -0500
+Received: from quechua.inka.de ([193.197.184.2]:56281 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S268644AbTBZFRT>;
+	Wed, 26 Feb 2003 00:17:19 -0500
+From: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
 To: linux-kernel@vger.kernel.org
-Subject: Question about DMA and cd burning.
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: Server shipments [was Re: Minutes from Feb 21 LSE Call]
+In-Reply-To: <03022522230400.04587@tabby>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.14-20020917 ("Chop Suey!") (UNIX) (Linux/2.4.18-xfs (i686))
+Message-Id: <E18nu68-0004Ty-00@calista.inka.de>
+Date: Wed, 26 Feb 2003 06:27:16 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was talking to a couple of friends who also run 2.4.x, they said they 
-burn CD's all the time using DMA, and not PIO.
+In article <03022522230400.04587@tabby> you wrote:
+> Something like a Cray X1, single processor for instance.
+> Or a 1024 processor Cray T3, again single system image, even if it doesn't
+> have a streaming vector processor.
+> 
+> I don't see that any of the current cluster systems provide the throughput
+> of such a system. Not even IBMs' SP series.
 
-So I looked into the matter, apparently, the kernel sets my hd{b,c} 
-(both Plextor 12/10/32A's) drives DMA to disabled.
+This clearly depends on the workload. For most vector processors
+partitioning does not make sense. And dont forget, most of those systems are
+pure compute servers used fr scientific computing.
 
-[war@war war]$ dmesg | grep -i dma
-Activating ISA DMA hang workarounds.
-VP_IDE: VIA vt82c596b (rev 12) IDE UDMA66 controller on pci00:07.1
-    ide0: BM-DMA at 0xd000-0xd007, BIOS settings: hda:DMA, hdb:DMA
-    ide1: BM-DMA at 0xd008-0xd00f, BIOS settings: hdc:DMA, hdd:pio
-hda: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=9729/255/63, UDMA(66)
-hdb: DMA disabled
-hdc: DMA disabled
-[war@war war]$
+> The output is fed to memory on every clock tick. (most Cray processors have 4 
+> memory busses for each processor - two for input data, one for output data 
+> and one for the instruction stream
 
-[war@war war]$ lspci
-00:00.0 Host bridge: VIA Technologies, Inc. VT82C693A/694x [Apollo 
-PRO133x] (rev 44)
-00:01.0 PCI bridge: VIA Technologies, Inc. VT82C598/694x [Apollo 
-MVP3/Pro133x AGP]
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C596 ISA [Mobile South] 
-(rev 12)
-00:07.1 IDE interface: VIA Technologies, Inc. VT82C586/B/686A/B PIPC Bus 
-Master IDE (rev 06)
-00:07.2 USB Controller: VIA Technologies, Inc. USB (rev 08)
-00:07.3 Host bridge: VIA Technologies, Inc. VT82C596 Power Management 
-(rev 20)
-00:10.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 07)
-00:10.1 Input device controller: Creative Labs SB Live! MIDI/Game Port 
-(rev 07)
-00:11.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] 
-(rev 30)
-00:12.0 SCSI storage controller: Adaptec AHA-7850 (rev 03)
-01:00.0 VGA compatible controller: 3Dfx Interactive, Inc. Voodoo 3 (rev 01)
-[war@war war]$
+The fastest Cray on top500.org is T3E1200 on rank _22_, the fastest IBM is
+ranked _2_ with a Power3 PRocessor. There are 13 IBM systems before the
+first (fastest) Cray system. Of course those GFlops are measured for
+parallel problems, but there are a lot out there.
 
-I even went further and tried:
+And all those numbers are totally uninteresting for DB or Storage Servers.
+Even a SAP SD Benchmark would not be fun on a Cray.
 
-append="ide-cd=ignore=hdb ide-cd=ignore=hdc"
+> I have used their systems for the last 12 years, and until the Earth Simulator
+> came on line, there was nothing that came close to their throughput for 
+> weather modeling, finite element analysis, or other large problem types.
 
-In my lilo.conf, once again, no luck.
+thats clearly wrong. http://www.top500.org/lists/lists.php?Y=2002&M=06
 
-Can anyone offer any suggestions why others can burn CD's in DMA mode, 
-yet the kernel keeps disabling DMA for my burners?
+There are a lot of Power3 ans Alpha systems before the first cray.
 
-Please cc me as I am not subscribed to the list, thank you.
-
-
+Greetings
+Bernd

@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268435AbTCFV7I>; Thu, 6 Mar 2003 16:59:08 -0500
+	id <S268438AbTCFWBJ>; Thu, 6 Mar 2003 17:01:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268438AbTCFV7I>; Thu, 6 Mar 2003 16:59:08 -0500
-Received: from [24.77.48.240] ([24.77.48.240]:14685 "EHLO aiinc.aiinc.ca")
-	by vger.kernel.org with ESMTP id <S268435AbTCFV7H>;
-	Thu, 6 Mar 2003 16:59:07 -0500
-Date: Thu, 6 Mar 2003 14:09:44 -0800
-From: Michael Hayes <mike@aiinc.ca>
-Message-Id: <200303062209.h26M9i320362@aiinc.aiinc.ca>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix breakage caused by spelling 'fix'
-Cc: torvalds@transmeta.com
+	id <S268439AbTCFWBJ>; Thu, 6 Mar 2003 17:01:09 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:62133 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S268438AbTCFWBI>;
+	Thu, 6 Mar 2003 17:01:08 -0500
+Date: Thu, 6 Mar 2003 17:11:36 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Robin Holt <holt@sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com
+Subject: Re: Make ipconfig.c work as a loadable module.
+Message-ID: <20030306221136.GB26732@gtf.org>
+References: <Pine.LNX.4.44.0303061500310.31368-100000@mandrake.americas.sgi.com> <1046990052.18158.121.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1046990052.18158.121.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Mar 2003, Linus Torvalds wrote:
-> On Thu, 6 Mar 2003, Michael Hayes wrote:
-> >
-> > This fixes a spelling "fix" that resulted in a compile error.
-> > 
-> > With apologies to Russell King.
->
-> Ugh, please make things like this just write out the full non-contracted
-> thing. Ie "cannot" is a perfectly fine word, we don't need to force
-> spelling errors.
+On Thu, Mar 06, 2003 at 10:34:16PM +0000, Alan Cox wrote:
+> On Thu, 2003-03-06 at 21:10, Robin Holt wrote:
+> > The patch at the end of this email makes ipconfig.c work as a loadable 
+> > module under the 2.5.  The diff was taken against the bitkeeper tree 
+> > changeset 1.1075.
+> 
+> The right fix is to delete ipconfig.c, it has been the right fix for a long
+> long time. There are initrd based bootp/dhcp setups that can also then mount
+> a root NFS partition and they do *not* need any kernel helper.
 
-Nice to see that _someone_ cares :-)
+The klibc tarball on kernel.org also has ipconfig-type code, waiting for
+initramfs early userspace :)
 
-Okay, here it is again with "cannot".
+Many have wanted to delete ipconfig.c for a while now...
 
-diff -ur a/include/asm-arm/proc-fns.h b/include/asm-arm/proc-fns.h
---- a/include/asm-arm/proc-fns.h	Tue Mar  4 19:29:20 2003
-+++ b/include/asm-arm/proc-fns.h	Thu Mar  6 14:03:14 2003
-@@ -125,7 +125,7 @@
- 
- #if 0
-  * The following is to fool mkdep into generating the correct
-- * dependencies.  Without this, it can't figure out that this
-+ * dependencies.  Without this, it cannot figure out that this
-  * file does indeed depend on the cpu-*.h files.
- #include <asm/cpu-single.h>
- #include <asm/cpu-multi26.h>
+	Jeff
+
+
+

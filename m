@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278269AbRKNWOp>; Wed, 14 Nov 2001 17:14:45 -0500
+	id <S280688AbRKFXZS>; Tue, 6 Nov 2001 18:25:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278275AbRKNWOf>; Wed, 14 Nov 2001 17:14:35 -0500
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:30675 "EHLO
-	mailout04.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S278269AbRKNWOX>; Wed, 14 Nov 2001 17:14:23 -0500
-Date: Mon, 12 Nov 2001 21:19:33 +0100
-From: Norbert Tretkowski <nobse@debian.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: error compiling 2.4.14
-Message-ID: <20011112201933.GA801@rollcage.bzimage.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0111122053270.25006-100000@achilles.dreef.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="CE+1k2dSO48ffgeK"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0111122053270.25006-100000@achilles.dreef.net>
-User-Agent: Mutt/1.3.23.1i
-Mail-Copies-To: never
+	id <S280683AbRKFXZI>; Tue, 6 Nov 2001 18:25:08 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:4873 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S280673AbRKFXYv>;
+	Tue, 6 Nov 2001 18:24:51 -0500
+Message-ID: <3BE87DAB.5633F05C@evision-ventures.com>
+Date: Wed, 07 Nov 2001 01:17:47 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+Reply-To: dalecki@evision.ag
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
+In-Reply-To: <slrn9ugh1g.dld.spamtrap@dexter.hensema.xs4all.nl> <Pine.LNX.4.33L.0111061921240.27028-100000@duckman.distro.conectiva> <20011106152826.C31923@codepoet.org> <20011106233349.A26236@lug-owl.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jan-Benedict Glaw wrote:
+> 
+> On Tue, 2001-11-06 15:28:26 -0700, Erik Andersen <andersen@codepoet.org>
+> wrote in message <20011106152826.C31923@codepoet.org>:
+> > On Tue Nov 06, 2001 at 07:24:13PM -0200, Rik van Riel wrote:
+> > > PROCESSOR=0
+> > > VENDOR_ID=GenuineIntel
+> > > CPU_FAMILY=6
+> > > MODEL=6
+> > > MODEL_NAME="Celeron (Mendocino)"
+> > > .....
+> 
+> PROCESSOR=1
+> ...
+> 
+> > > . /proc/cpuinfo
+> >
+> > I think we have a winner!  If we could establish this
+> > as policy that would be _sweet_!
+> 
+> What do you expect on a SMP system?
 
---CE+1k2dSO48ffgeK
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-* Erik Verhulp wrote:
-> drivers/block/block.o(.text+0x889d): undefined reference to
-> `deactivate_page'
-> drivers/block/block.o(.text+0x88e9): undefined reference to
-> `deactivate_page'
-> make: *** [vmlinux] Error 1
-
-Take a look in the archive of this list. Remove the two lines with
-'deactivate_page' in drivers/block/loop.c.
-
---CE+1k2dSO48ffgeK
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE78C7Ur/RnCw96jQERAoPSAKCz8AbbqMlIp0kESiYm/O/x+FMEWACgp0Em
-cgZhz2dbRn90qL70hV5gpEM=
-=zbtv
------END PGP SIGNATURE-----
-
---CE+1k2dSO48ffgeK--
+<IRONY>
+ksh93 arrays 
+</IRONY>

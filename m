@@ -1,55 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293457AbSBYR2t>; Mon, 25 Feb 2002 12:28:49 -0500
+	id <S292057AbSBYR1t>; Mon, 25 Feb 2002 12:27:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293298AbSBYR2b>; Mon, 25 Feb 2002 12:28:31 -0500
-Received: from ns.muni.cz ([147.251.4.33]:19151 "EHLO aragorn.ics.muni.cz")
-	by vger.kernel.org with ESMTP id <S293219AbSBYR2W>;
-	Mon, 25 Feb 2002 12:28:22 -0500
-Date: Mon, 25 Feb 2002 15:57:18 +0100
-From: Jan Kasprzak <kas@informatics.muni.cz>
-To: Kristian <kristian.peters@korseby.net>
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: Re: Equal cost multipath crash
-Message-ID: <20020225145718.GV18777@informatics.muni.cz>
-In-Reply-To: <20020225083911.GA18777@informatics.muni.cz> <20020225155459.38cc7fb9.kristian.peters@korseby.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020225155459.38cc7fb9.kristian.peters@korseby.net>
-User-Agent: Mutt/1.3.25i
+	id <S288980AbSBYR1l>; Mon, 25 Feb 2002 12:27:41 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:47513 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S293408AbSBYRYs>;
+	Mon, 25 Feb 2002 12:24:48 -0500
+Date: Mon, 25 Feb 2002 12:24:33 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+Subject: Re: [PATCH] Son of Unbork (1 of 3)
+In-Reply-To: <E16egez-00006K-00@starship.berlin>
+Message-ID: <Pine.GSO.4.21.0202251224150.3162-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kristian wrote:
-: Jan Kasprzak <kas@informatics.muni.cz> wrote:
-: > 
-: > 	I had a strange failure of my Linux router yesterday. It is quite
-: > uncommon setup, but I wonder what could have caused this. The router
-: > started to dump the following messages into the syslog, and it stopped
-: > routing so our network was not reachable from the outside world:
-: > 
-: > Feb 24 21:26:49 router kernel: impossible 888
-: > Feb 24 21:39:20 router kernel: ible 888
-: > Feb 24 21:39:20 router kernel: impossible 888
-: > Feb 24 21:39:20 router last message repeated 42 times
-: > Feb 24 21:39:20 router kernel: impossible 888
-: > Feb 24 21:39:21 router kernel: NET: 344 messages suppressed.
-: > Feb 24 21:39:21 router kernel: dst cache overflow
-: > Feb 24 21:39:21 router kernel: impossible 888
-: > Feb 24 21:39:21 router last message repeated 275 times
-: > [... and so on ...]
-: 
-: Have you applied those grsecurity patches ? I'm getting the same messages with it from time to time when hosts forget to log off. But most of them are harmless and only useful for debugging your firewall-rules.
-: 
 
-	No. What are the grsecurity patches? This is stock 2.4.17 kernel.
 
--Y.
+On Sat, 23 Feb 2002, Daniel Phillips wrote:
 
--- 
-| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
-| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
-| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
-|\    As anyone can tell you trying to force things on Linux developers   /|
-|\\   generally works out pretty badly.              (Alan Cox in lkml)  //|
+> This three patch set completes the removal of ext2-specific includes from 
+> fs.h.  When this is done, your kernel will compile a little faster, the Ext2 
+> source will be organized a little better, and then infamous fs.h super_block 
+> union will no longer hurt your eyes.  When every filesystem has been changed 
+> in a similar way, fs.h will finally be generic, in-memory super_blocks will be
+> somewhat smaller, and the kernel will compile quite a lot faster.  And peace
+> will come once more to Middle-Earth.  (I made that last part up.)
+> 
+> Patch 1 adds alloc_super and destroy_super methods to struct file_system.  A 
+
+Vetoed.
+

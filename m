@@ -1,60 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261725AbUKHE2x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261381AbUKHEje@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261725AbUKHE2x (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 23:28:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbUKHE2w
+	id S261381AbUKHEje (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 23:39:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbUKHEjd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 23:28:52 -0500
-Received: from out014pub.verizon.net ([206.46.170.46]:63450 "EHLO
-	out014.verizon.net") by vger.kernel.org with ESMTP id S261725AbUKHE2u
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 23:28:50 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
+	Sun, 7 Nov 2004 23:39:33 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:30930 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S261381AbUKHEjb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Nov 2004 23:39:31 -0500
+Date: Mon, 8 Nov 2004 05:39:25 +0100
+Message-Id: <200411080439.iA84dPu31896@inv.it.uc3m.es>
+From: ptb@lab.it.uc3m.es (Peter T. Breuer)
 To: linux-kernel@vger.kernel.org
-Subject: makeing a loadable module
-Date: Sun, 7 Nov 2004 23:28:48 -0500
-User-Agent: KMail/1.7
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200411072328.48785.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out014.verizon.net from [151.205.60.181] at Sun, 7 Nov 2004 22:28:49 -0600
+Subject: Re: kernel analyser to detect sleep under spinlock
+In-Reply-To: <418EC948.2080506@osdl.org>
+X-Newsgroups: gmane.linux.kernel
+User-Agent: tin/1.7.4-20031226 ("Taransay") (UNIX) (Linux/2.2.15 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings;
+In article <418EC948.2080506@osdl.org> you wrote:
+> Peter T. Breuer wrote:
+> >  ftp://??boe.it.uc3m.es/pub/Programs/c-1.2.tgz
 
-I found some code I can play with/hack/etc, in the form of a loadable 
-module and some testing driver programs, in 'dpci8255.tar.gz'.
+> That URL fails for me... is it correct?
 
-Unforch its for a slightly different card than the one I have, and 
-once I've hacked the code to suit, I need to rebuild it.
+Well, it is, if you guess that's an "oboe". I don't know why the
+original came out with a pair of question marks. Sorry.
 
-So whats the gcc command line to make just a bare, loadable module for 
-say a 2.4.25 kernel?   Obviously I'm missing something when it 
-complains and quits, claiming there is no 'main' defined, which I 
-don't think modules actually have one of those?
+  ftp://oboe.it.uc3m.es/pub/Programs/c-1.2.tgz
 
-What I'm trying to do (hey, no big dummy jokes please :)
 
-[root@coyote dist]# cc -o dpci8255.o dpci8255lib.c
-/usr/lib/gcc-lib/i386-redhat-linux/3.3.3/../../../crt1.o(.text+0x18): 
-In function `_start':
-: undefined reference to `main'
-collect2: ld returned 1 exit status
-
-The gcc manpage isn't that helpfull and I've now read thru it twice.
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.28% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+Peter

@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271708AbRHUOns>; Tue, 21 Aug 2001 10:43:48 -0400
+	id <S271706AbRHUOp4>; Tue, 21 Aug 2001 10:45:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271706AbRHUOnc>; Tue, 21 Aug 2001 10:43:32 -0400
-Received: from tonib-gw-old.customer.0rbitel.net ([195.24.39.218]:48132 "HELO
-	mail.ludost.net") by vger.kernel.org with SMTP id <S271707AbRHUOmw>;
-	Tue, 21 Aug 2001 10:42:52 -0400
-Date: Tue, 21 Aug 2001 17:43:04 +0300 (EEST)
-From: Vasil Kolev <lnxkrnl@mail.ludost.net>
-X-X-Sender: <lnxkrnl@doom.bastun.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Hardware limitations, etc.
-Message-ID: <Pine.LNX.4.33.0108211739100.28883-100000@doom.bastun.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271710AbRHUOpr>; Tue, 21 Aug 2001 10:45:47 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:25758 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S271706AbRHUOp1>;
+	Tue, 21 Aug 2001 10:45:27 -0400
+Date: Tue, 21 Aug 2001 07:45:15 -0700 (PDT)
+Message-Id: <20010821.074515.38708090.davem@redhat.com>
+To: riel@conectiva.com.br
+Cc: alan@lxorguk.ukuu.org.uk, jes@sunsite.dk, linux-kernel@vger.kernel.org
+Subject: Re: Qlogic/FC firmware
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.33L.0108211141030.5646-100000@imladris.rielhome.conectiva>
+In-Reply-To: <20010821.072944.23015940.davem@redhat.com>
+	<Pine.LNX.4.33L.0108211141030.5646-100000@imladris.rielhome.conectiva>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-I have some questions, and I don't know where to ask them, so here it
-goes... ( i guess here is the right place ... )
+   From: Rik van Riel <riel@conectiva.com.br>
+   Date: Tue, 21 Aug 2001 11:42:11 -0300 (BRST)
+   
+   I guess using an initrd on these 0.3% of machines shouldn't
+   be too big a problem compared to violating the GPL and adding
+   to kernel bloat for everybody else.
 
-I have a machine, for which vmstat report something like
-   procs                      memory      swap          io     system
-cpu
- r  b  w   swpd   free  inact active   si   so    bi    bo   in    cs us sy id
- 3 25  1  48908   5264 402716 262664    0    0  2341   257 42633 28382 44 47  9
- 5 14  1  48908   5616 409684 254960    0    0  2393   152 37703 26247 44 50  7
+init_data the firmware, it isn't bloat.
 
-( when i run vmstat, the loadavg grows from 10 to 20 ... ), the machine is
-dual Pentium3/coppermine/933, 1G ram. (booted with noapic, without that
-parameter it crashes at least twice a day )
-My question is - is 40k interrupts/30k context switches the maximum i can
-squeeze from the machine? I need to optimize it a bit , but first I want
-to locate the bottleneck, any help will be appreciated.
+The copyright is a totally seperate issue.
 
+Later,
+David S. Miller
+davem@redhat.com
+   

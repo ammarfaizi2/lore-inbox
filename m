@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263117AbTJJS1N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 14:27:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263118AbTJJS1M
+	id S262695AbTJJScF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 14:32:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbTJJScF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 14:27:12 -0400
-Received: from holomorphy.com ([66.224.33.161]:13698 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263117AbTJJS1K (ORCPT
+	Fri, 10 Oct 2003 14:32:05 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:33769 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S262695AbTJJScC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 14:27:10 -0400
-Date: Fri, 10 Oct 2003 11:29:09 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Tim Hockin <thockin@hockin.org>
-Cc: G?bor L?n?rt <lgb@lgb.hu>,
-       Stuart Longland <stuartl@longlandclan.hopto.org>,
-       Stephan von Krawczynski <skraw@ithnet.com>,
-       Fabian.Frederick@prov-liege.be, linux-kernel@vger.kernel.org
+	Fri, 10 Oct 2003 14:32:02 -0400
+Date: Fri, 10 Oct 2003 20:29:18 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Kevin Corry <kevcorry@us.ibm.com>,
+       Stuart Longland <stuartl@longlandclan.hopto.org>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: 2.7 thoughts
-Message-ID: <20031010182909.GG727@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Tim Hockin <thockin@hockin.org>, G?bor L?n?rt <lgb@lgb.hu>,
-	Stuart Longland <stuartl@longlandclan.hopto.org>,
-	Stephan von Krawczynski <skraw@ithnet.com>,
-	Fabian.Frederick@prov-liege.be, linux-kernel@vger.kernel.org
-References: <D9B4591FDBACD411B01E00508BB33C1B01F13BCE@mesadm.epl.prov-liege.be> <20031009115809.GE8370@vega.digitel2002.hu> <20031009165723.43ae9cb5.skraw@ithnet.com> <3F864F82.4050509@longlandclan.hopto.org> <20031010125137.4080a13b.skraw@ithnet.com> <3F86BD0E.4060607@longlandclan.hopto.org> <20031010143529.GT5112@vega.digitel2002.hu> <20031010144723.GC727@holomorphy.com> <20031010180320.GA1995@hockin.org>
+Message-ID: <20031010182918.GF1084@marowsky-bree.de>
+References: <D9B4591FDBACD411B01E00508BB33C1B01F13BCE@mesadm.epl.prov-liege.be> <20031009165723.43ae9cb5.skraw@ithnet.com> <3F864F82.4050509@longlandclan.hopto.org> <200310100830.03216.kevcorry@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20031010180320.GA1995@hockin.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200310100830.03216.kevcorry@us.ibm.com>
+User-Agent: Mutt/1.4.1i
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 10, 2003 at 07:47:23AM -0700, William Lee Irwin III wrote:
->> You need at least enough warning to get out of critical sections (e.g.
->> holding a spinlock) and dump registers out to memory. i.e. as long as it
->> takes to schedule out whatever's currently running on the thing.
+On 2003-10-10T08:30:03,
+   Kevin Corry <kevcorry@us.ibm.com> said:
 
-On Fri, Oct 10, 2003 at 11:03:20AM -0700, Tim Hockin wrote:
-> I've got a patch against RedHat's 2.4.x kernel with some version of O(1)
-> scheduler that migrates all processes off a CPU and makes it ineleigible to
-> run new tasks.  When the syscall returns, it is safe to remove the CPU.
-> Processes that are running or sleeping and can be migrated elsewhere are
-> migrated.  Running processes that have set_cpus_allowed to ONLY the
-> processor in question are marked TASK_UNRUNNABLE and moved off the runqueue.
-> Sleeping processes that have set_cpus_allowed to ONLY the processor in
-> question are left unmolested until they wake up, at which point they will be
-> marked UNRUNNABLE.
-> It was done to allow software to bring CPUs on/offline, but it should work
-> for this.  IRQs not done yet, either.
+> On Friday 10 October 2003 01:19, Stuart Longland wrote:
+> > 	- Software RAID 0+1 perhaps?
 
-I think there is some generalized cpu hotplug stuff that's gone in that
-direction already, though I don't know any details. The bits about non-
-cooperative offlining were very interesting to hear, though.
+Because RAID 0+1 is a rather bad idea. You want RAID 1+0. Make up the
+fault matrix and simulate what happens if drives fail.
 
--- wli
+We can do both though, as Kevin pointed out. So if you want to shot
+yourself in the foot, in the best Unix tradition, we allow you to ;)
+
+I'd suggest moving this to the linux-raid list though.
+
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
+-- 
+High Availability & Clustering		ever tried. ever failed. no matter.
+SuSE Labs				try again. fail again. fail better.
+Research & Development, SUSE LINUX AG		-- Samuel Beckett
+

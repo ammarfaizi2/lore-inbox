@@ -1,76 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319626AbSIMMkc>; Fri, 13 Sep 2002 08:40:32 -0400
+	id <S319623AbSIMMj3>; Fri, 13 Sep 2002 08:39:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319627AbSIMMkb>; Fri, 13 Sep 2002 08:40:31 -0400
-Received: from 84e5e703.math.leidenuniv.nl ([132.229.231.3]:57802 "EHLO
-	zada.math.leidenuniv.nl") by vger.kernel.org with ESMTP
-	id <S319626AbSIMMk1>; Fri, 13 Sep 2002 08:40:27 -0400
-Date: Fri, 13 Sep 2002 14:45:18 +0200
-From: Lennert Buytenhek <buytenh@math.leidenuniv.nl>
-To: "David S. Miller" <davem@redhat.com>
-Cc: bart.de.schuymer@pandora.be, linux-kernel@vger.kernel.org
-Subject: bridge-netfilter patch (was: Re: [PATCH] ebtables - Ethernet bridge tables, for 2.5.34)
-Message-ID: <20020913144518.A31318@math.leidenuniv.nl>
-References: <200209130520.41862.bart.de.schuymer@pandora.be> <20020912.212959.114182683.davem@redhat.com> <200209130812.27093.bart.de.schuymer@pandora.be> <20020912.230916.96754743.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020912.230916.96754743.davem@redhat.com>; from davem@redhat.com on Thu, Sep 12, 2002 at 11:09:16PM -0700
+	id <S319625AbSIMMj3>; Fri, 13 Sep 2002 08:39:29 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:18707 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S319623AbSIMMj2>; Fri, 13 Sep 2002 08:39:28 -0400
+Message-ID: <3D81DD9E.4050303@namesys.com>
+Date: Fri, 13 Sep 2002 16:44:14 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bill Davidsen <davidsen@tmr.com>
+CC: Nikita Danilov <Nikita@Namesys.COM>, Bryan Whitehead <driver@jpl.nasa.gov>,
+       Nick LeRoy <nleroy@cs.wisc.edu>, jw schultz <jw@pegasys.ws>,
+       linux-kernel@vger.kernel.org
+Subject: Re: XFS?
+References: <Pine.LNX.3.96.1020913072112.22464A-100000@gatekeeper.tmr.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bill Davidsen wrote:
 
-On Thu, Sep 12, 2002 at 11:09:16PM -0700, David S. Miller wrote:
+>On Thu, 12 Sep 2002, Nikita Danilov wrote:
+>
+>  
+>
+>>Then you missed "reiserfs inclusion into the kernel" soap opera.
+>>
+>>And besides, reiserfs in mainline to no extent means reiser4 in mainline
+>>(unfortunately).
+>>    
+>>
+>
+>No, that's probably a good thing. I don't care how good any programming
+>team might be, an implementation written from scratch probably should burn
+>in for a while before going in anywhere it might be used for production.
+>
+>And with all respect to the group, a 4th rewite from scratch in only a few
+>years suggests that the ratio of coding to designing is pretty high.
+>
+>  
+>
+Version 3 came out in 1998 or so, and large software projects should be, 
+but rarely are, rewritten from scratch every 5 years.  If you want to 
+object to XFS, object that it hasn't been rewritten in recent times.
 
->    From: Bart De Schuymer <bart.de.schuymer@pandora.be>
->    Date: Fri, 13 Sep 2002 08:12:27 +0200
-> 
->    It is not trivial however, 2 new fields to the sk_buff need to be 
->    added, a small change in the IP fragment code and a small change in 
->    ip_tables.c, a change to netfilter.h and netfilter.c.
-> 
-> I've seen these changes, they are very buggy.  The IPv4 copies added
-> are just ugly and are buggy too, they potentially copy past the end
-> of the packet buffer.
+As for the notion that the more designing you do, the less rewriting you 
+need to do, it is a bit like the belief that the better your scientific 
+theories the less you need to perform experiments.
 
-You mean this part?  This is the only copy added to generic code
-that I can find.
+Projects that are no longer attempting rewrites of their cores are dead 
+in their soul, and their authors should pass them on to someone younger.
 
+That said, version 4 will be followed by semantic enhancements and 
+distributed filesystem work, as I finally have in version 4 a storage 
+layer good enough that I can move mostly to the tasks that first 
+interested me about FS design.  Most of the stuff that needs improvement 
+in the version 4 storage layer can be done as new plugins, or so I 
+fondly hope.;-)
 
---- linux-2.4.19/net/ipv4/ip_output.c   2002-08-03 02:39:46.000000000 +0200
-+++ linux-2.4.19-brnf0.0.7/net/ipv4/ip_output.c 2002-09-11 17:40:25.000000000 +0200
-@@ -883,6 +885,7 @@
-                iph->tot_len = htons(len + hlen);
+Hans
 
-                ip_send_check(iph);
-+               memcpy(skb2->data - 16, skb->data - 16, 16);
-
-                err = output(skb2);
-                if (err)
-
-
-If this code is buggy, isn't the following bit from ip_output.c buggy
-too?  (around line 170)
-
-        if (hh) {
-                read_lock_bh(&hh->hh_lock);
->>>             memcpy(skb->data - 16, hh->hh_data, 16);
-                read_unlock_bh(&hh->hh_lock);
-                skb_push(skb, hh->hh_len);
-                return hh->hh_output(skb);
-        } else if (dst->neighbour)
-
-
->    So, if you would accept br-nf, that would be great.
-> 
-> You need to remove the IPv4 bits, that copy of the MAC has to happen
-> at a different layer, it does not belong in IPv4.  At best, everyone
-> shouldn't eat that header copy.
-
-What if I make the memcpy conditional on "if (skb->physindev != NULL)"?
-
-
-cheers,
-Lennert

@@ -1,46 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267469AbTAVMsI>; Wed, 22 Jan 2003 07:48:08 -0500
+	id <S267330AbTAVMw4>; Wed, 22 Jan 2003 07:52:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267472AbTAVMsI>; Wed, 22 Jan 2003 07:48:08 -0500
-Received: from gherkin.frus.com ([192.158.254.49]:35718 "EHLO gherkin.frus.com")
-	by vger.kernel.org with ESMTP id <S267469AbTAVMsH>;
-	Wed, 22 Jan 2003 07:48:07 -0500
-Subject: Re: Can't burn DVD under 2.5.59 with ide-cd
-In-Reply-To: <20030122083530.GA20780@suse.de> "from Jens Axboe at Jan 22, 2003
- 09:35:30 am"
-To: Jens Axboe <axboe@suse.de>
-Date: Wed, 22 Jan 2003 06:57:14 -0600 (CST)
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+	id <S267472AbTAVMw4>; Wed, 22 Jan 2003 07:52:56 -0500
+Received: from dns.toxicfilms.tv ([150.254.37.24]:29663 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP
+	id <S267330AbTAVMwz>; Wed, 22 Jan 2003 07:52:55 -0500
+Date: Wed, 22 Jan 2003 14:02:03 +0100 (CET)
+From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+To: Rodrigob <rodrigob@linuxplace.com.br>
+Cc: Lista kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kernel 2.4.19-ck9
+In-Reply-To: <1043183682.1257.0.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.51.0301221400070.6924@dns.toxicfilms.tv>
+References: <1043183682.1257.0.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <20030122125714.EEE244EED@gherkin.frus.com>
-From: rct@gherkin.frus.com (Bob_Tracy(0000))
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> On Wed, Jan 22 2003, Joerg Schilling wrote:
-> > I thought it's obvious: It is most likely a problem caused by the broken 
-> > bit #defines in the Linux kernel for the SCSI status byte. I assume that
-> > status should be 0x02 instead of 0x01. In addition, I would guess that
-> 
-> Sounds plausible. Patch attached. Anyone care to expand on _why_ these
-> status bytes are shifted one bit?
+> Where i find the patch ck9 of Con Kolivas for 2.4.19?
+how about: kernel.kolivas.net?
+i think there are links to patches to previous kernels.
 
-Possibly related...  I was using SCSI tape to back up my 2.5.59 system
-the other day.  A media error was encountered, but the application (cpio
-in this case) never saw the error and kept on trying to write to the bad
-tape.  Fortunately, I caught it after only 40 MB of associated syslog
-entries had been made.
+also you may try looking on file search engines for the file, like
+patch-2.4.19ck2.tar.bz2
+or something like that.
 
-Thanks for the patch.  I can now go back to "unattended" backup mode
-(except for having to change tapes periodically) :-).
-
--- 
------------------------------------------------------------------------
-Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
-rct@frus.com
------------------------------------------------------------------------
+Regards,
+Maciej Soltysiak

@@ -1,76 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282547AbRLBAyA>; Sat, 1 Dec 2001 19:54:00 -0500
+	id <S282413AbRLBBDX>; Sat, 1 Dec 2001 20:03:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282553AbRLBAxu>; Sat, 1 Dec 2001 19:53:50 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:42369 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S282547AbRLBAxk>; Sat, 1 Dec 2001 19:53:40 -0500
-Message-ID: <001e01c17acb$a44b69c0$f5976dcf@nwfs>
-From: "Jeff Merkey" <jmerkey@timpanogas.org>
-To: "J Sloan" <jjs@pobox.com>
-Cc: "Charles-Edouard Ruault" <ce@ruault.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C0954D5.6AA3532B@ruault.com> <3C09580F.5F323195@pobox.com> <3C095B0B.7EA478C1@ruault.com> <003601c17ac2$7a8dec10$f5976dcf@nwfs> <3C096DB3.204CE41C@pobox.com>
-Subject: Re: File system Corruption with 2.4.16
-Date: Sat, 1 Dec 2001 17:52:39 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S282553AbRLBBDO>; Sat, 1 Dec 2001 20:03:14 -0500
+Received: from freeside.ultraviolet.org ([192.215.175.10]:35340 "HELO
+	ultraviolet.org") by vger.kernel.org with SMTP id <S282435AbRLBBDC>;
+	Sat, 1 Dec 2001 20:03:02 -0500
+Date: Sat, 1 Dec 2001 18:03:08 -0800
+From: Tracy R Reed <treed@ultraviolet.org>
+To: kplug-lpsg@kernel-panic.org
+Cc: "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>,
+        "kplug-list@kernel-panic.org" <kplug-list@kernel-panic.org>
+Subject: Re: Coding style - a non-issue
+Message-ID: <20011201180308.A5709@ultraviolet.org>
+Mail-Followup-To: Tracy R Reed <treed@ultraviolet.org>,
+	kplug-lpsg@kernel-panic.org,
+	Linux kernel developer's mailing list <linux-kernel@vger.kernel.org>,
+	"kplug-list@kernel-panic.org" <kplug-list@kernel-panic.org>
+In-Reply-To: <OF8451D8AC.A8591425-ON4A256B12.00806245@au.ibm.com> <3C07CCCD.EA5E340A@randomlogic.com> <3C07D669.6C234598@mandrakesoft.com> <3C07E6D3.89A648AB@randomlogic.com> <20011201185312.P5770@khan.acc.umu.se> <3C094BAA.2A730D3B@randomlogic.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="tKW2IUtsqtDRztdT"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C094BAA.2A730D3B@randomlogic.com>; from pgallen@randomlogic.com on Sat, Dec 01, 2001 at 01:29:14PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
------ Original Message -----
-From: "J Sloan" <jjs@pobox.com>
-To: "Jeff Merkey" <jmerkey@timpanogas.org>
-Cc: "Charles-Edouard Ruault" <ce@ruault.com>; <linux-kernel@vger.kernel.org>
-Sent: Saturday, December 01, 2001 4:54 PM
-Subject: Re: File system Corruption with 2.4.16
+--tKW2IUtsqtDRztdT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Sat, Dec 01, 2001 at 01:29:14PM -0800, Paul G. Allen wrote:
+> compile. It can even be removed altogether. The only thing that keeps a
+> program legible is proper formatting. It's real damn easy to miss a
+> brace when the formatting is poor. And real easy to spend an hour trying
 
-> Jeff Merkey wrote:
->
-> > I am seeing corruption on 2.4.16 (2.4.17-pre1/2) as well.  Whatever this
-> > gentlemen is doing is making it show up quicker, but I am on my fourth
-> > interation of fsck'ing 2.4.16 on my production server with NWFS builds.
-I
-> > am looking through Al Viros's inode code changes to see if there's hole
-> > somewhere.  This problem appears to be related to low memory conditions.
-I
-> > see it when memory is getting low.  May be VM related as well.
->
-> Just to be positive, can you reproduce the
-> problem without nwfs?
+And this is why Python has chosen the format that it has.
 
-Yes.  The problem shows up on ext2 partitions only.  I also have seen a
-lockup in NWFS when
-I have patched my FS into Linux.  The lockup indicates a deadlock in the
-inode layers above
-me.  I see this lockup when I have more than one file system mounted at a
-time.  It does not happen
-when only a single volume (superblock) has been mounted, only with
-multiples.  Ditto the ext2
-corruption.  It only shows up when more than one superblock is active.
-Perhaps this will help
-narrow down the problem.  Since I have a VFS of my own, I could help track
-this down, but it
-will be tommorrow, I am working on NWFS tools code today. :-)
+--=20
+Tracy Reed      http://www.ultraviolet.org
+"Every artist is a cannibal, every poet is a thief.
+ They all kill their inspiration, and sing about the grief." - U2
 
-Jeff
+--tKW2IUtsqtDRztdT
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
->
-> cu
->
-> jjs
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.1 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iEYEARECAAYFAjwJi9wACgkQ9PIYKZYVAq00pACggCtHB8FIXC3hK+nI2C3DYegi
+2mYAn2hUuVJBUMr5aUfeNM3unb4OKJw7
+=SCSD
+-----END PGP SIGNATURE-----
+
+--tKW2IUtsqtDRztdT--

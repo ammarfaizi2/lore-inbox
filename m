@@ -1,360 +1,130 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287381AbSAGX2f>; Mon, 7 Jan 2002 18:28:35 -0500
+	id <S287376AbSAGXdF>; Mon, 7 Jan 2002 18:33:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287379AbSAGX23>; Mon, 7 Jan 2002 18:28:29 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12819 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S287375AbSAGX2S>;
-	Mon, 7 Jan 2002 18:28:18 -0500
-Message-ID: <3C3A2F0E.4A132214@mandrakesoft.com>
-Date: Mon, 07 Jan 2002 18:28:14 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.2-pre9fs7 i686)
-X-Accept-Language: en
+	id <S287379AbSAGXcp>; Mon, 7 Jan 2002 18:32:45 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:12314 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S287376AbSAGXcn>; Mon, 7 Jan 2002 18:32:43 -0500
+Message-ID: <3C3A301A.2050501@redhat.com>
+Date: Mon, 07 Jan 2002 18:32:42 -0500
+From: Doug Ledford <dledford@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020103
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: Daniel Phillips <phillips@bonn-fries.net>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        ext2-devel@lists.sourceforge.net
-Subject: [PATCH 7/7 v2] Re: PATCH 2.5.2.9: ext2 unbork fs.h (part 1/7)
-In-Reply-To: <Pine.GSO.4.21.0201071401450.6842-100000@weyl.math.psu.edu>
-Content-Type: multipart/mixed;
- boundary="------------056ABEED1D18E973EECE4C0B"
+To: Nathan Bryant <nbryant@allegientsystems.com>
+CC: Thomas Gschwind <tom@infosys.tuwien.ac.at>, linux-kernel@vger.kernel.org
+Subject: Re: i810_audio
+In-Reply-To: <20020105031329.B6158@infosys.tuwien.ac.at> <3C3A2B5D.8070707@allegientsystems.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------056ABEED1D18E973EECE4C0B
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Nathan Bryant wrote:
 
-Alexander Viro wrote:
-> a) if you make struct inode a part of ext2_inode - WTF bother with pointer?
-
-ok, nobody likes the pointer but me, gone :)
-
-> b) ->destroy_inode() / ->clear_inode().  Merge them - that way it's one
-> method.
-
-I believe this belongs in a separate patch after my 1-7, because this
-involves breaking some other filesystems.  easier migration -step- if we
-add, then shoot me if clear_inode is not destroyed by the end of 2.5.x.
-
-
-> c) get_empty_inode() must die.  Make it new_inode() and be done with that.
-> And have socket.c explicitly set ->i_dev to NODEV afterwards.
-
-done
-
-
-> d) ext2/balloc.c cleanup probably should be merged before.
-
-hum...  if you are sending one patch for this to linus, I would say
-after, but if you are breaking the cleanup into all the steps in
-balloc.c,v then I agree with you.
-
-> We will need to set very strict rules on passing around/storing pointers to
-> ext2_inode and its ilk, though.  There will be bugs when somebody just decides
-> that keeping such pointers might be a good idea and forgets to be nice with
-> ->i_count.  Or decrement it manually instead of calling iput(), etc.
+> Thomas Gschwind wrote:
 > 
-> It _MUST_ be explicitly documented - preferably beaten into skulls.
+>> I have integrated the SiS patches into Doug's code.  Chances are that
+>> it works now also in combination with artsd.  Can anybody test this
+>> please?  And report your success (or failure)?  In case it does not
+>> work you might want to change the fragsize to dmabuf->userfragsize
+>> inside the i810_poll function (line 1596).  If I use
+>> dmabuf->userfragsize, however, I get loads of DMA buffer
+>> over/underruns in combination with xmms.  According to the sepc, I
+>> think dmabuf->fragsize should be as correct as dmabuf->userfragsize.
+>> I have not found and minimum available space requirement in the poll
+>> man page or the OSS documentation I have?
+>>
+> Can you elaborate a little more? What do the buffer underflow sound 
+> like, does it stop playing (silence) for a very short period and then 
+> start again, or does it write ahead too far and overrite data that's 
+> currently playing, causing garbled or repeated sound? Your email to me 
+> describing this scenario left me a little confused.
 
-documented in patch6.
 
-Updated patch7 attached (the "meat" of the changes).  For updated
-patches 1-7, grab them from kernel.org at
+Actually, this is moot.  Making it user fragsize instead of userfragsize is 
+the *wrong* thing to do.  They are not the same and the semantics are pretty 
+clear cut.
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.5/2.5.2-pre9-jg1.tar.bz2
+fragsize: The actual size of each dma ring buffer, of which we *always* have 
+32.  This is a hardware limitation.  It's used for various calculations, but 
+is only ever set in prog_dmabuf().
+
+userfragsize: The SETFRAGMENT ioctl allows the user to tell us how often 
+they want interrupted with updates about output/input progress and what size 
+block they expect that update to indicate.  So, when the user requests a 
+userfragsize of 4k, they are saying "Tell me about output completion with 
+every 4k block you complete".  They also tell us how many blocks they want 
+allocated.  The only requirement we have is that userfragsize * 
+userfragcount (can't remember the variable name I actually call this in the 
+code) == fragsize * 32.  Then, we use userfragsize to tell us how often to 
+program the ring buffers for completion interrupts.  For instance, if we 
+have 32 buffers of 512 bytes and userfragsize is 4k and userfragcount is 4, 
+then we would program every 8th ring buffer to deliver a completion 
+interrupt.  That's the relationship between the two.  So, in the poll 
+routine, we need to alert userspace when userfragsize is reached, not 
+fragsize.  They might be the same, and they might not.
+
+
+> The former would indicate simple scheduling latency--nothing that can be 
+> done about that--and the latter might be a problem with i810_update_ptr 
+> or get_free_write_space in your implementation. I haven't looked at your 
+> code too much yet...
+> 
+> I assume you're using xmms with artsd. What is your artsd fragment size? 
+> (Click on kde control center, go to sound/sound server/sound i/o)
+> 
+> I assume you're using the artsd default of 4096, which is larger than 
+> the actual hardware chunk size of 2048. If your problem is nothing more 
+> than latency-induced underruns, perhaps it would make more sense to use 
+> MIN(userfragsize, fragsize) to determine the return status for 
+> i810_poll. Doug, do you have any thoughts?
+
+
+If the above doesn't answer any questions, then let me know and I'll 
+elaborate further.
+
+
+> A buffer overrun is not the same as an underflow, even when we're 
+> talking about a ring buffer ;)
+> 
+>> Fixes I applied except for the SiS integration:
+>> * drain_dac
+>>  Use interruptible_sleep_on_timeout instead of schedule_timeout.
+>>  I think this is cleaner.  Set the timeout to  (dmabuf->count * HZ * 
+>> 2) / (dmabuf->rate * 4)
+>>  since we play dmabuf->rate*4 bytes per second (16bit samples stereo).
+>>  Added stop_dac at the end.  Otherwise the system gets locked up 
+>> sometimes.
+> 
+> Some sort of fix in the drain_dac area is probably needed for the real 
+> Intel chips too; with 0.13 I was seeing a drain_dac: dma_timeout printk 
+> occasionally on my setup which I hadn't bothered to debug yet. Didn't 
+> hurt the machine and I figured it was maybe just dropped or latent 
+> interrupts, so I got lazy. ;)
+> 
+>> * i810_read, i810_write
+>>  Set the timeout to (dmabuf->size * HZ * 2) / (dmabuf->rate * 4)
+>>  since we record / play dmabuf->rate*4 bytes per second (16bit samples 
+>>  stereo).
+>>
+> Does this solve a problem for your SiS chip? i810_write seemed to be 
+> working fine on my setup. (Intel hardware.)
+> 
+
+
+The timeout in these areas is intentionally left over long.  I don't mind it 
+being close to the actual real expect time of completion, but do make sure 
+it's a few ticks past completion time or else you might race against the 
+completion interrupt depending on where you are in the current timer tick cycle.
+
+
+
 
 -- 
-Jeff Garzik      | Alternate titles for LOTR:
-Building 1024    | Fast Times at Uruk-Hai
-MandrakeSoft     | The Took, the Elf, His Daughter and Her Lover
-                 | Samwise Gamgee: International Hobbit of Mystery
---------------056ABEED1D18E973EECE4C0B
-Content-Type: text/plain; charset=us-ascii;
- name="ext2-7.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ext2-7.patch"
 
-diff -Naur -X /g/g/lib/dontdiff linux-fs6/fs/ext2/dir.c linux-fs7/fs/ext2/dir.c
---- linux-fs6/fs/ext2/dir.c	Mon Jan  7 07:32:28 2002
-+++ linux-fs7/fs/ext2/dir.c	Mon Jan  7 22:48:42 2002
-@@ -24,7 +24,6 @@
- #include <linux/fs.h>
- #include "ext2_fs.h"
- #include "ext2_fs_sb.h"
--#include "ext2_fs_i.h"
- #include <linux/pagemap.h>
- 
- typedef struct ext2_dir_entry_2 ext2_dirent;
-diff -Naur -X /g/g/lib/dontdiff linux-fs6/fs/ext2/ext2_fs.h linux-fs7/fs/ext2/ext2_fs.h
---- linux-fs6/fs/ext2/ext2_fs.h	Mon Jan  7 07:54:33 2002
-+++ linux-fs7/fs/ext2/ext2_fs.h	Mon Jan  7 22:49:48 2002
-@@ -17,7 +17,9 @@
- #define _LINUX_EXT2_FS_H
- 
- #include <linux/types.h>
-+#include <linux/list.h>
- #include <linux/slab.h>
-+#include "ext2_fs_i.h"
- 
- /*
-  * The second extended filesystem constants/structures
-@@ -581,12 +583,15 @@
- extern unsigned long ext2_count_free (struct buffer_head *, unsigned);
- 
- /* inode.c */
-+#define ext2_inode_entry(inode) \
-+	list_entry((inode), struct ext2_inode_info, i_inode_data)
- 
- static inline struct ext2_inode_info *ext2_i(struct inode *inode)
- {
--	if (!inode->u.ext2_ip)
-+	struct ext2_inode_info *ei = ext2_inode_entry(inode);
-+	if (!ei)
- 		BUG();
--	return inode->u.ext2_ip;
-+	return ei;
- }
- 
- extern void ext2_read_inode (struct inode *);
-@@ -596,7 +601,8 @@
- extern int ext2_sync_inode (struct inode *);
- extern void ext2_discard_prealloc (struct inode *);
- extern void ext2_truncate (struct inode *);
--extern void ext2_clear_inode (struct inode *inode);
-+extern struct inode *ext2_alloc_inode (struct super_block *sb);
-+extern void ext2_destroy_inode (struct inode *inode);
- 
- /* ioctl.c */
- extern int ext2_ioctl (struct inode *, struct file *, unsigned int,
-diff -Naur -X /g/g/lib/dontdiff linux-fs6/fs/ext2/ext2_fs_i.h linux-fs7/fs/ext2/ext2_fs_i.h
---- linux-fs6/fs/ext2/ext2_fs_i.h	Mon Sep 17 20:16:30 2001
-+++ linux-fs7/fs/ext2/ext2_fs_i.h	Mon Jan  7 05:08:38 2002
-@@ -36,6 +36,10 @@
- 	__u32	i_prealloc_count;
- 	__u32	i_dir_start_lookup;
- 	int	i_new_inode:1;	/* Is a freshly allocated inode */
-+
-+#ifdef __KERNEL__
-+	struct inode i_inode_data;
-+#endif
- };
- 
- #endif	/* _LINUX_EXT2_FS_I */
-diff -Naur -X /g/g/lib/dontdiff linux-fs6/fs/ext2/ialloc.c linux-fs7/fs/ext2/ialloc.c
---- linux-fs6/fs/ext2/ialloc.c	Mon Jan  7 08:58:19 2002
-+++ linux-fs7/fs/ext2/ialloc.c	Mon Jan  7 22:48:50 2002
-@@ -16,7 +16,6 @@
- #include <linux/fs.h>
- #include "ext2_fs.h"
- #include "ext2_fs_sb.h"
--#include "ext2_fs_i.h"
- #include <linux/locks.h>
- #include <linux/quotaops.h>
- 
-@@ -317,7 +316,8 @@
- 
- struct inode * ext2_new_inode (const struct inode * dir, int mode)
- {
--	const struct ext2_inode_info *di = dir->u.ext2_ip;
-+	const struct ext2_inode_info *di =
-+		(const struct ext2_inode_info *) ext2_inode_entry(dir);
- 	struct ext2_inode_info *ei;
- 	struct super_block * sb;
- 	struct buffer_head * bh;
-@@ -335,18 +335,7 @@
- 	inode = new_inode(sb);
- 	if (!inode)
- 		return ERR_PTR(-ENOMEM);
--
--	/* allocate private per-inode info.  note that for
--	 * the error cases below, iput and s_op->clear_inode
--	 * will handle freeing the private area.
--	 */
--	inode->u.ext2_ip = kmem_cache_alloc(ext2_ino_cache, SLAB_NOFS);
--	if (!inode->u.ext2_ip) {
--		err = -ENOMEM;
--		goto no_priv;
--	}
--	ei = inode->u.ext2_ip;
--	memset(ei, 0, sizeof(*ei));
-+	ei = ext2_i(inode);
- 
- 	lock_super (sb);
- 
-@@ -439,7 +428,6 @@
- 	mark_buffer_dirty(bh2);
- fail:
- 	unlock_super(sb);
--no_priv:
- 	make_bad_inode(inode);
- 	iput(inode);
- 	return ERR_PTR(err);
-diff -Naur -X /g/g/lib/dontdiff linux-fs6/fs/ext2/inode.c linux-fs7/fs/ext2/inode.c
---- linux-fs6/fs/ext2/inode.c	Mon Jan  7 09:20:19 2002
-+++ linux-fs7/fs/ext2/inode.c	Mon Jan  7 22:48:55 2002
-@@ -25,7 +25,6 @@
- #include <linux/fs.h>
- #include "ext2_fs.h"
- #include "ext2_fs_sb.h"
--#include "ext2_fs_i.h"
- #include <linux/locks.h>
- #include <linux/smp_lock.h>
- #include <linux/sched.h>
-@@ -37,7 +36,7 @@
- MODULE_DESCRIPTION("Second Extended Filesystem");
- MODULE_LICENSE("GPL");
- 
--
-+extern void inode_init_once(void *, kmem_cache_t *, unsigned long);
- static int ext2_update_inode(struct inode * inode, int do_sync);
- 
- /*
-@@ -890,7 +889,7 @@
- {
- 	struct super_block *sb = inode->i_sb;
- 	struct ext2_sb_info *esb = ext2_sb(sb);
--	struct ext2_inode_info *ei;
-+	struct ext2_inode_info *ei = ext2_i(inode);
- 	struct buffer_head * bh;
- 	struct ext2_inode * raw_inode;
- 	unsigned long block_group;
-@@ -900,12 +899,6 @@
- 	unsigned long offset;
- 	struct ext2_group_desc * gdp;
- 
--	inode->u.ext2_ip = kmem_cache_alloc(ext2_ino_cache, SLAB_NOFS);
--	if (!inode->u.ext2_ip)
--		goto bad_inode;
--	ei = inode->u.ext2_ip;
--	memset(ei, 0, sizeof(*ei));
--
- 	if ((inode->i_ino != EXT2_ROOT_INO && inode->i_ino != EXT2_ACL_IDX_INO &&
- 	     inode->i_ino != EXT2_ACL_DATA_INO &&
- 	     inode->i_ino < EXT2_FIRST_INO(sb)) ||
-@@ -1034,10 +1027,6 @@
- 	return;
- 	
- bad_inode:
--	if (inode->u.ext2_ip) {
--		kmem_cache_free(ext2_ino_cache, inode->u.ext2_ip);
--		inode->u.ext2_ip = NULL;
--	}
- 	make_bad_inode(inode);
- 	return;
- }
-@@ -1181,12 +1170,24 @@
- 	return ext2_update_inode (inode, 1);
- }
- 
--void ext2_clear_inode (struct inode *inode)
-+struct inode *ext2_alloc_inode (struct super_block *sb)
- {
--	struct ext2_inode_info *ei = inode->u.ext2_ip;
-+	struct ext2_inode_info *ei;
-+	struct inode *inode;
- 
--	if (ei) {
--		kmem_cache_free(ext2_ino_cache, ei);
--		inode->u.ext2_ip = NULL;
--	}
-+	ei = kmem_cache_alloc(ext2_ino_cache, SLAB_NOFS);
-+	if (!ei)
-+		return NULL;
-+	inode = &ei->i_inode_data;
-+
-+	memset(ei, 0, sizeof(*ei));
-+	inode_init_once(inode, ext2_ino_cache, SLAB_CTOR_CONSTRUCTOR);
-+	return inode;
-+}
-+
-+void ext2_destroy_inode (struct inode *inode)
-+{
-+	struct ext2_inode_info *ei = ext2_i(inode);
-+	kmem_cache_free(ext2_ino_cache, ei);
- }
-+
-diff -Naur -X /g/g/lib/dontdiff linux-fs6/fs/ext2/ioctl.c linux-fs7/fs/ext2/ioctl.c
---- linux-fs6/fs/ext2/ioctl.c	Mon Jan  7 07:32:43 2002
-+++ linux-fs7/fs/ext2/ioctl.c	Mon Jan  7 22:48:58 2002
-@@ -9,7 +9,6 @@
- 
- #include <linux/fs.h>
- #include "ext2_fs.h"
--#include "ext2_fs_i.h"
- #include <linux/sched.h>
- #include <asm/uaccess.h>
- 
-diff -Naur -X /g/g/lib/dontdiff linux-fs6/fs/ext2/namei.c linux-fs7/fs/ext2/namei.c
---- linux-fs6/fs/ext2/namei.c	Mon Jan  7 07:32:47 2002
-+++ linux-fs7/fs/ext2/namei.c	Mon Jan  7 22:49:02 2002
-@@ -31,7 +31,6 @@
- 
- #include <linux/fs.h>
- #include "ext2_fs.h"
--#include "ext2_fs_i.h"
- #include <linux/pagemap.h>
- 
- /*
-diff -Naur -X /g/g/lib/dontdiff linux-fs6/fs/ext2/super.c linux-fs7/fs/ext2/super.c
---- linux-fs6/fs/ext2/super.c	Mon Jan  7 07:32:50 2002
-+++ linux-fs7/fs/ext2/super.c	Mon Jan  7 22:49:05 2002
-@@ -22,7 +22,6 @@
- #include <linux/fs.h>
- #include "ext2_fs.h"
- #include "ext2_fs_sb.h"
--#include "ext2_fs_i.h"
- #include <linux/slab.h>
- #include <linux/init.h>
- #include <linux/locks.h>
-@@ -160,7 +159,9 @@
- 	write_inode:	ext2_write_inode,
- 	put_inode:	ext2_put_inode,
- 	delete_inode:	ext2_delete_inode,
--	clear_inode:	ext2_clear_inode,
-+	alloc_inode:	ext2_alloc_inode,
-+	destroy_inode:	ext2_destroy_inode,
-+
- 	put_super:	ext2_put_super,
- 	write_super:	ext2_write_super,
- 	statfs:		ext2_statfs,
-diff -Naur -X /g/g/lib/dontdiff linux-fs6/fs/ext2/symlink.c linux-fs7/fs/ext2/symlink.c
---- linux-fs6/fs/ext2/symlink.c	Mon Jan  7 07:32:54 2002
-+++ linux-fs7/fs/ext2/symlink.c	Mon Jan  7 22:49:08 2002
-@@ -19,7 +19,6 @@
- 
- #include <linux/fs.h>
- #include "ext2_fs.h"
--#include "ext2_fs_i.h"
- 
- static int ext2_readlink(struct dentry *dentry, char *buffer, int buflen)
- {
-diff -Naur -X /g/g/lib/dontdiff linux-fs6/include/linux/fs.h linux-fs7/include/linux/fs.h
---- linux-fs6/include/linux/fs.h	Mon Jan  7 22:19:16 2002
-+++ linux-fs7/include/linux/fs.h	Mon Jan  7 22:40:37 2002
-@@ -313,8 +313,6 @@
- #include <linux/jffs2_fs_i.h>
- #include <linux/cramfs_fs_sb.h>
- 
--struct ext2_inode_info;
--
- /*
-  * Attribute flags.  These should be or-ed together to figure out what
-  * has been changed!
-@@ -502,8 +500,6 @@
- 		struct proc_inode_info		proc_i;
- 		struct socket			socket_i;
- 		struct jffs2_inode_info		jffs2_i;
--
--		struct ext2_inode_info		*ext2_ip;
- 
- 		void				*generic_ip;
- 	} u;
-
---------------056ABEED1D18E973EECE4C0B--
+  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
+       Please check my web site for aic7xxx updates/answers before
+                       e-mailing me about problems
 

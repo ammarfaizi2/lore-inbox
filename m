@@ -1,78 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269820AbUH0AF6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269849AbUH0ANX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269820AbUH0AF6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 20:05:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269823AbUH0AFP
+	id S269849AbUH0ANX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 20:13:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269828AbUH0AHZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 20:05:15 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:34209 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S269671AbUH0AAM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 20:00:12 -0400
-Date: Fri, 27 Aug 2004 09:05:10 +0900
-From: Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>
-Subject: Re: [Lhms-devel] Re: [RFC] buddy allocator without bitmap [3/4]
-In-reply-to: <1093535709.2984.24.camel@nighthawk>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>, lhms <lhms-devel@lists.sourceforge.net>,
-       William Lee Irwin III <wli@holomorphy.com>
-Message-id: <412E7AB6.8020707@jp.fujitsu.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
+	Thu, 26 Aug 2004 20:07:25 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:22480 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S269829AbUH0ACQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 20:02:16 -0400
+Message-ID: <412E7A08.5070005@namesys.com>
+Date: Thu, 26 Aug 2004 17:02:16 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
 X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6)
- Gecko/20040113
-References: <412DD34A.70802@jp.fujitsu.com> <1093535709.2984.24.camel@nighthawk>
+MIME-Version: 1.0
+To: Rik van Riel <riel@redhat.com>
+CC: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Matt Mackall <mpm@selenic.com>, Nicholas Miell <nmiell@gmail.com>,
+       Wichert Akkerman <wichert@wiggy.net>, Jeremy Allison <jra@samba.org>,
+       Andrew Morton <akpm@osdl.org>, Spam <spam@tnonline.net>,
+       torvalds@osdl.org, hch@lst.de, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, flx@namesys.com,
+       reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+References: <Pine.LNX.4.44.0408260736080.23532-100000@chimarrao.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0408260736080.23532-100000@chimarrao.boston.redhat.com>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
+Rik van Riel wrote:
 
->>+                       if (zone->nr_mem_map > 1) {
->>+                               /*
->>+                                * there may be hole in zone's memmap &&
->>+                                * hole is not aligned in this order.
->>+                                * currently, I think CONFIG_VIRTUAL_MEM_MAP
->>+                                * case is only case to reach here.
->>+                                * Is there any other case ?
->>+                                */
->>+                               /*
->>+                                * Is there better call than pfn_valid ?
->>+                                */
->>+                               if (!pfn_valid(zone->zone_start_pfn
->>+                                              + (page_idx ^ (1 << order))))
->>+                                       break;
->>+                       }
-> 
-> 
-> Nice try.  How about putting the ia64 code in a macro or header function
-> that you can #ifdef out on all the other architectures?  We used to be
-> able to see that entire while loop on one screen.  That's a bit harder
-> now.  
-> 
-Currently, I think zone->nr_mem_map itself is very vague.
-I'm now looking for another way to remove this part entirely.
-
-I think mem_section approarch may be helpful to remove this part,
-but to implement full feature of CONFIG_NONLINEAR,
-I'll need lots of different kind of patches.
-(If mem_map is guaranteed to be contiguous in one mem_section)
-
-1. Now, I think some small parts, some essence of mem_section which
-   makes pfn_valid() faster may be good.
-
-And another way,
-
-2. A method which enables page -> page's max_order calculation
-   may be good and consistent way in this no-bitmap approach.
-
-But this problem would be my week-end homework :).
-
---Kame
-
--- 
---the clue is these footmarks leading to the door.--
-KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-
+>
+>
+>In my opinion we shouldn't merge file-as-a-directory
+>semantics into the kernel until we figure out how to
+>fix the backup/restore problem and keep standard unix
+>utilities work.
+>
+>  
+>
+One incremental piece at a time our solution will fall into place.  
+Pieces should go in when they are individually ready.  Warning users 
+that some pieces might be changed out from under them up until when 2.8 
+ships is ok with me though.

@@ -1,43 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313919AbSDPVmF>; Tue, 16 Apr 2002 17:42:05 -0400
+	id <S313920AbSDPVpA>; Tue, 16 Apr 2002 17:45:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313920AbSDPVmE>; Tue, 16 Apr 2002 17:42:04 -0400
-Received: from avocet.mail.pas.earthlink.net ([207.217.120.50]:65246 "EHLO
-	avocet.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S313919AbSDPVmD>; Tue, 16 Apr 2002 17:42:03 -0400
-Date: Tue, 16 Apr 2002 17:48:27 -0400
-To: jjs@lexus.com, akpm@zip.com.au
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.8 final - another data point
-Message-ID: <20020416174827.A1845@rushmore>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-From: rwhron@earthlink.net
+	id <S313922AbSDPVo7>; Tue, 16 Apr 2002 17:44:59 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:18898 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S313920AbSDPVo6>; Tue, 16 Apr 2002 17:44:58 -0400
+Message-ID: <3CBCB762.4030902@bingo-ev.de>
+Date: Tue, 16 Apr 2002 23:44:34 +0000
+From: Michael Obster <michael.obster@bingo-ev.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020328
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: AMD Athlon + VIA Crashing On Disk I/O
+In-Reply-To: <Pine.LNX.4.33.0204160921060.472-100000@polywog.navpoint.com> <00dc01c1e58b$668dd2f0$0201a8c0@homer>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>Running dbench 128 on ext2 mounted with delalloc and Andrew's
->>patches from http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.8/
->>was 7.5x faster than 2.5.8 vanilla and 1.5x faster than
+hi,
 
-> Wow, good stuff - I'll have to pull those down
+>>I get (when FSCK):
+>>
+>>spurious 8259A IRQ7
 
-Hmm, I had to run e2fsck -f twice on the filesystem that ran
-dbench, tiobench, bonnie++ on nfs, and osdb.  The filesystem
-was showing 52% used and is normally 1% used before/after
-testing.  No big files on the fs. The directory where
-bonnie++ on nfs runs had some temporary directories that
-were not deletable.  A bunch of files/directories were in
-lost+found after e2fsck.  After removing the files, the
-fs was back to 1% used.
+I also get this message every time i boot my machine when the fs are 
+mounted. but i don't had a machine lock yet.
+Configuration: Athlon 1GHz on a VIA chip (ASUS A7V).
+Btw. What does this message say?
 
-I backed up and did mke2fs in case there was any
-pre-existing/lingering corruption.  So keep your karma
-up and test on a test box. :)
+> First check out what kind of chipset you really have;
+> lspci -xs 0:0
+> should do the thing. Post the results.
 
--- 
-Randy Hron
+Kernel is 2.4.19pre5
+
+my result is:
+00:00.0 Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] 
+(rev 02)
+00: 06 11 05 03 06 00 10 22 02 00 00 06 00 08 00 00
+10: 08 00 00 e4 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 43 10 33 80
+30: 00 00 00 00 a0 00 00 00 00 00 00 00 00 00 00 00
+
+I hope you can do s.th. with that.
+
+Regards,
+Michael
+
+------------------------------------------------------
+do you want to rock?
+http://www.rocklinux.org/
+------------------------------------------------------
 

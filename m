@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262128AbTJANil (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 09:38:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbTJANik
+	id S262153AbTJANtP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 09:49:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbTJANtP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 09:38:40 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17292 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262128AbTJANik
+	Wed, 1 Oct 2003 09:49:15 -0400
+Received: from smtp-103-wednesday.nerim.net ([62.4.16.103]:31502 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S262153AbTJANs7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 09:38:40 -0400
-Date: Wed, 1 Oct 2003 14:38:38 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Matthew Wilcox <willy@debian.org>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       kernel list <linux-kernel@vger.kernel.org>, len.brown@intel.com
-Subject: Re: [ACPI] ACPI blacklisting: move year blacklist into acpi/blacklist.c
-Message-ID: <20031001133838.GM24824@parcelfarce.linux.theplanet.co.uk>
-References: <20031001101826.GA3503@elf.ucw.cz> <20031001122412.GJ24824@parcelfarce.linux.theplanet.co.uk> <20031001133104.GA21626@atrey.karlin.mff.cuni.cz>
+	Wed, 1 Oct 2003 09:48:59 -0400
+Subject: Re: 2.6.0-test5 - stuck keys on iBook
+From: Brice Figureau <brice@tincell.com>
+To: linuxppc-dev@lists.linuxppc.org
+Cc: cliff white <cliffw@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20030930143149.4930ec9c.cliffw@osdl.org>
+References: <20030930143149.4930ec9c.cliffw@osdl.org>
+Content-Type: text/plain
+Message-Id: <1065016088.3283.8.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031001133104.GA21626@atrey.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.4-8mdk 
+Date: Wed, 01 Oct 2003 15:48:08 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 01, 2003 at 03:31:04PM +0200, Pavel Machek wrote:
-> > Why do they need to be externs?  The comp.lang.c FAQ suggests they don't
-> > have to be.
-> > 
-> > http://www.eskimo.com/~scs/C-faq/q1.11.html
+On Tue, 2003-09-30 at 23:31, cliff white wrote:
+> Kernel version: latest from ppc.bkbits.net/linuxppc-2.5
 > 
-> Well, they don't *have* to be there, but as FAQ says, it is stylistics
-> hint.
+> Symptom: keyboard diarrhea - single keypress == 3-7 characters.
 
-I think "being in a .h file" is a sufficient hint ;-)
+I can confirm this problem on my ibook r2.2 with vanilla kernel.org 2.6.0-test6.
+No problem with the latest test5 I tried.
 
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+Brice
+

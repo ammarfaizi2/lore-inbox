@@ -1,60 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263355AbTFKRe0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 13:34:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263394AbTFKReL
+	id S263587AbTFKRhe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 13:37:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263449AbTFKRhe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 13:34:11 -0400
-Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:51667
-	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S263355AbTFKRcp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 13:32:45 -0400
-Date: Wed, 11 Jun 2003 13:46:29 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] And yet more PCI fixes for 2.5.70
-Message-ID: <20030611174629.GC31051@gtf.org>
-References: <1055290315109@kroah.com> <1055335057.2083.14.camel@dhcp22.swansea.linux.org.uk> <20030611163837.GA24951@kroah.com> <1055351984.2419.23.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 11 Jun 2003 13:37:34 -0400
+Received: from h2.prohosting.com.ua ([217.106.231.81]:33178 "EHLO
+	h2.prohosting.com.ua") by vger.kernel.org with ESMTP
+	id S263587AbTFKRfl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 13:35:41 -0400
+From: Artemio <artemio@artemio.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: SMP question
+Date: Wed, 11 Jun 2003 20:43:11 +0300
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1055351984.2419.23.camel@dhcp22.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200306112043.11923.artemio@artemio.net>
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - h2.prohosting.com.ua
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [0 0]
+X-AntiAbuse: Sender Address Domain - artemio.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 11, 2003 at 06:19:49PM +0100, Alan Cox wrote:
-> On Mer, 2003-06-11 at 17:38, Greg KH wrote:
-> > So that leaves only this file.  Jeff Garzik and I talked about removing
-> > pci_present() as it's not needed, and I think for this one case we can
-> > live without it.  Do you want me to make the pci_present() macro earlier
-> > in this file, so it's readable again?  I don't want to put it back into
-> > pci.h.
-> 
-> I still think it belongs in pci.h. Its an API and the API makes sense. The
+Hello!
 
-Its an API that doesn't make sense.
+I have the following question.
 
-99% of the uses can simply be eliminated (in 2.4, too).
-They are entirely redundant.
+My system is 2x 2.4Ghz Xeons.
 
-The remaining two cases are really arch-specific checks that were
-being done wrong anyway.  Note the history:  the definition morphed
-in 2.4 from being "PCI BIOS seems to be present, so we'll assume a
-PCI bus is present" to "PCI devices are present."  Neither definition
-is correct for the question the remaining two cases want answered:
-"Is a PCI bus present?"  Further, the IDE code calculating system
-bus speed it should really be calling a PCI callback, not asking "Do
-I have a PCI bus?" and making a guess...  a guess which seems wrong
-in several cases, including my Dual Athlon box w/ 100% 66 Mhz PCI bus.
+Linux kernel 2.4.18 compiled with SMP support sees it as four processors. 
+SMP-disabled kernel sees one, of course.
 
-So, I conclude that pci_present() is wrong for all cases except one --
-and that case is sparc64-specific and can be handled with arch-specific
-code, I bet.
+I would like to know, how will it influence the system performance, if I run a 
+UP kernel?
 
-	Jeff
+What does the kernel SMP support add? Just some API for additinal 
+multiprocessor control? Will the SMP-enabled kernel run faster than the UP 
+one?
+
+That's what I would like to know.
 
 
+
+Thanks!
+
+
+Artemio.
 

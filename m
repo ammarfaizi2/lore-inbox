@@ -1,35 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293035AbSCVHwV>; Fri, 22 Mar 2002 02:52:21 -0500
+	id <S293204AbSCVH6W>; Fri, 22 Mar 2002 02:58:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293095AbSCVHwM>; Fri, 22 Mar 2002 02:52:12 -0500
-Received: from ns.suse.de ([213.95.15.193]:35343 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S293035AbSCVHwC>;
-	Fri, 22 Mar 2002 02:52:02 -0500
-Date: Fri, 22 Mar 2002 08:52:01 +0100
-From: Dave Jones <davej@suse.de>
-To: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.7 make modules_install failed
-Message-ID: <20020322085201.O22861@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3C9A3043.4AA87A26@wanadoo.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S293242AbSCVH6L>; Fri, 22 Mar 2002 02:58:11 -0500
+Received: from mario.gams.at ([194.42.96.10]:18246 "EHLO mario.gams.at")
+	by vger.kernel.org with ESMTP id <S293204AbSCVH6E>;
+	Fri, 22 Mar 2002 02:58:04 -0500
+Message-Id: <200203220758.IAA09819@merlin.gams.co.at>
+Content-Type: text/plain; charset=US-ASCII
+From: Axel Kittenberger <Axel.Kittenberger@maxxio.com>
+Organization: Maxxio Technologies
+To: David Brown <dave@codewhore.org>, linux-kernel@vger.kernel.org
+Subject: Re: Patch, forward release() return values to the close() call
+Date: Fri, 22 Mar 2002 08:58:02 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <200203210747.IAA25949@merlin.gams.co.at> <3C999633.2060104@mandrakesoft.com> <20020321113201.A26882@codewhore.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 21, 2002 at 08:10:59PM +0100, Jean-Luc Coulon wrote:
- > depmod: 	virt_to_bus_not_defined_use_pci_map
+> Forgive me if I'm not completely understanding this, but isn't release()
+> only called when the refcount of the file structure drops to zero? e.g.:
+>
+>   [18]Note that release isn't invoked every time a process calls close.
+>   Whenever a file structure is shared (for example, after a fork or a
+>   dup), release won't be invoked until all copies are closed. If you need
+>   to flush pending data when any copy is closed, you should implement the
+>   flush method.
 
-As the warning suggests, you tried to build a module that isn't
-updated to use the new pci mapping api. Either fix it, or if you
-don't know how, take the wussy way out, and use -dj and undefine
-CONFIG_DEBUG_OBSOLETE  8-)
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Oh that might be, however in my case the device is exclusivly locked, so it 
+doesn't matter that much, since there can be only one writer.
+
+To explain what it actually is, it's a driver to program a LCA chip, an 
+userspace opens the device, writes the program for the LCA, and closes the 
+device. The driver itself can not understand the file format transmitted 
+trough it, and has so no chance to know where the supposed end of stream is 
+until the userspace closes the device. At close() it let's the LCA go, and 
+looks if it's starting up, if so it has accpeted it's program, if not the 
+file was not a valid image or the LCA might be damaged, and this error 
+condition should be signaled.
+
+Programming a LCA simply works then from the shell like in example this:
+$> cp my-lca-image /dev/lca || echo "LCA failure :("
+
+Where cp fails if the lca has not accepted it's image.
+
+flush() can also be called in middle of stream, and is not a good indication 
+for an end of stream. 
+
+> > Your driver is buggy, if it thinks it can fail f_op->release.
+
+If this is would be really (always) true, wouldn't it at least be better to 
+have the release() prototype with a void return value?

@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbUJWXW0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbUJWXRW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261333AbUJWXW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 19:22:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbUJWXW0
+	id S261332AbUJWXRW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 19:17:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261333AbUJWXRW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 19:22:26 -0400
-Received: from vs152245.vserver.de ([62.75.152.245]:63382 "EHLO
-	vs152245.vserver.de") by vger.kernel.org with ESMTP id S261333AbUJWXWW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 19:22:22 -0400
-From: Boris Bukowski <b.bukowski@gmx.de>
-Reply-To: b.bukowski@gmx.de
-To: linux-kernel@vger.kernel.org
-Subject: Re: My thoughts on the
-Date: Sun, 24 Oct 2004 01:22:04 +0200
-User-Agent: KMail/1.7
-References: <7aaed09104102213032c0d7415@mail.gmail.com> <200410231001.32080.b.bukowski@gmx.de> <loom.20041023T152357-234@post.gmane.org>
-In-Reply-To: <loom.20041023T152357-234@post.gmane.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 23 Oct 2004 19:17:22 -0400
+Received: from rproxy.gmail.com ([64.233.170.199]:5735 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261332AbUJWXRN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 19:17:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=egPoUn7enpyYhYWcIyBQHqt5/GOQ4uJB1+sIPLjI7BfPHz0azaUla0AkF6CGbK7KGjWI+G3KMMLQC5sWDICLl0pMKJdS6vzYI6ec+0GADbR5Go3lR5Mdn4bk7ATk1EY9E+jIO935Ja9/gTLmGQZu0XEp2rm56eFjE6hHCAIWzUI=
+Message-ID: <35fb2e5904102316177420f6a9@mail.gmail.com>
+Date: Sun, 24 Oct 2004 00:17:11 +0100
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: How is user space notified of CPU speed changes?
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Robert Love <rml@novell.com>
+In-Reply-To: <1098571334.29081.21.camel@krustophenia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410240122.04211.b.bukowski@gmx.de>
+References: <1098399709.4131.23.camel@krustophenia.net>
+	 <1098444170.19459.7.camel@localhost.localdomain>
+	 <1098508238.13176.17.camel@krustophenia.net>
+	 <1098566366.24804.8.camel@localhost.localdomain>
+	 <1098571334.29081.21.camel@krustophenia.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Saturday, 23. October 2004 15:27 schrieb Alban Browaeys:
-> > It looks like we need a Community driven Enterprise Kernel.
-> > We decided to start testing with 2.6.10 and use it if there are no
-> > Problems.
-> > Maybe there are other Admins doing the same and we can start our own
-> > Enterprise Kernel.
-> Hum Debian or is it driven by money ?
-We (Lycos-Europe) are running Debian on several hundred Servers and as far
-as I know the Woody Kernel's are not usable on most of this Servers.
-So we are using a 2.4 vanilla kernel with some patches on these Systems.
-> I bet Community Driven Entreprise Kernel is way better in marketing than
-> debian kernel though are we not driven by stability ...
-I used the buzz word cause it was the standard answer if somebody asked.
-I think there are many Admins who have to find a good 2.6 Release
-and have than the work to maintain it. 
-Doing it together will save a lot of time.
-Only a idea, at least my english is not good enough to realize this.
+On Sat, 23 Oct 2004 18:42:13 -0400, Lee Revell <rlrevell@joe-job.com> wrote:
 
-Boris 
- 
+> Does anyone know how OSX/CoreAudio handles the situation?  Apparently
+> realtime apps work flawlessly on speed scaling laptops under OSX.
 
+The difference in implementation between the Intel TSC and PowerPC
+TB[LU] has been mentioned previously in this thread.
+
+Jon.

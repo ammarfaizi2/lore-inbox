@@ -1,75 +1,117 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278356AbRJMSv4>; Sat, 13 Oct 2001 14:51:56 -0400
+	id <S278359AbRJMSxg>; Sat, 13 Oct 2001 14:53:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278359AbRJMSvr>; Sat, 13 Oct 2001 14:51:47 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:42399 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S278356AbRJMSvh>;
-	Sat, 13 Oct 2001 14:51:37 -0400
-Message-ID: <3BC88AB3.2040707@laotraesquina.com.ar>
-Date: Sat, 13 Oct 2001 15:40:51 -0300
-From: Pablo Alcaraz <pabloa@laotraesquina.com.ar>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: es-ar, en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Jamie Lokier <lk@tantalophile.demon.co.uk>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: Security question: "Text file busy" overwriting executables but not shared libraries?
-In-Reply-To: <Pine.LNX.4.33.0110130956350.8707-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S278361AbRJMSx1>; Sat, 13 Oct 2001 14:53:27 -0400
+Received: from grip.panax.com ([63.163.40.2]:33555 "EHLO panax.com")
+	by vger.kernel.org with ESMTP id <S278359AbRJMSxQ>;
+	Sat, 13 Oct 2001 14:53:16 -0400
+Date: Sat, 13 Oct 2001 14:53:42 -0400
+From: Patrick McFarland <unknown@panax.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Which is better at vm, and why? 2.2 or 2.4
+Message-ID: <20011013145341.R249@localhost>
+In-Reply-To: <20011013141709.L249@localhost> <Pine.LNX.4.33L.0110131526500.2847-100000@imladris.rielhome.conectiva> <20011013144220.P249@localhost>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="vNrHrykRFvLVX6W3"
+Content-Disposition: inline
+In-Reply-To: <20011013144220.P249@localhost>
+User-Agent: Mutt/1.3.22i
+X-Operating-System: Linux 2.4.12 i586
+X-Distributed: Join the Effort!  http://www.distributed.net/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Whatever will be the chosen solution, it would have to allow to 
-overwrite all the executables and libraries files (if we have enough 
-permissions).
 
-Because:
+--vNrHrykRFvLVX6W3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-- If I overwrite a shared library and then one running program crash, it 
-will be my fault (as system administrator) or mistake.. ;-)
+Also, I'd like to say about the documentation...
 
-- It is probable that one file library is updated within one more global 
-update, then probably I restart later the new demon or program. So if 
-the program crash I'll fix the problem eventually.
+<quote>
+Currently, these files are in /proc/sys/vm:
+- bdflush
+- buffermem
+- freepages
+- kswapd
+- overcommit_memory
+- page-cluster
+- pagecache
+- pagetable_cache
+</quote>
 
-- The previous version of a file library that I am replacing can depend 
-on another file that the installer of the new version of the program 
-simply erases it. For example:
+but a simple ls of /proc/sys/vm reports:
+bdflush  kswapd  overcommit_memory  page-cluster  pagetable_cache
 
-a.so depends of b.so
+Shouldnt the documentation be updated, seeing for the fact it was written i=
+n the 2.2.10 days?
 
-but
+On 13-Oct-2001, Patrick McFarland wrote:
+> Ill reiterate something here, im on a p133 with 16 megs. Yeah, the kind o=
+f the crappy ide controller that eats cpu time to swap. (Enough so that my =
+mouse pointer will freeze in X that its swapping so much. Swapping is the o=
+nly thing ive found that can pull that off) Swapping the least ammount woul=
+d be the best for a box like that.
+>=20
+> On 13-Oct-2001, Rik van Riel wrote:
+> > On Sat, 13 Oct 2001, Patrick McFarland wrote:
+> >=20
+> > > Hmm, I see that as very bad. There should be a bunch of sysctls to do
+> > > that easily.
+> >=20
+> > See /proc/sys/vm/* and the documentation ;)
+> >=20
+> > > Also, I heard that 2.4 (and I'm assuming 2.2 as well) swaps pages on a
+> > > last-used-age basis, instead of either a number-of-times-used or a
+> > > hybrid of the two. That kinda seems stupid,
+> >=20
+> > Don't worry since it's not true, at least the VM in the -ac
+> > kernels _does_ use a hybrid of access recency and frequency
+> > to determine page replacement.
+> >=20
+> > The -linus kernel, however only has LRU-like selection.
+> >=20
+> > At the moment the -linus kernel is faster than the -ac kernel
+> > for some workloads. This may have something to do with better
+> > clusterable IO ... when page replacement is less precise the
+> > chance that IO is clusterable is probably larger due to the
+> > way we scan.
+> >=20
+> > I plan to do more explicit IO clustering in -ac to try and
+> > remedy this difference.
+> >=20
+> > regards,
+> >=20
+> > Rik
+> > --=20
+> > DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers ne=
+eded)
+> >=20
+> > http://www.surriel.com/		http://distro.conectiva.com/
+> >=20
+>=20
+> --=20
+> Patrick "Diablo-D3" McFarland || unknown@panax.com
 
-a_new_version.so does not depend of b.so.
-
-When I or an installer install the new program version, me or the 
-installer erase b.so because the new version doesn't use it.
-
-So, that it matters if a program can or can't access to the old version 
-of a.so if b.so was erased?
-
-And eventually, if I decide to update a library, I would have to do it 
-(I suspect it would be the same case with executables files). It doesn't 
-the matter if the change implies a fault in a running program.
 
 
-It can be that this serves so that a hacker can attack the system... or 
-I could hang a program when this is not my objective. Maybe a flag in 
-/proc/somewhere would be am useful thing:
+--=20
+Patrick "Diablo-D3" McFarland || unknown@panax.com
 
-- if it's 1, I can overwrite all the libraries and executables files (If 
-I've permission, etc.);
+--vNrHrykRFvLVX6W3
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-- if it's 0, I can not overwrite anything If it's in use.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
 
-I only want that everybody respect my right to do the wrong or stupid 
-thing. This is an system administrator right :-)
+iD8DBQE7yI208Gvouk7G1cURApQbAKC/S+jmYZ1uGjqgNwPFp5TH7a3wVQCfWb/0
+0iACLOI7o0rY3zvq22RQsWQ=
+=sG/R
+-----END PGP SIGNATURE-----
 
-
-Pablo
-
-
+--vNrHrykRFvLVX6W3--

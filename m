@@ -1,41 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261267AbVBFTaV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261280AbVBFTaq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261267AbVBFTaV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 14:30:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbVBFTaV
+	id S261280AbVBFTaq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 14:30:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbVBFTaq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 14:30:21 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:3844 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261267AbVBFTaR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 14:30:17 -0500
-Date: Sun, 6 Feb 2005 20:30:14 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: vojtech@suse.cz
-Cc: linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/input/gameport/cs461x.c: remove bouncing email address
-Message-ID: <20050206193013.GB3129@stusta.de>
+	Sun, 6 Feb 2005 14:30:46 -0500
+Received: from mail-ex.suse.de ([195.135.220.2]:19659 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261280AbVBFTam (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 14:30:42 -0500
+Date: Sun, 6 Feb 2005 20:30:35 +0100
+From: Olaf Hering <olh@suse.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       pavenis@latnet.lv
+Subject: Re: [PATCH] Bug in tty_io.c after changes between 2.6.9-rc1-bk1 and 2.6.9-rc1-bk2
+Message-ID: <20050206193035.GA27126@suse.de>
+References: <200502021844.j12IilJJ029973@hera.kernel.org> <20050206182845.GA24803@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050206182845.GA24803@suse.de>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch remoces the bouncing email address of Victor Krapivin from 
-MODULE_AUTHOR.
+ On Sun, Feb 06, Olaf Hering wrote:
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> Do you have an outdated udev package with bogus udev.rules?
 
---- linux-2.6.11-rc3-mm1-full/drivers/input/gameport/cs461x.c.old	2005-02-06 20:24:35.000000000 +0100
-+++ linux-2.6.11-rc3-mm1-full/drivers/input/gameport/cs461x.c	2005-02-06 20:24:49.000000000 +0100
-@@ -16,7 +16,7 @@
- #include <linux/slab.h>
- #include <linux/pci.h>
- 
--MODULE_AUTHOR("Victor Krapivin <vik@belcaf.minsk.by>");
-+MODULE_AUTHOR("Victor Krapivin");
- MODULE_LICENSE("GPL");
- 
- /*
-
+Your strace clearly shows /dev/tty as a directory.
+Go and ask Linus to revert your broken patch.

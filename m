@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135277AbRECWU4>; Thu, 3 May 2001 18:20:56 -0400
+	id <S135281AbRECWc7>; Thu, 3 May 2001 18:32:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135281AbRECWUr>; Thu, 3 May 2001 18:20:47 -0400
-Received: from marine.sonic.net ([208.201.224.37]:37124 "HELO marine.sonic.net")
-	by vger.kernel.org with SMTP id <S135277AbRECWUh>;
-	Thu, 3 May 2001 18:20:37 -0400
-X-envelope-info: <dalgoda@ix.netcom.com>
-Date: Thu, 3 May 2001 15:20:32 -0700
-From: Mike Castle <dalgoda@ix.netcom.com>
-To: CML2 <linux-kernel@vger.kernel.org>
-Cc: "Eric S. Raymond" <esr@thyrsus.com>, Urban Widmark <urban@teststation.com>,
-        John Stoffel <stoffel@casc.com>, cate@dplanet.ch,
-        Peter Samuelson <peter@cadcamlab.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: Hierarchy doesn't solve the problem
-Message-ID: <20010503152031.A27366@thune.mrc-home.com>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
-	CML2 <linux-kernel@vger.kernel.org>,
-	"Eric S. Raymond" <esr@thyrsus.com>,
-	Urban Widmark <urban@teststation.com>,
-	John Stoffel <stoffel@casc.com>, cate@dplanet.ch,
-	Peter Samuelson <peter@cadcamlab.org>,
-	kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20010503030431.A25141@thyrsus.com> <Pine.LNX.4.30.0105030907470.28400-100000@cola.teststation.com> <20010503034620.A27880@thyrsus.com>
+	id <S135283AbRECWcu>; Thu, 3 May 2001 18:32:50 -0400
+Received: from domino1.resilience.com ([209.245.157.33]:18832 "EHLO
+	intranet.resilience.com") by vger.kernel.org with ESMTP
+	id <S135281AbRECWcl>; Thu, 3 May 2001 18:32:41 -0400
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.6i
-In-Reply-To: <20010503034620.A27880@thyrsus.com>; from esr@thyrsus.com on Thu, May 03, 2001 at 03:46:20AM -0400
+Message-Id: <p05100301b7177e779892@[10.128.7.49]>
+In-Reply-To: <15089.47157.268005.262050@gargle.gargle.HOWL>
+In-Reply-To: <200105011445.KAA01117@localhost.localdomain>
+ <3AEEDFFC.409D8271@redhat.com>
+ <15086.60620.745722.345084@gargle.gargle.HOWL>
+ <3AF025AE.511064F3@redhat.com>	<3AF04648.73F5BFCE@cds.duke.edu>
+ <3AF0483C.49C8CF90@redhat.com>	<20010502230357.A9507@bug.ucw.cz>
+ <15089.47157.268005.262050@gargle.gargle.HOWL>
+Date: Thu, 3 May 2001 15:32:29 -0700
+To: Eric.Ayers@intec-telecom-systems.com
+From: Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: Linux Cluster using shared scsi
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 03, 2001 at 03:46:20AM -0400, Eric S. Raymond wrote:
-> What's to prefer?  You get essentially the same behavior unless you start
-> with a broken config.
+At 3:57 PM -0400 2001-05-03, Eric Z. Ayers wrote:
+>However distateful it sounds, there is precedent for the
+>behavior that Doug is proposing in commercial clustering
+>implementations.  My recollection is that both Compaq TruCluster and
+>HP Service Guard have logic that will panic the kernel when a disk is
+>"stolen" from under a running service and there is a "network
+>partition" in the cluster.
+>
+>A network partition occurs when multiple machines in the cluster are
+>runnig, but the HA software agents on two nodes can't communicate via
+>the network to arbitrate which node should be the owner of the disk.
 
-What's going to happen when this interconnected behavior results in a
-previously acceptable config becomes broken (by definition) with a later
-kernel version?
+There are also the more extreme STONITH and STOMITH [shoot the other 
+node/machine in the head] required by some shared filesystems (eg 
+GFS).
 
-We're going to have hundreds of people complaining about this.  Not just
-one or two.
-
-mrc
+http://linux-ha.org/stonith.html
+http://sistina.com/gfs/howtos/gfs_howto/STOMITH__IO_Fencing.html
 -- 
-       Mike Castle       Life is like a clock:  You can work constantly
-  dalgoda@ix.netcom.com  and be right all the time, or not work at all
-www.netcom.com/~dalgoda/ and be right at least twice a day.  -- mrc
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
+/Jonathan Lundell.

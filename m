@@ -1,73 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291775AbSBHTxg>; Fri, 8 Feb 2002 14:53:36 -0500
+	id <S291780AbSBHUJ7>; Fri, 8 Feb 2002 15:09:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291778AbSBHTx0>; Fri, 8 Feb 2002 14:53:26 -0500
-Received: from paloma17.e0k.nbg-hannover.de ([62.181.130.17]:13814 "HELO
-	paloma17.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S291775AbSBHTxO>; Fri, 8 Feb 2002 14:53:14 -0500
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Andrew Morton <akpm@zip.com.au>
-Subject: Re: [patch] get_request starvation fix
-Date: Fri, 8 Feb 2002 20:53:04 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Jens Axboe <axboe@suse.de>, Ingo Molnar <mingo@elte.hu>,
-        Robert Love <rml@tech9.net>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200202081932.GAA05943@mangalore.zipworld.com.au> <3C642A90.751BB750@zip.com.au>
-In-Reply-To: <3C642A90.751BB750@zip.com.au>
+	id <S291782AbSBHUJw>; Fri, 8 Feb 2002 15:09:52 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10250 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291780AbSBHUJd>;
+	Fri, 8 Feb 2002 15:09:33 -0500
+Message-ID: <3C64304A.35BA9E47@zip.com.au>
+Date: Fri, 08 Feb 2002 12:08:42 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20020208195322Z291775-13996+19340@vger.kernel.org>
+To: Tigran Aivazian <tigran@veritas.com>
+CC: linux-kernel@vger.kernel.org, Hugh Dickins <hugh@veritas.com>
+Subject: Re: [patch] larger kernel stack (8k->16k) per task
+In-Reply-To: <Pine.LNX.4.33.0202081511400.1359-100000@einstein.homenet>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 8. February 2002 20:44, Andrew Morton wrote:
-> Dieter Nützel wrote:
-> > On Fri, Feb 08 2002, Andrew Morton wrote:
-> > > Here's a patch which addresses the get_request starvation problem.
-> >
-> > [snip]
-> >
-> > > Also, you noted the other day that a LILO run *never* terminated when
-> > > there was a dbench running.  This is in fact not due to request
-> > > starvation.  It's due to livelock in invalidate_bdev(), which is called
-> > > via ioctl(BLKFLSBUF) by LILO.  invalidate_bdev() will never terminate
-> > > as long as another task is generating locked buffers against the
-> > > device.
-> >
-> > [snip]
-> >
-> > Could this below related?
-> > I get system looks through lilo (bzlilo) from time to time with all
-> > latest kernels + O(1) + -aa + preempt
->
-> Depends what you mean by "system locks".
+Tigran Aivazian wrote:
+> 
+> ...
+> +               memset((char*)tsk+sizeof(struct task_struct), 0,        \
+> +                       THREAD_SIZE-sizeof(struct task_struct));        \
+> +       }                                                               \
 
-Hard lock up :-(
+This seems to be permanently enabled?  If so, I'd suggest that it
+be made conditional on CONFIG_SLAB_DEBUG, or such.
 
-Nothing in the log files.
-No SYSRQ works. Only reset. --- But ReiserFS works. Some few corrupted 
-*.o.flag files and most of the time a broken /usr/src/vmlinux or freshly 
-/boot/vmlinuz file.
+> ...
+> -# define INIT_TASK_SIZE        2048*sizeof(long)
+> +# define INIT_TASK_SIZE        4096*sizeof(long)
 
-> The invalidate_bdev() problem won't lock the machine.
+Personally, I'd rather we make the stack 4k for a while,
+and fix the resulting mess.
 
-I see.
-
-> In other words: if you run dbench, then lilo, lilo will not complete
-> until after dbench terminates.
-
-dbench wasn't run before
-Only several "sync" commands (by hand) during kernel build helps.
-
-> If you're seeing actual have-to-hit-reset lockups then that'll
-> be due to something quite different.
-
-Sadly, yes.
-
-Thanks,
-	Dieter
+-

@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290251AbSAOTYS>; Tue, 15 Jan 2002 14:24:18 -0500
+	id <S290257AbSAOT37>; Tue, 15 Jan 2002 14:29:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290255AbSAOTYI>; Tue, 15 Jan 2002 14:24:08 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:46859 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S290251AbSAOTX4>; Tue, 15 Jan 2002 14:23:56 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Tue, 15 Jan 2002 11:29:54 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Why not "attach" patches?
-In-Reply-To: <E16QZFv-0005wy-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.40.0201151129250.936-100000@blue1.dev.mcafeelabs.com>
+	id <S290260AbSAOT3u>; Tue, 15 Jan 2002 14:29:50 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:22938 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S290257AbSAOT3g>; Tue, 15 Jan 2002 14:29:36 -0500
+Message-ID: <3C4482A2.8040903@us.ibm.com>
+Date: Tue, 15 Jan 2002 11:27:30 -0800
+From: "David C. Hansen" <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020114
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
+CC: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] cs46xx: sound distortion after hours of use
+In-Reply-To: <200201151224.g0FCO8E06163@Port.imtp.ilyichevsk.odessa.ua> <20020115152000.GD13196@arthur.ubicom.tudelft.nl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Jan 2002, Alan Cox wrote:
+Erik Mouw wrote:
 
-> > all tools will see as a normal body), I simply WILL NOT apply it unless
-> > I have strong reason to. I usually wont even bother looking at it,
-> > unless I expected something special from the sender.
-> >
-> > Really. Don't send patches as attachments.
+>On Tue, Jan 15, 2002 at 02:24:00PM -0200, Denis Vlasenko wrote:
 >
-> BTW: If you are sending me anything DO use attachments. Especially if you
-> use any of the following, which seem to have some versions that mangle
-> inline diffs
+>>I have noticed that after hours of palying mp3s thru my onboard audio
+>>(I use cs46xx module) sound becomes distorted (high-pitch noise).
+>>
+>>Restarting xmms does not help.
+>>
+>>rmmod cs46xx; modprobe cs46xx fixes it.
+>>
+>Are you running a battery monitor or something similar? In that case it
+>can cause the CPU to go into SMM with interrupts disabled to talk to
+>the batteries and completely forget about servicing the audio IRQ
+>thereby fscking up the sound. I had the same problems on my laptop and
+>killing gnome_battery_applet fixed it.
 >
-> 	Lotus Notes
-> 	Pine
-> 	Kmail
-> 	Mozilla
-> 	Netscape
-> 	MS Outlook
+I have the same problem, but very rarely.  I, too, use the 
+rmmod/modprobe technique to fix it.  Have either of you found a way to 
+excite the problem without waiting hours for it to happen?
 
-Pine works fine here if you use  ^R
-
-
-
-
-- Davide
-
+--
+Dave Hansen
+haveblue@us.ibm.com
 

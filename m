@@ -1,44 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266474AbUHILIS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266484AbUHILKQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266474AbUHILIS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 07:08:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266484AbUHILIS
+	id S266484AbUHILKQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 07:10:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266486AbUHILKQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 07:08:18 -0400
-Received: from [213.146.154.40] ([213.146.154.40]:53708 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S266474AbUHILIR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 07:08:17 -0400
-Subject: Re: [BUG] 2.6.8-rc3 slab corruption (jffs2?)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Wu Jian Feng <jianfengw@mobilesoft.com.cn>, Dan Brown <dan_brown@ieee.org>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-mtd@lists.infradead.org,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1092033702.1438.2169.camel@imladris.demon.co.uk>
-References: <20040807150458.E2805@flint.arm.linux.org.uk>
-	 <20040808061206.GA5417@mobilesoft.com.cn>
-	 <1091962414.1438.977.camel@imladris.demon.co.uk>
-	 <20040809015950.GA20408@mobilesoft.com.cn>
-	 <1092033702.1438.2169.camel@imladris.demon.co.uk>
-Content-Type: text/plain
-Message-Id: <1092049678.4383.5149.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
-Date: Mon, 09 Aug 2004 12:07:59 +0100
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 9 Aug 2004 07:10:16 -0400
+Received: from mail015.syd.optusnet.com.au ([211.29.132.161]:61338 "EHLO
+	mail015.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S266484AbUHILKI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 07:10:08 -0400
+Message-ID: <41175B6E.7060308@kolivas.org>
+Date: Mon, 09 Aug 2004 21:09:34 +1000
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: axboe@suse.de, James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+References: <200408091013.i79ADQK0008995@burner.fokus.fraunhofer.de>
+In-Reply-To: <200408091013.i79ADQK0008995@burner.fokus.fraunhofer.de>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigAF6DF5F36577672C4BA68734"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-08-09 at 07:41 +0100, David Woodhouse wrote:
-> Russell hasn't been able to reproduce it. Can you? If so, how -- and can
-> you do same with CONFIG_JFFS2_FS_DEBUG=1 and show me the output?
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigAF6DF5F36577672C4BA68734
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Don't bother, thanks. I found the problem, in the part_erase() code.
-Waiting for the culprit to wake up and fix it... :)
+Joerg Schilling wrote:
+>>From axboe@suse.de  Fri Aug  6 17:10:35 2004
+>>We try, when they make sense...
+> 
+> 
+> You should learn what "make sense" means, Linux-2.6 is a clear move away from 
+> the demands of a Linux user who likes to write CDs/DVDs.
 
--- 
-dwmw2
+Could have fooled me. I'm a linux user who writes lots of cds and I had 
+heaps of trouble scanning busses and trains and automobiles on the atapi 
+interface till I could do a simple
 
+dev=/dev/hdd
+
+Seems they listened to this user.
+
+Cheers,
+Con
+
+--------------enigAF6DF5F36577672C4BA68734
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBF1txZUg7+tp6mRURAlGxAJ970bDDP89DfKXjYuJM21yeTJlvugCcCqLo
+bWJUyESBrwYdKXAc3s6UVD0=
+=+Z5L
+-----END PGP SIGNATURE-----
+
+--------------enigAF6DF5F36577672C4BA68734--

@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268483AbUJUN2X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268831AbUJUNQE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268483AbUJUN2X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 09:28:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268446AbUJUN2W
+	id S268831AbUJUNQE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 09:16:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268526AbUJTPxF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 09:28:22 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:32273 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S268505AbUJUN1F (ORCPT
+	Wed, 20 Oct 2004 11:53:05 -0400
+Received: from gprs214-106.eurotel.cz ([160.218.214.106]:49537 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S268446AbUJTPrh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 09:27:05 -0400
-Date: Thu, 21 Oct 2004 08:22:05 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Arjan van de Ven <arjan@fenrus.demon.nl>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
-       davem@davemloft.net, john.ronciak@intel.com,
-       ganesh.venkatesan@intel.com, akpm@osdl.org, romieu@fr.zoreil.com,
-       ctindel@users.sourceforge.net, fubar@us.ibm.com,
-       greearb@candelatech.com
-Subject: Re: [patch 2.6.9 0/11] Add MODULE_VERSION to several network drivers
-Message-ID: <20041021082205.A29340@tuxdriver.com>
-Mail-Followup-To: Arjan van de Ven <arjan@fenrus.demon.nl>,
-	netdev@oss.sgi.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
-	davem@davemloft.net, john.ronciak@intel.com,
-	ganesh.venkatesan@intel.com, akpm@osdl.org, romieu@fr.zoreil.com,
-	ctindel@users.sourceforge.net, fubar@us.ibm.com,
-	greearb@candelatech.com
-References: <20041020141146.C8775@tuxdriver.com> <1098350269.2810.17.camel@laptop.fenrus.com>
+	Wed, 20 Oct 2004 11:47:37 -0400
+Date: Wed, 20 Oct 2004 17:47:18 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: M?ns Rullg?rd <mru@mru.ath.cx>
+Cc: "Yu, Luming" <luming.yu@intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: High pitched noise from laptop: processor.c in linux 2.6
+Message-ID: <20041020154718.GD26439@elf.ucw.cz>
+References: <3ACA40606221794F80A5670F0AF15F8405D3BF5B@pdsmsx403> <20041018114109.GC4400@openzaurus.ucw.cz> <yw1xekjt4fa8.fsf@mru.ath.cx>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1098350269.2810.17.camel@laptop.fenrus.com>; from arjan@fenrus.demon.nl on Thu, Oct 21, 2004 at 11:17:49AM +0200
+In-Reply-To: <yw1xekjt4fa8.fsf@mru.ath.cx>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 21, 2004 at 11:17:49AM +0200, Arjan van de Ven wrote:
-> On Wed, 2004-10-20 at 20:11, John W. Linville wrote:
-> > Patches to add MODULE_VERSION lines to several network drivers...
-> > 
-> > Here is the list:
+Hi!
+
+> >> >> ... and lose all the benefits of HZ=1000.  What would happen if one
+> >> >> were to set HZ to a higher value, like 10000?
+> >> 
+> >> There is a similar issue filed on :
+> >> http://bugzilla.kernel.org/show_bug.cgi?id=3406
+> >> 
+> >
+> > He he, someone should write a driver to play music on
+> > those capacitors....
 > 
-> have you checked if the version of these drivers is actually useful? (eg
-> updated when the driver changes) If it's not I'd say adding a
-> MODULE_VERSION to it makes no sense whatsoever.
+> Why not?  They used to have special files that played music on the
+> printer when printed.
 
-Why do I feel like I'm being baited...? :-)
+Yes, it would be nice... to scare people :-). Also with such piece of
+software it would be rather easy to tell if given mainboard is junk.
 
-I would have to suspect that if a version string exists, that it has at
-least some meaning to the primary developers/maintainters.  It certainly
-is beyond my control to force the maintainers to give meaning to their
-version strings.
-
-Is this a political statement against the MODULE_VERSION macro and/or
-its purpose?  I'm not overly interested in debating that one...
-
-John
+								Pavel
 -- 
-John W. Linville
-linville@tuxdriver.com
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,76 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281159AbRKEOKZ>; Mon, 5 Nov 2001 09:10:25 -0500
+	id <S281160AbRKEOMz>; Mon, 5 Nov 2001 09:12:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281160AbRKEOKP>; Mon, 5 Nov 2001 09:10:15 -0500
-Received: from ahriman.Bucharest.roedu.net ([141.85.128.71]:7046 "HELO
-	ahriman.bucharest.roedu.net") by vger.kernel.org with SMTP
-	id <S281159AbRKEOKE>; Mon, 5 Nov 2001 09:10:04 -0500
-Date: Mon, 5 Nov 2001 16:11:21 +0200 (EET)
-From: Mihai RUSU <dizzy@roedu.net>
-X-X-Sender: <dizzy@ahriman.bucharest.roedu.net>
-To: Tux mailing list <tux-list@redhat.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Lots of questions about tux and kernel setup
-In-Reply-To: <Pine.LNX.4.30.0111051429040.18879-100000@mustard.heime.net>
-Message-ID: <Pine.LNX.4.33.0111051607320.8028-100000@ahriman.bucharest.roedu.net>
+	id <S281158AbRKEOMp>; Mon, 5 Nov 2001 09:12:45 -0500
+Received: from [195.66.192.167] ([195.66.192.167]:32011 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S281156AbRKEOMg>; Mon, 5 Nov 2001 09:12:36 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Ryan Hayle <hackel@walkingfish.com>, linux-kernel@vger.kernel.org
+Subject: Re: Poor IDE performance with VIA MVP3
+Date: Mon, 5 Nov 2001 16:12:00 +0000
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <20011105005033.A10060@isis.visi.com>
+In-Reply-To: <20011105005033.A10060@isis.visi.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01110516120000.00794@nemo>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Nov 2001, Roy Sigurd Karlsbakk wrote:
-
-> > to answer other "not asked" questions of yours ill point you to :
-> > http://www.specbench.org/osg/web99/results/res2000q4/web99-20001127-00075.html
-> >
-> > as that should help you very much :) (that /proc tweaking its pretty cool)
+On Monday 05 November 2001 06:50, Ryan Hayle wrote:
+> I have a VIA MVP3 (VT82C586B) controller on my motherboard, and am
+> experiencing extremely poor performance with a Maxtor 20G
+> (52049U4) drive.  It is an UDMA66-capable drive, but I'm only attempting
+> to use UDMA33 (with an 80-pin cable, as recommended).
 >
-> Thanks!
+> The drive is detected and works just fine, with no errors reported,
+> however the acces is painfully slow.  hdparm -t varries from 970 K/sec to
+> 2.5 M/sec. (See below)
+
+Are you saying that hdparm -T -t is yielding wildly varying results?
+Looks similar to failing hd symptoms or bug in IDE layer causing retries
+after error/timeout. What's in the logs?
+
+> The drive is attached by itself to the first IDE channel.  On the second I
+> have a Maxtor 6.8G (90680D4) and a CDROM.  hdparm -t on the second drive
+> typically gives 8-9 M/sec.  I manually set this drive with hdparm -X34
+> (mdma2), otherwise it generates errors.
 >
-no problem
-
-> Just one thing...
+> I have tried Linux 2.2.19, 2.4.12, and now 2.4.13, and all exhibit this
+> same behavior.  I was originally running with a 40-pin cable, and switched
+> it to the 80 to see if it might help, but it had no effect.  As some
+> background information, I was originally running linux off of the second
+> 6G drive, and opted to move it onto the 20G because it got better
+> performance.  Once I did this, however, the drive started performing
+> slowly like this, regardless of whether I'm booting to it or the 6G
+> drive.
 >
-> I need redundancy, so I can't go with RAID 0. I thought I'd go with RAID
-> 4, to avoid reading the parity info (and thereby wasting time), and still
-> have some quite good redundancy.
->
-i see
-we use raid-5 in production here
+> Does this sound like it's just a hardware problem?  Has anyone experienced
+> anything similar to this?  Any advice would be greatly apreciated.
 
-> Q: Should I use hardware RAID or software RAID here? I can see they've
-> been using a rather large stripe (or chunk) size on the RAID (2MB). The
-> RAID controller I planned to use only supports up to 512kB stripes. As I
-> said, the files I'm reading are rather large - up to 10GB each, or at
-> least 1GB. I'm reading 4-7Mbps (500-900kB) per connection and each
-> connection reads only one file. Will a large stripe size help me here?
->
-
-if you got the money i recommend Mylex AccelRAID (www.mylex.com)
-they are very well supported on linux and pretty fast too :)
-
-im not a raid expert but i found some interesting information in the
-DAC960 docs (/usr/src/linux/Documentation/README.DAC960)
-
-Quote:
-
-For maximum performance and the most efficient E2FSCK performance, it is
-recommended that EXT2 file systems be built with a 4KB block size and 16
-block stride to match the DAC960 controller's 64KB default stripe size.
-The command "mke2fs -b 4096 -R stride=16 <device>" is appropriate.
-Unless there will be a large number of small files on the file systems, it
-is also beneficial to add the "-i 16384" option to increase the bytes per
-inode parameter thereby reducing the file system metadata.  Finally, on
-systems that will only be run with Linux 2.2 or later kernels it is
-beneficial to enable sparse superblocks with the "-s 1" option.
-
-now i know you will not use ext2 (for data at least) but its a start point
-to optimize the RAID and FS (whatever your choice)
-
-i recommend XFS for those large files you have there
-
-----------------------------
-Mihai RUSU
-"... and what if this is as good as it gets ?"
-
+Well, I had problems with drives refusing to do [u]dma.
+On my home machine I found out that compiling kernel with support for VIA 
+chipset allowed udma to work ok (hdparm -T -t = ~20mb/s). Without that 
+support, my hd was stuck in pio, ~6mb/s.
+--
+vda

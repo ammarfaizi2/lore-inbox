@@ -1,59 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266186AbUJLMa6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266333AbUJLMcn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266186AbUJLMa6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 08:30:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266274AbUJLMa6
+	id S266333AbUJLMcn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 08:32:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266341AbUJLMcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 08:30:58 -0400
-Received: from rproxy.gmail.com ([64.233.170.206]:8093 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S266186AbUJLMay (ORCPT
+	Tue, 12 Oct 2004 08:32:43 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:9179 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S266333AbUJLMcc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 08:30:54 -0400
-Message-ID: <9cde8bff04101205302834206@mail.gmail.com>
-Date: Tue, 12 Oct 2004 21:30:54 +0900
-From: aq <aquynh@gmail.com>
-Reply-To: aq <aquynh@gmail.com>
-To: Jan Hudec <bulb@ucw.cz>
-Subject: Re: Kernel stack
-Cc: suthambhara nagaraj <suthambhara@gmail.com>,
-       "Dhiman, Gaurav" <gaurav.dhiman@ca.com>,
-       main kernel <linux-kernel@vger.kernel.org>,
-       kernel <kernelnewbies@nl.linux.org>
-In-Reply-To: <20041012102731.GQ703@vagabond>
+	Tue, 12 Oct 2004 08:32:32 -0400
+Date: Tue, 12 Oct 2004 14:33:19 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Daniel Walker <dwalker@mvista.com>, "K.R. Foley" <kr@cybsft.com>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Wen-chien Jesse Sung <jesse@cola.voip.idv.tw>,
+       Mark_H_Johnson@Raytheon.com
+Subject: Re: [patch] VP-2.6.9-rc4-mm1-T6
+Message-ID: <20041012123318.GA2102@elte.hu>
+References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com> <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <577528CFDFEFA643B3324B88812B57FE3055B9@inhyms21.ca.com>
-	 <46561a790410112351942e735@mail.gmail.com>
-	 <20041012094104.GM703@vagabond>
-	 <9cde8bff04101203052a711063@mail.gmail.com>
-	 <20041012102731.GQ703@vagabond>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041012091501.GA18562@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > >From what you all discuss, I can say: kernel memory is devided into 2
-> > part, and the upper part are shared between processes. The below part
-> > (the kernel stack, or 8K traditionally) is specifict for each process.
-> >
-> > Is that right?
-> 
-> No, it's not. There is just one kernel memory. In it each process has
-> it's own task_struct + kernel stack (by default 8K). There is no special
-> address mapping for these, nor are they allocated from a special area.
-> 
-> When a context of some process is entered, esp is pointed to the top of
-> it's stack. That's exactly all it takes to exchange stacks.
 
-OK, lets say there are 20 processes running in the system. Then the
-kernel must allocate 20 * 8K = 160K just for the stacks of these
-processes. All of these 160K always occupy the kernel (kernel memory
-is never swapped out). When a process actives, ESP would switch to
-point to the corresponding stack (of that process).
+i've uploaded -T7:
 
-The remainding memory of kernel therefore is equally accessible to all
-the processes.
+  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-T7
 
-Is that correct ?
+Changes since -T6:
 
-Thank you,
-AQ
+- further stabilization of PREEMPT_REALTIME: fixed the task-reaping
+  problem by moving TASK_ZOMBIE out of p->state and thus completely
+  separating preemption from the child-exit mechanism. This got rid of 
+  the 'Badness in exit.c' warnings on my SMP testbox (and related
+  crashes).
+
+- fixed the _mutex_trylock_bh missing symbol problem reported by K.R. 
+  Foley and Florian Schmidt.
+
+- turned the sysrq lock into a raw spinlock, to enable direct keyboard
+  irqs.
+
+PREEMPT_REALTIME is still experimental, but it's already looking much
+better on my testboxes.
+
+to create a -T7 tree from scratch the patching order is:
+
+   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.8.tar.bz2
+ + http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.9-rc4.bz2
+ + http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc4/2.6.9-rc4-mm1/2.6.9-rc4-mm1.bz2
+ + http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-T7
+
+	Ingo

@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266389AbUGPFRz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266459AbUGPF2O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266389AbUGPFRz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 01:17:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266460AbUGPFQA
+	id S266459AbUGPF2O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 01:28:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266460AbUGPF2O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 01:16:00 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:20627 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S266362AbUGPEud (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 00:50:33 -0400
-Subject: Re: [linux-audio-dev] Re: [announce] [patch] Voluntary Kernel
-	Preemption Patch
-From: Florin Andrei <florin@andrei.myip.org>
-To: linux-audio-dev@music.columbia.edu, linux-kernel@vger.kernel.org
-In-Reply-To: <20040710222510.0593f4a4.akpm@osdl.org>
-References: <20040709182638.GA11310@elte.hu>
-	 <20040710222510.0593f4a4.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1089953429.2631.3.camel@rivendell.home.local>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 15 Jul 2004 21:50:29 -0700
+	Fri, 16 Jul 2004 01:28:14 -0400
+Received: from smtp015.mail.yahoo.com ([216.136.173.59]:38229 "HELO
+	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S266459AbUGPF2N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 01:28:13 -0400
+Message-ID: <40F7675F.6090506@yahoo.com.au>
+Date: Fri, 16 Jul 2004 15:27:59 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040707 Debian/1.7-5
+X-Accept-Language: en
+MIME-Version: 1.0
+CC: Dave Hansen <haveblue@us.ibm.com>,
+       "Matthew C. Dobson [imap]" <colpatch@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: sched domains bringup race?
+References: <1089944026.32312.47.camel@nighthawk>	 <40F74599.7000606@yahoo.com.au> <1089948659.6886.2.camel@nighthawk> <40F74F9C.8080205@yahoo.com.au>
+In-Reply-To: <40F74F9C.8080205@yahoo.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-07-10 at 22:25, Andrew Morton wrote:
+Nick Piggin wrote:
+> Dave Hansen wrote:
+> 
+>> On Thu, 2004-07-15 at 20:03, Nick Piggin wrote:
+>>
+>>> It shouldn't because sched_init sets up dummy domains for
+>>> all runqueues.
+>>>
+>>> Obviously something is going wrong somewhere though.
+>>
+>>
+>>
+>> Hmmm, but there still might be some concurrency problems, right?  There
+>> isn't any locking while the setup is being done, so are all of the
+>> intermediate initialization states valid?  Or, could one of the CPUs be
+>> catching the init code in the middle of an operation?
+>>
+> 
+> cpu_attach_domain is supposed to be able to do the switchover
+> without any races.
 
-> What we need to do is to encourage audio testers to use ALSA drivers, to
-> enable CONFIG_SND_DEBUG in the kernel build and to set
-> /proc/asound/*/*/xrun_debug and to send us the traces which result from
-> underruns.
-
-Just out of curiosity:
-If i enable CONFIG_SND_DEBUG when compiling the kernel, but do not set
-/proc/*/xrun_debug, will that kernel be slower than without
-CONFIG_SND_DEBUG turned on?
-
--- 
-Florin Andrei
-
-http://florin.myip.org/
-
+Although the sched_domain_debug is definitely racy. It should really
+be locking each runqueue before traversing its domains. Just undef
+SCHED_DOMAIN_DEBUG to be sure...

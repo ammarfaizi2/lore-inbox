@@ -1,80 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285226AbSAUMPG>; Mon, 21 Jan 2002 07:15:06 -0500
+	id <S285338AbSAUM1I>; Mon, 21 Jan 2002 07:27:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285273AbSAUMO4>; Mon, 21 Jan 2002 07:14:56 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:8453 "HELO thebsh.namesys.com")
-	by vger.kernel.org with SMTP id <S285226AbSAUMOh>;
-	Mon, 21 Jan 2002 07:14:37 -0500
-From: Nikita Danilov <Nikita@Namesys.COM>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15436.4720.895209.146124@laputa.namesys.com>
-Date: Mon, 21 Jan 2002 16:06:56 +0300
-To: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        Reiserfs mail-list <Reiserfs-List@Namesys.COM>
+	id <S285352AbSAUM07>; Mon, 21 Jan 2002 07:26:59 -0500
+Received: from 89dyn20.com21.casema.net ([62.234.20.20]:19109 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S285338AbSAUM0p>; Mon, 21 Jan 2002 07:26:45 -0500
+Message-Id: <200201211226.NAA23145@cave.bitwizard.nl>
 Subject: Re: ls command is slow..... (reiserfs, VM)?
-In-Reply-To: <200201191630.RAA14567@cave.bitwizard.nl>
-In-Reply-To: <200201191630.RAA14567@cave.bitwizard.nl>
-X-Mailer: VM 7.00 under 21.4 (patch 3) "Academic Rigor" XEmacs Lucid
+In-Reply-To: <15436.4720.895209.146124@laputa.namesys.com> from Nikita Danilov
+ at "Jan 21, 2002 04:06:56 pm"
+To: Nikita Danilov <Nikita@Namesys.COM>
+Date: Mon, 21 Jan 2002 13:26:30 +0100 (MET)
+CC: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        Reiserfs mail-list <Reiserfs-List@Namesys.COM>
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rogier Wolff writes:
- > 
- > Hi,
- > 
- > the "ls" command is horribly slow on my system....
- > 
- > I'm doing some stuff with large files. From the old days when files
- > couldn't be larger than 2G, I'm manipulating 1G files.
- > 
- > There is currently a program runnning that will make a file sparse if
- > it finds only zeroes in a block. It's reading between 20 and 30Mb per
- > second off the disks, and currently finding only zeros, so there is no
- > writing going on.
+Nikita Danilov wrote:
+> Rogier Wolff writes:
+>  > 
+>  > Hi,
+>  > 
+>  > the "ls" command is horribly slow on my system....
+>  > 
+>  > I'm doing some stuff with large files. From the old days when files
+>  > couldn't be larger than 2G, I'm manipulating 1G files.
+>  > 
+>  > There is currently a program runnning that will make a file sparse if
+>  > it finds only zeroes in a block. It's reading between 20 and 30Mb per
+>  > second off the disks, and currently finding only zeros, so there is no
+>  > writing going on.
+> 
+> Reiserfs puts on-disk inode (stat-data) near file "body" which is an
+> array of pointers to actual blocks of the file. This optimizes the case
+> of short files, because inode and file "body" can be read in one io. But
+> when there are many large files in the same directory, this results in
+> inodes of the files from the same directory being far from each other on
+> the disk, making readdir() or sequential stat() slower. Reiser4 uses
+> (will use, that is) different allocation policy that tries to address
+> this.
 
-Reiserfs puts on-disk inode (stat-data) near file "body" which is an
-array of pointers to actual blocks of the file. This optimizes the case
-of short files, because inode and file "body" can be read in one io. But
-when there are many large files in the same directory, this results in
-inodes of the files from the same directory being far from each other on
-the disk, making readdir() or sequential stat() slower. Reiser4 uses
-(will use, that is) different allocation policy that tries to address
-this.
+OK. so the layout on the disk is non-optimal. 
 
- > 
- > Linux version 2.4.16 (root@cave) (gcc version egcs-2.91.66
- >   19990314/Linux (egcs-1.1.2 release)) #15 Fri Jan 18 13:00:57 MET 2002
- > 
- > There are 4 maxtor 160G IDE disks raided to something that looks more
- > like 600G....
- > 
- > # df .
- > Filesystem            Size  Used Avail Use% Mounted on
- > /dev/md0              603G  133G  470G  23% /recover5
- > 
- > The format is "reiserfs". 
- > 
- > Is this an odd situation for "VM", Is this related to the reiserfs?
- > The raid?
- > 
- >  From the strace below, you can see that most of the time is spent in
- > simple "stat" calls.
- > 
- > Before the trace below, I did the same "ls" which could have cached
- > all info some 10 seconds before. If I repeat the command, within a few
- > seconds, things are fast.
- > 
- > I can live with the current situation. I'm reporting this as a
- > data-point, so that Linux can become better. If someone wants me to do
- > some quick tests, 
- > 
- > 
- > 				Roger. 
- > 
+But I'd expect performance on the order of: 
 
-Nikita.
+	
+times 
+in ms
 
+0	my first stat finishes
+0.1	the other program has already issued a 1Mb read from the 
+	other part of the disk. 
+	my ls issues a second stat. 
+10 	seek finishes
+18	rotational latency. 
+58	read (1Mb) finishes (25Mb per second -> 40ms /Mb). 
+68	seek to "my ls" finishes. 
+76	rotational latency. 
+76.1	my stat has transferred its 1k, in the intervening time the
+	other program has already issued a new read for 1Mb of data.
+86	seek to other program's data finishes... 
+
+So I'd expect something like 10-14 stats per second. While in fact my
+trace showed 3 to 5 stats per second. Still at 50 files in a directory
+waiting around 4-5 seconds to see results from an "ls" is kind of
+annoyingly slow, and I would've reported it as well.
+
+Maybe the stat requires 2 to 3 IOs to complete? That would explain the
+difference.
+
+So the question becomes: Why does a stat require 2 or 3 IOs? OR why is
+too much independent stuff scheduled inbetween that one IO takes
+200-300 ms?...
+
+
+		Roger. 
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

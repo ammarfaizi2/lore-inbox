@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129540AbRBLE6N>; Sun, 11 Feb 2001 23:58:13 -0500
+	id <S129456AbRBLFIj>; Mon, 12 Feb 2001 00:08:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129681AbRBLE6D>; Sun, 11 Feb 2001 23:58:03 -0500
-Received: from zbt61.eastnet.gatech.edu ([128.61.107.189]:15366 "EHLO pinky")
-	by vger.kernel.org with ESMTP id <S129540AbRBLE55>;
-	Sun, 11 Feb 2001 23:57:57 -0500
-Date: Sun, 11 Feb 2001 23:57:53 -0500
-To: linux-kernel@vger.kernel.org
-Subject: * Re: [patch] 2.4.0, 2.4.0-ac12: APIC lock-ups
-Message-ID: <20010211235753.A16799@zarq.dhs.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-From: rc@zarq.dhs.org
+	id <S130421AbRBLFIa>; Mon, 12 Feb 2001 00:08:30 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:57606 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129456AbRBLFIP>; Mon, 12 Feb 2001 00:08:15 -0500
+Date: Mon, 12 Feb 2001 00:08:41 -0500 (EST)
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>
+X-X-Sender: <mharris@asdf.capslock.lan>
+To: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Duplicate posts coming from reiserfs-list?
+Message-ID: <Pine.LNX.4.33.0102120007430.1123-100000@asdf.capslock.lan>
+X-Unexpected-Header: The Spanish Inquisition
+Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+My duplicate folder contains numerous messages from linux-kernel
+cc'd to reiserfs-list.  I am not on reiserfs-list to my
+knowledge, so it looks like there is another loop somewhere..
 
-Maciej's io-apic patch fixed the long-standing problems with my
-ne2k-pci card (since at least 2.4.0-test10, and absent in 2.2.17).
 
-Ne2k-pci card (D-Link, exact model # would require a reboot and
-card pull)
-Dual 366 Celeron / Abit BP6 / 128MB (Problem showed up at both 366/550)
-Eth0 has over 3 million interrupts, and no loss of connection.
-2.4.0 (not .1)
 
-Thanks!
-Robert Cicconetti
+----------------------------------------------------------------------
+    Mike A. Harris  -  Linux advocate  -  Free Software advocate
+          This message is copyright 2001, all rights reserved.
+  Views expressed are my own, not necessarily shared by my employer.
+----------------------------------------------------------------------
+So, if anybody wants to have free hardware sent to them, don't call me, but 
+instead write your own operating system.  It has worked every time for me.
+
+                                           Linus Torvalds
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

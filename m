@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261901AbTJMTqw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 15:46:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbTJMTqw
+	id S261938AbTJMUVz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 16:21:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbTJMUVz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 15:46:52 -0400
-Received: from mail.kroah.org ([65.200.24.183]:54980 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261901AbTJMTqv (ORCPT
+	Mon, 13 Oct 2003 16:21:55 -0400
+Received: from code.and.org ([63.113.167.33]:23756 "EHLO mail.and.org")
+	by vger.kernel.org with ESMTP id S261938AbTJMUVy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 15:46:51 -0400
-Date: Mon, 13 Oct 2003 12:46:16 -0700
-From: Greg KH <greg@kroah.com>
-To: Tomas Konir <moje@vabo.cz>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: 2.6.0-test7 USB and Palm Tungsten problem
-Message-ID: <20031013194616.GA11679@kroah.com>
-References: <Pine.LNX.4.58.0310131855060.2551@moje.vabo.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0310131855060.2551@moje.vabo.cz>
-User-Agent: Mutt/1.4.1i
+	Mon, 13 Oct 2003 16:21:54 -0400
+To: asdfd esadd <retu834@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.7 thoughts: common well-architected object model
+References: <20031011183405.38980.qmail@web13007.mail.yahoo.com>
+From: James Antill <james@and.org>
+Content-Type: text/plain; charset=US-ASCII
+Date: 13 Oct 2003 16:21:45 -0400
+In-Reply-To: <20031011183405.38980.qmail@web13007.mail.yahoo.com>
+Message-ID: <m31xtg3n3a.fsf@code.and.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 13, 2003 at 07:06:49PM -0400, Tomas Konir wrote:
+asdfd esadd <retu834@yahoo.com> writes:
+
+> There is a connex, fork() might be a bad example,
 > 
-> Hi
-> I tried 2.6.0-test7, but new USB problem found. I tried to synchronize the 
-> palm Tungsten T over USB cradle. None happend, only short message about 
-> palm connected in log. Plug out the palm, but the visor module remained 
-> busy (count=1) and when i tried to rmmod uhci-hcd the rmmod stay in D 
-> state.
+> it's simple - yes but 20 years have passed as Solaris
+> is finding:
+> 
+> pid_t fork(void); vs. 
+> 
+> the next step in the evolution CreateProcess
+> 
+> BOOL CreateProcess(...)
 
-Try the patch below.  It should fix the problem for you.  If not, please
-let me know.
+ If you _really_ want this on Linux, then you can look in
+/usr/include/spawn.h
 
-thanks,
+ Of course, as with all of these ungeneric interfaces, it should
+really be called spawn-of-satan.h
 
-greg k-h
-
-
-# USB: fix visor driver to work with Palm OS 4+ devices
-# For some reason, they do not like the reset_config calls anymore.
-
-diff -Nru a/drivers/usb/serial/visor.c b/drivers/usb/serial/visor.c
---- a/drivers/usb/serial/visor.c	Mon Oct 13 12:45:25 2003
-+++ b/drivers/usb/serial/visor.c	Mon Oct 13 12:45:25 2003
-@@ -778,9 +778,6 @@
- 			serial->dev->actconfig->desc.bConfigurationValue);
- 		return -ENODEV;
- 	}
--	dbg("%s - reset config", __FUNCTION__);
--	retval = usb_reset_configuration (serial->dev);
--
- 
- 	if (id->driver_info) {
- 		startup = (void *)id->driver_info;
+-- 
+# James Antill -- james@and.org
+:0:
+* ^From: .*james@and\.org
+/dev/null

@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129868AbRAKREr>; Thu, 11 Jan 2001 12:04:47 -0500
+	id <S129511AbRAKRFh>; Thu, 11 Jan 2001 12:05:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129798AbRAKREh>; Thu, 11 Jan 2001 12:04:37 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:17163 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129967AbRAKREc>; Thu, 11 Jan 2001 12:04:32 -0500
-Subject: Re: Kernel (2.4.0) lock-up in "write" (using PTS).
-To: alvieboy@alvie.com (Alvaro Lopes)
-Date: Thu, 11 Jan 2001 17:06:20 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3A5BEA90.D3B68DCD@alvie.com> from "Alvaro Lopes" at Jan 10, 2001 04:52:32 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129595AbRAKRFT>; Thu, 11 Jan 2001 12:05:19 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:59405 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S129744AbRAKRFE>;
+	Thu, 11 Jan 2001 12:05:04 -0500
+Date: Thu, 11 Jan 2001 18:04:43 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: KIOBUFS ??
+Message-ID: <20010111180443.I640@suse.de>
+In-Reply-To: <Pine.LNX.4.10.10101100008160.23071-100000@master.linux-ide.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14GlBB-0002bL-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.10.10101100008160.23071-100000@master.linux-ide.org>; from andre@linux-ide.org on Wed, Jan 10, 2001 at 12:28:18AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 2.4.0 Kernel hangs up when I do the following stuff:
+On Wed, Jan 10 2001, Andre Hedrick wrote:
 > 
-> 	* Create a new PTY using openpty();
-> 	* Fork using forkpty. Now, the child process does this:
-> 		- Set the fd 0 line discipline to PPP;
-> 		- tries infinitely to read the standard input.
+> LT,
 > 
-> 	The parent process sets the line discipline of the master PTY fd to PPP
-> also, and then writes to it.
-> When I say it hangs up I really mean it. Not even the SYSRQ works.
+> Will this maddness insure that the granularity of the request will be
+> dependent to the k_dev_t?  Specifically, can one make KIOBUFS do the
+> sizing of buffer to match the ideal or specified size limits imposed by a
+> given block device?  Otherwise I will need to design an sub-request layer
+> to reduce the pain of restarting the entire request because of the huge
+> DMA-PRD-Chain that has no clue how to report error location and allow a
+> restart from NxPRD's before the error.
 
-Does this still happen on -ac ?
+Take a look at the XFS tree. I wrote IDE kiobuf support for that, and
+it simply doesn't take the request the queue before it has been
+completed (which may take many start-ups for a huge request). But unless
+you can make the prd table bigger (which doesn't make much sense anyway),
+I don't see any harm in setting up sg for each iteration.
 
+-- 
+* Jens Axboe <axboe@suse.de>
+* SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,47 +1,73 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314244AbSDVQJn>; Mon, 22 Apr 2002 12:09:43 -0400
+	id <S314258AbSDVQKW>; Mon, 22 Apr 2002 12:10:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314258AbSDVQJm>; Mon, 22 Apr 2002 12:09:42 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:39566 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S314244AbSDVQJk>;
-	Mon, 22 Apr 2002 12:09:40 -0400
-Date: Sun, 21 Apr 2002 18:00:22 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: davidm@hpl.hp.com
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: Why HZ on i386 is 100 ?
-Message-ID: <20020421180021.A155@toy.ucw.cz>
-In-Reply-To: <15548.22093.57788.557129@napali.hpl.hp.com> <Pine.LNX.4.44.0204161013050.1460-100000@blue1.dev.mcafeelabs.com> <15548.50859.169392.857907@napali.hpl.hp.com>
+	id <S314260AbSDVQKV>; Mon, 22 Apr 2002 12:10:21 -0400
+Received: from bitmover.com ([192.132.92.2]:36518 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S314258AbSDVQKN>;
+	Mon, 22 Apr 2002 12:10:13 -0400
+Date: Mon, 22 Apr 2002 09:10:12 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Larry McVoy <lm@bitmover.com>, Linus Torvalds <torvalds@transmeta.com>,
+        Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
+Subject: Re: BK, deltas, snapshots and fate of -pre...
+Message-ID: <20020422091012.C17613@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	Larry McVoy <lm@bitmover.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0204202108410.10137-100000@home.transmeta.com> <E16zGq9-0001EW-00@starship> <20020422084421.A17613@work.bitmover.com> <E16zJbd-0001GZ-00@starship>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
->   Davide> i still have pieces of paper on my desk about tests done on
->   Davide> my dual piii where by hacking HZ to 1000 the kernel build
->   Davide> time went from an average of 2min:30sec to an average
->   Davide> 2min:43sec. that is pretty close to 10%
+On Sun, Apr 21, 2002 at 05:50:25PM +0200, Daniel Phillips wrote:
+> > The existence (or non-existence) of the docs has absolutely no marketing
+> > value to BK.
 > 
-> The last time I measured timer tick overhead on ia64 it was well below
-> 1% of overhead.  I don't really like using kernel builds as a
-> benchmark, because there are far too many variables for the results to
-> have any long-term or cross-platform value.  But since it's popular, I
-> did measure it quickly on a relatively slow (old) Itanium box: with
-> 100Hz, the kernel compile was about 0.6% faster than with 1024Hz
-> (2.4.18 UP kernel).
+> So you have no problem with moving them to a website, leaving a url in
+> SubmittingPatches?
 
-.5% still looks like a lot to me. Good compiler optimization is .5% on 
-average...
+It's not my call to make.  Take it up with the people who own the tree.
 
-And think what it does with old 386sx.. Maybe time for those "tick on demand"
-patches?
-								Pavel
+Personally, I think a patch like this is more of what you need:
+
+===== bk-kernel-howto.txt 1.2 vs edited =====
+--- 1.2/Documentation/BK-usage/bk-kernel-howto.txt      Fri Mar 15 09:08:54 2002
++++ edited/bk-kernel-howto.txt  Mon Apr 22 09:04:26 2002
+@@ -1,5 +1,9 @@
++To placate some pedantic people who feel that this document is an
++advertisement, the name of the source management system has been
++replaced with "groovy SCM".
+ 
+-                  Doing the BK Thing, Penguin-Style
++
++                  Doing the groovy SCM Thing, Penguin-Style
+ 
+ 
+ 
+@@ -11,48 +15,48 @@
+ Due to the author's background, an operation may be described in terms
+ of CVS, or in terms of how that operation differs from CVS.
+ 
+-This is -not- intended to be BitKeeper documentation.  Always run
++This is -not- intended to be groovy SCM documentation.  Always run
+ "bk help <command>" or in X "bk helptool <command>" for reference
+ documentation.
+ 
+ 
+-BitKeeper Concepts
+-------------------
++groovy SCM Concepts
++-------------------
+
+etc.
+
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
-
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

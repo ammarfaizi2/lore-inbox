@@ -1,66 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261595AbTLWP3t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 10:29:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbTLWP3t
+	id S261270AbTLWPbr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 10:31:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbTLWPbq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 10:29:49 -0500
-Received: from linuxhacker.ru ([217.76.32.60]:20941 "EHLO shrek.linuxhacker.ru")
-	by vger.kernel.org with ESMTP id S261595AbTLWP3r (ORCPT
+	Tue, 23 Dec 2003 10:31:46 -0500
+Received: from havoc.gtf.org ([63.247.75.124]:3019 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S261270AbTLWPbo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 10:29:47 -0500
-Date: Tue, 23 Dec 2003 17:20:14 +0200
-From: Oleg Drokin <green@linuxhacker.ru>
-To: Carlo <devel@integra-sc.it>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Ooops with kernel 2.4.22 and reiserfs
-Message-ID: <20031223152014.GG2099@linuxhacker.ru>
-References: <1072126808.21200.3.camel@atena> <200312222205.hBMM5vLv012067@car.linuxhacker.ru> <1072173894.21198.36.camel@atena>
+	Tue, 23 Dec 2003 10:31:44 -0500
+Date: Tue, 23 Dec 2003 10:31:43 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Joe Thornber <thornber@sistina.com>
+Cc: Christophe Saout <christophe@saout.de>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Fruhwirth Clemens <clemens@endorphin.org>
+Subject: Re: [PATCH 2/2][RFC] Add dm-crypt target
+Message-ID: <20031223153143.GA28690@gtf.org>
+References: <1072129379.5570.73.camel@leto.cs.pocnet.net> <20031222215236.GB13103@leto.cs.pocnet.net> <20031223131355.A6864@infradead.org> <1072186582.4111.46.camel@leto.cs.pocnet.net> <20031223151545.GE476@reti>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1072173894.21198.36.camel@atena>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20031223151545.GE476@reti>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Tue, Dec 23, 2003 at 03:15:45PM +0000, Joe Thornber wrote:
+> On Tue, Dec 23, 2003 at 02:36:22PM +0100, Christophe Saout wrote:
+> > Am Di, den 23.12.2003 schrieb Christoph Hellwig um 14:13:
+> > 
+> > > Please include driver-private headers after kernel headers.
+> 
+> I tend to do things this way round to ensure that the private headers
+> have correctly included all that they need, rather than relying on the
+> accidental inclusion of a standard header.
 
-On Tue, Dec 23, 2003 at 11:04:59AM +0100, Carlo wrote:
-> > C> hda: set_drive_speed_status: status=0x58 { DriveReady SeekComplete
-> > C> DataRequest }
-> > C> ide0: Drive 0 didn't accept speed setting. Oh, well.
-> > C> hda: dma_intr: status=0x58 { DriveReady SeekComplete DataRequest }
-> > C> hda: CHECK for good STATUS
-> > Do you always get these IDE errors prior to oops?
-> No, on 6 oops only one has this error!
+I agree w/ Christoph...  overly defensive programming like this just
+creates a new class of programmer errors, doesn't really solve anything.
+It's standard Linux kernel style, and making code look like all other
+code has benefits in review and debugging.  Finally, the programmer
+should be paying attention to what kernel APIs he/she uses, and add
+headers accordingly.
 
-Ah, I see.
 
-> > C> Unable to handle kernel paging request at virtual address ffffffe0
-> ............
-> > Also please run your oops through ksymoops.
-> >>EIP; c0146553 <select_parent+33/a0>   <=====
-> Trace; c01465dd <shrink_dcache_parent+1d/30>
-> Trace; c013fa0f <d_unhash+2f/50>
-> Trace; c018d840 <reiserfs_rmdir+0/270>
-> Trace; c013fb69 <vfs_rmdir+139/1c0>
-> Trace; c013fc84 <sys_rmdir+94/e0>
-> Trace; c0114d00 <do_page_fault+0/48c>
-> Trace; c01088a3 <system_call+33/38>
+> > > > +static struct dm_daemon _kcryptd;
+> > > 
+> > > Again, rather strange naming..
+> > 
+> > This was done to be consistent with the other device-mapper code. I can
+> > change it though.
+> 
+> Kernel CRYPT Daemon
+> 
+> In the same way we have a kmirrord, kcopyd etc.  I'm happy with the
+> name.
 
-Sounds like a list corruption to me.
-Are you sure the memory in that box is ok?
+Not sure, but I think he meant the unneeded "_" prefix.
 
-> If it's necessary i can send the full /var/log/messages  passed through
-> ksymoops with a lot of "Unable to handle kernel paging request at
-> virtual address" but it's aboute 500Kb.
+	Jeff
 
-Run it through ksymoops and see if backtrace is different each time.
-Usually only first oops per boot is useful.
-If backtrace is different each time, perhaps list all unique oopses?
 
-Thank you.
 
-Bye,
-    Oleg

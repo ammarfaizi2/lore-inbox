@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262442AbVBXSTx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262445AbVBXSU1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262442AbVBXSTx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 13:19:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262445AbVBXSTx
+	id S262445AbVBXSU1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 13:20:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262446AbVBXSU0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 13:19:53 -0500
-Received: from sigma.informatik.hu-berlin.de ([141.20.20.51]:11406 "EHLO
-	sigma.informatik.hu-berlin.de") by vger.kernel.org with ESMTP
-	id S262442AbVBXSTe convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 13:19:34 -0500
-From: Axel =?iso-8859-1?q?Wei=DF?= <aweiss@informatik.hu-berlin.de>
-Organization: =?iso-8859-1?q?Humboldt-Universit=E4t_zu?= Berlin
-To: linux-kernel@vger.kernel.org
-Subject: Question: warnings about undefined symbols in splitted external modules
-Date: Thu, 24 Feb 2005 19:19:15 +0100
-User-Agent: KMail/1.7.1
+	Thu, 24 Feb 2005 13:20:26 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:39308 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S262445AbVBXSUK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 13:20:10 -0500
+Message-ID: <421E1AC1.1020901@nortel.com>
+Date: Thu, 24 Feb 2005 12:19:45 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200502241919.15785.aweiss@informatik.hu-berlin.de>
+To: "Chad N. Tindel" <chad@tindel.net>
+CC: Mike Galbraith <EFAULT@gmx.de>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Xterm Hangs - Possible scheduler defect?
+References: <20050224075756.GA18639@calma.pair.com> <30111.1109237503@www1.gmx.net> <20050224175331.GA18723@calma.pair.com>
+In-Reply-To: <20050224175331.GA18723@calma.pair.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Chad N. Tindel wrote:
 
-I have splitted a device driver for a dsp-board into two separate 
-modules. One of them does export some symbols for the other module and 
-gets loaded first, so there's no problem loading the second module.
+> 1.  Kernel preempts all.  There may be some hierarchy of kernel priorities
+> too, but it isn't important here.
+> 2.  SCHED_FIFO processes preempt all userspace applications.
+> 3.  SCHED_RR.
+> 4.  SCHED_OTHER.
+> 
+> Under no circumstances should any single CPU-bound userspace thread completely 
+> hose a 64-way SMP box.
+> 
+> Can somebody educate me on why it is correct to do it any other way?
 
-But compilation of the second module shows warnings:
-*** Warning: "<symbol>" [<path-to-module>.ko] undefined!
+Low-latency userspace apps.  The audio guys, for instance, are trying to 
+get latencies down to the 100us range.
 
-What should I do to get rid of these warnings? Is there a way to tell the 
-second module about symbols in the first one (something like 
-IMPORT_SYMBOL)?
+If random kernel threads can preempt userspace at any time, they wreak 
+havoc with latency as seen by userspace.
 
-Regards,
-			Axel
-
--- 
-Humboldt-Universität zu Berlin
-Institut für Informatik
-Signalverarbeitung und Mustererkennung
-Dipl.-Inf. Axel Weiß
-Rudower Chaussee 25
-12489 Berlin-Adlershof
-+49-30-2093-3050
-** www.freesp.de **
+Chris

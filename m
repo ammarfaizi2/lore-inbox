@@ -1,83 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264311AbTLERes (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 12:34:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264315AbTLERes
+	id S264262AbTLERg4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 12:36:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264261AbTLERg4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 12:34:48 -0500
-Received: from fw.osdl.org ([65.172.181.6]:65500 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264311AbTLEReq (ORCPT
+	Fri, 5 Dec 2003 12:36:56 -0500
+Received: from [65.39.167.249] ([65.39.167.249]:19875 "HELO innerfire.net")
+	by vger.kernel.org with SMTP id S264322AbTLERgM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 12:34:46 -0500
-Date: Fri, 5 Dec 2003 09:34:42 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Shawn Willden <shawn-lkml@willden.org>
-cc: linux-kernel@vger.kernel.org, Ryan Anderson <ryan@michonline.com>
-Subject: Re: Linux GPL and binary module exception clause?
-In-Reply-To: <200312050938.10607.shawn-lkml@willden.org>
-Message-ID: <Pine.LNX.4.58.0312050921500.9125@home.osdl.org>
-References: <Pine.LNX.4.58.0312042245350.9125@home.osdl.org>
- <MDEHLPKNGKAHNMBLJOLKAEJHIHAA.davids@webmaster.com> <20031205140304.GF17870@michonline.com>
- <200312050938.10607.shawn-lkml@willden.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 5 Dec 2003 12:36:12 -0500
+Message-Id: <S264322AbTLERgM/20031205173643Z+1105@vger.kernel.org>
+From: <gmack@innerfire.net>
+To: unlisted-recipients:; (no To-header on input)
+Date: Fri, 5 Dec 2003 12:36:12 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>From gmack@innerfire.net  Fri Dec  5 12:36:11 2003
+Received: from localhost (sendmail-bs@127.0.0.1)
+  by localhost with SMTP; 5 Dec 2003 17:36:11 -0000
+Date: Fri, 5 Dec 2003 12:36:11 -0500 (EST)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: David Schwartz <davids@webmaster.com>, Valdis.Kletnieks@vt.edu, 
+    Peter Chubb <peter@chubb.wattle.id.au>, linux-kernel@vger.kernel.org
+Subject: RE: Linux GPL and binary module exception clause? 
+In-Reply-To: <Pine.LNX.4.58.0312042245350.9125@home.osdl.org>
+Message-ID: <Pine.LNX.4.58.0312051232530.16547@innerfire.net>
+References: <MDEHLPKNGKAHNMBLJOLKMEIDIHAA.davids@webmaster.com>
+ <Pine.LNX.4.58.0312042245350.9125@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Status: No, hits=-104.5 required=4.0 tests=IN_REP_TO,SUBJ_ENDS_IN_Q_MARK,USER_IN_WHITELIST version=2.20
+X-Spam-Level: 
 
+Those views are scary when you consider that webmaster Inc sells closed
+source software that works exactly like IRC (wich is GPL)
 
-On Fri, 5 Dec 2003, Shawn Willden wrote:
+On Thu, 4 Dec 2003, Linus Torvalds wrote:
+
+> Date: Thu, 4 Dec 2003 22:58:09 -0800 (PST)
+> From: Linus Torvalds <torvalds@osdl.org>
+> To: David Schwartz <davids@webmaster.com>
+> Cc: Valdis.Kletnieks@vt.edu, Peter Chubb <peter@chubb.wattle.id.au>,
+>      linux-kernel@vger.kernel.org
+> Subject: RE: Linux GPL and binary module exception clause?
 >
-> So copies to disk and RAM that are "an essential step in the utilization of
-> the computer program" are non-infringing.
+>
+>
+> On Thu, 4 Dec 2003, David Schwartz wrote:
+> >
+> > The GPL gives you the unrestricted right to *use* the original work.
+> > This implicitly includes the right to peform any step necessary to use
+> > the work.
+>
+> No it doesn't.
+>
+> Your logic is fundamentally flawed, and/or your reading skills are
+> deficient.
+>
+> The GPL expressly states that the license does not restrict the act of
+> "running the Program" in any way, and yes, in that sense you may "use" the
+> program in whatever way you want.
+>
+> But that "use" is clearly limited to running the resultant program. It
+> very much does NOT say that you can "use the header files in any way you
+> want, including building non-GPL'd programs with them".
+>
+> In fact, it very much says the reverse. If you use the source code to
+> build a new program, the GPL _explicitly_ says that that new program has
+> to be GPL'd too.
+>
+> > Please tell me how you use a kernel header file, other than by including
+> > it in a code file, compiling that code file, and executing the result.
+>
+> You are a weasel, and you are trying to make the world look the way you
+> want it to, rather than the way it _is_.
+>
+> You use the word "use" in a sense that is not compatible with the GPL. You
+> claim that the GPL says that you can "use the program any way you want",
+> but that is simply not accurate or even _close_ to accurate. Go back and
+> read the GPL again. It says:
+>
+> 	"The act of running the Program is not restricted"
+>
+> and it very much does NOT say
+>
+> 	"The act of using parts of the source code of the Program is not
+> 	 restricted"
+>
+> In short: you do _NOT_ have the right to use a kernel header file (or any
+> other part of the kernel sources), unless that use results in a GPL'd
+> program.
+>
+> What you _do_ have the right is to _run_ the kernel any way you please
+> (this is the part you would like to redefine as "use the source code",
+> but that definition simply isn't allowed by the license, however much you
+> protest to the contrary).
+>
+> So you can run the kernel and create non-GPL'd programs while running it
+> to your hearts content. You can use it to control a nuclear submarine, and
+> that's totally outside the scope of the license (but if you do, please
+> note that the license does not imply any kind of warranty or similar).
+>
+> BUT YOU CAN NOT USE THE KERNEL HEADER FILES TO CREATE NON-GPL'D BINARIES.
+>
+> Comprende?
+>
+> 		Linus
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-Absolutely. But you don't have the right to distribute them.
+--
+Gerhard Mack
 
-Put another way: nVidia by _law_ has the right to do whatever essential
-step they need to be able to run Linux on their machines. That's what the
-exception to copyright law requires for any piece of software.
+gmack@innerfire.net
 
-And in fact you should be damn happy for that exception, because that
-exception is also what makes things like emulators legal - software houses
-can't claim that you can't use an emulator to run their programs (well,
-they may _try_, but I don't know if it ever gets to court).
-
-But what they do NOT have the right to do is to create derivative works of
-the kernel, and distribute them to others. That act of distribution is not
-essential _for_them_ to utilize the kernel program (while the act of
-_receiving_ the module and using it may be - so the recipient may well be
-in the clear).
-
-So in order for nVidia to be able to legally distribute a binary-only
-kernel module, they have to be able to feel damn sure that they can
-explain (in a court of law, if necessary) that the module isn't a derived
-work. Enough to convince a judge. That's really all that matters. Our
-blathering matters not at all.
-
-Now, personally, I have my own judgment on what "derivative works" are,
-and I use that judgement to decide if I'd complain or take the matter
-further.
-
-And so _I_ personally think some binary modules are ok, and you've heard
-my arguments as to why. That means that _I_ won't sue over such uses,
-since in my opinion there is no copyright infringement IN THOSE CASES due
-to me not considering them derivative.
-
-My opinions are fairly public, and the stuff I say in public actually does
-have legal weight in that it limits what I can do (if I say in public that
-I think something is ok, I have a much harder time then making the
-argument that it _isn't_ ok in front of a judge - this is what the
-"estoppel" thing is all about).
-
-But the thing is, my public opinions don't bind anybody else. So if Alan
-Cox, or _any_ other kernel copyright holder, disagrees with me (and trust
-me, people do), they have the right to complain on their own. Their case
-would be weakened by my stance (simply because a defendant could point to
-my opinions and the judge might be swayed by that).
-
-And quite frankly, my largest reason for not complaining loudly has often
-been that I'm lazy, and in several cases of sme people using GPL'd work
-improperly I have been ready to join a lawsuit that somebody else
-initiates. So far people have tended to back down.
-
-			Linus
+<>< As a computer I find your faith in technology amusing.

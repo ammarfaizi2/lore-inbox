@@ -1,42 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136036AbRDVLMN>; Sun, 22 Apr 2001 07:12:13 -0400
+	id <S136042AbRDVLkS>; Sun, 22 Apr 2001 07:40:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136037AbRDVLLy>; Sun, 22 Apr 2001 07:11:54 -0400
-Received: from mx1.port.ru ([194.67.23.32]:35593 "EHLO mx1.port.ru")
-	by vger.kernel.org with ESMTP id <S136036AbRDVLLj>;
-	Sun, 22 Apr 2001 07:11:39 -0400
-From: "Samium Gromoff" <_deepfire@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Delivery 2.4.x serial corruption
+	id <S136043AbRDVLj6>; Sun, 22 Apr 2001 07:39:58 -0400
+Received: from se1.cogenit.fr ([195.68.53.173]:1551 "EHLO se1.cogenit.fr")
+	by vger.kernel.org with ESMTP id <S136042AbRDVLjx>;
+	Sun, 22 Apr 2001 07:39:53 -0400
+Date: Sun, 22 Apr 2001 13:39:47 +0200
+From: Francois Romieu <romieu@cogenit.fr>
+To: "Eric S. Raymond" <esr@thyrsus.com>, CML2 <linux-kernel@vger.kernel.org>,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: Request for comment -- a better attribution system
+Message-ID: <20010422133947.A21908@se1.cogenit.fr>
+In-Reply-To: <esr@thyrsus.com> <200104220228.f3M2St1s023522@sleipnir.valparaiso.cl> <20010422001209.G15644@thyrsus.com>
 Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [195.34.30.62]
-In-Reply-To: <20010422110551Z136036-683+2202@vger.kernel.org>
-Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E14rHmD-0002NB-00@f3.mail.ru>
-Date: Sun, 22 Apr 2001 15:11:37 +0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010422001209.G15644@thyrsus.com>; from esr@thyrsus.com on Sun, Apr 22, 2001 at 12:12:09AM -0400
+X-Organisation: Marie's fan club - I
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   H guys, recently i have narrowed down the problem
- with my modem what had pissed me off for a long time:_
- before i thought it was ppp problem, because my small_
- brain maked that simple logic chain: if ppp0 iface err
- count grows -> tis is ppp problems.___________________
-  The fact is what the actual problem touches only
- serial port in 2,4, not 2.2.__
- it looks like that:  each time i enter minicom_______
- and request some info from my modem (ati6 or someth)__
- an fixed amount is going excellent, but then things___
- goes worse: second ati6 answer is HEAVILY corrupted___
- alot of chars is gone, some had come..._______________
-    in msdos such a problem does NOT exist______ additional info: it sligtly depends on LDEV sample time
-   
-   i use an `95 year 486 mboard with am5x86
-  p.s. with internal modems this problem is not that
-  chilling
-                     thanx guys
+Eric S. Raymond <esr@thyrsus.com> ecrit :
+[...]
+> Indeed this is the case.  I think such global cleanups are, in fact, less
+> frequent than they should be precisely *because* lkml's social machinery
+> discourages them.
+
+May be it's a good thing: I^H Joe Average has some bright idea, does a
+global cleanup, consume maintainers time. Problem: idea was not so bright or
+actually really low priority one. Make him loose some hours and he will
+think twice about the best way to spend time improving the kernel.
+If we see a growing number of entry in the credits file for global changes
+while drivers are not ported from 2.x to 2.x+2 (for example), there is be a 
+*real* problem.
+People get discouraged because of this ? I hope they'll never have to
+elaborate fixes for braindead hardware.
+Look again at l-k archive: people do global changes (see VFS, network api, 
+etc...).
+
+[...]
+> > Question is, is it really worth it to create specialized tools for this
+> > very rare case?
+> 
+> Yes, if the rare case of supporting global cleanups actually needs to be a
+> more common one.  Think about that for a while, please.
+
+I did and I feel we're building gaswork for nothing.
  
+-- 
+Ueimor

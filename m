@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267017AbUBFBJW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 20:09:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267101AbUBFBJW
+	id S267104AbUBFBMa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 20:12:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267106AbUBFBMa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 20:09:22 -0500
-Received: from mail.kroah.org ([65.200.24.183]:31389 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S267017AbUBFBJV (ORCPT
+	Thu, 5 Feb 2004 20:12:30 -0500
+Received: from [211.167.76.68] ([211.167.76.68]:41450 "HELO soulinfo.com")
+	by vger.kernel.org with SMTP id S267104AbUBFBMZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 20:09:21 -0500
-Date: Thu, 5 Feb 2004 17:09:12 -0800
-From: Greg KH <greg@kroah.com>
-To: mikem@beardog.cca.cpqcorp.net
-Cc: axboe@suse.de, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: cciss updates for 2.6 [1 of 11]
-Message-ID: <20040206010912.GE18681@kroah.com>
-References: <Pine.LNX.4.58.0402041737080.18320@beardog.cca.cpqcorp.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0402041737080.18320@beardog.cca.cpqcorp.net>
-User-Agent: Mutt/1.4.1i
+	Thu, 5 Feb 2004 20:12:25 -0500
+Date: Thu, 5 Feb 2004 08:47:02 +0800
+From: Hugang <hugang@soulinfo.com>
+To: ncunningham@users.sourceforge.net
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       swsusp-devel <swsusp-devel@lists.sourceforge.net>
+Subject: Re: Software Suspend 2.0 [for 2.6.2 resend]
+Message-Id: <20040205084702.0983e554@localhost>
+In-Reply-To: <1075458327.11414.2.camel@laptop-linux>
+References: <1075436665.2086.3.camel@laptop-linux>	<yw1xllnpiwgn.fsf@kth.se>
+	<1075458327.11414.2.camel@laptop-linux>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 04, 2004 at 06:04:46PM -0600, mikem@beardog.cca.cpqcorp.net wrote:
-> +
-> +static int find_PCI_BAR_index(struct pci_dev *pdev,
-> +				unsigned long pci_bar_addr)
+Organization: Beijing Soul
+X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-What are you trying to do here that the PCI core doesn't do already?
+On Fri, 30 Jan 2004 23:25:28 +1300
+Nigel Cunningham <ncunningham@users.sourceforge.net> wrote:
 
-thanks,
+> Ah. I see. It's not out, but you want bleeding edge :>
 
-greg k-h
+I don't known why LKML not accept my email, so resend.
+
+http://soulinfo.com/~hugang/swsusp2/
+
+I has been port swsusp2 specific patch to 2.6.2 and 2.6.2-mm1. 
+It base on rev6 for 2.6.1, plus my ppc update.
+
+-- 
+Hu Gang / Steve
+Linux Registered User 204016
+GPG Public Key: http://soulinfo.com/~hugang/HuGang.asc
+

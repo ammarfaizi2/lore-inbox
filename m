@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274809AbTGaQRB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 12:17:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274812AbTGaQRA
+	id S274820AbTGaQan (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 12:30:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274821AbTGaQan
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 12:17:00 -0400
-Received: from mail.kroah.org ([65.200.24.183]:33997 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S274809AbTGaQQ5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 12:16:57 -0400
-Date: Thu, 31 Jul 2003 08:48:15 -0700
-From: Greg KH <greg@kroah.com>
-To: Eugene Teo <eugene.teo@eugeneteo.net>
-Cc: Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: USB problems encountered when offing Zaurus
-Message-ID: <20030731154815.GB3202@kroah.com>
-References: <20030731065200.GA1226@eugeneteo.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030731065200.GA1226@eugeneteo.net>
-User-Agent: Mutt/1.4.1i
+	Thu, 31 Jul 2003 12:30:43 -0400
+Received: from natsmtp00.webmailer.de ([192.67.198.74]:52423 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP id S274820AbTGaQal
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 12:30:41 -0400
+Message-ID: <3F294461.2020902@softhome.net>
+Date: Thu, 31 Jul 2003 18:31:29 +0200
+From: "Ihar \"Philips\" Filipau" <filia@softhome.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Tom Rini <trini@kernel.crashing.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel 2.6 size increase
+References: <cArb.74D.1@gated-at.bofh.it> <cUTh.6JZ.33@gated-at.bofh.it> <eLiy.31J.3@gated-at.bofh.it> <eLBW.3eJ.7@gated-at.bofh.it> <eLVb.3yF.1@gated-at.bofh.it> <eOJn.5NI.1@gated-at.bofh.it> <f1dJ.GS.21@gated-at.bofh.it> <faTE.2LQ.3@gated-at.bofh.it> <fd56.4Te.9@gated-at.bofh.it> <fdRv.5uB.9@gated-at.bofh.it> <fnHd.54o.19@gated-at.bofh.it>
+In-Reply-To: <fnHd.54o.19@gated-at.bofh.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 31, 2003 at 02:52:00PM +0800, Eugene Teo wrote:
-> I got this when I try to turn off Zaurus SL-5560.
-> Any idea what went wrong?
+Tom Rini wrote:
 > 
-> I am using 2.6.0-test2-mm2-kj1. I am trying to turn
-> off my Zaurus, and then turn it on again. When I turn
-> it off, I get the following messages. When I turn it
-> on, and try to do a samba mount, i get pretty unstable
-> connection.pretty unstable
-> connection.
+> Power Management, sysfs plays / will play a role in finding out the order
+> in which devices get powered down.  This is important on some types of
+> embedded devices (and arguably important everywhere).
 > 
-> Eugene
-> 
-> Jul 31 14:40:27 amaryllis kernel: uhci-hcd 0000:00:1d.0: remove, state 3
-> Jul 31 14:40:27 amaryllis kernel: usb usb1: USB disconnect, address 1
-> Jul 31 14:40:27 amaryllis kernel: Call Trace:
-> Jul 31 14:40:27 amaryllis kernel:  [__might_sleep+95/114] __might_sleep+0x5f/0x72
 
-Known bug, I have a fix for this in my tree which will get sent to Linus
-in a few days.  The patch for this was posted to the linux-usb-devel
-mailing list last week if it's really bothering you :)
+   You are contradicting to yourself.
 
-thanks,
+   I have participated in creation of two specialized embedded systems, 
+and currently going into third one.
+   Every system were need some specialized shutdown sequence.
+   None of them were need power saving.
 
-greg k-h
+   Please do not generalize your particular system to everything else.
+
+   No one needs another self-aware self-configurable software subsystem, 
+which intended to do the task of the engineers. Especially when this 
+task takes 15 minutes to code.
+

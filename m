@@ -1,33 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131483AbRC3PLq>; Fri, 30 Mar 2001 10:11:46 -0500
+	id <S131478AbRC3PJ4>; Fri, 30 Mar 2001 10:09:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131481AbRC3PL0>; Fri, 30 Mar 2001 10:11:26 -0500
-Received: from aslan.scsiguy.com ([63.229.232.106]:13577 "EHLO
+	id <S131479AbRC3PJq>; Fri, 30 Mar 2001 10:09:46 -0500
+Received: from aslan.scsiguy.com ([63.229.232.106]:12297 "EHLO
 	aslan.scsiguy.com") by vger.kernel.org with ESMTP
-	id <S131480AbRC3PLS>; Fri, 30 Mar 2001 10:11:18 -0500
-Message-Id: <200103301509.f2UF9ws23721@aslan.scsiguy.com>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-cc: George Bonser <george@gator.com>, linux-kernel@vger.kernel.org,
-   Linus Torvalds <torvalds@transmeta.com>
+	id <S131478AbRC3PJ0>; Fri, 30 Mar 2001 10:09:26 -0500
+Message-Id: <200103301508.f2UF8fs23706@aslan.scsiguy.com>
+To: "George Bonser" <george@gator.com>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: 2.4.3 aic7xxx wont compile 
-In-Reply-To: Your message of "Fri, 30 Mar 2001 12:05:01 +0300."
-             <20010330120501.P23336@mea-ext.zmailer.org> 
-Date: Fri, 30 Mar 2001 08:09:58 -0700
+In-Reply-To: Your message of "Thu, 29 Mar 2001 23:19:22 PST."
+             <CHEKKPICCNOGICGMDODJOEHOCJAA.george@gator.com> 
+Date: Fri, 30 Mar 2001 08:08:41 -0700
 From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  Yes,  "-I." from gcc flags.
->
->  The sad part is that people have been patching right and left to get
->  that monster utility to compile because the dependencies say that it
->  must be used to remake the AIC sequencer binary image; which image is
->  perfectly ok except of its timestampts due to patching process.
+>Just tried to build 2.4.3, got:
 
-The sad part is that there has been a fix for this "problem", supplied
-by the author of the driver, for well over a month that everyone seems
-to ignore.
+Grumble. Grumble. Grumble.
+
+We've been through this before.  The 6.1.8 version of the
+driver has a fixed Makefile, doesn't even attempt to assemble
+the firmware unless you config your kernel to turn it on, and has
+been out for over a month now.
+
+I guess it will have to wait until 2.4.4.  I'll post updated
+patches for 2.4.3 later today, but the ones for 2.4.3-pre6 should
+apply fine.
 
 --
 Justin

@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262001AbTHYSBB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 14:01:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262004AbTHYSBA
+	id S262104AbTHYSFL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 14:05:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbTHYSFK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 14:01:00 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:36727 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S262001AbTHYSA7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 14:00:59 -0400
-Subject: 2.6.0test4 ACPI with nForce2 success
-From: "Trever L. Adams" <tadams-lists@myrealbox.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1061834424.2599.2.camel@aurora.localdomain>
+	Mon, 25 Aug 2003 14:05:10 -0400
+Received: from fed1mtao08.cox.net ([68.6.19.123]:37071 "EHLO
+	fed1mtao08.cox.net") by vger.kernel.org with ESMTP id S262104AbTHYSFD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 14:05:03 -0400
+Date: Mon, 25 Aug 2003 11:05:01 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix the -test3 input config damages
+Message-ID: <20030825180501.GD1075@ip68-0-152-218.tc.ph.cox.net>
+References: <20030822204903.GA847@ip68-0-152-218.tc.ph.cox.net> <Pine.GSO.4.21.0308251810010.15307-100000@waterleaf.sonytel.be>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
-Date: Mon, 25 Aug 2003 14:00:56 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0308251810010.15307-100000@waterleaf.sonytel.be>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been one of these people who have been having to boot with
-pci=noacpi to get up with much of my hardware initialized.  My system is
-now working without it.  It isn't getting shutoff on irq storms or
-anything.
+On Mon, Aug 25, 2003 at 06:13:32PM +0200, Geert Uytterhoeven wrote:
+> On Fri, 22 Aug 2003, Tom Rini wrote:
+> > --- 1.18/drivers/video/console/Kconfig	Wed Jul 16 10:39:32 2003
+> > +++ edited/drivers/video/console/Kconfig	Fri Aug 22 13:27:21 2003
+> > @@ -5,7 +5,7 @@
+> >  menu "Console display driver support"
+> >  
+> >  config VGA_CONSOLE
+> > -	bool "VGA text console" if EMBEDDED || !X86
+> > +	bool "VGA text console" if STANDARD && X86
+> >  	depends on !ARCH_ACORN && !ARCH_EBSA110 || !4xx && !8xx
+> >  	default y
+> >  	help
+> 
+> Ugh, this makes VGA_CONSOLE default to yes if X86 is not set, right? Don't you
+> want
+> 
+>     bool "VGA text console" if !STANDARD || X86
+> 
+> ?
+> 
+> Or do I need an update course on Kconfig syntax?
 
-My only possible problem is this:
+No, I think that's a logic error on my part.  What I intended was
+default to Y on (STANDARD && X86), otherwise ask.  So it should have
+been:
+bool "VGA text console" if !(STANDARD && X86)
 
- 13:59:40  up 8 min,  3 users,  load average: 0.86, 0.81, 0.36
-           CPU0
-  0:     516847          XT-PIC  timer
-
-I am not sure how fast the irq's for the timer should be going up.  So,
-that may be an issue.
-
-I am aware some of these changes are causing problems for others, but
-they fixed the mess for me.
-
-Thank you.
-
-Trever
---
-"He who chops his own wood, is warm twice." -- Abraham Lincoln
-
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

@@ -1,59 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265572AbSJRSvz>; Fri, 18 Oct 2002 14:51:55 -0400
+	id <S265616AbSJRSyz>; Fri, 18 Oct 2002 14:54:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265567AbSJRSvp>; Fri, 18 Oct 2002 14:51:45 -0400
-Received: from nameservices.net ([208.234.25.16]:29722 "EHLO opersys.com")
-	by vger.kernel.org with ESMTP id <S265355AbSJRStb>;
-	Fri, 18 Oct 2002 14:49:31 -0400
-Message-ID: <3DB05A60.5D64425@opersys.com>
-Date: Fri, 18 Oct 2002 15:00:48 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: frowand@mvista.com
-CC: linux-kernel <linux-kernel@vger.kernel.org>, LTT-Dev <ltt-dev@shafik.org>
-Subject: Re: [ltt-dev] [ANNOUNCE] LTT 0.9.6pre2: Per-CPU buffers, TSC timestamps, 
- etc.
-References: <3DAF850D.D104A6D@opersys.com> <3DB053C4.8458B0D8@mvista.com>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+	id <S265278AbSJRSvc>; Fri, 18 Oct 2002 14:51:32 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:15448 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S265277AbSJRSpV>; Fri, 18 Oct 2002 14:45:21 -0400
+Date: Fri, 18 Oct 2002 20:51:32 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       george anzinger <george@mvista.com>, john stultz <johnstul@us.ibm.com>,
+       Michael Hohnbaum <hbaum@us.ibm.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] linux-2.5.34_vsyscall_A0
+Message-ID: <20021018185132.GW23930@dualathlon.random>
+References: <20021018171139.GM23930@dualathlon.random> <Pine.LNX.4.44.0210181018070.21302-100000@home.transmeta.com> <20021018172121.GO23930@dualathlon.random> <1034966240.5851.20.camel@dell_ss3.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1034966240.5851.20.camel@dell_ss3.pdx.osdl.net>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Oct 18, 2002 at 11:37:19AM -0700, Stephen Hemminger wrote:
+> 
+> > agreed. Hear my idea:
+> > 
+> > 	actually my idea on 64bit was to use the high 8 bit of each 64bit word to
+> > 	give you the cpuid, to get out the coherent data, including the sequence
+> > 	number that are read and written inversely with mb() like now (the
+> > 	sequence number as well will become per-cpu), so it is definitely doable
+> > 	without any single problem and in a very performant way, just not as
+> > 	easy as without the per-cpu info. Even if segmentation per-cpu tricks
+> > 	would be possible or available (remeber long mode is pure paging, no
+> > 	segmentation) it would be not worthwhile IMHO, the cpuid encoded
+> > 	atomically in each 64bit data provided by the vsyscall seems a much
+> > 	simpler and possibly more performant solution. You set a different
+> > 	per-cpu data-mapping with different pte settings in each cpu. The
+> > 	vsyscall bytecode remains the same, aware about this cpuid encoded in
+> > 	each 64bit word. Doing it in 32bit is ugly (or at least much slower)
+> > 	since most data is natively at least 32bit, it would need some slow
+> > 	demultiplexing.
+> 
+> At least on IA32 you could still use XCHG64 to atomically access the
+> values, but that always forces a write so it isn't cache friendly. Still
 
-Frank Rowand wrote:
-> I noticed that the Linux 2.4.19 patch is not carried forward from
-> pre1 to pre2.  Are you planning to no longer maintain support for
-> LTT in the Linux 2.4 line?
+yep, it would hurt scalability if possible at all, and I doubt the
+chpxchg64 could work on a readonly piece of memory, the pte is marked
+writeprotect, so it should generate a sigsegv.
 
-The problem is that the kernel patch is highly dependent on the kernel's
-own development. The tracing infrastructure has to change as the kernel
-changes. Incidently, the user tools also have to change to accomodate
-the newer kernels. There's a point where keeping compatibility with
-older kernels becomes increasingly difficult and would entail one of
-two things:
-- Burden the user tools with legacy support.
-- Backport all new features to older kernels.
+> it probably is better than encoding the data in 32bit.  It all depends
 
-Neither of these is really interesting. Of course, if someone wants to
-take the time to backport some of the new features to older kernels
-I would gladly publish their patch with the tools. The time it takes
-to work out an LTT patch is non-negligeable and I don't have the
-bandwidth to maintain multiple kernel patches in parallel. This is
-why I'm concentrating on getting LTT to work with the latest and
-greatest.
+yes.
 
-Obviously things will be much simpler once the LTT patch is included
-in the kernel.
+> on how much data is needed.
+> 
 
-Karim
 
-===================================================
-                 Karim Yaghmour
-               karim@opersys.com
-      Embedded and Real-Time Linux Expert
-===================================================
+Andrea

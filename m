@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313940AbSDPW6t>; Tue, 16 Apr 2002 18:58:49 -0400
+	id <S313938AbSDPW67>; Tue, 16 Apr 2002 18:58:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313939AbSDPW6r>; Tue, 16 Apr 2002 18:58:47 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:61683 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S313938AbSDPW6n>; Tue, 16 Apr 2002 18:58:43 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Tue, 16 Apr 2002 16:56:31 -0600
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why HZ on i386 is 100 ?
-Message-ID: <20020416225631.GD20464@turbolinux.com>
-Mail-Followup-To: Herbert Xu <herbert@gondor.apana.org.au>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020416222156.GB20464@turbolinux.com> <E16xba3-0005tw-00@gondolin.me.apana.org.au>
+	id <S313939AbSDPW66>; Tue, 16 Apr 2002 18:58:58 -0400
+Received: from granite.he.net ([216.218.226.66]:28432 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id <S313938AbSDPW6z>;
+	Tue, 16 Apr 2002 18:58:55 -0400
+Date: Tue, 16 Apr 2002 15:58:52 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] USB device support for 2.5.8
+Message-ID: <20020416155852.B11902@kroah.com>
+Mail-Followup-To: Greg KH <greg@kroah.com>,
+	linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <20020416155433.A11902@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+User-Agent: Mutt/1.2.5i
+X-Operating-System: Linux 2.2.20 (i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 17, 2002  08:37 +1000, Herbert Xu wrote:
-> Why are we still measuring uptime using the tick variable? Ticks != time.
-> Surely we should be recording the boot time somewhere (probably on a
-> file system), and then comparing that with the current time?
+On Tue, Apr 16, 2002 at 03:54:33PM -0700, Greg KH wrote:
+> 
+> These changesets add USB device support to the kernel.  It is the Lineo
+> code cleaned up a bit and dropped into the drivers/usb/device/
+> directory.  Over time, the code will migrate into other usb directories
+> as the core of the device and host code merge together.  This release
+> provides a version that builds properly, and provides a good base for
+> people to start working with.
+> 
+> Thanks to Stuart Lynne from Lineo for releasing this code and working to
+> have it included in the tree.
+> 
+> Pull from:  bk://linuxusb.bkbits.net/usbd-2.5
 
-Er, because the 'tick' is a valid count of the actual time that the
-system has been running, while the "boot time" is totally meaningless.
-What if the system has no RTC, or the RTC is wrong until later in the
-boot sequence when it can be set by the user/ntpd?  What if you pass
-daylight savings time?  Does your uptime increase/decrease by an hour?
+These changesets can be found in a single patch at:
+	http://www.kernel.org/pub/linux/kernel/people/gregkh/usb/2.5/usbd-2.5.8.patch.gz
+for those who don't want to mess with Bitkeeper.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+thanks,
 
+greg k-h

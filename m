@@ -1,54 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263444AbSIPXOY>; Mon, 16 Sep 2002 19:14:24 -0400
+	id <S263334AbSIPXNQ>; Mon, 16 Sep 2002 19:13:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263446AbSIPXOY>; Mon, 16 Sep 2002 19:14:24 -0400
-Received: from web13207.mail.yahoo.com ([216.136.174.192]:10830 "HELO
-	web13207.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S263444AbSIPXOV>; Mon, 16 Sep 2002 19:14:21 -0400
-Message-ID: <20020916231919.32664.qmail@web13207.mail.yahoo.com>
-Date: Mon, 16 Sep 2002 16:19:19 -0700 (PDT)
-From: Srinivas Chavva <chavvasrini@yahoo.com>
-Subject: Re: Configuring kernel
-To: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020916231344.A1328@mars.ravnborg.org>
+	id <S263344AbSIPXNQ>; Mon, 16 Sep 2002 19:13:16 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:46864 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S263334AbSIPXNN>; Mon, 16 Sep 2002 19:13:13 -0400
+Message-ID: <3D866667.1EBFDF31@linux-m68k.org>
+Date: Tue, 17 Sep 2002 01:16:55 +0200
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+       kbuild-devel <kbuild-devel@lists.sourceforge.net>
+Subject: linux kernel conf 0.6
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am extremely sorry I made a typing error. When I
-executed the command make xconfig I got the following
-output
-rm -f include/asm
-(cd include; ln -sf asm -i386 asm)
-make -C scripts kconfig.tk
-make: *** scripts: No such file or directory. Stop.
-make: *** [xconfig] Error 2
+Hi,
 
-Please help me to fix the error.
-Thanking You.
-Regards,
-Srinivas Chavva
+At http://www.xs4all.nl/~zippel/lc/lkc-0.6.tar.gz you can find the
+latest version of the new config system. Changes this time:
+- update to 2.5.35
+- I included my convert script and prepare/fixup patch to convert all
+archs
+- qconf got a split screen mode
+- the save bug is fixed
+- the converter mostly ignores "define_bool CONFIG_FOO n" now, they are
+only used for type definitions. They were only needed to keep the old
+config system working, but shouldn't be needed anymore, this allows to
+generate slightly better dependencies in the generated configs.
 
---- Sam Ravnborg <sam@ravnborg.org> wrote:
-> On Sun, Sep 15, 2002 at 03:34:08PM -0700, Srinivas
-> Chavva wrote:
-> > When I tried to execute the command "make xconfig"
-> I
-> > got the following output
-> > 
-> > rm -f include/asm
-> > (cd include; ln -sf asm -i386 asm)
-> > make -C scripts knconfig.tk
-> There is no file named "knconfig.tk" - check your
-> top-level Makefile.
-> The correct name is "kconfig.tk".
-> 
-> 	Sam
-
-
-__________________________________________________
-Do you Yahoo!?
-Yahoo! News - Today's headlines
-http://news.yahoo.com
+bye, Roman

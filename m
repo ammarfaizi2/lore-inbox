@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261467AbSIZT47>; Thu, 26 Sep 2002 15:56:59 -0400
+	id <S261495AbSIZTyy>; Thu, 26 Sep 2002 15:54:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261469AbSIZT47>; Thu, 26 Sep 2002 15:56:59 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:49850 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261467AbSIZT46>; Thu, 26 Sep 2002 15:56:58 -0400
-Message-ID: <3D93678B.8EF7A420@us.ibm.com>
-Date: Thu, 26 Sep 2002 13:01:15 -0700
-From: Larry Kessler <kessler@us.ibm.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
-X-Accept-Language: en
+	id <S261496AbSIZTyy>; Thu, 26 Sep 2002 15:54:54 -0400
+Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:37760 "EHLO
+	completely") by vger.kernel.org with ESMTP id <S261495AbSIZTyx>;
+	Thu, 26 Sep 2002 15:54:53 -0400
+From: Ryan Cumming <ryan@completely.kicks-ass.org>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Subject: Re: [BK PATCH] Add ext3 indexed directory (htree) support
+Date: Thu, 26 Sep 2002 12:59:39 -0700
+User-Agent: KMail/1.4.7-cool
+Cc: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org
+References: <200209261951.g8QJpn0t013428@pincoya.inf.utfsm.cl>
+In-Reply-To: <200209261951.g8QJpn0t013428@pincoya.inf.utfsm.cl>
 MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: Greg KH <greg@kroah.com>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       "Andrew V. Savochkin" <saw@saw.sw.com.sg>,
-       cgl_discussion mailing list <cgl_discussion@osdl.org>,
-       evlog mailing list <evlog-developers@lists.sourceforge.net>,
-       Rusty Russell <rusty@rustcorp.com.au>, Hien Nguyen <hien@us.ibm.com>,
-       James Keniston <kenistoj@us.ibm.com>,
-       Mike Sullivan <sullivam@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>
-Subject: Re: [PATCH-RFC] README 1ST - New problem logging macros (2.5.38)
-References: <Pine.LNX.4.44L.0209261636340.1837-100000@duckman.distro.conectiva>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain;
+  charset="big5"
+Content-Transfer-Encoding: 8bit
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200209261259.49258.ryan@completely.kicks-ass.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> 
-> On Thu, 26 Sep 2002, Larry Kessler wrote:
-> 
-> > Distros could be motivated to provide translations, etc. for the kernel
-> > versions that they base new releases on.
-> 
-> Unlikely.  It's hard enough already when somebody who doesn't
-> speak the language submits a bugreport by email or through
-> bugzilla.
-> 
-> I don't want to imagine receiving a bug report from eg. Japan
-> that has a cut'n'pasted kernel error in Japanese. It's not just
-> that I can't read Japanese ... I don't even have the FONT to
-> display it.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Right, so the tools that take kernel events and display them in 
-human-readable form must be written to always display in english,
-with the option to also display in another language, thus allowing
-the non-English-reading SysAdmin in Japan to easily understand the
-info.
+On September 26, 2002 12:51, Horst von Brand wrote:
+> > The interesting fsck errors this time were:
+> > 245782 was part of the orphaned inode list FIXED
+> > 245792 was part of the orphaned inode list FIXED
+> > 245797...
+> >
+> > 245782,245792 don't exist according to ncheck.
+>
+> Old(ish) WD disk, perhaps PIIX IDE? At home I get filesystem corruption if
+> DMA is enabled...
+
+No, 40GB Maxtor, VT133A chipset. This box has experienced -zero- filesystem 
+corruption since it was purchased, up until I tried the directory index 
+patch. And even then, it only shows up with the dir_index flag set.
+
+OTOH, much of this corruption could be because journal replay doesn't seem to 
+be happening after a filesystem is remounted read-only due to errors. That 
+would certainly leave the filesystem in an inconsistant state.
+
+- -Ryan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE9k2c0LGMzRzbJfbQRAt5lAJ4mSPUgX3EPDsvzLnS0f768Rc51nwCfUpdk
+ZSt7Q/WjmA1kyPF/C9DS4Nc=
+=6uMQ
+-----END PGP SIGNATURE-----

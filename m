@@ -1,70 +1,157 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262567AbTJTNL0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 09:11:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbTJTNL0
+	id S262566AbTJTNGl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 09:06:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262567AbTJTNGl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 09:11:26 -0400
-Received: from motgate5.mot.com ([144.189.100.105]:21729 "EHLO
-	motgate5.mot.com") by vger.kernel.org with ESMTP id S262567AbTJTNLY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 09:11:24 -0400
-Message-ID: <EDFB2B1ED0A1D7118A0A00065BF2490D4B6240@il06exm13.corp.mot.com>
-From: Veeriah Vijay-A19819 <vijaysv@motorola.com>
+	Mon, 20 Oct 2003 09:06:41 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:50068 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262566AbTJTNGg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 09:06:36 -0400
+Subject: K 2.6 test6 strange signal behaviour
+From: Ken Foskey <foskey@optushome.com.au>
 To: linux-kernel@vger.kernel.org
-Subject: RE: Problem: Active TCP connection  aborts  for no apparent reaso
-	n
-Date: Mon, 20 Oct 2003 08:11:06 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.2)
-Content-Type: text/plain
+Content-Type: multipart/mixed; boundary="=-tTmQbcPgI7el2lMZ+Thn"
+Message-Id: <1066654886.5930.57.camel@gandalf.foskey.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 20 Oct 2003 23:01:26 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am using 2.4.22 kernel and seem to have a problem where my TCP connection aborts
-when both the client and the server are, perfectly fine, up and running and sending 
-data to each other. I have enabled keepalive on both the client and server side.
 
-I was able to reproduce this problem by doing the following.
-I  setup the tcp parameters to be as follows :
-              tcp_keepalive_time =  2
-              tcp_keepalive_probes = 1
-              tcp_keepalive_intvl = 3
-My server and client send data to each other approximately every 2 seconds.
+--=-tTmQbcPgI7el2lMZ+Thn
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
->From tcpdump output I figured out the following.  After a keepalive_probe is sent out (at the expiry of  keepalive_time)
-if it is immediately followed by some valid data, then the ack for the keepalive_probe from the remote side does 
-not seem to reset the probes_out to 0. Because of  this when the keepalive_timer expires 
-the next time it RSTs the connection.
 
-The following code in tcp_input.c, seems to be the problem
-	if ((prior_packets = tp->packets_out) == 0)
-		goto no_queue;
+I have a problem with signals.
 
-	// Vijay's COMMENT - probes_out not being reset in this scenario.
-            ....
-	          return 1;
+I get multiple signals from a single execution of the program.  I have
+attached a stripped source.  Here is the critical snippet, you can see
+the signal handler being set before each call:
 
-            no_queue:
-                      tp->probes_out = 0
-            ....
+	signal( SIGSEGV,	SignalHdl );
+	signal( SIGBUS,		SignalHdl );
+	fprintf( stderr, "Running \n" );
+	result = func( eT, p );
+	fprintf( stderr, "Finished \n" );
+	signal( SIGSEGV,	SIG_DFL );
+	signal( SIGBUS,		SIG_DFL );
 
-Since in my case prior_packets is not 0, because of the valid data, probes_out is not being reset. Is it okay to set       "tp->probes_out = 0" before the "return 1" line above ?
+When I run the code, that does 2 derefs of NULL you will see 2 instances
+of "Running" and the handler is not invoked at all for the second time.
 
-In tcp_timer.c, the following code seems to reset the connection on the next keepalive
-timer expiry,
-    if (!tp->keepalive_probes && tp->probes_out >= sysctl_tcp_keepalive_probes) ||
-         ...)
-    {
-	tcp_SEnd_Active_reset (sk, GFP_ATOMIC);
-	tcp_write_err(sk);
-	goto out;
-    }
+./solar:
 
-Can somebody let me know  if  I am missing something here or is it a genuine problem that 
-has been fixed in a later release. I see the same problem in 2.5.25 kernel sources as well.
 
-I can provide the tcpdump if need be.
+Getting from NULL
+Setting Jump
+Running
+Signal 11 caught
+After jump
+Setting to NULL
+Setting Jump
+Running
+Segmentation fault
 
-Thanks,
-Vijay
+I am running debian version of K 2.6 test6.  This has occurred on all
+versions of K2.6 though, not specific.
+
+-- 
+Thanks
+KenF
+OpenOffice.org developer
+
+--=-tTmQbcPgI7el2lMZ+Thn
+Content-Disposition: attachment; filename=solar.c
+Content-Type: text/x-c; name=solar.c; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+
+#include <stdio.h>
+#include <signal.h>
+#include <setjmp.h>
+
+/*************************************************************************
+|*	Typdeclarations for memory access test functions
+*************************************************************************/
+typedef int (*TestFunc)( void* );
+
+/*************************************************************************
+*************************************************************************/
+static jmp_buf check_env;
+static int bSignal;
+static void SignalHdl( int sig )
+{
+  bSignal = 1;
+  
+  fprintf( stderr, "Signal %d caught\n", sig );
+  longjmp( check_env, sig );
+}
+
+/*************************************************************************
+*************************************************************************/
+void check( TestFunc func, void* p )
+{
+  int result;
+
+  fprintf( stderr, "Setting Jump\n" );
+  if ( !setjmp( check_env ) )
+  {
+	signal( SIGSEGV,	SignalHdl );
+	signal( SIGBUS,		SignalHdl );
+    fprintf( stderr, "Running \n" );
+	result = func( p );
+    fprintf( stderr, "Finished \n" );
+	signal( SIGSEGV,	SIG_DFL );
+	signal( SIGBUS,		SIG_DFL );
+  }
+  fprintf( stderr, "After jump \n" );
+}
+
+/*************************************************************************
+*************************************************************************/
+static int GetAtAddress( void* p )
+{
+  return *((char*)p);
+}
+
+/*************************************************************************
+*************************************************************************/
+static int SetAtAddress( void* p )
+{
+  return *((char*)p)	= 0;
+}
+
+/*************************************************************************
+*************************************************************************/
+void CheckGetAccess( void* p )
+{
+  check( (TestFunc)GetAtAddress, p );
+}
+/*************************************************************************
+*************************************************************************/
+void CheckSetAccess( void* p )
+{
+  check( (TestFunc)SetAtAddress, p );
+}
+
+/*************************************************************************
+*************************************************************************/
+int main( int argc, char* argv[] )
+{
+  {
+	char* p = NULL;
+	fprintf( stderr, "Getting from NULL\n" );
+    CheckGetAccess( p );
+	fprintf( stderr, "Setting to NULL\n" );
+    CheckSetAccess( p );
+	fprintf( stderr, "After Setting to NULL\n" );
+  }
+
+  exit( 0 );
+}
+
+--=-tTmQbcPgI7el2lMZ+Thn--
+

@@ -1,34 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277348AbRJVSVt>; Mon, 22 Oct 2001 14:21:49 -0400
+	id <S277524AbRJVSX3>; Mon, 22 Oct 2001 14:23:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277434AbRJVSVj>; Mon, 22 Oct 2001 14:21:39 -0400
-Received: from anime.net ([63.172.78.150]:6156 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S277348AbRJVSVX>;
-	Mon, 22 Oct 2001 14:21:23 -0400
-Date: Mon, 22 Oct 2001 11:21:30 -0700 (PDT)
-From: Dan Hollis <goemon@anime.net>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-cc: bert hubert <ahu@ds9a.nl>, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.2.20pre10 
-In-Reply-To: <200110221333.f9MDXuTM026249@pincoya.inf.utfsm.cl>
-Message-ID: <Pine.LNX.4.30.0110221119570.14654-100000@anime.net>
+	id <S277494AbRJVSXT>; Mon, 22 Oct 2001 14:23:19 -0400
+Received: from [212.113.174.249] ([212.113.174.249]:16929 "EHLO
+	smtp.netcabo.pt") by vger.kernel.org with ESMTP id <S277434AbRJVSXH>;
+	Mon, 22 Oct 2001 14:23:07 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Pedro Corte-Real <typo@netcabo.pt>
+To: linux-kernel@vger.kernel.org
+Subject: UDP binding
+Date: Mon, 22 Oct 2001 19:23:49 +0100
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-ID: <EXCH01SMTP01IuXZ2y200057c20@smtp.netcabo.pt>
+X-OriginalArrivalTime: 22 Oct 2001 18:19:58.0814 (UTC) FILETIME=[286C0FE0:01C15B26]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Oct 2001, Horst von Brand wrote:
-> bert hubert <ahu@ds9a.nl> said:
-> > Then I suggest we leave this planet.
-> I'd expected an "all the world is USA" delusion from an US citizen, not
-> from somebody in .nl...
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-The MPAA abducted a norwegian child using police armed with assault
-weapons. Alan and other non-us citizens certainly have reason to be
-concerned.
+I am running samba on a machine with 2 outside interfaces. I want samba to
+listen only to one of them so I put these lines on smb.conf:
 
--Dan
--- 
-[-] Omae no subete no kichi wa ore no mono da. [-]
+bind interfaces only = True
+interfaces = 192.168.1.1 127.0.0.1
 
+These setings produce this in netstat -a:
+
+(...)
+udp        0      0 192.168.1.1:138         0.0.0.0:*
+udp        0      0 192.168.1.1:137         0.0.0.0:*
+udp        0      0 0.0.0.0:138             0.0.0.0:*
+udp        0      0 0.0.0.0:137             0.0.0.0:*
+(...)
+
+I was told this was because nmbd uses broadcast packets to do it's work and
+for it to listen to broadcast packages it must listen to 0.0.0.0. Is this
+true. Can't it bind to 192.168.1.0 instead?
+
+How does linux's interface binding API work? Is this really necessary?
+
+Greetings from Portugal,
+
+Pedro.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE71GQ82SBo0jBmgGARAoODAJ9FxNU2C+Eu3mtx5b4TTZ8KB9K5KACg2IY4
+MkH7qmx8c9qq1xwB26GmDR4=
+=A+CG
+-----END PGP SIGNATURE-----

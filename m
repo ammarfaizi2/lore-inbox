@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313226AbSDDQRc>; Thu, 4 Apr 2002 11:17:32 -0500
+	id <S313237AbSDDQVC>; Thu, 4 Apr 2002 11:21:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313238AbSDDQRY>; Thu, 4 Apr 2002 11:17:24 -0500
-Received: from finch-post-11.mail.demon.net ([194.217.242.39]:42501 "EHLO
-	finch-post-11.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S313226AbSDDQQ1>; Thu, 4 Apr 2002 11:16:27 -0500
-Date: Thu, 4 Apr 2002 17:15:57 +0100
-To: "Richard B. Johnson" <root@chaos.analogic.com>
+	id <S313240AbSDDQUx>; Thu, 4 Apr 2002 11:20:53 -0500
+Received: from [198.17.35.35] ([198.17.35.35]:35807 "HELO mx1.peregrine.com")
+	by vger.kernel.org with SMTP id <S313237AbSDDQUh>;
+	Thu, 4 Apr 2002 11:20:37 -0500
+Message-ID: <B51F07F0080AD511AC4A0002A52CAB445B2D9A@OTTONEXC1>
+From: Dana Lacoste <dana.lacoste@peregrine.com>
+To: "'Christoph Hellwig'" <hch@infradead.org>, Alfonso Gazo <agazo@unex.es>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
-Message-ID: <20020404161557.GB625@berserk.demon.co.uk>
-Mail-Followup-To: "Richard B. Johnson" <root@chaos.analogic.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0204040747260.25330-100000@devserv.devel.redhat.com> <Pine.LNX.3.95.1020404095833.16825A-100000@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: Peter Horton <pdh@berserk.demon.co.uk>
+Subject: RE: [2.4.18] /proc/stat does not show disk_io stats for all IDE d
+	isks
+Date: Thu, 4 Apr 2002 08:20:24 -0800 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 04, 2002 at 10:55:02AM -0500, Richard B. Johnson wrote:
->
-> <snip>
-> 
-> There is an awful lot or energy being expended in an attempt to
-> exclude commercial and industrial use of Linux. This is very
-> counter-productive and may be quite harmful.
-> 
-> <snip>
->
+> Could you please tru 2.4.18-ac/2.4.19-ac?
 
-Counter-productive to what ? Harmful to what ?
+the SARD stuff from Alan's tree fixes this (in /proc/partitions though, but
+that's ok)
 
-P.
+the problem is that /proc/stat only checks major/minor combinations for
+majors 0-16 and minors 0-16.  so if you have, say, hdc on major 22 then
+it won't show up in /proc/stat.  Basically it's just done wrong :)
+
+SARD fixes this by tracking all the relevant disk info properly, but it's
+not in the mainline kernel :(
+
+Dana Lacoste
+Ottawa, Canada

@@ -1,36 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281969AbRKUU1L>; Wed, 21 Nov 2001 15:27:11 -0500
+	id <S281971AbRKUUeK>; Wed, 21 Nov 2001 15:34:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281971AbRKUU07>; Wed, 21 Nov 2001 15:26:59 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:44960
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S281969AbRKUU0y>; Wed, 21 Nov 2001 15:26:54 -0500
-Date: Wed, 21 Nov 2001 15:23:30 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: CML2 1.8.9 is available
-Message-ID: <20011121152330.A22759@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Mime-Version: 1.0
+	id <S281972AbRKUUd7>; Wed, 21 Nov 2001 15:33:59 -0500
+Received: from colorfullife.com ([216.156.138.34]:2823 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S281971AbRKUUdz>;
+	Wed, 21 Nov 2001 15:33:55 -0500
+Message-ID: <3BFC0FB5.74DA304D@colorfullife.com>
+Date: Wed, 21 Nov 2001 21:33:57 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.15-pre6 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: kuznet@ms2.inr.ac.ru
+CC: trond.myklebust@fys.uio.no, davem@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: more tcpdumpinfo for nfs3 problem: aix-server --- linux 2.4.15pre5
+In-Reply-To: <200111211923.WAA18924@ms2.inr.ac.ru>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Release 1.8.9: Wed Nov 21 15:10:29 EST 2001
-	* Sync with 2.4.15-pre8 (except for SH port).
-	* Attempted fix for FONT8x{8,16} rulebase bug reported by David 
-	  Relson.
+kuznet@ms2.inr.ac.ru wrote:
+> 
+> Hello!
+> 
+> >                               should consider disabled local interrupts as
+> > 'in_irq()'
+> 
+> How to do this?
+>
+Arch specific, like __global_cli() in arch/i386/kernel/irq.c.
+What about a rate-limited warning if dev_kfree_skb_any is called with
+disabled interrupts?
 
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-An armed society is a polite society.  Manners are good when one 
-may have to back up his acts with his life.
-        -- Robert A. Heinlein, "Beyond This Horizon", 1942
+--
+	Manfred

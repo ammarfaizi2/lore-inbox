@@ -1,65 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263666AbTL3B0G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 20:26:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263800AbTL3B0F
+	id S264141AbTL3B33 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 20:29:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264290AbTL3B33
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 20:26:05 -0500
-Received: from mail5.bluewin.ch ([195.186.1.207]:18098 "EHLO mail5.bluewin.ch")
-	by vger.kernel.org with ESMTP id S263666AbTL3B0C (ORCPT
+	Mon, 29 Dec 2003 20:29:29 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:5066 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264141AbTL3B31 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 20:26:02 -0500
-Date: Tue, 30 Dec 2003 02:25:52 +0100
-From: Roger Luethi <rl@hellgate.ch>
+	Mon, 29 Dec 2003 20:29:27 -0500
+Date: Tue, 30 Dec 2003 01:27:15 +0000
+From: Dave Jones <davej@redhat.com>
 To: Thomas Molina <tmolina@cablespeed.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Martin Schlemmer <azarah@nosferatu.za.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: 2.6.0 performance problems
-Message-ID: <20031230012551.GA6226@k3.hellgate.ch>
-Mail-Followup-To: Thomas Molina <tmolina@cablespeed.com>,
+Message-ID: <20031230012715.GA30369@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Thomas Molina <tmolina@cablespeed.com>,
+	Martin Schlemmer <azarah@nosferatu.za.org>,
+	Linus Torvalds <torvalds@osdl.org>,
 	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0312291647410.5288@localhost.localdomain>
+References: <Pine.LNX.4.58.0312291647410.5288@localhost.localdomain> <Pine.LNX.4.58.0312291420370.1586@home.osdl.org> <Pine.LNX.4.58.0312291803420.5835@localhost.localdomain> <1072741422.25741.67.camel@nosferatu.lan> <Pine.LNX.4.58.0312291913270.5835@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0312291647410.5288@localhost.localdomain>
-X-Operating-System: Linux 2.6.0-test11 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+In-Reply-To: <Pine.LNX.4.58.0312291913270.5835@localhost.localdomain>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Dec 2003 17:07:46 -0500, Thomas Molina wrote:
-> Execution time for the test was:
-> real	13m33.482s
-> user	0m33.540s
-> sys	0m16.210s
-> 
-> 
-> Under 2.6 top shows:
-> user	nice	system	irq	softirq	iowait	idle
-> 0.9	0	5.3	0.9	0.3	92.6	0
-> 
-> Execution time for the test was:
-> real	22m42.397s
-> user	0m37.753s
-> sys	0m54.043s
-> 
-> I've done no performance tweaking in either case.  Both tests were done 
-> immediately after boot up with only the top program running in each case.  
-> I'm not sure what other data would be relevant here.  Any thoughts from 
-> the group would be appreciated.
+On Mon, Dec 29, 2003 at 07:17:23PM -0500, Thomas Molina wrote:
 
-I bet this is just yet another instance of a problem we've been
-discussing on lkml and linux-mm for several months now (although Linus
-asking for DMA presumably means it's not as well known as I thought
-it was).
+ > > >  UDMA modes: udma0 udma1 *udma2 udma3 udma4
+ > > >  AdvancedPM=yes: mode=0x80 (128) WriteCache=enabled
+ > > >  Drive conforms to: ATA/ATAPI-5 T13 1321D revision 1:
+ > > Any reason it is currently set to udma2 where it support udma4 ?
+ > 
+ > Not really.  The question was what mode the disk was running in.  This is 
+ > what it defaults to.  This is a laptop drive that only runs at 5400RPM.  
+ > Would changing the mode to udma4 make a dramatic difference?  
 
-Basically, when you need to resort to paging for getting work done on
-2.6 you're screwed. Your bk export takes a lot more memory than you
-have RAM in your machine, right?
+It's not uncommon for a laptop to have a hard disk which supports
+higher DMA modes than what the IDE chipset supports.
+My aging Intel 440BX based VAIO has a disk in the same configuration
+as yours, supports udma4, but chipset only goes up to udma2.
 
-Check the archives for this thread:
-2.6.0-test9 - poor swap performance on low end machines
+		Dave
 
-Roger
+-- 
+ Dave Jones     http://www.codemonkey.org.uk

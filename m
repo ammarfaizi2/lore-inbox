@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267976AbUIKOt4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267977AbUIKOyH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267976AbUIKOt4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 10:49:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268159AbUIKOt4
+	id S267977AbUIKOyH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 10:54:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268160AbUIKOyH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 10:49:56 -0400
-Received: from trantor.org.uk ([213.146.130.142]:53917 "EHLO trantor.org.uk")
-	by vger.kernel.org with ESMTP id S267976AbUIKOtz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 10:49:55 -0400
-Subject: Re: [PATCH 2.6 NETFILTER] new netfilter module ipt_program.c
-From: Gianni Tedesco <gianni@scaramanga.co.uk>
-To: Patrick McHardy <kaber@trash.net>
-Cc: Luke Kenneth Casson Leighton <lkcl@lkcl.net>, linux-kernel@vger.kernel.org,
-       Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>
-In-Reply-To: <4142F4CC.7080708@trash.net>
-References: <20040911124106.GD24787@lkcl.net>  <4142F4CC.7080708@trash.net>
-Content-Type: text/plain
-Date: Sat, 11 Sep 2004 15:49:35 +0100
-Message-Id: <1094914175.8495.66.camel@sherbert>
+	Sat, 11 Sep 2004 10:54:07 -0400
+Received: from ncc1701.cistron.net ([62.216.30.38]:20653 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S267977AbUIKOyD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 10:54:03 -0400
+From: "Miquel van Smoorenburg" <miquels@cistron.nl>
+Subject: Re: Major XFS problems...
+Date: Sat, 11 Sep 2004 14:54:02 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <chv3ia$lnu$1@news.cistron.nl>
+References: <20040908123524.GZ390@unthought.net> <4142E3EB.3080308@pointblue.com.pl> <20040911133812.GC32755@krispykreme>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1094914442 22270 62.216.29.200 (11 Sep 2004 14:54:02 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-09-11 at 14:51 +0200, Patrick McHardy wrote:
-> Luke Kenneth Casson Leighton wrote:
-> > decided to put this into a separate module.  based on ipt_owner.c.
-> > does full program's pathname.  like ipt_owner, only suitable for
-> > outgoing connections.
-> 
-> I agree that it would be useful to match the full path, but
-> the patch is broken, as are the owner match's pid-, sid- and
-> command-matching options. You can't grab files->file_lock
-> outside of process context. Besides, we want to consolidate
-> functionality, not add new matches that do basically the same
-> as existing ones.
+In article <20040911133812.GC32755@krispykreme>,
+Anton Blanchard  <anton@samba.org> wrote:
+>
+>> In my expierence XFS, was right after JFS the worst and the slowest 
+>> filesystem ever made.
+>
+>On our NFS benchmarks JFS is _significantly_ faster than ext3 and
+>reiserfs. It depends on your workload but calling JFS the worst and
+>slowest filesystem ever made is unfair.
 
-This is a binary compatibility issue, I don't think it's possible to add
-Lukes functionality to ipt_owner without breaking iptables
-compatibility.
+Same goes for XFS. In the application I use it for it is by _far_
+the fastest filesystem, whereas reiser is by far the slowest.
+ext3 is somewhere in between.
 
+And that's because XFS has extents and does pre-allocation.
+
+Mike.
 -- 
-// Gianni Tedesco (gianni at scaramanga dot co dot uk)
-lynx --source www.scaramanga.co.uk/scaramanga.asc | gpg --import
-8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
+"In times of universal deceit, telling the truth becomes
+ a revolutionary act." -- George Orwell.
 

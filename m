@@ -1,63 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265944AbUHANbM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265946AbUHANeA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265944AbUHANbM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Aug 2004 09:31:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265946AbUHANbM
+	id S265946AbUHANeA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Aug 2004 09:34:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265947AbUHANeA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Aug 2004 09:31:12 -0400
-Received: from mail.dif.dk ([193.138.115.101]:46275 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S265944AbUHANbI (ORCPT
+	Sun, 1 Aug 2004 09:34:00 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:41924 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S265946AbUHANd6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Aug 2004 09:31:08 -0400
-Date: Sun, 1 Aug 2004 15:35:41 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: LKML <linux-kernel@vger.kernel.org>,
+	Sun, 1 Aug 2004 09:33:58 -0400
+Date: Sun, 1 Aug 2004 15:33:49 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+cc: LKML <linux-kernel@vger.kernel.org>,
        Peter Maydell <pmaydell@chiark.greenend.org.uk>,
        Phil Blundell <philb@gnu.org>, Andrew Morton <akpm@osdl.org>,
        Kars de Jong <jongk@linux-m68k.org>
 Subject: Re: [PATCH] Fix up return value from dio_find() (fixing a FIXME)
-In-Reply-To: <Pine.GSO.4.58.0408011519180.25657@waterleaf.sonytel.be>
-Message-ID: <Pine.LNX.4.60.0408011530120.2535@dragon.hygekrogen.localhost>
+In-Reply-To: <Pine.LNX.4.60.0408011530120.2535@dragon.hygekrogen.localhost>
+Message-ID: <Pine.GSO.4.58.0408011533030.25657@waterleaf.sonytel.be>
 References: <Pine.LNX.4.60.0407312132490.2660@dragon.hygekrogen.localhost>
  <Pine.GSO.4.58.0408011519180.25657@waterleaf.sonytel.be>
+ <Pine.LNX.4.60.0408011530120.2535@dragon.hygekrogen.localhost>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Aug 2004, Geert Uytterhoeven wrote:
-
-> On Sat, 31 Jul 2004, Jesper Juhl wrote:
-> > Here's a patch to fix up this FIXME in drivers/dio/dio.c:dio_find() :
+On Sun, 1 Aug 2004, Jesper Juhl wrote:
+> On Sun, 1 Aug 2004, Geert Uytterhoeven wrote:
+> > On Sat, 31 Jul 2004, Jesper Juhl wrote:
+> > > Here's a patch to fix up this FIXME in drivers/dio/dio.c:dio_find() :
+> > >
+> > > * Aargh: we use 0 for an error return code, but select code 0 exists!
+> > > * FIXME (trivial, use -1, but requires changes to all the drivers :-< )
+> > > */
+> > >
+> > > I've changed the return value to -1 as suggested by the comment, and then
+> > > went looking for the drivers that needed to be changed (as the comment
+> > > mentions). I only found two users of dio_find() and I've fixed those up to
+> > > not treat 0 as an error, but only values <0.
+> > > The FIXME implies (to me at least) that there are many drivers that would
+> > > need to be changed, but I could only find two - did I miss anything?
+> > > Also, I don't have the hardware to test the drivers I've changed, so I've
+> > > done compile testing only - could someone please review my changes and
+> > > confirm if they are correct?
 > >
-> > * Aargh: we use 0 for an error return code, but select code 0 exists!
-> > * FIXME (trivial, use -1, but requires changes to all the drivers :-< )
-> > */
+> > I guess most of these are already covered by Kars' patch at the URL below?
 > >
-> > I've changed the return value to -1 as suggested by the comment, and then
-> > went looking for the drivers that needed to be changed (as the comment
-> > mentions). I only found two users of dio_find() and I've fixed those up to
-> > not treat 0 as an error, but only values <0.
-> > The FIXME implies (to me at least) that there are many drivers that would
-> > need to be changed, but I could only find two - did I miss anything?
-> > Also, I don't have the hardware to test the drivers I've changed, so I've
-> > done compile testing only - could someone please review my changes and
-> > confirm if they are correct?
-> 
-> I guess most of these are already covered by Kars' patch at the URL below?
-> 
->     http://linux-m68k-cvs.ubb.ca/~geert/linux-m68k-2.6.x-merging/474-dio.diff
-> 
-It certainly looks that way from reading the patch. I was unaware of this 
-patch (which looks a lot more thorough than mine).  Thank you for the 
-link.
-His patch makes the change to dio_find() , but I don't see any changes to 
-drivers/net/hplance.c or drivers/video/hpfb.c - are the changes I made 
-there not needed? those two treat a return value of 0 from dio_find() as 
-an error as far as I can tell...
+> >     http://linux-m68k-cvs.ubb.ca/~geert/linux-m68k-2.6.x-merging/474-dio.diff
+> >
+> It certainly looks that way from reading the patch. I was unaware of this
+> patch (which looks a lot more thorough than mine).  Thank you for the
+> link.
+> His patch makes the change to dio_find() , but I don't see any changes to
+> drivers/net/hplance.c or drivers/video/hpfb.c - are the changes I made
+> there not needed? those two treat a return value of 0 from dio_find() as
+> an error as far as I can tell...
 
+These are in patches 475 and 476 next to 474 in the same dir.
 
-/Jesper
+Gr{oetje,eeting}s,
 
+						Geert
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,122 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbUFEPK0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261606AbUFEPXi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261179AbUFEPK0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jun 2004 11:10:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbUFEPK0
+	id S261606AbUFEPXi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jun 2004 11:23:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbUFEPXi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jun 2004 11:10:26 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:48293 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261179AbUFEPKT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jun 2004 11:10:19 -0400
-Message-ID: <40C1E343.8080105@elegant-software.com>
-Date: Sat, 05 Jun 2004 11:14:11 -0400
-From: Russell Leighton <russ@elegant-software.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: Re: Fw: F_SETSIG broken/changed in 2.6 for UDP and TCP sockets?
-References: <20040531151843.7144dfce.akpm@osdl.org> <40BFDD4F.5080408@elegant-software.com>
-In-Reply-To: <40BFDD4F.5080408@elegant-software.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 5 Jun 2004 11:23:38 -0400
+Received: from natsmtp00.rzone.de ([81.169.145.165]:37117 "EHLO
+	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S261606AbUFEPXd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jun 2004 11:23:33 -0400
+Date: Sat, 5 Jun 2004 17:23:26 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.de>
+To: john stultz <johnstul@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, george anzinger <george@mvista.com>,
+       greg kh <greg@kroah.com>, Chris McDermott <lcm@us.ibm.com>
+Subject: Re: Too much error in __const_udelay() ?
+Message-ID: <20040605152326.GA11239@dominikbrodowski.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.de>,
+	john stultz <johnstul@us.ibm.com>,
+	lkml <linux-kernel@vger.kernel.org>,
+	george anzinger <george@mvista.com>, greg kh <greg@kroah.com>,
+	Chris McDermott <lcm@us.ibm.com>
+References: <1086419565.2234.133.camel@cog.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1086419565.2234.133.camel@cog.beaverton.ibm.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Last issue resolved. I am posting so there is a complete thread for 
-anyone that stumbles on this in the future.
+Hi,
 
-F_SETSIG IS working...what is NOT working (as it did in 2.4) is the 
-interaction between clone() and getpid() in child processes.
-This issue altered the control of my program and made it look like I was 
-not receiving signals.
+> However I've started to see some problems w/ 2.6 and USB on x440/x445s,
+> both of which use the 100Mhz cyclone time source. Further digging has
+> pointed to the fact that certain important udelay()s in the USB
+> subsystem aren't actually waiting long enough. 
 
-I'll send another email to the kernel mailing list w/a test program that 
-demonstrates this.
+Certain? AFAICS _no_ call to a delay routine actually passed a big enough
+argument. Or am I missing something? Also, __ndelay seems to be affected 
+as well: it returns zero for 550 nsec even for the TSC variant in your 
+test.c.
 
-Russell Leighton wrote:
+> So I'm no math wiz. What's the proper fix here? 
 
->
-> Thanks to all that helped me troubleshoot.
->
-> Of the 2 issues I had with FedoraCore2, one problem is solved:
->
->    * Multicast issues were solved by using another NIC. It seems that
->      the driver for the NatSemi DP8381[56] does not receive mutlicast
->      properly.
->    * F_SETSIG still seems broken for TCP for me when my process sets up
->      more than a few fd's...I will try the latest kernel to see if this
->      goes away
->
->
-> Russ
->
-> Andrew Morton wrote:
->
->> Begin forwarded message:
->>
->> Date: Mon, 31 May 2004 14:45:08 -0400
->> From: Russell Leighton <russ@elegant-software.com>
->> To: linux-kernel@vger.kernel.org
->> Subject: F_SETSIG broken/changed in 2.6 for UDP and TCP sockets?
->>
->>
->>
->> I have a program that works fine under stock rh9 (2.4.2-8) but has 
->> issues getting signaled under FedoraCore2 (2.6.5-1.358)
->> using SETSIG to a Posix RT signal.
->>
->> The program does the standard:
->>
->>  /* hook to process */
->>  if ( fcntl(fdcallback->fd, F_SETOWN, mon->handler_q.thread->pid) == 
->> -1 ) {
->>    aw_log(fdcallback->handler->logger, AW_ERROR_LOG_LEVEL,
->>       "cannot set owner on fd (%s)",
->>       strerror(errno));
->>  }/* end if */
->>
->>  /* make async */
->>  if ( fcntl(fdcallback->fd, F_SETFL, (O_NONBLOCK | O_ASYNC) ) == -1 ) {
->>    aw_log(fdcallback->handler->logger, AW_ERROR_LOG_LEVEL,
->>       "cannot set async on fd (%s)",
->>       strerror(errno));
->>  }/* end if */
->>
->>  /* hook to signal */
->>  if ( fcntl(fdcallback->fd, F_SETSIG, AW_SIG_FD) == -1 ) {
->>    aw_log(fdcallback->handler->logger, AW_ERROR_LOG_LEVEL,
->>       "cannot set signal on fd (%s)",
->>       strerror(errno));
->>  }/* end if */
->>
->> Under Fedora things work well for raw sockets (much lower latency 
->> than in 2.4!) but are inconsistent with udp or tcp sockets.
->>
->> In the udp case, I when I listen for multicast packets my app only 
->> receives them when I am running a tcpdump (bizarre!).
->>
->> In the tcp case, I don't get signaled if I do the F_SETSIG on more 
->> than 1 fd.
->>
->> Any tips on tracking this down would be much appreciated.
->>
->> Thx
->>
->> Russ
->>
->> -
->> To unsubscribe from this list: send the line "unsubscribe 
->> linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
->>
->>
->>  
->>
->
->
+Below are three changes I'd like to discuss. I'll build a fresh kernel with
+all three changes enabled + PM_TIMER soon.
 
+Change 1:
+
+Move the multiplication with HZ up into the mull instruction:
+
+unsigned long  __const_udelay(unsigned long xloops)
+{
+	int d0;
+	__asm__("mull %0"
+		:"=d" (xloops), "=&a" (d0)
+		:"1" (xloops),"0" (LPJ * HZ));
+        return __delay(xloops);
+}
+
+  1 usec: LPJ:  100000 __udelay:     0 vs my_udelay:    99
+  1 usec: LPJ: 1500000 __udelay:  1000 vs my_udelay:  1499
+
+  2 usec: LPJ:  100000 __udelay:     0 vs my_udelay:   199
+  2 usec: LPJ: 1500000 __udelay:  2000 vs my_udelay:  2999
+
+  5 usec: LPJ:  100000 __udelay:     0 vs my_udelay:   499
+  5 usec: LPJ: 1500000 __udelay:  7000 vs my_udelay:  7498
+
+ 10 usec: LPJ:  100000 __udelay:     0 vs my_udelay:   999
+ 10 usec: LPJ: 1500000 __udelay: 14000 vs my_udelay: 14996
+
+ 20 usec: LPJ:  100000 __udelay:  1000 vs my_udelay:  1999
+ 20 usec: LPJ: 1500000 __udelay: 29000 vs my_udelay: 29993
+
+ 50 usec: LPJ:  100000 __udelay:  4000 vs my_udelay:  4998
+ 50 usec: LPJ: 1500000 __udelay: 74000 vs my_udelay: 74983
+
+100 usec: LPJ:  100000 __udelay:  9000 vs my_udelay:  9997
+100 usec: LPJ: 1500000 __udelay: 149000 vs my_udelay: 149966
+
+20000 usec: LPJ:  100000 __udelay: 1999000 vs my_udelay: 1999549
+20000 usec: LPJ: 1500000 __udelay: 29993000 vs my_udelay: 29993243
+
+
+Change 2:
+
+Round up in __udelay. While it can be argued that some time is also
+spent in the delay functions, it's better to spend _at least_ the specified
+time sleeping, in my humble opinion. 
+
+
+-	return __const_udelay2(usecs * 0x000010c6);  /* 2**32 / 1000000 */
++	return __const_udelay2(usecs * 0x000010c7);  /* 2**32 / 1000000 (rounded up)*/
+
+  1 usec: LPJ:  100000 __udelay:     0 vs my_udelay:   100
+  1 usec: LPJ: 1500000 __udelay:  1000 vs my_udelay:  1500
+
+  2 usec: LPJ:  100000 __udelay:     0 vs my_udelay:   200
+  2 usec: LPJ: 1500000 __udelay:  2000 vs my_udelay:  3000
+
+  5 usec: LPJ:  100000 __udelay:     0 vs my_udelay:   500
+  5 usec: LPJ: 1500000 __udelay:  7000 vs my_udelay:  7500
+
+ 10 usec: LPJ:  100000 __udelay:     0 vs my_udelay:  1000
+ 10 usec: LPJ: 1500000 __udelay: 14000 vs my_udelay: 15000
+
+ 20 usec: LPJ:  100000 __udelay:  1000 vs my_udelay:  2000
+ 20 usec: LPJ: 1500000 __udelay: 29000 vs my_udelay: 30000
+
+ 50 usec: LPJ:  100000 __udelay:  4000 vs my_udelay:  5000
+ 50 usec: LPJ: 1500000 __udelay: 74000 vs my_udelay: 75000
+
+100 usec: LPJ:  100000 __udelay:  9000 vs my_udelay: 10000
+100 usec: LPJ: 1500000 __udelay: 149000 vs my_udelay: 150001
+
+20000 usec: LPJ:  100000 __udelay: 1999000 vs my_udelay: 2000015
+20000 usec: LPJ: 1500000 __udelay: 29993000 vs my_udelay: 30000228
+
+
+Change 3:
+
+Asserting at least 1 loop is spent: in really small ndelay() calls to
+low-mhz timers, this might be better.
+
+        return __delay(xloops ? xloops : 1);
+
+Before:
+  1 nsec: LPJ:  100000 __ndelay:     0 vs my_udelay:     0
+  2 nsec: LPJ:  100000 __ndelay:     0 vs my_udelay:     0
+  5 nsec: LPJ:  100000 __ndelay:     0 vs my_udelay:     0
+ 10 nsec: LPJ:  100000 __ndelay:     0 vs my_udelay:     1
+ 20 nsec: LPJ:  100000 __udelay:     0 vs my_udelay:     2
+ 50 nsec: LPJ:  100000 __ndelay:     0 vs my_udelay:     5
+
+After:
+  1 nsec: LPJ:  100000 __udelay:     0 vs my_udelay:     1
+  2 nsec: LPJ:  100000 __udelay:     0 vs my_udelay:     1
+  5 nsec: LPJ:  100000 __udelay:     0 vs my_udelay:     1
+ 10 nsec: LPJ:  100000 __udelay:     0 vs my_udelay:     1
+ 20 nsec: LPJ:  100000 __udelay:     0 vs my_udelay:     2
+ 50 nsec: LPJ:  100000 __udelay:     0 vs my_udelay:     5
+
+
+
+	Dominik

@@ -1,58 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262339AbVAKTLu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262782AbVAKTQr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262339AbVAKTLu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 14:11:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262407AbVAKTLu
+	id S262782AbVAKTQr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 14:16:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262826AbVAKTQr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 14:11:50 -0500
-Received: from main.gmane.org ([80.91.229.2]:54933 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262339AbVAKTLZ (ORCPT
+	Tue, 11 Jan 2005 14:16:47 -0500
+Received: from rproxy.gmail.com ([64.233.170.203]:31505 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262836AbVAKTQJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 14:11:25 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	Tue, 11 Jan 2005 14:16:09 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=kkQ01GliImpJ0Bsq5di8Y65hU73ttnSlvIA8EV0wwPcZUYTrgZWcZhP6O44Tqzgr+ueG1X6xRzbwpftbE3Ap371HJda6Q11Gkp5yzx62Wi/8e5l+Y0BXX+Xz/6cZJyVs4d3XYdyourR9z24InZ+DsFPaBhgubAZ/HGIXEDoU5ng=
+Message-ID: <4e1a70d1050111111614670f32@mail.gmail.com>
+Date: Tue, 11 Jan 2005 15:16:04 -0400
+From: Ilias Biris <xyz.biris@gmail.com>
+Reply-To: Ilias Biris <xyz.biris@gmail.com>
 To: linux-kernel@vger.kernel.org
-From: Jim Zajkowski <jamesez@umich.edu>
-Subject: Sparse LUN scanning - 2.4.x
-Date: Tue, 11 Jan 2005 14:05:53 -0500
-Message-ID: <cs182h$6nl$1@sea.gmane.org>
+Subject: Re: User space out of memory approach
+In-Reply-To: <1105461106.16168.41.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 141.211.74.215
-User-Agent: Unison/1.5.2
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <3f250c71050110134337c08ef0@mail.gmail.com>
+	 <20050110192012.GA18531@logos.cnet>
+	 <4d6522b9050110144017d0c075@mail.gmail.com>
+	 <20050110200514.GA18796@logos.cnet>
+	 <1105403747.17853.48.camel@tglx.tec.linutronix.de>
+	 <4d6522b90501101803523eea79@mail.gmail.com>
+	 <1105433093.17853.78.camel@tglx.tec.linutronix.de>
+	 <1105461106.16168.41.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+Hi
 
-We have an Apple Xserve RAID, connected through a FC switch.  The RAID 
-has LUN-masking enabled, such that one of our Linux boxes only gets LUN 
-1 and not LUN 0.  We're running the 2.4.x kernel series now, since this 
-is under a RHEL envinronment.
+where I come from we say (jokingly of course) 'got a headache? chop
+your own head ... end of problem'.
 
-The problem is this: since LUN 0 does not show up -- specifically, it 
-can't read the vendor or model informaton -- the kernel SCSI scan does 
-not match with the table to tell the kernel to do sparse LUN 
-scanning... so the RAID does not appear.
+Though your system is not guaranteed to become more stable. When you
+forbid overcommitting memory, all you do is make failure occur for ALL
+processes at a different time. A process is happily doing something
+useful when all of a sudden its fork may die due to 'out of memory'
+... Moreover shutting down overcommit will do that for all processes,
+not just the one culprit that could be chopped off by oom...
 
-I can make the RAID show up by injecting a add-single-device to the 
-SCSI proc layer.  Trivially patching scsi_scan.c to always do sparse 
-scanning works as well.  No hokery with max_scsi_luns or ghost devices 
-works.
+Maybe it is just me but I think with overcommiting a system works more
+reliably :-)
 
-I'm considering making a patch to add a kernel option to force sparse 
-scanning.  Is there a better way?
 
-Thanks in advance,
+On Tue, 11 Jan 2005 16:32:23 +0000, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> On Maw, 2005-01-11 at 08:44, Thomas Gleixner wrote:
+> > I consider the invocation of out_of_memory in the first place. This is
+> > the real root of the problems. The ranking is a different playground.
+> > Your solution does not solve
+> > - invocation madness
+> > - reentrancy protection
+> > - the ugly mess of timers, counters... in out_of_memory, which aren't
+> > neccecary at all
+> >
+> > This must be solved first in a proper way, before we talk about ranking.
+> 
+> echo "2" >/proc/sys/vm/overcommit_memory
+> 
+> End of problem (except for extreme cases) and with current 2.6.10-bk
+> (and -ac because I pulled the patch back into -ac) also for most extreme
+> cases as Andries pre-reserves the stack address spaces.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
---Jim
 
 -- 
-Jim Zajkowski          OpenPGP 0x21135C3    http://www.jimz.net/pgp.asc
-System Administrator  8A9E 1DDF 944D 83C3 AEAB  8F74 8697 A823 2113 5C53
-UM Life Sciences Institute
-
- 
-
-
+Ilias Biris

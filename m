@@ -1,57 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269541AbRGaX30>; Tue, 31 Jul 2001 19:29:26 -0400
+	id <S269535AbRGaX2Q>; Tue, 31 Jul 2001 19:28:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269537AbRGaX3R>; Tue, 31 Jul 2001 19:29:17 -0400
-Received: from h-207-228-73-44.gen.cadvision.com ([207.228.73.44]:7940 "EHLO
-	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S269538AbRGaX3K>; Tue, 31 Jul 2001 19:29:10 -0400
-Date: Tue, 31 Jul 2001 15:39:27 -0600
-Message-Id: <200107312139.f6VLdRp00491@mobilix.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: dcinege@psychosis.com
-Cc: linux-raid <linux-raid@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: md.c - devfs naming fix.
-In-Reply-To: <3B1AF531.C31CB45C@psychosis.com>
-In-Reply-To: <3B1AF531.C31CB45C@psychosis.com>
+	id <S269539AbRGaX2G>; Tue, 31 Jul 2001 19:28:06 -0400
+Received: from oe42.law3.hotmail.com ([209.185.240.210]:44556 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id <S269536AbRGaX15>;
+	Tue, 31 Jul 2001 19:27:57 -0400
+X-Originating-IP: [64.108.8.236]
+Reply-To: "William Scott Lockwood III" <scottlockwood@hotmail.com>
+From: "William Scott Lockwood III" <thatlinuxguy@hotmail.com>
+To: "Riley Williams" <rhw@MemAlpha.CX>
+Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0108010007480.31582-100000@infradead.org>
+Subject: [OT] Virii on vger.kernel.org lists
+Date: Tue, 31 Jul 2001 18:31:28 -0500
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2479.0006
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2479.0006
+Message-ID: <OE42lGdzjKwCQ98BL8U000034f5@hotmail.com>
+X-OriginalArrivalTime: 31 Jul 2001 23:28:00.0657 (UTC) FILETIME=[702C4010:01C11A18]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Dave Cinege writes:
-> This is a multi-part message in MIME format.
+I hope it got out!  Perhaps someone already started striping out mail
+from OE/Hotmail.  :-)
 
-Yuk! MIME!
+----- Original Message -----
+| Hi William.
+| I've not seen that post yet, so must apologise for missing it...
 
-> Changes:
-> 	Cleaned a few printk's
-> 
-> 	Removed a meaningless ifndef.
-> 
-> 	Moved md= name_to_ kdev_t() processing from md_setup() to
-> 	md_setup_drive. Rewrote it and added devfs_find_handle() call
-> 	to support devfs names for md=. 
-> 
-> The devfs_find_handle() code is now redundant in my patch and
-> fs/super.c::mount_root(). It probably should be moved directly into
-> name_to_kdev_t(), no? If this was done the md= code would have
-> worked as is, except for the devfs code choking on the trailing ','
-> in the device_names list. (Richard, want to check for this in the
-> future?)
 
-What is this patch trying to fix? I've been running devfs with MD
-devices for a long time and have no problems. My raidtab lists devfs
-device names (in fact, the /dev/sd/* variants created by devfsd) and
-it seems to work fine.
-
-> This diff is against md.c in 2.4.4.
-> Comments/testing please.
-
-Have you received any other comments? I've not tracked this.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

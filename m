@@ -1,30 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263742AbTDNUzS (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 16:55:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263744AbTDNUzS (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 16:55:18 -0400
-Received: from uswest-dsl-142-38.cortland.com ([209.162.142.38]:29704 "HELO
-	warez.scriptkiddie.org") by vger.kernel.org with SMTP
-	id S263742AbTDNUzR (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 16:55:17 -0400
-Date: Mon, 14 Apr 2003 14:07:05 -0700 (PDT)
-From: Lamont Granquist <lamont@scriptkiddie.org>
-X-X-Sender: lamont@uswest-dsl-142-38.cortland.com
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Kernel Sockets Programming:  closing sockets?
-In-Reply-To: <1050350202.26521.5.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <20030414140119.D57110-100000@uswest-dsl-142-38.cortland.com>
+	id S263807AbTDNU6r (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 16:58:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263813AbTDNU62 (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 16:58:28 -0400
+Received: from smtp1.wanadoo.fr ([193.252.22.25]:46147 "EHLO
+	mwinf0604.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S263807AbTDNU6V (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 16:58:21 -0400
+From: Duncan Sands <baldrick@wanadoo.fr>
+To: Dave Jones <davej@codemonkey.org.uk>
+Subject: Re: BUGed to death
+Date: Mon, 14 Apr 2003 23:10:05 +0200
+User-Agent: KMail/1.5.1
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <80690000.1050351598@flay> <200304142240.41999.baldrick@wanadoo.fr> <20030414210211.GB7831@suse.de>
+In-Reply-To: <20030414210211.GB7831@suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200304142310.05110.baldrick@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> BUG_ON is already marked unlikely.
+> See include/linux/kernel.h
+>
+> The costs here are doing the actual checks, nothing to do with
+> the branch prediction.
 
-I've got some code I'm using which is calling sock_alloc(), sock_map_fd(),
-socket->ops->connect() and then I'm trying to destroy it with
-sock_release().  I'm leaving around file descriptors, so its pretty
-obvious that I need to do more than sock_release() but I'm having trouble
-figuring out exactly what I need to do.  I'm thinking about adding a call
-to sys_close() on the file descriptor I get back from sock_map_fd(), but I
-haven't implemented that yet.  Can anyone offer some insight, or
-preferably some example code I could look at?
+Some places don't seem to know about BUG_ON, for example
+(from include/linux/skbuff.h):
 
+static inline char *__skb_pull(struct sk_buff *skb, unsigned int len)
+{
+        skb->len -= len;
+        if (skb->len < skb->data_len)
+                BUG();
+        return skb->data += len;
+}

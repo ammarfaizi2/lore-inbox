@@ -1,64 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261899AbVCANVs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261903AbVCANYc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261899AbVCANVs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 08:21:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261902AbVCANVs
+	id S261903AbVCANYc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 08:24:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261902AbVCANYV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 08:21:48 -0500
-Received: from ipp23-131.piekary.net ([80.48.23.131]:16092 "EHLO spock.one.pl")
-	by vger.kernel.org with ESMTP id S261899AbVCANVl (ORCPT
+	Tue, 1 Mar 2005 08:24:21 -0500
+Received: from cantor.suse.de ([195.135.220.2]:5861 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261906AbVCANXY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 08:21:41 -0500
-Date: Tue, 1 Mar 2005 14:05:06 +0100
-From: Michal Januszewski <spock@gentoo.org>
-To: Greg KH <greg@kroah.com>
-Cc: Arjan van de Ven <arjan@infradead.org>, Pavel Machek <pavel@ucw.cz>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Bootsplash for 2.6.11-rc4
-Message-ID: <20050301130506.GC14278@spock.one.pl>
-References: <20050218165254.GA1359@elf.ucw.cz> <20050219011433.GA5954@spock.one.pl> <20050219230326.GB13135@kroah.com> <20050219232519.GC1372@elf.ucw.cz> <20050220132600.GA19700@spock.one.pl> <20050227165420.GD1441@elf.ucw.cz> <1109532700.15362.42.camel@laptopd505.fenrus.org> <20050227195206.GA2202@spock.one.pl> <20050227210333.GA18820@kroah.com>
+	Tue, 1 Mar 2005 08:23:24 -0500
+Subject: Re: [PATCH 1/8] lib/sort: Heapsort implementation of sort()
+From: Andreas Gruenbacher <agruen@suse.de>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20050227212536.GG3120@waste.org>
+References: <2.416337461@selenic.com> <200502271417.51654.agruen@suse.de>
+	 <20050227212536.GG3120@waste.org>
+Content-Type: text/plain
+Organization: SUSE Labs
+Message-Id: <1109683402.22077.47.camel@winden.suse.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="nmemrqcdn5VTmUEE"
-Content-Disposition: inline
-In-Reply-To: <20050227210333.GA18820@kroah.com>
-X-PGP-Key: http://dev.gentoo.org/~spock/spock.gpg
-User-Agent: Mutt/1.5.8i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 01 Mar 2005 14:23:23 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2005-02-27 at 22:25, Matt Mackall wrote:
+> On Sun, Feb 27, 2005 at 02:17:51PM +0100, Andreas Gruenbacher wrote:
+> > Matt,
+> > 
+> > On Monday 31 January 2005 08:34, Matt Mackall wrote:
+> > > This patch adds a generic array sorting library routine. This is meant
+> > > to replace qsort, which has two problem areas for kernel use.
+> > 
+> > the sort function is broken. When sorting the integer array {1, 2, 3, 4, 5}, 
+> > I'm getting {2, 3, 4, 5, 1} as a result. Can you please have a look?
+> 
+> Which kernel? There was an off-by-one for odd array sizes in the
+> original posted version that was quickly spotted:
+> 
+> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc4/2.6.11-rc4-mm1/broken-out/sort-fix.patch
 
---nmemrqcdn5VTmUEE
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Just for the record: This fixed it.
 
-On Sun, Feb 27, 2005 at 01:03:33PM -0800, Greg KH wrote:
+Thanks,
+-- 
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX GMBH
 
-> Care to create a patch for the silent mode now?  That should be simple
-> enough to get into the kernel, and will be a good place to build off of
-> for the rest of the things people want (verbose mode, etc.)
-
-Sure, I'll post a patch as soon as I get the userspace part ready, so
-that there is a way to actually test it.
-
-Live long and prosper.
---=20
-Michal 'Spock' Januszewski                        Gentoo Linux Developer
-cell: +48504917690                         http://dev.gentoo.org/~spock/
-JID: spock@im.gentoo.org               freenode: #gentoo-dev, #gentoo-pl
-
-
---nmemrqcdn5VTmUEE
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFCJGiCaQ0HSaOUe+YRAqWYAJ9IXqta3nrziYZWSVNFixzUWHHFnwCeJHZk
-hzXMtJv0X+/WZ8Un1bW46vM=
-=Vxrq
------END PGP SIGNATURE-----
-
---nmemrqcdn5VTmUEE--

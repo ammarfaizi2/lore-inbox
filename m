@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261458AbVDCI1f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261393AbVDCIaE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261458AbVDCI1f (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 04:27:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbVDCI1f
+	id S261393AbVDCIaE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 04:30:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbVDCIaE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 04:27:35 -0400
-Received: from [213.170.72.194] ([213.170.72.194]:29643 "EHLO
-	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S261393AbVDCI1d
+	Sun, 3 Apr 2005 04:30:04 -0400
+Received: from [213.170.72.194] ([213.170.72.194]:42187 "EHLO
+	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S261393AbVDCI3c
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 04:27:33 -0400
-Message-ID: <424FA8F4.9000507@yandex.ru>
-Date: Sun, 03 Apr 2005 12:27:32 +0400
+	Sun, 3 Apr 2005 04:29:32 -0400
+Message-ID: <424FA96A.9070107@yandex.ru>
+Date: Sun, 03 Apr 2005 12:29:30 +0400
 From: "Artem B. Bityuckiy" <dedekind@yandex.ru>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
 X-Accept-Language: en, ru, en-us
@@ -26,9 +26,11 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sorry :-)
+
 Artem B. Bityuckiy wrote:
-> In the former case user may provide a second output buffer and 
-s/former/latter/
+> In case of crypto_comp_pcompress() if the input isn't compressible,
+s/crypto_comp_pcompress()/crypto_comp_compress()/
 
 -- 
 Best Regards,

@@ -1,50 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265053AbUHaRLq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265051AbUHaRLr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265053AbUHaRLq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 13:11:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265051AbUHaRJs
+	id S265051AbUHaRLr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 13:11:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264937AbUHaRJm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 13:09:48 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:50618 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264953AbUHaRIv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 13:08:51 -0400
-Date: Tue, 31 Aug 2004 13:08:39 -0400
-From: Alan Cox <alan@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.6.8.1-ac1
-Message-ID: <20040831170839.GA18799@devserv.devel.redhat.com>
+	Tue, 31 Aug 2004 13:09:42 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:48428 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S265053AbUHaRF4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 13:05:56 -0400
+Date: Tue, 31 Aug 2004 19:07:52 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Jeremy Higdon <jeremy@sgi.com>
+Subject: Re: [DOC] Linux kernel patch submission format
+Message-ID: <20040831170752.GC7310@mars.ravnborg.org>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, Jeremy Higdon <jeremy@sgi.com>
+References: <413431F5.9000704@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <413431F5.9000704@pobox.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've posted up a 2.6.8.1-ac1. This is mostly aimed at people wanting to try
-the newer IDE stuff while I work on feeding it to Bartlomiej. 
+Suggested:
+[PATCH $version $n/$total] one-line summary
 
-http://www.kernel.org/pub/linux/kernel/people/alan/2.6/linux-2.6/2.6.8.1/..
+Preferable:
+[PATCH $version $n/$total] subsystem: one-line summary
 
-Change summary for Linux 2.6.8.1-ac1 versus 2.6.8.1
-
-[ * = submitted to maintainer, + = submitted but needs more work ]
-
-*	Fix crash on boot or nonworking keyboard driver		(Alan Cox)
-		with E750x based systems in SMP
-*	Fix timing violation in i8042 driver code		(Alan Cox)
-*	Allow 3% slack for root in strict overcommit		(Alan Cox)
-*	Add support for 16byte (GPRS) pcmcia serial cards	(Alan Cox)
-*	Reformat buslogic ready for real fixing			(indent)
-*	Support VLAN on 3c59x/3c90x hardware		(Stefan de Konkink)
-*	Serial ATA reporting of ATA errors for real diagnostics	(Alan Cox)
-+	Fix IDE locking, /proc races and other uglies		(Alan Cox)
-+	Initial IT8212 IDE driver				(Alan Cox)
-+	IDE hotplug (controller level)				(Alan Cox)
-+	Fix IDE disk crash on bad geometry			(Alan Cox)
-+	Fix mishandling of pure LBA devices			(Alan Cox)
-+	Fix problems with non-decoded slaves			(Alan Cox)
--	Fix failure to handle large drives on ALi controllers	(Alan Cox)
-	| Lost from 2.4-ac to 2.6.
--	Initial code working at making jiffies removal easier	(Alan Cox)
-
+	Sam

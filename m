@@ -1,98 +1,179 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261978AbTDQUMl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 16:12:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbTDQUMl
+	id S262526AbTDQUPL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 16:15:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262577AbTDQUPL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 16:12:41 -0400
-Received: from [144.51.25.10] ([144.51.25.10]:54226 "EHLO epoch.ncsc.mil")
-	by vger.kernel.org with ESMTP id S261978AbTDQUMj (ORCPT
+	Thu, 17 Apr 2003 16:15:11 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:25557 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262526AbTDQUPG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 16:12:39 -0400
-Subject: Re: [RFC][PATCH] Extended Attributes for Security Modules
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: richard offer <offer@sgi.com>
-Cc: Andreas Gruenbacher <ag@bestbits.at>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       lsm <linux-security-module@wirex.com>, "Ted Ts'o" <tytso@mit.edu>,
-       lkml <linux-kernel@vger.kernel.org>, Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <743940000.1050530541@changeling.engr.sgi.com>
-References: <Pine.LNX.4.33.0304140033100.12311-100000@muriel.parsec.at>
-	 <1050414107.16051.70.camel@moss-huskers.epoch.ncsc.mil>
-	 <385390000.1050425884@changeling.engr.sgi.com>
-	 <1050500841.2682.62.camel@moss-huskers.epoch.ncsc.mil>
-	 <743940000.1050530541@changeling.engr.sgi.com>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1050553474.1076.88.camel@moss-huskers.epoch.ncsc.mil>
+	Thu, 17 Apr 2003 16:15:06 -0400
+Date: Thu, 17 Apr 2003 13:27:14 -0700
+From: Dave Olien <dmo@osdl.org>
+To: John v/d Kamp <john@connectux.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] DAC960_Release bug (2.4.x)
+Message-ID: <20030417202714.GA30622@osdl.org>
+References: <Pine.LNX.4.53.0304161136270.18523@fratser> <20030416224013.GA11514@osdl.org> <Pine.LNX.4.53.0304171004160.10181@fratser>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 17 Apr 2003 00:24:34 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0304171004160.10181@fratser>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-04-16 at 18:02, richard offer wrote:
-> If you attach a capability attribibute to a file under the capability
-> module, what happens when you use SELinux ? Under your scheme, you'd remove
-> the capability and write a combined attribute that included SELinux and and
-> if needed the capability. 
 
-Yes.  You have to initially label the filesystem in order to use
-SELinux, as you would with any MAC scheme, and incorporating additional
-state into that labeling procedure wouldn't be difficult.  It isn't
-clear that you actually need the additional state; you can assign
-privileges via TE rather than using capabilities if you want
-fine-grained decomposition of root.
+I've been looking over the kernel's code paths that call a block driver's
+release method.  In linux 2.4 and 2.5, it looks like nowhere does the
+kernel EVER call the release method with a non-NULL file descriptor.
+The file pointer argument to the release method seems to be a left-over
+from linux 2.2.
 
-However, point taken - if the existing Linux capability model (in the
-mainline kernel) was already using xattr and had an attribute name
-reserved, I don't think we would have suggested re-using that attribute
-name (or its handler) for all security modules.  I view this as a
-special case, as the capability model was already in mainline and is
-expected to exist by certain applications, so colliding with it could
-pose a problem for many security modules.  For other security modules,
-or at the very least, the class of security modules implementing a MAC
-scheme, I would still suggest a single attribute name and handler.  
+I think the DAC960_Open and DAC960_Release methods in 2.4 and 2.5
+are more broken than it first appears.  
 
-> Under my scheme, the capability attribute would be left alone, SELinux
-> would add its own, and then as its the primary module would decide whether
-> to use the existing capability attribute or its own "combined" attribute.
-> The important thing is that if you ever decide to reboot a pure capability
-> system that you don't have to refigure all your attributes (although you
-> could/should).
+The SPECIAL file descriptor that you get with O_NONBLOCK
+is a BAD idea.  But we're probably stuck because applications use it.
+Could you pass me a URL to the libhd library you're using?  I'd like
+to look it over.  What behavior does it expect with the O_NBLOCK flag?
 
-True.  As above, I view this as a special case for the capability model
-because it has been part of the mainline.  If I am switching between
-different MAC schemes, I need to do a thorough relabeling of the
-filesystem, and that relabeling is a delicate operation as one MAC
-scheme may permit data mixing that is prohibited by another, leading to
-a violation of confidentiality or integrity requirements of the other
-MAC scheme.  Also, note that if you switch from a MAC scheme to a
-capability-only scheme, switching back is a very delicate operation if
-you want to verify a secure state.
+I think what I'll do is assert that there can be ONLY ONE such SPECIAL
+file descriptor open at a time.  At Open time, we'll save a pointer to
+the inode for this special file descriptor in a module-local variable.
+If at open time, we discover there is already such an open file descriptor,
+we'll refuse to open another one.
 
-> Extended attributes are still relatively rare that people forget to record
-> them when replacing a file (I do that all the time under Trusted Irix),
-> under your scheme they would have to record every attribute on the system
-> before loading a module if they every wanted to return to its prior state.
-> If you forgot to do it just once the consequences could be nasty.
+In the release function, we'll compare the inode pointer passed in with
+the saved inode pointer, and do the SPECIAL close case, and then zero
+out the saved inode pointer.  This isn't a completely reliable solution.
+But, it's the best I think of for now.
 
-Since you have to initially relabel the filesystem to switch to a
-different MAC scheme, it isn't unreasonable to have that labeling step
-also make a backup of any existing attribute values prior to changing
-them.
+A patch for 2.4 is attached at the end of this mail.  I'd appreciate it if
+you could give it a try and let me know how it works.
 
-> I can see your reasons for the single attribute (known quantity for
-> production systems), but think its better at this stage to experiment with
-> multiple attributes and see how people use them before forcing everyone to
-> a single standard. It allows small steps rather than force everyone to make
-> a single large one.
+On Thu, Apr 17, 2003 at 10:48:51AM +0200, John v/d Kamp wrote:
+> We have an application that detects hardware using the libhd from SuSE.
+> This lib loads the driver with the NONBLOCK flag, because it doesn't want
+> to use the drive, but only detect it. When it releases, the File parameter
+> is NULL, so the counters get decremented, but were never incremented.
+> 
+> When we try to partition the drive, the BLKRRPART ioctl fails because the
+> counter is 4294967295. (-1)
+> I don't think any program relies on this counter being < "0".
+> 
+> The whole point on the file descriptor is beyond me, but I think it's a
+> good thing to address.
+> 
 
-Per-module attribute names create no incentive for the security module
-writers to provide a consistent API and guarantees a forked userland. 
+------------------------------------------------------------------------------
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
-
+diff -ur linux-2.4.18_original/drivers/block/DAC960.c linux-2.4.18_DAC/drivers/block/DAC960.c
+--- linux-2.4.18_original/drivers/block/DAC960.c	2001-10-25 13:58:35.000000000 -0700
++++ linux-2.4.18_DAC/drivers/block/DAC960.c	2003-04-17 13:11:15.000000000 -0700
+@@ -48,6 +48,31 @@
+ #include <asm/uaccess.h>
+ #include "DAC960.h"
+ 
++/*
++ * DAC960_SpecialInode is used to indicate that the DAC960_Open
++ * method was called with the file descriptor that has its O_NONBLOCK
++ * flag set, and was with an inode for controller 0, logical device 0.
++ *
++ * Under this case, DAC960_Open enables a "special" file descriptor that
++ * does not reference a real disk device.  This file descriptor can
++ * be used ONLY for calls to DAC960_UserIOCTL(), which is able to
++ * operate on DAC960 controllers to do "pass through" commands.  These
++ * "pass through" commands can be used to query the state of the devices
++ * on the controller, and modify the state of those devices.
++ *
++ * This "special" file descriptor implementation is a bad idea.  But,
++ * we're stuck with it because there applications that rely on it.
++ * (although this has been broken throughout the entire linux 2.4
++ * release.  So, maybe this could in fact be removed.)
++ *
++ * This fix isn't completely reliable.  But, it should handle  the
++ * common cases.  Almost certainly, there is only one inode for
++ * the (controller 0, disk 0) device in any system.  So, the
++ * SpecialInode pointer is really just a flag in this case.  But,
++ * we'll save the inode pointer as well, just in case.
++ */
++static Inode_T		*DAC960_SpecialInode = NULL;
++static spinlock_t	DAC960_SpecialInodeLock;
+ 
+ /*
+   DAC960_ControllerCount is the number of DAC960 Controllers detected.
+@@ -5340,9 +5365,29 @@
+   int ControllerNumber = DAC960_ControllerNumber(Inode->i_rdev);
+   int LogicalDriveNumber = DAC960_LogicalDriveNumber(Inode->i_rdev);
+   DAC960_Controller_T *Controller;
++
++  /*
++   * Open a "Special" file descriptor that can be used
++   * to operate on any DAC960 controller, even if there are
++   * no logical devices online.  This hooks into code
++   * in DAC960_IOCTL and DAC960_Close.
++   *
++   * This "Special" file descriptor is a bad idea, but
++   * we're probably stuck with it because of existing 
++   * applications that use it.
++   */
+   if (ControllerNumber == 0 && LogicalDriveNumber == 0 &&
+-      (File->f_flags & O_NONBLOCK))
+-    goto ModuleOnly;
++		(File->f_flags & O_NONBLOCK) && capable(CAP_SYS_ADMIN)) {
++      spin_lock_irq(&DAC960_SpecialInodeLock);
++      if (DAC960_SpecialInode != NULL) {
++      	spin_unlock_irq(&DAC960_SpecialInodeLock);
++	return -ENXIO;
++      }
++      DAC960_SpecialInode = Inode;
++      spin_unlock_irq(&DAC960_SpecialInodeLock);
++      goto ModuleOnly;
++  }
++
+   if (ControllerNumber < 0 || ControllerNumber > DAC960_ControllerCount - 1)
+     return -ENXIO;
+   Controller = DAC960_Controllers[ControllerNumber];
+@@ -5376,7 +5421,6 @@
+   /*
+     Increment Controller and Logical Drive Usage Counts.
+   */
+-  Controller->ControllerUsageCount++;
+   Controller->LogicalDriveUsageCount[LogicalDriveNumber]++;
+  ModuleOnly:
+   return 0;
+@@ -5392,15 +5436,12 @@
+   int ControllerNumber = DAC960_ControllerNumber(Inode->i_rdev);
+   int LogicalDriveNumber = DAC960_LogicalDriveNumber(Inode->i_rdev);
+   DAC960_Controller_T *Controller = DAC960_Controllers[ControllerNumber];
+-  if (ControllerNumber == 0 && LogicalDriveNumber == 0 &&
+-      File != NULL && (File->f_flags & O_NONBLOCK))
+-    goto ModuleOnly;
+-  /*
+-    Decrement the Logical Drive and Controller Usage Counts.
+-  */
+-  Controller->LogicalDriveUsageCount[LogicalDriveNumber]--;
+-  Controller->ControllerUsageCount--;
+- ModuleOnly:
++
++  if ((Inode == DAC960_SpecialInode) && capable(CAP_SYS_ADMIN))
++    DAC960_SpecialInode = NULL;
++  else
++     Controller->LogicalDriveUsageCount[LogicalDriveNumber]--;
++
+   return 0;
+ }
+ 
+diff -ur linux-2.4.18_original/drivers/block/DAC960.h linux-2.4.18_DAC/drivers/block/DAC960.h
+--- linux-2.4.18_original/drivers/block/DAC960.h	2001-10-17 14:46:29.000000000 -0700
++++ linux-2.4.18_DAC/drivers/block/DAC960.h	2003-04-17 11:17:45.000000000 -0700
+@@ -2341,7 +2341,6 @@
+   unsigned short MaxBlocksPerCommand;
+   unsigned short ControllerScatterGatherLimit;
+   unsigned short DriverScatterGatherLimit;
+-  unsigned int ControllerUsageCount;
+   unsigned int CombinedStatusBufferLength;
+   unsigned int InitialStatusLength;
+   unsigned int CurrentStatusLength;

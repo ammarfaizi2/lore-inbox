@@ -1,37 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265402AbSLPFwr>; Mon, 16 Dec 2002 00:52:47 -0500
+	id <S265437AbSLPFw4>; Mon, 16 Dec 2002 00:52:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265437AbSLPFwq>; Mon, 16 Dec 2002 00:52:46 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:30690 "EHLO
+	id <S265567AbSLPFw4>; Mon, 16 Dec 2002 00:52:56 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:31202 "EHLO
 	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S265402AbSLPFwo>; Mon, 16 Dec 2002 00:52:44 -0500
-Message-ID: <3DFD6BB7.9000302@us.ibm.com>
-Date: Sun, 15 Dec 2002 21:59:19 -0800
+	id <S265437AbSLPFwt>; Mon, 16 Dec 2002 00:52:49 -0500
+Message-ID: <3DFD6BB1.4040501@us.ibm.com>
+Date: Sun, 15 Dec 2002 21:59:13 -0800
 From: Dave Hansen <haveblue@us.ibm.com>
 User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
 CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] (4/4) stack updates for x86
+Subject: [PATCH] (1/4) stack updates for x86
 Content-Type: multipart/mixed;
- boundary="------------030203090806070107060603"
+ boundary="------------000606020601090705040902"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------030203090806070107060603
+--------------000606020601090705040902
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
+These patches originated from Ben LaHaise around 2.5.20.  Alan has had 
+them since 2.5.44-ac2, with apparently no ill effects.
 
-D-4k-stack-2.5.52+bk-6.patch
-	make a config option to turn on 4k stacks.
-
-Make sure this is applied too, or you'll oops when bringing up 
-secondary cpus:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=103956921711074&w=2
+A-thread_info_cleanup-2.5.52+bk-6.patch
+	Gets asm-i386/thread_info.h ready for the irqstack and
+	overflow detection patches
 
 -- 
 Dave Hansen
@@ -39,71 +38,152 @@ haveblue@us.ibm.com
 
 
 
---------------030203090806070107060603
+--------------000606020601090705040902
 Content-Type: text/plain;
- name="D-4k-stack-2.5.52-6.patch"
+ name="A-thread_info_cleanup-2.5.52+bk-6.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="D-4k-stack-2.5.52-6.patch"
+ filename="A-thread_info_cleanup-2.5.52+bk-6.patch"
 
 # This is a BitKeeper generated patch for the following project:
 # Project Name: Linux kernel tree
 # This patch format is intended for GNU patch command version 2.5 or higher.
 # This patch includes the following deltas:
-#	           ChangeSet	1.862.1.4 -> 1.867  
-#	include/asm-i386/thread_info.h	1.13.1.1 -> 1.17   
-#	   arch/i386/Kconfig	1.15    -> 1.16   
+#	           ChangeSet	1.858.1.122 -> 1.860  
+#	arch/i386/kernel/head.S	1.17.1.1 -> 1.19   
+#	include/asm-i386/thread_info.h	1.7.1.1 -> 1.9    
+#	include/asm-i386/page.h	1.19    -> 1.20   
+#	arch/i386/kernel/entry.S	1.37.1.4 -> 1.43   
 #
 # The following is the BitKeeper ChangeSet Log
 # --------------------------------------------
-# 02/12/15	haveblue@elm3b96.(none)	1.867
-# Merge elm3b96.(none):/work/dave/bk/linux-2.5-irq-stack+overflow-detect
-# into elm3b96.(none):/work/dave/bk/linux-2.5-4k_stack
+# 02/12/15	haveblue@elm3b96.(none)	1.860
+# Merge elm3b96.(none):/work/dave/bk/linux-2.5
+# into elm3b96.(none):/work/dave/bk/linux-2.5-thread_info_infra
 # --------------------------------------------
 #
-diff -Nru a/arch/i386/Kconfig b/arch/i386/Kconfig
---- a/arch/i386/Kconfig	Sun Dec 15 21:27:56 2002
-+++ b/arch/i386/Kconfig	Sun Dec 15 21:27:56 2002
-@@ -622,6 +622,16 @@
- 	  low memory.  Setting this option will put user-space page table
- 	  entries in high memory.
+diff -Nru a/arch/i386/kernel/entry.S b/arch/i386/kernel/entry.S
+--- a/arch/i386/kernel/entry.S	Sun Dec 15 20:54:32 2002
++++ b/arch/i386/kernel/entry.S	Sun Dec 15 20:54:32 2002
+@@ -151,7 +151,7 @@
+ 	pushl %eax
+ 	popfl
  
-+config 4K_STACK
-+	bool "Use smaller 4k per-task stacks"
-+	help
-+	  This option will shrink the kernel's per-task stack from 8k to
-+	  4k.  This will greatly increase your chance of overflowing it.
-+	  But, if you use the per-cpu interrupt stacks as well, your chances
-+	  go way down.  Also try the CONFIG_X86_STACK_CHECK overflow
-+	  detection.  It is much more reliable than the currently in-kernel
-+	  version.
-+
- config MATH_EMULATION
- 	bool "Math emulation"
- 	---help---
+-	andl $-8192, %ebx	# GET_THREAD_INFO
++	GET_THREAD_INFO_WITH_ESP(%ebx)	# GET_THREAD_INFO
+ 	movl TI_EXEC_DOMAIN(%ebx), %edx	# Get the execution domain
+ 	call *4(%edx)		# Call the lcall7 handler for the domain
+ 	addl $4, %esp
+diff -Nru a/arch/i386/kernel/head.S b/arch/i386/kernel/head.S
+--- a/arch/i386/kernel/head.S	Sun Dec 15 20:54:32 2002
++++ b/arch/i386/kernel/head.S	Sun Dec 15 20:54:32 2002
+@@ -15,6 +15,7 @@
+ #include <asm/page.h>
+ #include <asm/pgtable.h>
+ #include <asm/desc.h>
++#include <asm/thread_info.h>
+ 
+ #define OLD_CL_MAGIC_ADDR	0x90020
+ #define OLD_CL_MAGIC		0xA33F
+@@ -305,7 +306,7 @@
+ 	ret
+ 
+ ENTRY(stack_start)
+-	.long init_thread_union+8192
++	.long init_thread_union+THREAD_SIZE
+ 	.long __KERNEL_DS
+ 
+ /* This is the default interrupt "handler" :-) */
+diff -Nru a/include/asm-i386/page.h b/include/asm-i386/page.h
+--- a/include/asm-i386/page.h	Sun Dec 15 20:54:32 2002
++++ b/include/asm-i386/page.h	Sun Dec 15 20:54:32 2002
+@@ -3,7 +3,11 @@
+ 
+ /* PAGE_SHIFT determines the page size */
+ #define PAGE_SHIFT	12
+-#define PAGE_SIZE	(1UL << PAGE_SHIFT)
++#ifndef __ASSEMBLY__
++#define PAGE_SIZE      (1UL << PAGE_SHIFT)
++#else
++#define PAGE_SIZE      (1 << PAGE_SHIFT)
++#endif
+ #define PAGE_MASK	(~(PAGE_SIZE-1))
+ 
+ #define LARGE_PAGE_MASK (~(LARGE_PAGE_SIZE-1))
 diff -Nru a/include/asm-i386/thread_info.h b/include/asm-i386/thread_info.h
---- a/include/asm-i386/thread_info.h	Sun Dec 15 21:27:56 2002
-+++ b/include/asm-i386/thread_info.h	Sun Dec 15 21:27:56 2002
-@@ -61,10 +61,16 @@
+--- a/include/asm-i386/thread_info.h	Sun Dec 15 20:54:32 2002
++++ b/include/asm-i386/thread_info.h	Sun Dec 15 20:54:32 2002
+@@ -9,6 +9,7 @@
+ 
+ #ifdef __KERNEL__
+ 
++#include <asm/page.h>
+ #ifndef __ASSEMBLY__
+ #include <asm/processor.h>
+ #endif
+@@ -57,11 +58,14 @@
   *
   * preempt_count needs to be 1 initially, until the scheduler is functional.
   */
--#define THREAD_ORDER 1 
-+#ifdef CONFIG_4K_STACK
-+#define THREAD_ORDER 0
-+#define STACK_WARN		0x200
-+#define STACK_PANIC		0x100
-+#else
-+#define THREAD_ORDER 1
-+#define STACK_WARN              ((THREAD_SIZE)>>1)
-+#define STACK_PANIC             0x100
-+#endif
- #define INIT_THREAD_SIZE       THREAD_SIZE
--#define STACK_PANIC		0x200ul
--#define STACK_WARN		((THREAD_SIZE)>>1)
- 
++#define THREAD_ORDER 1 
++#define INIT_THREAD_SIZE       THREAD_SIZE
++
  #ifndef __ASSEMBLY__
  
+ #define INIT_THREAD_INFO(tsk)			\
+ {						\
+-	.task		= &tsk,			\
++	.task		= &tsk,         	\
+ 	.exec_domain	= &default_exec_domain,	\
+ 	.flags		= 0,			\
+ 	.cpu		= 0,			\
+@@ -75,30 +79,36 @@
+ #define init_thread_info	(init_thread_union.thread_info)
+ #define init_stack		(init_thread_union.stack)
+ 
++/* thread information allocation */
++#define THREAD_SIZE (PAGE_SIZE << THREAD_ORDER)
++#define alloc_thread_info() ((struct thread_info *) __get_free_pages(GFP_KERNEL,THREAD_ORDER))
++#define free_thread_info(ti) free_pages((unsigned long) (ti), THREAD_ORDER)
++#define get_thread_info(ti) get_task_struct((ti)->task)
++#define put_thread_info(ti) put_task_struct((ti)->task)
++
+ /* how to get the thread information struct from C */
+ static inline struct thread_info *current_thread_info(void)
+ {
+ 	struct thread_info *ti;
+-	__asm__("andl %%esp,%0; ":"=r" (ti) : "0" (~8191UL));
++	__asm__("andl %%esp,%0; ":"=r" (ti) : "0" (~(THREAD_SIZE - 1)));
+ 	return ti;
+ }
+ 
+-/* thread information allocation */
+-#define THREAD_SIZE (2*PAGE_SIZE)
+-#define alloc_thread_info() ((struct thread_info *) __get_free_pages(GFP_KERNEL,1))
+-#define free_thread_info(ti) free_pages((unsigned long) (ti), 1)
+-#define get_thread_info(ti) get_task_struct((ti)->task)
+-#define put_thread_info(ti) put_task_struct((ti)->task)
+-
+ #else /* !__ASSEMBLY__ */
+ 
++#define THREAD_SIZE (PAGE_SIZE << THREAD_ORDER)
++
+ /* how to get the thread information struct from ASM */
+ #define GET_THREAD_INFO(reg) \
+-	movl $-8192, reg; \
++	movl $-THREAD_SIZE, reg; \
+ 	andl %esp, reg
+ 
+-#endif
++/* use this one if reg already contains %esp */
++#define GET_THREAD_INFO_WITH_ESP(reg) \
++	andl $-THREAD_SIZE, reg
+ 
++#endif
++	 
+ /*
+  * thread information flags
+  * - these are process state flags that various assembly files may need to access
 
---------------030203090806070107060603--
+--------------000606020601090705040902--
 

@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274813AbRJaWY3>; Wed, 31 Oct 2001 17:24:29 -0500
+	id <S274789AbRJaWZI>; Wed, 31 Oct 2001 17:25:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274434AbRJaWYT>; Wed, 31 Oct 2001 17:24:19 -0500
-Received: from h55p103-2.delphi.afb.lu.se ([130.235.187.175]:17628 "EHLO gin")
-	by vger.kernel.org with ESMTP id <S275082AbRJaWYM>;
-	Wed, 31 Oct 2001 17:24:12 -0500
-Date: Wed, 31 Oct 2001 23:24:39 +0100
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: andersg@0x63.nu, linux-kernel@vger.kernel.org
-Subject: Re: Local APIC option (CONFIG_X86_UP_APIC) locks up Inspiron 8100
-Message-ID: <20011031232439.D6285@h55p111.delphi.afb.lu.se>
-In-Reply-To: <200110312217.XAA28976@harpo.it.uu.se>
-Mime-Version: 1.0
+	id <S275265AbRJaWY6>; Wed, 31 Oct 2001 17:24:58 -0500
+Received: from mercury.Sun.COM ([192.9.25.1]:43262 "EHLO mercury.Sun.COM")
+	by vger.kernel.org with ESMTP id <S274434AbRJaWYm>;
+	Wed, 31 Oct 2001 17:24:42 -0500
+Message-ID: <3BE07C91.6BCAB167@sun.com>
+Date: Wed, 31 Oct 2001 14:34:57 -0800
+From: Tim Hockin <thockin@sun.com>
+Organization: Sun Microsystems, Inc.
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.12C5_V i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Patrick Mochel <mochel@osdl.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        torvalds@transmeta.com, alan@redhat.com, p_gortmaker@yahoo.com
+Subject: Re: [PATCH] don't reset alarm interrupt on RTC
+In-Reply-To: <Pine.LNX.4.33.0110311408330.11035-100000@osdlab.pdx.osdl.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200110312217.XAA28976@harpo.it.uu.se>
-User-Agent: Mutt/1.3.23i
-From: andersg@0x63.nu
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 31, 2001 at 11:17:16PM +0100, Mikael Pettersson wrote:
-> > > The patch is now available at
-> > > http://www.csd.uu.se/~mikpe/linux/patch-2.4.13ac5-init-order-5
-> > 
-> > The same problem appears on "Dell Latitude C810". So that should probably be
-> > added to the dmi-backlist too. 
-> 
-> You have confirmed that allowing the local APIC to be enabled
-> causes it to lock up at system management events, and that keeping
-> the local APIC disabled prevents those lockups?
-> 
-> Send me the DMI scan output (change the dmi_printk #define in dmi_scan.c
-> to actually do a printk) and I'll add the C810 to the blacklist.
+Patrick Mochel wrote:
 
-I havn't tested your patch, but with CONFIG_X86_UP_APIC=y it locks up and
-without it it doesn't. It isn't my laptop so can't do any futher
-investigations at the moment, but the owner was very happy that he now could
-plug the power without the computer locking up so probably he'll let me do
-some more tests on it tomorrow.
+> -       tmp &=  ~RTC_AIE;
+> +       //tmp &=  ~RTC_AIE;
+>         tmp &=  ~RTC_UIE;
+>         CMOS_WRITE(tmp, RTC_CONTROL);
+>         CMOS_READ(RTC_INTR_FLAGS);
+ 
+> Why would you want to unconditionally enable this interrupt?
+
+We don't unconditionally set it, we just leave it enabled (the code was
+uncoditionally UNsetting it).  There are ioctl()s to set/unset PIE, AIE,
+UIE.
+
+> And how do you set the alarm time?
+
+ioctl(fd, RTC_ALM_SET);
+ 
+> But, I don't think this should be enabled by default.
+
+if anything, our patch is not correct ENOUGH.  none of AIE, PIE, or UIE,
+should be molested by rtc_release().
 
 -- 
-
-//anders/g
-
+Tim Hockin
+Systems Software Engineer
+Sun Microsystems, Cobalt Server Appliances
+thockin@sun.com

@@ -1,44 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268844AbUHaRYQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265287AbUHaRYO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268844AbUHaRYQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 13:24:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268816AbUHaRXn
+	id S265287AbUHaRYO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 13:24:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268765AbUHaRPw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 13:23:43 -0400
-Received: from yacht.ocn.ne.jp ([222.146.40.168]:28631 "EHLO
-	smtp.yacht.ocn.ne.jp") by vger.kernel.org with ESMTP
-	id S268757AbUHaRVX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 13:21:23 -0400
-From: mita akinobu <amgta@yacht.ocn.ne.jp>
-To: William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: [util-linux] readprofile ignores the last element in /proc/profile
-Date: Wed, 1 Sep 2004 02:21:41 +0900
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, Andries Brouwer <aeb@cwi.nl>,
-       Alessandro Rubini <rubini@ipvvis.unipv.it>
-References: <200408250022.09878.amgta@yacht.ocn.ne.jp> <20040829162252.GG5492@holomorphy.com> <200409010145.51224.amgta@yacht.ocn.ne.jp>
-In-Reply-To: <200409010145.51224.amgta@yacht.ocn.ne.jp>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 31 Aug 2004 13:15:52 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:56968 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S268754AbUHaROy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 13:14:54 -0400
+Subject: Re: Driver retries disk errors.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Erik Mouw <erik@harddisk-recovery.com>
+Cc: Rogier Wolff <R.E.Wolff@harddisk-recovery.nl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+In-Reply-To: <20040831170016.GF17261@harddisk-recovery.com>
+References: <20040830163931.GA4295@bitwizard.nl>
+	 <1093952715.32684.12.camel@localhost.localdomain>
+	 <20040831135403.GB2854@bitwizard.nl>
+	 <1093961570.597.2.camel@localhost.localdomain>
+	 <20040831155653.GD17261@harddisk-recovery.com>
+	 <1093965233.599.8.camel@localhost.localdomain>
+	 <20040831170016.GF17261@harddisk-recovery.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409010221.41992.amgta@yacht.ocn.ne.jp>
+Message-Id: <1093968767.597.14.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 31 Aug 2004 17:12:50 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Perhaps the prof_buffer[] should have prepared another entry for
-exceeded PC samplings.
+On Maw, 2004-08-31 at 18:00, Erik Mouw wrote:
+> > For non hard disk cases many devices do want and need retry.
+> 
+> And many others do not. CompactFlash readers are usually implemented as
+> a USB storage device, which on its turn is implemented as a SCSI
+> "disk". So far I haven't seen a CompactFlash which could be "fixed" by
+> retries.
 
---- 2.6-mm/kernel/profile.c.orig	2004-09-01 01:46:16.000000000 +0900
-+++ 2.6-mm/kernel/profile.c	2004-09-01 01:58:02.549930824 +0900
-@@ -44,7 +44,7 @@ void __init profile_init(void)
- 		return;
-  
- 	/* only text is profiled */
--	prof_len = (_etext - _stext) >> prof_shift;
-+	prof_len = ((_etext - _stext) >> prof_shift) + 1;
- 	prof_buffer = alloc_bootmem(prof_len*sizeof(atomic_t));
- }
- 
+It does no harm trying. It does real harm not being conservative and
+losing peoples data. You recover people's data after its lost, the
+IDE layer's job is to make sure it doesn't get lost in the first place.
+
+> (1) Imagine an application doing a linear read on a file with an 8
+> block read ahead and the last block being bad. The kernel will try to
+> read that bad block 16 times, but because the IDE driver also has 8
+> retries, the kernel will try to read that bad block *64* times. It
+> usually takes an IDE drive about 2 seconds to figure out a block is
+> bad, so the application gets stuck for 2 minutes in that single bad
+> block.
+
+Right now I know of no way to tell which is readahead for a failed
+command or of telling the block layer to forget them. Fix this at the
+block layer and IDE can abort the readahead sequence happily enough
+because IDE is too dumb to have issued further commands to the drive at
+this point.
+
+Alan
 

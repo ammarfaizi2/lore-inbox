@@ -1,45 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264508AbTEJVBv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 17:01:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264511AbTEJVBv
+	id S264505AbTEJVDb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 17:03:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264514AbTEJVDb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 17:01:51 -0400
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:24839 "EHLO
-	mx2.cypherpunks.ca") by vger.kernel.org with ESMTP id S264508AbTEJVBc
+	Sat, 10 May 2003 17:03:31 -0400
+Received: from pop.gmx.net ([213.165.64.20]:801 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264505AbTEJVD1 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 17:01:32 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@mozart.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: The disappearing sys_call_table export.
-Date: 10 May 2003 20:48:13 GMT
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <b9joid$hv1$1@abraham.cs.berkeley.edu>
-References: <Pine.LNX.4.44.0305102217300.1163-100000@marcellos.corky.net>
-NNTP-Posting-Host: mozart.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 1052599693 18401 128.32.153.211 (10 May 2003 20:48:13 GMT)
-X-Complaints-To: news@abraham.cs.berkeley.edu
-NNTP-Posting-Date: 10 May 2003 20:48:13 GMT
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: daw@mozart.cs.berkeley.edu (David Wagner)
+	Sat, 10 May 2003 17:03:27 -0400
+Date: Sat, 10 May 2003 23:13:41 +0200
+From: Tuncer M "zayamut" Ayaz <tuncer.ayaz@gmx.de>
+To: Tuncer M "zayamut" Ayaz <tuncer.ayaz@gmx.de>
+Cc: xavier.bestel@free.fr, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.69 strange high tone on DELL Inspiron 8100
+In-Reply-To: <S264494AbTEJUMq/20030510201246Z+7104@vger.kernel.org>
+References: <1405.1052575075@www9.gmx.net>
+	<1052575167.16165.0.camel@dhcp22.swansea.linux.org.uk>
+	<S264332AbTEJO5e/20030510145734Z+7011@vger.kernel.org>
+	<S264373AbTEJPSN/20030510151813Z+1648@vger.kernel.org>
+	<20030510162527.GD29271@mail.jlokier.co.uk>
+	<S264444AbTEJQk4/20030510164056Z+1652@vger.kernel.org>
+	<S264449AbTEJRZH/20030510172507Z+7050@vger.kernel.org>
+	<1052588866.1013.3.camel@bip.localdomain.fake>
+	<S264488AbTEJT4X/20030510195623Z+7092@vger.kernel.org>
+	<S264494AbTEJUMq/20030510201246Z+7104@vger.kernel.org>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <S264505AbTEJVD1/20030510210327Z+7123@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yoav Weiss  wrote:
->The solution is to have only ONE REAL copy, done by the wrapper.  The
->original syscall will copy from a kernel ptr, unknowingly.  Consider
->the following modified pseudo-code:
+On Sat, 10 May 2003 22:23:06 +0200
+Tuncer M "zayamut" Ayaz <tuncer.ayaz@gmx.de> wrote:
 
-Let's see you do sys_execve()...  sys_socketcall() and sys_ioctl() are
-fun, too.  (And, I worry about doubly-indirected pointers, for instance.)
-It's probably do-able, but you'd better stock up on the Advil in advance:
-we're in major headache country, folks.
+> On Sat, 10 May 2003 22:06:25 +0200
+> Tuncer M "zayamut" Ayaz <tuncer.ayaz@gmx.de> wrote:
+> 
+> > On 10 May 2003 19:47:47 +0200
+> > Xavier Bestel <xavier.bestel@free.fr> wrote:
+> > 
+> > > Le sam 10/05/2003 à 19:35, Tuncer M zayamut Ayaz a écrit :
+> > > 
+> > > > rebooted with a reconfigured kernel to assure it's not cpufreq.
+> > > > same behaviour without cpufreq.
+> > > 
+> > > You should perhaps try to enable/disable APM idle calls ..
+> > > 
+> > > 	Xav
+> > 
+> > disabling apm idle calls seem to fix it but on this notebook
+> > those calls are necessary so that it doesn't get too hot.
+> > or can ACPI be used to accomplish those calls?
+> > 
+> > I'm already running it always on SpeeStep power-saving mode
+> > so that it doesn't get REALLY hot. try typing on an Inspiron
+> > 8100 in the summer while compiling for a while. it's not
+> > healthy for your hands :D
+> 
+> besides fixing the noise issue by disabling a wanted feature,
+> somehow pcmcia is borked, it just doesn't work and print
+> lots of error messages and one of pcmcia processes (dunno which)
+> segfaults.
+> may be my fault, who knows. well, we'll see...
 
->Now, don't get me wrong - I still think intercepting the syscall is not
->the right thing to do in this case, since LSM provides hooks in better
->locations.
-
-Right.  LSM seems like a better answer for security applications.
+well, I actually saw PCMCIA functioning properly after
+make clean'ing, recompiling and rebooting.
+so no worries about that. now, off to find a replacement
+for "APM idle calls".

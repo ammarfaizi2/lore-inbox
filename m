@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264002AbUFSPax@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264045AbUFSPtL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264002AbUFSPax (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 11:30:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264034AbUFSPax
+	id S264045AbUFSPtL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 11:49:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264048AbUFSPtL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 11:30:53 -0400
-Received: from dwdmx2.dwd.de ([141.38.3.197]:17446 "HELO dwdmx2.dwd.de")
-	by vger.kernel.org with SMTP id S264002AbUFSPav (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 11:30:51 -0400
-Date: Sat, 19 Jun 2004 15:30:48 +0000 (GMT)
-From: Holger Kiehl <Holger.Kiehl@dwd.de>
-X-X-Sender: kiehl@praktifix.dwd.de
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: SATA performance drop in 2.6.7
-Message-Id: <Pine.LNX.4.58.0406191508190.8090@praktifix.dwd.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 19 Jun 2004 11:49:11 -0400
+Received: from [81.187.239.184] ([81.187.239.184]:63172 "EHLO
+	mail.newtoncomputing.co.uk") by vger.kernel.org with ESMTP
+	id S264045AbUFSPtJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 11:49:09 -0400
+Date: Sat, 19 Jun 2004 16:49:07 +0100
+From: matthew-lkml@newtoncomputing.co.uk
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Stop printk printing non-printable chars
+Message-ID: <20040619154907.GE5286@newtoncomputing.co.uk>
+References: <20040618205355.GA5286@newtoncomputing.co.uk> <1087643904.5494.7.camel@imladris.demon.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1087643904.5494.7.camel@imladris.demon.co.uk>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+On Sat, Jun 19, 2004 at 12:18:24PM +0100, David Woodhouse wrote:
+> On Fri, 2004-06-18 at 21:53 +0100, matthew-lkml@newtoncomputing.co.uk
+> wrote:
+> > The main problem seems to be in ACPI, but I don't see any reason for
+> > printk to even consider printing _any_ non-printable characters at all.
+> > It makes all characters out of the range 32..126 (except for newline)
+> > print as a '?'.
+> 
+> Please don't do that -- it makes printing UTF-8 impossible. While I'd
+> not argue that now is the time to start outputting UTF-8 all over the
+> place, I wouldn't accept that it's a good time to _prevent_ it either,
+> as your patch would do.
 
-Anybody noticed that with 2.6.7 the performance of SATA disks
-drops drastically. Right after a boot I get the following with
-hdparm:
+Please forgive me if I'm wrong on this, but I seem to remember reading
+something a while ago indicating that the kernel is and always will be
+internally English (i.e. debugging messages and the like) as there is no
+need to bloat it with many different languages (that can be done in
+userspace). As printk is really just a log system, I personally don't
+see any way that it should ever print anything other than ASCII.
 
- Timing buffer-cache reads:   3724 MB in  2.00 seconds = 1861.35 MB/sec
- Timing buffered disk reads:  166 MB in  3.03 seconds =  54.72 MB/sec
+(Yes, of course some parts of the kernel, like filesystems, do need to
+be able to handle UTF-8 etc, but not all.)
 
-It then starts to degrate rapidly:
+-- 
+Matthew
 
- Timing buffer-cache reads:   2560 MB in  2.00 seconds = 1280.19 MB/sec
- Timing buffered disk reads:  166 MB in  3.01 seconds =  55.14 MB/sec
-
- Timing buffer-cache reads:   2164 MB in  2.00 seconds = 1081.08 MB/sec
- Timing buffered disk reads:  166 MB in  3.02 seconds =  55.05 MB/sec
-
- Timing buffer-cache reads:   1700 MB in  2.00 seconds = 850.13 MB/sec
- Timing buffered disk reads:  146 MB in  3.04 seconds =  48.07 MB/sec
-
-Then about 3 minutes after boot it stays at approx.
-
-  Timing buffer-cache reads:   780 MB in  2.00 seconds = 389.67 MB/sec
-  Timing buffered disk reads:  102 MB in  3.01 seconds =  33.89 MB/sec
-
-Controller is a Intel ICH5R and disk is Seagate ST380013AS. With kernel
-2.6.6 this does not happen. On another PATA system with 2.6.7 this
-does not happen, so I assume the problem must be with SATA.
-
-Holger
-
-PS: Please CC me since I am not subscribed.

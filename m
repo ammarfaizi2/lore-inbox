@@ -1,46 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317600AbSGOS5H>; Mon, 15 Jul 2002 14:57:07 -0400
+	id <S317602AbSGOTAz>; Mon, 15 Jul 2002 15:00:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317602AbSGOS5G>; Mon, 15 Jul 2002 14:57:06 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:49169 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317600AbSGOS5F>; Mon, 15 Jul 2002 14:57:05 -0400
-Date: Mon, 15 Jul 2002 11:56:21 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Robert Love <rml@tech9.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: HZ, preferably as small as possible
-In-Reply-To: <1026750413.939.97.camel@sinai>
-Message-ID: <Pine.LNX.4.33.0207151151200.19586-100000@penguin.transmeta.com>
+	id <S317603AbSGOTAy>; Mon, 15 Jul 2002 15:00:54 -0400
+Received: from relay04.valueweb.net ([216.219.253.238]:28178 "EHLO
+	relay04.valueweb.net") by vger.kernel.org with ESMTP
+	id <S317602AbSGOTAx>; Mon, 15 Jul 2002 15:00:53 -0400
+Message-ID: <3D331D01.F756F16B@opersys.com>
+Date: Mon, 15 Jul 2002 15:05:37 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Miguel =?iso-8859-1?Q?Rodr=EDguez?= <agus_081074@yahoo.com>
+CC: linux-kernel@vger.kernel.org, Adeos <adeos-main@mail.freesoftware.fsf.org>
+Subject: Re: patchless debugger for U.P x86
+References: <20020715183746.72137.qmail@web14205.mail.yahoo.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 15 Jul 2002, Robert Love wrote:
+This is just fantastic. I'm glad to see someone ran with the ideas of
+patchless kernel debuggers as described in the Adeos paper and the likes.
+
+There are definitely interfacing opportunities with the Adeos work
+that's already been done using a kernel patch. Having both Adeos
+as a kernel patch and as a patchless nanokernel is now really within
+our reach.
+
+Kudos to Miguel :)
+
+Karim
+
+Miguel Rodríguez wrote:
 > 
-> A cleaner solution to this issue is a higher resolution timer, e.g. the
-> high-res-timers project which has high resolution POSIX timers.
+> I have released an initial alpha release for a x86
+> (uniprocessor) Linux kernel patchless debugger under
+> the GNU GPL at savannah.gnu.org. Project is called
+> kmdbg. First debugger implemented is a remote serial
+> debugger.
+> It is just a simple interrupt/exception/syscall
+> interception scheleton and may have a lot of errors
+> (or not work at all) although it worked for me with
+> kernel 2.4.XX, 2.5.24.
+> See:
+> 
+> https://savannah.gnu.org/projects/kmdbg
+> 
+> Miguel.
+> 
+> _______________________________________________________________
+> Yahoo! Messenger
+> Nueva versión: Webcam, voz, y mucho más ¡Gratis!
+> Descárgalo ya desde http://messenger.yahoo.es
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-But that really doesn't solve the problem either.
-
-You still need to have some limit on the timer resolution. Whether you
-call that limit "HZ" or something else is irrelevant in the end. Just
-calling them "high-resolution" doesn't make the problem go away, you still
-have some resolution (*).
-
-So once you set some magic limit on the fine-grained resolution (let's
-call that "MAX_FINE_HZ"), you might as well realize that that really is
-100% equivalent to just making HZ _be_ that value. Together with possibly
-making the actual timer tick happen at a slower rate according to some
-other heuristics (ie "the system doesn't need timers right now, let's just
-not do them").
-
-		Linus
-
-(*) Which is a lot less than the hw can generate, since you mustn't allow
-users to bog down the system in timer interrupts by just using
-"itimer(ITIMER_REAL, .. fine-resolution..)".
-
+-- 
+===================================================
+                 Karim Yaghmour
+               karim@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

@@ -1,179 +1,175 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263924AbTDGXgo (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 19:36:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263807AbTDGXfM (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 19:35:12 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:7041
-	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263881AbTDGXOy (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 19:14:54 -0400
-Date: Tue, 8 Apr 2003 01:33:44 +0100
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200304080033.h380XiZo009212@hraefn.swansea.linux.org.uk>
-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: PATCH: goodbye compatmac.h
+	id S263745AbTDGXjO (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 19:39:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263917AbTDGXiC (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 19:38:02 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14224 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263745AbTDGXcA (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 19:32:00 -0400
+Date: Tue, 8 Apr 2003 00:43:34 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: linux-kernel@vger.kernel.org
+Cc: Greg KH <greg@kroah.com>
+Subject: [PATCH] [2/3] PCI sysfs improvements
+Message-ID: <20030407234334.GS23430@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.67/include/linux/compatmac.h linux-2.5.67-ac1/include/linux/compatmac.h
---- linux-2.5.67/include/linux/compatmac.h	2003-02-10 18:37:58.000000000 +0000
-+++ linux-2.5.67-ac1/include/linux/compatmac.h	1970-01-01 01:00:00.000000000 +0100
-@@ -1,160 +0,0 @@
--  /* 
--   * This header tries to allow you to write 2.3-compatible drivers, 
--   * but (using this header) still allows you to run them on 2.2 and 
--   * 2.0 kernels. 
--   *
--   * Sometimes, a #define replaces a "construct" that older kernels
--   * had. For example, 
--   *
--   *       DECLARE_MUTEX(name);
--   *
--   * replaces the older 
--   *
--   *       struct semaphore name = MUTEX;
--   *
--   * This file then declares the DECLARE_MUTEX macro to compile into the 
--   * older version. 
--   * 
--   * In some cases, a macro or function changes the number of arguments.
--   * In that case, there is nothing we can do except define an access 
--   * macro that provides the same functionality on both versions of Linux. 
--   * 
--   * This is the case for example with the "get_user" macro 2.0 kernels use:
--   *
--   *          a = get_user (b);
--   *  
--   * while newer kernels use 
--   * 
--   *          get_user (a,b);
--   *
--   * This is unfortunate. We therefore define "Get_user (a,b)" which looks
--   * almost the same as the 2.2+ construct, and translates into the 
--   * appropriate sequence for earlier constructs. 
--   * 
--   * Supported by this file are the 2.0 kernels, 2.2 kernels, and the 
--   * most recent 2.3 kernel. 2.3 support will be dropped as soon when 2.4
--   * comes out. 2.0 support may someday be dropped. But then again, maybe 
--   * not. 
--   *
--   * I'll try to maintain this, provided that Linus agrees with the setup. 
--   * Feel free to mail updates or suggestions. 
--   *
--   * -- R.E.Wolff@BitWizard.nl
--   *
--   */
--
--#ifndef COMPATMAC_H
--#define COMPATMAC_H
--
--#include <linux/version.h>
--
--#if LINUX_VERSION_CODE < 0x020100    /* Less than 2.1.0 */
--#define TWO_ZERO
+
+[Note: This patch depends on the sysfs-bin patch]
+
+Improve pci-sysfs:
+ - Add PCI config space access to sysfs.
+ - Prefix values in the PCI space with `0x' cos they're hex values.
+ - Reformat the resource file with 64-bit values.
+ - Present all resources in the file, don't stop at the first empty one.
+
+Todo:
+ - Implement write access.
+ - Convert resource file into directories
+
+diff -urpNX dontdiff linux-2.5.66/drivers/pci/pci-sysfs.c linux-2.5.66-laptop/drivers/pci/pci-sysfs.c
+--- linux-2.5.66/drivers/pci/pci-sysfs.c	2003-02-24 13:05:33.000000000 -0600
++++ linux-2.5.66-laptop/drivers/pci/pci-sysfs.c	2003-04-07 14:33:12.000000000 -0500
+@@ -18,12 +18,6 @@
+ 
+ #include "pci.h"
+ 
+-#if BITS_PER_LONG == 32
+-#define LONG_FORMAT "\t%08lx"
 -#else
--#if LINUX_VERSION_CODE < 0x020200   /* less than 2.2.x */
--#warning "Please use a 2.2.x kernel. "
--#else
--#if LINUX_VERSION_CODE < 0x020300   /* less than 2.3.x */
--#define TWO_TWO
--#else
--#define TWO_THREE
--#endif
--#endif
+-#define LONG_FORMAT "\t%16lx"
 -#endif
 -
--#ifdef TWO_ZERO
--
--/* Here is the section that makes the 2.2 compatible driver source 
--   work for 2.0 too! We mostly try to adopt the "new thingies" from 2.2, 
--   and provide for compatibility stuff here if possible. */
--
--/* Some 200 days (on intel) */
--#define MAX_SCHEDULE_TIMEOUT     ((long)(~0UL>>1))
--
--#include <linux/bios32.h>
--
--#define Get_user(a,b)                a = get_user(b)
--#define Put_user(a,b)                0,put_user(a,b)
--#define copy_to_user(a,b,c)          memcpy_tofs(a,b,c)
--
--static inline int copy_from_user(void *to,const void *from, int c) 
--{
--  memcpy_fromfs(to, from, c);
--  return 0;
--}
--
--#define pci_present                  pcibios_present
--#define pci_read_config_word         pcibios_read_config_word
--#define pci_read_config_dword        pcibios_read_config_dword
--
--static inline unsigned char get_irq (unsigned char bus, unsigned char fn)
--{
--	unsigned char t; 
--	pcibios_read_config_byte (bus, fn, PCI_INTERRUPT_LINE, &t);
--	return t;
--}
--
--static inline void *ioremap(unsigned long base, long length)
--{
--	if (base < 0x100000) return (void *)base;
--	return vremap (base, length);
--}
--
--#define my_iounmap(x, b)             (((long)x<0x100000)?0:vfree ((void*)x))
--
--#define tty_flip_buffer_push(tty)    schedule_delayed_work(&tty->flip.work, 1)
--#define signal_pending(current)      (current->signal & ~current->blocked)
--#define schedule_timeout(to)         do {current->timeout = jiffies + (to);schedule ();} while (0)
--#define time_after(t1,t2)            (((long)t1-t2) > 0)
--
--
--#define test_and_set_bit(nr, addr)   set_bit(nr, addr)
--#define test_and_clear_bit(nr, addr) clear_bit(nr, addr)
--
--/* Not yet implemented on 2.0 */
--#define ASYNC_SPD_SHI  -1
--#define ASYNC_SPD_WARP -1
--
--
--/* Ugly hack: the driver_name doesn't exist in 2.0.x . So we define it
--   to the "name" field that does exist. As long as the assignments are
--   done in the right order, there is nothing to worry about. */
--#define driver_name           name 
--
--/* Should be in a header somewhere. They are in tty.h on 2.2 */
--#define TTY_HW_COOK_OUT       14 /* Flag to tell ntty what we can handle */
--#define TTY_HW_COOK_IN        15 /* in hardware - output and input       */
--
--/* The return type of a "close" routine. */
--#define INT                   void
--#define NO_ERROR              /* Nothing */
--
--#else
--
--/* The 2.2.x compatibility section. */
--#include <asm/uaccess.h>
--
--
--#define Get_user(a,b)         get_user(a,b)
--#define Put_user(a,b)         put_user(a,b)
--#define get_irq(pdev)         pdev->irq
--
--#define INT                   int
--#define NO_ERROR              0
--
--#define my_iounmap(x,b)       (iounmap((char *)(b)))
--
--#endif
--
--#ifndef TWO_THREE
--/* These are new in 2.3. The source now uses 2.3 syntax, and here is 
--   the compatibility define... */
--#define wait_queue_head_t     struct wait_queue *
--#define DECLARE_MUTEX(name)   struct semaphore name = MUTEX
--#define DECLARE_WAITQUEUE(wait, current) \
--                              struct wait_queue wait = { current, NULL }
--
--#endif
--
--
--#endif
+ /* show configuration fields */
+ #define pci_config_attr(field, format_string)				\
+ static ssize_t								\
+@@ -36,11 +30,11 @@ show_##field (struct device *dev, char *
+ }									\
+ static DEVICE_ATTR(field, S_IRUGO, show_##field, NULL);
+ 
+-pci_config_attr(vendor, "%04x\n");
+-pci_config_attr(device, "%04x\n");
+-pci_config_attr(subsystem_vendor, "%04x\n");
+-pci_config_attr(subsystem_device, "%04x\n");
+-pci_config_attr(class, "%06x\n");
++pci_config_attr(vendor, "%#06x\n");
++pci_config_attr(device, "%#06x\n");
++pci_config_attr(subsystem_vendor, "%#06x\n");
++pci_config_attr(subsystem_device, "%#06x\n");
++pci_config_attr(class, "%#08x\n");
+ pci_config_attr(irq, "%u\n");
+ 
+ /* show resources */
+@@ -50,9 +44,14 @@ pci_show_resources(struct device * dev, 
+ 	struct pci_dev * pci_dev = to_pci_dev(dev);
+ 	char * str = buf;
+ 	int i;
++	int max = 7;
++
++	if (pci_dev->subordinate)
++		max = DEVICE_COUNT_RESOURCE;
+ 
+-	for (i = 0; i < DEVICE_COUNT_RESOURCE && pci_resource_start(pci_dev,i); i++) {
+-		str += sprintf(str,LONG_FORMAT LONG_FORMAT LONG_FORMAT "\n",
++	for (i = 0; i < max; i++) {
++
++		str += sprintf(str,"\t%#018lx\t%#018lx\t%#018lx\n",
+ 			       pci_resource_start(pci_dev,i),
+ 			       pci_resource_end(pci_dev,i),
+ 			       pci_resource_flags(pci_dev,i));
+@@ -62,6 +61,80 @@ pci_show_resources(struct device * dev, 
+ 
+ static DEVICE_ATTR(resource,S_IRUGO,pci_show_resources,NULL);
+ 
++static ssize_t
++pci_read_config(struct kobject *kobj, char *buf, loff_t off, size_t count)
++{
++	struct pci_dev *dev = to_pci_dev(container_of(kobj,struct device,kobj));
++	unsigned int size = 64;
++
++	printk("data %p, offset %lld, count %zd\n", buf, off, count);
++	/* Several chips lock up trying to read undefined config space */
++	if (capable(CAP_SYS_ADMIN)) {
++		size = 256;
++	} else if (dev->hdr_type == PCI_HEADER_TYPE_CARDBUS) {
++		size = 128;
++	}
++
++	printk("size = %d", size);
++
++	if (off > size)
++		return 0;
++	if (off + count > size) {
++		size -= off;
++		count = size;
++	} else {
++		size = count;
++	}
++
++	printk("data %p, offset %lld, count %zd\n", buf, off, count);
++
++	while (off & 3) {
++		unsigned char val;
++		pci_read_config_byte(dev, off, &val);
++		buf[off] = val;
++		off++;
++		if (--size == 0)
++			break;
++	}
++
++	while (size > 3) {
++		unsigned int val;
++		pci_read_config_dword(dev, off, &val);
++		buf[off] = val & 0xff;
++		buf[off + 1] = (val >> 8) & 0xff;
++		buf[off + 2] = (val >> 16) & 0xff;
++		buf[off + 3] = (val >> 24) & 0xff;
++		off += 4;
++		size -= 4;
++	}
++
++	while (size > 0) {
++		unsigned char val;
++		pci_read_config_byte(dev, off, &val);
++		buf[off] = val;
++		off++;
++		--size;
++	}
++
++	return count;
++}
++
++static ssize_t
++pci_write_config(struct kobject *kobj, char *buf, loff_t off, size_t count)
++{
++	return 0;
++}
++
++static struct bin_attribute pci_config_attr = {
++	.attr =	{
++		.name = "config",
++		.mode = S_IRUGO | S_IWUSR,
++	},
++	.size = 256,
++	.read = pci_read_config,
++	.write = pci_write_config,
++};
++
+ void pci_create_sysfs_dev_files (struct pci_dev *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+@@ -74,4 +147,5 @@ void pci_create_sysfs_dev_files (struct 
+ 	device_create_file (dev, &dev_attr_class);
+ 	device_create_file (dev, &dev_attr_irq);
+ 	device_create_file (dev, &dev_attr_resource);
++	sysfs_create_bin_file(&dev->kobj, &pci_config_attr);
+ }
+
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

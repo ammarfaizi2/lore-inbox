@@ -1,42 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263740AbUGRKWu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263555AbUGRKhz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263740AbUGRKWu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jul 2004 06:22:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263714AbUGRKWu
+	id S263555AbUGRKhz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jul 2004 06:37:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263714AbUGRKhy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jul 2004 06:22:50 -0400
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:42901 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S263740AbUGRKWn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jul 2004 06:22:43 -0400
-Message-ID: <40FA4F6D.9000906@t-online.de>
-Date: Sun, 18 Jul 2004 12:22:37 +0200
-From: "Harald Dunkel" <harald.dunkel@t-online.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a3) Gecko/20040717
-X-Accept-Language: en-us, en
+	Sun, 18 Jul 2004 06:37:54 -0400
+Received: from [212.239.21.88] ([212.239.21.88]:35490 "EHLO
+	supertolla.itapac.net") by vger.kernel.org with ESMTP
+	id S263555AbUGRKhx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jul 2004 06:37:53 -0400
+Date: Sun, 18 Jul 2004 10:37:44 -0000 (Europe/Rome)
+Subject: Sound fix/patch on sony vaio TR3E/B
+From: "Fabio Pietrosanti" <fabio@pietrosanti.it>
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7, amd64: PS/2 Mouse detection doesn't work
-References: <40F0E586.4040000@t-online.de> <20040711084208.GA1322@ucw.cz>
-In-Reply-To: <20040711084208.GA1322@ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ID: ZG5Kh0Zb8ezocIK2-WDCiLvGvjk2pZ1A3I09exH2sGttR973RmsIcV
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
+Message-Id: <20040718103750.96E971D8F7D@supertolla.itapac.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
+On sony vaio TR3E/B,  japanese subnotebook based on CELERON-M soundcard
+get recognized but sound never goes out.
 
->  
-> Build the USB drivers into the kernel, or use the attached patch.
-> If it helps, please tell me.
-> 
+I tryed kernel 2.6.X (latest 2.6.8-rc1) either with alsa either with OSS,
+all hardware get correctly recognized, sound program work fine (like
+mpg123, mplayer, etc,etc) but sound doesn't exit.
 
-The patch worked, as written before. Would it be possible
-to permanently add it to the kernel for 2.6.8-rc3?
+FreeBSD and NetBSD fixed that problem recently with those patches:
 
+http://www.unixmagic.org/ml/netbsd/200308/msg00011.html
+http://lists.freebsd.org/pipermail/freebsd-bugs/2004-May/006684.html
 
-Many thanx
+Regards
 
-Harri
+Fabio Pietrosanti (naif)

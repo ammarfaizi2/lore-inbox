@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262652AbUJ0S7i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262579AbUJ0TTD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262652AbUJ0S7i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 14:59:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262651AbUJ0S7F
+	id S262579AbUJ0TTD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 15:19:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262650AbUJ0TRt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 14:59:05 -0400
-Received: from web12202.mail.yahoo.com ([216.136.173.86]:21367 "HELO
-	web12202.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262633AbUJ0S5S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 14:57:18 -0400
-Message-ID: <20041027185716.66965.qmail@web12202.mail.yahoo.com>
-Date: Wed, 27 Oct 2004 20:57:16 +0200 (CEST)
-From: karsten wiese <annabellesgarden@yahoo.de>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4
-To: Rui Nuno Capela <rncbc@rncbc.org>, Lee Revell <rlrevell@joe-job.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>
-In-Reply-To: <32865.192.168.1.5.1098898770.squirrel@192.168.1.5>
+	Wed, 27 Oct 2004 15:17:49 -0400
+Received: from alog0319.analogic.com ([208.224.222.95]:3456 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262653AbUJ0TML
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 15:12:11 -0400
+Date: Wed, 27 Oct 2004 15:09:40 -0400 (EDT)
+From: linux-os <root@chaos.analogic.com>
+Reply-To: linux-os@analogic.com
+To: John Richard Moser <nigelenki@comcast.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Reserving a syscall number
+In-Reply-To: <417FED6E.3010007@comcast.net>
+Message-ID: <Pine.LNX.4.61.0410271505110.4669@chaos.analogic.com>
+References: <417FED6E.3010007@comcast.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- --- Rui Nuno Capela <rncbc@rncbc.org> schrieb: 
-> Should I try the other way around? Lets see... 'chrt -p
-> -f 90 `pidof
-> ksoftirwd/0`',... yes, apparentely the xrun rate seems to
-> decrease into
-> half, but IMHO not conclusive enough, thought.
-> 
-'into half' makes me wonder:
-did you also 'chrt -p -f 90 `pidof ksoftirwd/1`'?
-I guess you meant that with '...'. Just in case :-)
+On Wed, 27 Oct 2004, John Richard Moser wrote:
 
-Best,
-Karsten
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+>
+> How would one go about having a specific syscall number reserved in
+> entry.S?  I'm exploring doing a kill inside the kernel from a detection
+> done in userspace, which would allow the executable header of the binary
+> to indicate whether the task should be killed or not; if it works, the
+> changes will likely not go into mainline, but will still require a
+> non-changing syscall index (assuming I understood the syscall manpage
+> properly).
+>
+> On a side note, if a syscall doesn't exist, how would that be detected
+> in userspace?
+> - --
+
+Look at ld.so.preload for potential capabilities to control any
+executable.
+
+Also what's the problem with sending the task a signal when
+the detection has been done?
+
+If the usual capabilites are not sufficient, then make
+a driver (module).
 
 
-	
-
-	
-		
-___________________________________________________________
-Gesendet von Yahoo! Mail - Jetzt mit 100MB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached and reviewed by John Ashcroft.
+                  98.36% of all statistics are fiction.

@@ -1,179 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261494AbULFXUi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261698AbULFXS0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261494AbULFXUi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 18:20:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261703AbULFXTe
+	id S261698AbULFXS0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 18:18:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261641AbULFXRg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 18:19:34 -0500
-Received: from cavan.codon.org.uk ([213.162.118.85]:51926 "EHLO
-	cavan.codon.org.uk") by vger.kernel.org with ESMTP id S261494AbULFXPh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 18:15:37 -0500
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20041205211823.GD1012@elf.ucw.cz>
-References: <1102279686.9384.22.camel@tyrosine>
-	 <20041205211823.GD1012@elf.ucw.cz>
-Date: Mon, 06 Dec 2004 23:15:24 +0000
-Message-Id: <1102374924.13483.9.camel@tyrosine>
+	Mon, 6 Dec 2004 18:17:36 -0500
+Received: from main.gmane.org ([80.91.229.2]:47746 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261697AbULFXLV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 18:11:21 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Georg Schild <dangertools@gmx.net>
+Subject: 2.6.10-rc[2|3] protection fault on /proc/devices
+Date: Tue, 07 Dec 2004 00:11:11 +0100
+Message-ID: <41B4E70F.8040306@gmx.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-X-SA-Exim-Connect-IP: 213.162.118.93
-X-SA-Exim-Mail-From: mjg59@srcf.ucam.org
-Subject: Re: [PATCH/RFC] Add support to resume swsusp from initrd
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on cavan.codon.org.uk)
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 81.223.124.22
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041128)
+X-Accept-Language: en-us, en
+X-Enigmail-Version: 0.89.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, how does this one look? (applies on top of the __init patch from
-last time)
+Since 2.6.10-rc2 I am having problems accessing /proc/devices. On 
+startup some init-skripts access this node and print out a protection 
+fault. i am having this on pcmcia and swap startup. My system is an 
+amd64 @3000+ in an Acer Aspire 1501Lmi at 64bit mode running gentoo. 
+.config is the same as on 2.6.10-rc1 which works good. cat on 
+/proc/devices gives the same problems. The kernel has just a patch for 
+wbsd (builtin mmc-cardreader) from Pierre Ossman in use, everything else 
+is vanilla. Does anyone know of this issue and perhaps on how to solve this?
 
-resume_device has been renamed to swsusp_resume_device to avoid
-confusion with the resume_device function in drivers/power. If a resume
-device has been set, it's assumed that userspace has been started. If
-not, it behaves as before. name_to_dev_t is only called if userspace
-hasn't been started - otherwise, we depend on the values provided by
-userspace being correct. If userspace has been started, we freeze tasks
-and free memory before starting the resume. If this looks ok, I'll merge
-it to your changes after 2.6.10.
+Regards
 
+Georg Schild
 
-diff -ur kernel.bak/power/disk.c kernel/power/disk.c
---- kernel.bak/power/disk.c	2004-12-05 16:11:19.000000000 +0000
-+++ kernel/power/disk.c	2004-12-06 22:29:34.000000000 +0000
-@@ -1,3 +1,4 @@
-+
- /*
-  * kernel/power/disk.c - Suspend-to-disk support.
-  *
-@@ -28,7 +29,7 @@
- extern int swsusp_read(void);
- extern int swsusp_resume(void);
- extern int swsusp_free(void);
--
-+extern dev_t swsusp_resume_device;
- 
- static int noresume = 0;
- char resume_file[256] = CONFIG_PM_STD_PARTITION;
-@@ -223,6 +224,18 @@
- 
- 	pr_debug("PM: Reading pmdisk image.\n");
- 
-+	if (swsusp_resume_device) {
-+		/* We want to be really sure that userspace isn't touching
-+		   anything at this point... */
-+		if (freeze_processes()) {
-+			goto Done;
-+		}
-+		
-+		/* And then make sure that we have enough memory to do the
-+		   resume */
-+		free_some_memory();
-+	}
-+
- 	if ((error = swsusp_read()))
- 		goto Done;
- 
-@@ -327,8 +340,42 @@
- 
- power_attr(disk);
- 
-+static ssize_t resume_show(struct subsystem * subsys, char * buf) {
-+        return sprintf(buf,"%d:%d\n", MAJOR(swsusp_resume_device),
-+                       MINOR(swsusp_resume_device));
-+}
-+
-+static ssize_t resume_store(struct subsystem * s, const char * buf, size_t n)
-+{
-+        int error = 0;
-+        int len;
-+        char *p;
-+        unsigned maj, min;
-+        dev_t (res);
-+
-+        p = memchr(buf, '\n', n);
-+        len = p ? p - buf : n;
-+
-+        if (sscanf(buf, "%u:%u", &maj, &min) == 2) {
-+                res = MKDEV(maj, min);
-+                if (maj == MAJOR(res) && min == MINOR(res)) {
-+                        swsusp_resume_device = res;
-+                        error = software_resume();
-+                } else {
-+                        error = -EINVAL;
-+                }
-+        } else {
-+                error = -EINVAL;
-+        }
-+
-+        return error ? error : n;
-+}
-+
-+power_attr(resume);
-+
- static struct attribute * g[] = {
- 	&disk_attr.attr,
-+	&resume_attr.attr,
- 	NULL,
- };
- 
-diff -ur kernel.bak/power/swsusp.c kernel/power/swsusp.c
---- kernel.bak/power/swsusp.c	2004-12-05 18:31:40.000000000 +0000
-+++ kernel/power/swsusp.c	2004-12-06 23:02:21.000000000 +0000
-@@ -81,7 +81,7 @@
- int nr_copy_pages_check;
- 
- extern char resume_file[];
--static dev_t resume_device;
-+dev_t swsusp_resume_device = 0;
- /* Local variables that should not be affected by save */
- unsigned int nr_copy_pages __nosavedata = 0;
- 
-@@ -171,7 +171,7 @@
- 	struct inode *inode = file->f_dentry->d_inode;
- 
- 	return S_ISBLK(inode->i_mode) &&
--		resume_device == MKDEV(imajor(inode), iminor(inode));
-+		swsusp_resume_device == MKDEV(imajor(inode), iminor(inode));
- }
- 
- int swsusp_swap_check(void) /* This is called before saving image */
-@@ -740,7 +740,7 @@
-  *	space avaiable.
-  *
-  *	FIXME: si_swapinfo(&i) returns all swap devices information.
-- *	We should only consider resume_device. 
-+ *	We should only consider swsusp_resume_device. 
-  */
- 
- static int enough_swap(void)
-@@ -1220,13 +1220,16 @@
- {
- 	int error;
- 
--	if (!strlen(resume_file))
--		return -ENOENT;
-+	if (!swsusp_resume_device) {
-+		if (!strlen(resume_file))
-+			return -ENOENT;
- 
--	resume_device = name_to_dev_t(resume_file);
--	pr_debug("swsusp: Resume From Partition: %s\n", resume_file);
-+		swsusp_resume_device = name_to_dev_t(resume_file);
-+		pr_debug("swsusp: Resume From Partition: %s\n", resume_file);
-+	}
-+	
-+	resume_bdev = open_by_devnum(swsusp_resume_device, FMODE_READ);
- 
--	resume_bdev = open_by_devnum(resume_device, FMODE_READ);
- 	if (!IS_ERR(resume_bdev)) {
- 		set_blocksize(resume_bdev, PAGE_SIZE);
- 		error = read_suspend_image();
-
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+> kjournald starting.  Commit interval 5 seconds
+> EXT3 FS on hda10, internal journal
+> EXT3-fs: mounted filesystem with ordered data mode.
+> kjournald starting.  Commit interval 5 seconds
+> EXT3 FS on hda11, internal journal
+> EXT3-fs: mounted filesystem with ordered data mode.
+> general protection fault: 0000 [1]
+> CPU 0
+> Modules linked in:
+> Pid: 5693, comm: grep Not tainted 2.6.10-rc3
+> RIP: 0010:[<ffffffff8028c5b5>] <ffffffff8028c5b5>{get_blkdev_list+85}
+> RSP: 0018:000001001eec1e48  EFLAGS: 00010202
+> RAX: 000000000000000c RBX: 6d736f2d636f7270 RCX: 0000000000000000
+> RDX: ffffffff804332e2 RSI: fffffffffffffffe RDI: ffffffff804332e2
+> RBP: 0000000000000048 R08: 00000000ffffffff R09: 0000000000000009
+> R10: 00000000ffffffff R11: 0000000000000000 R12: 000001001f248139
+> R13: 000000000000000b R14: 0000000000000c00 R15: 0000000000000000
+> FS:  0000000000000000(0000) GS:ffffffff805f71c0(0000) knlGS:0000000000000000
+> CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+> CR2: 0000002a95725f60 CR3: 0000000000101000 CR4: 00000000000006e0
+> Process grep (pid: 5693, threadinfo 000001001eec0000, task 000001001e80f0b0)
+> Stack: 0000000000000003 0000000000000139 000001001eec1ed8 000001001f248000
+>        000001001eec1ed4 ffffffff80186903 000001001ec4be80 0000000000000000
+>        000001001f248000 0000000000000c00
+> Call Trace:<ffffffff80186903>{devices_read_proc+67} <ffffffff801841ba>{proc_file_read+234}
+>        <ffffffff80158ac7>{vfs_read+199} <ffffffff80158d73>{sys_read+83}
+>        <ffffffff8010e12a>{system_call+126}
+> 
+> Code: 8b 53 08 48 8d 4b 0c 48 63 fd 4c 01 e7 48 c7 c6 db 32 43 80
+> RIP <ffffffff8028c5b5>{get_blkdev_list+85} RSP <000001001eec1e48>
+>  <0>general protection fault: 0000 [2]
+> CPU 0
+> Modules linked in:
+> Pid: 12088, comm: cardmgr Not tainted 2.6.10-rc3
+> RIP: 0010:[<ffffffff8028c5b5>] <ffffffff8028c5b5>{get_blkdev_list+85}
+> RSP: 0018:000001001ef97e48  EFLAGS: 00010202
+> RAX: 000000000000000c RBX: 6d736f2d636f7270 RCX: 0000000000000000
+> RDX: ffffffff804332e2 RSI: fffffffffffffffe RDI: ffffffff804332e2
+> RBP: 0000000000000048 R08: 00000000ffffffff R09: 0000000000000009
+> R10: 00000000ffffffff R11: 0000000000000000 R12: 000001001ea9f139
+> R13: 000000000000000b R14: 0000000000000400 R15: 0000000000000000
+> FS:  0000000000519ae0(0000) GS:ffffffff805f71c0(0000) knlGS:0000000000000000
+> CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+> CR2: 0000002a956cb5c0 CR3: 0000000000101000 CR4: 00000000000006e0
+> Process cardmgr (pid: 12088, threadinfo 000001001ef96000, task 000001001f2ac910)
+> Stack: 0000000000100073 0000000000000139 000001001ef97ed8 000001001ea9f000
+>        000001001ef97ed4 ffffffff80186903 000001001e12f480 0000000000000000
+>        000001001ea9f000 0000000000000400
+> Call Trace:<ffffffff80186903>{devices_read_proc+67} <ffffffff801841ba>{proc_file_read+234}
+>        <ffffffff80158ac7>{vfs_read+199} <ffffffff80158d73>{sys_read+83}
+>        <ffffffff8010e12a>{system_call+126}
+> 
+> Code: 8b 53 08 48 8d 4b 0c 48 63 fd 4c 01 e7 48 c7 c6 db 32 43 80
+> RIP <ffffffff8028c5b5>{get_blkdev_list+85} RSP <000001001ef97e48>
+>  <6>tg3: eth0: Link is up at 100 Mbps, full duplex.
+> tg3: eth0: Flow control is on for TX and on for RX.
 

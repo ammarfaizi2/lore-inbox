@@ -1,41 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262076AbUKPR7e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262078AbUKPSBN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262076AbUKPR7e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 12:59:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbUKPR7e
+	id S262078AbUKPSBN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 13:01:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262084AbUKPSBM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 12:59:34 -0500
-Received: from mail.kroah.org ([69.55.234.183]:33693 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262076AbUKPR7a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 12:59:30 -0500
-Date: Tue, 16 Nov 2004 09:58:57 -0800
-From: Greg KH <greg@kroah.com>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: rcpt-linux-fsdevel.AT.vger.kernel.org@jankratochvil.net,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-Message-ID: <20041116175857.GA9213@kroah.com>
-References: <Pine.LNX.4.58.0411151423390.2222@ppc970.osdl.org> <E1CTzKY-0000ZJ-00@dorka.pomaz.szeredi.hu> <84144f0204111602136a9bbded@mail.gmail.com> <E1CU0Ri-0000f9-00@dorka.pomaz.szeredi.hu> <20041116120226.A27354@pauline.vellum.cz> <E1CU3tO-0000rV-00@dorka.pomaz.szeredi.hu> <20041116163314.GA6264@kroah.com> <E1CU6SL-0007FP-00@dorka.pomaz.szeredi.hu> <20041116170339.GD6264@kroah.com> <E1CU7Tg-0007O8-00@dorka.pomaz.szeredi.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1CU7Tg-0007O8-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.5.6i
+	Tue, 16 Nov 2004 13:01:12 -0500
+Received: from fidel.freesurf.fr ([212.43.206.16]:62610 "EHLO
+	fidel.freesurf.fr") by vger.kernel.org with ESMTP id S262078AbUKPSAQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Nov 2004 13:00:16 -0500
+Message-ID: <29367.134.214.201.98.1100628015.squirrel@jose.freesurf.fr>
+Date: Tue, 16 Nov 2004 19:00:15 +0100 (CET)
+Subject: [bug]Broken driver for a SK nic
+From: <tuxeed@freesurf.fr>
+To: <linux-kernel@vger.kernel.org>
+X-Priority: 3
+Importance: Normal
+X-MSMail-Priority: Normal
+X-Mailer: SquirrelMail (version 1.2.5)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 16, 2004 at 06:50:52PM +0100, Miklos Szeredi wrote:
-> 
-> > It's an old message, and yes, it's there to scare people away.  Glad to
-> > see it's working :)
-> 
-> So if I only need a single device number should I register a "misc"
-> device?  misc_register() seems to create the relevant sysfs entry.
+Hello
+I bought a new box with a 64bits proc (Athlon) 512Mo of RAM and so on
+I use a 2.6.9rc1 (the most recent I found (in a mag) without ANY internet
+connection)under sourcemage
+So my nic is:
 
-Yes, that is a good way to get a device, without having to reserve a
-number.
+#dmesg | grep eth0
+eth0: Yukon Gigabit Ethernet 10/10/1000Base-T Adaptater
 
-thanks,
+I must use the sk98lin module which is integrated to the kernel well easy.
+I recompile the kernel and I modprobe the module:
 
-greg k-h
+#modprobe sk98lin
+ACPI: PCI interrupt 0000:02:00.0[A] ->GSI 11 (level, low) ->IRQ11
+ACPI: PCI interrupt 0000:02:00.0[A] ->GSI 11 (level, low) ->IRQ11
+eth0: --ERROR--
+Class: internal software error
+Nr: 0x1ae
+Msg: General: Driver release date not initialized
+eth0: --ERROR--
+Class: internal software error
+Nr: 0x1ae
+Msg: General: Driver release date not initialized
+eth0: Yukon Gigabit Ethernet 10/100/1000Base-T Adaptater
+         PrefPort:A  RlmtMode: check Link State
+dhcpcd[2875]: dhcpStart: retrying MAC address request (returned
+00:00:00:00:00:00)
+eth0: network connection is up #là gros sourire :D
+       speed:100
+       autonegotiation: yes
+       duplex mode: full
+       flowctrl:symmetric
+       irq moderation: disabled
+       scatter-gather: enabled
+ASSERT net/ipv4/netfilter/ip_nat_helper.c:428 &ip_nat_lock write locked
+I've got this and the pc freeze does anyone get a clue about what goes
+wrong?
+Thx
+
+

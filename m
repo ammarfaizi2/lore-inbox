@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264739AbRFUEB7>; Thu, 21 Jun 2001 00:01:59 -0400
+	id <S264805AbRFUEIi>; Thu, 21 Jun 2001 00:08:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264805AbRFUEBt>; Thu, 21 Jun 2001 00:01:49 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:60375 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S264739AbRFUEBe>;
-	Thu, 21 Jun 2001 00:01:34 -0400
-Date: Wed, 20 Jun 2001 23:13:46 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-Subject: [PATCH] Avoid !__GFP_IO allocations to eat from memory reservations
-Message-ID: <Pine.LNX.4.21.0106202310430.13933-100000@freak.distro.conectiva>
+	id <S264842AbRFUEI2>; Thu, 21 Jun 2001 00:08:28 -0400
+Received: from lsmls01.we.mediaone.net ([24.130.1.20]:49895 "EHLO
+	lsmls01.we.mediaone.net") by vger.kernel.org with ESMTP
+	id <S264805AbRFUEIW>; Thu, 21 Jun 2001 00:08:22 -0400
+Message-ID: <3B3173A0.F244EF5B@kegel.com>
+Date: Wed, 20 Jun 2001 21:10:08 -0700
+From: Dan Kegel <dank@kegel.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Threads, inelegance, and Java
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Russell Leighton wrote:
+> The lack of a good operating system _dependent_ interface
+> makes running fast hard in Java when you need to do IO...
+> yes, there is always JNI so you can add a little C to mmap a file or whatever,
 
-Linus,
+JDK 1.4 beta comes with a way to memory-map files, and various
+other I/O improvements (like poll(); see http://www.jcp.org/jsr/detail/51.jsp).
+Chris Smith will have some nio benchmarks up on http://www.jlinux.org/
+next week or so showing how well their nonblocking network I/O performs.
 
-I just read pre3<->pre4 diff and it seems you missed this patch... here it
-goes again.
+Sun is slowly getting their act together on the I/O front with java.
+Still, the competition from C# and for that matter gcj will probably be 
+a good thing, keep 'em on their toes.
 
-In pre3/4, GFP_BUFFER allocations can eat from the "emergency" memory
-reservations in case try_to_free_pages() fails for those allocations in
-__alloc_pages().
-
-
-Here goes the (tested) patch to fix that:
-
-
---- linux/mm/page_alloc.c.orig	Thu Jun 14 11:00:14 2001
-+++ linux/mm/page_alloc.c	Thu Jun 14 11:32:56 2001
-@@ -453,6 +453,12 @@
- 				int progress = try_to_free_pages(gfp_mask);
- 				if (progress || gfp_mask & __GFP_IO)
- 					goto try_again;
-+				/*
-+				 * Fail in case no progress was made and the
-+				 * allocation may not be able to block on IO.
-+				 */
-+				else
-+					return NULL;
- 			}
- 		}
- 	}
-
-
+(Disclaimer: I served on the JSR-51 expert group, representing the linux 
+point of view, kinda.)
+- Dan

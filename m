@@ -1,39 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266166AbUGTTjY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266224AbUGTTmN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266166AbUGTTjY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 15:39:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266161AbUGTTjG
+	id S266224AbUGTTmN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 15:42:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266128AbUGTSiy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 15:39:06 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:58870 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S266166AbUGTTin (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 15:38:43 -0400
-Date: Tue, 20 Jul 2004 15:41:54 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: "Zhu, Yi" <yi.zhu@intel.com>
-Cc: Mark Watts <m.watts@eris.qinetiq.com>, linux-kernel@vger.kernel.org
-Subject: RE: Kernel oops while shutting down (2.6.8rc1)
-In-Reply-To: <3ACA40606221794F80A5670F0AF15F8403BD5606@pdsmsx403>
-Message-ID: <Pine.LNX.4.58.0407201538410.7535@montezuma.fsmlabs.com>
-References: <3ACA40606221794F80A5670F0AF15F8403BD5606@pdsmsx403>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 20 Jul 2004 14:38:54 -0400
+Received: from amsfep12-int.chello.nl ([213.46.243.18]:28437 "EHLO
+	amsfep20-int.chello.nl") by vger.kernel.org with ESMTP
+	id S266129AbUGTSiF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jul 2004 14:38:05 -0400
+Date: Tue, 20 Jul 2004 20:38:04 +0200
+Message-Id: <200407201838.i6KIc4KF015404@anakin.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 467] dsp56k sparse const
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Jul 2004, Zhu, Yi wrote:
+Atari dsp56k: Add missing `const' keywords (found by sparse)
 
-> > $ /sbin/lsmod
-> > Module                  Size  Used by
-> ...
-> > processor              17032  1 thermal
->
-> This is the root cause. See http://bugme.osdl.org/show_bug.cgi?id=1716,
-> there is also a fix patch available.
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-Thanks for pinpointing it, i've posted a simple patch in the hopes that
-it's sufficient.
+--- linux-2.6.8-rc2/drivers/char/dsp56k.c	2004-05-03 20:04:47.000000000 +0200
++++ linux-m68k-2.6.8-rc2/drivers/char/dsp56k.c	2004-07-10 21:07:36.000000000 +0200
+@@ -293,10 +293,10 @@
+ 		}
+ 		case 2:  /* 16 bit */
+ 		{
+-			short *data;
++			const short *data;
+ 
+ 			count /= 2;
+-			data = (short*) buf;
++			data = (const short *)buf;
+ 			handshake(count, dsp56k.maxio, dsp56k.timeout, DSP56K_TRANSMIT,
+ 				  get_user(dsp56k_host_interface.data.w[1], data+n++));
+ 			return 2*n;
+@@ -312,10 +312,10 @@
+ 		}
+ 		case 4:  /* 32 bit */
+ 		{
+-			long *data;
++			const long *data;
+ 
+ 			count /= 4;
+-			data = (long*) buf;
++			data = (const long *)buf;
+ 			handshake(count, dsp56k.maxio, dsp56k.timeout, DSP56K_TRANSMIT,
+ 				  get_user(dsp56k_host_interface.data.l, data+n++));
+ 			return 4*n;
 
-	Zwane
+Gr{oetje,eeting}s,
 
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

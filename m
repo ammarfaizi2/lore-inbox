@@ -1,67 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261319AbVCBXZn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261278AbVCCCA3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261319AbVCBXZn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 18:25:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbVCBXWK
+	id S261278AbVCCCA3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 21:00:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbVCCB7D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 18:22:10 -0500
-Received: from mo01.iij4u.or.jp ([210.130.0.20]:39659 "EHLO mo01.iij4u.or.jp")
-	by vger.kernel.org with ESMTP id S261313AbVCBXUW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 18:20:22 -0500
-Date: Thu, 3 Mar 2005 08:20:13 +0900
-From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
-To: Andrew Morton <akpm@osdl.org>
-Cc: yuasa@hh.iij4u.or.jp, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6.11-rc5-mm1] serial: update vr41xx_siu
-Message-Id: <20050303082013.52d91b3e.yuasa@hh.iij4u.or.jp>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Wed, 2 Mar 2005 20:59:03 -0500
+Received: from cgk192.neoplus.adsl.tpnet.pl ([83.30.238.192]:29319 "EHLO
+	wenus.kolkowski.no-ip.org") by vger.kernel.org with ESMTP
+	id S261278AbVCCBxm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 20:53:42 -0500
+Date: Thu, 3 Mar 2005 02:53:41 +0100
+From: Damian Kolkowski <damian@kolkowski.no-ip.org>
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] - SATA / ioctl(). (HDIO_GET_IDENTITY failed...)
+Message-ID: <20050303015341.GENTOO-LINUX-ROX.B8468@kolkowski.no-ip.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-GPG-Key: 0xB2C5DE03 (http://kolkowski.no-ip.org/damian.asc x-hkp://wwwkeys.eu.pgp.net)
+X-Girl: 1 will be enough!
+X-Age: 24 (1980.09.27 - libra)
+X-IM: JID:deimos@chrome.pl ICQ:59367544 GG:88988
+X-Operating-System: Gentoo Linux, kernel 2.6.11-gentoo, up 1 min
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch updates serial driver for VR41xx serial unit.
-Some check are added to verify_port.
+Hi,
 
-Yoichi
+Is there any patch to correct libata working with ioctl()?
 
-Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+For example:
 
-diff -urN -X dontdiff a-orig/drivers/serial/vr41xx_siu.c a/drivers/serial/vr41xx_siu.c
---- a-orig/drivers/serial/vr41xx_siu.c	Wed Mar  2 01:04:39 2005
-+++ a/drivers/serial/vr41xx_siu.c	Wed Mar  2 07:40:25 2005
-@@ -702,15 +702,17 @@
- static int siu_request_port(struct uart_port *port)
- {
- 	unsigned long size;
-+	struct resource *res;
- 
- 	size = siu_port_size(port);
--	if (request_mem_region(port->mapbase, size, siu_type_name(port)) == NULL)
-+	res = request_mem_region(port->mapbase, size, siu_type_name(port));
-+	if (res == NULL)
- 		return -EBUSY;
- 
- 	if (port->flags & UPF_IOREMAP) {
- 		port->membase = ioremap(port->mapbase, size);
- 		if (port->membase == NULL) {
--			release_mem_region(port->mapbase, size);
-+			release_resource(res);
- 			return -ENOMEM;
- 		}
- 	}
-@@ -729,6 +731,12 @@
- static int siu_verify_port(struct uart_port *port, struct serial_struct *serial)
- {
- 	if (port->type != PORT_VR41XX_SIU && port->type != PORT_VR41XX_DSIU)
-+		return -EINVAL;
-+	if (port->irq != serial->irq)
-+		return -EINVAL;
-+	if (port->iotype != serial->io_type)
-+		return -EINVAL;
-+	if (port->mapbase != (unsigned long)serial->iomem_base)
- 		return -EINVAL;
- 
- 	return 0;
+.~. # hdparm -t /dev/hda /dev/sda
+/dev/hda:
+ Timing buffered disk reads:  174 MB in  3.03 seconds =  57.36 MB/sec
+/dev/sda:
+ Timing buffered disk reads:  152 MB in  3.03 seconds =  50.11 MB/sec
+HDIO_DRIVE_CMD(null) (wait for flush complete) failed: Inappropriate ioctl for device
+.~. #
+
+I can attach addition: dmesg, kernel.config, lspci, etc...
+
+take care.
+
+-- 
+### Damian Ko³kowski (dEiMoS) ## http://kolkowski.no-ip.org/ ###
+# echo teb.cv-ba.vxfjbxybx.anvznq | rot13 | rev | sed s/\\./@/ #

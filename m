@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272568AbRHaD0I>; Thu, 30 Aug 2001 23:26:08 -0400
+	id <S272501AbRHaDdI>; Thu, 30 Aug 2001 23:33:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272501AbRHaDZ6>; Thu, 30 Aug 2001 23:25:58 -0400
-Received: from mail.caymail.com ([199.227.10.105]:1227 "HELO pop1.netcis.com")
-	by vger.kernel.org with SMTP id <S272496AbRHaDZt>;
-	Thu, 30 Aug 2001 23:25:49 -0400
-Date: Thu, 30 Aug 2001 23:20:07 -0700
-From: Jeremiah Johnson <miah@netcis.com>
-X-Mailer: The Bat! (v1.53d)
-Reply-To: Jeremiah Johnson <miah@netcis.com>
-Organization: NETCIS International Corporation
-X-Priority: 3 (Normal)
-Message-ID: <8477538250.20010830232007@netcis.com>
+	id <S272553AbRHaDc6>; Thu, 30 Aug 2001 23:32:58 -0400
+Received: from smtp10.atl.mindspring.net ([207.69.200.246]:40208 "EHLO
+	smtp10.atl.mindspring.net") by vger.kernel.org with ESMTP
+	id <S272501AbRHaDcr>; Thu, 30 Aug 2001 23:32:47 -0400
+Subject: [PATCH] 2.4.9/2.4.10 Let net devices contribute entropy
+From: Robert Love <rml@tech9.net>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.9 UDP broke?
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+In-Reply-To: <998616119.9306.32.camel@phantasy>
+In-Reply-To: <998616119.9306.32.camel@phantasy>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12.99+cvs.2001.08.21.23.41 (Preview Release)
+Date: 30 Aug 2001 23:33:11 -0400
+Message-Id: <999228794.5832.5.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: MD5
+Updated patches to optionally enable network devices to feed the kernel
+entropy pool are available for both 2.4.10-pre2 and 2.4.9-ac5.  The
+patches come in two parts, part one containing the new code and related
+bits and part two containing updates to (hopefully) all network devices
+to enable the new support (and remove mandatory contribution for those
+devices that do so now).
 
-Hello linux-kernel,
+Apply both patches and enable the new option in `Network Devices'.
 
-  I am having very strange problems with 2.4.9 and UDP.  Basically,
-  anything using UDP wont work.  Anything using TCP/ICMP works fine.
-  I am not even enabling any kind of firewall code in the kernel so
-  that shouldn't be the issue, and I have looked at pretty much
-  everything I can think of to resolve this issue.  Can anybody either
-  point me in the right direction or if needed request specific info
-  to fix the problem?
+Patches accepted for missing architectures and drivers. Comments
+desired.  For a length discussion of the patch and the entropy gatherer
+in general, see the previous threads.
 
-- --
-Best regards,
- Jeremiah                          mailto:miah@netcis.com
+For 2.4.9-ac5:
+http://tech9.net/rml/linux/patch-rml-2.4.9-ac5-netdev-random-1
+http://tech9.net/rml/linux/patch-rml-2.4.9-ac5-netdev-random-2
 
------BEGIN PGP SIGNATURE-----
-Version: 2.6
+For 2.4.10-pre2:
+http://tech9.net/rml/linux/patch-rml-2.4.10-pre2-netdev-random-1
+http://tech9.net/rml/linux/patch-rml-2.4.10-pre2-netdev-random-2
 
-iQEVAwUAO48sm5HTj7BlqKb5AQGOpQgApna8Qr9qqHsQFRb2hCYYvgOere09U1Sf
-iWDVFXJSpR452/sZnURsaoR8FNiVfTK4OkeCtp12ufr5AKfF+1PX3uflHj9vmesT
-Hz5MVE4N7kN7NeJ3pfFsMLDpcVV52w+2R9vqsX4Dk3t4DubwPO2vXv3ND2rNjXCX
-CCFOcZK2kFxgitpICQpT5/KnvBoRMj84HGH2Co3i0IYRBOTQ/U506Hy6gbjhgTER
-9BbqtTuSkEwo90Ryp3WLIGGyjPn0qgRoaBxYlAm+2wVR3thGTQGQy0tU373sJxUC
-woh2ELHAK312vGCXbncXQ57pkU168QcEH5uzLL00/1QWILwtPa4MSA==
-=roGe
------END PGP SIGNATURE-----
+Enjoy.
+
+-- 
+Robert M. Love
+rml at ufl.edu
+rml at tech9.net
 

@@ -1,180 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263767AbUC3Rk4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 12:40:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263775AbUC3Rk4
+	id S263460AbUC3Rka (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 12:40:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263768AbUC3Rka
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 12:40:56 -0500
-Received: from delerium.kernelslacker.org ([81.187.208.145]:45201 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S263767AbUC3Rkm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 12:40:42 -0500
-Date: Tue, 30 Mar 2004 18:38:22 +0100
-From: Dave Jones <davej@redhat.com>
-To: greg@kroah.com
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] kill off CONFIG_USB_BRLVGER detritus.
-Message-ID: <20040330173822.GC25834@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, greg@kroah.com,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Tue, 30 Mar 2004 12:40:30 -0500
+Received: from hades.almg.gov.br ([200.198.60.36]:471 "EHLO hades.almg.gov.br")
+	by vger.kernel.org with ESMTP id S263460AbUC3RkQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 12:40:16 -0500
+Message-ID: <4069B200.8010309@almg.gov.br>
+Date: Tue, 30 Mar 2004 14:44:32 -0300
+From: Humberto Massa <humberto.massa@almg.gov.br>
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.7a) Gecko/20040219
+X-Accept-Language: pt-br, en-us, en
+MIME-Version: 1.0
+To: debian-devel@lists.debian.org
+CC: debian-legal@lists.debian.org, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: POSSIVEL SPAM-- Re: Binary-only firmware covered by the GPL?
+References: <YBtoCC.A.e-C.5maaAB@murphy>
+In-Reply-To: <YBtoCC.A.e-C.5maaAB@murphy>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This died a while ago, but lingers on in defconfigs.
+@ 30/03/2004 14:09 : wrote Henning Makholm :
 
-		Dave
+> Scripsit Humberto Massa <humberto.massa@almg.gov.br>
+> 
+>>to modify the fw[], at least *legally* is MHO that any
+>>recipient/redistributor of the file _can_ and _must_ consider the file
+>>in *that* format as the preferred form for modification (pf4m) *and*,
+>>considering it the source code, follow the directions of the GPL in
+>>respect to modification and redistribution.
+> 
+> 
+> No, law does not work that way. The phrase "preferred form for
+> modification" has a clear enough, if somewhat fuzzy, literal meaning,
+> and one cannot *implicitly* make it mean something that directly
+> contrast to the literal meaning. If nobody *actually* prefers the
+> binary blob for modification, then the binary blob is *not* the
+> preferred form for modification. That's irrespective of whether the
+> copyright holder behaves inconsistently.
 
---- linux-2.6.4/arch/arm/configs/neponset_defconfig~	2004-03-30 18:35:21.000000000 +0100
-+++ linux-2.6.4/arch/arm/configs/neponset_defconfig	2004-03-30 18:35:28.000000000 +0100
-@@ -848,7 +848,6 @@
- # CONFIG_USB_TIGL is not set
- # CONFIG_USB_AUERSWALD is not set
- # CONFIG_USB_RIO500 is not set
--# CONFIG_USB_BRLVGER is not set
- # CONFIG_USB_LCD is not set
- # CONFIG_USB_TEST is not set
- 
---- linux-2.6.4/arch/ppc/configs/lopec_defconfig~	2004-03-30 18:35:32.000000000 +0100
-+++ linux-2.6.4/arch/ppc/configs/lopec_defconfig	2004-03-30 18:35:36.000000000 +0100
-@@ -788,7 +788,6 @@
- # CONFIG_USB_TIGL is not set
- # CONFIG_USB_AUERSWALD is not set
- # CONFIG_USB_RIO500 is not set
--# CONFIG_USB_BRLVGER is not set
- # CONFIG_USB_LCD is not set
- # CONFIG_USB_TEST is not set
- # CONFIG_USB_GADGET is not set
---- linux-2.6.4/arch/ppc/configs/adir_defconfig~	2004-03-30 18:35:40.000000000 +0100
-+++ linux-2.6.4/arch/ppc/configs/adir_defconfig	2004-03-30 18:35:42.000000000 +0100
-@@ -776,7 +776,6 @@
- # CONFIG_USB_TIGL is not set
- # CONFIG_USB_AUERSWALD is not set
- # CONFIG_USB_RIO500 is not set
--# CONFIG_USB_BRLVGER is not set
- # CONFIG_USB_LCD is not set
- # CONFIG_USB_TEST is not set
- # CONFIG_USB_GADGET is not set
---- linux-2.6.4/arch/ppc/configs/sandpoint_defconfig~	2004-03-30 18:35:48.000000000 +0100
-+++ linux-2.6.4/arch/ppc/configs/sandpoint_defconfig	2004-03-30 18:35:50.000000000 +0100
-@@ -775,7 +775,6 @@
- # CONFIG_USB_TIGL is not set
- # CONFIG_USB_AUERSWALD is not set
- # CONFIG_USB_RIO500 is not set
--# CONFIG_USB_BRLVGER is not set
- # CONFIG_USB_LCD is not set
- # CONFIG_USB_TEST is not set
- # CONFIG_USB_GADGET is not set
---- linux-2.6.4/arch/ppc/configs/common_defconfig~	2004-03-30 18:35:55.000000000 +0100
-+++ linux-2.6.4/arch/ppc/configs/common_defconfig	2004-03-30 18:35:57.000000000 +0100
-@@ -1209,7 +1209,6 @@
- # CONFIG_USB_TIGL is not set
- # CONFIG_USB_AUERSWALD is not set
- # CONFIG_USB_RIO500 is not set
--# CONFIG_USB_BRLVGER is not set
- # CONFIG_USB_LCD is not set
- # CONFIG_USB_TEST is not set
- # CONFIG_USB_GADGET is not set
---- linux-2.6.4/arch/ppc/configs/pmac_defconfig~	2004-03-30 18:36:41.000000000 +0100
-+++ linux-2.6.4/arch/ppc/configs/pmac_defconfig	2004-03-30 18:36:43.000000000 +0100
-@@ -1249,7 +1249,6 @@
- # CONFIG_USB_TIGL is not set
- # CONFIG_USB_AUERSWALD is not set
- # CONFIG_USB_RIO500 is not set
--# CONFIG_USB_BRLVGER is not set
- # CONFIG_USB_LCD is not set
- # CONFIG_USB_TEST is not set
- # CONFIG_USB_GADGET is not set
---- linux-2.6.4/arch/ppc/defconfig~	2004-03-30 18:36:43.000000000 +0100
-+++ linux-2.6.4/arch/ppc/defconfig	2004-03-30 18:36:45.000000000 +0100
-@@ -1208,7 +1208,6 @@
- # CONFIG_USB_TIGL is not set
- # CONFIG_USB_AUERSWALD is not set
- # CONFIG_USB_RIO500 is not set
--# CONFIG_USB_BRLVGER is not set
- # CONFIG_USB_LCD is not set
- # CONFIG_USB_TEST is not set
- # CONFIG_USB_GADGET is not set
---- linux-2.6.4/arch/ia64/configs/zx1_defconfig~	2004-03-30 18:36:45.000000000 +0100
-+++ linux-2.6.4/arch/ia64/configs/zx1_defconfig	2004-03-30 18:36:46.000000000 +0100
-@@ -1028,7 +1028,6 @@
- # CONFIG_USB_AUERSWALD is not set
- # CONFIG_USB_RIO500 is not set
- # CONFIG_USB_LEGOTOWER is not set
--# CONFIG_USB_BRLVGER is not set
- # CONFIG_USB_LCD is not set
- # CONFIG_USB_LED is not set
- 
---- linux-2.6.4/arch/ia64/configs/generic_defconfig~	2004-03-30 18:36:46.000000000 +0100
-+++ linux-2.6.4/arch/ia64/configs/generic_defconfig	2004-03-30 18:36:48.000000000 +0100
-@@ -976,7 +976,6 @@
- # CONFIG_USB_AUERSWALD is not set
- # CONFIG_USB_RIO500 is not set
- # CONFIG_USB_LEGOTOWER is not set
--# CONFIG_USB_BRLVGER is not set
- # CONFIG_USB_LCD is not set
- # CONFIG_USB_TEST is not set
- # CONFIG_USB_GADGET is not set
---- linux-2.6.4/arch/ia64/defconfig~	2004-03-30 18:36:48.000000000 +0100
-+++ linux-2.6.4/arch/ia64/defconfig	2004-03-30 18:36:50.000000000 +0100
-@@ -906,7 +906,6 @@
- # CONFIG_USB_AUERSWALD is not set
- # CONFIG_USB_RIO500 is not set
- # CONFIG_USB_LEGOTOWER is not set
--# CONFIG_USB_BRLVGER is not set
- # CONFIG_USB_LCD is not set
- # CONFIG_USB_LED is not set
- # CONFIG_USB_TEST is not set
---- linux-2.6.4/arch/mips/configs/rm200_defconfig~	2004-03-30 18:36:50.000000000 +0100
-+++ linux-2.6.4/arch/mips/configs/rm200_defconfig	2004-03-30 18:36:52.000000000 +0100
-@@ -986,7 +986,6 @@
- CONFIG_USB_AUERSWALD=m
- CONFIG_USB_RIO500=m
- CONFIG_USB_LEGOTOWER=m
--CONFIG_USB_BRLVGER=m
- CONFIG_USB_LCD=m
- # CONFIG_USB_LED is not set
- CONFIG_USB_TEST=m
---- linux-2.6.4/arch/ppc64/configs/pSeries_defconfig~	2004-03-30 18:36:52.000000000 +0100
-+++ linux-2.6.4/arch/ppc64/configs/pSeries_defconfig	2004-03-30 18:36:53.000000000 +0100
-@@ -880,7 +880,6 @@
- # CONFIG_USB_AUERSWALD is not set
- # CONFIG_USB_RIO500 is not set
- # CONFIG_USB_LEGOTOWER is not set
--# CONFIG_USB_BRLVGER is not set
- # CONFIG_USB_LCD is not set
- # CONFIG_USB_LED is not set
- # CONFIG_USB_TEST is not set
---- linux-2.6.4/arch/ppc64/defconfig~	2004-03-30 18:36:53.000000000 +0100
-+++ linux-2.6.4/arch/ppc64/defconfig	2004-03-30 18:36:55.000000000 +0100
-@@ -880,7 +880,6 @@
- # CONFIG_USB_AUERSWALD is not set
- # CONFIG_USB_RIO500 is not set
- # CONFIG_USB_LEGOTOWER is not set
--# CONFIG_USB_BRLVGER is not set
- # CONFIG_USB_LCD is not set
- # CONFIG_USB_LED is not set
- # CONFIG_USB_TEST is not set
---- linux-2.6.4/arch/parisc/configs/c3000_defconfig~	2004-03-30 18:36:55.000000000 +0100
-+++ linux-2.6.4/arch/parisc/configs/c3000_defconfig	2004-03-30 18:36:57.000000000 +0100
-@@ -876,7 +876,6 @@
- # CONFIG_USB_AUERSWALD is not set
- # CONFIG_USB_RIO500 is not set
- CONFIG_USB_LEGOTOWER=m
--# CONFIG_USB_BRLVGER is not set
- # CONFIG_USB_LCD is not set
- # CONFIG_USB_LED is not set
- # CONFIG_USB_TEST is not set
---- linux-2.6.4/arch/parisc/defconfig~	2004-03-30 18:36:57.000000000 +0100
-+++ linux-2.6.4/arch/parisc/defconfig	2004-03-30 18:36:59.000000000 +0100
-@@ -737,7 +737,6 @@
- # CONFIG_USB_AUERSWALD is not set
- # CONFIG_USB_RIO500 is not set
- # CONFIG_USB_LEGOTOWER is not set
--# CONFIG_USB_BRLVGER is not set
- # CONFIG_USB_LCD is not set
- # CONFIG_USB_LED is not set
- 
+Things could be different between jurisdictions, here the doctrine 
+says about the interpretation of contracts, licenses, and law: we obey 
+(1) what is written (2) what is implied by what is written (3) what is 
+derived from what is written via case law (4) what is derived from 
+what is written via the doctrine in law. In that order, and respecting 
+legislative hierarchies.
+
+There is another fail in your reasons here: as I said before, it just 
+_happens_ to happen that fw[] = {} *is* the source code. What we must 
+decide is what to do in the cases where *we don't know*.
+
+After all, what happens is somebody *actually* prefers the binary blob 
+for modification? And, what happens if _the copyright holder_ actually 
+prefers the binary blob for modification? No inconsistency here.
+
+> 
+> 
+>>* the /status quo/ obtained by observation of the previous item
+>>prevails _until somebody proves_ that the fw[] = {} is *not* the
+>>source code;
+> 
+> 
+> And Debian's approach to software freedom doesn't work that way
+> either. We treat software as non-free and non-distributable unless and
+> until we see good and self-consistent evidence that it is actually
+> free and distributable. The "burden of proof", to the extent that
+> expression applies, is always on the side that claims that the
+> software in question is OK for Debian to distribute.
+> 
+
+NOW you have a good argument. This mostly ends my line of reasoning. 
+In debian: in dubio, non-free. This is not really nice, but it's OK. 
+And I can live with that.
+
+An addendum:
+the DFSG does not define source code;
+the GPL defines it as: "The source code for a work means the preferred 
+form of the work for making modifications to it.";
+the AFL goes further: "The term "Source Code" means the preferred form 
+of the Original Work for making modifications to it and all available 
+documentation describing how to modify the Original Work.";
+maybe a good definition of source code is something we are needing? in 
+the case of the AFL, not only { 0x0... } could be ruled out as source 
+code, but even some-unknown-dsp-asm-without-comments, too.
+
+-- 
+br,M

@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315162AbSE2Lpm>; Wed, 29 May 2002 07:45:42 -0400
+	id <S315155AbSE2L4S>; Wed, 29 May 2002 07:56:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315155AbSE2Lpl>; Wed, 29 May 2002 07:45:41 -0400
-Received: from mta9n.bluewin.ch ([195.186.1.215]:61871 "EHLO mta9n.bluewin.ch")
-	by vger.kernel.org with ESMTP id <S315162AbSE2Lpb>;
-	Wed, 29 May 2002 07:45:31 -0400
-Date: Wed, 29 May 2002 13:45:20 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: linux-kernel@vger.kernel.org
-Subject: [INFO] Wake-On-LAN and VIA Rhine / DFE-530TX
-Message-ID: <20020529114520.GA2956@k3.hellgate.ch>
+	id <S315179AbSE2L4R>; Wed, 29 May 2002 07:56:17 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:1020 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S315155AbSE2L4N>; Wed, 29 May 2002 07:56:13 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <1022676201.9255.160.camel@irongate.swansea.linux.org.uk> 
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Benjamin LaHaise <bcrl@redhat.com>, jw schultz <jw@pegasys.ws>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: wait queue process state 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-Operating-System: Linux 2.4.19-pre9 on i686
+Date: Wed, 29 May 2002 12:56:03 +0100
+Message-ID: <9160.1022673363@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have added some code for Wake-On-LAN support in via-rhine.c which
-basically boils down to handling the WOL cases in
-via_rhine_ethtool_ioctl().
 
-There are two pitfalls to consider:
+alan@lxorguk.ukuu.org.uk said:
+>  Given an infinite number of monkeys yes. The 'disk I/O is not
+> interruptible' assumption is buried in vast amounts of software. This
+> isnt a case of sorting out a few misbehaving applications, you can
+> start with some of the most basic unix programs like 'ed' and work
+> outwards.
 
-- Depending on the version of the chip, the bit flags are in different
-  locations, and not all chips support the same WOL options. We already
-  have chip specific code paths, hence no problem.
+Still probably worth doing in the long term. In the short term, we could 
+possibly have a sysctl or personality flag to disable it for the benefit of 
+broken software. I'm in favour of just letting it break though, to be 
+honest - it's _already_ possible to trigger the breakage in some 
+circumstances and making it more reproducible is a _good_ thing.
 
-- The manual I have for the Rhine-based D-Link DFE-530TX claims WOL
-  support, and these cards come indeed with a WOL connector. That doesn't
-  mean WOL works, though. The DFE-530TX exists in different revisions
-  (sticker on the board): wrong revision -> no WOL. The LK Rhine driver
-  does not read stickers, so the problem is right there.
+>  If I remember rightly stat() is not interruptible anyway. I don't
+> actually argue with the general claim. If I was redesigning unix right
+> now I would have no blocking calls, just 'start_xyz' and wait/notify. 
 
-With some luck the revisions can be mapped to the pci subsystem id (there
-is some evidence indicating that this might be the case). Provided there is
-a strict mapping, _if_ WOL ever makes it into via-rhine.c, we had better
-match subsystem ids and throw an error message or something if a user tries
-to enable WOL with a board that doesn't support it. Otherwise it's easy to
-predict a new FAQ.
+stat() would be restartable. With -ERESTARTNOINTR would prevent us from 
+ever actually returning -EINTR if the signal handler exists and returns.
 
-Roger
+I suspect open() would actually be more of a pain -- but that we could
+probably also restart if we get interrupted as early as the read_inode()
+stage.
+
+You don't actually have to redesign the API, although I agree it could do 
+with it. We could get rid of the bloody silly returning status _and_ length 
+in one return code from read()/write() etc. 
+
+--
+dwmw2
+
+

@@ -1,43 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264472AbTGKRHP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 13:07:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264486AbTGKRHO
+	id S264454AbTGKRF6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 13:05:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264463AbTGKRF5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 13:07:14 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:23992
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264472AbTGKRHK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 13:07:10 -0400
-Subject: Re: 2.5 'what to expect'
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Steven Cole <elenstev@mesatop.com>
-Cc: Larry McVoy <lm@bitmover.com>, Tomas Szepe <szepe@pinerecords.com>,
-       Dave Jones <davej@codemonkey.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1057937849.2337.4.camel@spc9.esa.lanl.gov>
-References: <20030711140219.GB16433@suse.de>
-	 <1057933578.20636.17.camel@dhcp22.swansea.linux.org.uk>
-	 <20030711144617.GK10217@louise.pinerecords.com>
-	 <1057935630.20637.19.camel@dhcp22.swansea.linux.org.uk>
-	 <20030711151127.GA30378@work.bitmover.com>
-	 <1057937849.2337.4.camel@spc9.esa.lanl.gov>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1057943945.20636.36.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 11 Jul 2003 18:19:06 +0100
+	Fri, 11 Jul 2003 13:05:57 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:9944 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S264454AbTGKRF4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 13:05:56 -0400
+Date: Fri, 11 Jul 2003 14:18:10 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Henrique Oliveira <henrique2.gobbi@cyclades.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kevin Curtis <kevin.curtis@farsite.co.uk>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Why is generic hldc beig ignored?   RE:Linux 2.4.22-pre4
+In-Reply-To: <013901c347cd$44586f60$602fa8c0@henrique>
+Message-ID: <Pine.LNX.4.55L.0307111416100.29959@freak.distro.conectiva>
+References: <7C078C66B7752B438B88E11E5E20E72E25C978@GENERAL.farsite.co.uk>
+ <Pine.LNX.4.55L.0307101410570.25103@freak.distro.conectiva>
+ <003101c34712$a9b8f480$602fa8c0@henrique> <1057914760.8028.27.camel@dhcp22.swansea.linux.org.uk>
+ <013901c347cd$44586f60$602fa8c0@henrique>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2003-07-11 at 16:37, Steven Cole wrote:
 
-> This looks like the right one as currently numbered.
-> 
-> http://linus.bkbits.net:8080/linux-2.5/cset@1.1215.127.10
 
-Thanks. That doesn't make it clear if the bug means you get less
-inline than expected or broken build ?
+On Fri, 11 Jul 2003, Henrique Oliveira wrote:
 
+> Hello !!!
+> No offence here but the generic hdlc layer's been always confusing. I will
+> write here what I believe is going on.
+> Until version 2.4.20 we had the old hdlc layer, with only one source file
+> hdlc.c. People that wanted to use the new hdlc layer had to apply a patch
+> provided by Halasa or by the WAN cards vendors. The kernel 2.4.21 came out
+> with the new hdlc layer, that includes a couple of files: hdlc_generic.c,
+> hdlc_fr.c, hdlc_ppp.c, hdlc_raw.c, etc. I don't know the status of the -ac
+> tree but I can say that the kernel 2.4.21 has the new code.
+> The new hdlc layer really needs new tools. This new tool can (supposedly) be
+> found at Halasa's web site. I don't know if someone has tested these tools
+> but I am about to run a test this afternoon. If someone is interested on the
+> results, just drop me a line.
+
+I am.
+
+Please report the results of your tests and CC lkml.
+
+And Alan, what the -ac tree hdlc changes are about ?

@@ -1,71 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265069AbTLFI5p (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 03:57:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265081AbTLFI5p
+	id S265049AbTLFIzs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 03:55:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265069AbTLFIzs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 03:57:45 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:4056 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265069AbTLFI5n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 03:57:43 -0500
-Date: Sat, 6 Dec 2003 09:57:36 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: netdev@oss.sgi.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: [patch] remove com20020-isa.c unused variables
-Message-ID: <20031206085736.GQ20739@fs.tum.de>
-References: <20031205192828.GA15907@gtf.org>
+	Sat, 6 Dec 2003 03:55:48 -0500
+Received: from service.sh.cvut.cz ([147.32.127.214]:18878 "EHLO
+	service.sh.cvut.cz") by vger.kernel.org with ESMTP id S265049AbTLFIzp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Dec 2003 03:55:45 -0500
+Date: Sat, 6 Dec 2003 09:55:39 +0100
+From: Michal Rokos <m.rokos@sh.cvut.cz>
+To: hirofumi@mail.parknet.co.jp
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.0-test11] VFAT fix for UTF-8 and trailing dots
+Message-ID: <20031206085539.GA3134@nightmare.sh.cvut.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031205192828.GA15907@gtf.org>
-User-Agent: Mutt/1.4.1i
+X-Crypto: GnuPG/1.0.6 http://www.gnupg.org
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff,
+Hello all,
 
-your experimental net driver queue patch introduced the following
-compile warnings when compiling com20020-isa statically into the kernel:
+there is one problem with vfat when UTF-8 option is on...
 
-<--  snip  -->
+The problem is: even if vfat_striptail_len() counts len of name without
+trailing dots and sets len to the correct value, utf8_mbstowcs() doesn't
+care about len and takes whole name.
+So dirs and files with dots can be created on vfat fs and that will
+cause some problems as you know :)
 
-...
-  CC      drivers/net/arcnet/com20020-isa.o
-drivers/net/arcnet/com20020-isa.c: In function `com20020isa_setup':
-drivers/net/arcnet/com20020-isa.c:189: warning: unused variable `lp'
-drivers/net/arcnet/com20020-isa.c:188: warning: unused variable `dev'
-...
+This patch just shortens outlen to the correct value - nothing else.
 
-<--  snip  -->
+Compiled, tested.
 
+Please concider the inclusion.
 
-The fix is trivial (the net driver queue patch removes all uses of 
-these variables):
+Thank you.
 
+	Michal
 
---- linux-2.6.0-test11-full-no-smp/drivers/net/arcnet/com20020-isa.c.old	2003-12-06 09:51:10.000000000 +0100
-+++ linux-2.6.0-test11-full-no-smp/drivers/net/arcnet/com20020-isa.c	2003-12-06 09:53:41.000000000 +0100
-@@ -185,8 +185,6 @@
- #ifndef MODULE
- static int __init com20020isa_setup(char *s)
- {
--	struct net_device *dev;
--	struct arcnet_local *lp;
- 	int ints[8];
+--- linux-2.6.0-test11/fs/vfat/namei.c.old	2003-11-26 21:44:34.000000000 +0100
++++ linux-2.6.0-test11/fs/vfat/namei.c	2003-12-06 09:34:44.000000000 +0100
+@@ -573,13 +573,18 @@ xlate_to_uni(const unsigned char *name, 
+ 	int charlen;
  
- 	s = get_options(s, 8, ints);
-
-
-
-cu
-Adrian
+ 	if (utf8) {
++		int name_len = strlen(name);
++
+ 		*outlen = utf8_mbstowcs((wchar_t *)outname, name, PAGE_SIZE);
+-		if (name[len-1] == '.')
+-			*outlen-=2;
++
++		/* 
++		 * We stripped '.'s before and set len appropriately,
++		 * but utf8_mbstowcs doesn't care about len
++		 */
++		*outlen -= (name_len-len);
++
+ 		op = &outname[*outlen * sizeof(wchar_t)];
+ 	} else {
+-		if (name[len-1] == '.') 
+-			len--;
+ 		if (nls) {
+ 			for (i = 0, ip = name, op = outname, *outlen = 0;
+ 			     i < len && *outlen <= 260; *outlen += 1)
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+Michal Rokos                         Czech Technical University, Prague
+e-mail: m.rokos@sh.cvut.cz    icq: 36118339     jabber: majkl@jabber.cz
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318353AbSHPNZn>; Fri, 16 Aug 2002 09:25:43 -0400
+	id <S318356AbSHPN1d>; Fri, 16 Aug 2002 09:27:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318356AbSHPNZn>; Fri, 16 Aug 2002 09:25:43 -0400
-Received: from faui02.informatik.uni-erlangen.de ([131.188.30.102]:53482 "EHLO
-	faui02.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id <S318353AbSHPNZm>; Fri, 16 Aug 2002 09:25:42 -0400
-Date: Fri, 16 Aug 2002 13:01:33 +0200
-From: Richard Zidlicky <rz@linux-m68k.org>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Keyword help for that turkish spam ?
-Message-ID: <20020816130133.A1021@linux-m68k.org>
-References: <exodcnobsquk@vger.kernel.org> <20020816070711.GW32427@mea-ext.zmailer.org>
-Mime-Version: 1.0
+	id <S318357AbSHPN1c>; Fri, 16 Aug 2002 09:27:32 -0400
+Received: from smtp-out-2.wanadoo.fr ([193.252.19.254]:30942 "EHLO
+	mel-rto2.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S318356AbSHPN1c>; Fri, 16 Aug 2002 09:27:32 -0400
+Message-ID: <3D5CFE83.136D81FC@wanadoo.fr>
+Date: Fri, 16 Aug 2002 15:30:43 +0200
+From: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20-pre2 i586)
+X-Accept-Language: fr-FR, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.20-pre2-ac3 stops responding
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020816070711.GW32427@mea-ext.zmailer.org>; from matti.aarnio@zmailer.org on Fri, Aug 16, 2002 at 10:07:11AM +0300
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 16, 2002 at 10:07:11AM +0300, Matti Aarnio wrote:
->   Could somebody help by telling me which keywords out
->   of this I could put into VGER's taboo expresions ?
+Hi,
 
-All, it is an english language list. If you are worried about
-Turkish headers or signatures perhaps a maximum threshold
-of turkish (as defined by that post ;) words would help? 
-I am using thresholds on accented and asian-looking characters 
-and it helps a lot.
+I've the followings symptoms 
 
-Richard
+My computer is a K6-2 500 with 384Mb SDRAM
 
+1st time to boot:
+-----------------
+with 2.4.20-pre2 : 30s
+with 2.4.30-pre2-ac3 : 55s
+
+2nd while running:
+------------------
+If I have high disk activity, the system stops responding for a while,
+it does not accepts any key action nor mouse movement. It starts running
+normally after few seconds.
+
+----
+Regards
+	Jean-Luc

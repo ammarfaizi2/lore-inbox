@@ -1,32 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275207AbRIZOGJ>; Wed, 26 Sep 2001 10:06:09 -0400
+	id <S275211AbRIZOJJ>; Wed, 26 Sep 2001 10:09:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275209AbRIZOF7>; Wed, 26 Sep 2001 10:05:59 -0400
-Received: from lars.internetia.pl ([195.114.173.133]:45841 "EHLO
-	lars.internetia.pl") by vger.kernel.org with ESMTP
-	id <S275207AbRIZOFo>; Wed, 26 Sep 2001 10:05:44 -0400
-Date: Wed, 26 Sep 2001 16:06:00 +0200 (CEST)
-From: Piotr Roszatycki <Piotr_Roszatycki@netia.net.pl>
-X-X-Sender: <dexter@ginger.loc.internetia.pl>
-To: <linux-kernel@vger.kernel.org>
-Subject: Looking for dquot 6.5.0
-Message-ID: <Pine.LNX.4.33.0109261600430.7121-100000@ginger.loc.internetia.pl>
+	id <S275209AbRIZOIu>; Wed, 26 Sep 2001 10:08:50 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:43020 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S275211AbRIZOI3>;
+	Wed, 26 Sep 2001 10:08:29 -0400
+Date: Wed, 26 Sep 2001 11:08:31 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Pavel Machek <pavel@suse.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Out of memory handling broken
+In-Reply-To: <20010926160306.D7290@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.33L.0109261106550.19147-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm looking for separate patch for new quota (dquot 6.5.0) for vanilla
-kernel 2.4 or even stable 2.2 kernel.
+On Wed, 26 Sep 2001, Pavel Machek wrote:
 
-I've found this quota driver in Alan's patches, but his patch contains
-too many things, so extracting the driver is not easy. This
-version of quota is also for kernel 2.4 only.
+> > > I need to allocate as much memory as possible (but not more).
+> > > Okay, so I use out_of_memory, right?
+> >
+> > Nope, out_of_memory() is about virtual memory handling,
+> > not at all about physical memory.
+>
+> Yes, so... What happens at physical memory exhaustion? System crash?
 
+We swap something out.
+
+But indeed, when the kernel needs memory for itself
+and no more memory is available, we'd crash. This is
+not something I've ever seen any system get close to,
+however...
+
+> Okay, okay. Is there any solution (in 2.4.10) in doing what I want to
+> do?
+
+GPF_ATOMIC and giving kswapd a chance to run whenever the
+atomic allocations fail ?
+
+regards,
+
+Rik
 -- 
-Piotr Roszatycki, Netia Telekom S.A.                    .''`.
-mailto:Piotr_Roszatycki@netia.net.pl                   : :' :
-mailto:dexter@debian.org                               `. `'
-                                                         `-
+IA64: a worthy successor to i860.
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

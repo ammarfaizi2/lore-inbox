@@ -1,41 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131176AbQKIVD5>; Thu, 9 Nov 2000 16:03:57 -0500
+	id <S131293AbQKIVGR>; Thu, 9 Nov 2000 16:06:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131342AbQKIVDs>; Thu, 9 Nov 2000 16:03:48 -0500
-Received: from enterprise.cistron.net ([195.64.68.33]:25607 "EHLO
-	enterprise.cistron.net") by vger.kernel.org with ESMTP
-	id <S131176AbQKIVDb>; Thu, 9 Nov 2000 16:03:31 -0500
-From: miquels@cistron.nl (Miquel van Smoorenburg)
-Subject: Re: Used space in bytes
-Date: 9 Nov 2000 21:03:30 GMT
-Organization: Cistron Internet Services B.V.
-Message-ID: <8uf3f2$41d$1@enterprise.cistron.net>
-In-Reply-To: <20001109191843.B11373@atrey.karlin.mff.cuni.cz> <8uf21i$ro7$1@cesium.transmeta.com>
-X-Trace: enterprise.cistron.net 973803810 4141 195.64.65.201 (9 Nov 2000 21:03:30 GMT)
-X-Complaints-To: abuse@cistron.nl
-To: linux-kernel@vger.kernel.org
+	id <S131246AbQKIVGH>; Thu, 9 Nov 2000 16:06:07 -0500
+Received: from ns.caldera.de ([212.34.180.1]:17924 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S131360AbQKIVF6>;
+	Thu, 9 Nov 2000 16:05:58 -0500
+Date: Thu, 9 Nov 2000 22:05:43 +0100
+Message-Id: <200011092105.WAA06502@ns.caldera.de>
+From: Christoph Hellwig <hch@caldera.de>
+To: root@chaos.analogic.com ("Richard B. Johnson")
+Cc: Brian Gerst <bgerst@didntduck.org>,
+        Linux kernel <linux-kernel@vger.kernel.org>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Re: Module open() problems, Linux 2.4.0
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <Pine.LNX.3.95.1001109154744.16836A-100000@chaos.analogic.com>
+User-Agent: tin/1.4.1-19991201 ("Polish") (UNIX) (Linux/2.2.14 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <8uf21i$ro7$1@cesium.transmeta.com>,
-H. Peter Anvin <hpa@zytor.com> wrote:
->Report a block size (really allocation unit size) st_blocks == 1?
+In article <Pine.LNX.3.95.1001109154744.16836A-100000@chaos.analogic.com> you wrote:
+> On Thu, 9 Nov 2000, Jeff Garzik wrote:
+>> There is NO guarantee that module use count == device open count.  Never
+>> has been, AFAIK.  It just happens to work out that way on a lot of
+>> pre-2.4 code.
+>> 
+>> The kernel is free to bump the module reference count up and down as it
+>> pleases.  For example, if a driver creates a kernel thread, that will
+>> increase its module usage count by one, for the duration of the kernel
+>> thread's lifetime.
+>> 
+>> The only rule is that you cannot unload a module until its use count it
+>> zero.  
+>> 
+>> 	Jeff
+>> 
 
-If you mean st_blksize, well:
+> I suppose. Look at what you just stated! This means that a reported
+> value is now worthless.
 
-       The value st_blocks gives the size of the file in 512-byte
-       blocks.  The value st_blksize gives the "preferred" block­
-       size for efficient file system I/O.  (Writing to a file in
-       smaller  chunks  may  cause  an  inefficient  read-modify-
-       rewrite.)
+Correct.  And it was always worthless.
 
-Telling programs 'please use 1-byte r/w buffers' is probably
-a bad idea.
+> To restate, somebody decided that we didn't need this reported value
+> anymore. Therefore, it is okay to make it worthless.
 
-Mike.
+It was always wothless besides == 0 means: you can unload me now.
+
+> I don't agree. The De-facto standard has been that the module usage
+> count is equal to the open count. This became the standard because
+> of a long established history.
+
+It's the same de-facto standard as bogo-mips ~= CPU MHz.  It was so,
+but it was neither intended nor documented so.
+
+> This is one of the tools we use to verify that an entire system
+> is functioning properly.
+
+It was the wrong tool.
+
+	Christoph
+
 -- 
-People get the operating system they deserve.
+Always remember that you are unique.  Just like everyone else.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316238AbSEVQxV>; Wed, 22 May 2002 12:53:21 -0400
+	id <S316241AbSEVQyP>; Wed, 22 May 2002 12:54:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316241AbSEVQxU>; Wed, 22 May 2002 12:53:20 -0400
-Received: from splat.lanl.gov ([128.165.17.254]:31666 "EHLO
-	balance.radtt.lanl.gov") by vger.kernel.org with ESMTP
-	id <S316238AbSEVQxU>; Wed, 22 May 2002 12:53:20 -0400
-Date: Wed, 22 May 2002 10:53:20 -0600
-From: Eric Weigle <ehw@lanl.gov>
-To: "Linux kernel mailing list (lkml)" <linux-kernel@vger.kernel.org>
-Subject: Safety of -j N when building kernels?
-Message-ID: <20020522165320.GC18059@lanl.gov>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Eric-Unconspiracy: There ought to be a conspiracy
-X-Editor: Vim, http://www.vim.org
+	id <S316245AbSEVQyO>; Wed, 22 May 2002 12:54:14 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:21513 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S316241AbSEVQyM>; Wed, 22 May 2002 12:54:12 -0400
+Date: Wed, 22 May 2002 09:54:04 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Linux console project <linuxconsole-dev@lists.sourceforge.net>
+Subject: [PATCH] fbdev updates.
+Message-ID: <Pine.LNX.4.10.10205220936580.4611-100000@www.transvirtual.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, stupid question of the moment-
 
-I always read about the kernel compilation benchmarks people run on the
-ultra-snazzy new machines, but do people actually run the kernels thus
-generated?
+Hi!
 
-I have visions of a process being backgrounded to generate some files, and
-not completing before the one of the old files gets linked into the kernel
-(because not all files were listed as dependencies, for example).
+   I just ported over a few driver to the new api. I also included a few
+bug fixes as well as a few new drivers. Please try it out and send me any
+patches. Once the testing is done I will ask Linus to included into his
+tree. If you look at skeletonfb.c you will see actual info on the new api
+to help you port it over to the new api.
 
-So are the kernel's current Makefiles really SMP safe -- can one really
-run multiple jobs when building Linux kernels? Any horror stories, or am
-I just paranoid?
+BK:
 
+   http://fbdev.bkbits.net:8080/fbdev-2.5
 
-Thanks
--Eric
+Diff:
 
--- 
---------------------------------------------
- Eric H. Weigle   CCS-1, RADIANT team
- ehw@lanl.gov     Los Alamos National Lab
- (505) 665-4937   http://home.lanl.gov/ehw/
---------------------------------------------
+   http://www.transvirtual.com/~jsimmons/fbdev.diff
+
+P.S
+   Yes with with new api I haven't finished the drawing penguin code so
+you don't see a penguin yet. I will but I figured the new api is more
+important.
+
+   . ---
+   |o_o |
+   |:_/ |   Give Micro$oft the Bird!!!!
+  //   \ \  Use Linux!!!!
+ (|     | )
+ /'_   _/`\
+ ___)=(___/
+

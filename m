@@ -1,110 +1,185 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315942AbSGYTAr>; Thu, 25 Jul 2002 15:00:47 -0400
+	id <S315454AbSGYS7c>; Thu, 25 Jul 2002 14:59:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316088AbSGYTAr>; Thu, 25 Jul 2002 15:00:47 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:49445 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S315942AbSGYTAq>; Thu, 25 Jul 2002 15:00:46 -0400
-Date: Thu, 25 Jul 2002 21:04:45 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Cort Dougan <cort@fsmlabs.com>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cheap lookup of symbol names on oops()
-Message-ID: <20020725190445.GO1180@dualathlon.random>
-References: <20020725110033.G2276@host110.fsmlabs.com> <20020725181126.A17859@infradead.org> <20020725112142.I2276@host110.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020725112142.I2276@host110.fsmlabs.com>
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S315942AbSGYS7c>; Thu, 25 Jul 2002 14:59:32 -0400
+Received: from smtp3.hushmail.com ([64.40.111.33]:31246 "EHLO
+	smtp3.hushmail.com") by vger.kernel.org with ESMTP
+	id <S315454AbSGYS7a>; Thu, 25 Jul 2002 14:59:30 -0400
+Message-Id: <200207251902.g6PJ2bc01956@mailserver4.hushmail.com>
+From: silvio.cesare@hushmail.com
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.18 bugs
+Date: Thu, 25 Jul 2002 12:02:37 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 25, 2002 at 11:21:42AM -0600, Cort Dougan wrote:
-> I'm glad you found it useful.
-> 
-> I'm sorry, Aunt Tillie has a mind of her own about indentation.  Patch
-> below with spaces turned to tabs.
 
-It looks like it has a few issues, can you verify the below patch?
+2.4.18
 
-I don't think it make sense to resolve the EIP unless it's a module,
-you'd liekly need the system.map/vmlinux anyways to get to the right
-function symbol name.
+below are a few bugs leading to reading kernel memory using some of the usb
+drivers.
 
-Furthmore it would be nice to print also for the stack trace, in case
-there are intra-modules, infact I guess I would prefer to keep trace of
-all the modules affected and to print the start address of each module
-affected instead of resolving to the nearest symbol, since as for the
-kernel .text, also the module .text isn't likely to be always exported.
+--
+Silvio
 
-In short I don't like very much your approch but for now the below will
-be ok, and it will work right most of the time (since from such symbol
-we'll be able to deduce the rest and it's likely all the modules
-addresses in the stack trace cames from the same module .o, but it's not
-guaranteed)
+--
 
-But as said above long term the right thing to do is to print the start
-address of each module affected in the trace (we just check for that
-during the oops to discard bogus values from the stack trace), not to
-try to resolve anything in the kernel. So I will reject the current
-patch as soon as the right way is implemented (then of course ksymoops
-will have to learn the right way too, instead of guessing from the
-current unreliable /proc/ksyms after reboot).
+drivers/usb/se401.h
 
---- symb/kernel/module.c.~1~	Thu Jul 25 20:21:19 2002
-+++ symb/kernel/module.c	Thu Jul 25 20:48:20 2002
-@@ -246,10 +246,11 @@ void free_module(struct module *, int ta
-  * the need for user space tools.
-  *  -- Cort <cort@fsmlabs.com>
-  */
-+#define PRINT_ADDR_LENGTH 60
- void module_print_addr(char *s1, unsigned long addr, char *s2)
- {
- 	unsigned long best_match = 0; /* so far */
--	char best_match_string[60] = {0, }; /* so far */
-+	char best_match_string[PRINT_ADDR_LENGTH];
- 	struct module *mod;
- 	struct module_symbol *sym;
- 	int j;
-@@ -265,24 +266,25 @@ void module_print_addr(char *s1, unsigne
- 		return;
- 	}
+struct usb_se401 {
+
+[ skip ]
+
+        int *width;
+        int *height;
+        int cwidth;             /* current width */
+        int cheight;            /* current height */
+
+every integer in this structure (and .h) is signed, irrespective of its
+usage. the char pointers are unsigned in places though.
+
+:(
+
+./drivers/usb/se401.c
+
+static int se401_set_size(struct usb_se401 *se401, int width, int height)
+{
+        int wasstreaming=se401->streaming;
+        /* Check to see if we need to change */
+        if (se401->cwidth==width && se401->cheight==height)
+                return 0;
+
+        /* Check for a valid mode */
+        if (!width || !height)
+                return 1;
+        if ((width & 1) || (height & 1))
+                return 1;
+        if (width>se401->width[se401->sizes-1])
+                return 1;
+        if (height>se401->height[se401->sizes-1])
+                return 1;
+
+        /* Stop a current stream and start it again at the new size */
+        if (wasstreaming)
+                se401_stop_stream(se401);
+        se401->cwidth=width;
+        se401->cheight=height;
+
+width / height can be modified (to a negative for instance) - something
+might break though with this though --> (will check more later).
+
+static long se401_read(struct video_device *dev, char *buf, unsigned long count, int noblock)
+{
+        int realcount=count, ret=0;
+        struct usb_se401 *se401 = (struct usb_se401 *)dev;
+
+        if (se401->dev == NULL)
+                return -EIO;
+        if (realcount > se401->cwidth*se401->cheight*3)
+                realcount=se401->cwidth*se401->cheight*3;
+
+[ skip ]
+
+        if (copy_to_user(buf, se401->frame[0].data, realcount))
+                return -EFAULT;
  
--	for (mod = module_list; mod; mod = mod->next)
--	{
-+	for (mod = module_list; mod != &kernel_module; mod = mod->next) {
-+		if (!mod_bound(addr, 0, mod))
-+			continue;
- 		for ( j = 0, sym = mod->syms; j < mod->nsyms; ++j, ++sym)
- 		{
- 			/* is this a better match than what we've
- 			 * found so far? -- Cort */
--			if ( (sym->value < addr) &&
--			     ((addr - sym->value) < (addr - best_match)) )
-+			if (sym->value <= addr &&
-+			    addr - sym->value < addr - best_match)
- 			{
- 				best_match = sym->value;
- 				/* kernelmodule.name is "" so we
- 				 * have a special case -- Cort */
- 				if ( mod->name[0] == 0 )
--					sprintf(best_match_string, "%s",
--						sym->name);
-+					snprintf(best_match_string, PRINT_ADDR_LENGTH, "%s",
-+						 sym->name);
- 				else
--					sprintf(best_match_string, "%s:%s",
--						sym->name, mod->name);
-+					snprintf(best_match_string, PRINT_ADDR_LENGTH, "%s:%s",
-+						 sym->name, mod->name);
- 			}
- 		}
- 	}
+sign and overflow problem, leading to unbounded copy_to_user.
+
+--
+
+./drivers/usb/usbvideo.c
+
+long usbvideo_v4l_read(struct video_device *dev, char *buf, unsigned long count, int noblock)
+{
+
+[ skip ]
+
+        /*
+         * Copy bytes to user space. We allow for partial reads, which
+         * means that the user application can request read less than
+         * the full frame size. It is up to the application to issue
+         * subsequent calls until entire frame is read.
+         *
+         * First things first, make sure we don't copy more than we
+         * have - even if the application wants more. That would be
+         * a big security embarassment!
+         */
+        if ((count + frame->seqRead_Index) > frame->seqRead_Length)
+                count = frame->seqRead_Length - frame->seqRead_Index;
+
+        /*
+         * Copy requested amount of data to user space. We start
+         * copying from the position where we last left it, which
+         * will be zero for a new frame (not read before).
+         */
+        if (copy_to_user(buf, frame->data + frame->seqRead_Index, count)) {
+                count = -EFAULT;
+                goto read_done;
+        }
+
+count + frame->seqRead_Index can integer overflow and then buffer overflow
+in copy_to_user.
+
+--
+
+./drivers/usb/vicam.c
 
 
+static int vicam_init(struct usb_vicam *vicam)
+{
+        int width[] = {128, 256, 512};
+        int height[] = {122, 242, 242};
 
-Andrea
+        dbg("vicam_init");
+        buf = kmalloc(0x1e480, GFP_KERNEL);
+        buf2 = kmalloc(0x1e480, GFP_KERNEL);
+
+static long vicam_v4l_read(struct video_device *vdev, char *user_buf, unsigned long buflen, int noblock)
+{
+        //struct usb_vicam *vicam = (struct usb_vicam *)vdev;
+
+        dbg("vicam_v4l_read(%ld)", buflen);
+
+        if (!vdev || !buf)
+                return -EFAULT;
+
+        if (copy_to_user(user_buf, buf2, buflen))
+                return -EFAULT;
+        return buflen;
+}
+
+is this crazy? i was thinking this was impossible (ie, upper layer checking
+for it), but other drivers have explicit checks..
+
+am i crazy here? (i still think i am).  
+
+         * First things first, make sure we don't copy more than we
+         * have - even if the application wants more. That would be
+         * a big security embarassment!
+         */
+
+from the other sources above ;-) (which has an integer and sign overflows)
+
+--
+
+./net/x25/af_x25.c
+
+
+        len = min_t(unsigned int, len, sizeof(int));
+
+        if (len < 0)
+                return -EINVAL;
+
+the len < 0 check is always false.
+
+^^ silly pedant that i am.
+
+--
+Silvio
+
+Communicate in total privacy.
+Get your free encrypted email at https://www.hushmail.com/?l=2
+
+Looking for a good deal on a domain name? http://www.hush.com/partners/offers.cgi?id=domainpeople
+

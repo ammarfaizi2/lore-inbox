@@ -1,101 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270719AbUJURws@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270790AbUJUR54@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270719AbUJURws (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 13:52:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268987AbUJURuG
+	id S270790AbUJUR54 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 13:57:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270781AbUJUR5p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 13:50:06 -0400
-Received: from RT-soft-2.Moscow.itn.ru ([80.240.96.70]:18837 "HELO
-	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S270759AbUJURtc
+	Thu, 21 Oct 2004 13:57:45 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:24786 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S270774AbUJURyv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 13:49:32 -0400
-Message-ID: <4177F7D2.2020709@ru.mvista.com>
-Date: Thu, 21 Oct 2004 21:54:26 +0400
-From: "Eugeny S. Mints" <emints@ru.mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
+	Thu, 21 Oct 2004 13:54:51 -0400
+From: Nikita Danilov <nikita@clusterfs.com>
 MIME-Version: 1.0
-To: john cooper <john.cooper@timesys.com>
-CC: Esben Nielsen <simlo@phys.au.dk>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>, Jens Axboe <axboe@suse.de>,
-       Rui Nuno Capela <rncbc@rncbc.org>, LKML <linux-kernel@vger.kernel.org>,
-       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       "Ext-Rt-Dev@Mvista. Com" <ext-rt-dev@mvista.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
-References: <Pine.OSF.4.05.10410211601500.11909-100000@da410.ifa.au.dk> <4177CD3C.9020201@timesys.com> <4177DA11.4090902@ru.mvista.com> <4177E89A.1090100@timesys.com>
-In-Reply-To: <4177E89A.1090100@timesys.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16759.63466.507400.649099@thebsh.namesys.com>
+Date: Thu, 21 Oct 2004 21:54:50 +0400
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Gunther Persoons <gunther_persoons@spymac.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U9
+In-Reply-To: <20041021164018.GA11560@elte.hu>
+References: <20041014143131.GA20258@elte.hu>
+	<20041014234202.GA26207@elte.hu>
+	<20041015102633.GA20132@elte.hu>
+	<20041016153344.GA16766@elte.hu>
+	<20041018145008.GA25707@elte.hu>
+	<20041019124605.GA28896@elte.hu>
+	<20041019180059.GA23113@elte.hu>
+	<20041020094508.GA29080@elte.hu>
+	<20041021132717.GA29153@elte.hu>
+	<4177FAB0.6090406@spymac.com>
+	<20041021164018.GA11560@elte.hu>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john cooper wrote:
-> Eugeny S. Mints wrote:
-> 
->> john cooper wrote:
->>
->>> A task holding several mutexes shouldn't be an issue.
->>> Though per task an ownership list needs to be maintained
->>> in descending priority order such that the effective PI
->>> can be resolved from all task owned mutexes.
->>
->>
->>
->> Seems it is too coplex model at least for the first step. The one of 
->> possible trade-offs coming on mind is to trace the number of resources 
->> (mutexes) held by a process and to restore original priority only when 
->> resource count reaches 0. This is one of the sollutions accepted by 
->> RTOS guys.
-> 
-> 
-> It would seem a mutex ownership list still needs to be maintained.
-> Doing so in unordered priority will give a small fixed insertion
-> time, but will require an exhaustive search in order to calculate
-> maximum priority. Doing so in priority order will require an
-> average of #mutex_owned / 2 for the insertion, and gives a fixed
-> time for maximum priority calculation. The latter appears to offer
-> a performance benefit to the degree the incoming priorities are
-> random.
+Ingo Molnar writes:
+ > 
+ > * Gunther Persoons <gunther_persoons@spymac.com> wrote:
+ > 
+ > > The kernel booted now with my firewire card plugged in. However when i
+ > > try to mount my reiser4 partition i get following error
+ > > 
+ > > BUG: semaphore recursion deadlock detected!
+ > > .. current task mount/10514 is already holding ccb5bb4c.
+ > 
+ > > [<c0344760>] down_write+0x103/0x1a6 (48)
+ > > [<d0b26a08>] kcond_wait+0xaa/0xac [reiser4] (36)
+ > > [<d0b280b0>] start_ktxnmgrd+0x98/0x9a [reiser4] (36)
+ > > [<d0b33716>] reiser4_fill_super+0x3b/0x71 [reiser4] (28)
+ > > [<d0b2d569>] reiser4_get_sb+0x2f/0x33 [reiser4] (68)
+ > > [<c016061a>] do_kern_mount+0x4f/0xc0 (4)
+ > > [<c0175945>] do_new_mount+0x9c/0xe1 (36)
+ > > [<c0175feb>] do_mount+0x145/0x194 (44)
+ > > [<c0176459>] sys_mount+0x9f/0xe0 (32)
+ > > [<c01060b1>] sysenter_past_esp+0x52/0x71 (44)
+ > 
+ > reiser4 has some pretty ugly locking abstraction called kcond, i took a
 
-Yes, definilty, I 100% agree with you - I have _not_ disputed the 
-priority list approach at all.
+It's fairly standard condition variable.
 
->> The other concern with PI is that most likely PI should be prohibited 
->> for utilization with locks which are used in the way similar to 
->> "waiting completition" - i.e. if PI is employed on a mutex it is 
->> prohibited to release it if a process is not the owner of the mutex.
-> 
-> 
-> Yes, that type of usage breaks the notion of ownership.
-> It would be a error for a task to attempt relinquishing
-> a mutex which it had not acquired and was holding at the
-> time of unlock.
+ > look but it doesnt seem simple to convert it. Reiserfs should really use
+ > a normal Linux waitqueue and nothing more...
 
-exactly
+Why? Condition variable is very well known and widely used concept. In
+the area of their applicability (where predicate whose change is waited
+upon is protected by a single lock) they provide clean and easily
+recognizable synchronization device.
 
->>> http://developer.osdl.org/dev/robustmutexes
->>
->>
->>
->> It is definitly non-trivial work to adapt this approach - there are a 
->> lot of issues.
-> 
-> 
-> I should have qualified that reference. Those folks are
-> addressing more than PI mutexes. Indeed their goal is
-> support of fast user mutexes which offer detection of mutex
-> owners gone astray (exited, killed, etc..). It is the kernel
-> component of the work to which I was referring.
+Real problem in this case is failure of "semaphore deadlock detection"
+to cope with perfectly legal semaphore usage (down() by thread T1, up()
+by thread T2). As one possible solution kcond can be re-written on top
+of beloved "normal Linux waitqueue".
 
-Ok, I've also talked about kernel component not user space one. User 
-space approach with robustness, fast uncontented obtaining, etc looks 
-very attractive but both kernel and user space parts have their issues -
-though I took a glance to the project about 2 months ago.
-
-			Eugeny
-
+Nikita.
+ 
+ > 
+ > 	Ingo
 

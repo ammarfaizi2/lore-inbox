@@ -1,42 +1,130 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263183AbTH0HKU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 03:10:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263198AbTH0HKT
+	id S263263AbTH0HPs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 03:15:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263262AbTH0HPs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 03:10:19 -0400
-Received: from smtp802.mail.sc5.yahoo.com ([66.163.168.181]:8637 "HELO
-	smtp802.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263183AbTH0HKR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 03:10:17 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Vojtech Pavlik <vojtech@ucw.cz>
-Subject: Re: 2.6: Synaptics TouchPad and GPM (GPM patches)
-Date: Wed, 27 Aug 2003 02:10:14 -0500
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
-References: <200308222146.56381.dtor_core@ameritech.net> <20030826074542.GA12430@ucw.cz>
-In-Reply-To: <20030826074542.GA12430@ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Aug 2003 03:15:48 -0400
+Received: from holomorphy.com ([66.224.33.161]:22453 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263266AbTH0HPl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 03:15:41 -0400
+Date: Wed, 27 Aug 2003 00:16:48 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: mfedyk@matchmail.com
+Cc: Andrew Morton <akpm@osdl.org>, Peter Chubb <peterc@gelato.unsw.edu.au>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6.0-test4 -- add context switch counters
+Message-ID: <20030827071648.GY1715@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	mfedyk@matchmail.com, Andrew Morton <akpm@osdl.org>,
+	Peter Chubb <peterc@gelato.unsw.edu.au>,
+	linux-kernel@vger.kernel.org
+References: <16204.520.61149.961640@wombat.disy.cse.unsw.edu.au> <20030826181807.1edb8c48.akpm@osdl.org> <20030827012914.GB5280@matchmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308270210.14939.dtor_core@ameritech.net>
+In-Reply-To: <20030827012914.GB5280@matchmail.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 26 August 2003 02:45 am, Vojtech Pavlik wrote:
-> On Fri, Aug 22, 2003 at 09:46:56PM -0500, Dmitry Torokhov wrote:
-> >
-> > Kernel has to support EV_SYNC for touchpad and synaptics support,
-> > relative and absolute modes can be used with 2.4 kernels by specifying
-> > nosync option.
->
-> You should not need any options for this - it's all queryable via ioctls
-> ...
+Mike, your MUA sucks; you unwittingly removed yourself from Reply-To:
 
-Done, along with implementing new type "auto" which selects best mode for 
-the device.
 
-Dmitry
+On Tue, Aug 26, 2003 at 06:29:14PM -0700, Mike Fedyk wrote:
+> Command exited with non-zero status 100
+> 	Command being timed: "apt-get update"
+> 	User time (seconds): 0.01
+> 	System time (seconds): 0.00
+> 	Percent of CPU this job got: 6%
+> 	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:00.32
+> 	Average shared text size (kbytes): 0
+> 	Average unshared data size (kbytes): 0
+> 	Average stack size (kbytes): 0
+> 	Average total size (kbytes): 0
+> The averages might be nice...
+
+The averages themselves aren't reported with getrusage(), only direct
+usage measurements. Presumably luserspace computes the averages itself.
+i.e. the counters are all for non-average versions of these stats and
+(because we're seeing all 0's) are not reported at all.
+
+
+On Tue, Aug 26, 2003 at 06:29:14PM -0700, Mike Fedyk wrote:
+> 	Maximum resident set size (kbytes): 0
+> But the maximum would allow any polling app to do its polling less often.
+> As well as the averages above...
+> 	Average resident set size (kbytes): 0
+> 	Major (requiring I/O) page faults: 320
+> 	Minor (reclaiming a frame) page faults: 21
+
+The fault counters are vaguely bogus when threads are involved. There's
+a comment alluding to that nearby.
+
+
+On Tue, Aug 26, 2003 at 06:29:14PM -0700, Mike Fedyk wrote:
+> 	Voluntary context switches: 0
+> How can you have voluntary context switches in a preemptive environment?
+> 	Involuntary context switches: 0
+
+Irrelevant to CONFIG_PREEMPT; preemptive multitasking (i.e. userspace can
+be preempted) as UNIX has always done is the important issue here.
+
+
+On Tue, Aug 26, 2003 at 06:29:14PM -0700, Mike Fedyk wrote:
+> 	Swaps: 0
+> Counting swaps would be nice too.	
+
+This already has two counters in the task_t (no, I will not use Finnish
+Hungarian notation in my general posts) that are 100% unused. Probably
+the only thing preventing slab poison from showing up there outright is
+the whole task_t copy in kernel/fork.c and the bss zeroing for init_task.
+
+
+On Tue, Aug 26, 2003 at 06:29:14PM -0700, Mike Fedyk wrote:
+> 	File system inputs: 0
+> 	File system outputs: 0
+> 	Socket messages sent: 0
+> 	Socket messages received: 0
+> 	Signals delivered: 0
+> Yes, yes, yes.
+
+These would be easy to set up, they just need counters and the ticking
+of the counters dropped in.
+
+
+On Tue, Aug 26, 2003 at 06:29:14PM -0700, Mike Fedyk wrote:
+>      	Page size (bytes): 4096
+> 	Exit status: 100
+> One more thing:
+> $ cat /proc/meminfo 
+> MemTotal:       320628 kB
+> MemFree:          5148 kB
+> Buffers:          8316 kB
+> Where'd shared go, and why didn't rmap start populating this value?  It
+> should be there in the pte-chain lists...
+
+Shared isn't particularly useful as a single value unqualified by
+sharing level.
+
+
+On Tue, Aug 26, 2003 at 06:29:14PM -0700, Mike Fedyk wrote:
+> Cached:         127140 kB
+> SwapCached:          0 kB
+> Active:         266212 kB
+> Inactive:        10608 kB
+> HighTotal:           0 kB
+> HighFree:            0 kB
+> Why is high(total|free) there in a non-highmem kernel?  If this file were
+> more dynamic, then we wouldn't have apps that counted on the line number
+> instead of the first colum's value...
+> Ok, so that was two more... ;)
+
+They could probably very well be omitted; in all likelihood just making
+the format more resistant to .config changes to make luserspace's life
+easier is a good reason to keep it there.
+
+
+-- wli

@@ -1,59 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314701AbSDTSDP>; Sat, 20 Apr 2002 14:03:15 -0400
+	id <S314673AbSDTSAH>; Sat, 20 Apr 2002 14:00:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314672AbSDTSCV>; Sat, 20 Apr 2002 14:02:21 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:36435 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S314677AbSDTSBC>; Sat, 20 Apr 2002 14:01:02 -0400
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-In-Reply-To: <E16ya3u-0000RG-00@starship>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 20 Apr 2002 11:53:11 -0600
-Message-ID: <m1elha45q0.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S314701AbSDTR70>; Sat, 20 Apr 2002 13:59:26 -0400
+Received: from 24.159.204.122.roc.nc.chartermi.net ([24.159.204.122]:45328
+	"EHLO tweedle.cabbey.net") by vger.kernel.org with ESMTP
+	id <S314702AbSDTR6N>; Sat, 20 Apr 2002 13:58:13 -0400
+Date: Sat, 20 Apr 2002 12:56:30 -0500 (CDT)
+From: Chris Abbey <linux@cabbey.net>
+X-X-Sender: <cabbey@tweedle.cabbey.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: PDC20268 TX2 support?
+In-Reply-To: <3CC1A8BD.2899AB80@redhat.com>
+Message-ID: <Pine.LNX.4.33.0204201252510.25636-100000@tweedle.cabbey.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips <phillips@bonn-fries.net> writes:
+Today, Arjan van de Ven wrote:
+> that is not hardware raid but software raid.
 
-> Hi Linus,
-> 
-> I have up to this point been open to the use of Bitkeeper as a development
-> aid for Linux, and, again up to this point, have intended to make use of 
-> Bitkeeper myself, taking a pragmatic attitude towards the concept of using 
-> the best tool for the job.  However, now I see that Bitkeeper documentation 
-> has quietly been inserted ino the Linux Documentation directory, and that 
-> without any apparent discussion on lkml.  I fear that this demonstrates that 
-> those who have called the use of Bitkeeper a slippery slope do have a point 
-> after all.
+Ya know, I was seriously doubting that this thing was really hardware
+raid, why else would they not want to release their driver? ;)
 
-Daniel I agree that there are some real dangers to using a proprietary
-tool, and have seen it severely affect a project.  
+> It seems you missed the ATARAID stuff in the ide config..
 
-The primary problem is that some developers are not able to
-participate because they do not have the tool. 
+hrm. Actually I saw it and didn't think it applied... I'll go do some
+more digging. Thanks for the pointer.
 
-Given that bitkeeper is currently freely available, and that people
-can still send raw patches I do not see that people are currently
-being excluded on basis of the tool they use.
-
-I can see the potential for this to break down.  However we should
-not be crying wolf until this actually does break down.
-
-There is exactly one point where religious attitudes are important.
-Because of them some people will not use a non-free tool.  So for a
-wide spread project there must be some way for them to participate.
-diffs are still being accepted, so these people do have a to
-participate.
-
-Eric
-
-
-
-
+-- 
+Never make a technical decision based upon the politics of the situation.
+Never make a political decision based upon technical issues.
+The only place these realms meet is in the mind of the unenlightened.
+			-- Geoffrey James, The Zen of Programming
 

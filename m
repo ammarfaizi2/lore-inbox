@@ -1,56 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261691AbUKIVPw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261701AbUKIVPY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261691AbUKIVPw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 16:15:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbUKIVPv
+	id S261701AbUKIVPY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 16:15:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261695AbUKIVPY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 16:15:51 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:58042 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261691AbUKIVOx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 16:14:53 -0500
-Date: Tue, 9 Nov 2004 22:14:10 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>
-Subject: Re: 2.6.10-rc1-mm4
-Message-ID: <20041109211409.GB3921@suse.de>
-References: <20041109074909.3f287966.akpm@osdl.org> <20041109161112.GA3921@suse.de> <20041109115338.59d195ec.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041109115338.59d195ec.akpm@osdl.org>
+	Tue, 9 Nov 2004 16:15:24 -0500
+Received: from inetc.connecttech.com ([64.7.140.42]:51213 "EHLO
+	inetc.connecttech.com") by vger.kernel.org with ESMTP
+	id S261685AbUKIVNd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 16:13:33 -0500
+From: "Stuart MacDonald" <stuartm@connecttech.com>
+To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+       "'Dmitry Torokhov'" <dtor_core@ameritech.net>
+Cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
+       <davids@webmaster.com>,
+       "=?iso-8859-1?Q?'Rapha=EBl_Rigo_LKML'?=" <lkml@twilight-hall.net>
+Subject: RE: GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox +code
+Date: Tue, 9 Nov 2004 16:13:31 -0500
+Organization: Connect Tech Inc.
+Message-ID: <000001c4c6a0$f71bfc90$294b82ce@stuartm>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+Importance: Normal
+In-Reply-To: <1099993648.15462.8.camel@localhost.localdomain>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 09 2004, Andrew Morton wrote:
-> Jens Axboe <axboe@suse.de> wrote:
-> >
-> > On Tue, Nov 09 2004, Andrew Morton wrote:
-> > > +blk_sync_queue-updates.patch
-> > > 
-> > >  update an update to the md updates
+> From: Alan Cox
+> On Maw, 2004-11-09 at 02:32, Dmitry Torokhov wrote:
+> > "The $20 USD subscription fee includes unlimited priority support,
+> > full access to the Sveasoft forums, and unlimited access to new
+> > firmware versions and upgrades."
 > > 
-> > I still don't think this is a good general export, it has very
-> > specialized use. For example, from the description it looks like this
-> > can be generally used on any block device and when it returns, we have
-> > synced the queue. This simply isn't true, there are absolutely no
-> > guarentees of that nature unless the block driver itself implements the
-> > __make_request() functionality and has taken proper precautions to
-> > prevent this already.
+> > So it looks like "if you exersize your right for the 
+> software in quesion
+> > I terminate the contract we have entered into" as opposed 
+> to "I will not
+> > extend your contract beyond initial term".
+> > 
+> > Isn't that an additional restriction? My rights for updates 
+> are revoked
+> > if I distribute GPLed code.
 > 
-> True.   So what do we do?  Grit our teeth and move it into MD?
+> Those aren't GPL granted rights. The updates/support contract is a
+> private contractual matter between Sveasoft and its members. 
+> They don't
+> stop you redistributing the GPL code you received.
 
-That, or just comment it appropriately instead. Or, perhaps better, make
-a real interface that works for both types of devices. It's even
-confusing that the final queue cleanup and md can use the same
-blk_sync_queue function, it's more by 'chance' than by design because
-the driver queue is already in a known and shut down state. So I don't
-like it at all.
+Two things:
 
-The blk_freeze_queue() stuff I suggested should work, I'll try and make
-a patch.
+First. As a lurker I've seen the previous sveasoft discussion, but
+didn't delve into it. I've followed this thread more closely. I've
+seen the arguments, and *as they stand* it seems to me that sveasoft
+must be in violation. However, someone pointed out this:
+http://www.sveasoft.com/modules/phpBB2/viewtopic.php?t=3033
+If the compliance guy thinks they're ok, then likely there's something
+I'm missing. What could that be?
 
--- 
-Jens Axboe
+A quick look around their forums popped up this:
+http://www.sveasoft.com/modules/phpBB2/viewtopic.php?t=3868
+which says in short they will only revoke subscriptions if they find
+you redistributing the *non-GPL* portions of the pre-release software.
+Presumably they've licenced their pre-release non-GPL bits under a "We
+will revoke your licence if you redistribute this bit" licence. Which
+is fair. The author of a work is free to licence it however they see
+fit, irregardless if they've previously licenced earlier versions
+under the GPL.
+
+So it seems they are in compliance after all. Just that the thread is
+a little misleading about what's going on, and that confused me for a
+bit.
+
+Second. Let's assume for a minute that they are revoking subscriptions
+if you redistribute the GPL bits, which is your right. Alan and others
+appear to be saying above that this is okay. I disagree.
+
+The GPL protects your right to redistribute from "further
+restriction". It does not specify in what manner this restriction may
+take place; specifically it does not say that the "further
+restriction" must be something described in the GPL. In my reading,
+the further restriction could take any form whatsoever.
+
+Ah, something just clicked. I think Alan is reading the "rights
+herein" part, and then saying above that the right to support, updates
+etc is not a GPL-granted right, and thus is not subject to the
+protection of that clause. Fair enough, they are not. However, **that
+is not the right being restricted** in this now-hypothetical scenario.
+
+In the hypothetical, sveasoft would be penalising you for exercising
+your right to redistribute the GPL code. The fact that this
+penalisation is taking the form of revoking some other right between
+you and they is irrelevant. They could just as easily have penalised
+you by beating you with a stick.
+
+How can a penalisation not be a "further restriction" on your right to
+redistribute?
+
+My reading of the GPL tells me that "further restriction" means
+**any** restriction whatsoever, whensoever, howsoever. If there is a
+sentence of the form
+
+if (exercise(GPL-protected-right))
+  penalise(method);
+
+that is a further restriction. What "method" is, how it operates, when
+it comes into force is irrelevant.
+
+That's my understanding. Am I correct? Or not?
+
+..Stu
 

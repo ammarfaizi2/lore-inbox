@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267137AbTAPPNs>; Thu, 16 Jan 2003 10:13:48 -0500
+	id <S267144AbTAPPbM>; Thu, 16 Jan 2003 10:31:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267135AbTAPPNs>; Thu, 16 Jan 2003 10:13:48 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:55495 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S267137AbTAPPNs>; Thu, 16 Jan 2003 10:13:48 -0500
-Date: Thu, 16 Jan 2003 07:22:33 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] make vm_enough_memory more efficient
-Message-ID: <75430000.1042730552@titus>
-In-Reply-To: <20030116001447.07337e9e.akpm@digeo.com>
-References: <66360000.1042703224@titus> <20030116001447.07337e9e.akpm@digeo.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	id <S267146AbTAPPbL>; Thu, 16 Jan 2003 10:31:11 -0500
+Received: from bitmover.com ([192.132.92.2]:48324 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S267144AbTAPPbL>;
+	Thu, 16 Jan 2003 10:31:11 -0500
+Date: Thu, 16 Jan 2003 07:40:04 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: linux-kernel@vger.kernel.org, Andrew Walrond <andrew@walrond.org>,
+       jw schultz <jw@pegasys.ws>
+Subject: Re: any brand recomendation for a linux laptop ?
+Message-ID: <20030116154004.GD31419@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	linux-kernel@vger.kernel.org, Andrew Walrond <andrew@walrond.org>,
+	jw schultz <jw@pegasys.ws>
+References: <200301161100.45552.Nicolas.Turro@sophia.inria.fr> <20030116104154.GL25246@pegasys.ws> <3E26BE43.6000406@walrond.org> <20030116144045.GC30736@work.bitmover.com> <20030116153727.GA27441@lug-owl.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20030116153727.GA27441@lug-owl.de>
+User-Agent: Mutt/1.4i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> vm_enough_memory seems to call si_meminfo just to get the total 
->> RAM, which seems far too expensive. This replaces the comment
->> saying "this is crap" with some code that's less crap.
->> 
->> Not heavily tested (compiles and boots), but seems pretty obvious.
+On Thu, Jan 16, 2003 at 04:37:27PM +0100, Jan-Benedict Glaw wrote:
+> On Thu, 2003-01-16 06:40:45 -0800, Larry McVoy <lm@bitmover.com>
+> wrote in message <20030116144045.GC30736@work.bitmover.com>:
+> > On Thu, Jan 16, 2003 at 02:14:27PM +0000, Andrew Walrond wrote:
 > 
-> Yup, obviously correct.
-
-Cool.
- 
-> The really hurtful part of vm_enough_memory() is the call to
-> get_page_cache_size(), which has to go over every CPU's local VM statistics
-> in get_page_state().
+> > I like the T23 myself.  Wireless, ethernet, modem, DVD, fast.
 > 
-> But I guess you're running with sysctl_overcommit_memory != 0.
+> Serial modem, or some winmodem type? I'd prefer to have a "real" modem,
+> though...
 
-Yup, I manually disable that because it's so expensive. I'll see if
-I can make the default case cheaper as well.
-
-M.
-
+Winmodem.  I'm pretty sure I got it to work under Linux at some point but
+I'll admit that I boot into windows on those rare occasions I need a modem.
+Getting that stuff to work under Linux is fragile at best.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

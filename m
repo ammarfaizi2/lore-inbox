@@ -1,57 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311199AbSCPXQo>; Sat, 16 Mar 2002 18:16:44 -0500
+	id <S311203AbSCPX10>; Sat, 16 Mar 2002 18:27:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311203AbSCPXQY>; Sat, 16 Mar 2002 18:16:24 -0500
-Received: from ns.suse.de ([213.95.15.193]:33298 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S311199AbSCPXQV>;
-	Sat, 16 Mar 2002 18:16:21 -0500
-Date: Sun, 17 Mar 2002 00:15:33 +0100
-From: Dave Jones <davej@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Anders Gustafsson <andersg@0x63.nu>, arjanv@redhat.com,
-        linux-kernel@vger.kernel.org, mochel@osdl.org
-Subject: Re: [PATCH] devexit fixes in i82092.c
-Message-ID: <20020317001533.E15296@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	"Eric W. Biederman" <ebiederm@xmission.com>,
-	Jeff Garzik <jgarzik@mandrakesoft.com>,
-	Anders Gustafsson <andersg@0x63.nu>, arjanv@redhat.com,
-	linux-kernel@vger.kernel.org, mochel@osdl.org
-In-Reply-To: <E16mMer-0007Q4-00@the-village.bc.nu> <Pine.LNX.4.33.0203161421240.8278-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0203161421240.8278-100000@home.transmeta.com>
-User-Agent: Mutt/1.3.22.1i
+	id <S311195AbSCPX1P>; Sat, 16 Mar 2002 18:27:15 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:20237 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S311205AbSCPX1E>; Sat, 16 Mar 2002 18:27:04 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Oops in 2.5.7-pre2: ACPI?
+Date: Sat, 16 Mar 2002 23:25:06 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <a70k8i$17d$1@penguin.transmeta.com>
+In-Reply-To: <20020316213319.Q9664@x3ja.co.uk>
+X-Trace: palladium.transmeta.com 1016321196 24688 127.0.0.1 (16 Mar 2002 23:26:36 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 16 Mar 2002 23:26:36 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 16, 2002 at 02:26:23PM -0800, Linus Torvalds wrote:
+In article <20020316213319.Q9664@x3ja.co.uk>,
+Alex Walker  <alex@x3ja.co.uk> wrote:
+>
+>Up to 2.5.7-pre1 ACPI worked fine with System, Processor and Button
+>options enabled.
+>
+>If I disable all the options, leaving just ACPI support, it still oopss.
+>
+>If I disable ACPI totally, it boots fine.
 
- > One question that hasn't come up: do we actually want to use the "remove"
- > function for this, or have a separate shutdown function? Are there reasons
- > to not use "remove" for shutdown?
+There was a big ACPI merge in 2.5.7-pre2, but since the ACPI people
+never tested the non-ACPI case, they had broken that horribly by some
+bad assumptions they had made.
 
- Something that came to mind on reading this thread that I want
- clarification on.. Take for example, the case of an IDE controller.
- If on shutdown we walk the driverfs tree shutting things down,
- it's going to power off its hard disks, then do whatever magic is
- needed to the ide host bridge.
+I fixed the non-ACPI brokenness, which then left the ACPI merge in a
+halfway state..  So right now ACPI device initialization doesn't work. 
+I'm hoping that the ACPI folks can fix up their broken assumptions soon. 
 
- This makes sense for a shutdown, and suspend-to-disk, but not for
- a reboot imo (senseless spinning down/up of drives).
- So some means is probably going to be needed for drivers to
- distinguish between a reboot & shutdown/suspend.
+>If I disable Power management, but leave ACPI and option selected, it
+>also oopss.
 
- There may be other such devices too, but this was the more
- obvious one that came to mind. Or am I way off base here?
- 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Right now you need to run 2.5.7-pre2 without any ACPI support
+whatsoever, I'm afraid.  I may try to fix it on my own, but I'm still
+hoping some official ACPI person will beat me to it. 
+
+		Linus

@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267602AbUHWVGy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267582AbUHWUQT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267602AbUHWVGy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 17:06:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267298AbUHWVDV
+	id S267582AbUHWUQT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 16:16:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267374AbUHWUOa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 17:03:21 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:28751 "EHLO
-	falcon10.austin.ibm.com") by vger.kernel.org with ESMTP
-	id S267293AbUHWVBk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 17:01:40 -0400
-Message-Id: <200408232101.i7NL1c26024662@falcon10.austin.ibm.com>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.1
-In-reply-to: <cgdjek$klh$1@gatekeeper.tmr.com> 
-To: Bill Davidsen <davidsen@tmr.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices 
+	Mon, 23 Aug 2004 16:14:30 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:36360 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S267298AbUHWTGN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 15:06:13 -0400
+Date: Mon, 23 Aug 2004 20:06:06 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: James Morris <jmorris@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, viro@parcelfarce.linux.theplanet.co.uk,
+       Stephen Smalley <sds@epoch.ncsc.mil>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][6/7] add xattr support to tmpfs
+Message-ID: <20040823200606.B20114@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>,
+	viro@parcelfarce.linux.theplanet.co.uk,
+	Stephen Smalley <sds@epoch.ncsc.mil>, linux-kernel@vger.kernel.org
+References: <Xine.LNX.4.44.0408231419010.13728-100000@thoron.boston.redhat.com> <Xine.LNX.4.44.0408231420100.13728-100000@thoron.boston.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 23 Aug 2004 16:01:38 -0500
-From: Doug Maxey <dwm@austin.ibm.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Xine.LNX.4.44.0408231420100.13728-100000@thoron.boston.redhat.com>; from jmorris@redhat.com on Mon, Aug 23, 2004 at 02:20:58PM -0400
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Aug 23, 2004 at 02:20:58PM -0400, James Morris wrote:
+> This patch adds xattr support to tmpfs, and a security xattr handler.
+> Original patch from: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 
-On Mon, 23 Aug 2004 16:25:17 EDT, Bill Davidsen wrote:
->permission to open. This allows the admin to put in any filter desired,
-> know about vendor commands, etc. It also allows various security
->setups,  the group can be on the user (trusted users) or on a setgid
->program  (which limits the security issues).
+The generic xattr inode ops implementations should also move to xattr.c
+(easy with my proposal of handing the sub-methods off the sb).
 
-  Down such path lies madness :)   This list would have to be maintained for
-  most every model, of every drive, for every manufacturer.  The list could
-  conceivably change weekly, if not sooner.  This could change, of course, if
-  the use of linux would become as ubiquitous as the dominant redmond produnt, 
-  and the manufacturers would supply the "mini-port" driver bits, as it were.
+Also please don't add so many new files, life would be much easier if all
+of this just went to shmem.c.  (and long-term tmpfs should maybe move to
+fs/tmpfs)
 
-  The theory is wonderful.  Until there is enough "clout" to change the 
-  manufacturers participation, it is probably futile. :-/
-
-++doug

@@ -1,63 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271386AbTGWXMx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 19:12:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271387AbTGWXMx
+	id S271369AbTGWXR5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 19:17:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271383AbTGWXR5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 19:12:53 -0400
-Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:12720 "EHLO
-	ti3.telemetry-investments.com") by vger.kernel.org with ESMTP
-	id S271386AbTGWXMv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 19:12:51 -0400
-Date: Wed, 23 Jul 2003 19:27:06 -0400
-From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Glenn Fowler <gsf@research.att.com>, davem@redhat.com,
-       dgk@research.att.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com
-Subject: Re: kernel bug in socketpair()
-Message-ID: <20030723192706.A962@ti21>
-Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Glenn Fowler <gsf@research.att.com>, davem@redhat.com,
-	dgk@research.att.com,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	netdev@oss.sgi.com
-References: <200307231428.KAA15254@raptor.research.att.com> <20030723074615.25eea776.davem@redhat.com> <200307231656.MAA69129@raptor.research.att.com> <1058982641.5520.98.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
+	Wed, 23 Jul 2003 19:17:57 -0400
+Received: from c210-49-26-171.randw1.nsw.optusnet.com.au ([210.49.26.171]:3022
+	"EHLO mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
+	id S271369AbTGWXR4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 19:17:56 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <1058982641.5520.98.camel@dhcp22.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Wed, Jul 23, 2003 at 06:50:41PM +0100
+Content-Transfer-Encoding: 7bit
+Message-ID: <16159.6944.889606.686405@wombat.chubb.wattle.id.au>
+Date: Thu, 24 Jul 2003 09:32:48 +1000
+To: davidsen@tmr.com (bill davidsen)
+CC: linux-kernel@vger.kernel.org, kravetz@us.ibm.com
+Subject: Re: [Lse-tech] [patch 2.6.0-test1] per cpu times
+Newsgroups: mail.linux-kernel
+In-Reply-To: <bfmvvi$lba$1@gatekeeper.tmr.com>
+References: <200307181835.42454.efocht@hpce.nec.com>
+	<20030718111850.C1627@w-mikek2.beaverton.ibm.com>
+	<bfmvvi$lba$1@gatekeeper.tmr.com>
+X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 23, 2003 at 06:50:41PM +0100, Alan Cox wrote:
-> > otherwise there is a bug in the /dev/fd/N -> /proc/self/fd/N implementation
-> > and /dev/fd/N should be separated out to its (original) dup(atoi(N))
-> > semantics
->
-> I don't see a bug. I see differing behaviour between Linux and BSD on a
-> completely non standards defined item. Also btw nobody ever really wrote
-> a /dev/fd/ for Linux - it was just a byproduct of the proc stuff someone
-> noticed. I guess someone could write a Plan-9 style dev/fd or devfdfs
-> for Linux if they wanted.
+>>>>> "bill" == bill davidsen <davidsen@tmr.com> writes:
+>>>>> "Mike" == Mike Kravetz  <kravetz@us.ibm.com>
 
-I first posted about this several years ago, and it came up again earlier
-in the year; see:
+Mike> On a somewhat related note ...  We (Big Blue) have a
+Mike> performance reporting application that would like to know how
+Mike> long a task sits on a runqueue before it is actually given the
+Mike> CPU.  In other words, it wants to know how long the 'runnable
+Mike> task' was delayed due to contention for the CPU(s).  Of
+Mike> course, one could get an overall feel for this based on total
+Mike> runqueue length.  However, this app would really like this
+Mike> info on a per-task basis.
 
-http://hypermail.idiosynkrasia.net/linux-kernel/archived/2003/week14/0314.html
+bill> This is certainly a useful number. 
 
-As HPA and I had previously discussed, ->open() methods always return
-a new file struct, so providing the dup() semantics would require a
-restructuring of the ->open() methods -- unless, (and this is a dirty
-hack,) one creates a devfdfs that abuses the ERESTART_RESTARTBLOCK
-mechanism to restart the open() syscall with dup() instead.  This requires
-some minor pollution to the open() syscall path to interpret the error
-return, but should require no other changes.
+This is exactly what's measured by the microstate accounting patches
+I've been pushing to LKML, along with a few other useful statistics.
 
-Regards,
+If you try it, please let me know: see
+http://marc.theaimsgroup.com/?l=linux-kernel&m=105884469205748&w=2
 
-        Bill Rugolsky
 
+--
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+You are lost in a maze of BitKeeper repositories,   all slightly different.

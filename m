@@ -1,36 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266839AbTA0TIk>; Mon, 27 Jan 2003 14:08:40 -0500
+	id <S266926AbTA0TKh>; Mon, 27 Jan 2003 14:10:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266926AbTA0TIk>; Mon, 27 Jan 2003 14:08:40 -0500
-Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:62057
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S266839AbTA0TIj>; Mon, 27 Jan 2003 14:08:39 -0500
-Date: Mon, 27 Jan 2003 14:17:34 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Mike Galbraith <efault@gmx.de>
-cc: Luuk van der Duim <l.a.van.der.duim@student.rug.nl>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.59-mm6
-In-Reply-To: <5.1.1.6.2.20030127191904.00cc2508@pop.gmx.net>
-Message-ID: <Pine.LNX.4.44.0301271414230.28141-100000@montezuma.mastecende.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266977AbTA0TKh>; Mon, 27 Jan 2003 14:10:37 -0500
+Received: from [217.167.51.129] ([217.167.51.129]:39655 "EHLO zion.wanadoo.fr")
+	by vger.kernel.org with ESMTP id <S266926AbTA0TKf>;
+	Mon, 27 Jan 2003 14:10:35 -0500
+Subject: Re: 2.4.21-pre3 kernel crash
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Ross Biro <rossb@google.com>
+Cc: linux-kernel@vger.kernel.org, alan@redhat.com
+In-Reply-To: <1043694192.2756.55.camel@zion.wanadoo.fr>
+References: <Pine.OSF.4.51.0301271632230.49659@tao.natur.cuni.cz>
+	 <3E356403.9010805@google.com>  <1043694192.2756.55.camel@zion.wanadoo.fr>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1043695294.2755.61.camel@zion.wanadoo.fr>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 27 Jan 2003 20:21:35 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Jan 2003, Mike Galbraith wrote:
+Ok, after a second look, 2.4.20 seem correct. Here's a patch against 2.4.21-pre3
+doing it like 2.4.20 did.
 
-> (something seems funky with nmi_watchdog... hard lock = no_more_nmi_ticks 
-> .  Anybody out there know enough about local APIC to explain why idle=poll 
-> gives nice 1 second nmi, but everything else depends upon cpu load?... and 
-> why when hardlock happens, it _stops_)
+Let me know if it helps
 
-Because we base the performance counter on unhalted cycles, whilst the 
-normal idle function does an hlt. I think the K7 can do halted too.
 
-	Zwane
--- 
-function.linuxpower.ca
+===== drivers/ide/ide-dma.c 1.7 vs edited =====
+--- 1.7/drivers/ide/ide-dma.c	Tue Dec 10 21:21:57 2002
++++ edited/drivers/ide/ide-dma.c	Mon Jan 27 20:17:35 2003
+@@ -249,36 +249,54 @@
+ {
+ 	struct buffer_head *bh;
+ 	struct scatterlist *sg = hwif->sg_table;
++	unsigned long lastdataend = ~0UL;
+ 	int nents = 0;
+ 
+ 	if (hwif->sg_dma_active)
+ 		BUG();
+ 
++	hwif->sg_dma_direction = ddir;
++
+ 	bh = rq->bh;
+ 	do {
+-		unsigned char *virt_addr = bh->b_data;
+-		unsigned int size = bh->b_size;
++		struct scatterlist *sge;
++
++		/*
++		 * continue segment from before?
++		 */
++		if (bh_phys(bh) == lastdataend) {
++			sg[nents - 1].length += bh->b_size;
++			lastdataend += bh->b_size;
++			continue;
++		}
+ 
++		/*
++		 * start new segment
++		 */
+ 		if (nents >= PRD_ENTRIES)
+ 			return 0;
+ 
+-		while ((bh = bh->b_reqnext) != NULL) {
+-			if ((virt_addr + size) != (unsigned char *) bh->b_data)
+-				break;
+-			size += bh->b_size;
++		sge = &sg[nents];
++		memset(sge, 0, sizeof(*sge));
++
++		if (bh->b_page) {
++			sge->page = bh->b_page;
++			sge->offset = bh_offset(bh);
++		} else {
++			if (((unsigned long) bh->b_data) < PAGE_SIZE)
++				BUG();
++
++			sge->address = bh->b_data;
+ 		}
+-		memset(&sg[nents], 0, sizeof(*sg));
+-		sg[nents].address = virt_addr;
+-		sg[nents].length = size;
+-		if(size == 0)
+-			BUG();
++
++		sge->length = bh->b_size;
++		lastdataend = bh_phys(bh) + bh->b_size;
+ 		nents++;
+-	} while (bh != NULL);
++	} while ((bh = bh->b_reqnext) != NULL);
+ 
+ 	if(nents == 0)
+ 		BUG();
+ 		
+-	hwif->sg_dma_direction = ddir;
+ 	return pci_map_sg(hwif->pci_dev, sg, nents, ddir);
+ }
+ 
 

@@ -1,42 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270025AbRHYRkN>; Sat, 25 Aug 2001 13:40:13 -0400
+	id <S270050AbRHYSC4>; Sat, 25 Aug 2001 14:02:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270050AbRHYRkD>; Sat, 25 Aug 2001 13:40:03 -0400
-Received: from hermes.domdv.de ([193.102.202.1]:24838 "EHLO zeus.domdv.de")
-	by vger.kernel.org with ESMTP id <S270025AbRHYRjo>;
-	Sat, 25 Aug 2001 13:39:44 -0400
-Message-ID: <XFMail.20010825193951.ast@domdv.de>
-X-Mailer: XFMail 1.4.6-3 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S270073AbRHYSCq>; Sat, 25 Aug 2001 14:02:46 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:53265 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S270050AbRHYSCg>; Sat, 25 Aug 2001 14:02:36 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Mike Galbraith <mikeg@wen-online.de>,
+        Roger Larsson <roger.larsson@norran.net>
+Subject: Re: [PATCH][RFC] simpler __alloc_pages{_limit}
+Date: Sat, 25 Aug 2001 20:09:24 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: <linux-kernel@vger.kernel.org>, Stephan von Krawczynski <skraw@ithnet.com>
+In-Reply-To: <Pine.LNX.4.33.0108250946560.540-100000@mikeg.weiden.de>
+In-Reply-To: <Pine.LNX.4.33.0108250946560.540-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-Date: Sat, 25 Aug 2001 19:39:51 +0200 (CEST)
-Organization: D.O.M. Datenverarbeitung GmbH
-From: Andreas Steinmetz <ast@domdv.de>
-To: linux-kernel@vger.kernel.org
-Subject: new aic7xxx code in 2.4.9 causes kernel panics
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010825180244Z16204-32383+1340@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-please CC me on replies as I'm not subscribed to the list.
+On August 25, 2001 10:48 am, Mike Galbraith wrote:
+> I think the easiest way to handle high order allocations is to do _low_
+> volume background reclamation if high order allocations might fail.  ie
+> put a little effort into keeping such allocations available, but don't
+> do massive effort.  Cache tends to lose it's value over time, so dumping
+> small quantities over time shouldn't hurt.
 
-The new aix7xxx driver in 2.4.9 panics the system during reboot. This may or
-may not be related to the kernel raid code (the system in question runs a small
-native ext2 partition for kernels/lilo and all other partitions are ext2/raid1
-(autodetect).
+Ah, time.  Please see below for an alternative way of looking at time.
 
-What happens during reboot is that after the 'flushing signals' message from
-the raid code there was a 20 to 30 second delay, then the new aic7xxx code
-complained about 'ABORT' and then caused a kernel panic. This scenario was
-reproducable.
+> This would also have the
+> benefit of scanning the inactive lists even when there's little activity
+> so that list information (page accessed _yesterday_?) won't get stale.
 
-Unfortunately I didn't have the time to write down the exact details as I had
-to get the system working and did revert to the old aix7xxx code which works
-flawlessly.
+It would probably improve the average performance somewhat.  I'm looking at a 
+more direct approach: if we have a shortage at order(m) then, then for each 
+(free) member of order(m-1) look in mem_map for its buddy, and if it doesn't 
+look too active, try to free it, thus moving the allocation unit up one 
+order.  Could you examine this idea please and check for obvious holes?
 
+> I think it's ~fine to reclaim for up to say order 2, but beyond that, it
+> doesn't have any up side that I can see.. only down.
 
-Andreas Steinmetz
-D.O.M. Datenverarbeitung GmbH
+Yep.
+
+> btw, I wonder why we don't do memory_pressure [+-]= 1 << order.
+
+We should, at least the "memory_pressure += 1 << order" flavor.  Patch?
+
+IMO the concept of memory pressure is bogus.  Instead we should calculate the 
+number of pages to scan directly from the number of pages consumed by 
+alloc_pages and the probability that deactivated pages will be rescued.  The 
+latter statistic we can measure.  We can control it, too, by controlling the 
+length of the inactive queue.  The shorter the inactive queue, the lower the 
+probability a deactivated page will be rescued.
+
+The idea of clocking recalculate_vm_stats by real time is also bogus.  MM 
+activity does not have a linear relationship to real time under most loads 
+(exceptions: those loads clocked by a realtime constraint, such as network 
+bandwidth on a saturated network).  We should be clocking the mm using a time 
+quantum of "one page alloced".  A scan of the literature shows considerable 
+support for this view, and it's also intuitive, don't you think?
+
+What this means in practice is, sure we can have kswapd wake once a second or 
+once per 100 ms, but the amount of scanning it does needs to be based on the 
+number of pages actually alloced in that interval.  (Intuitively, this 
+corresponds to the number of free pages needed to replace those alloced.)  
+>From the mm's perspective, kswapd's constant realtime interval is a variable 
+delta-t in terms of mm time, meaning that we need to scale all proportional 
+mm activity by the measured delta.  Hmm, clear as mud?  This is a standard 
+idea from control theory.
+
+BTW, what the heck is this supposed to do (page_alloc.c):
+
+144         if (memory_pressure > NR_CPUS)
+145                 memory_pressure--;
+
+--
+Daniel

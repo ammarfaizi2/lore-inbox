@@ -1,46 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267414AbUIJONT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267416AbUIJOQN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267414AbUIJONT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 10:13:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267416AbUIJONT
+	id S267416AbUIJOQN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 10:16:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267417AbUIJOQM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 10:13:19 -0400
-Received: from mail.kroah.org ([69.55.234.183]:26061 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S267414AbUIJONS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 10:13:18 -0400
-Date: Fri, 10 Sep 2004 07:01:53 -0700
-From: Greg KH <greg@kroah.com>
-To: Borislav Petkov <petkov@uni-muenster.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] Re: 2.6.9-rc1-mm4, visor.c, Badness in usb_unlink_urb
-Message-ID: <20040910140152.GA15589@kroah.com>
-References: <20040910082601.GA32746@gamma.logic.tuwien.ac.at> <200409101148.37587.petkov@uni-muenster.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200409101148.37587.petkov@uni-muenster.de>
-User-Agent: Mutt/1.5.6i
+	Fri, 10 Sep 2004 10:16:12 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:36304 "EHLO
+	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S267416AbUIJOP6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 10:15:58 -0400
+Date: Fri, 10 Sep 2004 15:15:45 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: having problems with remap_page_range() and virt_to_phys()
+In-Reply-To: <4140EEDA.2040909@nortelnetworks.com>
+Message-ID: <Pine.LNX.4.44.0409101501530.16728-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 10, 2004 at 11:48:37AM +0200, Borislav Petkov wrote:
-> remove the deprecated call to usb_unlink_urb.
+On Thu, 9 Sep 2004, Chris Friesen wrote:
+
+> I'm trying to allocate a page of in-kernel memory and make it accessable to 
+> userspace and to late asm code where we don't have virtual memory enabled.
 > 
-> Signed-off-by: Borislav Petkov <petkov@uni-muenster.de>
+> I'm running code essentially equivalent to the following, where "map_addr" is a 
+> virtual address passed in by userspace, and "vma" is the appropriate one for 
+> that address:
 > 
-> --- linux-2.6.9-rc1-mm/drivers/usb/serial/visor.c.orig 2004-09-10 
-> 11:35:11.000000000 +0200
+> struct page *pg = alloc_page(GFP_KERNEL);
 
-Ick, your patch was line wrapped, and all of the tabs stripped out of it
-:(
+You will need to SetPageReserved(pg) for remap_page_range to map it.
+And no, remembering your earlier pleas, the MM system doesn't clean
+up for you, you'll need to ClearPageReserved and free the page when
+it's all done with (if ever).
 
-Anyway, I converted all of the files in drivers/usb/serial/* that needed
-it to usb_kill_urb() yesterday, and checked them into my bk-usb tree and
-will show up in the next -mm release.
+> void *virt = page_address(pg);
+> unsigned long phys = virt_to_phys(virt)
+> remap_page_range(vma, map_addr, phys, PAGE_SIZE, vma->vm_page_prot)
+> 
+> The problem that I'm having is that after the call to remap_page_range, the 
+> result of
+> 
+> virt_to_phys(map_addr)
 
-But if you want to tackle the other drivers in the tree, please do so :)
+virt_to_phys applies to the kernel virtual address (what you name "virt"
+above), it won't work on a user virtual address, that's something else.
 
-thanks,
+> is not equal to "phys", and I assume it should be since its supposed to be 
+> pointing to the same physical page as "virt".
+> 
+> Anyone have any ideas?  I can't post the exact code right now since the machine 
+> is at work and hung (Oops.) but I could post it tomorrow if that is necessary.
+> 
+> I'm using 2.6.5 for ppc, if it makes any difference.
 
-greg k-h
+I'm not a user of remap_page_range (just someone who one day wants
+to get rid of PageReserved and incidentally lift that SetPageReserved
+restriction), not the best person to advise you.  But there are plenty
+of examples of using remap_page_range in the kernel source tree, maybe
+not all of them quite correct, but I'd have thought you could work out
+what you need from those examples.
+
+Hugh
+

@@ -1,32 +1,25 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312282AbSCTXPv>; Wed, 20 Mar 2002 18:15:51 -0500
+	id <S312271AbSCTXQv>; Wed, 20 Mar 2002 18:16:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312271AbSCTXPl>; Wed, 20 Mar 2002 18:15:41 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:10513 "EHLO
+	id <S312275AbSCTXQo>; Wed, 20 Mar 2002 18:16:44 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:12049 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S312282AbSCTXPZ>; Wed, 20 Mar 2002 18:15:25 -0500
-Subject: Re: Bad Illegal instruction traps on dual-Xeon (p4) Linux Dell box
-To: tepperly@llnl.gov (Tom Epperly)
-Date: Wed, 20 Mar 2002 23:31:04 +0000 (GMT)
+	id <S312271AbSCTXQb>; Wed, 20 Mar 2002 18:16:31 -0500
+Subject: Re: 2.4.19-pre3-ac4 compile failure on Alpha
+To: schmali@ritman.com (Robert Schmaling)
+Date: Wed, 20 Mar 2002 23:32:39 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020320213530.87CFE308D@driftcreek.llnl.gov> from "Tom Epperly" at Mar 20, 2002 01:35:30 PM
+In-Reply-To: <001501c1d053$0925cde0$0201a8c0@idlewild.net> from "Robert Schmaling" at Mar 20, 2002 04:05:54 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16npXs-0003el-00@the-village.bc.nu>
+Message-Id: <E16npZP-0003f2-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I initiated a support call with Dell at around 3:30pm PST on Friday
-> 15-Mar-2002, and all the feedback I've received from this so far shows
-> that they are clueless. They are trying to portray this as a Linux
-> problem.
+> Compilation fails with the following :
 
-Well to be honest they aren't the only ones who are totally baffled by it.
-Do you have the current microcode updates in your BIOS or via the ucode
-driver ?
-
-Do all the problem boxes have the same stepping of CPU ?
+Yep -ac alpha has not been updated for the O(1) scheduler

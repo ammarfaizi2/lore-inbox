@@ -1,43 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264973AbUIAJBo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265773AbUIAJPv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264973AbUIAJBo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 05:01:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265489AbUIAJBo
+	id S265773AbUIAJPv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 05:15:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265795AbUIAJPv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 05:01:44 -0400
-Received: from [203.178.140.15] ([203.178.140.15]:56335 "EHLO
-	yue.st-paulia.net") by vger.kernel.org with ESMTP id S264973AbUIAJBn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 05:01:43 -0400
-Date: Wed, 01 Sep 2004 18:02:36 +0900 (JST)
-Message-Id: <20040901.180236.102852119.yoshfuji@linux-ipv6.org>
-To: thomasz@hostmaster.org
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: 2.6.9-rc1 oops
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <1094028647.16908.42.camel@hostmaster.org>
-References: <1093945177.16908.14.camel@hostmaster.org>
-	<1094028647.16908.42.camel@hostmaster.org>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+	Wed, 1 Sep 2004 05:15:51 -0400
+Received: from rproxy.gmail.com ([64.233.170.201]:61668 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S265773AbUIAJPt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 05:15:49 -0400
+Message-ID: <7f800d9f04090102152e4a2fe2@mail.gmail.com>
+Date: Wed, 1 Sep 2004 02:15:46 -0700
+From: Andre Eisenbach <int2str@gmail.com>
+Reply-To: Andre Eisenbach <int2str@gmail.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: 2.6.9-rc1-mm2
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20040901072525.GX5492@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <20040830235426.441f5b51.akpm@osdl.org> <7f800d9f040901001551f92762@mail.gmail.com> <20040901072525.GX5492@holomorphy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <1094028647.16908.42.camel@hostmaster.org> (at Wed, 01 Sep 2004 10:50:47 +0200), Thomas Zehetbauer <thomasz@hostmaster.org> says:
+On Wed, 1 Sep 2004 00:25:25 -0700, William Lee Irwin III
+<wli@holomorphy.com> wrote:
+> Please apply the following fixes:
+> 
+> Index: mm2-2.6.9-rc1/include/linux/wait.h
+> Index: mm2-2.6.9-rc1/kernel/wait.c
 
-> I have now created a bug report for this issue:
-> http://bugzilla.kernel.org/show_bug.cgi?id=3323
+Applying those patches worked.
 
-(Plase use netdev...)
-I think this is already fixed in current bk tree.
-
---yoshfuji
+Thanks,
+   Andre

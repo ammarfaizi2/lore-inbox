@@ -1,89 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312092AbSCQSR6>; Sun, 17 Mar 2002 13:17:58 -0500
+	id <S312088AbSCQSS6>; Sun, 17 Mar 2002 13:18:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312091AbSCQSRt>; Sun, 17 Mar 2002 13:17:49 -0500
-Received: from ip68-7-112-74.sd.sd.cox.net ([68.7.112.74]:4875 "EHLO
-	clpanic.kennet.coplanar.net") by vger.kernel.org with ESMTP
-	id <S312092AbSCQSRj>; Sun, 17 Mar 2002 13:17:39 -0500
-Message-ID: <003c01c1cddf$f9fdb780$7e0aa8c0@bridge>
-From: "Jeremy Jackson" <jerj@coplanar.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: New commandline parsing framework
-Date: Sun, 17 Mar 2002 10:17:16 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+	id <S312087AbSCQSSu>; Sun, 17 Mar 2002 13:18:50 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:64784 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S312091AbSCQSSi>; Sun, 17 Mar 2002 13:18:38 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
+Date: Sun, 17 Mar 2002 18:16:47 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <a72mif$941$1@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0203161203050.31971-100000@penguin.transmeta.com> <Pine.LNX.4.44L.0203171021090.2181-100000@imladris.surriel.com>
+X-Trace: palladium.transmeta.com 1016389104 18802 127.0.0.1 (17 Mar 2002 18:18:24 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 17 Mar 2002 18:18:24 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi linux-kernel,
+In article <Pine.LNX.4.44L.0203171021090.2181-100000@imladris.surriel.com>,
+Rik van Riel  <riel@conectiva.com.br> wrote:
+>
+>In other words, large pages should be a "special hack" for
+>special applications, like Oracle and maybe some scientific
+>calculations ?
 
-In looking through the IDE hotswap support (2.5.6), it occurred to me that
-having a static array big enough to hold all possibly interfaces, is,
-um, inelegant, when you start adding and removing devices.  This is common
-with many things.
+Yes, I think so.
 
-Looking furthur, I see that this is because the structures must
-exist when the command line is parsed, and that's done ahead
-of the IDE module's init, before kmalloc is available.
+That said, a 64kB page would be useful for generic use. 
 
-__setup("",ide_setup); is called by __parse_options() in main.c by
-start_kernel()
+>Grabbing some bitflags in generic datastructures shouldn't
+>be an issue since free bits are available.
 
-Of course the mm subsys needs access to cmdline args.  But *most* other
-sys don't.  So they shouldn't *have* to be able to parse here.  Forcing them
-to means they must use fixed sized arrays in bss segment, not kmalloc et al.
+I had large-page-support working in the VM a long time ago, back when I
+did the original VM portability rewrite.  I actually exposed the kernel
+large pages to the VM, and it worked fine - I didn't even need a new
+bit, since the code just used the "large page" bit in the page table
+directly. 
 
-I have almost completed a patch which moves the IDE module's cmdline
-parsing into the module's init routine, allowing the hwif structure to
-become an linked list of hwif_t structures, kmalloced or slab
-construced/freed as needed.  It simply copies the options it's given into an
-__initdata
-buffer, delaying parsing them until ide.c:init_ata().  Of course it could
-just
-use the saved_command_line[], as could everyone.
+But it wasn't ever exposed to user space, and in the end I just made the
+kenel mapping just not visible to the VM and simplified the x86
+pmd_xxx() macros.  The approach definitely worked, though. 
 
-Question: are there any problems with using this approach in general?
-
-* extra pointer derefrence (linked list vs static array indexing)
-performance issue?
-
-Perks:
-
-* slab cache constructor could fill in what's currently initialized data
-* backwards compatibility is easy to provide
-* may be incrementally/optionally adopted in drivers in kernel tree and
-outside
-* old interface may be removed easily at some time in future
-* drivers can unify boot cmdline and module load options parsing,
-   reducing complexity and code size
-* eases removal of legacy support (ie don't probe, just use PCI config
-  data and allocate one hwif for each one found)
-* each subsys is more self-contained. cleaner code.
-
-I propose to create a patch which makes main.c:checksetup() more of a
-library function, with __setup being used only by subsystems that
-require
-command line parsing at the current early point.  Others can call
-checksetup(saved_command_line, __setup-like-list-of-my-argnames);
-in their main init routine.  the /sbin/init env/arg construction could
-be
-delayed until the init thread is started.
-
-things like serial driver (when serial console support is selected)
-could simply start their linked list with one statically allocated,
-and add others in later, so they can still be initialized early on.
-
-I think I've figured out the side effects but I'm looking for some more
-experienced advice.
-
-Thanks,
-
-Jeremy
-
+			Linus

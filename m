@@ -1,66 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262148AbTEUPC5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 11:02:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262150AbTEUPC5
+	id S262163AbTEUPFN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 11:05:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262164AbTEUPFN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 11:02:57 -0400
-Received: from h2.prohosting.com.ua ([217.106.231.81]:35305 "EHLO
-	h2.prohosting.com.ua") by vger.kernel.org with ESMTP
-	id S262148AbTEUPC4 convert rfc822-to-8bit (ORCPT
+	Wed, 21 May 2003 11:05:13 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:44944 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S262163AbTEUPFM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 11:02:56 -0400
-From: Artemio <artemio@artemio.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: HELP: kernel won't boot from /dev/sdb1
-Date: Wed, 21 May 2003 18:11:22 +0300
-User-Agent: KMail/1.5
+	Wed, 21 May 2003 11:05:12 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200305211811.22994.artemio@artemio.net>
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - h2.prohosting.com.ua
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [0 0]
-X-AntiAbuse: Sender Address Domain - artemio.net
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16075.39093.200508.885460@napali.hpl.hp.com>
+Date: Wed, 21 May 2003 08:18:13 -0700
+To: arjanv@redhat.com
+Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org
+Subject: Re: web page on O(1) scheduler
+In-Reply-To: <1053507692.1301.1.camel@laptop.fenrus.com>
+References: <16075.8557.309002.866895@napali.hpl.hp.com>
+	<1053507692.1301.1.camel@laptop.fenrus.com>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all!
+>>>>> On 21 May 2003 11:01:33 +0200, Arjan van de Ven <arjanv@redhat.com> said:
 
-I've just installed RH 7.3 on a machine with all-SCSI discs. I had to load 
-"linux dd" with Adaptec AIC 79xx driver floppy installed, but that's ok. 
-The / is mounted from /dev/sdb1. 
+  Arjan> On Wed, 2003-05-21 at 08:49, David Mosberger wrote:
+  >>  I think the web pages should be most relevant to the HPTC (high
+  >> performance technical computing) community, since this is the
+  >> community that is most likely affected by some of the performance
+  >> oddities of the O(1) scheduler.  Certainly anyone using OpenMP on
+  >> Intel platforms (x86 and ia64) may want to take a look.
 
-So, I got a clean 2.4.20 kernel, added AIC 79xx driver sources to the kernel 
-source tree, configured and compiled and installed it (of course, I didn't 
-forget about the modules).
+  Arjan> oh you mean the OpenMP broken behavior of calling
+  Arjan> sched_yield() in a tight loop to implement spinlocks ?
 
-In lilo, I said "root=/dev/sdb1" just as for the original 2.4.18-3 RedHat 
-kernel which boots ok.
+Please have the courtesy of reading the web page before jumping to
+conclusions.
 
-When I boot the new kernel, I get:
-VFS: Cannot open root device at "811" or "08:11"
-
->From SCSI-howto I got that 08:11 stands for /dev/sda11. Why would /dev/sdb1 be 
-converted to 08:11 instead of 08:17 (again, corresponding to SCSI-howto)?
-
-Would I be able to boot the kernel if I say "root=817"?
-
-I will try tommorow when I get to that machine, but mabe you have some 
-suggestions...
-
-
-
-Thank you very much for reading all this.
-
-Good luck!
-
-
-
-
-Artemio.
-
+	--david

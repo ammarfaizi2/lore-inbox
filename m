@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284701AbRLDAVI>; Mon, 3 Dec 2001 19:21:08 -0500
+	id <S282112AbRLDAf3>; Mon, 3 Dec 2001 19:35:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284669AbRLDAO6>; Mon, 3 Dec 2001 19:14:58 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:55283 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S285173AbRLCVQE>; Mon, 3 Dec 2001 16:16:04 -0500
-Message-ID: <3C0BEB90.16DC3749@mvista.com>
-Date: Mon, 03 Dec 2001 13:16:00 -0800
-From: Jeremy Siegel <jsiegel@mvista.com>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linuxsh-dev@lists.sourceforge.net
-CC: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-Subject: Re: [linuxsh-dev] [PATCH] Preemptible kernel for SH
-In-Reply-To: <1007261428.820.4.camel@phantasy>
+	id <S280790AbRLDAcl>; Mon, 3 Dec 2001 19:32:41 -0500
+Received: from t2.redhat.com ([199.183.24.243]:62452 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S281831AbRLDAcQ>; Mon, 3 Dec 2001 19:32:16 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20011202230331.E30DA332@localhost.localdomain> 
+In-Reply-To: <20011202230331.E30DA332@localhost.localdomain> 
+To: WRohdewald@dplanet.ch
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Flash ASUS Bios without Floppy? 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Tue, 04 Dec 2001 00:32:13 +0000
+Message-ID: <4608.1007425933@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just FYI... the preemptible kernel depends on non-preemptible critical regions
-denoted by spinlock calls (see Robert Love's excellent summary in
-Documentation/preempt-locking.txt).  Many common drivers are assumed to have
-correct locking for SMP operation, but non-SMP drivers may not. I've only run
-the PreK SH kernel on the Solution Engine w/Ethernet and serial, but I did not
-yet check to see if additional locks might be required in drivers/char/sh-sci.c
-or drivers/net/stnic.c, which are specific to SH platforms and thus not SMP-safe
-otherwise.
 
---Jeremy
 
-Robert Love wrote:
+WRohdewald@dplanet.ch said:
+>  how can I update my Bios (Asus A7V266) if I don't have a floppy drive
+> for using the Asus DOS utility?
 
-> The attached is the fully preemptible linux kernel patch, for the SH
-> arch.  This work is thanks to Jeremy Siegel of MontaVista.
->
-> You will need an SH-patched kernel tree, available from
-> http://sf.net/projects/linuxsh -- the CVS module "linux" has a drop-in
-> replacement for 2.4.16.
->
-> You will need the base preempt-kernel patch, available from
-> ftp://ftp.kernel.org/pub/linux/kernel/people/rml/preempt-kernel
->
-> Feedback is desired.
->
->         Robert Love
+> Is there any Linux utililty that can do this? 
+
+There are flash chip 'map' drivers which know how to enable WE lines, Vpp 
+etc for various northbridges. Only the L440GX one is in the kernel so far. 
+For the rest, ask on the LinuxBIOS list <linuxbios@lanl.gov>.
+
+Unless you fancy desoldering your flash chips to replace them when, this is
+firmly in the "don't try this at home, kids" category, though :)
+
+--
+dwmw2
+
 

@@ -1,118 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262542AbVCCS00@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262174AbVCCS1J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262542AbVCCS00 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 13:26:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262539AbVCCSZl
+	id S262174AbVCCS1J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 13:27:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262535AbVCCS0s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 13:25:41 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26774 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261241AbVCCSXy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 13:23:54 -0500
-Message-ID: <4227562C.70503@pobox.com>
-Date: Thu, 03 Mar 2005 13:23:40 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Thu, 3 Mar 2005 13:26:48 -0500
+Received: from fire.osdl.org ([65.172.181.4]:54998 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261241AbVCCSZt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 13:25:49 -0500
+Date: Thu, 3 Mar 2005 10:27:12 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Greg KH <greg@kroah.com>, "David S. Miller" <davem@davemloft.net>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RFD: Kernel release numbering
+In-Reply-To: <422751C1.7030607@pobox.com>
+Message-ID: <Pine.LNX.4.58.0503031022100.25732@ppc970.osdl.org>
+References: <42265A6F.8030609@pobox.com> <20050302165830.0a74b85c.davem@davemloft.net>
+ <422674A4.9080209@pobox.com> <Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org>
+ <42268749.4010504@pobox.com> <20050302200214.3e4f0015.davem@davemloft.net>
+ <42268F93.6060504@pobox.com> <4226969E.5020101@pobox.com>
+ <20050302205826.523b9144.davem@davemloft.net> <4226C235.1070609@pobox.com>
+ <20050303080459.GA29235@kroah.com> <4226CA7E.4090905@pobox.com>
+ <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org> <422751C1.7030607@pobox.com>
 MIME-Version: 1.0
-To: Martin Waitz <tali@admingilde.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: script to send changesets per mail
-References: <20050303105950.GH8617@admingilde.org>
-In-Reply-To: <20050303105950.GH8617@admingilde.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Waitz wrote:
-> hoi :)
-> 
-> I just tested my little script that can send changesets per mail.
-> okok, it still had a bug when I first tested it but that should be
-> fixed now.
-> 
-> If anyone is interested (perhaps for Documentation/BK-usage), here it
-> is:
-
-Putting this in Documentation/BK-usage would be fine.
 
 
-> #!/usr/bin/perl -w
+On Thu, 3 Mar 2005, Jeff Garzik wrote:
 > 
-> # after sending an announcement (created by Documentation/BK-usage/bk-make-sum)
-> # just pipe your mail through this script.
-> # It will create one new mail per Changeset, properly threaded.
-> 
-> # Copyright © 2005 Martin Waitz <tali@admingilde.org>
-> 
-> use strict;
-> 
-> my $from;
-> my $to;
-> my $cc;
-> my $references;
-> 
-> # all local repositories are in ~/src/.
-> # you have to adjust this function if you keep them elsewhere.
-> sub local_repository($) {
-> 	my $repo;
-> 	
-> 	$repo= shift;
-> 
-> 	$repo =~ s,.*/,"$ENV{HOME}/src/",e;
-> 	return $repo;
-> }
-> 
-> # this checks if we are allowed to send mails with this sender
-> # please modify the regexp to check for your adress!
-> sub check_from($) {
-> 	my $from = shift;
-> 
-> 	exit 1 unless $from =~ /insert-your-email-here/; #FIXME
-> }
+> The only problem I see with this -- and its a minor problem -- is that 
+> some patches that belong in the 2.6.X.Y tree go straight to you/Andrew, 
+> rather than to $sucker.
 
-Move 'insert email here' into a default variable, a variable that can be 
-overridden by an environment variable.
+Yes. I think people will have to be taught, and get used to the new world
+order, and that could take a long time. And don't get me wrong, I include
+myself in those people, ie it's not just that everybody else needs to
+learn to Cc: the new group (I assume it's best to have a mailing alias, to
+allow the thing to have multiple people involved even before it gets to
+the vetting stage, and then have a _separate_ mail alias for the "vettign
+group" people).
 
+Think of how the -mm tree has evolved - with me and Andrew learning how 
+the other side acts and works. This would be the same thing, except 
+hopefully on a smaller scale (ie the _volume_ of patches had better be an 
+order of magnited smaller not just in size but in number too). It wasn't 
+just "let's set up Andrew". It was a learning experience.
 
-> # send one changeset.
-> # Parameters: the cset number, description prefix and the actual description.
-> sub send_cset($$$$) {
-> 	my ($cset, $serial, $desc, $longdesc) = @_;
-> 
-> 	open (MAIL, "| /usr/sbin/sendmail -t") or die "fork sendmail: $!";
-> 	print MAIL "From: $from\n";
-> 	print MAIL "To: $to\n";
-> 	print MAIL "Cc: $cc\n" if $cc;
-> 	print MAIL "References: $references\n" if $references;
-> 	print MAIL "Subject: [PATCH $serial] $desc\n";
-> 	print MAIL "\n";
-> 	print MAIL "$desc\n";
-> 	print MAIL "$longdesc\n";
-> 	print MAIL "\n";
-> 	print MAIL `bk export -tpatch -du -r $cset`;
-> 	close (MAIL) or die "could not send mail: error code $?";
+And yes, we'll probably get duplicated changes, _especially_ early on. But 
+at least nobody seems to hate this idea, so I think we should drop the 
+original even/odd suggestion for now, and see if this would make more 
+sense..
 
-I would suggest '-hdu' to avoid the patch header, but some may disagree.
-
-
-> # Parse header
-> while (<>) {
-> 	chomp;
-> 	last if /^$/;
-> 
-> 	if (/^From:\s+(.+)$/i) {
-> 		$from = $1;
-> 	} elsif (/^To:\s+(.+)$/i) {
-> 		$to = $1;
-> 	} elsif (/^Cc:\s+(.+)$/i) {
-> 		$cc = $1;
-> 	} elsif (/^Message-Id:\s+(.+)$/i) {
-> 		$references = $1;
-> 	}
-
-note that this misses multi-line headers.  multi-line headers are those 
-where the second, and succeeding lines begin with whitespace.
-
-
+		Linus

@@ -1,40 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292858AbSCIRwl>; Sat, 9 Mar 2002 12:52:41 -0500
+	id <S292851AbSCISiM>; Sat, 9 Mar 2002 13:38:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292859AbSCIRwb>; Sat, 9 Mar 2002 12:52:31 -0500
-Received: from mail3.aracnet.com ([216.99.193.38]:710 "EHLO mail3.aracnet.com")
-	by vger.kernel.org with ESMTP id <S292858AbSCIRw1>;
-	Sat, 9 Mar 2002 12:52:27 -0500
-Date: Sat, 09 Mar 2002 09:53:24 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: andersen@codepoet.org
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 23 second kernel compile (aka which patches help scalibility on NUMA)
-Message-ID: <126403558.1015667602@[10.10.2.3]>
-In-Reply-To: <20020309164305.GA2914@codepoet.org>
-In-Reply-To: <20020309164305.GA2914@codepoet.org>
-X-Mailer: Mulberry/2.1.2 (Win32)
+	id <S292856AbSCISiC>; Sat, 9 Mar 2002 13:38:02 -0500
+Received: from port5.ds1-sby.adsl.cybercity.dk ([212.242.169.198]:19041 "EHLO
+	trider-g7.fabbione.net") by vger.kernel.org with ESMTP
+	id <S292851AbSCISh5>; Sat, 9 Mar 2002 13:37:57 -0500
+Message-ID: <3C8A5681.2050000@fabbione.net>
+Date: Sat, 09 Mar 2002 19:37:53 +0100
+From: Fabio Massimo Di Nitto <fabbione@fabbione.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020307
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Re: 23 second kernel compile (aka which patches help scalibility on NUMA)
+In-Reply-To: <20020309164305.GA2914@codepoet.org> <126403558.1015667602@[10.10.2.3]>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Saturday, March 09, 2002 9:43 AM -0700 Erik Andersen <andersen@codepoet.org> wrote:
-> On Fri Mar 08, 2002 at 09:47:04PM -0800, Martin J. Bligh wrote:
->> "time make -j32 bzImage" is now down to 23 seconds.
->> (16 way NUMA-Q, 700MHz P3's, 4Gb RAM).
-> [-----------snip---------]
->> Any other suggestions are welcome. I'd also be interested
-> 
-> I suggest that you should give me your computer.  ;-) 
+On Fri Mar 08, 2002 at 09:47:04PM -0800, Martin J. Bligh wrote:
 
-There's a very similar machine that's publicly available
-in the OSDL (http://www.osdlab.org). I don't think they'll
-let you take it home, but access is half way there ;-)
+ >"time make -j32 bzImage" is now down to 23 seconds.
+ >(16 way NUMA-Q, 700MHz P3's, 4Gb RAM).
 
-M.
+hmmm strange... last time I compile a kernel on my m68k after 23 seconds 
+was still
+trying to perform an CR after I pressed enter :))) are you sure you are 
+not running too fast??? ;)
 

@@ -1,33 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288188AbSACEDV>; Wed, 2 Jan 2002 23:03:21 -0500
+	id <S288191AbSACENm>; Wed, 2 Jan 2002 23:13:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288186AbSACEDL>; Wed, 2 Jan 2002 23:03:11 -0500
-Received: from ns.suse.de ([213.95.15.193]:8452 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S288189AbSACEDI>;
-	Wed, 2 Jan 2002 23:03:08 -0500
-Date: Thu, 3 Jan 2002 05:03:07 +0100 (CET)
+	id <S288192AbSACENd>; Wed, 2 Jan 2002 23:13:33 -0500
+Received: from ns.suse.de ([213.95.15.193]:47108 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S288191AbSACENR>;
+	Wed, 2 Jan 2002 23:13:17 -0500
+Date: Thu, 3 Jan 2002 05:13:15 +0100 (CET)
 From: Dave Jones <davej@suse.de>
-To: Cameron Simpson <cs@zip.com.au>
-Cc: Lionel Bouton <Lionel.Bouton@free.fr>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: ISA slot detection on PCI systems?
-In-Reply-To: <20020103144904.A644@zapff.research.canon.com.au>
-Message-ID: <Pine.LNX.4.33.0201030500150.6449-100000@Appserv.suse.de>
+To: "M. Edward Borasky" <znmeb@aracnet.com>
+Cc: Art Hays <art@lsr.nei.nih.gov>, <linux-kernel@vger.kernel.org>
+Subject: RE: kswapd etc hogging machine
+In-Reply-To: <HBEHIIBBKKNOBLMPKCBBAECPEFAA.znmeb@aracnet.com>
+Message-ID: <Pine.LNX.4.33.0201030510160.6449-100000@Appserv.suse.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Jan 2002, Cameron Simpson wrote:
+On Wed, 2 Jan 2002, M. Edward Borasky wrote:
 
-> Further, binaries which grovel in /dev/kmem tend to have to be kept in sync
-> with the kernel; in-kernel code is fundamentally in sync.
+> There were a whole bunch of tuning parameters in the VM in 2.2 that got
+> dropped in 2.4; maybe re-instating some of them and returning them to their
+> rightful owner, the system administrator, would solve this problem once and
+> for all. But for some reason, those who control Linux have decided that this
+> is "a bug in the VM" and pursued fixes in code and the associated logic
+> rather than give us sysadmins what I believe is rightfully ours.
 
-dmidecode hasn't been updated since it was written, and still works fine.
-I could also name several other such tools that have never needed a
-change due to kernel upgrade, so this argument is bogus.
+Extra magic number twiddling is available in Andrea's -aa tree.
 
 -- 
 | Dave Jones.        http://www.codemonkey.org.uk

@@ -1,89 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261629AbVC0Xz0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261632AbVC1AZb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261629AbVC0Xz0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 18:55:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261632AbVC0Xz0
+	id S261632AbVC1AZb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 19:25:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261637AbVC1AZb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 18:55:26 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:1411 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261629AbVC0XzQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 18:55:16 -0500
-Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Greg KH <greg@kroah.com>, Lee Revell <rlrevell@joe-job.com>,
-       Mark Fortescue <mark@mtfhpc.demon.co.uk>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050327220139.GI4285@stusta.de>
-References: <Pine.LNX.4.10.10503261710320.13484-100000@mtfhpc.demon.co.uk>
-	 <20050326182828.GA8540@kroah.com> <1111869274.32641.0.camel@mindpipe>
-	 <20050327004801.GA610@kroah.com> <1111885480.1312.9.camel@mindpipe>
-	 <20050327032059.GA31389@kroah.com> <1111894220.1312.29.camel@mindpipe>
-	 <20050327181056.GA14502@kroah.com>
-	 <1111948631.27594.14.camel@localhost.localdomain>
-	 <20050327220139.GI4285@stusta.de>
+	Sun, 27 Mar 2005 19:25:31 -0500
+Received: from gate.crashing.org ([63.228.1.57]:8137 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261632AbVC1AZS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Mar 2005 19:25:18 -0500
+Subject: [PATCH] radeonfb: Fix mode setting on CRT monitors
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Sun, 27 Mar 2005 18:54:52 -0500
-Message-Id: <1111967692.27381.8.camel@localhost.localdomain>
+Date: Mon, 28 Mar 2005 10:24:56 +1000
+Message-Id: <1111969496.5409.40.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-03-28 at 00:01 +0200, Adrian Bunk wrote:
-> On Sun, Mar 27, 2005 at 01:37:11PM -0500, Steven Rostedt wrote:
-> >...
-> > Wasn't this long ago proven in court that the license of headers can't
-> > control the code that calls them.  IIRC, it was with X Motif and making
-> > free libraries for that. So, actually it was for a free solution for a
-> > non free one (the other way around).  I believe the case sided on the
-> > free use. But then again the free code may have had to write their own
-> > headers and only the API was free. So if you want to compile against the
-> > kernel, you may need to work on rewriting the headers from scratch. Ah,
-> > but what do I know?
-> >...
-> 
-> How do you define "proven in court"?
-> 
-> Decided by an US judge based on US laws?
-> Decided by a German judge based on German laws?
-> Decided by a Chinese judge based on Chinese laws?
-> ...
-> 
+Hi !
 
-OK, I was talking about US courts since that case was done in the US.
-But this is all what I remember about reading some 10 years ago. So I
-could be all wrong about what happened. I don't have any references and
-I'm too busy now to look them up. So I may be just speaking out of my
-ass. :-)
+Current radeonfb is a bit "anal" about accepting CRT modes, it basically only
+accepts modes that have the exact resolution, which tends to break with fbcon
+on console switches as it provides "approximate" modes. This patch fixes it
+by having the driver chose the closest possible mode instead of looking for
+an exact match.
 
-> If you distribute software you can be sued in every country you 
-> distribute it.
-> 
-> E.g. Harald Welte is currently quite successful with legal actions in 
-> Germany against companies that distribute Linux-based routers in Germany 
-> without offering the source of the GPL'ed software they use.
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-Your talking about something completely different.  Yes, it is quite
-explicit if you modify the source, and distribute it in binary only
-form.  I'm talking about writing a separate module that links with the
-GPL code dynamically.  So that the code is compiled different from the
-GPL code. So the only common part is the API. Now is this a derived
-work? 
+--- linux-work.orig/drivers/video/aty/radeon_monitor.c	2005-03-11 16:54:25.000000000 +1100
++++ linux-work/drivers/video/aty/radeon_monitor.c	2005-03-11 16:58:04.000000000 +1100
+@@ -903,7 +903,7 @@
+  */
+ 
+ /*
+- * This is used when looking for modes. We assign a "goodness" value
++ * This is used when looking for modes. We assign a "distance" value
+  * to a mode in the modedb depending how "close" it is from what we
+  * are looking for.
+  * Currently, we don't compare that much, we could do better but
+@@ -912,13 +912,11 @@
+ static int radeon_compare_modes(const struct fb_var_screeninfo *var,
+ 				const struct fb_videomode *mode)
+ {
+-	int goodness = 0;
++	int distance = 0;
+ 
+-	if (var->yres == mode->yres)
+-		goodness += 10;
+-	if (var->xres == mode->xres)
+-		goodness += 9;
+-	return goodness;
++	distance = mode->yres - var->yres;
++	distance += (mode->xres - var->xres)/2;
++	return distance;
+ }
+ 
+ /*
+@@ -940,7 +938,7 @@
+ 	const struct fb_videomode	*db = vesa_modes;
+ 	int				i, dbsize = 34;
+ 	int				has_rmx, native_db = 0;
+-	int				goodness = 0;
++	int				distance = INT_MAX;
+ 	const struct fb_videomode	*candidate = NULL;
+ 
+ 	/* Start with a copy of the requested mode */
+@@ -976,19 +974,19 @@
+ 	/* Now look for a mode in the database */
+ 	while (db) {
+ 		for (i = 0; i < dbsize; i++) {
+-			int g;
++			int d;
+ 
+ 			if (db[i].yres < src->yres)
+ 				continue;	
+ 			if (db[i].xres < src->xres)
+ 				continue;
+-			g = radeon_compare_modes(src, &db[i]);
++			d = radeon_compare_modes(src, &db[i]);
+ 			/* If the new mode is at least as good as the previous one,
+ 			 * then it's our new candidate
+ 			 */
+-			if (g >= goodness) {
++			if (d < distance) {
+ 				candidate = &db[i];
+-				goodness = g;
++				distance = d;
+ 			}
+ 		}
+ 		db = NULL;
 
-As someone mentioned already, if you write your own GPL interface that
-supplies the interface for your binary module, is it legal?  The GPL
-interface remains GPL and delivered with the source, but the binary is
-only delivered binary, and may even be on a separate CD or whatever
-medium you distribute with. Just like NVidia. They have their GPL layer
-that compiles with the kernel and it supplies an interface for their
-binary only version.  I haven't seen anyone take them to court.  Just a
-lot of complaints about incompatibilities and tainted kernels on the
-mailing list, but nothing more.
-
--- Steve
-
+-- 
+Benjamin Herrenschmidt <benh@kernel.crashing.org>
 

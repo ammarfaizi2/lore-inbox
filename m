@@ -1,50 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262446AbTI0On1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Sep 2003 10:43:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262454AbTI0On1
+	id S262454AbTI0Ovw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Sep 2003 10:51:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262456AbTI0Ovw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Sep 2003 10:43:27 -0400
-Received: from gnu.univ.gda.pl ([153.19.120.250]:908 "EHLO gnu.univ.gda.pl")
-	by vger.kernel.org with ESMTP id S262446AbTI0On0 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Sep 2003 10:43:26 -0400
-From: Piotr =?iso-8859-2?q?Szyma=F1ski?= <djurban@gnu.univ.gda.pl>
-Reply-To: djurban@gnu.univ.gda.pl
-To: linux-kernel@vger.kernel.org
-Subject: urb timeouts with eagle on 2.4.20
-Date: Sat, 27 Sep 2003 16:43:25 +0200
-User-Agent: KMail/1.5.9
+	Sat, 27 Sep 2003 10:51:52 -0400
+Received: from web40904.mail.yahoo.com ([66.218.78.201]:45467 "HELO
+	web40904.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262454AbTI0Ovu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Sep 2003 10:51:50 -0400
+Message-ID: <20030927145149.65265.qmail@web40904.mail.yahoo.com>
+Date: Sat, 27 Sep 2003 07:51:49 -0700 (PDT)
+From: Bradley Chapman <kakadu_croc@yahoo.com>
+Subject: Re: Kernel panic:Unable to mount root fs (2.6.0-test5)
+To: Jean-Marc@Spaggiari.org
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200309271643.25235.djurban@gnu.univ.gda.pl>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I have a problem with my sagem 800 modem on my USB Controller: VIA 
-Technologies, Inc. USB (rev 10), using kernel 2.4.20.
-After connecting to the net, the modem disconnects and I get an error:
-***
-Sep 27 12:51:56 niedakh NETDEV WATCHDOG: eth0: transmit timed out
-Sep 27 12:51:56 niedakh [Adi] Transmit timed out!
-Sep 27 12:51:56 niedakh [Adi] transmit URB e5cce0bc cancelled
-***
-I have to reload its firmware in order for it to work again. 
-I talked to manypeople about this. I was told to try booting with noapic or 
-acpi=off. Unfortunately the same error happened with apci=off or  noapic or 
-even both.  On eagle forums I was pointed to check my controllers altency 
-(how do you do that?) which reminded me I had a similar situation on win2k on 
-the same machine, but after installing via 4in1 update for usb it started to 
-work properly on win2k. i google for "usb via latency" and found a via usb 
-latency patch for windows, I didnt find a linux version of the latency patch 
-for via anywhere.
-Noone around knows how to fix this, so Im mailing here.
-Thanks for any replies.
--- 
-Piotr Szymañski
-djurban@gnu.univ.gda.pl; djurban.jogger.pl
-JID: djurban@jabber.org; GG 2300264; ICQ: 12622400
+Mr. Spaggari,
+
+> (as you can see, i'm a newbie of english speeking, and linux-kernel posting, so, 
+> excuse me if this is a duplicate contribution, I have search on the web and on the
+> archive and fine nothing about this error.)
+>
+>
+> Error message :
+> VFS : Cannot open root device "302" or unknown-block(3,2)
+> Please append a corect "root=" boot option
+> Kernel panic: VFS: Unable to mount root fs on unknown-block(3,2)
+>
+>
+> Kernel version : 2.6.0-test5
+>
+> System : Toshiba Satellite laptop
+>
+> More information : Linux is installe on /deh/hda2. There 2 other kernel on this
+> computer. A 2.2.20 and a 2.4.22, both of them working fine. Ia have try many 
+> differend option for compile the kernel, but never working any more. My /dev/hda2
+> is on ext3.
+>
+> I will try soon on my other systems.
+>
+> I will be hapy if I can help in any kind, so, at this time, i'm going back to
+> 2.4.22. (Need I to poste my .config here ?)
+
+Please do so. Specifically, post the part of your .config which shows how your
+filesystems are configured. It looks to me like you may have accidentally compiled
+ext3 as a module; if your / filesystem is ext3, it must be compiled into the kernel
+in order for the kernel to mount your root filesystem and run /sbin/init.
+
+> 
+> Regards,
+>
+> Jean-Marc Spaggiari (QC.CA)
+
+Brad
+
+=====
+Brad Chapman
+
+Permanent e-mail: kakadu_croc@yahoo.com
+
+__________________________________
+Do you Yahoo!?
+The New Yahoo! Shopping - with improved product search
+http://shopping.yahoo.com

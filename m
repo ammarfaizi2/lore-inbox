@@ -1,52 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287112AbSABWfG>; Wed, 2 Jan 2002 17:35:06 -0500
+	id <S287069AbSABWhE>; Wed, 2 Jan 2002 17:37:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287150AbSABWeA>; Wed, 2 Jan 2002 17:34:00 -0500
-Received: from mailrelay1.lrz-muenchen.de ([129.187.254.101]:33520 "EHLO
-	mailrelay1.lrz-muenchen.de") by vger.kernel.org with ESMTP
-	id <S287116AbSABWcv>; Wed, 2 Jan 2002 17:32:51 -0500
-Date: Wed, 2 Jan 2002 23:32:45 +0100 (MET)
-From: <Oliver.Neukum@lrz.uni-muenchen.de>
-X-X-Sender: <ui222bq@sun2.lrz-muenchen.de>
-To: Jens Axboe <axboe@suse.de>
-cc: David Brownell <david-b@pacbell.net>, <linux-kernel@vger.kernel.org>,
-        <linux-usb-devel@lists.sourceforge.net>,
-        Matthew Dharm <mdharm@one-eyed-alien.net>, Greg KH <greg@kroah.com>
-Subject: Re: [linux-usb-devel] Re: highmem and usb [was "sr: unalignedtransfer" in 2.5.2-pre1]
-In-Reply-To: <20020102194404.A482@suse.de>
-Message-Id: <Pine.SOL.4.33.0201022330170.5969-100000@sun2.lrz-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S287113AbSABWgs>; Wed, 2 Jan 2002 17:36:48 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:47235
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S287106AbSABWgR>; Wed, 2 Jan 2002 17:36:17 -0500
+Date: Wed, 2 Jan 2002 15:35:57 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Richard Henderson <rth@redhat.com>, Momchil Velikov <velco@fadata.bg>,
+        linux-kernel@vger.kernel.org, gcc@gcc.gnu.org,
+        linuxppc-dev@lists.linuxppc.org,
+        Franz Sirl <Franz.Sirl-kernel@lauterbach.com>,
+        Paul Mackerras <paulus@samba.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Corey Minyard <minyard@acm.org>
+Subject: Re: [PATCH] C undefined behavior fix
+Message-ID: <20020102223557.GM1803@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <87g05py8qq.fsf@fadata.bg> <20020102190910.GG1803@cpe-24-221-152-185.az.sprintbbd.net> <20020102133632.C10362@redhat.com> <20020102220548.GL1803@cpe-24-221-152-185.az.sprintbbd.net> <20020102142712.B10474@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020102142712.B10474@redhat.com>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Jan 2002, Jens Axboe wrote:
+On Wed, Jan 02, 2002 at 02:27:12PM -0800, Richard Henderson wrote:
+> On Wed, Jan 02, 2002 at 03:05:48PM -0700, Tom Rini wrote:
+> > Well, the problem is that we aren't running where the compiler thinks we
+> > are yet.  So what would the right fix be for this?
+> 
+> Assembly.
 
-> On Wed, Jan 02 2002, David Brownell wrote:
-> > > > requirement for drivers is that the transfer buffers can be passed to
-> > > > pci_map_single() calls by the Host Controller Drivers (HCDs).  The
-> > > > device drivers, and URBs, don't expose such mappings, they only
-> > > > require that they can be created/destroyed.
-> > >
-> > > .. which is the requirement that you want to change to use pci_map_page
-> > > or pci_map_sg
-> >
-> > OK, I think I'm clear on this much then:  in 2.5, to support block drivers
-> > over USB (usb-storage only, for now) there needs to be an addition to
-> > the buffer addressing model in usbcore, as exposed by URBs.
-> >
-> >   - Current "transfer_buffer" + "transfer_buffer_length" mode needs to
-> >     stay, since most drivers aren't block drivers.
->
-> Why? Surely USB block drivers are not the only ones that want to support
-> highmem.
+That's not really an option.
 
-Probably for a long time they'll be the only ones.
-All the char drivers will mainly do a copy_to/from_user
-or want memory they can manipulate directly.
-
-	Regards
-		Oliver
-
-
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

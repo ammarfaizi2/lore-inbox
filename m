@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319585AbSH2XNd>; Thu, 29 Aug 2002 19:13:33 -0400
+	id <S319594AbSH2XPt>; Thu, 29 Aug 2002 19:15:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319587AbSH2XNd>; Thu, 29 Aug 2002 19:13:33 -0400
-Received: from coffee.Psychology.McMaster.CA ([130.113.218.59]:6018 "EHLO
-	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
-	id <S319585AbSH2XNb>; Thu, 29 Aug 2002 19:13:31 -0400
-Date: Thu, 29 Aug 2002 19:25:19 -0400 (EDT)
-From: Mark Hahn <hahn@physics.mcmaster.ca>
-X-X-Sender: <hahn@coffee.psychology.mcmaster.ca>
-To: James Di Toro <jditoro3@coastalcreditllc.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Passing kernel parameters
-In-Reply-To: <5.1.0.14.0.20020829150955.02adf008@imap.coastalcreditllc.com>
-Message-ID: <Pine.LNX.4.33.0208291905350.15955-100000@coffee.psychology.mcmaster.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319595AbSH2XPt>; Thu, 29 Aug 2002 19:15:49 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:37117
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S319594AbSH2XPs>; Thu, 29 Aug 2002 19:15:48 -0400
+Subject: Re: [PATCH 1 / ...] i386 dynamic fixup/self modifying code
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Luca Barbieri <ldb@ldb.ods.org>,
+       Linux-Kernel ML <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <20020828121129.A35@toy.ucw.cz>
+References: <1030506106.1489.27.camel@ldb>  <20020828121129.A35@toy.ucw.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 30 Aug 2002 00:19:52 +0100
+Message-Id: <1030663192.1326.20.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Unfortunately this is not working.  dmesg for ide still shows the following:
->          ide: Assuming 33MHz system bus speed for PIO modes; override with 
-> idebus=xx
+On Wed, 2002-08-28 at 13:11, Pavel Machek wrote:
+> > Unfortunately with this patch executing invalid code will cause the
+> > processor to enter an infinite exception loop rather than panic. Fixing
+> > this is not trivial for SMP+preempt so it's not done at the moment.
 > 
-> despite the fact that I've specified 'idebus=66' and the following lines note:
-> 
->          VP_IDE: VIA vt82c596b (rev 12) IDE UDMA66 controller on pci00:07.1
+> Using 0xcc for everything should fix that, right?
 
-note that it says *system* bus speed.  that is, the clock fed to the IDE 
-controller (usually the PCI clock, 33 MHz).  this is NOT the transfer mode!
+Except you can't do the fixup on SMP without risking hitting the CPU
+errata. You also break debugging tools that map kernel code pages r/o
+and people who ROM it.
 
-by lying to the driver that "idebus=66", all you accomplish is making your 
-transfers half the speed they should be.  the driver says 
-	"since the clock period is 15ns, and I want (say) udma33
-	(16b every 60ns), I'll tell the controler to do 16b every 4 clocks."
-
-alas, the real period is 30ns, so you get 16b every 120ns.  voila, udma16 ;(
-
-summary: don't lie to the driver; the default is probably correct.
-
-regards, mark hahn.
+The latter aren't a big problem (they can compile without runtime
+fixups). For the other fixups though you -have- to do them before you
+run the code. That isnt hard (eg sparc btfixup). You generate a list of
+the addresses in a segment, patch them all and let the init freeup blow 
+the table away
 

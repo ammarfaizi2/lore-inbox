@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315251AbSEaNA6>; Fri, 31 May 2002 09:00:58 -0400
+	id <S312560AbSEaM7Y>; Fri, 31 May 2002 08:59:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315259AbSEaNA5>; Fri, 31 May 2002 09:00:57 -0400
-Received: from loewe.cosy.sbg.ac.at ([141.201.2.12]:14555 "EHLO
-	loewe.cosy.sbg.ac.at") by vger.kernel.org with ESMTP
-	id <S315251AbSEaNA4>; Fri, 31 May 2002 09:00:56 -0400
-Date: Fri, 31 May 2002 15:00:56 +0200 (MET DST)
-From: "Thomas 'Dent' Mirlacher" <dent@cosy.sbg.ac.at>
-To: Linux-Kernel ML <linux-kernel@vger.kernel.org>
-Subject: do_mmap
-Message-ID: <Pine.GSO.4.05.10205311456070.10633-100000@mausmaki.cosy.sbg.ac.at>
+	id <S315251AbSEaM7X>; Fri, 31 May 2002 08:59:23 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:896 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S312560AbSEaM7X>; Fri, 31 May 2002 08:59:23 -0400
+Date: Fri, 31 May 2002 08:59:08 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Andrey Panin <pazke@orbita1.ru>
+cc: trivial@rustcorp.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] FAT fs printk() cleanup
+In-Reply-To: <20020531125045.GA310@pazke.ipt>
+Message-ID: <Pine.LNX.3.95.1020531085628.185A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi list,
 
-what about the do_mmap/do_mmap_pgoff implementation?
-reurn-type: _unsigned_ long	(which should be ok cause we've to return
-				 an adress if len == 0)
-on error: -ERR_*
+I think it needs to go only to the console....
 
-and the checks in various places are really strange. - well some
-places check for:
-	o != NULL
-	o > -1024UL
-	o ...
+File-system error...
+   printk(...to the file system)
+      makes a file-system error...
+          <forever>
 
-guess this nedds some cleanup.
 
-is it possible to have 0 as a valid address? - if not, this should
-be the return on errors.
 
-any comments?
+Cheers,
+Dick Johnson
 
-	tm
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
 
--- 
-in some way i do, and in some way i don't.
+                 Windows-2000/Professional isn't.
 

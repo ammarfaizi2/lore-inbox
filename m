@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265684AbUHHP4k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265697AbUHHQFQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265684AbUHHP4k (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 11:56:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265697AbUHHP4k
+	id S265697AbUHHQFQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 12:05:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265722AbUHHQFQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 11:56:40 -0400
-Received: from pop.gmx.de ([213.165.64.20]:31972 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265684AbUHHP4h (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 11:56:37 -0400
-X-Authenticated: #1725425
-Date: Sun, 8 Aug 2004 17:58:34 +0200
-From: Marc Ballarin <Ballarin.Marc@gmx.de>
-To: Albert Cahalan <albert@users.sf.net>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: Re: dynamic /dev security hole?
-Message-Id: <20040808175834.59758fc0.Ballarin.Marc@gmx.de>
-In-Reply-To: <1091969260.5759.125.camel@cube>
-References: <1091969260.5759.125.camel@cube>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 8 Aug 2004 12:05:16 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:11394 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S265697AbUHHQFI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Aug 2004 12:05:08 -0400
+Date: Sun, 8 Aug 2004 17:04:59 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Matt Mackall <mpm@selenic.com>
+cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Allow to disable shmem.o
+In-Reply-To: <20040808140705.GH16310@waste.org>
+Message-ID: <Pine.LNX.4.44.0408081649420.1983-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 08 Aug 2004 08:47:40 -0400
-Albert Cahalan <albert@users.sf.net> wrote:
-
-> Suppose I have access to a device, for whatever legit
-> reason. Maybe I'm given access to a USB key with
-> some particular serial number.
+On Sun, 8 Aug 2004, Matt Mackall wrote:
+> On Sun, Aug 08, 2004 at 02:03:09PM +0100, Hugh Dickins wrote:
+> > 
+> > But I prefer Matt's tiny tiny-shmem.c which does support all those,
+> > using ramfs instead, and says in Kconfig what it's doing.
+> > But perhaps you're wanting to avoid ramfs too?
 > 
-> I hard link this to somewhere else. Never mind that an
-> admin could in theory use 42 separate partitions and
-> mount most of the system with the "nodev" option. This
-> is rarely done.
-> 
-> Now the device is removed. The /dev entry goes away.
-> A new device is added, and it gets the same device
-> number as the device I had legit access to. Hmmm?
+> Ramfs is hard to avoid as it's used internally for / at boot and so on.
 
-This would require (1) /dev to be inside the root filesystem and (2) users
-having write access somewhere in that filesystem.
+Ah, right.
 
-(1) is uncommon, often a separate filesystem is used for udev
-(2) is very bad practice anyway and should never be seen on a true
-multi-user machine
+> My patch for comparison. Comments appreciated.
 
-Besides, this is nothing new. Dynamic permission updates through PAM have
-the same issue, and anyone calling themselves "admin" should be well aware
-of those issues. This is basic Unix-security, after all.
+Looks pretty good, but would need rediffing against mainline or -mm
+if heading that way: the init/Kconfig patch is peculiar to your -tiny.
 
-Yet, this issue should probably mentioned in documentation. It certainly
-should be mentioned in the udev-HOWTO.
+The comment at the head of tiny-shmem.c:
 
-Regards
+> + * This is intended for small system where the benefits of the full
+> + * shmem code (swap-backed and resource-limited) are outweighed by their
+> + * complexity. On systems without swap and not using userspace /dev/shm,
+> + * this code should be effectively equivalent, but much lighter weight.
+
+Very fair statement.  But isn't it actually supporting /dev/shm fine?
+
+And your shmem_file_setup hasn't quite kept up with the times:
+shmat oopses in vma_link because shmem_file_setup is lacking a
+
+	file->f_mapping = inode->i_mapping;
+
+Plus Andi rightly advises externs in a header file.
+
+Hugh
+

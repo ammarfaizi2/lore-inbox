@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262921AbVA2OhQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262922AbVA2OjY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262921AbVA2OhQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Jan 2005 09:37:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262922AbVA2OhQ
+	id S262922AbVA2OjY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Jan 2005 09:39:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262924AbVA2OjY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Jan 2005 09:37:16 -0500
-Received: from fmr14.intel.com ([192.55.52.68]:22492 "EHLO
+	Sat, 29 Jan 2005 09:39:24 -0500
+Received: from fmr14.intel.com ([192.55.52.68]:45020 "EHLO
 	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
-	id S262921AbVA2OhG convert rfc822-to-8bit (ORCPT
+	id S262922AbVA2Oi2 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Jan 2005 09:37:06 -0500
+	Sat, 29 Jan 2005 09:38:28 -0500
 X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
 Content-class: urn:content-classes:message
 MIME-Version: 1.0
@@ -17,74 +17,65 @@ Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Subject: RE: [Discuss][i386] Platform SMIs and their interferance with tsc based delay calibration
-Date: Sat, 29 Jan 2005 06:36:54 -0800
-Message-ID: <88056F38E9E48644A0F562A38C64FB6003E1D12B@scsmsx403.amr.corp.intel.com>
+Date: Sat, 29 Jan 2005 06:37:45 -0800
+Message-ID: <88056F38E9E48644A0F562A38C64FB6003E1D12C@scsmsx403.amr.corp.intel.com>
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
 Thread-Topic: [Discuss][i386] Platform SMIs and their interferance with tsc based delay calibration
-Thread-Index: AcUFwcY3536heqkPThS69jiy21knSgASwnmA
+Thread-Index: AcUFyyqck1qpKHPpRYqFZ00z/2MGSgAQGrog
 From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, <torvalds@osdl.org>,
-       "Seth, Rohit" <rohit.seth@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>
-X-OriginalArrivalTime: 29 Jan 2005 14:36:56.0156 (UTC) FILETIME=[FB5FC1C0:01C5060F]
+To: "Andi Kleen" <ak@muc.de>
+Cc: "Seth, Rohit" <rohit.seth@intel.com>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>,
+       <linux-kernel@vger.kernel.org>, <akpm@osdl.org>
+X-OriginalArrivalTime: 29 Jan 2005 14:37:46.0678 (UTC) FILETIME=[197CCD60:01C50610]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
 
 >-----Original Message-----
->From: Andrew Morton [mailto:akpm@osdl.org] 
+>From: Andi Kleen [mailto:ak@muc.de] 
+>Sent: Friday, January 28, 2005 10:24 PM
+>To: Pallipadi, Venkatesh
+>Cc: Seth, Rohit; Mallick, Asit K; 
+>linux-kernel@vger.kernel.org; akpm@osdl.org
 >Subject: Re: [Discuss][i386] Platform SMIs and their 
 >interferance with tsc based delay calibration
 >
+>Venkatesh Pallipadi <venkatesh.pallipadi@intel.com> writes:
+>> +
+>> +	/*
+>> +	 * If the upper limit and lower limit of the tsc_rate 
+>is more than
+>> +	 * 12.5% apart.
+>> +	 */
+>> +	if (pre_start == 0 || pre_end == 0 ||
+>> +	    (tsc_rate_max - tsc_rate_min) > (tsc_rate_max >> 3)) {
+>> +		printk(KERN_WARNING "TSC calibration may not be 
+>precise. " 
+>> +		       "Too many SMIs? "
+>> +		       "Consider running with \"lpj=\" boot option\n");
+>> +		return 0;
+>> +	}
 >
->Please don't send emails which contain 500-column lines?
+>I think it would be better to rerun it a few times automatically
+>before giving up. This way it would hopefully work 
+>transparently but slower
+>for most users. 
 
-Sorry. Something got messed up during cut and paste onto my mailer.
+Agreed. Actually, I was doing that earlier, with each retry 
+calibrating for 1 HZ. But, once I moved to 10 HZ, I removed the retires.
 
->>  Solution:
->>  The patch below makes the calibration routine aware of 
->asynchronous events
->> like SMIs. We increase the delay calibration time and also 
->identify any
->> significant errors (greater than 12.5%) in the calibration 
->and notify it
->> to user. Like to know your comments on this.
->
->I find calibrate_delay_tsc() quite confusing.  Are you sure that the
->variable names are correct?
->
-> +	tsc_rate_max = (post_end - pre_start) / DELAY_CALIBRATION_TICKS;
-> +	tsc_rate_min = (pre_end - post_start) / DELAY_CALIBRATION_TICKS;
->
->that looks strange.  I'm sure it all makes sense if one understands the
->algorithm, but it shouldn't be this hard.  Please reissue the 
->patch with
->adequate comments which describe what the code is doing.
->
+>The message is too obscure too to be usable and needs
+>more explanation.
 
-I will resend the patch soon with more comments. I think the variable 
-names here are bit confusing.
+I will try to improve the message in next revision of the patch.
 
->Shouldn't calibrate_delay_tsc() be __devinit?  (That may 
->generate warnings
->from reference_discarded.pl, but they're false positives)
->
->
->From a maintainability POV it's not good that x86 is no longer 
->using the
->generic calibrate_delay() code.  Can you rework the code so that all
->architectures must implement arch_calibrate_delay(), then 
->provide stubs for
->all except x86?  After all, other architectures/platforms may 
->have the same
->problem.
->
+>And also in case the platforms in questions support EM64T 
+>x86-64 would need to be changed too :)
 
-Agreed. I will add a stub in other architectures. That way we don't 
-have to duplicate the current delay_calibration under i386.
+Yes. I will send out a patch for x86-64 too, once the i386 patch 
+gets finalized. I wanted to have a shorted patch reviewed first :).
 
 Thanks,
 Venki

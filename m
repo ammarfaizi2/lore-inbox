@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265799AbUFVWZH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266022AbUFVW1C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265799AbUFVWZH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 18:25:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266040AbUFVWXD
+	id S266022AbUFVW1C (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 18:27:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266040AbUFVWZ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 18:23:03 -0400
-Received: from gate.crashing.org ([63.228.1.57]:34731 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S266014AbUFVWVZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 18:21:25 -0400
-Subject: Re: [PATCH][2.6.7-mm1] perfctr ppc32 update
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <16600.45126.425726.174463@alkaid.it.uu.se>
-References: <200406212014.i5LKElHD019224@alkaid.it.uu.se>
-	 <1087928274.1881.4.camel@gaston>
-	 <16600.37372.473221.988885@alkaid.it.uu.se>
-	 <1087935661.1855.10.camel@gaston>
-	 <16600.39256.669322.177553@alkaid.it.uu.se>
-	 <1087939194.1839.13.camel@gaston>
-	 <16600.45126.425726.174463@alkaid.it.uu.se>
-Content-Type: text/plain
-Message-Id: <1087942472.1855.75.camel@gaston>
+	Tue, 22 Jun 2004 18:25:27 -0400
+Received: from pk128.szczecin.sdi.tpnet.pl ([217.98.202.128]:34320 "EHLO
+	viper.elektronika.org") by vger.kernel.org with ESMTP
+	id S266014AbUFVWXk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 18:23:40 -0400
+Date: Wed, 23 Jun 2004 00:25:18 +0200
+From: =?ISO-8859-2?Q?Micha=B3?= Byrecki <byrek@elektronika.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Deadlock when mounting cdrom (kernel 2.4.26)
+Message-Id: <20040623002518.47f96003@quake>
+In-Reply-To: <20040622171256.GA15178@plant.adj.org>
+References: <20040622171256.GA15178@plant.adj.org>
+X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 22 Jun 2004 17:14:33 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Wed__23_Jun_2004_00_25_18_+0200_jKJ5o1ZZyqGi=ln2"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-06-22 at 17:18, Mikael Pettersson wrote:
+--Signature=_Wed__23_Jun_2004_00_25_18_+0200_jKJ5o1ZZyqGi=ln2
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-> So can I assume constant TB speed? In that case I don't
-> really care about core speed changes.
+On Tue, 22 Jun 2004 19:12:56 +0200
+Alain DIDIERJEAN <didierj@plant.adj.org> wrote:
 
-So far, tb speed is constant yes, I haven't seen a case where it's
-not. What we should really do is to expose the tb speed to userspace
-generically on ppc, possibly via /proc/cpuinfo like we do on ppc64,
-it definitely has other uses than just profiling.
+> 1. The machine freezes when mounting a cdrom  
+> 2. The command: mount cdrom           displays
+>    hdb DMA interrupt recovery
+>    hdb lost interrupt
 
-Ben.
+I had an 'interrupt lost' error on 2.6.6. Passing"acpi=noirq" to
+kernel solved the problem.
 
+-- 
+Regards,
+Michal Byrecki
 
+--Signature=_Wed__23_Jun_2004_00_25_18_+0200_jKJ5o1ZZyqGi=ln2
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFA2LHS5XTnZad2rEMRArxAAKCH0HSPrJceqONZ5KDWGKcLPtEBBACggFKU
+GXPisRLv3sW8TqrN2OWT1rM=
+=Tgbv
+-----END PGP SIGNATURE-----
+
+--Signature=_Wed__23_Jun_2004_00_25_18_+0200_jKJ5o1ZZyqGi=ln2--

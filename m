@@ -1,68 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291148AbSCHXmP>; Fri, 8 Mar 2002 18:42:15 -0500
+	id <S291258AbSCHXo4>; Fri, 8 Mar 2002 18:44:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291192AbSCHXmF>; Fri, 8 Mar 2002 18:42:05 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27910 "EHLO
+	id <S291194AbSCHXof>; Fri, 8 Mar 2002 18:44:35 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:33798 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S291148AbSCHXlw>; Fri, 8 Mar 2002 18:41:52 -0500
-Date: Fri, 8 Mar 2002 15:41:11 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Hubertus Franke <frankeh@watson.ibm.com>
-cc: Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>
+	id <S291245AbSCHXoX>; Fri, 8 Mar 2002 18:44:23 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
-In-Reply-To: <20020308231405.CADDC3FE06@smtp.linux.ibm.com>
-Message-ID: <Pine.LNX.4.33.0203081532550.4421-100000@penguin.transmeta.com>
+Date: 8 Mar 2002 15:43:56 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a6bibs$9mu$1@cesium.transmeta.com>
+In-Reply-To: <E16jRAU-0007QU-00@the-village.bc.nu> <Pine.LNX.4.33.0203081252450.1412-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Fri, 8 Mar 2002, Hubertus Franke wrote:
-> >
-> > I think the next step should be to map in one page of kernel code in a
-> > user-readable location, and just do it there.
+Followup to:  <Pine.LNX.4.33.0203081252450.1412-100000@penguin.transmeta.com>
+By author:    Linus Torvalds <torvalds@transmeta.com>
+In newsgroup: linux.dev.kernel
 > 
-> Your kidding .....
-> Seriously, how can we guarantee that we correctly determine the 
-> lock holder, due to memory corruption problems. If we can't do 
-> it correctly all the times, why do it at all ?
+> On Fri, 8 Mar 2002, Alan Cox wrote:
+> > 
+> > Can we go to cache line alignment - for an array of locks thats clearly
+> > advantageous
+> 
+> I disagree about the "clearly". Firstly, the cacheline alignment is CPU 
+> dependent, so on some CPU's it's 32 bytes (or even 16), on others it is 
+> 128 bytes. 
+> 
+> Secondly, a lot of locking is actually done inside a single thread, and
+> false sharing doesn't happen much - so keeping the locks dense can be
+> quite advantageous.
+> 
+> The cases where false sharing _does_ happen and are a problem should be 
+> for the application writer to worry about, not for the kernel to force.
+> 
+> So I think 8 bytes is plenty fine enough - with 16 bytes a remote 
+> possibility (I don't think it is needed, but it gives you som epadding for 
+> future expansion). And people who have arrays and find false sharing to be 
+> a problem can fix it themselves.
+> 
+> I personally don't find arrays of locks very common. It's much more common
+> to have arrays of data structures that _contain_ locks (eg things like
+> having hash tables etc with a per-hashchain lock) and then those container 
+> structures may want to be cacheline aligned, but the locks themselves 
+> should not need to be.
+> 
 
-You don't understand. This has nothing to do with lock holders, or 
-anything else.
+Also, on UP this is all a waste.
 
-I'm saying that we map in a page at a magic offset (just above the stack), 
-and that page contains the locking code.
-
-For 386 CPU's (where only UP matters), we can trivially come up with a
-lock that doesn't use cmpxchg8b and that isn't SMP-safe. It might even go
-into the kernel every time if it has to - ie it _works_, it just isn't 
-optimal.
-
-> Fail to see why that matters. User level locking is mostly beneficial on SMPs.
-
-That's not the issue AT ALL.
-
-Semaphores are absolutely required on UP too, with threads. There is
-_zero_ difference between UP and SMP from a locking perspective in user
-space due to the fact that we can be preempted at any time - except from
-the cache coherency issue.
-
-> So, you lock the bus for the atomic update. This is UP, nothing's going on 
-> on the bus anyway.
-
-That's not the point. Nobody has locked the bus in the last ten years: the 
-cache coherency is done on a cacheline basis, not on the bus.
-
-The point being that the difference between a "decl" and a "lock ;  decl"
-is about 1:12 or so in performance.
-
-> Even if its a few more cycles, still beats the heck out of using other 
-> heavyweight kernel APIs
-
-Sure it does. But if the speed of locking matters enough for user-level 
-locks to matter, don't you think the 1:12 difference matters as well?
-
-		Linus
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,65 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131373AbRBAR5y>; Thu, 1 Feb 2001 12:57:54 -0500
+	id <S129477AbRBASHg>; Thu, 1 Feb 2001 13:07:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131350AbRBAR5p>; Thu, 1 Feb 2001 12:57:45 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:51983 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131394AbRBAR5Y>; Thu, 1 Feb 2001 12:57:24 -0500
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait /notify + callback chains
-To: hch@caldera.de (Christoph Hellwig)
-Date: Thu, 1 Feb 2001 17:58:09 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), hch@caldera.de (Christoph Hellwig),
-        sct@redhat.com (Stephen C. Tweedie), lord@sgi.com (Steve Lord),
-        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net
-In-Reply-To: <20010201184950.A448@caldera.de> from "Christoph Hellwig" at Feb 01, 2001 06:49:50 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129525AbRBASHR>; Thu, 1 Feb 2001 13:07:17 -0500
+Received: from styx.suse.cz ([195.70.145.226]:37106 "EHLO kerberos.suse.cz")
+	by vger.kernel.org with ESMTP id <S129477AbRBASHD>;
+	Thu, 1 Feb 2001 13:07:03 -0500
+Date: Thu, 1 Feb 2001 19:06:53 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Byron Stanoszek <gandalf@winds.org>
+Cc: safemode <safemode@voicenet.com>, linux-kernel@vger.kernel.org
+Subject: Re: VT82C686A corruption with 2.4.x
+Message-ID: <20010201190653.H2341@suse.cz>
+In-Reply-To: <3A794945.5F652819@voicenet.com> <Pine.LNX.4.21.0102011137590.27273-100000@winds.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14ONzo-0004kq-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0102011137590.27273-100000@winds.org>; from gandalf@winds.org on Thu, Feb 01, 2001 at 11:46:08AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Linus basically designed the original kiobuf scheme of course so I guess
-> > he's allowed to dislike it. Linus disliking something however doesn't mean
-> > its wrong. Its not a technically valid basis for argument.
+On Thu, Feb 01, 2001 at 11:46:08AM -0500, Byron Stanoszek wrote:
+
+> Yeah, by bios does the same thing too on the Abit KT7(a).
+
+Ok, I'll remember this. This is most likely the cause of the problems
+many people had with the KT7 in the past.
+
+> But you might not
+> want to run your PCI clock at 34 instead of 33. Two problems can occur. If you
+> don't specify idebus=34 on the kernel prompt, the IDE timings might eventually
+> get a DMA reset under 100% disk access. If you do say idebus=34, then you drop
+> your maximum throughput from 33 MB/s to 27MB/s.
 > 
-> Sure.  But Linus saing that he doesn't want more of that (shit, crap,
-> I don't rember what he said exactly) in the kernel is a very good reason
-> for thinking a little more aboyt it.
+> I was curious and compiled a list of timings from Vojtech's formula for certain
+> idebus=xx MHz ratings (I _think_ the UDMA-66 timings are correct, maybe you can
+> check on these, Vojtech..)
+> 
+> Clock | Setup  Active  Recover  Cycle  UDMA | UDMA-33  UDMA-66  UDMA-100
+>    21 |    1       2        1      3    0   |   28.0     56.0      84.0
+>    22 |    1       2        1      3    0   |   29.3     58.6      88.0
+>    23 |    1       2        1      3    0   |   30.6     61.2      92.0
+[snip]
+>    31 |    1       3        1      4    0   |   31.0     62.0      93.0
+>    32 |    1       3        1      4    0   |   32.0     64.0      96.0
+>    33 |    1       3        1      4    0   |   33.0     66.0      99.0
+>    34 |    1       3        2      5    0   |   27.2     54.4      81.6
+[snip]
+>    59 |    2       5        3      8    1   |   29.5     59.0      88.5
+>    60 |    2       5        3      8    1   |   30.0     60.0      90.0
 
-No. Linus is not a God, Linus is fallible, regularly makes mistakes and
-frequently opens his mouth and says stupid things when he is far too busy.
+Well, the table depends on what type of southbridge chip are you using -
+if it's 586b or other UDMA33 chip, 586b/686a or other UDMA66 chip or the
+UDMA100 capable 686b.
 
-> Espescially if most arguments look right to one after thinking more about
-> it...
+The U33 chips do UDMA timing in PCICLK (T = 30ns @ 33MHz) increments, U66 in
+PCICLK*2 (T = 15ns @ 33 MHz) increments, and for U100 it's assumed that
+there is an external 100MHz clock fed to the chip, so that the UDMA timing is
+in T = 10ns increments independent of the PCICLK. I'm not 100% sure about
+the last, it might be just PCICLK*3 (T = 10ns @ 33 MHz). An experiment needs
+to be carried out to verify this.
 
-I agree with the issues about networking wanting lightweight objects, Im
-unconvinced however the existing setup for networking is sanely applicable
-for real world applications in other spaces.
+So, s ahort excerpt of the table will look like:
 
-Take video capture. I want to stream 60Mbytes/second in multi-megabyte
-chunks between my capture cards and a high end raid array. The array wants
-1Mbyte or large blocks per I/O to reach 60Mbytes/second performance.
+Chip   | Clock | Setup Active Recover | T  | UDMA-33  UDMA-66  UDMA-100
+586b   |    25 |    1      2       1  | 40 | 2T=25.0  xxxxxxx  xxxxxxxx
+686a   |    25 |    1      2       1  | 20 | 3T=33.3  2T=50.0  xxxxxxxx
+686b   |    25 |    1      2       1  | 10 | 6T=33.3  4T=66.6  2T=100.0
 
-This btw isnt benchmark crap like most of the zero copy networking, this is
-a real world application..
+Chip   | Clock | Setup Active Recover | T  | UDMA-33  UDMA-66  UDMA-100
+586b   |    33 |    1      2       1  | 30 | 2T=33.3  xxxxxxx  xxxxxxxx
+686a   |    33 |    1      2       1  | 15 | 4T=33.3  2T=66.6  xxxxxxxx
+686b   |    33 |    1      2       1  | 10 | 6T=33.3  4T=66.6  2T=100.0
 
-The current buffer head stuff is already heavier than the kio stuff. The
-networking stuff isnt oriented to that kind of I/O and would end up
-needing to do tons of extra processing.
+... that is, if the 686b indeed has a 100MHz clock source. If not, then
+in the case of 25 MHz, T would be 13.3ns. If you can verify this, it'd
+be nice.
 
-> For disk I/O it makes the handling a little easier for the cost of the
-> additional offset/length fields.
-
-I remain to be convinced by that. However you do get 64bytes/cacheline on
-a real processor nowdays so if you touch any of that 64byte block you are
-practically zero cost to fill the rest. 
-
-Alan
-
+-- 
+Vojtech Pavlik
+SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

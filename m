@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264603AbSIQVng>; Tue, 17 Sep 2002 17:43:36 -0400
+	id <S264635AbSIQVuy>; Tue, 17 Sep 2002 17:50:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264605AbSIQVng>; Tue, 17 Sep 2002 17:43:36 -0400
-Received: from [63.205.85.133] ([63.205.85.133]:64017 "EHLO schmee.sfgoth.com")
-	by vger.kernel.org with ESMTP id <S264603AbSIQVnf>;
-	Tue, 17 Sep 2002 17:43:35 -0400
-Date: Tue, 17 Sep 2002 14:47:10 -0700
-From: Mitchell Blank Jr <mitch@sfgoth.com>
-To: Adrian Bunk <bunk@fs.tum.de>, torvalds@transmeta.com
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.5.35 drivers/atm/firestream.c __FUNCTION__ fix
-Message-ID: <20020917144710.C94419@sfgoth.com>
-References: <20020916212331.B70462@sfgoth.com> <Pine.NEB.4.44.0209171033460.26796-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S264638AbSIQVuy>; Tue, 17 Sep 2002 17:50:54 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:7442 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S264635AbSIQVuu>; Tue, 17 Sep 2002 17:50:50 -0400
+Date: Tue, 17 Sep 2002 14:55:40 -0700
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ext3 throughput woes on certain (possibly heavily fragmented) files
+Message-ID: <20020917215540.GA13363@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	linux-kernel@vger.kernel.org
+References: <20020903092419.GA5643@vitelus.com> <20020906170614.A7946@redhat.com> <15736.57972.202889.872554@laputa.namesys.com> <20020906182457.F3029@redhat.com> <20020916223911.GA1658@netnation.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <Pine.NEB.4.44.0209171033460.26796-100000@mimas.fachschaften.tu-muenchen.de>; from bunk@fs.tum.de on Tue, Sep 17, 2002 at 10:37:30AM +0200
+Content-Disposition: inline
+In-Reply-To: <20020916223911.GA1658@netnation.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> Thanks for this patch, the next compile error is that compilation of
-> firestream.c fails at all occurences of func_enter:
-
-This is just the breakage that newer gcc's provoke when you try to use
-__FUNCTION__ as a string constant.  Easy fix (included at end of message,
-Linus please apply)
-
-> > -Mitch  (deadbeat ATM maintainer)
+On Mon, Sep 16, 2002 at 03:39:11PM -0700, Simon Kirby wrote:
+> This box is primarily running a POP3 server (written in-house to cache
+> mbox offsets, so that it can handle a huge volume of mail), and also
+> exports the mail spool via NFS to other servers which run exim (-fsync). 
+> nfsd is exported async.  Everything is mounted noatime, nodiratime.  No
+> applications should be calling sync/fsync/fdatasync or using O_SYNC. 
+> It's a mail server, so everything is fragmented.
 > 
-> I didn't Cc you because you are only listed as PPP OVER ATM (RFC 2364)
-> maintainer in MAINTAINERS. Do you now maintain the complete ATM subsystem?
+> We're using dotlocking.  Would this cause metadata journalling?  We had
+> to hash the mail spool a long time ago do to system time eating all CPU
+> (the ext2 linear directory scan to find a slot available in the spool
+> directory to add the dotlock file).  I estimate about 200 - 300 dotlock
+> files are created per second, but these should all be asynchronous. 
+> Would switching to fctnl() locking (if this works over NFS) solve the
+> problem?
 
-I'm sort of the maintainer, if there is one at all.  Werner handed me the
-torch a year and a half ago since he has other projects and I was one of
-the few people still hacking on the core ATM code.  At the time I was doing
-some related work so it fit naturally.  Unfortunately, I'm not working
-in that field at the moment and my other commitments are taking about 110%
-of my time.  I've been trying to keep it sort of maintained in the meantime
-(keeping it compiling, basic mailing list admin) but sadly that's been about
-it from me lately.  :-(
+I'd absolutly go to fcntl().  As bad as dotlocking is for
+journaling filesystems it is even worse for NFS (when it works).
+Look at the lkml thread "invalidate_inode_pages in 2.5.32/3"
+to get an idea.  Multiply the directory invalidations by the
+size of the directories.  fcntl() is the preferred way of locking
+over NFS as it will even report if there is a problem with
+lockd.
 
--Mitch
 
---- linux-2.5.35-VIRGIN/drivers/atm/firestream.c	2002-08-24 00:08:21.000000000 -0700
-+++ linux-2.5.35/drivers/atm/firestream.c	2002-09-17 14:34:57.000000000 -0700
-@@ -330,8 +330,8 @@
- #define FS_DEBUG_QSIZE   0x00001000
- 
- 
--#define func_enter() fs_dprintk (FS_DEBUG_FLOW, "fs: enter " __FUNCTION__ "\n")-#define func_exit()  fs_dprintk (FS_DEBUG_FLOW, "fs: exit  " __FUNCTION__ "\n")+#define func_enter() fs_dprintk (FS_DEBUG_FLOW, "fs: enter %s\n", __FUNCTION__)+#define func_exit()  fs_dprintk (FS_DEBUG_FLOW, "fs: exit  %s\n", __FUNCTION__) 
- 
- struct fs_dev *fs_boards = NULL;
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
+
+		Remember Cernan and Schmitt

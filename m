@@ -1,98 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261470AbUJZVDZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261466AbUJZVEB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261470AbUJZVDZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 17:03:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbUJZVDX
+	id S261466AbUJZVEB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 17:04:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbUJZVEB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 17:03:23 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:15765 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261472AbUJZVBh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 17:01:37 -0400
-Message-ID: <417EBBB8.3020807@tmr.com>
-Date: Tue, 26 Oct 2004 17:03:52 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-CC: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] I2C update for 2.6.9
-References: <417D4621.5010604@tmr.com><1098231506642@kroah.com> <20041025225459.5ffc37ba.khali@linux-fr.org>
-In-Reply-To: <20041025225459.5ffc37ba.khali@linux-fr.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 26 Oct 2004 17:04:01 -0400
+Received: from wproxy.gmail.com ([64.233.184.205]:21486 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261471AbUJZVAo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 17:00:44 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=Plzsy7rTYvsB6Wmz57Imft+gfH1mMpkNWMA6qIyYNGcHu4ueIx9iOr1wBKDSQkdMIJJuL/+GSFeueiot1QWplBN7ahga57Ujay5P6uN++D8ZTvrVpo4XyGsIfpMW5li9LSCcR6ezAqycFTn/SO0TOeu0HB7FQJAJydQe2L3HZdM=
+Message-ID: <4d8e3fd304102614002285559e@mail.gmail.com>
+Date: Tue, 26 Oct 2004 23:00:43 +0200
+From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+Reply-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+To: John Richard Moser <nigelenki@comcast.net>
+Subject: Re: Let's make a small change to the process
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, alan@lxorguk.ukuu.org.uk,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <417EB83B.90707@comcast.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <200410260644.47307.edt@aei.ca>
+	 <00c201c4bb4c$56d1b8b0$e60a0a0a@guendalin>
+	 <4d8e3fd3041026050823d012dc@mail.gmail.com>
+	 <877jpdcnf5.fsf@barad-dur.crans.org>
+	 <4d8e3fd304102613165b2fb283@mail.gmail.com>
+	 <417EB83B.90707@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Delvare wrote:
-> Hi Bill,
+On Tue, 26 Oct 2004 16:48:59 -0400, John Richard Moser
+<nigelenki@comcast.net> wrote:
+[...]
 > 
+> | We, of course, need a maintainer for it,
 > 
->>Greg KH wrote:
+> Yes, a little too much to maintain though isn't it?  Maintainers to
+> continuously upkeep revisions that come out every few weeks potentially?
+> ~ Remember it's got to be able to withstand the test of time for quite a
+> while; why are people still maintaining 2.2?
 > 
+> | maybe someone from OSDL (Randy?), maybe wli (he maintained his tree
+> | for a long time), maybe Alan (that is already applying these kind of
+> | fixes to his tree), maybe someone else... ?
+> |
 > 
-> I actually wrote this.
-> 
-> 
->>>Trip points
->>>===========
->>>
->>>Trip points are now numbered (point1, point2, etc...) instead of
->>>named(_off, _min, _max, _full...). This solves the problem of
->>>various chips having a different number of trip points. The
->>>interface is still chip independent in that it doesn't require
->>>chip-specific knowledge to be used by user-space apps.
->>
->>It would seem that all chips would have off, max, full, etc, but
->>mapping nondescript names into functionality may require some chip
->>info anyway. As you note, with some chips these are not nice linear
->>points on a line, 
->>  so it would seem to tell if the top points were "max norm" and "max 
->>safe" vs. "critical" and "shutdown NOW" is still going to need some 
->>information on the chip, both points and operating range.
-> 
-> 
-> The interface is actually (almost) self-sufficient. A point is the union
-> of a temperature and a fan speed. Most often, point1 will have a speed
-> of 0, which means it really is _off. point1 will be fan_min. point(P-1)
-> will be _max, point(P) will have a speed of 100% and will be _full. The
-> advantage of the numbered approach is that you can have has many points
-> as the chip provides. It will also help user-space applications, since
-> all points can be handled the exact same way, without having to
-> interpret the names, know that some names have predefined fan speeds,
-> etc.
-> 
-> The only thing the interface doesn't tell is the shape of the curve
-> resulting from the various trip points. This is admittedly chip
-> dependent. I think it would be next to impossible to export this through
-> sysfs, and I'm not sure it would be worth the pain anyway. The exact
-> shape of the curve isn't that important IMHO.
-> 
-> Your objection about "critical", "shutdown NOW" etc if out of the scope
-> of this interface. The critical limits are defined by tempN_crit files.
-> Actions taken by the chip when the limit is crossed is admittedly
-> chip-dependent. Not a big deal either, since in most cases this is
-> either not configurable or motherboard-dependent and set by the BIOS for
-> us anyway.
-> 
-> I hope I answered your question-which-was-not-really-one. :)
-> 
-You have definitely given me a lot more information, and I do understand 
-why you do it this way. The shape of the curve may be of interest I 
-would think, if point3 to point4 is 30C to 40C I'm in a normal chip 
-range. If they represent 40c to 85C I really worry about flames coming 
-out next. That clearly can be known in the application as well, but it 
-isn't as easy to to as having names like max_norm, etc.
+> Common courteousy, don't volunteer people.  :)
 
-Anyway, thinks for the expanded info, more than I expected from a 
-non-question.
+Just wrote name a few "famous" and "great" kernel hackers :)
+ 
+> | Sounds reasonable ?
+> |
+> 
+> Sounds too fast.  I don't predict having a maintainer for each minor
+> release of the kernel (which is what you're saying here essentially), so
+> there'd be a need for one or a handfull of maintainers to spend loads of
+> time backporting fixes to a quickly mounting set of kernels.
 
-BTW: I see that the new G5 dual-CPU Mac does run the CPUs at 85C, liquid 
-cooled. At least ComputerWorld says they do. Yikes!
+Yes, one maintainer.
+But I'm not sure that each minor release of ther kernel needs a .Y version.
+ 
+> I had <shameless plug> suggested an hour or two ago a scheme where the
+> current development model be based off, but periodic releases be made
+> "stable," basing on approximately 6 months between releases </shameless
+> plug>.  I think it's a bit more sane to say that a maintainer may mount
+> up 4 kernels in 2 years to backport bugfixes into, if nobody else steps
+> up to the plate to help.
+> 
+> Of course, eventually official support has to be dropped in either
+> scheme, because the same problem is faced:  We can't expect people to
+> maintain a continuously mounting number of kernel revisions once the
+> workload becomes sufficiently high.  A balance must be made between
+> dropping support for a non-volitile code base, and maintaining a support
+> period sufficiently long.
+
+Not sure I get your point.
+Again,
+-ac is almost what I'm suggesting but I'd prefer to change it's name
+and formalize it publishing the .Y patchset to kernel,org with a name
+useful for the users.
+
+Time to sleep now,
+I'll flight to Germany tomorrow so I'll be offline till Tuesday. 
+But hey, you don't need me anymore ;-)
 
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Paolo

@@ -1,66 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261829AbSK3VSw>; Sat, 30 Nov 2002 16:18:52 -0500
+	id <S262887AbSK3V3n>; Sat, 30 Nov 2002 16:29:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262838AbSK3VSw>; Sat, 30 Nov 2002 16:18:52 -0500
-Received: from smtp-03.inode.at ([62.99.194.5]:22970 "EHLO smtp.inode.at")
-	by vger.kernel.org with ESMTP id <S261829AbSK3VSv> convert rfc822-to-8bit;
-	Sat, 30 Nov 2002 16:18:51 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Patrick Petermair <black666@inode.at>
-Reply-To: black666@inode.at
-To: linux-kernel@vger.kernel.org
-Subject: Re: Problem with via82cxxx and vt8235
-Date: Sat, 30 Nov 2002 22:27:23 +0100
-User-Agent: KMail/1.4.3
-References: <200211300129.32580.black666@inode.at> <1038667380.17209.2.camel@irongate.swansea.linux.org.uk>
-In-Reply-To: <1038667380.17209.2.camel@irongate.swansea.linux.org.uk>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211302227.23253.black666@inode.at>
+	id <S264644AbSK3V3n>; Sat, 30 Nov 2002 16:29:43 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:23806 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S262887AbSK3V3k>;
+	Sat, 30 Nov 2002 16:29:40 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Sat, 30 Nov 2002 22:36:52 +0100 (MET)
+Message-Id: <UTC200211302136.gAULaq713410.aeb@smtp.cwi.nl>
+To: jochen@jochen.org, torvalds@transmeta.com
+Subject: [PATCH] fix wrong permissions for vfat directories
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox:
-> On Sat, 2002-11-30 at 00:29, Patrick Petermair wrote:
-> > Hi!
-> >
-> > I have a MSI KT3Ultra2 Motherboard with a VT8235 southbridge. I'm
-> > currently running kernel 2.4.19 - unfortunately it doesn't detect the
-> > southbridge, so I cannot enable dma.
-> > I tried the patch from Vojtech Pavlik (via82cxxx), but then it hangs
-> > at boot:
->
-> Try the -ac tree firstly
+    From: Jochen Hein <jochen@jochen.org>
 
-Thanks Alan, now dma works perfect!
-How come this code isn't in the official 2.4.20 kernel?
+    I do mount vfat with autofs, and options umask=002 there.  mount
+    and /proc/mounts confirms that: 
 
-The only strange thing now is that uname doesn't know my cpu:
+    /dev/hda5 on /mount/d type vfat (rw,umask=002,gid=1000)
 
-starbase:/# uname -a
-Linux starbase 2.4.20-ac1 #1 Sam Nov 30 18:43:15 CET 2002 i686 unknown 
-unknown GNU/Linux
-starbase:/#
+    The directory permissions don't allow writing:
 
-But it gets recognized during boot:
+    drwxr-xr-x    2 root     jochen      32768 2002-11-30 20:37 ./
 
-starbase:/# dmesg | grep -i AMD
-CPU: AMD Athlon(tm) XP 2200+ stepping 00
-starbase:/#
+Fixed by the patch below.
 
-starbase:/# cat /proc/cpuinfo | grep -i AMD
-vendor_id       : AuthenticAMD
-model name      : AMD Athlon(tm) XP 2200+
-starbase:/#
+Andries
 
+-----
 
-But hey, I can live with that - I have dma now :-)
-Just curious, what's causing this.
-
-Thanks so much...
-Patrick
-
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/fat/inode.c b/fs/fat/inode.c
+--- a/fs/fat/inode.c	Fri Nov 22 22:40:41 2002
++++ b/fs/fat/inode.c	Sat Nov 30 22:10:54 2002
+@@ -205,7 +205,7 @@
+ 		seq_printf(m, ",uid=%d", opts->fs_uid);
+ 	if (opts->fs_gid != 0)
+ 		seq_printf(m, ",gid=%d", opts->fs_gid);
+-	seq_printf(m, ",umask=%04o", opts->fs_umask);
++	seq_printf(m, ",fmask=%04o", opts->fs_fmask);
+ 	seq_printf(m, ",dmask=%04o", opts->fs_dmask);
+ 	if (sbi->nls_disk)
+ 		seq_printf(m, ",codepage=%s", sbi->nls_disk->charset);
+@@ -267,7 +267,7 @@
+ 
+ 	opts->fs_uid = current->uid;
+ 	opts->fs_gid = current->gid;
+-	opts->fs_umask = opts->fs_dmask = current->fs->umask;
++	opts->fs_fmask = opts->fs_dmask = current->fs->umask;
+ 	opts->codepage = 0;
+ 	opts->iocharset = NULL;
+ 	if (is_vfat)
+@@ -333,7 +333,15 @@
+ 		else if (!strcmp(this_char,"umask")) {
+ 			if (!value || !*value) ret = 0;
+ 			else {
+-				opts->fs_umask = simple_strtoul(value,&value,8);
++				opts->fs_fmask = opts->fs_dmask =
++					simple_strtoul(value,&value,8);
++				if (*value) ret = 0;
++			}
++		}
++		else if (!strcmp(this_char,"fmask")) {
++			if (!value || !*value) ret = 0;
++			else {
++				opts->fs_fmask = simple_strtoul(value,&value,8);
+ 				if (*value) ret = 0;
+ 			}
+ 		}
+@@ -1119,7 +1127,7 @@
+ 		    ((sbi->options.showexec &&
+ 		       !is_exec(de->ext))
+ 		    	? S_IRUGO|S_IWUGO : S_IRWXUGO)
+-		    & ~sbi->options.fs_umask) | S_IFREG;
++		    & ~sbi->options.fs_fmask) | S_IFREG;
+ 		MSDOS_I(inode)->i_start = CF_LE_W(de->start);
+ 		if (sbi->fat_bits == 32) {
+ 			MSDOS_I(inode)->i_start |=
+@@ -1253,7 +1261,7 @@
+ 	if (S_ISDIR(inode->i_mode))
+ 		mask = sbi->options.fs_dmask;
+ 	else
+-		mask = sbi->options.fs_umask;
++		mask = sbi->options.fs_fmask;
+ 	inode->i_mode &= S_IFMT | (S_IRWXUGO & ~mask);
+ out:
+ 	unlock_kernel();
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/umsdos/ioctl.c b/fs/umsdos/ioctl.c
+--- a/fs/umsdos/ioctl.c	Fri Nov 22 22:40:19 2002
++++ b/fs/umsdos/ioctl.c	Sat Nov 30 22:12:08 2002
+@@ -430,7 +430,9 @@
+ 		 */
+ 		dir->i_sb->u.msdos_sb.options.fs_uid = data.umsdos_dirent.uid;
+ 		dir->i_sb->u.msdos_sb.options.fs_gid = data.umsdos_dirent.gid;
+-		dir->i_sb->u.msdos_sb.options.fs_umask = data.umsdos_dirent.mode;
++		dir->i_sb->u.msdos_sb.options.fs_fmask =
++			dir->i_sb->u.msdos_sb.options.fs_dmask =
++				data.umsdos_dirent.mode;
+ 		ret = 0;
+ 	}
+ out:
+diff -u --recursive --new-file -X /linux/dontdiff a/include/linux/msdos_fs_sb.h b/include/linux/msdos_fs_sb.h
+--- a/include/linux/msdos_fs_sb.h	Fri Nov 22 22:40:42 2002
++++ b/include/linux/msdos_fs_sb.h	Sat Nov 30 22:12:40 2002
+@@ -8,7 +8,7 @@
+ struct fat_mount_options {
+ 	uid_t fs_uid;
+ 	gid_t fs_gid;
+-	unsigned short fs_umask;
++	unsigned short fs_fmask;
+ 	unsigned short fs_dmask;
+ 	unsigned short codepage;  /* Codepage for shortname conversions */
+ 	char *iocharset;          /* Charset used for filename input/display */
 
 
 

@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318079AbSHSFMd>; Mon, 19 Aug 2002 01:12:33 -0400
+	id <S318122AbSHSFNo>; Mon, 19 Aug 2002 01:13:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318122AbSHSFMd>; Mon, 19 Aug 2002 01:12:33 -0400
-Received: from pa13.bydgoszcz.sdi.tpnet.pl ([213.25.7.13]:19210 "HELO
-	pa13.bydgoszcz.sdi.tpnet.pl") by vger.kernel.org with SMTP
-	id <S318079AbSHSFMd>; Mon, 19 Aug 2002 01:12:33 -0400
-Date: Mon, 19 Aug 2002 07:16:23 +0200
-From: "Tomasz Torcz, BG" <zdzichu@irc.pl>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4 and full ipv6 - will it happen?
-Message-ID: <20020819051623.GB31158@irc.pl>
-References: <20020819043941.GA31158@irc.pl> <20020818.213719.117777405.davem@redhat.com>
+	id <S318135AbSHSFNo>; Mon, 19 Aug 2002 01:13:44 -0400
+Received: from angband.namesys.com ([212.16.7.85]:6016 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S318122AbSHSFNn>; Mon, 19 Aug 2002 01:13:43 -0400
+Date: Mon, 19 Aug 2002 09:17:42 +0400
+From: Oleg Drokin <green@namesys.com>
+To: rwhron@earthlink.net
+Cc: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re: [reiserfs-list] big reiserfs regression in 2.4.20-pre2
+Message-ID: <20020819091742.A1815@namesys.com>
+References: <20020817100507.GA10770@rushmore>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <20020818.213719.117777405.davem@redhat.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20020817100507.GA10770@rushmore>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 18, 2002 at 09:37:19PM -0700, David S. Miller wrote:
-> 
-> In my opinion, USAGI has been given more than adequate opportunities
-> to merge their entire work into the mainline.  Alexey Kuznetsov has
-> asked them repeatedly over the years to merge with him, yet they
-> always fail to do so completely.  Occaisionally one or two trivially
-> bug fixes they are able to merge, but otherwise their efforts always
-> fall short.
+Hello!
 
-what's about with:
-o Full compliance with IPv6 (Alexey Kuznetzov, Jun Murai, Yoshifuji Hideaki, USAGI team)
+On Sat, Aug 17, 2002 at 06:05:07AM -0400, rwhron@earthlink.net wrote:
 
-in things mos likely to be merged in 2.5 (http://kerneltrap.org/node.php?id=348)?
-I thought that Alexey and USAGI were cooperating.
+> >   Is regression going away if you pass this mount option to reiserfs:
+> >      -o alloc=preallocmin=4:preallocsize=9
+> Yes.  
 
--- 
-Tomasz Torcz           Zjadanie martwych dzieci
-zdzichu@irc.pl           jest barbarzynstwem!
+Great, I just found that we forgot to enable preallocation with new block
+allocator by default. This is easily fixable of course.
+
+Thanks for the info.
+
+Bye,
+    Oleg 

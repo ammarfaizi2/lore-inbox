@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262722AbSJDRZo>; Fri, 4 Oct 2002 13:25:44 -0400
+	id <S262438AbSJDQ1I>; Fri, 4 Oct 2002 12:27:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262730AbSJDRZo>; Fri, 4 Oct 2002 13:25:44 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:51204 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262722AbSJDRZn>; Fri, 4 Oct 2002 13:25:43 -0400
-Date: Fri, 4 Oct 2002 10:30:41 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH] pcibios_* removals for 2.5.40
-In-Reply-To: <1033750426.31839.45.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.33.0210041023060.1917-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262428AbSJDQ1H>; Fri, 4 Oct 2002 12:27:07 -0400
+Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:19695 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S262432AbSJDQ0g>; Fri, 4 Oct 2002 12:26:36 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Fri, 4 Oct 2002 10:30:01 -0600
+To: David Howells <dhowells@cambridge.redhat.com>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Jan Harkes <jaharkes@cs.cmu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] AFS filesystem for Linux (2/2)
+Message-ID: <20021004163001.GV3000@clusterfs.com>
+Mail-Followup-To: David Howells <dhowells@cambridge.redhat.com>,
+	Trond Myklebust <trond.myklebust@fys.uio.no>,
+	Jan Harkes <jaharkes@cs.cmu.edu>, linux-kernel@vger.kernel.org
+References: <trond.myklebust@fys.uio.no> <shsheg2i7x2.fsf@charged.uio.no> <27308.1033745758@warthog.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <27308.1033745758@warthog.cambridge.redhat.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 4 Oct 2002, Alan Cox wrote:
+On Oct 04, 2002  16:35 +0100, David Howells wrote:
 > 
-> Ermm Greg fixed the drivers using it too.
+> > NFSv4 does indeed require the full kerberos encryption stuff in the
+> > kernel. The RFC specifies that krb5 support is a minimum requirement, and we
+> > will expect to have that in 2.6 (or 3.0 or whatever it's called these
+> > days...)
+> 
+> Might this be something I can make use of for my AFS filesystem too?
 
-Ehhmm... The patch description says "remove pci_find_device()", which is 
-used all over the map and isn't even deprecated (even though it probably 
-should be, and people should just register their drivers correctly).
+We will also need kerberos for Lustre when we start implementing
+security.  We will be using the GSSAPI for security, so basically
+the same as what AFS is using.
 
-The actual patches themselves actually remove pcibios_find_device(), which
-_is_ deprecated. But it's still used in a number of drivers. And no, Greg
-did _not_ fix them up - do a simple grep if you don't believe me.
-
-		Linus
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 

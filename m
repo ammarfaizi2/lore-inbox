@@ -1,49 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314459AbSHaLIG>; Sat, 31 Aug 2002 07:08:06 -0400
+	id <S317366AbSHaLbC>; Sat, 31 Aug 2002 07:31:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316792AbSHaLIG>; Sat, 31 Aug 2002 07:08:06 -0400
-Received: from ns2.sea.interquest.net ([66.135.144.2]:8141 "EHLO ns2.sea")
-	by vger.kernel.org with ESMTP id <S314459AbSHaLIF>;
-	Sat, 31 Aug 2002 07:08:05 -0400
-Date: Sat, 31 Aug 2002 04:18:15 -0700
-From: silvio@big.net.au
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH TRIVIAL]: 2.4.19/drivers/tc/tc.c
-Message-ID: <20020831041815.A2245@hamsec.aurora.sfo.interquest.net>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="WIyZ46R2i8wDzkSu"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S317387AbSHaLbC>; Sat, 31 Aug 2002 07:31:02 -0400
+Received: from kraid.nerim.net ([62.4.16.95]:44304 "HELO kraid.nerim.net")
+	by vger.kernel.org with SMTP id <S317366AbSHaLbB>;
+	Sat, 31 Aug 2002 07:31:01 -0400
+Message-ID: <3D70A909.8080105@inet6.fr>
+Date: Sat, 31 Aug 2002 13:31:21 +0200
+From: Lionel Bouton <Lionel.Bouton@inet6.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jean-Eric Cuendet <jean-eric.cuendet@linkvest.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: SMB browser
+References: <3D709AB7.705@linkvest.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jean-Eric Cuendet wrote:
 
---WIyZ46R2i8wDzkSu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> Hi,
+> I want to develop a filesystem driver. It will be able to access SMB 
+> shares without mountnig.
+> I'll do a daemon that use libsmbclient from Samba 3.0 that do all the 
+> dirty stuff (getting the available domains, authenticating, getting 
+> files, etc...) and a device driver that will be a filesystem driver. 
+> The driver should communicate with the daemon to ask him about shares, 
+> machines, domains, etc...
+>
+> The idea is:
+> - the daemon should be started by "/etc/init.d/browser start" at 
+> beginning
+> - The daemon loads the driver into the kernel
+> - The daemon then mounts the filesystem on /smb using the filesystem 
+> provided by the driver
+> - The driver waits for file requests on /smb to serve them
+> The hierarchy will be :
+>
+> /smb --|-- WG1  --|-- Machine1 --|-- Share1
+>       |          |              |-- Share2
+>       |          |-- Machine2 --|-- Share1
+>       |                         |-- Share2
+>       |                         |-- Share3
+>             |
+>       |-- WG2  --|-- Machine3 --|-- Share1
+>       |-- DOM1 --|-- Machine4 --|-- etc...
+>       |-- DOM2 --|-- Machine5
+>
+> Then the user access /smb/WG2/Machine38/Share12/Dir1/File2
+> Cool, no?
 
-trivial patch to use const char * instead of char * (this will also make it
-match up the prototype in header)
 
---
-Silvio
+I see some shortcomings :
 
---WIyZ46R2i8wDzkSu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch_tc_2_4_19
+How will you handle multiple users ?
+Janice and Bob have accounts on the Linux client and both want to have 
+access at the same time to their [Home] for example :
+|-- DOM1 --|-- Machine4--|--[Home]
 
-diff -u linux-2.4.19/drivers/tc/tc.c linux-2.4.19-dev/drivers/tc/tc.c
---- linux-2.4.19/drivers/tc/tc.c	Sat Aug 31 04:07:28 2002
-+++ linux-2.4.19-dev/drivers/tc/tc.c	Sat Aug 31 04:07:52 2002
-@@ -40,7 +40,7 @@
-  * Interface to the world. Read comment in include/asm-mips/tc.h.
-  */
- 
--int search_tc_card(char *name)
-+int search_tc_card(const char *name)
- {
- 	int slot;
- 	slot_info *sip;
+How will you handle users with multiple logins on a Domain/Machine ?
 
---WIyZ46R2i8wDzkSu--
+Maybe you'd be better starting with something like :
+
+local_user_home_directory--|--smb--|--login--|--WGx/DOMy--|....
+
+user's could provide something like a ".smbwalker.config"
+with lines like
+login_to_try    how_to_get_credential
+
+local_user_home_directory--|--smb could be mounted by automount or 
+mounted/umounted on first login/end of last session
+
+LB
+

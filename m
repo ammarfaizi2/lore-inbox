@@ -1,69 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315368AbSDXDqr>; Tue, 23 Apr 2002 23:46:47 -0400
+	id <S314498AbSDXEIi>; Wed, 24 Apr 2002 00:08:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315370AbSDXDqq>; Tue, 23 Apr 2002 23:46:46 -0400
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:55940 "EHLO
-	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
-	id <S315368AbSDXDqq>; Tue, 23 Apr 2002 23:46:46 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: "Michael D. Johnson" <mike@C242326-a.attbi.com>
-Reply-To: mikej163@attbi.com
-To: A Guy Called Tyketto <tyketto@wizard.com>
-Subject: Re: PROBLEM:  make xconfig fails on link
-Date: Tue, 23 Apr 2002 20:46:35 -0700
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020423232908.33CF556A5A@C242326-a.attbi.com> <20020424031900.GA6731@wizard.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020424034642.12C5D56A5A@C242326-a.attbi.com>
+	id <S314511AbSDXEIh>; Wed, 24 Apr 2002 00:08:37 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:49131 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S314498AbSDXEIg>;
+	Wed, 24 Apr 2002 00:08:36 -0400
+Date: Tue, 23 Apr 2002 20:59:13 -0700 (PDT)
+Message-Id: <20020423.205913.43844153.davem@redhat.com>
+To: EdV@macrolink.com
+Cc: peterson@austin.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: PowerPC Linux and PCI
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <11E89240C407D311958800A0C9ACF7D13A77B0@EXCHANGE>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+   From: Ed Vance <EdV@macrolink.com>
+   Date: Tue, 23 Apr 2002 10:16:16 -0700
 
-Brad, 
-I took your advice and went back and examined the 2.4.18 release and it too 
-had the logic as != "y".  Also when I changed mine to be the same != "y" up 
-it came.   Looks to me with two of us confirming it, it probably needs to be 
-fixed at the source.   Thanks.  If I run into again, I'll check that logic 
-first.
-Mike
+   James L Peterson wrote: 
+   > What does this mean?  This suggests that PCI controller for
+   > big-endian systems are not interchangeable with PCI controllers
+   > for little-endian systems, because the controller itself does
+   > byte swapping (is that what you mean by "byte twisting"?)
+   
+   I think David's reference is to the system's PCI subsystem/interface rather
+   than to the PCI cards plugged into it.
 
+No, I'm talking about the "PCI host controller" the thing that
+connects the PCI bus to the system bus :-)
 
-On Tuesday 23 April 2002 20:19, A Guy Called Tyketto wrote:
-{snip include}
->
->         I had the same problem with xconfig when I rolled 2.5.9. A bit more
-> looking into it made me wonder about the conditional of Config.in on that
-> line. Currently shows:
->
-> if [ "$CONFIG_ISDN_BOOL" == "y" ]; then
->
->         I reversed this condition to make it != "y", and it worked. See
-> below for patch. I'm not sure if this is correct, because I'm not that
-> familiar with it (though I should!) but it made make xconfig work for me
-> again. YMMV.
->
->                                                         BL.
->
-> --- linux/drivers/isdn/Config.in.borked	Tue Apr 23 20:12:58 2002
-> +++ linux/drivers/isdn/Config.in	Mon Apr 22 18:46:45 2002
-> @@ -7,7 +7,7 @@
->  if [ "$CONFIG_NET" != "n" ]; then
->     bool 'ISDN support' CONFIG_ISDN_BOOL
->
-> -   if [ "$CONFIG_ISDN_BOOL" == "y" ]; then
-> +   if [ "$CONFIG_ISDN_BOOL" != "y" ]; then
->        mainmenu_option next_comment
->        comment 'Old ISDN4Linux'
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+And to address James's concern, yes unmodified such a PCI controller
+won't work on a little-endian system, but any sane hardware designed
+would add at least a jumper of some sort to switch the behavior of
+the endianness features.
 
-iD8DBQE8xiqfod000q4aikwRAnXpAJ4njsIyw31AiyFVIwJVdH6r+no8hwCfcuZK
-uv7raV0mh1hVj3RWpW4ftIE=
-=1S1s
------END PGP SIGNATURE-----
+All of this has to do with what "byte X" within a word means when it
+comes from a little endian vs. a big endian processor.
+
+Can I ask you to have a stare at the following document before
+continuing this thread further?
+
+	http://www.sun.com/processors/manuals/802-7835.pdf
+
+In particular, I wish you would read Chapter 10 "endianness support".
+it starts on page 115.  Sun's controller does things right, compare it
+with yours to see if it deals with the byte lanes correctly when
+hooked up to a big endian processor :-)
+
+Note your original problem is an absolutely trite example, if that
+code in the kernel doesn't work you are going to have tons of other
+problems elsewhere when accessing things on the PCI bus.

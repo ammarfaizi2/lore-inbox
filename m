@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265522AbTFSNB0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 09:01:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265545AbTFSNB0
+	id S265531AbTFSNOb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 09:14:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265538AbTFSNOa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 09:01:26 -0400
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:45813 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S265522AbTFSNBW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 09:01:22 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: Martin List-Petersen <martin@list-petersen.dk>,
-       Magnus Solvang <magnus@solvang.net>
-Subject: Re: Sco vs. IBM
-Date: Thu, 19 Jun 2003 08:14:55 -0500
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-References: <063301c32c47$ddc792d0$3f00a8c0@witbe> <20030619125741.GB6757@first.knowledge.no> <1056027789.3ef1b48d3ea2e@support.tuxbox.dk>
-In-Reply-To: <1056027789.3ef1b48d3ea2e@support.tuxbox.dk>
-MIME-Version: 1.0
-Message-Id: <03061908145500.25179@tabby>
-Content-Transfer-Encoding: 7BIT
+	Thu, 19 Jun 2003 09:14:30 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:41416 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S265531AbTFSNOa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 09:14:30 -0400
+Date: Thu, 19 Jun 2003 15:28:10 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Chris Friesen <cfriesen@nortelnetworks.com>,
+       Bernd Eckenfels <ecki-lkm@lina.inka.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Make gcc3.3 Eliminate Unused Static Functions
+Message-ID: <20030619132810.GA6906@wohnheim.fh-wedel.de>
+References: <E19Qeoz-0004CM-00@calista.inka.de> <3EE9DA08.2020707@nortelnetworks.com> <20030613160335.GO828@ip68-0-152-218.tc.ph.cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030613160335.GO828@ip68-0-152-218.tc.ph.cox.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 19 June 2003 08:03, Martin List-Petersen wrote:
-> Citat Magnus Solvang <magnus@solvang.net>:
-> > Quoting jdow (jdow@earthlink.net):
-> > [...]
-> >
-> > | > I believe it's this Norwegian company they write about:
-> > | >
-> > | > http://www.trolltech.com/
-> > |
-> > | If so then say good by to KDE sometime soon....
-> >
-> > How did you arrive at that conclusion? Do you believe that
-> > SCO will destroy everything and everybody related to Linux
-> > when they can make money by suing them? :)
-> > And KDE is not limited to just Linux.
->
-> Go back and read the forbes article. That was more or less exactly the
-> point of that article.
+On Fri, 13 June 2003 09:03:35 -0700, Tom Rini wrote:
+> 
+> ... only if we say a min gcc version of 3.3 however, yes?  Otherwise the
+> kernel gets rather bloated.  Just how wide-spread (and Good To Use) is
+> gcc-3.3 now?
 
-It was the original reason Gnome was started. Trolltec had released thier
-toolkit for "free" but not GPL. They then changed the licence a bit, but I
-think they still have some (lot?) control over the toolkit. I believe the
-KDE group did start a re-work to implement an independant version, but I
-don't know how that went.
+I haven't seen a clear compiler bug yet, but found two bugs in
+assembler code with 2.95.3 that compiled without problems with 3.2.x.
+One of them has actually hit people, as you could see in the code.
+Most symptoms were "fixed", but the cause remained.
+
+If nothing else, I'd like to keep 2.95 as a code checker for at least
+a year or two.  Give 3.x some more time to mature.
+
+Jörn
+
+-- 
+Measure. Don't tune for speed until you've measured, and even then
+don't unless one part of the code overwhelms the rest.
+-- Rob Pike

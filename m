@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281568AbRKPVrW>; Fri, 16 Nov 2001 16:47:22 -0500
+	id <S281559AbRKPVrW>; Fri, 16 Nov 2001 16:47:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281565AbRKPVrQ>; Fri, 16 Nov 2001 16:47:16 -0500
-Received: from ns.suse.de ([213.95.15.193]:7186 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S281566AbRKPVq1>;
-	Fri, 16 Nov 2001 16:46:27 -0500
-Date: Fri, 16 Nov 2001 22:46:26 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] AMD SMP capability sanity checking.
-In-Reply-To: <3BF587F8.84607648@osdl.org>
-Message-ID: <Pine.LNX.4.30.0111162245080.22827-100000@Appserv.suse.de>
+	id <S281566AbRKPVrS>; Fri, 16 Nov 2001 16:47:18 -0500
+Received: from mail207.mail.bellsouth.net ([205.152.58.147]:6350 "EHLO
+	imf07bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S281568AbRKPVqt>; Fri, 16 Nov 2001 16:46:49 -0500
+Message-ID: <3BF5892C.171CF4DD@mandrakesoft.com>
+Date: Fri, 16 Nov 2001 16:46:20 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dave Jones <davej@suse.de>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] AMD SMP capability sanity checking.
+In-Reply-To: <Pine.LNX.4.30.0111162219170.22827-100000@Appserv.suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 16 Nov 2001, Randy.Dunlap wrote:
+Dave Jones wrote:
+> +               /* If we get here, it's not a certified SMP capable AMD system. */
+> +               printk (KERN_INFO "WARNING: This combination of AMD processors is not suitable for SMP.\n");
+> +               tainted |= (1<<2);
+> +
 
-> Dave-
-> A couple of minor comments below.
-> Some bit #defines for <tainted> would be nice (instead of magic
-> numbers).
-
-Agreed.
-
-> >                 snprintf(buf, sizeof(buf), "Tainted: %c%c",
-> >>>>>>>>>>>>>>>>>>                                     %c%c%c <<<<<<<<<<<<<
-
-Yup. Thanks for that.
-
-Those fixes, plus fixing borken indentation I introduced will be in
--2 at http://www.codemonkey.org.uk/cruft/
-in a while.
-
-regards,
-
-Dave.
+having a constant instead of setting magic bit 2 would be nice
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
 

@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263281AbTFDMHe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 08:07:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263279AbTFDMHd
+	id S263275AbTFDMWP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 08:22:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263277AbTFDMWP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 08:07:33 -0400
-Received: from ns.suse.de ([213.95.15.193]:8964 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263277AbTFDMHc (ORCPT
+	Wed, 4 Jun 2003 08:22:15 -0400
+Received: from uucp.cistron.nl ([62.216.30.38]:7685 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id S263275AbTFDMWO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 08:07:32 -0400
-Date: Wed, 4 Jun 2003 14:20:15 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Nick Piggin <piggin@cyberone.com.au>,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Georg Nikodym <georgn@somanetworks.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>
+	Wed, 4 Jun 2003 08:22:14 -0400
+From: miquels@cistron-office.nl (Miquel van Smoorenburg)
 Subject: Re: -rc7   Re: Linux 2.4.21-rc6
-Message-ID: <20030604122015.GR4853@suse.de>
-References: <Pine.LNX.4.55L.0305282019160.321@freak.distro.conectiva> <200306041235.07832.m.c.p@wolk-project.de> <20030604104215.GN4853@suse.de> <200306041246.21636.m.c.p@wolk-project.de> <20030604104825.GR3412@x30.school.suse.de> <3EDDDEBB.4080209@cyberone.com.au> <20030604120053.GQ4853@suse.de> <20030604120932.GS3412@x30.school.suse.de>
+Date: Wed, 4 Jun 2003 12:35:42 +0000 (UTC)
+Organization: Cistron Group
+Message-ID: <bbkp2u$v43$2@news.cistron.nl>
+References: <Pine.LNX.4.55L.0305282019160.321@freak.distro.conectiva> <200306041246.21636.m.c.p@wolk-project.de> <20030604104825.GR3412@x30.school.suse.de> <3EDDDEBB.4080209@cyberone.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030604120932.GS3412@x30.school.suse.de>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: ncc1701.cistron.net 1054730142 31875 62.216.29.200 (4 Jun 2003 12:35:42 GMT)
+X-Complaints-To: abuse@cistron.nl
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 04 2003, Andrea Arcangeli wrote:
-> On Wed, Jun 04, 2003 at 02:00:53PM +0200, Jens Axboe wrote:
-> > since you have a single writer and maybe a reader or two. The single
-> > writer cannot starve anyone else.
-> 
-> unless you're changing an atime and you've to mark_buffer_dirty or
-> similar (balance_dirty will write stuff the same way from cp and the
-> reader then).
+In article <3EDDDEBB.4080209@cyberone.com.au>,
+Nick Piggin  <piggin@cyberone.com.au> wrote:
+>-	char			plugged;
+>+	int			plugged:1;
 
-Yes you are right, could be.
+This is dangerous:
 
-But the whole thing still smells fishy. Read starvation causing mouse
-stalls, hmm.
+struct foo {
+        int     bla:1;
+};
+ 
+int main()
+{
+        struct foo      f;
+ 
+        f.bla = 1;
+        printf("%d\n", f.bla);
+}
 
+
+$ ./a.out
+-1
+
+If you want to put "0" and "1" in a 1-bit field, use "unsigned int bla:1".
+
+Mike.
 -- 
-Jens Axboe
+.. somehow I have a feeling the hurting hasn't even begun yet
+	-- Bill, "The Terrible Thunderlizards"
 

@@ -1,60 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261492AbTLKVnk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 16:43:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbTLKVnk
+	id S264340AbTLKVxF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 16:53:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264363AbTLKVxF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 16:43:40 -0500
-Received: from massena-4-82-67-197-146.fbx.proxad.net ([82.67.197.146]:14465
-	"EHLO perso.free.fr") by vger.kernel.org with ESMTP id S261492AbTLKVnj
+	Thu, 11 Dec 2003 16:53:05 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:45839 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264340AbTLKVxC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 16:43:39 -0500
-From: Duncan Sands <baldrick@free.fr>
-To: Oliver Neukum <oliver@neukum.org>, Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [linux-usb-devel] Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
-Date: Thu, 11 Dec 2003 22:43:37 +0100
-User-Agent: KMail/1.5.4
-Cc: David Brownell <david-b@pacbell.net>, Vince <fuzzy77@free.fr>,
-       "Randy.Dunlap" <rddunlap@osdl.org>, <mfedyk@matchmail.com>,
-       <zwane@holomorphy.com>, <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-References: <Pine.LNX.4.44L0.0312081754480.2034-100000@ida.rowland.org> <200312111045.11275.baldrick@free.fr> <200312111119.00289.oliver@neukum.org>
-In-Reply-To: <200312111119.00289.oliver@neukum.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200312112243.37328.baldrick@free.fr>
+	Thu, 11 Dec 2003 16:53:02 -0500
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: [PATCH][RFC] make cpu_sibling_map a cpumask_t
+Date: 11 Dec 2003 21:41:39 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <braoaj$5dh$1@gatekeeper.tmr.com>
+References: <20031209045929.437362C002@lists.samba.org> <3FD5CFE1.8080800@cyberone.com.au>
+X-Trace: gatekeeper.tmr.com 1071178899 5553 192.168.12.62 (11 Dec 2003 21:41:39 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Hi Oliver, I agree, except that there are several layers of locking:
-> > dev->serialize but also the bus rwsem.  So does "physical" mean no
-> > subsys.rwsem or no dev->serialize or both?
->
-> "physical" means no locking at all. It's the caller's responsibility.
-...
+In article <3FD5CFE1.8080800@cyberone.com.au>,
+Nick Piggin  <piggin@cyberone.com.au> wrote:
 
-> That's what the core cares about. No probe() while a reset is in
-> progress. Taking the semaphore ensures that.
+| Well if (something like) cpu_sibling_map is to become architecture
+| independant code, it should probably get something like cpu_to_package,
+| package_to_cpumask sort of things like NUMA has.
+| 
+| I don't know if SMT should become just another level of NUMA because
+| its not NUMA of course. For the scheduler it seems to make sense because
+| SMT/SMP/NUMA basically want slight variations of the same thing.
+| 
+| Possibly as you say slab cache could be SMTed, but I'm not convinced
+| that SMT and NUMA should become inseperable. Anyway I doubt 2.6 will
+| see a general multi level NUMA framework.
 
-Hi Oliver, I'm a bit confused about the locking rules.  I suppose
+It would seem that what concerns all of these levels is the process
+migration cost, so perhaps it will be possible in 2.6 after all. Right
+now a lot of clever people are actively working on scheduling, so now
+is the time for a breakthrough which gives a big boost. Absent that I
+predict all of the clever folks and most of us "build a bunch of
+kernels and play" types will conclude the low hanging fruit have all
+been picked and move on. Scheduling will be stable again.
 
-(1) If both subsys.rwsem and dev->serialize are taken, then
-subsys.rwsem must be taken first.
+Before that perhaps one of you will suddenly see some way to make this
+all very simple and elegant, so everyone can look and say "of course"
+and everything will work optimally.
 
-(2) dev->serialize atomizes changes to the struct usb_device.
-
-Why then is dev->serialize not taken in usb_reset_device
-(except in a dud code path)?
-
-Also, why isn't dev->serialize enough to protect against
-probe() during usb_reset_device?  After all, won't
-dev->serialize be held during the probe calls (I didn't
-check this and I'm in need of coffee - I hope I'm on the
-right planet...)
-
-Ciao,
-
-Duncan.
+What we have in all of these patches is a big gain over base, so the
+efforts have produced visable gains.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

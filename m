@@ -1,77 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268245AbTBNMDN>; Fri, 14 Feb 2003 07:03:13 -0500
+	id <S268366AbTBNMZB>; Fri, 14 Feb 2003 07:25:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268366AbTBNMDN>; Fri, 14 Feb 2003 07:03:13 -0500
-Received: from micropolis.microdata-pos.de ([212.8.203.34]:19468 "HELO
-	imail.microdata-pos.de") by vger.kernel.org with SMTP
-	id <S268245AbTBNMDL>; Fri, 14 Feb 2003 07:03:11 -0500
-Date: Fri, 14 Feb 2003 13:12:28 +0100
-From: Michael Westermann <mw@microdata-pos.de>
-To: linux-kernel@vger.kernel.org
-Subject: strangely serial Problem 
-Message-ID: <20030214131227.A5002@microdata-pos.de>
-Mail-Followup-To: Michael Westermann <mw@microdata-pos.de>,
-	linux-kernel@vger.kernel.org
+	id <S268372AbTBNMZB>; Fri, 14 Feb 2003 07:25:01 -0500
+Received: from [81.80.245.157] ([81.80.245.157]:7136 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S268366AbTBNMZA>; Fri, 14 Feb 2003 07:25:00 -0500
+Date: Fri, 14 Feb 2003 13:34:34 +0100
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Jan Dittmer <j.dittmer@portrix.net>
+Cc: mingo@redhat.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Compile failure in include/asm-i386/mach-default/mach_apic.h
+Message-ID: <20030214123433.GD15048@cedar.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	Jan Dittmer <j.dittmer@portrix.net>, mingo@redhat.com,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <3E4CC6A3.9020102@portrix.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+In-Reply-To: <3E4CC6A3.9020102@portrix.net>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Fri, Feb 14, 2003 at 11:36:19AM +0100, Jan Dittmer wrote:
 
-We have a strangely serial Problem. 
+> I need to include asm/apic.h and asm/mpspec.h in 
+> include/asm-i386/mach-default/mach_apic.h to compile current 2.5.60 bk tree.
+> .config attached. Didn't find it on lkml.
+> Uniprocessor w/ local apic enabled, but happens also with local apic 
+> disabled.
+> Is this the correct fix?
 
-I have a box with Kernel 2.2.23 and Suse and a box with
-Debian with kernel 2.2.23. Old IDE-Disk's without DMA. 
-Both boxes are connect with crossober Cable.
+I think the patch below is better...
 
-On the reading box run's a "find /[!p]* -type f -exec grep  "balffasel" {} \;
-to the same time. 
+Stelian.
 
-I have tested with:
+===== arch/i386/kernel/acpi/boot.c 1.21 vs edited =====
+--- 1.21/arch/i386/kernel/acpi/boot.c	Thu Feb 13 18:51:14 2003
++++ edited/arch/i386/kernel/acpi/boot.c	Fri Feb 14 10:18:03 2003
+@@ -24,8 +24,11 @@
+  */
+ 
+ #include <linux/init.h>
++#include <linux/config.h>
+ #include <linux/acpi.h>
+ #include <asm/pgalloc.h>
++#include <asm/mpspec.h>
++#include <asm/apic.h>
+ 
+ #include <mach_apic.h>
+ #include <mach_mpparse.h>
 
-stty -F /dev/ttyS0 0:0:800008bf:0:3:1c:7f:15:4:0:1:0:0:0:1a:0:12:f:17:16:0:0:0:0
-:0:0:0:0:0:0:0:0:0:0:0:0 
-
-38400 baud
-
-cat /dev/ttyS0 > testdat 
-
-on the reading box
-
-for i in `seq 1 500`; do \
-printf "%04d 0123456789012345678901234567890123456789012345678901234567890\n" $i
- > /dev/ttyS0  ; done
-
-on the writing box
-
-When the debian-Box send the characters, to get lost characters.
-When the Suse-Box send's it's ok. i
-
-I have tested only with a runnig bash "lili: linux init=/bin/bash"
-the same Problem. On both boxes are the same kernel, the same
-serial parabeters, both boxes work with FIFO. 
-
-I have tested the kernel 2.2.16...23 and 2.4.2 2.4.17 2.4.20, only
-the 2.4.17 has the same problem on debian. 
-
-
-I think that is a interrupt  Probelem,but what is the causale?
-what the difference.
-
-When I use the FIFO, the UART read 8 char's to put a Interrupt.  
-The time for 8 char's is 2 ms. After this time we have a overrun,
-but I thin that is a long time witout a Interrupt.
-
-Thank's
-
-Michael Westermann
-
-
-
-
-
-
+-- 
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

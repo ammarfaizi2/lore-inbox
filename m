@@ -1,78 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262200AbUJZJpM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262179AbUJZJ6b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262200AbUJZJpM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 05:45:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262203AbUJZJpL
+	id S262179AbUJZJ6b (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 05:58:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262204AbUJZJ6b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 05:45:11 -0400
-Received: from sd291.sivit.org ([194.146.225.122]:17796 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S262200AbUJZJpC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 05:45:02 -0400
-Date: Tue, 26 Oct 2004 11:46:13 +0200
-From: Stelian Pop <stelian@popies.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/5] Sonypi driver model & PM changes
-Message-ID: <20041026094613.GD2998@crusoe.alcove-fr>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	Vojtech Pavlik <vojtech@suse.cz>,
-	Dmitry Torokhov <dtor_core@ameritech.net>,
-	linux-kernel@vger.kernel.org
-References: <200410210154.58301.dtor_core@ameritech.net> <20041025125629.GF6027@crusoe.alcove-fr> <20041025135036.GA3161@crusoe.alcove-fr> <20041025135742.GA1733@ucw.cz> <20041025144549.GD3161@crusoe.alcove-fr> <20041025151120.GA1802@ucw.cz> <20041025152023.GE3161@crusoe.alcove-fr> <20041025160427.GA2002@ucw.cz>
+	Tue, 26 Oct 2004 05:58:31 -0400
+Received: from cavan.codon.org.uk ([213.162.118.85]:59788 "EHLO
+	cavan.codon.org.uk") by vger.kernel.org with ESMTP id S262179AbUJZJ62
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 05:58:28 -0400
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Andi Kleen <ak@suse.de>, ACPI-DEV <acpi-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, greg@kroah.com,
+       Pavel Machek <pavel@suse.cz>
+In-Reply-To: <1098780150.2789.19.camel@laptop.fenrus.org>
+References: <1098766257.8433.7.camel@sli10-desk.sh.intel.com>
+	 <20041026051100.GA5844@wotan.suse.de>  <417DEA8D.4080307@intel.com>
+	 <1098780150.2789.19.camel@laptop.fenrus.org>
+Date: Tue, 26 Oct 2004 10:57:54 +0100
+Message-Id: <1098784674.3996.85.camel@tyrosine>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20041025160427.GA2002@ucw.cz>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.2 
+X-SA-Exim-Connect-IP: 213.162.118.93
+X-SA-Exim-Mail-From: mjg59@srcf.ucam.org
+Subject: Re: [ACPI] [Proposal]Another way to save/restore PCI config space
+	for suspend/resume
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on cavan.codon.org.uk)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 25, 2004 at 06:04:27PM +0200, Vojtech Pavlik wrote:
+On Tue, 2004-10-26 at 10:42 +0200, Arjan van de Ven wrote:
+> On Tue, 2004-10-26 at 02:11 -0400, Len Brown wrote:
+> > What this comes down to is that extended config space is device-specific.
+> > Generic solutions will fail.  Only device drivers will work.
+> > 
+> > If there are no drivers for PCI bridges to properly save/restore
+> > their config space, then should create them, even if this is all the 
+> > drivers do.
+> 
+> note that by default, if there is no driver, the first 64 bytes of
+> config space are saved/restored.
 
-> > KeyRelease event, serial 24, synthetic NO, window 0x2a00001,
-> >     root 0x40, subw 0x2a00002, time 6566259, (37,47), root:(542,70),
-> >     state 0x20, keycode 214 (keysym 0x8f6, function), same_screen YES,
-> >     XLookupString gives 0 bytes: 
->  
-> Watch the "state" variable.
+On one of my machines, doing this causes the cardbus bridge to explode
+on resume (every other character of printks suddenly starts getting left
+out, and then the machine hangs). This happens even if I've never loaded
+the yenta driver. The naive approach certainly doesn't seem to be safe
+on all hardware.
 
-Indeed, I didn't noticed it.
-
-However, this still doesn't work as expected. I looked at WindowMaker's
-code for grabbing a key and found out it uses the standard IsModifierKey
-macro, which is defined in X11/Xutil.h as:
-
-#define IsModifierKey(keysym) \
-  ((((KeySym)(keysym) >= XK_Shift_L) && ((KeySym)(keysym) <= XK_Hyper_R)) \
-  || (((KeySym)(keysym) >= XK_ISO_Lock) && \
-       ((KeySym)(keysym) <= XK_ISO_Last_Group_Lock)) \
-  || ((KeySym)(keysym) == XK_Mode_switch) \
-  || ((KeySym)(keysym) == XK_Num_Lock))
-
-So it clearly handles only some special modifier keys.
-
-Moreover, the xkeycaps manpage (available at
-http://wwwvms.mppmu.mpg.de/unix_man_pages/xkeycaps.html) goes a bit
-more in-depth and says:
-
-   Modifier Bit
-                 Modifier  bits  are  attributes  which   certain
-                 keysyms  can have.  Some modifier bits have pre­
-                 defined semantics:  Shift,  Lock,  and  Control.
-                 The  remaining modifier bits (Mod1 through Mod5)
-                 have semantics which are  defined  by  the  keys
-                 with which they are associated.
-
-So I'm back where I started, I cannot see how to define my new
-'Fn' key to be interpreted as a 'ModX' modifier by X.
-
-I will probably go now the new evdev based X driver, and will use
-new, above 240, keycodes for all key combinations. Provided the
-Gentoo patches build and work correctly.
-
-Stelian.
 -- 
-Stelian Pop <stelian@popies.net>    
+Matthew Garrett | mjg59@srcf.ucam.org
+

@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314381AbSEIVgY>; Thu, 9 May 2002 17:36:24 -0400
+	id <S314385AbSEIVhb>; Thu, 9 May 2002 17:37:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314385AbSEIVgX>; Thu, 9 May 2002 17:36:23 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:53007 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S314381AbSEIVgV>; Thu, 9 May 2002 17:36:21 -0400
-Date: Thu, 9 May 2002 23:36:24 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Andrew Morton <akpm@zip.com.au>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Reading page from given block device
-Message-ID: <20020509213624.GF1988@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20020508225603.GA11842@atrey.karlin.mff.cuni.cz> <Pine.GSO.4.21.0205090039060.12789-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+	id <S314389AbSEIVh3>; Thu, 9 May 2002 17:37:29 -0400
+Received: from [194.252.160.219] ([194.252.160.219]:36246 "EHLO st0.invers.fi")
+	by vger.kernel.org with ESMTP id <S314385AbSEIVh1>;
+	Thu, 9 May 2002 17:37:27 -0400
+Date: Fri, 10 May 2002 00:36:56 +0300 (EEST)
+From: tchiwam <tchiwam@ees2.oulu.fi>
+X-X-Sender: tchiwam@st0
+To: linux-kernel@vger.kernel.org
+Subject: Silent death , PPC-linux 2.4.18-rc4 -> .19-rc7
+Message-ID: <Pine.LNX.4.44.0205100025180.31628-100000@st0>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello,
 
-> > Well, I'm doing it during boot, and this is swap partition; it should
-> > not have been accessed previously.
-> > 
-> > > >         bdev = bdget(kdev_t_to_nr(dev));
-> > > >         if (!bdev) {
-> > > >                 printk("No block device for %s\n", __bdevname(dev));
-> > > >                 BUG();
-> > > >         }
-> > > >         printk("C");
-> 
-> blkdev_open(bdev, FMODE_READ, O_RDONLY, BDEV_RAW)
+Symptomes: Dies silently and it is unpredictable , sometimes Hardisk leds
+stays on , sometime not. Can be weeks between crashes or just few minutes.
 
-blkdev_open is 
+I used a lot of the 2.4.17 for many months without any crashes.
 
-fs.h:extern int blkdev_open(struct inode *, struct file *);
+ only way to fix it is to restart the machine with reset.
 
-... I can't see how to use it in this context.
+I have read something about a new aic7xxx driver, but somehow haven't
+found the driver anywhere.
 
-> > > >         if (!bh || (!bh->b_data)) {
-> > > >                 return -1;
-> 
-> However, I would really suggest to open the bugger once, do all IO and
-> then close it.  See how raw.c and friends deal with these problems.
+The machine is a Apple 9500 with
+PowerPC G3 (upgrade)
+512MB Ram
 
-Performance should not matter here.
-								Pavel
+Ethernet controller: 3Com Corporation 3c905C-TX [Fast Etherlink] (rev 116).
+MACE ethernet
+  Masquarading between both interfaces public to private network
 
--- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
+SCSI storage controller: Adaptec 7892A (rev 2).
+SCSI storage controller: Adaptec AHA-2940U2/W (rev 1).
+  There is 4 hard disks 2 on each host controller, They are Linux Raid 1+0
+  And the swap is also mirrored on them 2x raid 1 (512MB)
+  This machine serves nfs to the private network.
+
+
+Thank you,
+Philippe
+

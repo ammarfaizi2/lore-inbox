@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131585AbQLLBUi>; Mon, 11 Dec 2000 20:20:38 -0500
+	id <S131591AbQLLBW2>; Mon, 11 Dec 2000 20:22:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131591AbQLLBU3>; Mon, 11 Dec 2000 20:20:29 -0500
-Received: from smtp01.mrf.mail.rcn.net ([207.172.4.60]:58754 "EHLO
-	smtp01.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S131585AbQLLBUT>; Mon, 11 Dec 2000 20:20:19 -0500
-Message-ID: <3A35762F.FDCE002B@haque.net>
-Date: Mon, 11 Dec 2000 19:49:51 -0500
-From: "Mohammad A. Haque" <mhaque@haque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-CC: Frank Davis <fdavis112@juno.com>
-Subject: task queue updates status?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131546AbQLLBWS>; Mon, 11 Dec 2000 20:22:18 -0500
+Received: from [200.222.195.150] ([200.222.195.150]:56068 "EHLO
+	pervalidus.dyndns.org") by vger.kernel.org with ESMTP
+	id <S131591AbQLLBWE>; Mon, 11 Dec 2000 20:22:04 -0500
+Date: Mon, 11 Dec 2000 22:51:33 -0200
+From: Frédéric L . W . Meunier 
+	<0@pervalidus.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ide-pci.c: typo
+Message-ID: <20001211225133.D1245@pervalidus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+X-Mailer: Mutt/1.2.5i - Linux 2.2.18
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all
+Alan Cox wrote:
 
-How are we doing on the task queue updates?
+> I disagree with the patch. The bug is in printk
+
+No problem. So, it's a bug report instead. I have no clues,
+and just thought it'd be a fix :)
+
+Not sure if 2.2.17 reported the double %% from syslog. I
+usually look at my dmesg.
 
 -- 
-
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/ 
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
+0@pervalidus.{net,{dyndns.}org} TelFax: 55-21-717-2399 (Niterói-RJ BR)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

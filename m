@@ -1,40 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268729AbUIXNHk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268730AbUIXNIx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268729AbUIXNHk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 09:07:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268730AbUIXNHk
+	id S268730AbUIXNIx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 09:08:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268734AbUIXNIx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 09:07:40 -0400
-Received: from alephnull.demon.nl ([212.238.201.82]:10669 "EHLO
-	xi.wantstofly.org") by vger.kernel.org with ESMTP id S268729AbUIXNHj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 09:07:39 -0400
-Date: Fri, 24 Sep 2004 15:07:38 +0200
-From: Lennert Buytenhek <buytenh@wantstofly.org>
-To: Leonid Grossman <leonid.grossman@s2io.com>
-Cc: "'David S. Miller'" <davem@davemloft.net>,
-       "'Jeff Garzik'" <jgarzik@pobox.com>, alan@lxorguk.ukuu.org.uk,
-       paul@clubi.ie, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: The ultimate TOE design
-Message-ID: <20040924130738.GB24093@xi.wantstofly.org>
-References: <20040915142926.7bc456a4.davem@davemloft.net> <200409152329.i8FNTsqG025184@guinness.s2io.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200409152329.i8FNTsqG025184@guinness.s2io.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 24 Sep 2004 09:08:53 -0400
+Received: from bhhdoa.org.au ([216.17.101.199]:12556 "EHLO bhhdoa.org.au")
+	by vger.kernel.org with ESMTP id S268730AbUIXNIm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 09:08:42 -0400
+Date: Fri, 24 Sep 2004 16:07:38 +0300 (EAT)
+From: Zwane Mwaikambo <zwane@fsmlabs.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] remove spurious might_sleep in i386 usercopy
+Message-ID: <Pine.LNX.4.53.0409240430260.19886@musoma.fsmlabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 15, 2004 at 04:29:45PM -0700, Leonid Grossman wrote:
+There seem to be multiple might_sleep() statements littered about in 
+arch/i386/lib/usercopy.c as the primitives (__do_clear_user, 
+__copy_to_user, __copy_from_user) already do the might_sleep() check.
 
-> And at 10GbE, embedded CPUs just don't cut it - it has to be custom ASIC
-> (granted, with some means to simplify debugging and reduce the risk of hw
-> bugs and TCP changes).
+Signed-off-by: Zwane Mwaikambo <zwane@fsmlabs.com>
 
-Intel's IXP2800 can do 10GbE.
-
-http://www.intel.com/design/network/products/npfamily/ixp2800.htm
-
-
---L
+Index: linux-2.6.9-rc2-mm1/arch/i386/lib/usercopy.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.9-rc2-mm1/arch/i386/lib/usercopy.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 usercopy.c
+--- linux-2.6.9-rc2-mm1/arch/i386/lib/usercopy.c	16 Sep 2004 13:41:16 -0000	1.1.1.1
++++ linux-2.6.9-rc2-mm1/arch/i386/lib/usercopy.c	24 Sep 2004 01:26:13 -0000
+@@ -152,7 +152,6 @@ do {									\
+ unsigned long
+ clear_user(void __user *to, unsigned long n)
+ {
+-	might_sleep();
+ 	if (access_ok(VERIFY_WRITE, to, n))
+ 		__do_clear_user(to, n);
+ 	return n;
+@@ -596,7 +595,6 @@ __copy_from_user_ll(void *to, const void
+ unsigned long
+ copy_to_user(void __user *to, const void *from, unsigned long n)
+ {
+-	might_sleep();
+ 	if (access_ok(VERIFY_WRITE, to, n))
+ 		n = __copy_to_user(to, from, n);
+ 	return n;
+@@ -622,7 +620,6 @@ EXPORT_SYMBOL(copy_to_user);
+ unsigned long
+ copy_from_user(void *to, const void __user *from, unsigned long n)
+ {
+-	might_sleep();
+ 	if (access_ok(VERIFY_READ, from, n))
+ 		n = __copy_from_user(to, from, n);
+ 	else

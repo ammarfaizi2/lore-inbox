@@ -1,47 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271630AbRHUKOt>; Tue, 21 Aug 2001 06:14:49 -0400
+	id <S271634AbRHUK2L>; Tue, 21 Aug 2001 06:28:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271634AbRHUKOj>; Tue, 21 Aug 2001 06:14:39 -0400
-Received: from natpost.webmailer.de ([192.67.198.65]:51843 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S271630AbRHUKOe>; Tue, 21 Aug 2001 06:14:34 -0400
-Message-ID: <3B823476.9060109@korseby.net>
-Date: Tue, 21 Aug 2001 12:14:14 +0200
-From: Kristian <kristian@korseby.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010808
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: cwidmer@iiic.ethz.ch
-CC: linux-kernel@vger.kernel.org
-Subject: Re: massive filesystem corruption with 2.4.9
-In-Reply-To: <3B821509.8000006@korseby.net> <200108210834.f7L8Ysk09023@mail.swissonline.ch>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S271635AbRHUK2B>; Tue, 21 Aug 2001 06:28:01 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:15374 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S271634AbRHUK1s>;
+	Tue, 21 Aug 2001 06:27:48 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Brian Dushaw <dushaw@apl.washington.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.8-ac8, agpgart, r128, and mtrr 
+In-Reply-To: Your message of "Tue, 21 Aug 2001 05:01:53 MST."
+             <Pine.LNX.4.33.0108210423110.3231-100000@munk.apl.washington.edu> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 21 Aug 2001 20:27:58 +1000
+Message-ID: <2329.998389678@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Widmer wrote:
-> i had similar problems with 2.4.6. unfortunately i didn't save the errors so
-> i can't compare the msg's. i just can say that with 2.4.6 it destroyed the
-> ext2 on a 40GB and 60GB maxtor disk. since then my nfs server is running 
-> 2.2.19 with works fine (with minor promblems*).
-> 
-> * after a client mounted an exprots once. i cant unmount that partition on 
-> the server after the client unmounted the exports.
+On Tue, 21 Aug 2001 05:01:53 -0700 (PDT), 
+Brian Dushaw <dushaw@apl.washington.edu> wrote:
+>I have an ATI Technologies Inc Rage 128 PF video card.
+>The module r128.o needs to have agpgart loaded first and depmod
+>does not seem to set this up properly.  I've added the line:
+>"pre-install r128 modprobe agpgart " to my /etc/modules.conf file.
 
-I have several entries more in my logfile. It would be no problem collecting 
-them if that is helpful. I forgot to say that I'm using an IBM 41 GB (hda: 
-IBM-DTLA-305040, ATA DISK drive) and that this problem only occurs on my 
-root-partition (hda5), the always mounted /boot-Partition (hda1) and partially 
-mounted misc-Partition (hda7) are not effected.
+"before r128 agpgart" is better.
 
-I don't use any NFS.
+>I wouldn't have thought this would require user intervention like this.
 
-Kristian
+modprobe and depmod only handle direct symbol dependencies between
+modules.  The only symbols exported by agpgart are agp_free_memory,
+agp_allocate_memory, agp_copy_info, agp_bind_memory, agp_unbind_memory,
+agp_enable, agp_backend_acquire, agp_backend_release.  None of these
+symbols are referenced by r128 so modprobe is quite correct, there is
+no symbol dependency between agpgart and r128.  If you want it to be
+automatic, then r128 must reference an agpgart symbol.
 
-·· · · reach me :: · ·· ·· ·  · ·· · ··  · ··· · ·
-                          :: http://www.korseby.net
-                          :: http://www.tomlab.de
-kristian@korseby.net ....::
+But the drm maintainers decided not to rely on agp.  If agp is present
+it will be used, if agp is not present then drm runs without it.
+drivers/char/drm/drm_agpsupport.h uses inter_module_get() to see if agp
+is loaded and to extract agp data, if available.  This allows drm to
+run without forcing agp to be present and loaded.  So if you want agp
+before drm, it must be explicitly loaded.  Design decision.
+
+>Aug 20 13:04:37 localhost modprobe: modprobe: Can't locate module block-major-33
+
+block-major-33 is the third IDE hard disk/CD-ROM interface, for hd[ef].
+
+>Aug 20 13:04:40 localhost modprobe: modprobe: Can't locate module char-major-226
+
+char-major-226 is DRI (DRM_MAJOR).  That one puzzles me, I cannot see
+where it is being triggered from.
 

@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317871AbSGKXzj>; Thu, 11 Jul 2002 19:55:39 -0400
+	id <S314078AbSGKXyw>; Thu, 11 Jul 2002 19:54:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317899AbSGKXzi>; Thu, 11 Jul 2002 19:55:38 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:18320 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S317871AbSGKXzg>;
-	Thu, 11 Jul 2002 19:55:36 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Daniel Phillips <phillips@arcor.de>
-Cc: Alexander Viro <viro@math.psu.edu>, "David S. Miller" <davem@redhat.com>,
-       adam@yggdrasil.com, R.E.Wolff@BitWizard.nl,
-       linux-kernel@vger.kernel.org
-Subject: Re: Rusty's module talk at the Kernel Summit 
-In-reply-to: Your message of "Thu, 11 Jul 2002 12:54:42 +0200."
-             <E17Sbat-0002TF-00@starship> 
-Date: Fri, 12 Jul 2002 10:00:26 +1000
-Message-Id: <20020711235822.8B2494849@lists.samba.org>
+	id <S317871AbSGKXyv>; Thu, 11 Jul 2002 19:54:51 -0400
+Received: from cerebus.wirex.com ([65.102.14.138]:57326 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S314078AbSGKXyv>; Thu, 11 Jul 2002 19:54:51 -0400
+Date: Thu, 11 Jul 2002 16:56:36 -0700
+From: Chris Wright <chris@wirex.com>
+To: Shaya Potter <spotter@cs.columbia.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: jail() system call (was Re: prevent breaking a chroot() jail?)
+Message-ID: <20020711165636.B21285@figure1.int.wirex.com>
+Mail-Followup-To: Shaya Potter <spotter@cs.columbia.edu>,
+	linux-kernel@vger.kernel.org
+References: <200207051516.g65FGYY20854@marc2.theaimsgroup.com> <20020705161750.GO1548@niksula.cs.hut.fi> <1026428914.8085.11.camel@zaphod>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1026428914.8085.11.camel@zaphod>; from spotter@cs.columbia.edu on Thu, Jul 11, 2002 at 07:08:13PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <E17Sbat-0002TF-00@starship> you write:
-> Note how the rmmod-during-ret race just disappeared, because rmmod directly 
-> calls deregister, which either succeeds or doesn't.  If it succeeds there are
-> no mounts on the module and everything is quiet, remove away.  Easy huh?  
-> Note also how we don't really have to divide up the 'deactivate' and 
-> 'destroy' parts of the deregistration process, though I can see why it still 
-> might be useful to do that.  Such refinements become a concern of the 
-> filesystem machinery, not the module interface.
+* Shaya Potter (spotter@cs.columbia.edu) wrote:
+> Wow, this is what I need.  Would there be any interest in having this
+> syscall in Linux, as I need to design something like this anyways for
+> the research we are doing.
 > 
-> This is all by way of saying that Al is apparently well advanced in 
-> implementing exactly the strategy I'd intended to demonstrate (Rusty and 
-> Keith seem to be heading to the same place as well, by a twistier path).  I'm
+> A first stab implementation would probably be as a module (as our
+> research is based on a being usable just as a loadable module, w/o any
+> direct kernel patch need, therefore until something is accepted into the
+> kernel, we would need it like this), but we'd prefer it, and it
+> definitely would be cleaner to have the jail tests integrated into the
+> syscall and not wrapped by the module.
 
-<sigh>
+You could implement this policy in a security module.
+http://lsm.immunix.org.
 
-I noted previously that you can do it if you do restrict the interface
-to "one module, one fs" approach, as you've suggested here.  Al
-corrected me saying that's not neccessary.  It's possible that he's
-come up with a new twist on the "freeze-the-kernel" approach or
-something.
+I don't believe you can do all of jail() with just capabilities, and as
+a module it can always be extended.
 
-Al has scribbled in the margin that there's a clever solution, let's
-hope he doesn't die before revealing it. 8)
-
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

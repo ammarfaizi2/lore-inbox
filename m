@@ -1,53 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262925AbUA0Gie (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 01:38:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263002AbUA0Gie
+	id S261974AbUA0G4p (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 01:56:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262683AbUA0G4o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 01:38:34 -0500
-Received: from user-119ahgg.biz.mindspring.com ([66.149.70.16]:41881 "EHLO
-	mail.home") by vger.kernel.org with ESMTP id S262925AbUA0Gid (ORCPT
+	Tue, 27 Jan 2004 01:56:44 -0500
+Received: from dp.samba.org ([66.70.73.150]:28316 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S261974AbUA0G4j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 01:38:33 -0500
-From: Eric <eric@cisu.net>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] Re: Kernels > 2.6.1-mm3 do not boot. - SOLVED
-Date: Tue, 27 Jan 2004 00:37:43 -0600
-User-Agent: KMail/1.5.94
-Cc: stoffel@lucent.com, ak@muc.de, Valdis.Kletnieks@vt.edu, bunk@fs.tum.de,
-       cova@ferrara.linux.it, linux-kernel@vger.kernel.org
-References: <200401232253.08552.eric@cisu.net> <200401262343.35633.eric@cisu.net> <20040126215056.4e891086.akpm@osdl.org>
-In-Reply-To: <20040126215056.4e891086.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 27 Jan 2004 01:56:39 -0500
+Date: Tue, 27 Jan 2004 17:41:01 +1100
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: stern@rowland.harvard.edu, greg@kroah.com, linux-kernel@vger.kernel.org,
+       mochel@digitalimplant.org
+Subject: Re: PATCH: (as177)  Add class_device_unregister_wait() and
+ platform_device_unregister_wait() to the driver model core
+Message-Id: <20040127174101.10b98a57.rusty@rustcorp.com.au>
+In-Reply-To: <Pine.LNX.4.58.0401251054340.18932@home.osdl.org>
+References: <Pine.LNX.4.44L0.0401251224530.947-100000@ida.rowland.org>
+	<Pine.LNX.4.58.0401251054340.18932@home.osdl.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200401270037.43676.eric@cisu.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 26 January 2004 23:50, Andrew Morton wrote:
-> Eric <eric@cisu.net> wrote:
-> > YES. I finally have a working 2.6.2-rc1-mm3 booted kernel.
-> >  Lets review folks---
-> >  	reverted -funit-at-a-time
-> >  	patched test_wp_bit so exception tables are sorted sooner
-> >  	reverted md-partition patch
->
-> The latter two are understood, but the `-funit-at-a-time' problem is not.
->
-> Can you plesae confirm that restoring only -funit-at-a-time again produces
-> a crashy kernel?  And that you are using a flavour of gcc-3.3?  If so, I
-> guess we'll need to only enable it for gcc-3.4 and later.
->
-Yes, confirmed. My  version of gcc, I just sent you adding the 
--funit-at-a-time hung after uncompressing the kernel. I booted a secondary 
-kernel, recompiled without it and all was fine again. Confirmed non-boot for 
-2.6.2-rc1-mm3 but without a doubt for all kernels previous where 
--funit-at-a-time is active in the makefile.
+On Sun, 25 Jan 2004 11:02:58 -0800 (PST)
+Linus Torvalds <torvalds@osdl.org> wrote:
 
--------------------------
-Eric Bambach
-Eric at cisu dot net
--------------------------
+> On Sun, 25 Jan 2004, Alan Stern wrote:
+> > 
+> > Is there some reason why modules don't work like this?
+> 
+> There's a few:
+> 
+>  - pain. pain. pain.
+> 
+>  - doing proper refcounting of modules is _really_ really hard. The reason 
+>    is that proper refcounting is a "local" issue: you reference count a
+>    single data structure. It's basically impossible to make a "global" 
+>    reference count without jumping through hoops.
+> 
+>  - lack of testing. Unloading a module happens once in a blue moon, if 
+>    even then.
+
+And modules do work like you proposed, if you use "rmmod --wait".
+
+Doing proper refcounting is actually fairly easy: every function pointer
+has an associated reference count (or pointer to the module containing
+the refcount).
+
+But how much pain are you prepared to put up with to have a pseudo-pagable
+kernel?
+
+> (As an example of "too painful, too slow", think of something like a 
+> packet filter module. You'd literally have to increment the count in every 
+> part that gets a packet, and decrement the count at every point where it 
+> lets the packet go.  And since it would have to be SMP-safe, it would have 
+> to be a locked cycle, or we'd have to have per-CPU counters - at which 
+> point you now also have to worry about things like preemption and 
+> sleeping, which just means that it would be a _lot_ of very fragile code).
+
+Actually, this is already handled.  The module reference counts are per-cpu
+and don't contain any barriers.  We go to an *awful* lot of pain on remove
+to synchronize, but as Linus says, it's not the normal case.
+
+Since we hit the (atomic_t) ref to the devices on every packet, bumping
+the refcount on the module is lost in the noise.
+
+But Dave doesn't want to do it: it makes the code uglier and painful.
+
+Cheers,
+Rusty.
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

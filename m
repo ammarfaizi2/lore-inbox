@@ -1,90 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261289AbVA0X0M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261287AbVA0XJF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261289AbVA0X0M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 18:26:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbVA0XZv
+	id S261287AbVA0XJF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 18:09:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbVA0XFW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 18:25:51 -0500
-Received: from mail.gmx.net ([213.165.64.20]:26766 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261289AbVA0XWM (ORCPT
+	Thu, 27 Jan 2005 18:05:22 -0500
+Received: from fire.osdl.org ([65.172.181.4]:33177 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S261277AbVA0XEn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 18:22:12 -0500
-X-Authenticated: #1122255
-Message-ID: <41F977D4.7030103@gmx.de>
-Date: Fri, 28 Jan 2005 00:23:00 +0100
-From: Nico Huber <nico.h@gmx.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: de-DE, de, en-us, en
+	Thu, 27 Jan 2005 18:04:43 -0500
+Message-ID: <41F97185.6030905@osdl.org>
+Date: Thu, 27 Jan 2005 14:56:05 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Logitech Cordeless Desktop Keyboard fails to report class descriptor
-Content-Type: multipart/mixed;
- boundary="------------070406030400000401080100"
-X-Y-GMX-Trusted: 0
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: PNP and bus association
+References: <41F95A42.40001@drzeus.cx>
+In-Reply-To: <41F95A42.40001@drzeus.cx>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070406030400000401080100
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Pierre Ossman wrote:
+> I recently tried out adding PNP support to my driver to remove the 
+> hassle of finding the correct parameters for it. This, however, causes 
+> it to show up under the pnp bus, where as it previously was located 
+> under the platform bus.
+> 
+> Is the idea that PNP devices should only reside on the PNP bus or is 
+> there some magic available to get the device to appear on several buses? 
+> It's a bit of a hassle to search in two different places in sysfs 
+> depending on if PNP is used or not.
+> 
+> Also, the PNP bus doesn't really say that much about where the device is 
+> physically connected. The other bus types usually give a hint about this.
 
-The receiver of my Logitech Cordeless Desktop fails to report the 
-keyboard's class  descriptor most times I insert the usb-hid module 
-since I changed to linux 2.6. The modell of the receiver is C-BD9-DUAL 
-REV C.
-The request seems not to fail but the count of received characters is zero.
+Not to take away from your question, but:
+Is there "the PNP bus"?  I've seen an ISA bus that (sort of)
+supports PNP, PCI PNP, NuBus PNP, USB PNP, IEEE 1394 PNP, etc.
 
-As I said it only fails most times, I worked around making the following 
-changes in drivers/usb/input/hid-core.c from linux-2.6.11-rc2:
-
-Following the good example of drivers/usb/core/message.c line 575, I 
-initialized the buffer in hid_get_class_descriptor() to zero.
-In the loop of hid_get_class_descriptor() not waiting for any result but 
-waiting for a result wich is lower the requested size of the class 
-descriptor (line 1290).
-usb_hid_configure() should not try to parse the expected length but the 
-received (line 1653).
-
-attached is a patch to linux-2.6.11-rc2 with these changes
-
-Nico Huber
-.
-
---------------070406030400000401080100
-Content-Type: text/plain;
- name="linux-2.6.11-rc2-hid-class-descriptor.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="linux-2.6.11-rc2-hid-class-descriptor.patch"
-
---- a/drivers/usb/input/hid-core.c	2005-01-27 23:59:52.000000000 +0100
-+++ b/drivers/usb/input/hid-core.c	2005-01-28 00:06:31.000000000 +0100
-@@ -1282,12 +1282,15 @@
- 		unsigned char type, void *buf, int size)
- {
- 	int result, retries = 4;
-+
-+	memset(buf,0,size);	// Make sure we parse really received data
-+
- 	do {
- 		result = usb_control_msg(dev, usb_rcvctrlpipe(dev, 0),
- 				USB_REQ_GET_DESCRIPTOR, USB_RECIP_INTERFACE | USB_DIR_IN,
- 				(type << 8), ifnum, buf, size, HZ * USB_CTRL_GET_TIMEOUT);
- 		retries--;
--	} while (result < 0 && retries);
-+	} while (result < size && retries);
- 	return result;
- }
- 
-@@ -1650,7 +1653,7 @@
- 	printk("\n");
- #endif
- 
--	if (!(hid = hid_parse_report(rdesc, rsize))) {
-+	if (!(hid = hid_parse_report(rdesc, n))) {
- 		dbg("parsing report descriptor failed");
- 		kfree(rdesc);
- 		return NULL;
-
---------------070406030400000401080100--
+-- 
+~Randy

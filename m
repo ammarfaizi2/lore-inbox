@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261650AbSIXLfk>; Tue, 24 Sep 2002 07:35:40 -0400
+	id <S261654AbSIXLmd>; Tue, 24 Sep 2002 07:42:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261652AbSIXLfk>; Tue, 24 Sep 2002 07:35:40 -0400
-Received: from ns.suse.de ([213.95.15.193]:60423 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S261650AbSIXLfj>;
-	Tue, 24 Sep 2002 07:35:39 -0400
-Date: Tue, 24 Sep 2002 13:40:48 +0200
-From: Andi Kleen <ak@suse.de>
-To: john slee <indigoid@higherplane.net>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] LTT for 2.5.38 1/9: Core infrastructure
-Message-ID: <20020924134048.A25317@wotan.suse.de>
-References: <Pine.LNX.4.44.0209221830400.8911-100000@serv.suse.lists.linux.kernel> <Pine.LNX.4.44.0209221130060.1455-100000@home.transmeta.com.suse.lists.linux.kernel> <p734rchu8ny.fsf@oldwotan.suse.de> <20020924010758.GB6675@higherplane.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020924010758.GB6675@higherplane.net>
-User-Agent: Mutt/1.3.22.1i
+	id <S261655AbSIXLmc>; Tue, 24 Sep 2002 07:42:32 -0400
+Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:40102 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id <S261654AbSIXLmc>; Tue, 24 Sep 2002 07:42:32 -0400
+Date: Tue, 24 Sep 2002 13:47:38 +0200 (CEST)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Rolf Fokkens <fokkensr@fokkensr.vertis.nl>
+cc: William Lee Irwin III <wli@holomorphy.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 32bit wraps and USER_HZ [64 bit counters], kernel 2.5.37
+In-Reply-To: <200209232208.g8NM8bN05831@fokkensr.vertis.nl>
+Message-ID: <Pine.LNX.4.33.0209241342470.4261-100000@gans.physik3.uni-rostock.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 24, 2002 at 11:07:59AM +1000, john slee wrote:
-> On Sun, Sep 22, 2002 at 09:27:29PM +0200, Andi Kleen wrote:
-> > There is an old patch around from SGI that does exactly this. It is a
-> > very lightweight binary value tracer that has per CPU buffers. It
-> > traces using macros that you can easily add. It's called ktrace (not
-> > to be confused with Ingo's ktrace). I've been porting it for some time
+On Tue, 24 Sep 2002, Rolf Fokkens wrote:
+> On Monday 23 September 2002 04:36, William Lee Irwin III wrote:
+> > -	unsigned long utime, stime, cutime, cstime;
+> > -	unsigned long start_time;
+> > -	long per_cpu_utime[NR_CPUS], per_cpu_stime[NR_CPUS];
+> >
+> > Hmm. Isn't task_t bloated enough already? I'd rather remove them than
+> > make them 64-bit.
 > 
-> and different again from *bsd ktrace?
+> Since nobody else asks this question:
+> 
+> Do you mean to leave out process statistics?
 
-Yes, of course. 
+We don't need to leave out process statistics completely, but per-CPU 
+per-process statistics indeed looks like overkill.
 
--Andi
+Tim
+
+P.S.: Some work with respect to cleaning up interfaces of 32 bit jiffies 
+has gone into -dj already, but I'm still waiting for the next -dj release 
+to sync up.
+

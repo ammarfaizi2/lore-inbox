@@ -1,49 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132479AbRDAOfC>; Sun, 1 Apr 2001 10:35:02 -0400
+	id <S132512AbRDAOsM>; Sun, 1 Apr 2001 10:48:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132492AbRDAOew>; Sun, 1 Apr 2001 10:34:52 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:34248 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S132479AbRDAOeo>;
-	Sun, 1 Apr 2001 10:34:44 -0400
-Message-ID: <3AC73AE6.9070701@optibase.com>
-Date: Sun, 01 Apr 2001 16:27:50 +0200
-From: Constantine Gavrilov <const-g@optibase.com>
-Organization: Optibase
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2-ac26customSMP i686; en-US; 0.8) Gecko/20010211
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Anton.Safonov@bestlinux.net
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PCMCIA problems on IBM ThinkPad 600X
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S132508AbRDAOsD>; Sun, 1 Apr 2001 10:48:03 -0400
+Received: from cc885639-a.flushing1.mi.home.com ([24.182.96.34]:48137 "HELO
+	caesar.lynix.com") by vger.kernel.org with SMTP id <S132492AbRDAOr5>;
+	Sun, 1 Apr 2001 10:47:57 -0400
+Date: Sun, 1 Apr 2001 10:48:34 +0000
+From: Subba Rao <subba9@home.com>
+To: linux-kernel@vger.kernel.org
+Subject: sysctl
+Message-ID: <20010401104834.A5518@home.com>
+Reply-To: Subba Rao <subba9@home.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are problems with some PCMCIA drivers included in the kernel. For 
-example, support for cardbus 3com cards was moved to 3c59x.o driver. It 
-works (on 600X at least) only of you compile it in. It will not work as 
-a module.
 
-I think a much better solution right now is to use drivers from 
-pcmcia-cs package. It always works. If you do not configure any support 
-for pcmcia in your kernel, when you build pcmcia-cs it will build kernel 
-drivers from its own source tree. Just make sure you use the latest 
-version. This also allows configuration files interoperbility with 2.2.x 
-kernel, if you wish to use that as well.
+Hi,
 
-You just need to make sure you are using "ordinary" configuration files 
-if you use pcmcia-cs, since 2.4 uses different names for some of pcmcia 
-drivers.  Stock pcmcia-cs package will do nicely.
+I am working on rebuilding a modified kernel. This is for version 2.2.18 and
+on Slackware distro.
+
+I have been looking for the command "sysctl" in my */sbin directories and I
+can't seem to find it. Is this something that is an independent program that is
+compiled during the kernel build? I do see a few SYSCTL options in the the
+xconfig session. Is this command distro specific?
+
+Thanks for any info or pointers.
 
 -- 
-----------------------------------------
-Constantine Gavrilov
-Linux Leader
-Optibase Ltd
-7 Shenkar St, Herzliya 46120, Israel
-Phone: (972-9)-970-9140
-Fax:   (972-9)-958-6099
-----------------------------------------
 
+Subba Rao
+subba9@home.com
+http://members.home.net/subba9/

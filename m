@@ -1,49 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315370AbSFTQ7f>; Thu, 20 Jun 2002 12:59:35 -0400
+	id <S315379AbSFTRCb>; Thu, 20 Jun 2002 13:02:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315374AbSFTQ7e>; Thu, 20 Jun 2002 12:59:34 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:14944 "EHLO
+	id <S315388AbSFTRCa>; Thu, 20 Jun 2002 13:02:30 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:25184 "EHLO
 	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S315370AbSFTQ7b>; Thu, 20 Jun 2002 12:59:31 -0400
-Date: Thu, 20 Jun 2002 19:00:47 +0200
+	id <S315379AbSFTRC2>; Thu, 20 Jun 2002 13:02:28 -0400
+Date: Thu, 20 Jun 2002 19:03:40 +0200
 From: Andrea Arcangeli <andrea@suse.de>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.19pre10aa4
-Message-ID: <20020620170047.GB1134@dualathlon.random>
+Cc: andy@spylog.ru
+Subject: Re: 2.4.19pre10aa3
+Message-ID: <20020620170340.GC1134@dualathlon.random>
+References: <20020620055933.GA1308@dualathlon.random> <20020620114459.GA13532@spylog.ru> <20020620131951.GD10718@dualathlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20020620131951.GD10718@dualathlon.random>
 User-Agent: Mutt/1.3.27i
 X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
 X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This fixes a mistake from my part in task_rq_lock and integrates the
-latest version of e100 e1000 per jam's suggestion, it works again on
-alpha (was a tux compile trouble).
+On Thu, Jun 20, 2002 at 03:19:51PM +0200, Andrea Arcangeli wrote:
+> On Thu, Jun 20, 2002 at 03:44:59PM +0400, Andrey Nekrasov wrote:
+> > Hello Andrea Arcangeli,
+> > 
+> > 
+> > Kernel 2.4.19pre10aa3 + hidden_arp (from LVS)
+> > 
+> > 
+> > 
+> > ...
+> > Intel(R) PRO/100 Fast Ethernet Adapter - Loadable driver, ver 1.8.38
+> > Copyright (c) 2002 Intel Corporation
+> > 
+> > eth0: Intel(R) 8255x-based Ethernet Adapter
+> >   Mem:0xfb101000  IRQ:18  Speed:100 Mbps  Dx:Full
+> >   Hardware receive checksums enabled
+> >   cpu cycle saver enabled
+> > ...
+> > 
+> > ...
+> > eth0 e100_wait_exec_cmd: Wait failed.
+> > hw tcp v4 csum failed
+> > hw tcp v4 csum failed
+> > hw tcp v4 csum failed
+> > hw tcp v4 csum failed
+> > hw tcp v4 csum failed
+> > hw tcp v4 csum failed
+> > hw tcp v4 csum failed
+> > ...
+> > 
+> > 
+> > Than this message is caused? It something serious also can be problems?
+> 
+> probably a driver issue with hw checksum. btw interestingly the stack
+> computes the cksum by hand for every tcp incoming packet (unless
+> ip_summed is set by the driver to CHECKSUM_UNNECESSARY), this is how it
+> noticed the hw checksum was wrong. I guess it's either an e100 driver
+> issue, or an hardware issue. Maybe it's setting DF_CSUM_OFFLOAD for your
+> card despite your hardware doesn't support that feature, or maybe
+> there's something wrong in the logic that sets the skb->csum.
 
-URL:
-
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre10aa4.gz
-	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre10aa4/
-
-Only in 2.4.19pre10aa4: 00_e100-2.0.30-k1.gz
-Only in 2.4.19pre10aa4: 00_e1000-4.2.17-k1.gz
-Only in 2.4.19pre10aa3: 07_e100-1.8.38.gz
-Only in 2.4.19pre10aa3: 08_e100-includes-1
-Only in 2.4.19pre10aa3: 09_e100-compilehack-1
-
-	e100 and e1000 from 2.4.19pre10jam2.
-
-Only in 2.4.19pre10aa3: 20_o1-sched-updates-A4-1
-Only in 2.4.19pre10aa4: 20_o1-sched-updates-A4-2
-
-	Cleanup alpha and fix lock_rq_task.
-
-Only in 2.4.19pre10aa4: 61_tux-alpha-compile-1
-
-	Fix compile problem with tux on alpha.
+you may want to try again with aa4, it has a newer e100 driver taken
+from jam2 that might make difference here.
 
 Andrea

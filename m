@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131626AbREHLxL>; Tue, 8 May 2001 07:53:11 -0400
+	id <S131644AbREHLyV>; Tue, 8 May 2001 07:54:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131644AbREHLxC>; Tue, 8 May 2001 07:53:02 -0400
-Received: from fmfdns02.fm.intel.com ([132.233.247.11]:23007 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S131626AbREHLws>; Tue, 8 May 2001 07:52:48 -0400
-Message-ID: <07E6E3B8C072D211AC4100A0C9C5758302B27218@hasmsx52.iil.intel.com>
-From: "Hen, Shmulik" <shmulik.hen@intel.com>
-To: "'LKML'" <linux-kernel@vger.kernel.org>,
-        "'LNML'" <linux-net@vger.kernel.org>,
-        "'netdev@oss.sgi.com'" <netdev@oss.sgi.com>
-Subject: RE: ioctl call for network device
-Date: Tue, 8 May 2001 04:52:40 -0700 
+	id <S131949AbREHLyM>; Tue, 8 May 2001 07:54:12 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:29450 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S131644AbREHLyA>; Tue, 8 May 2001 07:54:00 -0400
+Date: Mon, 7 May 2001 23:37:16 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: page_launder() bug
+In-Reply-To: <Pine.LNX.4.21.0105072038280.8237-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0105072329580.7685-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> struct ifreq has a member called ifr_data. It is a pointer. You can
-> put a pointer to any of your data, including the most complex structure
-> you might envision, in that area. This allows you to pass anything
-> to and from your module. This pointer can be properly dereferenced
-> in kernel space but you should use copy_to/from_user and friends so a
-> user-space coding bug won't panic the kernel.
-
-How about a linked list ?
-Will the driver be able to follow the list where each node was dynamically
-allocated by the application ?
-Is there a size limit on the buffer ifr_data points to ? (AFAIK, Windows
-NDIS drivers limit to 1 page buffer =4096 bytes).
 
 
-	Thanks,
+On Mon, 7 May 2001, Linus Torvalds wrote:
 
-	Shmulik Hen      
-	Linux Advanced Networking Services
-	Intel Network Communications Group
+> In fact, it might even clean stuff up. Who knows? At least
+> page_launder() would not need to know about magic dead swap pages, because
+> the decision would be entirely in writepage().
+> 
+> And there aren't that many writepage() implementations in the kernel to
+> fix up (and the fixup tends to be two simple added lines of code for most
+> of them - just the "if (!priority) return").
+> 
+> Also note how some filesystems might use the writepage() callback even
+> with a zero priority as a hint that things are approaching the point where
+> we need to start flushing, which might make a difference for deciding when
+> to try to write a log entry, for example.
+
+Moreover, the filesystem may want to return "-1" even if "priority" is
+non-zero --- think about delayed allocations. (the XFS guys were just
+complaining about page_launder() not checking the return value of
+writepage() so they could not do this kind of thing with delayed
+allocations sometime ago).
+
+> Now, I'm not saying this is _the_ solution to it, but I don't see any
+> really clean alternatives.
+
+I like it --- it pushes down control to the pagers so they can be smarter.
+
+Will send a patch later.
+
 

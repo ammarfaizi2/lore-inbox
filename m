@@ -1,59 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317436AbSHCDZG>; Fri, 2 Aug 2002 23:25:06 -0400
+	id <S317424AbSHCDWv>; Fri, 2 Aug 2002 23:22:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317444AbSHCDZG>; Fri, 2 Aug 2002 23:25:06 -0400
-Received: from h-64-105-137-93.SNVACAID.covad.net ([64.105.137.93]:1665 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S317436AbSHCDZF>; Fri, 2 Aug 2002 23:25:05 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Fri, 2 Aug 2002 20:28:03 -0700
-Message-Id: <200208030328.UAA06724@baldur.yggdrasil.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: A new ide warning message
-Cc: akpm@zip.com.au, axboe@suse.de, B.Zolnierkiewicz@elka.pw.edu.pl,
-       martin@dalecki.de
+	id <S317431AbSHCDWv>; Fri, 2 Aug 2002 23:22:51 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:24848 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S317424AbSHCDWu>;
+	Fri, 2 Aug 2002 23:22:50 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200208030326.g733Q7O474061@saturn.cs.uml.edu>
+Subject: Re: BIG files & file systems
+To: rddunlap@osdl.org (Randy.Dunlap)
+Date: Fri, 2 Aug 2002 23:26:07 -0400 (EDT)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan),
+       matti.aarnio@zmailer.org (Matti Aarnio),
+       hch@infradead.org (Christoph Hellwig),
+       braam@clusterfs.com (Peter J. Braam), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33L2.0208021507420.14068-100000@dragon.pdx.osdl.net> from "Randy.Dunlap" at Aug 02, 2002 03:14:21 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->On Fri, Aug 02 2002, Bartlomiej Zolnierkiewicz wrote:
->This case also shows limits of BIO_MAX_SECTORS again (Adam worked on
->generic solution, but I don't know current state).
+Randy.Dunlap writes:
+> On Fri, 2 Aug 2002, Albert D. Cahalan wrote:
+>> Matti Aarnio writes:
 
-	In case this information is helpful to anyone, here is
-the current status of three different variants of it.
+>>>    - Filesystem format dependent limits
+>>>       - EXT2/EXT3: u32_t FILESYSTEM block index, presuming the EXT2/EXT3
+>>>                    is supported only up to 4 kB block sizes, that gives
+>>>                    you a very hard limit.. of 16 terabytes (16 * "10^12")
+>>
+>> You first hit the triple-indirection limit at 4 TB.
+>> http://www.cs.uml.edu/~acahalan/linux/ext2.gif
+>>
+>>>       - ReiserFS:  u32_t block indexes presently, u64_t in future;
+>>>                    block size ranges ?   Max size is limited by the
+>>>                    maximum supported file size, likely 2^63, which is
+>>>                    roughly  8 * "10^18", or circa 500 000 times larger
+>>>                    than EXT2/EXT3 format maximum.
+>>
+>> The top 4 st_size bits get stolen, so it's 60-bit sizes.
+>> You also get the 32-bit block limit at 16 TB.
+>
+> For a LinuxWorld presentation in August, I have asked each of the
+> 4 journaling filesystems (ext3, reiserfs, JFS, and XFS) what their
+> filesystem/filesize limits are.  Here's what they have told me.
+>
+>                       ext3fs     reiserfs     JFS     XFS
+> max filesize:         16 TB#      1 EB       4 PB$   8 TB%
+> max filesystem size:   2 TB      17.6 TB*    4 PB$   2 TB!
+>
+> Notes:
+> #: think sparse files
+> *: 4 KB blocks
+> $: 16 TB on 32-bit architectures
+> %: 4 KB pages
+> !: block device limit
 
-	1. bio_max_iovecs() version - This just replaced BIO_MAX_SECTORS.
-It was simple.  It worked, but everyone got more ambitious about making
-more sweeping changes.  Jens wanted a boolean one_more_bvec(bio, bvec)
-interface.  I made a void bio_append(bio, bvec) interface that would submit
-bio that could not hold another bvec and always succeed.  I beleve that
-the bio_max_iovecs should have gone in while we worked on other changes
-and I still believe that they should go in in the meantime.  People's
-systems are crashing while we argue about more ambitious solutions.
-I do not have a patch against 2.5.30 handy, but I would be happy to
-generate a patch for this again if there is interest in getting it
-into Linus's tree while we await future changes that might replace
-this code.
+Please fix that before you give your presentation.
+Sparse files won't save you from the triple-indirection limit.
+This has me suspicious of the other numbers as well.
 
-	2. bio_append + mpage.c changes - This changed mpage.c to be
-able to handle all IO requests that are thrown at it (i.e., it never
-punts to fs/buffer.c) .  However, since 2.5.27(?) it corrupts the
-disk on an ext2 file system with a 1024-byte block size (I have only
-tried it on ext2 file systems and with block sizes of 1024 or 4096 bytes).
+Ext2 gives you 0xc blocks addressed right off the inode.
+Then with one 4 kB block of block pointers, you can get
+to another 0x400 (1024) blocks. With a block of pointers to
+blocks of pointers, you may address another 0x100000 blocks.
+Finally, triple indirection gives you a block of pointers
+to blocks of pointers to blocks of pointers, for another
+0x40000000 data blocks. That's a total of:
 
-	3. bio_append + mpage.c changes + fs/buffer.c shrink - Same as
-above, but had fs/mpage.c routines replace the fs/buffer.c routines
-entirely, deleting a bunch of buffer_head oriented code from fs/buffer.c.
-These changes corrupt the disk when the device is opened with a block
-size of 1024 (as opposed ot 4096).  This is probably related to the
-bug described in the previous paragraph.
+0x4010040c blocks
+0x4010040c000 bytes
+4.4e12 bytes and change
+4402 GB (decimal gigabytes)
+4.4 TB (decimal terabytes)
 
-	#2 and #3 are closely related.  Perhaps I will stare at
-the code for #2 some more and try to find that @#$Q@#$ bug.
+Of course you can't really use 4.4 TB on 32-bit Linux,
+so there is a sort of dishonesty in making this claim.
+I can get to 2.2 TB, which disturbingly would wrap any
+code using signed 32-bit math on units of 512 bytes.
+The exact limits are:
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
-`e
+0x000001ffffffefff max offset
+0x000001fffffff000 max size

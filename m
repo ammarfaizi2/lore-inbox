@@ -1,60 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262742AbVCJRSW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262731AbVCJR1L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262742AbVCJRSW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 12:18:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262751AbVCJRPg
+	id S262731AbVCJR1L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 12:27:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262912AbVCJR1K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 12:15:36 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:62634 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262731AbVCJRFY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 12:05:24 -0500
-Message-ID: <42307E4D.6080505@ca.ibm.com>
-Date: Thu, 10 Mar 2005 11:05:17 -0600
-From: Omkhar Arasaratnam <iamroot@ca.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+	Thu, 10 Mar 2005 12:27:10 -0500
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:21394 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S262731AbVCJRTZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 12:19:25 -0500
+Message-ID: <423081AB.5030506@comcast.net>
+Date: Thu, 10 Mar 2005 12:19:39 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050111)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-CC: Matthew Wilcox <matthew@wil.cx>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, tgall@us.ibm.com,
-       antonb@au1.ibm.com
-Subject: Re: [BUG] 2.6.11- sym53c8xx Broken on pp64
-References: <422FA817.4060400@ca.ibm.com>	 <1110420620.32525.145.camel@gaston> <422FBACF.90108@ca.ibm.com>	 <422FC042.40303@ca.ibm.com>	 <Pine.LNX.4.58.0503091944030.2530@ppc970.osdl.org>	 <1110434383.32525.184.camel@gaston>	 <20050310121701.GD21986@parcelfarce.linux.theplanet.co.uk> <1110467868.5379.15.camel@mulgrave>
-In-Reply-To: <1110467868.5379.15.camel@mulgrave>
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: binary drivers and development
+References: <423075B7.5080004@comcast.net> <20050310164847.GA16430@kroah.com>
+In-Reply-To: <20050310164847.GA16430@kroah.com>
 X-Enigmail-Version: 0.90.0.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
->On Thu, 2005-03-10 at 12:17 +0000, Matthew Wilcox wrote:
->  
->
->>Heh, the devel version of sym2 (that isn't submitted yet because
->>it depends on a few changes to the SPI transport that James hasn't
->>integrated yet) would probably fix this as it doesn't call iounmap()
->>until the driver exits.
->>    
->>
->
->They're integrated into the scsi-misc-2.6 tree, so if you send in the
->sym2 patch to linux-scsi, everything should still work...
->
->James
->
->
->
->  
->
-2.6.10 seems to have a different kernel panic which I'm investigating 
-(could be a problem with my ramdisk as it happens in my linuxrc). So 
-long story short the 2.6.10 sym driver looks ok.
 
-Omkhar
 
+Greg KH wrote:
+> On Thu, Mar 10, 2005 at 11:28:39AM -0500, John Richard Moser wrote:
+> 
+>>I've been looking at the UDI project[1] and thinking about binary
+>>drivers and the like, and wondering what most peoples' take on these are
+>>and what impact that UDI support would have on the kernel's development.
+> 
+> 
+> Please, the UDI stuff has been proven to be broken and wrong.  If you
+> want to work on it, feel free to do so, just don't expect for anyone to
+> accept the UDI layer into the kernel mainline.
+> 
+
+1.  What's broken about it
+2.  Is it possible to fix it
+
+I require information or else I can't assess things.
+
+> What's that phrase about people forgetting history are doomed...
+> 
+> greg k-h
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
+
+    Creative brains are a valuable, limited resource. They shouldn't be
+    wasted on re-inventing the wheel when there are so many fascinating
+    new problems waiting out there.
+                                                 -- Eric Steven Raymond
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCMIGqhDd4aOud5P8RAl+PAJ4ndKTmqyRRc+qaJjPK62HBABb0rgCgjCTR
+8kQ9MOOdZiH3FUsNG1Hoe3E=
+=NIcs
+-----END PGP SIGNATURE-----

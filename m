@@ -1,49 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266807AbUHMS5E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266808AbUHMTAY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266807AbUHMS5E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 14:57:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266820AbUHMS5D
+	id S266808AbUHMTAY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 15:00:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267170AbUHMTAE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 14:57:03 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:25011 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S266807AbUHMS4y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 14:56:54 -0400
-Subject: Re: [patch] Latency Tracer, voluntary-preempt-2.6.8-rc4-O6
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Florian Schmidt <mista.tapas@gmx.net>
-In-Reply-To: <20040813102252.GG8135@elte.hu>
-References: <20040726083537.GA24948@elte.hu>
-	 <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu>
-	 <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu>
-	 <20040801193043.GA20277@elte.hu> <20040809104649.GA13299@elte.hu>
-	 <20040810132654.GA28915@elte.hu> <20040812235116.GA27838@elte.hu>
-	 <1092373132.3450.9.camel@mindpipe>  <20040813102252.GG8135@elte.hu>
-Content-Type: text/plain
-Message-Id: <1092423450.3450.43.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 13 Aug 2004 14:57:30 -0400
-Content-Transfer-Encoding: 7bit
+	Fri, 13 Aug 2004 15:00:04 -0400
+Received: from fep02fe.ttnet.net.tr ([212.156.4.132]:13277 "EHLO
+	fep02.ttnet.net.tr") by vger.kernel.org with ESMTP id S266808AbUHMS5i
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 14:57:38 -0400
+Message-ID: <411D0EEC.2080003@ttnet.net.tr>
+Date: Fri, 13 Aug 2004 21:56:44 +0300
+From: "O.Sezer" <sezeroz@ttnet.net.tr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
+X-Accept-Language: tr, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.4] af_irda.c comparison fix
+Content-Type: multipart/mixed;
+	boundary="------------080004070107050001000304"
+X-ESAFE-STATUS: Mail clean
+X-ESAFE-DETAILS: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-08-13 at 06:22, Ingo Molnar wrote:
-> * Lee Revell <rlrevell@joe-job.com> wrote:
-> 
-> > Interesting results.  One of the problems is kallsyms_lookup,
-> > triggered by the printks:
-> 
-> yeah - kallsyms_lookup does a linear search over thousands of symbols. 
-> Especially since /proc/latency_trace uses it too it would be worthwile
-> to implement some sort of binary searching.
-> 
+This is a multi-part message in MIME format.
+--------------080004070107050001000304
+Content-Type: text/plain;
+	charset=ISO-8859-9;
+	format=flowed
+Content-Transfer-Encoding: quoted-printable
 
-Would it be easier to have a mode where the symbols are not resolved,
-and would just require the traces to be postprocessed? 
+ From 2.6, cures compiler warnings.
 
-Lee
+=D6zkan Sezer
 
+
+--------------080004070107050001000304
+Content-Type: text/plain;
+	name="af_irda.c-2.6-fix.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+	filename="af_irda.c-2.6-fix.diff"
+
+--- 27rc5~/net/irda/af_irda.c	2003-11-28 20:26:21.000000000 +0200
++++ 27rc5/net/irda/af_irda.c	2004-08-07 14:09:39.000000000 +0300
+@@ -1900,11 +1900,10 @@
+ 		case IAS_STRING:
+ 			/* Should check charset & co */
+ 			/* Check length */
+-			if(ias_opt->attribute.irda_attrib_string.len >
+-			   IAS_MAX_STRING) {
+-				kfree(ias_opt);
+-				return -EINVAL;
+-			}
++			/* The length is encoded in a __u8, and
++			 * IAS_MAX_STRING == 256, so there is no way
++			 * userspace can pass us a string too large.
++			 * Jean II */
+ 			/* NULL terminate the string (avoid troubles) */
+ 			ias_opt->attribute.irda_attrib_string.string[ias_opt->attribute.irda_attrib_string.len] = '\0';
+ 			/* Add a string attribute */
+
+
+--------------080004070107050001000304--

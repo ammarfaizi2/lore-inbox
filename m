@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316258AbSFUFpF>; Fri, 21 Jun 2002 01:45:05 -0400
+	id <S316309AbSFUGV2>; Fri, 21 Jun 2002 02:21:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316289AbSFUFpE>; Fri, 21 Jun 2002 01:45:04 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:11630 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S316258AbSFUFpD>; Fri, 21 Jun 2002 01:45:03 -0400
-To: Cort Dougan <cort@fsmlabs.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Benjamin LaHaise <bcrl@redhat.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, Robert Love <rml@tech9.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: latest linus-2.5 BK broken
-References: <Pine.LNX.4.44.0206191018510.2053-100000@home.transmeta.com>
-	<m1d6umtxe8.fsf@frodo.biederman.org>
-	<20020620103003.C6243@host110.fsmlabs.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 20 Jun 2002 23:34:54 -0600
-In-Reply-To: <20020620103003.C6243@host110.fsmlabs.com>
-Message-ID: <m1vg8dry81.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S316322AbSFUGV1>; Fri, 21 Jun 2002 02:21:27 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:18898 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S316309AbSFUGV0>; Fri, 21 Jun 2002 02:21:26 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: r.ems@gmx.net
+Date: Fri, 21 Jun 2002 16:22:12 +1000 (EST)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15634.50708.164289.246414@notabene.cse.unsw.edu.au>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Hubert Mantel <mantel@suse.de>, Andrea Arcangeli <andrea@suse.de>
+Subject: Re: kernel OOPS: 2.4.18, nscd, nfsd
+In-Reply-To: message from Richard Ems on Wednesday June 19
+References: <3D104DF4.A8053F67@gmx.net>
+X-Mailer: VM 6.72 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cort Dougan <cort@fsmlabs.com> writes:
-
-> "Beating the SMP horse to death" does make sense for 2 processor SMP
-> machines.  When 64 processor machines become commodity (Linux is a
-> commodity hardware OS) something will have to be done.  When research
-> groups put Linux on 1k processors - it's an experiment.  I don't think they
-> have much right to complain that Linux doesn't scale up to that level -
-> it's not designed to.
+On Wednesday June 19, r.ems.home@gmx.net wrote:
+> Hi all!
 > 
-> That being said, large clusters are an interesting research area but it is
-> _not_ a failing of Linux that it doesn't scale to them.
+> Two kernel Oopses in short time (22:35:59 and 22:50:00). But the computer was still alive until 00:00:00, where the daily cron jobs are started and then ... kernel panic, LED's where blinking   :(
+> 
+> kernel is 2.4.18, from SuSE's k_deflt-2.4.18-174 package (2.4.19-pre10aa2)
+> 
+> Please CC to r.ems@gmx.net, I'm not on the linux-kernel mailing
+> list.
 
-Linux in a classic beowulf configuration scales just fine.   To be clear
-I am talking a batch scheduling system, where the jobs which run for
-hours at a time and on many nodes, possibly the entire cluster at a
-time. Are scheduled on some number of commodity systems, with a good
-network interconnect.
+Would I be right is surmising that you are exporting an ISO filesystem
+over NFS??  That would be the second Oops in as many days with that
+scenario.
 
-The concern now is not does it work, or does it work well.  But can
-it be made more convenient to use.  
+If that is the case, then I'm afraid that I cannot point you to any
+fix, though exporting with "no_subtree_check" may reduce the incidence.
 
-Eric
+NeilBrown
 

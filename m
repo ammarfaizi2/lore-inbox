@@ -1,60 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278950AbRJVV1k>; Mon, 22 Oct 2001 17:27:40 -0400
+	id <S278955AbRJVV1u>; Mon, 22 Oct 2001 17:27:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278954AbRJVV1b>; Mon, 22 Oct 2001 17:27:31 -0400
-Received: from lhw-65-33-244-104.pompano.net ([65.33.244.104]:3489 "EHLO
-	ja.kerneltrap.com") by vger.kernel.org with ESMTP
-	id <S278950AbRJVV1P>; Mon, 22 Oct 2001 17:27:15 -0400
-Date: Mon, 22 Oct 2001 17:27:48 -0400
-From: Jeremy Andrews <jeremy@kerneltrap.com>
+	id <S278954AbRJVV1l>; Mon, 22 Oct 2001 17:27:41 -0400
+Received: from smtp2.libero.it ([193.70.192.52]:16113 "EHLO smtp2.libero.it")
+	by vger.kernel.org with ESMTP id <S278949AbRJVV1Z>;
+	Mon, 22 Oct 2001 17:27:25 -0400
+Message-ID: <3BD1F4B5.D8D74DBF@denise.shiny.it>
+Date: Sun, 21 Oct 2001 00:03:33 +0200
+From: Giuliano Pochini <pochini@denise.shiny.it>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.13-pre1 ppc)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Noise { was: Linux 2.2.20pre10 }
-Message-Id: <20011022172748.507bb7c4.jeremy@kerneltrap.com>
-X-Mailer: Sylpheed version 0.6.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+CC: linuxppc-dev@lists.linuxppc.org
+Subject: hfs cdrom broken in 2.4.13pre
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-What is the problem?
+Kernel 2.4.13pre1 on powerpc. I can no longer mount HFS-formatted cdroms.
+The last kernel I'm sure it worked fine is 2.4.7
 
-Some seem to think the problem is:  Alan has censored security information.
+Oct 20 23:58:51 Jay kernel: ll_rw_block: device 0b:00: only 2048-char blocks
+implemented (512) 
+Oct 20 23:58:51 Jay kernel: hfs_fs: unable to read block 0x00000002 from dev
+0b:00 
+Oct 20 23:58:51 Jay kernel: hfs_fs: Unable to read superblock 
+Oct 20 23:58:51 Jay kernel: ll_rw_block: device 0b:00: only 2048-char blocks
+implemented (512) 
+Oct 20 23:58:51 Jay kernel: hfs_fs: unable to read block 0x00000000 from dev
+0b:00 
+Oct 20 23:58:51 Jay kernel: hfs_fs: Unable to read block 0. 
 
-But ask yourself, 'Why has he done this?'
+Bye.
 
-He has made a very valid point.  And by affecting the United States' users and
-developers of Linux, we in turn stand to affect those around us.  Living in the
-US, it looks as though we are in for some rough times.  Freedom is being
-redefined around us.
-
-Learn.  Educate.  Communicate.
-
-There is a lot of information available on the internet.  Whether or not Alan
-includes cliff-notes to his kernel patches, the larger problem still remains. 
-And has potential to get much worse.
-
-A good place to start:
-  http://www.eff.org/
-  
-Specifically regarding the Digital Millennium Copyright Act (DMCA):
-  http://www.eff.org/IP/DMCA
-  http://www.dibona.com/dmca
-  http://www.anti-dmca.org/
-
-Take a look at the map here, and think a moment:
-  http://thefreeworld.net/
-
-There are voices in this noise that need to be heard.  Speak out!  But please,
-speak towards the root of the problem.  Towards a government whos rhetoric is:
-'Enduring Freedom'.
-
-What is freedom?
-
-If we have freedom left, and I believe we do, we must use it now.
-
---
- Jeremy Andrews    <mailto:jeremy@kerneltrap.com>
- PGP Key ID: 8F8B617A  http://www.kerneltrap.com/

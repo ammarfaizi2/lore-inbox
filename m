@@ -1,46 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316864AbSF1QbQ>; Fri, 28 Jun 2002 12:31:16 -0400
+	id <S317012AbSF1Qks>; Fri, 28 Jun 2002 12:40:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316903AbSF1QbQ>; Fri, 28 Jun 2002 12:31:16 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:21822 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S316864AbSF1QbP>; Fri, 28 Jun 2002 12:31:15 -0400
-Date: Fri, 28 Jun 2002 17:33:21 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Zoltan Menyhart <Zoltan.Menyhart@bull.net>
+	id <S317457AbSF1Qkr>; Fri, 28 Jun 2002 12:40:47 -0400
+Received: from mailrelay2.lanl.gov ([128.165.4.103]:3723 "EHLO
+	mailrelay2.lanl.gov") by vger.kernel.org with ESMTP
+	id <S317012AbSF1Qkq>; Fri, 28 Jun 2002 12:40:46 -0400
+Date: Fri, 28 Jun 2002 10:43:06 -0600 (MDT)
+From: "Hurwitz Justin W." <hurwitz@lanl.gov>
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel lock order
-In-Reply-To: <3D1C64BD.4F57F3EE@bull.net>
-Message-ID: <Pine.LNX.4.21.0206281705470.1260-100000@localhost.localdomain>
+Subject: Re: zero-copy networking & a performance drop
+In-Reply-To: <20020628113310.D647@nightmaster.csn.tu-chemnitz.de>
+Message-ID: <Pine.LNX.4.44.0206281021160.12596-100000@alvie-mail.lanl.gov>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 Jun 2002, Zoltan Menyhart wrote:
-> Is there a list describing the lock hierarchy ?
+On Fri, 28 Jun 2002, Ingo Oeser wrote:
 
-There is indeed Documentation/vm/locking - but I wouldn't trust it
-for an instant!  These details change from time to time, Documentation
-is likely to lag far behind, the source must be your reference.
+> Jupp, I think this is really true. Look at all the checking alone. 
+> 
+> Remember: We accept data from an untrusted source (network) which
+>    has lots of control information encoded with many of them
+>    being optional.
+> 
+>    -> This involves a lot of "parsing" (for binary streams,
+>       decoding might be better) of a complex language (TCP/IP ;-))
+>       with many optional elements (read: lots of branches in the
+>       language tree).
+>       
+> On sending data, we have all the information trusted, because we
+> checked that already, as the user sets it. With sendfile, we have
+> even trusted and mapped data (because we just paged it in before).
+> 
+> If we take this into account, rx MUST be always slower, or tx
+> isn't really optimized yet.
 
-There is also a very useful "NOTE:" in the 2.4 mm/filemap.c, which did
-get updated in 2.4.14; but that doesn't mention the page_table_lock.
+Indeed, the above does make sense. But, what about when the receive side
+is trustable, too. This is obviously not the normal case; but with
+quadrics I think that it is. Since quadrics is a shared memory
+architecture, with all of the processing taken care of on the cards, we
+should be able to reliably trust the receive side as much as the send
+side. Unless I'm misunderstanding your use of trust?
 
-> Does do_swap_page() (in mm/memory.c) release mm->page_table_lock because
-> one cannot hold this lock when lookup_swap_cache() ... __find_get_page()
-> takes pagecache_lock ? Or does it do only for shorten the locked path ?
-> (Can I keep mm->page_table_lock when I call __find_get_page() ?)
+If I am right on this, how much of an overhaul would it be to implement, 
+for instance, a NETIF_RX_TRUSTED flag in the net_device struct to force a 
+receive side fast path? I don't expect this to bring the receive side even 
+with the transmit side, but right now we (and I have heard the same from 
+others) are running at ~70% of the transmit side on the receive side, 
+which seems to leave a good margin for improvement. 
 
-I deduce from "pagecache_lock" that you're asking about current 2.4,
-though I think an equivalent answer would apply to current 2.5. It does
-it to shorten the locked path, you could hold mm->page_table_lock when
-you call __find_get_page(): a precedent is where do_swap_page() holds
-page_table_lock while calling remove_exclusive_swap_page(), which may
-take the pagecache_lock.
+This seems like it could be useful not just for the special case of 
+quadrics (and other shared mamory architectures)- if, for instance, cards 
+begin to do more TCP processing in hardware (or we modify the firmware to 
+do this for us, ala AceNIC), it would be nice to bypass it in the kernel. 
+This is, of course, a quick idea that's just popped into my head, and 
+probably is inherently impossible or foolish :)
 
-But tomorrow... who knows?
-
-Hugh
+--Gus
 

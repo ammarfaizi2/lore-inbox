@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265009AbTFCNeS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 09:34:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265010AbTFCNeS
+	id S265025AbTFCNiX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 09:38:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265026AbTFCNiX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 09:34:18 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:11648 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S265009AbTFCNeR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 09:34:17 -0400
-Date: Tue, 3 Jun 2003 14:54:37 +0100
-From: john@grabjohn.com
-Message-Id: <200306031354.h53DsbZd000284@81-2-122-30.bradfords.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Unconfirmed bug reports in my bug database
+	Tue, 3 Jun 2003 09:38:23 -0400
+Received: from zukmail03.zreo.compaq.com ([161.114.128.27]:16649 "EHLO
+	zukmail03.zreo.compaq.com") by vger.kernel.org with ESMTP
+	id S265025AbTFCNiW convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 09:38:22 -0400
+x-mimeole: Produced By Microsoft Exchange V6.0.6375.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: /proc/meminfo
+Date: Tue, 3 Jun 2003 15:51:47 +0200
+Message-ID: <224CFA9643B4CE4BA18137CF73DB2F32020E0DBF@broexc01.emea.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: /proc/meminfo
+Thread-Index: AcMo/+PGPI+jUNeLSFKfhv1YTCLptQA1xFog
+From: "Roets, Chris (Tru64&Linux support)" <chris.roets@hp.com>
+To: "William Lee Irwin III" <wli@holomorphy.com>,
+       "Denis Vlasenko" <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 03 Jun 2003 13:51:48.0766 (UTC) FILETIME=[475053E0:01C329D7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got quite a few active bug reports in my bug database, which are not attached to any confirmed bugs:
-
-http://grabjohn.com/kernelbugdatabase/index.php?action=21&id=56&session=
-http://grabjohn.com/kernelbugdatabase/index.php?action=21&id=53&session=
-http://grabjohn.com/kernelbugdatabase/index.php?action=21&id=46&session=
-http://grabjohn.com/kernelbugdatabase/index.php?action=21&id=45&session=
-http://grabjohn.com/kernelbugdatabase/index.php?action=21&id=28&session=
-http://grabjohn.com/kernelbugdatabase/index.php?action=21&id=19&session=
-
-If anybody can confirm that these are reproducable, not reproducable, or that fixes have gone in to any particular kernel, please let me know, or update the database yourself.
-
-By the way, some more feedback on this bug database would be appreciated - do people like it, hate it, not care, or what?  There is no need to create an account to use it anymore, by the way, and there hasn't been for a few months now - you can just use the links at the top to navigate through it regardless of whether you're logged in or not.
-
-John.
+[Chris >] attached jpeg shows the memory statitiscs of a 6 Gb system
+[Chris >] Does anybody have an idea when my remaining 1.4 Gb can be ?

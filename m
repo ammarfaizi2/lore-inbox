@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136045AbREIK2x>; Wed, 9 May 2001 06:28:53 -0400
+	id <S135986AbREIKUv>; Wed, 9 May 2001 06:20:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136108AbREIK2m>; Wed, 9 May 2001 06:28:42 -0400
-Received: from t2.redhat.com ([199.183.24.243]:25843 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S136045AbREIK2a>; Wed, 9 May 2001 06:28:30 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20010508232411.B22615@devserv.devel.redhat.com> 
-In-Reply-To: <20010508232411.B22615@devserv.devel.redhat.com>  <Pine.LNX.4.33.0105081927320.1798-100000@foo.penguincomputing.com> 
-To: Matt Wilson <msw@redhat.com>
-Cc: redhat-devel-list@redhat.com, linux-kernel@vger.kernel.org,
-        Jeremy Hogan <jhogan@redhat.com>, Mike Vaillancourt <mikev@redhat.com>,
-        Jim Wright <jwright@penguincomputing.com>,
-        Philip Pokorny <ppokorny@penguincomputing.com>
-Subject: Re: bug in redhat gcc 2.96 
-Mime-Version: 1.0
+	id <S136045AbREIKUb>; Wed, 9 May 2001 06:20:31 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:61448 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S135986AbREIKUa>; Wed, 9 May 2001 06:20:30 -0400
+Subject: Re: Question: Status of VIA chipsets and 2.2 kernels
+To: robert@coorong.anu.edu.au (Robert Cohen)
+Date: Wed, 9 May 2001 11:23:57 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3AF8EE3A.21932E5D@tltsu.anu.edu.au> from "Robert Cohen" at May 09, 2001 05:14:02 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 09 May 2001 11:27:49 +0100
-Message-ID: <1540.989404069@redhat.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14xR8S-0001zQ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Problems Ive been hearing about include DMA disk transfers between
+> channels. Some reports say these only occur with Western digital disks.
 
-msw@redhat.com said:
-> This was fixed in 2.96-82, see:
-> http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=37054
-> It was a bug in the if conversion optimization. 
+Not the case
 
-So if I run up2date, will I get the fixed version?
+> The 2 athlon boards listed include an onboard promise IDE controller. So
+> I should be OK if I use this for disks, right?
 
---
-dwmw2
+Maybe. Consult your vendor and BIOS supplier. Given the current noticable
+absence of exact info in the public domain I'd be careful they will guarantee
+the VIA chipset problem fixes are in the BIOS. If they give you a blank look
+go elsewhere
 
 

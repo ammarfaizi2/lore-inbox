@@ -1,105 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261328AbTEEUxd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 16:53:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbTEEUxd
+	id S261319AbTEEUzk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 16:55:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbTEEUzk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 16:53:33 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:63713 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261328AbTEEUxX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 16:53:23 -0400
-Subject: Re: Linux 2.5.69
-From: John Cherry <cherry@osdl.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0305041739020.1737-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0305041739020.1737-100000@home.transmeta.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1052168752.27203.175.camel@cherrypit.pdx.osdl.net>
+	Mon, 5 May 2003 16:55:40 -0400
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:26575 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S261319AbTEEUzj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 16:55:39 -0400
+Date: Mon, 5 May 2003 23:08:11 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Only use MSDOS-Partitions by default on X86
+Message-ID: <20030505210811.GC7049@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 05 May 2003 14:05:52 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Compile statistics: 2.5.69
-Compiler: gcc 3.2.2
-Script: http://www.osdl.org/archive/cherry/stability/compregress.sh
+Hi!
 
+This patch makes a lot of sense in my eyes, but maybe someone
+disagrees. Applies cleanly to current 2.4.
 
-                               2.5.68               2.5.69
-                       --------------------    -----------------
-bzImage (defconfig)          7 warnings           7 warnings
-                             0 errors             0 errors
+Comments?
 
-bzImage (allmodconfig)      11 warnings          11 warnings
-                             6 errors             0 errors
+Jörn
 
-modules (allmodconfig)    1975 warnings        1567 warnings
-                            60 errors            57 errors
+-- 
+Everything should be made as simple as possible, but not simpler.
+-- Albert Einstein
 
-Compile statistics have been for kernel releases from 2.5.46 to 2.5.69
-at: www.osdl.org/archive/cherry/stability
-
-Failure summary:
-
-   drivers/block: 6 warnings, 1 errors
-   drivers/bluetooth: 0 warnings, 1 errors
-   drivers/char: 319 warnings, 6 errors
-   drivers/hotplug: 16 warnings, 2 errors
-   drivers/isdn: 246 warnings, 6 errors
-   drivers/media: 128 warnings, 6 errors
-   drivers/mtd: 31 warnings, 1 errors
-   drivers/net: 363 warnings, 6 errors
-   drivers/video: 82 warnings, 13 errors
-   drivers/video/matrox: 3 warnings, 10 errors
-   sound: 5 warnings, 3 errors
-   sound/oss: 49 warnings, 3 errors
-
-
-
-Warning summary:
-
-   drivers/atm: 39 warnings, 0 errors
-   drivers/cdrom: 25 warnings, 0 errors
-   drivers/i2c: 3 warnings, 0 errors
-   drivers/ide: 33 warnings, 0 errors
-   drivers/md: 3 warnings, 0 errors
-   drivers/message: 1 warnings, 0 errors
-   drivers/pcmcia: 3 warnings, 0 errors
-   drivers/serial: 1 warnings, 0 errors
-   drivers/telephony: 10 warnings, 0 errors
-   drivers/usb: 17 warnings, 0 errors
-   drivers/video/aty: 4 warnings, 0 errors
-   drivers/video/riva: 3 warnings, 0 errors
-   drivers/video/sis: 3 warnings, 0 errors
-   fs/intermezzo: 1 warnings, 0 errors
-   fs/lockd: 4 warnings, 0 errors
-   fs/nfs: 1 warnings, 0 errors
-   fs/nfsd: 4 warnings, 0 errors
-   fs/reiserfs: 1 warnings, 0 errors
-   fs/smbfs: 2 warnings, 0 errors
-   net: 56 warnings, 0 errors
-   security: 2 warnings, 0 errors
-   sound/isa: 3 warnings, 0 errors
-   sound/pci: 1 warnings, 0 errors
-
-
-Other stability-related links:
-   OSDL Stability page:
-       http://osdl.org/projects/26lnxstblztn/results/
-   Nightly linux-2.5 bk build:
-       www.osdl.org/archive/cherry/stability/linus-tree/running.txt
-   2.5 porting items:
-       www.osdl.org/archive/cherry/stability/linus-tree/port_items.txt
-   2.5 porting items history:
-       www.osdl.org/archive/cherry/stability/linus-tree/port_history.txt
-
-John
-
-
-
-
+--- linux-2.4.20/fs/partitions/Config.in~msdospartitions	2002-11-29 00:53:15.000000000 +0100
++++ linux-2.4.20/fs/partitions/Config.in	2003-04-10 20:12:41.000000000 +0200
+@@ -37,9 +37,7 @@
+    if [ "$CONFIG_ALPHA" = "y" ]; then
+       define_bool CONFIG_OSF_PARTITION y
+    fi
+-   if [ "$CONFIG_AMIGA" != "y" -a "$CONFIG_ATARI" != "y" -a \
+-        "$CONFIG_MAC" != "y" -a "$CONFIG_SGI_IP22" != "y" -a \
+-	"$CONFIG_SGI_IP27" != "y" ]; then
++   if [ "$CONFIG_PARTITION_ADVANCED" != "y" -a "$CONFIG_X86" = "y" ]; then
+       define_bool CONFIG_MSDOS_PARTITION y
+    fi
+    if [ "$CONFIG_AMIGA" = "y" -o "$CONFIG_AFFS_FS" = "y" ]; then

@@ -1,72 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129051AbRBWNhZ>; Fri, 23 Feb 2001 08:37:25 -0500
+	id <S129065AbRBWNhf>; Fri, 23 Feb 2001 08:37:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129111AbRBWNhQ>; Fri, 23 Feb 2001 08:37:16 -0500
-Received: from viper.haque.net ([64.0.249.226]:47238 "EHLO viper.haque.net")
-	by vger.kernel.org with ESMTP id <S129065AbRBWNhH>;
-	Fri, 23 Feb 2001 08:37:07 -0500
-Message-ID: <3A966781.34BA3218@haque.net>
-Date: Fri, 23 Feb 2001 08:37:05 -0500
-From: "Mohammad A. Haque" <mhaque@haque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
+	id <S129243AbRBWNh0>; Fri, 23 Feb 2001 08:37:26 -0500
+Received: from p3.usnyc4.stsn.com ([199.106.219.3]:39177 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S129065AbRBWNhU>; Fri, 23 Feb 2001 08:37:20 -0500
+Date: Fri, 23 Feb 2001 10:38:17 -0300 (EST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@localhost.localdomain>
+To: Chris Evans <chris@scary.beasts.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.1 under heavy network load - more info
+In-Reply-To: <Pine.LNX.4.30.0102231247300.9832-100000@ferret.lmh.ox.ac.uk>
+Message-ID: <Pine.LNX.4.31.0102231033270.5517-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: A plea for help, forwarded message from postmaster@morotsmedia.se
-In-Reply-To: <14998.12427.269684.11302@pizda.ninka.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I hope I'm not pointing fingers at the wrong person but this is the
-closest match I get.
+On Fri, 23 Feb 2001, Chris Evans wrote:
+> On Wed, 21 Feb 2001, Rik van Riel wrote:
+>
+> > I'm really interested in things which make Linux 2.4 break
+> > performance-wise since I'd like to have them fixed before the
+> > distributions start shipping 2.4 as default.
+>
+> With kernel 2.4.1, I found that caching is way too aggressive. I
+> was running konqueror in 32Mb (the quest for a lightwieght
+> browser!) Unfortunately, the system seemed to insist on keeping
+> 16Mb used for caches, with 15Mb given to the application and X.
 
->From autoreplay headers...
-	Message-Id: <20010223093445.72B7D14228@pigeon.morotsmedia.se>
-	From: postmaster@morotsmedia.se
-	Sender: jborg@pigeon.morotsmedia.se	
+Wrong.
 
-Other posts from jborg...
-	From: Jakob Borg <jakob@borg.pp.se>
-	......
-	-- 
-	Jakob Borg            mailto:jakob@borg.pp.se       (personal)
-	UNIX/network admin    mailto:jakob@debian.org    (development)
-	systems programmer    mailto:jakob@morotsmedia.se       (work)
-	                      http://jakob.borg.pp.se/
+Cache and processes are INCLUSIVE. Konquerer and your other
+applications will share a lot of memory with the cache. More
+precisely, everything which is backed by a file or has been
+swapped out once (and swapped back in later) will SHARE memory
+with both cache and processes.
 
-"David S. Miller" wrote:
-> 
-> Unless someone can tell me who is the recipient on the linux-kernel
-> list generating these bogus virus bounces back to me, I am going
-> to have no choice but to unsubscribe the entire *.se domain to
-> try and get rid of this guy.
-> 
-> Thanks.
-> 
->   ------------------------------------------------------------------------
-> 
-> Subject: Re: 2.4.2 OOPS on parport loading [pci_register_driver] // parport slow
-> Date: Fri, 23 Feb 2001 10:34:45 +0100 (CET)
-> From: postmaster@morotsmedia.se
-> To: linux-kernel-owner@vger.kernel.org
-> References: <3A96154F.8A791FF6@debian.org> <20010223093358.C1147@redhat.com>
-> 
-> Your mail was recieved, but looked like it might contain a virus and was
-> not delivered.
-> 
-> Please do not respond to this mail, it is only an autoreply.
+In 2.4.1-pre<something> the kernel swaps out cache 32 times more
+agressively than it scans pages in processes. Until we find a way
+to auto-balance these things, expect them to be wrong for at least
+some workloads ;(
 
--- 
+regards,
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/ 
-                                               mhaque@haque.net
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
+

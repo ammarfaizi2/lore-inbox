@@ -1,69 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265609AbUBBANj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 19:13:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265610AbUBBANj
+	id S265444AbUBBAjL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 19:39:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265473AbUBBAjK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 19:13:39 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:17324 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S265609AbUBBANh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 19:13:37 -0500
-Date: Sun, 1 Feb 2004 22:13:33 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Mike Gabriel <mgabriel@ecology.uni-kiel.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: page allocation failed in 2.4.24
-In-Reply-To: <200402010018.23725.mgabriel@ecology.uni-kiel.de>
-Message-ID: <Pine.LNX.4.58L.0402012151510.2331@logos.cnet>
-References: <200402010018.23725.mgabriel@ecology.uni-kiel.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+	Sun, 1 Feb 2004 19:39:10 -0500
+Received: from dp.samba.org ([66.70.73.150]:59112 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S265444AbUBBAjI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Feb 2004 19:39:08 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Martin Schlemmer <azarah@nosferatu.za.org>
+Cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+Cc: Greg KH <greg@kroah.com>
+Subject: Re: module-init-tools/udev and module auto-loading 
+In-reply-to: Your message of "Mon, 02 Feb 2004 00:31:58 +0200."
+             <1075674718.27454.17.camel@nosferatu.lan> 
+Date: Mon, 02 Feb 2004 11:10:11 +1100
+Message-Id: <20040202003922.3180E2C078@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In message <1075674718.27454.17.camel@nosferatu.lan> you write:
+> A quick question on module-init-tools/udev and module auto-loading ...
+> lets say I have a module called 'foo', that I want the kernel to
+> auto-load.
 
+The *idea* of udev et al is that the kernel finds the devices,
+/sbin/hotplug loads the driver etc.
 
-On Sun, 1 Feb 2004, Mike Gabriel wrote:
+This does not cover the class of things which are entirely created by
+the driver (eg. dummy devices, socket families), so cannot be
+"detected".  Many of these (eg. socket families) can be handled by
+explicit request_module() in the core and MODULE_ALIAS in the driver.
+Some of them cannot at the moment: the first the kernel knows of them
+is an attempt to open the device.  Some variant of devfs would solve
+this.
 
-> hi there,
->
-> can anyone tell me what these messages mean? running linux-2.4.24 on asus
-> p4p800 deluxe.
->
-> Jan 31 02:38:02 galileo kernel: __alloc_pages: 0-order allocation failed
-> (gfp=0xf0/0)
-> Jan 31 02:38:02 galileo kernel: __alloc_pages: 0-order allocation failed
-> (gfp=0x1d2/0)
-> Jan 31 02:38:02 galileo kernel: VM: killing process slapd
-> Jan 31 02:38:50 galileo kernel: __alloc_pages: 0-order allocation failed
-> (gfp=0xf0/0)
-> Jan 31 02:38:50 galileo kernel: ENOMEM in journal_get_undo_access_R9add2900,
-> retrying.
-> Jan 31 02:38:53 galileo kernel: __alloc_pages: 0-order allocation failed
-> (gfp=0xf0/0)
-> Jan 31 02:39:19 galileo last message repeated 3 times
-> Jan 31 02:39:25 galileo kernel: __alloc_pages: 0-order allocation failed
-> (gfp=0x1d2/0)
-> Jan 31 02:39:25 galileo kernel: VM: killing process sshd
-> Jan 31 02:39:25 galileo kernel: __alloc_pages: 0-order allocation failed
-> (gfp=0x1d2/0)
-> Jan 31 02:39:25 galileo kernel: VM: killing process sshd
->
-> I get plenty of them during copying (cp -av <source> <dest>) a huge amount of
-> data, which is densely filled with hard links from one raid to another... the
-> cp command runs in a screen session. on huge directories, it starts blasting
-> other processes from the system (sshd, nmbd, spong-client, etc.)
+> Then a distant related issue - anybody thought about dynamic major
+> numbers of 2.7/2.8 (?) and the 'alias char-major-<whatever>-* whatever'
+> type modprobe rules (as the whole fact of them being dynamic, will make
+> that alias type worthless ...)?
 
-Hi Mike,
+Yes.  This could be changed to probe by device name, not number
+though.  And most names can't be dynamic: /dev/null has certain, fixed
+semantics.
 
-How much swap do you have on this system and how much swap space is free
-when you start seeing the allocation failures?
+The "I found this hardware, who will drive it?" mechanism of udev, and
+the "User asked for this, who will supply it?" mechanism of kmod have
+some overlap, but I think both will end up being required.
 
-"vmstat 2" output (start it before running the tests) and "cat
-/proc/slabinfo" output (before and during the tests) are useful to find
-out what is happening.
-
+Cheers,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

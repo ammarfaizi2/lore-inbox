@@ -1,56 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130155AbQLWPpj>; Sat, 23 Dec 2000 10:45:39 -0500
+	id <S129183AbQLWQDE>; Sat, 23 Dec 2000 11:03:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130300AbQLWPp3>; Sat, 23 Dec 2000 10:45:29 -0500
-Received: from s340-modem2372.dial.xs4all.nl ([194.109.169.68]:9860 "EHLO
-	sjoerd.sjoerdnet") by vger.kernel.org with ESMTP id <S130155AbQLWPpJ>;
-	Sat, 23 Dec 2000 10:45:09 -0500
-Date: Sat, 23 Dec 2000 16:12:40 +0100 (CET)
-From: Arjan Filius <iafilius@xs4all.nl>
-Reply-To: Arjan Filius <iafilius@xs4all.nl>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: "undefined reference" atm_lane_init & atm_mpoa_init with test13-pre4
-In-Reply-To: <Pine.LNX.4.10.10012211726060.968-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.30.0012231600450.17383-100000@sjoerd.sjoerdnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129210AbQLWQCz>; Sat, 23 Dec 2000 11:02:55 -0500
+Received: from freya.yggdrasil.com ([209.249.10.20]:39338 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S129183AbQLWQCo>; Sat, 23 Dec 2000 11:02:44 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Sat, 23 Dec 2000 07:32:17 -0800
+Message-Id: <200012231532.HAA31091@baldur.yggdrasil.com>
+To: linux-kernel@vger.kernel.org
+Subject: fork/wait race in 2.4.0-pre?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+	I reported this problem a few months ago in bug-glibc and
+did not get any response, although that is not unexpected since it is
+unclear where the problem is.  So that bug report and this report
+will probably serve just to chronicle the problem in case anybody
+sees something similar.
 
-With 2.4.0-test13-pre4 i noticed
+	Anyhow, the problem is that somehow fork or vfork (makes no
+difference) will return an apparently valid pid  and then the child
+process will disappear.  Calling wait or waitpid will return errno 10
+(ECHILD, "no child process"), and will continue to return errno 10
+if wait or waitpid is called again.  I got lucky with some strategically
+placed printf's at a point where this problem sometimes appears and
+was able to determine that, at least when wait() is called, the
+signal handler for SIGCLD (17) is SIG_IGN (1), so it seems less
+likely that some userland facility is reaping the process, especially
+since one of the places where this problem occurs is a very simple
+program that does little more than fork and wait.
 
- "Networking options"
-  <M>   LAN Emulation (LANE) support
-  <M>   Multi-Protocol Over ATM (MPOA) support
+	This usually happens during the "configure" phase of our
+build process, which is right after about 2.5GB of sources
+have been extracted from CVS to a directory tree, so there may
+be some IO congestion that could lead to unusual timing relationships,
+leading to unsual results from race conditions.  Also, the problem
+started occurring occasionally when the machine in question got
+an 866MHz CPU, and started occuring more often when it got a 1GHz
+CPU.  So, more instructions per time slice seems to be a relevant
+factor.
 
-results with 'make bzImage' in:
+	Anyhow, I know this is a very slippery bug and it may
+be months before it is tracked down either here or elsewhere, but
+I thought it would be helpful to at least document it for the
+linux-kernel archives.
 
-make[1]: Leaving directory `/usr/src/linux-2.4.0-test13-4/arch/i386/lib'
-ld -m elf_i386 -T /usr/src/linux/arch/i386/vmlinux.lds -e stext arch/i386/kernel/head.o arch/i386/kernel/init_task.o init/main.o init/version.o \
-	--start-group \
-	arch/i386/kernel/kernel.o arch/i386/mm/mm.o kernel/kernel.o mm/mm.o fs/fs.o ipc/ipc.o \
-	drivers/block/block.o drivers/char/char.o drivers/misc/misc.o drivers/net/net.o drivers/media/media.o  drivers/char/drm/drm.o drivers/net/fc/fc.o drivers/net/appletalk/appletalk.o drivers/net/tokenring/tr.a drivers/net/wan/wan.o drivers/atm/atm.o drivers/ide/idedriver.o drivers/scsi/scsidrv.o drivers/cdrom/driver.o drivers/pci/driver.o drivers/video/video.o drivers/net/hamradio/hamradio.o drivers/md/mddev.o \
-        net/network.o \
-        /usr/src/linux/arch/i386/lib/lib.a /usr/src/linux/lib/lib.a /usr/src/linux/arch/i386/lib/lib.a \
-        --end-group \
-        -o vmlinux
-net/network.o: In function `atm_ioctl':
-net/network.o(.text+0x3ff92): undefined reference to `atm_lane_init'
-net/network.o(.text+0x40039): undefined reference to `atm_mpoa_init'
-make: *** [vmlinux] Error 1
-sjoerd:/usr/src/linux #
-
-Unsetting these options "fixed" this for me.
-
-Greatings,
-
--- 
-Arjan Filius
-mailto:iafilius@xs4all.nl
-
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,43 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269151AbUINCwY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269106AbUINC6a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269151AbUINCwY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 22:52:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269150AbUINCtA
+	id S269106AbUINC6a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 22:58:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269135AbUINC55
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 22:49:00 -0400
-Received: from gate.crashing.org ([63.228.1.57]:34954 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S269157AbUINCr6 (ORCPT
+	Mon, 13 Sep 2004 22:57:57 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:52378 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S269157AbUINC5F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 22:47:58 -0400
-Subject: Re: vDSO for ppc64 : Preliminary release #5
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Alan Modra <amodra@bigpond.net.au>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linuxppc64-dev <linuxppc64-dev@lists.linuxppc.org>,
-       Ulrich Drepper <drepper@redhat.com>, Sam Ravnborg <sam@ravnborg.org>
-In-Reply-To: <20040914023416.GF21519@bubble.modra.org>
-References: <1095051764.2664.267.camel@gaston>
-	 <20040914023416.GF21519@bubble.modra.org>
-Content-Type: text/plain
-Message-Id: <1095129823.2578.348.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 14 Sep 2004 12:43:43 +1000
+	Mon, 13 Sep 2004 22:57:05 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: BUG at inode.c:1024 in 2.6.9-rc1-mm5
+Date: Mon, 13 Sep 2004 19:57:02 -0700
+User-Agent: KMail/1.7
+References: <200409131933.47047.jbarnes@engr.sgi.com>
+In-Reply-To: <200409131933.47047.jbarnes@engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409131957.02222.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-09-14 at 12:34, Alan Modra wrote:
-> On Mon, Sep 13, 2004 at 03:02:44PM +1000, Benjamin Herrenschmidt wrote:
-> > and a new version of the CFI informations for signal trampolines by
-> > Alan.
-> 
-> Which is busted.  I'm now generating .eh_frame directly, but you moved
-> .cfi_startproc/.cfi_endproc into V_FUNCTION_BEGIN/V_FUNCTION_END.
+On Monday, September 13, 2004 7:33 pm, Jesse Barnes wrote:
+> Ok, I think this backtrace is actually legitimate (different, working
+> hardware I hope) :)  I hit this while running aim7, about 20 min. into the
+> run or so, probably at a few thousand users.  It was a 64p machine.  The
+> machine stayed up and continued running aim7 until it was rebooted by the
+> next user who had it reserved.
 
-Oh, ok, yes, I need to remove those I suppose and add them back manually
-to each individual function, right ?
-
-Ben.
-
-
+Umm... err... 2.6.9-rc1-mm5

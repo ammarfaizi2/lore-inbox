@@ -1,73 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267254AbTBDNnj>; Tue, 4 Feb 2003 08:43:39 -0500
+	id <S267155AbTBDNyz>; Tue, 4 Feb 2003 08:54:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267263AbTBDNnj>; Tue, 4 Feb 2003 08:43:39 -0500
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:24231 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id <S267254AbTBDNni>; Tue, 4 Feb 2003 08:43:38 -0500
-Date: Tue, 4 Feb 2003 14:29:42 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: Padraig@Linux.ie, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: gcc 2.95 vs 3.21 performance
-Message-ID: <20030204132942.GB15817@wohnheim.fh-wedel.de>
-References: <Pine.LNX.3.95.1030203182417.7651A-100000@chaos.analogic.com> <3E3F9C82.7000607@Linux.ie> <3E3FBC1C.167E779A@aitel.hist.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3E3FBC1C.167E779A@aitel.hist.no>
-User-Agent: Mutt/1.3.28i
+	id <S267263AbTBDNyz>; Tue, 4 Feb 2003 08:54:55 -0500
+Received: from [205.205.44.10] ([205.205.44.10]:60940 "EHLO
+	sembo111.teknor.com") by vger.kernel.org with ESMTP
+	id <S267155AbTBDNyy>; Tue, 4 Feb 2003 08:54:54 -0500
+Message-ID: <5009AD9521A8D41198EE00805F85F18F219C28@sembo111.teknor.com>
+From: "Isabelle, Francois" <Francois.Isabelle@ca.kontron.com>
+To: high-res-timers-discourse@lists.sourceforge.net,
+       "'george@mvista.com'" <george@mvista.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: High-Res-Timers: Unexpected "lock" during "Calibrating delay loop
+	"
+Date: Tue, 4 Feb 2003 09:04:22 -0500 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 February 2003 14:11:56 +0100, Helge Hafting wrote:
-> 
-> Looks like a cacheline alignment issue to me.
-> This loop of yours occupy x cachelines on your cpu,
-> moving it in memory by adding the printf
-> might cause it to ocupy x+1 cachelines.
-> That might be noticeable if x is a really small number,
-> such as 1.
+Hi,
+	we are having an unexpected problem with the HR patch( regardless of
+the patch you sent which compiled just fine ). The board uses a 486DX cpu,
+so there is no support for TSC nor ACPI, the only thing we have is the PIT. 
 
-Makes a lot of sense.
+Without highres, the kernel boots properly, with highres enabled, the kernel
+passes "time_init()" put it hangs in "calibrate_loop() , ( I though it hung
+for real, but it get passed the loop after a while) " 
 
-> My advice is to put your test loop in a function of its own,
-> and do the printing in the function that calls it.
-> functions are always aligned the same (good) way so
-> that calling them will be fast.
-> 
-> You can tune the speed of your inner loop by experimenting
-> with the insertion of one or more NOP asms in front
-> of the loop.  Just be aware that all such tuning is wasted once
-> you change anything at all in that function - you'll have to
-> re-do the tuning each time. 
-> 
-> The compiler should ideally align the loops for maximum performance.
-> That can be hard though, considering all the different processors
-> that might run your program.  And aligning everything optimally
-> could waste a _lot_ of code space - so do this only for
-> small loops with lots of iterations.
+Seems like the tick is VERY SLOW..
 
-The compiler has a hard time to identify those loops that affect
-performance as opposed to those that are run 2-3 times.
+The PIT has been tested on this board, and without HR, the kernel boots fine
+... if you have any hints, they would be welcome.
 
-But the developer can usually profile and figure out, where those
-loops are. I wonder if the following would be possible.
+The keyboard detection routine timeouts so the system is quiet unuseable and
+I can't get the calibration results yet.
 
-printf();
-__cacheline_aligned_code;
-for(;;)
-	do_sorting_loop_test();
 
-include/linux/cache.h appears to define such for data structures, but
-not for code.
+Frank
 
-Jörn
 
--- 
-ticks = jiffies;
-while (ticks == jiffies);
-ticks = jiffies;
--- /usr/src/linux/init/main.c
+

@@ -1,34 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262255AbSJFXXG>; Sun, 6 Oct 2002 19:23:06 -0400
+	id <S262253AbSJFXje>; Sun, 6 Oct 2002 19:39:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262256AbSJFXXG>; Sun, 6 Oct 2002 19:23:06 -0400
-Received: from mailhost.tue.nl ([131.155.2.5]:19238 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S262255AbSJFXXF>;
-	Sun, 6 Oct 2002 19:23:05 -0400
-Date: Mon, 7 Oct 2002 01:28:38 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Allan Duncan <allan.d@bigpond.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.40 etc and IDE HDisk geometry
-Message-ID: <20021006232838.GA20993@win.tue.nl>
-References: <3D9D9BE4.32421A87@bigpond.com> <20021004215049.GA20192@win.tue.nl> <3DA0AFBE.935D25BA@bigpond.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DA0AFBE.935D25BA@bigpond.com>
-User-Agent: Mutt/1.3.25i
+	id <S262256AbSJFXjd>; Sun, 6 Oct 2002 19:39:33 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34057 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262253AbSJFXjd>; Sun, 6 Oct 2002 19:39:33 -0400
+Date: Sun, 6 Oct 2002 16:47:04 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Marcel Holtmann <marcel@holtmann.org>
+cc: linux-kernel@vger.kernel.org, <maxk@qualcomm.com>
+Subject: Re: [PATCH] Bluetooth kbuild fix and config cleanup
+In-Reply-To: <E17yFj4-0006ll-00@pegasus>
+Message-ID: <Pine.LNX.4.44.0210061646080.21788-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 07, 2002 at 07:48:46AM +1000, Allan Duncan wrote:
 
-> Like LILO.  It complains
+On Sun, 6 Oct 2002, Marcel Holtmann wrote:
+> 
+> diff -Nru a/drivers/bluetooth/Makefile b/drivers/bluetooth/Makefile
+> --- a/drivers/bluetooth/Makefile	Sun Oct  6 19:19:06 2002
+> +++ b/drivers/bluetooth/Makefile	Sun Oct  6 19:19:06 2002
+> @@ -9,9 +9,14 @@
+>  obj-$(CONFIG_BLUEZ_HCIBT3C)	+= bt3c_cs.o
+>  obj-$(CONFIG_BLUEZ_HCIBLUECARD)	+= bluecard_cs.o
+>  
+> -hci_uart-y				:= hci_ldisc.o
+> -hci_uart-$(CONFIG_BLUEZ_HCIUART_H4)	+= hci_h4.o
+> -hci_uart-$(CONFIG_BLUEZ_HCIUART_BCSP)	+= hci_bcsp.o
+> -hci_uart-objs				:= $(hci_uart-y)
+> +hci_uart-objs := hci_ldisc.o
+> +
+> +ifeq ($(CONFIG_BLUEZ_HCIUART_H4),y)
+> +  hci_uart-objs += hci_h4.o
+> +endif
+> +
+> +ifeq ($(CONFIG_BLUEZ_HCIUART_BCSP),y)
+> +  hci_uart-objs += hci_bcsp.o
+> +endif
+>  
+>  include $(TOPDIR)/Rules.make
 
-Maybe sufficiently recent LILO is OK.
+Hmm.. This seems to be reverting a perfectly good clean Makefile without 
+any conditionals to the old-stype setup. Please don't do that.
 
-> Maybe I should start looking at grub, assuming it doesn't do the same.
+		Linus
 
-"lilo -R" is very useful. I don't think grub has that capability.
-
-Andries

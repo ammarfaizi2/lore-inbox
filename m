@@ -1,69 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261827AbTLPONO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 09:13:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbTLPONO
+	id S261719AbTLPOQm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 09:16:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbTLPOQm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 09:13:14 -0500
-Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:37038 "EHLO
-	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S261827AbTLPONN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 09:13:13 -0500
-Date: Tue, 16 Dec 2003 15:13:06 +0100
-From: Martin Waitz <tali@admingilde.org>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Felix von Leitner <felix-kernel@fefe.de>, linux-kernel@vger.kernel.org
-Subject: Re: request: capabilities that allow users to drop privileges further
-Message-ID: <20031216141306.GB1117@admingilde.org>
-Mail-Followup-To: Chris Wright <chrisw@osdl.org>,
-	Felix von Leitner <felix-kernel@fefe.de>,
-	linux-kernel@vger.kernel.org
-References: <20031215213912.GA29281@codeblau.de> <20031215144809.A14552@osdlab.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Z83JOb+Pp/DrQW9p"
-Content-Disposition: inline
-In-Reply-To: <20031215144809.A14552@osdlab.pdx.osdl.net>
-User-Agent: Mutt/1.3.28i
-X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
+	Tue, 16 Dec 2003 09:16:42 -0500
+Received: from pool-68-237-24-107.ny325.east.verizon.net ([68.237.24.107]:25103
+	"HELO pool-68-237-24-107.ny325.east.verizon.net") by vger.kernel.org
+	with SMTP id S261719AbTLPOQk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Dec 2003 09:16:40 -0500
+Message-ID: <3c$-$s76kugs3r1s@jeo.13hw6x>
+From: "Fredrick Albright" <c3fchb@yahoo.com>
+Reply-To: "Fredrick Albright" <c3fchb@yahoo.com>
+To: linux-kernel@vger.kernel.org
+Subject: RE:Alprazolam.m Valium.m Vicodin.n Xanax.x jupellsun
+Date: Tue, 16 Dec 03 08:23:04 GMT
+X-Mailer: Microsoft Outlook Express 6.00.2462.0000
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="E.0B._74F_3._C8FD"
+X-Priority: 3
+X-MSMail-Priority: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Z83JOb+Pp/DrQW9p
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--E.0B._74F_3._C8FD
+Content-Type: text/plain;
 Content-Transfer-Encoding: quoted-printable
 
-hi :)
+Many Specials running this week
 
-On Mon, Dec 15, 2003 at 02:48:09PM -0800, Chris Wright wrote:
-> >   * ptrace
->=20
-> drop CAP_SYS_PTRACE
-that will only help agains ptracing foreign processes.
-you can still debug your own ones.
+THE RE.AL THING
+not like the other sites that 
+imitate these products.
 
-so this does not help agains buffer overflows&co in ptrace
+No hidd.en char.ges - Fast Delivery
+
+Vic.odin Val.ium Xan.ax
+
+Via.gra Diaz.epam Alpra.zolam
+
+So.ma Fior.icet Amb.ien
+
+Stil.nox Ult.ram Zo.loft
+
+Clon.azepam At.ivan Tr.amadol
+
+Xeni.cal Cele.brex Vi.oxx
+
+Pro.zac Bus.par Much M.ore....
+
+http://www.dealsforu.biz/l/110/index.htm
 
 
---=20
-CU,		  / Friedrich-Alexander University Erlangen, Germany
-Martin Waitz	//  Department of Computer Science 3       _________
-______________/// - - - - - - - - - - - - - - - - - - - - ///
-dies ist eine manuell generierte mail, sie beinhaltet    //
-tippfehler und ist auch ohne grossbuchstaben gueltig.   /
 
---Z83JOb+Pp/DrQW9p
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQE/3xLxj/Eaxd/oD7IRAt+bAJ9S5lGllph8uz/HxPyokktKp2IsfgCePfL5
-QD7h8fVZxLRHf2x+z7QlqPs=
-=vet7
------END PGP SIGNATURE-----
 
---Z83JOb+Pp/DrQW9p--
+If you have recieved this in error
+please use
+http://www.dealsforu.biz/optout.html
+
+
+
+
+
+hl  mrch
+uly
+yd pzdhqpyt
+fdkel fexrjv
+pchupuso
+n zw eahzgliz
+un t hst
+v
+
+--E.0B._74F_3._C8FD--
+

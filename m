@@ -1,48 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262988AbTDFOkt (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 10:40:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262989AbTDFOkt (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 10:40:49 -0400
-Received: from port5.ds1-sby.adsl.cybercity.dk ([212.242.169.198]:54858 "EHLO
-	trider-g7.fabbione.net") by vger.kernel.org with ESMTP
-	id S262988AbTDFOkp (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 10:40:45 -0400
-Date: Sun, 6 Apr 2003 16:52:17 +0200 (CEST)
-From: Fabio Massimo Di Nitto <fabbione@fabbione.net>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [sparc64] 2.4.21-pre7 and alsa: unresolved symbol
-Message-ID: <Pine.LNX.4.53.0304061640140.7051@mazinga.int.fabbione.net>
+	id S262992AbTDFOun (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 10:50:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262993AbTDFOun (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 10:50:43 -0400
+Received: from mons.uio.no ([129.240.130.14]:36307 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id S262992AbTDFOum (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 10:50:42 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16016.16757.380048.996214@charged.uio.no>
+Date: Sun, 6 Apr 2003 17:02:13 +0200
+To: Siim Vahtre <siim@pld.ttu.ee>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org
+Subject: Re: nfs issues
+In-Reply-To: <Pine.GSO.4.53.0304061731540.17774@pitsa.pld.ttu.ee>
+References: <Pine.GSO.4.53.0304060937020.17774@pitsa.pld.ttu.ee>
+	<shsfzovn5uy.fsf@charged.uio.no>
+	<Pine.GSO.4.53.0304061731540.17774@pitsa.pld.ttu.ee>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == Siim Vahtre <siim@pld.ttu.ee> writes:
 
-Hi all,
-	Im a bit new to sparc kernel/hardware and I have been hitten by a
-problem compiling alsa modules.
-In a few words loading the modules i get the following error:
+     > Using 2.4 kernel for client is fine. (tried 2.4.21-pre7
+     > aswell).  But I want to use 2.5 on the client side.. atm it
+     > screws the data.
 
-mazinga:/usr/src/modules/alsa-driver# insmod snd-page-alloc
-Using /lib/modules/2.4.21-pre7/kernel/sound/acore/snd-page-alloc.o
-/lib/modules/2.4.21-pre7/kernel/sound/acore/snd-page-alloc.o: unresolved
-symbol virt_to_bus_not_defined_use_pci_map
+Tough. 2.5.x is a development kernel, and yes, there are still bugs
+and issues to be tracked down.
+If you need stability use 2.4.x
 
-poking around I found that io.h has this entry on sparc64:
-
-extern unsigned long virt_to_bus_not_defined_use_pci_map(volatile void  *addr);
-#define virt_to_bus virt_to_bus_not_defined_use_pci_map
-
-while in other archs there is some "real" code.
-
-I understand "use_pci_map" but what i would really like to know is:
-
-* why is virt_to_bus missing from sparc64?
-* which is the best way to fix the code? kernel or alsa???
-
-I have also been trying to look at 2.5.66 kernel but unfortunatly I cannot
-even boot it to confirm that is working or not (atleast to try a backport
-or something)
-
-Any help would be really appreciated.
-
-Thanks
-Fabio
+Cheers,
+  Trond

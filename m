@@ -1,63 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268966AbTBWUXQ>; Sun, 23 Feb 2003 15:23:16 -0500
+	id <S268565AbTBWUZU>; Sun, 23 Feb 2003 15:25:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268968AbTBWUXQ>; Sun, 23 Feb 2003 15:23:16 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:62423 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S268966AbTBWUXO>; Sun, 23 Feb 2003 15:23:14 -0500
-Date: Sun, 23 Feb 2003 12:33:19 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Mike Anderson <andmike@us.ibm.com>, Patrick Mochel <mochel@osdl.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Bug with (maybe not *in*) sysfs
-Message-ID: <12070000.1046032398@[10.10.2.4]>
-In-Reply-To: <20030223202401.GA1452@beaverton.ibm.com>
-References: <5480000.1046028715@[10.10.2.4]>
- <Pine.LNX.4.33.0302231310500.923-100000@localhost.localdomain>
- <20030223202401.GA1452@beaverton.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S268920AbTBWUZU>; Sun, 23 Feb 2003 15:25:20 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:17280
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S268565AbTBWUZS>; Sun, 23 Feb 2003 15:25:18 -0500
+Subject: Re: Linux-2.5.62-ac1
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Christian Guggenberger 
+	<Christian.Guggenberger@physik.uni-regensburg.de>
+Cc: alan@redhat.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030223211901.A3928@pc9391.uni-regensburg.de>
+References: <20030223211901.A3928@pc9391.uni-regensburg.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Organization: 
+Message-Id: <1046036189.1669.22.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 23 Feb 2003 21:36:30 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> This is typically caused by the same object being added twice at the
->> same  level in the hierarchy, which appears to be happening. Is the ips
->> driver  calling pci_register_driver() twice? 
->> 
->> 	-pat
-> 
-> It was possible in the past that pci_module_init could be called more
-> than once with non-unique pci_driver names. It is fixed in the current
-> trees, but I do not have the date when it was pushed. Here is some
-> context mail links.
-> 
-> http://marc.theaimsgroup.com/?l=linux-scsi&m=104275858704733&w=2
-> 
-> http://marc.theaimsgroup.com/?l=linux-scsi&m=104455557710731&w=2
+On Sun, 2003-02-23 at 20:19, Christian Guggenberger wrote:
+> Should this one fix those problems with IO-APICs seen on most UP Via Boards?
 
-OK, so two similar, but not identical cards using the same driver?
-First patch mentioned looks very simple, but won't apply to 2.5.62
-There's now just:
+Some - there are rather a lot of variables involved. This fixes up one specific
+problem (or should do). It writes the IRQ back to the PCI devices, which is
+needed for internal devices.
 
-   static char ips_hot_plug_name[] = "ips";
-
-   static int __devinit  ips_insert_device(struct pci_dev *pci_dev, const
-struct pci_device_id *ent);
-   static void __devexit ips_remove_device(struct pci_dev *pci_dev);
-
-   struct pci_driver ips_pci_driver = {
-       .name            = ips_hot_plug_name,
-       .id_table        = ips_pci_table,
-       .probe           = ips_insert_device,
-       .remove          = __devexit_p(ips_remove_device),
-   };
-
-Second patch looks a little intimidating ... more like a full blown update
-of the driver ... I'd rather not go there unless I really have to.
-
-M.
+The fact it still fails in your case makes me wonder if the workaround isnt
+being properly triggered
 

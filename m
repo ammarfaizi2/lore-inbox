@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264129AbTDWQ41 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 12:56:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264132AbTDWQ41
+	id S264144AbTDWQ7N (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 12:59:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264145AbTDWQ7N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 12:56:27 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:49600 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264129AbTDWQ4Z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 12:56:25 -0400
-Date: Wed, 23 Apr 2003 09:57:29 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Robert Love <rml@tech9.net>, William Lee Irwin III <wli@holomorphy.com>
-cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
+	Wed, 23 Apr 2003 12:59:13 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:60433
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id S264144AbTDWQ7M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 12:59:12 -0400
 Subject: Re: 2.5.68-mm2
-Message-ID: <1509100000.1051117049@flay>
-In-Reply-To: <1051116646.2756.2.camel@localhost>
-References: <20030423012046.0535e4fd.akpm@digeo.com> <20030423095926.GJ8931@holomorphy.com> <1051116646.2756.2.camel@localhost>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Robert Love <rml@tech9.net>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <1509100000.1051117049@flay>
+References: <20030423012046.0535e4fd.akpm@digeo.com>
+	 <20030423095926.GJ8931@holomorphy.com> <1051116646.2756.2.camel@localhost>
+	 <1509100000.1051117049@flay>
+Content-Type: text/plain
+Message-Id: <1051117874.2756.4.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.3.2 (1.3.2-1) (Preview Release)
+Date: 23 Apr 2003 13:11:14 -0400
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> rml and I coordinated to put together a small patch (combining both
->> our own) for properly locking the static variables in out_of_memory().
->> There's not any evidence things are going wrong here now, but it at
->> least addresses the visible lack of locking in out_of_memory().
-> 
-> Thank you for posting this, wli.
-> 
->> -	first = now;
->> +	/*
->> +	 * We dropped the lock above, so check to be sure the variable
->> +	 * first only ever increases to prevent false OOM's.
->> +	 */
->> +	if (time_after(now, first))
->> +		first = now;
-> 
-> Just thinking... this little bit is actually a bug even on UP sans
-> kernel preemption, too, since oom_kill() can sleep.  If it sleeps, and
-> another process enters out_of_memory(), 'now' and 'first' will be out of
-> sync.
-> 
-> So I think this patch is a Good Thing in more ways than the obvious SMP
-> or kernel preemption issue.
+On Wed, 2003-04-23 at 12:57, Martin J. Bligh wrote:
 
-Is this the bug that akpm was seeing, or a different one? The only 
-information I've seen (indirectly) is that fsx triggers the oops.
+> Is this the bug that akpm was seeing, or a different one? The only 
+> information I've seen (indirectly) is that fsx triggers the oops.
 
-M.
+I cannot see this cause an oops, so no.
+
+Just out-of-sync values resulting in an unexpected OOM or a delayed OOM.
+
+	Robert Love
 

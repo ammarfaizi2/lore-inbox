@@ -1,42 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261769AbRESWHt>; Sat, 19 May 2001 18:07:49 -0400
+	id <S261771AbRESWL7>; Sat, 19 May 2001 18:11:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261771AbRESWHj>; Sat, 19 May 2001 18:07:39 -0400
-Received: from paloma16.e0k.nbg-hannover.de ([62.159.219.16]:12424 "HELO
-	paloma16.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S261769AbRESWHc>; Sat, 19 May 2001 18:07:32 -0400
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: "Linux Kernel List" <linux-kernel@vger.kernel.org>
-Subject: Has anybody a working pppoed for 2.4 (2.4.4-ac10/11)?
-Date: Sun, 20 May 2001 00:33:56 +0200
-X-Mailer: KMail [version 1.2.1]
-Cc: support@suse.de, feedback@suse.de, "Jamal Hadi Salim" <hadi@cyberus.ca>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <20010519220738Z261769-1104+2718@vger.kernel.org>
+	id <S261777AbRESWLu>; Sat, 19 May 2001 18:11:50 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:23820 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S261771AbRESWLh>;
+	Sat, 19 May 2001 18:11:37 -0400
+Date: Sat, 19 May 2001 18:10:26 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
+Subject: Brown-paper-bag bug in m68k, sparc, and sparc64 config files
+Message-ID: <20010519181026.A23730@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	CML2 <linux-kernel@vger.kernel.org>,
+	kbuild-devel@lists.sourceforge.net
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have pppoed-0.48b1-6, ppp-2.4.0-5 (SuSE 7.1) but it didn't work (with 
-kernel pppoe.o/pppox.o).
-So I have to use rp-pppoe-2.5-5 (which should be slower I've heard) for the 
-German Telekom ADSL (product name TDSL).
+This bug unconditionally disables a configuration question -- and it's
+so old that it has propagated across three port files, without either
+of the people who did the cut and paste for the latter two noticing it.
 
-Thanks,
-	Dieter
+This sort of thing would never ship in CML2, because the compiler
+would throw an undefined-symbol warning on BLK_DEV_ST.  The temptation
+to engage in sarcastic commentary at the expense of people who still
+think CML2 is an unnecessary pain in the butt is great.  But I will
+restrain myself.  This time.
+
+--- arch/m68k/config.in	2001/05/19 21:36:57	1.1
++++ arch/m68k/config.in	2001/05/19 21:37:12
+@@ -192,7 +192,7 @@
+       int  'Maximum number of SCSI disks that can be loaded as modules' CONFIG_SD_EXTRA_DEVS 40
+    fi
+    dep_tristate '  SCSI tape support' CONFIG_CHR_DEV_ST $CONFIG_SCSI
+-   if [ "$CONFIG_BLK_DEV_ST" != "n" ]; then
++   if [ "$CONFIG_CHR_DEV_ST" != "n" ]; then
+       int  'Maximum number of SCSI tapes that can be loaded as modules' CONFIG_ST_EXTRA_DEVS 2
+    fi
+    dep_tristate '  SCSI CD-ROM support' CONFIG_BLK_DEV_SR $CONFIG_SCSI
+--- arch/sparc/config.in	2001/05/19 21:34:54	1.1
++++ arch/sparc/config.in	2001/05/19 21:35:21
+@@ -162,7 +162,7 @@
+ 
+    dep_tristate '  SCSI tape support' CONFIG_CHR_DEV_ST $CONFIG_SCSI
+ 
+-   if [ "$CONFIG_BLK_DEV_ST" != "n" ]; then
++   if [ "$CONFIG_CHR_DEV_ST" != "n" ]; then
+       int  'Maximum number of SCSI tapes that can be loaded as modules' CONFIG_ST_EXTRA_DEVS 2
+    fi
+ 
+--- arch/sparc64/config.in	2001/05/19 21:37:33	1.1
++++ arch/sparc64/config.in	2001/05/19 21:37:45
+@@ -146,7 +146,7 @@
+ 
+    dep_tristate '  SCSI tape support' CONFIG_CHR_DEV_ST $CONFIG_SCSI
+ 
+-   if [ "$CONFIG_BLK_DEV_ST" != "n" ]; then
++   if [ "$CONFIG_CHR_DEV_ST" != "n" ]; then
+       int  'Maximum number of SCSI tapes that can be loaded as modules' CONFIG_ST_EXTRA_DEVS 2
+    fi
 -- 
-Dieter Nützel
-Graduate Student, Computer Science
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-University of Hamburg
-Department of Computer Science
-Cognitive Systems Group
-Vogt-Kölln-Straße 30
-D-22527 Hamburg, Germany
-
-email: nuetzel@kogs.informatik.uni-hamburg.de
-@home: Dieter.Nuetzel@hamburg.de
+Conservatism is the blind and fear-filled worship of dead radicals.

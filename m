@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132209AbQLHQnt>; Fri, 8 Dec 2000 11:43:49 -0500
+	id <S132271AbQLHQo3>; Fri, 8 Dec 2000 11:44:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132271AbQLHQnj>; Fri, 8 Dec 2000 11:43:39 -0500
-Received: from 62-6-231-79.btconnect.com ([62.6.231.79]:9476 "EHLO
-	penguin.homenet") by vger.kernel.org with ESMTP id <S132209AbQLHQnb>;
-	Fri, 8 Dec 2000 11:43:31 -0500
-Date: Fri, 8 Dec 2000 16:13:30 +0000 (GMT)
-From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
-To: Daniel Phillips <phillips@innominate.de>
-cc: caperry@edolnx.net, linux-kernel@vger.kernel.org
-Subject: Re: Kernel Development Documentation?
-In-Reply-To: <00120816515701.00491@gimli>
-Message-ID: <Pine.LNX.4.21.0012081607290.921-100000@penguin.homenet>
+	id <S132301AbQLHQoT>; Fri, 8 Dec 2000 11:44:19 -0500
+Received: from mx1.hcvlny.cv.net ([167.206.112.76]:20700 "EHLO
+	mx1.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id <S132271AbQLHQoD>; Fri, 8 Dec 2000 11:44:03 -0500
+To: "Barry Smoke" <bsmoke@bryant.dsc.k12.ar.us>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: rage 128 mobility m/p and kernel DRI
+In-Reply-To: <IMEKIDMFAEBICGFFGJPKAENDCPAA.bsmoke@bryant.k12.ar.us>
+From: Alan Shutko <ats@acm.org>
+Date: 08 Dec 2000 11:08:08 -0500
+In-Reply-To: <IMEKIDMFAEBICGFFGJPKAENDCPAA.bsmoke@bryant.k12.ar.us>
+Message-ID: <87lmtq28wn.fsf@wesley.springies.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.0.92
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Dec 2000, Daniel Phillips wrote:
-> Tigran Aivazian has been preparing 'Linux Kernel Internals' which is
-> *highly recommended* and 100% free.  
+"Barry Smoke" <bsmoke@bryant.dsc.k12.ar.us> writes:
 
-in case he is curious where to find it:
+> DRI is available for the rage 128, but it is not working on this chipset.
 
-http://www.moses.uklinux.net/patches/lki.html
+[...]
 
-(or .sgml for master source).
+> Windows reports the chip as a rage mobility-p agp 1x, agp2x
 
-Interestingly, the main problem with LKI turned out to be _not_ the issue
-of keeping it uptodate but filling in the missing bits, most notably
-buffer cache and page cache. By now I more or less actually understand the
-Linux buffer cache (only after diligent comparison with UW7, AIX, OSR5 and
-many other commercial UNIX implementations whose source code is available)
-but still not the page cache (even after reading everything about it that
-I could find, including recent Understanding Linux Kernel book by Bovet
-which I just finished reading). E.g. it is not even obvious to me that
-things will get any worse if one throws away the entire readahead logic
-from the page cache.
+That's not a Rage Mobility 128, I believe.  That's a Mach-64-based
+chip.  Check /var/log/XFree86.0.log for a line like
 
-So, if someone wants to write a chapter on Linux page cache and contribute
-it to the LKI book (and thus become a co-author :) please feel free -- it
-will be a proof that someone in the world actually understands it -- at
-the moment I doubt that very much... Take it as a challenge :)
+(--) Chipset ATI Rage 128 Mobility LF (AGP) found
 
-Regards,
-Tigran
-
+-- 
+Alan Shutko <ats@acm.org> - In a variety of flavors!
+A 'full' life in my experience is usually full only of other people's demands.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

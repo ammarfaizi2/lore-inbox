@@ -1,82 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265164AbUAEVKK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 16:10:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265303AbUAEVKJ
+	id S265374AbUAEVGu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 16:06:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265697AbUAEVGu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 16:10:09 -0500
-Received: from kiuru.kpnet.fi ([193.184.122.21]:53174 "EHLO kiuru.kpnet.fi")
-	by vger.kernel.org with ESMTP id S265164AbUAEVJ6 (ORCPT
+	Mon, 5 Jan 2004 16:06:50 -0500
+Received: from twilight.ucw.cz ([81.30.235.3]:36026 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id S265374AbUAEVGs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 16:09:58 -0500
-Subject: Re: linux-2.4.24 released
-From: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040105190619.GD10569@fs.tum.de>
-References: <200401051355.i05DtvgC020415@hera.kernel.org>
-	 <1073321792.21338.2.camel@midux> <20040105171843.GA2407@alpha.home.local>
-	 <1073324505.21338.11.camel@midux>  <20040105190619.GD10569@fs.tum.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-E7H0I0AwBnao63cuBD9/"
-Message-Id: <1073336935.21983.4.camel@midux>
+	Mon, 5 Jan 2004 16:06:48 -0500
+Date: Mon, 5 Jan 2004 22:06:25 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: "Theodore Ts'o" <tytso@mit.edu>, Vojtech Pavlik <vojtech@suse.cz>,
+       Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@osdl.org>,
+       viro@parcelfarce.linux.theplanet.co.uk,
+       Daniel Jacobowitz <dan@debian.org>, Andries Brouwer <aebr@win.tue.nl>,
+       Rob Love <rml@ximian.com>, rob@landley.net,
+       Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org
+Subject: Re: udev and devfs - The final word
+Message-ID: <20040105210625.GA26428@ucw.cz>
+References: <Pine.LNX.4.58.0401041847370.2162@home.osdl.org> <20040105030737.GA29964@nevyn.them.org> <Pine.LNX.4.58.0401041918260.2162@home.osdl.org> <20040105035037.GD4176@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0401041954010.2162@home.osdl.org> <20040105043830.GE4176@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0401042043020.2162@home.osdl.org> <20040105074717.GB13651@kroah.com> <20040105111556.GA20272@ucw.cz> <20040105201144.GA11179@thunk.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 05 Jan 2004 23:08:55 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040105201144.GA11179@thunk.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jan 05, 2004 at 03:11:44PM -0500, Theodore Ts'o wrote:
 
---=-E7H0I0AwBnao63cuBD9/
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: quoted-printable
+> On Mon, Jan 05, 2004 at 12:15:56PM +0100, Vojtech Pavlik wrote:
+> > 
+> > Mutt with IMAP is rather bearable even on a GPRS connection (40kbps,
+> > 1sec latency). On a 100baseTX it's not distinguishable from local
+> > operation.
+> 
+> Hmm... I've tried using mutt/IMAP over GPRS connection, and I find it
+> extremely unpleasant, myself.  My solution is to use isync to provide
+> a local cached copy of the IMAP server on my laptop, and then run mutt
+> against the local cached copy.  
+> 
+> I have a patch to isync which allows it to issue multiple IMAP
+> commands in parallel (instead of operating in lockstep fashion):
+> 
+> http://bugs.debian.org/cgi-bin/bugreport.cgi//tmp/async-imap-patch?bug=226222&msg=3&att=1
+> 
+> With this patch, isync works very well, even over high latency, slow
+> speed links.
 
-On Mon, 2004-01-05 at 21:06, Adrian Bunk wrote:
-> Please you doublecheck whether the following really fails for you:
->=20
->   cd linux-2.4.24
->   mv .config /tmp
->   cd ..
->   rm -rf linux-2.4.24
->   tar xzf linux-2.4.24.tar.gz
->   cd linux-2.4.24
->   mv /tmp/.config .
->   make oldconfig
->   make dep
->   make bzImage
->   make modules
->   make modules_install
->=20
-Tested that already, my bet is that debian sarge has something broken.
-Well, actually this is what I used:
-cd /usr/src
-cp linux-2.4.24/.config .
-rm -rvf /linux-2.4.24
-tar xjf linux-2.4.24.tar.bz2
-cd linux-2.4.24
-cp ../.config .
-make oldconfig
-time sh -c "make dep && make bzImage && make modules && make
-modules_install"
+That looks very nice. Now, if there were a way how to make the isync
+IMAP connections go over a compressed ssh link (like I'm doing with
+Mutt/IMAP) that'd be very cool.
 
-I'll try to do it once again when I get time/acces to the box.
-
-Thanks all,
-Markus
---=20
-"Software is like sex, it's better when it's free."
-Markus H=E4stbacka <midian at ihme dot org>
-
---=-E7H0I0AwBnao63cuBD9/
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQA/+dJn3+NhIWS1JHARApUuAJ9oOBSipiL8adGzGrgkwkQD4fCWQQCgzMP+
-3NEC53ritQxfiSr2WyFYZLs=
-=UnG6
------END PGP SIGNATURE-----
-
---=-E7H0I0AwBnao63cuBD9/--
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

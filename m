@@ -1,87 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263114AbTIARXk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 13:23:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263151AbTIARXj
+	id S263151AbTIARYT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 13:24:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263174AbTIARYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 13:23:39 -0400
-Received: from unthought.net ([212.97.129.24]:28049 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S263114AbTIARXg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 13:23:36 -0400
-Date: Mon, 1 Sep 2003 19:23:34 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Christoph Hellwig <hch@infradead.org>, Larry McVoy <lm@work.bitmover.com>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       Larry McVoy <lm@bitmover.com>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>, ak@suse.de
-Subject: Re: bitkeeper comments
-Message-ID: <20030901172334.GE14716@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Christoph Hellwig <hch@infradead.org>,
-	Larry McVoy <lm@work.bitmover.com>,
-	Albert Cahalan <albert@users.sourceforge.net>,
-	Larry McVoy <lm@bitmover.com>,
-	linux-kernel mailing list <linux-kernel@vger.kernel.org>, ak@suse.de
-References: <20030901170218.A24713@infradead.org> <Pine.LNX.4.44.0309010956390.7908-100000@home.osdl.org>
+	Mon, 1 Sep 2003 13:24:19 -0400
+Received: from ulysses.news.tiscali.de ([195.185.185.36]:64518 "EHLO
+	ulysses.news.tiscali.de") by vger.kernel.org with ESMTP
+	id S263151AbTIARYO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 13:24:14 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Dirk Jakobsmeier <dirk@dirk-jakobsmeier.de>
+Newsgroups: linux.kernel
+Subject: raid1 error while rewind tape
+Date: Mon, 01 Sep 2003 19:24:05 +0200
+Organization: debitel.net - der Onlinedienst
+Message-ID: <bivvbr$53i$1@ulysses.news.tiscali.de>
+Reply-To: dirk@dirk-jakobsmeier.de
+NNTP-Posting-Host: mwnews.dnsg.net
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.44.0309010956390.7908-100000@home.osdl.org>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Trace: ulysses.news.tiscali.de 1062437051 5234 195.71.125.220 (1 Sep 2003 17:24:11 GMT)
+X-Complaints-To: abuse@tiscali.de
+NNTP-Posting-Date: Mon, 1 Sep 2003 17:24:11 +0000 (UTC)
+User-Agent: KNode/0.7.2
+X-NNTP-Posting-Host: 217.185.55.198
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 01, 2003 at 09:59:58AM -0700, Linus Torvalds wrote:
-> 
-> On Mon, 1 Sep 2003, Christoph Hellwig wrote:
-> > 
-> > But we're not going to retroactively censor commit messages.
-> 
-> Actually, I do that all the time. In fact, it was I who asked Larry to add 
-> the "bk comment" command in to make it easy to do so.
-> 
-> The thing is, it's hard to do after the message has already gone out into 
-> the public - but I fix up peoples email commentary by hand both in the 
-> email and often later after it has hit my BK tree too. I try to fix 
-> obvious typos, and just generally make the things more readable.
-> 
-> And if the comment was wrong, then it should be fixed. Not because of any 
-> "censorship", but because it's misleading if the comment says it fixes 
-> something it doesn't fix - and that might make people overlook the _real_ 
-> thing the change does.
+Hi you all
 
-There is an important difference.
+i have a big problem with running my backup server with kernel 2.4.21 and a
+raid1. Both, the scsi disks and the tape use the same scsi controller.
+While i let the system rewind the tape, and if this command needs long
+time, the scsi driver from kernel recogizes an error.
 
-If I send you a mail saying "X" and you change it to say "Y" and put "Y"
-in the source tree, fine.  It was a mail between us, noone except you
-and me will know.  If I think it's wrong, maybe I can make you submit
-"X" to the source tree instead, with an explanation.
+kernel: scsi : aborting command due to timeout.
+kernel: SCSI disk error
+kernel:  I/O error
+kernel: raid1: Disk failure
+kernel: ^IOperation continuing on 1 devices
+kernel: md: updating md2 RAID superblock on device
+kernel: md: recovery thread got woken up
+kernel: md2: resyncing spare disk
+kernel: RAID1 conf printout:
+.
+.
+.
 
-Everything that was ever publicly visible, stays publicly visible, even
-with the the revised comments, thanks to the revision history.
+Is there a possibility to handle this problem, or do i have to install a
+second scsi controller?
 
-But changing the source tree revision history retroactively, that's bad.
-It defies the purpose of revision control itself.
+Thanks for any help.
 
-The source tree is a public record. People will remember "this said 'Y'
-I'm sure, but now it says 'X', why is that?" - and noone can answer.
-History forgotten.
-
-It's your call, but I can certainly see why some feel bad about this.
-
-After all, we wouldn't want to edit the e-mail archives to remove all
-trace of what happened, either, would we?   ;)
-
-Cheers,
-
--- 
-................................................................
-:   jakob@unthought.net   : And I see the elder races,         :
-:.........................: putrid forms of man                :
-:   Jakob Østergaard      : See him rise and claim the earth,  :
-:        OZ9ABN           : his downfall is at hand.           :
-:.........................:............{Konkhra}...............:
+Dirk

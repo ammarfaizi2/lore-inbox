@@ -1,61 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317805AbSGPWQq>; Tue, 16 Jul 2002 18:16:46 -0400
+	id <S318151AbSGPWak>; Tue, 16 Jul 2002 18:30:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317991AbSGPWQp>; Tue, 16 Jul 2002 18:16:45 -0400
-Received: from hoemail2.lucent.com ([192.11.226.163]:38362 "EHLO
-	hoemail2.firewall.lucent.com") by vger.kernel.org with ESMTP
-	id <S317805AbSGPWQo>; Tue, 16 Jul 2002 18:16:44 -0400
-From: stoffel@lucent.com
+	id <S318152AbSGPWaj>; Tue, 16 Jul 2002 18:30:39 -0400
+Received: from pD952AE51.dip.t-dialin.net ([217.82.174.81]:18324 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S318151AbSGPWai>; Tue, 16 Jul 2002 18:30:38 -0400
+Date: Tue, 16 Jul 2002 16:33:18 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: stoffel@lucent.com
+cc: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Backups done right (was [ANNOUNCE] Ext3 vs Reiserfs benchmarks)
+In-Reply-To: <15668.39927.923118.516621@gargle.gargle.HOWL>
+Message-ID: <Pine.LNX.4.44.0207161630220.3452-100000@hawkeye.luckynet.adm>
+X-Location: Calgary; CA
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15668.39927.923118.516621@gargle.gargle.HOWL>
-Date: Tue, 16 Jul 2002 18:19:35 -0400
-To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Backups done right (was [ANNOUNCE] Ext3 vs Reiserfs benchmarks)
-In-Reply-To: <20020716210639.GC30235@merlin.emma.line.org>
-References: <20020716193831.GC22053@merlin.emma.line.org>
-	<Pine.LNX.4.44.0207161408270.3452-100000@hawkeye.luckynet.adm>
-	<20020716210639.GC30235@merlin.emma.line.org>
-X-Mailer: VM 6.95 under Emacs 20.6.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-It's really quite simple in theory to do proper backups.  But you need
-to have application support to make it work in most cases.  It would
-flow like this:
+I do it like this:
 
-  1. lock application(s), flush any outstanding transactions.
-  2. lock filesystems, flush any outstanding transactions.
+-> Reconfigure port switch to use B server
+-> Backup A server
+-> Replay B server journals on A server
+-> Switch to A server
+-> Backup B server
+-> Replay A server journals on B server
+-> Reconfigure port switch to dynamic mode
 
-  3a. lock mirrored volume, flush any outstanding transactions, break
-      mirror.
-                --or--
-  3b. snapshot filesystem to another volume.
-
-  4. unlock volume
-
-  5. unlock filesystem
-
-  6. unlock application(s).
-
-  7. do backup against quiescent volume/filesystem.
-
-In reality, people didn't lock filesystems (remount R/O) unless they
-had too (ClearCase, Oracle, any DBMS, etc are the exceptions), since
-the time hit was too much.  The chances of getting a bad backup on
-user home directories or mail spools wasn't worth the extra cost to be
-sure to get a clean backup.  For the exceptions, that's why god made
-backup windows and such.  These days, those windows are miniscule, so
-the seven steps outlined above are what needs to happen these days for
-a trully reliable backup of important data.
-
-John
-   John Stoffel - Senior Unix Systems Administrator - Lucent Technologies
-	 stoffel@lucent.com - http://www.lucent.com - 978-399-0479
-
-
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
 

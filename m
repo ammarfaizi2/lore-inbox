@@ -1,34 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285747AbSA2Wvd>; Tue, 29 Jan 2002 17:51:33 -0500
+	id <S285783AbSA2Wu0>; Tue, 29 Jan 2002 17:50:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285692AbSA2WvR>; Tue, 29 Jan 2002 17:51:17 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:36873 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S285516AbSA2WvE>; Tue, 29 Jan 2002 17:51:04 -0500
-Subject: Re: A modest proposal -- We need a patch penguin
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Tue, 29 Jan 2002 23:03:51 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <a377bn$1go$1@penguin.transmeta.com> from "Linus Torvalds" at Jan 29, 2002 10:22:46 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S285720AbSA2Wt0>; Tue, 29 Jan 2002 17:49:26 -0500
+Received: from dsl-213-023-043-145.arcor-ip.net ([213.23.43.145]:51848 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S285516AbSA2WtS>;
+	Tue, 29 Jan 2002 17:49:18 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Oliver Xymoron <oxymoron@waste.org>
+Subject: Re: Note describing poor dcache utilization under high memory pressure
+Date: Tue, 29 Jan 2002 23:53:21 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Josh MacDonald <jmacd@CS.Berkeley.EDU>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        <reiserfs-list@namesys.com>, <reiserfs-dev@namesys.com>
+In-Reply-To: <Pine.LNX.4.44.0201291446460.25443-100000@waste.org>
+In-Reply-To: <Pine.LNX.4.44.0201291446460.25443-100000@waste.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16VhI7-0005Mv-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16Vh7y-0000Ac-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Maybe they did, and maybe they didn't.  If somebody doesn't tell me that
-> they are resolved, and that the people who would actually _use_ and
-> maintain this interface agrees on it, how can you expect me to ever
-> apply a patch?
+On January 29, 2002 10:00 pm, Oliver Xymoron wrote:
+> On Tue, 29 Jan 2002, Daniel Phillips wrote:
+> 
+> > On January 29, 2002 06:25 pm, Rik van Riel wrote:
+> > > On Tue, 29 Jan 2002, Oliver Xymoron wrote:
+> > >
+> > > > Daniel's approach seems to be workable (once he's spelled out all the
+> > > > details) but it misses the big performance win for fork/exec, which is
+> > > > surely the common case. Given that exec will be throwing away all these
+> > > > mappings, we can safely assume that we will not be inheriting many shared
+> > > > mappings from parents of parents so Daniel's approach also still ends up
+> > > > marking most of the pages RO still.
+> > >
+> > > It gets worse.  His approach also needs to adjust the reference
+> > > counts on all pages (and swap pages).
+> >
+> > Well, Rik, time to present your algorithm.  I assume it won't reference
+> > counts on pages, and will do some kind of traversal of the mm tree.  Note
+> > however, that I did investigate the class of algorithm you are interested in,
+> > and found only nasty, complex solutions there, with challenging locking
+> > problems.  (I also looked at a number of possible improvements to virtual
+> > scanning, as you know, and likewise only found ugly or inadequate solutions.)
+> 
+> I think it goes something like this:
+> 
+> fork:
+>   detach page tables from parent
+>   retain pointer to "backing page tables" in parent and child
+>   update use count in page tables
+>   "prefault" tables for current stack and instruction pages in both parent
+>     and child
+> 
+> page fault:
+>   if faulted on page table:
+>     look up backing page tables
+>     if use count > 1: copy, dec use count
+>     else: take ownership
+> 
+> > Before you sink a lot of time into it though, you might add up the actual
+> > overhead you're worried about above, and see if it moves the needle in a real
+> > system.
+> 
+> I'm pretty sure something like the above does signficantly less work in
+> the fork/exec case, which is the important one.
 
-Ok now I'm confused. What is the criteria that decides "Im waiting silently
-for everyone to guess I need answers from two people whom you must deduce
-from telepathy" versus "bugger this lets rip this out and try xyz's approach"
- - which you also do at times without everyone being remotely happy on the
-subject.
+With fork/exec, for each page table there are two cases:
 
-Alan
+  - The parent instantiated the page table.  In this case the extra work to
+    set the ptes RO (only for CoW pages) is insignificant.
+
+  - The parent is still sharing the page table with its parent and so the
+    ptes are still set RO.
+
+I don't see how there is a whole lot of fat to cut here. 
+
+-- 
+Daniel

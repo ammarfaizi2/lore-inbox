@@ -1,64 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263702AbTKFT5l (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 14:57:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263745AbTKFT5l
+	id S263791AbTKFTxv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 14:53:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263792AbTKFTxv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 14:57:41 -0500
-Received: from gaia.cela.pl ([213.134.162.11]:16650 "EHLO gaia.cela.pl")
-	by vger.kernel.org with ESMTP id S263702AbTKFT5e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 14:57:34 -0500
-Date: Thu, 6 Nov 2003 20:57:17 +0100 (CET)
-From: Maciej Zenczykowski <maze@cela.pl>
-To: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Over used cache memory?
-In-Reply-To: <20031106190703.GA2654@localhost>
-Message-ID: <Pine.LNX.4.44.0311062051270.21501-100000@gaia.cela.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 6 Nov 2003 14:53:51 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:2179 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S263791AbTKFTxu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Nov 2003 14:53:50 -0500
+Date: Thu, 6 Nov 2003 19:56:21 GMT
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200311061956.hA6JuL6V002039@81-2-122-30.bradfords.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>, bill davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0311061132010.1842-100000@home.osdl.org>
+References: <Pine.LNX.4.44.0311061132010.1842-100000@home.osdl.org>
+Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thursday, 06 November 2003, at 17:15:33 +0800,
-> Wee Teck Neo wrote:
-> 
-> >   procs                      memory      swap          io     system      
-> > cpu
-> > r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
-> > 1  0  0  92744   9640  20240 801644    0    0     3    10   17     0 25  2 10
-> > 
-> > The system is having 1GB ram and currently using 92MB as swap. Why does the 
-> > system use the slower swap when there are still memory available (as 
-> > cache). Anyway to "force" the system to use more ram instead of putting 
-> > into swap memory?
+Quote from Linus Torvalds <torvalds@osdl.org>:
 
-Why would you want to?  The kernel has determined that 92MB of the stuff 
-in memory is less important than the disk cache.  For example a program 
-requires 100 MB data for boot and then spends the next week using the last 
-5 MB.  Do you expect all 100 MB to stay resident in memory for ever 
-(while the program is running)?  Of course not, it'll get swapped out once 
-it is determined to be less used than the disk cache and only that last 5 
-MB which is actually doing something will remain in RAM, with the rest 
-quietly sitting in swap.  Swap is slower than RAM, sure, but using RAM for 
-storing your dirty laundry from two weeks ago is pointless - and that's 
-why it's swapped out - the disk cache will likely accelerate stuff more 
-than keeping the odds and ends in memory.
+> ide-scsi has always been broken. You should not use it, and indeed there 
+> was never any good reason for it existing AT ALL. But because of a broken 
+> interface to cdrecord, cdrecord historically only wanted to touch SCSI 
+> devices. Ergo, a silly emulation layer that wasn't really worth it.
 
-Now, if you have lots of cache and the system is swapping like crazy - 
-then something is wrong, but only then.
+Hmmm, but ide-scsi is used for a lot more than cd recorders these
+days.  Alan mentioned 'crazy' SATA devices back in April.
 
-> The obvious solution is to disable swap memory completely if those 
-> 90 MiB worth of idle and unused memory pages on disk bother you.
-> 
-> If this "vmstat" output shows your box usual load, with 80% of RAM used
-> in caches, I think you will never really need swap at all.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=105000779411632&w=2
 
-I wouldn't agree with that - It'll still swap via R/O text executable 
-pages, so you'll still have swap, just invisible.
+(Not that I'm suggesting that it is particularly sane to deal with an
+SATA connected printer by presenting it as a SCSI device, but I just
+can't see how ide-scsi could successfully be removed now :-( )
 
-Cheers,
-MaZe.
-
-
+John.

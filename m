@@ -1,59 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267430AbTBXUgB>; Mon, 24 Feb 2003 15:36:01 -0500
+	id <S267459AbTBXU3X>; Mon, 24 Feb 2003 15:29:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267432AbTBXUgB>; Mon, 24 Feb 2003 15:36:01 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:25987 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S267430AbTBXUgA>; Mon, 24 Feb 2003 15:36:00 -0500
-Date: Mon, 24 Feb 2003 15:49:09 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Arnd Bergmann <arnd@bergmann-dalldorf.de>
-cc: schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org,
-       kernel-janitor-discuss@lists.sourceforge.net
-Subject: Re: [PATCH] s390 (7/13): gcc 3.3 adaptions.
-In-Reply-To: <200302242005.VAA04400@post.webmailer.de>
-Message-ID: <Pine.LNX.3.95.1030224154227.14911A-100000@chaos>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267463AbTBXU3X>; Mon, 24 Feb 2003 15:29:23 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:48353 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S267459AbTBXU3U>;
+	Mon, 24 Feb 2003 15:29:20 -0500
+Date: Mon, 24 Feb 2003 15:39:29 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Xinwen Fu <xinwenfu@cs.tamu.edu>
+Cc: Paul Rolland <rol@as2917.net>,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: Re: how to force 10/100 speeds in Linux if both ethtool and mii-tool don't work
+Message-ID: <20030224203929.GA15677@gtf.org>
+References: <002101c2dbd5$6fabc400$3f00a8c0@witbe> <Pine.SOL.4.10.10302241218050.2913-100000@dogbert>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.SOL.4.10.10302241218050.2913-100000@dogbert>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Feb 2003, Arnd Bergmann wrote:
-
-> Richard B. Johnson wrote:
+On Mon, Feb 24, 2003 at 12:27:31PM -0600, Xinwen Fu wrote:
+> Hi, 
+> 	For one of my machines, both ethtool and mii-tool don't work. Here
+> are the error messages:
 > 
-> > I think you must keep these warnings in! There are many bugs
-> > that these uncover uncluding loops that don't terminate correctly
-> > but seem to work for "most all" cases. These are the hard-to-find
-> > bugs that hit you six months after release.
+> (mii-tool)
+> SIOCGMIIPHY on 'eth0' failed: invalid argument
+> .............................................
+> SIOCGMIIPHY on 'eth7' failed: invalid argument
+> no MII interfaces found
 > 
-> This was my change. Obviously the warning is a good idea in general,
-> but I don't see the point of scrolling through hundreds of lines
-> with the same warning in someone else's code. I actually plan to fix
-> these warnings in arch/s390 and drivers/s390 as well as include/
-> and make the s390 kernel compile with -Werror, but the rest looks 
-> more like a task for the Janitors. Note that before gcc-3.3, 
-> -Wsign-compare has not been part of -Wall.
-> 
+> (ethtool eth0)
+> setting for eth0:
+> no data available
 
-Yep. There are a lot of things, not part of -Wall. To find 'need coffee'
-errors, I use:
+What NIC driver are you using?
 
-	-Wall -Werror -Wstrict-prototypes -Wwrite-strings -Wshadow \
-	-Wsign-compare -Wno-trigraphs
+It is the responsibility of the NIC driver to provide this information.
 
-        plus...
-	-fno-builtin -fno-common -fomit-frame-pointer.
-
-I also use -march=1486 so it will boot. Some machines don't like
-`cmov` and other stuff the compiler may emit. 
+	Jeff
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
 
 

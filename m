@@ -1,65 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266835AbUHOSAy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266836AbUHOSBb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266835AbUHOSAy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 14:00:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266837AbUHOSAu
+	id S266836AbUHOSBb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 14:01:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266837AbUHOSBb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 14:00:50 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:55116 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S266835AbUHOSAq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 14:00:46 -0400
-Date: Sun, 15 Aug 2004 20:03:20 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Bernd Eckenfels <be-mail2004@lina.inka.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Remove obsolete HEAD in top Makefile
-Message-ID: <20040815180320.GD7265@mars.ravnborg.org>
-Mail-Followup-To: Bernd Eckenfels <be-mail2004@lina.inka.de>,
-	linux-kernel@vger.kernel.org
-References: <E1BwJne-0006M7-00@calista.eckenfels.6bone.ka-ip.net> <411F58DF.2070002@greatcn.org> <20040815141342.GB30572@lina.inka.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040815141342.GB30572@lina.inka.de>
-User-Agent: Mutt/1.5.6i
+	Sun, 15 Aug 2004 14:01:31 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:31428 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S266836AbUHOSB1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Aug 2004 14:01:27 -0400
+Message-ID: <411FA4E7.2010405@t-online.de>
+Date: Sun, 15 Aug 2004 20:01:11 +0200
+From: "Harald Dunkel" <harald.dunkel@t-online.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.2) Gecko/20040811 Debian/1.7.2-2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: amd64: Problems with vfat fs?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ID: b7plFTZeQegkQ6B8LXnU152CVg-Lh10ZV8XPnQLHHDG-4Rf16-WogU
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 15, 2004 at 04:13:42PM +0200, Bernd Eckenfels wrote:
-> On Sun, Aug 15, 2004 at 08:36:47PM +0800, Coywolf Qi Hunt wrote:
-> > >iff it is not using it you need to remove it in the next line, too.
-> > Nah, I'm only removing HEAD, not head-y. :p
-> 
-> If you remove this line:
-> head-y += $(HEAD)
-> 
-> then head-y is undefined, and could therefore be removed, too. I dont know
-> what HEAD was used for, and where does it come from. But since the 2.4 code
-> uses head in a compareable way (i.e. only in that location with toetally
-> differen s tructure) I am not sure if it is not needed.
-> 
-> Can you explain what it was used for and why it can be removed now?
-HEAD got replaced with head-y sometime in 2.5.
-It's about time to rip out the last bits.
+Hi folks,
 
-About head-y:
->From Documentation/kbuild/makefiles.txt:
+Is it possible that there is a problem with vfat on amd64?
+This is the effect I see:
 
-   The very first objects linked are listed in head-y, assigned by
-      arch/$(ARCH)/Makefile.
+I want to flash the BIOS of my PC, so I have to write a bootable
+DOS image on an USB stick and add the flash program and the new
+BIOS file:
 
-And later:
+	cat DOS.img >/dev/sdd
+	mount -t vfat /dev/sdd /mnt
+	cp AWDFLASH.EXE FN85S235.BIN /mnt
+	umount /mnt
 
-    head-y, init-y, core-y, libs-y, drivers-y, net-y
+The USB stick boots, but if I run AWDFLASH, then nothing
+happens. It justs sits there and doesn't do anything.
 
-            $(head-y) list objects to be linked first in vmlinux.
-            $(libs-y) list directories where a lib.a archive can be located.
-            The rest list directories where a built-in.o object file can be located.
-	    
-            $(init-y) objects will be located after $(head-y).
-            Then the rest follows in this order:
-            $(core-y), $(libs-y), $(drivers-y) and $(net-y).
-						    
+But if I try this instead
 
-	Sam
+	cp DOS.img FLASH.img
+	mount -t vfat -o loop FLASH.img /mnt
+	cp AWDFLASH.EXE FN85S235.BIN /mnt
+	umount /mnt
+	cat FLASH.img >/dev/sdd
+
+then AWDFLASH works as expected.
+
+
+Kernel is 2.6.8, but I had problems with 2.6.7, too.
+
+
+???
+
+Harri
+

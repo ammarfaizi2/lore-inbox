@@ -1,63 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268150AbRG2Uvp>; Sun, 29 Jul 2001 16:51:45 -0400
+	id <S268151AbRG2U4R>; Sun, 29 Jul 2001 16:56:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268151AbRG2Uvf>; Sun, 29 Jul 2001 16:51:35 -0400
-Received: from mail.zmailer.org ([194.252.70.162]:58640 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S268150AbRG2Uvb>;
-	Sun, 29 Jul 2001 16:51:31 -0400
-Date: Sun, 29 Jul 2001 23:51:37 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Stanciu Adrian <adi@Aniela.EU.ORG>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: problem compiling some code
-Message-ID: <20010729235137.C2650@mea-ext.zmailer.org>
-In-Reply-To: <Pine.LNX.4.33.0107292254270.757-100000@ns1.Aniela.EU.ORG>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0107292254270.757-100000@ns1.Aniela.EU.ORG>; from adi@Aniela.EU.ORG on Sun, Jul 29, 2001 at 10:56:54PM +0300
+	id <S268152AbRG2U4G>; Sun, 29 Jul 2001 16:56:06 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:47120 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S268151AbRG2Uzs>; Sun, 29 Jul 2001 16:55:48 -0400
+Date: Sun, 29 Jul 2001 13:52:23 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Hugh Dickins <hugh@veritas.com>
+cc: Ingo Molnar <mingo@elte.hu>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] hold cow while breaking
+In-Reply-To: <Pine.LNX.4.21.0107292107160.1014-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33.0107291350540.937-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Sun, Jul 29, 2001 at 10:56:54PM +0300, Stanciu Adrian wrote:
-> PROBLEM: #include errors
 
-  This should be FAQ...
+On Sun, 29 Jul 2001, Hugh Dickins wrote:
+>
+> Sorry for being dense, but I still don't get it.  I thought the
+> down_read on mmap_sem is permitting concurrent faults by other users
+> of the address space (but excluding structural changes to the address
+> space)?  and we haven't locked the page itself, and we've temporarily
+> dropped the page_table_lock.  I just don't see what lock prevents the
+> page from being refaulted in.
 
-> Hello,
-> 
-> I'm trying to compile the following code:
-> 
-> // test.c begins here
->     #include <linux/modversions.h>
->     #include <linux/module.h>
->     #include <linux/version.h>
->     #include <linux/kernel.h>
->     #include <linux/pci.h>
->     #include <linux/delay.h>
->     #include <asm/uaccess.h>
-> 
->     void main(void)
->     {
->         // no further code needed
->     }
-> // end of test.c
-> 
-> But I get the following errors and warning messages:
-....
-> The program is compiled using: gcc -Wall test.c
+Ehh, you're right. But you're still wrong, I think.
 
-  If you are compiling kernel modules (I presume you are),
-  observing that kernel compiles everything with -D:s of:
-	-D__KERNEL__
-	-DMODULE
-  depending of few things, usually also with:
-	-DMODVERSIONS
+Because we hold the mm semaphore, nobody can change the mapping on us.
 
-  should give you a clue...
+Which means that even if we first page somthing out and page something
+else in to the same page, that "something else" has to be the same thing.
+See?
 
-> 10x
+		Linus
 
-/Matti Aarnio

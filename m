@@ -1,77 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265174AbTAJMkp>; Fri, 10 Jan 2003 07:40:45 -0500
+	id <S264945AbTAJMnG>; Fri, 10 Jan 2003 07:43:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265190AbTAJMkp>; Fri, 10 Jan 2003 07:40:45 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:1426
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265174AbTAJMkn>; Fri, 10 Jan 2003 07:40:43 -0500
-Subject: Re: Problem in IDE Disks cache handling in kernel 2.4.XX
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: fverscheure@wanadoo.fr,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-In-Reply-To: <Pine.LNX.4.10.10301100256240.31168-100000@master.linux-ide.org>
-References: <Pine.LNX.4.10.10301100256240.31168-100000@master.linux-ide.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1042205732.28469.89.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 10 Jan 2003 13:35:32 +0000
+	id <S264673AbTAJMnG>; Fri, 10 Jan 2003 07:43:06 -0500
+Received: from mail0.epfl.ch ([128.178.50.57]:6417 "HELO mail0.epfl.ch")
+	by vger.kernel.org with SMTP id <S264945AbTAJMnD>;
+	Fri, 10 Jan 2003 07:43:03 -0500
+Date: Fri, 10 Jan 2003 13:49:37 +0100 (CET)
+From: Pascal Junod <pascal.junod@epfl.ch>
+X-X-Sender: pjunod@lasecpc10.epfl.ch
+To: linux-kernel@vger.kernel.org
+Subject: KERNEL BUG: assertion failure in reiserfs code
+Message-ID: <Pine.LNX.4.44.0301101340520.1906-100000@lasecpc10.epfl.ch>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-01-10 at 11:14, Andre Hedrick wrote:
-> The drive does random and automatic flush caches, if an error happens it
-> does not report. *sigh*  When APM hits it with a flush and pray the error
-> is from this flush, but it does not matter ... the kernel does not have
-> the paths to deal this issue ... so bye bye data!  Now it if the current
-> flush is not the owner of the error OMFG is suggested.
+Hi,
 
-For that matter the BIOS tends to issue the flush, in fact APM is
-supposed to be transparent so the BIOS is required to handle it and
-since a critical shutdown from the APM PM might not even hit the OS
-it has to. Of course pigs also fly 8)
+My /tmp partition is using reiserfs and I get following message when
+copying a large file on it (there is enough room, and fsck.reiserfs says
+everything is ok...). Is this issue known ? My kernel version is the
+linux-2.4.19-gentoo-r10 one.
 
-> > > I had a look at patch 2.4.21pre3 and the code looks the same.
-> > > 
-> > > And by the way how are powered off the IDE drives ?
-> > > Because a FLUSH CACHE or STANDY or SLEEP is MANDATORY before powering off the 
-> > > drive with cache enabled or you will enjoy lost data
-> > 
-> > IDE disagrees with itself over this but when we get a controlled power
-> > off we do this. The same ATA5/ATA6 problem may well be present there
-> > too. I will review both
-> 
-> Not true, the firmware knows to commit the data to platter.
-> If it was true you would be screaming long ago.
+Please CC me, as I am not on the list...
 
-IDE disagrees with itself because it is meant to work compatibly but if
-you run it compatibly you lose data on poweroff.
+A+
 
-> 
-> > Any specific opinion Andre ?
-> 
-> A dirty trick used to date is to pop the STANDY or SLEEP, and depend on
-> the drive to deal with the double dirty flush error.  If the FLUSH CACHE
-> was not valid, the drive would spin back up from STANDY, but not from
-> SLEEP, this could be a problem.  However SLEEP issued by the driver only
-> happens at shutdown unless it has been changed.  In the shutdown process,
-> each partition unmount was flushed and also once extra when the usage
-> count was set to zero.  Worst case was 2 flush min.
-> 
+Pascal
 
-The original question however is whether we are skipping issuing the flush
-and sleep on ATA3-5 devices when we should not, because the test is over
-strong.
-
-It seems weakening the test is the best option, it fixes ATA-5 and any device
-told to sleep, standby or flush that doesn't know the command is just going
-to go "Huh ?" and we'll get a nice easy to handle error.
-
-Alan
-
+Jan 10 13:38:04 lasecpc29 kernel: reiserfs:warning: CONFIG_REISERFS_CHECK
+is set ON
+Jan 10 13:38:04 lasecpc29 kernel: reiserfs:warning: - it is slow mode for debugging.
+Jan 10 13:38:04 lasecpc29 kernel: reiserfs: checking transaction log (device 03:06) ...
+Jan 10 13:38:04 lasecpc29 kernel: journal-1153: found in header: first_unflushed_offset 871, last_flushed_trans_id 1231
+Jan 10 13:38:04 lasecpc29 kernel: journal-1206: Starting replay from offset 871, trans_id 1232
+Jan 10 13:38:04 lasecpc29 kernel: journal-1299: Setting newest_mount_id to 36
+Jan 10 13:38:04 lasecpc29 kernel: Using r5 hash to sort names
+Jan 10 13:38:04 lasecpc29 kernel: ReiserFS version 3.6.25
+Jan 10 13:38:34 lasecpc29 kernel: vs-4010: is_reusable: block number is out of range 248999 (248999)
+Jan 10 13:38:34 lasecpc29 kernel: 0: reiserfs_get_block
+Jan 10 13:38:34 lasecpc29 kernel: reiserfs[3234]: assertion !(
+(((((s)->u.reiserfs_sb.s_ap_bitmap)[i
+])->b_state & (1UL << BH_Lock)) != 0) || is_reusable (s, search_start, 0)
+== 0 ) failed at bitmap.c:
+417:do_reiserfs_new_blocknrs: vs-4140: bitmap block is locked or bad block number found
+Jan 10 13:38:34 lasecpc29 kernel: kernel BUG at prints.c:334!
+Jan 10 13:38:34 lasecpc29 kernel: invalid operand: 0000
+Jan 10 13:38:34 lasecpc29 kernel: CPU:    0
+Jan 10 13:38:34 lasecpc29 kernel: EIP:    0010:[<c0188044>]    Not tainted
+Jan 10 13:38:34 lasecpc29 kernel: EFLAGS: 00010282
+Jan 10 13:38:34 lasecpc29 kernel: eax: 00000101   ebx: 00000000   ecx: 00000001   edx: d8aba000
+Jan 10 13:38:34 lasecpc29 kernel: esi: 0003cca7   edi: 00000000   ebp: d8935dc4   esp: d8935cd8
+Jan 10 13:38:34 lasecpc29 kernel: ds: 0018   es: 0018   ss: 0018
+Jan 10 13:38:34 lasecpc29 kernel: Process scp (pid: 3234, stackpage=d8935000)
+Jan 10 13:38:34 lasecpc29 kernel: Stack: c02748da c0334a20 c0282ae0 d8935cf8 ddb42c00 c01769c8 00000000 c0282ae0
+Jan 10 13:38:34 lasecpc29 kernel:        00000ca2 000001a1 00000001 d8935dc4 00000007 00004ca7 00000007 0003cca6
+Jan 10 13:38:34 lasecpc29 kernel:        db83f780 00000000 c0176caa d8935e08 d8935dc4 0003cca7 00000001 00000000
+Jan 10 13:38:34 lasecpc29 kernel: Call Trace:    [<c01769c8>] [<c0176caa>] [<c017e326>] [<c021e36f>] [<c021e4a4>]
+Jan 10 13:38:34 lasecpc29 kernel:   [<c017d7d6>] [<c01331ff>] [<c0133946>] [<c017e0ce>] [<c0180984>] [<c017e0ce>]
+Jan 10 13:38:34 lasecpc29 kernel:   [<c01252e1>] [<c0131150>] [<c0108577>]
+Jan 10 13:38:34 lasecpc29 kernel:
+Jan 10 13:38:34 lasecpc29 kernel: Code: 0f 0b 4e 01 5e 94 27 c0 85 db 68 20 4a 33 c0 74 0d 0f b7 43
 

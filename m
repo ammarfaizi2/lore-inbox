@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261862AbUKCVDI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261871AbUKCVDJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261862AbUKCVDI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 16:03:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261883AbUKCU7u
+	id S261871AbUKCVDJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 16:03:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261884AbUKCU7M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 15:59:50 -0500
-Received: from pimout3-ext.prodigy.net ([207.115.63.102]:16008 "EHLO
-	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S261871AbUKCU4F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 15:56:05 -0500
-Date: Wed, 3 Nov 2004 12:55:48 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       urban@teststation.com
-Subject: Re: [PATCH 2.6.10-rc1] Fix building of samba userland
-Message-ID: <20041103205548.GA10756@taniwha.stupidest.org>
-References: <20041103190345.GI381@smtp.west.cox.net>
+	Wed, 3 Nov 2004 15:59:12 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:29141 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261883AbUKCU4u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 15:56:50 -0500
+Date: Wed, 3 Nov 2004 12:56:27 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Fabio Coatti <cova@ferrara.linux.it>
+Cc: linux-kernel@vger.kernel.org, zaitcev@redhat.com
+Subject: Re: Test patch for ub and double registration
+Message-ID: <20041103125627.0224f431@lembas.zaitcev.lan>
+In-Reply-To: <200411032143.02197.cova@ferrara.linux.it>
+References: <20041101164432.3fa72b81@lembas.zaitcev.lan>
+	<200411022257.24752.cova@ferrara.linux.it>
+	<20041102151044.4270bc12@lembas.zaitcev.lan>
+	<200411032143.02197.cova@ferrara.linux.it>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.13; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041103190345.GI381@smtp.west.cox.net>
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 03, 2004 at 12:03:45PM -0700, Tom Rini wrote:
+On Wed, 3 Nov 2004 21:43:01 +0100, Fabio Coatti <cova@ferrara.linux.it> wrote:
 
-> Hello.  After 2.6.8.1, samba userland would no longer build with
-> current kernel headers, as it needs some of the samba kernel headers
-> to work,
+> Nov  3 21:36:26 kefk kernel: usb 2-1: new full speed USB device using uhci_hcd 
+> and address 4
+> Nov  3 21:36:26 kefk kernel: uhci_hcd 0000:00:1d.1: uhci_result_control: 
+> failed with status 440000
+> Nov  3 21:36:26 kefk kernel: [f7a6c240] link (37a6c1b2) element (37a6b040)
+> Nov  3 21:36:26 kefk kernel:   0: [f7a6b040] link (37a6b080) e0 Stalled 
+> CRC/Timeo Length=7 MaxLen=7 DT0 EndPt=0 Dev=0, PID=2d(SETUP) (buf=37c882a0)
+> Nov  3 21:36:26 kefk kernel:   1: [f7a6b080] link (37a6b0c0) e3 SPD Active 
+> Length=0 MaxLen=3f DT1 EndPt=0 Dev=0, PID=69(IN) (buf=1cd988c0)
+> Nov  3 21:36:26 kefk kernel:   2: [f7a6b0c0] link (00000001) e3 IOC Active 
+> Length=0 MaxLen=7ff DT1 EndPt=0 Dev=0, PID=e1(OUT) (buf=00000000)
+> Nov  3 21:36:26 kefk kernel:
+> Nov  3 21:36:26 kefk kernel: usb 2-1: device descriptor read/64, error -71
 
-what? the samba userland which i assume is portable and not at all
-linux specific needs linux kernel headers?
+So, this fails even before getting to ub. I don't know how to help this,
+but perhaps Greg has any ideas. I'm afraid I would just reboot if weird
+things like this start happening. I hope your device hasn't just died
+suddenly...
 
-> +++ edited/include/linux/smb_fs.h	2004-11-03 12:00:07 -07:00
-> @@ -12,7 +12,6 @@
->  #include <linux/smb.h>
->  #include <linux/smb_fs_i.h>
->  #include <linux/smb_fs_sb.h>
-> -#include <linux/fs.h>
->  
->  /*
->   * ioctl commands
-> @@ -26,6 +25,7 @@
->  
->  #ifdef __KERNEL__
->  
-> +#include <linux/fs.h>
->  #include <linux/pagemap.h>
->  #include <linux/vmalloc.h>
->  #include <linux/smb_mount.h>
-
-that patch seems harmless enough, but im not sure why it should be
-necessary really, i dont see why samba should be including such
-headers at all --- it's a bad idea in almost all cases
+-- Pete

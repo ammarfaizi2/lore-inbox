@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129111AbRB0Ufn>; Tue, 27 Feb 2001 15:35:43 -0500
+	id <S129816AbRB0Ugh>; Tue, 27 Feb 2001 15:36:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129190AbRB0Uff>; Tue, 27 Feb 2001 15:35:35 -0500
-Received: from minus.inr.ac.ru ([193.233.7.97]:35076 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S129111AbRB0UfS>;
-	Tue, 27 Feb 2001 15:35:18 -0500
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200102272035.XAA21341@ms2.inr.ac.ru>
+	id <S129848AbRB0UgO>; Tue, 27 Feb 2001 15:36:14 -0500
+Received: from ns1.uklinux.net ([212.1.130.11]:24079 "EHLO s1.uklinux.net")
+	by vger.kernel.org with ESMTP id <S129816AbRB0UgE>;
+	Tue, 27 Feb 2001 15:36:04 -0500
+Envelope-To: linux-kernel@vger.kernel.org
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200102271946.TAA00805@raistlin.arm.linux.org.uk>
 Subject: Re: rsync over ssh on 2.4.2 to 2.2.18
-To: rmk@arm.linux.ORG.UK (Russell King)
-Date: Tue, 27 Feb 2001 23:35:12 +0300 (MSK)
+To: davem@redhat.com (David S. Miller)
+Date: Tue, 27 Feb 2001 19:46:14 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200102271002.f1RA2B408058@brick.arm.linux.org.uk> from "Russell King" at Feb 27, 1 01:15:01 pm
-X-Mailer: ELM [version 2.4 PL24]
+In-Reply-To: <15003.34336.1820.574668@pizda.ninka.net> from "David S. Miller" at Feb 27, 2001 02:49:03 AM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+David S. Miller writes:
+> How do you know this?  There are so many deadly TCP bugs fixed
+> since 2.2.15pre13 I don't know how you can assert this.
 
-> netstat on isdn-gw shows the following:
-> 
-> 	Proto Recv-Q Send-Q Local Address           Foreign Address         State
-> 	tcp    72868      0 isdn-gw.piltdown.a:1023 pilt-gw.piltdown.at:ssh ESTABLISHED
-plus
-> select(4, [3], [3], NULL, NULL)         = 2 (in [3], out [3])
+Through the evidence I gave.  
 
+Firstly, if the receiving side is saying that it has a window of 0, then
+it is not going to accept any more data.
 
-> Maybe there is a race condition or missing wakeup in the TCP code?
+Secondly, the receiving side has data waiting in the receive queue.
 
-Moreover, even not _one_ wakeup is missing. At least two, because
-wakeups in read and write are separate and you have stuck in both directions.
-8)8)
+Thirdly, the receiving process is selecting on the socket, and dispite
+there being data waiting, select is saying that there is no data waiting.
 
-Well, if it was one I would start to dig ground inside tcp instantly.
-But as soon as two of them are missing, I have to suspect wake_up itself.
-At least, we had such bugs there until 2.4.0.
+All the data is pointing at the 2.4 kernel as being the culprit.
 
-Alexey
+I'm surprised at your response given the amount of hard evidence I gave that
+supports my assertion.
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

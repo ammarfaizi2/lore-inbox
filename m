@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315718AbSETCod>; Sun, 19 May 2002 22:44:33 -0400
+	id <S315725AbSETCyT>; Sun, 19 May 2002 22:54:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315721AbSETCoc>; Sun, 19 May 2002 22:44:32 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:38049 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S315718AbSETCob>; Sun, 19 May 2002 22:44:31 -0400
-Date: Sun, 19 May 2002 21:44:24 -0500 (CDT)
-From: Kai Germaschewski <kai-germaschewski@uiowa.edu>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Keith Owens <kaos@ocs.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC/PATCH] improve interaction with ccache 
-In-Reply-To: <1764.1021857248@kao2.melbourne.sgi.com>
-Message-ID: <Pine.LNX.4.44.0205192137570.30841-100000@chaos.physics.uiowa.edu>
+	id <S315726AbSETCyS>; Sun, 19 May 2002 22:54:18 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:6153 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S315725AbSETCyR>; Sun, 19 May 2002 22:54:17 -0400
+Date: Sun, 19 May 2002 19:54:32 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: linux-kernel@vger.kernel.org, <alan@lxorguk.ukuu.org.uk>
+Subject: Re: AUDIT: copy_from_user is a deathtrap. 
+In-Reply-To: <E179cYq-0004I3-00@wagner.rustcorp.com.au>
+Message-ID: <Pine.LNX.4.44.0205191951460.22433-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 May 2002, Keith Owens wrote:
 
-> You are fixing the symptom, not the cause.  The symptom is too many
-> compiles, people are using ccache to attempt to fix the symptom.  The
-> cause is a kernel build system that forces people to make clean or
-> mrproper between builds instead of reusing existing objects.
 
-Well, I basically never do make clean or make mrproper (unless I'm playing 
-with the build system itself, there it's of course necessary for testing). 
+On Mon, 20 May 2002, Rusty Russell wrote:
+>
+> If read always returns the amount read (ignoring any copy_to_user
+> errors), then you can repeat it by seeking backwards[1] and redoing the
+> read.
 
-However, I do have a lot of clones of the bk trees around, used to work on 
-different patches. And of course only few files differ between these 
-trees, so using ccache is a big win when doing compiles in the various 
-trees.
+No.
 
-> You will find that relative include paths completely stuff up
-> builds with separate source and object trees.  It will also mess up
-> people who compile add on code outside the kernel tree, CURDIR is not
-> related to TOPDIR.
+> So copy_to_user can simply deliver a SIGSEGV and return "success", and
+> everything will work (except sockets, pipes, etc).
 
-Well, the current kbuild doesn't do separate source/object, so that's not 
-an issue. If people compile out of tree things using Rules.make, you're 
-right, I need to make sure to stick to the absolute path there.
+I don't mind the SIGSEGV, but I refuse to make a stupid change that has
+absolutely _zero_ reason for it.
 
---Kai
+The current "copy_to/from_user()" is perfectly fine. It's very simple to
+do
+
+	if (copy_from_user(xxx))
+		return -EFAULT;
+
+and it is not AT ALL simpler to do
+
+	ret = copy_from_user(xxx);
+	if (ret)
+		return ret;
+
+which is apparently your suggestion.
+
+So a lot of people didn't get it? Arnaldo seems to have fixed a lot of
+them already, and maybe you who apparently care can add _documentation_,
+but the fact is that there is no reason to make a less powerful interface.
+
+		Linus
 

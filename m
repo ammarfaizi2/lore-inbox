@@ -1,35 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262812AbSJEXzA>; Sat, 5 Oct 2002 19:55:00 -0400
+	id <S262817AbSJFAB4>; Sat, 5 Oct 2002 20:01:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262815AbSJEXzA>; Sat, 5 Oct 2002 19:55:00 -0400
-Received: from point41.gts.donpac.ru ([213.59.116.41]:18702 "EHLO orbita1.ru")
-	by vger.kernel.org with ESMTP id <S262812AbSJEXy7>;
-	Sat, 5 Oct 2002 19:54:59 -0400
-Message-ID: <52048.172.195.7.102.1033863271.squirrel@mail.orbita1.ru>
-Date: Sun, 6 Oct 2002 04:14:31 +0400 (MSD)
-Subject: [Q] 2.4.6 compatibility cruft in 8250_pci.c
-From: "Andrey Panin" <pazke@orbita1.ru>
-To: rmk@arm.linux.org.uk
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: SquirrelMail (version 1.0)
+	id <S262818AbSJFAB4>; Sat, 5 Oct 2002 20:01:56 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:12040 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262817AbSJFABz>; Sat, 5 Oct 2002 20:01:55 -0400
+Date: Sat, 5 Oct 2002 17:09:11 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Peter Osterlund <petero2@telia.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       David Woodhouse <dwmw2@infradead.org>
+Subject: Re: Linux v2.5.40 - and a feature freeze reminder
+In-Reply-To: <m2r8f47af4.fsf@p4.localdomain>
+Message-ID: <Pine.LNX.4.44.0210051659530.1587-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
 
-do we really need these lines now ?
+On 6 Oct 2002, Peter Osterlund wrote:
+>
+> My PCMCIA network card no longer works. During boot, I see this
+> message:
+> 
+>         ds: no socket drivers loaded
+> 
+> It worked in 2.5.39. Also this patch helps, although I don't
+> understand why it is now needed:
 
-/* 2.4.6 compatinility cruft ... */
-#define pci_board __pci_board
-#include <serialP.h>
-#undef pci_board
+The PCMCIA code does initializations in the wrong order, and
+asynchronously (ie from multiple different threads). And init_pcmcia_ds()  
+really depends on the actual low-level drivers having had time to
+register, since the PCMCIA code never had any sane way to inform the DS 
+layer that a new client driver had registered. 
 
-I'm trying to forward port a patch moving SIIG combo cards support
-from serial driver into parport_serial.c and these lines are on my
-way :)
+Thus the delay by init_pcmcia_ds() - to give time for drivers to 
+initialize. And the yenta driver needs some time.. That time apparently 
+went up a bit, probably due to the tq/work changes.
 
+The _right_ thing to do is to not have init_pcmcia_ds() depend on 
+low-level drivers being initialized, but instead do that DS thing 
+_early_, and then when each driver initializes it would tell the DS layer. 
+But that's not how the PCMCIA code was organized..
+
+		Linus
 

@@ -1,68 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280031AbRKITTj>; Fri, 9 Nov 2001 14:19:39 -0500
+	id <S280042AbRKITVj>; Fri, 9 Nov 2001 14:21:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280041AbRKITSs>; Fri, 9 Nov 2001 14:18:48 -0500
-Received: from jericho.gospelcom.net ([204.253.132.2]:28678 "HELO
-	gospelcom.net") by vger.kernel.org with SMTP id <S280035AbRKITSV>;
-	Fri, 9 Nov 2001 14:18:21 -0500
-Date: Fri, 9 Nov 2001 14:18:34 -0500 (EST)
-From: Brian DeFeyter <bdf@gospelcom.net>
-X-X-Sender: <bdf@agabus.gf.gospelcom.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: RAID5 reconstruction problem
-Message-ID: <Pine.LNX.4.33.0111091403320.8002-100000@agabus.gf.gospelcom.net>
+	id <S280043AbRKITV0>; Fri, 9 Nov 2001 14:21:26 -0500
+Received: from [192.55.52.18] ([192.55.52.18]:63944 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id <S280033AbRKITTw>;
+	Fri, 9 Nov 2001 14:19:52 -0500
+Message-ID: <59885C5E3098D511AD690002A5072D3C42D725@orsmsx111.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'george anzinger'" <george@mvista.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, Jonas Diemer <diemer@gmx.de>,
+        linux-kernel@vger.kernel.org
+Subject: RE: VIA 686 timer bugfix incomplete
+Date: Fri, 9 Nov 2001 11:19:35 -0800 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+George, I was mistaken before, sorry.
 
-Last night I had 2 drives in a 6 drive array instantly fail and cause my 
-array to crash. I suspect that the channel these 2 drives were on was the 
-cause as these were the only 2 drives on that channel.
+The address of the PM timer is in a table, not in the ACPI namespace. It is
+in the FADT. Therefore you should be able to use it iff acpi tables are
+present, but it should not strictly require the interpreter.
 
-Here's my current /etc/raidtab for the failed /dev/md7:
+Regards -- Andy
 
-raiddev             /dev/md7
-raid-level                  5
-nr-raid-disks               6
-nr-spare-disks              0
-persistent-superblock       1
-parity-algorithm            left-symmetric
-chunk-size                  32
-device              /dev/sdc1
-raid-disk           0
-device              /dev/sdd1
-raid-disk           1
-device              /dev/sde1
-raid-disk           2
-device              /dev/sdf1
-raid-disk           3
-device              /dev/sdg1
-raid-disk           4
-device              /dev/sdh1
-raid-disk           5
-
-sdc1 and sdd1 where the failed drives. I used the 'fail one drive in 
-/etc/raidtab' trick on sdd1 to bring the array back which worked fine. 
-Then remarked sdd1 as a 'raid-disk' instead of 'failed-disk' and then did 
-a 'raidhotadd /dev/md7 /dev/sdd1' which started the recontruction.
-
-About 1/2 way through, /dev/sdd1 died with the failure diagnostic led 
-blinking. I swapped it out with a new drive, paritioned it (Linux, not 
-auto-detect), formatted it, and then attempted a 'raidhotadd /dev/md7 
-/dev/sdd1'
-
-Unfortunately, the raidhotadd appears to fail right away. I get a couple 
-hundred lines of kernel messages with 'DISK' and raidconf printouts. A gut 
-feeling tells me it doesn't like the superblock on the new drive. However,
-I do know that the drive itself is fine since I manually mounted it and
-ran a few tests on it before re-formatting it and putting it into the
-array. If anyone wants all the kernel messages, I'll send them along.
-
-
-Thanks,
-
- - bdf
-
+> -----Original Message-----
+> From: george anzinger [mailto:george@mvista.com]
+> Sent: Friday, November 09, 2001 9:22 AM
+> To: Alan Cox
+> Cc: Vojtech Pavlik; Jonas Diemer; linux-kernel@vger.kernel.org
+> Subject: Re: VIA 686 timer bugfix incomplete
+> Importance: High
+> 
+> 
+> Alan Cox wrote:
+> > 
+> > > Me thinks the real solution is the ACPI pm timer.  3 times the
+> > > resolution of the PIT and you can not stop it.  The 
+> high-res-timers
+> > > patch will allow you to use this as the time keeper and 
+> just use the PIT
+> > > to generate interrupts.
+> > 
+> > For awkward boxes you can use the PIT, for good boxes we 
+> can use rdtsc or
+> > eventually the ACPI timers when running with ACPI
+> 
+> I am attempting to use the ACPI timer without waiting for or running
+> ACPI.  After all it is there if you can find it.
+> 
+> George
+> 

@@ -1,56 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277094AbRKAV17>; Thu, 1 Nov 2001 16:27:59 -0500
+	id <S279797AbRKAV37>; Thu, 1 Nov 2001 16:29:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279784AbRKAV1s>; Thu, 1 Nov 2001 16:27:48 -0500
-Received: from mustard.heime.net ([194.234.65.222]:55972 "EHLO
-	mustard.heime.net") by vger.kernel.org with ESMTP
-	id <S277094AbRKAV1b>; Thu, 1 Nov 2001 16:27:31 -0500
-Date: Thu, 1 Nov 2001 22:27:24 +0100 (CET)
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-To: Andreas Dilger <adilger@turbolabs.com>
-cc: <reiser@namesys.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: writing a plugin for reiserfs compression
-In-Reply-To: <20011101141438.F16554@lynx.no>
-Message-ID: <Pine.LNX.4.30.0111012218420.3201-100000@mustard.heime.net>
+	id <S279790AbRKAV3s>; Thu, 1 Nov 2001 16:29:48 -0500
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:30337
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S279796AbRKAV3d>; Thu, 1 Nov 2001 16:29:33 -0500
+Date: Thu, 01 Nov 2001 16:28:44 -0500
+From: Chris Mason <mason@suse.com>
+To: Andrew Morton <akpm@zip.com.au>, Neil Brown <neilb@cse.unsw.edu.au>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Andrea Arcangeli <andrea@suse.de>
+Subject: Re: 2.4.14-pre6
+Message-ID: <334750000.1004650124@tiny>
+In-Reply-To: <3BE1B6CD.7DA43A6C@zip.com.au>
+In-Reply-To: message from Linus Torvalds on Wednesday October
+ 31,	<Pine.LNX.4.33.0110310809200.32460-100000@penguin.transmeta.com>
+ <15329.8658.642254.284398@notabene.cse.unsw.edu.au>
+ <3BE1B6CD.7DA43A6C@zip.com.au>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I just thought there was a patch doing windows nt-like
-> > compress-em-all-realtime-and-get-doomed!
->
-> I don't know what the actual heuristics for determining which files are
-> compression with the ext2 patch.  It is definitely NOT a compressed
-> block device.  Files are compressed in chunks (32kB?), so that it is
-> possible to seek and do read-modify-write (e.g. appending to a file)
-> without decompressing the entire file and/or recompressing it.  This also
-> protects against block corruption, since you would limit the amount of
-> data lost to the end of the chunk after the bad spot.
 
-But still... Are the files are compressed as they are created/modified on
-the filesystem? My main point was to avoid the compression overhead and
-just decompress the file at access time if it's compressed. Compression
-should (IMO) be done nightly.
 
-Perhaps a file should be decompressed when it's modified and either (a)
-set scheduled to next nightly compression or (b) stay uncompressed the
-next <n> days. I mean - as a file is being modified, the chance is large
-that the file will be accessed pretty soon...
+On Thursday, November 01, 2001 12:55:41 PM -0800 Andrew Morton
+<akpm@zip.com.au> wrote:
 
-> Yes, definitely disabling compression for a file is good.  The "accessed
-> in last 7 days flag" is questionable.  This could be determined via the
-> atime on Unix and doesn't need a separate flag.  Also, the difference
-> between "do not compress" and "can't compress" is very small.  If it is
-> found that the file is incompressible, you could just as easily set the
-> "do not compress" flag.
+> Oh.  I have a gripe concerning prune_icache().  The design
+> idea behind keventd is that it's a "process context bottom
+> half handler".  It's used for things like cardbus hotplug
+> interrupt handlers, handling tty hangups, etc.  It should
+> probably run SCHED_FIFO.
+> 
+> Using keventd to synchronously flush large amounts of 
+> data out to disk constitutes gross abuse - it's being blocked
+> from performing its designed duties for many seconds.  Can we
+> please not do that?  We already have kswapd, kupdate, bdflush,
+> which should be sufficient.
 
-I agree on the 'accessed in last <n> days'. It'd be better to check atime.
+One of the worst parts of prune_icache was that if a journaled
+FS needed to log dirty inodes, kswapd would wait on the log, who was
+probably waiting on kswapd.  Thus the dirty_inode call, which I'd like to
+get rid of.
 
-I'd still like to separate 'do not compress' and 'can't compress', as to
-show why the falg has been set - the former is set by the admin and the
-latter by the system.
+I don't think kupdate or bdflush are suitable to flush the dirty inodes,
+kupdate shouldn't do memory pressure and bdflush shouldn't wait on the log.
+So how about a new kinoded?
 
-roy
+-chris
 

@@ -1,50 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264454AbTLZWfU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 17:35:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264461AbTLZWfU
+	id S264323AbTLZW1q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 17:27:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264329AbTLZW1q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 17:35:20 -0500
-Received: from rth.ninka.net ([216.101.162.244]:20352 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S264454AbTLZWfP (ORCPT
+	Fri, 26 Dec 2003 17:27:46 -0500
+Received: from fw.osdl.org ([65.172.181.6]:40889 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264323AbTLZW1n (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 17:35:15 -0500
-Date: Fri, 26 Dec 2003 14:34:54 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org, irda-users@lists.sourceforge.net
-Subject: Re: (irda) Badness in local_bh_enable at kernel/softirq.c:121
-Message-Id: <20031226143454.4b871d15.davem@redhat.com>
-In-Reply-To: <20031226130031.A14007@flint.arm.linux.org.uk>
-References: <20031226130031.A14007@flint.arm.linux.org.uk>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 26 Dec 2003 17:27:43 -0500
+Date: Fri, 26 Dec 2003 14:27:39 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: caszonyi@rdslink.ro
+cc: linux-kernel@vger.kernel.org, kraxel@bytesex.org
+Subject: Re: your mail
+In-Reply-To: <Pine.LNX.4.53.0312262105560.537@grinch.ro>
+Message-ID: <Pine.LNX.4.58.0312261419230.14874@home.osdl.org>
+References: <Pine.LNX.4.53.0312262105560.537@grinch.ro>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Dec 2003 13:00:31 +0000
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
 
-> I've just been testing w83977af_ir with ircomm on a NetWinder (ARM) and
-> a Nokia mobile phone, and, while closing down the connection by exiting
-> minicom, I saw this which looks particularly evil.  I'm not sure exactly
-> when this occurred because I was running minicom over ssh.
 
-This is akin to the PPP issues, and all of this basically is telling
-that the TTY driver's locking conflicts with networking quite badly.
+On Fri, 26 Dec 2003 caszonyi@rdslink.ro wrote:
+> 
+> I was trying to capture a tv program  with mencoder when the oops occured
+> a couple  of hours later the system froze without leaving a single trace
+> in logs. I was able to reboot with SysRq.
+> 
+> Programs versions, config and dmesg are attached.
 
-In this case:
+Looks like this loop:
 
-> Badness in local_bh_enable at kernel/softirq.c:121
-> [<c00429c4>] (local_bh_enable+0x0/0x84) from [<c014d1b4>] (dev_queue_xmit+0x108/0x20c)
-> [<c014d0ac>] (dev_queue_xmit+0x0/0x20c) from [<bf00ee68>] (irlap_send_data_primary_poll+0xdc/0x1c4 [irda])
+		....
+                        while (voffset >= sg_dma_len(vsg)) {
+                                voffset -= sg_dma_len(vsg);
+                                vsg++;
+                        }
+		....
 
-local_bh_enable() with hardware interrupts disabled, which is
-racy and illegal.  Who disabled CPU interrupts?  Let's see:
+and in particular, it's the "sg_dma_len()" access that oopses, apparently 
+because vsg was stale to begin with, or because it incremented past the 
+last pointer.
 
-> [<bf03b4b0>] (ircomm_tty_shutdown+0x0/0x178 [ircomm_tty]) from [<bf03a9c0>] (ircomm_tty_close+0x15c/0x240 [ircomm_tty])
+The pointer that fails (0xc4bea00c) looks reasonable, so it's almost
+certainly due to CONFIG_PAGE_DEBUG showing some kind of use-after-free
+problem (ie the pointer is stale, and the memory has already been freed).
 
-And this is where the spin_lock_irqsave() occurs, that leads
-to all of the trouble.
+I suspect the problem is that 
+
+	"voffset >= sg_dma_len(vsg)"
+
+test: if "voffset" is _exactly_ the same as sg_dma_len(), then we will 
+test one more iteration (when "voffset" is 0), and that iteration may be 
+past the end of the "vsg" array.
+
+I suspect the fix might be to change the test to
+
+	"voffset && voffset >= sg_dma_len(vsg)"
+
+to make sure that we never access vsg past the end of the array.
+		
+
+		Linus

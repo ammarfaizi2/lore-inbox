@@ -1,94 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-thread-index: AcQVpOXL+KaBmxI8QAqmq9VIx7wOmw==
+thread-index: AcQVpLRsy3rRzWfIR6yhd59TCkMIYQ==
 Envelope-to: paul@sumlocktest.fsnet.co.uk
-Delivery-date: Mon, 05 Jan 2004 23:25:50 +0000
-Message-ID: <040101c415a4$e5cdb4e0$d100000a@sbs2003.local>
+Delivery-date: Mon, 05 Jan 2004 12:20:35 +0000
+Message-ID: <030601c415a4$b46f0110$d100000a@sbs2003.local>
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft CDO for Exchange 2000
+Date: Mon, 29 Mar 2004 16:44:21 +0100
 Content-Class: urn:content-classes:message
 Importance: normal
 Priority: normal
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
-Subject: Re: [PATCH] Simplify node/zone field in page->flags
-From: "Martin Schlemmer" <azarah@nosferatu.za.org>
-Reply-To: <azarah@nosferatu.za.org>
+From: "Karol Kozimor" <sziwan@hell.org.pl>
 To: <Administrator@osdl.org>
-Cc: "Jesse Barnes" <jbarnes@sgi.com>, "Andrew Morton" <akpm@osdl.org>,
-        "Linux Kernel Mailing Lists" <linux-kernel@vger.kernel.org>,
-        <mbligh@aracnet.com>
-In-Reply-To: <3FF9E64D.5080107@us.ibm.com>
-References: <3FE74B43.7010407@us.ibm.com> <20031222131126.66bef9a2.akpm@osdl.org> <3FF9D5B1.3080609@us.ibm.com> <20040105213736.GA19859@sgi.com>  <3FF9E64D.5080107@us.ibm.com>
-Content-Type: multipart/signed;
-	micalg=pgp-sha1;
-	protocol="application/pgp-signature";
-	boundary="=-YkDoCQlgaJq7NRG8nrT5"
+Cc: "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+        "Arjan van de Ven" <arjanv@redhat.com>, "jw schultz" <jw@pegasys.ws>
+Subject: Re: [2.6.0-mm2] PM timer still has problems
+References: <20031230204831.GA17344@hell.org.pl> <20031230200249.107b56f0.akpm@osdl.org> <20040104004449.GA20647@hell.org.pl> <200401050117.06681.dtor_core@ameritech.net>
 MIME-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 29 Mar 2004 16:45:44 +0100
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Disposition: inline
+In-Reply-To: <200401050117.06681.dtor_core@ameritech.net>
+User-Agent: Mutt/1.4.1i
 Sender: <linux-kernel-owner@vger.kernel.org>
 X-Mailing-List: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 29 Mar 2004 15:45:45.0578 (UTC) FILETIME=[E64C0CA0:01C415A4]
+X-OriginalArrivalTime: 29 Mar 2004 15:44:22.0125 (UTC) FILETIME=[B48E21D0:01C415A4]
 
-This is a multi-part message in MIME format.
+Thus wrote Dmitry Torokhov:
+> I threw a monkey wrench in timer code and came up with the patch below...
+> It is not intended for inclusion as is, just some work in progress.
+> 
+> I decided to go hpet way and use tsc in ACPI PM timer to do delay stuff
+> and monotonic clock. Plus there some code rearrangements, and stuff I grabbed
+> from the CPUFREQ list (Dominics + Li Shahoua P4 variable tsc info ), etc...
+> If there is an interest I can split the code into smaller chinks. For what
+> it worth I am running with ACPI PM timer, CPUFREQ (dynamically switching
+> frequency based on load) and Synaptics and everything is calm. Ntpd has also
+> stopped complaining about loosing sync...
 
---=-YkDoCQlgaJq7NRG8nrT5
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Well, no luck here. When clock=pmtmr is appended, the system hangs just
+after printing:
+#v+
+Warning: clock= override failed. Defaulting to PIT
+Using pit for high-res timesource
+Detected 1700.598 MHz processor.
+Console: colour VGA+ 80x25
+#v-
 
-On Tue, 2004-01-06 at 00:33, Matthew Dobson wrote:
-> Jesse Barnes wrote:
-> > On Mon, Jan 05, 2004 at 01:22:57PM -0800, Matthew Dobson wrote:
-> >=20
-> >>Jesse had acked the patch in an earlier itteration.  The only thing=20
-> >>that's changed is some line offsets whilst porting the patch forward.
-> >>
-> >>Jesse (or anyone else?), any objections to this patch as a superset of=20
-> >>yours?
-> >=20
-> >=20
-> > No objections here.  Of course, you'll have to rediff against the
-> > current tree since that stuff has been merged for awhile now.  On a
-> > somewhat related note, Martin mentioned that he'd like to get rid of
-> > memblks.  I'm all for that too; they just seem to get in the way.
-> >=20
-> > Jesse
-> >=20
->=20
-> Yeah... didn't actually attatch the patch to that last email, did I?=20
-> Brain slowly transitioning back into "on" mode after a couple weeks=20
-> solidly in the "off" position.
->=20
+The system boots fine without the clock= parameter, though.
+[it's an ASUS L3800C laptop with a P4-M and 2.6.1-rc1-mm1 with your patch
+on top]
 
-Get this with gcc-3.3.2 cvs:
+Best regards,
 
---
-include/linux/mm.h: In function `page_nodenum':
-include/linux/mm.h:337: warning: right shift count >=3D width of type
-include/linux/mm.h:337: warning: suggest parentheses around + or -
-inside shift
---
-
-Think we could get those () in to make it more clear and the compiler
-happy?
-
-
-Thanks,
-
---=20
-Martin Schlemmer
-
---=-YkDoCQlgaJq7NRG8nrT5
-Content-Transfer-Encoding: 7bit
-Content-Type: application/pgp-signature;
-	name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQA/+fH/qburzKaJYLYRAt+YAKCJmCt7KcI3ttikeBuT9jf/wJCK1QCgg8Ii
-NRAXwbf3JRkoRiQ7FJmJ4LM=
-=ivBO
------END PGP SIGNATURE-----
-
---=-YkDoCQlgaJq7NRG8nrT5--
+-- 
+Karol 'sziwan' Kozimor
+sziwan@hell.org.pl

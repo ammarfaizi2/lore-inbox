@@ -1,55 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318058AbSG2GyW>; Mon, 29 Jul 2002 02:54:22 -0400
+	id <S316900AbSG2HHx>; Mon, 29 Jul 2002 03:07:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318069AbSG2GyW>; Mon, 29 Jul 2002 02:54:22 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:33546 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318058AbSG2GyV>; Mon, 29 Jul 2002 02:54:21 -0400
-Date: Sun, 28 Jul 2002 23:58:38 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Jens Axboe <axboe@suse.de>
-cc: James Bottomley <James.Bottomley@steeleye.com>,
-       Marcin Dalecki <dalecki@evision.ag>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.28 small REQ_SPECIAL abstraction
-In-Reply-To: <20020729083409.D4445@suse.de>
-Message-ID: <Pine.LNX.4.44.0207282352030.10092-100000@home.transmeta.com>
+	id <S318064AbSG2HHx>; Mon, 29 Jul 2002 03:07:53 -0400
+Received: from mail.medav.de ([213.95.12.190]:20496 "HELO mail.medav.de")
+	by vger.kernel.org with SMTP id <S316900AbSG2HHw> convert rfc822-to-8bit;
+	Mon, 29 Jul 2002 03:07:52 -0400
+From: "Daniela Engert" <dani@ngrt.de>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "Lionel Bouton" <Lionel.Bouton@inet6.fr>
+Date: Mon, 29 Jul 2002 09:11:34 +0200 (CDT)
+Reply-To: "Daniela Engert" <dani@ngrt.de>
+X-Mailer: PMMail 2.00.1500 for OS/2 Warp 4.05
+In-Reply-To: <3D448052.4070805@inet6.fr>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Subject: Re: SiS 5513 ATA133 support patch for 2.4.19-rc3-ac3
+Message-Id: <20020729070252.9F16E1107A@mail.medav.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 29 Jul 2002 01:37:54 +0200, Lionel Bouton wrote:
 
-
-On Mon, 29 Jul 2002, Jens Axboe wrote:
+>Today I received a report for v0.13 with a *645* ID for a 645DX. This ID 
+>is recognised as only ATA100-capable -> data corruption occured (problem 
+>solved with v0.14).
 >
-> I think Martin's was wrong in concept, mine was wrong in implementation.
+>Before releasing 2.4.19 I think we should either :
+>- completely remove the affected northbridges (645, 650, 745, 750) 
+>support in v0.13, this is a simple patch. Then we wait for 2.4.20 to 
+>include v0.14.
 
-I don't understand why you think the concept is wrong. Right now all users
-clearly do want to free the tag on re-issue, and doing so clearly cleans
-up the code and avoids duplication.
+Lionel,
 
-So I still don't see the advantage of your patch, even once you've fixed
-the locking issue.
+as you already figured out, looking at the northbridge IDs is simply
+not sufficient to find out which capabilities and register layout the
+IDE controller in the southbridge (no matter if integrated or external)
+has.
 
-HOWEVER, if you really think that some future users might not want to have
-the tag played with, how about making the "at_head" thing a flags field,
-and letting people say so by having "INSERT_NOTAG" (and making the
-existing bit be INSERT_ATHEAD).
+Some comments:
 
-So then the SCSI users would look like
+1) the 745 has an integrated southbridge and an ATA/100 capable IDE
+controller
 
-	blk_insert_request(q, SRpnt->sr_request,
-		at_head ? INSERT_ATHEAD : 0,
-		SRpnt)
+2) the 646 (and most likely the 645 and others as well) may be paired
+with a 961 (ATA/100) or 961B (ATA133) MutIOL southbridge with different
+register programming values.
 
-while your future non-tag user might do
+Thus simply ripping out some northbridge IDs wouldn't prevent
+corruption problems.
 
-	blk_insert_request(q, newreq,
-		INSERT_ATHEAD | INSERT_NOTAG,
-		channel);
+Ciao,
+  Dani
 
-_without_ having that unnecessary code duplication.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Daniela Engert, systems engineer at MEDAV GmbH
+Gräfenberger Str. 34, 91080 Uttenreuth, Germany
+Phone ++49-9131-583-348, Fax ++49-9131-583-11
 
-			Linus
 

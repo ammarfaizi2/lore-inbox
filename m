@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288558AbSAHX0t>; Tue, 8 Jan 2002 18:26:49 -0500
+	id <S288565AbSAHX37>; Tue, 8 Jan 2002 18:29:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288557AbSAHX0k>; Tue, 8 Jan 2002 18:26:40 -0500
-Received: from Expansa.sns.it ([192.167.206.189]:3339 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S288558AbSAHX01>;
-	Tue, 8 Jan 2002 18:26:27 -0500
-Date: Wed, 9 Jan 2002 00:26:00 +0100 (CET)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: Andrew Morton <akpm@zip.com.au>, Anton Blanchard <anton@samba.org>,
-        Andrea Arcangeli <andrea@suse.de>,
-        Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Rik van Riel <riel@conectiva.com.br>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Robert Love <rml@tech9.net>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <E16O3L5-0000B8-00@starship.berlin>
-Message-ID: <Pine.LNX.4.33.0201090018440.1185-100000@Expansa.sns.it>
+	id <S288568AbSAHX3k>; Tue, 8 Jan 2002 18:29:40 -0500
+Received: from mail3.aracnet.com ([216.99.193.38]:13971 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S288565AbSAHX33>; Tue, 8 Jan 2002 18:29:29 -0500
+Date: Tue, 8 Jan 2002 15:28:34 -0800 (PST)
+From: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: RE: i686 SMP systems with more then 12 GB ram with 2.4.x kernel,
+ cache buffer bug ?
+In-Reply-To: <1010530993.11323.3.camel@hh2.hhhome.at>
+Message-ID: <Pine.LNX.4.33.0201081524360.14913-100000@shell1.aracnet.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 9 Jan 2002, Harald Holzer wrote:
 
-
-On Tue, 8 Jan 2002, Daniel Phillips wrote:
-
-> On January 8, 2002 08:47 pm, Andrew Morton wrote:
-> > Daniel Phillips wrote:
-> > > What a preemptible kernel can do that a non-preemptible kernel can't is:
-> > > reschedule exactly as often as necessary, instead of having lots of extra
-> > > schedule points inserted all over the place, firing when *they* think the
-> > > time is right, which may well be earlier than necessary.
-> >
-> > Nope.  `if (current->need_resched)' -> the time is right (beyond right,
-> > actually).
+> low memory problem:
 >
-> Oops, sorry, right.
+> A Server with 32 GB ram, RH 7.2 and kernel 2.4.17rc2aa2.
+> After doing a lot of disc access the system slows down and the system
+> dies. Because the system is running out of low memory.
 >
-> The preemptible kernel can reschedule, on average, sooner than the
-> scheduling-point kernel, which has to wait for a scheduling point to roll
-> around.
+> The last kernel logs lines are:
+> "kernel: __alloc_pages: 0-order allocation failed (gfp=0x70/0)"
 >
-mmhhh. At which cost? And then anyway if I have a spinlock, I still have
-to wait for a scheduling point to roll around.
+> On other kernels then 2.4.17rc2aa2 the oom killer kicks in, or the
+> system simply stop responding without any messages.
+>
+> It looks like that the buffer_heads would fill up the low memory,
+> whether there is sufficient memory available or not, as long as
+> there is sufficient high memory for caching.
+> It seems that the kernel does a good job of releasing dcache or icache,
+> but the buffer_heads are filling up the released mem.
 
+In terms of "control knobs", would a limit on page cache size imply a
+limit on "buffer_heads", or do we really need the control knob on
+"buffer_heads" and not on the page cache? Or would we need both?
 
+-- 
+M. Edward "buffer head" Borasky
+
+znmeb@borasky-research.net
+http://www.borasky-research.net
+
+What phrase will you *never* hear Candice Bergen use?
+"My daddy didn't raise no dummies!"
 

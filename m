@@ -1,70 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265527AbTF2Czm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Jun 2003 22:55:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265526AbTF2Czm
+	id S265528AbTF2DDc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Jun 2003 23:03:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265533AbTF2DDc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Jun 2003 22:55:42 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:24253 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S265618AbTF2CxO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Jun 2003 22:53:14 -0400
-Date: Sat, 28 Jun 2003 20:07:06 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@digeo.com>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.73-mm2
-Message-ID: <4160000.1056856024@[10.10.2.4]>
-In-Reply-To: <20030629021809.GA26348@holomorphy.com>
-References: <20030627202130.066c183b.akpm@digeo.com> <20030628155436.GY20413@holomorphy.com> <20030628170837.A10514@infradead.org> <56960000.1056846845@[10.10.2.4]> <20030629021809.GA26348@holomorphy.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Sat, 28 Jun 2003 23:03:32 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:54282
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S265528AbTF2DD3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Jun 2003 23:03:29 -0400
+Date: Sat, 28 Jun 2003 20:14:33 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+cc: David Schwartz <davids@webmaster.com>, vanstadentenbrink@ahcfaust.nl,
+       linux-kernel@vger.kernel.org
+Subject: Re: GPL violations by wireless manufacturers 
+In-Reply-To: <200306250242.h5P2g3ef002657@eeyore.valparaiso.cl>
+Message-ID: <Pine.LNX.4.10.10306282010460.1116-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---William Lee Irwin III <wli@holomorphy.com> wrote (on Saturday, June 28, 2003 19:18:09 -0700):
 
-> On Sat, Jun 28, 2003 at 05:34:05PM -0700, Martin J. Bligh wrote:
->> Last time I measured it, it had about a 10% overhead in kernel time.
->> Seems like a good thing to keep as an option to me. Bill said he
->> had some other code to alleviate the overhead, but I don't think
->> it's merged ... I'd rather see UKVA (permanently map the pagetables
->> on a per-process basis) merged before it becomes "not an option" -
->> that gets rid of all the kmapping.
+Horst,
+
+Now stop being rational and using logic, this is all a touchy-feely issue.
+First thing is IANAL comes to the surface, and few can say they have a
+lawyer and less a team of lawyers.  If you have proof, and filed your
+copyright with LOC goto court.  Stop pissing around and making noise.
+
+There are those who can do it.
+The rest say they can.
+
+The latter is a BOHA, and the former is serious.
+
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+On Tue, 24 Jun 2003, Horst von Brand wrote:
+
+> "David Schwartz" <davids@webmaster.com> said:
+> > > In response to DS:
+> > 
+> > > > So is a Linux distribution "a whole which is a work based on the" Linux
+> > > > kernel? Would you argue that RedHat can't include proprietary
+> > > > software on
+> > > > the same CD as the Linux kernel? All the software on the CD,
+> > > > assuming it's
+> > > > Linux software, likewise extends the kernel through a
+> > > > well-defined boundary.
+> > 
+> > > No, definitely not. If that were the case, SuSE and Lindows etc. etc.
+> > > would not be able to distribute proprietary software together with
+> > > GPL'ed software. The GPL calls this 'mere aggregation':
+> > 
+> > > "In addition, mere aggregation of another work not based on the
+> > > Program with the Program (or with a work based on the Program) on a
+> > > volume of a storage or distribution medium does not bring the other
+> > > work under the scope of this License."
 > 
-> There are several orthogonal things going on here. One is dropping the
-> hooks in the right places to get various concrete tasks done. Another
-> is general resource scalability vs. raw overhead tradeoffs. The last
-> one is gathering a wide enough repertoire of core hooks that arches can
-> use "advanced" techniques like recursive pagetables when they require
-> various kinds of intervention by the kernel to use.
+> > 	But they're not just on the same CD. The additional work extends
+> > the Linux kernel and is useless without it (or without something that
+> > emulates it).
 > 
-> This is just another set of hooks we'll need for our end goal, with a
-> fully functional implementation. It has direct applications and is
-> completely usable now for resource scalability albeit with some
-> overhead. Things are all headed in the appropriate directions; the
-> hooks do not conflict with and do not require any core modifications
-> whatsoever in order to use in combination with recursive pagetables;
-> they can simply recover information from already-available places and
-> transparently replace the highpmd and highpte arch code.
+> Just like Oracle, or Opera, or my sendmail binary, or a lot of other
+> stuff. That they would be useless without Linux doesn't make them GPL. The
+> GPL is quite clear; the head penguin also clarified that propietary modules
+> are OK.
 > 
-> I can work directly with Dave to arrange a proper demonstration of this
-> (i.e. fully functional implementation) if need be. I've largely avoided
-> interceding in recursive pagetable mechanics in order not to duplicate
-> work.
-
-Right, I'm not against what you're doing - I'm totally for it. My only
-concern was that whilst it has some overhead, it should stay as a config
-option (which you did). That lets people make the call of overhead vs
-resource scaling.
-
-Your patch is fine - just the talk of removing the config option scared 
-me ;-)
-
-M.
-
+> Now can we please stop this? If there is something to discuss around this,
+> it is clearly _not_ kernel development.
+> -- 
+> Dr. Horst H. von Brand                   User #22616 counter.li.org
+> Departamento de Informatica                     Fono: +56 32 654431
+> Universidad Tecnica Federico Santa Maria              +56 32 654239
+> Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262728AbTESWQZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 18:16:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262763AbTESWQZ
+	id S262737AbTESWR2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 18:17:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262763AbTESWR2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 18:16:25 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:52620 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S262728AbTESWQW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 18:16:22 -0400
-Date: Tue, 20 May 2003 00:29:10 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "Jeffrey W. Baker" <jwbaker@acm.org>,
-       "Mudama, Eric" <eric_mudama@maxtor.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: HD DMA disabled in 2.4.21-rc2, works fine in 2.4.20
-Message-ID: <20030519222910.GG4757@louise.pinerecords.com>
-References: <785F348679A4D5119A0C009027DE33C102E0D3AB@mcoexc04.mlm.maxtor.com> <1053374646.10240.5.camel@heat> <1053373513.29226.25.camel@dhcp22.swansea.linux.org.uk>
+	Mon, 19 May 2003 18:17:28 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:4022 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S262737AbTESWR0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 18:17:26 -0400
+Date: Mon, 19 May 2003 15:29:37 -0700
+From: Jesse Barnes <jbarnes@sgi.com>
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Subject: Re: [PATCH] pull $CROSS_COMPILE from env. if present
+Message-ID: <20030519222937.GA20366@sgi.com>
+Mail-Followup-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+References: <20030519195333.GC18426@sgi.com> <20030519215917.GA1281@mars.ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1053373513.29226.25.camel@dhcp22.swansea.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030519215917.GA1281@mars.ravnborg.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [alan@lxorguk.ukuu.org.uk]
+On Mon, May 19, 2003 at 11:59:17PM +0200, Sam Ravnborg wrote:
+> On Mon, May 19, 2003 at 12:53:33PM -0700, Jesse Barnes wrote:
+> > Simple patch to pull CROSS_COMPILE from the environment if it's
+> > present, which makes it easier to compile the kernel with different
+> > compiler versions and such.
 > 
-> On Llu, 2003-05-19 at 21:04, Jeffrey W. Baker wrote:
-> > I was using Via IDE chipset and, yes, I had configured the kernel for
-> > VIA support.  That's why it worked in 2.4.20.  But it stopped working in
-> > 2.4.21-rc.
+> I like it, but...
 > 
-> VIA IDE should be working reliably, my main test box is an EPIA series
-> VIA system so the VIA IDE does get a fair beating
+> If we do it for CROSS_COMPILE we should do it for ARCH as well.
+> Something like
+> ifeq ($(origin ARCH), undefined)
+> ARCH := $(SUBARCH)
+> endif
+> 
+> And then group ARCH and CROSS_COMPILE togeher in the Makefile, and
+> provide a few meaningful comments.
+> I will test it tomorrow if you do not beat me in it.
 
-This person is running with CONFIG_BLK_DEV_VIA82CXXX unset.
+That's a good idea too, I used that awhile back when all my ia64
+compiles were x86->ia64 cross-compiles...
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+Thanks,
+Jesse

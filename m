@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263007AbTJJQ1p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 12:27:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263008AbTJJQ1p
+	id S263009AbTJJQ3T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 12:29:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263011AbTJJQ3S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 12:27:45 -0400
-Received: from h80ad2693.async.vt.edu ([128.173.38.147]:32648 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263007AbTJJQ1l (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 12:27:41 -0400
-Message-Id: <200310101627.h9AGRW1M012975@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: statfs() / statvfs() syscall ballsup... 
-In-Reply-To: Your message of "Fri, 10 Oct 2003 09:00:23 PDT."
-             <Pine.LNX.4.44.0310100839030.20420-100000@home.osdl.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.44.0310100839030.20420-100000@home.osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1115093500P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Fri, 10 Oct 2003 12:29:18 -0400
+Received: from obsidian.spiritone.com ([216.99.193.137]:58258 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S263009AbTJJQ2u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 12:28:50 -0400
+Date: Fri, 10 Oct 2003 08:37:24 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: freelsjd@ornl.gov
+Subject: [Bug 1342] New: Samba breaks in test6 kernel
+Message-ID: <207250000.1065800244@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Date: Fri, 10 Oct 2003 12:27:32 -0400
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1115093500P
-Content-Type: text/plain; charset=us-ascii
-
-On Fri, 10 Oct 2003 09:00:23 PDT, Linus Torvalds said:
-
-> I'm hoping in-memory databases will just kill off the current crop 
-> totally. That solves all the IO problems - the only thing that goes to 
-> disk is the log and the backups, and both go there totally linearly unless 
-> the designer was crazy.
-
-I can process a 100GB database on a current 2U Dell rackmount server. I hesitate to
-think about what would be required to deal with a terabyte-sized database...
+           Summary: Samba breaks in test6 kernel
+    Kernel Version: 2.6.0test7
+            Status: NEW
+          Severity: normal
+             Owner: acme@conectiva.com.br
+         Submitter: freelsjd@ornl.gov
 
 
+Distribution: Debian/Sid
+Hardware Environment: dual Xeon 2.4 Ghz
+Software Environment: Samba 3.0.0
+Problem Description:
 
---==_Exmh_-1115093500P
-Content-Type: application/pgp-signature
+In going from 2.6.0test6 to 2.6.0test7, the ability to "Map a network drive"
+from Windows to this machine failed.  I have confirmed in going back to test6, 
+the problem went away.  I have also confirmed that older versions of Samba had 
+the same problem.  I have narrowed it down to the test7 kernel.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Steps to reproduce:
 
-iD8DBQE/ht30cC3lWbTT17ARAk2gAJoDN3dOWYVZvQvFEXE5nBV1uZtDHgCfVW1S
-a4KMONPKuZeBjW4QRt3YeWc=
-=Yoz0
------END PGP SIGNATURE-----
+Have a Debian/Sid system with current Samba installed.  Upgrade from test6 to 
+test7, and the problem occurs.
 
---==_Exmh_-1115093500P--

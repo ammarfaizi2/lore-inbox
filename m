@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261887AbUCIL5H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 06:57:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbUCIL5H
+	id S261891AbUCIMHp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 07:07:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261894AbUCIMHp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 06:57:07 -0500
-Received: from fep06-0.kolumbus.fi ([193.229.0.57]:42638 "EHLO
-	fep06-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id S261887AbUCIL5F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 06:57:05 -0500
-Date: Tue, 9 Mar 2004 13:56:28 +0200
-From: Palko Jukka <jpalko@kolumbus.fi>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.x + kvm switches
-Message-ID: <20040309115628.GA27360@jpalko.dyndns.org>
-Reply-To: jpalko@kolumbus.fi
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-X-Operating-System: Linux jpalko 2.4.24-1-k7
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Tue, 9 Mar 2004 07:07:45 -0500
+Received: from mailgate.uni-paderborn.de ([131.234.22.32]:37306 "EHLO
+	mailgate.uni-paderborn.de") by vger.kernel.org with ESMTP
+	id S261891AbUCIMHn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 07:07:43 -0500
+Message-ID: <404DB389.2030102@uni-paderborn.de>
+Date: Tue, 09 Mar 2004 13:07:37 +0100
+From: Bjoern Schmidt <lucky21@uni-paderborn.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Stefan Smietanowski <stesmi@stesmi.com>
+CC: len.brown@intel.com, linux-kernel@vger.kernel.org
+Subject: Re: fsb of older cpu
+References: <A6974D8E5F98D511BB910002A50A6647615F47CB@hdsmsx402.hd.intel.com> <1078815523.2342.535.camel@dhcppc4> <404DA7A8.4090109@uni-paderborn.de> <404DABEC.4070605@stesmi.com>
+In-Reply-To: <404DABEC.4070605@stesmi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-UNI-PB_FAK-EIM-MailScanner-Information: Please see http://imap.uni-paderborn.de for details
+X-UNI-PB_FAK-EIM-MailScanner: Found to be clean
+X-UNI-PB_FAK-EIM-MailScanner-SpamCheck: not spam, SpamAssassin (score=0,
+	required 4)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Stefan Smietanowski schrieb:
+> Hi Bjoern.
+> 
+>> In the System Programming Guide i can read that i can reprogram the
+>> clock multiplier by setting RESET# to low and A20M#, IGNNE#, LINT[1]
+>> and LINT[0] to 1111 for 1/2. Unfortunately i dont know how to
+>> program this in assembler code, i can several programming
+>> languages, but not yet asm :(
+>> Can you recommend a good online book?
+> 
+> 
+> Think for a moment what happens when you pull RESET# low :)
+> 
+> It... resets the chip thereby resetting the computer.
+
+Ooops, you are right. I should better read the whole manual.
+Sorry for asking stupid questions...
+
+
 Greetings
+Bjoern Schmidt
 
-As a curiosity question I would like to ask whether the 2.6.x kernel
-series will sometime in the nearby future start functioning better with
-KVM switches?
 
-Currently I get it to work with my KVM by adding psmouse.proto=bare to
-the grub kernel entry, but this leaves me without the fourth button in
-the mouse. I need to use at least psmouse.proto=exps or no entry entry
-for psmouse.proto to get the fourth button operational in my mouse.
-
-But anything better than psmouse.proto=bare as the setting and my mouse
-will definately go haywire when switching between machines... :(
-
--- 
-     Jukka Palko        jpalko@iki.fi
-                        jpalko@kolumbus.fi

@@ -1,68 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261986AbSJDVdx>; Fri, 4 Oct 2002 17:33:53 -0400
+	id <S262074AbSJDVhb>; Fri, 4 Oct 2002 17:37:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261985AbSJDVdx>; Fri, 4 Oct 2002 17:33:53 -0400
-Received: from [166.90.172.6] ([166.90.172.6]:2336 "EHLO
-	Mail.Linux-Consulting.com") by vger.kernel.org with ESMTP
-	id <S261981AbSJDVdt>; Fri, 4 Oct 2002 17:33:49 -0400
-Date: Fri, 4 Oct 2002 14:37:49 -0700 (PDT)
-From: Alvin Oga <aoga@Maggie.Linux-Consulting.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Illtud Daniel <illtud.daniel@llgc.org.uk>,
-       Effrem Norwood <enorwood@effrem.com>,
-       Kanoalani Withington <kanoa@cfht.hawaii.edu>,
-       Roy Sigurd Karlsbakk <roy@karlsbakk.net>, jbradford@dial.pipex.com,
-       jakob@unthought.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-raid@vger.kernel.org
-Subject: Re: RAID backup - media
-In-Reply-To: <1033735943.31839.12.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.3.96.1021004143424.10481A-100000@Maggie.Linux-Consulting.com>
+	id <S262083AbSJDVhb>; Fri, 4 Oct 2002 17:37:31 -0400
+Received: from line106-15.adsl.actcom.co.il ([192.117.106.15]:31628 "EHLO
+	www.veltzer.org") by vger.kernel.org with ESMTP id <S262074AbSJDVha>;
+	Fri, 4 Oct 2002 17:37:30 -0400
+Message-Id: <200210042154.g94Lsxv00543@www.veltzer.org>
+Content-Type: text/plain; charset=US-ASCII
+From: Mark Veltzer <mark@veltzer.org>
+Organization: Meta Ltd.
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: export of sys_call_table
+Date: Sat, 5 Oct 2002 00:54:58 +0300
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-hi ya alan
+On Saturday 05 October 2002 00:06, David S. Miller wrote:
+> There is simply no portable way to make changes to the system call
+> table, so exporting it makes zero sense.
+> -
 
-yuppers... 
+I don't wish to comment on the need or lack thereof of exporting the sys call
+table but it sounds to me that this is an area where some work would be
+beneficial.
 
-those 320GB disks are not cheap?? but are floating around
+Is it too complication to produce a portable API along the lines of:
 
-- i use backups for "warm swap".... and dont care about it over time sorta
-  thing ... need to be able to keep TBs of data online as fast as possible
-  ( few minutes ) to restore a dead/hacked box..
+	syscall_entry_replace(int,func_t)
 
-- for "fast turn around"... tapes have always been dayz of effort to
-  restore  and too much of a headache to keep the tapes and heads clean
-  and test it more rigorously than having to test disks 
+Which will be implemented per architecture with the appropriate locks ?
 
-- you already implicitly trusts disks to hold your data .. till the disk
-  dies ... hopefully due to ball bearing/lubricant/heat failure etc
+And if locking is the problem then even a trimmed version that doesn't do
+locking and maybe could be used for other in kernel purposes in code where
+the locking is not needed ?
 
-fun stuff
+Just wondering,
+	Mark.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-have fun
-alvin
-
-On 4 Oct 2002, Alan Cox wrote:
-
-> On Fri, 2002-10-04 at 12:20, Alvin Oga wrote:
-> > we can build an 8-drive ( 120GB at $200ea )  or ( 160GB at $300>? each )
-> > 1U box...about 0.960 - 1.28 TB each backup server ( 1U ) for under $2,500 in parts
-> > +  cost of raid setup/testing is up to the user
-> > 	- am thinking the 1.6TB of storage for 10K lira(?) is too much
-> > 
-> > i prefer disks to backup data.. so that its always a semi-warm backup
-> > ( tapes have always been way tooo slow to find a file and to restore 
-> 
-> The problem with disks is you still have to archive them somewhere, and
-> they are bulky. I also dont know what studies are available on the
-> degradation of stored disk media over time. 
-> 
-> Capacity is not a problem, 3ware do a 12 channel sata card, with maxtor
-> drives that comes in at 320x12 = 3.5Tb
-> 
-
+iD8DBQE9ng4yxlxDIcceXTgRApJPAKDTC5SMk5NTYtxdRyR24rjahJc6oACgwWJ6
+LzVp9BpimttoWdFDyDgL5QU=
+=5eOR
+-----END PGP SIGNATURE-----

@@ -1,49 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281766AbRKZP0W>; Mon, 26 Nov 2001 10:26:22 -0500
+	id <S281772AbRKZPYp>; Mon, 26 Nov 2001 10:24:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281771AbRKZP0M>; Mon, 26 Nov 2001 10:26:12 -0500
-Received: from mail0.epfl.ch ([128.178.50.57]:64783 "HELO mail0.epfl.ch")
-	by vger.kernel.org with SMTP id <S281781AbRKZPZg>;
-	Mon, 26 Nov 2001 10:25:36 -0500
-Message-ID: <3C025EED.2010300@epfl.ch>
-Date: Mon, 26 Nov 2001 16:25:33 +0100
-From: Nicolas Aspert <Nicolas.Aspert@epfl.ch>
-Organization: LTS-DE-EPFL
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
+	id <S281771AbRKZPYf>; Mon, 26 Nov 2001 10:24:35 -0500
+Received: from mx2out.umbc.edu ([130.85.253.52]:37854 "EHLO mx2out.umbc.edu")
+	by vger.kernel.org with ESMTP id <S281766AbRKZPXx>;
+	Mon, 26 Nov 2001 10:23:53 -0500
+Date: Mon, 26 Nov 2001 10:23:52 -0500
+From: John Jasen <jjasen1@umbc.edu>
+X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.16-pre1 and "-rc" releases
+In-Reply-To: <Pine.GSO.4.33.0111260935260.2460-100000@gurney>
+Message-ID: <Pine.SGI.4.31L.02.0111261022390.12817978-100000@irix2.gl.umbc.edu>
 MIME-Version: 1.0
-To: Didier.Moens@dmb001.rug.ac.be
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]Re: [Fwd: Re: OOPS in agpgart (2.4.13, 2.4.15pre7)]
-In-Reply-To: <linux.kernel.3C023909.4010202@epfl.ch>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicolas Aspert wrote:
+On Mon, 26 Nov 2001, Alastair Stevens wrote:
 
-> Hello again
-> 
-> 
-> Here is a patch that _might_ improve things wrt. agp support for i830 
-> chipsets. I do not have a i830 box at hand, so it has not been tested 
-> (well, it compiles ok. ;-). If you feel like crashing your PC once more, 
-> try the patch (against 2.4.15) and tell me whether things became 
-> better/worse.
-> I assumed that the i830mg without secondary device was working in a way 
-> that is similar to other Intel chipsets.
-> 
+> I have tended to track 2.4.x since the start, because it's been changing
+> and improving so rapidly. I know I *should* wait a few days before
+> building each new -final release, but let's be honest, lots of people
+> don't or won't, so it's important that they be of good quality.
 
-It seems that I made a (silly) confusion between i830M and i830MG. 
-Anyway, take my previous patch and replace MG by M wherever it may be 
-relevant, and it may do the trick. Anyway, I am not quite sure about the 
-differences between those two versions.... (the Intel specs are not 
-clear at all about this.)
+Or maybe can't, as the new release may address problems that they've been
+having with previous kernel revisions.
 
-a+
--- 
-Nicolas Aspert      Signal Processing Laboratory (LTS)
-Swiss Federal Institute of Technology (EPFL)
+--
+-- John E. Jasen (jjasen1@umbc.edu)
+-- In theory, theory and practise are the same. In practise, they aren't.
 

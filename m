@@ -1,33 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132288AbRCWAv3>; Thu, 22 Mar 2001 19:51:29 -0500
+	id <S132287AbRCWA6J>; Thu, 22 Mar 2001 19:58:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132295AbRCWAvT>; Thu, 22 Mar 2001 19:51:19 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:11 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132287AbRCWAvJ>; Thu, 22 Mar 2001 19:51:09 -0500
-Subject: Re: 2.4.2-ac21
-To: lawrence@the-penguin.otak.com (Lawrence Walton)
-Date: Fri, 23 Mar 2001 00:52:48 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <20010322162802.A909@the-penguin.otak.com> from "Lawrence Walton" at Mar 22, 2001 04:28:02 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14gFoy-0003h9-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S132286AbRCWA6A>; Thu, 22 Mar 2001 19:58:00 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:39942 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S132276AbRCWA5o>; Thu, 22 Mar 2001 19:57:44 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Re : [CHECKER] 28 potential interrupt errors
+Date: 22 Mar 2001 16:56:59 -0800
+Organization: Transmeta Corporation
+Message-ID: <99e70r$uvg$1@penguin.transmeta.com>
+In-Reply-To: <20010322153641.B13162@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hello all
-> 2.4.2-ac21 seems to have a couple problems. First the fs was acting very
-> strangely, while compiling; the compiler complained about being unable
-> to find files and directory's that existed. I was able to cd to those
-> directory's and see the files with ls, (I was recompiling ac20 at the
-> time.). Second was every half a minute or so, I would get this message.
+In article <20010322153641.B13162@bougret.hpl.hp.com>,
+Jean Tourrilhes  <jt@bougret.hpl.hp.com> wrote:
+>
+>	I agree that the IrDA stack is full of irq/locking bugs (there
+>is a patch of mine waiting in Dag's mailbox), but this one is not a
+>bug, it's a false positive.
+>	The restore_flags(flags); will restore the state of the
+>interrupt register before the cli happened, so will automatically
+>reenable interrupts.
 
+Look closer. The error report is a big bogus, because it points out as
+an error the "return" that is _correct_, not the "return" that is buggy.
 
-Ok the further VIA bitfiddling with the pci config is causing the problems
-it seems. I'll back that out soon
+Their checkers verify that all exists out of a function have the same
+characteristics, and they found a case where one exit exists with
+interrupts still disabled, while another one exists after having done a
+"restore_flags()". 
 
+So it looks like a real bug, it's just that the error is the _earlier_
+return value, not the one pointed at.
+
+		Linus

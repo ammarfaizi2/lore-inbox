@@ -1,68 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285850AbRLJTDV>; Mon, 10 Dec 2001 14:03:21 -0500
+	id <S285813AbRLJTFW>; Mon, 10 Dec 2001 14:05:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285829AbRLJTDJ>; Mon, 10 Dec 2001 14:03:09 -0500
-Received: from mta8.srv.hcvlny.cv.net ([167.206.5.23]:9962 "EHLO
-	mta8.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S283223AbRLJTCv>; Mon, 10 Dec 2001 14:02:51 -0500
-Date: Mon, 10 Dec 2001 14:02:50 -0500 (EST)
-From: Keith Warno <krjw@optonline.net>
-Subject: Re: 2.4.16: scsi "PCI error Interrupt"?!
-In-Reply-To: <Pine.LNX.3.95.1011210123827.517A-100000@chaos.analogic.com>
-X-X-Sender: kw@behemoth.hobitch.com
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Message-id: <Pine.LNX.4.40.0112101339130.7387-100000@behemoth.hobitch.com>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
+	id <S286153AbRLJTFC>; Mon, 10 Dec 2001 14:05:02 -0500
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:30096 "EHLO
+	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S285829AbRLJTDk>; Mon, 10 Dec 2001 14:03:40 -0500
+Message-ID: <3C15077B.6AD2693E@nortelnetworks.com>
+Date: Mon, 10 Dec 2001 14:05:31 -0500
+X-Sybari-Space: 00000000 00000000 00000000
+From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Chris Wright <chris@wirex.com>
+Cc: Ben Greear <greearb@candelatech.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: question on select: How big can the empty buffer space be before 
+         select returns ready-to-write?
+In-Reply-To: <3C145359.3090401@candelatech.com> <20011209233349.C27109@figure1.int.wirex.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Orig: <cfriesen@nortelnetworks.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2001-12-10 at 12:44 -0500, Richard B. Johnson uttered:
+Chris Wright wrote:
+> 
+> * Ben Greear (greearb@candelatech.com) wrote:
+> > For instance, it appears that select will return that a socket is
+> > writable when there is, say 8k of buffer space in it.  However, if
+> > I'm sending 32k UDP packets, this still causes me to drop packets
+> > due to a lack of resources...
+> 
+> udp has a fixed 8k max payload. did you try breaking up your packets?
 
-| On Mon, 10 Dec 2001, Keith Warno wrote:
-| > Any ideas?  I really don't like the SCSI controller sharing an interrupt
-| > with anyone but I can't seem to force it to be in its own land.
-|
-| If the controller is a separate board, not built onto the motherboard,
-| move it to a different slot! There is only one interrupt line going
-| to each PCI slot. This should move the IRQ to something else.
+Are you sure about that? UDP has a 16-bit field for the length.  Thus the
+standard technically allows for packet sizes (including header) of up to 2^16
+(roughly 65K) bytes.
 
-Yes in both cases it's a separate board.  Been here, done this, and no
-joy.  This is what I meant by "I can't seem to force it to be in its own
-land".
+Chris
 
-| In the same manner, if a board-mounted device is sharing an IRQ with
-| some slot device, move the slot device to another slot or swap it with
-| something that isn't using an interrupt.
-
-Of course.  Although not applicable in this case.
-
-| Also, if your BIOS has an Y/N entry for (PnP OS), say "N". This
-| will force the BIOS to more-properly allocate resources. This gives
-| Linux at least a "correct" set-up to start with when it configures
-| the PCI interface.
-
-Yep.  It's always set to No.  I have little faith in this Plug 'n' Pray
-OS jazz.
-
-In both boxes the SCSI controller is sharing an interrupt with an AGP
-NVidia board.  Obviously I can't move the NVidia board.  Shuffling the
-SCSI controller around doesn't convince it not to share an IRQ with the
-NVidia board.  (I also have a PCI Linksys NIC and an SB Live on the same
-interrupt.  Go figure.)
-
-The point here is I have not seen syslog messages like
-
-scsi0: PCI error Interrupt at seqaddr = 0x8
-scsi0: Data Parity Error Detected during address or write data phase
-
-in 2.4 kernels prior to 2.4.16.  Perhaps an error was occuring with
-those kernels and just wasn't being logged.  Who knows.  I'd just like
-to know what specifically is causing this message to be emitted by the
-kernel.
-
-Regards,
-kw
-
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

@@ -1,66 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261639AbUKITbI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261640AbUKIThA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261639AbUKITbI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 14:31:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbUKITbI
+	id S261640AbUKIThA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 14:37:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261641AbUKIThA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 14:31:08 -0500
-Received: from mail1.webmaster.com ([216.152.64.168]:7950 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S261639AbUKITbA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 14:31:00 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: <alan@lxorguk.ukuu.org.uk>, "Dmitry Torokhov" <dtor_core@ameritech.net>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       =?iso-8859-1?Q?Rapha=EBl_Rigo_LKML?= <lkml@twilight-hall.net>
-Subject: RE: GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox +code
-Date: Tue, 9 Nov 2004 11:30:54 -0800
-Message-ID: <MDEHLPKNGKAHNMBLJOLKAEKLPKAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Tue, 9 Nov 2004 14:37:00 -0500
+Received: from fw.osdl.org ([65.172.181.6]:8077 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261640AbUKITg4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 14:36:56 -0500
+Date: Tue, 9 Nov 2004 11:36:20 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: 76306.1226@compuserve.com, linux-kernel@vger.kernel.org,
+       nickpiggin@yahoo.com.au
+Subject: Re: balance_pgdat(): where is total_scanned ever updated?
+Message-Id: <20041109113620.16b47e28.akpm@osdl.org>
+In-Reply-To: <20041109104220.GB6326@logos.cnet>
+References: <200411061418_MC3-1-8E17-8B6C@compuserve.com>
+	<20041106161114.1cbb512b.akpm@osdl.org>
+	<20041109104220.GB6326@logos.cnet>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-In-Reply-To: <1099993648.15462.8.camel@localhost.localdomain>
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Tue, 09 Nov 2004 11:07:23 -0800
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Tue, 09 Nov 2004 11:07:25 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> On Maw, 2004-11-09 at 02:32, Dmitry Torokhov wrote:
-> > "The $20 USD subscription fee includes unlimited priority support,
-> > full access to the Sveasoft forums, and unlimited access to new
-> > firmware versions and upgrades."
-> >
-> > So it looks like "if you exersize your right for the software in quesion
-> > I terminate the contract we have entered into" as opposed to "I will not
-> > extend your contract beyond initial term".
-> >
-> > Isn't that an additional restriction? My rights for updates are revoked
-> > if I distribute GPLed code.
+Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
 >
-> Those aren't GPL granted rights. The updates/support contract is a
-> private contractual matter between Sveasoft and its members. They don't
-> stop you redistributing the GPL code you received.
+> On Sat, Nov 06, 2004 at 04:11:14PM -0800, Andrew Morton wrote:
+> > Chuck Ebbert <76306.1226@compuserve.com> wrote:
+> > >
+> > > Kernel version is 2.6.9, but I see no updates to this function in BK-current.
+> > > How is total_scanned ever updated?  AFAICT it is always zero.
+> > 
+> > It's a bug which was introduced months ago when we added struct
+> > reclaim_state.
+> > 
+> > > In mm/vmscan.c:balance_pgdat(), there are these references to total_scanned
+> > > (missing whitepace indicated by "^"):
+> > > 
+> > > 
+> > >  977:        int total_scanned, total_reclaimed;
+> > > 
+> > >  983:        total_scanned = 0;
+> > > 
+> > > 1076:                        if (total_scanned > SWAP_CLUSTER_MAX * 2 &&
+> > > 1077:                            total_scanned > total_reclaimed+total_reclaimed/2)
+> > >                                                                ^ ^             ^ ^
+> > > 
+> > > 1088:                if (total_scanned && priority < DEF_PRIORITY - 2)
+> > > 
+> > > 
+> > > Could this be part of the problems with reclaim?  Or have I missed something?
+> > 
+> > I had a patch which fixes it in -mm for a while.  It does increase the
+> > number of pages which are reclaimed via direct reclaim and decreases the
+> > number of pages which are reclaimed by kswapd.  As one would expect from
+> > throttling kswapd.  This seems undesirable.
+> 
+> Hi Andrew,
+> 
+> Do you have any numbers to backup the claim "It does increase the
+> number of pages which are reclaimed via direct reclaim and decreases the
+> number of pages which are reclaimed by kswapd", please?
 
-	They don't stop you, they just restrict you.
-
-	Look, this really is simple. When the GPL talks about "additional
-restrictions", it doesn't mean the restrictions found in the GPL. It means
-restrictions found elsewhere, such as in private contracts. (Where else
-would the restrictions be?!)
-
-	DS
+Run a workload and watch /proc/vmstat.  iirc, the one-line total_scanned
+fix takes the kswapd-vs-direct reclaim rate from 1:1 to 1:3 or thereabouts.
 
 
+> Because linux-2.6.10-rc1-mm2 (and 2.6.9) completly ignores sc->may_writepage 
+> under normal operation, its only used when laptop_mode is on:
+> 
+> 		if (laptop_mode && !sc->may_writepage)
+> 			goto keep_locked;
+> 
+> Is this intentional ???
+
+yup.  In laptop mode we try to scan further to find a clean page rather
+than spinning up the disk for a writepage.
+
+> > I'm leaving this alone until it can be demonstrated that fixing it improves
+> > kernel behaviour in some manner.
+> 
+> I dont see it working at all?
+> 
+
+There's lots of useful info in /proc/vmstat.

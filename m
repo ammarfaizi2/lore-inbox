@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266600AbUAWRFL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 12:05:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266601AbUAWRFL
+	id S264917AbUAWRba (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 12:31:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265116AbUAWRba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 12:05:11 -0500
-Received: from symbion.srrc.usda.gov ([199.133.86.40]:60048 "EHLO
-	node1.cluster.srrc.usda.gov") by vger.kernel.org with ESMTP
-	id S266600AbUAWRFG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 12:05:06 -0500
-Date: Fri, 23 Jan 2004 11:05:04 -0600
-From: Glenn Johnson <glennpj@charter.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.2-rc1-mm1 oops with X
-Message-ID: <20040123170504.GA21623@node1.cluster.srrc.usda.gov>
-References: <20040123061927.GA7025@gforce.johnson.home> <20040122231814.149c8e8d.akpm@osdl.org> <1074848612.23073.81.camel@imladris.demon.co.uk> <20040123011158.665ad574.akpm@osdl.org> <1074850572.23073.83.camel@imladris.demon.co.uk> <20040123014453.775a0ba7.akpm@osdl.org>
+	Fri, 23 Jan 2004 12:31:30 -0500
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:52115
+	"EHLO animx.eu.org") by vger.kernel.org with ESMTP id S264917AbUAWRb3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jan 2004 12:31:29 -0500
+Date: Fri, 23 Jan 2004 12:42:24 -0500
+From: Wakko Warner <wakko@animx.eu.org>
+To: =?iso-8859-1?Q?Karel_Kulhav=FD?= <clock@twibright.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: make in 2.6.x
+Message-ID: <20040123124224.B1343@animx.eu.org>
+References: <20040123145048.B1082@beton.cybernet.src>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040123014453.775a0ba7.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1i
+X-Mailer: Mutt 0.95.3i
+In-Reply-To: =?iso-8859-1?Q?=3C20040123145048=2EB1082=40beton=2Ecybernet=2Esrc=3E=3B_?=
+ =?iso-8859-1?Q?from_Karel_Kulhav=FD_on_Fri=2C_Jan_23=2C_2004_at_02:50:48?=
+ =?iso-8859-1?Q?PM_+0000?=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have no idea what happened to the body of the message in my previous
-reply.  Let me try again.
+> Is it correct to issue "make bzImage modules modules_install"
+> or do I have to do make bzImage; make modules modules_install?
+> 
+> Is there any documentation where I can read answer to this question?
 
-On Fri, Jan 23, 2004 at 01:44:53AM -0800, Andrew Morton wrote:
+I see nothing wrong with the first invocation, the second you should change
+the ; to &&.  if make bzImage fails, it'll stop there.
 
-> David Woodhouse <dwmw2@infradead.org> wrote:
->
-> > Can't you script it just to automatically show a backtrace and
-> > continue, then peruse the logs later?
->
-> I can't make it happen any more!  I suspect Heisenberg would get in
-> the way anyway.
+I typically do all seperate like this:
+make -j 20 bzImage && make -j 20 modules && make -j modules_install
 
-I can make it happen fairly regularly.  Let me know if there is
-something I can do to provide more useful output.
+Sometimes it doesn't complete, not sure why.
 
 -- 
-Glenn Johnson
+ Lab tests show that use of micro$oft causes cancer in lab animals

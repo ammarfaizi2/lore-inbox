@@ -1,47 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131289AbRDKFtn>; Wed, 11 Apr 2001 01:49:43 -0400
+	id <S131307AbRDKFye>; Wed, 11 Apr 2001 01:54:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131307AbRDKFtd>; Wed, 11 Apr 2001 01:49:33 -0400
-Received: from relay03.valueweb.net ([216.219.253.237]:11792 "EHLO
-	relay03.valueweb.net") by vger.kernel.org with ESMTP
-	id <S131289AbRDKFtS>; Wed, 11 Apr 2001 01:49:18 -0400
-Message-ID: <3AD3F1C0.62363C4A@opersys.com>
-Date: Wed, 11 Apr 2001 01:55:12 -0400
-From: Karim Yaghmour <karym@opersys.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.14 i686)
-X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
+	id <S131323AbRDKFyY>; Wed, 11 Apr 2001 01:54:24 -0400
+Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:38929 "EHLO
+	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id <S131307AbRDKFyP>; Wed, 11 Apr 2001 01:54:15 -0400
+Message-ID: <3AD46091.C43A413@ntsp.nec.co.jp>
+Date: Wed, 11 Apr 2001 13:48:01 +0000
+From: "Adrian V. Bono" <adrianb@ntsp.nec.co.jp>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Mark Salisbury <mbs@mc.com>
-CC: Martin Mares <mj@suse.cz>, Andi Kleen <ak@suse.de>,
-        Jeff Dike <jdike@karaya.com>, schwidefsky@de.ibm.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: No 100 HZ timer !
-In-Reply-To: <200104091830.NAA03017@ccure.karaya.com> <20010410075109.A9549@gruyere.muc.suse.de> <20010410113309.A16825@atrey.karlin.mff.cuni.cz> <0104100818281A.01893@pc-eng24.mc.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: ppp performance degradation?
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Salisbury wrote:
-> 
-> It would probably be a good compile config option to allow fine or coarse
-> process time accounting, that leaves the choice to the person setting up the
-> system to make the choice based on their needs.
-> 
+Hi,
 
-I suggested this a while ago during a discussion about performance
-measurement. This would be fairly easy to implement using the patch
-provided with the Linux Trace Toolkit since all entry points and
-exit points are known (and it already is available in post-mortem
-analysis). Implementing the measurement code within the kernel should
-be fairly easy to implement and it would be provided as part of the
-compile option. All in all, given the measurements I made, I'd place
-the overhead at around 1% for the computations. (The overhead is very
-likely to be negligeable when eventual fixes are taken into account.)
+Could anyone please explain the major changes to the ppp module from
+2.4.1 to 2.4.3? I've noticed that ppp performance isn't as fast as it
+was using 2.4.1, and after a week using 2.4.3 i've concluded that ppp is
+definitely slower. I've looked at the ppp_* files but so far the only
+changes i saw were ppp_cleanup() being made static, and a new line added
+to ppp_generic.c. Perhaps the major changes are in the rest of the
+network code?
 
-===================================================
-                 Karim Yaghmour
-               karym@opersys.com
-      Embedded and Real-Time Linux Expert
-===================================================
+Adrian

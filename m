@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268564AbTGLWRX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 18:17:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268567AbTGLWRX
+	id S268619AbTGLWTR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 18:19:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268626AbTGLWTR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 18:17:23 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:11396 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S268564AbTGLWRX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 18:17:23 -0400
-Message-Id: <200307122128.h6CLSGf1006376@eeyore.valparaiso.cl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org
-Subject: Re: SECURITY - data leakage due to incorrect strncpy implementation 
-In-Reply-To: Message from Alan Cox <alan@lxorguk.ukuu.org.uk> 
-   of "11 Jul 2003 23:10:24 +0100." <1057961423.20637.68.camel@dhcp22.swansea.linux.org.uk> 
-X-Mailer: MH-E 7.1; nmh 1.0.4; XEmacs 21.4
-Date: Sat, 12 Jul 2003 17:28:16 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Sat, 12 Jul 2003 18:19:17 -0400
+Received: from smtp807.mail.sc5.yahoo.com ([66.163.168.186]:22795 "HELO
+	smtp807.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S268619AbTGLWTI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jul 2003 18:19:08 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Pavel Machek <pavel@suse.cz>, Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: Thoughts wanted on merging Software Suspend enhancements
+Date: Sat, 12 Jul 2003 17:34:29 -0500
+User-Agent: KMail/1.5.1
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       swsusp-devel <swsusp-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1057963547.3207.22.camel@laptop-linux> <20030712140057.GC284@elf.ucw.cz>
+In-Reply-To: <20030712140057.GC284@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307121734.29941.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> said:
+On Saturday 12 July 2003 09:00 am, Pavel Machek wrote:
+> > - user can abort at any time during suspend (oh, I forgot, I wanted
+> > to...) by just pressing Escape
+>
+> That seems like missfeature. We don't want joe random user that is at
+> the console to prevent suspend by just pressing Escape. Maybe magic
+> key to do that would be acceptable...
 
-[...]
+In case when suspending (and interrupting suspend) matters most - 
+laptops - Joe random user is the only user present. I myself would
+rather have an option to press ESC than remember what SysRq really 
+maps to as by the time I would figure that out the laptop would already
+be suspended.
 
-> 2.5 you have problems all over the place from wrong strlcpy conversions,
-> but those are easy enough to clean up before 2.6.0
+IMHO, an option to use ESC, probably compile time option, is a good 
+thing.
 
-Perhaps there should be a strncpy_touser() to make it crystal clear that it
-_can't_ be "optimized" into strlcpy()
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Dmitry
+

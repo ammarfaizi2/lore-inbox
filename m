@@ -1,57 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290260AbSAXXge>; Thu, 24 Jan 2002 18:36:34 -0500
+	id <S286895AbSAYAJE>; Thu, 24 Jan 2002 19:09:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290463AbSAXXgY>; Thu, 24 Jan 2002 18:36:24 -0500
-Received: from mail.linpro.no ([213.203.57.2]:6160 "HELO linpro.no")
-	by vger.kernel.org with SMTP id <S290260AbSAXXgL> convert rfc822-to-8bit;
-	Thu, 24 Jan 2002 18:36:11 -0500
-To: linux-kernel@vger.kernel.org
-Subject: compile error -rmap12a and 2.4.18-pre7
-From: knobo@linpro.no
-Date: 25 Jan 2002 00:36:08 +0100
-Message-ID: <ujpadv3tj87.fsf@false.linpro.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S290464AbSAYAIp>; Thu, 24 Jan 2002 19:08:45 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:31044 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S286895AbSAYAId>; Thu, 24 Jan 2002 19:08:33 -0500
+Date: Fri, 25 Jan 2002 01:09:07 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: rwhron@earthlink.net, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18pre4aa1
+Message-ID: <20020125010907.D25170@athlon.random>
+In-Reply-To: <20020124002342.A630@earthlink.net> <E16ToWW-0002mf-00@starship.berlin>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <E16ToWW-0002mf-00@starship.berlin>; from phillips@bonn-fries.net on Thu, Jan 24, 2002 at 07:27:43AM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Thu, Jan 24, 2002 at 07:27:43AM +0100, Daniel Phillips wrote:
+> On January 24, 2002 06:23 am, rwhron@earthlink.net wrote:
+> > Benchmarks on 2.4.18pre4aa1 and lots of other kernels at:
+> > http://home.earthlink.net/~rwhron/kernel/k6-2-475.html
+> 
+>   "dbench 64, 128, 192 on ext2fs. dbench may not be the best I/O benchmark, 
+>   but it does create a high load, and may put some pressure on the cpu and 
+>   i/o schedulers. Each dbench process creates about 21 megabytes worth of 
+>   files, so disk usage is 1.3 GB, 2.6 GB and 4.0 GB for the dbench runs. Big 
+>   enough so the tests cannot run from the buffer/page caches on this box."
+> 
+> Thanks kindly for the testing, but please don't use dbench any more for 
+> benchmarks.  If you are testing stability, fine, but dbench throughput 
+> numbers are not good for much more than wild goose chases.
+> 
+> Even when mostly uncached, dbench still produces flaky results.
 
-I applied first rmap12a ant then 2.4.18-pre7
+this is not enterely true. dbench has a value. the only problem with
+dbench is that you can trivially cheat and change the kernel in a broken
+way, but optimal _only_ for dbench, just to get stellar dbench numbers,
+but this is definitely not the case with the -aa tree, -aa tree is
+definitely not optimized for dbench, infact the recent improvement cames
+most probably from dyn-sched and bdflush histeresis introduction, not
+from vm changes at all (there were no recent significant vm changes in
+the page replacement and aging algorithms infact). rmap instead sucks in
+most of the benchmarks because of the noticeable overhead of maintaining
+those reverse maps that starts to help only by the time you need to
+swap/pageout (totally useless and only overhead for number crunching,
+database selfcaching etc..). This is the only issue with the rmap design
+and you can definitely see it in the numbers. Here I'm only speaking
+about the design, I never checked the current implementation.
 
-then I removed line 502 (i think) "nr_pages--" from
-linux/mm/vmscan.c. (thanx to mjc)
-
-Then I did  make dep clean bzImage. 
-
-then I got some warnings:
-In file included from /usr/src/linux/include/linux/modversions.h:144,
-                 from /usr/src/linux/include/linux/module.h:21,
-                 from dec_and_lock.c:1:
-/usr/src/linux/include/linux/modules/ksyms.ver:249: warning: `__ver_waitfor_one_page' redefined
-/usr/src/linux/include/linux/modules/buffer.ver:13: warning: this is the location of the previous definition
-
-And finally:
-
-fs/fs.o(__ksymtab+0x38): multiple definition of `__ksymtab_waitfor_one_page'
-kernel/kernel.o(__ksymtab+0x548): first defined here
-fs/fs.o(.kstrtab+0xfb): multiple definition of `__kstrtab_waitfor_one_page'
-kernel/kernel.o(.kstrtab+0x10fa): first defined here
-make: *** [vmlinux] Error 1
-
-
-
-Then I turned off loadable module support, and the kernel compiled ok.
-
-
--- 
-Knut Olav Bøhmer
-         _   _
-       / /  (_)__  __ ____  __
-      / /__/ / _ \/ // /\ \/ /  ... The choice of a
-     /____/_/_//_/\.,_/ /_/\.\         GNU generation
-
-export PAGER="od -x |less"
+Andrea

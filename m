@@ -1,122 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263370AbUJ2Rrw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263426AbUJ2Rs3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263370AbUJ2Rrw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 13:47:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263345AbUJ2Rrv
+	id S263426AbUJ2Rs3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 13:48:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263383AbUJ2Rs2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 13:47:51 -0400
-Received: from dsl254-100-205.nyc1.dsl.speakeasy.net ([216.254.100.205]:25073
-	"EHLO memeplex.com") by vger.kernel.org with ESMTP id S263426AbUJ2RpO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 13:45:14 -0400
-From: "Andrew A." <aathan-linux-kernel-1542@cloakmail.com>
-To: "Chris Wright" <chrisw@osdl.org>
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       <roland@topspin.com>, "Andrew Morton" <akpm@osdl.org>
-Subject: RE: Consistent lock up 2.6.10-rc1-bk7 (mutex/SCHED_RR bug?)
-Date: Fri, 29 Oct 2004 13:44:38 -0400
-Message-ID: <OMEGLKPBDPDHAGCIBHHJEEMOFCAA.aathan-linux-kernel-1542@cloakmail.com>
+	Fri, 29 Oct 2004 13:48:28 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:55274 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S263162AbUJ2Rq5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 13:46:57 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Buffered I/O slowness
+Date: Fri, 29 Oct 2004 10:46:48 -0700
+User-Agent: KMail/1.7
+Cc: akpm@osdl.org
+References: <200410251814.23273.jbarnes@engr.sgi.com>
+In-Reply-To: <200410251814.23273.jbarnes@engr.sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-In-Reply-To: <20041029100646.F14339@build.pdx.osdl.net>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_IIogBbRGvh3sR3i"
+Message-Id: <200410291046.48469.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--Boundary-00=_IIogBbRGvh3sR3i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-chrt 25 bash
-
-Shell remains as badly hung as everything else.  The code sets the SCHED_RR priority of the task and threads in tt1 to 10.  I'm left
-thinking:  Shouldn't the system be scheduling the shell?  Is this a problem with priority inversion due to 2+ threads doing the
-lock()/unlock() dance and never giving the bash a chance to run?  Is the system able to schedule signal and/or select wakeups (for
-bash) in this condition?
-
-Thanks, I wasn't aware of the chrt command and had only been using nice on my shell.  The man pages on all this stuff are rather
-confusing:  Which priority numbers are valid, how priorities interact, negative vs. positive priorities, process vs. thread
-priority, what is a "dynamic" vs. "static" priority, etc.
-
-My impression after re-re-read reading the man pages was that it would be sufficient to have a non SCHED_RR shell with a high enough
-nice value.
-
-
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Chris Wright
-Sent: Friday, October 29, 2004 1:07 PM
-To: Andrew A.
-Cc: Alan Cox; Linux Kernel Mailing List; roland@topspin.com; Andrew
-Morton
-Subject: Re: Consistent lock up 2.6.10-rc1-bk7 (mutex/SCHED_RR bug?)
-
-
-* Andrew A. (aathan-linux-kernel-1542@cloakmail.com) wrote:
-> I suspect what is happening here is that my process is essentially in a
+On Monday, October 25, 2004 6:14 pm, Jesse Barnes wrote:
+> I've been doing some simple disk I/O benchmarking with an eye towards
+> improving large, striped volume bandwidth.  I ran some tests on individual
+> disks and filesystems to establish a baseline and found that things
+> generally scale quite well:
 >
-> while(1)
-> {
->   lock();
->   unlock();
-> }
+> o one thread/disk using O_DIRECT on the block device
+>   read avg: 2784.81 MB/s
+>   write avg: 2585.60 MB/s
 >
-> loop from two or mode SCHED_RR threads running at nice -15.  They seem to be unkillable.
+> o one thread/disk using O_DIRECT + filesystem
+>   read avg: 2635.98 MB/s
+>   write avg: 2573.39 MB/s
+>
+> o one thread/disk using buffered I/O + filesystem
+>   read w/default (128) block/*/queue/read_ahead_kb avg: 2626.25 MB/s
+>   read w/max (4096) block/*/queue/read_ahead_kb avg: 2652.62 MB/s
+>   write avg: 1394.99 MB/s
+>
+> Configuration:
+>   o 8p sn2 ia64 box
+>   o 8GB memory
+>   o 58 disks across 16 controllers
+>     (4 disks for 10 of them and 3 for the other 6)
+>   o aggregate I/O bw available is about 2.8GB/s
+>
+> Test:
+>   o one I/O thread per disk, round robined across the 8 CPUs
+>   o each thread did ~450MB of I/O depending on the test (ran for 10s)
+>     Note: the total was > 8GB so in the buffered read case not everything
+>     could be cached
 
-Give yourself a shell that's SCHED_RR with a higher priority.  I've used
-the small hack below to debug userspace SCHED_RR problems (newer distros
-have a chrt utility to do this).
+More results here.  I've run some tests on a large dm striped volume formatted 
+with XFS.  It had 64 disks with a 64k stripe unit (XFS was made aware of this 
+at format time), and I explicitly set the readahead using blockdev to 524288 
+blocks.  The results aren't as bad as my previous runs, but are still much 
+slower than they ought to be I think given the direct I/O results above.  
+This is after a fresh mount, so the pagecache was empty when I started the 
+tests.
 
-thanks,
--chris
---
+o one thread on one large volume using buffered I/O + filesystem
+  read (1 thread, one volume, 131072 blocks/request) avg: ~931 MB/s
+  write (1 thread, one volume, 131072 blocks/request) avg: ~908 MB/s
 
-#include <stdio.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <sched.h>
-#include <string.h>
-#include <errno.h>
+I'm intentionally issuing very large reads and writes here to take advantage 
+of the striping, but it looks like both the readahead and regular buffered 
+I/O code will split the I/O into page sized chunks?  The call chain is pretty 
+long, but it looks to me like do_generic_mapping_read() will split the reads 
+up by page and issue them independently to the lower levels.  In the direct 
+I/O case, up to 64 pages are issued at a time, which seems like it would help 
+throughput quite a bit.  The profile seems to confirm this.  Unfortunately I 
+didn't save the vmstat output for this run (and now the fc switch is 
+misbehaving so I have to fix that before I run again), but iirc the system 
+time was pretty high given that only one thread was issuing I/O.
 
-main(int argc, char *argv[])
-{
-	pid_t pid = 0;
-	int priority = 99;
-	int policy = SCHED_RR;
-	struct sched_param sched;
+So maybe a few things need to be done:
+  o set readahead to larger values by default for dm volumes at setup time
+    (the default was very small)
+  o maybe bypass readahead for very large requests?
+    if the process is doing a huge request, chances are that readahead won't
+    benefit it as much as a process doing small requests
+  o not sure about writes yet, I haven't looked at that call chain much yet
 
-	if (argc > 1) {
-		pid = atoi(argv[1]);
-		if (argc > 2) {
-			priority = atoi(argv[2]);
-			if (argc > 3)
-				policy = atoi(argv[3]);
-		}
-	}
+Does any of this sound reasonable at all?  What else could be done to make the 
+buffered I/O layer friendlier to large requests?
 
-	memset(&sched, 0, sizeof(sched));
-	sched.sched_priority = priority;
-	if (sched_setscheduler(pid, policy, &sched) < 0) {
-		printf("setscheduler: %s\n", strerror(errno));
-		exit(1);
-	}
+Thanks,
+Jesse
 
-	if (!pid) { /* turn this into a shell */
-		argv[0] = "/bin/bash";
-		argv[1] = NULL;
-		execv(argv[0], argv);
-	}
+--Boundary-00=_IIogBbRGvh3sR3i
+Content-Type: text/plain;
+  charset="iso-8859-1";
+  name="vol-buffered-read-profile.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="vol-buffered-read-profile.txt"
 
-}
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+115383 total                                      0.0203
+ 49642 ia64_pal_call_static                     258.5521
+ 42065 default_idle                              93.8951
+  7348 __copy_user                                3.1030
+  5865 ia64_save_scratch_fpregs                  91.6406
+  5766 ia64_load_scratch_fpregs                  90.0938
+  1944 _spin_unlock_irq                          30.3750
+   352 _spin_unlock_irqrestore                    3.6667
+   231 buffered_rmqueue                           0.1245
+   225 kmem_cache_free                            0.5859
+   151 mpage_end_io_read                          0.2776
+   147 __end_that_request_first                   0.1242
+   133 bio_alloc                                  0.0967
+   122 smp_call_function                          0.1089
+   102 shrink_list                                0.0224
+    99 unlock_page                                0.4420
+    86 free_hot_cold_page                         0.0840
+    82 kmem_cache_alloc                           0.3203
+    65 __alloc_pages                              0.0271
+    53 do_mpage_readpage                          0.0224
+    53 bio_clone                                  0.1380
+    49 __might_sleep                              0.0806
+    44 mpage_readpages                            0.0598
+    43 generic_make_request                       0.0345
+    42 sn_pci_unmap_sg                            0.1010
+    42 sn_dma_flush                               0.0597
+    41 clear_page                                 0.2562
+    40 file_read_actor                            0.0431
+    34 mark_page_accessed                         0.0966
+    32 __bio_add_page                             0.0278
 
-
-
+--Boundary-00=_IIogBbRGvh3sR3i--

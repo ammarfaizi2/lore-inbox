@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131691AbRDJM5C>; Tue, 10 Apr 2001 08:57:02 -0400
+	id <S131756AbRDJNNY>; Tue, 10 Apr 2001 09:13:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131806AbRDJM4x>; Tue, 10 Apr 2001 08:56:53 -0400
-Received: from d12lmsgate.de.ibm.com ([195.212.91.199]:56483 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S131691AbRDJM4h> convert rfc822-to-8bit; Tue, 10 Apr 2001 08:56:37 -0400
-From: schwidefsky@de.ibm.com
-X-Lotus-FromDomain: IBMDE
-To: Andi Kleen <ak@suse.de>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@suse.de>,
-        Mark Salisbury <mbs@mc.com>, Jeff Dike <jdike@karaya.com>,
-        linux-kernel@vger.kernel.org
-Message-ID: <C1256A2A.0046E317.00@d12mta07.de.ibm.com>
-Date: Tue, 10 Apr 2001 14:54:31 +0200
-Subject: Re: No 100 HZ timer !
+	id <S131820AbRDJNNP>; Tue, 10 Apr 2001 09:13:15 -0400
+Received: from orbita.don.sitek.net ([213.24.25.98]:63504 "EHLO
+	orbita.don.sitek.net") by vger.kernel.org with ESMTP
+	id <S131756AbRDJNNE>; Tue, 10 Apr 2001 09:13:04 -0400
+Date: Tue, 10 Apr 2001 17:11:54 +0400
+From: Andrey Panin <pazke@orbita.don.sitek.net>
+To: "Heusden, Folkert van" <f.v.heusden@ftr.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] FW: proposal for systems that do not require security
+Message-ID: <20010410171154.A13792@debian>
+In-Reply-To: <27525795B28BD311B28D00500481B7601F11A6@ftrs1.intranet.ftr.nl>
 Mime-Version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-transfer-encoding: 8BIT
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="C7zPtVaVf+AK4Oqc"
+User-Agent: Mutt/1.0.1i
+In-Reply-To: <27525795B28BD311B28D00500481B7601F11A6@ftrs1.intranet.ftr.nl>; from f.v.heusden@ftr.nl on Tue, Apr 10, 2001 at 02:35:52PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
->Does not sound very attractive all at all on non virtual machines (I see
-the point on
->UML/VM):
->making system entry/context switch/interrupts slower, making add_timer
-slower, just to
->process a few less timer interrupts. That's like robbing the fast paths
-for a slow path.
-The system entry/exit/context switch is slower. The add_timer/mod_timer is
-only
-a little bit slower in the case a new soonest timer event has been created.
- I
-think you can forget the additional overhead for add_timer/mod_timer, its
-the
-additional path length on the system entry/exit that might be problematic.
-
-blue skies,
-   Martin
-
-Linux/390 Design & Development, IBM Deutschland Entwicklung GmbH
-Schönaicherstr. 220, D-71032 Böblingen, Telefon: 49 - (0)7031 - 16-2247
-E-Mail: schwidefsky@de.ibm.com
+--C7zPtVaVf+AK4Oqc
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
 
 
+Do you think it worth an effort ?
+
+--=20
+Andrey Panin            | Embedded systems software engineer
+pazke@orbita1.ru        | PGP key: http://www.orbita1.ru/~pazke/AndreyPanin=
+.asc
+--C7zPtVaVf+AK4Oqc
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE60waaBm4rlNOo3YgRAs3AAJ0eBOUY/Z0K8kaEKWqLHx8dC3PTlwCdG0qV
+g/kbQwer4W6hdRY7evqm48k=
+=kWVI
+-----END PGP SIGNATURE-----
+
+--C7zPtVaVf+AK4Oqc--

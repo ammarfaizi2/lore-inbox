@@ -1,67 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262579AbUCWOWh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 09:22:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262580AbUCWOWf
+	id S262580AbUCWOcq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 09:32:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262584AbUCWOcq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 09:22:35 -0500
-Received: from mail.cyclades.com ([64.186.161.6]:39048 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S262579AbUCWOWd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 09:22:33 -0500
-Date: Tue, 23 Mar 2004 12:13:16 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       macro@ds2.pg.gda.pl, Ralf Baechle <ralf@linux-mips.org>
-Subject: Re: [PATCH 070] NCR53C9x unused SCp.have_data_in
-In-Reply-To: <200403221000.i2MA0DJ1004102@callisto.of.borg>
-Message-ID: <Pine.LNX.4.58L.0403231212300.2368@logos.cnet>
-References: <200403221000.i2MA0DJ1004102@callisto.of.borg>
+	Tue, 23 Mar 2004 09:32:46 -0500
+Received: from mail.ondacorp.com.br ([200.195.196.14]:17631 "EHLO
+	mail.ondacorp.com.br") by vger.kernel.org with ESMTP
+	id S262580AbUCWOco (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Mar 2004 09:32:44 -0500
+Message-ID: <40604A88.3010207@arenanetwork.com.br>
+Date: Tue, 23 Mar 2004 11:32:40 -0300
+From: dual_bereta_r0x <dual_bereta_r0x@arenanetwork.com.br>
+Organization: ArenaNetwork Lan House & Cyber
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+To: linux-kernel@vger.kernel.org
+Cc: kuznet@ms2.inr.ac.ru, davem@redhat.com
+Subject: Re: EAGAIN and Linux 2.6 IPsec patch
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Is this fixed already? Please cc me too.
+
+On Tue, 30 Sep 2003 15:41:51 +0400
+Alexey <kuznet@ms2.inr.ac.ru> wrote:
+
+Hello!
+
+ > The following (untested) patch tries to do that.
+
+This does not work and has no chances to do. We have already discussed
+this, actually. You can get reasoning from saved mailbox, I think.
+To resume, proto->connect() method must not ever block.
+
+Alexey
+
+PS. I think I am back to life, so this time I am honest telling
+this bug is going to be fixed properly.
+-
+FreeS/WAN design list.
+https://mj2.freeswan.org/cgi-bin/mj_wwwusr/domain=mj2.freeswan.org to 
+unsubscribe
 
 
-On Mon, 22 Mar 2004, Geert Uytterhoeven wrote:
 
-> NCR53C9x: Remove unused initialization of SCp.have_data_in (from Maciej W.
-> Rozycki). This affects the following drivers:
->   - Amiga Oktagon SCSI
->   - DECstation SCSI
->
-> The change for DECstation SCSI sneaked in through a MIPS update.
->
-> --- linux-2.4.26-pre5/drivers/scsi/NCR53C9x.c	Sat Aug 17 14:10:41 2002
-> +++ linux-m68k-2.4.26-pre5/drivers/scsi/NCR53C9x.c	Wed Jan 22 12:07:13 2003
-> @@ -917,7 +917,7 @@
->  		if (esp->dma_mmu_get_scsi_one)
->  			esp->dma_mmu_get_scsi_one(esp, sp);
->  		else
-> -			sp->SCp.have_data_in = (int) sp->SCp.ptr =
-> +			sp->SCp.ptr =
->  				(char *) virt_to_phys(sp->request_buffer);
->  	} else {
->  		sp->SCp.buffer = (struct scatterlist *) sp->buffer;
-> --- linux-2.4.26-pre5/drivers/scsi/oktagon_esp.c	Mon Apr  1 13:02:02 2002
-> +++ linux-m68k-2.4.26-pre5/drivers/scsi/oktagon_esp.c	Wed Jan 22 12:07:17 2003
-> @@ -548,7 +548,7 @@
->
->  void dma_mmu_get_scsi_one(struct NCR_ESP *esp, Scsi_Cmnd *sp)
->  {
-> -        sp->SCp.have_data_in = (int) sp->SCp.ptr =
-> +        sp->SCp.ptr =
->                  sp->request_buffer;
->  }
+On Tue, 30 Sep 2003 21:34:24 +1000
+Herbert Xu <herbert@gondor.apana.org.au> wrote:
 
-Can't we live with this?
+ > OK, this looks like a bug that is independent of the packet queueing 
+issue.
+ >
+ > TCP/UDP connects do a route/IPSEC lookup to determine information
+ > about the connection.  The IPSEC lookup can fail with EAGAIN if the
+ > policy is in place without any SAs.
+ >
+ > Since connect already has an O_NONBLOCK bit we should make it try
+ > harder if it is clear.
+ >
+ > The following (untested) patch tries to do that.
 
-Is removing it fixing any problem?
+Please don't do this, any attempt to fix the EAGAIN behavior
+with hacks like this are riddled with problems.
 
-Yes, I'm being picky.
+Several patches nearly identical to your's have been submitted
+in the past.
+
+Alexey is supposed to work on support for unresolved routes, which
+is the proper way to fix this problem.
+-
+FreeS/WAN design list.
+https://mj2.freeswan.org/cgi-bin/mj_wwwusr/domain=mj2.freeswan.org to 
+unsubscribe
+
+-- 
+dual_bereta_r0x -- Alexandre Hautequest
+ArenaNetwork Lan House & Cyber -- www.arenanetwork.com.br

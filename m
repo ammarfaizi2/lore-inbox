@@ -1,140 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286394AbRLJVuA>; Mon, 10 Dec 2001 16:50:00 -0500
+	id <S286399AbRLJVxc>; Mon, 10 Dec 2001 16:53:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286398AbRLJVtv>; Mon, 10 Dec 2001 16:49:51 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:53903 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S286394AbRLJVtq>; Mon, 10 Dec 2001 16:49:46 -0500
-Date: Mon, 10 Dec 2001 13:49:48 -0800
-From: "David C. Hansen" <haveblue@us.ibm.com>
-Message-Id: <200112102149.fBALnm212435@localhost.localdomain>
-To: marcelo@conectiva.com.br
-Subject: [PATCH] making some more global spinlocks static
-Cc: linux-kernel@vger.kernel.org
+	id <S286400AbRLJVxU>; Mon, 10 Dec 2001 16:53:20 -0500
+Received: from maild.telia.com ([194.22.190.101]:50167 "EHLO maild.telia.com")
+	by vger.kernel.org with ESMTP id <S286398AbRLJVxK>;
+	Mon, 10 Dec 2001 16:53:10 -0500
+Date: Mon, 10 Dec 2001 22:55:15 +0100
+From: =?iso-8859-1?Q?Andr=E9?= Dahlqvist <andre.dahlqvist@telia.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.17-pre7: fdomain_16x0_release undeclared
+Message-ID: <20011210215515.GA17002@telia.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0112101546260.1647-100000@marabou.research.att.com> <Pine.LNX.4.21.0112101800380.25397-100000@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.21.0112101800380.25397-100000@freak.distro.conectiva>
+User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo,
-  I just sent a 2.5 version of this to Linus, so here is yours.  This patch makes several spinlocks static.  These are either locks that have appeared in the last few versions of 2.4, or older locks where the maintainers never passed the patch along.  Most of them are for new locks.  The patch applies against 2.4.16.
+On Mon, Dec 10, 2001 at 06:01:03PM -0200, Marcelo Tosatti wrote:
 
-diff -ur linux-2.4.16-clean/arch/alpha/kernel/irq_i8259.c linux/arch/alpha/kernel/irq_i8259.c
---- linux-2.4.16-clean/arch/alpha/kernel/irq_i8259.c	Mon Jun 19 17:59:32 2000
-+++ linux/arch/alpha/kernel/irq_i8259.c	Fri Dec  7 10:23:36 2001
-@@ -22,7 +22,7 @@
- 
- /* Note mask bit is true for DISABLED irqs.  */
- static unsigned int cached_irq_mask = 0xffff;
--spinlock_t i8259_irq_lock = SPIN_LOCK_UNLOCKED;
-+static spinlock_t i8259_irq_lock = SPIN_LOCK_UNLOCKED;
- 
- static inline void
- i8259_update_irq_hw(unsigned int irq, unsigned long mask)
-diff -ur linux-2.4.16-clean/arch/i386/kernel/pci-pc.c linux/arch/i386/kernel/pci-pc.c
---- linux-2.4.16-clean/arch/i386/kernel/pci-pc.c	Fri Nov  9 13:58:02 2001
-+++ linux/arch/i386/kernel/pci-pc.c	Thu Dec  6 16:10:39 2001
-@@ -30,7 +30,7 @@
-  * This interrupt-safe spinlock protects all accesses to PCI
-  * configuration space.
-  */
--spinlock_t pci_config_lock = SPIN_LOCK_UNLOCKED;
-+static spinlock_t pci_config_lock = SPIN_LOCK_UNLOCKED;
- 
- 
- /*
-diff -ur linux-2.4.16-clean/arch/ia64/kernel/efivars.c linux/arch/ia64/kernel/efivars.c
---- linux-2.4.16-clean/arch/ia64/kernel/efivars.c	Fri Nov  9 14:26:17 2001
-+++ linux/arch/ia64/kernel/efivars.c	Fri Dec  7 10:27:56 2001
-@@ -100,7 +100,7 @@
- 	struct list_head        list;
- } efivar_entry_t;
- 
--spinlock_t efivars_lock = SPIN_LOCK_UNLOCKED;
-+static spinlock_t efivars_lock = SPIN_LOCK_UNLOCKED;
- static LIST_HEAD(efivar_list);
- static struct proc_dir_entry *efi_vars_dir = NULL;
- 
-diff -ur linux-2.4.16-clean/arch/ia64/kernel/pci.c linux/arch/ia64/kernel/pci.c
---- linux-2.4.16-clean/arch/ia64/kernel/pci.c	Fri Nov  9 14:26:17 2001
-+++ linux/arch/ia64/kernel/pci.c	Fri Dec  7 10:24:07 2001
-@@ -46,7 +46,7 @@
-  * This interrupt-safe spinlock protects all accesses to PCI
-  * configuration space.
-  */
--spinlock_t pci_lock = SPIN_LOCK_UNLOCKED;
-+static spinlock_t pci_lock = SPIN_LOCK_UNLOCKED;
- 
- struct pci_fixup pcibios_fixups[] = {
- 	{ 0 }
-diff -ur linux-2.4.16-clean/arch/ia64/sn/io/hubspc.c linux/arch/ia64/sn/io/hubspc.c
---- linux-2.4.16-clean/arch/ia64/sn/io/hubspc.c	Thu Apr  5 12:51:47 2001
-+++ linux/arch/ia64/sn/io/hubspc.c	Fri Dec  7 10:25:25 2001
-@@ -61,7 +61,7 @@
- }cpuprom_info_t;
- 
- static cpuprom_info_t	*cpuprom_head;
--spinlock_t	cpuprom_spinlock;
-+static spinlock_t	cpuprom_spinlock;
- #define	PROM_LOCK()	mutex_spinlock(&cpuprom_spinlock)
- #define	PROM_UNLOCK(s)	mutex_spinunlock(&cpuprom_spinlock, (s))
- 
-diff -ur linux-2.4.16-clean/arch/ppc/kernel/i8259.c linux/arch/ppc/kernel/i8259.c
---- linux-2.4.16-clean/arch/ppc/kernel/i8259.c	Mon May 21 17:04:47 2001
-+++ linux/arch/ppc/kernel/i8259.c	Fri Dec  7 10:29:12 2001
-@@ -13,7 +13,7 @@
- #define cached_A1 (cached_8259[0])
- #define cached_21 (cached_8259[1])
- 
--spinlock_t i8259_lock = SPIN_LOCK_UNLOCKED;
-+static spinlock_t i8259_lock = SPIN_LOCK_UNLOCKED;
- 
- int i8259_pic_irq_offset;
- 
-diff -ur linux-2.4.16-clean/arch/ppc/kernel/pmac_pic.c linux/arch/ppc/kernel/pmac_pic.c
---- linux-2.4.16-clean/arch/ppc/kernel/pmac_pic.c	Sat Sep  8 12:38:42 2001
-+++ linux/arch/ppc/kernel/pmac_pic.c	Fri Dec  7 10:29:29 2001
-@@ -36,7 +36,7 @@
- static int max_irqs;
- static int max_real_irqs;
- 
--spinlock_t pmac_pic_lock = SPIN_LOCK_UNLOCKED;
-+static spinlock_t pmac_pic_lock = SPIN_LOCK_UNLOCKED;
- 
- 
- #define GATWICK_IRQ_POOL_SIZE        10
-diff -ur linux-2.4.16-clean/arch/ppc/kernel/prom.c linux/arch/ppc/kernel/prom.c
---- linux-2.4.16-clean/arch/ppc/kernel/prom.c	Sat Sep  8 12:38:42 2001
-+++ linux/arch/ppc/kernel/prom.c	Fri Dec  7 10:29:05 2001
-@@ -1928,7 +1928,7 @@
- }
- #endif
- 
--spinlock_t rtas_lock = SPIN_LOCK_UNLOCKED;
-+static spinlock_t rtas_lock = SPIN_LOCK_UNLOCKED;
- 
- /* this can be called after setup -- Cort */
- int __openfirmware
-diff -ur linux-2.4.16-clean/arch/sparc64/solaris/timod.c linux/arch/sparc64/solaris/timod.c
---- linux-2.4.16-clean/arch/sparc64/solaris/timod.c	Thu Sep 20 14:11:57 2001
-+++ linux/arch/sparc64/solaris/timod.c	Fri Dec  7 10:30:52 2001
-@@ -33,7 +33,7 @@
- 	u32 arg);
- asmlinkage int solaris_ioctl(unsigned int fd, unsigned int cmd, u32 arg);
- 
--spinlock_t timod_pagelock = SPIN_LOCK_UNLOCKED;
-+static spinlock_t timod_pagelock = SPIN_LOCK_UNLOCKED;
- static char * page = NULL ;
- 
- #ifndef DEBUG_SOLARIS_KMALLOC
-diff -ur linux-2.4.16-clean/drivers/char/sysrq.c linux/drivers/char/sysrq.c
---- linux-2.4.16-clean/drivers/char/sysrq.c	Tue Oct  2 09:20:37 2001
-+++ linux/drivers/char/sysrq.c	Thu Dec  6 16:27:31 2001
-@@ -336,7 +336,7 @@
- 
- 
- /* Key Operations table and lock */
--spinlock_t sysrq_key_table_lock = SPIN_LOCK_UNLOCKED;
-+static spinlock_t sysrq_key_table_lock = SPIN_LOCK_UNLOCKED;
- #define SYSRQ_KEY_TABLE_LENGTH 36
- static struct sysrq_key_op *sysrq_key_table[SYSRQ_KEY_TABLE_LENGTH] = {
- /* 0 */	&sysrq_loglevel_op,
+[One line of text and quoted a full page or something]
+
+No offence marcelo, but could you please stop it with the full quotes?
+-- 
+
+André Dahlqvist <andre.dahlqvist@telia.com>

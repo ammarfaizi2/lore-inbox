@@ -1,78 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129543AbQK1UDP>; Tue, 28 Nov 2000 15:03:15 -0500
+        id <S129314AbQK1UIr>; Tue, 28 Nov 2000 15:08:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129930AbQK1UDF>; Tue, 28 Nov 2000 15:03:05 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:33292 "EHLO zikova.cvut.cz")
-        by vger.kernel.org with ESMTP id <S129543AbQK1UC5>;
-        Tue, 28 Nov 2000 15:02:57 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: viro@math.psu.edu
-Date: Tue, 28 Nov 2000 20:32:36 MET-1
+        id <S129391AbQK1UIh>; Tue, 28 Nov 2000 15:08:37 -0500
+Received: from kootenai.mcn.net ([204.212.170.6]:6919 "EHLO kootenai.mcn.net")
+        by vger.kernel.org with ESMTP id <S129314AbQK1UIY>;
+        Tue, 28 Nov 2000 15:08:24 -0500
+Message-ID: <3A2409C0.90CC03AC@mcn.net>
+Date: Tue, 28 Nov 2000 12:38:40 -0700
+From: TimO <hairballmt@mcn.net>
+Organization: Don't you mean Disorganization!?
+X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.4.0-test12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: 2.4.0-test11 ext2 fs corruption
-CC: linux-kernel@vger.kernel.org, tytso@valinux.com
-X-mailer: Pegasus Mail v3.40
-Message-ID: <E2B041435FB@vcnet.vc.cvut.cz>
+To: Miles Lane <miles@megapathdsl.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-test12-pre2 -- Broken build.  Many definitions redefined
+In-Reply-To: <3A23FC14.8020403@megapathdsl.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Al,
-  during weekend I was uncompressing XFree (Debian's 4.0.1-7) at home,
-with 2.4.0-test11 running on Celeron 300A, 128MB RAM, SMP kernel on up.
-It failed to compile lbxproxy/di/main.c. After some investigation I found
-that they were overwritten by some source font data. fsck did not reveal
-any croslinked clusters, nothing. Filesystem itself uses 4KB clusters.
+Miles Lane wrote:
+> 
+> /usr/src/linux/include/linux/kernel_stat.h:48: for each function it
+> appears in.)make[2]: *** [ksyms.o] Error 1
+> make[2]: Leaving directory `/usr/src/linux/kernel'
+> make[1]: *** [first_rule] Error 2
+> make[1]: Leaving directory `/usr/src/linux/kernel'
+> make: *** [_dir_kernel] Error 2
+> 
 
-  Today I found some spare time and investigated it further. There is
-same data contents in:
+Oddly enough, I had to run 'make mrproper' on a clean tree (patched
+from -test1 -> test12p2) in order to make it compile.
 
-programs/lbxproxy/di/init.c 0-8720  fonts/bdf/75dpi/lubR24.bdf  0x5000-0x7210
-                 lbxfuncs.c 0x0000-0x0EC0           lubR24.bdf  0x8000-0x8EC0
-                            0x0EC1-0x0FFF                      zero
-                            0x1000-0x5ABC           lutBS08.bdf 0x0000-0x4ABC
-                            0x5ABD-0x5FFF                      zero
-                            0x6000-0x92C1           lutBS10.bdf 0x0000-0x32C1
-                 lbxutil.c  0x0000-0x1E27           lutBS10.bdf 0x4000-0x5E27
-                            0x1E28-0x1FFF                      zero
-                            0x2000-0x3452           lutBS12.bdf 0x0000-0x1452   
-                 main.c     0-4614                  lutBS12.bdf 0x2000-0x3206
-                 options.c  0x0000-0x222E           lutBS12.bdf 0x4000-0x622E
-                            0x222F-0x2FFF                      zero
-                            0x3000-0x4E30           lutBS14.bdf 0x0000-0x1E30
-                 pm.c       0-11706                 lutBS14.bdf 0x2000-0x4DA8
-             (blocks 722433-722459)                (blocks 558899-~558927)
-             
-Other files are intouch. As you can see, somewhat disk blocks
-ended somewhere else than they should in addition to correct place.
-I also found that data after end of file in di/*.c files are not
-cleared, so maybe that ide driver did a mistake? But I was not able
-to find how to convert either block address, or LBA adress, or CHS
-address (drive uses 839/240/63, but I hope that it runs in LBA) to
-get 558899 from 722433 or vice versa.
-
-Motherboard is i440BX, HDD was IDE TOSHIBA MK6409MAV on secondary IDE,
-running UDMA2.
-
-Nobody complained - neither IDE nor kernel nor ext2, just data were
-damaged. Machine does not have any other problems, so I have no idea
-what caused this incident. Maybe I stressed MM system too much with
-some gnome app during untar?
-
-And last note, according to debian/scripts/source.unpack, programs/lbxproxy
-was created first, and fonts/bdf/... was created after that (i.e.
-X401src-1 was decompressed first, X401src-2_debian was decompressed
-second). This also agrees with zeroed bytes in these datablocks.
-                                    Thanks,
-                                            Petr Vandrovec
-                                            vandrove@vc.cvut.cz
-
-P.S.: Ted, why field 'Blocks: XXX' in debugfs (1.19) is 'Sectors: '
-in reality (it reports blocks * 8, so I assume (as I have 4KB clusters)
-that it converts it to sector count)?
+-- 
+===============
+-- Tim
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,48 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262821AbVBZBRU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262814AbVBZBN3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262821AbVBZBRU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 20:17:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262811AbVBZBOH
+	id S262814AbVBZBN3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 20:13:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261174AbVBZBMq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 20:14:07 -0500
-Received: from fire.osdl.org ([65.172.181.4]:49613 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261174AbVBZBNe (ORCPT
+	Fri, 25 Feb 2005 20:12:46 -0500
+Received: from mail.goracer.de ([62.75.192.134]:13795 "HELO mail.goracer.de")
+	by vger.kernel.org with SMTP id S262818AbVBZBIO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 20:13:34 -0500
-Date: Fri, 25 Feb 2005 17:13:19 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Chris Wright <chrisw@osdl.org>, Darren Hart <dvhltc@us.ibm.com>,
-       hugh@veritas.com, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] allow vma merging with mlock et. al.
-Message-ID: <20050226011319.GE15867@shell0.pdx.osdl.net>
-References: <421E74B5.3040701@us.ibm.com> <20050225171122.GE28536@shell0.pdx.osdl.net> <20050225220543.GC15867@shell0.pdx.osdl.net> <421FA61B.9050705@us.ibm.com> <20050225233806.GD15867@shell0.pdx.osdl.net> <20050226005620.GN20715@opteron.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050226005620.GN20715@opteron.random>
-User-Agent: Mutt/1.5.6i
+	Fri, 25 Feb 2005 20:08:14 -0500
+Message-ID: <421FCBF9.1020003@XLsigned.net>
+Date: Sat, 26 Feb 2005 02:08:09 +0100
+From: "Buttchereit, Axel (XL)" <XL@XLsigned.net>
+Organization: XLsigned - Information Content
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040925)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-fbdev-devel@lists.sourceforge.net
+CC: Olaf Hering <olh@suse.de>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] Re: 2.6.11-rc5
+References: <Pine.LNX.4.58.0502232014190.18997@ppc970.osdl.org> <20050224145049.GA21313@suse.de> <20050226004137.GA25539@suse.de> <Pine.LNX.4.58.0502251648420.9237@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0502251648420.9237@ppc970.osdl.org>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andrea Arcangeli (andrea@suse.de) wrote:
-> The object of the merge is to save memory, and to reduce the size of the
-> rbtree that might payoff during other operations (with a smaller tree,
-> lookups will be faster too). If you only measure the time of creating
-> and removing a mapping then it should be normal that you see a slowdown
-> since merging involves more work than non-merging. The payoff is
-> supposed to be in the other operations.
+Linus Torvalds wrote:
+> 
+> On Sat, 26 Feb 2005, Olaf Hering wrote:
+> 
+>>modedb can not be __init because fb_find_mode() may get db == NULL.
+>>fb_find_mode() is called from modules.
+> 
+> 
+> Ack. Maybe somebody should run the scripts again to check that we don't 
+> reference __init data from non-init functions.
+> 
+> 		Linus
+> 
+This patch has already been posted to linux-fbdev on 2005-02-10 by David Vrabel
+and made me ask
+	Is there any reason why this has been originally flagged "__init"?
+	"vesa_modes" is not "__init". That's why I changed "intelfb" to
+	use "vesa_modes".
 
-I agree, that test is pathological worst case.
+Maybe time has come to decide, if availability of "modedb" outside
+of init functions is more important than freeing (unused) kernel memory.
 
-> The reason mlock doesn't merge is that nobody asked for it yet, but it
-> was originally supposed to merge too (I stopped at mremap since mlock
-> wasn't high prio to fixup). But the long term plan was to eventually add
-> merging to mlock too and it's good that you're optimizing it now.
+--Axel
 
-Do you support merging this patch?  Or did you mean further optimizations?
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+
+  
+
+  

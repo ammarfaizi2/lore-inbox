@@ -1,62 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287440AbSAGXwr>; Mon, 7 Jan 2002 18:52:47 -0500
+	id <S287432AbSAHAB5>; Mon, 7 Jan 2002 19:01:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287432AbSAGXwj>; Mon, 7 Jan 2002 18:52:39 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:516 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S287407AbSAGXwY>;
-	Mon, 7 Jan 2002 18:52:24 -0500
-Message-ID: <3C3A34B0.C59D11CB@mandrakesoft.com>
-Date: Mon, 07 Jan 2002 18:52:16 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.2-pre9fs7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andreas Dilger <adilger@turbolabs.com>
-CC: Alexander Viro <viro@math.psu.edu>,
-        Daniel Phillips <phillips@bonn-fries.net>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] [PATCH 7/7 v2] Re: PATCH 2.5.2.9: ext2 unbork fs.h 
- (part 1/7)
-In-Reply-To: <Pine.GSO.4.21.0201071401450.6842-100000@weyl.math.psu.edu> <3C3A2F0E.4A132214@mandrakesoft.com> <20020107164921.J777@lynx.no>
+	id <S287439AbSAHABr>; Mon, 7 Jan 2002 19:01:47 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:49163 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S287432AbSAHABj>;
+	Mon, 7 Jan 2002 19:01:39 -0500
+Date: Mon, 7 Jan 2002 15:59:41 -0800
+From: Greg KH <greg@kroah.com>
+To: David Brownell <david-b@pacbell.net>
+Cc: lkml <linux-kernel@vger.kernel.org>, mochel@osdl.org
+Subject: Re: Hardware Inventory [was: Re: ISA slot detection on PCI systems?]
+Message-ID: <20020107235941.GB10145@kroah.com>
+In-Reply-To: <20020107192903.GB8413@kroah.com> <17b801c197ba$febd13c0$6800000a@brownell.org> <20020107220348.GE9271@kroah.com> <17d401c197ca$a78e66c0$6800000a@brownell.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <17d401c197ca$a78e66c0$6800000a@brownell.org>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Mon, 10 Dec 2001 21:51:27 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
+On Mon, Jan 07, 2002 at 02:28:38PM -0800, David Brownell wrote:
+> > Hopefully, integration of /sbin/hotplug during the boot process (using
+> > dietHotplug) will reduce the number of things the "coldplug" issue will
+> > have to handle.
 > 
-> On Jan 07, 2002  18:28 -0500, Jeff Garzik wrote:
-> > --- linux-fs6/fs/ext2/ext2_fs_i.h     Mon Sep 17 20:16:30 2001
-> > +++ linux-fs7/fs/ext2/ext2_fs_i.h     Mon Jan  7 05:08:38 2002
-> > @@ -36,6 +36,10 @@
-> >       __u32   i_prealloc_count;
-> >       __u32   i_dir_start_lookup;
-> >       int     i_new_inode:1;  /* Is a freshly allocated inode */
-> > +
-> > +#ifdef __KERNEL__
-> > +     struct inode i_inode_data;
-> > +#endif
-> >  };
-> 
-> Since ext2_fs_i.h only describes the in-memory data for ext2 inodes, there
-> is no reason to #ifdef __KERNEL__ any changes therein.  I have seen several
-> other people worry about changes to this file in the past also, and I was
-> going to suggest adding a comment to the file, but I see it already says
-> "inode data in memory" so I don't know what else to add...
+> Somewhat -- though it only handles the "load a module"
+> subproblem.  When new devices need any more setup
+> than that, "dietHotplug" isn't enough.
 
-If that is ok with everyone else, it's ok with me.  I just noticed that
-ext2_fs_sb.h already uses kernel-specific types, adding weight to the
-argument.
+Agreed.  dietHotplug doesn't want to solve that problem right now.  I'll
+leave that up to the main linux-hotplug scripts :)
 
-	Jeff
-
-
-
--- 
-Jeff Garzik      | Alternate titles for LOTR:
-Building 1024    | Fast Times at Uruk-Hai
-MandrakeSoft     | The Took, the Elf, His Daughter and Her Lover
-                 | Samwise Gamgee: International Hobbit of Mystery
+greg k-h

@@ -1,194 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261987AbUCIQxu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 11:53:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261983AbUCIQxu
+	id S262052AbUCIQ4a (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 11:56:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbUCIQ4a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 11:53:50 -0500
-Received: from zmamail04.zma.compaq.com ([161.114.64.104]:34830 "EHLO
-	zmamail04.zma.compaq.com") by vger.kernel.org with ESMTP
-	id S261959AbUCIQxm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 11:53:42 -0500
-Date: Tue, 9 Mar 2004 11:03:20 -0600
-From: mikem@beardog.cca.cpqcorp.net
-To: axboe@suse.de, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: per device queues for cciss 2.6.0
-Message-ID: <20040309170320.GA20073@beardog.cca.cpqcorp.net>
-Reply-To: mike.miller@hp.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2i
+	Tue, 9 Mar 2004 11:56:30 -0500
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:2042 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S261983AbUCIQ4Z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 11:56:25 -0500
+Content-Type: text/plain;
+  charset="CP 1252"
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: Timothy Miller <miller@techsource.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: HELP: Linux replacement for "DOS diagnostic" station
+Date: Tue, 9 Mar 2004 10:56:01 -0600
+X-Mailer: KMail [version 1.2]
+References: <404CFF03.1090601@techsource.com>
+In-Reply-To: <404CFF03.1090601@techsource.com>
+MIME-Version: 1.0
+Message-Id: <04030910560101.32521@tabby>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is resubmission of yesterdays patch. It adds support for per logical device queues in the cciss driver. I have clarified that we only use one lock for all queues and it is held as specified in ll_rw_block.c. The locking needs to be redone for maximum efficiency but schedules don't permit that work at this time. This was done to fix an Oops with multiple logical volumes on a controller.
-Please consider this patch for inclusion.
+On Monday 08 March 2004 17:17, Timothy Miller wrote:
+> Like many companies that do hardware development (PCI cards, etc.), when
+> we here first produce a board, the first things we do is put it into a
+> DOS machine and run our diagnostic tools on it.  We're running the DOS
+> version that came with Windows 3.11, and we use the Watcom C compiler
+> that lets us run our software in protected mode, so we have access to
+> 32-bit address space.
+>
+> Some advantages of this approach:
+> - Single-tasking environment, so we can do polling on devices in real-time
+> - No memory protection, so we can access all device memory directly
+> - No instruction set restrictions, so we can execute I/O instructions
+> directly
+> - Access to PCI config space (via I/O instructions)
+> - The computer boots up in seconds
+>
+> Disadvantages include:
+> - No modern compiler
+> - No debugging tools
+> - DOS command shell is a lousy working environment
+> - Dwindling support for DOS NIC drivers from motherboard manufacturers
+>
+>
+> We are doing some forward-looking thinking about how we're going to
+> replace this environment in the not-to-distant future.  We are looking
+> at Linux as the environment we want to use.  Some of the features we're
+> thinking of include:
+>
+> - Kernel support for basically nothing but Ethernet, text-mode console,
+> and USB (ie. IDE and floppy not necessarily supported).
+> - Boot from USB flash dongle.
+> - Hand-code init so that services are loaded in parallel
+> - Fill the rest of the USB dongle with development tools
+> - Put the rest of the tools on NFS.
+>
+>
+> There are a number of issues that we have to cover (such as what
+> filesystem to use on the flash and how to make the flash bootable), but
+> the biggest concern is that we absolutely MUST have un restricted access
+> to physical memory, I/O space, and config space from user-space programs.
+>
+> So, first of all, we need to make /dev/mem accessible to all users.
+> Secondly, we need some mechanism to access I/O and config space, but it
+> can be indirect through ioctl.
+>
+> Is there a driver for Linux which supports I/O and config space access
+> for user-space programs in a completely generic way?
+>
+> Another occurrence is that sometimes, PCI config space on a new device
+> is 'broken' and therefore confuses the OS trying to map it.  We'll need
+> to be able to override the OS in a way that doesn't interfere with other
+> devices.  That is, we need to (a) indicate which device NOT to map, (b)
+> query which memory areas have been allocated to other devices, and (c)
+> program in our own desired physical addresses into config space.
+>
+> Does anyone have suggestions?
+>
+> Thanks!
 
-Thanks,
-mikem
--------------------------------------------------------------------------------
+Just a brief one:
 
-diff -burN lx264.orig/drivers/block/cciss.c lx264/drivers/block/cciss.c
---- lx264.orig/drivers/block/cciss.c	2004-02-17 21:59:44.000000000 -0600
-+++ lx264/drivers/block/cciss.c	2004-03-09 08:43:27.000000000 -0600
-@@ -210,7 +210,7 @@
- 
-         pos += size; len += size;
- 	cciss_proc_tape_report(ctlr, buffer, &pos, &len);
--	for(i=0; i<h->highest_lun; i++) {
-+	for(i=0; i<=h->highest_lun; i++) {
- 		sector_t tmp;
- 
-                 drv = &h->drv[i];
-@@ -991,7 +991,7 @@
- 		drive_info_struct *drv = &(host->drv[i]);
- 		if (!drv->nr_blocks)
- 			continue;
--		blk_queue_hardsect_size(host->queue, drv->block_size);
-+		blk_queue_hardsect_size(drv->queue, drv->block_size);
- 		set_capacity(disk, drv->nr_blocks);
- 		add_disk(disk);
- 	}
-@@ -2016,7 +2016,7 @@
- 	CommandList_struct *c;
- 	unsigned long flags;
- 	__u32 a, a1;
--
-+	int j;
- 
- 	/* Is this interrupt for us? */
- 	if (( h->access.intr_pending(h) == 0) || (h->interrupts_enabled == 0))
-@@ -2062,11 +2062,23 @@
- 			}
- 		}
- 	}
--
- 	/*
- 	 * See if we can queue up some more IO
-+	 * check every disk that exists on this controller 
-+	 * and start it's IO
-+	 * At this time we use only one lock for all queues, probably
-+	 * not an ideal implemetation but it was required to fix
-+	 * an Oops. We will have to implement per queue locks when
-+	 * time permits.
-+	 * 
- 	 */
--	blk_start_queue(h->queue);
-+	for(j=0;j < NWD; j++) {
-+		/* make sure the disk has been added and the drive is real */
-+		/* because this can be called from the middle of init_one */
-+		if(!(h->gendisk[j]->queue) || !(h->drv[j].nr_blocks) )
-+			continue;
-+		blk_start_queue(h->gendisk[j]->queue);
-+	}
- 	spin_unlock_irqrestore(CCISS_LOCK(h->ctlr), flags);
- 	return IRQ_HANDLED;
- }
-@@ -2513,7 +2525,6 @@
- static int __devinit cciss_init_one(struct pci_dev *pdev,
- 	const struct pci_device_id *ent)
- {
--	request_queue_t *q;
- 	int i;
- 	int j;
- 
-@@ -2571,13 +2582,6 @@
- 	}
- 
- 	spin_lock_init(&hba[i]->lock);
--	q = blk_init_queue(do_cciss_request, &hba[i]->lock);
--	if (!q)
--		goto clean4;
--
--	q->backing_dev_info.ra_pages = READ_AHEAD;
--	hba[i]->queue = q;
--	q->queuedata = hba[i];
- 
- 	/* Initialize the pdev driver private data. 
- 		have it point to hba[i].  */
-@@ -2599,6 +2603,19 @@
- 
- 	cciss_procinit(i);
- 
-+	for(j=0; j<NWD; j++) {
-+		drive_info_struct *drv = &(hba[i]->drv[j]);
-+		struct gendisk *disk = hba[i]->gendisk[j];
-+		request_queue_t *q;
-+
-+	        q = blk_init_queue(do_cciss_request, &hba[i]->lock);
-+		if (!q) {
-+			printk(KERN_ERR 
-+			   "cciss:  unable to allocate queue for disk %d\n",
-+			   j);
-+			break;
-+		}
-+		drv->queue = q;
- 	blk_queue_bounce_limit(q, hba[i]->pdev->dma_mask);
- 
- 	/* This is a hardware imposed limit. */
-@@ -2609,21 +2626,17 @@
- 
- 	blk_queue_max_sectors(q, 512);
- 
--
--	for(j=0; j<NWD; j++) {
--		drive_info_struct *drv = &(hba[i]->drv[j]);
--		struct gendisk *disk = hba[i]->gendisk[j];
--
-+		q->queuedata = hba[i];
- 		sprintf(disk->disk_name, "cciss/c%dd%d", i, j);
- 		sprintf(disk->devfs_name, "cciss/host%d/target%d", i, j);
- 		disk->major = COMPAQ_CISS_MAJOR + i;
- 		disk->first_minor = j << NWD_SHIFT;
- 		disk->fops = &cciss_fops;
--		disk->queue = hba[i]->queue;
-+		disk->queue = q;
- 		disk->private_data = drv;
- 		if( !(drv->nr_blocks))
- 			continue;
--		blk_queue_hardsect_size(hba[i]->queue, drv->block_size);
-+		blk_queue_hardsect_size(q, drv->block_size);
- 		set_capacity(disk, drv->nr_blocks);
- 		add_disk(disk);
- 	}
-@@ -2693,9 +2706,9 @@
- 		struct gendisk *disk = hba[i]->gendisk[j];
- 		if (disk->flags & GENHD_FL_UP)
- 			del_gendisk(disk);
-+			blk_cleanup_queue(disk->queue);
- 	}
- 
--	blk_cleanup_queue(hba[i]->queue);
- 	pci_free_consistent(hba[i]->pdev, NR_CMDS * sizeof(CommandList_struct),
- 			    hba[i]->cmd_pool, hba[i]->cmd_pool_dhandle);
- 	pci_free_consistent(hba[i]->pdev, NR_CMDS * sizeof( ErrorInfo_struct),
-diff -burN lx264.orig/drivers/block/cciss.h lx264/drivers/block/cciss.h
---- lx264.orig/drivers/block/cciss.h	2004-02-17 21:57:11.000000000 -0600
-+++ lx264/drivers/block/cciss.h	2004-03-04 15:38:50.000000000 -0600
-@@ -27,6 +27,7 @@
- {
-  	__u32   LunID;	
- 	int 	usage_count;
-+	struct request_queue *queue;
- 	sector_t nr_blocks;
- 	int	block_size;
- 	int 	heads;
-@@ -69,7 +70,6 @@
- 	unsigned int maxQsinceinit;
- 	unsigned int maxSG;
- 	spinlock_t lock;
--	struct request_queue *queue;
- 
- 	//* pointers to command and error info pool */ 
- 	CommandList_struct 	*cmd_pool;
-@@ -252,7 +252,7 @@
- 	struct access_method *access;
- };
- 
--#define CCISS_LOCK(i)	(hba[i]->queue->queue_lock)
-+#define CCISS_LOCK(i)	(&(hba[i]->lock))
- 
- #endif /* CCISS_H */
- 
+I suggest using one of the embeded kernels. For your purpose it has the 
+following advantages:
+1. no MMU support - allows your applications to poke at ANYTHING.
+2. ramdisk support - eliminates the kernel from interfereing with most PCI
+tests you can do. (granted, you MIGHT want a system with two PCI busses, one
+for the system to use -disk/keyboard/display/network and one for your target 
+interface; but I think you can get away from this using an AGP display, the 
+keyboard/mouse and ramdisk)
+3. minimal system
+4. development on another host
+5. safty from inevitable crashes/bus hangs...

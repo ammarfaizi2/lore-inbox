@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130887AbRAKByz>; Wed, 10 Jan 2001 20:54:55 -0500
+	id <S130401AbRAKB4P>; Wed, 10 Jan 2001 20:56:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131333AbRAKByp>; Wed, 10 Jan 2001 20:54:45 -0500
-Received: from palrel1.hp.com ([156.153.255.242]:50436 "HELO palrel1.hp.com")
-	by vger.kernel.org with SMTP id <S130887AbRAKByg>;
-	Wed, 10 Jan 2001 20:54:36 -0500
-Message-Id: <200101110156.RAA05928@milano.cup.hp.com>
+	id <S131333AbRAKB4F>; Wed, 10 Jan 2001 20:56:05 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:46087
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S130401AbRAKBz6>; Wed, 10 Jan 2001 20:55:58 -0500
+Date: Wed, 10 Jan 2001 17:28:58 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: andre@linux-ide.org (Andre Hedrick), linux-kernel@vger.kernel.org,
+cc: Grant Grundler <grundler@cup.hp.com>, linux-kernel@vger.kernel.org,
         taggart@fc.hp.com, m.ashley@unsw.edu.au
-Subject: Re: [PATCH] 2.2.18pre21 ide-disk.c for OB800 
-In-Reply-To: Your message of "Thu, 11 Jan 2001 01:33:08 PST."
-             <E14GWc2-0001QZ-00@the-village.bc.nu> 
-Date: Wed, 10 Jan 2001 17:56:08 -0800
-From: Grant Grundler <grundler@cup.hp.com>
+Subject: Re: [PATCH] 2.2.18pre21 ide-disk.c for OB800
+In-Reply-To: <E14GVPN-0001Iu-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10101101725070.26556-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 11 Jan 2001, Alan Cox wrote:
 
-Andre, Alan,
-My grand total experience with IDE drivers is now around 4 hours.
-I have no clue what's right or wrong and am quite clueless what the
-role of apmd is wrt ide-disk driver. I'm open to testing other fixes
-for this problem.
+> > Wrong method.
+> > 
+> > APMD has to have the ablity to remember the state.
+> > Spindown is basically a power reset to the drive.
+> 
+> Wrong answer, apmd if its swapped out doesnt get back in on some drives
 
-AFAIK, this could be a BIOS bug since no one else seems to have run into
-on other laptops and it's reproduce with two different makes of drives. 
+Okay then are you wanting me to create a struct or bit mask to carry the
+the device settings/mode that is set before an APM/ACPI event happens.
 
-The reason I put the fix in the read/multwrite_intr path is the recovery
-has to occur before the I/O is retried and before accessing the disk.
-If multmode can be set before even trying the I/O, then that's definitely
-a better solution. I just have no clue how to implement it.
+Regardless that the answer is wrong, somebody/thing has to keep a copy of
+the device settings, and the case of swapout they get nuked.  Thus a
+reprobe must happen. yes/no?
 
-thanks,
-grant
+Andre Hedrick
+Linux ATA Development
 
-Grant Grundler
-Unix Systems Enablement Lab
-+1.408.447.7253
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

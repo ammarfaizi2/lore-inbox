@@ -1,66 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266024AbUAUSk6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 13:40:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266015AbUAUSk5
+	id S266030AbUAUSnx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 13:43:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266032AbUAUSnn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 13:40:57 -0500
-Received: from waste.org ([209.173.204.2]:37345 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S265998AbUAUSjy (ORCPT
+	Wed, 21 Jan 2004 13:43:43 -0500
+Received: from palrel13.hp.com ([156.153.255.238]:39396 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S266030AbUAUSnW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 13:39:54 -0500
-Date: Wed, 21 Jan 2004 12:39:38 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, pavel@ucw.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: More cleanups for swsusp
-Message-ID: <20040121183938.GE14797@waste.org>
-References: <20040120225219.GA19190@elf.ucw.cz> <20040121051855.B0C282C0A7@lists.samba.org> <20040120213037.66c9d5a0.akpm@osdl.org>
-Mime-Version: 1.0
+	Wed, 21 Jan 2004 13:43:22 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040120213037.66c9d5a0.akpm@osdl.org>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16398.51269.149031.241526@napali.hpl.hp.com>
+Date: Wed, 21 Jan 2004 10:43:17 -0800
+To: Jes Sorensen <jes@trained-monkey.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
+       Paul Mackerras <paulus@samba.org>
+Subject: Re: [patch] 2.6.1-mm5 compile do not use shared extable code for ia64
+In-Reply-To: <E1Aiuv7-0001cS-00@jaguar.mkp.net>
+References: <E1Aiuv7-0001cS-00@jaguar.mkp.net>
+X-Mailer: VM 7.17 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 20, 2004 at 09:30:37PM -0800, Andrew Morton wrote:
-> Rusty Russell <rusty@rustcorp.com.au> wrote:
-> >
-> > In message <20040120225219.GA19190@elf.ucw.cz> you write:
-> >  > -	if (fill_suspend_header(&cur->sh))
-> >  > -		panic("\nOut of memory while writing header");
-> >  > +	BUG_ON (fill_suspend_header(&cur->sh));
-> > 
-> > ...
-> >  3) BUG_ON(complex condition expression) is much less clear than:
-> > 
-> >  	if (complex condition expression)
-> >  		BUG();
+>>>>> On Tue, 20 Jan 2004 07:23:49 -0500, Jes Sorensen <jes@trained-monkey.org> said:
 
-Disagree. All BUG_ON() stuff should read like:
+  Jes> Hi,
+  Jes> The new sort_extable and shares search_extable code doesn't work on
+  Jes> ia64. I have introduced two new #defines that archs can define to avoid
+  Jes> the common code being built. ARCH_HAS_SEARCH_EXTABLE and
+  Jes> ARCH_HAS_SORT_EXTABLE.
 
-/* check that impossible stuff didn't happen, move along, nothing to see */
-BUG_ON(...);
+  Jes> With this patch, 2.6.1-mm5 builds again on ia64.
 
-Which is fine and good until the condition is actually doing more than
-just sanity checking.
+What's this about?  Isn't the only reason this doesn't work because
+the "insn" member is called "addr" on ia64?  If so, surely it would
+make more sense to do a little renaming?
 
-> Worse.  If some smarty goes and makes BUG_ON a no-op (for space reasons),
-> it will break software suspend.  We should ensure that the expression which
-> is supplied to BUG_ON() never has side-effects for this reason.
-
-While I generally agree that "assertions" shouldn't have side-effects,
-a slightly smarter smarty would make sure that BUG_ON evaluated its
-condition. I have this in -tiny:
-
-+#ifndef CONFIG_BUG
-+#define BUG()
-+#define WARN_ON(condition) do { if (condition) ; } while(0)
-+#define BUG_ON(condition) do { if (condition) ; } while(0)
-+#define PAGE_BUG(page)
-+#else
-
--- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+	--david

@@ -1,80 +1,121 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261976AbTHTOQf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 10:16:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261978AbTHTOQf
+	id S261969AbTHTOWI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 10:22:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261977AbTHTOWI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 10:16:35 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:29190 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S261976AbTHTOQc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 10:16:32 -0400
-Subject: Re: [OT] Connection tracking for IPSec
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Andrew McGregor <andrew@indranet.co.nz>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <23600000.1061383792@ijir>
-References: <1061378568.668.9.camel@teapot.felipe-alfaro.com>
-	 <23600000.1061383792@ijir>
-Content-Type: text/plain
-Message-Id: <1061388988.3804.8.camel@teapot.felipe-alfaro.com>
+	Wed, 20 Aug 2003 10:22:08 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:29645 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S261969AbTHTOWC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 10:22:02 -0400
+X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
+Date: Wed, 20 Aug 2003 16:21:45 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Chris Mason <mason@suse.com>
+Cc: marcelo@conectiva.com.br, green@namesys.com, akpm@osdl.org, andrea@suse.de,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22-pre lockups (yet another oops for rc2)
+Message-Id: <20030820162145.0dc9910d.skraw@ithnet.com>
+In-Reply-To: <1060952100.5046.2.camel@tiny.suse.com>
+References: <20030814084518.GA5454@namesys.com>
+	<Pine.LNX.4.44.0308141425460.3360-100000@localhost.localdomain>
+	<20030814194226.2346dc14.skraw@ithnet.com>
+	<1060913337.1493.29.camel@tiny.suse.com>
+	<20030815122827.067bd429.skraw@ithnet.com>
+	<1060952100.5046.2.camel@tiny.suse.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Wed, 20 Aug 2003 16:16:28 +0200
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I'm starting with IPSec right now. To make it work, I must open up
-> > protocols 50 and 51 to pass across my Linux firewalls, but I want to use
-> > connection tracking much like I do when not using IPSec.
-> >
-> > For example,
-> >
-> > iptables -A INPUT -m state --state RELATED,ESTABLISHED
-> 
-> Hmm.  You can't do this if the end host does the ESP (AH is another 
-> matter).  Ever.  If the ESP is working, the router can't tell what is 
-> inside the packet; this is the whole point of IPSEC.  If you want this 
-> functionality, you can only provide it on the end host, or else do the 
-> IPSEC on the router.
+Hello all,
 
-Well, I'm using IPSec on two machines and both of them are end hosts.
-They are *not* working as routers. My netfilter rules are:
+todays' oops is:
 
-Chain INPUT (policy DROP)
-target     prot opt source      destination
-ACCEPT     all  --  anywhere    anywhere   state RELATED,ESTABLISHED
-ACCEPT     all  --  localhost.localdomain  anywhere
+ksymoops 2.4.8 on i686 2.4.22-rc2.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.22-rc2/ (default)
+     -m /boot/System.map-2.4.22-rc2 (default)
 
-Chain FORWARD (policy DROP)
-target     prot opt source               destination
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
 
-Chain OUTPUT (policy ACCEPT)
-target     prot opt source               destination
+kernel BUG at slab.c:1225!
+invalid operand: 0000
+CPU:    1
+EIP:    0010:[<c0137ebd>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010046
+eax: 00000005   ebx: 00000005   ecx: 00000088   edx: 00000000
+esi: f6df2000   edi: f6df20a0   ebp: f6df2348   esp: c345df04
+ds: 0018   es: 0018   ss: 0018
+Process kswapd (pid: 5, stackpage=c345d000)
+Stack: f6df234c f6df2348 f6df23cc f6df2000 c0139107 c342b4d0 f6df2000 f6df2348
+       c342b4d0 0000007d c346040c c3460400 c01384e2 c342b4d0 f6df234c 00000000 
+       00000001 00000000 00000000 00000000 00000020 000001d0 00000020 00000006
+Call Trace:    [<c0139107>] [<c01384e2>] [<c0139c78>] [<c0139d2e>] [<c0139e3c>]
+  [<c0139ec8>] [<c0139ff8>] [<c0139f60>] [<c0105000>] [<c010592e>] [<c0139f60>]
+Code: 0f 0b c9 04 44 92 2c c0 8b 44 86 18 83 f8 ff 75 eb 89 f6 8b
 
-The problem is that if I enable IPSec on both machines by using manual,
-preshared keys, no traffic will pass through both firewalls, as I need
-to open up protocols 50 and 51 (AH and ESP).
 
-The problem here is that opening up protocols 50 and 51, makes *any*
-IPSec-protected traffic to pass the firewall, but I still want that any
-traffic (IPSec-protected or not) be applied the connection-track
-filters. For normal (no IPSec) traffic, an incoming packet is only
-accepted if it belongs to a connection that was initiated locally. For
-IPSec traffic, I just want the same. I don't want any kind of
-IPSec-protected traffic to be able to pass through the firewall, only
-traffic that belongs to a connection that was initiated locally on the
-machine receiving it.
+>>EIP; c0137ebd <kmem_extra_free_checks+6d/a0>   <=====
 
-End note: an incoming packet should be accepted by the firewall if and
-only if there is a corresponding connection (let it be TCP, UDP or ICMP)
-that was first initiated locally on that machine. For example, for any
-incoming TCP packet to traverse the firewall, first there must have been
-a packet with the SYN flag that travelled in the opposite direction. I
-want this to work for normal traffic (it does work now) and for
-IPSec-protected traffic.
+>>esi; f6df2000 <_end+36a2a9a0/38462a00>
+>>edi; f6df20a0 <_end+36a2aa40/38462a00>
+>>ebp; f6df2348 <_end+36a2ace8/38462a00>
+>>esp; c345df04 <_end+30968a4/38462a00>
 
-Did I explain it clearly?
-Thanks again!
+Trace; c0139107 <kmem_cache_free_one+f7/220>
+Trace; c01384e2 <kmem_cache_reap+b2/290>
+Trace; c0139c78 <shrink_caches+28/a0>
+Trace; c0139d2e <try_to_free_pages_zone+3e/60>
+Trace; c0139e3c <kswapd_balance_pgdat+4c/b0>
+Trace; c0139ec8 <kswapd_balance+28/40>
+Trace; c0139ff8 <kswapd+98/c0>
+Trace; c0139f60 <kswapd+0/c0>
+Trace; c0105000 <_stext+0/0>
+Trace; c010592e <arch_kernel_thread+2e/40>
+Trace; c0139f60 <kswapd+0/c0>
+
+Code;  c0137ebd <kmem_extra_free_checks+6d/a0>
+00000000 <_EIP>:
+Code;  c0137ebd <kmem_extra_free_checks+6d/a0>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c0137ebf <kmem_extra_free_checks+6f/a0>
+   2:   c9                        leave  
+Code;  c0137ec0 <kmem_extra_free_checks+70/a0>
+   3:   04 44                     add    $0x44,%al
+Code;  c0137ec2 <kmem_extra_free_checks+72/a0>
+   5:   92                        xchg   %eax,%edx
+Code;  c0137ec3 <kmem_extra_free_checks+73/a0>
+   6:   2c c0                     sub    $0xc0,%al
+Code;  c0137ec5 <kmem_extra_free_checks+75/a0>
+   8:   8b 44 86 18               mov    0x18(%esi,%eax,4),%eax
+Code;  c0137ec9 <kmem_extra_free_checks+79/a0>
+   c:   83 f8 ff                  cmp    $0xffffffff,%eax
+Code;  c0137ecc <kmem_extra_free_checks+7c/a0>
+   f:   75 eb                     jne    fffffffc <_EIP+0xfffffffc>
+Code;  c0137ece <kmem_extra_free_checks+7e/a0>
+  11:   89 f6                     mov    %esi,%esi
+Code;  c0137ed0 <kmem_extra_free_checks+80/a0>
+  13:   8b 00                     mov    (%eax),%eax
+
+
+1 warning issued.  Results may not be reliable.
+
+
+This is still with ext3 and about 24 hours uptime (rough guess).
+
+Regards,
+Stephan
 

@@ -1,86 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267847AbTAMTb7>; Mon, 13 Jan 2003 14:31:59 -0500
+	id <S267723AbTAMTZe>; Mon, 13 Jan 2003 14:25:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268243AbTAMTb7>; Mon, 13 Jan 2003 14:31:59 -0500
-Received: from eamail1-out.unisys.com ([192.61.61.99]:13733 "EHLO
-	eamail1-out.unisys.com") by vger.kernel.org with ESMTP
-	id <S267847AbTAMTb6>; Mon, 13 Jan 2003 14:31:58 -0500
-Message-ID: <3FAD1088D4556046AEC48D80B47B478C022BD8E7@usslc-exch-4.slc.unisys.com>
-From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-To: "'Nakajima, Jun'" <jun.nakajima@intel.com>,
-       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       James Cleverdon <jamesclv@us.ibm.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: RE: APIC version
-Date: Mon, 13 Jan 2003 13:39:43 -0600
+	id <S267807AbTAMTZe>; Mon, 13 Jan 2003 14:25:34 -0500
+Received: from otter.mbay.net ([206.55.237.2]:58886 "EHLO otter.mbay.net")
+	by vger.kernel.org with ESMTP id <S267723AbTAMTZb> convert rfc822-to-8bit;
+	Mon, 13 Jan 2003 14:25:31 -0500
+From: John Alvord <jalvo@mbay.net>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Ross Biro <rossb@google.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Alan Cox <alan@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21-pre3-ac4
+Date: Mon, 13 Jan 2003 11:34:02 -0800
+Message-ID: <m3562vkrgu0u6qhijvimibkcqjfpujgi59@4ax.com>
+References: <200301121807.h0CI7Qp04542@devserv.devel.redhat.com> <1042399796.525.215.camel@zion.wanadoo.fr> <1042403235.16288.14.camel@irongate.swansea.linux.org.uk> <1042401074.525.219.camel@zion.wanadoo.fr>  <3E230A4D.6020706@google.com> <1042484609.30837.31.camel@zion.wanadoo.fr>
+In-Reply-To: <1042484609.30837.31.camel@zion.wanadoo.fr>
+X-Mailer: Forte Agent 1.92/32.570
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2656.59)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sould it be hard_smp_processor_id()?
+On 13 Jan 2003 20:03:29 +0100, Benjamin Herrenschmidt
+<benh@kernel.crashing.org> wrote:
 
------Original Message-----
-From: Nakajima, Jun [mailto:jun.nakajima@intel.com]
-Sent: Monday, January 13, 2003 12:00 PM
-To: Protasevich, Natalie; Martin J. Bligh; Pallipadi, Venkatesh
-Cc: William Lee Irwin III; Christoph Hellwig; James Cleverdon; Linux
-Kernel
-Subject: RE: APIC version
+>On Mon, 2003-01-13 at 19:49, Ross Biro wrote:
+>
+>> The reason we need to enforce the 400nS delay is because of what is 
+>> going on on the other processor.  If the other processor is in ide_intr 
+>> trying to grab the spinlock and we do not give the drive time to assert 
+>> the busy bit and the other processor makes it to the call to 
+>> drive_is_ready, then the drive could still return not busy and we could 
+>> think the command is done.  This code path is probably less than 50 
+>> instructions, so I don't think it's taken anywhere near 400ns for a long 
+>> time.
+>> 
+>> DMA is slightly different.  We don't actually have to delay the 400ns if 
+>> we call ide_dma_begin from inside the spinlock.
+>
+>Exactly. My problem right now is with enforcing that 400ns delay on
+>non-DMA path as with PCI write posting on one side, and other fancy bus
+>store queues etc... you are really not sure when your outb for the
+>command byte will really reach the disk.
+>
+>So the problem turns down to: is it safe for commands with no data
+>transfer and commands with a PIO data transfer to read back from
+>some other task file register right after issuing the command byte
+>(the select register looks like a good choice, better than status
+>for sure) and before doing the delay of 400ns ? On any sane bus
+>architecture, that read will make sure the previous write will
+>have reached the device or your IO accessors are broken...
+>
+You could simplify the problem somewhat by forcing all interaction and
+interrupt processing to a single CPU.
 
-
-The entries in acpi_version[] are indexed by the APIC id, not
-smp_processor_id(). So you can overwrite acpi_version[] for a different
-processor.
-
-Jun
-
-
-> -----Original Message-----
-> From: Protasevich, Natalie [mailto:Natalie.Protasevich@UNISYS.com]
-> Sent: Monday, January 13, 2003 10:44 AM
-> To: 'Martin J. Bligh'; Pallipadi, Venkatesh
-> Cc: 'William Lee Irwin III'; Nakajima, Jun; 'Christoph Hellwig'; 'James
-> Cleverdon'; 'Linux Kernel'; Protasevich, Natalie
-> Subject: APIC version
-> 
-> I have a little patch here for the APIC version.
-> Without it, I get version 0x10 instead of 0x14 for Fosters/Gallatins
-> (booting with ACPI):
-> 
-> --- mpparse.c.org	2003-01-13 11:32:18.000000000 -0700
-> +++ mpparse.c	2003-01-13 11:33:26.000000000 -0700
-> @@ -773,6 +773,8 @@
->  	if (boot_cpu_physical_apicid == -1U)
->  		boot_cpu_physical_apicid = GET_APIC_ID(apic_read(APIC_ID));
-> 
-> +	apic_version[smp_processor_id()] =
-> GET_APIC_VERSION(apic_read(APIC_LVR));
-> +
->  	Dprintk("Boot CPU = %d\n", boot_cpu_physical_apicid);
->  }
-> 
-> @@ -795,7 +797,7 @@
-> 
->  	processor.mpc_type = MP_PROCESSOR;
->  	processor.mpc_apicid = id;
-> -	processor.mpc_apicver = 0x10; /* TBD: lapic version */
-> +	processor.mpc_apicver = apic_version[smp_processor_id()];
->  	processor.mpc_cpuflag = (enabled ? CPU_ENABLED : 0);
->  	processor.mpc_cpuflag |= (boot_cpu ? CPU_BOOTPROCESSOR : 0);
->  	processor.mpc_cpufeature = (boot_cpu_data.x86 << 8) |
-> 
-> 
-> It seems to work OK for me, although you may find some implications...
-> Anyway -
-> 
-> Thanks,
-> 
-> --Natalie
+john

@@ -1,66 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318830AbSICQKG>; Tue, 3 Sep 2002 12:10:06 -0400
+	id <S318232AbSICQDN>; Tue, 3 Sep 2002 12:03:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318838AbSICQKG>; Tue, 3 Sep 2002 12:10:06 -0400
-Received: from pD9E23EAA.dip.t-dialin.net ([217.226.62.170]:12416 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S318830AbSICQKF>; Tue, 3 Sep 2002 12:10:05 -0400
-Date: Tue, 3 Sep 2002 10:14:01 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Oliver Pitzeier <o.pitzeier@uptime.at>
-cc: Leslie Donaldson <donaldlf@cs.rose-hulman.edu>,
-       <axp-kernel-list@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel 2.5.33 successfully compiled
-In-Reply-To: <200209031753.09814.o.pitzeier@uptime.at>
-Message-ID: <Pine.LNX.4.44.0209031006001.3373-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf/Steudnitz; Germany
+	id <S318249AbSICQDN>; Tue, 3 Sep 2002 12:03:13 -0400
+Received: from mailgate2.Cadence.COM ([158.140.2.31]:57783 "EHLO
+	mailgate2.Cadence.COM") by vger.kernel.org with ESMTP
+	id <S318232AbSICQDM>; Tue, 3 Sep 2002 12:03:12 -0400
+Message-ID: <3D74DB89.9090605@cadence.com>
+Date: Tue, 03 Sep 2002 08:55:53 -0700
+From: Mitch Sako <msako@cadence.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en, ja
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Kernel Automounter
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I am seeing some strangeness here.  When running 2.4.18 NFS mounting 
+FROM Solaris 2.7 using '/net -hosts' to get the Solaris /net/<hostname> 
+mounting, it seems that it requires CONFIG_NFS_V3 to do the 
+/net/<hostname> mount, even if the mount takes place using NFSV2.  NFSV2 
+/net/<hostname> mounts from a Linux server works fine.  Manually 
+mounting from Solaris 2.7 using the 'mount' command also works fine with 
+NFSV2.  It only seems that the amd '/net -hosts' is broken because 
+Solaris is only talking TCP/IP during the initial mount request.
 
-I must admit that Alpha is a few more out of sync than it deserves.
+Is this a kernel or amd issue?
 
-On Tue, 3 Sep 2002, Oliver Pitzeier wrote:
-> > 2. The following file need copied (a quick hack)
-> >
-> >          cd include/asm
-> >           cp ../asm-i386/kmap_types.h  .
+Mitch
 
-That's really a bad hack, if i386 kmap types match up with your 
-expectations, you must be a lucky guy. i386 and alpha are still 100% 
-different machines.
-
-> I used the same quick-hack, but I was wondering why kmap_types.h is missing... 
-> Any ideas? Anybody?
-
-It wasn't introduced, I guess.
-
-> > process.c: In function `alpha_clone':
-> > process.c:268: too few arguments to function `do_fork'
-> > process.c: In function `alpha_vfork':
-> > process.c:277: too few arguments to function `do_fork'
-> > make[1]: *** [process.o] Error 1
-> > make[1]: Leaving directory
-
-Yes, the syntax changed. 
-
-> The same problems happens here. I'm currently searching for the changelog for 
-> do_fork, so I may find out what arguments I should add to make this working 
-> again. At the i386-tree there is sometimes "NULL" as the last argument added, 
-> but I don't believe that it will be good to simply add "NULL" in every 
-> function call. :o)
-
-The NULL only needs to be non-NULL if we clone with CLONE_CLEARTID.
-
-			Thunder
--- 
---./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
---/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
-.- -/---/--/---/.-./.-./---/.--/.-.-.-
---./.-/-.../.-./.././.-../.-.-.-
 

@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267037AbRGJSO4>; Tue, 10 Jul 2001 14:14:56 -0400
+	id <S267043AbRGJSSQ>; Tue, 10 Jul 2001 14:18:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267026AbRGJSOq>; Tue, 10 Jul 2001 14:14:46 -0400
-Received: from patan.Sun.COM ([192.18.98.43]:2240 "EHLO patan.sun.com")
-	by vger.kernel.org with ESMTP id <S267038AbRGJSOc>;
-	Tue, 10 Jul 2001 14:14:32 -0400
-Message-ID: <3B4B47C5.F176C3C2@sun.com>
-Date: Tue, 10 Jul 2001 11:21:57 -0700
-From: Tim Hockin <thockin@sun.com>
-Organization: Sun Microsystems, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Studierende der Universitaet des Saarlandes 
-	<masp0008@stud.uni-sb.de>,
-        groudier@club-internet.fr, alan@redhat.com,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH]  sym53c8xx timer rework
-In-Reply-To: <3B4ACF6B.5F194E54@stud.uni-saarland.de>
+	id <S267045AbRGJSSG>; Tue, 10 Jul 2001 14:18:06 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:62403 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S267043AbRGJSRy>; Tue, 10 Jul 2001 14:17:54 -0400
+Date: Tue, 10 Jul 2001 19:17:19 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Mike Black <mblack@csihq.com>
+Cc: Andreas Dilger <adilger@turbolinux.com>,
+        "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>,
+        Ext2 development mailing list 
+	<ext2-devel@lists.sourceforge.net>
+Subject: Re: [Ext2-devel] Re: 2.4.6 and ext3-2.4-0.9.1-246
+Message-ID: <20010710191719.B1493@redhat.com>
+In-Reply-To: <200107101752.f6AHqXUu022141@webber.adilger.int> <018101c1096a$17e2afc0$b6562341@cfl.rr.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <018101c1096a$17e2afc0$b6562341@cfl.rr.com>; from mblack@csihq.com on Tue, Jul 10, 2001 at 01:59:40PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Studierende der Universitaet des Saarlandes wrote:
+Hi,
 
-> > +       NCR_LOCK_NCB(np, flags);
-> > +       del_timer(&np->timer);
-> > +       NCR_UNLOCK_NCB(np, flags);
-> 
-> I'm only reading the diff, but this change looks wrong.
-> The simplest solution is del_timer_sync() instead of
-> LOCK;del_timer;UNLOCK.
+On Tue, Jul 10, 2001 at 01:59:40PM -0400, Mike Black wrote:
+> Yep -- I said __files__ -- I'm less concerned about performance than
+> reliability -- I don't think you can RAID1 a swap partition can you?
 
-I didn't even realize there was a del_timer_sync().  That does what is
-needed.  3 lines become 1, I guess.
+You can on 2.4.  2.2 would let you do it but it was unsafe --- swap
+could interact badly with raid reconstruction.  2.4 should be OK.
 
-Thanks, CC:ed to Gerard and crew.
+> Also,
+> having it in files allows me to easily add more swap as needed.
+> As far as journalling mode I just used tune2fs to put a journal on with
+> default parameters so I assume that's full journaling.
 
--- 
-Tim Hockin
-Systems Software Engineer
-Sun Microsystems, Cobalt Server Appliances
-thockin@sun.com
+The swap code bypasses filesystem writes: all it does is to ask the
+filesystem where on disk the data resides, then it performs IO
+straight to those disk blocks.  The data journaling mode doesn't
+really matter there.
+
+Cheers,
+ Stephen

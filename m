@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265909AbSLIS43>; Mon, 9 Dec 2002 13:56:29 -0500
+	id <S266006AbSLIS76>; Mon, 9 Dec 2002 13:59:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265936AbSLIS43>; Mon, 9 Dec 2002 13:56:29 -0500
-Received: from users.linvision.com ([62.58.92.114]:15290 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S265909AbSLIS42>; Mon, 9 Dec 2002 13:56:28 -0500
-Date: Mon, 9 Dec 2002 20:03:19 +0100
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-       "Dr. David Alan Gilbert" <gilbertd@treblig.org>, erik@hensema.xs4all.nl,
-       linux-kernel@vger.kernel.org
-Subject: Re: /proc/pci deprecation?
-Message-ID: <20021209200318.A31996@bitwizard.nl>
-References: <997222131F7@vcnet.vc.cvut.cz> <slrnav3qp5.1c2.usenet@bender.home.hensema.net> <20021207131559.GA737@gallifrey> <20021207174658.GD10322@conectiva.com.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021207174658.GD10322@conectiva.com.br>
-User-Agent: Mutt/1.3.22.1i
-Organization: BitWizard.nl
+	id <S266038AbSLIS76>; Mon, 9 Dec 2002 13:59:58 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:54453 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S266006AbSLIS76> convert rfc822-to-8bit; Mon, 9 Dec 2002 13:59:58 -0500
+Date: Mon, 9 Dec 2002 14:09:04 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Matthew Wilcox <willy@debian.org>
+Cc: Arjan van de Ven <arjanv@redhat.com>,
+       =?iso-8859-1?Q?Hanno_B=F6ck?= <hanno@gmx.de>,
+       "Grover, Andrew" <andrew.grover@intel.com>, "" <pavel@ucw.cz>,
+       "" <linux-kernel@vger.kernel.org>, "" <acpi-devel@sourceforge.net>
+Subject: Re: [ACPI] RE: [BK PATCH] ACPI updates
+In-Reply-To: <20021206131746.C10368@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.50L.0212091408120.10894-100000@freak.distro.conectiva>
+References: <EDC461A30AC4D511ADE10002A5072CAD04C7A576@orsmsx119.jf.intel.com>
+ <20021206125943.2199892e.hanno@gmx.de> <20021206072932.B16173@devserv.devel.redhat.com>
+ <20021206131746.C10368@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 07, 2002 at 03:46:58PM -0200, Arnaldo Carvalho de Melo wrote:
-> Em Sat, Dec 07, 2002 at 01:15:59PM +0000, Dr. David Alan Gilbert escreveu:
-> > * Erik Hensema (usenet@hensema.xs4all.nl) wrote:
-> > > 
-> > > Every half-decent installer autodetects all PCI devices. AND had lspci
-> > > installed in the install image.
-> > 
-> > Yes, but wait till you find yourself stuck on a weird embedded board
-> > with a small flash and a serial console and you are trying to debug the
-> > PCI device you've built.
-> 
-> In this weird embedded board with small flash it'd be lovely to save one
-> more page (or perhaps more) in the kernel image, no? :-)
 
-Agreed. But -=*if*=- I want to. 
 
-I would personally prefer to spend the page in the (compressed in flash!)
-kernel image than the nine pages or so for "lspci" (possibly compressed
-as well). 
- 
-	Roger.
+On Fri, 6 Dec 2002, Matthew Wilcox wrote:
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* The Worlds Ecosystem is a stable system. Stable systems may experience *
-* excursions from the stable situation. We are currently in such an      * 
-* excursion: The stable situation does not include humans. ***************
+> On Fri, Dec 06, 2002 at 07:29:32AM -0500, Arjan van de Ven wrote:
+> > On Fri, Dec 06, 2002 at 12:59:43PM +0100, Hanno Böck wrote:
+> > > I think this is a very bad news. In my opinion, the ACPI-patch
+> > > is the most-needed kernel-patch at the moment. For many laptop-users
+> > > that don't know about this patch, Linux is nearly
+> > > unuseable.
+> >
+> > the 2.4 patch doesnt' actually offer suspend/resume capabilities; what
+> > else did you have in mind as required ?
+>
+> booting?
+
+Which machines do not work without the new ACPI code?

@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131578AbQL1X5U>; Thu, 28 Dec 2000 18:57:20 -0500
+	id <S132868AbQL2ACb>; Thu, 28 Dec 2000 19:02:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132884AbQL1X5O>; Thu, 28 Dec 2000 18:57:14 -0500
-Received: from jalon.able.es ([212.97.163.2]:56311 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S131578AbQL1X5D>;
-	Thu, 28 Dec 2000 18:57:03 -0500
-Date: Fri, 29 Dec 2000 00:26:27 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Wakko Warner <wakko@animx.eu.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB web cam
-Message-ID: <20001229002627.E737@werewolf.able.es>
-In-Reply-To: <20001228173214.B26419@animx.eu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20001228173214.B26419@animx.eu.org>; from wakko@animx.eu.org on Thu, Dec 28, 2000 at 23:32:15 +0100
-X-Mailer: Balsa 1.0.1
+	id <S132883AbQL2ACW>; Thu, 28 Dec 2000 19:02:22 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:10625 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S132868AbQL2ACD>;
+	Thu, 28 Dec 2000 19:02:03 -0500
+Date: Thu, 28 Dec 2000 15:14:56 -0800
+Message-Id: <200012282314.PAA01997@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: ak@suse.de
+CC: ak@suse.de, torvalds@transmeta.com, marcelo@conectiva.com.br,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20001229001721.B25388@gruyere.muc.suse.de> (message from Andi
+	Kleen on Fri, 29 Dec 2000 00:17:21 +0100)
+Subject: Re: test13-pre5
+In-Reply-To: <Pine.LNX.4.21.0012281637200.12364-100000@freak.distro.conectiva> <Pine.LNX.4.10.10012281243010.788-100000@penguin.transmeta.com> <20001228231722.A24875@gruyere.muc.suse.de> <200012282233.OAA01433@pizda.ninka.net> <20001228235836.A25388@gruyere.muc.suse.de> <200012282254.OAA01772@pizda.ninka.net> <20001229001721.B25388@gruyere.muc.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   Date: Fri, 29 Dec 2000 00:17:21 +0100
+   From: Andi Kleen <ak@suse.de>
 
-On 2000.12.28 Wakko Warner wrote:
-> I really hate to ask on the list, but if I was to buy a usb web cam, what
-> would be a good choice?
-> 
-> I would have tried linux-usb, but I didn't know where it was, sorry.
-> 
+   On Thu, Dec 28, 2000 at 02:54:52PM -0800, David S. Miller wrote:
+   > To make things like "page - mem_map" et al. use shifts instead of
+   > expensive multiplies...
 
-Try a fresh new kernel, at least 2.2.18 or any 19-preX. They include usb
-right 'out of the box'.
+   I thought that is what ->index is for ? 
 
--- 
-J.A. Magallon                                         $> cd pub
-mailto:jamagallon@able.es                             $> more beer
+It is for the page cache identity Andi... you know, page_hash(mapping, index)...
 
-Linux werewolf 2.2.19-pre3-aa3 #3 SMP Wed Dec 27 10:25:32 CET 2000 i686
+And the add/sub/shift expansion of a multiply/divide by constant even
+in its' most optimal form is often not trivial, it is something on the
+order of 7 instructions with waitq debugging enabled last time I
+checked.
 
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267243AbSLKRub>; Wed, 11 Dec 2002 12:50:31 -0500
+	id <S267241AbSLKRtW>; Wed, 11 Dec 2002 12:49:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267245AbSLKRua>; Wed, 11 Dec 2002 12:50:30 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:15336 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S267243AbSLKRu2>;
-	Wed, 11 Dec 2002 12:50:28 -0500
-Date: Wed, 11 Dec 2002 12:58:10 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Dave Jones <davej@codemonkey.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5 Changes doc update.
-Message-ID: <20021211175810.GC2612@gtf.org>
-References: <20021211172559.GA8613@suse.de>
+	id <S267242AbSLKRtW>; Wed, 11 Dec 2002 12:49:22 -0500
+Received: from [217.167.51.129] ([217.167.51.129]:24002 "EHLO zion.wanadoo.fr")
+	by vger.kernel.org with ESMTP id <S267241AbSLKRtV>;
+	Wed, 11 Dec 2002 12:49:21 -0500
+Subject: Re: patch for aty128fb.c
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0212110635110.2617-100000@maxwell.earthlink.net>
+References: <Pine.LNX.4.33.0212110635110.2617-100000@maxwell.earthlink.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 11 Dec 2002 19:01:56 +0100
+Message-Id: <1039629716.3539.51.camel@zion>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021211172559.GA8613@suse.de>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 11, 2002 at 05:25:59PM +0000, Dave Jones wrote:
-> Kernel build system.
-> ~~~~~~~~~~~~~~~~~~~~
-> - Versus 2.4, the build system has been much improved.
->   You should notice quicker builds, and less spontaneous rebuilds
->   of files on subsequent builds from already built trees.
-> - make xconfig now requires the qt libraries.
-> - Make menuconfig/oldconfig has no user-visible changes other than speed,
->   whilst numerous improvements have been made.
-> - Several new debug targets exist: 'allyesconfig' 'allnoconfig' 'allmodconfig'.
-> - For infomation: The above improvements are not CML2 / kbuild-2.5 related.
+On Wed, 2002-12-11 at 15:42, James Simmons wrote:
+> 
+> > Currently it can only put one rage 128 chip to sleep, but that is ok
+> > for now since I've never seen a laptop with two rage 128 chips yet. :)
+> > The generic device model will ultimately give us a better way to
+> > handle sleep/wakeup.
+> 
+> Actually I started to looking into doing that. I noticed struct
+> pci_driver having a resume and suspend function. Is this related? I just
+> started to looking into the new PM code.
 
-I think the coolest things (to me) of the new build system need to be
-noted too,
+It's +/- related, but pls don't play with that now, I need to dig into
+it in much details myself, I don't think I'll use the pci callbacks
+anyway.
 
-- "make" is now the preferred target; it does <arch-zimage> and modules.
-- "make -jN" is now the preferred parallel-make execution.  Do not
-  bother to provide "MAKE=xxx".
+Ben.
 

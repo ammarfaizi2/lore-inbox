@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261546AbVDEDNB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261548AbVDEDPI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261546AbVDEDNB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 23:13:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261547AbVDEDNB
+	id S261548AbVDEDPI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 23:15:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261547AbVDEDPI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 23:13:01 -0400
-Received: from fire.osdl.org ([65.172.181.4]:29163 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261546AbVDEDM6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 23:12:58 -0400
-Date: Mon, 4 Apr 2005 19:12:46 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Claudio Martins <ctpm@rnl.ist.utl.pt>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Processes stuck on D state on Dual Opteron
-Message-Id: <20050404191246.24b11158.akpm@osdl.org>
-In-Reply-To: <200504050316.20644.ctpm@rnl.ist.utl.pt>
-References: <200504050316.20644.ctpm@rnl.ist.utl.pt>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 4 Apr 2005 23:15:08 -0400
+Received: from mail47-s.fg.online.no ([148.122.161.47]:13544 "EHLO
+	mail47-s.fg.online.no") by vger.kernel.org with ESMTP
+	id S261548AbVDEDO4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 23:14:56 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: Logitech MX1000 Horizontal Scrolling
+References: <873bxfoq7g.fsf@quasar.esben-stien.name>
+	<87zmylaenr.fsf@quasar.esben-stien.name>
+	<20050204195410.GA5279@ucw.cz>
+	<873bvyfsvs.fsf@quasar.esben-stien.name>
+	<87zmxil0g8.fsf@quasar.esben-stien.name>
+	<1110056942.16541.4.camel@localhost>
+	<87sm37vfre.fsf@quasar.esben-stien.name>
+	<87wtsjtii6.fsf@quasar.esben-stien.name>
+	<20050308205210.GA3986@ucw.cz> <1112083646.12986.3.camel@localhost>
+	<87psxcsq06.fsf@quasar.esben-stien.name> <87u0mn3l4e.fsf@blackdown.de>
+From: Esben Stien <b0ef@esben-stien.name>
+X-Home-Page: http://www.esben-stien.name
+Date: Tue, 05 Apr 2005 05:12:10 +0200
+In-Reply-To: <87u0mn3l4e.fsf@blackdown.de> (Juergen Kreileder's message of
+ "Sun, 03 Apr 2005 18:01:21 +0200")
+Message-ID: <87acodvrw5.fsf@quasar.esben-stien.name>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Claudio Martins <ctpm@rnl.ist.utl.pt> wrote:
->
->    While stress testing 2.6.12-rc2 on an HP DL145 I get processes stuck in D 
->  state after some time.  
->    This machine is a dual Opteron 248 with 2GB (ECC) on one node (the other 
->  node has no RAM modules plugged in, since this board works only with pairs).
-> 
->    I was using stress (http://weather.ou.edu/~apw/projects/stress/) with the 
->  following command line:
-> 
->  stress -v -c 20 -i 12 -m 10 -d 20
-> 
->    This causes a constant load avg. of around 70, makes the machine go into 
->  swap a little, and writes up to about 20GB of random data to disk while 
->  eating up all CPU. After about half and hour random processes like top, df, 
->  etc get stuck in D state. Half of the 60 or so stress processes are also in D 
->  state. The machine keeps being responsive for maybe some 15 minutes but then 
->  the shells just hang and sshd stops responding to connections, though the 
->  machine replies to pings (I don't have console acess till tomorrow).
-> 
->    The system is using ext3 with md software Raid1.
-> 
->   I'm interested in knowing if anyone out there with dual Opterons can 
->  reproduce this or not. I also have access to an HP DL360 Dual Xeon, so I will 
->  try to find out if this is AMD64 specific as soon as possible. Please let me 
->  know if you want me to run some other tests or give some more info to help 
->  solve this one.
+Juergen Kreileder <jk@blackdown.de> writes:
 
-Can you capture the output from alt-sysrq-T?
+> http://blog.blackdown.de/2005/04/03/logitech-mx1000-configuration/
+
+This did it. I got it completely working now. Both the horizontal and
+the vertical cruise control is working with no problems. I'm scrolling
+and I can't find a single problem with the device.
+
+-- 
+Esben Stien is b0ef@esben-stien.name
+         http://www.
+          irc://irc.                /%23contact
+          [sip|iax]:
+           jid:b0ef@

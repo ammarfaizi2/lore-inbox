@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263080AbRFGU3c>; Thu, 7 Jun 2001 16:29:32 -0400
+	id <S263079AbRFGU0M>; Thu, 7 Jun 2001 16:26:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263088AbRFGU3W>; Thu, 7 Jun 2001 16:29:22 -0400
-Received: from age.cs.columbia.edu ([128.59.22.100]:24847 "EHLO
-	age.cs.columbia.edu") by vger.kernel.org with ESMTP
-	id <S263080AbRFGU3L>; Thu, 7 Jun 2001 16:29:11 -0400
-Date: Thu, 7 Jun 2001 13:29:07 -0700 (PDT)
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: Tom Sightler <ttsig@tuxyturvy.com>
-cc: <linux-kernel@vger.kernel.org>, <arjan@fenrus.demon.nl>
-Subject: Re: xircom_cb problems
-In-Reply-To: <991939245.3b1fcaada710e@eargle.com>
-Message-ID: <Pine.LNX.4.33.0106071322160.22593-100000@age.cs.columbia.edu>
+	id <S263080AbRFGU0D>; Thu, 7 Jun 2001 16:26:03 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:58634 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S263079AbRFGUZw>; Thu, 7 Jun 2001 16:25:52 -0400
+Date: Thu, 7 Jun 2001 15:50:31 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: Background scanning change on 2.4.6-pre1
+Message-ID: <Pine.LNX.4.21.0106071545520.1156-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Jun 2001, Tom Sightler wrote:
 
-> Transferring files between the eepro100 machine running 2.4.2-ac11 and my 
-> laptop produced a result of 2.24MB/s for sending and 2.13MB/s recieving the 
-> file.
-> 
-> Transfering files between the Alteon Gigabit machine running 2.2.19 and my 
-> laptop resulted in the dismal numbers of 249KB/s sending and 185KB/s recieving, 
-> close to the numbers you quoted above, but actually slightly worse.
-> 
-> I'm not sure what would explain the 2.2.19 1GB conencted box being 10x slower 
-> than the 2.4.2-ac11 100MB machine.
+Hi Linus, 
 
-Both of these are slow, actually. I'm getting 7.5-8MB/s when receiving 
-from a 100Mbit box (tulip or starfire, doesn't seem to matter). 
-Transmitting is still slow for me, but that is most likely a different 
-problem -- and I'm looking into it.
 
-Moreover, I'm getting 9+MB/s in both directions when using the other 
-driver (xircom_tulip_cb), patched to do half-duplex only. So the card can 
-definitely transfer at network speeds.
+Who did this change to refill_inactive_scan() in 2.4.6-pre1 ? 
 
-> I'll apply your patch with the change to MII handling and rerun some simple 
-> file transfers and report the results soon.
+        /*
+         * When we are background aging, we try to increase the page aging
+         * information in the system.
+         */
+        if (!target)
+                maxscan = nr_active_pages >> 4;
 
-Looking forward to seeing them...
+This is going to make all pages have age 0 on an idle system after some
+time (the old code from Rik which has been replaced by this code tried to 
+avoid that)
 
-Thanks,
-Ion
+Could you please explain me the reasoning behind this change ?  
 
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
+Thanks 
 

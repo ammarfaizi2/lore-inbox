@@ -1,39 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261425AbRFBVgd>; Sat, 2 Jun 2001 17:36:33 -0400
+	id <S261502AbRFBVhe>; Sat, 2 Jun 2001 17:37:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261487AbRFBVgX>; Sat, 2 Jun 2001 17:36:23 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:1796 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S261425AbRFBVgO>;
-	Sat, 2 Jun 2001 17:36:14 -0400
-Date: Sat, 2 Jun 2001 13:58:01 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: "J . A . Magallon" <jamagallon@able.es>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: here comes the summer...
-Message-ID: <20010602135800.A33@toy.ucw.cz>
-In-Reply-To: <20010530233055.A1138@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20010530233055.A1138@werewolf.able.es>; from jamagallon@able.es on Wed, May 30, 2001 at 11:30:55PM +0200
+	id <S261505AbRFBVgo>; Sat, 2 Jun 2001 17:36:44 -0400
+Received: from mail.iwr.uni-heidelberg.de ([129.206.104.30]:3540 "EHLO
+	mail.iwr.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id <S261502AbRFBVgh>; Sat, 2 Jun 2001 17:36:37 -0400
+Date: Sat, 2 Jun 2001 23:36:33 +0200 (CEST)
+From: Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Mark Frazer <mark@somanetworks.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Pete Zaitcev <zaitcev@redhat.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        <netdev@oss.sgi.com>
+Subject: Re: MII access (was [PATCH] support for Cobalt Networks (x86 only)
+In-Reply-To: <E156H20-00023o-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0106022302250.23145-100000@kenzo.iwr.uni-heidelberg.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sat, 2 Jun 2001, Alan Cox wrote:
 
-> ...again (I think I asked just the same last summer)
-> and lm_sensors is still out of the kernel (we have got 40ºC in Spain
-> this week, and I would like to know how my PIIs suffer...)
+> > One application needs to poll link status with 1 second resolution. On a
+>
+> Then it needs to be privileged
 
-Send some summer over here. It is 15C outside...
+Fine. Can you think of a default value for expiring cache ?
 
-You should try latest ACPI patches, they include thermal managment, too.
+> And if the approach is to block until the time for the next read occurs is
+> done then the program get stuck for 30 seconds, misses its deadline and kills
+> the cluster - how is this better ??
 
-								Pavel
+Is not better. Well, when somebody is playing against you, you're in
+trouble either way:
+- rate limit: - blocking - as above
+              - non-blocking - notify the user that you can't get the info
+                and probably stop or aquire elevated priviledges and try
+                to restart the network
+- cache: get outdated info
+
+But when a HA application runs, it's usually preferable to stop (and you
+notice it) than to continue with wrong data. Especially if you set the
+cache expiry to something like 30 seconds; think in terms of how many
+transactions/second today's hardware allows...
+
+> Doing the MII monitoring somewhere centralised like the routing daemons would
+> certainly let more inteillgent management and reporting get done
+
+I don't argue over this point, already several people mentioned it. But I
+explained the present situation in a previous message: the MII info is
+normally read at a low rate and some applications need it more often. It
+doesn't matter that it's delivered through ioctl, netlink or any other
+way, you have to read it from the hardware and deliver to user-space at
+user request. So the "doing the MII monitoring" is the tough part.
 
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+Bogdan Costescu
+
+IWR - Interdisziplinaeres Zentrum fuer Wissenschaftliches Rechnen
+Universitaet Heidelberg, INF 368, D-69120 Heidelberg, GERMANY
+Telephone: +49 6221 54 8869, Telefax: +49 6221 54 8868
+E-mail: Bogdan.Costescu@IWR.Uni-Heidelberg.De
 

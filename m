@@ -1,64 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265792AbUAKILB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 03:11:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265794AbUAKILB
+	id S265808AbUAKISW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 03:18:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265809AbUAKISW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 03:11:01 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:2999 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S265792AbUAKIK7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 03:10:59 -0500
-Date: Sun, 11 Jan 2004 09:10:46 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Peter Berg Larsen <pebl@math.ku.dk>
-Cc: Gunter =?iso-8859-1?Q?K=F6nigsmann?= <gunter.koenigsmann@gmx.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Synaptics Touchpad workaround for strange behavior after Sync loss (With Patch).
-Message-ID: <20040111081046.GA25497@ucw.cz>
-References: <20040109105855.GB9479@ucw.cz> <Pine.LNX.4.40.0401102336450.588-100000@shannon.math.ku.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.40.0401102336450.588-100000@shannon.math.ku.dk>
-User-Agent: Mutt/1.5.4i
+	Sun, 11 Jan 2004 03:18:22 -0500
+Received: from moutng.kundenserver.de ([212.227.126.177]:9187 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S265808AbUAKISF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jan 2004 03:18:05 -0500
+Date: Sun, 11 Jan 2004 09:00:55 +0100 (CET)
+From: =?ISO-8859-1?Q?Gunter_K=F6nigsmann?= <gunter@peterpall.de>
+Reply-To: =?ISO-8859-1?Q?Gunter_K=F6nigsmann?= <gunter.koenigsmann@gmx.de>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+cc: Gunter =?iso-8859-1?q?K=F6nigsmann?= <gunter@peterpall.de>,
+       linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 1/2] Synaptics rate switching
+In-Reply-To: <200401102120.46956.dtor_core@ameritech.net>
+Message-ID: <Pine.LNX.4.53.0401110845100.1177@calcula.uni-erlangen.de>
+References: <Pine.LNX.4.53.0401091101170.1050@calcula.uni-erlangen.de>
+ <200401100345.17211.dtor_core@ameritech.net> <Pine.LNX.4.53.0401102241130.1980@calcula.uni-erlangen.de>
+ <200401102120.46956.dtor_core@ameritech.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:6f0b4d165b4faec4675b8267e0f72da4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 10, 2004 at 11:50:02PM +0100, Peter Berg Larsen wrote:
+cpufreq is deactivated for all tests, but seems not to make problems...
 
-> On Fri, 9 Jan 2004, Vojtech Pavlik wrote:
-> 
-> > The sync problems have so far been found to be caused by two possible
-> > causes:
-> >
-> > 	1) Too long disabled interrupts. This is usually caused by ACPI
-> > 	   BIOS, when some application is polling for battery status
-> > 	   too often.
-> >
-> > 	2) Incorrectly working timer (jiffies). This maybe caused by
-> > 	   using the ACPI timer instead of the regular PIT one. Check
-> > 	   the config.
-> >
-> > Both these causes break the lost bytes detection mechanism in the ps/2
-> > code. It then thinks that a byte was lost (and thus the sync, too), but
-> > in reality everything is OK. This in turn causes two consecutive
-> > incorrectly parsed packets.
-> 
-> I also believe some of the troubles comes from that we never check all
-> error codes from the mux: If mux is disabled for some reason all bytes are
-> stamped as timed out.  The only way to recover is to reboot.  And (I am
-> speculating here) if for some reason the mux believe the touchpad is
-> removed and connected the touchpad sends 2 bytes ack.
-> 
-> I dont have a machine with active multiplexing so the the patch is
-> untested. It warns when the mouse is removed, and tries to recover
-> if multiplexing is disabled.
+ACPI --- Pow... never thought of that... ...But sync losses occour even if
+my labtop doesn't even see the need for switching on the CPU fan. Anyway,
+povray makes the CPU really hot, and doesn't make things worse...
 
-It's nice, but er definitely shouldn't call i8042_enable_mux() from the
-interrupt handler, because i8042_command() waits for characters arriving
-in the interrupt handler, so we could get into rather nasty recursions.
+...and the problem occours directly after startup, too... Don't think this
+will be the problem,
+
+	Gunter.
+
+
+On Yesterday, Dmitry Torokhov wrote:
+
+>From: Dmitry Torokhov <dtor_core@ameritech.net>
+>Date: Sat, 10 Jan 2004 21:20:46 -0500
+>To: Gunter Königsmann <gunter.koenigsmann@gmx.de>,
+>     Gunter Königsmann <gunter@peterpall.de>
+>Cc: Gunter Königsmann <gunter@peterpall.de>, linux-kernel@vger.kernel.org,
+>     Vojtech Pavlik <vojtech@suse.cz>, Andrew Morton <akpm@osdl.org>
+>Subject: Re: [PATCH 1/2] Synaptics rate switching
+>
+>On Saturday 10 January 2004 05:05 pm, Gunter Königsmann wrote:
+>> Tried it. Doesn't change a thing. Means: I get about half the number of
+>> warning messages, but that just corresponds to half the number of
+>> packets.
+>>
+>>
+>> What helps a lot, but not to 100% (get bad keypresses anyway) is
+>> totally deactivating the ACPI. Killing all processes that access
+>> /proc/acpi seems again to help a bit.
+>>
+>> And The number of Warnings seemingly increases with the labtop
+>> temperature... In a really cold room I get nearly no warnings at all.
+>> Jitter? Hardware, that is simply broken?
+>>
+>
+>Actually, since you mentioned temperature.. is CPUFREQ active or does
+>the ACPI throttle your processor to a lower frequency if it gets hot?
+>
+>Dmitry
+>
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+"I don't think they could put him in a mental hospital.  On the other
+hand, if he were already in, I don't think they'd let him out."
+	--fortune(6)

@@ -1,36 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264245AbUAJAAT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 19:00:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264339AbUAJAAT
+	id S264481AbUAIX5K (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 18:57:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264526AbUAIX5K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 19:00:19 -0500
-Received: from codeblau.walledcity.de ([212.84.209.34]:60168 "EHLO codeblau.de")
-	by vger.kernel.org with ESMTP id S264245AbUAJAAR (ORCPT
+	Fri, 9 Jan 2004 18:57:10 -0500
+Received: from mail3.ithnet.com ([217.64.64.7]:34009 "HELO ithnet.com")
+	by vger.kernel.org with SMTP id S264481AbUAIX5D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 19:00:17 -0500
-Date: Sat, 10 Jan 2004 01:01:28 +0100
-From: Felix von Leitner <felix-kernel@fefe.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.1 sendfile regression
-Message-ID: <20040110000128.GA301@codeblau.de>
+	Fri, 9 Jan 2004 18:57:03 -0500
+X-Sender-Authentication: net64
+Date: Sat, 10 Jan 2004 00:56:44 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Jonathan Lundell <jlundell@lundell-bros.com>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: Problem with 2.4.24 e1000 and keepalived
+Message-Id: <20040110005644.000e4c37.skraw@ithnet.com>
+In-Reply-To: <p0602047abc24a5dc714d@[192.168.0.3]>
+References: <20040107200556.0d553c40.skraw@ithnet.com>
+	<20040107210255.GA545@alpha.home.local>
+	<3FFCC430.4060804@candelatech.com>
+	<20040108091441.3ff81b53.skraw@ithnet.com>
+	<20040108084758.GB9050@alpha.home.local>
+	<p0602042fbc2347a37845@[192.168.0.3]>
+	<20040109004525.GB545@alpha.home.local>
+	<p0602045cbc23ac7a1ada@[192.168.0.3]>
+	<20040109131812.11fc4948.skraw@ithnet.com>
+	<p0602047abc24a5dc714d@[192.168.0.3]>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting a huge sendfile regression in 2.6.1; when serving a large
-file on an IPv4 TCP socket via sendfile64, the transfer starts at about
-4 MB (2.6.0: >7 MB) and the hard disk like stays on 100% (which normally
-only happens if the file is badly fragmented, fragmentation of this file
-is 0%).  Then, suddenly, the network performance drops dramatically,
-getting worse and worse.  strace shows that the process is hanging
-inside sendfile64 (which should not happen since the socket is
-non-blocking).  The process then stays inside sendfile for up to a
-minute or so and can't be interrupted or killed in that time.
+On Fri, 9 Jan 2004 10:43:13 -0800
+Jonathan Lundell <jlundell@lundell-bros.com> wrote:
 
-Please fix!
+> At 1:18pm +0100 1/9/04, Stephan von Krawczynski wrote:
+> >On Thu, 8 Jan 2004 17:00:42 -0800
+> >Jonathan Lundell <jlundell@lundell-bros.com> wrote:
+> >
+> >>  At 1:45am +0100 1/9/04, Willy Tarreau wrote:
+> >>  >  > It's unfortunate that the two conditions are conflated by most net
+> >>  >  > drivers.
+> >>  >
+> >>  >IMHO, saying "most net drivers" is unfair : tg3, tulip, 3c59x, starfire,
+> >>  >realtek, sis900, dl2k, pcnet32, and IIRC sunhme are OK. eepro100 is
+> >nearly>  >OK but has this annoying bug, and only older 10 Mbps drivers don't
+> >report>  >their status, often because the chip itself doesn't know.
+> >>
+> >>  I'm sure you're right; I should have said most of the drivers that
+> >>  I'm using (including e100 &e1000).
+> >
+> >Can we find the cause for this obviously buggy behaviour inside the source?
+> >Where is the handling of physical up/down events different in tulip 
+> >compared to
+> >e100(0) ?
+> 
+> In e1000 5.2.20 (as in earlier versions), the link-state reporters 
+> rely on netif_carrier_ok() for the state, which is in turned 
+> maintained by the driver's watchdog timer.
+> 
+> e1000_down() both cancels the watchdog timer and calls 
+> netif_carrier_off(), guaranteeing that if the interface is logically 
+> down, the link will be reported as down regardless of the actual link 
+> state.
 
-Felix
+That cannot be the cause, as the logical interface state is UP in the problem
+case.
+
+Regards,
+Stephan

@@ -1,104 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312083AbSCUQeM>; Thu, 21 Mar 2002 11:34:12 -0500
+	id <S312151AbSCUQfZ>; Thu, 21 Mar 2002 11:35:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311871AbSCUQeD>; Thu, 21 Mar 2002 11:34:03 -0500
-Received: from 12-216-36-250.client.mchsi.com ([12.216.36.250]:3484 "EHLO
-	united.lan.codewhore.org") by vger.kernel.org with ESMTP
-	id <S311868AbSCUQdq>; Thu, 21 Mar 2002 11:33:46 -0500
-Date: Thu, 21 Mar 2002 11:32:01 -0500
-From: David Brown <dave@codewhore.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Patch, forward release() return values to the close() call
-Message-ID: <20020321113201.A26882@codewhore.org>
-In-Reply-To: <200203210747.IAA25949@merlin.gams.co.at> <3C999633.2060104@mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="wRRV7LY7NUeQGEoC"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S312140AbSCUQen>; Thu, 21 Mar 2002 11:34:43 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:54794 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S311871AbSCUQeh>; Thu, 21 Mar 2002 11:34:37 -0500
+Subject: Re: NatSemi SC1200 timer problems
+To: wingel@acolyte.hack.org (Christer Weinigel)
+Date: Thu, 21 Mar 2002 16:50:46 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk (Alan Cox),
+        miura@da-cha.org (Hiroshi MIURA), anders.wallin@mvista.com
+In-Reply-To: <20020321162312.7241DF5B@acolyte.hack.org> from "Christer Weinigel" at Mar 21, 2002 05:23:12 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16o5m2-0005fx-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Alan, i think did a patch to disable the TSC on the MediaGX and I have
+> seen posts by you where you say about the MediaGX that "It reports a
+> TSC but the TSC is unreliable at least in certain strange
+> circumstances".  Do you refer to the TSC being stopped or turned off
+> on halt or suspend or is it a completely different problem?  Could you
+> please tell me what kind of problems you saw?
 
---wRRV7LY7NUeQGEoC
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On the 5510/5520 bugs in the timers prevent use getting the TSC/delay
+calibrated. This works ok on the 5530. I also saw some really bizarre goings
+on with the TSC on some devices like joystick.
 
-Hi:
+The older kernels kill TSC on any MediaGX (but will miss newer geodes due
+to the cpuid change). Current one will kill tsc on 5510/5520 and knows
+the new geode idents
 
-Forgive me if I'm not completely understanding this, but isn't release()
-only called when the refcount of the file structure drops to zero? e.g.:
-           =20
-  [18]Note that release isn't invoked every time a process calls close.
-  Whenever a file structure is shared (for example, after a fork or a
-  dup), release won't be invoked until all copies are closed. If you need
-  to flush pending data when any copy is closed, you should implement the
-  flush method.
-
-Seems to me that even /with/ a change in semantics of close(), only the
-last call to close() would actually get notified of the failure.
-
-Thinking to NFS, would flush() be a better file_operation to use?
-
-
-Regards,
-
-- Dave
-  dave@codewhore.org
-
-
-On Thu, Mar 21, 2002 at 03:13:39AM -0500, Jeff Garzik wrote:
-> Axel Kittenberger wrote:
->=20
-> >Here goes my liitle patchy, once again :o)
-> >
-> >Whats it's about?
-> >
-> >When close()ing an charcter device one expects the return value of the=
-=20
-> >charcter drivers release() call to be forwarded to the close() called in=
-=20
-> >userspace. However thats not the case, the kernel swallows the release()=
-=20
-> >value, and always returns 0 to the userspace's close(). (tha char driver=
-s=20
-> >release() function is called in fput() as it would have a void return va=
-lue)
-> >
-> >It may sound weired at first but there are actually device drivers than =
-can=20
-> >fail on close(), in my case it's a driver to program a LCA, the userspac=
-e=20
-> >application signals end of data by closing the device, the driver finali=
-zes=20
-> >the download, and the LCA reports if it has accepted it's new program, i=
-f not=20
-> >close() should return a non-zero value, indicating the operation did not=
-=20
-> >complete successfully.
-> >
->=20
-> Do you see how many places call fput() ?   Are you going to audit=20
-> __all__ those paths and prove to us that changing the semantics of=20
-> close(2) in Linux doesn't break things in the kernel or in userland?
->=20
-> Your driver is buggy, if it thinks it can fail f_op->release.
->=20
->     Jeff
-
---wRRV7LY7NUeQGEoC
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjyaCwEACgkQcHEtmM/AAyY/7QCdFI1ygQABHDJkl74Cjosk39E4
-7XgAn3wHeLcO90iMKkz7/XS9pVzY/j3e
-=JXFj
------END PGP SIGNATURE-----
-
---wRRV7LY7NUeQGEoC--

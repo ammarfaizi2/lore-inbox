@@ -1,29 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266928AbSL3MNA>; Mon, 30 Dec 2002 07:13:00 -0500
+	id <S266932AbSL3MTG>; Mon, 30 Dec 2002 07:19:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266932AbSL3MM7>; Mon, 30 Dec 2002 07:12:59 -0500
-Received: from zeus.city.tvnet.hu ([195.38.100.182]:56988 "EHLO
-	zeus.city.tvnet.hu") by vger.kernel.org with ESMTP
-	id <S266928AbSL3MM7>; Mon, 30 Dec 2002 07:12:59 -0500
-Subject: modprobe.conf sample
-From: Sipos Ferenc <sferi@mail.tvnet.hu>
-To: linux-kernel@vger.kernel.org
+	id <S266933AbSL3MTG>; Mon, 30 Dec 2002 07:19:06 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:44416
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266932AbSL3MTF>; Mon, 30 Dec 2002 07:19:05 -0500
+Subject: Re: How much we can trust packet timestamping
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: uaca@alumni.uv.es
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021230112838.GA928@pusa.informat.uv.es>
+References: <20021230112838.GA928@pusa.informat.uv.es>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1041250759.1198.2.camel@zeus.city.tvnet.hu>
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 30 Dec 2002 13:09:03 +0000
+Message-Id: <1041253743.13097.3.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 30 Dec 2002 13:19:20 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, 2002-12-30 at 11:28, uaca@alumni.uv.es wrote:
+> Hi all
+> 
+> IMHO The problem is quite complicated because
+> 
+> + common hardware is not designed for real time:
+> 
+> 	- sends multiple PDUs within one interrupt, and can be delayed
+> 	- Host adapter bus & infraestructure is not designed to garantee latency
+>   	etc...
 
-Could someone post me the above, because the generate-modprobe.conf
-script doesn't work for me, it complains about mktemp correct options.
-I'm using module-init-tools-0.9.7 and redhat 8.
-Thx
+The packet can be timestamped by the hardware receiving as well as by
+the kernel netif_rx code. This is actually intentional and there is
+hardware that supports doing IRQ raise time sampling which the driver
+can then use to get very accurate data.
 
-Paco
+Alan
+

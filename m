@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265700AbSLQRzU>; Tue, 17 Dec 2002 12:55:20 -0500
+	id <S265633AbSLQRxI>; Tue, 17 Dec 2002 12:53:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265736AbSLQRzU>; Tue, 17 Dec 2002 12:55:20 -0500
-Received: from tolkor.SGI.COM ([198.149.18.6]:9947 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S265700AbSLQRzT>;
-	Tue, 17 Dec 2002 12:55:19 -0500
-Subject: Re: Compile warnings due to missing __inline__ in fs/xfs/xfs_log.h
-From: Stephen Lord <lord@sgi.com>
-To: Thomas Schlichter <schlicht@rumms.uni-mannheim.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1040140891.3dff4a5bcf8f5@rumms.uni-mannheim.de>
-References: <1040140891.3dff4a5bcf8f5@rumms.uni-mannheim.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 17 Dec 2002 11:55:18 -0600
-Message-Id: <1040147719.1368.424.camel@localhost.localdomain>
-Mime-Version: 1.0
+	id <S265636AbSLQRxI>; Tue, 17 Dec 2002 12:53:08 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3855 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265633AbSLQRxH>; Tue, 17 Dec 2002 12:53:07 -0500
+Date: Tue, 17 Dec 2002 10:01:58 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ulrich Drepper <drepper@redhat.com>
+cc: Dave Jones <davej@codemonkey.org.uk>, Ingo Molnar <mingo@elte.hu>,
+       <linux-kernel@vger.kernel.org>, <hpa@transmeta.com>
+Subject: Re: Intel P6 vs P7 system call performance
+In-Reply-To: <3DFF6501.3080106@redhat.com>
+Message-ID: <Pine.LNX.4.44.0212171000120.2702-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-12-17 at 10:01, Thomas Schlichter wrote:
-> As the __inline__ directive in front of the _lsn_cmp function is not used with
-> the gcc version 2.95.x, compile-warnings result from many files including this
-> header-file.
-> 
-> Is there any reason why this function is not inlined with these compiler
-> versions? As I used following patch and compiled the kernel with my
-> gcc2.95.3(SuSE) and an other gcc2.95.4(Debian) these compiler warnings
-> disappeared and no additional warning or error occured...
-
-The reason inline is turned off for this compiler version is that it
-generates bad code when inlining this code. So you can have a quiet
-compile, or bad code.
-
-Steve
 
 
+On Tue, 17 Dec 2002, Ulrich Drepper wrote:
+>
+> If you don't like the process-global page thingy (anymore) the
+> alternative would be a sysconf() system call.
+
+Well, we do _have_ the process-global thingy now - it's the vsyscall page.
+It's not settable by the process, but it's useful for information.
+Together with an elf AT_ entry pointing to it, it's certainly sufficient
+for this usage, and it should also be sufficient for "future use" (ie we
+can add future system information in the page later: bitmaps of features
+at offset "start + 128" for example).
+
+		Linus
 

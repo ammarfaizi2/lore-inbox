@@ -1,57 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268484AbTBOALm>; Fri, 14 Feb 2003 19:11:42 -0500
+	id <S268168AbTBOA1Q>; Fri, 14 Feb 2003 19:27:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268488AbTBOALl>; Fri, 14 Feb 2003 19:11:41 -0500
-Received: from 12-211-138-234.client.attbi.com ([12.211.138.234]:21799 "EHLO
-	vlad.geekizoid.com") by vger.kernel.org with ESMTP
-	id <S268484AbTBOALl>; Fri, 14 Feb 2003 19:11:41 -0500
-Reply-To: <vlad@geekizoid.com>
-From: "Vlad@geekizoid.com" <vlad@geekizoid.com>
-To: <nick@snowman.net>, "'Adrian Bunk'" <bunk@fs.tum.de>
-Cc: "'Larry McVoy'" <lm@work.bitmover.com>, "'Larry McVoy'" <lm@bitmover.com>,
-       "'Rik van Riel'" <riel@imladris.surriel.com>,
-       "'Jamie Lokier'" <jamie@shareable.org>,
-       "'Andrea Arcangeli'" <andrea@e-mind.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: openbkweb-0.0
-Date: Fri, 14 Feb 2003 18:17:55 -0600
-Message-ID: <008701c2d487$b02910f0$0200a8c0@wsl3>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <Pine.LNX.4.21.0302141535150.3070-100000@ns.snowman.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-Importance: Normal
+	id <S268237AbTBOA1Q>; Fri, 14 Feb 2003 19:27:16 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:29312 "EHLO doc.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S268168AbTBOA1O>;
+	Fri, 14 Feb 2003 19:27:14 -0500
+Date: Fri, 14 Feb 2003 16:37:00 -0800
+From: Bob Miller <rem@osdl.org>
+To: Lars Magne Ingebrigtsen <larsi@gnus.org>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5.60 5/9] Update the Archimedes parallel port driver for new module API.
+Message-ID: <20030215003700.GA13456@doc.pdx.osdl.net>
+References: <20030214235325.GH13336@doc.pdx.osdl.net> <m3el6agzw0.fsf@quimbies.gnus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m3el6agzw0.fsf@quimbies.gnus.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Seconded!
+On Sat, Feb 15, 2003 at 01:18:23AM +0100, Lars Magne Ingebrigtsen wrote:
+> Bob Miller <rem@osdl.org> writes:
+> 
+> > --- a/drivers/parport/parport_arc.c	Fri Feb 14 09:50:44 2003
+> 
+> [...]
+> 
+> > +	char *fake_name = "parport probe");
+> 
+> Surely that can't be correct?  (The parenthesis at the end there, I
+> mean...)
+> 
+Sigh...  Corrected diff below...
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of nick@snowman.net
-Sent: Friday, February 14, 2003 2:36 PM
-To: Adrian Bunk
-Cc: Larry McVoy; Larry McVoy; Rik van Riel; Jamie Lokier; Andrea
-Arcangeli; linux-kernel@vger.kernel.org
-Subject: Re: openbkweb-0.0
+-- 
+Bob Miller					Email: rem@osdl.org
+Open Source Development Lab			Phone: 503.626.2455 Ext. 17
 
 
-Would you all please spend your time trying to screw microsoft, who's
-trying their best to screw us all, rather than larry, who's just doing his
-best to try to make a buck while provideing us a rather nice service?
-	Thanks
-		Nick
-
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+diff -Nru a/drivers/parport/parport_arc.c b/drivers/parport/parport_arc.c
+--- a/drivers/parport/parport_arc.c	Fri Feb 14 09:50:44 2003
++++ b/drivers/parport/parport_arc.c	Fri Feb 14 09:50:44 2003
+@@ -65,18 +65,14 @@
+ 	return data_copy;
+ }
+ 
+-static void arc_inc_use_count(void)
++static int arc_inc_use_count(void)
+ {
+-#ifdef MODULE
+-	MOD_INC_USE_COUNT;
+-#endif
++	return try_module_get(THIS_MODULE);
+ }
+ 
+ static void arc_dec_use_count(void)
+ {
+-#ifdef MODULE
+-	MOD_DEC_USE_COUNT;
+-#endif
++	module_put(THIS_MODULE);
+ }
+ 
+ static struct parport_operations parport_arc_ops = 
+@@ -123,18 +119,24 @@
+ {
+ 	/* Archimedes hardware provides only one port, at a fixed address */
+ 	struct parport *p;
++	struct resource res;
++	char *fake_name = "parport probe";
+ 
+-	if (check_region(PORT_BASE, 1))
++	res = request_region(PORT_BASE, 1, fake_name);
++	if (res == NULL)
+ 		return 0;
+ 
+ 	p = parport_register_port (PORT_BASE, IRQ_PRINTERACK,
+ 				   PARPORT_DMA_NONE, &parport_arc_ops);
+ 
+-	if (!p)
++	if (!p) {
++		release_region(PORT_BASE, 1);
+ 		return 0;
++	}
+ 
+ 	p->modes = PARPORT_MODE_ARCSPP;
+ 	p->size = 1;
++	rename_region(res, p->name);
+ 
+ 	printk(KERN_INFO "%s: Archimedes on-board port, using irq %d\n",
+ 	       p->irq);
 

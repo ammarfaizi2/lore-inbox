@@ -1,63 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280592AbRKNNpX>; Wed, 14 Nov 2001 08:45:23 -0500
+	id <S280591AbRKNNyn>; Wed, 14 Nov 2001 08:54:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280591AbRKNNpN>; Wed, 14 Nov 2001 08:45:13 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:40610 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S280592AbRKNNpB>; Wed, 14 Nov 2001 08:45:01 -0500
-Message-ID: <3BF27557.30007@sap.com>
-Date: Wed, 14 Nov 2001 14:44:55 +0100
-From: Willi =?ISO-8859-1?Q?N=FC=DFer?= <wilhelm.nuesser@sap.com>
-Organization: SAP AG
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Comparison of PAE and Non-PAE 2..4.14 (p8) in high load
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-SAP: out
+	id <S280593AbRKNNye>; Wed, 14 Nov 2001 08:54:34 -0500
+Received: from gordon.ukservers.net ([217.10.138.217]:25613 "HELO
+	gordon.ukservers.net") by vger.kernel.org with SMTP
+	id <S280591AbRKNNyT>; Wed, 14 Nov 2001 08:54:19 -0500
+Date: Wed, 14 Nov 2001 13:55:40 +0000
+From: Mark Hymers <markh@linuxfromscratch.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: chaffee@cs.berkeley.edu
+Subject: Re: MODULE_LICENSE tags for nls
+Message-ID: <20011114135540.A513@markcomp.blaydon.hymers.org.uk>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	chaffee@cs.berkeley.edu
+In-Reply-To: <20011114011018.A981@markcomp.blaydon.hymers.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011114011018.A981@markcomp.blaydon.hymers.org.uk>; from markh@linuxfromscratch.org on Wed, Nov 14, 2001 at 01:10:18AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 14, Nov, 2001 at 01:10:18AM +0000, Mark Hymers spoke thus..
+> There appear to be a set of module tags missing in >=2.4.15-pre4
+Damn.. Of course this should read <=2.4.15-pre4!
 
-after my first posting to lkml where we compared distributor
-provided kernels vs. a plain 2.4.14-pre8 it was pointed
-out that between PAE and non-PAE kernels some performance
-differences might exist.
+By the way, should patches sent to LKML and the (probable) maintainer be
+CC'd to Linus and Alan?
 
-
-We checked this last night and here are the first results.
-Again,
-a) the relevant quantity dialog steps per second is a
-measure for the throughput our application servers runs.
-b) our application server and the corresponding database
-(SAP DB) run on 4 way Dell, 1 GB at boot time enabled.
-
-Results:
----------
-
-2.4.7 
-	2.4.14p8 PAE		2.4.14p4 non- PAE
--------------------------------------------------------------
-   1.80		13.42            	15.47
-   1.10		13.28            	14.76
-   1.20 		14.08            	14.63
-   1.26     	13.17            	15.30
-   1.35		13.41            	14.51
-
-
-This means that we did see a performance decrease of about
-6 % compared to 2.4.14p8 nonPAE but still 2.4.14p8 is an order
-of magnitude faster than 2.4.7
+Mark
 
 -- 
-Best regards
-	Willi
-
------------------------------------
-Willi Nuesser
-SAP Linuxlab
-
+Mark Hymers					 BLFS Editor
+markh@linuxfromscratch.org

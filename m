@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315897AbSEGS13>; Tue, 7 May 2002 14:27:29 -0400
+	id <S315931AbSEGSc0>; Tue, 7 May 2002 14:32:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315931AbSEGS12>; Tue, 7 May 2002 14:27:28 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45074 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S315897AbSEGS11>; Tue, 7 May 2002 14:27:27 -0400
-Date: Tue, 7 May 2002 11:27:09 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Greg KH <greg@kroah.com>
-cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>, <mochel@osdl.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [BK PATCH] PCI reorg changes for 2.5.14
-In-Reply-To: <20020507164942.GA626@kroah.com>
-Message-ID: <Pine.LNX.4.44.0205071124310.1080-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315932AbSEGScZ>; Tue, 7 May 2002 14:32:25 -0400
+Received: from mnh-1-08.mv.com ([207.22.10.40]:20234 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S315931AbSEGScY>;
+	Tue, 7 May 2002 14:32:24 -0400
+Message-Id: <200205071935.OAA03818@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
+        user-mode-linux-user@lists.sourceforge.net
+Subject: Re: [uml-devel] Re: UML is now self-hosting! 
+In-Reply-To: Your message of "Tue, 07 May 2002 18:26:20 +0200."
+             <20020507182620.U2539@marowsky-bree.de> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 07 May 2002 14:35:18 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+lmb@suse.de said:
+> Ugh. 
 
+> Ugh Ugh Ugh.
 
-On Tue, 7 May 2002, Greg KH wrote:
->
-> I've added this patch, and both Pat and I moved the files into the
-> different directory name.  I'll test this all out and send an updated
-> patch later today.
+> Ugh ugh ugh. Too many page faults;
 
-Greg, Pat - this changeset seems to completely break ACPI interrupt
-routing.
+You will note that the only favorable adjective I've used in describing this
+scheme is 'easy' :-)
 
-I suspect it's an ordering issue, with the new "pci_lookup_irq" getting
-assigned the wrong value (or the ACPI irq init not being done or
-whatever).
+The too many page faults is covered by my 'performance will suck'...
 
-Please give this a good look.
-
-		Linus
+				Jeff
 

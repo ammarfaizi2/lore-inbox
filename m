@@ -1,54 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264489AbRGNRru>; Sat, 14 Jul 2001 13:47:50 -0400
+	id <S264644AbRGNSJd>; Sat, 14 Jul 2001 14:09:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264632AbRGNRrl>; Sat, 14 Jul 2001 13:47:41 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:52325 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S264489AbRGNRrb>; Sat, 14 Jul 2001 13:47:31 -0400
+	id <S264669AbRGNSJX>; Sat, 14 Jul 2001 14:09:23 -0400
+Received: from t2.redhat.com ([199.183.24.243]:1523 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S264644AbRGNSJQ>; Sat, 14 Jul 2001 14:09:16 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20010715045842.B6963@weta.f00f.org> 
+In-Reply-To: <20010715045842.B6963@weta.f00f.org>  <20010715031815.D6722@weta.f00f.org> <200107141414.f6EEEjQ05792@ns.caldera.de> <17573.995129225@redhat.com> 
 To: Chris Wedgwood <cw@f00f.org>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        viro@math.psu.edu, linux-mm@kvack.org
-Subject: Re: RFC: Remove swap file support
-In-Reply-To: <3B472C06.78A9530C@mandrakesoft.com>
-	<m1elrk3uxh.fsf@frodo.biederman.org>
-	<20010715032528.E6722@weta.f00f.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 14 Jul 2001 11:35:52 -0600
-In-Reply-To: <20010715032528.E6722@weta.f00f.org>
-Message-ID: <m13d7z4dmv.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
-MIME-Version: 1.0
+Cc: Christoph Hellwig <hch@caldera.de>,
+        Gunther Mayer <Gunther.Mayer@t-online.de>, paul@paulbristow.net,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: (patch-2.4.6) Fix oops with Iomega Clik! (ide-floppy) 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Sat, 14 Jul 2001 19:09:13 +0100
+Message-ID: <19235.995134153@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood <cw@f00f.org> writes:
 
-> On Sat, Jul 14, 2001 at 12:07:38AM -0600, Eric W. Biederman wrote:
-> 
->     Yes, and no.  I'd say what we need to do is update rw_swap_page to
->     use the address space functions directly.  With block devices and
->     files going through the page cache in 2.5 that should remove any
->     special cases cleanly.
-> 
-> Will block devices go through the page cache in 2.5.x?
-> 
-> I had hoped they would, that any block devices would just be
-> page-cache views of underlying character devices, thus allowing us to
-> remove the buffer-cache and the /dev/raw stuff.
+cw@f00f.org said:
+>  If it changes vmlinux by a single byte, I might agree.... all it does
+> is close off and older depricated API.
 
-<orcale>
-Block devices will go through the page cache in 2.5.  It will take a
-while for the buffer cache to go away completely, but it is there for
-the code paths that haven't been updated.  Buffer heads will stay.
+Why is the sane API deprecated in favour of the implementation-specific one?
 
-The /dev/raw stuff is for those users that don't want to the kernel to
-cache their data and will continue to exist in some form.
-</oracle>
+If we must standardise on a single header file to include, surely we should
+do it the other way round?
 
-I can't see how any device that doesn't support read or writing just a
-byte can be a character device.
+Index: include/linux/slab.h
+===================================================================
+RCS file: /inst/cvs/linux/include/linux/slab.h,v
+retrieving revision 1.1.1.1.2.12
+diff -u -r1.1.1.1.2.12 slab.h
+--- include/linux/slab.h	2001/06/08 22:41:51	1.1.1.1.2.12
++++ include/linux/slab.h	2001/07/14 18:08:37
+@@ -4,6 +4,10 @@
+  * (markhe@nextd.demon.co.uk)
+  */
+ 
++#ifndef _LINUX_MALLOC_H
++#warning Please do not include linux/slab.h directly, use linux/malloc.h instead.
++#endif
++
+ #if	!defined(_LINUX_SLAB_H)
+ #define	_LINUX_SLAB_H
+ 
 
-Eric
+
+--
+dwmw2
+
+

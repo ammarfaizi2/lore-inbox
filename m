@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265013AbUEYR4G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264994AbUEYRzK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265013AbUEYR4G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 13:56:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265011AbUEYR4F
+	id S264994AbUEYRzK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 13:55:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265010AbUEYRxg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 13:56:05 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:49861 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265010AbUEYRzq (ORCPT
+	Tue, 25 May 2004 13:53:36 -0400
+Received: from fw.osdl.org ([65.172.181.6]:38841 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264994AbUEYRxA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 13:55:46 -0400
-Date: Tue, 25 May 2004 10:54:42 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: wesolows@foobazco.org, willy@debian.org, andrea@suse.de,
-       benh@kernel.crashing.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       mingo@elte.hu, bcrl@kvack.org, linux-mm@kvack.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH] ppc64: Fix possible race with set_pte on a present PTE
-Message-Id: <20040525105442.2ebdc355.davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.58.0405251034040.9951@ppc970.osdl.org>
-References: <1085369393.15315.28.camel@gaston>
-	<Pine.LNX.4.58.0405232046210.25502@ppc970.osdl.org>
-	<1085371988.15281.38.camel@gaston>
-	<Pine.LNX.4.58.0405232134480.25502@ppc970.osdl.org>
-	<1085373839.14969.42.camel@gaston>
-	<Pine.LNX.4.58.0405232149380.25502@ppc970.osdl.org>
-	<20040525034326.GT29378@dualathlon.random>
-	<Pine.LNX.4.58.0405242051460.32189@ppc970.osdl.org>
-	<20040525114437.GC29154@parcelfarce.linux.theplanet.co.uk>
-	<Pine.LNX.4.58.0405250726000.9951@ppc970.osdl.org>
-	<20040525153501.GA19465@foobazco.org>
-	<Pine.LNX.4.58.0405250841280.9951@ppc970.osdl.org>
-	<20040525102547.35207879.davem@redhat.com>
-	<Pine.LNX.4.58.0405251034040.9951@ppc970.osdl.org>
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 25 May 2004 13:53:00 -0400
+Date: Tue, 25 May 2004 10:52:55 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Valdis.Kletnieks@vt.edu
+cc: "La Monte H.P. Yarroll" <piggy@timesys.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFD] Explicitly documenting patch submission 
+In-Reply-To: <200405251740.i4PHeQJY014847@turing-police.cc.vt.edu>
+Message-ID: <Pine.LNX.4.58.0405251049520.9951@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0405222341380.18601@ppc970.osdl.org>           
+ <40B369D5.7070805@timesys.com> <200405251740.i4PHeQJY014847@turing-police.cc.vt.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 May 2004 10:49:21 -0700 (PDT)
-Linus Torvalds <torvalds@osdl.org> wrote:
 
-> So what I can tell, the fix is really something like this (this does both 
-> x86 and ppc64 just to show how two different approaches would handle it, 
-> but I have literally _tested_ neither).
+
+On Tue, 25 May 2004 Valdis.Kletnieks@vt.edu wrote:
 > 
-> What do people think?
+> It's unclear (at least to me) whether your issue is:
+> 
+> a) You're submitting patches that consist of GPL'able code that you don't have
+> the company-internal paperwork in place to authorize the release; or
 
-So on sparc32 sun4m we'd implement ptep_update_dirty_accessed() with
-some kind of loop using the swap instruction?  That's in fact what
-I've always wanted, someway to easily integrate the usage of such
-a loop so that we could handle this problem on such systems.
+No, if I understood correctly he _does_ have all the rights internally,
+and it's just that he didn't write it, so (a) doesn't apply, and because
+the people who _did_ write it are all internal and don't themselves have
+the right to release it as GPL, (b) doesn't apply either (the "preexisting
+work" wasn't GPL'd, but it will be once he follows the rules).
 
-Keith?
+Technically, I do believe (b) applies just because if he has the right to 
+make it GPL'd, then he can (and should) just exercise that right _before_ 
+he agrees to sign it off as per (b).
 
+So I think the current DCO thing should be ok.
+
+I really didn't want this to degrade into some lawyerese, and I _really_
+don't want the "certificate of origin" to become some horrible thing that 
+only a lawyer could love.
+
+		Linus

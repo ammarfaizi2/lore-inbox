@@ -1,77 +1,121 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277823AbRJ3V2z>; Tue, 30 Oct 2001 16:28:55 -0500
+	id <S276364AbRJ3VeF>; Tue, 30 Oct 2001 16:34:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276364AbRJ3V2p>; Tue, 30 Oct 2001 16:28:45 -0500
-Received: from 23.org ([209.25.5.53]:29189 "EHLO methlab.23.org")
-	by vger.kernel.org with ESMTP id <S278428AbRJ3V2b>;
-	Tue, 30 Oct 2001 16:28:31 -0500
-Date: Tue, 30 Oct 2001 13:39:08 -0800 (PST)
-From: lost <lost@23.org>
-To: Thomas Hood <jdthood@mail.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: What is standing in the way of opening the 2.5 tree?
-In-Reply-To: <1004476317.4367.24.camel@thanatos>
-Message-ID: <Pine.LNX.4.30.0110301335230.9312-100000@methlab.23.org>
+	id <S278269AbRJ3Vd5>; Tue, 30 Oct 2001 16:33:57 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:12810 "HELO holly.csn.ul.ie")
+	by vger.kernel.org with SMTP id <S276364AbRJ3Vdr>;
+	Tue, 30 Oct 2001 16:33:47 -0500
+Date: Tue, 30 Oct 2001 21:34:18 +0000 (GMT)
+From: Dave Airlie <airlied@csn.ul.ie>
+X-X-Sender: <airlied@skynet>
+To: <linux-kernel@vger.kernel.org>
+Subject: oops on 2.4.13-pre5 in prune_dcache
+Message-ID: <Pine.LNX.4.32.0110302132020.14320-100000@skynet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sounds like more complication to me.  i personally think both do a great
-job at getting the job done.  sure there are problems with any source
-tree.  but adding more version numbers and turning kernels over to other
-people doesnt seem like the solution for making anything more stable.
-using the pre kernels seems to be the way for things to become stable.
-what need is there for a 2.5 tree right now?  when linus feels like
-opening te 2.5 tree it till happen.  just sit back and wait and enjoy the
-ride.  if your too impatient for stability or new source trees remember
-this is an open source project.
 
-On 30 Oct 2001, Thomas Hood wrote:
+I just got this and I'm a few kernels out .. but I thought I'd throw this
+way in case it hasn't popped up or been fixed..
 
-> Linus has waited long enough to open up 2.5 that both he
-> and Alan are failing to resist the temptation to make
-> destabilizing changes in 2.4, with the result that
-> the day of branching is perpetually postponed.
->
-> What we have learned from the present experience is that
-> no kernel branch is really stable until it is entirely in
-> Alan Cox's hands.  Prior to that time, both Linus and Alan
-> are in "let's play with this" mode.  This has some benefits.
-> I think it's safe to say, though, that having two semi-stable
-> branches is inferior to having one stable branch that we
-> can rely on and one development branch that we can work on.
->
-> Perhaps a better approach in the future would be for Linus
-> to turn the kernel over to Alan as of 2.6.0 and to open 2.7.0
-> immediately.  That would be an incentive for Linus to refrain
-> from calling unstable kernels "stable" ones, and would allow
-> Alan to maintain 2.6 with the single aim of increasing
-> stability, according to one person's idea of what it takes
-> to do that.  Alan's "-ac" kernels would take the place of
-> Linus's "pre" kernels.  Linus would no longer produce "pre"
-> kernels because he's worse than Alan at maintaining a stable
-> kernel (as he admits) and anyway he would be busy with 2.7.
->
-> Having suggested, this, I'll remind everyone that Linus
-> and Alan can do whatever the hell the like.  Which is
-> what I like about Linux.
->
-> --
-> Thomas Hood
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+I was compiling mopd on a AMD K6-400, 64MB RAM and it oops on the first
+gcc.. machine was doing nothing much, no X, 3 sshs to a remote machine...
 
-			************************
- "If you want a picure of the future, imagine a boot smashing a human face"
-						      - 1984, George Orwell
- email: lost@23.org * website: http://www.23.org/~lost
-			************************
+Mandrake 8.0.
+
+Dave.
+
+ksymoops 2.3.7 on i586 2.4.13-pre5.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.13-pre5/ (default)
+     -m /boot/System.map-2.4.13-pre5 (default)
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+Warning (compare_maps): mismatch on symbol sb_be_quiet  , sb_lib says c4899904, /lib/modules/2.4.13-pre5/kernel/drivers/sound/sb_lib.o says c4897fa4.  Ignoring /lib/modules/2.4.13-pre5/kernel/drivers/sound/sb_lib.o entry
+Warning (compare_maps): mismatch on symbol smw_free  , sb_lib says c4899910, /lib/modules/2.4.13-pre5/kernel/drivers/sound/sb_lib.o says c4897fb0.  Ignoring /lib/modules/2.4.13-pre5/kernel/drivers/sound/sb_lib.o entry
+Warning (compare_maps): mismatch on symbol audio_devs  , sound says c488bc40, /lib/modules/2.4.13-pre5/kernel/drivers/sound/sound.o says c488b5e0.  Ignoring /lib/modules/2.4.13-pre5/kernel/drivers/sound/sound.o entry
+Warning (compare_maps): mismatch on symbol midi_devs  , sound says c488bcb0, /lib/modules/2.4.13-pre5/kernel/drivers/sound/sound.o says c488b650.  Ignoring /lib/modules/2.4.13-pre5/kernel/drivers/sound/sound.o entry
+Warning (compare_maps): mismatch on symbol mixer_devs  , sound says c488bc58, /lib/modules/2.4.13-pre5/kernel/drivers/sound/sound.o says c488b5f8.  Ignoring /lib/modules/2.4.13-pre5/kernel/drivers/sound/sound.o entry
+Warning (compare_maps): mismatch on symbol num_audiodevs  , sound says c488bc54, /lib/modules/2.4.13-pre5/kernel/drivers/sound/sound.o says c488b5f4.  Ignoring /lib/modules/2.4.13-pre5/kernel/drivers/sound/sound.o entry
+Warning (compare_maps): mismatch on symbol num_midis  , sound says c488bcc8, /lib/modules/2.4.13-pre5/kernel/drivers/sound/sound.o says c488b668.  Ignoring /lib/modules/2.4.13-pre5/kernel/drivers/sound/sound.o entry
+Warning (compare_maps): mismatch on symbol num_mixers  , sound says c488bc6c, /lib/modules/2.4.13-pre5/kernel/drivers/sound/sound.o says c488b60c.  Ignoring /lib/modules/2.4.13-pre5/kernel/drivers/sound/sound.o entry
+Warning (compare_maps): mismatch on symbol num_synths  , sound says c488bcac, /lib/modules/2.4.13-pre5/kernel/drivers/sound/sound.o says c488b64c.  Ignoring /lib/modules/2.4.13-pre5/kernel/drivers/sound/sound.o entry
+Warning (compare_maps): mismatch on symbol synth_devs  , sound says c488bc80, /lib/modules/2.4.13-pre5/kernel/drivers/sound/sound.o says c488b620.  Ignoring /lib/modules/2.4.13-pre5/kernel/drivers/sound/sound.o entry
+Warning (compare_maps): mismatch on symbol nlmsvc_ops  , lockd says c486a470, /lib/modules/2.4.13-pre5/kernel/fs/lockd/lockd.o says c48698dc.  Ignoring /lib/modules/2.4.13-pre5/kernel/fs/lockd/lockd.o entry
+Warning (compare_maps): mismatch on symbol nfs_debug  , sunrpc says c485d24c, /lib/modules/2.4.13-pre5/kernel/net/sunrpc/sunrpc.o says c485cf4c.  Ignoring /lib/modules/2.4.13-pre5/kernel/net/sunrpc/sunrpc.o entry
+Warning (compare_maps): mismatch on symbol nfsd_debug  , sunrpc says c485d250, /lib/modules/2.4.13-pre5/kernel/net/sunrpc/sunrpc.o says c485cf50.  Ignoring /lib/modules/2.4.13-pre5/kernel/net/sunrpc/sunrpc.o entry
+Warning (compare_maps): mismatch on symbol nlm_debug  , sunrpc says c485d254, /lib/modules/2.4.13-pre5/kernel/net/sunrpc/sunrpc.o says c485cf54.  Ignoring /lib/modules/2.4.13-pre5/kernel/net/sunrpc/sunrpc.o entry
+Warning (compare_maps): mismatch on symbol rpc_debug  , sunrpc says c485d248, /lib/modules/2.4.13-pre5/kernel/net/sunrpc/sunrpc.o says c485cf48.  Ignoring /lib/modules/2.4.13-pre5/kernel/net/sunrpc/sunrpc.o entry
+Warning (compare_maps): mismatch on symbol packet_socks_nr  , af_packet says c484dc48, /lib/modules/2.4.13-pre5/kernel/net/packet/af_packet.o says c484da24.  Ignoring /lib/modules/2.4.13-pre5/kernel/net/packet/af_packet.o entry
+Unable to handle kernel NULL pointer dereference at virtual address 00000054
+c013e227
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<c013e227>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010202
+eax: 00000040   ebx: c23ded38   ecx: c23da670   edx: c23da670
+esi: c23ded20   edi: c23da660   ebp: 0000013b   esp: c1173f5c
+ds: 0018   es: 0018   ss: 0018
+Process kswapd (pid: 4, stackpage=c1173000)
+Stack: 00000019 000003d0 00000006 00000380 c013e4fb 00000662 c0128857 00000006
+       000003d0 00000006 00000020 00000000 000003d0 00002a06 c012888d c01dc55c
+       00000001 c01dc548 c1172000 c012894d c01dc4a0 00000000 c1173fe0 0008e000
+Call Trace: [<c013e4fb>] [<c0128857>] [<c012888d>] [<c012894d>] [<c01289be>]
+   [<c0128ae7>] [<c0105000>] [<c01054bb>]
+Code: 8b 40 14 85 c0 74 09 57 56 ff d0 83 c4 08 eb 09 57 e8 43 1e
+
+>>EIP; c013e227 <prune_dcache+ab/12c>   <=====
+Trace; c013e4fb <shrink_dcache_memory+1b/34>
+Trace; c0128857 <shrink_caches+6f/88>
+Trace; c012888d <try_to_free_pages+1d/4c>
+Trace; c012894d <kswapd_balance_pgdat+55/b0>
+Trace; c01289be <kswapd_balance+16/3c>
+Trace; c0128ae7 <kswapd+a3/cc>
+Trace; c0105000 <_stext+0/0>
+Trace; c01054bb <kernel_thread+23/30>
+Code;  c013e227 <prune_dcache+ab/12c>
+00000000 <_EIP>:
+Code;  c013e227 <prune_dcache+ab/12c>   <=====
+   0:   8b 40 14                  mov    0x14(%eax),%eax   <=====
+Code;  c013e22a <prune_dcache+ae/12c>
+   3:   85 c0                     test   %eax,%eax
+Code;  c013e22c <prune_dcache+b0/12c>
+   5:   74 09                     je     10 <_EIP+0x10> c013e237 <prune_dcache+bb/12c>
+Code;  c013e22e <prune_dcache+b2/12c>
+   7:   57                        push   %edi
+Code;  c013e22f <prune_dcache+b3/12c>
+   8:   56                        push   %esi
+Code;  c013e230 <prune_dcache+b4/12c>
+   9:   ff d0                     call   *%eax
+Code;  c013e232 <prune_dcache+b6/12c>
+   b:   83 c4 08                  add    $0x8,%esp
+Code;  c013e235 <prune_dcache+b9/12c>
+   e:   eb 09                     jmp    19 <_EIP+0x19> c013e240 <prune_dcache+c4/12c>
+Code;  c013e237 <prune_dcache+bb/12c>
+  10:   57                        push   %edi
+Code;  c013e238 <prune_dcache+bc/12c>
+  11:   e8 43 1e 00 00            call   1e59 <_EIP+0x1e59> c0140080 <iput+0/178>
+
+
+17 warnings issued.  Results may not be reliable.
+
+
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied@skynet.ie
+pam_smb / Linux DecStation / Linux VAX / ILUG person
 
 

@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317624AbSFMO0A>; Thu, 13 Jun 2002 10:26:00 -0400
+	id <S317621AbSFMOZb>; Thu, 13 Jun 2002 10:25:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317626AbSFMOZ7>; Thu, 13 Jun 2002 10:25:59 -0400
-Received: from web14406.mail.yahoo.com ([216.136.174.76]:13839 "HELO
-	web14406.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S317624AbSFMOZr>; Thu, 13 Jun 2002 10:25:47 -0400
-Message-ID: <20020613142548.64646.qmail@web14406.mail.yahoo.com>
-Date: Thu, 13 Jun 2002 07:25:48 -0700 (PDT)
+	id <S317624AbSFMOZa>; Thu, 13 Jun 2002 10:25:30 -0400
+Received: from web14403.mail.yahoo.com ([216.136.174.60]:38944 "HELO
+	web14403.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S317621AbSFMOZY>; Thu, 13 Jun 2002 10:25:24 -0400
+Message-ID: <20020613142525.80738.qmail@web14403.mail.yahoo.com>
+Date: Thu, 13 Jun 2002 07:25:25 -0700 (PDT)
 From: manjuanth n <manju_tt@yahoo.com>
 Subject: Re: need help
 To: Michael Clark <michael@metaparadigm.com>

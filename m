@@ -1,57 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265701AbSKASyM>; Fri, 1 Nov 2002 13:54:12 -0500
+	id <S265707AbSKAS5r>; Fri, 1 Nov 2002 13:57:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265703AbSKASyM>; Fri, 1 Nov 2002 13:54:12 -0500
-Received: from inet-mail1.oracle.com ([148.87.2.201]:63668 "EHLO
-	inet-mail1.oracle.com") by vger.kernel.org with ESMTP
-	id <S265701AbSKASyL>; Fri, 1 Nov 2002 13:54:11 -0500
-Date: Fri, 1 Nov 2002 11:00:23 -0800
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Bill Davidsen <davidsen@tmr.com>, Linus Torvalds <torvalds@transmeta.com>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       "Matt D. Robinson" <yakker@aparity.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
-Subject: Re: What's left over.
-Message-ID: <20021101190022.GB17573@nic1-pc.us.oracle.com>
-References: <Pine.LNX.3.96.1021101012947.23822C-100000@gatekeeper.tmr.com> <1036157204.12693.13.camel@irongate.swansea.linux.org.uk>
+	id <S265708AbSKAS5r>; Fri, 1 Nov 2002 13:57:47 -0500
+Received: from main.gmane.org ([80.91.224.249]:55699 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id <S265707AbSKAS5p>;
+	Fri, 1 Nov 2002 13:57:45 -0500
+To: linux-kernel@vger.kernel.org
+X-Injected-Via-Gmane: http://gmane.org/
+Path: not-for-mail
+From: Nicholas Wourms <nwourms@netscape.net>
+Subject: Re: Filesystem Capabilities in 2.6?
+Date: Fri, 01 Nov 2002 14:05:14 -0500
+Message-ID: <apuj4s$e33$1@main.gmane.org>
+References: <20021101085148.E105A2C06A@lists.samba.org> <1036175565.2260.20.camel@mentor>
+Reply-To: nwourms@netscape.net
+NNTP-Posting-Host: 130-127-121-177.generic.clemson.edu
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1036157204.12693.13.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
-X-Burt-Line: Trees are cool.
+Content-Transfer-Encoding: 7Bit
+X-Trace: main.gmane.org 1036177373 14435 130.127.121.177 (1 Nov 2002 19:02:53 GMT)
+X-Complaints-To: usenet@main.gmane.org
+NNTP-Posting-Date: Fri, 1 Nov 2002 19:02:53 +0000 (UTC)
+User-Agent: KNode/0.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 01, 2002 at 01:26:44PM +0000, Alan Cox wrote:
-> My concerns are solely with things like the correctness of the disk
-> dumper. Its obviously a good way to do a lot more damage if it isnt done
-> carefully.
+Dax Kelson wrote:
 
-	I always liked the AIX dumper choices.  You could either dump to
-the swap area (and startup detects the dump and moves it to the
-filesystem before swapon) or provide a dedicated dump partition.  The
-latter was prefered.
-	Either of these methods merely require the dumper to correctly
-write to one disk partition.  This is about as simple as you are going
-to get in disk dumping.
+> 
+> On Fri, 2002-11-01 at 01:49, Rusty Russell wrote:
+>> I'm down to 8 undecided features: 6 removed and one I missed earlier.
+> 
+> How about Olaf Dietsche's filesystem capabilities support? It has been
+> posted a couple times to LK, yesterday even.
+> 
+> 
+> We've had capabilities for ages (2.2?) but no filesystem support.
+> 
+> OpenBSD is recently bragging about no longer having any SUID root
+> binaries on the system.
+> 
+> With FS capabilities we (Linux) can have the same situation.  Security
+> is a hot topic, and anything the kernel can do make security
+> better/easier seems worthy of consideration.
+> 
 
-Joel
+Unfortunately Alexander has spoken again:
 
--- 
+http://marc.theaimsgroup.com/?l=linux-kernel&m=103498212701476&w=4
 
-"You must remember this:
- A kiss is just a kiss,
- A sigh is just a sigh.
- The fundamental rules apply
- As time goes by."
+You might want to check out some of the other reviews, I don't think people 
+gave it very high marks.
 
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+Cheers,
+Nicholas
+
+

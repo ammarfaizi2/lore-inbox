@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268327AbUH2Vdm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268341AbUH2VgP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268327AbUH2Vdm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 17:33:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268336AbUH2Vdm
+	id S268341AbUH2VgP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 17:36:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268338AbUH2Vf7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 17:33:42 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:6829 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S268327AbUH2Vdk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 17:33:40 -0400
-Subject: Re: interrupt cpu time accounting?
-From: Robert Love <rml@ximian.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@redhat.com>
-In-Reply-To: <413249F7.50904@pobox.com>
-References: <41323FA8.80203@pobox.com> <1093814102.2595.8.camel@localhost>
-	 <413249F7.50904@pobox.com>
-Content-Type: text/plain
-Date: Sun, 29 Aug 2004 17:33:40 -0400
-Message-Id: <1093815220.2595.14.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.93 (1.5.93-2) 
-Content-Transfer-Encoding: 7bit
+	Sun, 29 Aug 2004 17:35:59 -0400
+Received: from darkwing.uoregon.edu ([128.223.142.13]:42743 "EHLO
+	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
+	id S268336AbUH2Vfu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 17:35:50 -0400
+Date: Sun, 29 Aug 2004 14:35:47 -0700 (PDT)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: joelja@twin.uoregon.edu
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+cc: James Colannino <lkml@colannino.org>, linux-kernel@vger.kernel.org
+Subject: Re: submitting kernel patch for 3w-9xxx in 2.4
+In-Reply-To: <20040829182333.GP19844@mea-ext.zmailer.org>
+Message-ID: <Pine.LNX.4.61.0408291433210.32154@twin.uoregon.edu>
+References: <413217A3.4020906@colannino.org> <20040829182333.GP19844@mea-ext.zmailer.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-08-29 at 17:26 -0400, Jeff Garzik wrote:
+On Sun, 29 Aug 2004, Matti Aarnio wrote:
 
-> What piece of code defines "balanced"?  :)
+> On Sun, Aug 29, 2004 at 10:51:31AM -0700, James Colannino wrote:
+>> Everyone,
+>>
+>> I've created a kernel patch for 2.4.27 that adds the newer 3w-9xxx 3Ware
+>> driver (for the 3Ware 9000 series of controllers).  If anyone here is
+>> interested, I can patch the latest pre-release for 2.4.28 and submit it
+>> to the list.  Just let me know.
+>>
+>> http://james.colannino.org/downloads/patches/3w-9xxx-2.4.27.diff
+>
+> May I suggest you don't use triple-x in its name.
+> Such causes indigestion by several spam filters that people have
+> deployed...  (The aic7xxx as prime example.)
 
-kernel/sched.c :: load_balance()
+got another identifier that would indicate a presence of a variable that 
+won't have some other meaning to a filesystem or user? #### ???? *
 
-We used to try to keep the processors within 25% of each other, and try
-very hard to ensure that no processor had zero processes.  The sched
-domain code changed all that.
+>> James
+>
+> /Matti Aarnio
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-The only place the load balancer will help in your scenario is when the
-processor is so busy processing interrupts and processes get backed up
-on the processor (new processes moved there or, more likely, via forks).
-The load balance won't help if the baseline minimum number of processes
-is there but they are starving.
-
-> Less a neat idea, and more IMHO recognition of a problem that needs solving.
-> 
-> I am worried that processes will get starved if one CPU is _heavily_ 
-> loaded servicing interrupts, and the others are not.
-
-If people are seeing it, then I 100% agree.
-
-	Robert Love
-
+-- 
+-------------------------------------------------------------------------- 
+Joel Jaeggli  	       Unix Consulting 	       joelja@darkwing.uoregon.edu 
+GPG Key Fingerprint:     5C6E 0104 BAF0 40B0 5BD3 C38B F000 35AB B67F 56B2
 

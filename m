@@ -1,65 +1,124 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129589AbRBAMjq>; Thu, 1 Feb 2001 07:39:46 -0500
+	id <S129613AbRBAMjr>; Thu, 1 Feb 2001 07:39:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129613AbRBAMjh>; Thu, 1 Feb 2001 07:39:37 -0500
-Received: from tabaluga.ipe.uni-stuttgart.de ([129.69.22.180]:49676 "EHLO
-	tabaluga.ipe.uni-stuttgart.de") by vger.kernel.org with ESMTP
-	id <S129589AbRBAMjW>; Thu, 1 Feb 2001 07:39:22 -0500
-From: Nils Rennebarth <nils@ipe.uni-stuttgart.de>
-Date: Thu, 1 Feb 2001 13:38:12 +0100
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: What does "NAT: dropping untracked packet" mean?
-Message-ID: <20010201133811.D14768@ipe.uni-stuttgart.de>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="at6+YcpfzWZg/htY"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S129714AbRBAMjh>; Thu, 1 Feb 2001 07:39:37 -0500
+Received: from tomts8.bellnexxia.net ([209.226.175.52]:998 "EHLO
+	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S129613AbRBAMja>; Thu, 1 Feb 2001 07:39:30 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Ed Tomlinson <tomlins@cam.org>
+Organization: me
+To: David Ford <david@linux.com>
+Subject: Re: VM brokenness, possibly related to reiserfs
+Date: Thu, 1 Feb 2001 07:39:15 -0500
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Message-Id: <01020107391500.07626@oscar>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---at6+YcpfzWZg/htY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Gather this is with no swap space allocated...  And the question is why does 
+the oom handler not get triggered?
 
-Since enabling (but not yet using) firewalling in the 2.4.1 kernel, my log
-gets clobbered with messages like:
+Ed Tomlinson
 
-Feb  1 12:58:56 obelix kernel: NAT: 0 dropping untracked packet ce767600 1 129.69.22.21 -> 224.0.0.2
-Feb  1 12:59:01 obelix kernel: NAT: 0 dropping untracked packet ce767480 1 129.69.22.21 -> 224.0.0.2
-Feb  1 12:59:04 obelix kernel: NAT: 0 dropping untracked packet ce767d80 1 129.69.22.21 -> 224.0.0.2
-Feb  1 13:00:44 obelix kernel: NAT: 0 dropping untracked packet ce767600 1 129.69.22.51 -> 224.0.0.2
-Feb  1 13:00:47 obelix kernel: NAT: 0 dropping untracked packet ce767600 1 129.69.22.51 -> 224.0.0.2
-Feb  1 13:00:50 obelix kernel: NAT: 0 dropping untracked packet ce767b40 1 129.69.22.51 -> 224.0.0.2
+David Ford wrote:
 
-The IP Adresses belong to Windows 98 computers. What does the message mean,
-and what could I do to stop them?
-
-
-Nils
-
---
-*New* *New* *New*    - on shellac records
-   Windows HE        - see top 10 reasons to downgrade on
-Historical Edition     http://www.microsoft.com/windowshe
-
---at6+YcpfzWZg/htY
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6eVizqgAZ+sZlgs4RAkqjAJ4mGyGwUv6QK/q8HMvQ+kWX6goMywCfYI7z
-lgSXpqOnaOXBT1OSgEzNWSs=
-=aCmB
------END PGP SIGNATURE-----
-
---at6+YcpfzWZg/htY--
+> (Chris, changing JOURNAL_MAX_BATCH from 900 to 100 didn't affect
+> anything).
+> 
+> Ok, having approached this slightly more intelligently here are [better]
+> results.
+> 
+> The dumps are large so they are located at http://stuph.org/VM/.  Here's
+> the story.  I boot and startx, I load xmms and netscape to eat away
+> memory.  When free buffers/cache falls below 7M the system stalls and
+> the only recovery is sysrq-E or reboot.  At the moment of stall the disk
+> will grind continuously for about 25 to 30 minutes then go silent.  At
+> this point in time the only recovery is reboot, sysrq-E won't work.
+> 
+> If I move the mouse or type a key within 30 seconds of this incident,
+> that user input will take about 5 minutes to register.  After that
+> initial minute, nothing more will happen.
+> 
+> Kernel 2.4.1, with reiserfs, devfs, no patches applied.
+> 
+> "klog-X" are basically the same thing but I'm running top, syslogd, and
+> klogd with -20 priority.  I didn't note anything out of the ordinary in
+> top.  These are snapshots where I've managed to murder processes and
+> restart the problem without rebooting.
+> 
+> In the second instance, I had my finger on the kill button and managed
+> to kill netscape and recover partially.  However the system was heavily
+> loaded even after the kill.
+> 
+> I have xmms in STOPped state so it's just waiting.
+> 
+> kswapd is taking 12.2% of the CPU according to ps, and kapm-idled is
+> taking 26.9%.  bdflush is taking 2.7%, X 3.5%, all others are nominal.
+> The system load was hovering at 1.00 for a few minutes then dropped to
+> zero.  However scrolling text in an rxvt is slow enough to watch blocks
+> move.  Running "ps aux" takes nearly one third of a second for total
+> time.  Total number of processes is ~40.
+> 
+> Jan 31 22:31:51 nifty kernel: kapm-idled  S CBF77F94  4124     3
+> 1        (L-TLB)       4     2
+> Jan 31 22:31:51 nifty kernel: Call Trace: [schedule_timeout+115/148]
+> [process_timeout+0/72] [apm_mainloop+221/256] [apm+668/692]
+> [kernel_thread+31/56] [kernel_thread+40/56]
+> 
+> Jan 31 22:31:51 nifty kernel: kswapd    S CBF75FAC  5704     4
+> 1        (L-TLB)       5     3
+> Jan 31 22:31:51 nifty kernel: Call Trace: [schedule_timeout+115/148]
+> [process_timeout+0/72] [interruptible_sleep_on_timeout+66/92]
+> [kswapd+213/244] [kernel_thread+40/56]
+> 
+> Jan 31 22:31:52 nifty kernel: bdflush   S CBF70000  5912     6
+> 1        (L-TLB)       7     5
+> Jan 31 22:31:52 nifty kernel: Call Trace: [bdflush+206/216]
+> [kernel_thread+40/56]
+> 
+> 
+> In the fourth snapshot, I have put xmms in STOP state again inside the
+> memory shortage, memory is at 4800 free buffers/cache and 1592 free mem.
+> 
+> As I entered this shortage period I started a 'ps -eo ... > file' to try
+> and record data there.  This is the only disk activity happening.  Load
+> is ~4.00.  I have now killed the ps.
+> 
+> Load has dropped significantly and I have tolerable but quite laggy user
+> input responsiveness now.
+> 
+> Memory is currently 4900/1588 like above.  Load is about 2.00 and will
+> continue dropping if I don't do anything.  Any processes I exec which
+> need to be loaded from disk take several seconds.  I.e. 'uptime' takes
+> about 4 seconds to execute.
+> 
+> Snapshot #5 will be the last one and I will reboot.  Once memory is
+> freed from xmms (back to 150megs free), everything is peachy.
+> 
+> 
+> -d
+> 
+> --
+>   There is a natural aristocracy among men. The grounds of this are virtue 
+and talents.
+>   Thomas Jefferson The good thing about standards is that there are so many 
+to choose
+>   from. Andrew S. Tanenbaum
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
+> 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

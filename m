@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262223AbVA0BxV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262134AbVAZXtv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262223AbVA0BxV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 20:53:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262513AbVAZXwx
+	id S262134AbVAZXtv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 18:49:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262508AbVAZXsv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 18:52:53 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:4282 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262253AbVAZUBf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 15:01:35 -0500
-Date: Wed, 26 Jan 2005 20:01:27 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Christoph Hellwig <hch@infradead.org>,
-       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-       Jean Delvare <khali@linux-fr.org>, Greg KH <greg@kroah.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.11-rc2-mm1: SuperIO scx200 breakage
-Message-ID: <20050126200127.GA15061@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
-	Jean Delvare <khali@linux-fr.org>, Greg KH <greg@kroah.com>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <20050124175449.GK3515@stusta.de> <20050124213442.GC18933@kroah.com> <20050124214751.GA6396@infradead.org> <20050125060256.GB2061@kroah.com> <20050125195918.460f2b10.khali@linux-fr.org> <20050126003927.189640d4@zanzibar.2ka.mipt.ru> <20050125224051.190b5ff9.khali@linux-fr.org> <20050126013556.247b74bc@zanzibar.2ka.mipt.ru> <20050126101434.GA7897@infradead.org> <20050126131234.A30805@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050126131234.A30805@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 26 Jan 2005 18:48:51 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:50677 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262136AbVAZT3c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 14:29:32 -0500
+X-Comment: AT&T Maillennium special handling code - c
+Message-ID: <41F7EE7E.1080307@comcast.net>
+Date: Wed, 26 Jan 2005 14:24:46 -0500
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041211)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Jesse Pollard <jesse@cats-chateau.net>, linux-os <linux-os@analogic.com>,
+       dtor_core@ameritech.net, Bill Davidsen <davidsen@tmr.com>,
+       Valdis.Kletnieks@vt.edu, Arjan van de Ven <arjan@infradead.org>,
+       Ingo Molnar <mingo@elte.hu>, Christoph Hellwig <hch@infradead.org>,
+       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       marcelo.tosatti@cyclades.com, Greg KH <greg@kroah.com>, chrisw@osdl.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: thoughts on kernel security issues
+References: <1106157152.6310.171.camel@laptopd505.fenrus.org> <41F6A45D.1000804@comcast.net> <Pine.LNX.4.61.0501251542290.8986@chaos.analogic.com> <05012609151500.16556@tabby> <Pine.LNX.4.58.0501260803360.2362@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0501260803360.2362@ppc970.osdl.org>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 26, 2005 at 01:12:34PM +0000, Russell King wrote:
-> On Wed, Jan 26, 2005 at 10:14:34AM +0000, Christoph Hellwig wrote:
-> > That's simply not true.  The amount of patches submitted is extremly
-> > huge and the reviewers don't have time to look at everythning.
-> > 
-> > If no one replies it simply means no one has looked at it in enough
-> > detail to comment yet.
-> 
-> How do people get to know this?  Grape vines and crystal balls are
-> inherently unreliable.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-If someone had looked and considered it good he'd have replied and
-said that.  Simple ACK/NACK scheme - if neither returns consider it
-lost.
 
-> So, if the community has a problem with enough time to review patches,
-> the community must get more (good) patch reviewers.  We can't go around
-> blaming the patch submitters for a community failing.
+[....]
 
-Absolutely.  I think the major problem is that no one pays people for
-doing reviews so this is purely a spare-time job.  And that spare time
-is limited due to real life issues for most people.
+Did any of you actually READ the link I put?  How the heck did we get
+the navy into this?
 
+
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFB9+5+hDd4aOud5P8RAnrJAKCAGRMebZP3EX1pvqxhWInQVQgGVQCfbu2f
+XxZez57GG7z66bhlQTOX0M0=
+=fcXP
+-----END PGP SIGNATURE-----

@@ -1,50 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262569AbTLJMAQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 07:00:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262729AbTLJMAQ
+	id S262324AbTLJMHd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 07:07:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbTLJMHd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 07:00:16 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:5181 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S262569AbTLJMAN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 07:00:13 -0500
-Date: Wed, 10 Dec 2003 13:59:57 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: linux-kernel@vger.kernel.org
-Subject: Getting file offsets for open files of a process?
-Message-ID: <20031210115957.GH1524@niksula.cs.hut.fi>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	linux-kernel@vger.kernel.org
+	Wed, 10 Dec 2003 07:07:33 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:19542 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S262324AbTLJMHb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 07:07:31 -0500
+Date: Wed, 10 Dec 2003 23:06:56 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: Joe Thornber <thornber@sistina.com>
+Cc: Linux Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch 1/4] fs.h: b_journal_head
+Message-ID: <20031210230656.A2247055@wobbly.melbourne.sgi.com>
+References: <20031209115806.GA472@reti> <20031209122418.GC472@reti> <20031209234655.GF783@frodo> <20031210084632.GA476@reti>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20031210084632.GA476@reti>; from thornber@sistina.com on Wed, Dec 10, 2003 at 08:46:32AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lsof has this option:
+On Wed, Dec 10, 2003 at 08:46:32AM +0000, Joe Thornber wrote:
+> On Wed, Dec 10, 2003 at 10:46:55AM +1100, Nathan Scott wrote:
+> > Could you explain a bit more about when b_private should and
+> > shouldn't be used with this change?
+> 
+> Once the io goes through generic_make_request() you shouldn't look at
+> bh->b_private until the io has completed.  At which point it will have
+> been correctly set back to the value it had when submitted.
 
-       -o       This option directs lsof to display  file  offset
-                at all times.  It causes the SIZE/OFF output col­
-                umn title to be changed to OFFSET.
+OK.
 
-but the source contains
+> The problem with jbd wasn't the fact that it used it, but the fact
+> that it peeked while the io was in flight.
 
-#define	OFFTST_STAT	0		/* Linux lsof can't report offsets */
+Ah, I see now.  XFS doesn't have to do that, so should work fine as is.
 
-That information is not available in /proc either.
+thanks.
 
-(I'm not sure if the older, non-/proc based lsof version supported this on
-linux. Newest lsof has the non-/proc linux mode removed, and I can't find
-the old source anymore.)
-
-Is there any way of getting this information in linux?
-
-I suppose Solaris and maybe some others export this information via /proc?
-
- 
--- v --
-
-v@iki.fi
+-- 
+Nathan

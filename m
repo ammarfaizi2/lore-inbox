@@ -1,90 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262585AbVBCKsn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262843AbVBCLGV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262585AbVBCKsn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 05:48:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262847AbVBCKok
+	id S262843AbVBCLGV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 06:06:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbVBCLCh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 05:44:40 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:36482 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262927AbVBCKlp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 05:41:45 -0500
-To: Hirokazu Takahashi <taka@valinux.co.jp>
-Cc: vgoyal@in.ibm.com, akpm@osdl.org, fastboot@lists.osdl.org,
-       linux-kernel@vger.kernel.org, maneesh@in.ibm.com, hari@in.ibm.com,
-       suparna@in.ibm.com
-Subject: Re: [Fastboot] [PATCH] Reserving backup region for kexec based crashdumps.
-References: <1106833527.15652.146.camel@2fwv946.in.ibm.com>
-	<20050203.160252.104031714.taka@valinux.co.jp>
-	<m1zmym6m6z.fsf@ebiederm.dsl.xmission.com>
-	<20050203.191039.39155205.taka@valinux.co.jp>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 03 Feb 2005 03:39:37 -0700
-In-Reply-To: <20050203.191039.39155205.taka@valinux.co.jp>
-Message-ID: <m18y666i6u.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
+	Thu, 3 Feb 2005 06:02:37 -0500
+Received: from isilmar.linta.de ([213.239.214.66]:60297 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S262896AbVBCLCB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 06:02:01 -0500
+Date: Thu, 3 Feb 2005 12:01:55 +0100
+From: Dominik Brodowski <linux@dominikbrodowski.de>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, LKML <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@codemonkey.org.uk>
+Subject: Re: cpufreq problem wrt suspend/resume on Athlon64
+Message-ID: <20050203110155.GA17576@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.de>,
+	Pavel Machek <pavel@ucw.cz>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Dave Jones <davej@codemonkey.org.uk>
+References: <200502021428.12134.rjw@sisk.pl> <20050202133153.GD29579@elf.ucw.cz> <200502030108.09508.rjw@sisk.pl> <20050203104126.GC1389@elf.ucw.cz> <20050203105647.GA17526@isilmar.linta.de> <20050203105846.GA1360@elf.ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050203105846.GA1360@elf.ucw.cz>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hirokazu Takahashi <taka@valinux.co.jp> writes:
-
-> Hi Eric,
+On Thu, Feb 03, 2005 at 11:58:46AM +0100, Pavel Machek wrote:
+> Hi!
 > 
-> > > Hi Vivek and Eric,
-> > > 
-> > > IMHO, why don't we swap not only the contents of the top 640K
-> > > but also kernel working memory for kdump kernel?
-> > > 
-> > > I guess this approach has some good points.
-> > > 
-> > >  1.Preallocating reserved area is not mandatory at boot time.
-> > >    And the reserved area can be distributed in small pieces
-> > >    like original kexec does.
-> > > 
-> > >  2.Special linking is not required for kdump kernel.
-> > >    Each kdump kernel can be linked in the same way,
-> > >    where the original kernel exists.
-> > > 
-> > > Am I missing something?
+> > On Thu, Feb 03, 2005 at 11:41:26AM +0100, Pavel Machek wrote:
+> > > Okay, you are right, restoring it unconditionaly would be bad
+> > > idea. Still it would be nice to tell cpufreq governor "please change
+> > > the frequency ASAP" so it does not run at 800MHz for half an hour
+> > > compiling kernels on AC power.
 > > 
-> > Preallocating the reserved area is largely to keep it from
-> > being the target of DMA accesses.  Since we are not able
-> > to shutdown any of the drivers in the primary kernel running
-> > in a normal swath of memory sounds like a good way to get
-> > yourself stomped at the worst possible time.
+> > It already does that... or at least it should. in cpufreq_resume() there is
+> > a call to schedule_work(&cpu_policy->update); which will cause a call
+> > cpufreq_update_policy() in due course. And cpufreq_update_policy() calls the
+> > governor, and it is supposed to adjust the frequency to the user's wish
+> > then.
 > 
-> So what do you think my another idea?
+> Ok, so Rafael's suspend() routine seems like good fix...
 
-I have proposed it.  I think ia64 already does that.
-It has been pointed that the PowerPC kernel occasionally runs
-with the mmu turned off. So it is not a technique the is 100%
-portable.
- 
-> I think we can always make a kdump kernel mapped to the same virtual
-> address. So we will be free from caring about the physical address
-> where the kdump kernel is loaded.
-> 
-> I believe the memsection functionality which LHMS project is working
-> on would help this.
+No. I don't see a reason why my desktop P4 should drop to 12.5 frequency
+(p4-clockmod) if I ask it to suspend to mem.
 
-You don't need anything fancy except to build the page tables
-during bootup.  However there are a few potential gotchas
-with respect to using large pages, that can give 4MiB or
-greater alignment restrictions on the kernel.  Code wise
-the gotcha is moving the kernel's .text section into what
-is essentially the vmalloc portion of the address space.
-For x86_64 the kernels virtual address is already decoupled from the
-physical addresses, so it is probably easier.
-
-Most of this just results in easier management between the pieces.
-Which is a good thing.  However at the moment I don't think it
-simplifies any of the core problems.  I still need to reserve
-a large hunk of physical address space early on before any
-DMA transactions are setup to hold the new kernel.
-
-So while I am happy to see patches that improve this I don't
-actually care right now.
-
-Eric
+	Dominik

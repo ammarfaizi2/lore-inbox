@@ -1,39 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263425AbTDDGhk (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 01:37:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263429AbTDDGhk (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 01:37:40 -0500
-Received: from flrtn-2-m1-133.vnnyca.adelphia.net ([24.55.67.133]:16769 "EHLO
-	jyro.mirai.cx") by vger.kernel.org with ESMTP id S263425AbTDDGh3 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Apr 2003 01:37:29 -0500
-Message-ID: <3E8D2AD4.10701@tmsusa.com>
-Date: Thu, 03 Apr 2003 22:48:52 -0800
-From: J Sloan <joe@tmsusa.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	id S263423AbTDDGh1 (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 01:37:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263425AbTDDGh1 (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 01:37:27 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:47048 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S263423AbTDDGhU (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 01:37:20 -0500
+Date: Fri, 4 Apr 2003 01:48:44 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
 To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] acpi compile fix
-References: <20030403130505.199294c7.akpm@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Patch for show_task
+Message-ID: <20030404014844.B30163@devserv.devel.redhat.com>
+References: <20030404013829.A30163@devserv.devel.redhat.com> <20030403224346.51d9680e.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030403224346.51d9680e.akpm@digeo.com>; from akpm@digeo.com on Thu, Apr 03, 2003 at 10:43:46PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+> Date: Thu, 3 Apr 2003 22:43:46 -0800
+> From: Andrew Morton <akpm@digeo.com>
 
->ACPI is performing a spin_lock() on a `void *'.  That's OK when spin_lock is
->implemented via an inline function.  But when it is implemented via macros
->(eg, with spinlock debugging enabled) we get:
->
->drivers/acpi/osl.c:739: warning: dereferencing `void *' pointer
->drivers/acpi/osl.c:739: request for member `owner' in something not a structure or union
->
->So cast it to the right type.
->
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.66/2.5.66-mm3/broken-out/show_task-free-stack-fix.patch
 
-Yep 2.5.66 is happy with my config now
-and is running nicely - thanks for the fix!
+I see. What do you say to adding thread_saved_sp() in addition
+to thread_saved_pc()? E.g. on sparc that would return
+p->thread_info->ti_ksp, then you can calculate free stack.
 
-Joe
-
+-- Pete

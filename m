@@ -1,52 +1,143 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263003AbUC2RMm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 12:12:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262915AbUC2RMZ
+	id S262996AbUC2REx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 12:04:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262983AbUC2REN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 12:12:25 -0500
-Received: from hauptpostamt.charite.de ([193.175.66.220]:18921 "EHLO
-	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
-	id S262998AbUC2RIP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 12:08:15 -0500
-Date: Mon, 29 Mar 2004 19:08:00 +0200
-From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
-To: linux-kernel@vger.kernel.org
-Subject: ppp_synctty oops
-Message-ID: <20040329170800.GF6374@charite.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+	Mon, 29 Mar 2004 12:04:13 -0500
+Received: from citrine.spiritone.com ([216.99.193.133]:63908 "EHLO
+	citrine.spiritone.com") by vger.kernel.org with ESMTP
+	id S263017AbUC2QvW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 11:51:22 -0500
+Date: Mon, 29 Mar 2004 08:50:39 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Ray Bryant <raybry@sgi.com>
+cc: Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, anton@samba.org, sds@epoch.ncsc.mil,
+       ak@suse.de, lse-tech@lists.sourceforge.net, linux-ia64@vger.kernel.org
+Subject: Re: [Lse-tech] Re: [PATCH] [0/6] HUGETLB memory commitment
+Message-ID: <180830000.1080579038@[10.10.2.4]>
+In-Reply-To: <40674452.1080305@sgi.com>
+References: <18429360.1080233672@42.150.104.212.access.eclipse.net.uk> <20040325130433.0a61d7ef.akpm@osdl.org> <41997489.1080257240@42.150.104.212.access.eclipse.net.uk> <4067131A.7000405@sgi.com> <98220000.1080501001@[10.10.2.4]> <40674452.1080305@sgi.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This one has been around for quite a while in 2.6.x - I get this
-whenever my sync ppp connection is torn down:
+>> Yup, but there were two parts to it:
+>> 
+>> 1. Stop hugepages using the existing overcommit pool for small pages, 
+>> which breaks small page allocations by prematurely the pool.
+>> 2. Give hugepages their own over-commit pool, instead of prefaulting.
+>> 
+>> Personally I think we need both (as you seem to), but (1) is probably
+>> more urgent.
+> 
+> Just to review:  even if we allocate hugetlb pages at fault rather than 
+> at mmap() time, hugetlb pages are created either at system boot time 
+> (kernel parameter "hugepages=") or by setting /proc/sys/vm/nr_hugepages 
+> (or by using the corresponding sysctl).  Once the set of hugepages is 
+> created this way, it never is changed by the act of allocating a huge 
+> page to a process.  (Changing nr_pages can cause the number of unallocated 
+> hugetlbpages to be increased or decreased.)
 
-Badness in local_bh_enable at kernel/softirq.c:122
-Call Trace:
- [<c011ee10>] local_bh_enable+0x50/0x60
- [<d8cd3aaf>] ppp_sync_push+0x4f/0x140 [ppp_synctty]
- [<d8cd355c>] ppp_sync_wakeup+0x1c/0x40 [ppp_synctty]
- [<c01c4d53>] do_tty_hangup+0x2d3/0x340
- [<c01c5f31>] release_dev+0x531/0x560
- [<c013bc33>] unmap_page_range+0x33/0x60
- [<c013bd62>] unmap_vmas+0x102/0x220
- [<c01c6267>] tty_release+0x7/0x20
- [<c0149448>] __fput+0xc8/0xe0
- [<c0147ec3>] filp_close+0x43/0x80
- [<c011cafa>] put_files_struct+0x5a/0xc0
- [<c011d5ff>] do_exit+0x13f/0x300
- [<c011d868>] do_group_exit+0x28/0x80
- [<c0106fe7>] syscall_call+0x7/0xb
-	      
-Linux shawarma.eth0.cxm 2.6.5-rc2-bk8 #1 Sun Mar 28 17:21:43 CEST 2004 i586 GNU/Linux
+Yup.
 
--- 
-Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
-Charite - Universitätsmedizin Berlin            Tel.  +49 (0)30-450 570-155
-Gemeinsame Einrichtung von FU- und HU-Berlin    Fax.  +49 (0)30-450 570-916
-IT-Zentrum Standort Campus Mitte                          AIM.  ralfpostfix
+> The reason for pointing this out (apologies if this was obvious to all) 
+> is to emphaisze that hugetlbpages are not created at hugetlbpage allocation 
+> time (which is now done at mmap() time and we'd like to change it to happen 
+> at fault time).
+
+Yup.
+
+> So to stop hugepages from using the small page overcommit pool, we just 
+> need code in set_hugetlb_mem_size() to reduce the number of hugetlbpages 
+> created by that code.
+
+I think Andy already fixed that bit, though I'm not sure what method he used.
+It seems to me (without really looking), that we just need to not decrement
+the pool size when we map a huge page.
+
+> As for (2), I'm a little confused there, as later you appear to agree 
+> with me that overcomitting hugetlbpages is likely not useful.  
+
+I think I'm just being confusing via sloppy terminology, but we're in
+resounding agreement in reality ;-)
+
+> Is it  possible that you meant that there should be a list of hugetlbpages 
+> from which all allocations are made?  If so, that is the way the code has 
+> always worked; step 1 was to create the list of hugetlbpages, and step 2 
+> was to allocate them.
+
+I meant if we keep a counter of the number of hugetlb pages available, every
+time we get a call to allocate them, we can avoid prefault by just decrementing
+the counter of "available" pages, and fault them in later, just like the existing
+strict-overcommit code does, and we'll never fail to allocate. If we're doing
+*strict* NUMA bindings, it does need to be a little more complex, in that 
+things will need to remember which node they're "pre-allocated" from. The fact
+that the "overcommit" code *prevents* overcommit is probably not helping the
+discussion's clarity ;-)
+
+> (Once again, if this is obvious to all, I apologize and we can dump the last 
+> 4 paragraphs into the bit bucket with no known effect on entropy in this 
+> universe, at least.)
+
+Well, above is what *I* meant, and I *think* roughly what you meant. But probably
+best to clarify ;-)
+
+>>> Since the reservation belongs to the mapped object (file or segment), 
+>>> I've been storing the current file/segments's reservation in the file 
+>>> system dependent part of the inode.  That way, it is easily accessible 
+>>> when the hugetlbfs file or SysV segment is removed and we can reduce 
+>>> the total number of reserved pages by that file's reservation at that 
+>>> time.  This also allows us to handle the reservation in the absence 
+>>> of a vma, as per Andy'c comment below.
+>> 
+>> 
+>> Do we need to store it there, or is one central pool number sufficient?
+>> I would have thought it was ...
+> 
+> Yes, there is a central pool number indicating how many hugepages are reserved. 
+> The question is, when (and how) do you release that reservation?   My take is 
+> that the reservation is associated with the file (for mmap) or segment for SysV.
+
+Ah, I see what you mean. You can't really release it at 0 refcount without changing
+the semantics, in case it's re-used later. Hum. Yes, I see what you mean.
+
+> For example, program A mmap()'s a hugetlbfs file, but only touches part of the 
+> pages.  Program B then mmap()'s the same file with the same size, etc.  When 
+> program B does the mmap() the previous reservation should still be in place, right?  
+> (The file is persistent in the page cache even if it does not persist over reboot, 
+> so the 2nd program is exepecting to see the data that the first program put there.)
+> 
+> Ditto for a SysV segement.
+
+Yes. I think Adam's patches in my tree support anon mem_map though. That's going to
+get rather tricky ... we run into similar problems as objrmap, I think.
+
+> So one can't release the reservation when the current process doing the mmap() 
+> goes away, one has to release the reservation when the file/segment is deleted.  
+> Since both mmap() and shmget() create an inode, and the inode is released by 
+> hugetlbfs_drop_inode() and friends, it seemed simplest to put the size of the 
+> mapped object's reservation in the inode.
+
+Yup, I'd missed that -  thanks for explaining ;-)
+
+> The global count of reserved pages (the "central pool number" in your note), 
+> is incremented at mmap() time (well, actually done by hugetlbfs_file_mmap() 
+> for both mmap() and shmget()) and decremented at hugetlbfs_drop_inode() time.  
+> If at mmap() time, incrementing the global reservation count would make the 
+> global reserved pages count the number of hugetlbpages, we fail the mmap() 
+> with -ENONMEM.
+> 
+> At least that is the way my 2.4.21 code works.  Does that make things clearer?
+
+A lot ;-)
+
+Thanks,
+
+M.
+

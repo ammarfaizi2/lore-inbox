@@ -1,31 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270165AbRHGJo3>; Tue, 7 Aug 2001 05:44:29 -0400
+	id <S270170AbRHGJyj>; Tue, 7 Aug 2001 05:54:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270167AbRHGJoT>; Tue, 7 Aug 2001 05:44:19 -0400
-Received: from alfik.ms.mff.cuni.cz ([195.113.19.71]:11024 "EHLO
-	alfik.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S270165AbRHGJoQ>; Tue, 7 Aug 2001 05:44:16 -0400
-Message-ID: <20010807010201.A26063@bug.ucw.cz>
-Date: Tue, 7 Aug 2001 01:02:01 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: kernel list <linux-kernel@vger.kernel.org>
-Subject: 6x11 font in iso-8859-2 version?
-Mime-Version: 1.0
+	id <S270171AbRHGJy3>; Tue, 7 Aug 2001 05:54:29 -0400
+Received: from snoopy.apana.org.au ([202.12.87.129]:12038 "HELO
+	snoopy.apana.org.au") by vger.kernel.org with SMTP
+	id <S270166AbRHGJyR>; Tue, 7 Aug 2001 05:54:17 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: Encrypted Swap
+In-Reply-To: <20010807042810.A23855@foobar.toppoint.de>
+	<Pine.LNX.4.33.0108062047310.17919-100000@kobayashi.soze.net>
+	<15215.27296.959612.765065@localhost.efn.org>
+From: Brian May <bam@snoopy.apana.org.au>
+X-Home-Page: http://snoopy.apana.org.au/~bam/
+Date: 07 Aug 2001 19:52:23 +1000
+In-Reply-To: <15215.27296.959612.765065@localhost.efn.org>
+Message-ID: <84zo9ci4dk.fsf@scrooge.chocbit.org.au>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (GTK)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+>>>>> "Steve" == Steve VanDevender <stevev@efn.org> writes:
 
-Who is author of drivers/video/font_6x11.c? I'd like to get that font
-in iso-8859-2 version, but don't know where to look... [Getting
-national charset on my handheld would be great.]
+    Steve> The obvious approach to me would to generate a random
+    Steve> session key at boot time and use that for
+    Steve> encrypting/decrypting swap pages.  If the machine is
+    Steve> unplugged and the disk pulled out, then the swap area on
+    Steve> that disk could not be recovered the attacker, who
 
-What is charset of fonts in kernel, btw? It does not seem to be
-specified. Or is it different for each font?
-								Pavel
+Example: disk is faulty and will no longer work. How do you guarantee
+that nobody will be able to read it after you toss it out OR return it
+to the manufacturer to claim for warranty?
+
+(of course, encrypting swap space is only part of the solution, here
+you need to encrypt everything).
 -- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+Brian May <bam@snoopy.apana.org.au>

@@ -1,47 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277564AbRKVMEu>; Thu, 22 Nov 2001 07:04:50 -0500
+	id <S277653AbRKVMMU>; Thu, 22 Nov 2001 07:12:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277713AbRKVMEd>; Thu, 22 Nov 2001 07:04:33 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:772 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S277564AbRKVME1>; Thu, 22 Nov 2001 07:04:27 -0500
-Date: Thu, 22 Nov 2001 15:04:18 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
-Subject: [patch non-x86] PCI-PCI bridges fix
-Message-ID: <20011122150418.A623@jurassic.park.msu.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S277713AbRKVMMM>; Thu, 22 Nov 2001 07:12:12 -0500
+Received: from ns.caldera.de ([212.34.180.1]:34437 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S277653AbRKVMMC>;
+	Thu, 22 Nov 2001 07:12:02 -0500
+Date: Thu, 22 Nov 2001 13:11:50 +0100
+Message-Id: <200111221211.fAMCBoc15728@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: oliver@neukum.org (Oliver Neukum)
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alexander Viro <viro@math.psu.edu>,
+        Rick Lindsley <ricklind@us.ibm.com>,
+        "David C. Hansen" <haveblue@us.ibm.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Remove needless BKL from release functions
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <01112211121601.00690@argo>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bridge resources weren't added to the resource tree. This was
-harmless for most real-life configurations (especially on Alpha),
-but certainly it will be a problem with the hotplug stuff
-(thinking of ES45).
+In article <01112211121601.00690@argo> you wrote:
+> At least some of the removals in the input tree are probably wrong. You are 
+> introducing a race with deregistering of input devices.
 
-Ivan.
+Nope, it's fine to remove it.  Input is racy all over the place and the list
+are modified somewhere else without any locking anyways.
 
---- 2.4.15p9/drivers/pci/setup-bus.c	Fri Oct  5 05:47:08 2001
-+++ linux/drivers/pci/setup-bus.c	Wed Nov 21 20:16:24 2001
-@@ -201,6 +201,16 @@ pbus_assign_resources(struct pci_bus *bu
- 		b->resource[0]->end = ranges->io_end - 1;
- 		b->resource[1]->end = ranges->mem_end - 1;
- 
-+		/* Add bridge resources to the resource tree. */
-+		if (b->resource[0]->end > b->resource[0]->start &&
-+		    request_resource(bus->resource[0], b->resource[0]) < 0)
-+			printk(KERN_ERR "PCI: failed to reserve IO "
-+					"for bus %d\n",	b->number);
-+		if (b->resource[1]->end > b->resource[1]->start &&
-+		    request_resource(bus->resource[1], b->resource[1]) < 0)
-+			printk(KERN_ERR "PCI: failed to reserve MEM "
-+					"for bus %d\n", b->number);
-+
- 		pci_setup_bridge(b);
- 	}
- }
+	Christoph
+
+-- 
+Of course it doesn't work. We've performed a software upgrade.

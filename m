@@ -1,72 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262413AbVCHXvd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262227AbVCHX74@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262413AbVCHXvd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 18:51:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbVCHXr3
+	id S262227AbVCHX74 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 18:59:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262411AbVCHX7s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 18:47:29 -0500
-Received: from isilmar.linta.de ([213.239.214.66]:50907 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S262249AbVCHXjq (ORCPT
+	Tue, 8 Mar 2005 18:59:48 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:31942 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262227AbVCHX5f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 18:39:46 -0500
-Date: Wed, 9 Mar 2005 00:39:39 +0100
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       jt@hpl.hp.com, linux-pcmcia@lists.infradead.org,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>
-Subject: Re: PCMCIA product id strings -> hashes generation at compilation time? [Was: Re: [patch 14/38] pcmcia: id_table for wavelan_cs]
-Message-ID: <20050308233939.GA21112@isilmar.linta.de>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Andrew Morton <akpm@osdl.org>, jt@hpl.hp.com,
-	linux-pcmcia@lists.infradead.org,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Greg KH <greg@kroah.com>
-References: <20050308191138.GA16169@isilmar.linta.de> <20050308123426.249fa934.akpm@osdl.org> <20050227161308.GO7351@dominikbrodowski.de> <20050307225355.GB30371@bougret.hpl.hp.com> <20050307230102.GA29779@isilmar.linta.de> <20050307150957.0456dd75.akpm@osdl.org> <20050307232339.GA30057@isilmar.linta.de> <20050308191138.GA16169@isilmar.linta.de> <Pine.LNX.4.58.0503081438040.13251@ppc970.osdl.org> <20050308231636.GA20658@isilmar.linta.de>
+	Tue, 8 Mar 2005 18:57:35 -0500
+Subject: Re: [PATCH] 2.6.10 -  direct-io async short read bug
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Daniel McNeil <daniel@osdl.org>
+Cc: Suparna Bhattacharya <suparna@in.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>,
+       "linux-aio@kvack.org" <linux-aio@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1110324434.6521.23.camel@ibm-c.pdx.osdl.net>
+References: <1110189607.11938.14.camel@frecb000686>
+	 <20050307223917.1e800784.akpm@osdl.org>  <20050308090946.GA4100@in.ibm.com>
+	 <1110302614.24286.61.camel@dyn318077bld.beaverton.ibm.com>
+	 <1110309508.24286.74.camel@dyn318077bld.beaverton.ibm.com>
+	 <1110324434.6521.23.camel@ibm-c.pdx.osdl.net>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1110326043.24286.134.camel@dyn318077bld.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050308231636.GA20658@isilmar.linta.de>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 08 Mar 2005 15:54:04 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 09, 2005 at 12:16:36AM +0100, Dominik Brodowski wrote:
-> > Dominik Brodowski <linux@dominikbrodowski.net> wrote:
-> > >
-> > > Most pcmcia devices are matched to drivers using "product ID strings"
-> > >  embedded in the devices' Card Information Structures, as "manufactor ID /
-> > >  card ID" matches are much less reliable. Unfortunately, these strings cannot
-> > >  be passed to userspace for easy userspace-based loading of appropriate
-> > >  modules (MODNAME -- hotplug), so my suggestion is to also store crc32 hashes
-> > >  of the strings in the MODULE_DEVICE_TABLEs, e.g.:
+On Tue, 2005-03-08 at 15:27, Daniel McNeil wrote:
+> On Tue, 2005-03-08 at 11:18, Badari Pulavarty wrote:
+> > > Andrew, please don't apply the original patch. We shouldn't even attempt
+> > > to submit IO beyond the filesize. We should truncate the IO request to
+> > > filesize. I will send a patch today to fix this.
 > > > 
-> > >  PCMCIA_DEVICE_PROD_ID12("LINKSYS", "E-CARD", 0xf7cb0b07, 0x6701da11),
 > > 
-> > What is the difficulty in passing these strings via /sbin/hotplug arguments?
+> > Well, spoke too soon. This is an ugly corner case :( But I have
+> > a ugly hack to fix it :)
+> > 
+> > Let me ask you a basic question: Do we support DIO reads on a file
+> > which is not blocksize multiple in size ? (say 12K - 10 bytes) ?
 > 
-> The difficulty is that extracting and evaluating them breaks the wonderful 
-> bus-independent MODNAME implementation for hotplug suggested by Roman Kagan
-> ( http://article.gmane.org/gmane.linux.hotplug.devel/7039 ), and that these
-> strings may contain spaces and other "strange" characters. The latter may be 
-> worked around, but the former cannot. /etc/hotplug/pcmcia.agent looks really
-> clean because of this MODNAME implementation:
+> > What about the ones which are not 4K but 512 byte multiple ? (say 7K) ?
+> > 
+> > I need answer to those, to figure out how hard I should try to fix this.
+> > 
+> > Anyway, here is ugly version of the patch - which will limit the IO
+> > size to filesize and uses lower blocksizes to read the file (since
+> > the filesize is only 3K, it would go down to 512 byte blocksize).
+> 
+> Badari,
+> 
+> Just to be clear, are you just asking about what we should support on a
+> DIO read that spans EOF?
+> 
+> For DIO reads past EOF the options are:
+> 
+> 1. return EINVAL if the DIO goes past EOF.
+> 
+> 2. truncate the request to file size (which is what your patch does)
+>     and if it works, it works.
+> 
+> 3. truncate the request to a size that actually works - like a multiple
+>     of 512.
+> 
+> 4. Do the full i/o since the user buffer is big enough, truncate the
+>     result returned to file size (and clear out the user buffer where it
+>     read past EOF).
+> 
+> Number 4 would make it easy on the user-level code, but AIO DIO might be
+> a bit tricky and might be a security hole since the data would be dma'ed
+> there and then cleared.  I need to look at the code some more.
+> 
+> 1 and 2 both seem valid and are better than returning the wrong result.
+> 
+> 3 seems like it would confuse applications.
+> 
+> Thoughts?
 
-In addition: this isn't the problematic part. The product ID string and/or
-the hash can easily be passed from kernelspace to userspace in calls to
-hotplug, and that's not the real reason for the hashing. Instead, it is
-caused by the module.alias generation (even module.pcmciamap, if it existed,
-wouldn't be of help here) at compilation time: the format of such aliases is
+Well, my basic questions were
 
-alias [bus_name]:[{one or multiple chars as separators}{NUMBERS!} multiple such blocks] [module_name]
+1)  Should we support DIO on files with sizes that are not multiple of
+filesystem blocksize (but multiple of 512 bytes) == say 6K.
+I think so, and we should kick it to use 512byte blocksize in the
+DIO code.
 
-This means: only (hex) numbers are allowed as _values_ in such a module alias 
-map. The module alias map is generated by file2alias.c, which cannot and
-should not be able to access strings inside modules, because that would mean
-awareness of all sorts of (arch-dependant) relocation. Therefore,
-file2alias.c can't calculate the hashes for us, and as the C preprocessor
-cannot either, only the explicit passing of strings _and_ hashes to struct 
-pcmcia_device_id-generating macros is the only feasible way I currently see 
-to use module.alias for PCMCIA devices.
+2) Should we support DIO on files with sizes that are not multiple of
+filesystem blocksize and also multiple of 512 bytes == say 8190 bytes.
+I think NOT. 
 
-	Dominik
+The problem is, we check alignment restrictions for buffer, offset
+and IO sizes. We don't care about the filesize - only issue comes
+is if the user tries to go beyond EOF.
+
+So on a 8190 byte file, with DIO if the user does
+	lseek(fd, 4096, 0);
+	read(fd, buf, 4096);
+
+what should read() return ? read() is expected to return 4094 bytes or
+EINVAL ?
+
+
+Thanks,
+Badari
+

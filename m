@@ -1,66 +1,465 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135948AbRAGHQb>; Sun, 7 Jan 2001 02:16:31 -0500
+	id <S135359AbRAGHsV>; Sun, 7 Jan 2001 02:48:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135979AbRAGHQV>; Sun, 7 Jan 2001 02:16:21 -0500
-Received: from slc248.modem.xmission.com ([166.70.9.248]:44553 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S135948AbRAGHQH>; Sun, 7 Jan 2001 02:16:07 -0500
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Alexander Viro <viro@math.psu.edu>,
-        Stefan Traby <stefan@hello-penguin.com>, linux-kernel@vger.kernel.org
-Subject: Re: ramfs problem... (unlink of sparse file in "D" state)
-In-Reply-To: <20010107045346.B696@metastasis.f00f.org> <E14Evjb-0001Dk-00@the-village.bc.nu> <20010107050718.C696@metastasis.f00f.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 07 Jan 2001 00:05:07 -0700
-In-Reply-To: Chris Wedgwood's message of "Sun, 7 Jan 2001 05:07:18 +1300"
-Message-ID: <m1r92fj10c.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
+	id <S135369AbRAGHsL>; Sun, 7 Jan 2001 02:48:11 -0500
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:55265 "EHLO
+	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id <S135359AbRAGHsE>; Sun, 7 Jan 2001 02:48:04 -0500
+Date: Sun, 7 Jan 2001 08:48:22 +0100 (CET)
+From: Matthias Juchem <matthias@gandalf.math.uni-mannheim.de>
+Reply-To: Matthias Juchem <juchem@uni-mannheim.de>
+To: <alan@lxorguk.ukuu.org.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] new bug report script
+Message-ID: <Pine.LNX.4.30.0101070808560.7104-100000@gandalf.math.uni-mannheim.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood <cw@f00f.org> writes:
+Hi Alan,
 
-> On Sat, Jan 06, 2001 at 03:58:20PM +0000, Alan Cox wrote:
-> 
->     Ext2 handles large files almost properly. (properly on 2.2 +
->     patches) NFSv3 handles large files but might be missing the
->     O_LARGEFILE check.  I believe reiserfs went to at least 4Gig.
-> 
-> reiserfs 3.6.x under 2.4.x should go much higher unless i am reading
-> something wrong
-> 
-> <pause>
-> 
-> yup, it does.
-> 
-> 
-> as for NFS, I'm not sure how to pass O_LARGEFILE via the protocol and
-> since NFS isn't really POSIX like anyhow decided we might as well
-> just ingore it and have all sys_open calls for NFS look like
-> O_LARGEFILE was specified
+could you please consider this patch for inclusion in your tree?
 
-Umm.  No.  The object of LFS stuff is so that programs that can't
-handle large files don't shoot themselves in the foot.  You don't
-need to pass O_LARGEFILE over the protocol and knfsd doesn't need
-to handle it.  But with out specifying O_LARGEFILE you should
-be limited to 2GB on 32bit systems.
+This is a patch against 2.4.0. It introduces a new bug reporting script
+(scripts/bugreport.pl) that tries to simplify bug reporting for users. I
+have also added a small hint to this script to REPORTING-BUGS.
 
-Moving some of the LFS checks into the VFS does sound good.  
+To all: Please have a look at the script and give me your feedback so that
+I can fix the errors and improve the script.
 
-When I looked at one of the BSD's a while ago, they had
-a max file size in (the superblock?) and the VFS did basic
-max file size checking.  And I think it handled all of the LFS
-API at the VFS layer as well.  Alan these are two seperate
-but related issues.
+Kind regards,
+ Matthias
 
-Putting the LFS checks, & max filesize checks into the VFS sounds
-right for 2.4.x because it fixes lots of filesystems, with just a
-couple of lines of code. 
 
-Eric
+diff -urN linux-2.4.0-vanilla/REPORTING-BUGS linux-2.4.0-mod/REPORTING-BUGS
+--- linux-2.4.0-vanilla/REPORTING-BUGS	Mon Aug 21 17:57:35 2000
++++ linux-2.4.0-mod/REPORTING-BUGS	Sun Jan  7 08:20:21 2001
+@@ -25,7 +25,16 @@
+ overlook things, and easier for the developers to find the pieces of
+ information they're really interested in. Don't feel you have to follow it.
+
+-   First run the ver_linux script included as scripts/ver_linux or
++There are two possibilities:
++ a) use the new problem reporting script
++ b) collect the information and write the report by hand
++
++a)  The problem reporting script resides under scripts/bugreport.pl
++Use it like this: "perl bugreport.pl filename", where filename is where the
++report is written to. This results (hopefully) in a usable problem report that
++you can add additional info to.
++
++b)  First run the ver_linux script included as scripts/ver_linux or
+ at <URL:ftp://ftp.sai.msu.su/pub/Linux/ver_linux> It checks out
+ the version of some important subsystems.  Run it with the command
+ "sh scripts/ver_linux"
+diff -urN linux-2.4.0-vanilla/scripts/bugreport.pl linux-2.4.0-mod/scripts/bugreport.pl
+--- linux-2.4.0-vanilla/scripts/bugreport.pl	Thu Jan  1 01:00:00 1970
++++ linux-2.4.0-mod/scripts/bugreport.pl	Sun Jan  7 08:23:13 2001
+@@ -0,0 +1,401 @@
++#!/usr/bin/perl -w
++
++# bugreport.pl
++# created by Matthias Juchem <matthias@brightice.de> Januar 2001
++#
++# collects system information and tries to help with generating bug
++# reports for linux-kernel
++# - prompts for general information about the problem
++# - acquires system information from various programs and from /proc
++# - runs the oops through ksymoops
++#
++# For notes view bottom of file
++
++use strict;
++use FileHandle;
++use IPC::Open2;
++
++##################### variables ##############################################
++
++# bug report
++my $summary;         my $description;  my $keywords;
++my $oops;            my $other_notes;  my $example;
++
++# program versions
++my $v_kernel;        my $v_gcc;        my $v_modules;
++my $v_make;          my $v_binutils;   my $v_libc5;
++my $v_libc6;         my $v_libcpp;     my $v_ldd;
++my $v_procps;        my $v_procinfo;   my $v_psmisc;
++my $v_mount;         my $v_nettools;   my $v_pppd;
++my $v_kbd;           my $v_shutils;    my $v_utillinux;
++my $v_e2fsprogs;     my $v_bash;
++
++# other sys info
++my $loaded_modules;  my $cpuinfo;      my $iomem;
++my $ioports;         my $scsi;         my $pci;
++
++##################### forward declarations ###################################
++
++sub init();          # get system info to initialize variables with
++sub enter_report();  # gather information about bug
++sub print_report($); # parameter: filename for output
++sub getline($$);     # read a line from STDIN, params: prompt, default value
++sub gettext($);      # read multiple lines from STDIN, param: prompt
++sub readfile($);     # returna content of file one line, param: filename
++sub exists_prog($);  # returns full path of programm or empty string
++
++##################### main ###################################################
++
++{
++    print "\nbugreport.pl - Linux Kernel Problem Report Generator v0.1\n";
++    print "=========================================================\n";
++    print "       written by Matthias Juchem <matthias\@brightice.de>\n\n";
++
++    # check euid
++    if ( $> != 0 ) {
++	print "\nThis script should be run as root.\n\n";
++	exit 1;
++    }
++
++    # check output filename
++    my $filename;
++    if ( not ( $filename = shift )) {
++	print "\nPlease specify a file for output.\n\n";
++	exit 2;
++    }
++
++    init();
++    enter_report();
++    print_report($filename);
++
++    print <<"EOF";
++Please spend a few minutes on reading the generated problem report, check the
++version string that look strange and include further information as you like.
++
++If you think the report is good, send it to the maintainer (see MAINTAINERS)
++of the corresponding subsystem and a copy to <linux-kernel\@vger.kernel.org>.
++
++Any bug reports and comments _for_this_script_ go to <matthias\@brightice.de>.
++Thank you.
++
++EOF
++
++}
++
++##################### subroutines ############################################
++
++sub print_report($) {
++    my $fn = shift;
++
++    print( "\nPlease wait while the report is being generated and written to",
++	   " the specified\nfile (",$fn,")...\n" );
++    # run the oops through ksymoops
++    if ( exists_prog("ksymoops") ) {
++        #open2( \*READER, \*WRITER, "ksymoops -V -k /proc/ksyms -l /proc/modules -o /lib/modules/2.4.0/ -m /usr/src/linux/System.map" );
++	open2( \*READER, \*WRITER, "ksymoops" );
++	WRITER->autoflush();
++	my @output;
++	print WRITER $oops;
++	close WRITER;
++	@output = <READER>;
++	close READER;
++	$oops = join ' ', @output;
++    } else {
++	$oops = "ksymoops not found";
++    }
++
++    open OUTPUT, ">$fn";
++    print OUTPUT <<"EOF";
++Linux Kernel Problem Report
++==============================================================================
++1. One line summary of the problem
++----------------------------------------------
++$summary
++
++2. Full description of the problem
++----------------------------------------------
++$description
++
++3. Keywords
++----------------------------------------------
++$keywords
++
++4. Kernel version
++----------------------------------------------
++$v_kernel
++
++5. Oops message with symbolic info
++----------------------------------------------
++$oops
++
++6. Example that triggers the problem
++----------------------------------------------
++$example
++
++7. System information
++----------------------------------------------
++a) software
++ GNU C                  $v_gcc
++ Modutils               $v_modules
++ GNU make               $v_make
++ Binutils               $v_binutils
++ Linux libc5 C Library  $v_libc5
++ Linux libc6 C Library  $v_libc6
++ Dynamic linker         $v_ldd
++ Linux C++ library      $v_libcpp
++ Procps                 $v_procps
++ Procinfo               $v_procinfo
++ Psmisc                 $v_psmisc
++ Net-tools              $v_nettools
++ PPP                    $v_pppd
++ Kdb                    $v_kbd
++ Sh-utils               $v_shutils
++ Util-linux             $v_utillinux
++ E2fsprogs              $v_e2fsprogs
++ Bash                   $v_bash
++
++b) loaded modules
++$loaded_modules
++
++c) /proc/cpuinfo
++$cpuinfo
++
++d) /proc/ioports
++$ioports
++
++e) /proc/iomem
++$iomem
++
++f) PCI information
++$pci
++
++g) SCSI information
++$scsi
++
++h) further information (from /proc and other)
++
++8. Other notes, patches, fixes, workarounds...
++----------------------------------------------
++$other_notes
++EOF
++
++    print "   ...ok, done.\n\n\n";
++
++    close OUTPUT;
++}
++
++sub init() {
++    # gcc
++    if (exists_prog("gcc")) {
++	( $v_gcc = `gcc --version` ) =~ s/\n+$//;
++    } else {
++	$v_gcc = "not found";
++    }
++
++    # modules
++    if (exists_prog("insmod")) {
++	( $v_modules = `insmod -V 2>&1` ) =~ m/insmod version (\S+)/;
++	$v_modules = $1;
++    } else {
++	$v_modules = "not found";
++    }
++
++    # make
++    if (exists_prog("make")) {
++	( $v_make = `make --version` ) =~ m/GNU Make version (\S+),/;
++	$v_make = $1;
++    } else {
++	$v_make = "not found";
++    }
++
++    # binutils
++    if (exists_prog("ld")) {
++	( $v_binutils = `ld -v` ) =~ m/\(with BFD (\S+)\)/;
++	$v_binutils = $1;
++    } else {
++	$v_binutils = "not found";
++    }
++
++    # c library 5
++    if ( -e "/lib/libc.so.5" ) {
++	( $v_libc5 = `/lib/libc.so.5`) =~ m/GNU C Library .+ version (\S+),/;
++	$v_libc5 = $1;
++    } else {
++	$v_libc5 = "not found";
++    }
++
++    # c library 6
++    if ( -e "/lib/libc.so.6" ) {
++	( $v_libc6 = `/lib/libc.so.6`) =~ m/GNU C Library .+ version (\S+),/;
++	$v_libc6 = $1;
++    } else {
++	$v_libc6 = "not found";
++    }
++
++    # ldd
++    if (exists_prog("ldd")) {
++	( $v_ldd = `ldd --version` ) =~ m/ldd \(GNU libc\) (\S+)/;
++	$v_ldd = $1;
++    } else {
++	$v_ldd = "not found";
++    }
++
++    # c++ library
++    ( $v_libcpp = `ls /usr/lib/libg++.so.*` ) =~ m/.so.(\S+)\n/;
++    $v_libcpp = $1;
++
++    # procps
++    if (exists_prog("ps")) {
++	( $v_procps = `ps --version` ) =~ m/version (\S+)\n/;
++	$v_procps = $1;
++    } else {
++	$v_procps = "not found";
++    }
++
++    # procinfo
++    if ( exists_prog("procinfo") ) {
++	( $v_procinfo = `procinfo -v` ) =~ m/version (\S+) /;
++	$v_procinfo = $1;
++    } else {
++	$v_procinfo = "not found";
++    }
++
++    # psmisc
++    if (exists_prog("pstree")) {
++	( $v_psmisc = `pstree -V 2>&1` ) =~ m/version (\S+)\n/;
++	$v_psmisc = $1;
++    } else {
++	$v_psmisc = "not found";
++    }
++
++    # util-linux
++    ( $v_utillinux = `mount --version` ) =~ m/mount-(\S+)\n/;
++    $v_utillinux = $1;
++
++    # nettools
++    ( $v_nettools = `hostname -V 2>&1` ) =~ m/tools (\S+)\n/;
++    $v_nettools = $1;
++
++    # pppd
++    ( $v_pppd = `pppd -V 2>&1`) =~ m/pppd version (\S+)\n/;
++    $v_pppd = $1;
++
++    # kbd
++    ( $v_kbd = `loadkeys -h 2>&1`) =~ m/loadkeys version (\S+)\n/;
++    $v_kbd = $1;
++
++    # shutils
++    ( $v_shutils = `expr --v 2>&1`) =~ m/\(GNU sh-utils\) (\S+)\n/;
++    $v_shutils = $1;
++
++    # e2fsprogs
++    ( $v_e2fsprogs = `tune2fs 2>&1`) =~ m/tune2fs (\S+),/;
++    $v_e2fsprogs = $1;
++
++    # bash
++    ( $v_bash = `bash --version`) =~ m/GNU bash, version (\S+) /;
++    $v_bash = $1;
++
++
++    # loaded modules
++    ( $loaded_modules = readfile( "/proc/modules") ) =~ s/ .*$|\n$//mg;
++    $loaded_modules =~ s/\n/ /g;
++
++    # pci info
++    if ( exists_prog("lspci") ) {
++	chomp ( $pci = join '', `lspci -vvv` );
++    } else {
++	$pci = "not found";
++    }
++
++    # /proc: cpuinfo, iomem, ioports, version, scsi
++    $cpuinfo = readfile("/proc/cpuinfo");
++    $iomem   = readfile("/proc/iomem");
++    $ioports = readfile("/proc/ioports");
++    $v_kernel= readfile("/proc/version");
++    $scsi    = readfile("/proc/scsi/scsi");
++}
++
++sub enter_report() {
++    $summary     = getline( "One line summary of the problem", "" );
++    $description = gettext( "Full description of the problem" );
++    $keywords    = getline( "Keywords", "modules, vm" );
++    $oops        = gettext( "Oops message" );
++    $example     = gettext( "Example that triggers the problem" );
++    $other_notes = gettext( "Other notes, patches, fixes, ..." );
++}
++
++sub getline($$) {
++    my $prompt =shift;
++    my $default=shift;
++    my $result ='';
++
++    while ( $result eq "" ) {
++	print $prompt, " [$default]: ";
++	$result = <STDIN>;
++	chomp $result;
++	if ($result eq "" ) {
++	    $result = $default;
++	}
++    }
++    return $result;
++}
++
++sub gettext($) {
++    my $prompt =shift;
++    my $result ='';
++
++    print "\n";
++    while ( $result eq "" ) {
++	print $prompt, " (use EOF after last line): \n";
++	while (<STDIN>) {
++	    m/^EOF$/ and last;
++	    $result = $result.$_
++	}
++	chomp $result;
++    }
++    return $result;
++}
++
++sub readfile($) {
++    my $fname  = shift;
++    my $result = '';
++
++    if ( -f $fname ) {
++	open FH, "<$fname" or die "unable to open $fname";
++	while (<FH>) {
++	    $result = $result.$_;
++	}
++	close FH;
++	chomp $result;
++    } else {
++	$result = "not found";
++    }
++    return $result;
++}
++
++sub exists_prog($) {
++    my $prog  = shift;
++    my $found = 0;
++    my $result= '';
++
++    foreach my $dir (split /:/, $ENV{'PATH'} ) {
++	$found and last;
++	$result = $dir.'/'.$prog;
++	( -e $result ) and $found = 1;
++    }
++    $found or $result = '';
++    return $result;
++}
++
++__END__
++
++01/07/2001
++-This script needs testing. I have tested it on SuSE 7.0 (updated to 2.4.0)
++ and on Mandrake 6.1, so there might be small problems with other
++ distributions.
++-The script assumes that all called programs are in the path. If a program is
++ not found, 'not found' is printed in the problem report.
++-ksymoops uses the default parameters. If the kernel and the modules are
++ installed or compiled in different locations, there certainly are problems
++ with ksymoops. This is going to be fixed.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

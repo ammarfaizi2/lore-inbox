@@ -1,64 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267625AbUI1HjS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267549AbUI1H4w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267625AbUI1HjS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 03:39:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267624AbUI1HjI
+	id S267549AbUI1H4w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 03:56:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267624AbUI1H4w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 03:39:08 -0400
-Received: from ns.sysgo.de ([213.68.67.98]:59799 "EHLO mailgate.sysgo.de")
-	by vger.kernel.org with ESMTP id S267618AbUI1HjC (ORCPT
+	Tue, 28 Sep 2004 03:56:52 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:44014 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S267549AbUI1H4v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 03:39:02 -0400
-From: Gerhard Jaeger <g.jaeger@sysgo.com>
-To: linuxppc-embedded@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: [PATCH][PPC32] Fix PFC1_EPS and PFC1_EPS_SHIFT definitions for IBM440GX
-Date: Tue, 28 Sep 2004 09:38:55 +0200
-User-Agent: KMail/1.7
-Cc: Matt Porter <mporter@kernel.crashing.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Sep 2004 03:56:51 -0400
+Date: Tue, 28 Sep 2004 08:55:45 +0100
+From: Andrew Walrond <andrew@walrond.org>
+To: linux-kernel@vger.kernel.org
+Subject: [OT] Microsoft claim 267% better peak performance than linux?
+Message-ID: <20040928075545.GA3298@cenedra.walrond.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200409280938.55734.g.jaeger@sysgo.com>
-X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.16; AVE: 6.27.0.12; VDF: 6.27.0.74; host: mailgate.sysgo.de)
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Matt,
+I was pointed to this (rotating) banner advert at the top of www.eweek.com
 
-while writing some BSP code for a 440GX custom board, I noticed, that
-the DCRN_SDR_PFC1_EPS and DCRN_SDR_PFC1_EPS_SHIFT definitions are wrong and
-therefore the functions ibm440gx_get_eth_grp() and ibm440gx_set_eth_grp() 
-won't 
-work correctly.
-This patch will fix this, please apply.
+It claims that when comparing Red Hat AS2.1 with Windows Server 2003 on a dual processor machine, Windows Server 2003 gives 276% better peak performance, quoting Veritest as the source.
 
-TIA,
-  Gerhard
+I think the report in question must be this one
 
-PPC440GX: Fix DCRN_SDR_PFC1_EPS and DCRN_SDR_PFC1_EPS_SHIFT definitions
+http://download.microsoft.com/download/0/7/1/0715a190-70f5-4b0d-8ced-f9d1e046aa6a/netbench.pdf
 
-Signed-off-by: Gerhard Jaeger <gjaeger@sysgo.com>
+Its dated April 2003, so this was probably discussed a long time ago, but can anyone point me in the direction of an analysis/rebuttal of this report from the linux community? "Windows webserver gives 3x performance of linux" is something I need to be able to debunk, assuming it's inaccurate.
 
---- linux-2.6.9-rc2/include/asm-ppc/ibm44x.h.orig       2004-09-22 
-16:41:30.000000000 +0200
-+++ linux-2.6.9-rc2/include/asm-ppc/ibm44x.h    2004-09-28 09:08:11.000000000 
-+0200
-@@ -94,8 +94,8 @@
- #define DCRN_SDR_CONFIG_DATA   0xf
- #define DCRN_SDR_PFC0          0x4100
- #define DCRN_SDR_PFC1          0x4101
--#define DCRN_SDR_PFC1_EPS      0x1c000000
--#define DCRN_SDR_PFC1_EPS_SHIFT        26
-+#define DCRN_SDR_PFC1_EPS      0x1c00000
-+#define DCRN_SDR_PFC1_EPS_SHIFT        22
- #define DCRN_SDR_PFC1_RMII     0x02000000
- #define DCRN_SDR_MFR           0x4300
- #define DCRN_SDR_MFR_TAH0      0x80000000      /* TAHOE0 Enable */
-	
--- 
-Gerhard Jaeger <gjaeger@sysgo.com>            
-SYSGO AG                      Embedded and Real-Time Software
-www.sysgo.com | www.elinos.com | www.osek.de | www.imerva.com
-
+Andrew

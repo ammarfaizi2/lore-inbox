@@ -1,75 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263661AbTJCRTF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 13:19:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263664AbTJCRTF
+	id S263668AbTJCRZj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 13:25:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263692AbTJCRZj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 13:19:05 -0400
-Received: from khms.westfalen.de ([62.153.201.243]:4583 "EHLO
-	khms.westfalen.de") by vger.kernel.org with ESMTP id S263661AbTJCRTC
+	Fri, 3 Oct 2003 13:25:39 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:640 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263668AbTJCRZi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 13:19:02 -0400
-Date: 03 Oct 2003 18:49:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <8v8r7cxHw-B@khms.westfalen.de>
-In-Reply-To: <fa.e2g5r6g.u3igb4@ifi.uio.no>
-Subject: Re: [PATCH] linuxabi
-X-Mailer: CrossPoint v3.12d.kh12 R/C435
+	Fri, 3 Oct 2003 13:25:38 -0400
+Date: Fri, 3 Oct 2003 13:25:30 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: FDC motor left on
+Message-ID: <Pine.LNX.4.53.0310031322430.499@chaos>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-References: <fa.ks78dgu.14g2fa8@ifi.uio.no> <m17k3nhfex.fsf@ebiederm.dsl.xmission.com> <fa.e2g5r6g.u3igb4@ifi.uio.no>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-aebr@win.tue.nl (Andries Brouwer)  wrote on 02.10.03 in <fa.e2g5r6g.u3igb4@ifi.uio.no>:
+In linux-2.4.22 and earlier, if there is no FDC driver installed,
+the FDC motor may continue to run after boot if the motor was
+started as part of the BIOS boot sequence.
+This patch turns OFF the motor once Linux gets control.
 
-> Now you come with comment #2: write LINUX_MS_RDONLY instead of
-> MS_RDONLY. You have not convinced me.
 
-The argument is fairly simple.
+--- linux-2.4.22/arch/i386/boot/setup.S.orig	Fri Aug  2 20:39:42 2002
++++ linux-2.4.22/arch/i386/boot/setup.S	Fri Oct  3 11:50:43 2003
+@@ -59,6 +59,8 @@
+ #define SIG1	0xAA55
+ #define SIG2	0x5A5A
 
-The main idea is that we expect glibc to use these includes to talk to the  
-kernel, and that we expect glibc to at least in part do that by including  
-these files from the glibc includes.
++FDC_MOTOR = 0x3f2
++FDC_MOTON = 0x10
+ INITSEG  = DEF_INITSEG		# 0x9000, we move boot here, out of the way
+ SYSSEG   = DEF_SYSSEG		# 0x1000, system loaded at 0x10000 (65536).
+ SETUPSEG = DEF_SETUPSEG		# 0x9020, this is the current segment
+@@ -776,6 +778,12 @@
 
-So this means userspace is bound to see these declarations.
+ 	movb	$0xFB, %al			# mask all irq's but irq2 which
+ 	outb	%al, $0x21			# is cascaded
++
++	movl	$FDC_MOTOR, %edx		# FDC motor control
++	inb	%dx, %al			# Get what's there
++	andb	$~FDC_MOTON, %al		# Reset motor bit
++	outb	%al, %dx			# Turn OFF motor
++
 
-So this means namespace cleanliness issues come up.
+ # Well, that certainly wasn't fun :-(. Hopefully it works, and we don't
+ # need no steenking BIOS anyway (except for the initial loading :-).
 
-Also, we know that glibc likes to have an ABI that's different from the  
-kernel ABI.
 
-So we can't use the POSIX names for these things, or we'd create serious  
-problems for glibc actually using this stuff.
 
-Now, what namespace to use?
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-I think the rules here are clear: it MUST be part of the namespace  
-reserved for language implementation, which is /^_[_A-Z][a-zA-Z_0-9]*$/.  
-Also, it SHOULD be something we're fairly certain nobody else will be  
-using.
 
-There's one more thing here. Sometimes things change. We should consider  
-having some sort of standard way of indicating a version in the name, AND  
-WE SHOULD USE IT FROM THE FIRST VERSION ON, so that there's never a need  
-to change the definition of a symbol, and there's never a need to invent a  
-name like new_new_new_foo.
-
-Let me repeat and slightly rephrase that point:
-
-Symbols in the ABI includes should *NEVER* change their definition. Use  
-new symbols for new definitions. Glibc should be able to rely on knowing  
-that, say, _Linux_20_stat_t will always describe the stat_t to use on  
-Linux 2.0 and compatible kernels.
-
-Remember, these things describe an ABI. To be useful, there has to be a  
-1:1 correspondence between names and ABI. It's glibc above and kernel  
-below who actually do compatibility conversions, it's not the job of the  
-ABI descriptions. (Except in the form of comments.)
-
-MfG Kai

@@ -1,50 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274766AbRJAInf>; Mon, 1 Oct 2001 04:43:35 -0400
+	id <S274774AbRJAIqz>; Mon, 1 Oct 2001 04:46:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274777AbRJAInY>; Mon, 1 Oct 2001 04:43:24 -0400
-Received: from stuwopc24.stuwo.fh-wilhelmshaven.de ([139.13.209.24]:9363 "EHLO
-	neo.konqui.de") by vger.kernel.org with ESMTP id <S274766AbRJAInK>;
-	Mon, 1 Oct 2001 04:43:10 -0400
-Date: Mon, 1 Oct 2001 10:43:36 +0200
-From: Rainer Wiener <rainer@konqui.de>
-To: Linux-Kernel-ML <linux-kernel@vger.kernel.org>
-Subject: Compile problem with 2.4.10-ac1
-Message-ID: <20011001104336.A20121@konqui.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22i
-X-GPG-Fingerprint: 11C4 1354 5C28 A80C 6125  A634 646D DE09 6558 1999
-X-Operating-System: Debian GNU/Linux Sid (Linux 2.4.9-ac18)
-X-Homepage: http://www.konqui.de
+	id <S274777AbRJAIqf>; Mon, 1 Oct 2001 04:46:35 -0400
+Received: from tangens.hometree.net ([212.34.181.34]:30662 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S274774AbRJAIqd>; Mon, 1 Oct 2001 04:46:33 -0400
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
+Newsgroups: hometree.linux.kernel
+Subject: Re: [patch] netconsole-2.4.10-B1
+Date: Mon, 1 Oct 2001 08:47:00 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <9p9ai4$qgh$1@forge.intermeta.de>
+In-Reply-To: <3BB693AC.6E2DB9F4@canit.se> <Pine.LNX.4.33L.0109300448210.19147-100000@imladris.rielhome.conectiva>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1001926020 5209 212.34.181.4 (1 Oct 2001 08:47:00 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Mon, 1 Oct 2001 08:47:00 +0000 (UTC)
+X-Copyright: (C) 1996-2001 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Rik van Riel <riel@conectiva.com.br> writes:
 
-I just want to compile the 2.4.10-ac1 kernel. But it stops with this
-message:
+>Owww crap.  The majority of web traffic is _from_ the
+>server _to_ the client. Same for ftp, realaudio, etc...
 
-make[2]: Entering directory /usr/src/linux-2.4.10-ac1/kernel'
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.10-ac1/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=athlon     -c -o timer.o timer.c
-timer.c:35: conflicting types for xtime'
-/usr/src/linux-2.4.10-ac1/include/linux/sched.h:556: previous
-declaration of xtime'
-make[2]: *** [timer.o] Fehler 1
-make[2]: Leaving directory /usr/src/linux-2.4.10-ac1/kernel'
-make[1]: *** [first_rule] Fehler 2
-make[1]: Leaving directory /usr/src/linux-2.4.10-ac1/kernel'
-make: *** [_dir_kernel] Fehler 2
+Did you mean:
 
-I try to find the error by my self. But I can not fix it. So has
-anyone a idea?
+Server is the data source.
+Client is the data sink.
 
-cu
-Rainer
+netconsole.o is the server (data source)
+netconsole listener is the client (data sink)
+
+Or did you mean:
+
+Server is the part that offers a service
+Client is the part that uses the service
+
+netconsole listener offers the "receive console messages" service -> server
+netconsole.o uses the "receive console message" service -> client
+
+So both definitions are right/wrong. Choose any you like. Just
+document it and stick to it. =:-) 
+
+I am happy to have a network console no matter what is the client and
+what is the server.
+
+I personally, would say, that if you have a "one - many" network
+relation, then the "one" part is the server. So in this case, the
+netconsole listener would be the server and the netconsole.o the
+client(s). Which is like syslog and so conforms to the "principle of
+least surprise". :-)
+
+Or can you have multiple listeners to a single netconsole.o instance?
+
+	Regards
+		Henning
+
+OT: "Client/Server computing is like teenage sex. Everyone talks about
+it, almost nobody really does it and those who do, don't get it right
+most of the time". :-)
+
 -- 
-Darth Vader:
-	I find your lack of faith disturbing.
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

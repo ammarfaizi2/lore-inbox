@@ -1,61 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317332AbSFIGdj>; Sun, 9 Jun 2002 02:33:39 -0400
+	id <S317568AbSFIGqG>; Sun, 9 Jun 2002 02:46:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317567AbSFIGdi>; Sun, 9 Jun 2002 02:33:38 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:48390 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S317332AbSFIGdf>;
-	Sun, 9 Jun 2002 02:33:35 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200206090633.g596XZI472183@saturn.cs.uml.edu>
+	id <S317569AbSFIGqF>; Sun, 9 Jun 2002 02:46:05 -0400
+Received: from fachschaft.cup.uni-muenchen.de ([141.84.250.61]:7431 "EHLO
+	fachschaft.cup.uni-muenchen.de") by vger.kernel.org with ESMTP
+	id <S317568AbSFIGqF>; Sun, 9 Jun 2002 02:46:05 -0400
+Message-Id: <200206090640.g596e6X14829@fachschaft.cup.uni-muenchen.de>
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
+To: "David S. Miller" <davem@redhat.com>, roland@topspin.com
 Subject: Re: PCI DMA to small buffers on cache-incoherent arch
-To: davem@redhat.com (David S. Miller)
-Date: Sun, 9 Jun 2002 02:33:35 -0400 (EDT)
+Date: Sun, 9 Jun 2002 08:45:49 +0200
+X-Mailer: KMail [version 1.3.1]
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020608.222942.111546622.davem@redhat.com> from "David S. Miller" at Jun 08, 2002 10:29:42 PM
-X-Mailer: ELM [version 2.5 PL2]
+In-Reply-To: <52lm9p9tdz.fsf@topspin.com> <52d6v19r9n.fsf@topspin.com> <20020608.222903.122223122.davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller writes:
-> From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-
->> On a non-SMP system, would it be OK to map all the memory
->> without memory coherency enabled? You seem to be implying that
->> one only needs to implement some mechanism in pci_map_single()
->> to handle flushing cache lines (write back, then invalidate).
->>
->> This would be useful for Macs.
+Am Sonntag, 9. Juni 2002 07:29 schrieb David S. Miller:
+>    From: Roland Dreier <roland@topspin.com>
+>    Date: 08 Jun 2002 18:26:12 -0700
 >
-> It's just avoiding flushing by effecting flushing the cache after
-> every load/store the cpu does, so of course it would work.
+>    Just to make sure I'm reading this correctly, you're saying that as
+>    long as a buffer is OK for DMA, it should be OK to use a
+>    sub-cache-line chunk as a DMA buffer via pci_map_single(), and
+>    accessing the rest of the cache line should be OK at any time before,
+>    during and after the DMA.
 >
-> It would be slow as hell, but it would work.
+> Yes.
 
-I don't see why it would have to be slow. Mapping the memory
-with coherency disabled will reduce bus traffic for all the
-regular kernel code doing non-DMA stuff. (coherency requires
-that the CPU generate address-only bus operations)
+Does this mean that this piece of memory does have to be declared
+uncacheable until DMA is finished ?
+How else do you solve th problem of validity during DMA and
+especially after DMA ?
 
-The obvious concern is that some kernel code might touch
-a cache line after the invalidate but before the DMA is
-done. If that could be considered a bug, then every non-SMP
-Mac could gain some speed by turning off coherency.
-Maybe the x86 MTRRs allow for something similar.
-
-For device --> memory DMA:
-
-1. write back cache lines that cross unaligned boundries
-2. start the DMA
-3. invalidate the above cache lines
-4. invalidate cache lines that are fully inside the DMA
-
-For memory --> device DMA:
-
-1. write back all cache lines affected by the DMA
-2. start the DMA
-3. invalidate the above cache lines
-
+	Regards
+		Oliver

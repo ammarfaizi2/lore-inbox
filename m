@@ -1,67 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbUJGQIq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267421AbUJGQIi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261232AbUJGQIq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 12:08:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267433AbUJGQIq
+	id S267421AbUJGQIi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 12:08:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267433AbUJGQIi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 12:08:46 -0400
-Received: from fw.osdl.org ([65.172.181.6]:24265 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261232AbUJGQES (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 12:04:18 -0400
-Date: Thu, 7 Oct 2004 08:56:39 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: anil dahiya <ak_ait@yahoo.com>
-Cc: nhorman@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: about Linux Module Profiling Tool
-Message-Id: <20041007085639.09f2701b.rddunlap@osdl.org>
-In-Reply-To: <20041007132343.83278.qmail@web60206.mail.yahoo.com>
-References: <41653E3D.4020508@redhat.com>
-	<20041007132343.83278.qmail@web60206.mail.yahoo.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i386-vine-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 7 Oct 2004 12:08:38 -0400
+Received: from ms-smtp-01.texas.rr.com ([24.93.47.40]:59045 "EHLO
+	ms-smtp-01-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S267421AbUJGQAd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 12:00:33 -0400
+Date: Thu, 07 Oct 2004 10:59:10 -0500
+From: Dave McCracken <dmccr@us.ibm.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>, LHMS <lhms-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       "Luck, Tony" <tony.luck@intel.com>, Dave Hansen <haveblue@us.ibm.com>,
+       Hirokazu Takahashi <taka@valinux.co.jp>
+Subject: Re: [Lhms-devel] Re: [PATCH]  no buddy bitmap patch : intro and
+ includes [0/2]
+Message-ID: <FAFA5259CC7643EB8D87AF9B@[10.1.1.4]>
+In-Reply-To: <1250100000.1097160319@[10.10.2.4]>
+References: <41653511.60905@jp.fujitsu.com>
+ <1250100000.1097160319@[10.10.2.4]>
+X-Mailer: Mulberry/3.1.4 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Oct 2004 06:23:43 -0700 (PDT) anil dahiya wrote:
 
-| anil kumar : 
-|  > If anyone have idea about linux module profiling
-|  > tools>> >  
-| 
-| Neil :
-|   > What kind of profiling do you want to do?
-|   
-| 
-| Anil Kumar :
-| 
-| after booting system, I am loading my network device
-| driver module in linux kernel .
-| 
-| I wanna to know how much time is taking by functions
-| of my module at any time (i.e just after loading
-| module or just after sending or receiving data etc).
-| So I  can improve performance of my module by
-| improving those function which taking maximum time or 
-| cpu utilization.
+--On Thursday, October 07, 2004 07:45:21 -0700 "Martin J. Bligh"
+<mbligh@aracnet.com> wrote:
 
+>> Followings are patches for removing bitmaps from buddy allocator,
+>> against 2.6.9-rc3. I think this version is much clearer than ones I
+>> posted a month ago.
+> ...
+>> If there is unclear point, please tell me.
+> 
+> What was the purpose behind this, again? Sorry, has been too long since
+> I last looked.
 
-Check out oprofile:
-in kernel tree, Documentation/basic_profiling.txt (2.6.x)
+The memory allocator bitmaps are the main remaining reason we need the
+concept of linear memory.  If we can get rid of them, it's one step closer
+to managing memory as a set of sections.
 
-Basic in-kernel profiling (older version, before oprofile)
-does not work with loadable modules, just with in-kernel code.
-You could use this if you build your driver in-kernel.
+Dave McCracken
 
-There are also some performance-counter patches, but
-I don't know how to use them [if your h/w supports them].
-
--- 
-~Randy
-MOTD:  Always include version info.
-(Again.  Sometimes I think ln -s /usr/src/linux/.config .signature)

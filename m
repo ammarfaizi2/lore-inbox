@@ -1,72 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262958AbVBFAHb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264582AbVBFAJJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262958AbVBFAHb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 19:07:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272675AbVBFAHb
+	id S264582AbVBFAJJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 19:09:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272109AbVBFAJH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 19:07:31 -0500
-Received: from rproxy.gmail.com ([64.233.170.194]:63072 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262958AbVBFAHR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 19:07:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=VQhephHw6+OABSWHg6pVYmYu3e2es6TOsdJVxUMftkC8E5NIE9q+EgpvdEogr4v+u8nWP2alZqDeHGWaMeZhjkg+/NyPpy4jsI+FPOi7pxwlN5AMWmtbBB8AydigocuXftfICuYnf2Dw9cuRIoGaSK5UIeqdLuQY1XPjas0nr9c=
-Message-ID: <9e47339105020516072b33a9c6@mail.gmail.com>
-Date: Sat, 5 Feb 2005 19:07:17 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Subject: Re: Legacy IO spaces (was Re: [RFC] Reliable video POSTing on resume)
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
-       ncunningham@linuxmail.org, ACPI List <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Matthew Garrett <mjg59@srcf.ucam.org>
-In-Reply-To: <200502041534.03004.jbarnes@engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 5 Feb 2005 19:09:07 -0500
+Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:30950 "EHLO
+	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S272749AbVBFAIY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 19:08:24 -0500
+From: David Brownell <david-b@pacbell.net>
+To: linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] 2.6.11-rc[23]: swsusp & usb regression
+Date: Sat, 5 Feb 2005 16:08:14 -0800
+User-Agent: KMail/1.7.1
+Cc: Pavel Machek <pavel@ucw.cz>, Alan Stern <stern@rowland.harvard.edu>,
+       kernel list <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
+References: <20050204231649.GA1057@elf.ucw.cz> <Pine.LNX.4.44L0.0502051006150.31778-100000@netrider.rowland.org> <20050205231428.GA1098@elf.ucw.cz>
+In-Reply-To: <20050205231428.GA1098@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-References: <20050122134205.GA9354@wsc-gmbh.de>
-	 <200502041010.13220.jbarnes@engr.sgi.com>
-	 <9e4733910502041459500ae8d3@mail.gmail.com>
-	 <200502041534.03004.jbarnes@engr.sgi.com>
+Content-Disposition: inline
+Message-Id: <200502051608.14570.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After thinking about this for a while I believe the solution is for
-bridges that implement a legacy space to export legacy_io/mem in
-sysfs. So in the ia64 world, all bridges would export these attributes
-since each bridge creates a unique legacy space.
+On Saturday 05 February 2005 3:14 pm, Pavel Machek wrote:
+> Hi!
+> 
+> > Your logs don't indicate which host controller driver is bound to each of 
+> > your hubs.  /proc/bus/usb/devices will contain that information.  Without 
+> > it, it's hard to diagnose what happened.
+> 
+> I do not think I have any hubs... no external hubs anyway. And I do
+> not have /proc/bus/usb/devices file :-(. There's something in
+> /sys/bus/usb/devices/.
 
-In the x86 and I believe the ppc world, only host bridges create
-legacy spaces and should have the legacy_io/mem attributes. All child
-bridges should not export them.
+So what does "lspci -v|grep HCI" say then?
 
-This may be best handled by implementing bridge drivers. In my case I
-need these:
+You could try "mount -t usbfs on /proc/bus/usb" ... ;)
 
-Host needs to export a legacy io/mem space
-8086:2578 - Host bridge: Intel Corp. 82875P/E7210 Memory Controller Hub
+Periodically I think that it'd be useful to have the hub driver messages
+report the HCD involved, somehow, instead of just "hub", at least when
+root hub ports are involved.  It could improve the utility of some bug
+reports by a significant amount.
 
-Child bridges do not export legacy space but implement VGA routing
-8086:2579 - PCI bridge: Intel Corp. 82875P Processor to AGP Controller
-8086:244e - PCI bridge: Intel Corp. 82801 PCI Bridge
-
-I also have this..
-8086:24d0 - ISA bridge: Intel Corp. 82801EB/ER (ICH5/ICH5R) LPC Interface Bridge
-But this is implementing the devices in the legacy space, it's the
-host bridge that is creating the space.
-
-Some questions...
-1) Does the IA64 have child bridges that don't implement legacy space?
-If so then they need to support VGA routing. What about Cardbus?
-2) Does an IA64 bridge supporting different legacy spaces alter the
-VGA io request to remove the offset and then send it out onto the bus?
-3) How does all of this work with Opteron and Hypertransport?
-
-
--- 
-Jon Smirl
-jonsmirl@gmail.com
+- Dave

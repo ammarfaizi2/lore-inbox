@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266874AbUAXGN2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 01:13:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266875AbUAXGN2
+	id S266875AbUAXGxG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 01:53:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266876AbUAXGxG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 01:13:28 -0500
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:61928 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S266874AbUAXGNZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 01:13:25 -0500
-Message-ID: <40120DD0.7090802@comcast.net>
-Date: Sat, 24 Jan 2004 00:16:48 -0600
-From: Karl Tatgenhorst <ketatgenhorst@comcast.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [lkml] pseudo tty / kernel compile question
-References: <Pine.LNX.4.44.0401131148070.18661-100000@eloth> <20040113113650.A2975@flint.arm.linux.org.uk> <20040113114948.B2975@flint.arm.linux.org.uk> <20040113171544.B7256@flint.arm.linux.org.uk> <20040113172441.C7256@flint.arm.linux.org.uk>
-In-Reply-To: <20040113172441.C7256@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 24 Jan 2004 01:53:06 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:59574 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S266875AbUAXGxF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jan 2004 01:53:05 -0500
+Date: Fri, 23 Jan 2004 22:41:24 -0800 (PST)
+Message-Id: <20040123.224124.71115576.davem@redhat.com>
+To: jt@hpl.hp.com, jt@bougret.hpl.hp.com
+Cc: linux-kernel@vger.kernel.org, irda-users@lists.sourceforge.net,
+       jgarzik@pobox.com, lists@mdiehl.de
+Subject: Re: New IrDA drivers for 2.6.X
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20040124021828.GA22410@bougret.hpl.hp.com>
+References: <20040124021828.GA22410@bougret.hpl.hp.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+   From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+   Date: Fri, 23 Jan 2004 18:18:28 -0800
+   
+   	Martin Diehl has finished converting all the old style dongle
+   driver to the new API. This was the last major feature parity issue
+   with 2.4.X, with this work, 2.6.X should support all the IrDA serial
+   dongles that 2.4.X supports. Martin also did a few other cleanups and
+   fixed tekram-sir so that it works with real hardware.
 
-I have read the FAQ and have searched heartily for anything which I 
-could understand about this, but have come up empty. I am replacing a 
-Unixware 7.1.1 server (not a unixware question) with RH ES3. The server 
-hosts a BASIC application so users log in via ssh sessions. The problem 
-is I am getting to around 120 users and then getting a no pseudo ttys 
-available. RH support had me bump up the number of instances in 
-xinetd.conf which did nothing. Then a person we use for Unix support 
-said that the type of pseudo ttys that we use is wrong. His example:
-
-when I log in over ssh I get /dev/pts/0 when I type tty. But he says it 
-should be of type /dev/ptsp* I know (suspect strongly) that this is 
-configured in the kernel but not where. Can anyone please post a little 
-information for me regarding this.
-
-I heartily welcome your assistance in smiting this unixware servers job.
-
-Karl Tatgenhorst
-
-PS if it is not too much further trouble, please CC any responses to 
-ktatgenhorst@eiltd.com
-
-Thanks one and all
-
+All applied.  I'll queue this up.  I'll try to get it in
+now but it may be deferred to the next 2.6.x release.

@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264066AbRFKWr6>; Mon, 11 Jun 2001 18:47:58 -0400
+	id <S263608AbRFKWl5>; Mon, 11 Jun 2001 18:41:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264072AbRFKWrs>; Mon, 11 Jun 2001 18:47:48 -0400
-Received: from mailgw.prontomail.com ([216.163.180.10]:45446 "EHLO
-	c0mailgw02.prontomail.com") by vger.kernel.org with ESMTP
-	id <S264066AbRFKWrn>; Mon, 11 Jun 2001 18:47:43 -0400
-Message-ID: <3B254A0E.F08CDB6E@mvista.com>
-Date: Mon, 11 Jun 2001 15:45:34 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S264066AbRFKWlr>; Mon, 11 Jun 2001 18:41:47 -0400
+Received: from 24.68.61.66.on.wave.home.com ([24.68.61.66]:52236 "HELO
+	sh0n.net") by vger.kernel.org with SMTP id <S263608AbRFKWle>;
+	Mon, 11 Jun 2001 18:41:34 -0400
+Date: Mon, 11 Jun 2001 18:42:15 -0400 (EDT)
+From: Shawn Starr <spstarr@sh0n.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Gigabit Intel NIC? - Intel Gigabit Ethernet Pro/1000T
+In-Reply-To: <Pine.LNX.4.31.0106111207350.4452-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.30.0106111823110.20760-100000@coredump.sh0n.net>
 MIME-Version: 1.0
-To: Jaswinder Singh <jaswinder.singh@3disystems.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Task Switching in Linux
-In-Reply-To: <011701c0f2b5$4d2d7140$50a6b3d0@Toshiba>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jaswinder Singh wrote:
-> 
-> In Linux , If we assume that there are only 2 tasks A and B and both are
-> equal , this is correct or not :-
-> 
-> TASK A -> schedule -> switch_to -> TASK B -> schedule -> switch_to ->
-> schedule -> switch_to -> TASK A.
-> 
-Heck no.  TASK A will be run until it either blocks or its time quantum
-drops below TASK B's.  It does not matter how many times it calls
-schedule(), 'cept its a darn waste of time.
 
-Now, it you call sched_yield() your chances are higher, but still no
-guarantee.  If you get the tasks out of SCHED_OTHER sched_yield() will
-do the above (if they have the same priority).
+How good is the linux kernel driver for the Intel gigabit Ethernet
+NIC (copper) with the TL82543GC chipset? The card says it's
+a "PRO/1000T" server adapter, and it looks like the part
+number A19845-003.
 
-George
+The sales guy who is promoting it says this is apparently a new
+card and he claims he can get specs from engineering.
+Not sure about NDA status.
+
+So my question is... is it worth calling this guy's bluff?
+
+Shawn.
+

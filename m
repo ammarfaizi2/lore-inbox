@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265410AbUG0G4i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266258AbUG0G6A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265410AbUG0G4i (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 02:56:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266258AbUG0G4i
+	id S266258AbUG0G6A (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 02:58:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266262AbUG0G6A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 02:56:38 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:36343 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265410AbUG0G4h (ORCPT
+	Tue, 27 Jul 2004 02:58:00 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:46533 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S266258AbUG0G54 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 02:56:37 -0400
-Date: Tue, 27 Jul 2004 12:25:29 +0530
-From: Ravikiran G Thirumalai <kiran@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org,
-       viro@parcelfarce.linux.theplanet.co.uk, dipankar@in.ibm.com
-Subject: Re: [patch] Use kref for struct file.f_count refcounter
-Message-ID: <20040727065528.GB1270@obelix.in.ibm.com>
-References: <20040726150312.GJ1231@obelix.in.ibm.com> <20040726223036.281106c5.akpm@osdl.org>
+	Tue, 27 Jul 2004 02:57:56 -0400
+Date: Tue, 27 Jul 2004 08:43:45 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Rudo Thomas <rudo@matfyz.cz>
+Cc: Lee Revell <rlrevell@joe-job.com>, Jens Axboe <axboe@suse.de>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Lenar L?hmus <lenar@vision.ee>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: no luck with max_sectors_kb (Re: voluntary-preempt-2.6.8-rc2-J4)
+Message-ID: <20040727064345.GA5594@elte.hu>
+References: <1090732537.738.2.camel@mindpipe> <1090795742.719.4.camel@mindpipe> <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu> <20040726100103.GA29072@elte.hu> <20040726101536.GA29408@elte.hu> <20040726204228.GA1231@ss1000.ms.mff.cuni.cz> <20040726205741.GA27527@elte.hu> <20040726225009.GA2369@ss1000.ms.mff.cuni.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040726223036.281106c5.akpm@osdl.org>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20040726225009.GA2369@ss1000.ms.mff.cuni.cz>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 26, 2004 at 10:30:36PM -0700, Andrew Morton wrote:
-> Ravikiran G Thirumalai <kiran@in.ibm.com> wrote:
-> >
-> > This patch makes use of the kref api for the 
-> >  struct file.f_count refcounter.  This depends
-> >  on the new kref apis kref_read and kref_put_last
-> >  added by means of my earlier patch today.
+
+* Rudo Thomas <rudo@matfyz.cz> wrote:
+
+> > does the patch below, ontop of -J7, help?
 > 
-> Sorry, but I can't really see how this improves anything.  It'll slow
-> things down infinitesimally and it forces the reader to look elsewhere in
-> the tree to see what's going on.
+> I tried it, but did not test tuning the value, as the patch has
+> problems of its own: with device-mapper.
 > 
+> bio too big device dm-0 (256 > 255)
+> 
+> Again, some files cannot be read on the device.
 
-It doesn't improve anything in terms of performance or anything.  It just
-makes use of the kref api for refcounting.  My next patchset will be to
-extend the kref api to do lockfree refcounting, and eliminate
-use of files_struct.file_lock on the reader side (lock free fd lookup) .  
-That improves performance for fd lookups -- for threaded workloads which 
-do lot of io.  This was the step by step approach I am following to do 
-lockfree refcounting as was agreed earlier.
+ok, dm (and some other layered block drivers) set q->max_sectors
+directly instead of using blk_queue_max_sectors().
 
-I can do a patch to just extend kref api for lockfree refcounting and
-use them for for the lock free fd lookup patch directly if you like to see
-it that way.
-
-Thanks,
-Kiran
-
+	Ingo

@@ -1,41 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268380AbTGIPcY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jul 2003 11:32:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268384AbTGIPcY
+	id S266048AbTGIPiG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jul 2003 11:38:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266051AbTGIPiG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jul 2003 11:32:24 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:32436 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268380AbTGIPcI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jul 2003 11:32:08 -0400
-Date: Wed, 9 Jul 2003 08:45:15 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: sitsofe@lycos.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel oops running video capture software
-Message-Id: <20030709084515.2cdb24ca.rddunlap@osdl.org>
-In-Reply-To: <AGAKACEMILICLBAA@mailcity.com>
-References: <AGAKACEMILICLBAA@mailcity.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 9 Jul 2003 11:38:06 -0400
+Received: from compsciinn-gw.customer.ALTER.NET ([157.130.84.134]:32413 "EHLO
+	picard.csi-inc.com") by vger.kernel.org with ESMTP id S266048AbTGIPiD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jul 2003 11:38:03 -0400
+Message-ID: <02fe01c34632$1f4dfe20$c8de11cc@black>
+From: "Mike Black" <mblack@csi-inc.com>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: pthreads on dual CPU
+Date: Wed, 9 Jul 2003 11:52:38 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 09 Jul 2003 10:21:42  0000 "Sitsofe Wheeler" <sitsofe@lycos.com> wrote:
+I found a benchmark program for threads and found a major difference between a single CPU and dual CPU system.
+Here's the code:
+http://www-124.ibm.com/pipermail/pthreads-users/2002-April/000176.html
+Is this showing context switches going between CPUs??
+Wouldn't one expect the dual CPU to run twice as fast instead of ten times slower?
+As you can see from the timing user time increases by a factor of 4 and system time by a factor of 10.
+I seem to remember something about gettimeofday() possibly being a problem but couldn't find a refernce to it.
+Anybody have an explanation/fix for this?
+I'm running 2.4.21 with glibc-2.3.2 
 
-| While running video capture software, the kernel will eventually oops in kswapd. There do seem to be some different kernels where it will take longer for this to happen (possibly those with apic support) but so far I haven't been able to isolate them. The oops will only happen while video capture is happening otherwise the system is extremely solid.
-| 
-| The kernel being used is 2.4.21 patched with preempt, low-latency, bootsplash and variable hz (the hz was set to 200).
+Single CPU (Athlon 2400):
+Thread     Count Start Time   End Time  Reverses
+------   ------- ----------   --------  --------
+0         100000    0.00014    0.55257     99998
+1         100000    0.00018    0.44839     99997
+2         100000    0.00018    0.57385    100000
+3         100000    0.00026    0.37884     99999
+4         100000    0.00026    0.50911    100000
+5         100000    0.00028    0.49115     99998
+6         100000    0.00035    0.53783    100000
+7         100000    0.00036    0.60039    100000
+8         100000    0.00038    0.60346     81847
+9         100000    0.45934    0.59906     99998
+Total elapsed time is    0.60348 seconds
+0.080u 0.530s 0:00.60 101.6%    0+0k 0+0io 136pf+0w
+Dual CPU (Athlon 2000MP):
+Thread     Count Start Time   End Time  Reverses
+------   ------- ----------   --------  --------
+0         100000    0.00024    2.35316    100000
+1         100000    0.00031    2.65760    100000
+2         100000    0.00036    2.61471    100000
+3         100000    0.00048    2.59529    100000
+4         100000    0.00055    2.65601    100000
+5         100000    0.00060    2.70938     98040
+6         100000    0.00065    2.68379    100000
+7         100000    0.00075    2.71154     95341
+8         100000    0.00082    2.69375    100000
+9         100000    0.00089    2.71491     78796
+Total elapsed time is    2.71494 seconds
+0.380u 5.040s 0:02.71 200.0%    0+0k 0+0io 133pf+0w
 
-You'll need to run that oops message thru ksymoops for it to be
-useful.
 
---
-~Randy
-| http://developer.osdl.org/rddunlap/ | http://www.xenotime.net/linux/ |
+Michael D. Black mblack@csi-inc.com
+http://www.csi-inc.com/
+http://www.csi-inc.com/~mike
+Melbourne FL

@@ -1,100 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271003AbTGPKr1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 06:47:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271004AbTGPKr1
+	id S271009AbTGPKwA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 06:52:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271010AbTGPKvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 06:47:27 -0400
-Received: from 24-216-225-11.charter.com ([24.216.225.11]:35720 "EHLO
-	wally.rdlg.net") by vger.kernel.org with ESMTP id S271003AbTGPKrS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 06:47:18 -0400
-Date: Wed, 16 Jul 2003 07:02:06 -0400
-From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-To: "Barry K. Nathan" <barryn@pobox.com>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2 2.6.0-test1 issues
-Message-ID: <20030716110206.GI2412@rdlg.net>
-Mail-Followup-To: "Barry K. Nathan" <barryn@pobox.com>,
-	Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <20030716103851.GH2412@rdlg.net> <20030716105236.GD25869@ip68-4-255-84.oc.oc.cox.net>
+	Wed, 16 Jul 2003 06:51:54 -0400
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:50953 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id S271009AbTGPKvt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 06:51:49 -0400
+Date: Wed, 16 Jul 2003 20:07:28 +0900 (JST)
+Message-Id: <20030716.200728.47761016.yoshfuji@linux-ipv6.org>
+To: rmk@arm.linux.org.uk
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       yoshfuji@linux-ipv6.org, davem@redhat.com
+Subject: Re: IPv6 warnings
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <20030716113657.A24009@flint.arm.linux.org.uk>
+References: <20030716113657.A24009@flint.arm.linux.org.uk>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="G44BJl3Aq1QbV/QL"
-Content-Disposition: inline
-In-Reply-To: <20030716105236.GD25869@ip68-4-255-84.oc.oc.cox.net>
-User-Agent: Mutt/1.5.4i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello.
 
---G44BJl3Aq1QbV/QL
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In article <20030716113657.A24009@flint.arm.linux.org.uk> (at Wed, 16 Jul 2003 11:36:57 +0100), Russell King <rmk@arm.linux.org.uk> says:
 
+> Linux version 2.6.0-test1 (src@tika) (gcc version 3.2.2 20030313
+>  (Red Hat Linux 3.2.2-10_rmk1)) #1280 Wed Jul 16 11:07:22 BST 2003
+> CPU: StrongARM-1110 [6901b118] revision 8 (ARMv4)
+> 
+> I'm running IPv6 the above, and I'm seeing the following messages.
+> ipv6 was built as a module.  Should I be worried?
+> 
+> IPv6 v0.8 for NET4.0
+> IPv6 over IPv4 tunneling driver
+> Destroying alive neighbour c18c2a44
+> [<c015bb84>] (dst_destroy+0x0/0x168) from [<bf00d024>] (ndisc_dst_gc+0x74/0xa4 [ipv6])
 
+Please try this.
 
-GAH, I should have know that one and yes it fixed both problems as well
-as a new one with ETerms failing to start in X.
+Index: linux-2.6/net/ipv6/route.c
+===================================================================
+RCS file: /home/cvs/linux-2.5/net/ipv6/route.c,v
+retrieving revision 1.45
+diff -u -r1.45 route.c
+--- linux-2.6/net/ipv6/route.c	13 Jul 2003 06:12:30 -0000	1.45
++++ linux-2.6/net/ipv6/route.c	16 Jul 2003 09:44:39 -0000
+@@ -567,6 +567,11 @@
+ 	if (unlikely(rt == NULL))
+ 		goto out;
+ 
++	if (dev)
++		dev_hold(dev);
++	if (neigh)
++		neigh_hold(neigh);
++
+ 	rt->rt6i_dev	  = dev;
+ 	rt->rt6i_nexthop  = neigh;
+ 	rt->rt6i_expires  = 0;
 
-Thanks alot,
-  Robert
-
-
-Thus spake Barry K. Nathan (barryn@pobox.com):
-
-> On Wed, Jul 16, 2003 at 06:38:51AM -0400, Robert L. Harris wrote:
-> > I can SSH out of my 2.6.0-test1 box (IPv4 and IPv6).  When I try to ssh
-> > in though I get a prompt for a passphrase like normal but once I enter
-> > it nothing happens it just hangs there.
-> >=20
-> > On bootup I get multiple FATAL messages about tty and ttyS.  They're
-> > scattered throughout the startup process and don't seem tied to any
-> > particular init scripts.
->=20
-> Make sure you have a line in /etc/fstab for /dev/pts, like the
-> following:
->=20
-> none /dev/pts devpts defaults 0 0
->=20
-> My recollection is that I've seen this happen with at least some 2.4
-> kernels as well, so it's not a 2.6-specific thing. I may not be
-> remembering correctly, however.
->=20
-> Also note that some distributions will go ahead and mount /dev/pts
-> without having a line for it in /etc/fstab, so this isn't needed for all
-> Linux boxes.
->=20
-> -Barry K. Nathan <barryn@pobox.com>
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
-:wq!
----------------------------------------------------------------------------
-Robert L. Harris                     | GPG Key ID: E344DA3B
-                                         @ x-hkp://pgp.mit.edu=20
-DISCLAIMER:
-      These are MY OPINIONS ALONE.  I speak for no-one else.
-
-Diagnosis: witzelsucht  =09
-
-IPv6 =3D robert@ipv6.rdlg.net	http://ipv6.rdlg.net
-IPv4 =3D robert@mail.rdlg.net	http://www.rdlg.net
-
---G44BJl3Aq1QbV/QL
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/FTCu8+1vMONE2jsRAuZ4AKC9H8wy+sCspCUl+evLJrVcGfXYFQCeOCEA
-O3q9ny+FTJBYGti4gO+0yNI=
-=bNr+
------END PGP SIGNATURE-----
-
---G44BJl3Aq1QbV/QL--
+-- 
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

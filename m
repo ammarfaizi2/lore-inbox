@@ -1,43 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265439AbSKFAVo>; Tue, 5 Nov 2002 19:21:44 -0500
+	id <S265435AbSKFAju>; Tue, 5 Nov 2002 19:39:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265441AbSKFAVn>; Tue, 5 Nov 2002 19:21:43 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:23294 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S265439AbSKFAVk>; Tue, 5 Nov 2002 19:21:40 -0500
-Date: Tue, 05 Nov 2002 17:23:17 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: bert hubert <ahu@ds9a.nl>
-cc: Peter Chubb <peter@chubb.wattle.id.au>, jw schultz <jw@pegasys.ws>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: ps performance sucks (was Re: dcache_rcu [performance results])
-Message-ID: <32290000.1036545797@flay>
-In-Reply-To: <20021106001007.GA15200@outpost.ds9a.nl>
-References: <15816.19206.959160.739312@wombat.chubb.wattle.id.au> <26610000.1036541181@flay> <20021105231649.GA14511@outpost.ds9a.nl> <27920000.1036544267@flay> <20021106001007.GA15200@outpost.ds9a.nl>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S265446AbSKFAju>; Tue, 5 Nov 2002 19:39:50 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:11456 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265435AbSKFAjs>;
+	Tue, 5 Nov 2002 19:39:48 -0500
+Importance: Normal
+Sensitivity: 
+Subject: Re: RE2: [Evms-devel] EVMS announcement
+To: "Michael Nguyen" <michael.nguyen@corosoft.com>
+Cc: <evms-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
+X-Mailer: Lotus Notes Release 5.0.4  June 8, 2000
+Message-ID: <OF9B0C3155.FEB10444-ON85256C69.000322F8@pok.ibm.com>
+From: "Steve Pratt" <slpratt@us.ibm.com>
+Date: Tue, 5 Nov 2002 20:09:42 -0600
+X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11 +SPRs MIAS5EXFG4, MIAS5AUFPV
+ and RM_DEBUG |October 24, 2002) at 11/05/2002 07:46:03 PM
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Errm... we have profiled it. Look at the subject line ... this started
->> off as a dcache_rcu discussion. The dcache lookup ain't cheap, for 
->> starters, but that's not really the problem ... it's O(number of tasks),
->> which sucks.
-> 
-> Ok - but if opening a few files is the problem, the solution is not to roll
-> those files into one but to figure out why opening the files is slow in the
-> first place.
 
-It's not a few files if you have large numbers of tasks. It's an 
-interface that fundamentally wasn't designed to scale, and futzing
-around tweaking the thing isn't going to cut it, it needs a different
-design. I'm not proposing throwing out any of the old simple interfaces,
-just providing something efficient as a data gathering interface for
-those people who wish to use it.
+Michael Nguyen wrote:
+>This is one sad :( email to read, and Im sure it's
+>even more difficult to write. There can't be any winner
+>when public domain refuses a given work. I commend your
+>past and your continuing development effort.
 
-M.
+Yes, this was a hard decision to make, but we honestly feel it
+is the right long term answer for EVMS users.
+
+>Near term:
+>1. How long will EVMS1.2.0 & kernel2.4 be supported?
+
+2 answers: 1.2.x on 2.4 will be supported for a long time.  I never
+like to give real dates on items like this, but we won't leave current
+users hanging.
+
+For 2.4 in general, in addition to supporting 1.2.x we will also be
+offering
+EVMS 2.0 (new design) on 2.4 as well as 2.5.
+
+>Looking further out:
+>1. Is EVMS runtime a throw away?
+
+Mostly yes. Some stuff like BBR will survive but for the most part it's
+going away.
+
+>2. Is EVMS engine to modify for LVM2 support?
+
+LVM2 is a set of user tools to get LVM1 functions on Device Mapper.
+The EVMS Engine will also use device mapper to provide LVM1 capabilities
+and backwards compatibility (as well as lots of other stuff).
+The LVM2 tools will not be required.
+
+>3. What will happen to the modular (plugins)?
+     >- AIX LVM
+     >- OS2 LVM
+
+     These stay around as Engine plug-ins either using device mapper as the
+     kernel side or if necessary some other kernel driver.  EVMS will
+     continue
+     to offer OS/2 and AIX migration support.
+
+     >- Device manager (local/san)
+
+     Unsure, we never really found a use for the san device manager as
+     san device come in looking like scsi disks in most cases.
+
+     >- etc..
+
+     As stated in numerous other appends, EVMS is not dropping support
+     for any plug-ins.  All EVMS volumes should be transparently
+     accessible under the new design.
+
+
+ Steve
+
 

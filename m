@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265046AbSKFNkr>; Wed, 6 Nov 2002 08:40:47 -0500
+	id <S265068AbSKFNnU>; Wed, 6 Nov 2002 08:43:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265065AbSKFNkr>; Wed, 6 Nov 2002 08:40:47 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:13953 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S265046AbSKFNkq>;
-	Wed, 6 Nov 2002 08:40:46 -0500
-Date: Wed, 6 Nov 2002 14:46:38 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: "Randy.Dunlap" <rddunlap@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: busmouse support (2 of them?)
-In-Reply-To: <20021106114215.E25154@ucw.cz>
-Message-ID: <Pine.GSO.4.21.0211061445560.25960-100000@vervain.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265074AbSKFNnU>; Wed, 6 Nov 2002 08:43:20 -0500
+Received: from line106-150.adsl.actcom.co.il ([192.117.106.150]:52688 "HELO
+	mail.bard.org.il") by vger.kernel.org with SMTP id <S265068AbSKFNnT>;
+	Wed, 6 Nov 2002 08:43:19 -0500
+Date: Wed, 6 Nov 2002 15:49:35 +0200
+From: "Marc A. Volovic" <marc@bard.org.il>
+To: Pannaga Bhushan <bhushan@multitech.co.in>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: A hole in kernel space!
+Message-ID: <20021106134935.GA24234@glamis.bard.org.il>
+References: <3DC903BE.F4CD5A52@multitech.co.in>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DC903BE.F4CD5A52@multitech.co.in>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux glamis 2.4.20-pre10-ac2
+X-message-flag: 'Oi! Muy Importante! Get yourself a real email client. http://www.mutt.org/'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Nov 2002, Vojtech Pavlik wrote:
-> On Tue, Nov 05, 2002 at 05:37:37PM -0800, Randy.Dunlap wrote:
-> > In (menu)config, there is
-> >   Character Devices, Mice --->, Bus mouse support
-> > and then there is
-> >   Input drivers, Mice, Inport busmouse
-> > 
-> > Are both of these needed?  I.e., can the first one be removed?
-> 
-> The first can be removed once all the drivers using the busmouse.c
-> infrastructure are removed. They were all removed on i386 and other
-> modern architectures, but I'm not 100% sure some Atari driver is not
-> using it.
+Quoth Pannaga Bhushan:
 
-Atari busmouse support was removed. However, there's no new-style input layer
-driver for it yet.
+> Hi all,
+>         I am looking for a setup where I need to have a certain amount
+> of data always available to the kernel. The size of data I am looking at
+> is abt
+> 40MB(preferably, but I will settle for 20MB too) . So the normal kmalloc
 
-Gr{oetje,eeting}s,
+I wrote a driver which steals a certain amount of memory from the kernel
+and makes it available to userspace (somewhat like the rd driver).
+If you want - I can send it to you.
 
-						Geert
+It exports a small device hierarchy which can be read, written and
+mmap'ed. The memory is contiguous. Not VERY elegant, but works quite
+well.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+The driver steals a certain amount of memory from the kernel at boot
+time, a-la the mem= parameter. I have used "holes" of up to 1GB in size.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
 
+Marc
+
+-- 
+---MAV
+                        Linguists do it cunningly
+Marc A. Volovic                                             marc@bard.org.il

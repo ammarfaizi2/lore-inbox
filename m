@@ -1,43 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262338AbUKDS70@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262351AbUKDTEm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262338AbUKDS70 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 13:59:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbUKDS7F
+	id S262351AbUKDTEm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 14:04:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbUKDTEm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 13:59:05 -0500
-Received: from mail.kroah.org ([69.55.234.183]:12996 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262327AbUKDS6q (ORCPT
+	Thu, 4 Nov 2004 14:04:42 -0500
+Received: from soundwarez.org ([217.160.171.123]:52401 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S262351AbUKDTDX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 13:58:46 -0500
-Date: Thu, 4 Nov 2004 10:58:26 -0800
-From: Greg KH <greg@kroah.com>
-To: Tejun Heo <tj@home-tj.org>
-Cc: mochel@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.10-rc1 2/5] driver-model: bus_recan_devices() locking fix
-Message-ID: <20041104185826.GA17756@kroah.com>
-References: <20041104070134.GA25567@home-tj.org> <20041104070258.GC25567@home-tj.org>
+	Thu, 4 Nov 2004 14:03:23 -0500
+Subject: Re: [patch] kobject_uevent: fix init ordering
+From: Kay Sievers <kay.sievers@vrfy.org>
+To: Robert Love <rml@novell.com>
+Cc: Greg KH <greg@kroah.com>, Anton Blanchard <anton@samba.org>,
+       linux-kernel@vger.kernel.org, davem@redhat.com,
+       herbert@gondor.apana.org.au
+In-Reply-To: <1099592851.31022.145.camel@betsy.boston.ximian.com>
+References: <20041104154317.GA1268@krispykreme.ozlabs.ibm.com>
+	 <20041104180550.GA16744@kroah.com>
+	 <1099592851.31022.145.camel@betsy.boston.ximian.com>
+Content-Type: text/plain
+Date: Thu, 04 Nov 2004 20:04:02 +0100
+Message-Id: <1099595042.8249.23.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041104070258.GC25567@home-tj.org>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 04, 2004 at 04:02:58PM +0900, Tejun Heo wrote:
->  df_02_bus_rescan_devcies_fix.patch
+On Thu, 2004-11-04 at 13:27 -0500, Robert Love wrote:
+> Greg!
 > 
->  bus_rescan_devices() eventually calls device_attach() and thus
-> requires write locking the corresponding bus.  The original code just
-> called bus_for_each_dev() which only read locks the bus.  This patch
-> separates __bus_for_each_dev() and __bus_for_each_drv(), which don't
-> do locking themselves, out from the original functions and call them
-> with read lock in the original functions and with write lock in
-> bus_rescan_devices().
+> Looks like kobject_uevent_init is executed before netlink_proto_init and
+> consequently always fails.  Not cool.
 > 
-> 
-> Signed-off-by: Tejun Heo <tj@home-tj.org>
+> Attached patch switches the initialization over from core_initcall (init
+> level 1) to postcore_initcall (init level 2).  Netlink's initialization
+> is done in core_initcall, so this should fix the problem.  We should be
+> fine waiting until postcore_initcall.
 
-Thanks, I cleaned up the formatting a bit in this patch and applied it.
+Looks good. Don't know why this never failed on any kernel I used.
+Does the failure happens on a SMP kernel?
 
-greg k-h
+>  static int send_uevent(const char *signal, const char *obj, const void *buf,
+> -			int buflen, int gfp_mask)
+> +		       int buflen, int gfp_mask)
+                         ^^^^^^^^^^
+This has changed and will not apply.
+
+Best,
+Kay
+

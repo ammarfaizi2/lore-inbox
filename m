@@ -1,35 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285099AbRLFKQP>; Thu, 6 Dec 2001 05:16:15 -0500
+	id <S285092AbRLFKPf>; Thu, 6 Dec 2001 05:15:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285101AbRLFKQF>; Thu, 6 Dec 2001 05:16:05 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:34181 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S285099AbRLFKPv>;
-	Thu, 6 Dec 2001 05:15:51 -0500
-Date: Thu, 06 Dec 2001 02:15:34 -0800 (PST)
-Message-Id: <20011206.021534.66178457.davem@redhat.com>
-To: dwmw2@infradead.org
-Cc: jgarzik@mandrakesoft.com, kaos@ocs.com.au, marcelo@conectiva.com.br,
+	id <S285096AbRLFKPZ>; Thu, 6 Dec 2001 05:15:25 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:27403 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S285092AbRLFKPU>; Thu, 6 Dec 2001 05:15:20 -0500
+Subject: Re: [patch] 2.4.16 for pointers to __devexit functions
+To: jgarzik@mandrakesoft.com (Jeff Garzik)
+Date: Thu, 6 Dec 2001 10:17:48 +0000 (GMT)
+Cc: dwmw2@infradead.org (David Woodhouse), davem@redhat.com (David S. Miller),
+        kaos@ocs.com.au, marcelo@conectiva.com.br,
         linux-kernel@vger.kernel.org
-Subject: Re: [patch] 2.4.16 for pointers to __devexit functions 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <15133.1007631619@redhat.com>
-In-Reply-To: <11777.1007619756@kao2.melbourne.sgi.com>
-	<3C0F27CA.59C22DEF@mandrakesoft.com>
-	<15133.1007631619@redhat.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+In-Reply-To: <3C0F3D49.757F8AFD@mandrakesoft.com> from "Jeff Garzik" at Dec 06, 2001 04:41:29 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16BvbA-0001Cu-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: David Woodhouse <dwmw2@infradead.org>
-   Date: Thu, 06 Dec 2001 09:40:19 +0000
-   
-   Doesn't work at all, or just doesn't work with the (current) minimum
-   recommended compiler? We have to increase those minima at some point. 
+> > Doesn't work at all, or just doesn't work with the (current) minimum
+> > recommended compiler? We have to increase those minima at some point.
+> 
+> akpm and others will yell :)
+> egcs-1.1.2 compiles an x86 kernel far faster than newer compilers...
 
-The "golden" sparc64 compiler has been in use for years and is what
-has the weak problem, and updating it would be a major pain in the
-butt.
+I certainly don't intend to leave the magic egcs workarounds in the drivers
+I maintain for 2.5.
+
+Alan

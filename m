@@ -1,30 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313425AbSC2KVS>; Fri, 29 Mar 2002 05:21:18 -0500
+	id <S313428AbSC2Kbo>; Fri, 29 Mar 2002 05:31:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313426AbSC2KVK>; Fri, 29 Mar 2002 05:21:10 -0500
-Received: from www.wotug.org ([194.106.52.201]:64777 "EHLO
-	gatemaster.ivimey.org") by vger.kernel.org with ESMTP
-	id <S313425AbSC2KVB>; Fri, 29 Mar 2002 05:21:01 -0500
-Message-Id: <5.1.0.14.0.20020329101556.0188aea8@mailhost.ivimey.org>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 29 Mar 2002 10:21:00 +0000
-To: linux-kernel@vger.kernel.org
-From: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
-Subject: Request for 2.4.20 to be a non-trivial-bugfixes-only version
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S313429AbSC2Kbe>; Fri, 29 Mar 2002 05:31:34 -0500
+Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:42001 "EHLO
+	einstein.homenet") by vger.kernel.org with ESMTP id <S313428AbSC2Kb2>;
+	Fri, 29 Mar 2002 05:31:28 -0500
+Date: Fri, 29 Mar 2002 10:36:07 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+X-X-Sender: <tigran@einstein.homenet>
+To: Matthew Walburn <matt@math.mit.edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: mkinitrd w/ 2.4.18
+In-Reply-To: <20020328202555.A2226@math.mit.edu>
+Message-ID: <Pine.LNX.4.33.0203291034460.1089-100000@einstein.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Folks,
+On Thu, 28 Mar 2002, Matthew Walburn wrote:
 
-Can we celebrate getting to 2.4.20 with a really super-stable version of 
-the kernel, by only admitting patches that fix known and significant bugs 
-(that is, no new features, no more optimisations, no backports, no "it's 
-only a line" fixes)?
+> hi there,
+>
+> i'm having problems getting mkinitrd to work with 2.4.18 in a redhat 7.2 system. are there any kernel options that i should be aware of to get this to work properly that i'm somehow missing?
+>
+> thanks
+> -matt
 
-It would help 2.4 a lot, I think.
+Try this patch:
 
-Ruth
+diff -ur mkinitrd-3.2.6-orig/mkinitrd mkinitrd-3.2.6/mkinitrd
+--- mkinitrd-3.2.6-orig/mkinitrd        Wed Sep  5 21:38:18 2001
++++ mkinitrd-3.2.6/mkinitrd     Fri Mar  1 09:34:22 2002
+@@ -309,9 +309,9 @@
+     echo "Using modules: $MODULES"
+ fi
+
+-MNTIMAGE=`mktemp -d /tmp/initrd.XXXXXX`
+-IMAGE=`mktemp /tmp/initrd.img.XXXXXX`
+-MNTPOINT=`mktemp -d /tmp/initrd.mnt.XXXXXX`
++MNTIMAGE=$(mktemp -d $TMPDIR/initrd.XXXXXX) || exit 1
++IMAGE=$(mktemp $TMPDIR/initrd.img.XXXXXX) || exit 1
++MNTPOINT=$(mktemp -d $TMPDIR/initrd.mnt.XXXXXX) || exit 1
+ RCFILE=$MNTIMAGE/linuxrc
+
+ if [ -z "$MNTIMAGE" -o -z "$IMAGE" -o -z "$MNTPOINT" ]; then
+
+As far as I know Red Hat's latest mkinitrd (in rawhide?) has fixed this
+problem. Also, don't forget to set TMPDIR to somewhere other than a tmpfs
+filesystem. You see, you cannot bind regular files on a tmpfs to loopback
+devices.
+
+Regards,
+Tigran
 

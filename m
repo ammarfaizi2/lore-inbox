@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261403AbREQL6K>; Thu, 17 May 2001 07:58:10 -0400
+	id <S261412AbREQL7L>; Thu, 17 May 2001 07:59:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261408AbREQL6A>; Thu, 17 May 2001 07:58:00 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:52188 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S261407AbREQL5p>;
-	Thu, 17 May 2001 07:57:45 -0400
-Message-ID: <3B03B5F5.F9EC01D3@uow.edu.au>
-Date: Thu, 17 May 2001 21:28:53 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-ac13 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: mdaljeet@in.ibm.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: bindprocessor
-In-Reply-To: <CA256A4F.003B5469.00@d73mta05.au.ibm.com>
+	id <S261407AbREQL6V>; Thu, 17 May 2001 07:58:21 -0400
+Received: from asterix.hrz.tu-chemnitz.de ([134.109.132.84]:32411 "EHLO
+	asterix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S261406AbREQL6L>; Thu, 17 May 2001 07:58:11 -0400
+Date: Thu, 17 May 2001 13:58:08 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: virii <virii@gcecisp.com>, linux-kernel@vger.kernel.org
+Subject: Re: cmpci sound chip lockup
+Message-ID: <20010517135808.G754@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <3B02FE4D.2F7A8E8F@gcecisp.com> <Pine.LNX.4.33.0105162000420.5251-100000@duckman.distro.conectiva>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.33.0105162000420.5251-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Wed, May 16, 2001 at 08:02:06PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mdaljeet@in.ibm.com wrote:
+On Wed, May 16, 2001 at 08:02:06PM -0300, Rik van Riel wrote:
+> I'm seeing a similar thing on 2.4.4-pre[23], but in a far less
+> serious way. Using xmms the music stops after anything between
+> a few seconds and a minute, I suspect a race condition somewhere.
 > 
-> How can I bind a user space process to a particular processor in  a SMP
-> environment?
+> Using mpg123 everything works fine...
 
-You can't.
+Your xmms uses esd[1]?
 
-Nick Pollitt had an implementation of prcctl() which does this
-http://www.uwsg.indiana.edu/hypermail/linux/kernel/0102.2/0214.html
+Friends of mine report problems with esd and 2.4.x. Tested on
+SB-Live! and es1371.
 
-I have a /proc based one at
-http://www.uow.edu.au/~andrewm/linux/#cpus_allowed
+Regards
+
+Ingo Oeser
+
+[1] E Sound Deamon - A sound mixing framework
+-- 
+To the systems programmer,
+users and applications serve only to provide a test load.

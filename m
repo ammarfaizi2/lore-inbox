@@ -1,20 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267310AbTCERG1>; Wed, 5 Mar 2003 12:06:27 -0500
+	id <S267274AbTCERFE>; Wed, 5 Mar 2003 12:05:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267322AbTCERG1>; Wed, 5 Mar 2003 12:06:27 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:48013 "EHLO
+	id <S267275AbTCERFE>; Wed, 5 Mar 2003 12:05:04 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:19851 "EHLO
 	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S267310AbTCERGV>; Wed, 5 Mar 2003 12:06:21 -0500
-Date: Wed, 05 Mar 2003 09:16:48 -0800
+	id <S267274AbTCERE6>; Wed, 5 Mar 2003 12:04:58 -0500
+Date: Wed, 05 Mar 2003 09:15:24 -0800
 From: "Martin J. Bligh" <mbligh@aracnet.com>
 To: Linus Torvalds <torvalds@transmeta.com>
 cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 3/6 Convert physnode_map to u8 
-Message-ID: <155480000.1046884607@[10.10.2.4]>
-In-Reply-To: <155040000.1046884524@[10.10.2.4]>
+Subject: [PATCH] 2/6 Make CONFIG_NUMA work on non-numa machines.
+Message-ID: <155040000.1046884524@[10.10.2.4]>
+In-Reply-To: <154390000.1046884457@[10.10.2.4]>
 References: <154390000.1046884457@[10.10.2.4]>
- <155040000.1046884524@[10.10.2.4]>
 X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -25,75 +24,93 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 >From Andy Whitcroft
 
-Convert physnode_map from an int to a u8 to save cachelines.
+A few very simple changes in order to make CONFIG_NUMA work everywhere, so 
+the distros can build one common binary kernel for distributions.
 
+diff -urpN -X /home/fletch/.diff.exclude 012-pfn_valid/arch/i386/Kconfig
+013-numa_x86_pc/arch/i386/Kconfig
+--- 012-pfn_valid/arch/i386/Kconfig	Wed Mar  5 07:36:57 2003
++++ 013-numa_x86_pc/arch/i386/Kconfig	Wed Mar  5 07:41:54 2003
+@@ -488,7 +488,7 @@ config NR_CPUS
+ # Common NUMA Features
+ config NUMA
+ 	bool "Numa Memory Allocation Support"
+-	depends on (HIGHMEM64G && (X86_NUMAQ || (X86_SUMMIT && ACPI &&
+!ACPI_HT_ONLY)))
++	depends on (HIGHMEM64G && (X86_NUMAQ || (X86_SUMMIT && ACPI &&
+!ACPI_HT_ONLY))) || X86_PC
+ 
+ config DISCONTIGMEM
+ 	bool
 diff -urpN -X /home/fletch/.diff.exclude
-013-numa_x86_pc/arch/i386/kernel/numaq.c
-014-physnode_map_u8/arch/i386/kernel/numaq.c
---- 013-numa_x86_pc/arch/i386/kernel/numaq.c	Wed Mar  5 07:41:52 2003
-+++ 014-physnode_map_u8/arch/i386/kernel/numaq.c	Wed Mar  5 07:41:55 2003
-@@ -64,8 +64,6 @@ static void __init smp_dump_qct(void)
+012-pfn_valid/arch/i386/kernel/smpboot.c
+013-numa_x86_pc/arch/i386/kernel/smpboot.c
+--- 012-pfn_valid/arch/i386/kernel/smpboot.c	Wed Mar  5 07:36:57 2003
++++ 013-numa_x86_pc/arch/i386/kernel/smpboot.c	Wed Mar  5 07:41:54 2003
+@@ -966,6 +966,7 @@ static void __init smp_boot_cpus(unsigne
+ 		if (APIC_init_uniprocessor())
+ 			printk(KERN_NOTICE "Local APIC not detected."
+ 					   " Using dummy APIC emulation.\n");
++		map_cpu_to_logical_apicid();
+ 		return;
  	}
- }
  
--extern int physnode_map[];
--
- /*
-  * for each node mark the regions
-  *        TOPOFMEM = hi_shrd_mem_start + hi_shrd_mem_size
 diff -urpN -X /home/fletch/.diff.exclude
+012-pfn_valid/arch/i386/mm/discontig.c
 013-numa_x86_pc/arch/i386/mm/discontig.c
-014-physnode_map_u8/arch/i386/mm/discontig.c
---- 013-numa_x86_pc/arch/i386/mm/discontig.c	Wed Mar  5 07:41:54 2003
-+++ 014-physnode_map_u8/arch/i386/mm/discontig.c	Wed Mar  5 07:41:55 2003
-@@ -57,7 +57,7 @@ bootmem_data_t node0_bdata;
-  *     physnode_map[4-7] = 1;
-  *     physnode_map[8- ] = -1;
+--- 012-pfn_valid/arch/i386/mm/discontig.c	Wed Mar  5 07:41:52 2003
++++ 013-numa_x86_pc/arch/i386/mm/discontig.c	Wed Mar  5 07:41:54 2003
+@@ -82,6 +82,36 @@ void *node_remap_start_vaddr[MAX_NUMNODE
+ void set_pmd_pfn(unsigned long vaddr, unsigned long pfn, pgprot_t flags);
+ 
+ /*
++ * FLAT - support for basic PC memory model with discontig enabled,
+essentially
++ *        a single node with all available processors in it with a flat
++ *        memory map.
++ */
++void __init get_memcfg_numa_flat(void)
++{
++	int pfn;
++
++	printk("NUMA - single node, flat memory mode\n");
++
++	/* Run the memory configuration and find the top of memory. */
++	find_max_pfn();
++	node_start_pfn[0]  = 0;
++	node_end_pfn[0]	  = max_pfn;
++
++	/* Fill in the physnode_map with our simplistic memory model,
++	* all memory is in node 0.
++	*/
++	for (pfn = node_start_pfn[0]; pfn <= node_end_pfn[0];
++	       pfn += PAGES_PER_ELEMENT)
++	{
++		physnode_map[pfn / PAGES_PER_ELEMENT] = 0;
++	}
++
++         /* Indicate there is one node available. */
++	node_set_online(0);
++	numnodes = 1;
++}
++
++/*
+  * Find the highest page frame number we have available for the node
   */
--int physnode_map[MAX_ELEMENTS] = { [0 ... (MAX_ELEMENTS - 1)] = -1};
-+u8 physnode_map[MAX_ELEMENTS] = { [0 ... (MAX_ELEMENTS - 1)] = -1};
- 
- unsigned long node_start_pfn[MAX_NUMNODES];
- unsigned long node_end_pfn[MAX_NUMNODES];
+ static void __init find_max_pfn_node(int nid)
 diff -urpN -X /home/fletch/.diff.exclude
+012-pfn_valid/include/asm-i386/mmzone.h
 013-numa_x86_pc/include/asm-i386/mmzone.h
-014-physnode_map_u8/include/asm-i386/mmzone.h
---- 013-numa_x86_pc/include/asm-i386/mmzone.h	Wed Mar  5 07:41:54 2003
-+++ 014-physnode_map_u8/include/asm-i386/mmzone.h	Wed Mar  5 07:41:55 2003
-@@ -107,7 +107,7 @@ extern struct pglist_data *node_data[];
- #define MAX_ELEMENTS 256
- #define PAGES_PER_ELEMENT (MAX_NR_PAGES/MAX_ELEMENTS)
- 
--extern int physnode_map[];
-+extern u8 physnode_map[];
- 
- static inline int pfn_to_nid(unsigned long pfn)
- {
-diff -urpN -X /home/fletch/.diff.exclude
-013-numa_x86_pc/include/asm-i386/numaq.h
-014-physnode_map_u8/include/asm-i386/numaq.h
---- 013-numa_x86_pc/include/asm-i386/numaq.h	Wed Mar  5 07:41:52 2003
-+++ 014-physnode_map_u8/include/asm-i386/numaq.h	Wed Mar  5 07:41:55 2003
-@@ -28,8 +28,6 @@
- 
- #ifdef CONFIG_X86_NUMAQ
- 
--extern int physnode_map[];
--
- #define MAX_NUMNODES		8
- extern void get_memcfg_numaq(void);
- #define get_memcfg_numa() get_memcfg_numaq()
-diff -urpN -X /home/fletch/.diff.exclude
-013-numa_x86_pc/include/asm-i386/srat.h
-014-physnode_map_u8/include/asm-i386/srat.h
---- 013-numa_x86_pc/include/asm-i386/srat.h	Wed Mar  5 07:41:52 2003
-+++ 014-physnode_map_u8/include/asm-i386/srat.h	Wed Mar  5 07:41:55 2003
-@@ -27,7 +27,6 @@
- #ifndef _ASM_SRAT_H_
- #define _ASM_SRAT_H_
- 
--extern int physnode_map[];
- #define MAX_NUMNODES		8
- extern void get_memcfg_from_srat(void);
- extern unsigned long *get_zholes_size(int);
+--- 012-pfn_valid/include/asm-i386/mmzone.h	Wed Mar  5 07:41:53 2003
++++ 013-numa_x86_pc/include/asm-i386/mmzone.h	Wed Mar  5 07:41:54 2003
+@@ -123,6 +123,9 @@ static inline struct pglist_data *pfn_to
+ #include <asm/numaq.h>
+ #elif CONFIG_X86_SUMMIT
+ #include <asm/srat.h>
++#elif CONFIG_X86_PC
++#define get_memcfg_numa get_memcfg_numa_flat
++#define get_zholes_size(n) (0)
+ #else
+ #define pfn_to_nid(pfn)		(0)
+ #endif /* CONFIG_X86_NUMAQ */
 

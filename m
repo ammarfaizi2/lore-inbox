@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263142AbRE1Utv>; Mon, 28 May 2001 16:49:51 -0400
+	id <S263145AbRE1UxV>; Mon, 28 May 2001 16:53:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263143AbRE1Utm>; Mon, 28 May 2001 16:49:42 -0400
-Received: from www.wen-online.de ([212.223.88.39]:29704 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S263142AbRE1Ute>;
-	Mon, 28 May 2001 16:49:34 -0400
-Date: Mon, 28 May 2001 22:49:13 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: "Leeuw van der, Tim" <tim.leeuwvander@nl.unisys.com>
-cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.5-ac2
-In-Reply-To: <DD0DC14935B1D211981A00105A1B28DB033ED2F0@NL-ASD-EXCH-1>
-Message-ID: <Pine.LNX.4.33.0105282126550.366-100000@mikeg.weiden.de>
+	id <S263144AbRE1UxL>; Mon, 28 May 2001 16:53:11 -0400
+Received: from ucu-105-116.ucu.uu.nl ([131.211.105.116]:59697 "EHLO
+	ronald.bitfreak.net") by vger.kernel.org with ESMTP
+	id <S263143AbRE1UxG>; Mon, 28 May 2001 16:53:06 -0400
+From: "Ronald Bultje" <rbultje@ronald.bitfreak.net>
+To: "Ricky Beam" <jfbeam@bluetopia.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: [2.4.5] buz.c won't compile
+Date: Mon, 28 May 2001 22:57:59 +0200
+Message-ID: <CDEJIPDFCLGDNEHGCAJPKEDJCBAA.rbultje@ronald.bitfreak.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <Pine.LNX.4.04.10105281512050.1601-100000@beaker.bluetopia.net>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 May 2001, Leeuw van der, Tim wrote:
+>Actually, it broke at 2.4.3.  Go look at the first change to buz.c from
+>that patch.
 
-> The VM in 2.4.5 might be largely 'fixed' and I know that the VM changes in
-> -ac were considered to be but still broken, however for me they worked
-> better than what is in 2.4.5.
+None at all. It didn't break at 2.4.3, it just didn't compile at all anymore
+in 2.4.3. It was already kind of broken before that.
 
-The VM changes in 2.4.5 fixed a very serious performance problem.  IMHO,
-2.4.5 is a step in the right direction.  (and I hope more steps are in
-the offing;)
+>PS: I really hate it when people break "functional" things in the >"stable"
+>tree. (functional and stable are both open to debate.)
 
-> I have a rather aging P5MMX at 200MHz with 64MB RAM, and I'm only judging
-> interactive use (not measuring anything like compile times etc).
+Nobody broke it. The fact that it didn't compile right was something nobody
+ever looked at - it was already broken before and I really don't suppose
+anyone uses it.
+The words "if it compiles, it'll work" are not true. Really.
 
-Interactive performance became a problem here exactly at the point when
-we stopped waiting for the vm to produce results.  (which rather sucks,
-because that's also the spot where throughput improved [non-suprise])
+Ronald
 
-	-Mike
+PS, how about just removing it from the kernel? Would spare a lot of
+troubles, and nobody uses it anyway :-).
 

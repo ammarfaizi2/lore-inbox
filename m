@@ -1,43 +1,30 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314783AbSEHRxI>; Wed, 8 May 2002 13:53:08 -0400
+	id <S314625AbSEHSOW>; Wed, 8 May 2002 14:14:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314740AbSEHRxH>; Wed, 8 May 2002 13:53:07 -0400
-Received: from [80.120.128.82] ([80.120.128.82]:46341 "EHLO hofr.at")
-	by vger.kernel.org with ESMTP id <S314625AbSEHRxH>;
-	Wed, 8 May 2002 13:53:07 -0400
-From: Der Herr Hofrat <der.herr@mail.hofr.at>
-Message-Id: <200205081658.g48GwmV06862@hofr.at>
-Subject: Re: Measure time
-In-Reply-To: <NCBBLGAKEDCMNBGMONMPMEEHCKAA.pickle@alien.net.au> from Simon Butcher
- at "May 9, 2002 02:51:42 am"
-To: Simon Butcher <pickle@alien.net.au>
-Date: Wed, 8 May 2002 18:58:47 +0200 (CEST)
-CC: "Serguei I. Ivantsov" <admin@gsc-game.kiev.ua>,
-        Der Herr Hofrat <der.herr@mail.hofr.at>, linux-gcc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S314740AbSEHSOW>; Wed, 8 May 2002 14:14:22 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:18961 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S314625AbSEHSOV>; Wed, 8 May 2002 14:14:21 -0400
+Subject: Re: kill task in TASK_UNINTERRUPTIBLE
+To: vda@port.imtp.ilyichevsk.odessa.ua
+Date: Wed, 8 May 2002 19:33:31 +0100 (BST)
+Cc: dal_loma@yahoo.com (Amol Lad), linux-kernel@vger.kernel.org
+In-Reply-To: <200205081519.g48FJEX24062@Port.imtp.ilyichevsk.odessa.ua> from "Denis Vlasenko" at May 08, 2002 06:23:34 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E175WFn-000265-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > TASK_UNINTERRUPTIBLE state ?
 > 
-> Hi,
-> 
-> ftime() will return milliseconds, but it's considered an obsolete function.
-> You could use gettimeofday() (as Richard Johnson suggested) to get
-> microseconds and divide them to get milliseconds, although I don't know how
-> time critical your routines are.
-> 
-> If you're still looking for nanoseconds, I'm told you can use
-> clock_gettime() but it's still quite unavailable (I've never seen it myself,
-> yet).. however even if it was available you possibly wouldn't get a very
-> high resolution from it with current systems..
->
-clock_gettime() is available in the hard realtime extensions like RTLinux .
-The clock resolution is limited to 32ns though - and atleast on X86 I don't
-think there is a way to get below that.
+> No. Everytime you see hung task in this state
+> you see kernel bug.
 
-hofrat 
+Or waiting on a resource that isnt available - that can occur for example
+with NFS for long periods, or for a few minutes when burning a CD and the
+IDE bus is locked

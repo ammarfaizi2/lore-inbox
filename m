@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262239AbSKDRxC>; Mon, 4 Nov 2002 12:53:02 -0500
+	id <S262416AbSKDR74>; Mon, 4 Nov 2002 12:59:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262404AbSKDRxC>; Mon, 4 Nov 2002 12:53:02 -0500
-Received: from pimout4-ext.prodigy.net ([207.115.63.103]:27825 "EHLO
-	pimout4-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id <S262239AbSKDRxB> convert rfc822-to-8bit; Mon, 4 Nov 2002 12:53:01 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-Reply-To: landley@trommello.org
-To: Patrick Finnegan <pat@purdueriots.com>
-Subject: Re: What's left over.
-Date: Mon, 4 Nov 2002 12:59:33 +0000
-User-Agent: KMail/1.4.3
+	id <S262420AbSKDR74>; Mon, 4 Nov 2002 12:59:56 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:30973 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S262416AbSKDR74>; Mon, 4 Nov 2002 12:59:56 -0500
+Message-ID: <72B3FD82E303D611BD0100508BB29735046DFF73@orsmsx102.jf.intel.com>
+From: "Lee, Jung-Ik" <jung-ik.lee@intel.com>
+To: "'Adam J. Richter'" <adam@yggdrasil.com>, greg@kroah.com
 Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0211040953310.16432-100000@ibm-ps850.purdueriots.com>
-In-Reply-To: <Pine.LNX.4.44.0211040953310.16432-100000@ibm-ps850.purdueriots.com>
+Subject: RE: Patch: 2.5.45 PCI Fixups for PCI HotPlug
+Date: Mon, 4 Nov 2002 10:06:28 -0800 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211041259.33777.landley@trommello.org>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 04 November 2002 14:58, Patrick Finnegan wrote:
-> First I want to apologize to anyone I've pissed off too badly with this.
+> Greg KH wrote:
+> >Hm, in looking at this, I know the majority of people who want
+> >CONFIG_HOTPLUG probably do not run with CONFIG_PCI_HOTPLUG as the
+> >hardware's still quite rare.  To force those people to keep 
+> around all
+> >of the PCI quirks functions and tables after init happens, is a bit
+> >cruel.  I wonder if it's time to start having different subsystems
+> >modify __devinit depending on their config variables.
+> 
+> 	Are there PCI bridge cards that use all of those?  For
+> example, I thought that Triton was a series of Intel motherboard
+> chipsets for 586 processors.  Perhaps you only need to keep a
+> few of those routines.
+> 
+> 	Jung-Ik: perhaps you could to an lspci and an "lspci -n" on
+> your machine when the bridge card is plugged in, which should provide
+> enough information to determine which routines you really need to
+> keep.
 
-Sorry, didn't mean to bring up an old issue.  DSL was out over the weekend 
-here (thank you Southwestern Bell), so some stuff queued up in my laptop's 
-outbox...
+That sounds a quick fix for now but Greg's __pci_devinit seems to be the
+right solution.
 
-Rob
-
--- 
-http://penguicon.sf.net - Terry Pratchett, Eric Raymond, Pete Abrams, Illiad, 
-CmdrTaco, liquid nitrogen ice cream, and caffienated jello.  Well why not?
+thanks,
+J.I.

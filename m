@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262543AbTGHNfG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 09:35:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267300AbTGHNfG
+	id S267314AbTGHNjD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 09:39:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267308AbTGHNjD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 09:35:06 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:50859
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S262543AbTGHNfE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 09:35:04 -0400
-Subject: Re: [PATCH] Add SELinux module to 2.5.74-bk1
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: James Morris <jmorris@intercode.com.au>, jgarzik@pobox.com,
-       sds@epoch.ncsc.mil, torvalds@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk, hch@infradead.org,
-       greg@kroah.com, chris@wirex.com,
+	Tue, 8 Jul 2003 09:39:03 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:9613 "EHLO mail.jlokier.co.uk")
+	by vger.kernel.org with ESMTP id S267317AbTGHNgl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 09:36:41 -0400
+Date: Tue, 8 Jul 2003 14:51:09 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Eric Varsanyi <e0216@foo21.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030708030931.6864972b.akpm@osdl.org>
-References: <20030703175153.GC27556@gtf.org>
-	 <Mutt.LNX.4.44.0307081942550.7740-100000@excalibur.intercode.com.au>
-	 <20030708030931.6864972b.akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1057671907.4352.13.camel@dhcp22.swansea.linux.org.uk>
+Subject: Re: epoll vs stdin/stdout
+Message-ID: <20030708135109.GA15515@mail.jlokier.co.uk>
+References: <20030707154823.GA8696@srv.foo21.com> <Pine.LNX.4.55.0307071153270.4704@bigblue.dev.mcafeelabs.com> <20030707194736.GF9328@srv.foo21.com> <Pine.LNX.4.55.0307071511550.4704@bigblue.dev.mcafeelabs.com> <Pine.LNX.4.55.0307071624550.4704@bigblue.dev.mcafeelabs.com> <20030708003247.GB12127@mail.jlokier.co.uk> <Pine.LNX.4.55.0307071730190.3524@bigblue.dev.mcafeelabs.com> <20030708005226.GD12127@mail.jlokier.co.uk> <Pine.LNX.4.55.0307071802360.3531@bigblue.dev.mcafeelabs.com> <20030708123421.GB14827@mail.jlokier.co.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 08 Jul 2003 14:45:08 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030708123421.GB14827@mail.jlokier.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-07-08 at 11:09, Andrew Morton wrote:
-> Comparing the complexity (size) of this code with the q-n-d hash tables
-> which are currently used one does wonder how useful it all will be.  The
-> additional indirections are not needed with q-n-d hashes.
+Doh!  I'm sorry.  I forgot that the lookup key is actually (epoll_fd,
+file *, fd).
 
-Are these new hashes immune to deliberate attack (witness the network
-routing hash paper)
+So all I said in the parent mail about problems with fds shared among
+multiple processes is nonsense - they will each have a different
+epoll_fd, so maintain separate epoll state.
 
+Remember not to take me seriously in future.
+(Oh, you weren't... :)
+
+-- Jamie (blushing)

@@ -1,65 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314123AbSENT3k>; Tue, 14 May 2002 15:29:40 -0400
+	id <S314126AbSENTaD>; Tue, 14 May 2002 15:30:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316006AbSENT3j>; Tue, 14 May 2002 15:29:39 -0400
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:19827 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S314123AbSENT3i>; Tue, 14 May 2002 15:29:38 -0400
-Date: Tue, 14 May 2002 14:29:33 -0500 (CDT)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200205141929.OAA81537@tomcat.admin.navo.hpc.mil>
-To: viro@math.psu.edu, Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Subject: Re: [RFC] ext2 and ext3 block reservations can be bypassed
-cc: mark@mark.mielke.cc, elladan@eskimo.com,
-        Christoph Hellwig <hch@infradead.org>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-X-Mailer: [XMailTool v3.1.2b]
+	id <S316006AbSENTaC>; Tue, 14 May 2002 15:30:02 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:39949 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S314126AbSENTaB>; Tue, 14 May 2002 15:30:01 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [PATCH] IDE PIO write Fix #2
+Date: Tue, 14 May 2002 19:29:35 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <abroiv$ifs$1@penguin.transmeta.com>
+In-Reply-To: <3CE0795B.62C956F0@cinet.co.jp> <3CE0D6DE.8090407@evision-ventures.com>
+X-Trace: palladium.transmeta.com 1021404583 4799 127.0.0.1 (14 May 2002 19:29:43 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 14 May 2002 19:29:43 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
----------  Received message begins Here  ---------
+In article <3CE0D6DE.8090407@evision-ventures.com>,
+Martin Dalecki  <dalecki@evision-ventures.com> wrote:
+>> 
+>> --- linux-2.5.15/drivers/ide/ide-taskfile.c.orig	Fri May 10 11:49:35 2002
+>> +++ linux-2.5.15/drivers/ide/ide-taskfile.c	Tue May 14 10:40:43 2002
+>> @@ -606,7 +606,7 @@
+>>  		if (!ide_end_request(drive, rq, 1))
+>>  			return ide_stopped;
+>>  
+>> -	if ((rq->current_nr_sectors==1) ^ (stat & DRQ_STAT)) {
+>> +	if ((rq->nr_sectors == 1) ^ ((stat & DRQ_STAT) != 0)) {
 
-> 
-> 
-> 
-> On Tue, 14 May 2002, Jesse Pollard wrote:
->  
-> > However, not all daemons run as root, but do log into /var/adm or /var/log.
-> > If these fill up the log device without restraint, then your audit logs will
-> > ALSO be affected (unless you have syslog send them to a different host).
-> 
-> syslogd _does_ run as root and it can happily overflow the damn thing,
-> reserved blocks or not.
-> 
+Well, that's definitely an improvement - the original code makes no
+sense at all, since it's doing a bitwise xor on two bits that are not
+the same, and then uses that as a boolean value.
 
-Absolutely - and it should, since that IS the primary audit log daemon.
+Your change at least makes it use the bitwise xor on properly logical
+values, making the bitwise xor work as a _logical_ xor. 
 
-I don't consider that a "bug". Only if a "user" process (non-root, or
-non-designated user) can exceed the set bounds, by either appending, or
-filling in a hole, should there be a bug in the system.
+Although at that point I'd just get rid of the xor, and replace it by
+the "!=" operation - which is equivalent on logical ops.
 
-Personally, I think ext2 works great. (And I DON'T count the time experimental
-code with the warning "caution, may be hazardous to your filesystem" as
-causing problems - I had expected it to.)
+>>  		pBuf = ide_map_rq(rq, &flags);
+>>  		DTF("write: %p, rq->current_nr_sectors: %d\n", pBuf, (int) rq->current_nr_sectors);
+>
+>
+>Hmm. There is something else that smells in the above, since the XOR operator
+>doesn't seem to be proper. Why shouldn't we get DRQ_STAT at all on short
+>request? Could you perhaps just try to replace it with an OR?
 
-I've never had a problem with ext2, even when I did fill the filesystem.
-I was able to log in and view the audit log, and clean up without
-problems - exactly as I would expect.
+The XOR operation is a valid op, if you just use it on valid values,
+which the patch does seem to make it do.
 
-It has been the most stable file system I've ever used (and I've used
-quite a few - old Files-11 and Files-32, RT11, dos, UFS, UNICOS nc1, SGI
-efs and xfs ...)
+I don't know whether the logic is _correct_ after that, but at least
+there is some remote chance that it might make sense.
 
-Easier fsck procedure than all of them. Fixed any inconsistancies as well
-and didn't loose any resident files.
-
-I've only lost one ext2fs - and that was due to a head crash. The drive
-had been running for a couple of years continuously, with only a few
-mis-guided reboots.
-
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.
+		Linus

@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266158AbRHFBDV>; Sun, 5 Aug 2001 21:03:21 -0400
+	id <S266381AbRHFBTw>; Sun, 5 Aug 2001 21:19:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266150AbRHFBDM>; Sun, 5 Aug 2001 21:03:12 -0400
-Received: from [63.209.4.196] ([63.209.4.196]:6928 "EHLO neon-gw.transmeta.com")
-	by vger.kernel.org with ESMTP id <S266067AbRHFBCx>;
-	Sun, 5 Aug 2001 21:02:53 -0400
+	id <S266377AbRHFBTm>; Sun, 5 Aug 2001 21:19:42 -0400
+Received: from [63.209.4.196] ([63.209.4.196]:25872 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S266417AbRHFBTX>; Sun, 5 Aug 2001 21:19:23 -0400
 To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: /proc/<n>/maps getting _VERY_ long
-Date: Mon, 6 Aug 2001 01:01:40 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <9kkq9k$829$1@penguin.transmeta.com>
-In-Reply-To: <20010805171202.A20716@weta.f00f.org> <20010806010738.B11372@unthought.net> <200108052341.f75Nfhx08227@penguin.transmeta.com> <20010805204143.A18899@alcove.wittsend.com>
-X-Trace: palladium.transmeta.com 997059750 26670 127.0.0.1 (6 Aug 2001 01:02:30 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 6 Aug 2001 01:02:30 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Boot Failure
+Date: 5 Aug 2001 18:18:53 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9kkr9t$mpo$1@cesium.transmeta.com>
+In-Reply-To: <3B6C4C4C.D15A625C@telocity.com> <2295.996976445@ocs3.ocs-net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20010805204143.A18899@alcove.wittsend.com>,
-Michael H. Warfield <mhw@wittsend.com> wrote:
->On Sun, Aug 05, 2001 at 04:41:43PM -0700, Linus Torvalds wrote:
+Followup to:  <2295.996976445@ocs3.ocs-net>
+By author:    Keith Owens <kaos@ocs.com.au>
+In newsgroup: linux.dev.kernel
 >
->> We could merge more, but I'm not interested in working around broken
->
->	If it only causes problems for the broken app, that's fine.  If it
->causes problems for the rest of the system, that could be bad.
+> On Sat, 04 Aug 2001 15:26:04 -0400, 
+> LeRoy Cressy <lcressy@telocity.com> wrote:
+> >Starting with kernel 2.4.5 the system refused to boot with the following
+> >messages:
+> >2.4.7:
+> >
+> >CPU #0: Machine check exception 0x 106B60 (type 0x      9).
+> 
+> In arch/i386/kernel/bluesmoke.c, function intel_mcheck_init, find
+>         if(c->x86 == 5)
+>         {
+> and insert 'return;' after '{'.  The P5 machine check handler does not
+> work for all systems, reason unknown.
+> 
 
-It only causes problem for the broken app. Even then, the problem is a
-(likely undetectable) slowdown, or in the extreme case the kernel will
-just tell it that "Ok, you've allocated enough, no more soup for you".
+What's the CPU, specifically?
 
-		Linus
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

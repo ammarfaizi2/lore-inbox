@@ -1,82 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286631AbRLVBxA>; Fri, 21 Dec 2001 20:53:00 -0500
+	id <S286630AbRLVBwu>; Fri, 21 Dec 2001 20:52:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286632AbRLVBwv>; Fri, 21 Dec 2001 20:52:51 -0500
-Received: from svr3.applink.net ([206.50.88.3]:63761 "EHLO svr3.applink.net")
-	by vger.kernel.org with ESMTP id <S286631AbRLVBwg>;
-	Fri, 21 Dec 2001 20:52:36 -0500
-Message-Id: <200112220152.fBM1qJSr022347@svr3.applink.net>
-Content-Type: text/plain; charset=US-ASCII
-From: Timothy Covell <timothy.covell@ashavan.org>
-Reply-To: timothy.covell@ashavan.org
-To: "Per Jessen" <per@computer.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB =?iso-8859-1?q?in	Configure=2Ehelp=2E?=
-Date: Fri, 21 Dec 2001 19:48:36 -0600
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <3C234CC100020E25@mta13n.bluewin.ch> (added by     postmaster@bluewin.ch)
-In-Reply-To: <3C234CC100020E25@mta13n.bluewin.ch>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S286632AbRLVBwk>; Fri, 21 Dec 2001 20:52:40 -0500
+Received: from noodles.codemonkey.org.uk ([62.49.180.5]:42928 "EHLO
+	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id <S286630AbRLVBwf>; Fri, 21 Dec 2001 20:52:35 -0500
+Date: Sat, 22 Dec 2001 01:54:04 +0000
+From: Dave Jones <davej@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.5.1-dj5
+Message-ID: <20011222015404.A10114@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 21 December 2001 13:55, Per Jessen wrote:
-> On Fri, 21 Dec 2001 11:43:40 -0600, Bob Glamm wrote:
-> >On Fri, Dec 21, 2001 at 03:48:22PM +0000, Mike Jagdis wrote:
->
-> [snip]
->
-> >> Go look up "SI binary prefix" and "SI prefix" on Google. You might
-> >> not _like_ the binary prefixes (I don't either) but they're what's
-> >> been standardized and they're unambiguous. It does no good to claim
-> >> that it's enough that *you* know what you mean. This isn't Alice in
-> >> Wonderland (you can look that reference up in your spare time :-) ).
-> >
-> >SI standards have been around for years.  Yet many mechanical
-> >engineers in the US still use English units.  Convention and
-> >economics dictate that they do so; any change in this field is quite
-> >slow.
->
-> Did the US ever go metric ? Europe (minus the UK of course) did, and rarely
-> looked back. AFAIK (please correct me), the US never went metric. Don't
-> they still use Fahrenheit and all that weird stuff ?
-> Oh, and btw - those non-metric units are not "English units", but "Imperial
-> units", if you want to picky :-)
->
+Mostly resync stuff.
 
-No, the US never went metric.  That's why $200M Mars probes crash on
-entry due to some idiot using English units as opposed to the NASA standard
-of Metrics.  The funny thing is that Thomas Jefferson, an American President,
-suggested the Metric system to the French while he was ambassador there.
+Patch against 2.5.1 vanilla is available from:
+http://www.codemonkey.org.uk/patches/2.5/patch-2.5.1-dj5.diff.bz2
+
+Some of these fixes still haven't found their way back to Marcelo yet
+but should show up in 2.4.17-rc3 / 2.4.18pre1 with any luck.
+
+2.5.1-dj5
+o   Merge 2.5.2pre1.
+o   Merge 2.4.17final.
+o   Gravis ultrasound PnP update		(Andrey Panin)
 
 
-> >Somehow I expect that the same convention and economics factors will
-> >also dominate the argument over prefixes for bits of information
-> >in this field for years to come as well.
->
-> That I agree with - although I suspect manufacturers increasing will go for
-> the IEC standards - I used to work for StorageTek where an argument just
-> like this went on about 2 years ago - the IEC side won. Generally the
-> hardware people were all for IEC, and the software side less so.
->
->
-> rgds,
-> Per Jessen, Zurich
->
-> regards,
-> Per Jessen, Zurich
-> http://www.enidan.com - home of the J1 serial console.
->
-> Windows 2001: "I'm sorry Dave ...  I'm afraid I can't do that."
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+2.5.1-dj4
+o   Merge with 2.4.17-rc2
+    | Most was already here, more or less just fixes for
+    | reiserfs & netfilter, and some VM changes.
+
+
+2.5.1-dj3
+o   Drop Manfreds multithread coredump changes		(Me)
+    | They caused ltp waitpid05 regression on 2.5
+    | (Same patch is fine for 2.4)
+o   Intermezzo compile fix.				(Chris Wright)
+o   Fix ymfpci & hisax merge errors.			(Me)
+o   Drop ad1848 sound driver changes in favour of 2.5	(Me)
+o   Make hpfs work again.				(Al Viro)
+o   Alpha Jensen compile fixes.				(Ronald Lembcke)
+o   Make NCR5380 compile non modularly.			(Erik Andersen)
+
+
+2.5.1-dj2
+o   bio fixes for qlogicfas.			(brett@bad-sports.com)
+o   Correct x86 CPU helptext.			(Me)
+o   Fix serial.c __ISAPNP__ usage.		(Andrey Panin)
+o   Use better ide-floppy fixes.		(Jens Axboe)
+o   Make NFS 'fsx' proof.			(Trond Mykelbust)
+    | 2 races & 4 bugs, hopefully this is all.
+o   devfs update				(Richard Gooch)
+o   Backout early CPU init, needs more work.	(Me)
+    | This should fix several strange reports.
+o   drop new POSIX kill semantics for now	(Me)
+
+
+2.5.1-dj1
+o   Resync with 2.5.1
+    | drop reiserfs changes. 2.4's look to be more complete.
+o   Fix potential sysvfs oops.				(Christoph Hellwig)
+o   Loopback driver deadlock fix.			(Andrea Arcangeli)
+o   __devexit cleanups in drivers/net/			(Daniel Chen,
+    synclink, wdt_pci & via82cxxx_audio 		 John Tapsell)
+o   Configure.help updates				(Eric S. Raymond)
+o   Make reiserfs compile again.				(Me)
+o   bio changes for ide floppy					(Me)
+    | handle with care, compiles, but is unfinished.
+o   Make x86 identify_cpu() happen earlier			(Me)
+    | PPro errata workaround & APIC setup got a little
+    | cleaner as a result.
+o   Blink keyboard LEDs on panic				(From 2.4.13-ac)
+o   Change current->state frobbing to set_current_state()	(From 2.4.13-ac)
+o   Add MODULE_LICENSE tags for acpi,md.c,fmvj18x,		(From 2.4.13-ac)
+    atyfb & fbmem.
+
 
 -- 
-timothy.covell@ashavan.org.
+| Dave Jones.                    http://www.codemonkey.org.uk
+| SuSE Labs .

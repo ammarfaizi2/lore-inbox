@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267520AbRGSKzb>; Thu, 19 Jul 2001 06:55:31 -0400
+	id <S267527AbRGSK6l>; Thu, 19 Jul 2001 06:58:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267527AbRGSKzV>; Thu, 19 Jul 2001 06:55:21 -0400
-Received: from zikova.cvut.cz ([147.32.235.100]:62728 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S267520AbRGSKzQ>;
-	Thu, 19 Jul 2001 06:55:16 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: David Woodhouse <dwmw2@infradead.org>
-Date: Thu, 19 Jul 2001 12:54:43 MET-1
+	id <S267532AbRGSK6b>; Thu, 19 Jul 2001 06:58:31 -0400
+Received: from gec.gecpalau.com ([206.49.60.67]:55045 "EHLO gec.gecpalau.com")
+	by vger.kernel.org with ESMTP id <S267527AbRGSK6W>;
+	Thu, 19 Jul 2001 06:58:22 -0400
+From: root <ernfran@gecpalau.com>
+To: linux-kernel@vger.kernel.org
+Subject: Errors on compiling kernel with iomega buz support
+Date: Thu, 19 Jul 2001 19:59:28 +0900
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: bitops.h ifdef __KERNEL__ cleanup.
-CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-X-mailer: Pegasus Mail v3.40
-Message-ID: <911753F4952@vcnet.vc.cvut.cz>
+Message-Id: <01071919592800.16303@rieacs1.gecpalau.com>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On 18 Jul 01 at 23:54, David Woodhouse wrote:
+Hi all,
 
-> Not all architectures put clear_bit et al in asm/bitops.h in a form which 
-> is usable from userspace. Yet because it happens to work on a PeeCee, 
-> people do it anyway. 
+Any ideas when this thing will be fixed in the kernel?
 
-Please do not do this. At least ncpfs checks for usability of these
-ops from its configure script, and if they are not available/usable, 
-it reverts to pthread mutex based implementation, which is slower 
-dozen of times. Same applies for atomic_* functions.
+Thanks,
 
-I think that you should complain to userspace authors who do not
-check for bitops existence and not force other to distrbute 8+ versions
-of bitops.h with their application, together with infrastructure for
-selecting correct version...
+Ernie 
 
-Just my 0.02c.
-                                            Petr Vandrovec
-                                            vandrove@vc.cvut.cz
+buz.c: In function `v4l_fbuffer_alloc':
+buz.c:188: `KMALLOC_MAXSIZE' undeclared (first use in this function)
+buz.c:188: (Each undeclared identifier is reported only once
+buz.c:188: for each function it appears in.)
+buz.c: In function `jpg_fbuffer_alloc':
+buz.c:262: `KMALLOC_MAXSIZE' undeclared (first use in this function)
+buz.c:256: warning: `alloc_contig' might be used uninitialized in this 
+function
+buz.c: In function `jpg_fbuffer_free':
+buz.c:322: `KMALLOC_MAXSIZE' undeclared (first use in this function)
+buz.c:316: warning: `alloc_contig' might be used uninitialized in this 
+function
+buz.c: In function `zoran_ioctl':
+buz.c:2837: `KMALLOC_MAXSIZE' undeclared (first use in this function)
+buz.c: In function `zr36057_init':
+buz.c:3215: too few arguments to function `video_register_device_R32dcfedb'
+make[3]: *** [buz.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.4.6/drivers/media/video'
+make[2]: *** [_modsubdir_video] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.4.6/drivers/media'
+make[1]: *** [_modsubdir_media] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4.6/drivers'
+make: *** [_mod_drivers] Error 2

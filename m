@@ -1,58 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261696AbREVNet>; Tue, 22 May 2001 09:34:49 -0400
+	id <S261706AbREVNka>; Tue, 22 May 2001 09:40:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261698AbREVNej>; Tue, 22 May 2001 09:34:39 -0400
-Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:29588 "EHLO
-	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S261685AbREVNe0>; Tue, 22 May 2001 09:34:26 -0400
-Date: Tue, 22 May 2001 09:33:43 -0400
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Alexander Viro <viro@math.psu.edu>,
-        Pavel Machek <pavel@suse.cz>, Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Matthew Wilcox <matthew@wil.cx>, Andrew Clausen <clausen@gnu.org>,
-        Ben LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
-Message-ID: <20010522093342.E6103@cs.cmu.edu>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Alexander Viro <viro@math.psu.edu>, Pavel Machek <pavel@suse.cz>,
-	Richard Gooch <rgooch@ras.ucalgary.ca>,
-	Matthew Wilcox <matthew@wil.cx>, Andrew Clausen <clausen@gnu.org>,
-	Ben LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org
-In-Reply-To: <E151xfH-0000xg-00@the-village.bc.nu> <Pine.LNX.4.31.0105211503560.10331-100000@penguin.transmeta.com>
+	id <S261708AbREVNkT>; Tue, 22 May 2001 09:40:19 -0400
+Received: from ns.caldera.de ([212.34.180.1]:6824 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S261706AbREVNkQ>;
+	Tue, 22 May 2001 09:40:16 -0400
+Date: Tue, 22 May 2001 15:39:27 +0200
+From: Marcus Meissner <Marcus.Meissner@caldera.de>
+To: gibbs@freebsd.org
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: aic7xxx patches?
+Message-ID: <20010522153926.A26867@caldera.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <Pine.LNX.4.31.0105211503560.10331-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, May 21, 2001 at 03:10:32PM -0700
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 21, 2001 at 03:10:32PM -0700, Linus Torvalds wrote:
-> That, in turn, might be as simple as changing the ioctl incoming arguments
-> of <cmd,arg> into a structure like <type,cmd,inbuf,inlen,outbuf,outlen>.
+Hi Justin, Alan, linux-kernel,
 
-At least make sure that the 'kioctl' returns the number of bytes placed
-into the output buffer, as userspace doesn't necessarily know how much
-data would be returned. Coda's kernel module forwards control data up to
-userspace and uses a reasonably messy 'pioctl' wrapper (also used by AFS
-afaik) around an ioctl to inform the kernel module of how much data to
-copy through.
+I do not know who is the right contact for AIC7xxx patches, so I am just
+ccing everone ;)
 
-something like,
+This patch just exports the PCI id table from aic7xxx so autoprobing and
+hotplugging can find it.
 
-    ssize_t kioctl(int fd, int type, int cmd, void *inbuf, size_t inlen,
-		   void *outbuf, size_t outlen);
+Whoever maintains aic7xxx, please consider applying :)
 
-As far as functionality and errors it works like read/write in a single
-call, pretty much what Richard proposed earlier with a new 'transaction'
-syscall. Maybe type is not needed, and cmd can be part of the inbuf in
-which case it would be identical. I guess that type is introduced to
-resolve existing ioctl number collisions.
+Ciao, Marcus
 
-Jan
-
+Index: drivers/scsi/aic7xxx/aic7xxx_linux_pci.c
+===================================================================
+RCS file: /build/mm/work/repository/linux-mm/drivers/scsi/aic7xxx/aic7xxx_linux_pci.c,v
+retrieving revision 1.7
+diff -u -r1.7 aic7xxx_linux_pci.c
+--- drivers/scsi/aic7xxx/aic7xxx_linux_pci.c	2001/05/03 13:16:24	1.7
++++ drivers/scsi/aic7xxx/aic7xxx_linux_pci.c	2001/05/22 13:26:28
+@@ -42,9 +42,13 @@
+ static int	ahc_linux_pci_dev_probe(struct pci_dev *pdev,
+ 					const struct pci_device_id *ent);
+ #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
++#include <linux/module.h>
++
+ static void	ahc_linux_pci_dev_remove(struct pci_dev *pdev);
+ 
+-/* We do our own ID filtering.  So, grab all SCSI storage class devices. */
++/* We do our own ID filtering.  So we grab all Adaptec SCSI storage class
++ * devices here.
++ */
+ static struct pci_device_id ahc_linux_pci_id_table[] = {
+ 	{
+ 		0x9004, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
+@@ -56,6 +60,7 @@
+ 	},
+ 	{ 0 }
+ };
++MODULE_DEVICE_TABLE(pci,ahc_linux_pci_id_table);
+ 
+ struct pci_driver aic7xxx_pci_driver = {
+ 	name:		"aic7xxx",

@@ -1,59 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263902AbTJ1JhJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 04:37:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263904AbTJ1JhJ
+	id S263897AbTJ1J2E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 04:28:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263898AbTJ1J2E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 04:37:09 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:52879
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S263902AbTJ1JhG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 04:37:06 -0500
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: "M. Fioretti" <m.fioretti@inwind.it>, linux-kernel@vger.kernel.org
-Subject: Re: Unbloating the kernel, was: :mem=16MB laptop testing
-Date: Tue, 28 Oct 2003 03:12:20 -0600
-User-Agent: KMail/1.5
-References: <HMQWM7$61FA432C2B793029C11F4F77EEAABD1F@libero.it> <bnbi95$3qn$1@gatekeeper.tmr.com> <20031024165553.GB933@inwind.it>
-In-Reply-To: <20031024165553.GB933@inwind.it>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 28 Oct 2003 04:28:04 -0500
+Received: from gprs197-51.eurotel.cz ([160.218.197.51]:63618 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263897AbTJ1J2B (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 04:28:01 -0500
+Date: Tue, 28 Oct 2003 10:27:20 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Cc: linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk,
+       Linus Torvalds <torvalds@osdl.org>, akpm@osdl.org,
+       Pavel Machek <pavel@ucw.cz>, Dominik Brodowski <linux@brodo.de>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>
+Subject: Re: [PATCH] 3/3 A dynamic cpufreq governor
+Message-ID: <20031028092720.GB1167@elf.ucw.cz>
+References: <88056F38E9E48644A0F562A38C64FB6007796D@scsmsx403.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200310280312.20760.rob@landley.net>
+In-Reply-To: <88056F38E9E48644A0F562A38C64FB6007796D@scsmsx403.sc.intel.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 24 October 2003 11:55, M. Fioretti wrote:
-> On Fri, Oct 24, 2003 15:59:33 at 03:59:33PM +0000, bill davidsen 
-(davidsen@tmr.com) wrote:
-> > | > If we can ensure that Linux keeps working on these machines, it
-> > | > will be a good thing.
-> >
-> > Agreed, until you start to talk cluster. If you pay for electricity,
-> > newer machines use less per MHz. One of those $200 "Lindows" boxen
-> > from Wal-Mart starts to look good about the 2nd old Pentium!
->
-> May I ask you to elaborate on this? Less per MHz doesn't matter much
-> if the frequency is much higher, or it does? I mean, if you put, say,
-> a 133 MHz pentium and a 1 GB pentium to do the same thing with the
-> same SW (mail server, for example), the 1GB system may use less per
-> MHz (newer silicon, lower voltage, etc...) and its flip-flops toggle
-> for a smaller percentage of time, but its electricity bill will still
-> be the higher one, or not?
->
-> In general: has anybody ever done *this* kind of benchmarks? Comparing
-> electricity consumption among different systems doing just the same
-> task?
+Hi!
 
-Yes.  IBM did.  They were used it as a big arument in favor of linux on the 
-mainframe instead of beowulf circa 2000 or so.  (In serious server room 
-environments, you have to pay the electricity bill twice.  Once to power the 
-systems and once for the air conditioning to remove the heat created by 
-powering the systems... :)
+> ondemand3.patch - Adding sysfs interface for cpufreq_ondemand 
+> tunables and making sysfs access by cpufreq governors safe against 
+> removal of the underlying module (from Dominik). 
+> 
+> diffstat ondemand3.patch
+>  cpufreq.c          |   24 ++++++++++++
+>  cpufreq_ondemand.c |  102
+> +++++++++++++++++++++++++++++++++++++++++++++++++++++
+>  2 files changed, 126 insertions(+)
 
-Rob
+Is something word-wrapping your mails?
 
+...
 
+> +/* cpufreq_ondemand Governor Tunables */
+> +#define show_one(file_name, object)
+> \
+> +static ssize_t show_##file_name
+> \
+> +(struct cpufreq_policy *unused, char *buf)
+> \
+> +{
+> \
+> +	return sprintf(buf, "%u\n", dbs_tuners_ins.object);
+> \
+> +}
+> +show_one(sampling_rate, sampling_rate);
+> +show_one(up_threshold, up_threshold);
+> +show_one(down_threshold, down_threshold);
+
+?
+								Pavel
+
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,54 +1,181 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267943AbRGVKCR>; Sun, 22 Jul 2001 06:02:17 -0400
+	id <S267956AbRGVKVl>; Sun, 22 Jul 2001 06:21:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267947AbRGVKCH>; Sun, 22 Jul 2001 06:02:07 -0400
-Received: from smtp8.xs4all.nl ([194.109.127.134]:55751 "EHLO smtp8.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S267943AbRGVKBs>;
-	Sun, 22 Jul 2001 06:01:48 -0400
-Date: Sun, 22 Jul 2001 11:28:30 +0200
-From: "P.A.M. van Dam" <nucleus@ramoth.xs4all.nl>
-To: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.7: wtf is "ksoftirqd_CPU0"
-Message-ID: <20010722112830.A948@ladystrange.bluehorizon.nl>
-In-Reply-To: <3B59AFF7.8061645B@mandrakesoft.com> <200107220023.f6M0Navr022281@sleipnir.valparaiso.cl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.1i
-In-Reply-To: <200107220023.f6M0Navr022281@sleipnir.valparaiso.cl>; from Horst von Brand on Sat, Jul 21, 2001 at 08:23:36PM -0400
+	id <S267952AbRGVKVb>; Sun, 22 Jul 2001 06:21:31 -0400
+Received: from cm.med.3284844210.kabelnet.net ([195.202.190.178]:27147 "EHLO
+	phobos.hvrlab.org") by vger.kernel.org with ESMTP
+	id <S267951AbRGVKVQ>; Sun, 22 Jul 2001 06:21:16 -0400
+Date: Sun, 22 Jul 2001 12:21:30 +0200 (CEST)
+From: Herbert Valerio Riedel <hvr@hvrlab.org>
+X-X-Sender: <hvr@janus.txd.hvrlab.org>
+To: <linux-kernel@vger.kernel.org>
+cc: <axboe@suse.de>, <andrea@suse.de>
+Subject: RFC: block/loop.c & crypto
+Message-ID: <Pine.LNX.4.33.0107221201260.15777-200000@janus.txd.hvrlab.org>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="856294657-1535242835-995797290=:15777"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Sat, Jul 21, 2001 at 08:23:36PM -0400, Horst von Brand wrote:
-> Jeff Garzik <jgarzik@mandrakesoft.com> said:
-> > "peter k." wrote:
-> 
-> > > i just installed 2.4.7, now a new process called "ksoftirqd_CPU0" is
-> > > started automatically when booting (by the kernel obviously)? why? what
-> > > does it do?  i didnt find any useful information on it in linuxdoc /
-> > > linux-kernel archives
-> 
-> > it is used internally, ignore it.
-> 
-> I'd advise not to do so in general: It is a rather tempting name for
-> crackers to hide illegal activities.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Kernel daemons/threads still use "reserved pids" (< 100 I believe) so it's
-pretty to distinguish them. Ofcourse on 128-way SMP machine, things would
-be rather difficult. 
+--856294657-1535242835-995797290=:15777
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Best regards,
+hello!
 
-	Pascal
+...some time has passed since I've contacted you last time about
+crypto/loop issues... but now it's time again to annoy you :-)
 
+ btw; while I'm at it, a question which came to mind while writing this
+ mail; is it safe to call...
 
-> -- 
-> Horst von Brand                             vonbrand@sleipnir.valparaiso.cl
-> Casilla 9G, Vin~a del Mar, Chile                               +56 32 672616
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+ if (current->need_resched) schedule();
+
+ ...from within the transfer function? are there possible race conditions
+ where another transfer request may come in for the same blocks, while
+ another one is still in progress?
+
+some months ago, when I proposed to switch IV calculation completely to
+fixed a fixed 512 byte blocksize, I was reminded, that the international
+crypto patch was not the only one to make use of the IV calculatiion, and
+doing so would break other crypto packages around...
+
+...so I suggested that I'd try a more backward compatible approach, which
+would allow old packages to retain compatibility, and new packages aware
+of the new flag to set IV calculation to 512 byte blocks...
+well the result of this experiment can be seen in the attachment...
+
+so... any comments?
+
+ps: this are the only changes to kernel sources optionally (!) 'required',
+in order to use the international crypto api
+(see http://cryptoapi.sourceforge.net/ and the package README file
+accessible through CVS for more information)
+
+regards,
+-- 
+Herbert Valerio Riedel       /    Phone: (EUROPE) +43-1-58801-18840
+Email: hvr@gnu.org          /    Finger hvr@gnu.org for GnuPG Public Key
+GnuPG Key Fingerprint: 7BB9 2D6C D485 CE64 4748  5F65 4981 E064 883F 4142
+
+--856294657-1535242835-995797290=:15777
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="loop-iv-2.4.6.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0107221221300.15777@janus.txd.hvrlab.org>
+Content-Description: 
+Content-Disposition: attachment; filename="loop-iv-2.4.6.patch"
+
+ZGlmZiAtdXJOIGxpbnV4LTIuNC42L2RyaXZlcnMvYmxvY2svbG9vcC5jIGxp
+bnV4LWludC0yLjQuNi9kcml2ZXJzL2Jsb2NrL2xvb3AuYw0KLS0tIGxpbnV4
+LTIuNC42L2RyaXZlcnMvYmxvY2svbG9vcC5jCVNhdCBKdW4gMzAgMDE6MTY6
+NTYgMjAwMQ0KKysrIGxpbnV4LWludC0yLjQuNi9kcml2ZXJzL2Jsb2NrL2xv
+b3AuYwlTYXQgSnVsICA3IDEwOjUyOjQxIDIwMDENCkBAIC0zNiw2ICszNiw5
+IEBADQogICogQWwgVmlybyB0b28uDQogICogSmVucyBBeGJvZSA8YXhib2VA
+c3VzZS5kZT4sIE5vdiAyMDAwDQogICoNCisgKiBGaXhlZCBhbmQgbWFkZSBJ
+ViBjYWxjdWxhdGlvbiBjdXN0b21pemFibGUgYnkgbG9faXZfbW9kZQ0KKyAq
+IEhlcmJlcnQgVmFsZXJpbyBSaWVkZWwgPGh2ckBnbnUub3JnPiwgQXByIDIw
+MDENCisgKg0KICAqIFN0aWxsIFRvIEZpeDoNCiAgKiAtIEFkdmlzb3J5IGxv
+Y2tpbmcgaXMgaWdub3JlZCBoZXJlLiANCiAgKiAtIFNob3VsZCB1c2UgYW4g
+b3duIENBUF8qIGNhdGVnb3J5IGluc3RlYWQgb2YgQ0FQX1NZU19BRE1JTiAN
+CkBAIC0xNjQsNiArMTY3LDQzIEBADQogCQkJCQlsby0+bG9fZGV2aWNlKTsN
+CiB9DQogDQorc3RhdGljIGlubGluZSBpbnQgbG9vcF9nZXRfYnMoc3RydWN0
+IGxvb3BfZGV2aWNlICpsbykNCit7DQorCWludCBicyA9IDA7DQorDQorCWlm
+IChibGtzaXplX3NpemVbTUFKT1IobG8tPmxvX2RldmljZSldKQ0KKwkJYnMg
+PSBibGtzaXplX3NpemVbTUFKT1IobG8tPmxvX2RldmljZSldW01JTk9SKGxv
+LT5sb19kZXZpY2UpXTsNCisJaWYgKCFicykNCisJCWJzID0gQkxPQ0tfU0la
+RTsJDQorDQorCXJldHVybiBiczsNCit9DQorDQorc3RhdGljIGlubGluZSB1
+bnNpZ25lZCBsb25nIGxvb3BfZ2V0X2l2KHN0cnVjdCBsb29wX2RldmljZSAq
+bG8sDQorCQkJCQl1bnNpZ25lZCBsb25nIHNlY3RvcikNCit7DQorCXVuc2ln
+bmVkIGxvbmcgb2Zmc2V0LCBJVjsNCisJaW50IGJzOw0KKw0KKwlzd2l0Y2gg
+KGxvLT5sb19pdl9tb2RlKSB7DQorCQljYXNlIExPX0lWX01PREVfU0VDVE9S
+Og0KKwkJCUlWID0gc2VjdG9yICsgKGxvLT5sb19vZmZzZXQgPj4gTE9fSVZf
+U0VDVE9SX0JJVFMpOw0KKwkJCWJyZWFrOw0KKw0KKwkJZGVmYXVsdDoNCisJ
+CQlwcmludGsgKEtFUk5fV0FSTklORyAibG9vcDogdW5leHBlY3RlZCBsb19p
+dl9tb2RlXG4iKTsNCisJCWNhc2UgTE9fSVZfTU9ERV9ERUZBVUxUOg0KKwkJ
+CWJzID0gbG9vcF9nZXRfYnMobG8pOw0KKwkJCUlWID0gc2VjdG9yIC8gKGJz
+ID4+IDkpICsgbG8tPmxvX29mZnNldCAvIGJzOw0KKwkJCW9mZnNldCA9ICgo
+c2VjdG9yICUgKGJzID4+IDkpKSA8PCA5KSArIGxvLT5sb19vZmZzZXQgJSBi
+czsNCisJCQlpZiAob2Zmc2V0ID49IGJzKQ0KKwkJCQlJVisrOw0KKwkJCWJy
+ZWFrOw0KKwl9DQorDQorCXJldHVybiBJVjsNCit9DQorDQogc3RhdGljIGlu
+dCBsb19zZW5kKHN0cnVjdCBsb29wX2RldmljZSAqbG8sIHN0cnVjdCBidWZm
+ZXJfaGVhZCAqYmgsIGludCBic2l6ZSwNCiAJCSAgIGxvZmZfdCBwb3MpDQog
+ew0KQEAgLTE4MSw3ICsyMjEsOCBAQA0KIAlsZW4gPSBiaC0+Yl9zaXplOw0K
+IAlkYXRhID0gYmgtPmJfZGF0YTsNCiAJd2hpbGUgKGxlbiA+IDApIHsNCi0J
+CWludCBJViA9IGluZGV4ICogKFBBR0VfQ0FDSEVfU0laRS9ic2l6ZSkgKyBv
+ZmZzZXQvYnNpemU7DQorCQl1bnNpZ25lZCBsb25nIElWID0gbG9vcF9nZXRf
+aXYobG8sIChwb3MgLSBsby0+bG9fb2Zmc2V0KSA+PiBMT19JVl9TRUNUT1Jf
+QklUUyk7DQorDQogCQlzaXplID0gUEFHRV9DQUNIRV9TSVpFIC0gb2Zmc2V0
+Ow0KIAkJaWYgKHNpemUgPiBsZW4pDQogCQkJc2l6ZSA9IGxlbjsNCkBAIC0y
+MzIsNyArMjczLDEwIEBADQogCXVuc2lnbmVkIGxvbmcgY291bnQgPSBkZXNj
+LT5jb3VudDsNCiAJc3RydWN0IGxvX3JlYWRfZGF0YSAqcCA9IChzdHJ1Y3Qg
+bG9fcmVhZF9kYXRhKilkZXNjLT5idWY7DQogCXN0cnVjdCBsb29wX2Rldmlj
+ZSAqbG8gPSBwLT5sbzsNCi0JaW50IElWID0gcGFnZS0+aW5kZXggKiAoUEFH
+RV9DQUNIRV9TSVpFL3AtPmJzaXplKSArIG9mZnNldC9wLT5ic2l6ZTsNCisJ
+dW5zaWduZWQgbG9uZyBJViA9IGxvb3BfZ2V0X2l2KGxvLA0KKwkJKChwYWdl
+LT5pbmRleCA8PCAgKFBBR0VfQ0FDSEVfU0hJRlQgLSBMT19JVl9TRUNUT1Jf
+QklUUykpDQorCQkrIChvZmZzZXQgPj4gTE9fSVZfU0VDVE9SX0JJVFMpDQor
+CQktIChsby0+bG9fb2Zmc2V0ID4+IExPX0lWX1NFQ1RPUl9CSVRTKSkpOw0K
+IA0KIAlpZiAoc2l6ZSA+IGNvdW50KQ0KIAkJc2l6ZSA9IGNvdW50Ow0KQEAg
+LTI3MiwzMiArMzE2LDYgQEANCiAJcmV0dXJuIGRlc2MuZXJyb3I7DQogfQ0K
+IA0KLXN0YXRpYyBpbmxpbmUgaW50IGxvb3BfZ2V0X2JzKHN0cnVjdCBsb29w
+X2RldmljZSAqbG8pDQotew0KLQlpbnQgYnMgPSAwOw0KLQ0KLQlpZiAoYmxr
+c2l6ZV9zaXplW01BSk9SKGxvLT5sb19kZXZpY2UpXSkNCi0JCWJzID0gYmxr
+c2l6ZV9zaXplW01BSk9SKGxvLT5sb19kZXZpY2UpXVtNSU5PUihsby0+bG9f
+ZGV2aWNlKV07DQotCWlmICghYnMpDQotCQlicyA9IEJMT0NLX1NJWkU7CQ0K
+LQ0KLQlyZXR1cm4gYnM7DQotfQ0KLQ0KLXN0YXRpYyBpbmxpbmUgdW5zaWdu
+ZWQgbG9uZyBsb29wX2dldF9pdihzdHJ1Y3QgbG9vcF9kZXZpY2UgKmxvLA0K
+LQkJCQkJdW5zaWduZWQgbG9uZyBzZWN0b3IpDQotew0KLQlpbnQgYnMgPSBs
+b29wX2dldF9icyhsbyk7DQotCXVuc2lnbmVkIGxvbmcgb2Zmc2V0LCBJVjsN
+Ci0NCi0JSVYgPSBzZWN0b3IgLyAoYnMgPj4gOSkgKyBsby0+bG9fb2Zmc2V0
+IC8gYnM7DQotCW9mZnNldCA9ICgoc2VjdG9yICUgKGJzID4+IDkpKSA8PCA5
+KSArIGxvLT5sb19vZmZzZXQgJSBiczsNCi0JaWYgKG9mZnNldCA+PSBicykN
+Ci0JCUlWKys7DQotDQotCXJldHVybiBJVjsNCi19DQotDQogc3RhdGljIGlu
+dCBkb19iaF9maWxlYmFja2VkKHN0cnVjdCBsb29wX2RldmljZSAqbG8sIHN0
+cnVjdCBidWZmZXJfaGVhZCAqYmgsIGludCBydykNCiB7DQogCWxvZmZfdCBw
+b3M7DQpAQCAtNDc0LDkgKzQ5MiwxMSBAQA0KIAkvKg0KIAkgKiBwaWdneSBv
+bGQgYnVmZmVyIG9uIG9yaWdpbmFsLCBhbmQgc3VibWl0IGZvciBJL08NCiAJ
+ICovDQorCUlWID0gbG9vcF9nZXRfaXYobG8sIHJiaC0+Yl9yc2VjdG9yKTsN
+CisNCiAJYmggPSBsb29wX2dldF9idWZmZXIobG8sIHJiaCk7DQogCWJoLT5i
+X3ByaXZhdGUgPSByYmg7DQotCUlWID0gbG9vcF9nZXRfaXYobG8sIGJoLT5i
+X3JzZWN0b3IpOw0KKw0KIAlpZiAocncgPT0gV1JJVEUpIHsNCiAJCXNldF9i
+aXQoQkhfRGlydHksICZiaC0+Yl9zdGF0ZSk7DQogCQlpZiAobG9fZG9fdHJh
+bnNmZXIobG8sIFdSSVRFLCBiaC0+Yl9kYXRhLCByYmgtPmJfZGF0YSwNCkBA
+IC02NDYsNiArNjY2LDcgQEANCiAJbG8tPmxvX2JhY2tpbmdfZmlsZSA9IGZp
+bGU7DQogCWxvLT50cmFuc2ZlciA9IE5VTEw7DQogCWxvLT5pb2N0bCA9IE5V
+TEw7DQorCWxvLT5sb19pdl9tb2RlID0gTE9fSVZfTU9ERV9ERUZBVUxUOw0K
+IAlmaWd1cmVfbG9vcF9zaXplKGxvKTsNCiAJbG8tPm9sZF9nZnBfbWFzayA9
+IGlub2RlLT5pX21hcHBpbmctPmdmcF9tYXNrOw0KIAlpbm9kZS0+aV9tYXBw
+aW5nLT5nZnBfbWFzayA9IEdGUF9OT0lPOw0KQEAgLTY1NSw3ICs2NzYsNyBA
+QA0KIAkJYnMgPSBibGtzaXplX3NpemVbTUFKT1IobG9fZGV2aWNlKV1bTUlO
+T1IobG9fZGV2aWNlKV07DQogCWlmICghYnMpDQogCQlicyA9IEJMT0NLX1NJ
+WkU7DQotDQorCSAgDQogCXNldF9ibG9ja3NpemUoZGV2LCBicyk7DQogDQog
+CWxvLT5sb19iaCA9IGxvLT5sb19iaHRhaWwgPSBOVUxMOw0KZGlmZiAtdXJO
+IGxpbnV4LTIuNC42L2luY2x1ZGUvbGludXgvbG9vcC5oIGxpbnV4LWludC0y
+LjQuNi9pbmNsdWRlL2xpbnV4L2xvb3AuaA0KLS0tIGxpbnV4LTIuNC42L2lu
+Y2x1ZGUvbGludXgvbG9vcC5oCVdlZCBNYXIgIDcgMDQ6MzU6MzYgMjAwMQ0K
+KysrIGxpbnV4LWludC0yLjQuNi9pbmNsdWRlL2xpbnV4L2xvb3AuaAlTYXQg
+SnVsICA3IDEwOjQyOjE4IDIwMDENCkBAIC0yNCw2ICsyNCwxMyBAQA0KIAlM
+b19ydW5kb3duLA0KIH07DQogDQorLyogSVYgY2FsY3VsYXRpb24gcmVsYXRl
+ZCBjb25zdGFudHMgKi8NCisjZGVmaW5lIExPX0lWX01PREVfREVGQVVMVCAw
+IC8qIG9sZCBsb2dpY2FsIGJsb2NrIHNpemUgYmFzZWQgbW9kZSAqLw0KKyNk
+ZWZpbmUgTE9fSVZfTU9ERV9TRUNUT1IgIDEgLyogY2FsY3VsYXRlIElWIGJh
+c2VkIG9uIHJlbGF0aXZlIA0KKwkJCQk1MTIgYnl0ZSBzZWN0b3JzICovDQor
+I2RlZmluZSBMT19JVl9TRUNUT1JfQklUUyA5DQorI2RlZmluZSBMT19JVl9T
+RUNUT1JfU0laRSAoMSA8PCBMT19JVl9TRUNUT1JfQklUUykNCisNCiBzdHJ1
+Y3QgbG9vcF9kZXZpY2Ugew0KIAlpbnQJCWxvX251bWJlcjsNCiAJaW50CQls
+b19yZWZjbnQ7DQpAQCAtNTYsNiArNjMsOCBAQA0KIAlzdHJ1Y3Qgc2VtYXBo
+b3JlCWxvX2N0bF9tdXRleDsNCiAJc3RydWN0IHNlbWFwaG9yZQlsb19iaF9t
+dXRleDsNCiAJYXRvbWljX3QJCWxvX3BlbmRpbmc7DQorDQorCWludAkJCWxv
+X2l2X21vZGU7DQogfTsNCiANCiB0eXBlZGVmCWludCAoKiB0cmFuc2Zlcl9w
+cm9jX3QpKHN0cnVjdCBsb29wX2RldmljZSAqLCBpbnQgY21kLA0KQEAgLTEy
+MSw2ICsxMzAsNyBAQA0KICNkZWZpbmUgTE9fQ1JZUFRfSURFQSAgICAgNg0K
+ICNkZWZpbmUgTE9fQ1JZUFRfRFVNTVkgICAgOQ0KICNkZWZpbmUgTE9fQ1JZ
+UFRfU0tJUEpBQ0sgMTANCisjZGVmaW5lIExPX0NSWVBUX0NSWVBUT0FQSSAx
+OCAgLyogaW50ZXJuYXRpb25hbCBjcnlwdG8gcGF0Y2ggKi8NCiAjZGVmaW5l
+IE1BWF9MT19DUllQVAkyMA0KIA0KICNpZmRlZiBfX0tFUk5FTF9fDQo=
+--856294657-1535242835-995797290=:15777--

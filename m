@@ -1,68 +1,137 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290722AbSARPgL>; Fri, 18 Jan 2002 10:36:11 -0500
+	id <S290716AbSARPO3>; Fri, 18 Jan 2002 10:14:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290723AbSARPf7>; Fri, 18 Jan 2002 10:35:59 -0500
-Received: from yinyang.hjsoft.com ([205.231.166.38]:53776 "EHLO
-	yinyang.hjsoft.com") by vger.kernel.org with ESMTP
-	id <S290722AbSARPfv>; Fri, 18 Jan 2002 10:35:51 -0500
-Date: Fri, 18 Jan 2002 10:55:49 -0500 (EST)
-From: "Mr. Shannon Aldinger" <god@yinyang.hjsoft.com>
-Reply-To: god@yinyang.hjsoft.com
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Andrea Arcangeli <andrea@suse.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: vm philosophising
-In-Reply-To: <Pine.LNX.4.33L.0201180235210.32617-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.4.40.0201181040230.6104-100000@yinyang.hjsoft.com>
+	id <S290719AbSARPOU>; Fri, 18 Jan 2002 10:14:20 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:17421 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S290716AbSARPOH>; Fri, 18 Jan 2002 10:14:07 -0500
+Message-ID: <3C483ADB.6080308@namesys.com>
+Date: Fri, 18 Jan 2002 18:10:19 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org,
+        reiserfs-list@namesys.com
+Subject: [PATCH] rename bug patch for 2.4 --- my mangling undone
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+I just discovered how not to cut and paste a patch, sorry.  This one is correct, the other sent this morning will not work due to extra carriage returns getting into it.
 
-On Fri, 18 Jan 2002, Rik van Riel wrote:
+Credit Oleg, his explanation is below, it is tested by several Namesys internal testers, and reviewed.
 
-> On Fri, 18 Jan 2002, Bosko Radivojevic wrote:
->
-> > There is no way to make one good VM for all possible situations. But,
-> > you can tune/make one VM to work great on large DBMS (e.g.) and
-> > tune/make another one to work great on ordinary desktop systems
->
-> This is an interesting assertion ... but up to date nobody has
-> been able to tell me what exactly should be different between
-> these two mythical VMs ;)
->
-I can see two different "VMs". I say "VMs" because it could be the same
-code with different magic numbers to control its behavior.
+Hans
+*****************************************************************************************************************
 
->From a file & database point of view throughput is the most crictical
-aspect. Both disk and network throughput. Interactive response on such
-systems isn't as critical as most of the time it will sit there processing
-queries or sending files.
+Hello!
 
->From a desktop point of view interactive response is critical, however
-disk and network throughput also have to have a fine balance. Maybe the
-balance is three way here between interactive response, disk throughput
-and network throughput.
+     A-rename_stale_item_bug-1.diff
+     This patch fixes 2 bugs in reiserfs_rename(). First one being attempt to access item before verifying it was
+     not moved since last access. Second is a window, where old filename may be written to disk with 'visible'
+     flag unset without these changes be journaled.
 
-Perhaps having a VM system that you select your main focus server vs
-desktop would be the way to go. Also the end-user should be able to adjust
-this balance. Say a person selected desktop, and is a graphic artist, they
-may not care as much about network thoroughput and rather push up
-interactive response and disk throughput at the expense of the network
-thoroughput.
+Bye,
+     Oleg
 
-Regards.
-PS: IANAVMP (I Am Not A VM Programmer)
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+--- linux/fs/reiserfs/namei.c.orig	Thu Jan 17 14:05:11 2002
++++ linux/fs/reiserfs/namei.c	Thu Jan 17 17:09:23 2002
+@@ -1057,7 +1057,7 @@
+      INITIALIZE_PATH (old_entry_path);
+      INITIALIZE_PATH (new_entry_path);
+      INITIALIZE_PATH (dot_dot_entry_path);
+-    struct item_head new_entry_ih, old_entry_ih ;
++    struct item_head new_entry_ih, old_entry_ih, dot_dot_ih ;
+      struct reiserfs_dir_entry old_de, new_de, dot_dot_de;
+      struct inode * old_inode, * new_inode;
+      int windex ;
+@@ -1151,6 +1151,8 @@
 
-iEYEARECAAYFAjxIRZAACgkQwtU6L/A4vVDUTQCdG4Pg4hYGPvRXN9kBVfDyWBbD
-bnsAnigMlPA21izLJUhKjZcTeeaaK9IC
-=EKri
------END PGP SIGNATURE-----
+  	copy_item_head(&old_entry_ih, get_ih(&old_entry_path)) ;
+
++ 
+reiserfs_prepare_for_journal(old_inode->i_sb, old_de.de_bh, 1) ;
++
+  	// look for new name by reiserfs_find_entry
+  	new_de.de_gen_number_bit_string = 0;
+  	retval = reiserfs_find_entry (new_dir, new_dentry->d_name.name, new_dentry->d_name.len,
+@@ -1167,6 +1169,7 @@
+  	if (S_ISDIR(old_inode->i_mode)) {
+  	    if (search_by_entry_key (new_dir->i_sb, &dot_dot_de.de_entry_key, &dot_dot_entry_path, &dot_dot_de) != NAME_FOUND)
+  		BUG ();
++ 
+     copy_item_head(&dot_dot_ih, get_ih(&dot_dot_entry_path)) ;
+  	    // node containing ".." gets into transaction
+  	    reiserfs_prepare_for_journal(old_inode->i_sb, dot_dot_de.de_bh, 1) ;
+  	}
+@@ -1183,23 +1186,33 @@
+  	** of the above checks could have scheduled.  We have to be
+  	** sure our items haven't been shifted by another process.
+  	*/
+- 
+if (!entry_points_to_object(new_dentry->d_name.name,
++ 
+if (item_moved(&new_entry_ih, &new_entry_path) ||
++ 
+     !entry_points_to_object(new_dentry->d_name.name,
+  	                            new_dentry->d_name.len,
+  	 
+		    &new_de, new_inode) ||
+- 
+     item_moved(&new_entry_ih, &new_entry_path) ||
+  	    item_moved(&old_entry_ih, &old_entry_path) ||
+  	    !entry_points_to_object (old_dentry->d_name.name,
+  	                             old_dentry->d_name.len,
+  	 
+		     &old_de, old_inode)) {
+  	    reiserfs_restore_prepared_buffer (old_inode->i_sb, new_de.de_bh);
++ 
+     reiserfs_restore_prepared_buffer (old_inode->i_sb, old_de.de_bh);
+  	    if (S_ISDIR(old_inode->i_mode))
+  		reiserfs_restore_prepared_buffer (old_inode->i_sb, dot_dot_de.de_bh);
+  	    continue;
+  	}
++ 
+if (S_ISDIR(old_inode->i_mode)) {
++ 
+     if ( item_moved(&dot_dot_ih, &dot_dot_entry_path) ||
++ 
+	 !entry_points_to_object ( "..", 2, &dot_dot_de, old_dir) ) {
++ 
+	reiserfs_restore_prepared_buffer (old_inode->i_sb, old_de.de_bh);
++ 
+	reiserfs_restore_prepared_buffer (old_inode->i_sb, new_de.de_bh);
++ 
+	reiserfs_restore_prepared_buffer (old_inode->i_sb, dot_dot_de.de_bh);
++ 
+	continue;
++ 
+     }
++ 
+}
++
+
+  	RFALSE( S_ISDIR(old_inode->i_mode) &&
+- 
+	(!entry_points_to_object ("..", 2, &dot_dot_de, old_dir) ||
+- 
+	 !reiserfs_buffer_prepared(dot_dot_de.de_bh)), "" );
++ 
+	!reiserfs_buffer_prepared(dot_dot_de.de_bh), "" );
+
+  	break;
+      }
+@@ -1212,6 +1225,7 @@
+      journal_mark_dirty (&th, old_dir->i_sb, new_de.de_bh);
+
+      mark_de_hidden (old_de.de_deh + old_de.de_entry_num);
++    journal_mark_dirty (&th, old_dir->i_sb, old_de.de_bh);
+      old_dir->i_ctime = old_dir->i_mtime = CURRENT_TIME;
+      new_dir->i_ctime = new_dir->i_mtime = CURRENT_TIME;
+
+
 
 

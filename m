@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272312AbTHNQkQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 12:40:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272276AbTHNQkQ
+	id S272442AbTHNQdw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 12:33:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272449AbTHNQdw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 12:40:16 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:5895 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S272312AbTHNQkM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 12:40:12 -0400
-Date: Thu, 14 Aug 2003 17:40:08 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Christoph Hellwig <hch@infradead.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Pavel Machek <pavel@suse.cz>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] call drv->shutdown at rmmod
-Message-ID: <20030814174008.D332@flint.arm.linux.org.uk>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Eric W. Biederman" <ebiederm@xmission.com>,
-	Pavel Machek <pavel@suse.cz>, Greg KH <greg@kroah.com>,
-	linux-kernel@vger.kernel.org
-References: <m1he4kzpiy.fsf@frodo.biederman.org> <20030814085442.A21232@infradead.org> <20030814090605.A25516@flint.arm.linux.org.uk>
+	Thu, 14 Aug 2003 12:33:52 -0400
+Received: from waste.org ([209.173.204.2]:36751 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S272442AbTHNQds (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 12:33:48 -0400
+Date: Thu, 14 Aug 2003 11:33:25 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: Robert Love <rml@tech9.net>
+Cc: Jeff Garzik <jgarzik@pobox.com>, James Morris <jmorris@intercode.com.au>,
+       "David S. Miller" <davem@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] cryptoapi: Fix sleeping
+Message-ID: <20030814163325.GL325@waste.org>
+References: <20030813233957.GE325@waste.org> <3F3AD5F1.8000901@pobox.com> <1060821251.4709.449.camel@lettuce> <20030814015820.GH325@waste.org> <1060878560.4709.474.camel@lettuce>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030814090605.A25516@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Thu, Aug 14, 2003 at 09:06:05AM +0100
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+In-Reply-To: <1060878560.4709.474.camel@lettuce>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 14, 2003 at 09:06:05AM +0100, Russell King wrote:
-> That's likely to remove the keyboard driver, and some people like
-> to configure their box so that ctrl-alt-del halts the system, and
-> a further ctrl-alt-del reboots the system once halted.
+On Thu, Aug 14, 2003 at 09:29:20AM -0700, Robert Love wrote:
+> On Wed, 2003-08-13 at 18:58, Matt Mackall wrote:
+> 
+> > This is part of cryptoapi and given the large chunks of work you could
+> > potentially hand to it, it's probably a good idea for it to work this
+> > way. You hand it a long list of sg segments, it does the transform and
+> > reschedules if it thinks it's safe. But its test of when it was safe
+> > was not complete.
+> 
+> Right.  My concern is that you said sometimes it is called when
+> preemption is disabled.
 
-Several people have asked me how to set this up, so I'll give the info
-here.
-
-- change inittab to call shutdown with -h instead of -r
-- telinit Q
-
-I think there is a catch on x86 though - I think shutdown -h powers the
-machine down rather than halting it.  The redhat initscripts seem to
-need a /halt file to prevent poweroff.  Maybe calling /sbin/halt
-instead of shutdown from the initscripts would work better in those
-cases...
-
+Sure, but it's called here rather indirectly. Apparently I'm the first
+person to try using cryptoapi with per_cpu. And at present there's
+nothing in the api to tell it "don't do that" - but see my followup
+patch.
+ 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Matt Mackall : http://www.selenic.com : of or relating to the moon

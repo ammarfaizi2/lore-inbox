@@ -1,64 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265479AbRGAUxW>; Sun, 1 Jul 2001 16:53:22 -0400
+	id <S265783AbRGAUzw>; Sun, 1 Jul 2001 16:55:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265483AbRGAUxN>; Sun, 1 Jul 2001 16:53:13 -0400
-Received: from shell.ca.us.webchat.org ([216.152.64.152]:981 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S265479AbRGAUxF>; Sun, 1 Jul 2001 16:53:05 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Lew Wolfgang" <wolfgang@train.sweet-haven.com>,
-        "Kurt Maxwell Weber" <kmw@rowsw.com>
-Cc: "J Sloan" <jjs@mirai.cx>, <linux-kernel@vger.kernel.org>
-Subject: RE: Uncle Sam Wants YOU!
-Date: Sun, 1 Jul 2001 13:53:00 -0700
-Message-ID: <NOEJJDACGOHCKNCOGFOMGELMCDAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <Pine.LNX.4.33.0107011213050.5284-100000@train.sweet-haven.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2479.0006
+	id <S265787AbRGAUzm>; Sun, 1 Jul 2001 16:55:42 -0400
+Received: from mail-smtp.socket.net ([216.106.1.32]:61960 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S265783AbRGAUzj>; Sun, 1 Jul 2001 16:55:39 -0400
+Date: Sun, 1 Jul 2001 15:55:31 -0500
+From: "Gregory T. Norris" <haphazard@socket.net>
+To: rio500-devel <rio500-devel@lists.sourceforge.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] rio500 devfs support
+Message-ID: <20010701155531.B15335@glitch.snoozer.net>
+Mail-Followup-To: rio500-devel <rio500-devel@lists.sourceforge.net>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010619175224.A1137@glitch.snoozer.net> <20010625103521.A17036@kroah.com> <20010625171201.A13305@glitch.snoozer.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="EVF5PPMfhYS0aIcm"
+Content-Disposition: inline
+In-Reply-To: <20010625171201.A13305@glitch.snoozer.net>
+User-Agent: Mutt/1.3.18i
+X-Operating-System: Linux glitch 2.4.5 #1 Sat Jun 30 17:26:00 CDT 2001 i686 unknown
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> On Sun, 1 Jul 2001, Kurt Maxwell Weber wrote:
-> > In that case, I have the following options:
-> > 1) Start my own ISP
-> > 2) Use Windows XP
-> > 3) Not use Windows XP and not be able to use my current ISP
-> > 4) Go to a different ISP
+--EVF5PPMfhYS0aIcm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-	Argument.
+It's working beautifully here.  I'll forward the patch to the
+maintainer, since I have no idea if he's seen this thread.
 
-> > I'll just have to decide which I value more.  As long as I
-> > won't be killed
-> > for using a different OS, I still have a choice.
+Cheers!
 
-	Argument.
+--EVF5PPMfhYS0aIcm
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-> But these are false alternatives!  "I'll give you a choice, I remove
-> either your right foot or your left arm.  Your choice."
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-	Gun.
+iD8DBQE7P45DgrEMyr8Cx2YRAqY4AJ91lPkxmK3AueNdj7nV6bFXbMLiWgCg0vdk
+vOHyXpIF2tfnwvKklTqqNsI=
+=6Z9H
+-----END PGP SIGNATURE-----
 
-> The choice
-> of "neither" is not given.
-
-	Gun.
-
-> All I want is true alternatives.  I
-> hope that one of those alternatives will be to opt out of the
-> coercive, advertising rich, commercial environment that is in
-> our future.
-
-	Go ahead and opt out. The only one using or threatening force here seems to
-be you.
-
-	DS
-
+--EVF5PPMfhYS0aIcm--

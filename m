@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292957AbSCDWmV>; Mon, 4 Mar 2002 17:42:21 -0500
+	id <S292761AbSCDWnb>; Mon, 4 Mar 2002 17:43:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292952AbSCDWmM>; Mon, 4 Mar 2002 17:42:12 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:31426 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S292688AbSCDWmC>;
-	Mon, 4 Mar 2002 17:42:02 -0500
-Date: Mon, 4 Mar 2002 14:42:00 -0800
-To: paulus@samba.org, linux-ppp@vger.kernel.org,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: PPP feature request (Tx queue len + close)
-Message-ID: <20020304144200.A32397@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
+	id <S292952AbSCDWnQ>; Mon, 4 Mar 2002 17:43:16 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:9738 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S292761AbSCDWnC>;
+	Mon, 4 Mar 2002 17:43:02 -0500
+Date: Mon, 4 Mar 2002 14:35:31 -0800
+From: Greg KH <greg@kroah.com>
+To: Sebastian =?iso-8859-1?Q?Dr=F6ge?= <sebastian.droege@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.5.5-dj2] USB keyboard strangeness and ALSA error
+Message-ID: <20020304223530.GA5280@kroah.com>
+In-Reply-To: <20020304211949.26f188ac.sebastian.droege@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20020304211949.26f188ac.sebastian.droege@gmx.de>
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Mon, 04 Feb 2002 20:31:55 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi,
+On Mon, Mar 04, 2002 at 09:19:49PM +0100, Sebastian Dröge wrote:
+> Hi,
+> I've following problems with 2.5.5-dj2:
+> If I try to enable numlock I get this message: hid-core.c: control queue full
+> and the numlock LED doesn't shine but numlock is enabled
+> This is on a USB keyboard (Cherry xyz... the one with included USB hub)
+> While booting I get this message: hid-core.c: ctrl urb status -32 received
 
-	While working with IrNET, I came across one problems that
-would require some changes minor to the ppp_generic kernel code. I
-will describe this feature and then we can start to flame each other
-or discuss how to implement them.
+Can you please try 2.5.6-pre2 and let us know if you still have the USB
+problem with that kernel?
 
-	IrNET is PPP over an IrDA socket. A good analogy would be PPP
-over TCP/IP. If you thing in those terms, you will get the proper
-context. IrNET is a PPP driver hooking directly in ppp_generic.
+thanks,
 
-Tx queue length
----------------
-	Problem : IrDA does its buffering (IrTTP is a sliding window
-protocol). PPP does its buffering (1 packet in ppp_generic +
-dev->tx_queue_len = 3). End result : a large number of packets queued
-for transmissions, which result in some network performance issues.
-
-	Solution : could we allow the PPP channel to overwrite
-dev->tx_queue_len ?
-	This is similar to the channel beeing able to set the MTUs and
-other parameters...
-
-	Have fun...
-
-	Jean
+greg k-h

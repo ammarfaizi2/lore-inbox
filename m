@@ -1,39 +1,153 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277351AbRJJSAH>; Wed, 10 Oct 2001 14:00:07 -0400
+	id <S277349AbRJJSOd>; Wed, 10 Oct 2001 14:14:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277350AbRJJR75>; Wed, 10 Oct 2001 13:59:57 -0400
-Received: from mailgw.prontomail.com ([216.163.180.10]:608 "EHLO
-	c0mailgw12.prontomail.com") by vger.kernel.org with ESMTP
-	id <S277351AbRJJR7x>; Wed, 10 Oct 2001 13:59:53 -0400
-Message-ID: <3BC48C0E.760488AA@starband.net>
-Date: Wed, 10 Oct 2001 13:57:34 -0400
-From: war <war@starband.net>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7 i686)
+	id <S277352AbRJJSOO>; Wed, 10 Oct 2001 14:14:14 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:51444 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S277349AbRJJSOI> convert rfc822-to-8bit; Wed, 10 Oct 2001 14:14:08 -0400
+Message-ID: <3BC48FEC.B3D8BA15@mvista.com>
+Date: Wed, 10 Oct 2001 11:14:04 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: ATA/100 Promise Board
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: Andrew Morton <akpm@zip.com.au>
+CC: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
+        Andrea Arcangeli <andrea@suse.de>, Robert Love <rml@tech9.net>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.10-ac10-preempt lmbench output.
+In-Reply-To: <200110100358.NAA17519@isis.its.uow.edu.au> <3BC3D916.B0284E00@zip.com.au>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Any idea why DMA is sometimes on and sometimes not for a few cdrom
-drives I have hooked up to my promise controller?
+Andrew Morton wrote:
+> 
+> Dieter Nützel wrote:
+> >
+> > Andrew have you a current version of your lowlatency patches handy?
+> >
+> 
+> mm..  Nice people keep sending me updates.  It's at
+> http://www.uow.edu.au/~andrewm/linux/schedlat.html and applies
+> to 2.4.11 with one little reject.  I don't know how it's
+> performing at present - it's time for another round of tuning
+> and testing.
+> 
+> wrt this discussion: I would assume that xmms is simply stalling
+> on disk access.  All it takes is for one of its text pages to be
+> dropped and it could have to wait a very long time indeed to
+> come back to life.  The disk read latency could easily exceed
+> any sane buffering in the sound card or its driver.
+> 
+> The application should be using mlockall(MCL_FUTURE) and it should
+> run `nice -19'  (SCHED_FIFO and SCHED_RR are rather risky - if the
+> app gets stuck in a loop, it's time to hit the big button).  
 
-Whether it is on or off, whenever I copy a CD from a (dma) cdrom whether
-it dma is on or off it slows my system down big time.  Move the cursor
-around in X, and it lags, watch X-Chat, the characters you type in
-slowly appear 3-5 seconds after.
+When running any RT tasks it is aways wise to have an open shell running
+at a higher priority.  It is also neccessary to have an open console
+path to the shell which may mean that X needs to be up there too.  But
+if this is just a back door, an alternative console could be outside of
+X and do the trick.
 
-Hook the same drives up to the motherboard ide interfaces and there is
-no lag at all.
+George
 
-This has always been the case with my cdroms.
-
-When I had my HD on the Promise, it did DMA etc just fine.
-
-Is there a problem with the driver if a HD is not on there it doesn't do
-DMA correctly or something?
-
+> If the
+> app isn't doing both these things then it just doesn't have a chance.
+> 
+> I don't understand why Andrea is pointing at write throttling?  xmms
+> doesn't do any disk writes, does it??
+> 
+> Andrea's VM has a rescheduling point in shrink_cache(), which is the
+> analogue of the other VM's page_launder().  This rescheduling point
+> is *absolutely critial*, because it opens up what is probably the
+> longest-held spinlock in the kernel (under common use).  If there
+> were a similar reschedulig point in page_launder(), comparisons
+> would be more valid...
+> 
+> I would imagine that for a (very) soft requirement such as audio
+> playback, the below patch, combined with mlockall and renicing
+> should fix the problems.  I would expect that this patch will
+> give effects which are similar to the preempt patch.  This is because
+> most of the other latency problems are under locks - icache/dcache
+> shrinking and zap_page_range(), etc.
+> 
+> This patch should go into the stock 2.4 kernel.
+> 
+> Oh.  And always remember to `renice -19' your X server.
+> 
+> --- linux-2.4.11/mm/filemap.c   Tue Oct  9 21:31:40 2001
+> +++ linux-akpm/mm/filemap.c     Tue Oct  9 21:47:51 2001
+> @@ -1230,6 +1230,9 @@ found_page:
+>                 page_cache_get(page);
+>                 spin_unlock(&pagecache_lock);
+> 
+> +               if (current->need_resched)
+> +                       schedule();
+> +
+>                 if (!Page_Uptodate(page))
+>                         goto page_not_up_to_date;
+>                 generic_file_readahead(reada_ok, filp, inode, page);
+> @@ -2725,6 +2728,9 @@ generic_file_write(struct file *file,con
+>                 if (!PageLocked(page)) {
+>                         PAGE_BUG(page);
+>                 }
+> +
+> +               if (current->need_resched)
+> +                       schedule();
+> 
+>                 kaddr = kmap(page);
+>                 status = mapping->a_ops->prepare_write(file, page, offset, offset+bytes);
+> --- linux-2.4.11/fs/buffer.c    Tue Oct  9 21:31:40 2001
+> +++ linux-akpm/fs/buffer.c      Tue Oct  9 22:08:51 2001
+> @@ -29,6 +29,7 @@
+>  /* async buffer flushing, 1999 Andrea Arcangeli <andrea@suse.de> */
+> 
+>  #include <linux/config.h>
+> +#include <linux/compiler.h>
+>  #include <linux/sched.h>
+>  #include <linux/fs.h>
+>  #include <linux/slab.h>
+> @@ -231,6 +232,10 @@ static int write_some_buffers(kdev_t dev
+>  static void write_unlocked_buffers(kdev_t dev)
+>  {
+>         do {
+> +               if (unlikely(current->need_resched)) {
+> +                       __set_current_state(TASK_RUNNING);
+> +                       schedule();
+> +               }
+>                 spin_lock(&lru_list_lock);
+>         } while (write_some_buffers(dev));
+>         run_task_queue(&tq_disk);
+> --- linux-2.4.11/fs/proc/array.c        Sun Sep 23 12:48:44 2001
+> +++ linux-akpm/fs/proc/array.c  Tue Oct  9 21:47:51 2001
+> @@ -414,6 +414,9 @@ static inline void statm_pte_range(pmd_t
+>                 pte_t page = *pte;
+>                 struct page *ptpage;
+> 
+> +               if (current->need_resched)
+> +                       schedule();     /* For `top' and `ps' */
+> +
+>                 address += PAGE_SIZE;
+>                 pte++;
+>                 if (pte_none(page))
+> --- linux-2.4.11/fs/proc/generic.c      Sun Sep 23 12:48:44 2001
+> +++ linux-akpm/fs/proc/generic.c        Tue Oct  9 21:47:51 2001
+> @@ -98,6 +98,9 @@ proc_file_read(struct file * file, char
+>                                 retval = n;
+>                         break;
+>                 }
+> +
+> +               if (current->need_resched)
+> +                       schedule();     /* Some proc files are large */
+> 
+>                 /* This is a hack to allow mangling of file pos independent
+>                  * of actual bytes read.  Simply place the data at page,
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

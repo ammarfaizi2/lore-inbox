@@ -1,65 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267748AbUJVEtA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270364AbUJTOZ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267748AbUJVEtA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 00:49:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270403AbUJTO0K
+	id S270364AbUJTOZ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 10:25:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270199AbUJTOHQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 10:26:10 -0400
-Received: from neopsis.com ([213.239.204.14]:899 "EHLO matterhorn.neopsis.com")
-	by vger.kernel.org with ESMTP id S270326AbUJTOO2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 10:14:28 -0400
-Message-ID: <417672BF.5040708@dbservice.com>
-Date: Wed, 20 Oct 2004 16:14:23 +0200
-From: Tomas Carnecky <tom@dbservice.com>
-Organization: none
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-Cc: Oliver Neukum <oliver@neukum.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: my opinion about VGA devices
-References: <417590F3.1070807@dbservice.com> <200410201318.26430.oliver@neukum.org> <41765A8C.2020309@dbservice.com> <Pine.LNX.4.61.0410200851080.10711@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0410200851080.10711@chaos.analogic.com>
-X-Enigmail-Version: 0.84.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Neopsis-MailScanner-Information: Please contact the ISP for more information
-X-Neopsis-MailScanner: Found to be clean
-X-MailScanner-From: tom@dbservice.com
+	Wed, 20 Oct 2004 10:07:16 -0400
+Received: from lists.us.dell.com ([143.166.224.162]:21702 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S270067AbUJTOC0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 10:02:26 -0400
+Date: Wed, 20 Oct 2004 09:02:14 -0500
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org,
+       Ernie Petrides <petrides@redhat.com>
+Subject: Re: [PATCH] reserved buffers only for PF_MEMALLOC
+Message-ID: <20041020140214.GB16114@lists.us.dell.com>
+References: <Pine.LNX.4.44.0408101310580.7156-100000@dhcp83-102.boston.redhat.com> <20040810201652.GF13509@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040810201652.GF13509@logos.cnet>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
+On Tue, Aug 10, 2004 at 05:16:52PM -0300, Marcelo Tosatti wrote:
+> On Tue, Aug 10, 2004 at 01:20:24PM -0400, Rik van Riel wrote:
+> > 
+> > The buffer allocation path in 2.4 has a long standing bug,
+> > where non-PF_MEMALLOC tasks can dig into the reserved pool
+> > in get_unused_buffer_head().  The following patch makes the
+> > reserved pool only accessible to PF_MEMALLOC tasks.
+> > 
+> > Other processes will loop in create_buffers() - the only
+> > function that calls get_unused_buffer_head() - and will call
+> > try_to_free_pages(GFP_NOIO), freeing any buffer heads that
+> > have become freeable due to IO completion.
+> > 
+> > Note that PF_MEMALLOC tasks will NOT do anything inside
+> > try_to_free_pages(), so it is needed that they are able to
+> > dig into the reserved buffer heads while other tasks are
+> > not.
+> 
+> Applied.
+> 
+> Matt, it would be really nice if you could run the workload
+> which triggers the deadlock on 2.4.27+Rik's patch.
 
-> On ix86 machines, regardless of whatever code initialized the
-> hardware, if the screen-card is not put into graphics mode,
-> anybody can write characters and attributes at 0xb8000 directly
-> to the screen. Even user-mode code can mmap() that area and write
-> to it. So, the key seems to be to get out of graphics mode
-> before suspend, and go back later after resume.
+Sorry for the long delay.  kernel 2.4.28-pre3 has been running under
+load for 12 days, where otherwise we would have expected a failure in
+less than 1 day.  I'm satisfied this is the right thing to have done.
 
-Why do you let user-mode programs access the hardware directly?
-You don't do this with network devices (there you have syscalls), you 
-don't do this with sound devices (alsa).
-IMO it makes a proper power managment implementation impossible.
+Thanks,
+Matt
 
-You can say that there are two different drivers for screen-cards in the 
-kernel. One is the VGA which enables the card during early boot time to 
-display the first text messages and the other is fb/DRI or even an 
-nvidia/ati kernel module which is enabled later on.
-Last time I've tried a LiveCD distro I've seen a nice boot console with 
-background picture, high resolution (1024x768) and nice small font. That 
-means that the framebuffer driver had to be initialized at that time. I 
-don't have framebuffer drivers compiled into my kernel so I don't know 
-at which point these are initialized, but it must be at a quite early 
-point in the boot process.
-When looking at the output of dmesg I can see that the first thing that 
-is initialized are the CPU's, ACPI, IRQ's and then the PCI bus is 
-scanned. Did anyones machine crash during these steps? I don't think a 
-healthy box will crash here. And at this point you can initialize your 
-graphics card driver like it is done in the LiveCD distro.
-
-tom
+-- 
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

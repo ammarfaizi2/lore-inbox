@@ -1,53 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135729AbRAJPEQ>; Wed, 10 Jan 2001 10:04:16 -0500
+	id <S135764AbRAJPFQ>; Wed, 10 Jan 2001 10:05:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135312AbRAJPD7>; Wed, 10 Jan 2001 10:03:59 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:52812 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S135729AbRAJPDy>; Wed, 10 Jan 2001 10:03:54 -0500
-Date: Wed, 10 Jan 2001 16:03:59 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>,
-        linux-kernel@vger.kernel.org, Alexander Viro <viro@math.psu.edu>
-Subject: Re: `rmdir .` doesn't work in 2.4
-Message-ID: <20010110160359.E19503@athlon.random>
-In-Reply-To: <200101091341.HAA52016@tomcat.admin.navo.hpc.mil> <20010109150635.C8824@athlon.random> <20010110144735.E10633@redhat.com>
+	id <S135312AbRAJPFH>; Wed, 10 Jan 2001 10:05:07 -0500
+Received: from netsrvr.ami.com.au ([203.55.31.38]:8765 "EHLO
+	netsrvr.ami.com.au") by vger.kernel.org with ESMTP
+	id <S135762AbRAJPE7>; Wed, 10 Jan 2001 10:04:59 -0500
+Message-Id: <200101100216.f0A2FKQ20260@emu.os2.ami.com.au>
+X-Mailer: exmh version 2.1.1 10/15/1999
+To: Linux kernel <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org
+Subject: SCSI F2513A and 640 Mbyte media and 2.4.0
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010110144735.E10633@redhat.com>; from sct@redhat.com on Wed, Jan 10, 2001 at 02:47:35PM +0000
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Date: Wed, 10 Jan 2001 10:15:39 +0800
+From: John Summerfield <summer@OS2.ami.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 10, 2001 at 02:47:35PM +0000, Stephen C. Tweedie wrote:
-> Hi,
-> 
-> On Tue, Jan 09, 2001 at 03:06:35PM +0100, Andrea Arcangeli wrote:
-> > On Tue, Jan 09, 2001 at 07:41:21AM -0600, Jesse Pollard wrote:
-> > > Not exactly valid, since a file could be created in that "pinned" directory
-> > > after the rmdir...
-> > 
-> > In 2.2.x no file can be created in the pinned directory after the rmdir.
-> 
-> In 2.2, at least some of that protection was in ext2 itself.  POSIX
-> mandates that a deleted directory has no dirents, so readdir() must
-> not return even "." or "..".  ext2 achieved this by truncating the dir
-> to size==0, and by refusing to add dirents to the resulting completely
-> empty directory.
-> 
-> Do we have enough protection to ensure this for other filesystems?
 
-Note that this has nothing to do with `rmdir .`. You will run into the
-mentioned issue just now with '''rmdir "`pwd`"'''. I've not checked
-the other fses but I would put such support into the VFS rather than in ext2
-(vfs can do that for you, if you do that the lowlevel fs will never get a
-readdir for a delete dentry).
 
-Andrea
+The 2k sector support is imperfect;-(
+
+The media are recognised correctly (I've not tried switching between 230 Nbyte 
+and 640 Mbyte disks), BUT
+
+Something can forget.
+
+I started with a Linux disk containing my archive of RHL 5.2 rpms.
+
+I did an rpm --verify of them all and they all checked out.
+I then ejected the disk (using the eject command; this did not work correctly 
+with the first 2.2 kernels) and inserted an OS/2 HPFS disk.
+
+
+The disk checked out with sfdisk, but I can't mount it (Linux' HPFS support 
+for these disks has never worked), so I ran a few commands to read data from 
+t, culminating with dd to make a file of its contents.
+
+When I started dd, one of the other commands (strings, I think) was running, 
+so there was probably some thrashing at first
+
+
+When dd finished, I could no longer read the partition table:
+[root@dugite /root]# fdisk -l -b 2048 /dev/sda
+[root@dugite /root]# fdisk  -b 2048 /dev/sda
+
+Unable to read /dev/sda
+[root@dugite /root]# dmesg | tail
+sd.c:Bad block number requested I/O error: dev 08:01, sector 1
+ I/O error: dev 08:01, sector 1241224
+ I/O error: dev 08:01, sector 1241224
+ll_rw_block: device 08:00: only 512-char blocks implemented (1024)
+sd.c:Bad block number requested I/O error: dev 08:00, sector 0
+ I/O error: dev 08:01, sector 1241224
+ll_rw_block: device 08:00: only 512-char blocks implemented (1024)
+sd.c:Bad block number requested I/O error: dev 08:00, sector 0
+ll_rw_block: device 08:00: only 512-char blocks implemented (1024)
+sd.c:Bad block number requested I/O error: dev 08:00, sector 0
+[root@dugite /root]# sfdisk -l  /dev/sda
+
+Disk /dev/sda: 606 cylinders, 64 heads, 32 sectors/track
+Units = cylinders of 1048576 bytes, blocks of 1024 bytes, counting from 0
+
+   Device Boot Start     End   #cyls   #blocks   Id  System
+/dev/sda1   *      0+    605     606-   620528    7  HPFS/NTFS
+/dev/sda2          0       -       0         0    0  Empty
+/dev/sda3          0       -       0         0    0  Empty
+/dev/sda4          0       -       0         0    0  Empty
+[root@dugite /root]# 
+
+Before the last sfdisk, I ejected the disk using the button on the drive and 
+reinserted it.
+
+[root@dugite /root]# uname -a
+Linux dugite 2.4.0 #2 Wed Jan 10 08:06:30 WST 2001 i586 unknown
+[root@dugite /root]# 
+fwiw I compiled the kernel targetting K6 with gcc 2.95.
+
+The SCSI chipset is AIC7xxx.
+
+[root@dugite /root]# lspci
+00:00.0 Host bridge: Silicon Integrated Systems [SiS] 530 Host (rev 03)
+00:00.1 IDE interface: Silicon Integrated Systems [SiS] 5513 [IDE] (rev d0)
+00:01.0 ISA bridge: Silicon Integrated Systems [SiS] 85C503/5513 (rev b3)
+00:01.1 Class ff00: Silicon Integrated Systems [SiS] ACPI
+00:02.0 PCI bridge: Silicon Integrated Systems [SiS] 5591/5592 AGP
+00:0b.0 SCSI storage controller: Adaptec AHA-294x / AIC-7871 (rev 03)
+00:0c.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev 10)
+01:00.0 VGA compatible controller: Silicon Integrated Systems [SiS] 6306 
+3D-AGP (rev a3)
+[root@dugite /root]# 
+
+-- 
+Cheers
+John Summerfield
+http://www2.ami.com.au/ for OS/2 & linux information.
+Configuration, networking, combined IBM ftpsites index.
+
+Note: mail delivered to me is deemed to be intended for me, for my disposition.
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

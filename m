@@ -1,68 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263960AbRGJDW1>; Mon, 9 Jul 2001 23:22:27 -0400
+	id <S265408AbRGJDpl>; Mon, 9 Jul 2001 23:45:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265402AbRGJDWQ>; Mon, 9 Jul 2001 23:22:16 -0400
-Received: from mail4.mx.voyager.net ([216.93.66.203]:61712 "EHLO
-	mail4.mx.voyager.net") by vger.kernel.org with ESMTP
-	id <S263960AbRGJDWK>; Mon, 9 Jul 2001 23:22:10 -0400
-Message-ID: <3B4A7972.F0CFBACE@megsinet.net>
-Date: Mon, 09 Jul 2001 22:41:38 -0500
-From: "M.H.VanLeeuwen" <vanl@megsinet.net>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6 i686)
+	id <S265411AbRGJDpW>; Mon, 9 Jul 2001 23:45:22 -0400
+Received: from suntan.tandem.com ([192.216.221.8]:58362 "EHLO
+	suntan.tandem.com") by vger.kernel.org with ESMTP
+	id <S265408AbRGJDpQ>; Mon, 9 Jul 2001 23:45:16 -0400
+Message-ID: <3B4A773D.50632896@compaq.com>
+Date: Mon, 09 Jul 2001 20:32:13 -0700
+From: "Brian J. Watson" <Brian.J.Watson@compaq.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: andre@linux-ide.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Does kernel require IDE enabled in BIOS to access HD, FS errors?
-In-Reply-To: <3B492324.E36B86AF@linux-ide.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: bcrl@redhat.com
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] read/write semaphore trylock routines - 2.4.6
+Content-Type: multipart/mixed;
+ boundary="------------D29EE838BA57F3F1A4E8993C"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre,
+This is a multi-part message in MIME format.
+--------------D29EE838BA57F3F1A4E8993C
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-I had a chance to play a little more today, here is what I've come up with:
+Ben-
 
-a. w/ hdc disable in BIOS, changing the PIO mode to 0 or 1 seems to allow the
-   system to run error free.  PIO mode 3 still has silent FS corruption issues.
+A few months ago, I sent you a couple of trylock routines for
+read/write semaphores. Here's an updated version for 2.4.6. We use
+them for deadlock avoidance in the clustering work we're doing. We
+thought that others might be able to use them, as well.
 
-b. w/ hdc enabled in BIOS, the PIO mode doesn't seem to matter. (except for speed;)
+A caveat for these trylock routines is that they use the cmpxchg
+instruction, which limits their usefulness on x86 to 486 and above. I
+noticed that the RISC architectures, however, have no problem rigging
+up a cmpxchg() equivalent (at least Alpha and PPC don't).
 
-c. CONFIG_IDEDMA_PCI_AUTO affects the number of interrupts needed to complete
-   each block xfer.  With it enabled the number of IRQ's per second ~600.
-   With it disabled ~2/block or 5000-6000 per second.  I thought from the dmesg
-   output that DMA was disabled and this option should have no affect.
+Please let me know if you have any objections to folding them in with
+the rest of the read/write semaphore implementation.
 
-   > CMD646: IDE controller on PCI bus 00 dev 10
-   > CMD646: chipset revision 1
-   > CMD646: not 100% native mode: will probe irqs later
-   > CMD646: chipset revision 0x01, MultiWord DMA Limited, IRQ workaround enabled
-   > CMD646: simplex device:  DMA disabled
-   > ide0: CMD646 Bus-Master DMA disabled (BIOS)
-   > CMD646: simplex device:  DMA disabled
-   > ide1: CMD646 Bus-Master DMA disabled (BIOS)
+Thanks.
 
-d. CONFIG_IDEDMA_PCI_AUTO does not seem to affect the outcome of "a" or "b" above.
+-- 
+Brian Watson               | "The common people of England... so 
+Linux Kernel Developer     |  jealous of their liberty, but like the 
+SSI Clustering Laboratory  |  common people of most other countries 
+Compaq Computer Corp       |  never rightly considering wherein it 
+Los Angeles, CA            |  consists..."
+                           |      -Adam Smith, Wealth of Nations, 1776
 
-Martin
+mailto:Brian.J.Watson@compaq.com
+http://opensource.compaq.com/
+--------------D29EE838BA57F3F1A4E8993C
+Content-Type: text/plain; charset=us-ascii;
+ name="patch-rwsem-trylock"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-rwsem-trylock"
 
-andre@linux-ide.org wrote:
-> 
-> Martin, you have an old beast that there are problems in how the chipset
-> was deployed.
-> How are you confirming the corruption against the various layers in the
-> kernel?
-> If you would like patches & tests to verify I will send them to you.
-> 
-> Cheers
-> 
-> --
-> Andre Hedrick
-> Linux ATA Development
-> ASL Kernel Development
-> -----------------------------------------------------------------------------
-> ASL, Inc.                                     Toll free: 1-877-ASL-3535
-> 1757 Houret Court                             Fax: 1-408-941-2071
-> Milpitas, CA 95035                            Web: www.aslab.com
+Index: include/asm-i386/rwsem.h
+===================================================================
+RCS file: /src/nsc_linux/src/kernel/include/asm-i386/rwsem.h,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 rwsem.h
+--- include/asm-i386/rwsem.h	2001/04/27 22:48:24	1.1.1.1
++++ include/asm-i386/rwsem.h	2001/07/06 20:54:13
+@@ -222,5 +222,34 @@
+ 	return tmp+delta;
+ }
+ 
++#if __HAVE_ARCH_CMPXCHG
++/* returns 1 if it successfully obtained the semaphore for write */
++static inline int down_write_trylock(struct rw_semaphore *sem)
++{
++	signed long ret = cmpxchg(&sem->count,
++				  RWSEM_UNLOCKED_VALUE, 
++				  RWSEM_ACTIVE_WRITE_BIAS);
++	if (ret == RWSEM_UNLOCKED_VALUE)
++		return 1;
++	return 0;
++}
++
++/* returns 1 if it successfully obtained the semaphore for read */
++static inline int down_read_trylock(struct rw_semaphore *sem)
++{
++	signed long old, new;
++
++repeat:
++	old = (volatile signed long)sem->count;
++	if (old < RWSEM_UNLOCKED_VALUE)
++		return 0;
++	new = old + RWSEM_ACTIVE_READ_BIAS;
++	if (cmpxchg(&sem->count, old, new) == old)
++		return 1;
++	else
++		goto repeat;
++}
++#endif /* __HAVE_ARCH_CMPXCHG */
++
+ #endif /* __KERNEL__ */
+ #endif /* _I386_RWSEM_H */
+
+--------------D29EE838BA57F3F1A4E8993C--
+

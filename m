@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261293AbVBMTMa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261299AbVBMTNb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261293AbVBMTMa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Feb 2005 14:12:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbVBMTM3
+	id S261299AbVBMTNb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Feb 2005 14:13:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbVBMTNb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Feb 2005 14:12:29 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:42895 "EHLO suse.cz")
-	by vger.kernel.org with ESMTP id S261293AbVBMTM1 (ORCPT
+	Sun, 13 Feb 2005 14:13:31 -0500
+Received: from wproxy.gmail.com ([64.233.184.198]:43807 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261297AbVBMTNT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Feb 2005 14:12:27 -0500
-Date: Sun, 13 Feb 2005 20:13:01 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Stephen Evanchik <evanchsa@gmail.com>
-Cc: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
+	Sun, 13 Feb 2005 14:13:19 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=X+RQmpM4NL7zB18fjKCe47F1YXmHsLsNNqQzG5+TEmH4s5iTD5D7IaJTTsZotkcsAL0jhjY+9nV0gHmAVQYXDSgW1ni2Yf5sv0mQnhoj9esoyitT9YOkD9xI4Edr/oyap8GVuTXv3Ooic+b/Nm9rJ1fvomzS2joSeBrqR5eTqD4=
+Message-ID: <a71293c2050213111345d072b0@mail.gmail.com>
+Date: Sun, 13 Feb 2005 14:13:15 -0500
+From: Stephen Evanchik <evanchsa@gmail.com>
+Reply-To: Stephen Evanchik <evanchsa@gmail.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
 Subject: Re: [PATCH 2.6.11-rc3] IBM Trackpoint support
-Message-ID: <20050213191301.GA4286@ucw.cz>
-References: <a71293c20502031443764fb4e5@mail.gmail.com> <20050205104405.GA1401@elf.ucw.cz> <20050207101417.GB16443@ucw.cz> <a71293c205021311071a7cf4d7@mail.gmail.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+In-Reply-To: <200502032252.45309.dtor_core@ameritech.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a71293c205021311071a7cf4d7@mail.gmail.com>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <a71293c20502031443764fb4e5@mail.gmail.com>
+	 <200502031934.16642.dtor_core@ameritech.net>
+	 <200502032252.45309.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 13, 2005 at 02:07:39PM -0500, Stephen Evanchik wrote:
+On Thu, 3 Feb 2005 22:52:44 -0500, Dmitry Torokhov
+<dtor_core@ameritech.net> wrote:
+> OK, I have read the code once again, and saw that you have special
+> handling within PS/2 protocol based on model constant. Please set
+> psmouse type to PSMOUSE_TRACKPOINT instead of model and provide full
+> protocol handler, like ALPS, Synaptics and Logitech do. Trackpoint
+> is different and complex enough to warrant it.
 
-> > > Perhaps this should be done in userspace? It is probably usable on
-> > > non-trackpoint devices, too...
-> > 
-> > For a big part it's not possible to do in userspace, because the
-> > touchpoint doesn't give the pressure information, it only can be mapped
-> > to a button click.
-> > 
-> > But middle-button-to-scroll would be doable in userspace, yes.
-> 
-> Middle-to-scroll in the newer Xorg releases. I received a number of
-> requests from users to include this feature, I'm not sure why the Xorg
-> option is inadequate. It can be removed if necessary.
- 
-I'm glad it's in the Xorg X server. It's the right place for it to be.
+I'm not sure that I think a protocol handler is necessary unless I am
+misunderstanding what you mean. The TrackPoint is nothing more than a
+PS/2 mouse with 2 or 3 buttons that responds to an additional set of
+commands. The extra handling has to do with middle-to-scroll which
+could be done in userspace.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Aside from that the only time TracKPoint specific processing occurs is
+when some property is being manipulated.
+
+Do you still think a custom handler is necessary? 
+
+Stephen

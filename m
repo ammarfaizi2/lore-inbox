@@ -1,41 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262450AbVC2GWN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262445AbVC2G1f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262450AbVC2GWN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 01:22:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262445AbVC2GWN
+	id S262445AbVC2G1f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 01:27:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262446AbVC2G1e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 01:22:13 -0500
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:27884 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S262450AbVC2GWF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 01:22:05 -0500
-References: <ie2p3m.2u2ccu.3z4p19m1j53m9pob6l5ceeebq.refire@cs.helsinki.fi>
-            <20050328200252.GN28536@shell0.pdx.osdl.net>
-            <20050328223048.GA2741@pclin040.win.tue.nl>
-In-Reply-To: <20050328223048.GA2741@pclin040.win.tue.nl>
-From: "Pekka J Enberg" <penberg@cs.helsinki.fi>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Chris Wright <chrisw@osdl.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: isofs: unobfuscate rock.c
-Date: Tue, 29 Mar 2005 09:22:04 +0300
+	Tue, 29 Mar 2005 01:27:34 -0500
+Received: from fire.osdl.org ([65.172.181.4]:21391 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262445AbVC2G1X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 01:27:23 -0500
+Date: Mon, 28 Mar 2005 22:23:48 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: bunk@stusta.de, linux-kernel@vger.kernel.org
+Subject: Re: Do not misuse Coverity please (Was: sound/oss/cs46xx.c: fix a
+ check after use)
+Message-Id: <20050328222348.4c05e85c.akpm@osdl.org>
+In-Reply-To: <20050327232158.46146243.khali@linux-fr.org>
+References: <20050327205014.GD4285@stusta.de>
+	<20050327232158.46146243.khali@linux-fr.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="utf-8,iso-8859-1"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <courier.4248F40C.00006DA4@courier.cs.helsinki.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andries, 
+Jean Delvare <khali@linux-fr.org> wrote:
+>
+> > This patch fixes a check after use found by the Coverity checker.
+>  > (...)
+>  >  static void amp_hercules(struct cs_card *card, int change)
+>  >  {
+>  > -	int old=card->amplifier;
+>  > +	int old;
+>  >  	if(!card)
+>  >  	{
+>  >  		CS_DBGOUT(CS_ERROR, 2, printk(KERN_INFO 
+>  >  			"cs46xx: amp_hercules() called before initialized.\n"));
+>  >  		return;
+>  >  	}
+>  > +	old = card->amplifier;
+> 
+>  I see that you are fixing many bugs like this one today, all reported by
+>  Coverity. In all cases (as far as I could see at least) you are moving
+>  the dereference after the check. Of course it prevents any NULL pointer
+>  dereference, and will make Coverity happy. However, I doubt that this is
+>  always the correct solution.
+> 
+>  Think about it. If the pointer could be NULL, then it's unlikely that
+>  the bug would have gone unnoticed so far (unless the code is very
+>  recent). Coverity found 3 such bugs in one i2c driver [1], and the
+>  correct solution was to NOT check for NULL because it just couldn't
+>  happen.
 
-Andries Brouwer writes:
-> Good! When Linus asked I audited rock.c and also did rather similar polishing -
-> it happens automatically if one looks at this code. But it seems everybody is
-> doing this right now, so I must wait a few weeks and see what got into Linus'
-> tree. Linus plugged many but not all holes. (Maybe you did more?)
+No, there is a third case: the pointer can be NULL, but the compiler
+happened to move the dereference down to after the check.
 
-I didn't fix anything. I tried to be very careful about preserving the 
-current logic while making it more readable so I could find bugs :-). 
-
-              Pekka 
+If the optimiser is later changed, or if someone tries to compile the code
+with -O0, it will oops.
 

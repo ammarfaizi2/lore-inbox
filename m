@@ -1,42 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264920AbSLGXe2>; Sat, 7 Dec 2002 18:34:28 -0500
+	id <S264925AbSLGXgH>; Sat, 7 Dec 2002 18:36:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264925AbSLGXe2>; Sat, 7 Dec 2002 18:34:28 -0500
-Received: from packet.digeo.com ([12.110.80.53]:57823 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S264920AbSLGXe1>;
-	Sat, 7 Dec 2002 18:34:27 -0500
-Message-ID: <3DF28748.186AB31F@digeo.com>
-Date: Sat, 07 Dec 2002 15:42:00 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
+	id <S264944AbSLGXgH>; Sat, 7 Dec 2002 18:36:07 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33800 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264925AbSLGXgF>;
+	Sat, 7 Dec 2002 18:36:05 -0500
+Message-ID: <3DF28781.3070405@pobox.com>
+Date: Sat, 07 Dec 2002 18:42:57 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>
-CC: jgarzik@pobox.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+To: "J.A. Magallon" <jamagallon@able.es>
+CC: Andrew Morton <akpm@digeo.com>, "David S. Miller" <davem@redhat.com>,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
 Subject: Re: [RFC][PATCH] net drivers and cache alignment
-References: <3DF2844C.F9216283@digeo.com> <20021207.153045.26640406.davem@redhat.com>
-Content-Type: text/plain; charset=us-ascii
+References: <3DF2781D.3030209@pobox.com> <20021207.144004.45605764.davem@redhat.com> <3DF27EE7.4010508@pobox.com> <3DF2844C.F9216283@digeo.com> <20021207233745.GE3183@werewolf.able.es>
+In-Reply-To: <20021207233745.GE3183@werewolf.able.es>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Dec 2002 23:42:00.0630 (UTC) FILETIME=[3CE67560:01C29E4A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
+J.A. Magallon wrote:
+> On 2002.12.08 Andrew Morton wrote:
 > 
->    From: Andrew Morton <akpm@digeo.com>
->    Date: Sat, 07 Dec 2002 15:29:16 -0800
+>>Jeff Garzik wrote:
+>>
+>>>David S. Miller wrote:
+>>>
+>>>>Can't the cacheline_aligned attribute be applied to individual
+>>>>struct members?  I remember doing this for thread_struct on
+>>>>sparc ages ago.
+>>>
+>>>Looks like it from the 2.4 processor.h code.
+>>>
+>>>Attached is cut #2.  Thanks for all the near-instant feedback so far :)
+>>>  Andrew, does the attached still need padding on SMP?
+>>
 > 
->    Jeff Garzik wrote:
->    > Attached is cut #2.  Thanks for all the near-instant feedback so far :)
->    >   Andrew, does the attached still need padding on SMP?
+> What do you all think about this:
 > 
->    It needs padding _only_ on SMP.  ____cacheline_aligned_in_smp.
+> #include <stdio.h>
 > 
-> non-smp machines lack L2 caches?  That's new to me :-)
+> #define CACHE_LINE_SIZE 128
+> #define ____cacheline_aligned __attribute__((__aligned__(CACHE_LINE_SIZE)))
 > 
-> More seriously, there are real benefits on non-SMP systems.
+> #define __cacheline_start   struct { } ____cacheline_aligned;
 
-Then I am most confused.  None of these fields will be put under
-busmastering or anything like that, so what advantage is there in
-spreading them out?
+
+if you can mark struct members with attributes, as it appears you can, 
+there's no need to define a struct.
+
+	Jeff
+
+
+

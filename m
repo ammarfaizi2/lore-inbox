@@ -1,61 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268135AbTAKTbO>; Sat, 11 Jan 2003 14:31:14 -0500
+	id <S268142AbTAKTiH>; Sat, 11 Jan 2003 14:38:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268137AbTAKTbO>; Sat, 11 Jan 2003 14:31:14 -0500
-Received: from mark.mielke.cc ([216.209.85.42]:25608 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S268135AbTAKTbM>;
-	Sat, 11 Jan 2003 14:31:12 -0500
-Date: Sat, 11 Jan 2003 14:48:24 -0500
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Tom Sightler <ttsig@tuxyturvy.com>
-Cc: robw@optonline.net, linux-kernel@vger.kernel.org
-Subject: Re: Nvidia and its choice to read the GPL "differently"
-Message-ID: <20030111194824.GA11878@mark.mielke.cc>
-References: <7BFCE5F1EF28D64198522688F5449D5A03C0F4@xchangeserver2.storigen.com> <1042250324.1278.18.camel@RobsPC.RobertWilkens.com> <015901c2b920$7420e4c0$fe01a8c0@deepspace9>
+	id <S268136AbTAKThs>; Sat, 11 Jan 2003 14:37:48 -0500
+Received: from AMarseille-201-1-4-231.abo.wanadoo.fr ([217.128.74.231]:9584
+	"EHLO zion.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S268138AbTAKThg>; Sat, 11 Jan 2003 14:37:36 -0500
+Subject: Re: [PATCH] sl82c105 driver update
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <1042302798.525.66.camel@zion.wanadoo.fr>
+References: <1042302798.525.66.camel@zion.wanadoo.fr>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1042314384.541.78.camel@zion.wanadoo.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <015901c2b920$7420e4c0$fe01a8c0@deepspace9>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 11 Jan 2003 20:46:24 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 10, 2003 at 10:20:09PM -0500, Tom Sightler wrote:
-> > He just got lucky on his timing... Anyone studying operating systems at
-> > the time (and heck, I remember owning a book "Creating your own 32-bit
-> > operating system" by SAMS publishing and being inspired, and I also
-> > owned "Disecting DOS" which was a nice analysis of a DOS-like operating
-> > system at the code-level book w/disk)
-> You could also argue that GNU got lucky on it's timing, otherwise we might
-> still be waiting on a "GNU OS" rather than arguing over how important it is
-> to put GNU in front of Linux.
+Then add this one on top of it ;)
 
-As far as I am concerned, we still *are* waiting for a "GNU OS", or rather
-*THE* "GNU OS" that Richard Stallman keeps talking about as having been
-almost complete in 1992, but even in 2003, is not ready to be rolled out.
+Ben.
 
-This very truth - the fact that Richard Stallman's people have taken
-more than 10 years, and they still are not done, suggests that the
-existence of an OS such as Linux is not an 'accident' related to
-certain skillsets colliding at a random interval, such as the original
-poster wishes to suggest.
 
-*Microsoft*... now *that* is a 'certain skillsets colliding at random
-interval' scenario... :-)
-
-Oops... I think I just extended this thread. Damn.
-
-mark
-
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
+--- 1.7/drivers/ide/pci/sl82c105.c      Sat Jan 11 17:24:47 2003
++++ edited/drivers/ide/pci/sl82c105.c   Sat Jan 11 20:44:51 2003
+@@ -470,7 +470,7 @@
+          */
+        hwif->drives[0].pio_speed = XFER_PIO_0;
+        hwif->drives[0].autotune = 1;
+-       hwif->drives[1].pio_speed = XFER_PIO_1;
++       hwif->drives[1].pio_speed = XFER_PIO_0;
+        hwif->drives[1].autotune = 1;
+  
+        pci_read_config_dword(dev, 0x40, &val);
 

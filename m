@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264457AbTCXWRA>; Mon, 24 Mar 2003 17:17:00 -0500
+	id <S264464AbTCXWSw>; Mon, 24 Mar 2003 17:18:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264475AbTCXWRA>; Mon, 24 Mar 2003 17:17:00 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:23566 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S264457AbTCXWQ6>; Mon, 24 Mar 2003 17:16:58 -0500
-Date: Mon, 24 Mar 2003 23:28:01 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Andries.Brouwer@cwi.nl
-cc: Andrew Morton <akpm@digeo.com>, Christoph Hellwig <hch@infradead.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/3] revert register_chrdev_region change
-In-Reply-To: <UTC200303242206.h2OM65A29479.aeb@smtp.cwi.nl>
-Message-ID: <Pine.LNX.4.44.0303242312250.12110-100000@serv>
-References: <UTC200303242206.h2OM65A29479.aeb@smtp.cwi.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264463AbTCXWSw>; Mon, 24 Mar 2003 17:18:52 -0500
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:18421 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP
+	id <S264472AbTCXWSo>; Mon, 24 Mar 2003 17:18:44 -0500
+Subject: Re: SNARE and Ptrace?
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030324222027.GD683@rdlg.net>
+References: <20030324222027.GD683@rdlg.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ntGoMMyOuPBoXl87HRer"
+Organization: Red Hat, Inc.
+Message-Id: <1048544987.1636.9.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 24 Mar 2003 23:29:48 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Mon, 24 Mar 2003 Andries.Brouwer@cwi.nl wrote:
+--=-ntGoMMyOuPBoXl87HRer
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> > I still don't know what we need ranges or even subranges for.
-> > What problem are you trying to solve?
-> 
-> I mentioned the structure of Al's block device code to you.
-> Haven't you read blk_register_region()?
+On Mon, 2003-03-24 at 23:20, Robert L. Harris wrote:
+> Has anyone tested to see if "Snare" from intersectalliance.com can
+> detect someone executing a ptrace attack?  An old company I used to work
+> for has a number of production kernels out and can't just upgrade them
+> all over night so they need a good detection method and short-term fix
+> if possible.  In the past we had evaluated Snare which I pointed him to
+> but we're not sure if/how it might detect such an attack.
 
-I did, have you seen add_disk()? Did you notice that more drivers use 
-add_disk() than blk_register_region() and that most of the 
-blk_register_region() users are legacy drivers?
-Which character device has partitions? Even for block devices it will be 
-easier to just define MAX_PART_NR and simply use a constant shift to get 
-from a partition to the disk.
-Please try to keep the problem simple, all examples I've seen so far only 
-can be dealt with quite easily. So which problem requires a complex 
-(sub)ranges solution?
+I audited snare several months ago, and back then it was trivial to even
+get a basic rm /etc/passwd done unaudited..... the design back then was
+just not tight. I've heard the SNARE guys have been working hard to
+improve that but I've not had time to look at the new code
 
-bye, Roman
+--=-ntGoMMyOuPBoXl87HRer
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+f4bbxULwo51rQBIRAjeJAJsHFwaeonvRmQcR4zBRHY4rCRlyoACgmgzc
+BMdkxhTWKG6jIzWGT4UcAMc=
+=aGCO
+-----END PGP SIGNATURE-----
+
+--=-ntGoMMyOuPBoXl87HRer--

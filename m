@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261673AbSIXNrX>; Tue, 24 Sep 2002 09:47:23 -0400
+	id <S261675AbSIXNse>; Tue, 24 Sep 2002 09:48:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261674AbSIXNrX>; Tue, 24 Sep 2002 09:47:23 -0400
-Received: from pc-62-30-72-148-ed.blueyonder.co.uk ([62.30.72.148]:63362 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S261673AbSIXNrW>; Tue, 24 Sep 2002 09:47:22 -0400
-Date: Tue, 24 Sep 2002 14:52:25 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: John Gardiner Myers <jgmyers@netscape.com>
-Cc: linux-aio <linux-aio@kvack.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] adding aio_readv/writev
-Message-ID: <20020924145225.J3160@redhat.com>
-References: <3D8B878C.8070503@watson.ibm.com> <1032555981.2082.10.camel@dell_ss3.pdx.osdl.net> <3D8F256D.1070107@watson.ibm.com> <20020923114104.A11680@redhat.com> <3D9066AD.6030904@netscape.com>
+	id <S261676AbSIXNse>; Tue, 24 Sep 2002 09:48:34 -0400
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:39334 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S261675AbSIXNsc>;
+	Tue, 24 Sep 2002 09:48:32 -0400
+Date: Tue, 24 Sep 2002 14:57:22 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Petr Slansky <slansky@usa.net>
+Cc: alan@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: hpt370 raid driver
+Message-ID: <20020924135722.GA3026@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Petr Slansky <slansky@usa.net>, alan@redhat.com,
+	linux-kernel@vger.kernel.org
+References: <20020924132445Z261665-8740+289@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D9066AD.6030904@netscape.com>; from jgmyers@netscape.com on Tue, Sep 24, 2002 at 06:20:45AM -0700
+In-Reply-To: <20020924132445Z261665-8740+289@vger.kernel.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Sep 24, 2002 at 02:29:54PM +0100, Petr Slansky wrote:
+ > do you know that there is a source code of driver for HPT370 raid at the
+ > manufacturer web?
+ > 
+ > http://www.highpoint-tech.com/370drivers_down.htm
+ > http://www.highpoint-tech.com/hpt3xx-opensource-v13.tgz
 
-On Tue, Sep 24, 2002 at 06:20:45AM -0700, John Gardiner Myers wrote:
+ Highpoint have a strange concept of 'opensource'.
+
+ (davej@halogen:davej)$ tar zxvf hpt3xx-opensource-v13.tgz 
+ rules.mak
+ Makefile
+ hpt.c
+ hptkern.h
+ hptglb.h
+ hpt.h
+ hpt37x2lib.o
+ readme.txt
+
+ (davej@halogen:davej)$ ll hpt37x2lib.o 
+ -rw-r--r--    1 davej    davej       63639 Apr  5 21:35 hpt37x2lib.o
  
-> Benjamin LaHaise wrote:
-> 
-> >Only db2 uses vectored io heavily.  Oracle does not, and none of the open 
-> >source databases do.  Vectored io is pretty useless for most people.
-> >  
-> >
-> writev is extremely important for networking as it avoids small packets.
-
-No, all you can infer from that is that "some method for avoiding
-small packets is important for networking."  TCP_CORK already does
-that in Linux, for tcp at least, without requiring writev.  (Of
-course, normal nonblocking writev is still there if you want it.)
-
---Stephen
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

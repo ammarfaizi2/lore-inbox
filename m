@@ -1,74 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261889AbVBZKBi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261898AbVBZKMO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261889AbVBZKBi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Feb 2005 05:01:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbVBZKBi
+	id S261898AbVBZKMO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Feb 2005 05:12:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbVBZKMO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Feb 2005 05:01:38 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:19394 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261889AbVBZKBg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Feb 2005 05:01:36 -0500
-Subject: Re: [2.6 patch] unexport do_settimeofday
-From: Arjan van de Ven <arjan@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050225152009.14cdf450.akpm@osdl.org>
-References: <20050224233742.GR8651@stusta.de>
-	 <20050224212448.367af4be.akpm@osdl.org> <20050225214326.GE3311@stusta.de>
-	 <20050225135504.7749942e.akpm@osdl.org> <20050225230246.GI3311@stusta.de>
-	 <20050225152009.14cdf450.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sat, 26 Feb 2005 11:01:24 +0100
-Message-Id: <1109412084.6414.18.camel@laptopd505.fenrus.org>
+	Sat, 26 Feb 2005 05:12:14 -0500
+Received: from moutng.kundenserver.de ([212.227.126.188]:11263 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S261898AbVBZKME (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Feb 2005 05:12:04 -0500
+To: <linux-kernel@vger.kernel.org>
+Subject: =?iso-8859-1?Q?PROBLEM:_Ignoring_blocked_signals_in_2=2E6_/_2=2E4_not_possible?=
+From: <lk@tobias-grundmann.de>
+Cc: <lk@tobias-grundmann.de>
+Message-Id: <6385649$110941235942204a07d421c4.27847837@config2.schlund.de>
+X-Binford: 6100 (more power)
+X-Originating-From: 6385649
+X-Mailer: Webmail
+X-Routing: DE
+Content-Type: text/plain; charset=US-ASCII
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Date: Sat, 26 Feb 2005 11:10:01 +0100
+X-Provags-ID: kundenserver.de abuse@kundenserver.de ident:@172.23.4.129
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-02-25 at 15:20 -0800, Andrew Morton wrote:
-> Adrian Bunk <bunk@stusta.de> wrote:
-> >
-> > > +#ifdef MODULE
-> > > +#define __deprecated_in_modules __deprecated
-> > > +#else
-> > > +#define __deprecated_in_modules /* OK in non-modular code */
-> > > +#endif
-> > > +
-> > >...
-> > 
-> > Looks good.
-> > 
-> > 
-> > One more question:
-> > 
-> > You get a false positive if the file containing the symbol is itself a 
-> > module.
-> 
-> I don't understand what you mean.
-> 
-> You mean that a module is doing an EXPORT_SYMBOL of a symbol which is on
-> death row?
-> 
-> If so: err, not sure.  I guess we could just live with the warning.
 
-also those should be rare; it's certainly not a "core" export that 3rd
-party stuff depends on but most of the time just accidentally exported
-(by people who thought that they needed EXPORT_SYMBOL to glue two .c
-files into the same one .o module)
+Hi,
 
+I have a question regarding blocked signals:
+
+Is the current implementation to ignore attempts to set SIG_IGN on
+blocked signals correct? 
+The following code will go into an endless loop on kernels 2.6.10 and
+2.4.25, which is IMHO not the behaviour one would expect. 
+
+--------------------
+#include <signal.h>
+#include <sys/types.h>
+#include <unistd.h>
+
+volatile int sig_received  = 0;
+
+void sigio_handler_ex (int signum, siginfo_t * siginfo, void * ucontext)
+{
+        struct sigaction sigio_action;
+
+        sig_received++;
+        printf("handler %d\n",sig_received);
+
+        sigio_action.sa_handler = SIG_IGN;
+        sigio_action.sa_flags = 0;
+        sigemptyset(&sigio_action.sa_mask);
+        sigaction (SIGIO, &sigio_action, 0);
+
+        kill(getpid(),SIGIO);
+
+        sigio_action.sa_sigaction =  sigio_handler_ex;
+        sigio_action.sa_flags = SA_SIGINFO;
+        sigemptyset(&sigio_action.sa_mask);
+        sigaction (SIGIO, &sigio_action, 0);
+}
+
+int main(int argc, char **argv) {
+        struct sigaction sigio_action;
+        sigio_action.sa_sigaction =  sigio_handler_ex;
+        sigio_action.sa_flags = SA_SIGINFO;
+        sigemptyset(&sigio_action.sa_mask);
+
+        sigaction (SIGIO, &sigio_action, 0);
+
+        kill(getpid(),SIGIO);
+
+        while  (! sig_received) {
+                printf("waiting for signal\n");
+                sleep(1);
+        }
+
+        kill(getpid(),SIGIO);
+
+        printf("%d signals handled\n",sig_received);
+}
+
+--------------------
+
+In kernel 2.6.10/kernel/signal.c sig_ignored() I found this comment:
+...
+/*
+ * Blocked signals are never ignored, since the
+ * signal handler may change by the time it is
+ * unblocked.
+ */
+
+if (sigismember(&t->blocked, sig))
+		return 0;
+...
+
+so it seems this behaviour is intentional, but I don't understand
+it. Why should it matter if a signal handler may change while blocked,
+if it is ignored also, which is a user request?
+
+The machine im writing this mail on runs with the above lines
+commented out without any problems so far...
+
+All this resulted from problems a customer had with implementing a
+whole protocol-stack to a serially attached device in a
+signal-handler. After the handler ran (with SIG_IGN) there was always
+an extra SIGIO which triggered the handler again. Of course the real
+fix was to move the protocol-stack out of the handler but still it
+should have worked since it was a controlled environment (so there
+wasn't even a race between entering the handler and setting
+SIG_IGN). Oh and it worked for years under some realtime variant of
+hp-unix.
+
+Please be so kind to CC any answer to me directly since I'm
+currently not subscribed to lkml.
+
+Yours
+Tobias Grundmann

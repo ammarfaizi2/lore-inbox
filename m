@@ -1,60 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267451AbSLEVt1>; Thu, 5 Dec 2002 16:49:27 -0500
+	id <S267484AbSLEV4K>; Thu, 5 Dec 2002 16:56:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267454AbSLEVt1>; Thu, 5 Dec 2002 16:49:27 -0500
-Received: from willow.compass.com.ph ([202.70.96.38]:33298 "EHLO
-	willow.compass.com.ph") by vger.kernel.org with ESMTP
-	id <S267451AbSLEVt0>; Thu, 5 Dec 2002 16:49:26 -0500
-Subject: Re: [Linux-fbdev-devel] [PATCH 1/3: FBDEV: VGA State Save/Restore
-	module
-From: Antonino Daplas <adaplas@pol.net>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0212051729230.31967-100000@phoenix.infradead.org>
-References: <Pine.LNX.4.44.0212051729230.31967-100000@phoenix.infradead.org>
-Content-Type: text/plain
+	id <S267485AbSLEV4K>; Thu, 5 Dec 2002 16:56:10 -0500
+Received: from packet.digeo.com ([12.110.80.53]:46494 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267484AbSLEV4I>;
+	Thu, 5 Dec 2002 16:56:08 -0500
+Message-ID: <3DEFCD3A.29C98E8D@digeo.com>
+Date: Thu, 05 Dec 2002 14:03:38 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.50 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Robert Love <rml@tech9.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5: ext3 bug or dying drive?
+References: <1039123660.1433.12.camel@phantasy>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <1039135574.1032.17.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Dec 2002 05:47:06 +0500
+X-OriginalArrivalTime: 05 Dec 2002 22:03:38.0104 (UTC) FILETIME=[29E4F780:01C29CAA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-12-05 at 22:31, James Simmons wrote:
+Robert Love wrote:
 > 
-> > Limitations:
-> > 1.  Restoring the VGA state from high-resolution graphics mode may
-> > result in a corrupt display which can be corrected by switching
-> > consoles.  May need a screen redraw at this point.  Restoring from VGA
-> > graphics mode to text mode and vice versa is okay.
-> > 
-> > 2. Assumes some things about the hardware which is not universally
-> > correct:  VGA memory base is at 0xA0000, memory size is 64KB, the
-> > hardware palette is readable, etc. 
-> > 
-> > Any comments welcome.
+> Overnight, 2.5.50-mm1 took a big stinky shit:
 > 
-> One thing I like to suggest. I like to move the vga code in fb.h to vga.h. 
-> Alot of fbdev devices don't have a VGA core. 
+> ...
+>
+> Rebooted and ext3 replayed the journal and said a manual check was
+> needed due to I/O error on the journal.
+
+That'll be e2fsck saying that, when it tries to do journal replay.
+I/O errors on the journal during replay not good.
+
+Were there no I/O error messages reported from the device driver,
+block, buffer or pagecache layer?  Generally everyone like to have
+a shout as one flies past.
+
+>  Ran fsck manually, it found a
+> whole bunch of orphan inodes including some scary errors like "inode
+> part of corrupt orphan inode list" or similar.
 > 
+> Rebooted again to force another fsck to be sure, and sure enough it
+> found more problems.  Ugh.  I started thinking bad hard drive.
 > 
+> Back up in X, and the same dmesg error occurred again.  Repeat above.
+> 
+> Now I am in 2.4 and all seems well.  So perhaps not hard drive?
 
-Only the structure definition of fb_vgastate is in fb.h.  For drivers
-without a vga core, they'll just won't link to it and it won't be
-compiled.  Plus, vga.h is not a common header (not located in
-include/asm or include/linux) and it contains a lot of declarations and
-definitions which are irrelevant to most drivers or are already
-duplicated.  This will be messier, I think.  
+Well.  Changed driver, scsi layer, block layer, VFS and ext3.  Could
+be anywhere :(
+ 
+> IBM U2W drive on a 2940U2W if it matters.  UP kernel.
 
-Maybe we can just enclose it in a macro, something like:
+It would be useful to give the IO system a bit of a thrashing,
+to narrow the problem down.  Just a `cat /dev/sda[n] > /dev/null'
+would suit.
 
-#ifdef FBDEV_HAS_VGACORE
-...
-#endif
-
-Tony
-
+Bottom line: dunno.

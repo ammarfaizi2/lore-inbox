@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277246AbRJVRwS>; Mon, 22 Oct 2001 13:52:18 -0400
+	id <S277258AbRJVRzs>; Mon, 22 Oct 2001 13:55:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277247AbRJVRwI>; Mon, 22 Oct 2001 13:52:08 -0400
-Received: from zeke.inet.com ([199.171.211.198]:51628 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id <S277246AbRJVRwA>;
-	Mon, 22 Oct 2001 13:52:00 -0400
-Message-ID: <3BD45CD6.3FAF65FB@inet.com>
-Date: Mon, 22 Oct 2001 12:52:22 -0500
-From: Eli Carter <eli.carter@inet.com>
-Organization: Inet Technologies, Inc.
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.19-6.2.7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.20pre11
-In-Reply-To: <E15vin0-0002eh-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S277266AbRJVRzi>; Mon, 22 Oct 2001 13:55:38 -0400
+Received: from smtpnotes.altec.com ([209.149.164.10]:21520 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S277258AbRJVRzU>; Mon, 22 Oct 2001 13:55:20 -0400
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: linux-kernel@vger.kernel.org
+Message-ID: <86256AED.00627772.00@smtpnotes.altec.com>
+Date: Mon, 22 Oct 2001 12:51:53 -0500
+Subject: Re: Linux 2.2.20pre10
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > On Mon, Oct 22, 2001 at 11:21:49AM +0100, Alan Cox wrote:
-> > >
-> > > 2.2.20pre11
-> > > o   Security fixes
-> > >     | Details censored in accordance with the US DMCA
-> >
-> > http://marc.theaimsgroup.com/?l=bugtraq&m=100343090106914
-> 
-> There are other security related changes
 
-It just hit /.  I wondered how long it would take...
 
-Alan, you've made your point pretty clear to me with this stunt (no
-slight intended, I don't have a better word at the moment)...  Though I
-have reservations about the method.
+I never said that Alan, or any particular individual, should risk a lawsuit or
+jail.  I simply said that I hoped *someone outside the US* (that is, someone not
+subject to US laws) would make the information available.  Surely there are
+places in the world that are beyond the reach of the DMCA.  How about those
+European sites that made strong encryption available to circumvent the US export
+restrictions on encryption technology?  I never heard of the FBI raiding any of
+them.
 
-Good luck against the /.'ers.  :/
+Wayne
 
-Eli, a U.S. developer
---------------------.     Real Users find the one combination of bizarre
-Eli Carter           \ input values that shuts down the system for days.
-eli.carter(a)inet.com `-------------------------------------------------
+
+
+
+George Garvey <tmwg-linuxknl@inxservices.com> on 10/22/2001 12:35:53 PM
+
+To:   Wayne Brown/Corporate/Altec@Altec
+cc:   linux-kernel@vger.kernel.org
+
+Subject:  Re: Linux 2.2.20pre10
+
+
+
+   So you want to make the decision for Alan to get into a lawsuit and
+possibly go to jail to fight the law? Will you pay his legal bills? Will
+you take over his maintenance duties if necessary? Will you give him a
+job when he's done if it comes to that?
+   That's a personal decision, don't you think? Who can judge another
+without knowing their circumstances? Do you understand the situation at
+all? Truthfully, I don't.
+
+On Mon, Oct 22, 2001 at 12:21:43PM -0500, Wayne.Brown@altec.com wrote:
+> It's highly unlikely that Alan withholding information from a handful
+> of US Linux users and developers will have any effect on US laws.
+
+
+
+

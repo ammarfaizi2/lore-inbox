@@ -1,97 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261775AbUB1M1b (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Feb 2004 07:27:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbUB1M1b
+	id S261836AbUB1Mkh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Feb 2004 07:40:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261839AbUB1Mkh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Feb 2004 07:27:31 -0500
-Received: from mail006.syd.optusnet.com.au ([211.29.132.63]:42192 "EHLO
-	mail006.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261775AbUB1M1T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Feb 2004 07:27:19 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: sched domains kernbench improvements
-Date: Sat, 28 Feb 2004 23:27:15 +1100
-User-Agent: KMail/1.6
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200402282159.58452.kernel@kolivas.org> <200402282218.41590.kernel@kolivas.org> <40407A14.90108@cyberone.com.au>
-In-Reply-To: <40407A14.90108@cyberone.com.au>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 28 Feb 2004 07:40:37 -0500
+Received: from D70b8.d.pppool.de ([80.184.112.184]:17551 "EHLO
+	karin.de.interearth.com") by vger.kernel.org with ESMTP
+	id S261836AbUB1Mka (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Feb 2004 07:40:30 -0500
+In-Reply-To: <20040227205446.GZ5499@fs.tum.de>
+References: <20040226225131.GX5499@fs.tum.de> <A93036A2-68C5-11D8-A46E-000A9597297C@fhm.edu> <20040227205446.GZ5499@fs.tum.de>
+Mime-Version: 1.0 (Apple Message framework v612)
+Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-1-874384198"
+Message-Id: <DC71BC17-69DC-11D8-BD1F-000A9597297C@fhm.edu>
 Content-Transfer-Encoding: 7bit
-Message-Id: <200402282327.15272.kernel@kolivas.org>
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+From: Daniel Egger <degger@fhm.edu>
+Subject: Re: What happened to LAN Media Corporation?
+Date: Sat, 28 Feb 2004 11:57:11 +0100
+To: Adrian Bunk <bunk@fs.tum.de>
+X-Pgp-Agent: GPGMail 1.0.1 (v33, 10.3)
+X-Mailer: Apple Mail (2.612)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 28 Feb 2004 22:23, Nick Piggin wrote:
-> Con Kolivas wrote:
-> >Will this affect the SCHED_SMT performance and should I do a round of
-> > benchies with this enabled?
->
-> It will as far as balancing between physical CPUs, yes. It probably
-> doesn't make quite a big difference because it is less of a problem
-> if one sibling goes idle than if one CPU (in the 8-way) goes idle).
->
-> But if you could do a round with SCHED_SMT enabled it would be very
-> nice of you ;)
 
-One wonders sometimes why one asks a question if one already knows the 
-answer ;-) 
+--Apple-Mail-1-874384198
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 
-better on half load
+On Feb 27, 2004, at 9:54 pm, Adrian Bunk wrote:
 
-sched_SMT:
-Average Half Load Run:
-Elapsed Time 113.008
-User Time 742.786
-System Time 90.65
-Percent CPU 738
-Context Switches 28062.6
-Sleeps 24571.8
+> IOW:
+> The entry from MAINTAINER can be removed?
 
-Average Optimum Load Run:
-Elapsed Time 79.278
-User Time 1007.69
-System Time 107.388
-Percent CPU 1407
-Context Switches 33355
-Sleeps 32720
+This one for sure. The same is probably sensible for the
+drivers, too. It's just too confusing to not several
+versions of the driver floating around which need different
+tools. And since the manufacturer propagates their own
+version, the linux one should go...
 
-Average Maximum Load Run:
-Elapsed Time 80.33
-User Time 1009.89
-System Time 121.518
-Percent CPU 1408.4
-Context Switches 31802.4
-Sleeps 22905
+Patch to follow shortly...
 
+Servus,
+       Daniel
 
-sched_SMT-lessidle:
-Average Half Load Run:
-Elapsed Time 112.084
-User Time 722.972
-System Time 91.946
-Percent CPU 727.2
-Context Switches 13016.6
-Sleeps 24991.2
+--Apple-Mail-1-874384198
+content-type: application/pgp-signature; x-mac-type=70674453;
+	name=PGP.sig
+content-description: This is a digitally signed message part
+content-disposition: inline; filename=PGP.sig
+content-transfer-encoding: 7bit
 
-Average Optimum Load Run:
-Elapsed Time 79.07
-User Time 1007.33
-System Time 107.482
-Percent CPU 1410.2
-Context Switches 33007.2
-Sleeps 32159.6
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (Darwin)
 
-Average Maximum Load Run:
-Elapsed Time 80.926
-User Time 1010.12
-System Time 121.472
-Percent CPU 1399
-Context Switches 31268.4
-Sleeps 22479
+iQEVAwUBQEB0DDBkNMiD99JrAQKUmwgAjuZr9H3+Blp1uAi65P8VMwYaeJDjRIb2
+CcG0402vwS1JJcVEJA/yZN2Nb6pbh0+xXJ8CZ5RPcdI3GXMJiGMO8HQmo26uDwXq
+vDbT908p/3C9KgaJv0WRe4L7ufcmONhYsvQtMuTYuL3mUU+1WDUru0TzAVhmnhTF
+xuoq4rqNWfuR/4ikUuM9l3dLi02112H758EvchQ3IDTnaBkUSmXrinvhXIFFwjPo
+d5B6w8N+nkZAlGp8K9ttIgIHpW2FN8Q+QqB8HjF0cu/PEVGqH1mCZA4ksuTx8plo
+YqcIyPUW9leHncAYIu7fHGgBGa7iZx20T4Zu6Ij7g4shNY7DjnhlnQ==
+=fghu
+-----END PGP SIGNATURE-----
 
-Con
+--Apple-Mail-1-874384198--
+

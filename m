@@ -1,29 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263994AbTDOSul (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 14:50:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264029AbTDOSul 
+	id S264035AbTDOSwH (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 14:52:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264030AbTDOSwG 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 14:50:41 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:27654 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263994AbTDOSuj (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 14:50:39 -0400
-Date: Tue, 15 Apr 2003 20:02:29 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Joshua Kwan <joshk@triplehelix.org>
-cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [FBDEV updates] Newest framebuffer fixes.
-In-Reply-To: <20030413074156.GA2536@triplehelix.org>
-Message-ID: <Pine.LNX.4.44.0304152001490.8236-100000@phoenix.infradead.org>
+	Tue, 15 Apr 2003 14:52:06 -0400
+Received: from c-97a870d5.037-69-73746f23.cust.bredbandsbolaget.se ([213.112.168.151]:11392
+	"EHLO zaphod.guide") by vger.kernel.org with ESMTP id S264029AbTDOSwE 
+	(for <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Apr 2003 14:52:04 -0400
+To: linux-kernel@vger.kernel.org
+Subject: device-mapper patches for 2.4.21-preX
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: 15 Apr 2003 21:03:16 +0200
+Message-ID: <yw1x7k9vfurv.fsf@zaphod.guide>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Portable Code)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> I don't think going back to old stuff is the right way to think about
-> stuff like this :/
+Is there anywhere I can get the device-mapper patches for linux
+2.4.21-pre5 or later separate from the whole -ac patch?
 
-Hm. The latest Radeon driver must be in -mm. I haven't recieved any 
-patches yet. When I get them I will apply.
-
-
+-- 
+Måns Rullgård
+mru@users.sf.net

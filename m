@@ -1,87 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270028AbUIDDgJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270035AbUIDDji@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270028AbUIDDgJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 23:36:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270035AbUIDDgJ
+	id S270035AbUIDDji (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 23:39:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270036AbUIDDji
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 23:36:09 -0400
-Received: from 213-229-38-18.static.adsl-line.inode.at ([213.229.38.18]:16571
-	"HELO home.winischhofer.net") by vger.kernel.org with SMTP
-	id S270028AbUIDDgD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 23:36:03 -0400
-Message-ID: <41393829.6020302@winischhofer.net>
-Date: Sat, 04 Sep 2004 05:36:09 +0200
-From: Thomas Winischhofer <thomas@winischhofer.net>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040819)
+	Fri, 3 Sep 2004 23:39:38 -0400
+Received: from relay.pair.com ([209.68.1.20]:52494 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S270035AbUIDDjg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 23:39:36 -0400
+X-pair-Authenticated: 66.188.111.210
+Message-ID: <413938F6.2020506@cybsft.com>
+Date: Fri, 03 Sep 2004 22:39:34 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040803)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: adaplas@pol.net
-CC: Andrew Morton <akpm@osdl.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 4/5][RFC] fbdev: Clean up framebuffer initialization
-References: <200409041108.40276.adaplas@hotpop.com>
-In-Reply-To: <200409041108.40276.adaplas@hotpop.com>
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>, Lee Revell <rlrevell@joe-job.com>,
+       Mark_H_Johnson@raytheon.com,
+       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-R3
+References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com> <20040902063335.GA17657@elte.hu> <20040902065549.GA18860@elte.hu> <20040902111003.GA4256@elte.hu> <20040902215728.GA28571@elte.hu> <4138A56B.4050006@cybsft.com> <20040903181710.GA10217@elte.hu> <20040903193052.GA16617@elte.hu>
+In-Reply-To: <20040903193052.GA16617@elte.hu>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Antonino A. Daplas wrote:
-> This patch probably deserves discussion among developers.
+Ingo Molnar wrote:
+> * Ingo Molnar <mingo@elte.hu> wrote:
 > 
-> Currently, the framebuffer system is initialized in a roundabout manner.
-> First, drivers/char/mem.c calls fbmem_init().  fbmem_init() will then
-> iterate over an array of individual drivers' xxxfb_init(), then each driver
-> registers its presence back to fbmem.  During console_init(),
-> drivers/char/vt.c will call fb_console_init(). fbcon will check for
-> registered drivers, and if any are present, will call take_over_console() in
-> drivers/char/vt.c.
 > 
-> This patch changes the initialization sequence so it proceeds in this
-> manner: Each driver has its own module_init(). Each driver calls
-> register_framebuffer() in fbmem.c. fbmem.c will then notify fbcon of the
-> driver registration.  Upon notification, fbcon calls take_over_console() in
-> vt.c.
+>>i'll add a new feature to debug this: when crashing on an assert and
+>>tracing is enabled the trace leading up to the crash will be printed
+>>to the console. [...]
 > 
-> The following are the changes brought about by this patch:
 > 
-> 1. Each subsystem (fbcon, fbmem, xxxfb) will have their own module_init.
-> Thus, explicit calls to each subsystem's init functions are eliminated.
+> the -R3 patch has this feature:
 > 
-> 2. The struct fb_drivers array in fbmem.c can be removed.  This slashes
-> around 400 lines in fbmem.c
-> 
-> 3. Parsing of kernel boot options were done by fbmem.c calling each
-> driver's xxxfb_setup() function.  Because this is not possible with this
-> patch, drivers can choose to either:
-> 	a. have their own __setup() routine
-> 	b. call fb_get_options("xxxfb") and pass the return  value to
-> 	 xxxfb_setup(). This is to maintain compatibility with the
-> 	'video=xxxfb:<options>' semantics.
-> 
-> 4. Getting a framebuffer console will occur a bit late during the boot
-> process since the initialization sequence will depend upon the link order.
-> So, 'video/' is moved up in drivers/Makefile, shortly after 'pci/'
-> 
-> 5. Because driver initialization will be dependent on the link order,
-> hardware that depends on other subsystems (agpgart, usb, serial, etc) may
-> choose to initialize after the subsystems they depend on. 
-> 
-> Signed-off-by: Antonino Daplas <adaplas@pol.net>
 
-I don't really see a benefit but it's ok with me.
+After hammering the system for a little more than an hour it gave up. I 
+don't have the serial logging setup yet because I haven't had time this 
+evening. I will be glad to do whatever I can to try to help debug this, 
+but it will have to wait until tomorrow. The log is here:
 
-(Thanks for considering the "unified" nature of sisfb, by the way. Very 
-considarate. Very much appreciated.)
+http://www.cybsft.com/testresults/crashes/2.6.9-rc1-vo-R3.txt
 
-I assume that you tested this stuff before posting it here.
-
-Thomsd
-
--- 
-Thomas Winischhofer
-Vienna/Austria
-thomas AT winischhofer DOT net          http://www.winischhofer.net/
-twini AT xfree86 DOT org
+kr

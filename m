@@ -1,46 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277546AbRJETYv>; Fri, 5 Oct 2001 15:24:51 -0400
+	id <S271714AbRJETx5>; Fri, 5 Oct 2001 15:53:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277558AbRJETYm>; Fri, 5 Oct 2001 15:24:42 -0400
-Received: from [204.177.156.37] ([204.177.156.37]:54157 "EHLO
-	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S277546AbRJETYa>; Fri, 5 Oct 2001 15:24:30 -0400
-Date: Fri, 5 Oct 2001 20:26:06 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Linus Torvalds <torvalds@transmeta.com>, Andrea Arcangeli <andrea@suse.de>,
-        linux-kernel@vger.kernel.org
-Subject: pre4 oom too soon
-Message-ID: <Pine.LNX.4.21.0110051945080.1199-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272549AbRJETxr>; Fri, 5 Oct 2001 15:53:47 -0400
+Received: from [194.213.32.137] ([194.213.32.137]:6016 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S271714AbRJETxc>;
+	Fri, 5 Oct 2001 15:53:32 -0400
+Date: Fri, 5 Oct 2001 21:18:10 +0200
+From: Pavel Machek <pavel@Elf.ucw.cz>
+To: Alex Larsson <alexl@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Directory notification problem
+Message-ID: <20011005211810.B1272@elf.ucw.cz>
+In-Reply-To: <Pine.LNX.4.33.0110022206100.29931-100000@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0110022206100.29931-100000@devserv.devel.redhat.com>
+User-Agent: Mutt/1.3.22i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.4.11-pre4 gives me oom_kill I never got before.
-All numbers decimal in 4kB pages:
+Hi!
 
-num_physpages         65520
-free or freeable      56000	(from MemFree after swapoff afterwards)
-total_swap_pages     132526
-prog tries to hog    153600
+> I discovered a problem with the dnotify API while fixing a FAM bug today.
+> 
+> The problem occurs when you want to watch a file in a directory, and that 
+> file is changed several times in the same second. When I get the directory 
 
-At oom_kill time:
-
-all_zones_low           yes    (DMA & Normal well above min, no Highmem)
-nr_swap_pages             0
-page_cache_size       59013
-swapper_space.nrpages 58202
-
-I'm not sure exactly what to blame in out_of_memory(), but it does
-look wrong to depend so much on whether nr_swap_pages happens to be
-0 at that instant or not, and a lot of that full swap is duplicated
-in the swap cache.  Probably that should be taken into consideration?
-
-(I wonder whether, before my 2.4.10 fix to lowest_bit and highest_bit
-in scan_swap_map, it was rarer to find nr_swap_pages 0 - swap pages
-could be free, but invisible to scan_swap_map.)
-
-Hugh
-
+Does this mean that we have notification API in Linus' tree?
+									Pavel

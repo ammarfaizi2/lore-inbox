@@ -1,115 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264672AbTAEMYt>; Sun, 5 Jan 2003 07:24:49 -0500
+	id <S264697AbTAEMdH>; Sun, 5 Jan 2003 07:33:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264688AbTAEMYt>; Sun, 5 Jan 2003 07:24:49 -0500
-Received: from c16688.thoms1.vic.optusnet.com.au ([210.49.244.54]:16009 "EHLO
-	mail.kolivas.net") by vger.kernel.org with ESMTP id <S264672AbTAEMYr> convert rfc822-to-8bit;
-	Sun, 5 Jan 2003 07:24:47 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Con Kolivas <conman@kolivas.net>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [BENCHMARK] 2.5.54-mm3 with contest
-Date: Sun, 5 Jan 2003 23:33:04 +1100
-User-Agent: KMail/1.4.3
-Cc: Andrew Morton <akpm@digeo.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200301052333.20853.conman@kolivas.net>
+	id <S264705AbTAEMdH>; Sun, 5 Jan 2003 07:33:07 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:21253 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S264697AbTAEMdF>; Sun, 5 Jan 2003 07:33:05 -0500
+Date: Sun, 5 Jan 2003 15:37:35 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Paul Mackerras <paulus@samba.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>, davidm@hpl.hp.com,
+       grundler@cup.hp.com, linux-kernel@vger.kernel.org
+Subject: [patch 2.5] PCI: allow alternative methods for probing the BARs
+Message-ID: <20030105153735.A8532@jurassic.park.msu.ru>
+References: <m17ke3m3gl.fsf@frodo.biederman.org> <Pine.LNX.4.44.0212211423390.1604-100000@home.transmeta.com> <15877.26255.524564.576439@argo.ozlabs.ibm.com> <1040569382.1966.11.camel@zion> <20021222222106.B30070@localhost.park.msu.ru> <15878.22747.913279.67149@argo.ozlabs.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <15878.22747.913279.67149@argo.ozlabs.ibm.com>; from paulus@samba.org on Mon, Dec 23, 2002 at 11:29:15AM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hopefully this patch should solve most problems with probing the BARs.
+The changes are quite minimal as everything still is done in one pass.
+- Added another level of fixups (PCI_FIXUP_EARLY), called with only
+  device/vendor IDs and class code filled in, before sizing the BARs.
+- pci_read_bases won't probe the BAR if the respective resource has
+  non-zero flags.
 
-Here are contest benchmarks for the -mm* series (offline for holidays and with 
-a mem leak so no results for mm1/2)
+This allows to implement numerous alternative probing methods for
+particular architecture/device/BAR. Some of possible variants:
+get information from firmware and don't touch the BAR at all;
+write the BAR value into respective resource->start and set
+resource->end according to the chip manual without probing;
+disable the device, call generic pci_read_bases(), re-enable the device;
+probe with value other than 0xffffffff and so on.
 
-noload:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.53 [7]              70.1    96      0       0       1.05
-2.5.53-mm1 [7]          71.0    96      0       0       1.06
-2.5.54 [5]              70.0    96      0       0       1.05
-2.5.54-mm3 [5]          70.1    96      0       0       1.05
+Besides, this would easily solve one interesting (though unrelated) problem.
+There are quite a few devices (IDE controllers, AGP aperture stuff,
+some bridges) that significantly change their PCI header including BARs,
+class code etc. depending on some configuration bits, so it might be useful
+to program the device into desired state before probing.
 
-cacherun:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.53 [7]              67.6    99      0       0       1.01
-2.5.53-mm1 [7]          68.5    99      0       0       1.03
-2.5.54 [5]              67.6    99      0       0       1.01
-2.5.54-mm3 [5]          67.5    99      0       0       1.01
+Ivan.
 
-process_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.53 [7]              86.9    77      18      21      1.30
-2.5.53-mm1 [7]          117.1   58      47      40      1.75
-2.5.54 [5]              85.5    78      17      19      1.28
-2.5.54-mm3 [5]          87.2    77      18      21      1.31
-Whatever that change was in .53-mm1 has reverted back to previous results
-
-
-dbench_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.54 [5]              216.8   37      2       52      3.25
-2.5.54-mm3 [5]          195.7   39      2       48      2.93
-
-ctar_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.53 [7]              107.4   81      3       9       1.61
-2.5.53-mm1 [7]          103.1   79      3       10      1.54
-2.5.54 [4]              102.7   82      3       9       1.54
-2.5.54-mm3 [5]          103.8   81      3       9       1.55
-
-xtar_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.53 [7]              151.0   69      3       8       2.26
-2.5.53-mm1 [7]          150.2   66      2       7       2.25
-2.5.54 [4]              159.3   71      3       8       2.39
-2.5.54-mm3 [5]          124.1   69      2       7       1.86
-speedup here
-
-
-io_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.53 [7]              113.9   63      12      12      1.71
-2.5.53-mm1 [7]          133.1   57      23      17      1.99
-2.5.54 [4]              121.0   61      13      12      1.81
-2.5.54-mm3 [5]          128.6   57      15      13      1.93
-
-io_other:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.53 [7]              99.5    73      8       10      1.49
-2.5.53-mm1 [7]          107.7   70      18      17      1.61
-2.5.54 [4]              96.0    74      8       9       1.44
-2.5.54-mm3 [5]          99.8    71      9       11      1.49
-
-read_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.53 [7]              88.2    80      15      6       1.32
-2.5.53-mm1 [7]          89.6    80      12      6       1.34
-2.5.54 [4]              87.7    81      14      6       1.31
-2.5.54-mm3 [5]          91.5    77      13      6       1.37
-
-list_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.53 [7]              81.5    85      0       9       1.22
-2.5.53-mm1 [7]          82.1    85      0       9       1.23
-2.5.54 [4]              81.3    85      0       9       1.22
-2.5.54-mm3 [5]          81.4    85      0       9       1.22
-
-mem_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-2.5.53 [7]              98.7    80      44      2       1.48
-2.5.53-mm1 [7]          110.9   67      41      1       1.66
-2.5.54 [4]              98.2    80      45      2       1.47
-2.5.54-mm3 [5]          108.7   70      46      2       1.63
-
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE+GCYAF6dfvkL3i1gRAsCIAJ92Fdq4L/KouJ+KCmxn68lSXw7jXACgojkb
-xFpknpj5NhTKYFpG07w818M=
-=SD7Z
------END PGP SIGNATURE-----
+--- 2.5.54/drivers/pci/probe.c	Thu Jan  2 06:22:34 2003
++++ linux/drivers/pci/probe.c	Sat Jan  4 19:02:19 2003
+@@ -53,6 +53,9 @@ static void pci_read_bases(struct pci_de
+ 		next = pos+1;
+ 		res = &dev->resource[pos];
+ 		res->name = dev->dev.name;
++		/* Skip already probed resources */
++		if (res->flags)
++			continue;
+ 		reg = PCI_BASE_ADDRESS_0 + (pos << 2);
+ 		pci_read_config_dword(dev, reg, &l);
+ 		pci_write_config_dword(dev, reg, ~0);
+@@ -355,10 +358,7 @@ int pci_setup_device(struct pci_dev * de
+ 	sprintf(dev->dev.name, "PCI device %04x:%04x", dev->vendor, dev->device);
+ 	INIT_LIST_HEAD(&dev->pools);
+ 	
+-	pci_read_config_dword(dev, PCI_CLASS_REVISION, &class);
+-	class >>= 8;				    /* upper 3 bytes */
+-	dev->class = class;
+-	class >>= 8;
++	class = dev->class >> 8;
+ 
+ 	DBG("Found %02x:%02x [%04x/%04x] %06x %02x\n", dev->bus->number, dev->devfn, dev->vendor, dev->device, class, dev->hdr_type);
+ 
+@@ -433,9 +433,16 @@ struct pci_dev * __devinit pci_scan_devi
+ 	dev->vendor = l & 0xffff;
+ 	dev->device = (l >> 16) & 0xffff;
+ 
++	pci_read_config_dword(dev, PCI_CLASS_REVISION, &l);
++	dev->class = l >> 8;			    /* upper 3 bytes */
++
+ 	/* Assume 32-bit PCI; let 64-bit PCI cards (which are far rarer)
+ 	   set this higher, assuming the system even supports it.  */
+ 	dev->dma_mask = 0xffffffff;
++
++	/* Early fixups, before probing the BARs */
++	pci_fixup_device(PCI_FIXUP_EARLY, dev);
++
+ 	if (pci_setup_device(dev) < 0) {
+ 		kfree(dev);
+ 		return NULL;
+--- 2.5.54/include/linux/pci.h	Thu Jan  2 06:21:56 2003
++++ linux/include/linux/pci.h	Sun Jan  5 15:27:51 2003
+@@ -809,8 +809,12 @@ struct pci_fixup {
+ 
+ extern struct pci_fixup pcibios_fixups[];
+ 
+-#define PCI_FIXUP_HEADER	1		/* Called immediately after reading configuration header */
+-#define PCI_FIXUP_FINAL		2		/* Final phase of device fixups */
++#define PCI_FIXUP_EARLY		1	/* Called immediately after reading
++					   header type, device/vendor IDs
++					   and class code */
++#define PCI_FIXUP_HEADER	2	/* Called after reading configuration
++					   header (including BARs) */
++#define PCI_FIXUP_FINAL		3	/* Final phase of device fixups */
+ 
+ void pci_fixup_device(int pass, struct pci_dev *dev);
+ 

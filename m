@@ -1,35 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131324AbRDBWDU>; Mon, 2 Apr 2001 18:03:20 -0400
+	id <S131362AbRDBWBK>; Mon, 2 Apr 2001 18:01:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131369AbRDBWDL>; Mon, 2 Apr 2001 18:03:11 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:29201 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131324AbRDBWC7>; Mon, 2 Apr 2001 18:02:59 -0400
-Subject: Re: Oracle 8I & Kernel 2.4.3 : Sane ?
-To: Yann.Dupont@IPv6.univ-nantes.fr (Yann Dupont)
-Date: Mon, 2 Apr 2001 23:04:50 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <986213560.24497.2.camel@olive> from "Yann Dupont" at Apr 02, 2001 02:12:40 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14kCRR-0006ob-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S131376AbRDBWBA>; Mon, 2 Apr 2001 18:01:00 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:35537 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S131362AbRDBWAy>;
+	Mon, 2 Apr 2001 18:00:54 -0400
+Date: Mon, 2 Apr 2001 23:59:35 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200104022159.XAA52100.aeb@vlet.cwi.nl>
+To: Andries.Brouwer@cwi.nl, alan@lxorguk.ukuu.org.uk
+Subject: Re: Larger dev_t
+Cc: hpa@transmeta.com, linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+   tytso@MIT.EDU
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I noticed that 2.4.3 contains some fixs for shared memory -
-> So the final question IS :
-> 
-> Is oracle 8.1.5 + Kernel 2.4.3 a sane combination ?
+> Mount NFS device areas with NFSv2. Thats the standard workaround
 
-Probably not yet but getting closer.
+Oh, sure. We survived with 16 bits and we'll survive with 32.
+Nevertheless it is a bad sign that you have to start talking
+about workarounds even before the new system has been implemented.
 
-> In general is oracle + Kernel 2.4 working ? 
+(And NFSv2 has its quirks as well.
+Solaris will split the 32-bit number (the size given in a CREATE
+request) into 14+18 when it is not a 16-bit value, while it will
+split it into 8+8 if it is. FreeBSD will regard it as a 8+24 dev_t.
+So, in general, different systems will parse the same dev_t in
+different ways, and hence see different (major,minor) for the
+same device.)
 
-Ditto.
-
-The shm and rawio fixes are very recent
-
+Andries

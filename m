@@ -1,47 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262517AbTCMUYi>; Thu, 13 Mar 2003 15:24:38 -0500
+	id <S262531AbTCMUgJ>; Thu, 13 Mar 2003 15:36:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262523AbTCMUYi>; Thu, 13 Mar 2003 15:24:38 -0500
-Received: from ip68-13-105-80.om.om.cox.net ([68.13.105.80]:36998 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S262517AbTCMUYh>; Thu, 13 Mar 2003 15:24:37 -0500
-Date: Thu, 13 Mar 2003 14:35:18 -0600 (CST)
-From: Thomas Molina <tmolina@cox.net>
-X-X-Sender: tmolina@localhost.localdomain
-To: Andrew Morton <akpm@digeo.com>
-cc: linux-kernel@vger.kernel.org, <linux-mm@kvack.org>
-Subject: Re: 2.5.64-mm6
-In-Reply-To: <20030313032615.7ca491d6.akpm@digeo.com>
-Message-ID: <Pine.LNX.4.44.0303131419570.4241-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262535AbTCMUgI>; Thu, 13 Mar 2003 15:36:08 -0500
+Received: from home.linuxhacker.ru ([194.67.236.68]:8869 "EHLO linuxhacker.ru")
+	by vger.kernel.org with ESMTP id <S262531AbTCMUgH>;
+	Thu, 13 Mar 2003 15:36:07 -0500
+Date: Thu, 13 Mar 2003 23:45:56 +0300
+From: Oleg Drokin <green@linuxhacker.ru>
+To: alan@redhat.com, linux-kernel@vger.kernel.org, zubarev@us.ibm.com
+Subject: [2.4] Multiple memleaks in IBM Hot Plug Controller Driver
+Message-ID: <20030313204556.GA3475@linuxhacker.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 13 Mar 2003, Andrew Morton wrote:
+Hello!
 
-> 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.64/2.5.64-mm6/
-> 
-> . Added all of Russell King's PCMCIA changes.  If anyone tests this on
->   cardbus/PCMCIA machines please let us know.
+   There seem to be memleak convert_2digits_to_char() function that is triggered
+   during normal operations.
+   Also I think there are some memleaks on error exit paths
+   ebda_rsrc_controller()
+   All of this is addressed by below patch.
+   2.5 seems to have totally different version of this code (and no
+   convert_2digits_to_char() function at all for example).
+   Found with help of smatch + enhanced unfree script.
 
-I decided to try it because of this.  My test machine was a Compaq 
-Presario 12XL325, PIII-650, RedHat 8.0 with updates.  The cardbus bridge 
-is listed as a TI PCI1410 controller.  I've been doing daily bk pulls and 
-compiles on this machine for some time with no problems noted on the 
-resulting kernel.  On the cardbus interface I have an SMC wireless NIC as 
-modules.  
+Bye,
+    Oleg
 
-I downloaded the mm-6 patch and a pristine 2.5.64 tarball.  After applying 
-the patch I compiled with the standard configuration I've been using all 
-along.  No problems were noted during the compile cycle.  During bootup 
-the system locked up at the point where it did a modprobe uhci-hcd for the 
-USB controller.  Nothing of interest was noted in the log.  I rebooted 
-with nousb in the command line and got a good boot.  After working with 
-this kernel for awhile I don't see anything out of the ordainary except 
-that on a 2.5.64-bk kernel I get 330 Kbytes per second download speed 
-whereas with mm6 I get 280 Kbytes per second.  Several runs show this is 
-fairly consistent, with results within one or two percent.
-
+===== drivers/hotplug/ibmphp_ebda.c 1.6 vs edited =====
+--- 1.6/drivers/hotplug/ibmphp_ebda.c	Fri Sep 13 21:56:25 2002
++++ edited/drivers/hotplug/ibmphp_ebda.c	Thu Mar 13 23:40:29 2003
+@@ -597,8 +597,8 @@
+ 	char *str1;
+ 
+ 	str = (char *) kmalloc (3, GFP_KERNEL);
+-	memset (str, 0, 3);
+-	str1 = (char *) kmalloc (2, GFP_KERNEL);
++	if (!str)
++		return NULL;
+ 	memset (str, 0, 3);
+ 	bit = (int)(var / 10);
+ 	switch (bit) {
+@@ -608,13 +608,20 @@
+ 		return str;
+ 	default: 	
+ 		//2 digits number
++		str1 = (char *) kmalloc (2, GFP_KERNEL);
++		if (!str1) {
++			break;
++		}
++		memset (str, 0, 3);
+ 		*str1 = (char)(bit + 48);
+ 		strncpy (str, str1, 1);
+ 		memset (str1, 0, 3);
+ 		*str1 = (char)((var % 10) + 48);
+ 		strcat (str, str1);
++		kfree(str1);
+ 		return str;
+-	}	
++	}
++	kfree(str);
+ 	return NULL;	
+ }
+ 
+@@ -1022,6 +1029,10 @@
+ 			bus_info_ptr1 = ibmphp_find_same_bus_num (hpc_ptr->slots[index].slot_bus_num);
+ 			if (!bus_info_ptr1) {
+ 				iounmap (io_mem);
++				kfree (hp_slot_ptr->name);
++				kfree (hp_slot_ptr->info);
++				kfree (hp_slot_ptr->private);
++				kfree (hp_slot_ptr);
+ 				return -ENODEV;
+ 			}
+ 			((struct slot *) hp_slot_ptr->private)->bus_on = bus_info_ptr1;
+@@ -1036,12 +1047,20 @@
+ 			rc = ibmphp_hpc_fillhpslotinfo (hp_slot_ptr);
+ 			if (rc) {
+ 				iounmap (io_mem);
++				kfree (hp_slot_ptr->name);
++				kfree (hp_slot_ptr->info);
++				kfree (hp_slot_ptr->private);
++				kfree (hp_slot_ptr);
+ 				return rc;
+ 			}
+ 
+ 			rc = ibmphp_init_devno ((struct slot **) &hp_slot_ptr->private);
+ 			if (rc) {
+ 				iounmap (io_mem);
++				kfree (hp_slot_ptr->name);
++				kfree (hp_slot_ptr->info);
++				kfree (hp_slot_ptr->private);
++				kfree (hp_slot_ptr);
+ 				return rc;
+ 			}
+ 			hp_slot_ptr->ops = &ibmphp_hotplug_slot_ops;

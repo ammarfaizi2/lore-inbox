@@ -1,51 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261943AbSI3HRF>; Mon, 30 Sep 2002 03:17:05 -0400
+	id <S261948AbSI3HZl>; Mon, 30 Sep 2002 03:25:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261944AbSI3HRF>; Mon, 30 Sep 2002 03:17:05 -0400
-Received: from packet.digeo.com ([12.110.80.53]:56240 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261943AbSI3HRE>;
-	Mon, 30 Sep 2002 03:17:04 -0400
-Message-ID: <3D97FB9C.593849A9@digeo.com>
-Date: Mon, 30 Sep 2002 00:22:04 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.38 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Michael Clark <michael@metaparadigm.com>
-CC: Matthias Andree <matthias.andree@gmx.de>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Dave Jones <davej@codemonkey.org.uk>, Jens Axboe <axboe@suse.de>,
-       "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
-       Linus Torvalds <torvalds@transmeta.com>
+	id <S261949AbSI3HZl>; Mon, 30 Sep 2002 03:25:41 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:31237 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S261948AbSI3HZl>; Mon, 30 Sep 2002 03:25:41 -0400
+Date: Mon, 30 Sep 2002 09:31:03 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: v2.6 vs v3.0
-References: <200209290114.15994.jdickens@ameritech.net> <Pine.LNX.4.44.0209290858170.22404-100000@innerfire.net> <20020929134620.GD2153@gallifrey> <20020929154254.GD1014@suse.de> <20020929162221.GB19948@suse.de> <20020929214652.GF12928@merlin.emma.line.org> <3D97F7AE.5070304@metaparadigm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Sep 2002 07:22:09.0435 (UTC) FILETIME=[168706B0:01C26852]
+Message-ID: <20020930073103.GD17884@louise.pinerecords.com>
+References: <Pine.LNX.4.44.0209281826050.2198-100000@home.transmeta.com> <200209290716.g8T7GNwf000562@darkstar.example.net> <20020929091229.GA1014@suse.de> <1033311400.13001.5.camel@irongate.swansea.linux.org.uk> <20020929153817.GC1014@suse.de> <20020929215204.GG12928@merlin.emma.line.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20020929215204.GG12928@merlin.emma.line.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Clark wrote:
+> > SCSI drivers can be a real problem. Not the porting of them, most of
+> > that is _trivial_ and can be done as we enter 3.0-pre and people show up
+> > running that on hardware that actually needs to be ported. The worst bit
+> > is error handling, this I view as the only problem.
 > 
-> On 09/30/02 05:46, Matthias Andree wrote:
-> > On Sun, 29 Sep 2002, Dave Jones wrote:
-> >
-> >
-> >>Joe Thornber sent a patch removing LVM1, but LVM2 has yet to
-> >>make an appearance in 2.5.x patchform afair.  LVM is in one of
-> >>those sneaky positions where they could theoretically cheat
-> >>the feature freeze, as whats in the tree right now is fubar,
-> >>and we need /something/ before going 2.6/3.0.
-> >
-> >
-> > Is not EVMS ready for the show? Is Linux >=2.6 going to have LVM2 and
-> > EVMS? Or just LVM2? I'm not aware of the current status, but I do recall
-> > having seen EVMS stable announcements (but not sure about 2.5 status).
-> 
->  From reading the EVMS list, it was working with 2.5.36 a couple weeks
-> ago but needs some small bio and gendisk changes to work in 2.5.39.
-> 
+> And a long-standing one. This should have been fixed in 2.2, it has not
+> been fixed in 2.4, it's much desired for 2.6 -- and people are going to
+> point away from Linux (and expect Jörg Schilling speaking up again
+> should 2.6 be released with what he considers broken API -- I cannot
+> tell if all his items are right, but if a third of what he says is true,
+> Linux SCSI is not in good shape).
 
-It's going to break bigtime if someone ups and removes all the
-kiobuf code.....
+As long as most of that bloke's argumentation strips down to "you don't do
+it like everyone else [solaris/irix/whatever] implies you're bound to suck,"
+nobody with a bit of sense is going to take him seriously regardless of how
+much blah blah he posts on l-k.
+
+T.

@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262524AbVAUVlO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262542AbVAUVnQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262524AbVAUVlO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 16:41:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262523AbVAUVjE
+	id S262542AbVAUVnQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 16:43:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262539AbVAUVl3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 16:39:04 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:44296 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S262517AbVAUVht (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 16:37:49 -0500
-To: Brandon Corey <bcorey@engr.sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Pollable Semaphores
-X-Message-Flag: Warning: May contain useful information
-References: <20050121212212.GA453910@firefly.engr.sgi.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Fri, 21 Jan 2005 13:37:47 -0800
-In-Reply-To: <20050121212212.GA453910@firefly.engr.sgi.com> (Brandon Corey's
- message of "Fri, 21 Jan 2005 13:22:12 -0800")
-Message-ID: <521xceqx90.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Fri, 21 Jan 2005 16:41:29 -0500
+Received: from fsmlabs.com ([168.103.115.128]:62655 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S262522AbVAUVjD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 21 Jan 2005 16:39:03 -0500
+Date: Fri, 21 Jan 2005 14:38:36 -0700 (MST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: George Anzinger <george@mvista.com>
+cc: Tony Lindgren <tony@atomide.com>, Pavel Machek <pavel@ucw.cz>,
+       john stultz <johnstul@us.ibm.com>, Andrea Arcangeli <andrea@suse.de>,
+       Con Kolivas <kernel@kolivas.org>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dynamic tick patch
+In-Reply-To: <41F16551.6090706@mvista.com>
+Message-ID: <Pine.LNX.4.61.0501211429270.18199@montezuma.fsmlabs.com>
+References: <20050119000556.GB14749@atomide.com>
+ <Pine.LNX.4.61.0501192100060.3010@montezuma.fsmlabs.com>
+ <20050121174831.GE14554@atomide.com> <Pine.LNX.4.61.0501211123260.18199@montezuma.fsmlabs.com>
+ <41F16551.6090706@mvista.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 21 Jan 2005 21:37:48.0456 (UTC) FILETIME=[739CF280:01C50001]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Brandon> I'm trying to find out if there is a pollable semaphore
-    Brandon> equivalent on Linux.  The main idea of a "pollable
-    Brandon> semaphore", is a semaphore with a related file
-    Brandon> descriptor.  The file descriptor can be used to select()
-    Brandon> when the semaphore is acquirable.  This provides a
-    Brandon> convenient way for users to implement code
-    Brandon> synchronization between threads, where multiple file
-    Brandon> descriptors are already being selected against.
+Hello George,
 
-Yes, I believe futexes and specifically FUTEX_FD can be used to
-implement this.  See http://people.redhat.com/~drepper/futex.pdf for
-full details.
+On Fri, 21 Jan 2005, George Anzinger wrote:
 
- - Roland
+> The VST patch on sourceforge
+> (http://sourceforge.net/projects/high-res-timers/) uses the local apic timer
+> to do the wake up.  This is the same timer that is used for the High Res work.
+
+I've been meaning to look into it, although it's quite a bit of work going 
+through all the extra code from the highres timer patch.
+
+Thanks,
+	Zwane
+

@@ -1,199 +1,223 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262670AbSJaP6m>; Thu, 31 Oct 2002 10:58:42 -0500
+	id <S262806AbSJaQAe>; Thu, 31 Oct 2002 11:00:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262689AbSJaP6m>; Thu, 31 Oct 2002 10:58:42 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:15108 "HELO
+	id <S262799AbSJaP77>; Thu, 31 Oct 2002 10:59:59 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:32519 "HELO
 	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S262670AbSJaP6Y>; Thu, 31 Oct 2002 10:58:24 -0500
+	id <S262795AbSJaP72>; Thu, 31 Oct 2002 10:59:28 -0500
 From: Nikita Danilov <Nikita@Namesys.COM>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15809.21551.294559.408447@laputa.namesys.com>
-Date: Thu, 31 Oct 2002 19:02:55 +0300
+Message-ID: <15809.21553.465056.374030@laputa.namesys.com>
+Date: Thu, 31 Oct 2002 19:02:57 +0300
 X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
 X-PGP-Key-ID: CCAAAC92
 X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
 To: Linus Torvalds <Torvalds@Transmeta.COM>
 Cc: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>,
        Reiserfs mail-list <Reiserfs-List@Namesys.COM>
-Subject: [PATCH]: reiser4 [7/8] reiser4 config files
+Subject: [PATCH]: reiser4 [6/8] share ->journal_info
 X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
-Microsoft: Where the service packs are larger than the original releases.
+X-Windows: even your dog won't like it.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello, Linus,
 
-this patch adds fs/Kconfig entries and adds reiser4 to fs/Makefile.
+    this patch changes declaration of ->journal_info in the struct
+    task_struct and updates the only user (ext3) correspondingly.
+
+    ->journal_info is supposed to hold some file system data per-thread
+    per-file-system-invocation. Problem is that it is possible (through
+    VM call backs or page faults, for example) for invocations of file
+    system drivers to nest. This patch changes ->journal_info from void*
+    to a pointer to the struct fs_activation. struct fs_activation
+    contains only one field ->owner: it can be used by file system to
+    tell whether it can continue within given "parent" context:
+    generally journalling file system cannot be called from within
+    different journalling file system, because of deadlocks.
+
+    struct fs_activation will be usually embedded into some file system
+    specific object (like transaction handle for ext3, or
+    reiser4_context for, well, reiser4) and it is file system
+    responsibility to save original value of ->journal_info on entry and
+    restore it on exit.
+
+    Also, ->journal_info is renamed to less specific ->fs_context.
+
+    Thanks to Stephen Tweedie for useful comments.
 
 Please apply.
-
-Trick-or-treat?
 Nikita.
-diff -rup -X dontdiff linus-bk-2.5/fs/Kconfig linux-2.5-reiser4/fs/Kconfig
---- linus-bk-2.5/fs/Kconfig	Thu Oct 31 03:02:44 2002
-+++ linux-2.5-reiser4/fs/Kconfig	Thu Oct 31 13:53:57 2002
-@@ -84,6 +84,150 @@ config AUTOFS4_FS
- 	  local network, you probably do not need an automounter, and can say
- 	  N here.
+diff -rup -X dontdiff linus-bk-2.5/fs/jbd/transaction.c linux-2.5-reiser4/fs/jbd/transaction.c
+--- linus-bk-2.5/fs/jbd/transaction.c	Tue Oct 15 20:56:59 2002
++++ linux-2.5-reiser4/fs/jbd/transaction.c	Mon Oct 21 13:43:51 2002
+@@ -101,6 +101,7 @@ static int start_this_handle(journal_t *
  
-+config REISER4_FS
-+	tristate "Reiser4 (EXPERIMENTAL very fast general purpose filesystem)"
-+	depends on EXPERIMENTAL
-+	---help---
-+	  Reiser4 is more than twice as fast for both reads and writes as
-+	  ReiserFS.  That means it is four times as fast as NTFS by Microsoft.
-+	  (Proper benchmarks will appear in a few months at
-+	  www.namesys.com/benchmarks.html, please be patient for now).
+ 	jbd_debug(3, "New handle %p going live.\n", handle);
+ 
++	handle->h_journal = journal;
+ repeat:
+ 
+ 	lock_journal(journal);
+@@ -223,6 +224,23 @@ static handle_t *new_handle(int nblocks)
+ }
+ 
+ /*
++ * push @handle into ->fs_context stack
++ */
++static void push_handle(handle_t *handle)
++{
++	handle->h_parent = current->fs_context;
++	current->fs_context = (struct fs_activation *) handle;
++}
 +
-+	  It is the storage layer of what will become a general purpose naming
-+	  system --- like what Microsoft wants OFS to be except designed with a
-+	  clean new semantic layer rather than being SQL based like OFS.
++/*
++ * pop top of ->fs_context stack
++ */
++static void pop_handle(handle_t *handle)
++{
++	current->fs_context = (struct fs_activation *) handle->h_parent;
++}
 +
-+	  It performs all filesystem operations as atomic transactions, which
-+	  means that it either performs a write, or it does not, and in the
-+	  event of a crash it does not partially perform it or corrupt it.
++/*
+  * Obtain a new handle.  
+  *
+  * We make sure that the transaction can guarantee at least nblocks of
+@@ -243,7 +261,7 @@ handle_t *journal_start(journal_t *journ
+ 	if (!journal)
+ 		return ERR_PTR(-EROFS);
+ 
+-	if (handle) {
++	if (handle && handle->h_journal == journal) {
+ 		J_ASSERT(handle->h_transaction->t_journal == journal);
+ 		handle->h_ref++;
+ 		return handle;
+@@ -253,12 +271,12 @@ handle_t *journal_start(journal_t *journ
+ 	if (!handle)
+ 		return ERR_PTR(-ENOMEM);
+ 
+-	current->journal_info = handle;
++	push_handle(handle);
+ 
+ 	err = start_this_handle(journal, handle);
+ 	if (err < 0) {
++		pop_handle(handle);
+ 		kfree(handle);
+-		current->journal_info = NULL;
+ 		return ERR_PTR(err);
+ 	}
+ 
+@@ -336,7 +354,7 @@ handle_t *journal_try_start(journal_t *j
+ 	if (!journal)
+ 		return ERR_PTR(-EROFS);
+ 
+-	if (handle) {
++	if (handle && handle->h_journal == journal) {
+ 		jbd_debug(4, "h_ref %d -> %d\n",
+ 				handle->h_ref,
+ 				handle->h_ref + 1);
+@@ -356,12 +374,12 @@ handle_t *journal_try_start(journal_t *j
+ 	if (!handle)
+ 		return ERR_PTR(-ENOMEM);
+ 
+-	current->journal_info = handle;
++	push_handle(handle);
+ 
+ 	err = try_start_this_handle(journal, handle);
+ 	if (err < 0) {
++		pop_handle(handle);
+ 		kfree(handle);
+-		current->journal_info = NULL;
+ 		return ERR_PTR(err);
+ 	}
+ 
+@@ -1441,7 +1459,7 @@ int journal_stop(handle_t *handle)
+ 		} while (old_handle_count != transaction->t_handle_count);
+ 	}
+ 
+-	current->journal_info = NULL;
++	pop_handle(handle);
+ 	transaction->t_outstanding_credits -= handle->h_buffer_credits;
+ 	transaction->t_updates--;
+ 	if (!transaction->t_updates) {
+diff -rup -X dontdiff linus-bk-2.5/include/linux/init_task.h linux-2.5-reiser4/include/linux/init_task.h
+--- linus-bk-2.5/include/linux/init_task.h	Tue Oct 15 20:57:02 2002
++++ linux-2.5-reiser4/include/linux/init_task.h	Mon Oct 21 13:43:57 2002
+@@ -95,7 +95,7 @@
+ 	.blocked	= {{0}},					\
+ 	.alloc_lock	= SPIN_LOCK_UNLOCKED,				\
+ 	.switch_lock	= SPIN_LOCK_UNLOCKED,				\
+-	.journal_info	= NULL,						\
++	.fs_context	= NULL,				\
+ }
+ 
+ 
+diff -rup -X dontdiff linus-bk-2.5/include/linux/jbd.h linux-2.5-reiser4/include/linux/jbd.h
+--- linus-bk-2.5/include/linux/jbd.h	Tue Oct 15 20:57:02 2002
++++ linux-2.5-reiser4/include/linux/jbd.h	Mon Oct 21 13:43:58 2002
+@@ -274,6 +274,14 @@ struct jbd_revoke_table_s;
+ 
+ struct handle_s 
+ {
++	/* Which journal this handle belongs to.  This has to be first
++	 * field, because current->fs_context points here. */
++	journal_t             * h_journal;
 +
-+	  It stores files in dancing trees, which are like balanced trees but
-+	  faster.  It packs small files together so that they share blocks
-+	  without wasting space.  This means you can use it to store really
-+	  small files.  It also means that it saves you disk space.  It avoids
-+	  hassling you with anachronisms like having a maximum number of
-+	  inodes, and wasting space if you use less than that number.
++	/* Previous file system context. NULL if we are top-most
++	 * call. */
++	struct fs_activation  * h_parent;
 +
-+	  It can handle really large directories, because its search
-+	  algorithms are logarithmic with size not linear.  With Reiser4 you
-+	  should use subdirectories because they help YOU, not because they
-+	  help your filesystem's performance, or because your filesystem won't
-+	  be able to shrink a directory once you have let it grow.  For squid
-+	  and similar applications, everything in one directory should perform
-+	  better.
+ 	/* Which compound transaction is this update a part of? */
+ 	transaction_t	      * h_transaction;
+ 
+@@ -637,7 +645,7 @@ static inline void unlock_journal(journa
+ 
+ static inline handle_t *journal_current_handle(void)
+ {
+-	return current->journal_info;
++	return (handle_t*) current->fs_context;
+ }
+ 
+ /* The journaling code user interface:
+diff -rup -X dontdiff linus-bk-2.5/include/linux/sched.h linux-2.5-reiser4/include/linux/sched.h
+--- linus-bk-2.5/include/linux/sched.h	Sat Oct 19 03:01:12 2002
++++ linux-2.5-reiser4/include/linux/sched.h	Mon Oct 21 13:43:58 2002
+@@ -268,6 +268,24 @@ extern struct user_struct root_user;
+ typedef struct prio_array prio_array_t;
+ struct backing_dev_info;
+ 
++/*
++ * Some file systems need context associated with current thread during
++ * one system call (transaction handle, for example). This context in
++ * attached to current->fs_context.
++ *
++ * As it is possible for file system calls to nest (through quota of VM
++ * call backs), every file system using current->fs_context should store
++ * original ->fs_context value of entrance and restore in on exit.
++ */
++struct fs_activation {
++	/*
++	 * cookie allowing to distinguish file system instances
++	 * (mounts). Usually this is pointer to the super block, but not
++	 * necessary. This is used to tell reentrance.
++	 */
++	void *owner;
++};
 +
-+	  It has a plugin-based infrastructure, which means that you can easily
-+	  invent new kinds of files, and so can other people, so it will evolve
-+	  rapidly.
-+
-+	  We will be adding a variety of security features to it that DARPA has
-+	  funded us to write.
-+
-+	  "reiser4" is a distinct filesystem mount type from "reiserfs" (V3),
-+	  which means that "reiserfs" filesystems will be unaffected by any
-+	  reiser4 bugs.  They have no code in common.  Reiser4 is a complete
-+	  rewrite from scratch fully incorporating what we learned by experience
-+	  while doing "reiserfs" the first time.  That was a lot.;-)
-+
-+	  Reiser4 is about as stable as the usual tornado for now --- it is
-+	  for use by developers and testers only.  We don't use it for our web
-+	  server --- you should not either.  This will change before 2.6.0.
-+	  ReiserFS V3 is the right choice for those who want a filesystem so
-+	  stable that we can go for months now without any bug reports while we
-+	  have millions of users.
-+
-+	  If you'd like to upgrade from reiserfs to reiser4, use tar to a
-+	  temporary disk, maybe using NFS/ssh/SFS to get to that disk, or ask
-+	  your favorite distro to sponsor writing a conversion program.
-+
-+	  Sponsored by the Defensed Advanced Research Projects Agency (DARPA)
-+	  of the United States Government.  DARPA does not endorse this
-+	  project, it merely sponsors it.  
-+	  See http://www.darpa.mil/ato/programs/chats.htm
-+
-+	  To learn more about reiser4, go to http://www.namesys.com
-+
-+config REISER4_CHECK
-+	bool "Enable reiser4 debug options"
-+	depends on REISER4_FS
-+	---help---
-+	  Don't use this unless you are a developer debugging reiser4.  If
-+	  using a kernel made by a distro that thinks they are our competitor
-+	  (sigh) rather than made by Linus, always check each release to make
-+	  sure they have not turned this on to make us look slow as was done
-+	  once in the past.  This checks everything imaginable while reiser4
-+	  runs.
-+
-+	  When adding features to reiser4 you should set this, and then
-+	  extensively test the code, and then send to us and we will test it
-+	  again.  Include a description of what you did to test it.  All
-+	  reiser4 code must be tested, reviewed, and signed off on by two
-+	  persons before it will be accepted into a stable kernel by Hans.
-+
-+config REISER4_DEBUG
-+	bool "Assertions"
-+	depends on REISER4_CHECK
-+	help
-+	  Turns on assertions checks. Eats a lot of CPU.
-+
-+config REISER4_CHECK_STACK
-+	bool "Stack check"
-+	depends on REISER4_CHECK
-+	help
-+	  Turns on checks for stack overflow.
-+
-+config REISER4_DEBUG_MODIFY
-+	bool "Dirtying"
-+	depends on REISER4_CHECK
-+	help
-+	  Check that node is marked dirty each time it's modified. This is done
-+	  through maintaining checksum of node content. CPU hog.
-+
-+config REISER4_DEBUG_MEMCPY
-+	bool "Memory copying"
-+	depends on REISER4_CHECK
-+	help
-+	  Use special non-inlined versions on memcpy, memset, and memmove in
-+	  reiser4 to estimate amount of CPU time spent in data copying.
-+
-+config REISER4_DEBUG_NODE
-+	bool "Node consistency"
-+	depends on REISER4_CHECK
-+	help
-+	  Run consistency checks on nodes in balanced tree. CPU hog.
-+
-+config REISER4_ZERO_NEW_NODE
-+	bool "Node zeroing"
-+	depends on REISER4_CHECK
-+	help
-+	  Zero new node before use.
-+
-+config REISER4_TRACE
-+	bool "Tracing"
-+	depends on REISER4_CHECK
-+	help
-+	  Turn on tracing facility. This enables trace_flags mount option.
-+
-+config REISER4_STATS
-+	bool "Statistics"
-+	depends on REISER4_CHECK
-+	help
-+	  Turn on statistics collection. This increases size of in-memory super
-+	  block considerably.
-+
-+config REISER4_DEBUG_OUTPUT
-+	bool "Printing"
-+	depends on REISER4_CHECK
-+	help
-+	  Enable compilation of functions that print internal kernel data
-+	  structures in human readable form. Useful for debugging.
-+
-+config REISER4_NOOPT
-+	bool "Disable optimization"
-+	depends on REISER4_CHECK
-+	help
-+	  Disable compiler optimizations for reiser4 code.
-+
- config REISERFS_FS
- 	tristate "Reiserfs support"
- 	---help---
-diff -rup -X dontdiff linus-bk-2.5/fs/Makefile linux-2.5-reiser4/fs/Makefile
---- linus-bk-2.5/fs/Makefile	Tue Oct 29 03:01:20 2002
-+++ linux-2.5-reiser4/fs/Makefile	Tue Oct 29 12:40:59 2002
-@@ -83,6 +83,7 @@ obj-$(CONFIG_AUTOFS_FS)		+= autofs/
- obj-$(CONFIG_AUTOFS4_FS)	+= autofs4/
- obj-$(CONFIG_ADFS_FS)		+= adfs/
- obj-$(CONFIG_REISERFS_FS)	+= reiserfs/
-+obj-$(CONFIG_REISER4_FS)	+= reiser4/
- obj-$(CONFIG_SUN_OPENPROMFS)	+= openpromfs/
- obj-$(CONFIG_JFS_FS)		+= jfs/
- obj-$(CONFIG_XFS_FS)		+= xfs/
+ struct task_struct {
+ 	volatile long state;	/* -1 unrunnable, 0 runnable, >0 stopped */
+ 	struct thread_info *thread_info;
+@@ -387,8 +405,8 @@ struct task_struct {
+ /* context-switch lock */
+ 	spinlock_t switch_lock;
+ 
+-/* journalling filesystem info */
+-	void *journal_info;
++/* info about current file system activation */
++	struct fs_activation *fs_context;
+ 	struct dentry *proc_dentry;
+ 	struct backing_dev_info *backing_dev_info;
+ };

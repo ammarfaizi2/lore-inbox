@@ -1,90 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261193AbTKDWbd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 17:31:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbTKDWbd
+	id S261988AbTKDWje (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 17:39:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbTKDWje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 17:31:33 -0500
-Received: from fw.osdl.org ([65.172.181.6]:61058 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261193AbTKDWb2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 17:31:28 -0500
-Date: Tue, 4 Nov 2003 14:31:18 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Ulrich Drepper <drepper@redhat.com>
-cc: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
-       Paul Venezia <pvenezia@jpj.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ext3 performance inconsistencies, 2.4/2.6
-In-Reply-To: <3FA82161.9000507@redhat.com>
-Message-ID: <Pine.LNX.4.44.0311041422580.20373-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 4 Nov 2003 17:39:34 -0500
+Received: from 206-158-102-129.prx.blacksburg.ntc-com.net ([206.158.102.129]:16805
+	"EHLO wombat.ghz.cc") by vger.kernel.org with ESMTP id S261988AbTKDWjc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Nov 2003 17:39:32 -0500
+Date: Tue, 4 Nov 2003 17:38:33 -0500
+Subject: Re: [PATCH] amd76x_pm on 2.6.0-test9 cleanup
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v552)
+Cc: psavo@iki.fi, lkml <linux-kernel@vger.kernel.org>,
+       john stultz <johnstul@us.ibm.com>
+To: Tony Lindgren <tony@atomide.com>
+From: Charles Lepple <clepple@ghz.cc>
+In-Reply-To: <20031104200517.GD1042@atomide.com>
+Message-Id: <9F0055D6-0F17-11D8-A943-003065DC6B50@ghz.cc>
+Content-Transfer-Encoding: 7bit
+X-Mailer: Apple Mail (2.552)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday, November 4, 2003, at 03:05 PM, Tony Lindgren wrote:
 
-On Tue, 4 Nov 2003, Ulrich Drepper wrote:
-> 
-> I don't see any verison numbers mentioned.  If you want to benchmark
-> NPTL use the recent code, e.g., from Fedora Core 1 or RHEL3.  Nothing
-> else makes any sense since there have mean countless changes since the
-> early releases.
+> * Charles Lepple <clepple@ghz.cc> [031104 11:45]:
+>> On Tuesday 04 November 2003 02:15 pm, Tony Lindgren wrote:
+>>> I've heard of timing problems if it's compiled in, but supposedly 
+>>> they
+>>> don't happen when loaded as module.
+>>
+>> In some of the earlier testX versions of the kernel, I did not see any
+>> difference between compiling as a module, and compiling into the 
+>> kernel. (It
+>> is currently a module on my system.)
+>>
+>> I did, however, manage to keep ntpd happy by reducing HZ to 100. Even 
+>> raising
+>> HZ to 200 is enough to throw off its PLL. The machine is idle for 90% 
+>> of the
+>> day, though, so I don't know if the PLL is adapting to the fact that 
+>> the
+>> system is idling, but the values for tick look reasonable.
+>
+> Interesting, sounds like the idling causes missed timer interrupts? 
+> Can you
+> briefly describe what's the easiest way to reproduce the timer 
+> problem, just
+> change HZ to 200 and look at the system time?
 
-This is actually _really_ trivial to see with a simple test program.
+Weird. On -test9-bk at HZ=1000, with amd76x_pm loaded as a module 
+(lazy_idle=800, the default), the system clock is running fast.
 
-This is Fedora Core test3:
+With ntpd running, the clock was stepped back 2.5 seconds twice in 20 
+minutes.
 
-	#include <stdlib.h>
+Here's what I get from adjtimexconfig (after stopping ntpd, of course):
 
-	/* Change this to match your CPU */
-	#define NR (10*1000*1000)
+# adjtimexconfig
+Comparing clocks (this will take 70 sec)... adjusting system time by  
+-126.211  sec/day
+Done
 
-	int main(int argc, char **argv)
-	{
-	        int i;
-	        for (i = 0; i < NR; i++)
-	                putchar(0);
-	}
+Now tick is 9985. I distinctly remember it being somewhat over 10,000 
+the last time I ran with HZ=1000 and amd_76x_pm active. With HZ=100, 
+adjtimexconfig sets tick=10002.
 
-and then just time it.
+I'm not entirely sure what the "acpi" interrupt is doing-- it 
+increments about once every two seconds when the system is idle, and 
+various types of system activity make it happen more frequently. At 
+least I'm not getting any "irq 9: nobody cared!" messages anymore (the 
+button module is loaded, so I guess it is handling it). If I don't have 
+amd76x_pm loaded, the acpi interrupt is triggered a couple of times 
+after button is loaded, but then it doesn't happen again until I 
+actually press a button.
 
-I get:
-
-	torvalds@home:~> time ./a.out > /dev/null 
-
-	real    0m1.305s
-	user    0m1.283s
-	sys     0m0.004s
-
-and
-
-	torvalds@home:~> time LD_ASSUME_KERNEL=2.4.1 ./a.out > /dev/null 
-	
-	real    0m0.321s
-	user    0m0.318s
-	sys     0m0.003s
-
-ie a factor of _four_ difference in the speed of "putchar()".
-
-Interestingly, if I compile the program statically, I don't see this 
-effect, and it's noticeably faster still:
-
-	torvalds@home:~> gcc -O2 -static test.c 
-	torvalds@home:~> time ./a.out > /dev/null 
-
-	real    0m0.193s
-	user    0m0.191s
-	sys     0m0.002s
-
-	torvalds@home:~> time LD_ASSUME_KERNEL=2.4.1 ./a.out > /dev/null 
-
-	real    0m0.194s
-	user    0m0.190s
-	sys     0m0.004s
-
-Is the TLS stuff done through an extra dynamically loaded indirection or
-something?
-
-		Linus
+-- 
+Charles Lepple
+ghz.cc! clepple
 

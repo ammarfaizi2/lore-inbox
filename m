@@ -1,39 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319575AbSIMJKV>; Fri, 13 Sep 2002 05:10:21 -0400
+	id <S319569AbSIMJGs>; Fri, 13 Sep 2002 05:06:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319576AbSIMJKU>; Fri, 13 Sep 2002 05:10:20 -0400
-Received: from gzp11.gzp.hu ([212.40.96.53]:44304 "EHLO gzp11.gzp.hu")
-	by vger.kernel.org with ESMTP id <S319575AbSIMJKT>;
-	Fri, 13 Sep 2002 05:10:19 -0400
-To: linux-kernel@vger.kernel.org
-From: "Gabor Z. Papp" <gzp@myhost.mynet>
-Subject: Re: Linux 2.4.20-pre7 (TIOCM_MODEM_BITS undeclared)
-References: <Pine.LNX.4.44.0209122313470.30211-100000@freak.distro.conectiva>
-User-Agent: tin/1.5.14-20020814 ("Chop Suey!") (UNIX) (Linux/2.4.19 (i686))
-Message-ID: <411b.3d81ac9e.946d5@gzp1.gzp.hu>
-Date: Fri, 13 Sep 2002 09:15:10 -0000
+	id <S319570AbSIMJGs>; Fri, 13 Sep 2002 05:06:48 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:26257 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S319569AbSIMJGG>;
+	Fri, 13 Sep 2002 05:06:06 -0400
+Date: Fri, 13 Sep 2002 11:10:51 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Minor input fixes [5/7]
+Message-ID: <20020913111051.A28479@ucw.cz>
+References: <20020913110453.A28145@ucw.cz> <20020913110600.B28378@ucw.cz> <20020913110641.C28378@ucw.cz> <20020913111014.A28426@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020913111014.A28426@ucw.cz>; from vojtech@suse.cz on Fri, Sep 13, 2002 at 11:10:14AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-libc-2.2.5.so
-gcc 2.95.4-cvs
-GNU ld version 2.12.90.0.4 20020408
+Hi!
 
-make -C irda modules
-make[3]: Entering directory `/usr/src/linux-2.4.20-pre7-gzp3/drivers/net/irda'
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.20-pre7-gzp3/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE  -nostdinc -iwithprefix include -DKBUILD_BASENAME=irtty  -c -o irtty.o irtty.c
-irtty.c: In function `irtty_set_dtr_rts':
-irtty.c:761: `TIOCM_MODEM_BITS' undeclared (first use in this function)
-irtty.c:761: (Each undeclared identifier is reported only once
-irtty.c:761: for each function it appears in.)
-make[3]: *** [irtty.o] Error 1
-make[3]: Leaving directory `/usr/src/linux-2.4.20-pre7-gzp3/drivers/net/irda'
-make[2]: *** [_modsubdir_irda] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.4.20-pre7-gzp3/drivers/net'
-make[1]: *** [_modsubdir_net] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.20-pre7-gzp3/drivers'
-make: *** [_mod_drivers] Error 2
+You can import this changeset into BK by piping this whole message to:
+'| bk receive [path to repository]' or apply the patch as usual.
+'bk pull bk://linux-input.bkbits.net/linux-input' should work as well.
 
-Same with pre6.
+===================================================================
 
+ChangeSet@1.593, 2002-09-12 09:05:03+02:00, adam@yggdrasil.com
+  The following patch shaves a six bytes from the loaded size
+  of pcspkr.o and another 90 elsewhere in the .o file.
+
+
+ pcspkr.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+===================================================================
+
+diff -Nru a/drivers/input/misc/pcspkr.c b/drivers/input/misc/pcspkr.c
+--- a/drivers/input/misc/pcspkr.c	Thu Sep 12 23:38:50 2002
++++ b/drivers/input/misc/pcspkr.c	Thu Sep 12 23:38:50 2002
+@@ -22,8 +22,8 @@
+ MODULE_DESCRIPTION("PC Speaker beeper driver");
+ MODULE_LICENSE("GPL");
+ 
+-static char *pcspkr_name = "PC Speaker";
+-static char *pcspkr_phys = "isa0061/input0";
++static char pcspkr_name[] = "PC Speaker";
++static char pcspkr_phys[] = "isa0061/input0";
+ static struct input_dev pcspkr_dev;
+ 
+ spinlock_t i8253_beep_lock = SPIN_LOCK_UNLOCKED;
+
+===================================================================
+
+This BitKeeper patch contains the following changesets:
+1.593
+## Wrapped with gzip_uu ##
+
+
+begin 664 bkpatch25335
+M'XL(`&H)@3T``]V476O;,!2&KZ-?<6@O2^PC^2.V1T:V=&QE@X5TO1IC*+(<
+M>[$M(REI4_SCIWR0P58R5GHURS:2]9ZCEW,>?`EW1NILL%$_K!0EN80/RMAL
+M8-9&>N+1K>=*N;5?JD;Z1Y6_6/E5VZTM<?LS;D4)&ZE--J!></IBMYW,!O-W
+M[^\^O9D3,A[#M.3M4MY*"^,QL4IO>)V;";=EK5K/:MZ:1EKN"=7T)VG/$)D;
+M$1T%&,4]C3$<]8+FE/*0RAQ9F,0AT8^3NFK7#\,F3E:>TLO?,Z34Y0ACC/HH
+M33$@UT"]*`T`F8^I3QE@FF&487"%+$,$GO-FLETN<\U-5>\\P16%(9*W\++.
+MIT3`EU)"H>I:W5?M$KI]^4S)-](`!U,]P&)KW;S0SH5UVEKQ7.9NYU&Z:%5`
+M)TRWTIX"WN;N44ZD(460M9'W;BZA:O>13E)4M?3(1XB1NN-GO[I"AO]X$8(<
+MR6LX4C$Y,M/GNMKA<$#$;RHC_*-!<2A*PB(:,$J3G@9I&/<1=PTJZ(*.BIS1
+M@CY1_;\GW75XA!%B'](DCO;$G0G:,?CBQI^?,76NHX3NN61_4(EGJ&0P9/\/
+ME8?>?8:AOC_>#M$S57P&M-<L`D9N6.S>QG);"1`EUT>[WUO>R*_?8`P7LRG<
+M=I*OI+YX]92R*[?FH*P,1XSIP2`Z]>DO*$HI5F;=C#%)12)'`?D)`/),9W(%
+"````
+`
+end
+
+-- 
+Vojtech Pavlik
+SuSE Labs

@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288051AbSCDPdJ>; Mon, 4 Mar 2002 10:33:09 -0500
+	id <S290289AbSCDPkr>; Mon, 4 Mar 2002 10:40:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288377AbSCDPcs>; Mon, 4 Mar 2002 10:32:48 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:26354
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S288051AbSCDPcc>; Mon, 4 Mar 2002 10:32:32 -0500
-Date: Mon, 4 Mar 2002 07:33:12 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
+	id <S292283AbSCDPkh>; Mon, 4 Mar 2002 10:40:37 -0500
+Received: from adsl-62-128-214-206.iomart.com ([62.128.214.206]:20655 "EHLO
+	server1.i-a.co.uk") by vger.kernel.org with ESMTP
+	id <S290289AbSCDPkT>; Mon, 4 Mar 2002 10:40:19 -0500
+Date: Mon, 4 Mar 2002 15:40:07 +0000
+From: Andy Jeffries <lkml@andyjeffries.co.uk>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: James D Strandboge <jstrand1@rochester.rr.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: ext3 and undeletion
-Message-ID: <20020304153312.GI353@matchmail.com>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	James D Strandboge <jstrand1@rochester.rr.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020304021714.GB353@matchmail.com> <E16hu8q-00080A-00@the-village.bc.nu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: HPT372 on KR7A-RAID
+Message-Id: <20020304154007.62716a6c.lkml@andyjeffries.co.uk>
+In-Reply-To: <E16dtBF-0006tG-00@the-village.bc.nu>
+In-Reply-To: <20020221091319.37e74cba.lkml@andyjeffries.co.uk>
+	<E16dtBF-0006tG-00@the-village.bc.nu>
+Organization: Scramdisk Linux
+X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E16hu8q-00080A-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.27i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 04, 2002 at 03:12:44PM +0000, Alan Cox wrote:
-> > another inode after the trunc op would break unix semantics.  In order to
-> > work, you'd have to use a new inode (in .undelete, of course), copy, then do
-> > the actual trunc call. 
-> > This would make truncation expensive, whereas before it was pretty fast.
-> > Modifying unlink will probably suffice.
+On Thu, 21 Feb 2002 13:22:37 +0000 (GMT), Alan Cox
+<alan@lxorguk.ukuu.org.uk> wrote:
+> > I don't know if this has been fixed in 2.4.17/18, if it has...sorry!
+> > :-)
 > 
-> You would need to hook the truncate/unlink paths in the file system. If 
-> you are doing it within the fs it becomes cheap (at least for ext2) - as
-> you can simply reassign the data blocks to a new inode, stuff the new inode
-> into the magic "stuff we deleted" directory and continue.
+> Its fixed in 2.4.18-ac at least, and I think in 2.4.18-rc2. Give that a
+> go and check its ok
 
-It may make it easier to put this part in the kernel, but is there some way
-to make it filesystem generic?
+Hi Alan,
 
-Undelete on truncate isn't a high priority, but if we do have it, it would
-be nice if all of the filesystems that follow unix semantics (and maybe the
-others too) could use generic VFS ops for this feature.
+It's not fixed in 2.4.18 (released version).
 
+At least, the array of HPT chipsets doesn't have the 372 entry.  Does it
+fix it neatly (if the index of the revision is above the array label it as
+unknown)?
+
+It doesn't seem to as line 225 in drivers/ide/hpt366.c seems to just use
+class_rev as an index in to the chipset_names array (which will bomb out
+it it tries to access class_rev=5).
+
+Any chance of getting the earlier patch submitted to the mainstream Kernel
+by someone who Linus will listen to ;-)  (P.S. Linus, if you're listening
+sorry for the aspersion that you ignore patches from people, it's just
+that I am a lowly Kernel newbie who you won't know/trust (YET!)).
+
+Cheers,
+
+
+-- 
+Andy Jeffries
+Linux/PHP Programmer
+
+- Windows Crash HOWTO: compile the code below in VC++ and run it!
+main (){for(;;){printf("Hung up\t\b\b\b\b\b\b");}}

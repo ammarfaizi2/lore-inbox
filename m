@@ -1,78 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293131AbSCTAnR>; Tue, 19 Mar 2002 19:43:17 -0500
+	id <S310224AbSCTA6J>; Tue, 19 Mar 2002 19:58:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293164AbSCTAnI>; Tue, 19 Mar 2002 19:43:08 -0500
-Received: from tsukuba.m17n.org ([192.47.44.130]:60888 "EHLO tsukuba.m17n.org")
-	by vger.kernel.org with ESMTP id <S293131AbSCTAm6>;
-	Tue, 19 Mar 2002 19:42:58 -0500
-Date: Wed, 20 Mar 2002 09:42:49 +0900 (JST)
-Message-Id: <200203200042.g2K0gnL19526@mule.m17n.org>
-From: NIIBE Yutaka <gniibe@m17n.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Stephan von Krawczynski <skraw@ithnet.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and 2.2.21-pre3 (client)
-In-Reply-To: <E16nKrq-0007uP-00@charged.uio.no>
+	id <S310441AbSCTA57>; Tue, 19 Mar 2002 19:57:59 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:4068 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S310224AbSCTA5n>; Tue, 19 Mar 2002 19:57:43 -0500
+Date: Tue, 19 Mar 2002 17:57:02 -0700
+Message-Id: <200203200057.g2K0v2H20565@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Roman Zippel <zippel@linux-m68k.org>,
+        "David S. Miller" <davem@redhat.com>, <lm@bitmover.com>,
+        <pavel@ucw.cz>, <linux-kernel@vger.kernel.org>
+Subject: Re: Bitkeeper licence issues
+In-Reply-To: <Pine.LNX.4.44L.0203192005350.2181-100000@imladris.surriel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While I agree that your argument is correct generally, what I'd like
-to discuss is a specific technical concern with the _change_.  Well,
-you may have a big picture of NFS than me, so I just say my thought
-here...
+Rik van Riel writes:
+> On Tue, 19 Mar 2002, Alan Cox wrote:
+> 
+> > Hans Reiser's team of Russian wizards is simply a couple of years ahead
+> > of everyone else moving all real software development to the czech
+> > republic and india,
+> 
+> Hey, don't forget about Brazil ;)
+> 
+> I know folks in Silicon Valley who pay more rent than what
+> I earn in a month ... and I'm earning enough money to have
+> a comfortable life here, at a fairly safe distance from the
+> DMCA and its friends ;)
 
-I attach the change (of my current version against 2.4.18) again, so
-that we can focus the issue.
+Don't count on it. You're too close, as determined by the Monroe
+Doctrine, which basically says "they own your ass".
 
-Here, the non-patched implementation checks inode correctness and
-fails in:
-	nfs_refresh_inode: inode XXXXXXX mode changed, OOOO to OOOO
+				Regards,
 
-I think there is nothing to be useful in client side inode data, when
-inode->i_count == 0.  So, it doesn't make sense to check correctness
-with this.
-
-Provided the file handle is eternal thing, it doesn't fail...
-
-IMO, it's no use to check the correctness for the inode when ->i_count == 0.
-We can reuse the memory of the client side inode, that's true,
-but we don't need to check old data against new one at that time.
-
-BTW, I got positive feedback with this change.
-
-
-2002-03-20  NIIBE Yutaka  <gniibe@m17n.org>
-
-	* fs/nfs/inode.c (nfs_read_inode): Don't set inode->i_rdev here.
-	(nfs_fill_inode): But set it here, instead.
-	(nfs_find_actor): Reusing cached inode, clear ->i_mode.
-
---- fs/nfs/inode.c	19 Mar 2002 23:57:40 -0000	1.1.2.1
-+++ fs/nfs/inode.c	20 Mar 2002 00:05:30 -0000
-@@ -104,7 +104,6 @@ nfs_read_inode(struct inode * inode)
- {
- 	inode->i_blksize = inode->i_sb->s_blocksize;
- 	inode->i_mode = 0;
--	inode->i_rdev = 0;
- 	/* We can't support UPDATE_ATIME(), since the server will reset it */
- 	inode->i_flags |= S_NOATIME;
- 	INIT_LIST_HEAD(&inode->u.nfs_i.read);
-@@ -638,6 +637,7 @@ nfs_fill_inode(struct inode *inode, stru
- 		 * that's precisely what we have in nfs_file_inode_operations.
- 		 */
- 		inode->i_op = &nfs_file_inode_operations;
-+		inode->i_rdev = 0;
- 		if (S_ISREG(inode->i_mode)) {
- 			inode->i_fop = &nfs_file_operations;
- 			inode->i_data.a_ops = &nfs_file_aops;
-@@ -679,7 +679,7 @@ nfs_find_actor(struct inode *inode, unsi
- 		return 0;
- 	/* Force an attribute cache update if inode->i_count == 0 */
- 	if (!atomic_read(&inode->i_count))
--		NFS_CACHEINV(inode);
-+		inode->i_mode = 0;
- 	return 1;
- }
- 
--- 
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,91 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261810AbSJNEmC>; Mon, 14 Oct 2002 00:42:02 -0400
+	id <S261818AbSJNEvq>; Mon, 14 Oct 2002 00:51:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261818AbSJNEmC>; Mon, 14 Oct 2002 00:42:02 -0400
-Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:43507 "EHLO
+	id <S261820AbSJNEvq>; Mon, 14 Oct 2002 00:51:46 -0400
+Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:48115 "EHLO
 	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S261810AbSJNEmB>; Mon, 14 Oct 2002 00:42:01 -0400
+	id <S261818AbSJNEvp>; Mon, 14 Oct 2002 00:51:45 -0400
 From: Andreas Dilger <adilger@clusterfs.com>
-Date: Sun, 13 Oct 2002 22:43:55 -0600
-To: Michael Clark <michael@metaparadigm.com>
-Cc: Alexander Viro <viro@math.psu.edu>, Christoph Hellwig <hch@infradead.org>,
-       Mark Peloquin <markpeloquin@hotmail.com>, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com, evms-devel@lists.sourceforge.net
+Date: Sun, 13 Oct 2002 22:55:07 -0600
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+Cc: Brian Jackson <brian-kernel-list@mdrx.com>, linux-kernel@vger.kernel.org,
+       evms-devel@lists.sourceforge.net
 Subject: Re: [Evms-devel] Re: Linux v2.5.42
-Message-ID: <20021014044355.GQ3045@clusterfs.com>
-Mail-Followup-To: Michael Clark <michael@metaparadigm.com>,
-	Alexander Viro <viro@math.psu.edu>,
-	Christoph Hellwig <hch@infradead.org>,
-	Mark Peloquin <markpeloquin@hotmail.com>,
-	linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-	evms-devel@lists.sourceforge.net
-References: <Pine.GSO.4.21.0210131243480.9247-100000@steklov.math.psu.edu> <3DA9B05F.8000600@metaparadigm.com>
+Message-ID: <20021014045507.GR3045@clusterfs.com>
+Mail-Followup-To: Mark Hahn <hahn@physics.mcmaster.ca>,
+	Brian Jackson <brian-kernel-list@mdrx.com>,
+	linux-kernel@vger.kernel.org, evms-devel@lists.sourceforge.net
+References: <20021013170630.29597.qmail@escalade.vistahp.com> <Pine.LNX.4.33.0210131545510.17395-100000@coffee.psychology.mcmaster.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3DA9B05F.8000600@metaparadigm.com>
+In-Reply-To: <Pine.LNX.4.33.0210131545510.17395-100000@coffee.psychology.mcmaster.ca>
 User-Agent: Mutt/1.4i
 X-GPG-Key: 1024D/0D35BED6
 X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 14, 2002  01:41 +0800, Michael Clark wrote:
-> Can we have some concensus on whether intermediate remapping layers also 
-> need to be exposed as block devices as this requiement would have a large
-> impact on the code.
+On Oct 13, 2002  15:58 -0400, Mark Hahn wrote:
+> > Yes I do realize that, but I think EVMS offers more in the long run
+> > than any of the others.
 > 
-> From the discussion so far:
-> 
-> Pros
-> * Simplify ioctl routing to plugins
-> 
-> Cons
-> * Chew up a minor
-> * Get a block device we don't need or want (ie. we can still easily
->   directly access the underlying physical block devices)
-> * lose purely logical remapping abstraction in plugins
-> * Complicate mapping of request queues to devices (ie. shouldn't only
->   the top level volume device and the underlying physical devices need
->   request queues)
+> for instance, some part of EVMS design is motivated by IBM's political
+> desire to permit its bank customers, who have horrible old OS/2 systems,
+> to transparently use OS/2 volumes.  it's not as if IBM couldn't provide
+> a simple, user-level migration tool.
 
-I never did get a clear understanding why Christoph wants access to
-"intermediate" block devices from EVMS, except for the ioctl issue.
-Granted, it _may_ be more "pure" to keep within the current block device
-paradigm for each internal stacking layer, or whatever.  If AV wants
-it implemented differently, then do it, I say.  But, that said, the
-fact that each intermediate layer _could_ be considered a block device
-does not mean that it makes sense to allow user-space access to these
-intermediate layers.
+Well, you try and convert a few TB of data in a few hour outage window
+and pray everything goes well (and then have to convert _back_ to the
+old format once you find a bug in the new environment).  You have just
+never worked in an environment where the time constraints are tight,
+and you CANNOT do the migration offline, or in advance, or whatever.
 
-Why on earth would I want to start reading from or writing to a block
-device which is part of a RAID 5 volume which is chunked into 16MB
-logical extents for a volume which is part of a snapshot of some
-totally different volume?  Yes, in some strange recovery scenario, I
-might want to 'dd' the underlying disks somewhere else for backup, but
-otherwise the only other thing I can possibly do is corrupt my data
-by mistake.
+> it's not as if the Linux community is going to rush out and say
+> "let's all start use OS/2 volumes everywhere!"
 
-Don't get me wrong, I'm all for giving people enough rope to shoot
-themselves in the foot, but I'd rather have /proc/partitions show me
-"you have 10 volumes" than "you have these 500 partial volumes that
-aren't really useful by themselves - good luck finding which one
-currently isn't in use for the filesystem you need to make".
+Well, it's not like most of the Linux community is rushing out and saying
+"let's all start using Amiga AFFS filesystems" either, but that didn't
+prevent it from being included in the kernel.
 
-It's like "ls -l" showing you each and every block that makes up a file,
-or "ps aux" listing the address of each chunk of RAM that a process has
-allocated.  Even better (Al will hate this one), it's like processes
-being able to read(2) and write(2) directory "files", ugh.  Sure, in
-some strange context it might be useful to have this information (and
-there are definitely tools which will let you know it and work directly
-on the raw bits), but in 99.9999% of cases it is just an accident
-waiting to happen, a waste of time to see this much detail, and confusion
-for users.
+I actually DO prefer AIX LVM metadata over the Linux LVM metadata,
+and it is NO CONTEST when you are comparing it to the "DOS partitions"
+that you seem to prefer so much.
 
-Ted will recall an incident at VA where an intern mke2fs'd part of an
-MD RAID device that made up Sourceforge, because he couldn't see it
-mounted anywhere, and thought it wasn't in use.
+> the best part of Linux is its willingness to throw out old designs;
+
+The best part of Linux is that it accepts a lot of people into the fold,
+each of whom has their own special needs, and can change it to meet
+those needs.
+
+> a big system like EVMS has its own resistance to such redesign.
+
+???  A big system like the VM/VFS/networking/etc has its own resistance to
+such redesign too, but that doesn't mean that they haven't been hacked and
+diced and re-assembled like Frankenstein several times.  Everything has
+to start somewhere, and if you want until everyone reaches "consensus"
+on what is the "best" way to implement it, we would all still be running
+MS DOS or Minix.
 
 Cheers, Andreas
 --

@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274683AbRJEX6M>; Fri, 5 Oct 2001 19:58:12 -0400
+	id <S274653AbRJEX6c>; Fri, 5 Oct 2001 19:58:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274681AbRJEX6C>; Fri, 5 Oct 2001 19:58:02 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:18188 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S274653AbRJEX5v>; Fri, 5 Oct 2001 19:57:51 -0400
-Subject: Re: Desperately missing a working "pselect()" or similar...
-To: neilb@cse.unsw.edu.au (Neil Brown)
-Date: Sat, 6 Oct 2001 01:03:04 +0100 (BST)
-Cc: alex@pennace.org (Alex Pennace), ecki@lina.inka.de (Bernd Eckenfels),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <15294.16536.430907.650513@notabene.cse.unsw.edu.au> from "Neil Brown" at Oct 06, 2001 09:22:00 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S274681AbRJEX6W>; Fri, 5 Oct 2001 19:58:22 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:9914 "EHLO
+	e34.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S274653AbRJEX6J>; Fri, 5 Oct 2001 19:58:09 -0400
+Date: Fri, 05 Oct 2001 16:54:06 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: paulus@samba.org, Peter Rival <frival@zk3.dec.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org, trini@kernel.crashing.org,
+        benh@kernel.crashing.org
+Subject: Re: [PATCH] change name of rep_nop
+Message-ID: <1573466920.1002300846@mbligh.des.sequent.com>
+In-Reply-To: <15294.16913.2117.383987@cargo.ozlabs.ibm.com>
+X-Mailer: Mulberry/2.0.8 (Win32)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15pevo-00088G-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> A technique I used in a similar situation once went something like:
+>> You also need to move the call to smp_boot_cpus() below the 
+>> clear_bit(...) line in smp_init().  Without it, my Wildfire doesn't get 
 > 
-> tv.tv_sec=bignum;
-> tv.tv_usec = 0;
-> enable_signals();
-> select(nfds, &readfds,&writefds,0,&tv);
+> No, that won't work for me, because cpu_online_map is set by
+> smp_boot_cpus(), at least on PPC (in fact each CPU sets its bit in
+> cpu_online_map as it spins up).
 > 
-> and have the signal handlers set tv.tv_sec to 0. (tv is a global
-> variable).
-> 
-> Then if the signal comes before the select, the select exits
-> immediately.
+> There shouldn't be a race on x86 at all, because the secondary
+> processors don't call init_idle until after they see that the primary
+> cpu has call smp_commence.  (There is currently a race on PPC since we
+> call init_idle before waiting for smp_commence, but that would not be
+> your problem.)
 
-You can do this more cleanly with sigsetjmp - it avoids any risk of suprises
-in the library itself - eg the select to poll mapper in some libraries - and
-indeed even the variable load into registers for a syscall
- 
+There *is* a race on x86 - the problem is that the primary cpu can 
+get to reschedule_idle before the secondarys have done init_idle.
+I'm not claiming the way I fixed it is beautiful, but the race definitely
+exists (I hit it) and the patch makes the problem go away. 
+
+Sounds like rep_nop was the wrong way to spin - aplogies.
+
+Martin.
+

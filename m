@@ -1,50 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264073AbTDOBli (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 21:41:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264081AbTDOBli (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 21:41:38 -0400
-Received: from [12.47.58.203] ([12.47.58.203]:28711 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S264073AbTDOBlh (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 21:41:37 -0400
-Date: Mon, 14 Apr 2003 18:53:26 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: James Simmons <jsimmons@infradead.org>
-Subject: Re: [FBCON] Could be called outside of a process context. This
- fixes that.
-Message-Id: <20030414185326.1fdf2e01.akpm@digeo.com>
-In-Reply-To: <200304141829.h3EITgZF028370@hera.kernel.org>
-References: <200304141829.h3EITgZF028370@hera.kernel.org>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id S263780AbTDOBtb (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 21:49:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264028AbTDOBtb (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 21:49:31 -0400
+Received: from holomorphy.com ([66.224.33.161]:30852 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263780AbTDOBta (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Apr 2003 21:49:30 -0400
+Date: Mon, 14 Apr 2003 19:00:57 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.67-mm3
+Message-ID: <20030415020057.GC706@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org
+References: <20030414015313.4f6333ad.akpm@digeo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Apr 2003 01:53:22.0433 (UTC) FILETIME=[CBB22710:01C302F1]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030414015313.4f6333ad.akpm@digeo.com>
+User-Agent: Mutt/1.3.28i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux Kernel Mailing List <linux-kernel@vger.kernel.org> wrote:
->
-> ChangeSet 1.981, 2003/03/25 10:21:46-08:00, jsimmons@maxwell.earthlink.net
+On Mon, Apr 14, 2003 at 01:53:13AM -0700, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.67/2.5.67-mm3/
 > 
-> 	[FBCON] Could be called outside of a process context. This fixes that.
-> 
-> 
-> ...
-> diff -Nru a/drivers/video/console/fbcon.c b/drivers/video/console/fbcon.c
-> --- a/drivers/video/console/fbcon.c	Mon Apr 14 11:29:45 2003
-> +++ b/drivers/video/console/fbcon.c	Mon Apr 14 11:29:45 2003
-> @@ -985,8 +985,8 @@
->  
->  	size = ((width + 7) >> 3) * height;
->  
-> -	data = kmalloc(size, GFP_KERNEL);
-> -	mask = kmalloc(size, GFP_KERNEL);
-> +	data = kmalloc(size, GFP_ATOMIC);
-> +	mask = kmalloc(size, GFP_ATOMIC);
->  	
->  	if (cursor->set & FB_CUR_SETSIZE) {
->  		memset(data, 0xff, size);
+> A bunch of new fixes, and a framebuffer update.  This should work a bit
+> better than -mm2.
 
-GFP_ATOMIC memory allocations can and will return NULL when the system is
-under load.  The driver _has_ to check for this, and cope with it.
+
+If one's goal is to free highmem pages, shrink_slab() is an ineffective
+method of recovering them, as slab pages are all ZONE_NORMAL or ZONE_DMA.
+Hence, this "FIXME: do not do for zone highmem". Presumably this is a
+question of policy, as highmem allocations may be satisfied by reaping
+slab pages and handing them back; but the FIXME says what we should do.
+
+
+diff -urpN mm3-2.5.67-1/mm/vmscan.c mm3-2.5.67-2/mm/vmscan.c
+--- mm3-2.5.67-1/mm/vmscan.c	2003-04-14 18:08:15.000000000 -0700
++++ mm3-2.5.67-2/mm/vmscan.c	2003-04-14 18:16:41.000000000 -0700
+@@ -134,11 +134,9 @@ void remove_shrinker(struct shrinker *sh
+  * If the vm encounted mapped pages on the LRU it increase the pressure on
+  * slab to avoid swapping.
+  *
+- * FIXME: do not do for zone highmem
+- *
+  * We do weird things to avoid (scanned*seeks*entries) overflowing 32 bits.
+  */
+-static int shrink_slab(long scanned,  unsigned int gfp_mask)
++static int shrink_slab(long scanned, unsigned int gfp_mask)
+ {
+ 	struct shrinker *shrinker;
+ 	long pages;
+@@ -835,7 +833,8 @@ try_to_free_pages(struct zone *classzone
+ 
+ 		/* Take a nap, wait for some writeback to complete */
+ 		blk_congestion_wait(WRITE, HZ/10);
+-		shrink_slab(total_scanned, gfp_mask);
++		if (classzone - classzone->zone_pgdat->node_zones < ZONE_HIGHMEM)
++			shrink_slab(total_scanned, gfp_mask);
+ 	}
+ 	if (gfp_mask & __GFP_FS)
+ 		out_of_memory();
+@@ -895,7 +894,8 @@ static int balance_pgdat(pg_data_t *pgda
+ 				max_scan = SWAP_CLUSTER_MAX;
+ 			to_free -= shrink_zone(zone, max_scan, GFP_KERNEL,
+ 					to_reclaim, &nr_mapped, ps, priority);
+-			shrink_slab(max_scan + nr_mapped, GFP_KERNEL);
++			if (i < ZONE_HIGHMEM)
++				shrink_slab(max_scan + nr_mapped, GFP_KERNEL);
+ 			if (zone->all_unreclaimable)
+ 				continue;
+ 			if (zone->pages_scanned > zone->present_pages * 2)

@@ -1,48 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129103AbQKMDkG>; Sun, 12 Nov 2000 22:40:06 -0500
+	id <S129103AbQKMEFf>; Sun, 12 Nov 2000 23:05:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129121AbQKMDjr>; Sun, 12 Nov 2000 22:39:47 -0500
-Received: from james.kalifornia.com ([208.179.0.2]:24175 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S129103AbQKMDjg>; Sun, 12 Nov 2000 22:39:36 -0500
-Message-ID: <3A0F61B4.66F22269@linux.com>
-Date: Sun, 12 Nov 2000 19:36:21 -0800
-From: David Ford <david@linux.com>
-Reply-To: david+validemail@kalifornia.com
-Organization: Talon Technology, Intl.
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: tytso@mit.edu, linux-kernel@vger.kernel.org, p_gortmaker@yahoo.com,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, viro@math.psu.edu
-Subject: Re: Linux 2.4 Status/TODO page (test11-pre3)
-In-Reply-To: <200011121939.eACJd9D01319@trampoline.thunk.org> <3A0F5B73.E613050B@mandrakesoft.com>
+	id <S129121AbQKMEFQ>; Sun, 12 Nov 2000 23:05:16 -0500
+Received: from deliverator.sgi.com ([204.94.214.10]:10067 "EHLO
+	deliverator.sgi.com") by vger.kernel.org with ESMTP
+	id <S129103AbQKMEFH>; Sun, 12 Nov 2000 23:05:07 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: "Peter H. Ruegg" <lkml@incense.org>
+cc: dhinds@zen.stanford.edu, linux-kernel@vger.kernel.org
+Subject: Re: Compile error with 2.4.0-test11-pre3 PCMCIA 
+In-Reply-To: Your message of "Sun, 12 Nov 2000 23:41:20 BST."
+             <Pine.GSO.4.21.0011122336350.18948-100000@stinky.trash.net> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Mon, 13 Nov 2000 15:03:43 +1100
+Message-ID: <2616.974088223@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-
-> >      * 2.4.0-test10 pcmcia fails to detect IRQ's correctly, and will
-> >        sometimes kill all software interrupts on card insertion on a NEC
-> >        Versa LX (David Ford)
+On Sun, 12 Nov 2000 23:41:20 +0100 (MET), 
+"Peter H. Ruegg" <lkml+nospam@incense.org> wrote:
+>I just tried to compile my first 2.4-Kernel. While dep, bzImage and
+>modules all seemed to work well, I've got the following errors while
+>trying to make modules_install:
 >
-> Still does this with test11-pre-latest?
+>depmod: *** Unresolved symbols in /lib/modules/2.4.0-test11-pre3/pcmcia/serial_cs.o
+>depmod: 	mod_timer_R1f13d309
 
-I'll test this tomorrow, I can't interrupt my laptop for the evening.
-
--d
-
--- ---NOTICE
-
--- fwd: fwd: fwd: type emails will be deleted automatically.
-      "There is a natural aristocracy among men. The grounds of this are
-      virtue and talents", Thomas Jefferson [1742-1826], 3rd US President
-
-
+Probably old version of modutils.  See Documentation/Changes.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274833AbRJKCOb>; Wed, 10 Oct 2001 22:14:31 -0400
+	id <S275841AbRJKCVE>; Wed, 10 Oct 2001 22:21:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277511AbRJKCOW>; Wed, 10 Oct 2001 22:14:22 -0400
-Received: from femail38.sdc1.sfba.home.com ([24.254.60.32]:59640 "EHLO
-	femail38.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S275841AbRJKCON>; Wed, 10 Oct 2001 22:14:13 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-Reply-To: landley@trommello.org
-Organization: Boundaries Unlimited
-To: Balbir Singh <balbir.singh@wipro.com>
-Subject: Re: is reparent_to_init a good thing to do?
-Date: Wed, 10 Oct 2001 18:13:45 -0400
-X-Mailer: KMail [version 1.2]
-Cc: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <3BC3118B.8050001@wipro.com> <3BC42E65.3060706@wipro.com> <3BC446E0.5020604@wipro.com>
-In-Reply-To: <3BC446E0.5020604@wipro.com>
-MIME-Version: 1.0
-Message-Id: <01101018134508.11498@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+	id <S277511AbRJKCUy>; Wed, 10 Oct 2001 22:20:54 -0400
+Received: from sushi.toad.net ([162.33.130.105]:28315 "EHLO sushi.toad.net")
+	by vger.kernel.org with ESMTP id <S275841AbRJKCUn>;
+	Wed, 10 Oct 2001 22:20:43 -0400
+Subject: [PATCH] 2.4.10-ac11 parport_pc.c bugfix
+From: Thomas Hood <jdthood@mail.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.15 (Preview Release)
+Date: 10 Oct 2001 22:20:23 -0400
+Message-Id: <1002766826.7434.38.camel@thanatos>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 10 October 2001 09:02, BALBIR SINGH wrote:
-> Balbir Singh wrote:
-> > Rob Landley wrote:
-> >> Or long lived kernel threads from short lived login sessions.
-...
-> Ooh! sorry this is a wrong approach to send SIGCHLD to the previous parent.
-> AFAIK, all shells send their children SIGHUP when the shell exits, but SSH
-> may have some special security consideration in waiting for all children to
-> exit, does anyone know?
->
-> Balbir
+This fix makes the parport driver print the correct dma number
+and makes explicit a couple of type casts.  Applies cleanly against
+-ac11         // Thomas Hood
 
-The problem I mentioned above was the reason "reparent_to_init" was created 
-in the first place.  Here it is in the archive:
+The patch:
+--- linux-2.4.10-ac10/drivers/parport/parport_pc.c	Mon Oct  8 22:41:14 2001
++++ linux-2.4.10-ac10-fix/drivers/parport/parport_pc.c	Tue Oct  9 19:36:58 2001
+@@ -2826,7 +2826,7 @@
+ 	if ( UNSET(dev->irq_resource[0]) ) {
+ 		irq = PARPORT_IRQ_NONE;
+ 	} else {
+-		if ( dev->irq_resource[0].start == -1 ) {
++		if ( dev->irq_resource[0].start == (unsigned long)-1 ) {
+ 			irq = PARPORT_IRQ_NONE;
+ 			printk(", irq disabled");
+ 		} else {
+@@ -2838,12 +2838,12 @@
+ 	if ( UNSET(dev->dma_resource[0]) ) {
+ 		dma = PARPORT_DMA_NONE;
+ 	} else {
+-		if ( dev->dma_resource[0].start == -1 ) {
++		if ( dev->dma_resource[0].start == (unsigned long)-1 ) {
+ 			dma = PARPORT_DMA_NONE;
+ 			printk(", dma disabled");
+ 		} else {
+ 			dma = dev->dma_resource[0].start;
+-			printk(", dma %d",irq);
++			printk(", dma %d",dma);
+ 		}
+ 	}
+ 
 
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0105.0/0045.html
-
-I.E. already fixed...
-
-Google could probably find Jimmy Hoffa given half a chance...  (If we could 
-just figure out how to connect it up to maps.yahoo.com...)
-
-Rob

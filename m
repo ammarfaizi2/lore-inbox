@@ -1,61 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315915AbSEGRaQ>; Tue, 7 May 2002 13:30:16 -0400
+	id <S315916AbSEGRbc>; Tue, 7 May 2002 13:31:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315916AbSEGRaP>; Tue, 7 May 2002 13:30:15 -0400
-Received: from mailhost.mipsys.com ([62.161.177.33]:37830 "EHLO
-	mailhost.mipsys.com") by vger.kernel.org with ESMTP
-	id <S315915AbSEGRaO>; Tue, 7 May 2002 13:30:14 -0400
-From: <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Padraig Brady <padraig@antefacto.com>,
-        Anton Altaparmakov <aia21@cantab.net>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.14 IDE 56
-Date: Tue, 7 May 2002 19:30:34 +0200
-Message-Id: <20020507173034.14013@mailhost.mipsys.com>
-In-Reply-To: <Pine.LNX.4.44.0205071021290.2509-100000@home.transmeta.com>
-X-Mailer: CTM PowerMail 3.1.2 F <http://www.ctmdev.com>
-MIME-Version: 1.0
+	id <S315917AbSEGRbb>; Tue, 7 May 2002 13:31:31 -0400
+Received: from [64.114.5.49] ([64.114.5.49]:50446 "EHLO c2kosmtp.cucbc.com")
+	by vger.kernel.org with ESMTP id <S315916AbSEGRba>;
+	Tue, 7 May 2002 13:31:30 -0400
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: James Fillman <jfillman@cucbc.com>
+Organization: CUCBC
+To: linux-kernel@vger.kernel.org
+Subject: Question about Virtual Memory
+Date: Tue, 7 May 2002 10:27:09 -0700
+X-Mailer: KMail [version 1.3.1]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-ID: <C2KXCHtyi67EKRuYDlr000004c8@c2kxch.cucbc.com>
+X-OriginalArrivalTime: 07 May 2002 17:31:20.0920 (UTC) FILETIME=[00998580:01C1F5ED]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->
->On Tue, 7 May 2002 benh@kernel.crashing.org wrote:
->>
->> One interesting thing here would be to have some optional link between
->> the bus-oriented device tree and the function-oriented tree (ie. devfs
->> or simply /dev).
->
->There isn't any 1:1 thing - the device/bus-oriented one should _not_ show
->virtual things like partitions etc that have no relevance for a driver,
->while /dev (and thus devfs) obviously think that that is the important
->part, much more important than how we actually got to the device.
->
->I think we need to have some way of getting a mapping from /dev ->
->devicefs, but I don't think that has to be a filesystem thing (it might
->even be as simple as just one ioctl or new system call: 'get the "path" of
->this device').
->
->There aren't that many people who actually care, I suspect.
-
-Sure, It's obviously not 1:1, what I had in mind was for the controller
-to show what devices it exports in the sense of raw devices, but I agree
-the other way makes a lot more sense. My problem was how to be devfs
-agnostic, but you answered with "ioctl or syscall" and that would indeed
-be ok. The ioctl things make it appliable to network interfaces as well,
-which is good.
-
-The need to do this link from a /dev to the driverfs, I suspect, will exist
-only for case like setting up the firmware, though I can imagine one may
-want to tweak some IDE settings (available via driverfs in your proposed
-scheme) knowing only the /dev node.
-
-Ben.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 
+I'm trying to understand how the 2.4 kernel behaves with respect to 
+caching. I'm running the 2.4.17 kernel on an i686. The server is running 
+heartbeat, apache, tomcat, and a java based message routing application. 99% 
+of the work is comming from the java application which produces a lot of disk 
+and network I/O. 
+Am I correct in saying that the kernel will cache disk writes to memory if 
+there is ample free RAM? Then syncing it to disk at a later time?
 
+With the above mentioned applications NOT running, %swapused = 0, disk cache 
+= 0. I've observed that when the applications start up, the kernel slowly 
+starts allocating free RAM for caching. It will stabalize with ~6MB of RAM 
+free. That's fine. But what I don't understand is that at the same time, swap 
+usage starts to increase and after a day or so, stabalizes at ~15MB. What is 
+being  swapped out? Is the VMM utilizing swap when it's caching?
+
+cheers,
+James Fillman
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE82A5tB2UIX/PVkc0RAua2AJ9z15e5NJ8dCIG40TH3hCRHAji1ggCgkXAW
+sVdvkIaqPwAktfxlsTdM1ac=
+=Q/JS
+-----END PGP SIGNATURE-----

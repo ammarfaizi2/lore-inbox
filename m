@@ -1,52 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278061AbRJIXkL>; Tue, 9 Oct 2001 19:40:11 -0400
+	id <S277263AbRJIXlF>; Tue, 9 Oct 2001 19:41:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277263AbRJIXkB>; Tue, 9 Oct 2001 19:40:01 -0400
-Received: from Expansa.sns.it ([192.167.206.189]:61202 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S278059AbRJIXjq>;
-	Tue, 9 Oct 2001 19:39:46 -0400
-Date: Wed, 10 Oct 2001 01:40:09 +0200 (CEST)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: "Jeffrey W. Baker" <jwbaker@acm.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: iptables in 2.4.10, 2.4.11pre6 problems
-In-Reply-To: <Pine.LNX.4.33.0110091604250.15092-100000@windmill.gghcwest.com>
-Message-ID: <Pine.LNX.4.33.0110100136280.24989-100000@Expansa.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S278062AbRJIXkw>; Tue, 9 Oct 2001 19:40:52 -0400
+Received: from sushi.toad.net ([162.33.130.105]:50337 "EHLO sushi.toad.net")
+	by vger.kernel.org with ESMTP id <S277263AbRJIXks>;
+	Tue, 9 Oct 2001 19:40:48 -0400
+Subject: Re: Linux 2.4.10-ac10
+From: Thomas Hood <jdthood@mail.com>
+To: linux-kernel@vger.kernel.org
+Cc: bunk@fs.tum.de
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.15 (Preview Release)
+Date: 09 Oct 2001 19:40:50 -0400
+Message-Id: <1002670852.763.24.camel@thanatos>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So the buffer is big enought for your traffic, I suppose.
+Okay, I've figured out issue #1.  There's an error in the
+parport_pc.c code such that it prints the irq number as the
+dma number ( ... thus DMA 7 instead of DMA 3).
 
-I saw something similar to your report, but indeed the buffer was too
-small.
+I append a patch that fixes this.  I'll submit it again with
+a [PATCH] subject heading.
 
-A good thing would be to see a packet dropped and the entries in
-/proc/net/ip_conntrack, so that it will be possible to infer something.
+We still need to figure out #2: what is taking up ioport 0x530?
 
-with 2.4.10 i see packet tracing working very well also under
-eavy network loads if the buffer is big enought...
+--
+Thomas
 
-and you are not using the controvers unclean module...
 
-On Tue, 9 Oct 2001, Jeffrey W. Baker wrote:
+> Well, the two notable difference in the syslog are:
+> 1) Parport now reports that it is going to use DMA 7
+>    instead of DMA 3;
+> 2) On the second boot ioport 0x530 is reported not to be free
+>    and this prevents ad1816 from loading
+>
+> Two questions:
+> 1) Is the parport actually configured to use DMA7, not DMA3? 
+>    Please check using "lspnp -v 0d" and also by any other
+>    methods you have access to
+> 2) What is using 0x530?  What's in /proc/ioports?
 
->
->
-> On Wed, 10 Oct 2001, Luigi Genoni wrote:
->
-> > and what is the content of
-> > /proc/net/ip_conntrack
-> > file?
-> >
-> > how big is the buffer you are using for packet tracing?
-> > (/proc/sys/net/ipv4/ip_conntrack_max)
->
-> Well, I'm not going to send that file to the Internet at large, but
-> ip_conntrack current has about 2100 lines and the max is 65535.
->
-> -jwb
->
+The patch:
+--- linux-2.4.10-ac10/drivers/parport/parport_pc.c	Mon Oct  8 22:41:14 2001
++++ linux-2.4.10-ac10-fix/drivers/parport/parport_pc.c	Tue Oct  9 19:36:58 2001
+@@ -2826,7 +2826,7 @@
+ 	if ( UNSET(dev->irq_resource[0]) ) {
+ 		irq = PARPORT_IRQ_NONE;
+ 	} else {
+-		if ( dev->irq_resource[0].start == -1 ) {
++		if ( dev->irq_resource[0].start == (unsigned long)-1 ) {
+ 			irq = PARPORT_IRQ_NONE;
+ 			printk(", irq disabled");
+ 		} else {
+@@ -2838,12 +2838,12 @@
+ 	if ( UNSET(dev->dma_resource[0]) ) {
+ 		dma = PARPORT_DMA_NONE;
+ 	} else {
+-		if ( dev->dma_resource[0].start == -1 ) {
++		if ( dev->dma_resource[0].start == (unsigned long)-1 ) {
+ 			dma = PARPORT_DMA_NONE;
+ 			printk(", dma disabled");
+ 		} else {
+ 			dma = dev->dma_resource[0].start;
+-			printk(", dma %d",irq);
++			printk(", dma %d",dma);
+ 		}
+ 	}
+ 
 

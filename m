@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129130AbQKQUZS>; Fri, 17 Nov 2000 15:25:18 -0500
+	id <S129097AbQKQU27>; Fri, 17 Nov 2000 15:28:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129147AbQKQUZL>; Fri, 17 Nov 2000 15:25:11 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:18191 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S129130AbQKQUY4>;
-	Fri, 17 Nov 2000 15:24:56 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200011171953.TAA01877@raistlin.arm.linux.org.uk>
-Subject: Re: VGA PCI IO port reservations
-To: root@chaos.analogic.com
-Date: Fri, 17 Nov 2000 19:52:59 +0000 (GMT)
-Cc: jgarzik@mandrakesoft.com (Jeff Garzik), linux-kernel@vger.kernel.org,
-        mj@suse.cz
-In-Reply-To: <Pine.LNX.3.95.1001117125211.20635A-100000@chaos.analogic.com> from "Richard B. Johnson" at Nov 17, 2000 01:06:30 PM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129147AbQKQU2s>; Fri, 17 Nov 2000 15:28:48 -0500
+Received: from 62-6-231-5.btconnect.com ([62.6.231.5]:57472 "EHLO
+	saturn.homenet") by vger.kernel.org with ESMTP id <S129097AbQKQU2o>;
+	Fri, 17 Nov 2000 15:28:44 -0500
+Date: Fri, 17 Nov 2000 20:00:49 +0000 (GMT)
+From: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: test11-pre6 still very broken
+Message-ID: <Pine.LNX.4.21.0011171935560.1796-100000@saturn.homenet>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson writes:
-> The code necessary to find the lowest unaliased address looks like
-> this:
+Hi,
 
-Any chance of providing something more readable?  I may be able to read
-some x86 asm, but I don't have the time to try to decode that lot.
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
-  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
+The mysterious lockups in test11-pre5 continue in test11-pre6. It is very
+difficult because the lockups appear to be kdb-specific (and kdb itself
+goes mad) but when there is no kdb there is very little useful information
+one can extract from a dead system...
+
+I will start removing kernel subsystems, one by one and try to reproduce
+it on as plain kernel as possible (i.e. just io, no networking etc.)
+
+So, this not-very-useful report just says -- test11-pre6 is extremely
+unstable, a simple "ltrace ls" can cause a lockup. Also, some programs
+work when run normally but coredump (or hang) when run via strace, but
+only sometimes, not always... (no, I don't have faulty memory, I run
+memtest!)
+
+Regards,
+Tigran
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

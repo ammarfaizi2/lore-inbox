@@ -1,42 +1,177 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264336AbTEZKYP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 06:24:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264339AbTEZKYP
+	id S264339AbTEZLAT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 07:00:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264342AbTEZLAT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 06:24:15 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:45829 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S264336AbTEZKYO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 06:24:14 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: linux-kernel@vger.kernel.org
-Subject: Re: Menuconfig abort error report with mdk 9.1 +skas patch
-Date: Mon, 26 May 2003 12:09:54 +0200
-User-Agent: KMail/1.5.1
-Cc: Andrew Steele <fozzy@zip.com.au>, mec@shout.net
-References: <20030526100150.GC29649@zipworld.com.au>
-In-Reply-To: <20030526100150.GC29649@zipworld.com.au>
+	Mon, 26 May 2003 07:00:19 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20910 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264339AbTEZLAP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 07:00:15 -0400
+Message-ID: <3ED1F6C6.3050400@pobox.com>
+Date: Mon, 26 May 2003 07:13:10 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCHES] add ata scsi driver
+References: <Pine.SOL.4.30.0305261217020.12542-100000@mion.elka.pw.edu.pl>
+In-Reply-To: <Pine.SOL.4.30.0305261217020.12542-100000@mion.elka.pw.edu.pl>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305261209.54293.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 26 May 2003 12:01, Andrew Steele wrote:
+Bartlomiej Zolnierkiewicz wrote:
+> On Mon, 26 May 2003, Jeff Garzik wrote:
+> 
+> 
+>>Linus Torvalds wrote:
+>>
+>>>On Mon, 26 May 2003, Jeff Garzik wrote:
+>>>
+>>>
+>>>>Just to echo some comments I said in private, this driver is _not_
+>>>>a replacement for drivers/ide.  This is not, and has never been,
+>>>>the intention.  In fact, I need drivers/ide's continued existence,
+>>>>so that I may have fewer boundaries on future development.
+>>>
+>>>
+>>>Just out of interest, is there any _point_ to this driver? I can
+>>>appreciate the approach, but I'd like to know if it does anything (at all)
+>>>better than the native IDE driver? Faster? Anything?
+>>
+>>
+>>Direction:  SATA is much more suited to SCSI, because otherwise you wind
+>>up re-creating all the queueing and error handling mess that SCSI
+>>already does for you.  The SATA2 host controllers coming out soon do
+>>full host-side TCQ, not the dain-bramaged ATA TCQ bus-release stuff.
+>>Doing SATA2 devel in drivers/ide will essentially be re-creating the
+>>SCSI mid-layer.
+> 
+> 
+> And now you are recreating ATA in SCSI ;-).
+> 
+> Don't get me wrong: I like idea very much, but why you can't
+> share common code between drivers/ide and your ATA-SCSI.
 
-Hi Andrew,
+SATA2 is really 100% different from PATA in all respects except for the 
+ATA commands themselves being sent down the pipe.  Doing that inside 
+drivers/ide really means two driver cores at that point.
 
-> I'm trying to build a kernel using the kernel source from Mandrake 9.1
-> When I try and go into the ALSA selection off the sound menu
-> menuconfig aborts with the following message:
-please bug Mandrake about this. ALSA is not part of 2.4 mainstream _yet_.
+Sharing code is definitely an option, though!
+Why do you think I named it "libata"?  :)
 
-If you don't get a response from Mandrake, tell me and I'll download the 
-kernel and fix it up.
 
-ciao, Marc
+Another SATA wrinkle:  the phy layer.
+
+SATA, like network cards, has an underlying connection layer.  The host 
+connects to the device.  Your link state may be up or down.  This is 
+easily mapped to SCSI semantics (initiator connection to target).  Much 
+more code if writing from scratch.
+
+
+>>Legacy-free:  Because I don't have to worry about legacy host
+>>controllers, I can ignore limitations drivers/ide cannot.  In
+>>drivers/ide, each host IO (PIO/MMIO) is done via function pointer.  If
+>>your arch has a mach_vec, more function pointers.  Mine does direct
+>>calls to the asm/io.h functions in faster.  So, ATA command submission
+>>is measureably faster.
+> 
+> 
+> I think it is simply wrong, you should use function pointers.
+> You can have ie. two PCI hosts, one using PIO and one using MMIO.
+> 
+> "measureably faster", I doubt.
+> IO operations are REALLY slow when compared to CPU cycles.
+
+You misunderstand.
+
+drivers/ide -- uses function pointers HWIF->outb, etc. inside a static 
+taskfile-submit function.  The TF submit functions statically order each 
+HWIF->outb() call, and you cannot change that order from the low-level 
+driver.
+
+my driver -- uses separate taskfile-submit functions for different hardware.
+
+My method directly uses outb(), writel(), or whatever is necessary.  It 
+allows one to use __writel() and barriers to optimize as needed, or to 
+support special cache coherency needs.  Further, for SATA and some 
+advanced PATA controllers, my method allows one to use a completely 
+alien and new taskfile submission method.  For example, building SATA2 
+FIS's as an array of u32's, and then queueing that FIS onto a DMA ring. 
+  The existing drivers/ide code is nowhere close to that.
+
+Putting it into drivers/ide language, my driver adds a 
+HWIF->do_flagged_taskfile hook, and eliminates the HWIF->outb hooks. 
+Turns ~13 hook calls into one, from looking at flagged_taskfile.
+
+And FWIW, I would not state "measureably faster" unless I actually 
+benchmarked it.  :)  It's a pittance in the grand scheme of things, 
+since you're inevitably limited by device speed, but lower CPU usage is 
+something nobody complains about...
+
+
+>>sysfs:  James and co are putting time into getting scsi sysfs right.  I
+>>would rather ride their coattails, and have my driver Just Work with
+>>sysfs and the driver model.
+> 
+> 
+> No big deal here, ATA will get it too.
+
+Oh agreed.  But scsi is pretty much there now (it's in testing in a BK 
+tree), and we're darn close to 2.6.0.
+
+
+>>PIO data transfer is faster and more scheduler-friendly, since it polls
+>>from a kernel thread.
+> 
+> 
+> CPU polling is faster than IRQs?
+
+Yes, almost always.
+
+The problem with polling is that it chews up CPU if you're not careful, 
+starving out other processes.  I'm careful :)
+
+
+>>And for specifically Intel SATA, drivers/ide flat out doesn't work (even
+>>though it claims to).
+> 
+> 
+> So fix it ;-).
+
+As you can see from the discussion, I think a new driver best serves the 
+future of SATA2 as well as today's SATA.  So I'm not gonna bother...  I 
+have a driver that works.
+
+If you're interested in working the problem, the result of booting ICH5 
+SATA in drivers/ide is a hang at
+	hdX: attached to ide-disk driver
+
+Nothing happens after that.  sysrq doesn't work, so my assumption was 
+that the bus was locked up.
+
+
+>>So, I conclude:  faster, smaller, and better future direction.  IMO, of
+>>course :)
+> 
+> 
+> And right now ugly and incomplete.
+> IMO, of course ;-).
+
+Incomplete?  Kinda sorta.  SATAPI isn't here yet, so all it needs is 
+more fine-grained error handling.  I call it 100% stable now, though.
+
+Ugly?  Compared to drivers/ide?  I actually have a lot of admiration and 
+respect for the PATA knowledge embedded in drivers/ide.  But I would 
+never call it pretty :)
+
+	Jeff
+
+
+

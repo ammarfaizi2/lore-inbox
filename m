@@ -1,198 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314145AbSDQWHu>; Wed, 17 Apr 2002 18:07:50 -0400
+	id <S314146AbSDQWQ4>; Wed, 17 Apr 2002 18:16:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314146AbSDQWHt>; Wed, 17 Apr 2002 18:07:49 -0400
-Received: from tolkor.sgi.com ([192.48.180.13]:19924 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S314145AbSDQWHq>;
-	Wed, 17 Apr 2002 18:07:46 -0400
-Message-Id: <200204172207.g3HM7em03541@stout.americas.sgi.com>
-Date: Wed, 17 Apr 2002 17:07:40 -0500
-From: Eric Sandeen <sandeen@sgi.com>
-To: linux-kernel@vger.kernel.org
-Subject: [Announce] XFS for Linux 1.1 Released
+	id <S314149AbSDQWQz>; Wed, 17 Apr 2002 18:16:55 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:52241 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S314146AbSDQWQy>;
+	Wed, 17 Apr 2002 18:16:54 -0400
+Date: Wed, 17 Apr 2002 14:15:59 -0700
+From: Greg KH <greg@kroah.com>
+To: Paul Zimmerman <Paul_Zimmerman@inSilicon.com>
+Cc: "'linux-usb-devel@lists.sourceforge.net'" 
+	<linux-usb-devel@lists.sourceforge.net>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH] USB device support for 2.5.8
+Message-ID: <20020417211559.GB2365@kroah.com>
+In-Reply-To: <7FD8B823E5024E44B027221DEB34C087536510@scl-exch.phoenix.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Wed, 20 Mar 2002 18:02:02 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-SGI is pleased to announce the 1.1 release of XFS for Linux.
+On Wed, Apr 17, 2002 at 02:09:32PM -0700, Paul Zimmerman wrote:
+> We already have drivers/usb/hcd for "host controller drivers", how about
+> drivers/usb/dcd for "device controller drivers"?
 
-Major improvements in this release include:
-* Faster deletes
-* Significantly reduced "null-file-after-crash" occurrences
-* New reserved Extended Attribute syscall interface
-* Restrict inodes to 32 bits on large filesystems 
+No, the drivers/usb/hcd directory has been moved to drivers/usb/host,
+and a few more files were added to it.  Take a look at the drivers/usb/
+restructure in 2.5.8.
 
-More information can be found at
-http://oss.sgi.com/projects/xfs/1.1_release.html
+thanks,
 
-Files are available under 
-ftp://oss.sgi.com/projects/xfs/download/Release-1.1/
-
-This URL contains the following directories:
-
-kernel_rpms/linux-2.4.18/
-
-2.4.18 kernel RPMS based on vanilla 2.4.18 kernels (Linus' tree) 
-with the XFS bits added.
-
-kernel_rpms/2.4.9-31/
-
-2.4.9-31 kernel RPMS based on Red Hat's 7.1/7.2 2.4.9-31 kernel
-release.  Please not that these are NOT Red Hat kernels, and are in
-no way supported by Red Hat.
-
-kernel_patches/
-
-The patches provided are for linux-2.4.18, for both x86 and ia64.
-
-See the README file in the patches/ directory for patching
-instructions.
-
-cmd_tars/
-cmd_rpms/
-
-Userspace commands are provided both as tarballs and as RPMs.
-
-CHANGES since 1.0.2:
-====================
-
-Kernel
-------
-
-* Removed most synchronous transactions - faster deletes, fewer chances for null files after a crash!
-* Various error code return fixes
-* Restrict inodes to 32 bits on large filesystems (override w/ mount option)
-* Fixed concurrent file and mmapped I/O
-* Fixed dbench hangs on low memory systems
-* Fixed recovery of device special inodes
-* Fixed mount argument parsing
-* Various pagebuf reorganization, simplification, and cleanup
-* Fixed parallel direct and buffered I/O
-* Code merges from IRIX
-* Pagebuf merged into xfs
-* Fixed out-of-line extended attribute data
-* Fixed forced shutdown bug that overwrote superblock :(
-* Improved memory allocation when not in a transaction
-* Limit max file size to something Linux can handle
-* Some realtime device fixes (still not complete)
-* Cleaned up xfs_freeze path
-* Report filesystem name on duplicate UUID mount failure
-* Shrink xfs inode size
-* Fixed some direct I/O corner cases
-* Fixed mount with bad log or realtime device options
-* Make "osyncisdsync" the default on xfs filesystems
-* Restrict chown to file's owner, or someone w/ the right capability
-* Upgraded quota to Jan Kara's 32-bit VFS quota
-* Fixed memory leak in O_DIRECT read path
-* Use new reserved ea/acl syscall numbers
-* Fixed some sparc64 compile problems
-* Make xfs superblock coherent with block layer
-* Pagebuf use after free fix
-* Don't allow quota flag changes on read-only device
-* Make xfs metadata accesses refresh pages, keep them in the cache
-* Fixed sgid inheritence for root
-* Corrected utime permissions checking
-* Reduced xfs log memory usage
-* Fixed a bug in memory freeing
-* Delete nfs refcache sbdirty timer on unmount
-* Make nfs refcache sbdirty timer for each fs, not global
-* Fix for inode32 mount option on > 1TB filesystems
-
-acl
----
-* Man page updates from Andreas
-* Test script updates from Andreas
-* Clean up the --default option handling in setfacl. The old workarounds caused a bug for unusual input.
-* Changes to the --test output format setfacl generates: ACLs that are not changed are now displayed as `*'.
-* Fixed a bug in setfacl/sequence.c:seq_delete_cmd()
-* Minor changes to test scripts
-* Apply several patches from Andreas, namely:
-* - man page fixes
-* - libacl code reformatting
-* - acl_from_text errno handling
-* Applied Andreas Gruenbacher's diffs
-* Fixed up chacl for deletion of access ACL to be in line with Andreas
-* Incorporated the Debian packaging again
-* Reworked to use the new official system call API
-* Sync up with the XFS project, the SGI folk now use this source
-* Jumped to version 2 to allow XFS users to upgrade (Rationale: the XFS ACL user tools were at version 1.1.X, and packaging tools like rpm, dpkg, etc. must be presented with a greater version number to allow an upgrade to proceed)
-* Added the chacl command to ease migration for existing XFS users, and for compatibility with IRIX
-* Added a flag to allow acl_print to produce a single-line ACL, in addition to the multi-line format
-* Extended attribute documentation has moved into the extended attribute package from SGI ("attr"), this ACL package now deals exclusively with ACLs
-* acl_from_text sometimes did not set errno when failing
-* Moved files and simplified #includes in libacl
-
-attr
-----
-* Add MIPS/MIPS64 system call numbers
-* Fixed build for architectures which don't have syscalls yet
-* Fixed the syscall number used on Sparc for fremovexattr(2)
-* Test script updates
-* Man page updates
-* A minor change to the test/run script
-* Added in ARM architecture system call numbers
-* Updates to the test output from Andreas
-* Added in S/390 system call numbers from Martin Schwidefsky
-* Revert IA64 syscall numbering after further mail with David Mosberger (apparently sys_tkill will be moved) See: https://external-lists.valinux.com/archives/linux-ia64/2002-February/002990.html
-* Incorporated several documentation changes from Andreas, including a script to convert from the aget format of attribute backup file, to the new getfattr format
-* Fixed IA64 syscall numbering
-* Initial introduction of the new system call interface
-* Synced up with the ext2 project, incorporated get/set tools
-* New man pages for system calls, getfattr(1) and setfattr(1)
-* Made the attributes.h interface align properly with IRIX
-
-DMAPI
------
-* The kernel-side of dmapi is now a module, and the device has moved. Change dmapi to use the dmapi device in its new location of /proc/fs/xfs_dmapi.
-
-xfsprogs
---------
-* Fall back to BLKGETSIZE if BLKGETSIZE64 fails
-* Sync user/kernel headers and shared code
-* Major release to coincide with switch to new extended attributes system call interfaces
-* Bumped version of libhandle, added new symbols to use the reworked extended attributes handle ioctl interface
-* xfs_repair in no-modify mode opens the filesystem device read-only now (fix from Chris Pascoe)
-* Sync up with recent (minor) changes to shared kernel code
-* Switch to using the BLKGETSIZE64 ioctl in libxfs, instead of the (previously busted) BLKGETSIZE ioctl
-* Fixed xfs_repair option parsing for external logs
-* Added xfs_repair option parsing for realtime device
-* Fixed xfs_repair version (-V) option - should not require an argument
-* Added -V option to usage string
-* Document verbose (-v) and -r options in manpage
-* Fixed mkfs.xfs buglet in overwriting signatures when run on a regular file
-* mkfs.xfs overwrites pre-existing filesystem, swap, or md driver signatures.
-* xfs_repair fix to prevent double insertion into the uncertain_inode AVL trees ("avl_insert: duplicate range")
-* xfs_repair fix if the log is corrupted and we can't find the head, don't exit - just proceed on with zeroing it
-* Use snprintf instead of sprintf throughout
-* Added text dump type to xfs_db (mkp)
-* Removed use of a temporary file in xfs_db when processing commands on the command line - allows xfs_check to be run on read-only root filesystems
-* Reenable the use of the BLKBSZSET ioctl, its baaack
-* Sync recent XFS kernel source changes back into libxfs
-* Fixed minor debian package version numbering issue
-* Added documentation for xfs_db(8) label/uuid commands
-* Automatic inode sizing code in mkfs.xfs has been removed (restricting inodes to 32 bits) - Steve's recent kernel changes mean this is no longer an issue
-* Fixed bug in mkfs.xfs size cross-check for realtime device
-
-xfsdump/restore
----------------
-* Reworked all code dealing with extended attributes to use the new system calls (requires attr-2.0.0 or greater)
-* The attrctl-by-handle ioctl is history, replaced by libhandle routines - more like what we have in IRIX (requires xfsprogs-2.0.0 or greater)
-* Effectively no-op change (cleanup) - switch over to using XFS_IOC_FSGEOMETRY instead of XFS_IOC_GETFSUUID ioctl, so we can deprecate that "special" UUID ioctl in the kernel.
-* Added -q description to xfsdump/xfsrestore man pages and usage text.
-* Change failed bulkstat WARNING to a TRACE message to that it doesn't bother people.
-* Avoid a possible assertion failure for cumulative restores with -B option.
-* Fixed xfsrestore so that cumulative restores (with -r) will successfully delete removed directories whose files have also been removed. Previously, the files weren't removed until later, which meant that early directory removal failed. SGI bug#844219.
-* Fixed xfsdump so that if an inode# is reused in the time between building the inode map and pruning the inode map (in phase 3 when some dirs are marked as not changed), that it no longer aborts with an assertion failure. SGI bug#846374.
-* Added new -B option to xfsrestore to correctly assign ownership and permissions of the dump root directory to the destination directory
-* Ported back IRIX changes primarily to xfsrestore for improving performance when one has over a million files.
-* Some extra mlogs (messages) for dump estimates, dir tree diagnostics, type of dump format being used
-* Various fixes for restore with multiple threads and extended attributes (note: multiple threads not implemented on Linux yet)
-* Fix xfsdump to endian convert all of the record header fields properly just prior to writing the header out (in particular first_mark_offset). This caused do_next_mark() assertion failures at some sites.
-* Fixed xfsrestore so that it doesn't delete hardlinks on alternate cumulative restores
-* Allow xfsdump to exclude files based on whether they have a certain extended attribute set
-* Don't include /var/lib/xfsdump in the dump
-* 
-misc
-----
-* Updated documentation.
+greg k-h

@@ -1,71 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262000AbTIPRPt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 13:15:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262003AbTIPRO0
+	id S262005AbTIPRVS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 13:21:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262054AbTIPRVS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 13:14:26 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:40933 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262004AbTIPROR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 13:14:17 -0400
-Date: Sun, 14 Sep 2003 12:08:28 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nicolae Mihalache <mache@abcpages.com>
-Cc: linux-kernel@vger.kernel.org, Patrick Mochel <mochel@osdl.org>
-Subject: Re: 2.6-test4 problems: suspend and touchpad
-Message-ID: <20030914100828.GB7357@openzaurus.ucw.cz>
-References: <Pine.LNX.4.33.0309121519420.984-100000@localhost.localdomain> <3F637245.9070009@abcpages.com> <3F638E18.9080406@abcpages.com>
+	Tue, 16 Sep 2003 13:21:18 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:36877 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262005AbTIPRVF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 13:21:05 -0400
+Date: Tue, 16 Sep 2003 18:20:59 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Greg KH <greg@kroah.com>
+Cc: Norman Diamond <ndiamond@wta.att.ne.jp>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test5 vs. Ethernet cards
+Message-ID: <20030916182059.D20141@flint.arm.linux.org.uk>
+Mail-Followup-To: Greg KH <greg@kroah.com>,
+	Norman Diamond <ndiamond@wta.att.ne.jp>,
+	linux-kernel@vger.kernel.org
+References: <1b7201c37a73$844b7030$2dee4ca5@DIAMONDLX60> <20030914091702.B20889@flint.arm.linux.org.uk> <20030916164941.GI3593@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F638E18.9080406@abcpages.com>
-User-Agent: Mutt/1.3.27i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030916164941.GI3593@kroah.com>; from greg@kroah.com on Tue, Sep 16, 2003 at 09:49:41AM -0700
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, Sep 16, 2003 at 09:49:41AM -0700, Greg KH wrote:
+> On Sun, Sep 14, 2003 at 09:17:02AM +0100, Russell King wrote:
+> > On Sun, Sep 14, 2003 at 12:51:29PM +0900, Norman Diamond wrote:
+> > > Shutdown messages appear on the text console as follows:
+> > > [...]
+> > > Shutting down PCMCIA unregister_netdevice: waiting for eth0 to become free.
+> > > Usage count = 1
+> > > unregister_netdevice: waiting for eth0 to become free. Usage count = 1
+> > > unregister_netdevice: waiting for eth0 to become free. Usage count = 1
+> > > unregister_netdevice: waiting for eth0 to become free. Usage count = 1
+> > > unregister_netdevice: waiting for eth0 to become free. Usage count = 1
+> > > unregister_netdevice: waiting for eth0 to become free. Usage count = 1
+> > > unregister_netdevice: waiting for eth0 to become free. Usage count = 1
+> > > unregister_netdevice: waiting for eth0 to become free. Usage count = 1
+> > > unregister_netdevice: waiting for eth0 to become free. Usage count = 1
+> > > [...]
+> > > 
+> > > The only way to shut down at this point is to turn off the power.
+> > 
+> > IIRC the problem is your hotplug scripts.  Maybe the hotplug folk can tell
+> > you the minimum version for 2.6.
+> 
+> The last release version is the best for 2.6, but this doesn't look
+> like a hotplug script issue at all.
 
-> >>> 2. suspend/resume. With version 2.6test2+acpi patch both swsusp 
-> and
-> >>> "echo 3 >/proc/acpi/sleep" worked, being able to somehow
-> >>> successfully resume. In version 2.6test4 there is no
-> >>> /proc/acpi/sleep and swsusp hangs somwhere during an IDE call (I 
-> can
-> >>> hand-copy the trace if needed).
-> >>>
-> >>
-> >>
-> >> Would you please try the latest -mm patch (2.6.0-test5-mm1, I
-> >> believe) and report your findings?
-> >>
-> >
-> > Well, the 2.6.0-test5-mm1 does not compile on my system (SuSE 8.2, 
-> gcc
-> > version 3.3 20030226 (prerelease) ):
-> 
-> Ok, I solved the compilation problems and with this kernel swsusp 
-> does not hang anymore.
-> The resume works however the network adapter (Broadcom 4400) does not 
-> even when restarting the network.
-> ifconfig eth0 shows very big counters:
-> eth0      Link encap:Ethernet  HWaddr 00:C0:9F:26:C7:15
->          UP BROADCAST NOTRAILERS RUNNING MULTICAST  MTU:1500  Metric:1
->          RX packets:819 errors:4294966560 dropped:0 overruns:0 
-> frame:4294966836
->          TX packets:865 errors:4294966836 dropped:0 overruns:0 
-> carrier:4294967118
->          collisions:4294967204 txqueuelen:100
->          RX bytes:956732 (934.3 Kb)  TX bytes:89228 (87.1 Kb)
->          Interrupt:5
-> 
-> 
-> Any ideas? Maybe the driver for this network card does not 
-> (correctly) implement suspend/resume ?
+Hmm, ok.  However, in the past when people have upgraded their hotplug
+scripts, the problem goes away.
 
-Pretty probable. Look at the driver sources, and if there's no _suspend method, write one.
-If you ifconfig down before suspend, does it help?
+Whatever, it's certainly not a PCMCIA issue either, so I'm at a loss what
+to do about these reports.
+
+I can only think that the right answer is to bat them all at the netdev
+list, since it is a network device issue.
+
 -- 
-				Pavel
-Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
-
+Russell King (rmk@arm.linux.org.uk)	http://www.arm.linux.org.uk/personal/
+Linux kernel maintainer of:
+  2.6 ARM Linux   - http://www.arm.linux.org.uk/
+  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+  2.6 Serial core

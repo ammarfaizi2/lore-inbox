@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263531AbTIHTe3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 15:34:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263552AbTIHTe3
+	id S263536AbTIHTgU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 15:36:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263552AbTIHTgU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 15:34:29 -0400
-Received: from fw.osdl.org ([65.172.181.6]:63936 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263531AbTIHTe2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 15:34:28 -0400
-Date: Mon, 8 Sep 2003 12:28:53 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: torvalds@osdl.org, aebr@win.tue.nl, willy@debian.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] use size_t for the broken ioctl numbers
-Message-Id: <20030908122853.65bff9df.rddunlap@osdl.org>
-In-Reply-To: <20030908204023.A1060@pclin040.win.tue.nl>
-References: <20030908123846.GA15553@win.tue.nl>
-	<Pine.LNX.4.44.0309080812200.11840-100000@home.osdl.org>
-	<20030908204023.A1060@pclin040.win.tue.nl>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Sep 2003 15:36:20 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:4366 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S263536AbTIHTgT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 15:36:19 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: Scaling noise
+Date: 8 Sep 2003 19:27:29 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bjil71$986$1@gatekeeper.tmr.com>
+References: <20030903040327.GA10257@work.bitmover.com> <20030903124716.GE2359@wind.cocodriloo.com> <1062603063.1723.91.camel@spc9.esa.lanl.gov> <200309040350.31949.phillips@arcor.de>
+X-Trace: gatekeeper.tmr.com 1063049249 9478 192.168.12.62 (8 Sep 2003 19:27:29 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Sep 2003 20:40:23 +0200 Andries Brouwer <aebr@win.tue.nl> wrote:
+In article <200309040350.31949.phillips@arcor.de>,
+Daniel Phillips  <phillips@arcor.de> wrote:
 
-| [That reminds me - you announced sparse, a source checker.
-| Is it available for non bk users? I haven't seen a URL.]
+| As for Karim's work, it's a quintessentially flashy trick to make two UP 
+| kernels run on a dual processor.  It's worth doing, but not because it blazes 
+| the way forward for ccClusters.  It can be the basis for hot kernel swap: 
+| migrate all the processes to one of the two CPUs, load and start a new kernel 
+| on the other one, migrate all processes to it, and let the new kernel restart 
+| the first processor, which is now idle.
 
-Dave Jones puts snapshots of it at
-http://www.codemonkey.org.uk/projects/sparse/
-
---
-~Randy
+UML running on a sibling, anyone? Interesting concept, not necessarily
+useful.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

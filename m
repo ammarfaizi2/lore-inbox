@@ -1,30 +1,27 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316578AbSEUUAX>; Tue, 21 May 2002 16:00:23 -0400
+	id <S316582AbSEUUAN>; Tue, 21 May 2002 16:00:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316579AbSEUUAX>; Tue, 21 May 2002 16:00:23 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:5126 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S316578AbSEUUAV>;
-	Tue, 21 May 2002 16:00:21 -0400
-Date: Tue, 21 May 2002 12:59:25 -0700
-From: Greg KH <greg@kroah.com>
-To: "Maksim \(Max\) Krasnyanskiy" <maxk@qualcomm.com>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: What to do with all of the USB UHCI drivers in the kernel ?
-Message-ID: <20020521195925.GA2623@kroah.com>
+	id <S316579AbSEUUAM>; Tue, 21 May 2002 16:00:12 -0400
+Received: from quattro-eth.sventech.com ([205.252.89.20]:33039 "EHLO
+	quattro.sventech.com") by vger.kernel.org with ESMTP
+	id <S316578AbSEUUAL>; Tue, 21 May 2002 16:00:11 -0400
+Date: Tue, 21 May 2002 16:00:12 -0400
+From: Johannes Erdfelt <johannes@erdfelt.com>
+To: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
+Cc: greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+        linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] RE: What to do with all of the USB UHCI drivers in the kernel ?
+Message-ID: <20020521160012.D2645@sventech.com>
 In-Reply-To: <5.1.0.14.2.20020521122422.06b21188@mail1.qualcomm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.26i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Tue, 23 Apr 2002 18:30:11 -0700
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 21, 2002 at 12:41:39PM -0700, Maksim (Max) Krasnyanskiy wrote:
-> Greg,
-> 
+On Tue, May 21, 2002, Maksim (Max) Krasnyanskiy <maxk@qualcomm.com> wrote:
 > I'm gonna speak for Bluetooth USB devices.
 > I do have bunch of things like Kodak digi camera, Sony DV camcorder, CF 
 > reader, etc. But they don't
@@ -43,17 +40,12 @@ On Tue, May 21, 2002 at 12:41:39PM -0700, Maksim (Max) Krasnyanskiy wrote:
 > of devices that refuse to work with usb-uhci (I didn't test the latest 
 > usb-uhci though).
 
-Sorry for the confusion, but both usb-uhci.c and uhci.c will be deleted
-anyway :)
+Please test the latest version of the drivers. Both uhci and usb-uhci
+have had various bug fixes. I'm sure the performance problems you've had
+with uhci have been fixed for a little while now.
 
-I am more interested in usb-uhci-hcd.c and uhci-hcd.c drivers, which both
-showed up in 2.5.16.  Yes they are based on the previous usb-uhci.c and
-uhci.c drivers respectivly, but they are a bit different (they use the
-hcd core code which reduces the size of the driver.)
+Also, feedback about the -hcd variants would useful too since one of
+those will be the only ones left for 2.5.
 
-You also might want to check out uhci.c again in 2.4.19-pre.  It has had
-a lot of previous bugs fixed and works _much_ better for me than before.
+JE
 
-thanks,
-
-greg k-h

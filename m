@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267615AbTBFXUL>; Thu, 6 Feb 2003 18:20:11 -0500
+	id <S267623AbTBFXQ5>; Thu, 6 Feb 2003 18:16:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267696AbTBFXUL>; Thu, 6 Feb 2003 18:20:11 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:47122 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S267615AbTBFXUK>;
-	Thu, 6 Feb 2003 18:20:10 -0500
-Date: Thu, 6 Feb 2003 15:25:15 -0800
-From: Greg KH <greg@kroah.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>,
-       Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: [PATCH] Restore module support.
-Message-ID: <20030206232515.GA29093@kroah.com>
-References: <20030204233310.AD6AF2C04E@lists.samba.org> <Pine.LNX.4.44.0302062358140.32518-100000@serv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302062358140.32518-100000@serv>
-User-Agent: Mutt/1.4i
+	id <S267613AbTBFXQ5>; Thu, 6 Feb 2003 18:16:57 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:6675 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267608AbTBFXQx>; Thu, 6 Feb 2003 18:16:53 -0500
+Date: Thu, 6 Feb 2003 15:22:21 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: Mark Haverkamp <markh@osdl.org>, Steven Cole <elenstev@mesatop.com>,
+       <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.5] fix megaraid driver compile error
+In-Reply-To: <1044573566.5502.76.camel@imladris.demon.co.uk>
+Message-ID: <Pine.LNX.4.44.0302061519360.14478-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 07, 2003 at 12:09:27AM +0100, Roman Zippel wrote:
-> Hi,
-> 
-> On Tue, 4 Feb 2003, Rusty Russell wrote:
-> 
-> > I'm going to stop here, since I don't think you understand what I am
-> > proposing, nor how the current system works: this makes is extremely
-> > difficult to describe changes, and time consuming.
-> 
-> Rusty, if you continue to ignore criticism, I have only one answer left:
-> 
-> http://www.xs4all.nl/~zippel/restore-modules-2.5.59.diff
 
-But what are the modutils numbers? :)
+On 6 Feb 2003, David Woodhouse wrote:
+> 
+> Cut and paste from xterm should work fine. Cut and paste from
+> gnome-terminal, OTOH, will often corrupt it for you.
 
-Come on, what Rusty did was the "right thing to do" and has made life
-easier for all of the arch maintainers (or so says the ones that I've
-talked to), and has made my life easier with regards to
-MODULE_DEVICE_TABLE() logic, which will enable the /sbin/hotplug
-scripts/binary to shrink a _lot_.
+I think xterm does the same thing. I certainly refuse to use inferior 
+clones (I don't understand why people even _bother_ with things like 
+gnome-terminal, since it can't even do proper vt100 sequences), and I 
+definitely get tab->space conversion between two xterms.
 
-thanks,
+		Linus
 
-gre gk-h

@@ -1,53 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129309AbRB1XLZ>; Wed, 28 Feb 2001 18:11:25 -0500
+	id <S129374AbRB1XLg>; Wed, 28 Feb 2001 18:11:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129374AbRB1XLP>; Wed, 28 Feb 2001 18:11:15 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:59396 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S129339AbRB1XJQ>;
-	Wed, 28 Feb 2001 18:09:16 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Michal Jaegermann <michal@harddata.com>
-Date: Thu, 1 Mar 2001 00:07:45 MET-1
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: 2.4 kernels - "attempt to access beyond end of device"
-CC: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.40
-Message-ID: <C291BF3C67@vcnet.vc.cvut.cz>
+	id <S129381AbRB1XLX>; Wed, 28 Feb 2001 18:11:23 -0500
+Received: from nwcst340.netaddress.usa.net ([204.68.23.85]:4527 "HELO
+	nwcst340.netaddress.usa.net") by vger.kernel.org with SMTP
+	id <S129309AbRB1XKA> convert rfc822-to-8bit; Wed, 28 Feb 2001 18:10:00 -0500
+Message-ID: <20010228230958.7613.qmail@nwcst340.netaddress.usa.net>
+Date: 28 Feb 2001 17:09:58 CST
+From: Neelam Saboo <neelam_saboo@usa.net>
+To: Andrew Morton <andrewm@uow.edu.au>,
+        David Mansfield <lkml@dm.ultramaster.com>
+Subject: Re: [Re: paging behavior in Linux]
+CC: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
+X-Mailer: USANET web-mailer (34FM.0700.15B.01)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 28 Feb 01 at 15:47, Michal Jaegermann wrote:
-> > > I have more checks to make before I will be fully satisfied but
-> > > this looks like it.
-> > ...
-> > > System Performance Setting [Optimal, Normal]
-> > ...
+Another observation. I have two independent programs. One program incurring
+page faults and another program just doing some work.
+When work program run undependently it takes ~19 seconds of CPU time, but when
+it is run along with page faulting program on the same machine, it takes ~32
+seconds of CPU time. Doesnt this indicate that page faults in a program slows
+down all the program on the machine and not only threads in the same process
+?
+
+neelam
+
+Andrew Morton <andrewm@uow.edu.au> wrote:
+> David Mansfield wrote:
 > > 
-> > Try BIOS 1006. AFAIK 1005D changed some VIA values for 'optimal'.
+> > Manfred Spraul wrote:
+> > >
+> > > >
+> > > > When I run my program on a readhat linux machine, I dont get results
+as
+> > > > expected, work thread seems to be stuck when prefetch thread is
+waiting on
+> > > > a page fault
+> > > >
+> > > That's a known problem:
+> > >
+> > > The paging io for a process is controlled with a per-process semaphore.
+> > > The semaphore is held while waiting for the actual io. Thus the paging
+> > > in multi threaded applications is single threaded.
+> > > Probably your prefetch thread is waiting for disk io, and the worker
+> > > thread causes a minor pagefault --> worker thread sleeps until the disk
+> > > io is completed.
+> > 
+> > This behavior is actually pretty annoying.  There can be cases where a
+> > process wakes up from a page fault, does some work, goes back to sleep
+> > on a page fault, thereby keeping it's mmap_sem locked at all times (i.e.
+> > vmstat, top, ps unusable) on a UP system.  I posted this complaint a
+> > while ago, it was discussed by Linus and Andrew Morton about how it also
+> > boiled down to semaphore wakeup unfairness (and bugs?).  The current
+> > semaphore was determined to be too ugly to even look at.  So it was
+> > dropped.
+> > 
+> > Is there any way that the mmap_sem could be dropped during the blocking
+> > on I/O, and reclaimed after the handle_mm_fault?  Probably not, or it'd
+> > be done.
+> > 
+> > It can be a real DOS though, a 'well-written' clobbering program can
+> > make ps/vmstat useless.  (it's actually /proc/pid/stat that's the
+> > killer, IIRC).
 > 
-> Is that important here?  IDE drives in question were not connected to
-> on-board controller but the Promise one.  Results seem to indicate
-> that this 'optimal' was important here anyway.
-
-VIA host-bridge, not VIA-IDE... It is important even if you use Promise
-only - look back through archives, there must be something really wrong
-with this motherboard.
- 
-> > And 1006 contains newer Promise BIOS - but I did not notice any difference:
-> > Windows98 still do not boot if I connect harddisk to /dev/hdh :-(
+> Did the `goto inside' trick in the semaphore code actually
+> fix this unfairness issue?
 > 
-> There is at this moment Windows98 installation on /dev/hde1 and it boots
-> so far.   It got installed and it was booting regardless with these
-> "other" BIOS seetings.
+> -
 
-Connect UDMA2 CDROM to hda and UDMA2 IDE to hdg. And then look how Win98
-lockup after they print 'Starting Win98...'. But that's offtopic for 
-linux-kernel.
-                                      Best regards,
-                                                    Petr Vandrovec
-                                                    vandrove@vc.cvut.cz
-                                
+
+____________________________________________________________________
+Get free email and a permanent address at http://www.netaddress.com/?N=1

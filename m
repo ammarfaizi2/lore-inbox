@@ -1,124 +1,186 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130386AbQJ1QrD>; Sat, 28 Oct 2000 12:47:03 -0400
+	id <S130083AbQJ1Qrd>; Sat, 28 Oct 2000 12:47:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130098AbQJ1Qqy>; Sat, 28 Oct 2000 12:46:54 -0400
-Received: from isis.its.uow.edu.au ([130.130.68.21]:24271 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S130083AbQJ1Qql>; Sat, 28 Oct 2000 12:46:41 -0400
-Message-ID: <39FB02D5.9AF89277@uow.edu.au>
-Date: Sun, 29 Oct 2000 03:46:13 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
+	id <S130098AbQJ1QrY>; Sat, 28 Oct 2000 12:47:24 -0400
+Received: from janus.hosting4u.net ([209.15.2.37]:40968 "HELO
+	janus.hosting4u.net") by vger.kernel.org with SMTP
+	id <S130083AbQJ1QrD>; Sat, 28 Oct 2000 12:47:03 -0400
+Message-ID: <39FB024B.220A025C@a2zis.com>
+Date: Sat, 28 Oct 2000 18:43:55 +0200
+From: Remi Turk <remi@a2zis.com>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0-test10-pre6 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: kumon@flab.fujitsu.co.jp, Andi Kleen <ak@suse.de>,
-        Alexander Viro <viro@math.psu.edu>,
-        "Jeff V. Merkey" <jmerkey@timpanogas.org>,
-        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
-        Olaf Kirch <okir@monad.swb.de>
-Subject: Re: [PATCH] Re: Negative scalability by removal of lock_kernel()?(Was: 
- Strange performance behavior of 2.4.0-test9)
-In-Reply-To: <39F957BC.4289FF10@uow.edu.au>,
-			<39F92187.A7621A09@timpanogas.org>
-			<Pine.GSO.4.21.0010270257550.18660-100000@weyl.math.psu.edu>
-			<20001027094613.A18382@gruyere.muc.suse.de>
-			<39F957BC.4289FF10@uow.edu.au> <200010271257.VAA24374@asami.proc.flab.fujitsu.co.jp> <39FAF4C6.3BB04774@uow.edu.au>
+To: linux-kernel@vger.kernel.org
+Subject: No IRQ known for interrupt pin A of device 00:0f.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> 
-> I think it's more expedient at this time to convert
-> acquire_fl_sem/release_fl_sem into lock_kernel/unlock_kernel
-> (so we _can_ sleep) and to fix the above alleged deadlock
-> via the creation of __posix_unblock_lock()
+Hi,
+I just saw this warning when booting:
 
-I agree with me.  Could you please test the scalability
-of this?
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=xx
+ALI15X3: IDE controller on PCI bus 00 dev 78
+PCI: No IRQ known for interrupt pin A of device 00:0f.0. Please try
+using pci=biosirq.
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ALI15X3: chipset revision 193
+ALI15X3: not 100% native mode: will probe irqs later
+
+Booting with pci=biosirq doesn't help.
+Both test10-pre5 and test10-pre6 give this warning. test9 didn't.
+
+Should I just ignore it or is it really a problem?
+(My system seems to work ok)
 
 
+lspci -vv:
+00:00.0 Host bridge: Acer Laboratories Inc. M1541 (rev 04)
+        Subsystem: Unknown device 10b9:1541
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort-
+<TAbort- <MAbort+ >SERR- <PERR-
+        Latency: 64 set
+        Region 0: Memory at e0000000 (32-bit, non-prefetchable)
+        Capabilities: [b0] AGP version 1.0
+                Status: RQ=28 SBA+ 64bit- FW- Rate=21
+                Command: RQ=28 SBA+ AGP- 64bit- FW- Rate=21
 
---- linux-2.4.0-test10-pre5/fs/locks.c	Tue Oct 24 21:34:13 2000
-+++ linux-akpm/fs/locks.c	Sun Oct 29 03:34:15 2000
-@@ -1706,11 +1706,25 @@
- posix_unblock_lock(struct file_lock *waiter)
- {
- 	acquire_fl_sem();
-+	__posix_unblock_lock(waiter);
-+	release_fl_sem();
-+}
-+
-+/**
-+ *	__posix_unblock_lock - stop waiting for a file lock
-+ *	@waiter: the lock which was waiting
-+ *
-+ *	lockd needs to block waiting for locks.
-+ *	Like posix_unblock_lock(), except it doesn't
-+ *	acquire the file lock semaphore.
-+ */
-+void
-+__posix_unblock_lock(struct file_lock *waiter)
-+{
- 	if (!list_empty(&waiter->fl_block)) {
- 		locks_delete_block(waiter);
- 		wake_up(&waiter->fl_wait);
- 	}
--	release_fl_sem();
- }
- 
- static void lock_get_status(char* out, struct file_lock *fl, int id, char *pfx)
---- linux-2.4.0-test10-pre5/include/linux/fs.h	Tue Oct 24 21:34:13 2000
-+++ linux-akpm/include/linux/fs.h	Sun Oct 29 03:32:00 2000
-@@ -564,6 +564,7 @@
- extern struct file_lock *posix_test_lock(struct file *, struct file_lock *);
- extern int posix_lock_file(struct file *, struct file_lock *, unsigned int);
- extern void posix_block_lock(struct file_lock *, struct file_lock *);
-+extern void __posix_unblock_lock(struct file_lock *);
- extern void posix_unblock_lock(struct file_lock *);
- extern int __get_lease(struct inode *inode, unsigned int flags);
- extern time_t lease_get_mtime(struct inode *);
---- linux-2.4.0-test10-pre5/kernel/ksyms.c	Sun Oct 15 01:27:46 2000
-+++ linux-akpm/kernel/ksyms.c	Sun Oct 29 03:32:38 2000
-@@ -221,6 +221,7 @@
- EXPORT_SYMBOL(posix_lock_file);
- EXPORT_SYMBOL(posix_test_lock);
- EXPORT_SYMBOL(posix_block_lock);
-+EXPORT_SYMBOL(__posix_unblock_lock);
- EXPORT_SYMBOL(posix_unblock_lock);
- EXPORT_SYMBOL(locks_mandatory_area);
- EXPORT_SYMBOL(dput);
---- linux-2.4.0-test10-pre5/fs/lockd/svclock.c	Tue Oct 24 21:34:13 2000
-+++ linux-akpm/fs/lockd/svclock.c	Sun Oct 29 03:32:22 2000
-@@ -456,7 +456,7 @@
- 	struct nlm_block	**bp, *block;
- 
- 	dprintk("lockd: VFS unblock notification for block %p\n", fl);
--	posix_unblock_lock(fl);
-+	__posix_unblock_lock(fl);
- 	for (bp = &nlm_blocked; (block = *bp); bp = &block->b_next) {
- 		if (nlm_compare_locks(&block->b_call.a_args.lock.fl, fl)) {
- 			svc_wake_up(block->b_daemon);
---- linux-2.4.0-test10-pre5/fs/fcntl.c	Sun Oct 15 01:27:45 2000
-+++ linux-akpm/fs/fcntl.c	Sun Oct 29 03:35:47 2000
-@@ -254,11 +254,15 @@
- 			unlock_kernel();
- 			break;
- 		case F_GETLK:
-+			lock_kernel();
- 			err = fcntl_getlk(fd, (struct flock *) arg);
-+			unlock_kernel();
- 			break;
- 		case F_SETLK:
- 		case F_SETLKW:
-+			lock_kernel();
- 			err = fcntl_setlk(fd, cmd, (struct flock *) arg);
-+			unlock_kernel();
- 			break;
- 		case F_GETOWN:
- 			/*
+00:01.0 PCI bridge: Acer Laboratories Inc. M5243 (rev 04)
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64 set
+        Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
+        I/O behind bridge: 0000e000-0000dfff
+        Memory behind bridge: df800000-dfffffff
+        Prefetchable memory behind bridge: e6f00000-e7ffffff
+        BridgeCtl: Parity- SERR- NoISA- VGA+ MAbort- >Reset- FastB2B-
+
+00:02.0 USB Controller: Acer Laboratories Inc. M5237 (rev 03) (prog-if
+10)
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 80 max, 0 set
+        Interrupt: pin A routed to IRQ 12
+        Region 0: Memory at df000000 (32-bit, non-prefetchable)
+
+00:03.0 Bridge: Acer Laboratories Inc. M7101
+        Subsystem: Unknown device 10b9:7101
+        Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+
+00:07.0 ISA bridge: Acer Laboratories Inc. M1533 (rev c3)
+        Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
+<TAbort+ <MAbort+ >SERR- <PERR-
+        Latency: 0 set
+
+00:09.0 Multimedia audio controller: Creative Labs SB Live! (rev 04)
+        Subsystem: Unknown device 1102:0020
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 2 min, 20 max, 32 set
+        Interrupt: pin A routed to IRQ 10
+        Region 0: I/O ports at d800
+        Capabilities: [dc] Power Management version 1
+                Flags: PMEClk- AuxPwr- DSI- D1- D2- PME-
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:09.1 Input device controller: Creative Labs SB Live! Daughterboard
+(rev 01)
+        Subsystem: Unknown device 1102:0020
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 set
+        Region 0: I/O ports at d400
+        Capabilities: [dc] Power Management version 1
+                Flags: PMEClk- AuxPwr- DSI- D1- D2- PME-
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:0f.0 IDE interface: Acer Laboratories Inc. M5229 (rev c1) (prog-if
+fa)
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 2 min, 4 max, 32 set
+        Interrupt: pin A routed to IRQ 0
+        Region 4: I/O ports at d000
+
+01:00.0 VGA compatible controller: Intel Corporation i740 (rev 21)
+        Subsystem: Unknown device 10b0:0100
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0 set
+        Interrupt: pin A routed to IRQ 11
+        Region 0: Memory at e7000000 (32-bit, prefetchable)
+        Region 1: Memory at df800000 (32-bit, non-prefetchable)
+        Capabilities: [d0] AGP version 1.0
+                Status: RQ=31 SBA+ 64bit- FW- Rate=21
+                Command: RQ=31 SBA+ AGP- 64bit- FW- Rate=21
+        Capabilities: [dc] Power Management version 1
+                Flags: PMEClk- AuxPwr- DSI+ D1+ D2- PME-
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+
+/proc/cpuinfo:
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 5
+model           : 8
+model name      : AMD-K6(tm) 3D processor
+stepping        : 0
+cpu MHz         : 350.000808
+cache size      : 64 KB
+fdiv_bug        : no
+hlt_bug         : no
+sep_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr mce cx8 sep mmx 3dnow
+bogomips        : 699.60
+
+
+/proc/interrupts:
+           CPU0       
+  0:      88116          XT-PIC  timer
+  1:       3128          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  4:       1454          XT-PIC  serial
+  6:         19          XT-PIC  floppy
+  8:          1          XT-PIC  rtc
+ 10:          0          XT-PIC  EMU10K1
+ 13:          0          XT-PIC  fpu
+ 14:         17          XT-PIC  ide0
+ 15:       7477          XT-PIC  ide1
+NMI:          0 
+ERR:          0
+
+-- 
+Linux 2.4.0-test10-pre6 #1 Sat Oct 28 14:15:54 CEST 2000
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

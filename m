@@ -1,32 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132536AbRDUIyW>; Sat, 21 Apr 2001 04:54:22 -0400
+	id <S132545AbRDUJJo>; Sat, 21 Apr 2001 05:09:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132537AbRDUIyM>; Sat, 21 Apr 2001 04:54:12 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15113 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S132536AbRDUIyC>;
-	Sat, 21 Apr 2001 04:54:02 -0400
-From: rmk@arm.linux.org.uk
-Message-Id: <200104210853.JAA00811@raistlin.arm.linux.org.uk>
-Subject: Re: [parisc-linux] Re: OK, let's try cleaning up another nit. Is anyone
-To: tleete@mountain.net (Tom Leete)
-Date: Sat, 21 Apr 2001 09:53:47 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (lkml), parisc-linux@parisc-linux.org
-In-Reply-To: <3AE0F999.BA288768@mountain.net> from "Tom Leete" at Apr 20, 2001 11:08:09 PM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S132540AbRDUJJf>; Sat, 21 Apr 2001 05:09:35 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32265 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S132539AbRDUJJ3>;
+	Sat, 21 Apr 2001 05:09:29 -0400
+Date: Sat, 21 Apr 2001 10:09:13 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Patrick Mochel <mochel@transmeta.com>,
+        linux-power@phobos.fachschaften.tu-muenchen.de
+Subject: Re: PCI power management
+Message-ID: <20010421100913.A7433@flint.arm.linux.org.uk>
+In-Reply-To: <3AE02E45.57D7BA9D@mandrakesoft.com> <20010420125615.23599@mailhost.mipsys.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010420125615.23599@mailhost.mipsys.com>; from benh@kernel.crashing.org on Fri, Apr 20, 2001 at 02:56:15PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Leete writes:
-> $ diff -6 ...
-> will give 6 lines of context. patch will understand the output without any
-> extra help.
+On Fri, Apr 20, 2001 at 02:56:15PM +0200, Benjamin Herrenschmidt wrote:
+> It's not so complicated to have the minimum flexibility for the driver
+> to tell it's maximum supported power level, and I don't see why it would
+> be a problem to use D2 instead of D3 when we don't support D3 for a given
+> device (either because the HW is broken, undocumented, or because our
+> driver just don't know how to bring back the chip to life).
 
-Indeed, but I can't do that to a patch that Alan or Linus produces.
+Umm, isn't it true that most VGA cards will have this problem?  Are we
+going to put an x86 emulator into the kernel so we can run the BIOS on
+non-x86 hardware, just so that we can re-initialise the chip? ;|
 
 --
 Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux

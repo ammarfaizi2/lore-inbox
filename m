@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265008AbSLGXpj>; Sat, 7 Dec 2002 18:45:39 -0500
+	id <S264983AbSLGXjT>; Sat, 7 Dec 2002 18:39:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265051AbSLGXpj>; Sat, 7 Dec 2002 18:45:39 -0500
-Received: from smtp07.iddeo.es ([62.81.186.17]:37069 "EHLO smtp07.retemail.es")
-	by vger.kernel.org with ESMTP id <S265008AbSLGXpi>;
-	Sat, 7 Dec 2002 18:45:38 -0500
-Date: Sun, 8 Dec 2002 00:52:55 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Andrew Morton <akpm@digeo.com>
-Cc: "J.A. Magallon" <jamagallon@able.es>, Jeff Garzik <jgarzik@pobox.com>,
-       "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-Subject: Re: [RFC][PATCH] net drivers and cache alignment
-Message-ID: <20021207235255.GA3754@werewolf.able.es>
-References: <3DF2781D.3030209@pobox.com> <20021207.144004.45605764.davem@redhat.com> <3DF27EE7.4010508@pobox.com> <3DF2844C.F9216283@digeo.com> <20021207233745.GE3183@werewolf.able.es> <3DF28811.F6580BA6@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <3DF28811.F6580BA6@digeo.com>; from akpm@digeo.com on Sun, Dec 08, 2002 at 00:45:21 +0100
-X-Mailer: Balsa 1.4.1
+	id <S264978AbSLGXjT>; Sat, 7 Dec 2002 18:39:19 -0500
+Received: from packet.digeo.com ([12.110.80.53]:480 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S264983AbSLGXjM>;
+	Sat, 7 Dec 2002 18:39:12 -0500
+Message-ID: <3DF28863.D7642140@digeo.com>
+Date: Sat, 07 Dec 2002 15:46:43 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: Matt Rickard <mjr318@psu.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Oops with 3c59x module (3com 3c595 NIC)
+References: <20021207164300.2a35f18d.mjr318@psu.edu> <3DF2738A.2447599@digeo.com> <3DF28151.40706@pobox.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Dec 2002 23:46:44.0470 (UTC) FILETIME=[E6150160:01C29E4A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff Garzik wrote:
+> 
+> Andrew Morton wrote:
+> > That's a transmit underrun - data is not being fed into the NIC
+> > across the PCI bus fast enough.  Possibly something has gone
+> > wrong with the busmastering logic on the mainboard, or the NIC.
+> >
+> > The driver will reset the transmitter when this happens, as per the
+> > manual.  There's not much else we can do.
+> 
+> pci-skeleton.c and several of Don's drivers actually do do something
+> else on TxUnderrun, twiddle DMA burst settings:
+> 
+>          if ((intr_status & TxUnderrun)
+>                  && (np->tx_config & TxThresholdField) !=
+> TxThresholdField) {
+>                  long ioaddr = dev->base_addr;
+>                  np->tx_config += TxThresholdInc;
+>                  writel(np->tx_config, ioaddr + TxMode);
+>                  np->stats.tx_fifo_errors++;
+>          }
+> 
+> I wonder how feasible it is to do that on 3c59x hardware?
 
-On 2002.12.08 Andrew Morton wrote:
->"J.A. Magallon" wrote:
->> 
->> #define __cacheline_start   struct { } ____cacheline_aligned;
->
->That will generate a warning on faster^Wolder versions of gcc.
->
->mnm:/home/akpm> gcc t2.c
->t2.c:11: warning: unnamed struct/union that defines no instances
->t2.c:15: warning: unnamed struct/union that defines no instances
->mnm:/home/akpm> gcc -v 
->Reading specs from /usr/local/lib/gcc-lib/i686-pc-linux-gnu/2.95.3/specs
->gcc version 2.95.3 20010315 (release)
->
+It is quite feasible.  But it seems that current versions of the
+driver disable thresholding anyway.  We had some problems...
 
-And how 'bout this (do not have any gcc oldie available to test):
+Uncommenting this line:
 
-#define __cacheline_start   union { int :0; } ____cacheline_aligned;
+//  issue_and_wait(dev, SetTxStart|0x07ff);
 
-It passes gcc-3.2 -Wall...
-I think it's nicer to insert __c_s than to go field by field marking
-them...
-
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.1 (Cooker) for i586
-Linux 2.4.20-jam1 (gcc 3.2 (Mandrake Linux 9.1 3.2-4mdk))
+might be interesting.

@@ -1,119 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316728AbSHBR0v>; Fri, 2 Aug 2002 13:26:51 -0400
+	id <S314459AbSHBRf3>; Fri, 2 Aug 2002 13:35:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316750AbSHBR0v>; Fri, 2 Aug 2002 13:26:51 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:9698 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S316728AbSHBR0t>;
-	Fri, 2 Aug 2002 13:26:49 -0400
-From: Andreas Gruenbacher <agruen@suse.de>
-Organization: SuSE Linux AG
-To: linux-kernel@vger.kernel.org, bug-glibc@gnu.org
-Subject: [PATCH] Define ENOATTR in 2.5 kernels
-Date: Fri, 2 Aug 2002 19:25:13 +0200
-X-Mailer: KMail [version 1.4]
-Cc: Andreas Jaeger <aj@suse.de>, Andreas Schwab <schwab@suse.de>,
-       Chris Mason <mason@suse.de>, Jeff Mahoney <jeffm@suse.com>,
-       Nathan Scott <nathans@sgi.com>, Robert Watson <rwatson@FreeBSD.org>,
-       Thorsten Kukuk <kukuk@suse.de>, Tim Shimmin <tes@sgi.com>
+	id <S315627AbSHBRfY>; Fri, 2 Aug 2002 13:35:24 -0400
+Received: from fachschaft.cup.uni-muenchen.de ([141.84.250.61]:9478 "EHLO
+	fachschaft.cup.uni-muenchen.de") by vger.kernel.org with ESMTP
+	id <S314459AbSHBRfS>; Fri, 2 Aug 2002 13:35:18 -0400
+Message-Id: <200208021738.g72HcCm02802@fachschaft.cup.uni-muenchen.de>
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Benjamin LaHaise <bcrl@redhat.com>
+Subject: Re: manipulating sigmask from filesystems and drivers
+Date: Fri, 2 Aug 2002 19:33:44 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       David Woodhouse <dwmw2@infradead.org>,
+       David Howells <dhowells@redhat.com>, <alan@redhat.com>,
+       <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0208020920120.18265-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0208020920120.18265-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_1E88DFU80F00NB0F0OQD"
-Message-Id: <200208021925.13647.agruen@suse.de>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---------------Boundary-00=_1E88DFU80F00NB0F0OQD
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+> and then let code like generic_file_write() etc use other combinations
+> than the two existing ones, ie
+>
+> 	(TASK_WAKEKILL | TASK_LOADAVG)
+>
+> results in a process that is woken up by signals that kill it (but not
+> other signals), and is counted towards the loadaverage. Which is what we
+> want in generic_file_read() (and _probably_ generic_file_write() as well,
+> but that's slightly more debatable).
+>
+> (We'd also have to add a new way to test whether you've been killed, so
+> that such users could use "process_killed()" instead of the
+> "signal_pending()" that a INTERRUPTIBLE sleeper uses to test whether it
+> should exit).
+>
+> This is the trivial way to get the best of both worlds - you can still
+> kill a process that is in D wait (if that particular kernel path allows
+> it), but you don't get process-visible semantic changes.
 
-Hello,
+If you do this to generic_file_write() you change the semantics for the
+parent process, which up to now can expect a change to a file
+made by a single call to write() to be done either fully or not at all,
+if there's no error.
 
-we already have a number of Extended Attribute system calls (*xattr) in t=
-he=20
-2.5.x kernel. For implement them on file systems we also need the ENOATTR=
-=20
-error. It makes little sense to reuse an existing error number as glibc's=
-=20
-strerror() wouldn't be able to create an intelligent text message.
+So IMHO it would be better to limit this new kind of waiting to reading.
 
-ENOATTR also exists on Irix and AIX. Error messages for ENOATTR should be=
-=20
-added to glibc once ENOATTR is defined in the kernel. I have attached a p=
-atch=20
-against glibc that adds the English error text.
-
-
-In addition to ENOATTR we also need to clarify the ENOTSUP / EOPNOTSUPP /=
-=20
-ENOTSUPP issue, which I have posted yesterday (with no comments so far).
-
-For details concerning the xattr system calls you may find the manual pag=
-es=20
-interesting, which are available as part of the attr-devel package, and=20
-online at <http://acl.bestbits.at/man/man.shtml>.
-
-Regards,
-Andreas.
-
-------------------------------------------------------------------
- Andreas Gruenbacher                                SuSE Linux AG
- mailto:agruen@suse.de                     Deutschherrnstr. 15-19
- http://www.suse.de/                   D-90429 Nuernberg, Germany
-
-
---------------Boundary-00=_1E88DFU80F00NB0F0OQD
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="linux-2.5.30-enoattr-0.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="linux-2.5.30-enoattr-0.diff"
-
-Add the ENOATTR error number ("No such attribute")
-
-The ENOATTR error number is needed by the file system specific code that
-implements Extended Attributes.  This error can occur when trying to retrieve,
-replace (XATTR_REPLACE flag) or delete an attribute that does not exist.
-
---- linux-2.5.30/include/linux/errno.h.orig	Fri Aug  2 15:17:14 2002
-+++ linux-2.5.30/include/linux/errno.h	Fri Aug  2 15:17:17 2002
-@@ -11,6 +11,9 @@
- #define ERESTARTNOHAND	514	/* restart if no handler.. */
- #define ENOIOCTLCMD	515	/* No ioctl command */
- 
-+/* Extended Attributes */
-+#define ENOATTR		516	/* No such attribute */
-+
- /* Defined for the NFSv3 protocol */
- #define EBADHANDLE	521	/* Illegal NFS file handle */
- #define ENOTSYNC	522	/* Update synchronization mismatch */
-
---------------Boundary-00=_1E88DFU80F00NB0F0OQD
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="glibc-enoattr-0.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="glibc-enoattr-0.diff"
-
---- glibc-2.2/sysdeps/gnu/errlist.c.orig	Tue Jul 30 10:17:08 2002
-+++ glibc-2.2/sysdeps/gnu/errlist.c	Tue Jul 30 10:30:04 2002
-@@ -607,6 +607,14 @@
- TRANS for information on process groups and these signals. */
-     [ERR_REMAP (EBACKGROUND)] = N_("Inappropriate operation for background process"),
- #endif
-+#ifdef ENOATTR
-+/*
-+TRANS No such attribute.  The named Extended Attribute does not exist, or the
-+TRANS process does not have permission to access the attribute. This error
-+TRANS is used by the getxattr, setxattr and removexattr system calls.
-+TRANS */
-+    [ERR_REMAP (ENOATTR)] = N_("No such attribute"),
-+#endif
- #ifdef EDIED
- /*
- TRANS In the GNU system, opening a file returns this error when the file is
-
---------------Boundary-00=_1E88DFU80F00NB0F0OQD--
-
+	Regards
+		Oliver

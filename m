@@ -1,58 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262441AbVAKD4g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262353AbVAJRsF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262441AbVAKD4g (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 22:56:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262426AbVAKDzq
+	id S262353AbVAJRsF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 12:48:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbVAJRqw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 22:55:46 -0500
-Received: from gizmo10ps.bigpond.com ([144.140.71.20]:4299 "HELO
-	gizmo10ps.bigpond.com") by vger.kernel.org with SMTP
-	id S262441AbVAKDxl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 22:53:41 -0500
-Message-ID: <41E34DBD.3050804@bigpond.net.au>
-Date: Tue, 11 Jan 2005 14:53:33 +1100
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jake Moilanen <moilanen@austin.ibm.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Michal Kaczmarski <fallow@op.pl>, Shane Shrybman <shrybman@aei.ca>
-Subject: [PATCH] V-6.1 ZAPHOD Single Priority Array O(1) CPU Scheduler
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 10 Jan 2005 12:46:52 -0500
+Received: from e32.co.us.ibm.com ([32.97.110.130]:22663 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262351AbVAJRVC convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 12:21:02 -0500
+X-Fake: the user-agent is fake
+Subject: Re: [PATCH] PCI patches for 2.6.10
+User-Agent: Mutt/1.5.6i
+In-Reply-To: <11053776561347@kroah.com>
+Date: Mon, 10 Jan 2005 09:20:56 -0800
+Message-Id: <11053776562095@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Version 6.1 of the ZAPHOD single priority array scheduler patches for
-the 2.6.10 kernel are now available for download and evaluation from:
+ChangeSet 1.1938.439.46, 2005/01/07 10:33:32-08:00, eike-hotplug@sf-tec.de
 
-<http://prdownloads.sourceforge.net/cpuse/patch-2.6.10-spa_zaphod_FULL-v6.1?download>
+[PATCH] PCI Hotplug: use PCI_DEVFN in ibmphp_pci.c
 
-This contains the extra per runqueue CPU statistics for improving GA 
-fitness functions that we discussed.
+This patch changes ibmphp_pci.c to use the PCI_DEVFN makro where possible
+instead of doing the match itself.
 
-struct runq_cpustats {
-#ifdef CONFIG_SMP
-	unsigned long long timestamp_last_tick;
-#endif
-	unsigned long long total_delay;
-	unsigned long long total_rt_delay;
-	unsigned long long total_intr_delay;
-	unsigned long long total_fork_delay;
-	unsigned long long total_sinbin;
-};
+Signed-off-by: Rolf Eike Beer <eike-hotplug@sf-tec.de>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
-total_delay - is total time spent by tasks waiting for CPU on this runqueue
-total_rt_delay - as for total_delay but only for real time tasks
-total_intr_delay - is total time spent by tasks waiting for CPU on this 
-runqueue after being woken to service an interrupt
-total_fork_delay - is total time spent by tasks waiting for CPU on this 
-runqueue for their first time slice after forking
 
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
+ drivers/pci/hotplug/ibmphp_pci.c |   23 ++++++++++++++---------
+ 1 files changed, 14 insertions(+), 9 deletions(-)
 
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
+
+diff -Nru a/drivers/pci/hotplug/ibmphp_pci.c b/drivers/pci/hotplug/ibmphp_pci.c
+--- a/drivers/pci/hotplug/ibmphp_pci.c	2005-01-10 08:58:49 -08:00
++++ b/drivers/pci/hotplug/ibmphp_pci.c	2005-01-10 08:58:49 -08:00
+@@ -414,7 +414,7 @@
+ 			memset (io[count], 0, sizeof (struct resource_node));
+ 			io[count]->type = IO;
+ 			io[count]->busno = func->busno;
+-			io[count]->devfunc = ((func->device << 3) | (func->function & 0x7));
++			io[count]->devfunc = PCI_DEVFN(func->device, func->function);
+ 			io[count]->len = len[count];
+ 			if (ibmphp_check_resource(io[count], 0) == 0) {
+ 				ibmphp_add_resource (io[count]);
+@@ -452,7 +452,8 @@
+ 				memset (pfmem[count], 0, sizeof (struct resource_node));
+ 				pfmem[count]->type = PFMEM;
+ 				pfmem[count]->busno = func->busno;
+-				pfmem[count]->devfunc = ((func->device << 3) | (func->function & 0x7));
++				pfmem[count]->devfunc = PCI_DEVFN(func->device,
++							func->function);
+ 				pfmem[count]->len = len[count];
+ 				pfmem[count]->fromMem = FALSE;
+ 				if (ibmphp_check_resource (pfmem[count], 0) == 0) {
+@@ -519,7 +520,8 @@
+ 				memset (mem[count], 0, sizeof (struct resource_node));
+ 				mem[count]->type = MEM;
+ 				mem[count]->busno = func->busno;
+-				mem[count]->devfunc = ((func->device << 3) | (func->function & 0x7));
++				mem[count]->devfunc = PCI_DEVFN(func->device,
++							func->function);
+ 				mem[count]->len = len[count];
+ 				if (ibmphp_check_resource (mem[count], 0) == 0) {
+ 					ibmphp_add_resource (mem[count]);
+@@ -685,7 +687,8 @@
+ 			memset (bus_io[count], 0, sizeof (struct resource_node));
+ 			bus_io[count]->type = IO;
+ 			bus_io[count]->busno = func->busno;
+-			bus_io[count]->devfunc = ((func->device << 3) | (func->function & 0x7));
++			bus_io[count]->devfunc = PCI_DEVFN(func->device,
++							func->function);
+ 			bus_io[count]->len = len[count];
+ 			if (ibmphp_check_resource (bus_io[count], 0) == 0) {
+ 				ibmphp_add_resource (bus_io[count]);
+@@ -717,7 +720,8 @@
+ 				memset (bus_pfmem[count], 0, sizeof (struct resource_node));
+ 				bus_pfmem[count]->type = PFMEM;
+ 				bus_pfmem[count]->busno = func->busno;
+-				bus_pfmem[count]->devfunc = ((func->device << 3) | (func->function & 0x7));
++				bus_pfmem[count]->devfunc = PCI_DEVFN(func->device,
++							func->function);
+ 				bus_pfmem[count]->len = len[count];
+ 				bus_pfmem[count]->fromMem = FALSE;
+ 				if (ibmphp_check_resource (bus_pfmem[count], 0) == 0) {
+@@ -775,7 +779,8 @@
+ 				memset (bus_mem[count], 0, sizeof (struct resource_node));
+ 				bus_mem[count]->type = MEM;
+ 				bus_mem[count]->busno = func->busno;
+-				bus_mem[count]->devfunc = ((func->device << 3) | (func->function & 0x7));
++				bus_mem[count]->devfunc = PCI_DEVFN(func->device,
++							func->function);
+ 				bus_mem[count]->len = len[count];
+ 				if (ibmphp_check_resource (bus_mem[count], 0) == 0) {
+ 					ibmphp_add_resource (bus_mem[count]);
+@@ -846,7 +851,7 @@
+ 		memset (io, 0, sizeof (struct resource_node));
+ 		io->type = IO;
+ 		io->busno = func->busno;
+-		io->devfunc = ((func->device << 3) | (func->function & 0x7));
++		io->devfunc = PCI_DEVFN(func->device, func->function);
+ 		io->len = amount_needed->io;
+ 		if (ibmphp_check_resource (io, 1) == 0) {
+ 			debug ("were we able to add io\n");
+@@ -869,7 +874,7 @@
+ 		memset (mem, 0, sizeof (struct resource_node));
+ 		mem->type = MEM;
+ 		mem->busno = func->busno;
+-		mem->devfunc = ((func->device << 3) | (func->function & 0x7));
++		mem->devfunc = PCI_DEVFN(func->device, func->function);
+ 		mem->len = amount_needed->mem;
+ 		if (ibmphp_check_resource (mem, 1) == 0) {
+ 			ibmphp_add_resource (mem);
+@@ -892,7 +897,7 @@
+ 		memset (pfmem, 0, sizeof (struct resource_node));
+ 		pfmem->type = PFMEM;
+ 		pfmem->busno = func->busno;
+-		pfmem->devfunc = ((func->device << 3) | (func->function & 0x7));
++		pfmem->devfunc = PCI_DEVFN(func->device, func->function);
+ 		pfmem->len = amount_needed->pfmem;
+ 		pfmem->fromMem = FALSE;
+ 		if (ibmphp_check_resource (pfmem, 1) == 0) {
+

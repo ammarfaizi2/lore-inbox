@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293288AbSBYQKB>; Mon, 25 Feb 2002 11:10:01 -0500
+	id <S293337AbSBYQLv>; Mon, 25 Feb 2002 11:11:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293337AbSBYQJv>; Mon, 25 Feb 2002 11:09:51 -0500
-Received: from mail.internet-factory.de ([195.122.142.5]:41626 "EHLO
-	mail.internet-factory.de") by vger.kernel.org with ESMTP
-	id <S293288AbSBYQJk>; Mon, 25 Feb 2002 11:09:40 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Holger Lubitz <h.lubitz@internet-factory.de>
-Newsgroups: lists.linux.kernel
-Subject: Re: Boot problem with PDC20269
-Date: Mon, 25 Feb 2002 17:09:33 +0100
-Organization: Internet Factory AG
-Message-ID: <3C7A61BD.22F4CDAF@internet-factory.de>
-In-Reply-To: <20020223015348.A1148@bloch.verdurin.priv> <Pine.LNX.4.10.10202221953470.3281-100000@master.linux-ide.org>
-NNTP-Posting-Host: bastille.internet-factory.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Trace: darkstar.internet-factory.de 1014653373 25356 195.122.142.158 (25 Feb 2002 16:09:33 GMT)
-X-Complaints-To: usenet@internet-factory.de
-NNTP-Posting-Date: 25 Feb 2002 16:09:33 GMT
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre3-ac2 i686)
-X-Accept-Language: en
+	id <S293414AbSBYQLl>; Mon, 25 Feb 2002 11:11:41 -0500
+Received: from smtp3.hushmail.com ([64.40.111.33]:40460 "HELO
+	smtp3.hushmail.com") by vger.kernel.org with SMTP
+	id <S293337AbSBYQLY>; Mon, 25 Feb 2002 11:11:24 -0500
+Message-Id: <200202251608.g1PG8QH83933@mailserver4.hushmail.com>
+From: mailerror@hushmail.com
+To: Jari Ruusu <jari.ruusu@pp.inet.fi>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Re: loop under 2.2.20 - relative block support?
+Date: Mon, 25 Feb 2002 08:08:26 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick proclaimed:
-> 
-> Hi Adam,
-> 
-> http://www.tecchannel.de/hardware/817/index.html
 
-Interesting article. After the stability issues with VIA that are
-believed to be solved, we are now getting to performance issues. Any
-chance of the "magic performance booster workaround" done by VIAs 1.04
-driver finding its way into linux?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Holger
+On Sat, 23 Feb 2002 21:47:56 +0200, Jari Ruusu <jari.ruusu@pp.inet.fi> wrote:
+>mailerror@hushmail.com wrote:
+>> What exactly is the status of the loopback device in 2.2.20 with regards
+>> to relative block support? Is it *really* supported?
+>>
+>Kerneli patches use block size dependant IV computation (also called "time
+>bomb" IV). Shit hits the fan when you move files to a device with different
+>block size. Search linux-crypto archives for more information.
+
+Aha. So if I moved the loopback file onto a partition with the same blocksize
+again, it would all be fine?
+
+mailerror
+
+Hush provide the worlds most secure, easy to use online applications - which solution is right for you?
+HushMail Secure Email http://www.hushmail.com/
+HushDrive Secure Online Storage http://www.hushmail.com/hushdrive/
+Hush Business - security for your Business http://www.hush.com/
+Hush Enterprise - Secure Solutions for your Enterprise http://www.hush.com/
+
+-----BEGIN PGP SIGNATURE-----
+Version: Hush 2.1
+Note: This signature can be verified at https://www.hushtools.com
+
+wl4EARECAB4FAjx6YkwXHG1haWxlcnJvckBodXNobWFpbC5jb20ACgkQb539PwJB5JOc
+YACdHtDNGubq9SaNZYV/KaInmQMpJf8AoJEIc/weLqdnL3HhhyTpRRTJgqV9
+=iQaH
+-----END PGP SIGNATURE-----
+

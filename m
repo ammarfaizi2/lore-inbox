@@ -1,55 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262062AbTCRAle>; Mon, 17 Mar 2003 19:41:34 -0500
+	id <S262052AbTCRApS>; Mon, 17 Mar 2003 19:45:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262064AbTCRAle>; Mon, 17 Mar 2003 19:41:34 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:36032 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S262062AbTCRAld>;
-	Mon, 17 Mar 2003 19:41:33 -0500
-Subject: Re: Linux 2.5.65
-From: John Cherry <cherry@osdl.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0303171429040.2827-100000@penguin.transmeta.com>
-References: <Pine.LNX.4.44.0303171429040.2827-100000@penguin.transmeta.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1047948785.3844.151.camel@cherrytest.pdx.osdl.net>
+	id <S262053AbTCRApS>; Mon, 17 Mar 2003 19:45:18 -0500
+Received: from zamok.crans.org ([138.231.136.6]:57527 "EHLO zamok.crans.org")
+	by vger.kernel.org with ESMTP id <S262052AbTCRApR>;
+	Mon, 17 Mar 2003 19:45:17 -0500
+Date: Tue, 18 Mar 2003 01:56:12 +0100
+To: Torrey Hoffman <thoffman@arnor.net>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: (2.5.65) Unresolved symbols in modules?
+Message-ID: <20030318005612.GA1529@darwin.crans.org>
+References: <1047948471.12620.9.camel@rohan.arnor.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 17 Mar 2003 16:53:05 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1047948471.12620.9.camel@rohan.arnor.net>
+X-Warning: Email may contain unsmilyfied humor and/or satire.
+User-Agent: Mutt/1.5.3i
+From: Vincent Hanquez <tab@tuxfamily.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Compile statistics: 2.5.65
+On Mon, Mar 17, 2003 at 04:46:57PM -0800, Torrey Hoffman wrote:
+> and then:
+> if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.65; fi
+                             ^^^^^^^^^^^^
+you seem to use old depmod (not /usr/local/sbin/depmod)
 
-
-                               2.5.64               2.5.65
-                       --------------------    -----------------
-bzImage (defconfig)         14 warnings          14 warnings
-                             0 errors             0 errors
-
-bzImage (allmodconfig)      30 warnings          30 warnings
-                             9 errors            12 errors
-
-modules (allmodconfig)    2356 warnings        2421 warnings
-                            99 errors           100 errors
-
-Compile statistics have been for kernel releases from 2.5.46 to 2.5.65
-at: www.osdl.org/archive/cherry/stability  (will be updated by 6PM PST).
-
-
-
-Other stability-related links:
-   OSDL Stability page:
-       http://osdl.org/projects/26lnxstblztn/results/
-   Nightly linux-2.5 bk build:
-       www.osdl.org/archive/cherry/stability/linus-tree/running.txt
-   2.5 porting items:
-       www.osdl.org/archive/cherry/stability/linus-tree/port_items.txt
-   2.5 porting items history:
-       www.osdl.org/archive/cherry/stability/linus-tree/port_history.txt
-
-John
-
+-- 
+Vincent Hanquez [Tab]

@@ -1,94 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263227AbTCNCcE>; Thu, 13 Mar 2003 21:32:04 -0500
+	id <S263229AbTCNC4r>; Thu, 13 Mar 2003 21:56:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263229AbTCNCcC>; Thu, 13 Mar 2003 21:32:02 -0500
-Received: from cs.columbia.edu ([128.59.16.20]:17376 "EHLO cs.columbia.edu")
-	by vger.kernel.org with ESMTP id <S263227AbTCNCb7>;
-	Thu, 13 Mar 2003 21:31:59 -0500
-Subject: Re: fork/sh/hello microbenchmark performance in chroot
-From: Shaya Potter <spotter@cs.columbia.edu>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1047607433.7428.23.camel@zaphod>
-References: <1047606184.10046.9.camel@zaphod>
-	 <1047606869.7428.12.camel@zaphod>  <1047607433.7428.23.camel@zaphod>
+	id <S263230AbTCNC4r>; Thu, 13 Mar 2003 21:56:47 -0500
+Received: from [216.234.192.169] ([216.234.192.169]:34311 "HELO
+	miranda.zianet.com") by vger.kernel.org with SMTP
+	id <S263229AbTCNC4r>; Thu, 13 Mar 2003 21:56:47 -0500
+Subject: Re: 2.5.64-mm6
+From: Steven Cole <elenstev@mesatop.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, LKML <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+In-Reply-To: <20030313113448.595c6119.akpm@digeo.com>
+References: <20030313032615.7ca491d6.akpm@digeo.com>
+	<1047572586.1281.1.camel@ixodes.goop.org> 
+	<20030313113448.595c6119.akpm@digeo.com>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1047609723.7428.27.camel@zaphod>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 13 Mar 2003 21:42:03 -0500
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2-5mdk 
+Date: 13 Mar 2003 20:04:48 -0700
+Message-Id: <1047611104.14782.5410.camel@spc1.mesatop.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-final followup I think.
-
-the sigstop I see after every fork from strace is
-
-PID --- SIGSTOP (Stopped (signal)) @ 0 (0) ---
-
-don't know what the @ 0 (0) means
-
-On Thu, 2003-03-13 at 21:03, Shaya Potter wrote:
-> and a little more followup.  The chroot is basically a machine's fs's
-> mounted over nfs over an ipsec tunnel
-> 
-> /chroot/"filesystems"
-> 
-> when I run it /chroot/tmp/benchmark/forksh, I get .2s
-> 
-> but when I chroot into the /chroot tree and run /tmp/benchmark/forksh I
-> get 1s.
-> 
-> If I make the chroot tree just composed of mount -o bind'd fs from the
-> host machine, I don't see the slow down.
-> 
-> so to recap
-> 
-> plain linux, local filesystems - it's fine
-> plain linux, nfs over ipsec filesystems - it's fine
-> chrooted linux, local filesystems - it's fine
-> chrooted linux, nfs over ipsec filesystems - it's very slow.
-> 
-> thanks,
-> 
-> shaya
-> 
-> On Thu, 2003-03-13 at 20:54, Shaya Potter wrote:
-> > in a followup, the only thing I can tell difference b/w the 2 runs
-> > (under strace and inside and outside of the chroot) is that within the
-> > chroot, after every fork() I see a SIGSTOP on the child.
+On Thu, 2003-03-13 at 12:34, Andrew Morton wrote:
+> Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+> >
+> > On Thu, 2003-03-13 at 03:26, Andrew Morton wrote:
+> > >   This means that when an executable is first mapped in, the kernel will
+> > >   slurp the whole thing off disk in one hit.  Some IO changes were made to
+> > >   speed this up.
 > > 
-> > anyone have any idea why this is happening?
+> > Does this just pull in text and data, or will it pull any debug sections
+> > too?  That could fill memory with a lot of useless junk.
 > > 
-> > On Thu, 2003-03-13 at 20:43, Shaya Potter wrote:
-> > > I'm trying to play with our a homebrew version of lmbench's fork
-> > > benchmark which exec's sh to run a "hello world" program.  On normal
-> > > 2.4.18 (UP 933mhz p3) it runs in about .2s  However, within a chrooted
-> > > environment I'm looking at 1s.
-> > > 
-> > > Anyone knows why this runs significantly slower within a chroot?
-> > > 
-> > > thanks,
-> > > 
-> > > shaya
-> > > 
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Just text, I expect.  Unless glibc is mapping debug info with PROT_EXEC ;)
+> 
+> It's just a fun hack.  Should be done in glibc.
+
+Well, fun hack or glibc to-do list candidate, I hope it doesn't get
+forgotten.  I am happy to confirm that it did speed up the initial
+launch time of Open Office from 20 seconds (2.5-bk) to 11 seconds (-mm6)
+and Mozilla from 10 seconds (2.5-bk) to 6 seconds (-mm6).
+
+I did run 2.5.64-mm6 with mem=64M under stress for several hours and it
+took a beating and kept on ticking, although quite slowly.
+
+Steven
+
 

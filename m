@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266017AbUAVIjD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 03:39:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266092AbUAVIjD
+	id S266048AbUAVI2j (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 03:28:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266018AbUAVI2g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 03:39:03 -0500
-Received: from [212.28.208.94] ([212.28.208.94]:274 "HELO dewire.com")
-	by vger.kernel.org with SMTP id S266017AbUAVIjB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 03:39:01 -0500
-From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-To: chakkerz@optusnet.com.au
-Subject: Re: Nvidia drivers and 2.6.x kernel
-Date: Thu, 22 Jan 2004 09:38:58 +0100
-User-Agent: KMail/1.6
-References: <200401221012.17121.chakkerz@optusnet.com.au> <20040121231946.GA23176@irc.pl> <200401221028.59762.chakkerz@optusnet.com.au>
-In-Reply-To: <200401221028.59762.chakkerz@optusnet.com.au>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
+	Thu, 22 Jan 2004 03:28:36 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:21255 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S266017AbUAVI2L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 03:28:11 -0500
+Date: Thu, 22 Jan 2004 08:28:09 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Nigel Cunningham <ncunningham@users.sourceforge.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: Export console functions for use by Software Suspend nice display
+Message-ID: <20040122082809.A7699@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Nigel Cunningham <ncunningham@users.sourceforge.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1074757083.1943.37.camel@laptop-linux>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200401220938.58535.robin.rosenberg.lists@dewire.com>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1074757083.1943.37.camel@laptop-linux>; from ncunningham@users.sourceforge.net on Thu, Jan 22, 2004 at 09:12:00PM +1300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-torsdagen den 22 januari 2004 00.28 skrev Christian Unger:
-> >  Complain to nVidia.
+On Thu, Jan 22, 2004 at 09:12:00PM +1300, Nigel Cunningham wrote:
+> Hi.
 > 
-> yeah i did think about that, except
-> "
-> NVIDIA provides superior 3D graphics processors to the computer industry's 
-> leading add-in card manufacturers and PC OEMs. We do not sell any products 
-> directly to end users so we do not have a staff dedicated to end-user 
-> technical support. If you are having a problem with any NVIDIA-based product, 
-> please contact either the PC or board manufacturer of your product. 
-> "
-> 
-> So who writes the drivers??
+> Here's a second patch; this exports gotoxy, reset_terminal, hide_cursor,
+> getconsxy and putconsxy for use in Software Suspend's nice display.
 
-NVidia does. Check the download link for Linux/FreeBSD drivers and in particular the link to the Nvidial Linux forum.
+Really, swsusp shouldn't mess with console internals.  And you don't even
+explain what "nice display" is supposed to mean.
 
--- robin

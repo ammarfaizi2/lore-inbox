@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261693AbSLWJAo>; Mon, 23 Dec 2002 04:00:44 -0500
+	id <S265196AbSLWJLB>; Mon, 23 Dec 2002 04:11:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265196AbSLWJAo>; Mon, 23 Dec 2002 04:00:44 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:17542 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S261693AbSLWJAn>;
-	Mon, 23 Dec 2002 04:00:43 -0500
-Date: Mon, 23 Dec 2002 10:07:35 +0100 (MET)
+	id <S265446AbSLWJLB>; Mon, 23 Dec 2002 04:11:01 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:42121 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S265196AbSLWJLA>;
+	Mon, 23 Dec 2002 04:11:00 -0500
+Date: Mon, 23 Dec 2002 10:18:05 +0100 (MET)
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Russell King <rmk@arm.linux.org.uk>
-cc: Antonino Daplas <adaplas@pol.net>, James Simmons <jsimmons@infradead.org>,
-       Paul Mackerras <paulus@samba.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
+cc: James Simmons <jsimmons@infradead.org>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Linux Frame Buffer Device Development 
 	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [Linux-fbdev-devel] [PATCH] fix endian problem in color_imageblit
-In-Reply-To: <20021221092744.A23531@flint.arm.linux.org.uk>
-Message-ID: <Pine.GSO.4.21.0212231004040.12134-100000@vervain.sonytel.be>
+Subject: Re: [Linux-fbdev-devel] Type confusion in fbcon
+In-Reply-To: <20021220213056.A25155@flint.arm.linux.org.uk>
+Message-ID: <Pine.GSO.4.21.0212231014460.12134-100000@vervain.sonytel.be>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 21 Dec 2002, Russell King wrote:
-> On Sat, Dec 21, 2002 at 11:45:44AM +0800, Antonino Daplas wrote:
-> > The pseudopalette will only matter for truecolor and directcolor as the
-> > rest of the visuals bypasses the pseudopalette.  Typecasting to
-> > "unsigned long" rather than "u32" is also safer (even for bpp16) since
-> > in 64-bit machines, the drawing functions use fb_writeq instead of
-> > fb_writel.
+On Fri, 20 Dec 2002, Russell King wrote:
+> On Fri, Dec 20, 2002 at 06:10:17PM +0000, James Simmons wrote:
+> > > I'll get back to bashing the sa1100fb driver to work out why fbcon is
+> > > producing a _completely_ blank display, despite characters being written
+> > > to it.
+> > 
+> > Did you figure out what was wrong?
 > 
-> Erm, what does the size of the drawing functions have to do with the
-> size of the pseudo palette.  The pseudo palette is only there to encode
-> the pixel values for the 16 console colours.
+> Firstly, setting fix.line_length to zero (which the old API didn't care
+> about) caused one set of problems.
 
-Indeed.
+That's because originally there was no fix.line_length field, and the line
+length was derived from var.xres_virtual and var.bits_per_pixel.
 
-> This means that a 64-bit pseudo palette would only be useful if you have
-> a graphics card that supports > 32bpp, otherwise a 32-bit pseudo palette
-> is perfectly adequate, even if you are using fb_writeq.
+With some hardware, the line length must be a multiple of 32 or 64 bits, and we
+needed a way to specify that, so fix.line_length was introduced. If it was
+zero, user code should fallback to the old behavior.
 
-Yep. Cards with bpp > 32 are rumoured to exist, but there is no fbdev support
-for them right now.
-
-> (note that fbcon doesn't support > 32bpp, so we will only ever look at
-> the first 32 bits, and having it be 64-bit would just be a needless
-> waste of space imho.)
-
-And this can be fixed, once we have some fbdev driver that uses bpp > 32.
-
-Note that the size of the entries in the pseudo palette used to depend on the
-mode, i.e. u16 for bpp = 16, u32 for bpp = 24 or 32.
+Anyway, I think it's good to make fix.line_length mandatory with the new fbdev
+API.
 
 Gr{oetje,eeting}s,
 

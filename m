@@ -1,86 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262503AbUEAWzM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262538AbUEAW6G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262503AbUEAWzM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 1 May 2004 18:55:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbUEAWzM
+	id S262538AbUEAW6G (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 1 May 2004 18:58:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbUEAW6G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 1 May 2004 18:55:12 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:8708 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262503AbUEAWy4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 1 May 2004 18:54:56 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] add missing #include
-Date: Sun, 2 May 2004 01:54:43 +0300
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
+	Sat, 1 May 2004 18:58:06 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:56822 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S262538AbUEAW6D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 1 May 2004 18:58:03 -0400
+Date: Sat, 1 May 2004 18:58:03 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, kaos@sgi.com
+Subject: Re: [PATCH][2.6-mm] Allow i386 to reenable interrupts on lock
+ contention
+In-Reply-To: <20040501155116.6ac6e253.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0405011856170.2332@montezuma.fsmlabs.com>
+References: <2015.1083331968@ocs3.ocs.com.au> <Pine.LNX.4.58.0405010628030.2332@montezuma.fsmlabs.com>
+ <20040501143955.10d1cea1.akpm@osdl.org> <Pine.LNX.4.58.0405011750070.2332@montezuma.fsmlabs.com>
+ <20040501155116.6ac6e253.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_0qClADPW1NvdrBv"
-Message-Id: <200405020154.44062.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 1 May 2004, Andrew Morton wrote:
 
---Boundary-00=_0qClADPW1NvdrBv
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
+> >
+> > On Sat, 1 May 2004, Andrew Morton wrote:
+> >
+> >  > Could we move all the irq-handling stuff into the out-of-line section, to
+> >  > keep the fast-path cache footprint smaller?
+> >
+> >  Of course, oversight on my part. Done and restested.
+>
+> Thanks.  Would be nice to find some test which showed improved throughput
+> from this ;)
 
-Hi Linus,
+I'll see if i can locate something or put something together and report
+back.
 
-A small problem still exists int 2.6.6-rc3:
-
-fs/open.c:
-==========
-#include <linux/string.h>
-        this pulls __constant_c_and_count_memset()
-#include <linux/mm.h>
-        this pulls <compiler.h>, re#defining
-        inline == __inline__ __attribute__((always_inline)).
-        But it is too late!
-#include <linux/utime.h>
-
-open.c isn't the only place where it bites.
-Result:
-
-# grep __constant System.map
-c0144670 t __constant_c_and_count_memset
-c0145c60 t __constant_c_and_count_memset
-c0181230 t __constant_c_and_count_memset
-c01889d0 t __constant_c_and_count_memset
-c01daa10 t __constant_c_and_count_memset
-c01eecc0 t __constant_c_and_count_memset
-c02081a0 t __constant_c_and_count_memset
-c0289f20 t __constant_c_and_count_memset
-c040b170 t __constant_c_and_count_memset
-c040c140 t __constant_c_and_count_memset
-
-Patch fixes this.
---
-vda
-
---Boundary-00=_0qClADPW1NvdrBv
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="missing_include_compiler_h.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="missing_include_compiler_h.patch"
-
-diff -urN linux-2.6.5/include/linux/string.h linux-2.6.5.fixed_includes/include/linux/string.h
---- linux-2.6.5/include/linux/string.h	Sun Apr  4 06:36:56 2004
-+++ linux-2.6.5.fixed_includes/include/linux/string.h	Wed Apr 21 09:17:32 2004
-@@ -5,6 +5,7 @@
- 
- #ifdef __KERNEL__
- 
-+#include <linux/compiler.h>	/* for inline */
- #include <linux/types.h>	/* for size_t */
- #include <linux/stddef.h>	/* for NULL */
- 
-
---Boundary-00=_0qClADPW1NvdrBv--
-
+	Zwane

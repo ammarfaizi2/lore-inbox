@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261549AbTITC3f (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Sep 2003 22:29:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbTITC3f
+	id S261309AbTITCq7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Sep 2003 22:46:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbTITCq7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Sep 2003 22:29:35 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:63632 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261549AbTITC3e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Sep 2003 22:29:34 -0400
-Date: Fri, 19 Sep 2003 19:31:03 -0700
-From: John Wendel <jwendel10@comcast.net>
-To: linux-kernel@vger.kernel.org
-Subject: [ATTN IBM Guys] NMI count on X440 box
-Message-Id: <20030919193103.1d08fbff.jwendel10@comcast.net>
-Organization: WizardControl
-X-Mailer: Sylpheed version 0.9.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 19 Sep 2003 22:46:59 -0400
+Received: from mail.kroah.org ([65.200.24.183]:12741 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261309AbTITCq6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Sep 2003 22:46:58 -0400
+Date: Fri, 19 Sep 2003 19:47:12 -0700
+From: Greg KH <greg@kroah.com>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Jonathan Corbet <corbet@lwn.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] RFC: Attributes in /sys/cdev
+Message-ID: <20030920024712.GA9387@kroah.com>
+References: <20030919231046.4626.qmail@lwn.net> <20030920012844.GD7665@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030920012844.GD7665@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Sep 20, 2003 at 02:28:44AM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> 
+> BTW, I suspect that we need a way to say "this kobject and its children
+> will *never* have any attributes and will never be seen in sysfs".  There
+> are quite a few uses when we keep kobject as a refcounting vehicle, etc.,
+> but have nothing meaningful to show in sysfs tree.  Keep in mind that
+> sysfs nodes (including attributes) are not free - it's struct inode +
+> struct dentry at the very least.  Both pinned down and permanently mapped...
 
-< curious>
+Hm, I've used them this way by just calling kobject_init, kobject_get
+and kobject_put.  As long as you never call kobject_register or
+kobject_add, the sysfs hookups never happen.
 
-I just noticed that our 8-way X440 is showing (in /proc/interrupts)
-about 100 NMIs / second, on each CPU. Would some kind soul please tell
-me if this is OK? A brief explanation of what this interrupt is being
-used for would be appreciated.
+Is that what you are looking for?  
 
-We're running the latest RH Advanced server kernel.
+thanks,
 
-</curious>
-
-Sorry if this is a stupid question.
-
-Thanks,
-
-John
+greg k-h

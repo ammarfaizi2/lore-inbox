@@ -1,61 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261506AbSLUEaA>; Fri, 20 Dec 2002 23:30:00 -0500
+	id <S261418AbSLUEgG>; Fri, 20 Dec 2002 23:36:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261855AbSLUEaA>; Fri, 20 Dec 2002 23:30:00 -0500
-Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:49280 "EHLO
-	laptop.localdomain") by vger.kernel.org with ESMTP
-	id <S261506AbSLUE37> convert rfc822-to-8bit; Fri, 20 Dec 2002 23:29:59 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Con Kolivas <conman@kolivas.net>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [BENCHMARK] scheduler tunables with contest - interactive_delta
-Date: Sat, 21 Dec 2002 15:39:32 +1100
-User-Agent: KMail/1.4.3
-Cc: Robert Love <rml@tech9.net>
+	id <S261594AbSLUEgG>; Fri, 20 Dec 2002 23:36:06 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:38286 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S261418AbSLUEgF>; Fri, 20 Dec 2002 23:36:05 -0500
+Date: Fri, 20 Dec 2002 20:43:42 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: "Nakajima, Jun" <jun.nakajima@intel.com>,
+       "Van Maren, Kevin" <kevin.vanmaren@unisys.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       James Cleverdon <jamesclv@us.ibm.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       John Stultz <johnstul@us.ibm.com>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>,
+       "Saxena, Sunil" <sunil.saxena@intel.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+cc: "Protasevich, Natalie" <Natalie.Protasevich@unisys.com>
+Subject: RE: [PATCH][2.4]  generic cluster APIC support for systems with
+ more than 8 CPUs
+Message-ID: <323450000.1040445820@titus>
+In-Reply-To: <3014AAAC8E0930438FD38EBF6DCEB564419EF9@fmsmsx407.fm.intel.com>
+References: <3014AAAC8E0930438FD38EBF6DCEB564419EF9@fmsmsx407.fm.intel.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200212211539.56815.conman@kolivas.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+> I share the same concerns and comments with Martin.
+>
+> As far as xAPIC mode is concerned, the changes for ES7000 in SuSe/United
+> Linux are simply activating physical mode. And we are confident the patch
+> we provided should work for the machine as well. Looks like ES7000
+> requires changes in other areas as well, though.
+>
+> Since Martin already has code in place in 2.5, we should reuse his code
+> as much as possible. And our current plan is:
 
-osdl hardware, contest benchmark, 2.5.52-mm2 varying the interactive delta:
+I should point out that James wrote most of the Summit code, not me (I did
+the original NUMA-Q code) - I'm splitting it out into manageable chunks
+and debugging it (it breaks NUMA-Q at the moment, but I think that's fixed
+now it's in nice bite-sized pieces).
 
-I've cut it down to the two loads that seem to be affected significantly. The 
-other changes are subtle. id1 is interactive_delta = 1 and so on:
+> For 2.5:
+>
+> - Martin posts a new patch (that moves IBM-specifc stuff to subarch, for
+> example) next week. - Venkatesh merges the generic cluster APIC support
+> for systems (with more than 8 CPUs) to it, testing it on some OEM
+> machines (I cannot tell which)
 
-io_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-id1 [5]                 78.2    108     9       19      2.16
-id2 [5]                 87.9    96      12      19      2.43
-id3 [5]                 79.4    105     10      18      2.19
-id4 [5]                 84.9    109     12      22      2.34
-id5 [7]                 99.8    94      18      24      2.76
-id6 [5]                 103.3   104     18      25      2.85
-id7 [5]                 104.1   89      17      22      2.87
+Excellent - thankyou for this. When it's abstracted out (as the patches
+I'll send out as soon as I've got them tested do), it should be much
+easier to merge things together.
 
-mem_load:
-Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
-id1 [3]                 78.0    100     34      2       2.15
-id2 [5]                 94.3    84      35      2       2.60
-id3 [5]                 92.6    85      32      2       2.56
-id4 [5]                 65.8    134     39      3       1.82
-id5 [5]                 63.0    143     38      3       1.74
-id6 [5]                 69.7    129     38      2       1.92
-id7 [5]                 90.6    87      32      2       2.50
+> For 2.4:
+> - Venkatesh will post a confined patch to support APIC physical mode.
 
-Seems like io_load likes lower interactive deltas (lower the better?) and 
-mem_load likes high interactive_deltas (sweet spot 5).
+That should be what the current 2.4 summit code uses ... oddly it's
+physical in 2.4, and logical in 2.5 ... don't ask why ;-) If you meant
+logical, that sounds like a good plan.
 
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
-
-iD8DBQE+A/CEF6dfvkL3i1gRAoM2AJ45DsfpltAWXNoaXIWmArMRdz2PIgCffpWP
-A9gVU7M6NBIoGaFYQyx17wE=
-=Mayt
------END PGP SIGNATURE-----
+M.

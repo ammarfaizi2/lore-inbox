@@ -1,67 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266613AbUIMNIt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266674AbUIMNNF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266613AbUIMNIt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 09:08:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266689AbUIMNIt
+	id S266674AbUIMNNF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 09:13:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266679AbUIMNNF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 09:08:49 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.51]:40104 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S266613AbUIMNIp (ORCPT
+	Mon, 13 Sep 2004 09:13:05 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:11196 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S266674AbUIMNNB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 09:08:45 -0400
-Date: Mon, 13 Sep 2004 15:08:44 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux/m68k <linux-m68k@lists.linux-m68k.org>,
-       Debian GNU/Linux m68k <debian-68k@lists.debian.org>,
-       uClinux list <uclinux-dev@uclinux.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: `new' syscalls for m68k
-Message-ID: <20040913130844.GB1774@MAIL.13thfloor.at>
-Mail-Followup-To: Geert Uytterhoeven <geert@linux-m68k.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux/m68k <linux-m68k@lists.linux-m68k.org>,
-	Debian GNU/Linux m68k <debian-68k@lists.debian.org>,
-	uClinux list <uclinux-dev@uclinux.org>,
-	Linux Kernel Development <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0409102250300.24607@anakin> <1094852893.18235.5.camel@localhost.localdomain> <20040912212244.GC24240@MAIL.13thfloor.at> <Pine.GSO.4.58.0409131316430.21429@waterleaf.sonytel.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.58.0409131316430.21429@waterleaf.sonytel.be>
-User-Agent: Mutt/1.4.1i
+	Mon, 13 Sep 2004 09:13:01 -0400
+Date: Mon, 13 Sep 2004 06:12:54 -0700 (PDT)
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jesse Barnes <jbarnes@sgi.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+Message-Id: <20040913131255.27931.99206.77908@sam.engr.sgi.com>
+Subject: [Patch] Fix sched make domain setup overridable
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 13, 2004 at 01:17:10PM +0200, Geert Uytterhoeven wrote:
-> On Sun, 12 Sep 2004, Herbert Poetzl wrote:
-> > On Fri, Sep 10, 2004 at 10:48:16PM +0100, Alan Cox wrote:
-> > > On Gwe, 2004-09-10 at 21:57, Geert Uytterhoeven wrote:
-> > > >   - What about sys_vserver()?
-> >
-> > I would be happy to add a syscall reservation
-> > to the list of already reserved syscalls for
-> > i386, x86_64, s390, sparc/64, sh3/4, ppc/64
-> > and mips * ...
-> 
-> Also for m68k?
+Builds of 2.6.9-rc1-mm5 ia64 NUMA configs fail, with many
+complaints that SD_NODE_INIT is defined twice, in asm/processor.h
+and linux/sched.h.
 
-of course, linux-vserver is except for 2-3 tiny 
-arch specific modifications which might go away
-sooner or later (ptrace and uname) completely
-arch agnostic, so there should be no problem
-using it on m68k ...
+I guess that the preprocessor conditionals were wrong when Nick
+added the per-arch override ability again of SD_NODE_INIT were wrong.
+At least this change lets me rebuild ia64 again.
 
-TIA,
-Herbert
+Someone with more clues in this than I should check this.
 
-> Gr{oetje,eeting}s,
-> 
-> 						Geert
-> --
-> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-> 
-> In personal conversations with technical people, I call myself a hacker. But
-> when I'm talking to journalists I just say "programmer" or something like that.
-> 							    -- Linus Torvalds
+Signed-off-by: Paul Jackson <pj@sgi.com>
+
+Index: 2.6.9-rc1-mm5/include/linux/sched.h
+===================================================================
+--- 2.6.9-rc1-mm5.orig/include/linux/sched.h	2004-09-13 04:20:41.000000000 -0700
++++ 2.6.9-rc1-mm5/include/linux/sched.h	2004-09-13 04:51:49.000000000 -0700
+@@ -528,7 +528,7 @@ extern void cpu_attach_domain(struct sch
+ 	.nr_balance_failed	= 0,			\
+ }
+ 
+-#ifdef CONFIG_NUMA
++#if defined(CONFIG_NUMA) && !defined(SD_NODE_INIT)
+ #define SD_NODE_INIT (struct sched_domain) {		\
+ 	.span			= CPU_MASK_NONE,	\
+ 	.parent			= NULL,			\
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

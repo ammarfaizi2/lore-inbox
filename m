@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287828AbSABOFj>; Wed, 2 Jan 2002 09:05:39 -0500
+	id <S287833AbSABOFi>; Wed, 2 Jan 2002 09:05:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287849AbSABOFd>; Wed, 2 Jan 2002 09:05:33 -0500
-Received: from ns.suse.de ([213.95.15.193]:61966 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S287828AbSABODi>;
-	Wed, 2 Jan 2002 09:03:38 -0500
-Date: Wed, 2 Jan 2002 15:03:33 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Robert Schwebel <robert@schwebel.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Christer Weinigel <wingel@hog.ctrl-c.liu.se>,
-        Jason Sodergren <jason@mugwump.taiga.com>,
-        Anders Larsen <anders@alarsen.net>, <rkaiser@sysgo.de>
-Subject: Re: [PATCH][RFC] AMD Elan patch
-In-Reply-To: <Pine.LNX.4.33.0201021421090.3056-100000@callisto.local>
-Message-ID: <Pine.LNX.4.33.0201021502160.427-100000@Appserv.suse.de>
+	id <S287828AbSABOFf>; Wed, 2 Jan 2002 09:05:35 -0500
+Received: from admin.nni.com ([216.107.0.51]:53264 "EHLO admin.nni.com")
+	by vger.kernel.org with ESMTP id <S287832AbSABODq>;
+	Wed, 2 Jan 2002 09:03:46 -0500
+From: "Andrew Rodland" <arodland@noln.com>
+Subject: Re: CML2 funkiness
+To: linux-kernel@vger.kernel.org
+X-Mailer: CommuniGate Pro Web Mailer v.3.5
+Date: Wed, 02 Jan 2002 09:03:45 -0500
+Message-ID: <web-54668623@admin.nni.com>
+In-Reply-To: <200201010217.g012H2d00406@lists.us.dell.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+First off, I'd like to apologize for lack of all the
+ information I'd like to have, I'm at school, and
+ temporarily semidisconnected at home.
 
-> > Family 4 Model 10 or so my information tells me. Unless there are also
-> > others with the same name and different cpuid info.
-> That's what /proc/cpuinfo says. Is there an instance where one can find
-> the "official" families and model numbers? Something like a standard?
+CML2 is definitely still not quite right for me
+(2.4.17 + kpreempt-rml, latest CML2 as of 3ish days ago).
 
-x86info is the closest thing to a complete list, but as hpa pointed out,
-the problem identifying the cpu is easy, identifying the chipset is the
-hard part.
+Menuconfig and friends seem okay, as far as I can tell (and
+ they've apparently been tested pretty well), but oldconfig
+ is wacky...
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Basically, it seems to have random (but deterministic)
+ amnesia: It forgets the answers to certain questions,
+ apparently on write-out.
 
+So, "mv config .config ; make mrproper ; mv config .config
+ ; make oldconfig" does odd things to my config, but more
+ in-your-face, on "make oldconfig ; make oldconfig" (ad
+ inifinitum if you want), it will continue asking the same
+ questions, and never remember the answer.
+
+I'm 99% sure the problem is on the write-out, rather than
+ the read in, but I'll go do some extra digging tonight.
+ Python isn't really my language. Yet, at least. :)
+
+Anyway, thanks for reading. If you need more information,
+ let me know. I'm subscribed to the 100k digest.
+
+--Andrew Rodland

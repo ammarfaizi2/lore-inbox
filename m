@@ -1,59 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136464AbREDR0l>; Fri, 4 May 2001 13:26:41 -0400
+	id <S136467AbREDRcL>; Fri, 4 May 2001 13:32:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136467AbREDR0V>; Fri, 4 May 2001 13:26:21 -0400
-Received: from femail2.sdc1.sfba.home.com ([24.0.95.82]:61658 "EHLO
-	femail2.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S136466AbREDR0R>; Fri, 4 May 2001 13:26:17 -0400
-Message-ID: <3AF2E569.47AED98D@home.com>
-Date: Fri, 04 May 2001 10:22:49 -0700
-From: Seth Goldberg <bergsoft@home.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en
+	id <S136468AbREDRcB>; Fri, 4 May 2001 13:32:01 -0400
+Received: from twinlark.arctic.org ([204.107.140.52]:7185 "HELO
+	twinlark.arctic.org") by vger.kernel.org with SMTP
+	id <S136467AbREDRbu>; Fri, 4 May 2001 13:31:50 -0400
+Date: Fri, 4 May 2001 10:31:49 -0700 (PDT)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Pavel Machek <pavel@suse.cz>
+cc: Gregory Maxwell <greg@linuxpower.cx>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Helge Hafting <helgehaf@idb.hist.no>, <linux-kernel@vger.kernel.org>
+Subject: Re: X15 alpha release: as fast as TUX but in user space (fwd)
+In-Reply-To: <20010504100632.B13243@bug.ucw.cz>
+Message-ID: <Pine.LNX.4.33.0105041031020.20277-100000@twinlark.arctic.org>
+X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: REVISED: Experimentation with Athlon and fast_page_copy
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
- 
- After removing my head from my a**, I revised the code that checks
-the memory copy in the fast_page_copy routine.  The machine then
-proceeded
-not to stop at my panic, but I got my "normal" oopses.  I then had an
-idea and removed all the prefetch instructions from the beginning of the
-routine and tried the resultin kernel.  I now have no crashes.
-What could this mean?
+um, presumably this new magic page won't eliminate the old syscall entry
+points.  so just use those for UML.
 
-Here is a nother patch just so you can keep me honest if I
-made another mistake:
+-dean
 
--------------------------
-diff -r ./arch/i386/lib/mmx.c ../lin2/linux/arch/i386/lib/mmx.c
-149,150c149
-<
-< /*    __asm__ __volatile__ (
----
->       __asm__ __volatile__ (
-158c157
-<               "3: movw $0x1AEB, 1b\n"
----
->               "3: movw $0x1AEB, 1b\n" /* jmp on 26 bytes */
-166c165
-< */
----
+On Fri, 4 May 2001, Pavel Machek wrote:
+
+> Hi!
 >
-170c169
-<               "1: nop\n" /* prefetch 320(%0)\n" */
----
->               "1: prefetch 320(%0)\n"                                         
--------------------------
+> > > > That means that for fooling closed-source statically-linked binary,
+> > >
+> > > If they are using glibc then you have the right to the object to link
+> > > with the library and the library source under the LGPL. I dont know of any
+> > > app using its own C lib
+> >
+> > Some don't use any libc at all, some just don't use it for the time call
+> > that were talking about substituting.
+> >
+> > Lying about the time is a hack, pure and simple. It will still be possible
+> > with magic pages. The fact that it will require more kernel hacking to
+> > accomplish it is irrelevant.
+>
+> No. You are breaking self-virtualization here. That is not irrelevant.
+>
+> It used to require no kernel support before. Now it will require
+> kernel support. That's step back. (Think uml).
+>
+> 								Pavel
+> --
+> I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+> Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-  Please let me know if that makes sense :).
-
-  Thank you,
-   Seth

@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262008AbSJED5p>; Fri, 4 Oct 2002 23:57:45 -0400
+	id <S262009AbSJEEAR>; Sat, 5 Oct 2002 00:00:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262009AbSJED5p>; Fri, 4 Oct 2002 23:57:45 -0400
-Received: from fc2.capaccess.org ([151.200.199.52]:19723 "EHLO
+	id <S262011AbSJEEAQ>; Sat, 5 Oct 2002 00:00:16 -0400
+Received: from fc2.capaccess.org ([151.200.199.52]:20491 "EHLO
 	fc2.capaccess.org") by vger.kernel.org with ESMTP
-	id <S262008AbSJED5o>; Fri, 4 Oct 2002 23:57:44 -0400
-Message-id: <fc.0010c7b2005e03463b9aca003ab926ca.5e0353@capaccess.org>
-Date: Sat, 05 Oct 2002 00:03:15 -0400
+	id <S262009AbSJEEAQ>; Sat, 5 Oct 2002 00:00:16 -0400
+Message-id: <fc.0010c7b2005e03610010c7b2005dd2a8.5e0365@capaccess.org>
+Date: Sat, 05 Oct 2002 00:05:52 -0400
 Subject: Re: an open letter to Geor
-To: riel@conectiva.com.br
-Cc: davem@redhat.com, linux-kernel@vger.kernel.org
+To: davem@redhat.com
+Cc: linux-kernel@vger.kernel.org
 From: "Rick A. Hohensee" <rickh@capaccess.org>
-References: <Pine.LNX.4.44L.0210042111290.22735-100000@imladris.surriel.com>
-In-Reply-To: <Pine.LNX.4.44L.0210042111290.22735-100000@imladris.surriel.com>
+References: <fc.0010c7b2005dd2a80010c7b2005dd2a8.5dd2c5@Capaccess.org>
+ <20021004.160411.38314828.davem@redhat.com>
+In-Reply-To: <20021004.160411.38314828.davem@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>            I have devised a preliminary compensation scheme for authors
-of
->>            open source software based on the songwriter royalties model.
->>
->> Yes, let's use the music industry to model how we compensate people
->> for their works, they schemes have an excellent track record
+davem ridiculed...
+>this is pure comedy, so I'll happily feed the trolls
 >
->Heh, you'd end up OWING money to the users, because of the
->value of bugreports, paying for the download infrastructure
->and rental of users' screen space ;)
+>           I have devised a preliminary compensation scheme for authors of
+>           open source software based on the songwriter royalties model.
 >
->Rik
+><sarcasm/>
+>
+>Yes, let's use the music industry to model how we compensate people
+>for their works, they schemes have an excellent track record
+>
+></sarcasm>
+>
+>
 
-Problems I'd love to have.
+You like comedy? How about the "GNU business model" ?
 
 Rick Hohensee
+
+
 

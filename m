@@ -1,42 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262303AbTD3Seg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 14:34:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262306AbTD3Seg
+	id S262313AbTD3Sqb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 14:46:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262315AbTD3Sqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 14:34:36 -0400
-Received: from siaag2ae.compuserve.com ([149.174.40.135]:63703 "EHLO
-	siaag2ae.compuserve.com") by vger.kernel.org with ESMTP
-	id S262303AbTD3Sef (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 14:34:35 -0400
-Date: Wed, 30 Apr 2003 14:39:59 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
-To: Larry McVoy <lm@bitmover.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-ID: <200304301443_MC3-1-36BD-76E5@compuserve.com>
+	Wed, 30 Apr 2003 14:46:31 -0400
+Received: from mail.gmx.net ([213.165.64.20]:36534 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262313AbTD3Sqa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 14:46:30 -0400
+Message-ID: <3EB01CD8.47A73DE2@gmx.de>
+Date: Wed, 30 Apr 2003 20:58:32 +0200
+From: Edgar Toernig <froese@gmx.de>
 MIME-Version: 1.0
+To: Larry McVoy <lm@bitmover.com>
+CC: "Downing, Thomas" <Thomas.Downing@ipc.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
+References: <170EBA504C3AD511A3FE00508BB89A9202032941@exnanycmbx4.ipc.com> <20030430152041.GA22038@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Larry McVoy wrote:
+> 
+> So if you were the organization spending the money to produce something
+> new and you knew that it was going to be copied, wouldn't you do something
+> to protect that?
 
-.> If you were a powerful
-.> corporation, you might lobby Congress for more laws to protect your 
-.> works, you might start a "Trusted Computing" initiative to make sure
-.> that the data was all encrypted so that only your programs could access
-.> that data, etc.
-
-  So you are saying that the whole TCPA/Palladium thing is a sham,
-designed so that only one company's products can be used to access
-DRM-managed media?  That's what I thought from day one...
-
-  What's stopping an open-source reimplementation?  Or keeping Sony and
-partners from creating a "DRM Linux" for their embedded OS?
-
-------
- Chuck
+I hope you have a license from your parents to use a copy of their genes...

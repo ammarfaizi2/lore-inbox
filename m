@@ -1,79 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268940AbRHCLkS>; Fri, 3 Aug 2001 07:40:18 -0400
+	id <S268958AbRHCLxm>; Fri, 3 Aug 2001 07:53:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268958AbRHCLkJ>; Fri, 3 Aug 2001 07:40:09 -0400
-Received: from gw.framfab.dk ([194.239.251.2]:40216 "HELO [194.239.251.2]")
-	by vger.kernel.org with SMTP id <S268940AbRHCLjy>;
-	Fri, 3 Aug 2001 07:39:54 -0400
-Message-ID: <3B6A8CEC.1010401@fugmann.dhs.org>
-Date: Fri, 03 Aug 2001 13:37:16 +0200
-From: Anders Peter Fugmann <afu@fugmann.dhs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010628
-X-Accept-Language: en-us
+	id <S268965AbRHCLxc>; Fri, 3 Aug 2001 07:53:32 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:5132 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S268958AbRHCLxX>; Fri, 3 Aug 2001 07:53:23 -0400
+Subject: Re: kernel gdb for intel
+To: akale@veritas.com (Amit S. Kale)
+Date: Fri, 3 Aug 2001 12:54:53 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), baccala@freesoft.org (Brent Baccala),
+        linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <no.id> from "Amit S. Kale" at Aug 03, 2001 03:37:06 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-To: "Paul G. Allen" <pgallen@randomlogic.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Dual Athlon, AGP, and PCI
-In-Reply-To: <3B691B85.368D1BD0@randomlogic.com> <3B6939BA.30001@fugmann.dhs.org> <3B693D6F.AD0DB931@randomlogic.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15SdXZ-0002oY-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I can't get this. How can two gdb stubs work correctly
+> on two serial ports? In absence of any globals, there won't be
+> any data corruption, though there are inherent assumptions in 
+> the kernel about progress on all cpus. If GKL, page cache lock etc
+> are held by one cpu, the other cpu will not be able to make
+> any/much progress.
 
-Paul G. Allen wrote:
-
-> Anders Peter Fugmann wrote:
-[SNIP]
->>I have an UP system with the AMD761 chipset.
->>
-> 
-> The AMD762 has a different ID and is not recognized (the 761 is 7006,
-> and 762 is 700c), which throws a small wrench into things.
-
-
-I'm not shure why. You stated that AGPGART worked with the 
-try_unsopported=1 parameter (and that you had hacked the code to accept 
-it anyways).
-
-
->>
->>(try look in NVIDIA_kernel-1.0-1251/os-registry.c for more parameters)
->>
-> 
-> I'll take a look, again after the project Database is rebuilt. (Without
-> "Understand for C++" I'd still be quite lost looking through all this
-> code!)
-
-
-You do not need C experience to look at that code. It just states all 
-possible module parameters in C form, and has a comment to them all.
-
-> 
-> 
->>It works like a charm on my machine.
->>
->>Btw, if you want to make the NVidia module devfs aware please let me
->>know and I'll send you a patch.
->>
-> 
-> 
-> Hmmm, it might be nice.
-> 
-> Thanks for the input.
-> 
-> PGA
-> 
-> 
-
-
-Ill create a patch for it this weekend.
-
-Regards
-Anders Fugmann.
-
-
-
-
+That is fine. It'll get stuck in a lock. One thing it was useful for was
+exactly that - getting a given point and checking the locking cases worked
 

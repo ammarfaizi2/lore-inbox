@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271670AbVBEPrn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271586AbVBEPuO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271670AbVBEPrn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 10:47:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271683AbVBEPrn
+	id S271586AbVBEPuO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 10:50:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264010AbVBEPuO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 10:47:43 -0500
-Received: from rproxy.gmail.com ([64.233.170.207]:24423 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S271670AbVBEPrk (ORCPT
+	Sat, 5 Feb 2005 10:50:14 -0500
+Received: from rproxy.gmail.com ([64.233.170.198]:30588 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S271586AbVBEPt6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 10:47:40 -0500
+	Sat, 5 Feb 2005 10:49:58 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=PAuY3I4AQHy+rknYobCqiqqi7uAebBfexEDQ2rh5ETDekKAZhwL+b+IfrVRE5qoh4X3aimHBQ/azbnwTfhcogDstbYcP2+gcQwB7a2DGC/xJAmPoFxLSmvmVMcu+MwIMxPyiF3nfGUtBTjKhEbu1qZYJes7vAWMUUTz3I3jh7ZI=
-Message-ID: <9e473391050205074769e4f10@mail.gmail.com>
-Date: Sat, 5 Feb 2005 10:47:39 -0500
+        b=G1/RrbigcwDJkZmuNDEfQICJHB3XgutEwyMVNIp2aP+PWhIKNGloCFhE1BE04+ATpon0OWLg+PnIM+UofwZsH6P3CvnWPAexEvFFj/3csoNCoqWBPVHmiaesbd+e+mp09pRMARUQUOvGyLadxMH6pK/f8PG5eQm1Wc1+ugnvhDA=
+Message-ID: <9e47339105020507494846bc4d@mail.gmail.com>
+Date: Sat, 5 Feb 2005 10:49:52 -0500
 From: Jon Smirl <jonsmirl@gmail.com>
 Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Ondrej Zary <linux@rainbow-software.org>
+To: Pavel Machek <pavel@ucw.cz>
 Subject: Re: [RFC] Reliable video POSTing on resume
-Cc: Matthew Garrett <mjg59@srcf.ucam.org>, Pavel Machek <pavel@ucw.cz>,
-       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
+Cc: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
        ncunningham@linuxmail.org, ACPI List <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4204B3C1.80706@rainbow-software.org>
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Matthew Garrett <mjg59@srcf.ucam.org>
+In-Reply-To: <20050205093740.GD1158@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <20050122134205.GA9354@wsc-gmbh.de> <420367CF.7060206@gmx.net>
-	 <20050204163019.GC1290@elf.ucw.cz>
+References: <e796392205020221387d4d8562@mail.gmail.com>
+	 <4202A972.1070003@gmx.net> <20050203225410.GB1110@elf.ucw.cz>
+	 <1107474198.5727.9.camel@desktop.cunninghams>
+	 <4202DF7B.2000506@gmx.net> <9e47339105020321031ccaabb@mail.gmail.com>
+	 <420367CF.7060206@gmx.net> <20050204163019.GC1290@elf.ucw.cz>
 	 <9e4733910502040931955f5a6@mail.gmail.com>
-	 <1107569089.8575.35.camel@tyrosine>
-	 <9e4733910502041809738017a7@mail.gmail.com>
-	 <1107569842.8575.44.camel@tyrosine>
-	 <9e47339105020418306a4c2c93@mail.gmail.com>
-	 <1107591336.8575.51.camel@tyrosine>
-	 <4204B3C1.80706@rainbow-software.org>
+	 <20050205093740.GD1158@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 05 Feb 2005 12:53:37 +0100, Ondrej Zary
-<linux@rainbow-software.org> wrote:
-> I wonder how this can work:
-> a motherboard with i815 chipset (integrated VGA), Video BIOS is
-> integrated into system BIOS
-> a PCI card inserted into one of the PCI slots, configured as primary in
-> system BIOS
+On Sat, 5 Feb 2005 10:37:40 +0100, Pavel Machek <pavel@ucw.cz> wrote:
+> > > I do not understand how initramfs fits into picture... Plus lot of
+> > > people (me :-) do not use initramfs...
+> >
+> > The final fix for this will include the video reset app on initramfs.
+> > I already have code in the kernel for telling the primary video card
+> > from secondary ones. When the kernel is initially booting and finds
+> 
+> Is initramfs preserved when system is running? I was under impression
+> that it is freed when we mount real / fs.
 
-The info needed to initialize Intel chips is public. The info needed
-to initialize most Nvidia and ATI chips is not.
+It doesn't matter if it is mounted or unmounted. The reset program is
+just an app and another copy can live in /sbin. It's only on initrams
+so that it can initial the video during early boot allowing you to see
+error messages at that stage.
 
 -- 
 Jon Smirl

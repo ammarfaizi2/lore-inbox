@@ -1,55 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262924AbUCRUgH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 15:36:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262942AbUCRUgH
+	id S262945AbUCRUg4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 15:36:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262943AbUCRUgz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 15:36:07 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:5252 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S262924AbUCRUgE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 15:36:04 -0500
-Date: Thu, 18 Mar 2004 21:37:17 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Vojtech Pavlik <vojtech@suze.cz>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 24/44] Workaround i8042 chips with broken MUX mode
-Message-ID: <20040318203717.GA4430@ucw.cz>
-References: <20040316182409.54329.qmail@web80508.mail.yahoo.com>
+	Thu, 18 Mar 2004 15:36:55 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:28678 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262942AbUCRUgt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 15:36:49 -0500
+Date: Thu, 18 Mar 2004 20:36:38 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Ian Campbell <icampbell@arcom.com>,
+       Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [PATCH] PXA255 LCD Driver
+Message-ID: <20040318203638.A12978@flint.arm.linux.org.uk>
+Mail-Followup-To: James Simmons <jsimmons@infradead.org>,
+	Ian Campbell <icampbell@arcom.com>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linux Frame Buffer Device Development <linux-fbdev-devel@lists.sourceforge.net>
+References: <1079525185.13373.143.camel@icampbell-debian> <Pine.LNX.4.44.0403171723330.15898-100000@phoenix.infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040316182409.54329.qmail@web80508.mail.yahoo.com>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0403171723330.15898-100000@phoenix.infradead.org>; from jsimmons@infradead.org on Wed, Mar 17, 2004 at 07:03:06PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 16, 2004 at 10:24:09AM -0800, Dmitry Torokhov wrote:
+On Wed, Mar 17, 2004 at 07:03:06PM +0000, James Simmons wrote:
+> behavior is struct fb_monspecs. Take a look at it in fb.h. I'm interested 
+> if I got all the needed data from the EDID about a display panel.
 
-> Vojtech Pavlik wrote:
-> > +	
-> > +	/* Workaround for broken chips which seem to
-> support MUX, but in reality don't. */
-> > +	/* They all report version 12.10 */
-> > +	if (mux_version == 0xCA)
-> > +		return -1;
-> 
-> Hi, 
-> 
-> I think it should be 0xAC (0xA4 with 4th bit flipped)
-> as the version reported is 10.12:
-> 
-> i8042.c: Detected active multiplexing controller, rev
-> 10.12.
-> 
-> From little debug info that I've been sent ThinkPad's
-> controllers seem to be flipping 4th bit sometimes, I
-> can't quite pinpoint the exact sequence.
-
-Could this be the bit that indicates whether the report is coming from
-an internal or external device?
+You're thinking too PC-centric.  You don't get EDID data with embedded
+LCD panels.  Instead, you get timing information, number of pixels per
+line, and other parameters either from a PDF or paper datasheet on the
+device.
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

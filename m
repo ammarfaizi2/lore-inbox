@@ -1,145 +1,247 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262718AbTIQUye (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 16:54:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbTIQUye
+	id S262762AbTIQVMS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 17:12:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262651AbTIQVMS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 16:54:34 -0400
-Received: from hermes.py.intel.com ([146.152.216.3]:46577 "EHLO
-	hermes.py.intel.com") by vger.kernel.org with ESMTP id S262718AbTIQUy2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 16:54:28 -0400
-Content-Class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C37D5D.E0DBF4BA"
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: Hugetlb FS quota problem
-Date: Wed, 17 Sep 2003 13:54:25 -0700
-Message-ID: <41F331DBE1178346A6F30D7CF124B24B0183C1F5@fmsmsx409.fm.intel.com>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: Hugetlb FS quota problem
-Thread-Index: AcN9XeDKdzso6OwmQWePjvFrVJxyBQ==
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 17 Sep 2003 20:54:26.0380 (UTC) FILETIME=[E16AA8C0:01C37D5D]
+	Wed, 17 Sep 2003 17:12:18 -0400
+Received: from ns.suse.de ([195.135.220.2]:57034 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262762AbTIQVMC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Sep 2003 17:12:02 -0400
+Date: Wed, 17 Sep 2003 23:12:00 +0200
+From: Andi Kleen <ak@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andi Kleen <ak@suse.de>, Nick Piggin <piggin@cyberone.com.au>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       richard.brunner@amd.com
+Subject: Re: [PATCH] Athlon/Opteron Prefetch Fix for 2.6.0test5 + numbers
+Message-ID: <20030917211200.GA5997@wotan.suse.de>
+References: <20030917202100.GC4723@wotan.suse.de> <Pine.LNX.4.44.0309171332200.2523-100000@laptop.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0309171332200.2523-100000@laptop.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Wed, Sep 17, 2003 at 01:50:59PM -0700, Linus Torvalds wrote:
+> 
+> On Wed, 17 Sep 2003, Andi Kleen wrote:
+> > 
+> > Also when the fault address is equal EIP we don't check.
+> 
+> And this is a good example of something that can break.
 
-------_=_NextPart_001_01C37D5D.E0DBF4BA
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+> 
+> The fault address is a linear address after segment translation. The EIP 
+> is _before_ segment translation.
 
-We found a problem in hugetlbfs file system quota when using huge page
-via mmap.  The mmap method in hugetlbfs_file_operation always takes
-quota for every mmap even for pages that are already allocated on that
-inode.  This results in taxing the same hugepage multiple times and
-causing mmap to fail on existing file when quota mistakenly runs out.
+It doesn't matter. The EIP check only catches kernel crashes, for 
+user mode it is not relevant because the earlier checks catch this.
 
-The following patch against 2.6.0-test5 fix the problem.
-=20
- <<htlbfs_quota.patch>>=20
+Even in kernel mode it is not critical, just gives a nicer 
+oops when you do call *0
 
-------_=_NextPart_001_01C37D5D.E0DBF4BA
-Content-Type: application/octet-stream;
-	name="htlbfs_quota.patch"
-Content-Transfer-Encoding: base64
-Content-Description: htlbfs_quota.patch
-Content-Disposition: attachment;
-	filename="htlbfs_quota.patch"
+I added a check for LDT entries now. This means prefetch exceptions
+inside non standard code segments will be not handled (I will fix
+that in a follow up patch)
 
-ZGlmZiAtdXJwIGxpbnV4LTIuNi4wLXRlc3Q1L2FyY2gvaTM4Ni9tbS9odWdldGxicGFnZS5jIGxp
-bnV4LTIuNi4wLXRlc3Q1LmgvYXJjaC9pMzg2L21tL2h1Z2V0bGJwYWdlLmMNCi0tLSBsaW51eC0y
-LjYuMC10ZXN0NS9hcmNoL2kzODYvbW0vaHVnZXRsYnBhZ2UuYwlNb24gU2VwICA4IDEyOjUwOjI4
-IDIwMDMNCisrKyBsaW51eC0yLjYuMC10ZXN0NS5oL2FyY2gvaTM4Ni9tbS9odWdldGxicGFnZS5j
-CVdlZCBTZXAgMTcgMTI6MTI6MzIgMjAwMw0KQEAgLTM1NSwxNCArMzU1LDIxIEBAIGludCBodWdl
-dGxiX3ByZWZhdWx0KHN0cnVjdCBhZGRyZXNzX3NwYWMNCiAJCQkrICh2bWEtPnZtX3Bnb2ZmID4+
-IChIUEFHRV9TSElGVCAtIFBBR0VfU0hJRlQpKTsNCiAJCXBhZ2UgPSBmaW5kX2dldF9wYWdlKG1h
-cHBpbmcsIGlkeCk7DQogCQlpZiAoIXBhZ2UpIHsNCisJCQkvKiBjaGFyZ2UgdGhlIGZzIHF1b3Rh
-IGZpcnN0ICovDQorCQkJaWYgKGh1Z2V0bGJfZ2V0X3F1b3RhKG1hcHBpbmcpKSB7DQorCQkJCXJl
-dCA9IC1FTk9NRU07DQorCQkJCWdvdG8gb3V0Ow0KKwkJCX0NCiAJCQlwYWdlID0gYWxsb2NfaHVn
-ZXRsYl9wYWdlKCk7DQogCQkJaWYgKCFwYWdlKSB7DQorCQkJCWh1Z2V0bGJfcHV0X3F1b3RhKG1h
-cHBpbmcpOw0KIAkJCQlyZXQgPSAtRU5PTUVNOw0KIAkJCQlnb3RvIG91dDsNCiAJCQl9DQogCQkJ
-cmV0ID0gYWRkX3RvX3BhZ2VfY2FjaGUocGFnZSwgbWFwcGluZywgaWR4LCBHRlBfQVRPTUlDKTsN
-CiAJCQl1bmxvY2tfcGFnZShwYWdlKTsNCiAJCQlpZiAocmV0KSB7DQorCQkJCWh1Z2V0bGJfcHV0
-X3F1b3RhKG1hcHBpbmcpOw0KIAkJCQlmcmVlX2h1Z2VfcGFnZShwYWdlKTsNCiAJCQkJZ290byBv
-dXQ7DQogCQkJfQ0KZGlmZiAtdXJwIGxpbnV4LTIuNi4wLXRlc3Q1L2FyY2gvaWE2NC9tbS9odWdl
-dGxicGFnZS5jIGxpbnV4LTIuNi4wLXRlc3Q1LmgvYXJjaC9pYTY0L21tL2h1Z2V0bGJwYWdlLmMN
-Ci0tLSBsaW51eC0yLjYuMC10ZXN0NS9hcmNoL2lhNjQvbW0vaHVnZXRsYnBhZ2UuYwlNb24gU2Vw
-ICA4IDEyOjUwOjA2IDIwMDMNCisrKyBsaW51eC0yLjYuMC10ZXN0NS5oL2FyY2gvaWE2NC9tbS9o
-dWdldGxicGFnZS5jCVdlZCBTZXAgMTcgMTI6MTI6MzIgMjAwMw0KQEAgLTI5NywxNCArMjk3LDIx
-IEBAIGludCBodWdldGxiX3ByZWZhdWx0KHN0cnVjdCBhZGRyZXNzX3NwYWMNCiAJCQkrICh2bWEt
-PnZtX3Bnb2ZmID4+IChIUEFHRV9TSElGVCAtIFBBR0VfU0hJRlQpKTsNCiAJCXBhZ2UgPSBmaW5k
-X2dldF9wYWdlKG1hcHBpbmcsIGlkeCk7DQogCQlpZiAoIXBhZ2UpIHsNCisJCQkvKiBjaGFyZ2Ug
-dGhlIGZzIHF1b3RhIGZpcnN0ICovDQorCQkJaWYgKGh1Z2V0bGJfZ2V0X3F1b3RhKG1hcHBpbmcp
-KSB7DQorCQkJCXJldCA9IC1FTk9NRU07DQorCQkJCWdvdG8gb3V0Ow0KKwkJCX0NCiAJCQlwYWdl
-ID0gYWxsb2NfaHVnZXRsYl9wYWdlKCk7DQogCQkJaWYgKCFwYWdlKSB7DQorCQkJCWh1Z2V0bGJf
-cHV0X3F1b3RhKG1hcHBpbmcpOw0KIAkJCQlyZXQgPSAtRU5PTUVNOw0KIAkJCQlnb3RvIG91dDsN
-CiAJCQl9DQogCQkJcmV0ID0gYWRkX3RvX3BhZ2VfY2FjaGUocGFnZSwgbWFwcGluZywgaWR4LCBH
-RlBfQVRPTUlDKTsNCiAJCQl1bmxvY2tfcGFnZShwYWdlKTsNCiAJCQlpZiAocmV0KSB7DQorCQkJ
-CWh1Z2V0bGJfcHV0X3F1b3RhKG1hcHBpbmcpOw0KIAkJCQlmcmVlX2h1Z2VfcGFnZShwYWdlKTsN
-CiAJCQkJZ290byBvdXQ7DQogCQkJfQ0KZGlmZiAtdXJwIGxpbnV4LTIuNi4wLXRlc3Q1L2ZzL2h1
-Z2V0bGJmcy9pbm9kZS5jIGxpbnV4LTIuNi4wLXRlc3Q1LmgvZnMvaHVnZXRsYmZzL2lub2RlLmMN
-Ci0tLSBsaW51eC0yLjYuMC10ZXN0NS9mcy9odWdldGxiZnMvaW5vZGUuYwlNb24gU2VwICA4IDEy
-OjUwOjIzIDIwMDMNCisrKyBsaW51eC0yLjYuMC10ZXN0NS5oL2ZzL2h1Z2V0bGJmcy9pbm9kZS5j
-CVdlZCBTZXAgMTcgMTI6MTI6MzIgMjAwMw0KQEAgLTQ3LDcgKzQ3LDYgQEAgc3RhdGljIGludCBo
-dWdldGxiZnNfZmlsZV9tbWFwKHN0cnVjdCBmaQ0KIHsNCiAJc3RydWN0IGlub2RlICppbm9kZSA9
-IGZpbGUtPmZfZGVudHJ5LT5kX2lub2RlOw0KIAlzdHJ1Y3QgYWRkcmVzc19zcGFjZSAqbWFwcGlu
-ZyA9IGlub2RlLT5pX21hcHBpbmc7DQotCXN0cnVjdCBodWdldGxiZnNfc2JfaW5mbyAqc2JpbmZv
-ID0gSFVHRVRMQkZTX1NCKGlub2RlLT5pX3NiKTsNCiAJbG9mZl90IGxlbiwgdm1hX2xlbjsNCiAJ
-aW50IHJldDsNCiANCkBAIC02MSwxOSArNjAsOCBAQCBzdGF0aWMgaW50IGh1Z2V0bGJmc19maWxl
-X21tYXAoc3RydWN0IGZpDQogCQlyZXR1cm4gLUVJTlZBTDsNCiANCiAJdm1hX2xlbiA9IChsb2Zm
-X3QpKHZtYS0+dm1fZW5kIC0gdm1hLT52bV9zdGFydCk7DQotCWlmIChzYmluZm8tPmZyZWVfYmxv
-Y2tzID49IDApIHsgLyogQ2hlY2sgaWYgdGhlcmUgaXMgYW55IHNpemUgbGltaXQuICovDQotCQlz
-cGluX2xvY2soJnNiaW5mby0+c3RhdF9sb2NrKTsNCi0JCWlmICgodm1hX2xlbiA+PiBIUEFHRV9T
-SElGVCkgPD0gc2JpbmZvLT5mcmVlX2Jsb2Nrcykgew0KLQkJCXNiaW5mby0+ZnJlZV9ibG9ja3Mg
-LT0gKHZtYV9sZW4gPj4gSFBBR0VfU0hJRlQpOw0KLQkJCXNwaW5fdW5sb2NrKCZzYmluZm8tPnN0
-YXRfbG9jayk7DQotCQl9IGVsc2Ugew0KLQkJCXNwaW5fdW5sb2NrKCZzYmluZm8tPnN0YXRfbG9j
-ayk7DQotCQkJcmV0dXJuIC1FTk9NRU07DQotCQl9DQotCX0NCiANCiAJZG93bigmaW5vZGUtPmlf
-c2VtKTsNCi0NCiAJdXBkYXRlX2F0aW1lKGlub2RlKTsNCiAJdm1hLT52bV9mbGFncyB8PSBWTV9I
-VUdFVExCIHwgVk1fUkVTRVJWRUQ7DQogCXZtYS0+dm1fb3BzID0gJmh1Z2V0bGJfdm1fb3BzOw0K
-QEAgLTgzLDE1ICs3MSw2IEBAIHN0YXRpYyBpbnQgaHVnZXRsYmZzX2ZpbGVfbW1hcChzdHJ1Y3Qg
-ZmkNCiAJCWlub2RlLT5pX3NpemUgPSBsZW47DQogCXVwKCZpbm9kZS0+aV9zZW0pOw0KIA0KLQkv
-Kg0KLQkgKiBJZiB0aGUgaHVnZSBwYWdlIGFsbG9jYXRpb24gaGFzIGZhaWxlZCB0aGVuIGluY3Jl
-bWVudCBmcmVlX2Jsb2Nrcy4NCi0JICovDQotCWlmICgocmV0ICE9IDApICYmIChzYmluZm8tPmZy
-ZWVfYmxvY2tzID49IDApKSB7DQotCQlzcGluX2xvY2soJnNiaW5mby0+c3RhdF9sb2NrKTsNCi0J
-CXNiaW5mby0+ZnJlZV9ibG9ja3MgKz0gKHZtYV9sZW4gPj4gSFBBR0VfU0hJRlQpOw0KLQkJc3Bp
-bl91bmxvY2soJnNiaW5mby0+c3RhdF9sb2NrKTsNCi0JfQ0KLQ0KIAlyZXR1cm4gcmV0Ow0KIH0N
-CiANCkBAIC0xNzgsNyArMTU3LDYgQEAgdm9pZCB0cnVuY2F0ZV9odWdlX3BhZ2Uoc3RydWN0IHBh
-Z2UgKnBhZw0KIA0KIHZvaWQgdHJ1bmNhdGVfaHVnZXBhZ2VzKHN0cnVjdCBhZGRyZXNzX3NwYWNl
-ICptYXBwaW5nLCBsb2ZmX3QgbHN0YXJ0KQ0KIHsNCi0Jc3RydWN0IGh1Z2V0bGJmc19zYl9pbmZv
-ICpzYmluZm8gPSBIVUdFVExCRlNfU0IobWFwcGluZy0+aG9zdC0+aV9zYik7DQogCWNvbnN0IHBn
-b2ZmX3Qgc3RhcnQgPSBsc3RhcnQgPj4gSFBBR0VfU0hJRlQ7DQogCXN0cnVjdCBwYWdldmVjIHB2
-ZWM7DQogCXBnb2ZmX3QgbmV4dDsNCkBAIC0yMDMsMTEgKzE4MSw3IEBAIHZvaWQgdHJ1bmNhdGVf
-aHVnZXBhZ2VzKHN0cnVjdCBhZGRyZXNzX3MNCiAJCQkrK25leHQ7DQogCQkJdHJ1bmNhdGVfaHVn
-ZV9wYWdlKHBhZ2UpOw0KIAkJCXVubG9ja19wYWdlKHBhZ2UpOw0KLQkJCWlmIChzYmluZm8tPmZy
-ZWVfYmxvY2tzID49IDApIHsNCi0JCQkJc3Bpbl9sb2NrKCZzYmluZm8tPnN0YXRfbG9jayk7DQot
-CQkJCXNiaW5mby0+ZnJlZV9ibG9ja3MrKzsNCi0JCQkJc3Bpbl91bmxvY2soJnNiaW5mby0+c3Rh
-dF9sb2NrKTsNCi0JCQl9DQorCQkJaHVnZXRsYl9wdXRfcXVvdGEobWFwcGluZyk7DQogCQl9DQog
-CQlodWdlX3BhZ2V2ZWNfcmVsZWFzZSgmcHZlYyk7DQogCX0NCmRpZmYgLXVycCBsaW51eC0yLjYu
-MC10ZXN0NS9pbmNsdWRlL2xpbnV4L2h1Z2V0bGIuaCBsaW51eC0yLjYuMC10ZXN0NS5oL2luY2x1
-ZGUvbGludXgvaHVnZXRsYi5oDQotLS0gbGludXgtMi42LjAtdGVzdDUvaW5jbHVkZS9saW51eC9o
-dWdldGxiLmgJTW9uIFNlcCAgOCAxMjo1MDowNiAyMDAzDQorKysgbGludXgtMi42LjAtdGVzdDUu
-aC9pbmNsdWRlL2xpbnV4L2h1Z2V0bGIuaAlXZWQgU2VwIDE3IDEyOjEyOjMyIDIwMDMNCkBAIC05
-Myw2ICs5MywzNiBAQCBzdGF0aWMgaW5saW5lIHN0cnVjdCBodWdldGxiZnNfc2JfaW5mbyAqDQog
-CXJldHVybiBzYi0+c19mc19pbmZvOw0KIH0NCiANCitzdGF0aWMgaW5saW5lIGludCBodWdldGxi
-X2dldF9xdW90YShzdHJ1Y3QgYWRkcmVzc19zcGFjZSAqIG1hcHBpbmcpDQorew0KKwlpbnQgcmV0
-ID0gMDsNCisJc3RydWN0IGh1Z2V0bGJmc19zYl9pbmZvICpzYmluZm8gPQ0KKwkJSFVHRVRMQkZT
-X1NCKG1hcHBpbmctPmhvc3QtPmlfc2IpOw0KKw0KKwlpZiAoc2JpbmZvLT5mcmVlX2Jsb2NrcyA+
-IC0xKSB7DQorCQlzcGluX2xvY2soJnNiaW5mby0+c3RhdF9sb2NrKTsNCisJCWlmIChzYmluZm8t
-PmZyZWVfYmxvY2tzID4gMCkNCisJCQlzYmluZm8tPmZyZWVfYmxvY2tzLS07DQorCQllbHNlDQor
-CQkJcmV0ID0gLUVOT01FTTsNCisJCXNwaW5fdW5sb2NrKCZzYmluZm8tPnN0YXRfbG9jayk7DQor
-CX0NCisNCisJcmV0dXJuIHJldDsNCit9DQorDQorc3RhdGljIGlubGluZSB2b2lkIGh1Z2V0bGJf
-cHV0X3F1b3RhKHN0cnVjdCBhZGRyZXNzX3NwYWNlICptYXBwaW5nKQ0KK3sNCisJc3RydWN0IGh1
-Z2V0bGJmc19zYl9pbmZvICpzYmluZm8gPQ0KKwkJSFVHRVRMQkZTX1NCKG1hcHBpbmctPmhvc3Qt
-Pmlfc2IpOw0KKw0KKwlpZiAoc2JpbmZvLT5mcmVlX2Jsb2NrcyA+IC0xKSB7DQorCQlzcGluX2xv
-Y2soJnNiaW5mby0+c3RhdF9sb2NrKTsNCisJCXNiaW5mby0+ZnJlZV9ibG9ja3MrKzsNCisJCXNw
-aW5fdW5sb2NrKCZzYmluZm8tPnN0YXRfbG9jayk7DQorCX0NCit9DQorDQogI2RlZmluZSBQU0VV
-RE9fRElSRU5UX1NJWkUJMjANCiANCiBleHRlcm4gc3RydWN0IGZpbGVfb3BlcmF0aW9ucyBodWdl
-dGxiZnNfZmlsZV9vcGVyYXRpb25zOw0K
+> You don't translate the EIP with the CS base.
+> 
+> Which means that the two can match even if they have nothing to do with 
+> each other. It will happen in vm86 mode and in things like wine. So that 
+> check is broken.
+> 
+> Also, for the same reason, you won't fix up prefetches in wine.
 
-------_=_NextPart_001_01C37D5D.E0DBF4BA--
+Hmm. I didn't think wine normally used non zero segment bases.
+
+But you're right. When the segment is in a LDT it should add in the base.
+
+I don't think it's a big problem because it could only hit
+in 16bit Wine and I doubt those programs use prefetch. But arguably
+it should be handled, agreed.
+
+But could you still consider merging the patch, I will fix it then in
+a follow up patch? It seems like a quite obscure issue.
+
+> Also, you do things like comparing pointers for less/greater than, and at
+> least some versions of gcc has done that wrong - using signed comparisons.  
+
+Really? Is that any version we still support (2.95+) ?
+It is certainly legal ISO-C. I changed it for now.
+
+> In short, this is harder than you seem to think. And right now you _do_ do 
+> the wrong things for Wine, and I think that not only should that be fixed, 
+> it should be made athlon-specific so that any other potential bugs won't 
+> impact people that it shouldn't impact.
+
+Ok, here is a new patch which also includes an Athlon/Opteron check
+and doesn't do pointer comparisons and ignores CS in LDT for now.
+
+Please consider applying.
+
+-Andi
+
+
+--- linux-2.6.0test5-work/arch/i386/mm/fault.c-o	2003-05-27 03:00:20.000000000 +0200
++++ linux-2.6.0test5-work/arch/i386/mm/fault.c	2003-09-17 23:07:03.000000000 +0200
+@@ -55,6 +55,85 @@
+ 	console_loglevel = loglevel_save;
+ }
+ 
++/* Sometimes AMD K7/K8 reports invalid exceptions on prefetch.
++   Check that here and ignore.
++   Opcode checker based on code by Richard Brunner */
++static int __is_prefetch(struct pt_regs *regs, unsigned long addr)
++{ 
++	unsigned char *instr = (unsigned char *)(regs->eip);
++	int scan_more;
++	int prefetch = 0; 
++	int c;
++
++	/* Avoid recursive faults. This is just an optimization,
++	   they must be handled correctly too */
++	if (regs->eip == addr)
++		return 0; 
++
++	/* Don't check for LDT code segments because they could have
++	   non zero bases. Better would be to add in the base in this case. */
++	if (regs->xcs & (1<<2))
++		return 0;
++
++	scan_more = 1;
++	for (c = 0; c < 15 && scan_more; c++) { 
++		unsigned char opcode;
++		unsigned char instr_hi;
++		unsigned char instr_lo;
++
++		if (__get_user(opcode, instr))
++			break; 
++
++		instr_hi = opcode & 0xf0; 
++		instr_lo = opcode & 0x0f; 
++		instr++;
++
++		switch (instr_hi) { 
++		case 0x20:
++		case 0x30:
++			/* Values 0x26,0x2E,0x36,0x3E are valid x86
++			   prefixes.  In long mode, the CPU will signal
++			   invalid opcode if some of these prefixes are
++			   present so we will never get here anyway */
++			scan_more = ((instr_lo & 7) == 0x6);
++			break;
++			
++		case 0x40:
++			/* May be valid in long mode (REX prefixes) */
++			break; 
++			
++		case 0x60:
++			/* 0x64 thru 0x67 are valid prefixes in all modes. */
++			scan_more = (instr_lo & 0xC) == 0x4;
++			break;		
++		case 0xF0:
++			/* 0xF0, 0xF2, and 0xF3 are valid prefixes in all modes. */
++			scan_more = !instr_lo || (instr_lo>>1) == 1;
++			break;			
++		case 0x00:
++			/* Prefetch instruction is 0x0F0D or 0x0F18 */
++			scan_more = 0;
++			if (__get_user(opcode, instr)) 
++				break;
++			prefetch = (instr_lo == 0xF) &&
++				(opcode == 0x0D || opcode == 0x18);
++			break;			
++		default:
++			scan_more = 0;
++			break;
++		} 
++	}
++	return prefetch;
++}
++
++static inline int is_prefetch(struct pt_regs *regs, unsigned long addr)
++{
++	if (likely(boot_cpu_data.x86_vendor != X86_VENDOR_AMD || 
++		   boot_cpu_data.x86 < 6))
++		return 0; 
++	return __is_prefetch(regs, addr);
++}
++
+ asmlinkage void do_invalid_op(struct pt_regs *, unsigned long);
+ 
+ /*
+@@ -110,7 +189,7 @@
+ 	 * atomic region then we must not take the fault..
+ 	 */
+ 	if (in_atomic() || !mm)
+-		goto no_context;
++		goto bad_area_nosemaphore;
+ 
+ 	down_read(&mm->mmap_sem);
+ 
+@@ -198,8 +277,12 @@
+ bad_area:
+ 	up_read(&mm->mmap_sem);
+ 
++bad_area_nosemaphore:
+ 	/* User mode accesses just cause a SIGSEGV */
+ 	if (error_code & 4) {
++		if (is_prefetch(regs, address))
++			return;
++
+ 		tsk->thread.cr2 = address;
+ 		tsk->thread.error_code = error_code;
+ 		tsk->thread.trap_no = 14;
+@@ -232,6 +315,9 @@
+ 	if (fixup_exception(regs))
+ 		return;
+ 
++ 	if (is_prefetch(regs, address))
++ 		return;
++
+ /*
+  * Oops. The kernel tried to access some bad page. We'll have to
+  * terminate things with extreme prejudice.
+@@ -286,10 +372,13 @@
+ do_sigbus:
+ 	up_read(&mm->mmap_sem);
+ 
+-	/*
+-	 * Send a sigbus, regardless of whether we were in kernel
+-	 * or user mode.
+-	 */
++	/* Kernel mode? Handle exceptions or die */
++	if (!(error_code & 4))
++		goto no_context;
++
++	if (is_prefetch(regs, address))
++		return;
++
+ 	tsk->thread.cr2 = address;
+ 	tsk->thread.error_code = error_code;
+ 	tsk->thread.trap_no = 14;
+@@ -298,10 +387,6 @@
+ 	info.si_code = BUS_ADRERR;
+ 	info.si_addr = (void *)address;
+ 	force_sig_info(SIGBUS, &info, tsk);
+-
+-	/* Kernel mode? Handle exceptions or die */
+-	if (!(error_code & 4))
+-		goto no_context;
+ 	return;
+ 
+ vmalloc_fault:
+--- linux-2.6.0test5-work/include/asm-i386/processor.h-o	2003-09-09 20:55:46.000000000 +0200
++++ linux-2.6.0test5-work/include/asm-i386/processor.h	2003-09-11 03:22:16.000000000 +0200
+@@ -578,8 +578,6 @@
+ #define ARCH_HAS_PREFETCH
+ extern inline void prefetch(const void *x)
+ {
+-	if (cpu_data[0].x86_vendor == X86_VENDOR_AMD)
+-		return;		/* Some athlons fault if the address is bad */
+ 	alternative_input(ASM_NOP4,
+ 			  "prefetchnta (%1)",
+ 			  X86_FEATURE_XMM,

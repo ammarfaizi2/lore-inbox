@@ -1,40 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274362AbRJTVaT>; Sat, 20 Oct 2001 17:30:19 -0400
+	id <S274513AbRJTVnJ>; Sat, 20 Oct 2001 17:43:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274368AbRJTVaI>; Sat, 20 Oct 2001 17:30:08 -0400
-Received: from mail1.svr.pol.co.uk ([195.92.193.18]:36965 "EHLO
-	mail1.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S274362AbRJTV34>; Sat, 20 Oct 2001 17:29:56 -0400
-Message-ID: <00d401c159ae$6000c7d0$5cbefea9@moya>
-From: "MichaelM" <michail@manegakis.freeserve.co.uk>
-To: <linux-kernel@vger.kernel.org>
-Subject: The new X-Kernel !
-Date: Sat, 20 Oct 2001 22:30:00 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-7"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S274520AbRJTVm6>; Sat, 20 Oct 2001 17:42:58 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:60155
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S274513AbRJTVmt>; Sat, 20 Oct 2001 17:42:49 -0400
+Date: Sat, 20 Oct 2001 14:43:18 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: MichaelM <michail@manegakis.freeserve.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: The new X-Kernel !
+Message-ID: <20011020144318.C31863@mikef-linux.matchmail.com>
+Mail-Followup-To: MichaelM <michail@manegakis.freeserve.co.uk>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <00d401c159ae$6000c7d0$5cbefea9@moya>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <00d401c159ae$6000c7d0$5cbefea9@moya>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-People need a nice stable Operating System for networking purposes of any
-type, and this exists, linux of course. What else should the world need?
+On Sat, Oct 20, 2001 at 10:30:00PM +0100, MichaelM wrote:
+> People need a nice stable Operating System for networking purposes of any
+> type, and this exists, Linux of course. What else should the world need?
+> 
+> People need a nice stable Operating System for Desktop and Multimedia
+> purposes and this doesn't exist. We should create a new stable X-Kernel with
+> build in support for X. Pressing Alt-F1 a console should pop up.
+> 
+> Boots up with X, that means.
+>
 
-People need a nice stable Operating System for Desktop and Multimedia
-purposes and this doesn't exist. We should create a new stable X-Kernel with
-build in support for X. Pressing Alt-F1 a console should pop up.
+We already have this.  It's called xdm, kdm, or gdm.
 
-Boots up with X, that means.
+> Come on Linus, show the world what you can do, release the X-Kernel 1.01.
+> 
+> Hit the MS dominar where it hurts, THE DESKTOP.
+> 
+> Parallel release of Kernel and X-Kernel, will put Linux where it belongs,
+> THE TOP of course.
+> 
 
-Come on Linus, show the world what you can do, release the X-Kernel 1.01.
+Starting X sooner or later in the boot process won't make Linux any better
+or worse than the competition.
 
-Hit the MS dominar where it hurts, THE DESKTOP.
+What you are asking for is a distribution feature request, not a kernel
+feature request.
 
-Parallel release of Kernel and X-Kernel, will put Linux where it belongs,
-THE TOP of course.
+You can get X to startup sooner by modifying your init scripts.  Just start
+?dm after networking, and any other services that X will depend on.  Now you
+can have any other services such as nfsd, samba, http, etc in parallel to X.
 
+Mike

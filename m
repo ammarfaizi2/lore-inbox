@@ -1,63 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265349AbSJXIai>; Thu, 24 Oct 2002 04:30:38 -0400
+	id <S265351AbSJXIjo>; Thu, 24 Oct 2002 04:39:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265351AbSJXIai>; Thu, 24 Oct 2002 04:30:38 -0400
-Received: from packet.digeo.com ([12.110.80.53]:53247 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265349AbSJXIah>;
-	Thu, 24 Oct 2002 04:30:37 -0400
-Message-ID: <3DB7B11B.9E552CFF@digeo.com>
-Date: Thu, 24 Oct 2002 01:36:43 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
-X-Accept-Language: en
+	id <S265354AbSJXIjo>; Thu, 24 Oct 2002 04:39:44 -0400
+Received: from tsv.sws.net.au ([203.36.46.2]:65291 "EHLO tsv.sws.net.au")
+	by vger.kernel.org with ESMTP id <S265351AbSJXIjn>;
+	Thu, 24 Oct 2002 04:39:43 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Russell Coker <russell@coker.com.au>
+Reply-To: Russell Coker <russell@coker.com.au>
+To: Nathan Scott <nathans@sgi.com>
+Subject: Re: [PATCH] remove sys_security
+Date: Thu, 24 Oct 2002 10:45:44 +0200
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org, linux-security-module@wirex.com
+References: <20021023173635.A15896@infradead.org> <Pine.GSO.4.33.0210231241300.7042-100000@raven> <20021024062602.GD937@frodo>
+In-Reply-To: <20021024062602.GD937@frodo>
 MIME-Version: 1.0
-To: chrisl@vmware.com
-CC: andrea@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: writepage return value check in vmscan.c
-References: <20021024082505.GB1471@vmware.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 Oct 2002 08:36:43.0565 (UTC) FILETIME=[7B3B15D0:01C27B38]
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210241045.44160.russell@coker.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-chrisl@vmware.com wrote:
-> 
-> Hi Andrew,
-> 
-> It might be a silly question.
+On Thu, 24 Oct 2002 08:26, Nathan Scott wrote:
+> > Also, the EA API lacks support for
+> > creating files with specified security attributes (as opposed to creating
+> > and then calling setxattr to change the attributes, possibly after
+> > someone has already obtained access to the file), so it isn't ideal for
+> > our purposes anyway.
+>
+> This is not a shortcoming of the xattr interfaces, they do what
+> they were designed to do.  I think the only interfaces suited to
+> setting up things in the way you've described are create, mkdir,
+> mknod, and co.  It isn't clear to me how sys_security helps in
+> this situation? -- it would also seem to be non-atomic wrt the
+> inode creation syscalls, in the same way the xattr calls are.
 
-It's an excellent question.
+Currently sys_security is used to implement open_secure(), mkdir_secure(), etc 
+which do this atomically.
 
-> ...
-> I try to find out what happen if user memory map a sparse file then
-> kernel try to write it back to disk and hit a no disk space error.
-> To my surprise, it seems to me that both 2.4 and 2.5 kernel do not
-> check the return value of "writepage". If there is an error like ENOSPC
-> it will just drop it on the ground? Do I miss something obvious?
+> The ACL code has to address a similar problem to the one you've
+> described - if a directory has a default ACL set on it, then new
+> children must be created with that ACL.  This is implemented by
+> giving filesystems knowledge of the semantics of this attribute,
+> and having them create the ACL along with the inode if need be.
 
-Yup.  If the kernel cannot write back your MAP_SHARED page due to
-ENOSPC it throws your data away.
+SE Linux needs that functionality, but also it needs the ability to support 
+file type automatic transition rules, for example when a program in fingerd_t 
+domain creates a file in a directory of var_log_t then the file will have 
+type var_log_fingerd_t.  But this doesn't require any extra system calls 
+either.
 
-The alternative would be to allow you to pin an arbitrary amount of
-unpageable memory.
+What requires more system calls is the logrotate program which has to create 
+new log files with the same security context as the log file it renamed.
 
-A few fixes have been discussed.  One way would be to allocate
-the space for the page when it is first faulted into reality and
-deliver SIGBUS if backing store for it could not be allocated.
- 
-> BTW, I am amazed that there is so many way user can abuse the mmap system
-> call. e.g. open a file, ftruncate to a bigger size, unlink that file while
-> keep the file descriptor, mmap to some memory using that descriptor,
-> close that descriptor, you can still use that mmaped memory.
 
-Ayup.  MAP_SHARED is a crock.  If you want to write to a file, use write().
+I suggest that you check the archives for the full thread as it explains all 
+this and more in detail.
 
-View MAP_SHARED as a tool by which separate processes can attach
-to some shared memory which is identified by the filesystem namespace.
-It's not a very good way of performing I/O.
+-- 
+http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
+http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
+http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
+http://www.coker.com.au/~russell/  My home page
 
-That's not to say that you deserve to have the kernel silently throw
-your data away as punishment for having used it though.  Thanks for the
-prod.  We should do something about that.

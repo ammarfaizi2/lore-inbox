@@ -1,66 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261245AbUK1Vjp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261283AbUK1VoL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261245AbUK1Vjp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 16:39:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbUK1Vjo
+	id S261283AbUK1VoL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 16:44:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261295AbUK1VoK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 16:39:44 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:43437 "HELO
+	Sun, 28 Nov 2004 16:44:10 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:25262 "HELO
 	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S261245AbUK1Vjm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 16:39:42 -0500
-Subject: Re: Suspend 2 merge: 43/51: Utility functions.
+	id S261283AbUK1VoH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Nov 2004 16:44:07 -0500
+Subject: Re: Suspend 2 merge
 From: Nigel Cunningham <ncunningham@linuxmail.org>
 Reply-To: ncunningham@linuxmail.org
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Linux Memory Management <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1101571874.8940.4383.camel@localhost>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hugang@soulinfo.com, Andrew Morton <akpm@zip.com.au>
+In-Reply-To: <20041126003944.GR2711@elf.ucw.cz>
 References: <1101292194.5805.180.camel@desktop.cunninghams>
-	 <1101299832.5805.371.camel@desktop.cunninghams>
-	 <20041125234635.GF2909@elf.ucw.cz>
-	 <1101427475.27250.170.camel@desktop.cunninghams>
-	 <1101571874.8940.4383.camel@localhost>
+	 <20041124132839.GA13145@infradead.org>
+	 <1101329104.3425.40.camel@desktop.cunninghams>
+	 <20041125192016.GA1302@elf.ucw.cz>
+	 <1101422088.27250.93.camel@desktop.cunninghams>
+	 <20041125232200.GG2711@elf.ucw.cz>
+	 <1101426416.27250.147.camel@desktop.cunninghams>
+	 <20041126003944.GR2711@elf.ucw.cz>
 Content-Type: text/plain
-Message-Id: <1101677775.4343.262.camel@desktop.cunninghams>
+Message-Id: <1101678040.4343.266.camel@desktop.cunninghams>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Mon, 29 Nov 2004 08:36:15 +1100
+Date: Mon, 29 Nov 2004 08:40:40 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi.
 
-On Sun, 2004-11-28 at 03:11, Dave Hansen wrote:
-> On Thu, 2004-11-25 at 16:04, Nigel Cunningham wrote:
-> > On Fri, 2004-11-26 at 10:46, Pavel Machek wrote:
-> > > How many bits do you need? Two? I'd rather use thow two bits than have
-> > > yet another abstraction. Also note that it is doing big order
-> > > allocation.
-> > 
-> > Three if checksumming is enabled IIRC. I'll happily use normal page
-> > flags, but we only need them when suspending, and I understood they were
-> > rarer than hen's teeth :>
-> > 
-> > MM guys copied so they can tell me I'm wrong :>
-> 
-> Please remember that, in almost all cases, any use of page->flags can be
-> replaced by a simple list.  Is a page marked foo?  Well, just traverse
-> this data structure and see if the page is in there.  It might be a
-> stinking slow check, but it will *work*.
-> 
-> I think we're up to using 1 bit in the memory hotplug code, but we don't
-> even need that if some operations can be implemented more slowly.  
+On Fri, 2004-11-26 at 11:39, Pavel Machek wrote:
+> I'm not *that* concerned about speed. Getting rid of order-8 is
+> for preventing "sorry, not enough RAM to suspend to disk".
 
-Yes. That's the way suspending did things initially like checking which
-pages were free. The bitmap was added to turn O(n^2) into O(n). Since
-the calculations can potentially be done a few times (as memory is freed
-so we can suspend), it was a big gain to use a bitmap.
+That's fine, but you're only expressing your preference. I'm going to
+ignore the other postings from the weekend that essentially say the same
+thing; there's no point.
 
-Regards,
-
-Nigel
 -- 
 Nigel Cunningham
 Pastoral Worker

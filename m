@@ -1,48 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131244AbREFCWT>; Sat, 5 May 2001 22:22:19 -0400
+	id <S131480AbREFCYV>; Sat, 5 May 2001 22:24:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131323AbREFCV7>; Sat, 5 May 2001 22:21:59 -0400
-Received: from f00f.stub.clear.net.nz ([203.167.224.51]:48912 "HELO
+	id <S131386AbREFCYA>; Sat, 5 May 2001 22:24:00 -0400
+Received: from f00f.stub.clear.net.nz ([203.167.224.51]:49680 "HELO
 	metastasis.f00f.org") by vger.kernel.org with SMTP
-	id <S131244AbREFCUq>; Sat, 5 May 2001 22:20:46 -0400
-Date: Sun, 6 May 2001 14:20:43 +1200
+	id <S131323AbREFCXs>; Sat, 5 May 2001 22:23:48 -0400
+Date: Sun, 6 May 2001 14:23:46 +1200
 From: Chris Wedgwood <cw@f00f.org>
-To: linux-kernel@vger.kernel.org,
-        BitKeeper Development Source <dev@work.bitmover.com>
-Subject: Re: Wow! Is memory ever cheap!
-Message-ID: <20010506142043.B31269@metastasis.f00f.org>
-In-Reply-To: <20010505095802.X12431@work.bitmover.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Athlon possible fixes
+Message-ID: <20010506142346.C31269@metastasis.f00f.org>
+In-Reply-To: <E14vwaq-0000Jk-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010505095802.X12431@work.bitmover.com>; from lm@bitmover.com on Sat, May 05, 2001 at 09:58:02AM -0700
+In-Reply-To: <E14vwaq-0000Jk-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sat, May 05, 2001 at 08:35:06AM +0100
 X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    I'm burning it in right now, I wrote a little program which fills
-    it with different test patterns and then reads them back to make
-    sure they don't lose any bits.  Seems to be working, it's done
-    about 30 passes.
+    Assuming Manfred's diagnosis is right something like this might
+    fix it
 
-I wrote something similar to test an Alpha with a flakey L2 cache; it
-didn't find anything. However, a script that did kernel compiles in a
-loop soon finds errors.
+There really needs to be a hardware fix... this doesn't stop some
+application having it's owne optimised code from breaking on some
+hardware (think games and similation software perhaps).
 
-I don't know much about memory testing, other than it is hard, really
-hard -- and there is some magic in the way gcc access memory that
-seems to trigger nasties.
-
-It has been suggested that a good thesis would be to distill whatever
-magic gcc has for testing memory and study that :)
-    
-    1.5GB for $400.  Amazing.  No more whining from you guys that
-    BitKeeper uses too much memory :-)
-
-1.5GB without ECC? Seems like a disater waiting to happen? Is ECC
-memory much more expensive?
 
 
   --cw

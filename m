@@ -1,66 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262906AbSJGHcu>; Mon, 7 Oct 2002 03:32:50 -0400
+	id <S262908AbSJGHcy>; Mon, 7 Oct 2002 03:32:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262908AbSJGHct>; Mon, 7 Oct 2002 03:32:49 -0400
-Received: from d12lmsgate-5.de.ibm.com ([194.196.100.238]:4801 "EHLO
-	d12lmsgate-5.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S262906AbSJGHcs> convert rfc822-to-8bit; Mon, 7 Oct 2002 03:32:48 -0400
-Importance: Normal
-Sensitivity: 
-Subject: Re: [PATCH] 2.5.40 s390.
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OFEE3CA8C8.88B80B69-ONC1256C4B.00290591@de.ibm.com>
-From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
-Date: Mon, 7 Oct 2002 09:35:24 +0200
-X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 07/10/2002 09:37:16
+	id <S262909AbSJGHcx>; Mon, 7 Oct 2002 03:32:53 -0400
+Received: from packet.digeo.com ([12.110.80.53]:2465 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262908AbSJGHcv>;
+	Mon, 7 Oct 2002 03:32:51 -0400
+Message-ID: <3DA139EC.8A34A593@digeo.com>
+Date: Mon, 07 Oct 2002 00:38:20 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.40 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 8BIT
+To: Con Kolivas <conman@kolivas.net>
+CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] 2.5.40-mm2 with contest
+References: <1033960902.3da0fdc6839aa@kolivas.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Oct 2002 07:38:21.0231 (UTC) FILETIME=[82A793F0:01C26DD4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Con Kolivas wrote:
+> 
+> 
+> Here are the latest results including 2.5.40-mm2 with contest v0.50
+> (http://contest.kolivas.net)
+> 
+> ...
+> 
+> mem_load:
+> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+> 2.4.19 [3]              100.0   72      33      3       1.49
+> 2.5.38 [3]              107.3   70      34      3       1.60
+> 2.5.39 [2]              103.1   72      31      3       1.53
+> 2.5.40 [2]              102.5   72      31      3       1.53
+> 2.5.40-mm1 [2]          107.7   68      29      2       1.60
+> 2.5.40-mm2 [2]          165.1   44      38      2       2.46
+> 
 
-Hi Al,
+-mm2 has the "don't swap so much" knob.  By default it is set at 50%.
+The VM _wants_ to reclaim lots of memory from mem_load so that
+gcc has some cache to chew on.  But you the operator have said
+"I know better and I don't want you to do that".
 
-> * please switch to use of alloc_disk()/put_disk()
-> * don't bother with disk->part allocation - it's done by add_disk()
-> * ditto for freeing it (del_gendisk())
-> * dasd_partition_to_kdev_t() - please use ->gdp->{major,first_minor}
-> * s/bdevname(d_device->bdev)/d_device->gdp->disk_name/
-> * lose ->bdev
- I'll do that.
+Because it is prevented from building enough cache, gcc is issuing
+a ton of reads, which are hampering the swapstorm which is happening
+at the other end of the disk.  It's a lose-lose.
 
-> Note that we are getting bdev->bd_disk and disk->private pretty soon, so
-> we'll have very easy way to do your devmap by bdev stuff.
-Thats good to hear. One of the reasons for me to split of dasd_devmap.c
-was to have the code concerned about minors and friends in on place.
-That makes it easy to get rid of it.
+There's not much that can be done about that really (apart from
+some heavy-handed load control) - if you want to optimise for
+throughput above all else,
 
-> Anther thing: tapeblock.c and friends.
-> <rant>
- > In ~ 2.5.16 blksize_size[] had been removed.  Tape-related code
-> in s390 was using it, but that was fairly easy to get rid of.  Now, in
-> 2.5.21 somebody (presumably architecture maintainers) had submitted a
-> patch that
- > * reverted all compile fixes, etc. that had happened in 2.5
- > * reintroduced use of (long-dead) blksize_size[]
-> ^#$^%@!
-> Folks, if you do something like that, at least check the bloody changelog...
-> </rant>
+	echo 100 > /proc/sys/vm/swappiness
 
-Oh, that must have been me then. Sorry about that. But there is a reason
-for my obvious desinterest in the tape device driver. I'm just rewriting
-it completely. So don't bother with the old one.
-
-blue skies,
-   Martin
-
-Linux/390 Design & Development, IBM Deutschland Entwicklung GmbH
-Schönaicherstr. 220, D-71032 Böblingen, Telefon: 49 - (0)7031 - 16-2247
-E-Mail: schwidefsky@de.ibm.com
-
-
+(I suspect our swap performance right now is fairly poor, in terms
+of block allocation, readaround, etc.  Nobody has looked at that in
+some time afaik.  But tuning in there is unlikely to make a huge
+difference).

@@ -1,52 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265953AbRFZIoC>; Tue, 26 Jun 2001 04:44:02 -0400
+	id <S265957AbRFZJJv>; Tue, 26 Jun 2001 05:09:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265954AbRFZInw>; Tue, 26 Jun 2001 04:43:52 -0400
-Received: from hood.tvd.be ([195.162.196.21]:36587 "EHLO hood.tvd.be")
-	by vger.kernel.org with ESMTP id <S265953AbRFZInq>;
-	Tue, 26 Jun 2001 04:43:46 -0400
-Date: Tue, 26 Jun 2001 10:40:31 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: "Eric S. Raymond" <esr@thyrsus.com>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Configure.help CONFIG_PPC
-Message-ID: <Pine.LNX.4.05.10106261038130.30997-100000@callisto.of.borg>
+	id <S265958AbRFZJJc>; Tue, 26 Jun 2001 05:09:32 -0400
+Received: from Expansa.sns.it ([192.167.206.189]:27405 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S265957AbRFZJJZ>;
+	Tue, 26 Jun 2001 05:09:25 -0400
+Date: Tue, 26 Jun 2001 11:09:22 +0200 (CEST)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Thomas Foerster <puckwork@madz.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: AMD thunderbird oops
+In-Reply-To: <20010626082928Z265948-17720+7692@vger.kernel.org>
+Message-ID: <Pine.LNX.4.33.0106261102060.9537-100000@Expansa.sns.it>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi Eric,
+I went trought 8 Athlon, (latest 1300 Mhz 200Mhz FSB).
 
-This patch fixes a typo in the help for CONFIG_PPC.
+Usually those stability problems are related to power supply (it should
+be at less 300 Watt).
+If the power supply does not give enought Ampere, and the energy
+is fluttuant, the Athlon cpu really suffers.
 
-Of course we can discuss whether the PPC is the successor to the 68000 series
-or to the 88000 series...
+I usually do a little overvolt of the vcore to 3.4, and this makes things
+more stable. For what i know, the Athlon optimizzation does stress
+the memory I/O at best, and does use the Athlon FSB with all its power.
 
-Perhaps it's best to not mention the 88000, else people will think they found
-another CPU that doesn't run Linux yet :-)
+Using the pentiumII/III stuff, you loose this memory performance boost.
 
---- linux-2.4.5-ac18/Documentation/Configure.help	Tue Jun 26 10:29:31 2001
-+++ /tmp/Configure.help	Tue Jun 26 10:36:21 2001
-@@ -171,7 +171,7 @@
- Power PC processor
- CONFIG_PPC
-   The PowerPC is a very capable 32-bit RISC processor from Motorola,
--  the successor the their venerable 68000 series.  It powers recent
-+  the successor to their venerable 68000 series.  It powers recent
-   Macintoshes and also a widely-used series of single-board computers
-   from Motorola.  The Linux PowerPC port has a home page at
-   <http://penguinppc.org/>.
+If a little overvolt of the VCORE does not solve the things,
+(someone also does a little overvolt of the CPU core to 1.78)
+then check if your power supply if working well, and the signal strenght
+setting inside of your bios (should be 2).
 
-Gr{oetje,eeting}s,
+This is just my experience with Athlon processors.
 
-						Geert
+Luigi
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+On Tue, 26 Jun 2001, Thomas Foerster wrote:
+
+> Hi,
+>
+> > as i've said before - i have the same problem too
+>
+> Me too
+>
+> > the memory is OK! - have run memtest86 for hours ... - no errors ... -
+> > heatsink - CPU@45°C - Case @ 25°C
+>
+> > after changing the kernel compile to PentiumII (nearly) everything worked
+> > fine ....
+>
+> I HAD a Asus K7M with a 650 MHz Athlon, 256 MB RAM (Infineon, Ram is OK).
+> Using 2.4.2 AND 2.4.4 didn't work.
+> Whenever i started KDE2, the crashes startet, even oopses in ext2-code appeared.
+>
+> The strange thing is : If i startet KDE2 as root, the crashes didn't happen!
+>
+> I don't know why, my distribution is RedHat 7.1
+>
+> Now i have a Epox 8kta3+ with an 1,333 MHz Athlon, FSB266, 256 MB RAM (Infineon)
+> and the crashes still appear.
+>
+> Changing the Kernel from Athlon to Pentium-II/III makes the system stable again.
+>
+> Thomas
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

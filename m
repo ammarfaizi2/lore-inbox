@@ -1,65 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292952AbSCFQGD>; Wed, 6 Mar 2002 11:06:03 -0500
+	id <S292939AbSCFQIN>; Wed, 6 Mar 2002 11:08:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292939AbSCFQFx>; Wed, 6 Mar 2002 11:05:53 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:51471 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S293634AbSCFQEo>;
-	Wed, 6 Mar 2002 11:04:44 -0500
-Date: Wed, 6 Mar 2002 13:04:26 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Colin Walters <walters@debian.org>
-Cc: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
-        <linux-kernel@vger.kernel.org>, <opensource@cis.ohio-state.edu>
-Subject: Re: [opensource] Re: Petition Against Official Endorsement of
- BitKeeper by Linux Maintainers
-In-Reply-To: <1015368059.25841.12.camel@space-ghost>
-Message-ID: <Pine.LNX.4.44L.0203061300500.2181-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S292984AbSCFQIE>; Wed, 6 Mar 2002 11:08:04 -0500
+Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:61108 "EHLO
+	zcars0m9.ca.nortel.com") by vger.kernel.org with ESMTP
+	id <S292939AbSCFQHy>; Wed, 6 Mar 2002 11:07:54 -0500
+Message-ID: <3C8640C8.367A30BB@nortelnetworks.com>
+Date: Wed, 06 Mar 2002 11:16:08 -0500
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ben Greear <greearb@candelatech.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: a faster way to gettimeofday?
+In-Reply-To: <3C859007.50102@candelatech.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5 Mar 2002, Colin Walters wrote:
-> On Tue, 2002-03-05 at 17:41, Jeff V. Merkey wrote:
+Ben Greear wrote:
+> 
+> I have a program that I very often need to calculate the current
+> time, with milisecond accuracy.  I've been using gettimeofday(),
+> but gprof shows it's taking a significant (10% or so) amount of
+> time.  Is there a faster (and perhaps less portable?) way to get
+> the time information on x86?  My program runs as root, so should
+> have any permissions it needs to use some backdoor hack if that
+> helps!
 
-> > It's none of your f_cking business what we use to develop software.
->
-> You apparently missed the fact that the the petition was not against the
-> *use* of proprietary software at all.  In fact, we explicitly mentioned
-> that everyone is free to make that choice individually.  What the
-> petition is against is the *advocacy* of the proprietary BitKeeper
-> software by the kernel maintainers.
 
-I strongly object to the fact that you're trying to stop
-me from advocating the best piece of source control
-software that I know.
+#include <asm/msr.h>
 
-<endorsement>
-I use bitkeeper because it saves me lots of time and makes
-my life easier. If you don't like it, you can use something
-else instead and do all the work by hand, but I prefer to
-have bitkeeper do the version tracking for me.
+/* get this value from the "cpu MHz" line of /proc/cpuinfo */
+#define CLOCKSPEED xxxxxxxx
 
-I don't know of any product that comes close to bitkeeper,
-or even of anything remotely approaching the functionality
-of bitkeeper, for me there is no real alternative.
-</endorsement>
+int main()
+{
+	unsigned int lowbegin, lowend, highbegin, highend;
+	unsigned long long diff;
+	double elapsed;
 
-Now, are you about censoring my free speech in the name of
-"protecting freedom and free software" or are you going to
-write free version control software with the functionality
-of bitkeeper so there is a free alternative ?
+	rdtsc(lowbegin,highbegin);
 
-regards,
+	//do stuff
 
-Rik
+	rdtsc(lowend,highend);
+
+	if (lowend < lowbegin)
+		highend--;
+
+	diff = (((unsigned long long) highend - highbegin) << 32) + (lowend -
+lowbegin);
+
+	elapsed = (double) diff / CLOCKSPEED;
+
+	/* elapsed now has time in microseconds, do whatever you wantwith it */	
+	
+	return 0;
+}
+
+
 -- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

@@ -1,73 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261601AbTJ2UnI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Oct 2003 15:43:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbTJ2UnI
+	id S261580AbTJ2Ujy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Oct 2003 15:39:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbTJ2Ujy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Oct 2003 15:43:08 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:41467 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261601AbTJ2UnE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Oct 2003 15:43:04 -0500
-Message-ID: <3FA0264B.4080505@mvista.com>
-Date: Wed, 29 Oct 2003 12:42:51 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Patrick Mochel <mochel@osdl.org>, John stultz <johnstul@us.ibm.com>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [pm] fix time after suspend-to-*
-References: <Pine.LNX.4.44.0310271535160.13116-100000@cherise> <1067329994.861.3.camel@teapot.felipe-alfaro.com> <20031028093233.GA1253@elf.ucw.cz> <1067351431.1358.11.camel@teapot.felipe-alfaro.com> <20031028172818.GB2307@elf.ucw.cz> <1067372182.864.11.camel@teapot.felipe-alfaro.com> <20031029093802.GA757@elf.ucw.cz>
-In-Reply-To: <20031029093802.GA757@elf.ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 29 Oct 2003 15:39:54 -0500
+Received: from fw.osdl.org ([65.172.181.6]:35470 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261580AbTJ2Ujx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Oct 2003 15:39:53 -0500
+Date: Wed, 29 Oct 2003 12:40:03 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Alexander V. Lukyanov" <lav@netis.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test9: access beyond end of device
+Message-Id: <20031029124003.4510bb1d.akpm@osdl.org>
+In-Reply-To: <20031029101240.GA12958@night.netis.priv>
+References: <20031029101240.GA12958@night.netis.priv>
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
+"Alexander V. Lukyanov" <lav@netis.ru> wrote:
+>
+> I have tried to run 2.6.0-test9 and got this error very quickly.
 > 
-> 
->>>You are not asking userspace whether to reboot or not, and you should
->>>not ask them about suspend, either.
->>
->>OK, so how should the system behave when a real-time-like process is
->>running? I talked about the CD burning example. Should the kernel simply
->>ignore the process and suspend?
-> 
-> 
-> Yes.
-> 
-> 
->>>>1. Network connections must be reestablished. A userspace program can't
->>>>try to automatically reestablish a broken TCP connection for no apparent
->>>>reason. A broken TCP connection could be the cause of an overloaded or
->>>>broken server/service. If we do not inform userspace processes that the
->>>>system is going to sleep (or that the system has been brought up from
->>>>standby), they will blindly try to restore TCP connections back, even
->>>>when the remote server is broken, generating a lot of unnecesary
->>>>traffic.
->>>
->>>gettimeofday(), if I slept for too long, oops, something strange
->>>happened (maybe there was heavy io load and I was swapped out? or
->>>suspend? Did machine sleep for 20 minutes in cli?) try to reconnect.
->>
->>Does "gettimeofday()" have into account the effect of adjusting the time
->>twice a year, once to make time roll forward one hour and another one to
->>roll it back?
-> 
-> 
-> Not sure how it is supposed to work, but here I just have ntpd
-> step-setting by one hour...
+> Details:
+> 	heavily loaded squid server with two ext3 filesystems for cache on
+> 	two IC35L040AVVN07-0 40GiB hard disks (ibm), TCQ enabled.
 
-It is really a time zone change....
+Please force an fsck against those partitions, then see if it is repeatable
+with TCQ disabled.
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
-
+> Oct 29 10:52:28 mars kernel: attempt to access beyond end of device
+> Oct 29 10:52:28 mars kernel: hda4: rw=0, want=4241606720, limit=77256585
+> Oct 29 10:52:28 mars kernel: attempt to access beyond end of device
+> Oct 29 10:52:28 mars kernel: hda4: rw=0, want=4241606720, limit=77256585
+> Oct 29 10:52:33 mars kernel: EXT3-fs error (device hda4): ext3_free_blocks: Freeing blocks not in datazone - block = 1067071751, count = 1
+> Oct 29 10:52:33 mars kernel: Aborting journal on device hda4.
+> 

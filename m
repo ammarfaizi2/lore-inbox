@@ -1,118 +1,152 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317680AbSGOWls>; Mon, 15 Jul 2002 18:41:48 -0400
+	id <S317682AbSGOWpn>; Mon, 15 Jul 2002 18:45:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317681AbSGOWlr>; Mon, 15 Jul 2002 18:41:47 -0400
-Received: from elektroni.ee.tut.fi ([130.230.131.11]:45184 "HELO
-	elektroni.ee.tut.fi") by vger.kernel.org with SMTP
-	id <S317680AbSGOWlq>; Mon, 15 Jul 2002 18:41:46 -0400
-Date: Tue, 16 Jul 2002 01:44:40 +0300
-From: Petri Kaukasoina <kaukasoi@elektroni.ee.tut.fi>
-To: linux-kernel@vger.kernel.org
-Subject: oops 2.4.19-rc1
-Message-ID: <20020715224440.GA595@elektroni.ee.tut.fi>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S317683AbSGOWpm>; Mon, 15 Jul 2002 18:45:42 -0400
+Received: from web10410.mail.yahoo.com ([216.136.128.123]:53359 "HELO
+	web10410.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S317682AbSGOWpl>; Mon, 15 Jul 2002 18:45:41 -0400
+Message-ID: <20020715224836.15368.qmail@web10410.mail.yahoo.com>
+Date: Tue, 16 Jul 2002 08:48:36 +1000 (EST)
+From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
+Subject: 2.4.19-rc1-ac3+preempt; hda: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+To: kernel <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="0-4972122-1026773316=:15247"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-
-I tried to compile mozilla and the compilation stopped after maybe half an
-hour at a compiler internal error. It was compiling c++ code using gcc 3.1
-so I thought it was gcc's fault, decided to rm the mozilla tree but rm
-segfaulted and I got the oops below. Processes stuck when I tried to do
-something in my shells and then I rebooted. ext3 replayed its journals and
-the system seemed ok. I fscked the file systems but didn't find any
-problems. I just ran memtest for a couple of hours and it didn't find any
-problems in the memory.
-
-Kernel 2.4.19-rc1 compiled with gcc 2.95.3, CONFIG_MK7=y. It's a 1400 MHz
-athlon thunderbird, VIA KT266 chipset, 512MB DDR RAM, Seagate ide ST360021A
-using ext3, display card ATI Rage XL AGP (Mach64), eepro100. It's the first
-oops or other problem for this box, in use from last october. On the other
-hand, it's been rather warm here these days. Could this be caused by overheat?
+--0-4972122-1026773316=:15247
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
 
 
-ksymoops 2.4.5 on i686 2.4.19-rc1.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.19-rc1/ (default)
-     -m /usr/src/linux/System.map (default)
+I found it once in the dmesg log (attached here); I
+have nerver found it when running previous kernel
+(2.4.18; 2.4.19-pre6 and less than pre6). The
+performance is really good. It seems to use the cache
+much more effectively. I will check if the problem
+persist. Is there any danger to my hard drive if I
+keep using this kernel?
 
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
-
-Jul 15 22:16:06 elektroni kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000000
-Jul 15 22:16:06 elektroni kernel: c01139c3
-Jul 15 22:16:06 elektroni kernel: *pde = 00000000
-Jul 15 22:16:06 elektroni kernel: Oops: 0000
-Jul 15 22:16:06 elektroni kernel: CPU:    0
-Jul 15 22:16:06 elektroni kernel: EIP:    0010:[<c01139c3>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-Jul 15 22:16:06 elektroni kernel: EFLAGS: 00010093
-Jul 15 22:16:06 elektroni kernel: eax: 01c0d788   ebx: d8330d84   ecx: 00000000   edx: 00000003
-Jul 15 22:16:06 elektroni kernel: esi: d8330d8c   edi: 00000001   ebp: c833bea4   esp: c833be8c
-Jul 15 22:16:06 elektroni kernel: ds: 0018   es: 0018   ss: 0018
-Jul 15 22:16:06 elektroni kernel: Process rm (pid: 13895, stackpage=c833b000)
-Jul 15 22:16:06 elektroni kernel: Stack: d8330d88 00000002 d8330d40 d8330d8c 00000286 00000003 00001000 c0131b6a 
-Jul 15 22:16:06 elektroni kernel:        d8330d40 c0159d30 dfcfa600 d8330d40 c13ef1bc 00000000 c833bf44 00000000 
-Jul 15 22:16:06 elektroni kernel:        dfcfa694 00000001 d8330d40 c0151f02 dfcfa600 c13ef1bc 00000000 c0124d39 
-Jul 15 22:16:06 elektroni kernel: Call Trace: [<c0131b6a>] [<c0159d30>] [<c0151f02>] [<c0124d39>] [<c0124d63>] 
-Jul 15 22:16:06 elektroni kernel:    [<c0124ee8>] [<c0124f91>] [<c0143412>] [<c0141adc>] [<c013b309>] [<c013b3e8>] 
-Jul 15 22:16:06 elektroni kernel:    [<c01086cf>] 
-Jul 15 22:16:06 elektroni kernel: Code: 8b 01 85 45 fc 74 4d 31 c0 9c 5e fa c7 01 00 00 00 00 83 79 
+Regards,
 
 
->>EIP; c01139c3 <__wake_up+33/a0>   <=====
 
->>eax; 01c0d788 Before first symbol
->>ebx; d8330d84 <_end+180a1314/20624590>
->>esi; d8330d8c <_end+180a131c/20624590>
->>ebp; c833bea4 <_end+80ac434/20624590>
->>esp; c833be8c <_end+80ac41c/20624590>
+=====
+Steve Kieu
 
-Trace; c0131b6a <unlock_buffer+3a/40>
-Trace; c0159d30 <journal_flushpage+a0/130>
-Trace; c0151f02 <ext3_flushpage+22/30>
-Trace; c0124d39 <do_flushpage+19/30>
-Trace; c0124d63 <truncate_complete_page+13/50>
-Trace; c0124ee8 <truncate_list_pages+148/1b0>
-Trace; c0124f91 <truncate_inode_pages+41/70>
-Trace; c0143412 <iput+a2/1a0>
-Trace; c0141adc <d_delete+4c/70>
-Trace; c013b309 <vfs_unlink+109/140>
-Trace; c013b3e8 <sys_unlink+a8/120>
-Trace; c01086cf <system_call+33/38>
+http://www.sold.com.au - SOLD.com.au
+- Find yourself a bargain!
+--0-4972122-1026773316=:15247
+Content-Type: application/octet-stream; name="dmesg.log"
+Content-Transfer-Encoding: base64
+Content-Description: dmesg.log
+Content-Disposition: attachment; filename="dmesg.log"
 
-Code;  c01139c3 <__wake_up+33/a0>
-00000000 <_EIP>:
-Code;  c01139c3 <__wake_up+33/a0>   <=====
-   0:   8b 01                     mov    (%ecx),%eax   <=====
-Code;  c01139c5 <__wake_up+35/a0>
-   2:   85 45 fc                  test   %eax,0xfffffffc(%ebp)
-Code;  c01139c8 <__wake_up+38/a0>
-   5:   74 4d                     je     54 <_EIP+0x54> c0113a17 <__wake_up+87/a0>
-Code;  c01139ca <__wake_up+3a/a0>
-   7:   31 c0                     xor    %eax,%eax
-Code;  c01139cc <__wake_up+3c/a0>
-   9:   9c                        pushf  
-Code;  c01139cd <__wake_up+3d/a0>
-   a:   5e                        pop    %esi
-Code;  c01139ce <__wake_up+3e/a0>
-   b:   fa                        cli    
-Code;  c01139cf <__wake_up+3f/a0>
-   c:   c7 01 00 00 00 00         movl   $0x0,(%ecx)
-Code;  c01139d5 <__wake_up+45/a0>
-  12:   83 79 00 00               cmpl   $0x0,0x0(%ecx)
+TGludXggdmVyc2lvbiAyLjQuMTktcmMxLWFjMy1ybWwgKHNrQExpbnV4KSAo
+Z2NjIHZlcnNpb24gMi45NiAyMDAwMDczMSAoTWFuZHJha2UgTGludXggOC4x
+IDIuOTYtMC42My4xbWRrKSkgIzEgTW9uIEp1bCAxNSAxODowMDo0MyBVVEMg
+MjAwMgpCSU9TLXByb3ZpZGVkIHBoeXNpY2FsIFJBTSBtYXA6CiBCSU9TLWU4
+MjA6IDAwMDAwMDAwMDAwMDAwMDAgLSAwMDAwMDAwMDAwMDlmYzAwICh1c2Fi
+bGUpCiBCSU9TLWU4MjA6IDAwMDAwMDAwMDAwOWZjMDAgLSAwMDAwMDAwMDAw
+MGEwMDAwIChyZXNlcnZlZCkKIEJJT1MtZTgyMDogMDAwMDAwMDAwMDBmMDAw
+MCAtIDAwMDAwMDAwMDAxMDAwMDAgKHJlc2VydmVkKQogQklPUy1lODIwOiAw
+MDAwMDAwMDAwMTAwMDAwIC0gMDAwMDAwMDAwN2YwMDAwMCAodXNhYmxlKQog
+QklPUy1lODIwOiAwMDAwMDAwMGZmYjAwMDAwIC0gMDAwMDAwMDEwMDAwMDAw
+MCAocmVzZXJ2ZWQpCjEyN01CIExPV01FTSBhdmFpbGFibGUuCk9uIG5vZGUg
+MCB0b3RhbHBhZ2VzOiAzMjUxMgp6b25lKDApOiA0MDk2IHBhZ2VzLgp6b25l
+KDEpOiAyODQxNiBwYWdlcy4Kem9uZSgyKTogMCBwYWdlcy4KS2VybmVsIGNv
+bW1hbmQgbGluZTogQk9PVF9JTUFHRT0yNDE5cmMxYWMzIHJvIHJvb3Q9MzAz
+IHF1aWV0CkluaXRpYWxpemluZyBDUFUjMApEZXRlY3RlZCA0MDAuOTE3IE1I
+eiBwcm9jZXNzb3IuCkNvbnNvbGU6IGNvbG91ciBWR0ErIDgweDI1CkNhbGli
+cmF0aW5nIGRlbGF5IGxvb3AuLi4gNzk5LjUzIEJvZ29NSVBTCk1lbW9yeTog
+MTI2NTQway8xMzAwNDhrIGF2YWlsYWJsZSAoOTYzayBrZXJuZWwgY29kZSwg
+MzEyMGsgcmVzZXJ2ZWQsIDIwNWsgZGF0YSwgODBrIGluaXQsIDBrIGhpZ2ht
+ZW0pCkRlbnRyeSBjYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDE2Mzg0IChv
+cmRlcjogNSwgMTMxMDcyIGJ5dGVzKQpJbm9kZSBjYWNoZSBoYXNoIHRhYmxl
+IGVudHJpZXM6IDgxOTIgKG9yZGVyOiA0LCA2NTUzNiBieXRlcykKTW91bnQg
+Y2FjaGUgaGFzaCB0YWJsZSBlbnRyaWVzOiAyMDQ4IChvcmRlcjogMiwgMTYz
+ODQgYnl0ZXMpCnJhbWZzOiBtb3VudGVkIHdpdGggb3B0aW9uczogPGRlZmF1
+bHRzPgpyYW1mczogbWF4X3BhZ2VzPTE1ODE3IG1heF9maWxlX3BhZ2VzPTAg
+bWF4X2lub2Rlcz0wIG1heF9kZW50cmllcz0xNTgxNwpCdWZmZXIgY2FjaGUg
+aGFzaCB0YWJsZSBlbnRyaWVzOiA0MDk2IChvcmRlcjogMiwgMTYzODQgYnl0
+ZXMpClBhZ2UtY2FjaGUgaGFzaCB0YWJsZSBlbnRyaWVzOiAzMjc2OCAob3Jk
+ZXI6IDUsIDEzMTA3MiBieXRlcykKQ1BVOiBCZWZvcmUgdmVuZG9yIGluaXQs
+IGNhcHM6IDAxODNmOWZmIDAwMDAwMDAwIDAwMDAwMDAwLCB2ZW5kb3IgPSAw
+CkNQVTogTDEgSSBjYWNoZTogMTZLLCBMMSBEIGNhY2hlOiAxNksKQ1BVOiBM
+MiBjYWNoZTogMTI4SwpDUFU6IEFmdGVyIHZlbmRvciBpbml0LCBjYXBzOiAw
+MTgzZjlmZiAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMApJbnRlbCBtYWNo
+aW5lIGNoZWNrIGFyY2hpdGVjdHVyZSBzdXBwb3J0ZWQuCkludGVsIG1hY2hp
+bmUgY2hlY2sgcmVwb3J0aW5nIGVuYWJsZWQgb24gQ1BVIzAuCkNQVTogICAg
+IEFmdGVyIGdlbmVyaWMsIGNhcHM6IDAxODNmOWZmIDAwMDAwMDAwIDAwMDAw
+MDAwIDAwMDAwMDAwCkNQVTogICAgICAgICAgICAgQ29tbW9uIGNhcHM6IDAx
+ODNmOWZmIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwCkNQVTogSW50ZWwg
+Q2VsZXJvbiAoTWVuZG9jaW5vKSBzdGVwcGluZyAwNQpFbmFibGluZyBmYXN0
+IEZQVSBzYXZlIGFuZCByZXN0b3JlLi4uIGRvbmUuCkNoZWNraW5nICdobHQn
+IGluc3RydWN0aW9uLi4uIE9LLgpQT1NJWCBjb25mb3JtYW5jZSB0ZXN0aW5n
+IGJ5IFVOSUZJWAptdHJyOiB2MS40MCAoMjAwMTAzMjcpIFJpY2hhcmQgR29v
+Y2ggKHJnb29jaEBhdG5mLmNzaXJvLmF1KQptdHJyOiBkZXRlY3RlZCBtdHJy
+IHR5cGU6IEludGVsClBDSTogUENJIEJJT1MgcmV2aXNpb24gMi4xMCBlbnRy
+eSBhdCAweGZiMzAwLCBsYXN0IGJ1cz0xClBDSTogVXNpbmcgY29uZmlndXJh
+dGlvbiB0eXBlIDEKUENJOiBQcm9iaW5nIFBDSSBoYXJkd2FyZQpVbmtub3du
+IGJyaWRnZSByZXNvdXJjZSAyOiBhc3N1bWluZyB0cmFuc3BhcmVudApQQ0k6
+IFVzaW5nIElSUSByb3V0ZXIgUElJWCBbODA4Ni8yNDIwXSBhdCAwMDoxZi4w
+CkxpbnV4IE5FVDQuMCBmb3IgTGludXggMi40CkJhc2VkIHVwb24gU3dhbnNl
+YSBVbml2ZXJzaXR5IENvbXB1dGVyIFNvY2lldHkgTkVUMy4wMzkKSW5pdGlh
+bGl6aW5nIFJUIG5ldGxpbmsgc29ja2V0CmFwbTogQklPUyB2ZXJzaW9uIDEu
+MiBGbGFncyAweDA3IChEcml2ZXIgdmVyc2lvbiAxLjE2KQpTdGFydGluZyBr
+c3dhcGQKcHR5OiAyNTYgVW5peDk4IHB0eXMgY29uZmlndXJlZApTZXJpYWwg
+ZHJpdmVyIHZlcnNpb24gNS4wNWMgKDIwMDEtMDctMDgpIHdpdGggTUFOWV9Q
+T1JUUyBTSEFSRV9JUlEgU0VSSUFMX1BDSSBlbmFibGVkCnR0eVMwMCBhdCAw
+eDAzZjggKGlycSA9IDQpIGlzIGEgMTY1NTBBCnR0eVMwMSBhdCAweDAyZjgg
+KGlycSA9IDMpIGlzIGEgMTY1NTBBCmJsb2NrOiAyNDAgc2xvdHMgcGVyIHF1
+ZXVlLCBiYXRjaD02MApVbmlmb3JtIE11bHRpLVBsYXRmb3JtIEUtSURFIGRy
+aXZlciBSZXZpc2lvbjogNi4zMQppZGU6IEFzc3VtaW5nIDMzTUh6IHN5c3Rl
+bSBidXMgc3BlZWQgZm9yIFBJTyBtb2Rlczsgb3ZlcnJpZGUgd2l0aCBpZGVi
+dXM9eHgKUElJWDQ6IElERSBjb250cm9sbGVyIG9uIFBDSSBidXMgMDAgZGV2
+IGY5ClBJSVg0OiBjaGlwc2V0IHJldmlzaW9uIDEKUElJWDQ6IG5vdCAxMDAl
+IG5hdGl2ZSBtb2RlOiB3aWxsIHByb2JlIGlycXMgbGF0ZXIKICAgIGlkZTA6
+IEJNLURNQSBhdCAweGYwMDAtMHhmMDA3LCBCSU9TIHNldHRpbmdzOiBoZGE6
+RE1BLCBoZGI6RE1BCiAgICBpZGUxOiBCTS1ETUEgYXQgMHhmMDA4LTB4ZjAw
+ZiwgQklPUyBzZXR0aW5nczogaGRjOnBpbywgaGRkOnBpbwpoZGE6IEZVSklU
+U1UgTVBGMzEwMkFULCBBVEEgRElTSyBkcml2ZQpoZGI6IElERS9BVEFQSSBD
+RC1ST00gNTJYUywgQVRBUEkgQ0QvRFZELVJPTSBkcml2ZQppZGUwIGF0IDB4
+MWYwLTB4MWY3LDB4M2Y2IG9uIGlycSAxNApoZGE6IGhvc3QgcHJvdGVjdGVk
+IGFyZWEgPT4gMQpoZGE6IDIwMDE1ODU2IHNlY3RvcnMgKDEwMjQ4IE1CKSB3
+LzUxMktpQiBDYWNoZSwgQ0hTPTEyNDUvMjU1LzYzLCBVRE1BKDMzKQpQYXJ0
+aXRpb24gY2hlY2s6CiBoZGE6IGhkYTEgaGRhMiBoZGEzIGhkYTQKUFBQIGdl
+bmVyaWMgZHJpdmVyIHZlcnNpb24gMi40LjIKUFBQIERlZmxhdGUgQ29tcHJl
+c3Npb24gbW9kdWxlIHJlZ2lzdGVyZWQKTGludXggYWdwZ2FydCBpbnRlcmZh
+Y2UgdjAuOTkgKGMpIEplZmYgSGFydG1hbm4KYWdwZ2FydDogTWF4aW11bSBt
+YWluIG1lbW9yeSB0byB1c2UgZm9yIGFncCBtZW1vcnk6IDk0TQphZ3BnYXJ0
+OiBEZXRlY3RlZCBhbiBJbnRlbCBpODEwIENoaXBzZXQuCmFncGdhcnQ6IEFH
+UCBhcGVydHVyZSBpcyA2NE0gQCAweGQ4MDAwMDAwCk5FVDQ6IExpbnV4IFRD
+UC9JUCAxLjAgZm9yIE5FVDQuMApJUCBQcm90b2NvbHM6IElDTVAsIFVEUCwg
+VENQCklQOiByb3V0aW5nIGNhY2hlIGhhc2ggdGFibGUgb2YgNTEyIGJ1Y2tl
+dHMsIDRLYnl0ZXMKVENQOiBIYXNoIHRhYmxlcyBjb25maWd1cmVkIChlc3Rh
+Ymxpc2hlZCA4MTkyIGJpbmQgODE5MikKTkVUNDogVW5peCBkb21haW4gc29j
+a2V0cyAxLjAvU01QIGZvciBMaW51eCBORVQ0LjAuClZGUzogTW91bnRlZCBy
+b290IChleHQyIGZpbGVzeXN0ZW0pIHJlYWRvbmx5LgpGcmVlaW5nIHVudXNl
+ZCBrZXJuZWwgbWVtb3J5OiA4MGsgZnJlZWQKQWRkaW5nIFN3YXA6IDcyMjU2
+ayBzd2FwLXNwYWNlIChwcmlvcml0eSAtMSkKTVNET1MgRlM6IElPIGNoYXJz
+ZXQgaXNvODg1OS0xCk1TRE9TIEZTOiBVc2luZyBjb2RlcGFnZSA4NTAKW2Ry
+bV0gQUdQIDAuOTkgb24gSW50ZWwgaTgxMCBAIDB4ZDgwMDAwMDAgNjRNQgpb
+ZHJtXSBJbml0aWFsaXplZCBpODEwIDEuMi4wIDIwMDEwOTIwIG9uIG1pbm9y
+IDAKbXRycjogYmFzZSgweGQ4MDAwMDAwKSBpcyBub3QgYWxpZ25lZCBvbiBh
+IHNpemUoMHgxMmMwMDApIGJvdW5kYXJ5CmhkYTogc3RhdHVzIGVycm9yOiBz
+dGF0dXM9MHg1OCB7IERyaXZlUmVhZHkgU2Vla0NvbXBsZXRlIERhdGFSZXF1
+ZXN0IH0KCmhkYTogZHJpdmUgbm90IHJlYWR5IGZvciBjb21tYW5kCmhkYjog
+QVRBUEkgMTFYIENELVJPTSBkcml2ZSwgMTI4a0IgQ2FjaGUsIFVETUEoMzMp
+ClVuaWZvcm0gQ0QtUk9NIGRyaXZlciBSZXZpc2lvbjogMy4xMgpJU08gOTY2
+MCBFeHRlbnNpb25zOiBSUklQXzE5OTFBCklTTyA5NjYwIEV4dGVuc2lvbnM6
+IE1pY3Jvc29mdCBKb2xpZXQgTGV2ZWwgMwpJU08gOTY2MCBFeHRlbnNpb25z
+OiBSUklQXzE5OTFBClBDSTogRm91bmQgSVJRIDUgZm9yIGRldmljZSAwMDox
+Zi41ClBDSTogU2V0dGluZyBsYXRlbmN5IHRpbWVyIG9mIGRldmljZSAwMDox
+Zi41IHRvIDY0CmludGVsOHgwOiBjbG9ja2luZyB0byA0ODAwMAptdHJyOiBi
+YXNlKDB4ZDgwMDAwMDApIGlzIG5vdCBhbGlnbmVkIG9uIGEgc2l6ZSgweDEy
+YzAwMCkgYm91bmRhcnkK
 
-
-1 warning issued.  Results may not be reliable.
+--0-4972122-1026773316=:15247--

@@ -1,34 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267680AbSLTAIZ>; Thu, 19 Dec 2002 19:08:25 -0500
+	id <S267660AbSLTAMr>; Thu, 19 Dec 2002 19:12:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267682AbSLTAIY>; Thu, 19 Dec 2002 19:08:24 -0500
-Received: from hell.ascs.muni.cz ([147.251.60.186]:34688 "EHLO
-	hell.ascs.muni.cz") by vger.kernel.org with ESMTP
-	id <S267680AbSLTAIX>; Thu, 19 Dec 2002 19:08:23 -0500
-Date: Fri, 20 Dec 2002 01:16:26 +0100
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: linux-kernel@vger.kernel.org
-Subject: module loading on demand is not working? 2.5.52-bk4
-Message-ID: <20021220001626.GB804@mail.muni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4i
-X-Muni: zakazka, vydelek, firma, komerce, vyplata
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, Mossad, Iraq, Pentagon, WTC, president, assassination, A-bomb, kua, vic joudu uz neznam
-X-policie-CR: Neserte mi nebo ukradnu, vyloupim, vybouchnu, znasilnim, zabiju, podpalim, umucim, podriznu, zapichnu a vubec vsechno
+	id <S267664AbSLTAMr>; Thu, 19 Dec 2002 19:12:47 -0500
+Received: from c17928.thoms1.vic.optusnet.com.au ([210.49.249.29]:19328 "EHLO
+	laptop.localdomain") by vger.kernel.org with ESMTP
+	id <S267660AbSLTAMr> convert rfc822-to-8bit; Thu, 19 Dec 2002 19:12:47 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Con Kolivas <conman@kolivas.net>
+To: Robert Love <rml@tech9.net>, Andrew Morton <akpm@digeo.com>
+Subject: Re: [BENCHMARK] scheduler tunables with contest - prio_bonus_ratio
+Date: Fri, 20 Dec 2002 11:22:59 +1100
+User-Agent: KMail/1.4.3
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200212200850.32886.conman@kolivas.net> <3E025E1A.EA32918A@digeo.com> <1040343306.2519.85.camel@phantasy>
+In-Reply-To: <1040343306.2519.85.camel@phantasy>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212201122.59691.conman@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-Am I something missing? I'm using nvidia kernel module. I have 
-alias char-major-195 nvidia
-in /etc/modules.conf and /etc/modprobe.conf 
-but nvidia module is still not loaded on demand.
-If I make modprobe nvidia then everything is ok.
+>On Thu, 2002-12-19 at 19:02, Andrew Morton wrote:
+>> What Con said.  When the scheduler makes an inappropriate decision,
+>> shortening the timeslice minimises its impact.
+>
+>OK, I tried it.  It does suck.
+>
+>I wonder why, though, because with the estimator off the scheduler
+>should not be making "bad" decisions.
 
--- 
-Luká¹ Hejtmánek
+Is it just because the base timeslices are longer than the old scheduler?
+
+Con

@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269632AbRH0WmU>; Mon, 27 Aug 2001 18:42:20 -0400
+	id <S269639AbRH0Wqa>; Mon, 27 Aug 2001 18:46:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269639AbRH0WmK>; Mon, 27 Aug 2001 18:42:10 -0400
-Received: from mean.netppl.fi ([195.242.208.16]:65032 "EHLO mean.netppl.fi")
-	by vger.kernel.org with ESMTP id <S269632AbRH0Wl4>;
-	Mon, 27 Aug 2001 18:41:56 -0400
-Date: Tue, 28 Aug 2001 01:42:11 +0300
-From: Pekka Pietikainen <pp@netppl.fi>
-To: Pete Zaitcev <zaitcev@redhat.com>
+	id <S269645AbRH0WqU>; Mon, 27 Aug 2001 18:46:20 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:2833 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S269639AbRH0WqM>; Mon, 27 Aug 2001 18:46:12 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] Improved allocation failure warning
+Date: Tue, 28 Aug 2001 00:53:01 +0200
+X-Mailer: KMail [version 1.3.1]
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: A tester is needed with dual P3 and USB
-Message-ID: <20010828014211.A29068@netppl.fi>
-In-Reply-To: <20010827182204.A25212@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010827182204.A25212@devserv.devel.redhat.com>; from zaitcev@redhat.com on Mon, Aug 27, 2001 at 06:22:04PM -0400
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010827224626Z16259-32384+745@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 27, 2001 at 06:22:04PM -0400, Pete Zaitcev wrote:
-> Hi, All:
-> 
-> I received a complaint that a UP kernel hangs on boot if USB is
-> enabled. SMP works. An SMP kernel started with "nosmp" hangs too.
-> The reporter is, umm, how shall I put it... is a power user.
-> I need someone to help me to track the problem down, because
-> I am curious. I heard of SMP hangs before, but a UP hang is
-> a novel idea.
-> 
-> The box is VA Linux 1000 (similar to IBM Netfinity 4000r).
-> Kernel is 2.4.8-ac10.
-Doesn't VA use one of those Intel boards which have the problem
-with theis BIOS, which is seen as a hang with the adaptec driver?
+Hi,
 
-Tried the same work-around? (enabling the APIC)
+Would you please consider applying this change to __alloc_pages, which
+adds the gfp flags and process state information to the "allocation
+failed" message.  This has already proved useful in diagnosing at least
+one vm problem.
 
--- 
-Pekka Pietikainen
+--- 2.4.9.clean/mm/page_alloc.c	Thu Aug 16 12:43:02 2001
++++ 2.4.9/mm/page_alloc.c	Mon Aug 20 22:05:40 2001
+@@ -502,7 +502,8 @@
+ 	}
+ 
+ 	/* No luck.. */
+-	printk(KERN_ERR "__alloc_pages: %lu-order allocation failed.\n", order);
++	printk(KERN_ERR "__alloc_pages: %lu-order allocation failed (gfp=0x%x/%i).\n",
++		order, gfp_mask, !!(current->flags & PF_MEMALLOC));
+ 	return NULL;
+ }
+ 
+

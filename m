@@ -1,40 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262067AbSK0K3c>; Wed, 27 Nov 2002 05:29:32 -0500
+	id <S261996AbSK0K0q>; Wed, 27 Nov 2002 05:26:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262089AbSK0K3c>; Wed, 27 Nov 2002 05:29:32 -0500
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:38551 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S262067AbSK0K3b> convert rfc822-to-8bit; Wed, 27 Nov 2002 05:29:31 -0500
+	id <S262040AbSK0K0q>; Wed, 27 Nov 2002 05:26:46 -0500
+Received: from mail.science.uva.nl ([146.50.4.51]:1488 "EHLO
+	mail.science.uva.nl") by vger.kernel.org with ESMTP
+	id <S261996AbSK0K0p>; Wed, 27 Nov 2002 05:26:45 -0500
+Message-Id: <200211271031.gARAVlK28729@mail.science.uva.nl>
+X-Organisation: Faculty of Science, University of Amsterdam, The Netherlands
+X-URL: http://www.science.uva.nl/
 Content-Type: text/plain; charset=US-ASCII
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: WOLK - Working Overloaded Linux Kernel
-To: Joshua Kwan <joshk@mspencer.net>
-Subject: Re: [OOPS] 2.4.20-rc4-ac1 (also occurs 2.4.20-rc2-ac3) in radeon DRI for XFree86
-Date: Wed, 27 Nov 2002 10:58:03 +0100
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org, arjanv@redhat.com
-References: <200211270939.38410.m.c.p@wolk-project.de> <20021127013905.23642db3.joshk@mspencer.net>
-In-Reply-To: <20021127013905.23642db3.joshk@mspencer.net>
+From: Rudmer van Dijk <rudmer@legolas.dynup.net>
+Reply-To: rudmer@legolas.dynup.net
+To: linux-kernel@vger.kernel.org
+Subject: test
+Date: Wed, 27 Nov 2002 11:31:42 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: rudmer@legolas.dynup.net, rvandijk@science.uva.nl,
+       rudmer.vandijk@student.uva.nl, gandalf@scoutnet.nl,
+       ruud_dijkstra@hotmail.com, rudmer@linuxmail.org
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <200211271044.14899.m.c.p@wolk-project.de>
+X-Spam-Rating: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 27 November 2002 10:39, Joshua Kwan wrote:
-
-Hi Joshua,
-
-> Some additional information - DRI would refuse to work in aforementioned
-> versions of the -ac branch. I had to reboot to -rc2-ac2 to play Quake III
-> Arena in hardware mode, so I think i'll stick with it until Arjan manages
-> to iron out the bugs. :D
-he did. I got a private email from him some minutes ago. It fixes the problem 
-:-)
-
-Forwarded to lkml and to you.
-
-ciao, Marc
-
-
+werken ze allemaal??

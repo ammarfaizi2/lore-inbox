@@ -1,40 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262256AbUEFN2R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262238AbUEFN1S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262256AbUEFN2R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 09:28:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262215AbUEFN1n
+	id S262238AbUEFN1S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 09:27:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262194AbUEFN0D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 09:27:43 -0400
-Received: from userel174.dsl.pipex.com ([62.188.199.174]:41094 "EHLO
-	einstein.homenet") by vger.kernel.org with ESMTP id S262256AbUEFN07
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 09:26:59 -0400
-Date: Thu, 6 May 2004 14:25:13 +0100 (BST)
-From: Tigran Aivazian <tigran@veritas.com>
-X-X-Sender: tigran@einstein.homenet
-To: Dave Jones <davej@redhat.com>
-cc: Simon Trimmer <simon@urbanmyth.org>, <kim.jensen2@hp.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: microcode_ctl question (fwd)
-In-Reply-To: <20040506131619.GB27851@redhat.com>
-Message-ID: <Pine.LNX.4.44.0405061423230.4432-100000@einstein.homenet>
+	Thu, 6 May 2004 09:26:03 -0400
+Received: from fmr99.intel.com ([192.55.52.32]:43240 "EHLO
+	hermes-pilot.fm.intel.com") by vger.kernel.org with ESMTP
+	id S262170AbUEFNXe convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 09:23:34 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: [2.6.6 PATCH] Exposing EFI memory map
+Date: Thu, 6 May 2004 06:23:27 -0700
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F012F28FC@scsmsx401.sc.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [2.6.6 PATCH] Exposing EFI memory map
+Thread-Index: AcQzaYHg3FywoUPdRzqwiKSySMuf+AAAvmNg
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Matt Domsch" <Matt_Domsch@dell.com>, "Sourav Sen" <souravs@india.hp.com>
+Cc: "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>,
+       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 06 May 2004 13:23:28.0374 (UTC) FILETIME=[516C9960:01C4336D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 May 2004, Dave Jones wrote:
-> I fixed up microcode.c to use on_each_cpu() last year sometime, which
-> I thought should fix things up wrt preemption. Can you point to the
-> bits you think are still problematic ?
+>2) Can the memory map output ever be larger than PAGE_SIZE (lower
+>limit is 4KB on x86)?  If not, what guarantees that?  If so, you need
+>your own read mechanism rather than the generic sysfs one.
 
-Ok, just looked at the definition of on_each_cpu() and I can see that it 
-is disabling/enabling preemption explicitly, so there are no problems.
+The output format of the sprintf() gives 58 characters per entry, which
+with a 4k page allows for 70 entries before the page overflows, which
+feels borderline for ccNUMA machines.  On ia64 the pagesize is usually
+16k, which would allow 282 entries.  I think this will fail on a 128
+node SGI sn2 (because there are 4 memory banks per node => min 512
+entries
+in the memory map).
 
-I assumed that on_each_cpu() is just a new 2.6 name for the old 
-smp_call_function(), that is why I thought there may be problems with 
-preemption. Thanks for clarifying this.
-
-Kind regards
-Tigran
-
+-Tony

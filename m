@@ -1,40 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbUJZU33@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261440AbUJZUd0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261431AbUJZU33 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 16:29:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbUJZU3X
+	id S261440AbUJZUd0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 16:33:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbUJZUdZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 16:29:23 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:63016 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261431AbUJZU3J
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 16:29:09 -0400
-Date: Wed, 27 Oct 2004 00:29:41 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Trivial Patch Monkey <trivial@rustcorp.com.au>
-Subject: Re: [PATCH][Trivial] Small spelling fix for MODULE_SRCVERSION_ALL Kconfig help text
-Message-ID: <20041026222941.GC30918@mars.ravnborg.org>
-Mail-Followup-To: Jesper Juhl <juhl-lkml@dif.dk>,
-	linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-	Trivial Patch Monkey <trivial@rustcorp.com.au>
-References: <Pine.LNX.4.61.0410241742380.2919@dragon.hygekrogen.localhost>
+	Tue, 26 Oct 2004 16:33:25 -0400
+Received: from holomorphy.com ([207.189.100.168]:51175 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261440AbUJZUdL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 16:33:11 -0400
+Date: Tue, 26 Oct 2004 13:33:02 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, alan@lxorguk.ukuu.org.uk,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Let's make a small change to the process
+Message-ID: <20041026203302.GF15367@holomorphy.com>
+References: <200410260644.47307.edt@aei.ca> <00c201c4bb4c$56d1b8b0$e60a0a0a@guendalin> <4d8e3fd3041026050823d012dc@mail.gmail.com> <877jpdcnf5.fsf@barad-dur.crans.org> <4d8e3fd304102613165b2fb283@mail.gmail.com> <20041026202224.GE15367@holomorphy.com> <4d8e3fd30410261326741a809@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0410241742380.2919@dragon.hygekrogen.localhost>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <4d8e3fd30410261326741a809@mail.gmail.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 24, 2004 at 05:52:15PM +0200, Jesper Juhl wrote:
-> 
-> Here's a trivial patch fixing a small spelling error in init/Kconfig in 
-> the description of MODULE_SRCVERSION_ALL
-> 
-> Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+On Tue, 26 Oct 2004 13:22:24 -0700, William Lee Irwin III wrote:
+>> Not normally the first thing I'd volunteer for. I probably won't at
+>> all unless demand comes down from on high.
 
-Hi Jesper - applied.
+On Tue, Oct 26, 2004 at 10:26:40PM +0200, Paolo Ciarrocchi wrote:
+> Well, I wrote your name because you are a great developer but I
+> understand you prefer doing something else ;)
+> What about just the *idea* ?
 
-	Sam
+The idea is fine.
+
+
+-- wli

@@ -1,62 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265429AbUFRRCc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265428AbUFRQ6g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265429AbUFRRCc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 13:02:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265698AbUFRRCc
+	id S265428AbUFRQ6g (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 12:58:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265429AbUFRQ6f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 13:02:32 -0400
-Received: from outmail1.freedom2surf.net ([194.106.33.237]:14046 "EHLO
-	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
-	id S265429AbUFRQ7x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 12:59:53 -0400
-Date: Fri, 18 Jun 2004 17:59:02 +0100
-From: Ian Molton <spyro@f2s.com>
-To: linux-kernel@vger.kernel.org
-Cc: greg@kroah.com, tony@atomide.com, david-b@pacbell.net, jamey.hicks@hp.com,
-       joshua@joshuawise.com
-Subject: DMA API issues
-Message-Id: <20040618175902.778e616a.spyro@f2s.com>
-Organization: The Dragon Roost
-X-Mailer: Sylpheed version 0.9.12-gtk2-20040617 (GTK+ 2.4.1; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 18 Jun 2004 12:58:35 -0400
+Received: from mail2.asahi-net.or.jp ([202.224.39.198]:27627 "EHLO
+	mail.asahi-net.or.jp") by vger.kernel.org with ESMTP
+	id S265428AbUFRQ4O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 12:56:14 -0400
+Message-ID: <40D31EA6.5030207@ThinRope.net>
+Date: Sat, 19 Jun 2004 01:56:06 +0900
+From: Kalin KOZHUHAROV <kalin@ThinRope.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040121
+X-Accept-Language: bg, en, ja, ru, de
+MIME-Version: 1.0
+To: Andrew Walrond <andrew@walrond.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Iptables-1.2.9/10 compile failure with linux 2.6.7 headers
+References: <200406181611.37890.andrew@walrond.org> <40D313DC.7000202@blue-labs.org> <200406181721.47968.andrew@walrond.org>
+In-Reply-To: <200406181721.47968.andrew@walrond.org>
+X-Enigmail-Version: 0.83.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Andrew Walrond wrote:
+> Hi David,
+> 
+> On Friday 18 Jun 2004 17:10, David Ford wrote:
+> 
+>>Iptables should be using linux-libc-headers headers instead of kernel
+>>headers.
+> 
+> 
+> Is this acquired knowledge, or new Netfilter policy?
+> How dependant are the iptables tools on the specifc kernel running?
+> 
+> Ie
+> Can I build iptables for use on 2.6.7 kernel with 2.6.6 linux-libc-headers? 
+> (probably)
+> 
+> But could I build iptables for 2.6.7 kernel with 2.4.20 linux-libc-headers? 
+> (probably not?)
+> 
+> The INSTALL file states specifically to use 
+> KERNEL_DIR=<<where-you-built-your-kernel>>
+> 
+> Andrew
 
-This may have come up previously but I havent seen it, so...
+Yes, I confirm with linux-2.6.7 and iptables-1.2.9 I got:
+gcc -march=athlon-xp -m3dnow -msse -mfpmath=sse -mmmx -O3 -pipe -Iinclude -Wall -Wunused -I/usr/src/linux/include  -DIPTABLES_VERSION=\"1.2.9\"  -fPIC -o extensions/libipt_stealth_sh.o -c extensions/libipt_stealth.c
+distcc[6323] ERROR: compile on localhost failed
+In file included from include/libiptc/libiptc.h:6,
+                 from include/iptables.h:5,
+                 from extensions/libipt_stealth.c:10:
+/usr/src/linux/include/linux/netfilter_ipv4/ip_tables.h:255: warning: no semicolon at end of struct or union
+/usr/src/linux/include/linux/netfilter_ipv4/ip_tables.h:255: error: syntax error before '*' token
+/usr/src/linux/include/linux/netfilter_ipv4/ip_tables.h:259: error: syntax error before '}' token
+/usr/src/linux/include/linux/netfilter_ipv4/ip_tables.h:339: warning: type defaults to `int' in declaration of `DECLARE_MUTEX'
+/usr/src/linux/include/linux/netfilter_ipv4/ip_tables.h:339: warning: parameter names (without types) in function declaration
+/usr/src/linux/include/linux/netfilter_ipv4/ip_tables.h:339: warning: `DECLARE_MUTEX' declared `static' but never defined
+make: *** [extensions/libipt_stealth_sh.o] Error 1
 
-My colleagues and I are encountering a number of difficulties with the
-DMA API, to which a generic solution is required (or risk multiple
-architectures, busses, and devices going their own way...)
+Last time I recompiled it with 2.6.6 it was ok. The compiled version still seems to work with 2.6.7 for now.
 
-Here is an example system that illustrates these problems:
+However, isn't that supposed to be filed with iptables (@netfilter.org)?
 
-I have a System On Chip device which, among other functions, contains an
-OHCI controller and 32K of SRAM.
+Kalin.
 
-heres the catch:- The OHCI controller has a different address space than
-the host bus, and worse, can *only* DMA data from its internal SRAM.
-
-The architecture is not broken, merely unusual.
-
-This causes the following problems:
-
-1) The DMA API provides no methods to set up a mapping between the host
-   memory map and the devices view of the space
-        example:
-           the OHCI controller above would see its 32K of SRAM as
-           mapped from 0x10000 - 0x1ffff and not 0xXXX10000 - 0xXXX1ffff
-           which is the address the CPU sees.
-2) The DMA API assumes the device can access SDRAM
-        example:
-           the OHCI controller base is mapped at 0x10000000 on my platform.
-           this is NOT is SDRAM, its in IO space.
-
-If these points are possible to be addressed, it would allow at LEAST three chips *in use* in linux devices able to use mainline OHCI code directly - TC6393XB (in toshiba PDAs), SAMCOP (Ipaqs), and mediaQ (dell axims).
-
-I am told HPPA has some similar problems also.
-
-PS. please make use of CC: when replying
+-- 
+||///_ o  *****************************
+||//'_/>     WWW: http://ThinRope.net/

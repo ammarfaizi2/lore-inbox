@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272450AbRIFLgS>; Thu, 6 Sep 2001 07:36:18 -0400
+	id <S272451AbRIFLqW>; Thu, 6 Sep 2001 07:46:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272458AbRIFLgI>; Thu, 6 Sep 2001 07:36:08 -0400
-Received: from B5a0a.pppool.de ([213.7.90.10]:45579 "HELO Nicole.muc.suse.de")
-	by vger.kernel.org with SMTP id <S272450AbRIFLf4> convert rfc822-to-8bit;
-	Thu, 6 Sep 2001 07:35:56 -0400
-Subject: Re: (solved) memcpy to videoram eats too much CPU on ATI cards
-From: Daniel Egger <egger@suse.de>
-To: Peter Surda <shurdeek@panorama.sth.ac.at>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010906081842.D27619@shurdeek.cb.ac.at>
-In-Reply-To: <E15bRy4-0004Va-00@the-village.bc.nu>
-	<200108272140.XAA20798@cave.bitwizard.nl>
-	<20010828000127.M17545@shurdeek.cb.ac.at> 
-	<20010906081842.D27619@shurdeek.cb.ac.at>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/0.12 (Preview Release)
-Date: 06 Sep 2001 13:37:07 +0200
-Message-Id: <999776228.10893.17.camel@sonja>
-Mime-Version: 1.0
+	id <S272458AbRIFLqN>; Thu, 6 Sep 2001 07:46:13 -0400
+Received: from femail41.sdc1.sfba.home.com ([24.254.60.35]:2435 "EHLO
+	femail41.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S272451AbRIFLqG>; Thu, 6 Sep 2001 07:46:06 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Nicholas Knight <tegeran@home.com>
+Reply-To: tegeran@home.com
+To: linux-kernel@vger.kernel.org
+Subject: Early results and more information needed (K7/Athlon optimization problems)
+Date: Thu, 6 Sep 2001 04:45:52 -0700
+X-Mailer: KMail [version 1.2]
+MIME-Version: 1.0
+Message-Id: <01090604455200.00176@c779218-a>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am 06 Sep 2001 08:18:43 +0200 schrieb Peter Surda:
+I've only had a half-dozen responses so far, please keep sending 
+information as detailed in my last message!
 
-> Just to end this thread in a victorous manner ;-), thanks to Michel Dänzer
-> <michdaen@iiic.ethz.ch> and me, there is now a working implementation of
-> busmastered video transfers for the r128 driver, and it has been submitted to. 
-> all relevant lists and maintainers.
+I do have an early thought though.
+Everyone who's reported the requested information to me and had problems 
+has been using the VIA KT133A chipset, this isn't in itself surprising, 
+it's been a pattern that's already been noted.
+However, I do have one report of no-problems on a VIA KT133A chipset, and 
+it differs in one major way from the rest, the FSB speed is 100Mhz(200), 
+whereas all the others are running at 133Mhz(266). This partialy fits my 
+suspicion that something, somewhere, is clock speed related, since, when 
+running at rated speeds, nothing below a certain level (I think about 
+1Ghz) is running with a 133Mhz FSB, and many chips above that level are 
+running at 133Mhz.
 
-I kept on checking the relevant mailinglist and project CVSes but failed to
-find the described implementation, would you please provide additional hints
-where to get it?
+I still need more reports, the information previously requested is this:
 
-Servus,
-       Daniel
+--previous request--
+Motherboard + chipset
+Front Side Bus speed
+CPU speed + multiplier
+out put of "cat /proc/cpuinfo"
+if avalible, RAM type and speed (both clock and CAS latency)
+if avalible, PSU wattage, and amperage on all outputs.
+--end previous request--
 
+Also, I need another peice of specific information, is anyone running a 
+VIA KT133A chipset with a 133Mhz(266) FSB, and NOT experiencing problems? 
+And if you're not, are you running a chip rated for 133Mhz FSB operation 
+or not?
+
+Thanks,
+-NK

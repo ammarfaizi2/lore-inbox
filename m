@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265196AbUGVPyt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266687AbUGVQBD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265196AbUGVPyt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 11:54:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266687AbUGVPyt
+	id S266687AbUGVQBD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 12:01:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266697AbUGVQBD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 11:54:49 -0400
-Received: from postfix3-1.free.fr ([213.228.0.44]:28382 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S265196AbUGVPys
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 11:54:48 -0400
-Message-ID: <1090511685.40ffe345f252b@imp6-q.free.fr>
-Date: Thu, 22 Jul 2004 17:54:45 +0200
-From: christophe.varoqui@free.fr
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Q] claimed block devices
-References: <1090489874.40ff8e1226ad0@imp6-q.free.fr> <1090499383.17489.39.camel@shaggy.austin.ibm.com>
-In-Reply-To: <1090499383.17489.39.camel@shaggy.austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.4
-X-Originating-IP: 171.16.4.10
+	Thu, 22 Jul 2004 12:01:03 -0400
+Received: from ss1000.ms.mff.cuni.cz ([195.113.20.8]:44419 "EHLO
+	ss1000.ms.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S266687AbUGVQBA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 12:01:00 -0400
+Date: Thu, 22 Jul 2004 18:00:55 +0200
+From: Rudo Thomas <rudo@matfyz.cz>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: scheduling while atomic (Re: voluntary-preempt-2.6.8-rc2-H9)
+Message-ID: <20040722160055.GA4837@ss1000.ms.mff.cuni.cz>
+Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
+	linux-kernel@vger.kernel.org
+References: <1090380467.1212.3.camel@mindpipe> <20040721000348.39dd3716.akpm@osdl.org> <20040721053007.GA8376@elte.hu> <1090389791.901.31.camel@mindpipe> <20040721082218.GA19013@elte.hu> <20040721183010.GA2206@yoda.timesys> <20040721210051.GA2744@yoda.timesys> <20040721211826.GB30871@elte.hu> <20040721223749.GA2863@yoda.timesys> <20040722100657.GA14909@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040722100657.GA14909@elte.hu>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Selon Dave Kleikamp <shaggy@austin.ibm.com>:
+Hello there.
 
-> On Thu, 2004-07-22 at 04:51, christophe.varoqui@free.fr wrote:
-> > Hello,
-> >
-> > does somebody know how a userspace C-proggy can detect if a block device is
-> > claimed  ? Creating a device map over such devices will fail, so better not
-> to
-> > try.
->
-> I believe trying to open the device with O_EXCL will fail if the device
-> is claimed.
->
-> Shaggy
-> --
+I finally managed to try out the voluntary preemption patch (H9 on 2.6.8-rc2).
 
-if I read fs/block_dev.c correctly, O_EXCL will always fail on block device.
-I would also like to use the lock owner information ... which seems even more
-tricky.
+The syslog got flooded by these
 
-regards,
-cvaroqui
---
+bad: ksoftirqd/0(2) scheduling while atomic (1)!
+[<c0244529>] schedule+0x529/0x560
+[<c0115444>] try_to_wake_up+0xa4/0xc0
+[<c0121190>] process_timeout+0x0/0x10
+[<c0121190>] process_timeout+0x0/0x10
+[<c011677a>] cond_resched_softirq+0x3a/0x60
+[<c0120ed0>] run_timer_softirq+0xd0/0x1b0
+[<c011d1d0>] ksoftirqd+0x0/0xc0
+[<c011ce3d>] ___do_softirq+0x7d/0x90
+[<c011ce96>] _do_softirq+0x6/0x10
+[<c011d238>] ksoftirqd+0x68/0xc0
+[<c012b565>] kthread+0xa5/0xb0
+[<c012b4c0>] kthread+0x0/0xb0
+[<c0103d91>] kernel_thread_helper+0x5/0x14
+
+Is this by any means normal?
+
+If it is, can these messages be turned off? (Note that I want to have
+CONFIG_DEBUG_KERNEL on to be able to use the magic SysRq key.)
+
+Bye for now.
+
+Rudo.

@@ -1,35 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289675AbSAOVZA>; Tue, 15 Jan 2002 16:25:00 -0500
+	id <S290281AbSAOV1a>; Tue, 15 Jan 2002 16:27:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289680AbSAOVYm>; Tue, 15 Jan 2002 16:24:42 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:2983 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S289675AbSAOVYU>;
-	Tue, 15 Jan 2002 16:24:20 -0500
-Date: Tue, 15 Jan 2002 13:21:32 -0800 (PST)
-Message-Id: <20020115.132132.62388900.davem@redhat.com>
-To: cfriesen@nortelnetworks.com
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: how to do DIVERT socket equivalent with netfilter?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3C449CE3.FBA52C68@nortelnetworks.com>
-In-Reply-To: <3C449CE3.FBA52C68@nortelnetworks.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S289686AbSAOV1X>; Tue, 15 Jan 2002 16:27:23 -0500
+Received: from mail.spylog.com ([194.67.35.220]:60649 "HELO mail.spylog.com")
+	by vger.kernel.org with SMTP id <S289680AbSAOV1L>;
+	Tue, 15 Jan 2002 16:27:11 -0500
+Date: Wed, 16 Jan 2002 00:28:57 +0300
+From: Peter Zaitsev <pz@spylog.ru>
+X-Mailer: The Bat! (v1.53d)
+Reply-To: Peter Zaitsev <pz@spylog.ru>
+Organization: http://www.spylog.ru
+X-Priority: 3 (Normal)
+Message-ID: <15850171252.20020116002857@spylog.ru>
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re[2]: 3.5G user space speed
+In-Reply-To: <3C4499A3.781E5A85@didntduck.org>
+In-Reply-To: <16247691406.20020115234737@spylog.ru>
+ <3C4499A3.781E5A85@didntduck.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Chris Friesen <cfriesen@nortelnetworks.com>
-   Date: Tue, 15 Jan 2002 16:19:31 -0500
-   
-   Now we're looking to make the thing work on 2.4.  Unfortunately, it doesn't look
-   like DIVERT sockets are supported in 2.4
+Hello Brian,
 
-Umm... linux/net/core/dv.c implement the divert stuff just like
-the 2.2.x copy does?
+Wednesday, January 16, 2002, 12:05:39 AM, you wrote:
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+
+Well. May be you can tell about the numbers a bit ? I can chose 3.0G
+for user instead of 3.5G for user with not really huge loss, but I'd
+like to know how much it will increase speed and in which cases, also
+about standard 2/2 mode.
+
+>>
+>>   2.4.xaa Series as well as  SuSE kernels have  3.5G userspace option,
+>>   which seems to be quite useful, therefore I see it's not included
+>>   is stock kernel for some reasons. Also I've heard this
+>>   configuration may have some performance problems.
+>> 
+>>   Can anyone comment on this topic ?
+>> 
+>>   I need large amount of address space for my application but I also
+>>   need to get as much I/O performance as it's possible, so I can switch
+>>   to 3.0/1.0 memory distribution if it will benefit here.
+
+BG> You can't have it both ways with the x86 (speed vs. large userspace). 
+BG> Kernel 2.5 may help a bit here because changes were made to allow DMA
+BG> from all memory (subject to card limitations), lessening the burden for
+BG> direct-mapped memory.  Otherwise you'll need to move to a 64-bit arch.
+
+
+
+
+-- 
+Best regards,
+ Peter                            mailto:pz@spylog.ru
+

@@ -1,101 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261894AbVAZBs1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262050AbVAZCUQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261894AbVAZBs1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 20:48:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261915AbVAZBs1
+	id S262050AbVAZCUQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 21:20:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbVAZCUQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 20:48:27 -0500
-Received: from ernie.virtualdave.com ([198.216.116.246]:51218 "EHLO
-	ernie.virtualdave.com") by vger.kernel.org with ESMTP
-	id S261894AbVAZBrv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 20:47:51 -0500
-Date: Tue, 25 Jan 2005 19:47:49 -0600 (CST)
-From: David Sims <dpsims@virtualdave.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: sata_vsc, sata_core problem.... Please help me. (another clue)
-Message-ID: <Pine.LNX.4.21.0501251943240.9764-100000@ernie.virtualdave.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 25 Jan 2005 21:20:16 -0500
+Received: from mail.fh-wedel.de ([213.39.232.198]:60642 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S262050AbVAZCUL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 21:20:11 -0500
+Date: Wed, 26 Jan 2005 03:20:04 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc2-mm1
+Message-ID: <20050126022004.GA25350@wohnheim.fh-wedel.de>
+References: <20050124021516.5d1ee686.akpm@osdl.org> <20050125125323.GA19055@infradead.org> <1106662284.5257.53.camel@uganda> <20050125142356.GA20206@infradead.org> <1106666690.5257.97.camel@uganda> <58cb370e050125073464befe4@mail.gmail.com> <1106669087.5257.100.camel@uganda> <20050125182110.GA23317@wohnheim.fh-wedel.de> <20050126001734.34297f5b@zanzibar.2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050126001734.34297f5b@zanzibar.2ka.mipt.ru>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> On Mon, Jan 24, 2005 at 02:03:38PM -0600, David Sims wrote:
-> > Hi,
-> > 
-> >   With kernel 2.6.10 on Intel (Dell Powervault 745N).... When I insert the
-> > sata_vsc module via 'modprobe sata_vsc' from the command line, the module
-> > immediately recognizes the controller card and when it then enumerates the
-> > attached disks, I am getting errors logged in syslog for each disk as
-> > follows:
-> > 
-> > Jan 24 13:55:37 linux kernel: irq 3: nobody cared!
-> > Jan 24 13:55:37 linux kernel:  [<c0128972>] __report_bad_irq+0x22/0x90
-> > Jan 24 13:55:37 linux kernel:  [<c0128a68>] note_interrupt+0x58/0x90
-> > Jan 24 13:55:37 linux kernel:  [<c01285f8>] __do_IRQ+0xd8/0xe0
-> > Jan 24 13:55:37 linux kernel:  [<c0103a7a>] do_IRQ+0x1a/0x30
-> > Jan 24 13:55:37 linux kernel:  [<c010254a>] common_interrupt+0x1a/0x20
-> > Jan 24 13:55:37 linux kernel:  [<c0114fc0>] __do_softirq+0x30/0x90
-> > Jan 24 13:55:37 linux kernel:  [<c0115055>] do_softirq+0x35/0x40
-> > Jan 24 13:55:37 linux kernel:  [<c0103a7f>] do_IRQ+0x1f/0x30
-> > Jan 24 13:55:37 linux kernel:  [<c010254a>] common_interrupt+0x1a/0x20
-> > Jan 24 13:55:37 linux kernel:  [<c0100590>] default_idle+0x0/0x40
-> > Jan 24 13:55:37 linux kernel:  [<c01005b4>] default_idle+0x24/0x40
-> > Jan 24 13:55:37 linux kernel:  [<c010063e>] cpu_idle+0x2e/0x40
-> > Jan 24 13:55:37 linux kernel:  [<c03d277b>] start_kernel+0x15b/0x190
-> > Jan 24 13:55:37 linux kernel: handlers:
-> > Jan 24 13:55:37 linux kernel: [<c02471e0>] (ide_intr+0x0/0x120)
-> > Jan 24 13:55:37 linux kernel: [<c02471e0>] (ide_intr+0x0/0x120)
-> > Jan 24 13:55:37 linux kernel: [<e08ef250>] (vsc_sata_interrupt+0x0/0xa0
-> > [sata_vsc])
-> > Jan 24 13:55:37 linux kernel: Disabling IRQ #3
-> > 
-> > 
-> >   It seems to me that this driver is initializing itself and enabling
-> > interrupts before it is fully loaded and ready to deal with them.... 
-> > 
-> >   If I insert the module during the boot up process, the machine just
-> > hangs trying to read/identify the first disk... 
-> > 
-> >   Is there a way to disable or ignore these interrupts until the driver is
-> > fully loaded, the disks are identified and all of the necessary
-> > housekeeping is finished and the driver is finished loading?? 
-> > 
-> > Once the sata_vsc module finishes identifying the attached drives and
-> > the 'modprobe sata_vsc' returns to the command prompt the errors stop
-> > coming and it seems to work just fine.... You can fdisk and format the
-> > disks and all is well... If I could just get it load at boot time I
-> > would be happy....
-> >
-> > Any advice would be welcome at this point. ;)
-> >
-> > TIA,
-> >
-> > Dave Sims
+On Wed, 26 January 2005 00:17:34 +0300, Evgeniy Polyakov wrote:
 > 
-> 
-> Sorry, but I really don't have any clues at this point.  The driver is
-> really more a set of subroutines, and most of this stuff is done by the
-> libata and scsi i/f.
-> 
-> jeremy
-> 
+> That will catch only simple cases - for the whole picture you need
+> to run graph generator from all allowed code pathes, but that
+> will require knowledge of the tested system, so it will not and 
+> actually can not be absolutely generic.
 
-Hi again,
+Oh, we both agree on that, although we used different words.  The
+design actually is as simple as outlined, the messy part is getting
+the complete call graph of the kernel in the first place.
 
-  This may sound like a dumb idea, but I decided to remove all the disks
-from the SATA controller and fiddle with the module a
-bit... So... Interestingly enough, the module loads without a peep both at
-the command line AND when autoloading from rc.modules AND when builtin to
-a monolithic kernel!! So... The interrupt problem is coming when the
-controller tries to enumerate its disks... I have verified this by
-unloading the module, installing one disk, and then reinserting the
-module... I get 200,000 additional interrupts on IRQ3 in /proc/interrupts
-and the normal error message shown above logged to syslog for the one
-disk... 
+I have a good deal of that part done, but the code is ugly and there
+are legal issues... but it shows that it's quite possible to do.
 
-  What do you think about that??
+Jörn
 
-Dave
-
-
+-- 
+My second remark is that our intellectual powers are rather geared to
+master static relations and that our powers to visualize processes
+evolving in time are relatively poorly developed.
+-- Edsger W. Dijkstra

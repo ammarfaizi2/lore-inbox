@@ -1,42 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265144AbUJLOwM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264098AbUJLO0z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265144AbUJLOwM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 10:52:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264997AbUJLObS
+	id S264098AbUJLO0z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 10:26:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbUJLOYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 10:31:18 -0400
-Received: from rproxy.gmail.com ([64.233.170.198]:29550 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S264991AbUJLOaf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 10:30:35 -0400
-Message-ID: <35fb2e5904101207304a5b4c8d@mail.gmail.com>
-Date: Tue, 12 Oct 2004 15:30:34 +0100
-From: Jon Masters <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: Jan Hudec <bulb@ucw.cz>
-Subject: Re: Kernel stack
-Cc: suthambhara nagaraj <suthambhara@gmail.com>,
-       "Dhiman, Gaurav" <gaurav.dhiman@ca.com>,
-       main kernel <linux-kernel@vger.kernel.org>,
-       kernel <kernelnewbies@nl.linux.org>
-In-Reply-To: <20041012094104.GM703@vagabond>
+	Tue, 12 Oct 2004 10:24:54 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22243 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264377AbUJLOYD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 10:24:03 -0400
+Date: Mon, 11 Oct 2004 08:36:09 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Oleksiy <Oleksiy@kharkiv.com.ua>, Pete Zaitcev <zaitcev@redhat.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: pl2303/usb-serial driver problem in 2.4.27-pre6
+Message-ID: <20041011113609.GB417@logos.cnet>
+References: <416A6CF8.5050106@kharkiv.com.ua>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <577528CFDFEFA643B3324B88812B57FE3055B9@inhyms21.ca.com>
-	 <46561a790410112351942e735@mail.gmail.com>
-	 <20041012094104.GM703@vagabond>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <416A6CF8.5050106@kharkiv.com.ua>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Oct 2004 11:41:04 +0200, Jan Hudec <bulb@ucw.cz> wrote:
 
-> The base of the stack does not have to be stored either, because it is
-> AT FIXED OFFSET from the task_struct! If you don't believe me, look at
-> definition of the current macro. It says just (%esp & ~8195) (it says it
-> in assembly, because you can't directly access registers from C, and it
-> uses some macros that mean "two pages" instead of 8195).
+Pete, 
 
-The pedant in me wants to point out that 8K is 0-8191 and not 0-8195 :-)
+I bet this has been caused by your USB changes?
 
-Jon.
+Can you take a look at this please?
+
+On Mon, Oct 11, 2004 at 02:22:32PM +0300, Oleksiy wrote:
+> Hi all,
+> 
+> I have a problem using GPRS inet vi my Siemens S55 attached with USB 
+> cable since kernel version 2.4.27-pre5, the link is established well, 
+> but then no packets get received, looking with tcpdump shows outgoing 
+> ping packets and just few per several minutes received back. I'm unable 
+> to ping, do nslookup, etc.
+> The problem started when i switched from kernel 2.4.26 (linux slackware 
+> 10.0) to 2.4.28-pre3. None of ppp otions haven't changed and all the 
+> same options were set during kerenel config. So i decided to test all 
+> kernels between 2.4.26 and 2.4.28-pre4 (also not working). Link works 
+> well in 2.4.27-pre5 and stop working in 2.4.27-pre6. No "strange" 
+> messages or errors in the logs. firewall is disabled (ACCEPT for all).
+> 
+> i'm using:
+> 
+> pppd-2.4.2
+> Siemens S55 mobile
+> USB cable (PL2303 conroller)
+> 
+> USB drivers:
+> 
+> ehci_hcd
+> uhci.c
+> pl2303.c
+> 

@@ -1,49 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271911AbRIMR1J>; Thu, 13 Sep 2001 13:27:09 -0400
+	id <S271918AbRIMR2v>; Thu, 13 Sep 2001 13:28:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271905AbRIMR07>; Thu, 13 Sep 2001 13:26:59 -0400
-Received: from maynard.mail.mindspring.net ([207.69.200.243]:42245 "EHLO
-	maynard.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S271911AbRIMR0s>; Thu, 13 Sep 2001 13:26:48 -0400
-Subject: Re: Feedback on preemptible kernel patch
-From: Robert Love <rml@tech9.net>
-To: Arjan Filius <iafilius@xs4all.nl>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0109102323450.24212-100000@sjoerd.sjoerdnet>
-In-Reply-To: <Pine.LNX.4.33.0109102323450.24212-100000@sjoerd.sjoerdnet>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.13.99+cvs.2001.09.12.07.08 (Preview Release)
-Date: 13 Sep 2001 13:27:06 -0400
-Message-Id: <1000402027.23162.45.camel@phantasy>
-Mime-Version: 1.0
+	id <S271913AbRIMR2o>; Thu, 13 Sep 2001 13:28:44 -0400
+Received: from zeus.nmt.edu ([129.138.41.24]:20219 "EHLO zeus.lma.net")
+	by vger.kernel.org with ESMTP id <S271918AbRIMR2d>;
+	Thu, 13 Sep 2001 13:28:33 -0400
+Date: Thu, 13 Sep 2001 11:28:52 -0600 (MDT)
+From: Timothy Hamlin <thamlin@zeus.nmt.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: questions of a kernel-newbie, simple ISA driver
+Message-ID: <Pine.LNX.4.30.0109131124420.20602-100000@zeus.lma.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2001-09-10 at 17:29, Arjan Filius wrote:
-> Yes I am using reiserfs (for "ages"). better said, reiser on LVM.
-> 
-> Small discription of my system and used setup:
-> scsi-disk,scsi-cdrom,ide-disk,ide-scsi,ext2,reiser, iptables, ipv6,
-> acenic-Gbit-ethernet, ramdisk, highmem (1.5GB-ram), Athlon 1.1GHz, Asus
-> a7v MB (via).
 
-Hi Arjan,
+Hello kernel wizards,
 
-first, highmem is fixed and the original patch you have from me is good.
-second, Daniel Phillips gave me some feedback into how to figure out the
-VM error.  I am working on it, although just the VM potential --
-ReiserFS may be another problem.
+I'm in the process of developing a simple device driver for a board my
+research group has been using for some time in our lightning mapping
+system.  I've made progress understanding how to get kernel modules
+written, but have some questions -- this is my first kernel module of any
+real use.  Here's a brief description of the hardware:
 
-third, you may be experiencing problems with a kernel optimized for
-Athlon.  this may or may not be related to the current issues with an
-Athlon-optimized kernel.  Basically, functions in arch/i386/lib/mmx.c
-seem to need some locking to prevent preemption.  I have a basic patch
-and we are working on a final one.
+This is an ISA board that has a settable base address, usually 0x230.
+The board has a 16bit wide FIFO (baseAddr + 4) that is 32k deep.  As data
+flows in, the data accumulates in the FIFO.  When the FIFO is 1/2 full a
+flag is set in a status register (baseAddr + 1).  The driver needs to read
+1/2 of the FIFO and make the data available in a /dev entry.  So far I've
+got the polling for the flag working, and can get the data out of the
+FIFO.  Interrupts are also possible, but I thought it best to start by
+getting the polling function to work, as I will need to re-program the
+firmware to enable interrupts.
 
--- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
+The first question is how to deal with the data.  The main reason for
+switching to a kernel module is that a user-side driver (which is what
+I've used so far) can not always keep up with the data rate, as the FIFO
+fills potentially 100 or so times/second.  My first thought is to keep a
+larger buffer for the data, so that a user program can have lesser time
+constraints when it comes to getting a hold of the data.
+
+I guess it would flow something like this:
+
+Driver polls for the 1/2 full FIFO flag, when found transfer 16k words out
+of the FIFO and place this in a larger buffer, say 320k or something.
+How would I maintain this buffer?  Reads to the /dev entry need to be able
+to get a continuous stream from the device, how do I keep the buffer both
+filling, and being read out at the same time?  Should I make the buffer a
+FIFO as well?  How?  How do I keep track of what has been read from the
+buffer, so that subsequent reads get new data, not data that is lower down
+in the buffer?  Can I allow multiple processes to be reading from this
+/dev entry without loosing data to any of them?
+
+Also, when I read for a device like a serial port I can just do cat
+/dev/ttyS0 and watch the stream coming in.  So far in my driver, a read
+performs one operation, outputs whatever, and then stops.  So a cat of my
+device only transfers the current data, and then just sits there.  How do
+I keep that steam going so that a cat will continually update?
+
+One more.  What's the best way to poll for the 1/2 full flag?  Right now
+I'm using a queue_task(), which gets called on every timer interrupt, is
+this reasonable, or is there a better way to do it?
+
+TIA for any suggestions, or any pointers to simple skeleton sources that
+might help give my foolish mind a little direction.
+
+^t
+  --------------------------------------------------------------------------
+   Timothy Hamlin ** thamlin at nmt dot edu ** http://www.nmt.edu/~thamlin/
+  --------------------------------------------------------------------------
+       Department of Physics, NMIMT, Socorro NM 87801
+       Office, Workman 251: 835-5137  Lab, Workman 246
+       Home,   Polvadera  : 835-0805
+       "Linux, the choice of a GNU generation."
 

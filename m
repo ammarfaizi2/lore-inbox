@@ -1,48 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275268AbRJFP2N>; Sat, 6 Oct 2001 11:28:13 -0400
+	id <S275255AbRJFPan>; Sat, 6 Oct 2001 11:30:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275265AbRJFP2D>; Sat, 6 Oct 2001 11:28:03 -0400
-Received: from [195.223.140.107] ([195.223.140.107]:17403 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S275255AbRJFP17>;
-	Sat, 6 Oct 2001 11:27:59 -0400
-Date: Sat, 6 Oct 2001 17:28:29 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Christian =?iso-8859-1?Q?Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: OOM-Killer in 2.4.11pre4
-Message-ID: <20011006172829.F724@athlon.random>
-In-Reply-To: <E15plMj-0002eK-00@mrvdom01.schlund.de> <20011006162617.A724@athlon.random> <E15pt4D-0002N4-00@mrvdom02.schlund.de>
+	id <S275256AbRJFPad>; Sat, 6 Oct 2001 11:30:33 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:41744 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S275255AbRJFPaN>; Sat, 6 Oct 2001 11:30:13 -0400
+Date: Sat, 6 Oct 2001 17:30:25 +0200
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: llx@swissonline.ch
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: proc file system
+Message-ID: <20011006173025.F12624@arthur.ubicom.tudelft.nl>
+In-Reply-To: <200110052202.f95M2Ig16051@mail.swissonline.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <E15pt4D-0002N4-00@mrvdom02.schlund.de>; from linux-kernel@borntraeger.net on Sat, Oct 06, 2001 at 05:06:53PM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200110052202.f95M2Ig16051@mail.swissonline.ch>; from llx@swissonline.ch on Sat, Oct 06, 2001 at 12:02:18AM +0200
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 06, 2001 at 05:06:53PM +0200, Christian Bornträger wrote:
-> > to test the oom killer you should try to run out of memory sometime.
-> 
-> I used a test program with an endless dummy=new char[1024] loop.
+On Sat, Oct 06, 2001 at 12:02:18AM +0200, llx@swissonline.ch wrote:
+> i've written a prog interface for my logger utility to make it easy
+> to transport my logging information from kernel to userspace using
+> shell commands. now i want to use tail -f /prog/<mylogfile>. what
+> do i have to do for that to work. when using tail my loginfo gets
+> read form my ringbuffer, but nothing gets printed in the terminal.
 
-This loop doesn't generate any page fault, it just allocates virtual
-space.
+I think you actually want a character device instead of a /proc file.
 
-> Bytheway,I had this problem without highmem - only 512 MB, and  my problem is 
 
-I cannot reproduce anything like that here with 512M on 2.4.11pre3aa1.
-the reports I had where all with 4G of ram, in particular with the 3.5G
-of virtual memory per-process on x86 which increases the pressure on the
-normal zone that in turn showed me the problem.
+Erik
 
-Anyways now that I think to have seen the issues with normal zone
-faliures I will try to address them soon without having to introduce
-deadlock prone code into -aa. Probably not today but I hope tomorrow or
-on Monday.
-
-Andrea
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

@@ -1,117 +1,91 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315701AbSECUsP>; Fri, 3 May 2002 16:48:15 -0400
+	id <S315702AbSECUt5>; Fri, 3 May 2002 16:49:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315700AbSECUsO>; Fri, 3 May 2002 16:48:14 -0400
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:43414 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S315701AbSECUsL>; Fri, 3 May 2002 16:48:11 -0400
-Subject: [PATCH] problem with locks_remove_posix calling filesystem lock operation
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.07a  May 14, 2001
-Message-ID: <OFDE9F8F2B.9F554D29-ON85256BAE.0071FFEE@raleigh.ibm.com>
-From: "Brian Dixon" <dixonbp@us.ibm.com>
-Date: Fri, 3 May 2002 15:48:08 -0500
-X-MIMETrack: Serialize by Router on D04NM109/04/M/IBM(Release 5.0.9a |January 7, 2002) at
- 05/03/2002 04:48:08 PM
+	id <S315703AbSECUt4>; Fri, 3 May 2002 16:49:56 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:47036 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S315702AbSECUtx>;
+	Fri, 3 May 2002 16:49:53 -0400
+Message-ID: <3CD2E940.D421185F@vnet.ibm.com>
+Date: Fri, 03 May 2002 14:47:12 -0500
+From: Dave Engebretsen <engebret@vnet.ibm.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+        Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Bug: Discontigmem virt_to_page() [Alpha,ARM,Mips64?]
+In-Reply-To: <20020426192711.D18350@flint.arm.linux.org.uk> <E173Pe0-0002Bw-00@starship> <20020503000500.GP32767@holomorphy.com> <E173RjF-0002Ch-00@starship>
+X-MIMETrack: Itemize by SMTP Server on d27ml101/27/M/IBM(Release 5.0.10 |March 22, 2002) at
+ 05/03/2002 03:48:37 PM,
+	Serialize by Router on d27ml101/27/M/IBM(Release 5.0.10 |March 22, 2002) at
+ 05/03/2002 03:48:39 PM,
+	Serialize complete at 05/03/2002 03:48:39 PM
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steps to Reproduce:
-1. fcntl locking on a filesystem that defines the lock operation
-2. a second thread tests a lock while the first is in the process of unlock
-   due to the file being closed.
+Daniel Phillips wrote:
+> 
+> The boot loader must have provided at least some contiguous physical
+> memory in order to load the kernel, the compressed disk image and give
+> us a little working memory.  (For practical purposes, we're most likely to
+> have been provided with a full gig, or whatever is appropriate according
+> to the mem= command line setting, but lets pretend it's a lot less than
+> that.)  Now, the first thing we need to do is fill in enough of the
+...
+> 
+> Naturally, during initialization of the hash table, we want to be sure
+> not to perform and phys_to_logical translations, as would be required to
+> read values from the page tables during swap-out for example.  Probably
+> there's already no possibility of that, but it needs a comment at least.
+> 
+> I can't provide any more details than that, because I'm not familiar
+> with the way the iseries boots.  Anton is the man there.
 
-Actual Results: thread loops with this printk from locks_conflict in the
-linux kernel:
-        default:
-                printk("locks_conflict(): impossible lock type - %d\n",
-                       caller_fl->fl_type);
-Note that corruption of the lock list and an Oops is also possile.
+The way it works on iSeries is the HV provides a 64MB physicaly
+contiguous load area.  The kernel & working storage, including the
+logical->physical (or absolute in our terms) must fit in this space. 
+Even with a 256KB chunk size and a simple array for translation, the
+memory consumption is not excessive.  Each array entry is 32bits,
+allowing a 32+12(page offset) = 44b of physical addessability and a 1MB
+array allows 32GB of translations.
 
-Expected Results: unlock should complete, this printk should never occur
+We don't need the reverse translation on iSeries as the kernel never
+knows about the actual hardware address, other than when putting an
+entry in the hardware page tables (processor and I/O).  One other thing
+to not is that Linux _always_ runs with relocation enabled on iSeries so
+there is never a point, other than way I mention above, when the
+hardware address matters.
 
-Additional Information:
-When a file is closed, filp_close calls locks_remove_posix to remove locks.
-To remove the locks, the kernel lock is obtained and the filesystem lock
-operation is called with an unlock for each of the locks on the i_flock list.
-The problem is that the filesystem may have to wait for synchronization which
-implies a call to schedule() which releases the kernel lock.  Once the lock is
-released, other threads can manipulate the list and it can become corrupted.
+> We ought to have some clue about the maximum number of physical memory
+> chunks available to us.  I doubt *every* partition is going to be
+> provided 256 GB of memory.  In fact, the real amount we need will be
+> considerably less, and the phys_to_logical table will be smaller than
+> 16 MB, say, 1 MB.  Just allocate the whole thing and be done with it.
 
-A secondary problem is that locks_unlock_delete doesn't allocate a file_lock
-structure for the unlock, but instead changes the existing lock to fl_type
-F_UNLCK and points to it on the filesystem call.  This is assumed to be ok
-because the kernel lock is held by locks_remove_posix before the call is made
-(so no other thread will be able to observe the lock while it is in this invalid
-state).  However, if the unlock thread waits in the filesystem, another thread
-may see the invalid lock (in addition to corrupting the lock list).  This was
-obseved as a printk in locks_conflict when it detected the invalid fl_type.
+... 
 
-Two small changes are required:  locks_remove_posix must restart from the top
-of the i_flock list after deleting a lock from a filesystem that defined its own
-lock operation, and the file_lock used by locks_unlock_delete must be a COPY
-of the held lock (with the fl_type in the COPY changed to F_UNLCK).
+> 
+> > How do you know what
+> > the size of the table should be if the number of chunks varies
+> > dramatically?
+> 
+> The most obvious and practical approach is to have the boot loader tell
+> us, we allocate the maximum size needed, and won't worry about that
+> again.
+> 
 
-Suggested patch:
-diff -Naur linux-2.4.2-2/fs/locks.c linux-2.4.2-2-patches/fs/locks.c
---- linux-2.4.2-2/fs/locks.c    Mon Dec 10 13:11:16 2001
-+++ linux-2.4.2-2-patches/fs/locks.c    Mon Dec 10 16:21:28 2001
-@@ -509,11 +509,25 @@
- {
-        struct file_lock *fl = *thisfl_p;
-        int (*lock)(struct file *, int, struct file_lock *);
-+        struct file_lock ufl;
+Yes, we do know the maximum memory possible, both system wide, and more
+importantly within a partition.  In fact the way it works today, a
+partition is defined to the hypervisor with a current memory size to use
+and a max memory size.  The max is required because the hardware page
+table for PowerPC is allocated to the max size before the partition
+boots.  Becuase the page table must be physically contiguous, it is
+allocated for the partition when the system boots.  The size of the
+Linux translation tables is a similar issue where the worst case should
+just be considered and allocated at Linux boot time.
 
-        if (fl->fl_file->f_op &&
-            (lock = fl->fl_file->f_op->lock) != NULL) {
--               fl->fl_type = F_UNLCK;
--               lock(fl->fl_file, F_SETLK, fl);
-+
-+               /*
-+                * The filesystem defined its own lock operation.  Make a
-+                * copy of the lock before changing its type to unlock so that
-+                * the file_lock being removed stays valid.
-+                */
-+               ufl = *fl;
-+               ufl.fl_type = F_UNLCK;
-+               lock(ufl.fl_file, F_SETLK, &ufl);
-+
-+               /*
-+                * If the file_lock was removed, we are done.
-+                */
-+               if (*thisfl_p != fl)
-+                       return;
-        }
-        locks_delete_lock(thisfl_p, 0);
- }
-@@ -1641,6 +1655,7 @@
-        struct inode * inode = filp->f_dentry->d_inode;
-        struct file_lock *fl;
-        struct file_lock **before;
-+       void *lockOp;
-
-        /*
-         * For POSIX locks we free all locks on this file for the given task.
-@@ -1655,10 +1670,18 @@
-                return;
-        }
-        lock_kernel();
-+       lockOp = filp->f_op? filp->f_op->lock: NULL;
-+restart:
-        before = &inode->i_flock;
-        while ((fl = *before) != NULL) {
-                if ((fl->fl_flags & FL_POSIX) && fl->fl_owner == owner) {
-                        locks_unlock_delete(before);
-+                       /*
-+                        * If there is a possibility that the kernel lock was
-+                        * released, start back at the beginning.
-+                        */
-+                       if (lockOp)
-+                               goto restart;
-                        continue;
-                }
-                before = &fl->fl_next;
-
+Dave Engebretsen

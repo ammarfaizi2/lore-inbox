@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261886AbUL0PBZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261894AbUL0PCv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261886AbUL0PBZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 10:01:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261894AbUL0PBZ
+	id S261894AbUL0PCv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 10:02:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbUL0PCv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 10:01:25 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:33691 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261886AbUL0PBW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 10:01:22 -0500
-Subject: PATCH: 2.6.10 - Still mishandles volumes without geometry data
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       torvalds@osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
+	Mon, 27 Dec 2004 10:02:51 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:18404 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S261894AbUL0PCd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 10:02:33 -0500
+Message-ID: <41D032B6.E5D3D00C@tv-sign.ru>
+Date: Mon, 27 Dec 2004 19:05:10 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Cc: "David S. Miller" <davem@davemloft.net>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] optimize prefetch() usage in skb_queue_walk()
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <1104155840.20898.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 27 Dec 2004 13:57:20 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-An IDE device can choose not to report geometry. In this situation the
-base 2.6 kernel tries to verify the LBA data despite having nothing to
-validate it against and prints it out (although now only as pr_debug).
+Hello.
 
-This patch fixes these problems and has in various forms been in
-2.6.9-ac and Fedora Core for a considerable time now
+This patch changes skb_queue_walk() in the same manner
+as in list_for_each() prefetch optimization, see
+http://marc.theaimsgroup.com/?l=linux-kernel&m=110399132418587
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.10/drivers/ide/ide-disk.c linux-2.6.10/drivers/ide/ide-disk.c
---- linux.vanilla-2.6.10/drivers/ide/ide-disk.c	2004-12-25 21:15:34.000000000 +0000
-+++ linux-2.6.10/drivers/ide/ide-disk.c	2004-12-26 21:55:43.084714368 +0000
-@@ -84,6 +84,10 @@
- {
- 	unsigned long lba_sects, chs_sects, head, tail;
- 
-+	/* No non-LBA info .. so valid! */
-+	if (id->cyls == 0)
-+		return 1;
-+		
- 	/*
- 	 * The ATA spec tells large drives to return
- 	 * C/H/S = 16383/16/63 independent of their size.
-@@ -201,7 +205,8 @@
- 		head  = track % drive->head;
- 		cyl   = track / drive->head;
- 
--		pr_debug("%s: CHS=%u/%u/%u\n", drive->name, cyl, head, sect);
-+		if(drive->bios_cyl)
-+			pr_debug("%s: CHS=%u/%u/%u\n", drive->name, cyl, head, sect);
- 
- 		hwif->OUTB(0x00, IDE_FEATURE_REG);
- 		hwif->OUTB(nsectors.b.low, IDE_NSECTOR_REG);
+Oleg.
 
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+
+--- 2.6.10/include/linux/skbuff.h~	2004-12-26 12:52:43.000000000 +0300
++++ 2.6.10/include/linux/skbuff.h	2004-12-26 12:54:33.000000000 +0300
+@@ -1071,9 +1071,9 @@
+ }
+ 
+ #define skb_queue_walk(queue, skb) \
+-		for (skb = (queue)->next, prefetch(skb->next);	\
+-		     (skb != (struct sk_buff *)(queue));	\
+-		     skb = skb->next, prefetch(skb->next))
++		for (skb = (queue)->next;					\
++		     prefetch(skb->next), (skb != (struct sk_buff *)(queue));	\
++		     skb = skb->next)
+ 
+ 
+ extern struct sk_buff *skb_recv_datagram(struct sock *sk, unsigned flags,

@@ -1,33 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286188AbRLZJAe>; Wed, 26 Dec 2001 04:00:34 -0500
+	id <S286186AbRLZJXJ>; Wed, 26 Dec 2001 04:23:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286189AbRLZJAY>; Wed, 26 Dec 2001 04:00:24 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:14090 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S286188AbRLZJAT>;
-	Wed, 26 Dec 2001 04:00:19 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Luca Amigoni <al.net@libero.it>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Davicom DM910x (dfme) doesn't link 
-In-Reply-To: Your message of "Wed, 26 Dec 2001 09:26:33 BST."
-             <20011226092633.A9287@mater.home> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 26 Dec 2001 20:00:05 +1100
-Message-ID: <6384.1009357205@ocs3.intra.ocs.com.au>
+	id <S286187AbRLZJW7>; Wed, 26 Dec 2001 04:22:59 -0500
+Received: from unicef.org.yu ([194.247.200.148]:59661 "EHLO unicef.org.yu")
+	by vger.kernel.org with ESMTP id <S286186AbRLZJWs>;
+	Wed, 26 Dec 2001 04:22:48 -0500
+Date: Wed, 26 Dec 2001 10:22:28 +0100 (CET)
+From: Davidovac Zoran <zdavid@unicef.org.yu>
+To: Robert Jameson <rj@open-net.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: CDROM stop's working 15mins after being mounted
+In-Reply-To: <20011226034203.5889d583.rj@open-net.org>
+Message-ID: <Pine.LNX.4.33.0112261013330.27733-100000@unicef.org.yu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Dec 2001 09:26:33 +0100, 
-Luca Amigoni <al.net@libero.it> wrote:
->I've tried to compile kernel version 2.4.17 with static dfme support,
->but ld fails to link. Here is the error I get:
->
->drivers/net/net.o(.data+0x434): undefined reference to `local symbols \
->      in discarded section .text.exit'
+On Wed, 26 Dec 2001, Robert Jameson wrote:
 
-Known problem, the fix will be in 2.4.18-pre<something>.  Use the
-previous version of binutils until the kernel is fixed.
+> Hi, I recently noticed with 2.4.17 using scsi cdrom emulation my cdrom stop's functioning after monunting it, (and reading from it). I think hafta umount and remount it, I didnt see these problems with 2.4.16, has anyone else had this problem?
+> --
+
+I have no problem with  using scsi cdrom emulation ,
+using teac 58E RW and ide-scsi emulation.
+
+Only problem I found is when writing TOC (within cdrecord)
+I have to wait until it finished (I cannot even change console)
+to be more strange, I have that problem only at work
+PIII 500Mhz with TEAC 58E but on
+PII 633Mhz with TEAC 54E and PPRO 200Mhz with TEAC 58E I haven't
+that problem. Note that was for 2.4.14-17
+
+With kernel 2.2.19 there is no such behaviur.
+
+
+Regards,
+
+ Zoran
 

@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261820AbUKUWCy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261840AbUKUWIA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261820AbUKUWCy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 17:02:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbUKUWCy
+	id S261840AbUKUWIA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 17:08:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261844AbUKUWH6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 17:02:54 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:17679 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261820AbUKUWCx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 17:02:53 -0500
-Date: Sun, 21 Nov 2004 23:02:51 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: johnpol@2ka.mipt.ru
-Cc: sensors@stimpy.netroedge.com, linux-kernel@vger.kernel.org
-Subject: drivers/w1/: why is dscore.c not ds9490r.c ?
-Message-ID: <20041121220251.GE13254@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 21 Nov 2004 17:07:58 -0500
+Received: from pigwidgeon.lancs.ac.uk ([148.88.0.67]:27112 "EHLO
+	pigwidgeon.lancs.ac.uk") by vger.kernel.org with ESMTP
+	id S261840AbUKUWHZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Nov 2004 17:07:25 -0500
+Content-Type: text/plain
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+Content-Transfer-Encoding: binary
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: steveb@unix.lancs.ac.uk
+Date: Sun, 21 Nov 2004 22:07:24 +0100
+Subject: Remove arbitrary #acl entries limits on ext[23]
+Cc: agruen@suse.de
+To: linux-kernel@vger.kernel.org
+Message-Id: <E1CVzrg-0005he-00@wing0.lancs.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Evgeniy,
 
-drivers/w1/Makefile in recent 2.6 kernels contains:
-  obj-$(CONFIG_W1_DS9490)         += ds9490r.o 
-  ds9490r-objs    := dscore.o
+About six months ago, Andreas Gruenbacher said:
 
-Is there a reason, why dscore.c isn't simply named ds9490r.c ?
+> The second patch that removes the ACL entry limit for writes is not
+> included. I don't want to push that patch now, because large ACLs would
+> cause 2.4 and current 2.6 kernels to fail. My plan is to remove the
+> second limit later, in a half-year or year or so. If you think we should
+> go the full way I wouldn't mind, however.
 
-TIA
-Adrian
+(The patch to remove the limit is referenced at http://lwn.net/Articles/69839/)
 
--- 
+Has sufficient time now passed for this patch to be reconsidered?
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+If not, would an acceptable compromise be to allow runtime configuration
+for this limit (e.g. via sysctl)? This would preserve backwards compatibility,
+but allow folk to choose their own arbitrary limits.
 
+--
+Steve Bennett

@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbUJaQXB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261281AbUJaQ0E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261254AbUJaQXB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 11:23:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbUJaQXB
+	id S261281AbUJaQ0E (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 11:26:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbUJaQ0E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 11:23:01 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:26800 "EHLO
+	Sun, 31 Oct 2004 11:26:04 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:27824 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261254AbUJaQWs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 11:22:48 -0500
-Subject: Re: code bloat [was Re: Semaphore assembly-code bug]
+	id S261281AbUJaQZy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Oct 2004 11:25:54 -0500
+Subject: Re: HP C2502 SCSI card (NCR 53C400A based) not working
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Z Smith <plinius@comcast.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <41843E10.1040800@comcast.net>
-References: <417550FB.8020404@drdos.com.suse.lists.linux.kernel>
-	 <200410310111.07086.vda@port.imtp.ilyichevsk.odessa.ua>
-	 <20041030222720.GA22753@hockin.org>
-	 <200410310213.37712.vda@port.imtp.ilyichevsk.odessa.ua>
-	 <1099176319.25194.10.camel@localhost.localdomain>
-	 <41843E10.1040800@comcast.net>
+To: Ondrej Zary <linux@rainbow-software.org>
+Cc: ingmar@gonzo.schwaben.de,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4184D8EB.6000306@rainbow-software.org>
+References: <4184D8EB.6000306@rainbow-software.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1099235990.16414.12.camel@localhost.localdomain>
+Message-Id: <1099236179.16385.16.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 31 Oct 2004 15:19:50 +0000
+Date: Sun, 31 Oct 2004 15:23:03 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2004-10-31 at 01:21, Z Smith wrote:
-> Alan Cox wrote:
-> 
-> > So if the desktop stuff is annoying you join gnome-love or whatever the
-> > kde equivalent is 8)
-> 
-> Or join me in my effort to limit bloat. Why use an X server
-> that uses 15-30 megs of RAM when you can use FBUI which is 25 kilobytes
-> of code with very minimal kmallocing?
+On Sul, 2004-10-31 at 12:22, Ondrej Zary wrote:
+> Hello,
+> I have an old ISA SCSI card that came with HP ScanJet IIP scanner. It's
+> HP C2502 card based on NCR 53C400A chip. I was unable to get it working
+> with g_NCR5380 driver so I tried loading the official MINI400I.SYS
+> driver in DOSemu. I was surprised that the values sent to the ports are 
+> not the same as in the g_NCR5380 driver.
 
-My X server seems to be running at about 4Mbytes, plus the frame buffer
-mappings which make it appear a lot larger. I wouldn't be suprised if
-half the 4Mb was pixmap cache too, maybe more.
+It should work in 2.4 providing you use the loading options for
+ncr53c400a and set a port and no IRQ (read mine did). What options are
+you trying ?
 
-I've helped write tiny UI kits (take a look at nanogui for example) but
-they don't have the flexibility of X.
+> According to this, I think that my card has the 53C400A chip registers 
+> mapped to different addresses (offsets) but I'm unable to determine what 
+> the mapping is. I was also unable to find the 53C400A datasheet which 
+> might help a bit.
 
-Alan
+The 53c400a can be programming to an address by software - either by
+magic sequences or I believe according to pin strapping by ISAPnP.
+Its been a long time since I touched such junk however and if you want
+to do anything useful with your computer while scanning (like waving the
+mouse point around) get something else!
 

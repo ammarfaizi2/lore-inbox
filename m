@@ -1,31 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310964AbSCHRTz>; Fri, 8 Mar 2002 12:19:55 -0500
+	id <S310972AbSCHRYZ>; Fri, 8 Mar 2002 12:24:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310965AbSCHRTp>; Fri, 8 Mar 2002 12:19:45 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59149 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310964AbSCHRTa>; Fri, 8 Mar 2002 12:19:30 -0500
-Subject: Re: linux 2.4.18 fails to load static /sbin/init
-To: androsyn@ratbox.org (Aaron Sethman)
-Date: Fri, 8 Mar 2002 17:34:53 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0203081218200.6974-100000@simon.ratbox.org> from "Aaron Sethman" at Mar 08, 2002 12:20:12 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S310970AbSCHRYG>; Fri, 8 Mar 2002 12:24:06 -0500
+Received: from virgo.i-cable.com ([210.80.60.87]:12185 "HELO virgo.i-cable.com")
+	by vger.kernel.org with SMTP id <S310971AbSCHRYD>;
+	Fri, 8 Mar 2002 12:24:03 -0500
+Message-ID: <00ea01c1c6c6$083faea0$eb4a0a3d@homeuc1hfbdu7w>
+From: "Jacky Lam" <snakie@ismart.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Kernel patches
+Date: Sat, 9 Mar 2002 01:23:58 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="big5"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16jOGb-0006sE-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I noticed this problem when trying to boot 2.4.18 on a Netra t1 200.
-> Basically what will happen is the kernel will mount / read-only, then try
-> to load /sbin/init, at which point it hangs.  If I a dynamically linked
-> wrapper around /sbin/init then all is happy and the system boots fine.
-> 
-> Any ideas or clues?
+Hi,
 
-Known bug with sparc + static binaries. Use 2.4.19pre1, or if you want
-2.4.18 just extract the binary loader patch from 2.4.19pre1
+    I want to make some statistics on all kernel patches. Could someone tell
+me how can I gather all the patches sending to Linus, Alan Cox.....?
+    Thanks.
+
+Jacky
+

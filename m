@@ -1,76 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269671AbTGJW6x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 18:58:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269677AbTGJW6x
+	id S269682AbTGJXH6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 19:07:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269683AbTGJXH6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 18:58:53 -0400
-Received: from adsl-110-19.38-151.net24.it ([151.38.19.110]:5820 "HELO
-	develer.com") by vger.kernel.org with SMTP id S269671AbTGJW63 (ORCPT
+	Thu, 10 Jul 2003 19:07:58 -0400
+Received: from ore.jhcloos.com ([64.240.156.239]:16900 "EHLO ore.jhcloos.com")
+	by vger.kernel.org with ESMTP id S269682AbTGJXH5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 18:58:29 -0400
-From: Bernardo Innocenti <bernie@develer.com>
-Organization: Develer
+	Thu, 10 Jul 2003 19:07:57 -0400
 To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] Fix do_div() for all architectures
-Date: Fri, 11 Jul 2003 01:13:04 +0200
-User-Agent: KMail/1.5.9
-Cc: Richard Henderson <rth@twiddle.net>, Andrea Arcangeli <andrea@suse.de>,
-       Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
-References: <200307060133.15312.bernie@develer.com> <200307082027.26233.bernie@develer.com> <20030710154019.GA18697@twiddle.net>
-In-Reply-To: <20030710154019.GA18697@twiddle.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] [2-LINER] Fix unknown scancode errors for Dell laptops
+From: "James H. Cloos Jr." <cloos@jhcloos.com>
+Date: 10 Jul 2003 19:22:30 -0400
+Message-ID: <m3brw255mx.fsf@lugabout.jhcloos.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200307110113.04982.bernie@develer.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 10 July 2003 17:40, Richard Henderson wrote:
- > On Tue, Jul 08, 2003 at 08:27:26PM +0200, Bernardo Innocenti wrote:
- > > +extern uint32_t __div64_32(uint64_t *dividend, uint32_t divisor)
- > > __attribute_pure__;
- >
- > ...
- >
- > > +		__rem = __div64_32(&(n), __base);	\
- >
- > The pure declaration is very incorrect.  You're writing to N.
+With stock 2.5, some of the Dell Inspiron laptops give unknown
+scancode printk()s from two of their seven multimedia keys.
 
-Here comes the obvious fix. Mea culpa, mea culpa, mea maxima culpa!
+The patch below fixes that by assigning otherwise unused values to
+those two scan codes.
 
-NOTE: I've intentionally left the __attribute_pure__ definition in
-linux/compiler.h since it might apply to many other functions.
+I'm running w/ it now w/o problems.  
 
+-JimC
 
-Linus, please apply and forgive me for getting this simple patch wrong
-so many times in a row.
+ drivers/input/keyboard/atkbd.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
--------------------------------------------------------------------------
-
- - remove incorrect __attribute_pure__ from __div64_32() since it obviously
-   clobbers memory through &(n);
-
-
-diff -Nru linux-2.5.74-bk4.orig/include/asm-generic/div64.h linux-2.5.74-bk4/include/asm-generic/div64.h
---- linux-2.5.74-bk4.orig/include/asm-generic/div64.h   2003-07-11 01:00:44.000000000 +0200
-+++ linux-2.5.74-bk4/include/asm-generic/div64.h        2003-07-11 00:59:52.000000000 +0200
-@@ -32,7 +32,7 @@
-
- #elif BITS_PER_LONG == 32
-
--extern uint32_t __div64_32(uint64_t *dividend, uint32_t divisor) __attribute_pure__;
-+extern uint32_t __div64_32(uint64_t *dividend, uint32_t divisor);
-
- # define do_div(n,base) ({                             \
-        uint32_t __base = (base);                       \
-
--- 
-  // Bernardo Innocenti - Develer S.r.l., R&D dept.
-\X/  http://www.develer.com/
-
-Please don't send Word attachments - http://www.gnu.org/philosophy/no-word-attachments.html
-
+diff -Nru a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+--- a/drivers/input/keyboard/atkbd.c	Tue Jul  8 17:39:32 2003
++++ b/drivers/input/keyboard/atkbd.c	Tue Jul  8 17:39:32 2003
+@@ -55,13 +55,13 @@
+ 	252,253,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+ 	254,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,255,
+ 	  0,  0, 92, 90, 85,  0,137,  0,  0,  0,  0, 91, 89,144,115,  0,
+-	217,100,255,  0, 97,165,164,  0,156,  0,  0,140,115,  0,  0,125,
++	217,100,255,  0, 97,165,164,  0,156,  0,  0,140,115,  0,117,125,
+ 	173,114,  0,113,152,163,151,126,128,166,  0,140,  0,147,  0,127,
+ 	159,167,115,160,164,  0,  0,116,158,  0,150,166,  0,  0,  0,142,
+ 	157,  0,114,166,168,  0,  0,  0,155,  0, 98,113,  0,163,  0,138,
+ 	226,  0,  0,  0,  0,  0,153,140,  0,255, 96,  0,  0,  0,143,  0,
+ 	133,  0,116,  0,143,  0,174,133,  0,107,  0,105,102,  0,  0,112,
+-	110,111,108,112,106,103,  0,119,  0,118,109,  0, 99,104,119
++	110,111,108,112,106,103,124,119,  0,118,109,  0, 99,104,119
+ };
+ 
+ static unsigned char atkbd_set3_keycode[512] = {
 

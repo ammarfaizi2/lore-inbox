@@ -1,46 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129719AbRCLKc2>; Mon, 12 Mar 2001 05:32:28 -0500
+	id <S129679AbRCLK1s>; Mon, 12 Mar 2001 05:27:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129725AbRCLKcT>; Mon, 12 Mar 2001 05:32:19 -0500
-Received: from smtp22.singnet.com.sg ([165.21.101.202]:64270 "EHLO
-	smtp22.singnet.com.sg") by vger.kernel.org with ESMTP
-	id <S129719AbRCLKcI>; Mon, 12 Mar 2001 05:32:08 -0500
-Message-ID: <3AACA87D.70C740A8@magix.com.sg>
-Date: Mon, 12 Mar 2001 19:44:13 +0900
-From: Anthony Heading <anthony@magix.com.sg>
-X-Mailer: Mozilla 4.75 [en] (WinNT; U)
-X-Accept-Language: en
+	id <S129706AbRCLK1i>; Mon, 12 Mar 2001 05:27:38 -0500
+Received: from sun1.udg.es ([130.206.45.89]:24244 "EHLO sun1.udg.es")
+	by vger.kernel.org with ESMTP id <S129679AbRCLK13>;
+	Mon, 12 Mar 2001 05:27:29 -0500
+Date: Mon, 12 Mar 2001 11:26:52 +0000 (WET)
+From: Tania Gomes Ramos <tgomesr@silver.udg.es>
+To: <linux-kernel@vger.kernel.org>
+Subject: problems with snmpd
+Message-ID: <Pine.GSO.4.31.0103121124010.15159-100000@silver.udg.es>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Should mount --bind not follow symlinks?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-    My automounted dirs have up till now been symlinks, where
-e.g. /opt/perl defaults to automounting /export/opt/perl/LATEST
-which is a symlink.
 
-   This all worked OK until the 2.4(.2) automounter helpfully tries
-to mount --bind /export/opt/perl/LATEST /opt/perl
+       Hello,
 
-   And this errors with "mount: wrong fs type, ..." because it
-seems the first arg to mount --bind mustn't be a symlink,
-resulting in a "No such file" or similar error being returned
-to the requester.
+   I am having a  big problem: when my kernel is beggining
+my system, it just stops when it is testing the snmpd protocol. Then
+I have to make a manual reset and I cant enter into my SO. What do I have
+to do to solve this problem???
 
-   What is especially confusing is that if this whole thing
-was kicked off with say  ls /opt/perl/bin,  the first attempt
-returns "No such file or directory", but automount
-then installs a symlink into /opt,  so a second ls attempt
-works fine.
+Thanks,
+Tania Ramos
 
-   Is this known about / to be expected?  I can't see why
-one of automount or mount or the underlying system call
-shouldn't chase symlinks, but I know I might be missing
-some reason why I shouldn't be attempting this.
 
-Anthony
+
+

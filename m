@@ -1,295 +1,200 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273452AbRINTCy>; Fri, 14 Sep 2001 15:02:54 -0400
+	id <S273449AbRINTEE>; Fri, 14 Sep 2001 15:04:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273450AbRINTCg>; Fri, 14 Sep 2001 15:02:36 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:30372 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S273449AbRINTCN>;
-	Fri, 14 Sep 2001 15:02:13 -0400
-Date: Fri, 14 Sep 2001 15:02:31 -0400 (EDT)
+	id <S273455AbRINTDx>; Fri, 14 Sep 2001 15:03:53 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:40102 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S273449AbRINTDe>;
+	Fri, 14 Sep 2001 15:03:34 -0400
+Date: Fri, 14 Sep 2001 15:03:55 -0400 (EDT)
 From: Alexander Viro <viro@math.psu.edu>
 To: Linus Torvalds <torvalds@transmeta.com>
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] lazy umount (2/4)
-In-Reply-To: <Pine.GSO.4.21.0109141427070.11172-100000@weyl.math.psu.edu>
-Message-ID: <Pine.GSO.4.21.0109141502090.11172-100000@weyl.math.psu.edu>
+Subject: [PATCH] lazy umount (4/4)
+In-Reply-To: <Pine.GSO.4.21.0109141502430.11172-100000@weyl.math.psu.edu>
+Message-ID: <Pine.GSO.4.21.0109141503210.11172-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Part 2/4:
-	Added minimal rootfs (read-only root directory - absolute minimum,
-just to have something to go with root vfsmount), Now we have a fixed
-root vfsmount and that allows to kill a lot of special-casing,
+Part 4/4:
+	Lazy umount itself. New functions - next_mnt() (walks the vfsmount
+tree) and umount_tree() (detach all mounts in a subtree and do mntput() on
+each vfsmonut there). do_umount() reorganized to use umount_tree() (if
+vfsmount is not busy, it can't have anything mounted on it, so umount_tree()
+does the right thing).  New flag to umount(2) - MNT_DETACH.  With that
+flag we call umount_tree() even if vfsmount is busy - i.e. we undo all
+mounts in a subtree and drop the references that pin vfsmounts down.
+As soon as they are not busy they will be deactivated (by mntput()).
 
-diff -urN S10-pre9-move_vfsmnt/fs/super.c S10-pre9-root_vfsmnt/fs/super.c
---- S10-pre9-move_vfsmnt/fs/super.c	Fri Sep 14 14:02:32 2001
-+++ S10-pre9-root_vfsmnt/fs/super.c	Fri Sep 14 14:03:34 2001
-@@ -280,6 +280,7 @@
- }
- 
- static LIST_HEAD(vfsmntlist);
-+static struct vfsmount *root_vfsmnt;
- 
- static struct list_head *mount_hashtable;
- static int hash_mask, hash_bits;
-@@ -346,52 +347,6 @@
+diff -urN S10-pre9-check_mnt/fs/super.c S10-pre9-lazy_umount/fs/super.c
+--- S10-pre9-check_mnt/fs/super.c	Fri Sep 14 14:04:01 2001
++++ S10-pre9-lazy_umount/fs/super.c	Fri Sep 14 14:04:28 2001
+@@ -356,6 +356,22 @@
  	nd->dentry->d_mounted++;
  }
  
--/**
-- *	add_vfsmnt - add a new mount node
-- *	@nd: location of mountpoint or %NULL if we want a root node
-- *	@root: root of (sub)tree to be mounted
-- *	@dev_name: device name to show in /proc/mounts or %NULL (for "none").
-- *
-- *	This is VFS idea of mount. New node is allocated, bound to a tree
-- *	we are mounting and optionally (OK, usually) registered as mounted
-- *	on a given mountpoint. Returns a pointer to new node or %NULL in
-- *	case of failure.
-- *
-- *	Potential reason for failure (aside of trivial lack of memory) is a
-- *	deleted mountpoint. Caller must hold ->i_zombie on mountpoint
-- *	dentry (if any).
-- */
--
--static struct vfsmount *add_vfsmnt(struct dentry *root, const char *dev_name)
--{
--	struct vfsmount *mnt;
--	struct super_block *sb = root->d_inode->i_sb;
--	char *name;
--
--	mnt = alloc_vfsmnt();
--	if (!mnt)
--		goto out;
--
--	/* It may be NULL, but who cares? */
--	if (dev_name) {
--		name = kmalloc(strlen(dev_name)+1, GFP_KERNEL);
--		if (name) {
--			strcpy(name, dev_name);
--			mnt->mnt_devname = name;
--		}
--	}
--	mnt->mnt_sb = sb;
--	mnt->mnt_root = dget(root);
--	mnt->mnt_mountpoint = mnt->mnt_root;
--	mnt->mnt_parent = mnt;
--
--	spin_lock(&dcache_lock);
--	list_add(&mnt->mnt_list, vfsmntlist.prev);
--	spin_unlock(&dcache_lock);
--out:
--	return mnt;
--}
--
++static struct vfsmount *next_mnt(struct vfsmount *p, struct vfsmount *root)
++{
++	struct list_head *next = p->mnt_mounts.next;
++	if (next == &p->mnt_mounts) {
++		while (1) {
++			if (p == root)
++				return NULL;
++			next = p->mnt_child.next;
++			if (next != &p->mnt_parent->mnt_mounts)
++				break;
++			p = p->mnt_parent;
++		}
++	}
++	return list_entry(next, struct vfsmount, mnt_child);
++}
++
  static struct vfsmount *clone_mnt(struct vfsmount *old, struct dentry *root)
  {
  	char *name = old->mnt_devname;
-@@ -1200,8 +1155,7 @@
- 		list_del(&mnt->mnt_list);
- 		spin_unlock(&dcache_lock);
- 		mntput(mnt);
--		if (parent_nd.mnt != mnt)
--			path_release(&parent_nd);
-+		path_release(&parent_nd);
- 		return 0;
- 	}
- 	spin_unlock(&dcache_lock);
-@@ -1241,8 +1195,7 @@
- 	list_del(&mnt->mnt_list);
- 	spin_unlock(&dcache_lock);
- 	mntput(mnt);
--	if (parent_nd.mnt != mnt)
--		path_release(&parent_nd);
-+	path_release(&parent_nd);
+@@ -1124,10 +1140,52 @@
  	return 0;
  }
  
-@@ -1601,6 +1554,7 @@
- 
- void __init mount_root(void)
- {
-+	struct nameidata root_nd;
- 	struct file_system_type * fs_type;
- 	struct super_block * sb;
- 	struct vfsmount *vfsmnt;
-@@ -1610,6 +1564,7 @@
- 	void *handle;
- 	char path[64];
- 	int path_start = -1;
-+	char *name = "/dev/root";
- 
- #ifdef CONFIG_ROOT_NFS
- 	void *data;
-@@ -1746,13 +1701,26 @@
- 		fs_type->name,
- 		(sb->s_flags & MS_RDONLY) ? " readonly" : "");
- 	if (path_start >= 0) {
-+		name = path + path_start;
- 		devfs_mk_symlink (NULL, "root", DEVFS_FL_DEFAULT,
--				  path + 5 + path_start, NULL, NULL);
--		memcpy (path + path_start, "/dev/", 5);
--		vfsmnt = add_vfsmnt(sb->s_root, path + path_start);
-+				  name + 5, NULL, NULL);
-+		memcpy (name, "/dev/", 5);
- 	}
--	else
--		vfsmnt = add_vfsmnt(sb->s_root, "/dev/root");
-+	vfsmnt = alloc_vfsmnt();
-+	if (!vfsmnt)
-+		panic("VFS: alloc_vfsmnt failed for root fs");
-+
-+	vfsmnt->mnt_devname = kmalloc(strlen(name)+1, GFP_KERNEL);
-+	if (vfsmnt->mnt_devname)
-+		strcpy(vfsmnt->mnt_devname, name);
-+	vfsmnt->mnt_sb = sb;
-+	vfsmnt->mnt_root = dget(sb->s_root);
-+
-+	root_nd.mnt = root_vfsmnt;
-+	root_nd.dentry = root_vfsmnt->mnt_sb->s_root;
-+	graft_tree(vfsmnt, &root_nd);
-+	mntput(vfsmnt);
-+
- 	/* FIXME: if something will try to umount us right now... */
- 	if (vfsmnt) {
- 		set_fs_root(current->fs, vfsmnt, sb->s_root);
-@@ -1761,10 +1729,8 @@
- 			bdput(bdev); /* sb holds a reference */
- 		return;
- 	}
--	panic("VFS: add_vfsmnt failed for root fs");
- }
- 
--
- static void chroot_fs_refs(struct dentry *old_root,
- 			   struct vfsmount *old_rootmnt,
- 			   struct dentry *new_root,
-@@ -1878,15 +1844,12 @@
- 	detach_mnt(new_nd.mnt, &parent_nd);
- 	detach_mnt(root_mnt, &root_parent);
- 	attach_mnt(root_mnt, &old_nd);
--	if (root_parent.mnt != root_mnt)
--		attach_mnt(new_nd.mnt, &root_parent);
-+	attach_mnt(new_nd.mnt, &root_parent);
- 	spin_unlock(&dcache_lock);
- 	chroot_fs_refs(root,root_mnt,new_nd.dentry,new_nd.mnt);
- 	error = 0;
--	if (root_parent.mnt != root_mnt)
--		path_release(&root_parent);
--	if (parent_nd.mnt != new_nd.mnt)
--		path_release(&parent_nd);
-+	path_release(&root_parent);
-+	path_release(&parent_nd);
- out2:
- 	up(&old_nd.dentry->d_inode->i_zombie);
- 	up(&mount_sem);
-@@ -1959,24 +1922,19 @@
- 		if (!blivet) {
- 			spin_lock(&dcache_lock);
- 			list_del(&old_rootmnt->mnt_list);
--			if (atomic_read(&old_rootmnt->mnt_count) > 2) {
--				spin_unlock(&dcache_lock);
--				mntput(old_rootmnt);
--				blivet = -EBUSY;
--			} else {
--				spin_unlock(&dcache_lock);
--				mntput(old_rootmnt);
--				if (parent_nd.mnt != old_rootmnt)
--					path_release(&parent_nd);
--				mntput(old_rootmnt);
--				ioctl_by_bdev(ramdisk, BLKFLSBUF, 0);
--				printk("okay\n");
--				error = 0;
--			}
-+			spin_unlock(&dcache_lock);
-+			mntput(old_rootmnt);
-+			mntput(old_rootmnt);
-+			blivet = ioctl_by_bdev(ramdisk, BLKFLSBUF, 0);
-+			path_release(&parent_nd);
- 			blkdev_put(ramdisk, BDEV_FS);
- 		}
--		if (blivet)
-+		if (blivet) {
- 			printk(KERN_ERR "error %d\n", blivet);
-+		} else  {
-+			printk("okay\n");
-+			error = 0;
-+		}
- 		kfree(new_devname);
- 		return error;
- 	}
-@@ -1991,8 +1949,7 @@
- 	spin_unlock(&dcache_lock);
- 
- 	/* put the old stuff */
--	if (parent_nd.mnt != old_rootmnt)
--		path_release(&parent_nd);
-+	path_release(&parent_nd);
- 	mntput(old_rootmnt);
- 	path_release(&nd);
- 	return 0;
-@@ -2000,6 +1957,54 @@
- 
- #endif
- 
-+/*
-+ * Absolutely minimal fake fs - only empty root directory and nothing else.
-+ * In 2.5 we'll use ramfs or tmpfs, but for now it's all we need - just
-+ * something to go with root vfsmount.
-+ */
-+static struct dentry *rootfs_lookup(struct inode *dir, struct dentry *dentry)
++void umount_tree(struct vfsmount *mnt)
 +{
-+	d_add(dentry, NULL);
-+	return NULL;
-+}
-+static struct file_operations rootfs_dir_operations = {
-+	read:		generic_read_dir,
-+	readdir:	dcache_readdir,
-+};
-+static struct inode_operations rootfs_dir_inode_operations = {
-+	lookup:		rootfs_lookup,
-+};
-+static struct super_block *rootfs_read_super(struct super_block * sb, void * data, int silent)
-+{
-+	struct inode * inode;
-+	struct dentry * root;
-+	static struct super_operations s_ops = {};
-+	sb->s_op = &s_ops;
-+	inode = new_inode(sb);
-+	if (!inode)
-+		return NULL;
-+	inode->i_mode = S_IFDIR|0555;
-+	inode->i_uid = inode->i_gid = 0;
-+	inode->i_op = &rootfs_dir_inode_operations;
-+	inode->i_fop = &rootfs_dir_operations;
-+	root = d_alloc_root(inode);
-+	if (!root) {
-+		iput(inode);
-+		return NULL;
++	struct vfsmount *p;
++	LIST_HEAD(kill);
++
++	if (list_empty(&mnt->mnt_list))
++		return;
++
++	for (p = mnt; p; p = next_mnt(p, mnt)) {
++		list_del(&p->mnt_list);
++		list_add(&p->mnt_list, &kill);
 +	}
-+	sb->s_root = root;
-+	return sb;
-+}
-+static DECLARE_FSTYPE(root_fs_type, "rootfs", rootfs_read_super, FS_NOMOUNT);
 +
-+static void __init init_mount_tree(void)
-+{
-+	register_filesystem(&root_fs_type);
-+	root_vfsmnt = do_kern_mount("rootfs", 0, "rootfs", NULL);
-+	if (IS_ERR(root_vfsmnt))
-+		panic("can't allocate root vfsmount");
++	while (!list_empty(&kill)) {
++		mnt = list_entry(kill.next, struct vfsmount, mnt_list);
++		list_del_init(&mnt->mnt_list);
++		if (mnt->mnt_parent == mnt) {
++			spin_unlock(&dcache_lock);
++		} else {
++			struct nameidata old_nd;
++			detach_mnt(mnt, &old_nd);
++			spin_unlock(&dcache_lock);
++			path_release(&old_nd);
++		}
++		mntput(mnt);
++		spin_lock(&dcache_lock);
++	}
 +}
 +
- void __init mnt_init(unsigned long mempages)
+ static int do_umount(struct vfsmount *mnt, int flags)
  {
- 	struct list_head *d;
-@@ -2055,4 +2060,5 @@
- 		d++;
- 		i--;
- 	} while (i);
-+	init_mount_tree();
+ 	struct super_block * sb = mnt->mnt_sb;
+-	struct nameidata parent_nd;
++	int retval = 0;
++
++	/*
++	 * If we may have to abort operations to get out of this
++	 * mount, and they will themselves hold resources we must
++	 * allow the fs to do things. In the Unix tradition of
++	 * 'Gee thats tricky lets do it in userspace' the umount_begin
++	 * might fail to complete on the first run through as other tasks
++	 * must return, and the like. Thats for the mount program to worry
++	 * about for the moment.
++	 */
++
++	if( (flags&MNT_FORCE) && sb->s_op->umount_begin)
++		sb->s_op->umount_begin(sb);
+ 
+ 	/*
+ 	 * No sense to grab the lock for this test, but test itself looks
+@@ -1139,7 +1197,7 @@
+ 	 * /reboot - static binary that would close all descriptors and
+ 	 * call reboot(9). Then init(8) could umount root and exec /reboot.
+ 	 */
+-	if (mnt == current->fs->rootmnt) {
++	if (mnt == current->fs->rootmnt && !(flags & MNT_DETACH)) {
+ 		int retval = 0;
+ 		/*
+ 		 * Special case for "unmounting" root ...
+@@ -1155,57 +1213,20 @@
+ 
+ 	spin_lock(&dcache_lock);
+ 
+-	if (atomic_read(&sb->s_active) > 1) {
+-		if (atomic_read(&mnt->mnt_count) > 2) {
+-			spin_unlock(&dcache_lock);
+-			return -EBUSY;
+-		}
+-		detach_mnt(mnt, &parent_nd);
+-		list_del(&mnt->mnt_list);
++	if (atomic_read(&sb->s_active) == 1) {
++		/* last instance - try to be smart */
+ 		spin_unlock(&dcache_lock);
+-		mntput(mnt);
+-		path_release(&parent_nd);
+-		return 0;
++		DQUOT_OFF(sb);
++		acct_auto_close(sb->s_dev);
++		spin_lock(&dcache_lock);
+ 	}
+-	spin_unlock(&dcache_lock);
+-
+-	/*
+-	 * Before checking whether the filesystem is still busy,
+-	 * make sure the kernel doesn't hold any quota files open
+-	 * on the device. If the umount fails, too bad -- there
+-	 * are no quotas running any more. Just turn them on again.
+-	 */
+-	DQUOT_OFF(sb);
+-	acct_auto_close(sb->s_dev);
+-
+-	/*
+-	 * If we may have to abort operations to get out of this
+-	 * mount, and they will themselves hold resources we must
+-	 * allow the fs to do things. In the Unix tradition of
+-	 * 'Gee thats tricky lets do it in userspace' the umount_begin
+-	 * might fail to complete on the first run through as other tasks
+-	 * must return, and the like. Thats for the mount program to worry
+-	 * about for the moment.
+-	 */
+-
+-	if( (flags&MNT_FORCE) && sb->s_op->umount_begin)
+-		sb->s_op->umount_begin(sb);
+-
+-	/* Something might grab it again - redo checks */
+-
+-	spin_lock(&dcache_lock);
+-	if (atomic_read(&mnt->mnt_count) > 2) {
+-		spin_unlock(&dcache_lock);
+-		return -EBUSY;
++	retval = -EBUSY;
++	if (atomic_read(&mnt->mnt_count) == 2 || flags & MNT_DETACH) {
++		umount_tree(mnt);
++		retval = 0;
+ 	}
+-
+-	/* OK, that's the point of no return */
+-	detach_mnt(mnt, &parent_nd);
+-	list_del(&mnt->mnt_list);
+ 	spin_unlock(&dcache_lock);
+-	mntput(mnt);
+-	path_release(&parent_nd);
+-	return 0;
++	return retval;
  }
+ 
+ /*
+diff -urN S10-pre9-check_mnt/include/linux/fs.h S10-pre9-lazy_umount/include/linux/fs.h
+--- S10-pre9-check_mnt/include/linux/fs.h	Fri Sep 14 12:58:46 2001
++++ S10-pre9-lazy_umount/include/linux/fs.h	Fri Sep 14 14:04:28 2001
+@@ -635,6 +635,7 @@
+  */
+ 
+ #define MNT_FORCE	0x00000001	/* Attempt to forcibily umount */
++#define MNT_DETACH	0x00000002	/* Just detach from the tree */
+ 
+ #include <linux/minix_fs_sb.h>
+ #include <linux/ext2_fs_sb.h>
 
 

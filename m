@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261916AbREVPuO>; Tue, 22 May 2001 11:50:14 -0400
+	id <S261942AbREVPtE>; Tue, 22 May 2001 11:49:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261966AbREVPuE>; Tue, 22 May 2001 11:50:04 -0400
-Received: from waste.org ([209.173.204.2]:31344 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S261916AbREVPtx>;
-	Tue, 22 May 2001 11:49:53 -0400
-Date: Tue, 22 May 2001 10:50:51 -0500 (CDT)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Theodore Tso <tytso@valinux.com>
-cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        Andrew McNamara <andrewm@connect.com.au>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: Ext2, fsync() and MTA's?
-In-Reply-To: <20010521180405.D495@think.thunk.org>
-Message-ID: <Pine.LNX.4.30.0105221045530.19818-100000@waste.org>
+	id <S261916AbREVPsy>; Tue, 22 May 2001 11:48:54 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:16913 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S261898AbREVPsn>; Tue, 22 May 2001 11:48:43 -0400
+Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
+To: matthew@wil.cx (Matthew Wilcox)
+Date: Tue, 22 May 2001 16:42:57 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), matthew@wil.cx (Matthew Wilcox),
+        torvalds@transmeta.com (Linus Torvalds),
+        ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser),
+        viro@math.psu.edu (Alexander Viro), pavel@suse.cz (Pavel Machek),
+        rgooch@ras.ucalgary.ca (Richard Gooch),
+        clausen@gnu.org (Andrew Clausen), bcrl@redhat.com (Ben LaHaise),
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <20010522163830.O23718@parcelfarce.linux.theplanet.co.uk> from "Matthew Wilcox" at May 22, 2001 04:38:30 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E152EJF-00025C-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 May 2001, Theodore Tso wrote:
+> > Thats a bit pathetic. So I have to fill my app with expensive pthread locks
+> > or hack all the drivers and totally change the multi-open sematics in the ABI
+> huh?
 
-> On Mon, May 21, 2001 at 06:47:58PM +0100, Stephen C. Tweedie wrote:
->
-> > Just set chattr +S on the spool dir.  That's what the flag is for.
-> > The biggest problem with that is that it propagates to subdirectories
-> > and files --- would a version of the flag which applied only to
-> > directories be a help here?
->
-> That's probably the right thing to add.
-
-I'd vote for an async flag instead.
-
---
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+For the sound. And remember each open of /dev/audio is a different channel
+potentially (ie its a factory)
 

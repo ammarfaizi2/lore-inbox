@@ -1,39 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261774AbTK0T6l (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 14:58:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbTK0T6l
+	id S261613AbTK0UAq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 15:00:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbTK0UAq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 14:58:41 -0500
-Received: from modemcable067.88-70-69.mc.videotron.ca ([69.70.88.67]:11137
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S261774AbTK0T6k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 14:58:40 -0500
-Date: Thu, 27 Nov 2003 14:57:27 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Rene Engelhard <rene@rene-engelhard.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test11: MII broken?
-In-Reply-To: <20031127124230.GA1275@rene-engelhard.de>
-Message-ID: <Pine.LNX.4.58.0311271456510.2648@montezuma.fsmlabs.com>
-References: <20031127124230.GA1275@rene-engelhard.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.58.0311271456512.2648@montezuma.fsmlabs.com>
-Content-Disposition: INLINE
+	Thu, 27 Nov 2003 15:00:46 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:46351 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261613AbTK0UAo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Nov 2003 15:00:44 -0500
+Date: Thu, 27 Nov 2003 20:00:41 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B" <yoshfuji@linux-ipv6.org>
+Cc: felipe_alfaro@linuxmail.org, davem@redhat.com,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [PATCH 2.6]: IPv6: strcpy -> strlcpy
+Message-ID: <20031127200041.B25015@flint.arm.linux.org.uk>
+Mail-Followup-To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B" <yoshfuji@linux-ipv6.org>,
+	felipe_alfaro@linuxmail.org, davem@redhat.com,
+	linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+References: <1069934643.2393.0.camel@teapot.felipe-alfaro.com> <20031127.210953.116254624.yoshfuji@linux-ipv6.org> <20031127194602.A25015@flint.arm.linux.org.uk> <20031128.045413.133305490.yoshfuji@linux-ipv6.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20031128.045413.133305490.yoshfuji@linux-ipv6.org>; from yoshfuji@linux-ipv6.org on Fri, Nov 28, 2003 at 04:54:13AM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Nov 2003, Rene Engelhard wrote:
+On Fri, Nov 28, 2003 at 04:54:13AM +0900, YOSHIFUJI Hideaki / ?$B5HF#1QL@?(B wrote:
+> In article <20031127194602.A25015@flint.arm.linux.org.uk> (at Thu, 27 Nov 2003 19:46:02 +0000), Russell King <rmk+lkml@arm.linux.org.uk> says:
+> > I'm slightly cautious here, although I haven't read the patch yet.
+> > Did anyone consider whether any of these structures were copied to
+> > user space, and whether, as a result of this change, we're now
+> > copying uninitialised data to users?
+> 
+> I believe that it, to change from strcpy() to strlcpy(), just 
+> eliminates possibility of buffer-overrun.
 
-> [ please Cc: me as I am not subscribed ]
->
-> Hi,
->
-> I wondered why my automatic network detection with whereami doesn't
-> work anymore. Now I found it:
->
-> rene@frodo:~$ sudo mii-tool eth0
-> SIOCGMIIPHY on 'eth0' failed: Operation not supported
+While this is 100% correct, the bit which raised my attention was the
+original message which didn't seem to show that the above had been
+considered.
 
-Try upgrading your mii-tool
+The thing that worries me is that an incorrect strlcpy() conversion
+gives the impression that someone has thought about buffer underruns
+as well as overruns, and, unless someone /has/ actually thought about
+it, there could well still be a security problem lurking there.
+
+I'm just overly wary of all strlcpy() conversions.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

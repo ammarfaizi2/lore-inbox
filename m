@@ -1,110 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265510AbUABKw0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 05:52:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265511AbUABKwZ
+	id S265499AbUABK7Y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 05:59:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265505AbUABK7Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 05:52:25 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:7864 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265510AbUABKwP (ORCPT
+	Fri, 2 Jan 2004 05:59:24 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:12480 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S265499AbUABK7W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 05:52:15 -0500
-Date: Fri, 2 Jan 2004 16:26:57 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org, rusty@au1.ibm.com,
-       lhcs-devel@lists.sourceforge.net
-Subject: Re: [lhcs-devel] Re: in_atomic doesn't count local_irq_disable?
-Message-ID: <20040102162657.A15350@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <3FF044A2.3050503@colorfullife.com> <20031230185615.A9292@in.ibm.com> <20031231190553.B9041@in.ibm.com> <3FF4C0B7.30308@colorfullife.com>
+	Fri, 2 Jan 2004 05:59:22 -0500
+Date: Fri, 2 Jan 2004 11:59:15 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Peter Osterlund <petero2@telia.com>
+Cc: arjanv@redhat.com, Andrew Morton <akpm@osdl.org>, packet-writing@suse.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: ext2 on a CD-RW
+Message-ID: <20040102105915.GO5523@suse.de>
+References: <Pine.LNX.4.44.0401020022060.2407-100000@telia.com> <20040101162427.4c6c020b.akpm@osdl.org> <m2llorkuhn.fsf@telia.com> <1073034412.4429.1.camel@laptop.fenrus.com> <m2k74a8vyr.fsf@telia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3FF4C0B7.30308@colorfullife.com>; from manfred@colorfullife.com on Fri, Jan 02, 2004 at 01:52:07AM +0100
+In-Reply-To: <m2k74a8vyr.fsf@telia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 02, 2004 at 01:52:07AM +0100, Manfred Spraul wrote:
-> Could you write a test module that reads cr2, executes a few prefetch 
-> instructions and then checks if cr2 changed? I won't have access to my 
-> P3 SMP system in the next few days.
- 
-Hi Manfred,
-	I wrote a test module and found that CR2 remains same across the 
-prefetch. The module source I used is as below. Note that I had
-to used "my_prefetch" because the original prefetch (in asm/processor.h) 
-has been disabled in my tree to do nothing.
+On Fri, Jan 02 2004, Peter Osterlund wrote:
+> Arjan van de Ven <arjanv@redhat.com> writes:
+> 
+> > On Fri, 2004-01-02 at 02:30, Peter Osterlund wrote:
+> > 
+> > > The packet writing code has the restriction that a bio must not span a
+> > > packet boundary. (A packet is 32*2048 bytes.) If the page when mapped
+> > > to disk starts 2kb before a packet boundary, merge_bvec_fn therefore
+> > > returns 2048, which is less than len, which is 4096 if the whole page
+> > > is mapped, so the bio_add_page() call fails.
+> > 
+> > devicemapper has similar restrictions for raid0 format; in that case
+> > it's device-mappers job to split the page/bio. Just as it is UDF's task
+> > to do the same I suspect...
+> 
+> Old versions of the packet writing code did just that, but Jens told
+> me that bio splitting was evil, so when the merge_bvec_fn
+> functionality was added to the kernel, I started to use it.
+> 
+>         http://lists.suse.com/archive/packet-writing/2002-Aug/0044.html
 
+Splitting is evil, but unfortunately it's a necessary evil... There are
+a few kernel helpers to make supporting it easier (see bio_split()). Not
+so sure how well that'll work for you, you may have to do the grunt work
+yourself.
 
+> If merge_bvec_fn is not supposed to be able to handle the need of the
+> packet writing code, I can certainly resurrect my bio splitting code.
 
-inline void my_prefetch(const void *x)
-{
-        alternative_input(ASM_NOP4,
-                          "prefetchnta (%1)",
-                          X86_FEATURE_XMM,
-                          "r" (x));
-}
+Only partially. Read my email: you _must_ accept a page addition to an
+empty bio. You can refuse others. For the single page case, you may need
+to split.
 
-int array[10];
+> Btw, for some reason, this bug is not triggered when using the UDF
+> filesystem on a CDRW. I've only seen it with the ext2 filesystem.
 
-static int __init dummy_init_module(void)
-{
-        unsigned long address;
-        int i=0;
-        int x;
-
-        /* get the address */
-        __asm__("movl %%cr2,%0":"=r" (address));
-
-        printk ("CR2 before prefetch is %x \n", address);
-
-        for (i=0; i<10; ++i)
-                my_prefetch(array+i);
-
-        for (i=0; i<10; ++i)
-                x = *(array+i);
-
-        /* get the address */
-        __asm__("movl %%cr2,%0":"=r" (address));
-
-
-        printk ("CR2 after prefetch is %x \n", address);
-
-
-        return 0;
-
-}
-
-
-static void __exit dummy_cleanup_module(void)
-{
-}
-
-module_init(dummy_init_module);
-module_exit(dummy_cleanup_module);
-MODULE_LICENSE("GPL");
-
-
-Output of the above printk is :
-
-
-CR2 before prefetch is 40017000
-CR2 after prefetch is 40017000
-
-
-
-
-
-
-
+Does UDF use mpage? The fact that it doesn't trigger on UDF doesn't mean
+that packet writing isn't breaking the API :)
 
 -- 
+Jens Axboe
 
-
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017

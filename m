@@ -1,64 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261889AbUBHBX1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 20:23:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbUBHBW3
+	id S261909AbUBHB1Z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 20:27:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbUBHBZn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 20:22:29 -0500
-Received: from mail-02.iinet.net.au ([203.59.3.34]:30089 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S261872AbUBHBWL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 20:22:11 -0500
-Message-ID: <40258F21.30209@cyberone.com.au>
-Date: Sun, 08 Feb 2004 12:21:37 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Anton Blanchard <anton@samba.org>
-CC: Rick Lindsley <ricklind@us.ibm.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, dvhltc@us.ibm.com
-Subject: Re: [PATCH] Load balancing problem in 2.6.2-mm1
-References: <20040207095057.GS19011@krispykreme> <200402080040.i180eY811893@owlet.beaverton.ibm.com> <20040208011221.GV19011@krispykreme>
-In-Reply-To: <20040208011221.GV19011@krispykreme>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 7 Feb 2004 20:25:43 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:55238 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261909AbUBHBYo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 20:24:44 -0500
+Date: Sun, 8 Feb 2004 02:24:41 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] adfs: remove a kernel 2.2 #ifdef
+Message-ID: <20040208012441.GK7388@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The patch below removes a kernel 2.2 #ifdef from fs/adfs/adfs.h .
 
+Note that this #ifdef was only present in the header, the implementation 
+of adfs_bmap was already removed.
 
-Anton Blanchard wrote:
+Please apply
+Adrian
 
-> 
->Hi,
->
->
->>The current imbalance code rounds up to 1, meaning that we'll often
->>see an "imbalance" of 1 even when it's 1 to 0 and just been moved.
->>Did you see these results even with Martin's patch to not round up to 1?
->>
->
->Indeed Martins patch does fix the problem:
->
->cpu    user  system    idle             cpu    user  system    idle
->cpu0      0       0     100             cpu1      0       0     100
->cpu2      0       0     100             cpu3      0       0     100
->cpu4      0       0     100             cpu5      0       0     100
->cpu6      0       0     100             cpu7      0       0     100
->cpu8      0       0     100             cpu9      0       0     100
->cpu10     0       0     100             cpu11     0       0     100
->cpu12     0       0     100             cpu13   100       0       0
->cpu14     0       0     100             cpu15     0       0     100
->
->My current tree has your patch and Martins patch. So far its looking
->good.
->
->
-
-Rick's being the one I sent you?
-
-Does active balancing still work? Ie. get two processes running on the
-same physical CPU and see if one is migrated away.
-
+--- linux-2.6.2-mm1/fs/adfs/adfs.h.old	2004-02-08 02:20:03.000000000 +0100
++++ linux-2.6.2-mm1/fs/adfs/adfs.h	2004-02-08 02:20:38.000000000 +0100
+@@ -68,12 +68,8 @@
+ 
+ 
+ /* Inode stuff */
+-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,3,0)
+ int adfs_get_block(struct inode *inode, sector_t block,
+ 		   struct buffer_head *bh, int create);
+-#else
+-int adfs_bmap(struct inode *inode, int block);
+-#endif
+ struct inode *adfs_iget(struct super_block *sb, struct object_info *obj);
+ void adfs_read_inode(struct inode *inode);
+ void adfs_write_inode(struct inode *inode,int unused);

@@ -1,43 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261997AbVCVWBC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262083AbVCVWBY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261997AbVCVWBC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 17:01:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbVCVWA3
+	id S262083AbVCVWBY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 17:01:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262102AbVCVWBN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 17:00:29 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:59404 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262119AbVCVV7x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 16:59:53 -0500
-Date: Tue, 22 Mar 2005 22:59:48 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: osst@riede.org
-Cc: osst-users@lists.sourceforge.net, James.Bottomley@SteelEye.com,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/scsi/osst.c: remove unused code
-Message-ID: <20050322215948.GP1948@stusta.de>
+	Tue, 22 Mar 2005 17:01:13 -0500
+Received: from mail.kroah.org ([69.55.234.183]:1248 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262083AbVCVWAm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 17:00:42 -0500
+Date: Tue, 22 Mar 2005 14:00:27 -0800
+From: Greg KH <greg@kroah.com>
+To: Patrick Mochel <mochel@digitalimplant.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [0/9] [RFC] Steps to fixing the driver model locking
+Message-ID: <20050322220026.GA5801@kroah.com>
+References: <Pine.LNX.4.50.0503211234040.20647-100000@monsoon.he.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <Pine.LNX.4.50.0503211234040.20647-100000@monsoon.he.net>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks to both the Coverity checker and GNU gcc, it was found that this 
-variable is completely unused.
+On Mon, Mar 21, 2005 at 12:48:28PM -0800, Patrick Mochel wrote:
+> 
+> Thoughts, comments, flames?
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Looks good, thanks for doing this work.  I've pulled these patches into
+my drivers bk tree and they will show up in the next -mm releases.
+Let's see if anyone screams then :)
 
---- linux-2.6.12-rc1-mm1-full/drivers/scsi/osst.c.old	2005-03-22 21:04:36.000000000 +0100
-+++ linux-2.6.12-rc1-mm1-full/drivers/scsi/osst.c	2005-03-22 22:09:32.000000000 +0100
-@@ -4770,9 +4770,6 @@ static int os_scsi_tape_close(struct ino
- {
- 	int		      result = 0;
- 	struct osst_tape    * STp    = filp->private_data;
--	struct scsi_request * SRpnt  = NULL;
--
--	if (SRpnt) scsi_release_request(SRpnt);
- 
- 	if (STp->door_locked == ST_LOCKED_AUTO)
- 		do_door_lock(STp, 0);
+thanks,
 
+greg k-h

@@ -1,89 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbUAAKr0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 05:47:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbUAAKr0
+	id S265354AbUAAKmx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 05:42:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265379AbUAAKmx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 05:47:26 -0500
-Received: from vladimir.pegasys.ws ([64.220.160.58]:6662 "EHLO
-	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S261188AbUAAKrY
+	Thu, 1 Jan 2004 05:42:53 -0500
+Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:18306 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S265354AbUAAKmv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 05:47:24 -0500
-Date: Thu, 1 Jan 2004 02:47:17 -0800
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: File change notification
-Message-ID: <20040101104717.GA1373@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <3FF2FC85.5070906@lambda-computing.de>
+	Thu, 1 Jan 2004 05:42:51 -0500
+Subject: Re: swapper: page allocation failure. order:3, mode:0x20
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Anton Blanchard <anton@samba.org>
+Cc: Joonas Kortesalmi <joneskoo@derbian.org>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+In-Reply-To: <20040101102720.GL28023@krispykreme>
+References: <20040101093553.GA24788@derbian.org>
+	 <20040101101541.GJ28023@krispykreme>  <20040101102720.GL28023@krispykreme>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-v3iCwPJgf8NDwW811ufo"
+Organization: Red Hat, Inc.
+Message-Id: <1072953755.4429.2.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3FF2FC85.5070906@lambda-computing.de>
-User-Agent: Mutt/1.3.27i
-X-Message-Flag: If you're running Outlook, look out!
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 01 Jan 2004 11:42:35 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 31, 2003 at 05:42:45PM +0100, Rüdiger Klaehn wrote:
-> Hi everybody.
-> 
-> This is my first post to lkml, so please be patient with me
-> 
-> I have been wondering for some time why there is no decent file change 
-> notification mechanism in linux. Is there some deep philosophical reason 
-> for this, or is it just that nobody has found the time to implement it? 
-> If it is the latter, I am willing to implement it as long there is a 
-> chance to get this accepted into the mainstream kernel.
-> 
-> Is there already somebody working on this problem? I know a few efforts 
-> that try to do something similar, but they all work by intercepting 
-> every single system call that has to do with files, and they are thus 
-> not very fast. See for example
-> <http://www.bangstate.com/software.html#changedfiles>
-> <http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/openxdsm/openxdsm/eventmodule/> 
-> 
-> 
-> The dnotify mechanism is very limited since it requires a file handle, 
-> it is not working for whole directory trees and it does not report much 
-> useful information. For example to watch for changes in the /home tree 
-> you would have to open every single directory in the tree, which would 
-> probably not even work since it would require more than the maximum 
-> number of file handles. If you have a directory with many files in it, 
-> the only thing dnotify tells you is that something has changed in the 
-> directory, so you have to rescan the whole directory to find out which 
-> file has changed. Kind of defeats the purpose of change notification...
-> 
-> What I would like to have would be some way to watch for certain changes 
-> anywhere in a whole tree or even the whole file system. This new 
-> mechanism should have no measurable performance impact and should log 
-> all information that is readily available. The amount of new code in 
-> kernel space should be as small as possible. So complicated stuff like 
-> pattern matching would have to happen in user space.
-> 
-> I wrote some experimental mechanism yesterday. Whenever a file is 
-> accessed or changed, I write all easily available information to a ring 
-> buffer which is presented to user space as a device. The information 
-> that is easily available is the inode number of the file or directory 
-> that has changed, the inode number of the directory in which the change 
-> took place, and in most cases the name of the dentry of the file that 
-> has changed.
 
-hmm...
+--=-v3iCwPJgf8NDwW811ufo
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+On Thu, 2004-01-01 at 11:27, Anton Blanchard wrote:
+>  regardless it still makes sense to explore
+> rx skb refill outside of interrupt context idea.
 
-#ln tree1/sub/dir/file tree2/sub/dir/file
-#watch_tree tree1 &
-#do_something_to tree2/sub/dir/file
+could be done in 2 steps; eg have a "normal path" that starts refilling
+from process context if, say, half the skbs are used but an emergency
+fallback to do it from irq context if for whatever reason the process
+context didn't get around to it....
 
-A dnotify can potentially know about open, chown, chmod,
-utimes and possibly link of the files by watching the paths
-and cwd; meaning it won't know about alternate paths.  How
-is it to know about read, write, fchown, fchmod and
-truncate?
+--=-v3iCwPJgf8NDwW811ufo
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Perhaps someone else has a more fertile imagination but
-short of looking up all the file inode numbers of the tree
-in question and watching that whole list this sounds futile.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/8/mZxULwo51rQBIRAvHQAJ9g5Lt+ZQOTbrroZLAoyVq4RdEcvQCggP+J
+OK/FE5rZXk+ybQpQ+cZs1Fs=
+=x3E6
+-----END PGP SIGNATURE-----
+
+--=-v3iCwPJgf8NDwW811ufo--

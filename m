@@ -1,90 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264424AbTE0XEt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 19:04:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264426AbTE0XEs
+	id S264436AbTE0XGq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 19:06:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264437AbTE0XGp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 19:04:48 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:32756 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264424AbTE0XEr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 19:04:47 -0400
-Date: Wed, 28 May 2003 01:18:00 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.4 patch] add four CONFIG_HDLC_DEBUG_* Configure.help text (fwd)
-Message-ID: <20030527231759.GH19265@fs.tum.de>
-Mime-Version: 1.0
+	Tue, 27 May 2003 19:06:45 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:16885 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264436AbTE0XGm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 19:06:42 -0400
+Message-ID: <3ED3F21C.B3052C8C@us.ibm.com>
+Date: Tue, 27 May 2003 16:17:48 -0700
+From: Jim Keniston <jkenisto@us.ibm.com>
+X-Mailer: Mozilla 4.75 [en] (WinNT; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Valdis.Kletnieks@vt.edu
+CC: LKML <linux-kernel@vger.kernel.org>, Anton Blanchard <anton@samba.org>,
+       "Feldman, Scott" <scott.feldman@intel.com>, Greg KH <greg@kroah.com>,
+       Jeff Garzik <jgarzik@pobox.com>, Phil Cayton <phil.cayton@intel.com>,
+       Russell King <rmk@arm.linux.org.uk>,
+       "David S. Miller" <davem@redhat.com>, shemminger@osdl.org,
+       kenistoj@us.ibm.com
+Subject: Re: [RFC] [PATCH] Net device error logging (revised)
+References: <3ECF0F64.AAD25389@us.ibm.com> <200305240805.h4O85f9O009429@turing-police.cc.vt.edu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+Valdis.Kletnieks@vt.edu wrote:
+> 
+> On Fri, 23 May 2003 23:21:24 PDT, Jim Keniston said:
+> 
+> > - With Steve Hemminger's creation of the "net" device class a few days
+> > ago, the network device's interface name is now sufficient to find the
+> > information about the underlying device in sysfs (even without running
+> > ethtool).  So these macros no longer log the device's driver name and
+> > bus ID.
+> 
+> Is something *else* logging the driver name and bus ID?
 
-the trivial Configure.help patch forwarded below still applies 
-against 2.4.21-rc5.
+Short answer: Not in Linux 2.5.70.
 
-Please include it in 2.4.21-rc6.
+Long answer: Some folks in the LTC are designing an error-log analysis (ELA)
+system that will have access to sysfs as well as the event stream coming out
+of the kernel.  Once the network interface is registered with sysfs -- in
+v2.5.70, it's via netdev_register_sysfs, as called from register_netdevice --
+you can find the net_device's info in sysfs based on the interface name.
+The aforementioned ELA system could then annotate the event record with the
+desired additional data out of sysfs (including driver name and bus ID).
 
-TIA
-Adrian
+Before the net_device is registered (at least), you'd presumably want to log
+the driver name and bus ID.  One obvious way to do this is to have the probe
+function call dev_* macros instead of netdev_* until register_netdev runs.
+Another way could be via netdev_*, if we made netdev_* smart enough to log
+the driver name and bus ID if netdev->class_dev.class isn't set yet.
 
+There's clearly a difference of opinion among various developers as to whether
+logging the interface name alone is sufficient.  Either way, I think it's a
+win to have the net_device's pointer (as opposed to its name, if you're lucky)
+handy when logging info about the net device; and to have the message format
+live in one spot (netdevice.h) rather than all over drivers/net.
 
------ Forwarded message from Adrian Bunk <bunk@fs.tum.de> -----
+> 
+> Just because an interface is called 'eth2' when the message is logged
+> doesn't mean it's still eth2 when you actually *read* the message.
+> And no, you *can't* rely on finding the "renaming bus-ID to ethN" message
+> in the logs - if the system is unstable the last bit of local logging may
+> go bye-bye if not synced, and messages about network hardware problems are
+> *very* prone to not making it to the syslog server (I wonder why? ;).
+> 
+> Been there, done that, it's not fun.  Almost swapped out the wrong eth1
+> a *second* time before realizing what was really going on...
+> 
 
-Date:	Sun, 18 May 2003 21:29:33 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org,
-    linux-net@vger.kernel.org
-Subject: [2.4 patch] add four CONFIG_HDLC_DEBUG_* Configure.help text
+Was the name slippage due to the intervention of an administrative utility?
+Just curious.
 
-Hi Marcelo,
-
-the patch below adds four Configure.help entries that were missing in 
-2.4.21-rc2 (I've taken the texts from 2.5).
-
-Please apply
-Adrian
-
-
---- linux-2.4.21-rc2/Documentation/Configure.help.old	2003-05-18 21:21:51.000000000 +0200
-+++ linux-2.4.21-rc2/Documentation/Configure.help	2003-05-18 21:23:46.000000000 +0200
-@@ -9684,6 +9684,26 @@
-   should add "alias syncX farsync" to /etc/modules.conf for each
-   interface, where X is 0, 1, 2, ...
- 
-+CONFIG_HDLC_DEBUG_PKT
-+  This option is for developers only - do NOT use on production
-+  systems.
-+
-+CONFIG_HDLC_DEBUG_HARD_HEADER
-+  This option is for developers only - do NOT use on production
-+  systems.
-+
-+CONFIG_HDLC_DEBUG_ECN
-+  This option is for developers only - do NOT use on production
-+  systems.
-+
-+CONFIG_HDLC_DEBUG_RINGS
-+  If you answer Y here you will be able to get a diagnostic dump of
-+  port's TX and RX packet rings, using "sethdlc hdlcX private"
-+  command. It does not affect normal operations.
-+
-+  If unsure, say Y here.
-+
-+
- Frame Relay (DLCI) support
- CONFIG_DLCI
-   This is support for the frame relay protocol; frame relay is a fast
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
------ End forwarded message -----
-
+Thanks.
+Jim Keniston
+IBM Linux Technology Center

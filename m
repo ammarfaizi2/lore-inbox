@@ -1,71 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262979AbTJFIB2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 04:01:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262980AbTJFIB2
+	id S262980AbTJFICt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 04:02:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbTJFICs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 04:01:28 -0400
-Received: from h80ad26c9.async.vt.edu ([128.173.38.201]:2711 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262979AbTJFIB0 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 04:01:26 -0400
-Message-Id: <200310060801.h9681BCE023675@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Leigh Purdie <spammagnet@intersectalliance.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Security Auditing subsystem for Linux - request for advice/assistance 
-In-Reply-To: Your message of "Mon, 06 Oct 2003 17:13:10 +1000."
-             <1065424389.7059.90.camel@inferno> 
-From: Valdis.Kletnieks@vt.edu
-References: <1065424389.7059.90.camel@inferno>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1583492812P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 06 Oct 2003 04:01:09 -0400
+	Mon, 6 Oct 2003 04:02:48 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:41746
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S262980AbTJFICo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 04:02:44 -0400
+Date: Mon, 6 Oct 2003 01:00:26 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Hugo Mills <hugo-lkml@carfax.org.uk>
+cc: Devin Henderson <linux@devhen.com>, Pauli Borodulin <boro@fixel.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: SiI3112 DMA? (2.6.0-test6)
+In-Reply-To: <20031006075359.GQ9052@carfax.org.uk>
+Message-ID: <Pine.LNX.4.10.10310060057290.21746-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1583492812P
-Content-Type: text/plain; charset=us-ascii
 
-On Mon, 06 Oct 2003 17:13:10 +1000, Leigh Purdie <spammagnet@intersectalliance.com>  said:
+It is an issue with first generation FIS transfer on the wire.
 
-> The current implementation has a few areas that would really benefit
-> from a bit of care-and-feeding from an experienced kernel hacker. In
-> particular:
-> * Filenames
->   - Grabbing the REAL source / destination path for file-related events,
-> regardless of:
->   a) Whether the system call succeeds or fails
+Take the size of the request in sectors and divide by 15 or 7.5K.
+Standard FIS packet size is 8K.
 
-> * Potentially many other areas.
->   - LSM integration for some calls, if viable?
+Without going into much detail because of NDA's, there needs to be a
+special DMA engine build table.
 
-You could do all of this from an LSM, except that the LSM exits are restrictive
-rather than authoritative.  The upshot is that if an open() syscall fails due
-to file permissions, the LSM exit is never called, so you won't get an audit
-record that way - you need a more invasive patch for that.
+I did it once then lost the code because of lack of sleep.
 
-Read the LSM archives, there's a lot of discussion of doing auditing in there,
-much of it revolving around the fact that proper audit makes for one hell of an
-invasive patch.  Now that LSM is in for 2.6, it *might* be feasible to discuss
-audit for 2.7/8.
+Cheers,
 
-You probably want to port your patch to the 2.6 tree, as more development is
-going on there.
+Andre Hedrick
+LAD Storage Consulting Group
 
+On Mon, 6 Oct 2003, Hugo Mills wrote:
 
---==_Exmh_-1583492812P
-Content-Type: application/pgp-signature
+> On Sun, Oct 05, 2003 at 10:29:40PM -0700, Andre Hedrick wrote:
+> > 
+> > I have a scheduled fix prepared for release and review by SiI monday
+> > morning 9AM Pacific time.  Once it is cleared by SiI, it will be released
+> > out to the masses.
+> 
+>    That's good news. Thank you.
+> 
+> > Will attempt to address the mod15b phy issues
+> 
+>    mod15b phy? Me simple idiot. Me no understand. :)
+> 
+>    Is that the PATA/SATA converter that the last poster mentioned? Or
+> something else?
+> 
+>    Hugo.
+> 
+> -- 
+> === Hugo Mills: hugo@... carfax.org.uk | darksatanic.net | lug.org.uk ===
+>   PGP key: 1C335860 from wwwkeys.eu.pgp.net or http://www.carfax.org.uk
+>        --- The early bird gets the worm,  but the second mouse ---       
+>                             gets the cheese.                             
+> 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/gSFEcC3lWbTT17ARAqxLAKDqsOUFxaFuG+PJECDokxYi6+uG0wCgja6d
-L6gR17gNmMBzQx5KqPgEFRg=
-=2uTg
------END PGP SIGNATURE-----
-
---==_Exmh_-1583492812P--

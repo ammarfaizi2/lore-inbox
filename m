@@ -1,72 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262743AbVA1T7Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262698AbVA1TzB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262743AbVA1T7Y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 14:59:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262709AbVA1Tz7
+	id S262698AbVA1TzB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 14:55:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261515AbVA1TyI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 14:55:59 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:34314 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262742AbVA1TJK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 14:09:10 -0500
-Date: Fri, 28 Jan 2005 20:09:05 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Lorenzo =?iso-8859-1?Q?Hern=E1ndez_Garc=EDa-Hierro?= 
-	<lorenzo@gnu.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org
-Subject: Re: [PATCH] OpenBSD Networking-related randomization port
-Message-ID: <20050128190905.GS28047@stusta.de>
-References: <1106932637.3778.92.camel@localhost.localdomain> <20050128174046.GR28047@stusta.de> <1106934475.3778.98.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1106934475.3778.98.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 28 Jan 2005 14:54:08 -0500
+Received: from smtp9.poczta.onet.pl ([213.180.130.49]:8386 "EHLO
+	smtp9.poczta.onet.pl") by vger.kernel.org with ESMTP
+	id S262786AbVA1Tou (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 14:44:50 -0500
+Message-ID: <41FA972F.2000604@poczta.onet.pl>
+Date: Fri, 28 Jan 2005 20:49:03 +0100
+From: Wiktor <victorjan@poczta.onet.pl>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: dtor_core@ameritech.net
+CC: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: AT keyboard dead on 2.6
+References: <41F11F79.3070509@poczta.onet.pl>	 <d120d500050121074831087013@mail.gmail.com>	 <41F15307.4030009@poczta.onet.pl>	 <d120d500050121113867c82596@mail.gmail.com>	 <41F69FFE.2050808@poczta.onet.pl> <20050128143121.GB12137@ucw.cz>	 <d120d50005012806467cc5ee03@mail.gmail.com>	 <41FA90F8.6060302@poczta.onet.pl> <d120d5000501281127752561a3@mail.gmail.com>
+In-Reply-To: <d120d5000501281127752561a3@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 28, 2005 at 06:47:55PM +0100, Lorenzo Hernández García-Hierro wrote:
-> El vie, 28-01-2005 a las 18:40 +0100, Adrian Bunk escribió:
-> > On Fri, Jan 28, 2005 at 06:17:17PM +0100, Lorenzo Hernández García-Hierro wrote:
-> > >...
-> > > As it's impact is minimal (in performance and development/maintenance
-> > > terms), I recommend to merge it, as it gives a basic prevention for the
-> > > so-called system fingerprinting (which is used most by "kids" to know
-> > > how old and insecure could be a target system, many time used as the
-> > > first, even only-one, data to decide if attack or not the target host)
-> > > among other things.
-> > >...
-> > 
-> > "basic prevention"?
-> > I hardly see how this patch makes OS fingerprinting by e.g. Nmap 
-> > impossible.
-> 
-> That's an example, as you can find at the grsecurity handbook [1]:
->...
-> "Randomized IP IDs hinders OS fingerprinting and will keep your machine
-> from being a bounce for an untraceable portscan."
->...
+Hi,
 
-The OS detection in Nmap [1], which is AFAIK the most popular port 
-scanner today works by e.g. checking the answer of an ACK to a closed 
-port.
+> Could you please try editing drivers/input/serio/i8042.c and add
+> udelay(20) before and after calls to i8042_write_data() in
+> i8042_kbd_write() and i8042_command().
 
-I do still not understand how your patch has any impact on these issues.
+of course i could, will it make kernel not detect smoked AUX port? 
+(problem is solved by i8042.noaux=1 cause my hardware has smoked PS/2 
+port) i would rather think about testing devices before assuming thet 
+work and trying to use them (maybe not as standard kernel feature, but 
+it would be nice stuff for people with self-built machines where not 
+everything works). Thanks for your help
 
-> Cheers,
->...
-
-cu
-Adrian
-
-[1] http://www.insecure.org/nmap/nmap-fingerprinting-article.html
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+---
+May the Source be with you.
+wixor

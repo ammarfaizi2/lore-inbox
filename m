@@ -1,42 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261173AbULHJzB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbULHKJj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261173AbULHJzB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 04:55:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261174AbULHJzB
+	id S261174AbULHKJj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 05:09:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261175AbULHKJj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 04:55:01 -0500
-Received: from hermine.aitel.hist.no ([158.38.50.15]:56593 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S261173AbULHJyy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 04:54:54 -0500
-Message-ID: <41B6D11D.9040107@hist.no>
-Date: Wed, 08 Dec 2004 11:02:05 +0100
-From: Helge Hafting <helge.hafting@hist.no>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ATA over Ethernet driver for 2.6.9
-References: <87acsrqval.fsf@coraid.com> <20041206162153.GH16958@lug-owl.de> <20041207130015.GA983@openzaurus.ucw.cz>
-In-Reply-To: <20041207130015.GA983@openzaurus.ucw.cz>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Dec 2004 05:09:39 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:25318 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261174AbULHKJh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Dec 2004 05:09:37 -0500
+Date: Wed, 8 Dec 2004 11:08:39 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Time sliced CFQ io scheduler
+Message-ID: <20041208100839.GN19522@suse.de>
+References: <20041208003736.GD16322@dualathlon.random> <1102467253.8095.10.camel@npiggin-nld.site> <20041208013732.GF16322@dualathlon.random> <20041207180033.6699425b.akpm@osdl.org> <20041208065534.GF3035@suse.de> <1102489719.8095.56.camel@npiggin-nld.site> <20041208071141.GB19522@suse.de> <1102490389.8095.69.camel@npiggin-nld.site> <20041208072616.GD19522@suse.de> <20041208093552.GK19522@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041208093552.GK19522@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
+On Wed, Dec 08 2004, Jens Axboe wrote:
+> On Wed, Dec 08 2004, Jens Axboe wrote:
+> > > Hmm, damn. Lots of stuff. I guess some of the notable ones that I've
+> > > had trouble with are OraSim (Oracle might give you a copy), Andrew's
+> > > patch scripts when applying a stack of patches, pgbench... can't
+> > > really remember any others off the top of my head.
+> > 
+> > The patch scripts case is interesting, last night (when committing other
+> > patches) I was thinking I should try and bench that today. It has a good
+> > mix of reads and writes.
+> 
+> AS is currently 10 seconds faster for that workload (untar of a kernel
+> and then applying 2237 patches). AS completes it in 155 seconds, CFQ
+> takes 164 seconds.
 
->
->Well, at least it has a chance to correctly work in low-memory conditions,
->and it might be possible to swap over AoE.
->ARPs are real problem there.
->				Pavel
->  
->
-Well, how about caching the hw address of the AoE device
-somewhere in the data structure describing the block device?
-Then you won't need to ARP for it, and I guess that address isn't
-likely to change while the device is in use?
+DEADLINE does 160 seconds, btw.
 
-Helge Hafting
+Something like
+
+for i in patches.*/*; do cp "$i" /dev/null; done
+
+while running a
+
+dd if=/dev/zero of=testfile bs=64k
+
+could be better for both schedulers. AS completes the workload in
+4min 14sec, CFQ in 3min 5sec. I don't have the time to try DEADLINE :-)
+
+-- 
+Jens Axboe
+

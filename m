@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289867AbSBKR2G>; Mon, 11 Feb 2002 12:28:06 -0500
+	id <S289859AbSBKRbQ>; Mon, 11 Feb 2002 12:31:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289866AbSBKR15>; Mon, 11 Feb 2002 12:27:57 -0500
-Received: from nycsmtp1out.rdc-nyc.rr.com ([24.29.99.226]:55253 "EHLO
-	nycsmtp1out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S289859AbSBKR1m>; Mon, 11 Feb 2002 12:27:42 -0500
-Message-ID: <3C67FF09.7010900@nyc.rr.com>
-Date: Mon, 11 Feb 2002 12:27:37 -0500
-From: John Weber <weber@nyc.rr.com>
-Organization: WorldWideWeber
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.5.4 Sound Driver Problem
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S289862AbSBKRbG>; Mon, 11 Feb 2002 12:31:06 -0500
+Received: from natpost.webmailer.de ([192.67.198.65]:54246 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S289859AbSBKRat>; Mon, 11 Feb 2002 12:30:49 -0500
+Date: Mon, 11 Feb 2002 18:29:01 +0100
+From: Kristian <kristian.peters@korseby.net>
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: APIC error on CPU0
+Message-Id: <20020211182901.0846a70a.kristian.peters@korseby.net>
+In-Reply-To: <Pine.LNX.4.44.0202111849540.17361-100000@netfinity.realnet.co.sz>
+In-Reply-To: <20020211172749.2bdadec7.kristian.peters@korseby.net>
+	<Pine.LNX.4.44.0202111849540.17361-100000@netfinity.realnet.co.sz>
+X-Mailer: Sylpheed version 0.7.0claws5 (GTK+ 1.2.10; i386-redhat-linux)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am using the YMFPCI driver on a Toshiba Tecra 8100.
+Zwane Mwaikambo <zwane@linux.realnet.co.sz> wrote:
+>
+> Mikael Pettersson submitted a patch which fixed that for me, its 
+> definately in 2.4 mainline. Which kernel is in Debian 3.0?
+> 
 
-The sound_alloc_dmap() function in dmabuf.c must be changed from using 
-__get_free_pages() and virt_to_bus() -> pci_alloc_consistent().
+apm is disabled per default on Debian's default kernel config. I compiled 2.4.17 myself which is running now.
 
-This looked like an easy thing to do, but the only parameter to 
-sound_alloc_dmap() is of type struct dma_buffparms -- whose definition I 
-couldn't even find -- and pci_alloc_consistent() expects a struct 
-pci_dev as a parameter.  I read the driver-model.txt file in the 
-Documentation in the hopes of finding some magic __get_pci_dev_by_id(int 
-  dev) function, but things are never that easy :).
+*Kristian
 
-I tried asking about this in kernelnewbies, but got no response. Anyone 
-here want to give me a nudge in the right direction?
-
+  :... [snd.science] ...:
+ ::
+ :: http://www.korseby.net
+ :: http://gsmp.sf.net
+  :.........................:: ~/$ kristian@korseby.net :

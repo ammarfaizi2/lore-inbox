@@ -1,22 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265246AbSL0XEZ>; Fri, 27 Dec 2002 18:04:25 -0500
+	id <S265242AbSL0XH1>; Fri, 27 Dec 2002 18:07:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265230AbSL0XEZ>; Fri, 27 Dec 2002 18:04:25 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:21771 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S265222AbSL0XEU>;
-	Fri, 27 Dec 2002 18:04:20 -0500
-Date: Sat, 28 Dec 2002 00:12:36 +0100
+	id <S265249AbSL0XH1>; Fri, 27 Dec 2002 18:07:27 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:2578 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S265242AbSL0XHY>;
+	Fri, 27 Dec 2002 18:07:24 -0500
+Date: Sat, 28 Dec 2002 00:15:40 +0100
 From: Sam Ravnborg <sam@ravnborg.org>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       linux-kernel@vger.kernel.org
-Cc: Russell King <rmk@arm.linux.org.uk>, Andi Kleen <ak@suse.de>,
-       sparclinux@vger.kernel.org
-Subject: kbuild: archhelp update and $(build)+$(clean)
-Message-ID: <20021227231236.GA24461@mars.ravnborg.org>
-Mail-Followup-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-	linux-kernel@vger.kernel.org, Russell King <rmk@arm.linux.org.uk>,
-	Andi Kleen <ak@suse.de>, sparclinux@vger.kernel.org
+To: Andi Kleen <ak@suse.de>, Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: kbuild/x86_64: archhelp + various clean-up
+Message-ID: <20021227231540.GB24461@mars.ravnborg.org>
+Mail-Followup-To: Andi Kleen <ak@suse.de>,
+	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,22 +22,17 @@ User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Moving archhelp to arch/$(ARCH)/Makefile allow us to use this for
-all architectures. Not all architecture had a boot directory.
-The following patch implement the common bits, and moved archhelp for i386.
-Patches for other architectures (arm,sparc64,x86_64) will follow.
+Hi Andi.
 
-The defines $(build) and $(clean) simplify recursive make invocations.
-$(Q)$(MAKE) -f scripts/Makefile.build obj=arch/i386/boot bzImage
-is reduced to
-$(Q)$(MAKE) $(build)=arch/i386/boot bzImage
+[This is one step of the Makefile clean-up as discussed in private mail]
 
-It keeps the commandlines sorter than 80 characters in common case.
-Made it possible to use in all makefiles, and introduced usage
-for i386.
-Updates to a few architectures will follow (same list as before for now).
+Moved archhelp to arch/x86_64/Makefile
+Introduced usage of $(build) and $(clean)
+Use kbuild clean infrastructure
 
+Please apply,
 	Sam
+
 
 You can import this changeset into BK by piping this whole message to:
 '| bk receive [path to repository]' or apply the patch as usual.
@@ -47,72 +40,109 @@ You can import this changeset into BK by piping this whole message to:
 ===================================================================
 
 
-ChangeSet@1.959, 2002-12-27 21:15:49+01:00, sam@mars.ravnborg.org
-  kbuild: Move archhelp to arch/$(ARCH)/Makefile
+ChangeSet@1.962, 2002-12-27 23:54:14+01:00, sam@mars.ravnborg.org
+  kbuild/x86_64: archhelp, $(build) usage and cleaning
   
-  arch/$(ARCH)/Makefile already contains the kbuild required additions
-  to allow the kernel to be built for the architecture in question.
-  Moving archhelp centralise this information, and no longer require a
-  boot directory to exist to utilise this feature.
-  
-  Update i386 to define archhelp in arch/$(ARCH)/Makefile
-  Other architectures will be updated in next cset.
-
-ChangeSet@1.958, 2002-12-27 20:50:55+01:00, sam@mars.ravnborg.org
-  kbuild: $(build) and $(clean) macros for make invocation
-  
-  The former macro $(descend ...) hide for make the fact that a recursively make was
-  invoked. The replacement $(Q)$(MAKE) -f scripts/Makefile.build obj=dir was too verbose.
-  
-  Introduced $(build) and $(clean) allowing the following syntax:
-  $(Q)$(MAKE) $(build)=arch/i386/boot target
-  and similar for clean.
-  
-  Introduced $(build) and $(clean) in general, and for i386 architecture.
+  Moved archhelp to arch/x86_64/Makefile
+  Introduced usage of $(build) and $(clean)
+  Use kbuild clean infrastructure
 
 
- Makefile                |    3 ++-
- arch/i386/Makefile      |    9 +++++++++
- arch/i386/boot/Makefile |    8 --------
- 3 files changed, 11 insertions(+), 9 deletions(-)
+ Makefile                 |   26 ++++++++++++++++----------
+ boot/Makefile            |   18 ++----------------
+ boot/compressed/Makefile |    4 ----
+ 3 files changed, 18 insertions(+), 30 deletions(-)
 
 
-diff -Nru a/Makefile b/Makefile
---- a/Makefile	Sat Dec 28 00:04:01 2002
-+++ b/Makefile	Sat Dec 28 00:04:01 2002
-@@ -821,7 +821,8 @@
- 	@$(MAKE) --no-print-directory -f Documentation/DocBook/Makefile dochelp
- 	@echo  ''
- 	@echo  'Architecture specific targets ($(ARCH)):'
--	@$(MAKE) --no-print-directory -f arch/$(ARCH)/boot/Makefile archhelp
-+	@$(if $(archhelp),$(archhelp),\
-+		echo '  No architecture specific help defined for $(ARCH)')
- 	@echo  ''
- 	@echo  'Execute "make" or "make all" to build all targets marked with [*] '
- 	@echo  'For further info browse Documentation/kbuild/*'
-diff -Nru a/arch/i386/Makefile b/arch/i386/Makefile
---- a/arch/i386/Makefile	Sat Dec 28 00:04:01 2002
-+++ b/arch/i386/Makefile	Sat Dec 28 00:04:01 2002
-@@ -104,3 +104,12 @@
+diff -Nru a/arch/x86_64/Makefile b/arch/x86_64/Makefile
+--- a/arch/x86_64/Makefile	Fri Dec 27 23:56:21 2002
++++ b/arch/x86_64/Makefile	Fri Dec 27 23:56:21 2002
+@@ -55,32 +55,30 @@
+ core-$(CONFIG_IA32_EMULATION)		+= arch/x86_64/ia32/
+ drivers-$(CONFIG_PCI)			+= arch/x86_64/pci/
+ 
+-makeboot =$(Q)$(MAKE) -f scripts/Makefile.build obj=arch/x86_64/boot $(1)
++boot := arch/x86_64/boot
+ 
+ .PHONY: zImage bzImage compressed zlilo bzlilo zdisk bzdisk install \
+-		clean archclean archmrproper
++	archclean
+ 
+ BOOTIMAGE=arch/x86_64/boot/bzImage
+ zImage zlilo zdisk: BOOTIMAGE=arch/x86_64/boot/zImage
+ 
+ zImage bzImage: vmlinux
+-	$(call makeboot,$(BOOTIMAGE))
++	$(Q)$(MAKE) $(build)=$(boot) $(BOOTIMAGE)
+ 
+ compressed: zImage
+ 
+ zlilo bzlilo: vmlinux
+-	$(call makeboot,BOOTIMAGE=$(BOOTIMAGE) zlilo)
++	$(Q)$(MAKE) $(build)=$(boot) BOOTIMAGE=$(BOOTIMAGE) zlilo
+ 
+ zdisk bzdisk: vmlinux
+-	$(call makeboot,BOOTIMAGE=$(BOOTIMAGE) zdisk)
++	$(Q)$(MAKE) $(build)=$(boot) BOOTIMAGE=$(BOOTIMAGE) zdisk
+ 
+ install: vmlinux
+-	$(call makeboot,BOOTIMAGE=$(BOOTIMAGE) install)
++	$(Q)$(MAKE) $(build)=$(boot) BOOTIMAGE=$(BOOTIMAGE) install
  
  archclean:
- 	$(Q)$(MAKE) $(clean)=arch/i386/boot
+-	$(call makeboot,clean)
+-
+-archmrproper:
++	$(Q)$(MAKE) $(clean)=$(boot)
+ 
+ prepare: include/asm-$(ARCH)/offset.h
+ 
+@@ -95,4 +93,12 @@
+ 	@$(update-if-changed)
+ 
+ CLEAN_FILES += include/asm-$(ARCH)/offset.h.tmp \
+-	       include/asm-$(ARCH)/offset.h
+\ No newline at end of file
++	       include/asm-$(ARCH)/offset.h
 +
 +define archhelp
 +  echo  '* bzImage	- Compressed kernel image (arch/$(ARCH)/boot/bzImage)'
 +  echo  '  install	- Install kernel using'
-+  echo  '		   (your) ~/bin/installkernel or'
-+  echo  '		   (distribution) /sbin/installkernel or'
-+  echo  '		   install to $$(INSTALL_PATH) and run lilo'
++  echo  '                  (your) ~/bin/installkernel or'
++  echo  '                  (distribution) /sbin/installkernel or'
++  echo  '        	  install to $$(INSTALL_PATH) and run lilo'
 +endef
-+
-diff -Nru a/arch/i386/boot/Makefile b/arch/i386/boot/Makefile
---- a/arch/i386/boot/Makefile	Sat Dec 28 00:04:01 2002
-+++ b/arch/i386/boot/Makefile	Sat Dec 28 00:04:01 2002
-@@ -74,11 +74,3 @@
+diff -Nru a/arch/x86_64/boot/Makefile b/arch/x86_64/boot/Makefile
+--- a/arch/x86_64/boot/Makefile	Fri Dec 27 23:56:21 2002
++++ b/arch/x86_64/boot/Makefile	Fri Dec 27 23:56:21 2002
+@@ -31,7 +31,7 @@
+ CFLAGS += -m32
+ 
+ host-progs	:= tools/build
+-
++subdir-		:= compressed	#Let make clean descend in compressed/
+ # ---------------------------------------------------------------------------
+ 
+ $(obj)/zImage:  IMAGE_OFFSET := 0x1000
+@@ -58,8 +58,7 @@
+ 	$(call if_changed,ld)
+ 
+ $(obj)/compressed/vmlinux: FORCE
+-	$(Q)$(MAKE) -f scripts/Makefile.build obj=$(obj)/compressed \
+-					IMAGE_OFFSET=$(IMAGE_OFFSET) $@
++	$(Q)$(MAKE) $(build)=$(obj)/compressed IMAGE_OFFSET=$(IMAGE_OFFSET) $@
+ 
+ zdisk: $(BOOTIMAGE)
+ 	dd bs=8192 if=$(BOOTIMAGE) of=/dev/fd0
+@@ -73,16 +72,3 @@
  
  install: $(BOOTIMAGE)
  	sh $(src)/install.sh $(KERNELRELEASE) $(BOOTIMAGE) System.map "$(INSTALL_PATH)"
+-
+-clean:
+-	@echo 'Cleaning up (boot)'
+-	@rm -f $(host-progs) $(EXTRA_TARGETS)
+-	+@$(call descend,$(obj)/compressed) clean
 -
 -archhelp:
 -	@echo  '* bzImage	- Compressed kernel image (arch/$(ARCH)/boot/bzImage)'
@@ -121,69 +151,51 @@ diff -Nru a/arch/i386/boot/Makefile b/arch/i386/boot/Makefile
 -	@echo  '                  (distribution) /sbin/installkernel or'
 -	@echo  '        	  install to $$(INSTALL_PATH) and run lilo'
 -
+diff -Nru a/arch/x86_64/boot/compressed/Makefile b/arch/x86_64/boot/compressed/Makefile
+--- a/arch/x86_64/boot/compressed/Makefile	Fri Dec 27 23:56:21 2002
++++ b/arch/x86_64/boot/compressed/Makefile	Fri Dec 27 23:56:21 2002
+@@ -30,7 +30,3 @@
+ 
+ $(obj)/piggy.o: $(obj)/vmlinux.scr $(obj)/vmlinux.bin.gz FORCE
+ 	$(call if_changed,ld)
+-
+-clean:
+-	@echo 'Cleaning up (boot/compressed)'
+-	@rm -f $(EXTRA_TARGETS)
 
 ===================================================================
 
 
 This BitKeeper patch contains the following changesets:
-1.958..1.959
+1.962
 ## Wrapped with gzip_uu ##
 
 
-begin 664 bkpatch24452
-M'XL(`&'<##X``]U::V_;.!;];/T*8B:#Q#N.+>HM`UDDK8MI,.VTV\>G[2*@
-M)-K61!8]E)0T`V-^^]Y+RJ_8LF.CF2VV34/9NKPD+P_/?;`_DL\%E_U6P2;&
-MC^2U*,I^:\)DT97L+H^$''7A'[SY(`2\Z8W%A/=`ME?(N)>E>?6U=\MESK->
-M=-N[C:HT2PR0?L_*>$SNN"SZ+=JU%]^4#U/>;WUX]<OG-U<?#./B@KP<LWS$
-M/_*27%P8I9!W+$N*2U:.,Y%W2\GR8L)+UHW%9+80G5FF:<%?E_JVZ7HSZIF.
-M/XMI0BES*$],RPD\QX!I7FXLY9$6:ED^]9S0=F:FZYJ.,2"T&[H!,:T>M7J6
-M3RRS[\*/^[-)^Z9)MBHE/[ODW#1>D&^[@)=&3+1-^^3D3#VT"<L3^!!GG.5M
-M,F&Q%`49"@F/MYRD^9V(69F*'+K"SZ<QQY<3+K4H]$QX$7/0T>UVVV2<)GS9
-MNT1I%I?PP$K"B.1Q)8OTCF</6N">%:`4![GE25=IEWR:L9A/>%Z"\G^U3\[>
-M7OWZJDW.AZ2(93HMB]Y;Z#I,,]Y5*R`B^OTB224J`WL)1$DD"M[5,[[.2RF2
-M*N9)PY)9EHG[-!_IV8KYI^(A+]G7/FA8G<5<Q063\;B7VH'7BP#(I&1RQ$L0
-M1M5%.DDS)I4=U"!/G4J:DQ'/N6191[U`!3@&P='2DL=E)6%=OQ+'<3WC_1+K
-MQOF!?PS#9*;QSSWX6BYR;O(5H#G0S&C@4_@=!8S1H1D[)J-)--P.ZB9UZLB$
-M<&3HS**F%<"TMO??V/\LC;0&$S50S_)F9N`#_H/(=QTSL#V+LLCC31-J5KB<
-MDALXU(<IW;+TLIS2KJS&\KS*T_-(Q.-JTDWXIAJUG?7,J&_:,#^@`YL&]LRQ
-M8B=.V-`U(SLQA]Y39[:B<CDWZMA^L'<7M^R='=K!S`1;>;/$8TD84Q8D;N@R
-MMV$^31MF^M1Q#[2.0OY\WQS3="P3EF(ZU)XEP]!S$]BV*/`BFS6PXTZ5*]8!
-M/#C&TUD[=(&Q9Z8Z6YJUPQ76IGWJ]IUP-VO;S\W:;\4=5VPPYMD4QE'/O9.S
-MJP\O7[<7]M!TL_45T)WD+'D@L0!^2_-"T9Y6#]S[1Y5*H">6)"F2/K(S#H*D
-MJ`65;\;O(DZP4ZE("E^M<A0RV1\5+U`'DA],&SEU,7%P&&"3+"W01Z0%B*-3
-M47Y&,U\N"!AN!&ZFGA-AH$91+5`]#"+D`\Z"?TV+$A^J,EVJ&W*FF5+9X?,T
-M82771`J2"=@A7S$B3+7)B.]@77)M806Y3[,,%U\IK0EVS_G7DL0%+S4U>_3_
-MBIKA=+J.,W,<YW_%-6H&-E`[:#K`,(B69NM8KN?,$LN*@S`)+<?U_6%B[;7.
-MILX5$X'O<AT5A#9$*A"1/A-1-K#</J*T'<NV`2FV8RK*H_Y:G.J$?9ON9CQ*
-MSNFS,-Y*L%05;,2)&"ZB)CAFFMS?D7-YKW[@W+QO,/L1)W!@A2&AQK5N6ELC
-MP)/+[5NM//6A6WU`Q'"T7BM0,5((B8EO4;7?P:';[?V]VZWCXH[F;.61T#6!
-M#/`R4#BP,<\@5IZ[*-!3=Z[*`C.1[<0.Z%&!TS[TJ-&/08^KP.-NP8Y>$&+G
-MVK.):WR!3/;C6$A(D.IX?U6^`5MUP@-=/^-J^_"P=124T3WZ%UOSIX6Z[4B&
-M:!AQ_*V#\8,56I8++:35,U#C69JIZ'<#W2N%R!6(KC!51V6C$-A,(.":/I"A
-M%!.8PO0\XY`%JR2XAJ3.,_9!$FQR%)VYCJ(SU=2P(1`H)7P*P13&,1V(:6)6
-M002E$O-$0`A6DH+7$14<-4#*LAJ`:T3!+BIU]P)Y=_+>#.2::A'(6KP!R`M=
-M"LB+6'=O!>B@<*4!MYNID?:JIA]2S;*V<S#/6HA6][F9=GL5HL!MC(%!5>0.
-MJRNV;#R9"(G%&I:P*)M'VH,%G$A=%>J0(LUCP!K$[0(4(:AT-J$+1!B.8VC]
-MJ#BT5G9:0`T"<@C<?_A=1`67<*Y^(/=,YIA89'Q88B0NJXS?W$U4'?'FI@MY
-M!TRRJ"0D$@\0IG,\J##FB)=$I@EJQLI4IZ[;X/.IGN,](AEFC1&]2G$?'<R%
-M+SGF,%)+'4;5;(\M:H`;`]M2!U<W+;+]>"#O@&BH1573&+(,@&503#<-8F>7
-M`_BHA$,MO",,6@I;5`FK9K^PK87M)PF[6MA]DK!>H/6D!;IJ+W2S<R]ZMY`Q
-M#],1>?2YAXTQ\'RU>-T\31&.[_F^[M8\V7FW[&N2LDR,C(%O*]OIIB'`.)NR
-MLJ@B2(YOU%<W/W5^ZIQ<MHU!H'L'VWK70PY$7&$!5IW`'GQZ(<0MSO<ZM$P"
-MK/:]L/WW$CY],0:A!K1NOJV+?;+C6:W):<>S6<&R]SB>YXJ2/L.ZV;SX@CNU
-M5B\JICQ.AVE,L"2#%P%H$.4G*BSJ@[>Y0R=2EZ.V1?7H'EY#5A`]+*M+\ZK^
-M]J'6BUZ(=^7QKF!7L.PS%6E>X@ZJRXO:<3TJ!L%F)K"J];I4A]R/4[R;&F,-
-MJ;XM8=.I%`R^G=?8T+.H@L8W]"R!]A;86$;K\N0LQ4AT7NEJ=U:?OQBM%H_'
-M@IP2\IO8L1OUGLV/E[+Z:5L%6IM5H_TAU[&%*V,29>EH?,DDBW->HJY_ST?Z
-MSX[Z%>30-+3<F>6YCKZ-L]TC4H?@;R]RK`5E*KC*.$96N-2)!#1-`5;ZWFF9
-M"2-,=9R#^-+7*8\`MFFJHZ"FW)WZK=#?7T4#?H.,J`EQAQM&0?SBQ;MWGZ[?
-M7OWR"OQ3J#QBN,M[ZVZ+3A>K"LB?69H)8T!A.T&/;HY3E*3%+2JRM:)=D<I.
-M16E>E,`=J,HC-JH*&AWW(R,V4/]3;](4W+T-'^#LAGOX7+<8>'N1+"OO*AG6
-MUZ="572Z`'+--:G"],)?Y.*^@U_,R1/O`AX4M6_FTKH([VS6=[X)\*]Q#T-P
-M^(^N$0Q"%)N2TW^0Z,_K"1SFUCEY*2;@_0OT$O7-28IOR-F:"U-%Y;I3^W2I
-MB<R1`YJN]=-<386^;46T!;D!.7L0E6R3OWI1FO?JKK6\D!O"@.Y2IE&%L4:;
-M](JG=*K?XWZ=G)Q=__;QT]6;-S?OKSZ]UG0EJYS@\3LU(/?C0S#3NIM8*Y\?
-MXBN.J.7O/3I;:OEP@."79X;@+FQ?9^\0T!UX?LSG<A>/SD_C]1\P/]Y$-.)_
-C;>7'L#^D*\'RO^7$8Q[?%M7D8FC:'@N\P/@O>.ISS04D````
+begin 664 bkpatch24301
+M'XL(`)7:##X``[U7;4_C.!#^7/^*D:A$>WMM[+RW4D]T:8%JX>!*5SKI[H2<
+MQ*6YI@F*$VY91??;;^*^`J5`M5Q:K-3V/!Z/GWD\',!7*=)V1?(9.8"S1&;M
+MRHRGLIGR^]A+TMLF_N'(,$EP1)LD,Z'A7$VFOA:%<?Y-FXHT%I'F3;6IEX=1
+M0'#V%<_\"=R+5+8KK&FL>K*'.]&N#/NG7\^[0T(Z'3B>\/A67(L,.AV2)>D]
+MCP)YQ+-)E,3-+.6QG(F,-_UD5JRF%CJE.GXLYAC4L@MF4],I?!8PQDTF`JJ;
+MKFT2=//HV5:>H#!==W3=I,PHJ&F;.ND!:[9L':BN,5W3'="-MF6VF?F)LC:E
+ML!44/AG0H.0S_-@-'!,?YC'5OKGVC6VV@:?^9"*BNY^A6E,C=<@EOQ7`XP#\
+M2/`XC&_1#+\7R;T(5@;HFGI?(&D7?"K&821PXB#.TB3(?9P]QTK&:_02MUI3
+MR'6<BV19N#1?#<)XG'*9I;F?Y:D@7\#2,8I7ZW,EC7<^A%!.R2_`IT>SW&\&
+MHMCTVT,>:AC,NU1(*8+5/A8A989.,:AZH;L.M0J+FB8S'.;SL>[0%M]^?&]?
+M8$X7RV2TH*[E&+O=?-$WV[%:A>&QL67SP`XL[HUU\ZV^O>B0[K:L%QUZT1>+
+MVK1PA16XW"FYQUN4LC?XLM4-VBIL'6.N4GO;[#++?X2#:Y`_ECGWUT[W&+4,
+MVW(*$XEAJ2QG[M,DIZW=2<YL:+"/2?/GR9I-0@D?D*$^#,5,K9;'.1(<,I[>
+MBDQBZLZ/[A(:Z3_JB[EXM5TTWI_3/<L%1@:J+6D,[<<$*?M(SV;E)-56RE&U
+M`^QV5'?95JJUW^K5VD7W2[^^BD$'7]"^[/A\>3D:7'1/^W72<_323+6[S59&
+MG4T`^!Z%48(PEH*Q]H8)0CE%&!4`U>X%$\8RXU%$>BX#@PQ<XSG0G`1+(-)K
+MJ26Q;9$*S)\P]J,\$!J7LT:UUAT>G]6U9#R6(FM.R)\DP/.-Q8J(!$#XDP3@
+M\"?PO@]FR+U*`XY7Z@CSRQ_"<@1JZD"7J$JL%D;UPS42+'>"2(/YVQ(FEWA[
+M/9KZ]*D])'E:AW\U+XRU!<[".$EW6^(I9&GHY5F8Q'70Y!L1*BM_RZRL5FN#
+M7Z]'W?/SFZONZ&R>?6D>0TF50R)B#.`S\7LDVR\KX!YWQJLRN/7&6&JA@5>U
+M/=="]JS@H;NU4$<IM/\G*=RC;GE3J:(NS!UR]RAX^VB>89;YIUJ9>T&8-BH5
+MU+UU=5$Y.,?*=X9++'P,A/211.CKQBQ-":.."KA+RA+O[_I&X0)*-FXN3TZN
+M^R,<WOR)=D<H2#8P8SM9M]0_K_!V[Y+L;13>49`MV<Q,A@PJV6R_E\P4&N:'
+M</G)5:O.N+VX<9LX?H+[D*@=,A/JS/N_CX;=FU%W>-H?70,6`.D"P'O88`E2
+G5Q6?KU%W2]#V8K$!YOJ?.G\B_*G,9QV[Y0KJV8+\!W4'Q39##@``
 `
 end

@@ -1,37 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292855AbSBVNJf>; Fri, 22 Feb 2002 08:09:35 -0500
+	id <S292857AbSBVNKz>; Fri, 22 Feb 2002 08:10:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292857AbSBVNJP>; Fri, 22 Feb 2002 08:09:15 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:49679 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292855AbSBVNJM>; Fri, 22 Feb 2002 08:09:12 -0500
-Subject: Re: error with =?ISO-8859-1?Q?binfmt=B4s?= modules
-To: buzz@linuxbr.com.br
-Date: Fri, 22 Feb 2002 13:20:34 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200202221145.g1MBjkj05721@www5.mailbr.com.br> from "=?ISO-8859-1?Q?=DFuzzLinux?=" at Feb 22, 2002 12:13:32 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S292859AbSBVNKp>; Fri, 22 Feb 2002 08:10:45 -0500
+Received: from www.ms-itti.com.pl ([217.8.167.50]:528 "HELO
+	smtp.ms-itti.com.pl") by vger.kernel.org with SMTP
+	id <S292857AbSBVNKh>; Fri, 22 Feb 2002 08:10:37 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Marcin Gogolewski <marcing@ms-itti.com.pl>
+Organization: Mobile Solutions -ITTI
+To: linux-kernel@vger.kernel.org
+Subject: ps command lock
+Date: Fri, 22 Feb 2002 14:10:48 +0100
+X-Mailer: KMail [version 1.3.2]
+X-Sun-Data-Name: text
+X-Sun-Data-Description: text
+X-Sun-Data-Type: postscript-file
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16eFco-0001r0-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020222131042Z292857-889+5078@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> When I try to add binfmt_misc.o modules he says: device or resource 
-> busy, and with the red hat 7.2 kernel (2.4.7-10) I could add with no 
-> error this modules
 
-Works here..
 
-> The binfmt_elf.o modules return unresolved symbols.
-
-Which symbols ?
-
-> And, when I try to enter boot teh vmlinuz-2.4.17 it returns a fatal 
-> error:
-> kmod: /sbin/modprobe -s -k binfmt*****.....
-
-Well yes it would. What format do you think /sbin/modprobe is in ?
+I have STL2 mainboard with 2 PIII 1GHz. Linux kernel 2.4.17. I've not got 
+Ops'es, but if I write ps, my terminal gets blocked,I tried it as a superuser 
+and normal user several times, after reboot (MagicSysReq only works) 
+everything is OK. I don't know where is a bug (it may be in ps?).
+procps-2.0.7-11. Where and What shold I send?
+					Marcin

@@ -1,61 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316582AbSGLPav>; Fri, 12 Jul 2002 11:30:51 -0400
+	id <S316587AbSGLPfH>; Fri, 12 Jul 2002 11:35:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316587AbSGLPau>; Fri, 12 Jul 2002 11:30:50 -0400
-Received: from adsl-65-43-15-209.dsl.clevoh.ameritech.net ([65.43.15.209]:48908
-	"EHLO bugs.home.shadowstar.net") by vger.kernel.org with ESMTP
-	id <S316582AbSGLPau>; Fri, 12 Jul 2002 11:30:50 -0400
-Date: Fri, 12 Jul 2002 11:32:44 -0400 (EDT)
-From: Alec Smith <alec@shadowstar.net>
-X-X-Sender: alec@bugs.home.shadowstar.net
-To: linux-kernel@vger.kernel.org
-cc: ext3-users@redhat.com
-Subject: ext3 corruption
-Message-ID: <Pine.LNX.4.44.0207121127001.7507-100000@bugs.home.shadowstar.net>
+	id <S316588AbSGLPfG>; Fri, 12 Jul 2002 11:35:06 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:30730
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S316587AbSGLPfF>; Fri, 12 Jul 2002 11:35:05 -0400
+Date: Fri, 12 Jul 2002 08:34:57 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Tomas Szepe <szepe@pinerecords.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: IDE/ATAPI in 2.5
+In-Reply-To: <20020712130702.GL29993@louise.pinerecords.com>
+Message-ID: <Pine.LNX.4.10.10207120826580.20499-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-Over the last month or so, I've noticed the following error showing up
-repeatedly in my system logs under kernel 2.4.18-ac3 and more recently
-under 2.4.19-rc1:
+http://www.linuxdiskcert.org/LAD-ide24-2.5.25.patch.bz2
 
-EXT3-fs error (device ide0(3,3)) in ext3_new_inode: error 28
+This is currently x86 limited and soon will be recored to the modern api
+that is so desired.  It will also maintion 100% backwards compatablity.
+It will tested and run in various environments and combinations.
 
-I've now been able to capture the following Oops before the system went
-down entirely:
+Lastly all of you can trust that I will not destroy your data because of
+an October deadline.
 
-Assertion failure in do_get_write_access() at transaction.c:611:
-"!(((jh2bh(jh))->b_state & (1UL << BH_Lock)) != 0)"
-kernel BUG at transaction.c:611!
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c015b12e>]    Not tainted
-EFLAGS: 00010282
-eax: 00000078   ebx: ddadd294   ecx: 00000004   edx: ddb0ff64
-esi: ddadd200   edi: dec5d920   ebp: ddadd200   esp: d28dfe70
-ds: 0018   es: 0018   ss: 0018
-Process sendmail (pid: 21193, stackpage=d28df000)
-Stack: c01f7460 c01f5969 c01f58d7 00000263 c01f94a0 00000000 00000000
-cbf3b3c0
-       ddadd294 ddadd200 dec5d920 d4a82730 c015b506 dec5d920 d4a82730
-00000000
-       ddd9acc0 ddadd000 dec5d920 c4cbdc20 c015744d dec5d920 ddd9acc0
-00000000
-Call Trace: [<c015b506>] [<c015744d>] [<c0155b04>] [<c0155b15>]
-[<c0155c07>]
-   [<c0157a95>] [<c013b5c6>] [<c013b6a9>] [<c0111bc0>] [<c01087eb>]
+For all of you out there complaining I write crap code, well if you saw
+the download list of the web logs, without this announcement that in
+itself would make the following statement.
 
-Code: 0f 0b 63 02 d7 58 1f c0 83 c4 14 8b 4c 24 20 bb e2 ff ff ff
+Bring back the old and lousy, the new and improved is only a shiny sticker.
+
+Since I really have had little success in submission of patches for 2.4,
+I can play with 2.5.  The best part is I can glean from the mess that is
+good, and make a final solution which shall work.
+
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
 
 
-Any help or patches would be greatly appreciated. I'd be glad to provide
-more information if needed.
+On Fri, 12 Jul 2002, Tomas Szepe wrote:
 
-
-Alec
+> > > In favour of the scrap:
+> > > 
+> > > 1. HPA.
+> > > 2. Adam J. Richter.
+> > > 3. Marcin Dalecki (basically due to give up on the idea
+> > > of gradual unification).
+> > 
+> > In other words nobody who understands IDE is for and everyone who 
+> > understands you can't actually get rid of ide-floppy, tape, cdrom internal
+> > support and knows about IDE is..
+> > 
+> > > Against:
+> > > 1. Bart=B3omiej =AFo=B3nierkiewcz.
+> > > 
+> > 
+> > against..
+> 
+> 
+> Very well put.
+> 
+> By the way, where's the promised IDE 98?
+> 
+> 
+> T.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

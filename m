@@ -1,90 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135323AbRDVGof>; Sun, 22 Apr 2001 02:44:35 -0400
+	id <S135336AbRDVHaV>; Sun, 22 Apr 2001 03:30:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135324AbRDVGoZ>; Sun, 22 Apr 2001 02:44:25 -0400
-Received: from fe170.worldonline.dk ([212.54.64.199]:20235 "HELO
-	fe170.worldonline.dk") by vger.kernel.org with SMTP
-	id <S135323AbRDVGoP>; Sun, 22 Apr 2001 02:44:15 -0400
-Date: Sun, 22 Apr 2001 08:43:15 +0200 (CEST)
-From: Niels Kristian Bech Jensen <nkbj@image.dk>
-X-X-Sender: <nkbj@hafnium.nkbj.dk>
-To: "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>
-cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] Fix for __builtin_expect compile problem in 2.4.4-pre6.
-Message-ID: <Pine.LNX.4.33.0104220840060.3118-100000@hafnium.nkbj.dk>
+	id <S135333AbRDVHaL>; Sun, 22 Apr 2001 03:30:11 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:57092 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S135336AbRDVH3z>;
+	Sun, 22 Apr 2001 03:29:55 -0400
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15074.30971.184067.341145@gargle.gargle.HOWL>
+Date: Sun, 22 Apr 2001 16:23:55 +1000 (EST)
+To: Tim Wilson <timwilson@mediaone.net>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] ppp_generic, kernel 2.4.3
+In-Reply-To: <3AE22CEC.8C000984@mediaone.net>
+In-Reply-To: <3AE22CEC.8C000984@mediaone.net>
+X-Mailer: VM 6.75 under Emacs 20.4.1
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes the __builtin_expect compile problem in 2.4.4-pre6 by
-moving the definition of __builtin_expect from
-include/asm-alpha/compiler.h to include/linux/compiler.h and including
-this file where needed. I haven't touched the ia64 files that uses
-__builtin_expect. Does any pre-2.96 compilers have support for ia64?
+Tim Wilson writes:
 
--- 
-Niels Kristian Bech Jensen -- nkbj@image.dk -- http://www.image.dk/~nkbj/
+> The bug can cause PPP to NOT install and use a compressor  module for
+> sending,  even though the compressor is sucessfully negotiated by CCP.
+> Since encryption is sometimes implemented as a compressor module (e.g.
+> MPPE), this bug can cause PPP to send cleartext even though encryption
+> appears to be sucessfully negotiated.
 
------------>>  Stop software piracy --- use free software!  <<-----------
+Hmmm... using CCP to negotiate encryption is a Bad Idea IMHO.  I know
+Microsoft does, but that isn't really a recommendation. :)  Certainly
+pppd and the Linux PPP kernel driver don't include support for some of
+the things that the MPPE spec says you have to do, like taking down
+the link if MPPE doesn't get negotiated successfully, and not sending
+or receiving any data before MPPE is up.
 
-diff -u --recursive --new-file v2.4.4-pre6/linux/include/asm-alpha/compiler.h linux/include/asm-alpha/compiler.h
---- v2.4.4-pre6/linux/include/asm-alpha/compiler.h	Mon Nov 13 04:27:11 2000
-+++ linux/include/asm-alpha/compiler.h	Sun Apr 22 08:28:07 2001
-@@ -72,13 +72,4 @@
-   __asm__("stw %1,%0" : "=m"(mem) : "r"(val))
- #endif
+All of which goes to say that MPPE support is not a "feature point" of
+the Linux PPP implementation.  So a potential insecurity in an MPPE
+implementation is hardly a bug.
 
--/* Somewhere in the middle of the GCC 2.96 development cycle, we implemented
--   a mechanism by which the user can annotate likely branch directions and
--   expect the blocks to be reordered appropriately.  Define __builtin_expect
--   to nothing for earlier compilers.  */
--
--#if __GNUC__ == 2 && __GNUC_MINOR__ < 96
--#define __builtin_expect(x, expected_value) (x)
--#endif
--
- #endif /* __ALPHA_COMPILER_H */
-diff -u --recursive --new-file v2.4.4-pre6/linux/include/asm-alpha/semaphore.h linux/include/asm-alpha/semaphore.h
---- v2.4.4-pre6/linux/include/asm-alpha/semaphore.h	Sun Apr 22 08:18:53 2001
-+++ linux/include/asm-alpha/semaphore.h	Sun Apr 22 08:28:29 2001
-@@ -11,7 +11,7 @@
- #include <asm/current.h>
- #include <asm/system.h>
- #include <asm/atomic.h>
--#include <asm/compiler.h>	/* __builtin_expect */
-+#include <linux/compiler.h>
- #include <linux/wait.h>
- #include <linux/rwsem.h>
+Anyway...
 
-diff -u --recursive --new-file v2.4.4-pre6/linux/include/linux/compiler.h linux/include/linux/compiler.h
---- v2.4.4-pre6/linux/include/linux/compiler.h	Thu Jan  1 01:00:00 1970
-+++ linux/include/linux/compiler.h	Sun Apr 22 08:29:12 2001
-@@ -0,0 +1,13 @@
-+#ifndef __LINUX_COMPILER_H
-+#define __LINUX_COMPILER_H
-+
-+/* Somewhere in the middle of the GCC 2.96 development cycle, we implemented
-+   a mechanism by which the user can annotate likely branch directions and
-+   expect the blocks to be reordered appropriately.  Define __builtin_expect
-+   to nothing for earlier compilers.  */
-+
-+#if __GNUC__ == 2 && __GNUC_MINOR__ < 96
-+#define __builtin_expect(x, expected_value) (x)
-+#endif
-+
-+#endif /* __LINUX_COMPILER_H */
-diff -u --recursive --new-file v2.4.4-pre6/linux/lib/rwsem.c linux/lib/rwsem.c
---- v2.4.4-pre6/linux/lib/rwsem.c	Sun Apr 22 08:19:11 2001
-+++ linux/lib/rwsem.c	Sun Apr 22 08:29:37 2001
-@@ -6,6 +6,7 @@
- #include <linux/rwsem.h>
- #include <linux/sched.h>
- #include <linux/module.h>
-+#include <linux/compiler.h>
+> The bug does not always show up--it depends on the order of CCP messages
+> exchanged during establishment, and therefore is not deterministic.
 
- struct rwsem_waiter {
- 	struct rwsem_waiter	*next;
+The bug is only going to show up if CCP gets re-negotiated, i.e. if
+CCP get negotiated and comes up and then one side starts sending
+Configure-requests to renegotiate the compression method and
+parameters.
 
+> The specific problem is handling a sent or received CCP ConfReq. A sent
+> ConfReq should reset my decompressor; a received ConfReq should reset my
+> compressor. The original code had this logic exactly reversed.
+
+Actually, after having another look at RFC 1962 I think that either
+sending or receiving a ConfReq takes CCP out of Opened state and
+should stop compression in *both* directions.  So on balance I would
+change it like you have for TermReq and TermAck, but make the same
+change for ConfReq as well.
+
+BTW, the spacing/indentation in the patch you sent was broken; the
+patch seemed to have 1-space indentation whereas it should be 1-tab
+indentation.  Does your mailer convert tabs to single spaces maybe?
+
+Paul.

@@ -1,57 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272779AbTG3Gk1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 02:40:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272787AbTG3Gk0
+	id S272832AbTG3GuR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 02:50:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272791AbTG3GuR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 02:40:26 -0400
-Received: from smtp800.mail.sc5.yahoo.com ([66.163.168.179]:10910 "HELO
-	smtp800.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S272779AbTG3GkO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 02:40:14 -0400
-Message-ID: <3F27684E.5080707@iee.org>
-Date: Tue, 29 Jul 2003 23:40:14 -0700
-From: John Gordon <john.gordon@iee.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
+	Wed, 30 Jul 2003 02:50:17 -0400
+Received: from web20501.mail.yahoo.com ([216.136.226.136]:59699 "HELO
+	web20501.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S272913AbTG3GuJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 02:50:09 -0400
+Message-ID: <20030730065007.93696.qmail@web20501.mail.yahoo.com>
+Date: Tue, 29 Jul 2003 23:50:07 -0700 (PDT)
+From: Studying MTD <studying_mtd@yahoo.com>
+Subject: Re: linux-2.6.0-test1 : modules not working
+To: Alex Goddard <agoddard@purdue.edu>
+Cc: Joshua Kwan <joshk@triplehelix.org>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.56.0307300120200.3692@dust>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: NetGear WG602 Linux Source Code?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-GPGrelay-Relayed: GPGrelay Version 0.91 (Win32)
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+I tried hello world example from
+http://lwn.net/Articles/21817/
 
-I have one of these little NetGear WG602 access points which I can
-telnet into, and it is running a version of Linux (2.2.14 from Jungo).
-Since this is a fairly neat little box, it has enough RAM and Flash to
-perhaps support extensions, I thought I'd ask them for the source to
-their kernel & the other GPL elements in there and see if I could get
-own kernel running on it.
+but i am still getting :-
 
-I don't need the driver for the wireless card since it was already
-released (it is the Intersil Prism GT, some support for which was
-announced a few days back). I don't really care too much about the
-LEDs and the button (which they have LKMs to support). All I'd really
-like is the kernel source, and perhaps some information on the layout
-of the flash (though I'm willing to work that out for myself if need
-be).
+#insmod hello_module.o
+No module found in object
+Error inserting 'hello_module.o': -1 Invalid module
+format
 
-Problem is that they don't answer their emails. I've tried the support
-email (got a ticket number, but nothing else), and also I tried
-emailing all the executive staff (guessing at the addresses based on
-the fisrt.last@domain.com format, so perhaps they didn't get the
-message, but I never got a bounce report). What else can I try?
+my config is :-
+/*
+ * General setup
+ */
+#undef CONFIG_SWAP
+#define CONFIG_SYSVIPC 1
+#undef CONFIG_BSD_PROCESS_ACCT
+#define CONFIG_SYSCTL 1
+#define CONFIG_LOG_BUF_SHIFT 14
+#undef CONFIG_EMBEDDED
+#define CONFIG_KALLSYMS 1
+#define CONFIG_FUTEX 1
+#define CONFIG_EPOLL 1
 
-Rgds,
-John...
+/*
+ * Loadable module support
+ */
+#define CONFIG_MODULES 1
+#define CONFIG_MODULE_UNLOAD 1
+#define CONFIG_OBSOLETE_MODPARM 1
+#define CONFIG_KMOD 1
 
-PS I checked out the Jungo site too, but they don't have a
-downloadable version of OpenRG either as far as I can see. They do
-have a "design example" page all about the NetGear box though at
-http://www.jungo.com/openrg/design_example_netgear.html so it is
-public knowledge that Linux is inside this box.
+How to fix this problem.
 
+thanks.
+
+--- Alex Goddard <agoddard@purdue.edu> wrote:
+> On Tue, 29 Jul 2003, Studying MTD wrote:
+> 
+> > module-init-tools-0.9.12 is giving :-
+> > 
+> > #insmod hello_module.o
+> > No module found in object
+> > Error inserting 'hello_module.o': -1 Invalid
+> module
+> > format
+> > 
+> > #file hello_module.o
+> > hello_module.o: ELF 32-bit LSB relocatable,
+> Hitachi
+> > SH, version 1 MathCoPro/FPU/MAU Required (SYSV),
+> not
+> > stripped
+> > 
+> > how to fix this.
+> 
+> Some information on how you built hello_module.o
+> would be nice.  You might
+> also want to look at the first two (at least)
+> articles here:  
+> http://lwn.net/Articles/driver-porting/
+> 
+> -- 
+> Alex Goddard
+> agoddard@purdue.edu
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+
+__________________________________
+Do you Yahoo!?
+Yahoo! SiteBuilder - Free, easy-to-use web site design software
+http://sitebuilder.yahoo.com

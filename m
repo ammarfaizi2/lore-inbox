@@ -1,34 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262998AbSJGL6i>; Mon, 7 Oct 2002 07:58:38 -0400
+	id <S262999AbSJGMCP>; Mon, 7 Oct 2002 08:02:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262999AbSJGL6i>; Mon, 7 Oct 2002 07:58:38 -0400
-Received: from mail.cyberus.ca ([216.191.240.111]:35972 "EHLO cyberus.ca")
-	by vger.kernel.org with ESMTP id <S262998AbSJGL6h>;
-	Mon, 7 Oct 2002 07:58:37 -0400
-Date: Mon, 7 Oct 2002 07:56:59 -0400 (EDT)
-From: jamal <hadi@cyberus.ca>
-To: Andre Hedrick <andre@pyxtechnologies.com>
-cc: Ben Greear <greearb@candelatech.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "'netdev@oss.sgi.com'" <netdev@oss.sgi.com>
-Subject: Re: Update on e1000 troubles (over-heating!)
-In-Reply-To: <Pine.LNX.4.10.10210061700000.23945-100000@master.linux-ide.org>
-Message-ID: <Pine.GSO.4.30.0210070753400.1861-100000@shell.cyberus.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263001AbSJGMCP>; Mon, 7 Oct 2002 08:02:15 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:30360 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262999AbSJGMBX>;
+	Mon, 7 Oct 2002 08:01:23 -0400
+Date: Mon, 07 Oct 2002 05:00:13 -0700 (PDT)
+Message-Id: <20021007.050013.81468898.davem@redhat.com>
+To: root@chaos.analogic.com
+Cc: giduru@yahoo.com, hahn@physics.mcmaster.ca, linux-kernel@vger.kernel.org
+Subject: Re: The end of embedded Linux?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.3.95.1021007075423.18528A-100000@chaos.analogic.com>
+References: <20021007053805.95762.qmail@web13204.mail.yahoo.com>
+	<Pine.LNX.3.95.1021007075423.18528A-100000@chaos.analogic.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: "Richard B. Johnson" <root@chaos.analogic.com>
+   Date: Mon, 7 Oct 2002 08:04:06 -0400 (EDT)
+   
+   We use 2.4.18 on embedded systems. 2.4.19 has some new
+   problems (The reported select() on network I/O, being
+   one of them).
 
-
-It does seem like you need a lot of packets over a period of time
-to recreate it. So if what you are trying to do can achieve that,
-you should reproduce it. How many connections and sessions can you
-support? BTW, does iscsi call for a zero-copy receive?
-
-cheers,
-jamal
-
-
-
+Could you report this bug to linux-net and netdev?

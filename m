@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261410AbVCUBRx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261434AbVCUBg5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261410AbVCUBRx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 20:17:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261435AbVCUBRx
+	id S261434AbVCUBg5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 20:36:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261435AbVCUBg5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 20:17:53 -0500
-Received: from fire.osdl.org ([65.172.181.4]:5005 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261410AbVCUBRw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 20:17:52 -0500
-Date: Sun, 20 Mar 2005 17:17:25 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Lameter <christoph@lameter.com>
-Cc: kenneth.w.chen@intel.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch] del_timer_sync scalability patch
-Message-Id: <20050320171725.1b13ab87.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0503201653310.2250@server.graphe.net>
-References: <200503202319.j2KNJXg29946@unix-os.sc.intel.com>
-	<20050320153446.32a9215a.akpm@osdl.org>
-	<Pine.LNX.4.58.0503201653310.2250@server.graphe.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 20 Mar 2005 20:36:57 -0500
+Received: from 63.reserved.callplus.net.nz ([203.184.21.63]:55308 "EHLO
+	brick.flying-brick.caverock.net.nz") by vger.kernel.org with ESMTP
+	id S261434AbVCUBgz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Mar 2005 20:36:55 -0500
+Date: Mon, 21 Mar 2005 13:36:12 +1200
+From: viking <viking@flying-brick.caverock.net.nz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: USB mouse hiccups
+Message-ID: <20050321013612.GA7168@flying-brick.caverock.net.nz>
+References: <pan.2005.03.20.21.53.36.929746@brick.flying-brick.caverock.net.nz> <20050320164129.44d3a065.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050320164129.44d3a065.akpm@osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter <christoph@lameter.com> wrote:
->
-> On Sun, 20 Mar 2005, Andrew Morton wrote:
-> 
-> > > Hope Andrew is going to take the patch this time.
+On Sun, Mar 20, 2005 at 04:41:29PM -0800, Andrew Morton wrote:
+> viking <viking@flying-brick.caverock.net.nz> wrote:
 > >
-> > Hope Kenneth is going to test the alternate del_timer_sync patches in next
-> > -mm ;)
+> > I did note something strange. I'm running 2.6.11.2 at this moment, when I
+> >  tried 2.6.11.3, my USB Microsoft Wireless Optical Mouse stopped moving
+> >  from left to right, and would only move up and down if I physically moved
+> >  the mouse from left to right. I didn't see anything in the patches that
+> >  touched anything in the event handling, so frankly I'm puzzled.
+> >  Any clues as to where I need to look? I've seen this problem before, but
+> >  don't know what causes it, nor how I fixed it at the time.
+> >  Also, how do I get that patch that enables the tiltwheel (left-right
+> >  events)?
 > 
-> BTW Why are we going through this? Oleg has posted a much better solution
-> to this issue yersteday AFAIK.
+> Could you please test 2.6.12-rc1?
 
-That is what I was referring to.
+Yeesh. You ARE keen, aren't you. I'll attempt to do so over the next day or
+so. Thanks.
 
-Those patches need to be reviewed, performance tested and stability tested.
-It's appropriate that interested parties do that work, please.
-
+-- 
+ /|   _,.:*^*:.,   |\  Cheers from the Viking family, including Pippin, our cat
+| |_/'  viking@ `\_| |
+|    flying-brick    | $FunnyMail   : What do you mean, I've lost the plot?
+ \_.caverock.net.nz_/     5.40      : I planted them carrots right here!!

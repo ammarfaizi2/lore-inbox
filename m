@@ -1,64 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268399AbUHXDIs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268014AbUHXDXf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268399AbUHXDIs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 23:08:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268403AbUHXDIs
+	id S268014AbUHXDXf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 23:23:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268539AbUHXDXc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 23:08:48 -0400
-Received: from out009pub.verizon.net ([206.46.170.131]:60365 "EHLO
-	out009.verizon.net") by vger.kernel.org with ESMTP id S268399AbUHXDIn
+	Mon, 23 Aug 2004 23:23:32 -0400
+Received: from mail-13.iinet.net.au ([203.59.3.45]:63392 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S268014AbUHXDX3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 23:08:43 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org, Tom Vier <tmv@comcast.net>
-Subject: Re: Possible dcache BUG
-Date: Mon, 23 Aug 2004 23:08:41 -0400
-User-Agent: KMail/1.6.82
-References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org> <200408220105.25734.gene.heskett@verizon.net> <20040824023418.GD12622@zero>
-In-Reply-To: <20040824023418.GD12622@zero>
+	Mon, 23 Aug 2004 23:23:29 -0400
+Message-ID: <412AB4AC.8040702@cyberone.com.au>
+Date: Tue, 24 Aug 2004 13:23:24 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Performance of -mm2 and -mm4
+References: <336080000.1093280286@[10.10.2.4]>
+In-Reply-To: <336080000.1093280286@[10.10.2.4]>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200408232308.41244.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [151.205.62.54] at Mon, 23 Aug 2004 22:08:42 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 23 August 2004 22:34, Tom Vier wrote:
->On Sun, Aug 22, 2004 at 01:05:25AM -0400, Gene Heskett wrote:
->> Whereas the error was always at an odd address, and in the 2nd
->> LSbyte, now its still an odd address but the error has moved to
->> the MSB of a 32 bit fetch:
+
+
+Martin J. Bligh wrote:
+
+>Kernbench: (make -j vmlinux, maximal tasks)
+>                              Elapsed      System        User         CPU
+>                  2.6.8.1       43.90       87.76      572.94     1505.67
+>              2.6.8.1-mm1       44.26       87.71      574.73     1496.33
+>              2.6.8.1-mm2       44.27       90.27      574.84     1502.33
+>              2.6.8.1-mm4       45.87       97.60      595.23     1510.00
 >
->are you translating virt->phys?
+>mm2 seems to take slightly (but consistently) more systime than mm1, and
+>mm4 is significantly worse still ;-(
+>
+>
 
-No, this is straight out of the memburn output (after I'd fixed the 
-printf formatting strings to actually print full 8 character 
-hexidecimal, but not the address of the error, thats in decimal)
+Increasing base_timeslice here takes about 10s off the user time,
+and maybe 1-2 off elapsed. You may see a better improvement because
+the machine I'm testing on has very small caches; I assume you are
+using a 32-way NUMAQ with 1-2MB caches?
 
-I don't know enough about this to nail it to a physical address 
-unforch.
-
-And right now I have one of the two sticks pulled, trying to figure 
-out which one has the tummy ache, but himem is still compiled in and 
-cc1plus is going crazy, eating all ram and 500Megs of swap trying to 
-build the libsmoke stuff in the new 3.3 kde.  So I'm about to reboot 
-to a no himem support kernel since I only have half a Gig with just 
-one stick installed, and see if that fixes cc1plus.
-
-
-Thanks for asking.  I appreciate it.
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.24% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

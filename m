@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267379AbUBRRHQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 12:07:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267386AbUBRRHQ
+	id S265757AbUBRO5K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 09:57:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267460AbUBRO5K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 12:07:16 -0500
-Received: from dns.toxicfilms.tv ([150.254.37.24]:43147 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S267379AbUBRRHF
+	Wed, 18 Feb 2004 09:57:10 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:56471 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S265757AbUBRO5I
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 12:07:05 -0500
-Message-ID: <006701c3f641$9d695920$0e25fe96@pysiak>
-From: "Maciej Soltysiak" <solt@dns.toxicfilms.tv>
-To: <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0402172013320.2686@home.osdl.org><yw1xad3gd7l5.fsf@ford.guide><200402181417.06553.ianh@iahastie.local.net> <yw1x1xoscvl8.fsf@ford.guide> <002f01c3f632$29783f90$0e25fe96@pysiak> <Pine.LNX.4.58.0402181342030.670@pervalidus.dyndns.org>
-Subject: Re: [REALLY STUPID] Re: Linux 2.6.3
-Date: Wed, 18 Feb 2004 18:06:56 +0100
+	Wed, 18 Feb 2004 09:57:08 -0500
+Date: Wed, 18 Feb 2004 12:51:15 -0300 (BRT)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: linux-kernel@vger.kernel.org
+Subject: Security issues: upgrade to 2.4.25/2.6.3
+Message-ID: <Pine.LNX.4.58L.0402181239040.28957@logos.cnet>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-Spam-Rating: 0 1.6.2 0/1000/N
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Here in Poland, we have had a tv puppet show with a puppet dog called
-> > "Pankracy". [prenounced: pan-krah-tzee]
->
-> May I suggest ALF for americans, and Priscilla or Fofão for
-> brazilians ?
-And Colargol for the french maybe...
 
-I know getting someone, namely Linus, to review all the puppets characters
-and backgrounds and fit them to the kernel would be silly to even try to.
+Hi,
 
-Maybe it'd be best to throw a bunch of names into the spinning wheel and
-choose randomly.
+2.4.25 contains several security related fixes, including a fix for
+another sys_mremap vulnerability. Upgrade to 2.4.25 for those who use
+mainline kernels is recommended.
 
-This is how Pankracy and his master looked like:
-http://www.aiw.cad.pl/pankracy.jpg
+For those using distribution v2.4 kernels, the respective vendors should
+release kernel updates soon.
 
-Regards,
-Maciej
+For those using 2.6, upgrade to 2.6.3 is recommended.
 
+More details about the issue will be available soon (if not already) by
+complete security advisory by Paul Starzetz/CERT.

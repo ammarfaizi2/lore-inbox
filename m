@@ -1,72 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265547AbUABNUc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 08:20:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265539AbUABNUc
+	id S265566AbUABN0T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 08:26:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265568AbUABN0T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 08:20:32 -0500
-Received: from gprs178-245.eurotel.cz ([160.218.178.245]:33665 "EHLO
-	midnight.ucw.cz") by vger.kernel.org with ESMTP id S265554AbUABNUX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 08:20:23 -0500
-Date: Fri, 2 Jan 2004 14:20:31 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Go Taniguchi <go@turbolinux.co.jp>
-Cc: vojtech@suse.cz, Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.1-rc1 with JP106 keyboard
-Message-ID: <20040102132031.GC395@ucw.cz>
-References: <Pine.LNX.4.58.0312310033110.30995@home.osdl.org> <3FF4F8EA.6090602@turbolinux.co.jp> <3FF5059F.4010007@turbolinux.co.jp>
+	Fri, 2 Jan 2004 08:26:19 -0500
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:39635 "EHLO
+	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S265566AbUABN0P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 08:26:15 -0500
+Subject: Re: [RFC][PATCH] Move bv_offset/bv_len update after bio_endio in
+	__end_that_request_first
+From: Christophe Saout <christophe@saout.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1073048438.4239.10.camel@leto.cs.pocnet.net>
+References: <20040101173214.GA4496@leto.cs.pocnet.net>
+	 <20040102104637.GN5523@suse.de>
+	 <1073048438.4239.10.camel@leto.cs.pocnet.net>
+Content-Type: text/plain
+Message-Id: <1073049978.4239.14.camel@leto.cs.pocnet.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FF5059F.4010007@turbolinux.co.jp>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 02 Jan 2004 14:26:18 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 02, 2004 at 02:46:07PM +0900, Go Taniguchi wrote:
+Am Fr, den 02.01.2004 schrieb Christophe Saout um 14:00:
 
-> And more....
+> > > That's why I need to know exactly how many and which  bvecs were completed
+> > > in my bi_end_io function.
+> > > 
+> > > Or do you think it is safer to count backwards using bi_vcnt and bi_size?
+> > 
+> > I'm inclined to thinking that, indeed. Those two fields have a more well
+> > established usage, so I think you'll be better off doing that in the
+> > long run.
 > 
-> mae-kouho/henkan (scancode 0x79) 92 -> 184
-> mu-henkan (scancode 0x7b)        94 -> 185
-> 
-> -        85, 86, 90, 91, 92, 93, 14, 94, 95, 79,183, 75, 71,121,  0,123,
-> +         0, 86,193,192,184,  0, 14,185,  0, 79,182, 75, 71,124,  0,  0,
->                          ^ 0x79      ^ 0x7b
-> These are input method control keys.
+> Ok, if you say so. This and the IDE multwrite thing are the only two
+> places in the kernel preventing bi_idx to be usable this way. I just
+> thought it was nicer.
 
-Again, this is per (microsoft [*]) specification. These keys should,
-however, give the very same scancodes to X as they did on 2.4.
+... but I still need bv_offset and bv_len to be unchanged in the
+bio_endio call. Can we please do this?
 
-[*] I used this specification, because that's what the keyboard
-manufacturers seem to follow recently.
 
-> Go Taniguchi wrote:
-> >>
-> >>Vojtech Pavlik:
-> >>  o Fixes for keyboard 2.4 compatibility
-> >>
-> >
-> >Hi,
-> >2.6.1-rc1 with JP106 keybord. keycode was changed....
-> >                                        2.6.0 -> 2.6.1-rc1
-> >lower-right backslash (scancode 0x73)   89    -> 181
-> >upper-right backslash (scancode 0x7d)   183   -> 182
-> >
-> >at atkbd_set2_keycode in drivers/input/keyboard/atkbd.c
-> >
-> >-       122, 89, 40,120, 26, 13,  0,  0, 58, 54, 28, 27,  0, 43,  0,  0,
-> >+         0,181, 40,  0, 26, 13,  0,  0, 58, 54, 28, 27,  0, 43,  0,194,
-> >             ^ scancode 0x73
-> >
-> >-        85, 86, 90, 91, 92, 93, 14, 94, 95, 79,183, 75, 71,121,  0,123,
-> >+         0, 86,193,192,184,  0, 14,185,  0, 79,182, 75, 71,124,  0,  0,
-> >                                                 ^ scancode 0x7d
-> >Is this correct?
-> >2.6.0 is OK, but 2.6.1-rc1 does not get [|/_] keys.
-> 
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR

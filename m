@@ -1,47 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285060AbSADWQZ>; Fri, 4 Jan 2002 17:16:25 -0500
+	id <S285110AbSADWRP>; Fri, 4 Jan 2002 17:17:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285110AbSADWQQ>; Fri, 4 Jan 2002 17:16:16 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:31500 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S285060AbSADWP4>;
-	Fri, 4 Jan 2002 17:15:56 -0500
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
+	id <S285074AbSADWRG>; Fri, 4 Jan 2002 17:17:06 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:65021 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S285093AbSADWQR>;
+	Fri, 4 Jan 2002 17:16:17 -0500
+Date: Fri, 4 Jan 2002 15:15:13 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Bryan Henderson <hbryan@us.ibm.com>
+Cc: Andries.Brouwer@cwi.nl, acme@conectiva.com.br, ion@cs.columbia.edu,
+        linux-fsdevel@vger.kernel.org, linux-fsdevel-owner@vger.kernel.org,
+        linux-kernel@vger.kernel.org, phillips@bonn-fries.net
+Subject: Re: [CFT] [JANITORIAL] Unbork fs.h
+Message-ID: <20020104151513.Y12868@lynx.no>
+Mail-Followup-To: Bryan Henderson <hbryan@us.ibm.com>,
+	Andries.Brouwer@cwi.nl, acme@conectiva.com.br, ion@cs.columbia.edu,
+	linux-fsdevel@vger.kernel.org, linux-fsdevel-owner@vger.kernel.org,
+	linux-kernel@vger.kernel.org, phillips@bonn-fries.net
+In-Reply-To: <OF2FE44987.D9D207BC-ON87256B37.005AB446@boulder.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15414.10574.518266.221241@argo.ozlabs.ibm.com>
-Date: Sat, 5 Jan 2002 09:14:38 +1100 (EST)
-To: Florian Weimer <fw@deneb.enyo.de>
-Cc: Momchil Velikov <velco@fadata.bg>, Tom Rini <trini@kernel.crashing.org>,
-        linux-kernel@vger.kernel.org, gcc@gcc.gnu.org,
-        linuxppc-dev@lists.linuxppc.org
-Subject: Re: [PATCH] C undefined behavior fix
-In-Reply-To: <87itai32rg.fsf@deneb.enyo.de>
-In-Reply-To: <87g05py8qq.fsf@fadata.bg>
-	<20020101234350.GN28513@cpe-24-221-152-185.az.sprintbbd.net>
-	<87ital6y5r.fsf@fadata.bg>
-	<15411.36909.387949.863222@argo.ozlabs.ibm.com>
-	<87itai32rg.fsf@deneb.enyo.de>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <OF2FE44987.D9D207BC-ON87256B37.005AB446@boulder.ibm.com>; from hbryan@us.ibm.com on Fri, Jan 04, 2002 at 09:45:04AM -0700
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Florian Weimer writes:
-
-> Paul Mackerras <paulus@samba.org> writes:
+On Jan 04, 2002  09:45 -0700, Bryan Henderson wrote:
+> >>    sizeof (foo): 1611, sizeof(foo): 19364 => -bs should be removed
+> >> ...
+> >>    int
+> >>    foo(int x): 11408, int foo(int x): 57275 => -psl should be removed
+> >
+> >I do not think good style is best defined by majority vote.
 > 
-> > One of the reasons why C is a good language for the kernel is that its
-> > memory model is a good match to the memory organization used by the
-> > processors that linux runs on.  Thus, for these processors, adding an
-> > offset to a pointer is in fact simply an arithmetic addition.
-> 
-> But this is not the memory model of C!  Adding an offset to a pointer
-> is an operation involving objects defined by the C language, and not
-> machine registers.  Sometimes, this makes a noticeable difference.
+> I don't think the implication was that sizeof(foo) is better style because
+> more people like it.  The implication is that consistency is, in general,
+> good programming style and it's easier to arrive at consistency by adhering
+> to the majority style than by adhering to the minority style.
 
-Sorry, you are correct.  I should have written "One of the reasons why
-C used to be a good language for writing operating system kernels ..."
+That was my goal.
 
-Paul.
+> And I don't see what any of this has to do with whether an option should be
+> removed from Lindent.  Lindent should be a tool, which means it helps a
+> user do whatever he wants to do.  Whether he should want to do "sizeof
+> (foo)" is a separate issue.
+
+Well Lindent != indent.  The "indent" program can do formatting to the
+wishes of the user.  However, "Lindent" is a wrapper script which is
+trying to impose the will of Linus on other kernel programmers, and as
+such "what the user wants to do" is of no concern.  If they don't want
+to follow the "mandated" coding style, then they just don't use Lindent.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+

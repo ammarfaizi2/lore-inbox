@@ -1,56 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129562AbQK1RSb>; Tue, 28 Nov 2000 12:18:31 -0500
+        id <S129477AbQK1RVW>; Tue, 28 Nov 2000 12:21:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129520AbQK1RSV>; Tue, 28 Nov 2000 12:18:21 -0500
-Received: from www.dacome.co.kr ([210.182.20.2]:47877 "EHLO www.dacome.co.kr")
-        by vger.kernel.org with ESMTP id <S129562AbQK1RSG>;
-        Tue, 28 Nov 2000 12:18:06 -0500
-Date: Wed, 29 Nov 2000 01:51:06 +0900
-From: Young-Ho Cha <kernel@www.dacome.co.kr>
+        id <S129520AbQK1RVM>; Tue, 28 Nov 2000 12:21:12 -0500
+Received: from cs.wustl.edu ([128.252.165.15]:49631 "EHLO
+        taumsauk.cs.wustl.edu") by vger.kernel.org with ESMTP
+        id <S129477AbQK1RU6>; Tue, 28 Nov 2000 12:20:58 -0500
+From: Berkley Shands <berkley@cs.wustl.edu>
+Date: Tue, 28 Nov 2000 10:50:53 -0600 (CST)
+Message-Id: <200011281650.KAA0000004329@mudpuddle.cs.wustl.edu>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] nls support in isofs
-Message-ID: <20001129015106.A21407@www.dacome.co.kr>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="AqsLC8rIMeq19msA"
-X-Mailer: Mutt 1.0.1i
+Subject: /proc/net/atm/<device> handling wrong 2.4.0-test9+
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This has been reported in the linux-atm mailing list as well..
+/usr/src/linux/net/atm/proc.c has a problem.
+in 2.4.0-test9 and later, the routine atm_proc_dev_register(); is called
+before atm_proc_init();
+the latter is called at the very end of startup, long after the pci
+devices are
+initialized. This results in the /proc devices being in /proc/eni:1 or
+/proc/wuapic:1
+not in /proc/net/atm/eni:1 or /proc/net/atm/wuapic:1
 
---AqsLC8rIMeq19msA
-Content-Type: text/plain; charset=us-ascii
+here is a quicky patch to correct this.
 
-Hi. kernel hackers.
+diff -Naur linux-2.4.0-test11-clean/net/atm/proc.c linux/net/atm/proc.c
+--- linux-2.4.0-test11-clean/net/atm/proc.c     Sat Jul  8 21:26:13 2000
++++ linux/net/atm/proc.c        Tue Nov 28 10:24:17 2000
+@@ -547,6 +547,11 @@
+        int digits,num;
+        int error;
 
++/* atm_proc_init isn't called until the end of the startup */
++/* so make the call now instead */
++
++       if (! atm_proc_root)
++          atm_proc_init();             /* force /proc/net/atm to exist */
+        error = -ENOMEM;
+        digits = 0;
+        for (num = dev->number; num; num /= 10) digits++;
+@@ -589,9 +594,12 @@
+        struct proc_dir_entry *devices = NULL,*pvc = NULL,*svc = NULL;
+        struct proc_dir_entry *arp = NULL,*lec = NULL,*vc = NULL;
 
-I found a problem that isofs nls did not work in kernel 2.4.0-test*.
++       if (atm_proc_root)
++          return 0;            /* already made */
+        atm_proc_root = proc_mkdir("net/atm",NULL);
+        if (!atm_proc_root)
+                return -ENOMEM;
++
+        CREATE_ENTRY(devices);
+        CREATE_ENTRY(pvc);
+        CREATE_ENTRY(svc);
 
-so I compared with 2.2 series, and found that isofs default nls was written hard coding with iso8859.
-
-plz apply follwing patch.
-
-Regards,
---
-Young-Ho, Cha <ganadist@chollian.net>
-
---AqsLC8rIMeq19msA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="isofs.diff"
-
---- linux/fs/inode.c.orig	Tue Nov 28 13:22:25 2000
-+++ linux/fs/inode.c	Tue Nov 28 13:22:45 2000
-@@ -737,7 +737,7 @@
- 
- #ifdef CONFIG_JOLIET
- 	if (joliet_level && opt.utf8 == 0) {
--		char * p = opt.iocharset ? opt.iocharset : "iso8859-1";
-+		char * p = opt.iocharset ? opt.iocharset : CONFIG_NLS_DEFAULT;
- 		s->u.isofs_sb.s_nls_iocharset = load_nls(p);
- 		if (! s->u.isofs_sb.s_nls_iocharset) {
- 			/* Fail only if explicit charset specified */
-
---AqsLC8rIMeq19msA--
+berkley
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

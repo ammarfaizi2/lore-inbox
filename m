@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261894AbSJEBVT>; Fri, 4 Oct 2002 21:21:19 -0400
+	id <S261811AbSJEBdy>; Fri, 4 Oct 2002 21:33:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261900AbSJEBVT>; Fri, 4 Oct 2002 21:21:19 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:28064 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261894AbSJEBVS>; Fri, 4 Oct 2002 21:21:18 -0400
-Subject: Re: [OT] 2.6 not 3.0 - (NUMA)
-From: Michael Hohnbaum <hohnbaum@us.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0210041730450.2993-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0210041730450.2993-100000@home.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 04 Oct 2002 18:25:45 -0700
-Message-Id: <1033781147.1210.46.camel@hbaum>
+	id <S261815AbSJEBdy>; Fri, 4 Oct 2002 21:33:54 -0400
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:61958 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S261811AbSJEBdx>; Fri, 4 Oct 2002 21:33:53 -0400
+Date: Sat, 5 Oct 2002 02:39:27 +0100
+From: John Levon <levon@movementarian.org>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: export of sys_call_table
+Message-ID: <20021005013927.GB27351@compsoc.man.ac.uk>
+References: <20021003153943.E22418@openss7.org> <20021003221525.GA2221@kroah.com> <20021003222716.GB14919@suse.de> <1033684027.1247.43.camel@phantasy> <20021003233504.GA20570@suse.de> <20021003235022.GA82187@compsoc.man.ac.uk> <mailman.1033691043.6446.linux-kernel2news@redhat.com> <200210040403.g9443Vu03329@devserv.devel.redhat.com> <20021003233221.C31444@openss7.org> <20021004133657.B17216@devserv.devel.redhat.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021004133657.B17216@devserv.devel.redhat.com>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Oct 04, 2002 at 01:36:57PM -0400, Pete Zaitcev wrote:
 
+> The oprofile author seems to have things fixed already,
+> though the change did not filter down yet. He's also thin
+> skinned and was fuming a little
 
-On Fri, 2002-10-04 at 17:36, Linus Torvalds wrote:
+Simple I find it a little poor form to change the kernel API
+significantly, without taking the courtesy to notify people. I do not
+classify this as "thin-skinned".
 
-> > Just an order of magnitude figure for you ... number of seconds spent in kernel
-> > space across all CPUs during a kernel compile on a 16-way NUMA-Q ... 
-> > 
-> > 2.4 with every patch I had (including O(1) sched + NUMA mods) ... 120s. 
-> > On 2.5.40-mm1 with one small NUMA scheduler patch ... 38s. 
-> 
-> Yeah, looking good..
-> 
-Now if we could get the "one small NUMA scheduler patch" into the
-kernel...
+It's no big deal and is entirely irrelevant to the technical issues
+involved.
 
-> 		Linus
-> 
-> 
+> seriously rattled by DaveM in similar circumstances, and coming
+> out just fine.
+
+I believe I shall survive ;)
+
+regards
+john
+
 -- 
-Michael Hohnbaum            503-578-5486
-hohnbaum@us.ibm.com         T/L 775-5486
-
+"Me and my friends are so smart, we invented this new kind of art:
+ Post-modernist throwing darts"
+	- the Moldy Peaches

@@ -1,67 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135741AbRDXUkx>; Tue, 24 Apr 2001 16:40:53 -0400
+	id <S135739AbRDXUkX>; Tue, 24 Apr 2001 16:40:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135742AbRDXUkn>; Tue, 24 Apr 2001 16:40:43 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:45577 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S135741AbRDXUkb>;
-	Tue, 24 Apr 2001 16:40:31 -0400
-Date: Tue, 24 Apr 2001 12:41:16 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-        linux-usb-devel@lists.sourceforge.net,
-        Linux-usb-users@lists.sourceforge.net
-Subject: 2001-04-24 release of hotplug scripts
-Message-ID: <20010424124116.A13291@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Operating-System: Linux 2.2.19 (i586)
+	id <S135741AbRDXUkN>; Tue, 24 Apr 2001 16:40:13 -0400
+Received: from mm02snlnto.sandia.gov ([132.175.109.21]:20228 "HELO
+	mm02snlnto.sandia.gov") by vger.kernel.org with SMTP
+	id <S135739AbRDXUkE>; Tue, 24 Apr 2001 16:40:04 -0400
+X-Server-Uuid: 7edb479a-fd89-11d2-9a77-0090273cd58c
+Message-ID: <3AE5E4A0.E6D5F6E9@sandia.gov>
+Date: Tue, 24 Apr 2001 14:40:00 -0600
+From: "Jim Schutt" <jaschut@sandia.gov>
+X-Mailer: Mozilla 4.7 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Spurious interrupts for UP w/ IO-APIC on ServerWorks
+X-Filter-Version: 1.3 (sass165)
+X-WSS-ID: 16FB3B2A779281-01-01
+Content-Type: text/plain; 
+ charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've just packaged up the latest Linux hotplug scripts into a release,
-which can be found at:
-	http://sourceforge.net/project/showfiles.php?group_id=17679
- 
-This release adds the Debian scripts to the tarball, although all of the
-debian specific changes were not merged into the main scripts, it would
-have caused too much conflict, sorry.  But the Debian patch is now much
-smaller :)  It also adds a hotplug manpage donated by Debian developer
-Fumitoshi UKAI.
+Alan Cox wrote:
 
-Numerous little changes were also added to the scripts, here is the full
-changelog:
-        - added debian hotplug.8 manpage by Fumitoshi UKAI
-        - bugfixes to modprobing
-        - make sure setup scripts run even when there is no module
-        - "event not supported" only seen if debugging
-        - added debian directory filled with things needed to package
-          the scripts for a debian release.
-        - make sure setup scripts (for usermode drivers/apps) will
-          run even without a kernel driver
-        - bugfix match_flags support from Gioele Barabuci; might
-          require bash2-isms
-        - add kernel 2.2.18 bcdDevice bug workaround (Ben Woodard)
-        - cleanups from Gioele Barabuci
-        - tweaked the post and preun sections to fix problem of hotplug
-          not starting automatically when the package is upgraded.
+> > I've got a dual-processor system built around the Intel SBT2 motherboard, 
+> > which uses the ServerWorks LE chipset. 2.4.3 SMP works fine. When I 
+> > build a UP kernel with IO-APIC support, I get this during boot: 
+> 
+> Turn off the OSB4 driver - bet that helps 
 
-I've built RedHat 6.x and 7.x specific rpms due to some small
-differences in where the two version place their documentation.  The
-individual releases are at:
+It does -- no more spurious interrupts.
 
-For RedHat 6.x:
-	http://prdownloads.sourceforge.net/linux-hotplug/hotplug-2001_04_24-1_6.x.noarch.rpm
-	http://prdownloads.sourceforge.net/linux-hotplug/hotplug-2001_04_24-1_6.x.src.rpm
+Thanks -- Jim
 
-For RedHat 7.x:
-	http://prdownloads.sourceforge.net/linux-hotplug/hotplug-2001_04_24-1_7.x.noarch.rpm
-	http://prdownloads.sourceforge.net/linux-hotplug/hotplug-2001_04_24-1_7.x.src.rpm
+-- 
+Jim Schutt  <jaschut@sandia.gov>
+Sandia National Laboratories, Albuquerque, New Mexico USA
 
-Source tarball:
-	http://prdownloads.sourceforge.net/linux-hotplug/hotplug-2001_04_24.tar.gz
-	
-
-greg k-h

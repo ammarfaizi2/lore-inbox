@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273938AbRIXPfq>; Mon, 24 Sep 2001 11:35:46 -0400
+	id <S273949AbRIXPj4>; Mon, 24 Sep 2001 11:39:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273952AbRIXPfg>; Mon, 24 Sep 2001 11:35:36 -0400
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:8788 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S273938AbRIXPf2> convert rfc822-to-8bit; Mon, 24 Sep 2001 11:35:28 -0400
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Christian =?iso-8859-1?q?Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: __alloc_pages: 0-order allocation failed
-Date: Mon, 24 Sep 2001 17:33:58 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <Pine.LNX.4.21.0109240933390.1593-100000@freak.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.21.0109240933390.1593-100000@freak.distro.conectiva>
+	id <S273940AbRIXPjq>; Mon, 24 Sep 2001 11:39:46 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:47113 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S273949AbRIXPjf>; Mon, 24 Sep 2001 11:39:35 -0400
+Subject: Re: [PATCH] 2.4.10 improved reiserfs a lot, but could still be better
+To: matthias.andree@stud.uni-dortmund.de (Matthias Andree)
+Date: Mon, 24 Sep 2001 16:45:03 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+In-Reply-To: <20010924173210.A7630@emma1.emma.line.org> from "Matthias Andree" at Sep 24, 2001 05:32:10 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <E15lXlS-0004WS-00@mrvdom01.schlund.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15lXup-0002uj-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> For the people having the allocation failure problems, please try the
-> following patch.
+> > better. Decent write caching on IDE devices (like the 2meg buffer on the IBM) 
+> > can completely hide this issue.
+> 
+> Decent write caching on IDE devices can eat your whole file system.
 
-I tried it. No success.
-dmesg: after the "bad" program I wrote some mail ago.
+YM bad write caching 8)
 
-__alloc_pages: 0-order allocation failed (gfp=0x1d2/0) from c0123cc1
-VM: killing process a.out
+> Turn it off (I have no idea of internals, but I presume it'll still be a
+> write-through cache, so reading back will still be served from the
+> buffer). Do hdparm -W0 /dev/hd[a-h].
 
-I forgot to mention:
-
-c0123c60 t page_cache_read
-c0123d10 t read_cluster_nonblocking
-
-If you need  a backtrace, we should insert a panic into the code to get a 
-full back trace for the debugging.
-
-greetings
-
-Christian Bornträger
+You can't turn it off and on many drives you can't flush the cache either
+the operation is not implemented.

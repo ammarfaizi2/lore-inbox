@@ -1,59 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130836AbQKSO0l>; Sun, 19 Nov 2000 09:26:41 -0500
+	id <S129696AbQKSOgX>; Sun, 19 Nov 2000 09:36:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129696AbQKSO0c>; Sun, 19 Nov 2000 09:26:32 -0500
-Received: from h-dialin-14.addcom.de ([213.61.83.14]:13061 "EHLO
-	server1.localnet") by vger.kernel.org with ESMTP id <S129549AbQKSO0W> convert rfc822-to-8bit;
-	Sun, 19 Nov 2000 09:26:22 -0500
-To: andre@linux-ide.org
-Cc: rene.rebe@gmx.net, linux-kernel@vger.kernel.org
-Subject: Re: VIA IDE UDMA Mode x -> CRC-ERRORs (2.4.0-testxx)
-From: Rene Rebe <rene.rebe@gmx.net>
-In-Reply-To: <Pine.LNX.4.10.10011181725580.18257-100000@master.linux-ide.org>
-In-Reply-To: <20001118233837L.rene@jackson>
-	<Pine.LNX.4.10.10011181725580.18257-100000@master.linux-ide.org>
-X-Mailer: Mew version 1.94.2 on XEmacs 21.1 (GTK)
+	id <S129549AbQKSOgN>; Sun, 19 Nov 2000 09:36:13 -0500
+Received: from relay2.inwind.it ([212.141.53.73]:6325 "EHLO relay2.inwind.it")
+	by vger.kernel.org with ESMTP id <S129696AbQKSOgA>;
+	Sun, 19 Nov 2000 09:36:00 -0500
+Date: Sun, 19 Nov 2000 15:06:45 +0100
+From: Gianluca Anzolin <g.anzolin@inwind.it>
+To: linux-kernel@vger.kernel.org
+Subject: XMMS not working on 2.4.0-test11-pre7
+Message-ID: <20001119150645.A732@fourier.home.intranet>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <20001119130207A.rene@jackson>
-Date: Sun, 19 Nov 2000 13:02:07 +0100
-X-Dispatcher: imput version 20000228(IM140)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+it seems there has been a change in the format of the /proc/cpuinfo file: infact 'flags: ' became 'features: '
 
-Thanks for the fast reply - but I can't follow. What is the _tuning
-aspect_ and how is it modified?
+This change broke xmms and could broke any other program which relies on /proc/cpuinfo... 
 
-Andre Hedrick <andre@linux-ide.org> wrote:
+I hope the problem will be solved (in the kernel or in every other program which uses /proc/cpuinfo) soon...
 
-> 
-> There is a problem that it does not downgrade the IO if all you have is
-> iCRC errors.  The threshold is 10 events without other errors and it
-> should skip you from ATA-66 to ATA-44.  If you did not enable the tuning
-> aspect of the chipset then do so now.
-> 
-> Regards,
-> 
-> Andre Hedrick
-> CTO Timpanogas Research Group
-> EVP Linux Development, TRG
-> Linux ATA Development
-> 
-
-k33p h4ck1n6 René
-
--- 
-René Rebe (Registered Linux user: #127875)
-http://www.rene.rebe.myokay.net/
--Germany-
-
-Anyone sending unwanted advertising e-mail to this address will be charged
-$25 for network traffic and computing time. By extracting my address from
-this message or its header, you agree to these terms.
+Bye
+	Gianluca
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,74 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313847AbSDJVZN>; Wed, 10 Apr 2002 17:25:13 -0400
+	id <S313850AbSDJVaL>; Wed, 10 Apr 2002 17:30:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313854AbSDJVZM>; Wed, 10 Apr 2002 17:25:12 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:9396 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S313847AbSDJVZL>; Wed, 10 Apr 2002 17:25:11 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: linux-kernel@vger.kernel.org
-Date: Wed, 10 Apr 2002 14:23:23 -0700 (PDT)
-Subject: Kernel developer attitudes, a problem to watch for.
-Message-ID: <Pine.LNX.4.44.0204101421000.29888-100000@dlang.diginsite.com>
+	id <S313854AbSDJVaK>; Wed, 10 Apr 2002 17:30:10 -0400
+Received: from mail.cert.uni-stuttgart.de ([129.69.16.17]:42982 "HELO
+	Mail.CERT.Uni-Stuttgart.DE") by vger.kernel.org with SMTP
+	id <S313850AbSDJVaJ>; Wed, 10 Apr 2002 17:30:09 -0400
+To: "Torrey Hoffman" <Torrey.Hoffman@myrio.com>
+Cc: "James Simmons" <jsimmons@transvirtual.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: ReiserFS Bug Fixes 3 of 6 (Please apply all 6)
+In-Reply-To: <A015F722AB845E4B8458CBABDFFE63420FE3D3@mail0.myrio.com>
+From: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
+Date: Wed, 10 Apr 2002 23:28:56 +0200
+Message-ID: <878z7vxmxz.fsf@CERT.Uni-Stuttgart.DE>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.1 (i686-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I sent this message on a thread that I didn't realize wasn't on the list
-anymore so I am trimming it and resending it. To avoid offending anyone I
-am not refering to the thread that triggered this.
+"Torrey Hoffman" <Torrey.Hoffman@myrio.com> writes:
 
+> well, technically that's true.  However they would not be able to link 
+> it into the proprietary operating system and then distribute it without 
+> violating the GPL.
 
-This applies to everyone. any statements in quotes mentioned below are not
-intended to be a quote of the people involved, but are instead intended to
-summarize an attitude that seems to be common in developers who get into
-this situation.
+Are you sure?  Here's a quote from the GPL:
 
-<Soapbox>
+| However, as a special exception, the source code distributed need not
+| include anything that is normally distributed (in either source or
+| binary form) with the major components (compiler, kernel, and so on)
+| of the operating system on which the executable runs, unless that
+| component itself accompanies the executable.
 
-Just becouse you have been the person working on a piece of the kernel and
-fully understand it and have grand plans for how it should go in the
-future still doesn't give you full control over that subsystem. You have
-to explain what you are doing and why, just saying 'I know best' doesn't
-go over well. Donald Becker had this problem and is no longer the primary
-maintainer of network drivers in 2.4+. Dave (I for get the last name but
-the networking layer) had this problem for a while, but changed his mode
-of operating and has been continuing to contribute. The mess with the VM
-system in early 2.4 with Rik was another case, now rik is producing
-patches that are being accepted instead of being frustrated that his code
-is being tinkered with by 'people who don't know what they are doing' (a
-classification that can and does at times include Linus).  There have been
-many others (Richard with devfs, aa with the VM stuff, I'm sure anyone who
-has watched things for a year or so can name a dozen others) and all start
-off saying 'here is my monolithic piece please put it in the kernel' and
-those that stick around and contribute over the long term learn to say
-'here is this small piece, this is what it does, this is why (and if it
-doen't fix anything immediatly, this is what I am working towards). You
-also need to expect that other people will produce patches that affect
-your code. when this happens you need to either accept them, fix them, or
-explain exactly what's wrong with them (and saying ' this will be the end
-of the world' or 'it doesn't fit the long term plans' without explaining
-those long term plans first isn't good enough). If you don't do this then
-you get frustrated when other people 'muck up' your subsystem and when
-your fixes are ignored by Linus.
+Modules for proprietary kernels seem to be okay, don't they?
 
-Note specificly that IT DOES NOT MATTER how well you know the subject you
-are coding if your code doesn't make it into the kernel or gets removed
-and replaced by someone elses version that has problems becouse your grand
-plan isn't understood. No one person is such a perfect programmer that
-their code as above reproach and criticism. I'm not saying leave your ego
-at home, but I am saying you need to not let your ego get so large that
-you stop accepting corrections and criticisms from others.
+> - or, implement it in _user-space_ as an entirely GPL'ed application.
 
-</Soapbox>
+I don't see the user space requirement.
 
-This is not an attack on anyone and I apologize if I implied attitudes
-that people don't think they have. I am attempting to get everyone to
-think a little on the subject as it is something that seems to be a
-chronic problem in the kernel development community.
+> Finally, that second option could be even more difficult... I hear 
+> MS has recently changed the terms of their C run-time-library license
+> to forbid use by GPLed code.
 
-David Lang
+This is extremely unlikely, as Microsoft is selling its own version of
+an operation system with GNU components. ;-)
 
-
+-- 
+Florian Weimer 	                  Weimer@CERT.Uni-Stuttgart.DE
+University of Stuttgart           http://CERT.Uni-Stuttgart.DE/people/fw/
+RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898

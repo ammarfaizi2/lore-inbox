@@ -1,65 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267769AbUJRT6v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267777AbUJRT74@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267769AbUJRT6v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 15:58:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267720AbUJRTzz
+	id S267777AbUJRT74 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 15:59:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267772AbUJRTzQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 15:55:55 -0400
-Received: from mail.scitechsoft.com ([63.195.13.67]:55208 "EHLO
-	mail.scitechsoft.com") by vger.kernel.org with ESMTP
-	id S267713AbUJRTuu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 15:50:50 -0400
-From: "Kendall Bennett" <KendallB@scitechsoft.com>
-Organization: SciTech Software, Inc.
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Mon, 18 Oct 2004 12:50:41 -0700
-MIME-Version: 1.0
-Subject: Re: Running user processes in kernel mode; Java and .NET support	in kernel
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-ID: <4173BC21.24859.11899F91@localhost>
-In-reply-to: <1097980064.13433.12.camel@localhost.localdomain>
-References: <82fa66380410152111143f75ec@mail.gmail.com>
-X-mailer: Pegasus Mail for Windows (4.21c)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
-X-Spam-Flag: NO
+	Mon, 18 Oct 2004 15:55:16 -0400
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:10002 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S267730AbUJRTww
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 15:52:52 -0400
+Date: Mon, 18 Oct 2004 12:52:25 -0700
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Bill Huey <bhuey@lnxw.com>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U5
+Message-ID: <20041018195225.GB23217@nietzsche.lynx.com>
+References: <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041018193251.GA15313@nietzsche.lynx.com> <20041018193603.GB8159@elte.hu> <20041018194040.GC15313@nietzsche.lynx.com> <20041018194632.GB9550@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041018194632.GB9550@elte.hu>
+User-Agent: Mutt/1.5.6+20040907i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+On Mon, Oct 18, 2004 at 09:46:32PM +0200, Ingo Molnar wrote:
+> since 2.6.9's release is imminent there will unlikely be an -rc4-mm2,
+> 2.6.9-mm1 should be the next one.
 
-> Why would I care ? I need the MMU for paging and to avoid
-> fragmentation of the system. If I have the MMU on then memory
-> protection checks are free. 
-> 
-> Except in 4G/4G mode syscalls are extremely cheap too nowdays.
+The new kgdb logic is a bit foreign to me. I'll have to look at it a
+bit more, but this kgdb build problem is criticial for a certain
+part of the kernel community that needs it. I've commented out that
+section and rebuilding it now.
 
-Yes, but kernel mode support in user programs would allow user mode 
-device drivers to do stuff that currently cannot be done at all from user 
-space such as handling interrupts and scheduling DMA operations.
+To get kgdb work (referencing my tree), I've just demoted all of the
+spinlocks in arch/i386/{kernel,lib}/kgdb*.c files. It's pretty straight
+forward, nothing tricky at all.
 
-Just think about how nice it would be if the kernel level DRI driver 
-modules that are currently completely separate from the user space X 
-drivers could be all in one place? Then users would no longer have to 
-worry about making sure they upgrade their kernel so it has the correct 
-kernel module installed at the same time that they upgrade X or get new 
-drivers for their X server.
-
-IMHO I am not sure how much speedup you would gain from kernel mode Linux 
-for user space programs (it might surprise us, or maybe it isn't much), 
-but the ability to support user mode device drivers would be good IMHO, 
-especially for graphics.
-
-Regards,
-
----
-Kendall Bennett
-Chief Executive Officer
-SciTech Software, Inc.
-Phone: (530) 894 8400
-http://www.scitechsoft.com
-
-~ SciTech SNAP - The future of device driver technology! ~
-
+bill
 

@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283511AbRK3EuO>; Thu, 29 Nov 2001 23:50:14 -0500
+	id <S283498AbRK3EvY>; Thu, 29 Nov 2001 23:51:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283507AbRK3EuE>; Thu, 29 Nov 2001 23:50:04 -0500
-Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:4996 "EHLO
-	mirai.cx") by vger.kernel.org with ESMTP id <S283498AbRK3Et4>;
-	Thu, 29 Nov 2001 23:49:56 -0500
-Message-ID: <3C070FEC.3602CB49@pobox.com>
-Date: Thu, 29 Nov 2001 20:49:48 -0800
-From: J Sloan <jjs@pobox.com>
-Organization: J S Concepts
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.16-tux2-ll i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Nathan Poznick <poznick@conwaycorp.net>
-CC: Sven Heinicke <sven@research.nj.nec.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.16 freezed up with eepro100 module
-In-Reply-To: <15366.21354.879039.718967@abasin.nj.nec.com> <20011129095107.A17457@conwaycorp.net>
+	id <S283502AbRK3EvP>; Thu, 29 Nov 2001 23:51:15 -0500
+Received: from news.heim1.tu-clausthal.de ([139.174.234.200]:28701 "EHLO
+	neuemuenze.heim1.tu-clausthal.de") by vger.kernel.org with ESMTP
+	id <S283498AbRK3EvA>; Thu, 29 Nov 2001 23:51:00 -0500
+Date: Fri, 30 Nov 2001 05:51:07 +0100
+From: Sven.Riedel@tu-clausthal.de
+To: Erik Andersen <andersen@codepoet.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: via82cxxx_audio doesn't play audio?
+Message-ID: <20011130055107.A14305@moog.heim1.tu-clausthal.de>
+In-Reply-To: <20011129190617.A3975@codepoet.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20011129190617.A3975@codepoet.org>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Poznick wrote:
+On Thu, Nov 29, 2001 at 07:06:17PM -0700, Erik Andersen wrote:
+> But standard apps such as xmms produce no sound.  Does this
+> driver not work for anyone else? 
 
-> Thus spake Sven Heinicke:
-> >
-> > The 2.4.16 kernel finally makes my clients happy with memory
-> > management.  The systems that froz up is a Dell of some sort or other
-> > with two 1Ghz Pentium IIIs and 4G of memory.  But, now I seems to be
-> > having ethernet problems.  With and eepro100 card:
->
-> I've encountered the same problem, with the same hardware setup (I
-> believe it's a Dell 2400, or something like that), on 2.4.14+xfs.  For
-> me it didn't lock up the entire machine however, it only seemed to
-> kill the network - I was able to reboot the machine cleanly once I got
-> to the console. (message from yesterday with the subject 'failed
-> assertion in tcp.c')  I too, am open to suggestions :-)
+Yeah, works for me on an Epox 8KTA3+ pro, same module.
 
-Similar experience here - the network connectivity
-would go away, but the machine was still alive.
+PCI: Found IRQ 12 for device 00:07.5
+ac97_codec: AC97 Audio codec, id: 0x4943:0x4511 (ICE1232)
+via82cxxx: board #1 at 0x9C00, IRQ 12
 
-Using the e100 driver instead seemed to solve the
-problem on the dell servers here.
+Bus  0, device   7, function  5:
+   Multimedia audio controller: VIA Technologies, Inc. AC97 Audio
+      Controller (rev 80).
+      IRQ 12.
+      I/O at 0x9c00 [0x9cff].
+      I/O at 0xa000 [0xa003].
+      I/O at 0xa400 [0xa403].
 
-But I didn't have to reboot - just stopped networking,
-unloaded the eepro100 drivers, loaded the e100
-drivers and started networking.
+Alsa otoh doesn't work for me (it used to, but then...).
 
-cu
+Which mixer do you use? gom works for me, maybe different mixers don't
+work with all cards (I had that problem with 2.0 kernels, don't know
+about todays state, though).
 
-jjs
+Regs,
+Sven
 
-
+-- 
+Sven Riedel                      sr@gimp.org
+Osteroeder Str. 6 / App. 13      sven.riedel@tu-clausthal.de
+38678 Clausthal                  "Call me bored, but don't call me boring."
+                                 - Larry Wall 

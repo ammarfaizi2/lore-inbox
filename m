@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131576AbRAKVog>; Thu, 11 Jan 2001 16:44:36 -0500
+	id <S132957AbRAKVs5>; Thu, 11 Jan 2001 16:48:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132957AbRAKVo0>; Thu, 11 Jan 2001 16:44:26 -0500
-Received: from [24.65.192.120] ([24.65.192.120]:21498 "EHLO webber.adilger.net")
-	by vger.kernel.org with ESMTP id <S131576AbRAKVoU>;
-	Thu, 11 Jan 2001 16:44:20 -0500
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200101112142.f0BLgXE05982@webber.adilger.net>
-Subject: Re: Strange umount problem in latest 2.4.0 kernels
-In-Reply-To: <3A5E0886.4389692E@Hell.WH8.TU-Dresden.De> "from Udo A. Steinberg
- at Jan 11, 2001 08:24:54 pm"
-To: "Udo A. Steinberg" <sorisor@hell.wh8.tu-dresden.de>
-Date: Thu, 11 Jan 2001 14:42:32 -0700 (MST)
-CC: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL73 (25)]
+	id <S135214AbRAKVss>; Thu, 11 Jan 2001 16:48:48 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:55312 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S132957AbRAKVsf>;
+	Thu, 11 Jan 2001 16:48:35 -0500
+Message-ID: <3A5E29D4.1AA38368@mandrakesoft.com>
+Date: Thu, 11 Jan 2001 16:47:00 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Frank de Lange <frank@unternet.org>
+CC: Andrew Morton <andrewm@uow.edu.au>, linux-kernel@vger.kernel.org
+Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware 
+ related?
+In-Reply-To: <20010110223015.B18085@unternet.org> <3A5D9D87.8A868F6A@uow.edu.au> <20010111220943.F3269@unternet.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Udo, you write:
-> Anyway, disabled both lpd and httpd from the startup scripts
-> and now the bug is triggered *every* time. I cannot reboot
-> a single time without partitions being busy. When neither
-> lpd nor httpd run, fsck finds nothing wrong.
+Frank de Lange wrote:
 > 
-> The very strange stuff is umount at reboot:
+> OK, just one last addition to what has nearly become my own thread...
 > 
-> umount: none busy - remounted read-only
-          ^^^^
-Check the output of "mount" and/or your /etc/fstab for a device called
-"none".  On my system, there is devpts which has device "none", so it
-is possible this is busy, and can't be unmounted, and hence root is also
-busy and can't be ro remounted.  Maybe also check /proc/mounts for "none".
+> I now am fairly certain that the problem (network stalls on multiprocessor systems) is not BP6 or NE2K-PCI specific. I found several postings which relate to similar problems on dissimilar hardware. Another interesting one is:
 
-> umount: /: device is busy
-> Remounting root-filesystem read-only
-> mount: / is busy
-> Rebooting.
+>        I have reported it some time ago, and now all I get with
+>        2.4.0-test11-pre4 and I think a additional patch is  NETDEV WATCHDOG:
+>        eth0: transmit timed out, and something in the console about lost irq?
 
-Cheers, Andreas
+
+
+Are you judging based on the error message?  The 'netdev watchdog ...'
+message is a generic error message that could have any number of
+causes.  It's just saying, well, what it says :)  The kernel was unable
+to transmit a packet in a certain amount of time.  You might get these
+messages if you unplug a cable suddenly, or if your hardware isn't
+delivering interrupts, or many other things...
+
+	Jeff
+
+
 -- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+Jeff Garzik       | "You see, in this world there's two kinds of
+Building 1024     |  people, my friend: Those with loaded guns
+MandrakeSoft      |  and those who dig. You dig."  --Blondie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

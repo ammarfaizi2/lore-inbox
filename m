@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262830AbTENUv4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 16:51:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbTENUv4
+	id S262816AbTENUuc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 16:50:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262820AbTENUuc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 16:51:56 -0400
-Received: from pengo.systems.pipex.net ([62.241.160.193]:21404 "HELO
-	pengo.systems.pipex.net") by vger.kernel.org with SMTP
-	id S262830AbTENUvy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 16:51:54 -0400
-From: shaheed <srhaque@iee.org>
-To: Robert Love <rml@tech9.net>, Felipe Alfaro Solana <yo@felipe-alfaro.com>
-Subject: Re: 2.6 must-fix list, v2
-Date: Wed, 14 May 2003 22:01:59 +0100
-User-Agent: KMail/1.5
-Cc: Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>
-References: <1050146434.3e97f68300fff@netmail.pipex.net> <1052910149.586.3.camel@teapot.felipe-alfaro.com> <1052927975.883.9.camel@icbm>
-In-Reply-To: <1052927975.883.9.camel@icbm>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 14 May 2003 16:50:32 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:47518 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262816AbTENUub (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 16:50:31 -0400
+Date: Wed, 14 May 2003 14:02:57 -0700 (PDT)
+Message-Id: <20030514.140257.26294164.davem@redhat.com>
+To: greg@kroah.com
+Cc: chas@cmf.nrl.navy.mil, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][ATM] add reference counting to atm_dev
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030514205949.GA3945@kroah.com>
+References: <200305142020.h4EKK9J01052@relax.cmf.nrl.navy.mil>
+	<20030514205949.GA3945@kroah.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305142201.59912.srhaque@iee.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 14 May 2003 4:59 pm, Robert Love wrote:
+   From: Greg KH <greg@kroah.com>
+   Date: Wed, 14 May 2003 13:59:49 -0700
+   
+   Any reason to not just use a struct device here?  This is a device,
+   right?  Or at the very least, a kobject would be acceptable.
 
-> You can get exclusive access with mangling the system call, simply by
-> having init  bind itself to the non-exclusive processors on boot.
->
-> Try it. Every task will then end up on only the non-exclusive
-> processors.  Seems a very simple change to me, and one that can be done
-> in user-space.
->
-> You do not even have to modify init, if you do not want.  Grab
-> http://tech9.net/rml/schedutils and put a taskset call in your rc.d
+As I understand it, it's a device private for a struct netdevice.
 
-Ah. I think I misread your previous note to me on this...that's why my patch 
-modifies init itself (it does not muck with the syscall in any way). I'll try 
-this as soon as I have my 2.5 multiprocessor back. BTW: what are the plans 
-for getting schedutils (and specifically taskset) into a normal 2.6-based 
-distribution? Can I be reasonably sure that this will happen?
+It is referenced much differently, I don't think using kobject
+is as appropriate as one might expect.

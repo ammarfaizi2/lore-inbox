@@ -1,44 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265225AbUEYU6E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265229AbUEYU6p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265225AbUEYU6E (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 16:58:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265226AbUEYU6E
+	id S265229AbUEYU6p (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 16:58:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265226AbUEYU6p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 16:58:04 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:396 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265225AbUEYU6B (ORCPT
+	Tue, 25 May 2004 16:58:45 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:34514 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265206AbUEYU6l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 16:58:01 -0400
-Subject: Re: System clock speed too high - 2.6.3 kernel
-From: john stultz <johnstul@us.ibm.com>
-To: Joris van Rantwijk <joris@eljakim.nl>
-Cc: lkml <linux-kernel@vger.kernel.org>, Dominik Brodowski <linux@brodo.de>
-In-Reply-To: <Pine.LNX.4.58.0405251112040.30050@eljakim.netsystem.nl>
-References: <1E4zj-77w-69@gated-at.bofh.it>
-	 <Pine.LNX.4.58.0405251112040.30050@eljakim.netsystem.nl>
-Content-Type: text/plain
-Message-Id: <1085518688.8653.19.camel@cog.beaverton.ibm.com>
+	Tue, 25 May 2004 16:58:41 -0400
+Date: Tue, 25 May 2004 13:57:48 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: wesolows@foobazco.org, willy@debian.org, andrea@suse.de,
+       benh@kernel.crashing.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       mingo@elte.hu, bcrl@kvack.org, linux-mm@kvack.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH] ppc64: Fix possible race with set_pte on a present PTE
+Message-Id: <20040525135748.296ba888.davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.58.0405251340160.9951@ppc970.osdl.org>
+References: <1085369393.15315.28.camel@gaston>
+	<Pine.LNX.4.58.0405232046210.25502@ppc970.osdl.org>
+	<1085371988.15281.38.camel@gaston>
+	<Pine.LNX.4.58.0405232134480.25502@ppc970.osdl.org>
+	<1085373839.14969.42.camel@gaston>
+	<Pine.LNX.4.58.0405232149380.25502@ppc970.osdl.org>
+	<20040525034326.GT29378@dualathlon.random>
+	<Pine.LNX.4.58.0405242051460.32189@ppc970.osdl.org>
+	<20040525114437.GC29154@parcelfarce.linux.theplanet.co.uk>
+	<Pine.LNX.4.58.0405250726000.9951@ppc970.osdl.org>
+	<20040525153501.GA19465@foobazco.org>
+	<Pine.LNX.4.58.0405250841280.9951@ppc970.osdl.org>
+	<20040525102547.35207879.davem@redhat.com>
+	<Pine.LNX.4.58.0405251034040.9951@ppc970.osdl.org>
+	<20040525105442.2ebdc355.davem@redhat.com>
+	<Pine.LNX.4.58.0405251056520.9951@ppc970.osdl.org>
+	<20040525133543.753fc5a5.davem@redhat.com>
+	<Pine.LNX.4.58.0405251340160.9951@ppc970.osdl.org>
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 25 May 2004 13:58:08 -0700
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-05-25 at 02:22, Joris van Rantwijk wrote:
-> Perhaps this should be documented in the kernel config info.
-> If there are many systems with this problem, then calibrating the PM timer
-> against the PIT timer at boot time (possibly rejecting invalid rates)
-> might be an option.
+On Tue, 25 May 2004 13:49:57 -0700 (PDT)
+Linus Torvalds <torvalds@osdl.org> wrote:
 
-Also your point above is a good one. We probably should do a sanity
-check to make sure we're getting a reasonable frequency (however then
-we'll probably start having troubles w/ systems that have broken PITs ;)
+> So it sounds like the SWAP loop basically ends up being just something 
+> like
+ ...
+> Right? Note that the reason we can do the "dirty and accessed bit both 
+> set" case with a simple write is exactly because that's already the 
+> "maximal" bits anybody can write to the thing, so we don't need to loop, 
+> we can just write it directly.
 
-I'll put it on my todo list, but if you'd like to take a swing at ti and
-beat me to the implementation, I wouldn't complain.
+I believe so.  So it's still possible for the mmu to write something
+with less bits, ie. say we're adding dirty, we write dirty+accessed but the
+TLB has the pre-dirty PTE and writes that with just the accessed bit set.
 
-thanks
--john
-
-
+And this is exactly what you code is trying to handle.  Perfect.

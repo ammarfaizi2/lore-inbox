@@ -1,77 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbVBSBOi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbVBSBQ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261602AbVBSBOi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Feb 2005 20:14:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbVBSBOi
+	id S261604AbVBSBQ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Feb 2005 20:16:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbVBSBQ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Feb 2005 20:14:38 -0500
-Received: from ipp23-131.piekary.net ([80.48.23.131]:7147 "EHLO spock.one.pl")
-	by vger.kernel.org with ESMTP id S261602AbVBSBOf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Feb 2005 20:14:35 -0500
-Date: Sat, 19 Feb 2005 02:14:34 +0100
-From: Michal Januszewski <spock@gentoo.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Bootsplash for 2.6.11-rc4
-Message-ID: <20050219011433.GA5954@spock.one.pl>
-References: <20050218165254.GA1359@elf.ucw.cz>
+	Fri, 18 Feb 2005 20:16:56 -0500
+Received: from smtp7.wanadoo.fr ([193.252.22.24]:39578 "EHLO smtp7.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S261604AbVBSBQu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Feb 2005 20:16:50 -0500
+X-ME-UUID: 20050219011649436.6A9A81C00083@mwinf0708.wanadoo.fr
+Subject: Re: 2.6: drivers/input/power.c is never built
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: Pavel Machek <pavel@suse.cz>, Vojtech Pavlik <vojtech@suse.cz>,
+       dtor_core@ameritech.net, Richard Purdie <rpurdie@rpsys.net>,
+       James Simmons <jsimmons@pentafluge.infradead.org>,
+       Adrian Bunk <bunk@stusta.de>,
+       Linux Input Devices <linux-input@atrey.karlin.mff.cuni.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200502190051.48052.oliver@neukum.org>
+References: <047401c515bb$437b5130$0f01a8c0@max>
+	 <200502182300.21420.oliver@neukum.org> <20050218233443.GB1628@elf.ucw.cz>
+	 <200502190051.48052.oliver@neukum.org>
+Content-Type: text/plain; charset=ISO-8859-15
+Date: Sat, 19 Feb 2005 02:16:28 +0100
+Message-Id: <1108775788.11120.13.camel@bip.parateam.prv>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="GvXjxJ+pjyke8COw"
-Content-Disposition: inline
-In-Reply-To: <20050218165254.GA1359@elf.ucw.cz>
-X-PGP-Key: http://dev.gentoo.org/~spock/spock.gpg
-User-Agent: Mutt/1.5.8i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Le samedi 19 février 2005 à 00:51 +0100, Oliver Neukum a écrit :
 
---GvXjxJ+pjyke8COw
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > Well, we can say that userspace definitely is interested in "power"
+> > key ;-).
+> 
+> I wouldn't call that selfevident. The system might be eg. a ticket
+> vending system and we care only about wake ups from touchscreen,
+> trackball and modem and about volume control keys. I don't think
+> you can make up any rules about what user space is interested or not.
 
-On Fri, Feb 18, 2005 at 05:52:54PM +0100, Pavel Machek wrote:
+If noone can tell in advance who will be interested and what to do with
+it, that looks like a very good reason to go through userspace ..
 
-Hi,
-
-> Just in case someone is interested, this is bootsplash for 2.6.11-rc4,
-> taken from suse kernel. I'll probably try to modify it to work with
-> radeonfb.
->=20
-> Any ideas why bootsplash needs to hack into vesafb? It only uses
-> vesafb_ops to test against them before some kind of free...
-
-It doesn't really need vesafb for anything. Back in the days of 2.6.7=20
-I used to release a version of bootsplash that had the dep. on vesafb=20
-removed. It worked fine with at least some other fb drivers.
-
-You might also want to save yourself some work and try out an
-alternative solution called fbsplash [1], which I designed after I got=20
-tired of fixing bootsplash and which I actively maintain. Fbsplash=20
-provides virtually the same functionality, and it has as much code as=20
-possible moved into userspace (no more JPEG decoders in the kernel).
-
-[1] http://dev.gentoo.org/~spock/projects/gensplash/current/
-=20
-Live long and prosper.
---=20
-Michal 'Spock' Januszewski                        Gentoo Linux Developer
-cell: +48504917690                         http://dev.gentoo.org/~spock/
-JID: spock@im.gentoo.org               freenode: #gentoo-dev, #gentoo-pl
+	Xav
 
 
---GvXjxJ+pjyke8COw
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFCFpL5aQ0HSaOUe+YRAlywAJ9doSKPYbptBUeQlPRMQwEmn2bteACfS6iP
-SiXkKCiIIeHKW7c90Bb2Chs=
-=u4Pm
------END PGP SIGNATURE-----
-
---GvXjxJ+pjyke8COw--

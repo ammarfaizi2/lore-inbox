@@ -1,66 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290882AbSARX7d>; Fri, 18 Jan 2002 18:59:33 -0500
+	id <S290853AbSASALq>; Fri, 18 Jan 2002 19:11:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290885AbSARX7X>; Fri, 18 Jan 2002 18:59:23 -0500
-Received: from ns.suse.de ([213.95.15.193]:40965 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S290882AbSARX7G> convert rfc822-to-8bit;
-	Fri, 18 Jan 2002 18:59:06 -0500
-To: Pavel Machek <pavel@suse.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.17: sys_sigsuspend does not return value
-In-Reply-To: <20020118210825.GA6175@elf.ucw.cz>
-X-Yow: How's it going in those MODULAR LOVE UNITS??
-From: Andreas Schwab <schwab@suse.de>
-Date: Sat, 19 Jan 2002 00:59:04 +0100
-In-Reply-To: <20020118210825.GA6175@elf.ucw.cz> (Pavel Machek's message of
- "Fri, 18 Jan 2002 22:08:26 +0100")
-Message-ID: <jewuyfw6rb.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) Emacs/21.1.30 (ia64-suse-linux)
+	id <S290883AbSASALg>; Fri, 18 Jan 2002 19:11:36 -0500
+Received: from c007-h000.c007.snv.cp.net ([209.228.33.206]:64185 "HELO
+	c007.snv.cp.net") by vger.kernel.org with SMTP id <S290853AbSASAL2>;
+	Fri, 18 Jan 2002 19:11:28 -0500
+X-Sent: 19 Jan 2002 00:11:22 GMT
+Message-ID: <3C48B9A5.4E3380A3@bigfoot.com>
+Date: Fri, 18 Jan 2002 16:11:17 -0800
+From: Tim Moore <timothymoore@bigfoot.com>
+Organization: Yoyodyne Propulsion Systems, Inc.
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.21pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8BIT
+To: linux-kernel@vger.kernel.org
+Subject: Re: Autostart RAID 1+0 (root)
+In-Reply-To: <001201c1a03e$e654acd0$9865fea9@pcsn630778>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@suse.cz> writes:
+"Alok K. Dhir" wrote:
+> 
+> Hey all - I may be trying to do the impossible here, but here goes:
+> 
+> I want to test using a software RAID 1+0 partition as root: md0 and md1
+> set up as mirrors between two disks each, and md2 set up as a stripe
+> ...
 
-|> Hi!
-|> 
-|> >From 2.4.17:
-|> 
-|> asmlinkage int
-|> sys_sigsuspend(int history0, int history1, old_sigset_t mask)
-|> {
-|>         struct pt_regs * regs = (struct pt_regs *) &history0;
-|>         sigset_t saveset;
-|> 
-|>         mask &= _BLOCKABLE;
-|>         spin_lock_irq(&current->sigmask_lock);
-|>         saveset = current->blocked;
-|>         siginitset(&current->blocked, mask);
-|>         recalc_sigpending(current);
-|>         spin_unlock_irq(&current->sigmask_lock);
-|> 
-|>         regs->eax = -EINTR;
-|>         while (1) {
-           ^^^^^^^^^
-|>                 current->state = TASK_INTERRUPTIBLE;
-|>                 schedule();
-|>                 if (do_signal(regs, &saveset))
-|>                         return -EINTR;
-|>         }
-|> }
-|> 
-|> ...Which looks to me like it returns something undefined when
-|> do_signal returns 0.
+http://www.linuxdoc.org/HOWTO/Boot+Root+Raid+LILO.html , appendix C & D.
 
-There is only one return path from this function.
-
-Andreas.
-
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE GmbH, Deutschherrnstr. 15-19, D-90429 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+May also be useful:
+http://www.redhat.com/support/resources/tips/raid/RAID-INDEX.html
+--

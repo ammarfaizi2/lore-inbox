@@ -1,91 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313305AbSHGVRo>; Wed, 7 Aug 2002 17:17:44 -0400
+	id <S312938AbSHGV2A>; Wed, 7 Aug 2002 17:28:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313628AbSHGVRo>; Wed, 7 Aug 2002 17:17:44 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:25871 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S313305AbSHGVRn>; Wed, 7 Aug 2002 17:17:43 -0400
-Date: Wed, 7 Aug 2002 18:21:07 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Jesse Barnes <jbarnes@sgi.com>
-cc: linux-kernel@vger.kernel.org, <jmacd@namesys.com>, <phillips@arcor.de>,
-       <rml@tech9.net>
-Subject: Re: [PATCH] lock assertion macros for 2.5.30
-In-Reply-To: <20020807210855.GA27182@sgi.com>
-Message-ID: <Pine.LNX.4.44L.0208071814250.23404-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S312558AbSHGV2A>; Wed, 7 Aug 2002 17:28:00 -0400
+Received: from zianet.com ([204.134.124.201]:33183 "HELO zianet.com")
+	by vger.kernel.org with SMTP id <S312938AbSHGV17>;
+	Wed, 7 Aug 2002 17:27:59 -0400
+Message-ID: <3D51940A.60805@zianet.com>
+Date: Wed, 07 Aug 2002 15:41:30 -0600
+From: kwijibo@zianet.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020802
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG at tg3.c:1557
+References: <Pine.LNX.4.44.0208072149190.3705-100000@pc40.e18.physik.tu-muenchen.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Aug 2002, Jesse Barnes wrote:
+Ok, I just tried it with a 3GB file transfer, still
+held up.  Only thing I see different from what you have is
+I have it running on the Thunder 2468, I have one more 7850,
+and its just stock 2.4.19.  I think the big factor would be the 2466
+vs the 2468 however.  I believe they both have the same chipset.
 
-> > > +#define MUST_HOLD(lock)			BUG_ON(!spin_is_locked(lock))
-> > > +#define MUST_NOT_HOLD(lock)		BUG_ON(spin_is_locked(lock))
-> >
-> > Please tell me the MUST_NOT_HOLD thing is a joke.
+Steve
+
+Roland Kuhn wrote:
+
+>On Wed, 7 Aug 2002 kwijibo@zianet.com wrote:
 >
-> Nothing at all, but isn't that how the scsi ASSERT_LOCK(&lock, 0)
-> macro worked before?  I could just remove all those checks in the scsi
-> code I guess.
-
-That would be a better option.
-
-> --- linux-2.5.30/drivers/scsi/scsi_lib.c        Thu Aug  1 14:16:26 2002
-> +++ linux-2.5.30-lockassert/drivers/scsi/scsi_lib.c     Wed Aug  7 11:34:39 2002
-> @@ -202,7 +202,7 @@
->        Scsi_Device *SDpnt;
->        struct Scsi_Host *SHpnt;
+>  
 >
-> -      ASSERT_LOCK(q->queue_lock, 0);
-> +      MUST_NOT_HOLD(q->queue_lock);
+>>I just tried this on a dual Athlon box with two 7850's in it
+>>and a 3C996B-T as well.  Lucky for me though, this
+>>error did not show up.  I transfered/received two 800MB files
+>>to the RAID and it held up ok.  What driver version are you
+>>using? Or even kernel version.
+>>
+>>    
+>>
+>Tyan Tiger (2466) v1.02
+>3ware 7850 (software revision 7.5)
+>3C996B-T (runs with 33Mhz, don't know why)
+>2*Athlon MP 1900+
+>kernel 2.4.19 vanilla
 >
->        spin_lock_irqsave(q->queue_lock, flags);
->        if (SCpnt != NULL) {
+>The script to reproduce this copies simultanously from the disk to the 
+>network and back. Be sure to really hit the disk: 800MB did not show the 
+>error in my case, if all was in RAM.
+>
+>Ciao,
+>					Roland
+>
+>+---------------------------+-------------------------+
+>|    TU Muenchen            |                         |
+>|    Physik-Department E18  |  Raum    3558           |
+>|    James-Franck-Str.      |  Telefon 089/289-12592  |
+>|    85747 Garching         |                         |
+>+---------------------------+-------------------------+
+>
+>
+>
+>  
+>
 
-> After I posted the last patch, a few people asked for MUST_NOT_HOLD so
-> I added it back in.  Do you think it's a bad idea?
 
-Just look at the above code (also from your patch).
-
-The fact that we take the spin_lock_irqsave() at that point
-means we want to protect ourselves from another CPU here.
-
-The MUST_NOT_HOLD basically means the kernel will OOPS the
-moment the lock is contended.
-
-In effect, this debugging code makes lock contention fatal!
-
-
-If you want to detect lock recursion on the same CPU, I'd
-suggest the following:
-
-1) add a 'cpu' member to spinlock_t
-
-2) whenever we take a spinlock, assign the current CPU
-   id to the spinlock->cpu
-
-3) in the spinlock slow path (ie. when the spinlock is
-   contended and we have to spin) check if the CPU holding
-   the spinlock is the current CPU ... if it is, BUG()
-
-4) on spin_unlock, check that the CPU unlocking the spinlock
-   is the same one that's holding the spinlock
-
-This will have the advantages that it'll actually work and
-it will also debug spinlock recursion for ANY spinlock in
-the system, without the need to insert special debugging
-macros into the code...
-
-regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
 

@@ -1,72 +1,288 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314475AbSFQPjv>; Mon, 17 Jun 2002 11:39:51 -0400
+	id <S313113AbSFQPoo>; Mon, 17 Jun 2002 11:44:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314485AbSFQPju>; Mon, 17 Jun 2002 11:39:50 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:43269 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S314475AbSFQPjt> convert rfc822-to-8bit; Mon, 17 Jun 2002 11:39:49 -0400
-Message-ID: <3D0E02C2.5010304@evision-ventures.com>
-Date: Mon, 17 Jun 2002 17:39:46 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0.0) Gecko/20020611
-X-Accept-Language: pl, en-us
-MIME-Version: 1.0
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.22 broke modversions
-References: <Pine.LNX.4.44.0206171029400.22308-100000@chaos.physics.uiowa.edu>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8BIT
+	id <S313571AbSFQPon>; Mon, 17 Jun 2002 11:44:43 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:7045 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S313113AbSFQPol>; Mon, 17 Jun 2002 11:44:41 -0400
+Date: Mon, 17 Jun 2002 17:44:29 +0200
+From: Andi Kleen <ak@muc.de>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix incorrect inline assembly in RAID-5
+Message-ID: <20020617174428.A4067@averell>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-U¿ytkownik Kai Germaschewski napisa³:
-> On Mon, 17 Jun 2002, Martin Dalecki wrote:
-> 
-> 
->>BTW> There is some different thing broken: TEMP files
->>used by make menuconfig don't get clean up even after make distclean.
-> 
-> 
-> Could you be more specific? The only file I can see lying around here
-> is .menuconfig.log, and that gets cleaned up.
-> 
 
+Pure luck that this ever worked at all. The optimized assembly for XOR 
+in RAID-5 declared did clobber registers, but did declare them as read-only.
+I'm pretty sure that at least the 4 disk and possibly the 5 disk cases
+did corrupt callee saved registers. The others probably got away because
+they were always used in own functions (and only clobbering caller saved
+registers)and only called via pointers, preventing inlining.
 
-Bjez probljemaw:
+Some of the replacements are a bit complicated because the functions
+exceed gcc's 10 asm argument limit when each input/output register needs
+two arguments. Works around that by saving/restoring some of the registers
+manually.
 
-The following diff clutter appears in every diff after make menuconfig
+I wasn't able to test it in real-life because I don't have a RAID
+setup and the RAID code didn't compile since several 2.5 releases.
+I wrote some test programs that did test the XOR and they showed
+no regression.
 
-diff -urN linux-2.5.21/scripts/lxdialog/.checklist.o.cmd 
-linux/scripts/lxdialog/.checklist.o.cmd
---- linux-2.5.21/scripts/lxdialog/.checklist.o.cmd	1970-01-01 0
-diff -urN linux-2.5.21/scripts/lxdialog/.inputbox.o.cmd 
-linux/scripts/lxdialog/.inputbox.o.cmd
---- linux-2.5.21/scripts/lxdialog/.inputbox.o.cmd	1970-01-01 01:00:00.000000000 +0100
-+++ linux/scripts/lxdialog/.inputbox.o.cmd	2002-06-13 12:50:06.000000000 +
-diff -urN linux-2.5.21/scripts/lxdialog/.menubox.o.cmd 
-linux/scripts/lxdialog/.menubox.o.cmd
---- linux-2.5.21/scripts/lxdialog/.menubox.o.cmd	1970-01-01 01:00:00.000000000 +0100
-+++ linux/scripts/lxdialog/.menubox.o.cmd	2002-06-13 12:50:04.000000000
-diff -urN linux-2.5.21/scripts/lxdialog/.msgbox.o.cmd 
-linux/scripts/lxdialog/.msgbox.o.cmd
---- linux-2.5.21/scripts/lxdialog/.msgbox.o.cmd	1970-01-01 01:00:00.000000000 +0100
-+++ linux/scripts/lxdialog/.msgbox.o.cmd	2002-06-13 12:50:07.000000000 3.1/include/stdbool.h \
+Also aligns to XMM save area to 16 bytes to save a few cycles.
+
+Patch for 2.5.22.
+
+-Andi
+
+--- linux/include/asm-i386/xor.h	Thu May 30 20:11:36 2002
++++ linux-2.5.22-work/include/asm-i386/xor.h	Tue Jun 11 14:58:32 2002
+@@ -76,9 +76,9 @@
+ 	"       addl $128, %2         ;\n"
+ 	"       decl %0               ;\n"
+ 	"       jnz 1b                ;\n"
+-       	:
+-	: "r" (lines),
+-	  "r" (p1), "r" (p2)
++	: "+r" (lines),
++	  "+r" (p1), "+r" (p2)
++	:
+ 	: "memory");
+ 
+ 	FPU_RESTORE;
+@@ -126,9 +126,9 @@
+ 	"       addl $128, %3         ;\n"
+ 	"       decl %0               ;\n"
+ 	"       jnz 1b                ;\n"
+-       	:
+-	: "r" (lines),
+-	  "r" (p1), "r" (p2), "r" (p3)
++	: "+r" (lines),
++	  "+r" (p1), "+r" (p2), "+r" (p3)
++	:
+ 	: "memory");
+ 
+ 	FPU_RESTORE;
+@@ -181,14 +181,15 @@
+ 	"       addl $128, %4         ;\n"
+ 	"       decl %0               ;\n"
+ 	"       jnz 1b                ;\n"
+-       	:
+-	: "r" (lines),
+-	  "r" (p1), "r" (p2), "r" (p3), "r" (p4)
++	: "+r" (lines),
++	  "+r" (p1), "+r" (p2), "+r" (p3), "+r" (p4)
++	:
+ 	: "memory");
+ 
+ 	FPU_RESTORE;
+ }
+ 
 +
-diff -urN linux-2.5.21/scripts/lxdialog/.textbox.o.cmd 
-linux/scripts/lxdialog/.textbox.o.cmd
---- linux-2.5.21/scripts/lxdialog/.textbox.o.cmd	1970-01-01 01:00:00.000000000 +0100
-+++ linux/scripts/lxdialog/.textbox.o.cmd	2002-06-13 12:50:05.000000000 +0200
-@@ -0,0 +1,48 @@
-+cmd_textbox.o := gcc -Wp,-MD,.textbox.o.d -Wall -Wstrict-prototypes -O2 
--fomit-frame-pointer -DLOCALE  -I/usr/include/ncurses -DCURSES_LOC="<ncurses.h>" 
--c -o textbox.o textbox.c
-
-diff -urN linux-2.5.21/scripts/lxdialog/.yesno.o.cmd 
-linux/scripts/lxdialog/.yesno.o.cmd
---- linux-2.5.21/scripts/lxdialog/.yesno.o.cmd	1970-01-01 01:00:00.000000000 +0100
-+++ linux/scripts/lxdialog/.yesno.o.cmd	2002-06-13 12:50:06.000000000 +0200
-ude/stdbool.h \
+ static void
+ xor_pII_mmx_5(unsigned long bytes, unsigned long *p1, unsigned long *p2,
+ 	      unsigned long *p3, unsigned long *p4, unsigned long *p5)
+@@ -198,7 +199,11 @@
+ 
+ 	FPU_SAVE;
+ 
++	/* need to save/restore p4/p5 manually otherwise gcc's 10 argument
++	   limit gets exceeded (+ counts as two arguments) */
+ 	__asm__ __volatile__ (
++		"  pushl %4\n"
++		"  pushl %5\n"
+ #undef BLOCK
+ #define BLOCK(i) \
+ 	LD(i,0)					\
+@@ -241,9 +246,11 @@
+ 	"       addl $128, %5         ;\n"
+ 	"       decl %0               ;\n"
+ 	"       jnz 1b                ;\n"
+-       	:
+-	: "g" (lines),
+-	  "r" (p1), "r" (p2), "r" (p3), "r" (p4), "r" (p5)
++	"	popl %5\n"
++	"	popl %4\n"
++	: "+r" (lines),
++	  "+r" (p1), "+r" (p2), "+r" (p3)
++	: "r" (p4), "r" (p5) 
+ 	: "memory");
+ 
+ 	FPU_RESTORE;
+@@ -297,9 +304,9 @@
+ 	"       addl $64, %2         ;\n"
+ 	"       decl %0              ;\n"
+ 	"       jnz 1b               ;\n"
+-	: 
+-	: "r" (lines),
+-	  "r" (p1), "r" (p2)
++	: "+r" (lines),
++	  "+r" (p1), "+r" (p2)
++	:
+ 	: "memory");
+ 
+ 	FPU_RESTORE;
+@@ -355,9 +362,9 @@
+ 	"       addl $64, %3         ;\n"
+ 	"       decl %0              ;\n"
+ 	"       jnz 1b               ;\n"
+-	: 
+-	: "r" (lines),
+-	  "r" (p1), "r" (p2), "r" (p3)
++	: "+r" (lines),
++	  "+r" (p1), "+r" (p2), "+r" (p3)
++	:
+ 	: "memory" );
+ 
+ 	FPU_RESTORE;
+@@ -422,9 +429,9 @@
+ 	"       addl $64, %4         ;\n"
+ 	"       decl %0              ;\n"
+ 	"       jnz 1b               ;\n"
+-	: 
+-	: "r" (lines),
+-	  "r" (p1), "r" (p2), "r" (p3), "r" (p4)
++	: "+r" (lines),
++	  "+r" (p1), "+r" (p2), "+r" (p3), "+r" (p4)
++	:
+ 	: "memory");
+ 
+ 	FPU_RESTORE;
+@@ -439,7 +446,10 @@
+ 
+ 	FPU_SAVE;
+ 
++	/* need to save p4/p5 manually to not exceed gcc's 10 argument limit */
+ 	__asm__ __volatile__ (
++	"	pushl %4\n"
++	"	pushl %5\n"        	
+ 	" .align 32,0x90             ;\n"
+ 	" 1:                         ;\n"
+ 	"       movq   (%1), %%mm0   ;\n"
+@@ -498,9 +508,11 @@
+ 	"       addl $64, %5         ;\n"
+ 	"       decl %0              ;\n"
+ 	"       jnz 1b               ;\n"
+-	: 
+-	: "g" (lines),
+-	  "r" (p1), "r" (p2), "r" (p3), "r" (p4), "r" (p5)
++	"	popl %5\n"
++	"	popl %4\n"
++	: "+g" (lines),
++	  "+r" (p1), "+r" (p2), "+r" (p3)
++	: "r" (p4), "r" (p5)
+ 	: "memory");
+ 
+ 	FPU_RESTORE;
+@@ -554,6 +566,8 @@
+ 		: "r" (cr0), "r" (xmm_save)	\
+ 		: "memory")
+ 
++#define ALIGN16 __attribute__((aligned(16)))
 +
-
+ #define OFFS(x)		"16*("#x")"
+ #define PF_OFFS(x)	"256+16*("#x")"
+ #define	PF0(x)		"	prefetchnta "PF_OFFS(x)"(%1)		;\n"
+@@ -575,7 +589,7 @@
+ xor_sse_2(unsigned long bytes, unsigned long *p1, unsigned long *p2)
+ {
+         unsigned long lines = bytes >> 8;
+-	char xmm_save[16*4];
++	char xmm_save[16*4] ALIGN16;
+ 	int cr0;
+ 
+ 	XMMS_SAVE;
+@@ -616,9 +630,9 @@
+         "       addl $256, %2           ;\n"
+         "       decl %0                 ;\n"
+         "       jnz 1b                  ;\n"
++	: "+r" (lines),
++	  "+r" (p1), "+r" (p2)
+ 	:
+-	: "r" (lines),
+-	  "r" (p1), "r" (p2)
+         : "memory");
+ 
+ 	XMMS_RESTORE;
+@@ -629,7 +643,7 @@
+ 	  unsigned long *p3)
+ {
+         unsigned long lines = bytes >> 8;
+-	char xmm_save[16*4];
++	char xmm_save[16*4] ALIGN16;
+ 	int cr0;
+ 
+ 	XMMS_SAVE;
+@@ -677,9 +691,9 @@
+         "       addl $256, %3           ;\n"
+         "       decl %0                 ;\n"
+         "       jnz 1b                  ;\n"
++	: "+r" (lines),
++	  "+r" (p1), "+r"(p2), "+r"(p3)
+ 	:
+-	: "r" (lines),
+-	  "r" (p1), "r"(p2), "r"(p3)
+         : "memory" );
+ 
+ 	XMMS_RESTORE;
+@@ -690,7 +704,7 @@
+ 	  unsigned long *p3, unsigned long *p4)
+ {
+         unsigned long lines = bytes >> 8;
+-	char xmm_save[16*4];
++	char xmm_save[16*4] ALIGN16;
+ 	int cr0;
+ 
+ 	XMMS_SAVE;
+@@ -745,9 +759,9 @@
+         "       addl $256, %4           ;\n"
+         "       decl %0                 ;\n"
+         "       jnz 1b                  ;\n"
++	: "+r" (lines),
++	  "+r" (p1), "+r" (p2), "+r" (p3), "+r" (p4)
+ 	:
+-	: "r" (lines),
+-	  "r" (p1), "r" (p2), "r" (p3), "r" (p4)
+         : "memory" );
+ 
+ 	XMMS_RESTORE;
+@@ -758,12 +772,15 @@
+ 	  unsigned long *p3, unsigned long *p4, unsigned long *p5)
+ {
+         unsigned long lines = bytes >> 8;
+-	char xmm_save[16*4];
++	char xmm_save[16*4] ALIGN16;
+ 	int cr0;
+ 
+ 	XMMS_SAVE;
+ 
++	/* need to save p4/p5 manually to not exceed gcc's 10 argument limit */
+         __asm__ __volatile__ (
++		" pushl %4\n"
++		" pushl %5\n"
+ #undef BLOCK
+ #define BLOCK(i) \
+ 		PF1(i)					\
+@@ -820,9 +837,11 @@
+         "       addl $256, %5           ;\n"
+         "       decl %0                 ;\n"
+         "       jnz 1b                  ;\n"
+-	:
+-	: "r" (lines),
+-	  "r" (p1), "r" (p2), "r" (p3), "r" (p4), "r" (p5)
++	"	popl %5\n"	
++	"	popl %4\n"	
++	: "+r" (lines),
++	  "+r" (p1), "+r" (p2), "+r" (p3)
++	: "r" (p4), "r" (p5)
+ 	: "memory");
+ 
+ 	XMMS_RESTORE;

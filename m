@@ -1,51 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262159AbTCHThF>; Sat, 8 Mar 2003 14:37:05 -0500
+	id <S262170AbTCHTjP>; Sat, 8 Mar 2003 14:39:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262154AbTCHThF>; Sat, 8 Mar 2003 14:37:05 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:32270 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262153AbTCHThB>;
-	Sat, 8 Mar 2003 14:37:01 -0500
-Date: Sat, 8 Mar 2003 11:37:22 -0800
-From: Greg KH <greg@kroah.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@digeo.com>, hch@infradead.org, Andries.Brouwer@cwi.nl,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] register_blkdev
-Message-ID: <20030308193722.GD26374@kroah.com>
-References: <UTC200303071932.h27JW1o11962.aeb@smtp.cwi.nl> <20030307193644.A14196@infradead.org> <20030307123029.2bc91426.akpm@digeo.com> <20030307221217.GB21315@kroah.com> <20030307143319.2413d1df.akpm@digeo.com> <20030307234541.GG21315@kroah.com> <1047086062.24215.14.camel@irongate.swansea.linux.org.uk> <20030308005018.GE23071@kroah.com> <1047136302.25932.28.camel@irongate.swansea.linux.org.uk>
+	id <S262161AbTCHTi6>; Sat, 8 Mar 2003 14:38:58 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:24530 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262153AbTCHThb>;
+	Sat, 8 Mar 2003 14:37:31 -0500
+Date: Sat, 08 Mar 2003 11:29:30 -0800 (PST)
+Message-Id: <20030308.112930.96743026.davem@redhat.com>
+To: marcel@holtmann.org
+Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add COMPATIBLE_IOCTL for AutoFS4 and SPARC64
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <1047152754.15156.117.camel@pegasus.local>
+References: <E18rQ9n-0007ID-00@pegasus.local>
+	<1047106843.22024.2.camel@rth.ninka.net>
+	<1047152754.15156.117.camel@pegasus.local>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1047136302.25932.28.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 08, 2003 at 03:11:42PM +0000, Alan Cox wrote:
-> On Sat, 2003-03-08 at 00:50, Greg KH wrote:
-> > > So we need a maxminors flag in the register for 2.6 I guess ?
-> > 
-> > Do you mean to only increase the number of majors, and not minors then?
-> 
-> How about an interface that looks like
-> 
-> 	register_chr_device(blah. blah, MY_MAX_MINOR);
-> 
-> and we can delete all the if < 0 || >= MAX return logic from the drivers
-> as we go. Right now each driver checks and several in the past had off 
-> by one errors.
+   From: Marcel Holtmann <marcel@holtmann.org>
+   Date: 08 Mar 2003 20:45:43 +0100
+   
+   I try to keep this in mind for the next time. Should I also send you a
+   patch for 2.5 ?
 
-That's a good start, but why not change that to a simple,
-HOW_MANY_MINORS_I_WANT, which will work the same way now, but allow us
-to change to a pure dynamic major/minor allocation scheme in the future
-by only modifying the register_chr_device() code.  Same thing for
-register_blkdev().
-
-Although if we increase the width of dev_t then a need for dynamic
-major/minors is pretty much gone...
-
-thanks,
-
-greg k-h
+If it's simple, there usually is no need and I do this autmoatically.

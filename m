@@ -1,37 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265272AbTLLPtI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 10:49:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265273AbTLLPtI
+	id S265263AbTLLPnz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 10:43:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265264AbTLLPnz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 10:49:08 -0500
-Received: from [212.155.208.7] ([212.155.208.7]:22797 "EHLO
-	mail-eu.peregrine.fr") by vger.kernel.org with ESMTP
-	id S265272AbTLLPtD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 10:49:03 -0500
-Message-ID: <78EC35D201D3D511921200508BAFE4C3E427B2@fdmail01.apsydev.com>
-From: Vincent Legoll <vincent.legoll@peregrine.com>
-To: linux-kernel@vger.kernel.org
-Subject: RE: Increasing HZ (patch for HZ > 1000)
-Date: Fri, 12 Dec 2003 16:52:24 +0100
+	Fri, 12 Dec 2003 10:43:55 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:38611 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265263AbTLLPnx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 10:43:53 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Daniel Tram Lux <daniel@starbattle.com>
+Subject: Re: [patch] ide.c as a module
+Date: Fri, 12 Dec 2003 16:46:04 +0100
+User-Agent: KMail/1.5.4
+References: <20031211202536.GA10529@starbattle.com> <200312121430.36735.bzolnier@elka.pw.edu.pl> <20031212144246.GA15357@starbattle.com>
+In-Reply-To: <20031212144246.GA15357@starbattle.com>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312121646.04047.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'd advocate lower HZ. Say, oh I dunno...100?
-> This is better for power management and also
-> should make the sound go away.
-> Hmm, I wonder if HZ=10 would break anything :)
+On Friday 12 of December 2003 15:42, Daniel Tram Lux wrote:
+> Hi,
+>
+> I tried with using only your suggested changes and removing the ide_probe
+                            ^^^^
+Your patch + changes or only changes?
 
-I wonder if someone tried HZ=40, if so, is she
-still alive ? As 40 Hz is the brain wave frequency,
-inteferences should have interesting side effects.
-I won't try that myself unless wearing an AFDB, do
-you ?
-http://zapatopi.net/afdb.html - ROTFL
-:-)
+> ptr, but due to (in include/asm-i386/ide.h) where CONFIG_BLK_DEV_IDEPCI is
+> indeed undefined:
+>
+> static __inline__ void ide_init_default_hwifs(void)
+> {
+> #ifndef CONFIG_BLK_DEV_IDEPCI
+> 	hw_regs_t hw;
+> 	int index;
+>
+> 	for(index = 0; index < MAX_HWIFS; index++) {
+> 		memset(&hw, 0, sizeof hw);
+> 		ide_init_hwif_ports(&hw, ide_default_io_base(index), 0, NULL);
+> 		hw.irq = ide_default_irq(ide_default_io_base(index));
+> 		ide_register_hw(&hw, NULL);
+> 	}
+> #endif /* CONFIG_BLK_DEV_IDEPCI */
+> }
+>
+> I get the following probing messages (I enabled a debug message which is
+> why there are so many messages):
 
--- 
-Vince - libATA is cool
+"initializing = 1" must be moved from ide_init() to ide_init_data()
+(just before ide_init_default_hwifs() call).
+
+--bart
+

@@ -1,49 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265002AbUEYR1H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264998AbUEYR06@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265002AbUEYR1H (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 13:27:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265001AbUEYR1G
+	id S264998AbUEYR06 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 13:26:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264989AbUEYR05
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 13:27:06 -0400
-Received: from mail.wnyip.net ([209.2.65.194]:22027 "EHLO mail.wnyip.net")
-	by vger.kernel.org with ESMTP id S264994AbUEYR0o (ORCPT
+	Tue, 25 May 2004 13:26:57 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:17584 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264990AbUEYR0i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 13:26:44 -0400
-Message-ID: <40B384DE.9060504@wnyip.net>
-Date: Tue, 25 May 2004 13:39:42 -0400
-From: "pvant67@wnyip.net" <pvant67@wnyip.net>
-Reply-To: pvant67@wnyip.net
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: [RFC] Kernel origins and maintainers
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 25 May 2004 13:26:38 -0400
+Date: Tue, 25 May 2004 10:25:47 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: wesolows@foobazco.org, willy@debian.org, andrea@suse.de,
+       benh@kernel.crashing.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       mingo@elte.hu, bcrl@kvack.org, linux-mm@kvack.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH] ppc64: Fix possible race with set_pte on a present PTE
+Message-Id: <20040525102547.35207879.davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.58.0405250841280.9951@ppc970.osdl.org>
+References: <1085369393.15315.28.camel@gaston>
+	<Pine.LNX.4.58.0405232046210.25502@ppc970.osdl.org>
+	<1085371988.15281.38.camel@gaston>
+	<Pine.LNX.4.58.0405232134480.25502@ppc970.osdl.org>
+	<1085373839.14969.42.camel@gaston>
+	<Pine.LNX.4.58.0405232149380.25502@ppc970.osdl.org>
+	<20040525034326.GT29378@dualathlon.random>
+	<Pine.LNX.4.58.0405242051460.32189@ppc970.osdl.org>
+	<20040525114437.GC29154@parcelfarce.linux.theplanet.co.uk>
+	<Pine.LNX.4.58.0405250726000.9951@ppc970.osdl.org>
+	<20040525153501.GA19465@foobazco.org>
+	<Pine.LNX.4.58.0405250841280.9951@ppc970.osdl.org>
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm busy putting together a list of all the contributors and maintainers 
-  that I can find, using the CREDITS and MAINTAINERS files. I have not 
-seen this done in one place before; is it redundant effort? The people 
-at Grokline (affiliated with Groklaw) are interested in this project, in 
-an effort to trace and verify the origin of everything that ever happened.
+On Tue, 25 May 2004 09:19:52 -0700 (PDT)
+Linus Torvalds <torvalds@osdl.org> wrote:
 
-Please see here: http://www.grokline.net
+> On Tue, 25 May 2004, Keith M Wesolowski wrote:
+> > 
+> > Some sparc32 CPUs are also vulnerable to this race; in fact the
+> > supersparc manual describes it specifically and even outlines the
+> > compare-exchange loop using our rotten swap instruction.  In our case,
+> > the race is with a hardware walker.
+> 
+> Yes, but the sparc32 page tables are not the same as the linux kernel page 
+> tables, so in your case it's a different path and a different page table. 
+> Only the shared case really matters (ie things that do hw/microcode walk 
+> of a page table _tree_ not a hash).
 
-and here: http://www.groklaw.net
-
-How does this overlap with the new Developer's Certificate of Origin? I 
-have the distinct impression that these projects should be working 
-closer together.
-
-Please cc me off the list in addition to on-the-list, just in case; my 
-spam filter occasionally screws up. Thanks to all in advance for any 
-input or advice.
-
-Peter
-
--- 
-"Truly, if Te is strong in one, all one needs to do is sit on one's ass, 
-and the corpse of one's enemy shall be carried past shortly."
-	-- spotted somewhere on Usenet
+Not true on 32-bit Sparc sun4m systems, it's exactly like i386 except
+the hardware is stupid and we only have an atomic swap instruction.
+:-)

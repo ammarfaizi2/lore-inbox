@@ -1,59 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262113AbUDXKKX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbUDXKtv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262113AbUDXKKX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Apr 2004 06:10:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262132AbUDXKKW
+	id S262071AbUDXKtv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Apr 2004 06:49:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262132AbUDXKtv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Apr 2004 06:10:22 -0400
-Received: from spa.bcltele.com ([195.144.225.12]:27647 "EHLO spa.bcltele.com")
-	by vger.kernel.org with ESMTP id S262113AbUDXKKQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Apr 2004 06:10:16 -0400
-Subject: Undeliverable mail: Mail Delivery (failure russcom@mail.bcltele.com)
-From: MAILER-DAEMON@spa.bcltele.com
-To: <linux-kernel@vger.kernel.org>
-Date: Sat, 24 Apr 2004 14:10:15 +0400
-Message-ID: <receipt-1306698@spa.bcltele.com>
-MIME-Version: 1.0
-Content-Type: multipart/report; report-type="delivery-status"; boundary="_===1306698====spa.bcltele.com===_"
+	Sat, 24 Apr 2004 06:49:51 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:61447 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S262071AbUDXKtt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Apr 2004 06:49:49 -0400
+Date: Sat, 24 Apr 2004 20:49:36 +1000
+To: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Set module license in mcheck/non-fatal.c
+Message-ID: <20040424104936.GA11721@gondor.apana.org.au>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="IJpNTDwzlM2Ie8A6"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---_===1306698====spa.bcltele.com===_
-Content-Type: text/plain; charset="utf-8"
+--IJpNTDwzlM2Ie8A6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Failed to deliver to 'russcom@mail.bcltele.com'
-SMTP module(domain mail.bcltele.com) reports:
- wm.bcltele.com: Bad SMTP prompt at the host
+Hi:
 
+This patch sets the module license for mcheck/non-fatal.c.  The module
+doesn't work at all without this as one of the symbols it needs is
+only exported as GPL.
 
---_===1306698====spa.bcltele.com===_
-Content-Type: message/delivery-status
+Cheers,
+-- 
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
 
-Reporting-MTA: dns; spa.bcltele.com
+--IJpNTDwzlM2Ie8A6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=p
 
-Original-Recipient: rfc822;<russcom@mail.bcltele.com>
-Final-Recipient: rfc822;<russcom@mail.bcltele.com>
-Action: failed
-Status: 4.0.0
+Index: arch/i386/kernel/cpu/mcheck/non-fatal.c
+===================================================================
+RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/arch/i386/kernel/cpu/mcheck/non-fatal.c,v
+retrieving revision 1.1.1.6
+diff -u -r1.1.1.6 non-fatal.c
+--- a/arch/i386/kernel/cpu/mcheck/non-fatal.c	11 Mar 2004 02:55:22 -0000	1.1.1.6
++++ b/arch/i386/kernel/cpu/mcheck/non-fatal.c	24 Apr 2004 10:45:18 -0000
+@@ -88,3 +88,5 @@
+ 	return 0;
+ }
+ module_init(init_nonfatal_mce_checker);
++
++MODULE_LICENSE("GPL");
 
---_===1306698====spa.bcltele.com===_
-Content-Type: text/rfc822-headers
-
-Received: from [195.144.242.10] (HELO mail.bcltele.com)
-  by spa.bcltele.com (CommuniGate Pro SMTP 4.1.8)
-  with ESMTP id 1244823 for russcom@mail.bcltele.com; Tue, 20 Apr 2004 14:17:33 +0400
-From: linux-kernel@vger.kernel.org
-To: russcom@mail.bcltele.com
-Subject: Mail Delivery (failure russcom@mail.bcltele.com)
-Date: Tue, 20 Apr 2004 14:27:04 +0400
-MIME-Version: 1.0
-Content-Type: multipart/related;
-	type="multipart/alternative";
-	boundary="----=_NextPart_000_001B_01C0CA80.6B015D10"
-X-Priority: 3
-X-MSMail-Priority: Normal
-Message-ID: <auto-000001244823@spa.bcltele.com>
-
---_===1306698====spa.bcltele.com===_--
+--IJpNTDwzlM2Ie8A6--

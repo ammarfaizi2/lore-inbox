@@ -1,71 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135619AbREFLMp>; Sun, 6 May 2001 07:12:45 -0400
+	id <S135613AbREFLJP>; Sun, 6 May 2001 07:09:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135623AbREFLMf>; Sun, 6 May 2001 07:12:35 -0400
-Received: from [62.81.160.203] ([62.81.160.203]:11170 "EHLO smtp3.eresmas.com")
-	by vger.kernel.org with ESMTP id <S135619AbREFLMW>;
-	Sun, 6 May 2001 07:12:22 -0400
-Date: Sun, 6 May 2001 13:03:03 -0400
-From: Ignacio Monge <ignaciomonge@navegalia.com>
-To: linux-kernel@vger.kernel.org
-Subject: RE: 8139too bug in 2.4.4 (2.4.3?) & VIA 686a
-Message-Id: <20010506130303.20add56a.ignaciomonge@navegalia.com>
-X-Mailer: Sylpheed version 0.4.65 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S135619AbREFLJG>; Sun, 6 May 2001 07:09:06 -0400
+Received: from smtp.mountain.net ([198.77.1.35]:48401 "EHLO riker.mountain.net")
+	by vger.kernel.org with ESMTP id <S135613AbREFLIx>;
+	Sun, 6 May 2001 07:08:53 -0400
+Message-ID: <3AF53090.CF4DD5B4@mountain.net>
+Date: Sun, 06 May 2001 07:08:00 -0400
+From: Tom Leete <tleete@mountain.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.3 i486)
+X-Accept-Language: English/United, States, en-US, English/United, Kingdom, en-GB, English, en, French, fr, Spanish, es, Italian, it, German, de, , ru
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] Incremental to kill warnings
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-	I've compiled 2.4.3mdk-25 source with Athlon optimizations, and the
-problem still happens.
+I missed one, patch is incremental to the previous one.
 
-	eth0      Link encap:Ethernet  HWaddr FF:FF:FF:FF:FF:FF  
-          inet addr:192.168.0.1  Bcast:192.168.0.255  Mask:255.255.255.0
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:0 errors:0 dropped:4294967221 overruns:0 frame:0
-          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:100 
-          RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
-          Interrupt:11 Base address:0x9000 
+Tom
 
-	Look at the HWaddr. With default kernel (not compiled), I haven't this
-problem and my ethernet card goes well and the HWaddr is: ·"HWaddr
-00:E0:29:9A:CB:62 ". And I'm sure after reboot I *MUST* restore all the
-values of my BIOS setup. Believe me,  I know. :(
+$ diff -u include/asm-i386/checksum.h.orig include/asm-i386/checksum.h
+--- include/asm-i386/checksum.h.orig	Sun May  6 07:05:35 2001
++++ include/asm-i386/checksum.h	Sun May  6 07:06:52 2001
+@@ -100,10 +100,8 @@
+ 
+ static inline unsigned int csum_fold(unsigned int sum)
+ {
+-	__asm__("
+-		addl %1, %0
+-		adcl $0xffff, %0
+-		"
++	__asm__("addl %1, %0\n\t"
++		"adcl $0xffff, %0\n"
+ 		: "=r" (sum)
+ 		: "r" (sum << 16), "0" (sum & 0xffff0000)
+ 	);
 
-
-	Here is the output of dmesg when loading the 81389too module:
-
-	Assertion failed! ioaddr != NULL,8139too.c,rtl8139_init_one,line=927
-eth0: SMC1211TX EZCard 10/100 (RealTek RTL8139) at 0x9000,
-ff:ff:ff:ff:ff:ff, IRQ 11
-eth0:  Identified 8139 chip type 'RTL-8139C'
-eth0: Setting 100mbps half-duplex based on auto-negotiated partner ability
-ffff.
-
-	"Assertion failed! ioaddr != NULL,8139too.c,rtl8139_init_one,line=927"?
-What is this? Is this the cause of the bug?
-
-	Now the lspci -vv:
-
-	00:0c.0 Ethernet controller: Accton Technology Corporation SMC2-1211TX
-(rev 10)
-	Subsystem: Accton Technology Corporation EN-1207D Fast Ethernet Adapter
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
-Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort-
-<MAbort- >SERR- <PERR-
-	Latency: 32 (8000ns min, 16000ns max)
-	Interrupt: pin A routed to IRQ 11
-	Region 0: I/O ports at 9000 [size=256]
-	Region 1: Memory at da800000 (32-bit, non-prefetchable) [size=256]
-	Expansion ROM at <unassigned> [disabled] [size=64K]
-	Capabilities: [50] Power Management version 2
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA
-PME(D0+,D1+,D2+,D3hot+,D3cold+)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-	I hope these lines can help.
+-- 
+The Daemons lurk and are dumb. -- Emerson

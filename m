@@ -1,73 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278041AbRKFEs1>; Mon, 5 Nov 2001 23:48:27 -0500
+	id <S281458AbRKFEu1>; Mon, 5 Nov 2001 23:50:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281458AbRKFEsR>; Mon, 5 Nov 2001 23:48:17 -0500
-Received: from e22.nc.us.ibm.com ([32.97.136.228]:44487 "EHLO
-	e22.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S278041AbRKFEsF>; Mon, 5 Nov 2001 23:48:05 -0500
-Date: Tue, 6 Nov 2001 10:24:06 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: viro@math.psu.edu
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] proc_readfd race
-Message-ID: <20011106102406.F23390@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
+	id <S281466AbRKFEuL>; Mon, 5 Nov 2001 23:50:11 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:45584 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S281458AbRKFEtu>;
+	Mon, 5 Nov 2001 23:49:50 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.14 errors on full build - Y
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Date: Tue, 06 Nov 2001 15:49:39 +1100
+Message-ID: <17526.1005022179@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Al,
+Doing a full build of 2.4.14 (everything set to Y where possible), got
+the usual collection of errors.  Some of these errors have been around
+for weeks, any chance of them getting fixed?
 
-proc_readfd calls fcheck_files() without taking read_lock() for the 
-files_struct which could end up in race with expand_fd_array(). The patch
-below puts the read_lock to avoid that. I am not very sure if this is already
-protected by some other means and read_lock is not needed.
+  drivers/net/ppp_deflate.o(.data+0x0): multiple definition of `deflate_copyright'
+  fs/jffs2/jffs2.o(.data+0x20): first defined here
+  drivers/net/ppp_deflate.o: In function `deflateInit_':
+  drivers/net/ppp_deflate.o(.text+0x0): multiple definition of `deflateInit_'
+  fs/jffs2/jffs2.o(.text+0xc90): first defined here
+  drivers/net/ppp_deflate.o: In function `deflateInit2_':
+  Lots more of the same.
 
-Please comment.
+  drivers/isdn/tpam/tpam.o: In function `hdlc_decode':
+  drivers/isdn/tpam/tpam.o(.text+0x3f50): multiple definition of `hdlc_decode'
+  drivers/isdn/hisax/hisax_st5481.o(.text+0x30c0): first defined here
+  ld: Warning: size of symbol `hdlc_decode' changed from 832 to 603 in drivers/isdn/tpam/tpam.o
 
-Thank you,
-Maneesh
+  drivers/isdn/tpam/tpam.o: In function `hdlc_encode':
+  drivers/isdn/tpam/tpam.o(.text+0x3d30): multiple definition of `hdlc_encode'
+  drivers/isdn/hisax/hisax_st5481.o(.text+0x3400): first defined here
+  ld: Warning: size of symbol `hdlc_encode' changed from 1345 to 529 in drivers/isdn/tpam/tpam.o
 
--- 
-Maneesh Soni
-IBM Linux Technology Center, 
-IBM India Software Lab, Bangalore.
-Phone: +91-80-5262355 Extn. 3999 email: maneesh@in.ibm.com
-http://lse.sourceforge.net/locking/rcupdate.html
+  drivers/mtd/chips/jedec_probe.o: In function `jedec_probe_init':
+  drivers/mtd/chips/jedec_probe.o(.text.init+0x0): multiple definition of `jedec_probe_init'
+  drivers/mtd/chips/jedec.o(.text.init+0x0): first defined here
 
-diff -urN linux-2.4.14-pre8-orig/fs/proc/base.c linux-2.4.14pre8/fs/proc/base.c
---- linux-2.4.14-pre8-orig/fs/proc/base.c	Tue Nov  6 10:13:27 2001
-+++ linux-2.4.14pre8/fs/proc/base.c	Tue Nov  6 10:02:19 2001
-@@ -553,6 +553,7 @@
- 			task_unlock(p);
- 			if (!files)
- 				goto out;
-+			read_lock(&files->file_lock);
- 			for (fd = filp->f_pos-2;
- 			     fd < files->max_fds;
- 			     fd++, filp->f_pos++) {
-@@ -561,6 +562,7 @@
- 				if (!fcheck_files(files, fd))
- 					continue;
- 
-+				read_unlock(&files->file_lock);
- 				j = NUMBUF;
- 				i = fd;
- 				do {
-@@ -571,8 +573,11 @@
- 
- 				ino = fake_ino(pid, PROC_PID_FD_DIR + fd);
- 				if (filldir(dirent, buf+j, NUMBUF-j, fd+2, ino, DT_LNK) < 0)
--					break;
-+					goto done;
-+				read_lock(&files->file_lock);
- 			}
-+			read_unlock(&files->file_lock);
-+done:
- 			put_files_struct(files);
- 	}
- out:
+  Everybody's current favourite, loop.o omitted :)
+
+  drivers/block/ps2esdi.c:153: `THIS_MODULE' undeclared here (not in a function)
+  drivers/block/ps2esdi.c:153: initializer element is not constant
+  drivers/block/ps2esdi.c:153: (near initialization for `ps2esdi_fops.owner')
+  drivers/block/ps2esdi.c:157: initializer element is not constant
+  drivers/block/ps2esdi.c:157: (near initialization for `ps2esdi_fops')
+
+  In file included from drivers/usb/hpusbscsi.c:13:
+  drivers/scsi/scsi.h:402:27: scsi_obsolete.h: No such file or directory
+  drivers/usb/hpusbscsi.c: In function `hpusbscsi_scsi_abort':
+  drivers/usb/hpusbscsi.c:351: `SCSI_ABORT_PENDING' undeclared (first use in this function)
+  drivers/usb/hpusbscsi.c:351: (Each undeclared identifier is reported only once
+  drivers/usb/hpusbscsi.c:351: for each function it appears in.)
+  drivers/usb/hpusbscsi.c:352: warning: control reaches end of non-void function
+

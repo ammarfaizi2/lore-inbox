@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129069AbQKOGeF>; Wed, 15 Nov 2000 01:34:05 -0500
+	id <S129091AbQKOGpH>; Wed, 15 Nov 2000 01:45:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129091AbQKOGdz>; Wed, 15 Nov 2000 01:33:55 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:3076
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S129069AbQKOGdi>; Wed, 15 Nov 2000 01:33:38 -0500
-Date: Tue, 14 Nov 2000 22:03:37 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: linux-kernel@vger.kernel.org
-Subject: College of Cardinals Vote!!!
-In-Reply-To: <3A12251B.7F600351@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.10.10011142200530.366-100000@master.linux-ide.org>
+	id <S129178AbQKOGor>; Wed, 15 Nov 2000 01:44:47 -0500
+Received: from mail.sun.ac.za ([146.232.128.1]:46858 "EHLO mail.sun.ac.za")
+	by vger.kernel.org with ESMTP id <S129091AbQKOGoh>;
+	Wed, 15 Nov 2000 01:44:37 -0500
+Date: Wed, 15 Nov 2000 08:14:30 +0200 (SAST)
+From: Hans Grobler <grobh@sun.ac.za>
+To: Rui Sousa <rsousa@grad.physics.sunysb.edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] Hard lockup using emu10k1-based sound card
+In-Reply-To: <Pine.LNX.4.21.0011141216450.18636-100000@grad.physics.sunysb.edu>
+Message-ID: <Pine.LNX.4.30.0011150801110.32433-100000@ccs.sun.ac.za>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Nov 2000, Jeff Garzik wrote:
+On Tue, 14 Nov 2000, Rui Sousa wrote:
+> Which was the latest kernel you tried? A (easy to trigger) deadlock was
+> fixed around 2.4.0-test...
 
-> I -want- there to be only one hotplug strategy, but Adam seemed to be
-> talking about the opposite, with his CONFIG_USB_HOTPLUG suggestion.
-> 
-> I'm hoping that Linus will disagree with the splintering of
-> CONFIG_HOTPLUG too...
+It was around test7... I think. I remember seeing changes to emu10k1 in
+the patch and I tried that version. It still crashed. I work almost
+exclusively command line and saw no kernel error messages. The system
+simply locked up and did not respond to SysRq etc.
 
-CONFIG_HOTPLUG			CONFIG_'parse like hell'_HOTPLUG
+I'll try test11-pre5 today.
 
-	2					0
+-- Hans
 
 
 -

@@ -1,107 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261481AbSIWVo1>; Mon, 23 Sep 2002 17:44:27 -0400
+	id <S261462AbSIWVlv>; Mon, 23 Sep 2002 17:41:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261488AbSIWVo1>; Mon, 23 Sep 2002 17:44:27 -0400
-Received: from zero.aec.at ([193.170.194.10]:17160 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id <S261481AbSIWVna>;
-	Mon, 23 Sep 2002 17:43:30 -0400
-Date: Mon, 23 Sep 2002 23:48:36 +0200
-From: Andi Kleen <ak@muc.de>
-To: linux-kernel@vger.kernel.org
-Subject: Nanosecond resolution for stat(2) 
-Message-ID: <20020923214836.GA8449@averell>
-Mime-Version: 1.0
+	id <S261470AbSIWVkd>; Mon, 23 Sep 2002 17:40:33 -0400
+Received: from magic.adaptec.com ([208.236.45.80]:30935 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP
+	id <S261462AbSIWVj0>; Mon, 23 Sep 2002 17:39:26 -0400
+Date: Mon, 23 Sep 2002 15:43:16 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.20pre7, aic7xxx-6.2.8: Panic: HOST_MSG_LOOP with invalid
+ SCB 0
+Message-ID: <2632550816.1032817396@aslan.btc.adaptec.com>
+In-Reply-To: <20020923063531.30270@192.168.4.1>
+References: <Pine.LNX.4.44.0209231350390.973-100000@freak.distro.conectiva>
+ <20020923063531.30270@192.168.4.1>
+X-Mailer: Mulberry/3.0.0a4 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> Thanks for explaining me the issue clearly. :)
+> 
+> Hi Justin ! What is the actual breakage here ? Is this just PCI write
+> posting ? (that is PCI writes staying in bridge write buffer for
+> some time until you flush the whole path with a read). In this
+> case those intel & VIA chipsets aren't at fault as this is perfectly
+> legal per PCI spec and we'll have problem with all other sort of
+> machines, especially machines with stacked PCI<->PCI bridges like
+> it's the case for most pmacs.
 
-[The original message for this included the patch and didn't make it to
-l-k likely because it was too big. Reposted with out-of-line patch]
+No, it is not write posting.  It is usually a problem with write
+combining/merging and or read prefetch on devices that do not
+support this feature.  The memory BAR on the aic7xxx chips does
+not have the PREFETCH bit set so these types of operations are
+forbidden by the spec.  The end result are missed writes and
+state read data leading to all kinds of driver confusion.
 
-Linux currently uses second resolution (time_t) for st_[cam]time in stat(2).
-This is a problem for highly parallel make -j, which cannot detect cases
-when a make rule runs for less than a second. GNU make supports finer
-grained timestamps for this on other OS, but Linux doesn't support it 
-so far. This patch changes that. We also have several filesystems
-in tree now that support better than second resolution for [cam]time in
-their on disk inode (XFS,JFS,NFSv3 and VFAT). 
+Often these issues are really register layout dependent.  If
+you never have to access two registers that are right next to
+each other, the chipset can't write combine, etc.
 
-This patch extends the VFS and stat(2) to add nsec timestamps. 
+--
+Justin
 
-Why nsecs? First to be compatible with Solaris and then when you add a new
-32bit field then there is no reason to stop at msec. It just uses 
-a POSIX struct timespec. This matches what the filesystems (NFSv3,JFS,XFS)
-do. 
-
-The real resolution is a jiffie current because it just uses xtime
-instead of calling gettimeofday. In 2.5 that is 1ms, which should 
-be hopefully good enough. If not we can change it later to use do_gettimeofday.
-do-gettimeofday unfortunately takes a readlock currently on most architectures,
-so before doing it it would be a good idea to fix at least i386 to use
-lockless gettimeofday (implementations of that exist already). But xtime
-should be good enough for now. 
-
-I chose to reuse the "reserved for year 2036" fields in stat64 for nsec, because
-y2036 will need many other system call and glibc changes anyways
-(e.g. new time, new gettimeofday, glibc support) so adding a new stat64
-by then won't be a big deal. The newer architectures have enough 
-
-The current kernels fill the fields now reused for nsec always with 0,
-so there is perfect compatibility.
-
-On stat64 these fields are always there because everybody uses the glibc
-layout. With stat on 64bit architectures it is unfortunately mixed.
-The newer 64bit architectures use the stat64 layout. The older ones
-unfortunately didn't reserve fields for this (this is mainly alpha) 
-I think. For now alpha has no way to get at the nsec values. Fixing 
-it probably requires a new stat64 call for alpha.
-
-I had to add a preprocessor symbol for this case.
-
-I fixed all the architectures for it.
-
-The old utimes system call already supported timeval, so it works fine 
-(that is ms instead of ns resolution, but should be good enough for now) 
-
-I changed the inode and iattr fields to struct timespec.  and fixed all the
-file systems and other code that accessed it. The rounding in general
-is a bit crude from seconds - it should round, but they are currently
-just truncated.
-
-Some drivers (like mouse drivers or tty) do dubious inode [mac] time 
-accesses of the on disk inode and without even marking it dirty. This is 
-likely a bug. I fixed some of them but left others of these alone for now, 
-but should probably be all fixed. 
-
-[Linus noted that the tty drivers does this to keep 'w' updated. The
-patch keeps this. It's probably nonsense for the mouse drivers and 
-partly removed there.]
-
-I didn't fix Intermezzo completely because it didn't compile at all.
-
-This patch could in theory affect benchmarks a bit. Andrew Morton previously
-did an optimization to put inodes only once a second onto the dirty list
-when their [mca]time change. With this patch they will be put on the dirty
-list each jiffie (1ms), so in the worst case 1000 times as often.  The
-cost in this is mainly in taken the locks and putting the inode onto
-the dirty list.  On many FS which do not have better than a second 
-resolution this makes no sense, because they only change the value once a 
-second anyways. If this should be a problem a new update_time file/inode
-operation may need to be added. I didn't do this for now.
-
-The kernel internally always keeps the nsec (or rather 1ms) resolution
-stamp. When a filesystem doesn't support it in its inode (like ext2) 
-and the inode is flushed to disk and then reloaded then an application
-that is nanosecond aware could in theory see a backwards jumping time.
-I didn't do anything anything against that yet, because it looks more
-like a theoretical problem for me. If it should be one in practice 
-it could be fixed by rounding the time up in this case.
-
-Patch for 2.5.38 can be found at 
-ftp://ftp.firstfloor.org/pub/ak/v2.5/nsec-2.5.38-1.gz
-
--Andi

@@ -1,24 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265686AbTGLNkE (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jul 2003 09:40:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265693AbTGLNkE
+	id S265667AbTGLNj5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jul 2003 09:39:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265670AbTGLNj5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jul 2003 09:40:04 -0400
-Received: from s161-184-77-200.ab.hsia.telus.net ([161.184.77.200]:42677 "EHLO
-	cafe.hardrock.org") by vger.kernel.org with ESMTP id S265686AbTGLNj7
+	Sat, 12 Jul 2003 09:39:57 -0400
+Received: from s161-184-77-200.ab.hsia.telus.net ([161.184.77.200]:42421 "EHLO
+	cafe.hardrock.org") by vger.kernel.org with ESMTP id S265667AbTGLNjy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jul 2003 09:39:59 -0400
-Date: Sat, 12 Jul 2003 07:47:16 -0600 (MDT)
+	Sat, 12 Jul 2003 09:39:54 -0400
+Date: Sat, 12 Jul 2003 07:49:19 -0600 (MDT)
 From: James Bourne <jbourne@hardrock.org>
 To: Marcelo Tosatti <marcelo@conectiva.com.br>
 cc: linux-kernel@vger.kernel.org
-Subject: linux-2.4.22-pre5 drm/agpsupport unresolved symbols
-Message-ID: <Pine.LNX.4.44.0307120731001.1986-100000@cafe.hardrock.org>
+Subject: linux-2.4.22-pre5 drm/agpsupport unresolved symbols (fwd)
+Message-ID: <Pine.LNX.4.44.0307120747530.1986-200000@cafe.hardrock.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1197356979-1876980671-1058017759=:1986"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
+
+---1197356979-1876980671-1058017759=:1986
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+
+[And now for the patch, sorry forgot to attach it... *sigh*]
 
 The attached patch fixes the following compile error when building
 agpsupport as a module.  This is against 2.4.22pre5.
@@ -57,3 +66,29 @@ Custom Unix Programming       | Linux:  The choice of a GNU generation
 
 
 
+
+---1197356979-1876980671-1058017759=:1986
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="2.4.22pre5-drm-compile.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0307120749190.1986@cafe.hardrock.org>
+Content-Description: patch
+Content-Disposition: attachment; filename="2.4.22pre5-drm-compile.patch"
+
+LS0tIGxpbnV4LTIuNC4yMnByZTUvaW5jbHVkZS9saW51eC9hZ3BfYmFja2Vu
+ZC5ofgkyMDAzLTA3LTEyIDE0OjM2OjU0LjAwMDAwMDAwMCArMDcwMA0KKysr
+IGxpbnV4LTIuNC4yMnByZTUvaW5jbHVkZS9saW51eC9hZ3BfYmFja2VuZC5o
+CTIwMDMtMDctMTIgMTQ6MzY6NTQuMDAwMDAwMDAwICswNzAwDQpAQCAtNjYs
+NiArNjYsNyBAQA0KIAlWSUFfQVBPTExPX0tNMjY2LA0KIAlWSUFfQVBPTExP
+X0tUNDAwLA0KIAlWSUFfQVBPTExPX1A0TTI2NiwNCisJVklBX0FQT0xMT19Q
+NFg0MDAsDQogCVNJU19HRU5FUklDLA0KIAlBTURfR0VORVJJQywNCiAJQU1E
+X0lST05HQVRFLA0KLS0tIGxpbnV4LTIuNC4yMnByZTUvZHJpdmVycy9jaGFy
+L2RybS00LjAvYWdwc3VwcG9ydC5jfgkyMDAzLTA3LTEyIDE0OjM2OjU5LjAw
+MDAwMDAwMCArMDcwMA0KKysrIGxpbnV4LTIuNC4yMnByZTUvZHJpdmVycy9j
+aGFyL2RybS00LjAvYWdwc3VwcG9ydC5jCTIwMDMtMDctMTIgMTQ6MzY6NTku
+MDAwMDAwMDAwICswNzAwDQpAQCAtMjc4LDYgKzI3OCw3IEBADQogCQljYXNl
+IFZJQV9BUE9MTE9fS1Q0MDA6ICBoZWFkLT5jaGlwc2V0ID0gIlZJQSBBcG9s
+bG8gS1Q0MDAiOw0KIAkJCWJyZWFrOw0KIAkJY2FzZSBWSUFfQVBPTExPX1A0
+WDQwMDoJaGVhZC0+Y2hpcHNldCA9ICJWSUEgQXBvbGxvIFA0WDQwMCI7DQor
+CQkJYnJlYWs7DQogI2VuZGlmDQogDQogCQljYXNlIFZJQV9BUE9MTE9fUFJP
+OiAJaGVhZC0+Y2hpcHNldCA9ICJWSUEgQXBvbGxvIFBybyI7DQo=
+---1197356979-1876980671-1058017759=:1986--

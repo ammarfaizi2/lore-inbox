@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270901AbTGPPA1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 11:00:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270900AbTGPPA1
+	id S270913AbTGPPGh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 11:06:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270914AbTGPPGh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 11:00:27 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:522 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S270898AbTGPPAW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 11:00:22 -0400
-Date: Wed, 16 Jul 2003 17:15:10 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Michael Dransfield <mike@blueroot.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: make xconfig segfaults, menuconfig fails
-In-Reply-To: <5.1.0.14.0.20030716141023.02753380@212.67.194.181>
-Message-ID: <Pine.LNX.4.44.0307161709230.717-100000@serv>
-References: <5.1.0.14.0.20030716141023.02753380@212.67.194.181>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 16 Jul 2003 11:06:37 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:10954
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S270913AbTGPPGe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 11:06:34 -0400
+Subject: Re: please help - kernel OOPS
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Deon George <kernel@wurley.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030716120856.M31641@wurley.net>
+References: <20030716120856.M31641@wurley.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1058368734.6633.21.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 16 Jul 2003 16:18:54 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mer, 2003-07-16 at 13:08, Deon George wrote:
+> I have been trying some mini-ITX v8000 systems and can get a kernel oops quite 
+> easily - most times it is to do with making file systems (reiserfs or ext2/3) or 
+> copying via the network (using rsync). Sometimes it happens when the box is 
+> booting, and other times it has gone for serveral days before it happened.
 
-On Wed, 16 Jul 2003, Michael Dransfield wrote:
+I've got a set of EPIA boxes running these kernels - reliably. I would
+suggest checking the RAM you used is up to spec first - I had a real
+pain of a time with EPIA stuff until I used decent RAM. The stuff that
+gave me problems worked fine on some other boards but only at 100Mhz bus
+speed on the EPIA.
 
-> Typing 'make xconfig' segfaults - core dump can be sent if you need
+> I have captured two oops - one when I used mke2fs and one for mkreiserfs (since it 
+> oops quite frequently when I make a file system). Does this mean anything to 
+> anybody?
 
-Your xconfig output doesn't make any sense, it shouldn't start compiling, 
-did you really only 'make xconfig'?
-Anyway, a backtrace might be enough. ('gdb scripts/kconfig/qconf',
-'r arch/i386/Kconfig', 'bt')
-
-> 'make menuconfig' produces errors and fails (output attached)
-
-You need to install the ncurses devel package.
-
-bye, Roman
+Are you within power budget for your system if its a tiny little PSU
+brick ?
 

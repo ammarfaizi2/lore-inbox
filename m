@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266637AbTATTDp>; Mon, 20 Jan 2003 14:03:45 -0500
+	id <S266686AbTATTRm>; Mon, 20 Jan 2003 14:17:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266640AbTATTDp>; Mon, 20 Jan 2003 14:03:45 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:51462 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S266637AbTATTDo>;
-	Mon, 20 Jan 2003 14:03:44 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200301201912.h0KJCrru006239@darkstar.example.net>
-Subject: Re: Promise PDC20268 FastTrack 100 TX2 (PDC20268)
-To: lkml@scienceworks.com
-Date: Mon, 20 Jan 2003 19:12:53 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz
-In-Reply-To: <20030120183442.GA3440@poseidon.wasserstadt.de> from "lkml@scienceworks.com" at Jan 20, 2003 07:34:42 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S266717AbTATTRl>; Mon, 20 Jan 2003 14:17:41 -0500
+Received: from jstevenson.plus.com ([212.159.71.212]:29897 "EHLO
+	alpha.stev.org") by vger.kernel.org with ESMTP id <S266686AbTATTRl>;
+	Mon, 20 Jan 2003 14:17:41 -0500
+Subject: Re: 2.4.20 and ext3 error.
+From: James Stevenson <james@stev.org>
+To: Andrey Nekrasov <andy@spylog.ru>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030120110611.GA4862@an.local>
+References: <20030120110611.GA4862@an.local>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 20 Jan 2003 19:27:32 +0000
+Message-Id: <1043090853.1753.40.camel@god.stev.org>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have a Promise FastTrack 100 TX2 (PDC20268) IDE-controller
-> (BIOS v2.00.0.24) used in a linux MD-RAID.  Aside from various
-> other annoying Promise-problems, I am not able to perform a
-> remote boot because the brain-dead Promise-BIOS "complains" that
-> no array is defined, and requires one to press ESC to continue
-> booting.  I would very much appreciate any tips as to how I can
-> circumvent this "feature".
+On Mon, 2003-01-20 at 11:06, Andrey Nekrasov wrote:
+> Hello.
+> 
+> kernel 2.4.20 write (dmesg):
+> 
+> ...
+> EXT3-fs warning: mounting fs with errors, running e2fsck is recommended
 
-Well, if you don't usually need a keyboard on that machine, in theory,
-you might be able to connect the keyboard input to the PS/2 mouse port
-of another machine, and write a program to send the correct bytes for
-that keypress to the other machine.  Then, you could reboot the
-machine with the Promise card in it, then log in to the other machine,
-and run the program to send the keypress.
+this might give a little clue. e2fsck has found a system with errors and
+marked it has errrors
 
-Not sure how practical this solution would be though...  You'd
-probably have to simulate the keyboard initialisation responses as
-well, which would make it a bit complicated
 
-John.
+yup this looks like an error to me.
+> EXT3-fs error (device ide2(33,1)): ext3_readdir: bad entry in directory #2853202:
+> rec_len % 4 != 0 - offset=0, inode=1754302946, rec_len=34858, name_len=134
+> Aborting journal on device ide2(33,1).
+> Remounting filesystem read-only
+
+> 
+> why?
+
+
+

@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261762AbTI3VmP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 17:42:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261760AbTI3VmO
+	id S261890AbTJAApb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 20:45:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbTJAApa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 17:42:14 -0400
-Received: from relay2.EECS.Berkeley.EDU ([169.229.60.28]:49541 "EHLO
-	relay2.EECS.Berkeley.EDU") by vger.kernel.org with ESMTP
-	id S261776AbTI3VmM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 17:42:12 -0400
-Subject: Re: 2.6.0-test6: a few __init bugs
-From: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>
-To: Greg KH <greg@kroah.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030930212551.GA20709@kroah.com>
-References: <1064872693.5733.42.camel@dooby.cs.berkeley.edu>
-	<20030929221113.GB2720@kroah.com>
-	<1064946634.5734.106.camel@dooby.cs.berkeley.edu>
-	<20030930191117.GA20054@kroah.com>
-	<1064956854.5733.233.camel@dooby.cs.berkeley.edu> 
-	<20030930212551.GA20709@kroah.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 30 Sep 2003 14:42:09 -0700
-Message-Id: <1064958129.5264.237.camel@dooby.cs.berkeley.edu>
+	Tue, 30 Sep 2003 20:45:30 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:37637 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S261890AbTJAAp3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 20:45:29 -0400
+Date: Wed, 1 Oct 2003 02:45:16 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Paul Symons <paul@affronted.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: atkbd.c not recognising key on logitech cordless keyboard
+Message-ID: <20031001004516.GB1520@win.tue.nl>
+References: <200309302200.31040.paul@affronted.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200309302200.31040.paul@affronted.org>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-09-30 at 14:25, Greg KH wrote:
-> Hm, good point.  Can you think of a better place for this that would
-> have helped you out?
+On Tue, Sep 30, 2003 at 10:00:30PM +0100, Paul Symons wrote:
 
-Take two.  It might not have prevented me from reporting the potential
-bug, but I would've known you'd thought about it, it might help future
-developers, and it's unlikely to become dangerously wrong.  Thanks.
+> Hi, I have a Logitech Cordless Desktop with those funny extra buttons at the 
+> top. However, one particular button no longer works when running development 
+> kernels (it worked in 2.4 kernels). The first development kernel I tested 
+> with was 2.5.75; it hasn't worked from then up until 2.6.0-test6, which I am 
+> running now.
+> 
+> The key in question is labelled "Messenger / SMS" and gives scancode e0 11.
 
-Best,
-Rob
+> Sep 30 21:55:32 fastpc kernel: atkbd.c: Unknown key pressed (translated set 2, 
+> code 0x11d, data 0x11, on isa0060/serio0).
 
---- drivers/pci/quirks.c.orig	Tue Sep 30 14:17:40 2003
-+++ drivers/pci/quirks.c	Tue Sep 30 14:39:48 2003
-@@ -750,6 +750,9 @@
- 
- /*
-  *  The main table of quirks.
-+ *
-+ *  Note: any hooks for hotpluggable devices in this table must _NOT_
-+ *        be declared __init.
-  */
- 
- static struct pci_fixup pci_fixups[] __devinitdata = {
+I do not think that scancode was associated to a keycode in a vanilla
+2.4 kernel. So, maybe you used setkeycodes(8) or used a patched kernel?
+
+Patching also works today. The setkeycodes command is a bit broken these days.
+
+Andries
 
 

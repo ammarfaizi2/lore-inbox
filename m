@@ -1,59 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261944AbULKOxJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261939AbULKPKv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261944AbULKOxJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Dec 2004 09:53:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbULKOxJ
+	id S261939AbULKPKv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Dec 2004 10:10:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261941AbULKPKv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 09:53:09 -0500
-Received: from mx.laposte.net ([80.245.62.11]:19637 "EHLO mx.laposte.net")
-	by vger.kernel.org with ESMTP id S261944AbULKOxB (ORCPT
+	Sat, 11 Dec 2004 10:10:51 -0500
+Received: from fsmlabs.com ([168.103.115.128]:30145 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S261939AbULKPKs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 09:53:01 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-12
-From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
-To: linux-kernel@vger.kernel.org
-Cc: Ingo Molnar <mingo@elte.hu>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-v7jL2iZfbA4IaYX966+g"
-Organization: Adresse personelle
-Date: Sat, 11 Dec 2004 15:52:52 +0100
-Message-Id: <1102776772.2968.4.camel@rousalka.dyndns.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-6) 
+	Sat, 11 Dec 2004 10:10:48 -0500
+Date: Sat, 11 Dec 2004 08:07:07 -0700 (MST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+cc: Andrew Morton <akpm@osdl.org>, Stephen Rothwell <sfr@canb.auug.org.au>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Dipankar Sarma <dipankar@in.ibm.com>, Li Shaohua <shaohua.li@intel.com>,
+       Len Brown <len.brown@intel.com>
+Subject: Re: Fw: [RFC] Strange code in cpu_idle()
+In-Reply-To: <20041206192243.GC1435@us.ibm.com>
+Message-ID: <Pine.LNX.4.61.0412110804500.5214@montezuma.fsmlabs.com>
+References: <20041205004557.GA2028@us.ibm.com> <20041206111634.44d6d29c.sfr@canb.auug.org.au>
+ <20041205232007.7edc4a78.akpm@osdl.org> <Pine.LNX.4.61.0412060157460.1036@montezuma.fsmlabs.com>
+ <20041206160405.GB1271@us.ibm.com> <Pine.LNX.4.61.0412060941560.5219@montezuma.fsmlabs.com>
+ <20041206192243.GC1435@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 6 Dec 2004, Paul E. McKenney wrote:
 
---=-v7jL2iZfbA4IaYX966+g
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> My bad -- I hadn't read through the entire thread before responding,
+> so was speculating on how it might manage to be correct.
 
-Hi,
+Ok, i'll come up with a method which doesn't use RCU. Thank you, for 
+pointing out the faults.
 
-Just FYI real-time kernels do not boot on my Fedora Devel (Rawhide)
-system, including -RT-2.6.10-rc2-mm3-V0.7.32-12. 2.6.10-rc2-mm4 OTOH
-boots fine. It freezes just after initial hardware init before going
-into gfx mode.
-
-(kernel config available on demand, it's almost the same - 2.6.10-rc2-
-mm4 was generated using a make oldconfig on the -RT-2.6.10-rc2-mm3-
-V0.7.32-12 file)
-
-Regards,
-
---=20
-Nicolas Mailhot
-
---=-v7jL2iZfbA4IaYX966+g
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBBuwnDI2bVKDsp8g0RAnutAKDd1SC9f/kxnrDrMu5pGhPbpW4ayQCdEz9X
-QLOrg+EDttcQhIee1sdkC3k=
-=mxxj
------END PGP SIGNATURE-----
-
---=-v7jL2iZfbA4IaYX966+g--
+	Zwane

@@ -1,78 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265207AbUFAUMk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265205AbUFAUNc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265207AbUFAUMk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 16:12:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265206AbUFAUMj
+	id S265205AbUFAUNc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 16:13:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265206AbUFAUNc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 16:12:39 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:3216 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S265207AbUFAULD (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 16:11:03 -0400
-Message-Id: <200406012010.i51KAuWP024552@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: reg@dwf.com
+	Tue, 1 Jun 2004 16:13:32 -0400
+Received: from outmx006.isp.belgacom.be ([195.238.2.99]:672 "EHLO
+	outmx006.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S265205AbUFAUNI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 16:13:08 -0400
+Subject: Re: why swap at all?
+From: FabF <fabian.frederick@skynet.be>
+To: Valdis.Kletnieks@vt.edu
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Intel 875 Motherboard cant use 4GB of Memory. 
-In-Reply-To: Your message of "Tue, 01 Jun 2004 13:56:34 MDT."
-             <200406011956.i51JuYkD019999@orion.dwf.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <200406011956.i51JuYkD019999@orion.dwf.com>
+In-Reply-To: <200406012000.i51K0vor019011@turing-police.cc.vt.edu>
+References: <E1BUwEH-00030X-00@calista.eckenfels.6bone.ka-ip.net>
+	 <1086114982.2278.5.camel@localhost.localdomain>
+	 <200406011902.i51J2mZ3016721@turing-police.cc.vt.edu>
+	 <1086119611.2278.16.camel@localhost.localdomain>
+	 <200406012000.i51K0vor019011@turing-police.cc.vt.edu>
+Content-Type: text/plain
+Message-Id: <1086120865.2278.27.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_648145696P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 01 Jun 2004 22:14:26 +0200
 Content-Transfer-Encoding: 7bit
-Date: Tue, 01 Jun 2004 16:10:56 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_648145696P
-Content-Type: text/plain; charset=us-ascii
+On Tue, 2004-06-01 at 22:00, Valdis.Kletnieks@vt.edu wrote:
+> On Tue, 01 Jun 2004 21:53:32 +0200, FabF said:
+> 
+> > I was thinking about some rule e.g. any process using libX* isn't
+> > swapped to disk until OOM ...
+> 
+> Odd.. some of the processes that I'd want kept in memory use libX*,
+> but others that also use it are at the top of my list of things to migrate
+> out (unlike some, I don't mind if Mozilla or OpenOffice end up out on
+> disk after extended inactivity - but if my window manager gets swapped
+> out, I get peeved when focus-follows-mouse doesn't and my typing goes
+> into the wrong window or some such... ;)
+> 
+> And that rule doesn't even help much - as it will cause at least some X
+> servers themselves to get swapped out.  Here's the list for my X server
+> at the moment, as reported by lsof:
+> 
+> X       13886 root  txt    REG      254,1 1960870       1966 /usr/X11R6/bin/Xorg
+> X       13886 root  mem    REG      254,5  105700      12388 /lib/ld-2.3.3.so
+> X       13886 root  mem    REG      254,5   50944      12530 /lib/libnss_files-2.3.3.so
+> X       13886 root  mem    REG      254,1   64040       1347 /usr/lib/libz.so.1.2.1.1
+> X       13886 root  mem    REG      254,5  212972      53335 /lib/tls/libm-2.3.3.so
+> X       13886 root  mem    REG      254,5   28008      12513 /lib/libpam.so.0.77
+> X       13886 root  mem    REG      254,5   15008      12471 /lib/libdl-2.3.3.so
+> X       13886 root  mem    REG      254,5    8332      12515 /lib/libpam_misc.so.0.77
+> X       13886 root  mem    REG      254,5   29660      12511 /lib/libgcc_s-3.3.3-20040413.so.1
+> X       13886 root  mem    REG      254,5 1451868      53258 /lib/tls/libc-2.3.3.so
+> X       13886 root  mem    REG      254,1  647652      32015 /usr/X11R6/lib/modules/extensions/libglx.so.1.0.5341
+> X       13886 root  mem    REG      254,1 4954876       8362 /usr/lib/tls/libGLcore.so.1.0.5341
+> 
+> Nope, no libX* here... ;)
+> 
+> It's a lot harder than it looks, which explains why we haven't gotten it right
+> yet...
+> 
+Boring....You can't have X root layer swapped to disk as it's often used
+! Some quick lsof | grep "libX" gives all frontal applications 'swapping
+sensible' .fuser can do 'user resource reverse'.Kernel _can_ 'appl.
+resource reverse' as well.
 
-On Tue, 01 Jun 2004 13:56:34 MDT, reg@dwf.com said:
+PS: I'm not talking about inactive desktop box.Such box has to be rl 3
+and is not meant to be user (geek) relevant :)
 
->   00000000-0009fbff : System RAM
->   0009fc00-0009ffff : reserved
->   000a0000-000bffff : Video RAM area
->   000c0000-000ccfff : Video ROM
->   000f0000-000fffff : System ROM
->   00100000-ae62ffff : System RAM                    1048576 - 2925723647
->   00100000-002a2fff : Kernel code
->   002a3000-003542ff : Kernel data
->   ae630000-ae64180f : ACPI Non-volatile Storage
-
-and thence a long list of other reserved stuff pretty much clear up to
-ffffffff.  So there may be 4G of physical memory in the box, but everything
-above ae630000 or so is shadowed by something else using those memory
-addresses.. and that's just about 1/3 of the address space...
-
-> This still isnt making much sense to me, so if somone can explain why I
-> can only see a little over 2/3 of the installed memory, I would appreciate
-> it.
-
-If you *were* to allocate a page at (for instance) ff8f0000, and then wrote to
-it, who should get the write - the memory page or the device 0000:01:00.0 on
-PCI Bus 1?
-
-> And of course, the original question, any workarround?
-There's 3 basic directions you can go:  (1) find a way to disambiguate the
-memory addresses so shadowing isn't a problem (probably not an option), (2a)
-find a way to relocate the reserved stuff above the 4G address line (probably
-need BIOS assistance for this), or (2b) find a way to relocate a gig and a half
-or so of memory above the 4G linem or (3) Move to an architecture that isn't
-constrained by 32-bit addresses...
+FabF
 
 
---==_Exmh_648145696P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFAvOLQcC3lWbTT17ARAkfuAKC38CSdr3ZihUAA3tR3Xx1TwdXSrQCgz8+2
-XglMFREOgs0m+nh+iIeRmaA=
-=PyhG
------END PGP SIGNATURE-----
-
---==_Exmh_648145696P--

@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279261AbRKIFL4>; Fri, 9 Nov 2001 00:11:56 -0500
+	id <S279242AbRKIFI0>; Fri, 9 Nov 2001 00:08:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279277AbRKIFLq>; Fri, 9 Nov 2001 00:11:46 -0500
-Received: from zok.sgi.com ([204.94.215.101]:10626 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S279264AbRKIFLc>;
-	Fri, 9 Nov 2001 00:11:32 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Anton Blanchard <anton@samba.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: speed difference between using hard-linked and modular drives? 
-In-Reply-To: Your message of "Fri, 09 Nov 2001 10:59:21 +1100."
-             <20011109105921.A6822@krispykreme> 
+	id <S279261AbRKIFIQ>; Fri, 9 Nov 2001 00:08:16 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:17908
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S279242AbRKIFII>; Fri, 9 Nov 2001 00:08:08 -0500
+Date: Thu, 8 Nov 2001 20:42:10 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Modutils can't handle long kernel names
+Message-ID: <20011108204210.A514@mikef-linux.matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 09 Nov 2001 16:11:23 +1100
-Message-ID: <7462.1005282683@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Nov 2001 10:59:21 +1100, 
-Anton Blanchard <anton@samba.org> wrote:
-> 
->> > Are there any speed difference between hard-linked device drivers and
->> > their modular counterparts?
->
->Its worse on some architectures that need to pass through a trampoline
->when going between kernel and module (eg ppc). Its even worse on ppc64
->at the moment because we have a local TOC per module which needs to be
->saved and restored.
+Hello,
 
-Is that TOC save and restore just for module code or does it apply to
-all calls through function pointers?
+I've gotten into the habbit of adding the names of the patches I add to my
+kernel to the extraversion string in the top level Makefile in my kernels.
 
-On IA64, R1 (global data pointer) must be saved and restored on all
-calls through function pointers, even if both the caller and callee are
-in the kernel.  You might know that this is a kernel to kernel call but
-gcc does not so it has to assume the worst.  This is not a module
-problem, it affects all indirect function calls.
+Here's my latest example:
+VERSION = 2
+PATCHLEVEL = 4
+SUBLEVEL = 15
+EXTRAVERSION=-pre1+freeswan-1.91+xsched+netdev_random+ext3-0.9.15-2414+ext3-mem_acct+elevator
 
+Unfortunately, with this long kernel version number, modutils (I've noticed
+depmod and modutils so far...) choke on it.
+
+depmod:
+depmod: Can't open /lib/modules/2.4.15-pre1+freeswan-1.91+xsched+netdev_random+ext3-0.9.15-2414+e#1 SMP Thu Nov 8 20:18:04 PST 2001/modules.dep for writing
+
+uname -r:
+2.4.15-pre1+freeswan-1.91+xsched+netdev_random+ext3-0.9.15-2414+e#1 SMP Thu Nov 8 20:18:04 PST 2001
+
+uname -a:
+Linux mikef-linux.matchmail.com 2.4.15-pre1+freeswan-1.91+xsched+netdev_random+ext3-0.9.15-2414+e#1 SMP Thu Nov 8 20:18:04 PST 2001 #1 SMP Thu Nov 8 20:18:04 PST 2001 i686 unknown
+
+Yep, I know, "don't do that!".  Still, can this be fixed easily, or is it
+one of those things that kbuild 2.5 will fix, and make everything rosy and
+do my laundry too?
+
+TIA,
+
+Mike

@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261187AbSI1LHD>; Sat, 28 Sep 2002 07:07:03 -0400
+	id <S261218AbSI1LIr>; Sat, 28 Sep 2002 07:08:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261206AbSI1LHD>; Sat, 28 Sep 2002 07:07:03 -0400
-Received: from h008.c015.snv.cp.net ([209.228.35.123]:59572 "HELO
-	c015.snv.cp.net") by vger.kernel.org with SMTP id <S261187AbSI1LHD>;
-	Sat, 28 Sep 2002 07:07:03 -0400
-X-Sent: 28 Sep 2002 11:12:22 GMT
-Date: Sat, 28 Sep 2002 13:10:00 +0200
-To: jbradford@dial.pipex.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: kernel crashes when recording audio
-Message-ID: <20020928111000.GA1454@cornils.net>
-References: <20020928005611.GB1070@cornils.net> <200209280746.g8S7k1Jj000910@darkstar.example.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200209280746.g8S7k1Jj000910@darkstar.example.net>
-User-Agent: Mutt/1.3.28i
-From: Malte Cornils <mcornils@cornils.net>
+	id <S261223AbSI1LIr>; Sat, 28 Sep 2002 07:08:47 -0400
+Received: from [203.117.131.12] ([203.117.131.12]:17306 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id <S261218AbSI1LIq>; Sat, 28 Sep 2002 07:08:46 -0400
+Message-ID: <3D958EF5.7080300@metaparadigm.com>
+Date: Sat, 28 Sep 2002 19:13:57 +0800
+From: Michael Clark <michael@metaparadigm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020913 Debian/1.1-1
+MIME-Version: 1.0
+To: felix.seeger@gmx.de
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: System very unstable
+References: <200209281155.32668.felix.seeger@gmx.de>	<20020928.025900.58828001.davem@redhat.com>	<200209281233.21897.felix.seeger@gmx.de> <20020928.033510.40857147.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Sat, Sep 28, 2002 at 08:46:00AM +0100, jbradford@dial.pipex.com wrote:
-> > 00:07.5 Multimedia audio controller: VIA Technologies, Inc. VT82C686 AC97 Audio Controller (rev 50)
-> > 	Interrupt: pin C routed to IRQ 5
-> > 
-> > 00:0b.0 VGA compatible controller: ATI Technologies Inc 3D Rage LT Pro (rev dc) (prog-if 00 [VGA])
-> > 	Interrupt: pin A routed to IRQ 5
+On 09/28/02 18:35, David S. Miller wrote:
+>    From: Felix Seeger <felix.seeger@gmx.de>
+>    Date: Sat, 28 Sep 2002 12:33:21 +0200
+>    
+>    What card is good (performance for games and 
+>    a acceptable licenze for kernel developers)?
 > 
-> These two devices share IRQ 5, maybe that is the problem.
+> ATI Radeon is pretty fast and all except the very latest chips have
+> opensource drivers.
 
-No, I tried with all devices on their own interrupt, still gives the same
-Oops. Good idea though, but I guess this is one of the rare cases the PCI
-spec interrupt sharing actually worked...
+Radeon 7500 is currently the fastest board with an opensource
+driver that supports 3D. 8500 XFree support is currently 2D only,
+although apparently work on the opensource GL driver is underway.
 
--Malte #8-)
+You can get 3D support for the 8500 if you get a commercial
+binary only X server ( http://www.xig.com/ ) - although I
+guess this is almost as bad as having a binary kernel module
+due to the type of hardware access the X server needs to do.
 
-BTW: you luckily assumed that anyway, but since I forgot to mention that 
-in my first mail: please Cc: me since I'm not subscribed to LKML currently.
+I have a 7500 mobility in my IBM laptop. Stable and fast -
+get about 90fps playing tuxracer.
+
+The desktop version of the 7500 is evidentally is about the
+same performance as a Geforce2Ti - which is not bad.
+
+ATI has also just released the 9700 which beats the pants
+of the fastest Nvidia, if only their was XFree support.
+
+~mc
+

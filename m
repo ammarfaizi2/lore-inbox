@@ -1,75 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268288AbUIPWiV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268294AbUIPWmw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268288AbUIPWiV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 18:38:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268105AbUIPWiU
+	id S268294AbUIPWmw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 18:42:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268303AbUIPWmu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 18:38:20 -0400
-Received: from sj-iport-4.cisco.com ([171.68.10.86]:7071 "EHLO
-	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
-	id S268288AbUIPWh3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 18:37:29 -0400
-X-BrightmailFiltered: true
-Message-Id: <5.1.0.14.2.20040917083305.04f4d008@171.71.163.14>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 17 Sep 2004 08:37:17 +1000
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-From: Lincoln Dale <ltd@cisco.com>
-Subject: Re: The ultimate TOE design
-Cc: Andi Kleen <ak@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
-       "David S. Miller" <davem@davemloft.net>, paul@clubi.ie,
-       netdev@oss.sgi.com, leonid.grossman@s2io.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1095339466.22739.22.camel@localhost.localdomain>
-References: <20040916133301.GA15562@wotan.suse.de>
- <20040915141346.5c5e5377.davem@davemloft.net>
- <4148991B.9050200@pobox.com>
- <Pine.LNX.4.61.0409152102050.23011@fogarty.jakma.org>
- <1095275660.20569.0.camel@localhost.localdomain>
- <4148A90F.80003@pobox.com>
- <20040915140123.14185ede.davem@davemloft.net>
- <20040915210818.GA22649@havoc.gtf.org>
- <20040915141346.5c5e5377.davem@davemloft.net>
- <5.1.0.14.2.20040916192213.04240008@171.71.163.14>
- <1095337159.22739.7.camel@localhost.localdomain>
- <20040916133301.GA15562@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Thu, 16 Sep 2004 18:42:50 -0400
+Received: from mail.tmr.com ([216.238.38.203]:37125 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S268294AbUIPWlb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 18:41:31 -0400
+Date: Thu, 16 Sep 2004 18:34:23 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Jan Kara <jack@suse.cz>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] inotify 0.9
+In-Reply-To: <20040916164622.GA28276@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.3.96.1040916182127.20906B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+On Thu, 16 Sep 2004, Jan Kara wrote:
 
-At 10:57 PM 16/09/2004, Alan Cox wrote:
->On Iau, 2004-09-16 at 14:33, Andi Kleen wrote:
-> > > At 1Ghz the Athlon Geode NX draws about 6W. Thats less than my SCSI
-> >
-> > Are you sure that's worst case, not average? Worst case is usually
-> > much worse on a big CPU like an Athlon, but the power supply
-> > has to be sized for it.
->
->You are correct - 6W average 9W TDP, still less than my scsicontroller
->8)
+> > John McCutchan wrote:
+> > >Hello,
+> > >
+> > >I am releasing a new version of inotify. Attached is a patch for
+> > >2.6.8.1.
+> <snip>
+> 
+> > >--MEMORY USAGE--
+> > >
+> > >The inotify data structures are light weight:
+> > >
+> > >inotify watch is 40 bytes
+> > >inotify device is 68 bytes
+> > >inotify event is 272 bytes
+> > >
+> > >So assuming a device has 8192 watches, the structures are only going
+> > >to consume 320KB of memory. With a maximum number of 8 devices allowed
+> > >to exist at a time, this is still only 2.5 MB
+> > >
+> > >Each device can also have 256 events queued at a time, which sums to
+> > >68KB per device. And only .5 MB if all devices are opened and have
+> > >a full event queue.
+> > >
+> > >So approximately 3 MB of memory are used in the rare case of 
+> > >everything open and full.
+> > >
+> > >Each inotify watch pins the inode of a directory/file in memory,
+> > >the size of an inode is different per file system but lets assume
+> > >that it is 512 byes. 
+> > >
+> > >So assuming the maximum number of global watches are active, this would
+> > >pin down 32 MB of inodes in the inode cache. Again not a problem
+> > >on a modern system. 
+> > 
+> > Did you work for Microsoft? Bloat doesn't count? And is this going to be 
+> >  low memory you pin? And is every file create or delete (or update of 
+> > atime) going to blast this mess through cache looking for people to notify?
+> > >
+> > >On smaller systems, the maximum watches / events could be lowered
+> > >to provide a smaller foot print.
+> > 
+> > Let's rethink this and say the max is by default and by use of proc or 
+> > sys or whatever's in vogue today you can enable the feature by setting a 
+> > non-zero value.
+>   As I understand the patch it won't have any nontrivial memory
+> footprint in case you won't use inotify. Only in case someone wants to
+> watch inode, appropriate structure is allocated, inode pined etc. The
+> numbers above are in the case you watch maximum possible number of
+> inodes etc...
 
-sure -- ok -- that gets you the main processor.
-now add to that a Northbridge (perhaps AMD doesnt need that but i'm sure it 
-still does), Southbridge, DDR-SDRAM, ancilliary chips for doing MAC, PHY, ...
+The point I was making is that this doesn't scale well, because it eats
+resources which may be unavailable on many systems, and which others are
+trying to conserve. Since this may limit the use it presents a problem
+with usefulness.
 
-couple that with the voltage of PCI where you're likely to need 
-step-up/step-down circuits (which aren't 100% efficient themselves), you're 
-still going to get very close to the limit, if not over it.
+>   Maybe you should not be so fast in using your flamethrower;)
 
-... and after all that, the Geode is really designed to be an embedded 
-processor.
-Jeff was implying using garden-variety processors which seem to have large 
-heatsinks, not to mention cooling fans, not to mention quite significant 
-heat generation.
+I didn't intend this as a flame, but I do feel this implementation doesn't
+scale. I offered another approach off the top of my head, which appears to
+me to be more scalable. I claimed no expertise, I just made a suggestion,
+based on my first thought on how I would attack the problem in a way which
+appears more scalable.
 
-we're not _quite_ at the stage of being able to take garden-variety 
-processors and build-your-own-blade-server using PCI _just_ yet. :-)
+If we are going to 4k stack because larger memory blocks are hard to find,
+I have to suspect that anything which locks up blocks size in MB is going
+to cause problems. I didn't even ask what would happen on NUMA machines,
+because that's not my usual concern.
+
+I'm still horified by the memory requirements :-(
+
+> -- 
+> Jan Kara <jack@suse.cz>
+> SuSE CR Labs
+> 
+
+Thanks for taking the time to note that my tone may have been harsh even
+if my point was valid.
 
 
-cheers,
-
-lincoln.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

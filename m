@@ -1,49 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132547AbQL1WnB>; Thu, 28 Dec 2000 17:43:01 -0500
+	id <S132561AbQL1Wql>; Thu, 28 Dec 2000 17:46:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132546AbQL1Wmx>; Thu, 28 Dec 2000 17:42:53 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:21653 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S131911AbQL1Wmn>; Thu, 28 Dec 2000 17:42:43 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: aeb@veritas.com (Andries Brouwer),
-        marcelo@conectiva.com.br (Marcelo Tosatti),
-        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org,
-        gilbertd@treblig.org (Dave Gilbert)
-Subject: Re: [Patch] shmmin behaviour back to 2.2 behaviour
-In-Reply-To: <E14BfJ6-0003qw-00@the-village.bc.nu>
-From: Christoph Rohland <cr@sap.com>
-Message-ID: <m3hf3ourke.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Capitol Reef)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: 28 Dec 2000 23:13:55 +0100
+	id <S132546AbQL1Wqb>; Thu, 28 Dec 2000 17:46:31 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:6272 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S132561AbQL1WqQ>;
+	Thu, 28 Dec 2000 17:46:16 -0500
+Date: Thu, 28 Dec 2000 13:59:03 -0800
+Message-Id: <200012282159.NAA00929@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: mike@kre8tive.org
+CC: linux-kernel@vger.kernel.org
+In-Reply-To: <20001228161126.A982@lingas.basement.bogus> (message from Mike
+	Elmore on Thu, 28 Dec 2000 16:11:26 -0600)
+Subject: Re: Repeatable 2.4.0-test13-pre4 nfsd Oops rears it head again
+In-Reply-To: <20001228161126.A982@lingas.basement.bogus>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-> There are fundmental things shm* can do that mmap cannot. Does posix
-> shm handle those (leaving segments alive but unattached being the
-> obvious one)
+Try pre5
 
-Yes:
-        shmget           == shm_open (+ ftruncate(fd, size))
-        shmat            == mmap (0, size, , , fd, 0)
-        shmdt            == munmap (addr, size);
-        shmctl(IPC_RMID) == shm_unlink ()
-        shmctl(IPC_STAT) == fstat();
-        shmctl(IPC_LOCK) == mlock() /*nearly*/
-        shmctl(IPC_SET)  == fchown(), fchmod()
-
-You can get the Linux special behaviour to be able to attach to a
-removed segment by its shmid by passing the file descriptor for the
-posix shm from the attached process to the attaching process.
-
-Did I miss something?
-                        Christoph
-
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

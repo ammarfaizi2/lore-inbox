@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129078AbQKBWrS>; Thu, 2 Nov 2000 17:47:18 -0500
+	id <S129076AbQKBWus>; Thu, 2 Nov 2000 17:50:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129076AbQKBWrI>; Thu, 2 Nov 2000 17:47:08 -0500
-Received: from TSX-PRIME.MIT.EDU ([18.86.0.76]:32655 "HELO tsx-prime.MIT.EDU")
-	by vger.kernel.org with SMTP id <S129312AbQKBWq4>;
-	Thu, 2 Nov 2000 17:46:56 -0500
-Date: Thu, 2 Nov 2000 17:46:20 -0500
-Message-Id: <200011022246.RAA21440@tsx-prime.MIT.EDU>
-From: "Theodore Y. Ts'o" <tytso@MIT.EDU>
-To: Tim Riker <Tim@Rikers.org>
-CC: "Theodore Y. Ts'o" <tytso@MIT.EDU>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: Tim Riker's message of Thu, 02 Nov 2000 13:53:55 -0700,
-	<3A01D463.9ADEF3AF@Rikers.org>
-Subject: Re: non-gcc linux? (was Re: Where did kgcc go in 2.4.0-test10?)
-Phone: (781) 391-3464
+	id <S129250AbQKBWui>; Thu, 2 Nov 2000 17:50:38 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:16646 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129076AbQKBWub>; Thu, 2 Nov 2000 17:50:31 -0500
+Message-ID: <3A01EED6.DB47198A@timpanogas.org>
+Date: Thu, 02 Nov 2000 15:46:46 -0700
+From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Organization: TRG, Inc.
+X-Mailer: Mozilla 4.7 [en] (WinNT; I)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18Pre Lan Performance Rocks!
+In-Reply-To: <Pine.LNX.4.21.0011010122160.18143-100000@elte.hu> <39FF5332.7C862223@timpanogas.org> <20001102031546.B10806@cerebro.laendle> <20001101212835.A2425@vger.timpanogas.org> <20001102043332.A27126@fuji.laendle> <3A0195DA.DDEBAC51@timpanogas.org> <20001102194323.D2790@cerebro.laendle> <3A01CBB5.48C3094A@timpanogas.org> <20001102214903.F2790@cerebro.laendle> <3A01E71A.778BD898@timpanogas.org> <20001102232210.H2790@cerebro.laendle> <3A01ECD2.76DE10FF@timpanogas.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: Thu, 02 Nov 2000 13:53:55 -0700
-   From: Tim Riker <Tim@Rikers.org>
 
-   As is being discussed here, C99 has some replacements to the gcc syntax
-   the kernel uses. I believe the C99 syntax will win in the near future,
-   and thus the gcc syntax will have to be removed at some point. In the
-   interim the kernel will either move towards supporting both, or a
-   quantum jump to support the new gcc3+ compiler only. I am hoping a
-   little thought can get put into this such that this change will be less
-   painful down the road.
 
-That's reasonable as a long-term goal.  Keep in mind that though there
-have been questions in the past about code correctness assumptions of
-kernel versus specific GCC versions.  This has been one place where GCC
-has tended to blame the kernel developers, and kernel developers have
-pointed out (rightly, in my opinion) that the GCC documentation of some
-of these features has been less than stellar --- in fact, some would say
-non-existent.  If it's not documented, then you don't have much moral
-ground to stand upon when people complain that the changes you made
-breaks things.
+"Jeff V. Merkey" wrote:
 
-So moving to a C99 syntax is useful simply from the point of view that
-it's well documented (unlike the register constraints for inline
-functions, which still give me a headache whenever I try to look at the
-GCC "documentation").  The problem here is that C99 doesn't (as far as I
-know) give us everything we need, so simply moving to C99 syntax won't
-be sufficient to support propietary C compilers.
+In the example of an AGI generating code fragment, while I described the
+sequence of creating the AGI with immediate address usage correctly
+(i.e. if you load an address into a register then immediately attempt to
+use it, it will generate an AGI), I failed to put the register in the
+coding example.  
 
-There will also be work needed to make sure that a kernel compiled with
-gcc 3.x (whenever it's ready) will actually omit code which was intended
-by the kernel developers.  So we're definitely looking at a 2.5+
-project, and one which may actually be fairly high risk; it's certainly
-not a trivial task.
+A couple of folks are testing the gcc compiler for AGI problems as a
+result of this post, and I am posting the corrected code for their
+tests.
 
-						- Ted
+This code fragment will generate an AGI condition:
+
+mov   eax, addr
+mov   [eax].offset, ebx
+
+You can do it with any register combination, BTW, eax and abx are
+provided as examples.  For those who are monitoring the code produced by
+gcc, this is the example to use to test generate an AGI correctly.
+
+:-)
+
+Jeff
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

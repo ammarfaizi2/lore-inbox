@@ -1,40 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267801AbUHJW7Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267803AbUHJXAJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267801AbUHJW7Q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 18:59:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267804AbUHJW7Q
+	id S267803AbUHJXAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 19:00:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267807AbUHJXAJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 18:59:16 -0400
-Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:17422 "EHLO
-	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
-	id S267801AbUHJW7H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 18:59:07 -0400
-Message-ID: <41195339.9080500@superbug.demon.co.uk>
-Date: Tue, 10 Aug 2004 23:59:05 +0100
-From: James Courtier-Dutton <James@superbug.demon.co.uk>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040805)
-X-Accept-Language: en-us, en
+	Tue, 10 Aug 2004 19:00:09 -0400
+Received: from fep18.inet.fi ([194.251.242.243]:26864 "EHLO fep18.inet.fi")
+	by vger.kernel.org with ESMTP id S267803AbUHJXAF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 19:00:05 -0400
+From: Jan Knutar <jk-lkml@sci.fi>
+To: Albert Cahalan <albert@users.sourceforge.net>
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Date: Wed, 11 Aug 2004 01:59:57 +0300
+User-Agent: KMail/1.6.2
+Cc: Con Kolivas <kernel@kolivas.org>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       alan@lxorguk.ukuu.org.uk, dwmw2@infradead.org,
+       schilling@fokus.fraunhofer.de, axboe@suse.de
+References: <1092082920.5761.266.camel@cube> <cone.1092113232.42936.29067.502@pc.kolivas.org> <1092106283.5761.304.camel@cube>
+In-Reply-To: <1092106283.5761.304.camel@cube>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [RFC] zero downtime upgrades to the kernel.
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200408110159.57325.jk-lkml@sci.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Has anyone investigated how one might be able to upgrade the linux 
-kernel without rebooting?
+> Light web browsing makes my
+> mp3 player skip.
 
-We could maybe start with just being able to upgrade kernel modules 
-while the modules were still in use.
+What kind of machine is that? I've never needed to boost priority for the mp3
+player on my P133, even when running opera and/or mozilla... 
 
-E.g. There is a bug in the hard disc driver, and we have a fix, but 
-don't want to reboot the machine.
-Could we replace the hard disc driver while it was still being used, and 
-keep mounted partitions?
-
-James
-
-
+Getting offtopic here though :-\

@@ -1,70 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317232AbSILUac>; Thu, 12 Sep 2002 16:30:32 -0400
+	id <S317253AbSILUeA>; Thu, 12 Sep 2002 16:34:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317253AbSILUa3>; Thu, 12 Sep 2002 16:30:29 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:13837
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S317232AbSILUa1>; Thu, 12 Sep 2002 16:30:27 -0400
-Subject: [PATCH] kernel BUG at sched.c:944! only with CONFIG_PREEMPT=y]
-From: Robert Love <rml@tech9.net>
-To: Steven Cole <elenstev@mesatop.com>, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@digeo.com>, Ingo Molnar <mingo@elte.hu>,
-       Steven Cole <scole@lanl.gov>
-In-Reply-To: <1031862049.2799.402.camel@spc9.esa.lanl.gov>
-References: <3D80EF3F.D82B9CB9@digeo.com> 
-	<1031862049.2799.402.camel@spc9.esa.lanl.gov>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 12 Sep 2002 16:35:13 -0400
-Message-Id: <1031862919.3770.103.camel@phantasy>
-Mime-Version: 1.0
+	id <S317278AbSILUeA>; Thu, 12 Sep 2002 16:34:00 -0400
+Received: from 2-028.ctame701-1.telepar.net.br ([200.193.160.28]:14553 "EHLO
+	2-028.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S317253AbSILUd6>; Thu, 12 Sep 2002 16:33:58 -0400
+Date: Thu, 12 Sep 2002 17:38:27 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andrew Morton <akpm@digeo.com>
+cc: Rick Lindsley <ricklind@us.ibm.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] sard changes for 2.5.34
+In-Reply-To: <3D80EE1D.34AF4FF2@digeo.com>
+Message-ID: <Pine.LNX.4.44L.0209121734190.1857-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-09-12 at 16:20, Steven Cole wrote:
+On Thu, 12 Sep 2002, Andrew Morton wrote:
 
-> Yes.  Sorry, didn't catch this reply until now.
-> I backed out Changeset 1.606 which Linus did to kernel/sched.c did this:
-> 
-> -       if (unlikely(in_interrupt()))
-> +       if (unlikely(in_atomic()))
-> 
-> and 2.5.34-mm2 was able to boot with CONFIG_PREEMPT=y.
-> 
-> As I said in a response to myself on lkml, I know this isn't a fix,
-> it just shows there is a problem somewhere with preempt.
+> Looks like we can take the disk stats out of kernel_stat, move all
+> the vm-related things out of kernel_stat into struct page_state and
+> what's left of kernel_stat?
+>
+>         unsigned int per_cpu_user[NR_CPUS],
+>                      per_cpu_nice[NR_CPUS],
+>                      per_cpu_system[NR_CPUS];
 
-No, there is not a problem in preempt... what this change does is BUG()
-out if schedule() is called while being in any way non-atomic.
+[ insert idle and iowait stats here ;) ]
 
-While this sounds like a great debugging check, it is not useful in
-general since we surely have some bad code that calls schedule() with
-locks held.  Further, since the atomic accounting only includes locks if
-CONFIG_PREEMPT is set, you only see this with kernel preemption enabled.
+>         unsigned int irqs[NR_CPUS][NR_IRQS];
+>
+> And that's good, because "kernel statistics" was clearly too
+> broad a concept.  The above is just one concept: interrupts and
+> scheduler things.
 
-Linus, please back this out... attached patch is against current BK.
+Absolutely agreed, this makes things much more manageable.
 
-Yeah, I know we can change the BUG() to a show_stack() ... but I still
-think it will be too much and just deter people from using kernel
-preemption which is the opposite of what I want.
+Btw, how about accounting for the number of syscalls made,
+like some other Unix systems do ? ;)
 
-	Robert Love
+> I'm not sure that I want to add 14 more fields to /proc/meminfo.
+> So a new /proc/vmstat may appear.  We would then have:
+>
+> /proc/stat		scheduler things
+> /proc/diskstat		disk things
+> /proc/vmstat		vm things
 
-diff -urN linux-2.5.34/kernel/sched.c linux/kernel/sched.c
---- linux-2.5.34/kernel/sched.c	Thu Sep 12 16:26:23 2002
-+++ linux/kernel/sched.c	Thu Sep 12 16:30:22 2002
-@@ -940,8 +940,7 @@
- 	struct list_head *queue;
- 	int idx;
- 
--	if (unlikely(in_atomic()))
--		BUG();
-+	BUG_ON(in_interrupt());
- 
- #if CONFIG_DEBUG_HIGHMEM
- 	check_highmem_ptes();
+Sounds fair, current procps doesn't support the new /proc/stat
+fields anyway. Let me know what stuff will look like and I'll
+get procps into gear.
 
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Spamtraps of the month:  september@surriel.com trac@trac.org
 

@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314403AbSGMOrt>; Sat, 13 Jul 2002 10:47:49 -0400
+	id <S314459AbSGMPAI>; Sat, 13 Jul 2002 11:00:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314396AbSGMOrs>; Sat, 13 Jul 2002 10:47:48 -0400
-Received: from pD9E23254.dip.t-dialin.net ([217.226.50.84]:25984 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S314403AbSGMOrr>; Sat, 13 Jul 2002 10:47:47 -0400
-Date: Sat, 13 Jul 2002 08:49:22 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Muli Ben-Yehuda <mulix@actcom.co.il>
-cc: Zwane Mwaikambo <zwane@linuxpower.ca>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: compile the kernel with -Werror
-In-Reply-To: <20020713104354.L739@alhambra.actcom.co.il>
-Message-ID: <Pine.LNX.4.44.0207130848490.3331-100000@hawkeye.luckynet.adm>
-X-Location: Potsdam; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314514AbSGMPAH>; Sat, 13 Jul 2002 11:00:07 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:55568 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S314459AbSGMPAG>; Sat, 13 Jul 2002 11:00:06 -0400
+Date: Sat, 13 Jul 2002 17:02:39 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: john slee <indigoid@higherplane.net>, linux-kernel@vger.kernel.org
+Subject: Re: bzip2 support against 2.4.18
+Message-ID: <20020713150239.GA2496@louise.pinerecords.com>
+References: <003d01c22819$ba1818b0$1c6fa8c0@hyper> <E17Suso-0002dn-00@starship> <20020713135602.GK7579@higherplane.net> <E17TNVl-0003J2-00@starship>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E17TNVl-0003J2-00@starship>
+User-Agent: Mutt/1.4i
+X-OS: GNU/Linux 2.4.19-pre10/sparc SMP
+X-Uptime: 39 days, 3:16
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> This gets increasingly silly as time goes by.  However, it's not yet
+> gotten so silly that 'bzImage' is likely to be replaced by 'linux' any
+> time soon.  At least, we don't have to make it any worse and if you
+> read the whole thread you'll see the consensus is strongly in favor
+> of pushing the desired image format into the config.
 
-On Sat, 13 Jul 2002, Muli Ben-Yehuda wrote:
-> I'm doing something better - make allyesconfig, minus things like
-> intermezzo which are totally broken in 2.5.25. 
+... which is how things work w/ kbuild 2.5.
 
-Intermezzo _compiles_ just fine for me.
-
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
-
+T.

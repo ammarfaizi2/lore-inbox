@@ -1,33 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129636AbQLFTUu>; Wed, 6 Dec 2000 14:20:50 -0500
+	id <S129231AbQLFTUu>; Wed, 6 Dec 2000 14:20:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130319AbQLFTUl>; Wed, 6 Dec 2000 14:20:41 -0500
-Received: from 25-VALL-X7.libre.retevision.es ([62.83.213.25]:2432 "HELO
-	lightside.2y.net") by vger.kernel.org with SMTP id <S129636AbQLFTUW>;
-	Wed, 6 Dec 2000 14:20:22 -0500
-Date: Wed, 6 Dec 2000 19:59:08 +0100
-From: Ragnar Hojland Espinosa <ragnar_hojland@eresmas.com>
-To: linux-kernel@vger.kernel.org
-Subject: test12pre6: BUG in schedule (sched.c, 115)
-Message-ID: <20001206195908.A190@lightside.2y.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Mailer: Mutt 0.95.6i
-Organization: Mediocrity Naysayers Ltd
-X-Homepage: http://maculaisdeadsoimmovingit/lightside
+	id <S129636AbQLFTUm>; Wed, 6 Dec 2000 14:20:42 -0500
+Received: from winds.org ([209.115.81.9]:14864 "EHLO winds.org")
+	by vger.kernel.org with ESMTP id <S129231AbQLFTUU>;
+	Wed, 6 Dec 2000 14:20:20 -0500
+Date: Wed, 6 Dec 2000 13:49:26 -0500 (EST)
+From: Byron Stanoszek <gandalf@winds.org>
+To: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>, torvalds@transmeta.com
+Subject: Re: Trashing ext2 with hdparm
+In-Reply-To: <3A2E767B.D74B24B5@Hell.WH8.TU-Dresden.De>
+Message-ID: <Pine.LNX.4.21.0012061345460.20048-100000@winds.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-as per subject.. BUG in schedule (sched.c, 115)
--- 
-____/|  Ragnar Højland     Freedom - Linux - OpenGL      Fingerprint  94C4B
-\ o.O|                                                   2F0D27DE025BE2302C
- =(_)=  "Thou shalt not follow the NULL pointer for      104B78C56 B72F0822
-   U     chaos and madness await thee at its end."       hkp://keys.pgp.com
+On Wed, 6 Dec 2000, Udo A. Steinberg wrote:
 
-Handle via comment channels only.
+> Hi,
+> 
+> Following the discussion in another thread where someone
+> reported fs corruption when enabling DMA with hdparm, I've
+> played around with hdparm and found that even the rather
+> harmless hdparm operations are capable of trashing an ext2
+> filesystem quite nicely.
+> 
+> hdparm version is 3.9
+> 
+> hdparm -tT /dev/hdb1 does the trick here.
+> 
+> After that, several files are corrupted, such as /etc/mtab.
+> Reboot+fsck fixes the problem, however e2fsck never finds
+> any errors in the fs on disk.
+> 
+> I'm quite sure that earlier kernel versions didn't exhibit
+> this kind of behaviour, although I'm not quite sure at
+> which point things started to break. I have test12-pre6
+> here atm, but I have test-11 still lying around and will
+> test that in a bit.
+
+I've seen this behavior on test-6 and up. I think it has something to do with
+a problem in shared memory which is used by the 'hdparm -tT' code snippet. I
+believe it munges over a lot of the memory segments that contain cached disk
+files (the common ones accessed, such as /etc/mtab and /etc/utmp..etc). When
+looking at the contents of those files, the memory is obtained from the cache
+and they appear bogus, but on disk they are still correct.
+
+If this problem occurs, it's best to hit the reset button so that no 'bad' data
+is written back to disk during a sync call.
+
+Can anyone else verify that the problem is in shared memory and not the disk
+caching layer?
+
+Regards,
+ Byron
+
+-- 
+Byron Stanoszek                         Ph: (330) 644-3059
+Systems Programmer                      Fax: (330) 644-8110
+Commercial Timesharing Inc.             Email: bstanoszek@comtime.com
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

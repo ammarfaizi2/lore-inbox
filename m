@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264704AbUH3Wjs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264984AbUH3Wr7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264704AbUH3Wjs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 18:39:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264980AbUH3Wjs
+	id S264984AbUH3Wr7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 18:47:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265086AbUH3Wr7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 18:39:48 -0400
-Received: from fw.osdl.org ([65.172.181.6]:17121 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264704AbUH3Wjq (ORCPT
+	Mon, 30 Aug 2004 18:47:59 -0400
+Received: from zero.aec.at ([193.170.194.10]:17668 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S264984AbUH3Wr6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 18:39:46 -0400
-Date: Mon, 30 Aug 2004 15:39:42 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Bob Bennett <Robert.Bennett2@ca.com>
-Cc: apkm@osdl.org, linux-kernel@vger.kernel.org,
-       kgem-devel@lists.sourceforge.net
-Subject: Re: [ANNOUNCE] Kernel Generalized Event Management
-Message-ID: <20040830153942.C1973@build.pdx.osdl.net>
-References: <Pine.LNX.4.58.0408301738310.22919@benro02lx.ca.com>
-Mime-Version: 1.0
+	Mon, 30 Aug 2004 18:47:58 -0400
+To: Chris Lalancette <clalancette@illuminari.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] identifier string for P4 Prescott
+References: <2z2vJ-7ND-13@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Tue, 31 Aug 2004 00:47:54 +0200
+In-Reply-To: <2z2vJ-7ND-13@gated-at.bofh.it> (Chris Lalancette's message of
+ "Tue, 31 Aug 2004 00:10:07 +0200")
+Message-ID: <m3k6vgi6p1.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.58.0408301738310.22919@benro02lx.ca.com>; from Robert.Bennett2@ca.com on Mon, Aug 30, 2004 at 06:06:29PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Bob Bennett (Robert.Bennett2@ca.com) wrote:
-> KGEM is available for download from http://sf.net/projects/kgem as a patch
-> against kernel 2.6.8.1 and as a gzipped tar file containing the source and 
-> documentation.  The components may be built either as kernel loadable modules
-> or as part of the base.
-> 
-> I have included a hook plugin module designed to be used with an anti-virus
-> realtime scanner application, whose purpose is to check files as they are 
-> being opened or executed, to make sure they are not infected.  This module 
-> defines five events; open, execve, close, fork, and exit.  It registers with
-> LSM to get control and generate these events.
+Chris Lalancette <clalancette@illuminari.org> writes:
 
-So, why so much patch to do what's already available in the kernel?  With
-LSM, plus audit, you can generate events that userspace can consume via
-netlink w/out this /proc stuff, and sys_call_table symbol lookup stuff,
-the kernel hooks, etc.
+> A trivial patch to change the identifier in the kernel from "Unknown
+> CPU [15:3]" to "Pentium 4(tm) Prescott".  Although Prescott is not the
+> official name of the chip (I think Intel just decided to go with the
+> P4 name), I do think it is useful to be able to identify this chip
+> separately (given that it has a different core).  This is a patch
+> against 2.4.27
 
-How about starting by showing exactly what pieces are missing in the
-kernel?  This looks like things that can easily be done using existing
-infrastructure.
+2.6 dropped this decoding because it was useless (doesn't offer
+any additional information). Maybe that should be just done on 2.4
+too.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+It doesn't offer any additional information because we get
+the CPU name from CPUID anyways and it is a long term
+mainteance burden.
+
+-Andi
+
+P.S.: The official Intel name for Prescott would be Pentium 4E 
+(I don't know where to place the (tm) though) 
+

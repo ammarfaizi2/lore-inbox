@@ -1,102 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284940AbRLQAMm>; Sun, 16 Dec 2001 19:12:42 -0500
+	id <S284943AbRLQAnC>; Sun, 16 Dec 2001 19:43:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284942AbRLQAMc>; Sun, 16 Dec 2001 19:12:32 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:13832 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S284940AbRLQAMS>; Sun, 16 Dec 2001 19:12:18 -0500
-Date: Sun, 16 Dec 2001 16:11:10 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.5.1 - intermediate bio stuff..
-Message-ID: <Pine.LNX.4.33.0112161604030.11129-100000@penguin.transmeta.com>
+	id <S284946AbRLQAmw>; Sun, 16 Dec 2001 19:42:52 -0500
+Received: from tmhoyle.gotadsl.co.uk ([195.149.46.162]:29971 "EHLO
+	mail.cvsnt.org") by vger.kernel.org with ESMTP id <S284943AbRLQAmj>;
+	Sun, 16 Dec 2001 19:42:39 -0500
+Message-ID: <3C1D3F76.2080008@nothing-on.tv>
+Date: Mon, 17 Dec 2001 00:42:30 +0000
+From: Tony Hoyle <tmh@nothing-on.tv>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011213
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Newsgroups: lists.linux-kernel
+To: Ben Carrell <ben@xmission.com>
+Cc: "Michael P. Soulier" <michael.soulier@rogers.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: can't compile 2.4.16
+In-Reply-To: <20011215045446.GB4961@tigger> <3C1AD9F3.3090207@xmission.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ben Carrell wrote:
 
-I just made a 2.5.1, but I'm still concentrating on bio stuff, so don't
-bother sending me other patches unless they are serious bug-fixes to
-something else.
+> If you look at the 2.4.17-pre6 changelog you will see:
+> 
+> - Create __devexit_p() function and use that on  drivers which need it 
+> to make it possible to  use newer binutils                (Keith Owens)
+> It comes from using the latest binutils, let me guess - you run debian 
+> sid? :)  If you wish to compile 2.4.16, you need to downgrade binutils 
+> ...or try a pre-patch starting with 2.4.17-pre6
+> 
+Has this fix been reverted?  It isn't in -pre8 or -rc1.
 
-2.5.1 is hopefully a good interim stage - many block drivers should work
-fine, but many more do not.  However, the pre-patches were getting
-largish, so I'd rather do a 2.5.1 than wait for all the details.
 
-As to other stuff - note the separation of drivers for new and old tulip
-chips: if you have an old 2104x tulip chip (as opposed to the newer 2114x
-chips) the regular tulip driver doesn't work any more for you. Don't be
-surprised, select CONFIG_DE2104X.
+net/network.o(.text.lock+0x17b8): undefined reference to `local symbols 
+in discarded section .text.exit'
 
-		Linus
+It's kind of impossible to compile the kernel at the moment (even the 
+CONFIG_HOTPLUG fix mentioned doesn't work).
 
------
-final:
- - Al Viro: floppy_eject cleanup, mount cleanups
- - Jens Axboe: bio updates
- - Ingo Molnar: mempool fixes
- - GOTO Masanori: Fix O_DIRECT error handling
+I tried downgrading binutils & it didn't work.. possibly I didn't go 
+back far enough.  What is the newest version that is supposed to work?
 
-pre11:
- - Jeff Garzik: no longer support old cards in tulip driver
-   (see separate driver for old tulip chips)
- - Pat Mochel: driverfs/device model documentation
- - Ballabio Dario: update eata driver to new IO locking
- - Ingo Molnar: raid resync with new bio structures (much more efficient)
-   and mempool_resize()
- - Jens Axboe: bio queue locking
+Tony
 
-pre10:
- - Jens Axboe: more bio stuff
- - Ingo Molnar: mempool for bio
- - Niibe Yutaka: Super-H update
-
-pre9:
- - Jeff Garzik: separate out handling of older tulip chips
- - Jens Axboe: more bio stuff
- - Anton Altaparmakov: NTFS 1.1.21 update
-
-pre8:
- - Greg KH: USB updates
- - Jens Axboe: more bio updates
- - Christoph Rohland: fix up proper shmat semantics
-
-pre7:
- - Jens Axboe: more bio fixes/cleanups/breakage ;)
- - Al Viro: superblock cleanups, boot/root mounting.
-
-pre6:
- - Jens Axboe: more bio stuff
- - Coda compile fixes
- - Nathan Laredo: stradis driver update
-
-pre5:
- - Patrick Mochel: driver model infrastructure, part 1
- - Jens Axboe: more bio fixes, cleanups
- - Andrew Morton: release locking fixes
- - Al Viro: superblock/mount handling
- - Kai Germaschewski: AVM Fritz!Card ISDN driver
- - Christoph Hellwig: make cramfs SMP-safe.
-
-pre4:
- - Jens Axboe: fix up bio highmem breakage, more cleanups
- - Greg KH: USB update
-
-pre3:
- - Al Viro: more superblock cleanups
- - Jens Axboe: more patches for new block IO layer
- - Christoph Hellwig: get rid of the old, long- deprecated SCSI error
-   handling
-
-pre2:
- - Greg KH: USB update
- - Richard Gooch: refcounting for devfs
- - Jens Axboe: start of new block IO layer
-
-pre1:
- - me: README references to 2.4.x -> 2.5.x
- - Alexander Viro: fix unmount inode breakage, show_vfsmnt cleanup
- - Jeff Garzik: fix 8139too initialization
 

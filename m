@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264299AbRFDOso>; Mon, 4 Jun 2001 10:48:44 -0400
+	id <S263723AbRFDAYK>; Sun, 3 Jun 2001 20:24:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264253AbRFDNWx>; Mon, 4 Jun 2001 09:22:53 -0400
-Received: from 11dyn36.beverw.casema.net ([212.64.98.36]:63749 "EHLO
-	gateway.castricum.nl") by vger.kernel.org with ESMTP
-	id <S264252AbRFDNWi>; Mon, 4 Jun 2001 09:22:38 -0400
-Message-ID: <000701c0ecf9$eae40dc0$0501a8c0@castricum.nl>
-From: "Ben Castricum" <hostmaster@cia.c64.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: I810 Sound broke between 2.4.2 and 2.4.3
-Date: Mon, 4 Jun 2001 15:26:08 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S263290AbRFDAQd>; Sun, 3 Jun 2001 20:16:33 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:59520 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S261978AbRFDADp>; Sun, 3 Jun 2001 20:03:45 -0400
+Date: Sun, 3 Jun 2001 18:03:46 -0600
+Message-Id: <200106040003.f5403kd07861@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Akash Jain <aki.jain@stanford.edu>, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org, su.class.cs99q@nntp.stanford.edu
+Subject: Re: [PATCH] fs/devfs/base.c
+In-Reply-To: <Pine.LNX.4.21.0106031652090.32451-100000@penguin.transmeta.com>
+In-Reply-To: <200105271321.f4RDLoM00342@mobilix.ras.ucalgary.ca>
+	<Pine.LNX.4.21.0106031652090.32451-100000@penguin.transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds writes:
+> 
+> On Sun, 27 May 2001, Richard Gooch wrote:
+> > 
+> > I absolutely don't want this patch applied. It's bogus. It is entirely
+> > safe to alloc 1 kB on the stack in this code, since it has a short and
+> > well-controlled code path from syscall entry to the function.
+> 
+> IT IS NEVER EVER SAFE TO ALLOCATE 1kB OF STACK!
 
-I use amp to play my mp3s and it seem to stop functioning since 2.4.3. I
-captured the kernel messages from the module :
+I can see you care about this ;-)
 
---- 2.4.2 ---
-Intel 810 + AC97 Audio, version 0.01, 14:04:06 Jun  4 2001
-PCI: Found IRQ 10 for device 00:1f.5
-PCI: The same IRQ used for device 00:1f.3
-PCI: The same IRQ used for device 01:09.0
-PCI: Setting latency timer of device 00:1f.5 to 64
-i810: Intel ICH 82801AA found at IO 0xe100 and 0xe000, IRQ 10
-ac97_codec: AC97 Audio codec, id: 0x4144:0x5340 (Analog Devices AD1881)
-i810_audio: Codec refused to allow VRA, using 48Khz only.
+> Why?
+>  - the kernel stack is 4kB, and _nobody_ has the right to eat up a
+>    noticeable portion of it. It doesn't matter if you "know" your caller
+>    or not: you do not know what interrupts happen during this time, and
+>    how much stack they want.
 
---- 2.4.3 ---
-Intel 810 + AC97 Audio, version 0.01, 14:18:58 Jun  4 2001
-PCI: Found IRQ 10 for device 00:1f.5
-PCI: The same IRQ used for device 00:1f.3
-PCI: The same IRQ used for device 01:09.0
-PCI: Setting latency timer of device 00:1f.5 to 64
-i810: Intel ICH 82801AA found at IO 0xe100 and 0xe000, IRQ 10
-ac97_codec: AC97 Audio codec, id: 0x4144:0x5340 (Analog Devices AD1881)
-i810_audio: Codec refused to allow VRA, using 48Khz only.
-i810_audio: 9576 bytes in 50 milliseconds
+OK, that's a good point. Easy solution: disable interrupts in that
+function.
 
-an strace of amp seems to halt on writing to the /dev/dsp
+Only kidding.
 
-I have an Intel Celeron on an Asus-MEW motherboard which has this soundcard
-integrated.
+> Ergo: the simple rule of "don't allocate big structures of the
+> stack" is always a good rule, and making excuses for it is bad.
 
-Any ideas?
+OK, well, I can make the structure static instead, since the function
+is single-threaded anyway.
 
-Ben
+				Regards,
 
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

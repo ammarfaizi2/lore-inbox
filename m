@@ -1,45 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273929AbRIXPFL>; Mon, 24 Sep 2001 11:05:11 -0400
+	id <S273931AbRIXPHL>; Mon, 24 Sep 2001 11:07:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273931AbRIXPFB>; Mon, 24 Sep 2001 11:05:01 -0400
-Received: from pD957B3C7.dip.t-dialin.net ([217.87.179.199]:1030 "EHLO
-	enigma.deepspace.net") by vger.kernel.org with ESMTP
-	id <S273929AbRIXPEu>; Mon, 24 Sep 2001 11:04:50 -0400
-Message-Id: <200109241505.RAA12224@enigma.deepspace.net>
-Content-Type: text/plain; charset=US-ASCII
-From: Wolly <wwolly@gmx.net>
-To: Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org
-Subject: Re: Huge disk performance degradation STILL IN 2.4.10
-Date: Mon, 24 Sep 2001 17:05:13 +0200
-X-Mailer: KMail [version 1.2.1]
-In-Reply-To: <200109211723.TAA00638@enigma.deepspace.net> <200109232319.BAA02449@enigma.deepspace.net> <2100580000.1001289300@tiny>
-In-Reply-To: <2100580000.1001289300@tiny>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S273934AbRIXPHB>; Mon, 24 Sep 2001 11:07:01 -0400
+Received: from [195.246.135.25] ([195.246.135.25]:60681 "EHLO
+	chert.194.133.98.200") by vger.kernel.org with ESMTP
+	id <S273931AbRIXPGq>; Mon, 24 Sep 2001 11:06:46 -0400
+Date: Mon, 24 Sep 2001 19:06:16 +0200
+From: Andrei Lahun <Uman@editec-lotteries.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: process stopped in D state for seconds
+Message-ID: <20010924190616.A24246@chert.194.133.98.200>
+In-Reply-To: <20010924152356.A14097@chert.194.133.98.200>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010924152356.A14097@chert.194.133.98.200>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 24 September 2001 01:55, Chris Mason wrote:
-> On Monday, September 24, 2001 01:19:18 AM +0200 Wolly <wwolly@gmx.net>
-> wrote:
-> > Hi kernel hackers,
-> >
-> > As soon as 2.4.10 was out, I got the patch and tested it again.
-> > The problem is still there and did not get better at all.
->
-> Could you please mount the FS with -o notail and try again?  I think your
-> test is hitting a worst case in the 2.4.x reiserfs tail code.
->
-Okay, I plugged some old hd into my computer and formatted one half with 
-ext2, the other half with reiserfs. 
-It seems to be definitely a reiserfs issue because I cannot trigger the 
-performance loss (permament hd head positioning) with ext2. However, 
-passing -o notail when mounting does not help. (-o notail is accepted and 
-`bash# mount' displays `/dev/hdxy on /mnt type reiserfs (rw,notail)')
+On Mon, Sep 24, 2001 at 03:23:56PM +0200, Andrei Lahun wrote:
+I made a trace from ksymoops, sorry if itis still not enough.
+Call Trace: [<c01103a2>] [<c017cfac>] [<c0186f1b>] [<c0187dbf>] [<c0112841>] 
+   [<c0187dbf>] [<c018a41e>] [<c018caa1>] [<c017c5b8>] [<c017c612>] [<c013acf2>] 
+   [<c013ae59>] [<c0186e30>] [<c0186e30>] [<c018b662>] [<c0141a81>] [<c01309bf>] 
+   [<c015dc7c>] [<c0186e30>] [<c017b4c6>] [<c01863ad>] [<c0186e30>] [<c017b4c6>] 
+   [<c0186e30>] [<c017b4c6>] [<c01863ad>] [<c0186c80>] [<c018617c>] [<c0186e5c>] 
+   [<c0186c80>] [<c01862f5>] [<c011000a>] [<c01103a2>] [<c017cfac>] [<c0186f1b>] 
+   [<c0187532>] [<c01874db>] [<c01283ce>] [<c0128116>] [<c011eea1>] [<c011ef2f>] 
+   [<c011f027>] [<c010f568>] [<c010f408>] [<c016ec9c>] [<c016ed01>] [<c0133fab>] 
+   [<c0188f14>] [<c017ef35>] [<c0141290>] [<c0134dc0>] [<c013b157>] [<c0106b2b>] 
+Warning (Oops_read): Code line not seen, dumping what data is available
 
-Could you reproduce this? Did you even try?
-And why does this not show up on kernels <=2.4.6 and shows up 
-with linux>=2.4.9 (2.4.7, 2.4.8: unknown)?
+Proc;  xine
+>>EIP; c3378000 <___strtok+310c250/85cf250>   <=====
+Trace; c01103a2 <wait_for_completion+76/a4>
+Trace; c017cfac <ide_do_drive_cmd+100/120>
+Trace; c0186f1a <create_proc_ide_interfaces+433e/66f4>
+Trace; c0187dbe <create_proc_ide_interfaces+51e2/66f4>
+Trace; c0112840 <panic+570/5e0>
+Trace; c0187dbe <create_proc_ide_interfaces+51e2/66f4>
+Trace; c018a41e <init_cdrom_command+342/9a8>
+Trace; c018caa0 <cdrom_mode_select+1fb8/22a8>
+Trace; c017c5b8 <ide_wait_stat+378/440>
+Trace; c017c612 <ide_wait_stat+3d2/440>
+Trace; c013acf2 <page_follow_link+8aa/8f0>
+Trace; c013ae58 <__kill_fasync+50/60>
+Trace; c0186e30 <create_proc_ide_interfaces+4254/66f4>
+Trace; c0186e30 <create_proc_ide_interfaces+4254/66f4>
+Trace; c018b662 <cdrom_mode_select+b7a/22a8>
+Trace; c0141a80 <is_bad_inode+45c/558>
+Trace; c01309be <generic_direct_IO+18a/1e4>
+Trace; c015dc7c <batch_entropy_store+220/228>
+Trace; c0186e30 <create_proc_ide_interfaces+4254/66f4>
+Trace; c017b4c6 <atapi_output_bytes+3e/68>
+Trace; c01863ac <create_proc_ide_interfaces+37d0/66f4>
+Trace; c0186e30 <create_proc_ide_interfaces+4254/66f4>
+Trace; c017b4c6 <atapi_output_bytes+3e/68>
+Trace; c0186e30 <create_proc_ide_interfaces+4254/66f4>
+Trace; c017b4c6 <atapi_output_bytes+3e/68>
+Trace; c01863ac <create_proc_ide_interfaces+37d0/66f4>
+Trace; c0186c80 <create_proc_ide_interfaces+40a4/66f4>
+Trace; c018617c <create_proc_ide_interfaces+35a0/66f4>
+Trace; c0186e5c <create_proc_ide_interfaces+4280/66f4>
+Trace; c0186c80 <create_proc_ide_interfaces+40a4/66f4>
+Trace; c01862f4 <create_proc_ide_interfaces+3718/66f4>
+Trace; c011000a <schedule+25e/394>
+Trace; c01103a2 <wait_for_completion+76/a4>
+Trace; c017cfac <ide_do_drive_cmd+100/120>
+Trace; c0186f1a <create_proc_ide_interfaces+433e/66f4>
+Trace; c0187532 <create_proc_ide_interfaces+4956/66f4>
+Trace; c01874da <create_proc_ide_interfaces+48fe/66f4>
+Trace; c01283ce <__alloc_pages+46/1f8>
+Trace; c0128116 <_alloc_pages+16/288>
+Trace; c011eea0 <vmtruncate+36c/a0c>
+Trace; c011ef2e <vmtruncate+3fa/a0c>
+Trace; c011f026 <vmtruncate+4f2/a0c>
+Trace; c010f568 <do_BUG+184/6b8>
+Trace; c010f408 <do_BUG+24/6b8>
+Trace; c016ec9c <generic_make_request+130/140>
+Trace; c016ed00 <submit_bh+54/70>
+Trace; c0133faa <kern_mount+c82/11b4>
+Trace; c0188f14 <create_proc_ide_interfaces+6338/66f4>
+Trace; c017ef34 <system_bus_clock+c20/c74>
+Trace; c0141290 <update_atime+44/54>
+Trace; c0134dc0 <blkdev_put+228/234>
+Trace; c013b156 <kill_fasync+2ee/308>
+Trace; c0106b2a <__up_wakeup+1046/2254>
+I did it when it stopped in D state.(for 5 second)
+Another thread where Ok.
 
--Wolly
+

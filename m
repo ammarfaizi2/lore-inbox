@@ -1,75 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129449AbQLDI4w>; Mon, 4 Dec 2000 03:56:52 -0500
+	id <S129423AbQLDJYI>; Mon, 4 Dec 2000 04:24:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129464AbQLDI4m>; Mon, 4 Dec 2000 03:56:42 -0500
-Received: from 4dyn165.delft.casema.net ([195.96.105.165]:36111 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S129449AbQLDI4X>; Mon, 4 Dec 2000 03:56:23 -0500
-Message-Id: <200012040825.JAA08264@cave.bitwizard.nl>
-Subject: Re: IDE_TAPE problem wiht ONSTREAM DI30
-In-Reply-To: <Pine.LNX.4.10.10012032315100.13699-100000@master.linux-ide.org>
- from Andre Hedrick at "Dec 3, 2000 11:16:37 pm"
-To: Andre Hedrick <andre@linux-ide.org>
-Date: Mon, 4 Dec 2000 09:25:33 +0100 (MET)
-CC: e.ckhard@u-code.de, marcel@mesa.nl, linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S129406AbQLDJX7>; Mon, 4 Dec 2000 04:23:59 -0500
+Received: from www.wen-online.de ([212.223.88.39]:20232 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S129387AbQLDJXp>;
+	Mon, 4 Dec 2000 04:23:45 -0500
+Date: Mon, 4 Dec 2000 09:53:03 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: test12-pre4: BUG at swap.c:271!
+Message-ID: <Pine.Linu.4.10.10012040930550.654-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick wrote:
-> On Sun, 3 Dec 2000, Eckhard Jokisch wrote:
-> 
-> > Am Don, 30 Nov 2000 schrieben Sie:
-> > > On Thu, Nov 30, 2000 at 04:26:09PM +0000, Eckhard Jokisch wrote:
-> > > > 
-> > > > I tried the ide-tape driver for several weeks now. And after some time during
-> > > > writing or reading tar stops because of errors.
-> > > > 
-> > > > Error messages are:
-> > > > Nov 30 15:32:20  kernel: ide-tape: ht0: I/O error, pc =  8, key =  0,
-> > > > asc =  0, ascq =  2 Nov 30 15:32:25 eckhard last message repeated 1000 times
-> > > > Nov 30 15:32:25  kernel: ide-tape: ht0: unrecovered read error on logical block number 461706, skipping
-> 
-> You have to love the new ARD media...
-> 
-> > ....
-> > 
-> > > I ran into such problems since februari or so and have been in contact with
-> > > the ide-tape developers and Onstream about it. 
+Hi,
 
-Stay away from onstream is my advice nowadays. 
+When stressing swap (virgin test12-pre4), I encounter the repeatable
+oops below once load builds to heavy.  The vmscan.c:UnlockPage(page)
+addition sets it off.  Appears 100% repeatable.
 
-We've been trying to get the stupid thing to work since july 8th, and
-onstream technical support has been very helpful by telling us what to
-do and such. Like downgrading to a kernel version that has known
-remote attacks. However doing that does not solve the problems we
-report. After much ado, they promise to "escalate" the problem to 
-people in the states, and then this does not lead to results in 
-the month we've given them. 
 
-In short: in the simplest case, just writing a stream of bytes to the
-drive, it works. But the drive then doesn't nearly have the "raw error
-rate" that they claim.
 
-If you start using a backup program that needs to seek back and forth
-a few times, the drive loses track where it is, and doesn't recover
-from this situation.
+kernel BUG at swap.c:271!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c012c144>]
+EFLAGS: 00010282
+eax: 0000001a   ebx: c120bf30   ecx: 00000000   edx: 00000001
+esi: 00000001   edi: c747b084   ebp: c19f22a4   esp: c1fcff0c
+ds: 0018   es: 0018   ss: 0018
+Process as (pid: 526, stackpage=c1fcf000)
+Stack: c0223841 c0223adc 0000010f c120bf30 c012eab5 c120bf30 c120bf30 c012eb7d 
+       c120bf30 07b48067 00000025 c01228f5 c120bf30 c1a15f20 0807a000 c44d5d60 
+       00054000 0047a000 c747b084 0847a000 00000018 00000000 000ce000 00000000 
+Call Trace: [<c0223841>] [<c0223adc>] [<c012eab5>] [<c012eb7d>] [<c01228f5>] [<c0124ee3>] [<c0118f32>] 
+       [<c011d1ab>] [<c011d35a>] [<c010afe7>] 
+Code: 0f 0b 83 c4 0c 8d b4 26 00 00 00 00 f0 fe 0d c8 45 27 c0 0f 
 
-I've returned mine to my vendor, and I hope that Onstream gets the
-message in the end: They do NOT support Linux. 
+>>EIP; c012c144 <lru_cache_del+20/4c>   <=====
+Trace; c0223841 <tvecs+1f7d/2099c>
+Trace; c0223adc <tvecs+2218/2099c>
+Trace; c012eab5 <delete_from_swap_cache_nolock+3d/74>
+Trace; c012eb7d <free_page_and_swap_cache+55/88>
+Trace; c01228f5 <zap_page_range+1b1/244>
+Trace; c0124ee3 <exit_mmap+df/134>
+Trace; c0118f32 <mmput+16/30>
+Trace; c011d1ab <do_exit+ff/284>
+Trace; c011d35a <sys_exit+e/10>
+Trace; c010afe7 <system_call+33/38>
+Code;  c012c144 <lru_cache_del+20/4c>
+00000000 <_EIP>:
+Code;  c012c144 <lru_cache_del+20/4c>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c012c146 <lru_cache_del+22/4c>
+   2:   83 c4 0c                  add    $0xc,%esp
+Code;  c012c149 <lru_cache_del+25/4c>
+   5:   8d b4 26 00 00 00 00      lea    0x0(%esi,1),%esi
+Code;  c012c150 <lru_cache_del+2c/4c>
+   c:   f0 fe 0d c8 45 27 c0      lock decb 0xc02745c8
+Code;  c012c157 <lru_cache_del+33/4c>
+  13:   0f 00 00                  sldt   (%eax)
 
-			Roger.
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

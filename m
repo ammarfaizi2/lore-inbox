@@ -1,82 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272476AbTGaNac (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 09:30:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272478AbTGaNac
+	id S272478AbTGaNhL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 09:37:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272479AbTGaNhL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 09:30:32 -0400
-Received: from [213.69.232.58] ([213.69.232.58]:39688 "HELO schottelius.org")
-	by vger.kernel.org with SMTP id S272476AbTGaNab (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 09:30:31 -0400
-Date: Thu, 31 Jul 2003 15:29:00 +0200
-From: Nico Schottelius <nico-kernel@schottelius.org>
-To: Yaroslav Rastrigin <yarick@relex.ru>
-Cc: Nico Schottelius <nico-kernel@schottelius.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: fun or real: proc interface for module handling?
-Message-ID: <20030731132900.GU264@schottelius.org>
-References: <20030731121248.GQ264@schottelius.org> <200307311713.24788.yarick@relex.ru>
+	Thu, 31 Jul 2003 09:37:11 -0400
+Received: from angband.namesys.com ([212.16.7.85]:26046 "EHLO
+	angband.namesys.com") by vger.kernel.org with ESMTP id S272478AbTGaNhJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 09:37:09 -0400
+Date: Thu, 31 Jul 2003 17:37:07 +0400
+From: Oleg Drokin <green@namesys.com>
+To: marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] reiserfs: fix savelinks on bigendian platforms
+Message-ID: <20030731133707.GM14081@namesys.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="O9T4zNOkGnr0n+A/"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200307311713.24788.yarick@relex.ru>
 User-Agent: Mutt/1.4i
-X-Operating-System: Linux flapp 2.6.0-test2
-X-Free86: doesn't compile currently
-X-Replacement: please tell me some (working)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
---O9T4zNOkGnr0n+A/
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+    This small patch fixes a savelinks problem on bigendian platforms, where
+    savelinks were not working at all because of incorrect cpu->disk endianness conversion.
+    Savelinks are used on reiserfs to remember "truncate" and "unlink" events
+    so that if crash happens in the middle of truncate/unlink, we do not endup with
+    lost or half truncated files.
 
-Yaroslav Rastrigin [Thu, Jul 31, 2003 at 05:13:24PM +0400]:
-> > Hello!
-> >
-> > I was just joking around here, but what do you think about this idea:
-> >
-> > A proc interface for module handling:
-> >    /proc/mods/
-> >    /proc/mods/<module-name>/<link-to-the-modules-use-us>
-> >
-> > So we could try to load a module with
-> >    mkdir /proc/mods/ipv6
-> > and remove it and every module which uses us with
-> >    rm -r /proc/mods/ipv6
-> >
->=20
-> Well, this idea itsel is quite neat, and could sometimes save lots of tim=
-e=20
-> (esp. when dealing with serious modules' deps). I would like to propose=
-=20
-> slightly different appropach:
-> cp /lib/modules/2.6.0-test2/kernel/drivers/somedriver.ko /proc/modtree
-> [...]
+    Please pull from bk://namesys.com/bk/reiser3-linux-2.4-savelink-bigendian-fix
 
-sounds nice, too.
-With this idea the kernel would get the code directly, which is very nice.
+Diffstat:
+ super.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-Nico
-
---=20
-echo God bless America | sed 's/.*\(A.*\)$/Why \1?/'
-pgp: new id: 0x8D0E27A4 | ftp.schottelius.org/pub/familiy/nico/pgp-key.new
-
---O9T4zNOkGnr0n+A/
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE/KRmctnlUggLJsX0RAqQlAJ4uBl9BH7B2j3FPa/DvnN44L/H/SQCeN11P
-5bUJR3hr/+NKb8yQ8Sy0AXI=
-=/iG5
------END PGP SIGNATURE-----
-
---O9T4zNOkGnr0n+A/--
+Plain text patch:
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1048  -> 1.1049 
+#	 fs/reiserfs/super.c	1.35    -> 1.36   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/07/31	green@angband.namesys.com	1.1049
+# reiserfs: fix savelinks for bigendian arches.
+#    Remove unneeded cpu->disk order conversion for savelink data.
+# --------------------------------------------
+#
+diff -Nru a/fs/reiserfs/super.c b/fs/reiserfs/super.c
+--- a/fs/reiserfs/super.c	Thu Jul 31 17:24:46 2003
++++ b/fs/reiserfs/super.c	Thu Jul 31 17:24:46 2003
+@@ -284,7 +284,7 @@
+     }
+ 
+     /* body of "save" link */
+-    link = cpu_to_le32 (INODE_PKEY (inode)->k_dir_id);
++    link = INODE_PKEY (inode)->k_dir_id;
+ 
+     /* put "save" link inot tree */
+     retval = reiserfs_insert_item (th, &path, &key, &ih, (char *)&link);

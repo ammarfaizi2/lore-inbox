@@ -1,62 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265661AbSKYUyb>; Mon, 25 Nov 2002 15:54:31 -0500
+	id <S265670AbSKYUzq>; Mon, 25 Nov 2002 15:55:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265667AbSKYUyb>; Mon, 25 Nov 2002 15:54:31 -0500
-Received: from keetweej.xs4all.nl ([213.84.46.114]:128 "EHLO
-	muur.intranet.vanheusden.com") by vger.kernel.org with ESMTP
-	id <S265661AbSKYUya>; Mon, 25 Nov 2002 15:54:30 -0500
-From: "Folkert van Heusden" <folkert@vanheusden.com>
-To: "=?us-ascii?B?J0Vyc2VrIExhc3psbyc=?=" <erseklaszlo@chello.hu>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] rbtree
-Date: Mon, 25 Nov 2002 22:01:37 +0100
-Message-ID: <005501c294c5$d8b1e300$3640a8c0@boemboem>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <Pine.LNX.4.44.0211242332310.90-100000@lacos>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	id <S265677AbSKYUzp>; Mon, 25 Nov 2002 15:55:45 -0500
+Received: from [203.199.93.15] ([203.199.93.15]:6660 "EHLO
+	WS0005.indiatimes.com") by vger.kernel.org with ESMTP
+	id <S265670AbSKYUzo>; Mon, 25 Nov 2002 15:55:44 -0500
+From: "arun4linux" <arun4linux@indiatimes.com>
+Message-Id: <200211252056.CAA31455@WS0005.indiatimes.com>
+To: "Kevin Krieser" <kkrieser@footballmail.com>
+CC: "linux-kernel" <linux-kernel@vger.kernel.org>
+Reply-To: "arun4linux" <arun4linux@indiatimes.com>
+Subject: Re: RE: GUI based kernel Debugger
+Date: Tue, 26 Nov 2002 02:34:56 +0530
+X-URL: http://indiatimes.com
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not trying to be negative and also really wondering this: won't
-the compiler produce the same code for:
-if (!variable)
-and
-if (variable == 0)
-?
+Hello,
 
------Oorspronkelijk bericht-----
-Van: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]Namens Ersek Laszlo
-Verzonden: zondag 24 november 2002 23:41
-Aan: linux-kernel@vger.kernel.org
-Onderwerp: [PATCH] rbtree
+  can we use gdb for kernel debugging?
 
+<<This is on a remote computer using kgdb to debug on a remote linux box via serial port.
 
-Hi all,
+>>Oh. Did you mean you used ddd front end and kgdb back end for kernel debugging?
 
-this patch tries to remove those checks for 0 from
-linux-2.4.19/lib/rbtree.c which are (I think) superfluous.
+Have a nice time.
+Arun
 
-Laszlo Ersek
+"Kevin Krieser" wrote:
 
 
---- linux-2.4.19/lib/rbtree.c	Sat Aug  3 02:39:46 2002
-+++ linux/lib/rbtree.c	Sun Nov 24 22:59:38 2002
-@@ -159,17 +159,16 @@
- 				if (!other->rb_right ||
- 				    other->rb_right->rb_color == RB_BLACK)
- 				{
--					register rb_node_t * o_left;
--					if ((o_left = other->rb_left))
--						o_left->rb_color = RB_BLACK;
-+					/* unneeded check-for-0 removed */
-+					other->rb_left->rb_color = RB_BLACK;
-...
+
+You can probably use any of the GUI frontends to gdb. I've used DDD in the
+past.
+
+This is on a remote computer using kgdb to debug on a remote linux box via
+serial port.
+
+Since the local box contains the kernel source, I have my doubts about using
+cygwin as one computer, but I guess it MAY be possible, if you know how to
+cross compile.
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of arun4linux
+Sent: Sunday, November 24, 2002 3:57 PM
+To: linux-kernel
+Subject: GUI based kernel Debugger
+
+
+Hello,
+
+I need some info on GUI based kernel debuggers.
+
+I'd like to know whether any GUI based kernel debugger available?
+preferablly free ware one :-)
+
+Anybody tried cygwin on windows to debug linux target machine?
+
+Warm Regards
+
+Arun
+
+
+
+
+Get Your Private, Free E-mail from Indiatimes at http://email.indiatimes.com
+
+Buy Music, Video, CD-ROM, Audio-Books and Music Accessories from
+http://www.planetm.co.in
+
+Change the way you talk. Indiatimes presents Valufon, Your PC to Phone
+service with clear voice at rates far less than the normal ISD rates. Go to
+http://www.valufon.indiatimes.com. Choose your plan. BUY NOW.
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at http://www.tux.org/lkml/
+
+
+
+
+Get Your Private, Free E-mail from Indiatimes at http://email.indiatimes.com
+
+ Buy Music, Video, CD-ROM, Audio-Books and Music Accessories from http://www.planetm.co.in
+

@@ -1,99 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265195AbUHDNIm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265207AbUHDNJj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265195AbUHDNIm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Aug 2004 09:08:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265207AbUHDNIm
+	id S265207AbUHDNJj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Aug 2004 09:09:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265224AbUHDNJe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Aug 2004 09:08:42 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:60639 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265195AbUHDNIi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Aug 2004 09:08:38 -0400
-Date: Wed, 4 Aug 2004 15:07:07 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Eric Bambach <eric@cisu.net>
-Cc: Con Kolivas <kernel@kolivas.org>, "Barry K. Nathan" <barryn@pobox.com>,
-       Steve Snyder <swsnyder@insightbb.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: HIGHMEM4G config for 1GB RAM on desktop?
-Message-ID: <20040804130707.GN10340@suse.de>
-References: <200408021602.34320.swsnyder@insightbb.com> <410FA145.70701@kolivas.org> <20040804060625.GE10340@suse.de> <200408040614.30820.eric@cisu.net>
-Mime-Version: 1.0
+	Wed, 4 Aug 2004 09:09:34 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:6862 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S265207AbUHDNJX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Aug 2004 09:09:23 -0400
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Jesse Barnes <jbarnes@engr.sgi.com>, linux-ia64@vger.kernel.org,
+       fastboot@osdl.org, <linux-kernel@vger.kernel.org>
+Subject: Re: [BROKEN PATCH] kexec for ia64
+References: <200407261524.40804.jbarnes@engr.sgi.com>
+	<200407261536.05133.jbarnes@engr.sgi.com>
+	<20040730155504.2a51b1fa.rddunlap@osdl.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 04 Aug 2004 07:07:04 -0600
+In-Reply-To: <20040730155504.2a51b1fa.rddunlap@osdl.org>
+Message-ID: <m18ycvhx1j.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408040614.30820.eric@cisu.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 04 2004, Eric Bambach wrote:
-> On Wednesday 04 August 2004 01:06 am, Jens Axboe wrote:
-> > On Wed, Aug 04 2004, Con Kolivas wrote:
-> > > Jens Axboe wrote:
-> > > >On Mon, Aug 02 2004, Barry K. Nathan wrote:
-> > > >>On Mon, Aug 02, 2004 at 04:02:34PM -0500, Steve Snyder wrote:
-> > > >>>There seems to be a controversy about the use of the CONFIG_HIGHMEM4G
-> > > >>>kernel configuration.  After reading many posts on the subject, I
-> > > >>> still don't know which setting is best for me.
-> > >
-> > > No idea what the performance hit is of highmem these days - it seems
-> > > insignificant compared to 2.4 so I've had it enabled for 1Gb ram.
-> > >
-> > > >There's also the option of moving the mapping only slightly, so that all
-> > > >of the 1G fits in low memory. That's the best option for 1G desktop
-> > > >machines, imho. Changing PAGE_OFFSET from 0xc0000000 to 0xb0000000 would
-> > > >probably be enough.
-> > > >
-> > > >Then you can have your cake and eat it too.
-> > >
-> > > Something like this attached patch? Seems to work nicely. Thanks!
-> > >
-> > > Cheers,
-> > > Con
-> > >
-> > > Index: linux-2.6.8-rc2-mm2/arch/i386/kernel/vmlinux.lds.S
-> > > ===================================================================
-> > > --- linux-2.6.8-rc2-mm2.orig/arch/i386/kernel/vmlinux.lds.S	2004-05-23
-> > > 12:54:46.000000000 +1000 +++
-> > > linux-2.6.8-rc2-mm2/arch/i386/kernel/vmlinux.lds.S	2004-08-04
-> > > 00:20:02.219462913 +1000 @@ -11,7 +11,7 @@
-> > >  jiffies = jiffies_64;
-> > >  SECTIONS
-> > >  {
-> > > -  . = 0xC0000000 + 0x100000;
-> > > +  . = 0xB0000000 + 0x100000;
-> > >    /* read-only */
-> > >    _text = .;			/* Text and read-only data */
-> > >    .text : {
-> > > Index: linux-2.6.8-rc2-mm2/include/asm-i386/page.h
-> > > ===================================================================
-> > > --- linux-2.6.8-rc2-mm2.orig/include/asm-i386/page.h	2004-08-03
-> > > 01:29:28.000000000 +1000 +++
-> > > linux-2.6.8-rc2-mm2/include/asm-i386/page.h	2004-08-03 23:58:16.000000000
-> > > +1000 @@ -123,9 +123,9 @@
-> > >  #endif /* __ASSEMBLY__ */
-> > >
-> > >  #ifdef __ASSEMBLY__
-> > > -#define __PAGE_OFFSET		(0xC0000000)
-> > > +#define __PAGE_OFFSET		(0xB0000000)
-> > >  #else
-> > > -#define __PAGE_OFFSET		(0xC0000000UL)
-> > > +#define __PAGE_OFFSET		(0xB0000000UL)
-> > >  #endif
-> >
-> > Yup precisely. I agree that there probably isn't a whole lot of
-> > performance hit on a 1GB, it just seems silly that we need highmem on
-> > such a standard memory configuration these days. Especially when just
-> > moving the offset slightly removes that need.
+"Randy.Dunlap" <rddunlap@osdl.org> writes:
+
+> On Mon, 26 Jul 2004 15:36:05 -0700 Jesse Barnes wrote:
 > 
-> As a desktop user with 1024MB ram I agree that HIMEM has a silly threshold and 
-> should not need to be enabled in this case. Its becoming common, especially 
-> with dual channel memory systems to use 2x512MB sticks. On a hunch I bet 
-> 2x512 is more common that 1x512 and 1x256 so why not merge this up? Who would 
-> we submit this patch to?
+> | On Monday, July 26, 2004 3:24 pm, Jesse Barnes wrote:
+> | >   o userspace tools need ia64 support
 
-One way would be to ask Andrew what he thinks?
+Correct.  But all they need are the ia64 bits of the ELF loader,
+plus ia64 specific goo.  The generic part of the ELF loader is already
+written.
 
--- 
-Jens Axboe
+> | >   o need to deal with in-flight DMA (see FIXME in machine_kexec)
+> | 
+> | After looking at it a little more, I suppose device_shutdown() should 
+> | theoretically deal with this.
+> | 
+> | Also, it would be nice if there were a Documentation/kexec.txt or something in
+> 
+> | the full patch that describes all the pieces and what the arch dependent 
+> | functions are responsible for.  Randy, do you have anything like that written
+> 
+> | up somewhere that you could include in the next spin of the patch?
+> 
+> Nope, sorry, I don't have anything like that.
+> 
+> Eric, do you have anything like Jesse asked about (arch-dependent
+> requirements)?
 
+Sort of fundamentally they are arch dependent.  
+
+I believe that DMA FIXME is a red hearing.  Initially that patch
+was targeted for a kernel without device_shutdown(), so I was
+likely considering the old trick of running through all of the PCI
+devices and disabling their bus master bit.
+
+In general there are two arch specific pieces of information here.
+
+1) What is the kernel's argument passing format, what arguments
+   does the kernel need, and how do you derive those arguments
+   from a running kernel.
+
+   Usually this is at least the kernels memory map.  But the binary
+   arguments a kernel accepts/requires vary widely from architecture
+   to architecture. 
+
+(This is user space only)
+
+2) The code itself in machine_kexec.c and relocate_kernel.S needs
+   to place the machine in a state where virtual and physical addresses
+   are identity mapped.  And the arch specific registers are in some
+   well defined state.  Usually the least setup you can guarantee to make
+   it work the better.  
+
+(This is the kernel side)
+
+We should probably start capturing these pieces of information in
+a kexec.3 man page.  Volunteers?
+
+For ia64 in particular I believe the binary arguments are the
+FPSWA and EFI memory map, and the firmware entry points (PAL and SAL
+and EFI).
+
+As for the physical mode transition state.  I believe that
+is largely defined by the current set of kernel bootloaders.
+
+Eric

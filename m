@@ -1,54 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318960AbSH1Uzl>; Wed, 28 Aug 2002 16:55:41 -0400
+	id <S318947AbSH1UvX>; Wed, 28 Aug 2002 16:51:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318961AbSH1Uzl>; Wed, 28 Aug 2002 16:55:41 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:5667 "EHLO
-	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S318960AbSH1Uzk>; Wed, 28 Aug 2002 16:55:40 -0400
-Date: Wed, 28 Aug 2002 15:59:58 -0500
-From: Dave McCracken <dmccr@us.ibm.com>
-To: trond.myklebust@fys.uio.no
-cc: linux-kernel@vger.kernel.org
-Subject: Re: problems with changing UID/GID
-Message-ID: <65140000.1030568398@baldur.austin.ibm.com>
-In-Reply-To: <15725.5853.229315.140365@charged.uio.no>
-References: <Pine.LNX.4.44.0208260855480.3234-100000@hawkeye.luckynet.adm>
- <shsvg5wqemp.fsf@charged.uio.no><20020827200110.GB8985@tapu.f00f.org>
- <200208280009.03090.trond.myklebust@fys.uio.no>
- <19220000.1030544663@baldur.austin.ibm.com>
- <15725.5853.229315.140365@charged.uio.no>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	id <S318959AbSH1UvW>; Wed, 28 Aug 2002 16:51:22 -0400
+Received: from natwar.webmailer.de ([192.67.198.70]:34288 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S318947AbSH1UvW>; Wed, 28 Aug 2002 16:51:22 -0400
+Date: Wed, 28 Aug 2002 22:53:15 +0200
+From: Dominik Brodowski <devel@brodo.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.5.32] CPU frequency and voltage scaling (0/4)
+Message-ID: <20020828225315.D816@brodo.de>
+References: <20020828221947.A816@brodo.de> <Pine.LNX.4.33.0208281331020.8978-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.3.16i
+In-Reply-To: <Pine.LNX.4.33.0208281331020.8978-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Wed, Aug 28, 2002 at 01:43:08PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Aug 28, 2002 at 01:43:08PM -0700, Linus Torvalds wrote:
+> 
+> On Wed, 28 Aug 2002, Dominik Brodowski wrote:
+> >
+> > Do these CPUs need kernel support? E.g. do udelay() calls work as
+> > expected?
+> 
+> Crusoe CPU's do not.
+Great.
 
---On Wednesday, August 28, 2002 08:30:53 PM +0200 Trond Myklebust
-<trond.myklebust@fys.uio.no> wrote:
+> But Intel CPU's _do_ need this, for example (since they change the TSC
+> frequency).
+And that's why there is some need for a cpufreq core (which manages
+loops_per_jiffy etc.) and the need for the cpufreq drivers (#2 and #3 in my
+previous mail).
 
-> The BSD approach is to split out the user credentials, since they are
-> used all over the place in the filesystems, and often need to be
-> cached. The uid, euid, ... are kept in a reference-counted 'process'
-> credential of the form
+> Which is why such a CPU needs to be passed in a _policy_. Which is my 
+> whole argument.
+Which is #1 - the "input" to the cpufreq core. This can be seperated from
+the cpufreq core. So basically 
 
-I like that approach, if you really think it's a good idea to have a
-separate structure for the subset needed for IO.  I'm not clear why it'd be
-a bad idea to have one structure and the IO subsystem would only use the
-parts it cares about, but you've clearly thought about it more than I have,
-so I'll take your word for it.
+"policy input" --> "frequency input" --> cpufreq core --> cpufreq driver
+  user-space    |                 k e r n e l  -  s p a c e
 
-I looked through your patches.  It looks like you're on the right track,
-generally.  I am a little concerned about some of the current_get*/set*
-functions.  I'm not entirely convinced there aren't race conditions in
-them, but I need to think harder on it.
+instead of
 
-Dave McCracken
+"policy input" --> "frequency input" --> cpufreq core --> cpufreq driver
+     u s e r  -  s p a c e            |     k e r n e l  -  s p a c e
 
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
 
+Linus, would you agree to the /proc interface as one of several
+frequency "input"/management options? It's good for testing, for some 
+workloads (LART), and it's (almost) done (just needs seperating from 
+the cpufreq core)...
+
+	Dominik

@@ -1,52 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131468AbRC3Ouf>; Fri, 30 Mar 2001 09:50:35 -0500
+	id <S131476AbRC3PAQ>; Fri, 30 Mar 2001 10:00:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131472AbRC3Ou0>; Fri, 30 Mar 2001 09:50:26 -0500
-Received: from [207.246.91.243] ([207.246.91.243]:1806 "HELO thor")
-	by vger.kernel.org with SMTP id <S131468AbRC3OuM>;
-	Fri, 30 Mar 2001 09:50:12 -0500
-Date: Fri, 30 Mar 2001 09:48:18 -0500
-From: "J. Scott Kasten" <jsk@tetracon-eng.net>
-To: Michael Peddemors <michael@linuxmagic.com>
-cc: David Konerding <dek_ml@konerding.com>, linux-kernel@vger.kernel.org
-Subject: Re: OOM killer???
-In-Reply-To: <20010330024815Z130448-406+5643@vger.kernel.org>
-Message-ID: <Pine.SGI.4.10.10103300942140.14106-100000@thor.tetracon-eng.net>
+	id <S131474AbRC3PAH>; Fri, 30 Mar 2001 10:00:07 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:15620
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S131472AbRC3PAB>; Fri, 30 Mar 2001 10:00:01 -0500
+Date: Fri, 30 Mar 2001 06:58:52 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Jochen Hoenicke <Jochen.Hoenicke@Informatik.Uni-Oldenburg.DE>
+cc: linux-kernel@vger.kernel.org, Andries.Brouwer@cwi.nl
+Subject: Re: Bug in EZ-Drive remapping code (ide.c)
+In-Reply-To: <15044.24107.858836.866924@huxley.Informatik.Uni-Oldenburg.DE>
+Message-ID: <Pine.LNX.4.10.10103300656400.27013-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Just to throw my own observations into the war, I have to agree with David
-K. here.  This needs to be some sort of module and/or interface.  Get the
-policy into a replaceable user space module.
+Jochen,
 
-One of the hot areas for the kernel right now is for embedded systems.
-They need an entirely different strategy than for a desk top.  I'm working
-on such a thing now were we don't even have an enabled swap space and the
-OOM is causing us no end of trouble as we start dipping below 1MB "free"
-system memory.
+I don't really care about Disk Overlays.
+However if you can fix it or if Andries can great.
 
-On 29 Mar 2001, Michael Peddemors wrote:
+Sorry,
 
-> Looking over the last few weeks of postings, there are just WAY to many
-> conflicting ways that people want the OOM to work..  Although an
-> incredible amount of good work has gone into this, people are definetely
-> not happy about the benifits of OOM ...  About 10 different approaches
-> are being made to change the rule based systems pertaining to WHEN the
-> OOM will fire, but in the end, still not everyone will be happy..
+On Fri, 30 Mar 2001, Jochen Hoenicke wrote:
 
-<SNIP>
-
-> On 29 Mar 2001 07:41:44 -0800, David Konerding wrote:
+> Hello,
 > 
-> > Now, if you're going to implement OOM, when it is absolutely necessary, at the very
-> > least, move the policy implementation out of the kernel.  One of the general
-> > philosophies of Linux has been to move policy out of the kernel.  In this case, you'd
-> > just have a root owned process with locked pages that can't be pre-empted, which
-> > implemented the policy.  You'll never come up with an OOM policy that will fit
-> > everybody's needs unless it can be tuned for  particular system's usage, and it's
-> > going to be far easier to come up with that policy if it's not in the kernel.
+> The EZ-Drive remapping code remaps to many sectors, if they are read
+> together with sector 0 in one bunch.  This is even documented:
+> 
+> >From linux-2.4.0/drivers/ide/ide.c line 1165:
+> /* Yecch - this will shift the entire interval,
+>    possibly killing some innocent following sector */
+> 
+> This problem hit a GRUB user using linux-2.4.2 but it exists for a
+> long time; the remapping code is already in 2.0.xx.  The reason that
+> nobody cares is probably because there are only a few programs that
+> access /dev/hda directly.
+> 
+> GRUB is a boot loader that normally runs under plain BIOS but there is
+> also a wrapper to run it under linux and other unixes.  Because it
+> shares most code with its BIOS derivate it accesses the disk the hard
+> way, reading directly from /dev/hda and interpreting the file system
+> with its own (read-only) file system drivers.
+> 
+> This is what happened: Grub reads the first track in one bunch and
+> since a track has an odd number of sectors, linux adds the first
+> sector of the next track to this bunch.  This sector contains the boot
+> sector of the first FAT partition.  The result of the remapping is
+> that grub can't access that partition.
+> 
+> Please CC me on reply.
+> 
+>   Jochen
+> 
+
+Andre Hedrick
+Linux ATA Development
 

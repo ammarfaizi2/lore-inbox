@@ -1,51 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317517AbSFECih>; Tue, 4 Jun 2002 22:38:37 -0400
+	id <S317529AbSFECk3>; Tue, 4 Jun 2002 22:40:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317529AbSFECig>; Tue, 4 Jun 2002 22:38:36 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:19400 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S317517AbSFECif>;
-	Tue, 4 Jun 2002 22:38:35 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [kbuild-devel] Re: Announce: Kernel Build for 2.5, release 3.0 is available 
-In-Reply-To: Your message of "Tue, 04 Jun 2002 22:25:20 -0400."
-             <200206050224.WAA00121@mail.reutershealth.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 05 Jun 2002 12:38:18 +1000
-Message-ID: <20890.1023244698@kao2.melbourne.sgi.com>
+	id <S317530AbSFECk2>; Tue, 4 Jun 2002 22:40:28 -0400
+Received: from waste.org ([209.173.204.2]:55750 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S317529AbSFECk1>;
+	Tue, 4 Jun 2002 22:40:27 -0400
+Date: Tue, 4 Jun 2002 21:40:25 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Daniel Phillips <phillips@bonn-fries.net>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Adeos nanokernel for Linux kernel
+In-Reply-To: <E17FQPj-0001Rr-00@starship>
+Message-ID: <Pine.LNX.4.44.0206042132450.2614-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 4 Jun 2002 22:25:20 -0400 (EDT), 
-John Cowan <jcowan@reutershealth.com> wrote:
->Keith Owens scripsit:
->
->> In order to do separate source and object correctly, kbuild 2.5
->> enforces the rule that #include "" comes from the local directory,
->> #include <> comes from the include path.  include/linux/zlib.h
->> incorrectly does #include "zconf.h" instead of #include <linux/zconf.h>,
->> breaking the rules.
->
->This is not the standard gcc behavior, however; quoted-includes
->can come from the include path, although the current directory
->is searched first.  The purpose of <>-includes is to suppress
->searching the current directory.
+On Wed, 5 Jun 2002, Daniel Phillips wrote:
 
-What gcc allows and what the kernel uses as a coding style are two
-different things.  Almost all of the kernel uses <> for global files
-and "" for local files, this is the only sane way of coding for a large
-project.  However there are some exceptions where the wrong form has
-been used.
+> On Tuesday 04 June 2002 21:29, Oliver Xymoron wrote:
+> > On Mon, 3 Jun 2002, Daniel Phillips wrote:
+> >
+> > > traditional IT.  Not to mention that I can look forward to a sound
+> > > system where I can be *sure* my mp3s won't skip.
+> >
+> > Not unless you're loading your entire MP3 into memory, mlocking it down,
+> > and handing it off to a hard RT process. And then your control of the
+> > playback of said song through a non-RT GUI could be arbitrarily coarse,
+> > depending on load.
+>
+> Thanks for biting :-)
+>
+> First, these days it's no big deal to load an entire mp3 into memory.
+>
+> Second, and of more interest to broadcasting industry professionals and the
+> like, it's possible to write a real-time filesystem that bypasses all the
+> normal non-realtime facilities of the operating system, and where the latency
+> of every operation is bounded according to the amount of data transferred.
+> Such a filesystem could use its own dedicated disk, or, more practically, the
+> RTOS (or realtime subsystem) could operate the disk's block queue.
+>
+> If I recall correctly, XFS makes an attempt to provide such realtime
+> guarantees, or at least the Solaris version does.  However, the operating
+> system must be able to provide true realtime guarantees in order for the
+> filesystem to provide them, and I doubt that the combination of XFS and
+> Solaris can do that.
 
-The wrong form causes problems for separate source and object
-directories.  It also causes problems when you do not compile in the
-same directory that does not contain the source, i.e. when you do a
-global make instead of recursive make.  kbuild 2.5 has identified all
-of the problem includes.  I avoided changing the source, instead I
-added extra include paths as a temporary workaround, with FIXME
-comments for later clean up.  I noticed that some people have already
-used the kbuild 2.5 FIXME comments to clean up their code.
+Nope, it can't.
+
+Just bear in mind that it's next to impossible to avoid throwing the baby
+out with the bathwater here. Ok, so you've got an RT kernel playing your
+MP3 alongside your UNIX system - how do you control it? How do you switch
+tracks? All the latency that you were struggling with in the player is
+still there in the user interface.
+
+What you really want for an MP3 player is _not_ hard RT, what you want is
+very reliable low-latency. Which we can do without throwing away most of
+UNIX.
+
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 

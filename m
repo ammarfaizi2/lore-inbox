@@ -1,82 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316601AbSFUNoh>; Fri, 21 Jun 2002 09:44:37 -0400
+	id <S316604AbSFUOCq>; Fri, 21 Jun 2002 10:02:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316599AbSFUNog>; Fri, 21 Jun 2002 09:44:36 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:16169 "EHLO ibm.com")
-	by vger.kernel.org with ESMTP id <S316595AbSFUNof>;
-	Fri, 21 Jun 2002 09:44:35 -0400
-Date: Fri, 21 Jun 2002 09:29:43 -0500
-From: sullivan <sullivan@austin.ibm.com>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Martin Dalecki <dalecki@evision-ventures.com>,
-       Linus Torvalds <torvalds@transmeta.com>, Kurt Garloff <garloff@suse.de>,
-       Linux kernel list <linux-kernel@vger.kernel.org>,
-       Linux SCSI list <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH] /proc/scsi/map
-Message-ID: <20020621092943.D1243@austin.ibm.com>
-References: <3D12032C.7040105@evision-ventures.com> <Pine.LNX.4.33.0206201230190.654-100000@geena.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0206201230190.654-100000@geena.pdx.osdl.net>; from mochel@osdl.org on Thu, Jun 20, 2002 at 01:12:08PM -0700
+	id <S316605AbSFUOCp>; Fri, 21 Jun 2002 10:02:45 -0400
+Received: from [213.23.20.221] ([213.23.20.221]:45990 "EHLO starship")
+	by vger.kernel.org with ESMTP id <S316604AbSFUOCo>;
+	Fri, 21 Jun 2002 10:02:44 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Helge Hafting <helgehaf@aitel.hist.no>, ext2-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Ext2-devel] Re: Shrinking ext3 directories
+Date: Fri, 21 Jun 2002 16:02:33 +0200
+X-Mailer: KMail [version 1.3.2]
+References: <20020619113734.D2658@redhat.com> <E17LF65-0001K4-00@starship> <3D12CFC5.38DD9245@aitel.hist.no>
+In-Reply-To: <3D12CFC5.38DD9245@aitel.hist.no>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17LOzh-0001WB-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 20, 2002 at 01:12:08PM -0700, Patrick Mochel wrote:
-<snip>
+On Friday 21 June 2002 09:03, Helge Hafting wrote:
+> Daniel Phillips wrote:
 > 
-> Sure. Once device class supports materializes, classes will register and
-> can be assigned a dynamic major number even (if they don't already have
-> one). As devices (and partitions) are discovered, we can assign minor
-> numbers (dynamically!), and call /sbin/hotplug to notify userspace of the
-> discovery. It can use that information to create device nodes based on 
-> user-defined policy. 
+> > I ran a bakeoff between your new half-md4 and dx_hack_hash on Ext2.  As
+> > predicted, half-md4 does produce very even bucket distributions.  For 200,000
+> > creates:
+> > 
+> >    half-md4:        2872 avg bytes filled per 4k block (70%)
+> >    dx_hack_hash:    2853 avg bytes filled per 4k block (69%)
+> > 
+> > but guess which was faster overall?
+> > 
+> >    half-md4:        user 0.43 system 6.88 real 0:07.33 CPU 99%
+> >    dx_hack_hash:    user 0.43 system 6.40 real 0:06.82 CPU 100%
+> > 
+> > This is quite reproducible: dx_hack_hash is always faster by about 6%.  This
+> > must be due entirely to the difference in hashing cost, since half-md4
+> > produces measurably better distributions.  Now what do we do?
 > 
-<snip>
+> No surprise that the worse distribution is faster - you get less
+> io when fewer blocks are used.  Which means a bad distribution beats 
+> a good one _until_ blocks start to really fill up and collide. 2.8K per
+> 4K block is only 70% full.  I guess the better hash wins
+> if you force a higher fill rate?
 
-The driverfs patch for SCSI that was recently posted was the kernel portion of 
-a device naming project that is intended to support all devices, at least the 
-ones that implement to driverfs in a standard way. There are three items that
-IMHO should be considered as part of the standard set that driverfs requires:
+Hashing in htree doesn't work like that - what you're thinking about
+is a traditional fixed-size hash table.  HTree is a btree that uses
+hashes of names as keys.  Each block has a variable amount of the key
+space assigned to it, initially just one block for the entire key
+space.  When that block fills up, its entries and its key space are
+split into two, then those blocks start to fill up, get split, and
+so on.
 
-1. device type - It appears that Pat is heading down this path with the class
-	type support so maybe this is a no brainer. Currently the scsi
-	driverfs provides a "type" file to contain this info. The current
-	strings used are taken from the scsi_device_types[] but should be
-	replaced with the system wide device types that driverfs will provide.
+So more even key distribution means the key space gets split more
+evenly, and blocks are more likely to fill up evenly, meaning less
+splitting, fewer blocks in total, and less IO.
 
-2. uid - Since topology and discovery order of hardware can change, the
-	driverfs path names to a device are also subject to change. To
-	easily identify a device I think it's important that the driverfs
-	bus implementations be responsible for create a unique identifier.
+A hash function that distributes keys better should give somewhat
+better performance, and that has indeed been my experience.  But
+in the case of half-MD4, the improvement we get from better
+distribution is wiped out by the higher cost of computing the hash
+function.[1]  Which is not to say that the work is without value.
+The beautiful distribution given by the half-MD4 hash gives us
+something to aim at, we just have to be more efficient about it.
 
-	Since each bus and the devices attached to it will have varying
-	capabilities for identifying themselves the contents for this file
-	should probably be a variable length string.
+I should note that HTree isn't hugely sensitive to bad hash
+functions, at least not at the outset when a directory is growing.
+The worst that happens is every leaf block ends up half-full with
+a performance hit of just a few percent.  However, over time with
+many insertions and deletions the hash space can get cut up into 
+smaller and smaller pieces, so leaf blocks become less and less
+full.  A more uniform hash function will slow this process down a
+great deal, but it will not stop it completely.  The proper way
+to deal with long term key space fragmentation is to implement
+coalesce-on-delete, which is in progress.
 
-	Even for older devices that can't do a great job of providing info to
-	uniquely identify themselves, the driverfs tree provides the nice
-	topological context to fall back upon that allows at least as
-	good of a job to be done as we do today.
+[1] CPU cost in filesystem operations *is* important - a lot more
+important than commonly thought.  Here we have yet another example
+where CPU cost in filesystem operations dominates IO time, and
+indeed, since directory operations are performed almost entirely
+in cache, the quadratic cost of linear directory lookup is almost
+entirely CPU cost.
 
-	The scsi patch currently creates uid info from the INQUIRY evpd pages
-	and makes it available in the name file. I would prefer to see a
-	new standard uid file and let the name file contain a descriptive 
-	(non-unique) name.
-
-3. kdev - To create/manage/interface with the device node we need to know the
- 	kdev.
-
-Because of coldplugging this information should be available in each driverfs
-device directory. Also, adding the driverfs path name on /sbin/hotplug
-events and allowing the consumer to retrieve the info from the filesystem might
-help simplify some of these implementations too.
-
-The devnaming utility that is based on this strategy is available at
-http://www-124.ibm.com/devreg/ 
-
-I'd welcome any thoughts or suggestions.	
-
-- Mike Sullivan
+-- 
+Daniel

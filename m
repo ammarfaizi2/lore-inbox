@@ -1,70 +1,70 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317474AbSFDKNo>; Tue, 4 Jun 2002 06:13:44 -0400
+	id <S317466AbSFDKdC>; Tue, 4 Jun 2002 06:33:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317466AbSFDKNn>; Tue, 4 Jun 2002 06:13:43 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:26072 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S317474AbSFDKNm>; Tue, 4 Jun 2002 06:13:42 -0400
-Date: Tue, 4 Jun 2002 12:13:39 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: linux-kernel@vger.kernel.org
-Subject: [patch] remove 8253x tools from the Makefile
-Message-ID: <Pine.NEB.4.44.0206041209230.8847-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S317475AbSFDKdB>; Tue, 4 Jun 2002 06:33:01 -0400
+Received: from pandora.cantech.net.au ([203.26.6.29]:54022 "EHLO
+	pandora.cantech.net.au") by vger.kernel.org with ESMTP
+	id <S317466AbSFDKdA>; Tue, 4 Jun 2002 06:33:00 -0400
+Date: Tue, 4 Jun 2002 18:32:45 +0800 (WST)
+From: "Anthony J. Breeds-Taurima" <tony@cantech.net.au>
+To: Rasmus Andersen <rasmus@jaquet.dk>
+cc: lkml <linux-kernel@vger.kernel.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Rogier Wolff <R.E.Wolff@BitWizard.nl>
+Subject: Re: [PATCH] 2.4.19-pre10 s/Efoo/-Efoo/ drivers/char/rio/*.c
+In-Reply-To: <20020604110032.A28843@jaquet.dk>
+Message-ID: <Pine.LNX.4.44.0206041821520.32156-100000@thor.cantech.net.au>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+On Tue, 4 Jun 2002, Rasmus Andersen wrote:
 
-the 8253x tools were removed from the kernel source but the Makefile still
-tries to build them. The result is the following compile error in
-2.4.19-pre10:
+> On Tue, Jun 04, 2002 at 04:48:58PM +0800, Anthony J. Breeds-Taurima wrote:
+> > Hello All,
+> > 	This is another cleanup patch changing positive return values into
+> > negative's.
+> > 
+> > 
+> > Yours Tony
+> > 
+> > Jan 22-26 2003      Linux.Conf.AU       http://conf.linux.org.au/
+> >          The Australian Linux Technical Conference!
+> > 
+> > --------------------------------------------------------------------------------
+> > diff -X dontdiff -urN linux-2.4.19-pre10.clean/drivers/char/rio/rio_linux.c linux-2.4.19-pre10/drivers/char/rio/rio_linux.c
+> > --- linux-2.4.19-pre10.clean/drivers/char/rio/rio_linux.c	Tue Apr 30 13:22:07 2002
+> > +++ linux-2.4.19-pre10/drivers/char/rio/rio_linux.c	Tue Jun  4 16:27:36 2002
+> > @@ -702,7 +702,7 @@
+> >    func_enter();
+> >  
+> >    /* The "dev" argument isn't used. */
+> > -  rc = -riocontrol (p, 0, cmd, (void *)arg, suser ());
+> > +  rc = riocontrol (p, 0, cmd, (void *)arg, suser ());
+> 
+> I'm sorry but since this code indeed changes the positive return
+> codes into negatives, what is the purpose of your patch? Have you
+> talked to the maintainer (R.E.Wolff)?
 
-<--  snip  -->
+Yes I have spoken to Rogier about this before I posted it to LKML.
+riocontol calls several functions like RIONewTable.  Which in the past
+had returned ENXIO etc etc.  These positive returns where then had thier
+sign switched in the riocontrol line above.  This patch was supposed to do
+2 things 1) make the rio drivers conform to the more general "negative on
+error" convention for most functions and 2) bring the code more inline with 
+the version in 2.5
 
-...
-ld -m elf_i386  -r -o ASLX.o 8253xini.o 8253xnet.o 8253xsyn.o crc32.o
-8253xdbg.o 8253xplx.o 8253xtty.o 8253xchr.o 8253xint.o amcc5920.o 8253xmcs.o
-8253xutl.o
-make[4]: *** No rule to make target `8253xcfg', needed by `all'.  Stop.
-make[4]: Leaving directory
-`/home/bunk/linux/kernel-2.4/linux-full/drivers/net/wan/8253x'
+Howver looking closer, which I should have done BEFORE I posetd here
+shows that this patch doesn't fix all places so the patch above is bad indeed.
 
-<--  snip  -->
-
-
-The fix is simple:
-
-
---- drivers/net/wan/8253x/Makefile.old	Tue Jun  4 12:05:21 2002
-+++ drivers/net/wan/8253x/Makefile	Tue Jun  4 12:06:24 2002
-@@ -11,7 +11,7 @@
- # Specifically the 2520, 4020, 4520, 8520
- #
-
--all: ASLX.o 8253xcfg 8253xmac eprom9050 8253xspeed 8253xpeer eprom9050
-+all: ASLX.o
-
- O_TARGET := ASLX.o
-
-@@ -24,5 +24,5 @@
- include $(TOPDIR)/Rules.make
-
- clean:
--	rm -f core *.o *.a *.s 8253xcfg 8253xmac eprom9050 *~
-+	rm -f core *.o *.a *.s *~
+I'll spend some time reauditing the code and fixing trhe places I missed and 
+then retrans.
 
 
-cu
-Adrian
+Yours Tony
 
--- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
+Jan 22-26 2003      Linux.Conf.AU       http://conf.linux.org.au/
+         The Australian Linux Technical Conference!
 

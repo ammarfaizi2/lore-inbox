@@ -1,53 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262334AbUK3Uup@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262309AbUK3UvN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262334AbUK3Uup (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 15:50:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262326AbUK3Uuj
+	id S262309AbUK3UvN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 15:51:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262326AbUK3UvM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 15:50:39 -0500
-Received: from ip189.73.1311O-CUD12K-02.ish.de ([62.143.73.189]:23425 "EHLO
-	mocm.de") by vger.kernel.org with ESMTP id S262318AbUK3Usl (ORCPT
+	Tue, 30 Nov 2004 15:51:12 -0500
+Received: from fw.osdl.org ([65.172.181.6]:54423 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262309AbUK3UsR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 15:48:41 -0500
-From: Marcus Metzler <mocm@mocm.de>
+	Tue, 30 Nov 2004 15:48:17 -0500
+Date: Tue, 30 Nov 2004 12:47:50 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Mariusz Mazur <mmazur@kernel.pl>
+cc: David Woodhouse <dwmw2@infradead.org>, Alexandre Oliva <aoliva@redhat.com>,
+       Paul Mackerras <paulus@samba.org>, Greg KH <greg@kroah.com>,
+       Matthew Wilcox <matthew@wil.cx>, David Howells <dhowells@redhat.com>,
+       hch@infradead.org, linux-kernel@vger.kernel.org,
+       libc-hacker@sources.redhat.com
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+In-Reply-To: <200411302128.53583.mmazur@kernel.pl>
+Message-ID: <Pine.LNX.4.58.0411301243000.22796@ppc970.osdl.org>
+References: <19865.1101395592@redhat.com> <1101837135.26071.380.camel@hades.cambridge.redhat.com>
+ <Pine.LNX.4.58.0411301020160.22796@ppc970.osdl.org> <200411302128.53583.mmazur@kernel.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16812.56488.811966.258815@mocm.de>
-Date: Tue, 30 Nov 2004 21:48:40 +0100
-To: linux-kernel@vger.kernel.org
-Subject: Re: GPL violation by iRiver
-In-Reply-To: <Pine.LNX.4.53.0411302140001.31175@yvahk01.tjqt.qr>
-References: <16812.54768.113410.288108@mocm.de>
-	<Pine.LNX.4.53.0411302140001.31175@yvahk01.tjqt.qr>
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Reply-To: mocm@mocm.de
-X-Face: X!$Vwl\?,AW_[zm^ej\MLxN>q;R?C_sRZ*XE4V;BGT28Ewyd\:TS')W'G#Dgay8ci$*{lEd
- 02(Nk0OndG\752U>lozmb_R1poDm6mgHm_4.}bdS0hh.`xGUI.X2x_50T9.?_v~.,QI*$2:Q=HV@>F
- IP6%l~E:T|w,X[eC;|YD(A9X'sS"r$l]g<4CjAm4|f7o0>6zGwUPLinP0.d=E+_%?4>0A9'esEZ=9h
- $#b[g*/q/g'GVj-hDc,+V_]1.H^N,1Bju,>5FZn"B
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Jan" == Jan Engelhardt <jengelh@linux01.gwdg.de> writes:
-
-    >> I tried to send this email to legal@lists.gpl-vioaltions.org
-    >> but it came ...  What should be the next step?
-
-    Jan> Sending it to legal@lists.gpl-vioLAtions.org -- check your
-    Jan> spelling :)
 
 
-The spelling in the email to the list was correct. I got it from the website.
-Just in this one it wasn't.
+On Tue, 30 Nov 2004, Mariusz Mazur wrote:
+>
+> Facts:
+> - current __KERNEL__ stuff is crap;
 
-Marcus
+Fact: you're wrong. I _constantly_ get emails when something breaks. It 
+doesn't happen all that often, but it happens.
 
+IOW, I _know_ from personal experience that people depend on it. No ifs, 
+buts and maybes about it.
 
---
-/--------------------------------------------------------------------\
-| Dr. Marcus O.C. Metzler        |                                   |
-| mocm@metzlerbros.de            | http://www.metzlerbros.de/        |
-\--------------------------------------------------------------------/
- |>>>             Quis custodiet ipsos custodies                 <<<|
+> People in this thread are trying to force you to agree to a specific location 
+> where stuff like the above mentioned mtd can go to and to start accepting 
+> patches (afaik there were a number of patches trying to introduce that 
+> userland dir - all of them ignored). That's (mostly) all.
 
+No. People in this thread have almost uniformly ignored my arguments.
+
+If it's MTD-specific, nobody _cares_ where it goes. Somebody take a 
+fricking flying leap of faith here.
+
+If that's all that people want, I hereby proclaim that
+
+	include/asm-xxx/user/xxxx.h
+	include/user/xxxx.h
+
+is reserved for user-visible stuff. And now you can send me small and 
+localized patches that fix a _particular_ gripe. 
+
+But claiming that __KERNEL__ doesn't work is clearly a bunch of crapola. 
+As is the notion that you can somehow do it all. We do it in small pieces.
+
+Happy now?
+
+			Linus

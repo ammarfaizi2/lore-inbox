@@ -1,76 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267311AbUHSTrl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267348AbUHSTta@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267311AbUHSTrl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 15:47:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267336AbUHSTrk
+	id S267348AbUHSTta (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 15:49:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267323AbUHSTsl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 15:47:40 -0400
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:35018 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S267311AbUHSTr0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 15:47:26 -0400
-Date: Thu, 19 Aug 2004 21:47:24 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: GNU make alleged of "bug" (was: PATCH: cdrecord: avoiding scsi device numbering for ide devices)
-Message-ID: <20040819194724.GA10515@merlin.emma.line.org>
-Mail-Followup-To: Gene Heskett <gene.heskett@verizon.net>,
-	linux-kernel@vger.kernel.org
-References: <200408191600.i7JG0Sq25765@tag.witbe.net> <200408191341.07380.gene.heskett@verizon.net>
+	Thu, 19 Aug 2004 15:48:41 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32466 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267329AbUHSTr3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 15:47:29 -0400
+Date: Thu, 19 Aug 2004 12:54:05 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Rainer Weikusat <rainer.weikusat@sncag.com>
+Cc: "bradgoodman.com" <bkgoodman@bradgoodman.com>, alan@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.27 - MTD cfi_cmdset_0002.c - Duplicate cleanup in error path
+Message-ID: <20040819155405.GC4396@logos.cnet>
+References: <200407231947.i6NJlwo32224@bradgoodman.com> <87k6wtlvwk.fsf@farside.sncag.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200408191341.07380.gene.heskett@verizon.net>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <87k6wtlvwk.fsf@farside.sncag.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Aug 2004, Gene Heskett wrote:
 
-> Humm, I got many many losses of header stuff messages from:
-> [root@coyote cdrecord]# make --version
-> GNU Make 3.80
+Applied Rainer's patch, its equivalent and I his
+"consisteny with other algorithms" point is a good one.
 
-The "bug" is not specific to GNU make 3.80 but can also be seen in
-3.78.1 for instance.
+Thanks guys!
 
-The "bug" however is purely cosmetical.
-
-GNU make writes a message that an "include" file is missing, but it
-finds it has a rule, generates the include file, pulls it in and
-continues as though the file had always been there.
-
-For instance if you have this Makefile:
-
-# BEGIN Makefile
-all:    hello
-hello.d:
-        makedepend -f- hello.c >$@
-include hello.d
-# END Makefile
-
-You'll get at "make" time:
-
-Makefile:5: hello.d: No such file or directory
-makedepend -f- hello.c >hello.d
-cc   hello.o   -o hello
-
-and a working hello program.
-
-Jörg's complaints about GNU make aren't false but aren't helpful either
-and certainly don't warrant waiting 15 seconds after that message.
-
-There is no bug, just this confusing "Makefile:5: hello.d: No such file
-or directory".
-
-> So apparently 3.80 is a regression in this case.
-
-No, it isn't.
-
--- 
-Matthias Andree
-
-NOTE YOU WILL NOT RECEIVE MY MAIL IF YOU'RE USING SPF!
-Encrypted mail welcome: my GnuPG key ID is 0x052E7D95 (PGP/MIME preferred)
+On Sat, Jul 24, 2004 at 03:14:03PM +0800, Rainer Weikusat wrote:
+> "bradgoodman.com" <bkgoodman@bradgoodman.com> writes:
+> > Patch to 2.4.x: Corrects an obvious error where all of the cleanups are done
+> > twice in the event of a chip programming error. This can result in
+> > kernel BUG() getting called on subsequent programming attempts.
+<snip>
+> That way, it is consistent with the other low-level chip access
+> functions. But the algorithm is per se buggy, anyway, because except
+> if DQ5 was raised before, the chip is not 'ready' (for reading array
+> data), but still in programming mode and will remain there until the
+> 'embedded programming algorithm' stops, because (according to the
+> docs) a reset command will not be accepted until DQ5 has been raised
+> and the opportunityto check for that is gone after the syscall
+> returned to the caller.

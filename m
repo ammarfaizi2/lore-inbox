@@ -1,164 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316826AbSFQHwb>; Mon, 17 Jun 2002 03:52:31 -0400
+	id <S316832AbSFQICv>; Mon, 17 Jun 2002 04:02:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316832AbSFQHwa>; Mon, 17 Jun 2002 03:52:30 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:63368 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S316826AbSFQHw3>;
-	Mon, 17 Jun 2002 03:52:29 -0400
-Date: Mon, 17 Jun 2002 17:51:47 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Linus <torvalds@transmeta.com>
-Cc: Trivial Kernel Patches <trivial@rustcorp.com.au>,
-       LKML <linux-kernel@vger.kernel.org>, anton@samba.org
-Subject: [PATCH] remove getname32
-Message-Id: <20020617175147.535c4db9.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.7.8 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S316835AbSFQICu>; Mon, 17 Jun 2002 04:02:50 -0400
+Received: from guardian.hermes.si ([193.77.5.150]:26892 "EHLO
+	guardian.hermes.si") by vger.kernel.org with ESMTP
+	id <S316832AbSFQICt>; Mon, 17 Jun 2002 04:02:49 -0400
+Message-ID: <FED7EB450413D511ABC100B0D0211732064F78C3@hal9000.hermes.si>
+From: Tomaz Susnik <tomaz.susnik@hermes.si>
+To: Andreas Dilger <adilger@clusterfs.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: 2.4.18 kernel lseek() bug
+Date: Mon, 17 Jun 2002 10:02:30 +0200
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+Thank you for your suggestion. I agree that the fix to our code should 
+be quite simple. 
+On the other hand, it's a multi-paltform piece of code that seems to work 
+fine on many UNIX platforms. This problem came up at a rather bad time for 
+us, because our product is closing up to a release deadline. At this stage 
+I'd have hard time explaining to the Project Manager why I suddenly want 
+to change code that worked just fine for years...
 
-OK, arch/ppc64/kernel/sys_ppc32.c has a getname32 function. The only
-difference between it and getname() is that it calls do_getname32()
-instead of do_getname() (see fs/namei.c).  The difference between
-do_getname and do_getname32 is that the former checks to make sure that
-the pointer it is passed is less that TASK_SIZE and restricts the length
-copied to the lesser of PATH_MAX and (TASK_SIZE - pointer).  do_getname32
-uses PAGE_SIZE instead of PATH_MAX.
+If the new lseek() behaviour really is to become accepted (that is if
+no patch is to be released for kernel 2.4.18) I will of course do my best 
+to force the necessary changes into our code.
 
-Anton Blanchard says it is OK to remove getname32.
+BR, Tomaz 
 
-arch/ia64/ia32/sys_ia32.c defined a getname32(), but nothing used it.
 
-This patch removes both.  It is just a rediff against 2.5.22 of the
-patch I sent previously.
 
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+-----Original Message-----
+From: Andreas Dilger [mailto:adilger@clusterfs.com]
+Sent: Saturday, June 15, 2002 5:37 AM
+To: Tomaz Susnik
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18 kernel lseek() bug
 
-diff -ruN 2.5.22/arch/ia64/ia32/sys_ia32.c 2.5.22-gn.1/arch/ia64/ia32/sys_ia32.c
---- 2.5.22/arch/ia64/ia32/sys_ia32.c	Mon Jun 10 23:13:43 2002
-+++ 2.5.22-gn.1/arch/ia64/ia32/sys_ia32.c	Mon Jun 17 17:44:53 2002
-@@ -3629,47 +3629,6 @@
- 	return ret;
- }
- 
--/* In order to reduce some races, while at the same time doing additional
-- * checking and hopefully speeding things up, we copy filenames to the
-- * kernel data space before using them..
-- *
-- * POSIX.1 2.4: an empty pathname is invalid (ENOENT).
-- */
--static inline int
--do_getname32 (const char *filename, char *page)
--{
--	int retval;
--
--	/* 32bit pointer will be always far below TASK_SIZE :)) */
--	retval = strncpy_from_user((char *)page, (char *)filename, PAGE_SIZE);
--	if (retval > 0) {
--		if (retval < PAGE_SIZE)
--			return 0;
--		return -ENAMETOOLONG;
--	} else if (!retval)
--		retval = -ENOENT;
--	return retval;
--}
--
--static char *
--getname32 (const char *filename)
--{
--	char *tmp, *result;
--
--	result = ERR_PTR(-ENOMEM);
--	tmp = (char *)__get_free_page(GFP_KERNEL);
--	if (tmp)  {
--		int retval = do_getname32(filename, tmp);
--
--		result = tmp;
--		if (retval < 0) {
--			putname(tmp);
--			result = ERR_PTR(retval);
--		}
--	}
--	return result;
--}
--
- asmlinkage long
- sys32_sched_rr_get_interval (pid_t pid, struct timespec32 *interval)
- {
-diff -ruN 2.5.22/arch/ppc64/kernel/sys_ppc32.c 2.5.22-gn.1/arch/ppc64/kernel/sys_ppc32.c
---- 2.5.22/arch/ppc64/kernel/sys_ppc32.c	Mon Jun  3 12:16:59 2002
-+++ 2.5.22-gn.1/arch/ppc64/kernel/sys_ppc32.c	Mon Jun 17 17:44:53 2002
-@@ -82,47 +82,6 @@
-  */
- #define MSR_USERCHANGE	(MSR_FE0 | MSR_FE1)
- 
--/* In order to reduce some races, while at the same time doing additional
-- * checking and hopefully speeding things up, we copy filenames to the
-- * kernel data space before using them..
-- *
-- * POSIX.1 2.4: an empty pathname is invalid (ENOENT).
-- */
--static inline int do_getname32(const char *filename, char *page)
--{
--	int retval;
--
--	/* 32bit pointer will be always far below TASK_SIZE :)) */
--	retval = strncpy_from_user((char *)page, (char *)filename, PAGE_SIZE);
--	if (retval > 0) {
--		if (retval < PAGE_SIZE)
--			return 0;
--		return -ENAMETOOLONG;
--	} else if (!retval)
--		retval = -ENOENT;
--	return retval;
--}
--
--char * getname32(const char *filename)
--{
--	char *tmp, *result;
--
--	result = ERR_PTR(-ENOMEM);
--  tmp =  __getname();
--	if (tmp)  {
--		int retval = do_getname32(filename, tmp);
--
--		result = tmp;
--		if (retval < 0) {
--			putname(tmp);
--			result = ERR_PTR(retval);
--		}
--	}
--	return result;
--}
--
--
--
- extern asmlinkage long sys_utime(char * filename, struct utimbuf * times);
- 
- struct utimbuf32 {
-@@ -142,7 +101,7 @@
- 		return sys_utime(filename, NULL);
- 	if (get_user(t.actime, &times->actime) || __get_user(t.modtime, &times->modtime))
- 		return -EFAULT;
--	filenam = getname32(filename);
-+	filenam = getname(filename);
- 
- 	ret = PTR_ERR(filenam);
- 	if (!IS_ERR(filenam)) {
-@@ -937,7 +896,7 @@
- 	
- 	PPCDBG(PPCDBG_SYS32X, "sys32_statfs - entered - pid=%ld current=%lx comm=%s\n", current->pid, current, current->comm);
- 	
--	pth = getname32 (path);
-+	pth = getname (path);
- 	ret = PTR_ERR(pth);
- 	if (!IS_ERR(pth)) {
- 		set_fs (KERNEL_DS);
+
+On Jun 14, 2002  15:07 +0200, Tomaz Susnik wrote:
+> [1] 	Problem description 
+> ----------------------------------
+> 
+>  	a call to lseek() fails with EINVAL under the following conditions:
+> 		- it is called on a disk device file
+> 		- required offset is larger than the target disk device size
+
+Is this behaviour mandated in a standard, or is it just different from
+previous behaviour?  I'm not saying it _isn't_ a bug, but I don't see
+how seeking past the end of a block device is very useful.
+
+> 	Attempting to seek through file /dev/hda3 
+> 
+> 	lseek(6 Gb     ): errno = 0 ret = 6442450944
+> 	lseek(7 Gb     ): errno = 0 ret = 7516192768
+> 	lseek(8 Gb     ): errno = 0 ret = 8589934592
+> 	lseek(9 Gb     ): errno = 0 ret = 9663676416
+> 
+> 	
+> 	Sample output on the same machine, but booted with kernel 2.4.18:
+> 
+> 	Attempting to seek through file /dev/hda3 
+> 
+> 	lseek(6 Gb     ): errno = 0 ret = 6442450944
+> 	lseek(7 Gb     ): errno = 0 ret = 7516192768
+> 	lseek(8 Gb     ): errno = 22 ret = -1
+> 	lseek(9 Gb     ): errno = 22 ret = -1
+> 
+> [6] 	Reason for reporting this problem
+> ---------------------------------------------------
+> 	Our multi-platform backup product relies on proper behaviour of the
+> lseek() command to calculate a rawdisk size.
+
+Well, e2fsprogs has a similar test that it uses if the BLKGETSZ ioctl
+fails, but I don't see how this new behaviour is a real problem.  All you
+have to do is check if _either_ lseek(offset) fails or read() from that
+offset fails to know you are past the end of the block device.  It hardly
+changes the algorithm at all.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/

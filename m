@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266615AbUBLVmE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 16:42:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266616AbUBLVmE
+	id S266610AbUBLVmA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 16:42:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266615AbUBLVmA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 16:42:04 -0500
-Received: from fed1mtao04.cox.net ([68.6.19.241]:8924 "EHLO fed1mtao04.cox.net")
-	by vger.kernel.org with ESMTP id S266615AbUBLVmB (ORCPT
+	Thu, 12 Feb 2004 16:42:00 -0500
+Received: from fw.osdl.org ([65.172.181.6]:20163 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266610AbUBLVl7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 16:42:01 -0500
-Date: Thu, 12 Feb 2004 14:44:07 -0700
-From: Jesse Allen <the3dfxdude@hotmail.com>
-To: Derek Foreman <manmower@signalmarketing.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6, 2.4, Nforce2, Experimental idle halt workaround instead of apic ack delay.
-Message-ID: <20040212214407.GA865@tesore.local>
-Mail-Followup-To: Jesse Allen <the3dfxdude@hotmail.com>,
-	Derek Foreman <manmower@signalmarketing.com>,
-	linux-kernel@vger.kernel.org
-References: <200402120122.06362.ross@datscreative.com.au> <Pine.LNX.4.58.0402121118490.515@gonopodium.signalmarketing.com>
+	Thu, 12 Feb 2004 16:41:59 -0500
+Date: Thu, 12 Feb 2004 13:43:42 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Jones <davej@redhat.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       "Randy.Dunlap" <rddunlap@osdl.org>
+Subject: Re: [PATCH] bogus __KERNEL_SYSCALLS__ usage
+Message-Id: <20040212134342.0874290a.akpm@osdl.org>
+In-Reply-To: <20040212162856.GU12634@redhat.com>
+References: <20040212162856.GU12634@redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0402121118490.515@gonopodium.signalmarketing.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 12, 2004 at 12:17:12PM -0600, Derek Foreman wrote:
-> Some nforce2 systems work just fine.  Is there a way to distinguish
-> between systems that need it and those that don't?
-> 
+Dave Jones <davej@redhat.com> wrote:
+>
+> I just did a mini-audit of users of __KERNEL_SYSCALLS and turned
+> up a bunch of uglies. The patch below is the easy ones
 
-Some nforce2 systems are fixed in certain bioses.  The problem is we don't know where/what it is in the bios.  C1 disconnect is a clue.
+OK.  But Randy is currently beavering away at the astonishing number of
+open-coded sys_foo() declarations, and that work has a significant
+intersection with yours.
 
-> (if anyone's running a betting pool, my money's on nforce2+cpu with half
-> frequency multiplier ;)
+So can we please park this for now, pick it up again when Randy has
+finished?
 
-I don't know what your talking about.  My Shuttle AN35N nforce2 board can run vanilla kernels with the 12-5-2003 dated bios version and not lock up.  The frequencies I run are all the default/standard ones.
-
-Jesse

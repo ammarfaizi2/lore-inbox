@@ -1,51 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261522AbVCHTJH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261561AbVCHTOG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261522AbVCHTJH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 14:09:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbVCHTJH
+	id S261561AbVCHTOG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 14:14:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbVCHTOF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 14:09:07 -0500
-Received: from 70-56-134-246.albq.qwest.net ([70.56.134.246]:16034 "EHLO
-	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S261522AbVCHTIr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 14:08:47 -0500
-Date: Tue, 8 Mar 2005 12:09:58 -0700 (MST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Francesco Oppedisano <francesco.oppedisano@gmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: about interrupt latency
-In-Reply-To: <875fe4a50503081039328ffede@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0503081156360.30824@montezuma.fsmlabs.com>
-References: <875fe4a50503081039328ffede@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 8 Mar 2005 14:14:05 -0500
+Received: from isilmar.linta.de ([213.239.214.66]:46040 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S261561AbVCHTLj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 14:11:39 -0500
+Date: Tue, 8 Mar 2005 20:11:38 +0100
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org
+Cc: linux-pcmcia@lists.infradead.org, linux-kernel@vger.kernel.org,
+       jt@hpl.hp.com
+Subject: PCMCIA product id strings -> hashes generation at compilation time? [Was: Re: [patch 14/38] pcmcia: id_table for wavelan_cs]
+Message-ID: <20050308191138.GA16169@isilmar.linta.de>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+	linux-pcmcia@lists.infradead.org, linux-kernel@vger.kernel.org,
+	jt@hpl.hp.com
+References: <20050227161308.GO7351@dominikbrodowski.de> <20050307225355.GB30371@bougret.hpl.hp.com> <20050307230102.GA29779@isilmar.linta.de> <20050307150957.0456dd75.akpm@osdl.org> <20050307232339.GA30057@isilmar.linta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050307232339.GA30057@isilmar.linta.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Francesco,
+Andrew, Linus, all,
 
-On Tue, 8 Mar 2005, Francesco Oppedisano wrote:
+[note: for detailed code please take a look at 2.6.11-mm2]
 
-> i'm trying to estimate the interrupt latency (time between hardware 
-> interrrupt and the start of the ISR) of a linux kernel 2.4.29 and i used 
-> a simple tecnique: inside the do_timer_interrupt i read the 8259 counter 
-> to obtain the elapsed time. By this mean i found a latency of about 6/7 
-> microseconds that is very similar to the time measured in some articles 
-> but with CPU much slower while i expected the latency was shorter on 
-> faster CPUs. So, my questions are: 1)what's the depency between the 
-> interrupt latency and the CPU speed? 2)what are the factors at the 
-> origin of th interrupt latency?
+Most pcmcia devices are matched to drivers using "product ID strings"
+embedded in the devices' Card Information Structures, as "manufactor ID /
+card ID" matches are much less reliable. Unfortunately, these strings cannot
+be passed to userspace for easy userspace-based loading of appropriate
+modules (MODNAME -- hotplug), so my suggestion is to also store crc32 hashes
+of the strings in the MODULE_DEVICE_TABLEs, e.g.:
 
-At some cpu frequency point on i386 the main cause of your interrupt 
-service latency will be in the interrupt controller and how long from irq 
-assertion to the signal being recognised, resultant vector being 
-dispatched to the processor and the necessary interrupt controller 
-acknowledge steps required. This is also helped by the fact that the 
-Linux/i386 interrupt vector stubs are very small and fast, so there isn't 
-all that much code to execute to reach the ISR from the vector table. I'm 
-not sure if you've tested this, but you may notice that timer interrupt 
-via Local APIC will have lower dispatch latency than timer interrupt via 
-i8259 only. But that's all at the lower end of the latency graph, you will 
-most likely run into other sources on a busy system.
+PCMCIA_DEVICE_PROD_ID12("LINKSYS", "E-CARD", 0xf7cb0b07, 0x6701da11),
 
-	Zwane
+Only the hashes are stored in "modules.alias", and only the hashes
+calculated upon device insertion are passed to userspace.
+
+While having to determine the crc32 hashes is a hassle to device driver 
+authors, I do not see a smart way to generate these (or similar) hashes 
+automatically at compilation time:
+	- the C preprocessor doesn't seem to be smart enough
+	- scripts/mod/file2alias.c would need to learn all architectures
+	  (and be cross-compilation aware) to relocate/dereference/access
+	  strings saved as         
+		const char *          prod_id[4];
+	  in struct pcmcia_device_id s
+
+To make the life easier for device driver authors,
+	- a big warning is put into dmesg if a pcmcia driver is inserted
+	  into the kernel and the hash mentioned in PCMCIA_DEVICE_PROD_ID()
+	  is incorrect,
+	- the hash can easily be calculated in userspace from existing
+	  /etc/pcmcia/config files, from inserted PCMCIA cards and and and...,
+	- I've added the appropriate hashes for all device matches for 
+	  drivers in the base linux kernel.
+
+Even though I'm a bit uncomfortable with this solution, I do not see any
+other feasible way. Linus, Andrew, do you agree with this handling despite
+all the troubles involved with it? 
+
+	Dominik

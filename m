@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262610AbTFGHL5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 03:11:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262633AbTFGHL5
+	id S262687AbTFGHNX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 03:13:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262703AbTFGHNW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 03:11:57 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:36995 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262610AbTFGHL4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 03:11:56 -0400
-Date: Sat, 07 Jun 2003 00:19:48 -0700 (PDT)
-Message-Id: <20030607.001948.38705799.davem@redhat.com>
-To: davidm@hpl.hp.com, davidm@napali.hpl.hp.com
-Cc: manfred@colorfullife.com, axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: problem with blk_queue_bounce_limit()
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <16097.37454.827982.278024@napali.hpl.hp.com>
-References: <200306062013.h56KDcLe026713@napali.hpl.hp.com>
-	<20030606.234401.104035537.davem@redhat.com>
-	<16097.37454.827982.278024@napali.hpl.hp.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	Sat, 7 Jun 2003 03:13:22 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:53006 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262687AbTFGHNS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 03:13:18 -0400
+Date: Sat, 7 Jun 2003 08:26:51 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Andi Kleen <ak@muc.de>
+Cc: linux-kernel@vger.kernel.org, akpm@digeo.com, vojtech@suse.cz
+Subject: Re: [PATCH] Making keyboard/mouse drivers dependent on CONFIG_EMBEDDED
+Message-ID: <20030607082651.A18894@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org,
+	akpm@digeo.com, vojtech@suse.cz
+References: <20030607063424.GA12616@averell>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030607063424.GA12616@averell>; from ak@muc.de on Sat, Jun 07, 2003 at 08:34:24AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: David Mosberger <davidm@napali.hpl.hp.com>
-   Date: Sat, 7 Jun 2003 00:20:46 -0700
+On Sat, Jun 07, 2003 at 08:34:24AM +0200, Andi Kleen wrote:
+> 
+> I finally got sick of seeing bug reports from people who did not enable
+> CONFIG_VT or forgot to enable the obscure options for the keyboard
+> driver. This is especially a big problem for people who do make oldconfig
+> with a 2.4 configuration, but seems to happen in general often.
+> I also included the PS/2 mouse driver. It is small enough and a useful
+> fallback on any PC.
+> 
+> This patch wraps all this for i386/amd64 in CONFIG_EMBEDDED. If 
+> CONFIG_EMBEDDED is not defined they are not visible and always enabled.
 
-   >>>>> On Fri, 06 Jun 2003 23:44:01 -0700 (PDT), "David S. Miller" <davem@redhat.com> said:
-   
-     DaveM>    This sounds all very dramatic, but try as I might, all I
-     DaveM> find is three places where PCI_DMA_BUS_IS_PHYS is used:
-   
-     DaveM> Fix your grep,
-   
-   What am I missing?
-   
-Sorry, I was meaning to mention BIO_VMERGE_BOUNDARY which works in
-concert with PCI_DMA_BUS_IS_PHYS.  You really have to set it
-accurately to get the most out of the block layer's ability to
-take advantage of IOMMUs.
+This sounds like a bad idea.  many modern PCs only have usb keyboard/mouse
+these days.  Having them in defconfig is fine but we shouldn't obsfucate
+the kernel config due to user stupidity.
+

@@ -1,45 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267578AbUHJSVT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267625AbUHJSZO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267578AbUHJSVT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 14:21:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267631AbUHJSRS
+	id S267625AbUHJSZO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 14:25:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267549AbUHJSVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 14:17:18 -0400
-Received: from mail.kroah.org ([69.55.234.183]:3041 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S267652AbUHJSQH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 14:16:07 -0400
-Date: Tue, 10 Aug 2004 09:40:31 -0700
-From: Greg KH <greg@kroah.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: dsaxena@plexity.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6] Remove spaces from PCI IDE pci_driver.name field
-Message-ID: <20040810164031.GB31655@kroah.com>
-References: <20040810001316.GA7292@plexity.net> <1092096699.14934.4.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1092096699.14934.4.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6i
+	Tue, 10 Aug 2004 14:21:51 -0400
+Received: from locomotive.csh.rit.edu ([129.21.60.149]:12363 "EHLO
+	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
+	id S267644AbUHJSUw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 14:20:52 -0400
+Message-ID: <41191149.8040203@suse.com>
+Date: Tue, 10 Aug 2004 14:17:45 -0400
+From: Jeff Mahoney <jeffm@suse.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@muc.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: File sizes > 2 GB on isofs?
+References: <2rIVi-16U-45@gated-at.bofh.it> <m33c2u6fpm.fsf@averell.firstfloor.org>
+In-Reply-To: <m33c2u6fpm.fsf@averell.firstfloor.org>
+X-Enigmail-Version: 0.83.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Bogosity: No, tests=bogofilter, spamicity=0.000000, version=0.92.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 10, 2004 at 01:11:42AM +0100, Alan Cox wrote:
-> On Maw, 2004-08-10 at 01:13, Deepak Saxena wrote:
-> > Spaces in driver names show up as spaces in sysfs. Annoying.  
-> > I went ahead and changed ones that don't have spaces to use
-> > ${NAME}_IDE so they are all consistent.
-> 
-> I don't see the problem with spaces in the filenames. I do see the 
-> problem in changing stuff under people for now reason other than
-> "I don't like it".
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-We tried to keep spaces out of device and driver names from the very
-beginning, in 2.5 during the conversion to the driver model, due to the
-confusion it caused people.  It seems that a few have snuck back in.
-I'm all for consistancy, so I'll apply these patches.
+Andi Kleen wrote:
+| Jeff Mahoney <jeffm@suse.com> writes:
+|
+|
+|>With DVDs becoming widely popular for personal data storage, this 2 GB
+|>limit will probably become more and more of an issue.
+|
+|
+| That is what UDF was for created, wasn't it?
 
-thanks,
+That may well be true, but it's not a reason to not support the full
+file size of iso9660 filesystems.
 
-greg k-h
+If my interpretation of the spec is correct, and I believe that it is,
+then the max file size of an iso9660 filesystem is 4 GB. If it's not the
+case, then mkisofs should be changed to not support such filesystems.
+(Ignoring the recent fun with Joerg on LKML)
+
+- -Jeff
+
+- --
+Jeff Mahoney
+SuSE Labs
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBGRFJLPWxlyuTD7IRAnN8AJ4vy4SM01CBmJuiUZ1nMh8iV5lLTwCdE8Wr
+P8IAbt/HBzV/mhc/uDpeLnU=
+=qqie
+-----END PGP SIGNATURE-----

@@ -1,47 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262695AbTKEBfW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 20:35:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262707AbTKEBfV
+	id S262712AbTKECPW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 21:15:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262709AbTKECPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 20:35:21 -0500
-Received: from msgbas1x.cos.agilent.com ([192.25.240.36]:52694 "EHLO
-	msgbas1x.cos.agilent.com") by vger.kernel.org with ESMTP
-	id S262695AbTKEBfR convert rfc822-to-8bit (ORCPT
+	Tue, 4 Nov 2003 21:15:22 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:6359 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id S262712AbTKECPU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 20:35:17 -0500
-content-class: urn:content-classes:message
-MIME-Version: 1.0
+	Tue, 4 Nov 2003 21:15:20 -0500
+Date: Wed, 5 Nov 2003 13:15:09 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Terje Malmedal <terje.malmedal@usit.uio.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: directory notification.
+Message-Id: <20031105131509.23d38c58.sfr@canb.auug.org.au>
+In-Reply-To: <E1AH5ED-0005Qm-00@aqualene.uio.no>
+References: <E1AH5ED-0005Qm-00@aqualene.uio.no>
+X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: Linux PPC mailing list? Got it!
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Date: Tue, 4 Nov 2003 18:35:13 -0700
-Message-ID: <B4965255B95AD41185EE00D0B74791F20DC883BA@axatl03.cos.agilent.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Linux PPC mailing list?
-Thread-Index: AcOjOs2C4Vmw5wmjEdiA7ABgsGgWXAAAjEPA
-From: <yiding_wang@agilent.com>
-To: <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got it and thanks!
+On Tue, 4 Nov 2003 18:44:29 +0100 Terje Malmedal <terje.malmedal@usit.uio.no> wrote:
+>
+> Modifications of existing files via NFS are not picked up by the
+> directory notification system.
+> 
+> kernel is 2.4.22, I'm testing with the example program from
+> /usr/src/linux/Documentation/dnotify.txt
+> 
+> I get notifications on the following: 
+> nfs-server# echo hello >> existing.file   
+> nfs-client# echo hello > new.file
+> 
+> But not on this: 
+> nfs-client# echo hello >> existing.file 
+> 
+> I guess the problem of detecting changes done via NFS is similar to
+> the problem of multiple hard-links to the same file, which is
+> documented as not supported.
+> 
+> Is this something that can be fixed, or is it going to be too
+> difficult to go from NFS-handle and back to the directory it came
+> from?
 
-Eddie
+Are you running the program that expects notifies on the NFS server or the
+client? If on the client, you will never get notifies for modifications
+made on the server or other clients.  If on the server, it needs looking
+at as you should get the notifies (I think - it has been a while since I
+last looked at the NFS server code).
 
-> -----Original Message-----
-> From: WANG,YIDING (A-SanJose,ex1) 
-> Sent: Tuesday, November 04, 2003 5:19 PM
-> To: linux-kernel@vger. kernel. org (E-mail)
-> Subject: Linux PPC mailing list?
-> 
-> 
-> Does anyone know if there is a Linux on PPC kernel mailing 
-> list available? I have some questions regarding YDL on MAC G5.
-> 
-> Thanks!
-> 
-> Eddie
-> 
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/

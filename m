@@ -1,52 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135575AbRAMA5u>; Fri, 12 Jan 2001 19:57:50 -0500
+	id <S135854AbRAMBLg>; Fri, 12 Jan 2001 20:11:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136000AbRAMA5k>; Fri, 12 Jan 2001 19:57:40 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:3345 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S135575AbRAMA5W>; Fri, 12 Jan 2001 19:57:22 -0500
-Date: Fri, 12 Jan 2001 16:56:24 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Frank de Lange <frank@unternet.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Manfred Spraul <manfred@colorfullife.com>, dwmw2@infradead.org,
-        linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware
-In-Reply-To: <20010113014807.B29757@unternet.org>
-Message-ID: <Pine.LNX.4.10.10101121652160.8097-100000@penguin.transmeta.com>
+	id <S135712AbRAMBLR>; Fri, 12 Jan 2001 20:11:17 -0500
+Received: from [216.184.166.130] ([216.184.166.130]:52282 "EHLO
+	scsoftware.sc-software.com") by vger.kernel.org with ESMTP
+	id <S135452AbRAMBLP>; Fri, 12 Jan 2001 20:11:15 -0500
+Date: Fri, 12 Jan 2001 17:09:08 +0000 (   )
+From: John Heil <kerndev@sc-software.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Vojtech Pavlik <vojtech@suse.cz>,
+        linux-kernel@vger.kernel.org
+Subject: Re: ide.2.4.1-p3.01112001.patch
+In-Reply-To: <Pine.LNX.4.10.10101121649220.8097-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.3.95.1010112165949.1292b-100000@scsoftware.sc-software.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 12 Jan 2001, Linus Torvalds wrote:
 
-
-On Sat, 13 Jan 2001, Frank de Lange wrote:
-
-> On Fri, Jan 12, 2001 at 04:36:33PM -0800, Linus Torvalds wrote:
-> > It may well not be disable_irq() that is buggy. In fact, there's good
-> > reason to believe that it's a hardware problem.
+> Date: Fri, 12 Jan 2001 16:52:00 -0800 (PST)
+> From: Linus Torvalds <torvalds@transmeta.com>
+> To: John Heil <kerndev@sc-software.com>
+> Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Vojtech Pavlik <vojtech@suse.cz>,
+>     linux-kernel@vger.kernel.org
+> Subject: Re: ide.2.4.1-p3.01112001.patch
 > 
-> I am inclined to believe it IS a hardware problem... If disable_irq were buggy,
-> wouldn't the problem occur more frequently in other irq-heavy areas? A quick
-> count shows that disable_irq* is used in 84 sourcefiles in the driver/*
-> directory. This includes drivers which generate many interrupts in a short
-> timeframe (like ide).
+> 
+> 
+> On Fri, 12 Jan 2001, John Heil wrote:
+> 
+> > On Sat, 13 Jan 2001, Alan Cox wrote:
+> > 
+> > > Date: Sat, 13 Jan 2001 00:25:28 +0000 (GMT)
+> > > From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+> > > To: Linus Torvalds <torvalds@transmeta.com>
+> > > Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+> > > Subject: Re: ide.2.4.1-p3.01112001.patch
+> > > 
+> > > > what the bug is, and whether there is some other work-around, and whether
+> > > > it is 100% certain that it is just those two controllers (maybe the other
+> > > > ones are buggy too, but the 2.2.x tests basically cured their symptoms too
+> > > > and peopl ehaven't reported them because they are "fixed").
+> > > 
+> > > I've not seen reports on the later chips. If they had been buggy and then 
+> > > fixed I'd have expected much unhappy ranting before the change
+> > 
+> > The "fix" was an hdparm command like hdparm -X66 -m16c1d1 /dev/hda.
+> > Which I set for my VIA 686a on a Tyan mobo w a 1G Athlon.
+> 
+> Careful. It may be that your fix just avoids the corruption because the
+> other changes make it ok - like the 16-sector multi-count thing maybe
+> hides a problem that might still exist - it just changes the "normal"
+> timing so that you won't ever see it in practice any more.
+> 
+> These kinds of magic interactions is why I'm not at all happy about driver
+> changes until people really know what it was that caused it, and _know_
+> that it's gone.
+> 
+> Anyway, for you the problem apparently happened even on a 686a, but just
+> the 586 series. Correct?
 
-IDE is not my favourite example of a "known stable driver". Also, in many
-cases IDE is for historical reasons connected to an EDGE io-apic pin (ie
-it's still considered an ISA interrupt). Which probably wouldn't show this
-problem anyway.
+Yes, initially the 686a was problematic, now with an 80 wire cable its
+fine. 
 
-Also, IDE doesn't generate all that many interrupts. You can make a
-network driver do a _lot_ more interrupts than just about any disk driver
-by simply sending/receiving a lot of packets. With disks it is very hard
-to get the same kind of irq load - Linux will merge the requests and do at
-least 1kB worth of transfer per interrupt etc. On a ne2k 100Mbps PCI card,
-you can probably _easily_ generate a much higher stream of interrupts.
+One point of clarification... I started out with a simple hdparm -d1
+which failed 85% of the time. I added the other stuff only to enhance the
+-d0 state I was left with.
 
-		Linus
+I then changed to the 80 wire cables and retried with only -d1 again, 
+and to my surprise, the problems never came back and DMA stayed on.
+A while later, I added -X66 and it too worked great. Then lastly came
+the re-add of the rest giving current state.
+
+> 
+> 			Linus
+> 
+
+-----------------------------------------------------------------
+John Heil
+South Coast Software
+Custom systems software for UNIX and IBM MVS mainframes
+1-714-774-6952
+kerndev@sc-software.com
+johnhscs@sc-software.com
+http://www.sc-software.com
+-----------------------------------------------------------------
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

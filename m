@@ -1,92 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263333AbTBSSTr>; Wed, 19 Feb 2003 13:19:47 -0500
+	id <S263544AbTBSSXM>; Wed, 19 Feb 2003 13:23:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263544AbTBSSTr>; Wed, 19 Feb 2003 13:19:47 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:23271 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S263333AbTBSSTq>;
-	Wed, 19 Feb 2003 13:19:46 -0500
-Message-ID: <3E53CCDA.6080501@us.ibm.com>
-Date: Wed, 19 Feb 2003 10:28:42 -0800
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
-X-Accept-Language: en
-MIME-Version: 1.0
-To: gone@us.ibm.com
-CC: akpm@zip.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] (1/2) x440 discontig support on 2.5.62: early, early
- ioremap
-References: <200302190307.h1J37T225487@w-gaughen.beaverton.ibm.com>
-Content-Type: multipart/mixed;
- boundary="------------040406000705000109030201"
+	id <S264001AbTBSSXM>; Wed, 19 Feb 2003 13:23:12 -0500
+Received: from [63.205.85.133] ([63.205.85.133]:40196 "EHLO schmee.sfgoth.com")
+	by vger.kernel.org with ESMTP id <S263544AbTBSSXL>;
+	Wed, 19 Feb 2003 13:23:11 -0500
+Date: Wed, 19 Feb 2003 10:33:06 -0800
+From: Mitchell Blank Jr <mitch@sfgoth.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: chas@locutus.cmf.nrl.navy.mil, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.5] convert atm_dev_lock from spinlock to semaphore
+Message-ID: <20030219103305.G37577@sfgoth.com>
+References: <1045630056.10926.4.camel@rth.ninka.net> <200302190501.h1J511Gi002225@locutus.cmf.nrl.navy.mil> <20030218.205325.14347725.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <20030218.205325.14347725.davem@redhat.com>; from davem@redhat.com on Tue, Feb 18, 2003 at 08:53:25PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040406000705000109030201
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+David S. Miller wrote:
+>    From: chas williams <chas@locutus.cmf.nrl.navy.mil>
+>    Date: Wed, 19 Feb 2003 00:01:01 -0500
+>    
+>    we (meaning some folks here at nrl) already maintain a seperate 
+>    kernel with atm 'enhancements' locally.  we are very interested in keeping
+>    linux-atm alive (particularly in the linux kernel) and extending it
+>    as well.  i would take the role of maintainer for atm if no one truly
+>    wants it.
+>    
+> This is the situation.
+> 
+> Therefore, please send me a patch to add an appropriate entry
+> to linux/MAINTAINERS.
 
-Patricia Gaughen wrote:
-> This patch was written by Dave Hansen, I just brought it forward to
-> 2.5.62 :-)
->
-> This patch is used by the x440 discontigmem to map the srat tables
-> into low memory so that the memory can be setup.  This remap function
-> is used very early in the boot process... at the start of
-> setup_arch().
->
-> Dave posted this previously to linux-kernel.  Here's a pointer to his
-> email:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=104515534619345&w=2
+Yes, Chas and I have already been discussing moving the maintainership.
+Previously his work has been concentrated on 2.4 but now he's porting
+his updates to 2.5 and will be taking over maintenence of the kernel stuff.
 
-Here's a patch that makes the early ioremap conditional on Summit, and
-NUMA.
+As for the locking issues a semaphore is probably the best thing to use
+at the moment.  The *correct* fix would be to have atm_dev's and atm_vcc's
+be reference counted instead so the card's interrupt handlers can safely
+work with them.  This has been well understood for awhile and I was planning
+on implementing it about a year ago for 2.5 but I've had basically zero time
+to devote to linux-atm these days (sorry)  Maybe Chas or I or someone will
+do it for 2.7.  The bad part isn't the atm core code (I could probably do
+that myself in a day) but it would require overhaul of a lot of the ATM
+drivers.  Some of the drivers are pretty scary.
 
--- 
-Dave Hansen
-haveblue@us.ibm.com
+(Side note: basically linux-atm was originally written before SMP support
+existed and made heavy use of cti/sti to make sure the dev's and vcc's
+didn't change underneath the drivers.  Later these became largely spinlocks
+but they never really became SMP safe - even though the core code would
+have proper SMP-exclusion we could have the card doing rx an atm_vcc
+on one CPU while another was closing it.
 
---------------040406000705000109030201
-Content-Type: text/plain;
- name="linux-2.5.62-config_early_ioremap_A0.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="linux-2.5.62-config_early_ioremap_A0.patch"
+There's some stream-of-consiousness comments about this that I wrote a
+long time ago in drivers/atm/lanai.c around line 616.  They're not 100%
+correct - I was planning on researching the issue more before submitting
+that driver for inclusion into the tree but it lanai.c eventually got
+submitted by someone else without asking me first)
 
-diff -ur linux-2.5.62-disco/arch/i386/Kconfig linux-2.5.62-disco.new/arch/i386/Kconfig
---- linux-2.5.62-disco/arch/i386/Kconfig	Wed Feb 19 10:14:34 2003
-+++ linux-2.5.62-disco.new/arch/i386/Kconfig	Wed Feb 19 10:24:43 2003
-@@ -754,6 +754,13 @@
- 	depends on (SMP || PREEMPT) && X86_CMPXCHG
- 	default y
- 
-+# turning this on wastes a bunch of space.
-+# Summit needs it only when NUMA is on
-+config BOOT_IOREMAP
-+	bool
-+	depends on (X86_SUMMIT && NUMA)
-+	default y
-+
- endmenu
- 
- 
-Only in linux-2.5.62-disco.new/arch/i386: Kconfig~
-diff -ur linux-2.5.62-disco/arch/i386/mm/Makefile linux-2.5.62-disco.new/arch/i386/mm/Makefile
---- linux-2.5.62-disco/arch/i386/mm/Makefile	Wed Feb 19 10:14:30 2003
-+++ linux-2.5.62-disco.new/arch/i386/mm/Makefile	Wed Feb 19 10:15:42 2003
-@@ -2,8 +2,9 @@
- # Makefile for the linux i386-specific parts of the memory manager.
- #
- 
--obj-y	:= init.o pgtable.o fault.o ioremap.o extable.o pageattr.o boot_ioremap.o
-+obj-y	:= init.o pgtable.o fault.o ioremap.o extable.o pageattr.o 
- 
- obj-$(CONFIG_DISCONTIGMEM)	+= discontig.o
- obj-$(CONFIG_HUGETLB_PAGE) += hugetlbpage.o
- obj-$(CONFIG_HIGHMEM) += highmem.o
-+obj-$(CONFIG_BOOT_IOREMAP) += boot_ioremap.o
-Only in linux-2.5.62-disco.new/scripts: elfconfig.h
-
---------------040406000705000109030201--
-
+-Mitch

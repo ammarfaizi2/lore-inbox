@@ -1,712 +1,451 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262164AbTEXQbP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 May 2003 12:31:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262191AbTEXQbP
+	id S262221AbTEXQm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 May 2003 12:42:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262223AbTEXQm3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 May 2003 12:31:15 -0400
-Received: from cable98.usuarios.retecal.es ([212.22.32.98]:6063 "EHLO
-	hell.lnx.es") by vger.kernel.org with ESMTP id S262164AbTEXQbC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 May 2003 12:31:02 -0400
-Date: Sat, 24 May 2003 18:43:44 +0200
-From: Manuel Estrada Sainz <ranty@debian.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Greg KH <greg@kroah.com>, Jean Tourrilhes <jt@hpl.hp.com>,
-       Pavel Roskin <proski@gnu.org>, Simon Kelley <simon@thekelleys.org.uk>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [PATCH] request_firmware() backport to 2.4 kernels
-Message-ID: <20030524164343.GA7215@ranty.pantax.net>
-Reply-To: ranty@debian.org
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="6TrnltStXW4iwmi0"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Sat, 24 May 2003 12:42:29 -0400
+Received: from smtp4.poczta.onet.pl ([213.180.130.28]:2768 "EHLO
+	smtp4.poczta.onet.pl") by vger.kernel.org with ESMTP
+	id S262221AbTEXQmU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 May 2003 12:42:20 -0400
+Message-ID: <3ECFA40C.2000906@poczta.onet.pl>
+Date: Sat, 24 May 2003 18:55:40 +0200
+From: Gutko <gutko@poczta.onet.pl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.4b) Gecko/20030507
+X-Accept-Language: pl, en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.21-RC2 nforce2 agp patch 
+Content-Type: multipart/mixed;
+ boundary="------------000706010504030309060903"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------000706010504030309060903
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
---6TrnltStXW4iwmi0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hello,
+This is patch against 2.4.21-rc2 adding Nvidia Nforce1/Nforce2 AGP 
+chipset support.It worked very good on  2.4.21-rc2-ac3. I found this 
+patch here : http://etudiant.epita.fr:8000/~nonolk/nforce-agp.diff
 
- Hi everyone,
+Don't know who ported it from 2.5.69, however I know this address above 
+belongs to author of this patch
 
- Now that request_firmware() is on it's way to the main 2.5 tree, it is
- time to consider what should be done for 2.4 kernels.
+Gutko
 
- At least Pavel's spectrum24 driver would be ready for submission if this
- functionality was available, and I hope to get orinoco_usb stable
- enough for 2.4 inclusion before 2.6 comes out, which also needs such
- functionality.
+--------------000706010504030309060903
+Content-Type: text/plain;
+ name="nforce-agp.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="nforce-agp.diff"
 
- Notes on the attached patch:
- ---------------------------
-
- - 99% compatible with 2.5 implementation both on the kernel's and
-   hotplug's sides. The other 1% is:
-	- To kernel code: the 'device' argument is 'char *' instead of
-	  'struct device *'.
-	- To hotplug: the prefix for $DEVPATH is /proc/ instead of /sys/
- - Doesn't modify any existing code.
- - Uses procfs in place of sysfs.
-
-
- Please comment
-
- 	Manuel
-
--- 
---- Manuel Estrada Sainz <ranty@debian.org>
-                         <ranty@bigfoot.com>
-			 <ranty@users.sourceforge.net>
------------------------- <manuel.estrada@hispalinux.es> -------------------
-Let us have the serenity to accept the things we cannot change, courage to
-change the things we can, and wisdom to know the difference.
-
---6TrnltStXW4iwmi0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="firmware-class-2.4.diff"
-
-diff --exclude=CVS -urN linux-2.4.orig/Documentation/Configure.help linux-2.4.mine/Documentation/Configure.help
---- linux-2.4.orig/Documentation/Configure.help	2003-05-24 18:00:41.000000000 +0200
-+++ linux-2.4.mine/Documentation/Configure.help	2003-05-24 17:53:11.000000000 +0200
-@@ -26525,6 +26525,12 @@
- 
-   If unsure, say N.
- 
-+Hotplug firmware loading support (EXPERIMENTAL)
-+CONFIG_FW_LOADER
-+  This option is provided for the case where no in-kernel-tree modules require
-+  hotplug firmware loading support, but a module built outside the kernel tree
-+  does.
-+
- #
- # A couple of things I keep forgetting:
- #   capitalize: AppleTalk, Ethernet, DOS, DMA, FAT, FTP, Internet,
-diff --exclude=CVS -urN linux-2.4.orig/include/linux/firmware.h linux-2.4.mine/include/linux/firmware.h
---- linux-2.4.orig/include/linux/firmware.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.4.mine/include/linux/firmware.h	2003-05-24 17:56:40.000000000 +0200
-@@ -0,0 +1,20 @@
-+#ifndef _LINUX_FIRMWARE_H
-+#define _LINUX_FIRMWARE_H
-+#include <linux/module.h>
-+#include <linux/types.h>
-+#define FIRMWARE_NAME_MAX 30 
-+struct firmware {
-+	size_t size;
-+	u8 *data;
-+};
-+int request_firmware (const struct firmware **fw, const char *name,
-+		      const char *device);
-+int request_firmware_nowait (
-+	struct module *module,
-+	const char *name, const char *device, void *context,
-+	void (*cont)(const struct firmware *fw, void *context));
-+/* On 2.5 'device' is 'struct device *' */
-+
-+void release_firmware (const struct firmware *fw);
-+void register_firmware (const char *name, const u8 *data, size_t size);
+diff --unified --recursive --new-file linux/drivers/char/Config.in linux-2.4.20-nforce/drivers/char/Config.in
+--- linux/drivers/char/Config.in	2003-05-09 21:05:38.000000000 +0200
++++ linux-2.4.20-nforce/drivers/char/Config.in	2003-05-09 20:55:34.000000000 +0200
+@@ -306,6 +306,7 @@
+    bool '  Generic SiS support' CONFIG_AGP_SIS
+    bool '  ALI chipset support' CONFIG_AGP_ALI
+    bool '  Serverworks LE/HE support' CONFIG_AGP_SWORKS
++   bool '  Nvidia Nforce/Nforce2 support' CONFIG_AGP_NV
+    if [ "$CONFIG_IA64" = "y" ]; then
+       bool '  HP ZX1 AGP support' CONFIG_AGP_HP_ZX1
+    fi
+diff --unified --recursive --new-file linux/drivers/char/agp/agp.h linux-2.4.20-nforce/drivers/char/agp/agp.h
+--- linux/drivers/char/agp/agp.h	2003-05-09 21:05:38.000000000 +0200
++++ linux-2.4.20-nforce/drivers/char/agp/agp.h	2003-05-09 20:59:06.000000000 +0200
+@@ -271,6 +271,12 @@
+ #ifndef PCI_DEVICE_ID_AL_M1671_0
+ #define PCI_DEVICE_ID_AL_M1671_0	0x1671
+ #endif
++#ifndef PCI_DEVICE_ID_NV_NFORCE_0
++#define PCI_DEVICE_ID_NV_NFORCE_0	0x01a4
 +#endif
-diff --exclude=CVS -urN linux-2.4.orig/lib/Config.in linux-2.4.mine/lib/Config.in
---- linux-2.4.orig/lib/Config.in	2003-05-24 18:00:41.000000000 +0200
-+++ linux-2.4.mine/lib/Config.in	2003-05-24 17:58:12.000000000 +0200
-@@ -35,4 +35,8 @@
-   fi
- fi
- 
-+if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
-+   tristate 'Hotplug firmware loading support (EXPERIMENTAL)' CONFIG_FW_LOADER
-+fi
-+
- endmenu
-diff --exclude=CVS -urN linux-2.4.orig/lib/Makefile linux-2.4.mine/lib/Makefile
---- linux-2.4.orig/lib/Makefile	2003-05-24 18:00:41.000000000 +0200
-+++ linux-2.4.mine/lib/Makefile	2003-05-24 17:46:48.000000000 +0200
-@@ -8,11 +8,13 @@
- 
- L_TARGET := lib.a
- 
--export-objs := cmdline.o dec_and_lock.o rwsem-spinlock.o rwsem.o rbtree.o
-+export-objs := cmdline.o dec_and_lock.o rwsem-spinlock.o rwsem.o rbtree.o \
-+	       firmware_class.o
- 
- obj-y := errno.o ctype.o string.o vsprintf.o brlock.o cmdline.o \
- 	 bust_spinlocks.o rbtree.o dump_stack.o
- 
-+obj-$(CONFIG_FW_LOADER) += firmware_class.o
- obj-$(CONFIG_RWSEM_GENERIC_SPINLOCK) += rwsem-spinlock.o
- obj-$(CONFIG_RWSEM_XCHGADD_ALGORITHM) += rwsem.o
- 
-diff --exclude=CVS -urN linux-2.4.orig/lib/firmware_class.c linux-2.4.mine/lib/firmware_class.c
---- linux-2.4.orig/lib/firmware_class.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.4.mine/lib/firmware_class.c	2003-05-24 11:39:26.000000000 +0200
-@@ -0,0 +1,566 @@
-+/*
-+ * firmware_class.c - Multi purpose firmware loading support
-+ *
-+ * Copyright (c) 2003 Manuel Estrada Sainz <ranty@debian.org>
-+ *
-+ * Simple hotplug script sample:
-+ * 
-+ *	HOTPLUG_FW_DIR=/usr/lib/hotplug/firmware/
-+ *	echo 1 > /sysfs/$DEVPATH/loading
-+ *	cat $HOTPLUG_FW_DIR/$FIRMWARE > /sysfs/$DEVPATH/data
-+ *	echo 0 > /sysfs/$DEVPATH/loading
-+ *
-+ * To cancel the load in case of error:
-+ *
-+ *	echo -1 > /sysfs/$DEVPATH/loading
-+ *
-+ * Both $DEVPATH and $FIRMWARE are already provided in the environment.
-+ *
-+ */
-+/*
-+ * Based on kernel/kmod.c and drivers/usb/usb.c
-+ */
-+/*
-+        kernel/kmod.c
-+        Kirk Petersen
-+
-+        Reorganized not to be a daemon by Adam Richter, with guidance
-+        from Greg Zornetzer.
-+
-+        Modified to avoid chroot and file sharing problems.
-+        Mikael Pettersson
-+
-+        Limit the concurrent number of kmod modprobes to catch loops from
-+        "modprobe needs a service that is in a module".
-+        Keith Owens <kaos@ocs.com.au> December 1999
-+
-+        Unblock all signals when we exec a usermode process.
-+        Shuu Yamaguchi <shuu@wondernetworkresources.com> December 2000
-+*/
-+/*
-+ * drivers/usb/usb.c
-+ *
-+ * (C) Copyright Linus Torvalds 1999
-+ * (C) Copyright Johannes Erdfelt 1999-2001
-+ * (C) Copyright Andreas Gal 1999
-+ * (C) Copyright Gregory P. Smith 1999
-+ * (C) Copyright Deti Fliegl 1999 (new USB architecture)
-+ * (C) Copyright Randy Dunlap 2000
-+ * (C) Copyright David Brownell 2000 (kernel hotplug, usb_device_id)
-+ * (C) Copyright Yggdrasil Computing, Inc. 2000
-+ *     (usb_device_id matching changes by Adam J. Richter)
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/module.h>
-+#include <linux/string.h>
-+#include <linux/types.h>
-+#include <linux/slab.h>
-+#include <linux/kmod.h>
-+#include <linux/proc_fs.h>
-+#include <asm/hardirq.h>
-+
-+#include "linux/firmware.h"
-+
-+MODULE_AUTHOR("Manuel Estrada Sainz <ranty@debian.org>");
-+MODULE_DESCRIPTION("Multi purpose firmware loading support");
-+MODULE_LICENSE("GPL");
-+
-+#define err(format, arg...) \
-+     printk(KERN_ERR  "%s:%s: " format "\n",__FILE__, __FUNCTION__ , ## arg)
-+#define warn(format, arg...) \
-+     printk(KERN_WARNING "%s:%s: " format "\n",__FILE__, __FUNCTION__ , ## arg)
-+#define dbg(format, arg...) \
-+     printk(KERN_DEBUG "%s:%s: " format "\n",__FILE__, __FUNCTION__ , ## arg)
-+
-+static int loading_timeout = 10;	/* In seconds */
-+static struct proc_dir_entry *proc_dir_timeout;
-+static struct proc_dir_entry *proc_dir;
-+
-+static int
-+call_helper(char *verb, const char *name, const char *device)
-+{
-+	char *argv[3], **envp, *buf, *scratch;
-+	int i = 0;
-+
-+	int retval = 0;
-+
-+	if (!hotplug_path[0])
-+		return -ENOENT;
-+	if (in_interrupt()) {
-+		err("in_interrupt");
-+		return -EFAULT;
-+	}
-+	if (!current->fs->root) {
-+		warn("call_policy %s -- no FS yet", verb);
-+		return -EPERM;
-+	}
-+
-+	if (!(envp = (char **) kmalloc(20 * sizeof (char *), GFP_KERNEL))) {
-+		err("unable to allocate envp");
-+		return -ENOMEM;
-+	}
-+	if (!(buf = kmalloc(256, GFP_KERNEL))) {
-+		kfree(envp);
-+		err("unable to allocate buf");
-+		return -ENOMEM;
-+	}
-+
-+	/* only one standardized param to hotplug command: type */
-+	argv[0] = hotplug_path;
-+	argv[1] = "firmware";
-+	argv[2] = 0;
-+
-+	/* minimal command environment */
-+	envp[i++] = "HOME=/";
-+	envp[i++] = "PATH=/sbin:/bin:/usr/sbin:/usr/bin";
-+
-+#ifdef  DEBUG
-+	/* hint that policy agent should enter no-stdout debug mode */
-+	envp[i++] = "DEBUG=kernel";
++#ifndef PCI_DEVICE_ID_NV_NFORCE2_0
++#define PCI_DEVICE_ID_NV_NFORCE2_0	0x01e0
 +#endif
-+	scratch = buf;
+ 
+ /* intel register */
+ #define INTEL_APBASE    0x10
+@@ -412,6 +418,17 @@
+ #define SVWRKS_POSTFLUSH  0x14
+ #define SVWRKS_DIRFLUSH   0x0c
+ 
++/* NVidia registers */
++#define NVIDIA_0_APBASE		0x10
++#define NVIDIA_0_APSIZE		0x80
++#define NVIDIA_1_WBC		0xf0
++#define NVIDIA_2_GARTCTRL	0xd0
++#define NVIDIA_2_APBASE		0xd8
++#define NVIDIA_2_APLIMIT	0xdc
++#define NVIDIA_2_ATTBASE(i)	(0xe0 + (i) * 4)
++#define NVIDIA_3_APBASE		0x50
++#define NVIDIA_3_APLIMIT	0x54
 +
-+	if (device) {
-+		envp[i++] = scratch;
-+		scratch += sprintf(scratch, "DEVPATH=/driver/firmware/%s",
-+				   device) + 1;
-+	}
+ /* HP ZX1 SBA registers */
+ #define HP_ZX1_CTRL		0x200
+ #define HP_ZX1_IBASE		0x300
+diff --unified --recursive --new-file linux/drivers/char/agp/agpgart_be.c linux-2.4.20-nforce/drivers/char/agp/agpgart_be.c
+--- linux/drivers/char/agp/agpgart_be.c	2003-05-09 21:05:38.000000000 +0200
++++ linux-2.4.20-nforce/drivers/char/agp/agpgart_be.c	2003-05-09 20:58:39.000000000 +0200
+@@ -3418,7 +3418,7 @@
+ } serverworks_private;
+ 
+ static int serverworks_create_page_map(serverworks_page_map *page_map)
+-{
++{	
+ 	int i;
+ 	int err = 0;
+ 
+@@ -4003,6 +4003,309 @@
+ 
+ #endif /* CONFIG_AGP_SWORKS */
+ 
++#ifdef CONFIG_AGP_NV
 +
-+	envp[i++] = scratch;
-+	scratch += sprintf(scratch, "ACTION=%s", verb) + 1;
-+
-+	envp[i++] = scratch;
-+	scratch += sprintf(scratch, "FIRMWARE=%s", name) + 1;
-+
-+	envp[i++] = 0;
-+
-+	dbg("firmware: %s %s %s", argv[0], argv[1], verb);
-+
-+	retval = call_usermodehelper(argv[0], argv, envp);
-+	if (retval) {
-+		printk("call_usermodehelper return %d\n", retval);
-+	}
-+
-+	kfree(buf);
-+	kfree(envp);
-+	return retval;
-+}
-+
-+struct firmware_priv {
-+	struct completion completion;
-+	struct proc_dir_entry *proc_dir;
-+	struct proc_dir_entry *attr_data;
-+	struct proc_dir_entry *attr_loading;
-+	struct firmware *fw;
-+	int loading;
-+	int abort;
-+	int alloc_size;
-+	struct timer_list timeout;
++static aper_size_info_8 nvidia_generic_sizes[5] =
++{
++	{512, 131072, 7, 0},
++	{256, 65536, 6, 8},
++	{128, 32768, 5, 12},
++	{64, 16384, 4, 14},
++	/* The 32M mode still requires a 64k gatt */
++	{32, 16384, 4, 15}
 +};
 +
-+static int
-+firmware_timeout_show(char *buf, char **start, off_t off,
-+		      int count, int *eof, void *data)
++static gatt_mask nvidia_generic_masks[] =
 +{
-+	return sprintf(buf, "%d\n", loading_timeout);
-+}
-+
-+/**
-+ * firmware_timeout_store:
-+ * Description:
-+ *	Sets the number of seconds to wait for the firmware.  Once
-+ *	this expires an error will be return to the driver and no
-+ *	firmware will be provided.
-+ *
-+ *	Note: zero means 'wait for ever'
-+ *  
-+ **/
-+static int
-+firmware_timeout_store(struct file *file, const char *buf,
-+		       unsigned long count, void *data)
-+{
-+	loading_timeout = simple_strtol(buf, NULL, 10);
-+	return count;
-+}
-+
-+static ssize_t
-+firmware_loading_show(char *buf, char **start, off_t off,
-+		      int count, int *eof, void *data)
-+{
-+	struct firmware_priv *fw_priv = data;
-+	return sprintf(buf, "%d\n", fw_priv->loading);
-+}
-+
-+/**
-+ * firmware_loading_store: - loading control file
-+ * Description:
-+ *	The relevant values are: 
-+ *
-+ *	 1: Start a load, discarding any previous partial load.
-+ *	 0: Conclude the load and handle the data to the driver code.
-+ *	-1: Conclude the load with an error and discard any written data.
-+ **/
-+static ssize_t
-+firmware_loading_store(struct file *file, const char *buf,
-+		       unsigned long count, void *data)
-+{
-+	struct firmware_priv *fw_priv = data;
-+	int prev_loading = fw_priv->loading;
-+
-+	fw_priv->loading = simple_strtol(buf, NULL, 10);
-+
-+	switch (fw_priv->loading) {
-+	case -1:
-+		fw_priv->abort = 1;
-+		wmb();
-+		complete(&fw_priv->completion);
-+		break;
-+	case 1:
-+		kfree(fw_priv->fw->data);
-+		fw_priv->fw->data = NULL;
-+		fw_priv->fw->size = 0;
-+		fw_priv->alloc_size = 0;
-+		break;
-+	case 0:
-+		if (prev_loading == 1)
-+			complete(&fw_priv->completion);
-+		break;
-+	}
-+
-+	return count;
-+}
-+
-+static ssize_t
-+firmware_data_read(char *buffer, char **start, off_t offset,
-+		   int count, int *eof, void *data)
-+{
-+	struct firmware_priv *fw_priv = data;
-+	struct firmware *fw = fw_priv->fw;
-+
-+	if (offset > fw->size)
-+		return 0;
-+	if (offset + count > fw->size)
-+		count = fw->size - offset;
-+
-+	memcpy(buffer, fw->data + offset, count);
-+	*start = (void*)count;
-+	return count;
-+}
-+static int
-+fw_realloc_buffer(struct firmware_priv *fw_priv, int min_size)
-+{
-+	u8 *new_data;
-+	int new_size;
-+
-+	if (min_size <= fw_priv->alloc_size)
-+		return 0;
-+	if((min_size % PAGE_SIZE) == 0)
-+		new_size = min_size;
-+	else
-+		new_size = (min_size + PAGE_SIZE) & PAGE_MASK;
-+	new_data = kmalloc(new_size, GFP_KERNEL);
-+	if (!new_data) {
-+		printk(KERN_ERR "%s: unable to alloc buffer\n", __FUNCTION__);
-+		/* Make sure that we don't keep incomplete data */
-+		fw_priv->abort = 1;
-+		return -ENOMEM;
-+	}
-+	fw_priv->alloc_size = new_size;
-+	if (fw_priv->fw->data) {
-+		memcpy(new_data, fw_priv->fw->data, fw_priv->fw->size);
-+		kfree(fw_priv->fw->data);
-+	}
-+	fw_priv->fw->data = new_data;
-+	BUG_ON(min_size > fw_priv->alloc_size);
-+	return 0;
-+}
-+
-+/**
-+ * firmware_data_write:
-+ *
-+ * Description:
-+ *
-+ *	Data written to the 'data' attribute will be later handled to
-+ *	the driver as a firmware image.
-+ **/
-+static ssize_t
-+firmware_data_write(struct file *file, const char *buffer,
-+		    unsigned long count, void *data)
-+{
-+	struct firmware_priv *fw_priv = data;
-+	struct firmware *fw = fw_priv->fw;
-+	int offset = file->f_pos;
-+	int retval;
-+
-+	retval = fw_realloc_buffer(fw_priv, offset + count);
-+	if (retval) {
-+		printk("%s: retval:%d\n", __FUNCTION__, retval);
-+		return retval;
-+	}
-+
-+	memcpy(fw->data + offset, buffer, count);
-+
-+	fw->size = max_t(size_t, offset + count, fw->size);
-+	file->f_pos += count;
-+	return count;
-+}
-+
-+static void
-+firmware_class_timeout(u_long data)
-+{
-+	struct firmware_priv *fw_priv = (struct firmware_priv *) data;
-+	fw_priv->abort = 1;
-+	wmb();
-+	complete(&fw_priv->completion);
-+}
-+static int
-+fw_setup_class_device(struct firmware_priv **fw_priv_p,
-+		      const char *fw_name, const char *device)
-+{
-+	int retval;
-+	struct firmware_priv *fw_priv = kmalloc(sizeof (struct firmware_priv),
-+						GFP_KERNEL);
-+	*fw_priv_p = fw_priv;
-+	if (!fw_priv) {
-+		retval = -ENOMEM;
-+		goto out;
-+	}
-+	memset(fw_priv, 0, sizeof (*fw_priv));
-+
-+	init_completion(&fw_priv->completion);
-+
-+	fw_priv->timeout.function = firmware_class_timeout;
-+	fw_priv->timeout.data = (u_long) fw_priv;
-+	init_timer(&fw_priv->timeout);
-+
-+	retval = -EAGAIN;
-+	fw_priv->proc_dir = create_proc_entry(device, 0644 | S_IFDIR, proc_dir);
-+	if (!fw_priv->proc_dir)
-+		goto err_free_fw_priv;
-+
-+	fw_priv->attr_data = create_proc_entry("data", 0644 | S_IFREG,
-+					       fw_priv->proc_dir);
-+	if (!fw_priv->attr_data)
-+		goto err_remove_dir;
-+
-+	fw_priv->attr_data->read_proc = firmware_data_read;
-+	fw_priv->attr_data->write_proc = firmware_data_write;
-+	fw_priv->attr_data->data = fw_priv;
-+
-+	fw_priv->attr_loading = create_proc_entry("loading", 0644 | S_IFREG,
-+						  fw_priv->proc_dir);
-+	if (!fw_priv->attr_loading)
-+		goto err_remove_data;
-+
-+	fw_priv->attr_loading->read_proc = firmware_loading_show;
-+	fw_priv->attr_loading->write_proc = firmware_loading_store;
-+	fw_priv->attr_loading->data = fw_priv;
-+
-+	retval = 0;
-+	fw_priv->fw = kmalloc(sizeof (struct firmware), GFP_KERNEL);
-+	if (!fw_priv->fw) {
-+		printk(KERN_ERR "%s: kmalloc(struct firmware) failed\n",
-+		       __FUNCTION__);
-+		retval = -ENOMEM;
-+		goto err_remove_loading;
-+	}
-+	memset(fw_priv->fw, 0, sizeof (*fw_priv->fw));
-+
-+	goto out;
-+
-+err_remove_loading:
-+	remove_proc_entry("loading", fw_priv->proc_dir);
-+err_remove_data:
-+	remove_proc_entry("data", fw_priv->proc_dir);
-+err_remove_dir:
-+	remove_proc_entry(device, proc_dir);
-+err_free_fw_priv:
-+	kfree(fw_priv);
-+out:
-+	return retval;
-+}
-+static void
-+fw_remove_class_device(struct firmware_priv *fw_priv)
-+{
-+	remove_proc_entry("loading", fw_priv->proc_dir);
-+	remove_proc_entry("data", fw_priv->proc_dir);
-+	remove_proc_entry(fw_priv->proc_dir->name, proc_dir);
-+}
-+
-+/** 
-+ * request_firmware: - request firmware to hotplug and wait for it
-+ * Description:
-+ *	@firmware will be used to return a firmware image by the name
-+ *	of @name for device @device.
-+ *
-+ *	Should be called from user context where sleeping is allowed.
-+ *
-+ *	@name will be use as $FIRMWARE in the hotplug environment and
-+ *	should be distinctive enough not to be confused with any other
-+ *	firmware image for this or any other device.
-+ **/
-+int
-+request_firmware(const struct firmware **firmware, const char *name,
-+		 const char *device)
-+{
-+	struct firmware_priv *fw_priv;
-+	int retval;
-+
-+	if (!firmware) {
-+		retval = -EINVAL;
-+		goto out;
-+	}
-+	*firmware = NULL;
-+
-+	retval = fw_setup_class_device(&fw_priv, name, device);
-+	if (retval)
-+		goto out;
-+
-+	retval = call_helper("add", name, device);
-+	if (retval)
-+		goto out;
-+	if (loading_timeout) {
-+		fw_priv->timeout.expires = jiffies + loading_timeout * HZ;
-+		add_timer(&fw_priv->timeout);
-+	}
-+
-+	wait_for_completion(&fw_priv->completion);
-+
-+	del_timer(&fw_priv->timeout);
-+	fw_remove_class_device(fw_priv);
-+
-+	if (fw_priv->fw->size && !fw_priv->abort) {
-+		*firmware = fw_priv->fw;
-+	} else {
-+		retval = -ENOENT;
-+		kfree(fw_priv->fw->data);
-+		kfree(fw_priv->fw);
-+	}
-+out:
-+	kfree(fw_priv);
-+	return retval;
-+}
-+
-+void
-+release_firmware(const struct firmware *fw)
-+{
-+	if (fw) {
-+		kfree(fw->data);
-+		kfree(fw);
-+	}
-+}
-+
-+/**
-+ * register_firmware: - provide a firmware image for later usage
-+ * 
-+ * Description:
-+ *	Make sure that @data will be available by requesting firmware @name.
-+ *
-+ *	Note: This will not be possible until some kind of persistence
-+ *	is available.
-+ **/
-+void
-+register_firmware(const char *name, const u8 *data, size_t size)
-+{
-+	/* This is meaningless without firmware caching, so until we
-+	 * decide if firmware caching is reasonable just leave it as a
-+	 * noop */
-+}
-+
-+/* Async support */
-+struct firmware_work {
-+	struct tq_struct work;
-+	struct module *module;
-+	const char *name;
-+	const char *device;
-+	void *context;
-+	void (*cont)(const struct firmware *fw, void *context);
++	{0x00000001, 0}
 +};
 +
-+static void
-+request_firmware_work_func(void *arg)
-+{
-+	struct firmware_work *fw_work = arg;
-+	const struct firmware *fw;
-+	if (!arg)
-+		return;
-+	request_firmware(&fw, fw_work->name, fw_work->device);
-+	fw_work->cont(fw, fw_work->context);
-+	release_firmware(fw);
-+	__MOD_DEC_USE_COUNT(fw_work->module);
-+	kfree(fw_work);
-+}
++static struct _nvidia_private {
++	struct pci_dev *dev_1;
++	struct pci_dev *dev_2;
++	struct pci_dev *dev_3;
++	volatile u32 *aperture;
++	int num_active_entries;
++	off_t pg_offset;
++	u32 wbc_mask;
++} nvidia_private;
 +
-+/**
-+ * request_firmware_nowait:
-+ *
-+ * Description:
-+ *	Asynchronous variant of request_firmware() for contexts where
-+ *	it is not possible to sleep.
-+ *
-+ *	@cont will be called asynchronously when the firmware request is over.
-+ *
-+ *	@context will be passed over to @cont.
-+ *
-+ *	@fw may be %NULL if firmware request fails.
-+ *
-+ **/
-+int
-+request_firmware_nowait(
-+	struct module *module,
-+	const char *name, const char *device, void *context,
-+	void (*cont)(const struct firmware *fw, void *context))
++static int nvidia_fetch_size(void)
 +{
-+	struct firmware_work *fw_work = kmalloc(sizeof (struct firmware_work),
-+						GFP_ATOMIC);
-+	if (!fw_work)
-+		return -ENOMEM;
-+	if (!try_inc_mod_count(module)) {
-+		kfree(fw_work);
-+		return -EFAULT;
++	int i;
++	u8 size_value;
++	aper_size_info_8 *values;
++
++	pci_read_config_byte(agp_bridge.dev, NVIDIA_0_APSIZE, &size_value);
++	size_value &= 0x0f;
++	values = A_SIZE_8(agp_bridge.aperture_sizes);
++
++	for (i = 0; i < agp_bridge.num_aperture_sizes; i++) {
++		if (size_value == values[i].size_value) {
++			agp_bridge.previous_size =
++				agp_bridge.current_size = (void *) (values + i);
++			agp_bridge.aperture_size_idx = i;
++			return values[i].size;
++		}
 +	}
 +
-+	*fw_work = (struct firmware_work) {
-+		.module = module,
-+		.name = name,
-+		.device = device,
-+		.context = context,
-+		.cont = cont,
-+	};
-+	INIT_TQUEUE(&fw_work->work, request_firmware_work_func, fw_work);
-+
-+	schedule_task(&fw_work->work);
 +	return 0;
 +}
 +
-+static int __init
-+firmware_class_init(void)
++static int nvidia_configure(void)
 +{
-+	proc_dir = create_proc_entry("driver/firmware", 0755 | S_IFDIR, NULL);
-+	if (!proc_dir)
-+		return -EAGAIN;
-+	proc_dir_timeout = create_proc_entry("timeout",
-+					     0644 | S_IFREG, proc_dir);
-+	if (!proc_dir_timeout) {
-+		remove_proc_entry("driver/firmware", NULL);
-+		return -EAGAIN;
++	int i, num_dirs;
++	u32 apbase, aplimit;
++	aper_size_info_8 *current_size;
++	u32 temp;
++
++	current_size = A_SIZE_8(agp_bridge.current_size);
++
++	/* aperture size */
++	pci_write_config_byte(agp_bridge.dev, NVIDIA_0_APSIZE,
++		current_size->size_value);
++
++    /* address to map to */
++	pci_read_config_dword(agp_bridge.dev, NVIDIA_0_APBASE, &apbase);
++	apbase &= PCI_BASE_ADDRESS_MEM_MASK;
++	agp_bridge.gart_bus_addr = apbase;
++	aplimit = apbase + (current_size->size * 1024 * 1024) - 1;
++	pci_write_config_dword(nvidia_private.dev_2, NVIDIA_2_APBASE, apbase);
++	pci_write_config_dword(nvidia_private.dev_2, NVIDIA_2_APLIMIT, aplimit);
++	pci_write_config_dword(nvidia_private.dev_3, NVIDIA_3_APBASE, apbase);
++	pci_write_config_dword(nvidia_private.dev_3, NVIDIA_3_APLIMIT, aplimit);
++
++	/* directory size is 64k */
++	num_dirs = current_size->size / 64;
++	nvidia_private.num_active_entries = current_size->num_entries;
++	nvidia_private.pg_offset = 0;
++	if (num_dirs == 0) {
++		num_dirs = 1;
++		nvidia_private.num_active_entries /= (64 / current_size->size);
++		nvidia_private.pg_offset = (apbase & (64 * 1024 * 1024 - 1) &
++			~(current_size->size * 1024 * 1024 - 1)) / PAGE_SIZE;
 +	}
-+	proc_dir_timeout->read_proc = firmware_timeout_show;
-+	proc_dir_timeout->write_proc = firmware_timeout_store;
++
++	/* attbase */
++	for(i = 0; i < 8; i++) {
++		pci_write_config_dword(nvidia_private.dev_2, NVIDIA_2_ATTBASE(i),
++			(agp_bridge.gatt_bus_addr + (i % num_dirs) * 64 * 1024) | 1);
++	}
++
++	/* gtlb control */
++	pci_read_config_dword(nvidia_private.dev_2, NVIDIA_2_GARTCTRL, &temp);
++	pci_write_config_dword(nvidia_private.dev_2, NVIDIA_2_GARTCTRL, temp | 0x11);
++
++	/* gart control */
++	pci_read_config_dword(agp_bridge.dev, NVIDIA_0_APSIZE, &temp);
++	pci_write_config_dword(agp_bridge.dev, NVIDIA_0_APSIZE, temp | 0x100);
++
++	/* map aperture */
++	nvidia_private.aperture =
++		(volatile u32 *) ioremap(apbase, 33 * PAGE_SIZE);
++
 +	return 0;
 +}
-+static void __exit
-+firmware_class_exit(void)
++
++static void nvidia_cleanup(void)
 +{
-+	remove_proc_entry("timeout", proc_dir);
-+	remove_proc_entry("driver/firmware", NULL);
++	aper_size_info_8 *previous_size;
++	u32 temp;
++
++	/* gart control */
++	pci_read_config_dword(agp_bridge.dev, NVIDIA_0_APSIZE, &temp);
++	pci_write_config_dword(agp_bridge.dev, NVIDIA_0_APSIZE, temp & ~(0x100));
++
++	/* gtlb control */
++	pci_read_config_dword(nvidia_private.dev_2, NVIDIA_2_GARTCTRL, &temp);
++	pci_write_config_dword(nvidia_private.dev_2, NVIDIA_2_GARTCTRL, temp & ~(0x11));
++
++	/* unmap aperture */
++	iounmap((void *) nvidia_private.aperture);
++
++	/* restore previous aperture size */
++	previous_size = A_SIZE_8(agp_bridge.previous_size);
++	pci_write_config_byte(agp_bridge.dev, NVIDIA_0_APSIZE,
++		previous_size->size_value);
 +}
 +
-+module_init(firmware_class_init);
-+module_exit(firmware_class_exit);
++static void nvidia_tlbflush(agp_memory * mem)
++{
++	unsigned long end;
++	u32 wbc_reg, temp;
++	int i;
 +
-+EXPORT_SYMBOL(release_firmware);
-+EXPORT_SYMBOL(request_firmware);
-+EXPORT_SYMBOL(request_firmware_nowait);
-+EXPORT_SYMBOL(register_firmware);
++	/* flush chipset */
++	if (nvidia_private.wbc_mask) {
++		pci_read_config_dword(nvidia_private.dev_1, NVIDIA_1_WBC, &wbc_reg);
++		wbc_reg |= nvidia_private.wbc_mask;
++		pci_write_config_dword(nvidia_private.dev_1, NVIDIA_1_WBC, wbc_reg);
++
++		end = jiffies + 3*HZ;
++		do {
++			pci_read_config_dword(nvidia_private.dev_1,
++					NVIDIA_1_WBC, &wbc_reg);
++			if ((signed)(end - jiffies) <= 0) {
++				printk(KERN_ERR
++				    "TLB flush took more than 3 seconds.\n");
++			}
++		} while (wbc_reg & nvidia_private.wbc_mask);
++	}
++
++	/* flush TLB entries */
++	for(i = 0; i < 32 + 1; i++)
++		temp = nvidia_private.aperture[i * PAGE_SIZE / sizeof(u32)];
++	for(i = 0; i < 32 + 1; i++)
++		temp = nvidia_private.aperture[i * PAGE_SIZE / sizeof(u32)];
++}
++
++static unsigned long nvidia_mask_memory(unsigned long addr, int type)
++{
++	/* Memory type is ignored */
++	return addr | agp_bridge.masks[0].mask;
++}
++
++#if 0
++extern int agp_memory_reserved;
++
++static int nvidia_insert_memory(agp_memory * mem, off_t pg_start, int type)
++{
++	int i, j;
++	
++	if ((type != 0) || (mem->type != 0))
++		return -EINVAL;
++	
++	if ((pg_start + mem->page_count) >
++		(nvidia_private.num_active_entries - agp_memory_reserved/PAGE_SIZE))
++		return -EINVAL;
++	
++	for(j = pg_start; j < (pg_start + mem->page_count); j++) {
++		if (!PGE_EMPTY(agp_bridge, agp_bridge->gatt_table[nvidia_private.pg_offset + j]))
++			return -EBUSY;
++	}
++
++	if (mem->is_flushed == FALSE) {
++		global_cache_flush();
++		mem->is_flushed = TRUE;
++	}
++	for (i = 0, j = pg_start; i < mem->page_count; i++, j++)
++		agp_bridge->gatt_table[nvidia_private.pg_offset + j] = mem->memory[i];
++
++	agp_bridge->tlb_flush(mem);
++	return 0;
++}
++
++static int nvidia_remove_memory(agp_memory * mem, off_t pg_start, int type)
++{
++	int i;
++
++	if ((type != 0) || (mem->type != 0))
++		return -EINVAL;
++	
++	for (i = pg_start; i < (mem->page_count + pg_start); i++) {
++		agp_bridge->gatt_table[nvidia_private.pg_offset + i] =
++		    (unsigned long) agp_bridge->scratch_page;
++	}
++
++	agp_bridge->tlb_flush(mem);
++	return 0;
++}
++#endif
++
++static int __init nvidia_nforce2_setup (struct pci_dev *pdev)
++{
++	nvidia_private.dev_1 =
++		pci_find_slot((unsigned int)pdev->bus->number, PCI_DEVFN(0, 1));
++	nvidia_private.dev_2 =
++		pci_find_slot((unsigned int)pdev->bus->number, PCI_DEVFN(0, 2));
++	nvidia_private.dev_3 =
++		pci_find_slot((unsigned int)pdev->bus->number, PCI_DEVFN(30, 0));
++	if (!nvidia_private.dev_1 || !nvidia_private.dev_2 || !nvidia_private.dev_3) 
++	{
++                printk(KERN_INFO PFX "agpgart: Detected an NVIDIA "
++                        "nForce/nForce2 chipset, but could not find "
++                        "the secondary devices.\n");
++                return -ENODEV;
++        }
++	nvidia_private.wbc_mask = 0x80000000; 
++	agp_bridge.masks = nvidia_generic_masks;
++	agp_bridge.aperture_sizes = (void *) nvidia_generic_sizes;
++	agp_bridge.size_type = U8_APER_SIZE;
++	agp_bridge.num_aperture_sizes = 5;
++	agp_bridge.needs_scratch_page = FALSE;
++	agp_bridge.configure = nvidia_configure;
++	agp_bridge.fetch_size = nvidia_fetch_size;
++	agp_bridge.cleanup = nvidia_cleanup;
++	agp_bridge.tlb_flush = nvidia_tlbflush;
++	agp_bridge.mask_memory = nvidia_mask_memory;
++	agp_bridge.agp_enable = agp_generic_agp_enable;
++	agp_bridge.cache_flush = global_cache_flush;
++	agp_bridge.create_gatt_table = agp_generic_create_gatt_table;
++	agp_bridge.free_gatt_table = agp_generic_free_gatt_table;
++	agp_bridge.insert_memory = agp_generic_insert_memory;
++	agp_bridge.remove_memory = agp_generic_remove_memory;
++	agp_bridge.alloc_by_type = agp_generic_alloc_by_type;
++	agp_bridge.free_by_type = agp_generic_free_by_type;
++	agp_bridge.agp_alloc_page = agp_generic_alloc_page;
++	agp_bridge.agp_destroy_page = agp_generic_destroy_page;
++	agp_bridge.suspend = agp_generic_suspend;
++	agp_bridge.resume = agp_generic_resume;
++	agp_bridge.cant_use_aperture = 0;
++	agp_bridge.dev_private_data = &nvidia_private;
++
++	return 0;
++	
++	(void) pdev; /* unused */
++}
++
++static int __init nvidia_nforce_setup (struct pci_dev *pdev)
++{
++	nvidia_private.dev_1 =
++		pci_find_slot((unsigned int)pdev->bus->number, PCI_DEVFN(0, 1));
++	nvidia_private.dev_2 =
++		pci_find_slot((unsigned int)pdev->bus->number, PCI_DEVFN(0, 2));
++	nvidia_private.dev_3 =
++		pci_find_slot((unsigned int)pdev->bus->number, PCI_DEVFN(30, 0));
++	if (!nvidia_private.dev_1 || !nvidia_private.dev_2 || !nvidia_private.dev_3) 
++	{
++                printk(KERN_INFO PFX "agpgart: Detected an NVIDIA "
++                        "nForce/nForce2 chipset, but could not find "
++                        "the secondary devices.\n");
++                return -ENODEV;
++        }
++	nvidia_private.wbc_mask =  0x00010000; 
++	agp_bridge.masks = nvidia_generic_masks;
++	agp_bridge.aperture_sizes = (void *) nvidia_generic_sizes;
++	agp_bridge.size_type = U8_APER_SIZE;
++	agp_bridge.num_aperture_sizes = 5;
++	agp_bridge.needs_scratch_page = FALSE;
++	agp_bridge.configure = nvidia_configure;
++	agp_bridge.fetch_size = nvidia_fetch_size;
++	agp_bridge.cleanup = nvidia_cleanup;
++	agp_bridge.tlb_flush = nvidia_tlbflush;
++	agp_bridge.mask_memory = nvidia_mask_memory;
++	agp_bridge.agp_enable = agp_generic_agp_enable;
++	agp_bridge.cache_flush = global_cache_flush;
++	agp_bridge.create_gatt_table = agp_generic_create_gatt_table;
++	agp_bridge.free_gatt_table = agp_generic_free_gatt_table;
++	agp_bridge.insert_memory = agp_generic_insert_memory;
++	agp_bridge.remove_memory = agp_generic_remove_memory;
++	agp_bridge.alloc_by_type = agp_generic_alloc_by_type;
++	agp_bridge.free_by_type = agp_generic_free_by_type;
++	agp_bridge.agp_alloc_page = agp_generic_alloc_page;
++	agp_bridge.agp_destroy_page = agp_generic_destroy_page;
++	agp_bridge.suspend = agp_generic_suspend;
++	agp_bridge.resume = agp_generic_resume;
++	agp_bridge.cant_use_aperture = 0;
++	agp_bridge.dev_private_data = &nvidia_private;
++
++	return 0;
++	
++	(void) pdev; /* unused */
++}
++
++#endif /* CONFIG_AGP_NV */
++
+ #ifdef CONFIG_AGP_HP_ZX1
+ 
+ #ifndef log2
+@@ -4702,6 +5005,22 @@
+ 		via_generic_setup },
+ #endif /* CONFIG_AGP_VIA */
+ 
++#ifdef CONFIG_AGP_NV
++	{ PCI_DEVICE_ID_NV_NFORCE2_0,
++		PCI_VENDOR_ID_NVIDIA,
++                NV_NFORCE_2,
++		"Nvidia",
++		"Nforce2",
++		nvidia_nforce2_setup },
++
++	{ PCI_DEVICE_ID_NV_NFORCE_0,
++	        PCI_VENDOR_ID_NVIDIA,
++                NV_NFORCE,
++		"Nvidia",
++		"Nforce",
++		nvidia_nforce_setup },
++#endif /* CONFIG_AGP_NV */
++
+ #ifdef CONFIG_AGP_HP_ZX1
+ 	{ PCI_DEVICE_ID_HP_ZX1_LBA,
+ 		PCI_VENDOR_ID_HP,
+diff --unified --recursive --new-file linux/include/linux/agp_backend.h linux-2.4.20-nforce/include/linux/agp_backend.h
+--- linux/include/linux/agp_backend.h	2003-05-09 21:05:44.000000000 +0200
++++ linux-2.4.20-nforce/include/linux/agp_backend.h	2003-05-09 20:58:20.000000000 +0200
+@@ -82,6 +82,8 @@
+ 	SVWRKS_LE,
+ 	SVWRKS_GENERIC,
+ 	HP_ZX1,
++	NV_NFORCE,
++        NV_NFORCE_2,
+ };
+ 
+ typedef struct _agp_version {
 
---6TrnltStXW4iwmi0--
+--------------000706010504030309060903--
+

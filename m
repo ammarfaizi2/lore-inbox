@@ -1,65 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263368AbTJOPEI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 11:04:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263369AbTJOPEI
+	id S263370AbTJOPFm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 11:05:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263378AbTJOPFl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 11:04:08 -0400
-Received: from intra.cyclades.com ([64.186.161.6]:5006 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S263368AbTJOPEC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 11:04:02 -0400
-Date: Wed, 15 Oct 2003 12:06:58 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Kostadin Karaivanov <larry@tamiweb.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: apache oops 2.4.22
-In-Reply-To: <1066171858.1868.4.camel@laptop.minfin.bg>
-Message-ID: <Pine.LNX.4.44.0310151206130.9674-100000@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 15 Oct 2003 11:05:41 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:16600 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S263370AbTJOPFb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 11:05:31 -0400
+Date: Wed, 15 Oct 2003 17:05:30 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Unbloating the kernel, action list
+Message-ID: <20031015150530.GJ20846@lug-owl.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <HMQWM7$61FA432C2B793029C11F4F77EEAABD1F@libero.it> <20031014214311.GC933@inwind.it> <16710000.1066170641@flay> <20031014155638.7db76874.cliffw@osdl.org> <20031015124842.GE20846@lug-owl.de> <20031015131015.GR16158@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="YGDJTm4HeavG21wE"
+Content-Disposition: inline
+In-Reply-To: <20031015131015.GR16158@holomorphy.com>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--YGDJTm4HeavG21wE
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, 15 Oct 2003, Kostadin Karaivanov wrote:
+On Wed, 2003-10-15 06:10:15 -0700, William Lee Irwin III <wli@holomorphy.co=
+m>
+wrote in message <20031015131015.GR16158@holomorphy.com>:
+> On Wed, Oct 15, 2003 at 02:48:42PM +0200, Jan-Benedict Glaw wrote:
+> > I can put on the table:
+> > Unfortunately, you need an additional kernel patch because nearly all
+> > distros are using mach=3D=3Di486 which gives you nice sigills on an i386
+> > otherwise...
+>=20
+> Can you quantify the performance impact of cmov emulation (or whatever
+> it is)? I have a vague notion it could be hard given the daunting task
+> of switching userspace around to verify it.
 
-> I find this in my logs.
-> Two apache servers on different ports, one of them unusable....
-> The only starnge thing about machine is that iptables is modular
-> and I use modules-init-tools-0.9.14 over original module utils as of
-> Slackware 9.1
-> 
-> Oct 14 23:26:21 hosting kernel:  printing eip:
-> Oct 14 23:26:21 hosting kernel: c026d9e2
-> Oct 14 23:26:21 hosting kernel: *pde = 00000000
-> Oct 14 23:26:21 hosting kernel: Oops: 0002
-> Oct 14 23:26:21 hosting kernel: iptable_filter
-> Oct 14 23:26:21 hosting kernel: CPU:    0
-> Oct 14 23:26:21 hosting kernel: EIP:    0010:[<c026d9e2>]    Not tainted
-> Oct 14 23:26:21 hosting kernel: EFLAGS: 00010246
-> Oct 14 23:26:21 hosting kernel: eax: 0000003f   ebx: 03865000   ecx:
-> f74f6000 edx: 00000140
-> Oct 14 23:26:21 hosting kernel: esi: f4097394   edi: c13a9310   ebp:
-> 00000000 esp: f74f7e58
-> Oct 14 23:26:21 hosting kernel: ds: 0018   es: 0018   ss: 0018
-> Oct 14 23:26:21 hosting kernel: Process httpd (pid: 161,
-> stackpage=f74f7000)
-> Oct 14 23:26:21 hosting kernel: Stack: c13a9310 c013469d 03865000
-> f7438234 00000cf5 f7d123d4 00000000 f750b6a0
-> Oct 14 23:26:21 hosting kernel:        f74382a0 f7438234 f7438180
-> 00000001 f79a06c0 f73e2308 c0134ad5 f7438180
-> Oct 14 23:26:21 hosting kernel:        00000cf5 f74f7ea4 00000001
-> 00000000 f7555840 c0126be9 f7555840 434c2000
-> Oct 14 23:26:21 hosting kernel: Call Trace: [<c013469d>]  [<c0134ad5>] 
-> [<c0126be9>]  [<c0126550>]  [<c0126dc7>]  [<c0148bd3>]  [<c0113e5e>] 
-> [<c01204fd>]  [<c011c902>]  [<c011c816>]  [<c010a4fe>]  [<c0113d00>] 
-> [<c0108f70>]
-> Oct 14 23:26:21 hosting kernel: Code: 0f e7 03 0f e7 43 08 0f e7 43 10
-> 0f e7 43 18 0f e7 43 20 0f
+I can't. I'm haven't seen a really noticeable impact, but that doesn't
+tell much:) However, there's no other chance than emulating cmov and
+locked xchgs. If glibc/libstdc++ would go back, ABI would break and you
+couldn't any longer copy programs build within one distribution over to
+another.
 
-Please run ksymoops(8) on this and repost. 
+So I think I'll diff out the patch and send it for review (note: it was
+_not_ initially written by me!).
 
+MfG, JBG
 
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
+PA));
+
+--YGDJTm4HeavG21wE
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/jWI6Hb1edYOZ4bsRAs/0AJ98c0TjDvisIZq8jMcpqUFKZmD4uACffvVC
+wJzxdAFH7AshgPlfdajISBQ=
+=ZWf+
+-----END PGP SIGNATURE-----
+
+--YGDJTm4HeavG21wE--

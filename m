@@ -1,80 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268275AbUIPWVV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268113AbUIPWW6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268275AbUIPWVV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 18:21:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268037AbUIPWTQ
+	id S268113AbUIPWW6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 18:22:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268005AbUIPWVg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 18:19:16 -0400
-Received: from 147.32.220.203.comindico.com.au ([203.220.32.147]:51077 "EHLO
-	relay01.mail-hub.kbs.net.au") by vger.kernel.org with ESMTP
-	id S268004AbUIPWRV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 18:17:21 -0400
-Subject: Re: [PATCH] Suspend2 Merge: Driver model patches 2/2
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Greg KH <greg@kroah.com>
-Cc: Andrew Morton <akpm@digeo.com>, Patrick Mochel <mochel@digitalimplant.org>,
-       Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040916142847.GA32352@kroah.com>
-References: <1095332331.3855.161.camel@laptop.cunninghams>
-	 <20040916142847.GA32352@kroah.com>
-Content-Type: text/plain
-Message-Id: <1095373127.5897.23.camel@laptop.cunninghams>
+	Thu, 16 Sep 2004 18:21:36 -0400
+Received: from fw.osdl.org ([65.172.181.6]:59794 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268113AbUIPWUn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 18:20:43 -0400
+Date: Thu, 16 Sep 2004 15:24:29 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: adaplas@pol.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc2-mm1: Setting IDE DMA fails
+Message-Id: <20040916152429.72f57281.akpm@osdl.org>
+In-Reply-To: <200409170534.24034.adaplas@hotpop.com>
+References: <200409170534.24034.adaplas@hotpop.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Fri, 17 Sep 2004 08:18:47 +1000
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-On Fri, 2004-09-17 at 00:28, Greg KH wrote:
-> On Thu, Sep 16, 2004 at 08:58:51PM +1000, Nigel Cunningham wrote:
-> > 
-> > This simple helper adds support for finding a class given its name. I
-> > use this to locate the frame buffer drivers and move them to the
-> > keep-alive tree while suspending other drivers.
-> > 
-> > +struct class * class_find(char * name)
-> > +{
-> > +	struct class * this_class;
-> > +
-> > +	if (!name)
-> > +		return NULL;
-> > +
-> > +	list_for_each_entry(this_class, &class_subsys.kset.list, subsys.kset.kobj.entry) {
-> > +		if (!(strcmp(this_class->name, name)))
-> > +			return this_class;
-> > +	}
-> > +
-> > +	return NULL;
-> > +}
+"Antonino A. Daplas" <adaplas@hotpop.com> wrote:
+>
+> Hi,
 > 
-> Ick, no.  I've been over this before with the fb people, and am not going
-> to accept this patch (nevermind that it's broken...)  See the lkml
-> archives for more info on why I don't like this.
+> IDE DMA setting fails in 2.6.9-rc2-mm1 with the ff. dmesg:
+> ...
+> VP_IDE: IDE controller at PCI slot 0000:00:11.1
+> ACPI: PCI interrupt 0000:00:11.1[A]: no GSI
+> ACPI: PCI interrupt 0000:00:11.1[A]: no GSI
+> VP_IDE: (ide_setup_pci_device:) Could not enable device.
+> ...
+> 
+> Reversing the following patches fixed it for me:
+> 
+> incorrect-pci-interrupt-assignment-on-es7000-for-pin-zero.patch
+> incorrect-pci-interrupt-assignment-on-es7000-for-platform-gsi-fix.patch
+> incorrect-pci-interrupt-assignment-on-es7000-for-platform-gsi.patch
+> 
 
-Please excuse my ignorance but I don't see how it's broken (their patch
-just fills in a field that was left blank previously), and this patch
-just makes use of that change. What's the point to device_class if we
-don't use it?
-
-That said, I do agree with using Pavel's new enum that includes
-_SNAPSHOT and can see that it's a cleaner way in that it requires less
-knowledge on suspend's part of what it wants to stay alive.
-
-Regards,
-
-Nigel
-
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-Many today claim to be tolerant. True tolerance, however, can cope with others
-being intolerant.
+Yeah, those patches didn't work out.  I've asked Natalie to work on them
+with Len.  Thanks.
 

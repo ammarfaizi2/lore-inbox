@@ -1,66 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265187AbUE0U26@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265205AbUE0UbX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265187AbUE0U26 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 16:28:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265197AbUE0U26
+	id S265205AbUE0UbX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 16:31:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265200AbUE0UbX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 16:28:58 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:20690 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265187AbUE0U24 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 16:28:56 -0400
-Date: Thu, 27 May 2004 22:28:38 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Mark Beyer - Contractor <mbeyer@unminc.com>
-Cc: Jan-Benedict Glaw <jbglaw@lug-owl.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6: future of UMSDOS?
-Message-ID: <20040527202837.GV16099@fs.tum.de>
-References: <20040519184321.GB24287@fs.tum.de> <20040524145150.GQ1912@lug-owl.de> <40B22E8D.6000901@unminc.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40B22E8D.6000901@unminc.com>
-User-Agent: Mutt/1.5.6i
+	Thu, 27 May 2004 16:31:23 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4738 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265197AbUE0UbU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 16:31:20 -0400
+Message-ID: <40B6500B.5000009@pobox.com>
+Date: Thu, 27 May 2004 16:31:07 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Brian Lazara <blazara@nvidia.com>
+CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: [PATCH] add new nForce IDE/SATA device IDs
+References: <C064BF1617D93B4B83714E38C4653A6E0AF48249@mail-sc-10.nvidia.com>
+In-Reply-To: <C064BF1617D93B4B83714E38C4653A6E0AF48249@mail-sc-10.nvidia.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 24, 2004 at 10:19:09AM -0700, Mark Beyer - Contractor wrote:
-> Jan-Benedict Glaw wrote:
-> 
-> >On Wed, 2004-05-19 20:43:21 +0200, Adrian Bunk <bunk@fs.tum.de>
-> >wrote in message <20040519184321.GB24287@fs.tum.de>:
-> > 
-> >
-> >>Looking at the state of the UMSDOS code in 2.6 I'm currently wondering 
-> >>about it's future.
-> >>
-> >>Are there still potential users and people willing to work on getting it
-> >>working, or should it be removed from kernel 2.6?
-> >>   
-> >>
-> >
-> >In my early Linux days, UMSDOS was quite a neat thing to have for
-> >showing Linux to friends by placing a .zip'ed Linux installation on
-> >their MS-DOS machines.
-> >
-> >So for historic reasons, I think it would be nice to have UMSDOS around.
-> > 
-> >
-> There are still embedded systems that boot from a DOS file system. Yes, 
-> there are better methods but for backward compatibility I wouldn't like 
-> to see it removed.
+Brian Lazara wrote:
+> We do plan on moving our SATA support to libata.
 
-It's broken in 2.6.
+cool
 
-Does anyone need it enough to fix it?
 
-cu
-Adrian
+> Patches for 2.4.27-pre2 and 2.6.6 to add device IDs for new nForce IDE
+> and SATA controllers. Rename some of the existing controller names to
+> correctly match released product names. 
 
--- 
+The patch looks OK to me, though the final call is up to Bart.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+FWIW, when you included the patch inline, your email editor word-wrapped 
+it so it will not apply.
+
+If Microsoft Outlook (or whatever) cannot produce decent patches, you 
+may need to include your patches _twice_ -- once in plaintext (with 
+annoying word wrap) for review, and once as you did initially, as a 
+base64 attachment.
+
+Most MUA's are able to attach patches as plaintext (not base64), so see 
+if there are setting you can flip...
+
+	Jeff
+
 

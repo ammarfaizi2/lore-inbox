@@ -1,51 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262825AbSJTOxF>; Sun, 20 Oct 2002 10:53:05 -0400
+	id <S262841AbSJTOxN>; Sun, 20 Oct 2002 10:53:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262828AbSJTOxF>; Sun, 20 Oct 2002 10:53:05 -0400
-Received: from mail.hometree.net ([212.34.181.120]:2980 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S262825AbSJTOxE>; Sun, 20 Oct 2002 10:53:04 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: PROBLEM: ide-related kernel panic in 2.4.19 and 2.4.20-pre11
-Date: Sun, 20 Oct 2002 14:59:09 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <aougbt$srm$1@forge.intermeta.de>
-References: <3DB1E876.2000302@quark.didntduck.org> <Pine.LNX.4.10.10210191627090.24031-100000@master.linux-ide.org>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1035125948 30244 212.34.181.4 (20 Oct 2002 14:59:08 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Sun, 20 Oct 2002 14:59:08 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S262879AbSJTOxN>; Sun, 20 Oct 2002 10:53:13 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:30760 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S262841AbSJTOxL>; Sun, 20 Oct 2002 10:53:11 -0400
+Date: Sun, 20 Oct 2002 16:59:19 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andreas Jaeger <aj@suse.de>
+Cc: Andi Kleen <ak@muc.de>, Jeff Dike <jdike@karaya.com>,
+       john stultz <johnstul@us.ibm.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       george anzinger <george@mvista.com>,
+       Stephen Hemminger <shemminger@osdl.org>, discuss@x86-64.org
+Subject: Re: [PATCH] linux-2.5.43_vsyscall_A0
+Message-ID: <20021020145919.GU23930@dualathlon.random>
+References: <20021019031002.GA16404@averell> <200210190450.XAA06161@ccure.karaya.com> <20021019040238.GA21914@averell> <u8lm4tcknv.fsf@gromit.moeb>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <u8lm4tcknv.fsf@gromit.moeb>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick <andre@linux-ide.org> writes:
+On Sun, Oct 20, 2002 at 03:19:32PM +0200, Andreas Jaeger wrote:
+> Andi Kleen <ak@muc.de> writes:
+> 
+> > [full quote for context]
+> >
+> > On Sat, Oct 19, 2002 at 06:49:59AM +0200, Jeff Dike wrote:
+> >> ak@muc.de said:
+> >> > Guess you'll have some problems then with UML on x86-64, which always
+> >> > uses vgettimeofday. But it's only used for gettimeofday() currently,
+> >> > perhaps it's  not that bad when the UML child runs with the host's
+> >> > time.
+> >> 
+> >> It's not horrible, but it's still broken.  There are people who depend
+> >> on UML being able to keep its own time separately from the host.
+> >> 
+> >> > I guess it would be possible to add some support for UML to map own
+> >> > code over the vsyscall reserved locations. UML would need to use the
+> >> > syscalls then. But it'll be likely ugly. 
+> >> 
+> >> Yeah, it would be.
+> >> 
+> >> My preferred solution would be for libc to ask the kernel where the vsyscall
+> >> area is.  That's reasonably clean and virtualizable.  Andrea doesn't like it
+> >> because it adds a few instructions to the vsyscall address calculation.
+> >
+> > I would have no problems with adding that to the x86-64 kernel. It could
+> > be passed in by the ELF environment vector and added to the ABI. 
+> > Overhead should be negligible, it just needs a single table lookup.  
+> > Andreas, what do you think ? 
+> 
+> Create a new AT_ constant, and pass it via the auxiliary vector and we
+> can use it in glibc.
 
->They are not broken if you have a device which is "Copy-protected" aware.
->It will attempt to thwart your operation request and that can include
->crashing a system.
+will it be a pointer to function?
 
-Which in my country would result in a direct lawsuit ($303b of the
-german law code: "Anschlaege auf die Datenverarbeitung durch
-Veraenderung oder Vernichtung von Computerdaten, Datentraegern oder
-Anlagen") against the vendor of the drive, the computer and the CD.
-
-Thank goodness, I'm living in a country where "law enforcement at gun
-point" is not usual.
-
-	Regards
-		Henning
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+Andrea

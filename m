@@ -1,154 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263679AbTI2QUR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 12:20:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263681AbTI2QUR
+	id S263172AbTI2QR4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 12:17:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263371AbTI2QR4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 12:20:17 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.51]:34500 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S263679AbTI2QUF (ORCPT
+	Mon, 29 Sep 2003 12:17:56 -0400
+Received: from fw.osdl.org ([65.172.181.6]:49624 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263172AbTI2QRy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 12:20:05 -0400
-Date: Mon, 29 Sep 2003 18:20:04 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: =?iso-8859-1?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Bind Mount Extensions (RO --bind mounts)
-Message-ID: <20030929162004.GB21717@DUK2.13thfloor.at>
-Mail-Followup-To: =?iso-8859-1?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030928155515.GA4325@DUK2.13thfloor.at> <20030929111941.GG11543@vega.digitel2002.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030929111941.GG11543@vega.digitel2002.hu>
-User-Agent: Mutt/1.4i
+	Mon, 29 Sep 2003 12:17:54 -0400
+Date: Mon, 29 Sep 2003 09:13:38 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@localhost.localdomain
+To: Pavel Machek <pavel@ucw.cz>
+cc: Linus Torvalds <torvalds@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: pm: Revert swsusp to 2.6.0-test3 
+In-Reply-To: <20030928175853.GF359@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44.0309290902150.968-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 29, 2003 at 01:19:41PM +0200, Gábor Lénárt wrote:
-> tatus: O
-> Content-Length: 1317
-> Lines: 31
+
+> > Ok. In that case, can we remove the '#if 0' blocks entirely, or at least 
+> > add a big comment on why they are there but disabled?
 > 
-> Hi!
+> Like this?
+
+Pavel, I don't even know where to begin, but I will suggest that you check 
+your sources better. I did apply the patch to revert swsusp to the state 
+it was in -test3. According to bitkeeper, it's ChangeSet 1.1217.3.31, 
+which can be viewed here: 
+
+http://linus.bkbits.net:8080/linux-2.5/patch@1.1217.3.31
+
+It was merged last Thursday night, which means it should have been in 
+-test5-bk13. The changelog also appeared on the bk-commits-head list. 
+
+
+Next, if you're going to patch my code, do *not* do crap like this: 
+
+> +#if 0 
+> +     /* Patrick is likely to s/swsusp_/pmdisk_/ in next release,
+> +        but #if 0 is needed so that this compiles. */
+>       if ((error = swsusp_save()))
+>               goto Done;
 > 
-> On Sun, Sep 28, 2003 at 05:55:15PM +0200, Herbert Poetzl wrote:
-> > verified that the patches apply on linux-2.6.0-test6
-> > and work as expected ...
-> > 
-> > FYI, this patch (hopefully) allows RO --bind mounts
-> > to 'behave' like other ro mounted filesystems, and
-> > I hope that they will be included in the mainline
-> > in the near future ;)
-> 
-> Maybe (sure ;-) it will be somewhat newbie question ...
+> @@ -195,6 +198,7 @@
+>       } else
+>               pr_debug("PM: Image restored successfully.\n");
+>       swsusp_free();
+> +#endif
 
-you are welcome to ask!
+I asked you several weeks ago to submit a patch that simply removed the
+calls to swsusp. You did not, and you choose here to simply break it, and
+add a bullshit comment to it.  
 
-> I don't know too much on kernel internals, but imho --bind 
-> mounts and likes should be implemented at VFS layer. 
+If you're going to 'fix' the code, take a minute to submit a patch that
+does not add #ifdef's, and with a comment that actually makes sense to
+someone other than you.
 
-yes they are
+And, if you're going to submit a patch, please do so against the current 
+release. 
 
-> So then why the patch effects filesystems like ext2 and ext3? 
 
-because ext2 and ext3 (and the other FS too) use them ;)
-
-> Till now I've thought that VFS is a general layer, and syscalls 
-> about file operations use general VFS functions which of course 
-> call the desired functions from filesystem implementations to do a
-> certain work. 
-
-except for FS specific ioctls/features this is true ...
-
-> If it's true (is it?) why not only VFS is needed to change to
-> support eg ro --bind? 
-
-hmm, IIRC I never mentioned any filesystem except intermezzo
-which is a special case ...
-
-> Does your patch mean that reiserfs or something else
-> does not work with it? Because your patch contains filesystem 
-> code modifications so I can inmagine that it won't work with 
-> a great number of filesystems, like Minix, AFFS, msdos, etc etc ...
-
-I've extracted the relevant hunks from the patch, and
-you can see, that those FS specific modifications only
-affect the FS specific ioctls, which do not use the
-VFS layer (yet?) ... (at end of mail)
-
-> BTW. It would be much more funny to have --bind mounts
-> supporting all general mount options, like ro (ok so this is the patch),
-> noexec, and such. 
-
-yes, I will implement them, but until now, only a few
-people seem to care about this stuff, so there seems
-no hurry, but you are right, all the other mount features
-should be implemented for --bind mounts too ...
-
-best,
-Herbert
-
---- linux-2.6.0-test3/fs/ext2/ioctl.c	2003-07-14 05:39:30.000000000 +0200
-+++ linux-2.6.0-test3-bme0.03/fs/ext2/ioctl.c	2003-08-09 17:05:51.000000000 +0200
-@@ -29,7 +30,7 @@
- 	case EXT2_IOC_SETFLAGS: {
- 		unsigned int oldflags;
- 
--		if (IS_RDONLY(inode))
-+		if (IS_RDONLY(inode) || MNT_IS_RDONLY(filp->f_vfsmnt))
- 			return -EROFS;
- 
- 		if ((current->fsuid != inode->i_uid) && !capable(CAP_FOWNER))
-@@ -68,7 +69,7 @@
- 	case EXT2_IOC_SETVERSION:
- 		if ((current->fsuid != inode->i_uid) && !capable(CAP_FOWNER))
- 			return -EPERM;
--		if (IS_RDONLY(inode))
-+		if (IS_RDONLY(inode) || MNT_IS_RDONLY(filp->f_vfsmnt))
- 			return -EROFS;
- 		if (get_user(inode->i_generation, (int *) arg))
- 			return -EFAULT;	
---- linux-2.6.0-test3/fs/ext3/ioctl.c	2003-07-14 05:33:10.000000000 +0200
-+++ linux-2.6.0-test3-bme0.03/fs/ext3/ioctl.c	2003-08-09 17:06:08.000000000 +0200
-@@ -34,7 +35,7 @@
- 		unsigned int oldflags;
- 		unsigned int jflag;
- 
--		if (IS_RDONLY(inode))
-+		if (IS_RDONLY(inode) || MNT_IS_RDONLY(filp->f_vfsmnt))
- 			return -EROFS;
- 
- 		if ((current->fsuid != inode->i_uid) && !capable(CAP_FOWNER))
-@@ -110,7 +111,7 @@
- 
- 		if ((current->fsuid != inode->i_uid) && !capable(CAP_FOWNER))
- 			return -EPERM;
--		if (IS_RDONLY(inode))
-+		if (IS_RDONLY(inode) || MNT_IS_RDONLY(filp->f_vfsmnt))
- 			return -EROFS;
- 		if (get_user(generation, (int *) arg))
- 			return -EFAULT;
---- linux-2.6.0-test3/fs/reiserfs/ioctl.c	2003-07-14 05:33:11.000000000 +0200
-+++ linux-2.6.0-test3-bme0.03/fs/reiserfs/ioctl.c	2003-08-09 17:06:22.000000000 +0200
-@@ -38,7 +39,7 @@
- 		i_attrs_to_sd_attrs( inode, ( __u16 * ) &flags );
- 		return put_user(flags, (int *) arg);
- 	case REISERFS_IOC_SETFLAGS: {
--		if (IS_RDONLY(inode))
-+		if (IS_RDONLY(inode) || MNT_IS_RDONLY(filp->f_vfsmnt))
- 			return -EROFS;
- 
- 		if ((current->fsuid != inode->i_uid) && !capable(CAP_FOWNER))
-@@ -70,7 +71,7 @@
- 	case REISERFS_IOC_SETVERSION:
- 		if ((current->fsuid != inode->i_uid) && !capable(CAP_FOWNER))
- 			return -EPERM;
--		if (IS_RDONLY(inode))
-+		if (IS_RDONLY(inode) || MNT_IS_RDONLY(filp->f_vfsmnt))
- 			return -EROFS;
- 		if (get_user(inode->i_generation, (int *) arg))
- 			return -EFAULT;	
+	Pat
 

@@ -1,114 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268999AbUJELw7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269007AbUJELzY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268999AbUJELw7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 07:52:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269006AbUJELww
+	id S269007AbUJELzY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 07:55:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269006AbUJELzY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 07:52:52 -0400
-Received: from ozlabs.org ([203.10.76.45]:5869 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S269007AbUJELw3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 07:52:29 -0400
-Date: Tue, 5 Oct 2004 21:49:51 +1000
-From: Anton Blanchard <anton@samba.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: Core scsi layer crashes in 2.6.8.1
-Message-ID: <20041005114951.GD22396@krispykreme.ozlabs.ibm.com>
-References: <1096401785.13936.5.camel@localhost.localdomain> <1096467125.2028.11.camel@mulgrave>
+	Tue, 5 Oct 2004 07:55:24 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:9991 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S269007AbUJELx3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 07:53:29 -0400
+Date: Tue, 5 Oct 2004 12:53:25 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Richard Earnshaw <richard.earnshaw@arm.com>
+Cc: linux-kernel@vger.kernel.org, Catalin Marinas <Catalin.Marinas@arm.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: [RFC] ARM binutils feature churn causing kernel problems
+Message-ID: <20041005125324.A6910@flint.arm.linux.org.uk>
+Mail-Followup-To: Richard Earnshaw <richard.earnshaw@arm.com>,
+	linux-kernel@vger.kernel.org,
+	Catalin Marinas <Catalin.Marinas@arm.com>,
+	Rusty Russell <rusty@rustcorp.com.au>,
+	Sam Ravnborg <sam@ravnborg.org>
+References: <20040927210305.A26680@flint.arm.linux.org.uk> <20041001211106.F30122@flint.arm.linux.org.uk> <tnxllemvgi7.fsf@arm.com> <1096931899.32500.37.camel@localhost.localdomain> <loom.20041005T130541-400@post.gmane.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1096467125.2028.11.camel@mulgrave>
-User-Agent: Mutt/1.5.6+20040907i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <loom.20041005T130541-400@post.gmane.org>; from richard.earnshaw@arm.com on Tue, Oct 05, 2004 at 11:10:46AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hi James,
-
-> These state transition warnings are currently expected in this code
-> (they're basically verbose warnings).
+On Tue, Oct 05, 2004 at 11:10:46AM +0000, Richard Earnshaw wrote:
+> Rusty Russell <rusty <at> rustcorp.com.au> writes:
+> > Russell, I thought about not including any symbol which is not of form
+> > "[A-Za-z0-9_]+" in kallsyms, for all archs: you are not the only one
+> > with weird-ass symbols.  Is it that you want these mapping symbols in
+> > /proc/kallsyms but ignored in backtraces, or you don't need them in
+> > kallsyms altogether?
+> > 
+> > Thanks,
+> > Rusty.
 > 
-> What was the oops?
 > 
-> I have a theory that we should be taking a device reference before
-> waking up the error handler, otherwise host removal can race with error
-> handling.
+> Mapping symbols will always be encoded with STB_LOCAL and STT_NOTYPE.
+> I would have thought it unlikely that the kernel would ever want to
+> report against any symbol with those attributes and they could all
+> be dropped on that basis.
 
-Did this get sorted out? Here is an oops from a few week old BK tree.
-FYI I just noticed I have disabled host reset in the sym2 driver (it
-was locking up at the time and I never went back to work out why).
-However, even with a host reset this could happen right?
+(Richard - your mailer appears to have dropped people from the CC: list...)
 
-Below we get a WARN_ON then an oops (the bit starting with NIP, the
-address we tried to access was 0x100510.
+How about this patch?  Is there a better way to parse the 'nm' output
+to achieve the same as your suggestion above?
 
-Anton
+diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x *.orig -x *.rej orig/kernel/module.c linux/kernel/module.c
+--- orig/kernel/module.c	Wed Sep 22 16:07:38 2004
++++ linux/kernel/module.c	Tue Oct  5 12:46:01 2004
+@@ -1923,6 +1923,10 @@ static const char *get_ksymbol(struct mo
+ 		if (mod->symtab[i].st_shndx == SHN_UNDEF)
+ 			continue;
+ 
++		if (ELF_ST_BIND(mod->symtab[i].st_info) == STB_LOCAL
++		    && ELF_ST_TYPE(mod->symtab[i].st_info) == STT_NOTYPE)
++			continue;
++
+ 		/* We ignore unnamed symbols: they're uninformative
+ 		 * and inserted at a whim. */
+ 		if (mod->symtab[i].st_value <= addr
+diff -up -x BitKeeper -x ChangeSet -x SCCS -x _xlk -x *.orig -x *.rej orig/scripts/kallsyms.c linux/scripts/kallsyms.c
+--- orig/scripts/kallsyms.c	Sun Jul 11 22:56:39 2004
++++ linux/scripts/kallsyms.c	Tue Oct  5 12:51:26 2004
+@@ -32,6 +32,17 @@ usage(void)
+ 	exit(1);
+ }
+ 
++/*
++ * This ignores the intensely annoying "mapping symbols" found
++ * in ARM ELF files: $a, $t and $d.
++ */
++static inline int
++is_arm_mapping_symbol(const char *str)
++{
++	return str[0] == '$' && strchr("atd", str[1]) &&
++	       (str[2] == '\0' || str[2] == '.');
++}
++
+ static int
+ read_symbol(FILE *in, struct sym_entry *s)
+ {
+@@ -56,7 +67,8 @@ read_symbol(FILE *in, struct sym_entry *
+ 		_sinittext = s->addr;
+ 	else if (strcmp(str, "_einittext") == 0)
+ 		_einittext = s->addr;
+-	else if (toupper(s->type) == 'A' || toupper(s->type) == 'U')
++	else if (toupper(s->type) == 'A' || toupper(s->type) == 'U' ||
++		 is_arm_mapping_symbol(str))
+ 		return -1;
+ 
+ 	s->sym = strdup(str);
 
-sym0: <1010-66> rev 0x1 at pci 0004:03:01.0 irq 87
-sym.0004:03:01.0: No NVRAM, ID 7, Fast-80, LVD, parity checking
-xics_enable_irq 47 buid 4 gqirm 255
-sym.0004:03:01.0: SCSI BUS has been reset.
-scsi0 : sym-2.1.18j
-Using anticipatory io scheduler
-sym.0004:03:01.0:10: FAST-40 WIDE SCSI 80.0 MB/s ST (25.0 ns, offset 31)
-  Vendor: IBM       Model: IC35L036UCDY10-0  Rev: S25M
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-sym.0004:03:01.0:10:0: tagged command queuing enabled, command queue depth 16.
-scsi(0:0:10:0): Beginning Domain Validation
-sym.0004:03:01.0:10: asynchronous.
-sym.0004:03:01.0:10: wide asynchronous.
-sym.0004:03:01.0:10: FAST-80 WIDE SCSI 160.0 MB/s DT (12.5 ns, offset 31)
-scsi(0:0:10:0): Ending Domain Validation
-sym.0004:03:01.0:11:0:phase change 2-7 6@01050368 resid=5.
-sym.0004:03:01.0:11:0:phase change 2-3 6@01050368 resid=5.
-sym.0004:03:01.0:11: FAST-40 WIDE SCSI 80.0 MB/s ST (25.0 ns, offset 31)
-sym.0004:03:01.0:11:control msgout: c.
-sym.0004:03:01.0: TARGET 11 has been reset.
-sym.0004:03:01.0:11:0: ABORT operation started.
-sym.0004:03:01.0:11:0: ABORT operation complete.
-sym.0004:03:01.0:11:0: DEVICE RESET operation started.
-sym.0004:03:01.0:11:0: DEVICE RESET operation complete.
-sym.0004:03:01.0:11:control msgout: c.
-sym.0004:03:01.0: TARGET 11 has been reset.
-sym.0004:03:01.0:11:0: ABORT operation started.
-sym.0004:03:01.0:11:0: ABORT operation complete.
-sym.0004:03:01.0:11:0: BUS RESET operation started.
-sym.0004:03:01.0:11:0: BUS RESET operation complete.
-sym.0004:03:01.0: SCSI BUS reset detected.
-sym.0004:03:01.0: SCSI BUS has been reset.
-scsi: Device offlined - not ready after error recovery: host 0 channel 0 id 11 lun 0
-Badness in kref_get at lib/kref.c:32
-Call Trace:
-[c0000025fe1b3bd0] [c0000030262bf4b0] 0xc0000030262bf4b0 (unreliable)
-[c0000025fe1b3c50] [c00000000021f5b8] .get_device+0x20/0x3c
-[c0000025fe1b3cc0] [c000000000294c60] .scsi_device_get+0x38/0xe4
-[c0000025fe1b3d40] [c000000000294e30] .__scsi_iterate_devices+0x60/0xfc
-[c0000025fe1b3de0] [c000000000299bf8] .scsi_run_host_queues+0x34/0x58
-[c0000025fe1b3e60] [c0000000002989f8] .scsi_error_handler+0x268/0xaa0
-[c0000025fe1b3f90] [c000000000017aac] .kernel_thread+0x4c/0x68
-sym.0004:03:01.0:11:control msgout: c.
-NIP: C000000000294C48 XER: 0000000020000000 LR: C000000000294E30
-REGS: c0000025fe1b3a40 TRAP: 0300   Not tainted  (2.6.9-rc2-bml)
-MSR: 9000000000001032 EE: 0 PR: 0 FP: 0 ME: 1 IR/DR: 11
-DAR: 0000000000100510, DSISR: 0000000040000000
-TASK: c000001dfe1b72c0[1467] 'scsi_eh_0' THREAD: c0000025fe1b0000 CPU: 3
-GPR00: FFFFFFFFFFFFFFFA C0000025FE1B3CC0 C0000000007297B8 00000000001000F0
-GPR04: C000000FFE185000 0000000000000001 0000000000000000 0000000000000000
-GPR08: 0000000000000000 0000000000100100 C000000000B96228 9000000000009032
-GPR12: 0000000024FFFF22 C000000000542700 0000000000000000 0000000000000000
-GPR16: 0000000000000000 C00000000040D188 C000000000587058 C0000025FE1B3ED0
-GPR20: 00000000000000FC C00000000040D188 C000000000587058 C0000025FE1B3F00
-GPR24: C0000025FE1B3EF0 0000040100000000 C000002FFE128D30 C000000FFE185000
-GPR28: 9000000000009032 C0000007FFFCF800 00000000001002D8 00000000001000F0
-NIP [c000000000294c48] .scsi_device_get+0x20/0xe4
-LR [c000000000294e30] .__scsi_iterate_devices+0x60/0xfc
-Call Trace:
-[c0000025fe1b3cc0] [c000000000294da8] .scsi_device_put+0x9c/0xc4 (unreliable)
-[c0000025fe1b3d40] [c000000000294e30] .__scsi_iterate_devices+0x60/0xfc
-[c0000025fe1b3de0] [c000000000299bf8] .scsi_run_host_queues+0x34/0x58
-[c0000025fe1b3e60] [c0000000002989f8] .scsi_error_handler+0x268/0xaa0
-[c0000025fe1b3f90] [c000000000017aac] .kernel_thread+0x4c/0x68
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

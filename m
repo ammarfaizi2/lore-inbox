@@ -1,55 +1,37 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262382AbUGYMIA (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sun, 25 Jul 2004 08:08:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262768AbUGYMH7
+	id S263743AbUGaWFa (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sat, 31 Jul 2004 18:05:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbUGaWFa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jul 2004 08:07:59 -0400
-Received: from [193.0.243.246] ([193.0.243.246]:62945 "EHLO postfix3.ofir.com")
-	by vger.kernel.org with ESMTP id S262380AbUGYMHx convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jul 2004 08:07:53 -0400
-X-WM-Posted-At: webmail1.ofir.dk; Sun, 25 Jul 04 14:07:43 +0200
-Date: Sun, 25 Jul 2004 14:07:43 +0200
-From: benedicta hendircks <dircks1000@ofir.dk>
-X-EXP32-SerialNo: 00002117
-Subject: Hello
+	Sat, 31 Jul 2004 18:05:30 -0400
+Received: from [212.253.100.142] ([212.253.100.142]:39185 "HELO 10.0.0.13")
+	by vger.kernel.org with SMTP id S263743AbUGaWF0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jul 2004 18:05:26 -0400
+From: "LAU KAYIT BUROSU" <info2@lau-kayitburosu.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: EN UYGUN  =?ISO-8859-1?Q?=20HAR=C7?= OLANAKLARI  =?ISO-8859-1?Q?=20=DDLE?=  =?ISO-8859-1?Q?=20K?=
+	=?ISO-8859-1?Q?IBRIS=92TA?=  =?ISO-8859-1?Q?=20=DCN=DDVERS=DDTE?=  =?ISO-8859-1?Q?=20E=D0=DDT=DD?=
+	=?ISO-8859-1?Q?M=DD?=
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-9
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-X-Mailer: WebMail (Hydra) SMTP v3.51
-Message-Id: <20040725120539.B268C1A2E7A@postfix3.ofir.com>
-To: undisclosed-recipients:;
+Date: Sun, 1 Aug 2004 01:05:07 +0300
+Message-Id: <S263743AbUGaWF0/20040731220526Z+21152@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262382AbUGYMIA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S263743AbUGaWFa@vger.kernel.org>
 
-Greetings,
+LEFKE AVRUPA =DCN=DDVERS=DDTES=DD
+K=FDbr=FDs Bilim Vakf=FD
 
-I am Benedicta Lindiwe Hendricks (Mrs) of RSA. I am writing
-this letter to you with the hope that you will be kind enough to
-assist my family.
-
-If this means of communication is not acceptable to you
-please accept my apologies as it is the only available and
-resourceful means for me right now.
-
-My children and I are in need of your assistance and we sincerely
-pray and hope that you will be able to attend to our request.
-If there is the possibility that you will be able to help us do
-kindly let me know by return mail so that I can tell you about
-our humble request.
-
-Thank for your understanding.
-
-Benedicta Lindiwe Hendricks (Mrs).
-
-Alternative email address:dicta90@katamail.com
-
-_______________________________________________________________________=
-__
-OFiR Spil - Vind 1.000 vis af kroner! Bes=F8g http://spil.ofir.dk
-OFiR Kontakt - Find din nye ven el. partner p=E5 http://kontakt.ofir.dk
-
+Y=D6K taraf=FDndan onayl=FD Yurt d=FD=FE=FDnda ge=E7erli diploma ve bir=
+=E7ok burs
+olanaklar=FD ile ciddi bir e=F0itim.
+=C7ok uygun har=E7 ve bar=FDnma olanaklar=FD, =FCcretsiz ula=FE=FDm ile=
+ en ekonomik ve en
+iyi ko=FEullarda Devlet-Vak=FDf =DCniversitesinde e=F0itim olana=F0=FD.
+WEB: www.lau-kayitburosu.com  E-Mail:info@lau-kayitburosu.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
  in

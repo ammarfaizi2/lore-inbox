@@ -1,73 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313027AbSDGKST>; Sun, 7 Apr 2002 06:18:19 -0400
+	id <S313032AbSDGK1Z>; Sun, 7 Apr 2002 06:27:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313032AbSDGKSS>; Sun, 7 Apr 2002 06:18:18 -0400
-Received: from mail.sonytel.be ([193.74.243.200]:51188 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S313027AbSDGKSR>;
-	Sun, 7 Apr 2002 06:18:17 -0400
-Date: Sun, 7 Apr 2002 12:17:28 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Russell King <rmk@arm.linux.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S313034AbSDGK1Y>; Sun, 7 Apr 2002 06:27:24 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:19719 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S313032AbSDGK1Y>; Sun, 7 Apr 2002 06:27:24 -0400
+Date: Sun, 7 Apr 2002 11:27:16 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Linux 2.5.8-pre2
-In-Reply-To: <Pine.LNX.4.33.0204051657270.16281-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0204071215220.2567-100000@lisianthus.sonytel.be>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20020407112716.A30048@flint.arm.linux.org.uk>
+In-Reply-To: <Pine.LNX.4.33.0204051657270.16281-100000@penguin.transmeta.com> <Pine.GSO.4.21.0204071215220.2567-100000@lisianthus.sonytel.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Apr 2002, Linus Torvalds wrote:
-> <rmk@flint.arm.linux.org.uk> (02/03/13 1.388.3.5)
-> 	Update ARM related video drivers:
-> 	 - cyber2000fb
-> 	 - sa1100fb
-> 	Add new ARM video drivers:
-> 	 - anakinfb
-> 	 - clps711xfb
+On Sun, Apr 07, 2002 at 12:17:28PM +0200, Geert Uytterhoeven wrote:
+> Please either add resource management code to anakinfb and clps711xfb,
+> or apply the patch below.
 
-Please either add resource management code to anakinfb and clps711xfb, or apply
-the patch below.
+They're not ISA nor PCI - in fact, they're specific system-on-a-chip
+framebuffers.  I therefore don't see the point of your patch.
 
---- linux-2.5.8-pre2/drivers/video/fbmem.c.orig	Sun Apr  7 10:54:24 2002
-+++ linux-2.5.8-pre2/drivers/video/fbmem.c	Sun Apr  7 12:15:21 2002
-@@ -157,12 +157,6 @@
- #ifdef CONFIG_FB_AMIGA
- 	{ "amifb", amifb_init, amifb_setup },
- #endif
--#ifdef CONFIG_FB_ANAKIN
--	{ "anakinfb", anakinfb_init, NULL },
--#endif
--#ifdef CONFIG_FB_CLPS711X
--	{ "clps711xfb", clps711xfb_init, NULL },
--#endif
- #ifdef CONFIG_FB_CYBER
- 	{ "cyber", cyberfb_init, cyberfb_setup },
- #endif
-@@ -293,6 +287,12 @@
- #endif
- #ifdef CONFIG_FB_VOODOO1
- 	{ "sst", sstfb_init, sstfb_setup },
-+#endif
-+#ifdef CONFIG_FB_ANAKIN
-+	{ "anakinfb", anakinfb_init, NULL },
-+#endif
-+#ifdef CONFIG_FB_CLPS711X
-+	{ "clps711xfb", clps711xfb_init, NULL },
- #endif
- 	/*
- 	 * Generic drivers that don't use resource management (yet)
+(Oh, and a bugbear - people go running around adding checks for the
+return value of request_region and friends on embedded devices where
+there can't be the possibility of a clash waste memory needlessly.)
 
-Gr{oetje,eeting}s,
-
-			      Geert (fbdev init order watchdog^H^H^Hpenguin)
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

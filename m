@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317035AbSFKNRI>; Tue, 11 Jun 2002 09:17:08 -0400
+	id <S317036AbSFKNSH>; Tue, 11 Jun 2002 09:18:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317036AbSFKNRH>; Tue, 11 Jun 2002 09:17:07 -0400
-Received: from mail.loewe-komp.de ([62.156.155.230]:45833 "EHLO
-	mail.loewe-komp.de") by vger.kernel.org with ESMTP
-	id <S317035AbSFKNRG>; Tue, 11 Jun 2002 09:17:06 -0400
-Message-ID: <3D05F8CB.7040409@loewe-komp.de>
-Date: Tue, 11 Jun 2002 15:19:07 +0200
-From: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Vladimir Zidar <vladimir@mindnever.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Process-Shared Mutex (futex) - What is it good for ?
-In-Reply-To: <1023380463.1751.39.camel@server1> 	<3D00706B.1070906@loewe-komp.de> <1023481074.7204.70.camel@server1> 	<3D0324B1.614BD9D4@loewe-komp.de> <1023723807.1491.56.camel@server1>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	id <S317037AbSFKNSG>; Tue, 11 Jun 2002 09:18:06 -0400
+Received: from denise.shiny.it ([194.20.232.1]:430 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id <S317036AbSFKNSG>;
+	Tue, 11 Jun 2002 09:18:06 -0400
+Message-ID: <XFMail.20020611151754.pochini@shiny.it>
+X-Mailer: XFMail 1.4.7 on Linux
+X-Priority: 3 (Normal)
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+In-Reply-To: <3D05AA6E.mailKB1BHA1W@viadomus.com>
+Date: Tue, 11 Jun 2002 15:17:54 +0200 (CEST)
+From: Giuliano Pochini <pochini@shiny.it>
+To: DervishD <raul@pleyades.net>
+Subject: RE: bandwidth 'depredation'
+Cc: Linux-kernel <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vladimir Zidar wrote:
-> On Sun, 2002-06-09 at 11:49, Peter Wächtler wrote:
-> 
-> 
->>Just for *that*?
->>Do you write programs that reveal from sigsegv with sigsetjmp(3)?
->>
-> 
->  No, I do not. But killing the process sounds much like abnormal
-> programm termination. Can you feel the word 'abnormal' ? It is opposite
-> of normal - be it simple as error condition on file descriptor.
-> 
 
-A-prog:               B-prog:
+On 11-Jun-2002 DervishD wrote:
+>     Hello all :))
+>
+>     I've noticed that, when using certain programs like 'wget', the
+> bandwidth seems to be 'depredated' by them. When I download a file
+> with lukemftp or with links, the bandwidth is then distributed
+> between all IP clients, but when using wget or some ftp clients, it
+> is not distributed. BTW, I'm using an ADSL line (128 up / 256 down).
+>
+>     IMHO, the IP layer (well, in this case the TCP layer) should
+> distribute the bandwidth (although I don't know how to do this), and
+> the kernel seems to be not doing it.
 
-gets write lock
-write some data
-                        block on read lock
-write some data
-crashes
-                        wants an error indication to repair data magically
+No, IP doesn't balance anything. You have to filter the traffic with
+QoS of traffic shapers to give different "priorities" to packets as
+you like. Wget doesn't "grab" the bandwidth, it's the remote server
+that fills it.
 
 
-So a crashing A-prog is OK for you, but B should get an indication.
-Could catch a signal (SIGLOST?) returning -1 with errno=LOCKBROKEN
-That would be possible with futex.
-
-That is a case for writing data to a file - what about linked lists
-in memory?
-
+Bye.
 

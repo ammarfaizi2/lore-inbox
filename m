@@ -1,115 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288285AbSACTJL>; Thu, 3 Jan 2002 14:09:11 -0500
+	id <S287400AbSACTJb>; Thu, 3 Jan 2002 14:09:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287303AbSACTIw>; Thu, 3 Jan 2002 14:08:52 -0500
-Received: from smtp-out.Austria.eu.net ([193.154.160.116]:29342 "EHLO
-	relay12.austria.eu.net") by vger.kernel.org with ESMTP
-	id <S287400AbSACTIk>; Thu, 3 Jan 2002 14:08:40 -0500
-Subject: [Patch] Corrected, sysrq-show-output, kernel 2.4.17
-From: Harald Holzer <harald.holzer@eunet.at>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-+I0Xb2D5BMkfuuGwb87o"
+	id <S287303AbSACTJW>; Thu, 3 Jan 2002 14:09:22 -0500
+Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:5900 "HELO
+	yucs.org") by vger.kernel.org with SMTP id <S288258AbSACTJH>;
+	Thu, 3 Jan 2002 14:09:07 -0500
+Subject: Re: Dual athlon XP 1800 problems
+From: Shaya Potter <spotter@cs.columbia.edu>
+To: Dave Jones <davej@suse.de>
+Cc: Andreas Bombe <bombe@informatik.tu-muenchen.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0201031806360.11961-100000@Appserv.suse.de>
+In-Reply-To: <Pine.LNX.4.33.0201031806360.11961-100000@Appserv.suse.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 X-Mailer: Evolution/1.0 (Preview Release)
-Date: 03 Jan 2002 20:06:14 +0100
-Message-Id: <1010084774.12670.21.camel@hh2.hhhome.at>
+Date: 03 Jan 2002 14:07:50 -0500
+Message-Id: <1010084872.23187.3.camel@zaphod>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2002-01-03 at 12:07, Dave Jones wrote:
+> On Thu, 3 Jan 2002, Andreas Bombe wrote:
+> 
+> > The identification string is written by the BIOS.  Yours didn't know
+> > about XPs so it misidentified them as MPs.  Upgrade your BIOS if this
+> > bugs you.
+> >
+> > If ID string contradicts what you think you bought, don't trust the ID
+> > string.
+> 
+> x86info, and 2.5.2-dj11 both have code to correctly determine XP / MP.
 
---=-+I0Xb2D5BMkfuuGwb87o
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Just getting linux up and running on this machine, so with the original
+debian kernel (2.2.20 UP) and x86info from its unstable, these retail
+XPs were identified as MPs
 
-Sorry, i forgot a pair of {} in sysrq_handle_showregs.
+trillian:/home/spotter# uname -a
+Linux trillian 2.2.20 #1 Sun Nov 4 15:44:23 EST 2001 i686 unknown
+trillian:/home/spotter# x86info 
+x86info v1.7.  Dave Jones 2001
+Feedback to <davej@suse.de>.
 
-I should stop programming python ;-)
+Found 1 CPU, but found 2 CPUs in MPTable.
+/dev/cpu/0/cpuid: No such device
+Family: 6 Model: 6 Stepping: 2 [Athlon MP]
+Processor name string: AMD Athlon(tm) MP Processor 1800+
 
-Harald Holzer
+PowerNOW! Technology information
+Available features:
+	Temperature sensing diode present.
 
------Forwarded Message-----
+prehaps 2.4.17 (compiling now) will make a difference, or does one need
+your kernel + x86info to do it correctly?
 
-From: Helge Deller <deller@gmx.de>
-To: Harald Holzer <harald.holzer@eunet.at>
-Subject: Re: [Patch] sysrq-show-output, kernel 2.4.17
-Date: 03 Jan 2002 08:45:36 +0100
+thanks,
 
-On Thursday 03 January 2002 00:25, Harald Holzer wrote:
-> Sysrq-m didnt show memory information on the serial console.
->
-> This patch sets the console_loglevel to 7 before it calls show_mem,
-> show_regs and show_state, to get the output.
->
-> Harald Holzer
+shaya
 
-static void sysrq_handle_showregs(int key, struct pt_regs *pt_regs,
-                 struct kbd_struct *kbd, struct tty_struct *tty) {
- +       int orig_loglevel;
- +
-         if (pt_regs)
- +               orig_loglevel = console_loglevel;
- +               console_loglevel = 7;
-                 show_regs(pt_regs);
- +               console_loglevel = orig_loglevel;
- +
-  }
+-- 
+spotter@{cs.columbia.edu,yucs.org}
+http://yucs.org/~spotter/
 
-Hi Harald,
-I think you misssed a pair of { ... } here...
-
-Helge
-
-
-
---=-+I0Xb2D5BMkfuuGwb87o
-Content-Disposition: attachment; filename=sysrq-show-output.patch
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-
---- linux-2.4.17/drivers/char/sysrq.c	Thu Jan  3 18:28:59 2002
-+++ linux/drivers/char/sysrq.c	Thu Jan  3 18:29:54 2002
-@@ -246,8 +246,14 @@
-=20
- static void sysrq_handle_showregs(int key, struct pt_regs *pt_regs,
- 		struct kbd_struct *kbd, struct tty_struct *tty) {
--	if (pt_regs)
-+	int orig_loglevel;
-+
-+	if (pt_regs) {
-+		orig_loglevel =3D console_loglevel;
-+		console_loglevel =3D 7;
- 		show_regs(pt_regs);
-+		console_loglevel =3D orig_loglevel;
-+	}
- }
- static struct sysrq_key_op sysrq_showregs_op =3D {
- 	handler:	sysrq_handle_showregs,
-@@ -258,7 +264,12 @@
-=20
- static void sysrq_handle_showstate(int key, struct pt_regs *pt_regs,
- 		struct kbd_struct *kbd, struct tty_struct *tty) {
-+	int orig_loglevel;
-+
-+	orig_loglevel =3D console_loglevel;
-+	console_loglevel =3D 7;
- 	show_state();
-+	console_loglevel =3D orig_loglevel;
- }
- static struct sysrq_key_op sysrq_showstate_op =3D {
- 	handler:	sysrq_handle_showstate,
-@@ -269,7 +280,12 @@
-=20
- static void sysrq_handle_showmem(int key, struct pt_regs *pt_regs,
- 		struct kbd_struct *kbd, struct tty_struct *tty) {
-+	int orig_loglevel;
-+
-+	orig_loglevel =3D console_loglevel;
-+	console_loglevel =3D 7;
- 	show_mem();
-+	console_loglevel =3D orig_loglevel;
- }
- static struct sysrq_key_op sysrq_showmem_op =3D {
- 	handler:	sysrq_handle_showmem,
-
---=-+I0Xb2D5BMkfuuGwb87o--

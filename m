@@ -1,64 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289849AbSBOPC3>; Fri, 15 Feb 2002 10:02:29 -0500
+	id <S289837AbSBOPPw>; Fri, 15 Feb 2002 10:15:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289844AbSBOPCU>; Fri, 15 Feb 2002 10:02:20 -0500
-Received: from zeke.inet.com ([199.171.211.198]:62442 "EHLO zeke.inet.com")
-	by vger.kernel.org with ESMTP id <S289832AbSBOPCL>;
-	Fri, 15 Feb 2002 10:02:11 -0500
-Message-ID: <3C6D22E2.F708A646@inet.com>
-Date: Fri, 15 Feb 2002 09:01:54 -0600
-From: Eli Carter <eli.carter@inet.com>
-Organization: Inet Technologies, Inc.
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-13 i686)
-X-Accept-Language: en
+	id <S289834AbSBOPPn>; Fri, 15 Feb 2002 10:15:43 -0500
+Received: from mgw-x2.nokia.com ([131.228.20.22]:26357 "EHLO mgw-x2.nokia.com")
+	by vger.kernel.org with ESMTP id <S289837AbSBOPPd>;
+	Fri, 15 Feb 2002 10:15:33 -0500
+Message-ID: <3C6D25F6.4010905@nokia.com>
+Date: Fri, 15 Feb 2002 17:15:02 +0200
+From: Dmitry Kasatkin <dmitry.kasatkin@nokia.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011023
 MIME-Version: 1.0
-To: Ben Greear <greearb@candelatech.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: copy_from_user returns a positive value?
-In-Reply-To: <3C6C6E0C.6000309@candelatech.com>
-Content-Type: text/plain; charset=us-ascii
+Newsgroups: comp.os.linux.networking
+To: Dmitry Kasatkin <dmitry.kasatkin@nokia.com>
+CC: affix-devel@lists.sourceforge.net,
+        Affix support <affix-support@lists.sourceforge.net>,
+        Bluetooth-Drivers-for-Linux 
+	<Bluetooth-Drivers-for-Linux@research.nokia.com>,
+        NRC-WALLET DL <DL.NRC-WALLET@nokia.com>,
+        linux-net <linux-net@vger.kernel.org>, linux-kernel@vger.kernel.org
+Subject: New Affix Release: Affix-0_92
+In-Reply-To: <3C500D09.4080206@nokia.com> <3C5AB093.5050405@nokia.com> <3C5E4991.6010707@nokia.com> <3C628D6A.2050900@nokia.com> <3C628DCF.40700@nokia.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 15 Feb 2002 15:15:31.0199 (UTC) FILETIME=[9B8708F0:01C1B633]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Greear wrote:
-> 
-> I have an IOCTL defined something like this:
-> 
->         _IOWR (0xfe, (30<<3 + 0), __u8 [696])
-> 
-> I'm really passing in a structure of size 696 (does that matter)?
-> 
-> When I make the copy from user call:
-> 
->        if ((ret = copy_from_user(&reqconf, arg, sizeof(reqconf)))) {
->           printk("ERROR: copy_from_user returned: %i, sizeof(reqconf): %i\n",
->                  ret, sizeof(reqconf));
->           return ret;
->        }
-> 
-> I see this printed out:
-> 
-> ERROR: copy_from_user returned: 696, sizeof(reqconf): 696
-> 
-> According to some docs I saw on the web, it should return 0, or the
-> number it has left to copy.  So, why does it have 696 bytes left
-> to copy??
+Hi,
 
-Because it couldn't copy any of the data?  The code I have seen
-generally returns -EFAULT in that case.
-Could you be trying to copy data from somewhere that the user does not
-have permission to read? Can you verify that both pointers are valid? 
-&reqconf should be in the kernel's memory space and arg should be a
-pointer provided by the user-space app pointing to memory in userland.
+Find new affix release Affix-0_92 on
+http://affix.sourceforge.net
 
-You might want to get the Linux Device Drivers book... the 2nd ed. is
-out.
+Version 0.92 [15.02.2002]
+- UART protocol fixed
+  setup proper uart parameters to make uart working
+  example:
+  stty -F /dev/ttyS0 -crtscts ispeed 57600 ospeed 57600
+  btctl open_uart /dev/ttyS0
 
-HTH,
+Tested with Philips Truebaby module.
 
-Eli
---------------------. "If it ain't broke now,
-Eli Carter           \                  it will be soon." -- crypto-gram
-eli.carter(a)inet.com `-------------------------------------------------
+br, Dmitry
+
+-- 
+ Dmitry Kasatkin
+ Nokia Research Center / Helsinki
+ Mobile: +358 50 4836365
+ E-Mail: dmitry.kasatkin@nokia.com
+
+
+

@@ -1,98 +1,79 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S153878AbPGGXRz>; Wed, 7 Jul 1999 19:17:55 -0400
-Received: by vger.rutgers.edu id <S153861AbPGGXRo>; Wed, 7 Jul 1999 19:17:44 -0400
-Received: from mea.tmt.tele.fi ([194.252.70.162]:2533 "EHLO mea.tmt.tele.fi") by vger.rutgers.edu with ESMTP id <S153680AbPGGXRE>; Wed, 7 Jul 1999 19:17:04 -0400
-Date: Thu, 8 Jul 1999 02:16:45 +0300
-From: Matti Aarnio <matti.aarnio@sonera.fi>
-To: Jim Nance <jlnance@sailboat.mis.uncwil.edu>
-Cc: linux-kernel@vger.rutgers.edu
-Subject: Re: IBM Mainframe Support
-Message-ID: <19990708021645.F26016@mea.tmt.tele.fi>
-References: <199907070645.BAA05227@shadygrove.linas.org> <19990707182336.A26917@sailboat.mis.uncwil.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Received: by vger.rutgers.edu via listexpand id <S153926AbPGIKoB>; Fri, 9 Jul 1999 06:44:01 -0400
+Received: by vger.rutgers.edu id <S153931AbPGIKnR>; Fri, 9 Jul 1999 06:43:17 -0400
+Received: from [210.140.67.114] ([210.140.67.114]:1558 "EHLO soto.zerosoft.co.jp") by vger.rutgers.edu with ESMTP id <S153918AbPGIKlM>; Fri, 9 Jul 1999 06:41:12 -0400
+Date: Fri, 09 Jul 1999 19:41:24 +0900
+From: Masahiro Adegawa <adegawa@zerosoft.co.jp>
+To: linux-kernel@vger.rutgers.edu
+Subject: [PATCH] SGI's kdb version v0.4
+Message-Id: <3785D1D4130.9F7FADEGAWA@mail.zerosoft.co.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-In-Reply-To: <19990707182336.A26917@sailboat.mis.uncwil.edu>; from Jim Nance on Wed, Jul 07, 1999 at 06:23:36PM -0400
+X-Mailer: Becky! ver 1.25.04
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-On Wed, Jul 07, 1999 at 06:23:36PM -0400, Jim Nance wrote:
-> On Wed, Jul 07, 1999 at 01:45:10AM -0500, Linas Vepstas wrote:
-> > Hi,
-> > 
-> > I have patches to the Linux kernel that add support for the IBM
-> > mainframe ESA/390 series of computers (and clones e.g. Hitachi
-> 
-> This is great!  I glanced at the web page, but its not clear to me if the
-> kernel will run in a VM, of if you need the entire machine.  I sort of
-> got the idea that it would not run in a VM.
+Hello,
 
-	Add some extra privilege bits to your VM account, and you
-	will be able to run guest operating systems just fine.
+1. simple numeric address for `bp'
+2. `rd c' and 'rd d'
 
-	It is so long since I have ran IX/370 at an 3033 complex, that
-	I don't remember details anymore :-(  --  but my library contains
-	bound copy of IX/370 manuals :-)  ( Compacts them from about two
-	meters of binders to half a meter of books. )
-	( I collect odd computer manuals for possible reference use.. )
+diff -u linux-2.2.9-ik/arch/i386/kdb/kdb_bp.c linux/arch/i386/kdb/kdb_bp.c
+--- linux-2.2.9-ik/arch/i386/kdb/kdb_bp.c       Mon Jun 21 15:28:32 1999
++++ linux/arch/i386/kdb/kdb_bp.c        Thu Jul  8 18:18:42 1999
+@@ -348,7 +348,7 @@
+ #endif
 
-	A problem at IX/370 time (and still, I think) is that IBM
-	mainframes don't have asynchronous serial ports, nor any
-	equivalent interfaces. Mega-IO-throughput, and async serial
-	interfaces don't really mix...  Back then a Series/1 computer
-	was hooked into a channel attachment, and it acted as serial
-	port multiplexor processor.  ( IBM mainframes are like any
-	other computer, just that all interfaces they have are alike
-	SCSI ...  Attachment to network/terminals/disks/whatnot goes
-	via attachment units. )
+        nextarg = 1;
+-       diag = kdbgetaddrarg(argc, argv, &nextarg, &addr, &offset, &symname, regs);
++       diag = kdbgetaddrarg(argc, argv, &nextarg, &addr, &offset, NULL, regs);
+        if (diag)
+                return diag;
 
-	Installation guide has these notes for the IX370 virtual machine:
+diff -u linux-2.2.9-ik/arch/i386/kdb/kdbsupport.c linux/arch/i386/kdb/kdbsupport.c
+--- linux-2.2.9-ik/arch/i386/kdb/kdbsupport.c   Mon Jun 21 15:28:32 1999
++++ linux/arch/i386/kdb/kdbsupport.c    Fri Jul  9 11:26:02 1999
+@@ -730,8 +730,8 @@
+                           dr[0], dr[1], dr[2], dr[3]);
+                kdb_printf("dr6 = 0x%8.8x  dr7 = 0x%8.8x\n",
+                           dr[6], dr[7]);
++               return 0;
+        }
+-               break;
+        case 'c':
+        {
+                unsigned long cr[5];
+@@ -741,8 +741,8 @@
+                }
+                kdb_printf("cr0 = 0x%8.8x  cr1 = 0x%8.8x  cr2 = 0x%8.8x  cr3 = 0x%8.8x\ncr4 = 0x%8.8x\n",
+                           cr[0], cr[1], cr[2], cr[3], cr[4]);
++               return 0;
+        }
+-               break;
+        case 'm':
+                break;
+        case 'r':
 
-	"IX/370 Entry in the VM/SP Directory"
+/*********************************************************/
+(3.only Japanese 86/106 keyboards)
 
-	USER IX370 password 4M 16M G  # Start with 4 MB memory, max 16 MB
-	IPL CMS			  # Do IPL to CMS
-	ACCOUNT nnnnnn
-	OPTION ECMODE BMX SVCACCL # For running guest operating-systems
-				  # in VM/SP, SVCACCL is for use of
-				  # "VM/SP Handshaking" facility (optional)
-	CONSOLE ... 
-	IUCV ALLOW		# allows incoming IUCV messages
-	OPTION MAXCONN  nn	# how many concurrent IUCV sessions
+--- linux-2.2.9-kdb/arch/i386/kdb/kdb_io.c.org  Sat Jun  5 23:46:12 1999
++++ linux-2.2.9-kdb/arch/i386/kdb/kdb_io.c      Sun Jun  6 10:46:16 1999
+@@ -183,6 +183,12 @@
+                if (scancode == 0xe0) {
+                        continue;
+                }
++
++               if (scancode == 0x73) {         /* see driver/char/pc_keyb.c */
++                       scancode = 0x59;        /* for Japanese 86/106 keyboards */
++               } else if (scancode == 0x7d) {
++                       scancode = 0x7c;
++               }
 
-	+++ DASD defines, SPOOL defines, etc +++
+                if (!shift_lock && !shift_key) {
+                        keychar = plain_map[scancode];
 
-	There is then an EXEC3 script for a set of CP commands to be
-	executed at the virtual machine boot, then doing another
-	IPL from a disk where the real IX/370 boot loader image is
-	resident.
-
-	At IBM mainframes there is *no* BIOS, *NOTHING*.
-	Also, there are no initial filesystems from which to pull
-	anything, there are just device interface addresses to which
-	you speak with archaic IO commands.
-
-	You tell the VM/CP program at first to attach certain parts
-	of physical disks to your virtual machine, and activate them.
-	Then you do Initial Program Load (IPL) from any of loadable
-	devices (including your virtual card reader), and the program
-	you want to use comes up.
-
-	Because you usually want to do something more convenient, than
-	IPL from hard/virtualized devices, VM/SP users usually have
-	(had) their IPL as CMS - Conversational Monitor(ing) System.
-	If you compare CMS with anything more widely known, it was
-	back then "CP/M Done Right".  (Filenames were 8+8, no stupid
-	8+3 things.  But no directories either!)
-
-
-	I am afraid running Linux at "Big Iron" will be a curiousity
-	issue... ... but i you get it up, I would love to have a guest
-	account :)
-
-> Jim
-
-/Matti Aarnio <matti.aarnio@sonera.fi> -- these days using silicon instead
-					  of iron :)
+ -Masahiro Adegawa
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,56 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261775AbVCIQyd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261790AbVCIQ5R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261775AbVCIQyd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 11:54:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbVCIQyd
+	id S261790AbVCIQ5R (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 11:57:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262032AbVCIQ5R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 11:54:33 -0500
-Received: from rproxy.gmail.com ([64.233.170.203]:15483 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261775AbVCIQyb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 11:54:31 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=T2FYGL9rBqoVY2Wb8TTuiHyHyVzj0hgIud2Lax2QpLLPhiR4kCMIjKJ8kkOmYeLiatwARoVCU2O8HyvoB4HQzEQICR9rtbzBZ6v/Pq61Y2yYwQew4NPWJ4xDmwaFVyoiK+kijHUBhzRKAXratNpslFva2ZgNzjHQeZ+wcASxCew=
-Message-ID: <9e4733910503090854e245740@mail.gmail.com>
-Date: Wed, 9 Mar 2005 11:54:30 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: [Linux-fbdev-devel] Re: [announce 7/7] fbsplash - documentation
-Cc: Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050308223728.GA11065@spock.one.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 9 Mar 2005 11:57:17 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:28554 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261790AbVCIQ5Q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 11:57:16 -0500
+Subject: Re: [PATCH] remove dead cyrix/centaur mtrr init code
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: torvalds@osdl.org
+In-Reply-To: <200503081937.j28Jb4Vd020597@hera.kernel.org>
+References: <200503081937.j28Jb4Vd020597@hera.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-References: <20050308021706.GH26249@spock.one.pl>
-	 <200503080418.08804.arnd@arndb.de>
-	 <20050308223728.GA11065@spock.one.pl>
+Message-Id: <1110387326.28860.199.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 09 Mar 2005 16:55:27 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Mar 2005 23:37:29 +0100, Michal Januszewski <spock@gentoo.org> wrote:
-> On Tue, Mar 08, 2005 at 04:18:07AM +0100, Arnd Bergmann wrote:
+On Maw, 2005-03-08 at 17:40, Linux Kernel Mailing List wrote:
+> ChangeSet 1.2094, 2005/03/08 09:40:59-08:00, Andries.Brouwer@cwi.nl
 > 
-> > It should probably just use its own hotplug agent instead of calling
-> > the helper directly.
-> 
-> I've just had a look at it, and it seems possible. From what I have seen
-> in the firmware_class.c code, it would require:
->  - registering a class somewhere in the initializaton code
->  - every time a request from fbcon is generated:
->    - register the class device
->    - create a timer
->    - call kobject_hotplug() to send the event to userspace
->    - unregister the device
+> 	[PATCH] remove dead cyrix/centaur mtrr init code
 
-framebuffer already has a class registered. check out /sys/class/grpahics.
 
-You should be able to just call request_firmware and have it download
-your image whenever you need it. It doesn't have to be firmware,
-request_firmware will download anything.
+This patch was discussed previously and declared incorrect. The ->init
+method call is missing in the base mtrr code.
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+Should be reverted and/or fixed properly.
+
+

@@ -1,44 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132027AbRAYRmh>; Thu, 25 Jan 2001 12:42:37 -0500
+	id <S132577AbRAYRpi>; Thu, 25 Jan 2001 12:45:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132577AbRAYRm1>; Thu, 25 Jan 2001 12:42:27 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:8576 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S132027AbRAYRmJ>; Thu, 25 Jan 2001 12:42:09 -0500
-Date: Thu, 25 Jan 2001 12:41:28 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Pete Zaitcev <zaitcev@metabyte.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: patchlet for cs46xx
-In-Reply-To: <3A70588B.4692D937@metabyte.com>
-Message-ID: <Pine.LNX.3.95.1010125123928.9456A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132699AbRAYRp2>; Thu, 25 Jan 2001 12:45:28 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:10956 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S132577AbRAYRpT>;
+	Thu, 25 Jan 2001 12:45:19 -0500
+Date: Thu, 25 Jan 2001 18:45:16 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200101251745.SAA07063@harpo.it.uu.se>
+To: linux-kernel@vger.kernel.org
+Subject: x86 PAT errata
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 Jan 2001, Pete Zaitcev wrote:
+Before people get too exited about the x86 Page Attribute Table ...
+Does Linux use mode B (CR4.PSE=1) or mode C (CR4.PAE=1) paging?
+If so, known P6 errata must be taken into account.
+In particular, Pentium III errata E27 and Pentium II errata A56
+imply that only the low four PAT entries are working for 4KB
+pages, if CR4.PSE or CR4.PAE is enabled.
 
-> Sorry for the nitpicking, bust since 2.4 is now "stable"...
-> -- Pete
-> 
-[SNIPPED...]
->From what I tested, copy_to/from_user, now seg-faults the caller directly.
-If the function returns, it worked. Therefore you will never get a
-chance to return -EFAULT.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.0 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+/Mikael
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

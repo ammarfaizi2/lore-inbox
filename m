@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267155AbUBMS1N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 13:27:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267154AbUBMS1L
+	id S267144AbUBMSWe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 13:22:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267152AbUBMSWe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 13:27:11 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:51231 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S267155AbUBMSYm (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 13:24:42 -0500
-Message-Id: <200402131824.i1DIOX6o023463@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>,
-       Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
-Subject: Re: JFS default behavior (was: UTF-8 in file systems? xfs/extfs/etc.) 
-In-Reply-To: Your message of "Fri, 13 Feb 2004 18:15:42 GMT."
-             <20040213181542.GD8858@parcelfarce.linux.theplanet.co.uk> 
-From: Valdis.Kletnieks@vt.edu
-References: <1076604650.31270.20.camel@ulysse.olympe.o2t> <20040213030346.GF25499@mail.shareable.org> <1076695606.23795.23.camel@m222.net81-64-248.noos.fr>
-            <20040213181542.GD8858@parcelfarce.linux.theplanet.co.uk>
+	Fri, 13 Feb 2004 13:22:34 -0500
+Received: from fw.osdl.org ([65.172.181.6]:63711 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267144AbUBMSWc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 13:22:32 -0500
+Date: Fri, 13 Feb 2004 10:22:30 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: =?iso-8859-1?Q?Sven_K=F6hler?= <skoehler@upb.de>
+Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
+Subject: Re: why are capabilities disabled?
+Message-ID: <20040213102230.B14506@build.pdx.osdl.net>
+References: <c0iqrq$erh$1@sea.gmane.org> <200402131601.i1DG1Nsl020006@turing-police.cc.vt.edu> <402D0F6D.7090803@upb.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-302147626P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 13 Feb 2004 13:24:33 -0500
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <402D0F6D.7090803@upb.de>; from skoehler@upb.de on Fri, Feb 13, 2004 at 06:54:53PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-302147626P
-Content-Type: text/plain; charset=us-ascii
+* Sven Köhler (skoehler@upb.de) wrote:
+> >>"getpcaps 1" shows, that the init-process is started without 
+> >>cap_setpcap, and i know that i can change that somehow.
+> >>So why are capabilities disabled? and how do i enable them?
 
-On Fri, 13 Feb 2004 18:15:42 GMT, viro@parcelfarce.linux.theplanet.co.uk said:
+Oh, I see.  Not having cap_setpcap does not mean capabilities are
+disabled.  It's the standard set.
 
-> What names forbidden in ASCII?
+> i found the hint again: i have to change the value CAP_INIT_EFF_SET in 
+> capability.h, so that init-process is not started with disabled 
+> cap_setpcap, but is this still a security risk?
 
-Anything with a / or a \0 in it. ;)
+Yes.  Don't do that.
 
---==_Exmh_-302147626P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFALRZhcC3lWbTT17ARAsLNAKCU2qU+7dFoqY6Jrc9TRykTIfCEuwCfUUE0
-UdUTbJqS5c1xXl99HSlKU8A=
-=jB9g
------END PGP SIGNATURE-----
-
---==_Exmh_-302147626P--
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

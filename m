@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261861AbTFDMuO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 08:50:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262633AbTFDMuN
+	id S261548AbTFDMsR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 08:48:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbTFDMsR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 08:50:13 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:25862 "EHLO
-	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
-	id S261861AbTFDMuM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 08:50:12 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: linux-kernel@vger.kernel.org
-Subject: Re: system clock speed too high?
-In-Reply-To: <E19NUrl-0002xI-00@gondolin.me.apana.org.au>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.5.17-20030301 ("Bubbles") (UNIX) (Linux/2.4.20-1-686-smp (i686))
-Message-Id: <E19NXuq-0003HM-00@gondolin.me.apana.org.au>
-Date: Wed, 04 Jun 2003 23:02:56 +1000
+	Wed, 4 Jun 2003 08:48:17 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:39040 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S261548AbTFDMsR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 08:48:17 -0400
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: select for UNIX sockets?
+References: <m3llwkauq5.fsf@defiant.pm.waw.pl> <03060406554700.28116@tabby>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 04 Jun 2003 14:42:18 +0200
+In-Reply-To: <03060406554700.28116@tabby>
+Message-ID: <m3k7c2auad.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Xu <herbert@gondor.apana.org.au> wrote:
-> 
-> I see exactly the opposite.  The time is ~2.5 times slower with
-> 2.4.21-rc6.
-> 
-> This is actually in a VMware setup on a P4 machine.  The same setup
-> runs 2.4.20, 2.5.69 and 2.5.70 correctly.
+Jesse Pollard <jesse@cats-chateau.net> writes:
 
-That was my stupidity by not connecting the RTC.  2.5 just copes with
-it much better so I didn't notice.
+> > select(1024, NULL, [3], NULL, NULL)     = 1 (out [3])
+> > sendto(3, "\0", 1, 0, {sa_family=AF_UNIX, path="/tmp/tempUn"}, 13 <<<
+> > blocks
+> 
+> Could. There may be room for the buffer, but unless it is set to nonblock, 
+> you may have a stream open to another host that may not accept the data
+> (busy,
+> network congestion...) With the required acks, the return may (should?) be
+> delayed until the ack arrives.
+
+But it's local datagram socket (UNIX). OTOH TCP to remote host should
+not block waiting for acks.
 -- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Krzysztof Halasa
+Network Administrator

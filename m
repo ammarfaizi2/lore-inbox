@@ -1,167 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262241AbVAEEJP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262242AbVAEEgx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262241AbVAEEJP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 23:09:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262242AbVAEEJP
+	id S262242AbVAEEgx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 23:36:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262243AbVAEEgx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 23:09:15 -0500
-Received: from vvtp.tn.tudelft.nl ([130.161.252.29]:61418 "HELO
-	vvtp.tudelft.nl") by vger.kernel.org with SMTP id S262241AbVAEEI5
+	Tue, 4 Jan 2005 23:36:53 -0500
+Received: from cpc2-colc3-4-0-cust236.colc.cable.ntl.com ([81.107.32.236]:34211
+	"EHLO sofa.co.uk") by vger.kernel.org with ESMTP id S262242AbVAEEgt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 23:08:57 -0500
-Date: Wed, 5 Jan 2005 05:08:42 +0100
-From: Konrad Wojas <wojas@vvtp.tudelft.nl>
+	Tue, 4 Jan 2005 23:36:49 -0500
+Subject: Re: PROBLEM: 2.6.10 oops on startup
+From: Paul Bain <prbain@essex.ac.uk>
 To: "Randy.Dunlap" <rddunlap@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9 oops in poll()?
-Message-ID: <20050105040841.GI31250@vvtp.tudelft.nl>
-References: <20050103161556.GD31250@vvtp.tudelft.nl> <41DB1C92.7060501@osdl.org>
+In-Reply-To: <41DAE494.1020807@osdl.org>
+References: <1104605177.6137.92.camel@sofa.co.uk>
+	 <41DAE494.1020807@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1104899778.1992.45.camel@sofa.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41DB1C92.7060501@osdl.org>
-X-Detect-Self: dd61600cfe762340a29ea869157aecee
-User-Agent: Mutt/1.5.6+20040907i
-X-AntiVirus: scanned on vvtp.tudelft.nl for viruses by AMaViS 0.2.1 (http://amavis.org/)
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 05 Jan 2005 04:36:18 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 04, 2005 at 02:45:38PM -0800, Randy.Dunlap wrote:
-> I don't see the Oops primary error/reason/fault message.
-> Can you dig it up?
+On Tue, 2005-01-04 at 18:46, Randy.Dunlap wrote:
+> Have you tested any 2.6.10-bk# versions to see if this has been
+> fixed by recent patches?
+> If not, please try that and let us know, then I'll look at it
+> more if needed.
+> 
+> Thanks,
+> ~Randy
 
-Sorry, you're right, I looked in messages instead of kern.log:
+Hi, thanks for the response. I tried it with 2.6.10-bk7 and it crashed
+with
 
-Jan  3 07:07:26 wojas kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000000
-Jan  3 07:07:26 wojas kernel:  printing eip:
-Jan  3 07:07:26 wojas kernel: c02b5513
-Jan  3 07:07:26 wojas kernel: *pde = 00000000
-Jan  3 07:07:26 wojas kernel: Oops: 0002 [#1]
-Jan  3 07:07:26 wojas kernel: PREEMPT 
-Jan  3 07:07:26 wojas kernel: Modules linked in: sch_ingress cls_u32 sch_sfq sch_cbq ip6table_filter ip6t_LOG ip6_tables ipt_limit lp msr cpuid ipt_state ipt_MASQUERADE ipt_LOG iptable_mangle iptable_filter dummy af_packet es1371 ac97_codec pci_hotplug intel_agp floppy pcspkr rtc sd_mod reiserfs ext2 dm_mod capability commoncap tsdev mousedev joydev evdev wacom usbhid psmouse usb_storage uhci_hcd usbcore eeprom lm75 i2c_sensor i2c_dev i2c_piix4 i2c_core aha152x ipv6 binfmt_misc ip_nat_ftp iptable_nat ip_conntrack_ftp ip_conntrack mga agpgart snd_pcm_oss snd_mixer_oss snd_ens1371 snd_rawmidi snd_seq_device snd_pcm snd_timer snd_page_alloc snd_ac97_codec snd gameport ipt_REJECT ip_tables ne2k_pci 8390 via_rhine mii crc32 sound soundcore sg scsi_mod parport_pc parport ide_cd cdrom ext3 jbd mbcache ide_generic piix ide_disk ide_core unix fbcon font vesafb cfbcopyarea cfbimgblt cfbfillrect
-Jan  3 07:07:26 wojas kernel: CPU:    0
-Jan  3 07:07:26 wojas kernel: EIP:    0060:[__func__.4+64363/135712]    Not tainted VLI
-Jan  3 07:07:26 wojas kernel: EFLAGS: 00010246   (2.6.9-1-686) 
-Jan  3 07:07:26 wojas kernel: EIP is at 0xc02b5513
-Jan  3 07:07:26 wojas kernel: eax: 00000000   ebx: c0325c00   ecx: c61e57e0   edx: d35b85e0
-Jan  3 07:07:26 wojas kernel: esi: c46082b9   edi: c61e57e4   ebp: 00000056   esp: d5f35f1c
-Jan  3 07:07:26 wojas kernel: ds: 007b   es: 007b   ss: 0068
-Jan  3 07:07:26 wojas kernel: Process python (pid: 30488, threadinfo=d5f34000 task=c0f0faa0)
-Jan  3 07:07:26 wojas kernel: Stack: c022db99 c61e57e0 d35b85e0 00000000 00000145 c016c995 c61e57e0 00000000 
-Jan  3 07:07:26 wojas kernel:        c4608000 d5f35f64 d5f35f68 0000001a c016ca0a 00000063 c4608008 d5f35f64 
-Jan  3 07:07:26 wojas kernel:        d5f35f68 d5f34000 00000000 00000002 00000000 c4608000 000001ff 082b0d90 
-Jan  3 07:07:26 wojas kernel: Call Trace:
-Jan  3 07:07:26 wojas kernel:  [sock_poll+41/64] sock_poll+0x29/0x40
-Jan  3 07:07:26 wojas kernel:  [do_pollfd+149/160] do_pollfd+0x95/0xa0
-Jan  3 07:07:26 wojas kernel:  [do_poll+106/208] do_poll+0x6a/0xd0
-Jan  3 07:07:26 wojas kernel:  [sys_poll+353/576] sys_poll+0x161/0x240
-Jan  3 07:07:26 wojas kernel:  [__pollwait+0/208] __pollwait+0x0/0xd0
-Jan  3 07:07:26 wojas kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-Jan  3 07:07:26 wojas kernel: Code: 79 70 74 6f 2f 63 69 70 68 65 72 2e 63 00 69 6e 63 6c 75 64 65 2f 6c 69 6e 75 78 2f 63 72 79 70 74 6f 2e 68 00 6e 61 6d 65 20 20 <20> 20 20 20 20 20 20 3a 20 25 73 0a 00 6d 6f 64 75 6c 65 20 20 
+ dswload-0294: *** Error: Looking up [ACST] in namespace,
+AE_ALREADY_EXISTS
+ psparse-0601 [26] ps_parse_loop	: During name lookup/catalog,
+AE_ALREADY_EXISTS
+Unable to handle kernel paging request at virtual address 6b6b6b6f
+ printing eip:
+c0222101
+*pde = 00000000
+Oops: 0002 [#1]
+Modules linked in:
+CPU:	0
+EIP:	0060:[<c0222101>]	Not tainted VLI
+EFLAGS:	00010202	(2.6.10-bk7)
+EIP is at acpi_ut_remove_allocation+0xb5/0x124
+eax: 6b6b6b6b	ebx: 00000000	ecx: 00000000	edx: 6b6b6b6b
+esi: c15dd05c	edi: 00000000	ebp: c14faae4	esp: c14faac8
+ds: 007b	es: 007b	ss: 0068
+Process swapper (pid: 1, threadinfo=c14fa000 task=c14f99e0)
+Stack: 	00000001 c0324aec c032492d 00200000 c15dd05c c14fab00 c15dd084
+c14fab1c
+	c0221e7f 00000000 c15dd05c 00000080 c031f0df 000001aa 00000001 c0324a25
+	c032492d 00000000 c15dd084 00000007 c031b887 c14fab90 c020c342 c15dd084
+Call Trace:
+ [<c0103b7f>] show_stack+0x7f/0xa0
+ [<c0103d16>] show_registers+0x156/0x1d0
+ [<c0103f18>] die+0xc8/0x150
+ [<c0114f72>] do_page_fault+0x472/0x6aa
+ [<c010381b>] error_code+0x2b/0x30
+ [<c0221e7f>] acpi_ut_free_and_track+0x7f/0xd3
+ [<c020c342>] acpi_ex_load_op+0x2e1/0x2fd
+ [<c020efca>] acpi_ex_opcode_1A_1T_0R+0x5c/0xa7
+ [<c0204590>] acpi_ds_exec_end_op+0x141/0x49d
+ [<c021b13d>] acpi_ps_parse_loop+0x676/0x9d9
+ [<c021b55f>] acpi_ps_parse_aml+0xbf/0x280
+ [<c021c145>] acpi_psx_execute+0x1e1/0x288
+ [<c02179fd>] acpi_ns_execute_control_method+0xd0/0xed
+ [<c02178fb>] acpi_ns_evaluate_by_handle+0xd3/0x105
+ [<c02176a5>] acpi_ns_evaluate_relative+0x145/0x19d
+ [<c0216b64>] acpi_evaluate_object+0x164/0x259
+ [<c0233267>] acpi_processor_set_pdc+0x97/0xdd
+ [<c0233719>] acpi_processor_get_performance_info+0x6d/0x118
+ [<c0233ade>] acpi_processor_register_performance+0xc9/0x11e
+ [<c010d6cc>] centrino_cpu_init_acpi+0x6c/0x380
+ [<c010da56>] centrino_cpu_init+0x76/0x160
+ [<c02a2a8b>] cpufreq_add_dev+0xeb/0x2f0
+ [<c026d6e9>] sysdev_driver_register+0xa9/0xc0
+ [<c02a3744>] cpufreq_register_driver+0x64/0xf0
+ [<c03d5c83>] centrino_init+0x23/0x30
+ [<c03cd906>] do_initcalls+0x56/0xd0
+ [<c010045d>] init+0x2d/0x120
+ [<c01012b5>] kernel_thread_helper+0x5/0x10
+Code: 00 31 c0 e9 8a 00 00 00 6a 0a e8 5a 17 00 00 89 c7 85 ff 58 74 0c
+57 8d 45 e4 50 68 0f 03 00 00 eb 69 8b 46 04 85 d2 74 05 <89> 42 04 eb
+06 89 83 80 55 41 c0 8b 56 04 85 d2 74 04 8b 06 89
+ <0>Kernel panic - not syncing: Attempted to kill init!
 
-> And it looks like you need to use
->   ksymoops -k /proc/kallsyms
-> to get the addresses converted to symbols.
-> Can you redo ksymoops like that, please?
-
-Doesn't really look like that's helping..
-
-ksymoops 2.4.9 on i686 2.6.9-1-686.  Options used
-     -V (default)
-     -k /proc/kallsyms (specified)
-     -l /proc/modules (default)
-     -o /lib/modules/2.6.9-1-686/ (default)
-     -m /boot/System.map-2.6.9-1-686 (default)
-
-Warning (read_ksyms): no kernel symbols in ksyms, is /proc/kallsyms a valid ksyms file?
-No modules in ksyms, skipping objects
-No ksyms, skipping lsmod
-Jan  3 07:07:26 wojas kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000000
-Jan  3 07:07:26 wojas kernel: c02b5513
-Jan  3 07:07:26 wojas kernel: *pde = 00000000
-Jan  3 07:07:26 wojas kernel: Oops: 0002 [#1]
-Jan  3 07:07:26 wojas kernel: CPU:    0
-Jan  3 07:07:26 wojas kernel: EIP:    0060:[__func__.4+64363/135712]    Not tainted VLI
-Jan  3 07:07:26 wojas kernel: EFLAGS: 00010246   (2.6.9-1-686) 
-Jan  3 07:07:26 wojas kernel: eax: 00000000   ebx: c0325c00   ecx: c61e57e0   edx: d35b85e0
-Jan  3 07:07:26 wojas kernel: esi: c46082b9   edi: c61e57e4   ebp: 00000056   esp: d5f35f1c
-Jan  3 07:07:26 wojas kernel: ds: 007b   es: 007b   ss: 0068
-Jan  3 07:07:26 wojas kernel: Stack: c022db99 c61e57e0 d35b85e0 00000000 00000145 c016c995 c61e57e0 00000000 
-Jan  3 07:07:26 wojas kernel:        c4608000 d5f35f64 d5f35f68 0000001a c016ca0a 00000063 c4608008 d5f35f64 
-Jan  3 07:07:26 wojas kernel:        d5f35f68 d5f34000 00000000 00000002 00000000 c4608000 000001ff 082b0d90 
-Jan  3 07:07:26 wojas kernel: Call Trace:
-Warning (Oops_read): Code line not seen, dumping what data is available
-
-
->>ebx; c0325c00 <devinet_sysctl+460/4e0>
->>ecx; c61e57e0 <pg0+5e3b7e0/3fc54400>
->>edx; d35b85e0 <pg0+1320e5e0/3fc54400>
->>esi; c46082b9 <pg0+425e2b9/3fc54400>
->>edi; c61e57e4 <pg0+5e3b7e4/3fc54400>
->>esp; d5f35f1c <pg0+15b8bf1c/3fc54400>
-
-Jan  3 07:07:26 wojas kernel: Code: 79 70 74 6f 2f 63 69 70 68 65 72 2e 63 00 69 6e 63 6c 75 64 65 2f 6c 69 6e 75 78 2f 63 72 79 70 74 6f 2e 68 00 6e 61 6d 65 20 20 <20> 20 20 20 20 20 20 3a 20 25 73 0a 00 6d 6f 64 75 6c 65 20 20 
-Using defaults from ksymoops -t elf32-i386 -a i386
-
-
-Code;  ffffffd5 <__kernel_rt_sigreturn+1b95/????>
-00000000 <_EIP>:
-Code;  ffffffd5 <__kernel_rt_sigreturn+1b95/????>
-   0:   79 70                     jns    72 <_EIP+0x72>
-Code;  ffffffd7 <__kernel_rt_sigreturn+1b97/????>
-   2:   74 6f                     je     73 <_EIP+0x73>
-Code;  ffffffd9 <__kernel_rt_sigreturn+1b99/????>
-   4:   2f                        das    
-Code;  ffffffda <__kernel_rt_sigreturn+1b9a/????>
-   5:   63 69 70                  arpl   %bp,0x70(%ecx)
-Code;  ffffffdd <__kernel_rt_sigreturn+1b9d/????>
-   8:   68 65 72 2e 63            push   $0x632e7265
-Code;  ffffffe2 <__kernel_rt_sigreturn+1ba2/????>
-   d:   00 69 6e                  add    %ch,0x6e(%ecx)
-Code;  ffffffe5 <__kernel_rt_sigreturn+1ba5/????>
-  10:   63 6c 75 64               arpl   %bp,0x64(%ebp,%esi,2)
-Code;  ffffffe9 <__kernel_rt_sigreturn+1ba9/????>
-  14:   65                        gs
-Code;  ffffffea <__kernel_rt_sigreturn+1baa/????>
-  15:   2f                        das    
-Code;  ffffffeb <__kernel_rt_sigreturn+1bab/????>
-  16:   6c                        insb   (%dx),%es:(%edi)
-Code;  ffffffec <__kernel_rt_sigreturn+1bac/????>
-  17:   69 6e 75 78 2f 63 72      imul   $0x72632f78,0x75(%esi),%ebp
-Code;  fffffff3 <__kernel_rt_sigreturn+1bb3/????>
-  1e:   79 70                     jns    90 <_EIP+0x90>
-Code;  fffffff5 <__kernel_rt_sigreturn+1bb5/????>
-  20:   74 6f                     je     91 <_EIP+0x91>
-Code;  fffffff7 <__kernel_rt_sigreturn+1bb7/????>
-  22:   2e                        cs
-Code;  fffffff8 <__kernel_rt_sigreturn+1bb8/????>
-  23:   68 00 6e 61 6d            push   $0x6d616e00
-Code;  fffffffd <__kernel_rt_sigreturn+1bbd/????>
-  28:   65 20 20                  and    %ah,%gs:(%eax)
-Code;  00000000 Before first symbol
-  2b:   20 20                     and    %ah,(%eax)
-Code;  00000002 Before first symbol
-  2d:   20 20                     and    %ah,(%eax)
-Code;  00000004 Before first symbol
-  2f:   20 20                     and    %ah,(%eax)
-Code;  00000006 Before first symbol
-  31:   20 3a                     and    %bh,(%edx)
-Code;  00000008 Before first symbol
-  33:   20 25 73 0a 00 6d         and    %ah,0x6d000a73
-Code;  0000000e Before first symbol
-  39:   6f                        outsl  %ds:(%esi),(%dx)
-Code;  0000000f Before first symbol
-  3a:   64                        fs
-Code;  00000010 Before first symbol
-  3b:   75 6c                     jne    a9 <_EIP+0xa9>
-Code;  00000012 Before first symbol
-  3d:   65 20 20                  and    %ah,%gs:(%eax)
-
-2 warnings issued.  Results may not be reliable.
+Kernel was compiled with the same debug options as before.
 
 -- 
-Konrad Wojas                          .~.
-~  wojas@vvtp.tudelft.nl             / V \
-~                                   /(   )\
-:wq       GnuPG key 0x588C85B1        ^ ^
-
+Paul Bain <prbain@essex.ac.uk>

@@ -1,907 +1,1003 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261250AbVBZSMj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261253AbVBZSQX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261250AbVBZSMj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Feb 2005 13:12:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbVBZSMj
+	id S261253AbVBZSQX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Feb 2005 13:16:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261254AbVBZSQX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Feb 2005 13:12:39 -0500
-Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:41994 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S261250AbVBZSLX
+	Sat, 26 Feb 2005 13:16:23 -0500
+Received: from ylpvm25-ext.prodigy.net ([207.115.57.56]:47527 "EHLO
+	ylpvm25.prodigy.net") by vger.kernel.org with ESMTP id S261253AbVBZSOQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Feb 2005 13:11:23 -0500
-Date: Sat, 26 Feb 2005 19:11:42 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Cc: David Hoffman <dhoffman_98@yahoo.com>
-Subject: [RFT] Preliminary w83627ehf hardware monitoring driver
-Message-Id: <20050226191142.6288b2ef.khali@linux-fr.org>
-Reply-To: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart=_Sat__26_Feb_2005_19_11_42_+0100_4TlJn3SB=vcmbkM0"
+	Sat, 26 Feb 2005 13:14:16 -0500
+Message-ID: <4220BB87.2010806@ecs.fullerton.edu>
+Date: Sat, 26 Feb 2005 10:10:15 -0800
+From: Eric Gaumer <gaumerel@ecs.fullerton.edu>
+User-Agent: Debian Thunderbird 1.0 (X11/20050117)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: proski@gnu.org, hermes@gibson.dropbear.id.au
+Subject: [PATCH] orinoco rfmon
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig6B1195A9353B71A2CBB3C447"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
-
---Multipart=_Sat__26_Feb_2005_19_11_42_+0100_4TlJn3SB=vcmbkM0
-Content-Type: text/plain; charset=US-ASCII
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig6B1195A9353B71A2CBB3C447
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Hi all,
+Could anyone elaborate on the status of this patch? I've had 344 days of uptime on a PPC
+powerbook using it on 2.4.22 and about 3 months of solid use on 2.6.
 
-I have been working on a w83627ehf hardware monitoring driver. The
-W83627EHF is a Super-I/O chip made by Winbond. Like other chips of the
-family (W83627HF, W83697HF, W83627THF...), it integrates hardware
-monitoring functions. Of these, my preliminary driver only handles
-temperature and fan inputs at the moment. I lack time and do not have
-hardware to test it, so I will not improve it significantly in a near
-future.
+If the code looks problematic could someone point out possible deficiencies so we can work
+toward a satisfactory resolution? I didn't write the code but I'm willing do what I have to
+in order to get this (wireless scanning) into the official tree.
 
-So that my work isn't lost, I am releasing it today in the form of a
-patch against linux-2.6.11-rc5 (attached). You can also obtain it here
-for now:
-http://jdelvare.net1.nerim.net/sensors/linux-2.6.11-rc5-i2c-w83627ehf-beta1.diff
 
-If it could get some testing, I would possibly get this is the main
-kernel tree, so that at least what is implemented can be used, and
-anyone interested in improving it would have a base to start from.
 
-The W83627EHF doesn't seem to be found on many motherboards, but a quick
-searched listed these ones:
-* Asus P5AD2 Premium
-* Asus P5GD1-VM
-* Asus P5GD2 Premium
-* Asus P5GDC-V Deluxe
-* Asus P5P800
-So if you have any of these motherboards (or any other with a W83627EHF
-chip, for that matter), I would welcome any feedback about my driver.
+diff -ur linux-2.6.9/drivers/net/wireless/hermes.c
+linux-2.6.9-orinoco/drivers/net/wireless/hermes.c
+--- linux-2.6.9/drivers/net/wireless/hermes.c	2004-10-20 15:26:41.000000000 -0400
++++ linux-2.6.9-orinoco/drivers/net/wireless/hermes.c	2004-10-20 14:55:01.000000000 -0400
+@@ -182,6 +182,10 @@
+  	if (err)
+  		return err;
 
-Thanks,
--- 
-Jean Delvare
-
---Multipart=_Sat__26_Feb_2005_19_11_42_+0100_4TlJn3SB=vcmbkM0
-Content-Type: text/plain;
- name="linux-2.6.11-rc5-i2c-w83627ehf-beta1.diff"
-Content-Disposition: attachment;
- filename="linux-2.6.11-rc5-i2c-w83627ehf-beta1.diff"
-Content-Transfer-Encoding: 7bit
-
-diff -ruN linux-2.6.11-rc5/drivers/i2c/chips.orig/Kconfig linux-2.6.11-rc5/drivers/i2c/chips/Kconfig
---- linux-2.6.11-rc5/drivers/i2c/chips.orig/Kconfig	2005-02-25 07:59:12.000000000 +0100
-+++ linux-2.6.11-rc5/drivers/i2c/chips/Kconfig	2005-02-26 15:07:39.000000000 +0100
-@@ -311,6 +311,20 @@
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called w83627hf.
- 
-+config SENSORS_W83627EHF
-+	tristate "Winbond W83627EHF"
-+	depends on I2C && EXPERIMENTAL
-+	select I2C_SENSOR
-+	select I2C_ISA
-+	help
-+	  If you say yes here you get preliminary support for the hardware
-+	  monitoring functionality of the Winbond W83627EHF Super-I/O chip.
-+	  Only fan and temperature inputs are supported at the moment, while
-+	  the chip does much more than that.
++        for ( k = 0; k < HERMES_NUMPORTS_MAX; k++) {
++		hw->port_enabled[k] = 0;
++	}
 +
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called w83627ehf.
+  	reg = hermes_read_regn(hw, EVSTAT);
+  	k = CMD_INIT_TIMEOUT;
+  	while ( (! (reg & HERMES_EV_CMD)) && k) {
+diff -ur linux-2.6.9/drivers/net/wireless/hermes.h
+linux-2.6.9-orinoco/drivers/net/wireless/hermes.h
+--- linux-2.6.9/drivers/net/wireless/hermes.h	2004-10-20 15:26:41.000000000 -0400
++++ linux-2.6.9-orinoco/drivers/net/wireless/hermes.h	2004-10-20 15:24:55.000000000 -0400
+@@ -34,6 +34,10 @@
+  #include <linux/if_ether.h>
+  #include <asm/byteorder.h>
+
++#define		HFA384x_PORTTYPE_IBSS			((uint16_t)3)
++#define		HFA384x_WEPFLAGS_DISABLE_TXCRYPT	(0x10)
++#define		HFA384x_WEPFLAGS_DISABLE_RXCRYPT	(0x80)
 +
- endmenu
- 
- menu "Other I2C Chip support"
-diff -ruN linux-2.6.11-rc5/drivers/i2c/chips.orig/Makefile linux-2.6.11-rc5/drivers/i2c/chips/Makefile
---- linux-2.6.11-rc5/drivers/i2c/chips.orig/Makefile	2005-02-25 07:59:12.000000000 +0100
-+++ linux-2.6.11-rc5/drivers/i2c/chips/Makefile	2005-02-26 15:04:11.000000000 +0100
-@@ -33,6 +33,7 @@
- obj-$(CONFIG_SENSORS_SMSC47B397)+= smsc47b397.o
- obj-$(CONFIG_SENSORS_SMSC47M1)	+= smsc47m1.o
- obj-$(CONFIG_SENSORS_VIA686A)	+= via686a.o
-+obj-$(CONFIG_SENSORS_W83627EHF)	+= w83627ehf.o
- obj-$(CONFIG_SENSORS_W83L785TS)	+= w83l785ts.o
- obj-$(CONFIG_ISP1301_OMAP)	+= isp1301_omap.o
- 
-diff -ruN linux-2.6.11-rc5/drivers/i2c/chips.orig/w83627ehf.c linux-2.6.11-rc5/drivers/i2c/chips/w83627ehf.c
---- linux-2.6.11-rc5/drivers/i2c/chips.orig/w83627ehf.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.11-rc5/drivers/i2c/chips/w83627ehf.c	2005-02-26 17:50:50.000000000 +0100
-@@ -0,0 +1,793 @@
+  /*
+   * Limits and constants
+   */
+@@ -150,6 +154,11 @@
+  /*--- Debugging Commands -----------------------------*/
+  #define 	HERMES_CMD_TEST			(0x0038)
+
++/*--- Debugging Commands -----------------------------*/
++/* We want these in this byte arrangement.  Why is it even being changed? */
++#define 	HERMES_CMD_MONITOR		(0x0038)
++#define		HERMES_MONITOR_ENABLE		(0x000b)
++#define		HERMES_MONITOR_DISABLE		(0x000f)
+
+  /* Test command arguments */
+  #define		HERMES_TEST_SET_CHANNEL		0x0800
+@@ -173,6 +182,38 @@
+  #define		HERMES_HOSTSCAN_SYMBOL_BCAST	0x0080
+
+  /*
++ * Configuration RIDs
++ */
++
++#define		HERMES_RID_CNF_PORTTYPE		(0xfc00)
++#define		HERMES_RID_CNF_CHANNEL		(0xfc03)
++#define		HERMES_RID_CNF_PRISM2_WEP_ON	(0xfc28)
++
++/*-- Status Fields --*/
++#define		HERMES_RXSTATUS_MSGTYPE		(0xE000)
++#define		HERMES_RXSTATUS_MACPORT		(0x0700)
++#define		HERMES_RXSTATUS_UNDECR		(0x0002)
++#define		HERMES_RXSTATUS_FCSERR		(0x0001)
++
++/*--------------------------------------------------------------------
++Communication Frames: Test/Get/Set Field Values for Receive Frames
++--------------------------------------------------------------------*/
++#define		HERMES_RXSTATUS_MSGTYPE_GET(value)	(((value) & HERMES_RXSTATUS_MSGTYPE) >> 13)
++#define		HERMES_RXSTATUS_MSGTYPE_SET(value)	((value) << 13)
++#define		HERMES_RXSTATUS_MACPORT_GET(value)	(((value) & HERMES_RXSTATUS_MACPORT) >> 8)
++#define		HERMES_RXSTATUS_MACPORT_SET(value)	((value) << 8)
++#define		HERMES_RXSTATUS_ISUNDECR(value)	((value) & HERMES_RXSTATUS_UNDECR)
++#define		HERMES_RXSTATUS_ISFCSERR(value)	((value) & HERMES_RXSTATUS_FCSERR)
++
++/*--------------------------------------------------------------------
++Communication Frames: Field Masks for Receive Frames
++--------------------------------------------------------------------*/
++/*-- Offsets --------*/
++#define		HERMES_RX_DATA_LEN_OFF		(44)
++#define		HERMES_RX_80211HDR_OFF		(14)
++#define		HERMES_RX_DATA_OFF			(60)
++
 +/*
-+    w83627ehf - Driver for the hardware monitoring functionality of
-+                the Winbond W83627EHF Super-I/O chip
-+    Copyright (C) 2005  Jean Delvare <khali@linux-fr.org>
+   * Frame structures and constants
+   */
+
+@@ -181,6 +222,16 @@
+  #define HERMES_802_3_OFFSET		(14+32)
+  #define HERMES_802_2_OFFSET		(14+32+14)
+
++struct hermes_rx_descriptor {
++	u16 status;
++	u32 time;
++	u8 silence;
++	u8 signal;
++	u8 rate;
++	u8 rxflow;
++	u32 reserved;
++} __attribute__ ((packed));
 +
-+    Shamelessly ripped from the w83627hf driver
-+    Copyright (C) 2003  Mark Studebaker
+  #define HERMES_RXSTAT_ERR		(0x0003)
+  #define	HERMES_RXSTAT_BADCRC		(0x0001)
+  #define	HERMES_RXSTAT_UNDECRYPTABLE	(0x0002)
+@@ -353,6 +404,7 @@
+  #define HERMES_32BIT_REGSPACING	1
+
+  	u16 inten; /* Which interrupts should be enabled? */
++ 	uint8_t		port_enabled[HERMES_NUMPORTS_MAX];
+
+  #ifdef HERMES_DEBUG_BUFFER
+  	struct hermes_debug_entry dbuf[HERMES_DEBUG_BUFSIZE];
+@@ -406,12 +458,14 @@
+
+  static inline int hermes_enable_port(hermes_t *hw, int port)
+  {
++        hw->port_enabled[port] = 1;
+  	return hermes_docmd_wait(hw, HERMES_CMD_ENABLE | (port << 8),
+  				 0, NULL);
+  }
+
+  static inline int hermes_disable_port(hermes_t *hw, int port)
+  {
++        hw->port_enabled[port] = 0;
+  	return hermes_docmd_wait(hw, HERMES_CMD_DISABLE | (port << 8),
+  				 0, NULL);
+  }
+diff -ur linux-2.6.9/drivers/net/wireless/orinoco.c
+linux-2.6.9-orinoco/drivers/net/wireless/orinoco.c
+--- linux-2.6.9/drivers/net/wireless/orinoco.c	2004-10-20 15:26:41.000000000 -0400
++++ linux-2.6.9-orinoco/drivers/net/wireless/orinoco.c	2004-10-20 15:23:04.000000000 -0400
+@@ -466,6 +466,7 @@
+  #endif
+
+  static int suppress_linkstatus; /* = 0 */
++static int suppress_linkstatus_copy; /* = 0 */
+  MODULE_PARM(suppress_linkstatus, "i");
+
+  /********************************************************************/
+@@ -562,16 +563,6 @@
+
+  #define ENCAPS_OVERHEAD		(sizeof(encaps_hdr) + 2)
+
+-struct hermes_rx_descriptor {
+-	u16 status;
+-	u32 time;
+-	u8 silence;
+-	u8 signal;
+-	u8 rate;
+-	u8 rxflow;
+-	u32 reserved;
+-} __attribute__ ((packed));
+-
+  /********************************************************************/
+  /* Function prototypes                                              */
+  /********************************************************************/
+@@ -786,10 +777,13 @@
+  		return 1;
+  	}
+
+-	if (! priv->connected) {
++    if (! priv->connected || dev->type == ARPHRD_IEEE80211_PRISM ||
++        dev->type == ARPHRD_IEEE80211) {
+  		/* Oops, the firmware hasn't established a connection,
+                     silently drop the packet (this seems to be the
+                     safest approach). */
++        /* Also silently drop the packet if we're in rfmon, because it won't do
++         * very good things to try to write to the BAP. - Dragorn */
+  		stats->tx_errors++;
+  		orinoco_unlock(priv, &flags);
+  		dev_kfree_skb(skb);
+@@ -942,6 +936,24 @@
+  	hermes_write_regn(hw, TXCOMPLFID, DUMMY_FID);
+  }
+
++//#define SET_MAC_ADDRESS
++#ifdef SET_MAC_ADDRESS
++static int
++orinoco_set_mac_address(struct net_device *dev, void *addr)
++{
++  struct orinoco_private *priv = dev->priv;
++  struct sockaddr *mac = addr;
 +
-+    This program is free software; you can redistribute it and/or modify
-+    it under the terms of the GNU General Public License as published by
-+    the Free Software Foundation; either version 2 of the License, or
-+    (at your option) any later version.
++  /* Copy the address */
++  memcpy(dev->dev_addr, mac->sa_data, WLAN_ADDR_LEN);
 +
-+    This program is distributed in the hope that it will be useful,
-+    but WITHOUT ANY WARRANTY; without even the implied warranty of
-+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+    GNU General Public License for more details.
++  /* Reconfig the beast */
++  orinoco_reset(priv);
 +
-+    You should have received a copy of the GNU General Public License
-+    along with this program; if not, write to the Free Software
-+    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++  return 0;
++}
++#endif	/* SET_MAC_ADDRESS */
++
+  static void orinoco_tx_timeout(struct net_device *dev)
+  {
+  	struct orinoco_private *priv = netdev_priv(dev);
+@@ -1027,6 +1039,7 @@
+  	struct header_struct hdr;
+  	struct ethhdr *eh;
+  	int err;
++	struct ieee802_11_hdr hdr80211;
+
+  	rxfid = hermes_read_regn(hw, RXFID);
+
+@@ -1043,6 +1056,7 @@
+
+  	if (status & HERMES_RXSTAT_ERR) {
+  		if (status & HERMES_RXSTAT_UNDECRYPTABLE) {
++			if (dev->type != ARPHRD_ETHER) goto sniffing;
+  			wstats->discard.code++;
+  			DEBUG(1, "%s: Undecryptable frame on Rx. Frame dropped.\n",
+  			       dev->name);
+@@ -1054,6 +1068,7 @@
+  		goto drop;
+  	}
+
++sniffing:
+  	/* For now we ignore the 802.11 header completely, assuming
+             that the card's firmware has handled anything vital */
+
+@@ -1084,6 +1099,11 @@
+  		goto drop;
+  	}
+
++	/* Now handle frame based on port# */
++	switch( HERMES_RXSTATUS_MACPORT_GET(status) )
++	{
++		case 0:
++
+  	/* We need space for the packet data itself, plus an ethernet
+  	   header, plus 2 bytes so we can align the IP header on a
+  	   32bit boundary, plus 1 byte so we can read in odd length
+@@ -1158,6 +1178,26 @@
+
+  	return;
+
++ 	case 7:
++         	if ( ! HERMES_RXSTATUS_ISFCSERR(status) ) {
++                    if (hermes_bap_pread(hw, IRQ_BAP, &hdr80211, sizeof(hdr80211),
++                                        rxfid, HERMES_RX_80211HDR_OFF)) {
++                       stats->rx_errors++;
++                    }
++                    else {
++                         /* Copy to wlansnif skb */
++                         orinoco_int_rxmonitor( priv, rxfid, length, &desc, &hdr80211);
++                    }
++                 } else {
++                         printk("Received monitor frame: FCSerr set\n");
++                 }
++                 break;
++ 	default:
++ 		printk("Received frame on unsupported port=%d\n",
++ 			HERMES_RXSTATUS_MACPORT_GET(status) );
++ 		break;
++ 	}
++
+   drop:
+  	stats->rx_dropped++;
+
+@@ -1543,6 +1583,8 @@
+  	hermes_t *hw = &priv->hw;
+  	int err;
+  	struct hermes_idstring idbuf;
++    int word;
++    struct hermes_response resp;
+
+  	/* Set the MAC address */
+  	err = hermes_write_ltv(hw, USER_BAP, HERMES_RID_CNFOWNMACADDR,
+@@ -1737,6 +1779,27 @@
+  	priv->mc_count = 0;
+  	__orinoco_set_multicast_list(dev); /* FIXME: what about the xmit_lock */
+
++    /*
++     * Set the rfmon mode of the card, if we're in rfmon.  Otherwise, the firmware
++     * starts sending out a flood of probe requests.  We already reinited the firmware
++     * before.
++     *    - Dragorn
++     */
++    if (dev->type == ARPHRD_IEEE80211_PRISM || dev->type == ARPHRD_IEEE80211) {
++        word = HFA384x_PORTTYPE_IBSS;
++        err = hermes_write_wordrec(hw, USER_BAP,
++                                      HERMES_RID_CNF_PORTTYPE, word);
++        if (err)
++            return err;
++
++        /* Enable monitor mode */
++        word = HERMES_CMD_MONITOR | (HERMES_MONITOR_ENABLE << 8);
++        err = hermes_docmd_wait(hw, word, 0, &resp);
++        if (err)
++            return err;
++    }
 +
 +
-+    Supports the following chips:
+  	return 0;
+  }
+
+@@ -1823,6 +1886,17 @@
+  	if (err)
+  		return err;
+
++    /*
++     * If we are in rmfmon mode we need to treat this like going into rfmon again,
++     * so re-init the firmware like the rfmon function does.
++     * We'll also need to do some other rfmonish behavior in config_rids
++     *     - Dragorn
++     */
++    if (dev->type == ARPHRD_IEEE80211_PRISM || dev->type == ARPHRD_IEEE80211) {
++        hermes_set_irqmask(hw, 0);
++        hermes_init(hw);
++        hermes_set_irqmask(hw, ORINOCO_INTEN);
++    }
+
+  	err = hermes_disable_port(hw, 0);
+  	if (err) {
+@@ -2375,6 +2449,9 @@
+  	dev->tx_timeout = orinoco_tx_timeout;
+  	dev->watchdog_timeo = HZ; /* 1 second timeout */
+  	dev->get_stats = orinoco_get_stats;
++#ifdef SET_MAC_ADDRESS
++	dev->set_mac_address = orinoco_set_mac_address;
++#endif	/* SET_MAC_ADDRESS */
+  	dev->get_wireless_stats = orinoco_get_wireless_stats;
+  	dev->do_ioctl = orinoco_ioctl;
+  	dev->change_mtu = orinoco_change_mtu;
+@@ -3585,6 +3662,170 @@
+  	return 0;
+  }
+
++/*----------------------------------------------------------------
++* orinoco_wlansniff
++*
++* Start or stop sniffing.
++*
++* Arguments:
++*	wlandev		wlan device structure
++*	msgp		ptr to msg buffer
++*
++* Returns:
++*	0	success and done
++*	<0	success, but we're waiting for something to finish.
++*	>0	an error occurred while handling the message.
++* Side effects:
++*
++* Call context:
++*	process thread  (usually)
++*	interrupt
++----------------------------------------------------------------*/
++static int orinoco_wlansniff(struct net_device *dev, struct iwreq *wrq)
++{
++	struct orinoco_private *priv = dev->priv;
++	hermes_t *hw = &(priv->hw);
++	struct hermes_response  resp;
++	int result = 0;
++	uint16_t word;
 +
-+    Chip        #vin    #fan    #pwm    #temp   chip_id man_id
-+    w83627ehf   -       5       -       3       0x88    0x5ca3
++	int *parms = (int *) wrq->u.name;
++	int enable = parms[0] > 0;
++	unsigned long flags;
++	int noMonitor = dev->type != ARPHRD_IEEE80211_PRISM &&
++	                dev->type != ARPHRD_IEEE80211;
 +
-+    This is a preliminary version of the driver, only supporting the
-+    fan and temperature inputs. The chip does much more than that.
++	orinoco_lock(priv, &flags);
++
++	switch (enable)
++	{
++	case P80211ENUM_truth_false:
++		/* Confirm that we're in monitor mode */
++		if ( noMonitor ) {
++			result = -EFAULT;
++		}
++		/* Disable monitor mode */
++		suppress_linkstatus = suppress_linkstatus_copy;
++	        word =	HERMES_CMD_MONITOR | (HERMES_MONITOR_DISABLE << 8);
++	        result = hermes_docmd_wait(hw, word, 0, &resp);
++
++		if ( result ) break;
++
++		/* Disable port 0 */
++		result = hermes_disable_port(hw, 0);
++		if ( result ) break;
++
++		/* Clear the driver state */
++		dev->type = ARPHRD_ETHER;
++
++		/* Restore the wepflags */   //Orinoco doesn't like this
++/*
++		result = hermes_write_wordrec(hw, USER_BAP,
++				HERMES_RID_CNF_PRISM2_WEP_ON,
++				priv->presniff_wepflags);
++		if ( result ) break;
++
 +*/
++		/* Set the port to its prior type and enable (if necessary) */
++		if (priv->presniff_port_type != 0 ) {
++			word = priv->presniff_port_type;
++			result = hermes_write_wordrec(hw, USER_BAP,
++				HERMES_RID_CNF_PORTTYPE, word);
++		    if ( result ) break;
 +
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/slab.h>
-+#include <linux/i2c.h>
-+#include <linux/i2c-sensor.h>
-+#include <asm/io.h>
-+#include "lm75.h"
++			/* Enable the port */
++			result = hermes_enable_port(hw, 0);
++		    if ( result ) break;
 +
-+/* Addresses to scan
-+   The actual ISA address is read from Super-I/O configuration space */
-+static unsigned short normal_i2c[] = { I2C_CLIENT_END };
-+static unsigned int normal_isa[] = { 0, I2C_CLIENT_ISA_END };
-+
-+/* Insmod parameters */
-+SENSORS_INSMOD_1(w83627ehf);
-+
-+/*
-+ * Super-I/O constants and functions
-+ */
-+
-+static int REG;		/* The register to read/write */
-+static int VAL;		/* The value to read/write */
-+
-+#define W83627EHF_LD_HWM	0x0b
-+
-+#define SIO_REG_LDSEL		0x07	/* Logical device select */
-+#define SIO_REG_DEVID		0x20	/* Device ID (2 bytes) */
-+#define SIO_REG_ENABLE		0x30	/* Logical device enable */
-+#define SIO_REG_ADDR		0x60	/* Logical device address (2 bytes) */
-+
-+#define SIO_W83627EHF_ID	0x8840
-+#define SIO_ID_MASK		0xFFC0
-+
-+static inline void
-+superio_outb(int reg, int val)
-+{
-+	outb(reg, REG);
-+	outb(val, VAL);
-+}
-+
-+static inline int
-+superio_inb(int reg)
-+{
-+	outb(reg, REG);
-+	return inb(VAL);
-+}
-+
-+static inline void
-+superio_select(int ld)
-+{
-+	outb(SIO_REG_LDSEL, REG);
-+	outb(ld, VAL);
-+}
-+
-+static inline void
-+superio_enter(void)
-+{
-+	outb(0x87, REG);
-+	outb(0x87, REG);
-+}
-+
-+static inline void
-+superio_exit(void)
-+{
-+	outb(0x02, REG);
-+	outb(0x02, VAL);
-+}
-+
-+/*
-+ * ISA constants
-+ */
-+
-+#define REGION_LENGTH		8
-+#define ADDR_REG_OFFSET		5
-+#define DATA_REG_OFFSET		6
-+
-+#define W83627EHF_REG_BANK		0x4E
-+#define W83627EHF_REG_CONFIG		0x40
-+#define W83627EHF_REG_CHIP_ID		0x49
-+#define W83627EHF_REG_MAN_ID		0x4F
-+
-+static const u16 W83627EHF_REG_FAN[] = { 0x28, 0x29, 0x2a, 0x3f, 0x553 };
-+static const u16 W83627EHF_REG_FAN_MIN[] = { 0x3b, 0x3c, 0x3d, 0x3e, 0x55c };
-+
-+#define W83627EHF_REG_TEMP1		0x27
-+#define W83627EHF_REG_TEMP1_HYST	0x3a
-+#define W83627EHF_REG_TEMP1_OVER	0x39
-+static const u16 W83627EHF_REG_TEMP[] = { 0x150, 0x250 };
-+static const u16 W83627EHF_REG_TEMP_HYST[] = { 0x153, 0x253 };
-+static const u16 W83627EHF_REG_TEMP_OVER[] = { 0x155, 0x255 };
-+static const u16 W83627EHF_REG_TEMP_CONFIG[] = { 0x152, 0x252 };
-+
-+/* Fan clock dividers are spread over the following five registers */
-+#define W83627EHF_REG_FANDIV1		0x47
-+#define W83627EHF_REG_FANDIV2		0x4B
-+#define W83627EHF_REG_VBAT		0x5D
-+#define W83627EHF_REG_DIODE		0x59
-+#define W83627EHF_REG_SMI_OVT		0x4C
-+
-+/*
-+ * Conversions
-+ */
-+
-+static inline unsigned int
-+fan_from_reg(u8 reg, unsigned int div)
-+{
-+	if (reg == 0 || reg == 255)
-+		return 0;
-+	return 1350000U / (reg * div);
-+}
-+
-+static inline u8
-+fan_to_reg(unsigned int rpm, unsigned int div)
-+{
-+	if (rpm == 0)
-+		return 255U;
-+	return 1350000U / (rpm * div);
-+}
-+
-+static inline unsigned int
-+div_from_reg(u8 reg)
-+{
-+	return 1 << reg;
-+}
-+
-+static inline int
-+temp1_from_reg(s8 reg)
-+{
-+	return reg * 1000;
-+}
-+
-+static inline s8
-+temp1_to_reg(int temp)
-+{
-+	if (temp <= -128000)
-+		return -128;
-+	if (temp >= 127000)
-+		return 127;
-+	if (temp < 0)
-+		return (temp - 500) / 1000;
-+	return (temp + 500) / 1000;
-+}
-+
-+/*
-+ * Data structures and manipulation thereof
-+ */
-+
-+struct w83627ehf_data {
-+	struct i2c_client client;
-+	struct semaphore lock;
-+
-+	struct semaphore update_lock;
-+	char valid;		/* !=0 if following fields are valid */
-+	unsigned long last_updated;	/* In jiffies */
-+
-+	/* Register values */
-+	u8 fan[5];
-+	u8 fan_min[5];
-+	u8 fan_div[5];
-+	s8 temp1;
-+	s8 temp1_max;
-+	s8 temp1_max_hyst;
-+	s16 temp[2];
-+	s16 temp_max[2];
-+	s16 temp_max_hyst[2];
-+};
-+
-+static inline int is_word_sized(u16 reg)
-+{
-+	return (((reg & 0xff00) == 0x100
-+	      || (reg & 0xff00) == 0x200)
-+	     && ((reg & 0x00ff) == 0x50
-+	      || (reg & 0x00ff) == 0x53
-+	      || (reg & 0x00ff) == 0x55));
-+}
-+
-+static void w83627ehf_set_bank(struct i2c_client *client, u16 reg)
-+{
-+	if (reg & 0xff00) {
-+		outb_p(W83627EHF_REG_BANK, client->addr + ADDR_REG_OFFSET);
-+		outb_p(reg >> 8, client->addr + DATA_REG_OFFSET);
-+	}
-+}
-+
-+static void w83627ehf_reset_bank(struct i2c_client *client, u16 reg)
-+{
-+	w83627ehf_set_bank(client, reg & 0xff00);
-+}
-+
-+static u16 w83627ehf_read_value(struct i2c_client *client, u16 reg)
-+{
-+	struct w83627ehf_data *data = i2c_get_clientdata(client);
-+	int res, word_sized = is_word_sized(reg);
-+
-+	down(&data->lock);
-+
-+	w83627ehf_set_bank(client, reg);
-+	outb_p(reg & 0xff, client->addr + ADDR_REG_OFFSET);
-+	res = inb_p(client->addr + DATA_REG_OFFSET);
-+	if (word_sized) {
-+		outb_p((reg & 0xff) + 1,
-+		       client->addr + ADDR_REG_OFFSET);
-+		res = (res << 8) + inb_p(client->addr + DATA_REG_OFFSET);
-+	}
-+	w83627ehf_reset_bank(client, reg);
-+
-+	up(&data->lock);
-+
-+	return res;
-+}
-+
-+static int w83627ehf_write_value(struct i2c_client *client, u16 reg, u16 value)
-+{
-+	struct w83627ehf_data *data = i2c_get_clientdata(client);
-+	int word_sized = is_word_sized(reg);
-+
-+	down(&data->lock);
-+
-+	w83627ehf_set_bank(client, reg);
-+	outb_p(reg & 0xff, client->addr + ADDR_REG_OFFSET);
-+	if (word_sized) {
-+		outb_p(value >> 8, client->addr + DATA_REG_OFFSET);
-+		outb_p((reg & 0xff) + 1,
-+		       client->addr + ADDR_REG_OFFSET);
-+	}
-+	outb_p(value & 0xff, client->addr + DATA_REG_OFFSET);
-+	w83627ehf_reset_bank(client, reg);
-+
-+	up(&data->lock);
-+	return 0;
-+}
-+
-+static struct w83627ehf_data *w83627ehf_update_device(struct device *dev)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct w83627ehf_data *data = i2c_get_clientdata(client);
-+	int i;
-+
-+	down(&data->update_lock);
-+
-+	if (time_after(jiffies, data->last_updated + HZ)
-+	 || !data->valid) {
-+		/* Measured fan speeds and limits */
-+		for (i = 0; i < 5; i++) {
-+			data->fan[i] = w83627ehf_read_value(client,
-+				       W83627EHF_REG_FAN[i]);
-+			data->fan_min[i] = w83627ehf_read_value(client,
-+					   W83627EHF_REG_FAN_MIN[i]);
 +		}
 +
-+		/* Measured temperatures and limits */
-+		data->temp1 = w83627ehf_read_value(client,
-+			      W83627EHF_REG_TEMP1);
-+		data->temp1_max = w83627ehf_read_value(client,
-+				  W83627EHF_REG_TEMP1_OVER);
-+		data->temp1_max_hyst = w83627ehf_read_value(client,
-+				       W83627EHF_REG_TEMP1_HYST);
-+		for (i = 0; i < 2; i++) {
-+			data->temp[i] = w83627ehf_read_value(client,
-+					W83627EHF_REG_TEMP[i]);
-+			data->temp_max[i] = w83627ehf_read_value(client,
-+					    W83627EHF_REG_TEMP_OVER[i]);
-+			data->temp_max_hyst[i] = w83627ehf_read_value(client,
-+						 W83627EHF_REG_TEMP_HYST[i]);
-+		}
++		break;
++	case P80211ENUM_truth_true:
++        	// Only do this if we're not in monitor mode already
++	        if (noMonitor) {
++	            /* Re-initialize the card before changing channel as advised at
++        	     * http://lists.samba.org/pipermail/wireless/2002-June/004491.html
++        	     * by Ian Goldberg.  Implementation by Pat Swieskowski.
++        	     */
++        	    //		__orinoco_down(dev);
++        	    hermes_set_irqmask(hw, 0);
++        	    hermes_init(hw);
++        	    //		_orinoco_up(dev);
++        	    hermes_set_irqmask(hw, ORINOCO_INTEN);
++		    suppress_linkstatus = 1;
++        	    /*
++        	       __orinoco_stop_irqs(priv);
++        	       hermes_reset(hw);
++        	       __orinoco_start_irqs(priv, HERMES_EV_RX | HERMES_EV_ALLOC |
++        	       HERMES_EV_TX | HERMES_EV_TXEXC |
++        	       HERMES_EV_WTERR | HERMES_EV_INFO |
++        	       HERMES_EV_INFDROP);
++        	       */
++        	    /* Disable the port (if enabled), only check Port 0 */
++        	    if ( hw->port_enabled[0] ) {
++        	        /* Save macport 0 state */
++        	        result = hermes_read_wordrec(hw, USER_BAP,
++        	                                     HERMES_RID_CNF_PORTTYPE,
++        	                                     &(priv->presniff_port_type));
++        	        if ( result ) break;
 +
-+		/* Fan clock dividers */
-+		i = w83627ehf_read_value(client, W83627EHF_REG_FANDIV1);
-+		data->fan_div[0] = (i >> 4) & 0x03;
-+		data->fan_div[1] = (i >> 6) & 0x03;
-+		i = w83627ehf_read_value(client, W83627EHF_REG_FANDIV2);
-+		data->fan_div[2] = (i >> 6) & 0x03;
-+		i = w83627ehf_read_value(client, W83627EHF_REG_VBAT);
-+		data->fan_div[0] |= (i >> 3) & 0x04;
-+		data->fan_div[1] |= (i >> 4) & 0x04;
-+		data->fan_div[2] |= (i >> 5) & 0x04;
-+		i = w83627ehf_read_value(client, W83627EHF_REG_DIODE);
-+		data->fan_div[3] = i & 0x03;
-+		data->fan_div[4] = ((i >> 2) & 0x03)
-+				 | ((i >> 5) & 0x04);
-+		i = w83627ehf_read_value(client, W83627EHF_REG_SMI_OVT);
-+		data->fan_div[3] |= (i >> 5) & 0x04;
++        	        /* Save the wepflags state */
++        	        result = hermes_read_wordrec(hw, USER_BAP,
++        	                                     HERMES_RID_CNF_PRISM2_WEP_ON,
++	                                             &(priv->presniff_wepflags));
++        	        if ( result ) break;
++        	    }
++        	    else {
++        	        priv->presniff_port_type = 0;
++        	    }
++        	}
 +
-+		data->last_updated = jiffies;
-+		data->valid = 1;
-+	}
++        	// Disable the port
++        	result = hermes_disable_port(hw, 0);
++        	if ( result ) break;
 +
-+	up(&data->update_lock);
-+	return data;
-+}
++        	/* Set the channel we wish to sniff  */
++        	if (parms[1] > 0 && parms[1] < 15) {
++        	    word = parms[1];
++        	    result = hermes_write_wordrec(hw, USER_BAP,
++        	                                  HERMES_RID_CNF_CHANNEL, word);
++        	} else {
++        	    result = -EFAULT;
++        	}
 +
-+/*
-+ * Sysfs callback functions
-+ */
++        	if ( result ) break;
 +
-+#define show_fan_reg(reg) \
-+static ssize_t \
-+show_##reg(struct device *dev, char *buf, int nr) \
-+{ \
-+	struct w83627ehf_data *data = w83627ehf_update_device(dev); \
-+	return sprintf(buf, "%d\n", \
-+		       fan_from_reg(data->reg[nr], \
-+				    div_from_reg(data->fan_div[nr]))); \
-+}
-+show_fan_reg(fan);
-+show_fan_reg(fan_min);
++        	if (noMonitor) {
++        	    /* Set the port type to pIbss */
++        	    word = HFA384x_PORTTYPE_IBSS;
++        	    result = hermes_write_wordrec(hw, USER_BAP,
++        	                                  HERMES_RID_CNF_PORTTYPE, word);
++        	    if ( result ) break;
 +
-+static ssize_t
-+show_fan_div(struct device *dev, char *buf, int nr)
-+{
-+	struct w83627ehf_data *data = w83627ehf_update_device(dev);
-+	return sprintf(buf, "%u\n",
-+		       div_from_reg(data->fan_div[nr]));
-+}
++        	    /* Enable monitor mode */
++        	    word = HERMES_CMD_MONITOR | (HERMES_MONITOR_ENABLE << 8);
++        	    result = hermes_docmd_wait(hw, word, 0, &resp);
++        	    if ( result ) break;
++        	}
 +
-+static ssize_t
-+store_fan_min(struct device *dev, const char *buf, size_t count, int nr)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct w83627ehf_data *data = i2c_get_clientdata(client);
-+	unsigned int val = simple_strtoul(buf, NULL, 10);
-+
-+	data->fan_min[nr] = fan_to_reg(val,
-+			    div_from_reg(data->fan_div[nr]));
-+	w83627ehf_write_value(client, W83627EHF_REG_FAN_MIN[nr],
-+			      data->fan_min[nr]);
-+
-+	return count;
-+}
-+
-+/* Note: we save and restore the fan minimum here, because its value is
-+   determined in part by the fan divisor.  This follows the principle of
-+   least suprise; the user doesn't expect the fan minimum to change just
-+   because the divisor changed. */
-+static ssize_t
-+store_fan_div(struct device *dev, const char *buf, size_t count, int nr)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct w83627ehf_data *data = i2c_get_clientdata(client);
-+	unsigned int min, val;
-+	u8 reg;
-+
-+	val = simple_strtoul(buf, NULL, 10);
-+
-+	/* Save fan_min */
-+	min = fan_from_reg(data->fan_min[nr],
-+			   div_from_reg(data->fan_div[nr]));
-+
-+	switch (val) {
-+	case 1: data->fan_div[nr] = 0; break;
-+	case 2: data->fan_div[nr] = 1; break;
-+	case 4: data->fan_div[nr] = 2; break;
-+	case 8: data->fan_div[nr] = 3; break;
-+	case 16: data->fan_div[nr] = 4; break;
-+	case 32: data->fan_div[nr] = 5; break;
-+	case 64: data->fan_div[nr] = 6; break;
-+	case 128: data->fan_div[nr] = 7; break;
++        	/* Enable the port */
++        	result = hermes_enable_port(hw, 0);
++        	if ( result ) break;
++		/* Set the driver state */
++		/* Do we want the prism2 header? */
++		if (parms[0] == 1)
++		  dev->type = ARPHRD_IEEE80211_PRISM;
++		else
++		  dev->type = ARPHRD_IEEE80211;
++		break;
 +	default:
-+		dev_err(&client->dev, "Fan clock divider value %u not "
-+			"supported", val);
-+		dev_err(&client->dev, "Choose one of 1, 2, 4, 8, 16, 32, "
-+			"64 or 128");
-+		return -EINVAL;
-+	}
-+
-+	switch (nr) {
-+	case 0:
-+		reg = (w83627ehf_read_value(client, W83627EHF_REG_FANDIV1) & 0xcf)
-+		    | ((data->fan_div[0] & 0x03) << 4);
-+		w83627ehf_write_value(client, W83627EHF_REG_FANDIV1, reg);
-+		reg = (w83627ehf_read_value(client, W83627EHF_REG_VBAT) & 0xdf)
-+		    | ((data->fan_div[0] & 0x04) << 3);
-+		w83627ehf_write_value(client, W83627EHF_REG_VBAT, reg);
-+		break;
-+	case 1:
-+		reg = (w83627ehf_read_value(client, W83627EHF_REG_FANDIV1) & 0x3f)
-+		    | ((data->fan_div[1] & 0x03) << 6);
-+		w83627ehf_write_value(client, W83627EHF_REG_FANDIV1, reg);
-+		reg = (w83627ehf_read_value(client, W83627EHF_REG_VBAT) & 0xbf)
-+		    | ((data->fan_div[1] & 0x04) << 4);
-+		w83627ehf_write_value(client, W83627EHF_REG_VBAT, reg);
-+		break;
-+	case 2:
-+		reg = (w83627ehf_read_value(client, W83627EHF_REG_FANDIV2) & 0x3f)
-+		    | ((data->fan_div[2] & 0x03) << 6);
-+		w83627ehf_write_value(client, W83627EHF_REG_FANDIV2, reg);
-+		reg = (w83627ehf_read_value(client, W83627EHF_REG_VBAT) & 0x7f)
-+		    | ((data->fan_div[2] & 0x04) << 5);
-+		w83627ehf_write_value(client, W83627EHF_REG_VBAT, reg);
-+		break;
-+	case 3:
-+		reg = (w83627ehf_read_value(client, W83627EHF_REG_DIODE) & 0xfc)
-+		    | (data->fan_div[3] & 0x03);
-+		w83627ehf_write_value(client, W83627EHF_REG_DIODE, reg);
-+		reg = (w83627ehf_read_value(client, W83627EHF_REG_SMI_OVT) & 0x7f)
-+		    | ((data->fan_div[3] & 0x04) << 5);
-+		w83627ehf_write_value(client, W83627EHF_REG_SMI_OVT, reg);
-+		break;
-+	case 4:
-+		reg = (w83627ehf_read_value(client, W83627EHF_REG_DIODE) & 0x73)
-+		    | ((data->fan_div[4] & 0x03) << 3)
-+		    | ((data->fan_div[4] & 0x04) << 5);
-+		w83627ehf_write_value(client, W83627EHF_REG_DIODE, reg);
++		result = -EFAULT;
 +		break;
 +	}
-+	/* Restore fan_min */
-+	data->fan_min[nr] = fan_to_reg(min, div_from_reg(data->fan_div[nr]));
-+	w83627ehf_write_value(client, W83627EHF_REG_FAN_MIN[nr],
-+			     data->fan_min[nr]);
-+
-+	return count;
++	orinoco_unlock(priv, &flags);
++	return result;
 +}
 +
-+#define sysfs_fan_offset(offset) \
-+static ssize_t \
-+show_reg_fan_##offset(struct device *dev, char *buf) \
-+{ \
-+	return show_fan(dev, buf, offset-1); \
-+} \
-+static DEVICE_ATTR(fan##offset##_input, S_IRUGO, \
-+		   show_reg_fan_##offset, NULL);
-+
-+#define sysfs_fan_min_offset(offset) \
-+static ssize_t \
-+show_reg_fan##offset##_min(struct device *dev, char *buf) \
-+{ \
-+	return show_fan_min(dev, buf, offset-1); \
-+} \
-+static ssize_t \
-+store_reg_fan##offset##_min(struct device *dev, const char *buf, \
-+			    size_t count) \
-+{ \
-+	return store_fan_min(dev, buf, count, offset-1); \
-+} \
-+static DEVICE_ATTR(fan##offset##_min, S_IRUGO | S_IWUSR, \
-+		   show_reg_fan##offset##_min, \
-+		   store_reg_fan##offset##_min);
-+
-+#define sysfs_fan_div_offset(offset) \
-+static ssize_t \
-+show_reg_fan##offset##_div(struct device *dev, char *buf) \
-+{ \
-+	return show_fan_div(dev, buf, offset - 1); \
-+} \
-+static ssize_t \
-+store_reg_fan##offset##_div(struct device *dev, \
-+			    const char *buf, size_t count) \
-+{ \
-+	return store_fan_div(dev, buf, count, offset - 1); \
-+} \
-+static DEVICE_ATTR(fan##offset##_div, S_IRUGO | S_IWUSR, \
-+		   show_reg_fan##offset##_div, \
-+		   store_reg_fan##offset##_div);
-+
-+sysfs_fan_offset(1);
-+sysfs_fan_min_offset(1);
-+sysfs_fan_div_offset(1);
-+sysfs_fan_offset(2);
-+sysfs_fan_min_offset(2);
-+sysfs_fan_div_offset(2);
-+sysfs_fan_offset(3);
-+sysfs_fan_min_offset(3);
-+sysfs_fan_div_offset(3);
-+sysfs_fan_offset(4);
-+sysfs_fan_min_offset(4);
-+sysfs_fan_div_offset(4);
-+sysfs_fan_offset(5);
-+sysfs_fan_min_offset(5);
-+sysfs_fan_div_offset(5);
-+
-+#define show_temp1_reg(reg) \
-+static ssize_t \
-+show_##reg(struct device *dev, char *buf) \
-+{ \
-+	struct w83627ehf_data *data = w83627ehf_update_device(dev); \
-+	return sprintf(buf, "%d\n", temp1_from_reg(data->reg)); \
-+}
-+show_temp1_reg(temp1);
-+show_temp1_reg(temp1_max);
-+show_temp1_reg(temp1_max_hyst);
-+
-+#define store_temp1_reg(REG, reg) \
-+static ssize_t \
-+store_temp1_##reg(struct device *dev, const char *buf, size_t count) \
-+{ \
-+	struct i2c_client *client = to_i2c_client(dev); \
-+	struct w83627ehf_data *data = i2c_get_clientdata(client); \
-+	u32 val = simple_strtoul(buf, NULL, 10); \
-+	data->temp1_##reg = temp1_to_reg(val); \
-+	w83627ehf_write_value(client, W83627EHF_REG_TEMP1_##REG, \
-+			      data->temp1_##reg); \
-+	return count; \
-+}
-+store_temp1_reg(OVER, max);
-+store_temp1_reg(HYST, max_hyst);
-+
-+static DEVICE_ATTR(temp1_input, S_IRUGO, show_temp1, NULL);
-+static DEVICE_ATTR(temp1_max, S_IRUGO| S_IWUSR,
-+		   show_temp1_max, store_temp1_max);
-+static DEVICE_ATTR(temp1_max_hyst, S_IRUGO| S_IWUSR,
-+		   show_temp1_max_hyst, store_temp1_max_hyst);
-+
-+#define show_temp_reg(reg) \
-+static ssize_t \
-+show_##reg (struct device *dev, char *buf, int nr) \
-+{ \
-+	struct w83627ehf_data *data = w83627ehf_update_device(dev); \
-+	return sprintf(buf, "%d\n", \
-+		       LM75_TEMP_FROM_REG(data->reg[nr])); \
-+}
-+show_temp_reg(temp);
-+show_temp_reg(temp_max);
-+show_temp_reg(temp_max_hyst);
-+
-+#define store_temp_reg(REG, reg) \
-+static ssize_t \
-+store_##reg (struct device *dev, const char *buf, size_t count, int nr) \
-+{ \
-+	struct i2c_client *client = to_i2c_client(dev); \
-+	struct w83627ehf_data *data = i2c_get_clientdata(client); \
-+	u32 val = simple_strtoul(buf, NULL, 10); \
-+	data->reg[nr] = LM75_TEMP_TO_REG(val); \
-+	w83627ehf_write_value(client, W83627EHF_REG_TEMP_##REG[nr], \
-+			      data->reg[nr]); \
-+	return count; \
-+}
-+store_temp_reg(OVER, temp_max);
-+store_temp_reg(HYST, temp_max_hyst);
-+
-+#define sysfs_temp_offset(offset) \
-+static ssize_t \
-+show_reg_temp##offset (struct device *dev, char *buf) \
-+{ \
-+	return show_temp(dev, buf, offset - 2); \
-+} \
-+static DEVICE_ATTR(temp##offset##_input, S_IRUGO, \
-+		   show_reg_temp##offset, NULL);
-+
-+#define sysfs_temp_reg_offset(reg, offset) \
-+static ssize_t \
-+show_reg_temp##offset##_##reg(struct device *dev, char *buf) \
-+{ \
-+	return show_temp_##reg(dev, buf, offset - 2); \
-+} \
-+static ssize_t \
-+store_reg_temp##offset##_##reg(struct device *dev, const char *buf, \
-+			       size_t count) \
-+{ \
-+	return store_temp_##reg(dev, buf, count, offset - 2); \
-+} \
-+static DEVICE_ATTR(temp##offset##_##reg, S_IRUGO| S_IWUSR, \
-+		   show_reg_temp##offset##_##reg, \
-+		   store_reg_temp##offset##_##reg);
-+
-+sysfs_temp_offset(2);
-+sysfs_temp_reg_offset(max, 2);
-+sysfs_temp_reg_offset(max_hyst, 2);
-+sysfs_temp_offset(3);
-+sysfs_temp_reg_offset(max, 3);
-+sysfs_temp_reg_offset(max_hyst, 3);
-+
-+/*
-+ * Driver and client management
-+ */
-+
-+static struct i2c_driver w83627ehf_driver;
-+
-+static void w83627ehf_init_client(struct i2c_client *client)
-+{
-+	int i;
-+	u8 tmp;
-+
-+	/* Start monitoring is needed */
-+	tmp = w83627ehf_read_value(client, W83627EHF_REG_CONFIG);
-+	if (!(tmp & 0x01))
-+		w83627ehf_write_value(client, W83627EHF_REG_CONFIG,
-+				      tmp | 0x01);
-+
-+	/* Enable temp2 and temp3 if needed */
-+	for (i = 0; i < 2; i++) {
-+		tmp = w83627ehf_read_value(client,
-+					   W83627EHF_REG_TEMP_CONFIG[i]);
-+		if (tmp & 0x01)
-+			w83627ehf_write_value(client,
-+					      W83627EHF_REG_TEMP_CONFIG[i],
-+					      tmp & 0xfe);
-+	}
-+}
-+
-+int w83627ehf_detect(struct i2c_adapter *adapter, int address, int kind)
-+{
-+	struct i2c_client *client;
-+	struct w83627ehf_data *data;
-+	int i, err = 0;
-+
-+	if (!i2c_is_isa_adapter(adapter))
-+		return 0;
-+
-+	if (!request_region(address, REGION_LENGTH, w83627ehf_driver.name)) {
-+		err = -EBUSY;
-+		goto exit;
-+	}
-+
-+	if (!(data = kmalloc(sizeof(struct w83627ehf_data), GFP_KERNEL))) {
-+		err = -ENOMEM;
-+		goto exit_release;
-+	}
-+	memset(data, 0, sizeof(struct w83627ehf_data));
-+
-+	client = &data->client;
-+	i2c_set_clientdata(client, data);
-+	client->addr = address;
-+	init_MUTEX(&data->lock);
-+	client->adapter = adapter;
-+	client->driver = &w83627ehf_driver;
-+	client->flags = 0;
-+
-+	strlcpy(client->name, "w83627ehf", I2C_NAME_SIZE);
-+	data->valid = 0;
-+	init_MUTEX(&data->update_lock);
-+
-+	/* Tell the i2c layer a new client has arrived */
-+	if ((err = i2c_attach_client(client)))
-+		goto exit_free;
-+
-+	/* Initialize the chip */
-+	w83627ehf_init_client(client);
-+
-+	/* A few vars need to be filled upon startup */
-+	for (i = 0; i < 5; i++)
-+		data->fan_min[i] = w83627ehf_read_value(client,
-+				   W83627EHF_REG_FAN_MIN[i]);
-+
-+	/* Register sysfs hooks */
-+	device_create_file(&client->dev, &dev_attr_fan1_input);
-+	device_create_file(&client->dev, &dev_attr_fan1_min);
-+	device_create_file(&client->dev, &dev_attr_fan1_div);
-+	device_create_file(&client->dev, &dev_attr_fan2_input);
-+	device_create_file(&client->dev, &dev_attr_fan2_min);
-+	device_create_file(&client->dev, &dev_attr_fan2_div);
-+	device_create_file(&client->dev, &dev_attr_fan3_input);
-+	device_create_file(&client->dev, &dev_attr_fan3_min);
-+	device_create_file(&client->dev, &dev_attr_fan3_div);
-+
-+	/* It looks like fan4 and fan5 pins can be alternatively used
-+	   as fan on/off switches */
-+	i = w83627ehf_read_value(client, W83627EHF_REG_FANDIV1);
-+	if (i & (1 << 2)) {
-+		device_create_file(&client->dev, &dev_attr_fan4_input);
-+		device_create_file(&client->dev, &dev_attr_fan4_min);
-+		device_create_file(&client->dev, &dev_attr_fan4_div);
-+	}
-+	if (i & (1 << 0)) {
-+		device_create_file(&client->dev, &dev_attr_fan5_input);
-+		device_create_file(&client->dev, &dev_attr_fan5_min);
-+		device_create_file(&client->dev, &dev_attr_fan5_div);
-+	}
-+
-+	device_create_file(&client->dev, &dev_attr_temp1_input);
-+	device_create_file(&client->dev, &dev_attr_temp1_max);
-+	device_create_file(&client->dev, &dev_attr_temp1_max_hyst);
-+	device_create_file(&client->dev, &dev_attr_temp2_input);
-+	device_create_file(&client->dev, &dev_attr_temp2_max);
-+	device_create_file(&client->dev, &dev_attr_temp2_max_hyst);
-+	device_create_file(&client->dev, &dev_attr_temp3_input);
-+	device_create_file(&client->dev, &dev_attr_temp3_max);
-+	device_create_file(&client->dev, &dev_attr_temp3_max_hyst);
-+
-+	return 0;
-+
-+exit_free:
-+	kfree(data);
-+exit_release:
-+	release_region(address, REGION_LENGTH);
-+exit:
-+	return err;
-+}
-+
-+static int w83627ehf_attach_adapter(struct i2c_adapter *adapter)
-+{
-+	if (!(adapter->class & I2C_CLASS_HWMON))
-+		return 0;
-+	return i2c_detect(adapter, &addr_data, w83627ehf_detect);
-+}
-+
-+static int w83627ehf_detach_client(struct i2c_client *client)
-+{
-+	int err;
-+
-+	if ((err = i2c_detach_client(client))) {
-+		dev_err(&client->dev, "Client deregistration failed, "
-+			"client not detached.\n");
-+		return err;
-+	}
-+	release_region(client->addr, REGION_LENGTH);
-+	kfree(i2c_get_clientdata(client));
-+
-+	return 0;
-+}
-+
-+static struct i2c_driver w83627ehf_driver = {
-+	.owner		= THIS_MODULE,
-+	.name		= "w83627ehf",
-+	.flags		= I2C_DF_NOTIFY,
-+	.attach_adapter	= w83627ehf_attach_adapter,
-+	.detach_client	= w83627ehf_detach_client,
-+};
-+
-+static int __init w83627ehf_find(int sioaddr, int *address)
-+{
-+	u16 val;
-+
-+	REG = sioaddr;
-+	VAL = sioaddr + 1;
-+	superio_enter();
-+
-+	val = (superio_inb(SIO_REG_DEVID) << 8)
-+	    | superio_inb(SIO_REG_DEVID + 1);
-+	if ((val & SIO_ID_MASK) != SIO_W83627EHF_ID) {
-+		superio_exit();
-+		return -ENODEV;
-+	}
-+
-+	superio_select(W83627EHF_LD_HWM);
-+	val = (superio_inb(SIO_REG_ADDR) << 8)
-+	    | superio_inb(SIO_REG_ADDR + 1);
-+	*address = val & ~(REGION_LENGTH - 1);
-+	if (*address == 0) {
-+		superio_exit();
-+		return -ENODEV;
-+	}
-+
-+	/* Activate logical device if needed */
-+	val = superio_inb(SIO_REG_ENABLE);
-+	if (!(val & 0x01))
-+		superio_outb(SIO_REG_ENABLE, val | 0x01);
-+
-+	superio_exit();
-+	return 0;
-+}
-+
-+static int __init sensors_w83627ehf_init(void)
-+{
-+	if (w83627ehf_find(0x2e, &normal_isa[0])
-+	 && w83627ehf_find(0x4e, &normal_isa[0]))
-+		return -ENODEV;
-+
-+	return i2c_add_driver(&w83627ehf_driver);
-+}
-+
-+static void __exit sensors_w83627ehf_exit(void)
-+{
-+	i2c_del_driver(&w83627ehf_driver);
-+}
-+
-+MODULE_AUTHOR("Jean Delvare <khali@linux-fr.org>");
-+MODULE_DESCRIPTION("W83627EHF driver");
-+MODULE_LICENSE("GPL");
-+
-+module_init(sensors_w83627ehf_init);
-+module_exit(sensors_w83627ehf_exit);
+  static int
+  orinoco_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
+  {
+@@ -3815,6 +4056,9 @@
+  				{ SIOCIWFIRSTPRIV + 0x7, 0,
+  				  IW_PRIV_TYPE_INT | IW_PRIV_SIZE_FIXED | 1,
+  				  "get_ibssport" },
++				{ SIOCIWFIRSTPRIV + 0x8,
++				  IW_PRIV_TYPE_INT | IW_PRIV_SIZE_FIXED | 2,
++				  0, "monitor" },
+  				{ SIOCIWLASTPRIV, 0, 0, "dump_recs" },
+  			};
 
---Multipart=_Sat__26_Feb_2005_19_11_42_+0100_4TlJn3SB=vcmbkM0--
+@@ -3905,6 +4149,16 @@
+  		err = orinoco_ioctl_getibssport(dev, wrq);
+  		break;
+
++	case SIOCIWFIRSTPRIV + 0x8: /* set sniff (monitor) mode */
++		DEBUG(1, "%s: SIOCIWFIRSTPRIV + 0x8 (monitor)\n",
++			  dev->name);
++		if (! capable(CAP_NET_ADMIN)) {
++			err = -EPERM;
++			break;
++		}
++		err = orinoco_wlansniff(dev, wrq);
++		break;
++
+  	case SIOCIWLASTPRIV:
+  		err = orinoco_debug_dump_recs(dev);
+  		if (err)
+@@ -4049,6 +4303,7 @@
+  	int i,j;
+  	u16 length;
+  	int err;
++        struct ieee802_11_hdr hdr80211;
+
+  	/* I'm not sure: we might have a lock here, so we'd better go
+             atomic, just in case. */
+@@ -4171,6 +4426,197 @@
+  }
+  #endif /* 0 */
+
++/*----------------------------------------------------------------
++* orinoco_int_rxmonitor
++*
++* Helper function for int_rx.  Handles monitor frames.
++* Note that this function allocates space for the FCS and sets it
++* to 0xffffffff.  The hfa384x doesn't give us the FCS value but the
++* higher layers expect it.  0xffffffff is used as a flag to indicate
++* the FCS is bogus.
++*
++* Arguments:
++*	dev		wlan device structure
++*	rxfid		received FID
++*	rxdesc		rx descriptor read from card in int_rx
++*
++* Returns:
++*	nothing
++*
++* Side effects:
++*	Allocates an skb and passes it up via the PF_PACKET interface.
++* Call context:
++*	interrupt
++----------------------------------------------------------------*/
++void orinoco_int_rxmonitor( struct orinoco_private *dev, uint16_t rxfid, int len,
++                            struct hermes_rx_descriptor *rxdesc, struct ieee802_11_hdr *hdr)
++{
++	hermes_t			*hw = &(dev->hw);
++	uint32_t				hdrlen = 0;
++	uint32_t				datalen = 0;
++	uint32_t				skblen = 0;
++	p80211msg_lnxind_wlansniffrm_t	*msg;
++	struct net_device_stats *stats = &dev->stats;
++
++
++	uint8_t				*datap;
++	uint16_t				fc;
++	struct sk_buff			*skb;
++
++	/* Don't forget the status, time, and data_len fields are in host order */
++	/* Figure out how big the frame is */
++	fc = le16_to_cpu(hdr->frame_ctl);
++	switch ( WLAN_GET_FC_FTYPE(fc) )
++	{
++	case WLAN_FTYPE_DATA:
++		if ( WLAN_GET_FC_TODS(fc) && WLAN_GET_FC_FROMDS(fc) ) {
++			hdrlen = WLAN_HDR_A4_LEN;
++		} else {
++			hdrlen = WLAN_HDR_A3_LEN;
++		}
++		datalen = len;
++		break;
++	case WLAN_FTYPE_MGMT:
++		hdrlen = WLAN_HDR_A3_LEN;
++		datalen = len;
++		break;
++	case WLAN_FTYPE_CTL:
++		switch ( WLAN_GET_FC_FSTYPE(fc) )
++		{
++		case WLAN_FSTYPE_PSPOLL:
++		case WLAN_FSTYPE_RTS:
++		case WLAN_FSTYPE_CFEND:
++		case WLAN_FSTYPE_CFENDCFACK:
++			hdrlen = 16;
++			break;
++		case WLAN_FSTYPE_CTS:
++		case WLAN_FSTYPE_ACK:
++			hdrlen = 10;
++			break;
++		}
++		datalen = 0;
++		break;
++	default:
++		printk("unknown frm: fc=0x%04x\n", fc);
++		return;
++	}
++
++	/* Allocate an ind message+framesize skb */
++	skblen = sizeof(p80211msg_lnxind_wlansniffrm_t) +
++	  hdrlen + datalen;
++
++	/* sanity check the length */
++	if ( skblen >
++		(sizeof(p80211msg_lnxind_wlansniffrm_t) +
++		WLAN_HDR_A4_LEN + WLAN_DATA_MAXLEN + WLAN_CRC_LEN) ) {
++		printk("overlen frm: len=%d\n",
++			skblen - sizeof(p80211msg_lnxind_wlansniffrm_t));
++	}
++
++	if ( (skb = dev_alloc_skb(skblen)) == NULL ) {
++		printk("alloc_skb failed trying to allocate %d bytes\n", skblen);
++		return;
++	}
++
++	/* only prepend the prism header if in the right mode */
++	if (dev->ndev->type != ARPHRD_IEEE80211_PRISM) {
++	  skb_put(skb, skblen - sizeof(p80211msg_lnxind_wlansniffrm_t));
++	  datap = skb->data;
++	} else {
++	  skb_put(skb, skblen);
++	  datap = skb->data + sizeof(p80211msg_lnxind_wlansniffrm_t);
++	  msg = (p80211msg_lnxind_wlansniffrm_t*)skb->data;
++
++	  /* Initialize the message members */
++	  msg->msgcode = DIDmsg_lnxind_wlansniffrm;
++	  msg->msglen = sizeof(p80211msg_lnxind_wlansniffrm_t);
++	  strcpy(msg->devname, dev->ndev->name);
++
++	  msg->hosttime.did = DIDmsg_lnxind_wlansniffrm_hosttime;
++	  msg->hosttime.status = 0;
++	  msg->hosttime.len = 4;
++	  msg->hosttime.data = jiffies;
++
++	  msg->mactime.did = DIDmsg_lnxind_wlansniffrm_mactime;
++	  msg->mactime.status = 0;
++	  msg->mactime.len = 4;
++	  msg->mactime.data = rxdesc->time;
++
++	  msg->channel.did = DIDmsg_lnxind_wlansniffrm_channel;
++	  msg->channel.status = P80211ENUM_msgitem_status_no_value;
++	  msg->channel.len = 4;
++	  msg->channel.data = 0;
++
++	  msg->rssi.did = DIDmsg_lnxind_wlansniffrm_rssi;
++	  msg->rssi.status = P80211ENUM_msgitem_status_no_value;
++	  msg->rssi.len = 4;
++	  msg->rssi.data = 0;
++
++	  msg->sq.did = DIDmsg_lnxind_wlansniffrm_sq;
++	  msg->sq.status = P80211ENUM_msgitem_status_no_value;
++	  msg->sq.len = 4;
++	  msg->sq.data = 0;
++
++	  msg->signal.did = DIDmsg_lnxind_wlansniffrm_signal;
++	  msg->signal.status = 0;
++	  msg->signal.len = 4;
++	  msg->signal.data = rxdesc->signal;
++
++	  msg->noise.did = DIDmsg_lnxind_wlansniffrm_noise;
++	  msg->noise.status = 0;
++	  msg->noise.len = 4;
++	  msg->noise.data = rxdesc->silence;
++
++	  msg->rate.did = DIDmsg_lnxind_wlansniffrm_rate;
++	  msg->rate.status = 0;
++	  msg->rate.len = 4;
++	  msg->rate.data = rxdesc->rate / 5; /* set to 802.11 units */
++
++	  msg->istx.did = DIDmsg_lnxind_wlansniffrm_istx;
++	  msg->istx.status = 0;
++	  msg->istx.len = 4;
++	  msg->istx.data = P80211ENUM_truth_false;
++
++	  msg->frmlen.did = DIDmsg_lnxind_wlansniffrm_frmlen;
++	  msg->frmlen.status = 0;
++	  msg->frmlen.len = 4;
++	  msg->frmlen.data = hdrlen + datalen;
++	}
++
++	/* Copy the 802.11 header to the skb (ctl frames may be less than a full header) */
++	memcpy( datap, &(hdr->frame_ctl), hdrlen);
++
++	/* If any, copy the data from the card to the skb */
++	if ( datalen > 0 )
++	{
++		hermes_bap_pread(hw, IRQ_BAP, datap + hdrlen, (datalen+1)&~1,
++				       rxfid, HERMES_RX_DATA_OFF);
++
++		/* check for unencrypted stuff if WEP bit set. */
++		if (*(datap+1) & 0x40) // wep set
++		  if ((*(datap+hdrlen) == 0xaa) && (*(datap+hdrlen+1) == 0xaa))
++		    *(datap+1) &= 0xbf; // clear wep; it's the 802.2 header!
++	}
++
++       /* pass it up via the PF_PACKET interface */
++       {
++	   skb->dev = dev->ndev;
++	   skb->dev->last_rx = jiffies;
++
++	   skb->mac.raw = skb->data ;
++	   skb->ip_summed = CHECKSUM_NONE;
++	   skb->pkt_type = PACKET_OTHERHOST;
++	   skb->protocol = htons(ETH_P_80211_RAW);  /* XXX ETH_P_802_2? */
++
++	   stats->rx_packets++;
++	   stats->rx_bytes += skb->len;
++
++	   netif_rx(skb);
++       }
++
++	return;
++}
++
+  /********************************************************************/
+  /* Module initialization                                            */
+  /********************************************************************/
+@@ -4193,6 +4639,7 @@
+  static int __init init_orinoco(void)
+  {
+  	printk(KERN_DEBUG "%s\n", version);
++	suppress_linkstatus_copy = suppress_linkstatus;
+  	return 0;
+  }
+
+diff -ur linux-2.6.9/drivers/net/wireless/orinoco.h
+linux-2.6.9-orinoco/drivers/net/wireless/orinoco.h
+--- linux-2.6.9/drivers/net/wireless/orinoco.h	2004-10-20 15:26:41.000000000 -0400
++++ linux-2.6.9-orinoco/drivers/net/wireless/orinoco.h	2004-10-20 15:10:12.000000000 -0400
+@@ -20,6 +20,21 @@
+  /* To enable debug messages */
+  //#define ORINOCO_DEBUG		3
+
++#ifndef ETH_P_ECONET
++#define ETH_P_ECONET   0x0018    /* needed for 2.2.x kernels */
++#endif
++
++#define ETH_P_80211_RAW        (ETH_P_ECONET + 1)
++
++#ifndef ARPHRD_IEEE80211
++#define ARPHRD_IEEE80211 801     /* kernel 2.4.6 */
++#endif
++
++#ifndef ARPHRD_IEEE80211_PRISM  /* kernel 2.4.18 */
++#define ARPHRD_IEEE80211_PRISM 802
++#endif
++
++
+  #define WIRELESS_SPY		// enable iwspy support
+
+  #define ORINOCO_MAX_KEY_SIZE	14
+@@ -30,6 +45,159 @@
+  	char data[ORINOCO_MAX_KEY_SIZE];
+  } __attribute__ ((packed));
+
++#define WLAN_DEVNAMELEN_MAX 16
++
++/* message data item for INT, BOUNDEDINT, ENUMINT */
++typedef struct p80211item_uint32
++{
++	uint32_t		did		__attribute__ ((packed));
++	uint16_t		status	__attribute__ ((packed));
++	uint16_t		len		__attribute__ ((packed));
++	uint32_t		data	__attribute__ ((packed));
++} __attribute__ ((packed)) p80211item_uint32_t;
++
++typedef struct p80211msg
++{
++	uint32_t	msgcode		__attribute__ ((packed));
++	uint32_t	msglen		__attribute__ ((packed));
++	uint8_t	devname[WLAN_DEVNAMELEN_MAX]	__attribute__ ((packed));
++} __attribute__ ((packed)) p80211msg_t;
++
++#define DIDmsg_lnxind_wlansniffrm 0x0041
++#define DIDmsg_lnxind_wlansniffrm_hosttime 0x1041
++#define DIDmsg_lnxind_wlansniffrm_mactime 0x2041
++#define DIDmsg_lnxind_wlansniffrm_channel 0x3041
++#define DIDmsg_lnxind_wlansniffrm_rssi 0x4041
++#define DIDmsg_lnxind_wlansniffrm_sq 0x5041
++#define DIDmsg_lnxind_wlansniffrm_signal 0x6041
++#define DIDmsg_lnxind_wlansniffrm_noise 0x7041
++#define DIDmsg_lnxind_wlansniffrm_rate 0x8041
++#define DIDmsg_lnxind_wlansniffrm_istx 0x9041
++#define DIDmsg_lnxind_wlansniffrm_frmlen 0xA041
++
++typedef struct p80211msg_lnxind_wlansniffrm
++{
++	uint32_t		msgcode;
++	uint32_t		msglen;
++	uint8_t		    devname[WLAN_DEVNAMELEN_MAX];
++	p80211item_uint32_t	hosttime;
++	p80211item_uint32_t	mactime;
++	p80211item_uint32_t	channel;
++	p80211item_uint32_t	rssi;
++	p80211item_uint32_t	sq;
++	p80211item_uint32_t	signal;
++	p80211item_uint32_t	noise;
++	p80211item_uint32_t	rate;
++	p80211item_uint32_t	istx;
++	p80211item_uint32_t	frmlen;
++} __attribute__ ((packed)) p80211msg_lnxind_wlansniffrm_t;
++
++#define P80211ENUM_truth_false			0
++#define P80211ENUM_truth_true			1
++#define P80211ENUM_resultcode_success		1
++#define P80211ENUM_resultcode_invalid_parameters	2
++#define P80211ENUM_resultcode_not_supported	3
++#define P80211ENUM_resultcode_timeout		4
++#define P80211ENUM_resultcode_too_many_req	5
++#define P80211ENUM_resultcode_refused		6
++#define P80211ENUM_resultcode_bss_already	7
++#define P80211ENUM_resultcode_invalid_access	8
++#define P80211ENUM_resultcode_invalid_mibattribute	9
++#define P80211ENUM_resultcode_cant_set_readonly_mib	10
++#define P80211ENUM_resultcode_implementation_failure	11
++#define P80211ENUM_resultcode_cant_get_writeonly_mib	12
++#define P80211ENUM_msgitem_status_data_ok		0
++#define P80211ENUM_msgitem_status_no_value		1
++#define P80211ENUM_msgitem_status_invalid_itemname	2
++#define P80211ENUM_msgitem_status_invalid_itemdata	3
++#define P80211ENUM_msgitem_status_missing_itemdata	4
++#define P80211ENUM_msgitem_status_incomplete_itemdata	5
++#define P80211ENUM_msgitem_status_invalid_msg_did	6
++#define P80211ENUM_msgitem_status_invalid_mib_did	7
++#define P80211ENUM_msgitem_status_missing_conv_func	8
++#define P80211ENUM_msgitem_status_string_too_long	9
++#define P80211ENUM_msgitem_status_data_out_of_range	10
++#define P80211ENUM_msgitem_status_string_too_short	11
++#define P80211ENUM_msgitem_status_missing_valid_func	12
++#define P80211ENUM_msgitem_status_unknown		13
++#define P80211ENUM_msgitem_status_invalid_did		14
++#define P80211ENUM_msgitem_status_missing_print_func	15
++
++#define WLAN_GET_FC_FTYPE(n)	(((n) & 0x0C) >> 2)
++#define WLAN_GET_FC_FSTYPE(n)	(((n) & 0xF0) >> 4)
++#define WLAN_GET_FC_TODS(n) 	(((n) & 0x0100) >> 8)
++#define WLAN_GET_FC_FROMDS(n)	(((n) & 0x0200) >> 9)
++
++/*--- Sizes -----------------------------------------------*/
++#define WLAN_ADDR_LEN			6
++#define WLAN_CRC_LEN			4
++#define WLAN_BSSID_LEN			6
++#define WLAN_BSS_TS_LEN			8
++#define WLAN_HDR_A3_LEN			24
++#define WLAN_HDR_A4_LEN			30
++#define WLAN_SSID_MAXLEN		32
++#define WLAN_DATA_MAXLEN		2312
++
++/*--- Frame Control Field -------------------------------------*/
++/* Frame Types */
++#define WLAN_FTYPE_MGMT			0x00
++#define WLAN_FTYPE_CTL			0x01
++#define WLAN_FTYPE_DATA			0x02
++
++/* Frame subtypes */
++/* Management */
++#define WLAN_FSTYPE_ASSOCREQ		0x00
++#define WLAN_FSTYPE_ASSOCRESP		0x01
++#define WLAN_FSTYPE_REASSOCREQ		0x02
++#define WLAN_FSTYPE_REASSOCRESP		0x03
++#define WLAN_FSTYPE_PROBEREQ		0x04
++#define WLAN_FSTYPE_PROBERESP		0x05
++#define WLAN_FSTYPE_BEACON		0x08
++#define WLAN_FSTYPE_ATIM		0x09
++#define WLAN_FSTYPE_DISASSOC		0x0a
++#define WLAN_FSTYPE_AUTHEN		0x0b
++#define WLAN_FSTYPE_DEAUTHEN		0x0c
++
++/* Control */
++#define WLAN_FSTYPE_PSPOLL		0x0a
++#define WLAN_FSTYPE_RTS			0x0b
++#define WLAN_FSTYPE_CTS			0x0c
++#define WLAN_FSTYPE_ACK			0x0d
++#define WLAN_FSTYPE_CFEND		0x0e
++#define WLAN_FSTYPE_CFENDCFACK		0x0f
++
++/* Data */
++#define WLAN_FSTYPE_DATAONLY		0x00
++#define WLAN_FSTYPE_DATA_CFACK		0x01
++#define WLAN_FSTYPE_DATA_CFPOLL		0x02
++#define WLAN_FSTYPE_DATA_CFACK_CFPOLL	0x03
++#define WLAN_FSTYPE_NULL		0x04
++#define WLAN_FSTYPE_CFACK		0x05
++#define WLAN_FSTYPE_CFPOLL		0x06
++#define WLAN_FSTYPE_CFACK_CFPOLL	0x07
++
++/*----------------------------------------------------------------*/
++/* Magic number, a quick test to see we're getting the desired struct */
++
++#define P80211_IOCTL_MAGIC	(0x4a2d464dUL)
++
++/*================================================================*/
++/* Types */
++
++/*----------------------------------------------------------------*/
++/* A ptr to the following structure type is passed as the third */
++/*  argument to the ioctl system call when issuing a request to */
++/*  the p80211 module. */
++
++typedef struct p80211ioctl_req
++{
++	char 	name[WLAN_DEVNAMELEN_MAX] __attribute__ ((packed));
++	void	*data 		__attribute__ ((packed));
++	uint32_t	magic 	__attribute__ ((packed));
++	uint16_t	len 	__attribute__ ((packed));
++	uint32_t	result 	__attribute__ ((packed));
++} __attribute__ ((packed)) p80211ioctl_req_t;
++
+  struct orinoco_private {
+  	void *card;	/* Pointer to card dependent structure */
+  	int (*hard_reset)(struct orinoco_private *);
+@@ -90,6 +258,9 @@
+  	/* Configuration dependent variables */
+  	int port_type, createibss;
+  	int promiscuous, mc_count;
++
++	uint16_t		presniff_port_type;
++	uint16_t		presniff_wepflags;
+  };
+
+  #ifdef ORINOCO_DEBUG
+@@ -141,4 +312,12 @@
+  	spin_unlock_irqrestore(&priv->lock, *flags);
+  }
+
++/*================================================================*/
++/* Function Declarations */
++
++struct ieee802_11_hdr;
++
++void orinoco_int_rxmonitor( struct orinoco_private *dev, uint16_t rxfid, int len,
++                            struct hermes_rx_descriptor *rxdesc, struct ieee802_11_hdr *hdr);
++
+  #endif /* _ORINOCO_H */
+
+
+
+--
+"Education is what remains after one has forgotten everything he learned in school."
+	- Albert Einstein
+
+--------------enig6B1195A9353B71A2CBB3C447
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCILuHZWL8hfFdQekRAh9XAKCjq3D/uNDIcPZPPg79UK3Q0thYlgCgqSLc
+GjHdmSrmZeEry4subVhXpXE=
+=1xcv
+-----END PGP SIGNATURE-----
+
+--------------enig6B1195A9353B71A2CBB3C447--

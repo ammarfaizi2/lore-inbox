@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267994AbUJOBfo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268004AbUJOBh4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267994AbUJOBfo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 21:35:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268004AbUJOBfo
+	id S268004AbUJOBh4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 21:37:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268005AbUJOBh4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 21:35:44 -0400
-Received: from ozlabs.org ([203.10.76.45]:17885 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S267994AbUJOBfL (ORCPT
+	Thu, 14 Oct 2004 21:37:56 -0400
+Received: from ozlabs.org ([203.10.76.45]:19421 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S268004AbUJOBhx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 21:35:11 -0400
-Subject: Re: [PATCH 1/5][Diskdump] IPF(IA64) support
+	Thu, 14 Oct 2004 21:37:53 -0400
+Subject: Re: 2.6.9-rc3-mm2
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: Takao Indoh <indou.takao@soft.fujitsu.com>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org
-In-Reply-To: <15C4709AD81CB1indou.takao@soft.fujitsu.com>
-References: <14C4709A99D341indou.takao@soft.fujitsu.com>
-	 <15C4709AD81CB1indou.takao@soft.fujitsu.com>
+To: Dominik Karall <dominik.karall@gmx.net>
+Cc: Andrew Morton <akpm@osdl.org>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200410051607.40860.dominik.karall@gmx.net>
+References: <20041004020207.4f168876.akpm@osdl.org>
+	 <200410051607.40860.dominik.karall@gmx.net>
 Content-Type: text/plain
-Message-Id: <1097804121.22673.43.camel@localhost.localdomain>
+Message-Id: <1097804285.22673.47.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 15 Oct 2004 11:35:22 +1000
+Date: Fri, 15 Oct 2004 11:38:05 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-07-23 at 19:53, Takao Indoh wrote:
-> +static unsigned int fallback_on_err = 1;
-> +static unsigned int allow_risky_dumps = 1;
-> +static unsigned int block_order = 2;
-> +static int sample_rate = 8;
-> +module_param(fallback_on_err, uint, 0);
-> +module_param(allow_risky_dumps, uint, 0);
-> +module_param(block_order, uint, 0);
-> +module_param(sample_rate, int, 0);
+On Wed, 2004-10-06 at 00:07, Dominik Karall wrote:
+> On Monday 04 October 2004 11:02, Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc3/2.6
+> >.9-rc3-mm2/
+> 
+> some more scheduling/preempt problems. following patches were applied:
+> --- 
+> 25/include/linux/netfilter_ipv4/ip_conntrack.h~conntrack-preempt-safety-fix 
+> Mon Oct  4 14:36:19 2004
+> +++ 25-akpm/include/linux/netfilter_ipv4/ip_conntrack.h Mon Oct  4 14:37:02 
+> 2004
+> @@ -311,10 +311,11 @@ struct ip_conntrack_stat
+>         unsigned int expect_delete;
+>  };
+>  
+> -#define CONNTRACK_STAT_INC(count)                              \
+> -       do {                                                    \
+> -               per_cpu(ip_conntrack_stat, get_cpu()).count++;  \
+> -               put_cpu();                                      \
+> +#define CONNTRACK_STAT_INC(count)                                      \
+> +       do {                                                            \
+> +               preempt_disable();                                      \
+> +               per_cpu(ip_conntrack_stat, smp_processor_id()).count++; \
+> +               preempt_disable();                                      \
+>         } while (0)
 
-Hi Takao!
+Please, please please!  Never use per_cpu(XXX, smp_processor_id())!  In
+this case, it's "get_cpu_var(ip_conntrack_stat).count++; put_cpu(),
+although I think this code should only be called in a softirq, so a
+simple "__get_cpu_var(ip_conntrack_stat).count++;" is sufficient.
 
-	Are you sure you want "uint" for fallback_on_err and allow_risky_dumps
-and not "bool"?  Also, I suggest "0400" as permissions so you can read
-them out of sysfs; maybe even 0600 if these parameters can be changed
-after loading.
-
-Thanks!
 Rusty.
 -- 
 Anyone who quotes me in their signature is an idiot -- Rusty Russell

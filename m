@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311148AbSCTBmO>; Tue, 19 Mar 2002 20:42:14 -0500
+	id <S311121AbSCTBko>; Tue, 19 Mar 2002 20:40:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311180AbSCTBmG>; Tue, 19 Mar 2002 20:42:06 -0500
-Received: from asooo.flowerfire.com ([63.254.226.247]:5318 "EHLO
-	asooo.flowerfire.com") by vger.kernel.org with ESMTP
-	id <S311148AbSCTBmA>; Tue, 19 Mar 2002 20:42:00 -0500
-Date: Tue, 19 Mar 2002 19:41:38 -0600
-From: Ken Brownfield <ken@irridia.com>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+	id <S311180AbSCTBkZ>; Tue, 19 Mar 2002 20:40:25 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:41732 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S311121AbSCTBkV>; Tue, 19 Mar 2002 20:40:21 -0500
 Subject: Re: Filesystem Corruption (ext2) on Tyan S2462, 2xAMD1900MP, 2.4.17SMP (RH7.2)
-Message-ID: <20020319194138.D15811@asooo.flowerfire.com>
-In-Reply-To: <E16nUx8-0000w4-00@the-village.bc.nu> <Pine.LNX.4.10.10203191726290.525-100000@master.linux-ide.org>
-Mime-Version: 1.0
+To: ken@irridia.com (Ken Brownfield)
+Date: Wed, 20 Mar 2002 01:56:23 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), m.knoblauch@TeraPort.de,
+        linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
+In-Reply-To: <20020319193333.C15811@asooo.flowerfire.com> from "Ken Brownfield" at Mar 19, 2002 07:33:33 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16nVKx-0000zB-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 19, 2002 at 05:29:39PM -0800, Andre Hedrick wrote:
-[...]
-| Next, that config option is a distro addition not mine, but it has creeped
-| in so it is here.
+> It would have been "fine" if the serverworks driver didn't leave UDMA on
+> when it's off by default in the CONFIG.  At least then you would be
 
-Ya, Martin has cleaned this up for 2.4 I believe, and I'll do the grunt
-work on patches for you and/or Martin to clean up 2.5.  The option is
-fine, just that the specific IDE drivers aren't handling the logic
-properly and ide-pci does it already.
+That was a merge error from way back - now fixed (2.4.19pre) 
 
-Thanks!
--- 
-Ken.
-ken@irridia.com
+> Quite possible.  I'm only seeing this on ServerWorks mobos with IDE as
+> primary (vs SCSI).  I heard third-hand via a FreeBSD post that it's an
+> OSB4 issue effecting them as well.  Are Seagates a requirement for the
+> issues?
 
-| Regards,
-| 
-| Andre Hedrick
-| LAD Storage Consulting Group
+I wish I knew. If I did I'd slap a "no seagate UDMA" check in that driver
+pronto.
+
+> As to whether they can reproduce it... I'm not holding my breath for
+> them to try.
+
+They tried. They asked a lot of questions and while they failed I'm certain
+the actually did try. While we've had some problems with serverworks
+(notably no ECC docs which for some enterprise customers is a showstopper)
+in general they are very co-operative nowdays, although they do like NDA's
+and the like first.
+
+Alan

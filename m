@@ -1,63 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266825AbUBMI6S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 03:58:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266826AbUBMI6S
+	id S266841AbUBMJNS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 04:13:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266851AbUBMJNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 03:58:18 -0500
-Received: from xenon2.um.es ([155.54.212.101]:58829 "EHLO smtp.um.es")
-	by vger.kernel.org with ESMTP id S266825AbUBMI5z (ORCPT
+	Fri, 13 Feb 2004 04:13:18 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:61892 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S266841AbUBMJNQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 03:57:55 -0500
-Date: Fri, 13 Feb 2004 09:28:13 +0100 (CET)
-From: Juan Piernas Canovas <piernas@ditec.um.es>
-To: Jon Burgess <lkml@jburgess.uklinux.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ext2/3 performance regression in 2.6 vs 2.4 for small interleaved
- writes
-In-Reply-To: <402BE01E.2010506@jburgess.uklinux.net>
-Message-ID: <Pine.LNX.4.44.0402130920240.20128-100000@ditec.um.es>
+	Fri, 13 Feb 2004 04:13:16 -0500
+Date: Fri, 13 Feb 2004 10:13:07 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Urban Widmark <Urban.Widmark@enlight.net>
+cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       JohnNewbigin <jn@it.swin.edu.au>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: smb_ops_unix warning (was: Re: Linux 2.4.25-rc2)
+In-Reply-To: <Pine.LNX.4.44.0402121758290.14391-100000@cola.local>
+Message-ID: <Pine.GSO.4.58.0402131012330.23784@waterleaf.sonytel.be>
+References: <Pine.LNX.4.44.0402121758290.14391-100000@cola.local>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Feb 2004, Jon Burgess wrote:
-
-[snip]
-
-> >You might be able to improve things significantly on ext2 by increasing
-> >EXT2_DEFAULT_PREALLOC_BLOCKS by a lot - make it 64 or 128.  I don't recall
-> >anyone trying that.
-> >  
+On Thu, 12 Feb 2004, Urban Widmark wrote:
+> On Thu, 12 Feb 2004, Geert Uytterhoeven wrote:
+> > On Wed, 11 Feb 2004, Marcelo Tosatti wrote:
+> > > Here goes -rc2, with small number of fixes and corrections.
 > >
-> I'll give it a go.
+> > This patch adds a missing include (fortunately it was included in some other
+> > include, but its' not clean for files that check CONFIG_* flags) and kills a
+> > compiler warning (introduced in -rc1, IIRC) if CONFIG_SMB_UNIX is not set.
+>
+> Ah, thanks.
+>
+>
+> > Alternatively, perhaps the code can be reshuffled a bit to avoid too many
+> > ifdefs?
+>
+> Code below builds cleanly for me either way, but I have not tested it yet.
+> Will do that later.
+>
+> The config could also be removed, but I like that 2.4 users can keep the
+> previous 2.4 behaviour if they want to.
 
-I think that a better choise for Ext2 and Ext3 is to put each stream 
-in a different directory (but that only makes sense if those directories 
-are in different groups). In that way, file blocks will not be interleaved on 
-disk, which is the problem. Try this, if you can, and let us know your 
-results.
+I can confirm it has the same result: no more compiler warnings.
 
-Regards,
+Gr{oetje,eeting}s,
 
-	Juan.
+						Geert
 
-[snip]
-> 
->     Jon
-> 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
--- 
-D. Juan Piernas Cánovas
-Departamento de Ingeniería y Tecnología de Computadores
-Facultad de Informática. Universidad de Murcia
-Campus de Espinardo - 30080 Murcia (SPAIN)
-Tel.: +34968367657    Fax: +34968364151
-email: piernas@ditec.um.es
-PGP public key:
-http://pgp.rediris.es:11371/pks/lookup?search=piernas%40ditec.um.es&op=index
-
-*** Por favor, envíeme sus documentos en formato texto, HTML, PDF o PostScript :-) ***
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

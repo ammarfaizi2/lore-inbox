@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262784AbVDASva@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262653AbVDASvb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262784AbVDASva (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 13:51:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262860AbVDAStT
+	id S262653AbVDASvb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 13:51:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262841AbVDAS0o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 13:49:19 -0500
-Received: from fmr23.intel.com ([143.183.121.15]:27568 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262856AbVDASpJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 13:45:09 -0500
-Message-Id: <200504011844.j31IiNg01909@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Andrew Morton'" <akpm@osdl.org>, "Linus Torvalds" <torvalds@osdl.org>
-Cc: <oleg@tv-sign.ru>, <linux-kernel@vger.kernel.org>, <mingo@elte.hu>,
-       <christoph@lameter.com>
-Subject: RE: [RFC][PATCH] timers fixes/improvements
-Date: Fri, 1 Apr 2005 10:44:23 -0800
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcU26TfIV2xSWrNQRxyjKxy7untfrwAAVSnw
-In-Reply-To: <20050401103235.1fcea9f0.akpm@osdl.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Fri, 1 Apr 2005 13:26:44 -0500
+Received: from webmail.topspin.com ([12.162.17.3]:34971 "EHLO
+	exch-1.topspincom.com") by vger.kernel.org with ESMTP
+	id S262843AbVDASY5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 13:24:57 -0500
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: [PATCH][2/6] IB: remove unneeded includes
+In-Reply-To: <2005411023.BIKgS4OLfFzZN9qI@topspin.com>
+X-Mailer: Roland's Patchbomber
+Date: Fri, 1 Apr 2005 10:23:50 -0800
+Message-Id: <2005411023.AERMWYHGiX8V5KDM@topspin.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+To: akpm@osdl.org
+Content-Transfer-Encoding: 7BIT
+From: Roland Dreier <roland@topspin.com>
+X-OriginalArrivalTime: 01 Apr 2005 18:23:51.0160 (UTC) FILETIME=[F428FF80:01C536E7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> wrote:
-> On Fri, 1 Apr 2005, Oleg Nesterov wrote:
-> >
-> > This patch replaces and updates 6 timer patches which are currently
-> > in -mm tree. This version does not play games with __TIMER_PENDING
-> > bit, so incremental patch is not suitable. It is against 2.6.12-rc1.
-> > Please comment. I am sending pseudo code in a separate message for
-> > easier review.
->
-> Looks ok by me. Andrew, should we let it cook in -mm, or what?
->
+From: Hal Rosenstock <halr@voltaire.com>
 
-Andrew Morton wrote on Friday, April 01, 2005 10:33 AM
-> Sure.  Christoph and (I think) Ken have been seeing mysterious misbehaviour
-> which _might_ be due to Oleg's first round of timer patches.  I assume C&K
-> will test this new patch?
+Eliminate no longer needed include files
 
-Yes, we saw kernel hang with previous timer patches.  I will give this one
-a try.
+Signed-off-by: Hal Rosenstock <halr@voltaire.com>
+Signed-off-by: Roland Dreier <roland@topspin.com>
 
+
+--- linux-export.orig/drivers/infiniband/core/mad.c	2005-04-01 10:08:54.939957801 -0800
++++ linux-export/drivers/infiniband/core/mad.c	2005-04-01 10:08:56.473624910 -0800
+@@ -33,9 +33,6 @@
+  */
+ 
+ #include <linux/dma-mapping.h>
+-#include <linux/interrupt.h>
+-
+-#include <ib_mad.h>
+ 
+ #include "mad_priv.h"
+ #include "smi.h"
 

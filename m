@@ -1,62 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268470AbUJMGVv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268490AbUJMGdT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268470AbUJMGVv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 02:21:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268483AbUJMGVu
+	id S268490AbUJMGdT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 02:33:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268496AbUJMGdT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 02:21:50 -0400
-Received: from fw.osdl.org ([65.172.181.6]:59090 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268470AbUJMGVs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 02:21:48 -0400
-Date: Tue, 12 Oct 2004 23:19:45 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Nathan Scott <nathans@sgi.com>
-Cc: piggin@cyberone.com.au, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       linux-xfs@oss.sgi.com
-Subject: Re: Page cache write performance issue
-Message-Id: <20041012231945.2aff9a00.akpm@osdl.org>
-In-Reply-To: <20041013054452.GB1618@frodo>
-References: <20041013054452.GB1618@frodo>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 13 Oct 2004 02:33:19 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36235 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268490AbUJMGdP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 02:33:15 -0400
+Message-ID: <416CCC1A.5020301@pobox.com>
+Date: Wed, 13 Oct 2004 02:32:58 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Danny <dannydaemonic@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: mm kernel oops with r8169 & named, PREEMPT
+References: <9625752b041012230068619e68@mail.gmail.com>
+In-Reply-To: <9625752b041012230068619e68@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Scott <nathans@sgi.com> wrote:
->
->  So, any ideas what happened to 2.6.9?
+Danny wrote:
+> This is with the network driver r8169 and linux-2.6.9-rc4-mm1.  Same
+> thing happened with linux-2.6.9-rc3-mm3 (but also locked up). 
+> linux-2.6.8.1-mm4 didn't seem to have this problem.  This is very
+> repeatable, if this is an unknown issue let me know (CC please, not on
+> the list) and I will jump through the hoops to get a useful oops.
 
-Does reverting the below fix it up?
+What happens if you disable preempt?
 
->   Whats the rationale for commencing writeout earlier in 2.6
-> (even when there's
->  so much free memory available)?
+lspci?  config?  Any of the other useful info mentioned in the 
+REPORTING-BUGS file in the kernel tree?
 
-There wasn't much rationale behind that patch - that's why I dropped it the
-first three times ;)  I have no problem with making it four times.
-
-It could be that small values of unmapped_ratio are making background_ratio
-too small.
+	Jeff
 
 
---- a/mm/page-writeback.c	10 Aug 2004 04:16:17 -0000	1.43
-+++ a/mm/page-writeback.c	13 Oct 2004 06:12:03 -0000
-@@ -153,9 +153,11 @@
- 	if (dirty_ratio < 5)
- 		dirty_ratio = 5;
- 
--	background_ratio = dirty_background_ratio;
--	if (background_ratio >= dirty_ratio)
--		background_ratio = dirty_ratio / 2;
-+	/*
-+	 * Keep the ratio between dirty_ratio and background_ratio roughly
-+	 * what the sysctls are after dirty_ratio has been scaled (above).
-+	 */
-+	background_ratio = dirty_background_ratio * dirty_ratio/vm_dirty_ratio;
- 
- 	background = (background_ratio * total_pages) / 100;
- 	dirty = (dirty_ratio * total_pages) / 100;
 

@@ -1,62 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261524AbSJURZg>; Mon, 21 Oct 2002 13:25:36 -0400
+	id <S261514AbSJUR0j>; Mon, 21 Oct 2002 13:26:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261556AbSJURZg>; Mon, 21 Oct 2002 13:25:36 -0400
-Received: from 24-216-100-96.charter.com ([24.216.100.96]:35508 "EHLO
-	wally.rdlg.net") by vger.kernel.org with ESMTP id <S261524AbSJURZe>;
-	Mon, 21 Oct 2002 13:25:34 -0400
-Date: Mon, 21 Oct 2002 13:31:41 -0400
-From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: PoorMan's San
-Message-ID: <20021021173141.GA22824@rdlg.net>
-Mail-Followup-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>,
-	Linux-Kernel <linux-kernel@vger.kernel.org>
+	id <S261541AbSJUR0j>; Mon, 21 Oct 2002 13:26:39 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:22992 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S261514AbSJUR0h>;
+	Mon, 21 Oct 2002 13:26:37 -0400
+Date: Mon, 21 Oct 2002 10:32:33 -0700
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: James McKenzie <james@fishsoup.dhs.org>, linux-kernel@vger.kernel.org,
+       trivial@rustcorp.com.au
+Subject: Re: [2.5 patch] allow only one Toshiba Type-O IR Port driver in the kernel
+Message-ID: <20021021173233.GA20616@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <Pine.NEB.4.44.0210201640090.28761-100000@mimas.fachschaften.tu-muenchen.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+In-Reply-To: <Pine.NEB.4.44.0210201640090.28761-100000@mimas.fachschaften.tu-muenchen.de>
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Oct 20, 2002 at 04:44:11PM +0200, Adrian Bunk wrote:
+> 
+> Trying to compile both Toshiba Type-O IR Port drivers into the kernel
+> fails with the following error:
+> 
+> <--  snip  -->
+> 
+> ...
+>    ld -m elf_i386  -r -o drivers/net/irda/built-in.o ...
+> drivers/net/irda/donauboe.o: In function `toshoboe_init':
+> drivers/net/irda/donauboe.o(.init.text+0x0): multiple definition of
+> `toshoboe_init'
+> drivers/net/irda/toshoboe.o(.init.text+0x0): first defined here
+> make[3]: *** [drivers/net/irda/built-in.o] Error 1
+> 
+> <--  snip  -->
+> 
+> The following patch allows the builing of the old driver only when the new
+> one isn't compiled into the kernel.
+> 
+> Additionally it indents three lines inside an if ... fi that weren't
+> indented.
 
+	Adrian,
 
-  Back on the Kernel list after a long hiatis.  Need some experienced
-optinions.
+	Thanks very much for the report. I personally uses modules,
+and I would prefer the ability to compile both modules, so that people
+can try both without having to recompile their kernel.
+	I think a much better patch (and simpler in the long term)
+would be to just rename 'toshoboe_init' to 'donauboe_init' (plus the
+few other offending function). This is a case where the name doesn't
+really matter.
+	What do you think ?
 
-Current Setup:
-
-Linux Legato Backup server  (E1000 nic)   Linux-2.4.19-pre4
-5xLinux NFS servers         (E1000 nic)   Linux-2.4.19-pre4
-
-Legato mounts the NFS shares over a Gig ether and uses them as backup
-media for non-offsite/non-longterm.  This works very well when NFS
-behaves.
-
-The probems is that every now and then the network/nfs just hang up for
-a while and gets VERY slow.  Some research has been done and it seems
-that the PCI latency is part of the problem, especially when IDE Raid
-hits the disks hard, this can overrun the buffers on the GigE card.
-
-I've got a test NFS server coming in and will look at upgrading the
-kernel to 2.4.19-pre11 as there were some bugs associated with E1000 and
-NFS I saw in pre-[7-9] area. I'm also considering trying to use
-Network Block Device instead of NFS.  Has anyone tried this?
-
-Any suggestions that doesn't involve hitting up a non-existant budget?
-
-
-Robert
-
-
-
-:wq!
----------------------------------------------------------------------------
-Robert L. Harris                
-                               
-DISCLAIMER:
-      These are MY OPINIONS ALONE.  I speak for no-one else.
-FYI:
- perl -e 'print $i=pack(c5,(41*2),sqrt(7056),(unpack(c,H)-2),oct(115),10);'
-
+	Jean

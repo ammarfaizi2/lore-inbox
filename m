@@ -1,49 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129828AbRBGARY>; Tue, 6 Feb 2001 19:17:24 -0500
+	id <S129089AbRBGA1A>; Tue, 6 Feb 2001 19:27:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129768AbRBGARP>; Tue, 6 Feb 2001 19:17:15 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:14840 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S129677AbRBGARH>;
-	Tue, 6 Feb 2001 19:17:07 -0500
-Date: Tue, 6 Feb 2001 19:16:39 -0500 (EST)
-From: Richard A Nelson <cowboy@vnet.ibm.com>
-X-X-Sender: <cowboy@badlands.lexington.ibm.com>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Device driver port from 2.2 to 2.4
-Message-ID: <Pine.LNX.4.33.0102061908520.2720-100000@badlands.lexington.ibm.com>
-X-No-Markup: yes
-x-No-ProductLinks: yes
-x-No-Archive: yes
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129934AbRBGA0u>; Tue, 6 Feb 2001 19:26:50 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:14559 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129089AbRBGA0i>;
+	Tue, 6 Feb 2001 19:26:38 -0500
+Date: Wed, 7 Feb 2001 00:21:07 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Ben LaHaise <bcrl@redhat.com>, Linus Torvalds <torvalds@transmeta.com>,
+        "Stephen C. Tweedie" <sct@redhat.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        kiobuf-io-devel@lists.sourceforge.net, Ingo Molnar <mingo@redhat.com>
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+Message-ID: <20010207002107.L1167@redhat.com>
+In-Reply-To: <Pine.LNX.4.30.0102061437250.15204-100000@today.toronto.redhat.com> <Pine.LNX.4.30.0102062052110.8926-100000@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.30.0102062052110.8926-100000@elte.hu>; from mingo@elte.hu on Tue, Feb 06, 2001 at 08:57:13PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm porting a device driver from 2.2 to 2.4 and have run across one
-spot that I'm just not sure how to handle...  'Twould help if I new
-either(or both) the driver or kernel internals better ;-}
+Hi,
 
-It overrides the vm_operations_struct nopage function to share a trace
-buffer between user and driver.
+On Tue, Feb 06, 2001 at 08:57:13PM +0100, Ingo Molnar wrote:
+> 
+> [overhead of 512-byte bhs in the raw IO code is an artificial problem of
+> the raw IO code.]
 
-in the nopage function, there is this:
-offset = address - vma->vm_start + vma->vm_offset;
-newPtr = ( (void *)devExt->Trace + offset );
-atomic_inc(&mem_map[ MAP_NR(newPtr) ].count ); // increment usage count
+No, it is a problem of the ll_rw_block interface: buffer_heads need to
+be aligned on disk at a multiple of their buffer size.  Under the Unix
+raw IO interface it is perfectly legal to begin a 128kB IO at offset
+512 bytes into a device.
 
-now, it looks like this might map to:
-atomic_inc(virt_to_page(newPtr).count );
-
-But I'd like to be sure I'm not missing something...  I already feel
-like something is amiss in that I can't find any corresponding
-decrements !!
-
--- 
-Rick Nelson
-Life'll kill ya                         -- Warren Zevon
-Then you'll be dead                     -- Life'll kill ya
-
+--Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265289AbTLRTRc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Dec 2003 14:17:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265290AbTLRTRc
+	id S265284AbTLRTN1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Dec 2003 14:13:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265287AbTLRTN1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Dec 2003 14:17:32 -0500
-Received: from AGrenoble-101-1-2-161.w193-253.abo.wanadoo.fr ([193.253.227.161]:63449
-	"EHLO awak") by vger.kernel.org with ESMTP id S265289AbTLRTRa convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Dec 2003 14:17:30 -0500
-Subject: Re: Linux Device Drivers 3rd Edition
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Kendrick Hamilton <hamilton@sedsystems.ca>
-Cc: uClinux development list <uclinux-dev@uclinux.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3FE1F516.8070100@sedsystems.ca>
-References: <3FE1F516.8070100@sedsystems.ca>
-Content-Type: text/plain; charset=iso-8859-15
-Message-Id: <1071775411.8189.314.camel@bip.parateam.prv>
+	Thu, 18 Dec 2003 14:13:27 -0500
+Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:30961 "EHLO
+	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
+	id S265284AbTLRTN0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Dec 2003 14:13:26 -0500
+Date: Thu, 18 Dec 2003 11:13:18 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Martin Knoblauch <knobi@knobisoft.de>, linux-kernel@vger.kernel.org
+Subject: Re: RAID-0 read perf. decrease after 2.4.20
+Message-ID: <20031218191318.GC6438@matchmail.com>
+Mail-Followup-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+	Martin Knoblauch <knobi@knobisoft.de>, linux-kernel@vger.kernel.org
+References: <20031216125103.6301.qmail@web13903.mail.yahoo.com> <Pine.LNX.4.44.0312181140540.4547-100000@logos.cnet>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 18 Dec 2003 20:23:31 +0100
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0312181140540.4547-100000@logos.cnet>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le jeu 18/12/2003 à 19:42, Kendrick Hamilton a écrit :
-> Please CC response to hamilton@sedsystems.ca
+On Thu, Dec 18, 2003 at 11:41:11AM -0200, Marcelo Tosatti wrote:
+> On Tue, 16 Dec 2003, Martin Knoblauch wrote:
+> >  Just some feedback:
+> > 
+> > echo 511 > /proc/sys/vm/max-readahead
+> > 
+> >  brings back the read performance of my 30 disks on 4 controller
+> > LVM/RAID0.
 > 
-> Does anybody know if there will be a third edition of Linux Device 
-> Drivers covering the 2.6 Kernel, or are the differences for a character 
-> device small enough that it is not needed?
+> Great.
 
-I dunno for the book, but the author wrote the guide "Porting device
-drivers to the 2.6 kernel" http://lwn.net/Articles/driver-porting/ --
-excellent, as always.
-
-	Xav
-
+Maybe a new default is in order?

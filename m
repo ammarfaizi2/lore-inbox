@@ -1,85 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292398AbSBYXd7>; Mon, 25 Feb 2002 18:33:59 -0500
+	id <S292406AbSBYXct>; Mon, 25 Feb 2002 18:32:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292402AbSBYXdp>; Mon, 25 Feb 2002 18:33:45 -0500
-Received: from charger.oldcity.dca.net ([207.245.82.76]:16318 "EHLO
-	charger.oldcity.dca.net") by vger.kernel.org with ESMTP
-	id <S292398AbSBYXct>; Mon, 25 Feb 2002 18:32:49 -0500
-Date: Mon, 25 Feb 2002 18:32:42 -0500
-From: christophe =?iso-8859-15?Q?barb=E9?= 
-	<christophe.barbe.ml@online.fr>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: suspend/resume and 3c59x
-Message-ID: <20020225233242.GA5370@ufies.org>
-Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020225200056.GW12719@ufies.org> <3C7A9C75.F6A4BA05@zip.com.au>
+	id <S292402AbSBYXck>; Mon, 25 Feb 2002 18:32:40 -0500
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:34828 "EHLO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S292398AbSBYXce>; Mon, 25 Feb 2002 18:32:34 -0500
+Date: Tue, 26 Feb 2002 00:32:30 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.18
+Message-ID: <20020225233230.GB11786@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020225.140851.31656207.davem@redhat.com> <3C7AB893.4090800@ellinger.de> <20020225230156.GA11786@merlin.emma.line.org> <20020225.150813.66161624.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="fUYQa+Pmc3FrFX/N"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3C7A9C75.F6A4BA05@zip.com.au>
+In-Reply-To: <20020225.150813.66161624.davem@redhat.com>
 User-Agent: Mutt/1.3.27i
-X-Operating-System: debian SID Gnu/Linux 2.4.18 on i586
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 25 Feb 2002, David S. Miller wrote:
 
---fUYQa+Pmc3FrFX/N
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>    From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+>    Date: Tue, 26 Feb 2002 00:01:56 +0100
+> 
+>    > And how should EXTRAVERSION be accommodated?
+>    
+>    sed/perl/awk -- a short five-liner "bless-rc-to-final" script should do.
+> 
+> Ummm... no.
+> 
+> This whole conversation exists because "Deleting the EXTRAVERSION
+> setting from linux/Makefile" then making new diffs/tars was screwed
+> up.  Doing it with a script isn't going to help this kind of problem.
+> 
+> I repeat: it isn't a "release candidate" if it will not match preciely
+> what the final tarball/patches contains.  Anything else opens up the
+> possibility for errors to be made.
 
-Thank Andrew.
-My problem is solved with 2.4.18 and 'options 3c59x enable_wol=3D1'.
+I'd think that running a script to "upgrade" 2.4.N-rcM to 2.4.N by just
+unpacking that latest rc tarball, editing the Makefile and tarring
+things up again, should be safe enough, and if it doesn't allow for
+operator interference, especially so. 
 
-Christophe
+I'd rather violate the "it's not a release candidate if it changes to
+the final release" than have differing versions with the same tag
+around, which would be a support nightmare. "Does the person who
+reported this bug run the release candidate or the final version?" That
+question is hard to answer if you cannot ask for uname -r, but end up
+asking for the MD5sum of that tarball, and that still does not account
+for patches, patches missed and patches applied -- Would you want that?
+I would not.
 
-On Mon, Feb 25, 2002 at 12:20:05PM -0800, Andrew Morton wrote:
-> christophe barb=E9 wrote:
-> >=20
-> > Hi,
-> >=20
-> > I use the kernel 2.4.17 and the hotplug facilities for my 3com cardbus
-> > (driver 3c59x). It works well when I insert and remove the card.
-> > But If I don't remove the card before suspending (apm -s) my laptop,
-> > The card is in a bad state when I resume the laptop and I need to remove
-> > and insert the card to get it back. I have tried to ifdown and rmmod
-> > before suspending but the result is the same.
-> >=20
->=20
-> Did you provide the `enable_wol=3D1' module parameter?
->=20
-> 	options 3c59x enable_wol=3D1
->=20
-> Despite its name, this turns on some power management
-> functionality.  Should have been a separate "enable_pm".
->=20
-> -
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I think that the coupling between tag and corresponding code should be
+tighter than that of the release candidate to the release, but I don't
+decide on this issue, Marcelo does.
 
---=20
-Christophe Barb=E9 <christophe.barbe@ufies.org>
-GnuPG FingerPrint: E0F6 FADF 2A5C F072 6AF8  F67A 8F45 2F1E D72C B41E
+-- 
+Matthias Andree
 
-Cats seem go on the principle that it never does any harm to ask for
-what you want. --Joseph Wood Krutch
-
---fUYQa+Pmc3FrFX/N
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Pour information voir http://www.gnupg.org
-
-iD8DBQE8esmaj0UvHtcstB4RAprIAJ92wlVdbD+jS/7jZJXRckP9fxR5igCfRJXn
-elNUDLhwIlgVwCYvwsPueXk=
-=dNuK
------END PGP SIGNATURE-----
-
---fUYQa+Pmc3FrFX/N--
+GPG encrypted mail welcome, unless it's unsolicited commercial email.

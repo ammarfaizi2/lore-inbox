@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272369AbRISTjf>; Wed, 19 Sep 2001 15:39:35 -0400
+	id <S274148AbRISTlp>; Wed, 19 Sep 2001 15:41:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273179AbRISTj0>; Wed, 19 Sep 2001 15:39:26 -0400
-Received: from a82d11hel.dial.kolumbus.fi ([212.54.29.82]:59764 "EHLO
-	porkkala.jlaako.pp.fi") by vger.kernel.org with ESMTP
-	id <S272369AbRISTjG>; Wed, 19 Sep 2001 15:39:06 -0400
-Message-ID: <3BA8F45B.7006BA1@kolumbus.fi>
-Date: Wed, 19 Sep 2001 22:39:07 +0300
-From: Jussi Laako <jussi.laako@kolumbus.fi>
-X-Mailer: Mozilla 4.76 [en] (Win98; U)
-X-Accept-Language: en
+	id <S274149AbRISTlg>; Wed, 19 Sep 2001 15:41:36 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:29715 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S274148AbRISTlT>; Wed, 19 Sep 2001 15:41:19 -0400
+Subject: Re: broken VM in 2.4.10-pre9
+To: phillips@bonn-fries.net (Daniel Phillips)
+Date: Wed, 19 Sep 2001 20:45:55 +0100 (BST)
+Cc: ebiederm@xmission.com (Eric W. Biederman),
+        rfuller@nsisoftware.com (Rob Fuller), linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org
+In-Reply-To: <20010919093828Z17304-2759+92@humbolt.nl.linux.org> from "Daniel Phillips" at Sep 19, 2001 11:45:44 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.9-ac12
-In-Reply-To: <20010918214907.A6707@lightning.swansea.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15jnIB-0003gh-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+> On September 17, 2001 06:03 pm, Eric W. Biederman wrote:
+> > In linux we have avoided reverse maps (unlike the BSD's) which tends
+> > to make the common case fast at the expense of making it more
+> > difficult to handle times when the VM system is under extreme load and
+> > we are swapping etc.
 > 
-> o       Fix radeon + AMD761 lockup/corruption problem   (Stephen Tweedie)
+> What do you suppose is the cost of the reverse map?  I get the impression you 
+> think it's more expensive than it is.
 
-OK, I got a bit farther with this. Now the GDM comes up with corrupted image
-and mouse pointer moves, but the keyboard doesn't react to anything (num
-lock led doesn't work when I hit numlock) and I can't do anything with
-mouse.
-
-
-Reiserfs is also broken (unable to mount partitions), from dmesg:
-
-reiserfs kgetopt: there is not option
-
-
- - Jussi Laako
-
--- 
-PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
-Available at PGP keyservers
+We can keep the typical page table cost lower than now (including reverse
+maps) just by doing some common sense small cleanups to get the page struct
+down to 48 bytes on x86

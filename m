@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275296AbTHGMbe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 08:31:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275292AbTHGMbX
+	id S275304AbTHGMvZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 08:51:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275305AbTHGMvZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 08:31:23 -0400
-Received: from proibm3.procempa.com.br ([200.248.222.108]:4066 "EHLO
-	portoweb.com.br") by vger.kernel.org with ESMTP id S275319AbTHGM3z
+	Thu, 7 Aug 2003 08:51:25 -0400
+Received: from auth22.inet.co.th ([203.150.14.104]:65042 "EHLO
+	auth22.inet.co.th") by vger.kernel.org with ESMTP id S275304AbTHGMvY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 08:29:55 -0400
-Date: Thu, 7 Aug 2003 09:32:28 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@logos.cnet
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-cc: Alex Williamson <alex_williamson@hp.com>, <linux-ia64@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>, <davej@codemonkey.org.uk>,
-       <pci-ids@ucw.cz>
-Subject: Re: [PATCH] trivial 2.4/2.6 PCI name change/addition
-In-Reply-To: <200308061613.26982.bjorn.helgaas@hp.com>
-Message-ID: <Pine.LNX.4.44.0308070932010.6582-100000@logos.cnet>
+	Thu, 7 Aug 2003 08:51:24 -0400
+From: Michael Frank <mflt1@micrologica.com.hk>
+To: Greg KH <greg@kroah.com>
+Subject: Re: 2.6.0-test2: Lost USB mouse after resuming from S3
+Date: Thu, 7 Aug 2003 20:51:00 +0800
+User-Agent: KMail/1.5.2
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       acpi-devel@lists.sourceforge.net, usb-devel@lists.sourceforge.net
+References: <200308070037.31630.mflt1@micrologica.com.hk> <20030806213941.GA7618@kroah.com>
+In-Reply-To: <20030806213941.GA7618@kroah.com>
+X-OS: KDE 3 on GNU/Linux
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308072051.00679.mflt1@micrologica.com.hk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 07 August 2003 05:39, Greg KH wrote:
+> On Thu, Aug 07, 2003 at 12:37:31AM +0800, Michael Frank wrote:
+> > Causes are that usb-host controller does no handle S3 yet _plus_
+> > possibly (depending on your hardware) loss of PCI interrupt links as
+> > current ACPI does not resume those.
+>
+> Known issue, please unload the usb modules before suspending them.
+>
+> The upcoming suspend patches will allow us to fix this "properly",
+> please give us a few weeks :)
+>
 
+And mind the _plus_ issue - On my hardware you could debug dead interrupts 
+in the host controller code forever...
 
-On Wed, 6 Aug 2003, Bjorn Helgaas wrote:
+Have posted a patch to fix ACPI, but no feedback as of yet ;)
 
-> On Wednesday 06 August 2003 1:54 pm, Alex Williamson wrote:
-> >    This patch renames the PCI-X adapter found in HP zx1 and sx1000
-> > ia64 systems to something more generic and descriptive.  It also
-> > adds an ID for the PCI adapter used in sx1000.  Patches against
-> > 2.4.21+ia64 and 2.6.0-test2+ia64 attached.  Thanks,
-> 
-> I applied this for the 2.4 ia64 patch.
-> 
-> Marcelo, do we need to do anything else to get this in your tree?
+Regards
+Michael
 
+-- 
+Powered by linux-2.6-test2-mm4. Compiled with gcc-2.95-3 - mature and rock solid
 
-Actually this doesnt apply cleanly to my tree Bjorn.
+2.4/2.6 kernel testing: ACPI PCI interrupt routing, PCI IRQ sharing, swsusp
+2.6 kernel testing:     PCMCIA yenta_socket, Suspend to RAM with ACPI S1-S3
 
-Can you please send me an updated patch? 
+More info on swsusp: http://sourceforge.net/projects/swsusp/
 

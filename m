@@ -1,77 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263876AbTKGExu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 23:53:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263879AbTKGExu
+	id S261344AbTKGDvz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 22:51:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263853AbTKGDvz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 23:53:50 -0500
-Received: from adsl-63-207-60-234.dsl.lsan03.pacbell.net ([63.207.60.234]:27149
-	"EHLO obsecurity.dyndns.org") by vger.kernel.org with ESMTP
-	id S263876AbTKGExs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 23:53:48 -0500
-Date: Thu, 6 Nov 2003 20:53:47 -0800
-From: Kris Kennaway <kris@obsecurity.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Kris Kennaway <kris@freebsd.org>, linux-kernel@vger.kernel.org
-Subject: Re: NFS Locking violates protocol spec (incompatible with FreeBSD)
-Message-ID: <20031107045346.GA4583@rot13.obsecurity.org>
-References: <20031107041051.GA4065@rot13.obsecurity.org> <shsk76c3hvr.fsf@charged.uio.no>
+	Thu, 6 Nov 2003 22:51:55 -0500
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:64016 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id S261344AbTKGDvx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Nov 2003 22:51:53 -0500
+Date: Fri, 07 Nov 2003 12:52:02 +0900 (JST)
+Message-Id: <20031107.125202.755842752.yoshfuji@linux-ipv6.org>
+To: jeff.zheng@intel.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Why size of sockaddr smaller than size of sockaddr_in6?
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <37FBBA5F3A361C41AB7CE44558C3448E011959C7@pdsmsx403.ccr.corp.intel.com>
+References: <37FBBA5F3A361C41AB7CE44558C3448E011959C7@pdsmsx403.ccr.corp.intel.com>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on XEmacs 21.4.6 (Common Lisp)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="oyUTqETQ0mS9luUI"
-Content-Disposition: inline
-In-Reply-To: <shsk76c3hvr.fsf@charged.uio.no>
-User-Agent: Mutt/1.4.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <37FBBA5F3A361C41AB7CE44558C3448E011959C7@pdsmsx403.ccr.corp.intel.com> (at Fri, 7 Nov 2003 11:00:55 +0800), "Zheng, Jeff" <jeff.zheng@intel.com> says:
 
---oyUTqETQ0mS9luUI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Is sockaddr_storage part of IPv6? I mean, does sockaddr_storage exist in a system that does not have IPv6? In such system if I use sockaddr_in6, the compile will be failed because there is no sockaddr_in6 structure. 
 
-On Thu, Nov 06, 2003 at 11:46:48PM -0500, Trond Myklebust wrote:
-> >>>>> " " =3D=3D Kris Kennaway <kris@freebsd.org> writes:
->=20
->=20
->      > contains more details about this problem, including a
->      > workaround for FreeBSD to limit the cookie size to 8 bytes.
->      > Obviously, it would be better for this bug to be fixed in
->      > Linux, since Linux is non-conformant to the protocol.
->=20
-> Yes. I saw a mail with a justification for why you want to be able to
-> wait on > 2^64 outstanding lock requests to a single lockd server, and
-> was highly amused.
-> I'm still hoping the person who decided that he needed 1024 byte
-> long cookies will own up some day. OTOH, he might still be busy
-> testing his locking code for cookie wraparound...
->=20
->=20
-> Anyhow, a patch exists (written by Greg Banks), and can be found as
->=20
->  http://www.fys.uio.no/~trondmy/src/Linux-2.4.x/2.4.23-pre9/linux-2.4.23-=
-01-fix_osx.dif
->=20
->=20
-> No. It does not extend the cookie size to 1k...
+AFAIK, sockaddr_storage{} was introduced because sockaddr_in6{} 
+is too large for sockaddr{}.  However, the use of sockaddr_storage{} 
+is not limited to IPv6. Systems which does not support IPv6 may have 
+sockaddr_storage{}.
 
-Thanks..obviously we'd like a fix to be committed to Linux so that it
-interoperates out of the box with FreeBSD.  What are the chances of
-this?
+BTW, there're little chances for users to use sockaddr_in{} or sockaddr_in6{}.
+Modern and "good" applications never use them.
 
-Kris
+Use getaddrinfo(3) / getnameinfo(3) (which uses addrinfo{} and sockaddr{}).
 
---oyUTqETQ0mS9luUI
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+If you need a structure to hold socket address, 
+you may use sockaddr_storage{}; i.e. for getsockname(2) / getpeername(2).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (FreeBSD)
+If you are UNABLE to avoid touching socket address structure, use it finally;
+This is very rare.
 
-iD8DBQE/qyVaWry0BWjoQKURAkVKAKDX/jpjQzR9jEIQlI70f1i2TDNYvwCeO823
-GRIaVQ3npcOXXTq7KHiFosU=
-=4H9C
------END PGP SIGNATURE-----
 
---oyUTqETQ0mS9luUI--
+Well, this is kernel developmen list. Please change the list.
+Thanks.
+
+-- 
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

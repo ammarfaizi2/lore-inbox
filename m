@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263639AbTLDWbg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 17:31:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263625AbTLDWaJ
+	id S263642AbTLDWcg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 17:32:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263636AbTLDWb6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 17:30:09 -0500
-Received: from mail.kroah.org ([65.200.24.183]:60119 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263622AbTLDWaA (ORCPT
+	Thu, 4 Dec 2003 17:31:58 -0500
+Received: from holomorphy.com ([199.26.172.102]:54737 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263632AbTLDWao (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 17:30:00 -0500
-Date: Thu, 4 Dec 2003 14:27:52 -0800
-From: Greg KH <greg@kroah.com>
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
-Subject: [BK PATCH] i2c driver fix for 2.6.0-test11
-Message-ID: <20031204222752.GA2541@kroah.com>
+	Thu, 4 Dec 2003 17:30:44 -0500
+Date: Thu, 4 Dec 2003 14:30:32 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Jason Walker <jason_walker@bellsouth.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Unable to address 1GB RAM in 2.4.19 or later
+Message-ID: <20031204223032.GA8039@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+	Jason Walker <jason_walker@bellsouth.net>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20031204181014.QPLW12995.imf20aec.mail.bellsouth.net@debian> <Pine.LNX.4.58.0312041709290.27578@montezuma.fsmlabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <Pine.LNX.4.58.0312041709290.27578@montezuma.fsmlabs.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 4 Dec 2003, Jason Walker wrote:
+>> Both are SMP kernels. The hardware is a Compaq Proliant 5000R, quad pentium pro
+>> 200mhz (256k cache models).
+>> Any thoughts on this? Is there any other information needed to address this
+>> issue? Please let me know what I can do to assist in correcting this bug.
 
-Here is a i2c driver fixes for 2.6.0-test11.  It fixes an problem in the
-i2c-nforce2 driver when it is used to talk to the eeprom i2c driver.
+On Thu, Dec 04, 2003 at 05:21:14PM -0500, Zwane Mwaikambo wrote:
+> You are using mem= what happens without it? I wonder if mem= is broken
+> again.
 
-Please pull from:  bk://linuxusb.bkbits.net/i2c-2.6
+Both of the BIOS-88 tables match; for some reason 2.4.18 ignored the
+fact it was only reporting 16MB. It should see an e820...
 
-thanks,
 
-greg k-h
-
- drivers/i2c/busses/i2c-nforce2.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
------
-
-Jean Delvare:
-  o I2C: fix i2c_smbus_write_byte() for i2c-nforce2
-
+-- wli

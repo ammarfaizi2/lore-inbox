@@ -1,52 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261666AbREYS5E>; Fri, 25 May 2001 14:57:04 -0400
+	id <S261692AbREYTCe>; Fri, 25 May 2001 15:02:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261681AbREYS4z>; Fri, 25 May 2001 14:56:55 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:59088 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S261666AbREYS4q>; Fri, 25 May 2001 14:56:46 -0400
-Date: Fri, 25 May 2001 16:45:05 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: DVD blockdevice buffers
-Message-ID: <20010525164505.J7952@redhat.com>
-In-Reply-To: <20010523205748.L8080@redhat.com> <Pine.LNX.4.31.0105231258420.6642-100000@penguin.transmeta.com> <20010524123627.L27177@redhat.com> <m1bsohh3da.fsf@frodo.biederman.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <m1bsohh3da.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Fri, May 25, 2001 at 09:09:37AM -0600
+	id <S261696AbREYTCY>; Fri, 25 May 2001 15:02:24 -0400
+Received: from fenrus.demon.co.uk ([158.152.228.152]:21637 "EHLO
+	amadeus.home.nl") by vger.kernel.org with ESMTP id <S261692AbREYTCL>;
+	Fri, 25 May 2001 15:02:11 -0400
+Message-Id: <m153BuC-000OiPC@amadeus.home.nl>
+Date: Fri, 25 May 2001 08:21:04 +0100 (BST)
+From: arjan@fenrus.demon.nl
+To: engler@csl.Stanford.EDU (Dawson Engler)
+Subject: Re: [CHECKER] error path memory leaks in 2.4.4 and 2.4.4-ac8
+cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200105250238.TAA00788@csl.Stanford.EDU>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+In article <200105250238.TAA00788@csl.Stanford.EDU> you wrote:
+>> I believe we can make that a short. Arjan?
 
-On Fri, May 25, 2001 at 09:09:37AM -0600, Eric W. Biederman wrote:
+> Is the general way to fix these too-large stack vars to heap allocate
+> them?  Or is it preferable to put a "static" in front of them, if the
+> routine is non-reentrant?
 
-> The case we don't get quite right are partial reads that hit cached
-> data, on a page that doesn't have PG_Uptodate set.  We don't actually
-> need to do the I/O on the surrounding page to satisfy the read
-> request.  But we do because generic_file_read doesn't even think about
-> that case.
-
-That's *precisely* the case in question.  The whole design of the page
-cache involves reading entire pages at a time, in fact.  We _could_
-read in only partial pages, but in that case we end up wasting a lot
-of the page.
-
-> For the small random read case we could use a 
-> mapping->a_ops->readpartialpage 
-> function that sees if a request can be satisfied entirely 
-> from cached data.  But this is just to allow generic_file_read
-> to handle this, case. 
-
-Agreed.  The only case where blockdev-in-pagecache really results in
-significantly more IO is partial writes followed by partial reads.
-Reads from totally-uncached pages ought to just fill the entire page
-from disk; it's only when there is something already present
-in the cache for that page that we want to look for partial buffers.
-
---Stephen
+You're not always allowed to allocate memory. Esp in filesystems it can be
+tricky as writes can be triggered by low-memory situations and allocating
+memory their is suboptimal.

@@ -1,122 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261179AbUC2XHR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 18:07:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263191AbUC2XHR
+	id S262215AbUC2XJt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 18:09:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263172AbUC2XJt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 18:07:17 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:23965 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261179AbUC2XHG (ORCPT
+	Mon, 29 Mar 2004 18:09:49 -0500
+Received: from holomorphy.com ([207.189.100.168]:27806 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262215AbUC2XIK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 18:07:06 -0500
-Subject: Re: [PATCH] mask ADT: bitmap and bitop tweaks [1/22]
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-To: Paul Jackson <pj@sgi.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Dave Hansen <haveblue@us.ibm.com>
-In-Reply-To: <20040329041249.65d365a1.pj@sgi.com>
-References: <20040329041249.65d365a1.pj@sgi.com>
-Content-Type: text/plain
-Organization: IBM LTC
-Message-Id: <1080601576.6742.43.camel@arrakis>
+	Mon, 29 Mar 2004 18:08:10 -0500
+Date: Mon, 29 Mar 2004 15:08:00 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+       vrajesh@umich.edu, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity fix
+Message-ID: <20040329230800.GT791@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+	Andrea Arcangeli <andrea@suse.de>, vrajesh@umich.edu,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <20040329124027.36335d93.akpm@osdl.org> <Pine.LNX.4.44.0403292312170.19944-100000@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 29 Mar 2004 15:06:16 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0403292312170.19944-100000@localhost.localdomain>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-03-29 at 04:12, Paul Jackson wrote:
-> Patch_1_of_22 - Underlying bitmap/bitop details, added ops
-> 	Add a couple of 'const' qualifiers
-> 	Add intersects, subset, xor and andnot operators.
-> 	Fix some unused bits in bitmap_complement
-> 	Change bitmap_complement to take two operands.
+On Mon, 29 Mar 2004, Andrew Morton wrote:
+>> hmm, yes, we have pages which satisfy PageSwapCache(), but which are not
+>> actually in swapcache.
+>> 
+>> How about we use the normal pagecache APIs for this?
+>> 
+>> +	add_to_page_cache(page, &swapper_space, entry.val, GFP_NOIO);
+>>...  
+>> +	remove_from_page_cache(page);
 
-<snip>
+On Mon, Mar 29, 2004 at 11:24:58PM +0100, Hugh Dickins wrote:
+> Much nicer, and it'll probably appear to work: but (also untested)
+> I bet you'll need an additional page_cache_release(page) - damn,
+> looks like hugetlbfs has found a use for that tiresome asymmetry.
+> Hugh
 
-> diff -Nru a/lib/bitmap.c b/lib/bitmap.c
-> --- a/lib/bitmap.c	Mon Mar 29 01:03:26 2004
-> +++ b/lib/bitmap.c	Mon Mar 29 01:03:26 2004
-> @@ -45,7 +45,7 @@
->  EXPORT_SYMBOL(bitmap_full);
->  
->  int bitmap_equal(const unsigned long *bitmap1,
-> -		unsigned long *bitmap2, int bits)
-> +		const unsigned long *bitmap2, int bits)
->  {
->  	int k, lim = bits/BITS_PER_LONG;;
->  	for (k = 0; k < lim; ++k)
+The good news is that the use isn't particularly essential.
 
-Double `;`?  You didn't put it there, but it seems that...
 
-> @@ -61,13 +61,14 @@
->  }
->  EXPORT_SYMBOL(bitmap_equal);
->  
-> -void bitmap_complement(unsigned long *bitmap, int bits)
-> +void bitmap_complement(unsigned long *dst, const unsigned long *src, int bits)
->  {
-> -	int k;
-> -	int nr = BITS_TO_LONGS(bits);
-> +	int k, lim = bits/BITS_PER_LONG;;
-> +	for (k = 0; k < lim; ++k)
-> +		dst[k] = ~src[k];
-
-...you propagated the error...
-
- 
-> +int bitmap_intersects(const unsigned long *bitmap1,
-> +				const unsigned long *bitmap2, int bits)
-> +{
-> +	int k, lim = bits/BITS_PER_LONG;;
-
-...a couple times...
-
-> +	for (k = 0; k < lim; ++k)
-> +		if (bitmap1[k] & bitmap2[k])
-> +			return 1;
-> +
-> +	if (bits % BITS_PER_LONG)
-> +		if ((bitmap1[k] & bitmap2[k]) &
-> +				((1UL << (bits % BITS_PER_LONG)) - 1))
-> +			return 1;
-> +	return 0;
-> +}
-> +EXPORT_SYMBOL(bitmap_intersects);
-
-Do we need to check the last word specially?  If we're assuming that the
-unused bits are 0's, then they can't affect the check, right?  If we're
-not assuming the unused bits are 0's, then we need to do this last word
-special casing in bitmap_xor & bitmap_andnot, because they could set the
-unused bits.  Or am I confused?
-
-> +int bitmap_subset(const unsigned long *bitmap1,
-> +				const unsigned long *bitmap2, int bits)
-> +{
-> +	int k, lim = bits/BITS_PER_LONG;;
-> +	for (k = 0; k < lim; ++k)
-> +		if (bitmap1[k] & ~bitmap2[k])
-> +			return 0;
-> +
-> +	if (bits % BITS_PER_LONG)
-> +		if ((bitmap1[k] & ~bitmap2[k]) &
-> +				((1UL << (bits % BITS_PER_LONG)) - 1))
-> +			return 0;
-> +	return 1;
-> +}
-> +EXPORT_SYMBOL(bitmap_subset);
-
-Same comments here, both the double ';' and the last word special
-casing...
-
-Looking ahead, patch 2/22 specifically states that we assume all our
-input masks have the high/unused bits cleared and we promise not to set
-them.  So we shouldn't need the last word special casing in
-bitmap_intersect & bitmap_subset...  I think. ;)
-
--Matt
-
+-- wli

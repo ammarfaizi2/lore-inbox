@@ -1,79 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261681AbUAFJJU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 04:09:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbUAFJJU
+	id S261613AbUAFJ1i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 04:27:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbUAFJ1i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 04:09:20 -0500
-Received: from host249-74.pool80117.interbusiness.it ([80.117.74.249]:59556
-	"EHLO noriega.dopenet.org") by vger.kernel.org with ESMTP
-	id S261681AbUAFJJO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 04:09:14 -0500
-Subject: [PATCH][SCSI][kernel 2.6.0]
-From: noreaga <noreaga@virgilio.it>
-Reply-To: noreaga@virgilio.it
+	Tue, 6 Jan 2004 04:27:38 -0500
+Received: from host33-138.pool80181.interbusiness.it ([80.181.138.33]:11780
+	"EHLO kratorius.ath.cx") by vger.kernel.org with ESMTP
+	id S261613AbUAFJ1h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 04:27:37 -0500
+Date: Tue, 6 Jan 2004 10:26:56 +0100
+From: Giuliani Ivan <kratorius@lugbari.org>
 To: linux-kernel@vger.kernel.org
-Cc: torvalds@osdl.org
-Content-Type: text/plain
-Message-Id: <1073379928.244.11.camel@gianplacido.dopenet.org>
+Subject: Re: 2.6.1-rc1 affected?
+Message-Id: <20040106102656.7cd1e55b@malattia.net>
+In-Reply-To: <20040106063906.GB27889@unthought.net>
+References: <1073320318.21198.2.camel@midux>
+	<Pine.LNX.4.58.0401050840290.21265@home.osdl.org>
+	<1073326471.21338.21.camel@midux>
+	<Pine.LNX.4.58.0401051027430.2115@home.osdl.org>
+	<20040105193817.GA4366@lsc.hu>
+	<20040105224855.GC4987@louise.pinerecords.com>
+	<1073348624.1790.43.camel@louise3.void.org>
+	<20040106063906.GB27889@unthought.net>
+X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 06 Jan 2004 10:05:28 +0100
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fix wrong data types in include/scsi/scsi.h
+On Tue, 6 Jan 2004 07:39:06 +0100
+Jakob Oestergaard <jakob@unthought.net> wrote:
 
+> On Tue, Jan 06, 2004 at 01:23:44AM +0100, Bastiaan Spandaw wrote:
+> ...
+> > Not sure if this works or not.
+> > According to a slashdot comment this is proof of concept code.
+> > 
+> > http://linuxfromscratch.org/~devine/mremap_poc.c
+> 
+> A few tests, all on IA32, all as non-root user:
+> 
+> RedHat 5.2, (vanilla 2.0.39) = no effect
+> RedHat 6.2, (vanilla 2.4.18) = instant reboot
+> RedHat 7.2, (redhat 2.4.9-7) = instant reboot
+> Debian 2.2, (vanilla 2.2.19) = no effect
+> SuSE 7.3, (suse 2.4.10-4GB) = instant reboot
 
-in file include/scsi/scsi.h (lines 203 to 221, structs css_modsel_head
-and scsi_lun) i found data types u8 instead of __u8.
+On my 2.4.22 (slackware 9.1 default) and on my 2.6.0-test11 (vanilla) with IA32
+worked fine.
 
-massimiliano picco
-noreaga@virgilio.it
-
-
-
---- linux-2.6.0/include/scsi/scsi.h     2003-12-18 03:59:54.000000000
-+0100
-+++ linux/include/scsi/scsi.h   2004-01-02 22:05:11.000000000 +0100
-@@ -200,25 +200,25 @@
-  */
-                                                                                                                               
- struct ccs_modesel_head {
--       u8 _r1;                 /* reserved */
--       u8 medium;              /* device-specific medium type */
--       u8 _r2;                 /* reserved */
--       u8 block_desc_length;   /* block descriptor length */
--       u8 density;             /* device-specific density code */
--       u8 number_blocks_hi;    /* number of blocks in this block desc */
--       u8 number_blocks_med;
--       u8 number_blocks_lo;
--       u8 _r3;
--       u8 block_length_hi;     /* block length for blocks in this desc */
--       u8 block_length_med;
--       u8 block_length_lo;
-+       __u8 _r1;                       /* reserved */
-+       __u8 medium;            /* device-specific medium type */
-+       __u8 _r2;                       /* reserved */
-+       __u8 block_desc_length; /* block descriptor length */
-+       __u8 density;           /* device-specific density code */
-+       __u8 number_blocks_hi;  /* number of blocks in this block desc */
-+       __u8 number_blocks_med;
-+       __u8 number_blocks_lo;
-+       __u8 _r3;
-+       __u8 block_length_hi;   /* block length for blocks in this desc */
-+       __u8 block_length_med;
-+       __u8 block_length_lo;
- };
-                                                                                                                               
- /*
-  * ScsiLun: 8 byte LUN.
-  */
- struct scsi_lun {
--       u8 scsi_lun[8];
-+       __u8 scsi_lun[8];
- };
-                                                                                                                               
- /*
-
+-- 
+Ivan "kratorius" Giuliani  ::  PGP Public Key ID:
+http://kratorius.cjb.net   ::  0x840F429D @ keyserver.linux.it
+LUGBari Member             ::

@@ -1,43 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263544AbUESKuG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263565AbUESKyT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263544AbUESKuG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 06:50:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263565AbUESKuG
+	id S263565AbUESKyT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 06:54:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263574AbUESKyT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 06:50:06 -0400
-Received: from cantor.suse.de ([195.135.220.2]:51636 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263544AbUESKuD (ORCPT
+	Wed, 19 May 2004 06:54:19 -0400
+Received: from nacho.zianet.com ([216.234.192.105]:7443 "HELO nacho.zianet.com")
+	by vger.kernel.org with SMTP id S263565AbUESKyS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 06:50:03 -0400
-Date: Wed, 19 May 2004 12:50:01 +0200
-From: Andi Kleen <ak@suse.de>
-To: Muli Ben-Yehuda <mulix@mulix.org>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, rusty@rustcorp.com.au
-Subject: Re: [PATCH] Remove bogus WARN_ON in futex_wait
-Message-Id: <20040519125001.3866f830.ak@suse.de>
-In-Reply-To: <20040519104339.GG31630@mulix.org>
-References: <20040519122350.2792e050.ak@suse.de>
-	<20040519104339.GG31630@mulix.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 19 May 2004 06:54:18 -0400
+From: Steven Cole <elenstev@mesatop.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: 1352 NUL bytes at the end of a page? (was Re: Assertion `s && s->tree' failed: The saga continues.)
+Date: Wed, 19 May 2004 04:53:31 -0600
+User-Agent: KMail/1.6.1
+Cc: Andrew Morton <akpm@osdl.org>, Larry McVoy <lm@bitmover.com>,
+       mason@suse.com, wli@holomorphy.com, hugh@veritas.com, adi@bitmover.com,
+       support@bitmover.com, linux-kernel@vger.kernel.org
+References: <200405132232.01484.elenstev@mesatop.com> <200405172319.38853.elenstev@mesatop.com> <Pine.LNX.4.58.0405180728510.25502@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0405180728510.25502@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200405190453.31844.elenstev@mesatop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 May 2004 13:43:40 +0300
-Muli Ben-Yehuda <mulix@mulix.org> wrote:
-
-> On Wed, May 19, 2004 at 12:23:50PM +0200, Andi Kleen wrote:
-> > 
-> > futex_wait goes to an interruptible sleep, but does a WARN_ON later
-> > if it wakes up early. But waking up early is totally legal, since
-> > the sleep is interruptible and any signal can wake it up.
+On Tuesday 18 May 2004 08:38 am, Linus Torvalds wrote:
 > 
-> That's not what the WARN_ON is saynig, unless I'm missing
-> something. It's checking if we were woken up early and there's no
-> signal pending for us. 
+> On Mon, 17 May 2004, Steven Cole wrote:
+> >
+> > No problems, and with PREEMPT of course.
+> 
+> Ok. Good. It's a small data-set, but the bug made sense, and so did the 
+> fix.
 
-True. Anyways, it seems to happen in practice.
+Perhaps a final note on this: I did more testing on reiserfs overnight with
+Chris' patch, and it survived eleven pulls and unpulls with no failures.
 
--Andi
+> 
+> > > If you see a failure on ext3, please try to analyze the corruption pattern 
+> > > again. It might be something different.
+> > 
+> > So, I take it that I should revert that one-liner if I want to get any failure data?
+> > With it, ext3 was pretty solid for this testing.
+> 
+> Yes. That one-liner is bogus. It was a good way to test a hypothesis for
+> the common case of a filesystem that uses the block_write_full_page thing
+> (and reiser is one of the few that doesn't), but it wasn't the real fix.
+> The reiser patch was the real fix for the problem on reiser, but ext3
+> should have been ok already. It uses (through a lot of other functions)
+> generic_file_aio_write_nolock() as the real write engine, and that one
+> calls "commit_write()" with the page lock held.
+> 
+> 		Linus
+
+I also tested ext3 more extensively (10 pulls/unpulls) and could not repeat
+the alleged failure on ext3.  That was with akpm's one-liner backed out.
+
+Steven

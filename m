@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263863AbTJEUto (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 16:49:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263868AbTJEUtn
+	id S263869AbTJEVjj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 17:39:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263870AbTJEVjj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 16:49:43 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:33298
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S263863AbTJEUtm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 16:49:42 -0400
-Date: Sun, 5 Oct 2003 13:46:40 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Maciej Zenczykowski <maze@cela.pl>, Rob Landley <rob@landley.net>,
-       "Henning P. Schmiedehausen" <hps@intermeta.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: freed_symbols [Re: People, not GPL [was: Re: Driver Model]]
-In-Reply-To: <1065386326.3157.166.camel@imladris.demon.co.uk>
-Message-ID: <Pine.LNX.4.10.10310051345440.21746-100000@master.linux-ide.org>
+	Sun, 5 Oct 2003 17:39:39 -0400
+Received: from intra.cyclades.com ([64.186.161.6]:21658 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S263869AbTJEVji
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Oct 2003 17:39:38 -0400
+Date: Sun, 5 Oct 2003 18:42:14 -0300 (BRT)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.23-pre6
+In-Reply-To: <20031002221312.GA4778@werewolf.able.es>
+Message-ID: <Pine.LNX.4.44.0310051841230.7861-100000@logos.cnet>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Use maybe but read nope.
 
-Now you have crossed the line in GPL, where you have restricted usaged.
+On Fri, 3 Oct 2003, J.A. Magallon wrote:
 
-You lose :-P
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-On Sun, 5 Oct 2003, David Woodhouse wrote:
-
-> On Sun, 2003-10-05 at 12:47 -0700, Andre Hedrick wrote:
-> > Reading the C-code and creating another work which is identical in
-> > functionality and completely original, it is not derived regardless what
-> > anybody thinks or tells you.  GPL only protects the actual file or
-> > document. 
 > 
-> ...and continues to do so. So if the licence of the original says you
-> may use it only if you do not create such a work of your own, then as
-> soon as you create your own, you lose your right to continue to use the
-> original.
+> On 10.01, Marcelo Tosatti wrote:
+> > 
+> > Hi,
+> > 
+> > Here goes -pre6. 
+> > 
 > 
-> -- 
-> dwmw2
+> make xconfig is broken:
 > 
+> werewolf:/usr/src/linux-2.4.22-pre6# make xconfig
+> rm -f include/asm
+> ( cd include ; ln -sf asm-i386 asm)
+> make -C scripts kconfig.tk
+> make[1]: Entering directory `/usr/src/linux-2.4.22-pre6/scripts'
+> gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o tkparse.o tkparse.c
+> gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o tkcond.o tkcond.c
+> gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o tkgen.o tkgen.c
+> gcc -o tkparse tkparse.o tkcond.o tkgen.o
+> cat header.tk >> ./kconfig.tk
+> ./tkparse < ../arch/i386/config.in >> kconfig.tk
+> make[1]: *** [kconfig.tk] Error 139
+> make[1]: Leaving directory `/usr/src/linux-2.4.22-pre6/scripts'
+> make: *** [xconfig] Error 2
 > 
+> Any way to get more info ? Some verbose mode for tkparse ?
+
+No idea... Mind trying to isolate the problem ? (check which -pre the 
+problems started)
 

@@ -1,151 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264643AbUENXsf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264771AbUEOAOk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264643AbUENXsf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 19:48:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264629AbUENXrl
+	id S264771AbUEOAOk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 20:14:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264722AbUEOAMA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 19:47:41 -0400
-Received: from mail.kroah.org ([65.200.24.183]:24037 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264571AbUENX35 convert rfc822-to-8bit
+	Fri, 14 May 2004 20:12:00 -0400
+Received: from florence.buici.com ([206.124.142.26]:51593 "HELO
+	florence.buici.com") by vger.kernel.org with SMTP id S264700AbUEOAKb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 19:29:57 -0400
-Subject: Re: [PATCH] I2C update for 2.6.6
-In-Reply-To: <1084577357958@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Fri, 14 May 2004 16:29:17 -0700
-Message-Id: <10845773573553@kroah.com>
+	Fri, 14 May 2004 20:10:31 -0400
+Date: Fri, 14 May 2004 17:10:28 -0700
+From: Marc Singer <elf@buici.com>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: rmk@arm.linux.org.uk, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: arm-lh7a40x IDE support in 2.6.6
+Message-ID: <20040515001028.GA9500@buici.com>
+References: <200405141840.04401.bzolnier@elka.pw.edu.pl> <200405150019.46504.bzolnier@elka.pw.edu.pl> <20040514224932.GA8061@buici.com> <200405150126.33153.bzolnier@elka.pw.edu.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200405150126.33153.bzolnier@elka.pw.edu.pl>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1587.15.9, 2004/05/05 15:34:20-07:00, khali@linux-fr.org
+On Sat, May 15, 2004 at 01:26:33AM +0200, Bartlomiej Zolnierkiewicz wrote:
+> On Saturday 15 of May 2004 00:49, Marc Singer wrote:
+> > On Sat, May 15, 2004 at 12:19:46AM +0200, Bartlomiej Zolnierkiewicz wrote:
+> 
+> > > > > > > - you are setting IDE_NO_IRQ in ide_init_hwif_ports() which is
+> > > > > > > used in many places in generic IDE code - anybody wanting to
+> > > > > > > understand interactions with your code + generic code will have
+> > > > > > > serious problems (especially if knows _nothing_ about lpd7a40x)
+> > > > > >
+> > > > > > I don't know what you mean.  I grep for that constant and found it
+> > > > > > nowhere except for ide-io.c and in my code.  It doesn't take much
+> > > > > > to find the references.
+> > > > >
+> > > > > I'm talking about ide_init_hwif_ports() function.
+> > > >
+> > > > Most of the ARM arch's use it.  Perhaps all of them need a good once
+> > > > over.
+> > >
+> > > Since some time I have a patch killing <asm/arch-*/ide.h>. :)
+> >
+> > OK.  That raises an interesting question.  If a) you as the IDE
+> > maintainer want to make a policy change, and b) you have a concrete
+> > action to take, then how do you go about it so that the right thing
+> > (tm) happens?
+> 
+> I posted patch to linux-arm-kernel (rmk, I can't find it in l-a-k archives
+> and I also can't find any mail about it being rejected?) and linux-ide.
+> [ and to affected arch maintainers of course ]
 
-[PATCH] I2C: Rewrite temperature conversions in via686a driver
+There is a web page for posting kernel patches.  It is most likely to
+receive attention than posting to the mailing list.
 
-The following patch rewrites the temperature conversion macros and
-functions found in the via686a chip driver. Contrary to the voltage
-conversions a few weeks ago, temperature conversions were numerically
-correct, but artificially complex. The new ones are cleaner. It also
-fixes a highly improbable array overflow (would take one of the measured
-temperatures to be over 145 degrees C).
+  <http://www.arm.linux.org.uk/developer/patches/>
 
-Successfully tested by Mark D. Studebaker and I, and already applied to
-our CVS repository.
+> > One tack would be to post to the ARM list stating that there is
+> > such-and-such, a new policy, and this requires a change to the
+> > way-things-work (tm).  Then effect a patch that breaks the bad stuff
+> > so that the users of such bad stuff must cope.
+> 
+> It is stable kernel series so I paid 'stable kernel' price
+> and made sure that it shouldn't break anything.
 
-
- drivers/i2c/chips/via686a.c |   63 ++++++++++++++------------------------------
- 1 files changed, 21 insertions(+), 42 deletions(-)
-
-
-diff -Nru a/drivers/i2c/chips/via686a.c b/drivers/i2c/chips/via686a.c
---- a/drivers/i2c/chips/via686a.c	Fri May 14 16:20:12 2004
-+++ b/drivers/i2c/chips/via686a.c	Fri May 14 16:20:12 2004
-@@ -268,52 +268,31 @@
- 	    239, 240
- };
- 
--/* Converting temps to (8-bit) hyst and over registers 
-- No interpolation here.  Just check the limits and go.
-- The +5 effectively rounds off properly and the +50 is because 
-- the temps start at -50 */
-+/* Converting temps to (8-bit) hyst and over registers
-+   No interpolation here.
-+   The +50 is because the temps start at -50 */
- static inline u8 TEMP_TO_REG(long val)
- {
--	return (u8)
--	    SENSORS_LIMIT(viaLUT[((val <= -500) ? 0 : (val >= 1100) ? 160 : 
--				  ((val + 5) / 10 + 50))], 0, 255);
-+	return viaLUT[val <= -50000 ? 0 : val >= 110000 ? 160 : 
-+		      (val < 0 ? val - 500 : val + 500) / 1000 + 50];
- }
- 
--/* for 8-bit temperature hyst and over registers 
-- The temp values are already *10, so we don't need to do that.
-- But we _will_ round these off to the nearest degree with (...*10+5)/10 */
--#define TEMP_FROM_REG(val) ((tempLUT[(val)]*10+5)/10)
--
--/* for 10-bit temperature readings 
-- You might _think_ this is too long to inline, but's it's really only
-- called once... */
-+/* for 8-bit temperature hyst and over registers */
-+#define TEMP_FROM_REG(val) (tempLUT[(val)] * 100)
-+
-+/* for 10-bit temperature readings */
- static inline long TEMP_FROM_REG10(u16 val)
- {
--	/* the temp values are already *10, so we don't need to do that. */
--	long temp;
- 	u16 eightBits = val >> 2;
- 	u16 twoBits = val & 3;
- 
--	/* handle the extremes first (they won't interpolate well! ;-) */
--	if (val == 0)
--		return (long) tempLUT[0];
--	if (val == 1023)
--		return (long) tempLUT[255];
--
--	if (twoBits == 0)
--		return (long) tempLUT[eightBits];
--	else {
--		/* do some interpolation by multipying the lower and upper
--		 bounds by 25, 50 or 75, then /100. */
--		temp = ((25 * (4 - twoBits)) * tempLUT[eightBits]
--			+ (25 * twoBits) * tempLUT[eightBits + 1]);
--		/* increase the magnitude by 50 to achieve rounding. */
--		if (temp > 0)
--			temp += 50;
--		else
--			temp -= 50;
--		return (temp / 100);
--	}
-+	/* no interpolation for these */
-+	if (twoBits == 0 || eightBits == 255)
-+		return TEMP_FROM_REG(eightBits);
-+
-+	/* do some linear interpolation */
-+	return (tempLUT[eightBits] * (4 - twoBits) +
-+	        tempLUT[eightBits + 1] * twoBits) * 25;
- }
- 
- #define ALARMS_FROM_REG(val) (val)
-@@ -441,21 +420,21 @@
- /* 3 temperatures */
- static ssize_t show_temp(struct device *dev, char *buf, int nr) {
- 	struct via686a_data *data = via686a_update_device(dev);
--	return sprintf(buf, "%ld\n", TEMP_FROM_REG10(data->temp[nr])*100 );
-+	return sprintf(buf, "%ld\n", TEMP_FROM_REG10(data->temp[nr]));
- }
- static ssize_t show_temp_over(struct device *dev, char *buf, int nr) {
- 	struct via686a_data *data = via686a_update_device(dev);
--	return sprintf(buf, "%ld\n", TEMP_FROM_REG(data->temp_over[nr])*100);
-+	return sprintf(buf, "%ld\n", TEMP_FROM_REG(data->temp_over[nr]));
- }
- static ssize_t show_temp_hyst(struct device *dev, char *buf, int nr) {
- 	struct via686a_data *data = via686a_update_device(dev);
--	return sprintf(buf, "%ld\n", TEMP_FROM_REG(data->temp_hyst[nr])*100);
-+	return sprintf(buf, "%ld\n", TEMP_FROM_REG(data->temp_hyst[nr]));
- }
- static ssize_t set_temp_over(struct device *dev, const char *buf, 
- 		size_t count, int nr) {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct via686a_data *data = i2c_get_clientdata(client);
--	int val = simple_strtol(buf, NULL, 10)/100;
-+	int val = simple_strtol(buf, NULL, 10);
- 	data->temp_over[nr] = TEMP_TO_REG(val);
- 	via686a_write_value(client, VIA686A_REG_TEMP_OVER(nr), data->temp_over[nr]);
- 	return count;
-@@ -464,7 +443,7 @@
- 		size_t count, int nr) {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct via686a_data *data = i2c_get_clientdata(client);
--	int val = simple_strtol(buf, NULL, 10)/100;
-+	int val = simple_strtol(buf, NULL, 10);
- 	data->temp_hyst[nr] = TEMP_TO_REG(val);
- 	via686a_write_value(client, VIA686A_REG_TEMP_HYST(nr), data->temp_hyst[nr]);
- 	return count;
-
+Fair enough.  We'll start with lh and see if we can get others to
+follow.

@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269857AbRHIWAX>; Thu, 9 Aug 2001 18:00:23 -0400
+	id <S269861AbRHIWOA>; Thu, 9 Aug 2001 18:14:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269861AbRHIWAN>; Thu, 9 Aug 2001 18:00:13 -0400
-Received: from ntt-connection.daiwausa.com ([210.175.188.3]:14909 "EHLO
-	ead42.ead.dsa.com") by vger.kernel.org with ESMTP
-	id <S269857AbRHIWAF>; Thu, 9 Aug 2001 18:00:05 -0400
-Date: Thu, 9 Aug 2001 17:59:51 -0400
-From: "Bill Rugolsky Jr." <rugolsky@ead.dsa.com>
-To: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
-Cc: Andreas Dilger <adilger@turbolinux.com>, linux-kernel@vger.kernel.org
-Subject: Re: using bug reports on vendor kernels
-Message-ID: <20010809175951.C22594@ead45>
-In-Reply-To: <200108092131.f79LV4Hr024656@webber.adilger.int> <01080923423801.04822@idun>
+	id <S270599AbRHIWNt>; Thu, 9 Aug 2001 18:13:49 -0400
+Received: from mail303.mail.bellsouth.net ([205.152.58.163]:20176 "EHLO
+	imf03bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S269861AbRHIWNm>; Thu, 9 Aug 2001 18:13:42 -0400
+Subject: Re: ATI frame buffer
+From: Louis Garcia <louisg00@bellsouth.net>
+To: Steven Walter <srwalter@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010809162306.A19581@hapablap.dyn.dhs.org>
+In-Reply-To: <997389450.7611.8.camel@tiger> 
+	<20010809162306.A19581@hapablap.dyn.dhs.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12 (Preview Release)
+Date: 09 Aug 2001 18:12:57 -0400
+Message-Id: <997395178.8772.5.camel@tiger>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <01080923423801.04822@idun>; from Oliver.Neukum@lrz.uni-muenchen.de on Thu, Aug 09, 2001 at 11:42:38PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 09, 2001 at 11:42:38PM +0200, Oliver Neukum wrote:
-> It might do so. However the speed of my internet connectivity would make this 
-> a very, very slow task.
-> And the day after having completed that I'd be bound to get a bug report from 
-> a Mandrake user.
+The docs for the aty128fb states that it only supports the Rage128 based
+devices. You sure it's also for the radeon?
 
-It sounds like you want an {ftp,http,...} server that allows you to
-look transparently into archives like zip, tar, cpio, rpm, etc.
-Do any of the standard ones do this?  (ftp certainly can *create* .tar.)
+I currently have an unsupported video card.
 
-Just don't ask for it in the kernel ...
+Louis
 
-   [ducks under desk :-)]
+On 09 Aug 2001 16:23:06 -0500, Steven Walter wrote:
+> On Thu, Aug 09, 2001 at 04:37:29PM -0400, Louis Garcia wrote:
+> > 
+> > Does the ATI rage 128 fb support the radeon chip? If not does a driver
+> > exist for this chip? I'm currently upgrading to have DRM support.
+> > 
+> > Thanks.
+> 
+> Yes, there is such a fb driver.  aty128
+> 
+> What does that have to do with DRM, however?
+> -- 
+> -Steven
+> In a time of universal deceit, telling the truth is a revolutionary act.
+> 			-- George Orwell
 
-Regards,
 
-   Bill Rugolsky
+

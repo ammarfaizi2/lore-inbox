@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290674AbSAYXQR>; Fri, 25 Jan 2002 18:16:17 -0500
+	id <S288742AbSAYX1J>; Fri, 25 Jan 2002 18:27:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290826AbSAYXQI>; Fri, 25 Jan 2002 18:16:08 -0500
-Received: from zero.tech9.net ([209.61.188.187]:16651 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S290674AbSAYXQC>;
-	Fri, 25 Jan 2002 18:16:02 -0500
-Subject: [PATCH] 2.5: console close race fix
-From: Robert Love <rml@tech9.net>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+	id <S290826AbSAYX0y>; Fri, 25 Jan 2002 18:26:54 -0500
+Received: from aldebaran.sra.com ([163.252.31.31]:59132 "EHLO
+	aldebaran.sra.com") by vger.kernel.org with ESMTP
+	id <S288742AbSAYX0d>; Fri, 25 Jan 2002 18:26:33 -0500
+From: David Garfield <garfield@irving.iisd.sra.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 25 Jan 2002 18:21:09 -0500
-Message-Id: <1012000869.3501.97.camel@phantasy>
-Mime-Version: 1.0
+Message-ID: <15441.59731.568087.579456@irving.iisd.sra.com>
+Date: Fri, 25 Jan 2002 18:25:07 -0500
+To: Robert Love <rml@tech9.net>
+Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: [PATCH] add BUG_ON to 2.4 #2
+In-Reply-To: <1012000599.3799.85.camel@phantasy>
+In-Reply-To: <1012000599.3799.85.camel@phantasy>
+X-Mailer: VM 6.96 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+Robert Love writes:
+...
+ > diff -urN linux-2.4.18-pre7/mm/vmscan.c linux/mm/vmscan.c
+ > --- linux-2.4.18-pre7/mm/vmscan.c	Thu Jan 24 13:48:18 2002
+ > +++ linux/mm/vmscan.c	Fri Jan 25 18:05:14 2002
+...
+ > @@ -354,10 +354,8 @@
+ >  
+ >  		page = list_entry(entry, struct page, lru);
+ >  
+ > -		if (unlikely(!PageLRU(page)))
+ > -			BUG();
+ > -		if (unlikely(PageActive(page)))
+ > -			BUG();
+ > +		BUG_ON(unlikely(!PageLRU(page)));
+ > +		BUG_ON(unlikely(PageActive(page)))
+ >  
+ >  		list_del(entry);
+ >  		list_add(entry, &inactive_list);
+ > 
 
-There is a race between con_flush_chars and con_close.  I first
-discovered it with the preemptive kernel patch, but it is a general SMP
-race.  The idea for the fix is originally by Andrew Morton.
 
-This fix is in 2.4.  Please, apply.
+While I don't know the exact definitions, this works out to:
 
-	Robert Love
+        if (unlikely(unlikely(!PageLRU(page)))) BUG();
 
-diff -urN linux-2.5.3-pre5/drivers/char/console.c linux/drivers/char/console.c
---- linux-2.5.3-pre5/drivers/char/console.c	Thu Jan 24 17:02:57 2002
-+++ linux/drivers/char/console.c	Fri Jan 25 18:12:36 2002
-@@ -2349,14 +2349,18 @@
- 
- static void con_flush_chars(struct tty_struct *tty)
- {
--	struct vt_struct *vt = (struct vt_struct *)tty->driver_data;
-+	struct vt_struct *vt;
- 
- 	if (in_interrupt())	/* from flush_to_ldisc */
- 		return;
- 
- 	pm_access(pm_con);
-+	
-+	/* if we race with con_close(), vt may be null */
- 	acquire_console_sem();
--	set_cursor(vt->vc_num);
-+	vt = (struct vt_struct *)tty->driver_data;
-+	if (vt)
-+		set_cursor(vt->vc_num);
- 	release_console_sem();
- }
- 
+which I doubt is a good idea.
 
- 
-
+--David Garfield

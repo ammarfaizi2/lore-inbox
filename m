@@ -1,64 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266976AbUBRByb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 20:54:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266989AbUBRByb
+	id S267076AbUBRCFz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 21:05:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267085AbUBRCFz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 20:54:31 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36057 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266967AbUBRBy1
+	Tue, 17 Feb 2004 21:05:55 -0500
+Received: from mail.inter-page.com ([12.5.23.93]:33298 "EHLO
+	mail.inter-page.com") by vger.kernel.org with ESMTP id S267076AbUBRCFx convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 20:54:27 -0500
-Date: Wed, 18 Feb 2004 01:54:23 +0000
-From: Matthew Wilcox <willy@debian.org>
-To: davidm@hpl.hp.com
-Cc: torvalds@osdl.org, Michel D?nzer <michel@daenzer.net>,
-       Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org,
-       linux-ia64@vger.kernel.org
-Subject: Re: radeon warning on 64-bit platforms
-Message-ID: <20040218015423.GH11824@parcelfarce.linux.theplanet.co.uk>
-References: <16434.35199.597235.894615@napali.hpl.hp.com> <1077054385.2714.72.camel@thor.asgaard.local> <16434.36137.623311.751484@napali.hpl.hp.com> <1077055209.2712.80.camel@thor.asgaard.local> <16434.37025.840577.826949@napali.hpl.hp.com> <1077058106.2713.88.camel@thor.asgaard.local> <16434.41884.249541.156083@napali.hpl.hp.com> <20040217234848.GB22534@krispykreme> <16434.46860.429861.157242@napali.hpl.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16434.46860.429861.157242@napali.hpl.hp.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 17 Feb 2004 21:05:53 -0500
+From: "Robert White" <rwhite@casabyte.com>
+To: <Valdis.Kletnieks@vt.edu>, "'Andrey Borzenkov'" <arvidjaar@mail.ru>
+Cc: <der.eremit@email.de>, <linux-kernel@vger.kernel.org>
+Subject: RE: Initrd Question 
+Date: Tue, 17 Feb 2004 18:05:39 -0800
+Organization: Casabyte, Inc.
+Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAodkDQazuxky+8ha4yn4hfQEAAAAA@casabyte.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+In-Reply-To: <200402131422.i1DEMWVB011960@turing-police.cc.vt.edu>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 17, 2004 at 04:51:24PM -0800, David Mosberger wrote:
-> >>>>> On Wed, 18 Feb 2004 10:48:49 +1100, Anton Blanchard <anton@samba.org> said:
+In a modern kernel you can safely multiply mount file systems.  In
+particular, if you are going to pivot_root you might be better off and
+happier if you mount devfs and procfs (and sysfs) in both the old and new
+locations before the pivot.
+
+So mount /dev and /proc and /sysfs (etc) as needed before the pivot.
+Mount /new-root.
+Then mount /new-root/dev /new-root/proc /new-root/sysfs /new-root/dev/devpts
+(etc) as you expect to need it after the pivot
+Do the pivot.
+Then unmount the unneeded /old-root/dev etc.
+
+This should make things much more convenient.
+
+Mount what you need, but don't mount things that init scripts will mount
+later.  There isn't much harm to be had in mounting something over itself
+(e.g. "mount -t devfs devfs /dev" twice in a row) but it keeps things like
+/proc/mounts nice and tidy if you keep it all straight.
+
+Rob.
+
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of
+Valdis.Kletnieks@vt.edu
+Sent: Friday, February 13, 2004 6:23 AM
+To: Andrey Borzenkov
+Cc: der.eremit@email.de; linux-kernel@vger.kernel.org
+Subject: Re: Initrd Question 
+
+On Fri, 13 Feb 2004 17:14:25 +0300, =?koi8-r?Q?=22?=Andrey
+Borzenkov=?koi8-r?Q?=22=20?= said:
+
+> > Should you check for /dev/.devfsd on the real root here? I thought
+.devfsd
+> > is created by the devfsd process, 
 > 
->   Anton> A small thing, could the comment be constrained to 80
->   Anton> columns? :)
-> 
-> I don't really see the point of that, given that pretty much all
-> existing Linux source code is formatted for 100 columns.  I don't feel
-> strongly about it, however, so I changed it.
+> you are wrong here, sorry. .devfsd is created by devfs.
 
-Um, only your crap.  Everybody else follows Documentation/CodingStyle.
-This is mentioned in a couple of places:
+I see the confusion - .devfsd gets created in the directory that is
+/dev at the time devfs starts up.  However, after pivot_root, that directory
+has a new name, and that's where we need to check for .devfsd.
 
-Now, some people will claim that having 8-character indentations makes
-the code move too far to the right, and makes it hard to read on a
-80-character terminal screen.  The answer to that is that if you need
-more than 3 levels of indentation, you're screwed anyway, and should fix
-your program. 
-
-...
-
-Functions should be short and sweet, and do just one thing.  They should
-fit on one or two screenfuls of text (the ISO/ANSI screen size is 80x24,
-as we all know), and do one thing and do that well. 
+It gets even more confusing in some configurations where we end up
+unmounting
+/initrd/dev and then re-mounting /dev just to get it into the right place..
 
 
-I wish the ia64 code weren't indented to 100 columns.  It's why I hate
-working with your code.
-
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain

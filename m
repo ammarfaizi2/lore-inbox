@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261909AbTCLTGC>; Wed, 12 Mar 2003 14:06:02 -0500
+	id <S261910AbTCLTGS>; Wed, 12 Mar 2003 14:06:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261910AbTCLTGC>; Wed, 12 Mar 2003 14:06:02 -0500
-Received: from home.linuxhacker.ru ([194.67.236.68]:11937 "EHLO linuxhacker.ru")
-	by vger.kernel.org with ESMTP id <S261909AbTCLTGA>;
-	Wed, 12 Mar 2003 14:06:00 -0500
-Date: Wed, 12 Mar 2003 22:15:54 +0300
-From: Oleg Drokin <green@linuxhacker.ru>
-To: alan@redhat.com, linux-kernel@vger.kernel.org, elmer@ylenurme.ee
-Subject: [2.4] Memleak on error exit path in Aironet 4500 Pcmcia driver
-Message-ID: <20030312191554.GA27710@linuxhacker.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S261911AbTCLTGS>; Wed, 12 Mar 2003 14:06:18 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:42757 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261910AbTCLTGQ>; Wed, 12 Mar 2003 14:06:16 -0500
+Date: Wed, 12 Mar 2003 11:14:52 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: John Bradford <john@grabjohn.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: bio too big device
+In-Reply-To: <200303121905.h2CJ5449001606@81-2-122-30.bradfords.org.uk>
+Message-ID: <Pine.LNX.4.44.0303121111440.15738-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-    There is a memleak on OOM in Aironet 4500 Pcmcia driver,
-    trivial to fix. See the patch.
-    Found with help of smatch + enhanced unfree script.
+On Wed, 12 Mar 2003, John Bradford wrote:
+> 
+> Couldn't we have a list of known good drives, though, and enable 256
+> sectors as a special case?
 
-Bye,
-    Oleg
+My problem is that I just don't see the point. What's the difference 
+between 256 and 254 sectors? 128kB vs 127kB? 
 
-===== drivers/net/pcmcia/aironet4500_cs.c 1.8 vs edited =====
---- 1.8/drivers/net/pcmcia/aironet4500_cs.c	Wed Aug  7 22:27:37 2002
-+++ edited/drivers/net/pcmcia/aironet4500_cs.c	Wed Mar 12 22:13:20 2003
-@@ -282,7 +282,13 @@
- 	};
- 	memset(dev,0,sizeof(struct net_device));
- 	dev->priv = kmalloc(sizeof(struct awc_private), GFP_KERNEL);
--	if (!dev->priv ) {printk(KERN_CRIT "out of mem on dev priv alloc \n"); return NULL;};
-+	if (!dev->priv ) {
-+		printk(KERN_CRIT "out of mem on dev priv alloc \n");
-+                kfree(dev);
-+                kfree(link->dev);
-+                kfree(link);
-+		return NULL;
-+	}
- 	memset(dev->priv,0,sizeof(struct awc_private));
- 	
- //	link->dev->minor = dev->minor;
+Also, looking closer, the current limit actually seems to be _controller_
+dependent, not disk-dependent. I don't know how valid that is, but it
+looks reasonable at least in theory - while the IDE controller is mostly a
+passthrough thing, it does end up doing part of the work. So the picture
+look smore complex than just another drive blacklist.
+
+In short, the headaches just aren't worth the 127->128kB gain.
+
+			Linus
+

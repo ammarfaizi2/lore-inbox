@@ -1,19 +1,20 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313932AbSDUVON>; Sun, 21 Apr 2002 17:14:13 -0400
+	id <S313815AbSDUVMu>; Sun, 21 Apr 2002 17:12:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313934AbSDUVOM>; Sun, 21 Apr 2002 17:14:12 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:5262 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S313932AbSDUVOK>;
-	Sun, 21 Apr 2002 17:14:10 -0400
-Date: Sun, 21 Apr 2002 21:54:07 +0200
+	id <S313821AbSDUVMt>; Sun, 21 Apr 2002 17:12:49 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:1934 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S313815AbSDUVMs>;
+	Sun, 21 Apr 2002 17:12:48 -0400
+Date: Sun, 21 Apr 2002 22:53:12 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: Doug Ledford <dledford@redhat.com>, Andrea Arcangeli <andrea@suse.de>,
-        jh@suse.cz, linux-kernel@vger.kernel.org, jakub@redhat.com, aj@suse.de,
-        ak@suse.de, pavel@atrey.karlin.mff.cuni.cz
-Subject: Re: SSE related security hole
-Message-ID: <20020421195407.GB12120@elf.ucw.cz>
-In-Reply-To: <20020418072615.I14322@dualathlon.random> <20020418094444.A2450@redhat.com> <20020418192003.GE11220@atrey.karlin.mff.cuni.cz> <20020418153238.A25037@redhat.com>
+To: "Peter T. Breuer" <ptb@it.uc3m.es>
+Cc: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
+        david.lang@digitalinsight.com, vojtech@suse.cz,
+        linux-kernel@vger.kernel.org
+Subject: Re: [ENBD] [Fwd: Re: [PATCH] 2.5.8 IDE 36]
+Message-ID: <20020421205312.GC12120@elf.ucw.cz>
+In-Reply-To: <3CC00425.3060703@cjcj.com> <200204191307.g3JD7qX23492@oboe.it.uc3m.es>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,14 +25,30 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > It introduces security hole: Unrelated tasks now have your top secret
-> > value you stored in one of your registers.
+> With it, the protocol in the client daemon will ack the kernel _before_
+> it gets an ack from the remote server. That should help relieve the
+> deadlock. Things then go like this:
 > 
-> Well, that's been my point all along and why I sent the patch.  I was not 
-> asking why leaving the registers alone instead of 0ing them out was not a 
-> security hole.  I was asking why doing so was not backward compatible?
+>      kernel runs low on memory
+>      kernel flushes buffers to device drivers under pressure
+>      nbd client daemon sends to the net
+>         * client acks kernel and releases buffers in kernel
+>      server on the _same machine_ receives request over the net
+>      server tries to write request to disk
+>      server process needs buffers to write to
+>         * server gets buffers released by client in kernel
+> 
+> At least, potentially. If I recall right, there's still a deadlock
+> window in-kernel, but it's small. I don't recall the details. Oh -
+> well, the request still hangs around in the driver until the client
+> daemon acks .. maybe the client daemon can't ack without being swapped
+> in first, and that'd be deadlock.
+> 
+> Well, there's a "-s" flag (for swap devices) that does an mlockall()
+> that might take care of that. So "-a -s" might do it. Really needs
+> a "-aa" option (release write request in kernel asap).
 
-Introducing security hole counts as "poor backcompatibility" to me.
+Well, with mlockall(), I'd believe it could be made to work. Okay.
 									Pavel
 -- 
 (about SSSCA) "I don't say this lightly.  However, I really think that the U.S.

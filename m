@@ -1,75 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264251AbUFXKvU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264246AbUFXLEH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264251AbUFXKvU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 06:51:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbUFXKvU
+	id S264246AbUFXLEH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 07:04:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264262AbUFXLEG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 06:51:20 -0400
-Received: from mail4.speakeasy.net ([216.254.0.204]:43476 "EHLO
-	mail4.speakeasy.net") by vger.kernel.org with ESMTP id S264236AbUFXKvC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 06:51:02 -0400
-Date: Thu, 24 Jun 2004 03:50:59 -0700
-Message-Id: <200406241050.i5OAoxKC032703@magilla.sf.frob.com>
+	Thu, 24 Jun 2004 07:04:06 -0400
+Received: from box.punkt.pl ([217.8.180.66]:38414 "HELO box.punkt.pl")
+	by vger.kernel.org with SMTP id S264246AbUFXLED (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 07:04:03 -0400
+From: Mariusz Mazur <mmazur@kernel.pl>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.7.0
+Date: Thu, 24 Jun 2004 13:02:21 +0200
+User-Agent: KMail/1.6.2
+Cc: Greg KH <greg@kroah.com>, Chris Friesen <cfriesen@nortelnetworks.com>,
+       linux-kernel@vger.kernel.org
+References: <200406240102.23162.mmazur@kernel.pl> <20040624055832.GA10531@kroah.com> <40DA9C6E.8050205@pobox.com>
+In-Reply-To: <40DA9C6E.8050205@pobox.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-X-Fcc: ~/Mail/linus
-Subject: [PATCH] fix x86-64 ptrace access to 32-bit vsyscall page
-X-Zippy-Says: Yow!  It's a hole all the way to downtown Burbank!
+Message-Id: <200406241302.21617.mmazur@kernel.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I made get_user_pages support looking up a pte for the "gate" area, I
-assumed it would be part of the kernel's fixed mappings.  On x86-64 running
-a 32-bit task, the 32-bit vsyscall DSO page still has no vma but has its
-pte allocated in the user mm in the normal fashion.  This patch makes it
-use the generic page-table lookup calls rather than the shortcuts.
-With this, ptrace on x86-64 can access a 32-bit process's vsyscall page.
-The behavior on x86 is unchanged.
+On czwartek, 24 czerwca 2004 11:18, Jeff Garzik wrote:
+> Agreed...  It's just getting 'down and dirty' and separating the ABI
+> stuff from the non-ABI stuff.  It's not necessarily difficult, just
+> incredibly long and tedious, and potentially political.
 
-Signed-off-by: Roland McGrath <roland@redhat.com>
+One step at a time. It's quite simple to remove userland definitions from a 
+header and place them somewhere else (at least technically). Since kernel 
+headers are currently useless in userland anyway, nobody should care if they 
+get altered any more (yeah... right :). My plan is to take care of the 
+functionality covered by glibc first and start separating that stuff to some 
+abi dir (that is why I've requested more details). Once a patch for 
+separating header A gets merged and a new kernel gets released I'd simply 
+make llh use that abi header thus making llh a kind of compatibility layer - 
+apps could still include the old linux/ stuff while in fact using the new abi 
+headers. Nothing would get broken this way.
+Once all glibc covered stuff got separated, glibc (and all other libcs for 
+that matter) would probably start using it (would they?), thus removing all 
+those bloody conflicts and making glibc always up to date.
+
+Doable plan (at least in theory). The main question is - will those patches 
+get gradually merged into mainline? (Is there any possibility of getting a 
+yes/no answer from Linus?)
+If not, the thing gets pointless, since maintaining such patches outside the 
+kernel would only need additional work, give no real benefit and accumulate 
+errors with time. 
 
 
-Thanks,
-Roland
-
-
-Index: linux-2.6/mm/memory.c
-===================================================================
-RCS file: /home/roland/redhat/bkcvs/linux-2.5/mm/memory.c,v
-retrieving revision 1.172
-diff -p -u -r1.172 memory.c
---- linux-2.6/mm/memory.c 5 Jun 2004 17:52:06 -0000 1.172
-+++ linux-2.6/mm/memory.c 24 Jun 2004 10:37:12 -0000
-@@ -718,19 +718,24 @@ int get_user_pages(struct task_struct *t
- 			pte_t *pte;
- 			if (write) /* user gate pages are read-only */
- 				return i ? : -EFAULT;
--			pgd = pgd_offset_k(pg);
-+			pgd = pgd_offset(mm, pg);
- 			if (!pgd)
- 				return i ? : -EFAULT;
- 			pmd = pmd_offset(pgd, pg);
- 			if (!pmd)
- 				return i ? : -EFAULT;
--			pte = pte_offset_kernel(pmd, pg);
--			if (!pte || !pte_present(*pte))
-+			pte = pte_offset_map(pmd, pg);
-+			if (!pte)
- 				return i ? : -EFAULT;
-+			if (!pte_present(*pte)) {
-+				pte_unmap(pte);
-+				return i ? : -EFAULT;
-+			}
- 			if (pages) {
- 				pages[i] = pte_page(*pte);
- 				get_page(pages[i]);
- 			}
-+			pte_unmap(pte);
- 			if (vmas)
- 				vmas[i] = gate_vma;
- 			i++;
+-- 
+In the year eighty five ten
+God is gonna shake his mighty head
+He'll either say,
+"I'm pleased where man has been"
+Or tear it down, and start again

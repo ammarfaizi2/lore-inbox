@@ -1,87 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268609AbRHBDW4>; Wed, 1 Aug 2001 23:22:56 -0400
+	id <S268614AbRHBDa7>; Wed, 1 Aug 2001 23:30:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268606AbRHBDWq>; Wed, 1 Aug 2001 23:22:46 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:8601 "EHLO zok.corp.sgi.com")
-	by vger.kernel.org with ESMTP id <S268609AbRHBDWg>;
-	Wed, 1 Aug 2001 23:22:36 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: [RFC] /proc/ksyms change for IA64
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 02 Aug 2001 13:22:40 +1000
-Message-ID: <22165.996722560@kao2.melbourne.sgi.com>
+	id <S268616AbRHBDas>; Wed, 1 Aug 2001 23:30:48 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:48390 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S268614AbRHBDap>; Wed, 1 Aug 2001 23:30:45 -0400
+Date: Thu, 2 Aug 2001 00:30:49 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Jason Victor <sloppyj123@yahoo.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: TODO: framebuffer?
+In-Reply-To: <20010802022008.4214.qmail@web4301.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.33L.0108020018270.5582-100000@duckman.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The IA64 use of descriptors for function pointers has bitten ksymoops.
-For those not familiar with IA64, &func points to a descriptor
-containing { &code, &data_context }.  System.map contains the address
-of the code, /proc/ksyms contains the address of the descriptor.
-insmod needs the descriptor address, ksymoops and debuggers need the
-code address, /proc/ksyms needs to contain both addresses, with one of
-them prefixed by a special character.
+On Wed, 1 Aug 2001, Jason Victor wrote:
 
-EXPORT_SYMBOL() cannot distinguish between &function and &data.
-Telling everybody that they must type EXPORT_SYMBOL_FUNCTION or
-EXPORT_SYMBOL_DATA is not an option, the second symbol has to be
-automatically added after linking vmlinux and modules.  I want to fix
-this problem in user space, with no changes to to kernel code.  My
-proposal for kernel 2.5 is :-
+> I'm Jason, I'm 14, and all I wanna do is work on the
+> Linux kernel (Linus is my hero :). I'm a newbie, so I
+> was looking to start off with something easy. Should I
+> write a set of functions to make it easier to draw in
+> the framebuffer? If that's not the sort of thing
+> you're looking for, what should I do?
 
-* In System.map and /proc/ksyms, label foo addresses the code, not the
-  descriptor.  Label &foo addresses the function descriptor.
+There are a large number of things that need to be done
+for the kernel. ;))
 
-* foo has symbol versions, &foo does not.
+If you are looking for a project which is relatively
+easy, helps you learn a lot about the kernel and has
+a bunch of friendly people who can help you, I have
+a few URLs for you:
 
-* In kernel build, all objects that export symbols are post processed
-  immediately after they are compiled.  On most architectures the post
-  process is a no-op.  On IA64 it runs a program from modutils that
-  identifies exported function pointers and modifies the ksymtab and
-  kstrtab, see below.
 
-* At run time, insmod does its normal address fixup processing first,
-  including checking for symbol versions.  If the existing code
-  succeeds without unresolved symbols, insmod modifies the address
-  fixup so a reference to foo is resolved to &foo, iff both foo and
-  &foo are in /proc/ksyms.
+A website, mailing list and irc channel to help you
+learn about the kernel. You can always find a few
+kernel hackers here, too...
+	http://kernelnewbies.org/
 
-This has the benefit that all the changes are in modutils plus a small
-change to the kernel build, no other user space tools are affected.
-Most user space programs expect foo to address the code, not the
-descriptor, AFAIK it is only insmod that needs the descriptor.  This
-change will also affect any code that tries to front end functions from
-modules but IMNSHO code should not be doing that.  If this breaks
-binary only modules - tough.
 
-One problem that always has to be addressed with modutils is version
-skew between user space and the kernel.  With this approach, if you
-build a new kernel with old modutils then the post processing program
-will not be available so ksyms has the old format and the old insmod
-behaviour applies, ksymoops will get errors but the kernel will still
-run.  With a new modutils but an old kernel you get the old behaviour.
-The only way you can get problems with version skew is to compile a
-kernel on one machine with new modutils and install on another machine
-with old modutils, modules will oops.  I don't see this as a problem,
-the IA64 population is fairly small, in any case gcc cross compile for
-IA64 has problems right now.
+A project that maintains a list of possible bugs in
+the kernel and then goes around searching through the
+kernel to see where else they happen:
+	http://sourceforge.net/projects/kernel-janitor/
 
-The new modutils supplied program (/usr/bin/modules_post) will look
-through the __ksymtab section for an object.  For each exported symbol,
-look at the data it references.  If that data contains two relocatable
-addresses, one pointing to a text symbol, the other to a data symbol
-and the text symbol has the same name as the exported symbol then this
-is a descriptor.  Change the exported symbol name to &foo and add an
-exported symbol foo that points to the code.
 
-Note: This is modutils 2.5 stuff.  modules_post needs to use BFD which
-      current modutils does not use, this adds a new requirement when
-      compiling modutils.  Using BFD is the only way I can handle all
-      the relocation types, especially in cross compile mode.  It may
-      or may not get backported to modutils 2.4, probably not.
-      ksymoops on IA64 2.4 will just have to live with lots of
-      warnings.
+regards,
+
+Rik
+--
+Executive summary of a recent Microsoft press release:
+   "we are concerned about the GNU General Public License (GPL)"
+
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+
 

@@ -1,67 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316677AbSGSO6U>; Fri, 19 Jul 2002 10:58:20 -0400
+	id <S316683AbSGSPGz>; Fri, 19 Jul 2002 11:06:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316683AbSGSO6U>; Fri, 19 Jul 2002 10:58:20 -0400
-Received: from zipcon.net ([209.221.136.5]:65414 "HELO zipcon.net")
-	by vger.kernel.org with SMTP id <S316677AbSGSO6U> convert rfc822-to-8bit;
-	Fri, 19 Jul 2002 10:58:20 -0400
-From: William D Waddington <csbwaddington@att.net>
-To: linux-kernel@vger.kernel.org
-Subject: [never mind] kiobufs and highmem
-Date: Fri, 19 Jul 2002 08:00:00 -0700
-Message-ID: <ic9gju44p7ukriuv4etl0tdc5f6uf5s08m@4ax.com>
-X-Mailer: Forte Agent 1.9/32.560
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+	id <S316712AbSGSPGz>; Fri, 19 Jul 2002 11:06:55 -0400
+Received: from dclient217-162-176-181.hispeed.ch ([217.162.176.181]:20998 "EHLO
+	alder.intra.bruli.net") by vger.kernel.org with ESMTP
+	id <S316683AbSGSPGy>; Fri, 19 Jul 2002 11:06:54 -0400
+Date: Fri, 19 Jul 2002 17:09:40 +0200
+From: Martin Brulisauer <bruli@uceb.org>
+Message-Id: <200207191509.g6JF9ebQ011849@alder.intra.bruli.net>
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: [Patch 2.5.26] ewrk3.c - unaligend access
+Cc: alan@lxorguk.ukuu.org.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Hello All,
->
->I have a 2.4.x char driver which works fine, except in boxes with lots of
->memory.
->
->user_buffer -> write() -> map_user_kiobuf() -> pci_map_sg() -> Pci DMA
->
->I'm using the .page/.offset version of the scatterlist, but in the HIGHMEM case,
->map_user_kiobuf() seems to return peculiar page addresses.
->
->What is the state of kiobufs/HIGHMEM in 2.4.x?  Do I need to implement
->a bounce buffer in the driver?  Some email correspondence indicates so,
->but I would be grateful for a definitive word from the kernel folks.
->
+Hi,
 
-I finally googled up a couple of threads that shed some light ...
-Seems that page_address() will return 0 when used on a high mem entry
-in the kiobuf maplist.
+Here follows a very small patch to the Etherworks3 driver.
+On alpha architecture all memory accesses must be done naturally
+aligned. The element dev_addr of the struct net_device is of
+type unsigned char*. So the cast to 32bit long int for a faster
+compare will result in a unaligend trap on the alpha processor.
+The current implementation will compare the destination address
+of the incoming packet with two instructions. My patch uses
+three instructions. The trap on alpha is much more expensive
+then one additional integer instruction.
 
-Looks like three (?) options: go back to copying to a kernel DMA
-buffer for all cases (swell for performance), split the code path into
-map_user and copy_user branches (not that fond of spaghetti),
-or - in the highmem case - copy to a local buffer and populate the
-kiobuf with those pages and feed that to pci_map_sg().
-
-The last is my preference, as it keeps the code cleaner, and since
-my hardware is scatter-gather, I can either build the local buffer out
-of discrete pages (at load time) or allocate a (possibly) non-
-contiguous kernel buffer.  I would prefer to not use kmalloc if
-possible, since I don't really need contiguous pages, and would
-like to keep the chances of allocation success as high as possible.
-
-I haven't yet figured out how to allocate a (possibly) non-contiguous
-buffer, since vmalloc is frowned on, or how to populate the kiobuf
-with its pages.
-
-Any advice gratefully accepted,
-Bill
-
----------------------------------------
-William D Waddington
-Bainbridge Island, WA, USA
-csbwaddington@att.net
-waddington@tahomatech.com
-william.waddington@beezmo.com
----------------------------------------
-
+--- linux-2.5.26/drivers/net/ewrk3.c	Wed Jul 17 01:49:32 2002
++++ linux/drivers/net/ewrk3.c	Fri Jul 19 17:02:11 2002
+@@ -133,6 +133,7 @@
+    0.42    22-Apr-96      Fix alloc_device() bug <jari@markkus2.fimr.fi>
+    0.43    16-Aug-96      Update alloc_device() to conform to de4x5.c
+    0.44    08-Nov-01      use library crc32 functions <Matt_Domsch@dell.com>
++   0.45	   19-Jul-02	  fix unaligend access on alpha <martin@bruli.net>
+ 
+    =========================================================================
+  */
+@@ -1008,12 +1009,13 @@
+ 						}
+ 						p = skb->data;	/* Look at the dest addr */
+ 						if (p[0] & 0x01) {	/* Multicast/Broadcast */
+-							if ((*(s32 *) & p[0] == -1) && (*(s16 *) & p[4] == -1)) {
++							if ((*(s16 *) & p[0] == -1) && (*(s16 *) & p[2] == -1) && (*(s16 *) & p[4] == -1)) {
+ 								lp->pktStats.broadcast++;
+ 							} else {
+ 								lp->pktStats.multicast++;
+ 							}
+-						} else if ((*(s32 *) & p[0] == *(s32 *) & dev->dev_addr[0]) &&
++						} else if ((*(s16 *) & p[0] == *(s16 *) & dev->dev_addr[0]) &&
++							   (*(s16 *) & p[2] == *(s16 *) & dev->dev_addr[2]) &&
+ 							   (*(s16 *) & p[4] == *(s16 *) & dev->dev_addr[4])) {
+ 							lp->pktStats.unicast++;
+ 						}
+-
+Greetings,
+Martin
+------------------------------------
+Martin Brulisauer <martin@bruli.net>
+http://www.bruli.net
+------------------------------------

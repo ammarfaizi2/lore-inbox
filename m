@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265201AbTASADz>; Sat, 18 Jan 2003 19:03:55 -0500
+	id <S265211AbTASANg>; Sat, 18 Jan 2003 19:13:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265211AbTASADz>; Sat, 18 Jan 2003 19:03:55 -0500
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:19974 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S265201AbTASADz>; Sat, 18 Jan 2003 19:03:55 -0500
-Date: Sun, 19 Jan 2003 00:12:56 +0000
-From: John Levon <levon@movementarian.org>
-To: Olaf Titz <olaf@bigred.inka.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ANN: LKMB (Linux Kernel Module Builder) version 0.1.16
-Message-ID: <20030119001256.GA11575@compsoc.man.ac.uk>
-References: <25160.1042809144@passion.cambridge.redhat.com> <Pine.LNX.4.33L2.0301171857230.25073-100000@vipe.technion.ac.il> <E18a1aZ-0006mL-00@bigred.inka.de>
-Mime-Version: 1.0
+	id <S265230AbTASANg>; Sat, 18 Jan 2003 19:13:36 -0500
+Received: from mail46-s.fg.online.no ([148.122.161.46]:22467 "EHLO
+	mail46.fg.online.no") by vger.kernel.org with ESMTP
+	id <S265211AbTASANf>; Sat, 18 Jan 2003 19:13:35 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: [OT] Whole thing about GNU/Linux and Linux
+From: Harald Arnesen <harald@skogtun.org>
+Date: Sun, 19 Jan 2003 01:22:29 +0100
+In-Reply-To: <20030118215631.GA3659@localhost> (iain d broadfoot's message
+ of "Sat, 18 Jan 2003 21:56:31 +0000")
+Message-ID: <87adhy9eey.fsf@basilikum.skogtun.org>
+User-Agent: Gnus/5.090012 (Oort Gnus v0.12) Emacs/21.2 (i386-pc-linux-gnu)
+References: <20030118205006.GA417@localnet.sytes.net>
+	<20030118215631.GA3659@localhost>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E18a1aZ-0006mL-00@bigred.inka.de>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18a356-000Fu7-00*wOqLXNoeml6*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 18, 2003 at 11:37:19PM +0100, Olaf Titz wrote:
+iain d broadfoot <ibroadfo@cis.strath.ac.uk> writes:
 
-> Compiling modules is one of the things which always have been among
-> the most broken things in the kernel build systems, can this please be
-> fixed and properly documented?
-  ^^^^^
+> * Steve Lion (steve.lion@verizon.net) wrote:
+>> I am simply a person who uses the Linux operating system.  Nothing else.
+>
+> personally, i'm using the debian operating system...
 
-Some actual bug reports would be good.
-
-regards
-john
-
+Debian GNU/Linux, Debian GNU/Hurd or Debian GNU/BSD?
 -- 
-"This is just the kind of crackpot scheme I've been looking to champion!!!"
-	- P.M. Hartke on 6U campaign
+Hilsen Harald.

@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129069AbQKPSiN>; Thu, 16 Nov 2000 13:38:13 -0500
+	id <S129211AbQKPSkd>; Thu, 16 Nov 2000 13:40:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129091AbQKPSiE>; Thu, 16 Nov 2000 13:38:04 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:64783 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129069AbQKPShn>; Thu, 16 Nov 2000 13:37:43 -0500
-Date: Thu, 16 Nov 2000 10:07:11 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: schwidefsky@de.ibm.com, mingo@chiara.elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: Memory management bug
-In-Reply-To: <20001116184512.A6622@athlon.random>
-Message-ID: <Pine.LNX.4.10.10011161000330.2513-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129132AbQKPSkX>; Thu, 16 Nov 2000 13:40:23 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:44548 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129091AbQKPSkH>;
+	Thu, 16 Nov 2000 13:40:07 -0500
+Date: Thu, 16 Nov 2000 19:10:05 +0100
+From: Andi Kleen <ak@suse.de>
+To: Nishant Rao <nishant@cs.utexas.edu>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Setting IP Options in the IP-Header
+Message-ID: <20001116191005.A19297@gruyere.muc.suse.de>
+In-Reply-To: <20001116181840.A18222@gruyere.muc.suse.de> <Pine.LNX.4.21.0011161136160.5903-100000@crom.cs.utexas.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0011161136160.5903-100000@crom.cs.utexas.edu>; from nishant@cs.utexas.edu on Thu, Nov 16, 2000 at 11:55:24AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 16 Nov 2000, Andrea Arcangeli wrote:
+On Thu, Nov 16, 2000 at 11:55:24AM -0600, Nishant Rao wrote:
+> Well, while what you say makes sense, it isn't exactly a solution to our
+> problem.
 > 
-> If they absolutely needs 4 pages for pmd pagetables due hardware constraints
-> I'd recommend to use _four_ hardware pages for each softpage, not two.
+> we are trying to expose and set a NEW option altogether. So our question 
+> pertains more to what code we write in the kernel to create and expose a 
+> new custom option. so for this, we would need to know the offsets of the
+> current options like source routing etc and then hopefully try and stuff
+> data from setting our option after the maximum that can be set by these
+> other existing options.
+> 
+> once that code is in place within the ip_build_options routine in the
+> ip_options.c file in the linux kernel, we can then use the setsockopt() 
+> at the application level to make sure that a packet is filled with the
+> corresponding option.
+> 
+> i hope i was able to explain my question more clearly.
 
-Yes.
+It still does not make more sense. Linux never generates options itself,
+so there are no fixed offsets for you to know. It all depends on the 
+one generating the options in the first place (application or peer) 
 
-However, it definitely is an issue of making trade-offs. Most 64-bit MMU
-models tend to have some flexibility in how you set up the page tables,
-and it may be possible to just move bits around too (ie making both the
-pmd and the pgd twice as large, and getting the expansion of 4 by doing
-two expand-by-two's, for example, if the hardware has support for doing
-things like that).
+If you want to add a new option you'll need to add an option parser that
+handles all cases. For application sending it is probably better to just
+change the application though. 
 
-		Linus
+Usually it is not a good idea to add options anyways, because they tend
+to trigger slow paths in routers.
 
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

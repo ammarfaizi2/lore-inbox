@@ -1,44 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261908AbTBOMvt>; Sat, 15 Feb 2003 07:51:49 -0500
+	id <S261934AbTBONCY>; Sat, 15 Feb 2003 08:02:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261934AbTBOMvs>; Sat, 15 Feb 2003 07:51:48 -0500
-Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:28558 "EHLO
-	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S261908AbTBOMvr>; Sat, 15 Feb 2003 07:51:47 -0500
-Date: Sat, 15 Feb 2003 13:42:08 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Cort Dougan <cort@fsmlabs.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Rusty Lynch <rusty@linux.co.intel.com>, Pavel Machek <pavel@ucw.cz>,
-       lkml <linux-kernel@vger.kernel.org>, Patrick Mochel <mochel@osdl.org>,
-       Dave Jones <davej@codemonkey.org.uk>,
-       Daniel Pittman <daniel@rimspace.net>
-Subject: Re: [PATCH][RFC] Proposal for a new watchdog interface using sysfs
-Message-ID: <20030215134208.G629@nightmaster.csn.tu-chemnitz.de>
-References: <1045106216.1089.16.camel@vmhack> <1045160506.1721.22.camel@vmhack> <20030213230408.GA121@elf.ucw.cz> <1045260726.1854.7.camel@irongate.swansea.linux.org.uk> <20030214213542.GH23589@atrey.karlin.mff.cuni.cz> <1045264651.13488.40.camel@vmhack> <1045274042.2961.4.camel@irongate.swansea.linux.org.uk> <20030215082707.GE13148@host109.fsmlabs.com>
+	id <S261963AbTBONCY>; Sat, 15 Feb 2003 08:02:24 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:17682 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261934AbTBONCX>; Sat, 15 Feb 2003 08:02:23 -0500
+Date: Sat, 15 Feb 2003 13:12:13 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Dominik Brodowski <linux@brodo.de>
+Cc: torvalds@transmeta.com, dahinds@users.sourceforge.net, davej@suse.de,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+       pcmcia-cs-devel@lists.sourceforge.net, linux-pcmcia@lists.infradead.org
+Subject: Re: [PATCH 2.5.61] pcmcia: add device_class pcmcia_socket, update devices & drivers
+Message-ID: <20030215131213.A26902@flint.arm.linux.org.uk>
+Mail-Followup-To: Dominik Brodowski <linux@brodo.de>,
+	torvalds@transmeta.com, dahinds@users.sourceforge.net,
+	davej@suse.de, alan@lxorguk.ukuu.org.uk,
+	linux-kernel@vger.kernel.org, pcmcia-cs-devel@lists.sourceforge.net,
+	linux-pcmcia@lists.infradead.org
+References: <20030215123308.GA1073@brodo.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20030215082707.GE13148@host109.fsmlabs.com>; from cort@fsmlabs.com on Sat, Feb 15, 2003 at 01:27:07AM -0700
-X-Spam-Score: -2.5 (--)
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18k1wr-0005xP-00*fLscJKNEMd2*
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030215123308.GA1073@brodo.de>; from linux@brodo.de on Sat, Feb 15, 2003 at 01:33:09PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, Feb 15, 2003 at 01:33:09PM +0100, Dominik Brodowski wrote:
+> A new device_class "pcmcia_socket_class" is introduced for PCMCIA and
+> CardBus sockets. All socket drivers I could find are updated so that they
+> register a driver, and -if necessary- the "platform"/legacy device. This
+> will allow for a cleanup of pcmcia_{un}register_socket() / 
+> {un}register_ss_entry() as well as reflect the parent for pcmcia_bus 
+> devices.
+> +
+> +static struct platform_device sa1100_pcmcia_device = {
+> +	.name = "sa1100_pcmcia",
+> +	.id = 0,
+> +	.dev = {
+> +		.name = "sa1100_pcmcia",
+> +	},
+> +};
+> +
 
-On Sat, Feb 15, 2003 at 01:27:07AM -0700, Cort Dougan wrote:
-> Just to make sure no-one is happy except physicists, I suggest Kelvin.  I
-> also suggest we spell disk/disc as "disck".
+This probably isn't the best way to handle this - the sa1100 device driver
+is actually a generic driver to couple to GPIO-based PCMCIA implementations,
+which includes the sa1111 stuff.  The sa1111 stuff itself registers with
+sysfs.
 
-I suggest leaving out the "s" also, to keep the string length
-constant, reduce kernel bloat and adding more fun to the live of
-sysadmins.
-
-Regards
-
-Ingo Oeser ;-)
 -- 
-Science is what we can tell a computer. Art is everything else. --- D.E.Knuth
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,44 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131483AbRDBXGv>; Mon, 2 Apr 2001 19:06:51 -0400
+	id <S131477AbRDBXLv>; Mon, 2 Apr 2001 19:11:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131480AbRDBXGo>; Mon, 2 Apr 2001 19:06:44 -0400
-Received: from quattro.sventech.com ([205.252.248.110]:33043 "HELO
-	quattro.sventech.com") by vger.kernel.org with SMTP
-	id <S131481AbRDBXGe>; Mon, 2 Apr 2001 19:06:34 -0400
-Date: Mon, 2 Apr 2001 19:05:42 -0400
-From: Johannes Erdfelt <johannes@erdfelt.com>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: Ketil Froyn <ketil@froyn.com>, linux-kernel@vger.kernel.org
-Subject: Re: oops in uhci.c running 2.4.2-ac28
-Message-ID: <20010402190541.F17651@sventech.com>
-In-Reply-To: <Pine.LNX.4.30.0104010313440.1135-100000@ns.froyn.org> <20010402185526.A4083@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4i
-In-Reply-To: <20010402185526.A4083@devserv.devel.redhat.com>; from Pete Zaitcev on Mon, Apr 02, 2001 at 06:55:26PM -0400
+	id <S131509AbRDBXLl>; Mon, 2 Apr 2001 19:11:41 -0400
+Received: from blackhole.compendium-tech.com ([206.55.153.26]:40953 "EHLO
+	sol.compendium-tech.com") by vger.kernel.org with ESMTP
+	id <S131477AbRDBXL0>; Mon, 2 Apr 2001 19:11:26 -0400
+Date: Mon, 2 Apr 2001 16:10:06 -0700 (PDT)
+From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
+To: Jesse Pollard <jesse@cats-chateau.net>
+cc: Shawn Starr <spstarr@sh0n.net>, Matti Aarnio <matti.aarnio@zmailer.org>,
+   <linux-kernel@vger.kernel.org>
+Subject: Re: Disturbing news..
+In-Reply-To: <01032806093901.11349@tabby>
+Message-ID: <Pine.LNX.4.30.0104021608090.29684-100000@sol.compendium-tech.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 02, 2001, Pete Zaitcev <zaitcev@redhat.com> wrote:
-> > Date: 	Sun, 1 Apr 2001 03:35:03 +0200 (CEST)
-> > From: Ketil Froyn <ketil@froyn.com>
-> > To: <linux-kernel@vger.kernel.org>
-> 
-> > While running kernel 2.4.2-ac28, I switched on spinlock debugging and
-> > verbose BUG() reporting (I always use sysrq). Anyway, while running this I
-> > got an oops after about 2 or 3 minutes running, several times, exact same
-> > place each time, which I traced back to rh_int_timer_do().
-> > This was in uhci.c (I used CONFIG_USB_UHCI_ALT).  [...]  I
-> > recompiled with usb-uhci.c instead (CONFIG_USB_UHCI), and now I don't get
-> > the oops any more.
-> 
-> I am behind usb-uhci for a reason. Alan bounced your report
-> to me but I do not see a case for action...
+On Wed, 28 Mar 2001, Jesse Pollard wrote:
+> Sure - very simple. If the execute bit is set on a file, don't allow
+> ANY write to the file. This does modify the permission bits slightly
+> but I don't think it is an unreasonable thing to have.
 
-What do you mean by "behind".
+Oh, honestly! Think about what you are saying here:
 
-Have you tried the latest patches for uhci.c?
+What if you are developing something in an interpereted language such as
+perl or a shell script, where you *directly modify the executable file*?
 
-JE
+No, this won't work...Not wwithout being annoying as hell.
 

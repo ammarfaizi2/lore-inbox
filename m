@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277238AbRJDVZo>; Thu, 4 Oct 2001 17:25:44 -0400
+	id <S277234AbRJDV2O>; Thu, 4 Oct 2001 17:28:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277234AbRJDVZe>; Thu, 4 Oct 2001 17:25:34 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:63648 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S277240AbRJDVZ1>;
-	Thu, 4 Oct 2001 17:25:27 -0400
-Date: Thu, 04 Oct 2001 14:25:23 -0700 (PDT)
-Message-Id: <20011004.142523.54186018.davem@redhat.com>
-To: arjan@fenrus.demon.nl
-Cc: kravetz@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: Context switch times
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <E15pFor-0004sC-00@fenrus.demon.nl>
-In-Reply-To: <20011004140417.C1245@w-mikek2.des.beaverton.ibm.com>
-	<E15pFor-0004sC-00@fenrus.demon.nl>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S277235AbRJDV2E>; Thu, 4 Oct 2001 17:28:04 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:61870 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S277234AbRJDV1w>;
+	Thu, 4 Oct 2001 17:27:52 -0400
+Date: Thu, 04 Oct 2001 22:28:17 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: mingo@elte.hu, jamal <hadi@cyberus.ca>
+Cc: linux-kernel@vger.kernel.org, Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        Robert Olsson <Robert.Olsson@data.slu.se>,
+        Benjamin LaHaise <bcrl@redhat.com>, netdev@oss.sgi.com,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Simon Kirby <sim@netnation.com>,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+Message-ID: <302737894.1002234496@[195.224.237.69]>
+In-Reply-To: <Pine.LNX.4.33.0110031528370.6272-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.33.0110031528370.6272-100000@localhost.localdomain>
+X-Mailer: Mulberry/2.1.0 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: arjan@fenrus.demon.nl
-   Date: Thu, 04 Oct 2001 22:14:13 +0100
-   
-   > Comments?
-   
-   2.4.x supports SSE on pentium III/athlons, so the SSE registers need to be
-   saved/restored on a taskswitch as well.... that's not exactly free.
 
-lat_ctx doesn't execute any FPU ops.  So at worst this happens once
-on GLIBC program startup, but then never again.
 
-This assumes I understand how lazy i387 restores work in the kernel
-:-)
+--On Wednesday, 03 October, 2001 4:51 PM +0200 Ingo Molnar <mingo@elte.hu> 
+wrote:
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+> your refusal to accept this problem as an existing and real problem is
+> really puzzling me.
+
+In at least one environment known to me (router), I'd rather it
+kept accepting packets, and f/w'ing them, and didn't switch VTs etc.
+By dropping down performance, you've made the DoS attack even
+more successful than it would otherwise have been (the kiddie
+looks at effect on the host at the end).
+
+--
+Alex Bligh

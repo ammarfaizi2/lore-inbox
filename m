@@ -1,70 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262355AbREZBCZ>; Fri, 25 May 2001 21:02:25 -0400
+	id <S262382AbREZBH1>; Fri, 25 May 2001 21:07:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262358AbREZBCP>; Fri, 25 May 2001 21:02:15 -0400
-Received: from chromium11.wia.com ([207.66.214.139]:13831 "EHLO
-	neptune.kirkland.local") by vger.kernel.org with ESMTP
-	id <S262355AbREZBCE>; Fri, 25 May 2001 21:02:04 -0400
-Message-ID: <3B0F018B.A9823BD4@chromium.com>
-Date: Fri, 25 May 2001 18:06:19 -0700
-From: Fabio Riccardi <fabio@chromium.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Christopher Smith <x@xman.org>,
-        Andrew Morton <andrewm@uow.edu.au>,
-        "Timothy D. Witham" <wookie@osdlab.org>, David_J_Morse@Dell.com,
-        Ingo Molnar <mingo@elte.hu>, "David S. Miller" <davem@redhat.com>,
-        dean gaudet <dean-list-linux-kernel@arctic.org>,
-        Zach Brown <zab@zabbo.net>
-Subject: X15 beta 1 - source release
+	id <S262400AbREZBHR>; Fri, 25 May 2001 21:07:17 -0400
+Received: from edtn006530.hs.telusplanet.net ([161.184.137.180]:23300 "EHLO
+	mail.harddata.com") by vger.kernel.org with ESMTP
+	id <S262382AbREZBHD>; Fri, 25 May 2001 21:07:03 -0400
+Date: Fri, 25 May 2001 19:06:58 -0600
+From: Michal Jaegermann <michal@harddata.com>
+To: Jay Thorne <Yohimbe@userfriendly.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: Alpha SMP Low Outbound Bandwidth
+Message-ID: <20010525190658.A7913@mail.harddata.com>
+In-Reply-To: <990827407.27355.2.camel@gracie.userfriendly.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <990827407.27355.2.camel@gracie.userfriendly.org>; from Yohimbe@userfriendly.org on Fri, May 25, 2001 at 02:50:07PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
+On Fri, May 25, 2001 at 02:50:07PM -0700, Jay Thorne wrote:
+> [1.] One line summary of the problem:
+> Kernel 2.4.4 ac15
+....
+> Using a quad 400Mhz Dodge/Rawhide machine with Tulip or VIARhine cards,
+....
+[ description of a slowdown skipped ].
 
-I finally managed to package the X15 web accelerator for the first
-source release.
+Well, it looks that you have at least something to slow down.  I could
+not get a single packet through my tulip on Alpha from at least
+2.4.4-ac11 and up.  You can consider that an ultimate slowdown.  I tried
+also a driver from http://sourceforge.net/projects/tulip/ and results
+are the same.  This NIC, Digital DS21143 Tulip rev 65, works just fine
+with various earlier kernels, including assorted 2.4.3 variants.
+It is on 10baseT netwok - which may, or may not, be relevant here.
 
-The current release includes a CGI module, an Apache configuration
-module and several salability improvements. It is a beta 1, quite stable
-but it may/will still contain a few bugs. The README is a bit outdated
-and the code could use more comments... :)
-
-The code It is released under an Open Source license very much in the
-spirit of Sun/Solaris, Apple/Darwin, etc., but less restrictive.
-
-Basically (for what I have been explained by our lawyers :) the license
-says that:
-
- 1) you can peruse the code for your own use and/or research in any way
-you like,
-
- 2) you can use X15 for your own non commercial use (i.e., you can have
-the fastest family reunion pictures website of the planet),
-
- 3) if you want to use the software for any commercial exploitation you
-have to buy a license from Chromium Communications,
-
- 4) if you make changes they belong to you, but if you send them back to
-us than you agree to not claim anything for them.
-
-You can get the sources from:
-http://www.chromium.com/cgi-bin/crosforum/YaBB.pl
-
-or (when the DNS gets propagated) from: http://source.chromium.com/
-
-Our source site sports one of those nifty sourceforge-like interfaces
-for discussions, bug reports and whatever, I'd prefer you to use that
-instead of sending email directly to me or to this list.
-
-I'll build a proper "product" web page and add more documentation in the
-next few days.
-
- - Fabio
-
-
+  Michal

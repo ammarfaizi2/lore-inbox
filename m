@@ -1,51 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268020AbUHEW22@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267984AbUHEWXG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268020AbUHEW22 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 18:28:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268006AbUHEW2Y
+	id S267984AbUHEWXG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 18:23:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267906AbUHEWKw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 18:28:24 -0400
-Received: from fw.osdl.org ([65.172.181.6]:40123 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268031AbUHEW2F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 18:28:05 -0400
-Date: Thu, 5 Aug 2004 15:31:16 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Rik van Riel <riel@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] RSS ulimit enforcement for 2.6.8
-Message-Id: <20040805153116.3e820106.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0408051302330.8229-100000@dhcp83-102.boston.redhat.com>
-References: <Pine.LNX.4.44.0408051302330.8229-100000@dhcp83-102.boston.redhat.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 5 Aug 2004 18:10:52 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:22975 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S267897AbUHEWId (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 18:08:33 -0400
+Subject: Re: ide-cd problems
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jens Axboe <axboe@suse.de>
+Cc: Zinx Verituse <zinx@epicsol.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040805054056.GC10376@suse.de>
+References: <20040730193651.GA25616@bliss> <20040731153609.GG23697@suse.de>
+	 <20040731182741.GA21845@bliss> <20040731200036.GM23697@suse.de>
+	 <20040731210257.GA22560@bliss>  <20040805054056.GC10376@suse.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1091739966.8418.38.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 05 Aug 2004 22:06:07 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel <riel@redhat.com> wrote:
->
-> The patch below implements RSS ulimit enforcement for 2.6.8-rc3-mm1.
-> It works in a very simple way: if a process has more resident memory
-> than its RSS limit allows, we pretend it didn't access any of its
-> pages, making it easy for the pageout code to evict the pages.
-> 
-> In addition to this, we don't allow a process that exceeds its RSS
-> limit to have the swapout protection token.
+On Iau, 2004-08-05 at 06:40, Jens Axboe wrote:
+> Ok, that is definitely more acceptable. But then it should be done to
+> CDROM_SEND_PACKET as well, and we risk breaking programs doing so (ie
+> cdrecord run by user currently).
 
-Thanks.
-
-I'd kinda expected that the patch would try to limit a process to its
-RLIMIT_RSS all the time.  So if a process is set to 16MB and tries to use
-32MB it gets to do a lot of swapping.  But you're not doing that.  Instead,
-the patch is preferentially penalising processes which are over their limit
-when we enter page reclaim.  What are the pros and cons, and what is the
-thinking behind this?
-
-Also, I wonder if it would be useful if refill_inactive_zone() were to
-unconditionally move pages from over-rss-limit mm's onto the inactive list,
-ignoring swappiness.  Or if we should explicitly deactivate pages which are
-newly added to the LRU on behalf of an over-rss-limit process.
+Definitely. Irrespective of any questions like filtering commands having
+/dev device access allow you to compromise the entire system is not a
+good model. CAP_SYS_RAWIO is the capability for "can do anything" so
+seems appropriate here.
 
 

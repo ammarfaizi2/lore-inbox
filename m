@@ -1,43 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281031AbRKGWjR>; Wed, 7 Nov 2001 17:39:17 -0500
+	id <S281039AbRKGWtj>; Wed, 7 Nov 2001 17:49:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281037AbRKGWjI>; Wed, 7 Nov 2001 17:39:08 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:48772 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S281031AbRKGWiw>; Wed, 7 Nov 2001 17:38:52 -0500
-Subject: [ANNOUNCE] Linux Test Project ltp-20011107 released
-From: Paul Larson <plars@austin.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
+	id <S281040AbRKGWta>; Wed, 7 Nov 2001 17:49:30 -0500
+Received: from mx3.port.ru ([194.67.57.13]:56594 "EHLO smtp3.port.ru")
+	by vger.kernel.org with ESMTP id <S281039AbRKGWtR>;
+	Wed, 7 Nov 2001 17:49:17 -0500
+From: Samium Gromoff <_deepfire@mail.ru>
+Message-Id: <200111072251.fA7Mp5e16733@vegae.deep.net>
+Subject: Laptop harddisk spindown?
+To: linux-kernel@vger.kernel.org
+Date: Thu, 8 Nov 2001 01:51:05 +0300 (MSK)
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.14 (Preview Release)
-Date: 07 Nov 2001 16:43:05 +0000
-Message-Id: <1005151385.18455.2.camel@plars.austin.ibm.com>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+     I`m sorry folks, i dont quite recall whether i poked lkml with that,
+  but here it is:
+	2.4.13, reiserfs
+	i have a disk access _every_ 5 sec, unregarding the system load, 
+    24x7x365, so i suppose while it doesnt hurts me, it hurts folks with power
+    bound boxes...
+        I must add that i `m experiencing this on -ac tree too, adn this is true
+    as far as my memory goes... (in the kernel-version context i mean)
 
-The Linux Test Project ltp-20011107 was released today.  For more
-information about the Linux Test Project, or to download the testsuite,
-see our website at http://ltp.sourceforge.net.          
-
-
-Changelog
----------
-o       Many improvements to mtest05 and mtest06 tests
-o       new test nfsstress
-o       included ver_linux in LTP and made it run at the 
-	end of test scripts
-o       check for necessary users/groups in Makefile 
-	and warn if they don't exist
-o       documented the users and groups necessary for 
-	the testcases to run
-o       simplified telnet01 when looking for root prompt
-o       removed incorrect testcase from sendfile03
-o       fixed modify_ldt01 test problems on newer kernels
-o       added setrlimit to unlimit core size in waitpid05 
-	test to work around systems where this is set to 0
-o       fixed mmstress pthread hang problem
-
+cheers, Samium Gromoff
+ 

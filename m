@@ -1,51 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262930AbTDFLMd (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 07:12:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262931AbTDFLMd (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 07:12:33 -0400
-Received: from holomorphy.com ([66.224.33.161]:3226 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262930AbTDFLMc (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 07:12:32 -0400
-Date: Sun, 6 Apr 2003 04:23:40 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Robert Love <rml@tech9.net>,
-       Martin Bligh <mbligh@aracnet.com>
-Subject: Re: 2.5.65-preempt booting on 32way NUMAQ
-Message-ID: <20030406112340.GM993@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Zwane Mwaikambo <zwane@linuxpower.ca>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Robert Love <rml@tech9.net>, Martin Bligh <mbligh@aracnet.com>
-References: <Pine.LNX.4.50.0304060625130.2268-100000@montezuma.mastecende.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id S262933AbTDFL23 (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 07:28:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262932AbTDFL23 (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 07:28:29 -0400
+Received: from [80.190.48.67] ([80.190.48.67]:5132 "EHLO
+	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
+	id S262933AbTDFL22 (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 07:28:28 -0400
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-pre7 ipmi unresolved
+Date: Sun, 6 Apr 2003 13:38:51 +0200
+User-Agent: KMail/1.5.1
+References: <3E900F09.18EF30CE@eyal.emu.id.au>
+In-Reply-To: <3E900F09.18EF30CE@eyal.emu.id.au>
+Organization: Working Overloaded Linux Kernel
+Cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50.0304060625130.2268-100000@montezuma.mastecende.com>
-User-Agent: Mutt/1.3.28i
-Organization: The Domain of Holomorphy
+Message-Id: <200304061336.00896.m.c.p@wolk-project.de>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_LHBk+JXgocWFclJ"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 06, 2003 at 06:48:33AM -0400, Zwane Mwaikambo wrote:
-> Robert i suppose you can add another notch on your erm.. bedpost(?) 
-> and congratulations to all the kernel developers! It survived some 
-> local networking stress tests, but there is more fun stuff like tty 
-> layer to completely obliterate ;)
 
-Wow!
+--Boundary-00=_LHBk+JXgocWFclJ
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-This has had a hard time historically. I'm really glad NUMA-Q's are now
-immune (in the sense of correctness) to this config; previously it was
-believed that preemption points in printk(linux_banner) would take out
-the machine early in boot if preemption was enabled.
+On Sunday 06 April 2003 13:27, Eyal Lebedinsky wrote:
 
-Congratulations rml!
+Hi Eyal,
 
-If you're booting without issues on these things, you are a _very_ long
-way toward being race-free. This is incredibly good news, both for the
-preemption support, and for the general stability of the i386 bootstrap.
+> all modules. With two small patches to get HPT372N and ac97
+> to compile.
+> depmod: *** Unresolved symbols in
+> /lib/modules/2.4.21-pre7/kernel/drivers/char/ipmi/ipmi_msghandler.o
+> depmod:         panic_notifier_list
+> depmod: *** Unresolved symbols in
+> /lib/modules/2.4.21-pre7/kernel/drivers/char/ipmi/ipmi_watchdog.o
+> depmod:         panic_notifier_list
+> depmod:         panic_timeout
+> depmod: *** Unresolved symbols in
+> /lib/modules/2.4.21-pre7/kernel/drivers/net/wan/comx.o
+> depmod:         proc_get_inode
+I've already sent a patch to lkml and Marcelo before -pre7.
 
-All that's really left is driver and non-i386 arch coverage if I'm right.
+See: http://marc.theaimsgroup.com/?l=linux-kernel&m=104879598008705&w=2
+
+At least for the ipmi stuff. For the proc_get_inode stuff use the attached 
+one.
+
+ciao, Marc
 
 
--- wli
+
+
+--Boundary-00=_LHBk+JXgocWFclJ
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="comx-driver-compile-1.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="comx-driver-compile-1.patch"
+
+--- 2.4.19pre8aa2/fs/proc/root.c.~1~	Fri May  3 02:12:18 2002
++++ 2.4.19pre8aa2/fs/proc/root.c	Sat May  4 13:45:30 2002
+@@ -145,3 +145,4 @@
+ EXPORT_SYMBOL(proc_net);
+ EXPORT_SYMBOL(proc_bus);
+ EXPORT_SYMBOL(proc_root_driver);
++EXPORT_SYMBOL(proc_get_inode);
+
+--Boundary-00=_LHBk+JXgocWFclJ--
+

@@ -1,61 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262686AbVBYMem@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262691AbVBYNSe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262686AbVBYMem (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Feb 2005 07:34:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262691AbVBYMem
+	id S262691AbVBYNSe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Feb 2005 08:18:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262693AbVBYNSe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Feb 2005 07:34:42 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:62640 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262686AbVBYMek (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Feb 2005 07:34:40 -0500
-Subject: Re: [PATCH] vsprintf.c cleanups
-From: Arjan van de Ven <arjan@infradead.org>
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <421F19E4.10600@didntduck.org>
-References: <200502250059.j1P0xbDU006504@laptop11.inf.utfsm.cl>
-	 <421F19E4.10600@didntduck.org>
-Content-Type: text/plain
-Date: Fri, 25 Feb 2005 13:34:27 +0100
-Message-Id: <1109334867.6290.52.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 25 Feb 2005 08:18:34 -0500
+Received: from wombat.indigo.net.au ([202.0.185.19]:12550 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S262691AbVBYNRg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Feb 2005 08:17:36 -0500
+Date: Fri, 25 Feb 2005 21:15:12 +0800 (WST)
+From: raven@themaw.net
+To: Herbert Poetzl <herbert@13thfloor.at>
+cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>, autofs@linux.kernel.org
+Subject: Re: [Patch 2/6] Bind Mount Extensions 0.06
+In-Reply-To: <20050224211727.GD4981@mail.13thfloor.at>
+Message-ID: <Pine.LNX.4.61.0502252105260.1921@donald.themaw.net>
+References: <20050222121129.GC3682@mail.13thfloor.at> <20050223230105.GD21383@infradead.org>
+ <20050224211727.GD4981@mail.13thfloor.at>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-100.6, required 8,
+	EMAIL_ATTRIBUTION, IN_REP_TO, NO_REAL_NAME, QUOTED_EMAIL_TEXT,
+	RCVD_IN_ORBS, RCVD_IN_OSIRUSOFT_COM, REFERENCES, REPLY_WITH_QUOTES,
+	USER_AGENT_PINE, USER_IN_WHITELIST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-02-25 at 07:28 -0500, Brian Gerst wrote:
-> Horst von Brand wrote:
-> > Brian Gerst <bgerst@didntduck.org> said:
-> > 
-> >>- Make sprintf call vsnprintf directly
-> >>- use INT_MAX for sprintf and vsprintf
-> > 
-> > 
-> > This is the size limit on what is written. 4GiB sounds a bit extreme...
-> 
-> Sprintf has no limit, which is why it's generally bad to use it.  I just 
-> replaced an open coded ((~0U)>>1) value with the equivalent INT_MAX.
+On Thu, 24 Feb 2005, Herbert Poetzl wrote:
 
-I can see the point of using PAGE_SIZE instead; and if someone really
-wants more than that, he/she should use snprintf with a specified
-size....
+> On Wed, Feb 23, 2005 at 11:01:05PM +0000, Christoph Hellwig wrote:
+>> On Tue, Feb 22, 2005 at 01:11:29PM +0100, Herbert Poetzl wrote:
+>>>
+>>>
+>>> ;
+>>> ; Bind Mount Extensions
+>>> ;
+>>> ; This part adds the required checks for touch_atime() to allow
+>>> ; for vfsmount based NOATIME and NODIRATIME
+>>> ; autofs4 update_atime is the only exception (ignored on purpose)
+>>
+>> and that purpose is?
+>
+> this is based on a statement from Al Viro:
+>
+> | autofs4 use - AFAICS there we want atime updated unconditionally,
+> | so calling update_atime() (update atime after checking
+> | noatime/nodiratime/readonly flags) is wrong.
+>
+> agreed, maybe a proper fix would be better ...
+>
+>> Did you discuss this with the autofs maintainers?
 
+I've had a look at the patch and I can't see any problem.
 
+autofs4 doesn't use the inode atime for expire purposes but does update it 
+in sync with its dentry info struct field that is used for this purpose.
+
+So AFAICS the atime is an external view of expire status, 
+but only when updated within the autofs4 module VFS callbacks.
+
+I haven't yet looked at the v3 (autofs) module.
+I'll get back if I see an issue there.
+
+Ian
 

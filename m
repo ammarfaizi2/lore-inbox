@@ -1,49 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275096AbSITFxw>; Fri, 20 Sep 2002 01:53:52 -0400
+	id <S275119AbSITGDx>; Fri, 20 Sep 2002 02:03:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275117AbSITFxw>; Fri, 20 Sep 2002 01:53:52 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:21778 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S275096AbSITFxw>; Fri, 20 Sep 2002 01:53:52 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-Date: Fri, 20 Sep 2002 06:01:47 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <amedkb$20g$1@penguin.transmeta.com>
-References: <20020919191739.A25500@work.bitmover.com> <Pine.LNX.4.44L.0209192323530.1857-100000@imladris.surriel.com>
-X-Trace: palladium.transmeta.com 1032501524 6765 127.0.0.1 (20 Sep 2002 05:58:44 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 20 Sep 2002 05:58:44 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S275120AbSITGDx>; Fri, 20 Sep 2002 02:03:53 -0400
+Received: from [210.19.28.13] ([210.19.28.13]:1258 "HELO gateway.vault-id.com")
+	by vger.kernel.org with SMTP id <S275119AbSITGDw>;
+	Fri, 20 Sep 2002 02:03:52 -0400
+Message-ID: <34438.10.2.16.178.1032502229.squirrel@mail.Vault-ID.com>
+Date: Fri, 20 Sep 2002 14:10:29 +0800 (MYT)
+Subject: 2.5.36 fbdev compile error
+From: "Corporal Pisang" <Corporal_Pisang@Counter-Strike.com.my>
+To: <linux-nvidia@lists.surfsouth.com>, <linux-kernel@vger.kernel.org>
+X-XheaderVersion: 1.1
+X-UserAgent: Mozilla/5.0 Galeon/1.2.6 (X11; Linux i686; U;) Gecko/20020827
+X-Priority: 3
+Importance: Normal
+Cc: <ajoshi@shell.unixbox.com>
+Reply-To: Corporal_Pisang@Counter-Strike.com.my
+X-Mailer: SquirrelMail (version 1.2.8)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.44L.0209192323530.1857-100000@imladris.surriel.com>,
-Rik van Riel  <riel@conectiva.com.br> wrote:
->On Thu, 19 Sep 2002, Larry McVoy wrote:
->> On Thu, Sep 19, 2002 at 11:01:33PM -0300, Rik van Riel wrote:
->
->> > So, where did you put those 800 MB of kernel stacks needed for
->> > 100,000 threads ?
->>
->> Come on, you and I normally agree, but 100,000 threads?  Where is the
->> need for that?
->
->I agree, it's pretty silly. But still, I was curious how they
->managed to achieve it ;)
 
-You didn't read the post carefully.
+Hi,
 
-They started and waited for 100,000 threads.
+fbdev compile error
 
-They did not have them all running at the same time. I think the
-original post said something like "up to 50 at a time".
+gcc -Wp,-MD,./.fbdev.o.d -D__KERNEL__ -I/usr/src/linux/include -Wall
+-Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
+-fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
+-march=athlon  -nostdinc -iwithprefix include    -DKBUILD_BASENAME=fbdev  
+-c -o fbdev.o fbdev.c
+fbdev.c: In function `riva_set_dispsw':
+fbdev.c:665: structure has no member named `type'
+fbdev.c:666: structure has no member named `type_aux'
+fbdev.c:667: structure has no member named `ypanstep'
+fbdev.c:668: structure has no member named `ywrapstep'
+fbdev.c:657: warning: unused variable `accel'
+fbdev.c: In function `rivafb_setcolreg':
+fbdev.c:1202: warning: unused variable `chip'
+fbdev.c: In function `rivafb_get_fix':
+fbdev.c:1294: structure has no member named `type'
+fbdev.c:1295: structure has no member named `type_aux'
+fbdev.c:1296: structure has no member named `visual'
+fbdev.c:1302: structure has no member named `line_length'
+fbdev.c: In function `rivafb_pan_display':
+fbdev.c:1611: structure has no member named `line_length'
+fbdev.c: At top level:
+fbdev.c:1748: unknown field `fb_get_fix' specified in initializer
+fbdev.c:1748: warning: initialization from incompatible pointer type
+fbdev.c:1749: unknown field `fb_get_var' specified in initializer
+fbdev.c:1749: warning: initialization from incompatible pointer type
+fbdev.c:732: warning: `riva_wclut' defined but not used
+make[3]: *** [fbdev.o] Error 1
+make[3]: Leaving directory `/usr/src/linux/drivers/video/riva'
+make[2]: *** [riva] Error 2
+make[2]: Leaving directory `/usr/src/linux/drivers/video'
+make[1]: *** [video] Error 2
+make[1]: Leaving directory `/usr/src/linux/drivers'
+make: *** [drivers] Error 2
 
-Basically, the benchmark was how _fast_ thread creation is, not now many
-you can run at the same time. 100k threads at once is crazy, but you can
-do it now on 64-bit architectures if you really want to.
+Regards
 
-		Linus
+-Ubaida-
+
+

@@ -1,89 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266838AbUIROdN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269508AbUIROdQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266838AbUIROdN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Sep 2004 10:33:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269518AbUIROdN
+	id S269508AbUIROdQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Sep 2004 10:33:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269518AbUIROdQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Sep 2004 10:33:13 -0400
-Received: from web53504.mail.yahoo.com ([206.190.37.65]:40821 "HELO
-	web53504.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S266838AbUIROdG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Sep 2004 10:33:06 -0400
-Message-ID: <20040918143305.5840.qmail@web53504.mail.yahoo.com>
-Date: Sat, 18 Sep 2004 07:33:05 -0700 (PDT)
-From: Lawrence Wong <lawrencewong72@yahoo.com>
-Subject: Re: Kernel 2.8.6.1 & VLAN & E100
-To: Ben Greear <greearb@candelatech.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <41478AFD.2080700@candelatech.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 18 Sep 2004 10:33:16 -0400
+Received: from cantor.suse.de ([195.135.220.2]:4231 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S269508AbUIROdI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Sep 2004 10:33:08 -0400
+Date: Sat, 18 Sep 2004 16:29:16 +0200
+From: Olaf Hering <olh@suse.de>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Cc: Vojtech Pavlik <vojtech@suse.cz>
+Subject: [PATCH] joydump needs gameport
+Message-ID: <20040918142916.GA16203@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ben,
 
-I tried rc2-bk1 & rc2-bk3. rc2-bk1 solved the problem
-but rc2-bk3 crashed on startup when trying to bring up
-the loopback interface. The error started off with
-something about fib_.... but I was not able to capture
-it in the syslog.
+joydump needs gameport:
 
-I guess I'll stick to rc2-bk1 for now.
-
-Thanks for the great help!
-
---- Ben Greear <greearb@candelatech.com> wrote:
-
-> Lawrence Wong wrote:
-> > Hi everyone,
-> > 
-> > I am currently using Fedora Core 2 on a P3 w/512MB
-> > RAM, 2 x 18.2GB SCSI in RAID1 via an IBM
-> ServeRAID-4M.
-> > Network card is an Intel 100 S controller.
-> > 
-> > All except the kernel is stock FC2. The kernel is
-> > 2.6.8.1 and compiled from the tarball found on
-> > ftp.kernel.org .
-> > 
-> > Everything works fine until I tried to enable VLAN
-> and
-> > use VLAN subinterfaces. The VLAN subinterface
-> comes up
-> > fine but the moment I send traffic in/out of the
-> > interface (i.e. ping), a huge and neverending
-> chunk of
-> > "bad scheduling while atomic" errors pop up
-> > immediately and does not go away until I press
-> > CTRL+ALT+DEL.
-> > 
-> > An extract of the error can be found below. But
-> when I
-> > run the system in normal non-VLAN mode, the
-> problem
-> > does not occur. So I am inclined to believe it
-> either
-> > has something to do with the VLAN driver or VLAN
-> > driver + INTEL 10/100 driver.
-> > 
-> > Has anyone encountered before or know of any
-> > solutions?
-> 
-> A patch is in the latest bk tree, at least.
-> 
-> Ben
-> 
-> -- 
-> Ben Greear <greearb@candelatech.com>
-> Candela Technologies Inc  http://www.candelatech.com
-> 
-> 
+WARNING: lib/modules/2.6.9-rc2-bk4/kernel/drivers/input/joystick/joydump.ko needs unknown symbol gameport_register_device
+WARNING: lib/modules/2.6.9-rc2-bk4/kernel/drivers/input/joystick/joydump.ko needs unknown symbol gameport_unregister_device
+WARNING: lib/modules/2.6.9-rc2-bk4/kernel/drivers/input/joystick/joydump.ko needs unknown symbol gameport_open
+WARNING: lib/modules/2.6.9-rc2-bk4/kernel/drivers/input/joystick/joydump.ko needs unknown symbol gameport_close
 
 
+--- ./drivers/input/joystick/Kconfig.orig	2004-09-18 16:14:49.734444000 +0200
++++ ./drivers/input/joystick/Kconfig	2004-09-18 16:26:29.458176128 +0200
+@@ -249,7 +249,7 @@ config JOYSTICK_AMIGA
+ 
+ config JOYSTICK_JOYDUMP
+ 	tristate "Gameport data dumper"
+-	depends on INPUT && INPUT_JOYSTICK
++	depends on INPUT && INPUT_JOYSTICK && GAMEPORT
+ 	help
+ 	  Say Y here if you want to dump data from your joystick into the system
+ 	  log for debugging purposes. Say N if you are making a production
 
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Mail Address AutoComplete - You start. We finish.
-http://promotions.yahoo.com/new_mail 
+
+-- 
+USB is for mice, FireWire is for men!
+
+sUse lINUX ag, nÜRNBERG

@@ -1,48 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261427AbTJJSm7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 14:42:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262725AbTJJSm7
+	id S263125AbTJJSg4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 14:36:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263126AbTJJSg4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 14:42:59 -0400
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:60868 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id S261427AbTJJSm6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 14:42:58 -0400
-Date: Fri, 10 Oct 2003 19:42:41 +0100
-From: Dave Jones <davej@redhat.com>
-To: Jurgen Kramer <gtm.kramer@inter.nl.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.0-test7] cpufreq longhaul trouble
-Message-ID: <20031010184241.GC32600@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Jurgen Kramer <gtm.kramer@inter.nl.net>,
-	linux-kernel@vger.kernel.org
-References: <1065784536.2071.3.camel@paragon.slim>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1065784536.2071.3.camel@paragon.slim>
-User-Agent: Mutt/1.5.4i
+	Fri, 10 Oct 2003 14:36:56 -0400
+Received: from fw.osdl.org ([65.172.181.6]:38124 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263125AbTJJSgu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 14:36:50 -0400
+Date: Fri, 10 Oct 2003 11:36:29 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Jamie Lokier <jamie@shareable.org>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: statfs() / statvfs() syscall ballsup...
+In-Reply-To: <20031010182021.GF16013@velociraptor.random>
+Message-ID: <Pine.LNX.4.44.0310101126120.20420-100000@home.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 10, 2003 at 01:15:37PM +0200, Jurgen Kramer wrote:
 
- > It seems that longhaul support in 2.6.0-test7 is still not working
- > properly...:-(. 
- > 
- > longhaul: VIA C3 'Ezra' [C5C] CPU detected. Longhaul v2 supported.
- > longhaul: Bogus values Min:0.000 Max:0.000. Voltage scaling disabled.
- > longhaul: MinMult=5.0x MaxMult=6.0x
- > longhaul: FSB: 0MHz Lowestspeed=0MHz Highestspeed=0MHz
+On Fri, 10 Oct 2003, Andrea Arcangeli wrote:
+> 
+> O_DIRECT only walk the pagetables, no pte mangling, no tlb flushes, the
+> TLB is preserved fully.
 
-Oh boy, this is a real egg-on-face bug if I'm right..
-edit arch/i386/kernel/cpu/cpufreq/longhaul.c and change line
-394 to read longhaul_version = 1;
-I suspect things will suddenly start making a lot more sense.
+Yes. However, it's even _nicer_ if you don't need to walk the page tables 
+at all.
 
-		Dave
+Quite a lot of operations could be done directly on the page cache. I'm 
+not a huge fan of mmap() myself - the biggest advantage of mmap is when 
+you don't know your access patterns, and you have reasonably good 
+locality. In many other cases mmap is just a total loss, because the page 
+table walking is often more expensive than even a memcpy().
 
--- 
- Dave Jones     http://www.codemonkey.org.uk
+That's _especially_ true if you have to move mappings around, and you have 
+to invalidate TLB's. 
+
+memcpy() often gets a bad name. Yeah, memory is slow, but especially if 
+you copy something you just worked on, you're actually often better off 
+letting the CPU cache do its job, rather than walking page tables and 
+trying to be clever.
+
+Just as an example: copying often means that you don't need nearly as much 
+locking and synchronization - which in turn avoids one whole big mess 
+(yes, the memcpy() will look very hot in profiles, but then doing extra 
+work to avoid the memcpy() will cause spread-out overhead that is a lot 
+worse and harder to think about).
+
+This is why a simple read()/write() loop often _beats_ mmap approaches. 
+And often it's actually better to not even have big buffers (ie the old 
+"avoid system calls by aggregation" approach) because that just blows your 
+cache away.
+
+Right now, the fastest way to copy a file is apparently by doing lots of
+~8kB read/write pairs (that data may be slightly stale, but it was true at
+some point). Never mind the system call overhead - just having the extra
+buffer stay in the L1 cache and avoiding page faults from mmap is a bigger
+win.
+
+And I don't think mmap _can_ beat that. It's fundamental. 
+
+In contrast, direct page cache accesses really can do so. Exactly because 
+they don't touch any page tables at all, and because they can take 
+advantage of internal kernel data structure layout and move pages around 
+without any cost..
+
+		Linus
+

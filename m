@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316830AbSFARGl>; Sat, 1 Jun 2002 13:06:41 -0400
+	id <S316880AbSFARTO>; Sat, 1 Jun 2002 13:19:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316880AbSFARGk>; Sat, 1 Jun 2002 13:06:40 -0400
-Received: from mailout08.sul.t-online.com ([194.25.134.20]:30640 "EHLO
-	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S316830AbSFARGj>; Sat, 1 Jun 2002 13:06:39 -0400
-To: Mike Kravetz <kravetz@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, icollinson@imerge.co.uk, andrea@suse.de
-Subject: Re: realtime scheduling problems with 2.4 linux kernel >= 2.4.10
-In-Reply-To: <C0D45ABB3F45D5118BBC00508BC292DB09C992@imgserv04> <20020531112847.B1529@w-mikek2.des.beaverton.ibm.com>
-From: Andi Kleen <ak@muc.de>
-Date: 01 Jun 2002 19:05:47 +0200
-Message-ID: <m37kljkjys.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.070095 (Pterodactyl Gnus v0.95) Emacs/20.7
-MIME-Version: 1.0
+	id <S316881AbSFARTN>; Sat, 1 Jun 2002 13:19:13 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:2821 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S316880AbSFARTM>; Sat, 1 Jun 2002 13:19:12 -0400
+Date: Sat, 1 Jun 2002 14:19:02 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 2/16] list_head debugging
+Message-ID: <20020601171902.GC14169@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Andrew Morton <akpm@zip.com.au>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3CF88863.BF3AF0FA@zip.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Kravetz <kravetz@us.ibm.com> writes:
+Em Sat, Jun 01, 2002 at 01:40:03AM -0700, Andrew Morton escreveu:
+> A common and very subtle bug is to use list_heads which aren't on any
+> lists.  It causes kernel memory corruption which is observed long after
+> the offending code has executed.
+ 
+> The patch nulls out the dangling pointers so we get a nice oops at the
+> site of the buggy code.
 
-> This works fine for me on 2.4.17 with a SERIAL console.  Could this
-> be related to some differences (new features) in the VGA console?
-> I am totally ignorant of how the consoles work.
+> =====================================
+> 
+> --- 2.5.19/include/linux/list.h~list-debug	Sat Jun  1 01:18:05 2002
+> +++ 2.5.19-akpm/include/linux/list.h	Sat Jun  1 01:18:05 2002
+> @@ -94,6 +94,11 @@ static __inline__ void __list_del(struct
+>  static __inline__ void list_del(struct list_head *entry)
+>  {
+>  	__list_del(entry->prev, entry->next);
 
-One possibility is that something relies on schedule_task() - keventd
-doesn't run with realtime priority and can be starved.
+#ifdef CONFIG_DEBUG_LIST_DEL_NULLIFY
 
-Seems to be the case indeed: 
+> +	entry->next = 0;
+> +	entry->prev = 0;
 
-/usr/src/linux/drivers/char% grep schedule_task *.c
-console.c:      schedule_task(&console_callback_tq);
-...
+#endif
 
-the console switch does.
+>  }
 
-Fixing it would require boosting keventd's priority either globally 
-or temporarily. E.g. if the original reporter could put this
-(untested/uncompiled) at the beginning of kernel/context.c:context_thread():
+8) And get this configured in the Debug section of make *config
 
-    current->policy = SCHED_RR;
-    current->rt_priority = 99;
+The kernel will always have bugs ;)
 
-it could fix his problem.
-
--Andi
+- Arnaldo

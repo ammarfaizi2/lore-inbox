@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317462AbSHTWYt>; Tue, 20 Aug 2002 18:24:49 -0400
+	id <S317463AbSHTWiK>; Tue, 20 Aug 2002 18:38:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317463AbSHTWYt>; Tue, 20 Aug 2002 18:24:49 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6410 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317462AbSHTWYs>;
-	Tue, 20 Aug 2002 18:24:48 -0400
-Message-ID: <3D62C2A3.4070701@mandrakesoft.com>
-Date: Tue, 20 Aug 2002 18:28:51 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en
+	id <S317471AbSHTWiK>; Tue, 20 Aug 2002 18:38:10 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:44168 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S317463AbSHTWiJ>; Tue, 20 Aug 2002 18:38:09 -0400
+Date: Tue, 20 Aug 2002 15:45:03 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: davidm@hpl.hp.com
+cc: David Mosberger <davidm@napali.hpl.hp.com>, linux-kernel@vger.kernel.org,
+       linux-ia64@linuxia64.org
+Subject: Re: PCI Cleanup
+Message-ID: <69600000.1029883502@w-hlinder>
+In-Reply-To: <15714.48930.918372.268605@napali.hpl.hp.com>
+References: <36220000.1029866315@w-hlinder><15714.33709.181011.773290@napali.hpl.hp.com><39680000.1029868258@w-hlinder><15714.36383.143413.598935@napali.hpl.hp.com><68750000.1029881681@w-hlinder> <15714.48930.918372.268605@napali.hpl.hp.com>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
-To: Andre Hedrick <andre@linux-ide.org>
-CC: "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>,
-       "'Padraig Brady'" <padraig.brady@corvil.com>,
-       "'Linux Kernel'" <linux-kernel@vger.kernel.org>,
-       "Warner, Bill (IndSys, GEFanuc, VMIC)" <Bill.Warner@gefanuc.com>
-Subject: Re: IDE-flash device and hard disk on same controller
-References: <Pine.LNX.4.10.10208201452210.3867-100000@master.linux-ide.org> <3D62BC10.3060201@mandrakesoft.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Attached is the ATA core...
+--On Tuesday, August 20, 2002 15:13:54 -0700 David Mosberger <davidm@napali.hpl.hp.com> wrote:
 
-Just to give a little bit more information about the previously attached 
-code, it is merely a module that does two things:  (a) demonstrates 
-proper [and sometimes faster-than-current-linus] ATA bus probing, and 
-(b) demonstrates generic registration and initialization of ATA devices 
-and channels.  All other tasks can be left to "personality" (a.k.a. 
-class) drivers, such as 'disk', 'cdrom', 'floppy', ... types.
+> 
+>   Hanna> Should there have been another patch that would go before the
+>   Hanna> 2.5.30 test patch on top of a kernel.org clean 2.5.30 kernel?
+>   Hanna> It is not applying cleanly and before I dig into code Im not
+>   Hanna> very familiar with I thought I would ask here. Yes, this is
+>   Hanna> my first time on an ia64 system.
+> 
+> The patch should be self-contained.  Can you check whether your mailer
+> perhaps auto-wrapped long lines?
+> 
+> 	--david
+> 
 
-	Jeff
+I got it off the archives web site, that must have line wrapped. 
+Is there a place I could ftp it or could you mail it to me?
+
+Thanks a lot.
+
+Hanna
 
 
 

@@ -1,45 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264371AbTLPIQj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 03:16:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264372AbTLPIQi
+	id S261188AbTLPImr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 03:42:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbTLPImr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 03:16:38 -0500
-Received: from web20106.mail.yahoo.com ([216.136.226.43]:20809 "HELO
-	web20106.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264371AbTLPIQh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 03:16:37 -0500
-Message-ID: <20031216081636.94723.qmail@web20106.mail.yahoo.com>
-Date: Tue, 16 Dec 2003 00:16:36 -0800 (PST)
-From: Vidya G Krishnan <vgk_vgk@yahoo.com>
-Subject: Packet Handling in Linux
+	Tue, 16 Dec 2003 03:42:47 -0500
+Received: from modeemi.modeemi.cs.tut.fi ([130.230.72.134]:24961 "EHLO
+	modeemi.modeemi.cs.tut.fi") by vger.kernel.org with ESMTP
+	id S261188AbTLPImr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Dec 2003 03:42:47 -0500
+Date: Tue, 16 Dec 2003 10:42:44 +0200
+From: Erkki Seppala <flux@modeemi.fi>
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+Subject: Re: PROBLEM: ps gets hung before uptime of 3 days (2.6.0-test9,11) persists with bk6
+Message-ID: <20031216084244.GA4968@jolt.modeemi.cs.tut.fi>
+References: <20031205142834.GA3362@jolt.modeemi.cs.tut.fi> <20031212110509.GA25441@jolt.modeemi.cs.tut.fi>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031212110509.GA25441@jolt.modeemi.cs.tut.fi>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am doing a project on traffic shaping in linux. I
-think of inserting a module on top of network driver
-in gateway, buffer packets obtained from network
-driver and transmit according to prefixed rate to
-other machines.
+Alas, my report of the bug not reproducing in bk6 was made too early,
+yet again I'm seeing it ;).
 
-How can I call my packet handling function instead of
-the default packet handler(say IPV4 packet handler)?
-Is it possible to call my packet handler by changing
-the net_rx_action() in linux/net/core/dev.c . Can I
-modify the ETH_P_IP (default function is ip_rcv() in
-linux/ip_input.c). 
-
-My idea is to call ip_rcv() from my packet handler. Do
-u think it will work? Can u suggest a better one? 
-
-plzzz reply...
-
-
-
-__________________________________
-Do you Yahoo!?
-New Yahoo! Photos - easier uploading and sharing.
-http://photos.yahoo.com/
+-- 
+  _____________________________________________________________________
+     / __// /__ ____  __               http://www.modeemi.fi/~flux/\   \
+    / /_ / // // /\ \/ /                                            \  /
+   /_/  /_/ \___/ /_/\_\@modeemi.fi                                  \/

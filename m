@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288685AbSBRWci>; Mon, 18 Feb 2002 17:32:38 -0500
+	id <S288845AbSBRWe6>; Mon, 18 Feb 2002 17:34:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288787AbSBRWc2>; Mon, 18 Feb 2002 17:32:28 -0500
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:9988 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id <S288685AbSBRWcS>; Mon, 18 Feb 2002 17:32:18 -0500
-Date: Mon, 18 Feb 2002 23:32:03 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Ben Greear <greearb@candelatech.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Oliver Hillmann <oh@novaville.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: jiffies rollover, uptime etc.
-In-Reply-To: <3C717DEA.7090309@candelatech.com>
-Message-ID: <Pine.LNX.4.33.0202182327150.10570-100000@gans.physik3.uni-rostock.de>
+	id <S288800AbSBRWes>; Mon, 18 Feb 2002 17:34:48 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:7684 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S288814AbSBRWel>; Mon, 18 Feb 2002 17:34:41 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] Make IP-Config work without ip= supplied
+Date: 18 Feb 2002 14:34:25 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a4rvhh$vku$1@cesium.transmeta.com>
+In-Reply-To: <20020218222451.GA23899@main.braxis.co.uk>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Feb 2002, Ben Greear wrote:
-
-> I wonder, is it more expensive to write all drivers to handle the
-> wraps than to take the long long increment hit?  The increment is
-> once every 10 miliseconds, right?  That is not too often, all things
-> considered...
-
-This is just a matter of getting the signed/unsigned declarations right in 
-comparisons. (time_before and time_after macros were introduced to aid 
-here, hint!)
-No overhead is involved here.
-
-Actually, quite a few bug fixes in this area went into 2.4.18pre, with
-some more to come in 2.4.19pre.
-
+Followup to:  <20020218222451.GA23899@main.braxis.co.uk>
+By author:    Krzysztof Rusocki <kszysiu@main.braxis.co.uk>
+In newsgroup: linux.dev.kernel
 > 
-> Maybe the non-atomicity of the long long increment is the problem?
-
-Yes.
-
-> Does this problem still exist on 64-bit machines?
+> Hi,
+> 
+> Just noticed that IP-Config behavior when no ip= parm is used has changed in
+> 2.2.18.
+> 
+> Up to 2.2.17 IP-Config was enabled even when ip= was omitted. I think that
+> it's good for use in i.e. diskless nodes.
+> 
+> Since 2.2.18, IP-Config does nothing at all until ip= is passed to the
+> kernel, however Documentation/nfsroot.txt still says that IP-Config is
+> enabled by default. Was that intentional change?
+> 
+> Such behavior remains in both 2.2.20 and 2.4.18-rc1. Following patches
+> (against these two kernel trees) make IP-Config enabled by default.
 > 
 
-No.
+I don't think this is a good idea.  The current behaviour should work
+across the board.  Diskless nodes should use a diskless bootloader
+which support command lines -- that way you get to specify the mode as
+well.  *ALL* nodes should use the command line these days.
 
-> THanks,
-> Ben
+Can we get rid of the g----d bootsect.S, please?
 
-Tim
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

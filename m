@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262175AbVC2DmN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262170AbVC2DoW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262175AbVC2DmN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 22:42:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262172AbVC2DmM
+	id S262170AbVC2DoW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 22:44:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262172AbVC2Dma
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 22:42:12 -0500
-Received: from gate.crashing.org ([63.228.1.57]:41685 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262173AbVC2Dlo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 22:41:44 -0500
-Subject: Re: Mac mini sound woes
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Takashi Iwai <tiwai@suse.de>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1112067369.19014.24.camel@mindpipe>
-References: <1111966920.5409.27.camel@gaston>
-	 <1112067369.19014.24.camel@mindpipe>
+	Mon, 28 Mar 2005 22:42:30 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:23694 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262170AbVC2Dlu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Mar 2005 22:41:50 -0500
+Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
+From: Lee Revell <rlrevell@joe-job.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Wichert Akkerman <wichert@wiggy.net>,
+       Sean <seanlkml@sympatico.ca>, Mark Fortescue <mark@mtfhpc.demon.co.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.62.0503281512040.7244@numbat.sonytel.be>
+References: <Pine.LNX.4.10.10503261710320.13484-100000@mtfhpc.demon.co.uk>
+	 <1824.10.10.10.24.1111927362.squirrel@linux1>
+	 <20050327135338.GB14696@wiggy.net>
+	 <1111935996.8664.322.camel@localhost.localdomain>
+	 <Pine.LNX.4.62.0503281512040.7244@numbat.sonytel.be>
 Content-Type: text/plain
-Date: Tue, 29 Mar 2005 13:41:02 +1000
-Message-Id: <1112067662.12300.11.camel@gaston>
+Date: Mon, 28 Mar 2005 22:41:46 -0500
+Message-Id: <1112067706.19014.28.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-03-28 at 22:36 -0500, Lee Revell wrote:
-> On Mon, 2005-03-28 at 09:42 +1000, Benjamin Herrenschmidt wrote:
-> > It seems that Apple's driver has an in-kernel framework for doing volume
-> > control, mixing, and other horrors right in the kernel, in temporary
-> > buffers, just before they get DMA'ed (gack !)
+On Mon, 2005-03-28 at 15:12 +0200, Geert Uytterhoeven wrote:
+> On Sun, 27 Mar 2005, Alan Cox wrote:
+> > On Sul, 2005-03-27 at 14:53, Wichert Akkerman wrote:
+> > > Are you sure? It is perfectly legal to relicense things if you own the
+> > > copyright. As long as he never distributes his GPL version I don't see
+> > > why he should have a problem.
 > > 
-> > I want to avoid something like that. How "friendly" would Alsa be to
-> > drivers that don't have any HW volume control capability ? Does typical
-> > userland libraries provide software processing volume control ? Do you
-> > suggest I just don't do any control ? Or should I implement a double
-> > buffer scheme with software gain as well in the kernel driver ?
+> > The GPL is a distribution license, it doesn't really matter what you do
+> > *internally* with GPL code. It might be a DMCA violation in the USSA but
+>                                                                   ^^^^
+> Is this a plain stupid typo, or am I missing a new joke? ;-(
 > 
-> alsa-lib handles both mixing (dmix plugin) and volume control (softvol
-> plugin) in software for codecs like this that don't do it in hardware.
-> Since Windows does mixing and volume control in the kernel (ugh) it's
-> increasingly common to find devices that cannot do these.  You don't
-> need to handle it in the driver at all.
 
-Yah, OS X does it in the kernel too lately ... at least Apple drivers
-are doing it, it's not a "common" lib. They also split treble/bass that
-way when you have an iSub plugged on USB and using the machine internal
-speakers for treble.
+That's quite an old joke actually.
 
-> dmix has been around for a while but softvol plugin is very new, you
-> will need ALSA CVS or the upcoming 1.0.9 release.
-
-Ok.
-
-Ben.
-
+Lee
 

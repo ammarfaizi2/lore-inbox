@@ -1,65 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263188AbSKTXHB>; Wed, 20 Nov 2002 18:07:01 -0500
+	id <S263246AbSKTXEv>; Wed, 20 Nov 2002 18:04:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263270AbSKTXHB>; Wed, 20 Nov 2002 18:07:01 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:22029 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S263188AbSKTXG7>; Wed, 20 Nov 2002 18:06:59 -0500
-Date: Wed, 20 Nov 2002 23:14:03 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: "Mark H. Wood" <mwood@IUPUI.Edu>
-Cc: Linux kernel list <linux-kernel@vger.kernel.org>,
-       libc-alpha@sources.redhat.com
-Subject: Re: One more time:  /usr/include/linux, /usr/include/asm
-Message-ID: <20021120231403.A4533@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Mark H. Wood" <mwood@IUPUI.Edu>,
-	Linux kernel list <linux-kernel@vger.kernel.org>,
-	libc-alpha@sources.redhat.com
-References: <Pine.LNX.4.33.0211201643180.359-100000@mhw.ULib.IUPUI.Edu>
-Mime-Version: 1.0
+	id <S263188AbSKTXEv>; Wed, 20 Nov 2002 18:04:51 -0500
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:34211 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S263228AbSKTXEt>; Wed, 20 Nov 2002 18:04:49 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Date: Thu, 21 Nov 2002 10:11:43 +1100
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.33.0211201643180.359-100000@mhw.ULib.IUPUI.Edu>; from mwood@IUPUI.Edu on Wed, Nov 20, 2002 at 05:05:45PM -0500
+Content-Transfer-Encoding: 7bit
+Message-ID: <15836.5807.792124.255167@notabene.cse.unsw.edu.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-raid@vger.kernel.org
+Subject: Re: RFC - new raid superblock layout for md driver
+In-Reply-To: message from Alan Cox on  November 20
+References: <15835.2798.613940.614361@notabene.cse.unsw.edu.au>
+	<1037801381.3267.17.camel@irongate.swansea.linux.org.uk>
+X-Mailer: VM 7.07 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 20, 2002 at 05:05:45PM -0500, Mark H. Wood wrote:
-> No dice.  glibc 2.3.1 still installs headers into /usr/include/{VARIOUS}
-> which refer to /usr/include/linux and /usr/include/asm but does not supply
-> that to which they refer.  *sigh*  After rummaging through several long
-> threads in the archives, I still don't have an answer to the following:
+On  November 20, alan@lxorguk.ukuu.org.uk wrote:
+> On Wed, 2002-11-20 at 04:09, Neil Brown wrote:
+> >     u32  set_uuid[4]
 > 
-> 1. What is supposed to be in /usr/include/linux and /usr/include/asm?
+> Wouldnt u8 for the uuid avoid a lot of endian mess
 
-There is no specification on what is supposed to be there.  For
-compatiblity with programs written for old linux interfaces it is a good
-idea to either place a copy of older kernel headers (2.2/2.4) or some
-specific package to just provide those interfaces (like the redhat
-glib-kernheaders rpm) there.
+Probably....
+This makes it very similar to 'name'.  
+The difference if partly the intent for how user-space would use it,
+and partly that set_uuid must *never* change, while you would probably
+want name to be allowed to change.
 
-Note: glibc is one of the most-widely known packages that still
-uses these obsolete interfaces
 
-Note2: linux 2.5 headers slowly change to be no more compatible to those
-interfaces, don't ever put copies of linux 2.5 headers there.
+> 
+> >     u32  ctime
+> 
+> Use some padding so you can go to 64bit times
+> 
+Before or after?  Or just make it 64bits of seconds now?
+This brings up endian-ness?  Should I assert 'little-endian' or should
+the code check the endianness of the magic number and convert if
+necessary?
+The former is less code which will be exercised more often, so it is
+probably safe.
 
-> 2. Where does the information come from?
+So:
+  All values shall be little-endian and times shall be stored in 64
+  bits with the top 20 bits representing microseconds (so we & with
+  (1<<44)-1  to get seconds.
 
-It doesn't matter.
+Thanks.
 
-> 3. Who is responsible for putting it there?
-
-The system integrator.
-
-> I note that the glibc 2.3.1 instructions *still* instruct the reader to
-> symlink these paths into "the 2.2 kernel sources".  (See "Specific advice
-> for GNU/Linux systems" in INSTALL.)  I'll happily submit a glibc bug
-> report, or documentation patches, or some such, just so long as someone
-> can give me answers which work both for the kernel and for the library.
-
-I've Cc'ed libc-alpha now because that's a glibc, not a kernel problem.
-It's really a pity that glibc hasn't cought up _yet_.
-
+NeilBrown

@@ -1,80 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266477AbUBFE56 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 23:57:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266485AbUBFE56
+	id S266471AbUBFFK5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 00:10:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266483AbUBFFK4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 23:57:58 -0500
-Received: from fw.osdl.org ([65.172.181.6]:44945 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266477AbUBFE54 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 23:57:56 -0500
-Date: Thu, 5 Feb 2004 20:59:36 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: lord@xfs.org, linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com
-Subject: Re: Limit hash table size
-Message-Id: <20040205205936.5f0e3be9.akpm@osdl.org>
-In-Reply-To: <20040206053927.37709591.ak@suse.de>
-References: <B05667366EE6204181EABE9C1B1C0EB5802441@scsmsx401.sc.intel.com.suse.lists.linux.kernel>
-	<20040205155813.726041bd.akpm@osdl.org.suse.lists.linux.kernel>
-	<p73isilkm4x.fsf@verdi.suse.de>
-	<4021AC9F.4090408@xfs.org>
-	<20040205191240.13638135.akpm@osdl.org>
-	<4021C152.3080501@xfs.org>
-	<20040206053927.37709591.ak@suse.de>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 6 Feb 2004 00:10:56 -0500
+Received: from disk.smurf.noris.de ([192.109.102.53]:63438 "EHLO
+	server.smurf.noris.de") by vger.kernel.org with ESMTP
+	id S266471AbUBFFKz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 00:10:55 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Newsgroups: smurf.list.linux.kernel
+Subject: Re: HFSPLus driver for Linux 2.6.
+Date: Fri, 06 Feb 2004 06:03:52 +0100
+Organization: {M:U} IT Consulting
+Message-ID: <pan.2004.02.06.05.03.51.679598@smurf.noris.de>
+References: <402304F0.1070008@thock.com> <20040205191527.4c7a488e.akpm@osdl.org> <40231076.7040307@thock.com> <20040205200217.360c51ab.akpm@osdl.org>
+NNTP-Posting-Host: kiste.smurf.noris.de
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Trace: server.smurf.noris.de 1076043832 29560 192.109.102.35 (6 Feb 2004 05:03:52 GMT)
+X-Complaints-To: smurf@noris.de
+NNTP-Posting-Date: Fri, 6 Feb 2004 05:03:52 +0000 (UTC)
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> wrote:
->
-> On Wed, 04 Feb 2004 22:06:42 -0600
-> Steve Lord <lord@xfs.org> wrote:
-> 
-> 
-> > It does look like 2.6 does better, but I don't have quite the
-> > amount of memory on my laptop....
-> 
-> I see the problem on a 8GB x86-64 box with 2.6.2-rc1. 
+Hi, Andrew Morton wrote:
 
-I see no problem here.  I see a kernel which is designed to address a mix
-of workloads only being tested for one particular workload.
-
-> After a find / I have:
+> Dylan Griffiths <dylang+kernel@thock.com> wrote:
+>>
+>> 	I don't remember where I grabbed this driver, I only know it's much
+>>  more current than the one at
+>>  http://sourceforge.net/projects/linux-hfsplus.
 > 
->  Active / Total Objects (% used)    : 1794827 / 1804510 (99.5%)
->  Active / Total Slabs (% used)      : 125647 / 125647 (100.0%)
->  Active / Total Caches (% used)     : 71 / 112 (63.4%)
->  Active / Total Size (% used)       : 685008.27K / 686856.36K (99.7%)
->  Minimum / Average / Maximum Object : 0.02K / 0.38K / 128.00K
+> Sorry, that's a showstopper.  We need to understand who the maintenance
+> team is, and evaluate their preparedness to maintain this code long-term.
 > 
->   OBJS ACTIVE  USE OBJ SIZE  SLABS OBJ/SLAB CACHE SIZE NAME                   
-> 708600 708559  99%    0.25K  47240       15    188960K dentry_cache
-> 624734 624128  99%    0.69K  56794       11    454352K reiser_inode_cache
-> 254200 253514  99%    0.09K   6355       40     25420K buffer_head
-> 109327 109253  99%    0.06K   1853       59      7412K size-64
+That probably was http://www.ardistech.com/hfsplus/. Their latest release
+is from mid-December.
+
+> We don't want to be adding yet another rarely-used filesystem which has no
+> visible maintenance team.
 > 
-> Now I allocate 6GB of RAM. After that:
-> 
->  Active / Total Objects (% used)    : 741266 / 1092573 (67.8%)
->  Active / Total Slabs (% used)      : 78291 / 78291 (100.0%)
->  Active / Total Caches (% used)     : 71 / 112 (63.4%)
->  Active / Total Size (% used)       : 339837.24K / 455189.93K (74.7%)
->  Minimum / Average / Maximum Object : 0.02K / 0.42K / 128.00K
-> 
->   OBJS ACTIVE  USE OBJ SIZE  SLABS OBJ/SLAB CACHE SIZE NAME                   
-> 464497 381126  82%    0.69K  42227       11    337816K reiser_inode_cache
-> 391545 192481  49%    0.25K  26103       15    104412K dentry_cache
-> 135840  95304  70%    0.09K   3396       40     13584K buffer_head
+The Mac-m68k and the Mac-PPC people would probably disagree about the
+"rarely-used" part. I do agree that adding a filesystem, no matter how
+widely used, without at least somebody to liaise between the kernel people
+and the authors is a bad idea.
 
-The caches were shrunk by around 40%.  Looks good.
-
-> 1GB of dentry cache seems to be quite excessive.
-
-Not if your workload wants to use those dentries again.  You've only
-conducted one particular test.
-
+-- 
+Matthias Urlichs

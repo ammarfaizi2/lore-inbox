@@ -1,85 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312326AbSCUAwa>; Wed, 20 Mar 2002 19:52:30 -0500
+	id <S312327AbSCUAyc>; Wed, 20 Mar 2002 19:54:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312328AbSCUAwU>; Wed, 20 Mar 2002 19:52:20 -0500
-Received: from ns.suse.de ([213.95.15.193]:62217 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S312327AbSCUAwM>;
-	Wed, 20 Mar 2002 19:52:12 -0500
-Date: Thu, 21 Mar 2002 01:52:08 +0100
-From: Dave Jones <davej@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Linux 2.5.7-dj1
-Message-ID: <20020321015208.F30820@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+	id <S312329AbSCUAyQ>; Wed, 20 Mar 2002 19:54:16 -0500
+Received: from mx7.sac.fedex.com ([199.81.194.38]:7699 "EHLO mx7.sac.fedex.com")
+	by vger.kernel.org with ESMTP id <S312327AbSCUAxz>;
+	Wed, 20 Mar 2002 19:53:55 -0500
+Date: Thu, 21 Mar 2002 09:03:14 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+X-X-Sender: root@boston.corp.fedex.com
+To: Marcelo Tosatti <marcelo@conectiva.com.br>, <andre@linux-ide.org>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>, Jeff Chua <jchua@fedex.com>,
+        <andre@linux-ide.org>
+Subject: [PATCH] 2.4.19-pre4 ide-probe
+Message-ID: <Pine.LNX.4.44.0203210853510.24355-100000@boston.corp.fedex.com>
+MIME-Version: 1.0
+X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 03/21/2002
+ 08:53:40 AM,
+	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 03/21/2002
+ 08:53:42 AM,
+	Serialize complete at 03/21/2002 08:53:42 AM
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Resync, add compile fixes, simmer for 30 mins on low heat.
-Add random pending patches to taste.
 
-Still untested beyond 'it compiles', handle with care.
-Mostly a 'standing still' release, I'll catch up with 2.4.19pre next time.
+Marcelo, Andre,
 
-As usual,..
-Patch against 2.5.7 vanilla is available from:
-ftp://ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.5/
+Someone apparently added the "hook", but it was never used in the kernel,
 
-Merged patch archive: http://www.codemonkey.org.uk/patches/merged/
+What is ide_xlate_1024 referring to?
 
-Check http://www.codemonkey.org.uk/Linux-2.5.html before reporting
-known bugs that are also in mainline.
+Jeff
 
- -- Davej.
-
-2.5.7-dj1
-o   Various x86-64 compile fixes.			(Me, Andi Kleen)
-o   Fix up hfs superblock cleanup typo.			(Brian Gerst)
-o   Remove 2.1.x/2.3.x checks from rocket driver.	(William Stinson)
-o   JFS compile fixes.					(Dave Kleikamp)
-o   pci_alloc_consistent ZONE_NORMAL fix.		(Badari Pulavarty)
-o   v4l unregister with open file handles fix.		(Gerd Knorr)
-o   ACPI throttling fixes.				(Dominik Brodowski)
-o   Updated NFS root_server_path patch.			(Martin Schwenke)
-o   Backout problematic sym53c8xx_2 changes.		(Douglas Gilbert)
-o   Fix up one of my MCE SNAFU's.			(Douglas Gilbert)
-    | Also make it AMD only for now, pending further investigation.
-o   Support for Belkin Wireless card.			(Brendan W. McAdams)
-o   input/gameport makefile & config.in fixes.		(Steven Cole)
-o   UDF write compile fix.
+---------- Forwarded message ----------
+Date: Thu, 14 Mar 2002 11:22:27 +0800 (SGT)
+From: Jeff Chua <jeffchua@silk.corp.fedex.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>,
+     Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Jeff Chua <jchua@fedex.com>
+Subject: [PATCH] 2.4.19-pre3 ide_xlate_1024_hook ???
 
 
-2.5.6-dj2
-o   machine check background checker SMP improvements.	(Me)
-o   Hush INVALIDATE_AGID noise on Toshiba DVD drives.	(Jens Axboe)
-o   Remove delayed vfree() in ppp_deflate.		(David Woodhouse)
-o   Fix devfs 64-bit portability issues.		(Carsten Otte)
-o   UFS blocksize fix.					(Zwane Mwaikambo)
-o   Fix proc race on task_struct->sig.			(Chris Mason)
-o   Pull NFS server IP from root_server_path.		(Martin Schwenke)
-o   Fix broken tristate in ALSA config.			(Steven Cole)
-o   Work around mpc_apicid > MAX_APICS problem.		(James Cleverdon)
-o   cs4281 OSS compile fix.				(Sebastian Droege)
-o   Fix locking in ATM device allocation.		(Maksim Krasnyanskiy)
-o   Fix MSDOS filesystem option mistreatment.		(Rene Scharfe)
-o   Increase number of JFS transaction locks.		(Steve Best)
-o   page_to_phys() fix for >4GB pages on x86.		(Badari Pulavarty)
-o   Append kernel config to zImage.			(Randy Dunlap)
-    | See also scripts/extract-ikconfig
-o   Remove useless check from shmem_link()		(Alexander Viro)
-o   Enable Natsemi MMX extensions.			(Zwane Mwaikambo)
-o   Superblock cleanups for isofs,udf & bfs.		(Brian Gerst)
-o   request_region() checking for hisax avm_a1		(Dan D Carpenter)
-o   uninitialise lots of static vars in net/		(William Stinson)
-o   D-Link DE620 janitor work.				(Karol Kasprzak)
-o   Netfilter conntrack compile fix.			(Christopher Barton)
+It seems that the "ide_xlate_1024_hook" is redundant in
+./drivers/ide/ide-probe.c
+
+It's not used anywhere by the kernel, and it caused "depmod" to fail
+with unknown ide_xlate_1024_hook symbol.
 
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Jeff
+
+Patch ...
+
+--- ./drivers/ide/ide-probe.c.org       Thu Mar 14 11:01:20 2002
++++ ./drivers/ide/ide-probe.c   Thu Mar 14 11:03:16 2002
+@@ -987,7 +987,6 @@
+ }
+
+ #ifdef MODULE
+-extern int (*ide_xlate_1024_hook)(kdev_t, int, int, const char *);
+
+ int init_module (void)
+ {
+@@ -997,14 +996,12 @@
+                ide_unregister(index);
+        ideprobe_init();
+        create_proc_ide_interfaces();
+-       ide_xlate_1024_hook = ide_xlate_1024;
+        return 0;
+ }
+
+ void cleanup_module (void)
+ {
+        ide_probe = NULL;
+-       ide_xlate_1024_hook = 0;
+ }
+ MODULE_LICENSE("GPL");
+ #endif /* MODULE */
+
+
+

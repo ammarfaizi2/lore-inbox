@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130292AbRBZOeb>; Mon, 26 Feb 2001 09:34:31 -0500
+	id <S130290AbRBZOe2>; Mon, 26 Feb 2001 09:34:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130257AbRBZOcZ>; Mon, 26 Feb 2001 09:32:25 -0500
+	id <S130255AbRBZOcW>; Mon, 26 Feb 2001 09:32:22 -0500
 Received: from zeus.kernel.org ([209.10.41.242]:53191 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S130230AbRBZO3e>;
-	Mon, 26 Feb 2001 09:29:34 -0500
-Date: Mon, 26 Feb 2001 10:54:02 +0100 (MET)
-From: Lennert Buytenhek <buytenh@math.leidenuniv.nl>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>, David Fries <dfries@umr.edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Stale NFS handles on 2.4.2
-In-Reply-To: <shsvgpyual0.fsf@charged.uio.no>
-Message-ID: <Pine.LNX.4.30.0102261052520.16700-100000@page.math.leidenuniv.nl>
+	by vger.kernel.org with ESMTP id <S130257AbRBZO33>;
+	Mon, 26 Feb 2001 09:29:29 -0500
+Message-ID: <3A9A2B3B.421AE7E8@hanse.com>
+Date: Mon, 26 Feb 2001 11:08:59 +0100
+From: Stefan Smietanowski <stefan@hanse.com>
+Organization: Hanse Communication
+X-Mailer: Mozilla 4.75 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Keith Owens <kaos@ocs.com.au>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Announce: modutils 2.4.3 is available
+In-Reply-To: <18253.983162645@kao2.melbourne.sgi.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
+> modutils-2.4.3.tar.gz           Source tarball, includes RPM spec file
+> modutils-2.4.3-1.src.rpm        As above, in SRPM format
+> modutils-2.4.3-1.i386.rpm       Compiled with egcs-2.91.66, glibc 2.1.2
+> modutils-2.4.3-1.sparc64.rpm    Combined sparc 32/64.
+> modutils-2.4.3-1.ia64.rpm       Compiled with gcc 2.96-ia64-000717 snap 001117,
 
-On 25 Feb 2001, Trond Myklebust wrote:
+IIRC 2.4.2 was 2.4 only, and was released under protest, is it the same
+for 2.4.3?
 
->      > I was hopping to avoid unmounting, as I would have to shut
->      > about everything down to do that.
->
-> It looks as if you'll have to do that. 'mount -oremount' does not
-> really cause the root filehandle to get updated. The only thing it
-> does at the moment is allow you to change from a read-only to a
-> read-write filesystem.
-
-A trick that works for me is mounting the NFS filesystem on another mount
-point and unmounting it there. This usually makes the mount on the
-original mount point magically work again.
-
-
-cheers,
-Lennert
-
+// Stefan

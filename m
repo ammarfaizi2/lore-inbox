@@ -1,22 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263930AbUATEHg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 23:07:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263996AbUATEHg
+	id S263580AbUATEW2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 23:22:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263584AbUATEW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 23:07:36 -0500
-Received: from fw.osdl.org ([65.172.181.6]:3981 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263930AbUATEHf (ORCPT
+	Mon, 19 Jan 2004 23:22:28 -0500
+Received: from fw.osdl.org ([65.172.181.6]:44949 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263580AbUATEW0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 23:07:35 -0500
-Date: Mon, 19 Jan 2004 20:07:47 -0800
+	Mon, 19 Jan 2004 23:22:26 -0500
+Date: Mon, 19 Jan 2004 20:22:43 -0800
 From: Andrew Morton <akpm@osdl.org>
-To: Markus Lidel <Markus.Lidel@shadowconnect.com>
+To: Mike Fedyk <mfedyk@matchmail.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i2o_core.c, i2o_scsi.c minor bugfixes
-Message-Id: <20040119200747.6e8d63d0.akpm@osdl.org>
-In-Reply-To: <400BF755.6070201@shadowconnect.com>
-References: <400BF755.6070201@shadowconnect.com>
+Subject: Re: [2.6][smbfs] smb_open & smb_readpage_sync errors in kernel log
+Message-Id: <20040119202243.3d0aa60a.akpm@osdl.org>
+In-Reply-To: <20040119184435.GT8664@srv-lnx2600.matchmail.com>
+References: <20040119184435.GT8664@srv-lnx2600.matchmail.com>
 X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,34 +24,61 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Markus Lidel <Markus.Lidel@shadowconnect.com> wrote:
+Mike Fedyk <mfedyk@matchmail.com> wrote:
 >
-> Hello,
+> I've been getting these error messages in my kernel forever, I think even
+> with 2.2 kernels, and it's still there in 2.6:
 > 
-> after using the i2o modules (i2o_core and i2o_scsi), i found that there seems to be some minor problems in the 2.6.1 kernel
-> version. So i have created a patch, which resolves the following issues:
+> smb_open: config/SAM open failed, result=-26
+> smb_readpage_sync: config/SAM open failed, error=-26
 > 
+> It does this for several locked system files on the windows machines.
 > 
-> i2o-cleanup.patch:
+> This happens during a find command run on the mounted share from one of my
+> scripts that compares file dates.
+> 
+> Can these printk calls be removed?
 
-I get 100% rejects applying this.  Could you resend it as an attachment?
+I think so.  We don't want to allow unprivileged users to spam the
+logfiles.
 
-> --- drivers/message/i2o.old/i2o_core.c	2004-01-17 22:47:00.000000000 +0100
-> +++ drivers/message/i2o/i2o_core.c	2004-01-17 23:34:43.866973586 +0100
 
-Also, this renaming arrangement breaks my scripts (at least).  Preferable
-would be:
+ fs/smbfs/file.c |    5 +----
+ fs/smbfs/proc.c |    5 +----
+ 2 files changed, 2 insertions(+), 8 deletions(-)
 
---- a/drivers/message/i2o/i2o_core.c
-+++ b/drivers/message/i2o/i2o_core.c
+diff -puN fs/smbfs/proc.c~smbfs-fix-noisiness fs/smbfs/proc.c
+--- 25/fs/smbfs/proc.c~smbfs-fix-noisiness	2004-01-19 20:18:16.000000000 -0800
++++ 25-akpm/fs/smbfs/proc.c	2004-01-19 20:18:16.000000000 -0800
+@@ -1181,11 +1181,8 @@ smb_open(struct dentry *dentry, int wish
+ 		result = 0;
+ 		if (!smb_is_open(inode))
+ 			result = smb_proc_open(server, dentry, wish);
+-		if (result) {
+-			PARANOIA("%s/%s open failed, result=%d\n",
+-				 DENTRY_PATH(dentry), result);
++		if (result)
+ 			goto out;
+-		}
+ 		/*
+ 		 * A successful open means the path is still valid ...
+ 		 */
+diff -puN fs/smbfs/file.c~smbfs-fix-noisiness fs/smbfs/file.c
+--- 25/fs/smbfs/file.c~smbfs-fix-noisiness	2004-01-19 20:22:21.000000000 -0800
++++ 25-akpm/fs/smbfs/file.c	2004-01-19 20:22:23.000000000 -0800
+@@ -64,11 +64,8 @@ smb_readpage_sync(struct dentry *dentry,
+ 		DENTRY_PATH(dentry), count, offset, rsize);
+ 
+ 	result = smb_open(dentry, SMB_O_RDONLY);
+-	if (result < 0) {
+-		PARANOIA("%s/%s open failed, error=%d\n",
+-			 DENTRY_PATH(dentry), result);
++	if (result < 0)
+ 		goto io_error;
+-	}
+ 
+ 	do {
+ 		if (count < rsize)
 
-> Also i found that the resource management in i2o_scsi is static, so i tried
-> to make things a little bit dynamic by allocating the mapping tables at
-> module insertion (not included in this e-mail).  Because i don't saw a
-> maintainer for those module, i wrote to the kernel mailing list.  Can
-> anybody tell me, who i can contact to verify if my changes are of any
-> value?  I want to contribute some more code, because on my system the
-> i2o_block doesn't work too.  But before, i want to be sure that my code is
-> needed and also is good enough to be included into the kernel.
+_
 
-I think that would be Alan Cox <alan@lxorguk.ukuu.org.uk>

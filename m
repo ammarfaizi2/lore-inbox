@@ -1,55 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262730AbUEFPpw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262810AbUEFPtQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262730AbUEFPpw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 11:45:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262744AbUEFPpw
+	id S262810AbUEFPtQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 11:49:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262794AbUEFPtQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 11:45:52 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:50309 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262730AbUEFPpu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 11:45:50 -0400
-Date: Thu, 6 May 2004 11:47:51 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: "Srinivas G." <srinivasg@esntechnologies.co.in>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Small problem, Can anybody help me?
-In-Reply-To: <1118873EE1755348B4812EA29C55A97222F512@esnmail.esntechnologies.co.in>
-Message-ID: <Pine.LNX.4.53.0405061144490.19234@chaos>
-References: <1118873EE1755348B4812EA29C55A97222F512@esnmail.esntechnologies.co.in>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 6 May 2004 11:49:16 -0400
+Received: from stingr.net ([212.193.32.15]:12442 "EHLO stingr.net")
+	by vger.kernel.org with ESMTP id S262768AbUEFPs0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 11:48:26 -0400
+Date: Thu, 6 May 2004 19:48:24 +0400
+From: Paul P Komkoff Jr <i@stingr.net>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH-RFC] code for raceless /sys/fs/foofs/*
+Message-ID: <20040506154824.GH13255@stingr.net>
+Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+References: <16536.61900.721224.492325@laputa.namesys.com> <20040505162802.GN17014@parcelfarce.linux.theplanet.co.uk> <20040505163650.GO17014@parcelfarce.linux.theplanet.co.uk> <1083776930.3622.45.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <1083776930.3622.45.camel@lade.trondhjem.org>
+User-Agent: Agent Darien Fawkes
+X-Mailer: Intel Ultra ATA Storage Driver
+X-RealName: Stingray Greatest Jr
+Organization: Department of Fish & Wildlife
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 May 2004, Srinivas G. wrote:
+Replying to Trond Myklebust:
+> ...and if you do, aren't you more likely to simply 'mount --bind' those
+> minimal parts of sysfs that you actually need for the given process that
+> is gaoled?
 
->
-> Hi,
->
-> I have written a small hello.c program in the Linux Kernel version
-> 2.4.18-3.
->
-> The code is as follows.
-> -----------------------
->
->
-> define MODULE
+selinux comes on my mind ...
 
-#define __KERNEL__
-
-#include <linux/kernel.h>
-
-> #include <linux/module.h>
-> #include <linux/init.h>
->
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5557.45 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+-- 
+Paul P 'Stingray' Komkoff Jr // http://stingr.net/key <- my pgp key
+ This message represents the official view of the voices in my head

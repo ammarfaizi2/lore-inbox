@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130090AbRAPMsc>; Tue, 16 Jan 2001 07:48:32 -0500
+	id <S129675AbRAPNAh>; Tue, 16 Jan 2001 08:00:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129868AbRAPMsW>; Tue, 16 Jan 2001 07:48:22 -0500
-Received: from felix.convergence.de ([212.84.236.131]:42762 "EHLO
-	convergence.de") by vger.kernel.org with ESMTP id <S129675AbRAPMsG>;
-	Tue, 16 Jan 2001 07:48:06 -0500
-Date: Tue, 16 Jan 2001 13:47:37 +0100
-From: Felix von Leitner <leitner@convergence.de>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Is sendfile all that sexy?
-Message-ID: <20010116134737.A29366@convergence.de>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010116114018.A28720@convergence.de> <Pine.LNX.4.30.0101161338270.947-100000@elte.hu>
+	id <S129868AbRAPNA1>; Tue, 16 Jan 2001 08:00:27 -0500
+Received: from schmee.sfgoth.com ([63.205.85.133]:53002 "EHLO
+	schmee.sfgoth.com") by vger.kernel.org with ESMTP
+	id <S129675AbRAPNAT>; Tue, 16 Jan 2001 08:00:19 -0500
+Date: Tue, 16 Jan 2001 05:00:04 -0800
+From: Mitchell Blank Jr <mitch@sfgoth.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: O_ANY  [was: Re: 'native files', 'object fingerprints' [was: sendpath()]]
+Message-ID: <20010116050003.J5386@sfgoth.com>
+In-Reply-To: <20010116123743.A32075@gruyere.muc.suse.de> <Pine.LNX.4.30.0101161242180.529-100000@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <Pine.LNX.4.30.0101161338270.947-100000@elte.hu>; from mingo@elte.hu on Tue, Jan 16, 2001 at 01:42:37PM +0100
+X-Mailer: Mutt 1.0i
+In-Reply-To: <Pine.LNX.4.30.0101161242180.529-100000@elte.hu>; from mingo@elte.hu on Tue, Jan 16, 2001 at 01:04:22PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus spake Ingo Molnar (mingo@elte.hu):
-> > I don't know how Linux does it, but returning the first free file
-> > descriptor can be implemented as O(1) operation.
-> to put it more accurately: the requirement is to be able to open(), use
-> and close() an unlimited number of file descriptors with O(1) overhead,
-> under any allocation pattern, with only RAM limiting the number of files.
-> Both of my proposals attempt to provide this. It's possible to open() O(1)
-> but do a O(log(N)) close(), but that is of no practical value IMO.
+Ingo Molnar wrote:
+> - probably the most radical solution is what i suggested, to completely
+> avoid the unique-mapping of file structures to an integer range, and use
+> the address of the file structure (and some cookies) as an identification.
 
-I cheated.  I was only talking about open().
-close() is of course more expensive then.
+IMO... gross.  We do pretty much this exact thing in the ATM code (for
+the signalling daemon and the kernel exchainging status on VCCs) and it's
+pretty disgusting.  I want to make it go away.
 
-Other than that: where does the requirement come from?
-Can't we just use a free list where we prepend closed fds and always use
-the first one on open()?  That would even increase spatial locality and
-be good for the CPU caches.
+> - a less radical solution would be to still map file structures to an
+> integer range (file descriptors) and usage-maintain files per processes,
+> but relax the 'allocate first non-allocated integer in the range' rule.
+[...]
+> 	fd = open(...,O_ANY);
 
-Felix
+Yeah, this gets talked about, but I don't think a new flag for open is a
+good way to do this, because open() isn't the only thing that returns
+a new fd.  What about socket()?  pipe()?
+
+Maybe we could have a new prctl() control that turns this behavior
+on and off.  Then you'd just have to be careful to turn it back off
+before calling any library functions that require ordering (like popen).
+
+Other than that, I think it'd be a good idea, especially if it could
+be implemented clean enough to make it CONFIG_'urable.  That can't
+really be fairly judged until someone produces the code.
+
+-Mitch
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

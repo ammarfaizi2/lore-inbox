@@ -1,60 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266585AbUHIOGy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266604AbUHIOJa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266585AbUHIOGy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 10:06:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266590AbUHIOGx
+	id S266604AbUHIOJa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 10:09:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266603AbUHIOJ3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 10:06:53 -0400
-Received: from hibernia.jakma.org ([212.17.55.49]:20870 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S266585AbUHIOGp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 10:06:45 -0400
-Date: Mon, 9 Aug 2004 15:03:35 +0100 (IST)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@fogarty.jakma.org
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-cc: James.Bottomley@steeleye.com, axboe@suse.de, linux-kernel@vger.kernel.org,
-       mj@ucw.cz
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-In-Reply-To: <200408091205.i79C5mW3009645@burner.fokus.fraunhofer.de>
-Message-ID: <Pine.LNX.4.60.0408091501400.2622@fogarty.jakma.org>
-References: <200408091205.i79C5mW3009645@burner.fokus.fraunhofer.de>
-X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
+	Mon, 9 Aug 2004 10:09:29 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:21430 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266596AbUHIOIn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 10:08:43 -0400
+Date: Mon, 9 Aug 2004 10:08:20 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@dhcp83-76.boston.redhat.com
+To: David Howells <dhowells@redhat.com>
+cc: Andrew Morton <akpm@osdl.org>, <torvalds@osdl.org>,
+       <linux-kernel@vger.kernel.org>, <arjanv@redhat.com>,
+       <dwmw2@infradead.org>, <greg@kroah.com>, <chrisw@osdl.org>,
+       <sfrench@samba.org>, <mike@halcrow.us>, <trond.myklebust@fys.uio.no>,
+       <mrmacman_g4@mac.com>
+Subject: Re: [PATCH] implement in-kernel keys & keyring management [try #2]
+In-Reply-To: <15907.1092044030@redhat.com>
+Message-ID: <Xine.LNX.4.44.0408090953410.2947-100000@dhcp83-76.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811072-328057600-1092060215=:2622"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Mon, 9 Aug 2004, David Howells wrote:
 
----1463811072-328057600-1092060215=:2622
-Content-Type: TEXT/PLAIN; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8BIT
+> James Morris <jmorris@redhat.com> wrote:
+> > Implement a filesystem interface, e.g. /proc/<pid>/keys
+> > 
+> > From here you can have:
+> > 
+> >   /create
+> 
+> How would this work? Remember you've got to get some data back, and you've got
+> to simultaneously attach your key to a keyring, otherwise it'll just be erased
+> immediately.
 
-On Mon, 9 Aug 2004, Joerg Schilling wrote:
+I figured you would write to the file (a keyring id?) and it would return 
+a key id.
 
->> dependent on topology at all, they depend on some other topology
->> independent identifier, eg FC UUID.
->
-> Don't comment things you don't ever try.....
->
-> Of course, ATAPI devices on Solaris are handled by the same
-> target drivers as e.g. those on 50 pin cables.
+> > For keyrings, you could have:
+> > 
+> >   /proc/<pid>/keyring/thread
+> >                      /session
+> >                      /process
+> >                      ...
+> 
+> What are these? Files containing keyring ID numbers? If so, better to just
+> have one file from whence you can read all the IDs, and since /proc/pid/status
+> has to grab the requisite lock anyway...
 
-Yes ATAPI is.
+They would contain symlinks to keyring IDs.
 
-> The ATA driver is implemented the way one would expect it by acting 
-> as a SCSI HBA.
+> Besides, the search _has_ to be available in kernel space. A filesystem such
+> as AFS or NFS would need to be able to call it during file->open(), and maybe
+> at other times. Would you suggest that it should call out to userspace to do
+> the keyring search?
 
-Yes, as does libata on Linux.
+No.  The reason for suggesting this was because with a filesystem API, the 
+information is already available in userspace, and it would be quite 
+simple to enumerate it.  As you said, it's not something that would happen 
+all the time, so it's not performance critical.  But if you need a kernel 
+API for the same thing, it's a moot point.
 
-> Jörg
+> Or would you, say, suggest a new open() syscall that takes a key ID in
+> addition?
 
-regards,
+No, that would require changes to userspace code.
+
+
+- James
 -- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-Fortune:
-Events are not affected, they develop.
- 		-- Sri Aurobindo
----1463811072-328057600-1092060215=:2622--
+James Morris
+<jmorris@redhat.com>
+
+

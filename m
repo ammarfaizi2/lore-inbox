@@ -1,76 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265260AbTLFVpN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 16:45:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265259AbTLFVpM
+	id S265252AbTLFVlX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 16:41:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265253AbTLFVlX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 16:45:12 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:40153 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S265260AbTLFVpG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 16:45:06 -0500
-Date: Sat, 6 Dec 2003 13:45:03 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>, Larry McVoy <lm@bitmover.com>,
-       Erik Andersen <andersen@codepoet.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Paul Adams <padamsdev@yahoo.com>
-Subject: Re: Linux GPL and binary module exception clause?
-Message-ID: <20031206214503.GA17303@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Theodore Ts'o <tytso@mit.edu>, linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@osdl.org>, Larry McVoy <lm@bitmover.com>,
-	Erik Andersen <andersen@codepoet.org>,
-	Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-	Paul Adams <padamsdev@yahoo.com>
-References: <20031204235055.62846.qmail@web21503.mail.yahoo.com> <20031205004653.GA7385@codepoet.org> <Pine.LNX.4.58.0312041956530.27578@montezuma.fsmlabs.com> <20031205010349.GA9745@codepoet.org> <20031205012124.GB15799@work.bitmover.com> <Pine.LNX.4.58.0312041750270.6638@home.osdl.org> <20031206030037.GB28765@work.bitmover.com> <20031206141300.GA13372@pimlott.net> <20031206175041.GD28765@work.bitmover.com> <20031206211900.GA9034@thunk.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031206211900.GA9034@thunk.org>
-User-Agent: Mutt/1.4i
+	Sat, 6 Dec 2003 16:41:23 -0500
+Received: from modemcable067.88-70-69.mc.videotron.ca ([69.70.88.67]:23937
+	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S265252AbTLFVlV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Dec 2003 16:41:21 -0500
+Date: Sat, 6 Dec 2003 16:40:19 -0500 (EST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] sched-HT-2.6.0-test11-A5
+In-Reply-To: <392900000.1070737269@[10.10.2.4]>
+Message-ID: <Pine.LNX.4.58.0312061601400.1758@montezuma.fsmlabs.com>
+References: <20031117021511.GA5682@averell><3FB83790.3060003@cyberone.com.au><20031117141548.GB1770@colin2.muc.de><Pine.LNX.4.56.0311171638140.29083@earth><20031118173607.GA88556@colin2.muc.de><Pine.LNX.4.56.0311181846360.23128@earth><20031118235710.GA10075@colin2.muc.de><3FBAF84B.3050203@cyberone.com.au><501330000.1069443756@flay><3FBF099F.8070403@cyberone.com.au><1010800000.1069532100@[10.10.2.4]><3FC01817.3090705@cyberone.com.au><3FC0A0C2.90800@cyberone.com.au><Pine.LNX.4.56.0311231300290.16152@earth>
+ <1027750000.1069604762@[10.10.2.4]> <Pine.LNX.4.58.0312011102540.3323@earth>
+ <392900000.1070737269@[10.10.2.4]>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 06, 2003 at 04:19:00PM -0500, Theodore Ts'o wrote:
-> But that aside, does the Open Source community really want to push for
-> the legal principal that just because you write an independent program
-> which uses a particular API, the license infects across the interface?
-> That's essentially interface copyrights, and if say the FSF were to
-> file an amicus curiae brief support that particular legal principle in
-> an kernel modules case, it's worthwhile to think about how Microsoft
-> and Apple could use that case law to f*ck us over very badly.  
-> 
-> It would mean that we would not be able to use Microsoft DLL's in
-> programs like xine.  It would mean that programs like Crossover office
-> wouldn't work.  It would mean that Apple could legally prohibit people
-> from writing enhancements to MacOS (for example, how do all of the
-> various extensions in Mac OS 9 work?  They link into the operating
-> system and modify its behaviour.  If they are therefore a derived work
-> of MacOS, then Apple could screw over all of the people who write
-> system extensions of MacOS.)  
-> 
-> Be careful of what you wish for, before you get it.  The ramifications
-> of the statement that just because a device driver is written for
-> Linux, that it is presumptively a derived work of Linux unless proven
-> otherwise, is amazingly scary.  Fortunately, we can hope that the law
-> professor I talked to was right, and that such a claim would be
-> laughed out of court.  But if it isn't, look to Microsoft and other
-> unsavory companies to use that kind of case law to completely screw us
-> to the wall.....
+On Sat, 6 Dec 2003, Martin J. Bligh wrote:
 
-What Ted is saying is precisely what I have been trying to say for a long
-time, he just said it better (thanks Ted).
+>
+> > i've uploaded the HT scheduler patch against 2.6.0-test11 to:
+> >
+> >     redhat.com/~mingo/O(1)-scheduler/sched-HT-2.6.0-test11-A5
+>
+> Hangs on boot (NUMA-Q) after "Starting migration thread for cpu 0".
+> Any ideas what that might be?
 
-If you want the rules to work a particular way when they benefit you you
-have to be prepared to deal with it when someone else invokes the same 
-rules against you.
+Ingo here is a patch to fix compilation on larger NR_CPUS, i have also
+appended the oops Martin is probably seeing. Currently debugging it.
 
-I'm with Ted on this one, big time.  I agree that it is opening the door to
-unbelievable amounts of bad juju from the corporate folks if licenses can
-infect across APIs.  I'd personally like it if contracts couldn't do this
-either.  The whole thing gives me more willies than the DMCA.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Index: linux-2.6.0-test11-ht/kernel/sched.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.6.0-test11/kernel/sched.c,v
+retrieving revision 1.1.1.2
+diff -u -p -B -r1.1.1.2 sched.c
+--- linux-2.6.0-test11-ht/kernel/sched.c	6 Dec 2003 21:21:07 -0000	1.1.1.2
++++ linux-2.6.0-test11-ht/kernel/sched.c	6 Dec 2003 21:22:30 -0000
+@@ -266,7 +266,7 @@ static DEFINE_PER_CPU(struct runqueue, r
+ #define migration_queue(cpu)	(&cpu_int(cpu)->migration_queue)
+
+ #if NR_CPUS > 1
+-# define task_allowed(p, cpu)	((p)->cpus_allowed & (1UL << (cpu)))
++# define task_allowed(p, cpu)	cpu_isset(cpu, (p)->cpus_allowed)
+ #else
+ # define task_allowed(p, cpu)	1
+ #endif
+
+..... CPU clock speed is 398.0715 MHz.
+..... host bus clock speed is 99.0678 MHz.
+checking TSC synchronization across 2 CPUs: passed.
+Starting migration thread for cpu 0
+Unable to handle kernel paging request at virtual address f000afae
+ printing eip:
+c0124608
+*pde = 00000000
+Oops: 0002 [#1]
+CPU:    0
+EIP:    0060:[<c0124608>]    Not tainted
+EFLAGS: 00010013
+EIP is at migration_task+0x158/0x290
+eax: 00000001   ebx: c150bbc0   ecx: c150c5e4   edx: f000afae
+esi: c1b9ffcc   edi: c1b9e000   ebp: c1b9ffec   esp: c1b9ffc0
+ds: 007b   es: 007b   ss: 0068
+Process migration/0 (pid: 2, threadinfo=c1b9e000 task=c1bd29b0)
+Stack: 00000000 c150bbc0 00000000 c1bbbf9c 00000000 00000063 00000000 00000000
+       c01244b0 00000000 00000000 00000000 c0107185 c1bbbf9c 00000000 00000000
+Call Trace:
+ [<c01244b0>] migration_task+0x0/0x290
+ [<c0107185>] kernel_thread_helper+0x5/0x10
+
+Code: 89 02 89 50 04 8b 55 d4 89 12 89 52 04 8b 4d d8 b2 01 81 79
+

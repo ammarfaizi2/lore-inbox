@@ -1,76 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261816AbTC0IxS>; Thu, 27 Mar 2003 03:53:18 -0500
+	id <S261820AbTC0I7S>; Thu, 27 Mar 2003 03:59:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261818AbTC0IxS>; Thu, 27 Mar 2003 03:53:18 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:19972 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S261816AbTC0IxQ>; Thu, 27 Mar 2003 03:53:16 -0500
-Message-ID: <3E82BF2D.8080508@aitel.hist.no>
-Date: Thu, 27 Mar 2003 10:06:53 +0100
-From: Helge Hafting <helgehaf@aitel.hist.no>
-Organization: AITeL, HiST
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: no, en
+	id <S261821AbTC0I7S>; Thu, 27 Mar 2003 03:59:18 -0500
+Received: from mail2.sonytel.be ([195.0.45.172]:48368 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S261820AbTC0I7Q>;
+	Thu, 27 Mar 2003 03:59:16 -0500
+Date: Thu, 27 Mar 2003 10:09:33 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Antonino Daplas <adaplas@pol.net>
+cc: James Simmons <jsimmons@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [Linux-fbdev-devel] Framebuffer fixes.
+In-Reply-To: <1048734021.982.4.camel@localhost.localdomain>
+Message-ID: <Pine.GSO.4.21.0303271008190.26358-100000@vervain.sonytel.be>
 MIME-Version: 1.0
-To: erik@hensema.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Delaying writes to disk when there's no need
-References: <slrnb843gi.2tt.usenet@bender.home.hensema.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Hensema wrote:
-> In all kernels I've tested writes to disk are delayed a long time even when
-> there's no need to do so.
-> 
-Short answer - it is supposed to do that!
+On 27 Mar 2003, Antonino Daplas wrote:
+>        - image->depth should be representative of the data depth
+> (currently, either 8 or 1).  If image->depth == 1, color expansion can
+> now be used to draw the logo, thus there's no need to differentiate
+> between mono logo drawing and monochrome expansion.
 
-> A very simple test shows this: on an otherwise idle system, create a tar of
-> a NFS-mounted filesystem to a local disk. The kernel starts writing out the
-> data after 30 seconds, while a slow and steady stream would be much nicer
-> to the system, I think.
->
-You're wrong then.  There's no need for a slow steady stream, why do
-you want that.  Of course you can set up cron to run sync at
-regular (short) intervals to achieve this.
+> +	/*
+> +	 * Monochrome expansion and logo drawing functions are the same if
+> +	 * fb_logo.needs_logo == 1.
+> +	 */
+> +	switch (info->fix.visual) {
+> +	case FB_VISUAL_MONO10:
+> +		image.fg_color = (u32) (~(~0UL << fb_logo.depth));
+                                                  ^^^^^^^^^^^^^
+> +		image.bg_color = 0;
+> +		image.depth = 1;
+> +		break;
+> +	case FB_VISUAL_MONO01:
+> +		image.bg_color = (u32) (~(~0UL << fb_logo.depth));
+                                                  ^^^^^^^^^^^^^
+> +		image.fg_color = 0;
+> +		image.depth = 1;
+> +		break;
 
-> On 2.4.x this can block the system for several seconds. 2.5.6x and
-> 2.5.6x-mm (with AS) also show this behaviour, but the system doesn't block
-> anymore. I'm using a preemtable kernel.
-> 
-Writing out stuff is not supposed to block the machine, and as you say,
-it is fixed in 2.5.  No need for the steady writing.
+Shouldn't these be info->var.bits_per_pixel instead of fb_logo.depth?
 
-> I only started to notice this behaviour when I upgraded from 256 MB ram to
-> 512 MB. In other words: Linux behaves more nicely with 256 MB.
-> 
-Why do you think that is more nice?
+Gr{oetje,eeting}s,
 
-Writing is delayed because that accumulate bigger writes and
-fewer seeks.  This helps performance a lot.  Delaying writes
-has another advantage - somw writes won't be done at all,
-saving 100% writing time.  This is the case for temporary
-files that gets written to, read, and deleted before they
-get written to disk. It all happens in cache, improving
-performance tremendously.  To see the alternative,
-try booting with mem=4M or 16M or some such, with _no_ swapping.
+						Geert
 
-Another case is a file that gets overwritten several times.
-This all happens in memory because of the delay, only the final
-version gets written to disk.  This is ver common, even for files
-that are written only once.  (slowly extending a file
-and writing it to disk every time _will_ write the same stuff
-over and over because it is impossible to add a few bytes only.
-You always write a whole block, adding anything less than that
-involves reading the half-full block, updating it, and writing it
-back.  Keeping such operations in memory saves quite a few
-disk writes.)
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-For more detailed information, read a book about how filesystems and
-disk caching works.
-
-Helge Hafting
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

@@ -1,62 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269632AbRHMAy3>; Sun, 12 Aug 2001 20:54:29 -0400
+	id <S267883AbRHMBBU>; Sun, 12 Aug 2001 21:01:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269631AbRHMAyU>; Sun, 12 Aug 2001 20:54:20 -0400
-Received: from mtiwmhc23.worldnet.att.net ([204.127.131.48]:40579 "EHLO
-	mtiwmhc23.worldnet.att.net") by vger.kernel.org with ESMTP
-	id <S269621AbRHMAyM>; Sun, 12 Aug 2001 20:54:12 -0400
-Message-ID: <XFMail.20010812205406.f.duncan.m.haldane@worldnet.att.net>
-X-Mailer: XFMail 1.5.0 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-Date: Sun, 12 Aug 2001 20:54:06 -0400 (EDT)
-From: f.duncan.m.haldane@worldnet.att.net
-To: linux-kernel@vger.kernel.org
-Subject: PCI spec question/possible VIA quirk?
+	id <S269633AbRHMBBA>; Sun, 12 Aug 2001 21:01:00 -0400
+Received: from neon-gw.transmeta.com ([63.209.4.196]:39950 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267883AbRHMBAy>; Sun, 12 Aug 2001 21:00:54 -0400
+From: Linus Torvalds <torvalds@transmeta.com>
+Date: Sun, 12 Aug 2001 18:00:34 -0700
+Message-Id: <200108130100.f7D10YH07664@penguin.transmeta.com>
+To: pgallen@randomlogic.com
+Subject: Re: Hang problem on Tyan K7 Thunder resolved -- SB Live! heads-up
+Newsgroups: linux.dev.kernel
+In-Reply-To: <3B772126.F23DB1D7@randomlogic.com>
+In-Reply-To: <20010812155520.A935@ulthar.internal.mclure.org> <Pine.LNX.4.33.0108121557060.2102-100000@penguin.transmeta.com> <20010812161544.A947@ulthar.internal.mclure.org>
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
+In article <3B772126.F23DB1D7@randomlogic.com> you write:
+>Call me dumb, but what was wrong with the SB Live! code in the 2.4.7
+>trees? Mine works fine and has since I first installed RH 7.1 on this
+>system. The only problem I had was when I compiled it into the kernel
+>(instead of compiling as a module), sound would not work and I could not
+>configure it with sndconfig.
 
-Can anyone tell me what the PCI specs say config registers 0x2c:0x2f 
-should contain? 
+Well, the fact that it didn't work when compiled into the kernel means
+(for me), that it doesn't work at all.
 
-------------------------lspci -x says:------------------------------
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP]
-00: 06 11 05 83 07 00 30 22 00 00 04 06 00 00 01 00
-10: 00 00 00 00 00 00 00 00 00 01 01 00 f0 00 00 00
-20: 00 f6 f0 f7 00 fc f0 fd 00 00 00 00 43 10 2f 80 <====== Here!
-30: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 0c 00
----------------------------------------------------------------------
+Also, if you followed the other thread on the Tyan Thunder lockup,
+you'll have noticed that it locked up under heavy PCI loads. At least on
+that machine it stopped with the 2.4.8 driver.
 
-In drivers/pci/pci.c (all 2.4.x kernels) pci_read_bridge_bases() 
-is reading "mem_limit_hi" from them.  
-(PCI_PREF_LIMIT_UPPER32 = 0x2c in pci.h) 
+Does the new driver not work for you? There seems to be a bug at close()
+time, in that the driver uses "tasklet_unlock_wait()" instead of
+"tasklet_kill()" to kill the tasklets, and that wouldn't work reliably.
 
-This seems to need to be 00 00 00 00 for the pci setup to work 
-properly.  A non-zero value leads to the error:
+Anything else you can find?
 
-"PCI: Unable to handle 64-bit address space for %s\n"
-
-(Hacking in a line that resets mem_limit_hi to 0 seems to make 
-everything work fine; without it the AGP card doesnt get set up 
-correctly for accelerated modes)
-
-Are the strange values in these registers maybe a VIA quirk?
-(most of the pci devices have such values.)  
-
-Any suggestions would be appreciated!
-
-Duncan Haldane
-(please cc: any reply to me)
-
-----------------------------------
-E-Mail: f.duncan.m.haldane@worldnet.att.net
-Date: 12-Aug-2001
-Time: 20:46:29
-
-This message was sent by XFMail
-----------------------------------
+		Linus

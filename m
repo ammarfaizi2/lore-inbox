@@ -1,50 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267701AbTBGEos>; Thu, 6 Feb 2003 23:44:48 -0500
+	id <S267720AbTBGE4x>; Thu, 6 Feb 2003 23:56:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267714AbTBGEor>; Thu, 6 Feb 2003 23:44:47 -0500
-Received: from dp.samba.org ([66.70.73.150]:20948 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267701AbTBGEok>;
-	Thu, 6 Feb 2003 23:44:40 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Restore module support. 
-In-reply-to: Your message of "Fri, 07 Feb 2003 00:10:07 -0000."
-             <20030207001006.A19306@flint.arm.linux.org.uk> 
-Date: Fri, 07 Feb 2003 15:53:44 +1100
-Message-Id: <20030207045419.9A11B2C0F8@lists.samba.org>
+	id <S267719AbTBGE4x>; Thu, 6 Feb 2003 23:56:53 -0500
+Received: from terminus.zytor.com ([63.209.29.3]:64163 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP
+	id <S267717AbTBGE4w>; Thu, 6 Feb 2003 23:56:52 -0500
+Message-ID: <3E433EBC.5000202@zytor.com>
+Date: Thu, 06 Feb 2003 21:06:04 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020828
+X-Accept-Language: en-us, en, sv
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>,
+       Russell King <rmk@arm.linux.org.uk>
+Subject: Re: [RFC] klibc for 2.5.59 bk
+References: <20030207045919.GA30526@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030207001006.A19306@flint.arm.linux.org.uk> you write:
-> And I'll promptly provide you with the other view.  I'm still trying to
-> sort out the best thing to do for ARM.  We have the choice of:
+Greg KH wrote:
+> Hi all,
 > 
-> 1. load modules in the vmalloc region and build two jump tables, one for
->    the init text and one for the core text.
+> Thanks to Arnd Bergmann, it looks like the klibc and initramfs code is
+> now working.  I've created a patch against Linus's latest bk tree and
+> put it at:
+> 	http://www.kroah.com/linux/klibc/klibc-2.5.59-2.patch.gz
+> (I can't get to kernel.org right now, sorry)
+> and there's a bk tree at:
+> 	bk://kernel.bkbits.net/gregkh/linux/klibc-2.5
+> 
+> I'd really like to send this to Linus now, but I'm going to be away
+> from email for about a week, so I'll wait will I get back.  If anyone
+> has any issues with this patch, please let me know.
+> 
 
-Yes.  PPC and PPC64 have the same issues: currently this is done by
-(1) putting nothing in the .init sections (on PPC64), and (2) with
-stubs when jumping outside the module code.
+That's good, that'll give me a chance to check through it.
 
-This gives the same effect as the previous userspace loader: for PPC64
-noone cares about discarding init stuff, so it's firmly on the TODO
-list.  ARM's priorities are obviously different.
+What klibc is this based on?
 
-> 2. fix vmalloc and /proc/kcore to be able to cope with a separate module
->    region located below PAGE_OFFSET.  Currently, neither play well with
->    this option.
+	-hpa
 
-x86_64 has this, as does sparc64: they do their own allocation.  Does
-ARM require something special in this regard?  I'd love to see what
-you've got...
 
-Thanks!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

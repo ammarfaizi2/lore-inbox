@@ -1,34 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261651AbVCCL2Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261644AbVCCL23@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261651AbVCCL2Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 06:28:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261644AbVCCL1S
+	id S261644AbVCCL23 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 06:28:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbVCCLXh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 06:27:18 -0500
-Received: from fire.osdl.org ([65.172.181.4]:36792 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261582AbVCCL0y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 06:26:54 -0500
-Date: Thu, 3 Mar 2005 03:26:20 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: ncunningham@cyclades.com
-Cc: akpm@digeo.com, linux-kernel@vger.kernel.org, pavel@ucw.cz
-Subject: Re: [PATCH]: Speed freeing memory for suspend.
-Message-Id: <20050303032620.69add028.akpm@osdl.org>
-In-Reply-To: <1109848654.3733.34.camel@desktop.cunningham.myip.net.au>
-References: <1109848654.3733.34.camel@desktop.cunningham.myip.net.au>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 3 Mar 2005 06:23:37 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:22288 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261637AbVCCLWF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 06:22:05 -0500
+Date: Thu, 3 Mar 2005 12:22:03 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Bernd Petrovitsch <bernd@firmix.at>
+Cc: gene.heskett@verizon.net, linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: United States Patent: 6,862,609]
+Message-ID: <20050303112203.GO4608@stusta.de>
+References: <4226781B.7080302@utah-nac.org> <200503022227.40614.gene.heskett@verizon.net> <4226927A.6010107@utah-nac.org> <200503030121.08778.gene.heskett@verizon.net> <1109845895.28560.24.camel@tara.firmix.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1109845895.28560.24.camel@tara.firmix.at>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham <ncunningham@cyclades.com> wrote:
->
-> Here's a patch I've prepared which improves the speed at which memory is
->  freed prior to suspend. It should be a big gain for swsusp.
+On Thu, Mar 03, 2005 at 11:31:36AM +0100, Bernd Petrovitsch wrote:
+> On Thu, 2005-03-03 at 01:21 -0500, Gene Heskett wrote:
+> [...]
+> > It brings up another sore point with me.  I'm of the opinion that both 
+> > copyright, and patent, should be granted to the author/inventor on a 
+> > non-transferable basis.  He could then sell rights to use it for a 
+> 
+> ACK. This would kill the abuse and do what lots people are claiming -
+> help the actual innovator (and not only help the patent abuse
+> machinery).
+> BTW in Austria and Germany (and probably the rest of continental Europe)
+> the local version of the copyright (in german "Urheberrecht") has this
+> feature since ages.
+> So just move onto here and voila, you there in at least this point.
+>...
 
-Patch is simple enough but, as always, please back up an optimization patch
-with quantitative test results.
+At least in Germany, it's not the way you describe it:
+
+With a few minor limitations, you can transfer exclusive rights on the 
+thing you have the copyright on to someone else.
+
+The basics of German and US copyright law are different, but the 
+practical consequences aren't.
+
+> 	Bernd
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129397AbRBXRcz>; Sat, 24 Feb 2001 12:32:55 -0500
+	id <S129464AbRBXR3f>; Sat, 24 Feb 2001 12:29:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129447AbRBXRcp>; Sat, 24 Feb 2001 12:32:45 -0500
-Received: from web1301.mail.yahoo.com ([128.11.23.151]:27409 "HELO
-	web1301.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129397AbRBXRck>; Sat, 24 Feb 2001 12:32:40 -0500
-Message-ID: <20010224173234.14673.qmail@web1301.mail.yahoo.com>
-Date: Sat, 24 Feb 2001 09:32:34 -0800 (PST)
-From: Mark Swanson <swansma@yahoo.com>
-Subject: 242-ac3 loop bug
-To: linux-kernel@vger.kernel.org
+	id <S129375AbRBXR3Z>; Sat, 24 Feb 2001 12:29:25 -0500
+Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:19466 "EHLO
+	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
+	id <S129333AbRBXR3Q>; Sat, 24 Feb 2001 12:29:16 -0500
+Date: Sat, 24 Feb 2001 12:28:38 -0500
+From: Chris Mason <mason@suse.com>
+To: Arjan Filius <iafilius@xs4all.nl>, Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: reiserfs: still problems with tail conversion
+Message-ID: <845760000.983035718@tiny>
+In-Reply-To: <Pine.LNX.4.30.0102241613140.1185-100000@sjoerd.sjoerdnet>
+X-Mailer: Mulberry/2.0.6b4 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First, good job on the loop device. It's rock stable for me - except
-when I try to load the blowfish module which oops the kernel and
-crashes the loop device:-) No problem, I just use another cipher.
-
-The bug I'm reporting is that when a loop device is in use the load of
-the machine stays at 1.00 even though nothing is happening. If I umount
-the loop filesystem the load goes down to 0.00.
-
-> ps -aux | grep loop
-1674 tty1     DW<   0:00 [loop0]
-
-The system is doing nothing to the loop filesystem.
-Strange that the process isn't logging any cpu usage time. It's
-definately responsible for the 1.00 load.
 
 
+On Saturday, February 24, 2001 04:45:04 PM +0100 Arjan Filius
+<iafilius@xs4all.nl> wrote:
 
-__________________________________________________
-Do You Yahoo!?
-Get email at your own domain with Yahoo! Mail. 
-http://personal.mail.yahoo.com/
+> Hello,
+> 
+> I tried Erik's trigger-program.
+> 
+> After some test i thing it's memory related, and it seems to match the
+> other reports i saw on lkm.
+> With my 384M ram i was not able te reproduce it.
+> With "mem=32M" linux hang while starting a test oracle-db.
+> However i tried (not repeated tests, and after a fresh reboot):
+> ram=128M	; Triggered
+
+
+Ah, I did not get it at 128M, but did get the messages at 32MB.  The read
+stage of the test program does not close the fd by the way, so some of the
+errors were from that (but not all).
+
+So, there must be somewhere else that we are screwing up the tail
+conversion, I'll see what I can find.
+
+-chris
+

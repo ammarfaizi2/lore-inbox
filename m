@@ -1,211 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279467AbRKVNde>; Thu, 22 Nov 2001 08:33:34 -0500
+	id <S279313AbRKVNcY>; Thu, 22 Nov 2001 08:32:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279407AbRKVNd1>; Thu, 22 Nov 2001 08:33:27 -0500
-Received: from [61.171.115.140] ([61.171.115.140]:4870 "EHLO
-	marvin.zhlinux.com") by vger.kernel.org with ESMTP
-	id <S279467AbRKVNdM>; Thu, 22 Nov 2001 08:33:12 -0500
-Date: Thu, 22 Nov 2001 21:33:47 +0800
-From: Wenzhuo Zhang <wenzhuo@zhmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: alan@lxorguk.ukuu.org.uk
-Subject: Re: [OOPS] 2.4.13-ac5 default_idle [even more info]
-Message-ID: <20011122213346.A2634@zhmail.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-In-Reply-To: <20011120234928.B714@zhmail.com> <20011121180453.A4734@zhmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011121180453.A4734@zhmail.com>
-User-Agent: Mutt/1.3.22.1i
+	id <S279407AbRKVNcO>; Thu, 22 Nov 2001 08:32:14 -0500
+Received: from ns.suse.de ([213.95.15.193]:55052 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S279313AbRKVNcC> convert rfc822-to-8bit;
+	Thu, 22 Nov 2001 08:32:02 -0500
+To: Ado.Arnolds@dhm-systems.de
+Cc: Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
+        linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+        alan@lxorguk.ukuu.org.uk
+Subject: Re: fs/exec.c and binfmt-xxx in 2.4.14
+In-Reply-To: <3BFBDD32.434AB47B@web-systems.net>
+	<20011121211433.B1424@devcon.net> <3BFCE5BB.AD59B011@web-systems.net>
+X-Yow: While you're chewing, think of STEVEN SPIELBERG'S
+ bank account..  This will have the same effect as
+ two ``STARCH BLOCKERS''!
+From: Andreas Schwab <schwab@suse.de>
+Date: 22 Nov 2001 14:31:55 +0100
+In-Reply-To: <3BFCE5BB.AD59B011@web-systems.net> (Heinz-Ado Arnolds's message of "Thu, 22 Nov 2001 12:47:07 +0100")
+Message-ID: <jed72b7wz8.fsf@sykes.suse.de>
+User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.1.30
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Heinz-Ado Arnolds <Ado.Arnolds@dhm-systems.de> writes:
 
-RedHat kernel-2.4.9-13.i586.rpm locks up the pentium box too. 8(
+|> Andreas Ferber wrote:
+|> > 
+|> > On Wed, Nov 21, 2001 at 05:58:26PM +0100, Heinz-Ado Arnolds wrote:
+|> > >
+|> > > When i now try to start an older binary in a.out format, which has a
+|> > > magic number of 0x010b0064, it is translated with the 'new' code to a
+|> > > request for "binfmt-0064" instead of "binfmt-267" as expected and
+|> > > properly handled by modprobe.
+|> > 
+|> > Then add
+|> > 
+|> > alias binfmt-0064 binfmt_aout
+|> > 
+|> > to /etc/modules.conf. Simple, isn't it?
+|> 
+|> That's a nice idea but I wouldn't rely on the fact that the third
+|> and the fourth byte of a file are sufficient to identify the type.
 
-[wenzhuo@daisy wenzhuo]$ ksymoops -m /boot/System.map-2.4.9-13 panda.oops-rh2.4.
-9-13 
-ksymoops 2.4.1 on i686 2.4.9-13.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.9-13/ (default)
-     -m /boot/System.map-2.4.9-13 (specified)
+Moreover, it is not endian clean.  But that was also true for the old
+scheme.
 
-Error (expand_objects): cannot stat(/lib/ext3.o) for ext3
-ksymoops: No such file or directory
-Error (expand_objects): cannot stat(/lib/jbd.o) for jbd
-ksymoops: No such file or directory
-Warning (compare_maps): mismatch on symbol partition_name  , ksyms_base
-says c01
-b5c80, System.map says c0156ea0.  Ignoring ksyms_base entry
-Warning (compare_maps): mismatch on symbol usb_devfs_handle  , usbcore
-says d086
-da00, /lib/modules/2.4.9-13/kernel/drivers/usb/usbcore.o says d086d520.
-Ignorin
-g /lib/modules/2.4.9-13/kernel/drivers/usb/usbcore.o entry
-Warning (map_ksym_to_module): cannot match loaded module ext3 to a
-unique module
- object.  Trace may not be reliable.
-CPU:  0
-EIP:  0010:[<c01053a4>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00000246
-eax: 00000000  ebx: c02c4000  ecx: 00000000  edx: 00000019
-esi: c0105380  edi: c02c4000  ebp: 0008e000  esp: c02c5fe0
-ds: 0018  es: 0018  ss: 0018
-Stack: c0105412 00003000 000a0600 c0105000 c02c68ae c0300460 00000000
-c0100197
-Call Trace: [<c0105412>]  cpu_idle [kernel] 0x42
-[<c0105000>] stext [kernel] 0x0
-Code: c3 fb c3 89 f6 8d bc 27 00 00 00 00 fb 83 c8 ff ba 00 e0 ff
-
->>EIP; c01053a4 <default_idle+14/30>   <=====
-Trace; c0105412 <cpu_idle+32/70>
-Trace; c0105000 <_stext+0/0>
-Code;  c01053a4 <default_idle+14/30>
-00000000 <_EIP>:
-Code;  c01053a4 <default_idle+14/30>   <=====
-   0:   c3                        ret       <=====
-Code;  c01053a5 <default_idle+15/30>
-   1:   fb                        sti    
-Code;  c01053a6 <default_idle+16/30>
-   2:   c3                        ret    
-Code;  c01053a7 <default_idle+17/30>
-   3:   89 f6                     mov    %esi,%esi
-Code;  c01053a9 <default_idle+19/30>
-   5:   8d bc 27 00 00 00 00      lea    0x0(%edi,1),%edi
-Code;  c01053b0 <default_idle+20/30>
-   c:   fb                        sti    
-Code;  c01053b1 <default_idle+21/30>
-   d:   83 c8 ff                  or     $0xffffffff,%eax
-Code;  c01053b4 <default_idle+24/30>
-  10:   ba 00 e0 ff 00            mov    $0xffe000,%edx
-
-  <0> Kernel panic: Attempted to kill the idle task!
-
-3 warnings and 2 errors issued.  Results may not be reliable.
-
-
-On Wed, Nov 21, 2001 at 06:04:53PM +0800, Wenzhuo Zhang wrote:
-> 
-> More info:
-> It's a slackware-8.0 box.
-> # gcc --version
-> 2.95.3
-> # ld -v
-> GNU ld version 2.11.90.0.19 (with BFD 2.11.90.0.19)
-> 
-> The motherboard is a Asus P/I-P55TP4N. And the CPU is Petium(classic)
-> 100MHz.
-> # cat cpuinfo 
-> processor       : 0
-> vendor_id       : GenuineIntel
-> cpu family      : 5
-> model           : 2
-> model name      : Pentium 75 - 200
-> stepping        : 6
-> cpu MHz         : 99.475
-> fdiv_bug        : no
-> hlt_bug         : no
-> f00f_bug        : yes
-> coma_bug        : no
-> fpu             : yes
-> fpu_exception   : yes
-> cpuid level     : 1
-> wp              : yes
-> flags           : fpu vme de pse tsc msr mce cx8
-> bogomips        : 198.24
-> 
-> 
-> I don't know whether it's a kernel issue or a hardware issue. Pls shed
-> light over it. Thanks
-> 
-> (The box crashed again when I was writing this message.)
-> 
-> On Tue, Nov 20, 2001 at 11:49:28PM +0800, Wenzhuo Zhang wrote:
-> > 
-> > Hello,
-> > 
-> > I noticed frequent crashings of my old Pentium desktop, after I kept it
-> > running 24x7 as a gateway/filewall. Tonight, I caught sight of a oops
-> > and hand-copied it down.
-> > 
-> > ksymoops 2.3.4 on i686 2.4.13-ac5.  Options used
-> > 		  ^^ Since I cannot compile ksymoops in the slackware-8.0
-> >   box, I copied the kernel/modules to another box, and ran ksymoops there.
-> >      -V (default)
-> >      -k /proc/ksyms (default)
-> >      -l /proc/modules (default)
-> >      -o /lib/modules/2.4.13-ac5/ (default)
-> >      -m /boot/System.map-2.4.13-ac5 (specified)
-> > 
-> > CPU: 0
-> > EIP: 0010:[<c0105173>] Not tainted
-> > Using defaults from ksymoops -t elf32-i386 -a i386
-> > EFLAGS: 00000246
-> > eax: 00000000 ebx: c0210000 ecx: c11e2260 edx: c11e2260
-> > esi: c0105150 edi: ffffe000 ebp: 0008e000 esp: c0211fdc
-> > ds: 0018 es: 0018 ss:0018
-> > Process swapper (pid: 0, stackpage=c0211000)
-> > Stack: c01051d7 00003000 000a0600 c0105000 c0105027 c02127f3 00000000 c0246060
-> >        c0100197
-> > Call Trace: [<c01051d7>] [<c0105000>] [<c0105027>]
-> > Code: c3 fb c3 89 f6 fb ba 00 e0 ff ff 21 e2 b8 ff ff ff ff 87 42
-> > 
-> > >>EIP; c0105173 <default_idle+23/28>   <=====
-> > Trace; c01051d7 <cpu_idle+3f/54>
-> > Trace; c0105000 <_stext+0/0>
-> > Trace; c0105027 <rest_init+27/28>
-> > Code;  c0105173 <default_idle+23/28>
-> > 00000000 <_EIP>:
-> > Code;  c0105173 <default_idle+23/28>   <=====
-> >    0:   c3                        ret       <=====
-> > Code;  c0105174 <default_idle+24/28>
-> >    1:   fb                        sti    
-> > Code;  c0105175 <default_idle+25/28>
-> >    2:   c3                        ret    
-> > Code;  c0105176 <default_idle+26/28>
-> >    3:   89 f6                     mov    %esi,%esi
-> > Code;  c0105178 <poll_idle+0/20>
-> >    5:   fb                        sti    
-> > Code;  c0105179 <poll_idle+1/20>
-> >    6:   ba 00 e0 ff ff            mov    $0xffffe000,%edx
-> > Code;  c010517e <poll_idle+6/20>
-> >    b:   21 e2                     and    %esp,%edx
-> > Code;  c0105180 <poll_idle+8/20>
-> >    d:   b8 ff ff ff ff            mov    $0xffffffff,%eax
-> > Code;  c0105185 <poll_idle+d/20>
-> >   12:   87 42 00                  xchg   %eax,0x0(%edx)
-> > 
-> >   <0> Kernel panic: Attempted to kill the idle task!
-> > 
-> > 
-> > Thanks,
-> > 
-> > -- 
-> > Wenzhuo
-> >   GnuPG Key ID 0xBA586A68
-> >   Key fingerprint = 89C7 C6DE D956 F978 3F12  A8AF 5847 F840 BA58 6A68
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> -- 
-> Wenzhuo
->   GnuPG Key ID 0xBA586A68
->   Key fingerprint = 89C7 C6DE D956 F978 3F12  A8AF 5847 F840 BA58 6A68
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Andreas.
 
 -- 
-Wenzhuo
-  GnuPG Key ID 0xBA586A68
-  Key fingerprint = 89C7 C6DE D956 F978 3F12  A8AF 5847 F840 BA58 6A68
+Andreas Schwab                                  "And now for something
+Andreas.Schwab@suse.de				completely different."
+SuSE Labs, SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5

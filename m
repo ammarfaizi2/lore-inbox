@@ -1,58 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130054AbRCGEK2>; Tue, 6 Mar 2001 23:10:28 -0500
+	id <S130045AbRCGEcM>; Tue, 6 Mar 2001 23:32:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130062AbRCGEKI>; Tue, 6 Mar 2001 23:10:08 -0500
-Received: from adsl-63-199-104-197.dsl.lsan03.pacbell.net ([63.199.104.197]:8964
-	"HELO ns1.theoesters.com") by vger.kernel.org with SMTP
-	id <S130054AbRCGEJ5>; Tue, 6 Mar 2001 23:09:57 -0500
-From: "Phil Oester" <phil@theoesters.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Error compiling aic7xxx driver on 2.4.2-ac13
-Date: Tue, 6 Mar 2001 20:09:15 -0800
-Message-ID: <LAEOJKHJGOLOPJFMBEFEEEBJCNAA.phil@theoesters.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <E14aSAu-0001pw-00@the-village.bc.nu>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+	id <S130062AbRCGEcD>; Tue, 6 Mar 2001 23:32:03 -0500
+Received: from rtp-msg-core-1.cisco.com ([161.44.11.97]:17372 "EHLO
+	rtp-msg-core-1.cisco.com") by vger.kernel.org with ESMTP
+	id <S130045AbRCGEbs>; Tue, 6 Mar 2001 23:31:48 -0500
+Message-Id: <4.3.2.7.2.20010307153216.01b85d58@mira-sjcm-3.cisco.com>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Wed, 07 Mar 2001 15:33:44 +1100
+To: David Luyer <david_luyer@pacific.net.au>
+From: Lincoln Dale <ltd@cisco.com>
+Subject: Re: Incoming TCP TOS: A simple question, I would have
+  thought...
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200103070400.f2740jT16998@typhaon.pacific.net.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I actually had the problem with lack-of-lex also, but worked through that...
-
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Alan Cox
-Sent: Tuesday, March 06, 2001 4:51 PM
-To: J . A . Magallon
-Cc: Phil Oester; linux-kernel@vger.kernel.org
-Subject: Re: Error compiling aic7xxx driver on 2.4.2-ac13
+getsockopt(fd, SOL_IP, IP_TOS, ..
 
 
-> Which distro is yours ? In my Mandrake 8.0beta there is no
-/usr/include/db.
-> Mdk offers the 3 db libs (db1, db2, db3), so I had to create a symlink
-> /usr/include/db3 -> /usr/include/db.
+cheers,
+
+lincoln.
+
+At 03:00 PM 7/03/2001 +1100, David Luyer wrote:
+
+>I've scrolled through various code in net/ipv4, and I can't see how to query
+>the TOS of an incoming TCP stream (or at the least, the TOS of the SYN which
+>initiated the connection).
 >
-> Which is the standard path ? At least, Mdk and RH (Alan...) differ.
-
-Im not too worried about this right now since as Al Viro pointed out the
-libdb use is unneeded.
-
-The irony of all this was that the real concern Justin had and discussed
-with
-people was about lex/bison/yacc being available, and the problem has been db
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+>Someone has sent in a feature request for squid which would require this,
+>presumably so they can set the TOS in their routers and have the squid caches
+>honour the TOS to select performance (via delay pools, multiple parents,
+>different outgoing IP or similar).  However I can't see how to get the TOS for
+>a TCP socket out of the kernel short of having an open raw socket watching for
+>SYNs and looking at the TOS on them.
+>
+>Any pointers?
+>
+>David.
+>--
+>David Luyer                                        Phone:   +61 3 9674 7525
+>Engineering Projects Manager   P A C I F I C       Fax:     +61 3 9699 8693
+>Pacific Internet (Australia)  I N T E R N E T      Mobile:  +61 4 1111 2983
+>http://www.pacific.net.au/                         NASDAQ:  PCNTF
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 

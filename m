@@ -1,31 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266997AbRGMKXx>; Fri, 13 Jul 2001 06:23:53 -0400
+	id <S266999AbRGMKl1>; Fri, 13 Jul 2001 06:41:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266995AbRGMKXn>; Fri, 13 Jul 2001 06:23:43 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:25810 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S266994AbRGMKX1>;
-	Fri, 13 Jul 2001 06:23:27 -0400
-Date: Fri, 13 Jul 2001 06:23:28 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: malfet@gw.mipt.sw.ru
-cc: Andrew Morton <andrewm@uow.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: Re[2]: Question about ext2
-In-Reply-To: <20010713135759.A9986@srv.mipt.sw.ru>
-Message-ID: <Pine.GSO.4.21.0107130619270.17323-100000@weyl.math.psu.edu>
+	id <S267001AbRGMKlR>; Fri, 13 Jul 2001 06:41:17 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:55568 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S266999AbRGMKlL>; Fri, 13 Jul 2001 06:41:11 -0400
+Subject: Re: Again: Linux 2.4.x and AMD Athlon
+To: puckwork@madz.net (Thomas Foerster)
+Date: Fri, 13 Jul 2001 11:42:03 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010713070503Z266936-720+1911@vger.kernel.org> from "Thomas Foerster" at Jul 13, 2001 09:00:54 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15L0OZ-0007iY-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> My BIOS is the latest release.
+> I've just phoned with Epox here in Germany and they told me, that their boards
+> are testet with linux and they are working.
 
+They dont test with Athlon optimisations on . ;)
 
-On Fri, 13 Jul 2001 malfet@gw.mipt.sw.ru wrote:
+> NOTE : Things are ONLY crashing when being NOT root!!
 
-> I don't find this check in chain started from syscall and ends in ext2_rename
-> Correct me if I'm wrong.
+Thats important.
 
-Take a look at may_delete(). Heck, it's even documented there -
- *  7. If we were asked to remove a directory and victim isn't one - ENOTDIR.
- *  8. If we were asked to remove a non-directory and victim isn't one - EISDIR.
+>        If i log in as root i can't get KDE/Gnome apps to crash, only when i'm a
+>        "normal" user! Opening xterm as normal user, su-ing to root and starting 
+>        applications works too!
+
+Do you get random crashes or actual logged kernel oopses. Also what X server
+
+> I'm very, very, very confused!
+
+The kernel isnt known for a tendancy to oops according to user id, so me too
 

@@ -1,40 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267254AbUIAQCO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267298AbUIAP6s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267254AbUIAQCO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 12:02:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267285AbUIAP7E
+	id S267298AbUIAP6s (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 11:58:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267251AbUIAP6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 11:59:04 -0400
-Received: from atlrel9.hp.com ([156.153.255.214]:50575 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S267254AbUIAP6k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 11:58:40 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Len Brown <len.brown@intel.com>
-Subject: Re: [2.6.9-rc1-bk7]  LIBATA - "irq 11: nobody cared" on sil 3112a
-Date: Wed, 1 Sep 2004 09:58:31 -0600
-User-Agent: KMail/1.6.2
-Cc: Maciej =?iso-8859-1?q?G=F3rnicki?= <gutko@poczta.onet.pl>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-References: <566B962EB122634D86E6EE29E83DD808182C4C22@hdsmsx403.hd.intel.com> <1094005073.20110.50.camel@linux>
-In-Reply-To: <1094005073.20110.50.camel@linux>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409010958.31256.bjorn.helgaas@hp.com>
+	Wed, 1 Sep 2004 11:58:10 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:59826 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S267298AbUIAPvn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 11:51:43 -0400
+Date: Wed, 1 Sep 2004 16:51:20 +0100
+Message-Id: <200409011551.i81FpKXC000610@delerium.codemonkey.org.uk>
+From: Dave Jones <davej@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix leak in ISAPNP core
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 31 August 2004 9:39 pm, Len Brown wrote:
-> I've got an NFORCE2 box, and it works either way,
-> including putting both ohci_hcd and eth0 on irq 11
-> at level/low in PIC mode like yours.
-> 
-> But in PIC mode I still get kernel: Disabling IRQ #7,
-> so something isn't totally happy on this box.
+This looks odd, but there doesn't seem to be an
+isapnp_free() or similar..
 
-Could it be that you just don't have anything important using IRQ 7
-(it's parport on my box), while Maciej sees the hang because disabling
-IRQ 11 kills his ATA controller?
+Spotted with the source checker from Coverity.com.
+
+Signed-off-by: Dave Jones <davej@redhat.com>
+
+
+diff -urpN --exclude-from=/home/davej/.exclude bk-linus/drivers/pnp/isapnp/core.c linux-2.6/drivers/pnp/isapnp/core.c
+--- bk-linus/drivers/pnp/isapnp/core.c	2004-06-19 00:01:33.000000000 +0100
++++ linux-2.6/drivers/pnp/isapnp/core.c	2004-08-23 14:08:16.000000000 +0100
+@@ -655,8 +655,10 @@ static int __init isapnp_create_device(s
+ 	if ((dev = isapnp_parse_device(card, size, number++)) == NULL)
+ 		return 1;
+ 	option = pnp_register_independent_option(dev);
+-	if (!option)
++	if (!option) {
++		kfree(dev);
+ 		return 1;
++	}
+ 	pnp_add_card_device(card,dev);
+ 
+ 	while (1) {

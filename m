@@ -1,50 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130926AbRCFEyK>; Mon, 5 Mar 2001 23:54:10 -0500
+	id <S130922AbRCFEqJ>; Mon, 5 Mar 2001 23:46:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130927AbRCFEyA>; Mon, 5 Mar 2001 23:54:00 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:42119 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S130926AbRCFExv>;
-	Mon, 5 Mar 2001 23:53:51 -0500
-From: "David S. Miller" <davem@redhat.com>
+	id <S130923AbRCFEps>; Mon, 5 Mar 2001 23:45:48 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:40463 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130922AbRCFEpk>; Mon, 5 Mar 2001 23:45:40 -0500
+Date: Mon, 5 Mar 2001 20:05:59 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jonathan Morton <chromi@cyberspace.org>
+cc: Jeremy Hansen <jeremy@xxedgexx.com>, linux-kernel@vger.kernel.org
+Subject: Re: scsi vs ide performance on fsync's
+In-Reply-To: <l03130307b6ca031531fc@[192.168.239.101]>
+Message-ID: <Pine.LNX.4.10.10103051957240.778-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15012.27969.175306.527274@pizda.ninka.net>
-Date: Mon, 5 Mar 2001 20:53:21 -0800 (PST)
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: David Brownell <david-b@pacbell.net>,
-        Manfred Spraul <manfred@colorfullife.com>, zaitcev@redhat.com,
-        linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: SLAB vs. pci_alloc_xxx in usb-uhci patch
-In-Reply-To: <20010305232053.A16634@flint.arm.linux.org.uk>
-In-Reply-To: <001f01c0a5c0$e942d8f0$5517fea9@local>
-	<00d401c0a5c6$f289d200$6800000a@brownell.org>
-	<20010305232053.A16634@flint.arm.linux.org.uk>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Russell King writes:
- > A while ago, I looked at what was required to convert the OHCI driver
- > to pci_alloc_consistent, and it turns out that the current interface is
- > highly sub-optimal.  It looks good on the face of it, but it _really_
- > does need sub-page allocations to make sense for USB.
- > 
- > At the time, I didn't feel like creating a custom sub-allocator just
- > for USB, and since then I haven't had the inclination nor motivation
- > to go back to trying to get my USB mouse or iPAQ communicating via USB.
- > (I've not used this USB port for 3 years anyway).
 
-Gerard Roudier wrote for the sym53c8xx driver the exact thing
-UHCI/OHCI need for this.
+On Tue, 6 Mar 2001, Jonathan Morton wrote:
+> 
+> It's pretty clear that the IDE drive(r) is *not* waiting for the physical
+> write to take place before returning control to the user program, whereas
+> the SCSI drive(r) is.
 
-I think people are pissing their pants over the pci_alloc_consistent
-interface for no reason.  It gives PAGE<<order sized/aligned chunks
-back to the caller at the request of Linus so that drivers did not
-have to guess "is this 16-byte aligned..." etc.
+This would not be unexpected.
 
-Later,
-David S. Miller
-davem@redhat.com
+IDE drives generally always do write buffering. I don't even know if you
+_can_ turn it off. So the drive claims to have written the data as soon as
+it has made the write buffer.
+
+It's definitely not the driver, but the actual drive.
+
+		Linus
+

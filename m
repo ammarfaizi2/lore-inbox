@@ -1,48 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263713AbUHBVQ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263714AbUHBVSv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263713AbUHBVQ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 17:16:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263714AbUHBVQ2
+	id S263714AbUHBVSv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 17:18:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263725AbUHBVSv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 17:16:28 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:22005 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S263713AbUHBVQ1
+	Mon, 2 Aug 2004 17:18:51 -0400
+Received: from host4-67.pool80117.interbusiness.it ([80.117.67.4]:3735 "EHLO
+	dedasys.com") by vger.kernel.org with ESMTP id S263714AbUHBVSs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 17:16:27 -0400
-Subject: Re: [PATCH] Create cpu_sibling_map for PPC64
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-To: Andrew Morton <akpm@osdl.org>
-Cc: Anton Blanchard <anton@samba.org>, LKML <linux-kernel@vger.kernel.org>,
-       LSE Tech <lse-tech@lists.sourceforge.net>
-In-Reply-To: <20040731214512.36123c10.akpm@osdl.org>
-References: <1091049554.19459.33.camel@arrakis>
-	 <20040731214512.36123c10.akpm@osdl.org>
-Content-Type: text/plain
-Organization: IBM LTC
-Message-Id: <1091481370.4415.35.camel@arrakis>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 02 Aug 2004 14:16:10 -0700
-Content-Transfer-Encoding: 7bit
+	Mon, 2 Aug 2004 17:18:48 -0400
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] speedy boot from usb devices
+References: <87fz79xk5q.fsf@dedasys.com> <410E27DC.4090009@grupopie.com>
+From: davidw@dedasys.com (David N. Welton)
+Date: 02 Aug 2004 23:17:00 +0200
+Message-ID: <876581s0j7.fsf@dedasys.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-07-31 at 21:45, Andrew Morton wrote:
-> Matthew Dobson <colpatch@us.ibm.com> wrote:
-> >
-> > In light of some proposed changes in the sched_domains code, I coded up
-> >  this little ditty that simply creates and populates a cpu_sibling_map
-> >  for PPC64 machines.
-> 
-> err, did you compile it?
+Paulo Marques <pmarques@grupopie.com> writes:
 
-Oh, you wanted the version that compiles!?!  ;)  Besides me being really
-bad at counting dots, our lab was down for a bit and I didn't test or
-compile that before I sent it.  I was sending it more as an RFC than a
-patch destined for acceptance (yet).  I still don't have access to a
-machine to test it on, but I hope to snag some time soon.  Glad to see
-*someone* is reading my code, though, since it obviously isn't me! ;)
+> David N. Welton wrote:
 
--Matt
+> >         Works like so: whenever a block device comes on line, it
+> >         signals this fact to a wait queue, so that the init
+> >         process can stop and wait for slow devices, in particular
+> >         things such as USB storage devices, which are much slower
+> >         than IDE devices.  The init process checks the list of
+> >         available devices and compares it with the desired root
+> >         device, and if there is a match, proceeds with the
+> >         initialization process, secure in the knowledge that the
+> >         device in question has been brought up.  This is useful if
+> >         one wants to boot quickly from a USB storage device
+> >         without a trimmed-down kernel, and without going through
+> >         the whole initrd slog.
 
+> I find this to be very useful. I always found the "sleep for a while
+> until the device we want appears" approach very cumbersome.
+
+Glad to hear someone likes it.
+
+> However, after looking at your patch, it seems that having a
+> get_blkdevs() function that alloc's an array of strings, and return
+> it to a function that only compares the strings against the name it
+> is looking for and drops the array altogether, is a little overkill.
+
+> Why not have a simple blkdev_exists(char *name) function in genhd.c,
+> call it directly, and drop the match_root_name() function
+> completely?
+
+Sure, that's probably better.  Maybe "blkdev_is_online"?  I'll see if
+I can do it tommorow.
+
+I'm also a bit dubious of having the wait queue floating around as a
+global, but don't know the kernel well enough to find it a better
+home.
+
+Thanks!
+-- 
+David N. Welton
+     Personal: http://www.dedasys.com/davidw/
+Free Software: http://www.dedasys.com/freesoftware/
+   Apache Tcl: http://tcl.apache.org/
+       Photos: http://www.dedasys.com/photos/

@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317012AbSIIKu4>; Mon, 9 Sep 2002 06:50:56 -0400
+	id <S317023AbSIILDh>; Mon, 9 Sep 2002 07:03:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317017AbSIIKu4>; Mon, 9 Sep 2002 06:50:56 -0400
-Received: from mail.hometree.net ([212.34.181.120]:51885 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S317012AbSIIKuz>; Mon, 9 Sep 2002 06:50:55 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: What happened to www.linux-sna.org ?
-Date: Mon, 9 Sep 2002 10:55:39 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <alhunb$nua$1@forge.intermeta.de>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1031568939 1801 212.34.181.4 (9 Sep 2002 10:55:39 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Mon, 9 Sep 2002 10:55:39 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S317025AbSIILDh>; Mon, 9 Sep 2002 07:03:37 -0400
+Received: from pc-80-195-35-48-ed.blueyonder.co.uk ([80.195.35.48]:41601 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S317023AbSIILDh>; Mon, 9 Sep 2002 07:03:37 -0400
+Date: Mon, 9 Sep 2002 12:08:17 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Seaman Hu <seaman_hu@yahoo.com>
+Cc: linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
+Subject: Re: ext3 fs boot crash [2.4.18-18]
+Message-ID: <20020909120817.A4855@redhat.com>
+References: <20020909021604.73867.qmail@web40508.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020909021604.73867.qmail@web40508.mail.yahoo.com>; from seaman_hu@yahoo.com on Sun, Sep 08, 2002 at 07:16:04PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-does anyone know what happened to www.linux-sna.org? The site is
-now down for almost a week. Is there a mirror anywhere?
+On Sun, Sep 08, 2002 at 07:16:04PM -0700, Seaman Hu wrote:
+ 
+> My system has initrd which contains some modules about
+> scsi,ext3,etc. During the boot sequence, my system
+> will crash sometimes(about five times crash once) when
+> it creates "/boot/kernel.h".
 
-	Regards
-		Henning
+What does the crash look like when it happens?
 
-
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+--Stephen

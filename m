@@ -1,44 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268063AbUIFOeW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268081AbUIFOpA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268063AbUIFOeW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 10:34:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267393AbUIFOeV
+	id S268081AbUIFOpA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 10:45:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268084AbUIFOpA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 10:34:21 -0400
-Received: from pxy1allmi.all.mi.charter.com ([24.247.15.38]:55509 "EHLO
-	proxy1.gha.chartermi.net") by vger.kernel.org with ESMTP
-	id S268063AbUIFOeM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 10:34:12 -0400
-Message-ID: <413C754C.9040908@quark.didntduck.org>
-Date: Mon, 06 Sep 2004 10:33:48 -0400
-From: Brian Gerst <bgerst@quark.didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040809
-X-Accept-Language: en-us, en
+	Mon, 6 Sep 2004 10:45:00 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:52168 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S268081AbUIFOoo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Sep 2004 10:44:44 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Gunnar Ritter <Gunnar.Ritter@pluto.uni-freiburg.de>
+Subject: Re: [PATCH 1/3] copyfile: generic_sendpage
+Date: Mon, 6 Sep 2004 16:46:41 +0200
+User-Agent: KMail/1.6.2
+Cc: =?iso-8859-15?q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+References: <20040904165733.GC8579@wohnheim.fh-wedel.de> <20040906133523.GC25429@wohnheim.fh-wedel.de> <413C74E6.nail3YF11Y0TT@pluto.uni-freiburg.de>
+In-Reply-To: <413C74E6.nail3YF11Y0TT@pluto.uni-freiburg.de>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] explicity align tss->stack
-References: <4139C6E2.1050000@quark.didntduck.org> <20040905144103.487afba6.akpm@osdl.org>
-In-Reply-To: <20040905144103.487afba6.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-X-Charter-Information: 
-X-Charter-Scan: 
+Message-Id: <200409061646.41772.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Brian Gerst <bgerst@quark.didntduck.org> wrote:
-> 
->>Use an alignment attribute on the stack member of struct tss_struct 
->> instead of padding.  Also mark the limit of the TSS segment.
-> 
-> 
-> The TSS code got a significant working-over recently.  Please take a look
-> at next -mm, see if this patch is still appropriate?
-> 
+Am Montag, 6. September 2004 16:32 schrieb Gunnar Ritter:
+> Then I don't see the point in having a copyfile system call. In
 
-There are no conflicts in -mm3.
+Potentially tremendous speedups in networked filesystems.
 
---
-				Brian Gerst
+	Regards
+		Oliver

@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262871AbSKRQZT>; Mon, 18 Nov 2002 11:25:19 -0500
+	id <S262828AbSKRQZl>; Mon, 18 Nov 2002 11:25:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262875AbSKRQZT>; Mon, 18 Nov 2002 11:25:19 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:38277 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S262871AbSKRQZT>; Mon, 18 Nov 2002 11:25:19 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 18 Nov 2002 08:32:43 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Jakub Jelinek <jakub@redhat.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ulrich Drepper <drepper@redhat.com>
-Subject: Re: [rfc] epoll interface change and glibc bits ...
-In-Reply-To: <20021118111840.B27455@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.44.0211180823580.979-100000@blue1.dev.mcafeelabs.com>
+	id <S262875AbSKRQZl>; Mon, 18 Nov 2002 11:25:41 -0500
+Received: from guru.webcon.net ([66.11.168.140]:22173 "EHLO guru.webcon.net")
+	by vger.kernel.org with ESMTP id <S262828AbSKRQZj>;
+	Mon, 18 Nov 2002 11:25:39 -0500
+Date: Mon, 18 Nov 2002 11:32:33 -0500 (EST)
+From: Ian Morgan <imorgan@webcon.net>
+To: Zwane Mwaikambo <zwane@holomorphy.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@suse.de>
+Subject: Re: [PATCH][2.4-AC] sync 2.4 asm-i386/cpufeature.h to 2.5.47
+In-Reply-To: <Pine.LNX.4.44.0211172042290.1538-100000@montezuma.mastecende.com>
+Message-ID: <Pine.LNX.4.44.0211181128450.16963-100000@light.webcon.net>
+Organization: "Webcon, Inc."
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Nov 2002, Jakub Jelinek wrote:
+On Sun, 17 Nov 2002, Zwane Mwaikambo wrote:
 
-> That is as bad as unsigned long - it is different between 32-bit and 64-bit
-> ABIs.
+> Ian this should fix your compilation problem.
+> Alan, Dave this applies clean to 2.4.19 vanilla too.
 
-Yeah, you right. I did thin about 32bit and 64bit as two diffferent
-kernel-glibc environment, I did not think about 32-64 ABI compatibility.
-Ouch, adding a 64bit object will double the size of the event structure :(
+Close. Really close. It compiles, but now has an unresolvable symbol?
 
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.20-rc1-ac4/kernel/arch/i386/kernel/p4-clockmod.o
+depmod:         smp_num_siblings
 
+This is baffling me, because 'smp_num_siblings' is indeed listed in
+System.map as:
 
-- Davide
+c0292e28 D smp_num_siblings
 
+Any clues?
 
+Regards,
+Ian Morgan
 
-
+-- 
+-------------------------------------------------------------------
+ Ian E. Morgan          Vice President & C.O.O.       Webcon, Inc.
+ imorgan@webcon.ca          PGP: #2DA40D07           www.webcon.ca
+    *  Customized Linux network solutions for your business  *
+-------------------------------------------------------------------
 

@@ -1,64 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276628AbRKAAWy>; Wed, 31 Oct 2001 19:22:54 -0500
+	id <S276639AbRKAAXZ>; Wed, 31 Oct 2001 19:23:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276639AbRKAAWo>; Wed, 31 Oct 2001 19:22:44 -0500
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:18700 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id <S276628AbRKAAWd>; Wed, 31 Oct 2001 19:22:33 -0500
-Date: Thu, 1 Nov 2001 01:23:02 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Andreas Dilger <adilger@turbolabs.com>
-cc: <linux-kernel@vger.kernel.org>,
-        "Richard B. Johnson" <root@chaos.analogic.com>,
-        vda <vda@port.imtp.ilyichevsk.odessa.ua>,
-        Petr Vandrovec <VANDROVE@vc.cvut.cz>, J Sloan <jjs@lexus.com>
-Subject: Re: [Patch] Re: Nasty suprise with uptime
-In-Reply-To: <20011031165609.T16554@lynx.no>
-Message-ID: <Pine.LNX.4.30.0111010107200.31315-100000@gans.physik3.uni-rostock.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S276641AbRKAAXP>; Wed, 31 Oct 2001 19:23:15 -0500
+Received: from fmfdns01.fm.intel.com ([132.233.247.10]:23253 "EHLO
+	calliope1.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S276639AbRKAAW7>; Wed, 31 Oct 2001 19:22:59 -0500
+Message-ID: <A9B0C3C90A46D411951400A0C9F4F67103BA56DA@pdsmsx33.pd.intel.com>
+From: "Yan, Noah" <noah.yan@intel.com>
+To: linux-kernel@vger.kernel.org
+Subject: Get hands on starting in this world.
+Date: Thu, 1 Nov 2001 08:24:06 +0800 
+X-Mailer: Internet Mail Service (5.5.2653.19)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Oct 2001, Andreas Dilger wrote:
+All,
 
-> I would say that (excluding stability issues because of jiffies wrap)
-> that this is ready for submission to Linus.  He may be of the mind that
-> he would rather fix the wrap issues sooner rather than later, or he
-> may want to minimize disruption during the "VM stabilize" period (there
-> are still a couple of hang issues apparently).
->
+I am a new comer to the Linux world. It is really a hard start for me when I dig into those OS code although I have a strong theoretic background in OS and computer architecture. I am now being blocking at the start_kernel and caliberate_delay function of Kernel 2.2.x. Also, everyday, I got hundreds of mail from Linux-kernel list but I cannot enjoy it.
 
-I'd rather object for now. I've had a couple of hard freezes within
-minutes to hours after jiffies wraparound. Also some KDE applications
-behave strange, the KDE panel and kterm need approx 2 min to appear
-even before the wraparound (so it seems to be a sign issue rather than
-wraparound). I don't want to see this in a stable kernel.
+So could some experienced guys give some advice on how to start, which document/material can be recommended on this.
 
-However, I would be pleased if widespread intentional use of the patch
-would help to solve the remaining wraparound issues.
+My keen interest in this filed make me free to any suggestions on that. Please lend your hands
 
-> > +u64 get_jiffies64(void)
-> > +{
-> > +	static unsigned long jiffies_hi = 0;
-> > +	static unsigned long jiffies_last = INITIAL_JIFFIES;
-> > +	static unsigned long jiffies_tmp;
->         ^^^^^^ jiffies_tmp doesn't need to be static.
+Best Regards,
+Noah Yan
 
-Yes, cut and paste error, sorry. And I wanted this patch to be final for
-today...
+SC/Automation Group 
+Shanghai Site Manufacturing Computing/IT
+Intel Technology (China) Ltd.
 
->
-> One suggestion someone had was to put dummy "get_jiffies64()" calls
-> in some other infrequently used areas to ensure jiffies_hi is valid
-> if we don't call uptime for 1.3 years after the first wrap.  I don't
-> know if that matters or not.
->
+IDD: (86 21) 50481818 - 31579
+Fax: (86 21) 50481212
+Email: noah.yan@intel.com
 
-I don't have enough knowledge of the kernel to find good places.
-Any suggestions?
-
-
-Tim
-
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

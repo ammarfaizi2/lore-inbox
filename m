@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265302AbSKFBbT>; Tue, 5 Nov 2002 20:31:19 -0500
+	id <S265300AbSKFBay>; Tue, 5 Nov 2002 20:30:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265303AbSKFBbT>; Tue, 5 Nov 2002 20:31:19 -0500
-Received: from [212.18.235.100] ([212.18.235.100]:43017 "EHLO
-	tench.street-vision.com") by vger.kernel.org with ESMTP
-	id <S265302AbSKFBbR>; Tue, 5 Nov 2002 20:31:17 -0500
-Subject: Re: promise ide problem: missing disks
-From: Justin Cormack <justin@street-vision.com>
-To: Justin Cormack <justin@street-vision.com>
-Cc: Brian Jackson <brian-kernel-list@mdrx.com>,
-       Kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1036545436.2291.61.camel@lotte>
-References: <1036525756.2291.45.camel@lotte>
-	<1036539902.2291.48.camel@lotte> 
-	<20021106000052.21645.qmail@escalade.vistahp.com> 
-	<1036543602.2292.54.camel@lotte>  <1036545436.2291.61.camel@lotte>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Nov 2002 01:37:47 +0000
-Message-Id: <1036546672.2291.64.camel@lotte>
-Mime-Version: 1.0
+	id <S265302AbSKFBay>; Tue, 5 Nov 2002 20:30:54 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:27598 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S265300AbSKFBax>;
+	Tue, 5 Nov 2002 20:30:53 -0500
+Date: Tue, 5 Nov 2002 20:37:10 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Werner Almesberger <wa@almesberger.net>
+cc: Andy Pfiffer <andyp@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       "Matt D. Robinson" <yakker@aparity.com>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
+Subject: Re: [lkcd-devel] Re: What's left over.
+In-Reply-To: <20021105221050.A10679@almesberger.net>
+Message-ID: <Pine.GSO.4.21.0211052017320.6521-100000@steklov.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-11-06 at 01:17, Justin Cormack wrote:
-> On Wed, 2002-11-06 at 00:46, Justin Cormack wrote:
-> > On Wed, 2002-11-06 at 00:00, Brian Jackson wrote:
-> > > I may be able to help you narrow it down a bit. I have used 2.4.19-vanilla 
-> > > and it worked fine(all drives showed up). When I tried 
-> > > fnk10(www.cipherfunk.org) the drive on the secondary channel doesn't show 
-> > > up. I don't know exactly what changes fnk10 has with regards to ide, but I 
-> > > know he has put a bunch of stuff from the 20-pre series in fnk10. Hope this 
-> > > helps. 
-> > 
-> > Actually my previous mail wasnt accurate - it was the RH 7.3 kernel that
-> > works not 8.0 - I forgot which distro I had on it. I think it is the
-> > changes between 2.4.19 to 2.4.20-pre as you suggest (I have to change my
-> > ethernet card to check this). Its the big ide change from -ac perhaps.
-> > The diff is very big, so it is hard to narrow down quickly.
-> > 
-> > Andre, Alan any idea? does your second channel work?
-> 
-> hmm, well 2.4.19 vanilla doesnt work for me, but RH 7.3 and 8.0 do.
-> Guess lots of regression tests needed...
 
-2.5.40 is ok too.
+
+On Tue, 5 Nov 2002, Werner Almesberger wrote:
+
+> Now, if we assume that it's okay for kexec to use a system call,
+> the next question is whether kexec should indeed use it, i.e.
+> whether a system call makes sense for what it is trying to do.
+> Since there are no device files or network elements naturally
+> involved here (i.e. other major kernel function interfaces),
+> the answer seems to be "yes".
+
+That's not obvious.  By the same logics, we would need syscalls for
+turning off overcommit, etc., etc.
+
+FWIW, I suspect that
+	open("/proc/image", O_EXCL|O_WRONLY);
+	bunch of lseek()/write()
+	close()
+would be more natural - definitely easier to understand than arguments of
+your sys_kexec().  It's easy to switch from your code to that - you
+put initialization into ->open(), pulling segments from userland into
+->write(), use default ->lseek() and do actual work on ->close() if
+no errors had happened.  file->private_data will point to intermediate
+state you need.
+
+After all, that's what happens - you form an image, writing to it user-supplied
+data from given buffers at given offsets and when you are done with that you
+commit the changes.  IMO special syscall is less natural match for that
+than sequence above - commit-on-close is not something unusual, so it matches
+the semantics of all syscalls involved...
+
 
 

@@ -1,47 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319504AbSIGSnz>; Sat, 7 Sep 2002 14:43:55 -0400
+	id <S319505AbSIGSoN>; Sat, 7 Sep 2002 14:44:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319505AbSIGSnz>; Sat, 7 Sep 2002 14:43:55 -0400
-Received: from 2-210.ctame701-1.telepar.net.br ([200.193.160.210]:32473 "EHLO
-	2-210.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S319504AbSIGSnz>; Sat, 7 Sep 2002 14:43:55 -0400
-Date: Sat, 7 Sep 2002 15:47:59 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Daniel Phillips <phillips@arcor.de>
-cc: Andrew Morton <akpm@zip.com.au>, <trond.myklebust@fys.uio.no>,
-       Chuck Lever <cel@citi.umich.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: invalidate_inode_pages in 2.5.32/3
-In-Reply-To: <E17natE-0006OB-00@starship>
-Message-ID: <Pine.LNX.4.44L.0209071547250.1857-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S319506AbSIGSoN>; Sat, 7 Sep 2002 14:44:13 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:37385
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S319505AbSIGSoM>; Sat, 7 Sep 2002 14:44:12 -0400
+Date: Sat, 7 Sep 2002 11:47:51 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Bob McElrath <mcelrath+kernel@draal.physics.wisc.edu>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: ide-scsi oops
+In-Reply-To: <20020907183328.GB5985@draal.physics.wisc.edu>
+Message-ID: <Pine.LNX.4.10.10209071143080.16589-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Sep 2002, Daniel Phillips wrote:
-> On Friday 06 September 2002 00:19, Andrew Morton wrote:
-> > I'm not sure what semantics we really want for this.  If we were to
-> > "invalidate" a mapped page then it would become anonymous, which
-> > makes some sense.
->
-> There's no need to leave the page mapped, you can easily walk the rmap list
-> and remove the references.
+On Sat, 7 Sep 2002, Bob McElrath wrote:
 
-A pagefaulting task can have claimed a reference to the page
-and only be waiting on the lock we're currently holding.
+>                                 Intel PIIX4 Ultra 100 Chipset.
+> --------------- Primary Channel ---------------- Secondary Channel -------------
+>                  enabled                          enabled
+> --------------- drive0 --------- drive1 -------- drive0 ---------- drive1 ------
+> DMA enabled:    yes              no              yes               no 
+> UDMA enabled:   yes              no              no                no 
+> UDMA enabled:   5                X               X                 X
+                                                 ^^^^^
 
-regards,
+> (0)<mcelrath@navi:/home/mcelrath> sudo cat /proc/ide/ide1/hdc/identify 
+> 85c0 0000 0000 0000 0000 0000 0000 0000
+> 0000 0000 3432 3434 3430 3734 3636 2020
+> 2020 2020 2020 2020 0000 1000 0000 3130
+> 3136 2020 2020 544f 5348 4942 4120 4456
+> 442d 524f 4d20 5344 2d52 3231 3032 2020
+> 2020 2020 2020 2020 2020 2020 2020 0000
+> 0000 0f00 0000 0400 0200 0006 0000 0000
+> 0000 0000 0000 0000 0000 0000 0000 0407
+                                     ^^^^		== 34 MW2
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
+> 0003 0078 0078 0078 0078 0000 0000 0000
+> 0000 0004 0009 0000 0000 0000 0000 0000
+> 003c 0013 0000 0000 0000 0000 0000 0000
+> 0007 0000 0000 0000 0000 0000 0000 0000
+  ^^^^						capable == 66 U33
 
-http://www.surriel.com/		http://distro.conectiva.com/
+> (0)<mcelrath@navi:/home/mcelrath> sudo cat /proc/ide/ide1/hdc/settings 
+> name                    value           min             max             mode
+> ----                    -----           ---             ---             ----
 
-Spamtraps of the month:  september@surriel.com trac@trac.org
+> current_speed           34              0               70              rw
+> ide-scsi                0               0               1               rw
+> init_speed              66              0               70              rw
+
+
+Would you pass hdc=scsi for the next reboot?
+
+Andre Hedrick
+LAD Storage Consulting Group
 

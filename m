@@ -1,189 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266574AbUAWP6p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 10:58:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266577AbUAWP6p
+	id S261875AbUAWPw2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 10:52:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262540AbUAWPw2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 10:58:45 -0500
-Received: from smtp3.libero.it ([193.70.192.127]:60643 "EHLO smtp3.libero.it")
-	by vger.kernel.org with ESMTP id S266574AbUAWP6j (ORCPT
+	Fri, 23 Jan 2004 10:52:28 -0500
+Received: from fw.osdl.org ([65.172.181.6]:47847 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261875AbUAWPw1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 10:58:39 -0500
-From: Danilo Piazzalunga <danilopiazza@libero.it>
-Subject: [PATCH] hardcoded errno numbers in assembly code
-Date: Fri, 23 Jan 2004 16:58:32 +0100
-User-Agent: KMail/1.5.4
+	Fri, 23 Jan 2004 10:52:27 -0500
+Date: Fri, 23 Jan 2004 07:51:51 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.6] local APIC LVTT init bug
+In-Reply-To: <Pine.LNX.4.55.0401231419460.3223@jurand.ds.pg.gda.pl>
+Message-ID: <Pine.LNX.4.58.0401230748080.2151@home.osdl.org>
+References: <16400.9569.745184.16182@alkaid.it.uu.se>
+ <Pine.LNX.4.55.0401231250310.3223@jurand.ds.pg.gda.pl>
+ <16401.6720.115695.872847@alkaid.it.uu.se> <Pine.LNX.4.55.0401231419460.3223@jurand.ds.pg.gda.pl>
 MIME-Version: 1.0
-Content-Disposition: inline
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200401231658.33190.danilopiazza@libero.it>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-Some assembly code (on various archs) either 
- 1. uses hardcoded errno numbers instead of the canonical macro names, or
- 2. defines them locally, instead of including the appropriate header (while 
-including other headers).
-
-This patch "fixes" such usage in
- - getuser.S for arm, arm26 and i386
- - putuser.S for arm and arm26
- - entry.S for h8300 and sh
-
-Version: 2.6.2-rc1, but applies cleanly to 2.6.1 and 2.6.0.
-
-Cheers,
-	Danilo
 
 
---- linux-2.6.2-rc1/arch/arm26/lib/getuser.S	2004-01-09 08:00:05.000000000 
-+0100
-+++ linux/arch/arm26/lib/getuser.S	2004-01-22 20:36:31.000000000 +0100
-@@ -28,6 +28,7 @@
-  */
- #include <asm/asm_offsets.h>
- #include <asm/thread_info.h>
-+#include <asm/errno.h>
- 
-         .global __get_user_1
- __get_user_1:
-@@ -98,7 +99,7 @@
-         mov     r2, #0
- __get_user_bad:
-         mov     r1, #0
--        mov     r0, #-14
-+        mov     r0, #-EFAULT
-         ldmfd   sp!, {pc}^
- 
- .section __ex_table, "a"
---- linux-2.6.2-rc1/arch/arm26/lib/putuser.S	2004-01-09 07:59:44.000000000 
-+0100
-+++ linux/arch/arm26/lib/putuser.S	2004-01-22 20:35:56.000000000 +0100
-@@ -28,6 +28,7 @@
-  */
- #include <asm/asm_offsets.h>
- #include <asm/thread_info.h>
-+#include <asm/errno.h>
- 
-         .global __put_user_1
- __put_user_1:
-@@ -95,7 +96,7 @@
-         ldmfd   sp!, {pc}^
- 
- __put_user_bad:
--	mov	r0, #-14
-+	mov	r0, #-EFAULT
- 	mov	pc, lr
- 
- .section __ex_table, "a"
---- linux-2.6.2-rc1/arch/arm/lib/getuser.S	2004-01-09 08:00:13.000000000 +0100
-+++ linux/arch/arm/lib/getuser.S	2004-01-22 20:26:36.000000000 +0100
-@@ -28,6 +28,7 @@
-  */
- #include <asm/constants.h>
- #include <asm/thread_info.h>
-+#include <asm/errno.h>
- 
- 	.global	__get_user_1
- __get_user_1:
-@@ -89,7 +90,7 @@
- 	mov	r2, #0
- __get_user_bad:
- 	mov	r1, #0
--	mov	r0, #-14
-+	mov	r0, #-EFAULT
- 	mov	pc, lr
- 
- .section __ex_table, "a"
---- linux-2.6.2-rc1/arch/arm/lib/putuser.S	2004-01-09 08:00:02.000000000 +0100
-+++ linux/arch/arm/lib/putuser.S	2004-01-22 20:26:15.000000000 +0100
-@@ -28,6 +28,7 @@
-  */
- #include <asm/constants.h>
- #include <asm/thread_info.h>
-+#include <asm/errno.h>
- 
- 	.global	__put_user_1
- __put_user_1:
-@@ -87,7 +88,7 @@
- 	/* fall through */
- 
- __put_user_bad:
--	mov	r0, #-14
-+	mov	r0, #-EFAULT
- 	mov	pc, lr
- 
- .section __ex_table, "a"
---- linux-2.6.2-rc1/arch/h8300/platform/h8300h/entry.S	2004-01-09 
-07:59:26.000000000 +0100
-+++ linux/arch/h8300/platform/h8300h/entry.S	2004-01-22 20:50:36.000000000 
-+0100
-@@ -21,8 +21,7 @@
- #include <asm/linkage.h>
- #include <asm/asm-offsets.h>
- #include <asm/thread_info.h>
--			
--ENOSYS = 38
-+#include <asm/errno.h>
- 
- LSIGTRAP = 5
- 
---- linux-2.6.2-rc1/arch/h8300/platform/h8s/entry.S	2004-01-09 
-07:59:56.000000000 +0100
-+++ linux/arch/h8300/platform/h8s/entry.S	2004-01-22 20:51:24.000000000 +0100
-@@ -22,8 +22,7 @@
- #include <asm/linkage.h>
- #include <asm/asm-offsets.h>
- #include <asm/thread_info.h>
--
--ENOSYS = 38
-+#include <asm/errno.h>
- 
- LSIGTRAP = 5
- 
---- linux-2.6.2-rc1/arch/i386/lib/getuser.S	2004-01-09 07:59:03.000000000 
-+0100
-+++ linux/arch/i386/lib/getuser.S	2004-01-22 19:53:23.000000000 +0100
-@@ -9,6 +9,7 @@
-  * return value.
-  */
- #include <asm/thread_info.h>
-+#include <asm/errno.h>
- 
- 
- /*
-@@ -60,7 +61,7 @@
- 
- bad_get_user:
- 	xorl %edx,%edx
--	movl $-14,%eax
-+	movl $-EFAULT,%eax
- 	ret
- 
- .section __ex_table,"a"
---- linux-2.6.2-rc1/arch/sh/kernel/entry.S	2004-01-23 01:59:03.000000000 +0100
-+++ linux/arch/sh/kernel/entry.S	2004-01-23 02:30:58.000000000 +0100
-@@ -16,6 +16,7 @@
- #include <linux/config.h>
- #include <asm/thread_info.h>
- #include <asm/unistd.h>
-+#include <asm/errno.h>
- 
- #if !defined(CONFIG_NFSD) && !defined(CONFIG_NFSD_MODULE)
- #define sys_nfsservctl		sys_ni_syscall
-@@ -71,9 +72,6 @@
-  *
-  */
- 
--ENOSYS = 38
--EINVAL = 22
--
- #if defined(CONFIG_CPU_SH3)
- TRA     = 0xffffffd0
- EXPEVT  = 0xffffffd4
+On Fri, 23 Jan 2004, Maciej W. Rozycki wrote:
+> On Fri, 23 Jan 2004, Mikael Pettersson wrote:
+> > 
+> > The ASUS L3800C was mentioned. I don't know of any others.
+> 
+>  It seems to be P4-based -- I'm pretty sure the integrated APIC behaves
+> the same way regardless of where its plugged in, so why wouldn't this
+> problem appear earlier?
 
+It's entirely possible that the bug isn't in the integrated APIC per se, 
+but migth be in ACPI/SMM getting confused when it reads the LVTT value and
+tries to do something with it. And since the system vendors don't tend
+to test with Linux (or test only with a few standard kernels that may not 
+even have APIC enabled) the code might never have been tested with that 
+behaviour.
+
+Now quite honestly, I don't know _why_ it would read the value, so that 
+theory is a pretty weak one, but the point being that it's not absolutely 
+necessary that the hardware itself be broken. This is the reason we see
+most SMM/BIOS bugs - the code just assumes certain states.
+
+		Linus

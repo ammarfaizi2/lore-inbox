@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293013AbSB1UOy>; Thu, 28 Feb 2002 15:14:54 -0500
+	id <S293120AbSB1VLX>; Thu, 28 Feb 2002 16:11:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293441AbSB1UNE>; Thu, 28 Feb 2002 15:13:04 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:21779 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S293716AbSB1UMx>; Thu, 28 Feb 2002 15:12:53 -0500
-Date: Thu, 28 Feb 2002 21:12:48 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Sync over loop devices takes ages? [2.4.17]
-Message-ID: <20020228201248.GA20466@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20020228095955.GH774@elf.ucw.cz> <3C7E716E.9DC59B12@zip.com.au>
+	id <S293760AbSB1VJh>; Thu, 28 Feb 2002 16:09:37 -0500
+Received: from ns.suse.de ([213.95.15.193]:30739 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S293756AbSB1VIs>;
+	Thu, 28 Feb 2002 16:08:48 -0500
+Date: Thu, 28 Feb 2002 22:08:47 +0100
+From: Dave Jones <davej@suse.de>
+To: James Simmons <jsimmons@transvirtual.com>
+Cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] Re: [PATCH] tdfx ported to new fbdev api
+Message-ID: <20020228220847.J32662@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	James Simmons <jsimmons@transvirtual.com>,
+	Linux Fbdev development list <linux-fbdev-devel@lists.sourceforge.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020228214045.E32662@suse.de> <Pine.LNX.4.10.10202281259230.20040-100000@www.transvirtual.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3C7E716E.9DC59B12@zip.com.au>
-User-Agent: Mutt/1.3.24i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10202281259230.20040-100000@www.transvirtual.com>; from jsimmons@transvirtual.com on Thu, Feb 28, 2002 at 01:00:04PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Thu, Feb 28, 2002 at 01:00:04PM -0800, James Simmons wrote:
+ > > > The patch is against 2.5.5-dj2
+ > > > http://www.transvirtual.com/~jsimmons/tdfx.diff
+ > >  Is this one different to the one I saw last time?
+ > Actually no. I think the driver hasn't changed. I does work for me. Did
+ > you try it out again.
 
-> > I have a script (attached). At one point it tries to do sync... That
-> > sync take a long time, with disk mostly unused.
-> 
-> When doing (say) ext2-on-loop-on-ext2 you should always ensure
-> that the blocksize for the topmost filesystem is the same as
-> the one underneath.  So probably you wanted `mkfs.ext2 -b 4096'.
-> 
-> If you have a 1k blocksize filesystem loop-mounted on a 4k blocksize
-> filesystem, every write of a 1k block requires a read of the underlying
-> 4k block. Which is excrutiatingly slow.
+ Ok. I didn't look too deeply last time, but it died immediately
+ on switching the display, and was really dead, no keyboard leds,
+ nada.
 
-Oh, but I *want* to do 1k filesystem test!
+ I'll take another look later if I get chance
 
-Performance seems okay in 2.4.19-pre?aa?.... And even 2.4.18 is
-slightly faster. [BTW it is fully cached (100MB test on 256MB machine)
-so 4k reads should not be such a big problem.]
-								Pavel
 -- 
-Casualities in World Trade Center: ~3k dead inside the building,
-cryptography in U.S.A. and free speech in Czech Republic.
-
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

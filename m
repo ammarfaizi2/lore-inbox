@@ -1,95 +1,119 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292475AbSCDQ0s>; Mon, 4 Mar 2002 11:26:48 -0500
+	id <S292467AbSCDQ2R>; Mon, 4 Mar 2002 11:28:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292466AbSCDQ0i>; Mon, 4 Mar 2002 11:26:38 -0500
-Received: from flaske.stud.ntnu.no ([129.241.56.72]:14772 "EHLO
-	flaske.stud.ntnu.no") by vger.kernel.org with ESMTP
-	id <S292395AbSCDQ0T>; Mon, 4 Mar 2002 11:26:19 -0500
-Date: Mon, 4 Mar 2002 17:26:17 +0100
-From: =?iso-8859-1?Q?Thomas_Lang=E5s?= <tlan@stud.ntnu.no>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>,
-        linux-net@vger.kernel.org
-Subject: Re: [BETA-0.94] Fifth test release of Tigon3 driver
-Message-ID: <20020304172617.B1648@stud.ntnu.no>
-Reply-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020304.041252.13772021.davem@redhat.com> <20020304164453.A27587@stud.ntnu.no> <3C83993A.94FE655E@mandrakesoft.com>
+	id <S292466AbSCDQ2I>; Mon, 4 Mar 2002 11:28:08 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:13687 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S292467AbSCDQ1q>; Mon, 4 Mar 2002 11:27:46 -0500
+Date: Mon, 4 Mar 2002 11:27:44 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [bkpatch] add sys_sendfile64
+Message-ID: <20020304112744.B20325@redhat.com>
+In-Reply-To: <20020303161818.A18187@redhat.com> <20020304031023.GA14757@tapu.f00f.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C83993A.94FE655E@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Mon, Mar 04, 2002 at 10:56:42AM -0500
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020304031023.GA14757@tapu.f00f.org>; from cw@f00f.org on Sun, Mar 03, 2002 at 07:10:23PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik:
-> And, what MTU are you using?  You may have answered this earlier and I
-> forgot :)  If you -are- on a gigabit network, then you [currently] must
-> manually enable an MTU of 9000 (jumbo frames).
+Okay, here are the checks for overflow and page faults.  Again, pull from 
 
-First mail with MTU 9000, tg3 in both ends:
+	bk://bcrlbits.bkbits.net/linux-2.5
 
-test8:/usr/src/LMbench/bin/i686-pc-linux-gnu# ./lat_tcp 129.241.56.160
-TCP latency using 129.241.56.160: 146.3539 microseconds
+To grab the updates, or apply this on top of the previous patch.
 
+		-ben
+--
+"A man with a bass just walked in,
+ and he's putting it down
+ on the floor."
 
-However, there seems to be a problem with the bw_tcp-tool, cause it just
-hangs, trying to strace it won't gimme me much usefull info about why it
-hangs either. (it worked like a charm with 1500 MTUs).
-
-Ok, right now I just tried the nttcp tool (which I used to benchmark this
-driver in an earlier posting), it seems like there's a bug with MTU 9000 and
-TCP:
-
-[this is UDP, works like a charm]
-kiwi:/usr/src# /root/nttcp-1.47/nttcp -t -u -v 129.241.56.161
-nttcp-l: nttcp, version 1.47
-nttcp-l: Pid=10519
-nttcp-l: from 129.241.56.161: "129.241.56.161" (=nttcp-1: Pid=3197,
-InetPeer= 1)
-nttcp-l: from 129.241.56.161: "129.241.56.161" (=nttcp-1:
-Optionline="nttcp@-r@)
-nttcp-l: from 129.241.56.161: "129.241.56.161" (=dataport: 5038)
-nttcp-l: send window size = 65535
-nttcp-l: receive window size = 65535
-nttcp-l: buflen=4096, bufcnt=2048, dataport=5038/udp
-nttcp-l: try to get outstanding messages from 1 remote clients
-nttcp-l: transmitted 8388608 bytes
-l  8388608    0.07    0.02    993.7049   3355.4432    2051  30369.89
-102550.0
-nttcp-l: try to get outstanding messages from 1 remote clients
-nttcp-1: got EOF
-nttcp-1: received 0 bytes
-1             0.07    0.00      0.0000      0.0000       1     14.64
-100000.0
-nttcp-1: exiting
-
-[and this is TCP, doesn't exactly work like a charm]
-kiwi:/usr/src# /root/nttcp-1.47/nttcp -t -v 129.241.56.161
-nttcp-l: nttcp, version 1.47
-nttcp-l: Pid=10520
-nttcp-l: from 129.241.56.161: "129.241.56.161" (=nttcp-1: Pid=3198,
-InetPeer= 1)
-nttcp-l: from 129.241.56.161: "129.241.56.161" (=nttcp-1:
-Optionline="nttcp@-r@)
-nttcp-l: from 129.241.56.161: "129.241.56.161" (=dataport: 5038)
-nttcp-l: send window size = 27900
-nttcp-l: receive window size = 87380
-nttcp-l: buflen=4096, bufcnt=2048, dataport=5038/tcp
-nttcp-l: try to get outstanding messages from 1 remote clients
-nttcp-1: accept from 129.241.56.160
-nttcp-l: try to get outstanding messages from 1 remote clients
-nttcp-1: send window size = 27900
-nttcp-1: receive window size = 87380
-nttcp-l: try to get outstanding messages from 1 remote clients
-nttcp-1: buflen=4096, bufcnt=2048, dataport=5038/tcp
-
-[cause here it hangs]
-
-
-I can still stop the program with CTRL-C, so I dont' know what it is,
-someone enlighten me, please? :)  
-
--- 
-Thomas
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.467   -> 1.468  
+#	        mm/filemap.c	1.64    -> 1.65   
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/03/04	bcrl@toomuch.toronto.redhat.com	1.468
+# Add LFS style EOVERFLOW checks to sendfile*
+# --------------------------------------------
+#
+diff -Nru a/mm/filemap.c b/mm/filemap.c
+--- a/mm/filemap.c	Mon Mar  4 11:25:28 2002
++++ b/mm/filemap.c	Mon Mar  4 11:25:28 2002
+@@ -1715,7 +1715,7 @@
+ 	return written;
+ }
+ 
+-static ssize_t common_sendfile(int out_fd, int in_fd, loff_t *offset, size_t count)
++static ssize_t common_sendfile(int out_fd, int in_fd, loff_t *offset, size_t count, loff_t max)
+ {
+ 	ssize_t retval;
+ 	struct file * in_file, * out_file;
+@@ -1760,10 +1760,22 @@
+ 	retval = 0;
+ 	if (count) {
+ 		read_descriptor_t desc;
++		loff_t pos;
+ 
+ 		if (!offset)
+ 			offset = &in_file->f_pos;
+ 
++		pos = *offset;
++		retval = -EINVAL;
++		if (unlikely(pos < 0))
++			goto fput_out;
++		if (unlikely(pos + count > max)) {
++			retval = -EOVERFLOW;
++			if (pos >= max)
++				goto fput_out;
++			count = max - pos;
++		}
++
+ 		desc.written = 0;
+ 		desc.count = count;
+ 		desc.buf = (char *) out_file;
+@@ -1773,6 +1785,9 @@
+ 		retval = desc.written;
+ 		if (!retval)
+ 			retval = desc.error;
++		pos = *offset;
++		if (pos > max)
++			retval = -EOVERFLOW;
+ 	}
+ 
+ fput_out:
+@@ -1794,9 +1809,9 @@
+ 		pos = off;
+ 		ppos = &pos;
+ 	}
+-	ret = common_sendfile(out_fd, in_fd, ppos, count);
+-	if (offset)
+-		put_user((off_t)pos, offset);
++	ret = common_sendfile(out_fd, in_fd, ppos, count, MAX_NON_LFS);
++	if (offset && put_user(pos, offset))
++		ret = -EFAULT;
+ 	return ret;
+ }
+ 
+@@ -1809,9 +1824,9 @@
+ 			return -EFAULT;
+ 		ppos = &pos;
+ 	}
+-	ret = common_sendfile(out_fd, in_fd, ppos, count);
+-	if (offset)
+-		put_user(pos, offset);
++	ret = common_sendfile(out_fd, in_fd, ppos, count, MAX_LFS_FILESIZE);
++	if (offset && put_user(pos, offset))
++		ret = -EFAULT;
+ 	return ret;
+ }
+ 

@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290214AbSAORu1>; Tue, 15 Jan 2002 12:50:27 -0500
+	id <S290213AbSAORxT>; Tue, 15 Jan 2002 12:53:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290216AbSAORuK>; Tue, 15 Jan 2002 12:50:10 -0500
-Received: from ns.suse.de ([213.95.15.193]:21004 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S290212AbSAORsp>;
-	Tue, 15 Jan 2002 12:48:45 -0500
-Date: Tue, 15 Jan 2002 18:48:43 +0100
-From: Dave Jones <davej@suse.de>
-To: rwhron@earthlink.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 1-2-3 GB
-Message-ID: <20020115184843.D32088@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>, rwhron@earthlink.net,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020115090746.B6007@earthlink.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020115090746.B6007@earthlink.net>; from rwhron@earthlink.net on Tue, Jan 15, 2002 at 09:07:46AM -0500
+	id <S290212AbSAORxK>; Tue, 15 Jan 2002 12:53:10 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:57874 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S290213AbSAORw7>; Tue, 15 Jan 2002 12:52:59 -0500
+Message-ID: <3C446C77.3000806@evision-ventures.com>
+Date: Tue, 15 Jan 2002 18:52:55 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Martin Eriksson <nitrax@giron.wox.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Why not "attach" patches?
+In-Reply-To: <005901c19dec$59a89e30$0201a8c0@HOMER>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 15, 2002 at 09:07:46AM -0500, rwhron@earthlink.net wrote:
- 
- > The 3 patches in this thread combined into one, with a default
- > config option of 2GB, and help saying, if unsure, say "1GB":
+Martin Eriksson wrote:
 
- This may be confusing for some, bringing up the question
- "I'm unsure, but why is the default at 2GB?"
+>Why do many of you not _attach_ patches instead of merging them with the
+>mail? It's so much cleaner and easier to have a "xxx-yyy.patch" file
+>attached to the mail which can be saved in an appropriate directory. Also,
+>the whitespace is always retained that way.
+>
+>OTOH I don't have very deep knowledge of "diff" and "patch", so maybe I have
+>missed something here...
+>
+Don't worry - nothign prevents proper attached patches from beeing 
+applied - the FAQ is only a bit
+zealous on this ;-)
 
- Default option should match default advice.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+

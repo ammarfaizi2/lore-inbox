@@ -1,51 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262228AbULQXgP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262230AbULQXiO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262228AbULQXgP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 18:36:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262229AbULQXgO
+	id S262230AbULQXiO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 18:38:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262232AbULQXiN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 18:36:14 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:27036 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S262228AbULQXgL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 18:36:11 -0500
-Date: Sat, 18 Dec 2004 00:35:24 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Mark Broadbent <markb@wetlettuce.com>, linux-kernel@vger.kernel.org
-Subject: Re: Lockup with 2.6.9-ac15 related to netconsole
-Message-ID: <20041217233524.GA11202@electric-eye.fr.zoreil.com>
-References: <59719.192.102.214.6.1103214002.squirrel@webmail.wetlettuce.com> <20041216211024.GK2767@waste.org> <34721.192.102.214.6.1103274614.squirrel@webmail.wetlettuce.com> <20041217215752.GP2767@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 17 Dec 2004 18:38:13 -0500
+Received: from siaag2ad.compuserve.com ([149.174.40.134]:8332 "EHLO
+	siaag2ad.compuserve.com") by vger.kernel.org with ESMTP
+	id S262230AbULQXhv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 18:37:51 -0500
+Date: Fri, 17 Dec 2004 18:35:38 -0500
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch, 2.6.10-rc3] safe_hlt() & NMIs
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
+       Andrew Morton <akpm@osdl.org>
+Message-ID: <200412171837_MC3-1-9129-C5D@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041217215752.GP2767@waste.org>
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall <mpm@selenic.com> :
-[...]
-> Please try the attached untested, uncompiled patch to add polling to
-> r8169:
-[...]
-> @@ -1839,6 +1842,15 @@
->  }
->  #endif
->  
-> +#ifdef CONFIG_NET_POLL_CONTROLLER
-> +static void rtl8169_netpoll(struct net_device *dev)
-> +{
-> +	disable_irq(dev->irq);
-> +	rtl8169_interrupt(dev->irq, netdev, NULL);
-                                    ^^^^^^ -> should be "dev"
+On Tue, 14 Dec 2004 at 15:00:56 -0800 (PST) Linus Torvalds wrote:
 
-The r8169 driver in -mm offers netpoll. A patch which syncs the r8169
-driver from 2.6.10-rc3 with current -mm is available at:
-http://www.fr.zoreil.com/people/francois/misc/20041218-2.6.10-rc3-r8169.c-test.patch
+> Checking for kernel CS also requires checking that it's not vm86 mode, 
+> btw. So that's not just a "regs->xcs & 0xffff == __KERNEL_CS" either.
+>
+> But something like
+> 
+>       static inline int kernel_mode(struct pt_regs *regs)
+>       {
+>               return !((regs->eflags & VM_MASK) | (regs->xcs & 3));
+>       }
+>
+> should DTRT.
+>
+> Can you pls double-check my thinking, and test?
 
-Please report success/failure. Cc: netdev@oss.sgi.com is welcome.
+
+ There is already a user_mode() macro in asm-i386/ptrace.h but it's slow.
+
+ x86_64's macro is ugly but at least there's no logical-or in it.
+
+ Your i386 code is better, so how about applying this patch (boots/runs/is faster
+on my tests):
+
+Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+
+--- linux-2.6.9.1/include/asm-i386/ptrace.h     2004-10-19 15:28:18.000000000 -0400
++++ linux-2.6.9.2/include/asm-i386/ptrace.h     2004-12-17 16:59:39.956099664 -0500
+@@ -55,7 +55,11 @@ struct pt_regs {
+ #define PTRACE_SET_THREAD_AREA    26
+ 
+ #ifdef __KERNEL__
+-#define user_mode(regs) ((VM_MASK & (regs)->eflags) || (3 & (regs)->xcs))
++static inline int kernel_mode(struct pt_regs *regs)
++{
++       return !((3 & (regs)->xcs) | (VM_MASK & (regs)->eflags));
++}
++#define user_mode(regs) (!kernel_mode(regs))
+ #define instruction_pointer(regs) ((regs)->eip)
+ #if defined(CONFIG_SMP) && defined(CONFIG_FRAME_POINTER)
+ extern unsigned long profile_pc(struct pt_regs *regs);
 
 --
-Ueimor
+Please take it as a sign of my infinite respect for you,
+that I insist on you doing all the work.
+                                        -- Rusty Russell

@@ -1,43 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316158AbSFJUeg>; Mon, 10 Jun 2002 16:34:36 -0400
+	id <S316113AbSFJUU3>; Mon, 10 Jun 2002 16:20:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316161AbSFJUef>; Mon, 10 Jun 2002 16:34:35 -0400
-Received: from front2.mail.megapathdsl.net ([66.80.60.30]:50694 "EHLO
-	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
-	id <S316158AbSFJUee>; Mon, 10 Jun 2002 16:34:34 -0400
-Subject: Re:  2.5.21: "ata_task_file: unknown command 50"
-From: Miles Lane <miles@megapathdsl.net>
-To: Svetoslav Slavtchev <galia@st-peter.stw.uni-erlangen.de>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <3D04777D.2040705@st-peter.stw.uni-erlangen.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
-Date: 10 Jun 2002 13:32:07 -0700
-Message-Id: <1023741128.1793.0.camel@turbulence.megapathdsl.net>
-Mime-Version: 1.0
+	id <S316158AbSFJUU2>; Mon, 10 Jun 2002 16:20:28 -0400
+Received: from loewe.cosy.sbg.ac.at ([141.201.2.12]:2255 "EHLO
+	loewe.cosy.sbg.ac.at") by vger.kernel.org with ESMTP
+	id <S316113AbSFJUTo>; Mon, 10 Jun 2002 16:19:44 -0400
+Date: Mon, 10 Jun 2002 22:18:21 +0200 (MET DST)
+From: "Thomas 'Dent' Mirlacher" <dent@cosy.sbg.ac.at>
+To: Tom Rini <trini@kernel.crashing.org>
+cc: Andrew Morton <akpm@zip.com.au>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.21 kill warnings 4/19
+In-Reply-To: <20020610200552.GM14252@opus.bloom.county>
+Message-ID: <Pine.GSO.4.05.10206102214140.17299-100000@mausmaki.cosy.sbg.ac.at>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-06-10 at 02:55, Svetoslav Slavtchev wrote:
-> >raid0_make_request bug: can't convert block across chunks or bigger than 
-> >64k 94712 8
-> >raid0_make_request bug: can't convert block across chunks or bigger than 
-> >64k 1340144 12
-> >raid0_make_request bug: can't convert block across chunks or bigger than 
-> >64k 1342192 20
+--snip/snip
+> > to kill the 3.x warning?
 > 
-> that's a problem of the raid-0 code
-> it needs a request splitter and/or more bio changes
-> it's here since 2.5.5 AFAIK 
-> are you using raid
-> 
-> i'm useing lvm over soft raid-0 and i can not mount my
-> xfs LV's because of that
+> Well, the warning (at least from what I've seen) is when you do:
+> "In " __FUNCTION__ " something bad happened\n", which __func__ just
+> won't do.  Doing:
+> "In %s something bad happened\n", __FUNCTION__
+> Is OK[1].
 
-Yeah, I am using software raid0, as well.
+from gcc3/Function-Names:
+--------------
+Note that these semantics are deprecated, and that GCC 3.2 will handle __FUNCTION__ and __PRETTY_FUNCTION__ the same way as __func__. 
 
-	Miles
+__func__ is defined by the ISO standard C99:
+
+The identifier __func__ is implicitly declared by the translator
+as if, immediately following the opening brace of each function
+definition, the declaration
+
+static const char __func__[] = "function-name";
+
+appeared, where function-name is the name of the lexically-enclosing
+function.  This name is the unadorned name of the function.
+
+By this definition, __func__ is a variable, not a string literal. In particular, __func__ does not catenate with other string literals. 
+--------------
+
+which means, __FUNCTION__ will still be supported (gcc3.2), you just cannot
+catenate it as it was the case before.
+
+so Toms snipplet above should be ok for all versions of gcc which are
+recommended today, and will also work with gcc3.2
+
+	tm
+
+-- 
+in some way i do, and in some way i don't.
 

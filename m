@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261607AbSJAM4o>; Tue, 1 Oct 2002 08:56:44 -0400
+	id <S261599AbSJAMvm>; Tue, 1 Oct 2002 08:51:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261609AbSJAM4o>; Tue, 1 Oct 2002 08:56:44 -0400
-Received: from smtp.intrex.net ([209.42.192.250]:4881 "EHLO intrex.net")
-	by vger.kernel.org with ESMTP id <S261607AbSJAM4o>;
-	Tue, 1 Oct 2002 08:56:44 -0400
-Date: Tue, 1 Oct 2002 08:25:04 -0400
-From: jlnance@intrex.net
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux v2.5.40 - and a feature freeze reminder
-Message-ID: <20021001122504.GC3234@tricia.dyndns.org>
-References: <Pine.LNX.4.33.0210010021400.25527-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0210010021400.25527-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.4i
-X-Declude-Sender: jlnance@intrex.net [216.181.42.97]
+	id <S261607AbSJAMvm>; Tue, 1 Oct 2002 08:51:42 -0400
+Received: from dsl-213-023-043-077.arcor-ip.net ([213.23.43.77]:14746 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S261599AbSJAMvl>;
+	Tue, 1 Oct 2002 08:51:41 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Tabris <tabris@tabris.net>
+Subject: Re: opps 2.4.20-pre5-ac2
+Date: Tue, 1 Oct 2002 14:56:10 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Lawrence Walton <lawrence@the-penguin.otak.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+References: <20020908203126.GA11475@the-penguin.otak.com> <200209081753.14660.tabris@tabris.net> <1031605767.29793.52.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1031605767.29793.52.camel@irongate.swansea.linux.org.uk>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17wMZP-0005tQ-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 01, 2002 at 12:32:47AM -0700, Linus Torvalds wrote:
+On Monday 09 September 2002 23:09, Alan Cox wrote:
+> On Sun, 2002-09-08 at 22:53, Tabris wrote:
+> > This is an interaction of the rmap vm patch (included in -ac) and the nVidia 
+> > binary driver. I have run into this myself, tho it doesn't usually cause a 
+> 
+> Only he isnt using the Nvidia driver. Somehow he got a page that should
+> not have been blown away because someone still had maps to it.
 
-> And if it wasn't clear to the non-2.5-development people out there, yes
-> you _should_ also test this code out even before the freeze. The IDE layer
-> shouldn't be all that scary any more, and while there are still silly
-> things like trivially non-compiling setups etc, it's generally a good idea
-> to try things out as widely as possible before it's getting too late to
-> complain about things..
+This might be the lru race, see "[CFT] [PATCH] LRU race fix"
 
-Do the ps/2 mouse and the keyboard work like they did in 2.4 (same /dev
-major/minor)?  I tried 2.5 early on but quit because I couldnt see my
-input devices.  At the time I posted a note and got some responses, but
-it appeared that I would have to change things around such that they
-wouldnt work with 2.4 anymore, which I was not willing to do.
-
-Thanks,
-
-Jim
+-- 
+Daniel

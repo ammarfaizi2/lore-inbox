@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261456AbULTHoy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261469AbULTHtc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261456AbULTHoy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 02:44:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261519AbULTHna
+	id S261469AbULTHtc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 02:49:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261521AbULTHqf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 02:43:30 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:19125 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261458AbULTGPV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 01:15:21 -0500
-Cc: openib-general@openib.org
-In-Reply-To: <200412192215.pKjErOfjUaT6gtSk@topspin.com>
-X-Mailer: Roland's Patchbomber
-Date: Sun, 19 Dec 2004 22:15:20 -0800
-Message-Id: <200412192215.TKOr0u539NEw6MPp@topspin.com>
+	Mon, 20 Dec 2004 02:46:35 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:58278 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261469AbULTGic (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 01:38:32 -0500
+Date: Sun, 19 Dec 2004 22:37:23 -0800
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, Adrian Bunk <bunk@stusta.de>,
+       Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, zaitcev@redhat.com
+Subject: Re: RFC: [2.6 patch] let BLK_DEV_UB depend on EMBEDDED
+Message-ID: <20041219223723.3e861fc5@lembas.zaitcev.lan>
+In-Reply-To: <20041220062055.GA22120@one-eyed-alien.net>
+References: <20041220001644.GI21288@stusta.de>
+	<20041220003146.GB11358@kroah.com>
+	<20041220013542.GK21288@stusta.de>
+	<20041219205104.5054a156@lembas.zaitcev.lan>
+	<41C65EA0.7020805@osdl.org>
+	<20041220062055.GA22120@one-eyed-alien.net>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed-Claws 0.9.12cvs126.2 (GTK+ 2.4.14; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-To: linux-kernel@vger.kernel.org
-From: Roland Dreier <roland@topspin.com>
-X-SA-Exim-Connect-IP: 127.0.0.1
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: [PATCH][v4][24/24] InfiniBand MAINTAINERS entry
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 20 Dec 2004 06:15:20.0332 (UTC) FILETIME=[485774C0:01C4E65B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add OpenIB maintainers information to MAINTAINERS.
+On Sun, 19 Dec 2004 22:20:55 -0800, Matthew Dharm <mdharm-kernel@one-eyed-alien.net> wrote:
 
-Signed-off-by: Roland Dreier <roland@topspin.com>
+> I can tell you that this has turned into the single largest source of bug
+> reports/complaints about usb-storage.  Something has to be done.  I just
+> don't know what.
 
+Is it that bad, really? Honestly, I could not imagine users can be so dumb.
+The option defaults to off. There is a warning in the Kconfig. And yet they
+first enable it and then complain about it. I don't know what to do about
+it, either.
 
---- linux-bk.orig/MAINTAINERS	2004-12-19 21:09:20.000000000 -0800
-+++ linux-bk/MAINTAINERS	2004-12-19 22:04:20.988606172 -0800
-@@ -1081,6 +1081,17 @@
- L:	linux-fbdev-devel@lists.sourceforge.net
- S:	Maintained
- 
-+INFINIBAND SUBSYSTEM
-+P:	Roland Dreier
-+M:	roland@topspin.com
-+P:	Sean Hefty
-+M:	mshefty@ichips.intel.com
-+P:	Hal Rosenstock
-+M:	halr@voltaire.com
-+L:	openib-general@openib.org
-+W:	http://www.openib.org/
-+S:	Supported
-+
- INPUT (KEYBOARD, MOUSE, JOYSTICK) DRIVERS
- P:	Vojtech Pavlik
- M:	vojtech@suse.cz
-
+-- Pete

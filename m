@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285062AbRLQJae>; Mon, 17 Dec 2001 04:30:34 -0500
+	id <S285068AbRLQJaO>; Mon, 17 Dec 2001 04:30:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285065AbRLQJaZ>; Mon, 17 Dec 2001 04:30:25 -0500
-Received: from bart.one-2-one.net ([217.115.142.76]:24077 "EHLO
+	id <S285065AbRLQJ3y>; Mon, 17 Dec 2001 04:29:54 -0500
+Received: from bart.one-2-one.net ([217.115.142.76]:15629 "EHLO
 	bart.one-2-one.net") by vger.kernel.org with ESMTP
-	id <S285062AbRLQJaG>; Mon, 17 Dec 2001 04:30:06 -0500
-Date: Mon, 17 Dec 2001 10:32:26 +0100 (CET)
+	id <S285062AbRLQJ3x>; Mon, 17 Dec 2001 04:29:53 -0500
+Date: Mon, 17 Dec 2001 10:32:12 +0100 (CET)
 From: Martin Diehl <lists@mdiehl.de>
 To: Benjamin LaHaise <bcrl@redhat.com>
 cc: "Sottek, Matthew J" <matthew.j.sottek@intel.com>,
         "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
 Subject: Re: zap_page_range in a module
-In-Reply-To: <20011214213142.A28867@redhat.com>
-Message-ID: <Pine.LNX.4.21.0112162341400.444-100000@notebook.diehl.home>
+In-Reply-To: <20011214173045.C26535@redhat.com>
+Message-ID: <Pine.LNX.4.21.0112150058450.811-100000@notebook.diehl.home>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -21,47 +21,29 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Fri, 14 Dec 2001, Benjamin LaHaise wrote:
 
-> > I have a 64k sliding "window" into a 1MB region. You can only access
-> > 64k at a time then you have to switch the "bank" to access the next
-> > 64k. Address 0xa0000-0xaffff is the 64k window. The actual 1MB of
-> > memory is above the top of memory and not directly addressable by the
-> > CPU, you have to go through the banks.
+> On Fri, Dec 14, 2001 at 01:26:29PM -0800, Sottek, Matthew J wrote:
+> > currently can only work when compiled into the kernel because I need 
+> > zap_page_rage(). Is there an acceptable way for me to get equivalent
+> > functionality in a module so that this will be more useful to the
+> > general public?
 > 
-> Stop right there.  You can't do that.  The code will deadlock on page 
-> faults for certain usage patterns.  It's slow, inefficient and a waste 
-> of effort.
+> The vm does zap_page_range for you if you're implementing an mmap operation, 
+> otherwise vmalloc/vfree/vremap will take care of the details for you.  How 
+> is your code using zap_page_range?  It really shouldn't be.
 
-Would you mind giving a hint how the predicted deadlock path would look
-like or what the usage pattern might be, please?
+True, but IMHO only for standard mmap semantics.
 
-I'm asking because I'm happily doing something very similar to what
-Matthew describes without ever running into trouble - and this operates
-at major page fault rates up to 1000/sec here. What I'm doings is:
+Well, the background is slightly different here, but very much the same
+problem: I'd like to get rid of some page(s) which are mapped to an
+userland vma. At certain points I need to force a page fault on this and
+so the overloaded vma->nopage() gets called and can do the right thing.
 
-in fops->mmap(vma), serialized with other file operations:
-	drv->vaddr = vma->vm_start;
-	drv->vlen = vma->vm_end - vma->vm_start;
-	vma->vm_flags |= VM_RESERVED;
-	vma->vm_ops = &my_vm_ops;
+zap_page_range() does exactly what I want. IMHO zap_page_range() is some
+kind of symmetric buddy of remap_page_range() - it's somewhat surprizing
+to find one exported but not the other one. And, AFAICS, there is no
+technical reason as well, not to use it - at least for me it's working
+perfectly fine. Of course it needs proper mm serialization provided by
+down_write(&mm->mmap_sem).
 
-vma->vm_ops->nopage() is my overloaded page fault handler which maps
-_selectable_ kmalloc'ed kernel pages to the userland vma.
-
-in fops->ioctl(), again serialized with other file operations:
-	down_write(&current->mm->mmap_sem);
-	zap_page_range(current->mm, drv->vaddr, drv->vlen);
-	up_write(&current->mm->mmap_sem);
-
-note that this is pretty much the same what sys_munmap() is doing - with
-one important difference: the mmap'ed vma isn't freed, it just remains
-unchanged and a major page fault is triggered on the next access.
-
-Finally let me point out that performance is not an issue here - and IMHO
-simple creation and destruction of pte's pointing to advance-kmalloc'ed 
-pages shouldn't be that slow anyway. OTOH, ability to use the page fault
-handler to control which page gets mapped to this vma (including none,
-i.e. forcing SIGBUS) is an issue.
-
-Regards,
 Martin
 

@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261329AbUJ3V0O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261346AbUJ3VoR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261329AbUJ3V0O (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 17:26:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbUJ3V0O
+	id S261346AbUJ3VoR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 17:44:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbUJ3VmZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 17:26:14 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:15805 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261329AbUJ3V0I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 17:26:08 -0400
-Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
-From: Lee Revell <rlrevell@joe-job.com>
-To: Florian Schmidt <mista.tapas@gmx.net>
-Cc: Ingo Molnar <mingo@elte.hu>, Paul Davis <paul@linuxaudiosystems.com>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       jackit-devel <jackit-devel@lists.sourceforge.net>,
-       Rui Nuno Capela <rncbc@rncbc.org>
-In-Reply-To: <20041030231358.6f1eeeac@mango.fruits.de>
-References: <20041029172243.GA19630@elte.hu>
-	 <20041029203619.37b54cba@mango.fruits.de> <20041029204220.GA6727@elte.hu>
-	 <20041029233117.6d29c383@mango.fruits.de> <20041029212545.GA13199@elte.hu>
-	 <1099086166.1468.4.camel@krustophenia.net> <20041029214602.GA15605@elte.hu>
-	 <1099091566.1461.8.camel@krustophenia.net> <20041030115808.GA29692@elte.hu>
-	 <1099158570.1972.5.camel@krustophenia.net> <20041030191725.GA29747@elte.hu>
-	 <20041030214738.1918ea1d@mango.fruits.de>
-	 <1099165925.1972.22.camel@krustophenia.net>
-	 <20041030221548.5e82fad5@mango.fruits.de>
-	 <1099167996.1434.4.camel@krustophenia.net>
-	 <20041030231358.6f1eeeac@mango.fruits.de>
-Content-Type: text/plain
-Date: Sat, 30 Oct 2004 17:26:06 -0400
-Message-Id: <1099171567.1424.9.camel@krustophenia.net>
+	Sat, 30 Oct 2004 17:42:25 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:16900 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261339AbUJ3Vim (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 17:38:42 -0400
+Date: Sat, 30 Oct 2004 23:38:11 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: dhowells@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] AFS: afs_voltypes isn't always required
+Message-ID: <20041030213811.GB4374@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-10-30 at 23:13 +0200, Florian Schmidt wrote:
-> ah, ok.. tarball updated. The third argument is now a percentage. If the
-> cycle count difference between two different wakeups differs more than the
-> specified percentage from the "perfect" period, then a line is printed to
-> the terminal showing by how much percent it differs. 
+afs_voltypes is only used #ifdef __KDEBUG, and even then it doesn't has 
+to be a global symbol.
 
-OK this is pretty sweet.  With T3 the jitter never exceeds 7% on an idle
-system.  As soon as I start moving the mouse this goes to 7 or 8%.  I
-cannot get it to go higher than 10%.  Moving windows around has no
-effect, the highest jitter happens when I type or move the mouse really
-fast IOW it corresponds to the interrupt rate.
 
-This is a pretty good baseline for what an xrun-free system would look
-like.  Now to test the latest version...
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Lee
-
+--- linux-2.6.10-rc1-mm2-full/fs/afs/types.h.old	2004-10-30 20:42:02.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full/fs/afs/types.h	2004-10-30 23:22:03.000000000 +0200
+@@ -26,8 +26,6 @@
+ 	AFSVL_BACKVOL,			/* backup volume */
+ } __attribute__((packed)) afs_voltype_t;
+ 
+-extern const char *afs_voltypes[];
+-
+ typedef enum {
+ 	AFS_FTYPE_INVALID	= 0,
+ 	AFS_FTYPE_FILE		= 1,
+--- linux-2.6.10-rc1-mm2-full/fs/afs/volume.c.old	2004-10-30 20:41:43.000000000 +0200
++++ linux-2.6.10-rc1-mm2-full/fs/afs/volume.c	2004-10-30 23:20:41.000000000 +0200
+@@ -24,7 +24,9 @@
+ #include "vlclient.h"
+ #include "internal.h"
+ 
+-const char *afs_voltypes[] = { "R/W", "R/O", "BAK" };
++#ifdef __KDEBUG
++static const char *afs_voltypes[] = { "R/W", "R/O", "BAK" };
++#endif
+ 
+ #ifdef CONFIG_AFS_FSCACHE
+ static fscache_match_val_t afs_volume_cache_match(void *target,

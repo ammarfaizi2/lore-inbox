@@ -1,52 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132540AbRDATmD>; Sun, 1 Apr 2001 15:42:03 -0400
+	id <S129321AbRDBN7x>; Mon, 2 Apr 2001 09:59:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132541AbRDATlx>; Sun, 1 Apr 2001 15:41:53 -0400
-Received: from denise.shiny.it ([194.20.232.1]:19976 "EHLO denise.shiny.it")
-	by vger.kernel.org with ESMTP id <S132540AbRDATlk>;
-	Sun, 1 Apr 2001 15:41:40 -0400
-Message-ID: <3AC5A16A.9F0147E4@denise.shiny.it>
-Date: Sat, 31 Mar 2001 11:20:42 +0200
-From: Giuliano Pochini <pochini@denise.shiny.it>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.2 ppc)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Temporary disk space leak
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129408AbRDBN7n>; Mon, 2 Apr 2001 09:59:43 -0400
+Received: from tallyho.bc.nu ([194.168.151.65]:10289 "EHLO tallyho.bc.nu")
+	by vger.kernel.org with ESMTP id <S129321AbRDBN7a>;
+	Mon, 2 Apr 2001 09:59:30 -0400
+From: Russell King <rmk@tallyho.bc.nu>
+Message-Id: <200104021358.OAA18003@tallyho.bc.nu>
+Subject: Re: ARM port missing pivot_root syscall
+To: lk@tantalophile.demon.co.uk (Jamie Lokier)
+Date: Mon, 2 Apr 101 14:58:23 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, linux@arm.linux.org.uk
+In-Reply-To: <20010402141918.A17334@pcep-jamie.cern.ch> from "Jamie Lokier" at Apr 2, 1 02:19:18 pm
+Content-Type: text
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+_Please_ don't reply to this address - just substitute 'rmk@arm.linux.org.uk'
+or 'linux@arm.linux.org.uk' please.
 
-[root@Jay Giu]# du -c /home
-[...]
-320120	/home
-320120	total
-[root@Jay Giu]# df
-Filesystem           1k-blocks      Used Available Use% Mounted on
-/dev/sda8               253823     65909    174807  27% /
-/dev/sda7              2158320    750672   1296240  37% /usr
-/dev/sda5              2193082   1898198    183474  91% /home
-/dev/sda9              1013887    899924     61586  94% /opt
+> A few months ago a colleague was frustrated to find pivot_root missing
+> from the ARM port.  Semi-standard C programs that use this call would
+> not compile for the ARM.  Perhaps you ARM folks would like to add it?
 
+The missing system calls got added in the latest kernel.
 
-It happened after I wrote and deleted very large files (~750MB) a
-few times in my home dir.
-Then I logged out and I relogged in as root to check what happened
-and "df" shown everything was right again:
+> On this general theme, there are other constants, whose names are not
+> arch-specific but whose _values_ are arch-specific.  E.g. look in
+> <asm/fcntl.h>.  In most cases, some of the values are required for
+> historical compatibility, sometimes with other operating systems.
 
-/dev/sda5              2193082    320122   1761550  15% /home
-
-
-...strange...
-
-
-Linux Jay 2.4.2 #6 gio mar 22 00:02:30 CET 2001 ppc unknown
-
-
-Bye.
-
-P.S. Yes, I was the only one using the computer.
+I don't see any missing constants in fcntl.h, compared with x86.  Which
+kernel version are you using?
 

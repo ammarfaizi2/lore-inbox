@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262196AbTJIOGU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 10:06:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262197AbTJIOGU
+	id S262059AbTJIORu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 10:17:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262224AbTJIORu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 10:06:20 -0400
-Received: from fw.osdl.org ([65.172.181.6]:45473 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262196AbTJIOGQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 10:06:16 -0400
-Date: Thu, 9 Oct 2003 07:05:05 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: linux-kernel@vger.kernel.org, arun.sharma@intel.com, torvalds@osdl.org
-Subject: Re: 2.6.0-test7 BLK_DEV_FD dependence on ISA breakage
-Message-Id: <20031009070505.00470202.akpm@osdl.org>
-In-Reply-To: <16261.25288.125075.508225@gargle.gargle.HOWL>
-References: <Pine.LNX.4.44.0310081235280.4017-100000@home.osdl.org>
-	<16261.25288.125075.508225@gargle.gargle.HOWL>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 9 Oct 2003 10:17:50 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:4794 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id S262059AbTJIORt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 10:17:49 -0400
+Date: Thu, 9 Oct 2003 15:17:36 +0100
+From: Dave Jones <davej@redhat.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Jeff Garzik <jgarzik@pobox.com>, marcelo.tosatti@cyclades.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] laptop mode
+Message-ID: <20031009141734.GB23545@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Jens Axboe <axboe@suse.de>,
+	Jeff Garzik <jgarzik@pobox.com>, marcelo.tosatti@cyclades.com,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200310091103.h99B31ug014566@hera.kernel.org> <3F856A7E.2010607@pobox.com> <20031009140547.GD1232@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031009140547.GD1232@suse.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson <mikpe@csd.uu.se> wrote:
->
-> This patch
-> 
-> --- a/drivers/block/Kconfig	Wed Oct  8 12:24:56 2003
-> +++ b/drivers/block/Kconfig	Wed Oct  8 12:24:56 2003
-> @@ -6,7 +6,7 @@
->  
->  config BLK_DEV_FD
->  	tristate "Normal floppy disk support"
-> -	depends on !X86_PC9800 && !ARCH_S390
-> +	depends on ISA || M68 || SPARC64
->  	---help---
->  	  If you want to use the floppy disk drive(s) of your PC under Linux,
->  	  say Y. Information about this driver, especially important for IBM
-> 
-> is broken. 
+On Thu, Oct 09, 2003 at 04:05:47PM +0200, Jens Axboe wrote:
 
-Yeah, and there's been a metric mile of blab about it but I don't think
-we've actually settled on a correct+complete solution.
+ > > Red Hat just dropped this patch since it was suspected of data 
+ > > corruption ;-(
+ > Eh? Care to explain a bit further? I'm not aware of any data corruption
+ > issues there, and it's certainly simple enough to easily audit.
 
-Perhaps we should just back it out and watch more closely next time someone
-tries to fix it?
+3-4 cases of random data corruption, all using Quantum Fireball drives,
+all with different IDE chipsets.
 
+ > And how kind of Red Hat to not inform me of any suspicion in this
+ > regard.
 
+I want to get facts right before crying wolf.
+Right now laptopmode/aam is just a suspect. There are still 1-2 other
+small patches against IDE which could be the reason.  We've dropped
+laptopmode/aam for the time being to see if the folks seeing repeatable
+corruption suddenly start behaving again.
+
+		Dave
+
+-- 
+ Dave Jones     http://www.codemonkey.org.uk

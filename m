@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317834AbSGKNRb>; Thu, 11 Jul 2002 09:17:31 -0400
+	id <S317835AbSGKNfc>; Thu, 11 Jul 2002 09:35:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317835AbSGKNRa>; Thu, 11 Jul 2002 09:17:30 -0400
-Received: from [203.124.139.197] ([203.124.139.197]:31492 "EHLO
-	pcsmail.patni.com") by vger.kernel.org with ESMTP
-	id <S317834AbSGKNRa>; Thu, 11 Jul 2002 09:17:30 -0400
-From: "Sujit" <sujit.menon@patni.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Urgent Information
-Date: Mon, 11 Mar 2002 19:24:39 +0530
-Message-ID: <000001c1c904$4a188e60$f209a8c0@patni.com>
+	id <S317836AbSGKNfb>; Thu, 11 Jul 2002 09:35:31 -0400
+Received: from daimi.au.dk ([130.225.16.1]:64884 "EHLO daimi.au.dk")
+	by vger.kernel.org with ESMTP id <S317835AbSGKNfb>;
+	Thu, 11 Jul 2002 09:35:31 -0400
+Message-ID: <3D2D8A35.30F460F3@daimi.au.dk>
+Date: Thu, 11 Jul 2002 15:37:57 +0200
+From: Kasper Dupont <kasperd@daimi.au.dk>
+Organization: daimi.au.dk
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9-31smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Lincoln Dale <ltd@cisco.com>, Linux <linux-kernel@vger.kernel.org>
+Subject: Re: HZ, preferably as small as possible
+References: <E17Sd5D-0000lz-00@the-village.bc.nu>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+Alan Cox wrote:
+> 
+> > I'd like to see oneshot timer interrupts as a compile time
+> > option on any architecture that is capable of doing it. But of
+> > course it is not easy.
+> >
+> > Have I missed something somewhere?
+> 
+> The APIC on modern systems has decent timers. There may also be ACPI timers
+> we can use on ACPI capable systems.
 
-While making enhancements to the 3com driver(vortex) I stumbled upon a grey
-stone regarding the ioctl calls. can there be more than 16 ioctl calls for
-the device ? The question arose from the fact that whenever a new ioctl
-command is issued the kernel by default returns one of the Private ioctl
-command. Hence would like to know more regarding these.
+In what units do they meassure time? It would be nice if
+they were garanteed to match the TSC frequency or some
+other of the units already being used.
 
-Please CC me the answer personnally.
-
-Thanks & Regards
-Sujit Menon
-
+-- 
+Kasper Dupont -- der bruger for meget tid på usenet.
+For sending spam use mailto:razor-report@daimi.au.dk

@@ -1,55 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263653AbUEKVBi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262045AbUEKVGR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263653AbUEKVBi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 17:01:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263646AbUEKVBi
+	id S262045AbUEKVGR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 17:06:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263646AbUEKVGR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 17:01:38 -0400
-Received: from fmr04.intel.com ([143.183.121.6]:56770 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S263653AbUEKVBg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 17:01:36 -0400
-Message-Id: <200405112101.i4BL1JF19217@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Ingo Molnar'" <mingo@elte.hu>, "Andrew Morton" <akpm@osdl.org>
-Cc: <hch@infradead.org>, <geoff@linux.jf.intel.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: [RFC] [PATCH] Performance of del_timer_sync
-Date: Tue, 11 May 2004 14:01:21 -0700
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcQ3mky9+ruAmk4rQwOmqfvZLoriKAAACVZw
-In-Reply-To: <20040511205712.GA7795@elte.hu>
+	Tue, 11 May 2004 17:06:17 -0400
+Received: from [198.138.227.126] ([198.138.227.126]:1042 "EHLO
+	server.cympak.com") by vger.kernel.org with ESMTP id S262045AbUEKVGP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 17:06:15 -0400
+Message-ID: <1ec701c4379c$075d5700$4900a8c0@cympak.com>
+From: "Slawomir Orlowski" <orlowscy@hotpop.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: problem with kernel 2.4.26 installation
+Date: Tue, 11 May 2004 17:07:55 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>> Ingo Molnar wrote on Tuesday, May 11, 2004 1:57 PM
-> * Andrew Morton <akpm@osdl.org> wrote:
->
-> > > > Nah, that's ungrammatical.  del_timer_singleshot means "delete a timer
-> > > > in a single-shot manner".
-> > > >
-> > > > We have:
-> > > >
-> > > > "add a timer"
-> > > > "modify a timer"
-> > > > "delete a timer"
-> > > > "delete a timer synchronously"
-> > > > "delete a single-shot timer"
-> > >
-> > > hm, indeed. Miraculously, the existing timer API names are correct
-> > > grammatically, so we might as well go for del_single_shot_timer() ...
-> > >
-> >
-> > <anal>del_singleshot_timer_sync</anal>
-> >
-> > I vote we leave it up to Ken.  But please, not del_timer_kenneth().
->
-> yeah. Ken's got a license to name ;)
+Hello there,
 
-Cool, feeling pretty good here. I'm going to stick with andrew's original
-name, and add a big fat comments for the new function ;-)
+I have got Dell server PowerEdge 2500 with dell installed RH 7.2 and
+2.4.7-10 kernel (rpm installation).
+I wanted to upgrade it to 2.4.26 from source.
 
-- Ken
+So I have done like always:
+make mrproper,
+copied .config from 2.4.7 (did make menuconfig)
+make dep, clean, bzImage, modules, modules_install, install
 
+and I got:
+"
+bsetup.s: Assembler messages:
+bsetup.s:2503: Warning: indirect lcall without `*'
+Root device is (8, 8)
+Boot sector 512 bytes.
+Setup is 4768 bytes.
+System is 835 kB
++ '[' -x /root/bin/installkernel ']'
++ '[' -x /sbin/installkernel ']'
++ exec /sbin/installkernel 2.4.26 bzImage /usr/src/linux-2.4.26/System.map
+''
+/etc/lilo.conf: No such file or directory
+make[1]: *** [install] Error 1
+make: *** [install] Error 2
+"
+vmlinuz, System.map was created but intrid was not created and grub.conf was
+no upgraded I do not use lilo on this server, so why he wants to upgrade
+lilo ?.
+
+I would really appreciate if somebody could help me how to proceed
+farther...
+I'm really stuck.
+
+Best regards
+Slawomir Orlowski
 

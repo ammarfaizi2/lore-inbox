@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265066AbTLKOxn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 09:53:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265084AbTLKOxm
+	id S265096AbTLKPKJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 10:10:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265102AbTLKPKJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 09:53:42 -0500
-Received: from zxa8020.lanisdn-gte.net ([206.46.31.146]:14032 "EHLO
-	links.magenta.com") by vger.kernel.org with ESMTP id S265066AbTLKOxk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 09:53:40 -0500
-Date: Thu, 11 Dec 2003 09:53:37 -0500
-From: Raul Miller <moth@magenta.com>
+	Thu, 11 Dec 2003 10:10:09 -0500
+Received: from main.gmane.org ([80.91.224.249]:16529 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S265096AbTLKPKE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 10:10:04 -0500
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Linux 2.6.0-test11 only lets me use 1GB out of 2GB ram.
-Message-ID: <20031211095337.A22341@links.magenta.com>
-References: <C033B4C3E96AF74A89582654DEC664DB0672F1@aruba.maner.org> <3FD7FCF5.7030109@cyberone.com.au> <3FD801B3.7080604@wmich.edu> <20031211054111.GX8039@holomorphy.com> <20031211094148.G28449@links.magenta.com>
+From: "Mario 'BitKoenig' Holbe" <Mario.Holbe@RZ.TU-Ilmenau.DE>
+Subject: Re: 2.4.23 + tmpfs: where's my mem?!
+Date: Thu, 11 Dec 2003 16:01:08 +0100
+Organization: Technische Universitaet Ilmenau, Germany
+Message-ID: <bra0rj$qai$1@sea.gmane.org>
+References: <20031211133124.GA18161@alpha.home.local> <Pine.LNX.4.44.0312111351520.1386-100000@localhost.localdomain> <yw1x3cbrh1qn.fsf@kth.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20031211094148.G28449@links.magenta.com>; from moth@magenta.com on Thu, Dec 11, 2003 at 09:41:48AM -0500
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: slrn/0.9.8.0 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 11, 2003 at 09:41:48AM -0500, I wrote:
-> since the dark ages.  It's hard for me to comprehend how highmem, or 64
-> bit cpus, could have much to do with a 1GB limit.
+Måns Rullgård <mru@kth.se> wrote:
+> Hugh Dickins <hugh@veritas.com> writes:
+>> But the strange thing is that df's Used does not match du: they should
+>> be identical, though arrived at from different directions.  I've not
 
-[Well, unless my motherboard really has a problem caching memory above
-1GB.  But that seems unlikely, since it's the CPU which is acting as
-the memory controller.  In any event, if this is actually the issue,
-shouldn't the kernel issue a warning message, about why it's ignoring
-the rest of the memory?]
+No, they are not identical and should not be.
 
-Thanks again,
+Unlike df, which reads the used counter from the filesystem
+meta information, du iterates over files within directories.
 
+If you have a file without a name (created, still open, all
+links removed), it does not exist in any directory but it
+does exist in the filesystem. So df should show the space
+used for it, while du should not.
+
+> FWIW, I've seen this behavior with vmware 4.  The space came back when
+> I closed vmware.
+
+This is, what Willy Tarreau described.
+
+
+regards,
+   Mario
 -- 
-Raul Miller
-moth@magenta.com
+Ho ho ho! I am Santa Claus of Borg. Nice assimilation all together!
+

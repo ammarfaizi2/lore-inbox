@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262284AbTFIXEO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 19:04:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262283AbTFIXEO
+	id S262318AbTFIXKT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 19:10:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262319AbTFIXKT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 19:04:14 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:61336 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262273AbTFIXEJ (ORCPT
+	Mon, 9 Jun 2003 19:10:19 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:8650 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262318AbTFIXKQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 19:04:09 -0400
-Date: Mon, 09 Jun 2003 16:14:35 -0700 (PDT)
-Message-Id: <20030609.161435.104053652.davem@redhat.com>
-To: zippel@linux-m68k.org
-Cc: wa@almesberger.net, chas@cmf.nrl.navy.mil, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] use rtnl_{lock,unlock} during device operations
- (take 2)
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0306100113420.12110-100000@serv>
-References: <Pine.LNX.4.44.0306100011230.5042-100000@serv>
-	<20030609.160013.74730356.davem@redhat.com>
-	<Pine.LNX.4.44.0306100113420.12110-100000@serv>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Jun 2003 19:10:16 -0400
+Date: Mon, 9 Jun 2003 16:25:24 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise
+To: Nigel Cunningham <ncunningham@clear.net.nz>
+cc: Pavel Machek <pavel@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] New system device API
+In-Reply-To: <1055201047.2119.18.camel@laptop-linux>
+Message-ID: <Pine.LNX.4.44.0306091623030.11379-100000@cherise>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Roman Zippel <zippel@linux-m68k.org>
-   Date: Tue, 10 Jun 2003 01:14:56 +0200 (CEST)
 
-   On Mon, 9 Jun 2003, David S. Miller wrote:
-   
-   > netdev->dead = 1;
-   > netdev->op_this = NULL;
-   > netdev->op_that = NULL;
-   > netdev->op_whatever = NULL;
-   > synchronize_kernel();
-   
-   That assumes of course that the functions don't sleep.
-   (RCU isn't really the answer to everything.)
-   
-They hold references to the object, it doesn't matter if
-they sleep.  Forget the "netdev->dead" line, it isn't necessary.
+> > Well, you need to suspend devices used to write the image, too, so you
+> > have state to return to after resume. You only do not want disks to
+> > spin down. Perhaps disk can just special-case it ("If I am going to
+> > swsusp, I need to save state, but do not really need to spin down").
+> 
+> Mmm. Sounds ugly though. Would it be fair to say we want to S5 some
+> devices and S3 others? Perhaps that sort of terminology might be
+> helpful.
+
+Those are not even valid states for devices. Device states are commonly 
+D0-D3, though they are not represented the same way for all kinds of 
+devices. 
+
+Pavel is right, and we should be able to do that generically, though in a 
+slightly different manner. We should have all devices save state, write 
+the image, then power them down (including spinning down disks). 
+
+
+	-pat
+

@@ -1,58 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261685AbUERBx3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262279AbUERB5F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261685AbUERBx3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 21:53:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbUERBx3
+	id S262279AbUERB5F (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 21:57:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbUERB5F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 21:53:29 -0400
-Received: from gate.crashing.org ([63.228.1.57]:53420 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261685AbUERBx2 (ORCPT
+	Mon, 17 May 2004 21:57:05 -0400
+Received: from taco.zianet.com ([216.234.192.159]:54795 "HELO taco.zianet.com")
+	by vger.kernel.org with SMTP id S262279AbUERB5B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 21:53:28 -0400
-Subject: Re: 1352 NUL bytes at the end of a page? (was Re: Assertion `s &&
-	s->tree' failed: The saga continues.)
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Steven Cole <elenstev@mesatop.com>, Andrew Morton <akpm@osdl.org>,
-       adi@bitmover.com, scole@lanl.gov, support@bitmover.com,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0405151914280.10718@ppc970.osdl.org>
-References: <200405132232.01484.elenstev@mesatop.com>
-	 <5.1.0.14.2.20040515130250.00b84ff8@171.71.163.14>
-	 <20040514204153.0d747933.akpm@osdl.org>
-	 <200405151923.41353.elenstev@mesatop.com>
-	 <Pine.LNX.4.58.0405151914280.10718@ppc970.osdl.org>
-Content-Type: text/plain
-Message-Id: <1084844857.15175.17.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 18 May 2004 11:47:38 +1000
+	Mon, 17 May 2004 21:57:01 -0400
+From: Steven Cole <elenstev@mesatop.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 1352 NUL bytes at the end of a page? (was Re: Assertion `s && s->tree' failed: The saga continues.)
+Date: Mon, 17 May 2004 19:56:28 -0600
+User-Agent: KMail/1.6.1
+Cc: Larry McVoy <lm@bitmover.com>, mason@suse.com, torvalds@osdl.org,
+       wli@holomorphy.com, hugh@veritas.com, adi@bitmover.com,
+       support@bitmover.com, linux-kernel@vger.kernel.org
+References: <200405132232.01484.elenstev@mesatop.com> <20040518013439.GA23497@work.bitmover.com> <20040517184208.2206e8c4.akpm@osdl.org>
+In-Reply-To: <20040517184208.2206e8c4.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200405171956.28747.elenstev@mesatop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-05-16 at 12:18, Linus Torvalds wrote:
-> On Sat, 15 May 2004, Steven Cole wrote:
+On Monday 17 May 2004 07:42 pm, Andrew Morton wrote:
+> Larry McVoy <lm@bitmover.com> wrote:
+> >
+> >  > I'd really like to see this happen on some other machine though.  It'd be
+> >  > funny if you have a dud disk drive or something.
 > > 
-> > In the spirit of 'rounding up the usual suspects', I'll unset CONFIG_PREEMT
-> > and try again.
+> >  We can easily rule that out.  Steven, do a 
+> > 
+> >  	dd if=/dev/zero of=USE_SOME_SPACE bs=1048576 count=500
+
+I'll get to Larry's test a little later.  Pizza's about to come out of the oven.
+
+> > 
+> >  which will eat up 500 MB and should eat up any bad blocks.  I _really_
+> >  doubt it is a bad disk.
 > 
-> Thanks. If that doesn't do it, can you start binary-searching on kernel 
-> versions? I run with preempt myself (well, not on my current G5 desktop, 
-> but otherwise), so it _should_ be stable, but you may have a driver or 
-> something else that doesn't like preempt.
-
-Heh ;) Well... PREEMPT for ppc64 is planned :)
-
-> Or it could be any number of other config options. Do you have anything 
-> else interesting enabled?
+> Yes, me too.  The sensitivity to CONFIG_PREEMPT makes that unlikely.
 > 
-> 		Linus
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Two things I'm not clear on:
+> 
+> a) Has is been established that CONFIG_PREEMPT causes ppp to fail?
 
+At the risk of a "post hoc ergo propter hoc" fallacy, I'd say yes.  I have not
+seen ppp fail without PREEMPT.  No PREEMPT, no ppp problems.
+
+> 
+> b) Has the file corruption been observed when PPP was not in use at all?
+
+No, at least I don't have any specific memory of corruption without ppp.
+
+I made a fresh 3.9G reiserfs fs on my second disk, and cloned a kernel
+tree to it.  I can use it for testing, but its currently in sync with linux.bkbits.net/linux-2.5.
+
+Later,
+Steven 

@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264875AbTARQER>; Sat, 18 Jan 2003 11:04:17 -0500
+	id <S264877AbTARQGe>; Sat, 18 Jan 2003 11:06:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264877AbTARQER>; Sat, 18 Jan 2003 11:04:17 -0500
-Received: from mars.mj.nl ([81.91.1.49]:44208 "HELO mars.mj.nl")
-	by vger.kernel.org with SMTP id <S264875AbTARQEQ>;
-	Sat, 18 Jan 2003 11:04:16 -0500
-Subject: Re: [OFFTOPIC] RMS and reactions to him
-From: Thomas Hood <jdthood@yahoo.co.uk>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1042906466.10426.121.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 18 Jan 2003 17:14:27 +0100
+	id <S264878AbTARQGe>; Sat, 18 Jan 2003 11:06:34 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:27654 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S264877AbTARQGd>;
+	Sat, 18 Jan 2003 11:06:33 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200301181615.h0IGFhUU001597@darkstar.example.net>
+Subject: Re: reading from devices in RAW mode
+To: folkert@vanheusden.com (Folkert van Heusden)
+Date: Sat, 18 Jan 2003 16:15:43 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <003501c2bf0b$2ae93ff0$3640a8c0@boemboem> from "Folkert van Heusden" at Jan 18, 2003 05:03:39 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-RMS wrote:
-> I'm glad you appreciate our work, but if you call the system "Linux",
-> you lead other people to suppose it was done by Linus.
+> > There is no floppy or hard disk equivillent to reading raw sectors
+> > from CD-ROMs.
+> 
+> Really? Are you really sure about that?
 
-I think I see now why you have been pursuing this issue like
-a abused Pit Bull.  You perceive in the name 'Linux' an implicit
-claim that what it denotes is entirely the work of Linus Torvalds.
+Using a standard PC floppy controller - yes.
 
-There is no such implication in it.  As for interpretation,
-Linux newbies don't even know that someone named 'Linus Torvalds'
-exists, while Linux cognoscenti know perfectly well that
-Linus Torvalds didn't write the whole thing.  That leaves the
-semi-informed, i.e., journalists, but who cares what they
-think?  There is no problem here.
+> Back in the old days, when I did assembly on my Atari ST, I would just
+> say to the controller "gimme this and that track, in RAW" and it
+> would do so.
 
-                       IT'S JUST A NAME
+Sure, you can do it on the Amiga as well, but not on a standard PC
+floppy controller.
 
--- 
-Thomas Hood <jdthood@yahoo.co.uk>
+> I thought that I could do that at least for floppy, not sure about
+> harddisk (RLL through ACSI interface).
 
+Well, you can probably do it with ST-506 interface hard disk, because
+the data that goes in to that is more or less directly fed from the
+head-amp, which is partly why it was so sensitive to cable length.
+The closest you could probably get with any modern device would be
+"read sector foo, and return data even if ECC appears to have
+failed".
+
+John.

@@ -1,71 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261567AbSJUTOr>; Mon, 21 Oct 2002 15:14:47 -0400
+	id <S261605AbSJUTVR>; Mon, 21 Oct 2002 15:21:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261571AbSJUTOr>; Mon, 21 Oct 2002 15:14:47 -0400
-Received: from wilma1.suth.com ([207.127.128.4]:60935 "EHLO wilma1.suth.com")
-	by vger.kernel.org with ESMTP id <S261567AbSJUTOq>;
-	Mon, 21 Oct 2002 15:14:46 -0400
+	id <S261606AbSJUTVR>; Mon, 21 Oct 2002 15:21:17 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:13326 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261605AbSJUTVQ>; Mon, 21 Oct 2002 15:21:16 -0400
+Date: Mon, 21 Oct 2002 20:27:22 +0100
+From: "'Christoph Hellwig'" <hch@infradead.org>
+To: Ed Vance <EdV@macrolink.com>
+Cc: "'Christoph Hellwig'" <hch@infradead.org>, linux-kernel@vger.kernel.org
 Subject: Re: Listmaster request: Blacklist rms@gnu.org
-From: Jason Williams <jason_williams@suth.com>
-To: John Levon <levon@movementarian.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021021190244.GB21851@compsoc.man.ac.uk>
-References: <20021021182737.A23371@infradead.org>
-	<1035225214.967.65.camel@cermanius.suth.com> 
-	<20021021190244.GB21851@compsoc.man.ac.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 21 Oct 2002 15:23:25 -0400
-Message-Id: <1035228209.967.72.camel@cermanius.suth.com>
+Message-ID: <20021021202722.A28732@infradead.org>
+Mail-Followup-To: 'Christoph Hellwig' <hch@infradead.org>,
+	Ed Vance <EdV@macrolink.com>, linux-kernel@vger.kernel.org
+References: <11E89240C407D311958800A0C9ACF7D1A33C68@EXCHANGE>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <11E89240C407D311958800A0C9ACF7D1A33C68@EXCHANGE>; from EdV@macrolink.com on Mon, Oct 21, 2002 at 12:21:51PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-10-21 at 15:02, John Levon wrote:
-> On Mon, Oct 21, 2002 at 02:33:30PM -0400, Jason Williams wrote:
+On Mon, Oct 21, 2002 at 12:21:51PM -0700, Ed Vance wrote:
+> On Monday, October 21, 2002 at 10:28 AM, Christoph Hellwig wrote:
+> > 
+> > I've adjusted my procmail filters now, still people using web archives
+> > suffer from Richard's ignorance of the technical charta, his bad
+> > trolling and offending everyone on the list.  As his previous posts
+> > have been of a similar "quality" I'd like to request blacklisting him
+> > from the vger list.
 > 
-> > Not for nothing, lists are for discussion. PERIOD. I didn't see a label
-> > that said, "This is a *technical* discussion list only.  Only post
-> > *technical* discussions here."  
+> We are missing the win - win solution! Think outside of the (mail)box.
 > 
-> Maybe you should read the FAQ before ranting. In fact, it explicitly
-> states exactly that. I quote :
+> Convince RMS to run for Congress. 
 > 
-> "* Stick to the subject. This is a Linux kernel list, mainly for
-> developers."
-
-Nice quote John, to bad it doesn't say "This is a *technical* discussion
-list only.  Only post *technical* discussions here."  And it says "Stick
-to the subject" which, unfortunately, can be interpreted many different
-ways.  I'm not saying I like ranting, but if it is subject related,
-something should be said. I'll be honest I haven't gone back and read
-all of RMS's posts to see exactly how off topic they are, but I just
-don't want to see this list going the way of censorship.  I get enough
-of that crap living in the US.
-
-
+> Qualified:
+> Already knows how to deal with attorneys and crooks.
+> Lifelong zealot, incorruptible.
 > 
-> and
+> Good for him:
+> Wider audience, greater influence on new IP law.
 > 
-> "Don't post post any religious or political material,"
-> 
-> > like, and honestly it seems that *YOU* are the only person complaining. 
-> 
-> The rest of us are just waiting for this stupid "discussion" to end (and
-> ideally for Larry to stop spamming the list too).
+> Good for us:
+> Way too busy with the IP law issues to post to the kernel list.
 
-
-I'll agree there that I'd like to see this end, so I promise no further
-posts from me.  Oh and in the future, you might want to respond to the
-list so everyone can enjoy the fun of a conversation.
-
-
-(BTW, Nice sig.)
-
-
-
-
-
+Ed, you're my hero! :)  I'm all for it although I unfortunately
+couldn't vote for him as I'm not US citizen (well, unfortunately
+only in this particular case..)
 

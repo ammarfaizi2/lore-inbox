@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317509AbSFIB5y>; Sat, 8 Jun 2002 21:57:54 -0400
+	id <S317520AbSFICcH>; Sat, 8 Jun 2002 22:32:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317507AbSFIB5x>; Sat, 8 Jun 2002 21:57:53 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:60336 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S317502AbSFIB5w> convert rfc822-to-8bit; Sat, 8 Jun 2002 21:57:52 -0400
-From: David Schwartz <davids@webmaster.com>
-To: <cohen@rafb.net>, <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.61 (1025) - Licensed Version
-Date: Sat, 8 Jun 2002 18:57:49 -0700
-In-Reply-To: <12812896964.20020607130905@rafb.net>
-Subject: Re: kernel 2.4.18 - select() returning strange value
+	id <S317536AbSFICcG>; Sat, 8 Jun 2002 22:32:06 -0400
+Received: from smtp.cogeco.net ([216.221.81.25]:54210 "EHLO fep6.cogeco.net")
+	by vger.kernel.org with ESMTP id <S317520AbSFICcG>;
+	Sat, 8 Jun 2002 22:32:06 -0400
+Subject: Re: ip_nat_irc & 2.4.18
+From: "Nix N. Nix" <nix@go-nix.ca>
+To: "Nix N. Nix" <nix@go-nix.ca>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1023530798.29159.2.camel@tux>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 08 Jun 2002 22:32:06 -0400
+Message-Id: <1023589926.8435.1.camel@tux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <20020609015751.AAA13941@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 2002-06-08 at 06:06, Nix N. Nix wrote:
+> Does ip_nat_irc not work with 2.4.18 ?  All my old fserves have stopped
+> working.  If I try logging in from the outside (for, say, a DCC file
+> xfer), I get "Connection Refused" in the client.  I believe it ran fine
+> with 2.4.17.  What's wrong ?
 
-On Fri, 7 Jun 2002 13:09:05 -0700, Jacob Cohen wrote:
+I figured it out:
 
->Summary: when calling select() on a set of file descriptors containing
->only the descriptor of a non-connected stream socket, select() returns
->1 and marks the FD set as if data were waiting on the socket.
+ip_nat_irc.o doesn't track connection going to ports other than 6667. 
+So, if, initially, you connect to, say, twisted.ma.us.dal.net:6668, then
+ip_nat_irc doesn't track your connection. :o(
 
-	This seems correct to me. A read or write will not block and there is 
-nothing to wait for.
-
->According to what I've read in the man pages for select() and
->socket(), a nonconnected socket should be unreadable, and therefore
->select() should timeout and return 0. I cannot figure out why it is
->returning 1.
-
-	Because the socket is ready for read. If a read were attempted immediately, 
-it would not block. If a read would result in an error other than 
-'EWOULDBLOCK', the socket is ready to be read.
-
->Has something changed in the kernel or the way the select() syscall
->behaves on a nonconnected socket that I should be aware of? I cannot
->find anything relevant in the recent change logs, but I am probably
->missing something.
-
-	I'm guessing the previous erroneous behavior was fixed. When you 'select' on 
-an unconnected socket, what do you expect 'select' to wait for?
-
-	DS
+> 
+> 
+> 
+> Please help.
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 

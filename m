@@ -1,68 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263180AbUC2XCe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 18:02:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263183AbUC2XCe
+	id S263193AbUC2XBb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 18:01:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbUC2XBa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 18:02:34 -0500
-Received: from user-12hcje4.cable.mindspring.com ([69.22.77.196]:19144 "EHLO
-	bender.davehollis.com") by vger.kernel.org with ESMTP
-	id S263180AbUC2XC3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 18:02:29 -0500
-Subject: Re: older kernels + new glibc?
-From: David T Hollis <dhollis@davehollis.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <D8E351AF-81C8-11D8-A0A8-000A959DCC8C@sonous.com>
-References: <5516F046-81C1-11D8-A0A8-000A959DCC8C@sonous.com>
-	 <1080594005.3570.12.camel@laptop.fenrus.com>
-	 <50DC82B4-81C5-11D8-A0A8-000A959DCC8C@sonous.com>
-	 <1080595343.3570.15.camel@laptop.fenrus.com>
-	 <ACFAE876-81C7-11D8-A0A8-000A959DCC8C@sonous.com>
-	 <20040329212832.GB26854@devserv.devel.redhat.com>
-	 <D8E351AF-81C8-11D8-A0A8-000A959DCC8C@sonous.com>
-Content-Type: text/plain
-Message-Id: <1080601405.3064.3.camel@dhollis-lnx.kpmg.com>
+	Mon, 29 Mar 2004 18:01:30 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:20684 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S263172AbUC2XB0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Mar 2004 18:01:26 -0500
+From: Darren Williams <dsw@gelato.unsw.edu.au>
+To: Zack Brown <zbrown@tumblerings.org>
+Date: Tue, 30 Mar 2004 09:01:20 +1000
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Release dates for various kernels?
+Message-ID: <20040329230120.GA24111@cse.unsw.EDU.AU>
+References: <20040329222318.GA8852@tumblerings.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.5 (1.5.5-1) 
-Date: Mon, 29 Mar 2004 18:03:25 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040329222318.GA8852@tumblerings.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-03-29 at 13:34 -0800, Lev Lvovsky wrote:
+Hi Zack
+You could try
+http://linux.bkbits.net/
 
-> On Mar 29, 2004, at 1:28 PM, Arjan van de Ven wrote:
-> >> perfect - where does this variable get set?  sorry for what now seems
-> >> like OT glibc stuff.
-> >
-> > it's passed to glibc ./configure at build time; if you have an rpm 
-> > based
-> > distro you'll see it in the specfile of the src.rpm
+included here are all the change sets, you could search
+for the tags you are looking for.
+i.e
+2.5.8-pre3 was released on: 02-04-09 18:02:50-07:00
+
+Darren
+
+
+
+
+On Mon, 29 Mar 2004, Zack Brown wrote:
+
+> Hi folks,
 > 
-> ok, so this presents a bit of a problem in that case (assuming I'm 
-> understanding you) - I'm working backwards in this respect, as I'm 
-> using the "new" version of glibc, and an older version of the kernel 
-> than the one that glibc was told to remain compatible with - the 
-> important question, is does this order of operations (possibly) break 
-> things, or does the fact that I compiled the kernel on this new version 
-> of glibc remove any issues.
+> Does anyone remember the release dates for the following kernels? I've
+> checked kernel.org and the list archives, without luck.
 > 
-> thanks,
-> -lev
+> 2.4.19-rc2
+> 2.4.22-pre6
+> 2.5.6-pre1
+> 2.5.6-pre2
+> 2.5.6-pre3
+> 2.5.7-pre1
+> 2.5.7-pre2
+> 2.5.8-pre3
 > 
+> Many thanks,
+> Zack
+> 
+> -- 
+> Zack Brown
 > -
-In looking at the latest and greatest glibc spec file for Fedora, it
-appears that on x86 architectures, glibc is built to support all the way
-down to 2.2.5.  On 64 bit arches, its set for various 2.4 kernels.  If
-you are using Red Hat or Fedora, you will probably be ok.  Any other
-distro and I can't help you there.  If it is just these drivers that are
-holding you to 2.2, you can certainly find folks willing to port them to
-2.4 or 2.6 for a reasonable fee that is quite certainly less than the
-amount of man hours you will spend trying to get this house of cards
-together.  Depending on what the drivers do and how they are written, it
-may be trivial or it may be quite involved.
-
-
--- 
-David T Hollis <dhollis@davehollis.com>
-
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+--------------------------------------------------
+Darren Williams <dsw AT gelato.unsw.edu.au>
+Gelato@UNSW <www.gelato.unsw.edu.au>
+--------------------------------------------------

@@ -1,75 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262657AbVCXU2e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261160AbVCXUhe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262657AbVCXU2e (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 15:28:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262338AbVCXU2e
+	id S261160AbVCXUhe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 15:37:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbVCXUhe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 15:28:34 -0500
-Received: from fire.osdl.org ([65.172.181.4]:51914 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262657AbVCXU22 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 15:28:28 -0500
-Date: Thu, 24 Mar 2005 12:28:08 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: cliff white <cliffw@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc1-mm2 - ppc32 build fails.
-Message-Id: <20050324122808.72f622cd.akpm@osdl.org>
-In-Reply-To: <20050324110233.55b5053a@es175>
-References: <20050324110233.55b5053a@es175>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 24 Mar 2005 15:37:34 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:34536 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261160AbVCXUhW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 15:37:22 -0500
+Message-ID: <424324F1.8040707@pobox.com>
+Date: Thu, 24 Mar 2005 15:37:05 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>
+CC: cryptoapi@lists.logix.cz, linux-kernel@vger.kernel.org,
+       linux-crypto@vger.kernel.org, jmorris@redhat.com,
+       herbert@gondor.apana.org.au
+Subject: Re: [PATCH] API for true Random Number Generators to add entropy
+ (2.6.11)
+References: <20050315133644.GA25903@beast> <20050324042708.GA2806@beast>	<20050323203856.17d650ec.akpm@osdl.org> <m1y8cc3mj1.fsf@muc.de>
+In-Reply-To: <m1y8cc3mj1.fsf@muc.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cliff white <cliffw@osdl.org> wrote:
->
+Andi Kleen wrote:
+> Andrew Morton <akpm@osdl.org> writes:
 > 
-> Error message:
 > 
->   CC      arch/ppc/kernel/setup.o
-> In file included from arch/ppc/kernel/setup.c:43:
-> include/asm/ppc_sys.h:29:2: #error "need definition of ppc_sys_devices"
-> In file included from arch/ppc/kernel/setup.c:43:
-> include/asm/ppc_sys.h:61: warning: parameter has incomplete type
-> include/asm/ppc_sys.h:64: warning: parameter has incomplete type
+>>David McCullough <davidm@snapgear.com> wrote:
+>>
+>>>Here is a small patch for 2.6.11 that adds a routine:
+>>>
+>>> 	add_true_randomness(__u32 *buf, int nwords);
+>>
+>>It neither applies correctly nor compiles in current kernels.  2.6.11 is
+>>very old in kernel time.
+>>
+>>Are we likely to see any in-kernel users of this?
+> 
+> 
+> I added similar support to the pre hw_random AMD8111 driver
+> a long time ago. Basically a timer that regularly read some
+> dat from the hw random generator and feed it into the random
+> code.
+> 
+> I think it is a good idea, because it doesnt make much sense
+> imho to run a daemon for something that can be done in 20 lines
+> of code in the kernel.
 
-This should fix it.
+Check your kernel history.
+
+We -used- to need data from RNG directly into the kernel randomness 
+pool.  The consensus was that the FIPS testing should be moved to userspace.
+
+	Jeff
 
 
-From: Kumar Gala <galak@freescale.com>
-
-
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- 25-akpm/arch/ppc/kernel/setup.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletion(-)
-
-diff -puN arch/ppc/kernel/setup.c~ppc32-report-chipset-version-in-common-proc-cpuinfo-handling-fix arch/ppc/kernel/setup.c
---- 25/arch/ppc/kernel/setup.c~ppc32-report-chipset-version-in-common-proc-cpuinfo-handling-fix	2005-03-24 12:27:39.000000000 -0800
-+++ 25-akpm/arch/ppc/kernel/setup.c	2005-03-24 12:27:39.000000000 -0800
-@@ -40,7 +40,10 @@
- #include <asm/nvram.h>
- #include <asm/xmon.h>
- #include <asm/ocp.h>
-+
-+#if defined(CONFIG_85xx) || defined(CONFIG_83xx)
- #include <asm/ppc_sys.h>
-+#endif
- 
- #if defined CONFIG_KGDB
- #include <asm/kgdb.h>
-@@ -247,7 +250,7 @@ int show_cpuinfo(struct seq_file *m, voi
- 	seq_printf(m, "bogomips\t: %lu.%02lu\n",
- 		   lpj / (500000/HZ), (lpj / (5000/HZ)) % 100);
- 
--#if defined (CONFIG_85xx) || defined (CONFIG_83xx)
-+#if defined(CONFIG_85xx) || defined(CONFIG_83xx)
- 	if (cur_ppc_sys_spec->ppc_sys_name)
- 		seq_printf(m, "chipset\t\t: %s\n",
- 			cur_ppc_sys_spec->ppc_sys_name);
-_
 

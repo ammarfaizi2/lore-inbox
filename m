@@ -1,43 +1,115 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284780AbRLKBha>; Mon, 10 Dec 2001 20:37:30 -0500
+	id <S284776AbRLKBnU>; Mon, 10 Dec 2001 20:43:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284776AbRLKBhU>; Mon, 10 Dec 2001 20:37:20 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:57617 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S284779AbRLKBhP>; Mon, 10 Dec 2001 20:37:15 -0500
-Path: Home.Lunix!not-for-mail
-Subject: Re: [PATCH] Make highly niced processes run only when idle
-Date: Tue, 11 Dec 2001 01:36:51 +0000 (UTC)
-Organization: lunix confusion services
-In-Reply-To: <75F30A52-ECF4-11D5-80FE-00039355CFA6@suespammers.org>
-    <1007939114.878.1.camel@phantasy>
-NNTP-Posting-Host: kali.eth
-MIME-Version: 1.0
+	id <S284781AbRLKBnC>; Mon, 10 Dec 2001 20:43:02 -0500
+Received: from rj.SGI.COM ([204.94.215.100]:58565 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S284779AbRLKBmk>;
+	Mon, 10 Dec 2001 20:42:40 -0500
+Date: Tue, 11 Dec 2001 12:41:15 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: "Stephen C. Tweedie" <sct@redhat.com>,
+        Andreas Gruenbacher <ag@bestbits.at>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        linux-xfs@oss.sgi.com
+Subject: Re: [PATCH] Revised extended attributes interface
+Message-ID: <20011211124115.E70201@wobbly.melbourne.sgi.com>
+In-Reply-To: <20011205143209.C44610@wobbly.melbourne.sgi.com> <20011207202036.J2274@redhat.com> <20011208155841.A56289@wobbly.melbourne.sgi.com> <20011210115209.C1919@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Trace: quasar.home.lunix 1008034611 10537 10.253.0.3 (11 Dec 2001
-    01:36:51 GMT)
-X-Complaints-To: abuse-0@ton.iguana.be
-NNTP-Posting-Date: Tue, 11 Dec 2001 01:36:51 +0000 (UTC)
-X-Newsreader: knews 1.0b.0
-Xref: Home.Lunix mail.linux.kernel:132045
-X-Mailer: Perl5 Mail::Internet v1.33
-Message-Id: <9v3nvj$a99$1@post.home.lunix>
-From: linux-kernel@ton.iguana.be (Ton Hospel)
-To: linux-kernel@vger.kernel.org
-Reply-To: linux-kernel@ton.iguana.be (Ton Hospel)
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011210115209.C1919@redhat.com>; from sct@redhat.com on Mon, Dec 10, 2001 at 11:52:09AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <1007939114.878.1.camel@phantasy>,
-	Robert Love <rml@tech9.net> writes:
-> I've seen a few solutions.  The easiest is to just give idle tasks a
-> "boost" on occasion to give them a chance to prevent the deadlock.  You
-> then, however, have the problem where the tasks can take advantage of
-> the boost...  Or, we could fix in-kernel deadlocks by doing priority
-> inheriting on locks held by A and wanted by B (i.e., if A holds
+On Mon, Dec 10, 2001 at 11:52:09AM +0000, Stephen C. Tweedie wrote:
+> Hi,
+> 
 
-Please don't. Whenever you think you priority inheritance, it's a sign your 
-system has got too complicated. The simplest solution is to simply have no
-priorities when a task is in-kernel (or at least non that can completely
-exclude a task).
+hi there Stephen.
+
+> On Sat, Dec 08, 2001 at 03:58:41PM +1100, Nathan Scott wrote:
+> > On Fri, Dec 07, 2001 at 08:20:36PM +0000, Stephen C. Tweedie wrote:
+> > 
+> > > This is looking OK as far as EAs go.  However, there is still no
+> > > mention of ACLs specifically, except an oblique reference to
+> > > "system.posix_acl_access".  
+> > 
+> > Yup - there's little mention of ACLs because they are only an
+> > optional, higher-level consumer of the API, & so didn't seem
+> > appropriate to document here.
+> 
+> Unfortunately, if there are many filesystems wanting to use posix
+> ACLs, then standardising the API is still desirable.
+> 
+
+Yes, absolutely.  That is in fact a large driving force behind
+this effort to get a common EA and POSIX ACL API, and we are now
+for the first time at a point where we have multiple filesystems
+(xfs, ext2, and ext3) sharing the same API.  The history went a
+bit like this:
+
+- an implementation of POSIX ACLs was written for ext2 and ext3
+by Andreas;
+- an implementation of POSIX ACLs was ported for XFS (at the time,
+Andreas' implementation didn't allow us to use our pre-existing
+on-disk format from IRIX)
+- Andreas made attempt #1 to get a system call interface agreed on
+over a year ago now.  He incorporated several peoples suggestions,
+but eventually the discussion got sidetracked, died and nothing
+further happened;
+- We were all _really_ hoping for something to come out of that,
+so we could then "standardise" on the various APIs involved;
+
+- [time passes, much pain is felt by lots of users - the patches
+have to continually track new kernels where the syscall table
+changes frequently break the user/kernel interface, affecting
+an increasing number of userspace applications]
+
+- After about a year of this, Andi gives us a kick in the pants,
+we contact Andreas and make a renewed effort at producing an API
+that we all can share.
+- Several iterations later, we have an initial implementation
+(which is not filesystem-specific for the first-time)
+- We made attempt #2 to get system call and VFS interfaces agreed
+on by posting to Linus, Al, various lists.  We incorporate all
+the suggestions that we think make sense, and push out several
+iterations of the patches out.
+- We are all _really_ hoping for something to come out of this,
+so that we can "standardise" on the various APIs involved;
+
+- ...?
+
+
+> > We have implemented POSIX ACLs above this interface - 
+> 
+> But the ACL encoding is still hobbled: ...
+
+I have been on the acl-devel mailing list for a long time now,
+and while these features all sound like good ideas or interesting
+projects, I have never seen anyone post a patch or request any
+specific changes to Andreas' ACL encoding in that time.
+
+It seems to me that the relatively simple implementation which
+Andreas has done is a good starting point (it has been used in
+production for a long time now).
+
+His POSIX ACL encoding has a version field in it, so if/when some
+people step forward to implement these features you've described,
+and if they require changes to the format, then there should be no
+reason they can't do it cleanly and in a filesystem-independent
+manner, right?  And if you do have reasons, its high time you sent
+Andreas some patches! ;-)
+
+Seriously though, from an XFS point of view, Andreas' current
+implementation is simple and meets all of our needs, he does a
+really good job of maintaining the code and is very responsive
+on the acl-devel list and to questions from us XFS folk, so we
+are quite happy to use his as the initial filesystem-independent
+implementation of POSIX ACLs for Linux.
+
+cheers.
+
+-- 
+Nathan

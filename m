@@ -1,70 +1,63 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314481AbSDWW6B>; Tue, 23 Apr 2002 18:58:01 -0400
+	id <S315356AbSDWXD0>; Tue, 23 Apr 2002 19:03:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314482AbSDWW6B>; Tue, 23 Apr 2002 18:58:01 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:58099
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S314481AbSDWW6A>; Tue, 23 Apr 2002 18:58:00 -0400
-Date: Tue, 23 Apr 2002 16:00:42 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "David S. Miller" <davem@redhat.com>, Andrew Morton <akpm@zip.com.au>,
-        Lennert Buytenhek <buytenh@gnu.org>
-Subject: [PATCH] Re: [BUG] DEADLOCK when removing a bridge on 2.4.19-pre6
-Message-ID: <20020423230042.GL574@matchmail.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Jeff Garzik <jgarzik@mandrakesoft.com>,
-	"David S. Miller" <davem@redhat.com>,
-	Andrew Morton <akpm@zip.com.au>,
-	Lennert Buytenhek <buytenh@gnu.org>
-In-Reply-To: <20020410015311.GA31952@matchmail.com> <20020410181606.GD23513@matchmail.com> <20020411004911.GH23513@matchmail.com> <20020411010515.GI23513@matchmail.com> <20020411014035.GJ23513@matchmail.com>
+	id <S315359AbSDWXDZ>; Tue, 23 Apr 2002 19:03:25 -0400
+Received: from zero.tech9.net ([209.61.188.187]:1287 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S315356AbSDWXDY>;
+	Tue, 23 Apr 2002 19:03:24 -0400
+Subject: Re: [PATCH] 2.5: MAX_PRIO cleanup
+From: Robert Love <rml@tech9.net>
+To: mingo@elte.hu
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0204232241520.8215-100000@elte.hu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 23 Apr 2002 19:03:26 -0400
+Message-Id: <1019603008.2045.273.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 10, 2002 at 06:40:35PM -0700, Mike Fedyk wrote:
-> On Wed, Apr 10, 2002 at 06:05:15PM -0700, Mike Fedyk wrote:
-> > On Wed, Apr 10, 2002 at 05:49:11PM -0700, Mike Fedyk wrote:
-> > > 2.4.18_fix_port_state_handling.diff
-> > > 
-> > > Is causing the problem on 2.4.17-19p6tulip-br0fpsh.  I haven't tested the
-> > > other patches though.
-> > > 
-> > > I'm going to reverse this patch on 2.4.19-pre6 to see if it fixes it there
-> > > too.  Stay tuned.
-> > 
-> > 2.4.18_enslave_bridge_dev_to_bridge_dev.diff
-> > 
-> > Is fine I didn't reproduce the trouble in 2.4.17-19p6tulip-br0ebdtbd (it was
-> > already compiling when I tested the port_state kernel...).
-> > 
-> > 2.4.19-pre6-nobr0fpsh building now...
-> 
-> Yep, reversing 2.4.18_fix_port_state_handling.diff fixed it.
-> 
+On Tue, 2002-04-23 at 16:44, Ingo Molnar wrote:
 
-Instead of reversing the patch, use this patch from Lennert Buytenhek instead:
+> i'm not so sure whether we want to make the last step to make the maximum
+> RT priority value to be a .config option. Sure we can keep things flexible
+> so that it's just a matter of a single redefine, but do we really want
+> users to be able to change the API of Linux in such a way?
+>
+> the applications which need 1000 RT threads are i suspect specialized, and
+> since it needs a kernel recompile anyway, it's not a big problem to change
+> a single constant in the source code - we do that for many other things.  
+> I'd very much suggest we keep the 0-99 range for RT tasks, it's been well
+> established and not making it a .config doesnt make it any harder for 1000
+> RT priority levels to be defined for specific applications.
 
-Note: this problem should only show up on smp kernels(unvarified), it showed
-up with a smp kernel on a UP system for me.
+I understand your points - I am doing the patch for those that could
+benefit, I felt it is useful enough to be in the kernel.  It is in fact
+the only real-time item missing from your scheduler - otherwise it is an
+ideal RT scheduler.
 
---- linux-2.4.18/net/bridge/br_input.c.orig	Thu Apr 18 11:50:16 2002
-+++ linux-2.4.18/net/bridge/br_input.c	Thu Apr 18 11:50:26 2002
-@@ -161,8 +161,10 @@
- handle_special_frame:
- 	if (!dest[5]) {
- 		br_stp_handle_bpdu(skb);
-+		read_unlock(&br->lock);
- 		return;
- 	}
- 
-+	read_unlock(&br->lock);
- 	kfree_skb(skb);
- }
+It is common for real-time schedules to either have very large RT
+priority ranges or allow customizing of these ranges.
 
+I should note that while this changes the API, it should not break any
+existing applications (as long as the number only goes up).  Existing
+scheduler calls will succeed.  In fact, the only difference to existing
+programs would be sched_getparam returning a different maximum RT
+priority value.
 
+Finally, it is not so simple as "just setting the define" because of
+sched_find_first_bit.  I have a working patch that I will post soon - I
+did pretty much what I mentioned in an earlier email where if MAX_PRIO
+is outside of a certain range we fall back on using find_first_bit.
+
+Would you be open to a patch to do the rest of the invariant work and
+the sched_find_first_bit switch, but not export a configure option?  Or
+have I convinced you the configure option is not bad? :-)
+
+The whole patch is not large either way.
+
+	Robert Love
 

@@ -1,42 +1,77 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317058AbSEXJAf>; Fri, 24 May 2002 05:00:35 -0400
+	id <S314281AbSEXJKR>; Fri, 24 May 2002 05:10:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317059AbSEXJAe>; Fri, 24 May 2002 05:00:34 -0400
-Received: from denise.shiny.it ([194.20.232.1]:26019 "EHLO denise.shiny.it")
-	by vger.kernel.org with ESMTP id <S317058AbSEXJAd>;
-	Fri, 24 May 2002 05:00:33 -0400
-Message-ID: <XFMail.20020524105942.pochini@shiny.it>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
+	id <S317059AbSEXJKQ>; Fri, 24 May 2002 05:10:16 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:13952 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S314281AbSEXJKQ>;
+	Fri, 24 May 2002 05:10:16 -0400
+Date: Fri, 24 May 2002 14:43:01 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: BALBIR SINGH <balbir.singh@wipro.com>
+Cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>,
+        Paul McKenney <paul.mckenney@us.ibm.com>,
+        lse-tech@lists.sourceforge.net
+Subject: Re: [Lse-tech] Re: [RFC] Dynamic percpu data allocator
+Message-ID: <20020524144301.D11249@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+In-Reply-To: <20020524114318.A11249@in.ibm.com> <AAEGIMDAKGCBHLBAACGBKEKPCJAA.balbir.singh@wipro.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-In-Reply-To: <3CED4843.2783B568@zip.com.au>
-Date: Fri, 24 May 2002 10:59:42 +0200 (CEST)
-From: Giuliano Pochini <pochini@shiny.it>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Poor read performance when sequential write presents
-Cc: "chen, xiangping" <chen_xiangping@emc.com>,
-        Andrew Morton <akpm@zip.com.au>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, May 24, 2002 at 02:08:50PM +0530, BALBIR SINGH wrote:
+> 
+> Sure, I understand what you are talking about now. That makes a lot
+> of sense, I will go through your document once more and read it.
+> I was thinking of the two combined (allocating CPU local memory
+> for certain data structs also includes allocating one copy per CPU).
+> Is there a reason to delay the implementation of CPU local memory,
+> or are we waiting for NUMA guys to do it? Is it not useful in an
+> SMP system to allocate CPU local memory?
 
->> I did a IO test with one sequential read and one sequential write
->> to different files. I expected somewhat similar throughput on read
->> and write. But it seemed that the read is blocked until the write
->> finishes. After the write process finished, the read process slowly
->> picks up the speed. Is Linux buffer cache in favor of write? How
->> to tune it?
-> [...]
-> 2: Apply http://www.zip.com.au/~akpm/linux/patches/2.4/2.4.19-pre5/read-latency2.patch
+In an SMP system, the entire memory is equidistant from the CPUs.
+So, any memory that is exclusively accessed by once cpu only
+is CPU-local. On a NUMA machine however that isn't true, so
+you need special schemes.
 
-Hmmm, someone wrote a patch to fix another related problem: the fact
-that multiple readers read at a very different speed. It's not unusual
-that one reader gets stuck until all other have finished. I don't
-remember who wrote that patch, sorry.
+The thing about one-copy-per-cpu allocator that I describe is that
+it interleaves per-cpu data to save on space. That is if you
+allocate per-cpu ints i1, i2, it will be laid out in memory like this -
+
+   CPU #0          CPU#1
+
+ ---------       ---------         Start of cache line
+   i1              i1
+   i2              i2 
+
+   .               .
+   .               .
+   .               .
+   .               .
+   .               .
+
+ ---------       ----------        End of cache line
+
+The per-cpu copies of i1 and i2 for CPU #0 and CPU #1 are allocated from 
+different cache lines of memory, but copy of i1 and i2 for CPU #0 are
+in the same cache line. This interleaving saves space by avoiding
+the need to pad small data structures to cache line sizes.
+This essentially how the static per-cpu data area in 2.5 kernel
+is laid out in memory. Since copies for CPU #0 and CPU #1 for
+the same variable are on different cache lines, assuming that
+code that accesses "this" CPU's copy will not result in cache line
+bouncing. On an SMP machine, I can allocate the cache lines
+for different CPUs, where the interleaved data structures are
+laid out, using the slab allocator. On a NUMA machine however,
+I would want to make sure that cache line allocated for this
+purpose for CPU #N is closest possible to CPU #N.
 
 
-Bye.
-
+Thanks
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

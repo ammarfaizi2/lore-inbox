@@ -1,76 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262610AbTKRN1U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 08:27:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262652AbTKRN1U
+	id S262564AbTKRN0K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 08:26:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262603AbTKRN0K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 08:27:20 -0500
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:23746
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S262610AbTKRN1P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 08:27:15 -0500
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: shoxx@web.de, linux-kernel@vger.kernel.org
-Subject: Re: problem with suspend to disk on linux2.6-t9
-Date: Tue, 18 Nov 2003 07:18:00 -0600
-User-Agent: KMail/1.5
-References: <200311172327.24418.shoxx@web.de>
-In-Reply-To: <200311172327.24418.shoxx@web.de>
-Cc: mochel@osdl.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 18 Nov 2003 08:26:10 -0500
+Received: from gprs147-139.eurotel.cz ([160.218.147.139]:16257 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S262564AbTKRN0G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Nov 2003 08:26:06 -0500
+Date: Tue, 18 Nov 2003 14:26:34 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Jens Axboe <axboe@suse.de>
+Cc: Guillaume Chazarain <guichaz@yahoo.fr>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] cfq + io priorities
+Message-ID: <20031118132634.GB470@elf.ucw.cz>
+References: <SRLGXA875SP047EDQLEC055ZHDZX2V.3fae1da3@monpc> <20031109113928.GN2831@suse.de> <20031113125427.GB643@openzaurus.ucw.cz> <20031117081407.GI888@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200311180718.00059.rob@landley.net>
+In-Reply-To: <20031117081407.GI888@suse.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 17 November 2003 16:27, dodger wrote:
-> hi
-> i am using linux2.6-t9 and i am trying to use suspend to disk
-> when doing a
-> < echo -n "disk" > /sys/power/state >
->
-> it is suspending real fine.
-> but it is not resuming at all.
-> i tried to boot up normally and with resume=/dev/hdb5 ( swap partition )
-> but nothing happens...
->
-> it just boots up normally...
-> i have set /dev/hdb5 as DEFAULT RESUME PARTITION during kernel config...
->
-> any ideas?
-> thanks
+Hi!
 
-Did you specify a default resume partition (CONFIG_PM_DISK_PARTITION) in your 
-.config?  (Or provide it with the kernel parameter pmdisk=/dev/blah)...
+> > OTOH it might make sense to make "nice" command set
+> > both by default.
+> 
+> Yes, I can probably be talked into that.
 
-On suspend, it saves to the first mounted swap file.  On resume, it hasn't 
-looked at /etc/fstab yet to see where the swap files are by the time it gets 
-to resuming, and nobody's bothered to code up any heuristic for what to do 
-with no default partition, so you have to point it at a partition or it won't 
-attempt to resume.
+Good.
 
-Personally, I think that 99% of the time you can just iterate through the 
-partitions of whatever drive your root device lives on and find the first one 
-that's got a valid suspend signature on it, and resume from that.  (And if 
-you don't find one, don't resume.)  The few cases where this isn't 
-appropriate can configure another default or supply a kernel command line 
-paramenter, but having to bake your swap partition location into the kernel 
-config is a bit klunky at best...
+> > > > > these end values are "special" - 0 means the process is only allowed to
+> > > > > do io if the disk is idle, and 20 means the process io is considered
+> > > > 
+> > > > So a process with ioprio == 0 can be forever starved. As it's not
+> > > 
+> > > Yes
+> > 
+> > If semaphore is held over disk io somewhere (quota code? journaling?)
+> > you have ugly possibility of priority inversion there.
+> 
+> Indeed yes. That's a general problem with all the io priorities though,
+> RT io might end up waiting for nice 10 io etc. Dunno what to do about
+> this yet...
 
-Of course with lilo, there's a user space alternative, you know.  Your suspend 
-script could call lilo -R with a command line that points to the partition 
-you're about to suspend to.  But there are a number of problems with that 
-(ideally you want to do it right AFTER suspending...)  And I dunno if grub's 
-got an equivalent...
+Well, traditional (== scheduler) solution is not to have idle classes
+and not guarantee anything about realtime classes.
 
-One thing that might be nice is if there was a way to trigger a resume from 
-the initramfs.  "Blow away the current process list and load this binary 
-image of what userspace should look like."  That way figuring out where the 
-sucker lives is a problem you could punt on. :)
-
-Rob
-
+At least idle class can not be used to hold important semaphore
+forever (even low-priority prosses receive enough time not to hold
+important semaphores too long)... I believe you should do the same (==
+get rid of idle class for now, and clearly state that realtime ones
+are not _guaranteed_ anything).
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

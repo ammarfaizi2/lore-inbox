@@ -1,68 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263149AbRE1VGM>; Mon, 28 May 2001 17:06:12 -0400
+	id <S263151AbRE1VOM>; Mon, 28 May 2001 17:14:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263151AbRE1VGC>; Mon, 28 May 2001 17:06:02 -0400
-Received: from smtp6vepub.gte.net ([206.46.170.27]:59514 "EHLO
-	smtp6ve.mailsrvcs.net") by vger.kernel.org with ESMTP
-	id <S263149AbRE1VFx>; Mon, 28 May 2001 17:05:53 -0400
-From: George France <france@handhelds.org>
-Date: Mon, 28 May 2001 17:05:45 -0400
-X-Mailer: KMail [version 1.1.99]
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_L9D24QYWXHP617EAYU7A"
-To: linux-kernel@vger.kernel.org
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jay Thorne <Yohimbe@userfriendly.org>
-Subject: PATCH - ksymoops on Alpha - 2.4.5-ac3
-MIME-Version: 1.0
-Message-Id: <01052817054503.17841@shadowfax.middleearth>
+	id <S263152AbRE1VOB>; Mon, 28 May 2001 17:14:01 -0400
+Received: from empD-port20.net.McMaster.CA ([130.113.193.26]:19972 "EHLO
+	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S263151AbRE1VNs>; Mon, 28 May 2001 17:13:48 -0400
+Date: Mon, 28 May 2001 14:21:05 -0400
+Message-Id: <200105281821.f4SIL5000350@mobilix.atnf.CSIRO.AU>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Steve Kieu <haiquy@yahoo.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.4.5-ac2 OOPs when run pppd ?
+In-Reply-To: <3B125E62.1DD4712E@uow.edu.au>
+In-Reply-To: <20010528084855.10604.qmail@web10402.mail.yahoo.com>
+	<E154NQp-000386-00@the-village.bc.nu>
+	<3B125E62.1DD4712E@uow.edu.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton writes:
+> Alan Cox wrote:
+> > 
+> > > Yeas it is stil the same as 2.4.5-ac1, but did not
+> > > happen with 2.4.5; You can try running pppd in the
+> > > console (tty1) without any argument.
+> > 
+> > Looks like an interaction with the newer console locking code. The BUG() is
+> > caused when the ppp code tries to write to the console from inside an
+> > interrupt handler [now not allowed]
+> 
+> I wondered if there were more cases.
+> 
+> In the (as-yet-unsent) Linus patch I've added an
+> 
+> 	if (in_interrupt()) {
+> 		shout_loudly();
+> 		return;
+> 	}
+> 
+> in three places to catch this possibility.   I'll prepare
+> a -ac diff.
+> 
+> 
+> This is a fundamental problem.
+> 
+> - The console is a tty device
+> - tty devices are callable from interrupts
+> - the console is very stateful and needs locking
+> - the locking must be interrupt-safe (irqsave)
+> - the console is very slow.
+> 
+> net result: we block interrupts for ages.  It's
+> an exceptional situation.  I hope Linus buys this
+> line of reasoning :)
 
---------------Boundary-00=_L9D24QYWXHP617EAYU7A
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+How about having a helper function for interrupt handlers which queues
+characters to be sent to the console? kconsoled anyone? Blocking
+interrupts is quite distressing, so we need to be consoled ;-)
 
-Here is a trivial patch that will make ksymoops work again on Alpha.
+				Regards,
 
---George
-
-diff -urN linux-2.4.5-ac3-orig/arch/alpha/kernel/traps.c 
-linux/arch/alpha/kernel/traps.c
---- linux-2.4.5-ac3-orig/arch/alpha/kernel/traps.c	Thu May 24 17:24:37 2001
-+++ linux/arch/alpha/kernel/traps.c	Mon May 28 16:38:25 2001
-@@ -286,11 +286,7 @@
- 			continue;
- 		if (tmp >= (unsigned long) &_etext)
- 			continue;
--		/*
--		 * Assume that only the low 24-bits of a kernel text address
--		 * is interesting.
--		 */
--		printk("%6x%c", (int)tmp & 0xffffff, (++i % 11) ? ' ' : '\n');
-+		printk("%16lx%c", tmp);
- #if 0
- 		if (i > 40) {
- 			printk(" ...");
-
-
---------------Boundary-00=_L9D24QYWXHP617EAYU7A
-Content-Type: text/english;
-  name="patch-ksymoops-alpha"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="patch-ksymoops-alpha"
-
-ZGlmZiAtdXJOIGxpbnV4LTIuNC41LWFjMy1vcmlnL2FyY2gvYWxwaGEva2VybmVsL3RyYXBzLmMg
-bGludXgvYXJjaC9hbHBoYS9rZXJuZWwvdHJhcHMuYwotLS0gbGludXgtMi40LjUtYWMzLW9yaWcv
-YXJjaC9hbHBoYS9rZXJuZWwvdHJhcHMuYwlUaHUgTWF5IDI0IDE3OjI0OjM3IDIwMDEKKysrIGxp
-bnV4L2FyY2gvYWxwaGEva2VybmVsL3RyYXBzLmMJTW9uIE1heSAyOCAxNjozODoyNSAyMDAxCkBA
-IC0yODYsMTEgKzI4Niw3IEBACiAJCQljb250aW51ZTsKIAkJaWYgKHRtcCA+PSAodW5zaWduZWQg
-bG9uZykgJl9ldGV4dCkKIAkJCWNvbnRpbnVlOwotCQkvKgotCQkgKiBBc3N1bWUgdGhhdCBvbmx5
-IHRoZSBsb3cgMjQtYml0cyBvZiBhIGtlcm5lbCB0ZXh0IGFkZHJlc3MKLQkJICogaXMgaW50ZXJl
-c3RpbmcuCi0JCSAqLwotCQlwcmludGsoIiU2eCVjIiwgKGludCl0bXAgJiAweGZmZmZmZiwgKCsr
-aSAlIDExKSA/ICcgJyA6ICdcbicpOworCQlwcmludGsoIiUxNmx4JWMiLCB0bXApOwogI2lmIDAK
-IAkJaWYgKGkgPiA0MCkgewogCQkJcHJpbnRrKCIgLi4uIik7Cg==
-
---------------Boundary-00=_L9D24QYWXHP617EAYU7A--
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

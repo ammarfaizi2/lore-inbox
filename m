@@ -1,72 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbVBGT44@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261299AbVBGTxB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261271AbVBGT44 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 14:56:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbVBGTxW
+	id S261299AbVBGTxB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 14:53:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbVBGTuw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 14:53:22 -0500
-Received: from rproxy.gmail.com ([64.233.170.193]:756 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261271AbVBGTtd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 14:49:33 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=IIlqx5+7NHjBj48yLWWktE6OUPR8U9sum3gvoJ8rSbV0BOyzG8LEOa2BRSLgCD1X4RJv/lAUKRxBm5Fa0M6Wt0NTjO53yaxv5QCa1689NXroKF60425BL7zX4CsfGj5stmeVT5ySm7MNiPmznCQjBg0XxsavjOmh2nDpZe4LuV0=
-Message-ID: <d120d500050207114959466682@mail.gmail.com>
-Date: Mon, 7 Feb 2005 14:49:33 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: trelane@digitasaru.net, dtor_core@ameritech.net,
-       linux-kernel@vger.kernel.org, petero2@telia.com
-Subject: Re: [ATTN: Dmitry Torokhov] About the trackpad and 2.6.11-rc[23] but not -rc1
-In-Reply-To: <20050207191615.GC12024@digitasaru.net>
+	Mon, 7 Feb 2005 14:50:52 -0500
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:47592 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261283AbVBGTj6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 14:39:58 -0500
+Subject: [PATCH] [SERIAL] add TP560 data/fax/modem support
+From: Bjorn Helgaas <bjorn-helgaas@comcast.net>
+Reply-To: bjorn.helgaas@hp.com
+To: rmk+serial@arm.linux.org.uk, linux-serial@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Mon, 07 Feb 2005 12:39:42 -0700
+Message-Id: <1107805182.8074.35.camel@piglet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
-References: <20050207154326.GA13539@digitasaru.net>
-	 <d120d50005020708512bb09e0@mail.gmail.com>
-	 <20050207180950.GA12024@digitasaru.net>
-	 <d120d50005020710591181fe69@mail.gmail.com>
-	 <20050207190541.GB12024@digitasaru.net>
-	 <d120d5000502071112599fa61c@mail.gmail.com>
-	 <20050207191615.GC12024@digitasaru.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Feb 2005 13:16:15 -0600, Joseph Pingenot
-<trelane@digitasaru.net> wrote:
-> From Dmitry Torokhov on Monday, 07 February, 2005:
-> >On Mon, 7 Feb 2005 13:05:41 -0600, Joseph Pingenot
-> ><trelane@digitasaru.net> wrote:
-> >> From Dmitry Torokhov on Monday, 07 February, 2005:
-> >> >On Mon, 7 Feb 2005 12:09:50 -0600, Joseph Pingenot
-> >> ><trelane@digitasaru.net> wrote:
-> >> >> From Dmitry Torokhov on Monday, 07 February, 2005:
-> >> >> >Nonetheless it would be nice to see the data stream from the touchpad
-> >> >> >to see why our ALPS support does not work quite right. Could you
-> >> >> >please try booting with "log_buf_len=131072 i8042.debug=1", and
-> >> >> >working the touchpad a bit. then send me the output of "dmesg -s
-> >> >> >131072" (or just /var/log/messages).
-> >> >> dmesg output, non-mouse output trimmed (for obvious reasons, if you think
-> >> >>  about it ;) is attached.
-> >> >I am sorry, I was not clear enough. I'd like to see -rc2 (the broken
-> >> >one), complete with bootup process, so we will see why it can't
-> >> >synchronize at all. (I of course don't need keyboard data of anything
-> >> >that has been typed after boot).
-> >> They're both broken in about the same way, iirc.  Is there something special
-> >>  in -rc2 that's not in -rc3?
-> >No, -rc3 will do as well. Any version starting with -rc2 should do the trick.
-> 
-> All info in the mail to which you repsonded were from -rc3, including
->  and especially the attachemnt.  The only info I sent from -rc1 was the
->  contents of /proc/bus/input/devices in response to the *original* request.
-> 
+Claim Topic TP560 data/fax/voice modem.  This device reports as class 0x0780,
+so we don't claim it by default:
 
-Ah, I see. Well, the data in foo.gz file looks like standard PS/2
-protocol, it would be interesting to see the beginning of the dmesg
-(where we do all the detection). It looks like something has reset the
-absolute mode back to standard relative one.
+	00:0d.0 Class 0780: 151f:0000
+		Subsystem: 151f:0000
+		Interrupt: pin A routed to IRQ 11
+		Region 0: I/O ports at a400 [size=8]
+	00: 1f 15 00 00 01 00 00 02 00 00 80 07 00 00 00 00
+	10: 01 a4 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+	20: 00 00 00 00 00 00 00 00 00 00 00 00 1f 15 00 00
+	30: 00 00 00 00 00 00 00 00 00 00 00 00 0b 01 00 00
 
--- 
-Dmitry
+Some rc.serial scripts extract IRQ and I/O port information from
+/proc/pci and stuff it into an unused port using setserial.  That
+doesn't work reliably anymore because pci_enable_device() is never
+called, so the IRQ may not be enabled.
+
+Thanks to Evan Clarke for reporting and helping debug this problem.
+
+Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+
+===== drivers/serial/8250_pci.c 1.48 vs edited =====
+--- 1.48/drivers/serial/8250_pci.c	2004-11-21 23:42:29 -07:00
++++ edited/drivers/serial/8250_pci.c	2005-02-07 12:00:32 -07:00
+@@ -2212,6 +2212,13 @@
+ 		0, pbn_exar_XR17C158 },
+ 
+ 	/*
++	 * Topic TP560 Data/Fax/Voice 56k modem (reported by Evan Clarke)
++	 */
++	{	PCI_VENDOR_ID_TOPIC, PCI_DEVICE_ID_TOPIC_TP560,
++		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++		pbn_b0_1_115200 },
++
++	/*
+ 	 * These entries match devices with class COMMUNICATION_SERIAL,
+ 	 * COMMUNICATION_MODEM or COMMUNICATION_MULTISERIAL
+ 	 */
+===== include/linux/pci_ids.h 1.200 vs edited =====
+--- 1.200/include/linux/pci_ids.h	2005-01-30 23:33:43 -07:00
++++ edited/include/linux/pci_ids.h	2005-02-07 11:56:14 -07:00
+@@ -1972,6 +1972,9 @@
+ #define PCI_DEVICE_ID_BCM4401		0x4401
+ #define PCI_DEVICE_ID_BCM4401B0		0x4402
+ 
++#define PCI_VENDOR_ID_TOPIC		0x151f
++#define PCI_DEVICE_ID_TOPIC_TP560	0x0000
++
+ #define PCI_VENDOR_ID_ENE		0x1524
+ #define PCI_DEVICE_ID_ENE_1211		0x1211
+ #define PCI_DEVICE_ID_ENE_1225		0x1225
+
+

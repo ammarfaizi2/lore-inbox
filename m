@@ -1,51 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284778AbRLEWjI>; Wed, 5 Dec 2001 17:39:08 -0500
+	id <S284773AbRLEWni>; Wed, 5 Dec 2001 17:43:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284773AbRLEWi6>; Wed, 5 Dec 2001 17:38:58 -0500
-Received: from ns.caldera.de ([212.34.180.1]:40922 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S284778AbRLEWir>;
-	Wed, 5 Dec 2001 17:38:47 -0500
-Date: Wed, 5 Dec 2001 23:38:29 +0100
-From: Christoph Hellwig <hch@caldera.de>
-To: Kevin Corry <corryk@us.ibm.com>
-Cc: evms-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: gendisk list access (was: [Evms-devel] Unresolved symbols)
-Message-ID: <20011205233829.A11547@caldera.de>
-Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
-	Kevin Corry <corryk@us.ibm.com>, evms-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <OFCE7B6713.9A6E1AF1-ON85256B02.004FB1C4@raleigh.ibm.com> <01120514525902.13647@boiler> <20011205225346.A7313@caldera.de> <01120516183303.13647@boiler>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <01120516183303.13647@boiler>; from corryk@us.ibm.com on Wed, Dec 05, 2001 at 04:18:33PM -0600
+	id <S284781AbRLEWn2>; Wed, 5 Dec 2001 17:43:28 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:12207 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S284773AbRLEWnO>; Wed, 5 Dec 2001 17:43:14 -0500
+Message-ID: <3C0EA2FA.7010008@redhat.com>
+Date: Wed, 05 Dec 2001 17:43:06 -0500
+From: Doug Ledford <dledford@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011129
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Nathan Bryant <nbryant@optonline.net>
+CC: Mario Mikocevic <mozgy@hinet.hr>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: i810 audio patch
+In-Reply-To: <3C0C16E7.70206@optonline.net> <3C0C508C.40407@redhat.com> <3C0C58DE.9020703@optonline.net> <3C0C5CB2.6000602@optonline.net> <3C0C61CC.1060703@redhat.com> <20011204153507.A842@danielle.hinet.hr> <3C0D1DD2.4040609@optonline.net> <3C0D223E.3020904@redhat.com> <3C0D350F.9010408@optonline.net> <3C0D3CF7.6030805@redhat.com> <3C0D4E62.4010904@optonline.net> <3C0D52F1.5020800@optonline.net> <3C0D5796.6080202@redhat.com> <3C0D5CB6.1080600@optonline.net> <3C0D5FC7.3040408@redhat.com> <3C0D77D9.70205@optonline.net> <3C0D8B00.2040603@optonline.net> <3C0D8F02.8010408@redhat.com> <3C0D9456.6090106@optonline.net> <3C0DA1CC.1070408@redhat.com> <3C0DAD26.1020906@optonline.net> <3C0DAF35.50008@redhat.com> <3C0E7DCB.6050600@optonline.net> <3C0E7DFB.2030400@optonline.net> <3C0E7F1C.4060603@redhat.com> <3C0E8DBF.5010000@optonline.net> <3C0E90B2.1030601@redhat.com> <3C0E935F.3070505@optonline.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 05, 2001 at 04:18:33PM -0600, Kevin Corry wrote:
-> >    a block device and a partition.
-> >
-> > Hope this helps..
+Nathan Bryant wrote:
+
+>
+> Actually, I think I *may* have found the problem, in update ptr, it 
+> should look like this: going to test in a moment
 > 
-> Sounds good. Any chance you could just leave out the partitioning stuff and 
-> let EVMS handle it?
+>        /* error handling and process wake up for DAC */
+>        if (dmabuf->enable == DAC_RUNNING) {
+>                /* update hardware pointer */
+>                hwptr = i810_get_dma_addr(state, 0);
+>                diff = hwptr - dmabuf->hwptr;
+>                if (hwptr < dmabuf->hwptr)
+>                        diff += dmabuf->dmasize;
 
-You know my opinion to EVMS - so I'd rather avoid makeing it mandatory.
-But if the 2.5 actually looks then like I expect it now partitioning code
-will be much simpler than - all code dealing with ondisk formats will
-be in early, pre-mount-root userspace, based on Andries Brouwer's partx
-(part of util-linux).
 
-> I must have missed your walk_gendisk() patch the last time (do you remember 
-> how long ago you posted that?).
+This is mathematically equivelant to what was already there.
 
-It was on Nov, 12 - but it was in a private thread that only started on
-evms-devel.  So Mark was the only EVMS person that got it.  Sorry for
-the confusion.
 
-	Christoph
+> #if defined(DEBUG_INTERRUPTS) || defined(DEBUG_MMAP)
+>                printk("DAC HWP %d,%d,%d\n", hwptr, dmabuf->hwptr, diff);
+> #endif
+> 
+> reason: hwptr hits 65536 which is indistinguishable from 0 in mod 
+> arithmetic
+
+
+The mod doesn't happen until all the rest is already done, and then it's 
+just cancelling out the dmabuf->dmasize portion (instead of using an if 
+statement to do the same thing).
+
+
+> also, I ran your other DEBUG_MMAP patch and the news is that count just 
+> sits at 65536 ad nauseum.
+
+
+Yes, but if I have the stuff leading up to it sitting at 65536 forever I 
+might be able to diagnose the problem (without installing quake myself 
+and taking the time to set it up anyway) ;-)
+
+
+
+
 
 -- 
-Of course it doesn't work. We've performed a software upgrade.
+
+  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
+       Please check my web site for aic7xxx updates/answers before
+                       e-mailing me about problems
+

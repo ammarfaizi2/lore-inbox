@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282192AbRK1XzZ>; Wed, 28 Nov 2001 18:55:25 -0500
+	id <S282196AbRK1X4x>; Wed, 28 Nov 2001 18:56:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282196AbRK1XzO>; Wed, 28 Nov 2001 18:55:14 -0500
-Received: from walden.phpwebhosting.com ([64.65.61.214]:19475 "HELO
-	walden.phpwebhosting.com") by vger.kernel.org with SMTP
-	id <S282192AbRK1Xy5>; Wed, 28 Nov 2001 18:54:57 -0500
-Message-Id: <5.1.0.14.0.20011128173852.00a28440@sunset.olemiss.edu>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 28 Nov 2001 17:55:11 -0600
-To: linux-kernel@vger.kernel.org
-From: Ben Pharr - Lists <ben-lists@benpharr.com>
-Subject: IDE SeekComplete Error
+	id <S282204AbRK1X4o>; Wed, 28 Nov 2001 18:56:44 -0500
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:31988 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S282196AbRK1X40>;
+	Wed, 28 Nov 2001 18:56:26 -0500
+Date: Wed, 28 Nov 2001 16:55:30 -0700
+From: Andreas Dilger <adilger@turbolabs.com>
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+Cc: Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.5.1-pre2 bio offset by one error in VIA IDE
+Message-ID: <20011128165530.L856@lynx.no>
+Mail-Followup-To: Anton Altaparmakov <aia21@cam.ac.uk>,
+	Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0111271701140.1629-100000@penguin.transmeta.com> <15364.3457.368582.994067@gargle.gargle.HOWL> <Pine.LNX.4.33.0111271701140.1629-100000@penguin.transmeta.com> <20011128132000.T23858@suse.de> <5.1.0.14.2.20011128232246.00aea8f0@pop.cus.cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <5.1.0.14.2.20011128232246.00aea8f0@pop.cus.cam.ac.uk>; from aia21@cam.ac.uk on Wed, Nov 28, 2001 at 11:31:14PM +0000
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been getting a DriveReady SeekComplete Error at bootup from my CD 
-burner. Below are the excerpts from dmesg. I have a script that turns off 
-DMA on the writer, but it hasn't been reached yet when this error occurs. 
-This occurred on my first boot of 2.4.17-pre1, but I'm not positive it 
-hasn't been happening with earlier kernels. I doesn't seem to be causing 
-any problems.
+On Nov 28, 2001  23:31 +0000, Anton Altaparmakov wrote:
+> I just booted my Athlon VIA KT133 chipset box with 2.5.1-pre2 only to 
+> discover it dropped me into single user mode because /dev/hda2 could not be 
+> mounted. (Rebooting into 2.5.0+viro patch everything is ok, back into 
+> 2.5.1-pre2 is broken...)
+> 
+> Looking with hexedit /dev/hda2 when booted into 2.5.1-pre2 the first sector 
+> contains junk, the second sector contains the real data that I see as the 
+> first sector when booted into 2.5.0+viro fix.
+> 
+> That suggests to me there is an off by one error in the VIA IDE driver in 
+> the 2.5.10pre2 kernel causing the partition to start one sector earlier 
+> than it should.
 
-Ben Pharr
+It may be an issue with your particular partition table having /dev/hda1
+being an odd number of 512-byte sectors long, but Jens' code only doing
+math on 1kB blocks.  Just speculation of course.  What does "fdisk -ul"
+tell you under the two kernels?
 
-
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-PIIX4: IDE controller on PCI bus 00 dev f9
-PIIX4: chipset revision 2
-PIIX4: not 100% native mode: will probe irqs later
-     ide0: BM-DMA at 0x1800-0x1807, BIOS settings: hda:DMA, hdb:pio
-     ide1: BM-DMA at 0x1808-0x180f, BIOS settings: hdc:DMA, hdd:pio
-hda: QUANTUM FIREBALLlct15 20, ATA DISK drive
-hdc: SAMSUNG DVD-ROM SD-612, ATAPI CD/DVD-ROM drive
-hdd: SAMSUNG CD-R/RW SW-408B, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: 39876480 sectors (20417 MB) w/418KiB Cache, CHS=2482/255/63, UDMA(33)
-hdc: ATAPI 32X DVD-ROM drive, 512kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.12
-Partition check:
-  hda: hda1 hda2 hda4
-
-SCSI subsystem driver Revision: 1.00
-hdd: set_drive_speed_status: status=0x51 { DriveReady SeekComplete Error }
-hdd: set_drive_speed_status: error=0x04
-scsi0 : SCSI host adapter emulation for IDE ATAPI devices
-   Vendor: SAMSUNG   Model: CD-R/RW SW-408B   Rev: BS02
-   Type:   CD-ROM                             ANSI SCSI revision: 02
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

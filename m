@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286959AbSBKDnF>; Sun, 10 Feb 2002 22:43:05 -0500
+	id <S287106AbSBKEA6>; Sun, 10 Feb 2002 23:00:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286962AbSBKDmz>; Sun, 10 Feb 2002 22:42:55 -0500
-Received: from front2.mail.megapathdsl.net ([66.80.60.30]:20487 "EHLO
-	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
-	id <S286959AbSBKDmu>; Sun, 10 Feb 2002 22:42:50 -0500
-Subject: fdomain.c:1568: structure has no member named `address'
-From: Miles Lane <miles@megapathdsl.net>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
+	id <S287002AbSBKEAt>; Sun, 10 Feb 2002 23:00:49 -0500
+Received: from ip68-3-104-241.ph.ph.cox.net ([68.3.104.241]:4480 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S287045AbSBKEAd>;
+	Sun, 10 Feb 2002 23:00:33 -0500
+Message-ID: <3C6741DF.6040100@candelatech.com>
+Date: Sun, 10 Feb 2002 21:00:31 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.4.18-pre9 insmod problems.
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Organization: 
-X-Mailer: Evolution/1.1.0.99 (Preview Release)
-Date: 10 Feb 2002 19:39:50 -0800
-Message-Id: <1013398791.30864.37.camel@turbulence.megapathdsl.net>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
--pipe -mpreferred-stack-boundary=2 -march=athlon  -DMODULE 
--DKBUILD_BASENAME=fdomain -DPCMCIA -D__NO_VERSION__ -c -o fdomain.o
-../fdomain.c
-../fdomain.c: In function `do_fdomain_16x0_intr':
-../fdomain.c:1568: structure has no member named `address'
-../fdomain.c:1601: structure has no member named `address'
-../fdomain.c: In function `fdomain_16x0_queue':
-../fdomain.c:1687: structure has no member named `address'
-../fdomain.c: In function `fdomain_16x0_release':
-../fdomain.c:2046: warning: control reaches end of non-void function
+I'm in the process of bringing my new Tyan Tiger MP machine online.
+I compiled 2.4.18-pre9 (Athlon, SMP), and it seemed to go ok.  However, I get
+lots of unknown symbol errors when booting.
 
-CONFIG_SCSI_PCMCIA=y
-CONFIG_PCMCIA_AHA152X=m
-CONFIG_PCMCIA_FDOMAIN=m
-CONFIG_PCMCIA_NINJA_SCSI=m
+insmod eepro100 gives:
+unresolved symbol del_timer_sync
+unresolved symbol synchronize_irq
+
+The USB stuff didn't load either.
+
+Is this a known problem, or do I need to give more details?
+
+Thanks,
+Ben
+
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
 
 

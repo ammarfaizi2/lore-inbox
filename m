@@ -1,75 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272328AbTHEBIz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 21:08:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272342AbTHEBIz
+	id S272247AbTHEBYE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 21:24:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272318AbTHEBYE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 21:08:55 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:25616 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S272328AbTHEBIv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 21:08:51 -0400
-Date: Tue, 5 Aug 2003 03:08:48 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: george anzinger <george@mvista.com>
-Cc: Tim Schmielau <tim@physik3.uni-rostock.de>,
-       Patrick Moor <pmoor@netpeople.ch>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: time jumps (again)
-Message-ID: <20030805010848.GA4697@win.tue.nl>
-References: <Pine.LNX.4.33.0308042347300.12309-100000@gans.physik3.uni-rostock.de> <3F2EE053.1020600@mvista.com>
+	Mon, 4 Aug 2003 21:24:04 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:45816 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S272247AbTHEBYC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 21:24:02 -0400
+Date: Mon, 4 Aug 2003 21:18:20 -0400
+From: Andrew Pimlott <andrew@pimlott.net>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: aia21@cam.ac.uk, aebr@win.tue.nl, linux-kernel@vger.kernel.org
+Subject: Re: FS: hardlinks on directories
+Message-ID: <20030805011820.GB23512@pimlott.net>
+Mail-Followup-To: Stephan von Krawczynski <skraw@ithnet.com>,
+	aia21@cam.ac.uk, aebr@win.tue.nl, linux-kernel@vger.kernel.org
+References: <20030804141548.5060b9db.skraw@ithnet.com> <20030804134415.GA4454@win.tue.nl> <20030804155604.2cdb96e7.skraw@ithnet.com> <Pine.SOL.4.56.0308041458500.22102@orange.csi.cam.ac.uk> <20030804165002.791aae3d.skraw@ithnet.com> <20030804225819.GA23512@pimlott.net> <20030805021938.7e547cce.skraw@ithnet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F2EE053.1020600@mvista.com>
-User-Agent: Mutt/1.3.25i
+In-Reply-To: <20030805021938.7e547cce.skraw@ithnet.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Tim Schmielau wrote:
+On Tue, Aug 05, 2003 at 02:19:38AM +0200, Stephan von Krawczynski wrote:
+> On Mon, 4 Aug 2003 18:58:19 -0400
+> Andrew Pimlott <andrew@pimlott.net> wrote:
+> > 
+> > In preparing this example, I discovered that find and ls -R already
+> > have hard-link cycle "protection" built in, so they are broken in
+> > the presence of bind mounts.  :-(
+> 
+> Ok, so now we are at: application programmer expected hardlinks to exist, but
+> fs programmer says they won't because they break existing applications.
 
-> >>What happens: when doing a
-> >> $ while true; do date; done
-> >>I'm noticing time jumps _exactly_ at the beginning of a "new" second (or
-> >>at the end of an "old" one). the jump is exactly 4294 (4295) seconds
-> >>into the future. Example:
-> >>...
-> >>Mon Aug  4 18:11:06 CEST 2003
-> >>Mon Aug  4 19:22:41 CEST 2003
-> >>Mon Aug  4 18:11:07 CEST 2003
-> >>...
+I would say that a few venerable programs, that have seen wide use
+on old broken versions of unix, contain workarounds for this
+problem.  I'm sure that most applications don't contain such
+workarounds.  And it is expensive, so I would certainly prefer that
+my find and ls didn't do this.
 
-> >--- linux-2.4.20/arch/i386/kernel/time.c.orig	Mon Aug  4 23:38:47 2003
-> >+++ linux-2.4.20/arch/i386/kernel/time.c	Mon Aug  4 23:40:53 2003
-> >@@ -274,8 +274,8 @@
-> > 	read_lock_irqsave(&xtime_lock, flags);
-> > 	usec = do_gettimeoffset();
-> > 	{
-> >-		unsigned long lost = jiffies - wall_jiffies;
-> >-		if (lost)
-> >+		long lost = jiffies - wall_jiffies;
-> >+		if (lost>0)
-> > 			usec += lost * (1000000 / HZ);
-> > 	}
-> > 	sec = xtime.tv_sec;
+> Now the discussion gets real interesting ;-)
 
-At first sight jiffies and wall_jiffies increase monotonically, and
-wall_jiffies always has a value jiffies had a moment earlier, so the
-difference jiffies - wall_jiffies ought to be nonnegative.
+Wouldn't bind mounts solve your problem?  Why are you still
+interested in hard links?
 
-On the other hand, do_gettimeoffset() is a much more obscure function,
-and the jumps are also explained if that can return a negative value.
-
-Depending on CONFIG_X86_TSC it does do_slow_gettimeoffset or
-do_fast_gettimeoffset. Both offer plenty of opportunities to
-return a negative value. Things depend on hardware details.
-
-So, instead of adding a test inside { } I would propose to catch
-problems after the {}, e.g. by
-	if (usec < 0)
-		usec = 0;
-
-There should be a clue in the fact that the jump happens at the
-start of a new second. I don't know what it is.
-
-Andries
-
+Andrew

@@ -1,38 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274500AbRITWAT>; Thu, 20 Sep 2001 18:00:19 -0400
+	id <S274667AbRITWDu>; Thu, 20 Sep 2001 18:03:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274590AbRITWAK>; Thu, 20 Sep 2001 18:00:10 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:19081 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S274500AbRITWAB>;
-	Thu, 20 Sep 2001 18:00:01 -0400
-Date: Thu, 20 Sep 2001 14:59:48 -0700 (PDT)
-Message-Id: <20010920.145948.27781583.davem@redhat.com>
-To: kuznet@ms2.inr.ac.ru
-Cc: matthias.andree@stud.uni-dortmund.de, linux-kernel@vger.kernel.org
-Subject: Re: Proposed patch to devinet.c to make SIOCGIF* more compatible
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200109071657.UAA31210@ms2.inr.ac.ru>
-In-Reply-To: <20010907183245.A9192@emma1.emma.line.org>
-	<200109071657.UAA31210@ms2.inr.ac.ru>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S274672AbRITWDj>; Thu, 20 Sep 2001 18:03:39 -0400
+Received: from waste.org ([209.173.204.2]:29784 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S274667AbRITWD1>;
+	Thu, 20 Sep 2001 18:03:27 -0400
+Date: Thu, 20 Sep 2001 17:03:15 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+cc: Robert Love <rml@tech9.net>, Andrea Arcangeli <andrea@suse.de>,
+        Roger Larsson <roger.larsson@norran.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: [PATCH] Preemption Latency Measurement Tool
+In-Reply-To: <20010920213510Z274657-760+14618@vger.kernel.org>
+Message-ID: <Pine.LNX.4.30.0109201659210.5622-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: kuznet@ms2.inr.ac.ru
-   Date: Fri, 7 Sep 2001 20:57:10 +0400 (MSK DST)
+On Thu, 20 Sep 2001, Dieter Nützel wrote:
 
-   > I have a patch that I sent to Linux-Kernel yesterday and that I'd like
-   > your comment on.
-   
-   Ack. It is right.
+> Am Donnerstag, 20. September 2001 23:10 schrieb Robert Love:
+> > On Thu, 2001-09-20 at 04:21, Andrea Arcangeli wrote:
+> > > > You've forgotten a one liner.
+> > > >
+> > > >   #include <linux/locks.h>
+> > > > +#include <linux/compiler.h>
+> > >
+> > > woops, didn't trapped it because of gcc 3.0.2. thanks.
+> > >
+> > > > But this is not enough. Even with reniced artsd (-20).
+> > > > Some shorter hiccups (0.5~1 sec).
+> > >
+> > > I'm not familiar with the output of the latency bench, but I actually
+> > > read "4617" usec as the worst latency, that means 4msec, not 500/1000
+> > > msec.
+> >
+> > Right, the patch is returning the length preemption was unavailable
+> > (which is when a lock is held) in us. So it is indded 4ms.
+> >
+> > But, I think Dieter is saying he _sees_ 0.5~1s latencies (in the form of
+> > audio skips).  This is despite the 4ms locks being held.
+>
+> Yes, that's the case. During dbench 16,32,40,48, etc...
 
-I cannot find this patch in the archives, can someone forward it to me
-so I may apply it?  Thanks.
+You might actually be waiting on disk I/O and not blocked.
 
-Later,
-David S. Miller
-davem@redhat.com
+Does your audio source depend on any files (eg mp3s) and if so, could they
+be moved to a ramfs? Do the skips go away then?
+
+--
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+

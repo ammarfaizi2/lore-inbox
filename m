@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136069AbREHD0p>; Mon, 7 May 2001 23:26:45 -0400
+	id <S136073AbREHD1Z>; Mon, 7 May 2001 23:27:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136073AbREHD0m>; Mon, 7 May 2001 23:26:42 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:34575 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S136069AbREHD0M>; Mon, 7 May 2001 23:26:12 -0400
-Date: Mon, 7 May 2001 22:47:40 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
+	id <S136123AbREHD1Q>; Mon, 7 May 2001 23:27:16 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:35853 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S136073AbREHD05>; Mon, 7 May 2001 23:26:57 -0400
+Date: Mon, 7 May 2001 20:26:42 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
 To: "David S. Miller" <davem@redhat.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
 Subject: Re: page_launder() bug
-In-Reply-To: <15095.25990.868966.309506@pizda.ninka.net>
-Message-ID: <Pine.LNX.4.21.0105072240581.7685-100000@freak.distro.conectiva>
+In-Reply-To: <15095.26207.768685.708804@pizda.ninka.net>
+Message-ID: <Pine.LNX.4.21.0105072024570.8237-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,27 +20,36 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 On Mon, 7 May 2001, David S. Miller wrote:
-
 > 
 > Marcelo Tosatti writes:
->  > I just thought about this case:
->  >   
->  > We find a dead swap cache page, so dead_swap_page goes to 1.
->  > 
->  > We call swap_writepage(), but in the meantime the swapin readahead code   
->  > got a reference on the swap map for the page.
->  > 
->  > We write the page out because "(swap_count(page) > 1)", and we may
->  > not have __GFP_IO set in the gfp_mask. Boom.
+>  > I was wrong. The patch is indeed buggy because of the __GFP_IO thing.
 > 
-> Hmmm, can't this happen without my patch?
+> What about the __GFP_IO thing?
+> 
+> Specifically, what protects the __GFP_IO thing from happening without
+> my patch?
 
-No. We will never call writepage() without __GFP_IO without your patch.
+This:
 
-> Nothing stops people from getting references to the page
-> between the "Page is or was in use?" test and the line
-> which does "TryLockPage(page)".
+                        /* First time through? Move it to the back of the list */
+                        if (!launder_loop) {
+                                list_del(page_lru);
+                                list_add(page_lru, &inactive_dirty_list);
+                                UnlockPage(page);
+                                continue;
+                        }
 
-I don't see any problem with people getting a reference to the page there.
 
+        if (can_get_io_locks && !launder_loop && free_shortage()) {
+                launder_loop = 1;
+		...
+
+
+Notice? If "can_get_io_locks" is not true, we will never call
+"writepage()" on the page, because if "can_get_io_locks" is false,
+"launder_loop" will always be false too..
+
+And "can_get_io_locks" depends on __GFP_IO.
+
+		Linus
 

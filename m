@@ -1,82 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261600AbTIOUxY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 16:53:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbTIOUxY
+	id S261616AbTIOUou (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 16:44:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261618AbTIOUou
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 16:53:24 -0400
-Received: from peabody.ximian.com ([141.154.95.10]:41437 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S261600AbTIOUxX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 16:53:23 -0400
-Message-ID: <3F66249A.3020308@ximian.com>
-Date: Mon, 15 Sep 2003 16:44:10 -0400
-From: Kevin Breit <mrproper@ximian.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b) Gecko/20030901 Thunderbird/0.2
-X-Accept-Language: en-us, en
+	Mon, 15 Sep 2003 16:44:50 -0400
+Received: from pat.uio.no ([129.240.130.16]:10721 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261616AbTIOUor (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 16:44:47 -0400
+To: Norbert Preining <preining@logic.at>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23-pre4 ide-scsi irq timeout
+References: <20030913220121.GA1727@gamma.logic.tuwien.ac.at>
+	<shs3cezap0u.fsf@charged.uio.no>
+	<20030915093110.GD2268@gamma.logic.tuwien.ac.at>
+	<16229.54852.834931.495479@charged.uio.no>
+	<20030915202016.GB30683@gamma.logic.tuwien.ac.at>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 15 Sep 2003 16:44:43 -0400
+In-Reply-To: <20030915202016.GB30683@gamma.logic.tuwien.ac.at>
+Message-ID: <shsfzix7pdw.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
 MIME-Version: 1.0
-To: Chris Meadors <clubneon@hereintown.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Need fixing of a rebooting system
-References: <1063496544.3164.2.camel@localhost.localdomain>	 <Pine.LNX.4.53.0309131945130.3274@montezuma.fsmlabs.com>	 <3F6450D7.7020906@ximian.com>	 <Pine.LNX.4.53.0309140904060.22897@montezuma.fsmlabs.com>	 <1063561687.10874.0.camel@localhost.localdomain>	 <Pine.LNX.4.53.0309141741050.5140@montezuma.fsmlabs.com>	 <3F64FEAF.1070601@ximian.com>	 <Pine.LNX.4.53.0309142055560.5140@montezuma.fsmlabs.com>	 <1063650478.1516.0.camel@localhost.localdomain> <1063653132.224.32.camel@clubneon.priv.hereintown.net>
-In-Reply-To: <1063653132.224.32.camel@clubneon.priv.hereintown.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Meadors wrote:
+>>>>> " " == Norbert Preining <preining@logic.at> writes:
 
->On Mon, 2003-09-15 at 14:27, Kevin Breit wrote:
->
->  
->
->>I disabled ACPI and that didn't help.  I reenabled it now and I'm
->>looking for other options to disable.  But I don't know where to start. 
->>Any suggestions?
->>    
->>
->
->What CPU are you running on?  It isn't an Opteron is it?  I saw the same
->thing with the NUMA support for the AMD64.
->
->Use "make menuconfig" and have a look at all the options under the first
->few menus.  Make sure your CPU and power management options look right
->for your machine.  When in doubt read the help text for the option, it
->is sometimes very helpful.
->
->  
->
-/proc/cpuinfo says:
+     > I am definitely not the opinion that this is the problem,
+     > sorry.
 
-model name:   Celeron (Coppermine)
+Then I can only suggest that you run through the bitkeeper repository
+(see http://linux.bkbits.net/linux-2.4) and do a binary search
+applying the patches between 2.4.23-pre3 and 2.4.23-pre4 until you
+find the guilty party.
 
-So my configuration for the first 5 main menu items that are enabled in 
-makeconfig are:
+Should be fairly easy, as there only appears to be one SCSI related
+changeset (which only adds one line to a blacklist) and no IDE or
+IRQ-related changes at all...
 
-* Prompt for developer and/or incomplete code/drivers
-  * Select only drivers expected to compile cleanly
-  * Select only drivers that don't need compile-time external firmware
-
-* Support for paging of anonymous memory
-   * System V IPC
-   * BSD Process Accounting
-   * Sysctl support
-* Subarchitecture Type (PC-compatible)
-* Processor family (Pentium-II/Celeron(pre-Coppermine))
-* Preemptible Kernel
-* Machine Check Exception
-* /dev/cpu/microcode
-* /dev/cpu/*/msr
-* /dev/cpu/*/cpuid
-* BIOS Enhanced Disk Drive calls determine boot disk
-* Power Management support
-   *Full ACPI Support (minus the ASUS Laptop Extras and Toshiba Laptop 
-Extras)
-
-Do you see anything in that list which I should look into ditching first?
-
-Thanks
-
-Kevin Breit
-
+Cheers,
+  Trond

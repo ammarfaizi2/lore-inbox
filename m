@@ -1,53 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265584AbUBJAG6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Feb 2004 19:06:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265581AbUBJAGR
+	id S265431AbUBIX6w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Feb 2004 18:58:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265434AbUBIX4E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Feb 2004 19:06:17 -0500
-Received: from fw.osdl.org ([65.172.181.6]:30159 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265422AbUBIX47 convert rfc822-to-8bit
+	Mon, 9 Feb 2004 18:56:04 -0500
+Received: from mail.kroah.org ([65.200.24.183]:61372 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265431AbUBIXWh convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Feb 2004 18:56:59 -0500
-Date: Mon, 9 Feb 2004 15:58:23 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Philippe =?ISO-8859-1?Q?Gramoull=E9?= 
-	<philippe.gramoulle@mmania.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.6.3-rc1-mm1
-Message-Id: <20040209155823.6f884f23.akpm@osdl.org>
-In-Reply-To: <20040209151818.32965df6@philou.gramoulle.local>
-References: <20040209014035.251b26d1.akpm@osdl.org>
-	<20040209151818.32965df6@philou.gramoulle.local>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Mon, 9 Feb 2004 18:22:37 -0500
+Subject: Re: [PATCH] PCI Update for 2.6.3-rc1
+In-Reply-To: <1076368940408@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Mon, 9 Feb 2004 15:22:20 -0800
+Message-Id: <1076368940145@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Philippe Gramoullé  <philippe.gramoulle@mmania.com> wrote:
->
-> Starting with 2.6.3-rc1-mm1, nfsd isn't working any more. Exportfs just hangs.
+ChangeSet 1.1500.11.13, 2004/02/03 16:49:05-08:00, eike-hotplug@sf-tec.de
 
-Yes, sorry.  The nfsd patches had a painful birth.  This chunk got lost.
+[PATCH] PCI Hotplug: Coding style fixes for drivers/pci/hotplug.c
 
---- 25/net/sunrpc/svcauth.c~nfsd-02-sunrpc-cache-init-fixes	Mon Feb  9 14:04:03 2004
-+++ 25-akpm/net/sunrpc/svcauth.c	Mon Feb  9 14:06:26 2004
-@@ -150,7 +150,13 @@ DefineCacheLookup(struct auth_domain,
- 		  &auth_domain_cache,
- 		  auth_domain_hash(item),
- 		  auth_domain_match(tmp, item),
--		  kfree(new); if(!set) return NULL;
-+		  kfree(new); if(!set) {
-+			if (new)
-+				write_unlock(&auth_domain_cache.hash_lock);
-+			else
-+				read_unlock(&auth_domain_cache.hash_lock);
-+			return NULL;
-+		  }
- 		  new=item; atomic_inc(&new->h.refcnt),
- 		  /* no update */,
- 		  0 /* no inplace updates */
 
-_
+ drivers/pci/hotplug.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+
+diff -Nru a/drivers/pci/hotplug.c b/drivers/pci/hotplug.c
+--- a/drivers/pci/hotplug.c	Mon Feb  9 14:58:56 2004
++++ b/drivers/pci/hotplug.c	Mon Feb  9 14:58:56 2004
+@@ -116,7 +116,7 @@
+ 	}
+ 
+ 	bus = wrapped_dev->dev->subordinate;
+-	if(bus) {
++	if (bus) {
+ 		memset(&wrapped_bus, 0, sizeof(struct pci_bus_wrapped));
+ 		wrapped_bus.bus = bus;
+ 
+@@ -130,8 +130,8 @@
+  * Every bus and every function is presented to a custom
+  * function that can act upon it.
+  */
+-int pci_visit_dev (struct pci_visit *fn, struct pci_dev_wrapped *wrapped_dev,
+-		   struct pci_bus_wrapped *wrapped_parent)
++int pci_visit_dev(struct pci_visit *fn, struct pci_dev_wrapped *wrapped_dev,
++		  struct pci_bus_wrapped *wrapped_parent)
+ {
+ 	struct pci_dev* dev = wrapped_dev ? wrapped_dev->dev : NULL;
+ 	int result = 0;
+

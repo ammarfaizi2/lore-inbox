@@ -1,65 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261530AbUEXHu1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261685AbUEXHyM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261530AbUEXHu1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 03:50:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbUEXHu1
+	id S261685AbUEXHyM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 03:54:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbUEXHyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 03:50:27 -0400
-Received: from web90001.mail.scd.yahoo.com ([66.218.94.59]:33190 "HELO
-	web90001.mail.scd.yahoo.com") by vger.kernel.org with SMTP
-	id S261530AbUEXHuZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 03:50:25 -0400
-Message-ID: <20040524075024.84699.qmail@web90001.mail.scd.yahoo.com>
-Date: Mon, 24 May 2004 00:50:24 -0700 (PDT)
-From: Phy Prabab <phyprabab@yahoo.com>
+	Mon, 24 May 2004 03:54:12 -0400
+Received: from fw.osdl.org ([65.172.181.6]:4513 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261685AbUEXHyJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 May 2004 03:54:09 -0400
+Date: Mon, 24 May 2004 00:53:31 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Phy Prabab <phyprabab@yahoo.com>
+Cc: wli@holomorphy.com, jakob@unthought.net, linux-kernel@vger.kernel.org
 Subject: Re: Help understanding slow down
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: William Lee Irwin III <wli@holomorphy.com>, Andrew Morton <akpm@osdl.org>,
-       jakob@unthought.net, linux-kernel@vger.kernel.org
-In-Reply-To: <40B1A7DE.8080309@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <20040524005331.71465614.akpm@osdl.org>
+In-Reply-To: <20040524063959.5107.qmail@web90007.mail.scd.yahoo.com>
+References: <20040524062754.GO1833@holomorphy.com>
+	<20040524063959.5107.qmail@web90007.mail.scd.yahoo.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-NO HT, disabled in bios and did not enable in kernel:
-cat /proc/cpuinfo|grep processor|wc -l
-  2
-grep SMT .config (2.6.7-rc1)
-# CONFIG_SCHED_SMT is not set
-
-On 2.4.21 I also include "append=noht"
-
-Thanks!
-Phy
-
-
-
---- Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> Phy Prabab wrote:
-> > For more information, I ran the same test on
-> 2.4.21
+Phy Prabab <phyprabab@yahoo.com> wrote:
+>
+> Okay, here is the output:
 > 
-> ...
-> 
-> Is hyperthreading enabled on 2.6 and 2.4? Can you
-> send
-> a cat /proc/cpuinfo | grep processor for a 2.4 and a
-> 2.6
-> kernel please?
-> 
-> If you have hyperthreading enabled, try 2.6.7-rc1
-> with
-> SMT (hyperthreading) scheduler support enabled in
-> the
-> kernel config. It is in processor type and features
-> menu.
-> 
+>  317955 total                                     
+>  0.1302
+>  263633 poll_idle                               
+>  4545.3966
+>    6764 do_page_fault                             
+>  5.1951
+>    3650 kmap_atomic 
 
+It's strange that you appear to be using poll_idle().  Maybe it's an error
+in the profiler - it sometimes makes mistakes in identifying small
+functions.
 
-	
-		
-__________________________________
-Do you Yahoo!?
-Yahoo! Domains – Claim yours for only $14.70/year
-http://smallbusiness.promotions.yahoo.com/offer 
+But if you _are_ using poll_idle() and if your CPU is hyperthreaded then
+yes, one "CPU" is going to take a performance hit from the "idle" one.
+
+Is your CPU hyperthreaded?  (cat /proc/cpuinfo)
+
+Are you booting with "idle=poll"?  Do `dmesg -s 1000000 | grep idle'.
+

@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263595AbUCUDlb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 22:41:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263596AbUCUDlb
+	id S263596AbUCUDvH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 22:51:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263598AbUCUDvH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 22:41:31 -0500
-Received: from mta08-svc.ntlworld.com ([62.253.162.48]:8061 "EHLO
-	mta08-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S263595AbUCUDl3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 22:41:29 -0500
-From: Richard Browning <richard@redline.org.uk>
-Organization: Redline Software Engineering
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Subject: Re: ANYONE? Re: SMP + Hyperthreading / Asus PCDL Deluxe / Kernel 2.4.x 2.6.x / Crash/Freeze
-Date: Sun, 21 Mar 2004 03:41:32 +0000
-User-Agent: KMail/1.6.1
-Cc: Len Brown <len.brown@intel.com>, linux-kernel@vger.kernel.org,
-       Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-References: <A6974D8E5F98D511BB910002A50A6647615F4B99@hdsmsx402.hd.intel.com> <200403201726.32595.richard@redline.org.uk> <Pine.LNX.4.58.0403201625040.28447@montezuma.fsmlabs.com>
-In-Reply-To: <Pine.LNX.4.58.0403201625040.28447@montezuma.fsmlabs.com>
+	Sat, 20 Mar 2004 22:51:07 -0500
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:7622 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S263596AbUCUDvG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Mar 2004 22:51:06 -0500
+Date: Sat, 20 Mar 2004 22:51:10 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>, thomas.schlichter@web.de,
+       phil.el@wanadoo.fr, schwab@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [2.6.4-rc2] bogus semicolon behind if()
+In-Reply-To: <20040317102550.2ca7737c.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0403202248050.28447@montezuma.fsmlabs.com>
+References: <200403090014.03282.thomas.schlichter@web.de>
+ <20040308162947.4d0b831a.akpm@osdl.org> <20040309070127.GA2958@zaniah>
+ <200403091208.20556.thomas.schlichter@web.de> <Pine.LNX.4.55.0403171734090.14525@jurand.ds.pg.gda.pl>
+ <20040317102550.2ca7737c.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200403210341.32928.richard@redline.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 20 March 2004 21:30, Zwane Mwaikambo wrote:
-> On Sat, 20 Mar 2004, Richard Browning wrote:
-> > It's been pointed out to me that this Doze-vs-Linux comparison won't
-> > help. If you're offended by it, please don't be. I've been a supporter
-> > and contributer to the GNU cause for the last six years and I'm not going
-> > to stop. However this is the first serious issue that I've come across
-> > re: the kernel and incompatible hardware and I would like to see it
-> > fixed. Like I've said, I want to help pinpoint the problem - but no-one's
-> > asking.
+On Wed, 17 Mar 2004, Andrew Morton wrote:
+
+> I still have a couple of NMI patches in -mm:
 >
-> It's good that you've verified that the hardware should work fine, could
-> you please try the attached configuration. I'll also check errata,
-> but i'm pretty sure there isn't anything flagged for this problem. But
-> i'll double check.
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5-rc1/2.6.5-rc1-mm1/broken-out/nmi_watchdog-local-apic-fix.patch
 
-I'll try this config in the morning - off to bed now (4am).
+That looks like a decent bug fix.
 
-Thanks!
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.5-rc1/2.6.5-rc1-mm1/broken-out/nmi-1-hz.patch
 
-R
+Didn't _you_ want that one? ;)

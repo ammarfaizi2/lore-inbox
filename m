@@ -1,28 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131380AbRBMN07>; Tue, 13 Feb 2001 08:26:59 -0500
+	id <S129363AbRBMNc3>; Tue, 13 Feb 2001 08:32:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131418AbRBMN0t>; Tue, 13 Feb 2001 08:26:49 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:16649 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131380AbRBMN0e>; Tue, 13 Feb 2001 08:26:34 -0500
-Subject: Re: Linux 2.2.19pre10
-To: cr@sap.com (Christoph Rohland)
-Date: Tue, 13 Feb 2001 13:27:06 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        cowboy@vnet.ibm.com (Richard A Nelson), linux-kernel@vger.kernel.org
-In-Reply-To: <m37l2u7ltg.fsf@linux.local> from "Christoph Rohland" at Feb 13, 2001 02:29:47 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S129447AbRBMNcU>; Tue, 13 Feb 2001 08:32:20 -0500
+Received: from [62.59.70.137] ([62.59.70.137]:41988 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S129363AbRBMNcH>; Tue, 13 Feb 2001 08:32:07 -0500
+Date: Tue, 13 Feb 2001 13:43:02 +0100 (CET)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@localhost.localdomain>
+To: Mike Galbraith <mikeg@wen-online.de>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.1-ac7
+In-Reply-To: <Pine.Linu.4.10.10102130649110.324-100000@mikeg.weiden.de>
+Message-ID: <Pine.LNX.4.31.0102131340160.5111-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14SfU5-0001mT-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yes, I understand that. But I never got any note that my fix is broken
-> and I still do not understand what's the concern. 
+On Tue, 13 Feb 2001, Mike Galbraith wrote:
+> On Mon, 12 Feb 2001, Marcelo Tosatti wrote:
+>
+> > Could you please try the attached patch on top of latest Rik's patch?
+>
+> Sure thing.. (few minutes later) no change.
 
-Unless Im misreading the code the segment you poke at has potentially been
-freed before it is written too.
+That's because your problem requires a change to the
+balancing between swap_out() and refill_inactive_scan()
+in refill_inactive()...
+
+The big problem here is that no matter which magic
+proportion between the two functions we use, it'll always
+be wrong for a large proportion of the people out there.
+
+This means we need to have a good way to auto-tune this
+thing. I'm thinking of letting swap_out() start out way
+less active than refill_inactive_scan() with extra calls
+to swapout being made from refill_inactive_scan when we
+think it's needed...
+
+(... I'm writing a patch right now ...)
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
+

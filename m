@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266652AbRGOPde>; Sun, 15 Jul 2001 11:33:34 -0400
+	id <S266667AbRGOPeE>; Sun, 15 Jul 2001 11:34:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266653AbRGOPdY>; Sun, 15 Jul 2001 11:33:24 -0400
-Received: from weta.f00f.org ([203.167.249.89]:8580 "HELO weta.f00f.org")
-	by vger.kernel.org with SMTP id <S266652AbRGOPdS>;
-	Sun, 15 Jul 2001 11:33:18 -0400
-Date: Mon, 16 Jul 2001 03:33:22 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        Andrew Morton <andrewm@uow.edu.au>,
-        Andreas Dilger <adilger@turbolinux.com>,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        Ben LaHaise <bcrl@redhat.com>,
-        Ragnar Kjxrstad <kernel@ragnark.vestdata.no>,
+	id <S266662AbRGOPdz>; Sun, 15 Jul 2001 11:33:55 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:59922 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S266647AbRGOPdk>; Sun, 15 Jul 2001 11:33:40 -0400
+Subject: Re: [PATCH] 64 bit scsi read/write
+To: cw@f00f.org (Chris Wedgwood)
+Date: Sun, 15 Jul 2001 16:32:59 +0100 (BST)
+Cc: phillips@bonn-fries.net (Daniel Phillips),
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        andrewm@uow.edu.au (Andrew Morton),
+        adilger@turbolinux.com (Andreas Dilger),
+        acahalan@cs.uml.edu (Albert D. Cahalan), bcrl@redhat.com (Ben LaHaise),
+        kernel@ragnark.vestdata.no (Ragnar Kjxrstad),
         linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
         mike@bigstorage.com, kevin@bigstorage.com, linux-lvm@sistina.com
-Subject: Re: [PATCH] 64 bit scsi read/write
-Message-ID: <20010716033322.B10713@weta.f00f.org>
-In-Reply-To: <E15LntD-000489-00@the-village.bc.nu>
-Mime-Version: 1.0
+In-Reply-To: <20010716023911.A10576@weta.f00f.org> from "Chris Wedgwood" at Jul 16, 2001 02:39:11 AM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E15LntD-000489-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.18i
-X-No-Archive: Yes
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15LntD-000489-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 15, 2001 at 04:32:59PM +0100, Alan Cox wrote:
+> I only have SCSI disks to test with, but they are hot-plug, so I guess
+> I can write a whole bunch of blocks with different numbers on them,
+> all over the disk, if I can figure out how to place SCSI barriers and
+> then pull the drive and see what gives?
 
-    Another way is to time
-    
-    	write block
-    	write barrier
-    	write same block
-    	write barrier
-    	repeat
-    
-    If the write barrier is working you should be able to measure the
-    drive rpm 8)
+Another way is to time
 
-Yeah, I was thinking of doing this with caches turned off, since I
-know how to do that, but not a write-barrier.
+	write block
+	write barrier
+	write same block
+	write barrier
+	repeat
 
+If the write barrier is working you should be able to measure the drive rpm 8)
 
-
-
-  --cs

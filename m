@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261970AbTCLUgW>; Wed, 12 Mar 2003 15:36:22 -0500
+	id <S261980AbTCLUi1>; Wed, 12 Mar 2003 15:38:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261952AbTCLUgW>; Wed, 12 Mar 2003 15:36:22 -0500
-Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:24969
-	"EHLO xanadu.home") by vger.kernel.org with ESMTP
-	id <S261970AbTCLUgV>; Wed, 12 Mar 2003 15:36:21 -0500
-Date: Wed, 12 Mar 2003 15:46:58 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: nico@xanadu.home
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: Larry McVoy <lm@work.bitmover.com>, Larry McVoy <lm@bitmover.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] BK->CVS (real time mirror)
-In-Reply-To: <20030312201416.GA2433@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.44.0303121542010.14172-100000@xanadu.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261982AbTCLUi1>; Wed, 12 Mar 2003 15:38:27 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:51655
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261980AbTCLUiZ>; Wed, 12 Mar 2003 15:38:25 -0500
+Subject: Re: Linux 2.4.21pre5-ac3
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: walt <wa1ter@myrealbox.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E6EF167.50409@myrealbox.com>
+References: <fa.mpr04fi.1a4um8g@ifi.uio.no>  <3E6EF167.50409@myrealbox.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1047506225.23725.20.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 12 Mar 2003 21:57:06 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 12 Mar 2003, Sam Ravnborg wrote:
-
-> On Wed, Mar 12, 2003 at 11:51:20AM -0800, Larry McVoy wrote:
-> > is what davej may have typed in as comments.  We capture that as well, it
-> > looks like this:
-> > 
-> >     revision 1.342
-> >     date: 2003/03/07 15:39:16;  author: torvalds;  state: Exp;  lines: +7 -1
-> >     [PATCH] kbuild: Smart notation for non-verbose output
+On Wed, 2003-03-12 at 08:35, walt wrote:
+> No surprise, probably, but I'm still getting the kernel oops when
+> I use swapoff on any partition which is not already mounted as a
+> swap partition (i.e. what 'swapoff -a' attempts to do.)
 > 
-> Ho humm, I did this not Linus.
-> Checked the web which is correct.
+> I've already tried using very conservative CFLAGS for compiling
+> both the kernel and util-linux with no improvement.
 > 
-> Same goes for 1.340 for the Makefile. Kai did it, not Linus.
+> Any further information I can supply to help fix this?  Any
+> other tricks I can try?
 
-It seems that some things that should have been attributed to me (or others)
-are listed as from torvalds too.
-
-Example: drivers/char/tty_io.c
-
-revision 1.59
-date: 2003/03/04 02:13:05;  author: torvalds;  state: Exp;  lines: +4 -6
-small tty irq race fix
-
-(Logical change 1.8144)
-
-
-Nicolas
+I've no idea what is going on in your case. The strace you sent me
+only showed swapoff working properly
 

@@ -1,50 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267338AbTALJTD>; Sun, 12 Jan 2003 04:19:03 -0500
+	id <S268262AbTALJQn>; Sun, 12 Jan 2003 04:16:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267339AbTALJTD>; Sun, 12 Jan 2003 04:19:03 -0500
-Received: from tomts19-srv.bellnexxia.net ([209.226.175.73]:15534 "EHLO
-	tomts19-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S267338AbTALJTB>; Sun, 12 Jan 2003 04:19:01 -0500
-Date: Sun, 12 Jan 2003 04:27:55 -0500 (EST)
-From: "Robert P. J. Day" <rpjday@mindspring.com>
-X-X-Sender: rpjday@dell
-To: Adrian Bunk <bunk@fs.tum.de>
-cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: two more oddities with the fs/Kconfig file
-In-Reply-To: <20030112073406.GM21826@fs.tum.de>
-Message-ID: <Pine.LNX.4.44.0301120427170.4821-100000@dell>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268263AbTALJQn>; Sun, 12 Jan 2003 04:16:43 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:16902 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S268262AbTALJQm>;
+	Sun, 12 Jan 2003 04:16:42 -0500
+Date: Sun, 12 Jan 2003 01:24:27 -0800
+From: Greg KH <greg@kroah.com>
+To: "bigred@home.nl" <bigred@home.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Greg KH: "Re: Problems accessing USB Mass Storage"
+Message-ID: <20030112092427.GM30025@kroah.com>
+References: <03011110574302.04944@linuxmarco1>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <03011110574302.04944@linuxmarco1>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Jan 2003, Adrian Bunk wrote:
+On Sat, Jan 11, 2003 at 10:57:43AM +0100, bigred@home.nl wrote:
+> i've had the same problem and read the mailings about it dit you solve this 
+> problem later 
 
-> On Sun, Jan 12, 2003 at 02:07:13AM -0500, Robert P. J. Day wrote:
-> > 
-> >   there are a few options that are categorized as simply
-> > "bool", with no following label -- examples being UMSDOS,
-> > QUOTACTL, and a couple of others.  without a label on that
-> > line, the option is not displayed for selection anywhere
-> > on the menu.  is this deliberate?
-> >...
-> 
-> Yes, this is what was called define_bool in the old kconfig.
-> 
-> E.g.
-> 
-> config QUOTACTL
->         bool
->         depends on XFS_QUOTA || QUOTA
->         default y
-> 
-> says that QUOTACTL is automatically selected if XFS_QUOTA or QUOTA is 
-> selected. This is a config option that is never visible to the user 
-> configuring the kernel.
+Wow, might I suggest providing just a bit more context, and possibly
+make sure you at least CC: me so that I see the message?
 
-ah, and the same would apply to those options categorized as
-"tristate", with no label then?  thanks.
-
-rday
-
+greg k-h

@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131947AbRANL3N>; Sun, 14 Jan 2001 06:29:13 -0500
+	id <S132297AbRANL3X>; Sun, 14 Jan 2001 06:29:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132302AbRANL3E>; Sun, 14 Jan 2001 06:29:04 -0500
-Received: from kamov.deltanet.ro ([193.226.175.3]:13330 "HELO
-	kamov.deltanet.ro") by vger.kernel.org with SMTP id <S131947AbRANL2v>;
-	Sun, 14 Jan 2001 06:28:51 -0500
-Date: Sun, 14 Jan 2001 13:28:45 +0200
-From: Petru Paler <ppetru@ppetru.net>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0-pre3+zerocopy: weird messages
-Message-ID: <20010114132845.F1394@ppetru.net>
-In-Reply-To: <20010114121105.B1394@ppetru.net> <14945.32886.671619.99921@pizda.ninka.net> <20010114124549.D1394@ppetru.net> <14945.34414.185794.396720@pizda.ninka.net>
-Mime-Version: 1.0
+	id <S132302AbRANL3N>; Sun, 14 Jan 2001 06:29:13 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:40679 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S132297AbRANL3B>; Sun, 14 Jan 2001 06:29:01 -0500
+Message-ID: <3A618F17.FD285E2B@uow.edu.au>
+Date: Sun, 14 Jan 2001 22:35:51 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>,
+        lad <linux-audio-dev@ginette.musique.umontreal.ca>
+Subject: Re: low-latency scheduling patch for 2.4.0
+In-Reply-To: <3A57DA3E.6AB70887@uow.edu.au>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.13i
-In-Reply-To: <14945.34414.185794.396720@pizda.ninka.net>; from davem@redhat.com on Sun, Jan 14, 2001 at 02:58:54AM -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 14, 2001 at 02:58:54AM -0800, David S. Miller wrote:
-> Petru Paler writes:
->  > Ok. Should I keep reporting new syslog messages as they appear ?
+Andrew Morton wrote:
 > 
-> Not the "Undo ***" and "Disorder ***" ones".
-
-Ok.
-
-> But this one is curious:
+> A patch against kernel 2.4.0 final which provides low-latency
+> scheduling is at
 > 
->  > udp v4 hw csum failure.                                                                   
-> Oh, I think I know why this happens.  Can you add this patch, and next
-> time the UDP bad csum message appears, tell me if it says "UDP packet
-> with bad csum was fragmented." in the next line of your syslog
-> messages?  Thanks.
+>         http://www.uow.edu.au/~andrewm/linux/schedlat.html#downloads
+> 
 
-Sure, but I also need the actual patch :)
+This has been updated for 2.4.1-pre3
 
---
-Petru Paler, mailto:ppetru@ppetru.net
-http://www.ppetru.net - ICQ: 41817235
+- Fixed latency problems with some /proc files and forking
+  when many files are open.
+
+- Fixed the tcp-minisocks thing.
+
+- The patch now works properly on SMP.
+
+  If a wakeup is directed to a SCHED_FIFO or SCHED_RR
+  task then we request a reschedule on *all* non-idle
+  CPUs.
+
+  This causes any CPU which is holding a long-lived
+  spinlock to bale out, allowing the target CPU to
+  acquire the spinlock and then reschedule normally.
+
+  Bit of a hack, but it works very well and there
+  is no impact on the system unless there are
+  non-SCHED_OTHER tasks running.
+
+  Five lines of code :)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

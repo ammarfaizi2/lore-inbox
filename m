@@ -1,87 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266147AbUHYXWw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266425AbUHYXWl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266147AbUHYXWw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 19:22:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266242AbUHYXTk
+	id S266425AbUHYXWl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 19:22:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266149AbUHYXUw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 19:19:40 -0400
-Received: from c002781a.fit.bostream.se ([217.215.235.8]:17803 "EHLO
-	mail.tnonline.net") by vger.kernel.org with ESMTP id S266425AbUHYXQw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 19:16:52 -0400
-Date: Thu, 26 Aug 2004 01:19:35 +0200
-From: Spam <spam@tnonline.net>
-Reply-To: Spam <spam@tnonline.net>
-X-Priority: 3 (Normal)
-Message-ID: <1453698131.20040826011935@tnonline.net>
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>,
-       hch@lst.de, <linux-fsdevel@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>, <flx@namesys.com>,
-       <reiserfs-list@namesys.com>
-Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org>
-References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com>
- <20040825152805.45a1ce64.akpm@osdl.org> <112698263.20040826005146@tnonline.net>
- <Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 25 Aug 2004 19:20:52 -0400
+Received: from lakermmtao12.cox.net ([68.230.240.27]:32756 "EHLO
+	lakermmtao12.cox.net") by vger.kernel.org with ESMTP
+	id S266281AbUHYXT1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 19:19:27 -0400
+In-Reply-To: <20040825205618.GA7992@hockin.org>
+References: <410D96DC.1060405@namesys.com> <Pine.LNX.4.44.0408251624540.5145-100000@chimarrao.boston.redhat.com> <20040825205618.GA7992@hockin.org>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <30958D95-F6ED-11D8-A7C9-000393ACC76E@mac.com>
 Content-Transfer-Encoding: 7bit
+Cc: LKML <linux-kernel@vger.kernel.org>, Rik van Riel <riel@redhat.com>,
+       michael.waychison@sun.com, ReiserFS List <reiserfs-list@namesys.com>,
+       Hans Reiser <reiser@namesys.com>
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Using fs views to isolate untrusted processes: I need an assistant architect in the USA for Phase I of a DARPA funded linux kernel project
+Date: Wed, 25 Aug 2004 19:19:19 -0400
+To: Tim Hockin <thockin@hockin.org>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Aug 25, 2004, at 16:56, Tim Hockin wrote:
+> On Wed, Aug 25, 2004 at 04:25:24PM -0400, Rik van Riel wrote:
+>>> You can think of this as chroot on steroids.
+>>
+>> Sounds like what you want is pretty much the namespace stuff
+>> that has been in the kernel since the early 2.4 days.
+>>
+>> No need to replicate VFS functionality inside the filesystem.
+>
+> When I was at Sun, we talked a lot about this.  Mike, does Sun have any
+> iterest in this?
+>
+> We found a lot of shortcomings in implementing various namespace-ish
+> things.
 
+Here's a simple way to do what you want in userspace:
+1) Apply the kernel bind mount options fix (*)
+2) Run the following shell script
 
+cat <<'EOF' >fsviews.bash
+#! /bin/bash
+# First make the subdirectories
+mkdir /fsviews_orig
+mount -t tmpfs tmpfs /fsviews_rw
+mkdir /fsviews_orig/dir1
+mkdir /fsviews_orig/dir2
+mkdir /fsviews_orig/old
 
+# Now make it read-only with a copy in /fsviews
+mkdir /fsviews
+mount --bind /fsviews_orig /fsviews
 
-> On Thu, 26 Aug 2004, Spam wrote:
->> 
->> > My own order of preference is b) c) a).  The fact that one filesystem will
->> > offer features which other filesystems do not and cannot offer makes me
->> > queasy for some reason.
->> 
->>   This last sentence makes me wonder. Where is Linux heading? The idea
->>   that   a  FS  cannot  contain  features that no other FS has is very
->>   scary.
+# Put directories in /fsviews
+mount --bind /somewhere/dir1 /fsviews/dir1
+mount --bind -o ro /otherplace/dir2 /fsviews/dir2
 
-> That's not what Andrew said or meant.
+# Start the process in a new namespace
+clone_prog bash <<'BACK_TO_OLD_NAMESPACE'
 
-> Note the "cannot offer". As in "there is no way to offer them even if the
-> filesystem could support it otherwise". 
+mount -o ro,remount /fsviews_orig
+pivot_root /fsviews /fsviews/old
+umount -l /fsviews/old
+/dir1/myscript &
 
-> We have tons of filesystems that do things other filesystems cannot do.
-> Most filesystems support writing to a file - despite the fact that some
-> filesystems (iso9600 being an obvious one) cannot. The infrastructure is
-> there in the VFS layer, and it becomes a _choice_ for the filesystem
-> whether it offers certain capabilities.
+BACK_TO_OLD_NAMESPACE
 
-> So look at what Andrew said, again: his top choice would be (b). Let's see
-> what that was again, shall we?
+# Remove the extra dirs in this namespace
+umount -l /fsviews
+umount -l /fsviews_orig
+rmdir /fsviews
+rmdir /fsviews_orig
 
->> b) accept the reiser4-only extensions with a view to turning them into
->>    kernel-wide extensions at some time in the future, so all filesystems
->>    will offer the extensions (as much as poss) or
+EOF
 
-> In other words, if reiserfs does something special, we should make 
-> standard interfaces for doing that special thing, so that everybody can
-> do it without stepping on other peoples toes.
+This assumes that clone_prog is a short C program that does a clone() 
+syscall
+with the CLONE_NEWNS flag and executes a new process.
 
-  Agreed  that would be the best. But how much time and effort will it
-  be,  and  how much of the original ideas would be lost on the way to
-  implement  them  in  the  VFS? Especially with new and very advanced
-  FS's like Reiser4.
+Once this is done, "/dir2/script" is running in a _completely_ new 
+namespace
+with a read-only root directory and two directories from other parts of 
+the vfs.
 
-  Isn't  the  line  between the actual file system and the virtual one
-  very hair thin? Where would the separation lay in Reiser4?
-  
-> That doesn't mean that we'd _force_ everybody to do it. The same way we
-> don't force iso9660 to write to a CD-ROM.
+(*) IIRC currently bind-mount rw/ro options are those of the underlying 
+mount,
+the bind-mount options fix provides a separate set of options for each 
+bound
+copy.  There is only one minimal security implication without said 
+patch, that
+root can still 'mount -o rw,remount /' to get root writeable again, but 
+since it's
+on tmpfs, that doesn't matter much.  You could also just take away some
+capabilities, but otherwise except for the shared process tables this 
+acts very
+much like a completely new, separate computer.  I've used this to 
+thoroughly
+secure minimally trusted daemons before. :-D
 
->       Linus
+Cheers,
+Kyle Moffett
 
-  I got caught in the moment of flame war. My appologies.
-
-  ~S
-
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a17 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
 
 

@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285630AbRLRGeo>; Tue, 18 Dec 2001 01:34:44 -0500
+	id <S285615AbRLRGlx>; Tue, 18 Dec 2001 01:41:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285629AbRLRGee>; Tue, 18 Dec 2001 01:34:34 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29957 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S285630AbRLRGeX>;
-	Tue, 18 Dec 2001 01:34:23 -0500
-Message-ID: <3C1EE36C.AB4B9F7F@mandrakesoft.com>
-Date: Tue, 18 Dec 2001 01:34:20 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-pre8 i686)
+	id <S285629AbRLRGln>; Tue, 18 Dec 2001 01:41:43 -0500
+Received: from port5.ds1-sby.adsl.cybercity.dk ([212.242.169.198]:39481 "EHLO
+	trider-g7.fabbione.net") by vger.kernel.org with ESMTP
+	id <S285615AbRLRGlg>; Tue, 18 Dec 2001 01:41:36 -0500
+Message-ID: <3C1EE443.8070608@fabbione.net>
+Date: Tue, 18 Dec 2001 07:37:55 +0100
+From: Fabbione <fabbione@fabbione.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011213
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: William Lee Irwin III <wli@holomorphy.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Scheduler ( was: Just a second ) ...
-In-Reply-To: <Pine.LNX.4.33.0112172153410.2416-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
+To: Ingo Molnar <mingo@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [patch] raid-2.5.1-I7
+In-Reply-To: <Pine.LNX.4.33.0112172006060.29197-101000@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> Jeff, you've worked on the sb code at some point - does it really do
-> 32-byte sound fragments? Why? That sounds truly insane if I really parsed
-> that code correctly. That's thousands of separate DMA transfers
-> and interrupts per second..
+Ingo Molnar wrote:
 
-I do not see a hardware minimum fragment size in the HW docs...  The
-default hardware reset frag size is 2048 bytes.  So, yes, 32 bytes is
-pretty small for today's rate.
+> the attached patch (against 2.5.1-final) includes the next round of RAID-1
+> improvements. First it completes the raid1.c cleanups i planned, and it
+> also adds a number of new RAID-1 performance features.
+> 
+> 
+> Comments, reports, suggestions welcome,
+> 
+> 	Ingo
+> 
 
-But... I wonder if the fault lies more with the application setting a
-too-small fragment size and the driver actually allows it to do so, or,
-the code following this comment in reorganize_buffers in
-drivers/sound/audio.c needs to be revisited:
-   /* Compute the fragment size using the default algorithm */
+Hi Ingo,
+		a simple question. Do You have any plan to port this
+performance improvments in 2.4??
 
-Remember this code is from ancient times...  probably written way before
-44 Khz was common at all.
-
-	Jeff
-
+Thanks
+Fabio
 
 -- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
+Debian GNU/Linux Unstable Kernel 2.4.15aa1
+fabbione on irc.atdot.it #coredump #kchat | fabbione@fabbione.net
+

@@ -1,51 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287948AbSAHGaB>; Tue, 8 Jan 2002 01:30:01 -0500
+	id <S287944AbSAHG2v>; Tue, 8 Jan 2002 01:28:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287947AbSAHG3w>; Tue, 8 Jan 2002 01:29:52 -0500
-Received: from dsl-213-023-038-159.arcor-ip.net ([213.23.38.159]:34564 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S287945AbSAHG3s>;
-	Tue, 8 Jan 2002 01:29:48 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Subject: Re: PATCH 2.5.2.9: ext2 unbork fs.h (part 1/7)
-Date: Tue, 8 Jan 2002 07:32:25 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Anton Altaparmakov <aia21@cam.ac.uk>, torvalds@transmeta.com,
-        viro@math.psu.edu, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, ext2-devel@lists.sourceforge.net,
-        Andreas Dilger <adilger@turbolabs.com>
-In-Reply-To: <5.1.0.14.2.20020107134718.025e4d90@pop.cus.cam.ac.uk> <E16NbmV-0001R0-00@starship.berlin> <3C3A12A5.196C81B7@mandrakesoft.com>
-In-Reply-To: <3C3A12A5.196C81B7@mandrakesoft.com>
+	id <S287945AbSAHG2b>; Tue, 8 Jan 2002 01:28:31 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:57611 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S287944AbSAHG23>; Tue, 8 Jan 2002 01:28:29 -0500
+Message-ID: <3C3A9048.CB80061A@zip.com.au>
+Date: Mon, 07 Jan 2002 22:23:04 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16NpoB-00006w-00@starship.berlin>
+To: David Weinehall <tao@acc.umu.se>
+CC: Richard Gooch <rgooch@ras.ucalgary.ca>, Ivan Passos <ivan@cyclades.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Serial Driver Name Question (kernels 2.4.x)
+In-Reply-To: <3C38BC19.72ECE86@zip.com.au>, <3C34024A.EDA31D24@zip.com.au> <3C33E0D3.B6E932D6@zip.com.au> <3C33BCF3.20BE9E92@cyclades.com> <200201030637.g036bxe03425@vindaloo.ras.ucalgary.ca> <200201062012.g06KCIu16158@vindaloo.ras.ucalgary.ca> <3C38BC19.72ECE86@zip.com.au> <200201070636.g076asR25565@vindaloo.ras.ucalgary.ca> <3C3A7DA7.381D033D@zip.com.au>,
+		<3C3A7DA7.381D033D@zip.com.au>; from akpm@zip.com.au on Mon, Jan 07, 2002 at 09:03:35PM -0800 <20020108071548.J5235@khan.acc.umu.se>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 7, 2002 10:27 pm, Jeff Garzik wrote:
-> Daniel Phillips wrote:
-> > On January 7, 2002 03:13 pm, Anton Altaparmakov wrote:
-> > > Of course fs which are not adapted would still just work with the fs_i()
-> > > and fs_sb() macros and/or using two separate pointers.
-> > 
-> > Yes, the fs_* macros are the really critical part of all this.  I'd like to
-> > get them in early, while we hash out the rest of it.  I think Jeff supports
-> > me in this, possibly Al as well.
+David Weinehall wrote:
 > 
-> agreed, from my side
+> On Mon, Jan 07, 2002 at 09:03:35PM -0800, Andrew Morton wrote:
+> > [ tty driver name breakage ]
+> >
+> > Richard, can we please get this wrapped up?
+> >
+> > My preferred approach is to change the driver naming scheme
+> > so that we don't have to put printf control-strings everywhere.
+> > We can remove a number of ifdefs that way.
+> 
+> Wouldn't it be cleaner to have:
+> 
+> #ifdef CONFIG_DEVFS_FS
+>         serial_driver.name = "tts/";
+> #else
+>         serial_driver.name = "tts";
+> #endif
+> 
+> and
+> 
+>         sprintf("buf, "%s%d", name, idx + tty->driver.name_base);
+> 
+> respectively?!
+> 
 
-OK, are we agreed that:
+Well, with the scheme I proposed most drivers won't need the
+ifdef.  It'll just be:
 
-  - We're waiting for Al to merge ext/*alloc.c changes
+	serial_driver.name = "cua";
 
-  - When that's done we will apply what would be my unbork patches (2: ext2_i) and
-    (3: ext2_sb) to both 2.4.current and 2.5.current?  Subject to getting these two
-    patches into the form everybody likes, of course.
+With devfs enabled that expands to cua/42.  Without devfs it expands
+to cua42.
 
-  - We have some time in the interim to figure out how best to unbork fs.h, but we
-    all agree it needs to be done soon.
+Seems that some drivers have had their name changed when used under
+devfs (tts/%d versus ttyS%d).  But a lot have not.
 
---
-Daniel
+-

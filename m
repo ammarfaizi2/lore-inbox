@@ -1,48 +1,149 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268505AbUIXGjr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268524AbUIXGjt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268505AbUIXGjr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 02:39:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268496AbUIXGhg
+	id S268524AbUIXGjt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 02:39:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268490AbUIXGia
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 02:37:36 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:10710 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S267880AbUIXGeL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 02:34:11 -0400
-Date: Thu, 23 Sep 2004 23:34:10 -0700
-From: Suresh Siddha <suresh.b.siddha@intel.com>
-To: linux-kernel@vger.kernel.org
-Cc: asit.k.mallick@intel.com
-Subject: [Patch 0/2] Disable SW irqbalance/irqaffinity for E7520/E7320/E7525
-Message-ID: <20040923233410.A19555@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	Fri, 24 Sep 2004 02:38:30 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:11654 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S268511AbUIXGgt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 02:36:49 -0400
+Message-ID: <4153BFC2.9000500@sgi.com>
+Date: Fri, 24 Sep 2004 01:33:38 -0500
+From: Ray Bryant <raybry@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Ray Bryant <raybry@austin.rr.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Andrew Morton <akpm@osdl.org>, linux-mm <linux-mm@kvack.org>,
+       Jesse Barnes <jbarnes@sgi.com>, Dan Higgins <djh@sgi.com>,
+       lse-tech <lse-tech@lists.sourceforge.net>,
+       Brent Casavant <bcasavan@sgi.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Nick Piggin <piggin@cyberone.com.au>, Paul Jackson <pj@sgi.com>,
+       Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [PATCH 2/2] mm: eliminate node 0 bias in MPOL_INTERLEAVE
+References: <20040923043236.2132.2385.23158@raybryhome.rayhome.net> <20040923043256.2132.93167.33080@raybryhome.rayhome.net> <20040923092954.GA4836@wotan.suse.de>
+In-Reply-To: <20040923092954.GA4836@wotan.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As part of the workaround for the "Interrupt message re-ordering across
-hub interface" errata (page #16 in
-http://developer.intel.com/design/chipsets/specupdt/30288402.pdf),
-BIOS may enable hardware IRQ balancing for Lindenhurst/Tumwater based chipset
-platforms. Software based irq_balance/irq_affinity should be disabled if
-hardware IRQ balancing is enabled.
+Andi Kleen wrote:
+> On Wed, Sep 22, 2004 at 11:32:45PM -0500, Ray Bryant wrote:
+> 
+>>Each of these cases potentially breaks the (assumed) invariant of
+> 
+> 
+> I would prefer to keep the invariant.
+> 
 
-This is applicable for chipsets with PCI id's
+I understand, but read on...
 
-E7520, 0x3590
-E7320, 0x3592
-E7525, 0x359E
+> 
+>>+++ linux-2.6.9-rc2-mm1/mm/mempolicy.c	2004-09-21 17:44:58.000000000 -0700
+>>@@ -435,7 +435,7 @@ asmlinkage long sys_set_mempolicy(int re
+>> 		default_policy[policy] = new;
+>> 	}
+>> 	if (new && new->policy == MPOL_INTERLEAVE)
+>>-		current->il_next = find_first_bit(new->v.nodes, MAX_NUMNODES);
+>>+		current->il_next = current->pid % MAX_NUMNODES;
+> 
+> 
+> Please do the find_next/find_first bit here in the slow path. 
+> 
+> Another useful change may be to check if il_next points to a node
+> that is in the current interleaving mask. If yes don't change it.
+> This way skew when interleaving policy is set often could be avoided.
+> 
+> 
+>> 	return 0;
+>> }
+>> 
+>>@@ -714,6 +714,11 @@ static unsigned interleave_nodes(struct 
+>> 
+>> 	nid = me->il_next;
+>> 	BUG_ON(nid >= MAX_NUMNODES);
+>>+	if (!test_bit(nid, policy->v.nodes)) {
+>>+		nid = find_next_bit(policy->v.nodes, MAX_NUMNODES, 1+nid);
+>>+		if (nid >= MAX_NUMNODES)
+>>+			nid = find_first_bit(policy->v.nodes, MAX_NUMNODES);
+>>+	}
+> 
+> 
+> And remove it here.
+>
 
-and with revision ID 0x09 and below.
+Regardless of whether we remove this or not, then we have a potential problem, 
+I think.  The reason is that there is a single il_next for all policies.  So 
+we get into trouble if the current process's page allocation policy and
+its page cache allocation policy are MPOL_INTERLEAVE, but the node masks for
+the two policies are significantly different. Just to be specific, suppose 
+there are 64 nodes, and the page allocation policy selects nodes 0-53 and
+the page cache allocation policy chooses nodes 54-63.  Further suppose that
+allocation requests are page, page cache, page, page cache, etc....
 
-Patch is broken into two parts.
+Then if il_next starts out at zero, here are the nodes that will be selected:
+(I'm assuming here that the code I inserted above is not present.)
 
-1/2 - Set TARGET_CPUS on x86_64 to cpu_online_map. This brings the code inline
-with x86 mach-default
-2/2 - Add pci quirks to disable irq_balance/affinity based on the above
-information and make sure destination cpus in IO-APIC redirection table
-entries are set to cpu_online_map
+request a page, get 0 and using the page allocation mask, next is set to 1
 
-Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
+request page cache, get 1 and using the page cache allocation mask, next is 
+set to 54
+
+request a page, get 54 and using the page allocation mask, next is set to 0
+
+request page cache, get 0  and using the page cache allocation mask, next is 
+set to 54
+
+request a page, get 54 and using the page allocation mask, next is set to 0
+etc...
+
+This is not good.  Generally speaking, all of the pages are allocated from the 
+1st page cache node and all of the page cache pages are allocated from the 1st 
+page allocation node.
+
+I guess I am back to passing an offset etc in via page cache alloc.  Or we
+have to have a second il_next for the page cache policy, and that is more
+cruft than we are willing to live with, I expect.
+
+I'll look at Steve's patch and see how he handles this.
+
+> 
+>> 	next = find_next_bit(policy->v.nodes, MAX_NUMNODES, 1+nid);
+>> 	if (next >= MAX_NUMNODES)
+>> 		next = find_first_bit(policy->v.nodes, MAX_NUMNODES);
+>>Index: linux-2.6.9-rc2-mm1/kernel/fork.c
+>>===================================================================
+>>--- linux-2.6.9-rc2-mm1.orig/kernel/fork.c	2004-09-21 16:24:49.000000000 -0700
+>>+++ linux-2.6.9-rc2-mm1/kernel/fork.c	2004-09-21 17:41:12.000000000 -0700
+>>@@ -873,6 +873,8 @@ static task_t *copy_process(unsigned lon
+>> 			goto bad_fork_cleanup;
+>> 		}
+>> 	}
+>>+	/* randomize placement of first page across nodes */
+>>+	p->il_next = p->pid % MAX_NUMNODES;
+> 
+> 
+> Same here.
+> 
+> -Andi
+> 
+
+
+-- 
+Best Regards,
+Ray
+-----------------------------------------------
+                   Ray Bryant
+512-453-9679 (work)         512-507-7807 (cell)
+raybry@sgi.com             raybry@austin.rr.com
+The box said: "Requires Windows 98 or better",
+            so I installed Linux.
+-----------------------------------------------
+

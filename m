@@ -1,40 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261285AbVDDQ76@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261288AbVDDRC0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261285AbVDDQ76 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 12:59:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbVDDQ76
+	id S261288AbVDDRC0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 13:02:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbVDDRCZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 12:59:58 -0400
-Received: from [207.35.253.199] ([207.35.253.199]:29841 "EHLO
-	smtp.discreet.com") by vger.kernel.org with ESMTP id S261285AbVDDQ7X
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 12:59:23 -0400
-Subject: Assertion failure in journal_start_Rsmp_2519e07e()
-From: Eric Desjardins <eric.desjardins@discreet.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1112633954.11836.2.camel@oshawa.rd.discreet.qc.ca>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Mon, 04 Apr 2005 12:59:14 -0400
+	Mon, 4 Apr 2005 13:02:25 -0400
+Received: from fire.osdl.org ([65.172.181.4]:43245 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261288AbVDDRAt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 13:00:49 -0400
+Date: Mon, 4 Apr 2005 10:02:35 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Fix u32 vs. pm_message_t in arm
+In-Reply-To: <20050404174923.B12975@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.58.0504041002080.2215@ppc970.osdl.org>
+References: <20050329191543.GA8309@elf.ucw.cz> <20050403113804.A921@flint.arm.linux.org.uk>
+ <20050403104414.GE1357@elf.ucw.cz> <20050404174923.B12975@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I'm having problem with my x86_64 workstation. I'm having about
-5 kernels oops a day and usually I got that in the syslog:
 
-Apr  4 12:45:07 oshawa kernel: Assertion failure in
-journal_start_Rsmp_2519e07e() at transaction.c:249:
-"handle->h_transaction->t_journal == journal"
+On Mon, 4 Apr 2005, Russell King wrote:
+> 
+> Linus - is the pm.h included in sysdev.h in -rc2?
 
-I'm using:
-Linux oshawa 2.4.21-20.ELsmp #2 SMP Wed Mar 23 18:32:06 EST 2005 x86_64
-x86_64 x86_64 GNU/Linux.
+Nope. Just includes kobject.h
 
-Any idea where I should start to look at.
-
-Thanks,
-Eric Desjardins
+		Linus

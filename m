@@ -1,40 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319112AbSHWTHZ>; Fri, 23 Aug 2002 15:07:25 -0400
+	id <S319156AbSHWTJR>; Fri, 23 Aug 2002 15:09:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319113AbSHWTHZ>; Fri, 23 Aug 2002 15:07:25 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:13573 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S319112AbSHWTHY>; Fri, 23 Aug 2002 15:07:24 -0400
-Date: Fri, 23 Aug 2002 20:11:33 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Marcus Alanen <maalanen@ra.abo.fi>, linux-kernel@vger.kernel.org
-Subject: Re: [patch, 2.5] vmalloc.c error path fixes
-Message-ID: <20020823201133.A26160@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@zip.com.au>, Marcus Alanen <maalanen@ra.abo.fi>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0208202022100.16857-100000@tuxedo.abo.fi> <3D628BF5.26FBE772@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D628BF5.26FBE772@zip.com.au>; from akpm@zip.com.au on Tue, Aug 20, 2002 at 11:35:33AM -0700
+	id <S319154AbSHWTJN>; Fri, 23 Aug 2002 15:09:13 -0400
+Received: from 213-98-170-88.uc.nombres.ttd.es ([213.98.170.88]:38404 "HELO
+	yvmhgj") by vger.kernel.org with SMTP id <S319118AbSHWTJJ>;
+	Fri, 23 Aug 2002 15:09:09 -0400
+From: Ferda Bulut <mdwnnkm@gmx.de>
+To: <linux-kernel@vger.kernel.org>
+Subject: =?ISO-8859-1?Q?Ar=FEiv?= =?ISO-8859-1?Q?haz=FDr?=
+Date: Fri, 23 Aug 2002 20:10:14 -0400
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain
+Message-Id: <dgfrquwdfelx@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+X-MIME-Autoconverted: from base64 to 8bit by alpha.home.local id g7NJH4Yd026064
 
-On Tue, Aug 20, 2002 at 11:35:33AM -0700, Andrew Morton wrote:
-> > of the diff fix a spinlock being held if an error occurs in
-> > map_vm_area, and the last part fixes the error path of __vmalloc.
-> 
-> Certainly agree on the first chunk.  Listen to the old guy: "Thou
-> shalt not have more than one return statement per function".
-> 
-> Second chunk looks good too, but perhaps there's another way of doing
-> it.  The 2.5.31 code just tossed it all at vfree.  Perhaps hch can
-> comment?
 
-The code looks fine - I missed that error checking.  A little nitpick:
-either remove the comment inn the last chunk as it's obvious what we
-are doing or at least make it fit an ansi terminal.
+TrMelodi, Kırık linkli çalışmayan ve birtek mp3 ü indirirken bile insanları kahreden sözde mp3 sitelerine alternatif 
+olarak sizler için özenle hazırlanmıştır. Her yaştan her kesimden müziksevere hitap edebilmek için tasarlanmış 13 GB 
+lık dev Mp3 listesiyle sınıfında rakipsiz olacak şekilde donatılmış ve siz müzikseverlerin hizmetine sunulmuştur. 
+http://www.trmelodi.com adresindeki dev arşivimizde sizi bekleyen en sevdiğiniz sanatçıların en sevdiğiniz 
+şarkılarını birkaç dakika içinde bilgisayarınıza indirin ve keyifle dinlemeye başlayın. 
+
+İyi Eğlenceler.. 
+http://www.trmelodi.com
+
+
+
+
+ı:.Ë›±Êâmçë¢kaŠÉb²ßìzwm…ébïîË›±Êâmébìÿ‘êçz_âØ^n‡r¡ö¦zËëh™¨è­Ú&£ûàz¿äz¹Ş—ú+€Ê+zf£¢·hšˆ§~†­†Ûiÿÿïêÿ‘êçz_è®æj:+v‰¨ş)ß£ømšSåy«­æ¶…­†ÛiÿÿğÃí»è®å’i

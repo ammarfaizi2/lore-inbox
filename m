@@ -1,64 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264649AbUFTKmJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264668AbUFTKur@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264649AbUFTKmJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 06:42:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265770AbUFTKmJ
+	id S264668AbUFTKur (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 06:50:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265770AbUFTKur
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 06:42:09 -0400
-Received: from hermes.iil.intel.com ([192.198.152.99]:43666 "EHLO
-	hermes.iil.intel.com") by vger.kernel.org with ESMTP
-	id S264649AbUFTKmG convert rfc822-to-8bit (ORCPT
+	Sun, 20 Jun 2004 06:50:47 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:14047 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264668AbUFTKup (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 06:42:06 -0400
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Subject: RE: [PATCH] Handle non-readable binfmt_misc executables
-Date: Sun, 20 Jun 2004 13:41:30 +0300
-Message-ID: <2C83850C013A2540861D03054B478C060416BC17@hasmsx403.ger.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Handle non-readable binfmt_misc executables
-thread-index: AcRWCzIt6e+vscTkQR+YOMot35DDrgAp0I4Q
-From: "Zach, Yoav" <yoav.zach@intel.com>
-To: <arjanv@redhat.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Cc: <torvalds@osdl.org>
-X-OriginalArrivalTime: 20 Jun 2004 10:41:31.0964 (UTC) FILETIME=[2694D7C0:01C456B3]
+	Sun, 20 Jun 2004 06:50:45 -0400
+Date: Sun, 20 Jun 2004 12:50:25 +0200
+From: Arjan van de Ven <arjanv@redhat.com>
+To: "Zach, Yoav" <yoav.zach@intel.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Handle non-readable binfmt_misc executables
+Message-ID: <20040620105025.GA9349@devserv.devel.redhat.com>
+References: <2C83850C013A2540861D03054B478C060416BC17@hasmsx403.ger.corp.intel.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BOKacYhQ+x31HxR3"
+Content-Disposition: inline
+In-Reply-To: <2C83850C013A2540861D03054B478C060416BC17@hasmsx403.ger.corp.intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm not sure I understand the problem. Load_elf_binary also
-uses sys_close for recovery in case of error. Can you please
-give me more details on the problems you see with using sys_close ?
 
-Thanks,
-Yoav.
+--BOKacYhQ+x31HxR3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Yoav Zach
-IA-32 Execution Layer
-Performance Tools Lab
-Intel Corp.
+On Sun, Jun 20, 2004 at 01:41:30PM +0300, Zach, Yoav wrote:
+> I'm not sure I understand the problem. Load_elf_binary also
+> uses sys_close for recovery in case of error. Can you please
+> give me more details on the problems you see with using sys_close ?
 
+for one, sys_close, while currently exported, shouldn't be really.
+(it is exported right now for a few drivers that have invalid firmware
+loaders that haven't been converted to the firmware loading framework).
+In addition it's way overkill, you created the fd so half the safety
+precautions shouldn/t be needed
 
->-----Original Message-----
->From: Arjan van de Ven [mailto:arjanv@redhat.com] 
->Sent: Saturday, June 19, 2004 17:39
->To: Linux Kernel Mailing List
->Cc: Zach, Yoav; torvalds@osdl.org
->Subject: Re: [PATCH] Handle non-readable binfmt_misc executables
->
->
->> +_error_close_file:
->> +	if (fd_binary > 0) {
->> +		sys_close (fd_binary);
->> +		fd_binary = -1;
->> +		bprm->file = NULL;
->> +	
->
->
->ewww sys_close.... there HAS to be a better way to do that... 
->
+--BOKacYhQ+x31HxR3
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFA1WvwxULwo51rQBIRAl66AJoCKAwi/tOm65GXrFdAQLqaWPAhIQCfcMip
+a2g9gS3W7rkYA4wRFoqn3cw=
+=ItPk
+-----END PGP SIGNATURE-----
+
+--BOKacYhQ+x31HxR3--

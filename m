@@ -1,176 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262339AbVAOVnu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262344AbVAOV7Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262339AbVAOVnu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 16:43:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262343AbVAOVnf
+	id S262344AbVAOV7Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 16:59:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262349AbVAOV4D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 16:43:35 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:23313 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262335AbVAOVkR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 16:40:17 -0500
-Date: Sat, 15 Jan 2005 22:40:13 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: mingo@redhat.com, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] i386/x86_64 io_apic.c: misc cleanups (fwd)
-Message-ID: <20050115214012.GY4274@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Sat, 15 Jan 2005 16:56:03 -0500
+Received: from host268.ipowerweb.com ([66.235.211.80]:55303 "HELO
+	host268.ipowerweb.com") by vger.kernel.org with SMTP
+	id S262330AbVAOVw5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jan 2005 16:52:57 -0500
+Message-ID: <41E990B8.8070100@galaktika.ru>
+Date: Sat, 15 Jan 2005 13:52:56 -0800
+From: Nick <nick@galaktika.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
+X-Accept-Language: en, ru
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Can I ask a smbfs question here?
+References: <41E87CB1.30804@galaktika.ru> <200501150631.59243.yarick@it-territory.ru>
+In-Reply-To: <200501150631.59243.yarick@it-territory.ru>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch forwarded below still applies and compiles against 
-2.6.11-rc1-mm1.
+/usr/sbin/smbmnt ?
 
-Please apply.
+After I chmodded /usr/bin/smbmnt one, I got:
+libsmb based programs must *NOT* be setuid root.
+29612: Connection to nata failed
+SMB connection failed
 
+I do not have /usr/sbin/smbmnt
 
------ Forwarded message from Adrian Bunk <bunk@stusta.de> -----
+>>not remember which one - found its name in one of FAQs) and specified
+>>    
+>>
+>....
+>  
+>
+>>username=administrator,password=xxx,fmask=0666,codepage=cp866,iocharset=utf8,users 
+>>    
+>>
+>Are you sure it's "users" and not "user" ?
+>  
+>
+I actually tried both. The reaction is the same (may be synonims?).  As 
+soon as I specify it, codepage= and iocharset= parameters are no longer 
+recognized and an error message starts to appear in the 
+/var/log/messages saying that "noexec" parameter is not recognized by 
+smbfs (Jan  9 15:24:09 NS kernel: smbfs: Unrecognized mount option 
+noexec). This is actually not a big issue as I could write a script with 
+"sudo mount /my/mountpoint". And I probably can exclude this line from 
+my fstab and specify the parameters in this script. This just does not 
+look very user-friendly to me (ok for my single-user laptop). It appears 
+that I cannot use fstab with smbfs volumes if I want international 
+characters.
 
-Date:	Wed, 1 Dec 2004 22:45:52 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: mingo@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] i386/x86_64 io_apic.c: misc cleanups
-
-The patch below contains the following cleanups:
-- make some needlessly global code static
-- #if 0 some global print* functions that have no user
-
-
-diffstat output:
- arch/i386/kernel/io_apic.c   |   14 +++++++++-----
- arch/x86_64/kernel/io_apic.c |   14 +++++++++-----
- 2 files changed, 18 insertions(+), 10 deletions(-)
-
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc2-mm4-full/arch/i386/kernel/io_apic.c.old	2004-12-01 07:58:14.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/arch/i386/kernel/io_apic.c	2004-12-01 08:05:04.000000000 +0100
-@@ -187,7 +187,7 @@
- 	spin_unlock_irqrestore(&ioapic_lock, flags);
- }
- 
--void clear_IO_APIC_pin(unsigned int apic, unsigned int pin)
-+static void clear_IO_APIC_pin(unsigned int apic, unsigned int pin)
- {
- 	struct IO_APIC_route_entry entry;
- 	unsigned long flags;
-@@ -685,8 +685,8 @@
-  */
- 
- #define MAX_PIRQS 8
--int pirq_entries [MAX_PIRQS];
--int pirqs_enabled;
-+static int pirq_entries [MAX_PIRQS];
-+static int pirqs_enabled;
- int skip_ioapic_setup;
- 
- static int __init ioapic_setup(char *str)
-@@ -1179,7 +1179,7 @@
- 	}
- }
- 
--void __init setup_IO_APIC_irqs(void)
-+static void __init setup_IO_APIC_irqs(void)
- {
- 	struct IO_APIC_route_entry entry;
- 	int apic, pin, idx, irq, first_notcon = 1, vector;
-@@ -1258,7 +1258,7 @@
- /*
-  * Set up the 8259A-master output pin:
-  */
--void __init setup_ExtINT_IRQ0_pin(unsigned int pin, int vector)
-+static void __init setup_ExtINT_IRQ0_pin(unsigned int pin, int vector)
- {
- 	struct IO_APIC_route_entry entry;
- 	unsigned long flags;
-@@ -1452,6 +1452,8 @@
- 	return;
- }
- 
-+#if 0
-+
- static void print_APIC_bitfield (int base)
- {
- 	unsigned int v;
-@@ -1594,6 +1596,8 @@
- 	printk(KERN_DEBUG "... PIC ELCR: %04x\n", v);
- }
- 
-+#endif  /*  0  */
-+
- static void __init enable_IO_APIC(void)
- {
- 	union IO_APIC_reg_01 reg_01;
---- linux-2.6.10-rc2-mm4-full/arch/x86_64/kernel/io_apic.c.old	2004-12-01 07:58:32.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/arch/x86_64/kernel/io_apic.c	2004-12-01 08:05:15.000000000 +0100
-@@ -147,7 +147,7 @@
- 	spin_unlock_irqrestore(&ioapic_lock, flags);
- }
- 
--void clear_IO_APIC_pin(unsigned int apic, unsigned int pin)
-+static void clear_IO_APIC_pin(unsigned int apic, unsigned int pin)
- {
- 	struct IO_APIC_route_entry entry;
- 	unsigned long flags;
-@@ -185,8 +185,8 @@
-  */
- 
- #define MAX_PIRQS 8
--int pirq_entries [MAX_PIRQS];
--int pirqs_enabled;
-+static int pirq_entries [MAX_PIRQS];
-+static int pirqs_enabled;
- int skip_ioapic_setup;
- int ioapic_force;
- 
-@@ -707,7 +707,7 @@
- 	}
- }
- 
--void __init setup_IO_APIC_irqs(void)
-+static void __init setup_IO_APIC_irqs(void)
- {
- 	struct IO_APIC_route_entry entry;
- 	int apic, pin, idx, irq, first_notcon = 1, vector;
-@@ -776,7 +776,7 @@
-  * Set up the 8259A-master output pin as broadcast to all
-  * CPUs.
-  */
--void __init setup_ExtINT_IRQ0_pin(unsigned int pin, int vector)
-+static void __init setup_ExtINT_IRQ0_pin(unsigned int pin, int vector)
- {
- 	struct IO_APIC_route_entry entry;
- 	unsigned long flags;
-@@ -948,6 +948,8 @@
- 	return;
- }
- 
-+#if 0
-+
- static __apicdebuginit void print_APIC_bitfield (int base)
- {
- 	unsigned int v;
-@@ -1090,6 +1092,8 @@
- 	printk(KERN_DEBUG "... PIC ELCR: %04x\n", v);
- }
- 
-+#endif  /*  0  */
-+
- static void __init enable_IO_APIC(void)
- {
- 	union IO_APIC_reg_01 reg_01;
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
------ End forwarded message -----
-
+>>Any ideas if it is possible to fix this? I can "sudo mount" all the time
+>>but it does not sound right...
+>>    
+>>
+>And what's wrong with smbmount ?
+>smbmount //server/share /your/mountpoint -o 
+>username=<uname>,iocharset=utf8,codepage=cp866
+>Works like a charm as long as /usr/sbin/smbmnt is suid-root
+>
+>  
+>
+Thanks!

@@ -1,49 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132606AbRDUNNP>; Sat, 21 Apr 2001 09:13:15 -0400
+	id <S132605AbRDUNZh>; Sat, 21 Apr 2001 09:25:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132605AbRDUNNG>; Sat, 21 Apr 2001 09:13:06 -0400
-Received: from mail2.zrz.TU-Berlin.DE ([130.149.4.14]:1734 "EHLO
-	mail2.zrz.tu-berlin.de") by vger.kernel.org with ESMTP
-	id <S132606AbRDUNMw>; Sat, 21 Apr 2001 09:12:52 -0400
-Date: Sat, 21 Apr 2001 14:51:33 +0200
-From: Daniel Dorau <woodst@cs.tu-berlin.de>
+	id <S132611AbRDUNZ2>; Sat, 21 Apr 2001 09:25:28 -0400
+Received: from rm05-24-167-185-21.ce.mediaone.net ([24.167.185.21]:57269 "EHLO
+	calvin.localdomain") by vger.kernel.org with ESMTP
+	id <S132605AbRDUNZU>; Sat, 21 Apr 2001 09:25:20 -0400
+Date: Sat, 21 Apr 2001 08:25:14 -0500
+From: Tim Walberg <tewalberg@mediaone.net>
 To: linux-kernel@vger.kernel.org
-Subject: Inspiron 8000 does not resume after suspend
-Message-ID: <20010421145133.A419@woodstock.home.xxx>
+Subject: Re: A question about MMX.
+Message-ID: <20010421082514.H20020@mediaone.net>
+Reply-To: Tim Walberg <tewalberg@mediaone.net>
+Mail-Followup-To: Tim Walberg <tewalberg@mediaone.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0104211353450.14048-100000@ns1.aniela.eu.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="JF+ytOk7PH04NsRm"
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0104211353450.14048-100000@ns1.aniela.eu.org> from lk@aniela.eu.org on 04/21/2001 05:55
+X-PGP-RSA-Key: 0x0C8BA2FD at www.pgp.com (pgp.ai.mit.edu)
+X-PGP-RSA-Fingerprint: FC08 4026 8A62 C72F 90A9 FA33 6EEA 542D
+X-PGP-DSS-Key: 0x6DAB2566 at www.pgp.com (pgp.ai.mit.edu)
+X-PGP-DSS-Fingerprint: 4E1B CD33 46D0 F383 1579  1CCA C3E5 9C8F 6DAB 2566
+X-URL: http://www.concentric.net/~twalberg
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-my Inspiron 8000 (BIOS A09) notebook running 2.4.3 does not resume 
-after suspending. I have APM compiled in with the following options:
 
-- Enable PM at boot time
-- Make CPU Idle calls whe ide
-- Enable console blanking using APM
-- RTC stores time in GMT
+--JF+ytOk7PH04NsRm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Suspending with apm -s seem to work ok - at least it looks like.
-Resuming however, does not work. There is a short disc
-activity, then the harddrive LED is on for about 20 sec without
-any noticable disc activity. Display doesn't switch on,
-NIC (PCI, not PCMCIA) does not wake up (link LED stays off) and the
-whole thing  keeps 'dead'.
-With an older BIOS version that I upgraded because of a newer
-ATI BIOS needed, it woke up execpt some PCI bridge(?) that I 
-could re-activate with a setpci-script that I found in a
-linux-kernel archive. So I think the problem is the same as
-before.
-Is there any way to fix that? I would really like to use
-PM on my notebook.
+MMX **is** potentially used in the md (RAID-5) code for parity
+calculation, IIRC, though. That's about the only place that I
+can think of that it's used, but I don't claim to know the
+inner workings of the entire kernel, either...
 
-Regards, 
-Daniel
+			tw
 
--- 
-Daniel Dorau
-woodst@cs.tu-berlin.de 
+
+On 04/21/2001 13:55 +0300, lk@aniela.eu.org wrote:
+>>=09
+>>	I have a Intel Pentium MMX machine and it acts as a mailserver, webserve=
+r,
+>>	ftp and I use X on it. I would like to know if the MMX instructions are
+>>	used by the kernel in this operations or not (networking, X etc.).
+>>=09
+>>=09
+>>	Thank you,
+>>=09
+>>	/me
+>>=09
+>>	-
+>>	To unsubscribe from this list: send the line "unsubscribe linux-kernel" =
+in
+>>	the body of a message to majordomo@vger.kernel.org
+>>	More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>	Please read the FAQ at  http://www.tux.org/lkml/
+End of included message
+
+
+
+--=20
++--------------------------+------------------------------+
+| Tim Walberg              | tewalberg@mediaone.net       |
+| 828 Marshall Ct.         | www.concentric.net/~twalberg |
+| Palatine, IL 60074       |                              |
++--------------------------+------------------------------+
+
+--JF+ytOk7PH04NsRm
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: PGP 6.5.1i
+
+iQA/AwUBOuGKOcPlnI9tqyVmEQJ1iACgrVO5FaEAhddjfR/4FsS0YIX6OqoAoIH5
+Afsq3JkSF8UpQNz3wlalWQmN
+=k/nT
+-----END PGP SIGNATURE-----
+
+--JF+ytOk7PH04NsRm--

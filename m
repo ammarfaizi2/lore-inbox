@@ -1,63 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262008AbTENP5x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 11:57:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262069AbTENP5x
+	id S261839AbTENQJO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 12:09:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262161AbTENQJN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 11:57:53 -0400
-Received: from lnx-7-fe1.ams-2.theinternetone.net ([62.4.94.8]:40952 "HELO
-	mail.theinternetone.net") by vger.kernel.org with SMTP
-	id S262008AbTENP5t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 11:57:49 -0400
-Message-ID: <60322.80.88.128.14.1052928256.squirrel@webmail.444.net>
-Date: Wed, 14 May 2003 18:04:16 +0200 (CEST)
-Subject: contact me immediately
-From: <healthiswealth@444.net>
-To: <healthiswealth@444.net>
-X-Priority: 3
-Importance: Normal
-X-Mailer: SquirrelMail (version 1.2.10)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 14 May 2003 12:09:13 -0400
+Received: from ip68-107-142-198.tc.ph.cox.net ([68.107.142.198]:51590 "EHLO
+	opus.bloom.county") by vger.kernel.org with ESMTP id S261839AbTENQJK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 12:09:10 -0400
+Date: Wed, 14 May 2003 09:21:48 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Christoph Hellwig <hch@infradead.org>, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6 must-fix list, v2
+Message-ID: <20030514162148.GB830@ip68-0-152-218.tc.ph.cox.net>
+References: <20030512155417.67a9fdec.akpm@digeo.com> <20030512155511.21fb1652.akpm@digeo.com> <1052834227.432.30.camel@dhcp22.swansea.linux.org.uk> <20030513163854.A27407@infradead.org> <20030513131754.7f96d4d0.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030513131754.7f96d4d0.akpm@digeo.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Brethren,
-Greetings in the name of our Lord .Be informed that this message/mail
-is getting to you on the basis of a contribution to your
-organisation/ministry on philantropic purposes.However,your email address
-was gotten from network-online,hence; you are to contact me through my
-Physician,Danilo Zapanta on telephone number ++234-80-3470-1685.It is
-essential you call us immediately,as the use of email my delay the entire
-process.
-Nevertheless,I am former Mrs Grace Ojo, a widow to Late Sheik Ojo. I am
-72years old and I am now a new Christian convert, suffering from long
-time cancer of the breast. From all indications,my condition is really
-deteriorating and is quite obvious that I may not live more than six
-months, because the cancer stage has gotten to a very severe stage.
-My late husband was killed during the Gulf war, and during the period
-of our marriage we had a son who was also killed in a cold blood during
-the Gulf war.My late husband was very wealthy and after his death, I
-inherited all his business and wealth. My personal physician told me
-that I may not live for more than six months and I am so scared about
-this. So, I now decided to divide part of this wealth, by contributing to
-the development of evangelism in Africa,America,Europe and Asian
-Countries. This mission which will no doubt be tasking had made me to
-recently relocate to Nigeria, Africa where I live presently.I am willing
-to donate the sum of $10,000,000.00 Million US Dollars to your
-organisation/Ministry for the development of philantropism and also as
-aids for the less privileged around you.
-Please note that, this fund is lying in a Security Company in Europe
-which has branches all over.To enable you and your ministry get this
-funds,contact me immediately through my physician,Danilo Zapanta on
-telephone number ++234-80-3470-1685,so that the  an immediate transfer of
-the funds will be made to you/your organisation/ministry.
-Mrs Grace Ojo
-Kaduna-Nigeria
+On Tue, May 13, 2003 at 01:17:54PM -0700, Andrew Morton wrote:
+> Christoph Hellwig <hch@infradead.org> wrote:
+> >
+> > That brings up another issue:  what ports do regularly work with 2.5
+> >  mainline?
+> 
+> I test ppc64 regularly.  In fact -mm is probably the best place to go to
+> get a working ppc64 tree at present.
+> 
+> But I do not view non-ia32 support as being a 2.6.0 requirement.  I'd be OK
+> with 2.6.0 working _only_ on ia32.  Other architectures will catch up when
+> they can.  The only core requirement is that 2.6.0 not contain gross
+> x86isms which make other ports impossible.
 
+How about some holding point shortly before to ping arch maintainers?
+I'm sure a number of arches will be at 'current bk works, but Linus
+keeps dropping my emails' stage.
 
---------------------------------------------
-Free Webmail courtesy of http://www.444.net/
-
-
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

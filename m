@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275539AbRIZTpm>; Wed, 26 Sep 2001 15:45:42 -0400
+	id <S275552AbRIZTuC>; Wed, 26 Sep 2001 15:50:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275547AbRIZTpc>; Wed, 26 Sep 2001 15:45:32 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:50447 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S275539AbRIZTpO>; Wed, 26 Sep 2001 15:45:14 -0400
-Date: Wed, 26 Sep 2001 15:22:01 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Rob Fuller <rfuller@nsisoftware.com>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org
-Subject: Re: broken VM in 2.4.10-pre9
-In-Reply-To: <20010925005033.A137@bug.ucw.cz>
-Message-ID: <Pine.LNX.4.21.0109261518520.957-100000@freak.distro.conectiva>
+	id <S275531AbRIZTtw>; Wed, 26 Sep 2001 15:49:52 -0400
+Received: from dfw-smtpout4.email.verio.net ([129.250.36.44]:20112 "EHLO
+	dfw-smtpout4.email.verio.net") by vger.kernel.org with ESMTP
+	id <S275552AbRIZTtk>; Wed, 26 Sep 2001 15:49:40 -0400
+Message-ID: <3BB23168.FA0256CD@bigfoot.com>
+Date: Wed, 26 Sep 2001 12:50:00 -0700
+From: Tim Moore <timothymoore@bigfoot.com>
+Organization: Yoyodyne Propulsion Systems, Inc.
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.20p10i i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: jlmales@softhome.net
+CC: Mike Fedyk <mfedyk@matchmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux Kernel 2.2.20-pre10 Initial Impressions
+In-Reply-To: <3BB116BF.19313.7E42D8@localhost>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 25 Sep 2001, Pavel Machek wrote:
-
-> Hi!
+"John L. Males" wrote:
+> ...
+> Ok, you make a good point in your suggestion re:
 > 
-> > > So my suggestion was to look at getting anonymous pages backed by what
-> > > amounts to a shared memory segment.  In that vein.  By using an extent
-> > > based data structure we can get the cost down under the current 8 bits
-> > > per page that we have for the swap counts, and make allocating swap
-> > > pages faster.  And we want to cluster related swap pages anyway so
-> > > an extent based system is a natural fit.
-> >
-> > Much of this goes away if you get rid of both the swap and anonymous page
-> > special cases. Back anonymous pages with the "whoops everything I write here
-> > vanishes mysteriously" file system and swap with a swapfs
-> 
-> What exactly is anonymous memory? I thought it is what you do when you
-> want to malloc(), but you want to back that up by swap, not /dev/null.
+> You will probably see dns requests going out. You should check to
+> make sure that you are not blocking incomming udp ports (1024-5000
+> for bind, not sure about resolver...) as that would lengthen the
+> response time considerably if only a few are open, and completely
+> stop you if all are blocked.
+> ...
 
-Anonymous memory is memory which is not backed by a filesystem or a
-device. eg: malloc()ed memory, shmem, mmap(MAP_PRIVATE) on a file (which
-will create anonymous memory as soon as the program which did the mmap
-writes to the mapped memory (COW)), etc.
+strace will instantly validate or eliminate DNS lookup delays as an
+issue wo having to sort through tcpdump output.  In my case nscd was a
+lifesaver and saved me from running local bind server.
 
+rgds,
+tim.
+--

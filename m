@@ -1,137 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263855AbTEFQ1L (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 12:27:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263863AbTEFQ0M
+	id S263932AbTEFQ2c (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 12:28:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263953AbTEFQ1e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 12:26:12 -0400
-Received: from www1.mail.lycos.com ([209.202.220.140]:7548 "HELO lycos.com")
-	by vger.kernel.org with SMTP id S263855AbTEFQPV (ORCPT
+	Tue, 6 May 2003 12:27:34 -0400
+Received: from smtp013.mail.yahoo.com ([216.136.173.57]:45072 "HELO
+	smtp013.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263932AbTEFQZ2 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 12:15:21 -0400
-To: "Sumit Narayan" <sumit_uconn@lycos.com>, "Peder Stray" <peder@ifi.uio.no>
-Date: Tue, 06 May 2003 12:26:57 -0400
-From: "Sumit Narayan" <sumit_uconn@lycos.com>
-Message-ID: <KOBLHIAKBGCCCDAA@mailcity.com>
-Mime-Version: 1.0
-Cc: linux-kernel@vger.kernel.org
-X-Sent-Mail: off
-Reply-To: sumit_uconn@lycos.com
-X-Mailer: MailCity Service
-X-Priority: 3
-Subject: Re: Files truncate on vfat filesystem
-X-Sender-Ip: 137.99.1.12
-Organization: Lycos Mail  (http://www.mail.lycos.com:80)
-Content-Type: text/plain; charset=us-ascii
-Content-Language: en
-Content-Transfer-Encoding: 7bit
+	Tue, 6 May 2003 12:25:28 -0400
+From: Michael Buesch <fsdeveloper@yahoo.de>
+To: trond.myklebust@fys.uio.no
+Subject: Re: [NFS] processes stuck in D state
+Date: Tue, 6 May 2003 18:30:14 +0200
+User-Agent: KMail/1.5.1
+References: <200305061652.13280.fsdeveloper@yahoo.de> <200305061742.14032.fsdeveloper@yahoo.de> <16055.56630.615496.19679@charged.uio.no>
+In-Reply-To: <16055.56630.615496.19679@charged.uio.no>
+Cc: neilb@cse.unsw.edu.au, nfs@lists.sourceforge.net,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Zeev Fisher <Zeev.Fisher@il.marvell.com>
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200305061830.25417.fsdeveloper@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This probably couldnt be the problem, but I have faced the similar problem on my XP machine, while transferring files ranging in 600MB+ from CD to HD. The transfer would be complete, and when I remove the CD, it showed the file size 0. I just assumed that the same problem existed with you also.
-Sorry for wrong info..
-Sumit 
---
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Tue, 6 May 2003 18:12:07   
- Peder Stray wrote:
->On Tue, 6 May 2003, Sumit Narayan wrote:
+On Tuesday 06 May 2003 18:05, Trond Myklebust wrote:
+> >>>>> " " == Michael Buesch <fsdeveloper@yahoo.de> writes:
+>      > To reproduce the problem:
+>      > - - mount some nfs from a server in your lan.
+>      > - - Open an app, that uses the mounted fs. I've simply opened a
+>      >   konqueror-window for the directory where the nfs is mounted.
+>      > - - shut down or crash the server or just pull the
+>      >     network-cable.
+>      > - - Now the konqueror-process is nonkillable in D
+>      >     state. There's no
+>      >   chance to kill it.
 >
->> I think the problem that you are facing is because you umount the disk
->> immediately after transferring the file. Though ls indicates that the
->> file has been transferred, and the size match, the transfer would still
->> be in progress behind the scene, and once you umount, and remove the USB
->> disk, the data is lost, since the transfer was not complete.
->
->That is definitly not the problem... i have mounted both with and without
->the sync option, and umount usually hangs until all buffers are flushed to
->the disk.
->
->> You are facing this problem randomly, depending on how long you wait
->> after the transfer to remove the disk.
->
->yes, i usually have the disk mounted all the time it is connected to my
->computer, and umount/mount is just somthing i use to check if the files
->got transferred correctly
->
->> This happens when you are transferring large files, and not while using
->> small files.
->
->size doesn't matter at all with this problem... files ranging from under
->1k in size to well up under 1GiB have been truncated
->
->> This will happen even when you are transferring large files from your
->> CDs.
->
->never tried to copy from my cd.
->
->> I hope this helps. Just wait for few seconds after the transfer is done,
->> and you wont lose your data anymore.
->
->sorry to report that your input didn't help at all.
->
->> Regards,
->> Sumit
->> --
->>
->> On 06 May 2003 17:29:12 +020
->>  Peder Stray wrote:
->> >
->> >I have a 250GB usb-storage disk i use to transport large files between
->> >work and home, I uses vfat (since I haven't found any other good
->> >filesystems that don't require me to either be root or have all files
->> >worldreadable). Anyways...
->> >
->> >Some files get its size truncated to 0 after a while (usually a few
->> >minuts, or when i umount the disk). They seem to be the correct size
->> >when I do ls -l immediately after i have transfered the files (with cp
->> >or rsync, doesn't really matter). Moving files on the disk with mv also
->> >seems to trigger the problem sometimes.
->> >
->> >I see that blocks get allocated, but the filesizes are 0. Currently
->> >there is a difference of 17GB in the output of df and du.
->> >
->> >I have also noticed that the size of some directories get truncated too,
->> >thus all files copied or moved into those directories dissappear. ls -l
->> >in those directories doesn't even show . and ..
->> >
->> >it seem very inconsistent which files are affected, both in size, length
->> >of filename, unusual characters or depth in the filestructure. No
->> >messages from the kernel logs.
->> >
->> >A check of the filesystem from XP reports no errors in the
->> >filestructure, and it work 100% there.
->> >
->> >kernel versions used are are amongst 2.4.18 and 2.4.20, selfcompiled or
->> >stock from RH.
->> >
->> >More details can of course be supplied if anyone have any ideas what to
->> >check and how.
->> >
->> >any comments or help would be much appreciated as the loss of data i
->> >experience is more than a little annyoing.
->> >
->> >--
->> >  Peder Stray
->> >
->> >-
->> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->> >the body of a message to majordomo@vger.kernel.org
->> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> >Please read the FAQ at  http://www.tux.org/lkml/
->> >
->>
->>
->> ____________________________________________________________
->> Get advanced SPAM filtering on Webmail or POP Mail ... Get Lycos Mail!
->> http://login.mail.lycos.com/r/referral?aid=27005
->>
->
->-- 
->  Peder Stray
->
+> Unless you are using the 'intr' or 'soft' mount flags, then that is
+> *documented and expected* behaviour.
 
+I'm using intr.
 
-____________________________________________________________
-Get advanced SPAM filtering on Webmail or POP Mail ... Get Lycos Mail!
-http://login.mail.lycos.com/r/referral?aid=27005
+> However, as I've mentioned on this list *many* times before: there
+> exists a workaround if you are wanting to kill all processes in order
+> to unmount the partition:
+>   kill -9 all the processes.
+>   kill -9 rpciod.
+
+kill -9 doesn't work for me to kill the app.
+
+- -- 
+Regards Michael Büsch
+http://www.8ung.at/tuxsoft
+ 18:28:55 up  2:20,  5 users,  load average: 1.02, 1.06, 1.06
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+t+MhoxoigfggmSgRAkeqAJ0c71DxLZ13/CHqUXlTa8TvjAt2iwCeLO34
+s7crt56Gr8JyKxCLZMbrNvc=
+=z8EU
+-----END PGP SIGNATURE-----
+

@@ -1,107 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293029AbSBVWoB>; Fri, 22 Feb 2002 17:44:01 -0500
+	id <S293032AbSBVWqV>; Fri, 22 Feb 2002 17:46:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293032AbSBVWnw>; Fri, 22 Feb 2002 17:43:52 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:26800 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S293029AbSBVWnj>;
-	Fri, 22 Feb 2002 17:43:39 -0500
-Subject: [PATCH] 2.5.5 Fix for get_pid hang
-From: Paul Larson <plars@austin.ibm.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-NdBfNCEm4tq+wTB/cjXE"
-X-Mailer: Evolution/1.0.2 
-Date: 22 Feb 2002 16:32:32 -0600
-Message-Id: <1014417153.12007.466.camel@plars.austin.ibm.com>
-Mime-Version: 1.0
+	id <S293033AbSBVWqO>; Fri, 22 Feb 2002 17:46:14 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:15117 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S293032AbSBVWqE>; Fri, 22 Feb 2002 17:46:04 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Fri, 22 Feb 2002 14:48:25 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: "David B. Stevens" <dsteven3@maine.rr.com>
+cc: Dan Aloni <da-x@gmx.net>, Linux Kernel <linux-kernel@vger.kernel.org>,
+        "Richard B. Johnson" <root@chaos.analogic.com>
+Subject: Re: [RFC] [PATCH] C exceptions in kernel
+In-Reply-To: <3C76C77B.98EA690F@maine.rr.com>
+Message-ID: <Pine.LNX.4.44.0202221442420.1484-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 22 Feb 2002, David B. Stevens wrote:
 
---=-NdBfNCEm4tq+wTB/cjXE
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> Dan,
+>
+> Don't let'em get to ya, they are having a time warp problem.
 
-
-This is a fix for a problem where if we run out of available pids,
-get_pid will hang the system while it searches through the tasks for an
-available pid forever.
-
-Thanks,
-Paul Larson
+Yup, if exceptions inside kernel code is the current time, my time warp is
+so huge that Spilberg could use me like 1st actor in Jurassic Park IV
+Buf i've got to tell you, life in Jurassica is pretty fine ...
 
 
 
---=-NdBfNCEm4tq+wTB/cjXE
-Content-Disposition: attachment; filename=getpid25.patch
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/x-patch; charset=ISO-8859-1
 
-diff -Naur linux-2.5.5/kernel/fork.c linux-2.5.5-getpid/kernel/fork.c
---- linux-2.5.5/kernel/fork.c	Tue Feb 19 20:10:55 2002
-+++ linux-2.5.5-getpid/kernel/fork.c	Fri Feb 22 17:29:38 2002
-@@ -24,6 +24,7 @@
- #include <linux/file.h>
- #include <linux/binfmts.h>
- #include <linux/fs.h>
-+#include <linux/compiler.h>
-=20
- #include <asm/pgtable.h>
- #include <asm/pgalloc.h>
-@@ -129,12 +130,13 @@
- {
- 	static int next_safe =3D PID_MAX;
- 	struct task_struct *p;
--	int pid;
-+	int pid, beginpid;
-=20
- 	if (flags & CLONE_PID)
- 		return current->pid;
-=20
- 	spin_lock(&lastpid_lock);
-+	beginpid =3D last_pid;
- 	if((++last_pid) & 0xffff8000) {
- 		last_pid =3D 300;		/* Skip daemons etc. */
- 		goto inside;
-@@ -154,12 +156,16 @@
- 						last_pid =3D 300;
- 					next_safe =3D PID_MAX;
- 				}
-+				if(unlikely(last_pid =3D=3D beginpid))
-+					goto nomorepids;
- 				goto repeat;
- 			}
- 			if(p->pid > last_pid && next_safe > p->pid)
- 				next_safe =3D p->pid;
- 			if(p->pgrp > last_pid && next_safe > p->pgrp)
- 				next_safe =3D p->pgrp;
-+			if(p->tgid > last_pid && next_safe > p->tgid)
-+				next_safe =3D p->tgid;
- 			if(p->session > last_pid && next_safe > p->session)
- 				next_safe =3D p->session;
- 		}
-@@ -169,6 +175,11 @@
- 	spin_unlock(&lastpid_lock);
-=20
- 	return pid;
-+
-+nomorepids:
-+	read_unlock(&tasklist_lock);
-+	spin_unlock(&lastpid_lock);
-+	return 0;
- }
-=20
- static inline int dup_mmap(struct mm_struct * mm)
-@@ -667,6 +678,8 @@
-=20
- 	copy_flags(clone_flags, p);
- 	p->pid =3D get_pid(clone_flags);
-+	if (p->pid =3D=3D 0 && current->pid !=3D 0)
-+		goto bad_fork_cleanup;
-=20
- 	INIT_LIST_HEAD(&p->run_list);
-=20
+- Davide
 
---=-NdBfNCEm4tq+wTB/cjXE--
 

@@ -1,66 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265454AbUGSSNN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265395AbUGSS3e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265454AbUGSSNN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jul 2004 14:13:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265467AbUGSSNN
+	id S265395AbUGSS3e (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jul 2004 14:29:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265477AbUGSS3e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jul 2004 14:13:13 -0400
-Received: from dns.toxicfilms.tv ([150.254.37.24]:33445 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S265454AbUGSSNH
+	Mon, 19 Jul 2004 14:29:34 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:9470 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S265395AbUGSS3a
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jul 2004 14:13:07 -0400
-X-Qmail-Scanner-Mail-From: solt@dns.toxicfilms.tv via dns
-X-Qmail-Scanner-Rcpt-To: linux-kernel@vger.kernel.org
-X-Qmail-Scanner: 1.22 (Clear:RC:0(150.254.37.14):SA:0(0.2/5.0):. Processed in 3.248662 secs)
-Date: Mon, 19 Jul 2004 20:13:04 +0200
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-X-Mailer: SecureBat! Lite (v2.10.02) UNREG / CD5BF9353B3B7091
-Reply-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-X-Priority: 3 (Normal)
-Message-ID: <962257105.20040719201304@dns.toxicfilms.tv>
+	Mon, 19 Jul 2004 14:29:30 -0400
+Date: Mon, 19 Jul 2004 14:29:25 -0400
+From: "George G. Davis" <gdavis@mvista.com>
 To: linux-kernel@vger.kernel.org
-Subject: [partially solved] tcp_window_scaling degrades performance
-In-Reply-To: <200407160726.39026.edt@aei.ca>
-References: <2igbK-82L-13@gated-at.bofh.it>
- <m3zn615exj.fsf@averell.firstfloor.org>
- <505216170.20040716122132@dns.toxicfilms.tv> <200407160726.39026.edt@aei.ca>
-MIME-Version: 1.0
+Subject: Re: [PATCH] Allow `make O=<obj> {cscope,tags}` to work
+Message-ID: <20040719182925.GC1890@mvista.com>
+References: <20040719171759.GA1890@mvista.com> <20040719192430.GA7522@mars.ravnborg.org> <20040719173654.GB1890@mvista.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20040719173654.GB1890@mvista.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> AK> It is very very likely the firewall, window scaling works for a lot
-> AK> of people.
-> It is probable, but here: only 2.6.7+ machines behave like this.
-> I also noticed, that turning tcp_window_scaling off does not always
-> fix the problem, turning tcp_bic to 0 too helps even more.
-It appears that checkpoint fw-1 that is here spoils everything so that
-current linux boxes need to disable tcp_windows_scaling to get
-reasonable throughput. When I switched a server to a different link
-that bypasses checkpoint it worked well.
+On Mon, Jul 19, 2004 at 01:36:54PM -0400, George G. Davis wrote:
+> On Mon, Jul 19, 2004 at 09:24:30PM +0200, sam@ravnborg.org wrote:
+> > On Mon, Jul 19, 2004 at 01:17:59PM -0400, George G. Davis wrote:
+> 
+> <snip>
+> 
+> > >  endef
+> > >  
+> > > -quiet_cmd_cscope-file = FILELST cscope.files
+> > > -      cmd_cscope-file = $(all-sources) > cscope.files
+> > > +quiet_cmd_cscope-file = FILELST $(obj)/cscope.files
+> > > +      cmd_cscope-file = $(all-sources) > $(obj)/cscope.files
+> > The $(obj) in this line should not be needed. Current directory
+> > defaults to $(obj) equals $(objtree) when executing make cscope.
+> 
+> Yep, I got carried away there, Thanks. Should I resubmit a revised patch?
 
-Although it most propably is checkpoint's fault (This one is based on
-linux 2.4.9-39cpsmp) I belive that the change in the kernel that started
-producing these problems is this one:
-http://linux.bkbits.net:8080/linux-2.6/cset@1.1784.10.7?nav=index.html|ChangeSet@-3w
+Ok, after clutzing about with bk fix, etc., here's the revised patch:
 
-When I removed this patch from a 2.6.8-rc1 kernel it started to work
-good again. But of course it may be a blind shot.
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/07/19 14:24:28-04:00 gdavis@davisg.ne.client2.attbi.com 
+#   Makefile:
+#     Allow `make O=<obj> {cscope,tags}` to work
+# 
+# Makefile
+#   2004/07/19 14:17:25-04:00 gdavis@davisg.ne.client2.attbi.com +6 -6
+#   Allow `make O=<obj> {cscope,tags}` to work
+# 
+diff -Nru a/Makefile b/Makefile
+--- a/Makefile	2004-07-19 14:24:43 -04:00
++++ b/Makefile	2004-07-19 14:24:43 -04:00
+@@ -1009,19 +1009,19 @@
+ # ---------------------------------------------------------------------------
+ 
+ define all-sources
+-	( find . $(RCS_FIND_IGNORE) \
++	( find $(srctree) $(RCS_FIND_IGNORE) \
+ 	       \( -name include -o -name arch \) -prune -o \
+ 	       -name '*.[chS]' -print; \
+-	  find arch/$(ARCH) $(RCS_FIND_IGNORE) \
++	  find $(srctree)/arch/$(ARCH) $(RCS_FIND_IGNORE) \
+ 	       -name '*.[chS]' -print; \
+-	  find security/selinux/include $(RCS_FIND_IGNORE) \
++	  find $(srctree)/security/selinux/include $(RCS_FIND_IGNORE) \
+ 	       -name '*.[chS]' -print; \
+-	  find include $(RCS_FIND_IGNORE) \
++	  find $(srctree)/include $(RCS_FIND_IGNORE) \
+ 	       \( -name config -o -name 'asm-*' \) -prune \
+ 	       -o -name '*.[chS]' -print; \
+-	  find include/asm-$(ARCH) $(RCS_FIND_IGNORE) \
++	  find $(srctree)/include/asm-$(ARCH) $(RCS_FIND_IGNORE) \
+ 	       -name '*.[chS]' -print; \
+-	  find include/asm-generic $(RCS_FIND_IGNORE) \
++	  find $(srctree)/include/asm-generic $(RCS_FIND_IGNORE) \
+ 	       -name '*.[chS]' -print )
+ endef
+ 
 
-I am planning on investigating this issue from the checkpoint's
-perspective.
-
-Anyway if there is anyone willing to investigate the tcpdumps and
-tcptraces of the slow/fast throughput, here it is:
-http://soltysiak.com/tcp.php
-
-I am no guru, but it shows:
-1) slower throughput
-2) twice as much packets exchanged
-3) different advertised windows
-
-Best regards,
-Maciek
-
-
+--
+Regards,
+George

@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310597AbSCGXcB>; Thu, 7 Mar 2002 18:32:01 -0500
+	id <S310594AbSCGXxf>; Thu, 7 Mar 2002 18:53:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310594AbSCGXby>; Thu, 7 Mar 2002 18:31:54 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:46854 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310598AbSCGXbj>; Thu, 7 Mar 2002 18:31:39 -0500
-Subject: Re: [PATCH] preempt-kernel on 2.4.19-pre2-ac2 bugfix
-To: mfedyk@matchmail.com (Mike Fedyk)
-Date: Thu, 7 Mar 2002 23:46:17 +0000 (GMT)
-Cc: rml@tech9.net (Robert Love), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20020307232105.GD28141@matchmail.com> from "Mike Fedyk" at Mar 07, 2002 03:21:05 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S310598AbSCGXxO>; Thu, 7 Mar 2002 18:53:14 -0500
+Received: from austin.greshamstorage.com ([216.143.252.250]:36364 "EHLO
+	austin.openmic.com") by vger.kernel.org with ESMTP
+	id <S310594AbSCGXxI>; Thu, 7 Mar 2002 18:53:08 -0500
+Message-ID: <3C87FD12.8060800@greshamstorage.com>
+Date: Thu, 07 Mar 2002 17:51:46 -0600
+From: "Jonathan A. George" <JGeorge@greshamstorage.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020226
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Kernel SCM: When does CVS fall down where it REALLY matters?
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16j7aU-0004CX-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm using 2.4.19-pre2-ac2-prmpt which is only patched with:
-> preempt-kernel-rml-2.4.19-pre2-ac2-3
-> And it looks like the VM accounting has been messed up.
+I am considering adding some enhancements to CVS to address deficiencies 
+which adversely affect my productivity.  Since it would obviously be 
+nice to have a completely free (or even GPL :-) tool which is not 
+considered to consist of unacceptable compromises in the process of 
+kernel development I would like to know what the Bitkeeper users 
+consider the minimum acceptable set of improvements that CVS would 
+require for broader acceptance.  Obviously the tremendous set of 
+features that Bitkeeper has are nice, but I'd like to narrow the 
+comparative flaws to a manageable set.
 
-I don't support pre-empt. If you can duplicate that without pre-empt then
-its interesting, but not its not implausible
+Any comments would benefit all of the free SCM projects by at least 
+helping to provide a guiding light.
 
-> Committed AS:   366712 kB
-> 
-> As you can see, it says I'm using 366MB (roughly) of ram, but I'm only about
-> 95mb into swap with 128mb of ram.
+--Jonathan--
 
-That is the worst case swap usage based on the current allocations made by
-the system. My laptop for example isnt into swap at all but has a worst
-case of about 60Mb of swap.
-
-> Alan, do you want me to try without preempt, or do you already have any
-> other reports like this?
-
-No others, also knowing what it is actually running would be useful.

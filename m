@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266543AbUHBOvW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264585AbUHBOzG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266543AbUHBOvW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Aug 2004 10:51:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266574AbUHBOs3
+	id S264585AbUHBOzG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Aug 2004 10:55:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266560AbUHBOzG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Aug 2004 10:48:29 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:62342 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S266565AbUHBOrh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Aug 2004 10:47:37 -0400
-Date: Mon, 2 Aug 2004 10:46:59 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: finding out the boot cpu number from userspace
-In-Reply-To: <Pine.LNX.4.58.0408021028010.4095@montezuma.fsmlabs.com>
-Message-ID: <Pine.LNX.4.53.0408021038550.19226@chaos>
-References: <20040802121635.GE14477@devserv.devel.redhat.com>
- <Pine.LNX.4.58.0408021028010.4095@montezuma.fsmlabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 2 Aug 2004 10:55:06 -0400
+Received: from main.gmane.org ([80.91.224.249]:22703 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264585AbUHBOyu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Aug 2004 10:54:50 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+Subject: Re: OLS and console rearchitecture
+Date: Mon, 02 Aug 2004 20:54:34 +0600
+Message-ID: <410E55AA.8030709@ums.usu.ru>
+References: <20040802142416.37019.qmail@web14923.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: dsa.physics.usu.ru
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
+X-Accept-Language: en-us, en
+In-Reply-To: <20040802142416.37019.qmail@web14923.mail.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 Aug 2004, Zwane Mwaikambo wrote:
+Jon Smirl wrote:
+> 15) Over time user space console will be moved to a model where VT's
+> are implemented in user space. This allows user space console access to
+> fully accelerated drawing libraries. This might allow removal of all of
+> the tty/vc layer code avoiding the need to fix it for SMP.
 
-> On Mon, 2 Aug 2004, Arjan van de Ven wrote:
->
-> > assuming cpu 0 is the boot cpu sounds fragile/incorrect, but for irqbalanced
-> > I'd like to find out which cpu is the boot cpu, is there a good way of doing
-> > so ?
-> >
-> > The reason for needing this is that some firmware only likes running on the
-> > boot cpu so I need to bind firmware-related irq's to that cpu ideally.
->
-> How about something like mptable which will give you the BSP flag from the
-> MP table? I believe this gropes around /dev/mem.
+One more minor problem. We need to ensure somehow that the "killall5" 
+program from the sysvinit package will not kill our userspace console 
+daemon at shutdown (got this when I tried to put fbiterm into 
+initramfs). What is the best way to achieve that?
 
-Once CPUs other than 0 are enabled, they take part in the boot
-process. They don't spin forever so I don't understand the notion
-of 'boot CPU'.
-
-Also firmware has no clue about what CPU is tickling it. There is no
-possible way for it to find out, or even care. If some hardware
-engineer claimed differently, he/she/it is pulling your chain (or
-needs to learn how busses, CPUs and FPGAs work)! There is a
-Virtual Wire specification that guarantees that no firmware
-can possibly care.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+-- 
+Alexander E. Patrakov
 

@@ -1,45 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261990AbULKSJx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261978AbULKSqL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261990AbULKSJx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Dec 2004 13:09:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261991AbULKSJw
+	id S261978AbULKSqL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Dec 2004 13:46:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261986AbULKSqL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Dec 2004 13:09:52 -0500
-Received: from [81.3.11.18] ([81.3.11.18]:55959 "EHLO mail.ku-gbr.de")
-	by vger.kernel.org with ESMTP id S261990AbULKSJv (ORCPT
+	Sat, 11 Dec 2004 13:46:11 -0500
+Received: from fw.osdl.org ([65.172.181.6]:32712 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261978AbULKSqI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Dec 2004 13:09:51 -0500
-Date: Sat, 11 Dec 2004 19:09:46 +0100
-From: Konstantin Kletschke <konsti@ku-gbr.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: How do klogd and syslogd influence code execution timing?
-Message-ID: <20041211180946.GA9409@ku-gbr.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20041210152107.GA23594@synertronixx3> <20041210162623.1c749f58.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041210162623.1c749f58.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+	Sat, 11 Dec 2004 13:46:08 -0500
+Date: Sat, 11 Dec 2004 10:45:50 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Pavel Pisa <pisa@cmp.felk.cvut.cz>, Ingo Molnar <mingo@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       trivial@rustcorp.com.au
+Subject: Re: VM86 interrupt emulation breakage and FIXes for 2.6.x kernel
+ series
+In-Reply-To: <1102774756.7267.17.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0412111041440.31040@ppc970.osdl.org>
+References: <200412091459.51583.pisa@cmp.felk.cvut.cz> 
+ <1102712732.3264.73.camel@localhost.localdomain> 
+ <Pine.LNX.4.58.0412101454510.31040@ppc970.osdl.org> 
+ <1102723114.4774.9.camel@localhost.localdomain> 
+ <Pine.LNX.4.58.0412101722010.31040@ppc970.osdl.org> 
+ <1102726628.4948.1.camel@localhost.localdomain> 
+ <Pine.LNX.4.58.0412102020190.31040@ppc970.osdl.org>
+ <1102774756.7267.17.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am 2004-12-10 16:26 -0800 schrieb Andrew Morton:
+
+
+On Sat, 11 Dec 2004, Alan Cox wrote:
 > 
-> The difference is that if klogd is running, a printk() will cause a wakeup
+> ps: Pavel - the X folks played with several ideas for handling
+> interrupts from user space that could be shared, forwarded to user space
+> and handled and it always came back to either a small kernel module or
+> an interpretable set of descriptions of how to test for and mask the
+> IRQ, and in some cases to save several values.
 
-Hm, good that I asked. I know now, the difference is the _running_
-klogd...
+The interpreter idea is somewhat interesting, especially if the "language"
+can be actually "compiled" into some threaded format or similar. I suspect 
+that a number of special devices that you don't want to maintain a 
+real kernel module for could be handled that way.
 
-> to go into the scheduler code, take and release locks, take more time, etc.
+However, I also suspect that such a thing would eventually explode with 
+special cases and support for new features people want, to the point 
+where it gets quite complex, and a kernel module might be easier after all ;)
 
-scheduler code... take/release locks... I think that works around a Bug
-or problem we have in our driver code...
-But I will have to search for it since I am a greenhorn in writing
-device drivers and locking/protecting critical sections :)
-
-Regards, Konsti
-
--- 
-GPG KeyID EF62FCEF
-Fingerprint: 13C9 B16B 9844 EC15 CC2E  A080 1E69 3FDA EF62 FCEF
+		Linus

@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263713AbUELUew@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263728AbUELUfe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263713AbUELUew (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 16:34:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263725AbUELUew
+	id S263728AbUELUfe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 16:35:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263725AbUELUfe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 16:34:52 -0400
-Received: from mail.kroah.org ([65.200.24.183]:24777 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263713AbUELUeu (ORCPT
+	Wed, 12 May 2004 16:35:34 -0400
+Received: from main.gmane.org ([80.91.224.249]:3529 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263728AbUELUfZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 16:34:50 -0400
-Date: Wed, 12 May 2004 13:32:51 -0700
-From: Greg KH <greg@kroah.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, davidel@xmailserver.org, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: MSEC_TO_JIFFIES is messed up...
-Message-ID: <20040512203251.GA16336@kroah.com>
-References: <20040512020700.6f6aa61f.akpm@osdl.org> <20040512181903.GG13421@kroah.com> <40A26FFA.4030701@pobox.com> <20040512193349.GA14936@elte.hu> <Pine.LNX.4.58.0405121247011.11950@bigblue.dev.mdolabs.com> <20040512200305.GA16078@elte.hu> <20040512132050.6eae6905.akpm@osdl.org>
+	Wed, 12 May 2004 16:35:25 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+Subject: Re: 2.6.6 breaks VMware compile..
+Date: Wed, 12 May 2004 22:35:24 +0200
+Message-ID: <yw1x65b1v0xf.fsf@kth.se>
+References: <407CF31D.8000101@rgadsdon2.giointernet.co.uk> <m365b15vls.fsf@ccs.covici.com>
+ <20040512200322.GA4947@localhost> <yw1xd659v28z.fsf@kth.se>
+ <20040512202039.GB4947@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040512132050.6eae6905.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 161.80-203-29.nextgentel.com
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:825jccrLZgEncwAoeUqAeF/0tAQ=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 12, 2004 at 01:20:50PM -0700, Andrew Morton wrote:
-> How about we do:
-> 
-> #if HZ=1000
-> #define	MSEC_TO_JIFFIES(msec) (msec)
-> #define JIFFIES_TO_MESC(jiffies) (jiffies)
-> #elif HZ=100
-> #define	MSEC_TO_JIFFIES(msec) (msec * 10)
-> #define JIFFIES_TO_MESC(jiffies) (jiffies / 10)
-> #else
-> #define	MSEC_TO_JIFFIES(msec) ((HZ * (msec) + 999) / 1000)
-> #define	JIFFIES_TO_MSEC(jiffies) ...
-> #endif
-> 
-> in some kernel-wide header then kill off all the private implementations?
+Jose Luis Domingo Lopez <linux-kernel@24x7linux.com> writes:
 
-Looks good to me.
+> On Wednesday, 12 May 2004, at 22:06:52 +0200,
+> Måns Rullgård wrote:
+>
+>> I don't know if it's just me, but I had to build the modules manually.
+>> The vmware-config.pl script didn't do the right thing.
+>> 
+> I just untarred the mentioned tarball, run the "runme.pl" script, and
+> then everything compiled and loaded into memory just fine.
 
-thanks,
+When I did that it built something the kernel told me wasn't a module
+at all.
 
-greg k-h
+-- 
+Måns Rullgård
+mru@kth.se
+

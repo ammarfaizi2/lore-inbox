@@ -1,62 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266298AbUGAVpM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266297AbUGAVrv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266298AbUGAVpM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 17:45:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266297AbUGAVpM
+	id S266297AbUGAVrv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 17:47:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266300AbUGAVrv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 17:45:12 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:61673 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S266300AbUGAVoi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 17:44:38 -0400
-Date: Thu, 1 Jul 2004 23:44:30 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] remove unused variable in esp.c
-Message-ID: <20040701214430.GA28324@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Thu, 1 Jul 2004 17:47:51 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:40068 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S266297AbUGAVrt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 17:47:49 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Thu, 1 Jul 2004 14:47:45 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Roland McGrath <roland@redhat.com>
+cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       mingo@redhat.com, cagney@redhat.com, Daniel Jacobowitz <drow@false.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC PATCH] x86 single-step (TF) vs system calls & traps
+In-Reply-To: <200407012024.i61KOp3J021841@magilla.sf.frob.com>
+Message-ID: <Pine.LNX.4.58.0407011435420.20246@bigblue.dev.mdolabs.com>
+References: <200407012024.i61KOp3J021841@magilla.sf.frob.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got the following warning in 2.6.7-mm5:
+On Thu, 1 Jul 2004, Roland McGrath wrote:
 
-<--  snip  -->
+> > Here I meant that if you set SINGLESTEP|SYSGOOD, the patch will give you 
+> > SIGTRAP|0x80, while if you set only SINGLESTEP the patch will give you 
+> > SIGTRAP. Enforcing the SINGLESTEP|SYSGOOD is invalid or only gives SIGTRAP 
+> > should be no more that three lines of code out of the fast path.
+> 
+> There is no "set SINGLESTEP|SYSGOOD".  PTRACE_SINGLESTEP is a one-time
+> operation.  PTRACE_O_TRACESYSGOOD is a persistent flag you set when you
+> intend to at some point use the PTRACE_SYSCALL operation.
 
-...
-  CC [M]  drivers/char/esp.o
-drivers/char/esp.c: In function `esp_tiocmset':
-drivers/char/esp.c:1783: warning: unused variable `arg'
-...
+Allrighty ...
 
-<--  snip  -->
+Andrew, per Roland suggestion, can you please add the patch below to the 
+bits you already have in -mm?
 
-Since the variable is in fact unused, the following patch simply removes 
-it:
 
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+Signed-off-by: Davide Libenzi <davidel@xmailserver.org>
 
---- linux-2.6.7-mm5-modular/drivers/char/esp.c.old	2004-07-01 23:39:03.000000000 +0200
-+++ linux-2.6.7-mm5-modular/drivers/char/esp.c	2004-07-01 23:39:11.000000000 +0200
-@@ -1780,7 +1780,6 @@
- 			unsigned int set, unsigned int clear)
- {
- 	struct esp_struct * info = (struct esp_struct *)tty->driver_data;
--	unsigned int arg;
+
+
+- Davide
+
+
+
+--- a/arch/i386/kernel/ptrace.c	2004-07-01 14:30:38.000000000 -0700
++++ b/arch/i386/kernel/ptrace.c	2004-07-01 14:32:44.000000000 -0700
+@@ -546,8 +546,8 @@
+ 		return;
+ 	/* the 0x80 provides a way for the tracing parent to distinguish
+ 	   between a syscall stop and SIGTRAP delivery */
+-	ptrace_notify(SIGTRAP | ((current->ptrace & PT_TRACESYSGOOD)
+-				 ? 0x80 : 0));
++	ptrace_notify(SIGTRAP | ((current->ptrace & PT_TRACESYSGOOD) &&
++				 !test_thread_flag(TIF_SINGLESTEP) ? 0x80 : 0));
  
- 	if (serial_paranoia_check(info, tty->name, __FUNCTION__))
- 		return -ENODEV;
-
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+ 	/*
+ 	 * this isn't the same as continuing with a signal, but it will do

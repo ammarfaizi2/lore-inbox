@@ -1,79 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263421AbVBDHp5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262457AbVBDHui@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263421AbVBDHp5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 02:45:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262999AbVBDHpz
+	id S262457AbVBDHui (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 02:50:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263373AbVBDHqg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 02:45:55 -0500
-Received: from av9-2-sn4.m-sp.skanova.net ([81.228.10.107]:16326 "EHLO
-	av9-2-sn4.m-sp.skanova.net") by vger.kernel.org with ESMTP
-	id S263509AbVBDHdT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 02:33:19 -0500
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
-       dtor_core@ameritech.net
-Subject: Re: Touchpad problems with 2.6.11-rc2
-References: <20050123190109.3d082021@localhost.localdomain>
-	<m3acqr895h.fsf@telia.com>
-	<20050201234148.4d5eac55@localhost.localdomain>
-	<m3lla64r3w.fsf@telia.com>
-	<20050202141117.688c8dd3@localhost.localdomain>
-	<Pine.LNX.4.58.0502022345320.18555@telia.com>
-	<20050203064645.GA2342@ucw.cz> <m31xbxxqac.fsf@telia.com>
-	<20050204061703.GB2329@ucw.cz> <m38y64x1xw.fsf@telia.com>
-	<20050204065317.GA2682@ucw.cz>
-From: Peter Osterlund <petero2@telia.com>
-Date: 04 Feb 2005 08:33:17 +0100
-In-Reply-To: <20050204065317.GA2682@ucw.cz>
-Message-ID: <m3wttovkxu.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Fri, 4 Feb 2005 02:46:36 -0500
+Received: from gprs215-248.eurotel.cz ([160.218.215.248]:21395 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S263098AbVBDHpL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 02:45:11 -0500
+Date: Fri, 4 Feb 2005 08:44:54 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: ncunningham@linuxmail.org,
+       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
+       ACPI List <acpi-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Reliable video POSTing on resume (was: Re: [ACPI] Samsung P35, S3, black screen (radeon))
+Message-ID: <20050204074454.GB1086@elf.ucw.cz>
+References: <20050122134205.GA9354@wsc-gmbh.de> <4201825B.2090703@gmx.net> <e796392205020221387d4d8562@mail.gmail.com> <420217DB.709@gmx.net> <4202A972.1070003@gmx.net> <20050203225410.GB1110@elf.ucw.cz> <1107474198.5727.9.camel@desktop.cunninghams> <4202DF7B.2000506@gmx.net> <1107485504.5727.35.camel@desktop.cunninghams> <9e4733910502032318460f2c0c@mail.gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9e4733910502032318460f2c0c@mail.gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik <vojtech@suse.cz> writes:
+Hi!
 
-> On Fri, Feb 04, 2005 at 07:40:43AM +0100, Peter Osterlund wrote:
-> > Vojtech Pavlik <vojtech@suse.cz> writes:
-> > 
-> > > On Thu, Feb 03, 2005 at 10:54:51PM +0100, Peter Osterlund wrote:
-> > > 
-> > > > * Removes the xres/yres scaling so that you get the same speed in the
-> > > >   X and Y directions even if your screen is not square.
-> > > 
-> > > The old code assumed that both the pad and the screen are 4:3, not
-> > > square. It was wrong still.
+> > > User has triggered resume
+> > > run wakeup.S
 > 
-> > alps.c currently contains:
-> > 
-> > 	psmouse->dev.evbit[LONG(EV_ABS)] |= BIT(EV_ABS);
-> > 	input_set_abs_params(&psmouse->dev, ABS_X, 0, 1023, 0, 0);
-> > 	input_set_abs_params(&psmouse->dev, ABS_Y, 0, 1023, 0, 0);
-> > 	input_set_abs_params(&psmouse->dev, ABS_PRESSURE, 0, 127, 0, 0);
-> > 
-> > Maybe it should set the ABS_Y max value to 767 in that case.
-> 
-> Yes, and no. It could have been 1023, if it was 3:4 in size, but not in
-> maximum values. See the real values below, though, it seems the
-> resolution in X and Y is indeed the same.
-...
-> My ALPS gives values:
-> 
-> 	X: 90-1019
-> 	Y: 100-749
->  Pressure: 0,34-108
+> wakeup.S runs in real mode. Why can't it just call the VBIOS at
+> C000:0003 to reset the hardware before setting the mode?
 
-I get similar values:
-
-        X: 40 - 984
-        Y: 97 - 732
-        Z: 0, 19 - 127
-
-> So 0-1024, 0-768, 0-127 are probably the maximum theoretical ranges, and
-> the rest are likely the mechanical mounting limitations of the notebook
-> (the ridge around the pad is not rectangular).
-
+We already try to do that, but it hangs on 70% of machines. See
+Documentation/power/video.txt.
+								Pavel
 -- 
-Peter Osterlund - petero2@telia.com
-http://web.telia.com/~u89404340
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

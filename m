@@ -1,94 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267584AbUBSWWO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 17:22:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267579AbUBSWVv
+	id S267391AbUBSW04 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 17:26:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267578AbUBSW0H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 17:21:51 -0500
-Received: from [209.195.52.120] ([209.195.52.120]:10158 "HELO
-	warden2.diginsite.com") by vger.kernel.org with SMTP
-	id S267578AbUBSWVn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 17:21:43 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, Tridge <tridge@samba.org>,
-       Jamie Lokier <jamie@shareable.org>, "H. Peter Anvin" <hpa@zytor.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Date: Thu, 19 Feb 2004 14:21:39 -0800 (PST)
-Subject: Re: Eureka! (was Re: UTF-8 and case-insensitivity)
-In-Reply-To: <Pine.LNX.4.58.0402191349440.1439@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0402191417330.19324@dlang.diginsite.com>
-References: <20040219163838.GC2308@mail.shareable.org>
- <Pine.LNX.4.58.0402190853500.1222@ppc970.osdl.org> <20040219182948.GA3414@mail.shareable.org>
- <Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org>
- <20040219200554.GE31035@parcelfarce.linux.theplanet.co.uk>
- <Pine.LNX.4.58.0402191217050.1439@ppc970.osdl.org>
- <Pine.LNX.4.58.0402191226240.1439@ppc970.osdl.org>
- <20040219204515.GG31035@parcelfarce.linux.theplanet.co.uk>
- <Pine.LNX.4.58.0402191255540.1439@ppc970.osdl.org>
- <Pine.LNX.4.58.0402191340080.1439@ppc970.osdl.org>
- <20040219214353.GI31035@parcelfarce.linux.theplanet.co.uk>
- <Pine.LNX.4.58.0402191349440.1439@ppc970.osdl.org>
+	Thu, 19 Feb 2004 17:26:07 -0500
+Received: from inova102.correio.tnext.com.br ([200.222.67.102]:11935 "HELO
+	leia-auth.correio.tnext.com.br") by vger.kernel.org with SMTP
+	id S267391AbUBSWZV convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 17:25:21 -0500
+X-Analyze: Velop Mail Shield v0.0.3
+Date: Thu, 19 Feb 2004 19:25:18 -0300 (BRT)
+From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <1@pervalidus.net>
+To: Greg KH <greg@kroah.com>
+cc: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
+Subject: Re: HOWTO use udev to manage /dev
+In-Reply-To: <Pine.LNX.4.58.0402191918440.688@pervalidus.dyndns.org>
+Message-ID: <Pine.LNX.4.58.0402191924090.688@pervalidus.dyndns.org>
+References: <20040219185932.GA10527@kroah.com> <20040219191636.GC10527@kroah.com>
+ <Pine.LNX.4.58.0402191918440.688@pervalidus.dyndns.org>
+X-Archive: encrypt
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-surfacing from normal lurk mode.
+On Thu, 19 Feb 2004, Frédéric L. W. Meunier wrote:
 
-it looks to me like this could also end up allowing pruning lots of the
-existing negative dcache entries.
+> Unless I'm missing something, it doesn't seem to work if you
+> don't have /dev/null before it gets mounted.
+>
+> I got
+>
+> Creating initial udev device nodes:
+> /etc/rc.d/start_udev: line 90: cannot redirect standard input from /dev/null: No such file or directory.
+>
+> and it didn't boot.
+>
+> My first rc.S lines have:
+>
+> mount -vn -t proc proc /proc # Needed for LABEL= in /etc/fstab
+>
+> mount -vn -t sysfs sysfs /sys
+>
+> /etc/rc.d/start_udev
 
-if you fully cache the directory (and set the new flag) then any lookup
-that isn't found is known to not exist.
+Sorry, forgot to mention that line 90 is
+$udevd &
 
-is it worth freeing the negative dcache entries when you set the flag to
-say that you have things fully cached? if so this could end up being a
-significant memory savings.
+since I added a
+mknod /dev/fb0 c 29 0
 
-David Lang
+just before
+run_udev
 
-On Thu, 19 Feb 2004, Linus Torvalds wrote:
-
-> Date: Thu, 19 Feb 2004 13:53:43 -0800 (PST)
-> From: Linus Torvalds <torvalds@osdl.org>
-> To: viro@parcelfarce.linux.theplanet.co.uk
-> Cc: Tridge <tridge@samba.org>, Jamie Lokier <jamie@shareable.org>,
->      H. Peter Anvin <hpa@zytor.com>,
->      Kernel Mailing List <linux-kernel@vger.kernel.org>
-> Subject: Re: Eureka! (was Re: UTF-8 and case-insensitivity)
->
->
->
-> On Thu, 19 Feb 2004 viro@parcelfarce.linux.theplanet.co.uk wrote:
-> >
-> > On Thu, Feb 19, 2004 at 01:45:32PM -0800, Linus Torvalds wrote:
-> > > So we'd see very quickly if these tentative dentries were to escape
-> > > outside of __d_lookup().
-> >
-> > Ahem...  You'll see them (at least) in dcache pruning codepaths.  And
-> > those will dereference inodes...
->
-> Yea, you be right. Many of those paths would not need to care about
-> TENTATIVE at all, so using the d_inode thing would make them uglier, I
-> agree. Maybe the flag is better after all (and it really should be pretty
-> well contained by just checking all __d_lookup callers, so it should be
-> hard to get it wrong, but maybe I've forgotten some path).
->
-> We could do it both ways - do the TENTATIVE_INODE thing as a debugging
-> thing at first to make sure none of these dentries escape, and then remove
-> it (and the unnecessary tests in the pruning paths) once everybody is
-> convinced that it is working correctly.
->
-> 		Linus
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Is it the right procedure until udev created the frame buffer
+devices ?
 
 -- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+http://www.pervalidus.net/contact.html

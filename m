@@ -1,65 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262594AbTDAPZx>; Tue, 1 Apr 2003 10:25:53 -0500
+	id <S262606AbTDAPaD>; Tue, 1 Apr 2003 10:30:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262597AbTDAPZx>; Tue, 1 Apr 2003 10:25:53 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:14217 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S262594AbTDAPZw>; Tue, 1 Apr 2003 10:25:52 -0500
-Date: Tue, 01 Apr 2003 07:37:12 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: LKML <linux-kernel@vger.kernel.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 528] New: In /proc/net/route the default gateway isn't appear
-Message-ID: <22810000.1049211432@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262609AbTDAPaC>; Tue, 1 Apr 2003 10:30:02 -0500
+Received: from [81.2.110.254] ([81.2.110.254]:32239 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id <S262606AbTDAPaB>;
+	Tue, 1 Apr 2003 10:30:01 -0500
+Subject: Re: 64-bit kdev_t - just for playing
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Joel Becker <Joel.Becker@oracle.com>, bert hubert <ahu@ds9a.nl>,
+       Greg KH <greg@kroah.com>, Andries.Brouwer@cwi.nl,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Wim Coekaerts <Wim.Coekaerts@oracle.com>
+In-Reply-To: <Pine.LNX.4.44.0304010137250.5042-100000@serv>
+References: <UTC200303272027.h2RKRbf27546.aeb@smtp.cwi.nl>
+	 <Pine.LNX.4.44.0303272245490.5042-100000@serv>
+	 <1048805732.3953.1.camel@dhcp22.swansea.linux.org.uk>
+	 <Pine.LNX.4.44.0303280008530.5042-100000@serv>
+	 <20030327234820.GE1687@kroah.com>
+	 <Pine.LNX.4.44.0303281031120.5042-100000@serv>
+	 <20030328180545.GG32000@ca-server1.us.oracle.com>
+	 <Pine.LNX.4.44.0303281924530.5042-100000@serv>
+	 <20030331083157.GA29029@outpost.ds9a.nl>
+	 <Pine.LNX.4.44.0303311039190.5042-100000@serv>
+	 <20030331172403.GM32000@ca-server1.us.oracle.com>
+	 <Pine.LNX.4.44.0303312215020.5042-100000@serv>
+	 <1049149133.1287.1.camel@dhcp22.swansea.linux.org.uk>
+	 <Pine.LNX.4.44.0304010137250.5042-100000@serv>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Organization: 
+Message-Id: <1049208134.19703.12.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 01 Apr 2003 15:42:24 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2003-04-01 at 00:42, Roman Zippel wrote:
+> Hi,
+> 
+> On 31 Mar 2003, Alan Cox wrote:
+> 
+> > > 2. What compromises can we make for 2.6?
+> > 
+> > Defaulting char devices to 256 minors and a lot of space so stuff doesnt
+> > break. Viro has done the block stuff and we have the scope to do sane
+> > stuff like /dev/disk/.. for all disks now.
+> 
+> What do you mean with "a lot of space so stuff doesnt break"?
 
-http://bugme.osdl.org/show_bug.cgi?id=528
-
-           Summary: In /proc/net/route the default gateway isn't appear
-    Kernel Version: 2.5.66
-            Status: NEW
-          Severity: low
-             Owner: davem@vger.kernel.org
-         Submitter: szazol@e98.hu
+We need to default to 12:20 for char but where the 20 is actually
+defaulting to 0000xx so we don't get extra minors for any device
+that hasnt been audited for it
 
 
-Distribution:
-   Debian woody
+> > Glibc already has a bigger dev_t
+> 
+> and a broken mknod implementation...
 
-Hardware Environment:
-   IBM Thinpad T21 Pentium III (Coppermine)
-
-Software Environment:
-   Kernel 2.5.66 compiled with gcc-3.2
-   ip utility, iproute2-ss010824
-
-Problem Description:
-
-In /proc/net/route the default gateway isn't appear:
-
-$ netstat -rn
-Kernel IP routing table
-Destination     Gateway         Genmask         Flags   MSS Window  irtt Iface
-xx.x.xx.x       0.0.0.0         xxx.xxx.xxx.0   U         0 0          0 eth0
-
-$ cat /proc/net/route
-Iface   Destination     Gateway         Flags   RefCnt  Use     Metric  Mask   
-        MTU     Window  IRTT                                                       
-eth0    xxxxxxxx        00000000        0001    0       0       0       xxxxxxxx
-       0       0       0                            
-
-But:
-
-$ ip route show
-xx.x.xx.x/xx dev eth0  proto kernel  scope link  src xx.x.xx.xxx
-default via xx.x.xx.x dev eth0
+Easy enough to deal with
 
 

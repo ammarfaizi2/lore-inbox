@@ -1,63 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272727AbRIIQ7G>; Sun, 9 Sep 2001 12:59:06 -0400
+	id <S272820AbRIIRFh>; Sun, 9 Sep 2001 13:05:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272728AbRIIQ64>; Sun, 9 Sep 2001 12:58:56 -0400
-Received: from adsl-216-102-162-162.dsl.snfc21.pacbell.net ([216.102.162.162]:41741
-	"EHLO janus") by vger.kernel.org with ESMTP id <S272727AbRIIQ6p>;
-	Sun, 9 Sep 2001 12:58:45 -0400
-Date: Sun, 09 Sep 2001 09:59:05 -800
-Content-Type: text/plain; charset=US-ASCII
-Subject: Fwd: 2.4.10-pre6 ramdisk driver =?iso-8859-1?q?broken=3F?= won't compile
-Content-Transfer-Encoding: 7BIT
-MIME-Version: 1.0
-X-Originating-IP: [217.80.154.139]
+	id <S272819AbRIIRF1>; Sun, 9 Sep 2001 13:05:27 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11017 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S272820AbRIIRFM>; Sun, 9 Sep 2001 13:05:12 -0400
+Date: Sun, 9 Sep 2001 10:01:32 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Manfred Spraul <manfred@colorfullife.com>,
+        Andrea Arcangeli <andrea@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: Purpose of the mm/slab.c changes
 In-Reply-To: <E15g7jk-0007Rb-00@the-village.bc.nu>
-From: Stephan Gutschke <stephan@kernel.gutschke.com>
-To: linux-kernel@vger.kernel.org
-User-Agent: IMHO/0.97.1 (Webmail for Roxen)
-Message-Id: <E15g7vG-00053f-00@janus>
+Message-ID: <Pine.LNX.4.33.0109090952380.14365-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Stephan Gutschke <stephan@kernel.gutschke.com>
-To: Majordomo@vger.kernel.org
-Date: Sun, 09 Sep 2001 09:55:14 -800
+On Sun, 9 Sep 2001, Alan Cox wrote:
+>
+> > LIFO is obviously superior due to cache re-use.
+>
+> Interersting question however. On SMP without sufficient per CPU slab caches
+> is tht still the case ?
 
-Hi there,
+That _should_ be fairly easily testable by just changing the cpucache
+tuning, which yu can do through /proc. The default parameters look
+reasonable, though.
 
-my kernel stops compiling with this:
+Note, however, that as far as the slab is concerned, this issue never
+exists, if only because all the lists are per-CPU. So the only way you can
+get cross-CPU cache behaviour is (a) when the actual _use_ of the slab is
+moved across CPU's and (b) when you have a page that ends up moving from
+one CPU to the other through page allocation when the slab caches run out.
 
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.10-pre6/include -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -
-mpreferred-stack-boundary=2 -march=i686    -c -o rd.o rd.c
-rd.c: In function `rd_ioctl':
-rd.c:262: invalid type argument of `->'
-make[3]: *** [rd.o] Error 1
-make[3]: Leaving directory `/usr/src/linux-2.4.10-pre6/drivers/block'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.4.10-pre6/drivers/block'
-make[1]: *** [_subdir_block] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.10-pre6/drivers'
-make: *** [_dir_drivers] Error 2
+Case (a) is clearly rather independent of the actual slab allocation
+logic, and depends on the _user_ of the allocation, not on the allocator
+itself.
 
-I checked the patch (patch-2.4.10-pre6) and thought maybe there is 
-a "&" missing, where someone changed &inode->... to rd_bdev[... ?
-Anyways, i changed it and it seems to compile ;)
+Case (b) implies that the page allocator might also should also find
+per-CPU LIFO queues in front of the actual allocator useful. That might
+certainly be worth-while looking into - although it would also increase
+the risk of fragementation.
 
-@@ -259,7 +259,7 @@
-                        /* special: we want to release the ramdisk memory,
-                           it's not like with the other blockdevices where
-                           this ioctl only flushes away the buffer cache. */
--                       if ((atomic_read(&inode->i_bdev->bd_openers) > 2))
-+                       if ((atomic_read(rd_bdev[minor]->bd_openers) > 2))
-                                return -EBUSY;
-                        destroy_buffers(inode->i_rdev);
-                        rd_blocksizes[minor] = 0;
+(Doing per-CPU LIFO queues for the actual page allocator would potentially
+make page alloc/de-alloc much faster due to lower locking requirements
+too. So you might have a double performance win if anybody wants to try
+this out).
 
-
-
-Bye
-Stephan
+		Linus
 

@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270817AbUJUTGZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270853AbUJUTMR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270817AbUJUTGZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 15:06:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270812AbUJUTCf
+	id S270853AbUJUTMR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 15:12:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270833AbUJUTHK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 15:02:35 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:60946 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S270817AbUJUS5v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 14:57:51 -0400
-Message-ID: <4178096F.9000300@techsource.com>
-Date: Thu, 21 Oct 2004 15:09:35 -0400
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Adrian Bunk <bunk@stusta.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-References: <4176E08B.2050706@techsource.com>	 <20041021122051.GA10801@stusta.de>  <4177E351.3080604@techsource.com> <1098380549.17052.164.camel@localhost.localdomain>
-In-Reply-To: <1098380549.17052.164.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 21 Oct 2004 15:07:10 -0400
+Received: from kanga.kvack.org ([66.96.29.28]:1689 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S270803AbUJUTDV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 15:03:21 -0400
+Date: Thu, 21 Oct 2004 15:03:12 -0400
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] kernel/timer.c: xtime lock missing
+Message-ID: <20041021190312.GA30847@kvack.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello all,
 
+While looking at the time keeping code for related work, I came across 
+the following bug.  During 2.5 development, the smptimers patch removed 
+a lock from update_times() that is actually needed over the xtime 
+update, since the second overflow is not an atomic operation.  This 
+patch fixes that by doing a write_seqlock() over the course of the 
+update.
 
-Alan Cox wrote:
-> On Iau, 2004-10-21 at 17:26, Timothy Miller wrote:
-> 
->>>no
->>
->>In other words, Richard Stallman is too idealistic.  :)
-> 
-> 
-> I don't think even rms believes that hardware should be free in that
-> sense. 
+		-ben
+-- 
+"Time is what keeps everything from happening all at once." -- John Wheeler
 
-
-That's because hardware is tangible.  But what I meant was that in order 
-to have open source drivers, there has to be a lot of disclosure of the 
-inner workings of the hardware.  That disclosure comes with certain risks.
-
+===== timer.c 1.93 vs edited =====
+--- 1.93/kernel/timer.c	2004-09-17 03:07:06 -04:00
++++ edited/timer.c	2004-10-21 14:51:53 -04:00
+@@ -940,11 +940,14 @@
+ {
+ 	unsigned long ticks;
+ 
++	/* interrupts are disabled */
++	write_seqlock(&xtime_lock);
+ 	ticks = jiffies - wall_jiffies;
+ 	if (ticks) {
+ 		wall_jiffies += ticks;
+ 		update_wall_time(ticks);
+ 	}
++	write_sequnlock(&xtime_lock);
+ 	calc_load(ticks);
+ }
+   

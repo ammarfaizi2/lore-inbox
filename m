@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265075AbUEKXvn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265085AbUELAAI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265075AbUEKXvn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 19:51:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265073AbUEKXs2
+	id S265085AbUELAAI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 20:00:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265071AbUEKX76
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 19:48:28 -0400
-Received: from mail.kroah.org ([65.200.24.183]:13027 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265069AbUEKXpn (ORCPT
+	Tue, 11 May 2004 19:59:58 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:16881 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S265068AbUEKX5D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 19:45:43 -0400
-Date: Tue, 11 May 2004 16:43:29 -0700
-From: Greg KH <greg@kroah.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: Dave Airlie <airlied@linux.ie>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       dri-devel@lists.sourceforge.net
-Subject: Re: From Eric Anholt:
-Message-ID: <20040511234329.GA27242@kroah.com>
-References: <200405112211.i4BMBQDZ006167@hera.kernel.org> <20040511222245.GA25644@kroah.com> <Pine.LNX.4.58.0405120018360.3826@skynet> <200405112334.i4BNYdjO018918@turing-police.cc.vt.edu>
+	Tue, 11 May 2004 19:57:03 -0400
+Date: Tue, 11 May 2004 16:55:46 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: ashok.raj@intel.com, davidm@hpl.hp.com, linux-kernel@vger.kernel.org,
+       anil.s.keshavamurthy@intel.com
+Subject: Re: (resend) take3: Updated CPU Hotplug patches for IA64 (pj
+ blessed) Patch [6/7]
+Message-Id: <20040511165546.5dd12b8c.pj@sgi.com>
+In-Reply-To: <20040511163801.2a657b07.akpm@osdl.org>
+References: <20040504211755.A13286@unix-os.sc.intel.com>
+	<20040511161653.49e836e5.pj@sgi.com>
+	<20040511163801.2a657b07.akpm@osdl.org>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200405112334.i4BNYdjO018918@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 11, 2004 at 07:34:39PM -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Wed, 12 May 2004 00:20:51 BST, Dave Airlie said:
-> 
-> > I just looked at drm.h and nearly all the ioctls use int, this file is
-> > included in user-space applications also at the moment, I'm worried
-> > changing all ints to __u32 will break some of these, anyone on DRI list
-> > care to comment?
-> 
-> Is this a case where somebody is *really* including kernel headers in userspace
-> and we need to smack them, or are they using a copy that's been sanitized
-> (and possibly fixed)?
+> Thanks, I added that to the changelog.
 
-Don't know, but how are you dealing with the issue that an "int" is
-different for different kernel sizes (64 vs 32) and userspace too.
-That's why you can't use it in an ioctl and expect things to work
-properly.
+Good idea - thanks.
 
-thanks,
+> If you think additional code commentary is needed,
+> please send patches.
 
-greg k-h
+Ok - I've no plans to add any code comments at this time to this code.
+Patches make sense if I did.
+
+> Is it OK with everyone if I scoot them over to davidm?
+
+Either way ... doesn't matter to me.
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

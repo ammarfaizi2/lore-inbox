@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262179AbVAIBXa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262177AbVAIBX7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262179AbVAIBXa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 20:23:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262177AbVAIBXa
+	id S262177AbVAIBX7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 20:23:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262180AbVAIBX6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 20:23:30 -0500
-Received: from mproxy.gmail.com ([216.239.56.250]:23505 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262179AbVAIBXL (ORCPT
+	Sat, 8 Jan 2005 20:23:58 -0500
+Received: from mail.dif.dk ([193.138.115.101]:15597 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S262177AbVAIBXx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 20:23:11 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Z8Khi9agKxcD70r109MeJQQM8yf6YIKD6j0V5Bj44SmEawFPzl+JG6wIQXkdiVzw2wSkBUrdDS06aZ0eyYPCqE3Jr9vQDs/0QVPIEwaBsvUAl4Dk1ege8hBXshOVxyk4w0QhTyDvwnNtZlI0RY7E8qqS2vDKCq4GCv5OZNSCWpw=
-Message-ID: <21d7e99705010817237953af95@mail.gmail.com>
-Date: Sun, 9 Jan 2005 12:23:10 +1100
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Marc Ballarin <Ballarin.Marc@gmx.de>
-Subject: Re: 2.6.10-mm2
-Cc: bboissin@gmail.com, akpm@osdl.org, werner@sgi.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050108151816.2a9c318f.Ballarin.Marc@gmx.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050106002240.00ac4611.akpm@osdl.org>
-	 <40f323d005010701395a2f8d00@mail.gmail.com>
-	 <21d7e99705010718435695f837@mail.gmail.com>
-	 <40f323d00501080427f881c68@mail.gmail.com>
-	 <21d7e99705010805424ec16550@mail.gmail.com>
-	 <20050108151816.2a9c318f.Ballarin.Marc@gmx.de>
+	Sat, 8 Jan 2005 20:23:53 -0500
+Date: Sun, 9 Jan 2005 02:35:25 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Maybe 2.6.10.1 ?
+In-Reply-To: <595522059.20050108112557@dns.toxicfilms.tv>
+Message-ID: <Pine.LNX.4.61.0501090231190.4014@dragon.hygekrogen.localhost>
+References: <595522059.20050108112557@dns.toxicfilms.tv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Any ideas Mike why that might happen?
-> 
-> Could this be the same issue discussed and fixed in another thread?
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=110504486230527&w=2
-> 
+On Sat, 8 Jan 2005, Maciej Soltysiak wrote:
 
-that fix is needed anyways, but this happens before that...
+> Hello,
+> 
+> Maybe we should release 2.6.10.1 with those security fixes,
+> so people maintaining other trees like: -tiny, -ck, -grsec,
+> release patches over the fixed ones. Users won't miss the
+> fixes if they prefer some trees instead of vanilla.
+> 
+> What do you think?
+> 
+I'd suggest (and I'm a comlete nobody in this regard) that instead Linus 
+takes the security fixes + whatever he and Andrew deems to be "obviously 
+correct and with zero risk of causing trouble" from the current -bk and 
+turns that into 2.6.11-rc1, then let that stew for 2 or 3 days, then 
+unless someone sees something horribly wrong, release it as 2.6.11 - then 
+take whatever else is in current -bk and adds it and then that'll be 
+2.6.11-bk1 and we move on from there.
 
-Dave.
+-- 
+Jesper Juhl
+
+
+

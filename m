@@ -1,73 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265258AbUEYXxN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265262AbUEYXzF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265258AbUEYXxN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 19:53:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265259AbUEYXxN
+	id S265262AbUEYXzF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 19:55:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265260AbUEYXzF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 19:53:13 -0400
-Received: from ns1.g-housing.de ([62.75.136.201]:19588 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S265258AbUEYXxI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 19:53:08 -0400
-Message-ID: <40B3CFB6.1080405@g-house.de>
-Date: Wed, 26 May 2004 00:59:02 +0200
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
-X-Accept-Language: de-de, de-at, de, en-us, en
+	Tue, 25 May 2004 19:55:05 -0400
+Received: from fed1rmmtao06.cox.net ([68.230.241.33]:3251 "EHLO
+	fed1rmmtao06.cox.net") by vger.kernel.org with ESMTP
+	id S265259AbUEYXyl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 19:54:41 -0400
+Message-ID: <40B3C5F2.7010400@easyco.com>
+Date: Tue, 25 May 2004 15:17:22 -0700
+From: Doug Dumitru <doug@easyco.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7b) Gecko/20040316
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Younggyun Koh <young@cc.gatech.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Installing 2.6.6 on hp zx6000
-References: <Pine.GSO.4.58.0405251451300.28567@tokyo.cc.gatech.edu>
-In-Reply-To: <Pine.GSO.4.58.0405251451300.28567@tokyo.cc.gatech.edu>
-X-Enigmail-Version: 0.83.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+To: linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
+Subject: Re: Hard Hang with __alloc_pages: 0-order allocation failed (gfp=0x20/1)
+ - Not out of memory
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+This is the original trap dump from a __page_alloc error
 
-Younggyun Koh schrieb:
-| 1. has anyone succeeded with the same condition?
+__alloc_pages: 0-order allocation failed (gfp=0x20/1)
 
-no, as i don't own such a machine.
+This was the first error that took the machine down entirely (it should 
+be noted that the machine was >100 LoadAvg soft-hang before this error). 
+  This is with "echo 1 > /proc/sys/vm/vm_gfp_debug" and I ran it thru 
+ksymoops to try to decode the addresses (I hope I did this right).
 
-| 2. nfs-utils currently installed is version 0.3.3. the minimum requirement
-| for 2.6.6 is 1.0.5, but i was told from the system management guy that
-| installing 1.0.5 might cause serious problems... is it true?
+ksymoops 2.4.4 on i686 2.4.25.  Options used
+      -V (default)
+      -k ksyms.5 (specified)
+      -l /proc/modules (default)
+      -o /lib/modules/2.4.26/ (specified)
+      -m /boot/System.map-2.4.26 (specified)
 
-just ask the "system management guy" exactly *what* seems to be the
-problem with nfs-utils 1.0.5. i have 1.0.6 running with no problems.
+Warning (expand_objects): object 
+/lib/modules/2.4.26/kernel/drivers/md/lvm-mod.o for module lvm-mod
+has changed since load
+Warning (expand_objects): object 
+/lib/modules/2.4.26/kernel/drivers/md/md.o for module md has
+changed since load
+cc68bad8 c0135289 00000000 011410ac 00000001 0000000c c03689dc 0000 
+cbccb780 cbccb780 c02d23ba c7c5b838
+Call Trace:    [<c0135289>] [<c01352b0>] [<c0132214>] [<c02d23ba>] 
+[<c01327f1>]
+   [<c029923f>] [<c01f0d3c>] [<c01f0c52>] [<c0121786>] [<c01219d9>] 
+[<c01f05ec>]
+   [<c010a4de>] [<c010a6f4>] [<c0133ce6>] [<c0134152>] [<c01341fc>] 
+[<c0134271>]
+   [<c0134dff>] [<c0135169>] [<c01352b0>] [<c014c203>] [<c02b765e>] 
+[<c029634f>]
+   [<c014c467>] [<c014c8e9>] [<c010a72d>] [<c0108b63>]
+Warning (Oops_read): Code line not seen, dumping what data is available
 
-| 3. i got the link error when i build the kernel
-|
-| bash-2.05$ make CROSS_COMPILE=/opt/gcc-3.3.3/usr/local/bin/
-| warning: your linker cannot handle cross-segment segment-relative
-| relocations.
-|          please upgrade to a newer version (it is safe to use this linker,
-| but
-|          the kernel will be bigger than strictly necessary).
+Trace; c0135289 <__alloc_pages+2d9/2f0>
+Trace; c01352b0 <__get_free_pages+10/20>
+Trace; c0132214 <kmem_cache_grow+c4/250>
+Trace; c02d23ba <arp_process+48a/4a0>
+Trace; c01327f1 <kmalloc+151/180>
+Trace; c029923f <alloc_skb+ef/1c0>
+Trace; c01f0d3c <e1000_alloc_rx_buffers+dc/110>
+Trace; c01f0c52 <e1000_clean_rx_irq+402/410>
+Trace; c0121786 <update_wall_time+16/50>
+Trace; c01219d9 <timer_bh+39/3f0>
+Trace; c01f05ec <e1000_intr+8c/e0>
+Trace; c010a4de <handle_IRQ_event+5e/90>
+Trace; c010a6f4 <do_IRQ+a4/f0>
+Trace; c0133ce6 <shrink_cache+a6/420>
+Trace; c0134152 <refill_inactive+f2/160>
+Trace; c01341fc <shrink_caches+3c/50>
+Trace; c0134271 <try_to_free_pages_zone+61/e0>
+Trace; c0134dff <balance_classzone+4f/200>
+Trace; c0135169 <__alloc_pages+1b9/2f0>
+Trace; c01352b0 <__get_free_pages+10/20>
+Trace; c014c203 <__pollwait+33/90>
+Trace; c02b765e <tcp_poll+2e/150>
+Trace; c029634f <sock_poll+1f/30>
+Trace; c014c467 <do_select+127/240>
+Trace; c014c8e9 <sys_select+339/480>
+Trace; c010a72d <do_IRQ+dd/f0>
+Trace; c0108b63 <system_call+33/38>
 
-well, that's a pretty good error message, don't you think? a quick grep
-with this error on your local kernel-sources will show that the message
-is from: arch/ia64/scripts/toolchain-flags.
-upgrading binutils (and other tools too) to the recommended versions as
-shown in Documentation/Changes would be a first step. maybe system
-management guy can help with that ;-)
 
-Christian.
-- --
-BOFH excuse #23:
+If I am reading this correctly, the system was ...
 
-improperly oriented keyboard
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+   in an interrupt
+   processing some TCP select(...) stuff
+   asking for a page
+   doing a zone rebalance
+   trying to shrink cache
+     and interrupted again
+     by the ethernet driver
+     which wanted to allocate an skb
+     which wanted a page
 
-iD8DBQFAs8+2+A7rjkF8z0wRArPFAJ4lDlVs6ny7AhZbATYI88N14x0leQCg2Dio
-WO9pWDOtK0qNVhPpj05cnyo=
-=RcVy
------END PGP SIGNATURE-----
+Thus __alloc_pages appears to be called recursively, with the 2nd call 
+during a rebalance in the
+first one and both calls non-interuptable (on interrupts).  Is this 
+allowable?
+
+--------------------------------------------------------------------
+Doug Dumitru     800-470-2756     (610-237-2000)
+EasyCo LLC       doug@easyco.com  http://easyco.com
+--------------------------------------------------------------------
+
+

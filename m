@@ -1,57 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262176AbTLKVsz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 16:48:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbTLKVsz
+	id S261492AbTLKVnk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 16:43:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbTLKVnk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 16:48:55 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:20195 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262176AbTLKVsy
+	Thu, 11 Dec 2003 16:43:40 -0500
+Received: from massena-4-82-67-197-146.fbx.proxad.net ([82.67.197.146]:14465
+	"EHLO perso.free.fr") by vger.kernel.org with ESMTP id S261492AbTLKVnj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 16:48:54 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Daniel Tram Lux <daniel@starbattle.com>
-Subject: Re: [patch] ide.c as a module
-Date: Thu, 11 Dec 2003 22:50:50 +0100
+	Thu, 11 Dec 2003 16:43:39 -0500
+From: Duncan Sands <baldrick@free.fr>
+To: Oliver Neukum <oliver@neukum.org>, Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [linux-usb-devel] Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
+Date: Thu, 11 Dec 2003 22:43:37 +0100
 User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <20031211202536.GA10529@starbattle.com> <200312112225.14540.bzolnier@elka.pw.edu.pl>
-In-Reply-To: <200312112225.14540.bzolnier@elka.pw.edu.pl>
+Cc: David Brownell <david-b@pacbell.net>, Vince <fuzzy77@free.fr>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, <mfedyk@matchmail.com>,
+       <zwane@holomorphy.com>, <linux-kernel@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+References: <Pine.LNX.4.44L0.0312081754480.2034-100000@ida.rowland.org> <200312111045.11275.baldrick@free.fr> <200312111119.00289.oliver@neukum.org>
+In-Reply-To: <200312111119.00289.oliver@neukum.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-2"
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200312112250.50280.bzolnier@elka.pw.edu.pl>
+Message-Id: <200312112243.37328.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 11 of December 2003 22:25, Bartlomiej Zolnierkiewicz wrote:
-> > --- linux-2.4.23.org/drivers/ide/ide.c  2003-11-28 19:26:20.000000000
-> > +0100 +++ linux-2.4.23/drivers/ide/ide.c      2004-03-11
-> > 20:31:51.000000000 +0100 @@ -514,11 +514,7 @@
-> >
-> >  void ide_probe_module (int revaldiate)
-> >  {
-> > -       if (!ide_probe) {
-> > -#if  defined(CONFIG_BLK_DEV_IDE_MODULE)
-> > -               (void) request_module("ide-probe-mod");
-> > -#endif
-> > -       } else {
-> > +       if (ide_probe) {
-> >                 (void) ide_probe->init();
-> >         }
-> >         revalidate_drives(revaldiate);
+> > Hi Oliver, I agree, except that there are several layers of locking:
+> > dev->serialize but also the bus rwsem.  So does "physical" mean no
+> > subsys.rwsem or no dev->serialize or both?
 >
-> You should make this change in ide_register_hw() instead:
->
-> -		ide_probe_module();
-> +#ifdef MODULE
-> +		if (ideprobe_init_module() == -EBUSY)
-> +#endif
-> +			ideprobe_init();
->
-> And get rid of ide_probe pointer.
+> "physical" means no locking at all. It's the caller's responsibility.
+...
 
-and of course of ide_probe_module().
+> That's what the core cares about. No probe() while a reset is in
+> progress. Taking the semaphore ensures that.
 
+Hi Oliver, I'm a bit confused about the locking rules.  I suppose
+
+(1) If both subsys.rwsem and dev->serialize are taken, then
+subsys.rwsem must be taken first.
+
+(2) dev->serialize atomizes changes to the struct usb_device.
+
+Why then is dev->serialize not taken in usb_reset_device
+(except in a dud code path)?
+
+Also, why isn't dev->serialize enough to protect against
+probe() during usb_reset_device?  After all, won't
+dev->serialize be held during the probe calls (I didn't
+check this and I'm in need of coffee - I hope I'm on the
+right planet...)
+
+Ciao,
+
+Duncan.

@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314278AbSIPGuw>; Mon, 16 Sep 2002 02:50:52 -0400
+	id <S315265AbSIPG6L>; Mon, 16 Sep 2002 02:58:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313898AbSIPGuv>; Mon, 16 Sep 2002 02:50:51 -0400
-Received: from supreme.pcug.org.au ([203.10.76.34]:39865 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S314149AbSIPGus>;
-	Mon, 16 Sep 2002 02:50:48 -0400
-Date: Mon, 16 Sep 2002 16:55:32 +1000
+	id <S313563AbSIPG6L>; Mon, 16 Sep 2002 02:58:11 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:37306 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S315265AbSIPG6C>;
+	Mon, 16 Sep 2002 02:58:02 -0400
+Date: Mon, 16 Sep 2002 17:02:48 +1000
 From: Stephen Rothwell <sfr@canb.auug.org.au>
 To: Linus <torvalds@transmeta.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fcntl.h consolidation 5/18
-Message-Id: <20020916165532.6085ce05.sfr@canb.auug.org.au>
+Cc: LKML <linux-kernel@vger.kernel.org>, paulus@samba.org
+Subject: [PATCH] fcntl.h consolidation 11/18
+Message-Id: <20020916170248.22c2decf.sfr@canb.auug.org.au>
 X-Mailer: Sylpheed version 0.8.2 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -19,19 +19,19 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The i386 part, I have compiled this one.
+The PPC part.
 
 -- 
 Cheers,
 Stephen Rothwell                    sfr@canb.auug.org.au
 http://www.canb.auug.org.au/~sfr/
 
-diff -ruN 2.5.35/include/asm-i386/fcntl.h 2.5.35-fcntl.1/include/asm-i386/fcntl.h
---- 2.5.35/include/asm-i386/fcntl.h	2001-09-18 06:16:30.000000000 +1000
-+++ 2.5.35-fcntl.1/include/asm-i386/fcntl.h	2002-09-16 16:04:22.000000000 +1000
-@@ -1,87 +1,6 @@
- #ifndef _I386_FCNTL_H
- #define _I386_FCNTL_H
+diff -ruN 2.5.35/include/asm-ppc/fcntl.h 2.5.35-fcntl.1/include/asm-ppc/fcntl.h
+--- 2.5.35/include/asm-ppc/fcntl.h	2001-11-03 12:43:54.000000000 +1100
++++ 2.5.35-fcntl.1/include/asm-ppc/fcntl.h	2002-09-16 16:04:22.000000000 +1000
+@@ -4,92 +4,11 @@
+ #ifndef _PPC_FCNTL_H
+ #define _PPC_FCNTL_H
  
 -/* open/fcntl - O_SYNC is only implemented on blocks devices and on files
 -   located on an ext2 file system */
@@ -48,11 +48,11 @@ diff -ruN 2.5.35/include/asm-i386/fcntl.h 2.5.35-fcntl.1/include/asm-i386/fcntl.
 -#define O_NDELAY	O_NONBLOCK
 -#define O_SYNC		 010000
 -#define FASYNC		 020000	/* fcntl, for BSD compatibility */
--#define O_DIRECT	 040000	/* direct disk access hint */
--#define O_LARGEFILE	0100000
--#define O_DIRECTORY	0200000	/* must be a directory */
--#define O_NOFOLLOW	0400000 /* don't follow links */
--
+ #define O_DIRECTORY      040000	/* must be a directory */
+ #define O_NOFOLLOW      0100000	/* don't follow links */
+ #define O_LARGEFILE     0200000
+ #define O_DIRECT	0400000	/* direct disk access hint */
+ 
 -#define F_DUPFD		0	/* dup */
 -#define F_GETFD		1	/* get close_on_exec */
 -#define F_SETFD		2	/* set/clear close_on_exec */
@@ -61,7 +61,8 @@ diff -ruN 2.5.35/include/asm-i386/fcntl.h 2.5.35-fcntl.1/include/asm-i386/fcntl.
 -#define F_GETLK		5
 -#define F_SETLK		6
 -#define F_SETLKW	7
--
++#include <asm-generic/fcntl.h>
+ 
 -#define F_SETOWN	8	/*  for sockets. */
 -#define F_GETOWN	9	/*  for sockets. */
 -#define F_SETSIG	10	/*  for sockets. */
@@ -98,6 +99,12 @@ diff -ruN 2.5.35/include/asm-i386/fcntl.h 2.5.35-fcntl.1/include/asm-i386/fcntl.
 -#define LOCK_WRITE	128	/* ... Which allows concurrent write operations */
 -#define LOCK_RW		192	/* ... Which allows concurrent read & write ops */
 -
+-#ifdef __KERNEL__
+-#define F_POSIX		1
+-#define F_FLOCK		2
+-#define F_BROKEN	4	/* broken flock() emulation */
+-#endif /* __KERNEL__ */
+-
 -struct flock {
 -	short l_type;
 -	short l_whence;
@@ -115,6 +122,4 @@ diff -ruN 2.5.35/include/asm-i386/fcntl.h 2.5.35-fcntl.1/include/asm-i386/fcntl.
 -};
 -
 -#define F_LINUX_SPECIFIC_BASE	1024
-+#include <asm-generic/fcntl.h>
- 
  #endif

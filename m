@@ -1,68 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbUFBQd4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263059AbUFBQfc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261638AbUFBQd4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 12:33:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263419AbUFBQd4
+	id S263059AbUFBQfc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 12:35:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263555AbUFBQfc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 12:33:56 -0400
-Received: from ebb.errno.com ([66.127.85.87]:10504 "EHLO ebb.errno.com")
-	by vger.kernel.org with ESMTP id S261638AbUFBQdy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 12:33:54 -0400
-From: Sam Leffler <sam@errno.com>
-Organization: Errno Consulting
-To: hostap@shmoo.com
-Subject: Re: Prism54 WPA Support - wpa_supplicant - Linux general wpa support
-Date: Wed, 2 Jun 2004 09:28:07 -0700
-User-Agent: KMail/1.6.1
-Cc: mcgrof@studorgs.rutgers.edu (Luis R. Rodriguez),
-       Netdev <netdev@oss.sgi.com>, prism54-devel@prism54.org,
-       Jean Tourrilhes <jt@bougret.hpl.hp.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-References: <20040602071449.GJ10723@ruslug.rutgers.edu>
-In-Reply-To: <20040602071449.GJ10723@ruslug.rutgers.edu>
-MIME-Version: 1.0
+	Wed, 2 Jun 2004 12:35:32 -0400
+Received: from smtp8.wanadoo.fr ([193.252.22.23]:58045 "EHLO
+	mwinf0803.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S263059AbUFBQfU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 12:35:20 -0400
+Date: Wed, 2 Jun 2004 18:37:20 +0000
+From: Philippe Elie <phil.el@wanadoo.fr>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Jens Schmalzing <j.s@lmu.de>, linux-kernel@vger.kernel.org,
+       benh@kernel.crashing.org
+Subject: Re: [PATCH] OProfile driver in 2.6
+Message-ID: <20040602183720.GC385@zaniah>
+References: <hhwu2qs4eq.fsf@alsvidh.mathematik.uni-muenchen.de> <20040602155056.GG15195@smtp.west.cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406020928.07513.sam@errno.com>
+In-Reply-To: <20040602155056.GG15195@smtp.west.cox.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 02 June 2004 12:14 am, Luis R. Rodriguez wrote:
-> So WPA is now a priority for prism54 development. Here's where we're at.
-> Long ago in January Jouni had added some wpa supplicant support into
-> prism54. It's not until today when I started looking into
-> wpa_supplicant.
->
-> I'm glad wpa_supplicant exists :). Interacting with it *is* our missing
-> link to getting full WPA support (great job Jouni). In wpa_supplicant
-> cvs I see a base code for driver_prism54.c (empty routines, just providing
-> skeleton). Well I'll be diving in it now and see where I can get. If anyone
-> else is interested in helping with WPA support for prism54, working with
-> wpa_supplicant is the way to go.
->
-> I'm curious though -- wpa_supplicant is pretty much userspace. This was
-> done with good intentions from what I read but before we get dirty
-> with wpa_supplicant I'm wondering if we should just integrate a lot of
-> wpa_supplicant into kernel space (specifically wireless tools).
-> Regardless, as Jouni points out, there is still a framework for WPA that
-> needs to be written for all linux wireless drivers, whether it's to assist
-> wpa_supplicant framework or to integrate wpa_supplicant into kernel space.
->
-> What's the plan?
+On Wed, 02 Jun 2004 at 08:50 +0000, Tom Rini wrote:
 
-I think wpa_supplicant takes the right approach (i.e. putting the majority of 
-the code in user space).  The supplicant is not performance intensive and 
-there's little justification for it going in the kernel on other grounds 
-(like security).  I've had madwifi working with wpa_supplicant for quite a 
-while and have also done a rough port of wpa_supplicant to the bsd world too 
-so it's design is proven (and in general I think it's excellent work).
+> On Wed, Jun 02, 2004 at 11:19:41AM +0200, Jens Schmalzing wrote:
+> 
+> > Hi,
+> > 
+> > I noticed that the driver for the OProfile profiling system, which
+> > existed in the linuxppc-2.5-benh tree, is disabled in the mainline,
+> > even though the driver still exists.  Is there a reason for this?  The
+> > attached patch re-enables the driver.
+> 
+> Because it has never been picked up, aside from when Ben took it into
+> his tree (assuming this is the patch Anton wrote a while back, and not
+> a re-write Ben did).  BTW, this is missing a hunk I think, unless the
+> arch/ppc/kernel/time.c changes have already made it in.
 
-I'd second Jouni's comments about moving the wireless extensions support 
-forward.  Aside from WPA there are a few private mechanisms required for 
-multi-mode devices that should be handled through a standard API.
+Right there is a missing call to profile_hook(regs); in ppc_do_profile()
 
-	Sam
+regards,
+Phil

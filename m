@@ -1,45 +1,60 @@
-Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: (majordomo@vger.rutgers.edu) by vger.rutgers.edu via listexpand id <S159968AbQHMAEP>; Sat, 12 Aug 2000 20:04:15 -0400
-Received: by vger.rutgers.edu id <S160012AbQHMAEJ>; Sat, 12 Aug 2000 20:04:09 -0400
-Received: from [216.101.162.242] ([216.101.162.242]:32802 "EHLO pizda.ninka.net") by vger.rutgers.edu with ESMTP id <S157635AbQHMAD5>; Sat, 12 Aug 2000 20:03:57 -0400
-Date: Sat, 12 Aug 2000 17:19:44 -0700
-Message-Id: <200008130019.RAA04614@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: rmk@arm.linux.org.uk
-Cc: linux-kernel@vger.rutgers.edu
-In-reply-to: <200008121801.TAA11768@flint.arm.linux.org.uk> (message from Russell King on Sat, 12 Aug 2000 19:01:53 +0100 (BST))
-Subject: Re: PageSkip
-References: <200008121801.TAA11768@flint.arm.linux.org.uk>
-Sender: owner-linux-kernel@vger.rutgers.edu
+Return-Path: <linux-kernel-owner@vger.kernel.org>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S129065AbQHUJfd>; Mon, 21 Aug 2000 05:35:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S129060AbQHUJfX>; Mon, 21 Aug 2000 05:35:23 -0400
+Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:50960 "EHLO ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id <S129040AbQHUJfS>; Mon, 21 Aug 2000 05:35:18 -0400
+From: bsuparna@in.ibm.com
+X-Lotus-FromDomain: IBMIN@IBMAU
+To: linux-kernel@vger.kernel.org
+Message-ID: <CA256942.00334530.00@d73mta05.au.ibm.com>
+Date: Mon, 21 Aug 2000 14:48:17 +0530
+Subject: Dynamic Probes Announcement
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Russell King <rmk@arm.linux.org.uk>
-   Date: 	Sat, 12 Aug 2000 19:01:53 +0100 (BST)
 
-   I've just done a grep for PageSkip on all .c and .h files in the current
-   (2.4.0-test6) kernel, and have come up with:
+The IBM Linux Technology Centre announced on August 16, the first release
+of Dynamic Probes (Dprobes)
+available from
+http://oss.software.ibm.com/developerworks/opensource/linux/projects/dprobes
 
- ...
+Dprobes is a generic and pervasive system debugging facility that will
+operate under the most extreme software conditions such as debugging a deep
+rooted operating system problem in a live environment.  For example,
+page-manager bugs in the kernel or perhaps user or system problems that
+will not re-create easily in either a lab or production environment.  For
+such inaccessible problem scenarios Dynamic Probes not only offers a
+technique for gathering diagnostic information but has a high probability
+of successful outcome without the need to build custom modules for
+debugging purposes.
 
-   Since this macro is only used in two architecture-specific places, is there
-   any reason to keep it in the header files?
+Dprobes allows the insertion of fully automated breakpoints or probepoints,
+anywhere in the system and user space.  Each probepoint has an associated
+set of probe instructions that are interpreted when the probe fires.  These
+instructions allow memory and CPU registers to be examined and altered
+using conditional logic.  When the probe command terminates, prior to
+returning to the probed code, a syslog record may be optionally generated.
 
-   On ARM, I'm planning on moving it out of pgtable.h and into mm/init.c.
+Our intention in the next Dprobes code drop is that the probe program will
+be used to trigger any external debugging facility that registers for this
+purpose. For example a trace program will be able to augment its capability
+with a dynamic trace capability.  Similarly, a crash dump facility will be
+able to be invoked conditionally when a specific set of circumstances
+occurs in a particular code path.  and lastly a debugger will be able to
+use Dprobes as high-speed complex conditional breakpoint service.
 
-It should die just about everywhere, there should be no use for it
-anymore for any port.
 
-it only existed to handle generic parts of the kernel which wished to
-walk the mem_map[] array by hand, there is no such code any more
-thanks to various cleanups by Kanoj and others.  Ergo PageSkip and
-PG_skip can both be just eradicated along with any code referencing
-it.  Unless, you are using it for some strange purpose inside your
-ports, and I bet even those cases can be easily removed.
+  Suparna Bhattacharya
+  IBM Linux Technology Centre, RAS
+  Systems Software, IBM Global Services, India
+  E-mail : bsuparna@in.ibm.com
+  Phone : 91-80-5267117, Extn : 2525
 
-Later,
-David S. Miller
-davem@redhat.com
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.rutgers.edu
+the body of a message to majordomo@vger.kernel.org
 Please read the FAQ at http://www.tux.org/lkml/

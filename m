@@ -1,41 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266508AbRGLSws>; Thu, 12 Jul 2001 14:52:48 -0400
+	id <S266518AbRGLSws>; Thu, 12 Jul 2001 14:52:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266528AbRGLSw2>; Thu, 12 Jul 2001 14:52:28 -0400
-Received: from ns.suse.de ([213.95.15.193]:60428 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S266518AbRGLSwZ>;
-	Thu, 12 Jul 2001 14:52:25 -0400
-Date: Thu, 12 Jul 2001 20:52:18 +0200 (CEST)
-From: egger@suse.de
-Reply-To: egger@suse.de
-Subject: Re: Oops triggered by ftp connection attempt through Linux firewall
-To: ned@linuxcare.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010712101219.D5476@linuxcare.com>
+	id <S266508AbRGLSw3>; Thu, 12 Jul 2001 14:52:29 -0400
+Received: from dweeb.lbl.gov ([128.3.1.28]:30611 "EHLO beeble.lbl.gov")
+	by vger.kernel.org with ESMTP id <S266507AbRGLSwV>;
+	Thu, 12 Jul 2001 14:52:21 -0400
+Message-ID: <3B4DF1A8.BDE85995@lbl.gov>
+Date: Thu, 12 Jul 2001 11:51:20 -0700
+From: Thomas Davis <tadavis@lbl.gov>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-ac7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
-Message-Id: <20010712205124.C649DABCC@Nicole.muc.suse.de>
+To: Jeff Golds <jgolds@resilience.com>
+CC: Laurent Itti <itti@java.usc.edu>, linux-kernel@vger.kernel.org
+Subject: Re: receive stats null for bond0 in 2.4.6
+In-Reply-To: <Pine.SV4.3.96.1010711163709.5481B-100000@java.usc.edu> <3B4CF00C.5B62DDBA@resilience.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 Jul, Ned Bass wrote:
+Jeff Golds wrote:
+> 
+> Laurent Itti wrote:
+> >
+> > Hi all:
+> >
+> > just installed 2.4.6 and all is well except that all stats in
+> > /proc/net/dev are at zero on the receive side for our 3x100Mbps
+> > channel-bonded network interface (bond0, using kernel module "bonding").
+> > The interface works great (we do receive packets).  Transmit side stats
+> > appear ok. All stats also ok on the 3 ethernet boards that are enslaved
+> > into the bond.
+> >
+> > any idea? thanks!
+> >
+> 
+> It's always zero because the bonding driver included with the Linux
+> kernel is pretty broken.  The comments say that its stats are collected
+> from the slaves, but this is untrue.  See the source code at
+> http://sourceforge.net/projects/bonding for how the stats should be
+> collected.
+> 
 
-> I wish to be personally CC'ed the answers/comments posted to the list
-> in response to my posting.
- 
-> [1.] One line summary of the problem:     
-> Ftp connection attempt through Linux firewall triggers kernel Oops.
+No, in 2.2, bonding collected stats by adding up the slave's stats, and
+presenting that.
 
- Thanks for this fullyfledged bugreport. I've been seeing this for quite
- some time on my personal firewall machine which masquerades a pppoe
- connection for a home network however I've not been able to produce
- an oops and therefore I've had no clue what exactly the problem might
- be. I've seen this problem with every 2.4.x kernel so far with
- completely different machines and different NICs doing the same job,
- my favourite way to reproduce this is having my friend use gnutella
- though which is a really trivial method to produce this lockup.
+In 2.4, the stats was changed to be exactly what the bonding device has
+seen.
 
-Servus,
-       Daniel
+Bonding device will never ever see anything to do with recieve packets.
 
+-- 
+------------------------+--------------------------------------------------
+Thomas Davis		| ASG Cluster guy
+tadavis@lbl.gov		| 
+(510) 486-4524		| "80 nodes and chugging Captain!"

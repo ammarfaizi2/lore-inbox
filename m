@@ -1,63 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264763AbUEKOwb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264736AbUEKO4Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264763AbUEKOwb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 10:52:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264776AbUEKOwb
+	id S264736AbUEKO4Z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 10:56:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264777AbUEKO4Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 10:52:31 -0400
-Received: from [62.27.20.61] ([62.27.20.61]:11417 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S264763AbUEKOw2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 10:52:28 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Chris Wedgwood <cw@f00f.org>
-Subject: Re: [PATCH] 2.6.6 add qsort library function (UPDATED PATCH, symbol exported _GPL)
-Date: Tue, 11 May 2004 16:55:11 +0200
-User-Agent: KMail/1.6.2
-Cc: LKML <linux-kernel@vger.kernel.org>, Andreas Gruenbacher <agruen@suse.de>,
-       Nathan Scott <nathans@sgi.com>
-References: <20040510050733.GA13889@taniwha.stupidest.org> <20040510071552.GB30834@taniwha.stupidest.org>
-In-Reply-To: <20040510071552.GB30834@taniwha.stupidest.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 11 May 2004 10:56:25 -0400
+Received: from 8.75.30.213.rev.vodafone.pt ([213.30.75.8]:27908 "EHLO
+	odie.graycell.biz") by vger.kernel.org with ESMTP id S264736AbUEKO4Y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 10:56:24 -0400
+Subject: Re: 2.6.6 Oops disconnecting speedtouch usb modem
+From: Nuno Ferreira <nuno.ferreira@graycell.biz>
+To: Duncan Sands <baldrick@free.fr>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200405111340.52107.baldrick@free.fr>
+References: <1084274778.2262.7.camel@taz.graycell.biz>
+	 <200405111340.52107.baldrick@free.fr>
+Content-Type: text/plain
+Organization: Graycell
+Message-Id: <1084287382.2189.1.camel@taz.graycell.biz>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.5.7 
+Date: Tue, 11 May 2004 15:56:23 +0100
 Content-Transfer-Encoding: 7bit
-Message-Id: <200405111655.11623@bilbo.math.uni-mannheim.de>
+X-OriginalArrivalTime: 11 May 2004 14:55:01.0950 (UTC) FILETIME=[EFEA85E0:01C43767]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Montag, 10. Mai 2004 09:20 schrieb Chris Wedgwood:
+On Ter, 2004-05-11 at 13:40 +0200, Duncan Sands wrote:
+> > May 10 23:31:57 taz kernel: EIP is at destroy_async+0x54/0x80
+> 
+> Does this happen with -mm1?
 
-> diff -Nru a/lib/qsort.c b/lib/qsort.c
-> --- /dev/null	Wed Dec 31 16:00:00 1969
-> +++ b/lib/qsort.c	Sun May  9 20:27:15 2004
-> @@ -0,0 +1,239 @@
-> +/*
-> + * qsort implementation for the Linux kernel.
-> + *
-> + * Original implementation taken form glibc and credited to Douglas
-> + * C. Schmidt (schmidt@ics.uci.edu).
-> + *
-> + * This source code is licensed under the GNU General Public License,
-> + * Version 2.  See the file COPYING for more details.
-      ^^^^^^^^^
+I will try it later today, I have the modem at home.
 
+Thanks
+-- 
+Nuno Ferreira
 
-> + */
-> +
-> +/*
-> + * If you consider tuning this algorithm, you should consult first:
-> + * Engineering a sort function; Jon Bentley and M. Douglas McIlroy;
-> + * Software - Practice and Experience; Vol. 23 (11), 1249-1265, 1993.
-> + */
-> +
-> +# include <linux/module.h>
-> +# include <linux/slab.h>
-> +# include <linux/string.h>
-> +
-> +MODULE_LICENSE("GPL");
-
-Shouldn't this be "GPLv2" then?
-
-Eike

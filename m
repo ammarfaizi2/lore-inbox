@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262808AbTAaWhB>; Fri, 31 Jan 2003 17:37:01 -0500
+	id <S262824AbTAaWli>; Fri, 31 Jan 2003 17:41:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262821AbTAaWhB>; Fri, 31 Jan 2003 17:37:01 -0500
-Received: from tapu.f00f.org ([202.49.232.129]:19849 "EHLO tapu.f00f.org")
-	by vger.kernel.org with ESMTP id <S262808AbTAaWhB>;
-	Fri, 31 Jan 2003 17:37:01 -0500
-Date: Fri, 31 Jan 2003 14:46:27 -0800
-From: Chris Wedgwood <cw@f00f.org>
+	id <S262838AbTAaWli>; Fri, 31 Jan 2003 17:41:38 -0500
+Received: from bitmover.com ([192.132.92.2]:5573 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S262824AbTAaWlh>;
+	Fri, 31 Jan 2003 17:41:37 -0500
+Date: Fri, 31 Jan 2003 14:50:57 -0800
+From: Larry McVoy <lm@bitmover.com>
 To: Larry McVoy <lm@bitmover.com>, bitkeeper-announce@bitmover.com,
        linux-kernel@vger.kernel.org
-Subject: Re: [Bitkeeper-announce] Re: bkbits.net downtime
-Message-ID: <20030131224627.GA1686@f00f.org>
+Subject: Re: bkbits.net downtime
+Message-ID: <20030131225057.GA18662@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Larry McVoy <lm@bitmover.com>, bitkeeper-announce@bitmover.com,
+	linux-kernel@vger.kernel.org
 References: <200301312114.h0VLEmC11997@work.bitmover.com> <20030131145018.N3904@schatzie.adilger.int>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20030131145018.N3904@schatzie.adilger.int>
-User-Agent: Mutt/1.3.28i
-X-No-Archive: Yes
+User-Agent: Mutt/1.4i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 31, 2003 at 02:50:18PM -0700, Andreas Dilger wrote:
-
 > Actually, with BK it should be possible to have read only clones on
-> multiple servers, should it not?  Not that I'm saying BK should foot
-> the bill to do that, but having read-only clones of the primary
-> kernel trees would avoid most downtime.
+> multiple servers, should it not?  
 
-At the risk of suggesting something insanely complex...
+Oh, sure.  Even if we were down for a week, the trees which people care
+about are almost certainly on their local disks so they could set up
+servers all over the place make the data available if need be.
 
-... assuming BK read-only copies do work, why not actually have 'bk
-pull' for hosts which can serve RO copies of the trees?  You
-could use SRV records to locate these transparently to what has been
-deployed now (I'm not really a fan of rfc2782.txt but nonetheless it
-exists and others are using it, so it's a 'standard' of sorts).
+bkbits.net is a cache, it's not the authoritative source of anything.
 
-Presumably doing something like this means you could have many people
-voluntarily providing RO trees for different projects and lessen the
-load on the bitmover infrastructure...
+> I wonder if any of the kernel.org mirror sites would be interested in
+> hosting a clone of one or more BK repositories.
 
+Eventually we'll have a version of the BKD that we've bullet proofed
+enough that we'd encourage that.  For the time being we've encouraged
+hosting at bkbits.net simply because (a) the infrastructure is there
+and (b) if there are security problems then it's our mess not yours.
 
-
-  --cw
+It's partially self interest: if kernel.org got compromised and it was
+our fault then we'd get a black eye.  If bkbits got compromised we'd 
+just fix it up quietly  (and, no, so far it has never been broken into
+but that's probably because we're very careful about how we run things,
+even if you got in via BKD you'd have no write permissions on anything
+but tmp dirs).
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

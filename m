@@ -1,49 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbTEAMmF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 08:42:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbTEAMmF
+	id S261245AbTEAMyV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 08:54:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261247AbTEAMyV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 08:42:05 -0400
-Received: from smtp03.web.de ([217.72.192.158]:38418 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S261239AbTEAMmF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 08:42:05 -0400
-Message-ID: <3EB118F9.9030003@web.de>
-Date: Thu, 01 May 2003 14:54:17 +0200
-From: Michael Hunold <hunold-ml@web.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.3b) Gecko/20030312
-X-Accept-Language: de-at, de, en-us, en
-MIME-Version: 1.0
-To: Junfeng Yang <yjf@stanford.edu>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, mc@stanford.edu
-Subject: Re: [CHECKER] 5 potential user-pointer errors that allow arbitrary
- reads from kernel
-References: <Pine.GSO.4.44.0304302131150.22117-100000@elaine24.Stanford.EDU>
-In-Reply-To: <Pine.GSO.4.44.0304302131150.22117-100000@elaine24.Stanford.EDU>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 1 May 2003 08:54:21 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:22424
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S261245AbTEAMyU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 May 2003 08:54:20 -0400
+Subject: Re: [PATCH 2.4.21-rc1] vesafb with large memory
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Thomas Backlund <tmb@iki.fi>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <b8r26l$he0$1@main.gmane.org>
+References: <3EB0413D.2050200@superonline.com> <b8r26l$he0$1@main.gmane.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1051790876.21546.10.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 01 May 2003 13:07:57 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Junfeng,
+On Iau, 2003-05-01 at 13:00, Thomas Backlund wrote:
+> but there are programs that benefits from the "extra" memory...
+> this according to Antonino Daplas...
+> (AFAIK double/triple buffering is one thing...)
 
-> This is a resend (the previous report was ignored, however I feel that
-> these bugs could be severe).
+I've actually looke through the traces  for some situations
+and the "how much memory" case is reporting banked RAM on some 
+cards so you don't know that RAM exists.
 
-> Please confirm or clarify. Thanks!
-
-> [BUG] proc_dir_entry.write_proc can take tainted inputs.
-> av7110_ir_write_proc is assigned to proc_dir_entry.write_proc
-> 
-> /home/junfeng/linux-2.5.63/drivers/media/dvb/av7110/av7110_ir.c:116:av7110_ir_write_proc:
-> ERROR:TAINTED:116:116: passing tainted ptr 'buffer' to __constant_memcpy
-> [Callstack:
-> /home/junfeng/linux-2.5.63/net/core/pktgen.c:991:av7110_ir_write_proc((tainted
-> 1))]
-
-Confirmed. I'll post a patch when I'm back at work again on Monday.
-
-CU
-Michael.
+The change proposed is definitely correct for the default. Whether
+you want to support overriding it I don't know - I'm not worried
+either way.
 

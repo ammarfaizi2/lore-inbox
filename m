@@ -1,69 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264411AbTLVLdC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 06:33:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264414AbTLVLdC
+	id S264533AbTLVLkJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 06:40:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264796AbTLVLkJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 06:33:02 -0500
-Received: from mail.zmailer.org ([62.78.96.67]:41352 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id S264411AbTLVLc7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 06:32:59 -0500
-Date: Mon, 22 Dec 2003 13:32:58 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: James Lamanna <jlamanna@ugcs.caltech.edu>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] use of patented algorithms in the kernel ok or not?
-Message-ID: <20031222113258.GM1343@mea-ext.zmailer.org>
-References: <opr0j63dxpz4tciz@192.168.1.1>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <opr0j63dxpz4tciz@192.168.1.1>
+	Mon, 22 Dec 2003 06:40:09 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:14774 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S264533AbTLVLkF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Dec 2003 06:40:05 -0500
+Date: Mon, 22 Dec 2003 09:27:01 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Octave <oles@ovh.net>
+Cc: Tomas Szepe <szepe@pinerecords.com>, linux-kernel@vger.kernel.org,
+       andrea@suse.de
+Subject: Re: lot of VM problem with 2.4.23
+In-Reply-To: <20031221234350.GD4897@ovh.net>
+Message-ID: <Pine.LNX.4.58L.0312220921120.2691@logos.cnet>
+References: <20031221001422.GD25043@ovh.net> <1071999003.2156.89.camel@abyss.local>
+ <Pine.LNX.4.58L.0312211235010.6632@logos.cnet> <20031221184709.GO25043@ovh.net>
+ <20031221185959.GE1494@louise.pinerecords.com> <20031221234350.GD4897@ovh.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 21, 2003 at 05:43:51PM -0800, James Lamanna wrote:
-> On Sun, 21 Dec 2003 14:40:40 -0500 Lennert Buytenhek wrote:
-> >There is one already, and it's suboptimal, to say it mildly.
-> 
-> What algorithm does the kernel currently use for prefix-matching? I'm 
-> interested now...
-> And when you say suboptimal, what kind of difference are we talking?
-> O(n) vs. O(1) lookups?
 
-(I am reading 2.6.0 kernel source)
 
-It used to be PATRICIA -- where you have binary-searchable sub-tables,
-and you look from longest mask table first to see matches. If longer
-mask table does not have a match, you move up to larger entries entries.
+On Mon, 22 Dec 2003, Octave wrote:
 
-Now things are somewhat different, and murky underneath FIB-rules.
-( net/ipv4/fib_*.c )   The lowest level has fib_hash.c doing lookups
-thru  fn_hash_lookup()  function.
+> On Sun, Dec 21, 2003 at 07:59:59PM +0100, Tomas Szepe wrote:
+> > On Dec-21 2003, Sun, 19:47 +0100
+> > Octave <oles@ovh.net> wrote:
+> >
+> > > You can run this easy script. 2.4.19 takes about 30 minutes
+> > > to kill all process. 2.4.23 takes about 60 minutes.
+> >
+> > Can you also try 2.4.24-pre1 with the OOM killer enabled?
+>
+> I complied 2.4.24-pre1 with OOM killer. After 2 minutes of
+> test, server is down.
 
-It does use hashes, which can, perhaps, do things in speedier, if not
-all that cache friendly way.   Still, when you have multiple different
-size prefixes, they are all processed the same way as PATRICIA does.
+Hi Octave,
 
-Original question was aiming to run with _full_ internet routing tables
-in Linux kernel.  Now _that_ can be somewhat slow, and the patented
-algorithm in question is able to handle it under 12 memory lookups in
-all cases, while present hash-patricia chunks away a lot more time in
-pessimal case.
+What do you mean with "server is down" ? The OOM killer killed an
+application ? What were the messages?
 
-In normal single interface IPv4 end-node usage we have 4 route entries.
-(eth0, loopback, multicast, and default -routes.)  Those should be very
-quick to go thru in linear search order and be processor cache friendly.
+Under out of memory, 2.4.22 should also kill a process, but you say it
+doesnt.
 
-Even with a handfull of routes (and interfaces), but relying on default-
-route to handle most things, I do claim that linear (ordered by mask
-specifity!) search table is fastest.(*)
-
-*) It depends on your machine hardware details, but CPU and its associated
-   caches are these days factor 100 faster, than main memory random access.
-   (And the gap is growing...)
-
-> James Lamanna
-
-/Matti Aarnio

@@ -1,50 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131203AbRACWJi>; Wed, 3 Jan 2001 17:09:38 -0500
+	id <S131253AbRACWJi>; Wed, 3 Jan 2001 17:09:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130669AbRACWJ2>; Wed, 3 Jan 2001 17:09:28 -0500
-Received: from linuxcare.com.au ([203.29.91.49]:58895 "EHLO
-	front.linuxcare.com.au") by vger.kernel.org with ESMTP
-	id <S130111AbRACWJN>; Wed, 3 Jan 2001 17:09:13 -0500
-From: Anton Blanchard <anton@linuxcare.com.au>
-Date: Thu, 4 Jan 2001 09:07:41 +1100
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: linux-kernel@vger.kernel.org, David Miller <davem@redhat.com>
-Subject: Re: 2.2.19pre5 on sparc64: Missing symbols
-Message-ID: <20010104090741.A21322@linuxcare.com>
-In-Reply-To: <200101031650.f03Go4D29320@pincoya.inf.utfsm.cl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <200101031650.f03Go4D29320@pincoya.inf.utfsm.cl>; from vonbrand@inf.utfsm.cl on Wed, Jan 03, 2001 at 01:50:04PM -0300
+	id <S131203AbRACWJ2>; Wed, 3 Jan 2001 17:09:28 -0500
+Received: from user-143-42.jakinternet.co.uk ([212.187.143.42]:17672 "HELO
+	opel.itsolve.co.uk") by vger.kernel.org with SMTP
+	id <S130669AbRACWJR>; Wed, 3 Jan 2001 17:09:17 -0500
+Date: Wed, 3 Jan 2001 22:09:21 +0000 (GMT)
+From: Mark Zealey <mark@itsolve.co.uk>
+To: Brian Gerst <bgerst@didntduck.org>
+cc: Dan Aloni <karrde@callisto.yi.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] prevention of syscalls from writable segments, breaking 
+ bugexploits
+Message-ID: <Pine.LNX.4.21.0101032208360.1039-100000@sunbeam.itsolve.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> depmod: *** Unresolved symbols in /lib/modules/2.2.19pre5/fs/binfmt_elf.o
-> depmod: 	get_pte_slow
-> depmod: 	get_pmd_slow
-> depmod: 	pgt_quicklists
+On Wed, 3 Jan 2001, Brian Gerst wrote:
 
-Thanks, fix is in cvs.
+> Dan Aloni wrote:
+> > 
+> > It is known that most remote exploits use the fact that stacks are
+> > executable (in i386, at least).
+> > 
+> > On Linux, they use INT 80 system calls to execute functions in the kernel
+> > as root, when the stack is smashed as a result of a buffer overflow bug in
+> > various server software.
+> > 
+> > This preliminary, small patch prevents execution of system calls which
+> > were executed from a writable segment. It was tested and seems to work,
+> > without breaking anything. It also reports of such calls by using printk.
+> 
+> Do you realise how much overhead you just added to every single
+> syscall?
 
-Anton
+Not much, dax said that he didnt notice any difference on a 450 PIII w/
+128Mb RAM, anyways, this could be a configure-able option in the kernel
+config, sysadmins would select it, people that wanted security against
+defunct programs would select it, others could choose to loose the
+overhead, the user's choice. It's a great debugging tool to test for
+faulty programs, and for h4x0rs trying to break in, too.
 
---- arch/sparc64/kernel/sparc64_ksyms.c.orig	Thu Jan  4 09:04:07 2001
-+++ arch/sparc64/kernel/sparc64_ksyms.c	Thu Jan  4 08:48:29 2001
-@@ -210,6 +210,11 @@
- /* Should really be in linux/kernel/ksyms.c */
- EXPORT_SYMBOL(dump_thread);
- EXPORT_SYMBOL(dump_fpu);
-+EXPORT_SYMBOL(get_pmd_slow);
-+EXPORT_SYMBOL(get_pte_slow);
-+#ifndef CONFIG_SMP
-+EXPORT_SYMBOL(pgt_quicklists);
-+#endif
- 
- /* math-emu wants this */
- EXPORT_SYMBOL(die_if_kernel);
+> It won't work anyways, for the same reasons every other
+> non-exec stack patch has been rejected - exploits exist that don't write
+> any code to the stack, you just need two pointers.
+
+You rejected a patch that stops about 90% of remote r00t'ing attacks just
+cos it doesnt cover all attacks? thats stupid. you'll never have a
+completly bug-free kernel, and they'll always be programs that will be
+faults, this is just a safety net against poor programming. As I said
+above, if you dont like it, just trun if off, for those that would like
+not to be r00ted via poorly written programs, we can turn it on.
+
+-- 
+
+Mark Zealey (aka JALH on irc.openprojects.net: #zealos and many more)
+mark@itsolve.co.uk
+mark@sexygeek.org
+mark@x-paste.de
+
+UL++++$ (GCM/GCS/GS/GM)GUG! dpu? s-:-@ a15! C+++>$ P++$>+++@ L+++>+++++$
+!E---? W+++>$ N++@>+ o->+ w--- !M--? !V--? PS- PE--@ !PGP----? r++
+!t---?@ !X---? !R- b+ !DI---? e->+++++ h+++*! y-
+
+(www.geekcode.com)
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

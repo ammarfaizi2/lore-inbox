@@ -1,64 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265383AbUAMR4u (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 12:56:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265389AbUAMR4t
+	id S265321AbUAMRuP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 12:50:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265327AbUAMRuP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 12:56:49 -0500
-Received: from mail.actcom.net.il ([192.114.47.15]:38612 "EHLO
-	smtp2.actcom.co.il") by vger.kernel.org with ESMTP id S265383AbUAMR4q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 12:56:46 -0500
-Date: Tue, 13 Jan 2004 19:56:38 +0200
-From: Muli Ben-Yehuda <mulix@mulix.org>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ANother debugging Q
-Message-ID: <20040113175638.GG20763@actcom.co.il>
-References: <200401131243.27614.gene.heskett@verizon.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="aYDVKSzuImP48n7V"
-Content-Disposition: inline
-In-Reply-To: <200401131243.27614.gene.heskett@verizon.net>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Tue, 13 Jan 2004 12:50:15 -0500
+Received: from [195.166.20.93] ([195.166.20.93]:60388 "EHLO
+	frumious.unidec.co.uk") by vger.kernel.org with ESMTP
+	id S265321AbUAMRuL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jan 2004 12:50:11 -0500
+Message-Id: <200401131750.i0DHoMF2009244@frumious.unidec.co.uk>
+Content-Type: text/plain; charset=US-ASCII
+From: dr john halewood <john@frumious.unidec.co.uk>
+Reply-To: john@frumious.unidec.co.uk
+To: gj@pointblue.com.pl, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.24+grsec compilation issue
+Date: Tue, 13 Jan 2004 17:50:21 +0000
+X-Mailer: KMail [version 1.3.2]
+References: <200401122142.06931.gj@pointblue.com.pl>
+In-Reply-To: <200401122142.06931.gj@pointblue.com.pl>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 12 Jan 2004 9:42 pm, Grzegorz Jaskiewicz wrote:
+>Recently i tried to compile 2.4.24+grsec kernel.
+>I am getting error:
+>
+>/usr/src/linux-2.4.24/arch/i386/vmlinux.lds:116 invalid assignment to
+> location counter
 
---aYDVKSzuImP48n7V
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It's a problem with the grsecurity patch., not the kernel, and should really 
+be on a grsecurity mailling list. However, I can tell you that it works 
+properly if you use stock kernel 2.4.24 with the grsecurity 
+1.9.13-2.4.23.patch.
 
-On Tue, Jan 13, 2004 at 12:43:27PM -0500, Gene Heskett wrote:
-
-> Is there a way to make the app itself inherit the strace so that its=20
-> errors can be located/defined and fixed?
-
-Short answer: man strace.=20
-Long answer: strace -f (or -ff).
-
-Cheers,
-Muli=20
---=20
-Muli Ben-Yehuda
-http://www.mulix.org | http://mulix.livejournal.com/
-
-"the nucleus of linux oscillates my world" - gccbot@#offtopic
-
-
---aYDVKSzuImP48n7V
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFABDFVKRs727/VN8sRArI1AJ9M4XnP6mR0pUiICmuknrT9qkAlOwCeLPLP
-TEQSPnUp0N7d/YiEFl5wOjo=
-=21h2
------END PGP SIGNATURE-----
-
---aYDVKSzuImP48n7V--
+cheers
+john

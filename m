@@ -1,58 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268150AbTCCAqI>; Sun, 2 Mar 2003 19:46:08 -0500
+	id <S268156AbTCCAxu>; Sun, 2 Mar 2003 19:53:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268156AbTCCAqI>; Sun, 2 Mar 2003 19:46:08 -0500
-Received: from warden-p.diginsite.com ([208.29.163.248]:46496 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S268150AbTCCAqF>; Sun, 2 Mar 2003 19:46:05 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: nickn <nickn@www0.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, "H. Peter Anvin" <hpa@zytor.com>,
-       linux-kernel@vger.kernel.org
-Date: Sun, 2 Mar 2003 16:55:03 -0800 (PST)
-Subject: Re: BitBucket: GPL-ed *notrademarkhere* clone
-In-Reply-To: <20030303004728.GA5856@www0.org>
-Message-ID: <Pine.LNX.4.44.0303021651560.17904-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268220AbTCCAxu>; Sun, 2 Mar 2003 19:53:50 -0500
+Received: from vladimir.pegasys.ws ([64.220.160.58]:35855 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S268156AbTCCAxs>; Sun, 2 Mar 2003 19:53:48 -0500
+Date: Sun, 2 Mar 2003 17:04:09 -0800
+From: jw schultz <jw@pegasys.ws>
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: About /etc/mtab and /proc/mounts
+Message-ID: <20030303010409.GA3206@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	Linux-kernel <linux-kernel@vger.kernel.org>
+References: <20030219112111.GD130@DervishD> <3E5C8682.F5929A04@daimi.au.dk> <buoy942s6lt.fsf@mcspd15.ucom.lsi.nec.co.jp> <3E5DB2CA.32539D41@daimi.au.dk> <buon0kirym1.fsf@mcspd15.ucom.lsi.nec.co.jp> <3E5DCB89.9086582F@daimi.au.dk> <buo65r6ru6h.fsf@mcspd15.ucom.lsi.nec.co.jp> <20030227092121.GG15254@pegasys.ws> <20030302130430.GI45@DervishD> <3E621235.2C0CD785@daimi.au.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E621235.2C0CD785@daimi.au.dk>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm a little confused about the on-disk format
+On Sun, Mar 02, 2003 at 03:16:21PM +0100, Kasper Dupont wrote:
+> DervishD wrote:
+> > 
+> > If 'mount' treats specially the
+> > mtab if it is a symlink... well, IMHO this is not correct. Yes, this
+> > can lead to an attack, but: 'mount' is a setuid program, and only
+> > root can symlink /etc/mtab, true?
+> 
+> The reason for mount not to update /etc/mtab if it is a symlink is
+> not security concerns, but rather that it could be a symlink to
+> /proc/mounts. Another problem is the way the update is actually
+> done. A lockfile named /etc/mtab~ is created, and a new mtab is
+> written to /etc/mtab.tmp which is later renamed on top of mtab.
+> 
+> Some of this can obviously be solved by changing mount. But if we
+> are going to change mount in non-trivial ways, we should aim for a
+> better longterm solution. It would be possible for mount to start
+> from /et/mtab and use readlink until the actual location is found.
+> Then if the path starts with /proc/ the update can be skipped, or
+> done in a different way. And if the location is outside /proc then
+> create lockfilename and tempfilename by appending to this path.
+> 
+> But all that is IMHO a bad solution. Getting the actual location
+> right is nontrivial. And we should rather aim for an implementation
+> in /proc and have mount write there directly. But there are a few
+> open questions I'd like answered before trying to implement a
+> /proc/mtab.
 
-is it SCCS and the problem is that CSSC doesn't recognise everything that
-the latest SCCS does so a patch is needed for CSSC or does it differ
-slightly from SCCS?
+You are talking about adding hacks to workaround the
+original hack.  Nothing should write to mtab.  Say it with
+me "Nothing should write to mtab".
 
-Larry has mentioned that there were things they changed from the base SCCS
-format that they started with, but he indicated that they had fed patches
-to SCCS to use the new info.
+mount(8) and umount(8) are the only almost the only things that
+write mtab all others are readers.  I may be wrong but the
+data argument to mount(2) looks like it should support
+everything missing from /proc/mounts.  Alternatively change
+mount(2) and mount(8) and any other mount(2) callers will
+be revealed.
 
-I'm trying to figure out if the problem is CSSC not being as compatible as
-it would like to be or is larry not getting the changes he is proposing
-into SCCS, or are there other problems.
+The reason to leave a /etc/mtab symlink is so that the
+old tools other than (u)mount don't need updates.
 
-David Lang
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
-
-On Mon, 3 Mar 2003, nickn wrote:
-
-> Date: Mon, 3 Mar 2003 00:47:28 +0000
-> From: nickn <nickn@www0.org>
-> To: Jeff Garzik <jgarzik@pobox.com>
-> Cc: H. Peter Anvin <hpa@zytor.com>, linux-kernel@vger.kernel.org
-> Subject: Re: BitBucket: GPL-ed *notrademarkhere* clone
->
-> On Sun, Mar 02, 2003 at 12:12:58PM -0500, Jeff Garzik wrote:
-> > My counter-question is, why not improve an _existing_ open source SCM to
-> > read and write BitKeeper files?  Why do we need yet another brand new
-> > project?
->
-> Or improve BK to export and import on demand of an existing open source SCM.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+		Remember Cernan and Schmitt

@@ -1,75 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263971AbTJ1N3O (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 08:29:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263973AbTJ1N3O
+	id S263968AbTJ1Ne4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 08:34:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263972AbTJ1Ne4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 08:29:14 -0500
-Received: from atlrel9.hp.com ([156.153.255.214]:59853 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S263971AbTJ1N3C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 08:29:02 -0500
-Message-ID: <01ee01c39d57$6f69dbf0$19de4c0f@nta2225>
-From: "Vishwanath Kalbagilmath" <kalbagil@india.hp.com>
-To: "John S J Anderson" <jacobs@genehack.org>
-Cc: <ma-linux@tux.org>, <linux-kernel@vger.kernel.org>
-References: <0cfa01c3931a$1b13a190$19de4c0f@nta2225> <87vfqqzm9x.fsf@mendel.genehack.org>
-Subject: Re: [ma-linux] problem loading module
-Date: Tue, 28 Oct 2003 18:58:53 +0530
+	Tue, 28 Oct 2003 08:34:56 -0500
+Received: from catv-50624ad9.szolcatv.broadband.hu ([80.98.74.217]:13186 "EHLO
+	catv-50624ad9.szolcatv.broadband.hu") by vger.kernel.org with ESMTP
+	id S263968AbTJ1Nez (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 08:34:55 -0500
+Message-ID: <3F9E707B.7030609@freemail.hu>
+Date: Tue, 28 Oct 2003 14:34:51 +0100
+From: Boszormenyi Zoltan <zboszor@freemail.hu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; hu-HU; rv:1.4.1) Gecko/20031024
+X-Accept-Language: hu, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4927.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Autoregulate vm swappiness cleanup
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+Hi,
 
-After including some of the versioning header files and some macros like
-MODVERSIONS, I am still unable to load the module into the kernel.
-Now the printk(), kmalloc() problems are solved, now only left out 
-is unresolved symbol is register_chrdev_Rsmp_904e3677 but ksyms has 
-register_chrdev_Rsmp_e337b494
-Please let me know where I am making mistake...
+this patch makes my system even more responsive,
+I applied the patch over 2.6.0-test8-mm1.
 
-Thanks in Adv
-Vishwanath
+I have a Glade v1 project that has these source files among others:
 
+$ ls -l callbacks.[ch] interface.[ch]
+-rw-rw-r--    1 zozo     zozo       583241 okt 28 13:06 callbacks.c
+-rw-rw-r--    1 zozo     zozo        96592 okt 27 22:54 callbacks.h
+-rw-rw-r--    1 zozo     zozo      1090912 okt 27 22:54 interface.c
+-rw-rw-r--    1 zozo     zozo         1687 okt 27 22:54 interface.h
 
------ Original Message ----- 
-From: "John S J Anderson" <jacobs@genehack.org>
-To: "Vishwanath Kalbagilmath" <kalbagil@india.hp.com>
-Cc: <ma-linux@tux.org>
-Sent: Wednesday, October 15, 2003 6:32 PM
-Subject: Re: [ma-linux] problem loading module
+That said, among others: the projects is *very* large, and is reasonably
+modularised before someone says something silly about my programming
+capabilities. :-)
 
+gcc-3.3.2 (latest Fedora packages) goes up 160M+ in memory usage,
+For a test run I started mozilla with some very long pages, oowriter,
+gedit with the listed files opened and some gnome-terminal and a new project
+compile with make -j2 so the callbacks.c and interface.c were compiled
+simultaneously.
 
-> "Vishwanath Kalbagilmath" <kalbagil@india.hp.com> writes:
-> 
-> > these are the unresolved symbols that I get when trying the loadable
-> > module in RH 7.3 and RHAS 2.1 as well, can anybody suggest some soln
-> > to this...
-> >
-> > mydrv.o: unresolved symbol unregister_chrdev_Rc192d491
-> > mydrv.o: unresolved symbol register_chrdev_Rd115e0a6
-> > mydrv.o: unresolved symbol snprintf_Raf25400d
-> > mydrv.o: unresolved symbol kmalloc_R6f6c1cf7
-> > mydrv.o: unresolved symbol printk_R827d5807
-> 
->   If you're not seeing printk(), you're almost certainly doing
->   something wrong. Have you looked at the Module HOWTO?
-> 
-> <http://www.tldp.org/HOWTO/Module-HOWTO/index.html>
-> 
-> john.
-> -- 
-> Linux's power is that we FIX stuff. That we make it the best system
-> possible, and that we don't just whine and argue about things.
->   -- Linus Torvalds in 
->      <Pine.LNX.4.44.0205070827050.1343-100000@home.transmeta.com>
-> 
+The system is a dual PIII/500 MHz with 512M RAM, not a speedy machine.
+With all these, the system used only ~36M swap. Free memory was about 3-6M
+then I exited oowriter. Free mem suddenly went up to 75M+, starting
+programs was almost instant.
+
+Definitely a win.
+
+-- 
+Best regards,
+Zoltán Böszörményi
+
+---------------------
+What did Hussein say about his knife?
+One in Bush worth two in the hand.
 

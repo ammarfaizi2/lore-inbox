@@ -1,61 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318681AbSG0CbB>; Fri, 26 Jul 2002 22:31:01 -0400
+	id <S318680AbSG0C05>; Fri, 26 Jul 2002 22:26:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318682AbSG0CbB>; Fri, 26 Jul 2002 22:31:01 -0400
-Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:35081
-	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
-	id <S318681AbSG0CbA>; Fri, 26 Jul 2002 22:31:00 -0400
-X-All-Your-Base: Are Belong To Us!!!
-X-Envelope-Recipient: riel@conectiva.com.br
-X-Envelope-Sender: stevie@qrpff.net
-Message-Id: <5.1.0.14.2.20020726221324.021ad588@whisper.qrpff.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 26 Jul 2002 22:34:11 -0400
-To: Rik van Riel <riel@conectiva.com.br>, Andrea Arcangeli <andrea@suse.de>
-From: Stevie O <stevie@qrpff.net>
-Subject: Re: [PATCH] cheap lookup of symbol names on oops()
-Cc: Cort Dougan <cort@fsmlabs.com>, Christoph Hellwig <hch@infradead.org>,
-       <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44L.0207251941120.3086-100000@imladris.surriel.
- com>
-References: <20020725205910.GR1180@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S318681AbSG0C05>; Fri, 26 Jul 2002 22:26:57 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:58798 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S318680AbSG0C04>;
+	Fri, 26 Jul 2002 22:26:56 -0400
+Subject: Re: [Lse-tech] [RFC]  per cpu slab fix to reduce freemiss
+To: linux-kernel@vger.kernel.org, lse <lse-tech@lists.sourceforge.net>
+Cc: "Bill Hartner" <Bill_Hartner@us.ibm.com>
+X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
+Message-ID: <OF832504F8.0A91920F-ON87256C03.000C218F@boulder.ibm.com>
+From: "Mala Anand" <manand@us.ibm.com>
+Date: Fri, 26 Jul 2002 21:29:56 -0500
+X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 5.0.10 |March 22, 2002) at
+ 07/26/2002 08:29:57 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 07:41 PM 7/25/2002 -0300, Rik van Riel wrote:
 
->> valuable for what? you need the system.map or the .o disassembly of the
->> module anyways to take advantage of such symbol. I don't find it useful.
->
->If you're willing to teach all our users how to use ksymoops ... ;)
+I found a problem with per cpu slab allocator implementation in Linux
+kernel. The per cpu array of objects get emptied unnecessarily when
+there is no room to put back the freed object.  This might lead to a
+scenario where the object array is emptied to find that the subsequent
+alloc requests end up in re-populating the array with the objects.
+These wasted cycles could be saved by simply changing the array
+to a singly linked list of free objects. To see how much this is
+really happening I looked at the slab stats collected using SPECweb99
+workload.
 
-A story:
+The following slabinfo stats are edited for clarity sake. The allocmiss
+and freemiss are the counters that indicate how many times we are
+re-populating the object array with objects (allocmiss) and how many
+times the object array was emptied to make room to add freed objects
+(freemiss).
 
-        I'm not an experienced kernel hacker -- most of my questions probably belong on the kernelnewbies list.  I am also, however, not afraid to muck around, which is why I run Slackware and a completely self-configured kernel.  It just so happens that I run Linux on my laptop, and thus my kernel is reiserfs-only (I didn't even build ext2 as a module, and I'm not going to count iso9660fs).
-
-        About four months ago, I decided to try my very first 2.5 kernel ever, 2.5.7.  [As many of you know -- just as I do now -- Al Viro did some cleanups which caused an oops when your rootfs was reiserfs.]  I downloaded, I configured, I built, and I lilo'ed.  And when I booted 2.5.7 for the first time, I got my very first kernel oops -- woo!
-
-        First thing I noted was that, since my rootfs didn't even get mounted at all, let alone read-write, I had no logfiles to work with. So I painstakingly copied the large pile of hex values down on paper and booted back to 2.5.7.  Lucky for me, the oops happened at boot time, so there were no modules to be mucked with :)  Having been on lkml for several months thus far,  I knew exactly what to do -- run ksymoops.  So I went to /usr/src/linux-2.5.7/scripts/ksymoops/, and the only file there was a README telling me that ksymoops was no longer distributed as part of the kernel, and that I needed to download it.
-
-Great.
-
-        I downloaded ksymoops, and it wouldn't compile.  I got some bizarre errors about undefined symbols (relating to libbfd), and googling for those errors gave people having those same problems, yet no responses.
-After much grief I somehow finally determined that I needed new copies of libiberty and libbfd installed.
-I downloaded and installed the new versions of libiberty and libbfd and was finally able to build ksymoops.
-
-        Once ksymoops was built, I carefully reproduced the oops I had transcribed to paper into a file and ran
-ksymoops against it.  At long last, I was rewarded with my decoded oops output, informing me that the crash had occurred in reiserfs code.  I posted an e-mail to the list and was immediatly replied to that this was a known problem and that a patch was already available :P
-
-The Moral Of The Story
-
-It took me several hours to get my oops decoded.  Most people don't have several hours to waste tracking down subtle bugs in userspace libraries and programs.  Requiring users to run ksymoops, if a working alternative (such as this patch) exists, is NOT a good idea.
+slabinfo - version: 1.1 (statistics) (SMP)
+                  allochit    allocmiss freehit   freemiss
+tcp_tw_bucket        7297373  60783    7299082     56577
+tcp_open_request    13236826   1427   13236852      1369
+file lock cache     13020821   6467   13020878      6336
+skbuff_head_cache     770394  38817     401689      3201
+sock                13231542   6584   13231816      5948
+buffer_head          5886789 119467    3793394     10946
+size-4096          333688059 3327893 333690264   3322182
+size-2048           91797861  451537  91798246    450602
+size-256           355278409  773333 355281803    766049
+size-32             32253719    306   32246987       150
 
 
---
-Stevie-O
+The slab stats counter above shows that allocmiss and freemiss
+happen less than 1% of the time, which is not significant to consider
+changing the code. However it is not only the number of times this happen,
+in relation to allochit and freehit, is important but the amount of
+processing being done when this happens is also important.
 
-Real programmers use COPY CON PROGRAM.EXE
+Next I looked at the Readprofile taken using the same specweb workload:
+
+31653 total                                       0.0209
+  1374 e1000_xmit_frame                           0.8218
+  1266 __kfree_skb                                5.4569
+  1261 ProcessTransmitInterrupts                  2.7898
+  1202 csum_partial_copy_generic                  4.8468
+  1158 skb_release_data                           9.9828
+  1114 __wake_up                                  9.6034
+  1024 ProcessReceiveInterrupts                   1.3913
+   795 tcp_clean_rtx_queue                        1.0461
+   754 net_rx_action                              1.2240
+   696 kfree                                      4.8333 ***
+   369 kmalloc                                    1.0853
+   247 kfree_skbmem                               2.3750
+   181 __free_pages                               5.6562
+    63 kmem_cache_alloc                           0.2351 ***
+    57 __free_pages_ok                            0.1122
+    55 kmem_cache_free                            0.4435 ***
+
+kfree is one of the top 10 hot routines and this is where freemiss
+processing happens. kmalloc and kmem_cache_alloc include allocmiss
+processing. I am working on fixing this. Comments and suggestions
+are welcome.
+
+Regards,
+    Mala
+
+
+   Mala Anand
+   IBM Linux Technology Center - Kernel Performance
+   E-mail:manand@us.ibm.com
+   Phone:512-838-8088;
+
+
+
+
+
 

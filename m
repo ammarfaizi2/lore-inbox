@@ -1,40 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265434AbTGADvN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 23:51:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265460AbTGADvN
+	id S263574AbTFHR1v (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sun, 8 Jun 2003 13:27:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263590AbTFHR1v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 23:51:13 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1699 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265434AbTGADvL
+	Sun, 8 Jun 2003 13:27:51 -0400
+Received: from h000.c007.snv.cp.net ([209.228.33.228]:44205 "HELO
+	c007.snv.cp.net") by vger.kernel.org with SMTP id S263574AbTFHR1u
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 23:51:11 -0400
-Date: Tue, 1 Jul 2003 05:05:31 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Greg KH <greg@kroah.com>
-Cc: willy@debian.org, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, Patrick Mochel <mochel@osdl.org>
-Subject: Re: PCI domain stuff
-Message-ID: <20030701040531.GB23597@parcelfarce.linux.theplanet.co.uk>
-References: <1057010214.1277.11.camel@albertc> <20030630220758.GA27368@kroah.com> <1057014182.4048.3887.camel@cube> <20030630231515.GA27813@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 8 Jun 2003 13:27:50 -0400
+X-Sent: 8 Jun 2003 17:41:26 GMT
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20030630231515.GA27813@kroah.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+To: gadilus@hotmail.com
+From: "Jessika Anston" <jessikas@elvis.com>
+Subject: whats up :P!
+X-Sent-From: jessikas@elvis.com
+Date: Sun, 08 Jun 2003 10:41:25 -0700 (PDT)
+X-Mailer: Web Mail 5.4.0-4_sol28
+Message-Id: <20030608104125.10692.h021.c007.wm@mail.elvis.com.criticalpath.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org@vger.kernel.org>
+X-Envelope-To: </home/ralf/ralf> (uid 501)
+Original-Recipient: rfc822;ralf@linux-mips.org
 
-On Mon, Jun 30, 2003 at 04:15:15PM -0700, Greg KH wrote:
-> > AFAIK, sysfs won't support mmap.
-> 
-> What do you want to mmap?  The PCI config space?
+me n my friendz just set up our webcams n we all signed
+up 4 this new chat program called <a
+href="http://www.instakiss1o.150m.com/CamFriends/">CamFriends</a>, A <b>FREE</b>webcam community! u can come
+check out my camFriends profile to see my pix/webcam,
+im online every day so if u want just click <a
+href="http://www.instakiss1o.150m.com/camfriends/">HeRe
+</a> and if im not online one of my friendz will always
+be    =)!
 
-We need to support mmaping device resources.  I think this actually
-merits being a first class sysfs concept -- turn a struct resource into
-an mmapable file.  The current fugly ioctl really has to go.
+-------------------------------------------------
+Get your free @Elvis e-mail account at Elvis.com!
+http://www.elvis.com
 
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk

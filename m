@@ -1,64 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264098AbTDWPum (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 11:50:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264099AbTDWPum
+	id S264087AbTDWPo6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 11:44:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264091AbTDWPo5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 11:50:42 -0400
-Received: from havoc.daloft.com ([64.213.145.173]:30630 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S264098AbTDWPuh (ORCPT
+	Wed, 23 Apr 2003 11:44:57 -0400
+Received: from imap.gmx.net ([213.165.65.60]:28542 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264087AbTDWPo3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 11:50:37 -0400
-Date: Wed, 23 Apr 2003 12:02:44 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Stephane Ouellette <ouellettes@videotron.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]  Undefined symbol sync_dquots_dev() in quota.c
-Message-ID: <20030423160244.GB5561@gtf.org>
-References: <3EA6B13A.4000408@videotron.ca> <20030423153341.GA5561@gtf.org> <3EA6B854.5010604@videotron.ca>
+	Wed, 23 Apr 2003 11:44:29 -0400
+Date: Wed, 23 Apr 2003 17:56:29 +0200
+From: gigerstyle@gmx.ch
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Fix SWSUSP & !SWAP
+Message-Id: <20030423175629.7cfc9087.gigerstyle@gmx.ch>
+In-Reply-To: <20030423144705.GA2823@elf.ucw.cz>
+References: <20030423135100.GA320@elf.ucw.cz>
+	<Pine.GSO.4.21.0304231631560.1343-100000@vervain.sonytel.be>
+	<20030423144705.GA2823@elf.ucw.cz>
+X-Mailer: Sylpheed version 0.8.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EA6B854.5010604@videotron.ca>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 23, 2003 at 11:59:16AM -0400, Stephane Ouellette wrote:
-> Jeff Garzik wrote:
+Hi All,
+
+Just a quick question:
+
+As I know, swsusp is for hybernation (S4), right? The memory content will be written to the swap partition. What happens if the swap space is already used from programs? Abort? Or do I have to reserve swap space which never has to be used from programs?
+
+Thank you!
+
+Marc
+
+
+On Wed, 23 Apr 2003 16:47:05 +0200
+Pavel Machek <pavel@ucw.cz> wrote:
+
+> Hi!
 > 
-> >On Wed, Apr 23, 2003 at 11:28:58AM -0400, Stephane Ouellette wrote:
+> > > Swsusp without swap makes no sense, but leads to compilation
+> > > failure. This fixes it. Please apply,
 > > 
-> >
-> >>Folks,
-> >>
-> >> the following patch fixes a compile error under 2.4.21-rc1-ac1. 
-> >>sync_dev_dquots() is undefined if CONFIG_QUOTA is not set.
-> >>   
-> >>
-> >
-> >The right fix would be to make sure a no-op version of sync_dev_dquots
-> >exists for that case.
-> >
-> >	Jeff
-> > 
-> >
+> > Just wondering, what about MMU-less machines?
 > 
-> Jeff,
-> 
->   the file fs/dquot.c is compiled only if CONFIG_QUOTA is set.  That 
-> would imply modifying the Makefile and #ifdeffing most of the code 
-> inside dquot.c.
-
-So?  ;-)
-
-Your patch modified fs/quota.c, which is compiled when CONFIG_QUOTACTL is
-set, which in turn is set for CONFIG_QUOTA || CONFIG_XFS_QUOTA.
-
-If you are adding CONFIG_QUOTA ifdefs to fs/quota.c, it is clear a
-non-ifdef solution can be achieved.
-
-	Jeff
-
-
-
+> Ugh... Currently: no we can't do that. We are happy to suspend/resume
+> on i386 ;-).
+> 								Pavel

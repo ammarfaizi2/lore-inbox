@@ -1,51 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263714AbUD2I5H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263770AbUD2JEf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263714AbUD2I5H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 04:57:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263770AbUD2I5G
+	id S263770AbUD2JEf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 05:04:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263736AbUD2JEf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 04:57:06 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27279 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263714AbUD2I5C
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 04:57:02 -0400
-Message-ID: <4090C34E.8080107@pobox.com>
-Date: Thu, 29 Apr 2004 04:56:46 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Marc Bevand <bevand_m@epita.fr>
-CC: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [sata] new driver -- AHCI
-References: <408C1F41.3060206@pobox.com> <40905997.9020107@tomt.net> <409073B1.1020901@pobox.com> <4090B9F5.3040207@epita.fr>
-In-Reply-To: <4090B9F5.3040207@epita.fr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Apr 2004 05:04:35 -0400
+Received: from sand.lyris.net ([64.62.197.91]:61189 "HELO sand.lyris.net")
+	by vger.kernel.org with SMTP id S263770AbUD2JEe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 05:04:34 -0400
+Message-Id: <LYRIS0-1083229466--7044-lyris-admin@sand.lyris.net>
+X-lyris-type: command-notify
+From: "Lyris ListManager" <lyris-admin@sand.lyris.net>
+Reply-To: "Lyris ListManager" <lyris-admin@sand.lyris.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: your subscribe request
+Date: Thu, 29 Apr 2004 02:04:26 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Bevand wrote:
-> Jeff Garzik wrote:
-> 
->> Andre Tomt wrote:
->>
->>> What about the Marvell 88SX5040 PCI-X SATA Controller?
->>
->>
->> Coming RSN.  That's my next priority, but I'm not as thrilled because 
->> Marvell isn't an open design like AHCI.  I'm much more happy to 
->> promote AHCI's sane, open design.
-> 
-> 
-> And what about the upcomming Promise SATAII150 SX8 PCI-X SATA Controller ?
-> Will it be based on an AHCI design ?
+Re: your subscribe request
+> subscribe
 
+Sorry, but the email address 'linux-kernel@vger.kernel.org' is already a
+member of 'linux-mag-news'.
 
-No, very different.  And the driver for the SX8 has been in the upstream 
-tree for a little while now too, if you missed it:  "carmel"
+Because you are already subscribed, Lyris ListManager did not subscribe you again.
 
-	Jeff
-
-
+To unsubscribe, send a blank email to leave-linux-mag-news-3591433W@sand.lyris.net
 

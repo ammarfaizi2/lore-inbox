@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313711AbSDZI0D>; Fri, 26 Apr 2002 04:26:03 -0400
+	id <S313712AbSDZIaw>; Fri, 26 Apr 2002 04:30:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313712AbSDZI0C>; Fri, 26 Apr 2002 04:26:02 -0400
-Received: from cs145025.pp.htv.fi ([213.243.145.25]:22799 "EHLO chip.2y.net")
-	by vger.kernel.org with ESMTP id <S313711AbSDZI0C>;
-	Fri, 26 Apr 2002 04:26:02 -0400
-Date: Fri, 26 Apr 2002 11:25:33 +0300 (EEST)
-From: Panu Matilainen <pmatilai@welho.com>
-X-X-Sender: pmatilai@chip.2y.net
-To: Pete Zaitcev <zaitcev@redhat.com>
-cc: nfs@lists.sourceforge.net, <linux-kernel@vger.kernel.org>
-Subject: Re: 1279 mounts
-In-Reply-To: <20020425162106.A30736@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.44.0204261120520.19032-100000@chip.2y.net>
+	id <S313713AbSDZIav>; Fri, 26 Apr 2002 04:30:51 -0400
+Received: from mons.uio.no ([129.240.130.14]:63650 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S313712AbSDZIau>;
+	Fri, 26 Apr 2002 04:30:50 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Organization: Dept. of Physics, University of Oslo
+To: Daniel Forrest <forrest@lmcg.wisc.edu>
+Subject: Re: lockd hanging
+Date: Fri, 26 Apr 2002 10:30:41 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200204112333.SAA22343@radium.lmcg.wisc.edu> <shsk7rd8k9r.fsf@charged.uio.no> <200204242113.QAA29375@radium.lmcg.wisc.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17117p-0002fH-00@charged.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 Apr 2002, Pete Zaitcev wrote:
+On Wednesday 24. April 2002 23:13, Daniel Forrest wrote:
+> The bug I have found is in fs/lockd/svclock.c and is caused by downing
+> an already downed semaphore:
+>
+> ->nlmsvc_lock				calls down(&file->f_sema)
 
-> I updated my patch that allows to mount unholy numbers of volumes.
-> The old version was for 2.4.9 and did not apply anymore.
-> I split the unnamed majors patch and the NFS patch.
-> Also, CONFIG_ option is gone, because it made the code ugly.
-> 
-> Majors part:
->  http://people.redhat.com/zaitcev/linux/linux-2.4.19-pre7-unmaj.diff
-> NFS part:
->  http://people.redhat.com/zaitcev/linux/linux-2.4.19-pre7-nores.diff
-> Userland for NFS:
->  http://people.redhat.com/zaitcev/linux/util-linux-2.11q-nores1.diff
-> 
-> Is anyone actually interested? Random people periodically ask
-> me for patches, get them and disappear into the void. I hear
-> nothing good or bad (well, nothing since Trond reviewed it
-> several months ago, and also someone found a conflict with NFS
-> server code, since fixed). I am thinking about submitting,
-> but if users do not ask, why add extra bloat and negotiate
-> with LANANA...
+Just exactly what is f_sema protecting? I've looked at the code, and I just 
+can't figure out why we need a semaphore there at all.
 
-I've got quite a few users here who "need" this functionality and it's 
-included in our RH-based custom kernels. Having it as a separate patch 
-for 2.4 is no problem, for 2.5 I'm hoping we finally move to 32bit device 
-numbers...
+AFAICS, all we are using them for is to protect the 2 lists f_shares and 
+f_blocks in struct nlm_file. Since we are already holding the BKL, I don't 
+see why we need an extra lock. (Yes: nlmsvc_delete_block() can sleep, so we 
+need to be careful with the loop in nlmsvc_traverse_blocks(), but that is 
+trivial to cope with...)
 
-	- Panu -
 
+As for calling nlmclnt_lookup_host() in nlmsvc_create_block(). Why not just 
+pass the value that we looked up in nlmsvc_proc_lock()?
+
+Cheers,
+  Trond

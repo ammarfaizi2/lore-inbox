@@ -1,102 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261221AbUDILsg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Apr 2004 07:48:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbUDILsg
+	id S261231AbUDIMTY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Apr 2004 08:19:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbUDIMTY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Apr 2004 07:48:36 -0400
-Received: from mail.gmx.de ([213.165.64.20]:15839 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261221AbUDILsa convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Apr 2004 07:48:30 -0400
-X-Authenticated: #1226656
-Date: Fri, 9 Apr 2004 13:48:28 +0200
-From: Marc Giger <gigerstyle@gmx.ch>
-To: mru@kth.se (=?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?=),
-       Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Marc Giger <gigerstyle@gmx.ch>, linux-kernel@vger.kernel.org
-Subject: Re: status of Linux on Alpha?
-Message-Id: <20040409134828.0e2984e5@vaio.gigerstyle.ch>
-In-Reply-To: <20040409134534.67805dfd@vaio.gigerstyle.ch>
-References: <yw1xsmftnons.fsf@ford.guide>
-	<20040328201719.A14868@jurassic.park.msu.ru>
-	<yw1xoeqhndvl.fsf@ford.guide>
-	<20040328204308.C14868@jurassic.park.msu.ru>
-	<20040328221806.7fa20502@vaio.gigerstyle.ch>
-	<yw1xr7vcn1z2.fsf@ford.guide>
-	<20040329205233.5b7905aa@vaio.gigerstyle.ch>
-	<20040404121032.7bb42b35@vaio.gigerstyle.ch>
-	<20040409134534.67805dfd@vaio.gigerstyle.ch>
-X-Mailer: Sylpheed version 0.9.9claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Fri, 9 Apr 2004 08:19:24 -0400
+Received: from village.ehouse.ru ([193.111.92.18]:25350 "EHLO mail.ehouse.ru")
+	by vger.kernel.org with ESMTP id S261231AbUDIMTW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Apr 2004 08:19:22 -0400
+From: "Sergey S. Kostyliov" <rathamahata@php4.ru>
+Reply-To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.X kernel memory leak?
+Date: Fri, 9 Apr 2004 16:15:04 +0400
+User-Agent: KMail/1.6
+Cc: linux-kernel@vger.kernel.org, anton@megashop.ru
+References: <200401311940.28078.rathamahata@php4.ru> <200404091117.01011.rathamahata@php4.ru> <20040409020903.0897857d.akpm@osdl.org>
+In-Reply-To: <20040409020903.0897857d.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404091615.04340.rathamahata@php4.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Apr 2004 13:45:34 +0200
-Marc Giger <gigerstyle@gmx.ch> wrote:
+Hello Andrew,
 
-> Hello there,
+On Friday 09 April 2004 13:09, Andrew Morton wrote:
+> "Sergey S. Kostyliov" <rathamahata@php4.ru> wrote:
+> >
+> > And here is part of sysrq-T for the third machine, which have just locked up,
+> >  kernel is 2.6.5-rc3-aa2.
 > 
-> Presently, I reached a stage on which I don't know longer what to
-> do:-( I isolated the problem between 2.6.3-rc1 and 2.6.3-rc2. I
-                                       ^^^^^^^^^^^^^^^^^^^^^^^
-                               read as 2.6.4-rc1 and 2.6.4-rc2
+> It does look like a kernel memory leak, but it's not into slab.
+> 
+> You've disabled iptables.  Possibly there's a leak in a device driver? 
+> Which drivers are in regular use there?  What are you using for those
+> hardware RAID controllers?
 
-> also reverted 1.1608.56.1 , 1.1608.51.36 and all xfs related patches
-> from rc2 with no luck.
-> All other changes seems unrelated to me.
-> 
-> I'm really interested to solve the problem but I need your help.
-> 
-> What I noticed is that a make -j10 vmlinux triggers the problem the
-> fastest.
-> 
-> Thank you
-> 
-> Regards
-> 
-> Marc
-> 
-> 
-> On Sun, 4 Apr 2004 12:10:32 +0200
-> Marc Giger <gigerstyle@gmx.ch> wrote:
-> 
-> > Hi Ivan, Hi Måns
-> > 
-> > I've tested 2.6.3 on my alpha. It seems to be working fine. I
-> > couldn't trigger the problems that I had with 2.6.4.
-> > 
-> > So I will revert some patches witch I think could be the reason.
-> > 
-> > greets
-> > 
-> > Marc
-> > 
-> > On Mon, 29 Mar 2004 20:52:33 +0200
-> > Marc Giger <gigerstyle@gmx.ch> wrote:
-> > 
-> > > > 
-> > > > We could start by comparing .config files.  Mine is attached. 
-> > > > I've been running a 2.6.3 kernel with that configuration since
-> > > > it was released.  I compiled a gentoo installation using that
-> > > > kernel, so I'd say it's quite stable.
-> > > 
-> > > Ok, I've attached my config. I will take some time this week to
-> > > debug this problem.
-> > > Firstly, I will try out 2.6.3 and see what happens. I think that's
-> > > the best thing that I can do ATM. If the problem doesn't exist
-> > > with 2.6.3 on my alpha then we know where to search for.
-> > > 
-> > > Regards from Switzerland
-> > > 
-> > > Marc
-> > > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe
-> > linux-kernel" in the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> 
+I've seen this kind of lockup (according to sysrq-T) on different boxes:
+
+1) ope
+	RAID:		mylex 352
+	drivers:	e100, dac960
+	.config:	http://sysadminday.org.ru/2.6.1-io_lockup/ope/.config
+
+2) terror
+	RAID:		megaraid 320-2
+	drivers:	e1000, megaraid2
+	.config:	http://sysadminday.org.ru/2.6.X-lockup/terror/.config
+
+3) mirror
+	drivers:	e100, aic7xxx, md, netconsole
+	.config:	http://sysadminday.org.ru/2.6.X-lockup/mirror/.config
+
+I also saw the same symptoms on a fourth box, but I'm not shure about
+this one because it didn't use to be attached to serial console at that time.
+
+For this box:
+	RAID:		Compaq smart 2
+	drivers:	tlan,epic100,cpqarray
+
+-- 
+                   Best regards,
+                   Sergey S. Kostyliov <rathamahata@php4.ru>
+                   Public PGP key: http://sysadminday.org.ru/rathamahata.asc

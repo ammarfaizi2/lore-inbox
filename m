@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263812AbTKLADl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 19:03:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263821AbTKLADk
+	id S263852AbTKLAJz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 19:09:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263854AbTKLAJz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 19:03:40 -0500
-Received: from smtp12.eresmas.com ([62.81.235.112]:4825 "EHLO
-	smtp12.eresmas.com") by vger.kernel.org with ESMTP id S263812AbTKLADj
+	Tue, 11 Nov 2003 19:09:55 -0500
+Received: from mail3-126.ewetel.de ([212.6.122.126]:44782 "EHLO
+	mail3.ewetel.de") by vger.kernel.org with ESMTP id S263852AbTKLAJu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 19:03:39 -0500
-Message-ID: <3FB17853.9010004@wanadoo.es>
-Date: Wed, 12 Nov 2003 01:01:23 +0100
-From: Xose Vazquez Perez <xose@wanadoo.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: gl, es, en
+	Tue, 11 Nov 2003 19:09:50 -0500
+Date: Wed, 12 Nov 2003 01:09:34 +0100 (CET)
+From: Pascal Schmidt <der.eremit@email.de>
+To: Daniel Pittman <daniel@rimspace.net>
+cc: Linus Torvalds <torvalds@osdl.org>, Jens Axboe <axboe@suse.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
+In-Reply-To: <87k766cv06.fsf@enki.rimspace.net>
+Message-ID: <Pine.LNX.4.44.0311120107550.1066-100000@neptune.local>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: RE: 2 TB partition support
-X-Enigmail-Version: 0.63.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joseph Shamash wrote:
+On Wed, 12 Nov 2003, Daniel Pittman wrote:
 
-> I have searched without success for this driver.
-> Qlogic tech support doesn't seem to know about it. 
-> Can you lead me to a link or provide this driver?
+> The symptoms were exactly the same as above - I could mount and use the
+> thing correctly, but the raw device was not readable at all.
+> 
+> Maybe cdrom_read_capacity can also return zero for some broken
+> situations?
 
-2.6 driver http://sourceforge.net/projects/linux-qla2xxx/
-2.4 driver http://download.qlogic.com/drivers/14612/qla2x00-v6.06.10-dist.tgz
---
-HTML mails are going to trash automagically
+I put a printk in cdrom_read_capacity also, and the thing is never
+even called for the MO drive because we don't get that far in
+cdrom_read_toc in my case.
+
+-- 
+Ciao,
+Pascal
 

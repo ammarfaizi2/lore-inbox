@@ -1,58 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263287AbVCJWRf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263295AbVCJWRN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263287AbVCJWRf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 17:17:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262992AbVCJWOR
+	id S263295AbVCJWRN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 17:17:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263287AbVCJWOZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 17:14:17 -0500
-Received: from waste.org ([216.27.176.166]:31648 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262806AbVCJWDg (ORCPT
+	Thu, 10 Mar 2005 17:14:25 -0500
+Received: from fire.osdl.org ([65.172.181.4]:64214 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262831AbVCJWCK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 17:03:36 -0500
-Date: Thu, 10 Mar 2005 14:03:29 -0800
-From: Matt Mackall <mpm@selenic.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: [PATCH] rol/ror type cleanup
-Message-ID: <20050310220329.GN3120@waste.org>
-References: <200503082005.j28K5lBp028415@hera.kernel.org> <Pine.LNX.4.62.0503101032500.9286@numbat.sonytel.be>
+	Thu, 10 Mar 2005 17:02:10 -0500
+Date: Thu, 10 Mar 2005 14:01:37 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: Direct io on block device has performance regression on 2.6.x
+ kernel
+Message-Id: <20050310140137.09c7040b.akpm@osdl.org>
+In-Reply-To: <200503102142.j2ALgCg04691@unix-os.sc.intel.com>
+References: <20050310123043.69e5fd48.akpm@osdl.org>
+	<200503102142.j2ALgCg04691@unix-os.sc.intel.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0503101032500.9286@numbat.sonytel.be>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 10, 2005 at 10:33:29AM +0100, Geert Uytterhoeven wrote:
-> `unsigned int', while we're at it?
+"Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
+>
+> Let me work on the readv/writev support (unless someone beat me to it).
 
-Minor type cleanup.
+Please also move it to the address_space_operations level.  Yes, there are
+performance benefits from simply omitting the LFS checks, the mmap
+consistency fixes, etc.  But they're there for a reason.
 
-Signed-off-by: Matt Mackall <mpm@selenic.com>
-
-Index: bk/include/linux/bitops.h
-===================================================================
---- bk.orig/include/linux/bitops.h	2005-03-10 13:52:49.000000000 -0800
-+++ bk/include/linux/bitops.h	2005-03-10 13:59:51.000000000 -0800
-@@ -140,7 +140,7 @@ static inline unsigned long hweight_long
-  * @word: value to rotate
-  * @shift: bits to roll
-  */
--static inline __u32 rol32(__u32 word, int shift)
-+static inline __u32 rol32(__u32 word, unsigned int shift)
- {
- 	return (word << shift) | (word >> (32 - shift));
- }
-@@ -151,7 +151,7 @@ static inline __u32 rol32(__u32 word, in
-  * @word: value to rotate
-  * @shift: bits to roll
-  */
--static inline __u32 ror32(__u32 word, int shift)
-+static inline __u32 ror32(__u32 word, unsigned int shift)
- {
- 	return (word >> shift) | (word << (32 - shift));
- }
-
--- 
-Mathematics is the supreme nostalgia of our time.

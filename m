@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318670AbSHAIzH>; Thu, 1 Aug 2002 04:55:07 -0400
+	id <S318671AbSHAJQl>; Thu, 1 Aug 2002 05:16:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318675AbSHAIzH>; Thu, 1 Aug 2002 04:55:07 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:41344 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S318670AbSHAIzG>;
-	Thu, 1 Aug 2002 04:55:06 -0400
-Date: Thu, 1 Aug 2002 10:58:29 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.4.19-rc5
-Message-ID: <20020801085829.GD1096@suse.de>
-References: <20020801074953.GJ1644@suse.de> <Pine.LNX.4.44.0208010406230.1728-100000@freak.distro.conectiva> <20020801081010.GA1096@suse.de> <3D48F915.3FADA08F@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D48F915.3FADA08F@zip.com.au>
+	id <S318677AbSHAJQl>; Thu, 1 Aug 2002 05:16:41 -0400
+Received: from kf-zvb-fp02-013.dial.kabelfoon.nl ([62.45.19.13]:16136 "EHLO
+	server.duranium.home") by vger.kernel.org with ESMTP
+	id <S318671AbSHAJQk> convert rfc822-to-8bit; Thu, 1 Aug 2002 05:16:40 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Nick Martens <nickm@kabelfoon.nl>
+Reply-To: nickm@kabelfoon.nl
+To: Russell King <rmk@arm.linux.org.uk>
+Subject: Re: 2.5.29 compile error [undefined reference to `register_serial']
+Date: Thu, 1 Aug 2002 17:15:25 +0000
+User-Agent: KMail/1.4.1
+Cc: linux-kernel@vger.kernel.org
+References: <200207311952.30547.nickm@kabelfoon.nl> <20020731205039.C18153@flint.arm.linux.org.uk>
+In-Reply-To: <20020731205039.C18153@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200208011715.25525.nickm@kabelfoon.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 01 2002, Andrew Morton wrote:
-> Jens Axboe wrote:
-> > 
-> > ...
-> > > Anyway, lets wait for the numbers.
-> > 
-> > It just 'feels' like the sort of change that might have odd side
-> > effects.
-> 
-> It's almost impossible to get READA to do anything.  For example, in
-> current 2.5, if a READA attempt is actually aborted, end_buffer_io_sync
-> reports a "buffer I/O error".  Every time. And nobody has reported this.
+Ok thanks a lot
 
-Ahem, I've actually seen that happen :-). But maybe a total of 20 times
-or so.
-
-> It _is_ possible to hit this in 2.5, because of ext2_preread_inode().
-> 
-> Probably, also it's possible to hit it in 2.4 with hundreds of processes
-> all issuing ext3 directory readahead.  But it's pretty remote.
-
-Alright, I'm happy then.
-
--- 
-Jens Axboe
+On Wednesday 31 July 2002 19:50, Russell King wrote:
+> On Wed, Jul 31, 2002 at 07:52:30PM +0000, Nick Martens wrote:
+> > I am trying to compile 2.5.29 but I am running into some compilation
+> > problems i have attached my .config
+>
+> You need to enable:
+> > #
+> > # Serial drivers
+> > #
+> > # CONFIG_SERIAL_8250 is not set
+>
+> this option.
+>
+> (hmm, parport_serial is earlier in the config system; maybe we should
+> suck it into drivers/serial so the config system works as expected?)
 

@@ -1,49 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264931AbUGCLm7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265082AbUGCMdL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264931AbUGCLm7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jul 2004 07:42:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265032AbUGCLm6
+	id S265082AbUGCMdL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jul 2004 08:33:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265084AbUGCMdL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jul 2004 07:42:58 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:40377 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S264931AbUGCLm5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jul 2004 07:42:57 -0400
-Date: Sat, 3 Jul 2004 12:39:01 +0100
-From: Dave Jones <davej@redhat.com>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, limaunion@fibertel.com.ar,
-       linux-kernel@vger.kernel.org, cpufreq@www.linux.org.uk,
-       water modem <lundby@ameritech.net>
-Subject: Re: [patch] Re: 2.6.7-mm2 build errors...
-Message-ID: <20040703113901.GO7101@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Adrian Bunk <bunk@fs.tum.de>, "Randy.Dunlap" <rddunlap@osdl.org>,
-	limaunion@fibertel.com.ar, linux-kernel@vger.kernel.org,
-	cpufreq@www.linux.org.uk, water modem <lundby@ameritech.net>
-References: <40DCEFFB.5020605@fibertel.com.ar> <20040702205129.GK28324@fs.tum.de> <20040702140322.2ab47867.rddunlap@osdl.org> <20040702215024.GL28324@fs.tum.de>
+	Sat, 3 Jul 2004 08:33:11 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:60102 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S265082AbUGCMdI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Jul 2004 08:33:08 -0400
+Date: Sat, 3 Jul 2004 14:33:01 +0200
+From: Andries Brouwer <Andries.Brouwer@cwi.nl>
+To: Andrew Clausen <clausen@gnu.org>
+Cc: Szakacsits Szabolcs <szaka@sienet.hu>,
+       "Patrick J. LoPresti" <patl@users.sourceforge.net>,
+       Andries Brouwer <Andries.Brouwer@cwi.nl>,
+       Steffen Winterfeldt <snwint@suse.de>, linux-kernel@vger.kernel.org,
+       Thomas Fehr <fehr@suse.de>, bug-parted@gnu.org
+Subject: Re: [RFC] Restoring HDIO_GETGEO semantics (was: Re: workaround for BIOS / CHS stuff)
+Message-ID: <20040703123301.GB20808@apps.cwi.nl>
+References: <s5gwu1mwpus.fsf@patl=users.sf.net> <Pine.LNX.4.21.0407021528150.21499-100000@mlf.linux.rulez.org> <20040703013552.GA630@gnu.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040702215024.GL28324@fs.tum.de>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040703013552.GA630@gnu.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 02, 2004 at 11:50:24PM +0200, Adrian Bunk wrote:
+On Sat, Jul 03, 2004 at 11:35:53AM +1000, Andrew Clausen wrote:
 
- > > but my patch was insufficient:
- > > http://marc.theaimsgroup.com/?l=linux-kernel&m=108753512102539&w=2
- > > 
- > > See reply from Dave Jones.  And I see what he means, but I don't
- > > see how to express it in Kconfig language.
- > 
- > What about the patch below?
+> I would welcome a co-maintainer though :)
 
-Looks good, I'll give it a test later, and roll it into cpufreq-bk
-and let it simmer in -mm for a few days.  (There's a bunch of other
-cpufreq bits that have backlogged which I also need to get some
-testing of).
+Maybe dwm@austin.ibm.com wants to help.
 
-		Dave
+> > > Parted needs a mechanism to let me FORCE the geometry it uses.  Every
+> > > other partitioning tool has this, usually via command-line switch.
+> 
+> Would this solve any problems?
 
+I think that is the wrong question.
+This stuff is tricky. Especially when one has several operating systems
+on a single disk some degree of control is required. Maybe you say
+"in tricky cases use some other partition editor", but it seems
+reasonable to offer users the opportunity to specify the desired
+geometry.
+
+Of course poor users will listen to the ignorant advice of their
+neighbours and do all kinds of things to the geometry in attempts
+to solve entirely unrelated problems. The number of support problems
+will increase. So, try to supply accurate docs describing the cases
+where changing the geometry may be useful, and warning that changing
+the geometry may cause the loss of all data on the disk.
+
+Andries
+
+
+[yes - the discussion forks into many entirely different topics;
+other answers in other letters]

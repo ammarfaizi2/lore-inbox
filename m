@@ -1,62 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261582AbTJRMDS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 08:03:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbTJRMDS
+	id S261567AbTJRMuS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 08:50:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbTJRMuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 08:03:18 -0400
-Received: from hq.pm.waw.pl ([195.116.170.10]:4001 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S261582AbTJRMDR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 08:03:17 -0400
-To: John Bradford <john@grabjohn.com>
-Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-       Norman Diamond <ndiamond@wta.att.ne.jp>,
-       Hans Reiser <reiser@namesys.com>, Wes Janzen <superchkn@sbcglobal.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Blockbusting news, this is important (Re: Why are bad disk sectors numbered strangely, and what happens to them?)
-References: <32a101c3916c$e282e330$5cee4ca5@DIAMONDLX60>
-	<200310131014.h9DAEwY3000241@81-2-122-30.bradfords.org.uk>
-	<33a201c39174$2b936660$5cee4ca5@DIAMONDLX60>
-	<20031014064925.GA12342@bitwizard.nl> <3F8BA037.9000705@sbcglobal.net>
-	<3F8BBC08.6030901@namesys.com>
-	<11bf01c39492$bc5307c0$3eee4ca5@DIAMONDLX60>
-	<20031017102436.GB10185@bitwizard.nl>
-	<200310171049.h9HAnBbO000594@81-2-122-30.bradfords.org.uk>
-	<m3zng0yun9.fsf@defiant.pm.waw.pl>
-	<200310171935.h9HJZaLm002335@81-2-122-30.bradfords.org.uk>
-	<m37k33igui.fsf@defiant.pm.waw.pl>
-	<200310180827.h9I8Rxw8000383@81-2-122-30.bradfords.org.uk>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 18 Oct 2003 14:02:27 +0200
-In-Reply-To: <200310180827.h9I8Rxw8000383@81-2-122-30.bradfords.org.uk>
-Message-ID: <m3u166vjn0.fsf@defiant.pm.waw.pl>
+	Sat, 18 Oct 2003 08:50:18 -0400
+Received: from dyn-ctb-210-9-245-184.webone.com.au ([210.9.245.184]:30988 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S261567AbTJRMuP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Oct 2003 08:50:15 -0400
+Message-ID: <3F913704.5040707@cyberone.com.au>
+Date: Sat, 18 Oct 2003 22:50:12 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Nick's scheduler v16
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford <john@grabjohn.com> writes:
+Hi
 
-> Although, to be honest, except where performance is critical, remap on
-> read is pointless.  It saves you from having to identify the bad block
-> again when you write to it.  Generally, guaranteed remap on write is
-> what I want.
+http://www.kerneltrap.org/~npiggin/v16/
 
-Then I think we have an agreement.
+I'm starting to do some large SMP / NUMA testing. Fixed and changed quite
+a bit. It isn't too bad, although I'm only testing dbench, tbench, and
+volanomark at the moment.
 
-> I did suggest that data which was recovered automatically by the drive
-> on a second or subsequent read should result in a remapping of that
-> block.
+These SMP and NUMA changes are not tied to my interactivity stuff, so its
+possible they could get included if they turn out well. If you find any
+problems with it (high end or interactivity), please let me know.
 
-AFAIK this is what the drives do.
 
-> My most important point is that writes should never fail on a good
-> drive.
 
-That's certainly what the drives do. Unless they are out of spare
-sectors, of course.
-
-Doing cat /dev/zero > /dev/hd* fixes all bad sectors on modern drive.
--- 
-Krzysztof Halasa, B*FH

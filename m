@@ -1,41 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264877AbTBTF1u>; Thu, 20 Feb 2003 00:27:50 -0500
+	id <S264886AbTBTFe5>; Thu, 20 Feb 2003 00:34:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264886AbTBTF1u>; Thu, 20 Feb 2003 00:27:50 -0500
-Received: from ns.cinet.co.jp ([61.197.228.218]:54546 "EHLO multi.cinet.co.jp")
-	by vger.kernel.org with ESMTP id <S264877AbTBTF1t>;
-	Thu, 20 Feb 2003 00:27:49 -0500
-Message-ID: <E6D19EE98F00AB4DB465A44FCF3FA46903A33E@ns.cinet.co.jp>
-From: Osamu Tomita <tomita@cinet.co.jp>
-To: "''Christoph Hellwig' '" <hch@infradead.org>
-Cc: "'Linux Kernel Mailing List '" <linux-kernel@vger.kernel.org>,
-       "'Alan Cox '" <alan@lxorguk.ukuu.org.uk>
-Subject: RE: [PATCHSET] PC-9800 subarch. support for 2.5.61 (23/26) SCSI
-Date: Thu, 20 Feb 2003 14:37:42 +0900
+	id <S264903AbTBTFe5>; Thu, 20 Feb 2003 00:34:57 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:1408 "EHLO
+	bilbo.tmr.com") by vger.kernel.org with ESMTP id <S264886AbTBTFe4>;
+	Thu, 20 Feb 2003 00:34:56 -0500
+Date: Thu, 20 Feb 2003 00:44:55 -0500 (EST)
+From: davidsen <root@tmr.com>
+Reply-To: Bill Davidsen <davidsen@tmr.com>
+To: Bill Davidsen <davidsen@tmr.com>
+cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [2.5.61-ac1] set_rtc_mss back
+In-Reply-To: <Pine.LNX.4.44.0302191658080.1167-100000@bilbo.tmr.com>
+Message-ID: <Pine.LNX.4.44.0302200040040.1128-100000@bilbo.tmr.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-2022-jp"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for many advices about pc980155 driver.
-I'm trying to cleanup it.
+On Wed, 19 Feb 2003, davidsen@tmr.com wrote:
 
->> +int pc98_bios_param(struct block_device *bdev, int *ip)
+> set_rtc_mmss: can't update from 5 to 55
 > 
-> This should _not_ be in sd.c but the lowlevel driver.
-There is a specification for PC98 SCSI HA. So we can use this
-function commonly across all HA (except for bad clones). I think, 
-this is better than patching many drivers by same way. Is this a
-bad idea?
+> I used to get this message in early 4.5.5x kernels, and there was some 
+> discussion which I can't easily track right now, then it went away. This 
+> system was up for 25 days on 2.5.59+patches, and the console showed none 
+> of these since boot.
 
->> +static spinlock_t wd_lock = SPIN_LOCK_UNLOCKED;
+My bad, see below, I just lucked out not to boot at the wrong time, and 
+after that the problem doesn't happen (or is unlikely).
+
+> I just built 2.5.61-ac1 and booted. The good news is that it is up and 
+> looks reasonably stable (rebuilt the kernel). Bad news is that this 
+> message is coming out often enough to make the console hard to use.
 > 
-> Where is this used?
-I forgot to remove it.
+> No details, I assume that whatever fixed this before will fix it again, 
+> just so someone knows it is happening again.
 
-Thanks,
-Osamu Tomita
+Okay, now I see what's happening. In arch/i386/kernel/time.c, the routine 
+is far more limited than the comments admit. And the code tests for a 30 
+minute change, while the comments only say 15.
+
+Since the code change is complex, requiring backing the time over an hour 
+and potentially date boundary, I just patch the comment to admit what's 
+happening.
+
+--- time.c.ORIG	Thu Feb 20 00:10:33 2003
++++ time.c	Thu Feb 20 00:32:37 2003
+@@ -169,7 +169,10 @@
+ 	 * since we're only adjusting minutes and seconds,
+ 	 * don't interfere with hour overflow. This avoids
+ 	 * messing with unknown time zones but requires your
+-	 * RTC not to be off by more than 15 minutes
++	 * RTC not to be off by more than 30 minutes. It also
++	 * will fail to set back the minutes over an hour boundary,
++	 * say from 1 to 59, even though that's only 2 minutes,
++	 * to avoid being off by an hour.
+ 	 */
+ 	real_seconds = nowtime % 60;
+ 	real_minutes = nowtime / 60;
+
+-- 
+bill davidsen, CTO TMR Associates, Inc <davidsen@tmr.com>
+  Having the feature freeze for Linux 2.5 on Hallow'een is appropriate,
+since using 2.5 kernels includes a lot of things jumping out of dark
+corners to scare you.
+
 

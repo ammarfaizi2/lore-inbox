@@ -1,67 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266983AbRGQTnM>; Tue, 17 Jul 2001 15:43:12 -0400
+	id <S266977AbRGQTrC>; Tue, 17 Jul 2001 15:47:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266977AbRGQTnD>; Tue, 17 Jul 2001 15:43:03 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:15488 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S266972AbRGQTms>; Tue, 17 Jul 2001 15:42:48 -0400
-Date: Tue, 17 Jul 2001 15:42:33 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.6 possible problem
-In-Reply-To: <Pine.LNX.3.95.1010717153319.6035A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.3.95.1010717153957.6196A-100000@chaos.analogic.com>
+	id <S266991AbRGQTqx>; Tue, 17 Jul 2001 15:46:53 -0400
+Received: from nycsmtp2fb.rdc-nyc.rr.com ([24.29.99.78]:62981 "EHLO nyc.rr.com")
+	by vger.kernel.org with ESMTP id <S266977AbRGQTqm>;
+	Tue, 17 Jul 2001 15:46:42 -0400
+Message-ID: <3B549458.7030909@nyc.rr.com>
+Date: Tue, 17 Jul 2001 15:39:04 -0400
+From: John Weber <weber@nyc.rr.com>
+Organization: My House
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010701
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, David.Dominick@delta.com
+Subject: Re: sound?!?!!?
+In-Reply-To: <fa.rtf4jbv.1pg8pa3@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 Jul 2001, Richard B. Johnson wrote:
+Dominick, David wrote:
 
-> On Tue, 17 Jul 2001, Linus Torvalds wrote:
+> I am having problems with the opl3sa2 driver for yamaha sound card on my
+> toshiba running kernel 2.4.6
 > 
-> > In article <Pine.LNX.3.95.1010717103652.1430A-100000@chaos.analogic.com>,
-> > Richard B. Johnson <root@chaos.analogic.com> wrote:
-> > >
-> > >    ticks = 1 * HZ;        /* For 1 second */
-> > >    while((ticks = interruptible_sleep_on_timeout(&wqhead, ticks)) > 0)
-> > >                  ;
-> > 
-> > Don't do this.
-> > 
-> > Imagine what happens if a signal comes in and wakes you up? The signal
-> > will continue to be pending, which will make your "sleep loop" be a busy
-> > loop as you can never go to sleep interruptibly with a pending signal.
-> > 
-> > In short: if you have to wait for a certain time or for a certain event,
-> > you MUST NOT USE a interruptible sleep.
-> > 
-> > If it is ok to return early due to signals or similar (which is nice -
-> > you can allow people to kill the process), then you use an interruptible
-> > sleep, but then you mustn't have the above kind of loop.
-> > 
-> > 		Linus
-> 
-> Okay, then ../linux/drivers/net/8139too.c (line 2239) should be fixed
-> because that's where it came from.
-> 
+> HELP!!!
 
-I hate to answer my own questions, but the above may be correct if
-the task doesn't stay in interruptible_sleep_on_timeout() if there
-is a signal pending. If true, it will not loop forever because of
-the test for signal_pending(current).
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
+I am running kernel 2.4.6 on a toshiba satellite 225CDS and toshiba 
+tecra 8000 (both use OPL3sa2 driver), and sound is working well.  What 
+exactly do you have problems with?  Is this a redhat problem (a problem 
+with sndconfig)?
 

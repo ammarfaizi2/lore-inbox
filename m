@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265107AbTFEUIo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 16:08:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265109AbTFEUIo
+	id S265091AbTFEUI4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 16:08:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265102AbTFEUI4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 16:08:44 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:60366 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265107AbTFEUIn (ORCPT
+	Thu, 5 Jun 2003 16:08:56 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:25247 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265091AbTFEUIx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 16:08:43 -0400
-Date: Thu, 5 Jun 2003 12:48:26 -0700
+	Thu, 5 Jun 2003 16:08:53 -0400
+Date: Thu, 5 Jun 2003 12:47:34 -0700
 From: Greg KH <greg@kroah.com>
-To: Andreas Schultz <aschultz@warp10.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][I2C] fix unsafe usage of list_for_each in i2c-core
-Message-ID: <20030605194826.GB6238@kroah.com>
-References: <200306052048.21409.aschultz@warp10.net>
+To: LKML <linux-kernel@vger.kernel.org>,
+       Sensors <sensors@stimpy.netroedge.com>,
+       Martin Schlemmer <azarah@gentoo.org>
+Subject: Re: [RFC PATCH] Re: [OOPS] w83781d during rmmod (2.5.69-bk17)
+Message-ID: <20030605194734.GA6238@kroah.com>
+References: <20030524183748.GA3097@earth.solarsys.private> <3ED8067E.1050503@paradyne.com> <20030601143808.GA30177@earth.solarsys.private> <20030602172040.GC4992@kroah.com> <20030605023922.GA8943@earth.solarsys.private>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200306052048.21409.aschultz@warp10.net>
+In-Reply-To: <20030605023922.GA8943@earth.solarsys.private>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 05, 2003 at 08:48:21PM +0200, Andreas Schultz wrote:
-> Hi,
+On Wed, Jun 04, 2003 at 10:39:22PM -0400, Mark M. Hoffman wrote:
+> * Greg KH <greg@kroah.com> [2003-06-02 10:20:40 -0700]:
+> > On Sun, Jun 01, 2003 at 10:38:08AM -0400, Mark M. Hoffman wrote:
+> > > 
+> > > This patch against 2.5.70 works for me vs. an SMBus adapter.  It needs
+> > > re-testing against an ISA adapter since my particular chip is SMBus only.
+> > 
+> > I've applied this and will send it off to Linus in a bit.
 > 
-> i2c-core.c contains 2 loops that iterate over the list of the clients attached 
-> to an adapter and detaches them. Detaching the clients will actually remove 
-> them from the list the loop is iterating over. Therefore the 
-> list_for_each_safe() method has to be used.
+> Thanks!
+> 
+> This patch fixes the various return values in the w83781d_detect()
+> error paths.  It also cleans up some formatting here and there.
+> It should be applied on top of the previous one.
+> 
+> It works for me; same caveat as above w.r.t. ISA.
 
-Ah, nice catch.  Applied, thanks.
-
-I'm guessing this fixes your other i2c problems you were having?
-
-thanks,
+Applied, thanks.
 
 greg k-h

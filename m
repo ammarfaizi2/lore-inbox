@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132890AbRDXINl>; Tue, 24 Apr 2001 04:13:41 -0400
+	id <S132891AbRDXITv>; Tue, 24 Apr 2001 04:19:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132891AbRDXINc>; Tue, 24 Apr 2001 04:13:32 -0400
-Received: from [203.36.158.121] ([203.36.158.121]:57861 "EHLO
-	piro.kabuki.openfridge.net") by vger.kernel.org with ESMTP
-	id <S132890AbRDXINV>; Tue, 24 Apr 2001 04:13:21 -0400
-Date: Tue, 24 Apr 2001 18:11:16 +1000
-From: Daniel Stone <daniel@kabuki.openfridge.net>
-To: Steve Clark <sclark46@gte.net>
-Cc: J?rgen Herrmann <webmaster@shadowrom.de>, linux-kernel@vger.kernel.org
-Subject: Re: compile-error on 2.4.3-ac12
-Message-ID: <20010424181116.E2124@piro.kabuki.openfridge.net>
-Mail-Followup-To: Steve Clark <sclark46@gte.net>,
-	J?rgen Herrmann <webmaster@shadowrom.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <01042314092700.13276@rincewind> <3AE441B2.7020706@gte.net>
+	id <S132894AbRDXITc>; Tue, 24 Apr 2001 04:19:32 -0400
+Received: from passat.ndh.net ([195.94.90.26]:22412 "EHLO passat.ndh.net")
+	by vger.kernel.org with ESMTP id <S132891AbRDXITU>;
+	Tue, 24 Apr 2001 04:19:20 -0400
+Date: Tue, 24 Apr 2001 10:19:15 +0200
+From: Alex Riesen <a.riesen@traian.de>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: broken_apm_power in dmi_scan.c - no return value
+Message-ID: <20010424101915.A5368@traian.de>
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <3AE441B2.7020706@gte.net>; from sclark46@gte.net on Mon, Apr 23, 2001 at 10:52:34AM -0400
-Organisation: Sadly lacking
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 23, 2001 at 10:52:34AM -0400, Steve Clark wrote:
-> I get the same error.
+Hi, dear lkml,
 
-Was it really necessary to quote the entire error and .config, just to tell
-us this?
+The mentioned function doesn't return any value, but the calling
+code (dmi_check_black_list) depend on it:
 
--- 
-Daniel Stone
-Linux Kernel Developer
-daniel@kabuki.openfridge.net
+static __init int broken_apm_power(struct dmi_blacklist *d)
+{
+	apm_info.get_power_status_broken = 1;
+	printk(KERN_WARNING "BIOS strings suggest APM bugs, disabling power status reporting.\n");
+    return 0; /* continue scan  */
+}
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.1
-G!>CS d s++:- a---- C++ ULS++++$>B P---- L+++>++++ E+(joe)>+++ W++ N->++ !o
-K? w++(--) O---- M- V-- PS+++ PE- Y PGP>++ t--- 5-- X- R- tv-(!) b+++ DI+++ 
-D+ G e->++ h!(+) r+(%) y? UF++
-------END GEEK CODE BLOCK------
+In dmi_check_blacklist:
+		
+		if(d->callback(d)) /* callback is a pointer on a function, like broken_apm_power */
+			return;
+
+Alex Riesen
+

@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129470AbQKVVKs>; Wed, 22 Nov 2000 16:10:48 -0500
+        id <S129392AbQKVVRu>; Wed, 22 Nov 2000 16:17:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130647AbQKVVKj>; Wed, 22 Nov 2000 16:10:39 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:25846 "EHLO
-        brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-        id <S129470AbQKVVKZ>; Wed, 22 Nov 2000 16:10:25 -0500
-Date: Wed, 22 Nov 2000 18:40:07 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Szabolcs Szakacsits <szaka@f-secure.com>
-cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH] Reserved root VM + OOM killer
-In-Reply-To: <Pine.LNX.4.30.0011221736000.14122-100000@fs129-190.f-secure.com>
-Message-ID: <Pine.LNX.4.21.0011221839160.12459-100000@duckman.distro.conectiva>
+        id <S129470AbQKVVRb>; Wed, 22 Nov 2000 16:17:31 -0500
+Received: from sgi.SGI.COM ([192.48.153.1]:61294 "EHLO sgi.com")
+        by vger.kernel.org with ESMTP id <S129392AbQKVVRZ>;
+        Wed, 22 Nov 2000 16:17:25 -0500
+From: "LA Walsh" <law@sgi.com>
+To: "lkml" <linux-kernel@vger.kernel.org>
+Subject: include conventions /usr/include/linux/sys ?
+Date: Wed, 22 Nov 2000 12:45:52 -0800
+Message-ID: <NBBBJGOOMDFADJDGDCPHOEKLCJAA.law@sgi.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+        charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Nov 2000, Szabolcs Szakacsits wrote:
+Linus has mentioned a desire to move kernel internal interfaces into
+a separate kernel include directory.  In creating some code, I'm wondering
+what the name of this should/will be.  Does it follow that convention
+would point toward a linux/sys directory?
+-l
 
->    - OOM killing takes place only in do_page_fault() [no two places in
->         the kernel for process killing]
-
-... disable OOM killing for non-x86 architectures.
-This doesn't seem like a smart move ;)
-
-> diff -urw linux-2.2.18pre21/arch/i386/mm/Makefile linux/arch/i386/mm/Makefile
-> --- linux-2.2.18pre21/arch/i386/mm/Makefile	Fri Nov  1 04:56:43 1996
-> +++ linux/arch/i386/mm/Makefile	Tue Nov 21 03:03:15 2000
-> @@ -8,6 +8,6 @@
->  # Note 2! The CFLAGS definition is now in the main makefile...
-> 
->  O_TARGET := mm.o
-> -O_OBJS	 := init.o fault.o ioremap.o extable.o
-> +O_OBJS	 := init.o fault.o ioremap.o extable.o ../../../mm/oom_kill.o
-> 
->  include $(TOPDIR)/Rules.make
-
-Rik
 --
-Hollywood goes for world dumbination,
-	Trailer at 11.
-
-http://www.conectiva.com/		http://www.surriel.com/
+L A Walsh                        | Trust Technology, Core Linux, SGI
+law@sgi.com                      | Voice/Vmail: (650) 933-5338
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,126 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262509AbVC2H1W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262573AbVC2H2g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262509AbVC2H1W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 02:27:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262569AbVC2H1N
+	id S262573AbVC2H2g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 02:28:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262572AbVC2H22
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 02:27:13 -0500
-Received: from wproxy.gmail.com ([64.233.184.207]:53336 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262509AbVC2HNi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 02:13:38 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=umgt6puxkpE7sChl2yKcfSzzpH2j9fkcjTYIoz2qUURBwqLVyVYCZOTeQpEICNP+XsucV2YvQLl4HrjMz7BZD0pfssytofWoCAZ+QiJVbdCB8xAfAOmVkI3ksKPRq27hr3fVQvVZscRke0BpACUYWvJO979CCN6HL/oEufwKogU=
-Message-ID: <df35dfeb05032823137a208b46@mail.gmail.com>
-Date: Mon, 28 Mar 2005 23:13:38 -0800
-From: Yum Rayan <yum.rayan@gmail.com>
-Reply-To: Yum Rayan <yum.rayan@gmail.com>
-To: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-Subject: [PATCH] Reduce stack usage in module.c
+	Tue, 29 Mar 2005 02:28:28 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:38816 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262527AbVC2HQ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 02:16:26 -0500
+Subject: Re: [ubuntu-hardened] Re: Collecting NX information
+From: Arjan van de Ven <arjan@infradead.org>
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: Brandon Hale <brandon@smarterits.com>, ubuntu-hardened@lists.ubuntu.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <4248828B.20708@comcast.net>
+References: <42484B13.4060408@comcast.net>
+	 <1112035059.6003.44.camel@laptopd505.fenrus.org>
+	 <4248520E.1070602@comcast.net>
+	 <1112036121.6003.46.camel@laptopd505.fenrus.org>
+	 <424857B0.4030302@comcast.net>
+	 <1112043246.10117.5.camel@localhost.localdomain>
+	 <4248828B.20708@comcast.net>
+Content-Type: text/plain
+Date: Tue, 29 Mar 2005 09:16:20 +0200
+Message-Id: <1112080581.6282.1.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+X-Mailer: Evolution 2.0.4 (2.0.4-2) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Attempt to reduce stack usage in module.c (linux-2.6.12-rc1-mm3). 
-Specifically from checkstack.pl
 
-Before patch
-------------------
-who_is_doing_it: 512 
-obsolete_params: 160
+> 
+> You need to consider that in the end I'd need PT_GNU_STACK to do
+> everything PaX wants
 
-After patch
-----------------
-who_is_doing_it: none
-obsolete_params: 12
+why?
+Why not have independent flags for independent things?
+That way you have both cleanness of design and you don't break anything.
 
-Also while at it, fix following in who_is_doing_it(...)
-- use only as much memory is needed
-- do not write past array index for the boundary case
+> The point is
+> to not break anything, yet to still make things easier for those
+> projects and distributions like Hardened Ubuntu.
 
-Patch is against linux-2.6.12-rc1-mm3
+to achieve that you need to get the toolchain to omit this stuff
+automatically somehow. 
 
-Thanks,
-Rayan
-
-Signed-off-by: Yum Rayan <yum.rayan@gmail.com>
-
---- kernel/module.c.orig	2005-03-28 22:32:35.000000000 -0800
-+++ kernel/module.c	2005-03-28 22:49:26.000000000 -0800
-@@ -769,15 +769,25 @@
- 	struct kernel_param *kp;
- 	unsigned int i;
- 	int ret;
-+	char *sym_name = NULL;
-+	unsigned int sym_name_len = 0;
- 
- 	kp = kmalloc(sizeof(kp[0]) * num, GFP_KERNEL);
- 	if (!kp)
- 		return -ENOMEM;
- 
--	for (i = 0; i < num; i++) {
--		char sym_name[128 + sizeof(MODULE_SYMBOL_PREFIX)];
-+	if (num) {
-+		sym_name_len = 128 + sizeof (MODULE_SYMBOL_PREFIX);
-+		sym_name = kmalloc(sym_name_len, GFP_KERNEL);
-+		if (!sym_name) {
-+			ret = -ENOMEM;
-+			goto free_kp;
-+		}
-+	}
- 
--		snprintf(sym_name, sizeof(sym_name), "%s%s",
-+	for (i = 0; i < num; i++) {
-+		
-+		snprintf(sym_name, sym_name_len, "%s%s",
- 			 MODULE_SYMBOL_PREFIX, obsparm[i].name);
- 
- 		kp[i].name = obsparm[i].name;
-@@ -791,13 +801,15 @@
- 			printk("%s: falsely claims to have parameter %s\n",
- 			       name, obsparm[i].name);
- 			ret = -EINVAL;
--			goto out;
-+			goto free_sym;
- 		}
- 		kp[i].arg = &obsparm[i];
- 	}
- 
- 	ret = parse_args(name, args, kp, num, NULL);
-- out:
-+ free_sym:
-+	kfree(sym_name);
-+ free_kp:
- 	kfree(kp);
- 	return ret;
- }
-@@ -1399,12 +1411,16 @@
- static void who_is_doing_it(void)
- {
- 	/* Print out all the args. */
--	char args[512];
-+	char *args;
- 	unsigned long i, len = current->mm->arg_end - current->mm->arg_start;
- 
- 	if (len > 512)
- 		len = 512;
- 
-+	args = kmalloc(len + 1, GFP_KERNEL);
-+	if (!args)
-+		return;
-+
- 	len -= copy_from_user(args, (void *)current->mm->arg_start, len);
- 
- 	for (i = 0; i < len; i++) {
-@@ -1413,6 +1429,7 @@
- 	}
- 	args[i] = 0;
- 	printk("ARGS: %s\n", args);
-+	kfree(args);
- }
- 
- /* Allocate and load the module: note that size of section 0 is always

@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315614AbSECJLX>; Fri, 3 May 2002 05:11:23 -0400
+	id <S315615AbSECJRU>; Fri, 3 May 2002 05:17:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315615AbSECJLW>; Fri, 3 May 2002 05:11:22 -0400
-Received: from ns.suse.de ([213.95.15.193]:54021 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S315614AbSECJLU>;
-	Fri, 3 May 2002 05:11:20 -0400
-Date: Fri, 3 May 2002 11:11:16 +0200
-From: Dave Jones <davej@suse.de>
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-Cc: Treeve Jelbert <treeve01@pi.be>, linux-kernel@vger.kernel.org
-Subject: Re: BUG - linux-2.5.13/arch/i386/kernel - bluesmoke.c
-Message-ID: <20020503111115.C23381@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
-	Treeve Jelbert <treeve01@pi.be>, linux-kernel@vger.kernel.org
-In-Reply-To: <200205030959.52486.treeve01@pi.be> <Pine.LNX.4.44.0205030944180.12156-100000@netfinity.realnet.co.sz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S315616AbSECJRT>; Fri, 3 May 2002 05:17:19 -0400
+Received: from protactinium.btinternet.com ([194.73.73.176]:31974 "EHLO
+	protactinium.btinternet.com") by vger.kernel.org with ESMTP
+	id <S315615AbSECJRS>; Fri, 3 May 2002 05:17:18 -0400
+From: Nick Sanders <sandersn@btinternet.com>
+To: Keith Owens <kaos@ocs.com.au>
+Subject: Re: Announce: Kernel Build for 2.5, Release 2.3 is available
+Date: Fri, 3 May 2002 10:18:47 +0100
+User-Agent: KMail/1.4.5
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <9771.1020415890@kao2.melbourne.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Message-Id: <200205031018.47907.sandersn@btinternet.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 03, 2002 at 09:45:20AM +0200, Zwane Mwaikambo wrote:
- > You need CONFIG_X86_LOCAL_APIC, a proper fix is currently in 2.5-dj 
- > pending a merge.
+On Friday 03 May 2002 9:51 am, Keith Owens wrote:
+> On Fri, 03 May 2002 18:38:05 +1000,
+>
+> Keith Owens <kaos@ocs.com.au> wrote:
+> >On Thu, 2 May 2002 17:45:19 +0100,
+> >
+> >Nick Sanders <sandersn@btinternet.com> wrote:
+> >>I'm having problems installing a kernel built with kbuild-2.5 (Release
+> >> 2.3), the kernel compiled fine its just the install step.
+> >
+> >Silly error in arch/i386/Makefile.defs.*config.
+> >
+> >cd $KBUILD_SRCTREE_000
+> >perl -i -ple 's/\(CC\)/(CC_REAL)/g' arch/i386/Makefile.defs.*config
+>
+> Sigh.  Silly error in the fix :(
+>
+> cd $KBUILD_SRCTREE_000
+> perl -i -ple 's/\(CC\)/(CC_real)/g;' arch/i386/Makefile.defs.*config
 
-+ Brian Gerst's changes, + some more bending of my own.
-I'll put up another patch soon, if that goes ok, I'll push the bluesmoke
-bits to Linus in the next round.
+The 1st fix worked fine for me, thanks
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs

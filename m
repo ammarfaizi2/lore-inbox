@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266705AbUHQUtz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266717AbUHQUwj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266705AbUHQUtz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 16:49:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266717AbUHQUtz
+	id S266717AbUHQUwj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 16:52:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266721AbUHQUwj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 16:49:55 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:21904 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S266705AbUHQUtx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 16:49:53 -0400
-Date: Wed, 18 Aug 2004 00:50:01 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: [PATCH] fix warnings in scripts/binoffset.c
-Message-ID: <20040817225001.GA24203@mars.ravnborg.org>
-Mail-Followup-To: "Randy.Dunlap" <rddunlap@osdl.org>,
-	Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org,
-	akpm@osdl.org
-References: <20040816202805.356f134d.rddunlap@osdl.org> <20040817221332.GB23582@mars.ravnborg.org> <20040817132104.5f2dc7d8.rddunlap@osdl.org>
+	Tue, 17 Aug 2004 16:52:39 -0400
+Received: from rproxy.gmail.com ([64.233.170.200]:19380 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S266717AbUHQUwh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 16:52:37 -0400
+Message-ID: <2a4f155d040817135275c42157@mail.gmail.com>
+Date: Tue, 17 Aug 2004 23:52:34 +0300
+From: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
+Reply-To: =?ISO-8859-1?Q?ismail_d=F6nmez?= <ismail.donmez@gmail.com>
+To: Paul Fulghum <paulkf@microgate.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.8.1-mm1 Tty problems?
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, olh@suse.de
+In-Reply-To: <41226512.9000405@microgate.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040817132104.5f2dc7d8.rddunlap@osdl.org>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <2a4f155d040817070854931025@mail.gmail.com> <412247FF.5040301@microgate.com> <2a4f155d0408171116688a87f1@mail.gmail.com> <4122501B.7000106@microgate.com> <2a4f155d04081712005fdcdd9b@mail.gmail.com> <41225D16.2050702@microgate.com> <2a4f155d040817124335766947@mail.gmail.com> <41226512.9000405@microgate.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 17, 2004 at 01:21:04PM -0700, Randy.Dunlap wrote:
-> | 
-> | Added to my tree - but..
-> | How am I supposed to build binoffset when I decide
-> | to use extract-config?
-> 
-> Good question.  I'm (slowly) working on that.  I also have
-> some contributed patches that address that... patience.
-> 
-> I was thinking about 'make getconfig', but that would be only
-> one way to use it.  It would still need an external/out-of-tree
-> solution also.  ('make getconfig' would build binoffset and run
-> the extract-ikconfig script.)
+CC'ing Andrew too.
 
-If you want to do that you need to move binoffset to scripts/kconfig/
-All *config target are handled by the Makefile there.
-And if you want to compile a hostprogram only on demand it needs to
-be in the same dir as the Makefile.  It can be worked around, but
-moving the file is the better solution.
-One other way would be to build binoffset when CONFIG_IKCONFIG is set.
+On Tue, 17 Aug 2004 15:05:38 -0500, Paul Fulghum <paulkf@microgate.com> wrote:
+> This is almost certainly related to the addition
+> of pty devices to devfs in bk-driver-core.patch
+> Change is by olh@suse.de
+> 
+> This explains why you are seein pty major devices
+> created in a /dev/tty directory.
+> 
+> Specifically the changes in drivers/char/tty_io.c
+> in function tty_register_device()
+> 
+> Try backing out that specific portion of bk-driver-core.patch
 
-	Sam
+Backed out whole bk-driver-core.patch and everything works as
+expected. Thanks for help.
+
+Cheers,
+ismail
+
+-- 
+Time is what you make of it

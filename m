@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291355AbSBGWcB>; Thu, 7 Feb 2002 17:32:01 -0500
+	id <S291378AbSBGWer>; Thu, 7 Feb 2002 17:34:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291382AbSBGWbo>; Thu, 7 Feb 2002 17:31:44 -0500
-Received: from borderworlds.dk ([193.162.142.101]:45842 "HELO
-	klingon.borderworlds.dk") by vger.kernel.org with SMTP
-	id <S291381AbSBGWa1>; Thu, 7 Feb 2002 17:30:27 -0500
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Problems with iso9660 as initrd
-In-Reply-To: <Pine.LNX.4.30.0202071316501.21862-100000@outback.escape.de>
-From: Christian Laursen <xi@borderworlds.dk>
-Date: 07 Feb 2002 23:30:24 +0100
-In-Reply-To: <Pine.LNX.4.30.0202071316501.21862-100000@outback.escape.de>
-Message-ID: <m3d6zglybj.fsf@borg.borderworlds.dk>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S291382AbSBGWed>; Thu, 7 Feb 2002 17:34:33 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39428 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291378AbSBGWca>;
+	Thu, 7 Feb 2002 17:32:30 -0500
+Message-ID: <3C630045.24E74301@zip.com.au>
+Date: Thu, 07 Feb 2002 14:31:33 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18-pre7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Hugh Dickins <hugh@veritas.com>, Rik van Riel <riel@conectiva.com.br>,
+        "David S. Miller" <davem@redhat.com>, bcrl@redhat.com,
+        Hugh Dickins <hugh@lrel.veritas.com>, marcelo@conectiva.com.br,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] __free_pages_ok oops
+In-Reply-To: <Pine.LNX.4.33L.0202071120160.17850-100000@imladris.surriel.com> <Pine.LNX.4.21.0202071355450.1149-100000@localhost.localdomain>, <Pine.LNX.4.21.0202071355450.1149-100000@localhost.localdomain> <20020207215854.P1743@athlon.random> <3C62ED05.F4683103@zip.com.au>,
+		<3C62ED05.F4683103@zip.com.au> <20020207231837.S1743@athlon.random>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Kilian <kili@outback.escape.de> writes:
-
-> On 6 Feb 2002, H. Peter Anvin wrote:
+Andrea Arcangeli wrote:
 > 
-> > > I am building a floppy using a compressed iso9660 filesystem as an
-> > > initrd image.
-> [...]
-> > You definitely are... I don't think anyone else has ever tried running
-> > a zisofs off a ramdisk before!
+> > Good to hear.  But what about the weird corner-case in truncate_complete_page(),
+> > where a mapped page is not successfully released, and is converted into
+> > an anon buffercache page?  It seems that a combination of sendfile
+> > and truncate could result in one of those pages being subject to
+> > final release in BH context?
 > 
-> On for an initrd, it will never work, since initrd checks for minix, ext2
-> and romfs only (see drivers/block/rd.c, identify_ramdisk_image()).
+> Such a page is not in the lru so it doesn't matter.
 
-It seems you are right. To be more precise it will not work on a ramdisk at
-all.
+static void truncate_complete_page(struct page *page)
+{
+        /* Leave it on the LRU if it gets converted into anonymous buffers */
+        if (!page->buffers || do_flushpage(page, 0))
+                lru_cache_del(page);
 
-A normal ramdisk will just fail to mount when there's an iso9660 fs on it,
-whereas an initrd seems to cause a panic.
+If the page has buffers, and do_flushpage() fails, what happens?
 
-I guess it would be nice to output a somewhat friendly error message instead.
+> As said in the previous email, from another point of view, the only
+> thing that can be still in the lru during __free_pages_ok is an
+> anonymous page. truncate_complete_page cannot run on an anonymous page.
+> Anonymous pages cannot be truncated.
 
-Oh well...
+truncate_complete_page() can, in rare circumstances, take a page
+which was in both the pagecache and on LRU, and leave it purely
+on LRU.  And because that page *used* to be in pagecache, it
+could be undergoing sendfile.
 
-After further research I decided to use romfs instead, since it can too be
-generated quite easily with a script, and it works quite well.
+Or I'm missing something.  Did something change?
 
--- 
-Best regards
-    Christian Laursen
+-

@@ -1,93 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262602AbUCWPZ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Mar 2004 10:25:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262609AbUCWPZ6
+	id S262597AbUCWPXq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Mar 2004 10:23:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262599AbUCWPXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Mar 2004 10:25:58 -0500
-Received: from marco.bezeqint.net ([192.115.104.4]:19140 "EHLO
-	marco.bezeqint.net") by vger.kernel.org with ESMTP id S262602AbUCWPZv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Mar 2004 10:25:51 -0500
-Date: Tue, 23 Mar 2004 17:25:46 +0200
-From: Micha Feigin <michf@post.tau.ac.il>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Swsusp mailing list <swsusp-devel@lists.sourceforge.net>
-Subject: Re: [Swsusp-devel] Re: swsusp problems [was Re: Your opinion on the merge?]
-Message-ID: <20040323152546.GB12868@luna.mooo.com>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Swsusp mailing list <swsusp-devel@lists.sourceforge.net>
-References: <1079659165.15559.34.camel@calvin.wpcb.org.au> <20040318193703.4c02f7f5.akpm@osdl.org> <1079661410.15557.38.camel@calvin.wpcb.org.au>
- <20040318200513.287ebcf0.akpm@osdl.org> <1079664318.15559.41.camel@calvin.wpcb.org.au> <20040321220050.GA14433@elf.ucw.cz>
-	 <1079988938.2779.18.camel@calvin.wpcb.org.au> <20040322231737.GA9125@elf.ucw.cz> <20040323095318.GB20026@hmmn.org>
+	Tue, 23 Mar 2004 10:23:46 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:53981 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262597AbUCWPXn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Mar 2004 10:23:43 -0500
+Date: Tue, 23 Mar 2004 16:23:39 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Olaf Fr?czyk <olaf@cbk.poznan.pl>
+Cc: linux-kernel@vger.kernel.org, td@linuxgang.com
+Subject: Re: 2.6.3 BUG - can't write DVD-RAM - reported as write-protected
+Message-ID: <20040323152339.GI1481@suse.de>
+References: <1078434953.1961.13.camel@venus.local.navi.pl> <20040305082350.GO31750@suse.de> <1078487159.3300.23.camel@venus.local.navi.pl> <20040307105911.GH23525@suse.de> <1078819165.1525.1.camel@venus.local.navi.pl> <20040309091221.GV23525@suse.de> <1079263025.1428.4.camel@venus.local.navi.pl> <20040314112208.GH6955@suse.de> <1080053402.1473.0.camel@venus.local.navi.pl>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040323095318.GB20026@hmmn.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <1080053402.1473.0.camel@venus.local.navi.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 23, 2004 at 09:53:18AM +0000, Jonathan Sambrook wrote:
-> At 00:17 on Tue 23/03/04, pavel@ucw.cz masquerading as 'Pavel Machek' wrote:
-> > Hi!
+On Tue, Mar 23 2004, Olaf Fr?czyk wrote:
+> > You broke it, the first check simply returns the header so .erasable
+> > must be 0 because we cleared the buffer first.
 > > 
-> > > > Now I have _proof_ that eye-candy is harmfull. What is see on screen is:
-> > > 
-> > > No, that's not proof; just a bug in the code. It's not using the right
-> > > code to display the error message. I'll fix it asap.
-> > 
-> > :-)
-> > 
-> > I'd really like eye-candy code to be gone. Its long, and its not worth
-> > the trouble.
-> 
-> Pejorative comments aside Pavel, it is valued feedback for end-user
-> re-assurance. It has also helped swsusp2 get streets ahead of the other
-> implementations by aiding end-user feedback on a wide range of hardware,
-> Which would appear to be well worth it? If it's not broke (and is
-> valuble) why rip it out?
-> 
+> > ===== drivers/cdrom/cdrom.c 1.49 vs edited =====
+> > --- 1.49/drivers/cdrom/cdrom.c	Thu Mar 11 13:31:15 2004
+> > +++ edited/drivers/cdrom/cdrom.c	Sun Mar 14 12:21:44 2004
+> > @@ -2658,11 +2658,13 @@
+> >  	/* set up command and get the disc info */
+> >  	init_cdrom_command(&cgc, di, sizeof(*di), CGC_DATA_READ);
+> >  	cgc.cmd[0] = GPCMD_READ_DISC_INFO;
+> > -	cgc.cmd[8] = cgc.buflen = 2;
+> > -	cgc.quiet = 1;
+> > +	cgc.cmd[8] = cgc.buflen = 8;
+> > +	cgc.quiet = 0;
+> >  
+> > -	if ((ret = cdo->generic_packet(cdi, &cgc)))
+> > +	if ((ret = cdo->generic_packet(cdi, &cgc))) {
+> > +		printk("cdrom: read_di failed, %d\n", ret);
+> >  		return ret;
+> > +	}
+> >  
+> >  	/* not all drives have the same disc_info length, so requeue
+> >  	 * packet with the length the drive tells us it can supply
+> > @@ -2673,6 +2675,7 @@
+> >  	if (cgc.buflen > sizeof(disc_information))
+> >  		cgc.buflen = sizeof(disc_information);
+> >  
+> > +	printk("cdrom: re-reading di, len=%d\n", cgc.buflen);
+> >  	cgc.cmd[8] = cgc.buflen;
+> >  	return cdo->generic_packet(cdi, &cgc);
+> >  }
+> On 2.6.4 with your patch I get:
+> Mar 23 15:46:03 venus kernel: cdrom: read_di failed, -95
 
-Some kind of progress report is quite useful.
+Ok, so your drive doesn't support GPCMD_READ_DISC_INFO at all. Probably
+the best bet is simply to allow writable open if cdrom_get_disc_info()
+fails after all, even though I hate doing stuff like that.
 
-Hibernating when you are in a hurry, its quite nice to see if you have
-the time to let hibernation finish before sticking the laptop in the
-pack and be sure that it actually turned itself off.
+===== drivers/cdrom/cdrom.c 1.50 vs edited =====
+--- 1.50/drivers/cdrom/cdrom.c	Tue Mar 16 09:41:01 2004
++++ edited/drivers/cdrom/cdrom.c	Tue Mar 23 16:23:07 2004
+@@ -725,7 +725,7 @@
+ 	disc_information di;
+ 
+ 	if (cdrom_get_disc_info(cdi, &di))
+-		return 0;
++		return -1;
+ 
+ 	return di.erasable;
+ }
+@@ -735,7 +735,16 @@
+  */
+ static int cdrom_dvdram_open_write(struct cdrom_device_info *cdi)
+ {
+-	return !cdrom_media_erasable(cdi);
++	int ret = cdrom_media_erasable(cdi);
++
++	/*
++	 * allow writable open if media info read worked and media is
++	 * erasable, _or_ if it fails since not all drives support it
++	 */
++	if (!ret)
++		return 1;
++
++	return 0;
+ }
+ 
+ static int cdrom_mrw_open_write(struct cdrom_device_info *cdi)
 
-> Regards,
-> Jonathan
-> 
-> 
-> -- 
-> 
-> 
->     .__
->     |..|__   _____   _____   ___        ____  _    ____
->     |;;|: \ /;:;:;\ /;:;:;\ /;:;\      /;;;;\/;\/\/;;;;\
->     |   Y  \  Y Y  \  Y Y  \  Y  \    |  ___ \ |\_| ___ \
->     |___|  /__|_|  /__|_|  /__|  /  o  \_____/ |  \___  /
->          \/      \/      \/    \/            \/    _/  /
->                                                    \__/
->  
->  hmmnsoft's FreeShade : window shading, for Windows, for free
->  
->                 http://www.hmmn.org/FreeShade
-> 
-> 
-> 
-> -------------------------------------------------------
-> This SF.Net email is sponsored by: IBM Linux Tutorials
-> Free Linux tutorial presented by Daniel Robbins, President and CEO of
-> GenToo technologies. Learn everything from fundamentals to system
-> administration.http://ads.osdn.com/?ad_id=1470&alloc_id=3638&op=click
-> _______________________________________________
-> swsusp-devel mailing list
-> swsusp-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/swsusp-devel
->  
->  +++++++++++++++++++++++++++++++++++++++++++
->  This Mail Was Scanned By Mail-seCure System
->  at the Tel-Aviv University CC.
-> 
+-- 
+Jens Axboe
+

@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131162AbQLHOob>; Fri, 8 Dec 2000 09:44:31 -0500
+	id <S130553AbQLHO73>; Fri, 8 Dec 2000 09:59:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131589AbQLHOoL>; Fri, 8 Dec 2000 09:44:11 -0500
-Received: from smtp.lax.megapath.net ([216.34.237.2]:51465 "EHLO
-	smtp.lax.megapath.net") by vger.kernel.org with ESMTP
-	id <S131162AbQLHOoA>; Fri, 8 Dec 2000 09:44:00 -0500
-Message-ID: <3A30EC28.1090203@megapathdsl.net>
-Date: Fri, 08 Dec 2000 06:11:52 -0800
-From: Miles Lane <miles@megapathdsl.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-test12 i686; en-US; m18) Gecko/20001206
-X-Accept-Language: en
+	id <S129786AbQLHO7T>; Fri, 8 Dec 2000 09:59:19 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:42998 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129909AbQLHO7F>; Fri, 8 Dec 2000 09:59:05 -0500
+Date: Fri, 8 Dec 2000 12:27:45 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: "Jeff V. Merkey" <jmerkey@timpanogas.org>,
+        Peter Samuelson <peter@cadcamlab.org>, linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: NTFS repair tools]
+In-Reply-To: <E144O4d-0003vd-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.21.0012081226160.8655-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>,
-        Bernd Kischnick <kisch@mindless.com>, "Theodore Ts'o" <tytso@mit.edu>
-Subject: Re: patch: test12-pre7 cd stuff
-In-Reply-To: <20001207195539.P6832@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jens,
+On Fri, 8 Dec 2000, Alan Cox wrote:
 
-I have tested your latest stuff (cd-2) with the CD that was
-causing problems before.  The problems still occur.
-The CD plays fine, but I get the following errors in
-my /var/log/messages:
+> I am very firmly against removing something because people do
+> not read manuals, what is next fdisk , mkfs ?.
 
-Dec  8 06:05:29 agate kernel: hdc: packet command error: status=0x51 { 
-DriveReady SeekComplete Error }
-Dec  8 06:05:29 agate kernel: hdc: packet command error: error=0x50
-Dec  8 06:05:29 agate kernel: ATAPI device hdc:
-Dec  8 06:05:29 agate kernel:   Error: Illegal request -- (Sense key=0x05)
-Dec  8 06:05:29 agate kernel:   Invalid field in command packet -- 
-(asc=0x24, ascq=0x00)
-Dec  8 06:05:29 agate kernel:   The failed "Play Audio MSF" packet 
-command was:
-Dec  8 06:05:29 agate kernel:   "47 00 00 00 02 00 3f 24 ff 00 00 00 "
-Dec  8 06:05:29 agate kernel:   Error in command packet byte 8 bit 0
-Dec  8 06:05:29 agate kernel: Play from track 1 to 9
-Dec  8 06:05:29 agate kernel: lba 0 to lba 286050
+I must say I like the CONFIG_MORON though. By setting that the
+(l)user exposes his true identity and leaves little for us to
+doubt ;)
 
-Here's a pointer to the CD that is causing trouble.  Perhaps
-you could buy a copy and sort this out.  It's a great CD!
+Added to the Patch of the Month page as suggested by David
+Weinehall:
 
-http://www.amazon.com/exec/obidos/ASIN/B00000DDPZ
+	http://www.surriel.com/potm/
 
-Thanks,
-	Miles
+regards,
+
+Rik
+--
+Hollywood goes for world dumbination,
+	Trailer at 11.
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

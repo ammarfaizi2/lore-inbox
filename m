@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265436AbRFVO6b>; Fri, 22 Jun 2001 10:58:31 -0400
+	id <S265438AbRFVPAL>; Fri, 22 Jun 2001 11:00:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265437AbRFVO6V>; Fri, 22 Jun 2001 10:58:21 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:7569 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S265436AbRFVO6N>;
-	Fri, 22 Jun 2001 10:58:13 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20010622102458.A13435@thyrsus.com> 
-In-Reply-To: <20010622102458.A13435@thyrsus.com>  <20010622094934.A13075@thyrsus.com> <20010621160309.A6744@thyrsus.com> <20010621154934.A6582@thyrsus.com> <20010621205537.X18978@flint.arm.linux.org.uk> <20010621160309.A6744@thyrsus.com> <7987.993197604@redhat.com> <20010622094934.A13075@thyrsus.com> <10604.993218210@redhat.com> 
-To: esr@thyrsus.com
-Cc: Russell King <rmk@arm.linux.org.uk>, CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: Missing help entries in 2.4.6pre5 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 22 Jun 2001 15:54:53 +0100
-Message-ID: <18157.993221693@redhat.com>
+	id <S265439AbRFVPAC>; Fri, 22 Jun 2001 11:00:02 -0400
+Received: from horsea.3ti.be ([212.204.244.41]:32527 "EHLO horsea.3ti.be")
+	by vger.kernel.org with ESMTP id <S265438AbRFVO7q>;
+	Fri, 22 Jun 2001 10:59:46 -0400
+Date: Fri, 22 Jun 2001 16:59:36 +0200 (CEST)
+From: Dag Wieers <dag@wieers.com>
+X-X-Sender: <dag@horsea.3ti.be>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Should __FD_SETSIZE still be set to 1024 ?
+Message-ID: <Pine.LNX.4.33.0106221631500.27761-100000@horsea.3ti.be>
+User-Agent: Mutt/1.2.5i
+X-Mailer: Evolution 0.10 (Tasmanian Devil)
+Organization: IBM Belgium
+X-Extra: If you can read this and Linux is your thing. Work for IBM Belgium/Linux !
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-esr@thyrsus.com said:
->  From the person(s) reponsible for the missing symbols, I want
-> documentation.  The problem is that, lacking a detailed database of
-> who is responsible for what, I don't know how to prod each of the
-> people I really want to supplicate/irritate without having you see it
-> also.
+Is there a reason for __FD_SETSIZE to be 1024 in
+linux/posix_types.h and gnu/types.h ?
+Why can't we increase this number by default ?
 
-In fact, in the case of the Ocelot and IQ80310, I _am_ the person 
-responsible for their visibility in Linus' tree at the moment, so you
-shouldn't be hassling the owners of those symbols.
+Shouldn't it be set to the real limit of the kernel ? (And let
+applications define their own limit if there is a need for one ?)
 
-I put the references there, as guards for drivers which are specific to
-those platforms, although the rest of the support for those platforms hasn't
-yet been merged into Linus' tree.
+PS The LKML faq remarks that increasing this can break select.
+Is this still an issue ? Under what conditions ?
 
-Until such time as the {Strong,}ARM and MIPS arch maintainers feed the rest 
-of the code to support these platforms to Linus, it's unfair to hassle them
-for the documentation. And until that time, it's not strictly necessary 
-either, because the user can't even see the options in question, surely?
+Thanks in advance,
 
-You could perhaps argue that I shouldn't have sent code to Linus which 
-can't yet be enabled and used. If you did, I'd disagree with that.
-
-The VIRTUAL_ER option is also my fault, and will go away shortly - it just
-depends on how many times I have to resend the patch to Linus.
-
---
-dwmw2
-
+--   dag wieers,  dag@wieers.com,  http://dag.wieers.com/   --
+«Onder voorbehoud van hetgeen niet uitdrukkelijk wordt erkend»
 

@@ -1,73 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281970AbRKUSNr>; Wed, 21 Nov 2001 13:13:47 -0500
+	id <S281927AbRKUSQr>; Wed, 21 Nov 2001 13:16:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281942AbRKUSN1>; Wed, 21 Nov 2001 13:13:27 -0500
-Received: from gatekeeper.corp.netcom.net.uk ([194.42.224.25]:45498 "EHLO
-	gatekeeper") by vger.kernel.org with ESMTP id <S281953AbRKUSNX>;
-	Wed, 21 Nov 2001 13:13:23 -0500
-Message-ID: <3BFBEEAD.67DF8932@netcomuk.co.uk>
-Date: Wed, 21 Nov 2001 18:13:01 +0000
-From: Bill Crawford <billc@netcomuk.co.uk>
-Reply-To: bill@eb0ne.net
-Organization: Netcom Internet Ltd
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-0.5 i686)
-X-Accept-Language: en
+	id <S281940AbRKUSQh>; Wed, 21 Nov 2001 13:16:37 -0500
+Received: from nugate.perceptive.se ([62.168.142.2]:10574 "EHLO
+	piff.i.perceptive.se") by vger.kernel.org with ESMTP
+	id <S281927AbRKUSQ3> convert rfc822-to-8bit; Wed, 21 Nov 2001 13:16:29 -0500
+content-class: urn:content-classes:message
+Subject: Network card timeouts
 MIME-Version: 1.0
-To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-CC: bill@eb0ne.net, linux-kernel@vger.kernel.org
-Subject: Re: Linux-kernel-daily-digest digest, Vol 1 #171 - 281 msgs
-In-Reply-To: <200111201202.fAKC2Md29689@lists.us.dell.com> <01112112032600.01961@nemo> <3BFBC5C5.82366455@netcomuk.co.uk> <01112117394902.02798@nemo>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Date: Wed, 21 Nov 2001 19:16:23 +0100
+X-MimeOLE: Produced By Microsoft Exchange V6.0.4712.0
+Message-ID: <71C83C8929F73A40BBD0C137232DD1972ED4@piff.i.perceptive.se>
+Thread-Topic: Network card timeouts
+Thread-Index: AcFyuKAX+DS6NjuHTxyMmnFryok6vg==
+From: "Anders Linden" <anli@perceptive.se>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-vda wrote:
+Symptom:
+Network cards that stops working if they are sent enough data.
 
-> Hmm. I thought proper group management can let you live with std UNIX
-> file permissions model... NT ACLs are horrendously complex.
-> "Make it as simple as possible, but not simpler"
+The cards I have got problem with this far:
+Intel Etherexpress Pro 100+ (some kernels ago).
+Davicom Semiconductor, Inc. Ethernet 100/10
 
- You can, but there are situations where you end up with a combinatorial
-explosion of groups to accommodate a matrix of possible permissions on
-things.  And there is another significantly limiting factor which is the
-restriction on the number of groups a process can belong to (currently
-32 I believe).
+Occasion 1:
+The kernel version on the computers were 2.4.3. Every person in a single
+classroom had problem with Intel cards. They could not even fetch
+webpages before their consoles were spammed with a message like: network
+card timeout. All computers were Compaq. I dont know which hardware they
+had in addition to that. I have also had problems with Intel cards even
+after this occasion on other computers.
 
- I think ACLs are a good solution to the problem, and indeed are what
-*should* have been done originally ... however I suspect that would have
-added a significant overhead to the original UNIX, and one of the great
-benefits at the time was that UNIX was designed to run on pretty low-end
-hardware.  VMS was a heavyweight beast on VAXen, did it ever run on PDP
-machines?  There was a complex system :o)
+Occasion 2:
+The later card, Davicom, is probably not a well-known card, but
+nevertheless, it works like shit in Linux. I am using Redhat 7.1 and the
+kernel 2.4.2-2. If I send more than 10M to such a card in an interval of
+a second, it just quits working for 5 seconds. The card has no problems
+at all in other, third party operating systems, like Windows.
 
- I'm thinking of Solaris' ACLs rather than NT, I don't know much about
-the latter so I can't really comment on them.
 
-> It is legitimate to do that. Do I really have to explain?
+Is it the newest kernels that has theese problems? The first occasion
+was exactly after a kernel 2.4.3 has been released, and people I talked
+to said that 2.4.2 and network cards were better friends.
 
- No, I know what you're trying to do.  I have done it myself many times.
-Why some sources come packed so they're only readable by root is beyond
-me :o)
 
-> I have a script which is designed to sweep entire tree starting from /
-> and do some sanity checks. For example, it Opens Source:
-> 
-> chmod -R -c a+R /usr/src
-> 
-> 8-)
+Thanks for your attension
 
- OK, point conceded, although I can live with two passes for that sort
-of thing.  Yours is a neat solution in fact.
-
-> --
-> vda
-
--- 
-/* Bill Crawford, Unix Systems Developer, Ebone (formerly GTS Netcom) */
-#include <stddiscl>
-const char *addresses[] = {
-    "bill@syseng.netcom.net.uk", "Bill.Crawford@ebone.com",     // work
-    "billc@netcomuk.co.uk", "bill@eb0ne.net"                    // home
-};
+/Anders Lindén

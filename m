@@ -1,69 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131433AbQKBBdG>; Wed, 1 Nov 2000 20:33:06 -0500
+	id <S131177AbQKBCMv>; Wed, 1 Nov 2000 21:12:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131804AbQKBBc4>; Wed, 1 Nov 2000 20:32:56 -0500
-Received: from smtp03.mrf.mail.rcn.net ([207.172.4.62]:27588 "EHLO
-	smtp03.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S131433AbQKBBcj>; Wed, 1 Nov 2000 20:32:39 -0500
-Message-Id: <4.2.0.58.20001101202452.00a79440@engr.de.psu.edu>
-X-Mailer: QUALCOMM Windows Eudora Pro Version 4.2.0.58 
-Date: Wed, 01 Nov 2000 20:32:35 -0500
-To: linux-kernel@vger.kernel.org
-From: Eric Reischer <emr@engr.de.psu.edu>
-Subject: Issue compiling 2.4test10
-Cc: linuxppc-dev@lists.linuxppc.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S131804AbQKBCMl>; Wed, 1 Nov 2000 21:12:41 -0500
+Received: from adsl-64-163-64-74.dsl.snfc21.pacbell.net ([64.163.64.74]:37134
+	"EHLO konerding.com") by vger.kernel.org with ESMTP
+	id <S131177AbQKBCMZ>; Wed, 1 Nov 2000 21:12:25 -0500
+Message-Id: <200011020211.SAA14543@konerding.com>
+To: john slee <indigoid@higherplane.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: test10 dies very early in boot 
+In-Reply-To: Your message of "Wed, 01 Nov 2000 20:00:36 +1100."
+             <20001101200036.D655@higherplane.net> 
+Date: Wed, 01 Nov 2000 18:11:37 -0800
+From: dek_ml@konerding.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am attempting to cross-compile a 2.4 kernel for a PowerPC arch on an 
-Intel machine, of which I have Debian 2.2 installed.  I have successfully 
-compiled a 2.4test9 kernel, but I got the following error message the first 
-time I compiled (it failed due to this):
-
-powerpc-unknown-linux-gnu-ld -T arch/ppc/mm/mm.o <blah blah blah on same 
-command for about 11 lines>
-drivers/input/inputdrv.o: In function 'keybdev_event':
-drivers/input/inputdrv.o(.text+0x16bc): undefined reference to 'emulate_raw'
-drivers/input/inputdrv.o(.text+0x16bc): relocation truncated to fit: 
-R_PPC_REL24 emulate_raw
-make: *** [vmlinux] Error 1
-
-
-Quoting Martin Costabel <costabel@wanadoo.fr>:
-
-<snip>
-The function emulate_raw is used without any ifs, but its definition
-some lines earlier is enclosed in either
-#if defined(CONFIG_X86) || defined(CONFIG_IA64) || defined(__alpha__) ||
-defined(__mips__)
-or
-#elif defined(CONFIG_ADB_KEYBOARD)
-So in your case you would need to put CONFIG_ADB_KEYBOARD=y into your
-.config file. Or change these weird #ifs.
-The bitkeeper version of the file is somewhat better in that it uses only 
-one set of conditionals,
-#if defined(CONFIG_X86) || defined(CONFIG_IA64) || defined(__alpha__) ||
-defined (__mips__) || defined(CONFIG_PPC)
-but the function is still used without any condition.
-</snip>
-
- From what he tells me, this remains an issue in the test10 release.  I 
-disabled the entire feature from within xconfig, recompiled, and it 
-succeeded.  If you need any more info, let me know and I'll see what I can do.
+john slee writes:
+>hardware:
+>	*	abit be6-2 mainboard
+>	*	533 celeron (not overclocked)
+>	*	192mb sdram
+>	* 	seagate 20gb ide disk (not on ata66 port)
+>
+>compiler: gcc version 2.95.2 20000220 (Debian GNU/Linux)
+>
+>it gets as far as uncompressing the kernel and trying to boot it.  no
+>further.  (doesn't get as far as displaying the 'Linux version ...'
+>message).  sysrq doesn't work (not suprising),  ctrl-alt-delete doesn't
+>work either.  reset button does work :-)
 
 
+Um, I had the same problem with the kernel when I first downloaded it to try it out.
+I was stumped for a while, turning of a number of features in the kernel,
+before I figured it out.  You need to switch the processor type the kernel is compiled
+for from "P-III"  to whatever is apropriate for your Celeron (I used a P-II, which
+is basically the same instruction set as Celeron in Linux's view).
 
-----------
-Eric Reischer                                   "You can't depend on your eyes
-emr@engr.de.psu.edu                            if your imagination is out 
-of focus."
-emr@ccil.org                                                    -- Mark Twain
+I didn't look at the source, but I bet early on the kernel tries to execute a P-III
+instruction when compiled for P-III, and the P-II or Celeron gets confused and shuts down.
 
-----------
+Once I compiled with P-II, kernel booted A-OK to multiuser :-)
 
+Dave
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310517AbSCLJ3m>; Tue, 12 Mar 2002 04:29:42 -0500
+	id <S310507AbSCLJgw>; Tue, 12 Mar 2002 04:36:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310514AbSCLJ3e>; Tue, 12 Mar 2002 04:29:34 -0500
-Received: from [213.24.79.7] ([213.24.79.7]:32013 "EHLO despina.msk.mt")
-	by vger.kernel.org with ESMTP id <S310507AbSCLJ3W>;
-	Tue, 12 Mar 2002 04:29:22 -0500
-Date: Tue, 12 Mar 2002 12:30:07 +0300
-From: Valentin Podlovchenko <valya@vip.pp.ru>
-To: benh@kernel.crashing.org
-Cc: Paul Mackerras <paulus@cs.anu.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] pmac_mb_defs[] for new iBook2 (kernel-2.4.18-ben0)
-Message-ID: <20020312093007.GE7449@microtest.ru>
-Mail-Followup-To: Valentin Podlovchenko <valya@vip.pp.ru>,
-	benh@kernel.crashing.org, Paul Mackerras <paulus@cs.anu.edu.au>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020311213345.15916@mailhost.mipsys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20020311213345.15916@mailhost.mipsys.com>
-User-Agent: Mutt/1.3.27i
-X-Operating-System: Debian GNU/Linux 2.4.17-grsecurity-1.9.2
+	id <S310531AbSCLJgm>; Tue, 12 Mar 2002 04:36:42 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:48392 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S310521AbSCLJgg>; Tue, 12 Mar 2002 04:36:36 -0500
+Message-ID: <3C8DCBD9.D6A3A1E9@aitel.hist.no>
+Date: Tue, 12 Mar 2002 10:35:21 +0100
+From: Helge Hafting <helgehaf@aitel.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.5.5-dj3 i686)
+X-Accept-Language: no, en, en
+MIME-Version: 1.0
+To: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
+In-Reply-To: <20020308231405.CADDC3FE06@smtp.linux.ibm.com> <Pine.LNX.4.33.0203081532550.4421-100000@penguin.transmeta.com> <a6bjgl$a0j$1@cesium.transmeta.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 11, 2002 at 10:33:45PM +0100, benh@kernel.crashing.org wrote:
-> >Hello,
-> >
-> >motherboard on the new iBook2 reports to be compatible to "PowerBook4,2"
-> >so to make some things work (such as sleep mode) on this model should be
-> >applied this patch
-> 
-> Thanks.
-> 
-> BTW. This is the new 14" display white iBook, right ?
-yes. it seems to be white ;) (I'm new to that magic Apple computers
-world with all its white iBooks, blue iMacs and so on... )
->  
-> Ben. 
-> 
+"H. Peter Anvin" wrote:
 
--- 
-  Valentin Podlovchenko.
+> 
+> Okay, I'll say it and be impopular...
+> 
+> Perhaps it's time to drop i386 support?
+> 
+Wouldn't it be better to just separate it out?  I.e. make i386
+an arch of its own, while most pc people use a "486 and up" arch?
+
+The few who actually want 386 code won't loose it, and other developers
+won't have to bother with 386 issues.  Then drop the 386 arch when it
+dies from lack of maintenance...
+
+Helge Hafting

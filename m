@@ -1,82 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265502AbUAPQNP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 11:13:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265379AbUAPQMp
+	id S265546AbUAPQPO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 11:15:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265554AbUAPQPO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 11:12:45 -0500
-Received: from mx1.it.wmich.edu ([141.218.1.89]:53491 "EHLO mx1.it.wmich.edu")
-	by vger.kernel.org with ESMTP id S265352AbUAPQMl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 11:12:41 -0500
-Message-ID: <40080D6B.5090801@wmich.edu>
-Date: Fri, 16 Jan 2004 11:12:27 -0500
-From: Ed Sweetman <ed.sweetman@wmich.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: en
+	Fri, 16 Jan 2004 11:15:14 -0500
+Received: from obsidian.spiritone.com ([216.99.193.137]:34513 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S265546AbUAPQOe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 11:14:34 -0500
+Date: Fri, 16 Jan 2004 08:14:27 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: galen@starline.ee
+Subject: [Bug 1886] New: Disconnecting scanner produces kernel	oops 
+Message-ID: <1182380000.1074269667@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: John Bradford <john@grabjohn.com>
-CC: Jonathan Kamens <jik@kamens.brookline.ma.us>, linux-kernel@vger.kernel.org
-Subject: Re: Updated on UDMA BadCRC errors + subsequent problems
-References: <16368.20794.147453.255239@jik.kamens.brookline.ma.us> <16389.63781.783923.930112@jik.kamens.brookline.ma.us> <16391.24288.194579.471295@jik.kamens.brookline.ma.us> <200401160747.i0G7ln1I000368@81-2-122-30.bradfords.org.uk> <16392.734.505550.6731@jik.kamens.brookline.ma.us> <200401161546.i0GFkkpa002053@81-2-122-30.bradfords.org.uk>
-In-Reply-To: <200401161546.i0GFkkpa002053@81-2-122-30.bradfords.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford wrote:
-> Quote from Jonathan Kamens <jik@kamens.brookline.ma.us>:
-> 
->>John Bradford writes:
->> > Quote from Jonathan Kamens <jik@kamens.brookline.ma.us>:
->> > > ... hde: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
->> > > ... hde: drive_cmd: error=0x04 { DriveStatusError }
->> > 
->> > The drive doesn't seem to understand the command it was sent.
->>
->>I'm not sure what this means, but assuming that it's going to happen
->>again at some point,
-> 
-> 
-> Maybe not - the most common cause I've seen for that message in the logs is trying to access S.M.A.R.T. information when S.M.A.R.T. is disabled.
-> 
-> I.E. the error should be reproducable with:
-> 
-> # smartctl -d /dev/hda
-> # smartctl -a /dev/hda
-> 
-> Are you sure you weren't trying to get S.M.A.R.T. info from the drive at the time the error was logged?
-> 
-> John.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+http://bugme.osdl.org/show_bug.cgi?id=1886
 
-hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
+           Summary: Disconnecting scanner produces kernel oops
+    Kernel Version: 2.6.1
+            Status: NEW
+          Severity: normal
+             Owner: greg@kroah.com
+         Submitter: galen@starline.ee
 
 
-Some drives i guess report the exact error like mine here.  These occur 
-when i'm transferring from my tulip based nic to my hdd at 8Mbytes a 
-second (avg). The fs is ext3.  When i'm transferring about 1.5GB files 
-over the drive seems to freak out.  Timing sources (tsc) can also lose 
-so many ticks that the other time source has to be used.
+Distribution: Debian Unstable
+Hardware Environment: chaintech 7aja, via kt133 chips, usb uchi
+Software Environment: Debian Unstable, gcc version 3.3.3 20040110 (prerelease)
+(Debian)
 
-What i dont understand is why the ata drivers dont handle crc errors 
-correctly. Instead of resetting the ide bus and turning dma off why dont 
-they start throttling down the dma modes one by one,  When the rate of 
-crc errors reaches a certain reasonable number, drop an udma level. If 
-that crc error rate is reached again, drop a level.  You keep doing that 
-until you hit pio mode.  Usually the problem is solved by simply using a 
-lower dma mode.  That way my system doesn't have to reach loads of 20 
-and io suck all my cpu while i'm trying to re-enable dma so i can 
-actually figure out what's going on. CRC errors are caused by timing 
-problems as well as physical problems around the cabling in the 
-computer.  Normal hdd to hdd transfers (which avg about 30MByte/sec) do 
-not cause these errors for me.
+Problem Description: Working with obsoleted usb scanner module works fine
+(scanner not supported by sane, so cant use usblib), until I disconnect scanner.
+Then I get kernel oops (below) and cannot unload the module, even with with
+force flag. After that, cat /proc/modules hangs too, and to get things working
+again I have to boot :( 
+
+ usb 1-2: USB disconnect, address 2
+ Unable to handle kernel NULL pointer dereference at virtual address 0000001e
+  printing eip:
+ e089d0cc
+ *pde = 00000000
+ Oops: 0000 [#1]
+ CPU:    0
+ EIP:    0060:[_end+540430148/1068260984]    Not tainted
+ EFLAGS: 00010282
+ EIP is at disconnect_scanner+0x2c/0x6d [scanner]
+ eax: dfce73c0   ebx: dfce73d4   ecx: e089d0a0   edx: dfd67800
+ esi: 00000000   edi: dd0f7168   ebp: e08a0bfc   esp: dfdf1e50
+ ds: 007b   es: 007b   ss: 0068
+ Process khubd (pid: 5, threadinfo=dfdf0000 task=c151c040)
+ Stack: dfce73c0 e08a0c78 dfce73c0 e08a0ce0 c02fcb5b dfce73c0 dfce73c0 dfce7400
+        dfce73d4 e08a0d00 c028c494 dfce73d4 dfce7400 dd0f717c dd0f7140 e089ca4f
+        dfce73d4 dfce73c0 dd0f717c e08a0c0c 00000000 00000000 c0235538 dd0f717c
+ Call Trace:
+  [usb_unbind_interface+123/128] usb_unbind_interface+0x7b/0x80
+  [device_release_driver+100/112] device_release_driver+0x64/0x70
+  [_end+540428487/1068260984] destroy_scanner+0x4f/0xb0 [scanner]
+  [kobject_cleanup+152/160] kobject_cleanup+0x98/0xa0
+  [usb_unbind_interface+123/128] usb_unbind_interface+0x7b/0x80
+  [device_release_driver+100/112] device_release_driver+0x64/0x70
+  [bus_remove_device+85/160] bus_remove_device+0x55/0xa0
+  [device_del+93/160] device_del+0x5d/0xa0
+  [usb_disable_device+111/176] usb_disable_device+0x6f/0xb0
+  [usb_disconnect+150/224] usb_disconnect+0x96/0xe0
+  [hub_port_connect_change+783/800] hub_port_connect_change+0x30f/0x320
+  [hub_port_status+67/176] hub_port_status+0x43/0xb0
+  [hub_events+714/832] hub_events+0x2ca/0x340
+  [hub_thread+45/240] hub_thread+0x2d/0xf0
+  [ret_from_fork+6/20] ret_from_fork+0x6/0x14
+  [default_wake_function+0/32] default_wake_function+0x0/0x20
+  [hub_thread+0/240] hub_thread+0x0/0xf0
+  [kernel_thread_helper+5/12] kernel_thread_helper+0x5/0xc
+
+ Code: 80 7e 1e 00 75 2e 85 f6 74 17 8d 46 3c 8b 5c 24 08 8b 74 24
+
+
+
+Steps to reproduce:
+
+Compile kernel with usb and usbscanner support, swich scanner on, swich scanner off.
 
 

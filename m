@@ -1,55 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316213AbSEQMzh>; Fri, 17 May 2002 08:55:37 -0400
+	id <S316021AbSEQM75>; Fri, 17 May 2002 08:59:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316214AbSEQMzg>; Fri, 17 May 2002 08:55:36 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:20058 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S316213AbSEQMzg>; Fri, 17 May 2002 08:55:36 -0400
-Date: Fri, 17 May 2002 14:55:29 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@zip.com.au>, Paul Faure <paul@engsoc.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Process priority in 2.4.18 (RedHat 7.3)
-Message-ID: <20020517125529.GC11512@dualathlon.random>
-In-Reply-To: <20020517123902.GA11512@dualathlon.random> <E178hMQ-0006Sb-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S316216AbSEQM74>; Fri, 17 May 2002 08:59:56 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:129 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S316021AbSEQM7z>; Fri, 17 May 2002 08:59:55 -0400
+Date: Fri, 17 May 2002 09:01:01 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Halil Demirezen <halild@bilmuh.ege.edu.tr>
+cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: Just an offer
+In-Reply-To: <20020517122946.18213.qmail@bilmuh.ege.edu.tr>
+Message-ID: <Pine.LNX.3.95.1020517085300.4551A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 17, 2002 at 02:01:30PM +0100, Alan Cox wrote:
-> > On Fri, May 17, 2002 at 01:49:21PM +0100, Alan Cox wrote:
-> > > I think its mostly #2. We invoke ksoftirq far far too easily.
-> > 
-> > ksoftirqd + SCHED_FIFO is like no ksoftirqd at all, provided the ne card
-> > is irq driven (it is) everything works like it was working in 2.4.0.
+On 17 May 2002, Halil Demirezen wrote:
+
 > 
-> For a 10Mbit ne2k it ought to be if its done with sched fifo. For serious
-> devices its not. The ksoftirqd bounce blows everything out of cache and is
-> easily measured
+> I wonder if there is a way of making the kernel decide
+> whether it can boot successfully or not. For example, lets
+> think of that i am compiling an update kernel not on the local
+> machine but on any other pc using telnet or ssh emulators. And
+> eventually it is time to reboot the machine and and run on the new
+> kernel. However there has been an error during the compiling. - such
+> as misconfiguration. Normally the machine will not boot and halt. So,
+> is not there any way to reboot itself from the previous kernel
+> after
+> some time that it realizes it cannot boot properly. Maybe there is
+> such
+> a way. But, if not, this is an imaginary. Because i usually see these
+> kind of problems ;)
+> 
+>    Bye.
 
-if you're under a flood of irq ksoftirqd or not won't make differences
-to the softirq handling, and yes in such case ksoftirq cannot help
-because you are under a flood of do_softirq anyways run from irq context
-and it is only a minor scheduler overhead in such case, but it gets
-right all and polishes all the other "recursion" cases like NAPI.
 
-But that has nothing to do with this case, here the userspace runs with
-SCHED_FIFO in a loop so ksoftirqd cannot make any difference compared to
-2.4.0 if the device is irq driven, so I don't see your point in
-mentioning minor performance regressions while under a flood of irqs due
-the minor scheduler overhead, here the minor scheduler overhead cannot
-apply because ksoftirqd has not a chance to run at all.
+Initially, I thought this was an dumb question, but it's not! If you
+are doing a lot of work on kernels remotely, it just might be a
+good reason to configure your remote machine(s) to boot off the network.
 
-Also I'd be nice if he could try with mainline (or 2.4.19pre8aa3) too
-just in case, we didn't had any confirm that such proggy uses SCHED_FIFO
-or SCHED_RR, even if I of course agree about the supposions made by
-Andrew without having access to additional informations.
+Then, since the kernel you are booting is local to your machine,
+the boot-server, you can change it at will until you get it right.
 
-Andrea
+The remaining problem is how one trips a reboot if the remote machine
+doesn't come up correctly. That problem can be handled by temporarily
+changing panic() to a hard reset.
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
+

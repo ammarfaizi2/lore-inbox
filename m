@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268685AbUJUPxx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270742AbUJUPxy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268685AbUJUPxx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 11:53:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270735AbUJUPwP
+	id S270742AbUJUPxy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 11:53:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270698AbUJUPv7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 11:52:15 -0400
-Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:14169 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S270742AbUJUPrZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 11:47:25 -0400
-Subject: Re: Linux v2.6.9 (Strange tty problem?)
-From: Paul Fulghum <paulkf@microgate.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Paul <set@pobox.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <1098364808.2815.38.camel@deimos.microgate.com>
-References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org>
-	 <20041021024132.GB6504@squish.home.loc>
-	 <1098349651.17067.3.camel@localhost.localdomain>
-	 <1098364808.2815.38.camel@deimos.microgate.com>
-Content-Type: text/plain
-Message-Id: <1098373647.3289.9.camel@deimos.microgate.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 21 Oct 2004 10:47:27 -0500
-Content-Transfer-Encoding: 7bit
+	Thu, 21 Oct 2004 11:51:59 -0400
+Received: from math.ut.ee ([193.40.5.125]:13812 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S270736AbUJUPrY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 11:47:24 -0400
+Date: Thu, 21 Oct 2004 18:47:13 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
+To: Jens Axboe <axboe@suse.de>
+cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: readcd hangs in blk_execute_rq
+In-Reply-To: <20041021154122.GC32465@suse.de>
+Message-ID: <Pine.GSO.4.44.0410211844540.29471-100000@math.ut.ee>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-21 at 08:20, Paul Fulghum wrote:
-> I was thinking a reasonable solution would be
-> to queue work in tty_do_hangup() if ldisc->hangup()
-> is not defined (== NULL) to switch the ldisc back to N_TTY.
+> > And here it hangs. ps shows readcd is in D state, in blk_execute_rq.
+> > dmesg shows lines of
+> >
+> > hdc: lost interrupt
 
-Nevermind, I now see why this won't work.
+Meanwhile I found out that if I eject the CD by pressing button, it
+resumes its work and reports error to the user process.
 
-tty_set_ldisc() calls flush_scheduled_work() so
-it can't be called from a work routine on the
-default events queue.
+> > ide-cd: cmd 0x28 timed out
+> > hdc: DMA interrupt recovery
+> > hdc: lost interrupt
+> > hdc: status timeout: status=0xd0 { Busy }
+> > hdc: status timeout: error=0x00
+> > hdc: DMA disabled
+> > hdc: drive not ready for command
+> > hdc: ATAPI reset complete
+>
+> Did it previously work reliably with dma (which kernel)? Does it now
+> work reliably without dma now? Do send your entire dmesg after a boot
+> too, btw.
 
-I'll now look at adding the hangup() method to ppp_*.c
+It worked in earlier 2.4 kernels (2.4.18?) with DMA - I don't remember
+if it had some reliability problems. Since then, it's no dma. We have 3
+such computers here (Intel D816EEA2 mainboard, this specific Sony CDrom)
+and they all behave the same.
 
 -- 
-Paul Fulghum
-paulkf@microgate.com
+Meelis Roos (mroos@linux.ee)
 

@@ -1,40 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311856AbSDNJ0o>; Sun, 14 Apr 2002 05:26:44 -0400
+	id <S311866AbSDNJ3X>; Sun, 14 Apr 2002 05:29:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311866AbSDNJ0n>; Sun, 14 Apr 2002 05:26:43 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:37133 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S311856AbSDNJ0n>; Sun, 14 Apr 2002 05:26:43 -0400
-Date: Sun, 14 Apr 2002 10:26:32 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: spyro@armlinux.org, linux-kernel@vger.kernel.org
-Subject: Re: usb-uhci *BUG*
-Message-ID: <20020414102632.A30379@flint.arm.linux.org.uk>
-In-Reply-To: <20020414004022.6450f038.spyro@armlinux.org> <32607.1018743108@ocs3.intra.ocs.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S311871AbSDNJ3W>; Sun, 14 Apr 2002 05:29:22 -0400
+Received: from dns.uni-trier.de ([136.199.8.101]:37574 "EHLO
+	rzmail.uni-trier.de") by vger.kernel.org with ESMTP
+	id <S311866AbSDNJ3V>; Sun, 14 Apr 2002 05:29:21 -0400
+Date: Sun, 14 Apr 2002 11:29:16 +0200 (CEST)
+From: Daniel Nofftz <nofftz@castor.uni-trier.de>
+X-X-Sender: nofftz@infcip10.uni-trier.de
+To: brian@worldcontrol.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Is 2.4.19-pre5-ac3 destroying my laptop?
+In-Reply-To: <20020414054141.GA1867@top.worldcontrol.com>
+Message-ID: <Pine.LNX.4.40.0204141122400.4965-100000@infcip10.uni-trier.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 14, 2002 at 10:11:48AM +1000, Keith Owens wrote:
-> Any particular reason for not using ksymoops?  If it does not work on
-> arm, I can get rid of all the arm code ;).
+On Sat, 13 Apr 2002 brian@worldcontrol.com wrote:
 
-It does work on ARM.  I use it, and we've had a few posts using it.
-However, since it took several _months_ for the ksymoops version with
-the fixed regexps for ARM to come out, I don't really think you're
-justified in the above comments.
+> Some of us with Sony FXA laptops have noticed our computers becoming
+> rather hot.
+>
+> I'm running linux 2.4.19-pre5-ac3 and I've tried both ACPI w/acpid and
+> APM w/lvcool, and there are occasions where the laptop becomes so hot
+> that I turn it off.
+>
+> If I power back on, the BIOS immediately turns the fan on.
+>
+> When running with ACPI I'm using acpid-20010510.tar.gz.
+>
+> Any pointers that would help diagnose this problem before I or
+> others fry CPUs would be appreciated.
 
-However, it's just that most people don't bother to think about reading
-any documentation (like REPORTING-BUGS) and think that just posting
-random bits is sufficient.  It's difficult enough to get these people to
-post basic things like kernel versions and so forth.
+acpi does not save any power on a computer whith an athlon or duron ,
+when the "disconnect when spgnt detected" bit in the northbridge is not set.
+this bit is not set by the acpi system of the kernel nor is it set by the
+apm system. as far as i know acpid has nothing to do with this. the lvcool
+patch only supports power saving on a few chipsets (kt133/133a, kx133) ...
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+do you know, which chipset is used by sony for this notebooks ?
+maybee this could help ...
+
+does lvcool say something, that the special idle loop is activated ?
+
+daniel
+
+# Daniel Nofftz .......................... #
+# Sysadmin CIP-Pool Informatik ........... #
+# University of Trier(Germany), Room V 103 #
+
+The resonable man adapts himself to the world. The unreasonable
+man persists in trying to adapt the world to himself. It follows
+that all progress depends on the unresaonable man.
+                                        George Bernard Shaw
 

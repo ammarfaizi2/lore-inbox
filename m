@@ -1,33 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263322AbVCKCrC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263368AbVCKDBZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263322AbVCKCrC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 21:47:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263128AbVCKCq7
+	id S263368AbVCKDBZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 22:01:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263300AbVCKCsH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 21:46:59 -0500
-Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:62426 "EHLO
-	pickle.fieldses.org") by vger.kernel.org with ESMTP id S263322AbVCKCnF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 21:43:05 -0500
-Date: Thu, 10 Mar 2005 21:43:28 -0500
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       Chris Wright <chrisw@osdl.org>, torvalds@osdl.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC] -stable, how it's going to work.
-Message-ID: <20050311024328.GA17700@fieldses.org>
-References: <20050309072833.GA18878@kroah.com> <16944.6867.858907.990990@cse.unsw.edu.au> <20050310164312.GC16126@kroah.com> <16944.57853.539416.268893@cse.unsw.edu.au>
+	Thu, 10 Mar 2005 21:48:07 -0500
+Received: from gate.crashing.org ([63.228.1.57]:17367 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S263335AbVCKCn7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 21:43:59 -0500
+Subject: Re: AGP bogosities
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: Paul Mackerras <paulus@samba.org>, werner@sgi.com,
+       Linus Torvalds <torvalds@osdl.org>, davej@redhat.com,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200503101818.25033.jbarnes@engr.sgi.com>
+References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com>
+	 <200503101804.04371.jbarnes@engr.sgi.com>
+	 <16944.65119.216720.79612@cargo.ozlabs.ibm.com>
+	 <200503101818.25033.jbarnes@engr.sgi.com>
+Content-Type: text/plain
+Date: Fri, 11 Mar 2005 13:38:35 +1100
+Message-Id: <1110508715.32524.317.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16944.57853.539416.268893@cse.unsw.edu.au>
-User-Agent: Mutt/1.5.6+20040907i
-From: "J. Bruce Fields" <bfields@fieldses.org>
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 11, 2005 at 11:10:37AM +1100, Neil Brown wrote:
-> I didn't mean "If it fixes a regression, it should be accepted."
-> I meant "If it does not fix a regression, it should not be accepted."
+On Thu, 2005-03-10 at 18:18 -0800, Jesse Barnes wrote:
+> On Thursday, March 10, 2005 6:11 pm, Paul Mackerras wrote:
+> > What is the relationship in the PCI device tree between the video
+> > cards and their bridges?  Is there for instance only one AGP bridge
+> > per host bridge?
+> 
+> I *think* a TIO (numalink<->agp & numalink<->pci) has two AGP busses coming
+> off of it...
+> 
+> > Interesting, could you post the output from lspci -v on that system?
+> 
+> flatearth:~ # lspci -v
 
-... Presumably with the obvious exception for security fixes.--b.
+
+ .../...
+
+That one is even worse... from what I see in your lspci output, you have
+no bridge with AGP capability at all, and the various AGP devices are
+all siblings...
+
+Are you sure there is any real AGP slot in there ?
+
+I'm afraid we may have to do the card <-> bridge machine as a bridge
+specific function. At least the bridge driver can "know" how the HW for
+that specific bridge lays out the PCI view of the AGP slot.
+
+Ben.
+
+

@@ -1,50 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281239AbRLLRSP>; Wed, 12 Dec 2001 12:18:15 -0500
+	id <S281458AbRLLRYO>; Wed, 12 Dec 2001 12:24:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281322AbRLLRSF>; Wed, 12 Dec 2001 12:18:05 -0500
-Received: from hermes.domdv.de ([193.102.202.1]:34322 "EHLO zeus.domdv.de")
-	by vger.kernel.org with ESMTP id <S281157AbRLLRRt>;
-	Wed, 12 Dec 2001 12:17:49 -0500
-Message-ID: <XFMail.20011212181145.ast@domdv.de>
-X-Mailer: XFMail 1.5.1 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-In-Reply-To: <E16ECul-0001kf-00@the-village.bc.nu>
-Date: Wed, 12 Dec 2001 18:11:45 +0100 (CET)
-Organization: D.O.M. Datenverarbeitung GmbH
-From: Andreas Steinmetz <ast@domdv.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: VT82C686 && APM deadlock bug?
-Cc: linux-kernel@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-        <jdamery@chiark.greenend.org.uk (Jonathan D. Amery)>
+	id <S281473AbRLLRYF>; Wed, 12 Dec 2001 12:24:05 -0500
+Received: from mail-smtp.uvsc.edu ([161.28.224.157]:14359 "HELO
+	mail-smtp.uvsc.edu") by vger.kernel.org with SMTP
+	id <S281458AbRLLRXy> convert rfc822-to-8bit; Wed, 12 Dec 2001 12:23:54 -0500
+Message-Id: <sc172fdb.090@mail-smtp.uvsc.edu>
+X-Mailer: Novell GroupWise Internet Agent 5.5.4.1
+Date: Wed, 12 Dec 2001 10:22:04 -0700
+From: "Tyler BIRD" <BIRDTY@uvsc.edu>
+To: <rmk@arm.linux.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: NFS woes in 2.5.1-pre8
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Search the kernel sources at: http://lxr.linux.no/source/kernel/?v=2.4.13 or 2.4.26, etc
+I know the ip addres for each interface are stored somewhere.
+They have to be because they are passed down to the net driver inside of  socket buffers ( skb )
+as a struct tcphdr *  and they have to be appended to each packet.
 
-On 12-Dec-2001 Alan Cox wrote:
->> going wrong during (apm?) screen blanking when there is interrupt activity.
->> Unfortunately the system is frozen solid so there's no chance for any debug
->> trace. It would be nice if someone with detail knowledge of the blanking
->> code
->> could have a look.
-> 
-> APM power management code is buried in the BIOS. We ask the APM bios nicely
-> to blank the display and power manage it. If the APM bios does something
-> daft we can't do much about it.
-> 
-> You can turn apm support off in your XFree86 config and see if that helps
-> 
-At least in my case this wasn't exactly apm related. It happened too with apm
-blanking disabled and only screen blanking without apm blanking occuring.
-Preventing screen blanking completely by issuing echo -e "\033[9;0]" prevented
-the freeze from happening so I do believe it's not the apm blanking code but
-the general console blanking code where the problem occurs (no X, no fb, plain
-80x25).
+Tyler
 
 
-Andreas Steinmetz
-D.O.M. Datenverarbeitung GmbH
+>>> Russell King <rmk@arm.linux.org.uk> 12/12/01 09:43AM >>>
+I'm not sure if this is expected or not, but I'm seeing odd behaviour with
+NFS on 2.5.1-pre8:
+
+[root@assabet bin]$vdir ../lib
+-rwxr-xr-x    1       51       51   29091 Dec 12  2001 libts-0.0.so.0.0.0
+../lib: Input/output error
+[root@assabet bin]$uname -a
+Linux assabet 2.5.1-pre8 #69 Mon Dec 10 22:21:15 GMT 2001 armv4l unknown
+[root@assabet bin]$
+
+Looking at the NFS traffic:
+
+16:27:09.051301 assabet.arm.linux.org.uk.33f11c24 > raistlin.arm.linux.org.uk.nfs: 148 lookup fh Unknown/1 "libts-0.0.so.0" (DF)
+16:27:09.061306 raistlin.arm.linux.org.uk.nfs > assabet.arm.linux.org.uk.33f11c24: reply ok 128 lookup fh Unknown/1 (DF)
+
+Admittedly raistlin is running a rather old, obsolete NFS server, which has
+up until now worked faultlessly for around 2 years: Universal NFS Server
+2.2beta48
+
+Appologies, but I'm not sure how I got it into this state either - last
+thing I had done was to overwrite the files in ../lib and bin with new sets
+on the NFS server.  The only directory that is suffering is ../lib.
+(there's bin and ../include as well, both of which would've had their
+files overwritten with later versions).
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html 
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org 
+More majordomo info at  http://vger.kernel.org/majordomo-info.html 
+Please read the FAQ at  http://www.tux.org/lkml/
+

@@ -1,62 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283203AbRK2UYA>; Thu, 29 Nov 2001 15:24:00 -0500
+	id <S283267AbRK2UbA>; Thu, 29 Nov 2001 15:31:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283267AbRK2UXt>; Thu, 29 Nov 2001 15:23:49 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:64780 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S283203AbRK2UXf>; Thu, 29 Nov 2001 15:23:35 -0500
-Message-ID: <3C069919.E679F1F8@zip.com.au>
-Date: Thu, 29 Nov 2001 12:22:49 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
-X-Accept-Language: en
+	id <S283277AbRK2Ual>; Thu, 29 Nov 2001 15:30:41 -0500
+Received: from vortex.physik.uni-konstanz.de ([134.34.143.44]:17929 "EHLO
+	vortex.physik.uni-konstanz.de") by vger.kernel.org with ESMTP
+	id <S283267AbRK2Uac>; Thu, 29 Nov 2001 15:30:32 -0500
+Message-Id: <200111292030.fATKU1s05921@vortex.physik.uni-konstanz.de>
+Content-Type: text/plain; charset=US-ASCII
+From: space-00002@vortex.physik.uni-konstanz.de
+Organization: Universitaet Konstanz/Germany
+To: linux-kernel@vger.kernel.org
+Subject: buffer/memory strangeness in 2.4.16
+Date: Thu, 29 Nov 2001 21:39:16 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <200111291201.fATC1pd04206@lists.us.dell.com>
+In-Reply-To: <200111291201.fATC1pd04206@lists.us.dell.com>
 MIME-Version: 1.0
-To: Mike Castle <dalgoda@ix.netcom.com>
-CC: kernel list <linux-kernel@vger.kernel.org>,
-        Andreas Dilger <adilger@turbolinux.com>
-Subject: Re: 2.4.14 still not making fs dirty when it should
-In-Reply-To: <20011128231504.A26510@elf.ucw.cz> <3C069291.82E205F1@zip.com.au>,
-		<3C069291.82E205F1@zip.com.au> <20011129120826.F7992@thune.mrc-home.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Castle wrote:
-> 
-> On Thu, Nov 29, 2001 at 11:54:57AM -0800, Andrew Morton wrote:
-> > Pavel Machek wrote:
-> > >
-> > > Hi!
-> > >
-> > > I still can mount / read/write, press reset, and not get fsck on next
-> > > reboot. That strongly suggests kernel bug to me.
-> >
-> > aargh.  I thought that was fixed.  How's this look?
-> 
-> I'm curious:
-> 
-> Why would you WANT this?
-> 
-> I always thought that if you didn't make any fs changes, then it should NOT
-> fsck.
-> 
+Hi,
 
-What happens is that the superblock is altered in-memory
-to say "the filesystem needs checking", but it's not written
-out to disk.
+I am experiencing a bit of strange system behaviour in a vanilla 2.4.16 
+kernel (2.95.3, very stable machine etc.)
 
-So other things can come in, alter the fs, get written out *before*
-the superblock and then you crash.  fsck won't be run, and the
-filesystem is left in an inconsistent state.
+I noticed, that after running for a while (day) I had significantly less 
+memory available for my simulation program than right after booting. Looking 
+at the problem using 'xosview' (or 'free'), I noticed that there was a large 
+number of MBs filled with 'buffers' that did not get wiped when other 
+programs need the memory. The system seems to rather kill an 'offender' than 
+clean out buffers.
 
-This actually happens.  On a stock RH7.1 setup, you can
-hit reset as soon as you get the first login prompt.  fsck
-will not be run on reboot.  If you run it by hand, fsck
-finds errors.
+Right after booting, I can allocate about 650MBs memory using the little 
+program attached below. After a day (or after running updatedb), under the 
+same conditions, even in single user mode with only a shell running (!) this 
+is not possible anymore and the program (below), trying to allocate only 
+300-400MBs, gets killed by the system after making it unresponsive for many 
+seconds.
 
-Andreas, my one-liner was, umm, hasty.  I think you had
-a decent fix for this?
+Apparently this problem occurs after running 'updatedb', which fills 'free 
+memory' and generates lots of filled cache and buffers on my system.
 
--
+This sort of behaviour must have been introduced after 2.4.13, which does not 
+show these problems.
+
+Please tell me if somebody needs more information to debug this, or if this 
+behaviour is normal or expected. Please cc: me as I am only on lkml-digest.
+
+Cheers
+	Jan
+
+
+P.S. All RAM slots are full, so please don't suggest buying more memory as a 
+solution :^)
+
+-------------------%<-----------------------
+
+#include <stdio.h>
+#define ONE_MEG 1024 * 1024
+
+main ()
+{
+        long mem_avail = ONE_MEG;
+        char *buf;
+        char userchar = '@';
+        int howmany;
+
+        while (1)
+        {
+                printf ("Number of MBs to allocate? ");
+                scanf ("%d", &howmany);
+                printf ("Trying to allocate %ld bytes: ", mem_avail*howmany);
+
+                getchar ();
+                if ((buf = (char *) malloc ((size_t) mem_avail*howmany))){
+                        printf (" success!\n");
+                        printf ("Now filling it up...\n");
+                        memset (buf, userchar, mem_avail * howmany);
+                        printf ("Hit ENTER to free the memory.\n");
+                        getchar ();
+                        free (buf);
+                } else {
+                        printf (" failed :(\n");
+                }
+        }
+}
+
+-------------------%<-----------------------

@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267936AbUJOOmX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267943AbUJOOnc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267936AbUJOOmX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 10:42:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267943AbUJOOmX
+	id S267943AbUJOOnc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 10:43:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267953AbUJOOnc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 10:42:23 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:26898 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S267936AbUJOOmS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 10:42:18 -0400
-Message-ID: <416FE42A.3010305@techsource.com>
-Date: Fri, 15 Oct 2004 10:52:26 -0400
-From: Timothy Miller <miller@techsource.com>
-MIME-Version: 1.0
-To: Mark_H_Johnson@raytheon.com
-CC: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       Bill Huey <bhuey@lnxw.com>, Dipankar Sarma <dipankar@in.ibm.com>,
-       Adam Heath <doogie@debian.org>, Daniel Walker <dwalker@mvista.com>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Lorenzo Allegrucci <l_allegrucci@yahoo.it>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U1
-References: <OFF6785669.51B69427-ON86256F2D.0066DF1F@raytheon.com>
-In-Reply-To: <OFF6785669.51B69427-ON86256F2D.0066DF1F@raytheon.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 15 Oct 2004 10:43:32 -0400
+Received: from vsmtp4alice-fr.tin.it ([212.216.176.150]:7415 "EHLO
+	vsmtp4.tin.it") by vger.kernel.org with ESMTP id S267943AbUJOOnT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 10:43:19 -0400
+Subject: janitoring printk with no KERN_ constants, kill all defaults?
+From: Daniele Pizzoni <auouo@tin.it>
+To: lkml <linux-kernel@vger.kernel.org>,
+       kernel-janitors <kernel-janitors@lists.osdl.org>
+Cc: pazke@orbita.don.sitek.net
+Content-Type: text/plain
+Message-Id: <1097855099.3004.64.camel@pdp11.tsho.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 15 Oct 2004 17:44:59 +0200
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm investigating this (from the kernel janitors TODO list):
 
+------------------------------------------------------------------------
+From: Andrey Panin <pazke at orbita dot don dot sitek dot net>
 
-Mark_H_Johnson@raytheon.com wrote:
+- check printk() calls (should include appropriate KERN_* constant).
 
-> 
-> In the systems I have to deal with, I do not have a clear criteria
-> to set priorities of interrupts relative to each other. For example, I
-> have a real time simulation system using the following devices:
->  - occasional disk access to simulate disk I/O
->  - real time network traffic
->  - real time delivery of interrupts from a PCI timer card and APIC timers
->  - real time interrupts from a shared memory interface
-> The priorities of real time tasks are basically assigned based on the
-> rate of execution. 80 Hz tasks run at a higher priority than 60 Hz, 60 Hz >
-> 40 Hz, and so on. A number of tasks can access each device.
-> 
+------------------------------------------------------------------------
 
+printk ends up using the default KERN_WARNING constant when no costant
+is explicitly specified; the default is changeable. So a printk with
+_no_ constant specified means "use the current default" and could be,
+maybe in some cases only, a developer choice.
 
-What if drivers could indicate how much "jitter" (essentially, latency) 
-its interrupts can tolerate?  Higher jitter would SORTOF translate into 
-lower priority, although the scheduler would make sure the IRQ was 
-started before its tolerance ran out (ie. the priority approaches 
-infinity as its tolerance period approaches the end).  The jitter 
-tolerance would be measured in microseconds, I guess.
+I ask, what rationale there is behind checking all printks to include
+the "appropriate" constant? Should then we make printk fail when called
+without KERN_ constant? Or can I force with a sed script all defaulted
+printk to KERN_WARNING?
+
+I'm looking for advice, or a pointer to an appropriate thread of the
+lkml archives.
+
+Thanks
+Daniele Pizzoni <auouo@tin.it>
+
 

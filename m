@@ -1,64 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270551AbRHISyN>; Thu, 9 Aug 2001 14:54:13 -0400
+	id <S270552AbRHITAn>; Thu, 9 Aug 2001 15:00:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270552AbRHISyD>; Thu, 9 Aug 2001 14:54:03 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:60937 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S270551AbRHISxs>; Thu, 9 Aug 2001 14:53:48 -0400
-Message-ID: <3B72DD66.A6F65247@zip.com.au>
-Date: Thu, 09 Aug 2001 11:58:46 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i686)
+	id <S270554AbRHITAd>; Thu, 9 Aug 2001 15:00:33 -0400
+Received: from [206.166.249.112] ([206.166.249.112]:44038 "EHLO
+	srv-exchange2.adtran.com") by vger.kernel.org with ESMTP
+	id <S270552AbRHITAW>; Thu, 9 Aug 2001 15:00:22 -0400
+Message-ID: <3B72DD74.199F31B7@adtran.com>
+Date: Thu, 09 Aug 2001 13:59:00 -0500
+From: Ron Flory <ron.flory@adtran.com>
+Organization: Adtran
+X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Christian Borntraeger <CBORNTRA@de.ibm.com>
-CC: ext3-users@redhat.com, linux-kernel@vger.kernel.org,
-        Carsten Otte <COTTE@de.ibm.com>, Tom Rini <trini@kernel.crashing.org>
-Subject: Re: BUG: Assertion failure with ext3-0.95 for 2.4.7
-In-Reply-To: <OF5E574EE5.AF3B6F6F-ONC1256AA2.0026D8D3@de.ibm.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.4.6 & 2.4.7 networking performance: seeing serious delays 
+ inTCP layer depending upon packet length
+In-Reply-To: <OF867C5EBC.F320CE04-ON87256AA3.00608124@boulder.ibm.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Borntraeger wrote:
+Shirley Ma wrote:
 > 
-> Hello ext3-users,
+> Hi, Ron,
 > 
-> I tested ext3 on a Linux for S/390 with several stress and benchmark test
-> tests and faced a kernel bug message.
-> The console showed the following output:
-> 
-> Message from syslogd@boeaet34 at Fri Aug  3 11:34:16 2001 ...
-> boeaet34 kernel: Assertion failure in journal_forget() at
-> transaction.c:1184: "!
-> jh->b_committed_data"
-> 
+>      I am interested the problem you posted. I tried to reproduce
+> this problem on my machine and failed. Would you please point your 
+> programs to me, so I can reproduce this problem and do more 
+> investigation? If not, please let me know whether it is reproducible,
+> and please collect both client/server ethereal log.
 
-Simple bug, subtle symptoms.  Could you please retest 0.9.5
-with this patch?  Thanks.
-
---- ext3-0_9_5/fs/ext3/inode.c	Mon Jul 30 05:46:12 2001
-+++ ext3/fs/ext3/inode.c	Thu Aug  9 00:03:34 2001
-@@ -1522,7 +1523,7 @@
- 	 * AKPM: turn on bforget in journal_forget()!!!
- 	 */
- 	for (p = first; p < last; p++) {
--		u32 nr = *p;
-+		u32 nr = le32_to_cpu(*p);
- 		if (nr) {
- 			struct buffer_head *bh;
+ OK, will follow-on in a private email (to minimize lkml traffic)
  
+ I can easily reproduce the problem by performing a socket 'write' as
+two separate operations:
 
-Now, if all on-disk structures were defined in terms of something
-like
+   write(sock, buf1..)
+   write(sock, buf2..)
 
-	struct disk32 {
-		u32 x;
-	}
+ If on the other hand I combine the buffers then issue a single
+'write':
 
-then these things wold never happen - the compiler would catch
-it.
+   write(sock, both_bufs...)
 
--
+ the problem magically disappears (because the inter-block handshaking 
+requirements change, which is where I think the problem actually lies).
+
+ Since the problem is also present using the loopback device, both 
+client/server sides would be present in a Ethereal long of LO.
+
+ I would imagine anybody running a large Linux ftp/http server would be
+interested in this...
+
+ron

@@ -1,75 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282511AbSAEUSC>; Sat, 5 Jan 2002 15:18:02 -0500
+	id <S282801AbSAEU3z>; Sat, 5 Jan 2002 15:29:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282523AbSAEURx>; Sat, 5 Jan 2002 15:17:53 -0500
-Received: from glisan.hevanet.com ([198.5.254.5]:65036 "EHLO
-	glisan.hevanet.com") by vger.kernel.org with ESMTP
-	id <S282511AbSAEURn>; Sat, 5 Jan 2002 15:17:43 -0500
-Date: Sat, 5 Jan 2002 12:17:24 -0800 (PST)
-From: jkl@miacid.net
-To: Florian Weimer <fw@deneb.enyo.de>
-cc: "Joseph S. Myers" <jsm28@cam.ac.uk>, dewar@gnat.com,
-        Dautrevaux@microprocess.com, paulus@samba.org,
-        Franz.Sirl-kernel@lauterbach.com, benh@kernel.crashing.org,
-        gcc@gcc.gnu.org, jtv@xs4all.nl, linux-kernel@vger.kernel.org,
-        linuxppc-dev@lists.linuxppc.org, minyard@acm.org, rth@redhat.com,
-        trini@kernel.crashing.org, velco@fadata.bg
-Subject: Re: [PATCH] C undefined behavior fix
-In-Reply-To: <87ofk88t4o.fsf@deneb.enyo.de>
-Message-ID: <Pine.BSI.4.10.10201051208250.8542-100000@hevanet.com>
+	id <S282861AbSAEU3o>; Sat, 5 Jan 2002 15:29:44 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:6675 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S282801AbSAEU30>; Sat, 5 Jan 2002 15:29:26 -0500
+Message-ID: <3C376222.8090204@zytor.com>
+Date: Sat, 05 Jan 2002 12:29:22 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us, en, sv
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dave Jones <davej@suse.de>
+CC: "Albert D. Cahalan" <acahalan@cs.uml.edu>, linux-kernel@vger.kernel.org
+Subject: Re: ISA slot detection on PCI systems?
+In-Reply-To: <Pine.LNX.4.33.0201051833260.27113-100000@Appserv.suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dave Jones wrote:
 
-
-On Sat, 5 Jan 2002, Florian Weimer wrote:
-
-> jkl@miacid.net writes:
+> On Sat, 5 Jan 2002, Albert D. Cahalan wrote:
 > 
-> > An arbitrary integer may be converted to a pointer.  
-> >    ^^^^^^^^^
 > 
-> This rule exists so that implementations are not forced to issue a
-> diagnostic for (char *)1.
->
-No.  If the only goal was to avoid a diagnostic, the it could be
-undefined.  The fact that it is implementation defined means that it's
-reasonable to expect it to be useful for something.
- 
-> > 	I interpret this to mean that one MAY use integer arithmatic to
-> > do move a pointer outside the bounds of an array.  Specifically, as soon
-> > as I've cast the pointer to an integer, the compiler has an obligation to
-> > forget any assumptions it makes about that pointer.  This is what casts
-> > from pointer to integer are for!  when i say (int)p I'm saying that I
-> > understand the address structure of the machine and I want to manipulate
-> > the address directly.
+>>Of course, /proc/bus/pci contains forbidden binary files.
+>>You're supposed to be happy with ASCII text, as found in
+>>the /proc/pci file.
+>>
 > 
-> According to the standard, you say that you want to cast p to type
-> int.  You cannot manipulate machine addresses in C because C is
-> defined as a high-level language, without backdoors to such low-level
-> concepts as machine addresses.
-> 
-> The fact that quite a few implementations traditionally provide
-> such backdoors in some cases does not mean that the C language is a
-> low-level language, or that all implementations (even future ones)
-> have to provide these backdoors.
+> You miss the point. The point was that /proc/pci doesn't
+> expose all of pci config space, whereas /proc/bus/pci does.
+> The fact that it's binary instead of ascii is neither here nor there.
 > 
 
-Whether C is a "low-level" or "high-level" language (whatever that
-means) is not the issue here.  The issue here is that, as you say, quite a
-few implementations of C provide the ability to access arbitrary memory
-through pointers, and the standard provides some convenient places for the
-implementation to do it, and many users of GCC would really like to have
-this feature.
 
-Forgive me if I haven't been reading the manual carefully enough.  Now can
-we please get a straight answer to the question:  Does GCC provide the
-ability to turn an arbitrary address into a pointer, and if so how do you
-do it?
+... and if you want to see something that's worse than either, check out 
+/proc/ide/hda/identify.  Converting binary to hex doesn't aid in display 
+in any shape, way, or form; all it does is make it impossible to use 
+"dd" to do what I want, or from using my own hexdump tool.
 
--JKL
+Binary has a place, and "ASCII for ASCIIs sake" is just stupidity.
+
+	-hpa
 
 

@@ -1,91 +1,146 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263161AbTJASGu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 14:06:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263163AbTJASGu
+	id S261500AbTJASBY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 14:01:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262412AbTJASBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 14:06:50 -0400
-Received: from imr2.ericy.com ([198.24.6.3]:3821 "EHLO imr2.ericy.com")
-	by vger.kernel.org with ESMTP id S263161AbTJASGn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 14:06:43 -0400
-Message-ID: <3F7B1987.3050104@ericsson.ca>
-Date: Wed, 01 Oct 2003 14:14:31 -0400
-From: Makan Pourzandi <Makan.Pourzandi@ericsson.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: viro@parcelfarce.linux.theplanet.co.uk
-CC: Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org,
-       Axelle Apvrille <Axelle.Apvrille@ericsson.ca>,
-       Vincent Roy <vincent.roy@ericsson.ca>,
-       David Gordon <davidgordonca@yahoo.ca>, socrate@infoiasi.ro
-Subject: Re: [ANNOUNCE] DigSig 0.2: kernel module for digital signature verification
- for binaries
-References: <3F733FD3.60502@ericsson.ca> <20031001102631.GC398@elf.ucw.cz> <3F7AD795.1040001@ericsson.ca> <20031001141718.GT7665@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Oct 2003 14:01:24 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:52149 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S261500AbTJASBU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 14:01:20 -0400
+Date: Wed, 1 Oct 2003 20:01:14 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Sam Ravnborg <sam@ravnborg.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH v3] check headers for complete includes, etc.
+Message-ID: <20031001180114.GA9657@wohnheim.fh-wedel.de>
+References: <Pine.LNX.4.44.0309281213240.4929-100000@callisto> <Pine.LNX.4.44.0309281035370.6307-100000@home.osdl.org> <20030928184642.GA1681@mars.ravnborg.org> <20030928191622.GA16921@wohnheim.fh-wedel.de> <20030928193150.GA3074@mars.ravnborg.org> <20030928194431.GB16921@wohnheim.fh-wedel.de> <20030929133624.GA14611@wohnheim.fh-wedel.de> <20030929145057.GA1002@mars.ravnborg.org> <20031001094825.GB31698@wohnheim.fh-wedel.de> <20031001163930.GA11493@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20031001163930.GA11493@mars.ravnborg.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-viro@parcelfarce.linux.theplanet.co.uk wrote:
+On Wed, 1 October 2003 18:39:30 +0200, Sam Ravnborg wrote:
+> On Wed, Oct 01, 2003 at 11:48:25AM +0200, Jörn Engel wrote:
+> > 
+> > +my $verbose = 1;	# TODO make this optional
+> Could you make this controlable with option -verbose, see below.
 
->On Wed, Oct 01, 2003 at 09:33:09AM -0400, Makan Pourzandi wrote:
-> 
->  
->
->>Third, the intruder now has access to the system, he cannot execute the 
->>code he brought in with himself (not signed) or he cannot bring it in 
->>(c.f. above). So he needs to compile the code on the system. AFAIK, for 
->>the absolute majority of servers the admins remove all compilers 
->>(specially gcc) on all servers. this is for several different security 
->>reasons  (I don't want to get there). therefore, the above hypothesis 
->>gets even more difficult to realize. 
->>    
->>
->
->Don't be ridiculous.  It's trivial to exploit a local buffer overrun in
->one of your signed binaries and have the shellcode mmap the rest.  All
->pre-built, of course.
->  
->
+-v or --verbose
 
-Hi Viro,
+> > +my @headers = sort(map({prune($_);}
+> > +	`(cd include/ && find linux -name "*.h" ; find asm/ -name "*.h")`));
+> 1) you uses include but asm/ - use final '/' for consistency.
+> 2) Using asm/ you require the symlink to be present. Which obvious
+> it a most when  doing this check, so we better secure that.
 
-Obviously, I failed to show that the main functionality of digsig is to 
-avoid the execution of __normal__ rootkits, Trojan horses and other 
-malicious binaries on your system. 
+A bit better now, but still not too nice.
 
-the above was to analyze an imaginary scenario. well, you bring a new 
-scenario than the mmap is used from a shell code. well, in this 
-scenario, digsig makes it difficult for the intruder to bring his own 
-rootkit and run it. i mean, yes he could decide to reboot your system or 
-remove all your files or ..., and digsig is not going to help here, it 
-isn't its job either !   
-Back to the subject, in the first 2 points of my previous email, I tried 
-to show that the use of digsig make it difficult for the intruder to 
-bring in the malicious binaries, __then and only then__ at last 
-resource, to be able to use mmaps, he can choose to compile the code 
-locally.  
+> > +my $basename = "lib/header";
+> I much rather have it be: include/headercheck
+> then people realise where eventual temporary files comes from.
 
-Once again,  the purpose here is neither to secure system against all 
-possible attacks nor to avoid all possible scenarios; digsig is not  
-going to avoid you buffer overflows or other vulnerabilities. BTW, there 
-are tools to avoid that to happen (c.f. Pax, Exec Shield...).  the 
-purpose here is to make it more difficult for the intruder to abuse the 
-system. if there is a remote exploit in your system, the intruder can 
-use it. however, i believe, as i explained in first 2 points of the 
-previous email, digsig  makes it much more difficult for the intruder to 
-bring in his rootkit and use it, same for the excution of Trojan horses 
-or backdoor programs.
+Doesn't work in include/, there is no include/Makefile.  But lib/ is a
+hack, I agree.
 
-On the other hand, you're right if the people begin to write these 
-shellcode mmaps, this is a problem that we have to solve. however, my 
-understanding of the state of the art on malware today is that we don't 
-have many of these "shellcode mmap" exploits. generally, many of the 
-exploits use classical rootkits which still use exec for executing their 
-binaries.
+> So we need something like the following here: (untested)
+> >  
+> > +headercheck: prepare-all
+> > +	$(PERL) scripts/checkheader.pl $(if $(KBUILD_VERBOSE),-verbose)
+> > +
 
-regards,
-makan
+What is prepare-all supposed to do?  Target doesn't exist.
+Changed option to --verbose, see above.
 
+make headercheck, make V=0 headercheck and make V=1 headercheck are
+all verbose.  Is this intended?
+
+Jörn
+
+-- 
+Victory in war is not repetitious.
+-- Sun Tzu
+
+--- /dev/null	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.0-test5/scripts/checkheader.pl	2003-10-01 19:54:26.000000000 +0200
+@@ -0,0 +1,63 @@
++#!/usr/bin/perl -w
++use strict;
++use Getopt::Long;
++
++Getopt::Long::Configure("no_auto_abbrev");	# Could cause unexpected things
++Getopt::Long::Configure("bundling");		# We want -sA to work
++Getopt::Long::Configure("no_ignore_case");	# We don't want -a == -A
++
++my $verbose = 0;
++
++GetOptions('v|verbose' => \$verbose) || die("bad options");
++
++
++sub prune($)
++{
++	my $h = shift;
++	chomp($h);
++	open(HDR, "include/$h")
++		or return;
++	while (<HDR>) {
++		if ($_ =~ /^#\s*define\s+PRAGMA_INDIRECT_HEADER\s/) {
++			return;
++		}
++	}
++	close(HDR);
++	return $h;
++}
++
++my @headers = sort(map({prune($_);} `(cd include/ &&
++	[ -d linux/ ] && find linux/ -name "*.h" &&
++	[ -d asm/ ] && find asm/ -name "*.h")`)); # XXX this is fragile
++my $basename = "lib/headercheck";
++
++foreach my $h (@headers) {
++	close(STDERR);
++	open(STDERR, ">", "$basename.err");
++
++	open(HC, '>', "$basename.c");
++	print(HC "#include <$h>\n");
++	close(HC);
++
++	# tests
++	if (system("make", "$basename.o") != 0) {
++		print("WARNING: header doesn't build standalone: $h\n");
++		if ($verbose) {
++			system("cat", "$basename.err");
++		}
++		next;
++	}
++
++	my $symbols = `nm $basename.o`;
++	if ($symbols !~ /^$/) {
++		print("WARNING: Symbols may be declared: $h:\n");
++		if ($verbose) {
++			print("$symbols");
++		}
++	}
++} continue {
++	# cleanup
++	unlink("$basename.c");
++	unlink("$basename.err");
++	unlink("$basename.o");
++}
+--- linux-2.6.0-test5/Makefile~headercheck	2003-10-01 19:48:46.000000000 +0200
++++ linux-2.6.0-test5/Makefile	2003-10-01 19:53:38.000000000 +0200
+@@ -833,6 +833,9 @@
+ 		-name '*.[hcS]' -type f -print | sort \
+ 		| xargs $(PERL) -w scripts/checkconfig.pl
+ 
++headercheck:
++	$(PERL) scripts/checkheader.pl $(if $(KBUILD_VERBOSE),--verbose)
++
+ includecheck:
+ 	find * $(RCS_FIND_IGNORE) \
+ 		-name '*.[hcS]' -type f -print | sort \

@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262782AbTKYR7G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 12:59:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262789AbTKYR7G
+	id S262330AbTKYRyh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 12:54:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262491AbTKYRyh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 12:59:06 -0500
-Received: from smithers.nildram.co.uk ([195.112.4.54]:17683 "EHLO
-	smithers.nildram.co.uk") by vger.kernel.org with ESMTP
-	id S262782AbTKYR7E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 12:59:04 -0500
-Date: Tue, 25 Nov 2003 17:59:17 +0000
-From: Joe Thornber <thornber@sistina.com>
-To: Christoph Hellwig <hch@infradead.org>, Joe Thornber <thornber@sistina.com>,
-       Linux Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [Patch 3/5] dm: make v4 of the ioctl interface the default
-Message-ID: <20031125175917.GH524@reti>
-References: <20031125162451.GA524@reti> <20031125163313.GD524@reti> <20031125172059.A22743@infradead.org>
+	Tue, 25 Nov 2003 12:54:37 -0500
+Received: from holomorphy.com ([199.26.172.102]:33467 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262330AbTKYRyg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 12:54:36 -0500
+Date: Tue, 25 Nov 2003 09:54:15 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Antonio Vargas <wind@cocodriloo.com>
+Cc: Thomas Schlichter <schlicht@uni-mannheim.de>,
+       Jes Sorensen <jes@wildopensource.com>,
+       Alexander Viro <viro@math.psu.edu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, jbarnes@sgi.com, steiner@sgi.com
+Subject: Re: hash table sizes
+Message-ID: <20031125175415.GC8039@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Antonio Vargas <wind@cocodriloo.com>,
+	Thomas Schlichter <schlicht@uni-mannheim.de>,
+	Jes Sorensen <jes@wildopensource.com>,
+	Alexander Viro <viro@math.psu.edu>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, jbarnes@sgi.com, steiner@sgi.com
+References: <16323.23221.835676.999857@gargle.gargle.HOWL> <20031125134222.GA8039@holomorphy.com> <yq0fzgcimf8.fsf@wildopensource.com> <200311251725.07573.schlicht@uni-mannheim.de> <20031125175215.GB30083@wind.cocodriloo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031125172059.A22743@infradead.org>
+In-Reply-To: <20031125175215.GB30083@wind.cocodriloo.com>
+Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 25, 2003 at 05:20:59PM +0000, Christoph Hellwig wrote:
-> On Tue, Nov 25, 2003 at 04:33:13PM +0000, Joe Thornber wrote:
-> > Make the version-4 ioctl interface the default kernel configuration option.
-> > If you have out of date tools you will need to use the v1 interface.
-> 
-> So why do we keep the old version at all?
+On Tue, Nov 25, 2003 at 06:52:15PM +0100, Antonio Vargas wrote:
+> is fls(x) sort-of log2(x) via some "find-highest-bit-set"?
+> I recall discussing something related with Jesse Barnes
+> last 5 november (search for "[DMESG] cpumask_t in action" in lkml).
+> [SNIP]
+> Greets, Antonio Vargas
 
-See my earlier email where I said I don't want to keep it.  Both
-versions have only been present while people are migrating.
+fls() computes floor(lg(n)) via "find highest bit", yes. It stands
+for "find last set".
 
-- Joe
+
+-- wli

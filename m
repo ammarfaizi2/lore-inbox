@@ -1,80 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262221AbUDKElq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Apr 2004 00:41:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262226AbUDKElq
+	id S262238AbUDKFPL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Apr 2004 01:15:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262244AbUDKFPK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Apr 2004 00:41:46 -0400
-Received: from 10.69-93-172.reverse.theplanet.com ([69.93.172.10]:17090 "EHLO
-	gsf.ironcreek.net") by vger.kernel.org with ESMTP id S262221AbUDKEln convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Apr 2004 00:41:43 -0400
-From: Andre Eisenbach <andre@ironcreek.net>
-Organization: IronCreek.net
-To: linux-kernel@vger.kernel.org
-Subject: Athlon Mobile XP CPU speed problem
-Date: Fri, 9 Apr 2004 17:23:55 +0000
-User-Agent: KMail/1.6.1
+	Sun, 11 Apr 2004 01:15:10 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:28121 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S262238AbUDKFPG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Apr 2004 01:15:06 -0400
+Message-ID: <4078D42C.1020608@nortelnetworks.com>
+Date: Sun, 11 Apr 2004 01:14:20 -0400
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200404091723.55628.andre@ironcreek.net>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: want to clarify powerpc assembly conventions in head.S and	entry.S
+References: <4077A542.8030108@nortelnetworks.com> <1081591559.25144.174.camel@gaston>
+In-Reply-To: <1081591559.25144.174.camel@gaston>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Linux-Kernel developers,
+Benjamin Herrenschmidt wrote:
+> On Sat, 2004-04-10 at 17:41, Chris Friesen wrote:
 
-My notebook [1], powered by a AMD Athlon XP2400+ (k7) is slowing down when 
-running on battery. This happens regardless of whether or not cpu frequency 
-scaling is enabled or not. /proc/cpuinfo still shows maximum frequency, but 
-the computer is definitely slowed down considerably.
+>>According to the docs I read, r0 and r3-12 are caller-saves.  They seem
+>>to be saved in EXCEPTION_PROLOG_2 (head.S) and restored in
+>>ret_from_except() (entry.S).  Thus, if I add code in entry.S I should be
+>>able to use any of those registers, without having to worry about
+>>restoring them myself--correct?
+> 
+> Yes. For interrupts or faults that's right. Syscalls are a bit special
+> though.
 
-ACPI cpu info shows "throttling contro: no" and "limit interface: no".
+You knew this was coming...  What's special about syscalls?  There's the 
+r3 thing, but other than that...
 
-It seems like the slowdown occurs out of control of linux cpu frequency 
-scaling or ACPI.
+Thanks for your help with this stuff.  As I've been slowly wrapping my 
+head around it I've been continuously wishing for some kind of design 
+rules document describing the various paths through the assembly code, 
+along with register conventions and such.  I eventually did find the 
+conventions linked off the penguinppc website, but it was not obvious 
+from just reading the code or the ppc stuff in the Documentation directory.
 
-What may cause this slow-down?
-Is there any driver/kernel option which may let me control this behaviour?
-
-Current kernel version used 2.6.5-mm1 with cpufreq and ACPI compiled in.
-
-Thanks,
-    André Eisenbach
-
-------
-[1] Compaq Presario 2100z
-
-
-/proc/cpuinfo:
-
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 10
-model name      : mobile AMD Athlon(tm) XP2400+
-stepping        : 0
-cpu MHz         : 1788.568
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat 
-pse36 mmx fxsr sse syscall mp mmxext 3dnowext 3dnow
-bogomips        : 3538.94
-
-/proc/acpi/processor/CPU0/info
-
-processor id:            0
-acpi id:                 0
-bus mastering control:   yes
-power management:        yes
-throttling control:      no
-limit interface:         no
+Chris

@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268534AbUHLMmy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268538AbUHLMm6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268534AbUHLMmy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 08:42:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268537AbUHLMmx
+	id S268538AbUHLMm6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 08:42:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268537AbUHLMm6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 08:42:53 -0400
-Received: from gw2-tpnet.polcom.net ([80.55.24.42]:19868 "EHLO
-	alpha.polcom.net") by vger.kernel.org with ESMTP id S268534AbUHLMjQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 08:39:16 -0400
-Date: Thu, 12 Aug 2004 14:39:04 +0200 (CEST)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Jakub Vana <gugux@centrum.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: x86 - Realmode BIOS and Code calling module
-In-Reply-To: <20040812093653Z2097836-29040+39160@mail.centrum.cz>
-Message-ID: <Pine.LNX.4.60.0408121437420.12649@alpha.polcom.net>
-References: <20040812093653Z2097836-29040+39160@mail.centrum.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 12 Aug 2004 08:42:58 -0400
+Received: from main.gmane.org ([80.91.224.249]:64746 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S268542AbUHLMkZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 08:40:25 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Paul Ionescu <i_p_a_u_l@yahoo.com>
+Subject: Re: Linux SATA RAID FAQ
+Date: Thu, 12 Aug 2004 14:17:13 +0300
+Message-ID: <pan.2004.08.12.11.17.12.443916@yahoo.com>
+References: <411B0F45.8070500@pobox.com> <20040812.7181062@knigge.local.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: home-33027.b.astral.ro
+User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
+Cc: linux-ide@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Aug 2004, Jakub Vana wrote:
+On Thu, 12 Aug 2004 07:18:10 +0000, Michael Knigge wrote:
+> I don't care about RAID, but could you tell which S-ATA 
+> Controller/Chipset is the best for Hot-Swap?
 
-> Hello,
->
-> I have written Linux Kernel module that allows you to call BIOS interupts, Far services or your own code. It's working on x86 machines with PAE or not PAE enabled(up to 4GB or up to 64GB). It's tested on 2.4.26 and 2.6.7 kernel on P4 machine. I think there is not problem to work on others. Now, I'm preparing DOCs and Demos.
->
-> I wrote the module especialy for changing the VESAFB videomode, but It is usable anywhere the BIOS is neaded.
->
-> I'm writing you to know this code exists and to ask you for help to add this code to official Kernel distribution.
+Hi Michael,
 
-Did you saw vesafb-tng at http://dev.gentoo.org/~spock/?
-
-
-Thanks,
-
-Grzegorz Kulewski
+I think 3ware is the most stable right now, and has his own separate
+driver. It is even seen as a SCSI controller by linux, but has SATA or
+PATA disks.
+Maybe there are some others, but I heard this is stable right now, and
+hot-swapping is working on it.
 

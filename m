@@ -1,30 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264682AbTGKUHe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 16:07:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264679AbTGKRvI
+	id S266744AbTGKUHc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 16:07:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264682AbTGKRwL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 13:51:08 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:63875
+	Fri, 11 Jul 2003 13:52:11 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:2180
 	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264666AbTGKRup (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 13:50:45 -0400
-Date: Fri, 11 Jul 2003 19:04:33 +0100
+	id S264701AbTGKRv7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 13:51:59 -0400
+Date: Fri, 11 Jul 2003 19:05:46 +0100
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200307111804.h6BI4X3A017206@hraefn.swansea.linux.org.uk>
+Message-Id: <200307111805.h6BI5kxD017236@hraefn.swansea.linux.org.uk>
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: PATCH: Remove bogus printk in microcode.c
+Subject: PATCH: axnet can unload with timers live
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.75/arch/i386/kernel/microcode.c linux-2.5.75-ac1/arch/i386/kernel/microcode.c
---- linux-2.5.75/arch/i386/kernel/microcode.c	2003-07-10 21:06:04.000000000 +0100
-+++ linux-2.5.75-ac1/arch/i386/kernel/microcode.c	2003-07-11 14:29:05.000000000 +0100
-@@ -380,7 +380,6 @@
- 			return -ENODATA;
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.75/drivers/net/pcmcia/axnet_cs.c linux-2.5.75-ac1/drivers/net/pcmcia/axnet_cs.c
+--- linux-2.5.75/drivers/net/pcmcia/axnet_cs.c	2003-07-10 21:10:53.000000000 +0100
++++ linux-2.5.75-ac1/drivers/net/pcmcia/axnet_cs.c	2003-07-11 15:21:39.000000000 +0100
+@@ -258,7 +258,7 @@
+     if (*linkp == NULL)
+ 	return;
  
- 		default:
--			printk(KERN_ERR "microcode: unknown ioctl cmd=%d\n", cmd);
- 			return -EINVAL;
- 	}
- 	return -EINVAL;
+-    del_timer(&link->release);
++    del_timer_sync(&link->release);
+     if (link->state & DEV_CONFIG) {
+ 	axnet_release((u_long)link);
+ 	if (link->state & DEV_STALE_CONFIG) {
+@@ -706,7 +706,7 @@
+     
+     link->open--;
+     netif_stop_queue(dev);
+-    del_timer(&info->watchdog);
++    del_timer_sync(&info->watchdog);
+     if (link->state & DEV_STALE_CONFIG)
+ 	mod_timer(&link->release, jiffies + HZ/20);
+ 

@@ -1,58 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262452AbVCJI4D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262448AbVCJJBB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262452AbVCJI4D (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 03:56:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262449AbVCJI4D
+	id S262448AbVCJJBB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 04:01:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbVCJJBB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 03:56:03 -0500
-Received: from zone4.gcu-squad.org ([213.91.10.50]:24319 "EHLO
-	zone4.gcu-squad.org") by vger.kernel.org with ESMTP id S262459AbVCJIzg convert rfc822-to-8bit
+	Thu, 10 Mar 2005 04:01:01 -0500
+Received: from one.firstfloor.org ([213.235.205.2]:64167 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S262448AbVCJJAt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 03:55:36 -0500
-Date: Thu, 10 Mar 2005 09:52:50 +0100 (CET)
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-mm2 vs audio for kino and tvtime
-X-IlohaMail-Blah: khali@localhost
-X-IlohaMail-Method: mail() [mem]
-X-IlohaMail-Dummy: moo
-X-Mailer: IlohaMail/0.8.13 (On: webmail.gcu.info)
-Message-ID: <XO42l8mC.1110444770.5508140.khali@localhost>
-In-Reply-To: <200503091927.24558.gene.heskett@verizon.net>
-From: "Jean Delvare" <khali@linux-fr.org>
-Bounce-To: "Jean Delvare" <khali@linux-fr.org>
-CC: "Andrew Morton" <akpm@osdl.org>, linux1394-devel@lists.sourceforge.net,
-       video4linux-list@redhat.com, sensors@stimpy.netroedge.com
+	Thu, 10 Mar 2005 04:00:49 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: greearb@candelatech.com, nickpiggin@yahoo.com.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: BUG: Slowdown on 3000 socket-machines tracked down
+References: <4229E805.3050105@rapidforum.com>
+	<422BAAC6.6040705@candelatech.com> <422BB548.1020906@rapidforum.com>
+	<422BC303.9060907@candelatech.com> <422BE33D.5080904@yahoo.com.au>
+	<422C1D57.9040708@candelatech.com> <422C1EC0.8050106@yahoo.com.au>
+	<422D468C.7060900@candelatech.com> <422DD5A3.7060202@rapidforum.com>
+	<422F8A8A.8010606@candelatech.com> <422F8C58.4000809@rapidforum.com>
+	<422F9259.2010003@candelatech.com> <422F93CE.3060403@rapidforum.com>
+	<20050309211730.24b4fc93.akpm@osdl.org>
+From: Andi Kleen <ak@muc.de>
+Date: Thu, 10 Mar 2005 10:00:48 +0100
+In-Reply-To: <20050309211730.24b4fc93.akpm@osdl.org> (Andrew Morton's
+ message of "Wed, 9 Mar 2005 21:17:30 -0800")
+Message-ID: <m1is3zvprz.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton <akpm@osdl.org> writes:
 
-Hi Gene,
-
-> > I've dropped the "id" member of struct i2c_client, as it were
-> > useless. Third-party driver authors now need to do the same.
+> Christian Schmid <webmaster@rapidforum.com> wrote:
+>>
+>>  > So, maybe a VM problem?  That would be a good place to focus since
+>>  > I think we can be fairly certain it isn't a problem in just the
+>>  > networking code.  Otherwise, my tests would show lower bandwidth.
+>> 
+>>  Thanks to your tests I am really sure that its no network-code problem anymore. But what I THINK it 
+>>  is: The network is allocating buffers dynamically and if the vm doesnt provide that buffers fast 
+>>  enough, it locks as well.
 >
-> Aha!  As in just 'dd' any line containing the .id in vim?
-
-Exactly. Don't kill all lines with .id though, only the i2c_client id
-was dropped, and there are plenty of other ids in the media/video
-drivers.
-
-> > THRM is most likely a temperature you get from
-> > /proc/acpi/thermal_zone, and isn't related with the w83627hf
-> > driver.
+> Did anyone have a 100-liner which demonstrates this problem?
 >
-> Humm, it is the highest temp reported, as is temp2 in gkrellm, so I
-> had assumed it was somehow a dup of the diode in the cpu, or of the
-> thermistor against the bottom of it inside the socket.  Wrong
-> assumption?
+> The output of `vmstat 1' when the thing starts happening would be interesting.
 
-Not necessarily wrong. It is possible that the same diode temperature is
-read from the W83627HF chip by both the ACPI subsystem and by the
-w83627hf driver. But if this is the case, I would be worried by
-concurrent I/O accesses to the chip, which could possibly cause trouble.
+If he had a lot of RX traffic (it is hard to figure out because his
+bug reports are more or less useless and mostly consists of rants):
+The packets are allocated with GFP_ATOMIC and a lot of traffic
+overwhelms the free memory.
 
---
-Jean Delvare
+Some drivers work around this by doing the RX ring refill in process
+context (easier with NAPI), but not all do.
+
+In general to solve it one has to increase /proc/sys/vm/freepages
+a lot.
+
+It would be nice though if the VM tuned itself dynamically to a lot
+of GFP_ATOMIC requests. And maybe if GFP_ATOMIC was a bit more aggressive
+and did some simple minded reclaiming that would be helpful too.
+e.g. there could be a "easy to free" list in the VM for clean pages
+where freeing is simple enough that it could be made interrupt safe.
+
+-Andi

@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262864AbVAFPEV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262862AbVAFPF5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262864AbVAFPEV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 10:04:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262858AbVAFPEU
+	id S262862AbVAFPF5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 10:05:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262868AbVAFPEi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 10:04:20 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:30471 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262857AbVAFPDw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 10:03:52 -0500
-Date: Thu, 6 Jan 2005 16:03:46 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, dwmw2@infradead.org
-Cc: linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
-       Simon Evans <spse@secret.org.uk>, joern@wh.fh-wedel.de
-Subject: [patch] 2.6.10-mm2: fix MTD_BLOCK2MTD dependency
-Message-ID: <20050106150346.GC3096@stusta.de>
-References: <20050106002240.00ac4611.akpm@osdl.org>
+	Thu, 6 Jan 2005 10:04:38 -0500
+Received: from mo00.iij4u.or.jp ([210.130.0.19]:761 "EHLO mo00.iij4u.or.jp")
+	by vger.kernel.org with ESMTP id S262856AbVAFPDO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 10:03:14 -0500
+Date: Fri, 7 Jan 2005 00:02:59 +0900
+From: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+To: Andrew Morton <akpm@osdl.org>
+Cc: yuasa@hh.iij4u.or.jp, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6.10-mm2] mips: fixed build error about NEC VR4100 series
+Message-Id: <20050107000259.085e9e25.yuasa@hh.iij4u.or.jp>
+X-Mailer: Sylpheed version 1.0.0rc (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050106002240.00ac4611.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below fixes an obviously wrong dependency coming from Linus' 
-tree.
+This patch had fixed build error about NEC VR4100 series.
 
+ * add #include <linux/kernel.h> for printk()
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+This patch had already applied to Ralf's cvs tree.
 
---- linux-2.6.10-mm2-full/drivers/mtd/devices/Kconfig.old	2005-01-06 16:00:49.000000000 +0100
-+++ linux-2.6.10-mm2-full/drivers/mtd/devices/Kconfig	2005-01-06 16:00:59.000000000 +0100
-@@ -127,7 +127,7 @@
+Yoichi
+
+Signed-off-by: Yoichi Yuasa <yuasa@hh.iij4u.or.jp>
+
+diff -urN -X dontdiff b-orig/arch/mips/vr41xx/common/bcu.c b/arch/mips/vr41xx/common/bcu.c
+--- b-orig/arch/mips/vr41xx/common/bcu.c	Sat Dec 25 06:35:27 2004
++++ b/arch/mips/vr41xx/common/bcu.c	Thu Jan  6 23:03:22 2005
+@@ -30,6 +30,7 @@
+  */
+ #include <linux/init.h>
+ #include <linux/ioport.h>
++#include <linux/kernel.h>
+ #include <linux/smp.h>
+ #include <linux/types.h>
  
- config MTD_BLOCK2MTD
- 	tristate "MTD using block device (rewrite)"
--	depends on MTD || EXPERIMENTAL
-+	depends on MTD && EXPERIMENTAL
- 	help
- 	  This driver is basically the same at MTD_BLKMTD above, but
- 	  experienced some interface changes plus serious speedups.  In
-
+diff -urN -X dontdiff b-orig/arch/mips/vr41xx/common/pmu.c b/arch/mips/vr41xx/common/pmu.c
+--- b-orig/arch/mips/vr41xx/common/pmu.c	Sat Dec 25 06:35:23 2004
++++ b/arch/mips/vr41xx/common/pmu.c	Thu Jan  6 23:03:38 2005
+@@ -18,6 +18,7 @@
+  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  */
+ #include <linux/init.h>
++#include <linux/kernel.h>
+ #include <linux/smp.h>
+ #include <linux/types.h>
+ 

@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265548AbRFVWN4>; Fri, 22 Jun 2001 18:13:56 -0400
+	id <S265546AbRFVWQ4>; Fri, 22 Jun 2001 18:16:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265547AbRFVWNq>; Fri, 22 Jun 2001 18:13:46 -0400
-Received: from sncgw.nai.com ([161.69.248.229]:55756 "EHLO mcafee-labs.nai.com")
-	by vger.kernel.org with ESMTP id <S265541AbRFVWNj>;
-	Fri, 22 Jun 2001 18:13:39 -0400
-Message-ID: <XFMail.20010622151650.davidel@xmailserver.org>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S265545AbRFVWQq>; Fri, 22 Jun 2001 18:16:46 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:24334 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S265541AbRFVWQa>; Fri, 22 Jun 2001 18:16:30 -0400
+Subject: Re: ACPI + Promise IDE = disk corruption :-(((
+To: proski@gnu.org (Pavel Roskin)
+Date: Fri, 22 Jun 2001 23:16:01 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0106221635230.1575-100000@vesta.nine.com> from "Pavel Roskin" at Jun 22, 2001 05:07:02 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-In-Reply-To: <E15DYwE-00023t-00@pmenage-dt.ensim.com>
-Date: Fri, 22 Jun 2001 15:16:50 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-To: Paul Menage <pmenage@ensim.com>
-Subject: Re: signal dequeue ...
-Cc: linux-kernel@vger.kernel.org, george anzinger <george@mvista.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15DZDd-0004Fq-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I enabled ACPI in 2.4.5-ac17 (2.4.5-ac16 works fine with the same config
+> except ACPI). When I booted I saw a message
 
-On 22-Jun-2001 Paul Menage wrote:
-> In article <0C01A29FBAE24448A792F5C68F5EA47D120354@nasdaq.ms.ensim.com>,
-> you write:
->>
->>Right, but the remaining signals are still pending.  In your method, the
->>kernel doesn't know which were and which were not actually delivered.
->>
-> 
-> You could add an SA_MULTIPLE flag to the sigaction() sa_flags, which
-> permit the kernel to stack multiple signals up in this way for apps
-> that guarantee not to misbehave. In do_signal()/handle_signal(), only
-> allow a signal to be stacked on another signal if its handler has
-> SA_MULTIPLE set. So non-stackable signals will always be the last
-> signal frame of the stack to be entered, and it won't matter if they
-> longjmp() out.
-> 
-> Would the performance improvement from this be worthwhile? I imagine if
-> you're handling a lot of SIGIO signals, the ability to batch up several
-> signals in a single user/kernel crossing might be of noticeable benefit.
+> I hit reset hoping to boot the system with "acpi=no-idle", but GRUB
+> couldn't load stage2, which resides on the root partition (reiserfs).
 
-This could be a good idea but before moving a single hair I want to measure the
-maximum ( and average ) queue length for rt signals.
-In case this will be constantly > 1 to have a multiple signal dispatch will
-save a lot of kernel-mode / user-mode switches.
-Otherwise this will be files under NAI ( Not An Issue ) :)
+I've seen several people report ACPI eats disks. ACPI is incredibly complex
+badly designed crud. My advice is never use ACPI. This incidentally appears
+to be the advice Microsoft give people too - they tell people to disable
+ACPI as one of the first steps to diagnosing strange crashes in machines
 
+ACPI is over complex, new technology. The BIOS stuff is new (and frequently
+wrong), the kernel stuff is new (and has plenty of known bugs) and the 
+combination is a recipe for disaster.
 
+I've been discussing with a few folk about doing an alternative mini acpi
+subset so that Linux can be booted on most 'ACPI only' hardware without 
+using all the ACPI junk
 
-
-
-- Davide
+Alan
 

@@ -1,35 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263295AbUEKSly@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263183AbUEKSnh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263295AbUEKSly (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 14:41:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263301AbUEKSly
+	id S263183AbUEKSnh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 14:43:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263324AbUEKSng
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 14:41:54 -0400
-Received: from ccs.covici.com ([209.249.181.196]:48835 "EHLO ccs.covici.com")
-	by vger.kernel.org with ESMTP id S263295AbUEKSlo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 14:41:44 -0400
-MIME-Version: 1.0
+	Tue, 11 May 2004 14:43:36 -0400
+Received: from sampa7.prodam.sp.gov.br ([200.230.190.107]:19983 "EHLO
+	sampa7.prodam.sp.gov.br") by vger.kernel.org with ESMTP
+	id S263183AbUEKSna (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 14:43:30 -0400
+Date: Tue, 11 May 2004 15:41:42 -0300
+From: "Luiz Fernando N. Capitulino" <lcapitulino@prefeitura.sp.gov.br>
+To: mike <mike@bristolreccc.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: problem with sis900 driver 2.6.5 +
+Message-ID: <20040511184142.GE12947@lorien.prodam>
+Mail-Followup-To: mike <mike@bristolreccc.co.uk>,
+	linux-kernel@vger.kernel.org
+References: <1084300104.24569.8.camel@datacontrol>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16545.7782.374030.398273@ccs.covici.com>
-Date: Tue, 11 May 2004 14:41:42 -0400
-From: John covici <covici@ccs.covici.com>
-To: linux-kernel@vger.kernel.org
-Subject: problem with 2.4.26 and nforc3 chipset
-X-Mailer: VM 7.17 under Emacs 21.3.50.2
-Reply-To: covici@ccs.covici.com
+Content-Disposition: inline
+In-Reply-To: <1084300104.24569.8.camel@datacontrol>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am having the problem using kernel 2.4.26 and also 2.6.2 that all
-my drives are detected as udma33  whereas two of them are actually
-100 or 133.  This did not happen on a previous motherboard with the
-via chipset.  The board is a Shuttle computer an50r with an Athlon 64
-cpu.
 
-Any assistance would be appreciated.
+ Hi Mike,
+
+Em Tue, May 11, 2004 at 07:28:24PM +0100, mike escreveu:
+
+| In kernels 2.6.5 and above (may affect 2.6.4 as well) there seems to be
+| a problem with the sis900 eth driver
+| 
+| I have a sis chipset with integrated ethernet sis900 driver which has
+| always worked perfectly up to and including 2.6.3 (fedora)
+| 
+| Now with both fedora 2.6.5 kernel and vanilla 2.6.6 eth0 does not come
+| up
+| 
+| relevant messages
+| 
+| sis900 device eth0 does not appear to be present delaying initialisation
+| 
+| and from dmesg eth0: cannot find ISA bridge
+
+ Where you got it ?
+
+| lsmod shows sis and sis900 modules loaded fine
+
+ Is the interface up ?
 
 -- 
-         John Covici
-         covici@ccs.covici.com
+Luiz Fernando N. Capitulino
+<http://www.telecentros.sp.gov.br>

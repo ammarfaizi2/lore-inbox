@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263363AbTDCMSk>; Thu, 3 Apr 2003 07:18:40 -0500
+	id <S263371AbTDCM3U>; Thu, 3 Apr 2003 07:29:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263364AbTDCMSk>; Thu, 3 Apr 2003 07:18:40 -0500
-Received: from cc78409-a.hnglo1.ov.home.nl ([212.120.97.185]:42690 "EHLO
-	dexter.hensema.net") by vger.kernel.org with ESMTP
-	id <S263363AbTDCMSj>; Thu, 3 Apr 2003 07:18:39 -0500
-From: Erik Hensema <erik@hensema.net>
-Subject: Re: How to fix the ptrace flaw without rebooting
-Date: Thu, 3 Apr 2003 12:30:05 +0000 (UTC)
-Message-ID: <slrnb8oaad.j0h.erik@bender.home.hensema.net>
-References: <200304030708_MC3-1-32C2-5A8A@compuserve.com>
-Reply-To: erik@hensema.net
-User-Agent: slrn/0.9.7.4 (Linux)
-To: linux-kernel@vger.kernel.org
+	id <S263372AbTDCM3U>; Thu, 3 Apr 2003 07:29:20 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:44949 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S263371AbTDCM3U>;
+	Thu, 3 Apr 2003 07:29:20 -0500
+Date: Thu, 03 Apr 2003 04:34:57 -0800 (PST)
+Message-Id: <20030403.043457.42662116.davem@redhat.com>
+To: chas@locutus.cmf.nrl.navy.mil
+Cc: bunk@fs.tum.de, akpm@digeo.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.66-mm3: drivers/atm/iphase.c doesn't compile 
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200304031224.h33CO3Gi016160@locutus.cmf.nrl.navy.mil>
+References: <20030403121422.GJ3693@fs.tum.de>
+	<200304031224.h33CO3Gi016160@locutus.cmf.nrl.navy.mil>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Ebbert (76306.1226@compuserve.com) wrote:
-> 	Author: Chuck Ebbert
-> 	Adapted from: Phrack Inc., Volume 0x0b, Issue 0x3a, Phile #0x07
-> 	Directions: Run this program as root on an x86 machine.
-> 		It will disable the ptrace system call, thus
-> 		fixing the Linux 'ptrace flaw'.  (It will also
-> 		break strace, debugging tools and User Mode Linux.)
-> 	WARNING: Your computer may crash or do other strange things
-> 		if you run this program as root.  No warranty.
+   From: chas williams <chas@locutus.cmf.nrl.navy.mil>
+   Date: Thu, 03 Apr 2003 07:24:03 -0500
 
-If you can't reboot to apply a security fix, you've got a serious problem.
+   In message <20030403121422.GJ3693@fs.tum.de>,Adrian Bunk writes:
+   >drivers/atm/iphase.c:2979: `pad' undeclared (first use in this function)
+   >drivers/atm/iphase.c:2979: (Each undeclared identifier is reported only once
+   >drivers/atm/iphase.c:2979: for each function it appears in.)
+   
+   i missed this one since i normally dont compile the iphase with debugging.
+   apply the following please to the 2.4 and 2.5 tree:
 
-A better fix in a running system is to simply disable dynamic module
-loading: echo /no/such/file > /proc/sys/kernel/modprobe
-At the very least you can be sure your machine won't crash this way ;-)
-
--- 
-Erik Hensema <erik@hensema.net>
+Applied, thanks Chas.

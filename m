@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264032AbUDBMi2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 07:38:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264034AbUDBMi2
+	id S264033AbUDBMoo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 07:44:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264034AbUDBMoo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 07:38:28 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:19911 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264032AbUDBMi1 (ORCPT
+	Fri, 2 Apr 2004 07:44:44 -0500
+Received: from [202.125.86.130] ([202.125.86.130]:57274 "EHLO
+	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
+	id S264033AbUDBMon convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 07:38:27 -0500
-Date: Fri, 2 Apr 2004 14:38:24 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.5-rc3-mm2
-Message-ID: <20040402123823.GD4304@suse.de>
-References: <20040331014351.1ec6f861.akpm@osdl.org> <200403311937.41510@WOLK> <20040402122759.GC4304@suse.de> <200404021432.49440@WOLK>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200404021432.49440@WOLK>
+	Fri, 2 Apr 2004 07:44:43 -0500
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: media removed indication!
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Date: Fri, 2 Apr 2004 18:08:02 +0530
+Message-ID: <1118873EE1755348B4812EA29C55A9721770B9@esnmail.esntechnologies.co.in>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: media removed indication!
+Thread-Index: AcQYr1abAUNOMS10Q/eYa0WaRWjubw==
+From: "Jinu M." <jinum@esntechnologies.co.in>
+To: <linux-kernel@vger.kernel.org>
+Cc: <kernelnewbies@nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 02 2004, Marc-Christian Petersen wrote:
-> On Friday 02 April 2004 14:27, Jens Axboe wrote:
-> 
-> Hi Jens,
-> 
-> > > is there any reason why I see /sys/block/hda/queue/iosched/ beeing empty?
-> > > I thought every I/O scheduler would put in there some tunables or at
-> > > least some info's what defaults are used. Or did I miss something
-> > > completely and now I am totally wrong?
-> 
-> > This branch of CFQ doesn't implement the parameters as sysfs modifyable,
-> > later versions do.
-> 
-> Do you have any later versions of cfq? I had cfq-4 with ioprios in my
-> tree but that version I have has fatal performance problems compared
-> to the cfq-4 in -mm.
+Hi all,
 
-Nope, not finalized. I have one that will take a day of work to complete
-or so that is pretty much the final design of CFQ I think (before taking
-io priorities and making them general).
+We are working on the removable media support for our disk driver. 
 
--- 
-Jens Axboe
+I have a couple of questions.
+
+How do you ask the file system to stop sending buffers to our disk driver (request function) when the media is removed?
+
+If a disk is already mounted when the media is removed is there a way to stop all IO and umount the disk automatically?
+
+Any pointers on the same will be of great help.
+
+Thanks,
+-Jinu
 

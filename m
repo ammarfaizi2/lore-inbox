@@ -1,70 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262802AbTHZUSz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 16:18:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262844AbTHZUSz
+	id S262785AbTHZUOH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 16:14:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262812AbTHZUOH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 16:18:55 -0400
-Received: from ms-smtp-02.texas.rr.com ([24.93.36.230]:7304 "EHLO
-	ms-smtp-02.texas.rr.com") by vger.kernel.org with ESMTP
-	id S262802AbTHZUSv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 16:18:51 -0400
-Subject: Re: [OOPS] less /proc/net/igmp
-From: Owen Ford <oford@arghblech.com>
-To: YOSHIFUJI Hideaki / =?UTF-8?Q?=E5=90=89=E8=97=A4=E8=8B=B1?=
-	 =?UTF-8?Q?=E6=98=8E?= <yoshfuji@linux-ipv6.org>
-Cc: sebek64@post.cz, smiler@lanil.mine.nu, jmorris@intercode.com.au,
-       lkml <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com
-In-Reply-To: <20030827.015448.70287953.yoshfuji@linux-ipv6.org>
-References: <20030826.150331.102449369.yoshfuji@linux-ipv6.org>
-	 <1061878985.3463.2.camel@spider.hotmonkeyporn.com>
-	 <20030826.173226.114994096.yoshfuji@linux-ipv6.org>
-	 <20030827.015448.70287953.yoshfuji@linux-ipv6.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-PeS/01pZdZ+R0lb8Y0wo"
-Message-Id: <1061929108.3946.1.camel@spider.hotmonkeyporn.com>
+	Tue, 26 Aug 2003 16:14:07 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:62731 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S262785AbTHZUOD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 16:14:03 -0400
+Date: Tue, 26 Aug 2003 22:09:09 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.4.23-pre1] /proc/ikconfig support
+Message-ID: <20030826200909.GK734@alpha.home.local>
+References: <Pine.LNX.4.55L.0308261629400.18109@freak.distro.conectiva>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 26 Aug 2003 15:18:28 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.55L.0308261629400.18109@freak.distro.conectiva>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Aug 26, 2003 at 04:33:09PM -0300, Marcelo Tosatti wrote:
+ 
+> And about ikconfig, hum, I'm not sure if I want that. Its nice, yes, but I
+> still wonder. You are free to convince me though: I think people usually
+> know what they compile in their kernels, dont they?
 
---=-PeS/01pZdZ+R0lb8Y0wo
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Marcelo,
 
-On Tue, 2003-08-26 at 11:54, YOSHIFUJI Hideaki / =E5=90=89=E8=97=A4=E8=8B=
-=B1=E6=98=8E wrote:
-> Hello.
->=20
-> In article <20030826.173226.114994096.yoshfuji@linux-ipv6.org> (at Tue, 2=
-6 Aug 2003 17:32:26 +0900 (JST)), YOSHIFUJI Hideaki / =E5=90=89=E8=97=A4=E8=
-=8B=B1=E6=98=8E <yoshfuji@linux-ipv6.org> says:
->=20
-> > > I can confirm. I have it with 2.6.0-test4.
-> > >=20
-> > > Let me know what useful info I can provide.  The oops is the same.
-> >=20
-> > Okay, everyone. I'll try to fix this.
->=20
-> Please try this patch.
+I can say for sure that I would really like to have ikconfig (I've been using
+other sorts of proc_config patches for a long time now). It's not something
+strictly necessary (otherwise it would already have been in), but it's really
+userful in some situations because we're humans and not fail-safe :
 
-That seems to have done the job nicely.  Thanks.
-=20
---=20
-Owen Ford <oford@arghblech.com>
+  - when a default kernel and a default config doesn't work on a customer's
+    system, and I insist on the fact it's someone else, you end up trying
+    several tricks till the time it finally runs. When you do this at a
+    customer's and you're compiling your 30rd kernel at 23h40 with the man
+    behind you with red eyes, you know for sure that at the very moment he
+    will see it boot, he will say "ok, thanks a lot, now let's go to bed. bye!"
+    When you come again several weeks after, he tells you that /usr/src/linux
+    took lots of useless space on his tapes and he removed it. Given the late
+    hour the last time, you didn't save the .config and definitely lost it.
+    Believe me, I was happy to see that I still had the .config for the 500+
+    days uptime kernel I reported a few days ago because that's not always the
+    case (even if I didn't need it this time).
 
---=-PeS/01pZdZ+R0lb8Y0wo
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+  - when trying patches, config options, optimizations, etc... it's common for
+    some (most ?) of us to quickly copy a bzimage.test under /boot, which entry
+    is already filled in lilo.conf, reboot it with init=/bin/sh and trying lots
+    of dirty tricks. After a while, you don't remember which .config was used
+    for the only one which causes trouble or which works, or you simply lost it
+    in a quick "make distclean" or "cd ..&&rm -rf linux&&tar x&&cd -", and being
+    able to recover it from bzimage or at run time would be great.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+As you see, nothing much important in my opinion, but definitely compensates
+for my unreliable brain and saves me much time. I don't really matter whether
+you merge it or not, since I will use it anyway, but I see no reason it couldn't
+serve others as well.
 
-iD8DBQA/S8CU4bjUYpnk5/QRAkl3AJ918JN3kzIZWCjhaaaDdUFUYdy7vgCgj5Q3
-3XADkcptoVsOgMKthnWz9Pg=
-=AORG
------END PGP SIGNATURE-----
-
---=-PeS/01pZdZ+R0lb8Y0wo--
+Cheers,
+Willy
 

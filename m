@@ -1,203 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264828AbTIIWul (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 18:50:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264812AbTIIWul
+	id S264966AbTIIWxe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 18:53:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265002AbTIIWxe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 18:50:41 -0400
-Received: from fw.osdl.org ([65.172.181.6]:23455 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264828AbTIIWuR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 18:50:17 -0400
-Date: Tue, 9 Sep 2003 15:48:33 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>, Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: [PATCH] fix build of cosa
-Message-Id: <20030909154833.0797ca6e.shemminger@osdl.org>
-In-Reply-To: <3F5DC247.794DD843@eyal.emu.id.au>
-References: <Pine.LNX.4.44.0309081319380.1666-100000@home.osdl.org>
-	<3F5DC247.794DD843@eyal.emu.id.au>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.4claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 9 Sep 2003 18:53:34 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46053 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264966AbTIIWwk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 18:52:40 -0400
+Message-ID: <3F5E59AB.60500@pobox.com>
+Date: Tue, 09 Sep 2003 18:52:27 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Nakajima, Jun" <jun.nakajima@intel.com>
+CC: long <tlnguyen@snoqualmie.dp.intel.com>, linux-kernel@vger.kernel.org,
+       greg@kroah.com, "Nguyen, Tom L" <tom.l.nguyen@intel.com>,
+       zwane@linuxpower.ca
+Subject: Re: MSI fix for buggy PCI/PCI-X hardware
+References: <7F740D512C7C1046AB53446D3720017304AF29@scsmsx402.sc.intel.com>
+In-Reply-To: <7F740D512C7C1046AB53446D3720017304AF29@scsmsx402.sc.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The cosa driver definition of ioctl's either conflicts or was not picked
-up in the last round of _IOR redefinition (on 2.6.0-test5).
+Nakajima, Jun wrote:
+> How about the default behavior? I'm not a fan of disable_msi(), because
+> we need to update the driver as we find problems, and we cannot predict
+> which PCI/PCI-X devices in the world have such a problem, although we
+> know some will. The workaround in drivers/pci/quirk.c is much better,
+> compared to modifying the driver, but we still need to update the file
+> (and rebuild the kernel) as we find problems.
 
-The following makes it build, have no idea if it still works
-on real hardware.
+Agreed.
 
-diff -Nru a/drivers/net/wan/cosa.c b/drivers/net/wan/cosa.c
---- a/drivers/net/wan/cosa.c	Tue Sep  9 15:45:31 2003
-+++ b/drivers/net/wan/cosa.c	Tue Sep  9 15:45:31 2003
-@@ -326,11 +326,11 @@
- /* Ioctls */
- static int cosa_start(struct cosa_data *cosa, int address);
- static int cosa_reset(struct cosa_data *cosa);
--static int cosa_download(struct cosa_data *cosa, struct cosa_download *d);
--static int cosa_readmem(struct cosa_data *cosa, struct cosa_download *d);
-+static int cosa_download(struct cosa_data *cosa, unsigned long a);
-+static int cosa_readmem(struct cosa_data *cosa, unsigned long a);
- 
- /* COSA/SRP ROM monitor */
--static int download(struct cosa_data *cosa, char *data, int addr, int len);
-+static int download(struct cosa_data *cosa, const char *data, int addr, int len);
- static int startmicrocode(struct cosa_data *cosa, int address);
- static int readmem(struct cosa_data *cosa, char *data, int addr, int len);
- static int cosa_reset_and_read_id(struct cosa_data *cosa, char *id);
-@@ -1033,11 +1033,10 @@
- }
- 
- /* High-level function to download data into COSA memory. Calls download() */
--static inline int cosa_download(struct cosa_data *cosa, struct cosa_download *d)
-+static inline int cosa_download(struct cosa_data *cosa, unsigned long arg)
- {
-+	struct cosa_download d;
- 	int i;
--	int addr, len;
--	char *code;
- 
- 	if (cosa->usage > 1)
- 		printk(KERN_INFO "%s: WARNING: download of microcode requested with cosa->usage > 1 (%d). Odd things may happen.\n",
-@@ -1047,38 +1046,36 @@
- 			cosa->name, cosa->firmware_status);
- 		return -EPERM;
- 	}
--
--	if (verify_area(VERIFY_READ, d, sizeof(*d)) ||
--	    __get_user(addr, &(d->addr)) ||
--	    __get_user(len, &(d->len)) ||
--	    __get_user(code, &(d->code)))
-+	
-+	if (copy_from_user(&d, (void __user *) arg, sizeof(d)))
- 		return -EFAULT;
- 
--	if (addr < 0 || addr > COSA_MAX_FIRMWARE_SIZE)
-+	if (d.addr < 0 || d.addr > COSA_MAX_FIRMWARE_SIZE)
- 		return -EINVAL;
--	if (len < 0 || len > COSA_MAX_FIRMWARE_SIZE)
-+	if (d.len < 0 || d.len > COSA_MAX_FIRMWARE_SIZE)
- 		return -EINVAL;
- 
-+
- 	/* If something fails, force the user to reset the card */
- 	cosa->firmware_status &= ~(COSA_FW_RESET|COSA_FW_DOWNLOAD);
- 
--	if ((i=download(cosa, code, len, addr)) < 0) {
-+	i = download(cosa, d.code, d.len, d.addr);
-+	if (i < 0) {
- 		printk(KERN_NOTICE "cosa%d: microcode download failed: %d\n",
- 			cosa->num, i);
- 		return -EIO;
- 	}
- 	printk(KERN_INFO "cosa%d: downloading microcode - 0x%04x bytes at 0x%04x\n",
--		cosa->num, len, addr);
-+		cosa->num, d.len, d.addr);
- 	cosa->firmware_status |= COSA_FW_RESET|COSA_FW_DOWNLOAD;
- 	return 0;
- }
- 
- /* High-level function to read COSA memory. Calls readmem() */
--static inline int cosa_readmem(struct cosa_data *cosa, struct cosa_download *d)
-+static inline int cosa_readmem(struct cosa_data *cosa, unsigned long arg)
- {
-+	struct cosa_download d;
- 	int i;
--	int addr, len;
--	char *code;
- 
- 	if (cosa->usage > 1)
- 		printk(KERN_INFO "cosa%d: WARNING: readmem requested with "
-@@ -1090,22 +1087,20 @@
- 		return -EPERM;
- 	}
- 
--	if (verify_area(VERIFY_READ, d, sizeof(*d)) ||
--	    __get_user(addr, &(d->addr)) ||
--	    __get_user(len, &(d->len)) ||
--	    __get_user(code, &(d->code)))
-+	if (copy_from_user(&d, (void __user *) arg, sizeof(d)))
- 		return -EFAULT;
- 
- 	/* If something fails, force the user to reset the card */
- 	cosa->firmware_status &= ~COSA_FW_RESET;
- 
--	if ((i=readmem(cosa, code, len, addr)) < 0) {
-+	i = readmem(cosa, d.code, d.len, d.addr);
-+	if (i < 0) {
- 		printk(KERN_NOTICE "cosa%d: reading memory failed: %d\n",
- 			cosa->num, i);
- 		return -EIO;
- 	}
- 	printk(KERN_INFO "cosa%d: reading card memory - 0x%04x bytes at 0x%04x\n",
--		cosa->num, len, addr);
-+		cosa->num, d.len, d.addr);
- 	cosa->firmware_status |= COSA_FW_RESET;
- 	return 0;
- }
-@@ -1171,11 +1166,12 @@
- 	case COSAIODOWNLD:	/* Download the firmware */
- 		if (!capable(CAP_SYS_RAWIO))
- 			return -EACCES;
--		return cosa_download(cosa, (struct cosa_download *)arg);
-+		
-+		return cosa_download(cosa, arg);
- 	case COSAIORMEM:
- 		if (!capable(CAP_SYS_RAWIO))
- 			return -EACCES;
--		return cosa_readmem(cosa, (struct cosa_download *)arg);
-+		return cosa_readmem(cosa, arg);
- 	case COSAIORTYPE:
- 		return cosa_gettype(cosa, (char *)arg);
- 	case COSAIORIDSTR:
-@@ -1405,7 +1401,7 @@
-  * by a single space. Monitor has to reply with a space. Now the download
-  * begins. After the download monitor replies with "\r\n." (CR LF dot).
-  */
--static int download(struct cosa_data *cosa, char *microcode, int length, int address)
-+static int download(struct cosa_data *cosa, const char *microcode, int length, int address)
- {
- 	int i;
- 
-diff -Nru a/drivers/net/wan/cosa.h b/drivers/net/wan/cosa.h
---- a/drivers/net/wan/cosa.h	Tue Sep  9 15:45:31 2003
-+++ b/drivers/net/wan/cosa.h	Tue Sep  9 15:45:31 2003
-@@ -73,19 +73,19 @@
- #define COSAIORSET	_IO('C',0xf0)
- 
- /* Start microcode at given address */
--#define COSAIOSTRT	_IOW('C',0xf1,sizeof(int))
-+#define COSAIOSTRT	_IOW('C',0xf1, int)
- 
- /* Read the block from the device memory */
--#define COSAIORMEM	_IOR('C',0xf2,sizeof(struct cosa_download *))
-+#define COSAIORMEM	_IOWR('C',0xf2, struct cosa_download)
- 
- /* Write the block to the device memory (i.e. download the microcode) */
--#define COSAIODOWNLD	_IOW('C',0xf2,sizeof(struct cosa_download *))
-+#define COSAIODOWNLD	_IOW('C',0xf2, struct cosa_download)
- 
- /* Read the device type (one of "srp", "cosa", and "cosa8" for now) */
--#define COSAIORTYPE	_IOR('C',0xf3,sizeof(char *))
-+#define COSAIORTYPE	_IOR('C',0xf3, char *)
- 
- /* Read the device identification string */
--#define COSAIORIDSTR	_IOR('C',0xf4,sizeof(char *))
-+#define COSAIORIDSTR	_IOR('C',0xf4, char *)
- /* Maximum length of the identification string. */
- #define COSA_MAX_ID_STRING 128
- 
-@@ -100,7 +100,7 @@
- #define COSAIONRCHANS	_IO('C',0xf8)
- 
- /* Set the driver for the bus-master operations */
--#define COSAIOBMSET	_IOW('C', 0xf9, sizeof(unsigned short))
-+#define COSAIOBMSET	_IOW('C', 0xf9, unsigned short)
- 
- #define COSA_BM_OFF	0	/* Bus-mastering off - use ISA DMA (default) */
- #define COSA_BM_ON	1	/* Bus-mastering on - faster but untested */
+That's the pain of buggy hardware.  The solution is to not produce buggy 
+hardware ;-)  Failing that, it is unavoidable that the kernel would need 
+to be updated to notice or work around buggy hardware.  That's precisely 
+the reason for quirks/dmi_scan existence:  the special cases.  Special 
+cases are never easy or enjoyable to maintain ;-)
+
+
+> In my opinion, we might want to use drivers/pci/quirk.c to blacklist PCI
+> Express devices if any (hope not). For PCI/PCI-X devices, we might want
+> to enable MSI once verified for it. To that end we can also use
+> drivers/pci/quirk.c to whitelist them (or it's abuse?). That way we can
+> avoid situations like "it hangs, it does not get interrupts", "disable
+> ACPI, oh no, MSI".
+
+
+Five points here:
+
+1) If we did that with ACPI, you guys would have only recieved a 
+_fraction_ of the feedback you received.  IMO we want to turn on MSI 
+(where supported), and see what breaks.  It _should_ work, otherwise the 
+hardware guys wouldn't have put MSI on their PCI device :)
+
+You'll never get feedback and testing if it's turned off by default.
+
+2) MSI is more optimal than standard (should I start calling them 
+legacy?) x86 interrupts.  And I think they're just plain cool.  So of 
+course I will push to default MSI to on!  ;-)
+
+3) I think this view is colored by "right now".  The current MSI errata 
+may be worrying you, but...   MSI is the future.  If you choose to 
+whitelist, then you're creating a maintenance nightmare for the future. 
+  You would have to qualify _every_ MSI device!  Think how much it would 
+suck if we have to do that with PCI devices today.
+
+Furthermore, a whitelist unfairly punishes working MSI hardware and 
+perhaps unfairly highlights a few key vendors at the start ;-)  This is 
+why I like blacklists.
+
+Broken hardware is a special case, and not something we should invest a 
+whole lot of time worrying about.  _Assume_ the hardware is working, 
+then deal with the cases where it isn't.  _That_ is the Linus Torvalds 
+model of an optimal system (IMO :))
+
+4) I have a real-life example:  tg3.  The BroadCom 57xx chips are 
+MSI-brain-damaged.  So we unconditionally program the hardware in 
+non-MSI mode.  No special APIs needed at all.
+
+5) Another option is to enable MSI only for devices which call 
+request_msi().  This idea follows the current model of 
+pci_enable_device():  PCI resources and interrupts are guaranteed to be 
+assigned and set up only after a successful call to pci_enable_device(). 
+  Then, later on, the driver will call request_irq(), which will unmask 
+the irq (if it's not already shared).  Continuing this model, a driver's 
+call to request_msi() would signal that MSI is to be enabled for that 
+device....  and ensure that the PCI core does not unconditionally enable 
+MSI for any device outside of request_msi() call.
+
+	Jeff
+
+
+

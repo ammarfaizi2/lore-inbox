@@ -1,58 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131134AbQLVELV>; Thu, 21 Dec 2000 23:11:21 -0500
+	id <S131199AbQLVEpJ>; Thu, 21 Dec 2000 23:45:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131199AbQLVELL>; Thu, 21 Dec 2000 23:11:11 -0500
-Received: from mako.theneteffect.com ([63.97.58.10]:63246 "EHLO
-	mako.theneteffect.com") by vger.kernel.org with ESMTP
-	id <S131134AbQLVEK5>; Thu, 21 Dec 2000 23:10:57 -0500
-From: Mitch Adair <mitch@theneteffect.com>
-Message-Id: <200012220340.VAA14005@mako.theneteffect.com>
-Subject: Re: Linux 2.2.19pre3
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Thu, 21 Dec 2000 21:40:17 -0600 (CST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E149GRm-0003sX-00@the-village.bc.nu> from "Alan Cox" at Dec 22, 2000 12:52:32 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S131101AbQLVEpA>; Thu, 21 Dec 2000 23:45:00 -0500
+Received: from cc993546-b.srst1.fl.home.com ([24.3.77.52]:40460 "EHLO
+	comptechnews.com") by vger.kernel.org with ESMTP id <S131199AbQLVEoo>;
+	Thu, 21 Dec 2000 23:44:44 -0500
+From: "Robert B. Easter" <reaster@comptechnews.com>
+To: linux-kernel@vger.kernel.org
+Subject: recommended gcc compiler version
+Date: Thu, 21 Dec 2000 23:20:43 -0500
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <0012212320430F.02217@comptechnews>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 2.2.19pre3
-[snip]
-> o	Optimise kernel compiler detect, kgcc before	(Peter Samuelson)
-> 	gcc272 also
+This is a newbie question, but what are the recommended gcc compiler versions 
+for compiling,
 
-I get an endless stream of this:
+Linux 2.2.18?
 
-kgcc:gcc272:cc:gcc: not found
-kgcc:gcc272:cc:gcc: not found
-/bin/sh: -D__KERNEL__: command not found
-/bin/sh: -D__KERNEL__: command not found
-/bin/sh: -D__KERNEL__: command not found
-/bin/sh: -D__KERNEL__: command not found
+Linux 2.4.0?
 
 
-I think the Makefile optimisation needs to be (cut-n-paste):
+I'd rather use the recommended version than not and have difficult bugs.
 
---- Makefile~   Thu Dec 21 21:35:39 2000
-+++ Makefile    Thu Dec 21 21:35:54 2000
-@@ -28,7 +28,7 @@
- #      gcc272 for Debian
- #      otherwise 'cc'
- #
--CCFOUND :=$(shell $(CONFIG_SHELL) scripts/kwhich kgcc gcc272 cc gcc)
-+CCFOUND :=$(shell $(CONFIG_SHELL) scripts/kwhich kgcc:gcc272:cc:gcc)
- ## Faster, but requires GNU make 3.78, which postdates Linux 2.2.0
- ##CC   =$(if $(CROSS_COMPILE),$(CROSS_COMPILE)gcc,$(CCFOUND)) -D__KERNEL__ -I$(HPATH)
- CC     =$(shell if [ -n "$(CROSS_COMPILE)" ]; then echo $(CROSS_COMPILE)gcc; else echo $(CCFOUND); fi) \
+Thanks.  If there is a FAQ, kindy direct me to it, or, if this info isn't in 
+there specificly, perhaps a FAQ maintainer can add this stuff.
 
-
-	M
-(what's the old saying - the first rule of optimization is don't or
-something like that... ;)
+-- 
+-------- Robert B. Easter  reaster@comptechnews.com ---------
+- CompTechNews Message Board   http://www.comptechnews.com/ -
+- CompTechServ Tech Services   http://www.comptechserv.com/ -
+---------- http://www.comptechnews.com/~reaster/ ------------
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

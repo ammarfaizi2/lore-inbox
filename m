@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261868AbTBOM0m>; Sat, 15 Feb 2003 07:26:42 -0500
+	id <S262224AbTBOMeV>; Sat, 15 Feb 2003 07:34:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261907AbTBOM0m>; Sat, 15 Feb 2003 07:26:42 -0500
-Received: from holomorphy.com ([66.224.33.161]:50309 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S261868AbTBOMZ6>;
-	Sat, 15 Feb 2003 07:25:58 -0500
-Date: Sat, 15 Feb 2003 04:34:41 -0800
+	id <S262258AbTBOMeV>; Sat, 15 Feb 2003 07:34:21 -0500
+Received: from holomorphy.com ([66.224.33.161]:51845 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S262224AbTBOMdt>;
+	Sat, 15 Feb 2003 07:33:49 -0500
+Date: Sat, 15 Feb 2003 04:42:40 -0800
 From: William Lee Irwin III <wli@holomorphy.com>
 To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
 Subject: Re: clean up SLAB_KERNEL non-usage
-Message-ID: <20030215123441.GH29983@holomorphy.com>
+Message-ID: <20030215124240.GI29983@holomorphy.com>
 Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
 	Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
 References: <20030215114054.GA32256@holomorphy.com> <20030215114931.A18281@infradead.org>

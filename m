@@ -1,62 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262543AbTDQDBE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 23:01:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262563AbTDQDBE
+	id S262563AbTDQDCb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 23:02:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262599AbTDQDC2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 23:01:04 -0400
-Received: from ohsmtp03.ogw.rr.com ([65.24.7.38]:8162 "EHLO
-	ohsmtp03.ogw.rr.com") by vger.kernel.org with ESMTP id S262543AbTDQDBD
+	Wed, 16 Apr 2003 23:02:28 -0400
+Received: from magic-mail.adaptec.com ([208.236.45.100]:40918 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP id S262563AbTDQDCS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 23:01:03 -0400
-Message-ID: <000501c3048d$a3e41700$0200a8c0@satellite>
-From: "Dave Mehler" <dmehler26@woh.rr.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: problems booting 2.5 kernel, rh9
-Date: Wed, 16 Apr 2003 23:01:27 -0400
+	Wed, 16 Apr 2003 23:02:18 -0400
+From: "Mathur, Shobhit" <Shobhit_mathur@adaptec.com>
+To: linux-c-programming@vger.kernel.org, linux-serial@vger.kernel.org,
+       linux-newbie@vger.kernel.org, linux-kernel@vger.kernel.org,
+       linux-doc@vger.kernel.org
+Message-ID: <3E9EC548.117005DD@adaptec.com>
+Date: Thu, 17 Apr 2003 20:46:24 +0530
+Organization: Adaptec
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Subject: linux-source debugging with kgdb-patch
+X-Priority: 1 (Highest)
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
+
 Hello,
-    Compiled/installed a 2.5 kernel on my rh9 box, everything went alright.
-When i try to boot it this is what i get, any ideas? I don't see an error,
-very weird. I've installed the new modutils rpm and the procpsutils as well.
-Thanks.
-Dave.
 
+BACKGROUND:
 
-Press any key to continue.
-Press any key to continue.
-Press any key to continue.
-Press any key to continue.
-Press any key to continue.
-Press any key to continue.
-Press any key to continue.
-Press any key to continue.
-Press any key to continue.
-Press any key to continue.
+I was keen to see kgdb running  for  purely academic reasons. Thus,
+I made a setup of 2 machines for source-level debugging of the
+linux-kernel. The procedure mentioned on the web-site
+[ kgdb.sourceforge.net] has  been adhered to.  I was able to
+successfully configure the setup. Also, I decided to use "ddd" front-end
+on gdb [local m/c]  for debugging  the kgdb-patched kernel on the remote
+machine, which is the usual setup for such debugging-efforts.
+    The m/c to be debugged stops with the message "Waiting for
+connection from remote gdb..." until the "target remote" command is run
+from the "gdb" prompt of "ddd", upon which the m/c to be debugged
+continues it's bootup till it shows the command-prompt.
 
-    GRUB  version 0.93  (639K lower / 261040K upper memory)
+PROBLEM:
 
- +-------------------------------------------------------------------------+
-      Use the ^ and v keys to select which entry is highlighted.
-      Press enter to boot the selected OS, 'e' to edit the
-      commands before booting, 'a' to modify the kernel arguments
-  Booting 'Red Hat Linux (2.5.67)'
+I was interested in setting a break-point in start_kernel thru' "ddd"
+such that the boot-up  of the m/c to be debugged could be analysed
+step-by-step remotely. Though, I am able to set the breakpoint in
+start_kernel(),
+the commands "run" or "continue" on the "gdb" prompt, only throw up the
+following errors :
 
-root (hd0,0)
- Filesystem type is ext2fs, partition type 0x83
-kernel /boot/vmlinuz-2.5.67 ro root=LABEL=/1 console=ttyS0
-   [Linux-bzImage, setup=0x1400, size=0xe1aaf]
-initrd /boot/initrd-2.5.67.img
-   [Linux-initrd @ 0xffc7000, 0x14ffb bytes]
+(gdb) info break
+Num Type           Disp Enb Address    What
+7   breakpoint      keep  y   0xc027e7f0 in start_kernel at
+init/main.c:614
+(gdb) run
+warning: shared library handler failed to enable breakpoint
+warning: Cannot insert breakpoint 7:
+Cannot access memory at address 0xc027e7f0
 
+QUESTION:
 
+I very strongly suspect that this exercise follows a particular sequence
+of steps to get it right. Either I am missing some step or I am not
+following the "order".  In either case, I would be glad to receive some
+help/comments on my academic endeavour to be able to remotely debug the
+kernel.
+
+- Kindly let me know a solution
+
+- TIA
+
+- Shobhit Mathur

@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261316AbTCTISu>; Thu, 20 Mar 2003 03:18:50 -0500
+	id <S261328AbTCTIdz>; Thu, 20 Mar 2003 03:33:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261317AbTCTISu>; Thu, 20 Mar 2003 03:18:50 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:55530 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261316AbTCTISt>;
-	Thu, 20 Mar 2003 03:18:49 -0500
-Date: Thu, 20 Mar 2003 09:29:47 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Joel.Becker@oracle.com, linux-kernel@vger.kernel.org
-Subject: Re: WimMark I report for 2.5.65-mm2
-Message-ID: <20030320082947.GM4990@suse.de>
-References: <20030319232812.GJ2835@ca-server1.us.oracle.com> <20030319175726.59d08fba.akpm@digeo.com> <20030320003858.GM2835@ca-server1.us.oracle.com> <20030320080449.GL4990@suse.de> <20030320002050.44f13857.akpm@digeo.com>
+	id <S261329AbTCTIdz>; Thu, 20 Mar 2003 03:33:55 -0500
+Received: from natsmtp00.webmailer.de ([192.67.198.74]:64711 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S261328AbTCTIdz>; Thu, 20 Mar 2003 03:33:55 -0500
+Date: Thu, 20 Mar 2003 09:41:48 +0100
+From: Dominik Brodowski <linux@brodo.de>
+To: Martin Schlemmer <azarah@gentoo.org>
+Cc: alan@lxorguk.ukuu.org.uk, KML <linux-kernel@vger.kernel.org>,
+       sensors@stimpy.netroedge.com
+Subject: Re: [PATCH 2.5] PCI quirk for SMBus bridge on Asus P4 boards
+Message-ID: <20030320084148.GA2414@brodo.de>
+References: <20030319211837.GA23651@brodo.de> <1048146514.12350.43.camel@workshop.saharact.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030320002050.44f13857.akpm@digeo.com>
+In-Reply-To: <1048146514.12350.43.camel@workshop.saharact.lan>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 20 2003, Andrew Morton wrote:
-> Jens Axboe <axboe@suse.de> wrote:
-> >
-> > Besides, deadline is still the most solid choice.
+On Thu, Mar 20, 2003 at 09:48:35AM +0200, Martin Schlemmer wrote:
+> On Wed, 2003-03-19 at 23:18, Dominik Brodowski wrote:
+> > Asus hides the SMBus PCI bridge within the ICH2 or ICH4 southbridge on
+> > Asus P4B/P4PE mainboards. The attached patch adds a quirk to re-enable the
+> > SMBus PCI bridge for P4B533 and P4PE mainboards.
+> > 
 > 
-> Deadline will always be the best choice for OLTP workloads.  Or CFQ - it
-> should perform the same.
-> 
-> All this workload does is seeks all over the disk doing teeny synchronous
-> I/O's.  It is the worst-case for AS.
-> 
-> What we are trying to do at present is to make AS not _too_ bad for these
-> workloads so that people with mixed workloads or who are not familiar with
-> kernel arcanery don't accidentally end up with something which is
-> significantly slower than it should be.
-> 
-> It is an interesting test case.
+> The ASUS P4T533-C J(850E Chipset) does that as well .... think you might
+> tweak the patch for this board ?  I can test if you can ....
 
-I understand that. A deadline run is still interesting if there are
-regressions from -mm2 to -mm3, for example. If deadline shows the same
-regression, it's likely not a newly introduced AS bug.
+Sure: please send me the output of "pcitweak -l" or "lspci -vv".
 
--- 
-Jens Axboe
-
+	Dominik

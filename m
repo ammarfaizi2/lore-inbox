@@ -1,75 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267187AbUFZQgM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267184AbUFZQk6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267187AbUFZQgM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 12:36:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267184AbUFZQgM
+	id S267184AbUFZQk6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 12:40:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267186AbUFZQk6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 12:36:12 -0400
-Received: from mout0.freenet.de ([194.97.50.131]:61321 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id S267187AbUFZQet convert rfc822-to-8bit
+	Sat, 26 Jun 2004 12:40:58 -0400
+Received: from sc52-228.softcenter.se ([62.95.52.228]:36821 "EHLO
+	irie.2good.net") by vger.kernel.org with ESMTP id S267184AbUFZQk5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 12:34:49 -0400
-From: Michael Buesch <mbuesch@freenet.de>
-To: kernel@kolivas.org
-Subject: Re: [PATCH] Staircase scheduler v7.4
-Date: Sat, 26 Jun 2004 18:33:29 +0200
-User-Agent: KMail/1.6.2
-References: <200406251840.46577.mbuesch@freenet.de> <200406252148.37606.mbuesch@freenet.de> <1088212304.40dccd5035660@vds.kolivas.org>
-In-Reply-To: <1088212304.40dccd5035660@vds.kolivas.org>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200406261833.52060.mbuesch@freenet.de>
+	Sat, 26 Jun 2004 12:40:57 -0400
+Subject: Re: [ACPI] No APIC interrupts after ACPI suspend
+From: David Eriksson <david@2good.nu>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
+In-Reply-To: <1088160505.3702.4.camel@tyrosine>
+References: <1088160505.3702.4.camel@tyrosine>
+Content-Type: text/plain
+Message-Id: <1088268145.14987.248.camel@zion.2good.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 26 Jun 2004 18:42:25 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, 2004-06-25 at 12:48, Matthew Garrett wrote:
+> If I do an S3 suspend, my machine resumes correctly (Thinkpad X40,
+> acpi_sleep=s3_bios passed on the command line). If I have the ioapic
+> enabled, however, I get no interrupts after resume. Hacking in a call to
+> APIC_init_uniprocessor in the resume path improves things - I get edge
+> triggered interrupts, but anything flagged as level triggered doesn't
+> work. How can I get the ioapic fully initialised on resume?
 
-On Saturday 26 June 2004 03:11, you wrote:
-> There was the one clear bug that Adrian Drzewiecki found (thanks!) that is easy
-> to fix. Can you see if this has any effect before I go searching elsewhere?
+Maybe you've found this bug?
 
-Ok, I'll try it.
+http://bugme.osdl.org/show_bug.cgi?id=2643
 
+-- 
+-\- David Eriksson -/-                              www.2GooD.nu
+ 
+"I personally refuse to use inferior tools because of ideology."
+                                                - Linus Torvalds
 
-OT:
-Some mails bounce on kernel@kolivas.org:
-
-This is the Postfix program at host bhhdoa.org.au.
-
-####################################################################
-# THIS IS A WARNING ONLY.  YOU DO NOT NEED TO RESEND YOUR MESSAGE. #
-####################################################################
-
-Your message could not be delivered for 4.0 hours.
-It will be retried until it is 5.0 days old.
-
-For further assistance, please send mail to <postmaster>
-
-                        The Postfix program
-
-<kernel@kolivas.org>: connect to kolivas.org[211.28.147.198]: Connection timed
-    out
-
-
-Final-Recipient: rfc822; kernel@kolivas.org
-Action: delayed
-Status: 4.0.0
-Diagnostic-Code: X-Postfix; connect to kolivas.org[211.28.147.198]: Connection
-    timed out
-Will-Retry-Until: Wed, 30 Jun 2004 13:29:45 -0400 (EDT)
-
-- -- 
-Regards Michael Buesch  [ http://www.tuxsoft.de.vu ]
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFA3aVtFGK1OIvVOP4RApVwAJ9ows81hLZoQtiFer5/F9DDZwKrHACdF/Cs
-y1sfWD8BusvvLWJMJbcT+yY=
-=Kd+H
------END PGP SIGNATURE-----

@@ -1,64 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262050AbUCVPxH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 10:53:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbUCVPxH
+	id S262068AbUCVQAb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 11:00:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbUCVQAb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 10:53:07 -0500
-Received: from citrine.spiritone.com ([216.99.193.133]:1980 "EHLO
-	citrine.spiritone.com") by vger.kernel.org with ESMTP
-	id S262070AbUCVPxD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 10:53:03 -0500
-Date: Mon, 22 Mar 2004 07:53:02 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] anobjrmap 1/6 objrmap
-Message-ID: <1684742704.1079970781@[10.10.2.4]>
-In-Reply-To: <20040321235207.GC3649@dualathlon.random>
-References: <Pine.LNX.4.44.0403190642450.17899-100000@localhost.localdomain> <2663710000.1079716282@[10.10.2.4]> <20040320123009.GC9009@dualathlon.random> <2696050000.1079798196@[10.10.2.4]> <20040320161905.GT9009@dualathlon.random> <2924080000.1079886632@[10.10.2.4]> <20040321235207.GC3649@dualathlon.random>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Mon, 22 Mar 2004 11:00:31 -0500
+Received: from gamemakers.de ([217.160.141.117]:42197 "EHLO www.gamemakers.de")
+	by vger.kernel.org with ESMTP id S262068AbUCVQA2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 11:00:28 -0500
+Message-ID: <405F0DFD.2070801@gamemakers.de>
+Date: Mon, 22 Mar 2004 17:02:05 +0100
+From: =?ISO-8859-1?Q?R=FCdiger_Klaehn?= <rudi@gamemakers.de>
+Reply-To: rudi@lambda-computing.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: File change notification (enhanced dnotify)
+References: <200403221500.i2MF0EI7003024@eeyore.valparaiso.cl>
+In-Reply-To: <200403221500.i2MF0EI7003024@eeyore.valparaiso.cl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I tried the aa3 equiv of the above, just on top of virgin 2.6.5-rc1, but 
->> it doesn't work cleanly. Your whole aa3 tree runs nicely, but I'd prefer
->> to have the broken out patch before publishing comparisons, as otherwise
->> it's a bit unfair ;-) I'm not sure if the results come from your anon_vma
->> approach, or other patches in your tree ...
->> 
->> I'm presuming you shifted the cost of find_get_page into find_trylock_page
->> and pgd_ctor into pgd_alloc from the profiles below ...
+Horst von Brand wrote:
+> =?ISO-8859-1?Q?R=FCdiger_Klaehn?= <rudi@gamemakers.de> said:
 > 
-> I cannot see how can find_trylock_page be affected by my anon_vma
-> changes. The only difference I can see is taht Andrew's -mm writeback
-> code is adding the _irq to the spinlocks there and I don't see other
-> obvious changes in that function. I included all -mm writeback changes
-> primarly to avoid me to maintain two slightly different versions of
-> anon_vma and secondly to nuke the page->list. Other trees I'm dealing
-> with daily have those applied already.  At the very least that
-> additional cost that you measured cannot be associated in any way with
-> the allocation and maintainace of the anon_vma, since that
-> find_trylock_page cost is a per-page pagecache thing absolutely
-> unrelated to the anon_vmas costs.
+>>Horst von Brand wrote:
+>>
+>>>=?ISO-8859-1?Q?R=FCdiger_Klaehn?= <rudi@gamemakers.de> said:
+>>>
+>>>>I am working on a mechanism to let programs watch for file system 
+>>>>changes in large directory trees or on the whole system. Since my last 
+>>>>post in january I have been trying various approaches.
 > 
-> It's probably best that I port my version of objrmap (basically the same
-> as yours but with the shm swapout fixes) + anon_vma to your tree, it's
-> not a big effort to do the porting once, I applied Andrew's patches
-> primarly to avoid porting back and forth all the time.
 > 
-> Just tell me which is exactly the codebase I should port against and
-> I'll send you a patch shortly.
+>>>How do you propose to handle the fact that there are changes to _files_,
+>>>which happen to be pointed to by entries in directories? There is no
+>>>"change in the directory tree" in Unix...
+> 
+> 
+>>Of course it is files that change. But as you say each file is pointed 
+>>to by one or more dentry, so I use the dentry hierarchy to propagate the 
+>>information about the change. Just like the old dnotify.
+> 
+> 
+> dentries just keep the path travelled by hard links to get to the file in
+> memory for fast future access. So if you have, say:
+> 
+>    dir1  dir2
+>     |     |
+>     .     .
+>     .     .
+>     .     .
+>      \   /
+>     somefile
+> 
+> and you referenced somefile by the path through dir1, if you monitor dir2
+> you won't notice the change. There is no on-disk data to trace back through
+> all the directories that reference the file, and reading all of the
+> filesystem's metadata to find this out is ludicrous (ever seen fsck(8)
+> taking an hour or so to make much the same?).
 
-Just against 2.6.5-rc1 virgin is easiest - that's what I was doing the
-rest of it against ...
+I am aware of that. As I mentioned, this approach does not work with 
+hard links, just like the original dnotify.
 
-Thanks,
+ From the current "Documentation/dnotify.txt":
+"In order to make the impact on the file system code as small as 
+possible, the problem of hard links to files has been ignored."
 
-M.
+There would be some ways to solve this for hard links. But I don't think 
+that it would be worth it since it would involve a big performance 
+overhead for little gain.
 
+Note that if you watch for changes in the root of a file system, you 
+will get notified exactly once for each file change in the file system 
+regardless of hard links.
+
+In your example if you have one file which can be accessed via two 
+different paths "/dir1/somefile" and "/dir2/somefile" and you watch "/" 
+you would get notified for "/dir1/somefile" or "/dir2/somefile" 
+depending on how the changing program accesses the file.
+
+Figuring out that "/dir1/somefile" and "/dir2/somefile" refer to the 
+same file should IMHO be done in userspace. If inode numbers were unique 
+and persistent on all file systems it might be possible to do this 
+efficiently in kernel space, but unfortunately this is not the case.
+
+My original approach assumed that inode numbers were unique, and it 
+would have worked with hard links. But I think it is much more important 
+to have a mechanism that works for all file systems than to solve the 
+problem of hard links.
+
+best regards,
+
+Rüdiger
+
+By the way: I just made a small website for my enhanced dnotify 
+mechanism. I will post my latest code there. It can be found at
+<http://www.lambda-computing.com/~rudi/dnotify/>

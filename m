@@ -1,74 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268253AbTGQTaT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 15:30:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268736AbTGQTaT
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 15:30:19 -0400
-Received: from ns2.eclipse.net.uk ([212.104.129.133]:50951 "EHLO
-	smtp2.ex.eclipse.net.uk") by vger.kernel.org with ESMTP
-	id S268253AbTGQTaN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S268177AbTGQTaN (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 17 Jul 2003 15:30:13 -0400
-From: Ian Hastie <lkml@ordinal.freeserve.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 sound drivers?
-Date: Thu, 17 Jul 2003 20:44:02 +0100
-User-Agent: KMail/1.5.2
-References: <20030716225826.GP2412@rdlg.net> <200307171308.54518.nbensa@gmx.net> <s5hr84pytyi.wl@alsa2.suse.de>
-In-Reply-To: <s5hr84pytyi.wl@alsa2.suse.de>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268736AbTGQTaN
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 17 Jul 2003 15:30:13 -0400
+Received: from dsl-gte-19434.linkline.com ([64.30.195.78]:1922 "EHLO server")
+	by vger.kernel.org with ESMTP id S268177AbTGQTaL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 15:30:11 -0400
+Message-ID: <014501c34c9b$d93d4920$3400a8c0@W2RZ8L4S02>
+From: "Jim Gifford" <maillist@jg555.com>
+To: "Marcelo Tosatti" <marcelo@conectiva.com.br>
+Cc: "lkml" <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.55L.0307052151180.21992@freak.distro.conectiva> <003501c34572$4113f0c0$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307081551480.21543@freak.distro.conectiva> <020301c3459b$942a1860$3400a8c0@W2RZ8L4S02> <1057703020.5568.10.camel@dhcp22.swansea.linux.org.uk> <024801c345a2$ceeef090$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307091428450.26373@freak.distro.conectiva> <064101c34644$3d917850$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307100025160.6316@freak.distro.conectiva> <042801c3472c$f4539f80$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307110953370.28177@freak.distro.conectiva> <06e301c347c7$2a779590$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307111405320.29894@freak.distro.conectiva> <002b01c347e9$36a04110$f300a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307111749160.5537@freak.distro.conectiva> <001801c348a0$9dab91e0$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307141145340.23121@freak.distro.conectiva> <00fd01c34c8d$a03a4960$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307171545460.1789@freak.distro.conectiva>
+Subject: Re: 2.4.22-pre6 deadlock
+Date: Thu, 17 Jul 2003 12:44:33 -0700
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307172044.04242.lkml@ordinal.freeserve.co.uk>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 17 Jul 2003 17:54, Takashi Iwai wrote:
-> At Thu, 17 Jul 2003 13:08:51 -0300,
+----- Original Message ----- 
+From: "Marcelo Tosatti" <marcelo@conectiva.com.br>
+To: "Jim Gifford" <maillist@jg555.com>
+Cc: "lkml" <linux-kernel@vger.kernel.org>
+Sent: Thursday, July 17, 2003 11:46 AM
+Subject: Re: 2.4.22-pre6 deadlock
+
+
 >
-> Norberto BENSA wrote:
-> > Terje Kvernes wrote:
-> > > Norberto BENSA <nbensa@gmx.net> writes:
-> > > > Last time I've checked ALSA, it didn't support bass and treble,
-> > > > that's why I'm using OSS (emu10k1)
-> > >
-> > >   I have treble and base support on my emu10k1 via ALSA.
-> >
-> > How could this be true if:
-> >
-> > Ian Hastie wrote:
-> > > ALSA's support seems usable, but still doesn't allow you to programme
-> > > the DSP with your own code.  OSS uses this to enable such things as
-> > > bass and treble controls, as well as a selection of audio effects with
-> > > code provided.  Anyone know if ALSA will allow this kind of thing in
-> > > the future?
-> >
-> > ???
+> Jim,
 >
-> the treble/bass code is implemented statically.
-> (so it is also on OSS emu10k1 as default, btw.)
+> I just noticed your kernel is tained.
+>
+> For what reason?
+>
+>
 
-Are you sure about this?  My recollection from using the SF code was that Bass 
-and Treble weren't there until you used the setup script that came with the 
-package.  What that does is to load a piece of DSP code which provides extra 
-functions.  It also has to set up the appropriate routings to enable the 
-extra controls.
+The only patches I use are for netfilter options and the updated megaraid
+driver everything else is stock.
 
-The insertion of arbitrary code and the easy setting up of routings are the 
-two main things missing at the moment from the ALSA emu10k1 driver.  That's 
-how it seems to me anyway.
-
-> note that there is an additional switch to activate bass/treble.
-> as default, this is set off.  turn it on via alsamixer to get
-> effects.
-
-OK, I was mistaken about this, there is a bass and treble control in 
-alsamixer.  They even appear when it is run without a switch of any kind.  I 
-can't see any mention of such a switch in the manual page either.  It does 
-work, but you have to unmute the tone control switch to enable it.
-
--- 
-Ian.
+Do you think some of the netfilter options could be causing the problems??
 

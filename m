@@ -1,33 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264906AbRGELq7>; Thu, 5 Jul 2001 07:46:59 -0400
+	id <S264910AbRGELvJ>; Thu, 5 Jul 2001 07:51:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264908AbRGELqs>; Thu, 5 Jul 2001 07:46:48 -0400
-Received: from [202.140.153.5] ([202.140.153.5]:7697 "EHLO
-	techctd.techmas.hcltech.com") by vger.kernel.org with ESMTP
-	id <S264906AbRGELqd>; Thu, 5 Jul 2001 07:46:33 -0400
-Message-ID: <3B4453E6.F4342781@techmas.hcltech.com>
-Date: Thu, 05 Jul 2001 17:17:50 +0530
-From: Vasu Varma P V <pvvvarma@techmas.hcltech.com>
-Organization: HCL Technologies
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: kernel Linux <linux-kernel@vger.kernel.org>
-Subject: DMA memory limitation?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S264912AbRGELu6>; Thu, 5 Jul 2001 07:50:58 -0400
+Received: from [203.197.249.146] ([203.197.249.146]:43248 "EHLO
+	indica.wipsys.stph.net") by vger.kernel.org with ESMTP
+	id <S264910AbRGELul>; Thu, 5 Jul 2001 07:50:41 -0400
+From: "Naveen Kumar Pagidimarri" <naveen.pagidimarri@wipro.com>
+To: linux-kernel@vger.kernel.org
+Subject: source for ps command
+X-Mailer: Netscape Messenger Express 3.5.2 [Mozilla/4.72 [en] (X11; U; Linux 2.2.14-12 i686)]
+Date: Thu, 5 Jul 2001 17:20:38 +0530
+Message-ID: <GG00WE00.AFQ@vindhya.mail.wipro.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Is there any limitation on DMA memory we can allocate using
-kmalloc(size, GFP_DMA)? I am not able to acquire more than
-14MB of the mem using this on my PCI SMP box with 256MB ram.
-I think there is restriction on ISA boards of 16MB.
-Can we increase it ?
+Hai All,
+	      
 
-thx,
-Vasu
+	    Please tell me where can i get the source of ps command or 
+
+	related source code for the implementation of ps command. 
+
+
+Advance Thanks for all 
+
+Naveen
+
 

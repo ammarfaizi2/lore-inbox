@@ -1,57 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261826AbVBTMi1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261828AbVBTNPQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261826AbVBTMi1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Feb 2005 07:38:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbVBTMi1
+	id S261828AbVBTNPQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Feb 2005 08:15:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261829AbVBTNPP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Feb 2005 07:38:27 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:64265 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261826AbVBTMiV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Feb 2005 07:38:21 -0500
-Date: Sun, 20 Feb 2005 12:38:17 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Martin Drohmann <m_droh01@uni-muenster.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why does printk helps PCMCIA card to initialise?
-Message-ID: <20050220123817.A12696@flint.arm.linux.org.uk>
-Mail-Followup-To: Martin Drohmann <m_droh01@uni-muenster.de>,
-	linux-kernel@vger.kernel.org
-References: <42187819.5050808@uni-muenster.de>
+	Sun, 20 Feb 2005 08:15:15 -0500
+Received: from ipp23-131.piekary.net ([80.48.23.131]:42130 "EHLO spock.one.pl")
+	by vger.kernel.org with ESMTP id S261828AbVBTNPI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Feb 2005 08:15:08 -0500
+Date: Sun, 20 Feb 2005 14:15:05 +0100
+From: Michal Januszewski <spock@gentoo.org>
+To: Greg KH <greg@kroah.com>
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: Bootsplash for 2.6.11-rc4
+Message-ID: <20050220131505.GC19282@spock.one.pl>
+References: <20050218165254.GA1359@elf.ucw.cz> <20050219011433.GA5954@spock.one.pl> <20050219230326.GB13135@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="i7F3eY7HS/tUJxUd"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <42187819.5050808@uni-muenster.de>; from m_droh01@uni-muenster.de on Sun, Feb 20, 2005 at 12:44:25PM +0100
+In-Reply-To: <20050219230326.GB13135@kroah.com>
+X-PGP-Key: http://dev.gentoo.org/~spock/spock.gpg
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 20, 2005 at 12:44:25PM +0100, Martin Drohmann wrote:
->  #ifdef CONFIG_PCI
->         if (s->cb_dev) {
->                 ret = pci_bus_alloc_resource(s->cb_dev->bus, res, num, 1,
->                                              min, 0, pcmcia_align, &data);
->         } else
->  #endif
-> -        printk("This line will never be printed, but it helps!!!");
 
-If you added this, you've done much more than just adding it.  Look 
-two lines above and realise that you've just changed what the "else"
-clause conditionalises.
+--i7F3eY7HS/tUJxUd
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->                 ret = allocate_resource(&ioport_resource, res, num, min, 
-> ~0UL,
->                                         1, pcmcia_align, &data);
+On Sat, Feb 19, 2005 at 03:03:26PM -0800, Greg KH wrote:
 
-So, with your printk in place, we try pci_bus_alloc_resource.  If that
-succeeds or fails, we completely stomp on that with allocate_resource.
-Bad.  Very bad.
+> Pavel, I agree with Michal, take a look at this version of the code
+> instead of the version that you posted.  It's a _whole_ lot more sane,
+> and possibly even mergable.
+>=20
+> Michal, any thoughts on submitting it for inclusion?  It seems pretty
+> stable now.
 
-The first thing that needs solving is why you're getting the "odd IO
-request" crap.  That may explain why the resource can't be allocated.
+It is pretty stable indeed, I haven't had any major bug reports for=20
+quite some time now. It's probably as ready as it's ever going to be.
+So the question is: what should I do with it? Who do I send it to?
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Also, if anyone has comments about the code, bug reports, etc. - feel
+free to contact me. If there are any issues remaining, I'd like to fix
+them ASAP.
+
+Live long and prosper.
+--=20
+Michal 'Spock' Januszewski                        Gentoo Linux Developer
+cell: +48504917690                         http://dev.gentoo.org/~spock/
+JID: spock@im.gentoo.org               freenode: #gentoo-dev, #gentoo-pl
+
+
+--i7F3eY7HS/tUJxUd
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQFCGI1ZaQ0HSaOUe+YRAuc0AJ4neckZzGeZYyLycp6qMUTOlUaxngCggF9B
++p61vbLrKLWi3X6YC92ZvRI=
+=M+pE
+-----END PGP SIGNATURE-----
+
+--i7F3eY7HS/tUJxUd--

@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285849AbRLHGlv>; Sat, 8 Dec 2001 01:41:51 -0500
+	id <S285857AbRLHHIV>; Sat, 8 Dec 2001 02:08:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285850AbRLHGla>; Sat, 8 Dec 2001 01:41:30 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:14604 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S285849AbRLHGlG>; Sat, 8 Dec 2001 01:41:06 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Linux 2.4.17-pre6
-Date: 7 Dec 2001 22:40:50 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9uscli$q5k$1@cesium.transmeta.com>
-In-Reply-To: <59885C5E3098D511AD690002A5072D3C42D7CE@orsmsx111.jf.intel.com> <20011207221436.B24098@asooo.flowerfire.com>
+	id <S285858AbRLHHIL>; Sat, 8 Dec 2001 02:08:11 -0500
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:23491 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
+	id <S285857AbRLHHHy>; Sat, 8 Dec 2001 02:07:54 -0500
+Reply-To: <blumpkin@attbi.com>
+From: "Buddy Lumpkin" <blumpkin@attbi.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Where can a Solaris guy learn all about the linux kernel and device drivers?
+Date: Fri, 7 Dec 2001 23:04:19 -0800
+Message-ID: <MCEFIDEELBLBLNHNDAOOMEAHGJAA.blumpkin@attbi.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20011207221436.B24098@asooo.flowerfire.com>
-By author:    Ken Brownfield <brownfld@irridia.com>
-In newsgroup: linux.dev.kernel
->
-> Not a problem at all.  That's what -pre releases and folks testing with
-> ancient (but tried and tested) releases are for. ;-)
-> 
-> It sounds like it's easily revertable, but maybe it's worth putting the
-> axe in egcs compatibility for other people? ... Dunno.
-> 
+Subject says it all, if I already know a UNIX flavor pretty well, can
+someone point out a good place to learn about how Linux handles Kernel
+Modules and device drivers?
 
-It's worth putting the axe in when you have a good reason to break
-compatibility.  This, however, isn't one of those.
+Thanks in Advance,
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+--Buddy
+

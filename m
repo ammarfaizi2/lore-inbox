@@ -1,61 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262320AbSJDVty>; Fri, 4 Oct 2002 17:49:54 -0400
+	id <S262653AbSJDVxF>; Fri, 4 Oct 2002 17:53:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262321AbSJDVty>; Fri, 4 Oct 2002 17:49:54 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:49423 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262320AbSJDVtx>;
-	Fri, 4 Oct 2002 17:49:53 -0400
-Date: Fri, 4 Oct 2002 14:52:22 -0700
-From: Greg KH <greg@kroah.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] pcibios_* removals for 2.5.40
-Message-ID: <20021004215222.GA8843@kroah.com>
-References: <20021003224011.GA2289@kroah.com> <Pine.LNX.4.44.0210040930581.1723-100000@home.transmeta.com> <20021004165955.GC6978@kroah.com> <20021004205121.GA8346@kroah.com> <20021004205222.GB8346@kroah.com> <20021004205305.GC8346@kroah.com> <20021004205410.GD8346@kroah.com> <3D9E0970.70903@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D9E0970.70903@pobox.com>
-User-Agent: Mutt/1.4i
+	id <S262664AbSJDVxF>; Fri, 4 Oct 2002 17:53:05 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:60681 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262653AbSJDVxE>; Fri, 4 Oct 2002 17:53:04 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: oops in bk pull (oct 03)
+Date: Fri, 4 Oct 2002 21:58:10 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <anl2ti$9lc$1@penguin.transmeta.com>
+References: <3D9DF6A2.9030101@erkkila.org>
+X-Trace: palladium.transmeta.com 1033768709 8665 127.0.0.1 (4 Oct 2002 21:58:29 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 4 Oct 2002 21:58:29 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 04, 2002 at 05:34:40PM -0400, Jeff Garzik wrote:
-> Greg KH wrote:
-> >@@ -1563,13 +1562,11 @@
-> > 
-> >     if (pci_present()) {
-> 
-> an example of pci_present() that can be eliminated, as I described earlier
+In article <3D9DF6A2.9030101@erkkila.org>,
+Paul E. Erkkila <pee@erkkila.org> wrote:
+>
+>Oops in drivers/pci/probe.c
+>
+>Oops (copied), ksymoops, and lspci -vv attached
+>
+>No modules in ksyms, skipping objects
+>Unable to handle kernel paging request at virtual address f8000008
+>c01c9d10
+>*pde = 00000000
+>Oops: 0002
+>CPU:    0
+>EIP:    0060:[<c01c9d10>]    Not tainted
+>Using defaults from ksymoops -t elf32-i386 -a i386
+>EFLAGS: 00010202
+>eax: f8000008   ebx: 00000010     ecx: 00000000       edx: f8000008
+>esi: c1523c00   edi: c1523d38     ebp: 00000001       esp: dffcdb60
+>ds: 0068    es: 0068    ss: 0068
+>Stack:  c01c9e91 f8000008 fffffff0 00000010 dffcdb78 c1523ef8 f8000008 00000008
+>        d0000008 c1523c00 c1523f48 00000000 00000000 c01ca2a6 c1523c00 00000006
+>        00000030 dffcdbac 00000000 00000600 c1523c00 dffcdc20 c03a1351 c1523c00
+> [<c01c9e91>] pci_read_bases+0x161/0x340
+> [<c01ca2a6>] pci_setup_device+0x1b6/0x3d0
+> [<c0105109>] init+0x79/0x200
+> [<c0105090>] init+0x0/0x200
+> [<c01073e5>] kernel_thread_helper+0x5/0x10
+>Code: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 48 c3 8d b4
 
-I agree I could have done more invasive work on these drivers, they sure
-need it :)
+Something has corrupted your kernel image. Those 16 0x00 bytes are
+definitely not the right code, looks like an errant memset() through a
+wild pointer cleared it or something.
 
-But I was going for a minimal set of patches to remove the pcibios_*
-functions and still let things work.
+Is this repeatable? Does it happen with current BK?
 
-> > 	for (i = 0; i < NPCI_CHIP_IDS; ++i) 
-> >-	    for (pci_index = 0;
-> >-		!pcibios_find_device (PCI_VENDOR_ID_NCR, 
-> >-		    pci_chip_ids[i].pci_device_id, pci_index, &pci_bus, 
-> >-		    &pci_device_fn); 
-> >-    		++pci_index)
-> >+	    while ((pdev = pci_find_device (PCI_VENDOR_ID_NCR,
-> >+					    pci_chip_ids[i].pci_device_id,
-> >+					    pdev)))
-> > 		if (!ncr_pci_init (tpnt, BOARD_GENERIC, 
-> > 		pci_chip_ids[i].chip, -		    pci_bus, pci_device_fn, /* no 
-> >options */ 0))
-> >+		    pdev->bus->number, pdev->devfn, /* no options */ 0))
-> 
-> 
-> can you eliminate the need of ncr_pci_init to have number/devfn args?
-
-No, it wouldn't be that easy, as that function is called from other
-places.  That driver needs some major work, as it still is not converted
-over to the proper DMA fixes that went into the tree a long time ago.
-
-thanks,
-
-greg k-h
+		Linus

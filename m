@@ -1,75 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314388AbSDRQKq>; Thu, 18 Apr 2002 12:10:46 -0400
+	id <S314387AbSDRQJP>; Thu, 18 Apr 2002 12:09:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314389AbSDRQKp>; Thu, 18 Apr 2002 12:10:45 -0400
-Received: from [213.250.49.39] ([213.250.49.39]:6789 "EHLO godzila.nuedi.com")
-	by vger.kernel.org with ESMTP id <S314388AbSDRQKo>;
-	Thu, 18 Apr 2002 12:10:44 -0400
-Message-ID: <02be01c1e6f3$94bbc6a0$0201a8c0@nuedi.com>
-From: "Vasja J Zupan" <vasja@nuedi.com>
-To: "Etienne Lorrain" <etienne_lorrain@yahoo.fr>,
-        <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020418155943.93909.qmail@web11802.mail.yahoo.com>
-Subject: Re: HPT372 on KR7A-133R (ATA133) on production server
-Date: Thu, 18 Apr 2002 18:10:37 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S314388AbSDRQJO>; Thu, 18 Apr 2002 12:09:14 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:33545 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S314387AbSDRQJO>;
+	Thu, 18 Apr 2002 12:09:14 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] 2.5.8 sort kernel tables 
+In-Reply-To: Your message of "Thu, 18 Apr 2002 16:52:29 +0100."
+             <20020418165229.A16156@flint.arm.linux.org.uk> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 19 Apr 2002 02:09:03 +1000
+Message-ID: <3559.1019146143@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok,
-I see, what CPU do you use? I'm planning to go for Athlon XP 1800+.
-I do not see my services would use 100% CPU at any time but I cannot be 100%
-certain!
-I'll add 512MB DDR PC266 RAM (vendor unknown at this time).
-
-I also plan to add raiserfs for two mirror 40GB WD ata100 7200rpm.
-
-Any suggestions?
-
-rgds,
-Vasja
-
------ Original Message -----
-From: "Etienne Lorrain" <etienne_lorrain@yahoo.fr>
-To: <linux-kernel@vger.kernel.org>
-Cc: <vasja@nuedi.com>
-Sent: Thursday, April 18, 2002 5:59 PM
-Subject: Re: HPT372 on KR7A-133R (ATA133) on production server
-
-
->   I have this exact motherboard, with CRUCIAL 256MB 184DIMM PC2100 NP
-CL2.5
->  memory.
->  You first have to patch your kernel like Andy Jeffries said to activate
->  the RAID controller. Most of the distribution still did not do it,
->  you probably have to compile your own kernel.
+On Thu, 18 Apr 2002 16:52:29 +0100, 
+Russell King <rmk@arm.linux.org.uk> wrote:
+>On Fri, Apr 19, 2002 at 01:38:59AM +1000, Keith Owens wrote:
+>> For example, arm #defines get8_unaligned_check which uses __ex_table.
 >
->  For a long time, I have only been able to run it 100% CPU for one hour,
->  no disk access, if I set the memory clock to 100/200 MHZ.
->
->  I am currently experimenting running at 133/266 MHz with the two
->  parameters "DDR DQS Input Delay" and "DDR DQS Output Delay" changed
->  to manual and increased by 2.
->  Their autodetection does not seem to work, I am not sure.
->  It seems stable - no error noticed for the last few weeks.
->  Note that 100/200 to 133/266 did not seem to increase the CPU speed
->  a lot, my usual task takes 39 minutes 100% CPU in 133/266 and
->  40 min in 100/200 mode.
->  I am not on a production server, so your millage may vary.
->
->   Just my ?0.02,
->   Etienne.
->
-> ___________________________________________________________
-> Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
-> Yahoo! Mail : http://fr.mail.yahoo.com
->
+>This doesn't cause your issue though.  Its only used from code built into
+>the kernel .text segment, never from any other segment.  It isn't a
+>#define in some random header file that may end up in the .init segment
+>either.
+
+You are missing the point.  There are several macros that use
+__ex_table.  Unless it can be guaranteed that no current or future use
+of *any* of those macros will be in an __init section then we must not
+assume that the exception table is sorted.
+
+Exception table is not the only one that is assumed to be sorted,
+get8_unaligned_check is not the only macro that uses __ex_table.  Both
+are examples of tables and code where we assume, but do not validate, a
+sorted table.
 

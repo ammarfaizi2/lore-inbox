@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315477AbSEBX7S>; Thu, 2 May 2002 19:59:18 -0400
+	id <S315481AbSECACH>; Thu, 2 May 2002 20:02:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315478AbSEBX7P>; Thu, 2 May 2002 19:59:15 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:2566 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S315477AbSEBX6c>;
-	Thu, 2 May 2002 19:58:32 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Tom Oehser <tom@toms.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: module choices affecting base kernel size??? 
-In-Reply-To: Your message of "Thu, 02 May 2002 10:49:41 -0400."
-             <Pine.LNX.4.44.0205021043200.8024-100000@conn6m.toms.net> 
-Mime-Version: 1.0
+	id <S315480AbSECACF>; Thu, 2 May 2002 20:02:05 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:48135
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S315478AbSECABh>; Thu, 2 May 2002 20:01:37 -0400
+Date: Thu, 2 May 2002 17:00:35 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Samuel Flory <sflory@rackable.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pres and IDE DMA
+In-Reply-To: <E173O5B-0004tW-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10205021659010.2107-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 03 May 2002 09:58:21 +1000
-Message-ID: <1427.1020383901@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 May 2002 10:49:41 -0400 (EDT), 
-Tom Oehser <tom@toms.net> wrote:
->Changing all =m to =n in my config makes a 4K difference in the kernel size.
->
->But, the kernel compiled with them off still seems to load the modules fine.
->
->Why is there such a size difference in the static part and what do I risk if
->I mix a kernel compiled with the modules off with said modules?  What stuff
->is actually being compiled into the static part because of the modules I
->choose?  Doesn't it defeat the point of modules to have dependencies or even
->effects on the static part caused by the choice of module compilation?
 
-The majority of modules have no effect on kernel size but some modules
-require base kernel code as well.  This is typically common code or low
-level setup functions.  You will find that those modules will not load
-now or will break.
+Sorry but it did assign then the XP way, otherwise you would not be able
+to use the legacy address.
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+On Thu, 2 May 2002, Alan Cox wrote:
+
+> >   I'm having issues with a Tyan 2720 and post 2.4.18 boards with a 
+> > Maxtor 4G120J6.  Under 2.4.18 I can turn on dma via "hdparm -d 1". 
+> >  Under 2.4.19pre7 I get "HDIO_SET_DMA fail ed: Operation not permitted". 
+> 
+> The BIOS fails to assign the resources
+> 
+> > PS-There is also some issue with a resource conflict that occurs under 
+> > every kernel I've tried.
+> 
+> Yep. Your BIOS didnt assign them.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,64 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313796AbSDIC5i>; Mon, 8 Apr 2002 22:57:38 -0400
+	id <S313787AbSDIDPs>; Mon, 8 Apr 2002 23:15:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313802AbSDIC5h>; Mon, 8 Apr 2002 22:57:37 -0400
-Received: from smtp.polyu.edu.hk ([158.132.14.103]:55304 "EHLO
-	hkpa04.polyu.edu.hk") by vger.kernel.org with ESMTP
-	id <S313796AbSDIC5g>; Mon, 8 Apr 2002 22:57:36 -0400
-Message-ID: <000e01c1df72$554007d0$ccd7fea9@winxp>
-From: "Anthony Chee" <anthony.chee@polyu.edu.hk>
-To: <linux-kernel@vger.kernel.org>
-Subject: Question about deleting inode / drop inode
-Date: Tue, 9 Apr 2002 10:57:47 +0800
+	id <S313799AbSDIDPr>; Mon, 8 Apr 2002 23:15:47 -0400
+Received: from 66-133-183-62.fod.frontiernet.net ([66.133.183.62]:32640 "EHLO
+	66-133-183-62.fod.frontiernet.net") by vger.kernel.org with ESMTP
+	id <S313787AbSDIDPr>; Mon, 8 Apr 2002 23:15:47 -0400
+Message-Id: <200204090252.g392qNb24499@66-133-183-62.fod.frontiernet.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Russell Miller <rmiller@duskglow.com>
+Reply-To: rmiller@duskglow.com
+Organization: If you only saw my house...
+To: linux-kernel@vger.kernel.org
+Subject: 2.2.18 data corruption issues
+Date: Mon, 8 Apr 2002 20:52:20 -0600
+X-Mailer: KMail [version 1.3.2]
+Cc: barry@Know-Where.com (Barry Bakalor)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="big5"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I made some modification inode.c for my purpose. I defined myfunc() for my
-own use
+I'm not subscribed to the list, so please CC me on any responses.
 
-I modified write_inode as following. My purpose is to use a function to
-determine such inode should pass to lower to lower file system (ext2, vfat,
-etc) for writing on disk.
+I am running the stock 2.4.18 kernel, downloaded a few days ago from the 
+kernel mailing list.  The kernel was custom-built to my specifications, using 
+the default RH7.2 gcc (config available upon request).  The machine is a dual 
+pentium-III 1000 MHz, one scsi drive (sym53cxxx criver) and two ide drives.  
+All filesystems are ext3 journaling.
 
-static inline void write_inode(struct inode *inode, int sync)
-{
-    if (myfunc() == 0) {
-              if (inode->i_sb && inode->i_sb->s_op &&
-inode->i_sb->s_op->write_inode && !is_bad_inode inode)) {
-                    inode->i_sb->s_op->write_inode(inode, sync);
+We copied several very large partitions from one machine to another in an 
+attempt to put a new machine in service.  Just for kicks, we attempted to 
+verify the copy.  It turns out that a small amount of files, about 60 to 100 
+on a 17 gig partition, are corrupted.  Mod times are exactly the same, 
+owners, even file size.  It turns out that pretty consistently four null 
+characters (and occasionally other characters and a different number) are 
+appended to the beginning of the file, and the last four characters are 
+rolled off the end.  We ran the copy (and rsync and stuff) multiple times.  
+Each time different files were modified, in a seemingly random fashion, but 
+with a fairly consistent pattern of corruption.
 
-  } else {
-            if (inode->i_sb && inode->i_sb->s_op &&
-inode->i_sb->s_op->write_inode && !is_bad_inode(inode)) {
-                    inode->i_sb->s_op->write_inode(inode, sync);
-            die(inode);
-  }
- }
-}
+I have turned off DMA on the disk drives to no effect.  I have replaced the 
+ide cables with higher quality cables.  The problem seems to be occuring on 
+both the scsi and ide drives, which to me eliminates the ide or scsi 
+controllers, drivers, or anything on the back end of them as the source of 
+the problem.This same machine was in service previously, minus one disk 
+drive, and this problem never manifested itself, leading me to believe it is 
+either something to do with the ext3 jfs, or with the 2.4.18 kernel.
 
-static inline void die(inode) {
-    iput(inode);
-}
+Does anyone have any tips on how to debug this?  I have administrative access 
+to the machine, and although it is running production, I am very keen on 
+getting this resolved and will provide any information you need.  If this is 
+a kernel or ext3 problem as I suspect I imagine you want to get this resolved 
+as much as I do.
 
-I used iput(inode) in this case. Is it right? I supposed the inode will
-immediatly deleted after written on disk, and release the block used. But I
-found that I still can see such file when I press "ls". I also tried to add
-inode->i_nlink = 0 and atomic_set(&inode->i_count, 0) in die(inode) function
-before iput(inode), but not success. It may also have input/output error on
-that file after I reboot system and "ls".
+Thank you in advance for your help.
 
-Or any method to drop the inode (do not pass to lower file system layer,
-just delete it in VFS layer) when myfunc() != 0?
-
-Any one can give suggestion on it? Thanks for help. :D
+--Russell
 
 
+
+-- 
+Russell Miller
+rmiller@duskglow.com
+Somewhere in Northwestern Iowa

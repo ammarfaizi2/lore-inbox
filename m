@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317264AbSFRBAl>; Mon, 17 Jun 2002 21:00:41 -0400
+	id <S317267AbSFRBDv>; Mon, 17 Jun 2002 21:03:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317265AbSFRBAQ>; Mon, 17 Jun 2002 21:00:16 -0400
-Received: from ares.kos.net ([199.246.2.117]:7325 "HELO ares.kos.net")
-	by vger.kernel.org with SMTP id <S317264AbSFRA7v>;
-	Mon, 17 Jun 2002 20:59:51 -0400
-Message-ID: <004e01c21663$4f5f1540$0a00000a@kos.net>
-From: "Steve Cole" <coles@vip.kos.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Dual Athlon issue temporarily resolved
-Date: Mon, 17 Jun 2002 20:58:50 -0400
+	id <S317270AbSFRBDs>; Mon, 17 Jun 2002 21:03:48 -0400
+Received: from tomts8.bellnexxia.net ([209.226.175.52]:25323 "EHLO
+	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S317267AbSFRBDV>; Mon, 17 Jun 2002 21:03:21 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Ghozlane Toumi <gtoumi@laposte.net>
+To: Adrian Bunk <bunk@fs.tum.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       James Simmons <jsimmons@linux-fbdev.org>
+Subject: Re: [patch] fix .text.exit compile error in sstfb.c
+Date: Mon, 17 Jun 2002 21:02:10 -0400
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.NEB.4.44.0206161434070.11043-100000@mimas.fachschaften.tu-muenchen.de>
+In-Reply-To: <Pine.NEB.4.44.0206161434070.11043-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-X-BlackHole: Version 0.9.83 by Chris Kennedy (C) 2002
-X-BlackHole-Sender: (null)
-X-BlackHole-Relay: 199.246.3.1
-X-BlackHole-Match: No Match
-X-BlackHole-Info: (null)
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020618010320.KVZC14183.tomts8-srv.bellnexxia.net@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I went back to a single Athlon board and chip.  Some fix. :(
+On Sunday 16 June 2002 08:37, Adrian Bunk wrote:
+> Hi,
 
-I think it's the motherboard.  Putting the board into single CPU mode and
-recompiling the kernel that way, then removing the CPU helped none.  Trying
-yet another stick of memory got me nothing.
+> The problem is that sstfb_remove is __devexit and calls sst_shutdown which
+> is __exit. This causes the error above when CONFIG_HOTPLUG is set.
+>
 
-So now I'm getting the board replaced.  Of course, I phone up ASUS and they
-discontinued the board because it has too many problems.  Bingo!
+Sorry for the delay, 
+Thank you for your patch, if Marcelo doesn't integrate it , I'll resend it to 
+him ...
 
+ghoz

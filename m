@@ -1,62 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262845AbTDFGms (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 01:42:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262846AbTDFGms (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 01:42:48 -0500
-Received: from web21203.mail.yahoo.com ([216.136.130.22]:34642 "HELO
-	web21203.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262845AbTDFGmq (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 01:42:46 -0500
-Message-ID: <20030406065419.91429.qmail@web21203.mail.yahoo.com>
-Date: Sat, 5 Apr 2003 22:54:19 -0800 (PST)
-From: Melkor Ainur <melkorainur@yahoo.com>
-Subject: failure due to swapper and inet_sock_destruct
-To: linux-kernel@vger.kernel.org
+	id S262844AbTDFGzr (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 01:55:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262849AbTDFGzr (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 01:55:47 -0500
+Received: from fmr02.intel.com ([192.55.52.25]:10739 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id S262844AbTDFGzq (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 01:55:46 -0500
+Date: Sat, 5 Apr 2003 22:56:54 -0800 (PST)
+From: Scott Feldman <scott.feldman@intel.com>
+X-X-Sender: scott.feldman@localhost.localdomain
+To: "J.A. Magallon" <jamagallon@able.es>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] e1000 close
+In-Reply-To: <C6F5CF431189FA4CBAEC9E7DD5441E010128A52B@orsmsx402.jf.intel.com>
+Message-ID: <Pine.LNX.4.44.0304052242290.5402-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sat, 5 Apr 2003, J.A. Magallon wrote:
 
-I am using the 2.4.20 kernel in a fairly high stress
-bursty network environment. Every so often, I see the
-following error message from the kernel:
+> Supposed to cure a dev_close called without dev_open.
+> Is this still needed ?
 
-Attempt to release TCP socket in state 10 cfbfd540
+I can't find the original bug report.  I thought it had to do with 
+bonding, but my search came up empty.  Any help?
 
-I put some tracking in the kernel, and determined that
-this cfbfd540 was specifically the sk1 used in
-inet_tcp_listen and looking at the sport of 0x17, it
-is the telnet daemon. So it was created by xinetd for
-the telnet  listening socket.
+It bugs me that someone is calling dev->close without calling dev->open.  
+On the other hand, the driver shouldn't knock everyone down just because
+the caller is misbehaved, and this fix isn't in the perf path, so the
+patch is good insurance.  Let's go back and figure out who was calling
+dev->open out of turn.
 
-The failure often happens during a period of
-inactivity. The call to inet_sock_destruct happened in
-the swapper context. My first question is whether
-anyone has observed this behavior before. Secondly, in
-order to debug the problem, I'd like to understand
-what  could trigger the swapper to call
-inet_sock_destruct. I did further determine that the
-call did not come from either tcp_close or
-tcp_destroy_sock. Looking at the code, it looks like
-the only call to inet_sock_destruct only happens from
-sk_free. sk_free looks to be used by sock_put which
-happens from sock_wfree, sklist_remove_socket, etc.
-Anyway, I'll keep investigating but I could use any
-help/advice on what would trigger the destruction of
-an sk without a call to close the parent listening
-socket. Any reason why it happened in the swapper
-context? 
+-scott
 
-Thanks,
-Melkor
-
-
-
-
- 
-
-
-__________________________________________________
-Do you Yahoo!?
-Yahoo! Tax Center - File online, calculators, forms, and more
-http://tax.yahoo.com

@@ -1,30 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317910AbSGKVRh>; Thu, 11 Jul 2002 17:17:37 -0400
+	id <S317913AbSGKVZl>; Thu, 11 Jul 2002 17:25:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317911AbSGKVRg>; Thu, 11 Jul 2002 17:17:36 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:35844 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S317910AbSGKVRf>; Thu, 11 Jul 2002 17:17:35 -0400
-Date: Thu, 11 Jul 2002 17:26:09 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: mbs <mbs@mc.com>
+	id <S317914AbSGKVZk>; Thu, 11 Jul 2002 17:25:40 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:12787 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S317913AbSGKVZj>; Thu, 11 Jul 2002 17:25:39 -0400
+Subject: Re: Q: preemptible kernel and interrupts consistency.
+From: Robert Love <rml@tech9.net>
+To: Oleg Nesterov <oleg@tv-sign.ru>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: question for marcello re adaptec aic7902
-In-Reply-To: <200207102111.RAA01524@mc.com>
-Message-ID: <Pine.LNX.4.44.0207111725580.21365-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <3D2DF64D.838BD6D6@tv-sign.ru>
+References: <3D2DEB91.57FA34E6@tv-sign.ru>
+	<1026420107.1178.279.camel@sinai>  <3D2DF64D.838BD6D6@tv-sign.ru>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 11 Jul 2002 14:28:24 -0700
+Message-Id: <1026422904.1244.294.camel@sinai>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2002-07-11 at 14:19, Oleg Nesterov wrote:
 
+> Safe? Look, if process does not hold any spinlock and interrupts
+> disabled, then any distant implicit call to resched_task() silently
+> enables irqs. At least, this must be documented.
 
-On Wed, 10 Jul 2002, mbs wrote:
+If interrupts are disabled, where is this distant implicit call from
+resched_task() coming from?
 
-> when is the adaptec aic7902 driver justin gibbs submitted going to get
-> integrated into the kernel?
+That was my point, aside from interrupt handlers all the
+need_resched-touching code is in sched.c and both Ingo and I verified
+everything is locked.
 
-2.4.20pre.
+If interrupts are disabled, there are no interrupts handlers.  And if
+you are in an interrupt handler, preemption is already disabled.
+
+	Robert Love
 

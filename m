@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135880AbRDYPQs>; Wed, 25 Apr 2001 11:16:48 -0400
+	id <S135881AbRDYPQs>; Wed, 25 Apr 2001 11:16:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135882AbRDYPQi>; Wed, 25 Apr 2001 11:16:38 -0400
-Received: from pop.gmx.net ([194.221.183.20]:63790 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S135880AbRDYPQ2>;
-	Wed, 25 Apr 2001 11:16:28 -0400
-Message-ID: <3AE6EBCC.429B9449@gmx.at>
-Date: Wed, 25 Apr 2001 17:22:53 +0200
-From: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jeroen Geusebroek <Jeroen.Geusebroek@intellit.nl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: IDE Raid supported with the HPT370?
-In-Reply-To: <NCBBJKHJIKHIFECNNOAMIECEEDAA.Jeroen.Geusebroek@intellit.nl>
+	id <S135880AbRDYPQj>; Wed, 25 Apr 2001 11:16:39 -0400
+Received: from t2.redhat.com ([199.183.24.243]:761 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S135881AbRDYPQ2>; Wed, 25 Apr 2001 11:16:28 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <200104251459.f3PEx8s4009505@pincoya.inf.utfsm.cl> 
+In-Reply-To: <200104251459.f3PEx8s4009505@pincoya.inf.utfsm.cl> 
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: "Sergey Kubushin" <ksi@cyberbills.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.3ac13 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Wed, 25 Apr 2001 16:15:57 +0100
+Message-ID: <22221.988211757@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeroen Geusebroek wrote:
-> I have ordered a ABIT VP6 motherboard with the HPT370 controller
-> and would like to know if raid0 is supported with linux?
-> 
-> If not, will i be able to work without raid then? (maybe using
-> software raid)
 
-The controller is working fine, but the raid functionality is not
-working within linux. Of course you could use the linux software raid.
-However in this case you cannot install another OS on the HPT if this
-uses the hpt raid.
-I have written a small module which does raid 0 in the hpt way of life.
-You can send me an email if you want to try it out. The future of my mod
-is unknown because of the IDE guys want to support the ata raids. So it
-might become obsolete.
+vonbrand@inf.utfsm.cl said:
+>  AFAIR, this means that the driver is using an udelay() with a much
+> too large argument. Break it up into several shorter ones, or use
+> mdelay().
 
-good luck,
-Wilfried
+That isn't necessarily the case. This code can break even with _correct_ 
+arguments to udelay().
 
--- 
-Wilfried Weissmann ( mailto:Wilfried.Weissmann@gmx.at )
-Mobile: +43 676 9444465
+This is because despite the number of times this kind of thing has bitten
+us, we _still_ haven't learned our lesson w.r.t. depending on specifications
+rather than the observed behaviour of this week's compiler with this
+particular phase of the moon.
+
+--
+dwmw2
+
+

@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273072AbRIIVy2>; Sun, 9 Sep 2001 17:54:28 -0400
+	id <S273076AbRIIWJV>; Sun, 9 Sep 2001 18:09:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273073AbRIIVyS>; Sun, 9 Sep 2001 17:54:18 -0400
-Received: from gyre.weather.fi ([193.94.59.26]:58779 "EHLO gyre.weather.fi")
-	by vger.kernel.org with ESMTP id <S273072AbRIIVyF>;
-	Sun, 9 Sep 2001 17:54:05 -0400
-Date: Mon, 10 Sep 2001 00:54:17 +0300 (EEST)
-From: =?ISO-8859-1?Q?Jaakko_Hyv=E4tti?= <jaakko.hyvatti@iki.fi>
-X-X-Sender: <jaakko@gyre.weather.fi>
-To: Jussi Laako <jlaako@pp.htv.fi>
-cc: Steven Spence <kwijibo@zianet.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: AMD 760 (761?) AGP
-In-Reply-To: <3B9A468F.66C20011@pp.htv.fi>
-Message-ID: <Pine.LNX.4.33.0109100051370.31102-100000@gyre.weather.fi>
+	id <S273077AbRIIWJC>; Sun, 9 Sep 2001 18:09:02 -0400
+Received: from [209.202.108.240] ([209.202.108.240]:55311 "EHLO
+	terbidium.openservices.net") by vger.kernel.org with ESMTP
+	id <S273076AbRIIWI6>; Sun, 9 Sep 2001 18:08:58 -0400
+Date: Sun, 9 Sep 2001 18:09:04 -0400 (EDT)
+From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Lockup with 2.4.9-ac10 on Athlon
+In-Reply-To: <Pine.LNX.4.33.0109091343580.22125-100000@terbidium.openservices.net>
+Message-ID: <Pine.LNX.4.33.0109091804450.1105-100000@terbidium.openservices.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 8 Sep 2001, Jussi Laako wrote:
-> Yes, I did try that and result is deadlock without video signal. Without AGP
-> it works fine. XFree86 and dri/drm driver is the latest CVS version.
-> (With or without dri enabled)
+On Sun, 9 Sep 2001, Ignacio Vazquez-Abrams wrote:
 
-  For a workaround until it is fixed properly, find RADEON_SOFT_RESET_HDP
-in your kernel radeon driver source and kill it.  Possibly XFree86 CVS
-source is fixed already, but anyway you need to change and compile some
-modules from XFree86 source too and install them to where the X server
-will find them.
+> I'm running RH7.1+2.4.9-ac10 (K7-optimized) on an Asus A7V (KT133) and an
+> Athlon C 1.4GHz (currently running on a 100/200MHz FSB at 1050MHz).
+>
+> This system experiences lockups during shutdon, and sometimes also when
+> SIGTERMing tasks.
 
-  Check out dri.sf.net -> project -> bug [ #221904 ] Radeon + AMD
-Irongate.
+I have verified that the problem happens when both K6 and i386 have been
+chosen as the processor type.
+
+SysRq also has no effect in any case. /var/log/messages doesn't list anything
+due to the fact that syslog has already been killed.
+
+Could the APM settings that I have chosen have anything to do with this?
 
 -- 
-Jaakko.Hyvatti@iki.fi         http://www.iki.fi/hyvatti/        +358 40 5011222
-echo 'movl $36,%eax;int $128;movl $0,%ebx;movl $1,%eax;int $128'|as -o/bin/sync
+Ignacio Vazquez-Abrams  <ignacio@openservices.net>
 

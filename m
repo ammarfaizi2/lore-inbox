@@ -1,43 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266352AbUGKHAF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266364AbUGKHAk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266352AbUGKHAF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 03:00:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266364AbUGKHAF
+	id S266364AbUGKHAk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 03:00:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266454AbUGKHAk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 03:00:05 -0400
-Received: from mail015.syd.optusnet.com.au ([211.29.132.161]:54429 "EHLO
-	mail015.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S266352AbUGKHAB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 03:00:01 -0400
-References: <20040709182638.GA11310@elte.hu> <20040709195105.GA4807@infradead.org> <20040710124814.GA27345@elte.hu> <40F0075C.2070607@kolivas.org> <40F016D9.8070300@kolivas.org> <20040711064730.GA11254@elte.hu>
-Message-ID: <cone.1089529187.633082.20820.502@pc.kolivas.org>
-X-Mailer: http://www.courier-mta.org/cone/
-From: Con Kolivas <kernel@kolivas.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: ck kernel mailing list <ck@vds.kolivas.org>, linux-kernel@vger.kernel.org
-Subject: Re: Voluntary Kernel Preemption Patch
-Date: Sun, 11 Jul 2004 16:59:47 +1000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="US-ASCII"
-Content-Disposition: inline
+	Sun, 11 Jul 2004 03:00:40 -0400
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:10932 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S266364AbUGKHAh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 03:00:37 -0400
+Message-ID: <40F0E586.4040000@t-online.de>
+Date: Sun, 11 Jul 2004 09:00:22 +0200
+From: "Harald Dunkel" <harald.dunkel@t-online.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a2) Gecko/20040709
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.7, amd64: PS/2 Mouse detection doesn't work 
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-ID: SyJhKsZD8eC8vLBobMcsBAUrmUU8Rnws6fCU+2Gg1QefMjOOQ6eY0f
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar writes:
+Hi folks,
 
-> 
-> * Con Kolivas <kernel@kolivas.org> wrote:
-> 
->> Ooops forgot to mention this was running reiserFS 3.6 on software
->> raid0 2x IDE with cfq elevator.
-> 
-> ok, reiserfs (and all journalling fs's) definitely need a look - as you
-> can see from the ext3 mods in the patch. Any chance you could try ext3
-> based tests? Those are the closest to my setups.
+Most of the times my mouse is detected as generic PS/2,
+even though it is a Logitech. I have to reload the mousedev
+and psmouse modules to make it work.
 
-Sorry, I only have one machine to my name and I have to share it with 
-both the family and testing so no such luck.
+# grep -i mouse /var/log/kern.log
+Jul 10 17:23:08 r101 kernel: input: PS/2 Generic Mouse on isa0060/serio1
+Jul 10 17:23:08 r101 kernel: mice: PS/2 mouse device common for all mice
+Jul 10 17:24:59 r101 kernel: input: PS/2 Generic Mouse on isa0060/serio1
+Jul 10 17:24:59 r101 kernel: mice: PS/2 mouse device common for all mice
+Jul 10 17:43:41 r101 kernel: input: PS2++ Logitech Mouse on isa0060/serio1
+Jul 10 17:43:41 r101 kernel: mice: PS/2 mouse device common for all mice
+Jul 10 17:46:59 r101 kernel: input: PS2++ Logitech Mouse on isa0060/serio1
+Jul 10 17:47:00 r101 kernel: mice: PS/2 mouse device common for all mice
+Jul 11 07:34:34 r101 kernel: input: PS/2 Generic Mouse on isa0060/serio1
+Jul 11 07:34:34 r101 kernel: mice: PS/2 mouse device common for all mice
+Jul 11 07:36:01 r101 kernel: input: PS/2 Generic Mouse on isa0060/serio1
+Jul 11 07:36:01 r101 kernel: mice: PS/2 mouse device common for all mice
+Jul 11 08:43:33 r101 kernel: mice: PS/2 mouse device common for all mice
+Jul 11 08:43:33 r101 kernel: input: PS2++ Logitech Mouse on isa0060/serio1
 
-Con
 
+Usually I wouldn't care, but I can go mad if the 4th mouse
+button doesn't work :-).
+
+
+Any idea?
+
+
+Regards
+
+Harri

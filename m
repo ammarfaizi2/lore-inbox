@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270272AbRHHCfi>; Tue, 7 Aug 2001 22:35:38 -0400
+	id <S270273AbRHHCgi>; Tue, 7 Aug 2001 22:36:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270273AbRHHCf2>; Tue, 7 Aug 2001 22:35:28 -0400
-Received: from [202.81.130.34] ([202.81.130.34]:3083 "EHLO
-	seawall.perth.wni.com") by vger.kernel.org with ESMTP
-	id <S270272AbRHHCfX>; Tue, 7 Aug 2001 22:35:23 -0400
-Message-Id: <5.1.0.14.0.20010808103510.00aafbb0@mailhost>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 08 Aug 2001 10:38:05 +0800
-To: Ben Greear <greearb@candelatech.com>
-From: Stuart Duncan <sety@perth.wni.com>
-Subject: Re: ARP's frustrating behavior
+	id <S270275AbRHHCg2>; Tue, 7 Aug 2001 22:36:28 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:65145 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S270273AbRHHCgS>; Tue, 7 Aug 2001 22:36:18 -0400
+Date: Tue, 7 Aug 2001 22:36:25 -0400
+From: Bill Nottingham <notting@redhat.com>
+To: Stuart Lynne <sl@fireplug.net>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3B70A0DA.DE33CB87@candelatech.com>
-In-Reply-To: <5.1.0.14.0.20010808094513.00ab72c8@mailhost>
+Subject: Re: How does "alias ethX drivername" in modules.conf work?
+Message-ID: <20010807223625.A8330@nostromo.devel.redhat.com>
+Mail-Followup-To: Stuart Lynne <sl@fireplug.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010807135135.J17723@fireplug.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010807135135.J17723@fireplug.net>; from sl@fireplug.net on Tue, Aug 07, 2001 at 01:51:35PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Stuart Lynne (sl@fireplug.net) said: 
+> So not being able to reliable map ethernet devices to names is a feature
+> not a bug .... 
 
->Evidently, this is considered a feature.  However, to turn it off:
->echo 1 > /proc/sys/net/ipv4/conf/all/arp_filter
+With reasonable scriptage and 'nameif', it's doable. Only for
+ethernet at the moment, however (and I haven't actually implementing
+something that does this.)  But it *is* doable.
 
-I've tried this and it doesn't work.  I understand that arp_filter uses 
-routing tables to determine which interfaces should respond to ARP 
-queries.  In my case, both interfaces are on the same network.
-
-There isn't a lot of documentation available for the use of arp_filter.
-
-Thanks,
-Stuart Duncan
-
-
-----
-Stuart Duncan
-Systems Administrator
-WNI Weathernews
-31 Bishop Street
-JOLIMONT WA 6014
-
-
+Bill

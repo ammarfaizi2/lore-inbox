@@ -1,64 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261586AbVADJdo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261588AbVADJhT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261586AbVADJdo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Jan 2005 04:33:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbVADJdo
+	id S261588AbVADJhT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Jan 2005 04:37:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261581AbVADJhT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Jan 2005 04:33:44 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:14514 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261586AbVADJdj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Jan 2005 04:33:39 -0500
-Date: Tue, 4 Jan 2005 10:33:30 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-mm1
-Message-ID: <20050104093330.GA13602@elte.hu>
-References: <20050103011113.6f6c8f44.akpm@osdl.org> <20050103115120.GB18408@infradead.org> <20050104090408.GA12197@elte.hu> <20050104092612.GA2371@infradead.org>
-Mime-Version: 1.0
+	Tue, 4 Jan 2005 04:37:19 -0500
+Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:60800 "EHLO
+	tyo202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S261588AbVADJhM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Jan 2005 04:37:12 -0500
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Domen Puncer <domen@coderock.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] maintainers: remove moderated arm list
+References: <20041225170825.GA31577@nd47.coderock.org>
+	<20041225172155.A26504@flint.arm.linux.org.uk>
+	<20050103175438.GL2980@stusta.de>
+From: Miles Bader <miles@lsi.nec.co.jp>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+Date: Tue, 04 Jan 2005 18:37:01 +0900
+In-Reply-To: <20050103175438.GL2980@stusta.de> (Adrian Bunk's message of
+ "Mon, 3 Jan 2005 18:54:38 +0100")
+Message-ID: <buosm5hwn5u.fsf@mctpc71.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050104092612.GA2371@infradead.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Adrian Bunk <bunk@stusta.de> writes:
+> In my experience, the best solution is a list policy that allows 
+> subscribers to post and requires moderator approval for non-members.
+> This policy that is already used by several lists listed in MAINTAINERS 
+> is IMHO a good compromise between avoiding spam and allowing 
+> non-subscribers to post to the list.
 
-* Christoph Hellwig <hch@infradead.org> wrote:
+Sounds great, but _every single time_ I've ever gotten one of those
+"your message is awaiting moderation" messages from such a list, it's
+inevitably followed a few hours/days later by a "your message has been
+rejected" message.  In every case, the message I sent was definitely a
+no-brainer to allow, so I can only guess that either the moderation
+system is broken, or the moderators are.
 
-> On Tue, Jan 04, 2005 at 10:04:08AM +0100, Ingo Molnar wrote:
-> > or is it the addition of _smp_processor_id() as a way to signal 'this
-> > smp_processor_id() call in a preemptible region is fine, trust me'?
-> 
-> Yes.
-> 
-> > We
-> > could do smp_processor_id_preempt() or some other name - any better
-> > suggestions?
-> 
-> I'd just kill the debug check and rely on the eye of the review to not
-> let new users of smp_processor_id slip in.
+Are there actually any lists out there where this mechanism works properly?
 
-relying on that is quite futile. E.g. in the block IO code it needed 3-4
-iterations even after the first instance was found to get all the cases
-right. There are functions that are always called from under a lock then
-some unlocked call happens and we've got trouble. Often the bug is some
-very rare and obscure corruption of a statistics value, nobody really
-notices that.
+As it is, it's even more annoying than an immediate rejection.
 
-by today i think we've identified most of the places that can safely do
-smp_processor_id() in a preemptible section (in x86 and x64) - it's only
-around 3% of the total smp_processor_id() use. I'd rather allow these
-exceptions and flag new exceptions as they get added - they are added at
-least an order of magnitude more rarely than smp_processor_id() gets
-added.
-
-	Ingo
+-miles
+-- 
+/\ /\
+(^.^)
+(")")
+*This is the cute kitty virus, please copy it into your sig so it can spread.

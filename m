@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317404AbSHTWGT>; Tue, 20 Aug 2002 18:06:19 -0400
+	id <S317402AbSHTWFv>; Tue, 20 Aug 2002 18:05:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317415AbSHTWGS>; Tue, 20 Aug 2002 18:06:18 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20233 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317404AbSHTWGR>;
-	Tue, 20 Aug 2002 18:06:17 -0400
-Message-ID: <3D62BE48.8050102@mandrakesoft.com>
-Date: Tue, 20 Aug 2002 18:10:16 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Anders Gustafsson <andersg@0x63.nu>
-CC: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au,
-       torvalds@transmeta.com
-Subject: Re: [PATCH] __devexit_p in drivers/net/tulip/de2104x.c
-References: <20020820133248.GA577@h55p111.delphi.afb.lu.se>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317404AbSHTWFv>; Tue, 20 Aug 2002 18:05:51 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:41200 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S317402AbSHTWFv>; Tue, 20 Aug 2002 18:05:51 -0400
+Date: Tue, 20 Aug 2002 18:09:56 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: automount doesn't "follow" bind mounts
+Message-ID: <20020820180956.L21269@redhat.com>
+References: <Pine.LNX.4.44.0208201752430.23681-100000@r2-pc.dcs.qmul.ac.uk> <ajuahu$hf$1@cesium.transmeta.com> <ajucmu$1qd$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <ajucmu$1qd$1@cesium.transmeta.com>; from hpa@zytor.com on Tue, Aug 20, 2002 at 02:35:26PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anders Gustafsson wrote:
-> Adds __devexit_p to de_remove_one in drivers/net/tulip/de2104x.c to make it
-> possible to compile it with new binutils
+On Tue, Aug 20, 2002 at 02:35:26PM -0700, H. Peter Anvin wrote:
+> Actually, if you're using autofs v3, which it sounds like you're
+> doing, it's even more broken, since autofs v3 doesn't support
+> multilevel mounts.
 
-Again, de_remove_one is __exit for a reason:  it's not a board people 
-are hotplugging.
+Is there an autofs v4 daemon that's actually released?  The only thing I 
+see is code that's over a year old in /pub/linux/daemons/autofs/testing-v4/ 
+on kernel.org.  If pre10 is okay, it should be released (at least that 
+would explain why we're still shipping v3).
 
-Look at the fix I made to 2.5's include/linux/init.h recently, though -- 
-applying just the last hunk of your patch should hopefully no longer 
-cause a warning.
-
-	Jeff
-
-
+		-ben
+-- 
+"You will be reincarnated as a toad; and you will be much happier."

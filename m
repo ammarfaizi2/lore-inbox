@@ -1,113 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129610AbRBLCD4>; Sun, 11 Feb 2001 21:03:56 -0500
+	id <S130579AbRBJJLi>; Sat, 10 Feb 2001 04:11:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130007AbRBLCDr>; Sun, 11 Feb 2001 21:03:47 -0500
-Received: from moutvdom00.kundenserver.de ([195.20.224.149]:20524 "EHLO
-	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S129610AbRBLCDh>; Sun, 11 Feb 2001 21:03:37 -0500
-Date: Thu, 8 Feb 2001 09:38:54 +0100
-From: Christian Ullrich <chris@chrullrich.de>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.1: Abnormal interrupt from RTL8139
-Message-ID: <20010208093854.A1122@christian.chrullrich.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	id <S131230AbRBJJL2>; Sat, 10 Feb 2001 04:11:28 -0500
+Received: from kerberos.suse.cz ([195.47.106.10]:53511 "EHLO kerberos.suse.cz")
+	by vger.kernel.org with ESMTP id <S130579AbRBJJLM>;
+	Sat, 10 Feb 2001 04:11:12 -0500
+Date: Sat, 10 Feb 2001 10:11:08 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Philip Langdale <philipl@mail.utexas.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [preview] VIA IDE 4.0 and AMD IDE 2.0 with automatic PCI clock detection
+Message-ID: <20010210101108.A665@suse.cz>
+In-Reply-To: <3A84726C.4B07B601@mail.utexas.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.13i
-X-M$-Free-System: since 1999-11-28
-X-Current-Uptime: 2 d, 13:35:14 h
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A84726C.4B07B601@mail.utexas.edu>; from philipl@mail.utexas.edu on Fri, Feb 09, 2001 at 04:42:52PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting some of these messages in syslog:
+On Fri, Feb 09, 2001 at 04:42:52PM -0600, Philip Langdale wrote:
+>  	
+> Content-Type: text/plain; charset=us-ascii
+> Content-Transfer-Encoding: 7bit
+> 
+> Vojtech,
+> 
+> I've tried out your new via driver and it
+> appears to have solved the problem with
+> the mis-detected ls-120 drive, but the ata66
+> drives are still being run at 33. 
+> 
+> More interestingly, the pci-clk calculations
+> seem to be returning badly off values.
+> 
+> My motherboard is a kt133a+686b btk7a from abit.
+> 
+> When I set the FSB to 133 with PCI=133/4=33 the
+> timing code returns 43mhz.
+> 
+> when I set the FSB to 100 with PCI=100/3=33 then
+> it returns 42mhz.
+> 
+> These are scarely different from the nominal values.
+> I didn't observe anything bad in the few minutes
+> I was running like this, but right now I've hacked
+> the driver back to a hardcoded 33.
+> 
+> What should I do next?
 
-Feb  6 07:38:35 christian kernel: eth0: Abnormal interrupt, status 00000010.
-Feb  6 07:38:35 christian kernel: eth0: Abnormal interrupt, status 00000010.
-Feb  6 07:38:35 christian kernel: eth0: Abnormal interrupt, status 00000020.
-Feb  7 17:32:53 christian kernel: eth0: Abnormal interrupt, status 00000041.
-Feb  7 17:55:22 christian kernel: eth0: Abnormal interrupt, status 00000041.
-Feb  7 17:59:04 christian kernel: eth0: Abnormal interrupt, status 00000040.
-Feb  7 19:39:47 christian kernel: eth0: Abnormal interrupt, status 00000010.
-Feb  7 19:39:47 christian kernel: eth0: Abnormal interrupt, status 00000010.
-
-Kernel is 2.4.1, eth0 is an rtl8139. 
-MB is an ABIT KT7, with VIA chipset.
-
-I have not observed any effects related to these messages.
-
-I'm including the output of Linus's dump_pirq script, if it is of any use:
-
-Interrupt routing table found at address 0xfddd0:
-  Version 1.0, size 0x00b0
-  Interrupt router is device 00:07.0
-  PCI exclusive interrupt mask: 0x8e00 [9,10,11,15]
-  Compatible router: vendor 0x1106 device 0x0596
-
-Device 00:11.0 (slot 1): 
-  INTA: link 0x01, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-  INTB: link 0x02, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-  INTC: link 0x03, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-  INTD: link 0x05, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-
-Device 00:0f.0 (slot 2): 
-  INTA: link 0x02, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-  INTB: link 0x05, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-  INTC: link 0x03, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-  INTD: link 0x01, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-
-Device 00:0d.0 (slot 3): SCSI storage controller
-  INTA: link 0x02, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-  INTB: link 0x01, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-  INTC: link 0x05, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-  INTD: link 0x03, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-
-Device 00:0b.0 (slot 4): Multimedia audio controller
-  INTA: link 0x05, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-  INTB: link 0x01, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-  INTC: link 0x02, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-  INTD: link 0x03, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-
-Device 00:09.0 (slot 5): Ethernet controller
-  INTA: link 0x03, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-  INTB: link 0x05, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-  INTC: link 0x01, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-  INTD: link 0x02, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-
-Device 00:08.0 (slot 6): 
-  INTA: link 0x05, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-  INTB: link 0x02, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-  INTC: link 0x01, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-  INTD: link 0x02, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-
-Device 00:13.0 (slot 7): 
-  INTA: link 0x03, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-  INTB: link 0x03, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-  INTC: link 0x01, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-  INTD: link 0x02, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-
-Device 00:01.0 (slot 0): PCI bridge
-  INTA: link 0x01, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-  INTB: link 0x02, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-  INTC: link 0x03, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-  INTD: link 0x05, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-
-Device 00:07.0 (slot 0): ISA bridge
-  INTC: link 0x03, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-  INTD: link 0x05, irq mask 0xdeb8 [3,4,5,7,9,10,11,12,14,15]
-
-Interrupt router at 00:07.0: VIA 82C686 PCI-to-ISA bridge
-  PIRQA (link 0x01): irq 10
-  PIRQB (link 0x02): irq 15
-  PIRQC (link 0x03): irq 11
-  PIRQD (link 0x05): irq 9
+Are you willing to do some experiments? I suppose the 686b is somewhat
+different than the other chips (I tested it on 686a and 586b).
 
 -- 
-Christian Ullrich		     Registrierter Linux-User #125183
-
-"Sie können nach R'ed'mond fliegen -- aber Sie werden sterben"
+Vojtech Pavlik
+SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262001AbVCHKyn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261988AbVCHK5P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262001AbVCHKyn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 05:54:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262000AbVCHKyB
+	id S261988AbVCHK5P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 05:57:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261987AbVCHKxY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 05:54:01 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:19691 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261978AbVCHKuJ
+	Tue, 8 Mar 2005 05:53:24 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:19947 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261976AbVCHKuJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 8 Mar 2005 05:50:09 -0500
 X-Envelope-From: kraxel@bytesex.org
-Date: Tue, 8 Mar 2005 11:45:08 +0100
+Date: Tue, 8 Mar 2005 11:45:30 +0100
 From: Gerd Knorr <kraxel@bytesex.org>
 To: Andrew Morton <akpm@osdl.org>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [patch] v4l: tuner update
-Message-ID: <20050308104508.GA30750@bytesex>
+Subject: [patch] v4l: tveeprom update
+Message-ID: <20050308104530.GA30786@bytesex>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,96 +23,92 @@ User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Minor update for the tuner module:  Add some new entries,
-fix a bug in the tda8290 driver.
+Add some new tuners to the list.
 
 Signed-off-by: Gerd Knorr <kraxel@bytesex.org>
 ---
- drivers/media/video/mt20xx.c       |    3 ++-
- drivers/media/video/tda8290.c      |    4 ++--
- drivers/media/video/tuner-simple.c |    9 ++++++++-
- include/media/tuner.h              |    4 ++++
- 4 files changed, 16 insertions(+), 4 deletions(-)
+ drivers/media/video/tveeprom.c |   27 ++++++++++++++++++---------
+ 1 files changed, 18 insertions(+), 9 deletions(-)
 
-Index: linux-2.6.11/include/media/tuner.h
+Index: linux-2.6.11/drivers/media/video/tveeprom.c
 ===================================================================
---- linux-2.6.11.orig/include/media/tuner.h	2005-03-07 18:13:01.000000000 +0100
-+++ linux-2.6.11/include/media/tuner.h	2005-03-08 10:32:50.000000000 +0100
-@@ -93,6 +93,10 @@
- #define TUNER_THOMSON_DTT7610    52
- #define TUNER_PHILIPS_FQ1286     53
- #define TUNER_PHILIPS_TDA8290    54
-+#define TUNER_LG_PAL_TAPE        55    /* Hauppauge PVR-150 PAL */
-+
-+#define TUNER_PHILIPS_FQ1216AME_MK4 56 /* Hauppauge PVR-150 PAL */
-+#define TUNER_PHILIPS_FQ1236A_MK4 57   /* Hauppauge PVR-500MCE NTSC */
+--- linux-2.6.11.orig/drivers/media/video/tveeprom.c	2005-03-07 18:13:01.000000000 +0100
++++ linux-2.6.11/drivers/media/video/tveeprom.c	2005-03-08 10:33:08.000000000 +0100
+@@ -30,6 +30,7 @@
  
- #define NOTUNER 0
- #define PAL     1	/* PAL_BG */
-Index: linux-2.6.11/drivers/media/video/tuner-simple.c
-===================================================================
---- linux-2.6.11.orig/drivers/media/video/tuner-simple.c	2005-03-07 18:13:01.000000000 +0100
-+++ linux-2.6.11/drivers/media/video/tuner-simple.c	2005-03-08 10:32:50.000000000 +0100
-@@ -1,5 +1,5 @@
- /*
-- * $Id: tuner-simple.c,v 1.4 2005/02/15 15:59:35 kraxel Exp $
-+ * $Id: tuner-simple.c,v 1.10 2005/03/08 08:38:00 kraxel Exp $
-  *
-  * i2c tv tuner chip device driver
-  * controls all those simple 4-control-bytes style tuners.
-@@ -204,6 +204,13 @@ static struct tunertype tuners[] = {
- 	  16*160.00,16*454.00,0x41,0x42,0x04,0x8e,940}, // UHF band untested
- 	{ "tda8290+75", Philips,PAL|NTSC,
- 	  /* see tda8290.c for details */ },
-+	{ "LG PAL (TAPE series)", LGINNOTEK, PAL,
-+          16*170.00, 16*450.00, 0x01,0x02,0x08,0xce,623},
-+
-+        { "Philips PAL/SECAM multi (FQ1216AME MK4)", Philips, PAL,
-+          16*160.00,16*442.00,0x01,0x02,0x04,0xce,623 },
-+        { "Philips FQ1236A MK4", Philips, NTSC,
-+          16*160.00,16*442.00,0x01,0x02,0x04,0x8e,732 },
  
- };
- unsigned const int tuner_count = ARRAY_SIZE(tuners);
-Index: linux-2.6.11/drivers/media/video/mt20xx.c
-===================================================================
---- linux-2.6.11.orig/drivers/media/video/mt20xx.c	2005-03-07 18:13:01.000000000 +0100
-+++ linux-2.6.11/drivers/media/video/mt20xx.c	2005-03-07 18:13:02.000000000 +0100
-@@ -1,5 +1,5 @@
- /*
-- * $Id: mt20xx.c,v 1.3 2005/02/15 15:59:35 kraxel Exp $
-+ * $Id: mt20xx.c,v 1.4 2005/03/04 09:24:56 kraxel Exp $
-  *
-  * i2c tv tuner chip device driver
-  * controls microtune tuners, mt2032 + mt2050 at the moment.
-@@ -7,6 +7,7 @@
- #include <linux/delay.h>
- #include <linux/i2c.h>
- #include <linux/videodev.h>
+ #include <linux/module.h>
 +#include <linux/moduleparam.h>
- #include <media/tuner.h>
+ #include <linux/errno.h>
+ #include <linux/kernel.h>
+ #include <linux/init.h>
+@@ -191,11 +192,13 @@ hauppauge_tuner[] =
+ 	{ TUNER_ABSENT,        "TCL MFPE05 2"},
+ 	/* 90-99 */
+ 	{ TUNER_ABSENT,        "LG TALN H202T"},
+-	{ TUNER_ABSENT,        "Philips FQ1216AME MK4"},
+-	{ TUNER_ABSENT,        "Philips FQ1236A MK4"},
++	{ TUNER_PHILIPS_FQ1216AME_MK4, "Philips FQ1216AME MK4"},
++	{ TUNER_PHILIPS_FQ1236A_MK4, "Philips FQ1236A MK4"},
+ 	{ TUNER_ABSENT,        "Philips FQ1286A MK4"},
+ 	{ TUNER_ABSENT,        "Philips FQ1216ME MK5"},
+ 	{ TUNER_ABSENT,        "Philips FQ1236 MK5"},
++	{ TUNER_ABSENT,        "Unspecified"},
++	{ TUNER_LG_PAL_TAPE,   "LG PAL (TAPE Series)"},
+ };
  
- /* ---------------------------------------------------------------------- */
-Index: linux-2.6.11/drivers/media/video/tda8290.c
-===================================================================
---- linux-2.6.11.orig/drivers/media/video/tda8290.c	2005-03-07 18:13:01.000000000 +0100
-+++ linux-2.6.11/drivers/media/video/tda8290.c	2005-03-07 18:13:02.000000000 +0100
-@@ -1,5 +1,5 @@
- /*
-- * $Id: tda8290.c,v 1.5 2005/02/15 15:59:35 kraxel Exp $
-+ * $Id: tda8290.c,v 1.7 2005/03/07 12:01:51 kraxel Exp $
-  *
-  * i2c tv tuner chip device driver
-  * controls the philips tda8290+75 tuner chip combo.
-@@ -123,7 +123,7 @@ static int tda8290_tune(struct i2c_clien
- 	struct i2c_msg easy_mode =
- 		{ I2C_ADDR_TDA8290, 0, 2, t->i2c_easy_mode };
- 	struct i2c_msg set_freq =
--		{ I2C_ADDR_TDA8290, 0, 8, t->i2c_set_freq  };
-+		{ I2C_ADDR_TDA8275, 0, 8, t->i2c_set_freq  };
+ static char *sndtype[] = {
+@@ -241,6 +244,7 @@ static int hasRadioTuner(int tunerType)
+                 case 61: //PNPEnv_TUNER_TAPE_M001D_MK3:
+                 case 78: //PNPEnv_TUNER_TDA8275C1_8290_FM:
+                 case 89: //PNPEnv_TUNER_TCL_MFPE05_2:
++                case 92: //PNPEnv_TUNER_PHILIPS_FQ1236A_MK4:
+                     return 1;
+         }
+         return 0;
+@@ -256,8 +260,8 @@ void tveeprom_hauppauge_analog(struct tv
+ 	** if packet[0] & f8 == f8, then EOD and packet[1] == checksum
+ 	**
+ 	** In our (ivtv) case we're interested in the following:
+-	** tuner type: tag [00].05 or [0a].01 (index into hauppauge_tuners)
+-	** tuner fmts: tag [00].04 or [0a].00 (bitmask index into hauppauge_fmts)
++	** tuner type: tag [00].05 or [0a].01 (index into hauppauge_tuner)
++	** tuner fmts: tag [00].04 or [0a].00 (bitmask index into hauppauge_tuner_fmt)
+ 	** radio:      tag [00].{last} or [0e].00  (bitmask.  bit2=FM)
+ 	** audio proc: tag [02].01 or [05].00 (lower nibble indexes lut?)
  
- 	i2c_transfer(c->adapter, &easy_mode,      1);
- 	i2c_transfer(c->adapter, i2c_msg_prolog, ARRAY_SIZE(i2c_msg_prolog));
+@@ -269,11 +273,11 @@ void tveeprom_hauppauge_analog(struct tv
+ 	** # of inputs/outputs ???
+ 	*/
+ 
+-	int i, j, len, done, tag, tuner = 0, t_format = 0;
++	int i, j, len, done, beenhere, tag, tuner = 0, t_format = 0;
+ 	char *t_name = NULL, *t_fmt_name = NULL;
+ 
+ 	dprintk(1, "%s\n",__FUNCTION__);
+-	tvee->revision = done = len = 0;
++	tvee->revision = done = len = beenhere = 0;
+ 	for (i = 0; !done && i < 256; i += len) {
+ 		dprintk(2, "processing pos = %02x (%02x, %02x)\n",
+ 			i, eeprom_data[i], eeprom_data[i + 1]);
+@@ -342,9 +346,14 @@ void tveeprom_hauppauge_analog(struct tv
+ 				(eeprom_data[i+7] << 16);
+ 			break;
+ 		case 0x0a:
+-			tuner = eeprom_data[i+2];
+-			t_format = eeprom_data[i+1];
+-			break;
++			if(beenhere == 0) {
++				tuner = eeprom_data[i+2];
++				t_format = eeprom_data[i+1];
++				beenhere = 1;
++				break;
++			} else {
++				break;
++			}
+ 		case 0x0e:
+ 			tvee->has_radio = eeprom_data[i+1];
+ 			break;
 
 -- 
 #define printk(args...) fprintf(stderr, ## args)

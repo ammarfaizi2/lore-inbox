@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263073AbTC1RaU>; Fri, 28 Mar 2003 12:30:20 -0500
+	id <S263070AbTC1R0r>; Fri, 28 Mar 2003 12:26:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263074AbTC1RaU>; Fri, 28 Mar 2003 12:30:20 -0500
-Received: from aibo2.runbox.com ([193.71.199.138]:44725 "EHLO aibo.runbox.com")
-	by vger.kernel.org with ESMTP id <S263073AbTC1RaT>;
-	Fri, 28 Mar 2003 12:30:19 -0500
-From: Chris Bacott <cbacot@runbox.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: eepro100: wait_for_cmd_done timeout
-Date: Fri, 28 Mar 2003 11:42:00 +0000
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	id <S263071AbTC1R0r>; Fri, 28 Mar 2003 12:26:47 -0500
+Received: from probity.mcc.ac.uk ([130.88.200.94]:12295 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S263070AbTC1R0q>; Fri, 28 Mar 2003 12:26:46 -0500
+Date: Fri, 28 Mar 2003 17:38:01 +0000
+From: John Levon <levon@movementarian.org>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>, linux-kernel@vger.kernel.org
+Subject: Re: 64GB NUMA-Q after pgcl
+Message-ID: <20030328173801.GG61698@compsoc.man.ac.uk>
+References: <20030328040038.GO1350@holomorphy.com> <Pine.LNX.4.50.0303280243080.2884-100000@montezuma.mastecende.com> <20030328075730.GP30140@holomorphy.com> <Pine.LNX.4.50.0303280303190.2884-100000@montezuma.mastecende.com> <20030328101433.GQ1350@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200303281142.00430.cbacot@runbox.com>
+In-Reply-To: <20030328101433.GQ1350@holomorphy.com>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18yxnl-0001pw-00*uSW/KjhVhtc*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Thanks for the suggestion...
-> I got another one, telling me to have a look at the e100 driver,
-> and this raises a question I have for quite a long time : why does
-> the Kernel have two different supports for the same hardware ?
-> Is this a migration plan, a long run "please switch from eepro100
-> to e100" ?
-> Is there a better working one ?
->
-Becuase, IIRC, eepro100 is the original EtherExpress100 Nic driver written by 
-Becker. the e100 Driver is written initially by Intel, and is a obviously 
-newer. Question is, would you want to use a driver written by the 
-manufacturer of the chip itself, or use a driver that has been in use for 
-MANY years, and has been proven solid. I have an eepro in my laptop, and I 
-just bought two IBM Etherjet NICs, all use this chip. I'm currently using the 
-eepro100 driver, as thats the one I've used for years, but from what I've 
-seen. e100 is going to be the one actively updated, as its Intel's driver. 
-This is the info I got from the IBM and Intel site when I was looking up 
-whether those Etherjet cards were supported in Linux before I bought them. 
+On Fri, Mar 28, 2003 at 02:14:33AM -0800, William Lee Irwin III wrote:
 
-If any of the above is wrong, some one *please* correct me. I'd rather be told 
-I'm wrong rather than be wrong and thinking I'm right.
+> Various other odd goodnesses are supposed to come of it, for instance,
+> prefaulting benefits as a side effect of trying to utilize the entire
+> ...
+> thing actually makes 64GB work and, of course, to get first the post
+> on 64GB i386 PAE. =)
 
--- 
-Chris Bacott
+Thanks for the explanation, and congratulations :)
 
+regards,
+john

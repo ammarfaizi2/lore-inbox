@@ -1,257 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261885AbTDUSbd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 14:31:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261886AbTDUSbd
+	id S261844AbTDUSnc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 14:43:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbTDUSmy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 14:31:33 -0400
-Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:56628 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S261885AbTDUSbZ
+	Mon, 21 Apr 2003 14:42:54 -0400
+Received: from fencepost.gnu.org ([199.232.76.164]:32208 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP id S261970AbTDUSlv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 14:31:25 -0400
-Subject: [PATCH] synclinkmp.c 2.5.68
-From: Paul Fulghum <paulkf@microgate.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: "alan@lxorguk.ukuu.org.uk" <alan@lxorguk.ukuu.org.uk>,
-       "torvalds@transmeta.com" <torvalds@transmeta.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1050950605.1841.33.camel@diemos>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 21 Apr 2003 13:43:25 -0500
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Apr 2003 14:41:51 -0400
+Date: Mon, 21 Apr 2003 14:53:54 -0400 (EDT)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: proski@marabou.research.att.com
+To: Christoph Hellwig <hch@lst.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.68-bk1 crash in devfs_remove() for defpts files
+In-Reply-To: <20030421195847.A28684@lst.de>
+Message-ID: <Pine.LNX.4.55.0304211451110.1798@marabou.research.att.com>
+References: <Pine.LNX.4.55.0304211338540.1491@marabou.research.att.com>
+ <20030421195555.A28583@lst.de> <20030421195847.A28684@lst.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Remove MODULE_USE_COUNT macros
-* Add owner member
-* Add tiocmget/tiocmset tty callbacks
+On Mon, 21 Apr 2003, Christoph Hellwig wrote:
 
-Please Apply
+> On Mon, Apr 21, 2003 at 07:55:55PM +0200, Christoph Hellwig wrote:
+> > Could you please try this patch?
+>
+> Better this one :)  Sorry.
 
-Paul Fulghum
-paulkf@microgate.com
+No, it doesn't help, although the stack trace is different this time:
 
+Unable to handle kernel NULL pointer dereference at virtual address
+0000001c
+ printing eip:
+c019599a
+*pde = 00000000
+Oops: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c019599a>]    Not tainted
+EFLAGS: 00010286
+EIP is at devfs_remove+0x5a/0x80
+eax: 00000000   ebx: 00000000   ecx: 00000002   edx: 00000000
+esi: c139e568   edi: 00000000   ebp: c6c69ecc   esp: c6c69e78
+ds: 007b   es: 007b   ss: 0068
+Process sshd (pid: 660, threadinfo=c6c68000 task=c691a100)
+Stack: 00000000 c6c69e88 00000000 c6c69ed8 00737470 c68f41e8 c68f41e8 c6c69ea4
+       c015d016 c68f41e8 00000246 c6c69ebc c015aa53 c6503f4c c6470000 c6503f4c
+       c139e568 c6c69ecc c0172c6f c6503f4c c6470000 c6c69ee0 c01e8999 c02cec81
+Call Trace:
+ [<c015d016>] iput+0x56/0x80
+ [<c015aa53>] dput+0xc3/0x150
+ [<c0172c6f>] devpts_pty_kill+0x3f/0x56
+ [<c01e8999>] pty_close+0xe9/0x150
+ [<c01e3b40>] release_dev+0x750/0x790
+ [<c0152e55>] __user_walk+0x55/0x60
+ [<c014e74e>] vfs_stat+0x1e/0x60
+ [<c01e3f51>] tty_release+0x11/0x20
+ [<c01474ca>] __fput+0xca/0xe0
+ [<c0145d9b>] filp_close+0x4b/0x80
+ [<c0145e21>] sys_close+0x51/0x60
+ [<c01092ff>] syscall_call+0x7/0xb
 
---- linux-2.5.68/drivers/char/synclinkmp.c	2003-04-07 12:30:46.000000000 -0500
-+++ linux-2.5.68-mg/drivers/char/synclinkmp.c	2003-04-21 12:54:06.666577344 -0500
-@@ -1,5 +1,5 @@
- /*
-- * $Id: synclinkmp.c,v 4.6 2002/10/10 14:50:47 paulkf Exp $
-+ * $Id: synclinkmp.c,v 4.8 2003/04/21 17:46:55 paulkf Exp $
-  *
-  * Device driver for Microgate SyncLink Multiport
-  * high speed multiprotocol serial adapter.
-@@ -503,7 +503,7 @@
- MODULE_PARM(dosyncppp,"1-" __MODULE_STRING(MAX_DEVICES) "i");
- 
- static char *driver_name = "SyncLink MultiPort driver";
--static char *driver_version = "$Revision: 4.6 $";
-+static char *driver_version = "$Revision: 4.8 $";
- 
- static int synclinkmp_init_one(struct pci_dev *dev,const struct pci_device_id *ent);
- static void synclinkmp_remove_one(struct pci_dev *dev);
-@@ -592,8 +592,9 @@
- static int  map_status(int signals);
- static int  modem_input_wait(SLMP_INFO *info,int arg);
- static int  wait_mgsl_event(SLMP_INFO *info, int *mask_ptr);
--static int  get_modem_info(SLMP_INFO *info, unsigned int *value);
--static int  set_modem_info(SLMP_INFO *info, unsigned int cmd,unsigned int *value);
-+static int  tiocmget(struct tty_struct *tty, struct file *file);
-+static int  tiocmset(struct tty_struct *tty, struct file *file,
-+		     unsigned int set, unsigned int clear);
- static void set_break(struct tty_struct *tty, int break_state);
- 
- static void add_device(SLMP_INFO *info);
-@@ -770,8 +771,6 @@
- 		printk("%s(%d):%s open(), old ref count = %d\n",
- 			 __FILE__,__LINE__,tty->driver.name, info->count);
- 
--	MOD_INC_USE_COUNT;
--
- 	/* If port is closing, signal caller to try again */
- 	if (tty_hung_up_p(filp) || info->flags & ASYNC_CLOSING){
- 		if (info->flags & ASYNC_CLOSING)
-@@ -826,7 +825,6 @@
- 
- cleanup:
- 	if (retval) {
--		MOD_DEC_USE_COUNT;
- 		if(info->count)
- 			info->count--;
- 	}
-@@ -925,7 +923,6 @@
- 	if (debug_level >= DEBUG_LEVEL_INFO)
- 		printk("%s(%d):%s close() exit, count=%d\n", __FILE__,__LINE__,
- 			tty->driver.name, info->count);
--	MOD_DEC_USE_COUNT;
- }
- 
- /* Called by tty_hangup() when a hangup is signaled.
-@@ -1387,12 +1384,6 @@
- 	}
- 
- 	switch (cmd) {
--	case TIOCMGET:
--		return get_modem_info(info, (unsigned int *) arg);
--	case TIOCMBIS:
--	case TIOCMBIC:
--	case TIOCMSET:
--		return set_modem_info(info, cmd, (unsigned int *) arg);
- 	case MGSL_IOCGPARAMS:
- 		return get_params(info,(MGSL_PARAMS *)arg);
- 	case MGSL_IOCSPARAMS:
-@@ -1717,7 +1708,7 @@
- {
- 	SLMP_INFO *info = d->priv;
- 	int err;
--	long flags;
-+	unsigned long flags;
- 
- 	if (debug_level >= DEBUG_LEVEL_INFO)
- 		printk("sppp_cb_open(%s)\n",info->netname);
-@@ -1729,7 +1720,6 @@
- 		return -EBUSY;
- 	}
- 	info->netcount=1;
--	MOD_INC_USE_COUNT;
- 	spin_unlock_irqrestore(&info->netlock, flags);
- 
- 	/* claim resources and init adapter */
-@@ -1752,7 +1742,6 @@
- open_fail:
- 	spin_lock_irqsave(&info->netlock, flags);
- 	info->netcount=0;
--	MOD_DEC_USE_COUNT;
- 	spin_unlock_irqrestore(&info->netlock, flags);
- 	return err;
- }
-@@ -1760,7 +1749,7 @@
- static void sppp_cb_tx_timeout(struct net_device *dev)
- {
- 	SLMP_INFO *info = dev->priv;
--	long flags;
-+	unsigned long flags;
- 
- 	if (debug_level >= DEBUG_LEVEL_INFO)
- 		printk("sppp_tx_timeout(%s)\n",info->netname);
-@@ -1818,7 +1807,6 @@
- 
- 	spin_lock_irqsave(&info->netlock, flags);
- 	info->netcount=0;
--	MOD_DEC_USE_COUNT;
- 	spin_unlock_irqrestore(&info->netlock, flags);
- 	return 0;
- }
-@@ -3146,11 +3134,11 @@
- 
- /* return the state of the serial control and status signals
-  */
--static int get_modem_info(SLMP_INFO * info, unsigned int *value)
-+static int tiocmget(struct tty_struct *tty, struct file *file)
- {
-+	SLMP_INFO *info = (SLMP_INFO *)tty->driver_data;
- 	unsigned int result;
-  	unsigned long flags;
--	int err;
- 
- 	spin_lock_irqsave(&info->lock,flags);
-  	get_signals(info);
-@@ -3164,61 +3152,31 @@
- 		((info->serial_signals & SerialSignal_CTS) ? TIOCM_CTS:0);
- 
- 	if (debug_level >= DEBUG_LEVEL_INFO)
--		printk("%s(%d):%s synclinkmp_get_modem_info() value=%08X\n",
-+		printk("%s(%d):%s tiocmget() value=%08X\n",
- 			 __FILE__,__LINE__, info->device_name, result );
--
--	PUT_USER(err,result,value);
--	return err;
-+	return result;
- }
- 
- /* set modem control signals (DTR/RTS)
-- *
-- * 	cmd	signal command: TIOCMBIS = set bit TIOCMBIC = clear bit
-- *		TIOCMSET = set/clear signal values
-- * 	value	bit mask for command
-  */
--static int set_modem_info(SLMP_INFO * info, unsigned int cmd,
--			  unsigned int *value)
-+static int tiocmset(struct tty_struct *tty, struct file *file,
-+		    unsigned int set, unsigned int clear)
- {
-- 	int error;
-- 	unsigned int arg;
-+	SLMP_INFO *info = (SLMP_INFO *)tty->driver_data;
-  	unsigned long flags;
- 
- 	if (debug_level >= DEBUG_LEVEL_INFO)
--		printk("%s(%d):%s synclinkmp_set_modem_info()\n",
--			__FILE__,__LINE__,info->device_name );
--
-- 	GET_USER(error,arg,value);
-- 	if (error)
-- 		return error;
--
-- 	switch (cmd) {
-- 	case TIOCMBIS:
-- 		if (arg & TIOCM_RTS)
-- 			info->serial_signals |= SerialSignal_RTS;
-- 		if (arg & TIOCM_DTR)
-- 			info->serial_signals |= SerialSignal_DTR;
-- 		break;
-- 	case TIOCMBIC:
-- 		if (arg & TIOCM_RTS)
-- 			info->serial_signals &= ~SerialSignal_RTS;
-- 		if (arg & TIOCM_DTR)
-- 			info->serial_signals &= ~SerialSignal_DTR;
-- 		break;
-- 	case TIOCMSET:
-- 		if (arg & TIOCM_RTS)
-- 			info->serial_signals |= SerialSignal_RTS;
--		else
-- 			info->serial_signals &= ~SerialSignal_RTS;
-+		printk("%s(%d):%s tiocmset(%x,%x)\n",
-+			__FILE__,__LINE__,info->device_name, set, clear);
- 
-- 		if (arg & TIOCM_DTR)
-- 			info->serial_signals |= SerialSignal_DTR;
--		else
-- 			info->serial_signals &= ~SerialSignal_DTR;
-- 		break;
-- 	default:
-- 		return -EINVAL;
-- 	}
-+	if (set & TIOCM_RTS)
-+		info->serial_signals |= SerialSignal_RTS;
-+	if (set & TIOCM_DTR)
-+		info->serial_signals |= SerialSignal_DTR;
-+	if (clear & TIOCM_RTS)
-+		info->serial_signals &= ~SerialSignal_RTS;
-+	if (clear & TIOCM_DTR)
-+		info->serial_signals &= ~SerialSignal_DTR;
- 
- 	spin_lock_irqsave(&info->lock,flags);
-  	set_signals(info);
-@@ -3875,6 +3833,7 @@
- 
- 	memset(&serial_driver, 0, sizeof(struct tty_driver));
- 	serial_driver.magic = TTY_DRIVER_MAGIC;
-+	serial_driver.owner = THIS_MODULE;
- 	serial_driver.driver_name = "synclinkmp";
- 	serial_driver.name = "ttySLM";
- 	serial_driver.major = ttymajor;
-@@ -3910,6 +3869,8 @@
- 	serial_driver.stop = tx_hold;
- 	serial_driver.start = tx_release;
- 	serial_driver.hangup = hangup;
-+	serial_driver.tiocmget = tiocmget;
-+	serial_driver.tiocmset = tiocmset;
- 
- 	/*
- 	 * The callout device is just like normal device except for
+Code: 8b 40 1c 89 5c 24 04 89 04 24 e8 07 fc ff ff 89 1c 24 e8 3f
 
 
+I understand from "virtual address 0000001c" that devfs is still called,
+and de is still NULL.
 
+-- 
+Regards,
+Pavel Roskin

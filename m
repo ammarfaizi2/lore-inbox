@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264256AbUE2KwK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264247AbUE2Kv5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264256AbUE2KwK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 May 2004 06:52:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264254AbUE2KwK
+	id S264247AbUE2Kv5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 May 2004 06:51:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264251AbUE2Kv4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 May 2004 06:52:10 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:17064 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S264256AbUE2KwH (ORCPT
+	Sat, 29 May 2004 06:51:56 -0400
+Received: from zero.aec.at ([193.170.194.10]:32774 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S264247AbUE2Kvz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 May 2004 06:52:07 -0400
-Date: Sat, 29 May 2004 12:53:22 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org
-Subject: [patch] md.c message during quiet boot
-Message-ID: <20040529105322.GA3694@elte.hu>
-Mime-Version: 1.0
+	Sat, 29 May 2004 06:51:55 -0400
+To: Francois Romieu <romieu@fr.zoreil.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Recommended compiler version
+References: <218aB-15c-17@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Sat, 29 May 2004 12:51:52 +0200
+In-Reply-To: <218aB-15c-17@gated-at.bofh.it> (Francois Romieu's message of
+ "Sat, 29 May 2004 11:20:09 +0200")
+Message-ID: <m3brk7pktz.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.26.8-itk2 (ELTE 1.1) SpamAssassin 2.63 ClamAV 0.65
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Francois Romieu <romieu@fr.zoreil.com> writes:
 
-the patch below gets rid of a message that gets printed during FC2's
-quiet bootup.
+> The linux kernel README and Documentation/CHANGES suggests to use
+> gcc 2.95.3. These files have not been updated for ages. Is there
+> a rough consensus regarding the required versions of the different
+> tools in the buildchain or should one simply submit a patch to remove
+> the offending files ?
 
-	Ingo
+I would suggest to just remove them. We're past the state when each new
+compiler version broke the kernel. Originally that was a lot due 
+to buggy inline assembly etc., but that should be all fleshed out now.
 
---- linux/drivers/md/md.c.orig	
-+++ linux/drivers/md/md.c	
-@@ -1607,7 +1607,7 @@ static int do_md_run(mddev_t * mddev)
- 	spin_lock(&pers_lock);
- 	if (!pers[pnum] || !try_module_get(pers[pnum]->owner)) {
- 		spin_unlock(&pers_lock);
--		printk(KERN_ERR "md: personality %d is not loaded!\n",
-+		printk(KERN_WARNING "md: personality %d is not loaded!\n",
- 		       pnum);
- 		return -EINVAL;
- 	}
+> I forgot to mention: 2.95.3 does not compile correctly the 2.6.6 r8169
+> driver.
+
+Make it an #error then. Better a compile time error than a mysterious
+malfunction.
+
+-Andi
+

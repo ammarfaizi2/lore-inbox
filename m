@@ -1,60 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262856AbTDAUur>; Tue, 1 Apr 2003 15:50:47 -0500
+	id <S262857AbTDAU6Z>; Tue, 1 Apr 2003 15:58:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262859AbTDAUuq>; Tue, 1 Apr 2003 15:50:46 -0500
-Received: from 205-158-62-136.outblaze.com ([205.158.62.136]:25521 "HELO
-	fs5-4.us4.outblaze.com") by vger.kernel.org with SMTP
-	id <S262856AbTDAUup>; Tue, 1 Apr 2003 15:50:45 -0500
-Subject: Re: 2.5.66-mm2-1 freezes solid after init PCMCIA
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030401204645.B7936@flint.arm.linux.org.uk>
-References: <1049196020.789.8.camel@teapot>
-	 <20030401125328.B30470@flint.arm.linux.org.uk>
-	 <1049202135.612.4.camel@teapot>
-	 <20030401204645.B7936@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1049230897.637.9.camel@teapot>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 (1.2.3-1) 
-Date: 01 Apr 2003 23:01:37 +0200
+	id <S262931AbTDAU6Z>; Tue, 1 Apr 2003 15:58:25 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:64935 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S262857AbTDAU6X>; Tue, 1 Apr 2003 15:58:23 -0500
+Date: Tue, 01 Apr 2003 12:59:46 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: linux-kernel <linux-kernel@vger.kernel.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 530] New: dma not enabled for IDE hard drives 
+Message-ID: <137350000.1049230786@flay>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-04-01 at 21:46, Russell King wrote:
-> I was thinking that it could be due to the pci changes - that's one of
-> the areas I've been working in recently which could have caused this.
-> 
-> However, I believe it is to do with the recent PCMCIA changes to use
-> the device model, and deadlock within the device model itself.
-> 
-> What basically seems to be happening is this:
-> 
-> - the ds module is inserted
-> - ds registers a driver model interface for pcmcia socket drivers,
->   which takes the global devclass_sem.
-> - ds causes the pcmcia core to evaluate the status of the sockets, and
->   perform "card insertion" processing if cards are present.
-> - this processing detects a cardbus card, and calls the cardbus code to
->   scan pci devices, and add them to the device tree.
-> - each device gets passed to the device model's class layer, which tries
->   to take devclass_sem.  But wait!  We've locked it while initialising
->   the ds module -> deadlock.
-> 
-> I'm currently working on the card insertion/removal code which hopefully
-> should fix this.  However, it's not going to be immediately available,
-> so please be patient.
+http://bugme.osdl.org/show_bug.cgi?id=530
 
-Ok, Russell, take your time... Meanwhile, I'll stick with 2.5.66-mm1 and
-will try all upcoming patches to see if/when the deadlock is fixed.
-Thanks :-)
+           Summary: dma not enabled for IDE hard drives
+    Kernel Version: 2.5.66
+            Status: NEW
+          Severity: normal
+             Owner: bugme-janitors@lists.osdl.org
+         Submitter: freelsjd@ornl.gov
 
-________________________________________________________________________
-        Felipe Alfaro Solana
-   Linux Registered User #287198
-http://counter.li.org
+
+Distribution: Debian/Sid
+
+Hardware Environment: dual 2.4Ghz Xeon, SE7500CW2 MB, all Intel
+                      Promise PDC20267 ATA-100 ide channels in
+                      non-RAID mode
+
+Software Environment: testing with hdparm 5.2-1 of Debian/Sid
+
+Problem Description:
+
+I have similar .config settings for both the 2.4.20 and the 2.5.66
+kernels with the identical machine.  Under 2.4.20, I do get dma enabled 
+and see good performance (Mb/s) from the hard disk I/O.  
+
+However, under the 2.5.66 kernel, dma is not enabled and the performance 
+of the hard drives is poor (~2-3 Mb/s under 2.4.20 versus ~30 Mb/s under 
+2.5.66).  The "hdparm -I /dev/hda" command confirms that dma is not
+enabled under 2.5.66, but is under 2.4.20.
+
+
+Steps to reproduce:
 

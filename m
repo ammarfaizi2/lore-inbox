@@ -1,88 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318013AbSIOKzZ>; Sun, 15 Sep 2002 06:55:25 -0400
+	id <S318014AbSIOLIc>; Sun, 15 Sep 2002 07:08:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318014AbSIOKzZ>; Sun, 15 Sep 2002 06:55:25 -0400
-Received: from c16598.thoms1.vic.optusnet.com.au ([210.49.243.217]:947 "HELO
-	pc.kolivas.net") by vger.kernel.org with SMTP id <S318013AbSIOKzY>;
-	Sun, 15 Sep 2002 06:55:24 -0400
-Message-ID: <1032087616.3d846840e6eb1@kolivas.net>
-Date: Sun, 15 Sep 2002 21:00:16 +1000
-From: Con Kolivas <conman@kolivas.net>
-To: linux-kernel@vger.kernel.org
-Cc: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>
-Subject: Revealing benchmarks and new version of contest.
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
+	id <S318017AbSIOLIc>; Sun, 15 Sep 2002 07:08:32 -0400
+Received: from ns.suse.de ([213.95.15.193]:46094 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S318014AbSIOLIb>;
+	Sun, 15 Sep 2002 07:08:31 -0400
+Date: Sun, 15 Sep 2002 13:13:24 +0200
+From: Andi Kleen <ak@suse.de>
+To: Stephen Lord <lord@sgi.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Samuel Flory <sflory@rackable.com>,
+       Austin Gonyou <austin@coremetrics.com>,
+       Christian Guggenberger 
+	<christian.guggenberger@physik.uni-regensburg.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-xfs@oss.sgi.com
+Subject: Re: 2.4.20pre5aa2
+Message-ID: <20020915131324.A13516@wotan.suse.de>
+References: <20020911184111.GY17868@dualathlon.random> <3D81235B.6080809@rackable.com> <20020913002316.GG11605@dualathlon.random> <1031878070.1236.29.camel@snafu> <20020913005440.GJ11605@dualathlon.random> <3D8149F6.9060702@rackable.com> <20020913125345.GO11605@dualathlon.random> <3D825422.8000007@rackable.com> <20020913211844.GP11605@dualathlon.random> <1032014367.1050.2.camel@laptop.americas.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1032014367.1050.2.camel@laptop.americas.sgi.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Sep 14, 2002 at 09:39:24AM -0500, Steve Lord wrote:
+> On Fri, 2002-09-13 at 16:18, Andrea Arcangeli wrote:
+> 
+> > So, returning to xfs, it is possible dbench really generates lots of
+> > simultaneous vmaps because of its concurrency, so I would suggest to add
+> > an atomic counter increased at every vmap/vmalloc and decreased at every
+> > vfree and to check it after every increase storing the max value in a
+> > sysctl, to see what's the max concurrency you reach with the vmaps. (you
+> > can also export the counter via the sysctl, to verify for no memleaks
+> > after unmounting xfs)
+> > 
+> > Andrea
+> 
+> There are no vmaps during normal operation on xfs unless you are
+> setting extended attributes of more than 4K in size, or you
+> used some more obscure mkfs options. Only filesystem recovery will
+> use it otherwise. 
+
+Perhaps the original poster used those obscure mkfs options? What option
+will trigger huge allocations ? 
 
 
-After my first incarnation of the responsiveness benchmark (contest), Rik helped
-me get the memory load working for 2.5.x testing. Now Andrew Morton has helped
-me improve the IO load. The previous IO load was "nice" to VM systems. Now for
-IO load there are two separate tests. First it continually rewrites a file half
-the size of the physical memory on the machine. Secondly it rewrites a file the
-same size as the physical memory. Below are the new benchmarks with these loads:
-
-Noload:
-Kernel                  Time            CPU
-2.4.19-ck7              1:07.74         99%
-2.4.19                  1:14.00         99%
-2.5.34(-mm4)            1:09.61         99%
-2.4.19-ck7-rmap         1:08.50         99%
-2.4.20-pre7             1:08.00         99%
-2.5.34                  1:09.70         99%
-
-CPU Load:
-Kernel                  Time            CPU
-2.4.19-ck7              1:10.39         93%
-2.4.19                  1:27.94         80%
-2.5.34(-mm4)            1:11.42         94%
-2.4.19-ck7-rmap         1:11.32         92%
-2.4.20-pre7             1:21.91         80%
-2.5.34                  1:11.46         94%
-
-Mem Load:
-Kernel                  Time            CPU
-2.4.19-ck7              1:11.10         93%
-2.4.19                  1:33.69         77%
-2.5.34(-mm4)            1:24.03         83%
-2.4.19-ck7-rmap         1:35.30         71%
-2.4.20-pre7             1:26.39         78%
-2.5.34                  1:25.54         81%
-
-IO Load Half:
-Kernel                  Time            CPU
-2.4.19-ck7              1:26.22         78%
-2.4.19                  2:16.66         56%
-2.5.34(-mm4)            4:30.70         28%
-2.4.19-ck7-rmap         1:22.90         84%
-2.4.20-pre7             2:25.78         48%
-2.5.34                  1:23.67         82%
-
-IO Load Full:
-Kernel                  Time            CPU
-2.4.19-ck7              2:34.04         43%
-2.4.19                  3:14.52         40%
-2.5.34(-mm4)            14:59.79        8%
-2.4.19-ck7-rmap         1:32.34         74%
-2.4.20-pre7             3:37.75         32%
-2.5.34                  1:49.62         63%
-
-A quick reminder. Faster times are better, and higher cpu% is also better.
-
-As you can see there are stark differences in these kernels, particularly the
-mm4 changes. This time the -rmap VM shows us significant improvement under very
-heavy IO load. Repeat tests show similar results.
-
-The updated version of contest (v0.20) can be downloaded from my site:
-http://kernel.kolivas.net (look under the FAQ).
-
-Comments (and please cc me)?
-Con.
-
-P.S. !
+-Andi

@@ -1,71 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261289AbUKFCEQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261295AbUKFCLY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261289AbUKFCEQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 21:04:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261295AbUKFCEQ
+	id S261295AbUKFCLY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 21:11:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbUKFCLY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 21:04:16 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:49064
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S261289AbUKFCEL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 21:04:11 -0500
-Subject: Re: [PATCH] Remove OOM killer from try_to_free_pages /
-	all_unreclaimable braindamage
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Andrea Arcangeli <andrea@novell.com>
-Cc: Jesse Barnes <jbarnes@sgi.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Andrew Morton <akpm@osdl.org>, Nick Piggin <piggin@cyberone.com.au>,
-       LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-In-Reply-To: <20041106012018.GT8229@dualathlon.random>
-References: <20041105200118.GA20321@logos.cnet>
-	 <200411051532.51150.jbarnes@sgi.com>
-	 <20041106012018.GT8229@dualathlon.random>
+	Fri, 5 Nov 2004 21:11:24 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:30676 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S261295AbUKFCLT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 21:11:19 -0500
+Subject: Re: [2.6 patch] drivers/acpi: remove unused exported functions
+From: Len Brown <len.brown@intel.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: ACPI Developers <acpi-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20041105215021.GF1295@stusta.de>
+References: <20041105215021.GF1295@stusta.de>
 Content-Type: text/plain
-Organization: linutronix
-Date: Sat, 06 Nov 2004 02:55:50 +0100
-Message-Id: <1099706150.2810.147.camel@thomas>
+Organization: 
+Message-Id: <1099707007.13834.1969.camel@d845pe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 05 Nov 2004 21:10:08 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-11-06 at 02:20 +0100, Andrea Arcangeli wrote:
-> On Fri, Nov 05, 2004 at 03:32:50PM -0800, Jesse Barnes wrote:
-> > On Friday, November 05, 2004 12:01 pm, Marcelo Tosatti wrote:
-> > > In my opinion the correct approach is to trigger the OOM killer
-> > > when kswapd is unable to free pages. Once that is done, the number
-> > > of tasks inside page reclaim is irrelevant.
-> > 
-> > That makes sense.
+On Fri, 2004-11-05 at 16:50, Adrian Bunk wrote:
+> The patch below completely removes 7 functions that were
+> EXPORT_SYMBOL'ed but had exactly zero users in the kernel and makes
+> another one that was previously EXPORT_SYMBOL'ed static.
 > 
-> I don't like it, kswapd may fail balancing because there's a GFP_DMA
-> allocation that eat the last dma page, but we should not kill tasks if
-> we fail to balance in kswapd, we should kill tasks only when no fail
-> path exists (i.e. only during page faults, everything else in the kernel
-> has a fail path and it should never trigger oom).
+> It also removes another unused global function to completely remove
+> drivers/acpi/hardware/hwtimer.c which contained no function used
+> anywhere in the kernel.
 > 
-> If you move it in kswapd there's no way to prevent oom-killing from a
-> syscall allocation (I guess even right now it would go wrong in this
-> sense, but at least right now it's more fixable). I want to move the oom
-> kill outside the alloc_page paths. The oom killing is all about the page
-> faults not having a fail path, and in turn the oom killing should be
-> moved in the page fault code, not in the allocator. Everything else
-> should keep returning -ENOMEM to the caller.
+> Please comment on whether this patch is correct or whether in-kernel
+> users of these functions are pending.
 > 
-> So to me moving the oom killer into kswapd looks a regression.
+> 
+> diffstat output:
+>  drivers/acpi/acpi_ksyms.c        |    8 -
+>  drivers/acpi/events/evxfevnt.c   |  191 -----------------------------
+>  drivers/acpi/hardware/Makefile   |    2
+>  drivers/acpi/hardware/hwtimer.c  |  200
+> -------------------------------
+>  drivers/acpi/resources/rsxface.c |   52 --------
+>  drivers/acpi/scan.c              |    6
+>  drivers/acpi/utilities/utxface.c |   89 -------------
+>  include/acpi/achware.h           |   17 --
+>  include/acpi/acpi_bus.h          |    1
+>  include/acpi/acpixf.h            |   24 ---
+>  10 files changed, 6 insertions(+), 584 deletions(-)
 
-My point is not where oom-killer is triggered. My point is the decision
-criteria of oom-killer, when it is finally invoked, which process to
-kill. That's kind of independend of your patch. Your patch corrects the
-context in which oom-killer is called. My concern is that the decision
-critrion which process should be killed is not sufficient. In my case it
-kills sshd instead of a process which forks a bunch of child processes.
-Thats just wrong, because it takes away the chance to log into the
-machine remotely and fix the problem.
+No, I can't apply this one as-is.
+Some of these routines are not called now
+simply because Linux/ACPI is evolving and we don't
+yet take advantage of some of the things supported
+by ACPICA core we use.
 
-tglx
+thanks,
+-Len
 
 

@@ -1,71 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbUGXSBN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbUGXSNP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261724AbUGXSBN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jul 2004 14:01:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbUGXSBN
+	id S261875AbUGXSNP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jul 2004 14:13:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261987AbUGXSNP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jul 2004 14:01:13 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:64457 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261724AbUGXSBJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jul 2004 14:01:09 -0400
-Subject: Re: [FC1], 2.6.8-rc2 kernel, new motherboard problems
-From: Lee Revell <rlrevell@joe-job.com>
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2004@gmx.net>
-Cc: Gene Heskett <gene.heskett@verizon.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <4102530C.8060604@gmx.net>
-References: <Pine.LNX.4.44.0407211334260.3000-100000@mail.birdvet.org>
-	 <200407240158.56434.gene.heskett@verizon.net>
-	 <1090649207.1006.12.camel@mindpipe>
-	 <200407240520.31906.gene.heskett@verizon.net>  <4102530C.8060604@gmx.net>
+	Sat, 24 Jul 2004 14:13:15 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:19607 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S261875AbUGXSNM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Jul 2004 14:13:12 -0400
+Subject: Re: [patch] kernel events layer
+From: Robert Love <rml@ximian.com>
+To: dsaxena@plexity.net
+Cc: Michael Clark <michael@metaparadigm.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040724175442.GA26222@plexity.net>
+References: <1090604517.13415.0.camel@lucy>
+	 <4101D14D.6090007@metaparadigm.com> <1090638881.2296.14.camel@localhost>
+	 <20040724150838.GA24765@plexity.net> <1090683953.2296.78.camel@localhost>
+	 <20040724175442.GA26222@plexity.net>
 Content-Type: text/plain
-Message-Id: <1090692070.845.9.camel@mindpipe>
+Date: Sat, 24 Jul 2004 14:13:10 -0400
+Message-Id: <1090692790.12088.16.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 24 Jul 2004 14:01:10 -0400
+X-Mailer: Evolution 1.5.90 (1.5.90-5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-07-24 at 08:16, Carl-Daniel Hailfinger wrote:
-> Gene Heskett schrieb:
-> 
-> > On Saturday 24 July 2004 02:06, Lee Revell wrote:
+On Sat, 2004-07-24 at 10:54 -0700, Deepak Saxena wrote:
 
-> >>>>Wow, nVidia won't release the specs for a *10/100 ethernet
-> >>>>controller*? Having to reverse engineer a network driver is
-> >>>>ridiculous in this day and age.  I can understand binary-only
-> >>>>graphics drivers, there is a lot of valuable IP in there, but
-> >>>>this is a freaking network card.  What do they expect people to
-> >>>>do?
-> >>>>
-> >>>>Maybe some bad press would set them straight.
-> >>>>
-> >>>>Lee
-> 
-> Could you please check the facts (or ask the driver authors) before
-> suggesting to haunt NVidia with bad press? Thanks.
-> 
+> Oh ok, that makes much more sense now. "arch/kerne/cpu" is the
+> name of the file, from which that message came.
 
-All the facts I needed to know were in the original post.  You had to
-reverse engineer a network driver because Nvidia would not release
-specs.  We should not be having to reverse engineer a 10/100 ethernet
-controller in 2004.  The Linux community should make noise when vendors
-do this.
- 
-> > I'm under the impression the forcedeth writers did have access to this 
-> > data.  Is this incorrect? The question is directed at the forcedeth 
-> > authors.  If you are one, then please clarify.
-> 
-> I am one of the authors. We did not have any information in the first
-> place, but now that our reverse engineered driver works well, NVidia
-> contributed bugfixes and gigabit support to our driver.
+Yah.  It is pretty simple and it gives us a unique name without imposing
+any naming policy.
 
-This is pretty shoddy on their part.  Like I said, I can understand not
-wanting to release the specs for their GFX cards, but a freaking 10/100
-ethernet controller is ridiculous.
+I have, however, been thinking about using kobject paths. ;-)  I
+actually like the idea now, but I do not think we can get a kobject for
+most of the stuff we need, unfortunately.  Also, we need the kobject
+name to be unique.  This is an interesting concept to keep in mind,
+though.
 
-Lee
+> I think we agree.  So are there some existing docs that you/Ximian has 
+> on reccomended usage and object naming? I didn't see anything on 
+> freedesktop.org.  That's where a lot of my questions are coming from. We 
+> have this really simple events system, but how do we expect it to be used
+> in the kernel.
+
+No, we don't have any usage recommendations.  Going forward, this is
+something we all need to work on and agree with.
+
+All I want is a way to get events to user-space asynchronously without
+any hacks.  This fits the bill nicely.  ;-)
+
+That said, I do have some basic ideas about usage.  I see two main uses,
+asynchronous events (such as, filesystem mounted) and the more specific
+case of errors (such as device failure).
+
+Criteria for adding the event would be that user-space needs to know
+about it, and would normally have to poll to get the information.  If
+the event is so non-important that right now no one even knows about it
+or cares about it, it may not be worth adding.
+
+But let's look at filesystem mounted, since many user-space applications
+are interested in this.  Right now, they poll /proc/mtab every few
+seconds, parse it, and look for changes.  Gross, right?
+
+So we can create an event in fs/mount.c, say "/org/kernel/fs/mount" with
+the signal "change".  The payload could be a simple "mounted" and
+"unmounted" or the exact details on what was mounted or unmounted or
+even nothing.  I'd prefer to give no information and just have the event
+cause a re-read of /proc/mtab.  But whatever.
+
+So we want up with, in do_mount,
+
+	send_kevent (KEVENT_FS, "/org/kernel/fs/mount",
+		     "change", "mounted");
+
+Or similar.
+
+	Robert Love
 
 

@@ -1,66 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312727AbSCVPnQ>; Fri, 22 Mar 2002 10:43:16 -0500
+	id <S312734AbSCVPxR>; Fri, 22 Mar 2002 10:53:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312728AbSCVPnH>; Fri, 22 Mar 2002 10:43:07 -0500
-Received: from mail.MtRoyal.AB.CA ([142.109.10.24]:51216 "EHLO
-	mail.mtroyal.ab.ca") by vger.kernel.org with ESMTP
-	id <S312727AbSCVPm6>; Fri, 22 Mar 2002 10:42:58 -0500
-Date: Fri, 22 Mar 2002 08:42:47 -0700 (MST)
-From: James Bourne <jbourne@MtRoyal.AB.CA>
-Subject: Re: max number of threads on a system
-In-Reply-To: <Pine.LNX.3.96.1020322103236.22096C-100000@gatekeeper.tmr.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-        David Schwartz <davids@webmaster.com>, joeja@mindspring.com,
-        "linux-kernel@vger.redhat.com" <linux-kernel@vger.kernel.org>
-Message-id: <Pine.LNX.4.44.0203220840280.14699-100000@skuld.mtroyal.ab.ca>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
+	id <S312736AbSCVPxH>; Fri, 22 Mar 2002 10:53:07 -0500
+Received: from smtp3.cern.ch ([137.138.131.164]:52686 "EHLO smtp3.cern.ch")
+	by vger.kernel.org with ESMTP id <S312734AbSCVPwt>;
+	Fri, 22 Mar 2002 10:52:49 -0500
+To: roms@lpg.ticalc.org
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: your mail, [PATCH] tipar
+In-Reply-To: <E16lHKt-0007dn-00@the-village.bc.nu> <3C935F7A.AD380542@free.fr>
+From: Jes Sorensen <jes@wildopensource.com>
+Date: 22 Mar 2002 16:52:01 +0100
+Message-ID: <d31yecd2hq.fsf@lxplus052.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Mar 2002, Bill Davidsen wrote:
+Romain Liévin <rlievin@free.fr> writes:
 
-> On Thu, 21 Mar 2002, Davide Libenzi wrote:
+> Hi,
 > 
-> > On Thu, 21 Mar 2002, David Schwartz wrote:
-> > 
-> > >
-> > >
-> > > On Thu, 21 Mar 2002 20:05:39 -0500, joeja@mindspring.com wrote:
-> > > >What limits the number of threads one can have on a Linux system?
-> > >
-> > > 	Common sense, one would hope.
-> > >
-> > > >I have a simple program that creates an array of threads and it locks up at
-> > > >the creation of somewhere between 250 and 275 threads.
-> > 
-> > $ ulimit -u
-> 
-> /proc/sys/kernel/threads-max is the system limit. And "locks up" is odd
-> unless the application is really poorly written to handle errors. Should
-> time out and whine ;-)
+> according to various remarks, I improved the source code.
+> I submit it again for new comments & suggestions...
 
-One thing to note here, using pthreads there is a limit of 1024
-threads per process.  There are patches to glibc to increase this
-to a larger number (4096 or 8192).
+Another comment. Your usage of the START macro is kinda
+broken. Basically you declare it as #define START(x) but never use the
+value, and instead rely on a local scope variable named max being
+present.
 
-Regards
-James Bourne
+> +/* ----- global defines -----------------------------------------------
+> */
+> +
+> +#define START(x) { max=jiffies+HZ/(timeout/10); }
+> +#define WAIT(x)  { \
+> +  if (time_before((x), jiffies)) return -1; \
+> +  if (current->need_resched) schedule(); }
+> +/* Try to transmit a byte on the specified port (-1 if error). */
+> +static int put_ti_parallel(int minor, unsigned char data)
+> +{
+> +       int bit;
+> +       unsigned long max;
+> +       
+> +       for (bit=0; bit<8; bit++) {
+> +               if (data & 1) {
+> +                       outbyte(2, minor);
+> +                       START(max); 
 
--- 
-James Bourne, Supervisor Data Centre Operations
-Mount Royal College, Calgary, AB, CA
-www.mtroyal.ab.ca
+If you really want to use the START macro, you should redefine it as
+follows:
 
-******************************************************************************
-This communication is intended for the use of the recipient to which it is
-addressed, and may contain confidential, personal, and or privileged
-information. Please contact the sender immediately if you are not the
-intended recipient of this communication, and do not copy, distribute, or
-take action relying on it. Any communication received in error, or
-subsequent reply, should be deleted or destroyed.
-******************************************************************************
+#define START(x) { x=jiffies+HZ/(timeout/10); }
 
+One example of where one has to be careful with macros ;(
+
+Jes

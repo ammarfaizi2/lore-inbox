@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261567AbSJHJKB>; Tue, 8 Oct 2002 05:10:01 -0400
+	id <S261554AbSJHJGc>; Tue, 8 Oct 2002 05:06:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261578AbSJHJKB>; Tue, 8 Oct 2002 05:10:01 -0400
-Received: from packet.digeo.com ([12.110.80.53]:32462 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261567AbSJHJKB>;
-	Tue, 8 Oct 2002 05:10:01 -0400
-Message-ID: <3DA2A233.88525FE4@digeo.com>
-Date: Tue, 08 Oct 2002 02:15:31 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.40 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Miquel van Smoorenburg <miquels@cistron.nl>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: experiences with 2.5.40 on a busy usenet news server
-References: <anu60s$oev$1@ncc1701.cistron.net>
+	id <S261558AbSJHJGc>; Tue, 8 Oct 2002 05:06:32 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:50317 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S261554AbSJHJGb>;
+	Tue, 8 Oct 2002 05:06:31 -0400
+Date: Tue, 8 Oct 2002 11:11:57 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Nicolas Pitre <nico@cam.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Ulrich Drepper <drepper@redhat.com>, Larry McVoy <lm@bitmover.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: New BK License Problem?
+Message-ID: <20021008111157.A5373@ucw.cz>
+References: <20021007203714.GC7428@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.44.0210071646170.913-100000@xanadu.home> <20021007211009.GE7428@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Oct 2002 09:15:35.0147 (UTC) FILETIME=[425A43B0:01C26EAB]
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20021007211009.GE7428@atrey.karlin.mff.cuni.cz>; from pavel@suse.cz on Mon, Oct 07, 2002 at 11:10:09PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miquel van Smoorenburg wrote:
+On Mon, Oct 07, 2002 at 11:10:09PM +0200, Pavel Machek wrote:
+> Hi!
 > 
-> ...
-> # free
->              total       used       free     shared    buffers     cached
-> Mem:       1033308    1027316       5992          0     836884      29776
-> -/+ buffers/cache:     160656     872652
-> Swap:       976888     364032     612856
+> > At which point he'll piss of more and more kernel developers and lose them
+> > "slowly" as well, unless Linus himself gets pissed at which point the kernel
+> > user base will disappear in a single glitch.  Breaking SCCS compatibility
+> > "slowly" without anybody noticing before it's too late is a bit far fetched
+> > IMHO.
+> 
+> I hope you are right.
 
-Please always send /proc/meminfo - it's way more informative.
+He is, I use the SCCS functionality regularly, because patch(1) knows
+SCCS and can get the files right from the repository without the need to
+check them out using BK.
 
-A vmstat trace is also useful.
- 
-> No need to swap 364 MB when there's 872 MB still free...
-> This makes the machine dogslow. An 'expire' process that
-> runs every night normally takes 15 minutes to finish now
-> has been running for 10 hours and its still not finished.
+If that stopped working, I'd notice immediately.
 
-It must be doing a ton of IO?
-
-You'll probably find that 2.5.41-mm1 does not swap at all; but
-I'd need to see meminfo to know.
+-- 
+Vojtech Pavlik
+SuSE Labs

@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287990AbSACAB6>; Wed, 2 Jan 2002 19:01:58 -0500
+	id <S288027AbSACAB6>; Wed, 2 Jan 2002 19:01:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288068AbSACAAx>; Wed, 2 Jan 2002 19:00:53 -0500
-Received: from www.transvirtual.com ([206.14.214.140]:29203 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S288063AbSACAAU>; Wed, 2 Jan 2002 19:00:20 -0500
-Date: Wed, 2 Jan 2002 15:59:41 -0800 (PST)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] pre6 tty_io.c and devfs broken
-Message-ID: <Pine.LNX.4.10.10201021558370.9689-100000@www.transvirtual.com>
+	id <S288037AbSACABC>; Wed, 2 Jan 2002 19:01:02 -0500
+Received: from boden.synopsys.com ([204.176.20.19]:11714 "HELO
+	boden.synopsys.com") by vger.kernel.org with SMTP
+	id <S287976AbSABX7c>; Wed, 2 Jan 2002 18:59:32 -0500
+From: Joe Buck <jbuck@synopsys.COM>
+Message-Id: <200201022359.PAA05815@atrus.synopsys.com>
+Subject: Re: [PATCH] C undefined behavior fix
+To: dewar@gnat.com
+Date: Wed, 2 Jan 2002 15:59:25 -0800 (PST)
+Cc: paulus@samba.org, velco@fadata.bg, gcc@gcc.gnu.org,
+        linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org,
+        trini@kernel.crashing.org
+In-Reply-To: <20020102235318.26F2FF2EC7@nile.gnat.com> from "dewar@gnat.com" at Jan 02, 2002 06:53:18 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Robert Dewar writes:
 
-If you have devfs on tty_io.c doesn't compile. This patch fixes this
-problem.
+> The concept of "all reasonable compiler implementations" is a very dubious
+> one. There is nothing to stop a valid C compiler from building assertions
+> based on the quoted paragraph from the C standard, e.g. it could derive
+> valid range information from knowing that an offset was constrained to
+> certain limits. So writing bogus C like this is risky, and as compilers
+> get more sophisticated, one is likely to hear screams, but they are not
+> justified in my opinion. There is no excuse for such abuse.
 
-   . ---
-   |o_o |
-   |:_/ |   Give Micro$oft the Bird!!!!
-  //   \ \  Use Linux!!!!
- (|     | )
- /'_   _/`\
- ___)=(___/
+There is already such a project under development: see
 
---- /usr/src/linux-2.5.2-pre6/drivers/char/tty_io.c	Wed Jan  2 14:07:54 2002
-+++ tty_io.c	Wed Jan  2 16:53:20 2002
-@@ -2006,15 +2006,11 @@
- 	int idx = minor - driver->minor_start;
- 	char buf[32];
- 
--	switch (device) {
--		case TTY_DEV:
--		case PTMX_DEV:
-+	if (IS_TTY_DEV(device) || IS_PTMX_DEV(device)) 
-+		mode |= S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
-+	else {
-+		if (driver->major == PTY_MASTER_MAJOR)
- 			mode |= S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
--			break;
--		default:
--			if (driver->major == PTY_MASTER_MAJOR)
--				mode |= S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
--			break;
- 	}
- 	if ( (minor <  driver->minor_start) || 
- 	     (minor >= driver->minor_start + driver->num) ) {
+http://gcc.gnu.org/projects/bp/main.html
+
+This is a modification to gcc that implements pointers as triples.
+While there is a performance penalty for doing this, it can completely
+eliminate the problem of exploitable buffer overflows.  However, programs
+that violate the rules of ISO C by generating out-of-range pointers will
+fail.
+
+
 

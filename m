@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261316AbSI1NVo>; Sat, 28 Sep 2002 09:21:44 -0400
+	id <S261355AbSI1N3D>; Sat, 28 Sep 2002 09:29:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261317AbSI1NVo>; Sat, 28 Sep 2002 09:21:44 -0400
-Received: from pD9E23260.dip.t-dialin.net ([217.226.50.96]:21384 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S261316AbSI1NVn>; Sat, 28 Sep 2002 09:21:43 -0400
-Date: Sat, 28 Sep 2002 07:27:37 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Christoph Hellwig <hch@infradead.org>
-cc: Lightweight Patch Manager <patch@luckynet.dynu.com>,
+	id <S261379AbSI1N3D>; Sat, 28 Sep 2002 09:29:03 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:27150 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S261355AbSI1N3C>; Sat, 28 Sep 2002 09:29:02 -0400
+Date: Sat, 28 Sep 2002 14:34:22 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Cc: Lightweight Patch Manager <patch@luckynet.dynu.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Rik van Riel <riel@conectiva.com.br>,
        Tomas Szepe <szepe@pinerecords.com>, Zach Brown <zab@zaboo.net>
 Subject: Re: [PATCH][2.5] Single linked headed lists for Linux, v3
-In-Reply-To: <20020928142319.A32048@infradead.org>
-Message-ID: <Pine.LNX.4.44.0209280726430.7827-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf/Steudnitz; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20020928143422.A32552@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Zwane Mwaikambo <zwane@linuxpower.ca>,
+	Lightweight Patch Manager <patch@luckynet.dynu.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Rik van Riel <riel@conectiva.com.br>,
+	Tomas Szepe <szepe@pinerecords.com>, Zach Brown <zab@zaboo.net>
+References: <20020928142319.A32048@infradead.org> <Pine.LNX.4.44.0209280929040.24805-100000@montezuma.mastecende.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0209280929040.24805-100000@montezuma.mastecende.com>; from zwane@linuxpower.ca on Sat, Sep 28, 2002 at 09:29:31AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, Sep 28, 2002 at 09:29:31AM -0400, Zwane Mwaikambo wrote:
+> Someone just got a German keyboard? ;)
 
-On Sat, 28 Sep 2002, Christoph Hellwig wrote:
-> Please kill the sillz ifdef __KERNEL__ and convert to inlines.
-> After that one could start to ctuallz review the implementation..
-
-Sorry, inline taints the concept. It's supposed to work with any type. 
-(This time.) We've had crappy times with list.h, so slist.h shall not use 
-inlines.
-
-			Thunder
+Yupp :P  Internetcafes on the road have disadvantages..
 

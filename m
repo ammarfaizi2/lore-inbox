@@ -1,58 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131564AbRCSUAX>; Mon, 19 Mar 2001 15:00:23 -0500
+	id <S131618AbRCSUSn>; Mon, 19 Mar 2001 15:18:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131573AbRCSUAN>; Mon, 19 Mar 2001 15:00:13 -0500
-Received: from sal.qcc.sk.ca ([198.169.27.3]:15108 "HELO sal.qcc.sk.ca")
-	by vger.kernel.org with SMTP id <S131564AbRCSUAG>;
-	Mon, 19 Mar 2001 15:00:06 -0500
-Date: Mon, 19 Mar 2001 13:59:10 -0600
-From: Charles Cazabon <linux-kernel@discworld.dyndns.org>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Linux should better cope with power failure
-Message-ID: <20010319135910.A3804@qcc.sk.ca>
-In-Reply-To: <3AB66233.B85881C7@bluewin.ch>
-Mime-Version: 1.0
+	id <S131619AbRCSUSe>; Mon, 19 Mar 2001 15:18:34 -0500
+Received: from dfw-smtpout3.email.verio.net ([129.250.36.43]:33762 "EHLO
+	dfw-smtpout3.email.verio.net") by vger.kernel.org with ESMTP
+	id <S131618AbRCSUSX>; Mon, 19 Mar 2001 15:18:23 -0500
+Message-ID: <3AB66962.2345BFB7@bigfoot.com>
+Date: Mon, 19 Mar 2001 12:17:38 -0800
+From: Tim Moore <timothymoore@bigfoot.com>
+Organization: Yoyodyne Propulsion Systems, Inc.
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.19pre17 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: UDMA 100 / PIIX4 question
+In-Reply-To: <20010318165246Z131240-406+1417@vger.kernel.org> <3AB65C51.3DF150E5@bigfoot.com> <3AB65F14.26628BEF@coplanar.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3AB66233.B85881C7@bluewin.ch>; from otto.wyss@bluewin.ch on Mon, Mar 19, 2001 at 08:46:59PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Otto Wyss <otto.wyss@bluewin.ch> wrote:
-> Lately I had an USB failure, leaving me without any access to my system
-> since I only use an USB-keyboard/-mouse. All I could do in that
-> situation was switching power off and on after a few minutes of
-> inactivity. From the impression I got during the following startup, I
-> assume Linux (2.4.2, EXT2-filesystem) is not very suited to any power
-> failiure or manually switching it off. Not even if there wasn't any
-> activity going on. 
+Jeremy Jackson wrote:
+> 
+> Tim Moore wrote:
+> > 15MB/s for hdparm is about right.
+> 
+> Yes, since hdparm -t measures *SUSTAINED* transfers... the actual "head rate" of data reads from
+> disk surface.  Only if you read *only* data that is alread in harddrive's cache will you get a speed
+> close to the UDMA mode of the drive/controller.  The cache is around 1Mbyte, so for a split-second
+> re-read of some data....
 
-You're not using the filesystem the way you should, if you expect to be
-able to kill the power and not lose data.
+Apologies for the too brief answer.  Sustained real world transfer rates for the PIIX4 under ideal
+setup conditions and a quiet bus are 14-18MB/s.  Faster disk architecture and forcing ide driver
+parameters will not change this.
 
-> How could this be accomplished:
-> 1. Flush any dirty cache pages as soon as possible. There may not be any
-> dirty cache after a certain amount of idle time.
+Here's what you might expect from this disk family with an ATA-66 capable chipset:
 
-Mount the filesystem sychronously if you want this.
+[tim@abit tim]# hdparm -i /dev/hda; hdparm -tT /dev/hda
 
-> 2. Keep open files in a state where it doesn't matter if they where
-> improperly closed (if possible).
+/dev/hda:
 
-Mount the filesystem read-only if you want this.
+ Model=IBM-DTLA-307020, FwRev=TX3OA50C, SerialNo=YH0YHF45553
+ Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+ RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
+ BuffType=DualPortCache, BuffSize=1916kB, MaxMultSect=16, MultSect=off
+ CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=40188960
+ IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes: pio0 pio1 pio2 pio3 pio4 
+ DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 *udma4 udma5 
 
-> 3. Swap may not contain anything which can't be discarded. Otherwise
-> swap has to be treated as ordinary disk space.
+/dev/hda:
+ Timing buffer-cache reads:   128 MB in  0.81 seconds =158.02 MB/sec
+ Timing buffered disk reads:  64 MB in  1.85 seconds = 34.59 MB/sec
 
-The kernel doesn't care about what's in swap.  Fix your applications if they
-do.
+Larger sustained transfers are about 75% of the burst/cache influenced hdparm timings.
 
-Charles
+[tim@abit tim]# time dd if=/dev/hda of=/dev/null bs=1k count=500k
+512000+0 records in
+512000+0 records out
+0.340u 6.780s 0:19.68 36.1%     0+0k 0+0io 115pf+0w
+[tim@abit tim]# echo "512000/19.68" | bc -q
+26016
+
 -- 
------------------------------------------------------------------------
-Charles Cazabon                            <linux@discworld.dyndns.org>
-GPL'ed software available at:  http://www.qcc.sk.ca/~charlesc/software/
-Any opinions expressed are just that -- my opinions.
------------------------------------------------------------------------
+  |  650.390.9613  |  6502247437@messaging.cellone-sf.com

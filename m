@@ -1,110 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267115AbSK2Ral>; Fri, 29 Nov 2002 12:30:41 -0500
+	id <S267116AbSK2SKH>; Fri, 29 Nov 2002 13:10:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267116AbSK2Ral>; Fri, 29 Nov 2002 12:30:41 -0500
-Received: from p50817D06.dip.t-dialin.net ([80.129.125.6]:20391 "HELO
-	linux.tuxnetwork.de") by vger.kernel.org with SMTP
-	id <S267115AbSK2Raj>; Fri, 29 Nov 2002 12:30:39 -0500
-Message-ID: <3DE7A5F4.5030503@gentoo.org>
-Date: Fri, 29 Nov 2002 18:37:56 +0100
-From: Bjoern Brauel <bjb@gentoo.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021123
-X-Accept-Language: en-us, en
+	id <S267117AbSK2SKH>; Fri, 29 Nov 2002 13:10:07 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:38647 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S267116AbSK2SKG>; Fri, 29 Nov 2002 13:10:06 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200211291817.gATIHPV15997@devserv.devel.redhat.com>
+Subject: Linux 2.2.23
+To: linux-kernel@vger.kernel.org
+Date: Fri, 29 Nov 2002 13:17:25 -0500 (EST)
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: patch: linux-2.4.20 alpha broken cia(rev1) fix
-X-Enigmail-Version: 0.70.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------020702010204080000030006"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020702010204080000030006
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+2.2.23
+	No change from 2.2.23-rc2
 
-Hi,
+2.2.23-rc2
+o	Backport NT iret denial of service bugfix    (Marc-Christian Petersen)
 
-The attached patch fixes the initialization for CIA revision 1 chips 
-that can be found on most Alcor machines. As it is impossible to boot 
-such a box together with the Qlogic ISP SCSI controller without this 
-patch I believe it is important to include it in the official kernel.
+2.2.23-rc1
+o	Gameport support for ALi 5451			(Pascal Schmidt)
+	| Just missing PCI idents
+o	IP options IPOPT_END padding fix		(Jeff DeFouw)
+o	Make APM check more paranoid			(Solar Designer)
+o	Sanity check ixj requests as in 2.4		(Solar Designer)
+o	Fix printk warning in fat			(Solar Designer)
+o	Fix other print warnings in 2.2.22		(Solar Designer)
+o	ISDN multichannel ppp locking fix		(Herbert Xu)
+o	Fix sx driver compiled into kernel case		(Martin Pool)
+o	Backport ipfw sleep in spinlock in firewall	(James Morris)
+o	Update dmi_scan code to match 2.4/2.5		(Jean Delvare)
+o	Make agp debugging printk clearer		(Neale Banks)
 
-  cheers .. Bjoern
+2.2.22
+o	Fix HDLC bugs causing kernel printk warns	(Pavel)
 
---------------020702010204080000030006
-Content-Type: text/plain;
- name="linux-2.4.20-alpha-broken-cia.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="linux-2.4.20-alpha-broken-cia.patch"
+2.2.22-rc3
+o	3ware IDE raid small update			(Adam Radford)
+o	Fix incorrect comments				(Solar Designer)
+o	Sanity check in isdn 				(Solar Designer)
+o	Type fixes for usb				(Solar Designer)
+o	Vmalloc corner case fix 			(Dave Miller)
 
---- linux-2.4.20/arch/alpha/kernel/core_cia.c	2002-11-29 17:09:02.000000000 +0000
-+++ linux-2.4.20-bjb/arch/alpha/kernel/core_cia.c	2002-11-29 17:09:10.000000000 +0000
-@@ -370,7 +370,7 @@
- }
- 
- static inline void
--cia_prepare_tbia_workaround(void)
-+cia_prepare_tbia_workaround(int cia_rev, int is_pyxis)
- {
- 	unsigned long *ppte, pte;
- 	long i;
-@@ -382,10 +382,21 @@
- 	for (i = 0; i < CIA_BROKEN_TBIA_SIZE / sizeof(unsigned long); ++i)
- 		ppte[i] = pte;
- 
--	*(vip)CIA_IOC_PCI_W1_BASE = CIA_BROKEN_TBIA_BASE | 3;
--	*(vip)CIA_IOC_PCI_W1_MASK = (CIA_BROKEN_TBIA_SIZE*1024 - 1)
--				    & 0xfff00000;
--	*(vip)CIA_IOC_PCI_T1_BASE = virt_to_phys(ppte) >> 2;
-+	if (is_pyxis || cia_rev != 1) {
-+	/* We can use W1 for SG on PYXIS/CIA rev 2. */
-+		*(vip)CIA_IOC_PCI_W1_BASE = CIA_BROKEN_TBIA_BASE | 3;
-+		*(vip)CIA_IOC_PCI_W1_MASK = (CIA_BROKEN_TBIA_SIZE*1024 - 1)
-+			& 0xfff00000;
-+		*(vip)CIA_IOC_PCI_T1_BASE = virt_to_phys(ppte) >> 2;
-+	} else {
-+	/* CIA rev 1 can't use W1 or W2 for SG, apparently,
-+	     so use W3, which we made sure is not used for DAC. */
-+		*(vip)CIA_IOC_PCI_W3_BASE = CIA_BROKEN_TBIA_BASE | 3;
-+		*(vip)CIA_IOC_PCI_W3_MASK = (CIA_BROKEN_TBIA_SIZE*1024 - 1)
-+			& 0xfff00000;
-+		*(vip)CIA_IOC_PCI_T3_BASE = virt_to_phys(ppte) >> 2;
-+	}
-+
- }
- 
- static void __init
-@@ -715,8 +726,14 @@
- 	   are compared against W_DAC.  We can, however, directly map 4GB,
- 	   which is better than before.  However, due to assumptions made
- 	   elsewhere, we should not claim that we support DAC unless that
--	   4GB covers all of physical memory.  */
--	if (is_pyxis || max_low_pfn > (0x100000000 >> PAGE_SHIFT)) {
-+	   4GB covers all of physical memory.
-+
-+	   Also, don't do DAC on CIA rev 1, it has other problems and is
-+	   unlikely to have more than 2GB of memory anyway, so direct is
-+	   fine.
-+	*/
-+	if (cia_rev == 1 || is_pyxis ||
-+	    max_low_pfn > (0x100000000 >> PAGE_SHIFT)) {
- 		*(vip)CIA_IOC_PCI_W3_BASE = 0;
- 	} else {
- 		*(vip)CIA_IOC_PCI_W3_BASE = 0x00000000 | 1 | 8;
-@@ -728,7 +745,7 @@
- 	}
- 
- 	/* Prepare workaround for apparently broken tbia. */
--	cia_prepare_tbia_workaround();
-+	cia_prepare_tbia_workaround(cia_rev, is_pyxis);
- }
- 
- void __init
+2.2.22-rc2
+o	Fix isofs over loopback problems		(Balazs Takacs)
+o	Backport 2.4 shutdown/reset SIGIO from 2.4	(Julian Anastasov)
+o	Fix error reporting in OOM cases		(Julian Anastasov)
+o	List a 2.2 maintainer in MAINTAINERS		(Keith Owens)
+o	Set atime on AF_UNIX sockets			(Solar Designer)
+o	Restore SPARC MD boot configuration		(Tomas Szepe)
+o	Multiple further sign/overflow fixes		(Solar Designer)
+o	Fix ov511 'vfree in interrupt'			(Mark McClelland)
 
---------------020702010204080000030006--
-
+2.2.22-rc1
+o	Backport 2.4 neighbour sending fix		(Chris Friesen)
+o	Fix a sign handling slackness in apm		(Silvio Cesare)
+o	Fix a sign handling error in rio500		(Silvio Cesare)
+o	Indent depca ready for cleanups			(me)
+o	Update VIA C3 recognition			(Diego Rodriguez)
+o	Fix a sysctl handling bug			(MIYOSHI Kazuto)
+o	Fix a netlink error handling bug in ipfw	(Alexander Atanasov)
+o	3ware IDE RAID update				(Adam Radford)
+o	Note ioctl clash on 0x5402			(Pavel Machek)
+o	Typo fix					(Dan Aloni)
+o	Update Riley's contact info			(Riley Williams)
+o	Alpha ptrace fixes				(Solar Designer)
+o	Multiple security fix backports			(Solar Designer)

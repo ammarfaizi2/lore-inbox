@@ -1,27 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263882AbRFITcd>; Sat, 9 Jun 2001 15:32:33 -0400
+	id <S264481AbRFITed>; Sat, 9 Jun 2001 15:34:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264481AbRFITcN>; Sat, 9 Jun 2001 15:32:13 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:29015 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S263882AbRFITcE>; Sat, 9 Jun 2001 15:32:04 -0400
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200106091931.f59JVw731673@devserv.devel.redhat.com>
-Subject: Re: [patch] ess maestro, support for hardware volume control
-To: lukas@edeal.de (Lukas Schroeder)
-Date: Sat, 9 Jun 2001 15:31:58 -0400 (EDT)
-Cc: alan@redhat.com, zab@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20010609190917.A10629@kosmo.edeal.de> from "Lukas Schroeder" at Jun 09, 2001 07:09:17 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S264483AbRFITeN>; Sat, 9 Jun 2001 15:34:13 -0400
+Received: from t2.redhat.com ([199.183.24.243]:56822 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S264481AbRFITeC>; Sat, 9 Jun 2001 15:34:02 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <Pine.LNX.4.21.0106091148380.26187-100000@penguin.transmeta.com> 
+In-Reply-To: <Pine.LNX.4.21.0106091148380.26187-100000@penguin.transmeta.com> 
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org,
+        Dawson Engler <engler@csl.Stanford.EDU>
+Subject: Re: [CHECKER] a couple potential deadlocks in 2.4.5-ac8 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Sat, 09 Jun 2001 20:33:01 +0100
+Message-ID: <19317.992115181@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> this patch applies to (at least) 2.4.3 up to and including 2.4.6-pre2.
-> It enables the hardware volume control feature of the maestro.
 
-it doesnt apply to the current version of the maestro driver (2.4.5-ac) 
-however. I think it is clashing with the docking station support
+torvalds@transmeta.com said:
+>  Good point. Spinlocks (with the exception of read-read locks, of
+> course) and semaphores will deadlock on recursive use, while the BKL
+> has this "process usage counter" recursion protection.
+
+Obtaining a read lock twice can deadlock too, can't it?
+
+	A		B
+	read_lock()
+			write_lock()
+			...sleeps...
+	read_lock()
+	...sleeps...
+
+Or do we not make new readers sleep if there's a writer waiting?
+
+--
+dwmw2
+
+

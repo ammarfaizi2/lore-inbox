@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262164AbTK1LYE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Nov 2003 06:24:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262174AbTK1LYE
+	id S262139AbTK1LSt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Nov 2003 06:18:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbTK1LSt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Nov 2003 06:24:04 -0500
-Received: from mail.fh-wedel.de ([213.39.232.194]:47526 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S262164AbTK1LYC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Nov 2003 06:24:02 -0500
-Date: Fri, 28 Nov 2003 12:22:51 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: "YOSHIFUJI Hideaki / ?$B5HF#1QL@" <yoshfuji@linux-ipv6.org>
-Cc: felipe_alfaro@linuxmail.org, rmk+lkml@arm.linux.org.uk, davem@redhat.com,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH 2.6]: IPv6: strcpy -> strlcpy
-Message-ID: <20031128112251.GA18276@wohnheim.fh-wedel.de>
-References: <1069974209.5349.7.camel@teapot.felipe-alfaro.com> <20031128.092326.39861126.yoshfuji@linux-ipv6.org> <20031128.092642.47232575.yoshfuji@linux-ipv6.org> <20031128.094022.106776635.yoshfuji@linux-ipv6.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+	Fri, 28 Nov 2003 06:18:49 -0500
+Received: from ztxmail02.ztx.compaq.com ([161.114.1.206]:2309 "EHLO
+	ztxmail02.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S262139AbTK1LSs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Nov 2003 06:18:48 -0500
+Message-ID: <3FC72FE2.90807@mailandnews.com>
+Date: Fri, 28 Nov 2003 16:52:10 +0530
+From: Raj <raju@mailandnews.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031016
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andreas Schwab <schwab@suse.de>
+Cc: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Strange behavior observed w.r.t 'su' command
+References: <3FC707B6.1070704@mailandnews.com> <jeoeuw7pf7.fsf@sykes.suse.de>	<yw1x65h43h3b.fsf@kth.se> <je3cc87oic.fsf@sykes.suse.de>
+In-Reply-To: <je3cc87oic.fsf@sykes.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20031128.094022.106776635.yoshfuji@linux-ipv6.org>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 28 November 2003 09:40:22 +0900, YOSHIFUJI Hideaki / ?$B5HF#1QL@ wrote:
-> In article <20031128.092642.47232575.yoshfuji@linux-ipv6.org> (at Fri, 28 Nov 2003 09:26:42 +0900 (JST)), YOSHIFUJI Hideaki / ?$B5HF#1QL@ <yoshfuji@linux-ipv6.org> says:
-> 
-> > >  3)   if (len)
-> > >          strncpy(dst, src, len - 1);
-> > >       dst[len] = 0;
-> 
-> grr, another mistake...:
-> 
->           if (len) {
->              strncpy(dst, src, len - 1);
->              dst[len - 1];
-                           ^
->           }
+Andreas Schwab wrote:
 
-Did you forget ' = 0' there? ;)
+>mru@kth.se (Måns Rullgård) writes:
+>
+>  
+>
+>>It appears that my su exec()s the shell, whereas the redhat and gentoo
+>>su fork() and exec().
+>>    
+>>
+>
+>Yes, your su probably does not support PAM.
+>
+>Andreas.
+>
+>  
+>
+But why is it that after 'su - root', running 'ps' shows 'su' as a 
+separate process, whereas, 'su - otheruser' and then 'ps' does not show 
+'su' in the process list ??
+In plain words, why does this happen only for su to root ?
 
-Jörn
+/Raj
 
--- 
-ticks = jiffies;
-while (ticks == jiffies);
-ticks = jiffies;
--- /usr/src/linux/init/main.c
+

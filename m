@@ -1,88 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293678AbSCKKr1>; Mon, 11 Mar 2002 05:47:27 -0500
+	id <S293676AbSCKKqn>; Mon, 11 Mar 2002 05:46:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293679AbSCKKrO>; Mon, 11 Mar 2002 05:47:14 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:46084 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S293678AbSCKKrH>;
-	Mon, 11 Mar 2002 05:47:07 -0500
-Date: Mon, 11 Mar 2002 11:46:54 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Oleg Drokin <green@namesys.com>
-Cc: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org,
-        alan@lxorguk.ukuu.org.uk
-Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and 2.2.21-pre3 (client)
-Message-Id: <20020311114654.2901890f.skraw@ithnet.com>
-In-Reply-To: <20020311091458.A24600@namesys.com>
-In-Reply-To: <shswuwkujx5.fsf@charged.uio.no>
-	<200203110018.BAA11921@webserver.ithnet.com>
-	<15499.64058.442959.241470@charged.uio.no>
-	<20020311091458.A24600@namesys.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S293678AbSCKKqe>; Mon, 11 Mar 2002 05:46:34 -0500
+Received: from mhw.ulib.iupui.edu ([134.68.164.123]:55756 "EHLO
+	mhw.ULib.IUPUI.Edu") by vger.kernel.org with ESMTP
+	id <S293676AbSCKKqT>; Mon, 11 Mar 2002 05:46:19 -0500
+Date: Mon, 11 Mar 2002 05:46:16 -0500 (EST)
+From: "Mark H. Wood" <mwood@IUPUI.Edu>
+X-X-Sender: <mwood@mhw.ULib.IUPUI.Edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
+In-Reply-To: <200203101941.g2AJfSD19756@lmail.actcom.co.il>
+Message-ID: <Pine.LNX.4.33.0203110508080.17717-100000@mhw.ULib.IUPUI.Edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Mar 2002 09:14:58 +0300
-Oleg Drokin <green@namesys.com> wrote:
+On Sun, 10 Mar 2002, Itai Nahshon wrote:
+> On Sunday 10 March 2002 10:36, Hans Reiser wrote:
+> > I think that if version control becomes as simple as turning on a plugin
+> > for a directory or file, and then adding a little to the end of a
+> > filename to see and list the old versions, Mom can use it.
+>
+> IIRC that was a feature in systems from DEC even before
+> VMS (I'm talking about the late 70's).  eg. file.txt;2 was revision 2
+> of file.txt.
+>
+> I don't know if this feature was in the file-system or in the text editor
+> that I have used.
 
-> Hello!
-> 
-> On Mon, Mar 11, 2002 at 01:28:42AM +0100, Trond Myklebust wrote:
-> >      > this is a weak try of an explanation. All involved fs types are
-> >      > reiserfs. The problem occurs reproducably only after (and
-> > Which ReiserFS format? Is it version 3.5?
-> 
-> >    'cat /proc/fs/reiserfs/device/version'
-> 
-> If this does not work because you have no such file, then look through your
-> kernel logs, if you use reiserfs v3.5 on 2.4 kernel, it will show itself
-> as such record in the log file: "reiserfs: using 3.5.x disk format"
+It's part of the TOPS-20 filesystem.  If you try to create a file which
+already exists, you get a new version of the file with length zero.  Each
+file has a version limit in its directory entry, and when the limit is
+exceeded the oldest version is automagically deleted.  The version limit
+is copied from the highest existing version to the new version, and the
+limit on the highest version determines whether old versions are dropped.
 
-Hello Oleg, hello Trond, hello Alan,
+VMS does something similar, although ODS-2 tries to be clever by packing
+all of the versions' index-file pointers together after a single copy of
+the version-less name in the directory block.  Originally the two used
+different punctuation to set off the version number, but when Digital
+killed the PDP10 line VMS was adjusted to accept the TOPS-20 form as well,
+as a sop to LCG customers who were being steered into an unfamiliar
+product line.  IIRC TOPS-20 names were name.extension.version, while VMS
+native names are name.extension;version .
 
-I have several reiserfs fs in use on this server. boot.msg looks like
+RSX-11 (VMS' ancestor) may have had versions too.  I've only used the
+hacked RSX20F variety used as the console monitor for KL10 systems, but I
+seem to recall versioning there.  Or maybe I'm recalling the RSX-11 flavor
+(POS) which ran the Pro300 console on the VAX 8800.
 
-<4>reiserfs: checking transaction log (device 08:03) ...
-<4>Using r5 hash to sort names
-<4>ReiserFS version 3.6.25
-<4>VFS: Mounted root (reiserfs filesystem) readonly.
-<4>Freeing unused kernel memory: 224k freed
-<6>Adding Swap: 265032k swap-space (priority 42)
-<4>reiserfs: checking transaction log (device 21:01) ...
-<4>Using r5 hash to sort names
-<4>ReiserFS version 3.6.25
-<4>reiserfs: checking transaction log (device 22:01) ...
-<4>Using tea hash to sort names
-<4>reiserfs: using 3.5.x disk format
-<4>ReiserFS version 3.6.25
-<4>reiserfs: checking transaction log (device 08:04) ...
-<4>Using r5 hash to sort names
-<4>ReiserFS version 3.6.25
+> The basic features were not even close to what you get from RCS or
+> SCCS.
 
-I tried to find out which device has which numbers and did a cat /proc/devices:
+Indeed.  The only essential relationship between two versions of a file is
+that their names resemble each other.  The content is entirely distinct.
+It was usually used to prevent the "oops, I shouldn't have saved that"
+syndrome.
 
-Block devices:
-  2 fd
-  8 sd
- 11 sr
- 22 ide1
- 33 ide2
- 34 ide3
- 65 sd
- 66 sd
-
-Interestingly there is no #21. Shouldn't I see a block device 21 here?
-More strange the only two existing ide-drives in this system are located on
-ide2 and ide3 and should therefore have device numbers 33 and 34, or not?
-There is no hd on ide1, only a CDROM (not used during the test). ide0 is
-completely empty.
-As told earlier this is kernel 2.4.19-pre2.
-
-Enlighten me, please...
-
-Stephan
+-- 
+Mark H. Wood, Lead System Programmer   mwood@IUPUI.Edu
+; 11-Mar-2002	MHW	Support the 2080
 

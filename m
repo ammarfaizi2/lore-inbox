@@ -1,58 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272050AbRHVRVN>; Wed, 22 Aug 2001 13:21:13 -0400
+	id <S272053AbRHVRUx>; Wed, 22 Aug 2001 13:20:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272049AbRHVRVE>; Wed, 22 Aug 2001 13:21:04 -0400
-Received: from mail4.svr.pol.co.uk ([195.92.193.211]:50802 "EHLO
-	mail4.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S272051AbRHVRUt>; Wed, 22 Aug 2001 13:20:49 -0400
-Message-ID: <3B83E9FD.6020801@humboldt.co.uk>
-Date: Wed, 22 Aug 2001 18:21:01 +0100
-From: Adrian Cox <adrian@humboldt.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2+) Gecko/20010801
-X-Accept-Language: en-us
+	id <S272050AbRHVRUn>; Wed, 22 Aug 2001 13:20:43 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:60686 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S272049AbRHVRUe>; Wed, 22 Aug 2001 13:20:34 -0400
+Subject: Re: Kernel Locking Up
+To: travis@pobox.com (Travis Shirk)
+Date: Wed, 22 Aug 2001 18:23:48 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <Pine.LNX.4.33.0108220938390.1152-100000@puddy.travisshirk.net> from "Travis Shirk" at Aug 22, 2001 09:46:14 AM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Filling holes in ext2
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15ZbjI-0001s2-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been looking at generic_file_write() a lot recently, and I'm a 
-little bothered by this section, as mangled here by Mozilla:
+> The symptons are total lock-up of the machine.  No mouse
+> movement, all GUI monoitors freeze, and I cannot switch to a
+> virtual console.  I'm not able to ping the locked machine or
+> ssh/telnet into it either.  So I'm left wondering....how and
+> the hell to I debug this problem.  It'd be nice to have some
+> more information to go on or post to the list.
 
-status = mapping->a_ops->prepare_write(file, page, offset, offset+bytes);
-if (status)
-	goto unlock;
-status = __copy_from_user(kaddr+offset, buf, bytes);
-flush_dcache_page(page);
-if (status)
-	goto fail_write;
-status = mapping->a_ops->commit_write(file, page, offset, offset+bytes);
-
-If the __copy_from_user() does fail when writing to a hole or extending 
-a file on ext2, disk blocks get added to the file, but are never 
-cleared. The result is that data from a free block appears in the file.
-
-I've not managed to trigger this in a real system, but I have explored 
-the failure path by running UML under gdb. I filled the filesystem with 
-data as root (yes > /mnt/test), deleted the files, then triggered this 
-path on an application running as a normal user. The result was that 
-root's old data appeared in the user file.
-
-So:
-Can this really happen on the mainstream kernel? (The kernel I tested on 
-  was 2.4.7 with the corresponding UML patch.)
-
-Can this actually be exploited?  I assume the test on __copy_from_user() 
-is there in case another thread changes memory mappings while 
-generic_file_write() is running. My attempts to do this haven't yet 
-succeeded.
-
-If this can happen, does it matter? Should ext2 have an abort_write() 
-operation like ext3() has?
-
--- 
-Adrian Cox   http://www.humboldt.co.uk/
-
+Can you get it to crash when you are not in X11 at all ?

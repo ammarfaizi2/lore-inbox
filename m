@@ -1,51 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262991AbTKPQ5a (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Nov 2003 11:57:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263007AbTKPQ5a
+	id S263014AbTKPQ7H (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Nov 2003 11:59:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263015AbTKPQ7G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Nov 2003 11:57:30 -0500
-Received: from gprs145-223.eurotel.cz ([160.218.145.223]:640 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262991AbTKPQ53 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Nov 2003 11:57:29 -0500
-Date: Sun, 16 Nov 2003 17:57:57 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Pascal Schmidt <der.eremit@email.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fix firmware loader docs
-Message-ID: <20031116165757.GA201@elf.ucw.cz>
-References: <SuZ1.4nW.9@gated-at.bofh.it> <E1ALOz0-0000I5-00@neptune.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1ALOz0-0000I5-00@neptune.local>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Sun, 16 Nov 2003 11:59:06 -0500
+Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:49670 "EHLO
+	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
+	id S263014AbTKPQ6K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Nov 2003 11:58:10 -0500
+Message-ID: <3FB7AC9E.5020502@dcrdev.demon.co.uk>
+Date: Sun, 16 Nov 2003 16:58:06 +0000
+From: Dan Creswell <dan@dcrdev.demon.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [Fwd: Re: Hard lock on 2.6-test9]
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > AFAICS, sysfs should be mounted on /sys these days...
-> > 
-> > --- tmp/linux/Documentation/firmware_class/README	2003-08-27 12:00:01.000000000 +0200
-> > +++ linux/Documentation/firmware_class/README	2003-11-06 13:50:58.000000000 +0100
-> > @@ -60,9 +60,9 @@
-> >  
-> >  	HOTPLUG_FW_DIR=/usr/lib/hotplug/firmware/
-> >  
-> > -	echo 1 > /sysfs/$DEVPATH/loading
-> > +	echo 1 > /sys/$DEVPATH/loading
-> >  	cat $HOTPLUG_FW_DIR/$FIRMWARE > /sysfs/$DEVPATH/data
-> > -	echo 0 > /sysfs/$DEVPATH/loading
-> > +	echo 0 > /sys/$DEVPATH/loading
-> 
-> You need more coffee. You forgot the /sysfs/ on the line with cat. ;)
 
-Heh, maybe thats why it did not work for me ;-).
-								Pavel
+-------- Original Message --------
+Subject: 	Re: Hard lock on 2.6-test9
+Date: 	Sun, 16 Nov 2003 13:33:32 +0000
+From: 	Dan Creswell <dan@dcrdev.demon.co.uk>
+To: 	Davide Libenzi <davidel@xmailserver.org>
+References: 
+<Pine.LNX.4.44.0311151501000.1997-100000@bigblue.dev.mdolabs.com>
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+
+
+Davide Libenzi wrote:
+
+>On Sat, 15 Nov 2003, Dan Creswell wrote:
+>
+>  
+>
+>>Chipset is E7505 with dual Xeons.
+>>
+>>Under X, I can provoke a lock just by waggling the mouse.  I've had the 
+>>machine connected up to a serial console with nmi_watchdog=1 and, when 
+>>the machine dies, nothing is printed on the console (I guess that makes 
+>>it *very* bad :( ).
+>>    
+>>
+>
+>Is NMI really enabled?
+>
+>$ cat /proc/interrupts
+>
+>
+>
+>- Davide
+>
+>
+>
+>  
+>
+Sorry Davide,
+
+I forgot to mention that a UP 2.6-test9 works fine whilst an SMP version 
+doesn't (unless I use "noapic")
+
+2.4 in dual or UP seems rock-solid (bar one issue which may have been 
+network card related).
+
+Dan.
+
+
+
+

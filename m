@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265523AbTA1OTT>; Tue, 28 Jan 2003 09:19:19 -0500
+	id <S267118AbTA1OiC>; Tue, 28 Jan 2003 09:38:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265567AbTA1OTT>; Tue, 28 Jan 2003 09:19:19 -0500
-Received: from home.wiggy.net ([213.84.101.140]:53695 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id <S265523AbTA1OTS>;
-	Tue, 28 Jan 2003 09:19:18 -0500
-Date: Tue, 28 Jan 2003 15:28:37 +0100
+	id <S266999AbTA1OiA>; Tue, 28 Jan 2003 09:38:00 -0500
+Received: from home.wiggy.net ([213.84.101.140]:62399 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id <S266917AbTA1Ohz>;
+	Tue, 28 Jan 2003 09:37:55 -0500
+Date: Tue, 28 Jan 2003 15:47:14 +0100
 From: Wichert Akkerman <wichert@wiggy.net>
-To: linux-kernel@vger.kernel.org
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Bootscreen
-Message-ID: <20030128142837.GX4868@wiggy.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030128133252.GC23296@suse.de> <200301281355.h0SDteN1000666@darkstar.example.net>
+Message-ID: <20030128144714.GC4868@wiggy.net>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0301281113480.20283-100000@schubert.rdns.com> <200301281144.h0SBi0ld000233@darkstar.example.net> <20030128114840.GV4868@wiggy.net> <1043758528.8100.35.camel@dhcp22.swansea.linux.org.uk> <20030128130953.GW4868@wiggy.net> <1043761632.1316.67.camel@dhcp22.swansea.linux.org.uk> <20030128143235.GY4868@wiggy.net> <20030128153533.X28781-100000@snail.stack.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200301281355.h0SDteN1000666@darkstar.example.net>
+In-Reply-To: <20030128153533.X28781-100000@snail.stack.nl>
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously John Bradford wrote:
-> Surely the most sensible lines to think along are:
-> 
-> * Make boot times as short as possible
+Previously Jos Hulzink wrote:
+> Why are you guys walking around the issue ? There are people demanding for
+> a feature, and they are marked as complete idiots.
 
-So with a short boot time instead of seeing text messages for a while
-you'll get some flickering on the screen - I don't call that an
-improvement.
+Did you completely miss my point?
 
-> * Support, and encourage the use of more efficient CPU designs, so
->   that it becomes sensible to leave machines on all the time.
+> Oh, and using modules is a (minor) security issue. I have all my drivers
+> compiled in the kernel. I like it and it is secure.
 
-Unfortunately in the real world we are dealing with existing cheap
-hardware.
+Not using modules does not add any security at all, that is a myth that
+refuses to die.
 
 Wichert.
 

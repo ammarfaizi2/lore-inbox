@@ -1,85 +1,395 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269360AbUHZSy0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269322AbUHZS27@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269360AbUHZSy0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 14:54:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269352AbUHZSuA
+	id S269322AbUHZS27 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 14:28:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269335AbUHZS2l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 14:50:00 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:43743 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S269360AbUHZSlg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 14:41:36 -0400
-Date: Thu, 26 Aug 2004 13:38:34 -0500
-From: John Hesterberg <jh@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jay Lan <jlan@engr.sgi.com>, linux-kernel@vger.kernel.org,
-       erikj@dbear.engr.sgi.com, limin@engr.sgi.com,
-       lse-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] Re: [PATCH] new CSA patchset for 2.6.8
-Message-ID: <20040826183834.GA11393@sgi.com>
-References: <412D2E10.8010406@engr.sgi.com> <20040825221842.72dd83a4.akpm@osdl.org>
+	Thu, 26 Aug 2004 14:28:41 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:58435 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S269333AbUHZSSo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 14:18:44 -0400
+Subject: [PATCH] 2.4.27 synclinkmp transmit eom fix
+From: Paul Fulghum <paulkf@microgate.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1093544312.11572.32.camel@deimos.microgate.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040825221842.72dd83a4.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 26 Aug 2004 13:18:33 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 25, 2004 at 10:18:42PM -0700, Andrew Morton wrote:
-> Jay Lan <jlan@engr.sgi.com> wrote:
-> >
-> > I have broken up one big CSA kernel patch into four smaller ones
-> >  as attached:
-> > 
-> >       csa_io     - collects io accounting data
-> >       csa_mm     - collects mm accounting data
-> >       csa_eop    - provides a hook to perform end-of-process accounting
-> >       csa_module - builds csa loadable module
-> 
-> More broadly: Help!
-> 
-> I am 100% not in a position to judge whether Linux needs Comprehensive
-> System Accounting, nor am I able to define what the requirements for such a
-> thing should be.  All I can tell from your patch is the quality of its
-> implementation, and that's leaping far, far ahead of where we should be.
+Bug Fixes:
 
-Linux needs something beyond what it has today, at least for the
-HPC market SGI is familiar with.  We believe it will more generally
-benefit Linux HPC and enterprise markets, which is one reason we've
-released the whole CSA stack as open source.
+* Fix transmit end of message (EOM) processing to
+  work correctly with hardware auto CTS feature
 
-> 
-> We're going to need help from you, and from all the other stakeholders in
-> judging how useful this feature is to Linux implementors and how well this
-> implementation meets the (unknown) requirements.  See my problem?
-> 
-> I've cc'ed lse-tech, where enterprise folks hang out.  I would request that
-> the people who are stakeholders in this feature
-> 
-> a) stick their hands up
+* Fix oops in error path if hardware diags fail
+  during device initialization
 
-We're running CSA in production on Altix (our Itanium/Linux platform)
-for several years now.
+Cosmetic change:
 
-> 
-> b) let us know how important this kind of feature is for their users
+* Use existing macros for address space size
+  instead of hardcoded values
 
-A substantial number of our customers require it.  CSA has been
-developed over the years on SGI's HPC systems in response to our
-customers needs.  It's been reimplemented and opensourced for Linux,
-originally as an SGI/LANL collaboration.
+Signed-off-by: Paul Fulghum <paulkf@microgate.com>
 
-> c) review the offered feature set against their requirements
-> 
-> d) let us know how well the implementation fits that requirement and
+Please apply.
+ 
+--
+Paul Fulghum
+paulkf@microgate.com
 
-It fits. :-)
 
-Actually, one secondary feature on our wishlist is 'projects'.
+--- linux-2.4.27/drivers/char/synclinkmp.c	2003-11-28 12:26:20.000000000 -0600
++++ linux-2.4.27-mg1/drivers/char/synclinkmp.c	2004-08-26 13:02:57.000000000 -0500
+@@ -1,5 +1,5 @@
+ /*
+- * $Id: synclinkmp.c,v 3.22 2003/09/05 14:04:26 paulkf Exp $
++ * $Id: synclinkmp.c,v 3.23 2004/08/24 19:49:48 paulkf Exp $
+  *
+  * Device driver for Microgate SyncLink Multiport
+  * high speed multiprotocol serial adapter.
+@@ -504,7 +504,7 @@
+ MODULE_PARM(dosyncppp,"1-" __MODULE_STRING(MAX_DEVICES) "i");
+ 
+ static char *driver_name = "SyncLink MultiPort driver";
+-static char *driver_version = "$Revision: 3.22 $";
++static char *driver_version = "$Revision: 3.23 $";
+ 
+ static int __devinit synclinkmp_init_one(struct pci_dev *dev,const struct pci_device_id *ent);
+ static void __devexit synclinkmp_remove_one(struct pci_dev *dev);
+@@ -681,7 +681,7 @@
+ static unsigned char tx_negate_fifo_level = 32;	// tx request FIFO negation level in bytes
+ 
+ static u32 misc_ctrl_value = 0x007e4040;
+-static u32 lcr1_brdr_value = 0x0080002d;
++static u32 lcr1_brdr_value = 0x00800029;
+ 
+ static u32 read_ahead_count = 8;
+ 
+@@ -2036,16 +2036,15 @@
+ {
+  	struct tty_struct *tty = info->tty;
+  	struct	mgsl_icount *icount = &info->icount;
+-	unsigned char status = read_reg(info, SR1);
+-	unsigned char status2 = read_reg(info, SR2);
++	unsigned char status = read_reg(info, SR1) & info->ie1_value & (FLGD + IDLD + CDCD + BRKD);
++	unsigned char status2 = read_reg(info, SR2) & info->ie2_value & OVRN;
+ 
+ 	/* clear status bits */
+-	if ( status & (FLGD + IDLD + CDCD + BRKD) )
+-		write_reg(info, SR1, 
+-				(unsigned char)(status & (FLGD + IDLD + CDCD + BRKD)));
++	if (status)
++		write_reg(info, SR1, status);
+ 
+-	if ( status2 & OVRN )
+-		write_reg(info, SR2, (unsigned char)(status2 & OVRN));
++	if (status2)
++		write_reg(info, SR2, status2);
+ 	
+ 	if ( debug_level >= DEBUG_LEVEL_ISR )
+ 		printk("%s(%d):%s isr_rxint status=%02X %02x\n",
+@@ -2182,15 +2181,22 @@
+ 		printk("%s(%d):%s isr_txeom status=%02x\n",
+ 			__FILE__,__LINE__,info->device_name,status);
+ 
+-	/* disable and clear MSCI interrupts */
+-	info->ie1_value &= ~(IDLE + UDRN);
+-	write_reg(info, IE1, info->ie1_value);
+-	write_reg(info, SR1, (unsigned char)(UDRN + IDLE));
+-
+ 	write_reg(info, TXDMA + DIR, 0x00); /* disable Tx DMA IRQs */
+ 	write_reg(info, TXDMA + DSR, 0xc0); /* clear IRQs and disable DMA */
+ 	write_reg(info, TXDMA + DCMD, SWABORT);	/* reset/init DMA channel */
+ 
++	if (status & UDRN) {
++		write_reg(info, CMD, TXRESET);
++		write_reg(info, CMD, TXENABLE);
++	} else
++		write_reg(info, CMD, TXBUFCLR);
++
++	/* disable and clear tx interrupts */
++	info->ie0_value &= ~TXRDYE;
++	info->ie1_value &= ~(IDLE + UDRN);
++	write_reg16(info, IE0, (unsigned short)((info->ie1_value << 8) + info->ie0_value));
++	write_reg(info, SR1, (unsigned char)(UDRN + IDLE));
++
+ 	if ( info->tx_active ) {
+ 		if (info->params.mode != MGSL_MODE_ASYNC) {
+ 			if (status & UDRN)
+@@ -2231,10 +2237,10 @@
+  */
+ void isr_txint(SLMP_INFO * info)
+ {
+-	unsigned char status = read_reg(info, SR1);
++	unsigned char status = read_reg(info, SR1) & info->ie1_value & (UDRN + IDLE + CCTS);
+ 
+ 	/* clear status bits */
+-	write_reg(info, SR1, (unsigned char)(status & (UDRN + IDLE + CCTS)));
++	write_reg(info, SR1, status);
+ 
+ 	if ( debug_level >= DEBUG_LEVEL_ISR )
+ 		printk("%s(%d):%s isr_txint status=%02x\n",
+@@ -2263,6 +2269,14 @@
+ 		printk("%s(%d):%s isr_txrdy() tx_count=%d\n",
+ 			__FILE__,__LINE__,info->device_name,info->tx_count);
+ 
++	if (info->params.mode != MGSL_MODE_ASYNC) {
++		/* disable TXRDY IRQ, enable IDLE IRQ */
++		info->ie0_value &= ~TXRDYE;
++		info->ie1_value |= IDLE;
++		write_reg16(info, IE0, (unsigned short)((info->ie1_value << 8) + info->ie0_value));
++		return;
++	}
++
+ 	if (info->tty && (info->tty->stopped || info->tty->hw_stopped)) {
+ 		tx_stop(info);
+ 		return;
+@@ -2317,13 +2331,6 @@
+ 
+ void isr_txdmaok(SLMP_INFO * info)
+ {
+-	/* BIT7 = EOT (end of transfer, used for async mode)
+-	 * BIT6 = EOM (end of message/frame, used for sync mode)
+-	 *
+-	 * We don't look at DMA status because only EOT is enabled
+-	 * and we always clear and disable all tx DMA IRQs.
+-	 */
+-//	unsigned char dma_status = read_reg(info,TXDMA + DSR) & 0xc0;
+ 	unsigned char status_reg1 = read_reg(info, SR1);
+ 
+ 	write_reg(info, TXDMA + DIR, 0x00);	/* disable Tx DMA IRQs */
+@@ -2334,19 +2341,10 @@
+ 		printk("%s(%d):%s isr_txdmaok(), status=%02x\n",
+ 			__FILE__,__LINE__,info->device_name,status_reg1);
+ 
+-	/* If transmitter already idle, do end of frame processing,
+-	 * otherwise enable interrupt for tx IDLE.
+-	 */
+-	if (status_reg1 & IDLE)
+-		isr_txeom(info, IDLE);
+-	else {
+-		/* disable and clear underrun IRQ, enable IDLE interrupt */
+-		info->ie1_value |= IDLE;
+-		info->ie1_value &= ~UDRN;
+-		write_reg(info, IE1, info->ie1_value);
+-
+-		write_reg(info, SR1, UDRN);
+-	}
++	/* program TXRDY as FIFO empty flag, enable TXRDY IRQ */
++	write_reg16(info, TRC0, 0);
++	info->ie0_value |= TXRDYE;
++	write_reg(info, IE0, info->ie0_value);
+ }
+ 
+ void isr_txdmaerror(SLMP_INFO * info)
+@@ -3037,7 +3035,7 @@
+ 		unsigned char oldval = info->ie1_value;
+ 		unsigned char newval = oldval +
+ 			 (mask & MgslEvent_ExitHuntMode ? FLGD:0) +
+-			 (mask & MgslEvent_IdleReceived ? IDLE:0);
++			 (mask & MgslEvent_IdleReceived ? IDLD:0);
+ 		if ( oldval != newval ) {
+ 			info->ie1_value = newval;
+ 			write_reg(info, IE1, info->ie1_value);
+@@ -3104,7 +3102,7 @@
+ 		spin_lock_irqsave(&info->lock,flags);
+ 		if (!waitqueue_active(&info->event_wait_q)) {
+ 			/* disable enable exit hunt mode/idle rcvd IRQs */
+-			info->ie1_value &= ~(FLGD|IDLE);
++			info->ie1_value &= ~(FLGD|IDLD);
+ 			write_reg(info, IE1, info->ie1_value);
+ 		}
+ 		spin_unlock_irqrestore(&info->lock,flags);
+@@ -3554,9 +3552,10 @@
+ 
+ int claim_resources(SLMP_INFO *info)
+ {
+-	if (request_mem_region(info->phys_memory_base,0x40000,"synclinkmp") == NULL) {
++	if (request_mem_region(info->phys_memory_base,SCA_MEM_SIZE,"synclinkmp") == NULL) {
+ 		printk( "%s(%d):%s mem addr conflict, Addr=%08X\n",
+ 			__FILE__,__LINE__,info->device_name, info->phys_memory_base);
++		info->init_error = DiagStatus_AddressConflict;
+ 		goto errout;
+ 	}
+ 	else
+@@ -3565,22 +3564,25 @@
+ 	if (request_mem_region(info->phys_lcr_base + info->lcr_offset,128,"synclinkmp") == NULL) {
+ 		printk( "%s(%d):%s lcr mem addr conflict, Addr=%08X\n",
+ 			__FILE__,__LINE__,info->device_name, info->phys_lcr_base);
++		info->init_error = DiagStatus_AddressConflict;
+ 		goto errout;
+ 	}
+ 	else
+ 		info->lcr_mem_requested = 1;
+ 
+-	if (request_mem_region(info->phys_sca_base + info->sca_offset,512,"synclinkmp") == NULL) {
++	if (request_mem_region(info->phys_sca_base + info->sca_offset,SCA_BASE_SIZE,"synclinkmp") == NULL) {
+ 		printk( "%s(%d):%s sca mem addr conflict, Addr=%08X\n",
+ 			__FILE__,__LINE__,info->device_name, info->phys_sca_base);
++		info->init_error = DiagStatus_AddressConflict;
+ 		goto errout;
+ 	}
+ 	else
+ 		info->sca_base_requested = 1;
+ 
+-	if (request_mem_region(info->phys_statctrl_base + info->statctrl_offset,16,"synclinkmp") == NULL) {
++	if (request_mem_region(info->phys_statctrl_base + info->statctrl_offset,SCA_REG_SIZE,"synclinkmp") == NULL) {
+ 		printk( "%s(%d):%s stat/ctrl mem addr conflict, Addr=%08X\n",
+ 			__FILE__,__LINE__,info->device_name, info->phys_statctrl_base);
++		info->init_error = DiagStatus_AddressConflict;
+ 		goto errout;
+ 	}
+ 	else
+@@ -3590,33 +3592,41 @@
+ 	if (!info->memory_base) {
+ 		printk( "%s(%d):%s Cant map shared memory, MemAddr=%08X\n",
+ 			__FILE__,__LINE__,info->device_name, info->phys_memory_base );
++		info->init_error = DiagStatus_CantAssignPciResources;
+ 		goto errout;
+ 	}
+ 
+-	if ( !memory_test(info) ) {
+-		printk( "%s(%d):Shared Memory Test failed for device %s MemAddr=%08X\n",
+-			__FILE__,__LINE__,info->device_name, info->phys_memory_base );
+-		goto errout;
+-	}
+-
+-	info->lcr_base = ioremap(info->phys_lcr_base,PAGE_SIZE) + info->lcr_offset;
++	info->lcr_base = ioremap(info->phys_lcr_base,PAGE_SIZE);
+ 	if (!info->lcr_base) {
+ 		printk( "%s(%d):%s Cant map LCR memory, MemAddr=%08X\n",
+ 			__FILE__,__LINE__,info->device_name, info->phys_lcr_base );
++		info->init_error = DiagStatus_CantAssignPciResources;
+ 		goto errout;
+ 	}
++	info->lcr_base += info->lcr_offset;
+ 
+-	info->sca_base = ioremap(info->phys_sca_base,PAGE_SIZE) + info->sca_offset;
++	info->sca_base = ioremap(info->phys_sca_base,PAGE_SIZE);
+ 	if (!info->sca_base) {
+ 		printk( "%s(%d):%s Cant map SCA memory, MemAddr=%08X\n",
+ 			__FILE__,__LINE__,info->device_name, info->phys_sca_base );
++		info->init_error = DiagStatus_CantAssignPciResources;
+ 		goto errout;
+ 	}
++	info->sca_base += info->sca_offset;
+ 
+-	info->statctrl_base = ioremap(info->phys_statctrl_base,PAGE_SIZE) + info->statctrl_offset;
++	info->statctrl_base = ioremap(info->phys_statctrl_base,PAGE_SIZE);
+ 	if (!info->statctrl_base) {
+ 		printk( "%s(%d):%s Cant map SCA Status/Control memory, MemAddr=%08X\n",
+ 			__FILE__,__LINE__,info->device_name, info->phys_statctrl_base );
++		info->init_error = DiagStatus_CantAssignPciResources;
++		goto errout;
++	}
++	info->statctrl_base += info->statctrl_offset;
++
++	if ( !memory_test(info) ) {
++		printk( "%s(%d):Shared Memory Test failed for device %s MemAddr=%08X\n",
++			__FILE__,__LINE__,info->device_name, info->phys_memory_base );
++		info->init_error = DiagStatus_MemoryError;
+ 		goto errout;
+ 	}
+ 
+@@ -3639,7 +3649,7 @@
+ 	}
+ 
+ 	if ( info->shared_mem_requested ) {
+-		release_mem_region(info->phys_memory_base,0x40000);
++		release_mem_region(info->phys_memory_base,SCA_MEM_SIZE);
+ 		info->shared_mem_requested = 0;
+ 	}
+ 	if ( info->lcr_mem_requested ) {
+@@ -3647,11 +3657,11 @@
+ 		info->lcr_mem_requested = 0;
+ 	}
+ 	if ( info->sca_base_requested ) {
+-		release_mem_region(info->phys_sca_base + info->sca_offset,512);
++		release_mem_region(info->phys_sca_base + info->sca_offset,SCA_BASE_SIZE);
+ 		info->sca_base_requested = 0;
+ 	}
+ 	if ( info->sca_statctrl_requested ) {
+-		release_mem_region(info->phys_statctrl_base + info->statctrl_offset,16);
++		release_mem_region(info->phys_statctrl_base + info->statctrl_offset,SCA_REG_SIZE);
+ 		info->sca_statctrl_requested = 0;
+ 	}
+ 
+@@ -3982,34 +3992,25 @@
+ 		       __FILE__,__LINE__,rc);
+ 	restore_flags(flags);
+ 
++	/* reset devices */
+ 	info = synclinkmp_device_list;
+ 	while(info) {
+-#ifdef CONFIG_SYNCLINK_SYNCPPP
+-		if (info->dosyncppp)
+-			sppp_delete(info);
+-#endif
+ 		reset_port(info);
+-		if ( info->port_num == 0 ) {
+-			if ( info->irq_requested ) {
+-				free_irq(info->irq_level, info);
+-				info->irq_requested = 0;
+-			}
+-		}
+ 		info = info->next_device;
+ 	}
+ 
+-	/* port 0 of each adapter originally claimed
+-	 * all resources, release those now
+-	 */
++	/* release devices */
+ 	info = synclinkmp_device_list;
+ 	while(info) {
++#ifdef CONFIG_SYNCLINK_SYNCPPP
++		if (info->dosyncppp)
++			sppp_delete(info);
++#endif
+ 		free_dma_bufs(info);
+ 		free_tmp_rx_buf(info);
+ 		if ( info->port_num == 0 ) {
+-			spin_lock_irqsave(&info->lock,flags);
+-			reset_adapter(info);
+-			write_reg(info, LPR, 1);		/* set low power mode */
+-			spin_unlock_irqrestore(&info->lock,flags);
++			if (info->sca_base)
++				write_reg(info, LPR, 1); /* set low power mode */
+ 			release_resources(info);
+ 		}
+ 		tmp = info;
+@@ -4229,6 +4230,9 @@
+ 				}
+ 			}
+ 
++			write_reg16(info, TRC0,
++				(unsigned short)(((tx_negate_fifo_level-1)<<8) + tx_active_fifo_level));
++
+ 			write_reg(info, TXDMA + DSR, 0); 		/* disable DMA channel */
+ 			write_reg(info, TXDMA + DCMD, SWABORT);	/* reset/init DMA channel */
+ 	
+@@ -4240,11 +4244,10 @@
+ 			write_reg16(info, TXDMA + EDA,
+ 				info->tx_buf_list_ex[info->last_tx_buf].phys_entry);
+ 	
+-			/* clear IDLE and UDRN status bit */
+-			info->ie1_value &= ~(IDLE + UDRN);
+-			if (info->params.mode != MGSL_MODE_ASYNC)
+-				info->ie1_value |= UDRN;     		/* HDLC, IRQ on underrun */
+-			write_reg(info, IE1, info->ie1_value);	/* enable MSCI interrupts */
++			/* enable underrun IRQ */
++			info->ie1_value &= ~IDLE;
++			info->ie1_value |= UDRN;
++			write_reg(info, IE1, info->ie1_value);
+ 			write_reg(info, SR1, (unsigned char)(IDLE + UDRN));
+ 	
+ 			write_reg(info, TXDMA + DIR, 0x40);		/* enable Tx DMA interrupts (EOM) */
 
-Our customers are tied into the current CSA user interface.
-However, there is lots of room for cooperation under that, particularly
-in the kernel.  We can always consider a migration project as well.
 
-John
+

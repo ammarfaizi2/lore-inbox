@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278214AbRJMAQV>; Fri, 12 Oct 2001 20:16:21 -0400
+	id <S278218AbRJMATx>; Fri, 12 Oct 2001 20:19:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278212AbRJMAQM>; Fri, 12 Oct 2001 20:16:12 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:20489 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S278132AbRJMAQB>;
-	Fri, 12 Oct 2001 20:16:01 -0400
-Date: Fri, 12 Oct 2001 21:16:33 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: joeja@mindspring.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.11 && 2.4.12
-Message-ID: <20011012211633.D9395@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	joeja@mindspring.com, linux-kernel@vger.kernel.org
-In-Reply-To: <Springmail.105.1002931906.0.04908300@www.springmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Springmail.105.1002931906.0.04908300@www.springmail.com>
-User-Agent: Mutt/1.3.23i
-X-Url: http://advogato.org/person/acme
+	id <S278217AbRJMATc>; Fri, 12 Oct 2001 20:19:32 -0400
+Received: from tahallah.demon.co.uk ([158.152.175.193]:12272 "EHLO
+	tahallah.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S278212AbRJMAT2>; Fri, 12 Oct 2001 20:19:28 -0400
+Date: Sat, 13 Oct 2001 01:14:40 +0100 (BST)
+From: Alex Buell <alex.buell@tahallah.demon.co.uk>
+X-X-Sender: <alex@tahallah.demon.co.uk>
+Reply-To: <alex.buell@tahallah.demon.co.uk>
+To: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] ieee1284_ops.c - definitely paper bag time for someone..
+Message-ID: <Pine.LNX.4.33.0110130113130.4284-100000@tahallah.demon.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Fri, Oct 12, 2001 at 08:11:46PM -0400, joeja@mindspring.com escreveu:
+--- linux-2.4.12/drivers/parport/ieee1284_ops.orig      Sat Oct 13 01:12:14 2001
++++ linux-2.4.12/drivers/parport/ieee1284_ops.c Sat Oct 13 01:11:26 2001
+@@ -362,7 +362,7 @@
+        } else {
+                DPRINTK (KERN_DEBUG "%s: ECP direction: failed to
+reverse\n",
+                         port->name);
+-               port->ieee1284.phase = IEEE1284_PH_DIR_UNKNOWN;
++               port->ieee1284.phase = IEEE1284_PH_ECP_DIR_UNKNOWN;
+        }
 
-> Last night I tried 2.4.12.  I patched a stock 2.4.10 kernel with
-> 2.4.11.donuse and then with 2.4.12.  It compiled the kernel, but make
-> modules failed miserably with all sorts of errors and warnings.  Should I
-> have patched my 2.4.10 with 2.4.12 and just skipped over 2.4.11?  The
+        return retval;
+@@ -394,7 +394,7 @@
+                DPRINTK (KERN_DEBUG
+                         "%s: ECP direction: failed to switch forward\n",
+                         port->name);
+-               port->ieee1284.phase = IEEE1284_PH_DIR_UNKNOWN;
++               port->ieee1284.phase = IEEE1284_PH_ECP_DIR_UNKNOWN;
+        }
 
-nope, you have to apply patch-2.4.12 on top of patch-2.4.11 on top of
-linux-2.4.10.
 
-> patching went fine, the compiling was a mess.
 
-> Needless to say that I have reverted back to 2.4.10 which seems to be
-> doing fine on my machine.
+-- 
+Top posters will be automatically killfiled.
 
-2.4.11 and 2.4.12 are not recommended AFAIK, stay with 2.4.10 or go to
-2.4.13-pre1.
- 
-- Arnaldo
+http://www.tahallah.demon.co.uk
+

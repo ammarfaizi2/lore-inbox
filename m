@@ -1,65 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262128AbSJATWi>; Tue, 1 Oct 2002 15:22:38 -0400
+	id <S262170AbSJATod>; Tue, 1 Oct 2002 15:44:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262170AbSJATWi>; Tue, 1 Oct 2002 15:22:38 -0400
-Received: from pasky.ji.cz ([62.44.12.54]:19963 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id <S262128AbSJATWh>;
-	Tue, 1 Oct 2002 15:22:37 -0400
-Date: Tue, 1 Oct 2002 21:28:03 +0200
-From: Petr Baudis <pasky@pasky.ji.cz>
-To: Jochen Friedrich <jochen@scram.de>
-Cc: Andi Kleen <ak@muc.de>, jbradford@dial.pipex.com,
-       linux-kernel@vger.kernel.org, debian-ipv6@debian.org
-Subject: IPv6 stability (success story ;)
-Message-ID: <20021001192803.GR6548@pasky.ji.cz>
-Mail-Followup-To: Jochen Friedrich <jochen@scram.de>,
-	Andi Kleen <ak@muc.de>, jbradford@dial.pipex.com,
-	linux-kernel@vger.kernel.org, debian-ipv6@debian.org
-References: <m3k7l47qsv.fsf@averell.firstfloor.org> <Pine.LNX.4.44.0209291914220.18326-100000@alpha.bocc.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209291914220.18326-100000@alpha.bocc.de>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+	id <S262189AbSJATod>; Tue, 1 Oct 2002 15:44:33 -0400
+Received: from eos.telenet-ops.be ([195.130.132.40]:57018 "EHLO
+	eos.telenet-ops.be") by vger.kernel.org with ESMTP
+	id <S262170AbSJAToc> convert rfc822-to-8bit; Tue, 1 Oct 2002 15:44:32 -0400
+X-Qmail-Scanner-Mail-From: devilkin-lkml@blindguardian.org via whocares
+X-Qmail-Scanner: 1.14 (Clear:. Processed in 0.067872 secs)
+Content-Type: text/plain;
+  charset="us-ascii"
+From: DevilKin-LKML <devilkin-lkml@blindguardian.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.40 -- Debug: sleeping function called from illegal context at slab.c:1374
+Date: Tue, 1 Oct 2002 21:49:54 +0200
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200210012149.54663.devilkin-lkml@blindguardian.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Sun, Sep 29, 2002 at 07:26:37PM CEST, I got a letter,
-where Jochen Friedrich <jochen@scram.de> told me, that...
-> Hi Andi,
-> 
-> > Actually current IPv6 is stable and has been for a long time, it's just not
-> > completely standards compliant (but still quite usable for a lot of people)
-> 
-> For end systems (no router) with static IPv6 definitions this seems to be
-> true. However, for machines which use autoconfiguration (stateless as
-> there isn't a usable IPv6 capable DHCP server AFAIK) or act as routers,
-> the current state of the implementation of the default route can best be
-> described as buggy. (Autoconfigured machines seem to loose their default
-> route after some time, e.g.).
+I get this error, with a backtrace. 
 
-Well, I maintain Point of Presence for XS26 at Prague running on linux
-(2.4.19), and it works with almost no problems routing about 20 kilobytes per
-second through about 520 interfaces (tunnels) and with routing table consisting
-of cca 2100 entries (there's zebra, ospf6d and bgpd running there ;). The only
-one real problem we had was neighbour discovery bug up to 2.4.18 which was
-fixed along the way to 2.4.19. There are no crashes, no routing instabilities,
-we are absolutely happy with linux there ;-) (in fact, we have frequently much
-more problems with the *BSDs running at some other PoPs).
+hda: IBM-DBCA-204860, ATA DISK drive
+Debug: sleeping function called from illegal context at slab.c:1374
+c7fbfea4 c0113f84 c02b2700 c02b694d 0000055e 00000000 c012d2f3 c02b694d 
+       0000055e c03e9514 c03e94dc c11cf200 00000000 c01f2040 c11d31e0 000001d0 
+       c03e94dc c03e94cc c11cf200 00000000 00000000 c01f20d1 c03e94dc c03e94dc 
+Call Trace:
+ [<c0113f84>]__might_sleep+0x54/0x60
+ [<c012d2f3>]kmem_cache_alloc+0x23/0xf4
+ [<c01f2040>]blk_init_free_list+0x4c/0xd0
+ [<c01f20d1>]blk_init_queue+0xd/0xe8
+ [<c02075c0>]ide_init_queue+0x28/0x68
+ [<c020d9a4>]do_ide_request+0x0/0x18
+ [<c0207898>]init_irq+0x298/0x354
+ [<c0207bf6>]hwif_init+0x112/0x258
+ [<c02074ec>]probe_hwif_init+0x1c/0x6c
+ [<c021751d>]ide_setup_pci_device+0x3d/0x68
+ [<c0105086>]init+0x2e/0x188
+ [<c0105058>]init+0x0/0x188
+ [<c01054a9>]kernel_thread_helper+0x5/0xc
 
-Oh, of course, I must thank Alexey a lot for providing excellent support for us
-:).
+Need something else?
 
+DK
 -- 
- 
-				Petr "Pasky" Baudis
- 
-* ELinks maintainer                * IPv6 guy (XS26 co-coordinator)
-* IRCnet operator                  * FreeCiv AI occassional hacker
-.
-<Beeth> Girls are like internet domain names, the ones I like are already taken.
-<honx> Well, you can still get one from a strange country :-P
-.
-Public PGP key && geekcode && homepage: http://pasky.ji.cz/~pasky/
+Lackland's Laws:
+	(1) Never be first.
+	(2) Never be last.
+	(3) Never volunteer for anything
+

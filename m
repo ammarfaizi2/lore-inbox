@@ -1,133 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262062AbUD1VNH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261980AbUD1VUa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262062AbUD1VNH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 17:13:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbUD1VLc
+	id S261980AbUD1VUa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 17:20:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262103AbUD1VU1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 17:11:32 -0400
-Received: from fw.osdl.org ([65.172.181.6]:27824 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262213AbUD1VAz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 17:00:55 -0400
-Date: Wed, 28 Apr 2004 14:03:16 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: manfred@colorfullife.com, linux-kernel@vger.kernel.org, jakub@redhat.com,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] per-user signal pending and message queue limits
-Message-Id: <20040428140316.4146b3bd.akpm@osdl.org>
-In-Reply-To: <20040428170932.GA14993@logos.cnet>
-References: <20040419212810.GB10956@logos.cnet>
-	<20040419224940.GY31589@devserv.devel.redhat.com>
-	<20040420141319.GB13259@logos.cnet>
-	<20040420130439.23fae566.akpm@osdl.org>
-	<20040420231351.GB13826@logos.cnet>
-	<20040420163443.7347da48.akpm@osdl.org>
-	<20040421203456.GC16891@logos.cnet>
-	<40875944.4060405@colorfullife.com>
-	<20040427145424.GA10530@logos.cnet>
-	<408EA1DF.6050303@colorfullife.com>
-	<20040428170932.GA14993@logos.cnet>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 28 Apr 2004 17:20:27 -0400
+Received: from dh132.citi.umich.edu ([141.211.133.132]:60300 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S262142AbUD1VTg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 17:19:36 -0400
+Subject: Re: pdflush eating a lot of CPU on heavy NFS I/O
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: busterbcook@yahoo.com
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0404281534110.3044@ozma.hauschen>
+References: <Pine.LNX.4.58.0404280009300.28371@ozma.hauschen>
+	 <20040427230203.1e4693ac.akpm@osdl.org>
+	 <Pine.LNX.4.58.0404280826070.31093@ozma.hauschen>
+	 <20040428124809.418e005d.akpm@osdl.org>
+	 <Pine.LNX.4.58.0404281534110.3044@ozma.hauschen>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1083187174.2856.162.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 28 Apr 2004 17:19:34 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
->
->  static void mqueue_delete_inode(struct inode *inode)
->  {
->  	struct mqueue_inode_info *info;
-> +	struct user_struct *user;
->  	int i;
->  
->  	if (S_ISDIR(inode->i_mode)) {
->  		clear_inode(inode);
->  		return;
->  	}
-> +
->  	info = MQUEUE_I(inode);
-> +
-> +	user = find_user(info->creator_id);
-> +	if (!user)
-> +		BUG();
->  	spin_lock(&info->lock);
+On Wed, 2004-04-28 at 16:39, Brent Cook wrote:
+> > Could you please capture the contents of /proc/meminfo and /proc/vmstats
+> > when it's happening?
+> >
+> > Thanks.
+> >
+> 
+> Here is the top of top for one machine:
+> 
+>  15:36:55  up  7:09,  1 user,  load average: 1.00, 1.00, 1.00
+> 48 processes: 46 sleeping, 2 running, 0 zombie, 0 stopped
+> CPU states:   0.1% user  99.8% system   0.0% nice   0.0% iowait   0.0% idle
+> Mem:   256992k av,  117644k used,  139348k free,       0k shrd,   36464k buff
+>         50968k active,              51592k inactive
+> Swap:  514040k av,       0k used,  514040k free                   61644k cached
+> 
+>   PID USER     PRI  NI  SIZE  RSS SHARE STAT %CPU %MEM   TIME CPU COMMAND
+>     7 root      25   0     0    0     0 RW   99.4  0.0 415:26   0 pdflush
 
-hmm, look at that.  find_user() forgot to take any locks.  Maybe it's
-relying on tasklist_lock?  I think we need the below patch.  Ingo, can you
-please confirm?
+Could you please also supply the mount options you are using as well as
+the contents of /proc/mounts corresponding to your NFS partition.
 
-
-Also, you'll need to do a free_uid() in here - find_user() takes a ref.
-
-Also, I'm not sure that it's legit to go BUG if the user wasn't found.  Is
-it not possible that the user has gone away and it is root who is cleaning
-up the inode?
-
-Finally, my head is gently rotating wrt this patch.  Could you please
-maintain a description of what it does?  We've made several significant
-design decisions in here and that info really should be captured.  The
-relationship between the global and per-user limits, the sizing choices for
-the per-user limits, etc.  If it can be captured in brief code comments,
-that's best.  Otherwise for the changelog.
-
-Thanks.
-
-
----
-
- 25-akpm/kernel/sys.c  |    4 ++++
- 25-akpm/kernel/user.c |   13 ++++++++++++-
- 2 files changed, 16 insertions(+), 1 deletion(-)
-
-diff -puN kernel/user.c~find_user-locking kernel/user.c
---- 25/kernel/user.c~find_user-locking	Wed Apr 28 13:56:52 2004
-+++ 25-akpm/kernel/user.c	Wed Apr 28 13:58:28 2004
-@@ -64,9 +64,20 @@ static inline struct user_struct *uid_ha
- 	return NULL;
- }
- 
-+/*
-+ * Locate the user_struct for the passed UID.  If found, take a ref on it.  The
-+ * caller must undo that ref with free_uid().
-+ *
-+ * If the user_struct could not be found, return NULL.
-+ */
- struct user_struct *find_user(uid_t uid)
- {
--	return uid_hash_find(uid, uidhashentry(uid));
-+	struct user_struct *ret;
-+
-+	spin_lock(&uidhash_lock);
-+	ret = uid_hash_find(uid, uidhashentry(uid));
-+	spin_unlock(&uidhash_lock);
-+	return ret;
- }
- 
- void free_uid(struct user_struct *up)
-diff -puN kernel/sys.c~find_user-locking kernel/sys.c
---- 25/kernel/sys.c~find_user-locking	Wed Apr 28 13:58:42 2004
-+++ 25-akpm/kernel/sys.c	Wed Apr 28 13:59:54 2004
-@@ -348,6 +348,8 @@ asmlinkage long sys_setpriority(int whic
- 				if (p->uid == who)
- 					error = set_one_prio(p, niceval, error);
- 			while_each_thread(g, p);
-+			if (who)
-+				free_uid(user);		/* For find_user() */
- 			break;
- 	}
- out_unlock:
-@@ -410,6 +412,8 @@ asmlinkage long sys_getpriority(int whic
- 						retval = niceval;
- 				}
- 			while_each_thread(g, p);
-+			if (who)
-+				free_uid(user);		/* for find_user() */
- 			break;
- 	}
- out_unlock:
-
-_
-
+Cheers,
+  Trond

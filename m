@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272118AbTHDSWt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 14:22:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272046AbTHDSWs
+	id S272137AbTHDS0F (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 14:26:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272135AbTHDS0A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 14:22:48 -0400
-Received: from mail.kroah.org ([65.200.24.183]:47488 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S272125AbTHDSVj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 14:21:39 -0400
-Date: Mon, 4 Aug 2003 11:00:07 -0700
-From: Greg KH <greg@kroah.com>
-To: Joshua Kwan <joshk@triplehelix.org>
-Cc: linux-kernel@vger.kernel.org, hostap@lists.shmoo.com
-Subject: Re: Weird badness in 2.6.0-test2
-Message-ID: <20030804180007.GC3826@kroah.com>
-References: <20030803182625.GA11226@nasledov.com>
+	Mon, 4 Aug 2003 14:26:00 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:6660 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S272128AbTHDSYR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 14:24:17 -0400
+Subject: Re: [PATCH] O13int for interactivity
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <200308050207.18096.kernel@kolivas.org>
+References: <200308050207.18096.kernel@kolivas.org>
+Content-Type: text/plain
+Message-Id: <1060021454.558.1.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030803182625.GA11226@nasledov.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Mon, 04 Aug 2003 20:24:15 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 03, 2003 at 11:26:25AM -0700, Joshua Kwan wrote:
-> Hi,
+On Mon, 2003-08-04 at 18:07, Con Kolivas wrote:
+> Changes:
 > 
-> Attached is a log of some oops I received when shutting down my laptop
-> using HostAP kernel modules for my wireless card in kernel
-> 2.6.0-test2-mm2. Is this a known problem?
+> Reverted the child penalty to 95 as new changes help this from hurting
+> 
+> Changed the logic behind loss of interactive credits to those that burn off 
+> all their sleep_avg
+> 
+> Now all tasks get proportionately more sleep as their relative bonus drops 
+> off. This has the effect of detecting a change from a cpu burner to an 
+> interactive task more rapidly as in O10. 
 
-Known problem, see the archives :)
+Oh, yeah! This is damn good! I've had only a little bit time to try it,
+but I think it rocks. Good work :-)
 
-thanks,
-
-greg k-h

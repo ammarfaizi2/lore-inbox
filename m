@@ -1,106 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289388AbSAODq7>; Mon, 14 Jan 2002 22:46:59 -0500
+	id <S289076AbSAOEDc>; Mon, 14 Jan 2002 23:03:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289395AbSAODqt>; Mon, 14 Jan 2002 22:46:49 -0500
-Received: from mx.fluke.com ([129.196.128.53]:9 "EHLO evtvir03.tc.fluke.com")
-	by vger.kernel.org with ESMTP id <S289388AbSAODqj>;
-	Mon, 14 Jan 2002 22:46:39 -0500
-Date: Mon, 14 Jan 2002 19:46:47 -0800 (PST)
-From: David Dyck <dcd@tc.fluke.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.5.2 / IDE cdrom_read_intr: data underrun / end_request: I/O error
-In-Reply-To: <Pine.LNX.4.33.0201120834140.672-100000@dd.tc.fluke.com>
-Message-ID: <Pine.LNX.4.33.0201141938480.214-100000@dd.tc.fluke.com>
+	id <S289106AbSAOEDW>; Mon, 14 Jan 2002 23:03:22 -0500
+Received: from ppp219.c5300-2.day-oh.siscom.net ([209.251.10.219]:39044 "EHLO
+	leros.siscom.net") by vger.kernel.org with ESMTP id <S289076AbSAOEDJ>;
+	Mon, 14 Jan 2002 23:03:09 -0500
+Message-Id: <200201150402.XAA08887@leros.siscom.net>
+Date: Mon, 14 Jan 2002 23:02:02 -0500 (EST)
+To: linux-kernel@vger.kernel.org
+Subject: Significant Slowdown Occuring in 2.2 starting with 19pre2
+From: Steve Sheftic <kern0201@siscom.net>
+X-Mailer: Ishmail 2.0.0-20010107-i586-pc-linux-gnu <http://ishmail.sourceforge.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-I'm still getting data underrun errors using 2.5.2
-that don't occur using 2.4.18-pre3.
+I encountered a significant disk-write slowdown in the 2.2 kernel that
+I've tracked to 2.2.19pre2. I do backups to a SCSI magneto-optical disk.
+My /home backup creates a 700MB+ file (using BRU). When I was using
+2.2.14, this took roughly a half hour. When I upgraded to 2.2.20, this
+same backup started taking nearly 3 hours. Yes, same 700MB+ file size.
+The table below shows the results of many tests with many kernels. For
+2.2.14 through 2.2.19, the config is essentially identical (doing "make
+oldconfig" and answering "No" to new stuff). The config for 2.2.20 and
+2.2.21p2 is slightly different, but doesn't seem to be a factor. As you
+can see, something happened in 2.2.19pre2 that led to this slowdown.
+During these nearly 3 hour backups, the load number stayed at about 3
+(with no user-level activity) and the Select light on the MO drive
+glowed constantly. System response was poor during this time.
 
-Linux dd 2.5.2 #1 Mon Jan 14 19:02:09 PST 2002 i686
+Minutes required to write MO disk vs. kernel version
+(multiple tests)
 
-here's a section of dmesg output
+Kernel    Minutes
+------    -------
+2.2.14     29  33
+2.2.15     31  30
+2.2.16     67  78       <--- elapsed time more than doubled
+2.2.17     22  23  22   <--- notable improvement
+2.2.18     34  40
+2.2.19p1   30  44
+2.2.19p2  161 165       <--- 4x to 5x longer
+2.2.19p5  168           (pre3,4 skipped - wouldn't build for me)
+2.2.19    168 168
+2.2.20    171
+2.2.21p2  166
 
-VFS: Disk change detected on device ide1(22,0)
-ISO 9660 Extensions: Microsoft Joliet Level 3
-ISOFS: changing to secondary root
-hdc: cdrom_read_intr: data underrun (4294967256 blocks)
-end_request: I/O error, dev 16:00, sector 299300
-hdc: cdrom_read_intr: data underrun (4294967260 blocks)
-end_request: I/O error, dev 16:00, sector 299304
+2.4.17     17  17       <--- Woohoo!! 2.4 is GREAT!!
 
+Hardware
+--------
+Intel 430TX motherboard
+Pentium (MMX)
+192 MB memory
+Advansys ABP940 SCSI controller (hosts the hard disks and MO drive)
+Adaptec 2940 SCSI controller (hosts a scanner only)
+(more details if requested)
 
-the blocks number is 'interesting' in that it is either negative or
-really massive, not something that would seem to be appropriate
-for the cdrom driver.
+The great news is that for 2.4.17, this backup is only taking 17
+minutes! Now that I'm using 2.4, I'm ecstatic! :) However, I wanted to
+provide my timing results regarding 2.2.
 
-dd:dcd$ dmesg | perl -ne 'printf "%x\n", $1 if /data underrun.*?(\d+) blocks/ ' | sort | uniq -c | head
-      2 ffffff40
-      2 ffffff44
-      2 ffffff48
-      2 ffffff4c
-      2 ffffff50
-      2 ffffff54
-      2 ffffff58
-      2 ffffff5c
-      2 ffffff60
-      2 ffffff64
-dd:dcd$ dmesg | perl -ne 'printf "%x\n", $1 if /data underrun.*?(\d+) blocks/ ' | sort | uniq -c | tail
-      4 ffffffd8
-      4 ffffffdc
-      4 ffffffe0
-      4 ffffffe4
-      4 ffffffe8
-      4 ffffffec
-      4 fffffff0
-      4 fffffff4
-      4 fffffff8
-      4 fffffffc
+I also want to express my gratitude to all of you who contribute to this
+marvelous OS that I enjoy so much. Thank you!
 
-
-
-On Sat, 12 Jan 2002 at 08:37 -0800, David Dyck <dcd@tc.fluke.com> wrote:
-
-> On Fri, 11 Jan 2002 at 18:55 -0800, David Dyck <dcd@tc.fluke.com> wrote:
->
-> I had been testing 2.5.2-pre11 and earlier, but hadn't looked at
-> reading from my cdrom for a while.  Yesterday I created examined several
-> large cdrom sets that had been readable earlier and they read partially
-> but get read errors.  These same cdroms can be read reliable on
-> 2.4.18-pre3 using the same hardware, and are readable on other
-> PC's runing older kernels.
->
-> Has anyone else seen cdrom read errors with 2.5.2-pre* kernels?
->
-> Using 2.5.2-pre11
->
-> # mount /cdrom && md5sum /cdrom/*
-> md5sum: /cdrom/dcd-c.tar.gz: I/O error
-> md5sum: /cdrom/dcd-d.tar.gz: I/O error
->
->
-> An example of some of the messages were
->
->     ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
-> hdc: NEC CD-ROM DRIVE:28B, ATAPI CD/DVD-ROM drive
-> hdc: ATAPI 32X CD-ROM drive, 256kB Cache
->
->
-> VFS: Disk change detected on device ide1(22,0)
-> ISO 9660 Extensions: Microsoft Joliet Level 3
-> ISOFS: changing to secondary root
-> hdc: cdrom_read_intr: data underrun (4294967256 blocks)
-> end_request: I/O error, dev 16:00, sector 299300
-> hdc: cdrom_read_intr: data underrun (4294967260 blocks)
-> end_request: I/O error, dev 16:00, sector 299304
->
->   errors repeated with sector and blocks increasing by 4
->   repeating 118 times
->
->
-> using 2.4.18-pre3 I get no errors
+Steve Sheftic
 

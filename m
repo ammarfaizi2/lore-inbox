@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273083AbRIOVdb>; Sat, 15 Sep 2001 17:33:31 -0400
+	id <S273729AbRIQWaz>; Mon, 17 Sep 2001 18:30:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273076AbRIOVdV>; Sat, 15 Sep 2001 17:33:21 -0400
-Received: from fe090.worldonline.dk ([212.54.64.152]:8204 "HELO
-	fe090.worldonline.dk") by vger.kernel.org with SMTP
-	id <S273083AbRIOVdK>; Sat, 15 Sep 2001 17:33:10 -0400
-Message-ID: <3BA245D1.B794D285@eisenstein.dk>
-Date: Fri, 14 Sep 2001 20:00:49 +0200
-From: Jesper Juhl <juhl@eisenstein.dk>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-pre9 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Robert Love <rml@tech9.net>, torvalds@transmeta.com,
-        laughing@shared-source.org
-Subject: Re: [PATCH] (Updated) AMD 761 AGP GART Support
-In-Reply-To: <1000587574.32707.80.camel@phantasy>
+	id <S273726AbRIQWaL>; Mon, 17 Sep 2001 18:30:11 -0400
+Received: from [194.213.32.137] ([194.213.32.137]:516 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S273722AbRIQW3b>;
+	Mon, 17 Sep 2001 18:29:31 -0400
+Date: Fri, 14 Sep 2001 09:24:25 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: David Chow <davidchow@rcn.com.hk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Contribution of the linux kernel development
+Message-ID: <20010914092425.B35@toy.ucw.cz>
+In-Reply-To: <3B9A66B8.D165155B@rcn.com.hk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <3B9A66B8.D165155B@rcn.com.hk>; from davidchow@rcn.com.hk on Sun, Sep 09, 2001 at 02:43:04AM +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
+Hi!
 
-> Linus,
->
-> the following patch adds signature for the AMD 761 to the AGP GART
-> code.  It has been tested and works.  Please, apply.
+> fine on the system. But I notice that the sources from the kernel seems
+> want a future of nfs swap support, but there are not official code for
+> this at the moment. I have tested the nfsswap code for a couple of
+> months and reporting no errors at all even under extreme high loaded
+> ethernet. I would be happy to make myself contributing the kernel
+> development and supporting the work for nfsswap and FiST . I would like
+> to share the code with others. If this message is heard by the VFS
+> maintainer, please contact me. Thanks.
 
-This is just to confirm that the final patch send out by Robert works fine. I have tested the
-patch against 2.4.10-pre9 and it applies, builds and works properly. I can see no ill effects of
-this patch, it correctly identifies my AMD 761 chipset and everything works perfectly.
+Working nfsswap patches would be great. Can you post your diff here for a
+start
+								Pavel
 
-Below are the relevant parts of dmesg output from my box to show that everything is fine:
-
-...
-Linux agpgart interface v0.99 (c) Jeff Hartmann
-agpgart: Maximum main memory to use for agp memory: 439M
-agpgart: Detected AMD 761 chipset
-agpgart: AGP aperture is 64M @ 0xf8000000
-...
-NVRM: loading NVIDIA kernel module version 1.0-1251
-NVRM: not using NVAGP, AGPGART is loaded!!
-
-
-Best regards,
-Jesper Juhl
-juhl@eisenstein.dk
-
-
-PS. I have also tested the patch that Robert send out to correct the config name, and I can
-confirm that that one also works as expected.
-
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 

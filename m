@@ -1,58 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270985AbTGPS6h (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 14:58:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270986AbTGPS6h
+	id S270986AbTGPTDw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 15:03:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271022AbTGPTDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 14:58:37 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:25728 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S270985AbTGPS6d (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 14:58:33 -0400
-Message-Id: <200307161913.h6GJDMup001400@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: "Kristofer T. Karas" <ktk@enterprise.bidmc.harvard.edu>
-Cc: Jens Axboe <axboe@suse.de>, Dave Jones <davej@codemonkey.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PS2 mouse going nuts during cdparanoia session. 
-In-Reply-To: Your message of "Wed, 16 Jul 2003 15:03:35 EDT."
-             <3F15A187.3090802@enterprise.bidmc.harvard.edu> 
-From: Valdis.Kletnieks@vt.edu
-References: <20030716165701.GA21896@suse.de> <20030716170352.GJ833@suse.de> <1058375425.6600.42.camel@dhcp22.swansea.linux.org.uk> <20030716171607.GM833@suse.de> <20030716172331.GD21896@suse.de> <20030716172531.GP833@suse.de> <20030716172823.GE21896@suse.de> <20030716173122.GQ833@suse.de>
-            <3F15A187.3090802@enterprise.bidmc.harvard.edu>
+	Wed, 16 Jul 2003 15:03:52 -0400
+Received: from fw.osdl.org ([65.172.181.6]:36258 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270986AbTGPTDu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 15:03:50 -0400
+Date: Wed, 16 Jul 2003 12:16:27 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: nuno.monteiro@ptnix.com, linux-kernel@vger.kernel.org
+Subject: Re: woes with 2.6.0-test1 and xscreensaver/xlock
+Message-Id: <20030716121627.0ac0d238.rddunlap@osdl.org>
+In-Reply-To: <Pine.LNX.4.53.0307161454180.32541@montezuma.mastecende.com>
+References: <20030716172758.GA1792@hobbes.itsari.int>
+	<Pine.LNX.4.53.0307161454180.32541@montezuma.mastecende.com>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-865750884P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Date: Wed, 16 Jul 2003 15:13:22 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-865750884P
-Content-Type: text/plain; charset=us-ascii
+On Wed, 16 Jul 2003 14:58:43 -0400 (EDT) Zwane Mwaikambo <zwane@arm.linux.org.uk> wrote:
 
-On Wed, 16 Jul 2003 15:03:35 EDT, "Kristofer T. Karas" said:
+| On Wed, 16 Jul 2003, Nuno Monteiro wrote:
+| 
+| > Is anyone else having trouble with xscreensaver/xlock under 2.6.0-test1? 
+| > Whenever I lock my session using either "lock screen" from the menu (it 
+| > launches 'xscreensaver lock', afaik) or "xlock", I cant seem to ever get 
+| > my session back -- I type in the correct password, but they both just 
+| > hang there. The exact same setup works flawlessly in 2.4.21, and just for 
+| > the sake of curiosity I also tested 2.5.75, 2.5.74, 2.5.73, 2.5.72, 
+| > 2.5.71 and 2.5.70, they all exhibit the same behaviour as 2.6.0-test1. I 
+| > dont really have time to go on testing kernels to find out exactly where 
+| > it broke, so I'm hoping anyone else is experiencing these woes.
+| 
+| Someone reported this on bugzilla too, but i failed to reproduce it so it 
+| appears that perhaps something else died like the keyboard. I tried it 
+| last night on 2.6.0-test1 and i managed to login fine. It does appear that 
+| something else is dying. It'd be good if you could collect the last few messages 
+| from /var/log/XFree86.0.log and /var/log/messages and also perhaps 
+| /var/log/dmesg. 
 
-> FWIW, this also affects PPP over an async serial line (in my case to a 
-> 56Kb modem).  During cdparanoia runs, the modem Tx/Rx lights all but 
-> stop as the missed packets drop retransmissions into the minute+ 
-> timeframe.  (Oddly, I don't recall seeing framing errors from ifconfig; 
-> must be the lower level ppp substrate or some such...)
+It happens to me all the time (so I stopped using xscreensaver).
 
-I remember seeing this in the 2.5.6mumble kernel as well, it got fixed by
-something around 2.5.70 or so.  I wish I could give a more specific release
-number for it.
+Alan says that it's fixed in RH 9 IIRC, but no details about the
+problem or the fix.... ?  Sounds a little like a userspace (library
+or syscall) issue.  Someone mentioned PAM also.
 
---==_Exmh_-865750884P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/FaPRcC3lWbTT17ARAmX4AKCdT3dRVvzFyUUe7xPNJ6hmX4KtqACfamc8
-T52L3Z29yfq89GU8FZGx0qI=
-=IBL2
------END PGP SIGNATURE-----
-
---==_Exmh_-865750884P--
+--
+~Randy
+| http://developer.osdl.org/rddunlap/ | http://www.xenotime.net/linux/ |
+For Linux-2.6:
+http://www.codemonkey.org.uk/post-halloween-2.5.txt
+  or http://lwn.net/Articles/39901/
+http://www.kernel.org/pub/linux/kernel/people/rusty/modules/

@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285312AbRLFXs4>; Thu, 6 Dec 2001 18:48:56 -0500
+	id <S285319AbRLFXwh>; Thu, 6 Dec 2001 18:52:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285319AbRLFXsl>; Thu, 6 Dec 2001 18:48:41 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:6272 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S285312AbRLFXsD>;
-	Thu, 6 Dec 2001 18:48:03 -0500
-Date: Thu, 06 Dec 2001 15:47:35 -0800 (PST)
-Message-Id: <20011206.154735.71088809.davem@redhat.com>
-To: lm@bitmover.com
-Cc: alan@lxorguk.ukuu.org.uk, phillips@bonn-fries.net, davidel@xmailserver.org,
-        rusty@rustcorp.com.au, Martin.Bligh@us.ibm.com, riel@conectiva.com.br,
-        lars.spam@nocrew.org, hps@intermeta.de, linux-kernel@vger.kernel.org
-Subject: Re: SMP/cc Cluster description
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011206153257.T27589@work.bitmover.com>
-In-Reply-To: <20011206151504.R27589@work.bitmover.com>
-	<20011206.151945.57439059.davem@redhat.com>
-	<20011206153257.T27589@work.bitmover.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S285321AbRLFXw1>; Thu, 6 Dec 2001 18:52:27 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27923 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S285319AbRLFXwN>; Thu, 6 Dec 2001 18:52:13 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Stupid PCI Bit-naming convention question
+Date: 6 Dec 2001 15:51:49 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9up0al$84m$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.4.30.0112061732040.22686-100000@rtlab.med.cornell.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Larry McVoy <lm@bitmover.com>
-   Date: Thu, 6 Dec 2001 15:32:57 -0800
-   
-   And, the ccCluster approach moves most of the nasty locking
-   problems into a ccCluster specific filesystem rather than buggering
-   up the generic paths.
+Followup to:  <Pine.LNX.4.30.0112061732040.22686-100000@rtlab.med.cornell.edu>
+By author:    "Calin A. Culianu" <calin@ajvar.org>
+In newsgroup: linux.dev.kernel
+> 
+> In my attempts to investigate whether or not my m/b is afflicted by the
+> VIA KT266 hardware bug at device 1106:3099 register 0x95, bits 5,6,7, I
+> have a dumb question:  Namely, how are bits numbered?
+> 
+> I would assume that bits are numbered from smallest value to largest,
+> indexed at 0, so that bit 7 is the '128' component of a byte and bit 0 is
+> the '1' component.. correct?
+> 
 
-I still don't believe this, you are still going to need a lot of
-generic VFS threading.  This is why myself and others keep talking
-about ftruncate(), namei() et al.
+Yes.
 
-If I look up "/etc" on bigfoot, littletoe, or whatever fancy name you
-want to call the filesystem setup, SOMETHING has to control access to
-the path name components (ie. there has to be locking).
-
-You are not "N*M scaling" lookups on filesystem path components.
-In fact, bigfoot sounds like it would make path name traversal more
-heavyweight than it is now because these stripes need to coordinate
-with each other somehow.
-
-You keep saying "it'll be in the filesystem" over and over.  And the
-point I'm trying to make is that this is not going to do away with the
-fundamental problems.  They are still there with a ccCluster, they are
-still there with bigfoot, and you are not getting N*M scaling on
-filesystem name component walks.
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261942AbUKUKCo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261288AbUKUKTa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261942AbUKUKCo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 05:02:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbUKUKCJ
+	id S261288AbUKUKTa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 05:19:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbUKUKTa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 05:02:09 -0500
-Received: from witte.sonytel.be ([80.88.33.193]:33008 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261288AbUKUKBe (ORCPT
+	Sun, 21 Nov 2004 05:19:30 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:7808 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261288AbUKUKT1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 05:01:34 -0500
-Date: Sun, 21 Nov 2004 11:01:22 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: Christoph Hellwig <hch@infradead.org>, Linus Torvalds <torvalds@osdl.org>,
-       Kars de Jong <jongk@linux-m68k.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-net@vger.kernel.org
-Subject: Re: [PATCH 475] HP300 LANCE
-In-Reply-To: <20041116231248.5f61e489.akpm@osdl.org>
-Message-ID: <Pine.GSO.4.61.0411211059500.19680@waterleaf.sonytel.be>
-References: <200410311003.i9VA3UMN009557@anakin.of.borg>
- <20041101142245.GA28253@infradead.org> <20041116084341.GA24484@infradead.org>
- <20041116231248.5f61e489.akpm@osdl.org>
+	Sun, 21 Nov 2004 05:19:27 -0500
+Date: Sun, 21 Nov 2004 11:19:25 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: Blaisorblade <blaisorblade_spam@yahoo.it>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Why INSTALL_PATH is not /boot by default?
+In-Reply-To: <20041121094308.GA7911@mars.ravnborg.org>
+Message-ID: <Pine.LNX.4.53.0411211115530.4205@yvahk01.tjqt.qr>
+References: <200411160127.15471.blaisorblade_spam@yahoo.it>
+ <20041121094308.GA7911@mars.ravnborg.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Nov 2004, Andrew Morton wrote:
-> Christoph Hellwig <hch@infradead.org> wrote:
-> > > There's tons of leaks in the hplcance probing code, and it doesn't release
-> >  > he memory region on removal either.
-> >  > 
-> >  > Untested patch to fix those issues below:
-> > 
-> >  ping.
-> 
-> The fix needs a fix:
+>> This line, in the main Makefile, is commented:
+>>
+>> export  INSTALL_PATH=/boot
+>>
+>> Why? It seems pointless, since almost everything has been for ages requiring
+>> this settings, and distros' versions of installkernel have been taking an
+>> empty INSTALL_PATH as meaning /boot for ages (for instance Mandrake). It's
+>> maybe even mandated by the FHS (dunno).
 
-Indeed.
+FHS says that the kernel image can be in either / or /boot. However, older 386'
+require that extra partition below 1024 cyls.
+Plus, I am of the opinion that there should not be any files in /
+(incircumventable exception are quota files); ls -l already shows 57 entries
+for this machine's root dir.
 
-And you should remove the definitions of dio_resource_{start,len}(), as they're
-already defined in linux/dio.h.
+>If /boot is ok for other than just i386 we can give it a try.
 
-Gr{oetje,eeting}s,
+boot is always ok given that you copy the kernel from the source tree to <your
+favorite destination> by hand.
 
-						Geert
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Jan Engelhardt
+-- 
+Gesellschaft für Wissenschaftliche Datenverarbeitung
+Am Fassberg, 37077 Göttingen, www.gwdg.de

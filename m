@@ -1,74 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265706AbUGMSR5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265724AbUGMSVN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265706AbUGMSR5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 14:17:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265724AbUGMSR5
+	id S265724AbUGMSVN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 14:21:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265725AbUGMSVN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 14:17:57 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:18887 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S265706AbUGMSRt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 14:17:49 -0400
-Date: Tue, 13 Jul 2004 20:17:42 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: atlka@pg.gda.pl
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] radio-maestro.c: remove an inline
-Message-ID: <20040713181742.GL4701@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 13 Jul 2004 14:21:13 -0400
+Received: from out014pub.verizon.net ([206.46.170.46]:58029 "EHLO
+	out014.verizon.net") by vger.kernel.org with ESMTP id S265724AbUGMSVI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 14:21:08 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Organization: Organization: undetectable
+To: linux-kernel@vger.kernel.org
+Subject: Bus error?
+Date: Tue, 13 Jul 2004 14:21:06 -0400
+User-Agent: KMail/1.6
+Cc: kde@mail.kde.org
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407131421.06935.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out014.verizon.net from [151.205.57.208] at Tue, 13 Jul 2004 13:21:07 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trying to compile drivers/media/radio/radio-maestro.c with gcc 3.4 and
-  # define inline         __inline__ __attribute__((always_inline))
-results in the following compile error:
+Greetings;
 
-<--  snip  -->
+Cross-posted to the kde list and to lkml, answer either.
 
-...
-  CC      drivers/media/radio/radio-maestro.o
-drivers/media/radio/radio-maestro.c: In function `maestro_radio_init':
-drivers/media/radio/radio-maestro.c:273: sorry, unimplemented: inlining 
-failed in call to 'radio_install': function body not available
-drivers/media/radio/radio-maestro.c:291: sorry, unimplemented: called from here
-drivers/media/radio/radio-maestro.c:273: sorry, unimplemented: inlining 
-failed in call to 'radio_install': function body not available
-drivers/media/radio/radio-maestro.c:295: sorry, unimplemented: called from here
-make[3]: *** [drivers/media/radio/radio-maestro.o] Error 1
+Running FC1, but with 2.6.x kernels and utils required (I think)
 
-<--  snip  -->
- 
-The patch below removes the radio_install inline from radio-maestro.c.
+I first built, using konstruct, a kde3.2.3 install that worked great
+for a couple of months.
 
-An alternative approach to removing the inline would be to move the
-function above the first function calling it.
+In the meantime, I've been following the Linus and Andrew kernels,
+and currently have 2.6.8-rc1 doing the chores here.
 
- drivers/media/radio/radio-maestro.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+Eventually of course, since I like to bleed, I ran a cvs up -dP in
+that konstruct working directory, and rebuilt it again, this time
+totally destroying the 3.2.3 install so I'm back to running kde 3.2.
 
+Here is the error I am now getting, from a fresh konstruct tree and
+no cvs updateing done.  So it should be the same as before as I don't
+think the compiler has been touched by any of the yum updates.
 
-Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+Using make install in the konstruct/meta/kde directory as the build agent.
+---------
+make[8]: Leaving directory `/usr/src/konstruct/libs/qt-x11-free/work/qt-x11-free-3.2.3/tools/designer/uilib'
+cd designer && make -f Makefile
+make[8]: Entering directory `/usr/src/konstruct/libs/qt-x11-free/work/qt-x11-free-3.2.3/tools/designer/designer'
+/usr/src/konstruct/libs/qt-x11-free/work/qt-x11-free-3.2.3/bin/uic -L /usr/src/konstruct/libs/qt-x11-free/work/qt-x11-free-3.2.3/plugins listboxeditor.ui -o listboxeditor.h
+make[8]: *** [listboxeditor.h] Bus error
+make[8]: Leaving directory `/usr/src/konstruct/libs/qt-x11-free/work/qt-x11-free-3.2.3/tools/designer/designer'
+make[7]: *** [sub-designer] Error 2
+make[7]: Leaving directory `/usr/src/konstruct/libs/qt-x11-free/work/qt-x11-free-3.2.3/tools/designer'
+make[6]: *** [sub-designer] Error 2
+make[6]: Leaving directory `/usr/src/konstruct/libs/qt-x11-free/work/qt-x11-free-3.2.3/tools'
+make[5]: *** [sub-tools] Error 2
+make[5]: Leaving directory `/usr/src/konstruct/libs/qt-x11-free/work/qt-x11-free-3.2.3'
+make[4]: *** [build-work/qt-x11-free-3.2.3/Makefile] Error 2
+make[4]: Leaving directory `/usr/src/konstruct/libs/qt-x11-free'
+make[3]: *** [dep-../../libs/qt-x11-free] Error 2
+make[3]: Leaving directory `/usr/src/konstruct/libs/arts'
+make[2]: *** [dep-../../libs/arts] Error 2
+make[2]: Leaving directory `/usr/src/konstruct/kde/kdelibs'
+make[1]: *** [dep-../../kde/kdelibs] Error 2
+make[1]: Leaving directory `/usr/src/konstruct/kde/kdebase'
+make: *** [dep-../../kde/kdebase] Error 2
+[root@coyote kde]#
 
---- linux-2.6.7-mm6-full-gcc3.4/drivers/media/radio/radio-maestro.c.old	2004-07-09 00:44:57.000000000 +0200
-+++ linux-2.6.7-mm6-full-gcc3.4/drivers/media/radio/radio-maestro.c	2004-07-09 00:46:04.000000000 +0200
-@@ -270,7 +270,7 @@
- 	return ret;
- }
- 
--inline static __u16 radio_install(struct pci_dev *pcidev);
-+static __u16 radio_install(struct pci_dev *pcidev);
- 
- MODULE_AUTHOR("Adam Tlalka, atlka@pg.gda.pl");
- MODULE_DESCRIPTION("Radio driver for the Maestro PCI sound card radio.");
-@@ -324,7 +324,7 @@
- 	return (ofreq == radio_bits_get(dev));
- }
- 
--inline static __u16 radio_install(struct pci_dev *pcidev)
-+static __u16 radio_install(struct pci_dev *pcidev)
- {
- 	if(((pcidev->class >> 8) & 0xffff) != PCI_CLASS_MULTIMEDIA_AUDIO)
- 		return 0;
+Now, theoreticly the only hardware change is that a cranky,
+cold blooded old pny built nvidia gforce2 mx200 32 meg video
+card finally puked all over itself and got replaced by an
+Xtacy branded ati 9200 SE w/128 megs of dram on it.
+
+I've built about 15 kernels now since buying this new card,
+without errors.  I rebuilt everything from 2.6.7 base plus
+all the mm's getting the video card drivers setup, some of
+them 4 or 5 times as I fumbled around.
+
+So what is this bus error generally caused by?
+
+Both video cards were agp slot cards FWIW.
+
+I can reboot to as early as 2.6.7 and still get this exact error.
+Earlier I'd have to rebuild with the new video card in them.
+
+-- 
+Cheers, Gene
+There are 4 boxes to be used in defense of liberty. 
+Soap, ballot, jury, and ammo.
+Please use in that order, starting now.  -Ed Howdershelt, Author
+Additions to this message made by Gene Heskett are Copyright 2004, 
+Maurice E. Heskett, all rights reserved.

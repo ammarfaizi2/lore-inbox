@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318252AbSGWUpK>; Tue, 23 Jul 2002 16:45:10 -0400
+	id <S318298AbSGWUrn>; Tue, 23 Jul 2002 16:47:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318253AbSGWUpK>; Tue, 23 Jul 2002 16:45:10 -0400
-Received: from holomorphy.com ([66.224.33.161]:48013 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S318252AbSGWUpJ>;
-	Tue, 23 Jul 2002 16:45:09 -0400
-Date: Tue, 23 Jul 2002 13:47:45 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: george anzinger <george@mvista.com>
-Cc: Zwane Mwaikambo <zwane@linuxpower.ca>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: odd memory corruption in 2.5.27?
-Message-ID: <20020723204745.GM919@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	george anzinger <george@mvista.com>,
-	Zwane Mwaikambo <zwane@linuxpower.ca>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0207231053190.32636-100000@linux-box.realnet.co.sz> <3D3DBD4B.4EFD3543@mvista.com>
+	id <S318302AbSGWUrn>; Tue, 23 Jul 2002 16:47:43 -0400
+Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:21755 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S318298AbSGWUrE>; Tue, 23 Jul 2002 16:47:04 -0400
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Tue, 23 Jul 2002 14:48:33 -0600
+To: Ed Sweetman <safemode@speakeasy.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: non-critical ext3-fs errors?
+Message-ID: <20020723204833.GR25899@clusterfs.com>
+Mail-Followup-To: Ed Sweetman <safemode@speakeasy.net>,
+	linux-kernel@vger.kernel.org
+References: <1027456090.1982.28.camel@psuedomode>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
 Content-Disposition: inline
-In-Reply-To: <3D3DBD4B.4EFD3543@mvista.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+In-Reply-To: <1027456090.1982.28.camel@psuedomode>
+User-Agent: Mutt/1.3.28i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 23, 2002 at 01:32:11PM -0700, george anzinger wrote:
-> I just spent a month tracking down this issue.  It comes
-> down to the slab allocater using per cpu data structures and
-> protecting them with a combination of interrupt disables and
-> spin_locks.  Preemption is allowed (incorrectly) if
-> interrupts are off and preempt_count goes to zero on the
-> spin_unlock.  I will wager that this is an SMP machine. 
-> After the preemption interrupts will be on (schedule() does
-> that) AND you could be on a different cpu.  Either of these
-> is a BAD thing.
-> The proposed fix is to catch the attempted preemption in
-> preempt_schedule() and just return if the interrupt system
-> is off.  (Of course there is more that this to it, but I do
-> believe that the problem is known.  You could blow this
-> assertion out of the water by asserting that the machine is
-> NOT smp.)
+On Jul 23, 2002  16:28 -0400, Ed Sweetman wrote:
+> I notice these errors every now and then on my 100GB WD drive
+> (partitioned into bits) and particularly on this partition that I
+> compile everything on.   
+> 
+> EXT3-fs error (device ide0(3,7)): ext3_readdir: bad entry in directory
+> #17821: directory entry across blocks - offset=24, inode=17822,
+> rec_len=4076, name_len=3 
 
-I've been seeing the slab allocator race like mad already (i.e.
-BUG at slab.c:1947 and slab.c:1961. I'll test this fix.
+This is definitely a bad entry - offset + rec_len (4100) != blocksize (4096).
+Strange.  You need to run e2fsck -f on this partition.  It sounds like
+you are getting some corruption or bit flips happening.
 
+> Now these errors dont cause the system to panic like other ext3 errors
+> do, so i'm wondering what the significance of these errors are.
 
-Thanks,
-Bill
+Well, this is an error, and the next time the computer is restarted it
+should force a full fsck on the partition.  The other "panic" (oops)
+situations are when things are totally shot and it is better to stop
+doing anything than try and continue.  In this case, it is possible to
+continue, but that doesn't mean things are OK.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
+

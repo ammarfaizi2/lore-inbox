@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276743AbRJYXuD>; Thu, 25 Oct 2001 19:50:03 -0400
+	id <S276826AbRJZAM5>; Thu, 25 Oct 2001 20:12:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276761AbRJYXty>; Thu, 25 Oct 2001 19:49:54 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:33286 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S276743AbRJYXtl>; Thu, 25 Oct 2001 19:49:41 -0400
-Subject: Re: [RFC] New Driver Model for 2.5
-To: benh@kernel.crashing.org (Benjamin Herrenschmidt)
-Date: Fri, 26 Oct 2001 00:53:15 +0100 (BST)
-Cc: xavier.bestel@free.fr (Xavier Bestel), alan@lxorguk.ukuu.org.uk (Alan Cox),
-        torvalds@transmeta.com (Linus Torvalds),
-        mochel@osdl.org (Patrick Mochel),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <20011025235359.12066@smtp.adsl.oleane.com> from "Benjamin Herrenschmidt" at Oct 26, 2001 01:53:59 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S276831AbRJZAMr>; Thu, 25 Oct 2001 20:12:47 -0400
+Received: from peacekeeper.artselect.com ([208.145.206.90]:2728 "EHLO
+	davinci.artselect.com") by vger.kernel.org with ESMTP
+	id <S276826AbRJZAMi>; Thu, 25 Oct 2001 20:12:38 -0400
+From: Pete Harlan <harlan@artselect.com>
+Date: Thu, 25 Oct 2001 19:13:12 -0500
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.13 hangs writing to scsi tape
+Message-ID: <20011025191312.A12751@artselect.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15wuJH-0006lB-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The cdrecord case is a high level issue, and scsi is a mess ;)
+Hi,
 
-Grin
+2.4.13 and .13-pre6 hang when I try to write to the tape drive.
+2.4.10 is fine.  ("Hung" == machine does not respond to ping.)
 
-> We are not yet at a point where we can be more constructive
-> than what was already said. Ultimately we need to move a bit
-> forward with the real implementation and see how some problems
-> show up. The architecture as it was designed so far is light,
-> and most of the debate is not around it, it's around how it
-> should be used by drivers & kernel subsystems ;)
+Dual PIII, eepro100, Adaptec 2930CU onboard SCSI.  Ecrix tape drive is
+on 1st channel, hard disk (reiserfs) is on the other channel.
 
-I think I understand how to handle this and avoid races. Linus idea of
-/proc files so you can ask "what is busy" solves most of it. Then the
-policy daemon can make a choice about suspending or not.
+No messages saved in log; I didn't have time to hook up a screen, as
+the machine is very heavily used.  If desired, I can warn our folks,
+come in at night and repeat it to see what shows up on the console.
 
-If we make the proc file a large bitmask of events then the policy daemon
-call to kernel becomes
+Thanks,
 
-	"suspend even if [event-mask] set"
+--Pete
 
-This means that a daemon call that races the start of say a CD burn will
-fail and the daemon can rescan, rethink and if need be reissue the request
-sanely.
-
+[gcc 2.95.4, Debian Woody, fresh 2.4.13 tarball.]

@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131181AbRA0TQc>; Sat, 27 Jan 2001 14:16:32 -0500
+	id <S130951AbRA0TUx>; Sat, 27 Jan 2001 14:20:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130969AbRA0TQV>; Sat, 27 Jan 2001 14:16:21 -0500
-Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:4481 "EHLO
-	mirai.cx") by vger.kernel.org with ESMTP id <S130032AbRA0TQO>;
-	Sat, 27 Jan 2001 14:16:14 -0500
-Message-ID: <3A731E65.8BE87D73@pobox.com>
-Date: Sat, 27 Jan 2001 11:15:49 -0800
-From: J Sloan <jjs@pobox.com>
-Organization: Mirai Consulting
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac12 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Shawn Starr <Shawn.Starr@Home.com>
-CC: David Ford <david@linux.com>, Aaron Lehmann <aaronl@vitelus.com>,
-        John Sheahan <john@reptechnic.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: ps hang in 241-pre10
-In-Reply-To: <3A724FD2.3DEB44C@reptechnic.com.au> <20010126204324.B10046@vitelus.com> <3A72817E.CFCF0D52@pobox.com> <3A7285D4.9409E63A@linux.com> <3A7295F6.621BBEC4@Home.com>
+	id <S131139AbRA0TUn>; Sat, 27 Jan 2001 14:20:43 -0500
+Received: from [63.95.87.168] ([63.95.87.168]:41990 "HELO xi.linuxpower.cx")
+	by vger.kernel.org with SMTP id <S130951AbRA0TUe>;
+	Sat, 27 Jan 2001 14:20:34 -0500
+Date: Sat, 27 Jan 2001 14:20:32 -0500
+From: Gregory Maxwell <greg@linuxpower.cx>
+To: Frank v Waveren <fvw@var.cx>
+Cc: David Wagner <daw@cs.berkeley.edu>, linux-kernel@vger.kernel.org
+Subject: Re: hotmail not dealing with ECN
+Message-ID: <20010127142032.E6821@xi.linuxpower.cx>
+In-Reply-To: <Pine.LNX.4.21.0101250041440.1498-100000@srv2.ecropolis.com> <14960.56461.296642.488513@pizda.ninka.net> <3A70DDC4.6D1DB1EC@transmeta.com> <3A713B3F.24AC9C35@idb.hist.no> <94tho8$627$1@abraham.cs.berkeley.edu> <20010127191809.A3727@var.cx>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.8i
+In-Reply-To: <20010127191809.A3727@var.cx>; from fvw@var.cx on Sat, Jan 27, 2001 at 07:18:09PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just for the record, the system where I saw the problem
-has only ext2 -
+On Sat, Jan 27, 2001 at 07:18:09PM +0100, Frank v Waveren wrote:
+> On Sat, Jan 27, 2001 at 04:10:48AM +0000, David Wagner wrote:
+> > Practice being really, really paranoid.  Think: You're designing a
+> > firewall; you've got some reserved bits, currently unused; any future code
+> > that uses them could behave in completely arbitrary and insecure ways,
+> > for all you know.  Now recall that anything not known to be safe should
+> > be denied (in a good firewall) -- see Cheswick and Bellovin for why.
+> > When you take this point of view, it is completely understandable why
+> > firewalls designed before ECN was introduced might block it.
+> 
+> Why? Why not just zero them, and get both security and compatibility...
 
-jjs
+Eeek! NO!!!! NO NO NO NO NO NO NO!
+For ECN that would have worked, but that doesn't mean that something
+couldn't have been implimented there that wouldn't have worked that way..
 
-Shawn Starr wrote:
+I think that older Checkpoint firewalls (perhaps current?) zeroed out SACK
+on 'hide nat'ed connections. This causes unreasonable stalls for users on
+SACK enabled clients. Not cool.
 
-> Yes, I have ReiserFS as well...hrm...
->
-> David Ford wrote:
->
-> > I can quickly and easily duplicate it on my notebook by playing music or
-> > mpegs in xmms.  It may take a few minutes but it's guaranteed.
-> >
-> > xmms stalls flat on it's face and anything accessing /proc stalls.  If I get
-> > the time to do it, I'll take a gander at it with kdb.
-> >
-> > I have no patches applied to p10, I have reiserfs onboard but I highly doubt
-> > it's reiserfs.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262903AbTESUfZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 16:35:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262883AbTESUfZ
+	id S262918AbTESUii (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 16:38:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262931AbTESUii
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 16:35:25 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:2999
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S262874AbTESUfX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 16:35:23 -0400
-Subject: Re: [PATCH] Re: aio_poll in 2.6
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: John Myers <jgmyers@netscape.com>
-Cc: Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200305191938.MAA11946@pagarcia.nscp.aoltw.net>
-References: <fa.mc7vl0v.u7u2ah@ifi.uio.no>
-	 <200305170054.RAA10802@pagarcia.nscp.aoltw.net>
-	 <20030516195025.4bf5dd8d.akpm@digeo.com>
-	 <200305191938.MAA11946@pagarcia.nscp.aoltw.net>
+	Mon, 19 May 2003 16:38:38 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:27379 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S262918AbTESUih (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 16:38:37 -0400
+Subject: Re: [Ext2-devel] [RFC] probably bug in current ext3/jbd
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Alex Tomas <bzzz@tmi.comex.ru>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <87he7qe979.fsf@gw.home.net>
+References: <87d6igmarf.fsf@gw.home.net>
+	 <1053376482.11943.15.camel@sisko.scot.redhat.com>
+	 <87he7qe979.fsf@gw.home.net>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1053373716.29227.27.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <1053377493.11943.32.camel@sisko.scot.redhat.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 19 May 2003 20:48:38 +0100
+Date: 19 May 2003 21:51:33 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-05-19 at 20:38, John Myers wrote:
-> Andrew Morton wrote:
-> > What is the testing status of this?
-> 
-> I've beaten on it with my multithreaded test program on a 2-way
-> Pentium II box.
+Hi,
 
-Can someone beat this code up on an SMP PPC/PPC64 box - that would show
-up far more than x86 does
+On Tue, 2003-05-20 at 01:46, Alex Tomas wrote:
+
+> please, look:
+> 
+>   thread A                          commit thread
+> 
+>                         	    if (jh->b_committed_data) {
+>                                 	kfree(jh->b_committed_data);
+>                                         jh->b_committed_data = NULL;
+>                                     }
+> access for
+> b_committed_data == NULL ?
+
+Not with BKL.  Without it, yes, that's definitely a risk, and you need
+some locking for the access to b_committed_data.  Without that, even if
+you keep the jh->b_committed_data field valid, you risk freeing the old
+copy that another thread is using.
+
+Cheers,
+ Stephen
 

@@ -1,174 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261522AbUJXP4X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbUJXQpi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261522AbUJXP4X (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 11:56:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261523AbUJXP4V
+	id S261551AbUJXQpi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 12:45:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbUJXQph
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 11:56:21 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:17977 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261522AbUJXPwI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 11:52:08 -0400
-Date: Sun, 24 Oct 2004 16:51:46 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@osdl.org>
-cc: Andi Kleen <ak@suse.de>, Brent Casavant <bcasavan@sgi.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: [PATCH] shmem NUMA policy spinlock
-Message-ID: <Pine.LNX.4.44.0410241650010.12023-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Sun, 24 Oct 2004 12:45:37 -0400
+Received: from rproxy.gmail.com ([64.233.170.206]:62772 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261551AbUJXQoj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 12:44:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=BDHmyIAwv8M3GPs6/CW4jFD9nVbodiNmNOMUhg6LIXXk9HTVsjDjSIzcoN043WACBRJ6gctFqMxwvUdMg8kvTm1w8qXzIG33R4ZkytXAEApsSomuVYpBrWBn6d8M+OCGAkQhbXFJRIgmeR3P4K2E2GiJHn7OxQqVE6Z2YR5m4mI=
+Message-ID: <4d8e3fd304102409443c01c5da@mail.gmail.com>
+Date: Sun, 24 Oct 2004 18:44:38 +0200
+From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+Reply-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+To: Larry McVoy <lm@work.bitmover.com>,
+       Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Larry McVoy <lm@bitmover.com>, akpm@osdl.org
+Subject: Re: BK kernel workflow
+In-Reply-To: <20041024144448.GA575@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <41752E53.8060103@pobox.com>
+	 <20041019153126.GG18939@work.bitmover.com>
+	 <41753B99.5090003@pobox.com>
+	 <4d8e3fd304101914332979f86a@mail.gmail.com>
+	 <20041019213803.GA6994@havoc.gtf.org>
+	 <4d8e3fd3041019145469f03527@mail.gmail.com>
+	 <Pine.LNX.4.58.0410191510210.2317@ppc970.osdl.org>
+	 <20041023161253.GA17537@work.bitmover.com>
+	 <4d8e3fd304102403241e5a69a5@mail.gmail.com>
+	 <20041024144448.GA575@work.bitmover.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The NUMA policy for shared memory or tmpfs page allocation was protected
-by a semaphore.  It helps to improve scalability if we change that to a
-spinlock (and there's only one place that needs to drop and reacquire).
-Oh, and don't even bother to get the spinlock while the tree is empty.
+On Sun, 24 Oct 2004 07:44:48 -0700, Larry McVoy <lm@bitmover.com> wrote:
+> On Sun, Oct 24, 2004 at 12:24:42PM +0200, Paolo Ciarrocchi wrote:
+[...]
+> >
+> > Well, I'm not interested in having the list of all the bk trees used
+> > during the develpoment of a release.
+> > I was looking to the trees used by mantainers.
+> 
+> And how do you define a maintainer?  That's a moving target.  Part of the
+> beauty of the Linux development model is that mini forks are not only
+> allowed, they are encouraged.  So people can go off on their own and do
+> something interesting.  Who knows?  One of those people could be the next
+> Alan.
 
-Acked-by: Andi Kleen <ak@suse.de>
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
----
- include/linux/mempolicy.h |    6 +++---
- mm/mempolicy.c            |   38 +++++++++++++++++++++++++-------------
- 2 files changed, 28 insertions(+), 16 deletions(-)
+I totally agree on the "beauty of Linux development" part of your statement,
+I don't 100% agree on your definition of maintainer.
+There a few well defined maintainer in the community and those names
+are defined and written in the kernel documentation.
+So, I think that is moving target but we have a few stable and well
+know references.
 
---- 2.6.10-rc1/include/linux/mempolicy.h	2004-10-18 22:55:54.000000000 +0100
-+++ linux/include/linux/mempolicy.h	2004-10-23 20:43:24.000000000 +0100
-@@ -30,7 +30,7 @@
- #include <linux/bitmap.h>
- #include <linux/slab.h>
- #include <linux/rbtree.h>
--#include <asm/semaphore.h>
-+#include <linux/spinlock.h>
- 
- struct vm_area_struct;
- 
-@@ -134,13 +134,13 @@ struct sp_node {
- 
- struct shared_policy {
- 	struct rb_root root;
--	struct semaphore sem;
-+	spinlock_t lock;
- };
- 
- static inline void mpol_shared_policy_init(struct shared_policy *info)
- {
- 	info->root = RB_ROOT;
--	init_MUTEX(&info->sem);
-+	spin_lock_init(&info->lock);
- }
- 
- int mpol_set_shared_policy(struct shared_policy *info,
---- 2.6.10-rc1/mm/mempolicy.c	2004-10-23 12:44:13.000000000 +0100
-+++ linux/mm/mempolicy.c	2004-10-23 20:43:24.000000000 +0100
-@@ -887,12 +887,12 @@ int mpol_node_valid(int nid, struct vm_a
-  *
-  * Remember policies even when nobody has shared memory mapped.
-  * The policies are kept in Red-Black tree linked from the inode.
-- * They are protected by the sp->sem semaphore, which should be held
-+ * They are protected by the sp->lock spinlock, which should be held
-  * for any accesses to the tree.
-  */
- 
- /* lookup first element intersecting start-end */
--/* Caller holds sp->sem */
-+/* Caller holds sp->lock */
- static struct sp_node *
- sp_lookup(struct shared_policy *sp, unsigned long start, unsigned long end)
- {
-@@ -924,7 +924,7 @@ sp_lookup(struct shared_policy *sp, unsi
- }
- 
- /* Insert a new shared policy into the list. */
--/* Caller holds sp->sem */
-+/* Caller holds sp->lock */
- static void sp_insert(struct shared_policy *sp, struct sp_node *new)
- {
- 	struct rb_node **p = &sp->root.rb_node;
-@@ -954,13 +954,15 @@ mpol_shared_policy_lookup(struct shared_
- 	struct mempolicy *pol = NULL;
- 	struct sp_node *sn;
- 
--	down(&sp->sem);
-+	if (!sp->root.rb_node)
-+		return NULL;
-+	spin_lock(&sp->lock);
- 	sn = sp_lookup(sp, idx, idx+1);
- 	if (sn) {
- 		mpol_get(sn->policy);
- 		pol = sn->policy;
- 	}
--	up(&sp->sem);
-+	spin_unlock(&sp->lock);
- 	return pol;
- }
- 
-@@ -990,9 +992,10 @@ sp_alloc(unsigned long start, unsigned l
- static int shared_policy_replace(struct shared_policy *sp, unsigned long start,
- 				 unsigned long end, struct sp_node *new)
- {
--	struct sp_node *n, *new2;
-+	struct sp_node *n, *new2 = NULL;
- 
--	down(&sp->sem);
-+restart:
-+	spin_lock(&sp->lock);
- 	n = sp_lookup(sp, start, end);
- 	/* Take care of old policies in the same range. */
- 	while (n && n->start < end) {
-@@ -1005,13 +1008,16 @@ static int shared_policy_replace(struct 
- 		} else {
- 			/* Old policy spanning whole new range. */
- 			if (n->end > end) {
--				new2 = sp_alloc(end, n->end, n->policy);
- 				if (!new2) {
--					up(&sp->sem);
--					return -ENOMEM;
-+					spin_unlock(&sp->lock);
-+					new2 = sp_alloc(end, n->end, n->policy);
-+					if (!new2)
-+						return -ENOMEM;
-+					goto restart;
- 				}
- 				n->end = end;
- 				sp_insert(sp, new2);
-+				new2 = NULL;
- 			}
- 			/* Old crossing beginning, but not end (easy) */
- 			if (n->start < start && n->end > start)
-@@ -1023,7 +1029,11 @@ static int shared_policy_replace(struct 
- 	}
- 	if (new)
- 		sp_insert(sp, new);
--	up(&sp->sem);
-+	spin_unlock(&sp->lock);
-+	if (new2) {
-+		mpol_free(new2->policy);
-+		kmem_cache_free(sn_cache, new2);
-+	}
- 	return 0;
- }
- 
-@@ -1056,7 +1066,9 @@ void mpol_free_shared_policy(struct shar
- 	struct sp_node *n;
- 	struct rb_node *next;
- 
--	down(&p->sem);
-+	if (!p->root.rb_node)
-+		return;
-+	spin_lock(&p->lock);
- 	next = rb_first(&p->root);
- 	while (next) {
- 		n = rb_entry(next, struct sp_node, nd);
-@@ -1065,7 +1077,7 @@ void mpol_free_shared_policy(struct shar
- 		mpol_free(n->policy);
- 		kmem_cache_free(sn_cache, n);
- 	}
--	up(&p->sem);
-+	spin_unlock(&p->lock);
- }
- 
- /* assumes fs == KERNEL_DS */
+> > That number should me really different from "1,000".
+> 
+> Sure.  But even so it's a moving target and labeling a set of people as
+> maintainers implies that other people aren't.  I suspect Linus isn't
+> that interested in the labels, he'll take good code from anyone.
 
+Good point, 
+even though I'm almost sure that both Linus and Andrew prefer getting
+patches after they are reviewed by those "maintainers".
+
+Anyway, 
+I'm not a kernel hacker at all so my comments will sound just silly to
+a lot of people involved in the development but as a user I'm
+sometimes "alarmed" by the lack of formality in the development
+process (see the naming wars),
+
+Maybe we cannot avoid it, maybe that's the reason because linux is
+"the best free OS" but maybe we can add a few more rules/indications
+to the process.
+
+Larry,
+thank you for your answer, I always appreciate having such a kind of
+open discussions with people that are really involved in the
+development.
+
+Ciao,
+-- 
+Paolo

@@ -1,260 +1,173 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262343AbVBBT67@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262791AbVBBVTC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262343AbVBBT67 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 14:58:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262294AbVBBT6N
+	id S262791AbVBBVTC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 16:19:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262266AbVBBVOE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 14:58:13 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:13025 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262835AbVBBTxx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 14:53:53 -0500
-Date: Wed, 2 Feb 2005 20:52:27 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] SCSI qlogicisp.c: some cleanups
-Message-ID: <20050202195227.GG3313@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 2 Feb 2005 16:14:04 -0500
+Received: from brmea-mail-3.Sun.COM ([192.18.98.34]:13806 "EHLO
+	brmea-mail-3.sun.com") by vger.kernel.org with ESMTP
+	id S262375AbVBBVJq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 16:09:46 -0500
+Date: Wed, 02 Feb 2005 16:08:32 -0500
+From: Mike Waychison <Michael.Waychison@Sun.COM>
+Subject: Re: [RFC] shared subtrees
+In-reply-to: <1107376434.5992.113.camel@localhost>
+To: Ram <linuxram@us.ibm.com>
+Cc: "J. Bruce Fields" <bfields@fieldses.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Message-id: <42014150.9090500@sun.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+References: <20050113221851.GI26051@parcelfarce.linux.theplanet.co.uk>
+ <20050116160213.GB13624@fieldses.org>
+ <20050116180656.GQ26051@parcelfarce.linux.theplanet.co.uk>
+ <20050116184209.GD13624@fieldses.org>
+ <20050117061150.GS26051@parcelfarce.linux.theplanet.co.uk>
+ <20050117173213.GC24830@fieldses.org> <1106687232.3298.37.camel@localhost>
+ <20050201232106.GA22118@fieldses.org> <1107369381.5992.73.camel@localhost>
+ <42012DE7.4080003@sun.com> <1107376434.5992.113.camel@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch does the following cleanups:
-- make some needlessly global functions static
-- remove qlogicisp.h since it doesn't contain much
-- remove the unused functions isp1020_abort and isp1020_reset
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Please review especially the latter two points.
+Ram wrote:
+> On Wed, 2005-02-02 at 11:45, Mike Waychison wrote:
+> 
+> Ram wrote:
+> 
+>>On Tue, 2005-02-01 at 15:21, J. Bruce Fields wrote:
+> 
+> 
+>>>On Tue, Jan 25, 2005 at 01:07:12PM -0800, Ram wrote:
+> 
+> 
+>>>>If there exists a private subtree in a larger shared subtree, what
+>>>>happens when the larger shared subtree is rbound to some other place? 
+>>>>Is a new private subtree created in the new larger shared subtree? or
+>>>>will that be pruned out in the new larger subtree?
+> 
+>>>"mount --rbind" will always do at least all the mounts that it did
+>>>before the introduction of shared subtrees--so certainly it will copy
+>>>private subtrees along with shared ones.  (Since subtrees are private by
+>>>default, anything else would make --rbind do nothing by default.) My
+>>>understanding of Viro's RFC is that the new subtree will have no
+>>>connection with the preexisting private subtree (we want private
+>>>subtrees to stay private), but that the new copy will end up with
+>>>whatever propagation the target of the "mount --rbind" had.  (So the
+>>>addition of the copy of the private subtree to the target vfsmount will
+>>>be replicated on any vfsmount that the target vfsmount propogates to,
+>>>and those copies will propagate among themselves in the same way that
+>>>the copies of the target vfsmount propagate to each other.)
+> 
+> 
+>>ok. that makes sense. As you said the private subtree shall get copied
+>>to the new location, however propogations wont be set in either
+>>directions. However I have a rather unusual requirement which forces 
+>>multiple rbind of a shared subtree within the same shared subtree.
+> 
+>>I did the calculation and found that the tree simply explodes with
+>>vfsstructs.  If I mark a subtree within the larger shared tree as
+>>private, then the number of vfsstructs grows linearly O(n). However if
+>>there was a way of marking a subtree within the larger shared tree as
+>>unclonable than the increase in number of vfsstruct is constant.
+> 
+>>What I am essentially driving at is, can we add another feature which 
+>>allows me to mark a subtree as unclonable?
+> 
+> 
+>>Read below to see how the tree explodes:
+> 
+>>to run you through an example: 
+> 
+>>(In case the tree pictures below gets garbled, it can also be seen at 
+>> http://www.sudhaa.com/~ram/readahead/sharedsubtree/subtree )
+> 
+>>step 1:
+>>   lets say the root tree has just two directories with one vfsstruct. 
+>>                    root
+>>                   /    \
+>>                  tmp    usr
+>>    All I want is to be able to see the entire root tree 
+>>   (but not anything under /root/tmp) to be viewable under /root/tmp/m* 
+> 
+>>step2:
+>>      mount --make-shared /root
+> 
+>>      mkdir -p /tmp/m1
+> 
+>>      mount --rbind /root /tmp/m1
+> 
+>>      the new tree now looks like this:
+> 
+>>                    root
+>>                   /    \
+>>                 tmp    usr
+>>                /
+>>               m1
+>>              /  \ 
+>>             tmp  usr
+>>             /
+>>            m1
+> 
+>>          it has two vfsstructs
+> 
+>>step3: 
+>>            mkdir -p /tmp/m2
+>>            mount --rbind /root /tmp/m2
+> 
+> At this step, you probably shouldn't be using --rbind, but --bind
+> instead to only bind a copy of the root vfsmount, so it now looks like:
+> 
+> 
+>>                      root
+>>                     /    \ 
+>>                   tmp     usr
+>>                  /    \
+>>                m1       m2
+>>               / \       /  \
+>>             tmp  usr   tmp  usr
+>>             / \         / \ 
+>>            m1  m2      m1  m2
+> 
+> 
+>> Well I thought about this. Even Bruce Fields suggested this in a private
+>> thread. But this solution can be racy. You may have to do multiple binds
+>> for all the vfstructs that reside in the subtree under / (but not under
+>> /root/tmp). And doing it atomically without racing with other
+>> simultaneous mounts would be tricky.
+> 
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Well, fwiw, I have the same kind of race in autofsng.  I counter it by
+building up the vfsmount tree elsewhere and mount --move'ing it.
 
----
-
-This patch was already sent on:
-- 15 Nov 2004
-
- drivers/scsi/qlogicisp.c |   99 +++++++--------------------------------
- drivers/scsi/qlogicisp.h |   69 ---------------------------
- 2 files changed, 20 insertions(+), 148 deletions(-)
-
---- linux-2.6.10-rc1-mm5-full/drivers/scsi/qlogicisp.h	2004-11-13 23:03:31.000000000 +0100
-+++ /dev/null	2004-08-23 02:01:39.000000000 +0200
-@@ -1,69 +0,0 @@
--/*
-- * QLogic ISP1020 Intelligent SCSI Processor Driver (PCI)
-- * Written by Erik H. Moe, ehm@cris.com
-- * Copyright 1995, Erik H. Moe
-- *
-- * This program is free software; you can redistribute it and/or modify it
-- * under the terms of the GNU General Public License as published by the
-- * Free Software Foundation; either version 2, or (at your option) any
-- * later version.
-- *
-- * This program is distributed in the hope that it will be useful, but
-- * WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-- * General Public License for more details.
-- */
--
--/* Renamed and updated to 1.3.x by Michael Griffith <grif@cs.ucr.edu> */
--
--/*
-- * $Date: 1995/09/22 02:32:56 $
-- * $Revision: 0.5 $
-- *
-- * $Log: isp1020.h,v $
-- * Revision 0.5  1995/09/22  02:32:56  root
-- * do auto request sense
-- *
-- * Revision 0.4  1995/08/07  04:48:28  root
-- * supply firmware with driver.
-- * numerous bug fixes/general cleanup of code.
-- *
-- * Revision 0.3  1995/07/16  16:17:16  root
-- * added reset/abort code.
-- *
-- * Revision 0.2  1995/06/29  03:19:43  root
-- * fixed biosparam.
-- * added queue protocol.
-- *
-- * Revision 0.1  1995/06/25  01:56:13  root
-- * Initial release.
-- *
-- */
--
--#ifndef _QLOGICISP_H
--#define _QLOGICISP_H
--
--/*
-- * With the qlogic interface, every queue slot can hold a SCSI
-- * command with up to 4 scatter/gather entries.  If we need more
-- * than 4 entries, continuation entries can be used that hold
-- * another 7 entries each.  Unlike for other drivers, this means
-- * that the maximum number of scatter/gather entries we can
-- * support at any given time is a function of the number of queue
-- * slots available.  That is, host->can_queue and host->sg_tablesize
-- * are dynamic and _not_ independent.  This all works fine because
-- * requests are queued serially and the scatter/gather limit is
-- * determined for each queue request anew.
-- */
--#define QLOGICISP_REQ_QUEUE_LEN	63	/* must be power of two - 1 */
--#define QLOGICISP_MAX_SG(ql)	(4 + ((ql) > 0) ? 7*((ql) - 1) : 0)
--
--int isp1020_detect(Scsi_Host_Template *);
--int isp1020_release(struct Scsi_Host *);
--const char * isp1020_info(struct Scsi_Host *);
--int isp1020_queuecommand(Scsi_Cmnd *, void (* done)(Scsi_Cmnd *));
--int isp1020_abort(Scsi_Cmnd *);
--int isp1020_reset(Scsi_Cmnd *, unsigned int);
--int isp1020_biosparam(struct scsi_device *, struct block_device *,
--		sector_t, int[]);
--#endif /* _QLOGICISP_H */
---- linux-2.6.10-rc1-mm5-full/drivers/scsi/qlogicisp.c.old	2004-11-13 23:00:09.000000000 +0100
-+++ linux-2.6.10-rc1-mm5-full/drivers/scsi/qlogicisp.c	2004-11-13 23:14:07.000000000 +0100
-@@ -37,7 +37,21 @@
- #include <asm/byteorder.h>
- #include "scsi.h"
- #include <scsi/scsi_host.h>
--#include "qlogicisp.h"
-+
-+/*
-+ * With the qlogic interface, every queue slot can hold a SCSI
-+ * command with up to 4 scatter/gather entries.  If we need more
-+ * than 4 entries, continuation entries can be used that hold
-+ * another 7 entries each.  Unlike for other drivers, this means
-+ * that the maximum number of scatter/gather entries we can
-+ * support at any given time is a function of the number of queue
-+ * slots available.  That is, host->can_queue and host->sg_tablesize
-+ * are dynamic and _not_ independent.  This all works fine because
-+ * requests are queued serially and the scatter/gather limit is
-+ * determined for each queue request anew.
-+ */
-+#define QLOGICISP_REQ_QUEUE_LEN	63	/* must be power of two - 1 */
-+#define QLOGICISP_MAX_SG(ql)	(4 + ((ql) > 0) ? 7*((ql) - 1) : 0)
- 
- /* Configuration section *****************************************************/
- 
-@@ -655,7 +669,7 @@
- }
- 
- 
--int isp1020_detect(Scsi_Host_Template *tmpt)
-+static int isp1020_detect(Scsi_Host_Template *tmpt)
- {
- 	int hosts = 0;
- 	struct Scsi_Host *host;
-@@ -736,7 +750,7 @@
- }
- 
- 
--int isp1020_release(struct Scsi_Host *host)
-+static int isp1020_release(struct Scsi_Host *host)
- {
- 	struct isp1020_hostdata *hostdata;
- 
-@@ -757,7 +771,7 @@
- }
- 
- 
--const char *isp1020_info(struct Scsi_Host *host)
-+static const char *isp1020_info(struct Scsi_Host *host)
- {
- 	static char buf[80];
- 	struct isp1020_hostdata *hostdata;
-@@ -783,7 +797,7 @@
-  * interrupt handler may call this routine as part of
-  * request-completion handling).
-  */
--int isp1020_queuecommand(Scsi_Cmnd *Cmnd, void (*done)(Scsi_Cmnd *))
-+static int isp1020_queuecommand(Scsi_Cmnd *Cmnd, void (*done)(Scsi_Cmnd *))
- {
- 	int i, n, num_free;
- 	u_int in_ptr, out_ptr;
-@@ -1161,80 +1175,7 @@
- }
- 
- 
--int isp1020_abort(Scsi_Cmnd *Cmnd)
--{
--	u_short param[6];
--	struct Scsi_Host *host;
--	struct isp1020_hostdata *hostdata;
--	int return_status = SCSI_ABORT_SUCCESS;
--	u_int cmd_cookie;
--	int i;
--
--	ENTER("isp1020_abort");
--
--	host = Cmnd->device->host;
--	hostdata = (struct isp1020_hostdata *) host->hostdata;
--
--	for (i = 0; i < QLOGICISP_REQ_QUEUE_LEN + 1; i++)
--		if (hostdata->cmd_slots[i] == Cmnd)
--			break;
--	cmd_cookie = i;
--
--	isp1020_disable_irqs(host);
--
--	param[0] = MBOX_ABORT;
--	param[1] = (((u_short) Cmnd->device->id) << 8) | Cmnd->device->lun;
--	param[2] = cmd_cookie >> 16;
--	param[3] = cmd_cookie & 0xffff;
--
--	isp1020_mbox_command(host, param);
--
--	if (param[0] != MBOX_COMMAND_COMPLETE) {
--		printk("qlogicisp : scsi abort failure: %x\n", param[0]);
--		return_status = SCSI_ABORT_ERROR;
--	}
--
--	isp1020_enable_irqs(host);
--
--	LEAVE("isp1020_abort");
--
--	return return_status;
--}
--
--
--int isp1020_reset(Scsi_Cmnd *Cmnd, unsigned int reset_flags)
--{
--	u_short param[6];
--	struct Scsi_Host *host;
--	struct isp1020_hostdata *hostdata;
--	int return_status = SCSI_RESET_SUCCESS;
--
--	ENTER("isp1020_reset");
--
--	host = Cmnd->device->host;
--	hostdata = (struct isp1020_hostdata *) host->hostdata;
--
--	param[0] = MBOX_BUS_RESET;
--	param[1] = hostdata->host_param.bus_reset_delay;
--
--	isp1020_disable_irqs(host);
--
--	isp1020_mbox_command(host, param);
--
--	if (param[0] != MBOX_COMMAND_COMPLETE) {
--		printk("qlogicisp : scsi bus reset failure: %x\n", param[0]);
--		return_status = SCSI_RESET_ERROR;
--	}
--
--	isp1020_enable_irqs(host);
--
--	LEAVE("isp1020_reset");
--
--	return return_status;
--}
--
--
--int isp1020_biosparam(struct scsi_device *sdev, struct block_device *n,
-+static int isp1020_biosparam(struct scsi_device *sdev, struct block_device *n,
- 		sector_t capacity, int ip[])
- {
- 	int size = capacity;
+Unfortunately, the RFC states that moving a shared vfsmount is
+prohibited (for which the reasoning slips my mind).
 
 
+- --
+Mike Waychison
+Sun Microsystems, Inc.
+1 (650) 352-5299 voice
+1 (416) 202-8336 voice
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NOTICE:  The opinions expressed in this email are held by me,
+and may not represent the views of Sun Microsystems, Inc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCAUFQdQs4kOxk3/MRAksjAJ4wCzY7jc8aUGKeiHKTywFKxhN1qACeI4HM
+eO3XGtYgnbOZJYT3K1nbKd4=
+=wwuF
+-----END PGP SIGNATURE-----

@@ -1,81 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283052AbRLIFrV>; Sun, 9 Dec 2001 00:47:21 -0500
+	id <S283057AbRLIGHh>; Sun, 9 Dec 2001 01:07:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283054AbRLIFrM>; Sun, 9 Dec 2001 00:47:12 -0500
-Received: from mtiwmhc23.worldnet.att.net ([204.127.131.48]:25294 "EHLO
-	mtiwmhc23.worldnet.att.net") by vger.kernel.org with ESMTP
-	id <S283052AbRLIFqz>; Sun, 9 Dec 2001 00:46:55 -0500
-Subject: Re: IRQ Routing Problem on ALi Chipset Laptop (HP Pavilion N5425)
-From: Cory Bell <cory.bell@usa.net>
-To: Pavel Machek <pavel@suse.cz>
-Cc: John Clemens <john@deater.net>,
-        Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20011207213313.A176@elf.ucw.cz>
-In-Reply-To: <Pine.LNX.4.33.0112060938340.32381-100000@pianoman.cluster.toy>
-	<1007685691.6675.1.camel@localhost.localdomain> 
-	<20011207213313.A176@elf.ucw.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 08 Dec 2001 21:37:31 -0800
-Message-Id: <1007876254.17062.0.camel@localhost.localdomain>
-Mime-Version: 1.0
+	id <S283060AbRLIGHS>; Sun, 9 Dec 2001 01:07:18 -0500
+Received: from ns1.yggdrasil.com ([209.249.10.20]:37862 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S283057AbRLIGHG>; Sun, 9 Dec 2001 01:07:06 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Sat, 8 Dec 2001 22:06:57 -0800
+Message-Id: <200112090606.WAA07320@adam.yggdrasil.com>
+To: torvalds@transmeta.com
+Subject: Re: PATCH: linux-2.5.1-pre7/drivers/block/xd.c compilation fix (version 2)
+Cc: ankry@mif.pg.gda.pl, axboe@suse.de, linux-kernel@vger.kernel.org,
+        pat@it.com.au, tfries@umr.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2001-12-07 at 12:33, Pavel Machek wrote:
+>> 	Linus, if nobody says otherwise, I recommend that you apply
+>> this patch.
 
-> Hey, this gross hack fixed USB on HP OmniBook xe3. Good! (Perhaps you
-> know what interrupt is right for maestro3, also on omnibook? ;-).
+>Well, I already applied your previous one, in fact, and it's in the
+>just-uploaded pre8 kernel.
 
-On my Pavilion (and the other 5400's as far as I can tell), maestro's on
-irq 5. Wanna send me a "dump_pirq" and a "lspci -vvvxxx"? Could you try
-the patch below (inspired by/stolen from Kai Germaschewski)? Also, the
-newest acpi patch will print out the acpi irq routing table - might have
-your info. You can tell if the patch below had any effect because it
-will say it ASSIGNED IRQ XX instead of FOUND.
+	Thanks!
 
-I believe the Omnibook XEs and the Pavilion N5400's are very similar
-hardware. Several of the drivers I've seen on HP's website appear to
-apply to both. If you want to help get the BIOS updated (the root cause,
-IMHO), please call HP support and reference case number 1429683616 (that
-9 may be a 4 - my handwriting is horrible). That's the case I logged
-with thim about the broken PIR table (USB irq showing 9; being 11) and
-failure to enable sse on athlon 4/duron/xp chips.
+>Mind verifying that and sending the incremental update?
 
-Thanks for the info!
+	No problem.  I have attached the one line addition below.
 
--Cory
+>Btw, do you actually _have_ a machine that uses the xd driver, or was this
+>patch done just out of some perverse joy in theoretical retrocomputing?
 
-The "honor the irq mask" approach (works on my machine):
---- /home/cbell/linux-2.4/arch/i386/kernel/pci-irq.c	Fri Dec  7 01:51:41 2001
-+++ /home/cbell/linux-2.4-test/arch/i386/kernel/pci-irq.c	Sat Dec  8 21:04:37 2001
-@@ -581,6 +581,7 @@
- 	 * reported by the device if possible.
- 	 */
- 	newirq = dev->irq;
-+	if (!((1 << newirq) & mask)) newirq = 0;
- 	if (!newirq && assign) {
- 		for (i = 0; i < 16; i++) {
- 			if (!(mask & (1 << i)))
-@@ -599,7 +600,7 @@
- 		irq = pirq & 0xf;
- 		DBG(" -> hardcoded IRQ %d\n", irq);
- 		msg = "Hardcoded";
--	} else if (r->get && (irq = r->get(pirq_router_dev, dev, pirq))) {
-+	} else if (r->get && (irq = r->get(pirq_router_dev, dev, pirq) && ((1 << irq) & mask))) {
- 		DBG(" -> got IRQ %d\n", irq);
- 		msg = "Found";
- 	} else if (newirq && r->set && (dev->class >> 8) != PCI_CLASS_DISPLAY_VGA) {
-@@ -633,7 +634,7 @@
- 			continue;
- 		if (info->irq[pin].link == pirq) {
- 			/* We refuse to override the dev->irq information. Give a warning! */
--		    	if (dev2->irq && dev2->irq != irq) {
-+		    	if (dev2->irq && dev2->irq != irq && ((1 << dev2->irq) & mask)) {
- 		    		printk(KERN_INFO "IRQ routing conflict for %s, have irq %d, want irq %d\n",
- 				       dev2->slot_name, dev2->irq, irq);
- 		    		continue;
+	Years ago, I submitted a patch to allow configuration of
+the kernel with "./configure", which would configure every driver as
+a module, aside from compiling in the initial ramdisk and the initial
+ramdisk's filesystem.  I haven't configured a kernel for years; the
+boot scripts and hot plugging software do that.  The same binary
+build of the kernel can run on all of my x86 hardware.
 
+	That is why I know that 92 files failed to compile on x86 in
+2.5.1-pre7, and largely why I care about fixing xd.c.
+
+	Anyhow, thanks for asking.  By the way, if you have any interest
+in integrating my "./configure" functionality now, I would be happy to
+clean it up and resubmit it.  (It is mostly a patch to scripts/Configure.)
+
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
+
+
+--- linux-2.5.1-pre8/drivers/block/xd.c	Sat Dec  8 21:29:50 2001
++++ linux/drivers/block/xd.c	Sat Dec  8 20:19:54 2001
+@@ -287,6 +287,7 @@
+ 		INIT_REQUEST;	/* do some checking on the request structure */
+ 
+ 		if (CURRENT_DEV < xd_drives
++		    && (CURRENT->flags & REQ_CMD)
+ 		    && CURRENT->sector + CURRENT->nr_sectors
+ 		         <= xd_struct[MINOR(CURRENT->rq_dev)].nr_sects) {
+ 			block = CURRENT->sector;

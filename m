@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262754AbVDAOqU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262753AbVDAOz3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262754AbVDAOqU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 09:46:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262753AbVDAOqS
+	id S262753AbVDAOz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 09:55:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbVDAOz2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 09:46:18 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:18067 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262751AbVDAOoX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 09:44:23 -0500
-Subject: Re: [RFC] CryptoAPI & Compression
-From: David Woodhouse <dwmw2@infradead.org>
-To: "Artem B. Bityuckiy" <dedekind@infradead.org>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org,
-       linux-crypto@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0504011534460.9305@phoenix.infradead.org>
-References: <E1DGxa7-0000GH-00@gondolin.me.apana.org.au>
-	 <Pine.LNX.4.58.0504011534460.9305@phoenix.infradead.org>
-Content-Type: text/plain
-Date: Fri, 01 Apr 2005 15:44:06 +0100
-Message-Id: <1112366647.3899.66.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 (2.2.1.1-2) 
+	Fri, 1 Apr 2005 09:55:28 -0500
+Received: from smtp-vbr8.xs4all.nl ([194.109.24.28]:6672 "EHLO
+	smtp-vbr8.xs4all.nl") by vger.kernel.org with ESMTP id S262753AbVDAOzY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 09:55:24 -0500
+In-Reply-To: <Pine.LNX.4.61.0504010805130.12910@chaos.analogic.com>
+References: <11123574931907@2ka.mipt.ru> <Pine.LNX.4.61.0504010805130.12910@chaos.analogic.com>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <f3db21ceb79616110118e303fe9a5db2@xs4all.nl>
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Cc: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, linux-kernel@vger.kernel.org
+From: Renate Meijer <kleuske@xs4all.nl>
+Subject: Re: [RFC] : remove unreliable, unused and unmainained arch from kernel.
+Date: Fri, 1 Apr 2005 17:00:51 +0200
+To: linux-os@analogic.com
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-04-01 at 15:36 +0100, Artem B. Bityuckiy wrote:
-> In our code we do zlib_deflate(stream, Z_SYNC_FLUSH), so we always flush 
-> the output. So the final zlib_deflate(stream, Z_FINISH) requires 1 byte 
-> for the EOB marker and 4 bytes for adler32 (5 bytes total). Thats all. If 
-> we compress a huge buffer, then we still need to output those 5 bytes as 
-> well. I.e, the overhead of each block *is not accumulated* ! I even need 
-> to make the reserved space less then 12 bytes!
 
-Hm. Could we avoid using Z_SYNC_FLUSH and stick with a larger amount?
-That would give us better compression.
+On Apr 1, 2005, at 3:09 PM, linux-os wrote:
 
--- 
-dwmw2
+>
+> [PATCH snipped]
+>
+> Cruel joke. Now 80 percent of the Intel clones won't boot.
+> Those are the ones that run industry, you know, the stuff that
+> is necessary to earn money.
+>
+> Without i386 support, you don't have any embedded systems. You
+> need to use the garbage Motorola CPUs and the proprietary
+> operating systems in embedded stuff.
+
+Have you checked your calender yet?
+
+Besides... Never heard of ARM? Atmel has a complete line of those,
+which seem very usefull.
 

@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271738AbRHUQ1b>; Tue, 21 Aug 2001 12:27:31 -0400
+	id <S271739AbRHUQjZ>; Tue, 21 Aug 2001 12:39:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271740AbRHUQ1V>; Tue, 21 Aug 2001 12:27:21 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:60975 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S271738AbRHUQ1K>; Tue, 21 Aug 2001 12:27:10 -0400
-To: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [OOPS] repeatable 2.4.8-ac7, 2.4.7-ac6 [I] just run xdos
-In-Reply-To: <Pine.LNX.4.33.0108191600580.10914-100000@boston.corp.fedex.com>
-	<m166bjokre.fsf@frodo.biederman.org>
-	<20010819214322.D1315@squish.home.loc>
-	<m1snenmfe0.fsf@frodo.biederman.org>
-	<20010820211410.B218@squish.home.loc>
-	<m1g0amlzcm.fsf@frodo.biederman.org> <3B828898.BD98D4C4@gmx.at>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 21 Aug 2001 10:20:03 -0600
-In-Reply-To: <3B828898.BD98D4C4@gmx.at>
-Message-ID: <m1ae0tmll8.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+	id <S271741AbRHUQjP>; Tue, 21 Aug 2001 12:39:15 -0400
+Received: from smtp3.cern.ch ([137.138.131.164]:54505 "EHLO smtp3.cern.ch")
+	by vger.kernel.org with ESMTP id <S271739AbRHUQjD>;
+	Tue, 21 Aug 2001 12:39:03 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: davem@redhat.com (David S. Miller), linux-kernel@vger.kernel.org
+Subject: Re: Qlogic/FC firmware
+In-Reply-To: <E15ZDQd-00085r-00@the-village.bc.nu>
+From: Jes Sorensen <jes@sunsite.dk>
+Date: 21 Aug 2001 18:39:04 +0200
+In-Reply-To: Alan Cox's message of "Tue, 21 Aug 2001 16:26:55 +0100 (BST)"
+Message-ID: <d3itfh8j13.fsf@lxplus015.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wilfried Weissmann <Wilfried.Weissmann@gmx.at> writes:
-> 
-> I have the same problem on a K7-800. My kernel is 2.4.7-ac3 (with K7
-> optimization!). Everything else seems to work fine, but dosemu locks up
-> the computer when running certain games.
-> Sometimes I can play for quite some time (1/2 hour or more) without
-> problems. Eventually it will freeze. It feels like it is triggered by
-> mouse activity.
+>>>>> "Alan" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-Hmm.  There are some similiar conditions.  And it may be the same bug. 
+>> If the firmware was out of date, update it to a known "Qlogic stamp
+>> of approval" version.
 
-Is your dosemu not suid root?  And running in X when you are playing those
-games?  You don't have any ports lines in your dosemu.conf?
+Alan> That requires sorting licensing out with Qlogic. I've talked to
+Alan> them usefully about other stuff so I'll pursue it for a seperate
+Alan> firmware loader module.
 
-It is very important to rule out dosemu doing direct hardware access, before investigating
-something else like the kernel.
+Well getting firmware out of them tends to be up and down.
 
-Eric
+However I just looked through the QLogic v4.27 provided driver from
+their web site and it does in fact included firmware with a GPL
+license.
+
+Dave, if you want to play with this and stick it into the qlogicfc.c
+driver then you will at least have something that sorta works for now
+(module all the other problems with that driver).
+
+http://www.qlogic.com/bbs-html/csg_web/adapter_pages/driver_pages/22xx/22linux.html
+
+They do have a stupid 'read and agree' license in front of that page
+if you go in via the official qlogic.com door, however if the code
+inside is GPL then I asume it's GPL.
+
+Cheers
+Jes

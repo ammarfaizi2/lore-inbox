@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261729AbTHTHjN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 03:39:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbTHTHjN
+	id S261732AbTHTHqk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 03:46:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261737AbTHTHqk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 03:39:13 -0400
-Received: from gonzo.one-2-one.net ([217.115.142.69]:56082 "EHLO
-	gonzo.webpack.hosteurope.de") by vger.kernel.org with ESMTP
-	id S261729AbTHTHjM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 03:39:12 -0400
-Date: Wed, 20 Aug 2003 09:38:55 +0200
-From: stefan.eletzhofer@eletztrick.de
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Console on USB
-Message-ID: <20030820073855.GU10622@gonzo.local>
-Reply-To: stefan.eletzhofer@eletztrick.de
-Mail-Followup-To: stefan.eletzhofer@eletztrick.de,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0308192200510.886-100000@localhost.localdomain>
+	Wed, 20 Aug 2003 03:46:40 -0400
+Received: from holomorphy.com ([66.224.33.161]:63107 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S261732AbTHTHqj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 03:46:39 -0400
+Date: Wed, 20 Aug 2003 00:47:49 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.0-test3-mm3
+Message-ID: <20030820074749.GG4306@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, mingo@elte.hu,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <20030819013834.1fa487dc.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0308192200510.886-100000@localhost.localdomain>
-User-Agent: Mutt/1.3.27i
-Organization: Eletztrick Computing
+In-Reply-To: <20030819013834.1fa487dc.akpm@osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-AFAIK there was a network console patch on the list recently.
+On Tue, Aug 19, 2003 at 01:38:34AM -0700, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test3/2.6.0-test3-mm3/
+> . More CPU scheduler changes
+> . The regression with reaim which was due to the CPU scheduler changes
+>   seems to have largely gone away, but it was never a large effect in my
+>   testing.  Needs retesting please.
+> . A series of Cardbus driver updates.
 
-IIRC it sends UDP packets to a receiving daemon (or netcat ;),
-and works w/o interrupts. I believe, though, that there are
-only certain nics supported.
+Looks good. There are some ACPI bits to clean up after, but with the
+preliminary ACPI workarounds and the cyclone timer one-liner, 16x/64GB
+x440's come up and run userspace just fine with XKVA enabled (haven't
+bothered with NUMA-Q since the setup there is inconvenient for others).
+I think it was all wrapped up by the combination of the pmd and TSS
+fixes (at least to get these boxen going).
 
-Cheers,
-	Stefan E.
--- 
-Eletztrick Computing - Customized Linux Development
-Stefan Eletzhofer, Marktstrasse 43, DE-88214 Ravensburg
-http://www.eletztrick.de
+
+-- wli

@@ -1,169 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266179AbSKTORR>; Wed, 20 Nov 2002 09:17:17 -0500
+	id <S266186AbSKTORv>; Wed, 20 Nov 2002 09:17:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266186AbSKTORR>; Wed, 20 Nov 2002 09:17:17 -0500
-Received: from boxer.fnal.gov ([131.225.80.86]:40335 "EHLO boxer.fnal.gov")
-	by vger.kernel.org with ESMTP id <S266179AbSKTORN>;
-	Wed, 20 Nov 2002 09:17:13 -0500
-Date: Wed, 20 Nov 2002 08:23:17 -0600 (CST)
-From: Steven Timm <timm@fnal.gov>
-To: Manish Lachwani <manish@Zambeel.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: RE: AMD 760MPX dma_intr: error=0x40 { UncorrectableError }
-In-Reply-To: <233C89823A37714D95B1A891DE3BCE5202AB1952@xch-a.win.zambeel.com>
-Message-ID: <Pine.LNX.4.31.0211200821110.12125-100000@boxer.fnal.gov>
+	id <S266191AbSKTORv>; Wed, 20 Nov 2002 09:17:51 -0500
+Received: from pop018pub.verizon.net ([206.46.170.212]:43172 "EHLO
+	pop018.verizon.net") by vger.kernel.org with ESMTP
+	id <S266186AbSKTORg>; Wed, 20 Nov 2002 09:17:36 -0500
+Message-ID: <3DDB9B23.9030001@lemur.sytes.net>
+Date: Wed, 20 Nov 2002 09:24:35 -0500
+From: Mathias Kretschmer <mathias@lemur.sytes.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en, zh-tw
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dave Jones <davej@codemonkey.org.uk>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: Recognize Tualatin cache size in 2.4.x
+References: <3DDAE846.6080503@lemur.sytes.net> <20021120131502.GA1768@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH LOGIN at pop018.verizon.net from [151.198.132.245] at Wed, 20 Nov 2002 08:24:35 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Our boxes are actually running pretty cool (45C, with drives at the
-front) and the drives seem
-to be well mounted.  The power supply, and the power itself should
-be OK.
+Dave Jones wrote:
+> On Tue, Nov 19, 2002 at 08:41:26PM -0500, Mathias Kretschmer wrote:
+>  > I just patched my 2.4.20rc2 kernel. Now, it reports
+>  > 512K cache for my 2 Tualatin 1.26 GHz CPUs.
+>  > 
+>  > 'time make -j4 bzImage' went down from 3:30 to 3:04.
+>  > Not too bad.
+> 
+> That is quite an impressive gain.  The patch I sent Marcelo which
+> also fixes up a problem with some tualatins and adds P4 trace cache
+> support is at..
+> 
+> ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.4/2.4.20/descriptors.diff
+> 
+> As you have tualatins can you try with the above patch and make sure
+> theres no regressions there ?
 
-Thanks for the hint on remapping the sectors... what technique
-would you use to do this?  Would zero-fill from the seagate
-diagnostics work or should we use something else?
+Hi Dave,
 
-Steve Timm
+Here are the results. I've upgraded to gcc-3.2.1 yesterday evening.
+Hence, we can not compare to the results from yesterday.
+The ones below are new:
 
+2.4.20rc2+small-patch (ran it three times with very similar results):
+265.05user 16.66system 2:43.09elapsed 172%CPU (0avgtext+0avgdata 
+0maxresident)k
+0inputs+0outputs (621129major+1391627minor)pagefaults 0swaps
 
-------------------------------------------------------------------
-Steven C. Timm (630) 840-8525  timm@fnal.gov  http://home.fnal.gov/~timm/
-Fermilab Computing Division/Operating Systems Support
-Scientific Computing Support Group--Computing Farms Operations
+2.4.20rc2-descriptors.diff (also run three times):
+302.60user 16.95system 2:43.39elapsed 195%CPU (0avgtext+0avgdata 
+0maxresident)k
+0inputs+0outputs (621129major+1390848minor)pagefaults 0swaps
 
-On Tue, 19 Nov 2002, Manish Lachwani wrote:
+Pretty much the same result - within the tolerance.
+%CPU is up quite a bit.
 
-> I have seen this errors on Seagate ST380021A 80 GB drive on a large scale in
-> our storage systems that make use of 3ware controllers. Seagate claims the
-> following reasons:
->
-> 1. Weak Power supply
-> 2. tempeature and heat
-> 3. vibration
->
-> Although, the maxtor 160 GB drives do not show such problems at all. Such
-> problems can be eliminated though. From the SMART data, get the bad sectors
-> and remap them by writing to the raw device. Those pending sectors will get
-> remapped. However, the problems will persist with these drives. In our
-> boxes, the operating temperature is abt 55 C ...
->
-> -----Original Message-----
-> From: Steven Timm [mailto:timm@fnal.gov]
-> Sent: Tuesday, November 19, 2002 1:37 PM
-> To: linux-kernel@vger.kernel.org
-> Subject: AMD 760MPX dma_intr: error=0x40 { UncorrectableError }
->
->
->
-> I have recently observed a large frequency of this error on
-> a bunch of compute servers with brand new disks.
->
-> Nov 15 01:42:52 fnd0172 kernel: hdb: dma_intr: status=0x51 { DriveReady
-> SeekComplete Error }
-> Nov 15 01:42:52 fnd0172 kernel: hdb: dma_intr: error=0x40 {
-> UncorrectableError }, LBAsect=44763517, sector=11235856
-> Nov 15 01:42:52 fnd0172 kernel: end_request: I/O error, dev 03:42 (hdb),
-> sector 11235856
->
-> Configuration is the following:
-> Tyan 2466 motherboard which has AMD760MPX chipset, dual Athlon MP2000+
-> processors  (supports UltraATA100)
->
-> hda=Seagate ST340016A 40 GB drive, ext2 FS
-> hdb=Seagate ST380021A 80 GB drive, ext2 FS.
->
-> There are many entries in this mailing list saying that
-> the above error is a sign of a bad disk.  Seagate diagnostics
-> say so too.. It is just hard to believe that 30 hard drives could
-> go bad in less than a month.
->
-> I know errors of this type were common on machines with Serverworks
-> OSB4 chipsets.  Has anyone else heard of this error happening on
-> non-serverworks chipsets such as VIA or AMD?  And is the drive
-> really bad or will a low level format clear the bad blocks
-> and let the drive operate again?
->
-> Steve Timm
->
-> ------------------------------------------------------------------
->
-> SMART shows the following error structure:
->
-> SMART Error Log:
-> SMART Error Logging Version: 1
-> Error Log Data Structure Pointer: 03
-> ATA Error Count: 13
-> Non-Fatal Count: 0
->
-> Error Log Structure 1:
-> DCR   FR   SC   SN   CL   SH   D/H   CR   Timestamp
->  00   00   08   57   09   ab    f2   c8     40315
->  00   00   08   5f   09   ab    f2   c8     40315
->  00   00   08   67   09   ab    f2   c8     40315
->  00   00   08   6f   09   ab    f2   c8     40315
->  00   00   08   77   09   ab    f2   c8     40315
->  00   40   00   7d   09   ab    f2   51     922746
-> Error condition:  33    Error State:       3
-> Number of Hours in Drive Life: 1021 (life of the drive in hours)
->
-> Error Log Structure 2:
-> DCR   FR   SC   SN   CL   SH   D/H   CR   Timestamp
->  00   00   08   07   d5   55    f1   ca     40320
->  00   00   08   3f   00   5c    f1   ca     40320
->  00   00   08   97   33   5d    f1   ca     40320
->  00   00   08   87   97   0f    f2   ca     40320
->  00   00   08   77   09   ab    f2   c8     40320
->  00   40   00   7d   09   ab    f2   51     922746
-> Error condition:  33    Error State:       3
-> Number of Hours in Drive Life: 1021 (life of the drive in hours)
->
-> Error Log Structure 3:
-> DCR   FR   SC   SN   CL   SH   D/H   CR   Timestamp
->  00   00   28   bf   8f   52    f1   c8     23662
->  00   00   98   e7   8f   52    f1   c8     23662
->  00   00   68   ff   9a   52    f1   c8     23662
->  00   00   d8   67   9b   52    f1   c8     23662
->  00   00   28   07   a3   52    f1   c8     23662
->  00   40   00   25   a3   52    f1   51     1124073
-> Error condition: 161    Error State:       3
-> Number of Hours in Drive Life: 1040 (life of the drive in hours)
->
-> Error Log Structure 4:
-> DCR   FR   SC   SN   CL   SH   D/H   CR   Timestamp
->  00   00   e0   4f   09   ab    f2   c8     40280
->  00   00   d8   57   09   ab    f2   c8     40285
->  00   00   d0   5f   09   ab    f2   c8     40290
->  00   00   c8   67   09   ab    f2   c8     40296
->  00   00   c0   6f   09   ab    f2   c8     40301
->  00   40   00   7d   09   ab    f2   51     922746
-> Error condition:  33    Error State:       3
-> Number of Hours in Drive Life: 1021 (life of the drive in hours)
->
-> Error Log Structure 5:
-> DCR   FR   SC   SN   CL   SH   D/H   CR   Timestamp
->  00   00   d8   57   09   ab    f2   c8     40285
->  00   00   d0   5f   09   ab    f2   c8     40290
->  00   00   c8   67   09   ab    f2   c8     40296
->  00   00   c0   6f   09   ab    f2   c8     40301
->  00   00   b8   77   09   ab    f2   c8     40306
->  00   40   00   7d   09   ab    f2   51     922746
-> Error condition:  33    Error State:       3
-> Number of Hours in Drive Life: 1021 (life of the drive in hours)
->
->
->
-> Steven C. Timm (630) 840-8525  timm@fnal.gov  http://home.fnal.gov/~timm/
-> Fermilab Computing Division/Operating Systems Support
-> Scientific Computing Support Group--Computing Farms Operations
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Also, my optimization options are '-Os -march=pentium3'.
+
+The machine was idle but still in multi-user mode. If
+you need more precise results, I could do that over the weekend.
+
+Cheers,
+
+Mathias
+
+---
+
+ > cat /proc/cpuinfo
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 11
+model name      : Intel(R) Pentium(R) III CPU family      1266MHz
+stepping        : 1
+cpu MHz         : 1280.932
+cache size      : 512 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge 
+mca cmov pat pse36 mmx fxsr sse
+bogomips        : 2555.90
+
+processor       : 1
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 11
+model name      : Intel(R) Pentium(R) III CPU family      1266MHz
+stepping        : 1
+cpu MHz         : 1280.932
+cache size      : 512 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge 
+mca cmov pat pse36 mmx fxsr sse
+bogomips        : 2555.90
 

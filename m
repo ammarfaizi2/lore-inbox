@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261695AbVCXVYc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261559AbVCXVYw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261695AbVCXVYc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 16:24:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261559AbVCXVYc
+	id S261559AbVCXVYw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 16:24:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbVCXVYw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 16:24:32 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:27923 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261678AbVCXVW5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 16:22:57 -0500
-Date: Fri, 25 Mar 2005 08:20:57 +1100
-To: Jean-Luc Cooke <jlcooke@certainkey.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, johnpol@2ka.mipt.ru,
-       Andrew Morton <akpm@osdl.org>, James Morris <jmorris@redhat.com>,
-       linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
-       cryptoapi@lists.logix.cz, David McCullough <davidm@snapgear.com>
-Subject: Re: [PATCH] API for true Random Number Generators to add entropy (2.6.11)
-Message-ID: <20050324212057.GB9396@gondor.apana.org.au>
-References: <20050315133644.GA25903@beast> <20050324042708.GA2806@beast> <1111665551.23532.90.camel@uganda> <4242B712.50004@pobox.com> <20050324142540.GI24697@certainkey.com>
+	Thu, 24 Mar 2005 16:24:52 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:57477 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261559AbVCXVYr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 16:24:47 -0500
+Subject: Re: ext3 journalling BUG on full filesystem
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Jan Kara <jack@suse.cz>, Mark Wong <markw@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, stable@kernel.org,
+       Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <20050324193834.GH28536@shell0.pdx.osdl.net>
+References: <20050323202130.GA30844@osdl.org>
+	 <20050323221753.GA6334@cse.unsw.EDU.AU>
+	 <20050324103945.GF19394@atrey.karlin.mff.cuni.cz>
+	 <1111691379.1995.91.camel@sisko.sctweedie.blueyonder.co.uk>
+	 <20050324193834.GH28536@shell0.pdx.osdl.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1111699467.1995.94.camel@sisko.sctweedie.blueyonder.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050324142540.GI24697@certainkey.com>
-User-Agent: Mutt/1.5.6+20040907i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Thu, 24 Mar 2005 21:24:27 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 24, 2005 at 09:25:40AM -0500, Jean-Luc Cooke wrote:
-> 
-> If your RNG were properly written, it shouldn't matter if the data you're
-> pumping into /dev/random passed muster or not.  If you're tracking entropy
-> count, then that's a different story of course.
+Hi,
 
-We're talking about hardware RNGs here so we need to take hardware faults
-into account.
+On Thu, 2005-03-24 at 19:38, Chris Wright wrote:
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+> OK, good to know.  When I last checked you were working on a higher risk
+> yet more complete fix, and I thought we'd wait for that one to stabilize.
+> Looks like the one Jan attached is the better -stable candidate?
+
+Definitely; it's the one I gave akpm.  The lock reworking is going to
+remove one layer of locks, so it's worthwhile from that point of view;
+but it's longer-term, and I don't know for sure of any paths to chaos
+with that simpler journal_unmap_buffer() fix in place.  (It's just very
+hard to _prove_ all cases are correct without the locking rework.)
+
+--Stephen
+

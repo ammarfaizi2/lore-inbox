@@ -1,165 +1,169 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262154AbUJ1TPP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261755AbUJ1TSl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262154AbUJ1TPP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 15:15:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262184AbUJ1TPP
+	id S261755AbUJ1TSl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 15:18:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbUJ1TSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 15:15:15 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:56233 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262154AbUJ1TO4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 15:14:56 -0400
-Date: Thu, 28 Oct 2004 21:16:05 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4
-Message-ID: <20041028191605.GA3877@elte.hu>
-References: <12917.195.245.190.94.1098890763.squirrel@195.245.190.94> <20041027205126.GA25091@elte.hu> <20041027211957.GA28571@elte.hu> <33083.192.168.1.5.1098919913.squirrel@192.168.1.5> <20041028063630.GD9781@elte.hu> <20668.195.245.190.93.1098952275.squirrel@195.245.190.93> <20041028085656.GA21535@elte.hu> <26253.195.245.190.93.1098955051.squirrel@195.245.190.93> <20041028093215.GA27694@elte.hu> <43163.195.245.190.94.1098981230.squirrel@195.245.190.94>
+	Thu, 28 Oct 2004 15:18:41 -0400
+Received: from adsl-67-117-73-34.dsl.sntc01.pacbell.net ([67.117.73.34]:11538
+	"EHLO muru.com") by vger.kernel.org with ESMTP id S261755AbUJ1TSd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 15:18:33 -0400
+Date: Thu, 28 Oct 2004 12:18:27 -0700
+From: Tony Lindgren <tony@atomide.com>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, rmk@arm.linux.org.uk
+Subject: [PATCH] Serial 8250 OMAP support, take 2
+Message-ID: <20041028191826.GG14884@atomide.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="tNQTSEo8WG/FKZ8E"
 Content-Disposition: inline
-In-Reply-To: <43163.195.245.190.94.1098981230.squirrel@195.245.190.94>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-2.2, required 5.9, BAYES_00 -4.90,
-	COMPARE_RATES 2.70
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -2
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Rui Nuno Capela <rncbc@rncbc.org> wrote:
+--tNQTSEo8WG/FKZ8E
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> OK. Here are my early consolidated results. Feel free to comment.
-> 
->                                     2.6.9     RT-U3   RT-V0.4.3
->                                   --------- --------- ---------
->   XRUN Rate . . . . . . . . . . .     424         8         4    /hour
->   Delay Rate (>spare time)  . . .     496         0         0    /hour
->   Delay Rate (>1000 usecs)  . . .     940         8         4    /hour
->   Maximum Delay . . . . . . . . .    6904       921       721    usecs
->   Maximum Process Cycle . . . . .    1449      1469      1590    usecs
->   Average DSP CPU Load  . . . . .      38        39        40    %
->   Average Context-Switch Rate . .    7480      8929      9726    /sec
+Hi Andrew & Russell,
 
-looks pretty good, doesnt it?
+Here's an updated version of an earlier patch [1] to add OMAP support to
+the serial 8250 driver.
 
-how is the 'maximum delay' calculated? Could you put in a tracing hook
-into jackd whenever such a ~720 usecs maximum is hit? I'd _love_ to see 
-how such a latency path looks like, it seems a bit long.
+The new patch has been updated to use early_serial_setup() instead of
+register_serial(). This leaves out the earlier additional patch needed 
+to serial_core.c [2], which caused a problem on PCI modems [3].
 
-It should be a relatively simple hack to jackd. Firstly, download the 
--V0.5.3 patch and enable LATENCY_TRACE, then do:
+[1] http://lkml.org/lkml/2004/8/16/119
+[2] http://lkml.org/lkml/2004/8/16/114
+[3] http://bugme.osdl.org/show_bug.cgi?id=3312
 
-	echo 2 > /proc/sys/kernel/trace_enabled
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 
-this activates the 'application-triggered kernel tracer' functionality. 
+Regards,
 
-No tracing happens by default, but tracing starts if the application
-executes this function:
+Tony
 
-	gettimeofday(0,1);
+--tNQTSEo8WG/FKZ8E
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename="patch-2.6.10-rc1-serial-8250-add-omap"
 
-and tracing stops if the application does:
-
-	gettimeofday(0,0);
-
-whenever the app does this (0,0) call the trace gets saved and you can
-retrieve it from /proc/latency_trace where you can retrieve it. There is
-no combination of these parameters that can break the kernel, so it's a
-100% safe tracing facility. You can 'ignore' a latency [e.g. if it's not
-a maximum] by simply not doing the (0,0) call. The next (0,1) call done
-will override the previous, already running trace.
-
-[stupid function but this combination of the syscall parameters is not
-used otherwise so the latency tracer hijacks it.]
-
-i dont know how Jackd does things, but i'd suggest to enable tracing the
-first time possible when getting an interrupt - in theory this should
-happen as soon as the wakeup-latency-tracer says - i.e. at most in like
-30 usecs. The bulk of the remaining 700 usecs will be spent in jackd, 
-and you can trace those 700 usecs.
-
-or if you would be willing to do a little bit of ALSA hacking, you could
-add this to the ALSA interrupt handler:
-
-	#include <linux/syscalls.h>
-
-	...
-	sys_gettimeofday(0, 1);
-
-[the attached patch implements this for ali5451.]
-
-and do the gettimeofday(0,0) in jackd [if the latency measured there is
-a new maximum]! This way tracing is turned on within the kernel IRQ
-handler (i.e. as soon as possible) and turned off within ALSA. This will
-enable us to see an even more complete latency path.
-
-NOTE: there can only be one trace active at a time. So if there can be
-multiple channels active at a time then this user-triggered tracer might
-be less useful. Do these channels have any priority? Or if multiple
-channels are necessary then you could modify the patch to only do the
-(0,1) call for say channel #0:
-
-	if (channel == 0)
-		sys_gettimeofday(0, 1);
-
-in this case the trace-off-save (0,0) call in Jackd must also only do
-this for channel 0 processing! (or whichever channel you find the most
-interesting.)
-
-also, i looked at the sound/pci/ali5451/ali5451.c driver code and it has
-one weird piece of code on line 988:
-
-	udelay(100);
-
-that adds a 100 usecs latency to the main path, for no good reason! It
-also spends that time burning CPU time, delaying other processing. Could 
-you add an IRQs/sec measurement too if possible, so that we can compare 
-the IRQ rates of various kernels?
-
-Also, i'd suggest to simply remove that line (or apply the attached
-patch) - does the driver still work fine with that?
-
-plus i've also got questions about how Jackd interfaces with ALSA: does
-it use SIGIO, or some direct driver ioctl? If SIGIO is used then how is
-it done precisely - is an 'RT' queued signal used or ordinary SIGIO? 
-Also, how is the 'channel' information established upon getting a SIGIO,
-is it in the siginfo structure?
-
-	Ingo
-
---- linux/sound/pci/ali5451/ali5451.c.orig
-+++ linux/sound/pci/ali5451/ali5451.c
-@@ -33,6 +33,7 @@
- #include <linux/pci.h>
- #include <linux/slab.h>
- #include <linux/moduleparam.h>
-+#include <linux/syscalls.h>
- #include <sound/core.h>
- #include <sound/pcm.h>
- #include <sound/info.h>
-@@ -985,11 +986,11 @@ static void snd_ali_update_ptr(ali_t *co
- 	pvoice = &codec->synth.voices[channel];
- 	runtime = pvoice->substream->runtime;
+--- linus/drivers/serial/8250.c	2004-10-26 10:41:48.000000000 -0700
++++ linux-omap-dev/drivers/serial/8250.c	2004-10-28 11:46:53.000000000 -0700
+@@ -260,6 +260,15 @@
+ 		.fcr		= UART_FCR_ENABLE_FIFO | UART_FCR_R_TRIG_10,
+ 		.flags		= UART_CAP_FIFO,
+ 	},
++	[PORT_OMAP] = {
++		.name		= "OMAP",
++		.fifo_size	= 64,
++		.tx_loadsz	= 64,
++		.fcr		= UART_FCR_ENABLE_FIFO |
++				  UART_FCR7_T_TRIGGER_56 |
++				  UART_FCR7_R_TRIGGER_60,
++		.flags		= UART_CAP_FIFO,
++	},
+ };
  
--	udelay(100);
- 	spin_lock(&codec->reg_lock);
+ static _INLINE_ unsigned int serial_in(struct uart_8250_port *up, int offset)
+@@ -1370,6 +1379,28 @@
+ 		serial_outp(up, UART_LCR, 0);
+ 	}
  
- 	if (pvoice->pcm && pvoice->substream) {
- 		/* pcm interrupt */
-+		sys_gettimeofday((void *)0, (void *)1); // start the tracer
- #ifdef ALI_DEBUG
- 		outb((u8)(pvoice->number), ALI_REG(codec, ALI_GC_CIR));
- 		temp = inw(ALI_REG(codec, ALI_CSO_ALPHA_FMS + 2));
++#ifdef CONFIG_ARCH_OMAP
++	if (up->port.type == PORT_OMAP) {
++                serial_outp(up, UART_OMAP_MDR1, 0x07); /* disable UART */
++                serial_outp(up, UART_LCR, 0xBF);       /* select EFR */
++                serial_outp(up, UART_EFR, UART_EFR_ECB);
++                serial_outp(up, UART_LCR, UART_LCR_DLAB); /* set DLAB */
++                serial_outp(up, UART_DLL, 0x00);
++                serial_outp(up, UART_DLM, 0x00);
++                serial_outp(up, UART_LCR, 0x00);       /* reset DLAB */
++                serial_outp(up, UART_OMAP_SCR, 0x08);
++                serial_outp(up, UART_FCR, 0x00);
++                serial_outp(up, UART_MCR, 0x40);       /* enable TCR/TLR */
++                serial_outp(up, UART_TI752_TCR, 0x0F);
++                serial_outp(up, UART_TI752_TLR, 0x00);
++                serial_outp(up, UART_MCR, 0x00);
++                serial_outp(up, UART_LCR, 0xBF);       /* select EFR */
++                serial_outp(up, UART_EFR, 0x00);
++                serial_outp(up, UART_LCR, 0x00);       /* reset DLAB */
++                serial_outp(up, UART_OMAP_MDR1, 0x00); /* enable UART */
++        }
++#endif
++
+ #ifdef CONFIG_SERIAL_8250_RSA
+ 	/*
+ 	 * If this is an RSA port, see if we can kick it up to the
+@@ -1689,6 +1720,17 @@
+ 		serial_outp(up, UART_EFR, efr);
+ 	}
+ 
++#ifdef CONFIG_ARCH_OMAP1510
++	/* Workaround is needed to enable 115200 baud on OMAP1510 */
++        if (up->port.type == PORT_OMAP && cpu_is_omap1510()) {
++		if (baud == 115200) {
++			quot = 1;
++			serial_out(up, UART_OMAP_OSC_12M_SEL, 1);
++		} else
++			serial_out(up, UART_OMAP_OSC_12M_SEL, 0);
++        }
++#endif
++
+ 	if (up->capabilities & UART_NATSEMI) {
+ 		/* Switch to bank 2 not bank 1, to avoid resetting EXCR2 */
+ 		serial_outp(up, UART_LCR, 0xe0);
+--- linus/include/linux/serial_core.h	2004-10-25 10:33:36.000000000 -0700
++++ linux-omap-dev/include/linux/serial_core.h	2004-10-18 09:20:25.000000000 -0700
+@@ -37,7 +37,8 @@
+ #define PORT_RSA	13
+ #define PORT_NS16550A	14
+ #define PORT_XSCALE	15
+-#define PORT_MAX_8250	15	/* max port ID */
++#define PORT_OMAP	16
++#define PORT_MAX_8250	16	/* max port ID */
+ 
+ /*
+  * ARM specific type numbers.  These are not currently guaranteed
+--- linus/include/linux/serial_reg.h	2004-10-25 10:33:36.000000000 -0700
++++ linux-omap-dev/include/linux/serial_reg.h	2004-10-28 11:50:15.000000000 -0700
+@@ -79,6 +79,15 @@
+ #define UART_FCR6_T_TRIGGER_8	0x10 /* Mask for transmit trigger set at 8 */
+ #define UART_FCR6_T_TRIGGER_24  0x20 /* Mask for transmit trigger set at 24 */
+ #define UART_FCR6_T_TRIGGER_30	0x30 /* Mask for transmit trigger set at 30 */
++/* 16C752 definitions */
++#define UART_FCR7_R_TRIGGER_8	0x00 /* Mask for receive trigger set at 8 */
++#define UART_FCR7_R_TRIGGER_16	0x40 /* Mask for receive trigger set at 16 */
++#define UART_FCR7_R_TRIGGER_56	0x80 /* Mask for receive trigger set at 56 */
++#define UART_FCR7_R_TRIGGER_60	0xC0 /* Mask for receive trigger set at 60 */
++#define UART_FCR7_T_TRIGGER_8	0x00 /* Mask for transmit trigger set at 8 */
++#define UART_FCR7_T_TRIGGER_16	0x10 /* Mask for transmit trigger set at 16 */
++#define UART_FCR7_T_TRIGGER_32	0x20 /* Mask for transmit trigger set at 32 */
++#define UART_FCR7_T_TRIGGER_56	0x30 /* Mask for transmit trigger set at 56 */
+ #define UART_FCR7_64BYTE	0x20 /* Go into 64 byte mode (TI16C750) */
+ 
+ #define UART_LCR	3	/* Out: Line Control Register */
+@@ -307,5 +316,19 @@
+ #define SERIAL_RSA_BAUD_BASE (921600)
+ #define SERIAL_RSA_BAUD_BASE_LO (SERIAL_RSA_BAUD_BASE / 8)
+ 
++/*
++ * Extra serial register definitions for the internal UARTs 
++ * in TI OMAP processors.
++ */
++#define UART_OMAP_MDR1		0x08	/* Mode definition register */
++#define UART_OMAP_MDR2		0x09	/* Mode definition register 2 */
++#define UART_OMAP_SCR		0x10	/* Supplementary control register */
++#define UART_OMAP_SSR		0x11	/* Supplementary status register */
++#define UART_OMAP_EBLR		0x12	/* BOF length register */
++#define UART_OMAP_OSC_12M_SEL	0x13	/* OMAP1510 12MHz osc select */
++#define UART_OMAP_MVER		0x14	/* Module version register */
++#define UART_OMAP_SYSC		0x15	/* System configuration register */
++#define UART_OMAP_SYSS		0x16	/* System status register */
++
+ #endif /* _LINUX_SERIAL_REG_H */
+ 
+
+--tNQTSEo8WG/FKZ8E--

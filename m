@@ -1,71 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267085AbSKSFMb>; Tue, 19 Nov 2002 00:12:31 -0500
+	id <S267090AbSKSF3F>; Tue, 19 Nov 2002 00:29:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267087AbSKSFMb>; Tue, 19 Nov 2002 00:12:31 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:27387 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S267085AbSKSFMa>;
-	Tue, 19 Nov 2002 00:12:30 -0500
-Date: Mon, 18 Nov 2002 21:17:30 -0800
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: Gregoire Favre <greg@ulima.unil.ch>
-Cc: Kai Makisara <Kai.Makisara@kolumbus.fi>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.48 and SCSI ? (devfs problem!!!)
-Message-ID: <20021118211730.A24422@eng2.beaverton.ibm.com>
-References: <20021118203605.GC8357@ulima.unil.ch> <Pine.LNX.4.44.0211182329020.736-100000@kai.makisara.local> <20021118214922.GA9613@ulima.unil.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20021118214922.GA9613@ulima.unil.ch>; from greg@ulima.unil.ch on Mon, Nov 18, 2002 at 10:49:22PM +0100
+	id <S267091AbSKSF3F>; Tue, 19 Nov 2002 00:29:05 -0500
+Received: from pop.gmx.de ([213.165.65.60]:48406 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S267090AbSKSF3E>;
+	Tue, 19 Nov 2002 00:29:04 -0500
+Message-ID: <3DD9CDB2.2075CCB4@gmx.de>
+Date: Tue, 19 Nov 2002 06:35:46 +0100
+From: Edgar Toernig <froese@gmx.de>
+MIME-Version: 1.0
+To: Davide Libenzi <davidel@xmailserver.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc] epoll interface change and glibc bits ...
+References: <Pine.LNX.4.44.0211182000590.979-100000@blue1.dev.mcafeelabs.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 18, 2002 at 10:49:22PM +0100, Gregoire Favre wrote:
-> On Mon, Nov 18, 2002 at 11:33:58PM +0200, Kai Makisara wrote:
-> > I had the same problem with sym53c8xxx_2 when devfs was configured into
-> > the kernel (but not mounted). Then I made a kernel with devfs disabled and
-> > now this boots (and seems to work).
+Davide Libenzi wrote:
 > 
-> Hello,
+> On Tue, 19 Nov 2002, Edgar Toernig wrote:
+> > What about adding an fd twice to the epoll-set?  Do you get an
+> > error, will it override the previous settings for that fd, will
+> > it be ignored, or is it registered twice and you get two results
+> > for that fd?
 > 
-> well, I "need" devfs and it is mounted... I really don't want to create
-> all the devices I use... At least now I know where does the prolem come
-> from ;-)
+> You get EEXIST
+> Well, there's the remote possibility, trying very badly from two threads,
+> to add the same fd twice. It is an harmless condition though.
+
+Just IMHO: I would prefer a different behaviour:
+
+	int epoll_ctl(int epfd, int fd, int events)
+
+which registers interest for "events" on "fd" and retuns previous
+registered events for that fd (implies that the fd is removed when
+"events" is 0) or -1 for error.
+
+If you don't like it, at least an EP_CTL_GET should be added though.
+
+Btw, what errno for an invalid fd (not epfd)?
+
+> > Is the epoll-fd itself poll/epoll/selectable?
 > 
-> Thank you very much,
+> Yes.
+
+Fine.  I guess, only POLLIN/readable is generated.
+
 > 
-> 	Grégoire
+> > Can I build cluster of epoll-sets?
+> 
+> Uh ?!
 
-Here's a patch you can try out, I already posted this to linux-scsi
-as a fix for /proc/scsi not showing up, I'll make sure James or
-someone pushes it to Linus' tree. I don't use devfs.
+The previous "yes" already answers this ;-)  What I meant, ie three
+fd-sets - low, normal, high priority fds - and a fourth set consisting
+of the three epfds for these sets.
 
-This is against linus bk but should apply fine against 2.5.48.
+> > What happens if the epollfd is put into its own fd set?
+> 
+> You might find your machine a little bit frozen :)
+> Either 1) I remove the read lock from poll() or 2) I check the condition
+> at insetion time to avoid it. I very much prefer 2)
 
--- Patrick Mansfield
+Hehe, sure.  But could become tricky: someone may build a circular chain
+of epoll-fd-sets.
 
-===== scsi.c 1.67 vs edited =====
---- 1.67/drivers/scsi/scsi.c	Mon Nov 18 08:42:42 2002
-+++ edited/scsi.c	Mon Nov 18 16:14:23 2002
-@@ -2225,6 +2225,8 @@
- 			printk(KERN_ERR "SCSI: can't init sg mempool %s\n", sgp->name);
- 	}
- 
-+	scsi_init_procfs();
-+	scsi_devfs_handle = devfs_mk_dir(NULL, "scsi", NULL);
- 	scsi_host_init();
- 	scsi_dev_info_list_init(scsi_dev_flags);
- 	bus_register(&scsi_driverfs_bus_type);
-@@ -2236,9 +2238,10 @@
- {
- 	int i;
- 
-+	bus_unregister(&scsi_driverfs_bus_type);
-+	scsi_dev_info_list_delete();
- 	devfs_unregister(scsi_devfs_handle);
- 	scsi_exit_procfs();
--	scsi_dev_info_list_delete();
- 
- 	for (i = 0; i < SG_MEMPOOL_NR; i++) {
- 		struct scsi_host_sg_pool *sgp = scsi_sg_pools + i;
+> > Can I send the epoll-fd over a unix-socket to another
+> > process?
+> 
+> I'd say yes. SCM_RIGHTS should simply do an in-kernel file* to remote task
+> descriptor mapping.
+
+And what happens then?  Will the set refers to the fds from the sender
+process or of fds of the receiving process (which may not even have
+all those fds open)?
+
+Another btw, what happens on close of an fd?  Will it get removed from all
+epoll-fd-sets automatically?
+
+> > Then, please add more details of how events are generated.  You
+> > say, that an inactive-to-active transition causes an event.  What
+> > is the starting point of the collection?  (I guess, all transitions
+> 
+> The starting point are the bits found at insertion time.
+
+... and then after each epoll_wait call, I assume?
+
+> > Does an operation on an fd effect the already collected but not yet
+> > reported events?
+> 
+> You can do two operations on an existing fd. Remove is meaninless for this
+> case. Modify will re-read available bits.
+
+Huh, sorry.  I meant read/write/poll style of operations.
+
+Anyway, thanks for the information.  I hope they will find their way
+into the man-pages ;-)   (Ok, they may become more like the posix docs
+but IMHO new interfaces should be well documented.)
+
+Ciao, ET.

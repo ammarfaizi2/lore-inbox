@@ -1,59 +1,120 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273615AbRIYVIe>; Tue, 25 Sep 2001 17:08:34 -0400
+	id <S273626AbRIYVLE>; Tue, 25 Sep 2001 17:11:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273617AbRIYVIY>; Tue, 25 Sep 2001 17:08:24 -0400
-Received: from adsl-196-233.cybernet.ch ([212.90.196.233]:13062 "HELO
-	mailphish.drugphish.ch") by vger.kernel.org with SMTP
-	id <S273615AbRIYVIP>; Tue, 25 Sep 2001 17:08:15 -0400
-Message-ID: <3BB0F297.D4A9E986@drugphish.ch>
-Date: Tue, 25 Sep 2001 23:09:43 +0200
-From: Roberto Nibali <ratz@drugphish.ch>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10 i686)
-X-Accept-Language: en
+	id <S273635AbRIYVKy>; Tue, 25 Sep 2001 17:10:54 -0400
+Received: from zape.um.es ([155.54.0.102]:8155 "EHLO zape.um.es")
+	by vger.kernel.org with ESMTP id <S273626AbRIYVKt>;
+	Tue, 25 Sep 2001 17:10:49 -0400
+Message-ID: <3BB0F483.69929A79@ditec.um.es>
+Date: Tue, 25 Sep 2001 23:17:55 +0200
+From: Juan <piernas@ditec.um.es>
+X-Mailer: Mozilla 4.77 [es] (X11; U; Linux 2.4.6 i686)
+X-Accept-Language: es-ES, en
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-Cc: Mark Zealey <mark@itsolve.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Binary only module overview
-In-Reply-To: <20010924124044.B17377@devserv.devel.redhat.com> <20010925084439.B6396@us.ibm.com> <20010925200947.B7174@itsolve.co.uk> <20010925134232.A14715@kroah.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: Bad, bad, bad VM behaviour in 2.4.10
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+Hi!
 
-> > > Argus System's PitBull for Linux modifies the kernel.  No source or
-> > > patches for these modifications can be found on the web, so I'm guessing
-> > > that it's closed source:
-> > >     http://www.argus-systems.com/
-> >
-> > Umm, is it me or is that totally against the GPL? Have you bitched at them about
-> > this?
-> 
-> I have only talked to one of their resellers, who could not find a link
-> to the code anywhere.  I have not asked them directly.  I will go do
-> that right now.
+My test is very simple. I have started X-Window and XMMS in order to
+listen to some songs. Then, I have executed
 
-If you're dealing with argus, ask straight for developers or technical
-people not resellers. The second problem is that they ceased making
-their
-Pitbull LX product available for download on the web for some reasons.
-Since I work with argus-system products sometime I got the chance of
-still
-having a copy of this huge tarball and I made a diff or their actual
-changes
-to the 2.2.19 kernel for you. Unfortunately I had to put it onto a non-
-argus related development site and I will leave it there for the next 12 
-hours. Grab it, analyse it and convince yourself that they actually go
-quite into the direction of the LSM framework approach. Actually I
-talked
-to one of the argus technical guys about a possible port to the LSM
-frame-
-work and he said that they are going to look into it. Of course the lkm
-with the real security functionality is binary only. Decide yourself ...
+	dd if=/dev/hdc1 of=/dev/null
 
-http://www.linuxvirtualserver.org/~ratz/argus.diff
+as root within a terminal, and I have got the following a few seconds
+later:
 
-Best regards,
-Roberto Nibali, ratz
+Sep 25 22:05:55 localhost kernel: __alloc_pages: 0-order allocation
+failed (gfp=0x1d2/0) from c012ff60
+Sep 25 22:06:00 localhost last message repeated 2 times
+Sep 25 22:06:00 localhost kernel: __alloc_pages: 0-order allocation
+failed (gfp=0xf0/0) from c012ff60
+Sep 25 22:06:00 localhost kernel: __alloc_pages: 0-order allocation
+failed (gfp=0x1d2/0) from c012ff60
+Sep 25 22:06:00 localhost last message repeated 2 times
+Sep 25 22:06:00 localhost kernel: VM: killing process xmms
+Sep 25 22:06:00 localhost kernel: __alloc_pages: 0-order allocation
+failed (gfp=0x1d2/0) from c012ff60
+Sep 25 22:06:04 localhost last message repeated 11 times
+Sep 25 22:06:04 localhost kernel: VM: killing process xmms
+Sep 25 22:06:04 localhost kernel: __alloc_pages: 0-order allocation
+failed (gfp=0x1d2/0) from c012ff60
+Sep 25 22:06:04 localhost kernel: __alloc_pages: 0-order allocation
+failed (gfp=0x1d2/0) from c012ff60
+Sep 25 22:06:04 localhost kernel: VM: killing process kmix
+Sep 25 22:06:04 localhost kernel: __alloc_pages: 0-order allocation
+failed (gfp=0x1d2/0) from c012ff60
+Sep 25 22:06:04 localhost last message repeated 2 times
+Sep 25 22:06:04 localhost kernel: __alloc_pages: 0-order allocation
+failed (gfp=0xf0/0) from c012ff60
+Sep 25 22:06:04 localhost kernel: __alloc_pages: 0-order allocation
+failed (gfp=0x1d2/0) from c012ff60
+Sep 25 22:06:04 localhost last message repeated 3 times
+Sep 25 22:06:04 localhost kernel: VM: killing process gpm
+Sep 25 22:06:05 localhost kernel: __alloc_pages: 0-order allocation
+failed (gfp=0x1d2/0) from c012ff60
+Sep 25 22:06:06 localhost last message repeated 6 times
+sep 25 22:06:06 localhost su(pam_unix)[2548]: session closed for user
+root
+Sep 25 22:06:06 localhost kernel: VM: killing process sendmail
+Sep 25 22:06:07 localhost kernel: __alloc_pages: 0-order allocation
+failed (gfp=0x1d2/0) from c012ff60
+Sep 25 22:06:07 localhost kernel: VM: killing process konsole
+Sep 25 22:06:07 localhost kernel: __alloc_pages: 0-order allocation
+failed (gfp=0x1d2/0) from c012ff60
+Sep 25 22:06:07 localhost kernel: VM: killing process named
+Sep 25 22:06:07 localhost kernel: __alloc_pages: 0-order allocation
+failed (gfp=0x1d2/0) from c012ff60
+Sep 25 22:06:07 localhost kernel: VM: killing process xmms
+Sep 25 22:06:07 localhost kernel: __alloc_pages: 0-order allocation
+failed (gfp=0x1d2/0) from c012ff60
+Sep 25 22:06:07 localhost last message repeated 3 times
+Sep 25 22:06:07 localhost kernel: VM: killing process ksmserver
+Sep 25 22:06:07 localhost kernel: __alloc_pages: 0-order allocation
+failed (gfp=0x1d2/0) from c012ff60
+Sep 25 22:06:07 localhost kernel: VM: killing process kdeinit
+Sep 25 22:06:08 localhost kernel: __alloc_pages: 0-order allocation
+failed (gfp=0x1d2/0) from c012ff60
+Sep 25 22:06:08 localhost kernel: VM: killing process X
+Sep 25 22:06:08 localhost kernel: __alloc_pages: 0-order allocation
+failed (gfp=0xf0/0) from c012ff60
+Sep 25 22:06:08 localhost kernel: __alloc_pages: 0-order allocation
+failed (gfp=0x1d2/0) from c012ff60
+f60
+Sep 25 22:06:08 localhost last message repeated 2 times
+Sep 25 22:06:08 localhost kernel: VM: killing process kdeinit
+Sep 25 22:06:08 localhost kernel: __alloc_pages: 0-order allocation
+failed (gfp=0x1d2/0) from c012ff60
+Sep 25 22:06:08 localhost kernel: __alloc_pages: 0-order allocation
+failed (gfp=0x1d2/0) from c012ff60
+Sep 25 22:06:08 localhost kernel: VM: killing process startkde
+Sep 25 22:06:09 localhost kernel: __alloc_pages: 0-order allocation
+failed (gfp=0x1d2/0) from c012ff60
+Sep 25 22:06:09 localhost kernel: __alloc_pages: 0-order allocation
+failed (gfp=0x1d2/0) from c012ff60
+Sep 25 22:06:09 localhost kernel: VM: killing process named
+Sep 25 22:06:09 localhost kernel: __alloc_pages: 0-order allocation
+failed (gfp=0x1d2/0) from c012ff60
+
+The /dev/hdc1 partition capacity is 6 GB. My root partition is on
+/dev/hda5. My computer is a Pentium III with 384 MB of RAM.
+
+BTW, the same test in 2.4.6 works fine without any problem.
+
+Regards.
+
+
+-- 
+D. Juan Piernas Cánovas
+Departamento de Ingeniería y Tecnología de Computadores
+Facultad de Informática. Universidad de Murcia
+Campus de Espinardo - 30080 Murcia (SPAIN)
+Tel.: +34968367657    Fax: +34968364151
+email: piernas@ditec.um.es
+PGP public key:
+http://pgp.rediris.es:11371/pks/lookup?search=piernas%40ditec.um.es&op=index

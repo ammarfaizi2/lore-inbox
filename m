@@ -1,94 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262202AbSJARI1>; Tue, 1 Oct 2002 13:08:27 -0400
+	id <S262208AbSJAR4V>; Tue, 1 Oct 2002 13:56:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262199AbSJARI1>; Tue, 1 Oct 2002 13:08:27 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:15119 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S262202AbSJARAt>; Tue, 1 Oct 2002 13:00:49 -0400
-Date: Tue, 1 Oct 2002 18:06:11 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Stephen Smalley <sds@tislabs.com>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       linux-security-module@wirex.com
-Subject: Re: [RFC] LSM changes for 2.5.38
-Message-ID: <20021001180611.B26635@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Stephen Smalley <sds@tislabs.com>, Greg KH <greg@kroah.com>,
-	linux-kernel@vger.kernel.org, linux-security-module@wirex.com
-References: <20020927175510.B32207@infradead.org> <Pine.GSO.4.33.0209271432120.11942-100000@raven>
+	id <S262209AbSJAR4V>; Tue, 1 Oct 2002 13:56:21 -0400
+Received: from mail.cogenit.fr ([195.68.53.173]:64466 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S262208AbSJAR4V>;
+	Tue, 1 Oct 2002 13:56:21 -0400
+Date: Tue, 1 Oct 2002 20:01:47 +0200
+From: Francois Romieu <romieu@cogenit.fr>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Generic HDLC interface continued
+Message-ID: <20021001200147.A16700@fafner.intra.cogenit.fr>
+References: <m3y99nrtsu.fsf@defiant.pm.waw.pl> <20020928202138.A17244@se1.cogenit.fr> <m3smzsnbx9.fsf@defiant.pm.waw.pl> <20020930225437.A19967@se1.cogenit.fr> <m3n0pzm43c.fsf@defiant.pm.waw.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.GSO.4.33.0209271432120.11942-100000@raven>; from sds@tislabs.com on Fri, Sep 27, 2002 at 03:00:03PM -0400
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m3n0pzm43c.fsf@defiant.pm.waw.pl>; from khc@pm.waw.pl on Tue, Oct 01, 2002 at 01:48:23AM +0200
+X-Organisation: Marie's fan club - III
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 27, 2002 at 03:00:03PM -0400, Stephen Smalley wrote:
-> So you want to move the 'if (turn_on && !capable(CAP_SYS_RAWIO)) return
-> -EPERM;' from the base kernel into the security module's ioperm() hook
-> function, in addition to whatever additional logic the module may
-> implement?  [Assuming for the moment that we kept the ioperm() hook, even
-> though that isn't likely given its current lack of use and
-> architecture-specific nature].
+Krzysztof Halasa <khc@pm.waw.pl> :
+[...]
+> Please note that there is no call which could return the protocol
+> (or interface type) without copying the whole data - thus the caller
+> (utility) is unable to skip unknown interfaces.
 
-Exactly.
-> 
-> If so, what about the rest of the kernel access checking logic?  Do you
-> want all of the permission() logic pushed into the security module's
-> inode_permission() hook function?
+Ok, the 'type' attribute isn't enough.
 
-permission() switches into per-fs code.
+I feel like we are trying to do two things at the same time:
+a) the size of the allocated area isn't required if we need to do something
+   real with the data: if size doesn't match what is expected, we loose 
+   anyway
+b) if we don't care about the copied data, we actually ask for the subtype
+   of the interface
 
-> Do you want the bad_signal() logic
-> pushed into the security module's task_kill() hook function?
+-> a) and b) are two different operations imho.
 
-Only the capable() check.  Unless of course we make uid/gid checking optional.
-Which seems like a very bad idea given the mess even with just the current LSM
-hooks.
-
-> That kind of
-> change was considered and discussed on linux-security-module long ago, but
-> it will yield a very invasive patch for very little gain.  It also
-> requires cleanly separating all access checking logic from functional
-> logic (it is sometimes fairly intertwined) and determining exactly which
-> is which
-
-Umm.  Clean and nicely separated code is a lot of gain.  Making Linux's
-access clean instead of a lot more messy is a good think.  Much better than
-any feature addition.  (Unless, of course, you get paid for adding
-features..)
-
-
-> (e.g. is enforcing a read-only mount a security behavior or a
-> functional behavior?).
-
-For the kernel it's a functional behavior.  The administrator can chose
-to apply it for security reasons, but that's policy and thus not the
-kernel's issue.
-
-> 
-> > Show me a useful example that needs this argument.
-> 
-> Do you want every process that can use ioperm() to be able to access the
-> full range of ports accessible by that call?  If not, then you need
-> something finer-grained than CAP_SYS_RAWIO.  But as I said, we don't
-> presently use this hook, and it is architecture-dependent.
-
-Okay, this does actually makes sense.  Point taken.
-
-> 
-> > And WTF is the use a security policy that checks module arguments?  Do
-> > you want to disallow options that are quotes from books on the index
-> > or not political correct enough for a US state agency?
-> 
-> The LSM module_initialize hook is called with a pointer to the kernel's
-> copy of the relocated module image with the struct module header.  Hence,
-> the security module is free to perform whatever validation it wants on
-> that image prior to the execution of the init function.  But if the
-> criteria is that there must be a specific existing security module that
-> uses the hook, then this one will go away too.
-
-Yes, a hook without a intree user or at least a properly defined and
-available out-of-tree user is pointless.
+-- 
+Ueimor

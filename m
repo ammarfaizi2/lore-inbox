@@ -1,73 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266802AbUIITgn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266775AbUIITj3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266802AbUIITgn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 15:36:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266758AbUIITgm
+	id S266775AbUIITj3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 15:39:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264502AbUIITid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 15:36:42 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:59041 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S266807AbUIIT2L (ORCPT
+	Thu, 9 Sep 2004 15:38:33 -0400
+Received: from fw.osdl.org ([65.172.181.6]:42124 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266854AbUIIT3N (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 15:28:11 -0400
-Date: Thu, 9 Sep 2004 21:29:24 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, felipe_alfaro@linuxmail.org,
-       Florian Schmidt <mista.tapas@gmx.net>, "K.R. Foley" <kr@cybsft.com>,
-       Mark_H_Johnson@Raytheon.com
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk12-R6
-Message-ID: <20040909192924.GA1672@elte.hu>
-References: <20040903120957.00665413@mango.fruits.de> <20040904195141.GA6208@elte.hu> <20040905140249.GA23502@elte.hu> <20040906110626.GA32320@elte.hu> <1094626562.1362.99.camel@krustophenia.net>
+	Thu, 9 Sep 2004 15:29:13 -0400
+Date: Thu, 9 Sep 2004 12:29:06 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: BlaisorBlade <blaisorblade_spam@yahoo.it>
+Cc: Chris Wright <chrisw@osdl.org>,
+       user-mode-linux-devel@lists.sourceforge.net, akpm@osdl.org,
+       jdike@addtoit.com, linux-kernel@vger.kernel.org
+Subject: Re: [uml-devel] Re: [patch 1/1] uml:fix ubd deadlock on SMP
+Message-ID: <20040909122906.N1973@build.pdx.osdl.net>
+References: <20040908172503.384144933@zion.localdomain> <200409092002.19134.blaisorblade_spam@yahoo.it> <20040909113228.M1973@build.pdx.osdl.net> <200409092044.54512.blaisorblade_spam@yahoo.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1094626562.1362.99.camel@krustophenia.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200409092044.54512.blaisorblade_spam@yahoo.it>; from blaisorblade_spam@yahoo.it on Thu, Sep 09, 2004 at 08:44:54PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* BlaisorBlade (blaisorblade_spam@yahoo.it) wrote:
+> Yes, thanks a lot for your help.
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
+Rename ubd_finish() to __ubd_finsh() and remove ubd_io_lock from it.
+Add wrapper, ubd_finish(), which grabs lock before calling __ubd_finish().
+Update do_ubd_request to use the lock free __ubd_finish() to avoid
+deadlock.  Also, apparently prepare_request is called with ubd_io_lock
+held, so remove locks there.
 
-> I get these latencies when I cause the machine to swap by compiling a
-> kernel with make -j32.  They get bigger as the machine gets further
-> into swap.
-> 
-> Every 2.0s: head -60 /proc/latency_trace                                                                                                                             Wed Sep  8 02:51:40 2004
-> 
-> preemption latency trace v1.0.6 on 2.6.9-rc1-bk12-VP-R6
-> --------------------------------------------------
->  latency: 605 us, entries: 5 (5)  [VP:1 KP:1 SP:1 HP:1 #CPUS:1]
->     -----------------
->     | task: kswapd0/35, uid:0 nice:0 policy:0 rt_prio:0
->     -----------------
->  => started at: get_swap_page+0x23/0x490
->  => ended at:   get_swap_page+0x13f/0x490
-> =======>
-> 00000001 0.000ms (+0.606ms): get_swap_page (add_to_swap)
-> 00000001 0.606ms (+0.000ms): sub_preempt_count (get_swap_page)
-> 00000001 0.606ms (+0.000ms): update_max_trace (check_preempt_timing)
-> 00000001 0.606ms (+0.000ms): _mmx_memcpy (update_max_trace)
-> 00000001 0.607ms (+0.000ms): kernel_fpu_begin (_mmx_memcpy)
+Signed-off-by: Chris Wright <chrisw@osdl.org>
 
-yep, the get_swap_page() latency. I can easily trigger 10+ msec
-latencies on a box with alot of swap by just letting stuff swap out. I
-had a quick look but there was no obvious way to break the lock. Maybe
-Andrew has better ideas? get_swap_page() is pretty stupid, it does a
-near linear search for a free slot in the swap bitmap - this not only is
-a latency issue but also an overhead thing as we do it for every other
-page that touches swap.
-
-rationale: this is pretty much the only latency that we still having
-during heavy VM load and it would Just Be Cool if we fixed this final
-one. audio daemons and apps like jackd use mlockall() so they are not
-affected by swapping.
-
-	Ingo
+===== arch/um/drivers/ubd_kern.c 1.38 vs edited =====
+--- 1.38/arch/um/drivers/ubd_kern.c	2004-09-07 23:33:13 -07:00
++++ edited/arch/um/drivers/ubd_kern.c	2004-09-09 12:18:01 -07:00
+@@ -396,14 +396,20 @@
+  */
+ int intr_count = 0;
+ 
+-static void ubd_finish(struct request *req, int error)
++static inline void ubd_finish(struct request *req, int error)
++{
++ 	spin_lock(&ubd_io_lock);
++	__ubd_finish(req, error);
++	spin_unlock(&ubd_io_lock);
++}
++
++/* call ubd_finish if you need to serialize */
++static void __ubd_finish(struct request *req, int error)
+ {
+ 	int nsect;
+ 
+ 	if(error){
+- 		spin_lock(&ubd_io_lock);
+ 		end_request(req, 0);
+- 		spin_unlock(&ubd_io_lock);
+ 		return;
+ 	}
+ 	nsect = req->current_nr_sectors;
+@@ -412,11 +418,10 @@
+ 	req->errors = 0;
+ 	req->nr_sectors -= nsect;
+ 	req->current_nr_sectors = 0;
+-	spin_lock(&ubd_io_lock);
+ 	end_request(req, 1);
+-	spin_unlock(&ubd_io_lock);
+ }
+ 
++/* Called without ubd_io_lock held */
+ static void ubd_handler(void)
+ {
+ 	struct io_thread_req req;
+@@ -965,6 +970,7 @@
+ 	return(0);
+ }
+ 
++/* Called with ubd_io_lock held */
+ static int prepare_request(struct request *req, struct io_thread_req *io_req)
+ {
+ 	struct gendisk *disk = req->rq_disk;
+@@ -977,9 +983,7 @@
+ 	if((rq_data_dir(req) == WRITE) && !dev->openflags.w){
+ 		printk("Write attempted on readonly ubd device %s\n", 
+ 		       disk->disk_name);
+- 		spin_lock(&ubd_io_lock);
+ 		end_request(req, 0);
+- 		spin_unlock(&ubd_io_lock);
+ 		return(1);
+ 	}
+ 
+@@ -1029,6 +1033,7 @@
+ 	return(0);
+ }
+ 
++/* Called with ubd_io_lock held */
+ static void do_ubd_request(request_queue_t *q)
+ {
+ 	struct io_thread_req io_req;
+@@ -1040,7 +1045,7 @@
+ 			err = prepare_request(req, &io_req);
+ 			if(!err){
+ 				do_io(&io_req);
+-				ubd_finish(req, io_req.error);
++				__ubd_finish(req, io_req.error);
+ 			}
+ 		}
+ 	}

@@ -1,45 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263778AbTDYT1T (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 15:27:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbTDYT1T
+	id S263680AbTDYTZt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 15:25:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263695AbTDYTZt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 15:27:19 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46852 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263778AbTDYT1Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 15:27:16 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: versioned filesystems in linux (was Re: kernel support for
-Date: 25 Apr 2003 12:38:57 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <b8c2sh$tp0$1@cesium.transmeta.com>
-References: <200304251618.h3PGINWP001520@81-2-122-30.bradfords.org.uk> <Pine.LNX.4.53.0304251259300.6839@chaos> <200304251748.h3PHmjQd012895@turing-police.cc.vt.edu>
+	Fri, 25 Apr 2003 15:25:49 -0400
+Received: from smtp3.wanadoo.es ([62.37.236.137]:43449 "EHLO smtp.wanadoo.es")
+	by vger.kernel.org with ESMTP id S263680AbTDYTZs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 15:25:48 -0400
+Message-ID: <3EA98E8A.1090100@wanadoo.es>
+Date: Fri, 25 Apr 2003 21:37:46 +0200
+From: =?ISO-8859-1?Q?xos=E9_v=E1zquez_p=E9rez?= <xose@wanadoo.es>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: gl, es, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
+To: linux-kernel <linux-kernel@vger.kernel.org>, marcelo@conectiva.com.br
+Subject: [ Compile Regression on i386 ]-2.4.21-rc1 _critical_ compile errors
+X-Enigmail-Version: 0.63.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <200304251748.h3PHmjQd012895@turing-police.cc.vt.edu>
-By author:    Valdis.Kletnieks@vt.edu
-In newsgroup: linux.dev.kernel
-> 
-> Of bigger concern is that the inter-block gap is only 0.5 (or maybe 0.75
-> inches, the memories are dim ;) - and you need to be able to stop and then get
-> back up to speed in that distance (or decelerate, rewind, and get a running
-> start).
-> 
+kernel compilation output summary:
 
-No, you don't.  You just need to make sure you don't have the head
-active while you overshoot.  Performance will *definitely* suffer if
-you don't, though, since you'd have to rewind.
+--fs/devpts--
+gcc -D__KERNEL__ -I/datos/kernel/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -DMODULE  -nostdinc -iwithprefix include -DKBUILD_BASENAME=inode  -c -o inode.o inode.c
+inode.c: In function `init_devpts_fs':
+inode.c:233: `devpts_upcall_new' undeclared (first use in this function)
+inode.c:233: (Each undeclared identifier is reported only once
+inode.c:233: for each function it appears in.)
+inode.c:234: `devpts_upcall_kill' undeclared (first use in this function)
+inode.c: In function `exit_devpts_fs':
+inode.c:244: `devpts_upcall_new' undeclared (first use in this function)
+inode.c:245: `devpts_upcall_kill' undeclared (first use in this function)
+make[1]: [inode.o] Error 1 (ignored)
+--end--
 
-	-hpa
+regards,
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
+Galiza nin perdoa nin esquence. Governo demision!
+

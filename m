@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135416AbRDXKdj>; Tue, 24 Apr 2001 06:33:39 -0400
+	id <S135325AbRDXKh7>; Tue, 24 Apr 2001 06:37:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135331AbRDXKda>; Tue, 24 Apr 2001 06:33:30 -0400
-Received: from t2.redhat.com ([199.183.24.243]:30447 "EHLO
-	warthog.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S135325AbRDXKdT>; Tue, 24 Apr 2001 06:33:19 -0400
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: rwsem benchmark [was Re: [PATCH] rw_semaphores, optimisations try #3] 
-In-Reply-To: Your message of "Tue, 24 Apr 2001 12:17:47 +0200."
-             <20010424121747.A1682@athlon.random> 
-Date: Tue, 24 Apr 2001 11:33:13 +0100
-Message-ID: <6252.988108393@warthog.cambridge.redhat.com>
-From: David Howells <dhowells@warthog.cambridge.redhat.com>
+	id <S135331AbRDXKht>; Tue, 24 Apr 2001 06:37:49 -0400
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:65483 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S135325AbRDXKh3>; Tue, 24 Apr 2001 06:37:29 -0400
+From: Christoph Rohland <cr@sap.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: David Woodhouse <dwmw2@infradead.org>, Jan Harkes <jaharkes@cs.cmu.edu>,
+        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        "David L. Parsley" <parsley@linuxjedi.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: hundreds of mount --bind mountpoints?
+In-Reply-To: <Pine.GSO.4.21.0104240601410.6992-100000@weyl.math.psu.edu>
+Organisation: SAP LinuxLab
+Date: 24 Apr 2001 12:35:27 +0200
+In-Reply-To: <Pine.GSO.4.21.0104240601410.6992-100000@weyl.math.psu.edu>
+Message-ID: <m31yqiwpow.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-SAP: out
+X-SAP: out
+X-SAP: out
+X-SAP: out
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Al,
 
-> I see what you meant here and no, I'm not lucky, I thought about that. gcc x
-> 2.95.* seems smart enough to produce (%%eax) that you hardcoded when the
-> sem is not a constant (I'm not clobbering another register, if it does it's
-> stupid and I consider this a compiler mistake).
+On Tue, 24 Apr 2001, Alexander Viro wrote:
+>> Half an hour? If it takes more than about 5 minutes for JFFS2 I'd
+>> be very surprised.
+> 
+> <tone polite> What's stopping you? </tone>
+> You _are_ JFFS maintainer, aren't you?
 
-It is a compiler mistake... the compiler clobbers another register for
-you. The compiler does not, however, know about timing issues with the
-contents of the inline assembly... otherwise it'd stick a delay in front of
-the XADD in my stuff.
+So is this the start to change all filesystems in 2.4? I am not sure
+we should do that. 
 
-> I tried with a variable pointer and gcc as I expected generated the (%%eax)
-> but instead when it's a constant like in the bench my way it avoids to stall
-> the pipeline by using the constant address for the locked incl, exactly as
-> you said and that's probably why I beat you on the down read fast path too.
-> (I also benchmarked with a variable semaphore and it was running a little
-> slower)
+Greetings
+		Christoph
 
-*grin* Fun ain't it... Try it on a dual athlon or P4 and the answer may come
-out differently.
 
-David

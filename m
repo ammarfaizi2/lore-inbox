@@ -1,174 +1,155 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281081AbRKTOqs>; Tue, 20 Nov 2001 09:46:48 -0500
+	id <S281079AbRKTOtT>; Tue, 20 Nov 2001 09:49:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281080AbRKTOqa>; Tue, 20 Nov 2001 09:46:30 -0500
-Received: from amsfep12-int.chello.nl ([213.46.243.17]:10333 "EHLO
-	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
-	id <S281077AbRKTOqR>; Tue, 20 Nov 2001 09:46:17 -0500
-Date: Tue, 20 Nov 2001 15:46:10 +0100
-From: Jeroen Vreeken <pe1rxq@amsat.org>
-To: linux-hams <linux-hams@vger.kernel.org>
-Cc: tomi.manninen@hut.fi, dg2fef@afthd.tu-darmstatdt.de,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] Using sock_orphan in ax25 and netrom
-Message-ID: <20011120154610.A189@jeroen.pe1rxq.ampr.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.1.0
+	id <S281080AbRKTOtK>; Tue, 20 Nov 2001 09:49:10 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:46855 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S281079AbRKTOtA>; Tue, 20 Nov 2001 09:49:00 -0500
+Message-ID: <3BFA6B1A.D91C5703@evision-ventures.com>
+Date: Tue, 20 Nov 2001 15:39:22 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+Reply-To: dalecki@evision.ag
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: linux-kernel@vger.kernel.org
+Subject: PATCH 2.4.15-pre6 idt compilation and proc_misc cleanup.
+In-Reply-To: <87y9l58pb5.fsf@fadata.bg> <200111171920.fAHJKjJ01550@penguin.transmeta.com>
+Content-Type: multipart/mixed;
+ boundary="------------771E0940A3817F717C315539"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+This is a multi-part message in MIME format.
+--------------771E0940A3817F717C315539
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Yesterday's patch proved to be just a piece of bandaid for a larger
-problem: ax25 doesn't use sock_orphan() to set sk->dead. Included is a
-patch for both ax25 and netrom to fix this problem.
+The following two patches are:
 
-Jeroen
+1. Making the compilation of the idt77252 work without debugging
+enabled.
+
+2. Killing some code which is dead since ages in proc_misc.c
 
 
-diff -ruN linux-2.4.14/net/ax25/af_ax25.c linux/net/ax25/af_ax25.c
---- linux-2.4.14/net/ax25/af_ax25.c	Fri Sep 14 02:16:23 2001
-+++ linux/net/ax25/af_ax25.c	Mon Nov 19 21:36:09 2001
-@@ -102,6 +102,7 @@
-  *			Joerg(DL1BKE)		Added support for
-SO_BINDTODEVICE
-  *			Arnaldo C. Melo		s/suser/capable(CAP_NET_ADMIN)/,
-some more cleanups
-  *			Michal Ostrowski	Module initialization
-cleanup.
-+ *			Jeroen(PE1RXQ)		Use sock_orphan to
-set sk->dead.
+Those patches should apply to 2.4.15-pre7 as well.
+--------------771E0940A3817F717C315539
+Content-Type: text/plain; charset=us-ascii;
+ name="compilefix-idt77252.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="compilefix-idt77252.patch"
+
+diff -ur linux-mdcki/drivers/atm/idt77252.c linux-mdcki-new/drivers/atm/idt77252.c
+--- linux-mdcki/drivers/atm/idt77252.c	Sun Nov 18 15:09:49 2001
++++ linux-mdcki-new/drivers/atm/idt77252.c	Mon Nov 19 12:10:26 2001
+@@ -782,7 +782,9 @@
+ 	if (jiffies - scq->trans_start > HZ) {
+ 		printk("%s: Error pushing TBD for %d.%d\n",
+ 		       card->name, vc->tx_vcc->vpi, vc->tx_vcc->vci);
++#ifdef CONFIG_ATM_IDT77252_DEBUG
+ 		idt77252_tx_dump(card);
++#endif
+ 		scq->trans_start = jiffies;
+ 	}
+ 
+
+--------------771E0940A3817F717C315539
+Content-Type: text/plain; charset=us-ascii;
+ name="clean-proc_misc.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="clean-proc_misc.patch"
+
+diff -ur linux-mdcki/fs/proc/proc_misc.c linux-mdcki-new/fs/proc/proc_misc.c
+--- linux-mdcki/fs/proc/proc_misc.c	Sun Nov 18 15:09:57 2001
++++ linux-mdcki-new/fs/proc/proc_misc.c	Tue Nov 20 02:46:18 2001
+@@ -50,11 +50,6 @@
+  * have a way to deal with that gracefully. Right now I used straightforward
+  * wrappers, but this needs further analysis wrt potential overflows.
   */
+-extern int get_hardware_list(char *);
+-extern int get_stram_list(char *);
+-#ifdef CONFIG_DEBUG_MALLOC
+-extern int get_malloc(char * buffer);
+-#endif
+ #ifdef CONFIG_MODULES
+ extern int get_module_list(char *);
+ #endif
+@@ -151,19 +146,10 @@
+ 	si_swapinfo(&i);
+ 	pg_size = atomic_read(&page_cache_size) - i.bufferram ;
  
- #include <linux/config.h>
-@@ -423,7 +424,7 @@
- 	if (ax25->sk != NULL) {
- 		while ((skb = skb_dequeue(&ax25->sk->receive_queue)) !=
-NULL) {
- 			if (skb->sk != ax25->sk) {			/* A
-pending connection */
--				skb->sk->dead = 1;	/* Queue the unaccepted
-socket for death */
-+				sock_orphan(skb->sk);	/* Queue the
-unaccepted socket for death */
- 				ax25_start_heartbeat(skb->sk->protinfo.ax25);
- 				skb->sk->protinfo.ax25->state = AX25_STATE_0;
- 			}
-@@ -1018,7 +1019,7 @@
- 				sk->state                = TCP_CLOSE;
- 				sk->shutdown            |= SEND_SHUTDOWN;
- 				sk->state_change(sk);
--				sk->dead                 = 1;
-+				sock_orphan(sk);
- 				sk->destroy              = 1;
- 				break;
+-	len = sprintf(page, "        total:    used:    free:  shared: buffers:  cached:\n"
+-		"Mem:  %8Lu %8Lu %8Lu %8Lu %8Lu %8Lu\n"
+-		"Swap: %8Lu %8Lu %8Lu\n",
+-		B(i.totalram), B(i.totalram-i.freeram), B(i.freeram),
+-		B(i.sharedram), B(i.bufferram),
+-		B(pg_size), B(i.totalswap),
+-		B(i.totalswap-i.freeswap), B(i.freeswap));
+ 	/*
+ 	 * Tagged format, for easy grepping and expansion.
+-	 * The above will go away eventually, once the tools
+-	 * have been updated.
+ 	 */
+-	len += sprintf(page+len,
++	len = sprintf(page,
+ 		"MemTotal:     %8lu kB\n"
+ 		"MemFree:      %8lu kB\n"
+ 		"MemShared:    %8lu kB\n"
+@@ -222,33 +208,6 @@
+ 	release:	seq_release,
+ };
  
-@@ -1029,7 +1030,7 @@
- 		sk->state     = TCP_CLOSE;
- 		sk->shutdown |= SEND_SHUTDOWN;
- 		sk->state_change(sk);
--		sk->dead      = 1;
-+		sock_orphan(sk);
- 		ax25_destroy_socket(sk->protinfo.ax25);
- 	}
- 
-diff -ruN linux-2.4.14/net/ax25/ax25_ds_timer.c
-linux/net/ax25/ax25_ds_timer.c
---- linux-2.4.14/net/ax25/ax25_ds_timer.c	Fri Dec 29 23:35:47 2000
-+++ linux/net/ax25/ax25_ds_timer.c	Mon Nov 19 21:57:29 2001
-@@ -162,7 +162,7 @@
- 		ax25->sk->shutdown |= SEND_SHUTDOWN;
- 		if (!ax25->sk->dead)
- 			ax25->sk->state_change(ax25->sk);
--		ax25->sk->dead      = 1;
-+		sock_orphan(ax25->sk);
- 	}
- }
- 
-diff -ruN linux-2.4.14/net/ax25/ax25_std_timer.c
-linux/net/ax25/ax25_std_timer.c
---- linux-2.4.14/net/ax25/ax25_std_timer.c	Fri Dec 29 23:35:47 2000
-+++ linux/net/ax25/ax25_std_timer.c	Mon Nov 19 21:57:29 2001
-@@ -109,7 +109,7 @@
- 		ax25->sk->shutdown |= SEND_SHUTDOWN;
- 		if (!ax25->sk->dead)
- 			ax25->sk->state_change(ax25->sk);
--		ax25->sk->dead      = 1;
-+		sock_orphan(ax25->sk);
- 	}
- }
- 
-diff -ruN linux-2.4.14/net/ax25/ax25_subr.c linux/net/ax25/ax25_subr.c
---- linux-2.4.14/net/ax25/ax25_subr.c	Sat Jun 30 04:38:26 2001
-+++ linux/net/ax25/ax25_subr.c	Mon Nov 19 21:57:29 2001
-@@ -310,6 +310,6 @@
- 		ax25->sk->shutdown |= SEND_SHUTDOWN;
- 		if (!ax25->sk->dead)
- 			ax25->sk->state_change(ax25->sk);
--		ax25->sk->dead      = 1;
-+		sock_orphan(ax25->sk);
- 	}
- }
-diff -ruN linux-2.4.14/net/netrom/af_netrom.c linux/net/netrom/af_netrom.c
---- linux-2.4.14/net/netrom/af_netrom.c	Mon Sep 10 16:58:35 2001
-+++ linux/net/netrom/af_netrom.c	Mon Nov 19 21:36:09 2001
-@@ -31,6 +31,7 @@
-  *	NET/ROM 007	Jonathan(G4KLX)	New timer
-architecture.
-  *					Impmented Idle timer.
-  *			Arnaldo C. Melo s/suser/capable/, micro cleanups
-+ *			Jeroen (PE1RXQ)	Use sock_orphan to set
-sk->dead.
-  */
- 
- #include <linux/config.h>
-@@ -316,7 +317,7 @@
- 
- 	while ((skb = skb_dequeue(&sk->receive_queue)) != NULL) {
- 		if (skb->sk != sk) {			/* A pending
-connection */
--			skb->sk->dead = 1;	/* Queue the unaccepted
-socket for death */
-+			sock_orphan(skb->sk);	/* Queue the
-unaccepted socket for death */
- 			nr_start_heartbeat(skb->sk);
- 			skb->sk->protinfo.nr->state = NR_STATE_0;
- 		}
-@@ -572,9 +573,8 @@
- 			sk->state                = TCP_CLOSE;
- 			sk->shutdown            |= SEND_SHUTDOWN;
- 			sk->state_change(sk);
--			sk->dead                 = 1;
-+			sock_orphan(sk);
- 			sk->destroy              = 1;
--			sk->socket               = NULL;
- 			break;
- 
- 		default:
-diff -ruN linux-2.4.14/net/netrom/nr_subr.c linux/net/netrom/nr_subr.c
---- linux-2.4.14/net/netrom/nr_subr.c	Thu Jun 28 02:10:55 2001
-+++ linux/net/netrom/nr_subr.c	Mon Nov 19 21:39:01 2001
-@@ -284,5 +284,5 @@
- 	if (!sk->dead)
- 		sk->state_change(sk);
- 
--	sk->dead = 1;
-+	sock_orphan(sk);
- }
-diff -ruN linux-2.4.14/net/netrom/nr_timer.c linux/net/netrom/nr_timer.c
---- linux-2.4.14/net/netrom/nr_timer.c	Fri Dec 29 23:44:46 2000
-+++ linux/net/netrom/nr_timer.c	Mon Nov 19 21:39:17 2001
-@@ -201,7 +201,7 @@
- 	if (!sk->dead)
- 		sk->state_change(sk);
- 
--	sk->dead = 1;
-+	sock_orphan(sk);
- }
- 
- static void nr_t1timer_expiry(unsigned long param)
+-#ifdef CONFIG_PROC_HARDWARE
+-static int hardware_read_proc(char *page, char **start, off_t off,
+-				 int count, int *eof, void *data)
+-{
+-	int len = get_hardware_list(page);
+-	return proc_calc_metrics(page, start, off, count, eof, len);
+-}
+-#endif
+-
+-#ifdef CONFIG_STRAM_PROC
+-static int stram_read_proc(char *page, char **start, off_t off,
+-				 int count, int *eof, void *data)
+-{
+-	int len = get_stram_list(page);
+-	return proc_calc_metrics(page, start, off, count, eof, len);
+-}
+-#endif
+-
+-#ifdef CONFIG_DEBUG_MALLOC
+-static int malloc_read_proc(char *page, char **start, off_t off,
+-				 int count, int *eof, void *data)
+-{
+-	int len = get_malloc(page);
+-	return proc_calc_metrics(page, start, off, count, eof, len);
+-}
+-#endif
+-
+ #ifdef CONFIG_MODULES
+ static int modules_read_proc(char *page, char **start, off_t off,
+ 				 int count, int *eof, void *data)
+@@ -541,15 +500,6 @@
+ 		{"uptime",	uptime_read_proc},
+ 		{"meminfo",	meminfo_read_proc},
+ 		{"version",	version_read_proc},
+-#ifdef CONFIG_PROC_HARDWARE
+-		{"hardware",	hardware_read_proc},
+-#endif
+-#ifdef CONFIG_STRAM_PROC
+-		{"stram",	stram_read_proc},
+-#endif
+-#ifdef CONFIG_DEBUG_MALLOC
+-		{"malloc",	malloc_read_proc},
+-#endif
+ #ifdef CONFIG_MODULES
+ 		{"modules",	modules_read_proc},
+ #endif
 
+--------------771E0940A3817F717C315539--
 

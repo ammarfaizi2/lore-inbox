@@ -1,58 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131631AbRDCABL>; Mon, 2 Apr 2001 20:01:11 -0400
+	id <S129436AbRDCAOL>; Mon, 2 Apr 2001 20:14:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131573AbRDCABC>; Mon, 2 Apr 2001 20:01:02 -0400
-Received: from blackhole.compendium-tech.com ([206.55.153.26]:3580 "EHLO
-	sol.compendium-tech.com") by vger.kernel.org with ESMTP
-	id <S131586AbRDCAAs>; Mon, 2 Apr 2001 20:00:48 -0400
-Date: Mon, 2 Apr 2001 16:59:30 -0700 (PDT)
-From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
-To: Boris Pisarcik <boris@acheron.sk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Question about SysRq
-In-Reply-To: <20010331230454.A801@Boris>
-Message-ID: <Pine.LNX.4.30.0104021654340.29684-100000@sol.compendium-tech.com>
+	id <S131756AbRDCAOB>; Mon, 2 Apr 2001 20:14:01 -0400
+Received: from www.resilience.com ([209.245.157.1]:55795 "EHLO
+	www.resilience.com") by vger.kernel.org with ESMTP
+	id <S129436AbRDCANx>; Mon, 2 Apr 2001 20:13:53 -0400
+Message-ID: <3AC9086A.20E36D9F@resilience.com>
+Date: Mon, 02 Apr 2001 16:16:58 -0700
+From: Jeff Golds <jgolds@resilience.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Johannes Erdfelt <johannes@erdfelt.com>
+CC: Pete Zaitcev <zaitcev@redhat.com>, Ketil Froyn <ketil@froyn.com>,
+   linux-kernel@vger.kernel.org
+Subject: Re: oops in uhci.c running 2.4.2-ac28
+In-Reply-To: <Pine.LNX.4.30.0104010313440.1135-100000@ns.froyn.org> <20010402185526.A4083@devserv.devel.redhat.com> <3AC8FDD8.4116E97@resilience.com> <20010402195048.H17651@sventech.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 31 Mar 2001, Boris Pisarcik wrote:
-> on say tty2. The processes get created pretty fast. After a short while
-> I supposed a single solution to this to kill all session by alt+sysrq+k,
-> but nothing happened. Under normal averagely loaded situation, this will
-> imidiately kill all processes on current vt and bring getty prompt.
-> Shouldn't it function similiarily in former case ? I see all processes on vt
-> get SIGKILL, so what's hapenned ? Maybe I had to wait
-> a bit longer for kernel to accomplish that ? Killing all processes with init
-> (alt+sysrq+i) seems to be immediate.
->
->
-> Thought, i really love all sysrq properties of linux, so i need less often
-> to make hardware resets an then await and fear, what fsck will print.
-> One more property, that i'd like to have should be request key to force the
-> most basic text mode (say 80x25) on the console, when eg. X freezes and
-> i kill its session, then last gfx mode resides on the screen and see no way
-> to restore back the text mode - /usr/bin/reset or something alike will not
-> do it. But it seems to be not a good idea at all, does it ?
+Johannes Erdfelt wrote:
+> 
+> On Mon, Apr 02, 2001, Jeff Golds <jgolds@resilience.com> wrote:
+> > Let me show what I got with the 2.4.2 kernel with USB support enabled.
+> >
+> > Mar 19 14:10:00 Eng99 kernel: uhci: host controller halted. very bad
+> > Mar 19 14:10:31 Eng99 last message repeated 108 times
+> > Mar 19 14:11:37 Eng99 last message repeated 93 times
+> > Mar 19 14:12:39 Eng99 last message repeated 87 times
+> > Mar 19 14:13:40 Eng99 last message repeated 20 times
+> > Mar 19 14:14:45 Eng99 last message repeated 42 times
+> > Mar 19 14:15:46 Eng99 last message repeated 47 times
+> > Mar 19 14:16:47 Eng99 last message repeated 127 times
+> > Mar 19 14:17:50 Eng99 last message repeated 7074 times
+> > Mar 19 14:18:51 Eng99 last message repeated 3342 times
+> > Mar 19 14:19:52 Eng99 last message repeated 10948 times
+> > Mar 19 14:20:00 Eng99 last message repeated 15
+> > times
+> >
+> > This happens after simply fiddling around with ethernet settings (it's a
+> > PCI ethernet card).  In fact, my syslog is FULL of these messages... my
+> > syslog was 3x larger than usual.  The console is just about unusable
+> > because of all the spam.
+> >
+> > Something seems terribly wrong with the uhci driver... I've disabled it
+> > on my system and it's fine now (I don't need USB).
+> 
+> Do you get the same messages with the usb-uhci driver?
+> 
 
-I've noticed a similar situation:
+Don't think I tried that one.
 
-I recently upgraded to XFree86 4.0.3 and have been having nothing but
-problems with it. Often times, the machine will crash, with crap shot to
-the screen. Howver, the IP stack still functions, routes packets, but none
-of the user processes respond. I'll try and hit sysrq-s to sync the disks,
-sysrq-u to unmount them, and sysrq-b to boot the machine. Unfortunately,
-the only one that responds is sysrq-b, which boots the box without
-syncing or unmounting the disks. Not only does that piss me off but it's
-led to some fs corruption as well (which pisses me off even more). sysrq-b
-is the *only* combination I can get working when this happens. However,
-when the machine is *not* locked, sysrq-[su] work fine. Kernel is
-2.4.3-pre6 on SMP i686.
+> > My system:
+> > Slot 1 P3-850
+> > VIA chipset MB (not sure of exact chipset, can find out if needed)
+> 
+> Some of the VIA chipsets have port aliasing problems supposedely. This
+> may cause your controller to go insane like you've described.
+> 
+> JE
+> 
 
- Kelsey Hudson                                           khudson@ctica.com
- Software Engineer
- Compendium Technologies, Inc                               (619) 725-0771
----------------------------------------------------------------------------
+That could explain the issue.  Fortunately, I don't need USB so I can
+avoid the spam, I just thought someone might like to hear about it.
 
+-Jeff
+
+P.S.  Sorry for responding directly to you, Johannes.
+
+-- 
+Jeff Golds
+jgolds@resilience.com

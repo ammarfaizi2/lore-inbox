@@ -1,54 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316738AbSERBVf>; Fri, 17 May 2002 21:21:35 -0400
+	id <S316739AbSERBXx>; Fri, 17 May 2002 21:23:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316739AbSERBVe>; Fri, 17 May 2002 21:21:34 -0400
-Received: from dsl-213-023-043-065.arcor-ip.net ([213.23.43.65]:43911 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S316738AbSERBVd>;
-	Fri, 17 May 2002 21:21:33 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Subject: Re: Htree directory index for Ext2, updated
-Date: Sat, 18 May 2002 03:21:15 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: acahalan@cs.uml.edu (Albert D. Cahalan), linux-kernel@vger.kernel.org
-In-Reply-To: <200205170736.g4H7aNj281162@saturn.cs.uml.edu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E178suL-0000Bs-00@starship>
+	id <S316742AbSERBXw>; Fri, 17 May 2002 21:23:52 -0400
+Received: from slip-202-135-75-205.ca.au.prserv.net ([202.135.75.205]:48265
+	"EHLO wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S316739AbSERBXw>; Fri, 17 May 2002 21:23:52 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: AUDIT: copy_from_user is a deathtrap. 
+In-Reply-To: Your message of "Fri, 17 May 2002 15:52:20 +0100."
+             <E178j5g-0006en-00@the-village.bc.nu> 
+Date: Sat, 18 May 2002 11:26:48 +1000
+Message-Id: <E178t00-0006e2-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 17 May 2002 09:36, Albert D. Cahalan wrote:
-> ----------- the insanity -------------
+In message <E178j5g-0006en-00@the-village.bc.nu> you write:
+> > We could do that, or, we could fix the actual problem, which is the
+> > HUGE FUCKING BEARTRAP WHICH CATCHES EVERY SINGLE NEW PROGRAMMER ON THE
+> > WAY THROUGH.
 > 
-> Ignoring RCS/ClearCase/SCCS, the algorithm is
-> claimed to be:
-> 
-> patch takes an ordered list of candidate file names
-> ...
-> old, new, index   [index is from "Index:" line]
-> ...
-> If some of the named files exist, patch selects
-> the first name if conforming to POSIX,
+> Capital letters versus content. I'd prefer content
 
-This is amazingly stupid.  The naive user would always expect the
-file prefixed with '+++' to be selected, whether or not it exists.
+1) Returning 0 on success, and -errno on error is a common kernel
+   convention.
 
-> and the "best" [*] name otherwise.
+2) Following kernel conventions makes it easier for other programmers
+   to use your code.
 
-Which is about the only way to make the selection process even
-less sensible.
+3) You should only violate kernel conventions when there is a
+   compelling reason.
 
-> [...]
-> Half of the badness is POSIX mandated. As for
-> the other half... well, you should produce
-> patches that work with the existing tools.
+	1a) If you're going to break a convention, do it in a way that
+	    breaks compile, or 
+	1b) If you can't do that, make it reliably break at runtime.
 
-Patch is severely broken in its current form, not only for the
-reasons you stated, but also because of its inability to handle
-renaming in any sane way.  I want a patch --sane option.
+4) The single case which requires this information can be fixed by a
+   simple 10-line wrapper function.
 
--- 
-Daniel
+I do not believe this is a compelling reason to violate kernel
+convention in a way which is almost impossible to notice.  I furthur
+believe that it speaks very poorly about the thought put into kernel
+interface design.
+
+> All the cases I looked at where replications of existing bugs copied from
+> old drivers.
+
+Try looking at intermezzo, or the s390 and s390x ports.  New code, new
+coders, same trap.
+
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

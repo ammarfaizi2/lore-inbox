@@ -1,55 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130911AbQKXOT2>; Fri, 24 Nov 2000 09:19:28 -0500
+        id <S131057AbQKXOT2>; Fri, 24 Nov 2000 09:19:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130765AbQKXOTT>; Fri, 24 Nov 2000 09:19:19 -0500
-Received: from orbita.don.sitek.net ([213.24.25.98]:23556 "EHLO
-        orbita.don.sitek.net") by vger.kernel.org with ESMTP
-        id <S130766AbQKXNeH>; Fri, 24 Nov 2000 08:34:07 -0500
-Date: Fri, 24 Nov 2000 16:05:53 +0300
-From: Andrey Panin <pazke@orbita.don.sitek.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] ACPI interpreter on ACPItableless systems
-Message-ID: <20001124160553.C3900@debian>
+        id <S130911AbQKXOTW>; Fri, 24 Nov 2000 09:19:22 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:64267 "EHLO zeus.kernel.org")
+        by vger.kernel.org with ESMTP id <S131008AbQKXNnh>;
+        Fri, 24 Nov 2000 08:43:37 -0500
+Date: Fri, 24 Nov 2000 13:11:16 +0000
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Michael Marxmeier <mike@marxmeier.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, CMA <cma@mclink.it>,
+        linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
+Subject: Re: e2fs performance as function of block size
+Message-ID: <20001124131116.C10362@redhat.com>
+In-Reply-To: <E13yNlM-0005Q3-00@the-village.bc.nu> <3A1C487C.30BDFE9F@marxmeier.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="kVXhAStRUZ/+rrGn"
-User-Agent: Mutt/1.0.1i
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <3A1C487C.30BDFE9F@marxmeier.com>; from mike@marxmeier.com on Wed, Nov 22, 2000 at 11:28:12PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---kVXhAStRUZ/+rrGn
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
+On Wed, Nov 22, 2000 at 11:28:12PM +0100, Michael Marxmeier wrote:
+> 
+> If the files get somewhat bigger (eg. > 1G) having a bigger block
+> size also greatly reduces the ext2 overhead. Especially fsync() 
+> used to be really bad on big file but choosing a bigger block
+> size changed a lot.
 
+2.4 fsync should be better, but still dependent on file size.  The
+O_SYNC patches I posted the other day give you an fsync which is
+independent of file size.
 
-Hi all,
-
-this patch makes ACPI poweroff possible on ACPI capable systems without=20
-BIOS provided ACPI tables.
-I sent this patch to LKML some month ago, but didn't get an answer :(
-
-I will be out of this list for some weeks, so happy hacking and good bye,
-	    Andrey
-
---=20
-Andrey Panin            | Embedded systems software engineer
-pazke@orbita1.ru        | PGP key: http://www.orbita1.ru/~pazke/AndreyPanin=
-.asc
---kVXhAStRUZ/+rrGn
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6HmexBm4rlNOo3YgRAmIjAJwNxscjYCPTHgAaqy63e431q++elwCeLOoW
-KoaVi9Rw0J6E957tVFDaKXI=
-=C79V
------END PGP SIGNATURE-----
-
---kVXhAStRUZ/+rrGn--
+Cheers,
+ Stephen
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

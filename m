@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261423AbUCAUql (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 15:46:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261429AbUCAUql
+	id S261429AbUCAUr2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 15:47:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbUCAUr2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 15:46:41 -0500
-Received: from ns.suse.de ([195.135.220.2]:21979 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261423AbUCAUqk (ORCPT
+	Mon, 1 Mar 2004 15:47:28 -0500
+Received: from fw.osdl.org ([65.172.181.6]:50638 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261429AbUCAUrZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 15:46:40 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: yi.zhu@intel.com, linux-kernel@vger.kernel.org
-Subject: Re: [start_kernel] Suggest to move parse_args() before trap_init()
-References: <Pine.LNX.4.44.0403011721220.2367-100000@mazda.sh.intel.com>
-	<20040301025637.338f41cf.akpm@osdl.org>
-From: Andi Kleen <ak@suse.de>
-Date: 01 Mar 2004 21:46:38 +0100
-In-Reply-To: <20040301025637.338f41cf.akpm@osdl.org.suse.lists.linux.kernel>
-Message-ID: <p73vfloz45t.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Mon, 1 Mar 2004 15:47:25 -0500
+Date: Mon, 1 Mar 2004 12:47:23 -0800
+From: Chris Wright <chrisw@osdl.org>
+To: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Cc: Nigel Kukard <nkukard@lbsd.net>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6.3] Sysfs breakage - tun.ko
+Message-ID: <20040301124723.P22989@build.pdx.osdl.net>
+References: <4043938C.9090504@lbsd.net> <40439B03.4000505@backtobasicsmgmt.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <40439B03.4000505@backtobasicsmgmt.com>; from kpfleming@backtobasicsmgmt.com on Mon, Mar 01, 2004 at 01:20:19PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
-
-> I think the only problem with this is if we get a fault during
-> parse_args(), the kernel flies off into outer space.  So you lose some
-> debuggability when using an early console.
+* Kevin P. Fleming (kpfleming@backtobasicsmgmt.com) wrote:
+> Nigel Kukard wrote:
 > 
-> But 2.4 does trap_init() after parse_args() and nobody has complained, as
-> did 2.6 until recently.  So the change is probably OK.
+> > --- drivers/net/tun.c.old   2004-02-27 18:18:55.000000000 +0200
+> > +++ drivers/net/tun.c       2004-02-27 18:19:02.000000000 +0200
+> > @@ -605,7 +605,7 @@
+> > 
+> >  static struct miscdevice tun_miscdev = {
+> >         .minor = TUN_MINOR,
+> > -       .name = "net/tun",
+> > +       .name = "tun",
+> >         .fops = &tun_fops
+> >  };
+> 
+> This changed back and forth since the tun driver was added to the 
+> kernel; making this change will cause the devfs path to the tun node to 
+> change, and userspace applications expect it to be at /dev/misc/net/tun, 
+> whether that's right or wrong.
 
-The standard way to fix this is to add an explicit check for lapic
-to the early argument parsing in setup.c (but keep the __setup so that
-no unknown argument is reported).
+Why don't you use:
+	.devfs_name = "net/tun",
 
-I think that's better than moving it and getting possible bugs that cannot
-even be catched with early printk.
+Or fix userspace apps?  Or switch to udev with devfs rules emulated and a
+rule for the tun/tap driver?
 
-Another way that i've considered on x86-64 for 2.7 at least is a special
-__early_setup() for this
-
--Andi
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

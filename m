@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270212AbTHQO2L (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 10:28:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270222AbTHQO2K
+	id S270248AbTHQOi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 10:38:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270271AbTHQOi1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 10:28:10 -0400
-Received: from natsmtp00.webmailer.de ([192.67.198.74]:53182 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP id S270212AbTHQO2J
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 10:28:09 -0400
-Message-ID: <3F3F913D.2090005@softhome.net>
-Date: Sun, 17 Aug 2003 16:29:17 +0200
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
+	Sun, 17 Aug 2003 10:38:27 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:25357 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id S270248AbTHQOi0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 10:38:26 -0400
+Date: Mon, 18 Aug 2003 00:37:29 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: Matt Mackall <mpm@selenic.com>
+cc: "Theodore Ts'o" <tytso@mit.edu>, Jamie Lokier <jamie@shareable.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, <davem@redhat.com>
+Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
+In-Reply-To: <20030816155110.GH325@waste.org>
+Message-ID: <Mutt.LNX.4.44.0308180036570.1683-100000@excalibur.intercode.com.au>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Dumb question: Why are exceptions such as SIGSEGV not logged
-References: <lv8Y.2XU.9@gated-at.bofh.it> <lv8Y.2XU.11@gated-at.bofh.it> <lv8Y.2XU.13@gated-at.bofh.it> <lviD.35d.3@gated-at.bofh.it> <lviD.35d.1@gated-at.bofh.it> <lvC1.3p9.11@gated-at.bofh.it>
-In-Reply-To: <lvC1.3p9.11@gated-at.bofh.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
->>
->>     I do not see how it relates to abends.
->>     It logs _everything_, what is not that useful. Having some kind of 
->>filter what to log - whould be just great. Or alternatively ability to 
->>pass file descriptor - not file name.
-> 
-> 
-> It generates a small record for each exit, its trivial to parse the exit
-> codes for exits caused by an exception.
-> 
+On Sat, 16 Aug 2003, Matt Mackall wrote:
 
-   Silly question. Related.
-   Is it possible to make kernel to print oops when SIGSEGV/SIGILL is 
-registered, but execution was in kernel space?
-   I'm not sure about current status - but this /feature/ was advertised 
-for Linux kernels: when we have a crash in kernel space e.g. in sytem 
-call that calling user space application which will crash. And no notice 
-about the fact, that it was actually crash inside of Linux kernel.
-   Am I right or am I wrong?
+> Yes, but it's introduced by the requirements imposed by cryptoapi. The
+> current code uses the stack (though currently rather a lot of it),
+> which lets it be fully re-entrant. Not an option with cryptoapi.
+
+This will be possible with your api flags patch, right?
+
+
+- James
+-- 
+James Morris
+<jmorris@intercode.com.au>
 

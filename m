@@ -1,29 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272550AbRIFUR1>; Thu, 6 Sep 2001 16:17:27 -0400
+	id <S272553AbRIFUTR>; Thu, 6 Sep 2001 16:19:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272551AbRIFURR>; Thu, 6 Sep 2001 16:17:17 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:20754 "EHLO
+	id <S272551AbRIFUTH>; Thu, 6 Sep 2001 16:19:07 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22290 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S272549AbRIFUQ6>; Thu, 6 Sep 2001 16:16:58 -0400
-Subject: Re: K7/Athlon optimizations and Sacrifices to the Great Ones.
-To: tegeran@home.com
-Date: Thu, 6 Sep 2001 21:21:07 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <01090612513601.00171@c779218-a> from "Nicholas Knight" at Sep 06, 2001 12:51:36 PM
+	id <S272549AbRIFUS5>; Thu, 6 Sep 2001 16:18:57 -0400
+Subject: Re: [PATCH] ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19
+To: wietse@porcupine.org (Wietse Venema)
+Date: Thu, 6 Sep 2001 21:22:33 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), wietse@porcupine.org (Wietse Venema),
+        kuznet@ms2.inr.ac.ru, matthias.andree@gmx.de (Matthias Andree),
+        linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+        netdev@oss.sgi.com
+In-Reply-To: <20010906195958.222DFBC06C@spike.porcupine.org> from "Wietse Venema" at Sep 06, 2001 03:59:58 PM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15f5e7-0000PU-00@the-village.bc.nu>
+Message-Id: <E15f5fV-0000Pd-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> At this point, I'd like to sacrifice a Red Hat Linux 6.2 CD to Alan Cox.
-> I would also like to sacrifice Minix 1.3(?) installation diskettes to 
-> Linus Torvalds.
+> > how everyone did it but they guys with the "newfangled, really not how it
+> > should be done, definitely not cricket"  machine guns got the last laugh
 > 
-> I perform these sacrifices in the hope that enlightenment comes to me.
+> Keep your superiority complex out of my mailbox, thank you.
 
-A deep booming voice says "I have no idea either"
+What is it about so many mail system authors and lacking sense of humour. 
+
+Alan
+

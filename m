@@ -1,69 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263943AbUFPOob@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263971AbUFPOsi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263943AbUFPOob (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 10:44:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263944AbUFPOob
+	id S263971AbUFPOsi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 10:48:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264019AbUFPOsh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 10:44:31 -0400
-Received: from atlrel9.hp.com ([156.153.255.214]:4540 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S263943AbUFPOo3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 10:44:29 -0400
-Subject: Re: IPMI hangup in 2.6.6-rc3
-From: Alex Williamson <alex.williamson@hp.com>
-To: Corey Minyard <minyard@acm.org>
-Cc: Holger Kiehl <Holger.Kiehl@dwd.de>,
-       Philipp Matthias Hahn <pmhahn@titan.lahn.de>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <40D05779.9080203@acm.org>
-References: <Pine.LNX.4.58.R0405040649310.15047@praktifix.dwd.de>
-	 <20040525165335.GA28905@titan.lahn.de>  <40C0E2BF.3040705@acm.org>
-	 <1086887543.4182.46.camel@tdi>
-	 <Pine.LNX.4.58.0406161225210.17908@praktifix.dwd.de>
-	 <40D056E2.4010605@acm.org>  <40D05779.9080203@acm.org>
-Content-Type: text/plain
-Organization: LOSL
-Message-Id: <1087397062.4274.3.camel@tdi>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 16 Jun 2004 08:44:22 -0600
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Jun 2004 10:48:37 -0400
+Received: from theraft-old.strakt.com ([62.13.29.34]:17795 "EHLO
+	theraft.strakt.com") by vger.kernel.org with ESMTP id S263944AbUFPOs3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 10:48:29 -0400
+From: Jacob =?iso-8859-1?q?Hall=E9n?= <jacob@strakt.com>
+Organization: AB Strakt
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: Airo PCI wlan card not working in kernels after 2.6.2
+Date: Wed, 16 Jun 2004 16:48:25 +0200
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Message-Id: <200406161648.25271.jacob@strakt.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have a Cisco Aironet PCI Wlan card (350 model, I think) which works fine 
+under kernel 2.6.2. (I get a report about the card type being unrecognised, 
+but it comes up nicely).
 
-  That appears to do the trick on my rx8620:
+However, this card fails to work under any later kernels including 2.6.7.
 
-ipmi message handler version v31
-ipmi device interface version v31
-IPMI System Interface driver version v31, KCS version v31, SMIC version
-v31, BT version v31
-ipmi_si: ACPI/SPMI specifies "bt" memory SI @ 0xffc30040000
-ipmi_si: ipmi_si unable to claim interrupt 17, running polled
- IPMI bt interface initialized
+It is still detected by the kernel, but when trying to get an IP number 
+through DHCP it fails.
 
-I still can't confirm whether or not the interface works, but this is
-definitely better than before.  Thanks,
+I have built my newer kernels by copying the 2.6.2 config file and keeping all 
+settings as they were. I am building the aironet support as part of the 
+kernel and not as a module.
 
-	Alex
+Am I doing something that is obviously wrong or should I submit a fuller bug 
+report? If so, should it go to this list, or is it better to go through the 
+kernel bugzilla?
 
-
-On Wed, 2004-06-16 at 08:21, Corey Minyard wrote:
-> I missed a part of the patch, here is a new one with the include file 
-> changes.
-> 
-> -Corey
-> 
-> Corey Minyard wrote:
-> 
-> > Unfortuantely, that fix has some problems, but it was on the right 
-> > track.  I have a new patch attached; can you try it out?  Also, the 
-> > kernel interface has not changed.  It should be exactly the same as 
-> > before.
-> >
-> > -Corey
-> 
-> 
-> ______________________________________________________________________
-
-
+Jacob Hallén

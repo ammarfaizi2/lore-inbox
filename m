@@ -1,43 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131474AbRC0SV6>; Tue, 27 Mar 2001 13:21:58 -0500
+	id <S131476AbRC0SW2>; Tue, 27 Mar 2001 13:22:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131476AbRC0SVs>; Tue, 27 Mar 2001 13:21:48 -0500
-Received: from [195.227.87.20] ([195.227.87.20]:19208 "EHLO d12.x-mailer.de")
-	by vger.kernel.org with ESMTP id <S131474AbRC0SVg>;
-	Tue, 27 Mar 2001 13:21:36 -0500
-From: Tea Age <th@visuelle-maschinen.de>
-To: linux-kernel@vger.kernel.org
-Subject: module depencies during startup
-Date: Tue, 27 Mar 2001 20:09:13 +0200
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-MIME-Version: 1.0
-Message-Id: <01032720091303.05310@iris-linux>
-Content-Transfer-Encoding: 7BIT
+	id <S131477AbRC0SWT>; Tue, 27 Mar 2001 13:22:19 -0500
+Received: from lacrosse.corp.redhat.com ([207.175.42.154]:432 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S131476AbRC0SWM>; Tue, 27 Mar 2001 13:22:12 -0500
+Date: Tue, 27 Mar 2001 19:21:23 +0100
+From: Tim Waugh <twaugh@redhat.com>
+To: TimO <hairballmt@mcn.net>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Will Newton <will@misconception.org.uk>,
+        Mike Galbraith <mikeg@wen-online.de>, linux-kernel@vger.kernel.org
+Subject: Re: VIA audio and parport in 2.4.2
+Message-ID: <20010327192123.L21068@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0103211333440.1541-100000@dogfox.localdomain> <3AB8B877.D36E8719@mandrakesoft.com> <20010321144907.D1323@redhat.com> <3AB9664B.10451E6D@mcn.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="rmUrFcWP4LYae1gV"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3AB9664B.10451E6D@mcn.net>; from hairballmt@mcn.net on Wed, Mar 21, 2001 at 07:41:15PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, 
 
-this is my very first mail into this list. If, please answer also to my mail 
-address <th@visuelle-maschinen.de>. I have the following question and could 
-not find any info about this matter in the web - maybe someone knows a link:
+--rmUrFcWP4LYae1gV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Porting the framebuffer driver i810fb to 2.4 I succeded loading it as a 
-module. Compiling it into the kernel seems to be ok - but no Tux.
+On Wed, Mar 21, 2001 at 07:41:15PM -0700, TimO wrote:
 
-I found out, that agpgart, which is needed by i810fb, is initialized
-_after_ i810fb setup. Therefore i810fb failes to initialize.
-If I understand the kernel sources right, there is a function pointer list 
-from __initcall_start for initializing compiled-in drivers. Unfortionately I 
-could not discover how to control the sequence of this pointer list. The 
-__initcall technique seems to be new in 2.4.  The same driver initializes 
-correct on a 2.2.18 kernel.
+> 0x378: possible IRQ conflict!       [Don't know why it always reports
+> this]
 
-In fact this seems to be a  general problem which, I guess, is already solved 
-- but how?
+I've been sending Linus a patch to remove this bogus warning for the
+last few pre-patches.
 
-Any hints are welcome - thanks in advance!
+> 0x378: ECP settings irq=<none or set by other means> dma=<none or set by
+> other means>
+[...]
+> With no options in modules.conf, lp0 uses polling; with irq=auto
+> dma=auto
+> it uses interrupt-driven but no dma?.
 
-Thomas
+It does its best to figure out the IRQ, even though the chipset won't
+tell us.  For the DMA channel, it doesn't even try to guess.
+
+Tim.
+*/
+
+--rmUrFcWP4LYae1gV
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6wNojONXnILZ4yVIRAsuRAJ92XvdiPh8gFM/brIscn0I2XuKWVgCfXDim
+0GCYwXaqRiuKH1BcZPvz4sk=
+=4XtZ
+-----END PGP SIGNATURE-----
+
+--rmUrFcWP4LYae1gV--

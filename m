@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263447AbTJ0RnL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 12:43:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263452AbTJ0RnK
+	id S263441AbTJ0Rk5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 12:40:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263444AbTJ0Rk5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 12:43:10 -0500
-Received: from mcomail04.maxtor.com ([134.6.76.13]:53258 "EHLO
-	mcomail04.maxtor.com") by vger.kernel.org with ESMTP
-	id S263447AbTJ0RnI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 12:43:08 -0500
-Message-ID: <785F348679A4D5119A0C009027DE33C105CDB3B0@mcoexc04.mlm.maxtor.com>
-From: "Mudama, Eric" <eric_mudama@Maxtor.com>
-To: "'Norman Diamond'" <ndiamond@wta.att.ne.jp>,
-       "'Hans Reiser '" <reiser@namesys.com>,
-       "'Wes Janzen '" <superchkn@sbcglobal.net>,
-       "'Rogier Wolff '" <R.E.Wolff@BitWizard.nl>,
-       "'John Bradford '" <john@grabjohn.com>, linux-kernel@vger.kernel.org,
-       nikita@namesys.com, "'Pavel Machek '" <pavel@ucw.cz>,
-       "'Justin Cormack '" <justin@street-vision.com>,
-       "'Vitaly Fertman '" <vitaly@namesys.com>,
-       "'Krzysztof Halasa '" <khc@pm.waw.pl>
-Subject: RE: Blockbusting news, results get worse
-Date: Mon, 27 Oct 2003 10:43:07 -0700
+	Mon, 27 Oct 2003 12:40:57 -0500
+Received: from viefep13-int.chello.at ([213.46.255.15]:42284 "EHLO
+	viefep13-int.chello.at") by vger.kernel.org with ESMTP
+	id S263441AbTJ0Rk4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 12:40:56 -0500
+From: Simon Roscic <simon.roscic@chello.at>
+To: Andi Kleen <ak@muc.de>, "David S. Miller" <davem@redhat.com>
+Subject: Re: [2.6.0-test8/9] ethertap oops
+Date: Mon, 27 Oct 2003 18:40:53 +0100
+User-Agent: KMail/1.5.4
+References: <L1fo.3gb.9@gated-at.bofh.it> <20031026234828.2cb1f746.davem@redhat.com> <20031027122635.GB16013@wotan.suse.de>
+In-Reply-To: <20031027122635.GB16013@wotan.suse.de>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
-	charset="iso-8859-1"
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310271840.53980.simon.roscic@chello.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday, 27. Oct 2003 13:26, Andi Kleen wrote:
+> On Sun, Oct 26, 2003 at 11:48:28PM -0800, David S. Miller wrote:
+> > On Sun, 26 Oct 2003 23:45:52 +0100
+> >
+> > Andi Kleen <ak@muc.de> wrote:
+> > > diff -u linux-2.6.0test7mm1-averell/drivers/net/ethertap.c-o
+> > > linux-2.6.0test7mm1-averell/drivers/net/ethertap.c ---
+> > > linux-2.6.0test7mm1-averell/drivers/net/ethertap.c-o	2003-09-11
+> > > 04:12:33.000000000 +0200 +++
+> > > linux-2.6.0test7mm1-averell/drivers/net/ethertap.c	2003-10-26
+> > > 23:41:17.000000000 +0100
+> >
+> > This part looks good, applied.
+>
+> I don't know if it actually fixed the bug, I did not test it
+> (sorry, should have stated that in the original mail)
+> But at least it should printk now instead of crashing.
+>
+> -Andi
 
+Hi Andi,
 
-> -----Original Message-----
-> Yeah, I need to deliberately damage one block in order to 
-> test the firmware, but I don't want to damage multiple
-> blocks and use up the reallocation space.  I am a home
-> user, even if I also do programming at work, even if I
-> also volunteer one day each weekend to test Linux.  How can I 
-> arrange to damage one block on a disk?
+Your patch fixed the bug!  Thanks a lot!
+I applyed the first hunk as David wrote above.
 
-Um... you can do that by shorting various pins on the PCBA if you have
-access to an oscilloscope, or put it under heavy write workload and remove
-power.
-
-A modern drive has many thousands of reassign sectors available, so I don't
-think either of these events will cause a permanent issue.
-
-I'd also suggest reading older ATA specs, since some vendors still support
-older commands that were capable of various wierdness that might be useful.
-
---eric
+bye,
+        simon.
 

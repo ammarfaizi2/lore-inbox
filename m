@@ -1,68 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312031AbSDJJ5m>; Wed, 10 Apr 2002 05:57:42 -0400
+	id <S312178AbSDJJ6l>; Wed, 10 Apr 2002 05:58:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312178AbSDJJ5l>; Wed, 10 Apr 2002 05:57:41 -0400
-Received: from mailhost.mipsys.com ([62.161.177.33]:64210 "EHLO
-	mailhost.mipsys.com") by vger.kernel.org with ESMTP
-	id <S312031AbSDJJ5k>; Wed, 10 Apr 2002 05:57:40 -0400
-From: <benh@kernel.crashing.org>
-To: Peter Horton <pdh@berserk.demon.co.uk>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Radeon frame buffer driver
-Date: Wed, 10 Apr 2002 11:57:31 +0100
-Message-Id: <20020410105731.28774@mailhost.mipsys.com>
-In-Reply-To: <20020410094055.GA789@berserk.demon.co.uk>
-X-Mailer: CTM PowerMail 3.1.2 F <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S312269AbSDJJ6k>; Wed, 10 Apr 2002 05:58:40 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:34579 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S312178AbSDJJ6h>;
+	Wed, 10 Apr 2002 05:58:37 -0400
+Date: Wed, 10 Apr 2002 11:58:29 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, apj@mutt.dk
+Subject: Re: [PATCH][CFT] IDE TCQ #2
+Message-ID: <20020410095829.GG2485@suse.de>
+In-Reply-To: <20020409124417.GK25984@suse.de> <3CB3FDF7.6010505@evision-ventures.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Please look at code.
+On Wed, Apr 10 2002, Martin Dalecki wrote:
+> Jens Axboe wrote:
+> >Hi,
+> >
+> >Version 2 is ready. Changes since last time:
+> Hi,
+> 
+> OK I have managed to merge this with the 2.5.8-pre2 + ide-29b at home.
+> However since we have now apparently already a -pre3 I will have
+> to at least redo the patches against it. If this takes more
+> then the time needed for a cup of coffe I will have unfortuntely to
+> do it today afternoon.
 
-Ok, I may have been confused by looking only at the patch file
+I'm already running 2.5.8-pre3 (which appears to include ide-29b,
+right?) + ide-tcq here, so you should probably not waste any effort on
+that :-)
 
->In 32bpp mode user space can set all 256 palette indices.
->
->In 15 bit mode user space can set all 32 palette indices.
->
->In 16bpp mode user space can set all 32 palette indices for red and
->blue, and all 64 palette indices for green.
+I'll post an updated patch later today.
 
-Fine, though I noticed the get_cmap_len got changed to
-+	return var->bits_per_pixel == 8 ? 256 : 16;
-
->The reason 16bpp mode fails when using "fbtv" is that "fbtv" only
->initialises the first 32 palette indices for green, but the captured
->video uses all 64 values. I patched "fbtv" to initialise all 64 indices
->and it worked fine. I think this is a bug in "fbtv" (and other such
->apps).
->
->There is a hack in the code to support "fbtv" in 16bpp mode, but it is
->only used if you pass the driver the "fb16fix" flag, and it limits the
->green component to 5 bits. I used it for testing but it doesn't need to
->live any longer. If people want to use "fbtv" they should use 15 or 32
->bit mode.
-
-Ok use a fixed fbtv, I agree.
-
->Test it, in all modes, I have.
->
->The other hack is one that sets the top indices in the palette to white
->when palette index 0 is set. This is needed for the soft cursor to work
->as the soft cursor just flips all the bits in each pixel, which doesn't
->work in DIRECTCOLOR modes. Other drivers do similiar things. I've
->started to look at using the accelerator engine for flipping the cursor
->but there are locking issues involved which I want to get right.
-
-Maybe we should use the HW cursor. Setting the top indice will cause
-problem with MacOnLinux as MacOS don't use the same color layout as
-most unix apps.
-
-Anyway, I'll look at your patch more closely and test it asap,
-
-Ben.
-
+-- 
+Jens Axboe
 

@@ -1,41 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261354AbTBEODj>; Wed, 5 Feb 2003 09:03:39 -0500
+	id <S261356AbTBEOEt>; Wed, 5 Feb 2003 09:04:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261356AbTBEODj>; Wed, 5 Feb 2003 09:03:39 -0500
-Received: from phoenix.mvhi.com ([195.224.96.167]:56585 "EHLO
+	id <S261368AbTBEOEs>; Wed, 5 Feb 2003 09:04:48 -0500
+Received: from phoenix.infradead.org ([195.224.96.167]:57353 "EHLO
 	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261354AbTBEODi>; Wed, 5 Feb 2003 09:03:38 -0500
-Date: Wed, 5 Feb 2003 14:13:08 +0000
+	id <S261356AbTBEOEr>; Wed, 5 Feb 2003 09:04:47 -0500
+Date: Wed, 5 Feb 2003 14:14:18 +0000
 From: Christoph Hellwig <hch@infradead.org>
-To: "Stephen D. Smalley" <sds@epoch.ncsc.mil>
-Cc: greg@kroah.com, hch@infradead.org, torvalds@transmeta.com,
-       linux-security-module@wirex.com, linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] LSM changes for 2.5.59
-Message-ID: <20030205141308.A20077@infradead.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] Re: New logo code (fwd)
+Message-ID: <20030205141418.B20077@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Stephen D. Smalley" <sds@epoch.ncsc.mil>, greg@kroah.com,
-	torvalds@transmeta.com, linux-security-module@wirex.com,
-	linux-kernel@vger.kernel.org
-References: <200302051345.IAA05814@moss-shockers.ncsc.mil>
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Linux Frame Buffer Device Development <linux-fbdev-devel@lists.sourceforge.net>,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>
+References: <Pine.GSO.4.21.0301281606580.9269-100000@vervain.sonytel.be> <Pine.GSO.4.21.0302051336170.16681-100000@vervain.sonytel.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200302051345.IAA05814@moss-shockers.ncsc.mil>; from sds@epoch.ncsc.mil on Wed, Feb 05, 2003 at 08:45:16AM -0500
+In-Reply-To: <Pine.GSO.4.21.0302051336170.16681-100000@vervain.sonytel.be>; from geert@linux-m68k.org on Wed, Feb 05, 2003 at 01:37:44PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 05, 2003 at 08:45:16AM -0500, Stephen D. Smalley wrote:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=104316038729345&w=2 and
-> http://marc.theaimsgroup.com/?l=linux-security-module&m=104316278400987&w=2.
-> At most, a field might be added to the ctl_table structure so that the kernel
-> can provide a hint to security modules as to its view of the sensitivity of
-> a given sysctl variable, but this does not require any change to the sysctl
-> hook interface.
+On Wed, Feb 05, 2003 at 01:37:44PM +0100, Geert Uytterhoeven wrote:
+> > 
+> > All comments are welcomed! Thanks!
+> 
+> Come on, is there really no one to comment on this??
 
-Of course that needs further changes!
-
-(a) actually implement that field, and
-(b) change the prototype of the hook to int (*sysctl)(int op, enum sensitivity);
+Except a question why it's not merged yet? :)
 

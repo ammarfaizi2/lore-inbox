@@ -1,62 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265298AbTIDTox (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 15:44:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265491AbTIDTow
+	id S264904AbTIDUE5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 16:04:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264933AbTIDUE5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 15:44:52 -0400
-Received: from sponsa.its.uu.se ([130.238.7.36]:65206 "EHLO sponsa.its.uu.se")
-	by vger.kernel.org with ESMTP id S265298AbTIDTov (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 15:44:51 -0400
-Date: Thu, 4 Sep 2003 21:44:39 +0200 (MEST)
-Message-Id: <200309041944.h84JidWc028949@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH][2.4.23-pre3] fix two gcc-3.3.1 warnings
+	Thu, 4 Sep 2003 16:04:57 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:60812 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S264904AbTIDUEz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 16:04:55 -0400
+Date: Thu, 4 Sep 2003 21:04:26 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Hugh Dickins <hugh@veritas.com>, Rusty Russell <rusty@rustcorp.com.au>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Alternate futex non-page-pinning and COW fix
+Message-ID: <20030904200426.GB31590@mail.jlokier.co.uk>
+References: <20030904183819.GF30394@mail.jlokier.co.uk> <Pine.LNX.4.44.0309041144110.6676-100000@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0309041144110.6676-100000@home.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Sent to Marcelo, forgot to cc: LKML]
+Linus Torvalds wrote:
+> >   * I contend that the user-visible behaviour of a mapping should
+> >   * _not_ depend on whether the file was opened with O_RDWR or O_RDONLY.
+> 
+> And I violently agree. But I also add the _other_ requirement:
+> 
+>  * I contend that user-visible behaviour of a mapping should be 100% the 
+>  * same for a unwritable MAP_SHARED and a unwritten MAP_PRIVATE
+> 
+> Put the two together, and see what you get. You get the requirement that 
+> if MAP_SHARED works, then MAP_PRIVATE also has to work.
 
-This patch fixes two sources of gcc-3.3.1 warnings in 2.4.23-pre3:
-- a non-lvalue in an asm() memory operand in arch/i386/kernel/process.c
-- invalid tokens after #endif in arch/i386/kernel/head.S
+I'll add three more conditions to be explicit:
 
-The first is because no_ldt is defined as an array, and is thus
-not an lvalue as required for an asm() memory operand. Fixed by
-wrapping it in a struct -- this is similar to what 2.6 does.
+    * A futex on a MAP_PRIVATE must be mm-local: the canonical
+    * example being MAP_PRIVATE of /dev/zero.
 
-gcc -D__KERNEL__ -I/tmp/linux-2.4.23-pre3/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686   -nostdinc -iwithprefix include -DKBUILD_BASENAME=process  -c -o process.o process.c
-process.c: In function `machine_restart':
-process.c:427: warning: use of memory input without lvalue in asm operand 0 is deprecated
+    * A FUTEX_WAIT on an unwritten mapping should be woken by a
+    * FUTEX_WAKE to the same address after writing.
 
-gcc -D__ASSEMBLY__ -D__KERNEL__ -I/tmp/linux-2.4.23-pre3/include -traditional -c head.S -o head.o
-head.S:116: warning: extra tokens at end of #endif directive
+    * A FUTEX_WAIT on a read-only mapping should wait for the same
+    * thing from other processes as if it were a writable mapping.
 
-/Mikael
+> That's my requirement. Consistency.
 
-diff -ruN linux-2.4.23-pre3/arch/i386/kernel/head.S linux-2.4.23-pre3.gcc-fixes/arch/i386/kernel/head.S
---- linux-2.4.23-pre3/arch/i386/kernel/head.S	2003-09-04 18:53:59.000000000 +0200
-+++ linux-2.4.23-pre3.gcc-fixes/arch/i386/kernel/head.S	2003-09-04 19:01:04.000000000 +0200
-@@ -113,7 +113,7 @@
- 	popfl
- 	jmp checkCPUtype
- 1:
--#endif CONFIG_SMP
-+#endif /* CONFIG_SMP */
- 
- /*
-  * Clear BSS first so that there are no surprises...
-diff -ruN linux-2.4.23-pre3/arch/i386/kernel/process.c linux-2.4.23-pre3.gcc-fixes/arch/i386/kernel/process.c
---- linux-2.4.23-pre3/arch/i386/kernel/process.c	2003-09-04 18:53:59.000000000 +0200
-+++ linux-2.4.23-pre3.gcc-fixes/arch/i386/kernel/process.c	2003-09-04 19:01:04.000000000 +0200
-@@ -152,7 +152,7 @@
- 
- __setup("idle=", idle_setup);
- 
--static long no_idt[2];
-+static struct { long x[2]; } no_idt;
- static int reboot_mode;
- int reboot_thru_bios;
- 
+Unfortunately I think the above 5 conditions do not have a consistent
+solution.  Please prove me wrong :)
+
+-- Jamie

@@ -1,49 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262425AbTAYW3k>; Sat, 25 Jan 2003 17:29:40 -0500
+	id <S262449AbTAYWeq>; Sat, 25 Jan 2003 17:34:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262446AbTAYW3k>; Sat, 25 Jan 2003 17:29:40 -0500
-Received: from hughes-fe01.direcway.com ([66.82.20.91]:63417 "EHLO
-	hughes-fe01.direcway.com") by vger.kernel.org with ESMTP
-	id <S262425AbTAYW3j>; Sat, 25 Jan 2003 17:29:39 -0500
-Subject: 2.5.59-mm5 hangs on boot
-From: Tom Sightler <ttsig@tuxyturvy.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 25 Jan 2003 17:38:41 -0500
-Message-Id: <1043534331.1672.71.camel@iso-2146-l1.zeusinc.com>
-Mime-Version: 1.0
+	id <S262452AbTAYWeq>; Sat, 25 Jan 2003 17:34:46 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:18440 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S262449AbTAYWep>; Sat, 25 Jan 2003 17:34:45 -0500
+Date: Sat, 25 Jan 2003 17:41:03 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Dan Kegel <dank@kegel.com>
+cc: dk@webcluster.at, linux-kernel@vger.kernel.org
+Subject: re: Frequent system lockups under load
+In-Reply-To: <3E306392.4040900@kegel.com>
+Message-ID: <Pine.LNX.3.96.1030125172502.18839A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After much effort I finally managed to get my Dell Latitude C810 to boot
-a 2.5.x kernel and have been happily running 2.5.59-mm2 on my RedHat 8.0
-system for the last few days with very good results.  There are a few
-small bugs mostly relating to unpluging of things like my USB mouse and
-my Aironet wireless adapter but overall everything works great (I'll
-report the other bugs in another mail).
+On Thu, 23 Jan 2003, Dan Kegel wrote:
 
-I was interested in testing the new IO scheduler in 2.5.59-mm5 because
-it attempts to correct a problem that has always bothered me but with
-this kernel (using the identical config to -mm2) my system hangs almost
-immediately after boot.  It happens only a few steps into the rc.sysinit
-and I have been attempting to determine the exact location with some
-print statements but it seems to be a slightly different times so I'm
-not sure it's any particular command or step that is causing it.
+> For support with Red Hat kernels, please contact Red Hat.
+> The linux-kernel mailing list can only support kernels built
+> from the sources at http://kernel.org
 
-My kernel is pretty basic and does not currently have ACPI, APM,
-preemption, or local APIC support enabled (these have proven to be
-troublesome in the past).   
+Hogwash! People report problems with -mm, -ac, -aa, -jam, WOLK, -ck,
+etc, variants of Linux, some of which have patch sets on kernel.org and
+some which don't.
 
-This mail is basically a query to see if there is anything obviously
-different between -mm2 and -mm5 that could cause this so that I could
-simply back out that single patch.  At my first glance none of the
-additional patches really stood out as a likely candidate for this
-problem but I will continue to look in more depth.
+More help might be forthcoming from Redhat, but your claim that it is
+only for pure kernels is simply not hte usual practice.
 
-Thanks,
-Tom
-
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

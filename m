@@ -1,56 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310280AbSCGKsQ>; Thu, 7 Mar 2002 05:48:16 -0500
+	id <S293487AbSCGLMD>; Thu, 7 Mar 2002 06:12:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310284AbSCGKsG>; Thu, 7 Mar 2002 05:48:06 -0500
-Received: from h139n1fls24o900.telia.com ([213.66.143.139]:63710 "EHLO
-	oden.fish.net") by vger.kernel.org with ESMTP id <S310280AbSCGKr7>;
-	Thu, 7 Mar 2002 05:47:59 -0500
-Date: Thu, 7 Mar 2002 11:48:45 +0100
-From: Voluspa <voluspa@bigfoot.com>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.6-pre3 Kernel panic: VFS: Unable to mount root fs on 03:02
-Message-Id: <20020307114845.530abcfa.voluspa@bigfoot.com>
-In-Reply-To: <Pine.GSO.4.21.0203070329090.24127-100000@weyl.math.psu.edu>
-In-Reply-To: <20020307085636.4feb2372.voluspa@bigfoot.com>
-	<Pine.GSO.4.21.0203070329090.24127-100000@weyl.math.psu.edu>
-Organization: The Foggy One
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S293508AbSCGLLx>; Thu, 7 Mar 2002 06:11:53 -0500
+Received: from idefix.linkvest.com ([194.209.53.99]:47121 "EHLO
+	idefix.linkvest.com") by vger.kernel.org with ESMTP
+	id <S293487AbSCGLLp>; Thu, 7 Mar 2002 06:11:45 -0500
+Message-ID: <3C874AE8.9060208@linkvest.com>
+Date: Thu, 07 Mar 2002 12:11:36 +0100
+From: Jean-Eric Cuendet <jean-eric.cuendet@linkvest.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Rework of /proc/stat
+In-Reply-To: <E16ik6y-0008Qf-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Mar 2002 11:11:36.0598 (UTC) FILETIME=[D8E32360:01C1C5C8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Mar 2002 03:42:32 -0500 (EST)
-Alexander Viro <viro@math.psu.edu> wrote:
+Alan Cox wrote:
 
-> and what filesystems are compiled in?  Actually, adding printk("%s\n", p);
-> in the same place might give some hints...
+>
+>Any reason for preferring this over the sard patches in -ac ?
+>
+What does the sard patches?
+What I need is to be able to get IO stats to pass them (through a home 
+made script) to SNMP which have no IO stats available.
+Is it possible to get SARD values through /proc ? Or at least in a 
+simple shell script?
+Thanks
+-jec
 
-Gave:
+-- 
+Jean-Eric Cuendet
+Linkvest SA
+Av des Baumettes 19, 1020 Renens Switzerland
+Tel +41 21 632 9043  Fax +41 21 632 9090
+E-mail: jean-eric.cuendet@linkvest.com
+http://www.linkvest.com
+--------------------------------------------------------
 
-NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-ext2
-VFS: Cannot open root device "302" or 03:02
-Please append a correct "root=" boot option
-Kernel panic: VFS: Unable to mount root fs on 03:02
 
-Since I've used "make oldconfig" and:
 
-loke:loke:/usr/src/test$ diff my-2.5.6-pre2-.config my-2.5.6-pre3-.config 
-288d287
-< CONFIG_IDE_TASK_IOCTL=y
-291c290
-< # IDE chipset support/bugfixes
----
-> # IDE chipset support
-301d299
-< # CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-
-only show enforced differences, I could boot into 2.5.6-pre2 tonight (about 6 hours from now) and dump whatever info you need - if it is deemed necessary. Otherwise I'll just enjoy the -ac series until a -preX turns up that is bootable.
-
-Regards,
-Mats Johannesson
-Sweden

@@ -1,57 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261746AbVACSat@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261835AbVACSoT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261746AbVACSat (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 13:30:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbVACSaK
+	id S261835AbVACSoT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 13:44:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbVACSkr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 13:30:10 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:47378 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261746AbVACSZu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 13:25:50 -0500
-Date: Mon, 3 Jan 2005 18:25:33 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Domen Puncer <domen@coderock.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] maintainers: remove moderated arm list
-Message-ID: <20050103182532.A3442@flint.arm.linux.org.uk>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>,
-	Domen Puncer <domen@coderock.org>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <20041225170825.GA31577@nd47.coderock.org> <20041225172155.A26504@flint.arm.linux.org.uk> <20050103175438.GL2980@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050103175438.GL2980@stusta.de>; from bunk@stusta.de on Mon, Jan 03, 2005 at 06:54:38PM +0100
+	Mon, 3 Jan 2005 13:40:47 -0500
+Received: from alog0301.analogic.com ([208.224.222.77]:15232 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261772AbVACShT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 13:37:19 -0500
+Date: Mon, 3 Jan 2005 13:33:40 -0500 (EST)
+From: linux-os <linux-os@chaos.analogic.com>
+Reply-To: linux-os@analogic.com
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: [3/8] kill gen_init_cpio.c printk() of size_t warning
+In-Reply-To: <20050103180915.GK29332@holomorphy.com>
+Message-ID: <Pine.LNX.4.61.0501031329030.13385@chaos.analogic.com>
+References: <20050103172013.GA29332@holomorphy.com> <20050103172303.GB29332@holomorphy.com>
+ <20050103172615.GD29332@holomorphy.com> <20050103172839.GE29332@holomorphy.com>
+ <41D9881B.4020000@pobox.com> <20050103180915.GK29332@holomorphy.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 03, 2005 at 06:54:38PM +0100, Adrian Bunk wrote:
-> On Sat, Dec 25, 2004 at 05:21:55PM +0000, Russell King wrote:
-> > If we must, I guess it's fine, but I expect *you* to provide the support
-> > to people to people who don't know where to go for it if *you* remove this.
-> 
-> I'm sometimes doing patches that cover many files, and I want to Cc the 
-> patches to the developers in question.
-> 
-> If after sending 10 patches I get 5 "this is a subscribers-only list" 
-> mails, I'm not going to subscribe to 5 lists, forward the patches to 
-> them and unsubscribe again after this (and repeat this if there's some 
-> discussion regarding one of these patches).
-> 
-> In my experience, the best solution is a list policy that allows 
-> subscribers to post and requires moderator approval for non-members.
-> This policy that is already used by several lists listed in MAINTAINERS 
-> is IMHO a good compromise between avoiding spam and allowing 
-> non-subscribers to post to the list.
+On Mon, 3 Jan 2005, William Lee Irwin III wrote:
 
-Well, that's precisely what happens with these lists - your post ends
-up in the moderator approval queue.  They do generally find their way
-from there into the appropriate peoples mailboxes (iow, mine).
+> On Mon, Jan 03, 2005 at 12:59:55PM -0500, Jeff Garzik wrote:
+>> This removes whitespace in the process, violating the file's chosen
+>> style (and typical lkml style).
+>
+> I have no personal interest in the whitespace involved. The following
+> amended patch is likely to avoid inconsistencies with the rest of the
+> file regarding whitespace.
+>
+>
+> -- wli
+>
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+But it's wrong.
+It should be:
+> +		strlen(target) + 1U,	/* filesize */
+
+strlen() already returns a size_t. You need an unsigned 1 to
+not affect it. As previously stated, an integer constant
+is an int, not an unsigned int unless you make it so with
+"U".
+
+>
+> Index: mm1-2.6.10/usr/gen_init_cpio.c
+> ===================================================================
+> --- mm1-2.6.10.orig/usr/gen_init_cpio.c	2005-01-03 06:45:53.000000000 -0800
+> +++ mm1-2.6.10/usr/gen_init_cpio.c	2005-01-03 09:42:18.000000000 -0800
+> @@ -112,7 +112,7 @@
+> 		(long) gid,		/* gid */
+> 		1,			/* nlink */
+> 		(long) mtime,		/* mtime */
+> -		strlen(target) + 1,	/* filesize */
+> +		(unsigned)strlen(target) + 1,/* filesize */
+> 		3,			/* major */
+> 		1,			/* minor */
+> 		0,			/* rmajor */
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

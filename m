@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261621AbTILNo2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 09:44:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261637AbTILNo2
+	id S261699AbTILNuO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 09:50:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbTILNuO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 09:44:28 -0400
-Received: from dsl092-073-159.bos1.dsl.speakeasy.net ([66.92.73.159]:20749
-	"EHLO yupa.krose.org") by vger.kernel.org with ESMTP
-	id S261621AbTILNo1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 09:44:27 -0400
-To: linux-kernel@vger.kernel.org
-Subject: NVIDIA proprietary driver problem
-X-Home-Page: http://www.krose.org/~krose/
-From: Kyle Rose <krose+linux-kernel@krose.org>
-Organization: krose.org
-Content-Type: text/plain; charset=US-ASCII
-Date: Fri, 12 Sep 2003 09:44:25 -0400
-Message-ID: <87u17if7eu.fsf@nausicaa.krose.org>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) XEmacs/21.4 (Rational FORTRAN,
- i386-debian-linux)
+	Fri, 12 Sep 2003 09:50:14 -0400
+Received: from saspace.sas.be ([195.207.19.1]:53261 "EHLO
+	saspace.spaceapplications.com") by vger.kernel.org with ESMTP
+	id S261699AbTILNuL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 09:50:11 -0400
+Message-ID: <3F61CF12.9020602@abcpages.com>
+Date: Fri, 12 Sep 2003 15:50:10 +0200
+From: Nicolae Mihalache <mache@abcpages.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.6-test4 problems: suspend and touchpad
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Man, I'm just chock *full* o'problems this week, aren't I?
+Hello!
 
-Under 2.6.0-test5, loading NVIDIA proprietary driver (patched with the
-stuff at http://www.minion.de/nvidia.html) reports:
+I have a Acer Travelmate 800 laptop and I'm using SuSE Linux 8.2 on it.
+I tried recenly to install linux 2.6 and I observe two main problems:
+1. The touchpad(synaptics) does not work. In kernel 2.4/X11 4.3  it 
+works very well both as a generic ps2 mouse or as a synaptics (using X11 
+driver for synaptics). The kernel 2.6 seems to have included a driver 
+for the synaptics device, it is detected at boot, but it does not work 
+in X (I guess it must be some kind of conflict between X11 driver and 
+kernel driver?).
 
-Sep 11 23:37:57 nausicaa kernel: 0: nvidia: Can't find an IRQ for your NVIDIA card!
-Sep 11 23:37:57 nausicaa kernel: 0: nvidia: Please check your BIOS settings.
-Sep 11 23:37:57 nausicaa kernel: 0: nvidia: [Plug & Play OS   ] should be set to NO
-Sep 11 23:37:57 nausicaa kernel: 0: nvidia: [Assign IRQ to VGA] should be set to YES
+2. suspend/resume. With version 2.6test2+acpi patch both swsusp and 
+"echo 3 >/proc/acpi/sleep" worked, being able to somehow successfully 
+resume. In version 2.6test4 there is no /proc/acpi/sleep and swsusp 
+hangs somwhere during an IDE call (I can hand-copy the trace if needed).
 
-Same driver source does not have this effect under test4, with
-approximately the same config (i.e., make oldconfig).
+Any ideea?
+mache
 
-Yeah, I cleaned everything appropriately and rebuilt for test5.  Bzzt.
-
-(FWIW, I do not have the referenced options in my BIOS, but I strongly
-suspect that isn't the problem, anyway.)
-
-Cheers,
-Kyle

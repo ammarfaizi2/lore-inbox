@@ -1,37 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277656AbRJVFt3>; Mon, 22 Oct 2001 01:49:29 -0400
+	id <S277797AbRJVGBV>; Mon, 22 Oct 2001 02:01:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277705AbRJVFtT>; Mon, 22 Oct 2001 01:49:19 -0400
-Received: from gap.cco.caltech.edu ([131.215.139.43]:20352 "EHLO
-	gap.cco.caltech.edu") by vger.kernel.org with ESMTP
-	id <S277656AbRJVFtD> convert rfc822-to-8bit; Mon, 22 Oct 2001 01:49:03 -0400
-Date: 22 Oct 2001 05:35:33 -0000
-Message-ID: <20011022053533.3732.qmail@mailweb17.rediffmail.com>
+	id <S277818AbRJVGBL>; Mon, 22 Oct 2001 02:01:11 -0400
+Received: from pa92.nowy-targ.sdi.tpnet.pl ([217.97.37.92]:56050 "EHLO
+	nt.kegel.com.pl") by vger.kernel.org with ESMTP id <S277797AbRJVGA5>;
+	Mon, 22 Oct 2001 02:00:57 -0400
+Message-ID: <010801c15abe$ced47240$0100050a@abartoszko>
+From: "Albert Bartoszko" <albertb@nt.kegel.com.pl>
+To: "Alexander Viro" <viro@math.psu.edu>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.21.0110190845580.22889-100000@weyl.math.psu.edu>
+Subject: Re: [PATCH] binfmt_misc.c, kernel-2.4.12
+Date: Mon, 22 Oct 2001 08:00:07 +0200
 MIME-Version: 1.0
-From: "Dinesh  Gandhewar" <dinesh_gandhewar@rediffmail.com>
-Reply-To: "Dinesh  Gandhewar" <dinesh_gandhewar@rediffmail.com>
-To: kernelnewbies@nl.linux.org
-Cc: mlist-linux-kernel@nntp-server.caltech.edu
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > I find bug in  binfmt_misc.c from kernel 2.4.12 source. The read()
+syscal
+>
+> only one?
 
-Hi,
-A process makes a system call. It will go into kernel mode. Now the code of this system call is as follows.
-while (1)
-{  receive message from remote node ();
-   process the message () ;
-   send reply back to the remote node () ;
-}
-Suppose 1st function requires a blocking operation. What happens to this process and other processes in the system?
-Is it that this process goes in wait state in kernel mode and other process gets scheduled. When the required event occurs the blocked process wakes up and waits for its chance to get executed.
-Thanking you,
-Dinesh.
+"Gutta cavat lapidem non vi, sed saepe cadendo"
+
+>
+> > return bad value, causes some application SIGSEGV.
+>
+> Hardly a surprise.  Not everything that passes compiler is valid C.
+> Stuff in fs/binfmt_misc.c from Linus' tree isn't.  Pick one from -ac
+> + corresponding change in fs/proc/root.c (again, see -ac).  Variant
+> in Linus' tree is complete crap.
+
+You are sarcastic.
+
+I do it. And:
+
+# uname -a
+Linux xxxx 2.4.12-ac3 #1 Sun Oct 21 13:50:52 CEST 2001 i686 unknown
+# insmod binfmt_misc
+Using /lib/modules/2.4.12-ac3/kernel/fs/binfmt_misc.o
+# echo ':Java:M::\xca\xfe\xba\xbe::/usr/local/bin/javawrapper:'
+>/proc/sys/fs/binfmt_misc/register
+bash: /proc/sys/fs/binfmt_misc/register: No such file or directory
+# lsmod
+Module                  Size  Used by
+binfmt_misc             5680   1
+#rmmod binfmt_misc
+binfmt_misc: Device or resource busy                # ?????
+
+Very high C. But this don't work for me.
 
 
-  
 

@@ -1,89 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269662AbUINSMz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269645AbUINSUS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269662AbUINSMz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 14:12:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269666AbUINSKS
+	id S269645AbUINSUS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 14:20:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269649AbUINSSs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 14:10:18 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:10881 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S269521AbUINR4c
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 13:56:32 -0400
-Date: Tue, 14 Sep 2004 13:55:01 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Andreas Dilger <adilger@clusterfs.com>
-cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Linux kernel <linux-kernel@vger.kernel.org>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>, netdev@oss.sgi.com
-Subject: Re: Kernel stack overflow on 2.6.9-rc2
-In-Reply-To: <20040914163347.GE3197@schnapps.adilger.int>
-Message-ID: <Pine.LNX.4.53.0409141340540.4262@chaos>
-References: <200409141723.35009.vda@port.imtp.ilyichevsk.odessa.ua>
- <20040914163347.GE3197@schnapps.adilger.int>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 14 Sep 2004 14:18:48 -0400
+Received: from fw.osdl.org ([65.172.181.6]:19179 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269639AbUINSNX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 14:13:23 -0400
+Date: Tue, 14 Sep 2004 11:13:14 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: Vincent Hanquez <tab@snarc.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] BSD Jail LSM
+Message-ID: <20040914111314.U1973@build.pdx.osdl.net>
+References: <1094847705.2188.94.camel@serge.austin.ibm.com> <1094847787.2188.101.camel@serge.austin.ibm.com> <1094844708.18107.5.camel@localhost.localdomain> <20040912233342.GA12097@escher.cs.wm.edu> <1095072996.14355.12.camel@localhost.localdomain> <1095117605.2350.11.camel@serge.austin.ibm.com> <20040913235828.GA7212@snarc.org> <20040914140407.GA21110@escher.cs.wm.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040914140407.GA21110@escher.cs.wm.edu>; from serue@us.ibm.com on Tue, Sep 14, 2004 at 10:04:07AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Serge E. Hallyn (serue@us.ibm.com) wrote:
+> > Do you really need all thoses macros ?
+> > It seems to me that's too much macros for stuff which are easy
+> > to write and to understand.
+> 
+> the _security macros are there because I'm working with 3 ways of stacking
+> security modules which share the ->security fields, where these can
+> turn into static inlines.  Being able to just change the defines has
+> been very helpful.
+> 
+> I guess I've grown used to seeing them so I didn't even notice.  I
+> will send out a new patch with the #defines removed tomorrow if that's
+> deemed helpful.
 
-Has anybody ever explained why there is an attempt to
-minimize the size of the kernel stack? Temporary data
-allocation on the stack is FREE! The compiler just
-adjusts offsets for data. Even dynamic data-allocation
-takes only one instruction, (subl %reg, %esp).
+For now they are fine as they are.
 
-On Intel machines, the compiler requires that SS and DS
-be the same so that data can be accessed off the stack.
-That means that the stack-pointer is just some arbitrary
-offset in the segment(s) with enough room for downward
-growth. Changing if from the original 0x1000 (one Intel
-PAGE_SIZE) to anything smaller is weird, sort of like a
-contest to see how long one can hold the wrong end of
-a torch.
-
-It seems that some hole got opened up with the PREEMPTABLE
-KERNEL changes (read recursion). Removing stack data allocation
-just masks a far more egregious problem, I think.
-
-
-On Tue, 14 Sep 2004, Andreas Dilger wrote:
-> On Sep 14, 2004  17:23 +0300, Denis Vlasenko wrote:
-> > I am putting to use an ancient box. Pentium 66.
-> > It gives me stack overflow errors on 2.6.9-rc2:
-> >
-> > To save you filtering out functions with less than 100
-> > bytes of stack:
-> >
-> > udp_sendmsg+0x35e/0x61a [220]
-> > sock_sendmsg+0x88/0xa3 [208]
-> > __nfs_revalidate_inode+0xc7/0x308 [152]
-> > nfs_lookup_revalidate+0x257/0x4ed [312]
-> > load_elf_binary+0xc4f/0xcc8 [268]
-> > load_script+0x1ea/0x220 [136]
-> > do_execve+0x153/0x1b9 [336]
->
-> do_execve() can be trivially fixed to allocate bprm (328 bytes) instead
-> putting it on the stack.  Given the frequency of exec and the odd size
-> it should probably be in its own slab (and fix the goofy prototype
-> indenting while you're there too ;-).
->
-> load_elf_binary() on the other hand is a big mess, 132 bytes of int/long
-> variables.
->
-> nfs_lookup_revalidate() has 2 large structs on the stack, fhandle and fattr.
->
-> Cheers, Andreas
-> --
-> Andreas Dilger
-> http://sourceforge.net/projects/ext2resize/
-> http://members.shaw.ca/adilger/             http://members.shaw.ca/golinux/
->
->
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

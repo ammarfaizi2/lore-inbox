@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272524AbTGZOlH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 10:41:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272518AbTGZOhX
+	id S272499AbTGZQWT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 12:22:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272535AbTGZQWT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 10:37:23 -0400
-Received: from amsfep12-int.chello.nl ([213.46.243.18]:44319 "EHLO
-	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
-	id S272521AbTGZOcp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 10:32:45 -0400
-Date: Sat, 26 Jul 2003 16:51:53 +0200
-Message-Id: <200307261451.h6QEpr4i002412@callisto.of.borg>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] Sun-3 SCSI warning
+	Sat, 26 Jul 2003 12:22:19 -0400
+Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:9477 "EHLO
+	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
+	id S272499AbTGZQWS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 12:22:18 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: Does sysfs really provides persistent hardware path to devices?
+Date: Sat, 26 Jul 2003 20:36:13 +0400
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200307262036.13989.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sun-3 SCSI: Kill a warning about a nonmatching prototype after recent SCSI
-proc_info() changes.
 
---- linux-2.6.x/drivers/scsi/sun3_NCR5380.c	Sun Jun 15 09:38:41 2003
-+++ linux-m68k-2.6.x/drivers/scsi/sun3_NCR5380.c	Mon Jun 23 13:04:29 2003
-@@ -754,8 +754,8 @@
- static
- char *lprint_Scsi_Cmnd (Scsi_Cmnd *cmd, char *pos, char *buffer, int length);
+As far as I can tell sysfs device names include logical bus numbers which 
+means, if hardware is added or removed it is possible names do change.
  
--static int NCR5380_proc_info (struct Scsi_Host *instance, char *buffer, char **start, off_t offset,
--			      int length, int inout)
-+int NCR5380_proc_info (struct Scsi_Host *instance, char *buffer, char **start,
-+		       off_t offset, int length, int inout)
- {
-     char *pos = buffer;
-     struct NCR5380_hostdata *hostdata;
+Example:
 
-Gr{oetje,eeting}s,
+/sys/devices/pci0000:00/0000:00:1f.4/usb2/2-2/2-2.1/2-2.1:0/host1/1:0:0:0
 
-						Geert
+PCI part reflects bus number. Now this example is trivial in that it is 
+integrated USB controller so it is unlikely to ever change its number - but 
+if it were external controller (and even worse with PCI-to-PCI bridge) it is 
+likely that adding extra card would shift all numbers.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+And USB part of name starts with logical USB bus number i.e. it is obvious 
+that adding one more USB adapter will definitely change it.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+So apparently I cannot rely on sysfs to get reliable persistent information 
+about physical location of devices.
+
+the point is - I want to create aliases that would point to specific slots. 
+I.e. when I plug USB memory stick in upper slot on front panel I'd like to 
+always create the same device alias for it.
+
+TIA
+
+-andrey

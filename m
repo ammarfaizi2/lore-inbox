@@ -1,52 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267341AbUITUjo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267343AbUITUlq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267341AbUITUjo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 16:39:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267346AbUITUjo
+	id S267343AbUITUlq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 16:41:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267345AbUITUlq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 16:39:44 -0400
-Received: from mail.dif.dk ([193.138.115.101]:62876 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S267341AbUITUjm (ORCPT
+	Mon, 20 Sep 2004 16:41:46 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:48568 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S267343AbUITUl0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 16:39:42 -0400
-Date: Mon, 20 Sep 2004 22:46:25 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Giuseppe Bilotta <bilotta78@hotpop.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.9-rc2 (compile stats)
-In-Reply-To: <MPG.1bb95958863740f59896f3@news.gmane.org>
-Message-ID: <Pine.LNX.4.61.0409202244370.2729@dragon.hygekrogen.localhost>
-References: <Pine.LNX.4.58.0409130937050.4094@ppc970.osdl.org>
- <1095700064.2867.30.camel@cherrybomb.pdx.osdl.net> <MPG.1bb95958863740f59896f3@news.gmane.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 20 Sep 2004 16:41:26 -0400
+Date: Mon, 20 Sep 2004 13:22:50 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Ray Bryant <raybry@sgi.com>
+Cc: wli@holomorphy.com, mbligh@aracnet.com, akpm@osdl.org, ak@suse.de,
+       raybry@austin.rr.com, linux-mm@kvack.org, jbarnes@sgi.com, djh@sgi.com,
+       lse-tech@lists.sourceforge.net, bcasavan@sgi.com,
+       piggin@cyberone.com.au, linux-kernel@vger.kernel.org, raybry@sgi.com,
+       haveblue@us.ibm.com
+Subject: Re: [PATCH 2.6.9-rc2-mm1 0/2] mm: memory policy for page cache
+ allocation
+Message-Id: <20040920132250.251736d0.pj@sgi.com>
+In-Reply-To: <20040920190033.26965.64678.54625@tomahawk.engr.sgi.com>
+References: <20040920190033.26965.64678.54625@tomahawk.engr.sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Sep 2004, Giuseppe Bilotta wrote:
+Nits ... 
 
-> Linus Torvalds wrote:
-> > > The one thing that people may actually _notice_ is that you get a lot more 
-> > > warnings for some drivers due to the stricter type-checks for PCI memory 
-> > > mapping. They are harmless (code generation should be the same), and we'll 
-> > > work on trying to fix up the drivers as we go along, but they can be a bit 
-> > > daunting if you happen to enable some of the less type-friendly drivers 
-> > > right now..
-> 
-> John Cherry wrote:
-> > Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
-> >              (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
-> > -----------  -----------  -------- -------- -------- -------- ---------
-> > 2.6.9-rc2      0w/0e       0w/0e  3036w/0e   41w/0e  11w/0e   3655w/0e
-> > 2.6.9-rc1      0w/0e       0w/0e    77w/10e   4w/0e   3w/0e     68w/0e
-> 
-> Jeepers! Talk about 'daunting' ... :)
-> 
-Yup, janitors like myself just got a whole bunch of work thrown our way...
+1) better change this line in mempolicy.h
 
-Btw, please don't trim CC lists on linux-kernel.
+	#define MPOL_MAX MPOL_INTERLEAVE
 
+   to be instead
 
---
-Jesper Juhl
+	#define MPOL_MAX MPOL_ROUNDROBIN 
 
+2) Why change the alloc_page_vma() code structure for
+   MPOL_INTERLEAVE from starting with:
+
+	if (unlikely(pol->policy == MPOL_INTERLEAVE)) {
+
+   to starting with:
+
+	switch (pol->policy) {
+		case MPOL_INTERLEAVE:
+
+   Doesn't the original way work just as well (and keep the patch
+   smaller)?  Just add another 'if(...MPOL_ROUNDROBIN)' section
+   following the MPOL_INTERLEAVE section.  And the other switch
+   statements in this file don't indent the case lines a tab further.
+
+3) The following line looks like it could trigger after a
+   hotplug node removal (not that I know how to do that yet):
+
+	BUG_ON(!test_bit(nid, (const volatile void *) &node_online_map));
+
+   Should the '(const volatile void *)' cast be a nodes_addr() wrapper? 
+
+   Can this entire line be dropped, or turned into a test:
+
+	if (!node_isset(nid, node_online_map))
+		continue;
+
+4) Patches done with the 'diff -p' option are slightly easier to
+   read, as they show the procedure the diff seems to appear in.
+
+5) I see no need for the 'else' in:
+
+	-	if (pol->policy == MPOL_INTERLEAVE)
+	+	if (pol->policy == MPOL_INTERLEAVE) {
+	 		return alloc_page_interleave(gfp, order, interleave_nodes(pol));
+	+	} else if (pol->policy == MPOL_ROUNDROBIN) {
+	+		return alloc_page_roundrobin(gfp, order, pol);
+	+	}
+
+   Couldn't one just have this less intrusive patch instead:
+
+		if (pol->policy == MPOL_INTERLEAVE)
+			return alloc_page_interleave(gfp, order, interleave_nodes(pol));
+	+	if (pol->policy == MPOL_ROUNDROBIN)
+	+		return alloc_page_roundrobin(gfp, order, pol);
+		return __alloc_pages(gfp, order, zonelist_policy(gfp, pol));
+	 }
+
+6) Can the added rr_next in task_struct be shared with il_next?
+
+7) Why doesn't alloc_page_roundrobin() have its own accounting, like
+   alloc_page_interleave() does?
+
+8) Could you explain the for loop in alloc_page_roundrobin()?  Won't
+   the first call to __alloc_pages() within the loop search down all
+   the nodes in the system, in a numa friendly order (closer nodes
+   first)?  Why then pick another node to search from, in the next
+   pass of the for loop, which will again search down the same nodes,
+   using a differently sorted zonelist.  Obviously I'm missing something
+   here.
+
+9) Too bad there's not some pseudo-random value floating around somewhere,
+   such as a per-node clock or something, that could be used to drive a
+   pseudo-uniform distribution, without any need for the additional rr_next
+   state?
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

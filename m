@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261585AbSKCDpH>; Sat, 2 Nov 2002 22:45:07 -0500
+	id <S261584AbSKCDoL>; Sat, 2 Nov 2002 22:44:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261587AbSKCDpH>; Sat, 2 Nov 2002 22:45:07 -0500
-Received: from probity.mcc.ac.uk ([130.88.200.94]:60677 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S261585AbSKCDpG>; Sat, 2 Nov 2002 22:45:06 -0500
-Date: Sun, 3 Nov 2002 03:51:27 +0000
-From: John Levon <levon@movementarian.org>
-To: Anton Blanchard <anton@samba.org>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] performance counters 3.1 for 2.5.45 [1/4]: x86 support
-Message-ID: <20021103035127.GA79202@compsoc.man.ac.uk>
-References: <200210312310.AAA07606@kim.it.uu.se> <20021101192201.GC2746@krispykreme>
+	id <S261585AbSKCDoL>; Sat, 2 Nov 2002 22:44:11 -0500
+Received: from waste.org ([209.173.204.2]:9184 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S261584AbSKCDoK>;
+	Sat, 2 Nov 2002 22:44:10 -0500
+Date: Sat, 2 Nov 2002 21:50:17 -0600
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alexander Viro <viro@math.psu.edu>,
+       Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
+       "Theodore Ts'o" <tytso@mit.edu>, Dax Kelson <dax@gurulabs.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+       davej@suse.de
+Subject: Re: Filesystem Capabilities in 2.6?
+Message-ID: <20021103035017.GD18884@waste.org>
+References: <Pine.GSO.4.21.0211022114280.25010-100000@steklov.math.psu.edu> <Pine.LNX.4.44.0211021922280.2354-100000@home.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021101192201.GC2746@krispykreme>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan *188BnL-000BDC-00*qZ.FrrFnP.6* (Manchester Computing, University of Manchester)
+In-Reply-To: <Pine.LNX.4.44.0211021922280.2354-100000@home.transmeta.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Nov 02, 2002 at 07:23:11PM -0800, Linus Torvalds wrote:
+> 
+> On Sat, 2 Nov 2002, Alexander Viro wrote:
+> >
+> > 	<shrug> that can be done without doing anything to filesystem.
+> > Namely, turn current "nosuid" of vfsmount into a mask of capabilities.
+> > Then use bindings instead of links.
+> 
+> I like that idea. It's very explicit, and clearly name-based, and we do
+> have 99% of the support for it already.
 
-[snipped linus]
+Bindings are cool, but once you start talking about doing a lot of
+them, they're rather ungainly due to not actually being persisted on
+the filesystem, no? 
 
-On Sat, Nov 02, 2002 at 06:22:01AM +1100, Anton Blanchard wrote:
+A better approach is to just make a user-space capabilities-wrapper
+that's setuid, drops capabilities quickly and safely and calls the
+real app. Something like:
 
-> Any chance that this and oprofile could share a common base? We are
-> interested in both oprofile and straight performance counting on
-> ppc64 and Id prefer not to implement the arch bits twice.
+# mv ping ping.real
+# chmod -s ping.real
+# mkcapwrap +net_raw ping.real
+# chmod +s ping
+# showcapwrap ping
+invokes /bin/ping
+grants net_raw
+#
 
-Yes, it would be nice to do this. But I'm not sure what form this should
-take (yet)
-
-regards
-john
+No fs magic, no persistence issues, all user-space.
 
 -- 
-"My first thought was I don't have any makeup. How will I survive
-without my makeup ? My second thought was I didn't have any identification.
-Who am I ?"
-	- Earthquake victim
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 

@@ -1,48 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319805AbSIMVs0>; Fri, 13 Sep 2002 17:48:26 -0400
+	id <S319798AbSIMV5B>; Fri, 13 Sep 2002 17:57:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319806AbSIMVs0>; Fri, 13 Sep 2002 17:48:26 -0400
-Received: from packet.digeo.com ([12.110.80.53]:33257 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S319805AbSIMVsZ>;
-	Fri, 13 Sep 2002 17:48:25 -0400
-Message-ID: <3D825E43.FDB41C7F@digeo.com>
-Date: Fri, 13 Sep 2002 14:53:07 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S319800AbSIMV5B>; Fri, 13 Sep 2002 17:57:01 -0400
+Received: from puerco.nm.org ([129.121.1.22]:53512 "HELO puerco.nm.org")
+	by vger.kernel.org with SMTP id <S319798AbSIMV5A>;
+	Fri, 13 Sep 2002 17:57:00 -0400
+Date: Fri, 13 Sep 2002 15:59:15 -0600 (MDT)
+From: todd-lkml@osogrande.com
+X-X-Sender: todd@gp
+Reply-To: linux-kernel@vger.kernel.org
+To: "David S. Miller" <davem@redhat.com>
+cc: "hadi@cyberus.ca" <hadi@cyberus.ca>,
+       "tcw@tempest.prismnet.com" <tcw@tempest.prismnet.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "netdev@oss.sgi.com" <netdev@oss.sgi.com>,
+       patricia gilfeather <pfeather@cs.unm.edu>
+Subject: Re: Early SPECWeb99 results on 2.5.33 with TSO on e1000
+In-Reply-To: <20020912.161225.20790415.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0209131553510.10203-100000@gp>
 MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Good way to free as much memory as possible under 2.5.34?
-References: <20020913212921.GA17627@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.44L.0209131830560.1857-100000@imladris.surriel.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Sep 2002 21:53:12.0158 (UTC) FILETIME=[F483EFE0:01C25B6F]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> 
-> On Fri, 13 Sep 2002, Pavel Machek wrote:
-> 
-> > Allocating memory is pain because I have to free it afterwards. Yep I
-> > have such code, but it is ugly. try_to_free_pages() really seems like
-> > cleaner solution to me... if you only tell me how to fix it :-).
-> 
-> "Fixing" the VM just so it behaves the way swsuspend wants is
-> out. If swsuspend relies on all other subsystems playing nicely,
-> I think it should be removed from the kernel.
-> 
+dave, all,
 
-Yup.  Martin Bligh is cooking up a multi-page allocation API, so when that's
-in place, swsusp need only do:
+On Thu, 12 Sep 2002, David S. Miller wrote:
 
-	LIST_HEAD(foo);
-	alloc_many_pages(&foo, nr_pages, __GFP_HIGHMEM|__GFP_WAIT);
-	free_many_pages(&foo);
+> I disagree, at least for bulk receivers.  We have no way currently to
+> get rid of the data copy.  We desperately need sys_receivefile() and
+> appropriate ops all the way into the networking, then the necessary
+> driver level support to handle the cards that can do this.
 
-So I suggest you do something local for the while, plan to use that later.
+not sure i understand what you're proposing, but while we're at it, why
+not also make the api for apps to allocate a buffer in userland that (for
+nics that support it) the nic can dma directly into?  it seems likely
+notification that the buffer was used would have to travel through the
+kernel, but it would be nice to save the interrupts altogether.
 
-(Actually, the implementation would probably have a heart attack if you
-asked for 100,000 pages so you may need to sit in a loop there; we'll see).
+this may be exactly what you were saying.
+
+> 
+> Once 10gbit cards start hitting the shelves this will convert from a
+> nice perf improvement into a must have.
+
+totally agreed.  this is a must for high-performance computing now (since 
+who wants to waste 80-100% of their CPU just running the network)?
+
+t.
+
+-- 
+todd underwood, vp & cto
+oso grande technologies, inc.
+todd@osogrande.com
+
+"Those who give up essential liberties for temporary safety deserve
+neither liberty nor safety." - Benjamin Franklin
+

@@ -1,79 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266820AbUHMTNF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267307AbUHMTOM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266820AbUHMTNF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 15:13:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267193AbUHMTNE
+	id S267307AbUHMTOM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 15:14:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266905AbUHMTN3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 15:13:04 -0400
-Received: from mail.gmx.net ([213.165.64.20]:20915 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S266820AbUHMTJj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 15:09:39 -0400
-X-Authenticated: #12437197
-Date: Fri, 13 Aug 2004 22:09:53 +0300
-From: Dan Aloni <da-x@colinux.org>
-To: Sam Ravnborg <sam@ravnborg.org>, Benno <benjl@cse.unsw.edu.au>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/2] #2 (Generation of *.s files from *.S files in kbuild)
-Message-ID: <20040813190953.GA14504@callisto.yi.org>
-References: <20040812192535.GA20953@callisto.yi.org> <20040813003743.GF30576@cse.unsw.edu.au> <20040813050424.GA7417@mars.ravnborg.org> <20040813080941.GA7639@callisto.yi.org> <20040813092426.GA27895@callisto.yi.org> <20040813183347.GA9098@mars.ravnborg.org>
+	Fri, 13 Aug 2004 15:13:29 -0400
+Received: from frankvm.xs4all.nl ([80.126.170.174]:30440 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S266916AbUHMTJ7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 15:09:59 -0400
+Date: Fri, 13 Aug 2004 21:09:58 +0200
+From: Frank van Maarseveen <frankvm@xs4all.nl>
+To: Jesse Pollard <jesse@cats-chateau.net>
+Cc: Torin Ford <code-monkey@qwest.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.x Fork Problem?
+Message-ID: <20040813190958.GB18563@janus>
+Mail-Followup-To: Frank van Maarseveen <frankvm@xs4all.nl>,
+	Jesse Pollard <jesse@cats-chateau.net>,
+	Torin Ford <code-monkey@qwest.net>, linux-kernel@vger.kernel.org
+References: <006101c47fff$8feedac0$0200000a@torin> <04081209262700.19998@tabby>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040813183347.GA9098@mars.ravnborg.org>
-User-Agent: Mutt/1.5.6+20040803i
+In-Reply-To: <04081209262700.19998@tabby>
+User-Agent: Mutt/1.4.1i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 13, 2004 at 08:33:47PM +0200, Sam Ravnborg wrote:
-> On Fri, Aug 13, 2004 at 12:24:26PM +0300, Dan Aloni wrote:
-> > diff -urN linux-2.6.7/scripts/Makefile.build linux-2.6.7-work/scripts/Makefile.build
-> > --- linux-2.6.7/scripts/Makefile.build	2004-08-13 12:18:52.000000000 +0300
-> > +++ linux-2.6.7-work/scripts/Makefile.build	2004-08-13 12:19:00.000000000 +0300
-> > @@ -194,11 +194,11 @@
-> >  $(real-objs-m)      : modkern_aflags := $(AFLAGS_MODULE)
-> >  $(real-objs-m:.o=.s): modkern_aflags := $(AFLAGS_MODULE)
-> >  
-> > -quiet_cmd_as_s_S = CPP $(quiet_modtag) $@
-> > -cmd_as_s_S       = $(CPP) $(a_flags)   -o $@ $< 
-> > +quiet_cmd_as_lds_lds_S = CPP $(quiet_modtag) $@
-> > +cmd_as_lds_lds_S       = $(CPP) $(a_flags)   -o $@ $< 
-> >  
-> > -%.s: %.S FORCE
-> > -	$(call if_changed_dep,as_s_S)
-> > +%.lds: %.lds.S FORCE
-> > +	$(call if_changed_dep,as_lds_lds_S)
+On Thu, Aug 12, 2004 at 09:26:27AM -0500, Jesse Pollard wrote:
+> On Wednesday 11 August 2004 19:01, Torin Ford wrote:
+> >
+> > pid = fork();
+> > switch (pid)
+> > {
+> >    case -1:
+> >       blah; /* big trouble */
+> >       break;
+> >    case 0: /* Child */
+> >       exit(1);
+> >       break;
+> >    default: /* Parent */
+> >       pid2 = waitpid(pid, &status, 0);
+> >       if (pid2 == -1)
+> >       {
+> >          blah;  /* check out errno */
+> >       }
+> > }
 > 
-> 
-> This is not good.
-> The .S -> .s is used for assembly.
+> Yup - the parent process executed waitpid before the child process finished 
+> the setup. This can happen in a multi-cpu environment or even a single, if
+> the scheduler puts the parent process higher than the child in the queue.
 
-Actually the only rule I saw that is being used for 
-assembly is the .S -> .o rule (examples under 
-arch/i386/kernel).
- 
-> An additional rule is needed:
-> 
-> Something like:
-> quiet_cmd_cpp_lds_S    = LDS    $@
->       cmd_cpp_lds_S    = $(CPP) $(cpp_flags) -o $@ $<
-> 
-> %.lds: %.lds.S FORCE
-> 	$(call if_changed_dep,cpp_lds_S)
->
-> Adding a new rule it no longer are acceptable to misuse
-> AFLAGS for this. So you have to add support for a new
-> set of flags.
-> Better name them with CPP so they can be used for other
-> preprocessings tasks later if needed.
-> 
-> So in Makefile.lib you need to add cpp_flags like a_flags
-> but using CPPFLAGS, EXTRA_CPPFLAGS, and CPPFLAGS_@
-> 
-> Try building a clean kernel after implementing this.
+ugh! I can follow the rationale for SMP.
 
-Okay, I'll send a patch when it's ready.
+But wouldn't this kind of behavior actually break most real world programs?
 
 -- 
-Dan Aloni
-da-x@colinux.org
+Frank

@@ -1,35 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129840AbRCCXOb>; Sat, 3 Mar 2001 18:14:31 -0500
+	id <S129841AbRCCXPb>; Sat, 3 Mar 2001 18:15:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129841AbRCCXOP>; Sat, 3 Mar 2001 18:14:15 -0500
-Received: from tux.rsn.hk-r.se ([194.47.143.135]:31403 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id <S129840AbRCCXNy>;
-	Sat, 3 Mar 2001 18:13:54 -0500
-Date: Sun, 4 Mar 2001 00:13:02 +0100 (CET)
-From: Martin Josefsson <gandalf@wlug.westbo.se>
+	id <S129845AbRCCXPY>; Sat, 3 Mar 2001 18:15:24 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:23588 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S129841AbRCCXPP>; Sat, 3 Mar 2001 18:15:15 -0500
+Date: Sun, 4 Mar 2001 00:15:10 +0100 (CET)
+From: Francis Galiegue <fg@mandrakesoft.com>
 To: linux-kernel@vger.kernel.org
-Subject: Changelog for 2.4.3-pre1
-Message-ID: <Pine.LNX.4.21.0103040010580.23696-100000@tux.rsn.bth.se>
+cc: jgarzik@mandrakesoft.com, Kernel list <kernel@linux-mandrake.com>
+Subject: Re: [PATCH] 2.4.2: cure the kapm-idled taking (100-epsilon)% CPU
+ time
+In-Reply-To: <Pine.LNX.4.21.0103040000550.922-200000@toy.mandrakesoft.com>
+Message-ID: <Pine.LNX.4.21.0103040014410.922-100000@toy.mandrakesoft.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's the Changelog that can be found at
-ftp.*.kernel.org/pub/linux/kernel/testing/ChangeLog
+On Sun, 4 Mar 2001, Francis Galiegue wrote:
 
-I think Linus forgot to send it.
+> 
+> As attachment. Don't ask me why it works. Rather, if you see why it works, I'd
+> like to know why :)
+> 
 
--pre1:
-  - Chris Mason: reiserfs, another null bytes bug
-  - Andrea Arkangeli: make SMP Athlon build
-  - Alexander Zarochentcev: reiserfs directory fsync SMP locking fix
-  - Jeff Garzik: PCI network driver updates
-  - Alan Cox: continue merging
-  - Ingo Molnar: fix RAID AUTORUN ioctl, scheduling improvements
+BTW, in case this matters, this is with gcc 2.95.3 compiler...
 
-/Martin
-
-Linux hackers are funny people: They count the time in patchlevels.
+-- 
+Francis Galiegue, fg@mandrakesoft.com - Normand et fier de l'être
+"Programming is a race between programmers, who try and make more and more
+idiot-proof software, and universe, which produces more and more remarkable
+idiots. Until now, universe leads the race"  -- R. Cook
 

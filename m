@@ -1,74 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262243AbTDAKeO>; Tue, 1 Apr 2003 05:34:14 -0500
+	id <S262260AbTDAKrE>; Tue, 1 Apr 2003 05:47:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262260AbTDAKeO>; Tue, 1 Apr 2003 05:34:14 -0500
-Received: from [12.47.58.55] ([12.47.58.55]:56841 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id <S262243AbTDAKeN>;
-	Tue, 1 Apr 2003 05:34:13 -0500
-Date: Tue, 1 Apr 2003 02:45:48 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rq-dyn-alloc, dynamic request allocation
-Message-Id: <20030401024548.715ff3c3.akpm@digeo.com>
-In-Reply-To: <20030401102350.GG812@suse.de>
-References: <20030401102350.GG812@suse.de>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S262276AbTDAKrD>; Tue, 1 Apr 2003 05:47:03 -0500
+Received: from mail.zmailer.org ([62.240.94.4]:15573 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S262260AbTDAKrD>;
+	Tue, 1 Apr 2003 05:47:03 -0500
+Date: Tue, 1 Apr 2003 13:58:21 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: shesha bhushan <bhushan_vadulas@hotmail.com>
+Cc: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
+Subject: Re: Deactivating TCP checksumming
+Message-ID: <20030401105821.GV29167@mea-ext.zmailer.org>
+References: <F28fCuayVxYPtqpymRi000013e5@hotmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 01 Apr 2003 10:45:30.0064 (UTC) FILETIME=[D0438500:01C2F83B]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <F28fCuayVxYPtqpymRi000013e5@hotmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> wrote:
->
-> Hi,
+On Tue, Apr 01, 2003 at 09:47:30AM +0000, shesha bhushan wrote:
+> Hello all,
+>  I am trying to de-activate the TCP checksumming and allow hardware (GBE to 
+> compute it for me). But can any one let me know how to do it.
+
+GBE ?  Likely device feature flags are wrong -- See examples
+from   drivers/net/sunhme.c,  acenic.c,  tg3.c  for various ways
+to use  NETIF_F_*_CSUM  feature flags.
+
+For (some of) explanations:  include/linux/netdevice.h
+(for NETIF_F_* flags)
+
+> All suggestion are highly apperciated.
 > 
-> This patch adds dynamic request allocation to the block io path. On
-> systems with lots of disks (and thus queues) it saves a non-significant
-> amount of low memory. It also allows for much better experimentation
-> with larger queue lengths, this experimental patch tops the queue depth
-> off at 16384 (vs 128 before).
+> Thanking You
+> Shesha
 
-heh, 16k requests per queue?  Last time I played with 1024 certain popular
-benchmarks ran like a bullet.
-
-> Please play with it. Andrew, want a version for -mm?
-
-Would be much appreciated, thanks.
-
->   */
->  static struct request *get_request_wait(request_queue_t *q, int rw)
->  {
-> -	DEFINE_WAIT(wait);
-> -	struct request_list *rl = &q->rq[rw];
->  	struct request *rq;
->  
-> -	spin_lock_prefetch(q->queue_lock);
-> -
->  	generic_unplug_device(q);
->  	do {
-> -		int block = 0;
-> +		rq = get_request(q, rw, GFP_NOIO);
->  
-> -		prepare_to_wait_exclusive(&rl->wait, &wait,
-> -					TASK_UNINTERRUPTIBLE);
-> -		spin_lock_irq(q->queue_lock);
-> -		if (!rl->count)
-> -			block = 1;
-> -		spin_unlock_irq(q->queue_lock);
-> -
-> -		if (block)
-> +		if (!rq)
->  			io_schedule();
-
-hmm.  I fear that if a SCHED_FIFO/SCHED_RR task hits this, it will just pick
-itself to run again in the schedule() and the box locks up.
-
-A blk_congestion_wait(WRITE, HZ/50) may be better here.  It will send the
-caller to sleep until someone puts a write request back, which seems
-appropriate.
-
-
+/Matti Aarnio

@@ -1,36 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267481AbTB1Fk7>; Fri, 28 Feb 2003 00:40:59 -0500
+	id <S267480AbTB1Fkx>; Fri, 28 Feb 2003 00:40:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267482AbTB1Fk7>; Fri, 28 Feb 2003 00:40:59 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:55488 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S267481AbTB1Fk6>; Fri, 28 Feb 2003 00:40:58 -0500
-Date: Thu, 27 Feb 2003 21:51:10 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Mel Gorman <mel@csn.ul.ie>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: VM Documentation Release Day
-Message-ID: <4350000.1046411469@[10.10.2.4]>
-In-Reply-To: <Pine.LNX.4.44.0302280156450.14671-100000@skynet>
-References: <Pine.LNX.4.44.0302280156450.14671-100000@skynet>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S267481AbTB1Fkx>; Fri, 28 Feb 2003 00:40:53 -0500
+Received: from [202.181.238.133] ([202.181.238.133]:10921 "EHLO debian.org.hk")
+	by vger.kernel.org with ESMTP id <S267480AbTB1Fkw>;
+	Fri, 28 Feb 2003 00:40:52 -0500
+Message-ID: <3E5EF7A8.8050307@linux.org.hk>
+Date: Fri, 28 Feb 2003 13:46:16 +0800
+From: Ben Lau <benlau@linux.org.hk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
 MIME-Version: 1.0
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: Simon Oosthoek <simon@cal003100.student.utwente.nl>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21-pre5
+References: <Pine.LNX.4.53L.0302270314050.1433@freak.distro.conectiva>	 <3E5DDCE7.2040100@linux.org.hk>	 <20030227101912.GA4006@margo.student.utwente.nl> <1046342924.27186.249.camel@zion.wanadoo.fr>
+In-Reply-To: <1046342924.27186.249.camel@zion.wanadoo.fr>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This is a beginning of the end release of the VM documentation against
-> 2.4.20 as it contains information on pretty much all of the VM. A lot of
-> the older chapters have been cleaned up in terms of language, font usage
-> and presentation and a few new chapters are new. 
+Hi,
 
-Congratulations - this must have been a huge amount of effort, and will be
-a most valuable resource to have ... and freely available to everyone too. 
+    Is there any simple method to trace which patch removed
+the code?
 
-Thank you,
+I used the following command to check it..
 
-M.
+grep define\ *hpsb_queue_struct\ *tq_struct patch-2.4.21-pre4-ac*
+
+However, i have downloaded the patch from alan cox only...
+it dont contain the code. any site have contained all the
+patches that is -pre5 based on?
+
+Benjamin Herrenschmidt wrote:
+> On Thu, 2003-02-27 at 11:19, Simon Oosthoek wrote:
+> 
+> 
+>>here's a patch that should work to fix this.
+> 
+> 
+> I think the proper fix for now is to bring back all of
+> ieee1394 from pre4 to pre5, it was an incorrect merge
+> that reverted part of it.
+> 
+> Ben.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
 

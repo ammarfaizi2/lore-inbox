@@ -1,112 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262330AbTJGNDP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 09:03:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262355AbTJGNDP
+	id S262095AbTJGNYY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 09:24:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbTJGNYY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 09:03:15 -0400
-Received: from mail44-s.fg.online.no ([148.122.161.44]:52909 "EHLO
-	mail44.fg.online.no") by vger.kernel.org with ESMTP id S262330AbTJGNDI
+	Tue, 7 Oct 2003 09:24:24 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:62093 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262095AbTJGNYV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 09:03:08 -0400
-To: linux-kernel@vger.kernel.org
-Subject: TerraTec DMX 6Fire LT won't work
-From: Harald Arnesen <harald@skogtun.org>
-Date: Tue, 07 Oct 2003 15:03:02 +0200
-Message-ID: <87isn19p4p.fsf@basilikum.skogtun.org>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
+	Tue, 7 Oct 2003 09:24:21 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Jeremy Higdon <jeremy@SGI.COM>
+Subject: Re: Patch to add support for SGI's IOC4 chipset
+Date: Tue, 7 Oct 2003 15:27:56 +0200
+User-Agent: KMail/1.5.4
+Cc: akpm@osdl.org, gwh@SGI.COM, jbarnes@SGI.COM, aniket_m@hotmail.com,
+       linux-kernel@vger.kernel.org
+References: <3F7CB4A9.3C1F1237@sgi.com> <200310041930.15385.bzolnier@elka.pw.edu.pl> <20031007082727.GA27934@sgi.com>
+In-Reply-To: <20031007082727.GA27934@sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310071527.56813.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a machine with a TerraTec DMX 6fire LT, that I can't get to work.
-Sound (alsa) compiled as modules, with debugging.
+On Tuesday 07 of October 2003 10:27, Jeremy Higdon wrote:
+> Hello Bartlomiej,
 
-It's a new card, so I have never had it working. Tried with 2.6.0-test6
-before 2.6.0-test6-bk8, same result.
+Hi,
 
-# uname -a
-Linux basilikum 2.6.0-test6-bk8 #1 Tue Oct 7 13:37:29 CEST 2003 i686 AMD Athlon(tm) XP 2000+ AuthenticAMD GNU/Linux
+> I have a few questions.  I'm going to be submitting the rest
+> of the patches that Aniket was working on, as he started at a new
+> company today (he was attempting to finish the submission before he
+> left).  Please forgive a lack of expertise on my part.
 
-# modprobe snd-ice1712
+Okay.
 
-# dmesg
-...
-ALSA sound/i2c/cs8427.c:98: unable to send register 0x7f byte to CS8427
-ALSA sound/i2c/cs8427.c:221: unable to find CS8427 signature (expected 0x71, read 0xfffffffb), initialization is not completed
-ALSA sound/pci/ice1712/ice1712.c:390: CS8427 initialization failed
-ICE1712: probe of 0000:00:11.0 failed with error -14
+> On Sat, Oct 04, 2003 at 07:30:15PM +0200, Bartlomiej Zolnierkiewicz wrote:
+> > > +       return p - buffer;
+> > > +}
+> > >
+> > > >Do you really need /proc/ide/sgiioc4?
+> > > >You can print revision number during init.
+> > >
+> > > It has been helpful to be able to see the firmware revision num anytime
+> > > during system operation.
+> > > So the new patch still creates the above entry.
+> >
+> > I don't buy this, lspci can be used :-).
+>
+> lspci gives the version number.
+> /proc/ide/sgiioc4 gives you:
+>
+>         SGI IOC4 Chipset rev 79.
+>         Chipset has 1 IDE channel and supports 2 devices on that channel.
+>         Chipset supports DMA in MultiMode-2 data transfer protocol.
+>
+> Is the # of IDE channels/devices and the DMA mode also available elsewhere?
 
-# lsmod
-Module                  Size  Used by
-snd_ice1712            52836  0 
-snd_ice17xx_ak4xxx      2944  1 snd_ice1712
-snd_pcm                84516  1 snd_ice1712
-snd_page_alloc          8900  1 snd_pcm
-snd_timer              21444  1 snd_pcm
-snd_cs8427              8384  1 snd_ice1712
-snd_ac97_codec         45764  1 snd_ice1712
-snd_i2c                 4352  2 snd_ice1712,snd_cs8427
-snd_ak4xxx_adda         4928  2 snd_ice1712,snd_ice17xx_ak4xxx
-snd_mpu401_uart         5952  1 snd_ice1712
-snd_rawmidi            20064  1 snd_mpu401_uart
-snd_seq_device          6600  1 snd_rawmidi
-snd                    49156  11 snd_ice1712,snd_ice17xx_ak4xxx,snd_pcm,snd_timer,snd_cs8427,snd_ac97_codec,snd_i2c,snd_ak4xxx_adda,snd_mpu401_uart,snd_rawmidi,snd_seq_device
-soundcore               6400  1 snd
-sg                     26136  0 
-floppy                 49428  0 
-radeon                100652  0 
-agpgart                23784  0 
-sd_mod                  9696  0 
-nfs                    80432  2 
-nfsd                   81648  8 
-exportfs                4736  1 nfsd
-lockd                  52400  3 nfs,nfsd
-sunrpc                105160  8 nfs,nfsd,lockd
-hid                    27008  0 
-ohci_hcd               14464  0 
-parport_pc             28972  1 
-lp                      8000  0 
-parport                33064  2 parport_pc,lp
-usbcore                84956  4 hid,ohci_hcd
-rtc                     9656  0 
-i2c_sis96x              4164  0 
-i2c_core               18824  1 i2c_sis96x
-st                     30872  0 
-ide_cd                 32900  0 
-sr_mod                 12516  0 
-scsi_mod               56620  4 sg,sd_mod,st,sr_mod
-cdrom                  29280  2 ide_cd,sr_mod
+Channels/devices is only available indirectly by /proc/ide/ device symlinks
+and mate entry in (ie.) ide0 proc directory.  Controller DMA mode info is not
+available.  However /proc/ide/sgiioc4 is useless for programs (parsing it to
+obtain needed info is a really bad idea) and info for users should be provided
+by drivers/ide/Kconfig (and optionally by init time message).
 
-# amixer
-amixer: Mixer attach default error: No such device
+> > > +                                           int ddir);
+> > > +static unsigned int __init pci_init_sgiioc4(struct pci_dev
+> > > *dev,ide_pci_device_t *d);
+> > >
+> > > >Most of this declarations are not needed as sgiioc4.h is only included
+> > > > from shiioc4.c.
+> > >
+> > > The sgiioc4.h file has been removed in the new patch.
+> >
+> > sgiioc4.h was removed, but declarations weren't.
+> > You can shuffle code around to get rid of them.
+>
+> How important is this to you?  It seems more a style issue.  I agree with
+> you, by the way.  When I write code, I try to minimize forward
+> declarations. If I can get rid of some easily, will that be good enough?
 
-# lspci -s 00:11.0 -vxxx
-00:11.0 Multimedia audio controller: IC Ensemble Inc ICE1712 [Envy24] (rev 02)
-	Subsystem: TERRATEC Electronic GmbH: Unknown device 1138
-	Flags: bus master, medium devsel, latency 64, IRQ 12
-	I/O ports at d000 [size=32]
-	I/O ports at cc00 [size=16]
-	I/O ports at c800 [size=16]
-	I/O ports at c400 [size=64]
-	Capabilities: [80] Power Management version 1
-00: 12 14 12 17 05 01 10 02 02 00 01 04 00 40 00 00
-10: 01 d0 00 00 01 cc 00 00 01 c8 00 00 01 c4 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 3b 15 38 11
-30: 00 00 00 00 80 00 00 00 00 00 00 00 0c 01 00 00
-40: 7f 80 06 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 2f 80 f0 03 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 01 00 01 04 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Okay, I can clear the rest.
 
--- 
-Hilsen Harald.
+It is good for simplicity (people reading this code) and maintainability
+(you don't have to update declaration if you change corresponding function).
+
+> > There are no .enablebits on SGI IOC4?  Please add a comment about it.
+>
+> What are they used for (i.e. what are you looking for in the comment)?
+
+It is mainly x86 thing (if channel is disabled in BIOS we don't probe it).
+You can just put "/* SGI IOC4 doesn't have enablebits. */ somewhere.
+
+> > sgiioc4_init_one():
+> > +	pci_read_config_dword(dev, PCI_CLASS_REVISION, &class_rev);
+> > +	class_rev &= 0xff;
+> >
+> > Access to PCI devices before pci_enable_device()
+> > (it is called later in pci_init_sgiioc4).
+>
+> Is pci_enable_device required before a config space access?
+
+Yes, please read Documentation/pci.txt chapter 3.
+
+> I will make changes in accordance with the other comments and based on
+> your responses to this.
+
+Thanks,
+--bartlomiej
+

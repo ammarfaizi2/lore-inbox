@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263100AbTH0EmN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 00:42:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263106AbTH0EmM
+	id S263064AbTH0Eiq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 00:38:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263069AbTH0Eiq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 00:42:12 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:42653 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S263100AbTH0EmM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 00:42:12 -0400
-Subject: Re: Compile problem with CONFIG_X86_CYCLONE_TIMER Re:
-	2.6.0-test4-mm1
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>, John Stultz <johnstul@us.ibm.com>
-In-Reply-To: <20030827010849.GA5280@matchmail.com>
-References: <20030815203620.GO1027@matchmail.com>
-	 <1061065941.31662.35.camel@nighthawk> <20030827010849.GA5280@matchmail.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1061959279.12881.6.camel@nighthawk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 26 Aug 2003 21:41:19 -0700
+	Wed, 27 Aug 2003 00:38:46 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:46590 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S263064AbTH0Eip (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 00:38:45 -0400
+Message-ID: <3F4C34EB.6020800@ccs.neu.edu>
+Date: Wed, 27 Aug 2003 00:34:51 -0400
+From: Stan Bubrouski <stan@ccs.neu.edu>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5b) Gecko/20030819
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: osirusoft.com DNS BLs are broken ...
+References: <20030826160252.GF16395@mea-ext.zmailer.org>
+In-Reply-To: <20030826160252.GF16395@mea-ext.zmailer.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-08-26 at 18:08, Mike Fedyk wrote:
-> This patch to my .config makes it compile:
+Matti Aarnio wrote:
+> yielding SERVFAIL for query:
+> 
+>   dig any 212.78.72.67.spews.relays.osirusoft.com. 
+> 
+> 
+<SNIP>
 
-I tried 2.6.0-test4-mm1 with your config and didn't have any problems. 
-Could you check with your old config to make sure I'm not missing
-something?
+As of today OSIRUSOFT is no more as a result of a
+DDOS attack :( The site has been taken down and to
+get the point across that OSIRUSOFT blacklists are
+dead they are now blacklisting the entire internet (*.*.*.*)
 
--- 
-Dave Hansen
-haveblue@us.ibm.com
+So... there's a lot more going on than meets the
+eye :-/
+
+-sb
+
 

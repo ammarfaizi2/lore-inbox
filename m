@@ -1,74 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264730AbSLGTsv>; Sat, 7 Dec 2002 14:48:51 -0500
+	id <S264724AbSLGUAv>; Sat, 7 Dec 2002 15:00:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264716AbSLGTsv>; Sat, 7 Dec 2002 14:48:51 -0500
-Received: from dhcp024-209-039-058.neo.rr.com ([24.209.39.58]:37775 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id <S264730AbSLGTsu>;
-	Sat, 7 Dec 2002 14:48:50 -0500
-Date: Sat, 7 Dec 2002 14:57:53 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: Greg KH <greg@kroah.com>, Zwane Mwaikambo <zwane@holomorphy.com>
-Cc: perex@suse.cz, linux-kernel@vger.kernel.org, pelaufer@adelphia.net
-Subject: Re: [PATCH] Linux PnP Support V0.93 - 2.5.50
-Message-ID: <20021207145753.GQ333@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>, Greg KH <greg@kroah.com>,
-	Zwane Mwaikambo <zwane@holomorphy.com>, perex@suse.cz,
-	linux-kernel@vger.kernel.org, pelaufer@adelphia.net
-References: <20021201143221.GC333@neo.rr.com> <Pine.LNX.4.50.0212071322230.3130-100000@montezuma.mastecende.com> <20021207192203.GB16559@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021207192203.GB16559@kroah.com>
-User-Agent: Mutt/1.4i
+	id <S264733AbSLGUAv>; Sat, 7 Dec 2002 15:00:51 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:18950 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S264724AbSLGUAu>; Sat, 7 Dec 2002 15:00:50 -0500
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: Proposed ACPI Licensing change
+Date: Sat, 7 Dec 2002 20:07:38 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <astkea$6ej$1@penguin.transmeta.com>
+References: <EDC461A30AC4D511ADE10002A5072CAD04C7A57F@orsmsx119.jf.intel.com> <20021207002405.GR2544@fs.tum.de>
+X-Trace: palladium.transmeta.com 1039291679 28105 127.0.0.1 (7 Dec 2002 20:07:59 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 7 Dec 2002 20:07:59 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 07, 2002 at 11:22:04AM -0800, Greg KH wrote:
-> On Sat, Dec 07, 2002 at 01:24:29PM -0500, Zwane Mwaikambo wrote:
-> > On Sun, 1 Dec 2002, Adam Belay wrote:
-> > 
-> > > Attached is a patch, gzipped for size, that updates the 2.5.50 to the latest pnp
-> > > version.  It includes all 9 of the previously submitted patches.
-> > >
-> > > Highlights are as follows:
-> > > -PnP BIOS fixes
-> > > -Several new macros
-> > > -PnP Card Services
-> > > -Various bug fixes
-> > > -more drivers converted to the new APIs
-> > >
-> > > PnP developers please use this patch.
-> > 
-> > Could we get a void* in pnp_dev? I'm finding myself resorting to
-> > driver internal arrays in order to track locations of device private structures.
-> 
-> Use the struct device void pointer for stuff like this.  There's some
-> helpful functions to get access to this easily (but don't seem to see
-> them in pnp.h at first glance...)
+In article <20021207002405.GR2544@fs.tum.de>,
+Adrian Bunk  <bunk@fs.tum.de> wrote:
+>
+>You can't forbid people to send GPL-only patches, so if a person doesn't
+>want his patch under your looser license you can't enforce that he also
+>releases it under your looser license.
 
+That's true, but on the other hand we've had these dual-license things
+before (PCMCIA has been mentioned, but we've had reiserfs and a number
+of drivers like aic7xxx too), and I don't think I've _ever_ gotten a
+patch submission that disallowed the dual license. 
 
-Yes, there are helper functions for this, they can all be found in pnp.h.
+In fact, I don't think I'd even merge a patch where the submitter tried
+to limit dual-license code to a simgle license (it might happen with
+some non-maintained stuff where the original source of the dual license
+is gone, but if somebody tried to send me an ACPI patch that said "this
+is GPL only", then I just wouldn't take it). 
 
-static inline void *pnp_get_drvdata (struct pnp_dev *pdev)
-{
-	return dev_get_drvdata(&pdev->dev);
-}
+I suspect the same "refuse to accept license limiting patches" would be
+true of most kernel maintainers.  At least to me a choice of license by
+the _original_ author is a hell of a lot more important than the
+technical legality of then limiting it to just one license. 
 
-static inline void pnp_set_drvdata (struct pnp_dev *pdev, void *data)
-{
-	dev_set_drvdata(&pdev->dev, data);
-}
+So yes, dual-license code can become GPL-only, but not in _my_ tree. 
 
-static inline void *pnpc_get_drvdata (struct pnp_card *pcard)
-{
-	return dev_get_drvdata(&pcard->dev);
-}
+Somebody else can go off and make their own GPL-only additions, and
+quite frankly I would find it so morally offensive to ignore the intent
+of the original author that I wouldn't take the code even if it was an
+improvement (and I've found that people who are narrow-minded about
+licenses are narrow-minded about other things too, so I doubt it _would_
+be an improvement). 
 
-static inline void pnpc_set_drvdata (struct pnp_card *pcard, void *data)
-{
-	dev_set_drvdata(&pcard->dev, data);
-}
-
-thanks,
-Adam
+		Linus

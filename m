@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263398AbTGXMMl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 08:12:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263407AbTGXMMl
+	id S263737AbTGXMWb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 08:22:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263738AbTGXMWb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 08:12:41 -0400
-Received: from hal-4.inet.it ([213.92.5.23]:26503 "EHLO hal-4.inet.it")
-	by vger.kernel.org with ESMTP id S263398AbTGXMMk (ORCPT
+	Thu, 24 Jul 2003 08:22:31 -0400
+Received: from ore.jhcloos.com ([64.240.156.239]:23300 "EHLO ore.jhcloos.com")
+	by vger.kernel.org with ESMTP id S263737AbTGXMW3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 08:12:40 -0400
-Date: Thu, 24 Jul 2003 14:39:08 +0200
-From: Mattia Dongili <dongili@supereva.it>
-To: junkio@cox.net
-Cc: Norman Diamond <ndiamond@wta.att.ne.jp>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] keycode 183 in defkeymap.map (was Re: Japanese keyboards broken in 2.6)
-Message-ID: <20030724123908.GA637@inferi.kami.home>
-Reply-To: dongili@supereva.it
-Mail-Followup-To: junkio@cox.net, Norman Diamond <ndiamond@wta.att.ne.jp>,
-	linux-kernel@vger.kernel.org
-References: <fa.i0hls5p.1rneqjr@ifi.uio.no> <7vznj4ua3e.fsf_-_@assigned-by-dhcp.cox.net>
-Mime-Version: 1.0
+	Thu, 24 Jul 2003 08:22:29 -0400
+To: cijoml@volny.cz
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: passing my own compiler options into linux kernel compiling
+References: <200307240916.17530.cijoml@volny.cz>
+	<20030724100111.343d84cd.martin.zwickel@technotrend.de>
+	<200307241050.25094.cijoml@volny.cz>
+From: "James H. Cloos Jr." <cloos@jhcloos.com>
+In-Reply-To: <200307241050.25094.cijoml@volny.cz>
+Date: 24 Jul 2003 08:35:29 -0400
+Message-ID: <m3isps2jce.fsf@lugabout.jhcloos.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7vznj4ua3e.fsf_-_@assigned-by-dhcp.cox.net>
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 23, 2003 at 03:55:33PM -0700, junkio@cox.net wrote:
-> >>>>> "ND" == Norman Diamond <ndiamond@wta.att.ne.jp> writes:
-> 
-> ND> "Andries Brouwer" <aebr@win.tue.nl> replied to me, thank you.  Again, sorry
-> ND> I cannot keep up with the mailing list.  If Dr. Brouwer or anyone else has
-> ND> advice or questions, please contact me directly.  I am sending this both
-> ND> personally and to the list.
-> 
-> I also got help from Brouwer with a similar (maybe the same)
-> problem.  Although his "keycode 183 = backslash bar" comment is
-> a bit cryptic, but here is what I did and worked:
-[...] 
-> For your convenience, I have attached patch that updates
-> defkeymap.c and defkeymap.map to include the key definition, so
-> you do not have to recompile loadkeys just to regenerate
-> defkeymap.c file.  You should be able to apply the following to
-> your 2.6.0-test1 source and rebuild the kernel.
+>>>>> "Michal" == Michal Semler <cijoml@volny.cz> writes:
 
-thanks, it works as expected, my pipe key is back!
--- 
-mattia
-:wq!
+Michal> Is easyer way of passing these args planned? Editing source
+Michal> every time I change kernel is not goood way. make oldconfig
+Michal> adding these args is better way.
+
+In 2.6 arch/i386/Makefile looks like this;
+
+cflags-$(CONFIG_M686)           += -march=i686
+cflags-$(CONFIG_MPENTIUMII)     += $(call check_gcc,-march=pentium2,-march=i686)
+cflags-$(CONFIG_MPENTIUMIII)    += $(call check_gcc,-march=pentium3,-march=i686)
+cflags-$(CONFIG_MPENTIUM4)      += $(call check_gcc,-march=pentium4,-march=i686)
+
+et al for the other cpu CONFIG options.
+
+IOW it pretty much makes the right choices w/o editing.
+
+-JimC
+

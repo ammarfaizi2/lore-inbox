@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287720AbSAADIS>; Mon, 31 Dec 2001 22:08:18 -0500
+	id <S287724AbSAADVs>; Mon, 31 Dec 2001 22:21:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287723AbSAADH6>; Mon, 31 Dec 2001 22:07:58 -0500
-Received: from mta06ps.bigpond.com ([144.135.25.138]:35824 "EHLO
-	mta06ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S287722AbSAADHz>; Mon, 31 Dec 2001 22:07:55 -0500
-Message-Id: <200201010307.g0137icS006022@ADSL-Server.davsoft.com.au>
-Content-Type: text/plain; charset=US-ASCII
-From: David Findlay <david_j_findlay@yahoo.com.au>
-Reply-To: david_j_findlay@yahoo.com.au
-To: linux-kernel@vger.kernel.org
-Subject: BUG: Joystick driver
-Date: Tue, 1 Jan 2002 13:07:44 +1000
-X-Mailer: KMail [version 1.3.2]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S287725AbSAADVi>; Mon, 31 Dec 2001 22:21:38 -0500
+Received: from noodles.codemonkey.org.uk ([62.49.180.5]:46490 "EHLO
+	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id <S287724AbSAADVX>; Mon, 31 Dec 2001 22:21:23 -0500
+Date: Tue, 1 Jan 2002 03:23:35 +0000
+From: Dave Jones <davej@suse.de>
+To: ccroswhite@get2chip.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Dual athlon XP 1800 problems
+Message-ID: <20020101032335.A11129@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>, ccroswhite@get2chip.com,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3C311B00.FFB58648@get2chip.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C311B00.FFB58648@get2chip.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think i've discovered a bug in the analog joystick driver. I have a 
-multifunction analog joystick which defaults to a mode where the 4 standard 
-joystick buttons are linked to keystrokes. In this mode the joystick has no 
-standard joystick buttons, and the kernel doesn't detect it when booting. If 
-i turn off this switch before booting up the kernel detects the joystick as a 
-4 button 2 axis joystick correctly. Could someone please change the analog 
-joystick driver so it doesn't try to detect buttons, and will just accept 
-input from any button when it is pressed, even if the button wasn't 
-previously detected? Or is there a better solution? Thanks,
+On Mon, Dec 31, 2001 at 06:12:16PM -0800, ccroswhite@get2chip.com wrote:
+ > I am having problems with dual athlons and more than 512M RAM.
+ > Here is the configuration:
+ > Dual Athlon XP 1800
+               ^^
+ Not a valid SMP configuration. Some people are getting away with
+ running XP's in SMP boxes, others aren't. And soon, it looks like
+ no new XP's will run in SMP at all.
 
-David
+ Take one out/boot a UP kernel, and see if the problems go away.
 
-P.S. Please CC me any reply to this thread.
+ Dave.
+
+-- 
+Dave Jones.                    http://www.codemonkey.org.uk
+SuSE Labs.

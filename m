@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265607AbUABOsk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 09:48:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265608AbUABOsk
+	id S261506AbUABP1w (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 10:27:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265535AbUABP1w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 09:48:40 -0500
-Received: from mail1.bluewin.ch ([195.186.1.74]:10202 "EHLO mail1.bluewin.ch")
-	by vger.kernel.org with ESMTP id S265607AbUABOsi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 09:48:38 -0500
-Message-ID: <3FF584C4.2000305@bluewin.ch>
-Date: Fri, 02 Jan 2004 15:48:36 +0100
-From: Mario Vanoni <vanonim@bluewin.ch>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en, it, fr-fr, de-de
-MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: 2.6.1-rc1-mm1: kernel or NFS problem?
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 2 Jan 2004 10:27:52 -0500
+Received: from smtp.terra.es ([213.4.129.129]:29438 "EHLO tsmtp2.mail.isp")
+	by vger.kernel.org with ESMTP id S261506AbUABP1v convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 10:27:51 -0500
+Date: Fri, 2 Jan 2004 16:27:24 +0100
+From: Diego Calleja <grundig@teleline.es>
+To: DXpublica@telefonica.net
+Cc: john@grabjohn.com, ms@citd.de, linux-kernel@vger.kernel.org
+Subject: Re: i18n for kernel 2.7.x?
+Message-Id: <20040102162724.542f32ea.grundig@teleline.es>
+In-Reply-To: <200401020153.59030.DXpublica@telefonica.net>
+References: <200312311332.15422.DXpublica@telefonica.net>
+	<200312311625.25178.DXpublica@telefonica.net>
+	<200312311604.hBVG4ruS000274@81-2-122-30.bradfords.org.uk>
+	<200401020153.59030.DXpublica@telefonica.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-a) not in lkml, cc if needed
-b) 5 machines otherwise 100% working, congrats
-c) test on 4 machines, the 5th is production, taboo
-d) top used: 2x 2.0.16, 2x 3.1.0
+El Fri, 2 Jan 2004 01:53:58 +0100 Xan <DXpublica@telefonica.net> escribió:
 
-Scenario:
+> 
+> Well... if (all of) you think that.... 
+> But, what happens with Documentation/ directory and README, COPYRIGHT, ... and 
+> WEB PAGE of the kernel?
+> 
+> It's NOT so technically hard to do. Why not so?
 
-machine 1: top, sees himself, <1% CPU
-machine 2: ssh to machine 1 ; top
-machine 1: top sees 2 top's, <1% CPU each
-machine 2: reboot with ssh _active_ with top
-machine 1: the top from machine 2 is not killed
-            and consumes now >99% CPU,
-            must be killed explicitly
+People are already doing this for the help entries of the configure process:
+http://es.tldp.org/NuLies/web/index.html (in Spanish). This is just a patch
+over the kernel. The 2.6 split of the configure files will help to coordinate
+the efforts, it'd not be very difficult to include it as a "extra" package
+in normal distributions. It's not complete of course...
 
-Same behaviour on 4 machines,
-UP's Celeron-1000+512MBmem & P4-3066HT+1GBmem,
-dual SMP's P3-550+1GBmem & P3-1266+2GBmem.
-
-Sar(1) -U ALL 1 0 reports the same values as top(1).
-
-It's not a procps problem, same conditions:
-
-machine 1: top and sar -U ALL 1 0
-machine 2: ssh to machine 1; sar -U ALL 1 0
-machine 1: ps -efw sees sar, top no CPU used
-machine 2: reboot with ssh _active_ with sar -U ALL 1 0
-machine 1: top no CPU usage, according ps -efw sar -U ALL 1 0
-            and corresponding sadc 1 are always active,
-            killall sar kills both
-
-The ethernet is 10Mb, mixed RJ and BNC connectors.
-
-Mario
 

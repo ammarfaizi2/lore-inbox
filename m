@@ -1,46 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275341AbRJBP0x>; Tue, 2 Oct 2001 11:26:53 -0400
+	id <S275178AbRJBPcx>; Tue, 2 Oct 2001 11:32:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275338AbRJBP0n>; Tue, 2 Oct 2001 11:26:43 -0400
-Received: from carlsberg.amagerkollegiet.dk ([194.182.238.3]:14599 "EHLO
-	carlsberg.amagerkollegiet.dk") by vger.kernel.org with ESMTP
-	id <S275337AbRJBP0e>; Tue, 2 Oct 2001 11:26:34 -0400
-Date: Tue, 2 Oct 2001 17:26:46 +0200 (CEST)
-From: =?iso-8859-1?Q?Rasmus_B=F8g_Hansen?= <moffe@amagerkollegiet.dk>
-To: Sylvain Ravot <sylvain.ravot@cern.ch>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: make: *** [menuconfig] Error 
-In-Reply-To: <3BB9C65C.E01FCC05@cern.ch>
-Message-ID: <Pine.LNX.4.33.0110021724300.1256-100000@grignard.amagerkollegiet.dk>
+	id <S275337AbRJBPcn>; Tue, 2 Oct 2001 11:32:43 -0400
+Received: from hermes.toad.net ([162.33.130.251]:21713 "EHLO hermes.toad.net")
+	by vger.kernel.org with ESMTP id <S275178AbRJBPcX>;
+	Tue, 2 Oct 2001 11:32:23 -0400
+Subject: Re: Untitled
+To: linux-kernel@vger.kernel.org
+Date: Tue, 2 Oct 2001 11:32:22 -0400 (EDT)
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <20011002153222.5ED6710E6@thanatos.toad.net>
+From: jdthood@home.dhs.org (Thomas Hood)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Oct 2001, Sylvain Ravot wrote:
+> Hello,
+> I have written a linux kernel module. The linux version is 2.2.14. 
+> In this module I have declared an array of size 2048. If I use this array, the execution of this module function
+> causes kernel to reboot. If I kmalloc() this array then execution of this module function doesnot cause any
+> problem.
+> Can you explain this behaviour?
+> Thnaks,
+> Dinesh
 
-> I have the following error message when I try to compile the 2.4.9
-> kernel. Could you help me ?
-> 
-> [root@lxusa linux]# make menuconfig
-> 
-> scripts/Menuconfig: line 11:  1872 Segmentation fault      (core dumped)
-
-Check your syslog for problems, check your filesystem for errors. If 
-none shows up errors, you might have bad RAM - check it with memtest86.
-
-http://www.bitwizard.nl/sig11/
-
-Rasmus
+Hmm.  Perhaps there's is a bug in your module.
 
 -- 
--- [ Rasmus 'Møffe' Bøg Hansen ] ---------------------------------------
-When you have multiple CPUs with one interrupt controller, you don't
-have much choice. You either use spin-locks or you Blue-Screen.
-Since Linux doesn't have a "Blue-screen of death", it needs spin-
-locks.
-                                               -- Richard B. Johnson
---------------------------------- [ moffe at amagerkollegiet dot dk ] --
-
+Thomas Hood
+(Don't reply to the From: address but to jdthood_AT_yahoo.co.uk)

@@ -1,68 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261887AbVC3OL3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261906AbVC3OPP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261887AbVC3OL3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 09:11:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbVC3OL3
+	id S261906AbVC3OPP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 09:15:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbVC3OPP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 09:11:29 -0500
-Received: from pat.uio.no ([129.240.130.16]:13477 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261887AbVC3OLY (ORCPT
+	Wed, 30 Mar 2005 09:15:15 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:32681 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S261912AbVC3OPC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 09:11:24 -0500
-Subject: Re: NFS client latencies
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050330080224.GB19683@elte.hu>
-References: <1112137487.5386.33.camel@mindpipe>
-	 <1112138283.11346.2.camel@lade.trondhjem.org>
-	 <1112139155.5386.35.camel@mindpipe>
-	 <1112139263.11892.0.camel@lade.trondhjem.org>
-	 <20050330080224.GB19683@elte.hu>
-Content-Type: text/plain
-Date: Wed, 30 Mar 2005 09:11:00 -0500
-Message-Id: <1112191860.10634.29.camel@lade.trondhjem.org>
+	Wed, 30 Mar 2005 09:15:02 -0500
+Date: Wed, 30 Mar 2005 18:14:12 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Paul Jackson <pj@engr.sgi.com>
+Cc: Jay Lan <jlan@engr.sgi.com>, guillaume.thouvenin@bull.net, akpm@osdl.org,
+       greg@kroah.com, linux-kernel@vger.kernel.org, efocht@hpce.nec.com,
+       linuxram@us.ibm.com, gh@us.ibm.com, elsa-devel@lists.sourceforge.net
+Subject: Re: [patch 1/2] fork_connector: add a fork connector
+Message-ID: <20050330181412.B13722@2ka.mipt.ru>
+References: <1111745010.684.49.camel@frecb000711.frec.bull.fr> <20050328134242.4c6f7583.pj@engr.sgi.com> <1112079856.5243.24.camel@uganda> <20050329004915.27cd0edf.pj@engr.sgi.com> <1112092197.5243.80.camel@uganda> <20050329090304.23fbb340.pj@engr.sgi.com> <4249C418.5040007@engr.sgi.com> <20050329140106.2a9b8aa5.pj@engr.sgi.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.512, required 12,
-	autolearn=disabled, AWL 1.44, FORGED_RCVD_HELO 0.05,
-	UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050329140106.2a9b8aa5.pj@engr.sgi.com>; from pj@engr.sgi.com on Tue, Mar 29, 2005 at 02:01:06PM -0800
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 30 Mar 2005 18:14:15 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-on den 30.03.2005 Klokka 10:02 (+0200) skreiv Ingo Molnar:
+Sorry for long delay - I was quite far from my test machines.
+Here are results:
 
-> the comment suggests that this is optimized for append writes (which is 
-> quite common, but by far not the only write workload) - but the 
-> worst-case behavior of this code is very bad. How about disabling this 
-> sorting altogether and benchmarking the result? Maybe it would get 
-> comparable coalescing (higher levels do coalesce after all), but wastly 
-> improved CPU utilization on the client side. (Note that the server 
-> itself will do sorting of any write IO anyway, if this is to hit any 
-> persistent storage - and if not then sorting so agressively on the 
-> client side makes little sense.)
+fork connector with turned off disk writes and direct connector's 
+methods calls.
 
-No. Coalescing on the client makes tons of sense. The overhead of
-sending 8 RPC requests for 4k writes instead of sending 1 RPC request
-for a single 32k write is huge: among other things, you end up tying up
-8 RPC slots on the client + 8 nfsd threads on the server instead of just
-one of each.
-You also end up allocating 8 times a much memory for supporting
-structures such as rpc_tasks. That sucks when you're in a low memory
-situation and are trying to push dirty pages to the server as fast as
-possible...
+pcix$ ./fork_test 100000
+Average per process fork+exit time is 505 usecs [diff=50567251, max=100000].
+pcix$ ./fork_test 100000
+Average per process fork+exit time is 512 usecs [diff=51248174, max=100000].
+pcix$ ./fork_test 100000
+Average per process fork+exit time is 504 usecs [diff=50469379, max=100000].
 
-What we can do instead is to do the same thing that the VM does: use a
-radix tree with tags to do the sorting of the nfs_pages when we're
-actually building up the list of dirty pages to send.
-We already have the radix tree to do that, all we need to do is add the
-tags and modify the scanning function to use them.
+fork connector with turned on disk writes and direct connector's 
+methods calls. 
+Each disk write has about 80 bytes which are:
+	time(&tm);
+	fprintf(out,
+		"%.24s : [%x.%x] [seq=%08x, ack=%08x] %s.\n",
+		ctime(&tm), data->id.idx, data->id.val,
+		data->seq, data->ack, (char *)data->data);
 
-Cheers,
- Trond
+pcix$ ./fork_test 100000
+Average per process fork+exit time is 539 usecs [diff=53944663, max=100000].
+pcix$ ./fork_test 100000
+Average per process fork+exit time is 523 usecs [diff=52378314, max=100000].
+pcix$ ./fork_test 100000
+Average per process fork+exit time is 540 usecs [diff=54078648, max=100000].
+
+CBUS results.
+
+Writing disabled:
+
+pcix$ ./fork_test 100000
+Average per process fork+exit time is 451 usecs [diff=45194377, max=100000].
+pcix$ ./fork_test 100000
+Average per process fork+exit time is 454 usecs [diff=45416470, max=100000].
+pcix$ ./fork_test 100000
+Average per process fork+exit time is 448 usecs [diff=44863153, max=100000].
+pcix$ ./fork_test 100000
+Average per process fork+exit time is 453 usecs [diff=45312870, max=100000].
+pcix$
+
+Writing enabled like described above:
+
+pcix$ ./fork_test 100000
+Average per process fork+exit time is 456 usecs [diff=45680384, max=100000].
+pcix$ ./fork_test 100000
+Average per process fork+exit time is 455 usecs [diff=45590682, max=100000].
+pcix$ ./fork_test 100000
+Average per process fork+exit time is 453 usecs [diff=45376436, max=100000].
+pcix$
+
+
+fork connector is not compiled in:
+
+Average per process fork+exit time is 452 usecs [diff=45280538, max=100000].
+pcix$ ./fork_test 100000
+Average per process fork+exit time is 446 usecs [diff=44687388, max=100000].
+pcix$ ./fork_test 100000
+Average per process fork+exit time is 445 usecs [diff=44505999, max=100000].
+pcix$ ./fork_test 100000
+
+
+With 80 bytes write per fork with CBUS it takes from 0.5% to 2.5%.
+So it still can be used for accounting :)
 
 -- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
-
+	Evgeniy Polyakov

@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269732AbRHDBc7>; Fri, 3 Aug 2001 21:32:59 -0400
+	id <S269752AbRHDBf2>; Fri, 3 Aug 2001 21:35:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269745AbRHDBcs>; Fri, 3 Aug 2001 21:32:48 -0400
-Received: from mx1.afara.com ([63.113.218.20]:31571 "EHLO afara-gw.afara.com")
-	by vger.kernel.org with ESMTP id <S269732AbRHDBcl>;
-	Fri, 3 Aug 2001 21:32:41 -0400
-Subject: Re: How does "alias ethX drivername" in modules.conf work?
-From: Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Mark Atwood <mra@pobox.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010804132159.F18108@weta.f00f.org>
-In-Reply-To: <m33d78de7d.fsf@flash.localdomain> 
-	<20010804132159.F18108@weta.f00f.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12.99 (Preview Release)
-Date: 03 Aug 2001 18:32:18 -0700
-Message-Id: <996888738.24442.1.camel@tduffy-lnx.afara.com>
-Mime-Version: 1.0
-X-OriginalArrivalTime: 04 Aug 2001 01:29:32.0859 (UTC) FILETIME=[E9E738B0:01C11C84]
+	id <S269753AbRHDBfI>; Fri, 3 Aug 2001 21:35:08 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:34827 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S269745AbRHDBfE>;
+	Fri, 3 Aug 2001 21:35:04 -0400
+Date: Fri, 3 Aug 2001 22:34:56 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: "Paul G. Allen" <pgallen@randomlogic.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] DMCA loop hole
+In-Reply-To: <3B6B4723.523B0069@randomlogic.com>
+Message-ID: <Pine.LNX.4.33L.0108032234280.11893-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 04 Aug 2001 13:21:59 +1200, Chris Wedgwood wrote:
+On Fri, 3 Aug 2001, Paul G. Allen wrote:
 
-> the kernel calls modprobe asking for the network device 'eth0',
-> modprobe uses the configuration file to map this to a module
+> Under copyright law, under fair use, once I purchase something -
+> ANYTHING - I can use it however I damn well please as long as it's for
+> my own use, for educational purposes, and I do not make a profit or
+> significantly cut into the copyright holders profit. Copyright law
+> outweighs EULA's, so along came so-called "license agreements",
+> harware to circumvent our fair use, and DMCA.
 
-so, what happens when you have two eth cards that use the same module?
-in the isa land, the order you pass the io=0x300,0x240 would determine
-which order the eth?'s go to...how about in the pci world?
+Actually, the DMCA _is_ the copyright law workaround ;)
 
--tduffy
+cheers,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

@@ -1,40 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274838AbTHKWKS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 18:10:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274839AbTHKWKS
+	id S274839AbTHKWPY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 18:15:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274857AbTHKWPY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 18:10:18 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:49422
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S274838AbTHKWKN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 18:10:13 -0400
-Date: Mon, 11 Aug 2003 15:10:11 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Jim Carter <jimc@math.ucla.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kconfig -- kill "if you want to read about modules, see" crap?
-Message-ID: <20030811221011.GE1027@matchmail.com>
-Mail-Followup-To: Jim Carter <jimc@math.ucla.edu>,
-	linux-kernel@vger.kernel.org
-References: <20030811132127.GA2596@elf.ucw.cz> <yw1xekzsqpv3.fsf@users.sourceforge.net> <Pine.LNX.4.53.0308111433250.2770@xena.cft.ca.us>
+	Mon, 11 Aug 2003 18:15:24 -0400
+Received: from holomorphy.com ([66.224.33.161]:23723 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S274839AbTHKWPU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 18:15:20 -0400
+Date: Mon, 11 Aug 2003 15:16:28 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.6.0-test3-mm1
+Message-ID: <20030811221628.GR1715@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org
+References: <20030811113943.47e5fd85.akpm@osdl.org> <873510000.1060633024@flay>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0308111433250.2770@xena.cft.ca.us>
+In-Reply-To: <873510000.1060633024@flay>
+Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 11, 2003 at 02:36:16PM -0700, Jim Carter wrote:
-> On Mon, 11 Aug 2003, M?ns Rullg?rd wrote:
-> > Pavel Machek <pavel@ucw.cz> writes:
-> > > 	  This driver is also available as a module ( = code which can...
-> > > Perhaps having 1000 copies of same help text is bad idea? ...
-> >
-> > I agree, but it would be nice to show the name of the module in the
-> > help text.  These are not always obvious.
-> 
-> From user land, one vote of agreement on both points.
+On Mon, Aug 11, 2003 at 01:17:04PM -0700, Martin J. Bligh wrote:
+> Buggered if I know what Letext is doing there ???
+>       6577     3.9% total
+>       1157     0.0% Letext
+>        937     0.0% direct_strnlen_user
+>        748   440.0% filp_close
+>        722    21.2% __copy_from_user_ll
+>        610     2.6% page_remove_rmap
+>        492   487.1% file_ra_state_init
+>        452    12.4% find_get_page
+>        405     7.6% __copy_to_user_ll
+>        402    28.6% schedule
+>        386     0.0% kpmd_ctor
+>        348     4.4% __d_lookup
+>        310    16.6% atomic_dec_and_lock
+>        300   174.4% may_open
 
-See subthread talking about modifying Kconfig...
+You can figure out what it is by reading addresses directly out of
+/proc/profile that would correspond to it (i.e. modifying readprofile)
+and correlating it with an area of text in a disassembled kernel.
+
+kpmd_ctor() is unusual; how many runs does this profile represent?
+Does it represent the first run? Ideally, all your kernel pmd's should
+be cached. If it's not the first run, then logged slab cache statistics
+would be interesting to determine whether this is still the case even
+while effective cacheing is going on or whether slab cache reaping is
+blowing these things away (i.e. either ineffective cacheing is happening
+or for some reason cacheing them isn't good enough).
+
+Of course, it would probably be better to deal with first-order effects
+first. On that note, how many profile hits total? How many runs is this
+summed together from? Which run is this (numerically in the order you
+ran them) if the profiles are from only one run?
+
+
+-- wli

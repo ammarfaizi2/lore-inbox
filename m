@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263404AbRFNRI5>; Thu, 14 Jun 2001 13:08:57 -0400
+	id <S263407AbRFNRPR>; Thu, 14 Jun 2001 13:15:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263407AbRFNRIr>; Thu, 14 Jun 2001 13:08:47 -0400
-Received: from cr11220-b.lndn1.on.wave.home.com ([24.114.20.59]:6660 "HELO
-	megaepic.com") by vger.kernel.org with SMTP id <S263404AbRFNRId>;
-	Thu, 14 Jun 2001 13:08:33 -0400
-From: ssh@megaepic.com
-Date: Thu, 14 Jun 2001 13:08:28 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.5 kernel crash while using tcpdump+iptraf
-Message-ID: <20010614130828.C5279@megaepic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.18i
+	id <S263415AbRFNRPH>; Thu, 14 Jun 2001 13:15:07 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:21258 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S263407AbRFNRPC>; Thu, 14 Jun 2001 13:15:02 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH] Avoid !__GFP_IO allocations to eat from memory reservations
+Date: Thu, 14 Jun 2001 19:17:48 +0200
+X-Mailer: KMail [version 1.2]
+Cc: linux-mm@kvack.org, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010614143441Z263016-17720+3764@vger.kernel.org>
+In-Reply-To: <20010614143441Z263016-17720+3764@vger.kernel.org>
+MIME-Version: 1.0
+Message-Id: <01061419174808.00879@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What kind of network card, and what network driver?
+On Thursday 14 June 2001 14:59, Marcelo Tosatti wrote:
+> --- linux/mm/page_alloc.c.orig	Thu Jun 14 11:00:14 2001
+> +++ linux/mm/page_alloc.c	Thu Jun 14 11:32:56 2001
+> @@ -453,6 +453,12 @@
+>  				int progress = try_to_free_pages(gfp_mask);
+>  				if (progress || gfp_mask & __GFP_IO)
+>  					goto try_again;
+> +				/*
+> +				 * Fail in case no progress was made and the
+> +				 * allocation may not be able to block on IO.
+> +				 */
+> +				else
+> +					return NULL;
+>  			}
+>  		}
+>  	}
 
-I've got 3 NICs:
+Nitpick dept: the 'else' is redundant.
 
-ne.c:v1.10 9/23/94 Donald Becker (becker@scyld.com)
-Last modified Nov 1, 2000 by Paul Gortmaker
-NE*000 ethercard probe at 0x300: 00 c0 df 64 7b d5
-eth0: NE2000 found at 0x300, using IRQ 9.
-NE*000 ethercard probe at 0x340: 00 80 c8 64 df db
-eth1: NE2000 found at 0x340, using IRQ 5.
-loop: loaded (max 8 devices)
-ne2k-pci.c:v1.02 10/19/2000 D. Becker/P. Gortmaker
-http://www.scyld.com/network/ne2k-pci.html
-PCI: Found IRQ 12 for device 00:0b.0
-eth2: RealTek RTL-8029 found at 0xe400, IRQ 12, 00:C0:F0:2B:C9:AA.
-  
-I'm not exactly sure what brand the ISA ones are... if
-it's really relevent I guess I could take the cards out and inspect
-the chipsets :)
-
-Mathew Johnston
+--
+Daniel

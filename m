@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263020AbUD2DNM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263117AbUD2DL6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263020AbUD2DNM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 23:13:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263100AbUD2DMJ
+	id S263117AbUD2DL6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 23:11:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263041AbUD2DL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 23:12:09 -0400
-Received: from florence.buici.com ([206.124.142.26]:40838 "HELO
-	florence.buici.com") by vger.kernel.org with SMTP id S263020AbUD2DLB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 23:11:01 -0400
-Date: Wed, 28 Apr 2004 20:10:59 -0700
-From: Marc Singer <elf@buici.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: riel@redhat.com, brettspamacct@fastclick.com, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
-Message-ID: <20040429031059.GA26060@buici.com>
-References: <20040428180038.73a38683.akpm@osdl.org> <Pine.LNX.4.44.0404282143360.19633-100000@chimarrao.boston.redhat.com> <20040428185720.07a3da4d.akpm@osdl.org> <20040429022944.GA24000@buici.com> <20040428193541.1e2cf489.akpm@osdl.org>
+	Wed, 28 Apr 2004 23:11:57 -0400
+Received: from mail.kroah.org ([65.200.24.183]:5290 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263059AbUD2DLH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 23:11:07 -0400
+Date: Wed, 28 Apr 2004 20:10:40 -0700
+From: Greg KH <greg@kroah.com>
+To: Bryan Small <code_smith@comcast.net>
+Cc: Sean Young <sean@mess.org>, Chester <fitchett@phidgets.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] USB: add new USB PhidgetServo driver
+Message-ID: <20040429031040.GA5336@kroah.com>
+References: <20040428181806.GA36322@atlantis.8hz.com> <80928E9A-9983-11D8-9ADE-000A95B17CC2@comcast.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040428193541.1e2cf489.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <80928E9A-9983-11D8-9ADE-000A95B17CC2@comcast.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 28, 2004 at 07:35:41PM -0700, Andrew Morton wrote:
-> Marc Singer <elf@buici.com> wrote:
-> >
-> > On Wed, Apr 28, 2004 at 06:57:20PM -0700, Andrew Morton wrote:
-> > > Rik van Riel <riel@redhat.com> wrote:
-> > > >
-> > > >  IMHO, the VM on a desktop system really should be optimised to
-> > > >  have the best interactive behaviour, meaning decent latency
-> > > >  when switching applications.
-> > > 
-> > > I'm gonna stick my fingers in my ears and sing "la la la" until people tell
-> > > me "I set swappiness to zero and it didn't do what I wanted it to do".
-> > 
-> > It does, but it's a bit too coarse of a solution.  It just means that
-> > the page cache always loses.
-> 
-> That's what people have been asking for.  What are you suggesting should
-> happen instead?
+On Wed, Apr 28, 2004 at 10:18:28PM -0400, Bryan Small wrote:
+>   Really cool Sean. I am currently working on the IfKit for both the 
+> 8/8/8 and the 0/8/8 on the textlcds. Also working on the textlcds 
+> output.
 
-I'm thinking that the problem is that the page cache is greedier that
-most people expect.  For example, if I could hold the page cache to be
-under a specific size, then I could do some performance measurements.
-E.g, compile kernel with a 768K page cache, 512K, 256K and 128K.  On a
-machine with loads of RAM, where's the optimal page cache size?
+What kernel/userspace interface were you going to use?  Or are you using
+a pure libusb/usbfs type interface?
 
+> If I get these done soon was thinking of moving to RFID, so that we can 
+> also possibly throw in Chesters PAM auth module idea in.
+
+That is a cool project, again, what kind of kernel interaction would you
+want for it?
+
+thanks,
+
+greg k-h

@@ -1,73 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267292AbSLELbZ>; Thu, 5 Dec 2002 06:31:25 -0500
+	id <S267289AbSLEL2V>; Thu, 5 Dec 2002 06:28:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267296AbSLELbZ>; Thu, 5 Dec 2002 06:31:25 -0500
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:31493 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S267292AbSLELbY>; Thu, 5 Dec 2002 06:31:24 -0500
-Date: Thu, 5 Dec 2002 12:38:48 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Alexander.Riesen@synopsys.com, Matthias Andree <matthias.andree@gmx.de>,
+	id <S267291AbSLEL2V>; Thu, 5 Dec 2002 06:28:21 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:53772 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267289AbSLEL2U>; Thu, 5 Dec 2002 06:28:20 -0500
+Date: Thu, 5 Dec 2002 11:35:46 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: David Gibson <david@gibson.dropbear.id.au>,
+       James Bottomley <James.Bottomley@steeleye.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: #! incompatible -- binfmt_script.c broken?
-Message-ID: <20021205113848.GC15405@merlin.emma.line.org>
-Mail-Followup-To: Horst von Brand <vonbrand@inf.utfsm.cl>,
-	Alexander.Riesen@synopsys.com, linux-kernel@vger.kernel.org
-References: <Alexander.Riesen@synopsys.com> <20021204142628.GE26745@riesen-pc.gr05.synopsys.com> <200212050042.gB50ga4C001486@eeyore.valparaiso.cl>
+Subject: Re: [RFC] generic device DMA implementation
+Message-ID: <20021205113546.A22686@flint.arm.linux.org.uk>
+Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	David Gibson <david@gibson.dropbear.id.au>,
+	James Bottomley <James.Bottomley@steeleye.com>,
+	linux-kernel@vger.kernel.org
+References: <200212041747.gB4HlEF03005@localhost.localdomain> <20021205004744.GB2741@zax.zax> <1039086496.651.65.camel@zion>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200212050042.gB50ga4C001486@eeyore.valparaiso.cl>
-User-Agent: Mutt/1.5.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1039086496.651.65.camel@zion>; from benh@kernel.crashing.org on Thu, Dec 05, 2002 at 12:08:16PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 04 Dec 2002, Horst von Brand wrote:
+On Thu, Dec 05, 2002 at 12:08:16PM +0100, Benjamin Herrenschmidt wrote:
+> For things like ring descriptors of a net driver, I feel it's very much
+> simpler (and possibly more efficient too) to also allocate non-cacheable
+> space for consistent instead of continuously flushing/invalidating.
+> Actually, flush/invalidate here can also have nasty side effects if
+> several descriptors fit in the same cache line.
 
-> Alex Riesen <Alexander.Riesen@synopsys.com> said:
-> 
-> [...]
-> 
-> > looks correct. The interpreter (/bin/sh) has got everything after
-> > its name. IOW: "-- # -*- perl -*- -T"
-> > It's just solaris' shell (/bin/sh) just ignores options starting with
-> > "--". And freebsd's as well.
-> 
-> And Linux's too. Try it.
+Indeed.  Think about a 16-byte descriptor in a 32-byte cache line.
+The net chip has written status information to the first word, you've
+just written to the 4th word of that cache line.
 
-Is there the "Linux's /bin/sh"? I believe most distributions use GNU
-bash for /bin/sh, and that certainly does NOT ignore these, but parse.
+To access the status word written by the chip, you need to invalidate
+(without writeback) that cache line.  For the chip to access the word
+you've just written, you need to writeback that cache line.
 
-The problem is that binfmt_script.c does not split the remainder of the
-line at whitespace.
-
-Assuming your current working directory does not have files that match
--*-:
-
-$ /bin/sh '-- # -*- perl -*- -T'
-/bin/sh: -- # -*- perl -*- -T: invalid option
-Usage:  /bin/sh [GNU long option] [option] ...
-        /bin/sh [GNU long option] [option] script-file ...
-GNU long options:
-        --debug
-...
-
-$ /bin/bash -- # -*- perl -*- -T
-$ 
-
-$ /usr/bin/ksh '-- # -*- perl -*- -T'
-/usr/bin/ksh: /usr/bin/ksh: --: unknown option
-
-$ /usr/bin/ksh -- # -*- perl -*- -T
-$
-
-$ /usr/bin/zsh '-- # -*- perl -*- -T'
-/usr/bin/zsh: no such option:  # _*_ perl _*_ _T
-
-$ /usr/bin/zsh -- # -*- perl -*- -T
-$
+In other words, you _will_ loose information in this case, guaranteed.
+I'd rather keep our existing pci_* API than be forced into this crap
+again.
 
 -- 
-Matthias Andree
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317329AbSIIOx3>; Mon, 9 Sep 2002 10:53:29 -0400
+	id <S317349AbSIIPBZ>; Mon, 9 Sep 2002 11:01:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317331AbSIIOx3>; Mon, 9 Sep 2002 10:53:29 -0400
-Received: from host194.steeleye.com ([216.33.1.194]:22285 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S317329AbSIIOx2>; Mon, 9 Sep 2002 10:53:28 -0400
-Message-Id: <200209091458.g89Evv806056@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Lars Marowsky-Bree <lmb@suse.de>
-cc: linux-kernel@vger.kernel.org, James.Bottomley@SteelEye.com
-Subject: Re: [RFC] Multi-path IO in 2.5/2.6 ?
+	id <S317354AbSIIPBZ>; Mon, 9 Sep 2002 11:01:25 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:62990 "HELO mx.in-addr.de")
+	by vger.kernel.org with SMTP id <S317349AbSIIPBX>;
+	Mon, 9 Sep 2002 11:01:23 -0400
+Date: Mon, 9 Sep 2002 17:06:48 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Oktay Akbal <oktay.akbal@s-tec.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: md multipath with disk missing ?
+Message-ID: <20020909150648.GD29@marowsky-bree.de>
+References: <20020909132713.GA29@marowsky-bree.de> <Pine.LNX.4.44.0209091537020.12771-100000@omega.s-tec.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 09 Sep 2002 09:57:56 -0500
-From: James Bottomley <James.Bottomley@steeleye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.44.0209091537020.12771-100000@omega.s-tec.de>
+User-Agent: Mutt/1.4i
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lars Marowsky-Bree <lmb@suse.de> said:
-> So, what is the take on "multi-path IO" (in particular, storage) in
-> 2.5/2.6?
+On 2002-09-09T15:46:15,
+   Oktay Akbal <oktay.akbal@s-tec.de> said:
 
-I've already made my views on this fairly clear (at least from the SCSI stack 
-standpoint):
+> Example:
+> 
+> We have sda - sdb (8 drives) and setup up a raidtab to tell linux that
+> sda and sde are the same sdc - sdd etc.
+> Now for some random error the server restarts and the former sda (path to
+> that drive) is no longer available. So now we have sda,sdb...sdg.
+> We do not use autodetect, but raidstart to activate the raid.
+> 
+> now since the former sda is missing the raidtab does not reflect the
+> actual setup. The raidtab would read, that sda and sdb are the same
+> drive, which is not true in that case.
+> 
+> (The device-ordering would not be right for a real setup, but take it as
+> an example and assume sda-sde sdb-sdf...)
+> 
+> Would the superblock prevent the wrong use of devices ?
 
-- multi-path inside the low level drivers (like qla2x00) is wrong
-- multi-path inside the SCSI mid-layer is probably wrong
-- from the generic block layer on up, I hold no specific preferences
+I hope so. But yes, your setup would break spectularly because the devices
+moved and the raids wouldn't go online. This shouldn't happen with the
+autostart feature, I think.
 
-That being said, I'm not particularly happy to have the multi-path solution 
-tied to a specific raid driver; I'd much rather it were in something generic 
-that could be made use of by all raid drivers (and yes, I do see the LVM2 
-device mapper as more hopeful than md in this regard).
 
-> I am looking at what to do for 2.5. I have considered porting the
-> small changes from 2.4 to md 2.5. The LVM1 changes are probably and
-> out gone, as LVM1 doesn't work still.
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
 
-Well, neither of the people most involved in the development (that's Neil 
-Brown for md in general and Ingo Molnar for the multi-path enhancements) made 
-any comments---see if you can elicit some feedback from either of them.
-
-James
-
+-- 
+Immortality is an adequate definition of high availability for me.
+	--- Gregory F. Pfister
 

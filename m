@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262360AbSLFPOr>; Fri, 6 Dec 2002 10:14:47 -0500
+	id <S262937AbSLFPQ2>; Fri, 6 Dec 2002 10:16:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262937AbSLFPOr>; Fri, 6 Dec 2002 10:14:47 -0500
-Received: from [204.178.40.224] ([204.178.40.224]:35976 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S262360AbSLFPOq>; Fri, 6 Dec 2002 10:14:46 -0500
-Date: Fri, 6 Dec 2002 10:24:26 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Greg Boyce <gboyce@rakis.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Dazed and Confused
-In-Reply-To: <Pine.LNX.4.42.0212060948250.7121-100000@egg>
-Message-ID: <Pine.LNX.3.95.1021206101514.21702A-100000@chaos.analogic.com>
+	id <S262981AbSLFPQ2>; Fri, 6 Dec 2002 10:16:28 -0500
+Received: from schroeder.cs.wisc.edu ([128.105.6.11]:17679 "EHLO
+	schroeder.cs.wisc.edu") by vger.kernel.org with ESMTP
+	id <S262937AbSLFPQ0>; Fri, 6 Dec 2002 10:16:26 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Nick LeRoy <nleroy@cs.wisc.edu>
+Organization: UW Condor
+To: linux-kernel@vger.kernel.org
+Subject: Detecting threads vs processes with ps or /proc
+Date: Fri, 6 Dec 2002 09:24:02 -0600
+User-Agent: KMail/1.4.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Message-Id: <200212060924.02162.nleroy@cs.wisc.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Dec 2002, Greg Boyce wrote:
+Hello, all.
 
-> Folks,
-> 
-> I have an issue that I've been trying to track down for some time, and I
-> was hoping that someone might be able to provide me with a definitive
-> awnser.
-> 
-> I work in a company with a large number of Linux machine deployed all
-> around the country, and in some of the machines we've been seeing the
-> following error:
-> 
-> Uhhuh. NMI received. Dazed and confused, but trying to continue
-> You probably have a hardware problem with your RAM chips
-> 
+>From searching through mail archives, etc., I'm pretty sure I know the answer 
+already, but I'm going to post it anyway.
 
-Hardware (read HARDWARE) generates a NMI when something BAD happens.
-Linux didn't do it and Linux can't do anything about it. It just
-reports that something bad happened (like a RAM parity error).
+Our software (Condor) and some related software (Globus) is running on a 
+number of systems around the world.  Condor attempts to monitor the RAM usage 
+of it's "user" (maybe "client" is a better word here) processes.  If the 
+client forks, we need to monitor the client and all of it's children, which 
+really isn't difficult.  The _problem_ is that if the client creates threads, 
+it's impossible, from what we can tell, to tell the difference between 
+separate threads and processes.
 
-FYI Linux never "just needs to be re-booted". That response from
-the computer maintenance department was implanted by the Redmond
-group so they wouldn't have to fix their defective operating system(s).
+So my question, I guess, is this.  How can you tell, from user space, whether 
+a group of processes are related as threads or through a "normal" child / 
+parent relationship?  The systems that we're running on currently are 2.2.19 
+and 2.4.18/19.
 
-Bad RAM, improperly socketed RAM, bad fans, bad power supplies,
-bad heat-sinks, bad feature-cards, all kinds of bad components
-can cause the NMI. Anything that will interfere with reading what
-was written to RAM, including bad address-timing caused by the
-box getting way too hot or the power supplies having noise or
-sagging voltages, will cause this error.
+>From what else I've read, it seems that the new threading model in 2.5/2.6 is 
+changing to a more POSIX friendly model, which will effect this answer, but 
+we're not running 2.5 and really can't force such an upgrade -- hell, right 
+now we're having problems getting a switch from 2.2 pushed through.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+Thanks _very_ much in advance.  I'd be tickled pink if the answer is something 
+like "just look at the foo flag in ps", or "upgrade to version 1.2.3.4 of 
+procps and do xyzzy", but my intuition tells me otherwise.
+
+Thanks,
+
+-Nick
 
 

@@ -1,45 +1,271 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S275850AbVBDEj0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S277409AbVBDEtu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275850AbVBDEj0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 23:39:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275863AbVBDEj0
+	id S277409AbVBDEtu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 23:49:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S277411AbVBDEtu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 23:39:26 -0500
-Received: from wproxy.gmail.com ([64.233.184.196]:58583 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S275850AbVBDEjV (ORCPT
+	Thu, 3 Feb 2005 23:49:50 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:53980 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S277145AbVBDErt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 23:39:21 -0500
+	Thu, 3 Feb 2005 23:47:49 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Stl4mAMn8O54lvfqvKz3wIoJ8h9K9aoDfHFODiYNUV1uluGHJKO58yqQfTbl2h169I8kAoRCOUf2F103AbzjMuQU7X0ERK0FdFtKAxFxwfYgKk7NZ6pkmLG3N6D+272CxKSsS6nqYoOyM7YZVygoMg7iLq0nCEm9kt87X//pf4s=
-Message-ID: <a71293c2050203203951ad1793@mail.gmail.com>
-Date: Thu, 3 Feb 2005 23:39:21 -0500
-From: Stephen Evanchik <evanchsa@gmail.com>
-Reply-To: Stephen Evanchik <evanchsa@gmail.com>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: [PATCH 2.6.11-rc3] IBM Trackpoint support
-Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
-In-Reply-To: <200502032252.45309.dtor_core@ameritech.net>
+        b=Ahf9ias9I7ofP9TYDEKuIkCsi+g1NMegu/kgqnEnmglGcgoUdatc5KsWvNOb8+BGlgdv+U0OfUN78znjSCqT6YL3KKPe+EsI1i3D2H0lBzQZdNaN0P+APkIbfmz1O7bLtfMEvMCfw9HFTc5GJZ71YJTeKS4Aq+5EvL1vsJTsvEs=
+Message-ID: <58cb370e050203095417fed306@mail.gmail.com>
+Date: Thu, 3 Feb 2005 18:54:05 +0100
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Tejun Heo <tj@home-tj.org>
+Subject: Re: [PATCH 2.6.11-rc2 26/29] ide: map ide_cmd_ioctl() to ide_taskfile_ioctl()
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+In-Reply-To: <20050202031037.GK1187@htj.dyndns.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <a71293c20502031443764fb4e5@mail.gmail.com>
-	 <200502031934.16642.dtor_core@ameritech.net>
-	 <200502032252.45309.dtor_core@ameritech.net>
+References: <20050202024017.GA621@htj.dyndns.org>
+	 <20050202031037.GK1187@htj.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 3 Feb 2005 22:52:44 -0500, Dmitry Torokhov
-<dtor_core@ameritech.net> wrote:
-> OK, I have read the code once again, and saw that you have special
-> handling within PS/2 protocol based on model constant. Please set
-> psmouse type to PSMOUSE_TRACKPOINT instead of model and provide full
-> protocol handler, like ALPS, Synaptics and Logitech do. Trackpoint
-> is different and complex enough to warrant it.
+On Wed, 2 Feb 2005 12:10:37 +0900, Tejun Heo <tj@home-tj.org> wrote:
+> > 26_ide_taskfile_cmd_ioctl.patch
+> >
+> >       ide_cmd_ioctl() converted to use ide_taskfile_ioctl().  This
+> >       is the last user of REQ_DRIVE_CMD.
 
-Thanks, I've made all the changes suggested and I'll incorporate this
-too. I'll send a new patch at the end of the weekend when I get back.
+ide_cmd_ioctl() needs to map to taskfile transport not ide_taskfile_ioctl()
 
+> Index: linux-ide-export/drivers/ide/ide-iops.c
+> ===================================================================
+> --- linux-ide-export.orig/drivers/ide/ide-iops.c        2005-02-02 10:28:04.466320918 +0900
+> +++ linux-ide-export/drivers/ide/ide-iops.c     2005-02-02 10:28:07.406843817 +0900
+> @@ -648,11 +648,11 @@ u8 eighty_ninty_three (ide_drive_t *driv
+> 
+>  EXPORT_SYMBOL(eighty_ninty_three);
+> 
+> -int ide_ata66_check (ide_drive_t *drive, ide_task_t *args)
+> +int ide_ata66_check (ide_drive_t *drive, task_ioreg_t *regs)
 
-Stephen
+nitpick: int ide_ata66_check()
+
+>  {
+> -       if ((args->tfRegister[IDE_COMMAND_OFFSET] == WIN_SETFEATURES) &&
+> -           (args->tfRegister[IDE_SECTOR_OFFSET] > XFER_UDMA_2) &&
+> -           (args->tfRegister[IDE_FEATURE_OFFSET] == SETFEATURES_XFER)) {
+> +       if ((regs[IDE_COMMAND_OFFSET] == WIN_SETFEATURES) &&
+> +           (regs[IDE_SECTOR_OFFSET] > XFER_UDMA_2) &&
+> +           (regs[IDE_FEATURE_OFFSET] == SETFEATURES_XFER)) {
+
+nitpick: please drop brackets
+
+>  #ifndef CONFIG_IDEDMA_IVB
+>                 if ((drive->id->hw_config & 0x6000) == 0) {
+>  #else /* !CONFIG_IDEDMA_IVB */
+> @@ -678,11 +678,11 @@ int ide_ata66_check (ide_drive_t *drive,
+>   * 1 : Safe to update drive->id DMA registers.
+>   * 0 : OOPs not allowed.
+>   */
+> -int set_transfer (ide_drive_t *drive, ide_task_t *args)
+> +int set_transfer (ide_drive_t *drive, task_ioreg_t *regs)
+
+nitpick: int set_transfer()
+
+>  {
+> -       if ((args->tfRegister[IDE_COMMAND_OFFSET] == WIN_SETFEATURES) &&
+> -           (args->tfRegister[IDE_SECTOR_OFFSET] >= XFER_SW_DMA_0) &&
+> -           (args->tfRegister[IDE_FEATURE_OFFSET] == SETFEATURES_XFER) &&
+> +       if ((regs[IDE_COMMAND_OFFSET] == WIN_SETFEATURES) &&
+> +           (regs[IDE_SECTOR_OFFSET] >= XFER_SW_DMA_0) &&
+> +           (regs[IDE_FEATURE_OFFSET] == SETFEATURES_XFER) &&
+
+nitpick: brackets
+
+>             (drive->id->dma_ultra ||
+>              drive->id->dma_mword ||
+>              drive->id->dma_1word))
+> Index: linux-ide-export/drivers/ide/ide-taskfile.c
+> ===================================================================
+> --- linux-ide-export.orig/drivers/ide/ide-taskfile.c    2005-02-02 10:28:06.751950074 +0900
+> +++ linux-ide-export/drivers/ide/ide-taskfile.c 2005-02-02 10:28:07.407843655 +0900
+> @@ -704,78 +704,90 @@ abort:
+>         return err;
+>  }
+> 
+> -int ide_wait_cmd (ide_drive_t *drive, u8 cmd, u8 nsect, u8 feature, u8 sectors, u8 *buf)
+> -{
+> -       struct request rq;
+> -       u8 buffer[4];
+> -
+> -       if (!buf)
+> -               buf = buffer;
+> -       memset(buf, 0, 4 + SECTOR_WORDS * 4 * sectors);
+> -       ide_init_drive_cmd(&rq);
+> -       rq.buffer = buf;
+> -       *buf++ = cmd;
+> -       *buf++ = nsect;
+> -       *buf++ = feature;
+> -       *buf++ = sectors;
+> -       return ide_do_drive_cmd(drive, &rq, ide_wait);
+> -}
+> -
+> -/*
+> - * FIXME : this needs to map into at taskfile. <andre@linux-ide.org>
+> - */
+>  int ide_cmd_ioctl (ide_drive_t *drive, unsigned int cmd, unsigned long arg)
+>  {
+> -       int err = 0;
+> -       u8 args[4], *argbuf = args;
+> +       u8 args[4];
+> +       ide_task_request_t *task_req;
+> +       task_ioreg_t *io_ports;
+>         u8 xfer_rate = 0;
+> -       int argsize = 4;
+> -       ide_task_t tfargs;
+> +       mm_segment_t orig_fs;
+> +       int in_size, ret;
+> 
+> -       if (NULL == (void *) arg) {
+> +       if ((void *)arg == NULL) {
+>                 struct request rq;
+>                 ide_init_drive_cmd(&rq);
+> +               rq.flags = REQ_DRIVE_TASKFILE;
+>                 return ide_do_drive_cmd(drive, &rq, ide_wait);
+>         }
+> 
+>         if (copy_from_user(args, (void __user *)arg, 4))
+>                 return -EFAULT;
+> 
+> -       memset(&tfargs, 0, sizeof(ide_task_t));
+> -       tfargs.tfRegister[IDE_FEATURE_OFFSET] = args[2];
+> -       tfargs.tfRegister[IDE_NSECTOR_OFFSET] = args[3];
+> -       tfargs.tfRegister[IDE_SECTOR_OFFSET]  = args[1];
+> -       tfargs.tfRegister[IDE_LCYL_OFFSET]    = 0x00;
+> -       tfargs.tfRegister[IDE_HCYL_OFFSET]    = 0x00;
+> -       tfargs.tfRegister[IDE_SELECT_OFFSET]  = 0x00;
+> -       tfargs.tfRegister[IDE_COMMAND_OFFSET] = args[0];
+> -
+> -       if (args[3]) {
+> -               argsize = 4 + (SECTOR_WORDS * 4 * args[3]);
+> -               argbuf = kmalloc(argsize, GFP_KERNEL);
+> -               if (argbuf == NULL)
+> -                       return -ENOMEM;
+> -               memcpy(argbuf, args, 4);
+> +       in_size = 4 * SECTOR_WORDS * args[3];
+> +
+> +       task_req = kmalloc(sizeof(*task_req) + in_size, GFP_KERNEL);
+> +       if (task_req == NULL)
+> +               return -ENOMEM;
+> +
+> +       memset(task_req, 0, sizeof(*task_req) + in_size);
+> +
+> +       task_req->out_flags.b.status_command    = 1;
+> +       task_req->out_flags.b.sector            = 1;
+> +       task_req->out_flags.b.error_feature     = 1;
+> +       task_req->out_flags.b.nsector           = 1;
+> +
+> +       task_req->in_flags.b.status_command     = 1;
+> +       task_req->in_flags.b.error_feature      = 1;
+> +       task_req->in_flags.b.nsector            = 1;
+> +
+> +       io_ports = task_req->io_ports;
+> +       io_ports[IDE_COMMAND_OFFSET]            = args[0];
+> +       io_ports[IDE_SECTOR_OFFSET]             = args[1];
+> +       io_ports[IDE_FEATURE_OFFSET]            = args[2];
+> +       io_ports[IDE_NSECTOR_OFFSET]            = args[3];
+
+Please handle WIN_SMART hack here (see execute_drive_cmd()),
+your next patch just kills it - it can break legacy applications.
+
+> +       if (in_size) {
+> +               task_req->req_cmd               = IDE_DRIVE_TASK_IN;
+> +               task_req->data_phase            = TASKFILE_IN;
+> +               task_req->in_size               = in_size;
+> +       } else {
+> +               task_req->req_cmd               = IDE_DRIVE_TASK_NO_DATA;
+> +               task_req->data_phase            = TASKFILE_NO_DATA;
+>         }
+> -       if (set_transfer(drive, &tfargs)) {
+> +
+> +       if (set_transfer(drive, io_ports)) {
+>                 xfer_rate = args[1];
+> -               if (ide_ata66_check(drive, &tfargs))
+> +               if (ide_ata66_check(drive, io_ports)) {
+> +                       ret = -EIO;
+>                         goto abort;
+> +               }
+>         }
+> 
+> -       err = ide_wait_cmd(drive, args[0], args[1], args[2], args[3], argbuf);
+> +       orig_fs = get_fs();
+> +       set_fs(KERNEL_DS);
+> 
+> -       if (!err && xfer_rate) {
+> +       ret = ide_taskfile_ioctl(drive, cmd, (unsigned long)task_req);
+> +
+> +       set_fs(orig_fs);
+
+as ide_cmd_ioctl() only handles no-data and PIO-in protocols it should
+be easy to add missing bits here and get rid of calling ide_taskfile_ioctl()
+
+> +       if (!ret && xfer_rate) {
+>                 /* active-retuning-calls future */
+>                 ide_set_xfer_rate(drive, xfer_rate);
+>                 ide_driveid_update(drive);
+>         }
+> +
+> +       args[0] = io_ports[IDE_STATUS_OFFSET];
+> +       args[1] = io_ports[IDE_ERROR_OFFSET];
+> +       args[2] = io_ports[IDE_NSECTOR_OFFSET];
+> +       args[3] = 0;
+> +
+> +       if (copy_to_user((void __user *)arg, args, 4) ||
+> +           copy_to_user((void __user *)arg + 4,
+> +                        (void *)task_req + sizeof(*task_req), in_size))
+> +               ret = -EFAULT;
+>  abort:
+> -       if (copy_to_user((void __user *)arg, argbuf, argsize))
+> -               err = -EFAULT;
+> -       if (argsize > 4)
+> -               kfree(argbuf);
+> -       return err;
+> +       kfree(task_req);
+> +       return ret;
+>  }
+> 
+>  int ide_task_ioctl (ide_drive_t *drive, unsigned int cmd, unsigned long arg)
+> Index: linux-ide-export/include/linux/ide.h
+> ===================================================================
+> --- linux-ide-export.orig/include/linux/ide.h   2005-02-02 10:28:06.529986088 +0900
+> +++ linux-ide-export/include/linux/ide.h        2005-02-02 10:28:07.408843493 +0900
+> @@ -1289,14 +1289,6 @@ extern int ide_do_drive_cmd(ide_drive_t
+>   */
+>  extern void ide_end_drive_cmd(ide_drive_t *, u8, u8);
+> 
+> -/*
+> - * Issue ATA command and wait for completion.
+> - * Use for implementing commands in kernel
+> - *
+> - *  (ide_drive_t *drive, u8 cmd, u8 nsect, u8 feature, u8 sectors, u8 *buf)
+> - */
+> -extern int ide_wait_cmd(ide_drive_t *, u8, u8, u8, u8, u8 *);
+> -
+>  extern u32 ide_read_24(ide_drive_t *);
+> 
+>  extern void SELECT_DRIVE(ide_drive_t *);
+> @@ -1334,10 +1326,10 @@ int ide_task_ioctl(ide_drive_t *, unsign
+>  extern int system_bus_clock(void);
+> 
+>  extern int ide_driveid_update(ide_drive_t *);
+> -extern int ide_ata66_check(ide_drive_t *, ide_task_t *);
+> +extern int ide_ata66_check(ide_drive_t *, task_ioreg_t *);
+>  extern int ide_config_drive_speed(ide_drive_t *, u8);
+>  extern u8 eighty_ninty_three (ide_drive_t *);
+> -extern int set_transfer(ide_drive_t *, ide_task_t *);
+> +extern int set_transfer(ide_drive_t *, task_ioreg_t *);
+>  extern int taskfile_lib_get_identify(ide_drive_t *drive, u8 *);
+
+extern-s are not needed
+
+>  extern int ide_wait_not_busy(ide_hwif_t *hwif, unsigned long timeout);

@@ -1,63 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291319AbSBMCyA>; Tue, 12 Feb 2002 21:54:00 -0500
+	id <S291321AbSBMDbJ>; Tue, 12 Feb 2002 22:31:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291320AbSBMCxl>; Tue, 12 Feb 2002 21:53:41 -0500
-Received: from gatekeeper-WAN.credit.com ([209.155.225.68]:12996 "EHLO
-	gatekeeper") by vger.kernel.org with ESMTP id <S291319AbSBMCxY>;
-	Tue, 12 Feb 2002 21:53:24 -0500
-Date: Tue, 12 Feb 2002 18:52:59 -0800 (PST)
-From: Eugene Chupkin <ace@credit.com>
+	id <S291323AbSBMDa7>; Tue, 12 Feb 2002 22:30:59 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:27655 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S291321AbSBMDaw>; Tue, 12 Feb 2002 22:30:52 -0500
+Date: Tue, 12 Feb 2002 22:28:44 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org, tmeagher@credit.com
-Subject: Re: 2.4.x ram issues?
-In-Reply-To: <E16aoic-0003of-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.10.10202121849290.683-100000@mail.credit.com>
+cc: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] sys_sync livelock fix
+In-Reply-To: <E16anHf-0003bt-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.3.96.1020212220340.8017A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Here is the output of /proc/mtrr with the 4gb image
-
-reg00: base=0xe0000000 (3584MB), size= 512MB: uncachable, count=1
-reg01: base=0x00000000 (   0MB), size=4096MB: write-back, count=1
-
-And this is with 64gb image
-
-reg00: base=0xe6000000 (3680MB), size=  32MB: uncachable, count=1
-reg01: base=0xe8000000 (3712MB), size= 128MB: uncachable, count=1
-reg02: base=0xf0000000 (3840MB), size= 256MB: uncachable, count=1
-reg03: base=0x00000000 (   0MB), size=8192MB: write-back, count=1
-reg04: base=0x200000000 (8192MB), size=4096MB: write-back, count=1
-reg05: base=0x300000000 (12288MB), size=2048MB: write-back, count=1
-reg06: base=0x380000000 (14336MB), size=1024MB: write-back, count=1
-reg07: base=0x3c0000000 (15360MB), size= 512MB: write-back, count=1
-
-
-I'm not sure if that looks right, any ideas?
-
-Thanks
--E
-
-
 On Wed, 13 Feb 2002, Alan Cox wrote:
 
-> > I have a problem with high ram support on 2.4.7 to 2.4.17 all behave the
-> > same. I have a quad Xeon 700 box with 16gb of ram on an Intel SKA4 board.
-> > The ram is all the same 16 1gb PC100 SDRAM modules from Crucial. If I
-> > compile the kernel with high ram (64gb) support, my system runs very slow,
-> > it takes about 15 minutes for make menuconfig to come up. If I  recompile
-> > the kernel with 4gb support, it runs perfectly normal and very fast, but I
-> > have 12 gigs that I can't use. Is this a known issue? Is there a fix? I
-> > tried just about everything and I am all out of options. Please help!
+> > > Whats wrong with sync not terminating when there is permenantly I/O left ?
+> > > Its seems preferably to suprise data loss
+> > 
+> > Hard call.  What do we *want* sync to do?
 > 
-> Thats almost certainly indicating that the memory type range registers
-> were not set up correcly by the BIOS. Check /proc/mtrr and also ask your
-> vendor about BIOS updates to address the problem
-> 
-> (If there aren't any you can hack around it but its not nice to let vendors
->  get away with bugs if that indeed is what it is)
-> 
+> I'd rather not change the 2.4 behaviour - just in case. For 2.5 I really
+> have no opinion either way if SuS doesn't mind
+
+Alan, I think you have this one wrong, although SuS seems to have it wrong
+as well, and if Linux did what SuS said there would be no problem.
+
+- What SuS seems to say is that all dirty buffers will queued for physical
+  write. I think if we did that the livelock would disappear, but data
+  integrity might suffer.
+- sync() could be followed by write() at the very next dispatch, and it
+  was never intended to be the last call after which no writes would be
+  done. It is a point in time.
+- the most common use of sync() is to flush data write to all files of the
+  current process. If there was a better way to do it which was portable,
+  sync() would be called less. I doubt there are processes which alluse
+  that no write will be done after sync() returns.
+- since sync() can't promise "no new writes" why try to make it do so? It
+  should mean "write current sirty buffers" and that's far more than SuS
+  requires.
+
+I don't think benchmarks are generally important, but in this case the
+benchmark reveals that we have been implementing a system call in a way
+which not only does more than SuS requires, but more than the user
+expects. To leave it trying to do even more than that seems to have no
+benefit and a high (possible) cost.
+
+I have seen shutdown hang many times, and I have to wonder if the shutdown
+script is waiting for a process which is in some kind of write loop, while
+the process ignores KILL signals. Don't know, don't claim I do, but I
+see no reason for a sync() to handle more than current dirty blocks.
+
+My opinion, but I hope yours. Fewer hangs and better performance is a
+compromise I can accept.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

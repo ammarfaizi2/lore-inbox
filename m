@@ -1,63 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130208AbRAYUaX>; Thu, 25 Jan 2001 15:30:23 -0500
+	id <S129172AbRAYUgn>; Thu, 25 Jan 2001 15:36:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131811AbRAYUaN>; Thu, 25 Jan 2001 15:30:13 -0500
-Received: from hs-gk.cyberbills.com ([216.35.157.254]:58121 "EHLO
-	hs-mail.cyberbills.com") by vger.kernel.org with ESMTP
-	id <S130208AbRAYUaG>; Thu, 25 Jan 2001 15:30:06 -0500
-Date: Thu, 25 Jan 2001 12:29:59 -0800 (PST)
-From: "Sergey Kubushin" <ksi@cyberbills.com>
-To: Micah Gorrell <angelcode@myrealbox.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: eepro100 problems in 2.4.0
-In-Reply-To: <003401c0870c$3362e390$9b2f4189@angelw2k>
-Message-ID: <Pine.LNX.4.31ksi3.0101251224490.6238-100000@nomad.cyberbills.com>
+	id <S130946AbRAYUgd>; Thu, 25 Jan 2001 15:36:33 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:7184 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S129172AbRAYUgW>;
+	Thu, 25 Jan 2001 15:36:22 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200101252036.XAA10500@ms2.inr.ac.ru>
+Subject: Re: [UPDATE] Zerocopy patches, against 2.4.1-pre10
+To: ionut@moisil.cs.columbia.edu (Ion Badulescu)
+Date: Thu, 25 Jan 2001 23:36:03 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org, andrewm@uow.EDU.AU
+In-Reply-To: <200101252028.f0PKSJR02124@moisil.dev.hydraweb.com> from "Ion Badulescu" at Jan 25, 1 12:28:19 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 Jan 2001, Micah Gorrell wrote:
+Hello!
 
-I have it too. Kernel spits a lot of "eepro100: wait_for_cmd_done timeout!"
-and network doesn't work. 2.2 is fine. This behaviour is not persistent,
-sometimes the eepro100 module is loaded without such an error and works fine
-then.
+> Starfire card does, maybe the 3com is different. :-)
 
-The eepro100 in question is the built-in one based on 82559 chip.
+3com _is_ different. 8)
+
+I is not an issue, we do not make zerocopy on IP fragments.
 
 
-> I have doing some testing with kernel 2.4 and I have had constant
-> problems
-> with the eepro100 driver.  Under 2.2 it works perfectly but under 2.4 I
-> am
-> unable to use more than one card in a server and when I do use one card
-> I
-> get errors stating that eth0 reports no recources.  Has anyone else
-> seen
-> this kind of problem?
->
-> Micah
-> ___
-> The irony is that Bill Gates claims to be making a stable operating
-> system
-> and Linus Torvalds claims to be trying to take over the world
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
->
->
+> Are we even bothering with the partial checksums at this point, or
+> are we falling back to CPU checksumming if the packet is fragmented?
 
----
-Sergey Kubushin				Sr. Unix Administrator
-CyberBills, Inc.			Phone:	702-567-8857
-874 American Pacific Dr,		Fax:	702-567-8890
-Henderson, NV, 89014
+Of course, we are not bothering.
 
+
+
+> And, on a related note: what's involved in making a driver
+> zerocopy-aware? I haven't looked too closely to the current patch,
+> but I was thinking of playing with the starfire driver, since I
+> have all the chipset docs..
+
+Nothing especially clever. Gather plus checksumming, as described
+in comment in linux/netdevice.h. Well, just look into one of existing
+drivers: better, sunhme. 3com and acenic are too stupid to learn something.
+
+Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

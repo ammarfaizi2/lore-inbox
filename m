@@ -1,83 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130250AbQLJP6M>; Sun, 10 Dec 2000 10:58:12 -0500
+	id <S130063AbQLJQBX>; Sun, 10 Dec 2000 11:01:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130747AbQLJP6C>; Sun, 10 Dec 2000 10:58:02 -0500
-Received: from APh-Aug-101-1-2-252.abo.wanadoo.fr ([193.251.31.252]:7428 "EHLO
-	sawtooth.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S130250AbQLJP5w>; Sun, 10 Dec 2000 10:57:52 -0500
-From: Benjamin Herrenschmidt <bh40@calva.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Fwd: kernel oops with rm in hfs - hit BUG() in line 236 of dcache.h
-Date: Sun, 10 Dec 2000 16:26:28 +0100
-Message-Id: <19341104085812.14694@192.168.1.10>
-X-Mailer: CTM PowerMail 3.0.6 <http://www.ctmdev.com>
-MIME-Version: 1.0
+	id <S130747AbQLJQBN>; Sun, 10 Dec 2000 11:01:13 -0500
+Received: from uberbox.mesatop.com ([208.164.122.11]:57613 "EHLO
+	uberbox.mesatop.com") by vger.kernel.org with ESMTP
+	id <S130063AbQLJQBE>; Sun, 10 Dec 2000 11:01:04 -0500
+From: Steven Cole <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+To: linux-kernel@vger.kernel.org
+Subject: UP 2.2.18 makes kernels 3% faster than UP 2.4.0-test12
+Date: Sun, 10 Dec 2000 08:31:29 -0700
+X-Mailer: KMail [version 1.1.95.2]
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Message-Id: <00121008312900.00872@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
----------------- Begin Forwarded Message ----------------
-Subject: kernel oops with rm in hfs - hit BUG() in line 236 of dcache.h
-Date Sent: Sunday, December 10, 2000 12:56 AM
-From: phandel@cise.ufl.edu
-To: linuxppc-dev@lists.linuxppc.org
-CC: asun@cobaltnet.com, asun@asun.cobaltnet.com
+I performed the following tests running both 2.4.0-test12-pre7 and
+2.2.18-pre26.  All kernel builds were done in console mode (no X).
 
+All numbers are seconds required to make bzImage.  Times were 
+obtained using the date command before and after make bzImage in
+a script. Each test was performed three times.
 
-PowerCenter Pro 210mhz 604e, 224MB RAM, Linux 2.4-pre11 (rsync from Paul 12/8)
+ 1   2   3   ave.
 
-I was removing multiple files from my hfs drive, when I hit the BUG() at
-line 236 in /usr/src/linux/include/linux/dcache.h:
+449 443 440  444   make bzImage for 2.4.0t12p7 running 2.2.18p26
+460 458 454  457.3 make bzImage for 2.4.0t12p7 running 2.4.0t12p7
 
-static __inline__ struct dentry * dget(struct dentry *dentry)
-{
-        if (dentry) {
-                if (!atomic_read(&dentry->d_count))
-                        BUG();
-                atomic_inc(&dentry->d_count);
-        }
-        return dentry;
-}
+310 310 307  309   make bzImage for 2.2.18p26 running 2.2.18p26
+318 319 317  318   make bzImage for 2.2.18p26 running 2.4.0t12p7
 
+2.2.18p26  is shorthand for 2.2.18-pre26.
+2.4.0t12p7 is shorthand for 2.4.0-test12-pre7.
 
-Dec  9 18:09:21 like kernel: kernel BUG at /usr/src/linux/include/linux/
-dcache.h:236!
-Dec  9 18:09:21 like kernel: Oops: Exception in kernel mode, sig: 7
-Dec  9 18:09:21 like kernel: NIP: C00712FC XER: 00000000 LR: C00712FC SP:
-C1087DB0 REGS: c1087d00 TRAP: 0700
-Dec  9 18:09:21 like kernel: MSR: 00089032 EE: 1 PR: 0 FP: 0 ME: 1 IR/DR: 11
-Dec  9 18:09:21 like kernel: TASK = c1086000[12310] 'rm' Last syscall: 10
-Dec  9 18:09:21 like kernel: last math c1086000 last altivec 00000000
-Dec  9 18:09:21 like kernel: GPR00: C00712FC C1087DB0
-C1086000 00000039 00001032 00000001 C0210000 00000000
-Dec  9 18:09:21 like kernel: GPR08: 00000000 C01B0000 0000001F
-C1087CF0 22822842 1001ECE8 100302E8 10030000
-Dec  9 18:09:21 like kernel: GPR16: 1
-0030000 10030000 10030000 10030000 00000000 C96D7C20 00000000 C0210000
-Dec  9 18:09:21 like kernel: GPR24: C291D62C C0180000 C0180000 C291D600
-C4193C60 C291EE40 C291D628 C9947520
-Dec  9 18:09:21 like kernel: Call backtrace:
-Dec  9 18:09:21 like kernel: C00712FC C0047854 C00479A8 C00048D8 10001D8C
-100031D0 10001358
-Dec  9 18:09:21 like kernel: 0FF0B734 00000000
+2.2.18-pre26 was patched with reiserfs-3.5.28.
+2.2.18-pre26 was compiled with gcc 2.91.66 (kgcc).
 
->From the System.map:
-c007122c T hfs_unlink
-c00476d8 T vfs_unlink
-c00478c0 T sys_unlink
-c00048d8 T ret_from_syscall_1
+2.4.0-test12-pre7 was patched with reiserfs-3.6.22.
+2.4.0-test12-pre7 was compiled with gcc 2.95.3.
 
+The .config files were unchanged during the tests.
+A make clean was performed before each test.
+The test machine was not connected to a network during the tests.
+Test machine: single processor P-III (450 Mhz), 192MB, IDE disk (ST317221A).
 
-Thanks,
-Peter
+Conclusion: UP 2.2.18 makes kernels 3% faster than UP 2.4.0-test12
+using ReiserFS.  However, the margin of victory is small enough that a 
+recount may be necessary.
 
+It would be interesting to see results using ext2fs and results from SMP 
+machines.
 
-** Sent via the linuxppc-dev mail list. See http://lists.linuxppc.org/
-
-
------------------ End Forwarded Message -----------------
+Steven
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

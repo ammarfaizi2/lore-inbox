@@ -1,43 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbVCZRcT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbVCZRmY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261190AbVCZRcT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Mar 2005 12:32:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbVCZRcT
+	id S261193AbVCZRmY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Mar 2005 12:42:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261197AbVCZRmY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Mar 2005 12:32:19 -0500
-Received: from ds01.webmacher.de ([213.239.192.226]:56213 "EHLO
-	ds01.webmacher.de") by vger.kernel.org with ESMTP id S261190AbVCZRcQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Mar 2005 12:32:16 -0500
-In-Reply-To: <1111850358.8042.34.camel@laptopd505.fenrus.org>
-References: <200503261701.08774.chunkeey@web.de> <1111850358.8042.34.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <bf8a98cafc4141c67d3b4cabfde65ed2@dalecki.de>
-Content-Transfer-Encoding: 7bit
-Cc: linux-kernel@vger.kernel.org, Chuck <chunkeey@web.de>
-From: Marcin Dalecki <martin@dalecki.de>
-Subject: Re: How's the nforce4 support in Linux?
-Date: Sat, 26 Mar 2005 18:32:04 +0100
-To: Arjan van de Ven <arjan@infradead.org>
-X-Mailer: Apple Mail (2.619.2)
+	Sat, 26 Mar 2005 12:42:24 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:18570 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261193AbVCZRmT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Mar 2005 12:42:19 -0500
+Date: Sat, 26 Mar 2005 18:42:15 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: gettimeofday call
+In-Reply-To: <4de75d4e913f9c7fc93bde5ee6ec57b0@mac.com>
+Message-ID: <Pine.LNX.4.61.0503261838100.9796@yvahk01.tjqt.qr>
+References: <Pine.LNX.4.61.0503261139490.3958@yvahk01.tjqt.qr>
+ <4de75d4e913f9c7fc93bde5ee6ec57b0@mac.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 2005-03-26, at 16:19, Arjan van de Ven wrote:
-
-> `
->> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
->> hda: dma_intr: error=0x84 { DriveStatusError BadCRC
+>> I suppose that calling gettimeofday() repeatedly (to add a timestamp to
+>> some data) within the kernel is cheaper than doing it in userspace, is it?
 >
-> BadCRC is 99% sure a cabling issue; either a bad/overheated cable or a
-> cable used at too high a speed for the cable.
+> Well, the following daemon works on most archs that support mmap at only
+[...]
 
-No. It is more likely that the timing programming between the disk and 
-host controller
-are in a miss-match state. UDMA mode detection can come in to mind too.
-It makes sense to experiment with hdparm to see if the problem goes 
-away in non
-Ultra DMA modes.
+Ah, it does not need to be that complex.
 
+Just comparing two approaches:
+
+--1--
+/* KERNEL: Calling read() on a character device */
+static int u_read(...) {
+   ...
+   gettimeofday(tv);
+   enqueue_in_buffer(tv);
+   ...
+}
+
++nothing needed in userspace
+
+--2--
+/* KERNEL: No gettimeofday */
+
+Userspace:
+while(read(fd, buf, sizeof(buf)) {
+    gettimeofday(&buf.tv);
+    ...
+}
+
+
+(In either case, at some point, userspace has a timestamp.)
+I think that -1- is faster it does not require an additional syscall from
+userspace to sys_gettimeofday().
+
+
+Jan Engelhardt
+-- 
+No TOFU for me, please.

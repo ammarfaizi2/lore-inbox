@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132587AbRASUtr>; Fri, 19 Jan 2001 15:49:47 -0500
+	id <S136228AbRASUxr>; Fri, 19 Jan 2001 15:53:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132867AbRASUth>; Fri, 19 Jan 2001 15:49:37 -0500
-Received: from gateway.sequent.com ([192.148.1.10]:39305 "EHLO
-	gateway.sequent.com") by vger.kernel.org with ESMTP
-	id <S132587AbRASUtb>; Fri, 19 Jan 2001 15:49:31 -0500
-Date: Fri, 19 Jan 2001 12:49:21 -0800
-From: Mike Kravetz <mkravetz@sequent.com>
-To: Andrea Arcangeli <andrea@suse.de>,
-        Davide Libenzi <davidel@xmail.virusscreen.com>
-Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [Lse-tech] Re: multi-queue scheduler update
-Message-ID: <20010119124921.G26968@w-mikek.des.sequent.com>
-In-Reply-To: <20010118155311.B8637@w-mikek.des.sequent.com> <20010119012616.D32087@athlon.random> <20010118165225.E8637@w-mikek.des.sequent.com> <20010119023041.F32087@athlon.random> <20010118173435.K8637@w-mikek.des.sequent.com>
+	id <S136275AbRASUxj>; Fri, 19 Jan 2001 15:53:39 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:44380 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S136228AbRASUx3>; Fri, 19 Jan 2001 15:53:29 -0500
+Date: Fri, 19 Jan 2001 21:54:00 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: kuznet@ms2.inr.ac.ru
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
+Message-ID: <20010119215400.B8717@athlon.random>
+In-Reply-To: <20010118220428.G28276@athlon.random> <200101191752.UAA24169@ms2.inr.ac.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20010118173435.K8637@w-mikek.des.sequent.com>; from mkravetz@sequent.com on Thu, Jan 18, 2001 at 05:34:35PM -0800
+Content-Disposition: inline
+In-Reply-To: <200101191752.UAA24169@ms2.inr.ac.ru>; from kuznet@ms2.inr.ac.ru on Fri, Jan 19, 2001 at 08:52:53PM +0300
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 18, 2001 at 05:34:35PM -0800, Mike Kravetz wrote:
-> On Fri, Jan 19, 2001 at 02:30:41AM +0100, Andrea Arcangeli wrote:
-> > On Thu, Jan 18, 2001 at 04:52:25PM -0800, Mike Kravetz wrote:
-> > > was less than the number of processors.  I'll give the tests a try
-> > > with a smaller number of threads.  I'm also open to suggestions for
-> > 
-> > OK!
-> > 
-> > > what benchmarks/test methods I could use for scheduler testing.  If
-> > > you remember what people have used in the past, please let me know.
-> > 
-> > It was this one IIRC (it spawns threads calling sched_yield() in loop).
+On Fri, Jan 19, 2001 at 08:52:53PM +0300, kuznet@ms2.inr.ac.ru wrote:
+> Hello!
 > 
-> Thanks!
+> > I thought setsockopt is meant to set an option in the socket,
+> 
+> It is not.
 
-It was my intention to post IIRC numbers for small thread counts today.
-However, the benchmark (not the system) seems to hang on occasion.  This
-occurs on both the unmodified 2.4.0 kernel and the one which contains
-my multi-queue patch.  Therefore, I'm pretty sure it is not something
-I did. :)
+The manpage disagrees with you:
 
-Anyone else see anything like this before?  I'll look into the reason
-for the hang, but it will delay my posting of these numbers.
+       getsockopt, setsockopt - get and set options on sockets                              
+				^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
--- 
-Mike Kravetz                                 mkravetz@sequent.com
-IBM Linux Technology Center
+SIOCPUSH doesn't fit in get/setsockopt, face it.
+
+> > controls the I/O (aka ioctl ;). Anyways either ioctl or setsockopt is fine in
+> > pratice
+> 
+> After BKL is moved down.
+
+The BKL will be moved down in the next months regardless of where we put the
+functionality, as said in my original email choosing in function of the BKL in
+ioctl VFS is wrong IMHO.
+
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

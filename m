@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266215AbUGJLmp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266217AbUGJLuV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266215AbUGJLmp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 07:42:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266216AbUGJLmp
+	id S266217AbUGJLuV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 07:50:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266218AbUGJLuV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 07:42:45 -0400
-Received: from mx07.ms.so-net.ne.jp ([202.238.82.7]:39082 "EHLO
-	mx07.ms.so-net.ne.jp") by vger.kernel.org with ESMTP
-	id S266215AbUGJLmm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 07:42:42 -0400
-Message-ID: <40EFD5DB.3000100@turbolinux.co.jp>
-Date: Sat, 10 Jul 2004 20:41:15 +0900
-From: Go Taniguchi <go@turbolinux.co.jp>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; ja-JP; rv:1.5) Gecko/20031231
-X-Accept-Language: ja, en-us, en
-MIME-Version: 1.0
-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-CC: Jesper Juhl <juhl-lkml@dif.dk>, Con Kolivas <kernel@kolivas.org>,
-       Matthias Andree <matthias.andree@gmx.de>
-Subject: Re: post 2.6.7 BK change breaks Java?
-References: <40EEB1B2.7000800@kolivas.org> <Pine.LNX.4.56.0407091954160.22376@jjulnx.backbone.dif.dk>
-In-Reply-To: <Pine.LNX.4.56.0407091954160.22376@jjulnx.backbone.dif.dk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 10 Jul 2004 07:50:21 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:34250 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S266217AbUGJLuR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 07:50:17 -0400
+Date: Sat, 10 Jul 2004 13:50:12 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, Anton Blanchard <anton@samba.org>,
+       B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] kill IKCONFIG_VERSION
+Message-ID: <20040710115012.GI28324@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi list.
+The patch below (already ACK'ed by Randy Dunlap) kills the unused 
+IKCONFIG_VERSION from kernel/configs.c .
 
-Jesper Juhl wrote:
-> On Fri, 9 Jul 2004, Con Kolivas wrote:
-> 
-> 
->>>On Tue, 6 Jul 2004, Matthias Andree wrote:
->>>>Hi,
->>>>
->>>>I've pulled from the linux-2.6 BK tree some post-2.6.7 version,
->>compiled
->>>>and installed it, and it breaks Java, standalone or plugged into
->>>>firefox, the symptom is that the application catches SIGKILL. This
->>>>didn't happen with stock 2.6.7 and doesn't happen with 2.6.6 either.
+This patch is based on a previous patch by Anton Blanchard and a an idea 
+of Bartlomiej Zolnierkiewicz.
+(I hope I haven't forgotten anyone who contributed to this patch. ;-)  )
 
-If I removed this changeset, java worked.
-http://linux.bkbits.net:8080/linux-2.6/cset@1.1743
 
-Is this "rt_sigsuspend() and sigaltstack() prototype change" right?
-If so, how do we resolve user side?
+Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+
+--- linux-2.6.7-mm7-full/kernel/configs.c.old	2004-07-10 13:44:01.000000000 +0200
++++ linux-2.6.7-mm7-full/kernel/configs.c	2004-07-10 13:44:19.000000000 +0200
+@@ -58,8 +58,6 @@
+ /**************************************************/
+ /* globals and useful constants                   */
+ 
+-static const char IKCONFIG_VERSION[] __attribute_used__ __initdata = "0.7";
+-
+ static ssize_t
+ ikconfig_read_current(struct file *file, char __user *buf,
+ 		      size_t len, loff_t * offset)
 

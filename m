@@ -1,60 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261992AbUKJVDu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261991AbUKJVDe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261992AbUKJVDu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 16:03:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261995AbUKJVDu
+	id S261991AbUKJVDe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 16:03:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261992AbUKJVDe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 16:03:50 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:65496 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261992AbUKJVDp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 16:03:45 -0500
-Subject: [PATCH] bug in radix_tree_delete
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: linux-mm <linux-mm@kvack.org>, linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1100120622.7468.16.camel@localhost>
+	Wed, 10 Nov 2004 16:03:34 -0500
+Received: from mproxy.gmail.com ([216.239.56.246]:59805 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261991AbUKJVDb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 16:03:31 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=S79BxLYSFd9KgfHLTI5kk7jUXVi1P8bwttJr3BUECACftaL2KLj7lyBE/Apl2lYd32K3H8Z07l2WP2oScUuNbaQCXp4O7wAroVxHmLzyVr1dIfjDoKAnGGbUrB5I0YoDHXYDmFb5xYIQATBDGFgXgKoCvA1ppW60KPQo9Rqfh0I=
+Message-ID: <543d091304111013035563e7f6@mail.gmail.com>
+Date: Wed, 10 Nov 2004 19:03:30 -0200
+From: Alexandre Costa <alebyte@gmail.com>
+Reply-To: Alexandre Costa <alebyte@gmail.com>
+To: linux-os@analogic.com
+Subject: Re: DEVFS_FS
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0411101544080.19616@chaos.analogic.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 10 Nov 2004 15:03:42 -0600
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+References: <Pine.LNX.4.61.0411101544080.19616@chaos.analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was looking through the radix tree code and came across what I think
-is a bug in radix_tree_delete.
-
-	for (idx = 0; idx < RADIX_TREE_TAG_LONGS; idx++) {
-		if (pathp[0].node->tags[tag][idx]) {
-			tags[tag] = 1;
-			nr_cleared_tags--;
-			break;
-		}
-	}
-
-The above loop should only be executed if tags[tag] is zero.  Otherwise,
-when walking up the tree, we can decrement nr_cleared_tags twice or more
-for the same value of tag, thus potentially exiting the outer loop too
-early.
-
-radix-tree: Ensure that nr_cleared_tags is only decremented once for each tag.
-
-Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
-diff -Nurp linux-2.6.10-rc1-mm4/lib/radix-tree.c linux/lib/radix-tree.c
---- linux-2.6.10-rc1-mm4/lib/radix-tree.c	2004-11-10 14:45:18.259269000 -0600
-+++ linux/lib/radix-tree.c	2004-11-10 14:45:59.292031072 -0600
-@@ -725,8 +725,10 @@ void *radix_tree_delete(struct radix_tre
- 		for (tag = 0; tag < RADIX_TREE_TAGS; tag++) {
- 			int idx;
+On Wed, 10 Nov 2004 15:46:06 -0500 (EST), linux-os
+<linux-os@chaos.analogic.com> wrote:
  
--			if (!tags[tag])
--				tag_clear(pathp[0].node, tag, pathp[0].offset);
-+			if (tags[tag])
-+				continue;
-+
-+			tag_clear(pathp[0].node, tag, pathp[0].offset);
- 
- 			for (idx = 0; idx < RADIX_TREE_TAG_LONGS; idx++) {
- 				if (pathp[0].node->tags[tag][idx]) {
+> What is the approved substitute for DEVFS_FS that is marked
+> obsolete?
 
+udev
+http://www.kernel.org/pub/linux/utils/kernel/hotplug/udev.html
 
+-- 
+Alexandre Costa
+Linux Reg. User: 129596
+alebyte at gmail dot com
+ICQ UIN nº: 19607379

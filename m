@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265811AbUFOSeO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265828AbUFOSmb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265811AbUFOSeO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 14:34:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265815AbUFOSeO
+	id S265828AbUFOSmb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 14:42:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265837AbUFOSmb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 14:34:14 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:14354 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S265811AbUFOSeJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 14:34:09 -0400
-Date: Tue, 15 Jun 2004 20:37:00 +0200
-To: Karel =?iso-8859-1?Q?Kulhav=FD?= <clock@twibright.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: AT Keyboard (was: Helge Hafting vs. make menuconfig help)
-Message-ID: <20040615183700.GA13866@hh.idb.hist.no>
-References: <20040615140206.A6153@beton.cybernet.src> <20040615141039.GF20632@lug-owl.de> <20040615142040.B6241@beton.cybernet.src> <20040615144127.GG20632@lug-owl.de> <20040615172129.F6843@beton.cybernet.src> <20040615173210.GM20632@lug-owl.de> <20040615174651.A6965@beton.cybernet.src>
+	Tue, 15 Jun 2004 14:42:31 -0400
+Received: from crianza.bmb.uga.edu ([128.192.34.109]:385 "EHLO crianza")
+	by vger.kernel.org with ESMTP id S265828AbUFOSma (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 14:42:30 -0400
+Date: Tue, 15 Jun 2004 14:42:29 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: more about serial console
+Message-ID: <20040615184229.GA13604@porto.bmb.uga.edu>
+Reply-To: foo@porto.bmb.uga.edu
+References: <20040615000436.GA12516@porto.bmb.uga.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040615174651.A6965@beton.cybernet.src>
+In-Reply-To: <20040615000436.GA12516@porto.bmb.uga.edu>
 User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+From: foo@porto.bmb.uga.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 15, 2004 at 05:46:51PM +0000, Karel Kulhavý wrote:
-> > In 2.4.x, the transition from "old-style" input drivers to new-style
-> > (Input API) was never finished. Instead, Input API was introduced, and
-> > HID devices reported their input to Input API, while old drivers still
-> > used all their old ways to deliver their input.
-> 
-> I (hopefully correctly) assume that one of the old ones is AT keyboard.
-> 
-> What happens when I press a key on keyboard and the application that
-> has the keyboard somehow on it's stdin reads a key? What happens between
-> the two events and how does it travel inside the kernel?
-> 
-> I know how the keys can be read from port 0x60 or whichever.
-> 
-1. You press the key (on an AT keyboard)
-2. The keyboard hardware makes an interrupt
-3. The interrupt acitvates the i8042 driver (in 2.6)
-   which does the port 0x60 stuff.  
-4. From there, the key is propagated through tty and
-   console and ends up in your application.  This application
-   might be X, which passes the key onto some program using X.
+On Mon, Jun 14, 2004 at 08:04:36PM -0400, foo@porto.bmb.uga.edu wrote:
+> The other weird thing I have seen is with the serial console.  After
+> init loads the net bonding module and the network comes up, the serial
+> console output stops, as though I had typed ^s.  If I type a character
+> (doesn't seem to matter what), instead of that character printing I see
+> the next character of console output.  I have to hold down a key for a
+> few seconds to get the next few lines of output, then it starts printing
+> on its own again.  I've seen this with 2.6.7-rc3-bk4 and 2.6.6, not with
+> 2.6.5 (I booted 2.6.6 by accident yesterday, I don't know how it does
+> with NFS).
 
-Helge Hafting
- 
+More experience with 2.6.7-rc3-bk6: this is basically the same, although
+the console stalled twice during one boot, once after mounting all the
+filesystems and then again after the ethernet comes up (as always).
+
+Also, I was wrong about getting one character of output for each that I
+type - it looks like I get 16 characters (if that many are available to
+be printed, seemingly).
+
+-ryan

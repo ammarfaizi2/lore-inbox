@@ -1,39 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269373AbUJMP5O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269390AbUJMQFd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269373AbUJMP5O (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 11:57:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269377AbUJMP5O
+	id S269390AbUJMQFd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 12:05:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269730AbUJMQFd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 11:57:14 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:59849 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S269373AbUJMP5N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 11:57:13 -0400
-Subject: Re: PATCH: IDE generic tweak
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-ide@linux.kernel.org
-In-Reply-To: <20041013154916.GA6832@havoc.gtf.org>
-References: <1097677476.4764.9.camel@localhost.localdomain>
-	 <20041013153152.GA5458@havoc.gtf.org>
-	 <1097678363.4696.16.camel@localhost.localdomain>
-	 <20041013154916.GA6832@havoc.gtf.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1097679269.4696.18.camel@localhost.localdomain>
+	Wed, 13 Oct 2004 12:05:33 -0400
+Received: from rproxy.gmail.com ([64.233.170.198]:62614 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S269390AbUJMQF2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 12:05:28 -0400
+Message-ID: <9625752b04101309054eccbf@mail.gmail.com>
+Date: Wed, 13 Oct 2004 09:05:28 -0700
+From: Danny <dannydaemonic@gmail.com>
+Reply-To: Danny <dannydaemonic@gmail.com>
+To: Francois Romieu <romieu@fr.zoreil.com>, linux-kernel@vger.kernel.org
+Subject: Re: mm kernel oops with r8169 & named, PREEMPT
+Cc: netdev@oss.sgi.com
+In-Reply-To: <20041013072814.GA24066@electric-eye.fr.zoreil.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 13 Oct 2004 15:54:38 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <9625752b041012230068619e68@mail.gmail.com>
+	 <20041013072814.GA24066@electric-eye.fr.zoreil.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-10-13 at 16:49, Jeff Garzik wrote:
-> nVidia for example specifically wanted it because future __SATA__
-> hardware will appear at the legacy IDE addresses, and end users were
-> requesting for similar reasons.
+On Wed, 13 Oct 2004 09:28:14 +0200, Francois Romieu wrote:
+> Try the patch below (courtesy of Jon Mason, whitespaces may be wrong) and
+> see 1) if things perform better 2) if "timeout" messages appear in the
+> kernel log.
 
-Guess we need a pair of options with similar names to specify who
-grabs the generic devices. That should be fine because it never wants
-to be automatic anyway
+The patch doesn't fix or prevent the oops.  Performance might have
+been better but I did no formal tests.  There were no "timeout"
+messages in the kernel log, however I only ran it with this change for
+35-45 minutes.
 
+I should mention that in the kernel log, with linux-2.6.8.1-mm4, it
+complains "process `named' is using obsolete setsockopt SO_BSDCOMPAT".
+ However, with the most recent, 2.6.9-rc4-mm1, it doesn't get that
+far.  A "Unable to handle kernel paging request at virtual address
+00017f8c" happens instead.  I'm guessing the oops is just killing
+named before it gets that far.
+
+I enabled some more debug options in the kernel and I'm getting a 2nd
+oops following the first.
+
+I wasn't sure if I should paste the huge oops here, and since the raw
+dmesg also shows spin lock errors, I thought I'd just post both on the
+web:
+http://members.cox.net/valenzdu/oops-raw
+http://members.cox.net/valenzdu/oops-processed
+
+I ran it through ksymoops but I don't have a /proc/ksyms and when I
+tried using /proc/kallsyms it gave me a format error.  I hope this is
+helpful, let me know if there is anything else I can do. (CC me
+please.)

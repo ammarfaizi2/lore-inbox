@@ -1,34 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290520AbSBFNuc>; Wed, 6 Feb 2002 08:50:32 -0500
+	id <S290534AbSBFNzd>; Wed, 6 Feb 2002 08:55:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290527AbSBFNuW>; Wed, 6 Feb 2002 08:50:22 -0500
-Received: from web20507.mail.yahoo.com ([216.136.226.142]:53774 "HELO
-	web20507.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S290520AbSBFNuP>; Wed, 6 Feb 2002 08:50:15 -0500
-Message-ID: <20020206135014.88976.qmail@web20507.mail.yahoo.com>
-Date: Wed, 6 Feb 2002 14:50:14 +0100 (CET)
-From: =?iso-8859-1?q?willy=20tarreau?= <wtarreau@yahoo.fr>
-Subject: Re: 760MPX IO/APIC Errors...
-To: Ken Brownfield <brownfld@irridia.com>, Willy Tarreau <wtarreau@free.fr>
-Cc: jon-anderson@rogers.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20020204172942.C14297@asooo.flowerfire.com>
+	id <S290536AbSBFNzX>; Wed, 6 Feb 2002 08:55:23 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:21512 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S290527AbSBFNzI>; Wed, 6 Feb 2002 08:55:08 -0500
+Subject: Re: [PATCH] NSC Geode Companion chip workaround
+To: miura@da-cha.org (Hiroshi MIURA)
+Date: Wed, 6 Feb 2002 14:08:29 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020206022016.735C7118231@triton2> from "Hiroshi MIURA" at Feb 06, 2002 11:20:16 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16YSkP-0005CT-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> At what point do your machines stop booting, i.e.,
-> what was the last printed kernel message on the
-> console?  Also, can you send me full
-> dmesgs from your machines after booting?
+> in this patch, this code is activate only if you defines CONFIG_CS5520.
+> I've tryed several month with this patch, It seems good for me.
+>     trial machine: Casio CASSIOPEIA FIVA 101 and Fiva 103.
+>                    MediaGX 200MHz and NSC Geode 300MHz.
 
-I will look ASAP.
- 
-Willy
+Interesting. That would explain a lot. Unfortunately when I first reported
+that problem and disabled the TSC Cyrix actually refused to believe the
+problem existed.
 
+With the below it looks fixable
 
-___________________________________________________________
-Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
-Yahoo! Mail : http://fr.mail.yahoo.fr
+(The CONFIG_CS5520 we can replace I think with a check for the PCI device)
+

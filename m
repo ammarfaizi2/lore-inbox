@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265243AbSL0XoZ>; Fri, 27 Dec 2002 18:44:25 -0500
+	id <S265255AbSL0Xre>; Fri, 27 Dec 2002 18:47:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265250AbSL0XoZ>; Fri, 27 Dec 2002 18:44:25 -0500
-Received: from h24-80-147-251.no.shawcable.net ([24.80.147.251]:4101 "EHLO
-	antichrist") by vger.kernel.org with ESMTP id <S265243AbSL0XoY>;
-	Fri, 27 Dec 2002 18:44:24 -0500
-Date: Fri, 27 Dec 2002 15:48:56 -0800
-From: carbonated beverage <ramune@net-ronin.org>
-To: Harald Dunkel <harri@synopsys.COM>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.5.53
-Message-ID: <20021227234856.GB4025@net-ronin.org>
-References: <Pine.LNX.4.44.0212232141010.1079-100000@penguin.transmeta.com> <3E0CCFFD.5090007@Synopsys.COM>
+	id <S265266AbSL0Xre>; Fri, 27 Dec 2002 18:47:34 -0500
+Received: from are.twiddle.net ([64.81.246.98]:39817 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S265255AbSL0Xrd>;
+	Fri, 27 Dec 2002 18:47:33 -0500
+Date: Fri, 27 Dec 2002 15:54:51 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [Linux-fbdev-devel] [FB PATCH]
+Message-ID: <20021227155451.A3942@twiddle.net>
+Mail-Followup-To: Geert Uytterhoeven <Geert.Uytterhoeven@sonycom.com>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Linux Frame Buffer Device Development <linux-fbdev-devel@lists.sourceforge.net>,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@transmeta.com>
+References: <20021227150934.A3005@twiddle.net> <Pine.GSO.4.21.0212280025150.17067-100000@vervain.sonytel.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3E0CCFFD.5090007@Synopsys.COM>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.GSO.4.21.0212280025150.17067-100000@vervain.sonytel.be>; from Geert.Uytterhoeven@sonycom.com on Sat, Dec 28, 2002 at 12:25:58AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 27, 2002 at 11:11:09PM +0100, Harald Dunkel wrote:
-> : undefined reference to `input_register_handler'
-> make: *** [vmlinux] Error 1
-> 
-> 
-> Is this a known problem?
+On Sat, Dec 28, 2002 at 12:25:58AM +0100, Geert Uytterhoeven wrote:
+> Strange, it's defined in drivers/video/fbmem.c in my copy of 2.5.53.
 
-Under Input Device Support, enable Input Devices.
-CONFIG_INPUT=y
+Ah.  It's not exported, so fbcon as a module fails.
+Not sure how I missed it with a grep...
 
-(Yup, that bit me, too.  Apparently, you can enable mouse and keyboard
-support w/o enabling CONFIG_INPUT.  *shrug*)
 
--- DN
-Daniel
+r~

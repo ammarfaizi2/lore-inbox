@@ -1,42 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263466AbUBLCnL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 21:43:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263903AbUBLCnL
+	id S264477AbUBLDQU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 22:16:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265732AbUBLDQU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 21:43:11 -0500
-Received: from CPE-65-28-18-238.kc.rr.com ([65.28.18.238]:32924 "EHLO
-	mail.2thebatcave.com") by vger.kernel.org with ESMTP
-	id S263466AbUBLCmu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 21:42:50 -0500
-Message-ID: <46246.192.168.1.12.1076553774.squirrel@mail.2thebatcave.com>
-Date: Wed, 11 Feb 2004 20:42:54 -0600 (CST)
-Subject: /proc/partitions not done updating when init is ran?
-From: "Nick Bartos" <spam99@2thebatcave.com>
-To: linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Importance: Normal
+	Wed, 11 Feb 2004 22:16:20 -0500
+Received: from dp.samba.org ([66.70.73.150]:60310 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264477AbUBLDQS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 22:16:18 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Shut up about the damn modules already...
+Date: Thu, 12 Feb 2004 14:13:32 +1100
+Message-Id: <20040212031631.69CAD2C04B@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a problem where it does not look like /proc/partitions is updated
-completely by the time init is ran.
+Please apply before 2.6.3.
 
-Basically I am booting from a usb flash device, and when I try to run fsck
-on the device on boot (using LABEL=, which is necessary since the actual
-device cannot be assumed in my config) it fails.  After further
-investigation /proc/partitions does not contain any scsi partitions right
-when init is starting, but if I do a "sleep 10" before running fsck then
-it works fine.
+In almost all distributions, the kernel asks for modules which don't
+exist, such as "net-pf-10" or whatever.  Changing "modprobe -q" to
+"succeed" in this case is hacky and breaks some setups, and also we
+want to know if it failed for the fallback code for old aliases in
+fs/char_dev.c, for example.
 
-I can of course put that sleep in there but that is ugly and I have no way
-of knowing the maximum delay, so if it took too long then it would not
-work and I would be screwed...
+Just remove the debugging message which fill people's logs: the
+correct way of debugging module problems is something like this:
 
-Isn't /proc/partitions supposted to be finished updating when init starts?
- If this is not a kernel bug (or it won't be fixed for a while), then what
-is the deal and how can I fix this cleanly?
+echo '#! /bin/sh' > /tmp/modprobe
+echo 'echo "$@" >> /tmp/modprobe.log' >> /tmp/modprobe
+echo 'exec /sbin/modprobe "$@"' >> /tmp/modprobe
+chmod a+x /tmp/modprobe
+echo /tmp/modprobe > /proc/sys/kernel/modprobe
+
+Thanks!
+Rusty.
+
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.3-rc2-bk1/kernel/kmod.c tmp/kernel/kmod.c
+--- linux-2.6.3-rc2-bk1/kernel/kmod.c	2004-01-10 13:59:39.000000000 +1100
++++ tmp/kernel/kmod.c	2004-02-12 14:07:33.000000000 +1100
+@@ -105,16 +105,6 @@ int request_module(const char *fmt, ...)
+ 	}
+ 
+ 	ret = call_usermodehelper(modprobe_path, argv, envp, 1);
+-	if (ret != 0) {
+-		static unsigned long last;
+-		unsigned long now = jiffies;
+-		if (now - last > HZ) {
+-			last = now;
+-			printk(KERN_DEBUG
+-			       "request_module: failed %s -- %s. error = %d\n",
+-			       modprobe_path, module_name, ret);
+-		}
+-	}
+ 	atomic_dec(&kmod_concurrent);
+ 	return ret;
+ }
+
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,38 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289621AbSBSECF>; Mon, 18 Feb 2002 23:02:05 -0500
+	id <S289659AbSBSEUA>; Mon, 18 Feb 2002 23:20:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289627AbSBSEBz>; Mon, 18 Feb 2002 23:01:55 -0500
-Received: from adsl-209-76-109-63.dsl.snfc21.pacbell.net ([209.76.109.63]:1920
-	"EHLO adsl-209-76-109-63.dsl.snfc21.pacbell.net") by vger.kernel.org
-	with ESMTP id <S289621AbSBSEBe>; Mon, 18 Feb 2002 23:01:34 -0500
-Date: Mon, 18 Feb 2002 20:00:51 -0800
-From: Wayne Whitney <whitney@math.berkeley.edu>
-Message-Id: <200202190400.g1J40pT09772@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
-To: Gustavo Noronha Silva <kov@debian.org>,
-        Alessandro Suardi <alessandro.suardi@oracle.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: gnome-terminal acts funny in recent 2.5 series
-In-Reply-To: <20020218213917.60e4dd5c.kov@debian.org>
-In-Reply-To: <3C719641.3040604@oracle.com> <3C719641.3040604@oracle.com> <20020218213917.60e4dd5c.kov@debian.org>
-Reply-To: whitney@math.berkeley.edu
+	id <S289655AbSBSETt>; Mon, 18 Feb 2002 23:19:49 -0500
+Received: from web10504.mail.yahoo.com ([216.136.130.154]:50187 "HELO
+	web10504.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S289653AbSBSETo>; Mon, 18 Feb 2002 23:19:44 -0500
+Message-ID: <20020219041943.64764.qmail@web10504.mail.yahoo.com>
+Date: Mon, 18 Feb 2002 20:19:43 -0800 (PST)
+From: S W <egberts@yahoo.com>
+Subject: 2.4.18-rc1 page_alloc.c:199 
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In mailing-lists.linux-kernel, Gustavo wrote:
+Linux 2.4.18-rc1 produced a page_alloc.c:199 kernel
+bug regularly and with increasing probability as
+system loads increases.
 
-> I noticed this problem also... it seems the problem lies on
-> devpts, I enabled it on my 2.5.5pre1 build, mounting
-> devpts with the options given on the "readme" file
-> made gnome-terminal start on the second try, almost
-> everytime
+Am shedding modules to narrow this down and reassess.
 
-I also am seeing this problem--it is definitely pts related.  I have
-noticed that when the problem occurs, if I execute "gnome-terminal &"
-from an existing gnome-terminal, a new window comes up, but input and
-output from the new shell are still going to the prior gnome-terminal.
-'ps' shows both the new gnome-terminal and old gnome-terminal on the
-same pts.  But sometimes everything works fine.
+Running 1GHz Cyrix III, RTL8136 Ethernet, Ipchains w/o rulesets.
 
-Cheers, Wayne
-
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Sports - Coverage of the 2002 Olympic Games
+http://sports.yahoo.com

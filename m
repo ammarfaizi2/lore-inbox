@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132938AbRDERZR>; Thu, 5 Apr 2001 13:25:17 -0400
+	id <S131830AbRDERcI>; Thu, 5 Apr 2001 13:32:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132941AbRDERY6>; Thu, 5 Apr 2001 13:24:58 -0400
-Received: from firewall.spacetec.no ([192.51.5.5]:11481 "EHLO
-	pallas.spacetec.no") by vger.kernel.org with ESMTP
-	id <S132938AbRDERYy>; Thu, 5 Apr 2001 13:24:54 -0400
-Date: Thu, 5 Apr 2001 19:24:10 +0200
-Message-Id: <200104051724.TAA09779@pallas.spacetec.no>
-Mime-Version: 1.0
-X-Newsreader: knews 0.9.8
-In-Reply-To: <fa.j9vo8pv.1rj8up9@ifi.uio.no>
-    <fa.dkui9av.1ulsbjm@ifi.uio.no>
-In-Reply-To: <fa.dkui9av.1ulsbjm@ifi.uio.no>
-From: tor@spacetec.no (Tor Arntsen)
-Subject: Re: [QUESTION] 2.4.x nice level
-X-Original-Newsgroups: fa.linux.kernel
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=us-ascii
+	id <S132944AbRDERb6>; Thu, 5 Apr 2001 13:31:58 -0400
+Received: from krynn.axis.se ([193.13.178.10]:30101 "EHLO krynn.axis.se")
+	by vger.kernel.org with ESMTP id <S131830AbRDERby>;
+	Thu, 5 Apr 2001 13:31:54 -0400
+Message-ID: <18a601c0bdf5$d7305500$0a070d0a@axis.se>
+From: "Johan Adolfsson" <johan.adolfsson@axis.com>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <200103262233.f2QMXqm21750@snark.thyrsus.com>
+Subject: Arch specific/multiple Configure.help files?
+Date: Thu, 5 Apr 2001 19:28:33 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2314.1300
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-LA Walsh <law@sgi.com> writes:
->	I was running 2 copies of setiathome on a 4 CPU server
->@ work.  The two processes ran nice'd -19.  The builds we were 
->running still took 20-30% longer as opposed to when setiathome wasn't
->running (went from 45 minutes up to about an hour).  This machine
->has 1G, so I don't think it was hurting from swapping.
 
-It would be nice to have IRIX weightless processes on Linux.. 
-setiathome on SGI computers don't affect anything else except
-in extreme cases.
+Would it be a good idea to have support for multiple Configure.help
+files in the config system?
+The main advantage would be that arch specific settings could
+have an arch specific help file as well.
+Anybody who knows: Would it be a easy to add support for this if 
+this is considered a good idea?
 
--Tor
+/Johan
+
+

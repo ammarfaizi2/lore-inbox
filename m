@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269492AbUJLGpz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269491AbUJLGtY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269492AbUJLGpz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 02:45:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269491AbUJLGpz
+	id S269491AbUJLGtY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 02:49:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269494AbUJLGtY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 02:45:55 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:35794 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S269494AbUJLGgw (ORCPT
+	Tue, 12 Oct 2004 02:49:24 -0400
+Received: from mail.dif.dk ([193.138.115.101]:10193 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S269491AbUJLGtT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 02:36:52 -0400
-Date: Tue, 12 Oct 2004 08:37:52 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Mark_H_Johnson@Raytheon.com, Andrew Morton <akpm@osdl.org>,
-       Daniel Walker <dwalker@mvista.com>, "K.R. Foley" <kr@cybsft.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Rui Nuno Capela <rncbc@rncbc.org>, thewade@aproximation.org
-Subject: Re: [patch] VP-2.6.9-rc4-mm1-T5
-Message-ID: <20041012063752.GB2947@elte.hu>
-References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com> <20041011215909.GA20686@elte.hu> <1097542629.1453.117.camel@krustophenia.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1097542629.1453.117.camel@krustophenia.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 12 Oct 2004 02:49:19 -0400
+Date: Tue, 12 Oct 2004 08:57:02 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Andre Tomt <andre@tomt.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.9-rc4 - pls test (and no more patches)
+In-Reply-To: <Pine.LNX.4.58.0410111633410.3897@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.61.0410120854030.2957@dragon.hygekrogen.localhost>
+References: <Pine.LNX.4.58.0410102016180.3897@ppc970.osdl.org>
+ <416A53D3.9020002@tomt.ne t>  <Pine.LNX.4.58.0410110758500.3897@ppc970.osdl.org>
+ <1097507381.2029.40.camel@mulgrave>  <416ACF5E.80407@tomt.net>
+ <1097522974.2029.161.camel@mulgrave> <Pine.LNX.4.58.0410111633410.3897@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Lee Revell <rlrevell@joe-job.com> wrote:
-
-> On Mon, 2004-10-11 at 17:59, Ingo Molnar wrote:
-> > * Mark_H_Johnson@Raytheon.com <Mark_H_Johnson@Raytheon.com> wrote:
-> > 
-> > > I would have to say this is "very rough" at this point. I had the
-> > > following problems in the build:
-> > 
-> > i've uploaded -T5 which should fix most of the build issues:
-> > 
-> >  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-T5
-> > 
+On Mon, 11 Oct 2004, Linus Torvalds wrote:
 > 
-> Ingo, are any of the VP patches known to work on x64?  Here is
-> thewade's latest report:
+> In other words, I think you'd have to do some special disk management, or
+> possibly try to burn a CD on a SCSI CD-ROM (or other special device that
+> uses the SCSI ioctl's) on the same controller. And nobody uses SCSI
+> CD-burners any more, I'd think.
+> 
+Not so, I personally have a SCSI Plextor burner, and at work we have 
+several different other brands of SCSI burners, I also have a few friends 
+who have SCSI burners (the majority have IDE burners, but there are a few 
+with SCSI).
+And personally I'm buying a new SCSI burner if this one dies, I've never 
+had a burner as troublefree as this one. IDE burners are no longer for me.
 
-i have two x64 boxes which i tested with S* -VP and i also did a quick
-testboot of -T3 on one of them but YMMV. (There's one caveat: latency
-tracing must not be enabled, x64 gcc has a nastiness that makes -pg
-unusable for tracing purposes on x64.)
+--
+Jesper Juhl
 
--T4 and upwards will likely not even compile on x64 - i'll fix it up
-once the rate of PREEMPT_REALTIME changes calms down.
-
-	Ingo

@@ -1,65 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264486AbTE1DMT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 23:12:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264489AbTE1DMT
+	id S264489AbTE1DWA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 23:22:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264491AbTE1DWA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 23:12:19 -0400
-Received: from pacific.moreton.com.au ([203.143.235.130]:58119 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id S264486AbTE1DMR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 23:12:17 -0400
-Message-ID: <3ED42C48.2060803@snapgear.com>
-Date: Wed, 28 May 2003 13:26:00 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH]: linux-2.5.70-uc0 (MMU-less fix ups)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 27 May 2003 23:22:00 -0400
+Received: from holomorphy.com ([66.224.33.161]:36332 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S264489AbTE1DV7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 23:21:59 -0400
+Date: Tue, 27 May 2003 20:34:59 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Dave Jones <davej@codemonkey.org.uk>, Roman Zippel <zippel@linux-m68k.org>,
+       John Stoffel <stoffel@lucent.com>,
+       DevilKin-LKML <devilkin-lkml@blindguardian.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.70 compile error
+Message-ID: <20030528033459.GR8978@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Dave Jones <davej@codemonkey.org.uk>,
+	Roman Zippel <zippel@linux-m68k.org>,
+	John Stoffel <stoffel@lucent.com>,
+	DevilKin-LKML <devilkin-lkml@blindguardian.org>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0305261903330.2164-100000@home.transmeta.com> <200305271048.36495.devilkin-lkml@blindguardian.org> <20030527130515.GH8978@holomorphy.com> <200305271729.49047.devilkin-lkml@blindguardian.org> <20030527153619.GJ8978@holomorphy.com> <16083.35048.737099.575241@gargle.gargle.HOWL> <Pine.LNX.4.44.0305272010550.12110-100000@serv> <20030527184016.GA5847@suse.de> <4060000.1054072761@[10.10.2.4]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4060000.1054072761@[10.10.2.4]>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+At some point in the past, Dave Jones' attribution was stripped from:
+>> Given that 99% of users will be choosing option 1, it might be a
+>> good thing to have the remaining options only shown if a
+>> CONFIG_X86_SUBARCHS=y and have things default to option 1 if =n.
 
-An update of the uClinux (MMU-less) fixups against 2.5.70.
-Linus commited a bunch of patches over the last few days,
-but I have a few more fixups to get through yet.
+On Tue, May 27, 2003 at 02:59:23PM -0700, Martin J. Bligh wrote:
+> Please, not more layered config options! That just makes people who
+> want to enable the x440 or other alternative platform require fair
+> amounts of psychic power (maybe this can be fixed with a big fat help
+> message, but so can the current method).
+> If you're going hide the other options away so much, then the default
+> should be the generic arch, IMHO.
 
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.70-uc0.patch.gz
-
-
-Change Log:
-
-. patch against 2.5.70                          me
-. merge flat format shared lib support          David McCullough
-. CONFIG_BOOT_PARAM for m68knommu               Bernardo Innocenti
-. avoid ROMfs copy if not enabled               Bernardo Innocenti
-. fix ColdFire serial irq handler return type   me
-. separate m68knommu int setup code             Georges Menie
-. Dragon Engine 2 start code fixups             Georges Menie
-. fixup m68knommu do_fork() calls               me
-. clean up m68knommu access_ok()                me
-. simplify show_process_blocks() for !MMU       Bernardo Innocenti
-. !MMU stubs for proc_pid_maps                  me
-
-Regards
-Greg
+Or better yet, remove all the #ifdefs, finish generalizing the APIC
+code, and have nothing to configure at all. For 2.7 ...
 
 
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
-825 Stanley St,                                  FAX:    +61 7 3279 1820
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
-
-
-
-
-
-
-
+-- wli

@@ -1,64 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268317AbUJUVBE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270807AbUJUVBb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268317AbUJUVBE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 17:01:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270825AbUJUU5q
+	id S270807AbUJUVBb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 17:01:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270838AbUJUVB2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 16:57:46 -0400
-Received: from mail1.webmaster.com ([216.152.64.168]:65298 "EHLO
-	mail1.webmaster.com") by vger.kernel.org with ESMTP id S270809AbUJUUyE
+	Thu, 21 Oct 2004 17:01:28 -0400
+Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:51815 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S270807AbUJUVBC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 16:54:04 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Danny Brow" <dan@fullmotions.com>
-Cc: "Kernel-List" <linux-kernel@vger.kernel.org>
-Subject: RE: Reporting GPL violations - a little OT
-Date: Thu, 21 Oct 2004 13:53:57 -0700
-Message-ID: <MDEHLPKNGKAHNMBLJOLKAEPHPCAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Thu, 21 Oct 2004 17:01:02 -0400
+Subject: [PATCH 2.4] serial send_break duration fix
+From: Paul Fulghum <paulkf@microgate.com>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1098392462.3288.65.camel@deimos.microgate.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 21 Oct 2004 16:01:03 -0500
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-Importance: Normal
-In-Reply-To: <Pine.LNX.4.61.0410211311250.10582@twin.uoregon.edu>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-Authenticated-Sender: joelkatz@webmaster.com
-X-Spam-Processed: mail1.webmaster.com, Thu, 21 Oct 2004 13:30:35 -0700
-	(not processed: message from trusted or authenticated source)
-X-MDRemoteIP: 206.171.168.138
-X-Return-Path: davids@webmaster.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-Reply-To: davids@webmaster.com
-X-MDAV-Processed: mail1.webmaster.com, Thu, 21 Oct 2004 13:30:39 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Fix tty_io.c send_break() to assert break for proper duration.
+If driver break_ctl() changes task state, then break may end
+prematurely. USB serial driver break_ctl() sends a URB,
+changing task state to TASK_RUNNING.
 
-> On Thu, 21 Oct 2004, Danny Brow wrote:
->
-> > Just wondering where to report possible GPL violations.
->
-> the authors of the software in question are the best place to start.
->
-> joelja
+Signed-off-by: Paul Fulghum <paulkf@microgate.com>
 
-	My opinion is that you should first report it to the violators. See if they
-acknowledge the violation or argue that it's not a violation. If they
-acknowledge the violation, see if they fix it. If they argue it's not a
-violation, look at their argument and see if it's reasonable.
+-- 
+Paul Fulghum
+paulkf@microgate.com
 
-	If you are convinced that it really is a GPL violation and that the
-violators either won't acknowledge it or acknowledge it and won't fix it,
-then you should report it on the most appropriate public forum associated
-with either GPL violations specifically or the application whose license is
-being violated.
-
-	IMO, for the Linux kernel, the LKML is appropriate once you've exhausted
-direct contacts with the violator.
-
-	DS
+--- linux-2.4.28-pre4/drivers/char/tty_io.c	2004-04-14 08:05:29.000000000 -0500
++++ b/drivers/char/tty_io.c	2004-10-21 15:55:40.516247240 -0500
+@@ -1684,11 +1684,11 @@ static int tiocsetd(struct tty_struct *t
+ 
+ static int send_break(struct tty_struct *tty, int duration)
+ {
+-	set_current_state(TASK_INTERRUPTIBLE);
+-
+ 	tty->driver.break_ctl(tty, -1);
+-	if (!signal_pending(current))
++	if (!signal_pending(current)) {
++		set_current_state(TASK_INTERRUPTIBLE);
+ 		schedule_timeout(duration);
++	}
+ 	tty->driver.break_ctl(tty, 0);
+ 	if (signal_pending(current))
+ 		return -EINTR;
 
 

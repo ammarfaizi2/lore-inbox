@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262312AbSKMRKS>; Wed, 13 Nov 2002 12:10:18 -0500
+	id <S262137AbSKMRT1>; Wed, 13 Nov 2002 12:19:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262317AbSKMRKS>; Wed, 13 Nov 2002 12:10:18 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:16298 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262312AbSKMRKQ>; Wed, 13 Nov 2002 12:10:16 -0500
-Subject: re: [PATCH] new timeout behavior for RPC requests on TCP sockets
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: root@chaos.analogic.com
-Cc: Chuck Lever <cel@citi.umich.edu>, Dan Kegel <dank@kegel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.95.1021113113943.2196A-100000@chaos.analogic.com>
-References: <Pine.LNX.3.95.1021113113943.2196A-100000@chaos.analogic.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 13 Nov 2002 17:42:28 +0000
-Message-Id: <1037209348.11996.109.camel@irongate.swansea.linux.org.uk>
+	id <S262250AbSKMRT1>; Wed, 13 Nov 2002 12:19:27 -0500
+Received: from willow.seitz.com ([146.145.147.180]:30738 "EHLO
+	willow.seitz.com") by vger.kernel.org with ESMTP id <S262137AbSKMRTZ>;
+	Wed, 13 Nov 2002 12:19:25 -0500
+From: Ross Vandegrift <ross@willow.seitz.com>
+Date: Wed, 13 Nov 2002 12:26:10 -0500
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: repeatable IDE errors when using SMART
+Message-ID: <20021113172610.GA20515@willow.seitz.com>
+References: <Pine.LNX.4.44.0211121800320.20949-100000@twinlark.arctic.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0211121800320.20949-100000@twinlark.arctic.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-11-13 at 16:44, Richard B. Johnson wrote:
-> If the application "chooses to drop the request", the kernel is not
-> required to fix that application. The RPC cannot retransmit if
-> it has been shut-down or disconnected, which is about the only
-> way the application could "choose to drop the request". So something
-> doesn't smell right here.
+On Tue, Nov 12, 2002 at 06:19:37PM -0800, dean gaudet wrote:
+> any suggestions?
 
-Check your socks...
+I've noticed that using smartctl on some of my drives kills them too.  I
+didn't bother investigating much - too scared of losing data.  I kind of
+assumed it was a problem with the drive not the code though, since it
+worked fine on one drive but not the other.
 
-As far as RPC goes the RPC server can choose to drop a request whenever
-it pleases by simply throwing it away (eg reading it from the socket and
-binning it) depending on its workload. There are actually reasons for
-that in some situations (eg if the top requests are all for a volume
-that is down its better to throw them away so you can get requests for a
-volume that is functional)
+I have a Maxtor and an IBM; unfortuantely I don't recall which one was
+bokning out on smartctl...
 
-Alan
+If it's interesting (and resonably safe) I could do some testing on my
+system.
 
+-- 
+Ross Vandegrift
+ross@willow.seitz.com
+
+A Pope has a Water Cannon.				 It is a Water Cannon.
+He fires Holy-Water from it.			    It is a Holy-Water Cannon.
+He Blesses it.				       It is a Holy Holy-Water Cannon.
+He Blesses the Hell out of it.		It is a Wholly Holy Holy-Water Cannon.
+He has it pierced.		  It is a Holey Wholly Holy Holy-Water Cannon.
+Batman and Robin arrive.				       He shoots them.

@@ -1,64 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132513AbRA3XPs>; Tue, 30 Jan 2001 18:15:48 -0500
+	id <S131522AbRA3X1Y>; Tue, 30 Jan 2001 18:27:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131522AbRA3XPj>; Tue, 30 Jan 2001 18:15:39 -0500
-Received: from relais.videotron.ca ([24.201.245.36]:52876 "EHLO
-	VL-MS-MR003.sc1.videotron.ca") by vger.kernel.org with ESMTP
-	id <S132513AbRA3XPb>; Tue, 30 Jan 2001 18:15:31 -0500
-Message-ID: <3A774A87.C5695162@videotron.ca>
-Date: Tue, 30 Jan 2001 18:13:11 -0500
-From: Martin Laberge <mlsoft@videotron.ca>
-Organization: MLSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18 i586)
+	id <S132653AbRA3X1O>; Tue, 30 Jan 2001 18:27:14 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:52976 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S131522AbRA3X1G>; Tue, 30 Jan 2001 18:27:06 -0500
+Message-ID: <3A774F92.B0F20608@uow.edu.au>
+Date: Wed, 31 Jan 2001 10:34:42 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Kenneth Yeung <kkyeung@expert.cc.purdue.edu>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: digiboard support in linux
-In-Reply-To: <linux.kernel.Pine.GSO.3.96.1010130122635.20355C-100000@expert.cc.purdue.edu>
+To: "David S. Miller" <davem@redhat.com>
+CC: lkml <linux-kernel@vger.kernel.org>,
+        "netdev@oss.sgi.com" <netdev@oss.sgi.com>
+Subject: Re: sendfile+zerocopy: fairly sexy (nothing to do with ECN)
+In-Reply-To: <3A76D6A4.2385185E@uow.edu.au>,
+			<3A76B72D.2DD3E640@uow.edu.au>
+			<3A728475.34CF841@uow.edu.au>
+			<3A726087.764CC02E@uow.edu.au>
+			<20010126222003.A11994@vitelus.com>
+			<14966.22671.446439.838872@pizda.ninka.net>
+			<14966.47384.971741.939842@pizda.ninka.net>
+			<3A76D6A4.2385185E@uow.edu.au> <14967.16395.42967.978677@pizda.ninka.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kenneth Yeung wrote:
+"David S. Miller" wrote:
+> 
+> Andrew Morton writes:
+>  > The box has 130 mbyte/sec memory write bandwidth, so saving
+>  > a copy should save 10% of this.   (Wanders away, scratching
+>  > head...)
+> 
+> Are you sure your measurment program will account properly
+> for all system cycles spent in softnet processing?  This is
+> where the bulk of the cpu cycle savings will occur.
+> 
 
-> Hello all
->
-> Can anyone tell me where I can find infomation on digiboard support in
-> linux specifically the PC/X model?
->
-> THanks
-> -Ken
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+It tries to. It runs n_cpus instances of this:
 
-yes i used it often in my installations and no problem with that
-since 2.0.x
+static void busyloop(int instance)
+{
+        int idx;
 
-2.2.x works good too
+        for ( ; ; ) {
+                for (idx = 0; idx < busyloop_size; idx++) {
+                        int thumb;
 
-never tried with linux 2.4.x
+                        busyloop_buf[idx]++;                    /* Dirty a cacheline */
+                        for (thumb = 0; thumb < 200; thumb++)
+                                ;                               /* twiddle */
+                        busyloop_progress[instance * CACHE_LINE_SIZE]++;
+                }
+        }
+}
 
+At minimum priority.
 
-driver is supported by digiboard itself   and by linux
+And it measures how much these threads are slowed
+down, wrt an unloaded system. So interrupt work
+is definitely accounted for.
 
-you have the choice of 2 drivers for these boards....
+It needs work.  It should walk the buffer in cacheline-sized
+strides, should have tunable read-versus-write ratios, should
+be scheduled with `idle' priority, should be bondable
+to CPUs and should create PCI traffic.  That means a in-kernel
+implementation.
 
-i used for my part the PC/8e  PC/16e and PC/32e   In ISA versions
-and never had any problems... (except figuring out how to install for the
-first time)
-but it is very simple if you know how to read install instructions
+But tweaking this thing thus far has made only very small
+differences in output.
 
-
-Martin Laberge
-mlsoft@videotron.ca
-
-
+-
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

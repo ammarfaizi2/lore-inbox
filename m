@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262985AbTEBQgr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 May 2003 12:36:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262994AbTEBQgr
+	id S263001AbTEBQkh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 May 2003 12:40:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263011AbTEBQkh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 May 2003 12:36:47 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:63928 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262985AbTEBQgq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 May 2003 12:36:46 -0400
-Message-ID: <3EB2A125.4000407@us.ibm.com>
-Date: Fri, 02 May 2003 09:47:33 -0700
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.5.68-mm4
-References: <20030502020149.1ec3e54f.akpm@digeo.com> <20030502131857.GH8978@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Fri, 2 May 2003 12:40:37 -0400
+Received: from mail.coastside.net ([207.213.212.6]:38278 "EHLO
+	mail.coastside.net") by vger.kernel.org with ESMTP id S263001AbTEBQkg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 May 2003 12:40:36 -0400
+Mime-Version: 1.0
+Message-Id: <p05210604bad8521898a8@[207.213.214.37]>
+In-Reply-To: <Pine.LNX.4.53.0305021116340.9129@chaos>
+References: <20030502090835.GX10374@parcelfarce.linux.theplanet.co.uk>
+ <Pine.LNX.4.44.0305021131290.493-100000@joel.ro.ibrro.de>
+ <20030502095018.GY10374@parcelfarce.linux.theplanet.co.uk>
+ <200305021003.33638.kevcorry@us.ibm.com>
+ <Pine.LNX.4.53.0305021116340.9129@chaos>
+Date: Fri, 2 May 2003 09:52:30 -0700
+To: root@chaos.analogic.com, Kevin Corry <kevcorry@us.ibm.com>
+From: Jonathan Lundell <linux@lundell-bros.com>
+Subject: Re: is there small mistake in lib/vsprintf.c of kernel 2.4.20 ?
+Cc: viro@parcelfarce.linux.theplanet.co.uk, Bodo Rzany <bodo@rzany.de>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
->> On Fri, May 02, 2003 at 02:01:49AM -0700, Andrew Morton wrote:
->>+dont-set-kernel-pgd-on-PAE.patch
->> little ia32 optimisation/cleanup
-> 
-> It looks like no one listened to my commentary on the set_pgd() patch.
-> 
-> Remove pointless #ifdef, pointless set_pgd(), and a mysterious line
-> full of nothing but whitespace after the #endif, and update commentary.
-> -#ifndef CONFIG_X86_PAE
-> -		set_pgd(pgd, *pgd_k);
-> -#endif
+At 11:27am -0400 5/2/03, Richard B. Johnson wrote:
+>If your conversion chances the base to 0, you divide by 0 (not
+>good) and don't get a remainder. Actually  procedure number()
+>protects against a base less than 2 or greater than 36 so you
+>just prevent conversion altogether.
 
-I wask thinking that the PMD set in 4G mode was a noop.  But, it isn't,
-so it makes up for the completely removed pgd set.
-
-This comment needs to get updated in include/asm-i386/pgtable-2level.h:
-/*
- * (pmds are folded into pgds so this doesn't get actually called,
- * but the define is needed for a generic inline function.)
- */
-#define set_pmd(pmdptr, pmdval) (*(pmdptr) = pmdval)
-#define set_pgd(pgdptr, pgdval) (*(pgdptr) = pgdval)
-
+A bug in number(), looks like. (base = 0) is intended to let the 
+input string determine the base (16 if 0x*, else 8 if 0* else 10). 
+Like simple_strtol().
 -- 
-Dave Hansen
-haveblue@us.ibm.com
-
+/Jonathan Lundell.

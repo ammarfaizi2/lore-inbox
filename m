@@ -1,51 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265655AbUBBGVd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 01:21:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265659AbUBBGVc
+	id S265640AbUBBGNW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 01:13:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265630AbUBBGNW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 01:21:32 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:26890 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S265655AbUBBGVb (ORCPT
+	Mon, 2 Feb 2004 01:13:22 -0500
+Received: from ozlabs.org ([203.10.76.45]:47775 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S265640AbUBBGNU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 01:21:31 -0500
-Date: Mon, 2 Feb 2004 07:30:42 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: "kbuild-devel@lists.sourceforge.net" 
-	<kbuild-devel@lists.sourceforge.net>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] External kernel modules
-Message-ID: <20040202063042.GA2133@mars.ravnborg.org>
-Mail-Followup-To: Andreas Gruenbacher <agruen@suse.de>,
-	"kbuild-devel@lists.sourceforge.net" <kbuild-devel@lists.sourceforge.net>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <1075701681.8018.66.camel@nb.suse.de>
+	Mon, 2 Feb 2004 01:13:20 -0500
+Date: Mon, 2 Feb 2004 17:03:32 +1100
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Anton Blanchard <anton@samba.org>, linuxppc64-dev@lists.linuxppc.org,
+       linux-kernel@vger.kernel.org
+Subject: [PPC64] Remove useless argument from __ste_allocate()
+Message-ID: <20040202060332.GA17234@zax>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
+	linuxppc64-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1075701681.8018.66.camel@nb.suse.de>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 02, 2004 at 07:01:21AM +0100, Andreas Gruenbacher wrote:
-> I propose the attached patch: It adds symbol version dump/load
-> functionality to modpost: When compiling the kernel, the module versions
-> are dumped to a file. When compiling external modules, the dumped
-> symbols are first loaded. Also, to allow a read-only kernel source tree
-> and not interfere with the kernel sources, the .tmp_versions/ directory
-> is placed in the external module's directory.
-> 
-> Furthermore, the patch adds clean/distclean/mrproper make targets with
-> reasonable semantics for external modules, and also adds a modules_add
-> target that installs the external modules into
-> /lib/modules/$(KERNELRELEASE). (The modules_install target could be
-> used, but it has different semantics, so I have used a different name
-> instead.)
+In the current ppc64 code the function __ste_allocate() in
+arch/ppc64/mm/stab.c takes a context parameter which is never used.
+This patch removes it.
 
-Thanks, I will take a closer look during the week.
-Did you consider using the make O=dir support, so .tmp_versions were
-created in the output directory?
+Index: working-2.6/arch/ppc64/kernel/stab.c
+===================================================================
+--- working-2.6.orig/arch/ppc64/kernel/stab.c	2004-02-02 10:44:47.000000000 +1100
++++ working-2.6/arch/ppc64/kernel/stab.c	2004-02-02 14:10:56.755034224 +1100
+@@ -142,8 +142,7 @@
+ 	return (global_entry | (castout_entry & 0x7));
+ }
+ 
+-static inline void __ste_allocate(unsigned long esid, unsigned long vsid,
+-				  mm_context_t context)
++static inline void __ste_allocate(unsigned long esid, unsigned long vsid)
+ {
+ 	unsigned char stab_entry; 
+ 	unsigned long *offset;
+@@ -186,7 +185,7 @@
+ 	}
+ 
+ 	esid = GET_ESID(ea);
+-	__ste_allocate(esid, vsid, context);
++	__ste_allocate(esid, vsid);
+ 	/* Order update */
+ 	asm volatile("sync":::"memory"); 
+ 
+@@ -216,7 +215,7 @@
+ 	if (!IS_VALID_EA(pc) || (REGION_ID(pc) >= KERNEL_REGION_ID))
+ 		return;
+ 	vsid = get_vsid(mm->context, pc);
+-	__ste_allocate(pc_esid, vsid, mm->context);
++	__ste_allocate(pc_esid, vsid);
+ 
+ 	if (pc_esid == stack_esid)
+ 		return;
+@@ -224,7 +223,7 @@
+ 	if (!IS_VALID_EA(stack) || (REGION_ID(stack) >= KERNEL_REGION_ID))
+ 		return;
+ 	vsid = get_vsid(mm->context, stack);
+-	__ste_allocate(stack_esid, vsid, mm->context);
++	__ste_allocate(stack_esid, vsid);
+ 
+ 	if (pc_esid == unmapped_base_esid || stack_esid == unmapped_base_esid)
+ 		return;
+@@ -233,7 +232,7 @@
+ 	    (REGION_ID(unmapped_base) >= KERNEL_REGION_ID))
+ 		return;
+ 	vsid = get_vsid(mm->context, unmapped_base);
+-	__ste_allocate(unmapped_base_esid, vsid, mm->context);
++	__ste_allocate(unmapped_base_esid, vsid);
+ 
+ 	/* Order update */
+ 	asm volatile("sync" : : : "memory");
 
-	Sam
+
+
+-- 
+David Gibson			| For every complex problem there is a
+david AT gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

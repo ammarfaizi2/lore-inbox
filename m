@@ -1,108 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262596AbRFGN7l>; Thu, 7 Jun 2001 09:59:41 -0400
+	id <S262611AbRFGOAm>; Thu, 7 Jun 2001 10:00:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262588AbRFGN7a>; Thu, 7 Jun 2001 09:59:30 -0400
+	id <S262588AbRFGOA0>; Thu, 7 Jun 2001 10:00:26 -0400
 Received: from zeus.kernel.org ([209.10.41.242]:62886 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S262575AbRFGN70>;
-	Thu, 7 Jun 2001 09:59:26 -0400
-From: Stefan.Bader@de.ibm.com
-X-Lotus-FromDomain: IBMDE
-To: andrea@suse.de
-cc: linux-kernel@vger.kernel.org
-Message-ID: <C1256A64.00497F3E.00@d12mta05.de.ibm.com>
-Date: Thu, 7 Jun 2001 15:22:45 +0200
-Subject: PATCH: enable stacked end_io hooks in buffer.c
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	by vger.kernel.org with ESMTP id <S262615AbRFGOAB>;
+	Thu, 7 Jun 2001 10:00:01 -0400
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: I/O system call never returns if file desc is closed in the
+In-Reply-To: <Pine.GSO.4.21.0106070042280.11086-100000@weyl.math.psu.edu>
+From: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
+Date: 07 Jun 2001 14:25:37 +0200
+In-Reply-To: <Pine.GSO.4.21.0106070042280.11086-100000@weyl.math.psu.edu> (Alexander Viro's message of "Thu, 7 Jun 2001 00:43:41 -0400 (EDT)")
+Message-ID: <tgk82obhoe.fsf@mercury.rus.uni-stuttgart.de>
+User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alexander Viro <viro@math.psu.edu> writes:
 
+> On 7 Jun 2001, Florian Weimer wrote:
+> 
+> > Matthias Urlichs <smurf@noris.de> writes:
+> > 
+> > > Select is defined as to return, with the appropriate bit set, if/when
+> > > a nonblocking read/write on the file descriptor won't block. You'd get
+> > > EBADF in this case, therefore causing the select to return would be a
+> > > Good Thing.
+> > 
+> > How do you avoid race conditions if more than one thread is creating
+> > file descriptors?  I think you can only do that under very special
+> > circumstances, and it definitely requires some synchronization.
+> 
+> The same way as you do it for many threads doing any allocations.
 
+There's a subtle difference: For malloc(), libc has a mutex (or
+whatever), but for open(), socket() etc., no locking is performed, and
+many libc functions create (and destroy) descriptors imlicitely.  
 
-Hi,
+I still don't see how you can write maintainable and reliable software
+with asynchronous close().  For example, if some select() call returns
+EBADF after an asynchronous close(), you would have to scan the
+descriptors to find the offending one, but in the meantime, it has
+been reused by another thread.  What do you do in this case?
 
-
-I'd like to hook into the end_io reporting chain by replacing the b_end_io
-function pointer by an own end_io
-function that restores the original values and calls the previous end_io
-function after io.
-Unfortunatly if the previous function was end_buffer_io_async it unlocks
-the bh->b_page too early since
-it checks for the b_end_io == end_buffer_io_async.
-With the following patch that works but it maybe isn't the best way to do
-it. Comments are highly welcome...
-
-Stefan
-
-------------------------
-diff -ruN old/fs/buffer.c new/fs/buffer.c
---- old/fs/buffer.c     Thu Jun  7 14:25:57 2001
-+++ new/fs/buffer.c     Thu Jun  7 14:31:00 2001
-@@ -807,7 +807,7 @@
-        atomic_dec(&bh->b_count);
-        tmp = bh->b_this_page;
-        while (tmp != bh) {
--               if (tmp->b_end_io == end_buffer_io_async &&
-buffer_locked(tmp))
-+               if (test_bit(BH_Async, &tmp->b_state) &&
-buffer_locked(tmp))
-                        goto still_busy;
-                tmp = tmp->b_this_page;
-        }
-@@ -839,6 +839,7 @@
-
- void set_buffer_async_io(struct buffer_head *bh) {
-     bh->b_end_io = end_buffer_io_async ;
-+               set_bit(BH_Async, &bh->b_state);
- }
-
- /*
-@@ -1531,6 +1532,7 @@
-        do {
-                lock_buffer(bh);
-                bh->b_end_io = end_buffer_io_async;
-+               set_bit(BH_Async, &bh->b_state);
-                atomic_inc(&bh->b_count);
-                set_bit(BH_Uptodate, &bh->b_state);
-                clear_bit(BH_Dirty, &bh->b_state);
-@@ -1732,6 +1734,7 @@
-                struct buffer_head * bh = arr[i];
-                lock_buffer(bh);
-                bh->b_end_io = end_buffer_io_async;
-+               set_bit(BH_Async, &bh->b_state);
-                atomic_inc(&bh->b_count);
-        }
-
-@@ -2178,6 +2181,7 @@
-                bh->b_blocknr = *(b++);
-                set_bit(BH_Mapped, &bh->b_state);
-                bh->b_end_io = end_buffer_io_async;
-+               set_bit(BH_Async, &bh->b_state);
-                atomic_inc(&bh->b_count);
-                bh = bh->b_this_page;
-        } while (bh != head);
-diff -ruN old/include/linux/fs.h new/include/linux/fs.h
---- old/include/linux/fs.h      Thu Jun  7 14:26:09 2001
-+++ new/include/linux/fs.h      Thu Jun  7 14:25:28 2001
-@@ -207,6 +207,7 @@
- #define BH_Mapped      4       /* 1 if the buffer has a disk mapping */
- #define BH_New         5       /* 1 if the buffer is new and not yet
-written out */
- #define BH_Protected   6       /* 1 if the buffer is protected */
-+#define BH_Async 7 /* 1 if the buffer is used for asyncronous io */
-
- /*
-  * Try to keep the most commonly used fields in single cache lines (16
------------------
-
-IBM Development, Boeblingen, Germany
-Linux for eServer development
-Stefan.Bader@de.ibm.com
-----------------------------------------------------------------------------------
-
-  When all other means of communication fail, try words.
-
-
+-- 
+Florian Weimer 	                  Florian.Weimer@RUS.Uni-Stuttgart.DE
+University of Stuttgart           http://cert.uni-stuttgart.de/
+RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898

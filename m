@@ -1,57 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267038AbTAFPtP>; Mon, 6 Jan 2003 10:49:15 -0500
+	id <S266998AbTAFPnG>; Mon, 6 Jan 2003 10:43:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267039AbTAFPtP>; Mon, 6 Jan 2003 10:49:15 -0500
-Received: from mark.mielke.cc ([216.209.85.42]:27652 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S267038AbTAFPtO>;
-	Mon, 6 Jan 2003 10:49:14 -0500
-Date: Mon, 6 Jan 2003 11:06:17 -0500
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
-Message-ID: <20030106160617.GA6046@mark.mielke.cc>
-References: <m3isx3lmkt.fsf@home.gmurray.org.uk> <20030105223753.GC31840@mark.mielke.cc> <20030106014322.7b924543.spyro@f2s.com> <20030106052631.GA2728@mark.mielke.cc> <3E195E21.CE6A33BD@aitel.hist.no>
+	id <S266999AbTAFPnF>; Mon, 6 Jan 2003 10:43:05 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:8069
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266998AbTAFPnE>; Mon, 6 Jan 2003 10:43:04 -0500
+Subject: Re: NAPI and tg3
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Steffen Persvold <sp@scali.com>
+Cc: "David S. Miller" <davem@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0301061538420.15870-100000@sp-laptop.isdn.scali.no>
+References: <Pine.LNX.4.44.0301061538420.15870-100000@sp-laptop.isdn.scali.no>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1041870960.17472.42.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E195E21.CE6A33BD@aitel.hist.no>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 06 Jan 2003 16:36:00 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 06, 2003 at 11:44:49AM +0100, Helge Hafting wrote:
-> Mark Mielke wrote:
-> > A closed source product with an expensive price tag provides this
-> > level of responsibility to customers. (at least in theory)
-> Nope.  Did anybody ever sue microsoft because windows crashed and ate
-> the disk, destroying valuable data?  Or for loss of productivity during
-> downtime?
+On Mon, 2003-01-06 at 15:00, Steffen Persvold wrote:
+> I discovered that if I renice the ksoftirqd processes to level 0, the 
+> performance was actually better with the NAPI enabled driver compared to 
+> the one without (as was intended my NAPI IIRC). With the default nice 
+> level (19) on the ksoftirqd processes, the performance on multithreaded 
+> programs was pretty lousy with the NAPI enabled driver.
+> 
+> Any reason why the ksoftirqd shouldn't be nice level 0 by default ? Is 
+> this already fixed in 2.4.21-pre series ?
 
-Then the problem is that companies get away with marketting poor quality
-solutions. They wouldn't get away with it if they sold a car, or a baby
-high-chair. Why should they get away with it for software?
-
-Software managed by the community cannot have a single point of
-responsibility. I'm telling you why companies initially don't like
-such products. I'm not claiming whether it is right, or whether it
-applies in reality. If you want to convince a company otherwise, you
-can't ignore the concern. You need to convince them that their feeling
-of security from closed source projects is unfounded. It isn't hand waving,
-or general claims like 'when have you ever been able to get MS to pay for
-its mistakes?' It is hard numbers. These are not easy to come by.
-
-mark
-
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
+Hack the code to only fall back to ksoftirqd when there are say 10 rather
+than 1 pending event and it should perform even better but still handle
+overload properly
 

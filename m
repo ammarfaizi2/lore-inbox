@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131455AbRAYQst>; Thu, 25 Jan 2001 11:48:49 -0500
+	id <S132394AbRAYQuT>; Thu, 25 Jan 2001 11:50:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132264AbRAYQsj>; Thu, 25 Jan 2001 11:48:39 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:10947 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S131455AbRAYQsa>;
-	Thu, 25 Jan 2001 11:48:30 -0500
-Date: Thu, 25 Jan 2001 16:44:32 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: V Ganesh <ganesh@veritas.com>
-Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br, sct@redhat.com
-Subject: Re: inode->i_dirty_buffers redundant ?
-Message-ID: <20010125164432.A12984@redhat.com>
-In-Reply-To: <200101251047.QAA16434@vxindia.veritas.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200101251047.QAA16434@vxindia.veritas.com>; from ganesh@veritas.com on Thu, Jan 25, 2001 at 04:17:30PM +0530
+	id <S132382AbRAYQuJ>; Thu, 25 Jan 2001 11:50:09 -0500
+Received: from jump-isi.interactivesi.com ([207.8.4.2]:36090 "HELO
+	dinero.interactivesi.com") by vger.kernel.org with SMTP
+	id <S132264AbRAYQty>; Thu, 25 Jan 2001 11:49:54 -0500
+Date: Thu, 25 Jan 2001 10:49:50 -0600
+From: Timur Tabi <ttabi@interactivesi.com>
+To: Roman Zippel <roman@augan.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+In-Reply-To: <3A705802.5C4DD2F2@augan.com>
+In-Reply-To: <3A6D5D28.C132D416@sangate.com> <20010123165117Z131182-221+34@kanga.kvack.org> 
+	<20010123165117Z131182-221+34@kanga.kvack.org> ; from ttabi@interactivesi.com on Tue, Jan 23, 2001 at 10:53:51AM -0600 <20010125155345Z131181-221+38@kanga.kvack.org>
+Subject: Re: ioremap_nocache problem?
+X-Mailer: The Polarbar Mailer; version=1.19a; build=73
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Message-Id: <20010125165001Z132264-460+11@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+** Reply to message from Roman Zippel <roman@augan.com> on Thu, 25 Jan 2001
+17:44:51 +0100
 
-On Thu, Jan 25, 2001 at 04:17:30PM +0530, V Ganesh wrote:
 
-> so i_dirty_buffers contains buffer_heads of pages coming from write() as
-> well as metadata buffers from mark_buffer_dirty_inode(). a dirty MAP_SHARED
-> page which has been write()n to will potentially exist in both lists.
-> won't doing a set_dirty_page() instead of buffer_insert_inode_queue() in
-> __block_commit_write() make things much simpler ? then we'd have i_dirty_buffers
-> having _only_ metadata, and all data pages in the i_mapping->*_pages lists.
+> set_bit(PG_reserved, &page->flags);
+> 	ioremap();
+> 	...
+> 	iounmap();
+> 	clear_bit(PG_reserved, &page->flags);
 
-That would only complicate things: it would mean we'd have to scan
-both lists on fsync instead of just the one, for example.  There are a
-number of places where we need buffer lists for dirty data anyway,
-such as for bdflush's background sync to disk.  We also maintain the
-per-page buffer lists as caches of the virtual-to-physical mapping to
-avoid redundant bmap()ping.  So, removing the buffer_heads which alias
-the page cache data isn't an option.  Given that, it's as well to keep
-all the inode's dirty buffers in the one place.
+The problem with this is that between the ioremap and iounmap, the page is
+reserved.  What happens if that page belongs to some disk buffer or user
+process, and some other process tries to free it.  Won't that cause a problem?
 
-Cheers,
- Stephen
+
+-- 
+Timur Tabi - ttabi@interactivesi.com
+Interactive Silicon - http://www.interactivesi.com
+
+When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

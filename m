@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbUENQhU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbUENQjg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261673AbUENQhU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 12:37:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbUENQhU
+	id S261682AbUENQjg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 12:39:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbUENQjf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 12:37:20 -0400
-Received: from mail.fh-wedel.de ([213.39.232.194]:61911 "EHLO mail.fh-wedel.de")
-	by vger.kernel.org with ESMTP id S261682AbUENQhN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 12:37:13 -0400
-Date: Fri, 14 May 2004 18:36:14 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Will Dyson <will_dyson@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] befs i_flags thinko
-Message-ID: <20040514163613.GD23863@wohnheim.fh-wedel.de>
-References: <1084550848.20184.7.camel@thalience>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Fri, 14 May 2004 12:39:35 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:664 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261693AbUENQjW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 12:39:22 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: elf@buici.com, rmk@arm.linux.org.uk
+Subject: arm-lh7a40x IDE support in 2.6.6
+Date: Fri, 14 May 2004 18:40:04 +0200
+User-Agent: KMail/1.5.3
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1084550848.20184.7.camel@thalience>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200405141840.04401.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 May 2004 12:07:28 -0400, Will Dyson wrote:
-> 
-> This was caught by Jörn Engel <joern@wohnheim.fh-wedel.de> some time
-> ago. It is obviously correct. My public apologies to Jörn for delaying
-> his patch.
 
-Hey, you just uncovered a race condition, see my mail from 1min ago.
-Not sure if I want to fix such a thing, though. ;)
+I was just porting my patches killing <asm/arch/ide.h> for
+ARM to 2.6.6 when noticed that more work is needed now. :-(
 
-Jörn
+arch/arm/mach-lh7a40x/ide-lpd7a40x.c
+include/asm-arm/arch-lh7a40x/ide.h
 
--- 
-Beware of bugs in the above code; I have only proved it correct, but
-not tried it.
--- Donald Knuth
+Why it couldn't be done in drivers/ide/arm
+(as discussed on linux-ide)?
+
+Code from <asm/ide.h> is inlined into IDE core code in far too
+many interesting places which greatly increasing complexity/insanity
+to anybody trying to understand or change it.
+
+The rule is simple:
+	code outside drivers/ide SHOULDN'T need to know about <linux/ide.h>.
+
+WTF everybody wants to be "smart" and abuses it?
+[ and then people complain why IDE is so ugly ]
+
+BTW does it even work as IDE polling code is not merged yet?
+
+Bartlomiej
+

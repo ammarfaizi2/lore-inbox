@@ -1,28 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281391AbRKLKDe>; Mon, 12 Nov 2001 05:03:34 -0500
+	id <S281392AbRKLKQ1>; Mon, 12 Nov 2001 05:16:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281392AbRKLKDZ>; Mon, 12 Nov 2001 05:03:25 -0500
-Received: from mailgate.globalintranet.net ([194.206.181.247]:56768 "EHLO
-	relais-int7.globalintranet.net") by vger.kernel.org with ESMTP
-	id <S281391AbRKLKDO>; Mon, 12 Nov 2001 05:03:14 -0500
-Subject: Capabilities of configuration Kernel 2.2.19 are limited. why ?
-To: linux-kernel@vger.kernel.org
-From: Christian-R.DAVID@pechiney.com
-Date: Mon, 12 Nov 2001 10:41:23 +0100
-Message-ID: <OF2A479265.1129F308-ONC1256B02.0033E366@ftgin.net>
-X-MIMETrack: Serialize by Router on PE01PIVOT/PECHINEY(Release 5.0.6a |January 17, 2001) at
- 12/11/2001 10:42:08
+	id <S281395AbRKLKQR>; Mon, 12 Nov 2001 05:16:17 -0500
+Received: from s1.relay.oleane.net ([195.25.12.48]:62387 "HELO
+	s1.relay.oleane.net") by vger.kernel.org with SMTP
+	id <S281394AbRKLKQL>; Mon, 12 Nov 2001 05:16:11 -0500
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: HFS Filesystem
+Date: Mon, 12 Nov 2001 11:15:56 +0100
+Message-Id: <20011112101556.20952@smtp.adsl.oleane.com>
+In-Reply-To: <E163CqK-00057r-00@the-village.bc.nu>
+In-Reply-To: <E163CqK-00057r-00@the-village.bc.nu>
+X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+>netatalk uses its own resource fork magic using .AppleDouble directories
+>or a few other configurable formats. HFS on 2.2 also supports the same
+>format so magically you can get real fork access
+>
+>For 2.4 the HFS code still needs some serious cleanup, and for 2.5 I suspect
+>either someone fixes the locking on or it gets deleted
 
-I have kernel 2.2.19 on my system.
-I want to modify the max size of the message queue (you obtain the limits with "ipcs -l").
-I don't know how to do that? Have you got a special tools to resize the system V msgqueue?
+I've started reworking the locking but well... got distracted and never
+finished.
 
-Thanks for all answer!
+It's on my list of things to do asap though.
+
+Ben. 
+
+
 

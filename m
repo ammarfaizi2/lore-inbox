@@ -1,42 +1,108 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313786AbSDUThQ>; Sun, 21 Apr 2002 15:37:16 -0400
+	id <S313791AbSDUUFu>; Sun, 21 Apr 2002 16:05:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313787AbSDUThP>; Sun, 21 Apr 2002 15:37:15 -0400
-Received: from natwar.webmailer.de ([192.67.198.70]:43632 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S313786AbSDUThO>; Sun, 21 Apr 2002 15:37:14 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Dominik Brodowski <devel@brodo.de>
-To: josh@stack.nl
-Subject: Re: [BUG] 2.5.8: ACPI: PCI IRQ remapping goes wrong.
-Date: Sun, 21 Apr 2002 21:34:25 +0200
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
+	id <S313795AbSDUUFt>; Sun, 21 Apr 2002 16:05:49 -0400
+Received: from [216.250.138.66] ([216.250.138.66]:10960 "HELO guts.pl.net")
+	by vger.kernel.org with SMTP id <S313791AbSDUUFt>;
+	Sun, 21 Apr 2002 16:05:49 -0400
+Message-ID: <3CC30E11.F034B3A7@utah-nac.org>
+Date: Sun, 21 Apr 2002 13:08:01 -0600
+From: "Jeff V. Merkey" <jmerkey@utah-nac.org>
+Organization: Utah Native American Church
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <02042121333100.02835@sonnenschein>
-Content-Transfer-Encoding: 7BIT
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Novell ZenWorks and the GPL
+In-Reply-To: <20020420235348.A11687@vger.timpanogas.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jos:
+> Update,
 
-Using IO[S]APIC and ACPI_BOOT is broken in 2.5.8 and the acpi-patches 
-acpi-20020404 and acpi-20020419. The ACPI SMP booting code is re-worked, and 
-so this problem should be resolved soon. FYI, acpi-20020419 informs you of 
-this in a nice kernel panic.
+Within about two hours of this email being posted to LKML, All sorts of
+"Linux Source Code" started showing up on
+Novell's website.  Thanks Novell for complying with the GPL.  What's in
+the product appears to reflect the code that was posted.
 
-Dominik
+:-)
 
-On 2002-04-20 8:23:22 Jos Hulzink wrote:
-> My SCSI card didn't work anymore, my NIC was unable to connect and my SB
-> Live! didn't work anymore. I thought 2.5.8 was a huge mess :)
-> 
-> Anyway: ACPI sets up IRQ remapping to IRQs > 15, but all PCI devices claim
-> the old =< 15 IRQ's. My guess is that the ACPI code doesn't update the pci
-> irq data.
->
-> If it matters: The system I talk about is a dual PII 333, on an Intel LX
-> chipset. 2.5.6 did boot fine.
->
-> Jos
+Jeff
+
+FYI
+
+
+                               20 Apr 2002
+                                       NOVELL: Building the ZENworks
+Imaging Kernel (ZENworks Cool
+                                       Solutions)
+
+                       2.
+                           94%
+                               21 Apr 2002
+                                       NOVELL: AppNotes: How to Install
+NDS Corporate Edition on
+                                       Solaris or Linux
+
+                       3.
+                           92%
+                               21 Apr 2002
+                                       NOVELL: Recovery Using the Local
+Linux Partition
+
+                       4.
+                           92%
+                               21 Apr 2002
+                                       NOVELL: Recommendations for NDS
+eDirectory on Windows NT
+                                       and Linux
+
+                       5.
+                           92%
+                               21 Apr 2002
+                                       NOVELL: How to Install NDS
+Corporate Edition on Solaris or Linux
+
+
+                       6.
+                           92%
+                               20 Apr 2002
+                                       NOVELL: Linux (ZENworks Cool
+Solutions)
+
+                       7.
+                           92%
+                               20 Apr 2002
+                                       NOVELL: Linux Kernel Patch Files
+(ZENworks Cool Solutions)
+
+
+                       8.
+                           91%
+                               20 Apr 2002
+                                       NOVELL: Cool Solutions Free Tools
+by Product
+
+                       9.
+                           91%
+                               20 Apr 2002
+                                       NOVELL: Cool Solutions Free Tools
+by Date
+
+                       10.
+                           91%
+                               20 Apr 2002
+                                       NOVELL: Cool Solutions Free Tools
+by Tool Name
+
+
+                       1 2 3 4 5 6  ...  Next >>
+
+
+
+
+

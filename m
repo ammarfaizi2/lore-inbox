@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261988AbTCZT7g>; Wed, 26 Mar 2003 14:59:36 -0500
+	id <S262174AbTCZUKB>; Wed, 26 Mar 2003 15:10:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262001AbTCZT7f>; Wed, 26 Mar 2003 14:59:35 -0500
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:12036 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S261988AbTCZT7c>; Wed, 26 Mar 2003 14:59:32 -0500
-Date: Wed, 26 Mar 2003 21:10:31 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: BK-kernel-tools/shortlog update
-Message-ID: <20030326201031.GA29746@merlin.emma.line.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030326103036.064147C8DD@merlin.emma.line.org> <Pine.LNX.4.44.0303260917320.15530-100000@home.transmeta.com>
+	id <S262311AbTCZUKB>; Wed, 26 Mar 2003 15:10:01 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:1540 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S262174AbTCZUJx>;
+	Wed, 26 Mar 2003 15:09:53 -0500
+Date: Thu, 27 Mar 2003 08:47:27 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Dave Jones <davej@codemonkey.org.uk>, "H. Peter Anvin" <hpa@zytor.com>,
+       J?rn Engel <joern@wohnheim.fh-wedel.de>,
+       James Bourne <jbourne@hardrock.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Ptrace hole / Linux 2.2.25
+Message-ID: <20030327074727.GA3021@zaurus.ucw.cz>
+References: <3E7E4C63.908@gmx.de> <Pine.LNX.4.44.0303231717390.19670-100000@cafe.hardrock.org> <20030324003946.GA11081@wohnheim.fh-wedel.de> <3E7E736D.4020200@zytor.com> <20030324144219.GC29637@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0303260917320.15530-100000@home.transmeta.com>
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <20030324144219.GC29637@suse.de>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Mar 2003, Linus Torvalds wrote:
+Hi!
 
-> Btw, one feature I'd like to see in shortlog is the ability to use 
-> regexps for email address matching, ie something like
+>  > >maybe. Peter, what do you think?
+>  > I'd rather keep the collection itself on kernel.org.
 > 
-> 	'torvalds@.*transmeta.com' => 'Linus Torvalds'
-> 	... 
-> 	'alan@.*swansea.linux.org.uk' => 'Alan Cox'
-> 	...
-> 	'bcrl@redhat.com' => 'Benjamin LaHaise',
-> 	'bcrl@.*' => '?? Benjamin LaHaise',
-> 	..
+> Another possibility just occured to me.
+> It'd be useful to add a feature that adds a check to the
+> build process..
 > 
-> I don't know whether you can force perl to do something like this, but if 
-> somebody were to try...
+> "Download post-release errata ? [Y/n]"
+> 
+> and have it wget patches from k.o, verify signatures and auto-apply them,
+> which removes the "admin didnt even know there were patches
+> that needed to be applied" possibility.
+> 
 
-I'd like to keep the hash for all those addresses that aren't wildcards
-and that aren't regexps -- we have fast, that is O(1) to O(log n),
-access to the hash (depending on Perl's implementation) and we have
-worse than O(n) for regexp, where n is the count of address strings or
-regexps.
+That looks like ugly can of worms to me.
+"what kernel do you have?"
+"2.4.25 and it did two downloads; I was
+compiling it on the friday night"
 
-Would you agree to a version that has a set of fixed addresses and a
-separate list of regexps, tries the hash first and then a list of
-regexps?  That sounds like a) easy addition, b) good performance to me
-(before implementing it). If so, I could add some code for that feature.
-
+				Pavel
 -- 
-Matthias Andree
+				Pavel
+Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
+

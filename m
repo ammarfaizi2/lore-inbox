@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264936AbSLaXak>; Tue, 31 Dec 2002 18:30:40 -0500
+	id <S264954AbSLaXdk>; Tue, 31 Dec 2002 18:33:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264938AbSLaXak>; Tue, 31 Dec 2002 18:30:40 -0500
-Received: from h-64-105-35-45.SNVACAID.covad.net ([64.105.35.45]:64211 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S264936AbSLaXah>; Tue, 31 Dec 2002 18:30:37 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Tue, 31 Dec 2002 15:38:51 -0800
-Message-Id: <200212312338.PAA00551@baldur.yggdrasil.com>
-To: akpm@digeo.com
-Subject: Re: [PATCH] generic device DMA (dma_pool update)
-Cc: david-b@pacbell.net, James.Bottomley@steeleye.com,
+	id <S264963AbSLaXdk>; Tue, 31 Dec 2002 18:33:40 -0500
+Received: from ns.netrox.net ([64.118.231.130]:48521 "EHLO smtp01.netrox.net")
+	by vger.kernel.org with ESMTP id <S264954AbSLaXdj>;
+	Tue, 31 Dec 2002 18:33:39 -0500
+Subject: Re: [PATCH] __deprecated requires gcc 3.1
+From: Robert Love <rml@tech9.net>
+To: torvalds@transmeta.com
+Cc: James Bottomley <James.Bottomley@steeleye.com>,
        linux-kernel@vger.kernel.org
+In-Reply-To: <200212312313.gBVNDdM04070@localhost.localdomain>
+References: <200212312313.gBVNDdM04070@localhost.localdomain>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1041378241.948.14.camel@icbm>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 31 Dec 2002 18:44:03 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
->"Adam J. Richter" wrote:
->> 
->> David Brownell wrote:
->> 
->> >struct dma_pool *dma_pool_create(char *, struct device *, size_t)
->> >void dma_pool_destroy (struct dma_pool *pool)
->> >void *dma_pool_alloc(struct dma_pool *, int mem_flags, dma_addr_t *)
->> >void dma_pool_free(struct dma_pool *, void *, dma_addr_t)
->> 
->>         I would like to be able to have failure-free, deadlock-free
->> blocking memory allocation, such as we have with the non-DMA mempool
->> library so that we can guarantee that drivers that have been
->> successfully initialized will continue to work regardless of memory
->> pressure, and reduce error branches that drivers have to deal with.
->> 
->>         Such a facility could be layered on top of your interface
->> perhaps by extending the mempool code to pass an extra parameter
->> around.  If so, then you should think about arranging your interface
->> so that it could be driven with as little glue as possible by mempool.
->> 
+On Tue, 2002-12-31 at 18:13, James Bottomley wrote:
 
->What is that parameter?  The size, I assume.
+> Oops, mea culpa on that one.  It's missing a trailing `__' on the end of 
+> __GNUC_MINOR
 
-	No, dma address.  All allocations in a memory pool (in both
-the mempool and pci_pool sense) are the same size.
+Looks like Linus already committed it.
 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+Attached patch is against the updated BK and fixes the omission.  Sorry.
+
+	Robert Love
+
+ include/linux/compiler.h |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+
+diff -urN linux-2.5.53/include/linux/compiler.h linux/include/linux/compiler.h
+--- linux-2.5.53/include/linux/compiler.h	2002-12-31 18:39:55.000000000 -0500
++++ linux/include/linux/compiler.h	2002-12-31 18:40:10.000000000 -0500
+@@ -19,7 +19,7 @@
+  * Usage is:
+  * 		int __deprecated foo(void)
+  */
+-#if ( __GNUC__ == 3 && __GNUC_MINOR > 0 ) || __GNUC__ > 3
++#if ( __GNUC__ == 3 && __GNUC_MINOR__ > 0 ) || __GNUC__ > 3
+ #define __deprecated	__attribute__((deprecated))
+ #else
+ #define __deprecated
+
+
+

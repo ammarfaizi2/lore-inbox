@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267150AbUBMSUu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 13:20:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267144AbUBMSUt
+	id S267153AbUBMSYM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 13:24:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267154AbUBMSYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 13:20:49 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:25574 "EHLO
-	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S267150AbUBMSUq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 13:20:46 -0500
-Date: Fri, 13 Feb 2004 18:20:47 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: your mail (maps "deleted")
-In-Reply-To: <7A25937D23A1E64C8E93CB4A50509C2A0310F0B9@stca204a.bus.sc.rolm.com>
-Message-ID: <Pine.LNX.4.44.0402131817280.5718-100000@localhost.localdomain>
+	Fri, 13 Feb 2004 13:24:12 -0500
+Received: from web41505.mail.yahoo.com ([66.218.93.88]:52826 "HELO
+	web41505.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S267153AbUBMSYH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 13:24:07 -0500
+Message-ID: <20040213182405.63131.qmail@web41505.mail.yahoo.com>
+Date: Fri, 13 Feb 2004 13:24:05 -0500 (EST)
+From: Shu Lin <linshu99@yahoo.com>
+Subject: output of printk can NOT be found in /var/log/messages
+To: linux-kernel@vger.kernel.org
+Cc: linshu99@yahoo.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 13 Feb 2004, Bloch, Jack wrote:
-> I am running a 2.4.19 Kernel and have a problem where a process is using the
-> up to the 0xC0000000 of space. It is no longer possible for this process to
-> get any more memory vi mmap or via shmget. However, when I dump the
-> /procs/#/maps file, I see large chunks of memory deleted. i.e this should be
-> freely available to be used by the next call. I do not see these addresses
-> get re-used. The maps file is attached.
+I am debugging a module like below. I can get the
+printk output in
+/var/log/messages when i insmod and rmmmod. But when i
+try to open or
+ioctl the device, the output of printk doesn't appear
+in
+/var/log/messages.
 
-You mean, for example,
-bee13000-bee2c000 rw-s 00000000 00:05 7405782    /SYSVa8020046 (deleted)
-?
+What did i do wrong?
 
-It's not the memory which has been "(deleted)", that's still filling your
-virtual address space.  It means that shared memory objects /SYSVxxxxxxxx
-are not really there on your filesystem, and so are displayed as deleted:
-an mmapping of an unlinked file is shown that way.
+I also dumped /proc/sys/kernel/printk and
+/etc/syslog.conf. But, i
+don't think i had any configuration wrong.
 
-Hugh
+Thanks ahead!
 
+Shu
+cc: linshu99@yahoo.com
 
+______________________________________________________________________ 
+Post your free ad now! http://personals.yahoo.ca

@@ -1,57 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264974AbUAEPTm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 10:19:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbUAEPTm
+	id S265162AbUAEPXg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 10:23:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265161AbUAEPXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 10:19:42 -0500
-Received: from web20023.mail.yahoo.com ([216.136.225.29]:19340 "HELO
-	web20023.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264974AbUAEPTj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 10:19:39 -0500
-Message-ID: <20040105151938.92587.qmail@web20023.mail.yahoo.com>
-Date: Mon, 5 Jan 2004 07:19:38 -0800 (PST)
-From: Biplab Sarkar <xmp100@yahoo.com>
-Subject: system speed
-To: linux-kernel@vger.kernel.org
+	Mon, 5 Jan 2004 10:23:35 -0500
+Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:10689 "EHLO
+	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S265162AbUAEPWw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 10:22:52 -0500
+Date: Mon, 5 Jan 2004 16:22:48 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Amit Gurdasani <amitg@alumni.cmu.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Pentium M config option for 2.6
+In-Reply-To: <Pine.LNX.4.56.0401051858540.4783@athena.localdomain>
+Message-ID: <Pine.LNX.4.53.0401051621160.3660@gockel.physik3.uni-rostock.de>
+References: <Pine.LNX.4.56.0401051858540.4783@athena.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 5 Jan 2004, Amit Gurdasani wrote:
 
- I am new to this list. I have a question would be
-greatful if anyone answers it.
+> Perhaps -mcpu=pentium3 -march=pentium4 would be a good compromise? From the
+> GCC 3.3 info pages:
+[...]
+>      for CPU-TYPE are the same as for `-mcpu'.  Moreover, specifying
+>      `-march=CPU-TYPE' implies `-mcpu=CPU-TYPE'.
 
-I have observed that my linux PC (Celeron-633Mhz) runs
-significantly slow after I have installed Mandrake-9.2
-which has kernel (2.4.22). My earlier kernel was
-2.2.22 (mandrake 7.2). The speed seems to be slow
-right from the bootup sequence. 
+... thus leaving the "-mcpu=pentium3" without effect.
 
-I have also observed that if I do an abnormal shutdown
-of the system (by pressing the reset button of the
-computer) the system speeds up significantly somewhat
-comparable to my old kernel speed. Right from the
-bootup sequence every thing runs fast. 
-
-I have also observed that the CPU utilization is very
-high for case when the I try a normal shutdown
-followed by a bootup. I could not see any single 
-process that would be hogging the CPU. It seems like
-any process that gets the CPU likes to hog the CPU.
-
-
-Any idea what is it that is causing the system to run
-faster when we have an abnormal shutdown of the
-system?
-
-Thanks,
-Biplab
-
-
-__________________________________
-Do you Yahoo!?
-Free Pop-Up Blocker - Get it now
-http://companion.yahoo.com/
+Tim

@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313385AbSDES2C>; Fri, 5 Apr 2002 13:28:02 -0500
+	id <S313660AbSDEW2l>; Fri, 5 Apr 2002 17:28:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313392AbSDES1w>; Fri, 5 Apr 2002 13:27:52 -0500
-Received: from line106-150.adsl.actcom.co.il ([192.117.106.150]:19593 "HELO
-	mail.bard.org.il") by vger.kernel.org with SMTP id <S313385AbSDES1k>;
-	Fri, 5 Apr 2002 13:27:40 -0500
-Date: Fri, 5 Apr 2002 21:27:31 +0300
-From: "Marc A. Volovic" <marc@bard.org.il>
-To: Albert Max Lai <amlai@bitsorcery.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.x and DAC960 issues
-Message-ID: <20020405182731.GA20224@glamis.bard.org.il>
-In-Reply-To: <15533.14286.502083.225297@bitsorcery.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux glamis.bard.org.il 2.4.19-pre5
-X-message-flag: 'Oi! Muy Importante! Get yourself a real email client. http://www.mutt.org/'
+	id <S313664AbSDEW2b>; Fri, 5 Apr 2002 17:28:31 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:44305 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S313660AbSDEW2T>; Fri, 5 Apr 2002 17:28:19 -0500
+Date: Fri, 5 Apr 2002 14:27:48 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] shift BKL out of notify_change
+In-Reply-To: <3CAE2230.7050705@us.ibm.com>
+Message-ID: <Pine.LNX.4.33.0204051420480.2263-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert Max Lai said:
 
-> I have had problems using the DAC960 driver under any 2.4.x kernel
-> (currently using 2.4.18).  I have not experienced these problems under
+On Fri, 5 Apr 2002, Dave Hansen wrote:
 > 
-> 1.  Under reasonably low loads the driver will hang.  It is very
->     reproducible when using the benchmark program "Bonnie."  This
-[snip]
->     problem is exacerbated when using the ext3 filing system, locking
+> My patch adds a semaphore to the inode structure,
 
-I am using a Mylex 170LP with no problem, running on a dual 550MHz 
-MSI 6120S under quite a few 2.4.x kernels, lately 2.4.18 and 2.4.19pre5,
-all under reiserfs.  The firmware is 6.00-15, carrying 6 9GB disks
-(5 RAID5 + 1 spare).
+Hmm... I'd really prefer to just use the existing i_sem - umsdos doesn't
+work as-is right now anyway, but as far as I can see that's really what
+umsdos actually wants anyway (ie then you can just remove the down/up from
+the UMSDOS_notify_change() routine).
 
-There have been NO lockups under any version of the kernel, not under 
-multiple bonnie runs.
+do_truncate() already does the i_sem thing for its notify_change, and
+notify_change() really _is_ equivalent to a write, so this really seems to 
+make more sense that way. 
 
-What is your interrupt breakdown? Could your machine be doing something
-naughty with the interrupts?
+Just move the current down/up pair from do_truncate() into notify_change()
+(it also protects the "newattrs" assignment in do_truncate, but that is
+purely local data at that point and needs no protection).
 
----MAV
-                       Linguists Do It Cunningly
-Marc A. Volovic                                          marc@bard.org.il
+		Linus
+

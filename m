@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261385AbREMHqY>; Sun, 13 May 2001 03:46:24 -0400
+	id <S261386AbREMIHk>; Sun, 13 May 2001 04:07:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261386AbREMHqO>; Sun, 13 May 2001 03:46:14 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:1960 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261385AbREMHqF>;
-	Sun, 13 May 2001 03:46:05 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15102.15280.99363.687534@pizda.ninka.net>
-Date: Sun, 13 May 2001 00:45:52 -0700 (PDT)
-To: Ben Greear <greearb@candelatech.com>
-Cc: Matthew Kirkwood <matthew@hairy.beasts.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Andi Kleen <ak@muc.de>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] arp_filter patch for 2.4.4 kernel.
-In-Reply-To: <3AFE2BAB.DB8C03F0@candelatech.com>
-In-Reply-To: <Pine.LNX.4.30.0105071730090.23021-100000@sphinx.mythic-beasts.com>
-	<3AFE2BAB.DB8C03F0@candelatech.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+	id <S261387AbREMIHb>; Sun, 13 May 2001 04:07:31 -0400
+Received: from smtp1.Stanford.EDU ([171.64.14.23]:27579 "EHLO
+	smtp1.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S261386AbREMIHN>; Sun, 13 May 2001 04:07:13 -0400
+Message-Id: <5.0.2.1.2.20010513005434.00a84d00@pxwang.pobox.stanford.edu>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Sun, 13 May 2001 01:07:03 -0700
+To: alan@lxorguk.ukuu.org.uk
+From: Philip Wang <PXWang@stanford.edu>
+Subject: [PATCH] vmalloc NULL Check Bug Fix
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        Dawson Engler <engler@cs.Stanford.EDU>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-Ben Greear writes:
- > If it was good enough for 2.2.19, shouldn't it be good enough for
- > 2.4?
+I'm Philip, from Professor Dawson Engler's Meta-Compilation Group at 
+Stanford University.
 
-Actually, by itself, this is a bogus argument.  Many things in
-2.2.x have been explicitly removed in 2.4.x :-)
+This simple and obvious bug fix makes sure that vmalloc() does not return 
+NULL.  My addition of returning -1 is consistent with how the rest of the 
+code deals with allocation failures.
 
-Regardless, the arp filter in some form will be added.  Don't
-worry.
+Warmly,
 
-Later,
-David S. Miller
-davem@redhat.com
+Philip
+
+---drivers/mtd/ftl.c Fri Feb 9
+11:30:23 2001
++++ ftl.c Sun May 13 00:25:26 2001
+@@ -375,6 +375,8 @@
+/* Set up virtual page map */
+blocks = le32_to_cpu(header.FormattedSize) >> header.BlockSize;
+part->VirtualBlockMap = vmalloc(blocks * sizeof(u_int32_t));
++ if(!part->VirtualBlockMap) return -1;
++
+memset(part->VirtualBlockMap, 0xff, blocks * sizeof(u_int32_t));
+part->BlocksPerUnit = (1 << header.EraseUnitSize) >> header.BlockSize;
+

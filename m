@@ -1,72 +1,123 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132754AbRARWID>; Thu, 18 Jan 2001 17:08:03 -0500
+	id <S136078AbRARWKd>; Thu, 18 Jan 2001 17:10:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131565AbRARWHx>; Thu, 18 Jan 2001 17:07:53 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:50792 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S136063AbRARWHh>; Thu, 18 Jan 2001 17:07:37 -0500
-Date: Thu, 18 Jan 2001 22:54:32 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Rick Jones <raj@cup.hp.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-        "David S. Miller" <davem@redhat.com>
-Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
-Message-ID: <20010118225432.K28276@athlon.random>
-In-Reply-To: <20010118212441.E28276@athlon.random> <Pine.LNX.4.30.0101182135180.2034-100000@elte.hu>
+	id <S135354AbRARWKX>; Thu, 18 Jan 2001 17:10:23 -0500
+Received: from rm05-24-167-191-55.ce.mediaone.net ([24.167.191.55]:60177 "EHLO
+	calvin.localdomain") by vger.kernel.org with ESMTP
+	id <S131565AbRARWKS>; Thu, 18 Jan 2001 17:10:18 -0500
+Date: Thu, 18 Jan 2001 16:10:00 -0600
+From: Tim Walberg <tewalberg@mediaone.net>
+To: "Jorge Boncompte (DTI2)" <jorge@dti2.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ERR in /proc/interrupts
+Message-ID: <20010118161000.A3487@mediaone.net>
+Reply-To: Tim Walberg <tewalberg@mediaone.net>
+Mail-Followup-To: Tim Walberg <tewalberg@mediaone.net>,
+	"Jorge Boncompte (DTI2)" <jorge@dti2.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <001c01c08199$387205f0$067039c3@cintasverdes>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="MGYHOYXEY6WxJCY8"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.30.0101182135180.2034-100000@elte.hu>; from mingo@elte.hu on Thu, Jan 18, 2001 at 09:44:57PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <001c01c08199$387205f0$067039c3@cintasverdes> from Jorge Boncompte (DTI2) on 01/18/2001 15:54
+X-PGP-RSA-Key: 0x0C8BA2FD at www.pgp.com (pgp.ai.mit.edu)
+X-PGP-RSA-Fingerprint: FC08 4026 8A62 C72F 90A9 FA33 6EEA 542D
+X-PGP-DSS-Key: 0x6DAB2566 at www.pgp.com (pgp.ai.mit.edu)
+X-PGP-DSS-Fingerprint: 4E1B CD33 46D0 F383 1579  1CCA C3E5 9C8F 6DAB 2566
+X-URL: http://www.concentric.net/~twalberg
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 18, 2001 at 09:44:57PM +0100, Ingo Molnar wrote:
-> why? TCP_CORK is equivalent to MSG_MORE, it's just a different
 
-I thought you agreed it isn't (Linus's example I quoted).
+--MGYHOYXEY6WxJCY8
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > Doing PUSH from setsockopt(TCP_CORK) looked obviously wrong because it
-> > isn't setting any socket state, [...]
-> 
-> well, neither is clearing/setting TCP_CORK ...
+A quick perusal of the 2.2.18 source code (I don't have
+a copy of 2.4.x handy) shows that it's directly
+related to the number of IPIs (inter-processor
+interrupts) the system has taken. I'm not real
+sure under what conditions this occurs, but it's
+someplace to start...
 
-clearing/setting TCP_CORK is a stateful opertaion, it changes a socket option.
 
-> > and also because the SIOCPUSH has nothing specific with TCP_CORK, as
-> > said it can be useful also to flush the last fragment of data pending
-> > in the send queue without having to wait all the unacknowledged data
-> > to be acknowledged from the receiver when TCP_NODELAY isn't set.
-> 
-> huh? in what way does the following:
-> 
-> {
->         int val = 1;
->         setsockopt(req->sock, IPPROTO_TCP, TCP_CORK,
-> 			(char *)&val,sizeof(val));
->         val = 0;
->         setsockopt(req->sock, IPPROTO_TCP, TCP_CORK,
-> 			(char *)&val,sizeof(val));
-> }
-> 
-> differ from what you posted. It does the same in my opinion. Maybe we are
-> not talking about the same thing?
+			tw
 
-The above is equivalent to SIOCPUSH _only_ if the caller wasn't using either
-TCP_NODELAY or TCP_CORK.
 
-> [this is nitpicking. I'm quite sure all the code uses '1' as the value,
-> not 2.]
+On 01/18/2001 22:54 +0100, Jorge Boncompte (DTI2) wrote:
+>>	    What does ERR mean in /proc/interrupts? I have a computer running
+>>	2.4.0test12 that has a lot of this ERR's?
+>>=09
+>>	           CPU0
+>>	  0:  116445752          XT-PIC  timer
+>>	  1:     389614          XT-PIC  keyboard
+>>	  2:          0          XT-PIC  cascade
+>>	  5:   34298837          XT-PIC  eth1
+>>	  8:          1          XT-PIC  rtc
+>>	 10:  400182075          XT-PIC  eth0
+>>	 11:   23181909          XT-PIC  ide0, ide1
+>>	 14:          4          XT-PIC  ide2
+>>	 15:     692215          XT-PIC  ide3
+>>	 64:          0            none  acpi
+>>	NMI:          0
+>>	ERR:    1586756
+>>=09
+>>	This is an AMD 800 + Tyan K7 mobo.
+>>=09
+>>	    -Jorge
+>>=09
+>>	=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>>	Jorge Boncompte - T=E9cnico de sistemas
+>>	DTI2 - Desarrollo de la Tecnolog=EDa de las Comunicaciones
+>>	--------------------------------------------------------------
+>>	C/ Abogado Enriquez Barrios, 5   14004 CORDOBA (SPAIN)
+>>	Tlf: +34 957 761395 / FAX: +34 957 450380
+>>	--------------------------------------------------------------
+>>	jorge@dti2.net _-_-_-_-_-_-_-_-_-_-_-_-_-_ http://www.dti2.net
+>>	=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>>	Without wicker a basket cannot be done.
+>>	=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>>=09
+>>=09
+>>	-
+>>	To unsubscribe from this list: send the line "unsubscribe linux-kernel" =
+in
+>>	the body of a message to majordomo@vger.kernel.org
+>>	Please read the FAQ at http://www.tux.org/lkml/
+End of included message
 
-I'm quite sure too but I will not get suprirsed anymore by getting bugreports
-because of such an innocent change ;). Though real reasons are others (I
-mentioned the backwards compatibility breakage more as a side note).
 
-Andrea
+
+--=20
++--------------------------+------------------------------+
+| Tim Walberg              | tewalberg@mediaone.net       |
+| 828 Marshall Ct.         | www.concentric.net/~twalberg |
+| Palatine, IL 60074       |                              |
++--------------------------+------------------------------+
+
+--MGYHOYXEY6WxJCY8
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: PGP 6.5.1i
+
+iQA/AwUBOmdptsPlnI9tqyVmEQKEfACePNDzIuu3FlrTdm2fFFihJD7f14cAoOyi
+JpnMLOgVy/2yGMP67sVwanWY
+=3gp6
+-----END PGP SIGNATURE-----
+
+--MGYHOYXEY6WxJCY8--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

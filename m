@@ -1,63 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129145AbQKMAvr>; Sun, 12 Nov 2000 19:51:47 -0500
+	id <S129040AbQKMAy4>; Sun, 12 Nov 2000 19:54:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129092AbQKMAvg>; Sun, 12 Nov 2000 19:51:36 -0500
-Received: from 513.holly-springs.nc.us ([216.27.31.173]:42769 "EHLO
-	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
-	id <S129040AbQKMAv0>; Sun, 12 Nov 2000 19:51:26 -0500
-Message-ID: <3A0F3B08.8C218DA4@holly-springs.nc.us>
-Date: Sun, 12 Nov 2000 19:51:20 -0500
-From: Michael Rothwell <rothwell@holly-springs.nc.us>
-X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.18pre21 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Dunlap, Randy" <randy.dunlap@intel.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: latest 2.2.18-X patch?
-In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDCBE@orsmsx31.jf.intel.com>
+	id <S129047AbQKMAyr>; Sun, 12 Nov 2000 19:54:47 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:5135 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S129040AbQKMAyb>; Sun, 12 Nov 2000 19:54:31 -0500
+Date: Sun, 12 Nov 2000 18:54:13 -0600
+To: "Carlos E. Gorges" <carlos@techlinux.com.br>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Unresolved Symbols in wavefront module ( k 2.2.17 )
+Message-ID: <20001112185413.B18203@wire.cadcamlab.org>
+In-Reply-To: <00111222283100.01504@shark.techlinux>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <00111222283100.01504@shark.techlinux>; from carlos@techlinux.com.br on Sun, Nov 12, 2000 at 10:17:40PM -0200
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks everyone!
 
-I've discovered that it works with my USB scanner, but the IBMCAM
-doesn't work at all with the usb-uhci driver. It works once with the
-uhci driver. Subsequent access using xawtv causes instantaneous lock-up.
-No oops, nothing. Just freezes the entire system. Not even the keyboard
-responds (can't toggle capslock, etc). Needless to say, magic sysrq
-didn't work.
-
-I've got another machine; I'll see if I can get a serial port dump to
-report.
-
-This was with 2.2.17 + pre-patch-2.2.18-21 on an Athlon 600.
-
-
--M
-
-"Dunlap, Randy" wrote:
+[Carlos E. Gorges]
+> This fixes the unresolved symbol detect_wf_mpu to module
+> wavefront .
 > 
-> ftp.??.kernel.org/pub/linux/kernel/v2.2
-> for linux-2.2.17.tar.{gz,bz2}
-> and then ftp.??.kernel.org.pub/linux/kernel/people/alan/2.2.18pre
-> for pre-patch-2.2.18-21.{gz,bz2}
-> 
-> Yes (USB backport).
-> 
-> ~Randy_________________________________________
-> |randy.dunlap_at_intel.com        503-677-5408|
-> |NOTE: Any views presented here are mine alone|
-> |& may not represent the views of my employer.|
-> -----------------------------------------------
-> 
-> > From: Michael Rothwell [mailto:rothwell@holly-springs.nc.us]
-> >
-> > Where's the best place to get the latest 2.2.18 kernel? And does it
-> > include the USB backport?
-> > -
+> Patch attached.
+
+1) Do not use gzipped attachments -- in fact do not use attachments at
+all, unless the file you wish to attach is already in binary form, or
+is extremely long.  Inline text is less trouble to read, and just as
+easy to apply ('patch' has no problem skipping non-patch material).
+
+2) 'diff -urN {old} {new}' not 'diff -urN {new} {old}'.
+
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

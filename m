@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129867AbRAQREU>; Wed, 17 Jan 2001 12:04:20 -0500
+	id <S130022AbRAQRFU>; Wed, 17 Jan 2001 12:05:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130022AbRAQREB>; Wed, 17 Jan 2001 12:04:01 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:63754 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S129867AbRAQRDt>;
-	Wed, 17 Jan 2001 12:03:49 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Andrew Morton <andrewm@uow.edu.au>
-Date: Wed, 17 Jan 2001 18:02:21 MET-1
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: [linux-fbdev] Re: console spin_lock
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        FrameBuffer List <linux-fbdev@vuser.vu.union.edu>,
-        Linux console project 
-	<linuxconsole-dev@lists.source.redhat.com>
-X-mailer: Pegasus Mail v3.40
-Message-ID: <12D9032A5156@vcnet.vc.cvut.cz>
+	id <S131552AbRAQRFK>; Wed, 17 Jan 2001 12:05:10 -0500
+Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:27665 "EHLO
+	almesberger.net") by vger.kernel.org with ESMTP id <S130022AbRAQRFC>;
+	Wed, 17 Jan 2001 12:05:02 -0500
+Date: Wed, 17 Jan 2001 18:04:33 +0100
+From: Werner Almesberger <Werner.Almesberger@epfl.ch>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0 + iproute2
+Message-ID: <20010117180433.A4979@almesberger.net>
+In-Reply-To: <14945.26991.35849.95234@pizda.ninka.net> <Pine.LNX.4.30.0101141013080.16469-100000@jdi.jdimedia.nl> <14945.28354.209720.579437@pizda.ninka.net> <20010114115215.A22550@gruyere.muc.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010114115215.A22550@gruyere.muc.suse.de>; from ak@suse.de on Sun, Jan 14, 2001 at 11:52:15AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 Jan 01 at 0:49, Andrew Morton wrote:
+Andi Kleen wrote:
+> Configuring a complex subsystem like CBQ which has dozens of parameters
+> with only a single ed'esque error message (EINVAL) when something goes
+> wrong is just bad.
 
-> Assumption:
-> - Once the system is up and running, it's always safe to
->   call down() when in_interrupt() returns false - probably
->   not the case in parts of the exit path - tough.
-> 
-> Anyway, that's the thoughtware.  Sound sane?
+The underlying problem is of course that all those sanity checks should
+be done in user space, not in the kernel.
 
-Do not forget to handle printk() done by fbdev driver... It
-may invoke printk() from user context, but with console_semaphore
-already held... Something like reentrant_semaphore? Also, we
-should declare which console/fbdev function can printk/can schedule 
-and which must not, as using interrupts & schedule could yield
-CPU to other tasks when (hardware assisted) operation is performed.
-Some of them (clear, bmove) can take loong time to finish.
-                                    Best regards,
-                                            Petr Vandrovec
-                                            vandrove@vc.cvut.cz
-                                            
+(See also ftp://icaftp.epfl.ch/pub/people/almesber/slides/tmp-tc.ps.gz
+The bitching starts on slide 11, some ideas for fixing the problem on
+slide 16, but heed the warning on slide 15.)
+
+Besides that, I agree that we have far too many EINVALs in the kernel.
+Maybe we should just record file name and line number of the EINVAL
+in *current and add an eh?(2) system call ;-)
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
+/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

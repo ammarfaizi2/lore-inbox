@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267391AbSLEU4q>; Thu, 5 Dec 2002 15:56:46 -0500
+	id <S267387AbSLEUzr>; Thu, 5 Dec 2002 15:55:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267390AbSLEU4q>; Thu, 5 Dec 2002 15:56:46 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:8964 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S267434AbSLEU4f>;
-	Thu, 5 Dec 2002 15:56:35 -0500
-Date: Wed, 4 Dec 2002 14:04:29 +0100
+	id <S267385AbSLEUzr>; Thu, 5 Dec 2002 15:55:47 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:5124 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S267433AbSLEUzj>;
+	Thu, 5 Dec 2002 15:55:39 -0500
+Date: Wed, 4 Dec 2002 13:58:17 +0100
 From: Pavel Machek <pavel@ucw.cz>
 To: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: swsusp: 64-bit compatibility
-Message-ID: <20021204130429.GA8226@elf.ucw.cz>
+Subject: acpi_wakeup.S: simplify logic
+Message-ID: <20021204125816.GA8190@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,229 +21,182 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-This makes swsusp 64bit compatible, and makes it work in case of two
-mirrors of physical memory (x86-64 works like that). It also contains
-few accumulated cleanups. Please apply this time, 
-
+This simplifies logic in acpi_wakeup.S by putting code and data into
+same segment. Plus it kills off-by-3 bug and uses constant instead of
+hardcoded value. Please apply,
 								Pavel
 
-
---- clean/kernel/suspend.c	2002-11-19 16:46:15.000000000 +0100
-+++ linux-swsusp/kernel/suspend.c	2002-11-19 15:38:28.000000000 +0100
-@@ -80,9 +80,9 @@
- #endif
- 
- #define TIMEOUT	(6 * HZ)			/* Timeout for stopping processes */
--#define ADDRESS(x) ((unsigned long) phys_to_virt(((x) << PAGE_SHIFT)))
+--- clean/arch/i386/kernel/acpi_wakeup.S	2002-11-19 16:45:58.000000000 +0100
++++ linux-swsusp/arch/i386/kernel/acpi_wakeup.S	2002-12-04 13:34:30.000000000 +0100
+@@ -1,12 +1,21 @@
 -
--extern int C_A_D;
-+#define __ADDRESS(x)  ((unsigned long) phys_to_virt(x))
-+#define ADDRESS(x) __ADDRESS((x) << PAGE_SHIFT)
-+#define ADDRESS2(x) __ADDRESS(__pa(x))		/* Needed for x86-64 where some pages are in memory twice */
+ .text
+ #include <linux/linkage.h>
+ #include <asm/segment.h>
++#include <asm/page.h>
  
- /* References to section boundaries */
- extern char _text, _etext, _edata, __bss_start, _end;
-@@ -145,10 +145,10 @@
- /*
-  * Debug
-  */
--#undef	DEBUG_DEFAULT
-+#define	DEBUG_DEFAULT
- #undef	DEBUG_PROCESS
- #undef	DEBUG_SLOW
--#define TEST_SWSUSP 1		/* Set to 1 to reboot instead of halt machine after suspension */
-+#define TEST_SWSUSP 0		/* Set to 1 to reboot instead of halt machine after suspension */
+-# Do we need to deal with A20?
++#
++# wakeup_code runs in real mode, and at unknown address (determined at run-time).
++# Therefore it must only use relative jumps/calls. 
++#
++# Do we need to deal with A20? It is okay: ACPI specs says A20 must be enabled
++#
++# If physical address of wakeup_code is 0x12345, BIOS should call us with
++# cs = 0x1234, eip = 0x05
++# 
  
- #ifdef DEBUG_DEFAULT
- # define PRINTK(f, a...)       printk(f, ## a)
-@@ -235,6 +235,7 @@
- 	} while(todo);
- 	
- 	printk( "|\n" );
-+	BUG_ON(in_atomic());
- 	return 0;
- }
- 
-@@ -322,20 +323,20 @@
- 	rw_swap_page_sync(READ, entry, page);
- 
- 	if (mode == MARK_SWAP_RESUME) {
--	  	if (!memcmp("SUSP1R",cur->swh.magic.magic,6))
-+	  	if (!memcmp("S1",cur->swh.magic.magic,2))
- 		  	memcpy(cur->swh.magic.magic,"SWAP-SPACE",10);
--		else if (!memcmp("SUSP2R",cur->swh.magic.magic,6))
-+		else if (!memcmp("S2",cur->swh.magic.magic,2))
- 			memcpy(cur->swh.magic.magic,"SWAPSPACE2",10);
- 		else printk("%sUnable to find suspended-data signature (%.10s - misspelled?\n", 
- 		      	name_resume, cur->swh.magic.magic);
- 	} else {
- 	  	if ((!memcmp("SWAP-SPACE",cur->swh.magic.magic,10)))
--		  	memcpy(cur->swh.magic.magic,"SUSP1R....",10);
-+		  	memcpy(cur->swh.magic.magic,"S1SUSP....",10);
- 		else if ((!memcmp("SWAPSPACE2",cur->swh.magic.magic,10)))
--			memcpy(cur->swh.magic.magic,"SUSP2R....",10);
-+			memcpy(cur->swh.magic.magic,"S2SUSP....",10);
- 		else panic("\nSwapspace is not swapspace (%.10s)\n", cur->swh.magic.magic);
- 		cur->link.next = prev; /* prev is the first/last swap page of the resume area */
--		/* link.next lies *no more* in last 4 bytes of magic */
-+		/* link.next lies *no more* in last 4/8 bytes of magic */
- 	}
- 	rw_swap_page_sync(WRITE, entry, page);
- 	__free_page(page);
-@@ -489,7 +490,6 @@
- 			if (PageNosave(page))
- 				continue;
- 
+ ALIGN
+-wakeup_start:
++	.align	4096
++ENTRY(wakeup_start)
+ wakeup_code:
+ 	wakeup_code_start = .
+ 	.code16
+@@ -14,49 +23,70 @@
+  	movw	$0xb800, %ax
+ 	movw	%ax,%fs
+ 	movw	$0x0e00 + 'L', %fs:(0x10)
++
+ 	cli
+ 	cld
+-	  
++
+ 	# setup data segment
+ 	movw	%cs, %ax
 -
- 			if ((chunk_size=is_head_of_free_region(page))!=0) {
- 				pfn += chunk_size - 1;
- 				continue;
-@@ -500,10 +500,9 @@
- 			/*
- 			 * Just copy whole code segment. Hopefully it is not that big.
- 			 */
--			if (ADDRESS(pfn) >= (unsigned long)
--				&__nosave_begin && ADDRESS(pfn) < 
--				(unsigned long)&__nosave_end) {
--				PRINTK("[nosave %x]", ADDRESS(pfn));
-+			if ((ADDRESS(pfn) >= (unsigned long) ADDRESS2(&__nosave_begin)) && 
-+			    (ADDRESS(pfn) <  (unsigned long) ADDRESS2(&__nosave_end))) {
-+				PRINTK("[nosave %lx]", ADDRESS(pfn));
- 				continue;
- 			}
- 			/* Hmm, perhaps copying all reserved pages is not too healthy as they may contain 
-@@ -513,7 +512,7 @@
- 		nr_copy_pages++;
- 		if (pagedir_p) {
- 			pagedir_p->orig_address = ADDRESS(pfn);
--			copy_page(pagedir_p->address, pagedir_p->orig_address);
-+			copy_page((void *) pagedir_p->address, (void *) pagedir_p->orig_address);
- 			pagedir_p++;
- 		}
- 	}
-@@ -549,7 +548,7 @@
+-	addw	$(wakeup_data - wakeup_code) >> 4, %ax
+-	movw	%ax, %ds
++	movw	%ax, %ds					# Make ds:0 point to wakeup_start
+ 	movw	%ax, %ss
+-	mov	$(wakeup_stack - wakeup_data), %sp		# Private stack is needed for ASUS board
+-	movw	$0x0e00 + 'S', %fs:(0x12)	
++	mov	wakeup_stack - wakeup_code, %sp			# Private stack is needed for ASUS board
++	movw	$0x0e00 + 'S', %fs:(0x12)
  
- 	pagedir_order = get_bitmask_order(SUSPEND_PD_PAGES(nr_copy_pages));
+-	movl	real_magic - wakeup_data, %eax
++	pushl	$0						# Kill any dangerous flags
++	popfl
++
++	movl	real_magic - wakeup_code, %eax
+ 	cmpl	$0x12345678, %eax
+ 	jne	bogus_real_magic
  
--	p = pagedir = (suspend_pagedir_t *)__get_free_pages(GFP_ATOMIC, pagedir_order);
-+	p = pagedir = (suspend_pagedir_t *)__get_free_pages(GFP_ATOMIC | __GFP_COLD, pagedir_order);
- 	if(!pagedir)
- 		return NULL;
+-	mov	video_mode - wakeup_data, %ax
++#if 1
++	lcall   $0xc000,$3
++#endif
++#if 0
++	mov	video_mode - wakeup_code, %ax
+ 	call	mode_set
++#endif
  
-@@ -558,11 +557,12 @@
- 		SetPageNosave(page++);
+ 	# set up page table
+-	movl	(real_save_cr3 - wakeup_data), %eax
++#if 1
++	movl	$swapper_pg_dir-__PAGE_OFFSET, %eax
++#else
++	movl    (real_save_cr3 - wakeup_data), %eax
++#endif
+ 	movl	%eax, %cr3
+ 
+ 	# make sure %cr4 is set correctly (features, etc)
+-	movl	(real_save_cr4 - wakeup_data), %eax
++	movl	real_save_cr4 - wakeup_code, %eax
+ 	movl	%eax, %cr4
+ 	movw	$0xb800, %ax
+ 	movw	%ax,%fs
+ 	movw	$0x0e00 + 'i', %fs:(0x12)
+-
++	
+ 	# need a gdt
+-	lgdt	real_save_gdt - wakeup_data
++	lgdt	real_save_gdt - wakeup_code
+ 
+-	movl	(real_save_cr0 - wakeup_data), %eax
++	movl	real_save_cr0 - wakeup_code, %eax
+ 	movl	%eax, %cr0
++	jmp 1f
++1:
+ 	movw	$0x0e00 + 'n', %fs:(0x14)
+ 
+-	movl	real_magic - wakeup_data, %eax
++	movl	real_magic - wakeup_code, %eax
+ 	cmpl	$0x12345678, %eax
+ 	jne	bogus_real_magic
+ 
+ 	ljmpl	$__KERNEL_CS,$wakeup_pmode_return
+ 
++real_save_gdt:	.word 0
++		.long 0
++real_save_cr0:	.long 0
++real_save_cr3:	.long 0
++real_save_cr4:	.long 0
++real_magic:	.long 0
++video_mode:	.long 0
++
+ bogus_real_magic:
+ 	movw	$0x0e00 + 'B', %fs:(0x12)
+ 	jmp bogus_real_magic
+@@ -129,20 +159,12 @@
+ 	.code32
+ 	ALIGN
+ 
+-.org	0x300
+-wakeup_data:
+-		.word 0
+-real_save_gdt:	.word 0
+-		.long 0
+-real_save_cr0:	.long 0
+-real_save_cr3:	.long 0
+-real_save_cr4:	.long 0
+-real_magic:	.long 0
+-video_mode:	.long 0
+ 
+-.org	0x500
++.org	0x2000
+ wakeup_stack:
+-wakeup_end:
++.org	0x3000
++ENTRY(wakeup_end)
++.org	0x4000
+ 
+ wakeup_pmode_return:
+ 	movl	$__KERNEL_DS, %eax
+@@ -205,7 +227,6 @@
+ 	movw	$0x0e00 + '2', %ds:(0xb8018)
+ 	jmp bogus_magic2
  		
- 	while(nr_copy_pages--) {
--		p->address = get_zeroed_page(GFP_ATOMIC);
-+		p->address = get_zeroed_page(GFP_ATOMIC | __GFP_COLD);
- 		if(!p->address) {
- 			free_suspend_pagedir((unsigned long) pagedir);
- 			return NULL;
- 		}
-+		printk(".");
- 		SetPageNosave(virt_to_page(p->address));
- 		p->orig_address = 0;
- 		p++;
-@@ -623,7 +623,7 @@
- static void free_some_memory(void)
- {
- 	printk("Freeing memory: ");
--	while (try_to_free_pages(&contig_page_data.node_zones[ZONE_HIGHMEM], GFP_KSWAPD, 0))
-+	while (shrink_all_memory(10000))
- 		printk(".");
- 	printk("|\n");
- }
-@@ -676,7 +676,7 @@
- 	}
- }
+-
+ ##
+ # acpi_copy_wakeup_routine
+ #
+@@ -228,7 +249,7 @@
  
--static int suspend_save_image(void)
-+static int suspend_prepare_image(void)
- {
- 	struct sysinfo i;
- 	unsigned int nr_needed_pages = 0;
-@@ -725,9 +725,15 @@
- 	 *
- 	 * Following line enforces not writing to disk until we choose.
- 	 */
--	drivers_unsuspend();
--	spin_unlock_irq(&suspend_pagedir_lock);
-+
- 	printk( "critical section/: done (%d pages copied)\n", nr_copy_pages );
-+	spin_unlock_irq(&suspend_pagedir_lock);
-+	return 0;
-+}
-+
-+static void suspend_save_image(void)
-+{
-+	drivers_unsuspend();
+ 	movl	%eax, %edi
+ 	leal	wakeup_start, %esi
+-	movl	$(wakeup_end - wakeup_start) >> 2, %ecx
++	movl	$(wakeup_end - wakeup_start + 3) >> 2, %ecx
  
- 	lock_swapdevices();
- 	write_suspend_image();
-@@ -738,11 +744,11 @@
- 	 * filesystem clean: it is not. (And it does not matter, if we resume
- 	 * correctly, we'll mark system clean, anyway.)
- 	 */
--	return 0;
- }
+ 	rep ;  movsl
  
--void suspend_power_down(void)
-+static void suspend_power_down(void)
- {
-+	extern int C_A_D;
- 	C_A_D = 0;
- 	printk(KERN_EMERG "%s%s Trying to power down.\n", name_suspend, TEST_SWSUSP ? "Disable TEST_SWSUSP. NOT ": "");
- #ifdef CONFIG_VT
-@@ -788,8 +794,8 @@
+@@ -290,8 +311,8 @@
+ 	ret
+ 	.p2align 4,,7
+ .L1432:
+-	movl $104,%eax
+-	movw %eax, %ds
++	movl $__KERNEL_DS,%eax
++	movw %ax, %ds
+ 	movl saved_context_esp, %esp
+ 	movl saved_context_ebp, %ebp
+ 	movl saved_context_eax, %eax
+@@ -310,5 +331,4 @@
+ saved_idt:	.long	0,0
+ saved_ldt:	.long	0
+ saved_tss:	.long	0
+-saved_cr0:	.long	0
  
- 	PRINTK( "Freeing prev allocated pagedir\n" );
- 	free_suspend_pagedir((unsigned long) pagedir_save);
--	drivers_resume(RESUME_ALL_PHASES);
- 	spin_unlock_irq(&suspend_pagedir_lock);
-+	drivers_resume(RESUME_ALL_PHASES);
- 
- 	PRINTK( "Fixing swap signatures... " );
- 	mark_swapfiles(((swp_entry_t) {0}), MARK_SWAP_RESUME);
-@@ -804,14 +810,17 @@
- {
- 	mb();
- 	barrier();
-+	BUG_ON(in_atomic());
- 	spin_lock_irq(&suspend_pagedir_lock);
- }
- 
- void do_magic_suspend_2(void)
- {
- 	read_swapfiles();
--	if (!suspend_save_image())
-+	if (!suspend_prepare_image()) {	/* suspend_save_image realeses suspend_pagedir_lock */
-+		suspend_save_image();
- 		suspend_power_down();	/* FIXME: if suspend_power_down is commented out, console is lost after few suspends ?! */
-+	}
- 
- 	printk(KERN_EMERG "%sSuspend failed, trying to recover...\n", name_suspend);
- 	MDELAY(1000); /* So user can wait and report us messages if armageddon comes :-) */
-@@ -827,7 +836,7 @@
- 	PRINTK(KERN_WARNING "%sLeaving do_magic_suspend_2...\n", name_suspend);	
- }
- 
--void do_software_suspend(void)
-+static void do_software_suspend(void)
- {
- 	arch_prepare_suspend();
- 	if (prepare_suspend_console())
-@@ -1069,9 +1078,9 @@
- 
- 	PREPARENEXT; /* We have to read next position before we overwrite it */
- 
--	if (!memcmp("SUSP1R",cur->swh.magic.magic,6))
-+	if (!memcmp("S1",cur->swh.magic.magic,2))
- 		memcpy(cur->swh.magic.magic,"SWAP-SPACE",10);
--	else if (!memcmp("SUSP2R",cur->swh.magic.magic,6))
-+	else if (!memcmp("S2",cur->swh.magic.magic,2))
- 		memcpy(cur->swh.magic.magic,"SWAPSPACE2",10);
- 	else {
- 		panic("%sUnable to find suspended-data signature (%.10s - misspelled?\n", 
 
 -- 
 Worst form of spam? Adding advertisment signatures ala sourceforge.net.

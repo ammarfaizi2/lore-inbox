@@ -1,56 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267667AbUBTHLr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 02:11:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267703AbUBTHLr
+	id S267675AbUBTHKi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 02:10:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267658AbUBTHKi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 02:11:47 -0500
-Received: from gate.crashing.org ([63.228.1.57]:53929 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S267667AbUBTHLo (ORCPT
+	Fri, 20 Feb 2004 02:10:38 -0500
+Received: from [66.35.79.110] ([66.35.79.110]:968 "EHLO www.hockin.org")
+	by vger.kernel.org with ESMTP id S267675AbUBTHKe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 02:11:44 -0500
-Subject: Re: [BK PATCH] USB update for 2.6.3
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Greg KH <greg@kroah.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux-USB <linux-usb-devel@lists.sourceforge.net>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040220070012.GA8121@kroah.com>
-References: <20040220012802.GA16523@kroah.com>
-	 <Pine.LNX.4.58.0402192156240.2244@ppc970.osdl.org>
-	 <1077256996.20789.1091.camel@gaston>
-	 <Pine.LNX.4.58.0402192221560.2244@ppc970.osdl.org>
-	 <1077258504.20781.1121.camel@gaston>
-	 <Pine.LNX.4.58.0402192243170.14296@ppc970.osdl.org>
-	 <1077259375.20787.1141.camel@gaston>  <20040220070012.GA8121@kroah.com>
-Content-Type: text/plain
-Message-Id: <1077260814.20789.1171.camel@gaston>
+	Fri, 20 Feb 2004 02:10:34 -0500
+Date: Thu, 19 Feb 2004 23:10:28 -0800
+From: Tim Hockin <thockin@hockin.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: thockin@sun.com, linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: PATCH: report NGROUPS_MAX via a sysctl (read-only)
+Message-ID: <20040220071028.GA4948@hockin.org>
+References: <20040220023927.GN9155@sun.com> <20040219213028.42835364.akpm@osdl.org> <20040220063519.GP9155@sun.com> <20040219224752.44da2712.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 20 Feb 2004 18:06:55 +1100
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040219224752.44da2712.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> As for the bigger "generic" dma mapping discussions for devices, hasn't
-> this been hashed out a bunch already?  For some reason I thought
-> everyone was happy for now with the way things work, and for 2.7 it was
-> going to be expanded a bit to help support non-pci based busses (much
-> like the ARM people just did.)
+On Thu, Feb 19, 2004 at 10:47:52PM -0800, Andrew Morton wrote:
+> > > Why does userspace actually care?  You try to do an oversized setgroups(),
+> > > so you get an error?
+> > 
+> > I am systematically tracking down apps that use it.  glibc is almost free of
+> > it.  sysconf() still uses it, but as long as the value compiled into glibc
+> > as NGROUPS_MAX is less-than-or-equal-to the current kernel's idea, it meets
+> > POSIX, right?  If any one goes into their kernel source and lowers
+> > NGROUPS_MAX they might break things, but I guess that isn't too big of a
+> > worry.  Some apps are still assuming that the value they get from sysconf()
+> > is the absolute max number of groups.  Anyone with libc compiled against an
+> > older kernel will see 32, when they could have 64k.
 > 
-> Hm, I wonder if I can convince anyone that I have to have a PPC64 box
-> now to make sure I don't break the build anytime in the future :)
+> OK, well certainly fishing the number out of the currently-running kernel
+> is the one sure way of getting it right.
 
-Hehe :) Well... you know who you for for ;)
+Well, really I don't see how apps would want to use it in any way that was
+correct.  You can't use it as the size of an array.  If it WERE defined as
+INT_MAX...  :)
 
-Regarding the DMA mapping thing, I was (incorrectly) suspecting
-you were passing the struct device of individual USB devices
-(I haven't actually read the patch, argh ....)
+On the other hand, some obsessive-compulsive part of me says that a constant
+like that SHOULD be exposed.  Which is why I asked about doing either a
+sys_sysconf() call to expose those, or adding something to
+sysfs/procfs/somethingfs to gather all the sysconf-mandated constants and
+maybe other kernel constants.
 
-Chasing a miscompile of the kernel with recent GCCs is melting
-my brain down, sorry.
+> > > And why does NGROUPS_MAX still exist, come to that?  AFAICT the only thing
+> > 
+> > Because Linus would not let me set it to INT_MAX. Something about
+> > "insanity" ;)
+> 
+> Is 64k enough?
 
-Ben.
+64k makes our users happy.  It was a concession that had to be made.  Now
+that the infrastructure for allocating, sorting, and searching is in place,
+any user can change NGROUPS_MAX to 128k or 256k or INT_MAX and recompile -
+no other work needed.  That's far better than where we were.
 
-
+Of course, if we DON'T expose things like NGROUPS_MAX, then userspace won't
+know if the user changes it to 256k.  But then again, what would they be
+using it for that would not be wrong?  I'm not sure it is for the kernel to
+say "you don't need to know this".

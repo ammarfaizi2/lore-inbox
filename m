@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278097AbRJPFVt>; Tue, 16 Oct 2001 01:21:49 -0400
+	id <S272593AbRJPFyV>; Tue, 16 Oct 2001 01:54:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278095AbRJPFVi>; Tue, 16 Oct 2001 01:21:38 -0400
-Received: from rj.sgi.com ([204.94.215.100]:36825 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S278092AbRJPFVd>;
-	Tue, 16 Oct 2001 01:21:33 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: Tim Hockin <thockin@sun.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, alan@redhat.com,
-        torvalds@transmeta.com
-Subject: Re: [PATCH] fix NFS root in 2.4.12 
-In-Reply-To: Your message of "Mon, 15 Oct 2001 19:01:08 MST."
-             <3BCB94E4.AB6703D9@sun.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 16 Oct 2001 15:21:56 +1000
-Message-ID: <20387.1003209716@kao2.melbourne.sgi.com>
+	id <S272818AbRJPFyL>; Tue, 16 Oct 2001 01:54:11 -0400
+Received: from chelly.eurotel.sk ([194.154.224.26]:28683 "EHLO
+	chelly.eurotel.sk") by vger.kernel.org with ESMTP
+	id <S272593AbRJPFyA> convert rfc822-to-8bit; Tue, 16 Oct 2001 01:54:00 -0400
+Subject: how to compile old kernel
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OF6767106E.A15BB9B6-ONC1256AE7.001F1FD3@eurotel.sk>
+From: "Juraj Buliscak" <buliscakj@eurotel.sk>
+Date: Tue, 16 Oct 2001 07:49:49 +0200
+X-MIMETrack: Serialize by Router on ba-comm-nt/ba/eurotel bratislava/sk(Release 5.0.5 |September
+ 22, 2000) at 16.10.2001 07:55:03
+MIME-Version: 1.0
+Content-type: text/plain; charset=iso-8859-2
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Oct 2001 19:01:08 -0700, 
-Tim Hockin <thockin@sun.com> wrote:
->This one liner fixes NFS root for kernel 2.4.12.  Please apply.
->diff -ruN dist-2.4.12+patches/fs/super.c cvs-2.4.12+patches/fs/super.c
->--- dist-2.4.12+patches/fs/super.c	Mon Oct 15 10:23:02 2001
->+++ cvs-2.4.12+patches/fs/super.c	Mon Oct 15 10:23:02 2001
->@@ -935,7 +935,7 @@
-> 	data = nfs_root_data();
-> 	if (!data)
-> 		goto no_nfs;
->-	vfsmnt = do_kern_mount("nfs", root_mountflags, "/dev/root", data);
->+	vfsmnt = do_kern_mount("nfs", root_mountflags, "/dev/root", NULL, data);
-> 	if (!IS_ERR(vfsmnt)) {
-> 		printk ("VFS: Mounted root (%s filesystem).\n", "nfs");
-> 		ROOT_DEV = vfsmnt->mnt_sb->s_dev;
+Hello friends.
 
-XFS only.  Fixed in XFS CVS tree now.
+
+I have RH 70 with original kernel 2.2.16-19.  Later I have compiled newer
+kernel 2.4.10 but it contains bugs in AX25 support, and therefore I decided
+to use old version of kernel 2.2.19, but it didn´t have been compiled it
+with AX25 support, so I need to do it.  If I try to compile kernel 2.2.19
+with kernel 2.4.10 actually running, it's not possible. MAKE gives me some
+errors.
+
+Please let me know how to compile old kernel.
+
+
+thank you.
+
+Duro.
 

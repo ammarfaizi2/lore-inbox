@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261897AbUB1S0T (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Feb 2004 13:26:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbUB1S0T
+	id S261899AbUB1SZP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Feb 2004 13:25:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbUB1SZP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Feb 2004 13:26:19 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:8900 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261897AbUB1S0N
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Feb 2004 13:26:13 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: "Kyle" <kyle@southa.com>
-Subject: Re: Is "ACARD" AEC-6885S 4-CH ATA133 supported?
-Date: Sat, 28 Feb 2004 19:33:21 +0100
-User-Agent: KMail/1.5.3
-References: <02dd01c3fe1f$095df660$353ffea9@kyle>
-In-Reply-To: <02dd01c3fe1f$095df660$353ffea9@kyle>
-Cc: <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="big5"
+	Sat, 28 Feb 2004 13:25:15 -0500
+Received: from 0x50c49cd1.adsl-fixed.tele.dk ([80.196.156.209]:9988 "EHLO
+	redeeman") by vger.kernel.org with ESMTP id S261899AbUB1SZM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Feb 2004 13:25:12 -0500
+Message-ID: <1059.192.168.1.7.1077992711.squirrel@mail.redeeman.linux.dk>
+Date: Sat, 28 Feb 2004 19:25:11 +0100 (CET)
+Subject: amd64_gart problems
+From: "Redeeman" <redeeman@metanurb.dk>
+To: linux-kernel@vger.kernel.org
+Reply-To: redeeman@metanurb.dk
+User-Agent: SquirrelMail/1.4.2
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402281933.21959.bzolnier@elka.pw.edu.pl>
+X-Priority: 3
+Importance: Normal
+X-Mime-Autoconverted: from 8bit to 7bit by courier 0.44
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 28 of February 2004 18:19, Kyle wrote:
-> Hi!
->
-> Is this product work with kernel 2.6.x?
-> http://www.acard.com/eng/product/adapter/pc/ide/aec-6885s.html
+hi, i am having some problems with the amd64 oncpu agpgart, on my asus k8v
+deluxe board, and amd64 3200+ cpu. my motherboard has via k8t800 chipset,
+and i use the oncpu gart together with my via agpgart. when i only compile
+in support for via chipset my performance isnt as good as with oncpu gart.
+but with oncpu gart enabled my system is quite unstable, X just freezes,
+and i have to sync my disc with sysrq, and then hard reset.
 
-No.
+any ideas?
 
-> It mentioned that it's compatible with Linux RedHat 7.3 & 8.0 & 9.0, but I
-
-They provide binary only / 2.4 only drivers.
-
-> seached through the whole mail list with keyword "ATP-867" and "AEC6885"
-> with no luck. Anyone tried this?
-
-I wasn't aware that there is a new ATP chip (867), interesting...
-
-Bartlomiej
+/Redeeman.
 

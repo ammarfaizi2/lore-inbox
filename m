@@ -1,46 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318292AbSIBNQC>; Mon, 2 Sep 2002 09:16:02 -0400
+	id <S318293AbSIBN3J>; Mon, 2 Sep 2002 09:29:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318293AbSIBNQC>; Mon, 2 Sep 2002 09:16:02 -0400
-Received: from 2-210.ctame701-1.telepar.net.br ([200.193.160.210]:33200 "EHLO
-	2-210.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S318292AbSIBNQC>; Mon, 2 Sep 2002 09:16:02 -0400
-Date: Mon, 2 Sep 2002 10:20:18 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-cc: Ed Sweetman <ed.sweetman@wmich.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: Benchmarks for performance patches (-ck) for 2.4.19
-In-Reply-To: <20020902093910.G781@nightmaster.csn.tu-chemnitz.de>
-Message-ID: <Pine.LNX.4.44L.0209021018440.1857-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S318295AbSIBN3J>; Mon, 2 Sep 2002 09:29:09 -0400
+Received: from mail.parknet.co.jp ([210.134.213.6]:42513 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP
+	id <S318293AbSIBN3I>; Mon, 2 Sep 2002 09:29:08 -0400
+To: Daniel Jacobowitz <dan@debian.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove BUG_ON(p->ptrace) in release_task()
+References: <87fzwthapw.fsf@devron.myhome.or.jp>
+	<20020901193313.GA23985@nevyn.them.org>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Mon, 02 Sep 2002 22:33:16 +0900
+In-Reply-To: <20020901193313.GA23985@nevyn.them.org>
+Message-ID: <87k7m4ikir.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 Sep 2002, Ingo Oeser wrote:
+Daniel Jacobowitz <dan@debian.org> writes:
 
-> This is not only X. The problem is the software layering bloat.
-> Thats a design mistake we copied from W*ndows in our Linux
-> applications.
+> On Mon, Sep 02, 2002 at 02:38:03AM +0900, OGAWA Hirofumi wrote:
+> > Hi,
+> > 
+> > I think, BUG_ON(p->ptrace) will be called if the CLONE_DETACH process
+> > is traced.  This patch removes BUG_ON(p->ptrace), and also removes
+> > BUG_ON(p->ptrace) workaround in sys_wait4().
+> 
+> The BUG_ON is correct, and that isn't a workaround - if the list is not
+> empty, then it will be garbage after the task struct is freed.  Your
+> patch breaks tracing of normal processes again, because the ptrace_list
+> will not be empty.
 
-Agreed, it is not just in one layer of the system.
+Whoops, yes, I'm wrong. Sorry. My fixes wasn't enough. However, looks
+like your case called the following BUG().
 
-However, changing the kernel _has_ resulted in a large
-improvement in interactivity and does allow me to run
-bonnie++ or even a 'bk clone' while playing mp3s and
-without losing interactivity or having the mp3s skip...
+sys_ptrace()
+    -> ptrace_attach()
+        -> __ptrace_link()
 
-On a machine with 192 MB RAM.
+void __ptrace_link(task_t *child, task_t *new_parent)
+{
+	if (!list_empty(&child->ptrace_list))
+		BUG();
+	if (child->parent == new_parent)
+		BUG();		<--- this
+	list_add(&child->ptrace_list, &child->parent->ptrace_children);
+	REMOVE_LINKS(child);
 
-regards,
-
-Rik
+So, I need to look source more. Thanks.
 -- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

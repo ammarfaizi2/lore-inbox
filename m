@@ -1,152 +1,114 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261312AbTDUPEN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 11:04:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbTDUPEN
+	id S261309AbTDUPG3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 11:06:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbTDUPG3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 11:04:13 -0400
-Received: from mta03bw.bigpond.com ([139.134.6.86]:28153 "EHLO
-	mta03bw.bigpond.com") by vger.kernel.org with ESMTP id S261312AbTDUPEK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 11:04:10 -0400
-Message-ID: <3EA40B34.E3B91D43@zip.com.au>
-Date: Tue, 22 Apr 2003 01:16:04 +1000
-From: Darren Tucker <dtucker@zip.com.au>
-X-Mailer: Mozilla 4.8 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
+	Mon, 21 Apr 2003 11:06:29 -0400
+Received: from mx03.cyberus.ca ([216.191.240.24]:29452 "EHLO mx03.cyberus.ca")
+	by vger.kernel.org with ESMTP id S261309AbTDUPG1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 11:06:27 -0400
+Date: Mon, 21 Apr 2003 11:18:17 -0400 (EDT)
+From: jamal <hadi@cyberus.ca>
 To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: 2.0 kernels: bogus cmsg_type returned when passing descriptor
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: 2.5.68 issues (X windows startup)
+Message-ID: <20030421111032.O11939@shell.cyberus.ca>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="0-1677142396-1050938297=:11939"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[1.] One line summary of the problem:
-2.0 kernels: bogus cmsg_type returned when passing descriptor
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-[2.] Full description of the problem/report:
-I'm trying to nail down some reported OpenSSH bugs on Linux 2.0
-kernels.  The one I'm currently looking at relates to the use of
-descriptor passing when the UsePrivilegeSeparation feature is enabled in
-sshd.  Reported in 2.0.36, observed by me in 2.0.38 and 2.0.40-rc6.
+--0-1677142396-1050938297=:11939
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-sshd passes a descriptor over a socket pair and checks to make sure the
-cmsg_type returned when receiving the descriptor is SCM_RIGHTS.  This is
-fine on most platforms but fails on Linux 2.0 kernels, where cmsg_type
-(and cmsg_level) contain insane values.
 
-I think this is a kernel bug and I would like to confirm this.  I don't
-mind if no-one intends fixing it.
 
-I have subscribed to the list (pending, request forwarded to list
-owner).  I would appreciate it if replies were CC'ed.
+I havent booted 2.5.x for a while on this dusty old laptop.
+Never had this issue in the past. Have a feeling its some basic
+utility that maybe needed.
 
-[3.] Keywords (i.e., modules, networking, kernel):
-File descriptor passing, cmsg_type.
+--
+model name      : Pentium III (Coppermine)
+stepping        : 10
+cpu MHz         : 696.996
+cache size      : 256 KB
+---
 
-[4.] Kernel version (from /proc/version):
-Linux version 2.0.38 (root@lollypop) (gcc version 2.7.2.3) #2 Thu Dec 9
-04:30:31 PST 1999
-also tested 2.0.40-rc6 (the file was patch-2.0.40-rc6.gz, not sure why
-this reports -rc5):
-Linux version 2.0.40-rc5 (root@wombat) (gcc version 2.7.2.3) #3 Mon Apr
-21 23:59:07 EST 2003
+128M RAM.
 
-[6.] A small shell script or example program which triggers the
-     problem (if possible)
+When i run 2.5.68 theres a feel of highly improved interactiveness.
+Annoyingly- Starting X takes at least 3 minutes (this is about a factor of
+10 worse than older 2.5 and current 2.4.21-pre5. I have tried a few
+2.5.6x and they all seem to exhibit this problem. Havent tried going back
+beyond that.
 
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <iovec.h>      /* comment out for 2.4 kernels */
+I cleared the profile before running X; started X and captured the
+profile right after that. Dont know if its any help, but it is attached.
 
-int
-main()
-{
-        int pid, pair[2];
-        char tmp[CMSG_SPACE(sizeof(int))];
-        struct cmsghdr *cmsg;
-        struct msghdr msg;
-        struct iovec vec;
-        char ch = '\0';
+cheers,
+jamal
+--0-1677142396-1050938297=:11939
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=j1
+Content-Transfer-Encoding: BASE64
+Content-ID: <20030421111817.A11939@shell.cyberus.ca>
+Content-Description: 
+Content-Disposition: attachment; filename=j1
 
-        socketpair(AF_UNIX, SOCK_STREAM, 0, pair);
-        memset(&msg, 0, sizeof(msg));
-        msg.msg_control = (caddr_t)tmp;
-        msg.msg_controllen = CMSG_LEN(sizeof(int));
-        cmsg = CMSG_FIRSTHDR(&msg);
-        cmsg->cmsg_len = CMSG_LEN(sizeof(int));
+IDE5NDU2IHRvdGFsICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAwLjEzMDQNCiAxNzcyMSBkZWZhdWx0X2lkbGUgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgIDMxNi40NDY0DQogIDE0MTEgcnVuX3RpbWVyX3Nv
+ZnRpcnEgICAgICAgICAgICAgICAgICAgICAgICAgIDIuOTY0Mw0KICAgIDYy
+IGRvX3NvZnRpcnEgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAw
+LjI5ODENCiAgICA1NSBzZXRfYml0bWFwICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgMC4yOTI2DQogICAgNTEgc3lzdGVtX2NhbGwgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgIDEuMTU5MQ0KICAgIDI1IGdlbmVy
+YWxfcHJvdGVjdGlvbiAgICAgICAgICAgICAgICAgICAgICAgICAyLjA4MzMN
+CiAgICAxOCBfX3dha2VfdXAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgMC4xMzY0DQogICAgMTQgc2NoZWR1bGUgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgIDAuMDEwNg0KICAgIDExIHNhdmVfdjg2X3N0
+YXRlICAgICAgICAgICAgICAgICAgICAgICAgICAgICAwLjAyODENCiAgICAx
+MCBzeXNfaW9wbCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+MC4xMDQyDQogICAgIDkgZG9fc3lzX3ZtODYgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgIDAuMDI5Ng0KICAgICA5IGRvX3BhZ2VfZmF1bHQgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAwLjAwODcNCiAgICAgOCBhZGRf
+d2FpdF9xdWV1ZSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMC4wNjA2
+DQogICAgIDYgc3lzX2lvcGVybSAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgIDAuMDIwNQ0KICAgICA1IHJlbW92ZV93YWl0X3F1ZXVlICAgICAg
+ICAgICAgICAgICAgICAgICAgICAwLjA0MzENCiAgICAgNSBoYW5kbGVfdm04
+Nl9mYXVsdCAgICAgICAgICAgICAgICAgICAgICAgICAgMC4wMDIwDQogICAg
+IDQgc3lzX3ZtODZvbGQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+IDAuMDE1Mg0KICAgICA0IHJlc3RfaW5pdCAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAwLjAzNDUNCiAgICAgMyBlcnJvcl9jb2RlICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgMC4wNTM2DQogICAgIDIgc2V0
+X210cnIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDAuMDA1
+NA0KICAgICAyIHNjaGVkdWxlX3RpbWVvdXQgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAwLjAxMTYNCiAgICAgMiBlbmFibGVfaXJxICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgMC4wMDg2DQogICAgIDIgZG9fZ2VuZXJh
+bF9wcm90ZWN0aW9uICAgICAgICAgICAgICAgICAgICAgIDAuMDE4NQ0KICAg
+ICAyIGRlbF90aW1lciAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAwLjAwOTYNCiAgICAgMiBhZGRfdGltZXIgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgMC4wMTE0DQogICAgIDEgc3lzX2dldHRpbWVvZmRh
+eSAgICAgICAgICAgICAgICAgICAgICAgICAgIDAuMDA2Mw0KICAgICAxIHNp
+Z3Byb2NtYXNrICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAwLjAw
+MzINCiAgICAgMSByZXN1bWVfdXNlcnNwYWNlICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgMC4wNDE3DQogICAgIDEgcmVsZWFzZV90YXNrICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgIDAuMDAyNg0KICAgICAxIHJlbGVhc2Vf
+Y29uc29sZV9zZW0gICAgICAgICAgICAgICAgICAgICAgICAwLjAwMzQNCiAg
+ICAgMSBvbGRfbW1hcCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgMC4wMDMzDQogICAgIDEgbW1faW5pdCAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgIDAuMDAzNg0KICAgICAxIG1lbV9wYXJpdHlfZXJy
+b3IgICAgICAgICAgICAgICAgICAgICAgICAgICAwLjAyMjcNCiAgICAgMSBl
+eGl0X25vdGlmeSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMC4w
+MDA2DQogICAgIDEgZG9fZ2V0dGltZW9mZGF5ICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgIDAuMDA2NA0KICAgICAxIGRlbF90aW1lcl9zeW5jICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAwLjAwODENCiAgICAgMSBjb3B5X3By
+b2Nlc3MgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMC4wMDAzDQog
+ICAgIDEgY29weV9maWxlcyAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgIDAuMDAxMA0K
 
-        vec.iov_base = &ch;
-        vec.iov_len = 1;
-        msg.msg_iov = &vec;
-        msg.msg_iovlen = 1;
-
-        if (fork() == 0) { /* child, send fd */
-                cmsg->cmsg_level = SOL_SOCKET;
-                cmsg->cmsg_type = SCM_RIGHTS;
-                *(int *)CMSG_DATA(cmsg) = 2; /* send stderr descriptor
-*/
-                sendmsg(pair[0], &msg, 0);
-                exit(0);
-        } else { /* parent, receive fd */
-                recvmsg(pair[1], &msg, 0);
-                if (cmsg->cmsg_type != SCM_RIGHTS)
-                        printf("test failed, expected cmsg_type %d got
-%d\n",
-                            SCM_RIGHTS, cmsg->cmsg_type);
-                else
-                        printf("test passed, cmsg_type %d\n",
-cmsg->cmsg_type);
-        }
-}
-
-Running this test program on 2.0.38 gives:
-$ ./a.out 
-test failed, expected type 1 got 1074415852
-while 2.0.40-rc6 gives:
-$ ./a.out 
-test failed, expected type 1 got -1073742828
-
-Running it on 2.4.18 passes.  Running the binary compiled on 2.4 with
-gcc-3.2 on a 2.0 machine also fails, so I don't think it's related to
-the version of gcc.
-
-Note that the test does not work if optimization is enabled on gcc 2.7.x
-(no idea why).
-
-[7.] Environment
-Debian slink, GCC 2.7.2.3, binutils 2.9.1.
-
-$ sh ver_linux
-Linux wombat 2.0.38 #2 Thu Dec 9 04:30:31 PST 1999 i586 unknown
- 
-Gnu C                  2.7.2.3
-Gnu make               3.77
-binutils               2.9.1.0.19
-ver_linux: fdformat: command not found
-mount                  2.9g
-module-init-tools      2.1.121
-e2fsprogs              1.12
-Linux C Library        2.0.7
-ldd: version 1.9.10
-Procps                 1.2.9
-Net-tools              1.45
-Kbd                    0.96
-Sh-utils               1.16
-Modules Loaded         appletalk ipx nfs serial eepro100
-
-[X.] Other notes, patches, fixes, workarounds:
-OpenSSH bug: http://bugzilla.mindrot.org/show_bug.cgi?id=544
-Debian bug: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=150976
-
-Thanks for your time.
-
-		-Daz.
-
--- 
-Darren Tucker (dtucker at zip.com.au)
-GPG key 8FF4FA69 / D9A3 86E9 7EEE AF4B B2D4  37C9 C982 80C7 8FF4 FA69
-    Good judgement comes with experience. Unfortunately, the experience
-usually comes from bad judgement.
+--0-1677142396-1050938297=:11939--

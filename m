@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262231AbTERWWI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 18:22:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262232AbTERWWI
+	id S262228AbTERWVy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 18:21:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262231AbTERWVy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 18:22:08 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:10631 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id S262231AbTERWWH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 18:22:07 -0400
-Subject: Re: recursive spinlocks. Shoot.
-From: David Woodhouse <dwmw2@infradead.org>
-To: ptb@it.uc3m.es
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200305181724.h4IHOHU24241@oboe.it.uc3m.es>
-References: <200305181724.h4IHOHU24241@oboe.it.uc3m.es>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1053297297.28446.18.camel@imladris.demon.co.uk>
+	Sun, 18 May 2003 18:21:54 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:642 "EHLO mail.jlokier.co.uk")
+	by vger.kernel.org with ESMTP id S262228AbTERWVx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 May 2003 18:21:53 -0400
+Date: Sun, 18 May 2003 23:34:46 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andi Kleen <ak@muc.de>, Dave Jones <davej@codemonkey.org.uk>,
+       kraxel@suse.de, jsimmons@infradead.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Use MTRRs by default for vesafb on x86-64
+Message-ID: <20030518223446.GA8591@mail.jlokier.co.uk>
+References: <20030515145640.GA19152@averell> <20030515151633.GA6128@suse.de> <1053118296.5599.27.camel@dhcp22.swansea.linux.org.uk> <20030518053935.GA4112@averell> <20030518161105.GA7404@mail.jlokier.co.uk> <1053290431.27107.4.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5.dwmw2) 
-Date: Sun, 18 May 2003 23:34:58 +0100
-Content-Transfer-Encoding: 7bit
-X-SA-Exim-Rcpt-To: ptb@it.uc3m.es, wli@holomorphy.com, mbligh@aracnet.com, linux-kernel@vger.kernel.org
-X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1053290431.27107.4.camel@dhcp22.swansea.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-05-18 at 18:24, Peter T. Breuer wrote:
-> The second method is used by programmers who aren't aware that some
-> obscure subroutine takes a spinlock, and who recklessly take a lock
-> before calling a subroutine (the very thought sends shivers down my
-> spine ...).  A popular scenario involves not /knowing/ that your routine
-> is called by the kernel with some obscure lock already held, and then
-> calling a subroutine that calls the same obscure lock.  The request
-> function is one example, but that's hardly obscure (and in 2.5 the 
-> situation has eased there!).
+Alan Cox wrote:
+> > What exactly "doesn't work" with these cards?
+> 
+> If you sent an MTRR you get crap on the display. I'm not sure if that is
+> registers being covered (seems dubious) or other PCI problems perhaps
+> with bursts
 
-To be honest, if any programmer is capable of committing this error and
-not finding and fixing it for themselves, then they're also capable, and
-arguably _likely_, to introduce subtle lock ordering discrepancies which
-will cause deadlock once in a blue moon.
+Is it consistently bad, or is it just an occasional glitch, pixel here
+or there that goes wrong?
 
-I don't _want_ you to make life easier for this hypothetical programmer.
+I like your suggestion of PCI bursts - perhaps the card's FIFO to
+video RAM overflows due to RAM being too slow or too busy for display
+reads.  It seems quite plausible.  It might even depend on the video mode.
 
-I want them to either learn to comprehend locking _properly_, or take up
-gardening instead.
+If that's the problem, a test which writes a data pattern to a
+significant chunk of video RAM in sequence, as fast as possible, and
+then reads it would be practically guaranteed to spot this and
+indicate that MTRRs aren't suitable for this card in this mode.
 
--- 
-dwmw2
-
+-- Jamie
 

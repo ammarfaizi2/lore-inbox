@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315167AbSHMLed>; Tue, 13 Aug 2002 07:34:33 -0400
+	id <S315178AbSHMLo4>; Tue, 13 Aug 2002 07:44:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315178AbSHMLed>; Tue, 13 Aug 2002 07:34:33 -0400
-Received: from [62.70.77.106] ([62.70.77.106]:8078 "EHLO mail.pronto.tv")
-	by vger.kernel.org with ESMTP id <S315167AbSHMLed> convert rfc822-to-8bit;
-	Tue, 13 Aug 2002 07:34:33 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: TUX in 2.4.20?
-Date: Tue, 13 Aug 2002 13:39:31 +0200
-User-Agent: KMail/1.4.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200208131339.31547.roy@karlsbakk.net>
+	id <S315179AbSHMLo4>; Tue, 13 Aug 2002 07:44:56 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:62455 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S315178AbSHMLoz>; Tue, 13 Aug 2002 07:44:55 -0400
+Subject: Re: [patch] PCI Cleanup
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: colpatch@us.ibm.com
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+       Martin Bligh <mjbligh@us.ibm.com>,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>, Greg KH <gregkh@us.ibm.com>
+In-Reply-To: <3D584DF8.9020206@us.ibm.com>
+References: <3D584DF8.9020206@us.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 13 Aug 2002 12:45:33 +0100
+Message-Id: <1029239133.20980.10.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all
+On Tue, 2002-08-13 at 01:08, Matthew Dobson wrote:
 
-perhaps it's time to ditch khttpd in favour for Tux now? I beleive 2.4.20 
-would be a nice time to do this.
+> -	if (!value) 
+> -		return -EINVAL;
+> -
+> -	result = pci_conf1_read(0, dev->bus->number, PCI_SLOT(dev->devfn), 
+> -		PCI_FUNC(dev->devfn), where, 2, &data);
+> -
 
-anyone?
+This stil has the same problems as it did last time you posted it. The
+pointless NULL check and the increased complexity over duplicating about
+60 lines of code and having pci_conf1 ops cleanly as we do in 2.4.
 
-roy
--- 
-Roy Sigurd Karlsbakk, Datavaktmester
+The !value check is extremely bad because it turns a critical debuggable
+software error into a silent unnoticed mistake.
 
-Computers are like air conditioners.
-They stop working when you open Windows.
+Fixing the code instead of just resending it might improve the changes
+of it being merged no end.
+
+Alan
 

@@ -1,70 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRAKJw2>; Thu, 11 Jan 2001 04:52:28 -0500
+	id <S130012AbRAKKBa>; Thu, 11 Jan 2001 05:01:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129593AbRAKJwS>; Thu, 11 Jan 2001 04:52:18 -0500
-Received: from mons.uio.no ([129.240.130.14]:29930 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S129324AbRAKJwD>;
-	Thu, 11 Jan 2001 04:52:03 -0500
-MIME-Version: 1.0
+	id <S130017AbRAKKBU>; Thu, 11 Jan 2001 05:01:20 -0500
+Received: from mean.netppl.fi ([195.242.208.16]:43535 "EHLO mean.netppl.fi")
+	by vger.kernel.org with ESMTP id <S130012AbRAKKBD>;
+	Thu, 11 Jan 2001 05:01:03 -0500
+Date: Thu, 11 Jan 2001 12:00:48 +0200
+From: Pekka Pietikainen <pp@evil.netppl.fi>
+To: Tim Sailer <sailer@bnl.gov>
+Cc: John Heffner <jheffner@psc.edu>, linux-kernel@vger.kernel.org,
+        jfung@bnl.gov
+Subject: Re: Network Performance?
+Message-ID: <20010111120048.A10115@netppl.fi>
+In-Reply-To: <20010109115302.A32135@bnl.gov> <Pine.NEB.4.05.10101091423060.3675-100000@dexter.psc.edu> <20010109155611.B3563@bnl.gov>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14941.33321.654339.640474@charged.uio.no>
-Date: Thu, 11 Jan 2001 10:51:37 +0100 (CET)
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: ak@suse.de (Andi Kleen), phillips@innominate.de (Daniel Phillips),
-        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-Subject: Re: Subtle MM bug
-In-Reply-To: <E14GRE7-0000p5-00@the-village.bc.nu>
-In-Reply-To: <20010110204308.A5303@gruyere.muc.suse.de>
-	<E14GRE7-0000p5-00@the-village.bc.nu>
-X-Mailer: VM 6.72 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+X-Mailer: Mutt 1.0pre3i
+In-Reply-To: <20010109155611.B3563@bnl.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+On Tue, Jan 09, 2001 at 03:56:11PM -0500, Tim Sailer wrote:
+> > The defaults must be large unless your application calls setsockopt() to
+> > set the buffers itself.  (Some FTP clients and servers can do this, but
+> > for testing, your're still probably better always having the _max's and
+> > _default's the same.)
+> 
+> Hm.. OK. I think we tried that, but I'll check again.
+And make sure your ftp client/server isn't resetting it to something small
+afterwards. For testing this, I'd use a real IP benchmarking program
+like iperf/netperf/ttcp, as they'll let you test different buffer sizes
+easily (and in the case of iperf tell you what you're actually using
+if you hit the limit) For a fast WAN you want something like 
+512k-1M buffers easily.
 
-    >> As the thread started it's not only only needed for pthreads,
-    >> but also for NFS and setuid (actually NFS already implements it
-    >> privately), and probably other network file systems too.  So
-    >> it's far from being only a "bad standard corner case".
-
-     > I wonder how Linux 2.2 worked, that doesnt have them. Now if
-     > its a clean way of sorting out a pile of other things and it
-     > does pthreads as a side effect I've no problem, but arguing for
-     > it because of a tiny pthreads corner case is coming from the
-     > wrong end
+-- 
+Pekka Pietikainen
 
 
-How about this then:
 
-Sure NFS can work without ucreds, but there are limitations.  For
-instance the MVFS folks recently complained. They're trying to keep
-mmap consistency between their own filesystem layer and the underlying
-storage filesystem using i_mapping (a la CODAfs). The problem then is
-that the vma will be using the wrong 'struct file' to call the
-underlying storage.
-
-This sort of problem would indeed disappear if we have a generic
-credential stored in the struct file as we could make the VFS pass the
-credential directly to readpage (and writepage?) rather than passing
-the whole struct file.
-
-If you use the same credentials in the task structure, then there are
-other advantages even to NFS itself.
-You may for example want to attach an ACL cache at some point in time
-(to avoid the messiness of calling NFSv3/v4 permissions routines at
-each and every file lookup). Ditto for strong RPC authentication
-schemes that require an upcall to some userspace daemon.
-
-That said, we'd first have to find a way to reconcile fsuid/fsgid with
-the BSD model in some way: I'd rather not have 2 'ucred's per task (1
-for threads + 1 for filesystems).
-
-Cheers,
-  Trond
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

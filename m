@@ -1,74 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262340AbTESKgq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 06:36:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262371AbTESKgq
+	id S262382AbTESKsa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 06:48:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262383AbTESKsa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 06:36:46 -0400
-Received: from mail.cpt.sahara.co.za ([196.41.29.142]:59632 "EHLO
-	workshop.saharact.lan") by vger.kernel.org with ESMTP
-	id S262340AbTESKgp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 06:36:45 -0400
-Subject: Re: Recent changes to sysctl.h breaks glibc
-From: Martin Schlemmer <azarah@gentoo.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       KML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030519063813.A30004@infradead.org>
-References: <1053289316.10127.41.camel@nosferatu.lan>
-	 <20030518204956.GB8978@holomorphy.com>
-	 <1053292339.10127.45.camel@nosferatu.lan>
-	 <20030519063813.A30004@infradead.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1053341023.9152.64.camel@workshop.saharact.lan>
+	Mon, 19 May 2003 06:48:30 -0400
+Received: from unthought.net ([212.97.129.24]:51350 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S262382AbTESKs2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 06:48:28 -0400
+Date: Mon, 19 May 2003 13:01:23 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Dean McEwan <dean_mcewan@linuxmail.org>
+Cc: szepe@pinerecords.com, viro@parcelfarce.linux.theplanet.co.uk,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: Digital Rights Management - An idea (limited lease, renting, expiration, verification) NON HAR*D*WARE BASED.
+Message-ID: <20030519110122.GC14971@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Dean McEwan <dean_mcewan@linuxmail.org>, szepe@pinerecords.com,
+	viro@parcelfarce.linux.theplanet.co.uk, alan@lxorguk.ukuu.org.uk,
+	linux-kernel@vger.kernel.org
+References: <20030515104458.4886.qmail@linuxmail.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3- 
-Date: 19 May 2003 12:43:44 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030515104458.4886.qmail@linuxmail.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-05-19 at 07:38, Christoph Hellwig wrote:
-> On Sun, May 18, 2003 at 11:12:19PM +0200, Martin Schlemmer wrote:
-> > Yes, the standard answer.  So what kernel headers should glibc
-> > be compiled against then ?
-> 
-> None.  But as glibc still hasn't been fixed use kernel headers from linux 2.4.
-> 
+On Thu, May 15, 2003 at 10:44:58AM +0000, Dean McEwan wrote:
+> Actually the program is dynamically encrypted with a new key each time.
 
-Right, so who are going to tell the glibc guys that ?
+Yeah, whatever
 
------------------------------------------------------------------
-configure: error: GNU libc requires kernel header files from
-Linux 2.0.10 or later to be installed before configuring.
-The kernel header files are found usually in /usr/include/asm and
-/usr/include/linux; make sure these directories use files from
-Linux 2.0.10 or later.  This check uses <linux/version.h>, so
-make sure that file was built correctly when installing the kernel
-header
-files.  To use kernel headers not from /usr/include/linux, use the
-configure option --with-headers.
------------------------------------------------------------------
+> Intefering with memory buffers causes the kernel to delete the
+> program, Key is sent over VPN, tampering with the kernel causes the
+> MD5 hash to be incorrect,
 
-I do not mind if thing break due to compatibility if needed to
-enhance an API, etc ... gcc does that enough.
+Who sends the now-incorrect MD5?  The kernel? But since it's been
+tampered with, how do you know it sends the trust now-incorrect MD5 sum,
+instead of a copy of the original MD5 sum?
 
-The big problem however is that every time somebody screws up
-user space due to changes in kernel headers, the reply is always
-the same:  "do not use kernel headers in user land"
+> and key isn't sent, DRM self scans itself,
 
-Ok, lets say we stop doing that.  How do anything user side find
-out specifics at compile time related to the kernel it should run
-on ?  If we may not include kernel headers, what then?
+What for?
 
-Please understand, this is not me trolling, but everybody always
-have the same answer for issues like this, but no solutions.
+If DRM is tampered with, making it scan itself is pretty useless - once
+it has been tampered with, it can no longer be trusted to perform the
+self scan.   In other words, such self-scanning is fundamentally flawed.
+
+Read "The inevitability of failure" - pay special attention to the fact
+that they *never* recommend anything like self-scanning, but rather
+focus on mechanisms to ensure that whatever it was you wanted to
+self-scan could never have been tampered with in the first place (thus
+making the self-scanning that can't work anyway, a non-issue).
+
+  http://www.nsa.gov/selinux/inevit-abs.html
+
+> MD5 hash sums are made on the sources and DRM will dynamically
+> recompile itself every 32 seconds, checking the sources.
+
+... using which compiler ?
+
+... compiled using which compiler ?
+
+Nevermind that - you don't need to answer.
+
+Read "Reflections on trusting trust" by Ken R.
+
+   http://cm.bell-labs.com/who/ken/trust.html
 
 
-Thanks,
+Your idea is fundamentally flawed. You can always add more layers of
+self-checking-self-checkers, but this does not change the fact that the
+idea is fundamentally flawed.
+
+I'm sorry - it's not that I don't like you or anything like that - but
+the idea is stupid, just give it up   :)
 
 -- 
-Martin Schlemmer
-
-
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

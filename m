@@ -1,68 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265166AbRGGQLt>; Sat, 7 Jul 2001 12:11:49 -0400
+	id <S265193AbRGGQoh>; Sat, 7 Jul 2001 12:44:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265193AbRGGQLj>; Sat, 7 Jul 2001 12:11:39 -0400
-Received: from phnx1-blk2-hfc-0251-d1db10f1.rdc1.az.coxatwork.com ([209.219.16.241]:43175
-	"EHLO mail.labsysgrp.com") by vger.kernel.org with ESMTP
-	id <S265166AbRGGQL2>; Sat, 7 Jul 2001 12:11:28 -0400
-Message-ID: <009601c106ff$a3cb2070$6baaa8c0@kevin>
-From: "Kevin P. Fleming" <kevin@labsysgrp.com>
-To: "Ryan Mack" <rmack@mackman.net>, <max_mk@yahoo.com>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0107070058350.29490-100000@mackman.net>
-Subject: Re: [BUG?] vtund broken by tun driver changes in 2.4.6
-Date: Sat, 7 Jul 2001 09:12:37 -0700
-Organization: LSG, Inc.
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S264582AbRGGQo1>; Sat, 7 Jul 2001 12:44:27 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:51224 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S265193AbRGGQoS>; Sat, 7 Jul 2001 12:44:18 -0400
+Date: Sat, 7 Jul 2001 18:44:20 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.7pre3aa1
+Message-ID: <20010707184419.I2425@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Recompile your VTUND daemon with the new kernel headers (and also updated to
-2.5 vtund, it has some small patches) and you will be fine.
+Diff between 2.4.7pre2aa1 and 2.4.7pre3aa1:
 
------ Original Message -----
-From: "Ryan Mack" <rmack@mackman.net>
-To: <max_mk@yahoo.com>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Saturday, July 07, 2001 1:02 AM
-Subject: [BUG?] vtund broken by tun driver changes in 2.4.6
+---------------------------------------------------------
+Only in 2.4.7pre2aa1: 00_3c59x-zerocopy-1
+Only in 2.4.7pre3aa1: 00_3c59x-zerocopy-2
 
+	Right fix for enabling zerocopy on highmem kernels.
 
-> I recently upgraded a server running vtund 2.4 (4/18/01) to stock 2.4.6
-> kernel.  It seems the changes to the tun driver have broken vtund.  Now my
-> syslog gets filled with the following messages when a client attempts to
-> connect:
->
-> Jul  5 10:15:53 mackman vtund[4011]: Session
-> mackman-vpn[64.169.117.25:2359] opened
-> Jul  5 10:15:53 mackman vtund[4011]: Can't allocate tun device. File
-> descriptor in bad state(77)
-> Jul  5 10:15:53 mackman vtund[4011]: Session mackman-vpn closed
-> Jul  5 10:16:04 mackman vtund[4014]: Session
-> mackman-vpn[64.169.117.25:2360] opened
-> Jul  5 10:16:04 mackman vtund[4014]: Can't allocate tun device. File
-> descriptor in bad state(77)
-> Jul  5 10:16:04 mackman vtund[4014]: Session mackman-vpn closed
->
-> Eventually the client gives up.  Do you have any suggestions or know of
-> any fixes?
->
-> Thanks, Ryan Mack
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
->
+	(nice to have)
 
+Only in 2.4.7pre3aa1: 00_async-io-unlock-race-1
+
+	Fix possible memory corruption due a race where
+	the page can be unlocked under us and so the bh could
+	be unlocked as well under us. Found it in -ac.
+
+	(recommended)
+
+Only in 2.4.7pre2aa1: 00_ksoftirqd-7
+Only in 2.4.7pre3aa1: 00_ksoftirqd-8
+
+	Add the BUG() check, to be as strict as mainline (no functional
+	differences for correct code).
+
+	(nice to have)
+
+Only in 2.4.7pre3aa1: 00_meminfo-wraparound-1
+
+	Use long long in /proc/meminfo to avoid wrap arounds on >4G boxes.
+
+	(nice to have)
+
+Only in 2.4.7pre3aa1: 00_rawio-down_read-1
+
+	Use read lock for rawio.
+
+	(nice to have)
+
+Only in 2.4.7pre2aa1: 00_vm-deadlock-fix-1
+Only in 2.4.7pre2aa1: 00_xircom-serial-1
+
+	Merged in mainline.
+
+Only in 2.4.7pre2aa1: 10_blkdev-pagecache-4
+Only in 2.4.7pre3aa1: 40_experimental
+
+	Moved the 10_blkdev-pagecache-4 patch back into the
+	40_experimental directory, don't apply it for
+	production it's not ready yet, initrd is still broken
+	(it will be fixed soon).
+---------------------------------------------------------
+
+Andrea

@@ -1,41 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269240AbUIIAkA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269251AbUIIAn0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269240AbUIIAkA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 20:40:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269247AbUIIAkA
+	id S269251AbUIIAn0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 20:43:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269252AbUIIAn0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 20:40:00 -0400
-Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:32443 "HELO
-	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S269240AbUIIAj6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 20:39:58 -0400
-Message-ID: <413F997C.6090603@yahoo.com.au>
-Date: Thu, 09 Sep 2004 09:45:00 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Nathan Lynch <nathanl@austin.ibm.com>
-CC: Rusty Russell <rusty@rustcorp.com.au>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] fix schedstats null deref in sched_exec
-References: <413EFFFB.5050902@yahoo.com.au> <413F0070.2020104@yahoo.com.au>	 <413F01C7.3060008@yahoo.com.au> <1094658900.14438.6.camel@booger>
-In-Reply-To: <1094658900.14438.6.camel@booger>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Sep 2004 20:43:26 -0400
+Received: from holomorphy.com ([207.189.100.168]:20652 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S269251AbUIIAnZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 20:43:25 -0400
+Date: Wed, 8 Sep 2004 17:43:20 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Roger Luethi <rl@hellgate.ch>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Albert Cahalan <albert@users.sf.net>, Paul Jackson <pj@sgi.com>
+Subject: Re: [1/1][PATCH] nproc v2: netlink access to /proc information
+Message-ID: <20040909004320.GJ3106@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Roger Luethi <rl@hellgate.ch>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, Albert Cahalan <albert@users.sf.net>,
+	Paul Jackson <pj@sgi.com>
+References: <20040908184028.GA10840@k3.hellgate.ch> <20040908184130.GA12691@k3.hellgate.ch> <20040909003529.GI3106@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040909003529.GI3106@holomorphy.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathan Lynch wrote:
-> Oops, I meant to send this one with my original patchset.
-> 
-> In sched_exec, schedstat_inc will dereference a null pointer if no
-> domain is found with the SD_BALANCE_EXEC flag set.  This was exposed
-> during testing of the previous patches where cpus are temporarily
-> attached to a dummy domain without SD_BALANCE_EXEC set.
-> 
-> Signed-off-by: Nathan Lynch <nathanl@austin.ibm.com>
-> 
+On Wed, Sep 08, 2004 at 05:35:29PM -0700, William Lee Irwin III wrote:
+> Any chance you could convert these to use the new vm statistics
+> accounting?
 
-Thanks. I'll get everything together and send it to Andrew.
+Hmm, there's a more serious issue; CONFIG_MMU=n will barf on these.
+For that you will need to #ifdef on CONFIG_MMU and use the methods
+in fs/proc/task_nommu.c and so on.
+
+
+-- wli

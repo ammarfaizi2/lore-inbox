@@ -1,83 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265921AbUAEVTX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 16:19:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265922AbUAEVTX
+	id S265851AbUAEV2V (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 16:28:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265892AbUAEV2V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 16:19:23 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:60630 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S265921AbUAEVTM convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 16:19:12 -0500
-content-class: urn:content-classes:message
+	Mon, 5 Jan 2004 16:28:21 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:53936 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S265851AbUAEV2N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 16:28:13 -0500
+Message-ID: <3FF9D5B1.3080609@us.ibm.com>
+Date: Mon, 05 Jan 2004 13:22:57 -0800
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+Organization: IBM LTC
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: FW: [PATCH] MSI broke voyager build
-Date: Mon, 5 Jan 2004 13:19:02 -0800
-Message-ID: <C7AB9DA4D0B1F344BF2489FA165E502401541952@orsmsx404.jf.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: FW: [PATCH] MSI broke voyager build
-Thread-Index: AcPT0YrFACJS2TTAQVyBxtAPsjbkDg==
-From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <akpm@osdl.org>, "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-X-OriginalArrivalTime: 05 Jan 2004 21:19:04.0964 (UTC) FILETIME=[8C292C40:01C3D3D1]
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, mbligh@aracnet.com, jbarnes@sgi.com
+Subject: Re: [PATCH] Simplify node/zone field in page->flags
+References: <3FE74B43.7010407@us.ibm.com> <20031222131126.66bef9a2.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wednesday, December 31, 2003 2:59 PM, James Bottomley wrote:
-> The author made the arch/i386 compile depend on NR_VECTORS being
-> defined.
+Andrew Morton wrote:
+> Matthew Dobson <colpatch@us.ibm.com> wrote:
 > 
-> This symbol, however, was put only into mach-default/irq_vectors.h
+>>Currently we keep track of a pages node & zone in the top 8 bits (on 
+>>32-bit arches, 10 bits on 64-bit arches) of page->flags.  We typically 
+>>compute the field as follows:
+>>	node_num * MAX_NR_ZONES + zone_num = 'nodezone'
+>>
+>>It's non-trivial to break this 'nodezone' back into node and zone 
+>>numbers.  This patch modifies the way we compute the index to be:
+>>	(node_num << ZONE_SHIFT) | zone_num
+>>
+>>This makes it trivial to recover either the node or zone number with a 
+>>simple bitshift.  There are many places in the kernel where we do things 
+>>like: page_zone(page)->zone_pgdat->node_id to determine the node a page 
+>>belongs to.  With this patch we save several pointer dereferences, and 
+>>it all boils down to shifting some bits.
 > 
-> The attached patch adds it to voyager; visws and pc9800 however, are
-> still broken.
 > 
-> The code that breaks is this (in arch/i386/kernel/i8259.c):
+> This conflicts with (is a superset of) 
 > 
->  	 * us. (some of these will be overridden and become
->  	 * 'special' SMP interrupts)
->  	 */
-> -	for (i = 0; i < NR_IRQS; i++) {
-> +	for (i = 0; i < (NR_VECTORS - FIRST_EXTERNAL_VECTOR); i++) {
->  		int vector = FIRST_EXTERNAL_VECTOR + i;
-> +		if (i >= NR_IRQS)
-> +			break;
->  		if (vector != SYSCALL_VECTOR)
->  			set_intr_gate(vector, interrupt[i]);
+> 	ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test9/2.6.0-test9-mm5/broken-out/ZONE_SHIFT-from-NODES_SHIFT.patch
 > 
-> as far as I can see, with NR_VECTORS set at 256, FIRST_EXTERNAL_VECTOR
-> at 32 and NR_IRQS set at 224 the two forms of the loop are identical.
-> The only case it would make a difference would be for NR_IRQ >
-> NR_VECTORS + FIRST_EXTERNAL_VECTOR which doesn't seem to make any
-> sense.  Perhaps just backing this change out of i8259.c would be
-> better?  NR_VECTORS seems to have no other defined use in the MSI code.
+> I suspect you've sent a replacement patch, yes?  If Jesse is OK with the
+> new patch I'll do the swap, thanks.
 
->> It would make a significant difference when CONFIG_PCI_USE_VECTOR is 
->> set to "Y" by users to enable MSI support. The setting of 
->> CONFIG_PCI_USE_VECTOR to "Y" sets NR_IRQS at 239 (FIRST_SYSTEM_VECTOR)
->> instead of 224.
+Jesse had acked the patch in an earlier itteration.  The only thing 
+that's changed is some line offsets whilst porting the patch forward.
 
+Jesse (or anyone else?), any objections to this patch as a superset of 
+yours?
 
-> ===== include/asm-i386/mach-voyager/irq_vectors.h 1.4 vs edited =====
-> --- 1.4/include/asm-i386/mach-voyager/irq_vectors.h	Wed Oct 22 11:34:51
-> 2003
-> +++ edited/include/asm-i386/mach-voyager/irq_vectors.h	Wed Dec 31
-> 16:30:15 2003
-> @@ -55,6 +55,7 @@
->  #define VIC_CPU_BOOT_CPI		VIC_CPI_LEVEL0
->  #define VIC_CPU_BOOT_ERRATA_CPI		(VIC_CPI_LEVEL0 + 8)
-> 
-> +#define NR_VECTORS 256
->  #define NR_IRQS 224
->  #define NR_IRQ_VECTORS NR_IRQS
-> 
+Cheers!
 
->> Thanks for providing a fix. The fix looks fine to me.
+-Matt
 
-Thanks,
-Long

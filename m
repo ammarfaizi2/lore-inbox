@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270435AbTGMW2x (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 18:28:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270437AbTGMW2w
+	id S270413AbTGMWPJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 18:15:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270416AbTGMWPJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 18:28:52 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:58346 "HELO
+	Sun, 13 Jul 2003 18:15:09 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:19947 "HELO
 	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S270435AbTGMW2v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 18:28:51 -0400
-Date: Mon, 14 Jul 2003 00:43:30 +0200
+	id S270413AbTGMWPG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 18:15:06 -0400
+Date: Mon, 14 Jul 2003 00:29:45 +0200
 From: Adrian Bunk <bunk@fs.tum.de>
-To: rth@twiddle.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Remove CONFIG_H8 in 2.5?
-Message-ID: <20030713224330.GE12104@fs.tum.de>
+To: jgarzik@pobox.com, akpm@digeo.com
+Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Remove net drivers depending on OBSOLETE
+Message-ID: <20030713222945.GC12104@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,12 +22,15 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CONFIG_H8 in drivers/char/ depend in both 2.4 and 2.5 on 
-CONFIG_OBSOLETE.
- 
-Since CONFIG_OBSOLETE is never set it is not selectable.
-Is there any reason why this driver should stay in the kernel or would
-you accept a patch that removes this driver?
+The following three net drivers depend in both 2.4 and 2.5 on 
+CONFIG_OBSOLETE:
+- FMV18X
+- SEEQ8005
+- SK_G16
+
+Since CONFIG_OBSOLETE is never set they are not selectable.
+Is there any reason why they should stay in the kernel or would you 
+accept a patch that removes these drivers?
 
 cu
 Adrian

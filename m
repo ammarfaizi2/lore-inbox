@@ -1,59 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263228AbTLJNNB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 08:13:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263504AbTLJNNB
+	id S263504AbTLJNNc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 08:13:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263522AbTLJNNc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 08:13:01 -0500
-Received: from massena-4-82-67-197-146.fbx.proxad.net ([82.67.197.146]:11662
-	"EHLO perso.free.fr") by vger.kernel.org with ESMTP id S263228AbTLJNM7
+	Wed, 10 Dec 2003 08:13:32 -0500
+Received: from secure.comcen.com.au ([203.23.236.73]:3845 "EHLO
+	xavier.etalk.net.au") by vger.kernel.org with ESMTP id S263504AbTLJNN3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 08:12:59 -0500
-From: Duncan Sands <baldrick@free.fr>
-To: Alan Stern <stern@rowland.harvard.edu>,
-       David Brownell <david-b@pacbell.net>
-Subject: Re: [linux-usb-devel] Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
-Date: Wed, 10 Dec 2003 14:12:57 +0100
-User-Agent: KMail/1.5.4
-Cc: Vince <fuzzy77@free.fr>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       <mfedyk@matchmail.com>, <zwane@holomorphy.com>,
-       <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       Greg KH <greg@kroah.com>
-References: <Pine.LNX.4.44L0.0312092233340.6615-100000@netrider.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0312092233340.6615-100000@netrider.rowland.org>
+	Wed, 10 Dec 2003 08:13:29 -0500
+From: Ross Dickson <ross@datscreative.com.au>
+Reply-To: ross@datscreative.com.au
+Organization: Dat's Creative Pty Ltd
+To: Jesse Allen <the3dfxdude@hotmail.com>
+Subject: Re: Fixes for nforce2 hard lockup, apic, io-apic, udma133 covered
+Date: Wed, 10 Dec 2003 19:22:57 +1000
+User-Agent: KMail/1.5.1
+Cc: linux-kernel@vger.kernel.org, AMartin@nvidia.com
+References: <200312072312.01013.ross@datscreative.com.au> <20031210033906.GA176@tesore.local>
+In-Reply-To: <20031210033906.GA176@tesore.local>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200312101412.57388.baldrick@free.fr>
+Message-Id: <200312101922.57228.ross@datscreative.com.au>
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In an earlier message I wrote that the HC driver couldn't unload so long
-> as the device usbfs was using held a reference to its bus.  I just did
-> some checking, and guess what: It can!
-
-Uh oh.
-
-> I looked at both the UHCI and OHCI drivers.  In their module_exit routines
-> they call pci_unregister_driver().  Without knowing how the PCI subsystem
-> works, I would assume this behaves like any other "deregister" routine in
-> the driver model and returns without waiting for any reference count to go
-> to 0 -- that's what release callbacks are for.
->
-> However, the module_exit routines _don't_ wait for the release callbacks.
-> They just go right on ahead and exit.  Result: when the reference count
-> eventually does go to 0 (when usbfs drops its last reference), the
-> hcd_free routine is no longer present and you get an oops.
->
-> The proper fix would be to have each HC driver keep track of how many
-> instances are allocated.  The module_exit routine must wait for that
-> number to drop to 0 before returning.
-
-Is this how it is usually done?
-
-All the best,
-
-Duncan.
+On Wednesday 10 December 2003 13:39, Jesse Allen wrote:
+> Hi Ross,
+> 
+> I have rediffed your two patches for vanilla 2.6.0-test11.  Briefly, I tried the apic patch first, and found that there are no lockups so far; well it passed my grep tests and even a kernel compile =).  Then I tried your io_apic patch + apic patch.  With nmi_watchdog=1 "NMI:" in /proc/interrupts increments alot compared to nmi_watchdog=2 before (as much as the timer).  So I believe your two patches are more correct than the other two.  Especially the fact I can run with CPU Disconnect and not lock up just like windows ... for people that have windows (I dont have windows =) plus a probably working nmi_watchdog.
+> 
+> And for comparison, my setup:
+> Shuttle AN35N Ultra v 1.1  (Nforce2 400 ultra), bios updated
+> Athlon Barton 2600+ (1.9 Ghz)
+> 256 MB PC3200, single stick.
+> 
+> The patches are included in this mail.  I suppose the next thing to do is get out of nvidia the corresponding information.  And then clean up the patch for inclusion.
+> 
+> Jesse
+> 
+> 
+> 
+Thank Jesse
+It is interesting that the lockup problems also occur with a single memory stick,
+I have only tried dual sticks.
+Regards
+Ross.

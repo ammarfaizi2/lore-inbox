@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271807AbTHMLGl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 07:06:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271811AbTHMLGl
+	id S271685AbTHMLRX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 07:17:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271743AbTHMLRW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 07:06:41 -0400
-Received: from colin2.muc.de ([193.149.48.15]:17928 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S271807AbTHMLGj (ORCPT
+	Wed, 13 Aug 2003 07:17:22 -0400
+Received: from mail.suse.de ([213.95.15.193]:38148 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S271685AbTHMLRV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 07:06:39 -0400
-Date: 13 Aug 2003 13:06:36 +0200
-Date: Wed, 13 Aug 2003 13:06:36 +0200
-From: Andi Kleen <ak@colin2.muc.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: thunder7@xs4all.nl, linux-kernel@vger.kernel.org, Andi Kleen <ak@muc.de>,
-       Zwane Mwaikambo <zwane@holomorphy.com>,
-       Dave Jones <davej@codemonkey.org.uk>
+	Wed, 13 Aug 2003 07:17:21 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
 Subject: Re: 2.6.0-test3-mm1: scheduling while atomic (ext3?)
-Message-ID: <20030813110636.GB26019@colin2.muc.de>
-References: <20030813045638.GA9713@middle.of.nowhere> <20030813014746.412660ae.akpm@osdl.org>
-Mime-Version: 1.0
+References: <20030813045638.GA9713@middle.of.nowhere.suse.lists.linux.kernel>
+	<20030813014746.412660ae.akpm@osdl.org.suse.lists.linux.kernel>
+	<20030813091958.GA30746@gates.of.nowhere.suse.lists.linux.kernel>
+	<20030813025542.32429718.akpm@osdl.org.suse.lists.linux.kernel>
+	<1060772769.8009.4.camel@localhost.localdomain.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 13 Aug 2003 13:17:18 +0200
+In-Reply-To: <1060772769.8009.4.camel@localhost.localdomain.suse.lists.linux.kernel>
+Message-ID: <p73adad7qo1.fsf@oldwotan.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030813014746.412660ae.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But if a prefetch of zero oopses then we should be oopsing in there all the
-> time.
-> 
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-If it's an Opteron then it's a known errata (#91 iirc). Update your BIOS in 
-this case.
+> Put the likely(pos) in the asm/prefetch for Athlon until someone can
+ out what is going on with some specific Athlons, 2.6 and certain
+> kernels (notably 4G/4G)
 
-The x86-64 kernel port also has a workaround for this (adding exception
-handling to the prefetches)
+You can use the same workaround as x86-64. add an exception handler and
+just jump back. Advantage is that it is completely outside the fast path.
+
+But note you also have to add runtime sorting of __ex_table when you
+do this, otherwise the __ex_table becomes unsorted when someone uses
+list_for_each (which does prefetch) in a __init function
+
+(all code is available in x86-64, just needs to be ported over)
 
 -Andi
-

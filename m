@@ -1,126 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263188AbUFXAib@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263304AbUFXAoc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263188AbUFXAib (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 20:38:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263304AbUFXAib
+	id S263304AbUFXAoc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 20:44:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263309AbUFXAoc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 20:38:31 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54419 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263188AbUFXAi1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 20:38:27 -0400
-Message-ID: <40DA2272.8050106@pobox.com>
-Date: Wed, 23 Jun 2004 20:38:10 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Wed, 23 Jun 2004 20:44:32 -0400
+Received: from web51806.mail.yahoo.com ([206.190.38.237]:18362 "HELO
+	web51806.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263304AbUFXAo3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 20:44:29 -0400
+Message-ID: <20040624004429.76093.qmail@web51806.mail.yahoo.com>
+Date: Wed, 23 Jun 2004 17:44:29 -0700 (PDT)
+From: Phy Prabab <phyprabab@yahoo.com>
+Subject: Re: slow performance w/patch-2.6.7-mjb1
+To: "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1945190000.1088003081@[10.10.2.4]>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Jeremy Katz <jeremy.katz@gmail.com>,
-       Stephen Rothwell <sfr@canb.auug.org.au>, Andrew Morton <akpm@osdl.org>,
-       Linus <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       katzj@redhat.com
-Subject: Re: [PATCH] PPC64 iSeries viodasd proc file
-References: <20040618165436.193d5d35.sfr@canb.auug.org.au> <40D305B4.4030009@pobox.com> <20040618151753.GA21596@infradead.org> <cb5afee1040620125272ab9f06@mail.gmail.com> <20040621060435.GA28384@kroah.com> <cb5afee10406210914451dc6@mail.gmail.com> <cb5afee10406231415293e90c0@mail.gmail.com> <20040623220303.GD6548@kroah.com>
-In-Reply-To: <20040623220303.GD6548@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Wed, Jun 23, 2004 at 05:15:54PM -0400, Jeremy Katz wrote:
-> 
->>For example, /sys/bus/ide/devices/* and then symlinks forever... lots
->>of readdir, readlink, etc makes probing far slower and more complex
->>than the simple /proc/ide/ide?/*/ that could be used before.
-> 
-> 
-> Yes, ide never got completly moved over to sysfs like scsi did.  We
-> never had the time to do this work, sorry.
-> 
-> But now your parsing should be easier with the one-value to one-file
-> rule, right?  And libsysfs should help out here with all of the symlinks
-> and readdir, etc calls.
-> 
-> 
->>>>Also, things in sysfs aren't exactly stable enough to count on as a
->>>>dependable interface, but that's something the kernel has never
->>>>reliably exported to userspace.
->>>
->>>Why isn't sysfs stable enough?  You can find any driver instantly.  And
->>>any device bound to that driver in a stable and repeatable manner.
->>
->>Again, not sysfs itself.  How information is exported via sysfs.  I'm
->>not saying that things exported via /proc are always the picture of
->>stability here (cf the recent change from /proc/scsi/usb-storage-$host
->>to /proc/scsi/usb-storage/$host), but at the same time, things in
->>/proc have tended to settle down in the general case.  This just isn't
->>true yet with sysfs and is only the sort of thing that can happen with
->>time.
->>
->>There are also other things; I guess consistency is a better word. 
->>People like to say use /sys/block to show block devices, but that
->>shows a lot of "useless" block devices from the point of view of
->>trying to show disks.
-> 
-> 
-> But all of those devices are block devices.  You want a hardware
-> picture, right?  sysfs never said it would show you just that, but it
-> makes it easier to determine.
-> 
-> For this specific instance, just look for block devices that have a
-> device symlink that points to a real device.
-> 
-> 
->>>So, give me specific examples, or stop ranting for no reason.
->>
->>And to be more constructive (after a discussion with Jeff this
->>afternoon which is when I realized the reply didn't go out), what
->>would be _very_ useful to have from a "probing disks" perspective
->>would be a way to enumerate easily and simply from within sysfs the
->>disks that are associated with a specific controller.
-> 
-> 
-> Hm, I think libsysfs can give you this, if you ask for the block devices
-> that are associated with each individual device associated with a
-> driver.
-> 
-> The whole "what driver controls what devices" is not a simple one to one
-> mapping all the time, with drivers that work on multiple types of
-> busses, and drivers that control devices that contain multiple class
-> devices, etc.  It's not a simple thing to solve, sorry.
+Martin et al:
 
-SET_BLKDEV_DRIVER(), SET_NETDEV_DRIVER(), ...
-
-We need a struct driver just like we have a struct device.
-
-Then binding registered interfaces, of any type, to the driver.
+Here is a litle bit more information:
+2.6.7-mjb1 w/4G split enabled:
+44.91user 56.95system 1:46.30elapsed 95%CPU
+(0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (0major+6907875minor)pagefaults
+0swaps
 
 
-> But what you can use is the MODULE_DEVICE_TABLE() information in the
-> modules to try to help you out here.  That details a mapping of what
-> kind of devices that specific driver supports.
+2.6.7-mjb1 w/4G disabled enabled:
+30.71user 34.56system 1:11.29elapsed 91%CPU
+(0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (21major+6907525minor)pagefaults
+0swaps
 
-No, it details what devices a driver supports, not what _type_ of 
-devices the driver supports.
+Clearly something is wrong.  This is making headers
+which does a lot of spawning of bash shells and ln -s
+different files and some minor dependancy makes.
+
+Any help understanding what is happending here would
+be greatly appreciated!
+
+Thanks!
+Phy
 
 
->>Note: this should not mean that we then go and remove currently
->>existing stuff in /proc.  Deprecate it and then it can go away in time
->>as people switch.  Having to have a flag day is very painful.  It's
->>far easier to deprecate in one stable series with a new interface
->>available and then start removing the old ones as things start to
->>switch over.  If it really is an improvement, then getting people to
->>change won't be difficult.
+--- "Martin J. Bligh" <mbligh@aracnet.com> wrote:
+> > So I configed with your patch just the basics and
+> get
+> > similar times that I do with 2.6.7 virigin and
+> 2.4.21.
+> >  However, as soon as I enable 4G split, the rt
+> > increases by ~35s (out of 1m45s compared to
+> 1m10s). 
+> > Do you know if this is in line w/expectations?  Is
+> > there anyway to reduce this?
+> 
+> Syscalls, etc will definitely be slower ... but it's
+> not normally
+> that severe ... what's the workload? And how much of
+> hte increase
+> is systime vs user time? (use /usr/bin/time, not the
+> shell builtin)
+> 
+> M.
 > 
 > 
-> I agree, I don't think that many things have disappeared from /proc just
-> yet, right?  You should just have more information than what you
-> previously did, right?  Or did scsi drop their /proc support fully?
-
-Concrete example:  modprobe sx8.  Now, what block devices did it detect?
-
-	Jeff
+> 
+> 
 
 
+
+	
+		
+__________________________________
+Do you Yahoo!?
+New and Improved Yahoo! Mail - 100MB free storage!
+http://promotions.yahoo.com/new_mail 

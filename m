@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268831AbTBZVGG>; Wed, 26 Feb 2003 16:06:06 -0500
+	id <S268947AbTBZVJ6>; Wed, 26 Feb 2003 16:09:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268832AbTBZVGG>; Wed, 26 Feb 2003 16:06:06 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:51591 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S268831AbTBZVGF>; Wed, 26 Feb 2003 16:06:05 -0500
-Date: Wed, 26 Feb 2003 13:16:15 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andi Kleen <ak@suse.de>
-cc: lse-tech@projects.sourceforge.net, akpm@digeo.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Lse-tech] [PATCH] New dcache / inode hash tuning patch
-Message-ID: <6000000.1046294173@[10.10.2.4]>
-In-Reply-To: <20030226183304.GA30836@wotan.suse.de>
-References: <20030226164904.GA21342@wotan.suse.de>
- <15730000.1046283789@[10.10.2.4]> <20030226183304.GA30836@wotan.suse.de>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S268948AbTBZVJ6>; Wed, 26 Feb 2003 16:09:58 -0500
+Received: from atlrel8.hp.com ([156.153.255.206]:25293 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id <S268947AbTBZVJ5>;
+	Wed, 26 Feb 2003 16:09:57 -0500
+Message-ID: <6BD67FFB937FD411A04F00D0B74FE8780790C607@xrose06.rose.hp.com>
+From: "LEE,SCOTT (HP-Roseville,ex1)" <scott_lee@hp.com>
+To: "'Jens Axboe'" <axboe@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: [PATCH] ide write barriers
+Date: Wed, 26 Feb 2003 16:20:08 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Internet Mail Service (5.5.2655.55)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> It actually seems a fraction slower (see systimes for Kernbench-16,
->> for instance).
+> On Wed, Feb 26 2003, Scott Lee wrote:
+> > > The goal is to make the use of write
+> > > back cache enabled ide drives safe with journalled file systems.
+> > 
+> > Does this mean that having write caching enabled is not safe if you
+> > are using ext3 on an IDE drive?  Should "hdparm -W 0 
+> /dev/hda" be used
+> > for example.  (I see a 50% performance hit using "-W 0" 
+> when my box is
+> > under load.)  If this is the case, what is the root cause?  Do IDE
+> > drives reorder writes when they are cached?
 > 
-> Can you play a bit with the hash table sizes? Perhaps double the 
-> dcache hash and half the inode hash ?
+> As it stands, it's not safe to use write back caching on IDE drives.
+> When the write completes as seen from the fs, it's not on the platter
+> yet. That's a problem. And as you mention, there's no guarentee that
+> writes won't be reordered as well.
+> 
+> So yes, either use the barrier patch or disable write caching.
 
-I quadrupled the dcache hash size ... helped a bit. Is still a little
-slower, which I don't understand ... your plan should make it go faster,
-AFAICS. Those off-node accesses to ZONE_NORMAL are really expensive for me.
+Unless I'm missing something the effect of write caching will be nil from a
+safety standpoint *if* the drive does *not* reorder writes.  If cached
+writes are written to the platter in order it seems that a loss of power
+will simply mean that from the platter perspective the system will look like
+the power was lost at "T-x" rather than "T" where "T" is actual time of the
+outage and "x" is the age of the oldest piece of cached data.  The net
+effect is that the filesystem should be in no worse shape than if there were
+no caching the power actually went out at "T-x".  (Unless of course I am
+missing something here.)
 
-Kernbench-2: (make -j N vmlinux, where N = 2 x num_cpus)
-                              Elapsed        User      System         CPU
-              2.5.62-mjb3       44.24      558.12       94.17     1473.83
-         2.5.62-mjb3-andi       44.28      557.90       95.79     1475.67
-      2.5.62-mjb3-andi-4x       44.20      557.96       94.77     1475.83
+If the cached writes can be reordered then of course it stands that caching
+would be unsafe.  Does anyone know if IDE drives do this?  I'm certainly no
+expert in this area but I thought only SCSI drives reordered operations.
 
-Kernbench-16: (make -j N vmlinux, where N = 16 x num_cpus)
-                              Elapsed        User      System         CPU
-              2.5.62-mjb3       45.19      560.95      114.77     1495.00
-         2.5.62-mjb3-andi       45.39      561.29      117.73     1495.67
-      2.5.62-mjb3-andi-4x       45.34      560.54      116.85     1493.50
+Also, do you happen to know if the barrier patch will apply cleanly to a RH
+2.4.18-rc1-ac2 kernel and function properly?
 
-> I suspect it really just needs a better hash function. I'll cook
-> something up based on FNV hash.
-
-Sounds good ;-)
-
-M.
-
+Regards,
+Scott Lee

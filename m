@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266096AbUALJ7g (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 04:59:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266097AbUALJ7g
+	id S266116AbUALKDr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 05:03:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266123AbUALKDr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 04:59:36 -0500
-Received: from kluizenaar.xs4all.nl ([213.84.184.247]:55113 "EHLO samwel.tk")
-	by vger.kernel.org with ESMTP id S266096AbUALJ7f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 04:59:35 -0500
-Message-ID: <40026FEC.4040707@samwel.tk>
-Date: Mon, 12 Jan 2004 10:59:08 +0100
-From: Bart Samwel <bart@samwel.tk>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jan De Luyck <lkml@kcore.org>, Dax Kelson <dax@gurulabs.com>
-CC: linux-kernel@vger.kernel.org, Kiko Piris <kernel@pirispons.net>,
-       Bartek Kania <mrbk@gnarf.org>, Simon Mackinlay <smackinlay@mail.com>
-Subject: Re: [PATCH] Laptop-mode v7 for linux 2.6.1
-References: <3FFFD61C.7070706@samwel.tk> <200401121045.56749.lkml@kcore.org>
-In-Reply-To: <200401121045.56749.lkml@kcore.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 12 Jan 2004 05:03:47 -0500
+Received: from nat-pool-surrey.redhat.com ([66.187.227.200]:48729 "EHLO
+	gentoo.surrey.redhat.com") by vger.kernel.org with ESMTP
+	id S266116AbUALKDq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 05:03:46 -0500
+Subject: uk keyboard broken by input updates?
+From: Bastien Nocera <hadess@hadess.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1073901824.29420.14.camel@bnocera.surrey.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 12 Jan 2004 10:03:44 +0000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan De Luyck wrote:
-> There seems to be a typo in the battery.sh script. It 
-> reads /proc/acpi/ac_adapter/AC/state to determine the AC Adaptor state, but 
-> this is in the ACAD directory instead of the AC directory.
+Hello,
 
-Hmmm, Dax says it works for him, and I don't have an ac_adapter on my 
-machine because I don't own a laptop. Dax, is this a typo or is it 
-actually called AC on your machine?
+2.6.1 broke the ~/# key on my UK keyboard, when it used to work fine on
+2.6.0. The key is now acting as Print Screen/SysRq. The keyboard is
+connected as PS/2 (though it is also plugged as USB, it's a Logitech
+wireless keyboard, with the receiver being the same for the mouse and
+keyboard).
 
--- Bart
+I didn't look at the changes made to the input layer in details. Could
+anyone shed some light on this problem?
+
+Cheers
+
+---
+Bastien Nocera <hadess@hadess.net> 
+Her voice had that tense, grating quality, like a first-generation
+thermal paper fax machine that needed a band tightened. 
+

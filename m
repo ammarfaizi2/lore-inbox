@@ -1,35 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278659AbRJXQwr>; Wed, 24 Oct 2001 12:52:47 -0400
+	id <S278660AbRJXQ6R>; Wed, 24 Oct 2001 12:58:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278663AbRJXQwh>; Wed, 24 Oct 2001 12:52:37 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:22029 "EHLO
+	id <S278661AbRJXQ6H>; Wed, 24 Oct 2001 12:58:07 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:39693 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S278659AbRJXQwU>; Wed, 24 Oct 2001 12:52:20 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: linux-2.4.13..
-Date: Wed, 24 Oct 2001 16:51:04 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <9r6rho$82c$1@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.33.0110232249090.1185-100000@penguin.transmeta.com> <20011024114026.A14078@outpost.ds9a.nl>
-X-Trace: palladium.transmeta.com 1003942346 20105 127.0.0.1 (24 Oct 2001 16:52:26 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 24 Oct 2001 16:52:26 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S278660AbRJXQ5x> convert rfc822-to-8bit; Wed, 24 Oct 2001 12:57:53 -0400
+Date: Wed, 24 Oct 2001 09:55:40 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Xavier Bestel <xavier.bestel@free.fr>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Patrick Mochel <mochel@osdl.org>,
+        Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: [RFC] New Driver Model for 2.5
+In-Reply-To: <1003942008.9892.100.camel@nomade>
+Message-ID: <Pine.LNX.4.33.0110240953010.8278-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id JAA19540
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20011024114026.A14078@outpost.ds9a.nl>,
-bert hubert  <ahu@ds9a.nl> wrote:
+
+On 24 Oct 2001, Xavier Bestel wrote:
 >
->Why do we do the exciting VM things in 'final'? We are confusing people with
->pre-patches that are better than actual releases!
+> le mer 24-10-2001 à 18:15, Linus Torvalds a écrit :
+> > Also, realize that the act of suspension is STARTED BY THE USER. Which
+>
+> ... or triggered by some kind of inactivity timer, or low battery
+> condition.
 
-What's your load? Most of the patches have been in -aa for a longish
-while, and people have tended to like them much more than the stock
-kernels ;)
+Note that even when that happens, it's not supposed to be the kernel start
+_starts_ the activity of suspension.
 
+An inactivity timer or low battery notification will just notify the
+proper deamon, and the policy on what to do should be in user space.  For
+example, on low battery you might want to set up a X window warning the
+user that the machine _will_ suspend in five seconds. And the kernel
+certainly won't do that.
+
+So as far as the kernel is concerned, a suspend is _always_ started by
+"the user". Of course, the whole point with computers is that many things
+can be automated, and "the user" may not be a human sitting at the
+machine.
 
 		Linus
+

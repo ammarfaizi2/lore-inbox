@@ -1,44 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265899AbTL3XQg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 18:16:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264394AbTL3XNj
+	id S265912AbTL3XZN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 18:25:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265929AbTL3XZN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 18:13:39 -0500
-Received: from linux.us.dell.com ([143.166.224.162]:32737 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S265864AbTL3XL4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Dec 2003 18:11:56 -0500
-Date: Tue, 30 Dec 2003 17:11:43 -0600
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Samuel Flory <sflory@rackable.com>
-Cc: Brad House <brad_mssw@gentoo.org>, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, Atul.Mukker@lsil.com
-Subject: Re: [PATCH 2.6.0] megaraid 64bit fix/cleanup (AMD64)
-Message-ID: <20031230171143.A23209@lists.us.dell.com>
-References: <65095.68.105.173.45.1072761027.squirrel@mail.mainstreetsoftworks.com> <20031230052041.GA7007@gtf.org> <65025.68.105.173.45.1072765590.squirrel@mail.mainstreetsoftworks.com> <3FF11CC2.7040209@pobox.com> <3FF1D567.4040205@rackable.com> <33036.209.251.159.140.1072813780.squirrel@mail.mainstreetsoftworks.com> <3FF1D7EE.5050603@rackable.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 30 Dec 2003 18:25:13 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:17924 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id S265912AbTL3XY7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Dec 2003 18:24:59 -0500
+From: Willem <wdit@xs4all.nl>
+To: jgarzik@pobox.com, linux-kernel@vger.kernel.org
+Subject: Patch (fix for libata patch 2.6.0-1) in ata_std_bio_param 
+Date: Wed, 31 Dec 2003 00:24:08 +0100
+User-Agent: KMail/1.5.4
+Organization: WD-IT
+Cc: matic@cyberia.net.lb, slaugther@linux.nu
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3FF1D7EE.5050603@rackable.com>; from sflory@rackable.com on Tue, Dec 30, 2003 at 11:54:22AM -0800
+Message-Id: <200312310024.08393.wdit@xs4all.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->    There is a 2.00.9 in 2.4.  In theory you should really be asking on
-> linux-megaraid-devel@dell.com.
+I got the following problem when compiling linux 2.6.0 + 2.6.0libata1 patch. 
+(On a recent Intel motherboard with SATA, so I applied the libata patch.) 
 
-linux-megaraid-devel@dell.com is closed and gone now (only archives
-remain).  megaraid driver issues should be discussed on
-linux-scsi@vger.kernel.org now.  Atul had ported 2.00.6 or so to 2.6
-already and posted it to linux-scsi for comment, before the hard
-freeze hit; James may have newer code pending somewhere.
+Since I noticed this problem at the Gentoo bugs site as well 
+( http://bugs.gentoo.org/show_bug.cgi?id=36812 )
+I decided to publish this patch, to help others. 
 
-Thanks,
-Matt
+ LD      .tmp_vmlinux1
+drivers/built-in.o(.text+0xa7784): In function `ata_std_bios_param':
+: undefined reference to `__udivdi3'
+make: *** [.tmp_vmlinux1] Error 1
+* gen_die(): Could not copy kernel binary to boot
 
--- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+The following patch fixes this. 
+Best regards, and happy 2004!
+
+Willem Dekker 
+
+---- 
+*** libata-scsi.c       2003-12-31 00:17:14.000000000 +0100
+--- libata-scsi.org     2003-12-31 00:17:59.000000000 +0100
+***************
+*** 49,55 ****
+  {
+        geom[0] = 255;
+        geom[1] = 63;
+!       geom[2] = (int) capacity /(int) (geom[0] * geom[1]);
+
+        return 0;
+  }
+--- 49,55 ----
+  {
+        geom[0] = 255;
+        geom[1] = 63;
+!       geom[2] =  capacity / (geom[0] * geom[1]);
+
+        return 0;
+  }
+

@@ -1,31 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263223AbSJCKYs>; Thu, 3 Oct 2002 06:24:48 -0400
+	id <S263229AbSJCKk7>; Thu, 3 Oct 2002 06:40:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263227AbSJCKYs>; Thu, 3 Oct 2002 06:24:48 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:56287 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S263223AbSJCKYs>;
-	Thu, 3 Oct 2002 06:24:48 -0400
-Date: Thu, 3 Oct 2002 12:30:14 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
-Subject: Re: lk maintainers
-Message-ID: <20021003103014.GA1041@suse.de>
-References: <Pine.LNX.4.10.10210011021160.3976-100000@master.linux-ide.org> <200210022011.g92KBIp31857@Port.imtp.ilyichevsk.odessa.ua>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200210022011.g92KBIp31857@Port.imtp.ilyichevsk.odessa.ua>
+	id <S263230AbSJCKk7>; Thu, 3 Oct 2002 06:40:59 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:48770 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S263229AbSJCKk7>;
+	Thu, 3 Oct 2002 06:40:59 -0400
+Date: Thu, 3 Oct 2002 06:46:30 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+cc: Linux Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: block device size in 2.5
+In-Reply-To: <20021003103414.GA11966@fib011235813.fsnet.co.uk>
+Message-ID: <Pine.GSO.4.21.0210030645200.13480-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 02 2002, Denis Vlasenko wrote:
-> As to Martin's one, I prefer updating entries based on entry owner's
-> comments.
 
-I think it would be quite alright to delete that entry on your own.
 
--- 
-Jens Axboe
+On Thu, 3 Oct 2002, Joe Thornber wrote:
+
+> Why is the total size of a block device held in struct gendisk rather
+> than struct block_device ?
+
+It is mirrored into bdev->bd_inode->i_size.  However, struct block_device
+is not persistent - persistent stuff lives in struct gendisk.
 

@@ -1,42 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267890AbTBVM45>; Sat, 22 Feb 2003 07:56:57 -0500
+	id <S267895AbTBVNFW>; Sat, 22 Feb 2003 08:05:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267891AbTBVM45>; Sat, 22 Feb 2003 07:56:57 -0500
-Received: from ce06d.unt0.torres.ka0.zugschlus.de ([212.126.206.6]:19462 "EHLO
-	torres.ka0.zugschlus.de") by vger.kernel.org with ESMTP
-	id <S267890AbTBVM44>; Sat, 22 Feb 2003 07:56:56 -0500
-Date: Sat, 22 Feb 2003 14:07:04 +0100
-From: Marc Haber <mh+linux-kernel@zugschlus.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ethernet-ATM-Router freezing
-Message-ID: <20030222130704.GB25040@torres.ka0.zugschlus.de>
-References: <20030222084958.GC23827@torres.ka0.zugschlus.de> <1045914526.12534.153.camel@zion.wanadoo.fr>
+	id <S267896AbTBVNFW>; Sat, 22 Feb 2003 08:05:22 -0500
+Received: from tom.hrz.tu-chemnitz.de ([134.109.132.38]:57230 "EHLO
+	tom.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S267895AbTBVNFU>; Sat, 22 Feb 2003 08:05:20 -0500
+Date: Sat, 22 Feb 2003 11:06:57 +0100
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add new DMA_ADDR_T_SIZE define
+Message-ID: <20030222110657.K629@nightmaster.csn.tu-chemnitz.de>
+References: <Pine.LNX.4.44.0302191050290.29393-100000@guppy.limebrokerage.com> <20030219092046.458c2876.rddunlap@osdl.org> <1045692372.14268.9.camel@rth.ninka.net> <20030219214817.GD4977@gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1045914526.12534.153.camel@zion.wanadoo.fr>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2i
+In-Reply-To: <20030219214817.GD4977@gtf.org>; from jgarzik@pobox.com on Wed, Feb 19, 2003 at 04:48:17PM -0500
+X-Spam-Score: -3.3 (---)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18mZV1-0001j8-00*55cSCJVqvgw*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 22, 2003 at 12:48:46PM +0100, Benjamin Herrenschmidt wrote:
-> Your reasoning is wrong. It can well be a HW failure, those can be
-> load related in various way (memory failure happening when memory
-> is actually used, thermal failure happening on CPU load, etc...)
-> 
-> If the exact same setup worked for a while with same/similar loads
-> and suddenly started to fail, there are great chances it's actually
-> HW failure (possibly RAM).
+Hi there,
 
-So you think that we have had two machines going bad on us with the
-same kind of failure within just a few days?
+On Wed, Feb 19, 2003 at 04:48:17PM -0500, Jeff Garzik wrote:
+> /me wishes gcc would let the user application define printf formats
+> for arbitrary [non-struct] user data types...
 
-Greetings
-Marc
+Better might be to change the whole protocol over to sth. like
+that what PASCAL does but still print into a string. GCC is
+type checking and enumerating the arguments for printf and scanf
+anyway so it could also supply that information to the functions
+itself, if they have a special attribute (__new_style_printf__).
 
+If GCC needs to print/scan a type, it composes a function name
+similiar to C++ signatures and calls this. If it does not exists,
+it warns at compile time. The decomposition of constant strings
+is done at compile time. There is also a GCC function, which does
+it at runtime. This is no problem, since index into type name
+table and number of arguments is on the stack along with the
+varargs. So we only need to specify the numeric format like
+hex/numeric, leading zero fill or not, space fill and so on. No
+more fiddling with word sizes and signedness.
+
+Even structures may be printed/assigned, by defining a start_level,
+next_item and end_level function to print the equivalent of '{'
+',' and '}' in the structure.
+
+I would really vote for such an extension to GCC, since doing
+this without the help of GCC is error prone (because it's not
+really typesafe) and leads to many problems. 
+
+That way even the config file parsers get much simpler, because
+you can define the lexical rules with scanf already today and now
+you can even define a simple grammar likewise ;-)
+
+But this is not the right list for this, but I just wanted to
+braindump that ;-)
+
+Regards
+
+Ingo Oeser
 -- 
------------------------------------------------------------------------------
-Marc Haber         | "I don't trust Computers. They | Mailadresse im Header
-Karlsruhe, Germany |  lose things."    Winona Ryder | Fon: *49 721 966 32 15
-Nordisch by Nature |  How to make an American Quilt | Fax: *49 721 966 31 29
+Science is what we can tell a computer. Art is everything else. --- D.E.Knuth

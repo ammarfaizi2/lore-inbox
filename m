@@ -1,71 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270399AbTGMVFn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 17:05:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270402AbTGMVFn
+	id S270380AbTGMUjN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 16:39:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270383AbTGMUjN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 17:05:43 -0400
-Received: from screech.rychter.com ([212.87.11.114]:49330 "EHLO
-	screech.rychter.com") by vger.kernel.org with ESMTP id S270399AbTGMVFm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 17:05:42 -0400
-To: Pavel Machek <pavel@suse.cz>
-Cc: Nigel Cunningham <ncunningham@clear.net.nz>,
-       Jamie Lokier <jamie@shareable.org>,
-       Dmitry Torokhov <dtor_core@ameritech.net>,
-       swsusp-devel <swsusp-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Swsusp-devel] Re: Thoughts wanted on merging Software Suspend
- enhancements
-References: <1057963547.3207.22.camel@laptop-linux>
-	<20030712140057.GC284@elf.ucw.cz>
-	<200307121734.29941.dtor_core@ameritech.net>
-	<20030712225143.GA1508@elf.ucw.cz>
-	<20030713133517.GD19132@mail.jlokier.co.uk>
-	<20030713193114.GD570@elf.ucw.cz>
-	<1058130071.1829.2.camel@laptop-linux>
-	<20030713210934.GK570@elf.ucw.cz>
-X-Spammers-Please: blackholeme@rychter.com
-From: Jan Rychter <jan@rychter.com>
-Date: Sun, 13 Jul 2003 14:21:10 -0700
-In-Reply-To: <20030713210934.GK570@elf.ucw.cz> (Pavel Machek's message of
- "Sun, 13 Jul 2003 23:09:34 +0200")
-Message-ID: <m265m615tl.fsf@tnuctip.rychter.com>
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.4 (Rational FORTRAN, linux)
+	Sun, 13 Jul 2003 16:39:13 -0400
+Received: from web13305.mail.yahoo.com ([216.136.175.41]:62485 "HELO
+	web13305.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S270380AbTGMUi7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 16:38:59 -0400
+Message-ID: <20030713205345.94472.qmail@web13305.mail.yahoo.com>
+Date: Sun, 13 Jul 2003 13:53:45 -0700 (PDT)
+From: Ronald Jerome <imun1ty@yahoo.com>
+Subject: Rusty's mod-util and RH9.0 Question Please?
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
-Content-Transfer-Encoding: quoted-printable
+I updated my modutils with rusty's modutils
+"module-init-tools-0.9.13-pre"
 
->>>>> "Pavel" =3D=3D Pavel Machek <pavel@suse.cz> writes:
- Pavel> Hi!
- >> Escape is more intuitively obvious though - I would expect the
- >> suspend button to only start a suspend. And the idea of escape
- >> cancelling anything is well in-grained in peoples' minds.
+With the aid of paul Nasrat, he prepared me more
+updated modutils and mkinitrd to make both a 2.4 and
+2.5 boot correctly.
 
- Pavel> You did not initiate suspend from keyboard =3D> you should not
- Pavel> terminate it from keyboard.
+I am not sure what happend but it looks like my
+"modprobe" disapeared?
 
-Oh, come on. I usually initiate suspend by doing 'sh suspend' as root.
+Luckily before I ran the new modutils for 2.5 I copied
+all my modutils as *.org.  insmod, depmod, modprobe,
+rmmod, lsmod all to *.old.
 
-Besides, implementing swsusp support for ACPI events is IMHO right next
-to impossible (not to mention unbelievably messy), and that's what you'd
-need to have your power button abort the suspend process.
+Only problems is 2.5 kernels do not want that
+/sbin/modprobe which I renamed from modprobe.org to 
+modprobe in order to get the 2.4 kernel to insmod
+correctly again.  
 
-=2D-J.
+My question is, after updating the modutils is there a
+/sbin/modprobe or is it renamed by the modutils upadte
+to /sbin/modprobe.old and if that is the case why
+isn't the 2.4 kernels using that?  It all of a sudden
+is looking for /sbin/modprobe.
 
---=-=-=
-Content-Type: application/pgp-signature
+I had to cp the modprobe.org file that I saved to
+modprobe and now the 2.4 kernels work fine again but
+2.5 kernels do not work right with /sbin/modprobe.  SO
+Now I have to manually remove /sbin/modprobe to boot
+up 2.5 kernels and put modprobe back to boot up 2.4
+kernels.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+WHat can I do to fix this.  Is maybe asymlink borken? 
+do I need to symlinke the modprobe.old which it is
+already symlinked to insmode.old.
 
-iD8DBQA/Ec1HLth4/7/QhDoRAoLWAJ4usmonwsMpiYdEGlVYEXMONS7EOwCgviE1
-SJux/MV7SX0a+Urf4/nn5Ds=
-=o5WW
------END PGP SIGNATURE-----
---=-=-=--
+DO I have to modify my script in /etc/rc.d/rc.sysinit?
+
+
+If I leave the modprobe file in /etc/modprobe then the
+modules for 2.5 kernels do not load correctly.
+
+I get these messages"
+
+GM _MODULES function not implemented 
+for ieee1394 and for usb.
+
+Just those two fail during the INIT: phase of the
+kernel 2.5 bootup.
+
+
+Can someone help me or explain to me what I need to
+do?
+
+SHoudl I reinstall rusty's modutils?  If so what how
+do I about that?  Maybe I shoudl reinstall the
+oldpackage that came with RH v9.0 then reinstall the
+rusty over again?
+
+Anyideas would be helpfull at this point.
+
+__________________________________
+Do you Yahoo!?
+SBC Yahoo! DSL - Now only $29.95 per month!
+http://sbc.yahoo.com

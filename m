@@ -1,66 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129514AbQLDKGz>; Mon, 4 Dec 2000 05:06:55 -0500
+	id <S129406AbQLDKHf>; Mon, 4 Dec 2000 05:07:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129406AbQLDKGp>; Mon, 4 Dec 2000 05:06:45 -0500
-Received: from dyn-213-36-64-176.ppp.libertysurf.fr ([213.36.64.176]:11780
-	"EHLO socrate.mon-domaine") by vger.kernel.org with ESMTP
-	id <S129514AbQLDKG2>; Mon, 4 Dec 2000 05:06:28 -0500
-To: linux-kernel@vger.kernel.org
-Cc: Marc Lefranc <mlefranc@libertysurf.fr>
-Subject: 2.4.0-test12pre3 : kernel NULL pointer dereference
-From: Marc Lefranc <mlefranc@libertysurf.fr>
-Date: 04 Dec 2000 10:35:42 +0100
-Message-ID: <p6rg0k45y1d.fsf@socrate.mon-domaine>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
-MIME-Version: 1.0
+	id <S129776AbQLDKHZ>; Mon, 4 Dec 2000 05:07:25 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:4612 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S129406AbQLDKHN>;
+	Mon, 4 Dec 2000 05:07:13 -0500
+Message-ID: <20001203222300.B165@bug.ucw.cz>
+Date: Sun, 3 Dec 2000 22:23:00 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Tjeerd Mulder <tjeerd.mulder@fujitsu-siemens.com>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i810_audio 2.4.0-test11
+In-Reply-To: <3A278916.6FF0C5DE@fujitsu-siemens.com> <E141ppq-0000DP-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <E141ppq-0000DP-00@the-village.bc.nu>; from Alan Cox on Fri, Dec 01, 2000 at 01:02:39PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Machine : Red Hat 7.0 system on a K6-2@450, with vanilla
-2.4.0-test12pre3 (except compiled with -O3 rather than -O2 (and yes,
-with kgcc-egcs)), RH glibc 2.2 SRPM update recompiled with options -O3
--mcpu=k6.
+Hi!
 
-After having recompiled the WindowMaker RPMS, I noticed something was
-wrong when installation failed with a segmentation fault. After a
-closer look, it turned out that it was /sbin/ldconfig (called in the
-installation scripts) that was segfaulting with the following trace in
-/var/log/messages :
+> > It implements mono output and fixes a bug in the dma logic (reset necessary 
+> > because some descriptors are already prefetched and are not updated
+> 
+> This is wrong. Linus please do not apply this patch, or if you have done back
+> it out. Not only does it do format conversions in kernel (which is a strict
+> not to be done in the sound driver policy) it also makes it impossible to make
+> mmap work correctly with the OSS API definitions.
+> 
+> Tjeerd. I deliberately applied only small bits of your patch before because
+> the mono mode stuff clutters the driver horribly and is not in the right place.
+> It belongs in the application/libraries
 
-Dec  4 09:39:51 socrate kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000000
-Dec  4 09:39:51 socrate kernel:  printing eip:
-Dec  4 09:39:51 socrate kernel: c0147356
-Dec  4 09:39:51 socrate kernel: *pde = 00000000
-Dec  4 09:39:51 socrate kernel: Oops: 0000
-Dec  4 09:39:51 socrate kernel: CPU:    0
-Dec  4 09:39:51 socrate kernel: EIP:    0010:[d_lookup+102/252]
-Dec  4 09:39:51 socrate kernel: EFLAGS: 00010217
-Dec  4 09:39:51 socrate kernel: eax: c11ab6e8   ebx: ffffffe8   ecx: 0000001c   edx: c11a0000
-Dec  4 09:39:51 socrate kernel: esi: 2f311bd2   edi: c5c7b7e0   ebp: 00000000   esp: c23a5f14
-Dec  4 09:39:51 socrate kernel: ds: 0018   es: 0018   ss: 0018
-Dec  4 09:39:51 socrate kernel: Process ldconfig (pid: 10388, stackpage=c23a5000)
-Dec  4 09:39:51 socrate kernel: Stack: c5c4fa20 00000000 c5c7b7e0 bfffe800 c11ab6e8 c32b0009 2f311bd2 00000010 
-Dec  4 09:39:51 socrate kernel:        c013dfe1 c5c4fa20 c23a5f64 00000000 c32b0000 c32b0000 bfffe800 c23a4000 
-Dec  4 09:39:51 socrate kernel:        c23a5f64 c23a4000 00000008 00000000 c32b0009 00000010 2f311bd2 c013e817 
-Dec  4 09:39:51 socrate kernel: Call Trace: [path_walk+1717/2692] [__user_walk+199/228] [sys_lstat64+22/112] [system_call+51/64] 
-Dec  4 09:39:51 socrate kernel: Code: 8b 6d 00 8b 74 24 18 39 73 48 75 72 8b 74 24 24 39 73 0c 75 
-
-After that, every call to ldconfig was giving a segmentation fault. I
-rebooted to 2.2.18pre17 and everything was back to normal. I then
-rebooted to 2.4.0-test12pre3 and ldconfig seemed to work as usual.
-
-
-Provided I didn't something dumb and there is a real problem, it will
-be a pleasure if I can do anything to help diagnose this problem.
-
-Marc
-
-P.S. I have been truly impressed by the performance gain in switching
-from 2.2.X to 2.4.0-test12pre3 ! Even more that when I first booted
-2.0.0 and 2.2.0 :-) But I guess I will quickly adapt...
-
+Then you should kill parts of drivers/usb/audio - it contains format conversions.
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

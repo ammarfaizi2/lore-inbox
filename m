@@ -1,61 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261620AbTH2Sa1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 14:30:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbTH2Sa1
+	id S261482AbTH2SdZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 14:33:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261523AbTH2SdZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 14:30:27 -0400
-Received: from mx.laposte.net ([213.30.181.11]:28336 "EHLO mx.laposte.net")
-	by vger.kernel.org with ESMTP id S261620AbTH2Sa0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 14:30:26 -0400
-Subject: CONFIG_LOG_BUF_SHIFT hardwired in 2.6.0-test4-bk2 ?
-From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
+	Fri, 29 Aug 2003 14:33:25 -0400
+Received: from pirx.hexapodia.org ([208.42.114.113]:13865 "EHLO
+	pirx.hexapodia.org") by vger.kernel.org with ESMTP id S261482AbTH2SdY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 14:33:24 -0400
+Date: Fri, 29 Aug 2003 13:33:23 -0500
+From: Andy Isaacson <adi@hexapodia.org>
 To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-c+wlUg3xxlMiHAKTNMpO"
-Organization: Adresse personnelle
-Message-Id: <1062181819.3618.4.camel@rousalka.dyndns.org>
+Subject: Re: mutt segfault with ext3 & 1k blocks & htree in 2.6
+Message-ID: <20030829133323.E16285@hexapodia.org>
+References: <20030829172451.GA27023@matchmail.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
-Date: Fri, 29 Aug 2003 20:30:19 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030829172451.GA27023@matchmail.com>; from mfedyk@matchmail.com on Fri, Aug 29, 2003 at 10:24:51AM -0700
+X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
+X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
+X-Domestic-Surveillance: money launder bomb tax evasion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Aug 29, 2003 at 10:24:51AM -0700, Mike Fedyk wrote:
+> I have just converted my 25GB / partition from reiserfs to ext3 with 1k
+> blocks, and now mutt is segfaulting periodocally.
+[snip]
+> I have full strace output of each mutt process up until the segfault in two
+> cases, and up until strace was stopped in the third case.
 
---=-c+wlUg3xxlMiHAKTNMpO
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+The obvious request is "turn on core dumps and get a backtrace".
 
-Hi,
-
-	I'm testing acpi changes and unfortunately all the debug messages
-overflow the log buffer. So I decided to increase CONFIG_LOG_BUF_SHIFT=20
-in .config (there was a menu entry for this at some time in menuconfig
-but I can't find it anymore).
-
-	Anyway no matter what I do the value seems to be reseted to 14 at build
-time. Is there a way to cleanly change it without poking directly into
-the kernel source code ?
-
-Regards,
-
-[ Please CC me answers as I only skim the list via marc ]
-
---=20
-Nicolas Mailhot
-
---=-c+wlUg3xxlMiHAKTNMpO
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ceci est une partie de message
-	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/T5u6I2bVKDsp8g0RAgzhAKDc2f6oqE5WtuBQX46nv5y9OoFo7QCeIYe5
-1CRktnXpLkmngdpqnzJC2vY=
-=BPFP
------END PGP SIGNATURE-----
-
---=-c+wlUg3xxlMiHAKTNMpO--
-
+-andy

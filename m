@@ -1,190 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268807AbTCCVGg>; Mon, 3 Mar 2003 16:06:36 -0500
+	id <S268812AbTCCVKh>; Mon, 3 Mar 2003 16:10:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268808AbTCCVGg>; Mon, 3 Mar 2003 16:06:36 -0500
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:50361 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id <S268807AbTCCVG0>; Mon, 3 Mar 2003 16:06:26 -0500
-Date: Mon, 3 Mar 2003 22:16:47 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] add checkstack Makefile target
-Message-ID: <20030303211647.GA25205@wohnheim.fh-wedel.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
+	id <S268813AbTCCVKh>; Mon, 3 Mar 2003 16:10:37 -0500
+Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:60866
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S268812AbTCCVKg>; Mon, 3 Mar 2003 16:10:36 -0500
+Date: Mon, 3 Mar 2003 16:20:51 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] small tty irq race fix
+In-Reply-To: <1046721965.7320.9.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0303031615020.31566-100000@xanadu.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 20 February 2003 08:54:55 -0800, Linus Torvalds wrote:
+On Mon, 3 Mar 2003, Alan Cox wrote:
+
 > 
-> A sorted list of bad stack users (more than 256 bytes) in my default build
-> follows. Anybody can create their own with something like
+> > 		fp = tty->flip.flag_buf + TTY_FLIPBUF_SIZE;
+> > -		tty->flip.buf_num = 0;
+> >  
+> >  		local_irq_save(flags); // FIXME: is this safe?
+> > +		tty->flip.buf_num = 0;
 > 
-> 	objdump -d linux/vmlinux |
-> 		grep 'sub.*$0x...,.*esp' |
-> 		awk '{ print $9,$1 }' |
-> 		sort > bigstack
-> 
-> and a script to look up the addresses.
+> The other CPU can be touching these fields too surely. Its a
+> useful note that the spinlocks need putting in the right spot
+> but its still broken 8(
 
-Since Linus didn't give us the script, I had to try it myself. The
-result is likely ugly and inefficient, but it works for i386 and ppc
-(actually crosscompiling for ppc).
+What about this one?  It just happens that tty->read_lock is actually used
+deeper in the same call instance (in n_tty.c) so this looks to be the best
+lock to use.
 
-This patch is against vanilla 2.4.20, but should apply to -pre5 as
-well. Shouldn't be too hard to port to 2.5.x either, but I don't need
-it there yet.
+--- linux-2.5.63/drivers/char/tty_io.c.orig	Mon Feb 24 14:05:34 2003
++++ linux-2.5.63/drivers/char/tty_io.c	Mon Mar  3 16:13:30 2003
+@@ -1947,23 +1947,23 @@
+ 	if (tty->flip.buf_num) {
+ 		cp = tty->flip.char_buf + TTY_FLIPBUF_SIZE;
+ 		fp = tty->flip.flag_buf + TTY_FLIPBUF_SIZE;
+-		tty->flip.buf_num = 0;
+ 
+-		local_irq_save(flags); // FIXME: is this safe?
++		spin_lock_irqsave(&tty->read_lock, flags);
++		tty->flip.buf_num = 0;
+ 		tty->flip.char_buf_ptr = tty->flip.char_buf;
+ 		tty->flip.flag_buf_ptr = tty->flip.flag_buf;
+ 	} else {
+ 		cp = tty->flip.char_buf;
+ 		fp = tty->flip.flag_buf;
+-		tty->flip.buf_num = 1;
+ 
+-		local_irq_save(flags); // FIXME: is this safe?
++		spin_lock_irqsave(&tty->read_lock, flags);
++		tty->flip.buf_num = 1;
+ 		tty->flip.char_buf_ptr = tty->flip.char_buf + TTY_FLIPBUF_SIZE;
+ 		tty->flip.flag_buf_ptr = tty->flip.flag_buf + TTY_FLIPBUF_SIZE;
+ 	}
+ 	count = tty->flip.count;
+ 	tty->flip.count = 0;
+-	local_irq_restore(flags); // FIXME: is this safe?
++	spin_unlock_irqrestore(&tty->read_lock, flags);
+ 	
+ 	tty->ldisc.receive_buf(tty, cp, fp, count);
+ }
 
-Jörn
+Nicolas
 
--- 
-This above all: to thine own self be true.
--- Shakespeare
-
-
-diff -Naur foo/linux-2.4.20/arch/i386/Makefile linux-2.4.20/arch/i386/Makefile
---- foo/linux-2.4.20/arch/i386/Makefile	Fri Nov 29 00:53:09 2002
-+++ linux-2.4.20/arch/i386/Makefile	Mon Mar  3 21:38:36 2003
-@@ -139,9 +139,18 @@
- 	@$(MAKEBOOT) BOOTIMAGE=bzImage install
- 
- archclean:
-+	$(RM) $(TOPDIR)/scripts/checkstack_i386.pl
- 	@$(MAKEBOOT) clean
- 
- archmrproper:
- 
- archdep:
- 	@$(MAKEBOOT) dep
-+
-+$(TOPDIR)/scripts/checkstack_i386.pl: $(TOPDIR)/scripts/checkstack.pl
-+	(cd $(TOPDIR)/scripts/ && ln -s checkstack.pl checkstack_i386.pl)
-+
-+checkstack: vmlinux $(TOPDIR)/scripts/checkstack_i386.pl
-+	$(OBJDUMP) -d vmlinux | \
-+	grep 'sub.*$0x...,.*esp' | \
-+	$(TOPDIR)/scripts/checkstack_i386.pl
-diff -Naur foo/linux-2.4.20/arch/ppc/Makefile linux-2.4.20/arch/ppc/Makefile
---- foo/linux-2.4.20/arch/ppc/Makefile	Fri Nov 29 00:53:11 2002
-+++ linux-2.4.20/arch/ppc/Makefile	Mon Mar  3 21:38:52 2003
-@@ -108,6 +108,7 @@
- 	cp -f arch/ppc/configs/$(@:config=defconfig) arch/ppc/defconfig
- 
- archclean:
-+	$(RM) $(TOPDIR)/scripts/checkstack_ppc.pl
- 	rm -f arch/ppc/kernel/{mk_defs,ppc_defs.h,find_name,checks}
- 	@$(MAKEBOOT) clean
- 
-@@ -115,3 +116,11 @@
- 
- archdep: scripts/mkdep
- 	$(MAKEBOOT) fastdep
-+
-+$(TOPDIR)/scripts/checkstack_ppc.pl: $(TOPDIR)/scripts/checkstack.pl
-+	(cd $(TOPDIR)/scripts/ && ln -s checkstack.pl checkstack_ppc.pl)
-+
-+checkstack: vmlinux $(TOPDIR)/scripts/checkstack_ppc.pl
-+	$(OBJDUMP) -d vmlinux | \
-+	grep 'stwu.*r1,-.\{3,\}(r1)' | \
-+	$(TOPDIR)/scripts/checkstack_ppc.pl
-diff -Naur foo/linux-2.4.20/scripts/checkstack.pl linux-2.4.20/scripts/checkstack.pl
---- foo/linux-2.4.20/scripts/checkstack.pl	Thu Jan  1 01:00:00 1970
-+++ linux-2.4.20/scripts/checkstack.pl	Mon Mar  3 20:46:52 2003
-@@ -0,0 +1,92 @@
-+#!/usr/bin/perl
-+
-+#	Check the stack usage of functions
-+#
-+#	Usage for ppc:
-+#	powerpc-linux-objdump -d vmlinux | \
-+#	grep 'stwu.*r1,-.\{3,\}(r1)' | \
-+#	stackcheck_ppc.pl
-+
-+{
-+	(my $arch = $0) =~ s/.*checkstack_(.+)\.pl$/\1/;
-+	if ($arch =~ /^i386$/) {
-+		$get_code = 'get_code_i386 "@_"';
-+		$bysize = 'bysize_i386 "@_"';
-+	} elsif ($arch =~ /^ppc$/) {
-+		$get_code = 'get_code_ppc "@_"';
-+		$bysize = 'bysize_ppc "@_"';
-+	} else {
-+		$get_code = "exit";
-+		$bysize = "exit";
-+	}
-+}
-+
-+sub get_intro($) {
-+	my $line = $_[0];
-+
-+	(my $addr = $line) =~ s/^([0-9a-f]{8}).*/0x\1/;
-+	chomp($addr);
-+
-+	my $ksymoops = `ksymoops -v vmlinux -m System.map -K -L -O -A $addr | \
-+			tail -2 | head -1`;
-+	(my $func = $ksymoops) =~ s/^Adhoc [0-9a-f]{8} (<.*>)/\1/;
-+	chomp($func);
-+
-+	my $intro = "$addr $func:";
-+	my $padlen = 56 - length($intro);
-+	while ($padlen > 0) {
-+		$intro .= '	';
-+		$padlen -= 8;
-+	}
-+	return $intro
-+}
-+
-+sub get_code_ppc {
-+	(my $code = shift) =~ s/.*(stwu.*)/\1/;
-+	chomp($code);
-+	return $code
-+}
-+
-+sub bysize_ppc {
-+	($asize = $a) =~ s/.*r1,-([0-9]+)\(r1\)/\1/;
-+	($bsize = $b) =~ s/.*r1,-([0-9]+)\(r1\)/\1/;
-+	$bsize <=> $asize 
-+}
-+
-+sub get_code_i386 {
-+	(my $code = shift) =~ s/.*(sub.*)/\1/;
-+	chomp($code);
-+	return $code
-+}
-+
-+sub bysize_i386 {
-+	$a cmp $b
-+}
-+
-+sub get_code($) {
-+	eval $get_code
-+}
-+
-+sub bysize($) {
-+	eval $bysize
-+}
-+
-+#
-+# main()
-+#
-+$i = 5;
-+while (defined($line = <STDIN>)
-+	&& $i-- > 0
-+	) {
-+
-+	my $intro = get_intro($line);
-+	my $code = get_code($line);
-+
-+	$stack[@stack] = "$intro $code";
-+}
-+
-+@sortedstack = sort bysize @stack;
-+
-+foreach $i (@sortedstack) {
-+	print("$i\n");
-+}

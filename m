@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133088AbREERiO>; Sat, 5 May 2001 13:38:14 -0400
+	id <S133083AbREERfz>; Sat, 5 May 2001 13:35:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133095AbREERiE>; Sat, 5 May 2001 13:38:04 -0400
-Received: from anubis.han.de ([212.63.63.3]:24581 "EHLO anubis.han.de")
-	by vger.kernel.org with ESMTP id <S133088AbREERiB>;
-	Sat, 5 May 2001 13:38:01 -0400
-Date: Sat, 5 May 2001 19:38:03 +0200
-From: Jens-Uwe Mager <jum@anubis.han.de>
-To: linux-kernel@vger.kernel.org
-Subject: Breezecom wireless lan PCCard driver for 2.4?
-Message-ID: <20010505193802.A1376@anubis.han.de>
+	id <S133105AbREERfp>; Sat, 5 May 2001 13:35:45 -0400
+Received: from cabal.darkness.net ([204.56.57.2]:51751 "EHLO
+	cabal.darkness.net") by vger.kernel.org with ESMTP
+	id <S133083AbREERfb>; Sat, 5 May 2001 13:35:31 -0400
+Date: Sat, 5 May 2001 11:34:58 -0600
+From: Jeremy <heffner@darkness.net>
+To: Seth Goldberg <bergsoft@home.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: REVISED: Experimentation with Athlon and fast_page_copy
+Message-ID: <20010505113458.A14468@bletchley.darkness.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been using the Breezecom wireless PCCard lan driver for quite
-some time with Linux 2.2.x. Now with the latest 2.4 kernels I get errors
-that tell me that this driver needs some porting to make it work under
-2.4:
+Quick note.  I *AM* seeing this problem on a Tyan S2390B which has the
+Via KT133A chipset on it.
 
-BrzWlan.h:300: field `stats' has incomplete type
-Env.c: In function `EnvIndicateSendComplete':
-Env.c:1160: dereferencing pointer to incomplete type
-Env.c:1161: `NET_BH' undeclared (first use in this function)
-Env.c:1161: (Each undeclared identifier is reported only once
-Env.c:1161: for each function it appears in.)
-Env.c: In function `EnvIndicateReceive':
-Env.c:1277: dereferencing pointer to incomplete type
-Env.c:1297: warning: assignment from incompatible pointer type
-Env.c:1299: warning: passing arg 2 of `eth_type_trans_Rb9f0e9da' from
-incompatible pointer type
-Env.c: In function `EnvIndicateAppReqComplete':
-Env.c:1413: warning: passing arg 1 of `__wake_up_R2c77a2af' from
-incompatible pointer type
-make: *** [Env.o] Error 1
+AMD Athlon 1.33ghz
+2x256m DIMMs
+Linux 2.4.4-ac5
 
-Did anyone already work on this? The Breezecom web site still has the
-1.0 version of the driver, no updates yet.
+I haven't done the ksymoops conversions yet, but please let me know if you'd
+like anything else.  But basically, it looks exactly like what all the IWILL
+owners are seeing.
+
+Any other tyan S2390B users?
+
+thx, -j
+
 
 -- 
-Jens-Uwe Mager	<pgp-mailto:62CFDB25>
+---------------------------------------------------------------------------
+                          heffner at darkness.net
+                       Darkness Network Engineering
+                   PGP public key available on request
+            My thoughts and opinions represent no one but myself
+---------------------------------------------------------------------------

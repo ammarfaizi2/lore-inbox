@@ -1,46 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269981AbUJNHJO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269984AbUJNHQ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269981AbUJNHJO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 03:09:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269984AbUJNHJO
+	id S269984AbUJNHQ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 03:16:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269986AbUJNHQ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 03:09:14 -0400
-Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:15233
-	"EHLO acheron.informatik.uni-muenchen.de") by vger.kernel.org
-	with ESMTP id S269983AbUJNHJL (ORCPT
+	Thu, 14 Oct 2004 03:16:58 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:62125 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S269984AbUJNHQ4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 03:09:11 -0400
-Message-ID: <416E2615.6070402@bio.ifi.lmu.de>
-Date: Thu, 14 Oct 2004 09:09:09 +0200
-From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] udev 038 release
-References: <20041014003936.GA8810@kroah.com>
-In-Reply-To: <20041014003936.GA8810@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 14 Oct 2004 03:16:56 -0400
+Date: Thu, 14 Oct 2004 09:18:10 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: Sven Dietrich <sdietrich@mvista.com>, Daniel Walker <dwalker@mvista.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       abatyrshin@ru.mvista.com, amakarov@ru.mvista.com, emints@ru.mvista.com,
+       ext-rt-dev@mvista.com, hzhang@ch.mvista.com, yyang@ch.mvista.com,
+       "Witold. Jaworski@Unibw-Muenchen. De" 
+	<witold.jaworski@unibw-muenchen.de>,
+       arnd.heursch@unibw-muenchen.de
+Subject: Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
+Message-ID: <20041014071810.GB9729@elte.hu>
+References: <20041011215420.GA19796@elte.hu> <EOEGJOIIAIGENMKBPIAECEIEDKAA.sdietrich@mvista.com> <20041012055029.GB1479@elte.hu> <20041014050905.GA6927@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041014050905.GA6927@in.ibm.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-"make install" fails with
+* Dipankar Sarma <dipankar@in.ibm.com> wrote:
 
-galois tmp/udev-038# make udevdir=/dev DESTDIR=/root/tmp/test/ EXTRAS="extras/scsi_id" install
-make: *** No rule to make target `etc/init.d/udev.debian', needed by `install-initscript'.  Stop.
+> On Tue, Oct 12, 2004 at 07:50:29AM +0200, Ingo Molnar wrote:
+> > 
+> > regarding RCU serialization - i think that is the way to go - i dont
+> > think there is any sensible way to extend RCU to a fully preempted
+> > model, RCU is all about per-CPU-ness and per-CPU-ness is quite limited 
+> > in a fully preemptible model.
+> 
+> It seems that way to me too. Long ago I implemented preemptible RCU,
+> but did not follow it through because I believed it was not a good
+> idea. The original patch is here :
+> 
+> http://www.uwsg.iu.edu/hypermail/linux/kernel/0205.1/0026.html
 
-because there is no udev.debian in etc/init.d/ in the sources.
+interesting!
 
-cu,
-Frank
+> This allows read-side critical sections of RCU to be preempted. It
+> will take a bit of work to re-use it in RCU as of now, but I don't
+> think it makes sense to do so. [...]
 
--- 
-Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
-Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
-LMU, Amalienstr. 17           Phone: +49 89 2180-4049
-80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
-* Rekursion kann man erst verstehen, wenn man Rekursion verstanden hat. *
+note that meanwhile i have implemented another variant:
+
+  http://marc.theaimsgroup.com/?l=linux-kernel&m=109771365907797&w=2
+
+i dont think this will be the final interface (the _rt postfix is
+stupid, it should probably be _spin?), but i think this is roughly the
+structure of how to attack it - a minimal extension to the RCU APIs to
+allow for serialization. What do you think about this particular
+approach?
+
+> [...] My primary concern is DoS/OOM situation due to preempted tasks
+> holding up RCU.
+
+in the serialization solution in -U0 it would be possible to immediately
+free the RCU entries and hence have no DoS/OOM situation - although the
+-U0 patch does not do this yet.
+
+	Ingo

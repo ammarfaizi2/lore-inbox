@@ -1,59 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262018AbREPRZ4>; Wed, 16 May 2001 13:25:56 -0400
+	id <S262021AbREPRaz>; Wed, 16 May 2001 13:30:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262020AbREPRZp>; Wed, 16 May 2001 13:25:45 -0400
-Received: from twinlark.arctic.org ([204.107.140.52]:4368 "HELO
-	twinlark.arctic.org") by vger.kernel.org with SMTP
-	id <S262018AbREPRZe>; Wed, 16 May 2001 13:25:34 -0400
-Date: Wed, 16 May 2001 10:25:32 -0700 (PDT)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.20pre2aa1
-In-Reply-To: <20010516160412.B15796@athlon.random>
-Message-ID: <Pine.LNX.4.33.0105161018440.25320-100000@twinlark.arctic.org>
-X-comment: visit http://arctic.org/~dean/legal for information regarding copyright and disclaimer.
+	id <S262024AbREPRap>; Wed, 16 May 2001 13:30:45 -0400
+Received: from gate1.rzeczpospolita.pl ([195.8.129.1]:35088 "EHLO
+	rzeczpospolita.pl") by vger.kernel.org with ESMTP
+	id <S262021AbREPRab>; Wed, 16 May 2001 13:30:31 -0400
+Message-ID: <3B02B8F0.6ED9A45D@rzeczpospolita.pl>
+Date: Wed, 16 May 2001 19:29:20 +0200
+From: ps <ps@rzeczpospolita.pl>
+X-Mailer: Mozilla 4.08 [en] (Win98; I)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Leah Cunningham <leah@unleashed.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: RH 7.1 on IBM xSeries 240
+In-Reply-To: <3B02504E.8F8926AB@rzeczpospolita.pl> <20010516095750.A40686@unleashed.org>
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 May 2001, Andrea Arcangeli wrote:
+Yes, I have the newest BIOS and SR Firmware.
+I have 2 x 1GHz CPUs and IBM PCI ServeRAID 4.71.00  <ServeRAID 4L>
 
-> On Tue, May 15, 2001 at 08:33:05PM -0700, dean gaudet wrote:
-> > apache since 1.3.15 has defined SINGLE_LISTEN_UNSERIALIZED_ACCEPT ...
->
-> That's definitely a good thing.
+  --  Piotr Szymanek
 
-hmm, i'm not so sure -- 1.3.x is our stable release, and it sounds like
-this change has added an instability.
 
-> > 'cause that's what you guys asked me to do :)  does this mean there are
-> > known hangs on linux 2.2.x without your fix?
->
-> I never heard of anybody reproducing that but accpet() in 2.2
-> can _definitely_ miss events without the above 00_wake-one-4 patch
-> because it wrongly considers a progress wakeing up two times the same
-> exclusive task.
-
-i'm guessing from your description that the missed event will be noticed
-when the next socket arrives.  i.e. if the server is pretty busy then the
-missed events are not important.  but if it's not a busy server, like a
-hit every hour, then the missed event may be noticeable to browsers (as a
-timeout waiting for server activity).
-
-does that pretty much sum it up?
-
-> Furthmore the exclusive wakeup logic with the exclusive information
-> per-task and not per wait_queue_t will screwup if the tasks registers
-> itself like a wakeall after it was just registered as wakeone somewhere
-> else (however this second thing is more a theorical issue that shouldn't
-> trigger in 2.2).
-
-i.e. if the socket was used both in accept() and in select() at the same
-time?  (which apache doesn't do)
-
-thanks
--dean
-
+Leah Cunningham wrote:
+> 
+> This may be way off, but have you flashed the BIOS to the most
+> current revision? This machine should work properly.  How many
+> processors and what SR card are you using?

@@ -1,66 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262742AbUDDUOH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Apr 2004 16:14:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262752AbUDDUOG
+	id S262774AbUDDUYy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Apr 2004 16:24:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262752AbUDDUYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Apr 2004 16:14:06 -0400
-Received: from painless.aaisp.net.uk ([217.169.20.17]:33673 "EHLO
-	smtp.aaisp.net.uk") by vger.kernel.org with ESMTP id S262742AbUDDUOD
+	Sun, 4 Apr 2004 16:24:54 -0400
+Received: from mail.shareable.org ([81.29.64.88]:32407 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262774AbUDDUYv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Apr 2004 16:14:03 -0400
-Message-ID: <40706EA2.7040900@rgadsdon2.giointernet.co.uk>
-Date: Sun, 04 Apr 2004 21:22:58 +0100
-From: Robert Gadsdon <robert@rgadsdon2.giointernet.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.7b) Gecko/20040320
-X-Accept-Language: en-gb, en, en-us
-MIME-Version: 1.0
-To: linux kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.5 - panic when intensive disk access on 120GB firewire disk
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 4 Apr 2004 16:24:51 -0400
+Date: Sun, 4 Apr 2004 21:24:37 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Ben Mansell <ben@zeus.com>
+Cc: Davide Libenzi <davidel@xmailserver.org>, Steven Dake <sdake@mvista.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Is POLLHUP an input-only or bidirectional condition? (was: epoll reporting events when it hasn't been asked to)
+Message-ID: <20040404202437.GA16266@mail.shareable.org>
+References: <20040402184035.GA653@mail.shareable.org> <Pine.LNX.4.44.0404031334440.2122-100000@bigblue.dev.mdolabs.com> <20040403223541.GB6122@mail.shareable.org> <Pine.LNX.4.58.0404041912460.5216@stones.cam.zeus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0404041912460.5216@stones.cam.zeus.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel panic from 2.6.5 'final' when running slocate (updatedb) 
-accessing 120GB firewire disk:
+Ben Mansell wrote:
+> Since you have to generate the pollfd array for each time you call
+> poll(), there is no real extra cost in taking a fd out temporarily
 
-Oops: 00002 [#1]
-PREEMPT SMP
-CPU: 0
-EIP: 0060:[<f8a10a27>]  Not tainted
-EFLAGS: 00010047 (2.6.5)
-EIP is at hpsb_packet_sent+0x27/0x90 [ieee1394]
-eax: 00100100 ebx: f76e0000 ecx: e1fea3c0 edx: 00200200
-esi: 00000001 edi: e1fea3c0 ebp: f76e2078 esp: c042df14
-ds : 007b es: 007b ss : 0068
-Process swapper (pid: 0, threadinfo=c042c000 task=c03aa160)
-Stack: f76e21bc f89329e8 f76e0000 e1fea3c0 00000001 f75f8da0 f76e21e8 
-00000292
-        f76e21fc 00000000 c042c000 c045b5d8 c0127d93 f76e21bc 00000001 
-c042b028
-        0000000a 00000046 c0127ac7 c042b028 c042c000 c042c000 00000009 
-00000020
-Call Trace :
-  [<f89329e8>] dma_trm_tasklet+0xa8/0x1b0 [ohci1394]
-  [<c0127d93>] tasklet_action+0x73/0xe0
-  [<c0127ac7>] do_softirq+0xc7/0xd0
-  [<c010b82b>] do_IRQ+0x13b/0x1a0
-  [<c0109928>] common_interrupt+0x18/0x20
-  [<c0106970>] default_idle+0x0/0x40
-  [<c010699c>] default_idle+0x2c/0x40
-  [<c0106a2b>] cpu_idle+0x3b/0x50
-  [<c042e4c0>] unknown_bootoption +0x0/0x120
-  [<c042e95b>] start_kernel+0x1bb/0x210
-  [<c042e4c0>] unknown_bootoption+0x0/0x120
+Wrong.  You don't have to generate the pollfd array each time.  That's
+why there are separate events and revents fields.  Quite often no
+changes are required between each call to poll(), and only small
+changes the rest of the time.
 
-Code: 89 50 04 89 02 c7 41 04 00 02 20 00 c7 01 00 01 10 00 c6 41
-  <0>Kernel panic: Fatal exception in interrupt
-In interrupt handler - not syncing
+(Of course there is no escaping the O(n) overhead that the _kernel_
+has when it scans the array, but it's avoidable in userspace).
 
+> With epoll, adding a fd into the epoll set is a separate operation from
+> the epoll_wait(), so if you really don't want to listen for any events
+> on one FD, you'll have to do a EPOLL_DEL, and then later on do a
+> EPOLL_ADD again if you want to bring it back in. Which is a bit nasty
+> and inefficient.
 
-Similar problem with 2.6.4 and 2.6.5-rc and 2.6.5-rc-mm kernels, and is 
-100% repeatable..
+No.  If you don't want to listen for any events, and you predict those
+events haven't occurred already (POLLHUP, POLLERR, usually POLLIN),
+don't do any epoll_ctl() operations at all.  Just call epoll_wait().
 
+When you receive an event that you didn't want to listen for, set the
+corresponding flag in your userspace structure, and call EPOLL_CTL_MOD
+or EPOLL_CTL_DEL, depending on whether there are any other events you
+still want to listen for.
 
-Robert Gadsdon
+See, your proposed method is slower than mine.  I avoid *all*
+epoll_ctl() calls in the common path.
+
+Only in the uncommon path might I process an unwanted POLLHUP or
+POLLERR event, and in those cases either I may as well close the fd
+now (POLLHUP, after read to determine if it's EOF or an error), or the
+EPOLL_CTL_DEL if I want to ignore that fd for a while (POLLERR) is
+negligable because that's a rare event.
+
+> As Richard Kettlewell's excellent poll test shows, relying on anything
+> but the basics of poll() is impossible if you are trying to write code
+> for several different OSs (or just different versions of the same OS!)
+> Whatever poll() returns, all you can do is force a read() or a write()
+> to try and find out what events really happened.
+
+Indeed.  Sometimes I wonder why there is anything other than POLLIN
+and POLLOUT, given that the only reasonable response to the other
+flags is to call read() to find out what happened.  (Then again, maybe
+read() isn't enough to get error conditions (as flagged by POLLERR) on
+some broken OSs, and only MSG_ERRQUEUE will report them?  I don't know).
+
+> This is not something you'd want to do if the application, by
+> unsetting POLLIN & POLLOUT, has shown that it doesn't want to read()
+> or write().
+
+Indeed.  That's why if you do receive POLLHUP or POLLERR and you're
+not interested in handling them right now, then _after_ receiving the
+events call EPOLL_CTL_DEL, not before.  That lazy method usually
+avoids the system call.
+
+-- Jamie

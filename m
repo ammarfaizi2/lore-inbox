@@ -1,56 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276057AbRJGCyt>; Sat, 6 Oct 2001 22:54:49 -0400
+	id <S276069AbRJGCzt>; Sat, 6 Oct 2001 22:55:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276058AbRJGCyk>; Sat, 6 Oct 2001 22:54:40 -0400
-Received: from sushi.toad.net ([162.33.130.105]:61405 "EHLO sushi.toad.net")
-	by vger.kernel.org with ESMTP id <S276057AbRJGCye>;
-	Sat, 6 Oct 2001 22:54:34 -0400
-Subject: Re: Linux should not set the "PnP OS" boot flag
-From: Thomas Hood <jdthood@mail.com>
-To: linux-kernel@vger.kernel.org
+	id <S276058AbRJGCzj>; Sat, 6 Oct 2001 22:55:39 -0400
+Received: from barry.mail.mindspring.net ([207.69.200.25]:34577 "EHLO
+	barry.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S276069AbRJGCza>; Sat, 6 Oct 2001 22:55:30 -0400
+Subject: Re: low-latency patches
+From: Robert Love <rml@tech9.net>
+To: "Jeffrey W. Baker" <jwbaker@acm.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0110061938140.796-100000@desktop>
+In-Reply-To: <Pine.LNX.4.33.0110061938140.796-100000@desktop>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.14 (Preview Release)
-Date: 06 Oct 2001 22:54:37 -0400
-Message-Id: <1002423279.978.28.camel@thanatos>
+X-Mailer: Evolution/0.15.99+cvs.2001.10.05.08.08 (Preview Release)
+Date: 06 Oct 2001 22:55:59 -0400
+Message-Id: <1002423362.1911.98.camel@phantasy>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ebiederman@uswest.net wrote:
-> Hmm.  Linux isn't quite a "PnP OS".  I agree that in the short
-> term we should not set the boot flag.  But we should also investigate
-> what needs to added so that setpnp does not need to be called.
+On Sat, 2001-10-06 at 22:38, Jeffrey W. Baker wrote:
+> On 6 Oct 2001, Robert Love wrote:
+> 
+> > If we can achieve such great results, and keep throughput low, and do it
+>                                                             ^^^
+> > with such little complexity -- of course, after we prove all this -- why
+> > not merge it?  Anyhow, its a configure option!
+> 
+> heh.
 
-This change has to be permanent.  Linux should never automatically
-set the boot flag, no matter how PnP-competent we make it.
-The reason is that setting the flag affects what the BIOS will
-do on the _subsequent_ boot.  But Linux can't possibly know 
-which operating system will be booted _next time_.  This is
-something that has to be left up to the user to control.
-
-Assuming I've made that point, I'll go on to say that I do not
-know of any reason why the PnP-OS flag should _ever_ be set.
-SFAIK all that setting the flag does is stop the PnP BIOS
-from configuring devices in the way that it has been told to do
-(if we used "setpnp -b" to set the nonvolative configuration).
-I don't see why we would ever want to do this.  If the BIOS does
-configure the devices, nothing stops us from reconfiguring them
-(using "setpnp") once Linux has booted.  The PnP-OS flag is called
-a "quick boot" flag, but the time savings involved must be on the
-order of milliseconds.  All that we seem to achieve by booting
-Linux with disabled devices is to induce certain device drivers
-to segfault.
-
-Please let me know if I'm overlooking something.
-
-If I'm right, then bootflag.c should be modified (see my patch)
-to remove the bit that sets the flag.  It would be nice,
-however, if the flag could be controlled via a /proc entry.
-
---
-Thomas
+I guess we should aim to keep them high, eh?
 
 
+	Robert Love
 

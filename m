@@ -1,62 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261590AbSJFMaO>; Sun, 6 Oct 2002 08:30:14 -0400
+	id <S261595AbSJFMfY>; Sun, 6 Oct 2002 08:35:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261593AbSJFMaO>; Sun, 6 Oct 2002 08:30:14 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:42506 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S261590AbSJFMaN>; Sun, 6 Oct 2002 08:30:13 -0400
-Date: Sun, 6 Oct 2002 05:35:43 -0700
-From: jw schultz <jw@pegasys.ws>
-To: linux-kernel@vger.kernel.org
-Subject: Re: BK MetaData License Problem?
-Message-ID: <20021006123543.GF31878@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	linux-kernel@vger.kernel.org
-References: <20021006.045201.26534685.davem@redhat.com> <200210061218.g96CIAjY001906@darkstar.example.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200210061218.g96CIAjY001906@darkstar.example.net>
-User-Agent: Mutt/1.3.27i
+	id <S263395AbSJFMfY>; Sun, 6 Oct 2002 08:35:24 -0400
+Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:1854 "HELO
+	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id <S261595AbSJFMfS>; Sun, 6 Oct 2002 08:35:18 -0400
+From: "Joseph D. Wagner" <wagnerjd@prodigy.net>
+To: "'Russell King'" <rmk@arm.linux.org.uk>
+Cc: "Linux Kernel Development List" <linux-kernel@vger.kernel.org>
+Subject: RE: Good Idea (tm): Code Consolidation for Functions and Macros that Access the Process Address Space
+Date: Sun, 6 Oct 2002 07:40:44 -0500
+Message-ID: <000801c26d35$9d6ac670$81281c43@joe>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4024
+In-Reply-To: <20021006105008.B27487@flint.arm.linux.org.uk>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please learn how to use the carriage return.
+>> On Sat, Oct 05, 2002 at 07:58:55PM -0500, Joseph D. Wagner wrote:
+>> SUBJECT: Good Idea (tm): Code Consolidation for Functions and Macros
+>> that Access the Process Address Space
+>>...
+>> Remember, if a function call has no place for a returned value to go,
+>> nothing bad happens; the returned value is simply ignored/discarded.
 
-On Sun, Oct 06, 2002 at 01:18:10PM +0100, jbradford@dial.pipex.com wrote:
-> > BitMover et al. can't take your copyright powers away
-> > from you.
-> 
-> No, but since you own the copyright, you can give rights
-> to the material to the operator of the Open Logging
-> server.
-> 
-> Why don't we have a system whereby we automatically assign
-> copyright to one person, (I.E. Linus), who can then assign
-> us GPL rights in return, so that by submitting material to
-> any server, we are not able to assign anything other than
-> GPL rights to it's owner.
+> And the compiler warning?
 
-For good or ill by having the copyrights not held by one
-person but instead held by so many is that no-one can
-arbitrarily change the license or relicense under other
-terms without the permission of all of the copyright
-holders.  However much you might trust Linus, do you want to
-trust his grandchildren?  Or the foundation after corporate
-interests have subverted it?
+See WHY THIS SHOULD BE CHANGED #3 "Forces better coding structures and
+procedures..."  Frankly, error controls should have been programmed into
+the code anyway.  It's just good programming practice.
 
-> This is, I believe, although I could be wrong, the reason
-> that the Free Software Foundation allows you to assign
-> copyrights to them.
+>> SOLUTION:
 
-The reason to assign your copyright to the FSF is to give
-them standing in court to defend the copyright.
+> Get rid of the _ret forms.  Their use is frowned on today anyway
+because
+> they hide the real meaning of what the code is trying to do, and
+hiding
+> the fact that a function can return in the middle of what looks like a
+> macro call is _REAL_ _BAD_.
 
+While I respectively disagree with you, I really don't care which set of
+functions/macros are eliminated for consolidation purposes.  My original
+point still stands that maintaining duplicate functions -- well, near
+duplicate with the exception of the returned error code -- is a waste of
+time, resources, and coding, and for the purpose of simplified
+maintenance, one of the sets of duplicate functions/macros should be
+eliminated.
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+Joseph Wagner
 
-		Remember Cernan and Schmitt

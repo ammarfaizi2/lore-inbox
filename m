@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264983AbUFOEen@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265002AbUFOEmT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264983AbUFOEen (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 00:34:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265246AbUFOEen
+	id S265002AbUFOEmT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 00:42:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265253AbUFOEmT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 00:34:43 -0400
-Received: from ns1.skjellin.no ([80.239.42.66]:26052 "HELO mail.skjellin.no")
-	by vger.kernel.org with SMTP id S264983AbUFOEel (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 00:34:41 -0400
-Message-ID: <40CE7C5F.2070405@tomt.net>
-Date: Tue, 15 Jun 2004 06:34:39 +0200
-From: Andre Tomt <andre@tomt.net>
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
+	Tue, 15 Jun 2004 00:42:19 -0400
+Received: from tomts22-srv.bellnexxia.net ([209.226.175.184]:56540 "EHLO
+	tomts22-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S265002AbUFOEmR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 00:42:17 -0400
+Message-ID: <40CE7E28.4090707@sympatico.ca>
+Date: Tue, 15 Jun 2004 00:42:16 -0400
+From: Chris Friesen <chris_friesen@sympatico.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Nuno Monteiro <nuno@itsari.org>, Gianni Tedesco <gianni@scaramanga.co.uk>,
-       marcelo.tosatti@cyclades.com
-Subject: Re: Local DoS attack on i386
-References: <200406121159.28406.manuel@todo-linux.com> <1087221517.3375.3.camel@sherbert> <20040614142001.GA3032@hobbes.itsari.int>
-In-Reply-To: <20040614142001.GA3032@hobbes.itsari.int>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+To: linux-kernel@vger.kernel.org, mdharm-usb@one-eyed-alien.net,
+       linux-usb-users@lists.sourceforge.net,
+       linux-usb-devel@lists.sourceforge.net
+Subject: [BUG]  problem with usb-storage
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nuno Monteiro wrote:
-> The same fix should be applied to 2.4. I'm running locally a very
-> hacked version of 2.4.22 with it and it survives that crash.c program.
-> 
-> Here's the diff. Marcelo, please merge.
-> 
-> 
-> --- linux-2.4.27-pre5/include/asm-i386/i387.h~fix-x86-clear_fpu-macro	2004-06-14 15:12:13.909059344 +0100
-> +++ linux-2.4.27-pre5/include/asm-i386/i387.h	2004-06-14 15:12:45.970185312 +0100
-> @@ -34,7 +34,7 @@ extern void kernel_fpu_begin(void);
->  
->  #define clear_fpu( tsk ) do { \
->  	if ( tsk->flags & PF_USEDFPU ) { \
-> -		asm volatile("fwait"); \
-> +		asm volatile("fnclex ; fwait"); \
->  		tsk->flags &= ~PF_USEDFPU; \
->  		stts(); \
->  	} \
+I'm running an x86 version of 2.6.5, attempting to use a lexar CF memory
+card with the Jumpshot card reader.
 
-You're missing x86-64.
+possibly relevent config options:
 
-Complete patches are up at <http://tomt.net/kernel/clear_fpu/> - these 
-covers 2.4 and 2.6, plus i386 and x86-64.
+CONFIG_SCSI=y
+CONFIG_SCSI_PROC_FS=y
+CONFIG_CHR_DEV_SG=y
+CONFIG_USB=y
+CONFIG_USB_UHCI_HCD=y
+CONFIG_USB_STORAGE=y
+CONFIG_USB_STORAGE_JUMPSHOT=y
 
-But I guess Marcelo would want the x86-64 part to come through ak.
 
--- 
-Cheers,
-André Tomt
+When I plug the card in I get the following:
+
+Jun 14 23:27:42 doug kernel: usb 2-2.1: new full speed USB device using
+address 4
+Jun 14 23:27:42 doug kernel: usb-storage: probe of 2-2.1:1.0 failed with
+error -5
+
+It works fine under windows.
+
+Chris
+

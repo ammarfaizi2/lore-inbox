@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129376AbQKCHWS>; Fri, 3 Nov 2000 02:22:18 -0500
+	id <S129088AbQKCHWr>; Fri, 3 Nov 2000 02:22:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129166AbQKCHWH>; Fri, 3 Nov 2000 02:22:07 -0500
-Received: from viva.uti.hu ([213.163.24.26]:19977 "HELO viva.uti.hu")
-	by vger.kernel.org with SMTP id <S129088AbQKCHWA>;
-	Fri, 3 Nov 2000 02:22:00 -0500
-Date: Fri, 3 Nov 2000 08:21:42 +0100
-From: Gábor Lénárt <lgb@viva.uti.hu>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: non-gcc linux?
-Message-ID: <20001103082142.A22729@viva.uti.hu>
-In-Reply-To: <3A01D6D1.44BD66FE@Rikers.org> <E13rRk1-0001ut-00@the-village.bc.nu> <20001102222306.A15754@gruyere.muc.suse.de> <3A01DC47.4D48D875@Rikers.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A01DC47.4D48D875@Rikers.org>; from Tim@Rikers.org on Thu, Nov 02, 2000 at 02:27:35PM -0700
-X-Operating-System: viva Linux 2.2.16 i686
+	id <S130134AbQKCHWa>; Fri, 3 Nov 2000 02:22:30 -0500
+Received: from cc993546-b.srst1.fl.home.com ([24.3.77.52]:13828 "EHLO
+	comptechnews.com") by vger.kernel.org with ESMTP id <S129166AbQKCHWY>;
+	Fri, 3 Nov 2000 02:22:24 -0500
+From: "Robert B. Easter" <reaster@comptechnews.com>
+Date: Fri, 3 Nov 2000 02:30:03 -0500
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain;
+  charset="us-ascii"
+Cc: TimO <hairballmt@mcn.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-via@gtf.org
+To: linux-via@havoc.gtf.org, Vojtech Pavlik <vojtech@suse.cz>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>
+In-Reply-To: <39E54117.37461BD1@mandrakesoft.com> <3A00F515.45D67F1C@mandrakesoft.com> <20001102084052.A862@suse.cz>
+In-Reply-To: <20001102084052.A862@suse.cz>
+Subject: Re: Announce: Via audio driver update
+MIME-Version: 1.0
+Message-Id: <00110302300301.03733@comptechnews>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 02, 2000 at 02:27:35PM -0700, Tim Riker wrote:
-> #pragma is a particularly difficult problem to deal with because it is
-> non macro friendly. =(
-> 
-> Sounds like C99 initializers are a likely first target for integration.
-> 
-> I'll keep plugging away at other stuff here as well.
+On Thursday 02 November 2000 02:40, Vojtech Pavlik wrote:
+> On Thu, Nov 02, 2000 at 12:01:09AM -0500, Jeff Garzik wrote:
+> > Please grab 1.1.14, there were a number of bug fixes since 1.1.10.  You
+> > can get this version in the recently-released 2.4.0-test10 kernel, or
+> > download from http://sourceforge.net/projects/gkernel/
+>
+> Hi!
+>
+> I'd like to report a bug, too. On my system, with the test10 kernel,
+> regardless of what frequency the software sets, the data is always
+> played at 48 KHz.
+>
+> Via 686a audio driver 1.1.14
+> ac97_codec: AC97 Audio codec, id: 0x574d:0x4c00 (Wolfson WM9704)
+> via82cxxx: board #1 at 0xDC00, IRQ 10
+>
+> The codec doesn't support variable rate input, as far as I know. Could
+> that be the cause?
 
-I've been coding C for some years ... But I don't know too much these
-features (even don't know about named initializers found in this list
-some weeks ago, I don't know only the name of this thing ? ;-)
-So where can I read about these ?
+What is the difference between the VIA686A kernel distribution audio driver 
+and the VIA686a module provided by ALSA (which works fine)?  It seems like 
+ALSA provides a fully functioning VIA686a module.  Why the duplication of 
+effort/re-coding?  I suppose there is some major difference that I don't 
+understand?
 
-Thanx, Gabor
+-- 
+-------- Robert B. Easter  reaster@comptechnews.com ---------
+- CompTechNews Message Board   http://www.comptechnews.com/ -
+- CompTechServ Tech Services   http://www.comptechserv.com/ -
+---------- http://www.comptechnews.com/~reaster/ ------------
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

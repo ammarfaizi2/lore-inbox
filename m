@@ -1,65 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272599AbTHEJUV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 05:20:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272626AbTHEJUV
+	id S272606AbTHEJRN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 05:17:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272599AbTHEJRH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 05:20:21 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:23739 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S272599AbTHEJUG (ORCPT
+	Tue, 5 Aug 2003 05:17:07 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:6043 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S272609AbTHEJPE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 05:20:06 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Tue, 5 Aug 2003 11:20:02 +0200 (MEST)
-Message-Id: <UTC200308050920.h759K2n21546.aeb@smtp.cwi.nl>
-To: aebr@win.tue.nl, akpm@osdl.org
-Subject: Re: i_blksize
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org, torvalds@osdl.org
+	Tue, 5 Aug 2003 05:15:04 -0400
+Date: Tue, 5 Aug 2003 11:14:21 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PM] Fix up refrigerator to work with ^Z-ed processes
+Message-ID: <20030805091421.GC388@elf.ucw.cz>
+References: <20030726225115.GA501@elf.ucw.cz> <Pine.LNX.4.44.0308041756080.23977-100000@cherise>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0308041756080.23977-100000@cherise>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From: Andrew Morton <akpm@osdl.org>
+Hi!
 
-    >  You propose to remove i_blksize.
-    >  It is used in stat only, so we have to produce some value for stat.
-    >  Do you want to replace
-    >      inode->i_blksize
-    >  by
-    >      inode->i_sb->s_optimal_io_size
-    >  ?
+> > This makes refrigerator work with ^Z-ed processes (and not eat
+> > disks). Thanks to (have to find out who, I should sleep and not be
+> > splitting patches). [Hand edited, apply by hand; or there should be
+> > script for recomputing @@ X,Y Z,T @@'s somewhere].
+> > 
+> > schedule() added makes processes start at exactly that point, making
+> > printouts nicer.
+> 
+> This didn't apply, so in making the changes by hand, I took the liberty to 
+> rename interesting_process() to freezeable() to make it a bit easier to 
+> read. Revised patch below. 
 
-    No, that's different.  You are referring to stat.st_blksize.  That is a
-    different animal, and we can leave that alone.
+Yes, that's better name, patch looks good. Thanks,
+								Pavel
 
-    inode->i_blksize is equal to (1 << inode->i_blkbits) always, all the time. 
-    It is just duplicated nonsense and usually leads to poorer code -
-    multiplications instead of shifts.
-
-    It should be a pretty easy incremental set of patches to ease i_blksize out
-    of the kernel.
-
-Hmm. Let me first read stat.c.
-
-generic_fillattr():
-	stat->blksize = inode->i_blksize;
-vfs_getattr():
-	generic_fillattr(inode, stat);
-	if (!stat->blksize)
-		stat->blksize = s->s_blocksize;
-cp_new_stat64():
-	tmp.st_blksize = stat->blksize;
-	copy_to_user(statbuf, &tmp, sizeof(tmp));
-
-So really, if inode->i_blksize has a nonzero value,
-this value is returned in stat.st_blksize.
-
-Remains your other claim: inode->i_blksize == (1 << inode->i_blkbits).
-I don't see any code that would enforce that.
-
-Andries
-
-[and there are lots of comments around:
-	inode->i_blksize = PAGE_SIZE;   /* This is the optimal IO size ... */
-]
-
-Maybe also a good candidate for renaming if it is not eliminated?
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

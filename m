@@ -1,51 +1,121 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262656AbUBYH2r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 02:28:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262657AbUBYH2r
+	id S262650AbUBYH2M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 02:28:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262658AbUBYH2M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 02:28:47 -0500
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:9185 "EHLO
-	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S262656AbUBYH2o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 02:28:44 -0500
-Message-ID: <403C4E98.6010107@t-online.de>
-Date: Wed, 25 Feb 2004 08:28:24 +0100
-From: Harald Dunkel <harald.dunkel@t-online.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7b) Gecko/20040223
+	Wed, 25 Feb 2004 02:28:12 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:61405 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262650AbUBYH2A
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 02:28:00 -0500
+Message-ID: <403C4E73.9030805@pobox.com>
+Date: Wed, 25 Feb 2004 02:27:47 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Why are 2.6 modules so huge?
-References: <9cfptc4lckg.fsf@rogue.ncsl.nist.gov> <yw1x1xokcwfo.fsf@kth.se>
-In-Reply-To: <yw1x1xokcwfo.fsf@kth.se>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Seen: false
-X-ID: bLdVzTZBYeAPsfVbV1i7iDw1JP3c9TXVeJhD2byv6sA7SodP9I3Gw7
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+CC: linux-ide@vger.kernel.org
+Subject: [PATCH] fix Silicon Image SATA 4-port support
+Content-Type: multipart/mixed;
+ boundary="------------080909060405070407040203"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Måns Rullgård wrote:
-> 
-> My 2.6.3 vfat.ko is 15365 bytes.  Maybe you enabled kernel debugging
-> symbols.
-> 
-
-% ll /lib/modules/2.6.3/kernel/fs/vfat/
-total 16
--rw-r--r--    1 root     root        14232 Feb 19 07:43 vfat.ko
-
-Assuming that you are on i686:
-
-A size difference of 1 KByte (about 7%) is remarkable. Which
-gcc did you use for building 2.6.3?
-
-I am on Debian (Sid). Gcc is 3.3.3, which was released a
-few days ago.
+This is a multi-part message in MIME format.
+--------------080909060405070407040203
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
 
-Regards
+Do not be fooled, Silicon Image is still marked CONFIG_BROKEN for a 
+reason...  :)  But this should (hopefully!) get 4-port support going.
 
-Harri
+Testing requested...
+
+
+
+--------------080909060405070407040203
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
+
+===== drivers/scsi/sata_sil.c 1.7 vs edited =====
+--- 1.7/drivers/scsi/sata_sil.c	Wed Jan 14 18:34:44 2004
++++ edited/drivers/scsi/sata_sil.c	Wed Feb 25 02:24:24 2004
+@@ -44,6 +44,11 @@
+ 	SIL_SYSCFG		= 0x48,
+ 	SIL_MASK_IDE0_INT	= (1 << 22),
+ 	SIL_MASK_IDE1_INT	= (1 << 23),
++	SIL_MASK_IDE2_INT	= (1 << 24),
++	SIL_MASK_IDE3_INT	= (1 << 25),
++	SIL_MASK_2PORT		= SIL_MASK_IDE0_INT | SIL_MASK_IDE1_INT,
++	SIL_MASK_4PORT		= SIL_MASK_2PORT |
++				  SIL_MASK_IDE2_INT | SIL_MASK_IDE3_INT,
+ 
+ 	SIL_IDE0_TF		= 0x80,
+ 	SIL_IDE0_CTL		= 0x8A,
+@@ -59,6 +64,7 @@
+ 	SIL_IDE2_CTL		= 0x28A,
+ 	SIL_IDE2_BMDMA		= 0x200,
+ 	SIL_IDE2_SCR		= 0x300,
++	SIL_INTR_STEERING	= (1 << 1),
+ 
+ 	SIL_IDE3_TF		= 0x2C0,
+ 	SIL_IDE3_CTL		= 0x2CA,
+@@ -304,7 +310,7 @@
+ 	unsigned long base;
+ 	void *mmio_base;
+ 	int rc;
+-	u32 tmp;
++	u32 tmp, irq_mask;
+ 
+ 	if (!printed_version++)
+ 		printk(KERN_DEBUG DRV_NAME " version " DRV_VERSION "\n");
+@@ -365,14 +371,6 @@
+ 	probe_ent->port[1].scr_addr = base + SIL_IDE1_SCR;
+ 	ata_std_ports(&probe_ent->port[1]);
+ 
+-	/* make sure IDE0/1 interrupts are not masked */
+-	tmp = readl(mmio_base + SIL_SYSCFG);
+-	if (tmp & (SIL_MASK_IDE0_INT | SIL_MASK_IDE1_INT)) {
+-		tmp &= ~(SIL_MASK_IDE0_INT | SIL_MASK_IDE1_INT);
+-		writel(tmp, mmio_base + SIL_SYSCFG);
+-		readl(mmio_base + SIL_SYSCFG);	/* flush */
+-	}
+-
+ 	if (ent->driver_data == sil_3114) {
+ 		probe_ent->port[2].cmd_addr = base + SIL_IDE2_TF;
+ 		probe_ent->port[2].ctl_addr = base + SIL_IDE2_CTL;
+@@ -385,6 +383,25 @@
+ 		probe_ent->port[3].bmdma_addr = base + SIL_IDE3_BMDMA;
+ 		probe_ent->port[3].scr_addr = base + SIL_IDE3_SCR;
+ 		ata_std_ports(&probe_ent->port[3]);
++
++		irq_mask = SIL_MASK_4PORT;
++
++		/* flip the magic "make 4 ports work" bit */
++		tmp = readl(mmio_base + SIL_IDE2_BMDMA);
++		if ((tmp & SIL_INTR_STEERING) == 0)
++			writel(tmp | SIL_INTR_STEERING,
++			       mmio_base + SIL_IDE2_BMDMA);
++
++	} else {
++		irq_mask = SIL_MASK_2PORT;
++	}
++
++	/* make sure IDE0/1/2/3 interrupts are not masked */
++	tmp = readl(mmio_base + SIL_SYSCFG);
++	if (tmp & irq_mask) {
++		tmp &= ~irq_mask;
++		writel(tmp, mmio_base + SIL_SYSCFG);
++		readl(mmio_base + SIL_SYSCFG);	/* flush */
+ 	}
+ 
+ 	pci_set_master(pdev);
+
+--------------080909060405070407040203--
+

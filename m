@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263095AbUB0Uma (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 15:42:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263108AbUB0Uma
+	id S263093AbUB0Us0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 15:48:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263097AbUB0Us0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 15:42:30 -0500
-Received: from 64-186-161-006.cyclades.com ([64.186.161.6]:49319 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S263095AbUB0Um2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 15:42:28 -0500
-Date: Fri, 27 Feb 2004 18:36:47 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: torvalds@osdl.org
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: [PATCH] tty_io: Do not register NULL /dev entries on devfs
-Message-ID: <Pine.LNX.4.58L.0402271831080.19454@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+	Fri, 27 Feb 2004 15:48:26 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:57864 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263093AbUB0UsZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 15:48:25 -0500
+Date: Fri, 27 Feb 2004 20:48:17 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: torvalds@osdl.org, Russell King <rmk+lkml@arm.linux.org.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] tty_io: Do not register NULL /dev entries on devfs
+Message-ID: <20040227204817.A4877@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Marcelo Tosatti <marcelo.tosatti@cyclades.com>, torvalds@osdl.org,
+	Russell King <rmk+lkml@arm.linux.org.uk>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58L.0402271831080.19454@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.58L.0402271831080.19454@logos.cnet>; from marcelo.tosatti@cyclades.com on Fri, Feb 27, 2004 at 06:36:47PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Feb 27, 2004 at 06:36:47PM -0300, Marcelo Tosatti wrote:
+> 
+> Hi,
+> 
+> Faced this problem where "/dev/<NULL>x" entries got created while loading
+> the cyclades driver with devfs.
+> 
+> Several drivers do not set driver->devfs_name, so better skip registration
+> for those.
 
-Hi,
-
-Faced this problem where "/dev/<NULL>x" entries got created while loading
-the cyclades driver with devfs.
-
-Several drivers do not set driver->devfs_name, so better skip registration
-for those.
-
---- linux-2.6.3/drivers/char/tty_io.c.orig	2004-02-27 18:29:16.641482744 -0300
-+++ linux-2.6.3/drivers/char/tty_io.c	2004-02-27 18:30:08.437608536 -0300
-@@ -2099,7 +2099,8 @@
- 		return;
- 	}
-
--	devfs_mk_cdev(dev, S_IFCHR | S_IRUSR | S_IWUSR,
-+	if (driver->devfs_name)
-+		devfs_mk_cdev(dev, S_IFCHR | S_IRUSR | S_IWUSR,
- 			"%s%d", driver->devfs_name, index + driver->name_base);
-
- 	/* we don't care about the ptys */
-@@ -2121,7 +2122,8 @@
-  */
- void tty_unregister_device(struct tty_driver *driver, unsigned index)
- {
--	devfs_remove("%s%d", driver->devfs_name, index + driver->name_base);
-+	if (driver->devfs_name)
-+		devfs_remove("%s%d", driver->devfs_name, index + driver->name_base);
- 	class_simple_device_remove(MKDEV(driver->major, driver->minor_start) + index);
- }
+No, fix the drivers instead.
 

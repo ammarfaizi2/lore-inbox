@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261554AbUKIPWT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261559AbUKIPX7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261554AbUKIPWT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 10:22:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbUKIPWS
+	id S261559AbUKIPX7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 10:23:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261556AbUKIPX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 10:22:18 -0500
-Received: from mail.kroah.org ([69.55.234.183]:50614 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261554AbUKIPWE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 10:22:04 -0500
-Date: Tue, 9 Nov 2004 07:21:45 -0800
-From: Greg KH <greg@kroah.com>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
-Subject: Re: [BK PATCH] I2C update for 2.6.10-rc1
-Message-ID: <20041109152145.GB27269@kroah.com>
-References: <20041109052229.GA5117@kroah.com> <vYBFH9gE.1099992539.9943000.khali@gcu.info>
+	Tue, 9 Nov 2004 10:23:59 -0500
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:26125 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP id S261557AbUKIPWu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 10:22:50 -0500
+Date: Tue, 9 Nov 2004 15:22:46 +0000
+From: John Levon <levon@movementarian.org>
+To: Greg Banks <gnb@melbourne.sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       OProfile List <oprofile-list@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2/11] oprofile: arch-independent code for stack trace sampling
+Message-ID: <20041109152246.GD43366@compsoc.man.ac.uk>
+References: <1099996668.1985.783.camel@hole.melbourne.sgi.com> <20041109030557.1de3f96a.akpm@osdl.org> <1100000147.1985.839.camel@hole.melbourne.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <vYBFH9gE.1099992539.9943000.khali@gcu.info>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <1100000147.1985.839.camel@hole.melbourne.sgi.com>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Graham Coxon - Happiness in Magazines
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1CRXpX-000CGx-5a*DDJajprgYLQ*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 09, 2004 at 10:29:00AM +0100, Jean Delvare wrote:
+On Tue, Nov 09, 2004 at 10:35:48PM +1100, Greg Banks wrote:
+
+> > oprofile is currently doing suspicious things with smp_processor_id() in
+> > premptible reasons.  Is this patch compounding things?
 > 
-> Hi Greg,
+> It's not changing the contexts where smp_processor_id() is called,
+> just pushing it down one level from a bunch of interrupt handlers
+> to the 2 oprofile sampling functions they call.  If it was busted
+> before it's no more nor less busted now.
 > 
-> >Greg Kroah-Hartman:
-> >  o I2C: delete normal_i2c_range logic from sensors as there are no more
-> >         users
-> >  o I2C: moved from all sensor drivers from normal_i2c_range to normal_i2c
-> >  o I2C: fix i2c_detect to allow NULL fields in adapter address structure
-> >  o I2C: remove normal_isa_range from I2C sensor drivers, as it's not used
-> >  o I2C: remove ignore_range from I2C sensor drivers, as it's not used
-> >  o I2C: remove probe_range from I2C sensor drivers, as it's not used
-> 
-> I'm very happy with that :) A documentation update will be needed though.
+> I presume the perceived problem is that with CONFIG_PREEMPT=y the
+> thread can be pre-empted onto another CPU?  If it makes everyone
+> happier I can sprinkle a few preempt_disable()s around, but I'd
+> prefer to do it in a subsequent patch rather than respin this.
 
-Doh, ok, I'll go do that, forgot that...
+Andrew: basically the warning is false, there is no bug in this code.
 
-> Also, while we're at it, is there any reason why I2C_CLIENT_END and
-> I2C_CLIENT_ISA_END are two different constants?
+we don't want to use preempt_disable(). Instead we want some way to get
+a CPU ID and then carry on in pre-emptible fashion. It's only used to
+index into an array, and if we get pre-empted onto another CPU it's not
+a major deal.
 
-unsigned short vs unsigned int, right?
+(Yes, this breaks with CPU hotplug, but so does the rest of OProfile and
+I've yet to see a sensible API for handling this, that is a ctor/dtor
+style API)
 
-thanks,
-
-greg k-h
+regards
+john

@@ -1,34 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129156AbRBPOTN>; Fri, 16 Feb 2001 09:19:13 -0500
+	id <S129180AbRBPO0F>; Fri, 16 Feb 2001 09:26:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129180AbRBPOTE>; Fri, 16 Feb 2001 09:19:04 -0500
-Received: from smtp1.cern.ch ([137.138.128.38]:44550 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S129156AbRBPOSw>;
-	Fri, 16 Feb 2001 09:18:52 -0500
-Date: Fri, 16 Feb 2001 15:18:39 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
-Subject: Re: x86 ptep_get_and_clear question
-Message-ID: <20010216151839.A3989@pcep-jamie.cern.ch>
-In-Reply-To: <3A8C499A.E0370F63@colorfullife.com> <Pine.LNX.4.10.10102151702320.12656-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10102151702320.12656-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Feb 15, 2001 at 05:21:28PM -0800
+	id <S129462AbRBPOZp>; Fri, 16 Feb 2001 09:25:45 -0500
+Received: from www.psych1.neu.edu ([155.33.251.101]:18968 "EHLO
+	www.casdn.neu.edu") by vger.kernel.org with ESMTP
+	id <S129180AbRBPOZf>; Fri, 16 Feb 2001 09:25:35 -0500
+From: "Andrew Scott" <A.J.Scott@casdn.neu.edu>
+Organization: Northeastern University
+To: linux-kernel@vger.kernel.org
+Date: Fri, 16 Feb 2001 09:25:20 -0500
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: Linux stifles innovation...
+Reply-to: A.J.Scott@casdn.neu.edu
+Message-ID: <3A8CF1FE.16672.10105D@localhost>
+In-Reply-To: <FF2E85D46133D3119868006008AC264808D0FBDA@MAIL1>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> So the only case that ends up being fairly heavy may be a case that is
-> very uncommon in practice (only for unmapping shared mappings in
-> threaded programs or the lazy TLB case).
+On 15 Feb 2001, at 9:49, fsnchzjr wrote: 
 
-I can think of one case where performance is considered quite important:
-mprotect() is used by several garbage collectors, including threaded
-ones.  Maybe mprotect() isn't the best primitive for those anyway, but
-it's what they have to work with atm.
+> Watch Microsoft's Jim Allchin go Linux-bashing!!!
+> Nice little article on how we're all going to die of herpes from our
+> repeated exposition to Linux...
+> http://news.cnet.com/investor/news/newsitem/0-9900-1028-4825719-RHAT.html?ta
+> g=ltnc
 
--- Jamie
+That's about as self-serving a statement as I've ever seen. If this 
+'Jim Alchin' actually believes what he's saying, he's got to be one 
+of the worlds biggest fools, and if he doesn't believe what he's 
+saying, well there aren't too many words that would accurately 
+describe what he is. 
+
+It's pretty funny in some ways, e.g. "We can build a better product 
+than Linux...", which begs the question, "Well, why don't you?". 
+Perhaps it costs too much? 
+
+
+
+
+
+------------------Mailed via Pegasus 3.12c & Mercury 1.48---------------
+A.J.Scott@casdn.neu.edu                    Fax (617)373-2942
+Andrew Scott                               Tel (617)373-5278   _
+Northeastern University--138 Meserve Hall                     / \   /
+College of Arts & Sciences-Deans Office                      / \ \ /
+Boston, Ma. 02115                                           /   \_/
+

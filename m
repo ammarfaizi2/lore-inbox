@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266245AbUA2Qxd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 11:53:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266246AbUA2Qxd
+	id S266246AbUA2QzG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 11:55:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266252AbUA2QzF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 11:53:33 -0500
-Received: from fw.osdl.org ([65.172.181.6]:10156 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266245AbUA2QxL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 11:53:11 -0500
-Date: Thu, 29 Jan 2004 08:52:42 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Matthew Wilcox <willy@debian.org>
-cc: "Durairaj, Sundarapandian" <sundarapandian.durairaj@intel.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Greg KH <greg@kroah.com>, Andi Kleen <ak@colin2.muc.de>,
-       Andrew Morton <akpm@osdl.org>, mj@ucw.cz,
-       "Kondratiev, Vladimir" <vladimir.kondratiev@intel.com>,
-       "Seshadri, Harinarayanan" <harinarayanan.seshadri@intel.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>
-Subject: Re: [patch] PCI Express Enhanced Config Patch - 2.6.0-test11
-In-Reply-To: <20040129164230.GE18725@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.58.0401290850360.689@home.osdl.org>
-References: <6B09584CC3D2124DB45C3B592414FA830112C34F@bgsmsx402.gar.corp.intel.com>
- <20040129150925.GC18725@parcelfarce.linux.theplanet.co.uk>
- <20040129155911.GD18725@parcelfarce.linux.theplanet.co.uk>
- <Pine.LNX.4.58.0401290802370.689@home.osdl.org>
- <20040129164230.GE18725@parcelfarce.linux.theplanet.co.uk>
+	Thu, 29 Jan 2004 11:55:05 -0500
+Received: from kinesis.swishmail.com ([209.10.110.86]:2568 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S266246AbUA2Qyy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 11:54:54 -0500
+Message-ID: <40193BAA.50905@techsource.com>
+Date: Thu, 29 Jan 2004 11:58:18 -0500
+From: Timothy Miller <miller@techsource.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: root@chaos.analogic.com
+CC: chakkerz@optusnet.com.au,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Crazy idea:  Design open-source graphics chip
+References: <4017F2C0.4020001@techsource.com> <200401291211.05461.chakkerz@optusnet.com.au> <40193136.4070607@techsource.com> <Pine.LNX.4.53.0401291127090.13834@chaos>
+In-Reply-To: <Pine.LNX.4.53.0401291127090.13834@chaos>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Thu, 29 Jan 2004, Matthew Wilcox wrote:
+Richard B. Johnson wrote:
+
 > 
-> Ahh, I missed the comment towards the top of fixmap.h that this is a
-> constant address.  You're so smart sometimes ;-)
+> 
+> With the press Linux is getting from the IBM/Linux advertisements
+> for the US football games, etc., methinks it won't be long before
+> NVidia and all the rest go open-source, just to jump onto that
+> band-wagon. They just need a smart way to protect their intellectual
+> property.
+> 
 
-Hey, you'd better verify that the compiler doesn't do anything stupid (but
-the good news is that if it doesn't inline the thing properly and do all
-the constant folding, you should get a link-time failure about
-"__this_fixmap_does_not_exist", so we should be fairly safe).
 
-		Linus
+Indeed!  And this may make the whole idea of an open-arch GPU a pipe-dream.
+
+Honestly, we don't _need_ an open-arch GPU.  We just need something 
+whose register set is fully publically documented.
+
+But an open-arch GPU would be NEAT, though.  :)
+
+
+Hmmm... If I understand this right, one of the reasons nVidia doesn't 
+release open source drivers is that they don't own all of the IP in 
+their cores.  I wonder what that IP is and if the open-source community 
+couldn't collaborate to produce LGPL-like replacements.
+

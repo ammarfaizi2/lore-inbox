@@ -1,65 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267733AbTAIUP5>; Thu, 9 Jan 2003 15:15:57 -0500
+	id <S267768AbTAIUWV>; Thu, 9 Jan 2003 15:22:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267738AbTAIUP5>; Thu, 9 Jan 2003 15:15:57 -0500
-Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:34951 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id <S267733AbTAIUPz>;
-	Thu, 9 Jan 2003 15:15:55 -0500
-Date: Thu, 9 Jan 2003 15:26:54 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: "Ruslan U. Zakirov" <cubic@wildrose.miee.ru>
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.5.54][PATCH] SB16 convertation to new PnP layer.
-Message-ID: <20030109152654.GC17701@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	"Ruslan U. Zakirov" <cubic@wildrose.miee.ru>, greg@kroah.com,
-	linux-kernel@vger.kernel.org
-References: <Pine.BSF.4.05.10301081959130.88742-100000@wildrose.miee.ru> <20030108160939.GA17701@neo.rr.com> <59522031471.20030109183512@wr.miee.ru>
+	id <S267769AbTAIUWV>; Thu, 9 Jan 2003 15:22:21 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:56716 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S267768AbTAIUWS>; Thu, 9 Jan 2003 15:22:18 -0500
+Message-Id: <200301092030.h09KUspQ009950@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
+To: jlnance@unity.ncsu.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: "Mother" == "computer-illiterate" 
+In-Reply-To: Your message of "Thu, 09 Jan 2003 15:21:44 EST."
+             <20030109202144.GA6434@ncsu.edu> 
+From: Valdis.Kletnieks@vt.edu
+References: <20030109072043.GE26010@boardwalk> <20030109194019.GH26010@boardwalk>
+            <20030109202144.GA6434@ncsu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <59522031471.20030109183512@wr.miee.ru>
-User-Agent: Mutt/1.4i
+Content-Type: multipart/signed; boundary="==_Exmh_1263534626P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 09 Jan 2003 15:30:54 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 09, 2003 at 06:35:12PM +0300, Ruslan U. Zakirov wrote:
+--==_Exmh_1263534626P
+Content-Type: text/plain; charset=us-ascii
 
-> 1) As I've understood we need to free all reserved resources when
-> remove function called, am I right?
+On Thu, 09 Jan 2003 15:21:44 EST, jlnance@unity.ncsu.edu  said:
+> On Thu, Jan 09, 2003 at 12:40:19PM -0700, Val Henson wrote:
+> 
+> > P.S. For extra credit (but no ThinkGeek certificate) you can look up
+> > the following women in computer science, some of whom are mothers:
+> > Mary Baker, Margo Seltzer, Monica Lam, Ellen Spertus, Carla Ellis, and
+> > Barbara Simons.
+> 
+> Am I the first person to tell you you left off Ada Lovelace?  She was
+> way ahead of her time.
 
-Yes, all resources must be freed or the device will not work if it is
-attached to the driver a second time.  This is becuase the driver will
-think the device is busy when actually the resources were just never
-freed from the previous session.  Also the resources must be freed to
-safetly disable the device.
+I think Ada Lovelace and Grace Hopper were left off as "too easy"....
 
+--==_Exmh_1263534626P
+Content-Type: application/pgp-signature
 
-> 2) Who decide card is accessible at some time or not?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-This is determined by both the pnp layer and the driver model.  Becuase a
-card is a group of devices the individual devices must also not be matched
-to more than one driver.  PnP Card Services have a few bugs in this area,
-all of which have been resolved in the patch I released last week.  Greg,
-could you please forward that to Linus.
+iD8DBQE+Hdv+cC3lWbTT17ARAvzkAKCVXvrgCcsvZEZ2ugsjI54GEsjTiwCghxn5
+bTv+mbVJ0s6PJDPAO2FollQ=
+=i+wC
+-----END PGP SIGNATURE-----
 
-
-> 3) And the last, where is the place of ISA not PnP cards in the device
-> lists? As I think, they are fit with PnP bus, but their resources
-> static(not configurable) or it's just lays under ALSA, apears in
-> /proc/asound only and ALSA internals?
-
-Currently the pnp layer does not support legacy non PnP devices.  I plan
-to add support for them soon.  This support should achieve two objectives.
-1.) Reserve resources used by the legacy devices
-	a.) if the resources match an existing pnp devices, bind to that
-	    device
-	b.) if they conflict but do not match exactly return an error
-	c.) otherwise reserve the resources and prevent pnp devices from
-	    using them.
-2.) Represent these legacy devices in sysfs.  Maybe the current legacy dir
-    could be used or I may have to create "pnp_legacy".  Needs more research.
-
-Regards,
-Adam
+--==_Exmh_1263534626P--

@@ -1,712 +1,616 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265568AbSKTKgT>; Wed, 20 Nov 2002 05:36:19 -0500
+	id <S265249AbSKTKyW>; Wed, 20 Nov 2002 05:54:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265675AbSKTKgT>; Wed, 20 Nov 2002 05:36:19 -0500
-Received: from zmamail04.zma.compaq.com ([161.114.64.104]:19464 "EHLO
-	zmamail04.zma.compaq.com") by vger.kernel.org with ESMTP
-	id <S265568AbSKTKgK>; Wed, 20 Nov 2002 05:36:10 -0500
-Date: Wed, 20 Nov 2002 11:43:13 +0100
-From: Torben Mathiasen <torben.mathiasen@hp.com>
-To: alan@xorguk.ukuu.org.uk
+	id <S265402AbSKTKyV>; Wed, 20 Nov 2002 05:54:21 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:47095 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S265249AbSKTKyN>;
+	Wed, 20 Nov 2002 05:54:13 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Wed, 20 Nov 2002 12:01:14 +0100 (MET)
+Message-Id: <UTC200211201101.gAKB1EF24845.aeb@smtp.cwi.nl>
+To: torvalds@transmeta.com
+Subject: [PATCH] foo_mknod prototype
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH-2.5.47-ac6] Updates to BIOS IDE timings code
-Message-ID: <20021120104313.GA1855@tmathiasen>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="IS0zKkzwUGydFO0o"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-OS: Linux 2.4.20-pre11 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The dev_t argument of sys_mknod is passed to vfs_mknod,
+and is then cast to int when foo_mknod is called,
+and is subsequently very often cast back to dev_t.
+(For example, minix_mknod() calls minix_set_inode()
+that takes a dev_t.)
 
---IS0zKkzwUGydFO0o
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+The 2.5.48 patch below is a cleanup that avoids this back-and-forth
+casting by giving foo_mknod a prototype with dev_t.
+In most cases now the dev_t is transmitted untouched
+until init_special_inode.
 
-Hi Alan,
+It also makes the two routines hugetlbfs_get_inode()
+and shmem_get_inode() static.
 
-Attached is a patch that addresses some of the issues we discussed previously.
-The patch does the following:
+Andries
 
-	# Moves BIOS timings IDE detection into chipset drivers (by providing a
-	  library function).
-	# Provide the above library function that sets default values for tune
-	  parameters. It also handles the special case where user has requested
-	  to use BIOS IDE timings. Caller is assumed to support DMA
-	  on/off probe using the dma_status register unless a dma_check funtion
-	  is provided (note, the tekram driver is somewhat different from all
-	  the others, and haven't been updated yet).
-	# Makes BIOS IDE timings work for both IDE0 and IDE1 at the same time.
-
-What hasn't been addresses yet, but that I'm working on is proper simplex
-detection when 'biostimings' are used. However, to me it seems like the simplex
-code is in the middle of being updated, right? On some chipsets we make just
-dma_base isn't set on both interfaces if device claims to be simplex. On others
-we force dma on both channels if simplex mode, why?
-
-Tested with via82cxxx, serverworks and piix. 'biostimings' is only supported on
-PCI chips.
-
-More generic IDE cleanups are needed here and there, so thats probaly next.
-
-Cheers,
-Torben
-
---IS0zKkzwUGydFO0o
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="ide_bios-2.5.47-ac6.diff"
-
---- linux-2.5.47-ac6/include/linux/ide.h	2002-11-20 10:56:26.000000000 +0100
-+++ linux-2.5.47-ac6-ide/include/linux/ide.h	2002-11-20 10:58:29.000000000 +0100
-@@ -1723,6 +1723,7 @@
- extern void export_ide_init_queue(ide_drive_t *);
- extern u8 export_probe_for_drive(ide_drive_t *);
- extern int probe_hwif_init(ide_hwif_t *);
-+extern int ide_setup_tune(ide_hwif_t *, int (dma_check)(ide_hwif_t *, int));
+diff -u --recursive --new-file -X /linux/dontdiff a/Documentation/filesystems/Locking b/Documentation/filesystems/Locking
+--- a/Documentation/filesystems/Locking	Sat Jul 20 21:39:32 2002
++++ b/Documentation/filesystems/Locking	Wed Nov 20 11:19:02 2002
+@@ -35,7 +35,7 @@
+ 	int (*symlink) (struct inode *,struct dentry *,const char *);
+ 	int (*mkdir) (struct inode *,struct dentry *,int);
+ 	int (*rmdir) (struct inode *,struct dentry *);
+-	int (*mknod) (struct inode *,struct dentry *,int,int);
++	int (*mknod) (struct inode *,struct dentry *,int,dev_t);
+ 	int (*rename) (struct inode *, struct dentry *,
+ 			struct inode *, struct dentry *);
+ 	int (*readlink) (struct dentry *, char *,int);
+diff -u --recursive --new-file -X /linux/dontdiff a/Documentation/filesystems/vfs.txt b/Documentation/filesystems/vfs.txt
+--- a/Documentation/filesystems/vfs.txt	Sun Jun  9 07:27:24 2002
++++ b/Documentation/filesystems/vfs.txt	Wed Nov 20 11:19:02 2002
+@@ -258,7 +258,7 @@
+ 	int (*symlink) (struct inode *,struct dentry *,const char *);
+ 	int (*mkdir) (struct inode *,struct dentry *,int);
+ 	int (*rmdir) (struct inode *,struct dentry *);
+-	int (*mknod) (struct inode *,struct dentry *,int,int);
++	int (*mknod) (struct inode *,struct dentry *,int,dev_t);
+ 	int (*rename) (struct inode *, struct dentry *,
+ 			struct inode *, struct dentry *);
+ 	int (*readlink) (struct dentry *, char *,int);
+diff -u --recursive --new-file -X /linux/dontdiff a/drivers/hotplug/pci_hotplug_core.c b/drivers/hotplug/pci_hotplug_core.c
+--- a/drivers/hotplug/pci_hotplug_core.c	Mon Nov 18 10:57:13 2002
++++ b/drivers/hotplug/pci_hotplug_core.c	Wed Nov 20 11:19:02 2002
+@@ -121,7 +121,7 @@
+ static const char *slotdir_name = "slots";
+ #endif
  
- static inline void *ide_get_hwifdata (ide_hwif_t * hwif)
+-static struct inode *pcihpfs_get_inode (struct super_block *sb, int mode, int dev)
++static struct inode *pcihpfs_get_inode (struct super_block *sb, int mode, dev_t dev)
  {
-diff -ur linux-2.5.47-ac6/drivers/ide/ide-dma.c linux-2.5.47-ac6-ide/drivers/ide/ide-dma.c
---- linux-2.5.47-ac6/drivers/ide/ide-dma.c	2002-11-20 10:56:24.000000000 +0100
-+++ linux-2.5.47-ac6-ide/drivers/ide/ide-dma.c	2002-11-20 10:51:43.000000000 +0100
-@@ -1190,18 +1190,10 @@
+ 	struct inode *inode = new_inode(sb);
  
- 	if (hwif->chipset != ide_trm290) {
- 		u8 dma_stat = hwif->INB(hwif->dma_status);
--		printk(", BIOS settings: %s:%s%s, %s:%s%s",
-+		printk(", BIOS settings: %s:%s, %s:%s",
- 		       hwif->drives[0].name, (dma_stat & 0x20) ? "DMA" : "pio",
--		       hwif->drives[0].autotune == IDE_TUNE_BIOS ? 
--		       		" (used)" : "",
--		       hwif->drives[1].name, (dma_stat & 0x40) ? "DMA" : "pio",
--		       hwif->drives[1].autotune == IDE_TUNE_BIOS ? 
--		       		" (used)" : "");
--
--		if (hwif->drives[0].autotune == IDE_TUNE_BIOS)
--			hwif->drives[0].using_dma = (dma_stat & 0x20);
--		if (hwif->drives[1].autotune == IDE_TUNE_BIOS)
--			hwif->drives[1].using_dma = (dma_stat & 0x40);
-+		       hwif->drives[1].name, (dma_stat & 0x40) ? "DMA" : "pio");
-+
- 	}
- 	printk("\n");
- 
-@@ -1209,4 +1201,94 @@
- 		BUG();
+@@ -153,7 +153,7 @@
  }
  
-+/**
-+ *	ide_get_dma_from_chip	-	Read DMA on/off from chip
-+ *	@hwif: interface
-+ *	@drive: drive number
-+ *	
-+ *	Reads DMA on/off using the DMA status register. Note, not supported by
-+ *	all chipsets.
-+ *	
-+ * 	Returns DMA status (0 == off, 1 == on)
-+ */
-+
-+int ide_get_dma_from_chip(ide_hwif_t *hwif, int drive)
-+{
-+	u8 dma_stat = hwif->INB(hwif->dma_status);
-+
-+	switch(drive) {
-+		case(0):
-+			return (dma_stat & 0x20);
-+		case(1): 
-+			return (dma_stat & 0x40);
-+		default:
-+			BUG();
-+	}
-+
-+	return 0;
-+}
-+
-+/**
-+ *	ide_setup_tune	-	Set default tune values
-+ *	@hwif: interface
-+ *	@dma_check: Function to determine whether DMA is on/off.
-+ *	
-+ *	Set tune values according to environment. Handle case where BIOS IDE
-+ *	timings have been requested.
-+ *	If chipset doesn't support using the DMA status register DMA query,
-+ *	caller is assumed to provide a appropriate mechanism using the
-+ *	dma_check argument.
-+ *
-+ *	Returns 0 on success. 
-+ *	Returns 1 if DMA is not available.
-+ */
-+
-+int ide_setup_tune(ide_hwif_t *hwif, int (dma_check)(ide_hwif_t *hwif, int drive))
-+{
-+	int drive0_dma, drive1_dma, drive0_tune, drive1_tune;
-+
-+	BUG_ON(!hwif);
-+	
-+	drive0_tune = hwif->drives[0].autotune;
-+	drive1_tune = hwif->drives[1].autotune;
-+	
-+	if (!hwif->dma_base) {	/* No DMA available */
-+		if (drive0_tune != IDE_TUNE_BIOS)
-+			hwif->drives[0].autotune = IDE_TUNE_AUTO;
-+		if (drive1_tune != IDE_TUNE_BIOS)
-+			hwif->drives[1].autotune = IDE_TUNE_AUTO;
-+		return 1;
-+	}
-+	
-+	/* Check whether we want to use BIOS timings, and set DMA on/off
-+	 * accordingly
-+	 */
-+	if (drive0_tune == IDE_TUNE_BIOS) {
-+		if (!dma_check) 
-+			drive0_dma = ide_get_dma_from_chip(hwif, 0);
-+		else 
-+			drive0_dma = dma_check(hwif, 0);
-+
-+		hwif->drives[0].using_dma = drive0_dma;
-+		printk(KERN_DEBUG "%s: Using BIOS timings, DMA: %s\n",
-+			hwif->drives[0].name, drive0_dma ? "On" : "Off");
-+
-+	} 
-+
-+	if (drive1_tune == IDE_TUNE_BIOS) {
-+		if (!dma_check)
-+			drive1_dma = ide_get_dma_from_chip(hwif, 1);
-+		else
-+			drive1_dma = dma_check(hwif, 1);
-+
-+		hwif->drives[1].using_dma = drive1_dma;
-+		printk(KERN_DEBUG "%s: Using BIOS timings, DMA: %s\n",
-+			hwif->drives[1].name, drive1_dma ? "On" : "Off");
-+
-+	} 
-+
-+	return 0;
-+}
-+
- EXPORT_SYMBOL_GPL(ide_setup_dma);
-+EXPORT_SYMBOL_GPL(ide_setup_tune);
-diff -ur linux-2.5.47-ac6/drivers/ide/ide.c linux-2.5.47-ac6-ide/drivers/ide/ide.c
---- linux-2.5.47-ac6/drivers/ide/ide.c	2002-11-20 10:56:24.000000000 +0100
-+++ linux-2.5.47-ac6-ide/drivers/ide/ide.c	2002-11-20 10:51:43.000000000 +0100
-@@ -1849,9 +1849,9 @@
- 		 */
- 		const char *ide_words[] = {
- 			"noprobe", "serialize", "autotune", "noautotune", 
--			"reset", "dma", "ata66", "minus8", "minus9", "minus10",
-+			"reset", "dma", "ata66", "biostimings", "minus9", "minus10",
- 			"four", "qd65xx", "ht6560b", "cmd640_vlb", "dtc2278", 
--			"umc8672", "ali14xx", "dc4030", "biostimings", NULL };
-+			"umc8672", "ali14xx", "dc4030", NULL };
- 		hw = s[3] - '0';
- 		hwif = &ide_hwifs[hw];
- 		i = match_parm(&s[4], ide_words, vals, 3);
-@@ -1870,10 +1870,6 @@
- 		}
- 
- 		switch (i) {
--			case -19: /* "biostimings" */
--				hwif->drives[0].autotune = IDE_TUNE_BIOS;
--				hwif->drives[1].autotune = IDE_TUNE_BIOS;
--				goto done;
- #ifdef CONFIG_BLK_DEV_PDC4030
- 			case -18: /* "dc4030" */
- 			{
-@@ -1944,8 +1940,10 @@
- #endif /* CONFIG_BLK_DEV_4DRIVES */
- 			case -10: /* minus10 */
- 			case -9: /* minus9 */
--			case -8: /* minus8 */
--				goto bad_option;
-+			case -8: /* "biostimings" */
-+				hwif->drives[0].autotune = IDE_TUNE_BIOS;
-+				hwif->drives[1].autotune = IDE_TUNE_BIOS;
-+				goto done;
- 			case -7: /* ata66 */
- #ifdef CONFIG_BLK_DEV_IDEPCI
- 				hwif->udma_four = 1;
-diff -ur linux-2.5.47-ac6/drivers/ide/pci/aec62xx.c linux-2.5.47-ac6-ide/drivers/ide/pci/aec62xx.c
---- linux-2.5.47-ac6/drivers/ide/pci/aec62xx.c	2002-11-20 10:56:24.000000000 +0100
-+++ linux-2.5.47-ac6-ide/drivers/ide/pci/aec62xx.c	2002-11-20 11:03:58.000000000 +0100
-@@ -442,12 +442,9 @@
- 
- 	if (hwif->mate)
- 		hwif->mate->serialized = hwif->serialized;
--
--	if (!hwif->dma_base) {
--		hwif->drives[0].autotune = 1;
--		hwif->drives[1].autotune = 1;
-+	
-+	if (ide_setup_tune(hwif, NULL))
- 		return;
--	}
- 
- 	hwif->ultra_mask = 0x7f;
- 	hwif->mwdma_mask = 0x07;
-@@ -480,7 +477,7 @@
- 	        if (!(hwif->udma_four))
- 			hwif->udma_four = (ata66&(hwif->channel?0x02:0x01))?0:1;
- 	}
--
-+		
- 	ide_setup_dma(hwif, dmabase, 8);
- }
- 
-diff -ur linux-2.5.47-ac6/drivers/ide/pci/alim15x3.c linux-2.5.47-ac6-ide/drivers/ide/pci/alim15x3.c
---- linux-2.5.47-ac6/drivers/ide/pci/alim15x3.c	2002-11-20 10:56:24.000000000 +0100
-+++ linux-2.5.47-ac6-ide/drivers/ide/pci/alim15x3.c	2002-11-20 10:51:43.000000000 +0100
-@@ -740,12 +740,9 @@
- 
- 	/* Don't use LBA48 on ALi devices before rev 0xC5 */
- 	hwif->addressing = (m5229_revision <= 0xC4) ? 1 : 0;
--
--	if (!hwif->dma_base) {
--		hwif->drives[0].autotune = 1;
--		hwif->drives[1].autotune = 1;
-+	
-+	if (ide_setup_tune(hwif, NULL))
- 		return;
--	}
- 
- 	if (m5229_revision > 0x20)
- 		hwif->ultra_mask = 0x3f;
-diff -ur linux-2.5.47-ac6/drivers/ide/pci/amd74xx.c linux-2.5.47-ac6-ide/drivers/ide/pci/amd74xx.c
---- linux-2.5.47-ac6/drivers/ide/pci/amd74xx.c	2002-11-20 10:56:24.000000000 +0100
-+++ linux-2.5.47-ac6-ide/drivers/ide/pci/amd74xx.c	2002-11-20 11:24:15.000000000 +0100
-@@ -349,11 +349,8 @@
- 	hwif->tuneproc = &amd74xx_tune_drive;
- 	hwif->speedproc = &amd74xx_tune_chipset;
- 
--	if (!hwif->dma_base) {
--		hwif->drives[0].autotune = 1;
--		hwif->drives[1].autotune = 1;
-+	if (ide_setup_tune(hwif, NULL))
- 		return;
--	}
- 
- 	hwif->atapi_dma = 1;
- 	hwif->ultra_mask = 0x3f;
-diff -ur linux-2.5.47-ac6/drivers/ide/pci/cmd640.c linux-2.5.47-ac6-ide/drivers/ide/pci/cmd640.c
---- linux-2.5.47-ac6/drivers/ide/pci/cmd640.c	2002-11-20 10:56:24.000000000 +0100
-+++ linux-2.5.47-ac6-ide/drivers/ide/pci/cmd640.c	2002-11-20 11:24:48.000000000 +0100
-@@ -846,7 +846,8 @@
- 	for (index = 0; index < (2 + (second_port_cmd640 << 1)); index++) {
- 		ide_drive_t *drive = cmd_drives[index];
- #ifdef CONFIG_BLK_DEV_CMD640_ENHANCED
--		if (drive->autotune || ((index > 1) && second_port_toggled)) {
-+		if (drive->autotune == IDE_TUNE_AUTO || 
-+				((index > 1) && second_port_toggled)) {
- 	 		/*
- 	 		 * Reset timing to the slowest speed and turn off prefetch.
- 			 * This way, the drive identify code has a better chance.
-diff -ur linux-2.5.47-ac6/drivers/ide/pci/cmd64x.c linux-2.5.47-ac6-ide/drivers/ide/pci/cmd64x.c
---- linux-2.5.47-ac6/drivers/ide/pci/cmd64x.c	2002-11-20 10:56:24.000000000 +0100
-+++ linux-2.5.47-ac6-ide/drivers/ide/pci/cmd64x.c	2002-11-20 11:24:58.000000000 +0100
-@@ -703,11 +703,8 @@
- 	hwif->tuneproc  = &cmd64x_tuneproc;
- 	hwif->speedproc = &cmd64x_tune_chipset;
- 
--	if (!hwif->dma_base) {
--		hwif->drives[0].autotune = 1;
--		hwif->drives[1].autotune = 1;
-+	if (ide_setup_tune(hwif, NULL))
- 		return;
--	}
- 
- 	hwif->atapi_dma = 1;
- 
-diff -ur linux-2.5.47-ac6/drivers/ide/pci/cs5530.c linux-2.5.47-ac6-ide/drivers/ide/pci/cs5530.c
---- linux-2.5.47-ac6/drivers/ide/pci/cs5530.c	2002-11-20 10:56:24.000000000 +0100
-+++ linux-2.5.47-ac6-ide/drivers/ide/pci/cs5530.c	2002-11-20 10:51:44.000000000 +0100
-@@ -377,17 +377,20 @@
- 	if (CS5530_BAD_PIO(d0_timings)) {
- 		/* PIO timings not initialized? */
- 		hwif->OUTL(cs5530_pio_timings[(d0_timings>>31)&1][0], basereg+0);
--		if (!hwif->drives[0].autotune)
--			hwif->drives[0].autotune = 1;
-+		if (hwif->drives[0].autotune == IDE_TUNE_DEFAULT)
-+			hwif->drives[0].autotune = IDE_TUNE_AUTO;
- 			/* needs autotuning later */
- 	}
- 	if (CS5530_BAD_PIO(hwif->INL(basereg+8))) {
- 	/* PIO timings not initialized? */
- 		hwif->OUTL(cs5530_pio_timings[(d0_timings>>31)&1][0], basereg+8);
--		if (!hwif->drives[1].autotune)
--			hwif->drives[1].autotune = 1;
-+		if (hwif->drives[1].autotune == IDE_TUNE_DEFAULT)
-+			hwif->drives[1].autotune = IDE_TUNE_AUTO;
- 			/* needs autotuning later */
- 	}
-+	
-+	if (ide_setup_tune(hwif, NULL))
-+		return;
- 
- 	hwif->atapi_dma = 1;
- 	hwif->ultra_mask = 0x07;
-diff -ur linux-2.5.47-ac6/drivers/ide/pci/cy82c693.c linux-2.5.47-ac6-ide/drivers/ide/pci/cy82c693.c
---- linux-2.5.47-ac6/drivers/ide/pci/cy82c693.c	2002-11-20 10:56:24.000000000 +0100
-+++ linux-2.5.47-ac6-ide/drivers/ide/pci/cy82c693.c	2002-11-20 10:51:44.000000000 +0100
-@@ -393,12 +393,9 @@
- 
- 	hwif->chipset = ide_cy82c693;
- 	hwif->tuneproc = &cy82c693_tune_drive;
--
--	if (!hwif->dma_base) {
--		hwif->drives[0].autotune = 1;
--		hwif->drives[1].autotune = 1;
-+	
-+	if (ide_setup_tune(hwif, NULL))
- 		return;
--	}
- 
- 	hwif->atapi_dma = 1;
- 	hwif->mwdma_mask = 0x04;
-diff -ur linux-2.5.47-ac6/drivers/ide/pci/generic.c linux-2.5.47-ac6-ide/drivers/ide/pci/generic.c
---- linux-2.5.47-ac6/drivers/ide/pci/generic.c	2002-11-20 10:56:24.000000000 +0100
-+++ linux-2.5.47-ac6-ide/drivers/ide/pci/generic.c	2002-11-20 11:21:12.000000000 +0100
-@@ -41,8 +41,8 @@
- 		default:
- 			break;
- 	}
--
--	if (!(hwif->dma_base))
-+	
-+	if (ide_setup_tune(hwif, NULL))
- 		return;
- 
- 	hwif->atapi_dma = 1;
-diff -ur linux-2.5.47-ac6/drivers/ide/pci/hpt34x.c linux-2.5.47-ac6-ide/drivers/ide/pci/hpt34x.c
---- linux-2.5.47-ac6/drivers/ide/pci/hpt34x.c	2002-11-20 10:56:24.000000000 +0100
-+++ linux-2.5.47-ac6-ide/drivers/ide/pci/hpt34x.c	2002-11-20 10:51:44.000000000 +0100
-@@ -293,8 +293,9 @@
- 	hwif->tuneproc = &hpt34x_tune_drive;
- 	hwif->speedproc = &hpt34x_tune_chipset;
- 	hwif->no_dsc = 1;
--	hwif->drives[0].autotune = 1;
--	hwif->drives[1].autotune = 1;
-+	
-+	if (ide_setup_tune(hwif, NULL))
-+		return;
- 
- 	pci_read_config_word(hwif->pci_dev, PCI_COMMAND, &pcicmd);
- 
-diff -ur linux-2.5.47-ac6/drivers/ide/pci/hpt366.c linux-2.5.47-ac6-ide/drivers/ide/pci/hpt366.c
---- linux-2.5.47-ac6/drivers/ide/pci/hpt366.c	2002-11-20 10:56:24.000000000 +0100
-+++ linux-2.5.47-ac6-ide/drivers/ide/pci/hpt366.c	2002-11-20 11:21:40.000000000 +0100
-@@ -1015,11 +1015,8 @@
- 		hwif->busproc   = &hpt3xx_tristate;
- 	}
- 
--	if (!hwif->dma_base) {
--		hwif->drives[0].autotune = 1;
--		hwif->drives[1].autotune = 1;
-+	if (ide_setup_tune(hwif, NULL))
- 		return;
--	}
- 
- 	hwif->ultra_mask = 0x7f;
- 	hwif->mwdma_mask = 0x07;
-diff -ur linux-2.5.47-ac6/drivers/ide/pci/it8172.c linux-2.5.47-ac6-ide/drivers/ide/pci/it8172.c
---- linux-2.5.47-ac6/drivers/ide/pci/it8172.c	2002-11-20 10:56:24.000000000 +0100
-+++ linux-2.5.47-ac6-ide/drivers/ide/pci/it8172.c	2002-11-20 10:51:44.000000000 +0100
-@@ -266,12 +266,9 @@
- 	ide_init_hwif_ports(&hwif->hw, cmdBase, ctrlBase | 2, NULL);
- 	memcpy(hwif->io_ports, hwif->hw.io_ports, sizeof(hwif->io_ports));
- 	hwif->noprobe = 0;
--
--	if (!hwif->dma_base) {
--		hwif->drives[0].autotune = 1;
--		hwif->drives[1].autotune = 1;
-+	
-+	if (ide_setup_tune(hwif, NULL)
- 		return;
--	}
- 
- 	hwif->atapi_dma = 1;
- 	hwif->ultra_mask = 0x07;
-diff -ur linux-2.5.47-ac6/drivers/ide/pci/ns87415.c linux-2.5.47-ac6-ide/drivers/ide/pci/ns87415.c
---- linux-2.5.47-ac6/drivers/ide/pci/ns87415.c	2002-11-20 10:56:24.000000000 +0100
-+++ linux-2.5.47-ac6-ide/drivers/ide/pci/ns87415.c	2002-11-20 10:51:44.000000000 +0100
-@@ -204,7 +204,7 @@
- 	else if (!hwif->irq && hwif->mate && hwif->mate->irq)
- 		hwif->irq = hwif->mate->irq;	/* share IRQ with mate */
- 
--	if (!hwif->dma_base)
-+	if (ide_setup_tune(hwif, NULL))
- 		return;
- 
- 	hwif->OUTB(0x60, hwif->dma_status);
-diff -ur linux-2.5.47-ac6/drivers/ide/pci/nvidia.c linux-2.5.47-ac6-ide/drivers/ide/pci/nvidia.c
---- linux-2.5.47-ac6/drivers/ide/pci/nvidia.c	2002-11-20 10:56:24.000000000 +0100
-+++ linux-2.5.47-ac6-ide/drivers/ide/pci/nvidia.c	2002-11-20 11:22:06.000000000 +0100
-@@ -301,11 +301,8 @@
- 	hwif->speedproc = &nforce_tune_chipset;
- 	hwif->autodma = 0;
- 
--	if (!hwif->dma_base) {
--		hwif->drives[0].autotune = 1;
--		hwif->drives[1].autotune = 1;
-+	if (ide_setup_tune(hwif, NULL))
- 		return;
--	}
- 
- 	hwif->atapi_dma = 1;
- 	hwif->ultra_mask = 0x3f;
-diff -ur linux-2.5.47-ac6/drivers/ide/pci/opti621.c linux-2.5.47-ac6-ide/drivers/ide/pci/opti621.c
---- linux-2.5.47-ac6/drivers/ide/pci/opti621.c	2002-11-20 10:56:24.000000000 +0100
-+++ linux-2.5.47-ac6-ide/drivers/ide/pci/opti621.c	2002-11-20 10:51:44.000000000 +0100
-@@ -335,8 +335,8 @@
- 	hwif->drives[0].drive_data = PIO_DONT_KNOW;
- 	hwif->drives[1].drive_data = PIO_DONT_KNOW;
- 	hwif->tuneproc = &opti621_tune_drive;
--
--	if (!(hwif->dma_base))
-+	
-+	if (ide_setup_tune(hwif, NULL))
- 		return;
- 
- 	hwif->atapi_dma = 1;
-diff -ur linux-2.5.47-ac6/drivers/ide/pci/pdc202xx_new.c linux-2.5.47-ac6-ide/drivers/ide/pci/pdc202xx_new.c
---- linux-2.5.47-ac6/drivers/ide/pci/pdc202xx_new.c	2002-11-20 10:56:24.000000000 +0100
-+++ linux-2.5.47-ac6-ide/drivers/ide/pci/pdc202xx_new.c	2002-11-20 10:51:44.000000000 +0100
-@@ -537,11 +537,9 @@
- 	hwif->quirkproc = &pdcnew_quirkproc;
- 	hwif->speedproc = &pdcnew_new_tune_chipset;
- 	hwif->resetproc = &pdcnew_new_reset;
--
--	if (!hwif->dma_base) {
--		hwif->drives[0].autotune = hwif->drives[1].autotune = 1;
-+	
-+	if (ide_setup_tune(hwif, NULL))
- 		return;
--	}
- 
- 	hwif->ultra_mask = 0x7f;
- 	hwif->mwdma_mask = 0x07;
-diff -ur linux-2.5.47-ac6/drivers/ide/pci/pdc202xx_old.c linux-2.5.47-ac6-ide/drivers/ide/pci/pdc202xx_old.c
---- linux-2.5.47-ac6/drivers/ide/pci/pdc202xx_old.c	2002-11-20 10:56:24.000000000 +0100
-+++ linux-2.5.47-ac6-ide/drivers/ide/pci/pdc202xx_old.c	2002-11-20 10:51:44.000000000 +0100
-@@ -759,11 +759,9 @@
- 	}
- 
- 	hwif->speedproc = &pdc202xx_tune_chipset;
--
--	if (!hwif->dma_base) {
--		hwif->drives[0].autotune = hwif->drives[1].autotune = 1;
-+	
-+	if (ide_setup_tune(hwif, NULL))
- 		return;
--	}
- 
- 	hwif->ultra_mask = 0x3f;
- 	hwif->mwdma_mask = 0x07;
-diff -ur linux-2.5.47-ac6/drivers/ide/pci/piix.c linux-2.5.47-ac6-ide/drivers/ide/pci/piix.c
---- linux-2.5.47-ac6/drivers/ide/pci/piix.c	2002-11-20 10:56:24.000000000 +0100
-+++ linux-2.5.47-ac6-ide/drivers/ide/pci/piix.c	2002-11-20 10:51:44.000000000 +0100
-@@ -581,10 +581,8 @@
- 	hwif->autodma = 0;
- 	hwif->tuneproc = &piix_tune_drive;
- 	hwif->speedproc = &piix_tune_chipset;
--	hwif->drives[0].autotune = 1;
--	hwif->drives[1].autotune = 1;
--
--	if (!hwif->dma_base)
-+	
-+	if (ide_setup_tune(hwif, NULL))
- 		return;
- 
- 	hwif->atapi_dma = 1;
-diff -ur linux-2.5.47-ac6/drivers/ide/pci/sc1200.c linux-2.5.47-ac6-ide/drivers/ide/pci/sc1200.c
---- linux-2.5.47-ac6/drivers/ide/pci/sc1200.c	2002-11-20 10:56:24.000000000 +0100
-+++ linux-2.5.47-ac6-ide/drivers/ide/pci/sc1200.c	2002-11-20 10:51:44.000000000 +0100
-@@ -526,14 +526,17 @@
- 	if (hwif->mate)
- 		hwif->serialized = hwif->mate->serialized = 1;
- 	hwif->autodma = 0;
--	if (hwif->dma_base) {
--		hwif->ide_dma_check = &sc1200_config_dma;
--		hwif->ide_dma_end   = &sc1200_ide_dma_end;
--        	if (!noautodma)
--                	hwif->autodma = 1;
--		hwif->tuneproc = &sc1200_tuneproc;
--	}
--        hwif->atapi_dma = 1;
-+	hwif->tuneproc = &sc1200_tuneproc;
-+
-+	if (ide_setup_tune(hwif, NULL))
-+		return;
-+
-+	hwif->ide_dma_check = &sc1200_config_dma;
-+	hwif->ide_dma_end   = &sc1200_ide_dma_end;
-+        if (!noautodma)
-+		hwif->autodma = 1;
-+	
-+	hwif->atapi_dma = 1;
-         hwif->ultra_mask = 0x07;
-         hwif->mwdma_mask = 0x07;
- 
-diff -ur linux-2.5.47-ac6/drivers/ide/pci/serverworks.c linux-2.5.47-ac6-ide/drivers/ide/pci/serverworks.c
---- linux-2.5.47-ac6/drivers/ide/pci/serverworks.c	2002-11-20 10:56:24.000000000 +0100
-+++ linux-2.5.47-ac6-ide/drivers/ide/pci/serverworks.c	2002-11-20 10:51:44.000000000 +0100
-@@ -704,12 +704,9 @@
- #endif /* CAN_SW_DMA */
- 
- 	hwif->autodma = 0;
--
--	if (!hwif->dma_base) {
--		hwif->drives[0].autotune = 1;
--		hwif->drives[1].autotune = 1;
-+	
-+	if (ide_setup_tune(hwif, NULL))
- 		return;
--	}
- 
- 	hwif->ide_dma_check = &svwks_config_drive_xfer_rate;
- 	if (hwif->pci_dev->device == PCI_DEVICE_ID_SERVERWORKS_OSB4IDE)
-@@ -722,8 +719,8 @@
- 	dma_stat = hwif->INB(hwif->dma_status);
- 	hwif->drives[0].autodma = (dma_stat & 0x20);
- 	hwif->drives[1].autodma = (dma_stat & 0x40);
--	hwif->drives[0].autotune = (!(dma_stat & 0x20));
--	hwif->drives[1].autotune = (!(dma_stat & 0x40));
-+//	hwif->drives[0].autotune = (!(dma_stat & 0x20));
-+//	hwif->drives[1].autotune = (!(dma_stat & 0x40));
- //	hwif->drives[0].autodma = hwif->autodma;
- //	hwif->drives[1].autodma = hwif->autodma;
- }
-diff -ur linux-2.5.47-ac6/drivers/ide/pci/siimage.c linux-2.5.47-ac6-ide/drivers/ide/pci/siimage.c
---- linux-2.5.47-ac6/drivers/ide/pci/siimage.c	2002-11-20 10:56:24.000000000 +0100
-+++ linux-2.5.47-ac6-ide/drivers/ide/pci/siimage.c	2002-11-20 11:22:47.000000000 +0100
-@@ -794,11 +794,8 @@
- 	hwif->reset_poll = &siimage_reset_poll;
- 	hwif->pre_reset = &siimage_pre_reset;
- 
--	if (!hwif->dma_base) {
--		hwif->drives[0].autotune = 1;
--		hwif->drives[1].autotune = 1;
-+	if (ide_setup_tune(hwif, NULL))
- 		return;
--	}
- 
- 	hwif->ultra_mask = 0x7f;
- 	hwif->mwdma_mask = 0x07;
-diff -ur linux-2.5.47-ac6/drivers/ide/pci/sis5513.c linux-2.5.47-ac6-ide/drivers/ide/pci/sis5513.c
---- linux-2.5.47-ac6/drivers/ide/pci/sis5513.c	2002-11-20 10:56:24.000000000 +0100
-+++ linux-2.5.47-ac6-ide/drivers/ide/pci/sis5513.c	2002-11-20 10:51:44.000000000 +0100
-@@ -982,12 +982,9 @@
- 
- 	hwif->tuneproc = &sis5513_tune_drive;
- 	hwif->speedproc = &sis5513_tune_chipset;
--
--	if (!(hwif->dma_base)) {
--		hwif->drives[0].autotune = 1;
--		hwif->drives[1].autotune = 1;
-+	
-+	if (ide_setup_tune(hwif, NULL))
- 		return;
--	}
- 
- 	hwif->atapi_dma = 1;
- 	hwif->ultra_mask = 0x7f;
-diff -ur linux-2.5.47-ac6/drivers/ide/pci/sl82c105.c linux-2.5.47-ac6-ide/drivers/ide/pci/sl82c105.c
---- linux-2.5.47-ac6/drivers/ide/pci/sl82c105.c	2002-11-11 04:28:08.000000000 +0100
-+++ linux-2.5.47-ac6-ide/drivers/ide/pci/sl82c105.c	2002-11-20 11:20:30.000000000 +0100
-@@ -238,8 +238,8 @@
- 	dma_state = hwif->INB(dma_base + 2);
- 	rev = sl82c105_bridge_revision(hwif->pci_dev);
- 	if (rev <= 5) {
--		hwif->drives[0].autotune = 1;
--		hwif->drives[1].autotune = 1;
-+		hwif->drives[0].autotune = IDE_TUNE_AUTO;
-+		hwif->drives[1].autotune = IDE_TUNE_AUTO;
- 		printk("    %s: Winbond 553 bridge revision %d, BM-DMA disabled\n",
- 		       hwif->name, rev);
- 		dma_state &= ~0x60;
-@@ -260,8 +260,8 @@
- static void __init init_hwif_sl82c105(ide_hwif_t *hwif)
+ /* SMP-safe */
+-static int pcihpfs_mknod (struct inode *dir, struct dentry *dentry, int mode, int dev)
++static int pcihpfs_mknod (struct inode *dir, struct dentry *dentry, int mode, dev_t dev)
  {
- 	hwif->tuneproc = tune_sl82c105;
+ 	struct inode *inode = pcihpfs_get_inode(dir->i_sb, mode, dev);
+ 	int error = -ENOSPC;
+diff -u --recursive --new-file -X /linux/dontdiff a/drivers/usb/core/inode.c b/drivers/usb/core/inode.c
+--- a/drivers/usb/core/inode.c	Mon Nov 18 10:57:17 2002
++++ b/drivers/usb/core/inode.c	Wed Nov 20 11:19:02 2002
+@@ -143,7 +143,7 @@
+ 
+ /* --------------------------------------------------------------------- */
+ 
+-static struct inode *usbfs_get_inode (struct super_block *sb, int mode, int dev)
++static struct inode *usbfs_get_inode (struct super_block *sb, int mode, dev_t dev)
+ {
+ 	struct inode *inode = new_inode(sb);
+ 
+@@ -176,7 +176,7 @@
+ 
+ /* SMP-safe */
+ static int usbfs_mknod (struct inode *dir, struct dentry *dentry, int mode,
+-			int dev)
++			dev_t dev)
+ {
+ 	struct inode *inode = usbfs_get_inode(dir->i_sb, mode, dev);
+ 	int error = -EPERM;
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/coda/dir.c b/fs/coda/dir.c
+--- a/fs/coda/dir.c	Sat Oct 12 19:28:47 2002
++++ b/fs/coda/dir.c	Wed Nov 20 11:19:02 2002
+@@ -29,7 +29,7 @@
+ 
+ /* dir inode-ops */
+ static int coda_create(struct inode *dir, struct dentry *new, int mode);
+-static int coda_mknod(struct inode *dir, struct dentry *new, int mode, int rdev);
++static int coda_mknod(struct inode *dir, struct dentry *new, int mode, dev_t rdev);
+ static struct dentry *coda_lookup(struct inode *dir, struct dentry *target);
+ static int coda_link(struct dentry *old_dentry, struct inode *dir_inode, 
+ 		     struct dentry *entry);
+@@ -230,7 +230,7 @@
+         return 0;
+ }
+ 
+-static int coda_mknod(struct inode *dir, struct dentry *de, int mode, int rdev)
++static int coda_mknod(struct inode *dir, struct dentry *de, int mode, dev_t rdev)
+ {
+         int error=0;
+ 	const char *name=de->d_name.name;
+@@ -740,4 +740,3 @@
+ 	unlock_kernel();
+ 	return -EIO;
+ }
 -
--	if (!hwif->dma_base)
-+	
-+	if (ide_setup_tune(hwif, NULL))
- 		return;
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/coda/upcall.c b/fs/coda/upcall.c
+--- a/fs/coda/upcall.c	Sat Oct 12 19:28:47 2002
++++ b/fs/coda/upcall.c	Wed Nov 20 11:19:02 2002
+@@ -310,8 +310,8 @@
+ }
  
- 	hwif->atapi_dma = 1;
-diff -ur linux-2.5.47-ac6/drivers/ide/pci/slc90e66.c linux-2.5.47-ac6-ide/drivers/ide/pci/slc90e66.c
---- linux-2.5.47-ac6/drivers/ide/pci/slc90e66.c	2002-11-11 04:28:28.000000000 +0100
-+++ linux-2.5.47-ac6-ide/drivers/ide/pci/slc90e66.c	2002-11-20 10:51:44.000000000 +0100
-@@ -333,12 +333,9 @@
- 	hwif->tuneproc = &slc90e66_tune_drive;
+ int venus_create(struct super_block *sb, struct ViceFid *dirfid, 
+-		    const char *name, int length, int excl, int mode, int rdev,
+-		    struct ViceFid *newfid, struct coda_vattr *attrs) 
++		 const char *name, int length, int excl, int mode, dev_t rdev,
++		 struct ViceFid *newfid, struct coda_vattr *attrs) 
+ {
+         union inputArgs *inp;
+         union outputArgs *outp;
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/devfs/base.c b/fs/devfs/base.c
+--- a/fs/devfs/base.c	Mon Nov 18 10:57:19 2002
++++ b/fs/devfs/base.c	Wed Nov 20 11:19:02 2002
+@@ -3106,7 +3106,7 @@
+ }   /*  End Function devfs_rmdir  */
  
- 	pci_read_config_byte(hwif->pci_dev, 0x47, &reg47);
--
--	if (!hwif->dma_base) {
--		hwif->drives[0].autotune = 1;
--		hwif->drives[1].autotune = 1;
-+	
-+	if (ide_setup_tune(hwif, NULL))
- 		return;
--	}
+ static int devfs_mknod (struct inode *dir, struct dentry *dentry, int mode,
+-			int rdev)
++			dev_t rdev)
+ {
+     int err;
+     struct fs_info *fs_info = dir->i_sb->s_fs_info;
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/devices.c b/fs/devices.c
+--- a/fs/devices.c	Sat Sep 21 11:39:51 2002
++++ b/fs/devices.c	Wed Nov 20 11:19:02 2002
+@@ -202,7 +202,7 @@
+ 	.open		= sock_no_open
+ };
  
- 	hwif->atapi_dma = 1;
- 	hwif->ultra_mask = 0x1f;
-diff -ur linux-2.5.47-ac6/drivers/ide/pci/via82cxxx.c linux-2.5.47-ac6-ide/drivers/ide/pci/via82cxxx.c
---- linux-2.5.47-ac6/drivers/ide/pci/via82cxxx.c	2002-11-20 10:56:24.000000000 +0100
-+++ linux-2.5.47-ac6-ide/drivers/ide/pci/via82cxxx.c	2002-11-20 10:51:44.000000000 +0100
-@@ -592,11 +592,10 @@
- 	for (i = 0; i < 2; i++) {
- 		hwif->drives[i].io_32bit = 1;
- 		hwif->drives[i].unmask = (via_config->flags & VIA_NO_UNMASK) ? 0 : 1;
--		hwif->drives[i].autotune = 1;
- 		hwif->drives[i].dn = hwif->channel * 2 + i;
+-void init_special_inode(struct inode *inode, umode_t mode, int rdev)
++void init_special_inode(struct inode *inode, umode_t mode, dev_t rdev)
+ {
+ 	inode->i_mode = mode;
+ 	if (S_ISCHR(mode)) {
+@@ -217,5 +217,6 @@
+ 	else if (S_ISSOCK(mode))
+ 		inode->i_fop = &bad_sock_fops;
+ 	else
+-		printk(KERN_DEBUG "init_special_inode: bogus imode (%o)\n", mode);
++		printk(KERN_DEBUG "init_special_inode: bogus imode (%o)\n",
++		       mode);
+ }
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/ext2/namei.c b/fs/ext2/namei.c
+--- a/fs/ext2/namei.c	Tue Nov  5 09:18:10 2002
++++ b/fs/ext2/namei.c	Wed Nov 20 11:19:02 2002
+@@ -134,7 +134,7 @@
+ 	return err;
+ }
+ 
+-static int ext2_mknod (struct inode * dir, struct dentry *dentry, int mode, int rdev)
++static int ext2_mknod (struct inode * dir, struct dentry *dentry, int mode, dev_t rdev)
+ {
+ 	struct inode * inode = ext2_new_inode (dir, mode);
+ 	int err = PTR_ERR(inode);
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/ext3/namei.c b/fs/ext3/namei.c
+--- a/fs/ext3/namei.c	Thu Nov 14 17:10:27 2002
++++ b/fs/ext3/namei.c	Wed Nov 20 11:19:02 2002
+@@ -1616,7 +1616,7 @@
+ }
+ 
+ static int ext3_mknod (struct inode * dir, struct dentry *dentry,
+-			int mode, int rdev)
++			int mode, dev_t rdev)
+ {
+ 	handle_t *handle;
+ 	struct inode *inode;
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/hpfs/hpfs_fn.h b/fs/hpfs/hpfs_fn.h
+--- a/fs/hpfs/hpfs_fn.h	Sat Oct 12 19:28:48 2002
++++ b/fs/hpfs/hpfs_fn.h	Wed Nov 20 11:19:02 2002
+@@ -282,7 +282,7 @@
+ 
+ int hpfs_mkdir(struct inode *, struct dentry *, int);
+ int hpfs_create(struct inode *, struct dentry *, int);
+-int hpfs_mknod(struct inode *, struct dentry *, int, int);
++int hpfs_mknod(struct inode *, struct dentry *, int, dev_t);
+ int hpfs_symlink(struct inode *, struct dentry *, const char *);
+ int hpfs_unlink(struct inode *, struct dentry *);
+ int hpfs_rmdir(struct inode *, struct dentry *);
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/hpfs/namei.c b/fs/hpfs/namei.c
+--- a/fs/hpfs/namei.c	Mon Nov 18 10:57:20 2002
++++ b/fs/hpfs/namei.c	Wed Nov 20 11:19:02 2002
+@@ -181,7 +181,7 @@
+ 	return -ENOSPC;
+ }
+ 
+-int hpfs_mknod(struct inode *dir, struct dentry *dentry, int mode, int rdev)
++int hpfs_mknod(struct inode *dir, struct dentry *dentry, int mode, dev_t rdev)
+ {
+ 	const char *name = dentry->d_name.name;
+ 	unsigned len = dentry->d_name.len;
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
+--- a/fs/hugetlbfs/inode.c	Mon Nov 18 10:57:20 2002
++++ b/fs/hugetlbfs/inode.c	Wed Nov 20 11:19:02 2002
+@@ -359,7 +359,8 @@
+ 	return error;
+ }
+ 
+-struct inode *hugetlbfs_get_inode(struct super_block *sb, int mode, int dev)
++static struct inode *
++hugetlbfs_get_inode(struct super_block *sb, int mode, dev_t dev)
+ {
+ 	struct inode * inode = new_inode(sb);
+ 
+@@ -399,7 +400,8 @@
+  * File creation. Allocate an inode, and we're done..
+  */
+ /* SMP-safe */
+-static int hugetlbfs_mknod(struct inode *dir, struct dentry *dentry, int mode, int dev)
++static int
++hugetlbfs_mknod(struct inode *dir, struct dentry *dentry, int mode, dev_t dev)
+ {
+ 	struct inode * inode = hugetlbfs_get_inode(dir->i_sb, mode, dev);
+ 	int error = -ENOSPC;
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/intermezzo/dir.c b/fs/intermezzo/dir.c
+--- a/fs/intermezzo/dir.c	Thu Oct 17 02:28:40 2002
++++ b/fs/intermezzo/dir.c	Wed Nov 20 11:19:02 2002
+@@ -720,7 +720,7 @@
+         return error;
+ }
+ 
+-static int presto_mknod(struct inode * dir, struct dentry * dentry, int mode, int rdev)
++static int presto_mknod(struct inode * dir, struct dentry * dentry, int mode, dev_t rdev)
+ {
+         int error;
+         struct presto_cache *cache;
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/jffs/inode-v23.c b/fs/jffs/inode-v23.c
+--- a/fs/jffs/inode-v23.c	Mon Nov 18 10:57:20 2002
++++ b/fs/jffs/inode-v23.c	Wed Nov 20 11:19:02 2002
+@@ -1072,7 +1072,7 @@
+ 
+ 
+ static int
+-jffs_mknod(struct inode *dir, struct dentry *dentry, int mode, int rdev)
++jffs_mknod(struct inode *dir, struct dentry *dentry, int mode, dev_t rdev)
+ {
+ 	struct jffs_raw_inode raw_inode;
+ 	struct jffs_file *dir_f;
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/jffs2/dir.c b/fs/jffs2/dir.c
+--- a/fs/jffs2/dir.c	Mon Nov 18 10:57:20 2002
++++ b/fs/jffs2/dir.c	Wed Nov 20 11:19:02 2002
+@@ -32,7 +32,7 @@
+ static int jffs2_symlink (struct inode *,struct dentry *,const char *);
+ static int jffs2_mkdir (struct inode *,struct dentry *,int);
+ static int jffs2_rmdir (struct inode *,struct dentry *);
+-static int jffs2_mknod (struct inode *,struct dentry *,int,int);
++static int jffs2_mknod (struct inode *,struct dentry *,int,dev_t);
+ static int jffs2_rename (struct inode *, struct dentry *,
+                         struct inode *, struct dentry *);
+ 
+@@ -567,7 +567,7 @@
+ 	return ret;
+ }
+ 
+-static int jffs2_mknod (struct inode *dir_i, struct dentry *dentry, int mode, int rdev)
++static int jffs2_mknod (struct inode *dir_i, struct dentry *dentry, int mode, dev_t rdev)
+ {
+ 	struct jffs2_inode_info *f, *dir_f;
+ 	struct jffs2_sb_info *c;
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/jfs/namei.c b/fs/jfs/namei.c
+--- a/fs/jfs/namei.c	Tue Nov  5 09:18:10 2002
++++ b/fs/jfs/namei.c	Wed Nov 20 11:19:02 2002
+@@ -1316,7 +1316,7 @@
+  *
+  * FUNCTION:    Create a special file (device)
+  */
+-int jfs_mknod(struct inode *dir, struct dentry *dentry, int mode, int rdev)
++int jfs_mknod(struct inode *dir, struct dentry *dentry, int mode, dev_t rdev)
+ {
+ 	struct btstack btstack;
+ 	struct component_name dname;
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/minix/namei.c b/fs/minix/namei.c
+--- a/fs/minix/namei.c	Sat Oct  5 13:46:10 2002
++++ b/fs/minix/namei.c	Wed Nov 20 11:19:02 2002
+@@ -75,7 +75,7 @@
+ 	return NULL;
+ }
+ 
+-static int minix_mknod(struct inode * dir, struct dentry *dentry, int mode, int rdev)
++static int minix_mknod(struct inode * dir, struct dentry *dentry, int mode, dev_t rdev)
+ {
+ 	int error;
+ 	struct inode * inode = minix_new_inode(dir, &error);
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/ncpfs/dir.c b/fs/ncpfs/dir.c
+--- a/fs/ncpfs/dir.c	Sun Aug  4 14:16:58 2002
++++ b/fs/ncpfs/dir.c	Wed Nov 20 11:19:02 2002
+@@ -42,7 +42,7 @@
+ static int ncp_rename(struct inode *, struct dentry *,
+ 	  	      struct inode *, struct dentry *);
+ static int ncp_mknod(struct inode * dir, struct dentry *dentry,
+-		     int mode, int rdev);
++		     int mode, dev_t rdev);
+ #if defined(CONFIG_NCPFS_EXTRAS) || defined(CONFIG_NCPFS_NFS_NS)
+ extern int ncp_symlink(struct inode *, struct dentry *, const char *);
+ #else
+@@ -883,7 +883,7 @@
+ }
+ 
+ int ncp_create_new(struct inode *dir, struct dentry *dentry, int mode,
+-		   int rdev, int attributes)
++		   dev_t rdev, int attributes)
+ {
+ 	struct ncp_server *server = NCP_SERVER(dir);
+ 	struct ncp_entry_info finfo;
+@@ -1169,7 +1169,7 @@
+ }
+ 
+ static int ncp_mknod(struct inode * dir, struct dentry *dentry,
+-		     int mode, int rdev)
++		     int mode, dev_t rdev)
+ {
+ 	if (ncp_is_nfs_extras(NCP_SERVER(dir), NCP_FINFO(dir)->volNumber)) {
+ 		DPRINTK(KERN_DEBUG "ncp_mknod: mode = 0%o\n", mode);
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/ncpfs/ncplib_kernel.h b/fs/ncpfs/ncplib_kernel.h
+--- a/fs/ncpfs/ncplib_kernel.h	Sat Jul 27 19:03:25 2002
++++ b/fs/ncpfs/ncplib_kernel.h	Wed Nov 20 11:19:02 2002
+@@ -117,7 +117,7 @@
+ int ncp_dirhandle_free(struct ncp_server *, __u8 dirhandle);
+ 
+ int ncp_create_new(struct inode *dir, struct dentry *dentry,
+-                          int mode, int rdev, int attributes);
++                          int mode, dev_t rdev, int attributes);
+ 
+ static inline int ncp_is_nfs_extras(struct ncp_server* server, unsigned int volnum) {
+ #ifdef CONFIG_NCPFS_NFS_NS
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/nfs/dir.c b/fs/nfs/dir.c
+--- a/fs/nfs/dir.c	Sat Oct 12 19:28:48 2002
++++ b/fs/nfs/dir.c	Wed Nov 20 11:19:02 2002
+@@ -45,7 +45,7 @@
+ static int nfs_unlink(struct inode *, struct dentry *);
+ static int nfs_symlink(struct inode *, struct dentry *, const char *);
+ static int nfs_link(struct dentry *, struct inode *, struct dentry *);
+-static int nfs_mknod(struct inode *, struct dentry *, int, int);
++static int nfs_mknod(struct inode *, struct dentry *, int, dev_t);
+ static int nfs_rename(struct inode *, struct dentry *,
+ 		      struct inode *, struct dentry *);
+ 
+@@ -801,7 +801,8 @@
+ /*
+  * See comments for nfs_proc_create regarding failed operations.
+  */
+-static int nfs_mknod(struct inode *dir, struct dentry *dentry, int mode, int rdev)
++static int
++nfs_mknod(struct inode *dir, struct dentry *dentry, int mode, dev_t rdev)
+ {
+ 	struct iattr attr;
+ 	struct nfs_fattr fattr;
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/ramfs/inode.c b/fs/ramfs/inode.c
+--- a/fs/ramfs/inode.c	Thu Oct 31 14:14:49 2002
++++ b/fs/ramfs/inode.c	Wed Nov 20 11:19:02 2002
+@@ -47,7 +47,7 @@
+ 	.memory_backed	= 1,	/* Does not contribute to dirty memory */
+ };
+ 
+-struct inode *ramfs_get_inode(struct super_block *sb, int mode, int dev)
++static struct inode *ramfs_get_inode(struct super_block *sb, int mode, dev_t dev)
+ {
+ 	struct inode * inode = new_inode(sb);
+ 
+@@ -87,14 +87,15 @@
+  * File creation. Allocate an inode, and we're done..
+  */
+ /* SMP-safe */
+-static int ramfs_mknod(struct inode *dir, struct dentry *dentry, int mode, int dev)
++static int
++ramfs_mknod(struct inode *dir, struct dentry *dentry, int mode, dev_t dev)
+ {
+ 	struct inode * inode = ramfs_get_inode(dir->i_sb, mode, dev);
+ 	int error = -ENOSPC;
+ 
+ 	if (inode) {
+ 		d_instantiate(dentry, inode);
+-		dget(dentry);		/* Extra count - pin the dentry in core */
++		dget(dentry);	/* Extra count - pin the dentry in core */
+ 		error = 0;
  	}
--
--	if (!hwif->dma_base)
-+	
-+	if (ide_setup_tune(hwif, NULL))
- 		return;
+ 	return error;
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/reiserfs/namei.c b/fs/reiserfs/namei.c
+--- a/fs/reiserfs/namei.c	Mon Nov 18 10:57:21 2002
++++ b/fs/reiserfs/namei.c	Wed Nov 20 11:19:02 2002
+@@ -605,7 +605,7 @@
+ }
  
- 	hwif->atapi_dma = 1;
-diff -ur linux-2.5.47-ac6/drivers/ide/setup-pci.c linux-2.5.47-ac6-ide/drivers/ide/setup-pci.c
---- linux-2.5.47-ac6/drivers/ide/setup-pci.c	2002-11-20 10:56:24.000000000 +0100
-+++ linux-2.5.47-ac6-ide/drivers/ide/setup-pci.c	2002-11-20 10:51:18.000000000 +0100
-@@ -587,7 +587,6 @@
- 	int at_least_one_hwif_enabled = 0;
- 	ide_hwif_t *hwif, *mate = NULL;
- 	static int secondpdc = 0;
--	int drive0_tune, drive1_tune;
- 	u8 tmp;
  
- 	index->all = 0xf0f0;
-@@ -649,26 +648,12 @@
- 			ide_hwif_setup_dma(dev, d, hwif);
- bypass_legacy_dma:
+-static int reiserfs_mknod (struct inode * dir, struct dentry *dentry, int mode, int rdev)
++static int reiserfs_mknod (struct inode * dir, struct dentry *dentry, int mode, dev_t rdev)
+ {
+     int retval;
+     struct inode * inode;
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/smbfs/dir.c b/fs/smbfs/dir.c
+--- a/fs/smbfs/dir.c	Mon Nov 18 10:57:21 2002
++++ b/fs/smbfs/dir.c	Wed Nov 20 11:19:02 2002
+@@ -31,7 +31,7 @@
+ static int smb_unlink(struct inode *, struct dentry *);
+ static int smb_rename(struct inode *, struct dentry *,
+ 		      struct inode *, struct dentry *);
+-static int smb_make_node(struct inode *,struct dentry *,int,int);
++static int smb_make_node(struct inode *,struct dentry *,int,dev_t);
+ static int smb_link(struct dentry *, struct inode *, struct dentry *);
  
--		drive0_tune = hwif->drives[0].autotune;
--		drive1_tune = hwif->drives[1].autotune;
--
- 		if (d->init_hwif)
- 			/* Call chipset-specific routine
- 			 * for each enabled hwif
- 			 */
- 			d->init_hwif(hwif);
+ struct file_operations smb_dir_operations =
+@@ -641,7 +641,7 @@
+  * matches the connection credentials (and we don't know which those are ...)
+  */
+ static int
+-smb_make_node(struct inode *dir, struct dentry *dentry, int mode, int dev)
++smb_make_node(struct inode *dir, struct dentry *dentry, int mode, dev_t dev)
+ {
+ 	int error;
+ 	struct iattr attr;
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/sysfs/inode.c b/fs/sysfs/inode.c
+--- a/fs/sysfs/inode.c	Mon Nov 18 10:57:22 2002
++++ b/fs/sysfs/inode.c	Wed Nov 20 11:19:02 2002
+@@ -87,7 +87,7 @@
+ 	return inode;
+ }
  
--		/*
--		 *	This is in the wrong place. The driver may
--		 *	do set up based on the autotune value and this
--		 *	will then trash it. Torben please move it and
--		 *	propogate the fixes into the drivers
--		 */		
--		if (drive0_tune == IDE_TUNE_BIOS) /* biostimings */
--			hwif->drives[0].autotune = IDE_TUNE_BIOS;
--		if (drive1_tune == IDE_TUNE_BIOS)
--			hwif->drives[1].autotune = IDE_TUNE_BIOS;
--
- 		mate = hwif;
- 		at_least_one_hwif_enabled = 1;
- 	}
+-static int sysfs_mknod(struct inode *dir, struct dentry *dentry, int mode, int dev)
++static int sysfs_mknod(struct inode *dir, struct dentry *dentry, int mode, dev_t dev)
+ {
+ 	struct inode *inode;
+ 	int error = 0;
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/sysv/namei.c b/fs/sysv/namei.c
+--- a/fs/sysv/namei.c	Sat Oct 12 19:28:51 2002
++++ b/fs/sysv/namei.c	Wed Nov 20 11:19:02 2002
+@@ -83,7 +83,7 @@
+ 	return NULL;
+ }
+ 
+-static int sysv_mknod(struct inode * dir, struct dentry * dentry, int mode, int rdev)
++static int sysv_mknod(struct inode * dir, struct dentry * dentry, int mode, dev_t rdev)
+ {
+ 	struct inode * inode = sysv_new_inode(dir, mode);
+ 	int err = PTR_ERR(inode);
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/udf/namei.c b/fs/udf/namei.c
+--- a/fs/udf/namei.c	Mon Nov 18 10:57:22 2002
++++ b/fs/udf/namei.c	Wed Nov 20 11:19:02 2002
+@@ -669,7 +669,7 @@
+ 	return 0;
+ }
+ 
+-static int udf_mknod(struct inode * dir, struct dentry * dentry, int mode, int rdev)
++static int udf_mknod(struct inode * dir, struct dentry * dentry, int mode, dev_t rdev)
+ {
+ 	struct inode * inode;
+ 	struct udf_fileident_bh fibh;
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/ufs/namei.c b/fs/ufs/namei.c
+--- a/fs/ufs/namei.c	Sat Oct  5 13:46:10 2002
++++ b/fs/ufs/namei.c	Wed Nov 20 11:19:02 2002
+@@ -108,7 +108,7 @@
+ 	return err;
+ }
+ 
+-static int ufs_mknod (struct inode * dir, struct dentry *dentry, int mode, int rdev)
++static int ufs_mknod (struct inode * dir, struct dentry *dentry, int mode, dev_t rdev)
+ {
+ 	struct inode * inode = ufs_new_inode(dir, mode);
+ 	int err = PTR_ERR(inode);
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/umsdos/namei.c b/fs/umsdos/namei.c
+--- a/fs/umsdos/namei.c	Mon Nov 18 10:57:22 2002
++++ b/fs/umsdos/namei.c	Wed Nov 20 11:19:02 2002
+@@ -237,7 +237,7 @@
+  * The same is true for directory creation.
+  */
+ static int umsdos_create_any (struct inode *dir, struct dentry *dentry,
+-				int mode, int rdev, char flags)
++				int mode, dev_t rdev, char flags)
+ {
+ 	struct dentry *fake;
+ 	struct inode *inode;
+@@ -861,7 +861,7 @@
+  * in particular and other parts of the kernel I guess.
+  */
+ int UMSDOS_mknod (struct inode *dir, struct dentry *dentry,
+-		 int mode, int rdev)
++		 int mode, dev_t rdev)
+ {
+ 	return umsdos_create_any (dir, dentry, mode, rdev, 0);
+ }
+diff -u --recursive --new-file -X /linux/dontdiff a/fs/xfs/linux/xfs_iops.c b/fs/xfs/linux/xfs_iops.c
+--- a/fs/xfs/linux/xfs_iops.c	Mon Nov 18 10:57:22 2002
++++ b/fs/xfs/linux/xfs_iops.c	Wed Nov 20 11:19:02 2002
+@@ -69,7 +69,7 @@
+ 	struct inode	*dir,
+ 	struct dentry	*dentry,
+ 	int		mode,
+-	int		rdev)
++	dev_t		rdev)
+ {
+ 	struct inode	*ip;
+ 	vattr_t		va;
+diff -u --recursive --new-file -X /linux/dontdiff a/include/linux/coda_psdev.h b/include/linux/coda_psdev.h
+--- a/include/linux/coda_psdev.h	Sat Oct 12 19:28:52 2002
++++ b/include/linux/coda_psdev.h	Wed Nov 20 11:19:02 2002
+@@ -47,13 +47,13 @@
+ int venus_open(struct super_block *sb, struct ViceFid *fid,
+ 		int flags, struct file **f);
+ int venus_mkdir(struct super_block *sb, struct ViceFid *dirfid, 
+-			  const char *name, int length, 
+-			  struct ViceFid *newfid, struct coda_vattr *attrs);
++		const char *name, int length, 
++		struct ViceFid *newfid, struct coda_vattr *attrs);
+ int venus_create(struct super_block *sb, struct ViceFid *dirfid, 
+-		    const char *name, int length, int excl, int mode, int rdev,
+-		    struct ViceFid *newfid, struct coda_vattr *attrs) ;
++		 const char *name, int length, int excl, int mode, dev_t rdev,
++		 struct ViceFid *newfid, struct coda_vattr *attrs) ;
+ int venus_rmdir(struct super_block *sb, struct ViceFid *dirfid, 
+-		    const char *name, int length);
++		const char *name, int length);
+ int venus_remove(struct super_block *sb, struct ViceFid *dirfid, 
+ 		 const char *name, int length);
+ int venus_readlink(struct super_block *sb, struct ViceFid *fid, 
+diff -u --recursive --new-file -X /linux/dontdiff a/include/linux/fs.h b/include/linux/fs.h
+--- a/include/linux/fs.h	Mon Nov 18 10:57:23 2002
++++ b/include/linux/fs.h	Wed Nov 20 11:19:02 2002
+@@ -773,7 +773,7 @@
+ 	int (*symlink) (struct inode *,struct dentry *,const char *);
+ 	int (*mkdir) (struct inode *,struct dentry *,int);
+ 	int (*rmdir) (struct inode *,struct dentry *);
+-	int (*mknod) (struct inode *,struct dentry *,int,int);
++	int (*mknod) (struct inode *,struct dentry *,int,dev_t);
+ 	int (*rename) (struct inode *, struct dentry *,
+ 			struct inode *, struct dentry *);
+ 	int (*readlink) (struct dentry *, char *,int);
+@@ -1109,7 +1109,7 @@
+ }
+ extern const char * cdevname(kdev_t);
+ extern const char * kdevname(kdev_t);
+-extern void init_special_inode(struct inode *, umode_t, int);
++extern void init_special_inode(struct inode *, umode_t, dev_t);
+ 
+ /* Invalid inode operations -- fs/bad_inode.c */
+ extern void make_bad_inode(struct inode *);
+diff -u --recursive --new-file -X /linux/dontdiff a/include/linux/umsdos_fs.p b/include/linux/umsdos_fs.p
+--- a/include/linux/umsdos_fs.p	Sun Jun  9 07:28:45 2002
++++ b/include/linux/umsdos_fs.p	Wed Nov 20 11:19:02 2002
+@@ -82,7 +82,7 @@
+ int UMSDOS_mknod (struct inode *dir,
+ 		  struct dentry *dentry,
+ 		  int mode,
+-		  int rdev);
++		  dev_t rdev);
+ int UMSDOS_rmdir (struct inode *dir,struct dentry *dentry);
+ int UMSDOS_unlink (struct inode *dir, struct dentry *dentry);
+ int UMSDOS_rename (struct inode *old_dir,
+diff -u --recursive --new-file -X /linux/dontdiff a/include/linux/umsdos_fs_i.h b/include/linux/umsdos_fs_i.h
+--- a/include/linux/umsdos_fs_i.h	Sun Jun  9 07:30:56 2002
++++ b/include/linux/umsdos_fs_i.h	Wed Nov 20 11:19:02 2002
+@@ -50,9 +50,9 @@
+ struct umsdos_inode_info {
+ 	struct msdos_inode_info msdos_info;
+ 	struct dir_locking_info dir_info;
+-	int i_patched;			/* Inode has been patched */
+-	int i_is_hlink;			/* Resolved hardlink inode? */
+-	off_t pos;			/* Entry offset in the emd_owner file */
++	int i_patched;		/* Inode has been patched */
++	int i_is_hlink;		/* Resolved hardlink inode? */
++	off_t pos;		/* Entry offset in the emd_owner file */
+ };
+ 
+ #endif
+diff -u --recursive --new-file -X /linux/dontdiff a/mm/shmem.c b/mm/shmem.c
+--- a/mm/shmem.c	Mon Nov 18 10:57:24 2002
++++ b/mm/shmem.c	Wed Nov 20 11:19:02 2002
+@@ -1015,7 +1015,8 @@
+ 	return 0;
+ }
+ 
+-struct inode *shmem_get_inode(struct super_block *sb, int mode, int dev)
++static struct inode *
++shmem_get_inode(struct super_block *sb, int mode, dev_t dev)
+ {
+ 	struct inode *inode;
+ 	struct shmem_inode_info *info;
+@@ -1426,7 +1427,8 @@
+ /*
+  * File creation. Allocate an inode, and we're done..
+  */
+-static int shmem_mknod(struct inode *dir, struct dentry *dentry, int mode, int dev)
++static int
++shmem_mknod(struct inode *dir, struct dentry *dentry, int mode, dev_t dev)
+ {
+ 	struct inode *inode = shmem_get_inode(dir->i_sb, mode, dev);
+ 	int error = -ENOSPC;
 
---IS0zKkzwUGydFO0o--
+
+

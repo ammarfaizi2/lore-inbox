@@ -1,45 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280835AbRKGQBb>; Wed, 7 Nov 2001 11:01:31 -0500
+	id <S280829AbRKGQBc>; Wed, 7 Nov 2001 11:01:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280829AbRKGQBU>; Wed, 7 Nov 2001 11:01:20 -0500
-Received: from mail211.mail.bellsouth.net ([205.152.58.151]:62845 "EHLO
-	imf11bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S280828AbRKGQBI>; Wed, 7 Nov 2001 11:01:08 -0500
-Message-ID: <3BE95AB4.96C1D729@mandrakesoft.com>
-Date: Wed, 07 Nov 2001 11:00:52 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
+	id <S280828AbRKGQBV>; Wed, 7 Nov 2001 11:01:21 -0500
+Received: from ares.sot.com ([195.74.13.236]:34826 "EHLO ares.sot.com")
+	by vger.kernel.org with ESMTP id <S280835AbRKGQBK>;
+	Wed, 7 Nov 2001 11:01:10 -0500
+Date: Wed, 7 Nov 2001 18:01:09 +0200 (EET)
+From: Yaroslav Popovitch <yp@sot.com>
+To: linux-kernel@vger.kernel.org
+Subject: "ps ax" shows init [ 
+Message-ID: <Pine.LNX.4.10.10111071747430.31120-100000@ares.sot.com>
 MIME-Version: 1.0
-To: quintela@mandrakesoft.com, sbenedict@mandrakesoft.com
-CC: kernel list <linux-kernel@vger.kernel.org>
-Subject: alpha and PPC broken by latest kernel RPM
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Juan,
 
-In the latest kernel RPM, you disable entries without even checking to
-see if they exist on PPC or Alpha.  This breaks the kernel build.
+doing "ps ax" get such msg for kernel-2.4.9:
+That is the same for kernel-2.4.12.Sometimes it is shown as it should be.
+Is this a bug of kernel? It seems to be..
 
-Of the following options, only -one- actually exists on alpha,
-DEBUG_SLAB:
+  PID TTY      STAT   TIME COMMAND
+    1 ?        S      0:06 init [    
 
-%if !%build_kdb
-        OptionDisable DEBUG_HIGHMEM
-        OptionDisable DEBUG_SLAB
-        OptionDisable KDB
-        OptionDisable KDB_MODULES
-        OptionDisable KALLSYMS
-%endif
+Cheers,YP
 
-
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
 

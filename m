@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280017AbRKDQhG>; Sun, 4 Nov 2001 11:37:06 -0500
+	id <S280022AbRKDQjq>; Sun, 4 Nov 2001 11:39:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280022AbRKDQg4>; Sun, 4 Nov 2001 11:36:56 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:60936 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S280017AbRKDQgw>;
-	Sun, 4 Nov 2001 11:36:52 -0500
-Date: Sun, 4 Nov 2001 14:36:34 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] vm_swap_full
-In-Reply-To: <20011104152341.A4C289E898@oscar.casa.dyndns.org>
-Message-ID: <Pine.LNX.4.33L.0111041436020.2963-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S280026AbRKDQjg>; Sun, 4 Nov 2001 11:39:36 -0500
+Received: from cnxt10002.conexant.com ([198.62.10.2]:21714 "EHLO
+	sophia-sousar2.nice.mindspeed.com") by vger.kernel.org with ESMTP
+	id <S280022AbRKDQjS>; Sun, 4 Nov 2001 11:39:18 -0500
+Date: Sun, 4 Nov 2001 17:39:01 +0100 (CET)
+From: Rui Sousa <rui.p.m.sousa@clix.pt>
+X-X-Sender: <rsousa@sophia-sousar2.nice.mindspeed.com>
+To: Benjamin LaHaise <bcrl@redhat.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: emu10k emits buzzing and crackling
+In-Reply-To: <20011101200955.A1913@redhat.com>
+Message-ID: <Pine.LNX.4.33.0111041737330.3150-100000@sophia-sousar2.nice.mindspeed.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 Nov 2001, Ed Tomlinson wrote:
+On Thu, 1 Nov 2001, Benjamin LaHaise wrote:
 
-> -/* Swap 50% full? Release swapcache more aggressively.. */
-> -#define vm_swap_full() (nr_swap_pages*2 < total_swap_pages)
-> +/* Free swap less than inactive pages? Release swapcache more aggressively.. */
-> +#define vm_swap_full() (nr_swap_pages < nr_inactive_pages)
+> Hey folks,
+> 
+> One of the workstations I use really doesn't like the emu10k driver in 
+> 2.4.13-ac5.  The box is a dual athlon running rh7.2.  Playing mp3s seems 
+> to work well, but other samples from xfce on shutdown and window close 
+> result in buzzing and popping noises.
 
-> Comments?
+Which program is used to play these?
 
-Makes absolutely no sense for systems which have more
-swap than RAM, eg. a 64MB system with 200MB of swap.
+Rui Sousa
 
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
-
-http://www.surriel.com/		http://distro.conectiva.com/
+>  If anyone wants details or patches 
+> tested, drop me a note.
+> 
+> 		-ben
+> 
+> es1371: version v0.30 time 17:42:30 Nov  1 2001
+> Creative EMU10K1 PCI Audio Driver, version 0.16, 17:42:24 Nov  1 2001
+> emu10k1: EMU10K1 rev 7 model 0x8040 found, IO at 0x2400-0x241f, IRQ 19
+> ac97_codec: AC97 Audio codec, id: 0x8384:0x7609 (SigmaTel STAC9721/23)
+> usb.c: registered new driver hub
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

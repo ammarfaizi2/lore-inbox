@@ -1,68 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287748AbSBCUrv>; Sun, 3 Feb 2002 15:47:51 -0500
+	id <S287751AbSBCVHH>; Sun, 3 Feb 2002 16:07:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287751AbSBCUrm>; Sun, 3 Feb 2002 15:47:42 -0500
-Received: from inet-mail3.oracle.com ([148.87.2.203]:13555 "EHLO
-	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
-	id <S287748AbSBCUrb>; Sun, 3 Feb 2002 15:47:31 -0500
-Message-ID: <3C5DA20E.6D503E66@oracle.com>
-Date: Sun, 03 Feb 2002 21:48:14 +0100
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-Organization: Oracle Support Services
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.3 i686)
-X-Accept-Language: en
+	id <S287764AbSBCVG5>; Sun, 3 Feb 2002 16:06:57 -0500
+Received: from pat.uio.no ([129.240.130.16]:9859 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S287751AbSBCVGt>;
+	Sun, 3 Feb 2002 16:06:49 -0500
+To: "Burjan Gabor" <buga+dated+1013026971.2270df@elte.hu>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.17 NFS hangup
+In-Reply-To: <20020203202251.GA22797@csoma.elte.hu>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 03 Feb 2002 22:06:44 +0100
+In-Reply-To: <20020203202251.GA22797@csoma.elte.hu>
+Message-ID: <shsbsf61di3.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: modular floppy broken in 2.5.3
-In-Reply-To: <3C5B4326.856A09E6@oracle.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alessandro Suardi wrote:
-> 
-> Trying to modprobe it yields
-> 
-> [root@dolphin root]# modprobe floppy
-> /lib/modules/2.5.3/kernel/drivers/block/floppy.o: init_module: Device or resource busy
-> Hint: insmod errors can be caused by incorrect module parameters, including invalid IO or IRQ parameters
-> /lib/modules/2.5.3/kernel/drivers/block/floppy.o: insmod /lib/modules/2.5.3/kernel/drivers/block/floppy.o failed
-> /lib/modules/2.5.3/kernel/drivers/block/floppy.o: insmod floppy failed
-> 
->  and dmesg says
-> 
-> inserting floppy driver for 2.5.3
-> Floppy drive(s): fd0 is 1.44M
-> floppy0: Floppy io-port 0x03f0 in use
-> 
+>>>>> " " == Burjan Gabor <buga+dated+1013026971.2270df@elte.hu> writes:
 
-A simple but nice hint by Pierre Rousselet suggested the I/O port
- is in use - I plain assumed it broke because I have been loading
- modular floppy for the last 36 months or so without specifying
- any parameters...
+     > 20:41:40.927855 heron.elte.hu.nfs > partvis.elte.hu.3648238371:
+     > reply ok 28 lookup ERROR: No such file or directory (DF)
+     > 20:41:40.928622 partvis.elte.hu.3648238372 > heron.elte.hu.nfs:
+     > 148 create [|nfs] (DF) 20:41:40.929271 heron.elte.hu.nfs >
+     > partvis.elte.hu.3648238372: reply ok 128 create [|nfs] (DF)
+     > 20:41:40.930655 partvis.elte.hu.3648238373 > heron.elte.hu.nfs:
+     > 100 getattr [|nfs] (DF) 20:41:40.930976 heron.elte.hu.nfs >
+     > partvis.elte.hu.3648238373: reply ok 96 getattr REG 100644 ids
+     > 0
 
-It turns out this is due to the new PnPBIOS kernel config option:
+Nothing abnormal there or in your file. However, when you start
+getting 'server not responding' messages, and no tcpdump output it's
+usually a sign that the networking layer has given up on you. Any
+strange output from 'netstat -s'?
 
-[asuardi@dolphin asuardi]$ grep PnPBIOS /proc/ioports 
-03f0-03f1 : PnPBIOS PNP0c01
-0600-067f : PnPBIOS PNP0c01
-0680-06ff : PnPBIOS PNP0c01
-  0800-083f : PnPBIOS PNP0c01
-  0840-084f : PnPBIOS PNP0c01
-0880-088f : PnPBIOS PNP0c01
-f400-f4fe : PnPBIOS PNP0c01
+It would be useful to know what networking card/driver combination you
+are using? Any firewalls/netfilter setups? Any special mount options?
 
-But since modular floppy was working before without setting any
- ioport parameter I'm not entirely sure this is a "feature".
-
-
-Thanks,
-
---alessandro
-
- "this machine will, will not communicate
-   these thoughts and the strain I am under
-  be a world child, form a circle before we all go under"
-                         (Radiohead, "Street Spirit [fade out]")
+Cheers,
+  Trond

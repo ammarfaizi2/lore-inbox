@@ -1,34 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129485AbQKJQfN>; Fri, 10 Nov 2000 11:35:13 -0500
+	id <S129674AbQKJQiF>; Fri, 10 Nov 2000 11:38:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129687AbQKJQfD>; Fri, 10 Nov 2000 11:35:03 -0500
-Received: from mail-03-real.cdsnet.net ([63.163.68.110]:21253 "HELO
-	mail-03-real.cdsnet.net") by vger.kernel.org with SMTP
-	id <S129485AbQKJQex>; Fri, 10 Nov 2000 11:34:53 -0500
-Message-ID: <3A0C2464.A7CDEFAB@mvista.com>
-Date: Fri, 10 Nov 2000 08:37:56 -0800
-From: George Anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.14-VPN i586)
-X-Accept-Language: en
+	id <S129687AbQKJQh4>; Fri, 10 Nov 2000 11:37:56 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:9955 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S129674AbQKJQhj>; Fri, 10 Nov 2000 11:37:39 -0500
+From: Christoph Rohland <cr@sap.com>
+To: "Theodore Y. Ts'o" <tytso@MIT.EDU>
+Cc: richardj_moore@uk.ibm.com, Paul Jakma <paulj@itg.ie>,
+        Michael Rothwell <rothwell@holly-springs.nc.us>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
+In-Reply-To: <200011101624.LAA22004@tsx-prime.MIT.EDU>
+Organisation: SAP LinuxLab
+Date: 10 Nov 2000 17:37:28 +0100
+In-Reply-To: "Theodore Y. Ts'o"'s message of "Fri, 10 Nov 2000 11:24:28 -0500"
+Message-ID: <qww7l6bpyuv.fsf@sap.com>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
 MIME-Version: 1.0
-To: "linux-kernel@vger.redhat.com" <linux-kernel@vger.kernel.org>
-Subject: Where is it written?
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I thought this would be simple, but...
+Hi Theodore,
 
-Could someone point me at the info on calling conventions to be used
-with
-x86 processors.  I need this to write asm code correctly and I suspect
-that it is a bit more formal than the various comments I have found in
-the sources.  Is it, perhaps an Intel doc?  Or a gcc thing?
- 
-George
+On Fri, 10 Nov 2000, Theodore Y. Ts'o wrote:
+> P.S.  There are some such RAS features which I wouldn't be surprised
+> there being interest in having integrated into the kernel directly
+> post-2.4, with no need to put in "kernel hooks" for that particular
+> feature.  A good example of that would be kernel crash dumps.  For
+> all Linux houses which are doing support of customers remotely,
+> being able to get a crash dump so that developers can investigate a
+> problem remotely instead of having to fly a developer out to the
+> customer site is invaluable.  In fact, it might be considerd more
+> valuable than the kernel debugger....
+
+*Yes* :-)
+
+Greetings
+		Christoph
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

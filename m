@@ -1,70 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268230AbUIPSd0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268239AbUIPSd1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268230AbUIPSd0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 14:33:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268250AbUIPSct
+	id S268239AbUIPSd1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 14:33:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268229AbUIPS3e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 14:32:49 -0400
-Received: from sd291.sivit.org ([194.146.225.122]:17586 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S268248AbUIPS3o (ORCPT
+	Thu, 16 Sep 2004 14:29:34 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:9115 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S268170AbUIPSXm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 14:29:44 -0400
-Date: Thu, 16 Sep 2004 20:30:30 +0200
-From: Stelian Pop <stelian@popies.net>
-To: Buddy Lucas <buddy.lucas@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC, 2.6] a simple FIFO implementation
-Message-ID: <20040916183030.GC9886@deep-space-9.dsnet>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	Buddy Lucas <buddy.lucas@gmail.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20040913135253.GA3118@crusoe.alcove-fr> <20040915153013.32e797c8.akpm@osdl.org> <20040916064320.GA9886@deep-space-9.dsnet> <20040916000438.46d91e94.akpm@osdl.org> <20040916104535.GA3146@crusoe.alcove-fr> <5d6b657504091608093b171e30@mail.gmail.com> <20040916152919.GG3146@crusoe.alcove-fr> <5d6b657504091608511f100109@mail.gmail.com> <20040916155247.GI3146@crusoe.alcove-fr> <5d6b657504091609072c7be97c@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 16 Sep 2004 14:23:42 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Robert Picco <Robert.Picco@hp.com>
+Subject: Re: device driver for the SGI system clock, mmtimer
+Date: Thu, 16 Sep 2004 11:23:13 -0700
+User-Agent: KMail/1.7
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       Christoph Lameter <clameter@sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       venkatesh.pallipadi@intel.com
+References: <200409161003.39258.bjorn.helgaas@hp.com> <200409161007.37015.jbarnes@engr.sgi.com> <4149D8C6.1060407@hp.com>
+In-Reply-To: <4149D8C6.1060407@hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <5d6b657504091609072c7be97c@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200409161123.13891.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 16, 2004 at 06:07:07PM +0200, Buddy Lucas wrote:
+On Thursday, September 16, 2004 11:17 am, Robert Picco wrote:
+> The hpet driver checks that the mapping is page aligned.  It's up to the
+> platform to provide this alignment.  It's also dependent on the platform
+> for what resides in the page.  Also the configured page size could
+> impact what is within the page.
 
-> > > Indeed, that would exactly be the reason *why* this would fail. ;-)
-> > >
-> > > The expression fifo->size - fifo->tail + fifo->head might be negative
-> > > at some point, right? (fifo->head has wrapped to some small value and
-> > > fifo->tail > fifo->size)
-> > 
-> > And what is the value of an unsigned int holding that 'negative' value ? :)
-> > 
-> 
-> Which unsigned int?! ;-) The expression a - b is negative for unsigned
-> ints a and b where a < b. So, your unsigned ints "total" and
-> "remaining" won't be negative of
-> course, but they won't reflect what is actually left in the buffer;
-> they will equal the
-> value of len (in some cases) after fifo->head has wrapped (because of the 
-> unsignedness) and fifo->tail has not. Which would not be correct.
+Right, mmtimer has the same checks.  I'll leave it up to Christoph.  I haven't 
+looked at the hpet driver at all, so I'm not sure if it's appropriate.
 
-It is, thanks to modular arithmetic.
-
-Let's imagine we use unsigned char instead of unsigned int (simpler
-to explain), and we have a 200 bytes buffer.
-
-At the beginning:
-	head = tail = 0
-We add 200 bytes:
-	head = 0, tail = 200
-We extract 200 bytes:
-	head = 200, tail = 200
-We add 200 bytes more:
-	head = 200, tail = (200 + 200) % 256 = 144
-Now the buffer length is:
-	144 - 200 = (-56) % 256 = 200
-
-Thanks to modular arithmetic magic, we get the correct answer: 200.
-
-Stelian.
--- 
-Stelian Pop <stelian@popies.net>
+Jesse

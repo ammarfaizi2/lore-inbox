@@ -1,61 +1,129 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268452AbTBNP4Y>; Fri, 14 Feb 2003 10:56:24 -0500
+	id <S268440AbTBNPzP>; Fri, 14 Feb 2003 10:55:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268453AbTBNP4Y>; Fri, 14 Feb 2003 10:56:24 -0500
-Received: from jurassic.park.msu.ru ([195.208.223.243]:42759 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id <S268452AbTBNP4W>; Fri, 14 Feb 2003 10:56:22 -0500
-Date: Fri, 14 Feb 2003 19:05:38 +0300
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Marc Zyngier <mzyngier@freesurf.fr>
-Cc: James Bottomley <James.Bottomley@steeleye.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] EISA/sysfs update
-Message-ID: <20030214190538.A19355@jurassic.park.msu.ru>
-References: <1044241767.3924.14.camel@mulgrave> <wrp3cmrrwuf.fsf@hina.wild-wind.fr.eu.org> <20030214173217.A17730@jurassic.park.msu.ru> <wrpisvmri71.fsf@hina.wild-wind.fr.eu.org>
-Mime-Version: 1.0
+	id <S268447AbTBNPzO>; Fri, 14 Feb 2003 10:55:14 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:46745 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S268440AbTBNPzN>; Fri, 14 Feb 2003 10:55:13 -0500
+Date: Fri, 14 Feb 2003 08:04:53 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: lse-tech <lse-tech@lists.sourceforge.net>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Rick Lindsley <ricklind@us.ibm.com>
+Subject: Re: breaking down the performance of D7 scheduler patch
+Message-ID: <62180000.1045238692@[10.10.2.4]>
+In-Reply-To: <7790000.1045177072@[10.10.2.4]>
+References: <7790000.1045177072@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <wrpisvmri71.fsf@hina.wild-wind.fr.eu.org>; from mzyngier@freesurf.fr on Fri, Feb 14, 2003 at 04:32:50PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 14, 2003 at 04:32:50PM +0100, Marc Zyngier wrote:
-> Ivan> I believe this driver will work for any PCI/EISA bridge without
-> Ivan> any changes, not only for i82375. Probably we need to look for a
-> Ivan> class code rather than a device id.
+> Rick broke the non HT parts of D7 out into patches 2,3,4,5 for us.
+> This has been useful in all sorts of ways ...
+> http://marc.theaimsgroup.com/?l=lse-tech&m=104436251927067&w=2
+> (I'll attatch his patches here for convenience, they're small, and I don't
+> trust the archives not to munge them).
 > 
-> Unfortunately, the i82375 appears to be unclassified :
+> Below I've done two runs on each interesting combo (2 is a no-op).
+> Overall results are a slight improvement in kernbench and a degredation
+> in SDET. My impressions from the data below (16x NUMA-Q)
 > 
-> 00:07.0 Non-VGA unclassified device: Intel Corp. 82375EB (rev 03)
+> 3 - gives a good boost to kernbench, marginal degreadation on SDET.
+> 4 - doesn't do much.
+> 5 - gives some degredation to kernebench, most of the degredation of SDET.
+> 
+> Conclusion: 3 = good (mostly). 5 = bad.
 
-We have this code in arch/alpha/kernel/pci.c for ages:
+Breaking patch 3 down starts to get ugly as they seem to interact.
 
-...
-static void __init
-quirk_eisa_bridge(struct pci_dev *dev)
-{
-	dev->class = PCI_CLASS_BRIDGE_EISA << 8;
-}
-...
-struct pci_fixup pcibios_fixups[] __initdata = {
-	{ PCI_FIXUP_HEADER, PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82375,
-	  quirk_eisa_bridge },
-...
+key:
 
-I think it belongs in drivers/pci/quirks.c.
+                 2.5.59 - virgin
+        2.5.59-sched2.5 - first part of patch 3 (below)
+      2.5.59-sched2.5-2 - ditto
+         2.5.59-sched3B - second part of patch 3 (below)
+       2.5.59-sched3B-2 - ditto
+          2.5.59-sched3 - patch 2 & 3
+        2.5.59-sched3-2 - patch 2 & 3
 
-> I'll had PCI_CLASS_BRIDGE_EISA anyway, just in case.
+Kernbench-2: (make -j N vmlinux, where N = 2 x num_cpus)
+                            Elapsed        User      System         CPU
+                 2.5.59       46.08      563.88      118.38     1480.00
+        2.5.59-sched2.5       46.39      567.53      117.39     1475.83
+      2.5.59-sched2.5-2       46.56      567.31      118.03     1471.50
+         2.5.59-sched3B       45.84      563.63      116.31     1482.67
+       2.5.59-sched3B-2       45.69      563.92      117.26     1490.50
+          2.5.59-sched3       46.12      567.52      115.82     1480.83
+        2.5.59-sched3-2       46.37      567.81      116.48     1475.00
 
-Actually I thought of replacing "i82375" with "pci_eisa" everywhere
-in your driver and
+Conclusion: looking at system times - part 1 doesn't make much difference,
+part 2  makes small improvment, both parts together work well But part 2
+alone is the only thing that improves elapsed times.
 
-static struct pci_device_id pci_eisa_pci_tbl[] = {
-	{ PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
-	  PCI_CLASS_BRIDGE_EISA << 8, 0xffff00, 0 },
-	{ 0, }
-};
+Kernbench-16: (make -j N vmlinux, where N = 16 x num_cpus)
+                            Elapsed        User      System         CPU
+                 2.5.59       47.45      568.02      143.17     1498.17
+        2.5.59-sched2.5       46.90      570.21      135.39     1503.83
+      2.5.59-sched2.5-2       47.03      570.14      135.93     1500.67
+         2.5.59-sched3B       47.58      567.37      137.88     1481.83
+       2.5.59-sched3B-2       47.35      568.26      138.61     1492.50
+          2.5.59-sched3       47.59      573.48      139.78     1498.33
+        2.5.59-sched3-2       47.61      573.63      139.97     1498.17
 
-Ivan.
+Conclusion: systime - part 1 is best,  part 2 also helps, but not so much. 
+Both together do a *little* bit worse than the either part alone.
+Part 1 alone improves elapsed a little bit.
+
+Patch 3:
+
+--- sched-2.5.59-02/kernel/sched.c      Tue Feb  4 00:30:05 2003
++++ sched-2.5.59-03/kernel/sched.c      Tue Feb  4 00:31:43 2003
+@@ -54,20 +54,19 @@
+ /*
+  * These are the 'tuning knobs' of the scheduler:
+  *
+- * Minimum timeslice is 10 msecs, default timeslice is 150 msecs,
+- * maximum timeslice is 300 msecs. Timeslices get refilled after
++ * Minimum timeslice is 10 msecs, default timeslice is 100 msecs,
++ * maximum timeslice is 200 msecs. Timeslices get refilled after
+  * they expire.
+  */
+ #define MIN_TIMESLICE          ( 10 * HZ / 1000)
+-#define MAX_TIMESLICE          (300 * HZ / 1000)
+-#define CHILD_PENALTY          95
++#define MAX_TIMESLICE          (200 * HZ / 1000)
++#define CHILD_PENALTY          50
+ #define PARENT_PENALTY         100
+ #define EXIT_WEIGHT            3
+
+--------------------- BROKE IT HALF HERE --------------
+
+ #define PRIO_BONUS_RATIO       25
+ #define INTERACTIVE_DELTA      2
+-#define MAX_SLEEP_AVG          (2*HZ)
+-#define STARVATION_LIMIT       (2*HZ)
+-#define NODE_THRESHOLD          125
++#define MAX_SLEEP_AVG          (10*HZ)
++#define STARVATION_LIMIT       (30*HZ)
+ 
+ /*
+  * If a task is 'interactive' then we reinsert it in the active
+@@ -1035,9 +1034,9 @@
+  * increasing number of running tasks:
+  */
+ #define EXPIRED_STARVING(rq) \
+-               ((rq)->expired_timestamp && \
++               (STARVATION_LIMIT && ((rq)->expired_timestamp && \
+                (jiffies - (rq)->expired_timestamp >= \
+-                       STARVATION_LIMIT * ((rq)->nr_running) + 1))
++                       STARVATION_LIMIT * ((rq)->nr_running) + 1)))
+ 
+ /*
+  * This function gets called by the timer code, with HZ frequency.
+
+

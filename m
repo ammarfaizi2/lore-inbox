@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310799AbSCHSWP>; Fri, 8 Mar 2002 13:22:15 -0500
+	id <S310448AbSCHSZq>; Fri, 8 Mar 2002 13:25:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310774AbSCHSWF>; Fri, 8 Mar 2002 13:22:05 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:38158 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310799AbSCHSV4>; Fri, 8 Mar 2002 13:21:56 -0500
-Subject: Re: Suspend support for IDE
-To: pavel@ucw.cz (Pavel Machek)
-Date: Fri, 8 Mar 2002 18:37:10 +0000 (GMT)
-Cc: dalecki@evision-ventures.com, linux-kernel@vger.kernel.org (kernel list)
-In-Reply-To: <20020308180204.GA7035@elf.ucw.cz> from "Pavel Machek" at Mar 08, 2002 07:02:05 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S310774AbSCHSZf>; Fri, 8 Mar 2002 13:25:35 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:23813 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S310448AbSCHSZX>; Fri, 8 Mar 2002 13:25:23 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Ext2/Ext3 partition label abuse
+Date: 8 Mar 2002 10:24:52 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a6avlk$umf$1@cesium.transmeta.com>
+In-Reply-To: <3C88890C.6010303@mail.externet.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16jPEs-00073F-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +	while (HWGROUP(drive)->handler)
-> +		schedule();
+Followup to:  <3C88890C.6010303@mail.externet.hu>
+By author:    Boszormenyi Zoltan <zboszor@mail.externet.hu>
+In newsgroup: linux.dev.kernel
+> 
+> The /proc/partitions "file" lists the partitions in disk-reversed order,
+> e.g.:
+> 
+> /dev/hdc1  ....
+> ...
+> /dev/hdc10 ...
+> /dev/hda1 ...
+> ...
+> /dev/hda9 ...
+> 
+> Is there a way to fix this? Yes there is: vendors should not use
+> LABEL=XXX method in /etc/fstab. Either use the proper
+> device/partition or the UUID. The downside is that fsck messages
+> would not be as pretty-printed as now. Or maybe the partitions
+> should not be registered in disk-reversed order...
+> 
 
-You need to yield. Remember the process might be hard real time and blocking
-your real work from occuring. while(foo) schedule() is always a bug
+Or maybe mount(8) should signal an error if a label is ambiguous
+instead of mounting a random partition.
 
-> +static int idedisk_resume(struct device *dev, u32 level)
-> +{
-> +	ide_drive_t *drive = dev->driver_data;
-> +	if (!drive->blocked)
-> +		panic("ide: Resume but not suspended?\n");
-> +	drive->blocked = 0;
-> +}
-
-Also remember you must perform the sequences to wake up the drive and
-restore the controller logic (and of course in the right order). Newer
-disks won't just wake up when fed a random command (eg ibm microdrives)
-
-The suspend order similarly is important - finish the current command,
-then flush the disk cache, then when it completes you can tell the drive
-to power down. On some systems you want to drop it back to PIO0 non DMA
-before the powerdown or S4BIOS restore from disk will fail.
-
-APM generally does all this for you, ACPI won't.
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

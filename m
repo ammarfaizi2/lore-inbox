@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315222AbSEYSYI>; Sat, 25 May 2002 14:24:08 -0400
+	id <S315227AbSEYSYO>; Sat, 25 May 2002 14:24:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315227AbSEYSYH>; Sat, 25 May 2002 14:24:07 -0400
-Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:37322 "EHLO
-	snipe.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
-	id <S315222AbSEYSYH>; Sat, 25 May 2002 14:24:07 -0400
-Date: Sat, 25 May 2002 14:24:09 -0400
-To: linux-kernel@vger.kernel.org
-Cc: andrea@suse.de
-Subject: Slabinfo memory usage after big box benchmarks
-Message-ID: <20020525142409.A323@rushmore>
-Mime-Version: 1.0
+	id <S315232AbSEYSYN>; Sat, 25 May 2002 14:24:13 -0400
+Received: from relay03.valueweb.net ([216.219.253.237]:43282 "EHLO
+	relay03.valueweb.net") by vger.kernel.org with ESMTP
+	id <S315227AbSEYSYM>; Sat, 25 May 2002 14:24:12 -0400
+Message-ID: <3CEFD65A.ED871095@opersys.com>
+Date: Sat, 25 May 2002 14:22:18 -0400
+From: Karim Yaghmour <karim@opersys.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Wolfgang Denk <wd@denx.de>, linux-kernel@vger.kernel.org
+Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
+In-Reply-To: <Pine.LNX.4.44.0205251057370.6515-100000@home.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-From: rwhron@earthlink.net
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't know if this is related to the negative 
-dentry thread or not.  After running various 
-benchmarks on quad Xeon with 3.75 GB RAM, 
-there are some big differences in slab size.  
 
-inode_cache and dentry_cache have the biggest 
-difference between kernels.  
+Linus Torvalds wrote:
+>  - I think the microkernel approach is fundamentally broken. Karim claims
+>    there is no priority inversion, but he must have his blinders on. Every
+>    single spinlock in the kernel assumes that the kernel isn't preempted,
+>    which means that user apps that can preempt the kernel cannot use them.
 
-		total slab size		inode_cache
-2.4.19-pre7-rmap13	 45.9 MB	  9.9 MB
-2.4.19-pre8		278.0 MB	202.8 MB
-2.4.19-pre8-aa2		306.1 MB	233.9 MB
-2.4.19-pre8-ac4		 44.3 MB	  4.5 MB
-2.4.19-pre8-jam2	263.9 MB	182.1 MB
+Blinders ehh... Well, if you would care to ask I would answer.
 
-The benchmarks create a million or more temp
-files during the run.  Updatedb runs several
-times too.
+In reality, what you point out is actually a non-issue since the hard-rt
+user-land tasks are not allowed to call on normal Linux services. They
+can only call on RTAI services which are exported by an extra soft-int.
+These services are hard-rt, so there's no problem there.
 
-bonnie++ is one of the benches that creates a lot
-of files.  On runs with vastly different "number
-of files to create", there was little difference
-in slabinfo memory usage on 2.4.19-pre8-jam2.
+Please, download the thing and play with it. Or, at the very least, ask
+about how it works and we'll be glad to explain.
 
-More slabinfo detail at:
-http://home.earthlink.net/~rwhron/kernel/bigbox/slabinfo.txt
+Karim
 
-Script to create slabinfo.txt in url above:
-http://home.earthlink.net/~rwhron/kernel/bigbox/si_sum
-
-Big box benchmarks:
-http://home.earthlink.net/~rwhron/kernel/bigbox.html
-
---
-Randy Hron
-
+===================================================
+                 Karim Yaghmour
+               karim@opersys.com
+      Embedded and Real-Time Linux Expert
+===================================================

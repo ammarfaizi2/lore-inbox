@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262002AbVCEPko@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263119AbVCEPwq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262002AbVCEPko (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 10:40:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbVCEPkF
+	id S263119AbVCEPwq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 10:52:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262625AbVCEPrU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 10:40:05 -0500
-Received: from nibbel.kulnet.kuleuven.ac.be ([134.58.240.41]:9683 "EHLO
-	nibbel.kulnet.kuleuven.ac.be") by vger.kernel.org with ESMTP
-	id S262111AbVCEPin (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 10:38:43 -0500
-From: "Panagiotis Issaris" <panagiotis.issaris@mech.kuleuven.ac.be>
-Date: Sat, 5 Mar 2005 16:38:42 +0100
-To: Matt_Domsch@dell.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] EFI missing failure handling
-Message-ID: <20050305153841.GA7808@mech.kuleuven.ac.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Sat, 5 Mar 2005 10:47:20 -0500
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:62647 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262111AbVCEPl4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 10:41:56 -0500
+Message-ID: <4229D342.7030705@acm.org>
+Date: Sat, 05 Mar 2005 09:41:54 -0600
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bene Martin <martin.bene@icomedias.com>
+Cc: bunk@stusta.de, linux-kernel@vger.kernel.org
+Subject: Re: ipmi in kernel 2.6.11
+References: <FA095C015271B64E99B197937712FD02510ACF@freedom.grz.icomedias.com>
+In-Reply-To: <FA095C015271B64E99B197937712FD02510ACF@freedom.grz.icomedias.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Bene Martin wrote:
 
-The EFI driver allocates memory and writes into it without checking the
-success of the allocation:
+>Hi Adrian,
+>
+>bmcsensors package (reading hardware sensors provided by intel boards
+>via ipmi) used to work fine with 2.6.10; no longer works with 2.6.11
+>because of removal of the ipmi_request function (+ exported symbol).
+>
+>correct fix would be to use ipmi_request_settime with retries=-1 and
+>retry_time_ms=0?
+>  
+>
+That fix should work fine.  Sorry about that, I didn't know anyone was 
+using that function, and the unused function police found it :).
 
-668     efi_char16_t *variable_name = kmalloc(1024, GFP_KERNEL);
-...
-696     memset(variable_name, 0, 1024);
-
-The patch applies to 2.6.11-bk1.
-
-Signed-off-by: Panagiotis Issaris <panagiotis.issaris@mech.kuleuven.ac.be>
-
-diff -pruN linux-2.6.11-orig/drivers/firmware/efivars.c linux-2.6.11-pi/drivers/firmware/efivars.c
---- linux-2.6.11-orig/drivers/firmware/efivars.c	2005-03-05 02:23:29.000000000 +0100
-+++ linux-2.6.11-pi/drivers/firmware/efivars.c	2005-03-05 02:23:04.000000000 +0100
-@@ -670,6 +670,9 @@ efivars_init(void)
- 	unsigned long variable_name_size = 1024;
- 	int i, rc = 0, error = 0;
- 
-+	if (!variable_name)
-+		return -ENOMEM;
-+
- 	if (!efi_enabled)
- 		return -ENODEV;
- 
--- 
-  K.U.Leuven, Mechanical Eng.,  Mechatronics & Robotics Research Group
-  http://people.mech.kuleuven.ac.be/~pissaris/
+-Corey

@@ -1,66 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266262AbUBJSoK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 13:44:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266256AbUBJSmt
+	id S266304AbUBJSwy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 13:52:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266175AbUBJSwy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 13:42:49 -0500
-Received: from h24-82-88-106.vf.shawcable.net ([24.82.88.106]:397 "HELO
-	tinyvaio.nome.ca") by vger.kernel.org with SMTP id S266175AbUBJSmf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 13:42:35 -0500
-Date: Tue, 10 Feb 2004 10:43:03 -0800
-From: Mike Bell <kernel@mikebell.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: devfs vs udev, thoughts from a devfs user
-Message-ID: <20040210184302.GP4421@tinyvaio.nome.ca>
-References: <20040210113417.GD4421@tinyvaio.nome.ca> <20040210170157.GA27421@kroah.com> <20040210175548.GN4421@tinyvaio.nome.ca> <20040210181932.GI28111@kroah.com>
+	Tue, 10 Feb 2004 13:52:54 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:19938
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S266304AbUBJSvm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 13:51:42 -0500
+Date: Tue, 10 Feb 2004 19:51:37 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Michael Frank <mhf@linuxmail.org>
+Cc: Nigel Cunningham <ncunningham@users.sourceforge.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Reserved page flaging of 2.4 kernel memory changed recently?
+Message-ID: <20040210185137.GD4478@dualathlon.random>
+References: <200402050941.34155.mhf@linuxmail.org> <20040208020624.GG31926@dualathlon.random> <200402100625.41288.mhf@linuxmail.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040210181932.GI28111@kroah.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <200402100625.41288.mhf@linuxmail.org>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 10, 2004 at 10:19:32AM -0800, Greg KH wrote:
-> But devfs never used the dynamic major/minor code.  No one used it.
-> It's not even present anymore in 2.6.  That shows that devfs does not
-> solve this problem by itself.
+On Tue, Feb 10, 2004 at 11:24:01PM +0800, Michael Frank wrote:
+> By what I read on LKML, 64bit is probably more fussy then 32bit. eg when 
+> accessing non-existing memory such as on a system with memory holes 
+> with /dev/mem often causes MCE's. 
 
-Does udev solve this problem by itself? :) No, it is just agnostic to
-the change being made in the kernel. Pretty much the same way devfsd
-would be.
+yes, this happens on ia64 and it may happen on x86-64 too.
 
-> Heh, you haven't ever converted a driver to use devfs have you?  If so,
-> you would have seen the fact that you had to specify your devfs name in
-> the driver interface.  That's hard coding the naming scheme in the
-> kernel.
+> And here is an example of touching non-RAM going wrong on a x86 PC:
+> 
+> One swsusp user received a MCE on swsusp accessing 0xa0000 (video). 
+> This seems to be quite recent hardware: a Athlon mobile XP 20000.
+> This Compaq evo is running alright with NOMCE on the commandline.
 
-It's hard coding _a_ name in the kernel. And what's bad about having a 
-constant name for the device, if the user can have their own alternate
-names? If you ask me, that's many times BETTER than having every
-system use totally different names for every device with no way to
-predictably find a device by name. At least with devfs I know that
-/dev/input/mice will be named /dev/input/mice. This "no policy in kernel
-space" you claim as a benefit really amounts to "/dev/input/mice could
-be named anything at all". The default config may have a predictable LSB
-type name, but what you're talking about isn't the flexibility to have
-it named anything you want, but the flexibility NOT to have an
-alternate, predictable name as well. Why is that a good thing?
+this is possible too.
 
-> And how flexible does devfsd allow you to specify your own naming
-> scheme?  How can you get the info from devfsd that you need to provide a
-> proper device name?  No one I know has ever does this.  And I know some
-> people who tried real hard...
+> Here is a patch for 2.4.2[45], which marks non-ram, CPU-broken-pages, and 
+> nosave kernel-pages pages with PG_nosave. 
+> 
+> Applications such as swsusp, netdump or debuggers have just to check 
+> the PG_nosave bit to be safe.
+> 
+> I actually would like to rename the bit PG_nosave to PG_donttouch ;)
 
-That's a valid point against the existing devfs/devfsd, there are a few
-of those (the races, for instance). But it's not inherent to the idea of
-a devfs.
+;)
 
-> udev defaults to this.  Which is the sane thing to do.
+> 
+> diff -uN -r -X /home/mhf/sys/dont/dontdiff linux-2.4.24-Vanilla/arch/i386/mm/init.c linux-2.4.24-mhf179/arch/i386/mm/init.c
+> --- linux-2.4.24-Vanilla/arch/i386/mm/init.c	2004-01-21 15:53:01.000000000 +0800
+> +++ linux-2.4.24-mhf179/arch/i386/mm/init.c	2004-02-10 06:15:31.000000000 +0800
+> @@ -451,15 +451,18 @@
+>  {
+>  	if (!page_is_ram(pfn)) {
+>  		SetPageReserved(page);
+> +		SetPageNosave(page);
+>  		return;
+>  	}
+>  	
+>  	if (bad_ppro && page_kills_ppro(pfn)) {
+>  		SetPageReserved(page);
+> +		SetPageNosave(page);
+>  		return;
+>  	}
+>  	
+>  	ClearPageReserved(page);
+> +	ClearPageNosave(page);
 
-I don't know about that. from what I remember of the original devfs
-discussion, it was along the lines of "LSB involves every device in
-/dev, and is dumb.  We need a new scheme, this is as good as any. Anyone
-who has a better idea for how devices should be laid out, let me know."
+why this clearpagenosave? looks superflous, you're not doing it in the
+normal zone anyways.
+
+> +#if defined(__nosave_begin)
+
+this won't work right, __nosave_begin isn't a preprocessor thing so it
+will be ignored when you uncomment it. You probably can use #if 0
+instead and a comment near __nosave_begin to turn it to 1 when enabling
+the suspend code.
+
+> What is your opinion of this approach?
+
+except for the above two nitpicks, the patch is correct and needed for
+safe suspend IMHO. 2.6 seems to miss this thing too, why not add it to
+2.6 first?
+
+> BTW, The patch below is needed to run it with a nosave region on 
+> Vanilla 2.4.2[45]:
+> 
+> diff -ruN linux-2.4.24/arch/i386/vmlinux.lds software-suspend-linux-2.4.24-rev7/arch/i386/vmlinux.lds
+> --- linux-2.4.24/arch/i386/vmlinux.lds	2004-01-22 19:46:03.000000000 +1300
+> +++ software-suspend-linux-2.4.24-rev7/arch/i386/vmlinux.lds	2004-01-30 15:23:38.000000000 +1300
+> @@ -53,6 +53,12 @@
+>    __init_end = .;
+>  
+>    . = ALIGN(4096);
+> +  __nosave_begin = .;
+> +  .data_nosave : { *(.data.nosave) }
+> +  . = ALIGN(4096);
+> +  __nosave_end = .;
+> +
+> +  . = ALIGN(4096);
+>    .data.page_aligned : { *(.data.idt) }
+>  
+>    . = ALIGN(32);
+> 
+> also uncomment in mm/init.c the line:
+> //extern char __nosave_begin, __nosave_end; 
+
+yep.

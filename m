@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264925AbSLBTtE>; Mon, 2 Dec 2002 14:49:04 -0500
+	id <S264886AbSLBTrA>; Mon, 2 Dec 2002 14:47:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264940AbSLBTtE>; Mon, 2 Dec 2002 14:49:04 -0500
-Received: from keetweej.xs4all.nl ([213.84.46.114]:8423 "EHLO
-	muur.intranet.vanheusden.com") by vger.kernel.org with ESMTP
-	id <S264925AbSLBTtC>; Mon, 2 Dec 2002 14:49:02 -0500
-From: "Folkert van Heusden" <folkert@vanheusden.com>
-To: "'Richard Henderson'" <rth@twiddle.net>,
-       "'Bjoern Brauel'" <bjb@gentoo.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: kernel build of 2.5.50 fails on Alpha
-Date: Mon, 2 Dec 2002 20:55:59 +0100
-Message-ID: <001001c29a3c$d65eaf80$3640a8c0@boemboem>
+	id <S264925AbSLBTq7>; Mon, 2 Dec 2002 14:46:59 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:34579 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S264886AbSLBTqx>; Mon, 2 Dec 2002 14:46:53 -0500
+Date: Mon, 2 Dec 2002 14:52:56 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG]2.5.49-ac1 - more info on make error
+In-Reply-To: <Pine.LNX.4.33L2.0212021103150.27194-100000@dragon.pdx.osdl.net>
+Message-ID: <Pine.LNX.3.96.1021202144705.433L-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <20021201201122.A31609@twiddle.net>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ive been working on implementing some missing bits but what Id like to
-> know is who is "officially" doing development for alpha on 2.5.
+On Mon, 2 Dec 2002, Randy.Dunlap wrote:
 
-RH> See
-RH>
-http://ftp.kernel.org/pub/linux/kernel/people/rusty/patches/Module/rth-share
-d-modules.patch.gz
-RH> which I hope will make it into the kernel relatively soon.
+> On Mon, 2 Dec 2002, Bill Davidsen wrote:
 
-I'm afraid that one won't compile:
+> | No. I have pretty much assumed that there is no interest in having this
+> | work. The modules are broken to the point where either the author or
+> | someone who has documentation on how they should work will have to fix
+> | them. Clearly the policy of "if you want your change in the kernel you
+> | have to fix what it breaks" is dead.
+> 
+> This is not the borked-modules problem; it's different.
 
-arch/alpha/kernel/pci.c: In function `pcibios_fixup_final':
-arch/alpha/kernel/pci.c:128: `ALPHA_ALCOR_MAX_DMA_ISA_ADDRESS' undeclared
-(first use in this function)
-arch/alpha/kernel/pci.c:128: (Each undeclared identifier is reported only
-once
-arch/alpha/kernel/pci.c:128: for each function it appears in.)
-make[1]: *** [arch/alpha/kernel/pci.o] Error 1
-make: *** [arch/alpha/kernel] Error 2
+I misread, I thought it came about when changes for module interface were
+applied.
 
-The only reference I could find was in asm-alpha/dma.h:
-define MAX_ISA_DMA_ADDRESS         ALPHA_ALCOR_MAX_DMA_ISA_ADDRESS
-but no definition.
+> | I posted that to the list, if it didn't make it for any reason I can't
+> | easily recreate it, the machine has been converted to BSD, the 2.5 work is
+> | on a removable drive which is removed, since we can't make any progress
+> | with it for the moment.
+> 
+> whatever.  Adrian Bunk & Jeff Garzik have now posted patches for it.
 
+Yes, I've noted my thanks earlier, particularly for some info on the
+underlying cause, which will be useful when I see that problem again. 
 
-Folkert van Heusden
-http://www.vanheusden.com/Linux/kernel_patches.php3
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

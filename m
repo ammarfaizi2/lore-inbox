@@ -1,77 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267359AbUI2TdU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267502AbUI2TgK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267359AbUI2TdU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 15:33:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268854AbUI2TdU
+	id S267502AbUI2TgK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 15:36:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268854AbUI2Tfk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 15:33:20 -0400
-Received: from [69.25.196.29] ([69.25.196.29]:36831 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S267359AbUI2TcL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 15:32:11 -0400
-Date: Wed, 29 Sep 2004 15:31:17 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Jean-Luc Cooke <jlcooke@certainkey.com>
-Cc: linux@horizon.com, linux-kernel@vger.kernel.org, cryptoapi@lists.logix.cz
-Subject: Re: [PROPOSAL/PATCH 2] Fortuna PRNG in /dev/random
-Message-ID: <20040929193117.GB6862@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Jean-Luc Cooke <jlcooke@certainkey.com>, linux@horizon.com,
-	linux-kernel@vger.kernel.org, cryptoapi@lists.logix.cz
-References: <20040924005938.19732.qmail@science.horizon.com> <20040929171027.GJ16057@certainkey.com>
-Mime-Version: 1.0
+	Wed, 29 Sep 2004 15:35:40 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:40164 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S267502AbUI2TeX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 15:34:23 -0400
+Date: Wed, 29 Sep 2004 12:35:23 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+cc: kernel-janitors@lists.osdl.org, greg@kroah.com, hannal@us.ibm.com,
+       B.Zolnierkiewicz@elka.pw.edu.pl
+Subject: [PATCH 2.6.9-rc2-mm4 ide.c] [2/8] Patch to replace pci_find_device with pci_dev_present
+Message-ID: <12260000.1096486523@w-hlinder.beaverton.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040929171027.GJ16057@certainkey.com>
-User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While addition of the entropy estimator helps protect the Fortuna
-Random number generator against a state extension attack, /dev/urandom
-is using the same entropy extraction routine as /dev/random, and so
-Fortuna is still vulernable to state extension attacks.  This is
-because a key aspect of the Fortuna design has been ignored in JLC's
-implementation.  
 
-This missing piece to assure that a rekey can only take place when
-there has been sufficient entropy built up in the higher order pools
-in order to assure a catastrophic rekey.  Otherwise, the attacker can
-simply brute force a wide variety of entropy inputs from the hardware,
-and see if any of them matches output from the /dev/urandom (from
-which the attacker is continuously pulling output).  So in the
-original design, the rekey from a higher order pool only takes place
-after k*2^n seconds, where n is the order of the pool, and k is some
-constant.  The idea is that after some period of time hopefully one of
-the pools has built up at least 128 bits or so worth of entropy, and
-so the catastrophic reseeding will prevent an attacker from trying all
-possible inputs and determining the state of the pool.  (Neils
-recommends that k be at least a tenth of a second; see pages 38-40 of
-http://th.informatik.uni-mannheim.de/people/lucks/papers/Ferguson/Fortuna.pdf).
+As pci_find_device is going away it needs to be replaced. In this case the dev
+returned from pci_find_device was not being used so pci_dev_present was the
+appropriate replacement.
 
-Unfortunately, Fortuna will call random_reseed() after every single
-read from /dev/urandom.  This is not time-limited at all, so as long
-as the attacker can call /dev/urandom fast enough, it can continue to
-monitor the various higher-level pools.  This can be fixed easily by
-simply changing the rekey function so that it only attempts a reseed
-after some period of time has gone by.
+This has been compile and boot tested on a T22.
 
-There is of course the question of whether a state extension attack is
-realistic.  After all, most attacks where the attacker as sufficient
-privileges to obtain the complete state of the RNG is also one where
-the attacker also has enough privileges to install a rootkit, or
-compromise the kernel by loading a hostile loadable kernel module,
-etc.  Also, there is the question about whether an attacker could read
-sufficient amounts of to keep track of the the contents of the pool,
-and whether the attacker can either do the brute-forcing on the local
-machine, or send the large amounts of information read from
-/dev/urandom to an outside machine, without using enough CPU time that
-it would be noticed by a system administrator ---- but then again, the
-Crypto academics that are worried about things like state extension
-attacks aren't worried about practical niceties.  But then again, if
-we decide that state extension attacks aren't practically possible, or
-otherwise not worthy of concern, or if JLC's Fortuna implementation is
-vulnerable to state extension attacks, there's no reason to use JLC's
-implementation in the first place.
+Hanna Linder
+IBM Linux Technology Center
 
-						- Ted
+Signed-off-by: Hanna Linder <hannal@us.ibm.com>
+
+diff -Nrup linux-2.6.9-rc2-mm4cln/drivers/ide/ide.c linux-2.6.9-rc2-mm4patch/drivers/ide/ide.c
+--- linux-2.6.9-rc2-mm4cln/drivers/ide/ide.c	2004-09-28 14:58:25.000000000 -0700
++++ linux-2.6.9-rc2-mm4patch/drivers/ide/ide.c	2004-09-29 11:29:53.592066584 -0700
+@@ -335,11 +335,16 @@ static void __init init_ide_data (void)
+ 
+ int ide_system_bus_speed (void)
+ {
++	static struct pci_device_id pci_default[] = {
++		{ PCI_DEVICE(PCI_ANY_ID, PCI_ANY_ID) },
++		{ }
++	};
++
+ 	if (!system_bus_speed) {
+ 		if (idebus_parameter) {
+ 			/* user supplied value */
+ 			system_bus_speed = idebus_parameter;
+-		} else if (pci_find_device(PCI_ANY_ID, PCI_ANY_ID, NULL) != NULL) {
++		} else if (pci_dev_present(pci_default)) {
+ 			/* safe default value for PCI */
+ 			system_bus_speed = 33;
+ 		} else {
+
+
+

@@ -1,37 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261894AbUK2XVm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261893AbUK2XSK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261894AbUK2XVm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 18:21:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261883AbUK2XUf
+	id S261893AbUK2XSK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 18:18:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbUK2XQg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 18:20:35 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:41629 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S261882AbUK2XSQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 18:18:16 -0500
-Date: Tue, 30 Nov 2004 00:18:00 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Terry Griffin <terryg@axian.com>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: odd behavior with r8169 and pcap
-Message-ID: <20041129231800.GB3880@electric-eye.fr.zoreil.com>
-References: <1101751909.2291.21.camel@tux.hq.axian.com> <20041129210213.GA3880@electric-eye.fr.zoreil.com> <1101766059.3382.57.camel@tux.hq.axian.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1101766059.3382.57.camel@tux.hq.axian.com>
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+	Mon, 29 Nov 2004 18:16:36 -0500
+Received: from www.zeroc.com ([63.251.146.250]:30856 "EHLO www.zeroc.com")
+	by vger.kernel.org with ESMTP id S261881AbUK2XO0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 18:14:26 -0500
+Message-ID: <002c01c4d669$28ec6e30$6401a8c0@centrino>
+From: "Bernard Normier" <bernard@zeroc.com>
+To: <jonathan@jonmasters.org>
+Cc: <linux-kernel@vger.kernel.org>
+References: <006001c4d4c2$14470880$6400a8c0@centrino> <35fb2e5904112914476df48518@mail.gmail.com>
+Subject: Re: Concurrent access to /dev/urandom
+Date: Mon, 29 Nov 2004 18:14:20 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Terry Griffin <terryg@axian.com> :
-[...]
+>> I use /dev/urandom to generate UUIDs by reading 16 random bytes from
+>> /dev/urandom (very much like e2fsprogs' libuuid).
+>
+> Why not use /dev/random for such data instead?
 
-Ok, thanks for the info. It may sound like voodoo, but...
+A UUID generator that blocks from time to time waiting for entropy would not 
+be usable.
 
-Could you pass acpi=off to the kernel and disable whatever acpi
-or USB option appearing in the bios ?
+Cheers,
+Bernard
 
---
-Ueimor

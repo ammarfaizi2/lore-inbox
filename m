@@ -1,43 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262123AbVDFHDM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262125AbVDFHD4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262123AbVDFHDM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 03:03:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262125AbVDFHDM
+	id S262125AbVDFHD4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 03:03:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262127AbVDFHD4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 03:03:12 -0400
-Received: from fmr15.intel.com ([192.55.52.69]:55191 "EHLO
-	fmsfmr005.fm.intel.com") by vger.kernel.org with ESMTP
-	id S262123AbVDFHDD convert rfc822-to-8bit (ORCPT
+	Wed, 6 Apr 2005 03:03:56 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:5087 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S262125AbVDFHDs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 03:03:03 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 2.6.12-rc2-mm1: ACPI=y, ACPI_BOOT=n problems
-Date: Wed, 6 Apr 2005 03:01:37 -0400
-Message-ID: <F7DC2337C7631D4386A2DF6E8FB22B3002F68228@hdsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.12-rc2-mm1: ACPI=y, ACPI_BOOT=n problems
-Thread-Index: AcU54sjnOsa14PZaTKaOOeupgWggewAk9ZdA
-From: "Brown, Len" <len.brown@intel.com>
-To: "Adrian Bunk" <bunk@stusta.de>, "Reuben Farrelly" <reuben-lkml@reub.net>
-Cc: "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
-       <acpi-devel@lists.sourceforge.net>
-X-OriginalArrivalTime: 06 Apr 2005 07:01:39.0364 (UTC) FILETIME=[7AF95640:01C53A76]
+	Wed, 6 Apr 2005 03:03:48 -0400
+Date: Wed, 6 Apr 2005 09:03:47 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Dan Stromberg <strombrg@dcs.nac.uci.edu>, linux-kernel@vger.kernel.org
+Subject: Re: AOE and large filesystems?
+Message-ID: <20050406070346.GA6974@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Dan Stromberg <strombrg@dcs.nac.uci.edu>,
+	linux-kernel@vger.kernel.org
+References: <pan.2005.04.05.20.44.39.37209@dcs.nac.uci.edu> <42531A42.90508@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42531A42.90508@pobox.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->@Len:
->ACPI=y and ACPI_BOOT=n seems to be a legal configuration (with 
->X86_HT=y), but it breaks into pieces if you try the compilation.
+On Tue, Apr 05, 2005 at 07:07:46PM -0400, Jeff Garzik wrote:
 
-yeah, don't do that:-)
-I'm sorry I didn't push the patch to delete CONFIG_ACPI_BOOT earlier.
-For now, just enable them both.
+> As a tangent, I'd also like to see iSCSI over SCTP.
 
-thanks,
--Len
+http://ds9a.nl/klogbot/?year=2005&month=3&day=21&hour=12.5 
+
+See conversation between 'nab_' and ahu (me).
+
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://netherlabs.nl              Open and Closed source services

@@ -1,68 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317006AbSEWUvG>; Thu, 23 May 2002 16:51:06 -0400
+	id <S317004AbSEWU5M>; Thu, 23 May 2002 16:57:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317007AbSEWUvF>; Thu, 23 May 2002 16:51:05 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:65267 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S317006AbSEWUvF>; Thu, 23 May 2002 16:51:05 -0400
-Date: Thu, 23 May 2002 16:51:05 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@redhat.com
-Subject: [PATCH] 2.4.19-pre8 vm86 smp locking fix
-Message-ID: <20020523165105.A27881@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S317007AbSEWU5L>; Thu, 23 May 2002 16:57:11 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:11280 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S317004AbSEWU5K>; Thu, 23 May 2002 16:57:10 -0400
+Message-ID: <3CED48C8.80406@evision-ventures.com>
+Date: Thu, 23 May 2002 21:53:44 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Q: backport of the free_pgtables tlb fixes to 2.4
+In-Reply-To: <20020523195757.GW21164@dualathlon.random> <Pine.LNX.4.33.0205231300530.4338-100000@penguin.transmeta.com> <20020523204101.GY21164@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-arch/i386/kernel/vm86.c performs page table operations without obtaining 
-any locks.  This patch obtains page_table_lock around the the table walk 
-and modification.
+Uz.ytkownik Andrea Arcangeli napisa?:
 
-		-ben
--- 
-"You will be reincarnated as a toad; and you will be much happier."
+> What I don't understand is how the BTB can invoke random userspace tlb
+> fills when we are running do_munmap, there's no point at all in doing
+> that. If the cpu see a read of an user address after invalidate_tlb,
+> the tlb must not be started because it's before an invalidate_tlb.
+> 
+> And if it's true not even irq are barriers for the tlb fills invoked by
+> this p4-BTB thing, so if leave_mm is really necessary, then 2.5 is as
+> well wrong in UP, because the pagetable can be scribbled by irqs in a UP
+> machine, and so the fastmode must go away even in 1 cpu systems.
 
+I for one would be really really surprised if the execution of an
+interrupt isn't treating the BTB specially. If one reads
+about CPU validation "exception handling" aka irq handling
+is something that is paramount there. Hard to beleve they
+would implement software IRQ commands by not just toggling the
+IRQ input line of the chip themself. This safes testing.
+But it may be as well indeed just "accidental" that system
+call gates are implemented on recent ia32 systems by an op code
+which belongs to the IRQ handling family...
 
-diff -urN v2.4.19-pre8/arch/i386/kernel/vm86.c work/arch/i386/kernel/vm86.c
---- v2.4.19-pre8/arch/i386/kernel/vm86.c	Thu Mar  7 16:39:56 2002
-+++ work/arch/i386/kernel/vm86.c	Thu May 23 16:21:38 2002
-@@ -97,21 +97,22 @@
- 	pte_t *pte;
- 	int i;
- 
-+	spin_lock(&tsk->mm->page_table_lock);
- 	pgd = pgd_offset(tsk->mm, 0xA0000);
- 	if (pgd_none(*pgd))
--		return;
-+		goto out;
- 	if (pgd_bad(*pgd)) {
- 		pgd_ERROR(*pgd);
- 		pgd_clear(pgd);
--		return;
-+		goto out;
- 	}
- 	pmd = pmd_offset(pgd, 0xA0000);
- 	if (pmd_none(*pmd))
--		return;
-+		goto out;
- 	if (pmd_bad(*pmd)) {
- 		pmd_ERROR(*pmd);
- 		pmd_clear(pmd);
--		return;
-+		goto out;
- 	}
- 	pte = pte_offset(pmd, 0xA0000);
- 	for (i = 0; i < 32; i++) {
-@@ -119,6 +120,8 @@
- 			set_pte(pte, pte_wrprotect(*pte));
- 		pte++;
- 	}
-+out:
-+	spin_unlock(&tsk->mm->page_table_lock);
- 	flush_tlb();
- }
- 

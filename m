@@ -1,34 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263338AbREXBtC>; Wed, 23 May 2001 21:49:02 -0400
+	id <S263346AbREXCTQ>; Wed, 23 May 2001 22:19:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263339AbREXBsx>; Wed, 23 May 2001 21:48:53 -0400
-Received: from attila.bofh.it ([213.92.8.2]:22223 "HELO attila.bofh.it")
-	by vger.kernel.org with SMTP id <S263338AbREXBsr>;
-	Wed, 23 May 2001 21:48:47 -0400
-Date: Thu, 24 May 2001 03:48:24 +0200
-From: "Marco d'Itri" <md@Linux.IT>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Ext2, fsync() and MTA's?
-Message-ID: <20010524034824.C26674@wonderland.linux.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010521184758.B24682@redhat.com>
-User-Agent: Mutt/1.3.18i
+	id <S263345AbREXCTG>; Wed, 23 May 2001 22:19:06 -0400
+Received: from mx3.sac.fedex.com ([199.81.208.11]:65296 "EHLO
+	mx3.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S263344AbREXCS6>; Wed, 23 May 2001 22:18:58 -0400
+Date: Thu, 24 May 2001 10:18:55 +0800 (SGT)
+From: Jeff Chua <jchua@fedex.com>
+X-X-Sender: <root@boston.corp.fedex.com>
+To: Adam Schrotenboer <ajschrotenboer@lycosmail.com>
+cc: Jens Axboe <axboe@suse.de>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Loopback, unable to release
+In-Reply-To: <3B0BD750.4010306@lycosmail.com>
+Message-ID: <Pine.LNX.4.33.0105241013120.203-100000@boston.corp.fedex.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On May 21, "Stephen C. Tweedie" <sct@redhat.com> wrote:
+I'm using 2.4.5-pre5 and before on 2.4.x (without -ac) and don't have such
+problem.
 
- >Just set chattr +S on the spool dir.  That's what the flag is for.
- >The biggest problem with that is that it propagates to subdirectories
- >and files --- would a version of the flag which applied only to
- >directories be a help here?
-Yes, please. It's what is really needed by MTA (not only for spool, but
-for maildir delivery too).
+boston:root:/tmp> mount -o loop ram /mnt
+boston:root:/tmp> umount /mnt
+boston:root:/tmp> strace losetup -d /dev/loop0
+execve("/sbin/losetup", ["losetup", "-d", "/dev/loop0"], [/* 47 vars */])
+= 0
+brk(0)                                  = 0x804b408
+open("/etc/ld.so.preload", O_RDONLY)    = -1 ENOENT (No such file or
+directory)
 
--- 
-ciao,
-Marco
+
+Did you umount the loopback device or ensure that nobody is using it?
+
+
+
+On Wed, 23 May 2001, Adam Schrotenboer wrote:
+
+> Using 2.4.4-ac3 (as well as in 2.4.3*) I have found it impossible to
+> unmap a loopback
+>
+> strace losetup -d /dev/loop0 (relevant portion)
+>
+> open("/dev/loop0", O_RDONLY)            = 3
+> ioctl(3, LOOP_CLR_FD, 0)                = -1 EBUSY (Device or resource busy)
+

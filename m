@@ -1,69 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314659AbSEPU2l>; Thu, 16 May 2002 16:28:41 -0400
+	id <S314671AbSEPUcc>; Thu, 16 May 2002 16:32:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314670AbSEPU2k>; Thu, 16 May 2002 16:28:40 -0400
-Received: from smtp02.uc3m.es ([163.117.136.122]:17925 "HELO smtp.uc3m.es")
-	by vger.kernel.org with SMTP id <S314659AbSEPU2k>;
-	Thu, 16 May 2002 16:28:40 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200205162028.g4GKSbA23812@oboe.it.uc3m.es>
-Subject: Re: Kernel deadlock using nbd over acenic driver
-In-Reply-To: <3CE40A77.22C74DC1@zip.com.au> from Andrew Morton at "May 16, 2002
- 12:37:27 pm"
-To: Andrew Morton <akpm@zip.com.au>
-Date: Thu, 16 May 2002 22:28:37 +0200 (MET DST)
-Cc: Steve Whitehouse <Steve@ChyGwyn.com>,
-        linux kernel <linux-kernel@vger.kernel.org>
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	id <S314674AbSEPUcb>; Thu, 16 May 2002 16:32:31 -0400
+Received: from mta9n.bluewin.ch ([195.186.1.215]:21281 "EHLO mta9n.bluewin.ch")
+	by vger.kernel.org with ESMTP id <S314671AbSEPUca>;
+	Thu, 16 May 2002 16:32:30 -0400
+Date: Thu, 16 May 2002 22:31:59 +0200
+From: "'Roger Luethi'" <rl@hellgate.ch>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Shing Chuang <ShingChuang@via.com.tw>,
+        Urban Widmark <urban@teststation.com>,
+        "Ivan G." <ivangurdiev@linuxfreemail.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
+        AJ Jiang <AJJiang@via.com.tw>
+Subject: Re: [PATCH] #2 VIA Rhine stalls: TxAbort handling
+Message-ID: <20020516203159.GA10868@k3.hellgate.ch>
+In-Reply-To: <20020516180354.GA9151@k3.hellgate.ch> <Pine.LNX.3.95.1020516141423.993A-100000@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Linux 2.4.19-pre8 on i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"A month of sundays ago Andrew Morton wrote:"
-> Steven Whitehouse wrote:
-> > It would be nice to have a per device "max dirty pages" limit. Also useful
-> > would be a per queue priority so that if the max dirty pages limit is reached
-> > for that device, then the driver gets higher priority on memory allocations
-> > until the number of dirty pages has dropped below an acceptable level. I
-> > don't know how easy or desireable it would be to implement such a scheme
-> > generally though.
+> > The driver "waits a little" in the interrupt handler? How long can that
+> > take, worst case?
+> 
+> Forever..........^;)
 
-I think that is one possible mechanism, yes.  What we need is for the VM
-system to "act more intelligently".  I've given up on trying to get VM
-info and throttling the nbd device using it, because the lockup doesn't
-involve nbd, and would be made worse by slowing it down.  The lockup is
-purely a VM phenonemen - It tries to flush buffers aimed at nbd.  but
-won't give the nbd process any tcp buffers to do the flushing with, and
-thus blocks itself.
+We should assume that this is indeed the case, but it often helps to know
+what the expected values and their distribution are.
 
-> I'd expect a lot of these problems would be lessened by tweaking
-> the fractional settings in /proc/sys/vm/bdflush.  Get it to write
-> data earlier.  nfract, ndirty, nfract_sync and nfract_stop_bdflush.
+It's a weird situation anyway: both the buffer descriptor and the interrupt
+status have been updated by the chip to reflect the abort, but by the time
+we handle the error it may still be busy coming to a halt.
 
-This is part of the standard setup in Enbd, at least - the client
-daemons twiddle these settings to at least 15/85% on startup.  It
-doesn't help the reported tcp/vm deadlock, though it makes the occasions
-on which it happens more "abnormal" than "usual".  Unfortunately those
-abnormal conditions are reached under memory pressure while nbd is
-running - one simply has to get tcp competing for buffers with other
-heavy i/o.  If the i/o is directed at nbd itself, you have a deadlock.
+What tickles my curiosity is that my previous patch didn't fix the stalling
+for Ivan G. on his VT86C100A. Maybe the chip just wasn't ready to be
+restarted.
 
-Setting PF_MEMALLOC on the networking process seems to help a lot.
-Obviously it can't help if we are competing against "nothing" instead of
-another process.  I.e.  when we are doing i/o exclusively to nbd.  (e.g.
-swap over nbd).
+> Even if the chip never breaks, you end up with reports like..
+> "Strange, I make frisbees when buring CDs while M$ machines do
+> backups over the network..."
 
-> Also, test 2.4.18 and 2.4.19-pre8.  There were significant
-> bdflush changes in -pre6.
+Not if the chip is guaranteed to have its thing done after one or two
+iterations. We make some inb and outb calls in the ISR either way.
 
-I'm willing to look, but you don't make it sound intrinsically
-likely.
+That was hypothetically speaking of course, I'm not suggesting we rely on
+such a "guarantee".
 
-And setting vm/bdflush affects everthing, and presumably unoptimizes
-the settings for everthing else on the system. This is core
-kernel hackers territory .. somebody must be able to do something
-here!
-
-Peter
+Roger

@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262829AbSI3ShM>; Mon, 30 Sep 2002 14:37:12 -0400
+	id <S261306AbSI3TE4>; Mon, 30 Sep 2002 15:04:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262820AbSI3ShL>; Mon, 30 Sep 2002 14:37:11 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:31241 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S262816AbSI3ShK>; Mon, 30 Sep 2002 14:37:10 -0400
-Date: Mon, 30 Sep 2002 19:42:27 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, Chuck Lever <cel@netapp.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux FSdevel <linux-fsdevel@vger.kernel.org>,
-       NFS maillist <nfs@lists.sourceforge.net>
-Subject: Re: [PATCH] 2.4.20 Direct IO patch for NFS. (Note: a trivial API change...)
-Message-ID: <20020930194227.A22095@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Trond Myklebust <trond.myklebust@fys.uio.no>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Chuck Lever <cel@netapp.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Linux FSdevel <linux-fsdevel@vger.kernel.org>,
-	NFS maillist <nfs@lists.sourceforge.net>
-References: <15768.39196.468797.249573@charged.uio.no>
+	id <S261301AbSI3TE4>; Mon, 30 Sep 2002 15:04:56 -0400
+Received: from f41.law9.hotmail.com ([64.4.9.41]:41734 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S261306AbSI3TDn>;
+	Mon, 30 Sep 2002 15:03:43 -0400
+X-Originating-IP: [209.131.30.140]
+From: "James Jarosz" <jajarosz@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Netgear GA302T
+Date: Mon, 30 Sep 2002 15:09:03 -0400
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <15768.39196.468797.249573@charged.uio.no>; from trond.myklebust@fys.uio.no on Mon, Sep 30, 2002 at 08:34:04PM +0200
+Content-Type: text/plain; format=flowed
+Message-ID: <F41veuuCQ7vVo8NVfaN00003b05@hotmail.com>
+X-OriginalArrivalTime: 30 Sep 2002 19:09:03.0980 (UTC) FILETIME=[D790FAC0:01C268B4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 30, 2002 at 08:34:04PM +0200, Trond Myklebust wrote:
-> 
-> Hi Marcelo,
-> 
->   The following patch implements direct I/O for NFS as a compilation option.
-> It does not in any way touch the standard NFS read/write code, however it
-> does change the interface for generic direct I/O: Instead of taking a
-> 'struct inode' argument, we need to take the full 'struct file' in order
-> to be able to pass the RPC credential information down to the NFS layer.
+I have been reading some of the message with regards to a Netgear GA302T 
+Gigabit Adapter. Currently Netgear does not have their own driver at this 
+time, and there was some references to a "TIGON3" Driver.
 
-I don't think changing the filesystem entry points during 2.4 is an option.
+Where can I obtain this driver?
+
+Thank You.
+
+James Jarosz
+
+
+_________________________________________________________________
+MSN Photos is the easiest way to share and print your photos: 
+http://photos.msn.com/support/worldwide.aspx
 

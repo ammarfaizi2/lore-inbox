@@ -1,35 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271800AbRIRQxh>; Tue, 18 Sep 2001 12:53:37 -0400
+	id <S272985AbRIRREJ>; Tue, 18 Sep 2001 13:04:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272983AbRIRQx1>; Tue, 18 Sep 2001 12:53:27 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:10247 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S271800AbRIRQxO>; Tue, 18 Sep 2001 12:53:14 -0400
-Subject: Re: ext3/ext2 compatibility; time for ext3 in mainline kernel?
-To: dank@kegel.com (Dan Kegel)
-Date: Tue, 18 Sep 2001 17:57:51 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
-In-Reply-To: <3BA76A01.C2B5E701@kegel.com> from "Dan Kegel" at Sep 18, 2001 08:36:33 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S272989AbRIRREA>; Tue, 18 Sep 2001 13:04:00 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:8205 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S272985AbRIRRDx>; Tue, 18 Sep 2001 13:03:53 -0400
+Date: Tue, 18 Sep 2001 10:02:55 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Alexander Viro <viro@math.psu.edu>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.10-pre11
+In-Reply-To: <20010918121716.D2723@athlon.random>
+Message-ID: <Pine.LNX.4.33.0109180956070.2077-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15jOBz-0001FT-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I installed Red Hat 7.2beta, and chose its nifty ext3 option when
-> setting up my partitions.  But now when I boot into vanilla 2.4.9,
-> some files are mysteriously missing, notably /usr/bin/id and
-> /usr/lib/libreadline.so.3, judging from the error messages that spew
-> when I try to do anything.
-> 
-> I guess either a) there's a bug, or b) ext3 isn't so compatible with ext2
-> that you can just boot into an ext2-only kernel and expect things to work.
 
-This should definitely work. If the journal has not been played back then
-you may not be able to mount the fs as ext2. The case where it mounts as
-ext2 but the journal is not played back or there are incompatibilities
-showing is a bug.
+On Tue, 18 Sep 2001, Andrea Arcangeli wrote:
+> >
+> > What are you going to use as mapping->host for it?
+>
+> the only info we'd need from the host is the host->i_rdev, so why can't
+> we get it from the file->f_dentry->d_inode->i_rdev?
+
+No, just allocate a real inode as part of "struct block_device"
+allocation. This is basically what socket etc stuff does - and it's
+actually easiest to do it the other way, exactly like sockets do (ie
+_embed_ "struct block_device"  inside a struct inode as if "block_device"
+was just another filesystem), and then just allocate one inode and get the
+"struct block_device"  allocation for free.
+
+This works really well for sockets, and has worked for a long time. See
+how the socket is hidden in "inode->u.socket_i", and how it's trivial to
+convert from one to the other.
+
+And the fact is, a block_device _is_ a simple filesystem if you squint
+just the right way. Admittedly it's a fairly flat and _boring_ filesystem,
+but hey, that's the point of them, after all ;)
+
+			Linus
+

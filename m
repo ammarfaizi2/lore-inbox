@@ -1,61 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265960AbUGNWlE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265966AbUGNWq3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265960AbUGNWlE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 18:41:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265966AbUGNWlE
+	id S265966AbUGNWq3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 18:46:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265970AbUGNWq3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 18:41:04 -0400
-Received: from cust.18.243.adsl.cistron.nl ([62.216.18.243]:23680 "EHLO
-	nemiahone.tser.org") by vger.kernel.org with ESMTP id S265960AbUGNWlA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 18:41:00 -0400
-From: "Reinder" <tser@dwaal.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: After porting the via vt8231.c driver to 2.6.X i see it 3 times in sensors.
-Date: Thu, 15 Jul 2004 00:41:25 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Wed, 14 Jul 2004 18:46:29 -0400
+Received: from fw.osdl.org ([65.172.181.6]:21389 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265966AbUGNWq1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Jul 2004 18:46:27 -0400
+Date: Wed, 14 Jul 2004 14:31:12 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christian Borntraeger <linux-kernel@borntraeger.net>
+Cc: linux-kernel@vger.kernel.org, lmb@suse.de
+Subject: Re: [PATCH] was: [RFC] removal of sync in panic
+Message-Id: <20040714143112.1d8d1892.akpm@osdl.org>
+In-Reply-To: <200407141939.52316.linux-kernel@borntraeger.net>
+References: <200407141745.47107.linux-kernel@borntraeger.net>
+	<20040714162357.GU3922@marowsky-bree.de>
+	<200407141939.52316.linux-kernel@borntraeger.net>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcRp87GPkCC2VCgZRxegzmtcURX/GA==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.181
-Message-Id: <20040714233939.2F6AF14DC10A@nemiahone.tser.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+Christian Borntraeger <linux-kernel@borntraeger.net> wrote:
+>
+> Lars Marowsky-Bree wrote:
+> > > 1. remove sys_sync completely: syslogd and klogd use fsync. No need to
+> > > help them. Furthermore we have a severe problem which is worth a panic,
+> > > so we better dont do any I/O.
+> 
+> > I've seen exactly the behaviour you describe and would be inclined to go
+> > for this option too.
+> 
+> As this problem definitely exists, here is a patch. 
+> 
+> --- linux-2.6.8-rc1/kernel/panic.c      2004-06-16 07:20:04.000000000 +0200
+> +++ linux-patch/kernel/panic.c  2004-07-14 19:37:02.000000000 +0200
+> @@ -59,13 +59,7 @@ NORET_TYPE void panic(const char * fmt,
+>         va_start(args, fmt);
+>         vsnprintf(buf, sizeof(buf), fmt, args);
+>         va_end(args);
+> -       printk(KERN_EMERG "Kernel panic: %s\n",buf);
+> -       if (in_interrupt())
+> -               printk(KERN_EMERG "In interrupt handler - not syncing\n");
+> -       else if (!current->pid)
+> -               printk(KERN_EMERG "In idle task - not syncing\n");
+> -       else
+> -               sys_sync();
+> +       printk(KERN_EMERG "Kernel panic - not syncing: %s\n",buf);
+>         bust_spinlocks(0);
+> 
+>  #ifdef CONFIG_SMP
 
-After not being able to find the vt8231 module for the latest 2.6.X Kernel ,
-i merged the i2c/chips/VT8231.C to 2.6.X , and it's working almost ok, but i
-have  a strange output, it's showing up 3 times like this :
-
-vt8231-isa-fffe
-.. bla..
-vt8231-isa-6000
-.. bla..
-vt8231-isa-0000
-..bla..
-
-Somehow, i managed to let the system think it was 3 times inserted (?)
-
-Can somebody shine a small light on this ? i promise i won't bother you guys
-to much.
-I have placed the code at : http://www.tser.org/vt8231/
-
-I have to fix some small other bits before it's ok. But i think i will
-manage that. (like as correcting the 12V :)
-
-Kinds regards
-		Reinder Kraaij.
-
------------
-vt8231-isa-6000
-Adapter: ISA adapter
-VCore1:    +5.64 V  (min =  +0.10 V, max =  +7.20 V)   
-+5V:       +8.68 V  (min =  +0.26 V, max = +16.05 V)   
-+12V:     +78.04 V  (min =  +1.72 V, max = +92.67 V)   
-+3.3V:     +0.48 V  (min =  +0.48 V, max =  +0.48 V)   
-fan1:     5160 RPM  (min =    0 RPM, div = 2)          
-fan2:     6301 RPM  (min =    0 RPM, div = 2)          
-
+I agree with the patch in principle, but I'd be interested in what observed
+problem motivated it?

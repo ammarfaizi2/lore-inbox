@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274681AbRJYOoI>; Thu, 25 Oct 2001 10:44:08 -0400
+	id <S275571AbRJYOpJ>; Thu, 25 Oct 2001 10:45:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274746AbRJYOn6>; Thu, 25 Oct 2001 10:43:58 -0400
-Received: from mail022.mail.bellsouth.net ([205.152.58.62]:956 "EHLO
-	imf22bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S274681AbRJYOnt>; Thu, 25 Oct 2001 10:43:49 -0400
-Message-ID: <3BD82553.8A224B6@mandrakesoft.com>
-Date: Thu, 25 Oct 2001 10:44:35 -0400
+	id <S274749AbRJYOow>; Thu, 25 Oct 2001 10:44:52 -0400
+Received: from mail028.mail.bellsouth.net ([205.152.58.68]:57819 "EHLO
+	imf28bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S274746AbRJYOod>; Thu, 25 Oct 2001 10:44:33 -0400
+Message-ID: <3BD8257F.7ADFB08D@mandrakesoft.com>
+Date: Thu, 25 Oct 2001 10:45:19 -0400
 From: Jeff Garzik <jgarzik@mandrakesoft.com>
 Organization: MandrakeSoft
 X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-pre5 i686)
@@ -34,7 +34,8 @@ Victor Yodaiken wrote:
 > I'm failing  to imagine a good case for suspending a system that has a
 > tape drive on it.
 
-I've often seen user workstations with tape driver.
+I've often seen user workstations with tape drives.  Very uncommon these
+days, agreed.
 
 I fail to see the need to suspend such a system while using the tape
 drive, though :)

@@ -1,39 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319432AbSILEsM>; Thu, 12 Sep 2002 00:48:12 -0400
+	id <S319433AbSILEsQ>; Thu, 12 Sep 2002 00:48:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319433AbSILEsM>; Thu, 12 Sep 2002 00:48:12 -0400
-Received: from angband.namesys.com ([212.16.7.85]:18050 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S319432AbSILEsL>; Thu, 12 Sep 2002 00:48:11 -0400
-Date: Thu, 12 Sep 2002 08:53:00 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Dieter N?tzel <Dieter.Nuetzel@hamburg.de>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
-Subject: Re: [reiserfs-list] [BK] ReiserFS file write bug fix for 2.4
-Message-ID: <20020912085300.A4625@namesys.com>
-References: <3D7F7783.6030804@namesys.com> <200209111934.11373.Dieter.Nuetzel@hamburg.de> <20020911215310.A1504@namesys.com> <200209112137.22422.Dieter.Nuetzel@hamburg.de>
+	id <S319434AbSILEsQ>; Thu, 12 Sep 2002 00:48:16 -0400
+Received: from dp.samba.org ([66.70.73.150]:57235 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S319433AbSILEsP>;
+	Thu, 12 Sep 2002 00:48:15 -0400
+Date: Thu, 12 Sep 2002 14:52:44 +1000
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: lk@tantalophile.demon.co.uk, oliver@neukum.name, zippel@linux-m68k.org,
+       viro@math.psu.edu, kaos@ocs.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Raceless module interface
+Message-Id: <20020912145244.4cc6fb98.rusty@rustcorp.com.au>
+In-Reply-To: <E17pKxR-0007by-00@starship>
+References: <20020912031345.760A32C061@lists.samba.org>
+	<E17pKxR-0007by-00@starship>
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <200209112137.22422.Dieter.Nuetzel@hamburg.de>
-User-Agent: Mutt/1.3.22.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Thu, 12 Sep 2002 05:47:57 +0200
+Daniel Phillips <phillips@arcor.de> wrote:
 
-On Wed, Sep 11, 2002 at 09:37:22PM +0200, Dieter N?tzel wrote:
-> > On Wed, Sep 11, 2002 at 07:34:11PM +0200, Dieter N?tzel wrote:
-> > > On Wednesday 11 September 2002 19:04, Hans Reiser wrote:
-> > > > Well, at least getting the new file write code into pre6 found this bug
-> > > > for us....  please apply.
-> > > What is the "right" way to get the new block allocation going?
-> > use 2.4.19-pre2+ and it is in there ;)
-> You meant 2.4.20-pre2, didn't you?
+> On Thursday 12 September 2002 05:13, Rusty Russell wrote:
+> > B) We do not handle the "half init problem" where a module fails to load, eg.
+> > 	a = register_xxx();
+> > 	b = register_yyy();
+> > 	if (!b) {
+> > 		unregister_xxx(a);
+> > 		return -EBARF;
+> > 	}
+> >   Someone can start using "a", and we are in trouble when we remove
+> >   the failed module.
+> 
+> No we are not.  The module remains in the 'stopped' state
+> throughout the entire initialization process, as it should and
+> does, in my model.
 
-Ah, yes. 2.4.20-pre2+ of course.
+Um, so register_xxx interfaces all use try_inc_mod_count (ie. a
+struct module *  extra arg to register_xxx)?  Or those entry points
+are not protected by try_inc_mod_count, so it must bump the refcnt, so
+you need to sleep in load until the module becomes unused again.
 
-Bye,
-    Oleg
+You have the same issue in the "wait for schedule" case on unload,
+where someone jumps in while you are unregistering.  My implementation
+decided to ignore this problem (ie. potentially wait forever with the
+module half-loaded) but it is an issue.
+
+Rusty.
+-- 
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

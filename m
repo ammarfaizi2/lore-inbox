@@ -1,59 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311885AbSDCPpQ>; Wed, 3 Apr 2002 10:45:16 -0500
+	id <S311577AbSDCPzQ>; Wed, 3 Apr 2002 10:55:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312104AbSDCPoz>; Wed, 3 Apr 2002 10:44:55 -0500
-Received: from nogapok.sgu.ru ([212.193.32.15]:56519 "HELO hq.stingr.net")
-	by vger.kernel.org with SMTP id <S311885AbSDCPox>;
-	Wed, 3 Apr 2002 10:44:53 -0500
-Date: Wed, 3 Apr 2002 19:44:40 +0400
-From: Paul P Komkoff Jr <i@stingr.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: missing spinlock declaration in one of watchdogs
-Message-ID: <20020403154440.GA24914@stingr.net>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-User-Agent: Agent Tanya
-X-Mailer: Roxio Easy CD Creator 5.0
-X-RealName: Stingray Greatest Jr
-Organization: Bedleham International
+	id <S312136AbSDCPzH>; Wed, 3 Apr 2002 10:55:07 -0500
+Received: from fep01-0.kolumbus.fi ([193.229.0.41]:9671 "EHLO
+	fep01-app.kolumbus.fi") by vger.kernel.org with ESMTP
+	id <S311577AbSDCPyu>; Wed, 3 Apr 2002 10:54:50 -0500
+Date: Wed, 3 Apr 2002 18:54:49 +0300 (EEST)
+From: Kai Makisara <Kai.Makisara@kolumbus.fi>
+X-X-Sender: makisara@kai.makisara.local
+To: Evan Harris <eharris@puremagic.com>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with scsi tape drives (2.4.18) and soft error count
+ (BusLogic, AIC7xxx)
+In-Reply-To: <Pine.LNX.4.33.0204021513050.1454-100000@kinison.puremagic.com>
+Message-ID: <Pine.LNX.4.44.0204031841010.1145-100000@kai.makisara.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One of watchdog drivers won't compile without it
+On Tue, 2 Apr 2002, Evan Harris wrote:
 
-Applies to -ac and latest marcelo tree.
+>
+> Only one problem, I'm using devfs, so the major/minor means nothing.  But
+> from looking at online docs, the normal name for the high bit devices is
+> nst0, and that just happens to be the device I am using.
+>
+> But that does explain why the soft error count is always 0 after doing a
+> tar, since tar closes the device when it's done, and you stated that it
+> loses all history after that.  A subsequent call to mt would therefore
+> report 0.
+>
+> I guess the only way to get the info is to hack a call to retrieve the soft
+> errors into tar, but I was hoping to avoid that.
+>
+Quoting from README.st:
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.226   -> 1.227  
-#	drivers/char/w83877f_wdt.c	1.4     -> 1.5    
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/04/03	stingray@proxy.sgu.ru	1.227
-# w83877 missing spinlock
-# --------------------------------------------
-#
-diff -Nru a/drivers/char/w83877f_wdt.c b/drivers/char/w83877f_wdt.c
---- a/drivers/char/w83877f_wdt.c	Wed Apr  3 19:38:49 2002
-+++ b/drivers/char/w83877f_wdt.c	Wed Apr  3 19:38:49 2002
-@@ -92,6 +92,7 @@
- static unsigned long wdt_is_open;
- static int wdt_expect_close;
- static spinlock_t wdt_spinlock;
-+static spinlock_t fop_spinlock;
- 
- /*
-  *	Whack the dog
+        The number of recovered errors since the previous status call
+        is stored in the lower word of the field mt_erreg.
+
+i.e., the number of recovered error is cleared when it is read with
+MTIOCGET (e.g., mt status). It does not matter which one of the device
+nodes pointing to the same drive you use.
+
+Quoting from 'man st':
+
+       mt_erreg   The only field defined in mt_erreg is the recovered error count
+                  in the low 16  bits  (as  defined  by  MT_ST_SOFTERR_SHIFT  and
+                  MT_ST_SOFTERR_MASK).   Due to inconsistencies in the way drives
+                  report recovered errors, this count  is  often  not  maintained
+                  (most  drives do not by default report soft errors but this can
+                  be changed with a SCSI MODE SELECT command).
+
+You should check that your drive is configured to report the soft errors.
+This can be done using the mode page 01h (read-write error recovery page,
+bit PER). Some drives don't support setting this bit to one. You should be
+able to see the value of the bit and change it using the scsi tools
+probably included in your distribution.
+
+	Kai
 
 
--- 
-Paul P 'Stingray' Komkoff 'Greatest' Jr // (icq)23200764 // (irc)Spacebar
-  PPKJ1-RIPE // (smtp)i@stingr.net // (http)stingr.net // (pgp)0xA4B4ECA4
+

@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267289AbSLEL2V>; Thu, 5 Dec 2002 06:28:21 -0500
+	id <S267296AbSLELeF>; Thu, 5 Dec 2002 06:34:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267291AbSLEL2V>; Thu, 5 Dec 2002 06:28:21 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:53772 "EHLO
+	id <S267297AbSLELeF>; Thu, 5 Dec 2002 06:34:05 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:58124 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267289AbSLEL2U>; Thu, 5 Dec 2002 06:28:20 -0500
-Date: Thu, 5 Dec 2002 11:35:46 +0000
+	id <S267296AbSLELeE>; Thu, 5 Dec 2002 06:34:04 -0500
+Date: Thu, 5 Dec 2002 11:40:55 +0000
 From: Russell King <rmk@arm.linux.org.uk>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: David Gibson <david@gibson.dropbear.id.au>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] generic device DMA implementation
-Message-ID: <20021205113546.A22686@flint.arm.linux.org.uk>
-Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	David Gibson <david@gibson.dropbear.id.au>,
-	James Bottomley <James.Bottomley@steeleye.com>,
-	linux-kernel@vger.kernel.org
-References: <200212041747.gB4HlEF03005@localhost.localdomain> <20021205004744.GB2741@zax.zax> <1039086496.651.65.camel@zion>
+To: William Lee Irwin III <wli@holomorphy.com>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org,
+       kernel-janitor-discuss@lists.sourceforge.net, jgarzik@pobox.com,
+       miura@da-cha.org, alan@lxorguk.ukuu.org.uk, viro@math.psu.edu,
+       pavel@ucw.cz
+Subject: Re: [warnings] [2/8] fix uninitialized quot in drivers/serial/core.c
+Message-ID: <20021205114055.B22686@flint.arm.linux.org.uk>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+	kernel-janitor-discuss@lists.sourceforge.net, jgarzik@pobox.com,
+	miura@da-cha.org, alan@lxorguk.ukuu.org.uk, viro@math.psu.edu,
+	pavel@ucw.cz
+References: <0212050252.hdcd1a.b3aUbzb5bCbGc3dkcCd8a1atc20143@holomorphy.com> <0212050252.AaCdAbid6d9cabJbEbmaTdZb7daa.c5a20143@holomorphy.com> <20021205111913.A18253@flint.arm.linux.org.uk> <20021205112539.GB18600@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1039086496.651.65.camel@zion>; from benh@kernel.crashing.org on Thu, Dec 05, 2002 at 12:08:16PM +0100
+In-Reply-To: <20021205112539.GB18600@holomorphy.com>; from wli@holomorphy.com on Thu, Dec 05, 2002 at 03:25:39AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 05, 2002 at 12:08:16PM +0100, Benjamin Herrenschmidt wrote:
-> For things like ring descriptors of a net driver, I feel it's very much
-> simpler (and possibly more efficient too) to also allocate non-cacheable
-> space for consistent instead of continuously flushing/invalidating.
-> Actually, flush/invalidate here can also have nasty side effects if
-> several descriptors fit in the same cache line.
+On Thu, Dec 05, 2002 at 03:25:39AM -0800, William Lee Irwin III wrote:
+> Before any of this happens, I'll try it out on more modern gcc's.
 
-Indeed.  Think about a 16-byte descriptor in a 32-byte cache line.
-The net chip has written status information to the first word, you've
-just written to the 4th word of that cache line.
+Some more info before you report the bug to the gcc people - looking at
+my kernel build logs from the past week, it seems to be a gcc 2.95.x
+thing (maybe a 2.96 thing as well).  It appears to be fixed in gcc 3.2.1.
 
-To access the status word written by the chip, you need to invalidate
-(without writeback) that cache line.  For the chip to access the word
-you've just written, you need to writeback that cache line.
-
-In other words, you _will_ loose information in this case, guaranteed.
-I'd rather keep our existing pci_* API than be forced into this crap
-again.
+I'm in favour of putting up with the incorrect warning produced by older
+compilers.
 
 -- 
 Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux

@@ -1,34 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276509AbRI2O2i>; Sat, 29 Sep 2001 10:28:38 -0400
+	id <S276516AbRI2Ony>; Sat, 29 Sep 2001 10:43:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276510AbRI2O22>; Sat, 29 Sep 2001 10:28:28 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:41999 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S276509AbRI2O20>; Sat, 29 Sep 2001 10:28:26 -0400
-Subject: Re: 2.4.9-ac10 IDE access slows as uptime increases
-To: tmwg-linuxknl@inxservices.com (George Garvey)
-Date: Sat, 29 Sep 2001 15:33:17 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010928204612.A911@inxservices.com> from "George Garvey" at Sep 28, 2001 08:46:12 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15nLB7-00027t-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S276517AbRI2Ono>; Sat, 29 Sep 2001 10:43:44 -0400
+Received: from fenrus.demon.co.uk ([158.152.228.152]:6785 "EHLO
+	fenrus.demon.nl") by vger.kernel.org with ESMTP id <S276516AbRI2Onc>;
+	Sat, 29 Sep 2001 10:43:32 -0400
+From: arjan@fenrus.demon.nl
+To: ookhoi@dds.nl
+Subject: Re: 2.4.9-ac17 Adaptec AIC7XXX problems (new driver, old one works fine)
+cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010929162224.E9327@humilis>
+X-Newsgroups: fenrus.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
+Message-Id: <E15nLLO-00027M-00@fenrus.demon.nl>
+Date: Sat, 29 Sep 2001 15:43:54 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->    I've been noticing this for months, and thought I was crazy. But I
-> just verified it.
->    I ran a program that's a GUI app/front-end to a data base, on the
-> local drives. It took seconds to access a record.
+In article <20010929162224.E9327@humilis> you wrote:
+> Hi Justin, Alan,
 
-Is the data base doing I/O directly to a block device and not using
-O_DIRECT for one question
+> aic7xxx_old.c:11965: parse error before string constant
+> aic7xxx_old.c:11965: warning: type defaults to `int' in declaration of `MODULE_LICENSE'
+> aic7xxx_old.c:11965: warning: function declaration isn't a prototype
+> aic7xxx_old.c:11965: warning: data definition has no type or storage class
 
-Second question is what is in your IDE logs. The IDE layer will change
-down speeds when it hits a repeated problem (eg a DMA timeout) so if
-need be will switch back to PIO or to MWDMA.
 
+Yet another driver with bogus #ifdef around the module.h include.. sigh
+
+
+--- linux/drivers/scsi/aic7xxx/aic7xxx_linux.c~	Fri Sep 28 13:02:13 2001
++++ linux/drivers/scsi/aic7xxx/aic7xxx_linux.c	Sat Sep 29 15:41:52 2001
+@@ -120,9 +120,7 @@
+  * under normal conditions.
+  */
+ 
+-#if defined(MODULE)
+ #include <linux/module.h>
+-#endif
+ 
+ #include "aic7xxx_osm.h"
+ #include "aic7xxx_inline.h"

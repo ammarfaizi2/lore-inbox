@@ -1,61 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261608AbULTSsm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261613AbULTTDB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261608AbULTSsm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 13:48:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbULTSsl
+	id S261613AbULTTDB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 14:03:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbULTTDB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 13:48:41 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:65518 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261608AbULTSsj
+	Mon, 20 Dec 2004 14:03:01 -0500
+Received: from utopia.booyaka.com ([206.168.112.107]:22166 "EHLO
+	utopia.booyaka.com") by vger.kernel.org with ESMTP id S261613AbULTTCq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 13:48:39 -0500
-Date: Mon, 20 Dec 2004 10:48:14 -0800
-From: Greg KH <greg@kroah.com>
-To: Lukas Hejtmanek <xhejtman@mail.muni.cz>,
-       David Brownell <david-b@pacbell.net>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: Scheduling while atomic (2.6.10-rc3-bk13)
-Message-ID: <20041220184814.GA21215@kroah.com>
-References: <20041219231015.GB4166@mail.muni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041219231015.GB4166@mail.muni.cz>
-User-Agent: Mutt/1.5.6i
+	Mon, 20 Dec 2004 14:02:46 -0500
+Date: Mon, 20 Dec 2004 12:02:45 -0700 (MST)
+From: Paul Walmsley <paul@booyaka.com>
+To: Juergen Botz <jurgen@botz.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Thinkpad T42, keyboard sometimes hosed when waking from sleep
+In-Reply-To: <cpl6n2$ivd$1@sea.gmane.org>
+Message-ID: <Pine.LNX.4.44.0412201147230.24228-100000@utopia.booyaka.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 20, 2004 at 12:10:15AM +0100, Lukas Hejtmanek wrote:
-> Hello,
-> 
-> when suspending to disk I got:
-> scheduling while atomic: suspenddisk.sh/0x00000001/1452
-> [<c031dc81>] schedule+0x4b3/0x563
-> [<c031e170>] schedule_timeout+0x5d/0xab
-> [<c011e9e5>] process_timeout+0x0/0x9
-> [<c011edbd>] msleep+0x2c/0x34
-> [<df8303cb>] ehci_hub_resume+0xed/0x1de [ehci_hcd]
-> [<c025885f>] usb_resume_device+0x80/0xc7
-> [<c021dc2e>] dpm_resume+0xa2/0xa4
-> [<c021dc41>] device_resume+0x11/0x1e
-> [<c0130485>] finish+0x8/0x3a
-> [<c013058e>] pm_suspend_disk+0x3e/0x73
-> [<c012ecfa>] enter_state+0x6e/0x72
-> [<c012ee18>] state_store+0xa4/0xb7
-> [<c0184441>] subsys_attr_store+0x34/0x3d
-> [<c01846c0>] flush_write_buffer+0x3e/0x4a
-> [<c018473b>] sysfs_write_file+0x6f/0x7e
-> [<c01846cc>] sysfs_write_file+0x0/0x7e
-> [<c01504ec>] vfs_write+0xf4/0x12f
-> [<c014fa31>] filp_close+0x52/0x96
-> [<c01505f8>] sys_write+0x51/0x80
-> [<c010306f>] syscall_call+0x7/0xb
+On Mon, 13 Dec 2004, Juergen Botz wrote:
 
-David, it looks like you grab a spinlock, and then call msleep(20);
-which causes this warning.
+> I have a new IBM Thinkpad T42, FC3 with all updates, stock
+> 2.6.9-1.681_FC3 kernel + iwp2200 driver (0.13).  Everyone once
+> in a while when I wake from ACPI S3 sleep my keyboard is hosed...
+> the first key I press starts rapidly auto-repeating, which can't
+> be stopped, and pressing any key produces either no visible
+> action or some other character (not the one normally on that
+> key) which also auto repeats madly.
 
-Care to fix it?
+I'm also seeing this behavior on an HP Omnibook 6000 laptop running Red
+Hat's latest release of 2.6.9 - same kernel version as the above poster.  
+Upon resume, the keyboard malfunctions but the touchpad works fine. It
+happens with either ACPI or APM.  (I did notice that during ACPI resume,
+the machine spits out several error messages from atkbd.c to the kernel
+message log - when I've next got serial console access, I'll post them 
+here.)
 
-thanks,
+This behavior happens about 2/3rds of the time that the machine comes out
+of suspend.  It did not occur with any of the 2.6 kernels that shipped
+with Fedora Core 2 before FC3 came out.
 
-greg k-h
+
+- Paul
+

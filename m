@@ -1,60 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266854AbSKHRvD>; Fri, 8 Nov 2002 12:51:03 -0500
+	id <S266859AbSKHRlp>; Fri, 8 Nov 2002 12:41:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266855AbSKHRvD>; Fri, 8 Nov 2002 12:51:03 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:19974 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S266854AbSKHRvB>; Fri, 8 Nov 2002 12:51:01 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: [Linux-ia64] reader-writer livelock problem
-Date: Fri, 8 Nov 2002 17:57:13 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <aqgttp$2qf$1@penguin.transmeta.com>
-References: <Pine.LNX.4.44.0211080918220.4298-100000@home.transmeta.com> <1036777105.13021.13.camel@ixodes.goop.org>
-X-Trace: palladium.transmeta.com 1036778245 10209 127.0.0.1 (8 Nov 2002 17:57:25 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 8 Nov 2002 17:57:25 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S266860AbSKHRlp>; Fri, 8 Nov 2002 12:41:45 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:33408 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S266859AbSKHRln>;
+	Fri, 8 Nov 2002 12:41:43 -0500
+Date: Fri, 8 Nov 2002 09:48:41 -0800
+From: Dave Olien <dmo@osdl.org>
+To: Kevin Brosius <cobra@compuserve.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.46 DAC960 :)
+Message-ID: <20021108094841.A18641@acpi.pdx.osdl.net>
+References: <3DC88907.70290D3C@compuserve.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3DC88907.70290D3C@compuserve.com>; from cobra@compuserve.com on Tue, Nov 05, 2002 at 10:14:15PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <1036777105.13021.13.camel@ixodes.goop.org>,
-Jeremy Fitzhardinge  <jeremy@goop.org> wrote:
->
->Even without interrupts that would be a bug.  It isn't ever safe to
->attempt to retake a read lock if you already hold it, because you may
->deadlock with a pending writer.  Fair multi-reader locks aren't
->recursive locks.
 
-.. but I don't think we have any real users who use them for recursion,
-so the only "recursion" right now is through interrupts that use this
-feature.
+I've posted yet another new patch for the DAC960 driver for 2.5.46.
+It's in
 
-(At least that was true a long time time ago, maybe we've added truly
-recursive users since)
+	http://www.osdl.org/archive/dmo/DAC960_2.5.46_V1/
 
->> Actually, giving this som emore thought, I really suspect that the
->> simplest solution is to alloc a separate "fair_read_lock()", and paths
->> that need to care about fairness (and know they don't have the irq
->> issue)  
->> can use that, slowly porting users over one by one...
->
->Do you mean have a separate lock type, or have two different read_lock
->operations on the current type?
+This one uses the new pci_register_driver() interface.  I've restructured
+the code to use the new device probe method.  This make the
+new sysfs file system work.
 
-That depends on whether it is even sanely implementable to share the
-same lock. It may not be. 
+This uncovered one bug in sysfs.  The DAC960 driver puts its
+devices into a subdirectory "/dev/rd".  So the names constructed
+in sysfs need to reflect this.  At the top level, it does OK, creating
+names like "rd!c0d0".  The "!" in the name does cause some problems
+for shells, so you need to put the name in single quotes to cd
+into those directories.
 
->From a migration standpoint it would be easiest (by far) to be able to
-share the lock type and to mix operations (ie an interrupt - or
-recursive user - could just use the non-fair version, while others could
-use the fair version on the same lock).  However, I have this nagging
-suspicion that it might be a total nightmare to implement efficiently in
-practice. 
+But, the substitution of "!" for "/" isn't carried through to the lower
+levels of the tree.  So, you end of with names containing the "/" character.
+There's no way the kernel can ever parse such a name properly.
+But I'm sure that'll be fixed soon.
 
-I've not looked at it. Any ideas?
+Dave Olien
 
-		Linus

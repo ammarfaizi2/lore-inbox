@@ -1,43 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264273AbTKKGD2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 01:03:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264274AbTKKGD2
+	id S264267AbTKKGDB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 01:03:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264273AbTKKGDB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 01:03:28 -0500
-Received: from wsip-68-14-236-254.ph.ph.cox.net ([68.14.236.254]:35290 "EHLO
-	office.labsysgrp.com") by vger.kernel.org with ESMTP
-	id S264273AbTKKGD0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 01:03:26 -0500
-Message-ID: <3FB07BA5.5010202@backtobasicsmgmt.com>
-Date: Mon, 10 Nov 2003 23:03:17 -0700
-From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
-Organization: Back to Basics Network Management
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20030925
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Success with  Promise FastTrak S150 TX4 (Re: [BK PATCHES] libata
- fixes)
-References: <20031108172621.GA8041@gtf.org> <20031110095248.GA20497@magi.fakeroot.net> <3FAFBC28.5000600@pobox.com> <20031110172613.GA2962@magi.fakeroot.net> <3FAFDA5E.4050905@pobox.com>
-In-Reply-To: <3FAFDA5E.4050905@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 11 Nov 2003 01:03:01 -0500
+Received: from h68-147-142-75.cg.shawcable.net ([68.147.142.75]:44015 "EHLO
+	schatzie.adilger.int") by vger.kernel.org with ESMTP
+	id S264267AbTKKGC7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 01:02:59 -0500
+Date: Mon, 10 Nov 2003 23:00:55 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: Valdis.Kletnieks@vt.edu
+Cc: Daniel Gryniewicz <dang@fprintf.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: OT: why no file copy() libc/syscall ??
+Message-ID: <20031110230055.S10197@schatzie.adilger.int>
+Mail-Followup-To: Valdis.Kletnieks@vt.edu,
+	Daniel Gryniewicz <dang@fprintf.net>,
+	linux-kernel mailing list <linux-kernel@vger.kernel.org>
+References: <1068512710.722.161.camel@cube> <20031110205011.R10197@schatzie.adilger.int> <1068523406.4156.7.camel@localhost> <200311110414.hAB4EZA8007309@turing-police.cc.vt.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200311110414.hAB4EZA8007309@turing-police.cc.vt.edu>; from Valdis.Kletnieks@vt.edu on Mon, Nov 10, 2003 at 11:14:35PM -0500
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+On Nov 10, 2003  23:14 -0500, Valdis.Kletnieks@vt.edu wrote:
+> On Mon, 10 Nov 2003 23:03:26 EST, Daniel Gryniewicz said:
+> > Plus a sys_copy() syscall could be used as a generic way for filesystems
+> > to set up Copy-on-Write.  Right now, you'd need to have userspace call
+> > sys-reiser4 or something like that.
+> 
+> This is fast turning into a creeping horror of aggregation.  I defy anybody
+> to create an API to cover all the options mentioned so far and *not* have it
+> look like the process_clone horror we so roundly derided a few weeks ago.
 
-> Thank Promise, too.  They are actively supporting my efforts on this 
-> driver with hardware and docs.  Promise has also provided Arjan (author 
-> of "pdcraid") with documentation on their vendor-specific RAID format, 
-> and they are making other efforts to better support open source, and be 
-> more friendly with the open source community.
+	int sys_copy(int fd_src, int fd_dst)
 
-And it's working, I would not have purchased a SATA150 TX4 for my new 
-server if libata did not have support for it. I know, it's small 
-potatoes, they didn't make much money off that sale, but everything 
-helps. The only other 4-port (non RAID) SATA card I have seen was from 
-SIIG, but it has disappeared from their web site and distributors, and 
-libata's support for the Sil3114 on it isn't ready yet anyway :-)
+It is up to the filesystem to decide if both files are on the same device
+and can be copied with a copy RPC (or whatever).  If the filesystem returns
+-EOPNOTSUPP then the VFS goes into a simple readpages/writepages loop to do
+the copy instead, maybe also copying ACLs or other things the VFS understands.
+
+All of the "extra functionality" is being handled in the filesystem itself
+and not the VFS or the API.  Copy-on-write is an fs-internal issue depending
+on whether fs supports it, how it was mounted, etc.  Remote copy is also an
+fs-internal issue depending on whether inodes are in same filesystem, support,
+etc.  You might get into fun things like doing zero-copy.
+
+Telling the filesystem we are doing a copy vs. a bunch of reads mixed
+with a bunch of writes is just semantically something that the filesystem
+should know about.
+
+Cheers, Andreas
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 

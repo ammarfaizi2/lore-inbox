@@ -1,63 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310825AbSCSXsQ>; Tue, 19 Mar 2002 18:48:16 -0500
+	id <S310850AbSCSXtG>; Tue, 19 Mar 2002 18:49:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310835AbSCSXsH>; Tue, 19 Mar 2002 18:48:07 -0500
-Received: from lafontaine.noos.net ([212.198.2.72]:37727 "EHLO smtp.noos.fr")
-	by vger.kernel.org with ESMTP id <S310825AbSCSXr4>;
-	Tue, 19 Mar 2002 18:47:56 -0500
-From: "Christian HOFFMANN" <christian.hoffmann@noos.fr>
-To: linux-kernel@vger.kernel.org
-Date: Wed, 20 Mar 2002 00:25:37 +0100
-MIME-Version: 1.0
-Subject: Re: C-Media 8738 sound driver + A7M266-D problems.
-Message-ID: <3C97D701.615.C93FC6@localhost>
-In-Reply-To: <Pine.LNX.4.43.0203182216260.32113-100000@bish.net>
-X-mailer: Pegasus Mail for Windows (v4.01)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+	id <S310835AbSCSXtB>; Tue, 19 Mar 2002 18:49:01 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:59079 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S310850AbSCSXsi>;
+	Tue, 19 Mar 2002 18:48:38 -0500
+Date: Tue, 19 Mar 2002 15:45:02 -0800 (PST)
+Message-Id: <20020319.154502.18227426.davem@redhat.com>
+To: lm@bitmover.com
+Cc: pavel@suse.cz, davej@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: Bitkeeper licence issues
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020319154436.N14877@work.bitmover.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I have the same motherboard at it include the hardware to support 6 
-speaker (and win2k support 6 channels)). I'm currently configuring 
-linux (gentoo with kernel 2.4.18) on my motherboard and don't yet 
-know about the rears chanels. I'll let you know.
+   From: Larry McVoy <lm@bitmover.com>
+   Date: Tue, 19 Mar 2002 15:44:36 -0800
+   
+   Hey Dave, are you suggesting that no such exploits exist in Red Hat's 
+   rpm system?  In order for that to be true, rpm would have to be making
+   sure that each and every directory along any path that it writes is
+   not writable except by priviledged users.  I just checked, it doesn't.
 
-Regards
-
-
-On 20 Mar 2002 at 0:10, Eric Lammerts wrote:
-
-> 
-> On Mon, 18 Mar 2002, Mark wrote:
-> > I have a dual AMD board that has the 8738 onboard.  I compile 2.4.18 and
-> > pass it the '6 speaker' selection which should push the Rear speaker
-> > signal out the Line In connector and the Center Speaker Out/ Sub-woofer
-> > signal out the Mic In connector.  This does not happen.  I've tried this
-> > as a module and passing the params on the command line as well as
-> > compiling it directly into the kernel.  Am I missing something (very
-> > likely) or is this a known situation that I just have to deal with?
-> 
-> Are you sure your hardware supports 6-channel output? There are
-> several version of the 8738 chip (with/without spdif, 4/6 channel).
-> The chip should read something like "CMI8738/PCI-6CH".
-> 
-> Furthermore, it requires some extra hardware (analog multiplexers, for
-> example a 4053) to switch the connections. Maybe the manufacturer
-> left that out (to save a few cents).
-> 
-> Eric
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
------------------------------------------------
-Christian HOFFMANN <christian.hoffmann@noos.fr>
-
+We should be using mktemp() to make temporary files, and if we don't
+that is a bug and I'd ask you to please submit a bugzilla entry about
+it if so because that would be a serious hole.

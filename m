@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262014AbVANQ4d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262019AbVANRAe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262014AbVANQ4d (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 11:56:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262019AbVANQ4d
+	id S262019AbVANRAe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 12:00:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262021AbVANRAe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 11:56:33 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:33215 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262014AbVANQ41 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 11:56:27 -0500
-Date: Fri, 14 Jan 2005 11:56:12 -0500
-From: Dave Jones <davej@redhat.com>
-To: "Barry K. Nathan" <barryn@pobox.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-rc1-mm1
-Message-ID: <20050114165612.GB19208@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	"Barry K. Nathan" <barryn@pobox.com>, Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20050114002352.5a038710.akpm@osdl.org> <20050114150714.GA4501@ip68-4-98-123.oc.oc.cox.net>
+	Fri, 14 Jan 2005 12:00:34 -0500
+Received: from pool-151-203-218-166.bos.east.verizon.net ([151.203.218.166]:4868
+	"EHLO ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
+	id S262019AbVANRA2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 12:00:28 -0500
+Message-Id: <200501141922.j0EJMKnV003227@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
+To: blaisorblade_spam@yahoo.it
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [patch 02/11] uml: fix compilation for missing headers 
+In-Reply-To: Your message of "Thu, 13 Jan 2005 22:00:51 +0100."
+             <20050113210051.99326AB30@zion> 
+References: <20050113210051.99326AB30@zion> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050114150714.GA4501@ip68-4-98-123.oc.oc.cox.net>
-User-Agent: Mutt/1.4.1i
+Date: Fri, 14 Jan 2005 14:22:20 -0500
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 14, 2005 at 07:07:14AM -0800, Barry K. Nathan wrote:
- > This isn't new to 2.6.11-rc1-mm1, but it has the infamous (to Fedora
- > users) "ACPI shutdown bug" -- poweroff hangs instead of actually turning
- > the computer off, on some computers. Here's the RH Bugzilla report where
- > most of the discussion took place:
- > 
- > https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=132761                     
- > 
- > In the Fedora kernels it turned out to be due to kexec. I'll see if I
- > can narrow it down further.
+blaisorblade_spam@yahoo.it said:
+> If you think it cannot make sense to include both <sys/ptrace.h> and
+> <linux/ptrace.h> (as userspace process, i.e. host includes), go
+> complaining with glibc, or follow the linux-abi includes idea.
 
-For *some* users. It still affects others.
-My Compaq Evo showed the bug with 2.6.9 vanilla, went away with 2.6.10
-vanilla.
+> However, the compilation failure is possibly glibc-version (or better
+> glibc includes version) related - what I now is that the failure
+> happens on my system with a glibc 2.3.4 (from Gentoo).
 
-		Dave
+> Also, remove some syscalls from the syscall table, since some syscalls
+> were added which are only inside -mm currently, and this prevents
+> currently compilation. 
+
+Hold off on this one.  I have different fixes for this in my tree.
+
+The system ptrace headers (asm/ptrace.h, sys/ptrace.h, linux/ptrace.h) have
+varying effects, depending on distro and architecture.  So, I decided to put
+sysdep/ptrace_user.h in charge of supplying the system ptrace information to
+the rest of UML.  This has some ripple effects which I am in the process of
+sorting out.
+
+On the system calls, I have them indef-ed depending on whether one of the
+__NR_vperf symbols are defined.  This will go away when the entry points
+are in both -mm and -linus.
+
+				Jeff
 

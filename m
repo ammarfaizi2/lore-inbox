@@ -1,56 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266761AbTBQE52>; Sun, 16 Feb 2003 23:57:28 -0500
+	id <S266796AbTBQFH3>; Mon, 17 Feb 2003 00:07:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266772AbTBQE52>; Sun, 16 Feb 2003 23:57:28 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:31210 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S266761AbTBQE51>; Sun, 16 Feb 2003 23:57:27 -0500
-Date: Sun, 16 Feb 2003 21:07:06 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Manfred Spraul <manfred@colorfullife.com>,
-       Anton Blanchard <anton@samba.org>, Andrew Morton <akpm@digeo.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@holomorphy.com>
-Subject: Re: more signal locking bugs?
-Message-ID: <75430000.1045458425@[10.10.2.4]>
-In-Reply-To: <Pine.LNX.4.44.0302161951580.1424-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0302161951580.1424-100000@home.transmeta.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S266806AbTBQFH3>; Mon, 17 Feb 2003 00:07:29 -0500
+Received: from dp.samba.org ([66.70.73.150]:3458 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S266796AbTBQFH2>;
+	Mon, 17 Feb 2003 00:07:28 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: Brian Gerst <bgerst@didntduck.org>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Move __this_module to xxx.mod.c 
+In-reply-to: Your message of "Sun, 16 Feb 2003 22:26:48 MDT."
+             <Pine.LNX.4.44.0302162225420.5217-100000@chaos.physics.uiowa.edu> 
+Date: Mon, 17 Feb 2003 15:53:28 +1100
+Message-Id: <20030217051727.6778B2C0AD@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Ah, I see what happened, I think .... the locking used to be inside
->> collect_sigign_sigcatch, and you moved it out into task_sig ... but 
->> there were two callers of collect_sigign_sigcatch, the other one being
->> proc_pid_stat
+In message <Pine.LNX.4.44.0302162225420.5217-100000@chaos.physics.uiowa.edu> yo
+u write:
+> On Mon, 17 Feb 2003, Rusty Russell wrote:
 > 
-> Doh.
+> > I don't think so: the symbol will be in the module by the time
+> > module-init-tools gets to it, or am I missing something?
 > 
-> This should fix it. 
+> Yes, but modprobe will look for .gnu.linkonce.__this_module if it wants to 
+> change the name (but that's now in ___this_module).
 
-Don't you need this bit as well?
+Good point.  The name change thing is a known hack, of course, but
+will fix userspace.
 
-+	sigemptyset(&sigign);
-+	sigemptyset(&sigcatch);
-
-to replace this bit from your previous patch.
-
- static void collect_sigign_sigcatch(struct task_struct *p, sigset_t *ign,
-                                    sigset_t *catch)
- {
-        struct k_sigaction *k;
-        int i;
- 
--       sigemptyset(ign);
--       sigemptyset(catch);
-
-That was in the patch I sent you ... but I missed task->sighand->siglock ;-)
-
-M.
-
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

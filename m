@@ -1,46 +1,243 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310219AbSCBA34>; Fri, 1 Mar 2002 19:29:56 -0500
+	id <S310223AbSCBAvf>; Fri, 1 Mar 2002 19:51:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310221AbSCBA3q>; Fri, 1 Mar 2002 19:29:46 -0500
-Received: from numenor.qualcomm.com ([129.46.51.58]:10665 "EHLO
-	numenor.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S310219AbSCBA3i>; Fri, 1 Mar 2002 19:29:38 -0500
-Message-Id: <5.1.0.14.2.20020301161728.0d6b8580@mail1.qualcomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Fri, 01 Mar 2002 16:28:52 -0800
-To: "David S. Miller" <davem@redhat.com>, rml@tech9.net
-From: Maksim Krasnyanskiy <maxk@qualcomm.com>
-Subject: Re: [PATCH] spinlock not locked when unlocking in
-  atm_dev_register
-Cc: fisaksen@bewan.com, mitch@sfgoth.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20020301.143809.91757055.davem@redhat.com>
-In-Reply-To: <1015022109.11499.47.camel@phantasy>
- <20020301163936.7FA725F963@postfix2-2.free.fr>
- <5.1.0.14.2.20020301143010.0d552be8@mail1.qualcomm.com>
- <1015022109.11499.47.camel@phantasy>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S310224AbSCBAv0>; Fri, 1 Mar 2002 19:51:26 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37381 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310223AbSCBAvQ>;
+	Fri, 1 Mar 2002 19:51:16 -0500
+Message-ID: <3C8021A9.BB16E3FC@zip.com.au>
+Date: Fri, 01 Mar 2002 16:49:47 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+CC: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: Re: queue_nr_requests needs to be selective
+In-Reply-To: <20020301132254.A11528@vger.timpanogas.org> <3C7FE7DD.98121E87@zip.com.au>, <3C7FE7DD.98121E87@zip.com.au>; <20020301162016.A12413@vger.timpanogas.org> <3C800D66.F613BBAA@zip.com.au>,
+			<3C800D66.F613BBAA@zip.com.au>; from akpm@zip.com.au on Fri, Mar 01, 2002 at 03:23:18PM -0800 <20020301172701.A12718@vger.timpanogas.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Jeff V. Merkey" wrote:
+> 
+> ...
+> > OK.  So would it suffice to make queue_nr_requests an argument to
+> > a new blk_init_queue()?
+> >
+> > -     blk_init_queue(q, sci_request);
+> > +     blk_init_queue_ng(q, sci_request, 1024);
+> >
+> 
+> Andrew,
+> 
+> Yep.  This will do it.
 
->    > btw ATM locking seems to be messed up. Is anybody working on that ?
->
->    Not that I know of.  Volunteer? :)
->
->I consider it pretty much unmaintained.  Feel free to take it up :)
-I'd rather work on my Bluetooth stuff for now :)
+OK.   The requirement seems eminently sensible to me.  Could
+you please verify the suitability of this patch?  And if Jens
+is OK with it, I'll stick it in the pile marked "Brazil".
 
-The reason I looked at the ATM stuff is that I got this DSL thing from 
-PacBell that
-came with Alcatel ADSL USB modem which talks to the ATM layer. The guy who
-wrote that USB driver had a comment that it doesn't work on SMP for 
-_unknown reason_ :)
-Quick glance at the ATM code, revealed that one of reasons is messed up 
-looking.
-So I fixed device registration and now it works. But ATM locking in general 
-has to be fixed.
 
-Max
+--- 2.4.19-pre2/drivers/block/ll_rw_blk.c~blk-queue	Fri Mar  1 15:30:13 2002
++++ 2.4.19-pre2-akpm/drivers/block/ll_rw_blk.c	Fri Mar  1 15:57:07 2002
+@@ -117,16 +117,6 @@ int * max_readahead[MAX_BLKDEV];
+  */
+ int * max_sectors[MAX_BLKDEV];
+ 
+-/*
+- * The total number of requests in each queue.
+- */
+-static int queue_nr_requests;
+-
+-/*
+- * The threshold around which we make wakeup decisions
+- */
+-static int batch_requests;
+-
+ static inline int get_max_sectors(kdev_t dev)
+ {
+ 	if (!max_sectors[MAJOR(dev)])
+@@ -180,7 +170,7 @@ static int __blk_cleanup_queue(struct re
+  **/
+ void blk_cleanup_queue(request_queue_t * q)
+ {
+-	int count = queue_nr_requests;
++	int count = q->nr_requests;
+ 
+ 	count -= __blk_cleanup_queue(&q->rq[READ]);
+ 	count -= __blk_cleanup_queue(&q->rq[WRITE]);
+@@ -330,9 +320,11 @@ void generic_unplug_device(void *data)
+ 	spin_unlock_irqrestore(&io_request_lock, flags);
+ }
+ 
+-static void blk_init_free_list(request_queue_t *q)
++static void blk_init_free_list(request_queue_t *q, int nr_requests)
+ {
+ 	struct request *rq;
++	struct sysinfo si;
++	int megs;		/* Total memory, in megabytes */
+ 	int i;
+ 
+ 	INIT_LIST_HEAD(&q->rq[READ].free);
+@@ -340,10 +332,17 @@ static void blk_init_free_list(request_q
+ 	q->rq[READ].count = 0;
+ 	q->rq[WRITE].count = 0;
+ 
++	si_meminfo(&si);
++	megs = si.totalram >> (20 - PAGE_SHIFT);
++	q->nr_requests = nr_requests;
++	if (megs < 32)
++		q->nr_requests /= 2;
++	q->batch_requests = q->nr_requests / 4;
++
+ 	/*
+ 	 * Divide requests in half between read and write
+ 	 */
+-	for (i = 0; i < queue_nr_requests; i++) {
++	for (i = 0; i < nr_requests; i++) {
+ 		rq = kmem_cache_alloc(request_cachep, SLAB_KERNEL);
+ 		if (rq == NULL) {
+ 			/* We'll get a `leaked requests' message from blk_cleanup_queue */
+@@ -364,15 +363,17 @@ static void blk_init_free_list(request_q
+ static int __make_request(request_queue_t * q, int rw, struct buffer_head * bh);
+ 
+ /**
+- * blk_init_queue  - prepare a request queue for use with a block device
++ * __blk_init_queue  - prepare a request queue for use with a block device
+  * @q:    The &request_queue_t to be initialised
+  * @rfn:  The function to be called to process requests that have been
+  *        placed on the queue.
++ * @nr_requests: the number of request structures on each of the device's
++ *               read and write request lists.
+  *
+  * Description:
+  *    If a block device wishes to use the standard request handling procedures,
+  *    which sorts requests and coalesces adjacent requests, then it must
+- *    call blk_init_queue().  The function @rfn will be called when there
++ *    call __blk_init_queue().  The function @rfn will be called when there
+  *    are requests on the queue that need to be processed.  If the device
+  *    supports plugging, then @rfn may not be called immediately when requests
+  *    are available on the queue, but may be called at some time later instead.
+@@ -392,15 +393,21 @@ static int __make_request(request_queue_
+  *    whenever the given queue is unplugged. This behaviour can be changed with
+  *    blk_queue_headactive().
+  *
++ *    Your selected value of nr_requests will be scaled down for small
++ *    machines.  See blk_init_free_list().
++ *
++ *    If nr_requests is less than 16, things will probably fail mysteriously.
++ *
+  * Note:
+- *    blk_init_queue() must be paired with a blk_cleanup_queue() call
++ *    __blk_init_queue() must be paired with a blk_cleanup_queue() call
+  *    when the block device is deactivated (such as at module unload).
+  **/
+-void blk_init_queue(request_queue_t * q, request_fn_proc * rfn)
++void __blk_init_queue(request_queue_t * q,
++		request_fn_proc * rfn, int nr_requests)
+ {
+ 	INIT_LIST_HEAD(&q->queue_head);
+ 	elevator_init(&q->elevator, ELEVATOR_LINUS);
+-	blk_init_free_list(q);
++	blk_init_free_list(q, nr_requests);
+ 	q->request_fn     	= rfn;
+ 	q->back_merge_fn       	= ll_back_merge_fn;
+ 	q->front_merge_fn      	= ll_front_merge_fn;
+@@ -610,7 +617,7 @@ void blkdev_release_request(struct reque
+ 	 */
+ 	if (q) {
+ 		list_add(&req->queue, &q->rq[rw].free);
+-		if (++q->rq[rw].count >= batch_requests &&
++		if (++q->rq[rw].count >= q->batch_requests &&
+ 				waitqueue_active(&q->wait_for_requests[rw]))
+ 			wake_up(&q->wait_for_requests[rw]);
+ 	}
+@@ -802,7 +809,7 @@ get_rq:
+ 		 * See description above __get_request_wait()
+ 		 */
+ 		if (rw_ahead) {
+-			if (q->rq[rw].count < batch_requests) {
++			if (q->rq[rw].count < q->batch_requests) {
+ 				spin_unlock_irq(&io_request_lock);
+ 				goto end_io;
+ 			}
+@@ -1149,12 +1156,9 @@ void end_that_request_last(struct reques
+ 	blkdev_release_request(req);
+ }
+ 
+-#define MB(kb)	((kb) << 10)
+-
+ int __init blk_dev_init(void)
+ {
+ 	struct blk_dev_struct *dev;
+-	int total_ram;
+ 
+ 	request_cachep = kmem_cache_create("blkdev_requests",
+ 					   sizeof(struct request),
+@@ -1170,22 +1174,6 @@ int __init blk_dev_init(void)
+ 	memset(max_readahead, 0, sizeof(max_readahead));
+ 	memset(max_sectors, 0, sizeof(max_sectors));
+ 
+-	total_ram = nr_free_pages() << (PAGE_SHIFT - 10);
+-
+-	/*
+-	 * Free request slots per queue.
+-	 * (Half for reads, half for writes)
+-	 */
+-	queue_nr_requests = 64;
+-	if (total_ram > MB(32))
+-		queue_nr_requests = 128;
+-
+-	/*
+-	 * Batch frees according to queue length
+-	 */
+-	batch_requests = queue_nr_requests/4;
+-	printk("block: %d slots per queue, batch=%d\n", queue_nr_requests, batch_requests);
+-
+ #ifdef CONFIG_AMIGA_Z2RAM
+ 	z2_init();
+ #endif
+@@ -1296,7 +1284,7 @@ int __init blk_dev_init(void)
+ EXPORT_SYMBOL(io_request_lock);
+ EXPORT_SYMBOL(end_that_request_first);
+ EXPORT_SYMBOL(end_that_request_last);
+-EXPORT_SYMBOL(blk_init_queue);
++EXPORT_SYMBOL(__blk_init_queue);
+ EXPORT_SYMBOL(blk_get_queue);
+ EXPORT_SYMBOL(blk_cleanup_queue);
+ EXPORT_SYMBOL(blk_queue_headactive);
+--- 2.4.19-pre2/include/linux/blkdev.h~blk-queue	Fri Mar  1 15:31:09 2002
++++ 2.4.19-pre2-akpm/include/linux/blkdev.h	Fri Mar  1 15:41:50 2002
+@@ -79,6 +79,16 @@ struct request_queue
+ 	struct request_list	rq[2];
+ 
+ 	/*
++	 * The total number of requests on each queue
++	 */
++	int nr_requests;
++
++	/*
++	 * Batching threshold for sleep/wakeup decisions
++	 */
++	int batch_requests;
++
++	/*
+ 	 * Together with queue_head for cacheline sharing
+ 	 */
+ 	struct list_head	queue_head;
+@@ -157,7 +167,8 @@ extern void blkdev_release_request(struc
+ /*
+  * Access functions for manipulating queue properties
+  */
+-extern void blk_init_queue(request_queue_t *, request_fn_proc *);
++#define blk_init_queue(q, fn) __blk_init_queue(q, fn, 128)
++extern void __blk_init_queue(request_queue_t *, request_fn_proc *, int);
+ extern void blk_cleanup_queue(request_queue_t *);
+ extern void blk_queue_headactive(request_queue_t *, int);
+ extern void blk_queue_make_request(request_queue_t *, make_request_fn *);
 
+
+-

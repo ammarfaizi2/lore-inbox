@@ -1,139 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262235AbVAQKLa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262191AbVAQKNY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262235AbVAQKLa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 05:11:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262191AbVAQKLa
+	id S262191AbVAQKNY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 05:13:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbVAQKNY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 05:11:30 -0500
-Received: from unthought.net ([212.97.129.88]:24772 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S262235AbVAQKHr (ORCPT
+	Mon, 17 Jan 2005 05:13:24 -0500
+Received: from news.suse.de ([195.135.220.2]:41418 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262191AbVAQKNT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 05:07:47 -0500
-Date: Mon, 17 Jan 2005 11:07:46 +0100
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Christoph Hellwig <hch@infradead.org>, David Greaves <david@dgreaves.com>,
-       Jan Kasprzak <kas@fi.muni.cz>, linux-kernel@vger.kernel.org,
-       kruty@fi.muni.cz
-Subject: Re: XFS: inode with st_mode == 0
-Message-ID: <20050117100746.GI347@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Christoph Hellwig <hch@infradead.org>,
-	David Greaves <david@dgreaves.com>, Jan Kasprzak <kas@fi.muni.cz>,
-	linux-kernel@vger.kernel.org, kruty@fi.muni.cz
-References: <20041209125918.GO9994@fi.muni.cz> <20041209135322.GK347@unthought.net> <20041209215414.GA21503@infradead.org> <20041221184304.GF16913@fi.muni.cz> <20041222084158.GG347@unthought.net> <20041222182344.GB14586@infradead.org> <41E80C1F.3070905@dgreaves.com> <20050114182308.GE347@unthought.net> <20050116135112.GA24814@infradead.org>
+	Mon, 17 Jan 2005 05:13:19 -0500
+Date: Mon, 17 Jan 2005 11:13:18 +0100
+From: Andi Kleen <ak@suse.de>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Andi Kleen <ak@suse.de>, Adrian Bunk <bunk@stusta.de>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] x8664_ksyms.c: unexport register_die_notifier
+Message-ID: <20050117101318.GF29270@wotan.suse.de>
+References: <20050116074649.GW4274@stusta.de> <20050117092654.GB29270@wotan.suse.de> <1105955659.6304.62.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050116135112.GA24814@infradead.org>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <1105955659.6304.62.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 16, 2005 at 01:51:12PM +0000, Christoph Hellwig wrote:
-> On Fri, Jan 14, 2005 at 07:23:09PM +0100, Jakob Oestergaard wrote:
-> > So apart from the general well known instability problems that will
-> > occur when you actually start *using* the system, there should be no
+On Mon, Jan 17, 2005 at 10:54:18AM +0100, Arjan van de Ven wrote:
+> On Mon, 2005-01-17 at 10:26 +0100, Andi Kleen wrote:
+> > On Sun, Jan 16, 2005 at 08:46:49AM +0100, Adrian Bunk wrote:
+> > > The only user of register_die_notifier (kernel/kprobes.c) can't be 
+> > > built modular. Therefore, it's the EXPORT_SYMBOL is superfluous.
+> > 
+> > Please don't apply this, it was especially intended for modular debuggers.
+> > There is already a hacvked kdb around that uses it.
 > 
-> What known instabilities?
+> eh didn't Tigran just mail lkml claiming that kdb and x86-64 really
+> don't mix ??
 
-Where should I begin?  ;)
+It cannot display function arguments and uses imprecise backtrace right now
+(like normal oopses), other than that it works just fine. 
 
-Most of the following have already been posted to LKML - primarily by
-Anders (as@cohaesio.com) - it seems that noone cares, but I'll repost a
-summary that Anders sent me below:
-
--------
-Scenario 1: Mailservers:
-  2.6.10 (~24-40 hours uptime):
-  Running ext3 on mailqueue:
-
-<SNIP>
-Unable to handle kernel NULL pointer dereference at virtual address 00000004
-printing eip:
-c018a095
-*pde = 00000000
-Oops: 0002 [#1]
-SMP
-Modules linked in: nfs e1000 iptable_nat ipt_connlimit rtc
-CPU:    2
-EIP:    0060:[<c018a095>]    Not tainted
-EFLAGS: 00010286   (2.6.8.1)
-EIP is at journal_commit_transaction+0x535/0x10e5
-eax: cac1e26c   ebx: 00000000   ecx: f7cec400   edx: f7cec400
-esi: f65f3000   edi: cac1e26c   ebp: f65f3000   esp: f65f3dc0
-ds: 007b   es: 007b   ss: 0068
-Process kjournald (pid: 174, threadinfo=f65f3000 task=c2308b70)
-Stack: f65f3e64 00000000 00000000 00000000 00000000 00000000 f7cec400 cda565fc
-       0000149a 00000004 f65f3e48 c01132d8 00000002 c202ad20 00000001 f65f3e5c
-       c202ad20 c202ad20 00000002 00000001 0000001e 01c1af60 f65f3e68 c0407dc0
-Call Trace:
- [<c01132d8>] scheduler_tick+0x468/0x470
- [<c01127b5>] find_busiest_group+0x105/0x310
- [<c011db8e>] del_timer_sync+0x7e/0xa0
- [<c018cd4d>] kjournald+0xbd/0x230
- [<c0114b10>] autoremove_wake_function+0x0/0x40
- [<c0114b10>] autoremove_wake_function+0x0/0x40
- [<c0103f16>] ret_from_fork+0x6/0x14
- [<c018cc70>] commit_timeout+0x0/0x10
- [<c018cc90>] kjournald+0x0/0x230
- [<c01024bd>] kernel_thread_helper+0x5/0x18
-Code: f0 ff 43 04 8b 03 83 e0 04 74 4c 8b 8c 24 b8 01 00 00 c6 81
- <2>SoftDog: Initiating system reboot
-</SNIP>
-
--------
-Scenario 2: Mailservers:
-  Running XFS on mailqueue:
-
-<SNIP>
-Filesystem "sdb1": xfs_trans_delete_ail: attempting to delete a log item that 
-is not in the AIL
-xfs_force_shutdown(sdb1,0x8) called from line 382 of file 
-fs/xfs/xfs_trans_ail.c.  Return address = 0xc0216a56
-@Linux version 2.6.9 (root@mail1.domain.tld) (gcc version 2.96 20000731 (Red 
-Hat Linux 7.3 2.96-113)) #1 SMP Tue Oct 19 16:04:55 CEST 2004
-</SNIP>
-
-
-=======
-Resolution to the mailserver problem:
- 2.4.28 is perfectly stable on these machines.
-
--------
-Scenario 3: Webservers:
-
-  2.6.10, 2.6.10-ac8 (~3-12 hours uptime):
-
-    <SNIP>
-    Unable to handle kernel paging request
-    <2>SoftDog: Initiating system reboot.
-    <SNIP>
-    (No more...) :(
-
-=======
-Resolution to the webserver problem:
- 2.4.28/2.4.29-rc2 are stable here
-
--------
-Scenario 4: Storageservers: 
-  2.6.8.1:
-    Oopses after ~5-10 hours whith SMP on. - Cannot find the actual Oopses 
-anymore and 2.6.8+ havent been tested as we cannot afford anymore downtime on 
-these servers.
-
-
-=======
-Resolution to the storage server problem:
- 2.6.8.1 UP is stable (but oopses regularly after memory allocation
- failures)
-
-
-
-Hardware on all servers: IBM x335 and x345.
-
-Mentioned errors seen on a total of 17 servers.
-
--- 
-
- / jakob
-
+-Andi

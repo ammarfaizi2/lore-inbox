@@ -1,133 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267798AbUJDIRT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267806AbUJDIRT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267798AbUJDIRT (ORCPT <rfc822;willy@w.ods.org>);
+	id S267806AbUJDIRT (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 4 Oct 2004 04:17:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267806AbUJDIQZ
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267826AbUJDIQm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 04:16:25 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:35553 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S267793AbUJDIPo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 04:15:44 -0400
-Message-ID: <41610847.78087781@tv-sign.ru>
-Date: Mon, 04 Oct 2004 12:22:31 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+	Mon, 4 Oct 2004 04:16:42 -0400
+Received: from mail-07.iinet.net.au ([203.59.3.39]:52171 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S267798AbUJDIQB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 04:16:01 -0400
+Message-ID: <416106BB.9090908@cyberone.com.au>
+Date: Mon, 04 Oct 2004 18:15:55 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, dev@sw.ru, torvalds@osdl.org
-Subject: Re: [PATCH] alternate stack dump fix.
-References: <41602238.A828A852@tv-sign.ru> <20041003100603.6429acdd.akpm@osdl.org>
-Content-Type: text/plain; charset=koi8-r
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+CC: linux-mm@kvack.org, akpm@osdl.org, arjanv@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] memory defragmentation to satisfy high order allocations
+References: <20041001182221.GA3191@logos.cnet> <415E12A9.7000507@cyberone.com.au> <20041002030857.GB4635@logos.cnet>
+In-Reply-To: <20041002030857.GB4635@logos.cnet>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov wrote:
+
+
+Marcelo Tosatti wrote:
+
+>On Sat, Oct 02, 2004 at 12:30:01PM +1000, Nick Piggin wrote:
 >
-> > Andrew Morton wrote:
-> >
-> > But it conflicts in a big way with Kirill's patch.  Could you redo it
-> > against 2.6.9-rc3-mm1, or against just
+>>
+>>Marcelo Tosatti wrote:
+>>
+>>
+>>>With such a thing in place we can build a mechanism for kswapd 
+>>>(or a separate kernel thread, if needed) to notice when we are low on 
+>>>high order pages, and use the coalescing algorithm instead blindly 
+>>>freeing unique pages from LRU in the hope to build large physically 
+>>>contiguous memory areas.
+>>>
+>>>Comments appreciated.
+>>>
+>>>
+>>>
+>>Hi Marcelo,
+>>Seems like a good idea... even with regular dumb kswapd "merging",
+>>you may easily get stuck for example on systems without swap...
+>>
+>>Anyway, I'd like to get those beat kswapd patches in first. Then
+>>your mechanism just becomes something like:
+>>
+>>   if order-0 pages are low {
+>>       try to free memory
+>>   }
+>>   else if order-1 or higher pages are low {
+>>        try to coalesce_memory
+>>        if that fails, try to free memory
+>>   }
+>>
 >
-> For your convenience, i will post the same patch against mm tree with those
-> 3 patches reverted in a separate message.
+>Hi Nick!
+>
+>
 
-Against	2.6.9-rc3-mm1 +
-	-R fix-of-stack-dump-in-soft-hardirqs-build-fix.patch +
-	-R fix-of-stack-dump-in-soft-hardirqs-cleanup.patch +
-	-R fix-of-stack-dump-in-soft-hardirqs.patch
+Sorry, I'd been away for the weekend which is why I didn't get a
+chance to reply to you.
 
-Oleg.
+>I understand that kswapd is broken, and it needs to go into the page reclaim path 
+>to free pages when we are out of high order pages (what your 
+>"beat kswapd" patches do and fix high-order failures by doing so), but 
+>Linus's argument against it seems to be that "it potentially frees too much pages" 
+>causing harm to the system. He also says this has been tried in the past, 
+>with not nice results.
+>
+>
 
-Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+Not quite. I think a (the) big thing with my patch is that it will
+check order-0...n watermarks when an order-n allocation is made.
 
---- rc3-mm1/arch/i386/kernel/traps.c~	Mon Oct  4 10:46:10 2004
-+++ rc3-mm1/arch/i386/kernel/traps.c	Mon Oct  4 10:56:22 2004
-@@ -105,15 +105,6 @@ int register_die_notifier(struct notifie
- 	return err;
- }
- 
--static int valid_stack_ptr(struct task_struct *task, void *p)
--{
--	if (p <= (void *)task->thread_info)
--		return 0;
--	if (kstack_end(p))
--		return 0;
--	return 1;
--}
--
- #ifdef CONFIG_KGDB
- extern void sysenter_past_esp(void);
- #include <asm/kgdb.h>
-@@ -147,28 +138,27 @@ void breakpoint(void)
- #define	CHK_REMOTE_DEBUG(trapnr,signr,error_code,regs,after)
- #endif
- 
-+static int valid_stack_ptr(struct thread_info *tinfo, void *p)
-+{
-+	return	p > (void *)tinfo &&
-+		p < (void *)tinfo + THREAD_SIZE - 3;
-+}
- 
--#ifdef CONFIG_FRAME_POINTER
--static void print_context_stack(struct task_struct *task, unsigned long *stack,
-+static unsigned long print_context_stack(struct thread_info *tinfo, unsigned long *stack,
- 			 unsigned long ebp)
- {
- 	unsigned long addr;
- 
--	while (valid_stack_ptr(task, (void *)ebp)) {
-+#ifdef	CONFIG_FRAME_POINTER
-+	while (valid_stack_ptr(tinfo, (void *)ebp)) {
- 		addr = *(unsigned long *)(ebp + 4);
- 		printk(" [<%08lx>] ", addr);
- 		print_symbol("%s", addr);
- 		printk("\n");
- 		ebp = *(unsigned long *)ebp;
- 	}
--}
- #else
--static void print_context_stack(struct task_struct *task, unsigned long *stack,
--			 unsigned long ebp)
--{
--	unsigned long addr;
--
--	while (!kstack_end(stack)) {
-+	while (valid_stack_ptr(tinfo, stack)) {
- 		addr = *stack++;
- 		if (__kernel_text_address(addr)) {
- 			printk(" [<%08lx>]", addr);
-@@ -176,8 +166,9 @@ static void print_context_stack(struct t
- 			printk("\n");
- 		}
- 	}
--}
- #endif
-+	return ebp;
-+}
- 
- void show_trace(struct task_struct *task, unsigned long * stack)
- {
-@@ -186,11 +177,6 @@ void show_trace(struct task_struct *task
- 	if (!task)
- 		task = current;
- 
--	if (!valid_stack_ptr(task, stack)) {
--		printk("Stack pointer is garbage, not printing trace\n");
--		return;
--	}
--
- 	if (task == current) {
- 		/* Grab ebp right from our regs */
- 		asm ("movl %%ebp, %0" : "=r" (ebp) : );
-@@ -203,7 +189,7 @@ void show_trace(struct task_struct *task
- 		struct thread_info *context;
- 		context = (struct thread_info *)
- 			((unsigned long)stack & (~(THREAD_SIZE - 1)));
--		print_context_stack(task, stack, ebp);
-+		ebp = print_context_stack(context, stack, ebp);
- 		stack = (unsigned long*)context->previous_esp;
- 		if (!stack)
- 			break;
+So if there is no order >2 allocations happening, it won't attempt
+to keep higher order memory available (until someone attempts an
+allocation).
+
+Basically, it gets kswapd doing the work when it would otherwise
+have to be done in direct reclaim, *OR* otherwise indefinitely fail
+if the allocations aren't blockable.
+
+>And that is why its has not been merged into mainline.
+>
+>Is my interpretation correct?
+>
+>But right, kswapd needs to get fixed to honour high order
+>pages.
+>
+>
+
+Well Linus was silent on the issue after I answered his concerns.
+I mailed him privately and he basically said that it seems sane,
+and he is waiting for patches. Of course, by that stage it was
+fairly late into 2.6.9, and the current behaviour isn't a regression,
+so I'm shooting for 2.6.10.
+
+Your defragmentor should sit very nicely on top of it, of course.
+
+

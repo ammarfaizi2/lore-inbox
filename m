@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261800AbUKHJed@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261797AbUKHJec@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261800AbUKHJed (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 04:34:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbUKHJdp
+	id S261797AbUKHJec (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 04:34:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261800AbUKHJdv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 04:33:45 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:34989 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261800AbUKHJRj (ORCPT
+	Mon, 8 Nov 2004 04:33:51 -0500
+Received: from mx1.elte.hu ([157.181.1.137]:15025 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261797AbUKHJWv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 04:17:39 -0500
-Date: Mon, 8 Nov 2004 11:19:38 +0100
+	Mon, 8 Nov 2004 04:22:51 -0500
+Date: Mon, 8 Nov 2004 11:24:47 +0100
 From: Ingo Molnar <mingo@elte.hu>
 To: Karsten Wiese <annabellesgarden@yahoo.de>
 Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
@@ -22,7 +22,7 @@ Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
        Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
        Shane Shrybman <shrybman@aei.ca>
 Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.19
-Message-ID: <20041108101938.GA13628@elte.hu>
+Message-ID: <20041108102447.GA14980@elte.hu>
 References: <20041019180059.GA23113@elte.hu> <20041106155720.GA14950@elte.hu> <20041108091619.GA9897@elte.hu> <200411081015.47750.annabellesgarden@yahoo.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -48,25 +48,19 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 > "cat /proc/acpi", then first <TAB> gives an additional "/", 2nd <TAB>
 > gives no visual effect, 3rd <TAB> produces whats in the log.
 
-could you try this with vanilla -mm3 too? The crash seems to be generic:
-
- [<c011ae89>] do_page_fault+0x3b7/0x64e (220)
- [<c0107c63>] error_code+0x2b/0x30 (100)
- [<c01991e4>] proc_lookup+0x81/0xc9 (52)
- [<c01762e8>] real_lookup+0xb2/0xd6 (36)
- [<c017660f>] do_lookup+0x82/0x8d (32)
- [<c0176d8f>] link_path_walk+0x775/0x1071 (108)
- [<c01779b2>] path_lookup+0xa5/0x1b0 (32)
- [<c0177c5f>] __user_walk+0x30/0x4d (32)
- [<c01720eb>] vfs_stat+0x1f/0x5a (92)
- [<c0172784>] sys_stat64+0x1e/0x3d (100)
- [<c0107191>] sysenter_past_esp+0x52/0x71 (-4028)
-
-while -RT made it a bit more murky by emitting an assert while the
-kernel tried to crash in a critical section, it doesnt seem to be a 
-genuine -RT related crash.
-
-(if it doesnt trigger in vanilla -mm3 then could you try -RT with
-PREEMPT_REALTIME disabled?)
+there's at least one more netconsole buglet causing asserts, which
+should be fixed by the patch below.
 
 	Ingo
+
+--- linux/net/core/netpoll.c.orig
++++ linux/net/core/netpoll.c
+@@ -194,7 +194,7 @@ repeat:
+ 	}
+ 
+ 	spin_lock(&np->dev->xmit_lock);
+-	np->dev->xmit_lock_owner = smp_processor_id();
++	np->dev->xmit_lock_owner = _smp_processor_id();
+ 
+ 	/*
+ 	 * network drivers do not expect to be called if the queue is

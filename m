@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262945AbTELXXL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 May 2003 19:23:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262942AbTELXXL
+	id S262934AbTELXhu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 May 2003 19:37:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262942AbTELXhu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 May 2003 19:23:11 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:7418 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262941AbTELXXK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 May 2003 19:23:10 -0400
-Date: Mon, 12 May 2003 16:38:21 -0700
-From: Mike Anderson <andmike@us.ibm.com>
-To: "Mukker, Atul" <atulm@lsil.com>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: unique entry points for all driver hosts
-Message-ID: <20030512233821.GF3226@beaverton.ibm.com>
-Mail-Followup-To: "Mukker, Atul" <atulm@lsil.com>,
-	linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <0E3FA95632D6D047BA649F95DAB60E570185F192@EXA-ATLANTA.se.lsil.com>
+	Mon, 12 May 2003 19:37:50 -0400
+Received: from h-68-165-86-241.DLLATX37.covad.net ([68.165.86.241]:36398 "EHLO
+	sol.microgate.com") by vger.kernel.org with ESMTP id S262934AbTELXht
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 May 2003 19:37:49 -0400
+Subject: Re: PCMCIA 2.5.X sleeping from illegal context
+From: Paul Fulghum <paulkf@microgate.com>
+To: root@chaos.analogic.com
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.53.0305121929300.6225@chaos>
+References: <1052775331.1995.49.camel@diemos>
+	 <1052773631.31825.18.camel@dhcp22.swansea.linux.org.uk>
+	 <20030512233151.B17227@flint.arm.linux.org.uk>
+	 <1052781365.1185.5.camel@teapot.felipe-alfaro.com>
+	 <Pine.LNX.4.53.0305121929300.6225@chaos>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1052783543.1467.11.camel@doobie>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E570185F192@EXA-ATLANTA.se.lsil.com>
-X-Operating-System: Linux 2.0.32 on an i486
-User-Agent: Mutt/1.5.3i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 12 May 2003 18:52:23 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mukker, Atul [atulm@lsil.com] wrote:
-> Why doesn't mid-layer allow LLDs to specify separate entry points to various
-> hosts attached to the same driver. Like some other entries in the Scsi Host
-> Template, entry points should also  allowed to be overridden.
-> 
-> 
-> Thanks
+On Mon, 2003-05-12 at 18:36, Richard B. Johnson wrote:
 
-Is there a issue you are hitting of common host template functions and
-selecting unique host instance functions using hostdata?
+> The correct word is 'invalid', not 'illegal'.
+> Yes, I know there is a 30-year history of the use of that word in
+> Unix, but it's wrong. Only governments make law.
 
--andmike
---
-Michael Anderson
-andmike@us.ibm.com
+And in the US, large campaign contributors. *rimshot*
+
+Paul Fulghum
+paulkf@microgate.com
+
+
 

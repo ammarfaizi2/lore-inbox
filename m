@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268902AbRHNTcd>; Tue, 14 Aug 2001 15:32:33 -0400
+	id <S270712AbRHNTbZ>; Tue, 14 Aug 2001 15:31:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270695AbRHNTcO>; Tue, 14 Aug 2001 15:32:14 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:51463 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S270757AbRHNTcL>;
-	Tue, 14 Aug 2001 15:32:11 -0400
-Date: Tue, 14 Aug 2001 16:32:01 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: "Jon 'tex' Boone" <tex@delamancha.org>
-Cc: <linux-kernel@vger.kernel.org>, <kernelnewbies@nl.linux.org>
-Subject: Re: WANTED: Re: VM lockup with 2.4.8 / 2.4.8pre8
-In-Reply-To: <m38zgmpin8.fsf@amicus.delamancha.org>
-Message-ID: <Pine.LNX.4.33L.0108141631320.6118-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S270757AbRHNTbN>; Tue, 14 Aug 2001 15:31:13 -0400
+Received: from mpdr0.chicago.il.ameritech.net ([206.141.239.142]:18074 "EHLO
+	mailhost.chi.ameritech.net") by vger.kernel.org with ESMTP
+	id <S270753AbRHNTa6>; Tue, 14 Aug 2001 15:30:58 -0400
+Message-ID: <3B794D30.5549DE71@ameritech.net>
+Date: Tue, 14 Aug 2001 11:09:20 -0500
+From: watermodem <aquamodem@ameritech.net>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: NTFS R-Only error
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Aug 2001, Jon 'tex' Boone wrote:
+The following command fails for DLL files (not exe) in my WINNT
+partition.
+(windows 2000)
 
-> > mm/vmscan.c::kswapd()
-> > 	else if (out_of_memory()) {
-> > 		oom_kill()
-> >
-> > mm/oom_kill.c::out_of_memory()
->
->     Should said volunteer(s) work with stock 2.4.8?
+I am not sure who currently maintains the NTFS driver so I am posting it
+here. It doesn't look to be in the kernel so maybe mount or shell?
 
-No real need, the OOM functions are basically unchanged.
+[root@dali system32]# strings *.dll | grep -i root
+Root Entry
+.?AVCComObjectRootBase@ATL@@
+.?AV?$CComObjectRootEx@VCComSingleThreadModel@ATL@@@ATL@@
+.?AV?$CComObjectRootEx@VCComMultiThreadModel@ATL@@@ATL@@
+?GetRoot@KcCatalog@@QAEPAVKcFolderEntry@@XZ
+@(#)$Id: ss_root.c,v 1.10 1998/02/26 10:43:49 johns LADS451 $
+Root Entry
+%SystemRoot%
+SystemRoot
+HKEY_CLASSES_ROOT
+.?AVCComObjectRootBase@ATL@@
+.?AV?$CComObjectRootEx@VCComMultiThreadModel@ATL@@@ATL@@
+.?AV?$CComObjectRootEx@VCComMultiThreadModelNoCS@ATL@@@ATL@@
+BFD: BFD internal error, aborting at coffcode.h line 749 in
+styp_to_sec_flags
 
-regards,
+BFD: Please report this bug.
 
-Rik
---
-IA64: a worthy successor to i860.
+uname -a
+Linux dali.x.com 2.4.7 #2 Thu Jul 26 01:42:19 CDT 2001 i686 unknown
 
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+I don't see coffcode.h in the linux kernel and don't know what BFD is
+in.

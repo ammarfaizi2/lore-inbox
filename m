@@ -1,170 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266435AbTBGU0k>; Fri, 7 Feb 2003 15:26:40 -0500
+	id <S266434AbTBGUfa>; Fri, 7 Feb 2003 15:35:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266453AbTBGU0j>; Fri, 7 Feb 2003 15:26:39 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:54664 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S266435AbTBGU0h>;
-	Fri, 7 Feb 2003 15:26:37 -0500
-Message-ID: <3E441910.2000003@us.ibm.com>
-Date: Fri, 07 Feb 2003 14:37:36 -0600
-From: Tom Lendacky <toml@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
+	id <S266453AbTBGUfa>; Fri, 7 Feb 2003 15:35:30 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:58524 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S266434AbTBGUf2>; Fri, 7 Feb 2003 15:35:28 -0500
+Date: Fri, 7 Feb 2003 15:47:28 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: John Bradford <john@grabjohn.com>
+cc: Russell King <rmk@arm.linux.org.uk>, fdavis@si.rr.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.59 : sound/oss/vidc.c
+In-Reply-To: <200302072003.h17K3t2U002303@darkstar.example.net>
+Message-ID: <Pine.LNX.3.95.1030207152853.31273A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: IPSec: PFKey patch
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In doing some preliminary testing of the IPSec code, I found a problem
-related to pfkey and racoon.  Racoon listens to the PFKey interface
-for messages related to changes in policy.  If a policy is added after
-racoon has been started, an SADB_X_SPDADD message is received by
-racoon and processed.  However, the spid within the message has not
-been set prior to the message being formatted for broadcast.  When an
-SADB_ACQUIRE message is broadcast related to this policy, with the
-proper spid, racoon tries to match it with it's internal
-representation from the SPDADD message and does not find a match.
-This results in an SA not being established.
+On Fri, 7 Feb 2003, John Bradford wrote:
 
-The following patch fixes that situation.  This patch can be made much
-smaller if it is decided to not worry about inserting or modifying
-the policy (by calling xfrm_policy_insert from within the pfkey_spdadd
-routine of af_key.c) before calling pfkey_xfrm_policy2msg which could
-possibly return an error and result in the policy changing without
-the message being broadcast.  If that is the case, then you only
-need move the call to pfkey_xfrm_policy2msg after the call to
-xfrm_policy_insert.  But assuming that condition should be avoided
-resulted in splitting the pfkey_xfrm_policy2msg routine and this
-patch:
+> > > --- linux/sound/oss/vidc.c.old	2003-01-16 21:21:38.000000000 -0500
+> > > +++ linux/sound/oss/vidc.c	2003-02-07 02:59:44.000000000 -0500
+> > > @@ -225,7 +225,7 @@
+> > >  			newsize = 208;
+> > >  		if (newsize > 4096)
+> > >  			newsize = 4096;
+> > > -		for (new2size = 128; new2size < newsize; new2size <<= 1);
+> > > +		for (new2size = 128; new2size < newsize; new2size <<= 1)
+> > >  			if (new2size - newsize > newsize - (new2size >> 1))
+> > >  				new2size >>= 1;
+> > >  		if (new2size > 4096) {
+> > 
+> > The code is correct as it originally stood.
+> > 
+> > It looks like indent has a bug and incorrectly formats this to look wrong.
+> > Back in 2.2 times, the code looks  like this:
+> > 
+> > 		for (new2size = 128; new2size < newsize; new2size <<= 1);
+> > 		if (new2size - newsize > newsize - (new2size >> 1))
+> > 			new2size >>= 1;
+> > 
+> > and this is the intended functionality.  Please do NOT apply the patch.
+> 
+> I thought we were switching to negative tab indentation, anyway:
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=104125431009832&w=2
+> 
+> :-)
+> 
+> John.
 
-diff -urb linux-2.5.59-orig/net/key/af_key.c linux-2.5.59/net/key/af_key.c
---- linux-2.5.59-orig/net/key/af_key.c	2003-02-06 15:40:32.000000000 -0600
-+++ linux-2.5.59/net/key/af_key.c	2003-02-07 11:03:27.000000000 -0600
-@@ -1388,29 +1388,43 @@
-  	return 0;
-  }
+If the code is correct, it really should be written as:
 
--static struct sk_buff * pfkey_xfrm_policy2msg(struct xfrm_policy *xp, int dir)
-+static int pfkey_xfrm_policy2msg_size(struct xfrm_policy *xp)
-  {
--	struct sk_buff *skb;
--	struct sadb_msg *hdr;
--	struct sadb_address *addr;
--	struct sadb_lifetime *lifetime;
--	struct sadb_x_policy *pol;
--	struct sockaddr_in   *sin;
--	int i;
--	int size;
--
--	size = sizeof(struct sadb_msg) +
-+	return sizeof(struct sadb_msg) +
-  		sizeof(struct sadb_lifetime) * 3 +
-  			sizeof(struct sadb_address)*2 +
-  				sizeof(struct sockaddr_in)*2 + /* XXX */
-  					sizeof(struct sadb_x_policy) +
-  						xp->xfrm_nr*(sizeof(struct sadb_x_ipsecrequest) +
-  							     sizeof(struct sockaddr_in)*2);
-+}
-+
-+static struct sk_buff * pfkey_xfrm_policy2msg_prep(struct xfrm_policy *xp)
-+{
-+	struct sk_buff *skb;
-+	int size;
-+
-+	size = pfkey_xfrm_policy2msg_size(xp);
+   for (new2size = 128; new2size < newsize; new2size <<= 1)
+       ;
 
-  	skb =  alloc_skb(size + 16, GFP_ATOMIC);
-  	if (skb == NULL)
-  		return ERR_PTR(-ENOBUFS);
+The code seems to want to make the value of new2size a power of
+2 and, greater than 128, but less than newsize. It ignores the
+fact that newsize might be less than 128, maybe this is okay.
+But, the code goes on, eventually settling on new2size being
+less than 4096... hmmm. I'll bet this could be greatly
+simplified. I think 'new2size' is really something that will
+fit inside 128-byte groups. Maybe an & or a % will greatly
+simplify?
 
-+	return skb;
-+}
-+
-+static void pfkey_xfrm_policy2msg(struct sk_buff *skb, struct xfrm_policy *xp, int dir)
-+{
-+	struct sadb_msg *hdr;
-+	struct sadb_address *addr;
-+	struct sadb_lifetime *lifetime;
-+	struct sadb_x_policy *pol;
-+	struct sockaddr_in   *sin;
-+	int i;
-+	int size;
-+
-+	size = pfkey_xfrm_policy2msg_size(xp);
-+
-  	/* call should fill header later */
-  	hdr = (struct sadb_msg *) skb_put(skb, sizeof(struct sadb_msg));
-  	memset(hdr, 0, size);	/* XXX do we need this ? */
-@@ -1527,7 +1541,6 @@
-  	}
-  	hdr->sadb_msg_len = size / sizeof(uint64_t);
-  	hdr->sadb_msg_reserved = atomic_read(&xp->refcnt);
--	return skb;
-  }
 
-  static int pfkey_spdadd(struct sock *sk, struct sk_buff *skb, struct sadb_msg *hdr, void **ext_hdrs)
-@@ -1600,7 +1613,7 @@
-  	    (err = parse_ipsecrequests(xp, pol)) < 0)
-  		goto out;
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 
--	out_skb = pfkey_xfrm_policy2msg(xp, pol->sadb_x_policy_dir-1);
-+	out_skb = pfkey_xfrm_policy2msg_prep(xp);
-  	if (IS_ERR(out_skb)) {
-  		err =  PTR_ERR(out_skb);
-  		goto out;
-@@ -1613,6 +1626,8 @@
-  		goto out;
-  	}
-
-+	pfkey_xfrm_policy2msg(out_skb, xp, pol->sadb_x_policy_dir-1);
-+
-  	xfrm_pol_put(xp);
-
-  	out_hdr = (struct sadb_msg *) out_skb->data;
-@@ -1673,11 +1688,12 @@
-
-  	err = 0;
-
--	out_skb = pfkey_xfrm_policy2msg(xp, pol->sadb_x_policy_dir-1);
-+	out_skb = pfkey_xfrm_policy2msg_prep(xp);
-  	if (IS_ERR(out_skb)) {
-  		err =  PTR_ERR(out_skb);
-  		goto out;
-  	}
-+	pfkey_xfrm_policy2msg(out_skb, xp, pol->sadb_x_policy_dir-1);
-
-  	out_hdr = (struct sadb_msg *) out_skb->data;
-  	out_hdr->sadb_msg_version = hdr->sadb_msg_version;
-@@ -1715,11 +1731,12 @@
-
-  	err = 0;
-
--	out_skb = pfkey_xfrm_policy2msg(xp, pol->sadb_x_policy_dir-1);
-+	out_skb = pfkey_xfrm_policy2msg_prep(xp);
-  	if (IS_ERR(out_skb)) {
-  		err =  PTR_ERR(out_skb);
-  		goto out;
-  	}
-+	pfkey_xfrm_policy2msg(out_skb, xp, pol->sadb_x_policy_dir-1);
-
-  	out_hdr = (struct sadb_msg *) out_skb->data;
-  	out_hdr->sadb_msg_version = hdr->sadb_msg_version;
-@@ -1746,9 +1763,10 @@
-  	struct sk_buff *out_skb;
-  	struct sadb_msg *out_hdr;
-
--	out_skb = pfkey_xfrm_policy2msg(xp, dir);
-+	out_skb = pfkey_xfrm_policy2msg_prep(xp);
-  	if (IS_ERR(out_skb))
-  		return PTR_ERR(out_skb);
-+	pfkey_xfrm_policy2msg(out_skb, xp, dir);
-
-  	out_hdr = (struct sadb_msg *) out_skb->data;
-  	out_hdr->sadb_msg_version = data->hdr->sadb_msg_version;
-
-Tom
 

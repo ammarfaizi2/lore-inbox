@@ -1,94 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261394AbRFNH51>; Thu, 14 Jun 2001 03:57:27 -0400
+	id <S261390AbRFNHx5>; Thu, 14 Jun 2001 03:53:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261410AbRFNH5R>; Thu, 14 Jun 2001 03:57:17 -0400
-Received: from rhenium.btinternet.com ([194.73.73.93]:418 "EHLO rhenium")
-	by vger.kernel.org with ESMTP id <S261394AbRFNH5N>;
-	Thu, 14 Jun 2001 03:57:13 -0400
-Reply-To: <lar@cs.york.ac.uk>
-From: "Laramie Leavitt" <laramie.leavitt@btinternet.com>
-To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
-Subject: RE: 2.4.6-pre2, pre3 VM Behavior
-Date: Thu, 14 Jun 2001 08:59:07 +0100
-Message-ID: <JKEGJJAJPOLNIFPAEDHLGEMBDCAA.laramie.leavitt@btinternet.com>
+	id <S261394AbRFNHxr>; Thu, 14 Jun 2001 03:53:47 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:43025 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S261390AbRFNHxm>; Thu, 14 Jun 2001 03:53:42 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: David Luyer <david_luyer@pacific.net.au>, "Rainer Mager" <rmager@vgkk.com>
+Subject: Re: Download process for a "split kernel" (was: obsolete code must die)
+Date: Thu, 14 Jun 2001 09:56:17 +0200
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <NEBBJBCAFMMNIHGDLFKGCEFCEEAA.rmager@vgkk.com> <200106140200.f5E20NL3012987@typhaon.pacific.net.au>
+In-Reply-To: <200106140200.f5E20NL3012987@typhaon.pacific.net.au>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <Pine.LNX.4.21.0106140013000.14934-100000@imladris.rielhome.conectiva>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+Message-Id: <01061409561702.00879@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Behalf Of Rik van Riel
-> On Wed, 13 Jun 2001, Tom Sightler wrote:
-> > Quoting Rik van Riel <riel@conectiva.com.br>:
-> > 
-> > > After the initial burst, the system should stabilise,
-> > > starting the writeout of pages before we run low on
-> > > memory. How to handle the initial burst is something
-> > > I haven't figured out yet ... ;)
-> > 
-> > Well, at least I know that this is expected with the VM, although I do
-> > still think this is bad behavior.  If my disk is idle why would I wait
-> > until I have greater than 100MB of data to write before I finally
-> > start actually moving some data to disk?
-> 
-> The file _could_ be a temporary file, which gets removed
-> before we'd get around to writing it to disk. Sure, the
-> chances of this happening with a single file are close to
-> zero, but having 100MB from 200 different temp files on a
-> shell server isn't unreasonable to expect.
-> 
-> > > This is due to this smarter handling of the flushing of
-> > > dirty pages and due to a more subtle bug where the system
-> > > ended up doing synchronous IO on too many pages, whereas
-> > > now it only does synchronous IO on _1_ page per scan ;)
-> > 
-> > And this is definitely a noticeable fix, thanks for your continued
-> > work.  I know it's hard to get everything balanced out right, and I
-> > only wrote this email to describe some behavior I was seeing and make
-> > sure it was expected in the current VM.  You've let me know that it
-> > is, and it's really minor compared to problems some of the earlier
-> > kernels had.
-> 
-> I'll be sure to keep this problem in mind. I really want
-> to fix it, I just haven't figured out how yet  ;)
-> 
-> Maybe we should just see if anything in the first few MB
-> of inactive pages was freeable, limiting the first scan to
-> something like 1 or maybe even 5 MB maximum (freepages.min?
-> freepages.high?) and flushing as soon as we find more unfreeable
-> pages than that ?
-> 
+On Thursday 14 June 2001 04:00, David Luyer wrote:
+> > Would it make sense to create some sort of 'make config' script that
+> > determines what you want in your kernel and then downloads only those
+> > components? After all, with the constant release of new hardware, isn't a
+> > 50MB kernel release not too far away? 100MB?
+>
+> This might actually make sense - a kernel composed of multiple versioned
+> segments.  A tool which works out dependencies of the options being
+> selected, downloads the required parts if the latest versions of those
+> parts are not already downloaded, and then builds the kernel...
 
-Would it be possible to maintain a dirty-rate count 
-for the dirty buffers?
+This sounds a lot like apt-get, doesn't it?
 
-For example, we it is possible to figure an approximate
-disk subsystem speed from most of the given information.
-If it is possible to know the rate at which new buffers
-are being dirtied then we could compare that to the available
-memory and the disk speed to calculate some maintainable
-rate at which buffers need to be expired.  The rates would
-have to maintain some historical data to account for
-bursty data...
+> ... (or could even
+> build during the download, as soon as the build dependencies for each block
+> of the kernel are satisfied, if you want to be fancy...).
 
-It may be possible to use a very similar mechanism to do
-both.  I.e. not actually calculate the rate from the hardware,
-but use a similar counter for the expiry rate of buffers.
+This is fancier alright:
 
-I don't know how difficult the accounting would be
-but it seems possible to make it automatically tuning.
+  1) walk
+  2) run
 
-This is a little different than just keeping a list
-of dirty buffers and free buffers because you have
-the rate information which tells you how long you
-have until all the buffers expire.
+It's the kind of power tool that will be pretty easy to graft onto ESR's new 
+cml2 code base.  I'd love to see better apt-get hooks into the kernel 
+config/download/build/install.
 
-Laramie.
+--
+Daniel

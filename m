@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272030AbRHVPqC>; Wed, 22 Aug 2001 11:46:02 -0400
+	id <S272032AbRHVPrw>; Wed, 22 Aug 2001 11:47:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272032AbRHVPpo>; Wed, 22 Aug 2001 11:45:44 -0400
-Received: from codepoet.org ([166.70.14.212]:27227 "HELO winder.codepoet.org")
-	by vger.kernel.org with SMTP id <S272030AbRHVPpj>;
-	Wed, 22 Aug 2001 11:45:39 -0400
-Date: Wed, 22 Aug 2001 09:45:54 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Christoph Rohland <cr@sap.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch] sysinfo compatibility
-Message-ID: <20010822094554.A9760@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Christoph Rohland <cr@sap.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.21.0108211137340.1320-100000@localhost.localdomain> <m34rr12ueb.fsf@linux.local> <20010821114640.A25151@codepoet.org> <m3bsl81tm0.fsf@linux.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S272035AbRHVPrc>; Wed, 22 Aug 2001 11:47:32 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:38380 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S272032AbRHVPrb>;
+	Wed, 22 Aug 2001 11:47:31 -0400
+Date: Wed, 22 Aug 2001 16:47:29 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Chris Friesen <cfriesen@nortelnetworks.com>, Andi Kleen <ak@suse.de>
+Cc: "Friesen, Christopher [CAR:VS16:EXCH]" <cfriesen@americasm01.nt.com>,
+        linux-kernel@vger.kernel.org,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: why no call to add_interrupt_randomness() on PPC?
+Message-ID: <2428022792.998498849@[10.132.112.53]>
+In-Reply-To: <3B83D1BA.1D8E507@nortelnetworks.com>
+In-Reply-To: <3B83D1BA.1D8E507@nortelnetworks.com>
+X-Mailer: Mulberry/2.1.0b3 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <m3bsl81tm0.fsf@linux.local>
-User-Agent: Mutt/1.3.20i
-X-Operating-System: Linux 2.4.7-rmk2, Rebel-NetWinder(Intel sa110 rev 3), 262.14 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed Aug 22, 2001 at 08:44:39AM +0200, Christoph Rohland wrote:
-> 
-> BTW I appreciate the basics of the change for 2.4, but I don't agree
-> that we should break cases which worked before. (And the comment in
-> the sources is plain wrong that 2.2 failed in these cases)
+> I was looking at turning on SA_SAMPLE_RANDOM in
+> our network driver, but then I realized that it would have no effect
+> because it isn't even supported on PPC.
 
-But 2.2 _did_ fail.  If you take a linux 2.2.x system, add 4 Gigs
-of swap, and then use sysinfo(), the sizes you get back are junk...  
+adding a call to add_interrupt_randomness() sounds like a good
+idea if only for consistency and certainly does no harm (especially
+if no net drivers use it), except that the timing is very coarsely
+grained (jiffies) on PPC. It would be even better if you added
+some cycle clock reading code to random.c for the PPC (in addition
+to the i386 specific stuff) or better abstracted it all out into
+arch directories.
 
- -Erik
+Adding SA_SAMPLE_RANDOM to net devices: well, see other thread
+ad-nauseam & make up your own mind :-)
 
 --
-Erik B. Andersen   email:  andersee@debian.org, andersen@lineo.com
---This message was written using 73% post-consumer electrons--
+Alex Bligh

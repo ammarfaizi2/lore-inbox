@@ -1,34 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131481AbRDWH7o>; Mon, 23 Apr 2001 03:59:44 -0400
+	id <S131497AbRDWIGc>; Mon, 23 Apr 2001 04:06:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131497AbRDWH7d>; Mon, 23 Apr 2001 03:59:33 -0400
-Received: from pc57-cam4.cable.ntl.com ([62.253.135.57]:42374 "EHLO
-	kings-cross.london.uk.eu.org") by vger.kernel.org with ESMTP
-	id <S131481AbRDWH7Z>; Mon, 23 Apr 2001 03:59:25 -0400
-X-Mailer: exmh version 2.3.1 01/18/2001 (debian 2.3.1-1) with nmh-1.0.4+dev
-To: ebiederman@lnxi.com (Eric W. Biederman)
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Longstanding elf fix (2.4.3 fix) 
-In-Reply-To: Message from ebiederman@lnxi.com (Eric W. Biederman) 
-   of "23 Apr 2001 01:44:57 MDT." <m3snj0giva.fsf@DLT.linuxnetworx.com> 
-In-Reply-To: <m31yqk8oas.fsf@DLT.linuxnetworx.com> <15075.40500.408470.152332@pizda.ninka.net>  <m3snj0giva.fsf@DLT.linuxnetworx.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 23 Apr 2001 08:59:20 +0100
-From: Philip Blundell <philb@gnu.org>
-Message-Id: <E14rbFg-0007JZ-00@kings-cross.london.uk.eu.org>
+	id <S131498AbRDWIGW>; Mon, 23 Apr 2001 04:06:22 -0400
+Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:32274 "EHLO
+	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id <S131497AbRDWIGJ>; Mon, 23 Apr 2001 04:06:09 -0400
+From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
+To: george anzinger <george@mvista.com>
+Date: Mon, 23 Apr 2001 10:05:48 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: No 100 HZ timer!
+CC: linux-kernel@vger.kernel.org
+Message-ID: <3AE3FE79.9982.6C4B69@localhost>
+In-Reply-To: <3ADC912A.B497B724@mvista.com>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->And of course since much of the code in the kernel is built on the
->copy a good example neglecting the locking without a big comment,
->invites trouble elsewhere like in elf_load_library.  Where we could
->have multiple threads running.  
+IMHO the POSIX is doable to comply with POSIX. Probably not what many 
+of the RT freaks expect, but doable. I'm tuning the nanoseconds for a 
+while now...
 
-Out of interest: does anything, anywhere, actually use elf_load_library any 
-more?
+Ulrich
 
-p.
+On 17 Apr 2001, at 11:53, george anzinger wrote:
 
+> I was thinking that it might be good to remove the POSIX API for the
+> kernel and allow a somewhat simplified interface.  For example, the user
 

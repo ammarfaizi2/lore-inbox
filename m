@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289097AbSANWVO>; Mon, 14 Jan 2002 17:21:14 -0500
+	id <S289094AbSANWXO>; Mon, 14 Jan 2002 17:23:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289094AbSANWVI>; Mon, 14 Jan 2002 17:21:08 -0500
-Received: from femail44.sdc1.sfba.home.com ([24.254.60.38]:12728 "EHLO
-	femail44.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S289097AbSANWVD>; Mon, 14 Jan 2002 17:21:03 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-To: Alexander Viro <viro@math.psu.edu>, "Eric S. Raymond" <esr@thyrsus.com>
+	id <S289096AbSANWW7>; Mon, 14 Jan 2002 17:22:59 -0500
+Received: from fly.HiWAAY.net ([208.147.154.56]:24590 "EHLO mail.hiwaay.net")
+	by vger.kernel.org with ESMTP id <S289102AbSANWWd>;
+	Mon, 14 Jan 2002 17:22:33 -0500
+Date: Mon, 14 Jan 2002 16:22:30 -0600
+From: Chris Adams <cmadams@hiwaay.net>
+To: linux-kernel@vger.kernel.org
 Subject: Re: Hardwired drivers are going away?
-Date: Mon, 14 Jan 2002 09:19:01 -0500
-X-Mailer: KMail [version 1.3.1]
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Mr. James W. Laferriere" <babydr@baby-dragons.com>,
-        Giacomo Catenazzi <cate@debian.org>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.21.0201141337580.224-100000@weyl.math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0201141337580.224-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020114222101.ZPUW15906.femail44.sdc1.sfba.home.com@there>
+Message-ID: <20020114222230.GA16490@HiWAAY.net>
+In-Reply-To: <fa.g055bvv.qmq0hk@ifi.uio.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ksahkuv.tg60gl@ifi.uio.no>
+User-Agent: Mutt/1.3.25i
+Organization: HiWAAY Internet Services
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 14 January 2002 02:09 pm, Alexander Viro wrote:
+In article <fa.ksahkuv.tg60gl@ifi.uio.no>, David Lang wrote:
+>I can see a couple reasons for building a kernel without useing modules.
+>
+>1. security, if you don't need any modules you can disable modules entirly
+>and then it's impossible to add a module without patching the kernel first
+>(the module load system calls aren't there)
 
-> But it still leaves you with tristate - instead of yes/module/no it's
-> yes/yes, but don't put it on initramfs/no.  However, dependencies become
-> simpler - all you need is "I want this, that and that on initramfs" and
-> the rest can be found by depmod (i.e. configurator doesn't have to deal
-> with "FOO goes on initramfs (== old Y), so BAR and BAZ must go there
-> (== can't be M)").
-
-This is something I've wondered about and would like to ask for clarification 
-on: the relationship between the initramfs image and the kernel, build 
-process-wise.
-
-How much of the build process for the initramfs will be integrated with the 
-kernel build?  Since the kernel won't boot without a matching initramfs, I 
-take it that some kind of initramfs will be a kernel build target now?
-
-There's been a lot of talk about having the source for a mini-libc (uclibc, 
-dietlibc, some combo) in the kernel tree, and other people saying we should 
-just grab the binary for build purposes.  The most obvious model I can think 
-of for klibc staying seperate from the kernel is the user-space 
-pcmcia/cardbus hotplug stuff, but that DID get integrated into the kernel.
-
-The klibc source/binary debate still seems to be ongoing, but apart from 
-that, will the build process for initramfs be part of the kernel build or not?
-
-Rob.
+There is no security gain from disabling module loading.  If someone has
+the level of access needed to load modules, they also have access to
+/dev/mem.  Run-time patching of the kernel is something that can be done
+(and probably is done by some rootkits).  For bonus points, patch in the
+system call(s) required by insmod and voila: module loading now works
+(instead of having to patch all your rootkit code into the running
+kernel, patch in insmod and let the kernel load the code for you).
+-- 
+Chris Adams <cmadams@hiwaay.net>
+Systems and Network Administrator - HiWAAY Internet Services
+I don't speak for anybody but myself - that's enough trouble.

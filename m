@@ -1,105 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263381AbUJ2Pfi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263378AbUJ2Pfr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263381AbUJ2Pfi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 11:35:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263380AbUJ2Pff
+	id S263378AbUJ2Pfr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 11:35:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263384AbUJ2Pfq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 11:35:35 -0400
-Received: from smtp1.netcabo.pt ([212.113.174.28]:6713 "EHLO
-	exch01smtp09.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S263406AbUJ2PCT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 11:02:19 -0400
-Message-ID: <32870.192.168.1.5.1099062000.squirrel@192.168.1.5>
-In-Reply-To: <20041029073001.GB30400@elte.hu>
-References: <20041027211957.GA28571@elte.hu>
-    <33083.192.168.1.5.1098919913.squirrel@192.168.1.5>
-    <20041028063630.GD9781@elte.hu>
-    <20668.195.245.190.93.1098952275.squirrel@195.245.190.93>
-    <20041028085656.GA21535@elte.hu>
-    <26253.195.245.190.93.1098955051.squirrel@195.245.190.93>
-    <20041028093215.GA27694@elte.hu>
-    <43163.195.245.190.94.1098981230.squirrel@195.245.190.94>
-    <20041028191605.GA3877@elte.hu>
-    <32806.192.168.1.5.1099007364.squirrel@192.168.1.5>
-    <20041029073001.GB30400@elte.hu>
-Date: Fri, 29 Oct 2004 16:00:00 +0100 (WEST)
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4
-From: "Rui Nuno Capela" <rncbc@rncbc.org>
-To: "Ingo Molnar" <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, "Lee Revell" <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       "Bill Huey" <bhuey@lnxw.com>, "Adam Heath" <doogie@debian.org>,
-       "Florian Schmidt" <mista.tapas@gmx.net>,
-       "Thomas Gleixner" <tglx@linutronix.de>,
-       "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>,
-       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>,
-       "Karsten Wiese" <annabellesgarden@yahoo.de>
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-OriginalArrivalTime: 29 Oct 2004 15:02:17.0340 (UTC) FILETIME=[481103C0:01C4BDC8]
+	Fri, 29 Oct 2004 11:35:46 -0400
+Received: from fire.osdl.org ([65.172.181.4]:48807 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S263378AbUJ2Osw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 10:48:52 -0400
+Subject: Re: [patch] 2.6.10-rc1: SCSI aacraid warning
+From: Mark Haverkamp <markh@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       linux-scsi <linux-scsi@vger.kernel.org>
+In-Reply-To: <20041029143712.GM6677@stusta.de>
+References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org>
+	 <20041029143712.GM6677@stusta.de>
+Content-Type: text/plain
+Date: Fri, 29 Oct 2004 07:45:34 -0700
+Message-Id: <1099061134.13961.2.camel@markh1.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
->
-> * Rui Nuno Capela wrote:
->
->> BTW, this means that I have to re-enable LATENCY_TIMING back again?
->
-> yes. I'd suggest to start with the simplest setup - i.e. just one
-> fluidsynth instance running. I suspect 3-4 instances later on will be
-> enough to trigger some xruns or at least some of the bigger delays.
->
-> you possibly wont be able to debug the 'production' setup, but that's
-> not an issue because the latencies should show up under just 2-3
-> instances running as well.
->
->> > Also, i'd suggest to simply remove that line (or apply the attached
->> > patch) - does the driver still work fine with that?
->> >
->>
->> Now that you call, I remember to hack that very same line, some time
->> go, but couldn't get no better than a udelay(33). Removing that line
->> just ended in some kind of malfunction, but can't remember what
->> exactly. One thing's for sure, sound didn't came out of it :-/
->
-> ugh. Possibly some sort of interaction with the firmware and/or an
-> outright driver bug?
->
+On Fri, 2004-10-29 at 16:37 +0200, Adrian Bunk wrote:
+> On Fri, Oct 22, 2004 at 03:05:13PM -0700, Linus Torvalds wrote:
+> >...
+> > Summary of changes from v2.6.9 to v2.6.10-rc1
+> > ============================================
+> >...
+> > Mark Haverkamp:
+> >...
+> >   o aacraid: dynamic dev update
+> >...
+> 
+> 
+> This causes the following warning with a recent gcc:
+> 
+> <--  snip  -->
+> 
+> ...
+>   CC      drivers/scsi/aacraid/aachba.o
+> drivers/scsi/aacraid/aachba.c: In function `aac_scsi_cmd':
+> drivers/scsi/aacraid/aachba.c:1140: warning: integer constant is too large for "long" type
+> ...
+> 
+> <--  snip  -->
+> 
+> 
+> The fix is simple:
+> 
+> 
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> 
+> --- linux-2.6.10-rc1-mm2-full/drivers/scsi/aacraid/aachba.c.old	2004-10-29 16:16:52.000000000 +0200
+> +++ linux-2.6.10-rc1-mm2-full/drivers/scsi/aacraid/aachba.c	2004-10-29 16:22:14.000000000 +0200
+> @@ -1137,7 +1137,7 @@
+>  		char *cp;
+>  
+>  		dprintk((KERN_DEBUG "READ CAPACITY command.\n"));
+> -		if (fsa_dev_ptr[cid].size <= 0x100000000)
+> +		if (fsa_dev_ptr[cid].size <= 0x100000000ULL)
+>  			capacity = fsa_dev_ptr[cid].size - 1;
+>  		else
+>  			capacity = (u32)-1;
 
-Just confirmed that, by removing that udelay(100) line on ali5451.c, the
-result is crappy sound (worst than normally is :) and most relevant to the
-subject, I get a nasty jackd XRUN storm, without even blinking an eye.
-Useless.
+Sorry about that, I have it fixed in my working version.  I must have
+forgotten to add it to the patch.
 
-Regarding my test results, maybe this is just a distraction. I was just
-comparing the kernels, not the hardware, jackd or the ali5451 alsa driver,
-which were kept as constants along the evaluation.
 
-In fact, those tests were only about to confirm, by numbers on-the-field,
-that RT-V0 is on par to RT-U3. Don't bother to compare it to your own
-setup and/or hardware. These are the kind of things that YMMCV = Your
-Mileage Certainly Varies :)
-
-For example, in my own case, if those tests are done with ACPI disabled
-(yes, with acpi=off), this laptop of mine just skews the results
-completely: vanilla 2.6.9 gets better results, while the RT ones go
-slumber. Go figure ;)
-
-OK. I'm really running out of time now. Family's calling for the weekend.
-
-On the next few days I'll take the latency_trace route, as Ingo proposed,
-patching ali5451 and jackd to issue a sys_gettimeofday(0, 0) and
-gettimeofday(0, 1) trace on/off instrumentation respectively, while using
-a proper RT-V0.5.x kernel patch line (or newer).
-
-Bye now.
 -- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
+Mark Haverkamp <markh@osdl.org>
 

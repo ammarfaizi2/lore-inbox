@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265140AbSJaDRg>; Wed, 30 Oct 2002 22:17:36 -0500
+	id <S265169AbSJaDaT>; Wed, 30 Oct 2002 22:30:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265146AbSJaDRg>; Wed, 30 Oct 2002 22:17:36 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:24256 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S265140AbSJaDRe>;
-	Wed, 30 Oct 2002 22:17:34 -0500
-Date: Wed, 30 Oct 2002 19:13:50 -0800 (PST)
-Message-Id: <20021030.191350.79592740.davem@redhat.com>
-To: yoshfuji@linux-ipv6.org
-Cc: boissiere@adiglobal.com, kuznet@ms2.inr.ac.ru,
-       linux-kernel@vger.kernel.org
-Subject: Re: [STATUS 2.5] October 30, 2002
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021031.121609.71851601.yoshfuji@linux-ipv6.org>
-References: <20021031.114832.59687399.yoshfuji@linux-ipv6.org>
-	<20021030.184443.87162307.davem@redhat.com>
-	<20021031.121609.71851601.yoshfuji@linux-ipv6.org>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S265166AbSJaD3N>; Wed, 30 Oct 2002 22:29:13 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:2577 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S265169AbSJaD2Y>;
+	Wed, 30 Oct 2002 22:28:24 -0500
+Date: Wed, 30 Oct 2002 19:31:55 -0800
+From: Greg KH <greg@kroah.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.5.45
+Message-ID: <20021031033155.GA5602@kroah.com>
+References: <Pine.LNX.4.44.0210301651120.6719-100000@penguin.transmeta.com> <3396299720.1036004191@[10.10.2.3]>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3396299720.1036004191@[10.10.2.3]>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: YOSHIFUJI Hideaki / 吉藤英明 <yoshfuji@linux-ipv6.org>
-   Date: Thu, 31 Oct 2002 12:16:09 +0900 (JST)
+On Wed, Oct 30, 2002 at 06:56:32PM -0800, Martin J. Bligh wrote:
+> Just some warnings, if anyone's bored, and wants something to fix ;-)
+> 
+> drivers/base/base.h:64: warning: `class_hotplug' defined but not used
+> drivers/base/base.h:64: warning: `class_hotplug' defined but not used
+> drivers/base/base.h:64: warning: `class_hotplug' defined but not used
+> drivers/base/base.h:64: warning: `class_hotplug' defined but not used
+> drivers/base/base.h:64: warning: `class_hotplug' defined but not used
 
-   In article <20021030.184443.87162307.davem@redhat.com> (at Wed, 30 Oct 2002 18:44:43 -0800 (PST)), "David S. Miller" <davem@redhat.com> says:
-   
-   > Absolutely not, we do not put improperly architected code into the
-   > tree first then clean it up later.
-   
-   That patch do NOT change current architecture so above is unfair.
+Why would you want to run a kernel with CONFIG_HOTPLUG turned off!
 
-Ok, I correct myself, this patch adds more dependencies on badly
-architected area making it _harder_ for us to clean it up.
+Grumble, I forgot a "inline" in base.h, I'll fix it later...
+
+greg k-h

@@ -1,57 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283080AbRK1Qbm>; Wed, 28 Nov 2001 11:31:42 -0500
+	id <S282177AbRK1QhW>; Wed, 28 Nov 2001 11:37:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283073AbRK1Qbc>; Wed, 28 Nov 2001 11:31:32 -0500
-Received: from node10450.a2000.nl ([24.132.4.80]:11393 "EHLO awacs.dhs.org")
-	by vger.kernel.org with ESMTP id <S283079AbRK1QbT>;
-	Wed, 28 Nov 2001 11:31:19 -0500
-Date: Wed, 28 Nov 2001 17:31:11 +0100
-From: Pascal Haakmat <a.haakmat@chello.nl>
-To: Eric Sandeen <sandeen@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: XFS Oopses with 2.4.5 and 2.4.14?
-Message-ID: <20011128173111.A8093@awacs.dhs.org>
-In-Reply-To: <fa.ih0gaiv.iio4rf@ifi.uio.no> <fa.ge28glv.66a6b8@ifi.uio.no> <200111281548.fASFmlI01384@mail.swdata.com>
-Mime-Version: 1.0
+	id <S282173AbRK1QhM>; Wed, 28 Nov 2001 11:37:12 -0500
+Received: from mauve.demon.co.uk ([158.152.209.66]:51335 "EHLO
+	mauve.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S282175AbRK1Qgz>; Wed, 28 Nov 2001 11:36:55 -0500
+From: Ian Stirling <root@mauve.demon.co.uk>
+Message-Id: <200111281635.QAA02768@mauve.demon.co.uk>
+Subject: Re: Journaling pointless with today's hard disks?
+To: nitrax@giron.wox.org (Martin Eriksson)
+Date: Wed, 28 Nov 2001 16:35:55 +0000 (GMT)
+Cc: matthias.andree@stud.uni-dortmund.de (Matthias Andree),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <007d01c1776a$d11d4680$0201a8c0@HOMER> from "Martin Eriksson" at Nov 27, 2001 06:42:00 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200111281548.fASFmlI01384@mail.swdata.com>; from sandeen@sgi.com on Wed, Nov 28, 2001 at 09:48:47AM -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-28/11/01 09:48, Eric Sandeen wrote:
-
-> Hi Pascal - 
 > 
-> Did you compile these kernels yourself, and if so, what compiler did you
-> use?
+> ----- Original Message -----
+> =46rom: "Matthias Andree" <matthias.andree@stud.uni-dortmund.de>
+> To: <linux-kernel@vger.kernel.org>
+> Sent: Tuesday, November 27, 2001 5:39 PM
+> Subject: Re: Journaling pointless with today's hard disks?
+> 
+<snip>
 
-Yes:
+> I think most people here are convinced that there is not time to write  a
+> several-MB (worst case) cache to the platters in case of a power failure.
+> Special drives for this case could of course be manufactured, and here's
+> a theory of mine: Wouldn't a battery backed-up SRAM cache do the thing?
 
-Linux version 2.4.5-xfs-1.0.1 (root@awacs.dhs.org) (gcc version egcs-2.91.66
-19990314/Linux (egcs-1.1.2 release)) #10 SMP Fri Sep 21 18:34:40 CEST 2001
+No.
+Sram is expensive, as are batteries (they also tend to have poor
+cycle life, and mean that you only keep the data until the battery dies.
 
-Linux version 2.4.14-xfs-1.0.2 (root@awacs.dhs.org) (gcc version 2.96
-20000731 (Red Hat Linux 7.1 2.96-98)) #2 SMP Sun Nov 25 08:15:50 CET 2001
+Numbers...
 
-> Can you reproduce this reliably?
+Taking again as an example, something that's in my machine:
+The Fujitsu MPG3409AT, a bargain basement 40G drive.
+2 platters, 5400RPM.
+It has (at the high end) 798 sec/track.
+Worst case, to write a journal track takes a full seek, and at least one
+complete rev.
+Assuming that we want to write it over two tracks, 
+This is 18ms + 11*2ms = 40ms.
+Now, how much power? 
+6.3W is needed, so that's .252J
 
-No, that is to say, I haven't tried. 
+Assuming that the 12V line can be allowed to sag to 10V, that'll take 20%^2 
+of the energy of the cap out, so we need a cap that stores about .7J, or 
+a 2500uF cap.
 
-Somebody else has suggested FS corruption as the cause of these Oopses. That
-might very well be the case. On multiple occassions (perhaps coinciding with
-the Oopses, sorry I can't be more specific), my system has hung when trying
-to write to a file, and I would be left with files looking somewhat like
-this (from memory):
-
-$ ls -lhsa spook.wav
-0 -rw-r--r--    1 p        p            165k Nov 25 09:04 spook.wav
-
-Up until now I just rm'd these files and continued, but I suppose I can try
-an xfs_repair from the boot CD.
-
-> I'd be happy to help with debugging this if you'd like, you might also
-> take this over to linux-xfs@oss.sgi.com.
-
-Thanks.
+12V 2500uf aluminium electrolytic is rather large, 25mm long *10mm diameter.
+There is space for this, in the overall package, but it would need a slight
+redesign.
+The cost of the component is about 10 cents US.
+Another 20-80 cents may be needed for the power switch.
+This assumes that no power can be used from the spindle motor, which may
+well be wrong.

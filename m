@@ -1,63 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267189AbUJFFfJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267259AbUJFFgo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267189AbUJFFfJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 01:35:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267259AbUJFFfI
+	id S267259AbUJFFgo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 01:36:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267263AbUJFFgo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 01:35:08 -0400
-Received: from fw.osdl.org ([65.172.181.6]:19595 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267189AbUJFFfB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 01:35:01 -0400
-Date: Tue, 5 Oct 2004 22:33:07 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: kenneth.w.chen@intel.com, mingo@redhat.com, linux-kernel@vger.kernel.org,
-       judith@osdl.org
-Subject: Re: Default cache_hot_time value back to 10ms
-Message-Id: <20041005223307.375597ee.akpm@osdl.org>
-In-Reply-To: <416380D7.9020306@yahoo.com.au>
-References: <200410060042.i960gn631637@unix-os.sc.intel.com>
-	<20041005205511.7746625f.akpm@osdl.org>
-	<416374D5.50200@yahoo.com.au>
-	<20041005215116.3b0bd028.akpm@osdl.org>
-	<41637BD5.7090001@yahoo.com.au>
-	<20041005220954.0602fba8.akpm@osdl.org>
-	<416380D7.9020306@yahoo.com.au>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 6 Oct 2004 01:36:44 -0400
+Received: from mta13.mail.adelphia.net ([68.168.78.44]:50108 "EHLO
+	mta13.adelphia.net") by vger.kernel.org with ESMTP id S267259AbUJFFgh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 01:36:37 -0400
+Message-ID: <4163845C.9020900@nodivisions.com>
+Date: Wed, 06 Oct 2004 01:36:28 -0400
+From: Anthony DiSante <orders@nodivisions.com>
+Reply-To: orders@nodivisions.com
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: KVM -> jumping mouse... still no solution?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
->
-> Any thoughts about making -rc's into -pre's, and doing real -rc's?
+Hello,
 
-I think what we have is OK.  The idea is that once 2.6.9 is released we
-merge up all the well-tested code which is sitting in various trees and has
-been under test for a few weeks.  As soon as all that well-tested code is
-merged, we go into -rc.  So we're pipelining the development of 2.6.10 code
-with the stabilisation of 2.6.9.
+I first got a KVM switch around the time of kernel 2.2.something, and when 
+using it to switch to a Linux system, the mouse "freaks out."  It's fine if 
+you don't move it, but if you move it N/E/NE it's really slow and jerky, and 
+if you move it S/W/SW even a hair, it slams down to the SW corner of the 
+screen and acts like you hit all the mouse's buttons 50 times simultaneously.
 
-If someone goes and develops *new* code after the release of, say, 2.6.9
-then tough tittie, it's too late for 2.6.9: we don't want new code - we
-want old-n-tested code.  So your typed-in-after-2.6.9 code goes into
-2.6.11.
+When switching to an MS Windows system (any version from 98 on up; haven't 
+tried anything earlier) the mouse works fine, it just pauses for maybe a 
+second at first, during which I assume it's doing some kind of PS/2 reset.
 
-That's the theory anyway.  If it means that it takes a long time to get
-code into the kernel.org tree, well, that's a cost.  That latency may be
-high but the bandwidth is pretty good.
+It used to be that switching out of X-windows with Ctrl-Alt-F[1-6] and then 
+back to VT7 would reset the mouse, but that hasn't worked in about a year 
+for me.  I was also able to run a little script to send a few specific chars 
+to the mouse device that seemed to reset it... that too no longer works. 
+The only thing that works now is unplugging the mouse from the KVM and then 
+back in.
 
-There are exceptions of course.  Completely new
-drivers/filesystems/architectures can go in any old time becasue they won't
-break existing setups.  Although I do tend to hold back on even these in
-the (probably overoptimistic) hope that people will then concentrate on
-mainline bug fixing and testing.
+The other day I came across this (kerneltrap.org/node/view/2199): "Use 
+psmouse.proto=bare on the kernel command line, or proto=bare on the
+psmouse module command line."  But that makes the mouse's scroll-wheel not 
+work.  (And this problem doesn't exist with some of the mouse drivers, but 
+it does with IMPS/2, which is the only one I've ever been able to get the 
+scroll wheel working with.)
 
->  It would have caught the NFS bug that made 2.6.8.1, and probably
->  the cd burning problems... Or is Linus' patching finger just too
->  itchy?
+Is there really no solution to this problem?  If Microsoft can figure it 
+out, I'm sure someone in the Linux community can... not that I'm 
+volunteering, of course...
 
-uh, let's say that incident was "proof by counter example".
+-Anthony DiSante
+http://nodivisions.com/

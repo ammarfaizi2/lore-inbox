@@ -1,63 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312486AbSEXW2D>; Fri, 24 May 2002 18:28:03 -0400
+	id <S312498AbSEXWby>; Fri, 24 May 2002 18:31:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312498AbSEXW2C>; Fri, 24 May 2002 18:28:02 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:3601 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S312486AbSEXW2B>; Fri, 24 May 2002 18:28:01 -0400
-Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
-To: andrea@e-mind.com (Andrea Arcangeli)
-Date: Fri, 24 May 2002 23:46:13 +0100 (BST)
-Cc: dank@kegel.com (Dan Kegel), akpm@zip.com.au (Andrew Morton),
-        hugh@veritas.com (Hugh Dickins), cr@sap.com (Christoph Rohland),
-        axboe@suse.de (Jens Axboe), linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com (Linus Torvalds)
-In-Reply-To: <20020524202658.GI15703@dualathlon.random> from "Andrea Arcangeli" at May 24, 2002 10:26:58 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S312526AbSEXWby>; Fri, 24 May 2002 18:31:54 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:20834 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S312498AbSEXWbx>; Fri, 24 May 2002 18:31:53 -0400
+Date: Sat, 25 May 2002 00:31:11 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
+Cc: Jan Harkes <jaharkes@cs.cmu.edu>
+Subject: Re: negative dentries wasting ram
+Message-ID: <20020524223111.GN15703@dualathlon.random>
+In-Reply-To: <20020524194344.GH15703@dualathlon.random> <Pine.GSO.4.21.0205241549520.9792-100000@weyl.math.psu.edu> <20020524203630.GJ15703@dualathlon.random> <20020524221447.GA22944@ravel.coda.cs.cmu.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17BNp7-0007W7-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Just for reference I attached the 13 line long patch in -aa that is
-> being requested to be put under this patent:
+On Fri, May 24, 2002 at 06:14:47PM -0400, Jan Harkes wrote:
+> Most interesting is the following message with a patch from you, because
+> the dcache and icache were pruned 'too agressively' when the new VM was
+> on the verge of being introduced in 2.4.10 :) Considering that what you
+> are proposing now is even more agressive than that, it is almost amusing.
+> 
+>     http://marc.theaimsgroup.com/?l=linux-kernel&m=100076684905307&w=2
 
-In the USA it probably is covered by that patent yes
+that was really too much aggressive, it was getting shrunk even with
+plenty of cache available. at that time we were missing the
+refill_inactive list logic. if you read the patch in such email
+carefully, you'll see the that the shrink_dcache_memory(priority,
+gfp_mask), shrink_icache_memory(priority, gfp_mask) were executed
+_before_ finishing probing the pagecache levels.
 
-> Now dropping this feature from tux is a matter of a few hours and it
-> cannot make difference if your vfs working set fits in dcache, but
-> that's not the problem. I wonder what's next, should I apply for a
-> patent for the classzone algorithm in the memory balancing or is Ingo
-> going to patent the O1 scheduler too? Ingo, Alan, Arjan, DaveM are so much
-> worried about binary only modules, Alan even speaks about the DMCA all
-> over the place, this is an order of magnitude worse, this even forbids
-> you to use this tequnique despite you may invented it too from scratch
-> and it's your own idea too. To make the opposite example despite IBM is
+before that patch it was so aggressive that the dcache/icache could be
+shrunk before finishing probing the pagecache, so it would be fine for
+the inactive-dentries actually :), but only for them! :)
 
-The DMCA also forbids you from using both content and ideas of your own.
-If you had a clever idea about disabled access to an ebook its jail. Patents
-are bad but don't trivialise the other stuff.
+In short what we do is:
 
-> a big patent producer IBM even allowed the usage of their RCU patents in
-> the linux kernel (I've the paperwork under my desk and Linus should have
-> received too), and other stuff donated to gcc and probably much more
-> that I don't know about, IMHO exactly to avoid linux to be castrated by
-> patents. So this news is totally stunning from my part.
+	probe and shrink pagecache
 
-So mail the Red Hat legal people and ask them to land similar paperwork 
-under your desk if you feel you need it (remember the GPL on 'no additional
-restrictions' . Lots of people are following this kind of path - RTLinux may
-have been first but lots of stuff like QV30 have followed similar "GPL ok" 
-type paths. 
+if we probe some remote shortage of pagecache we do the next step:
 
-Like it or not patents owned and controlled by the free software community
-are a neccessary thing in the short term. Yes software patents need reform,
-and their addition to patent law avoiding in most of the world. Code is 
-speech, imagine being able to patent a book plot, or suing George Bush
-because you had a patent on pro war rhetoric ?
+	shrink dcache icache and start some pagetable walking to decrease the mapping pressure
 
-Alan
+So if the system swaps like crazy the inode cache must definitely be
+shrunk very hard, if it doesn't it's a vm bug.
+
+There is no inchoerency with what I said and the previous email, it's
+just that at that time it was way too aggressive, it was shrinking the
+icache/dcache way before finishing probing the pagecache-active list too
+for excessive amounts of clean cache.
+
+Andrea

@@ -1,31 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264147AbUFFVRw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264160AbUFFVUv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264147AbUFFVRw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 17:17:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264155AbUFFVRw
+	id S264160AbUFFVUv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 17:20:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264165AbUFFVUv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 17:17:52 -0400
-Received: from pimout1-ext.prodigy.net ([207.115.63.77]:27359 "EHLO
-	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id S264147AbUFFVRv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 17:17:51 -0400
-Date: Sun, 6 Jun 2004 14:17:49 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: Ameer Armaly <ameer@charter.net>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: linux crashing on amd athlons?
-Message-ID: <20040606211749.GA32648@taniwha.stupidest.org>
-References: <001701c44bf7$c8991f20$0200a8c0@laptop> <20040606192229.GA32127@taniwha.stupidest.org> <000701c44c0a$d8eef760$0200a8c0@laptop>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <000701c44c0a$d8eef760$0200a8c0@laptop>
+	Sun, 6 Jun 2004 17:20:51 -0400
+Received: from fw.osdl.org ([65.172.181.6]:60391 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264160AbUFFVUu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 17:20:50 -0400
+Date: Sun, 6 Jun 2004 14:20:47 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] (urgent) ppc32: Fix CPUs with soft loaded TLB
+In-Reply-To: <1086556255.1859.14.camel@gaston>
+Message-ID: <Pine.LNX.4.58.0406061418450.1730@ppc970.osdl.org>
+References: <1086556255.1859.14.camel@gaston>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 06, 2004 at 05:11:34PM -0400, Ameer Armaly wrote:
 
-> I've counted approximately 10 different oopses, occuring at random
-> intervals; I can't duplicate them with any chance of success.
 
-smells like bad hardware
+On Sun, 6 Jun 2004, Benjamin Herrenschmidt wrote:
+> 
+> The recent introduction of ptep_set_access_flags() with the optimisation
+> of not flushing the TLB unfortunately broke ppc32 CPUs with no hash table.
+
+Makes sense, applied.
+
+However, wouldn't it make sense to have this on the ppc64 branch too?
+
+Admittedly on ppc64, the flush_tlb_page_nohash() function would be a
+no-op, since it always has the hash tables, but I'm a blue-eyed optimists,
+and I'm still hoping that some day IBM will see the error of their ways, 
+and get rid of the hash tables entirely. At which point ppc64 too will 
+need to flush the TLB entry.
+
+		Linus

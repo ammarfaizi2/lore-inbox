@@ -1,52 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130108AbRABWzO>; Tue, 2 Jan 2001 17:55:14 -0500
+	id <S130216AbRABXFe>; Tue, 2 Jan 2001 18:05:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130216AbRABWzE>; Tue, 2 Jan 2001 17:55:04 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:5645 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130108AbRABWyv>; Tue, 2 Jan 2001 17:54:51 -0500
-Date: Tue, 2 Jan 2001 14:23:48 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Mike Galbraith <mikeg@wen-online.de>,
-        Anton Blanchard <anton@linuxcare.com.au>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Andrew Morton <andrewm@uow.edu.au>
-Subject: Re: scheduling problem?
-In-Reply-To: <Pine.LNX.4.10.10101021357180.1292-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.10.10101021418090.847-100000@penguin.transmeta.com>
+	id <S130386AbRABXFO>; Tue, 2 Jan 2001 18:05:14 -0500
+Received: from femail1.sdc1.sfba.home.com ([24.0.95.81]:56319 "EHLO
+	femail1.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S130216AbRABXFI>; Tue, 2 Jan 2001 18:05:08 -0500
+Message-ID: <3A525923.330B0482@flash.net>
+Date: Tue, 02 Jan 2001 17:41:39 -0500
+From: Rob Landley <landley@flash.net>
+X-Mailer: Mozilla 4.7 [en] (Win98; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: CPRM copy protection for ATA drives
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Its probably very hard to defeat. It also in its current form means
+> you can throw disk defragmenting tools out. Dead, gone. Welcome to
+> the United Police State Of America. 
 
+Doesn't anybody remember the days of "dongle keys" on the Commodore 64? 
+Plug a special circuit into the joystick port in order to use this
+program?
 
-On Tue, 2 Jan 2001, Linus Torvalds wrote:
-> 
-> Right now, the automatic balancing only hurts. The stuff that hasn't been
-> converted is probably worse off doing balancing when they don't want to,
-> than we would be to leave the balancing altogether.
-> 
-> Which is why I don't like it.
+And we all remember how the pirates got around this, don't we?  The easy
+way: crack the program.
 
-Actually, there is right now another problem with the synchronous waiting,
-which is completely different: because bdflush can be waited on
-synchronously by various entities that hold various IO locks, bdflush
-itself cannot do certain kinds of IO at all. In particular, it has to use
-GFP_BUFFER when it calls down to page_launder(), because it cannot afford
-to write out dirty pages which might deadlock on the locks that are held
-by people waiting for bdflush..
+This is yet another hardware based copy protection tool like floppy
+disks with strategically placed holes burned into them by lasers
+(leaving a bad sector you can't reformat away), or cartridge-based
+programs that tried to overwrite their own memory address ranges.  Or
+forcing people to the third word from paragraph two on page ten of the
+instruction manual (since the manual is, more or less, hardware.) 
+Welcome back to the 1980's, they never learn...
 
-The deadlock issue is the one I dislike the most: bdflush being
-synchronously waited on is fundamentally always going to cripple it. In
-comparison, the automatic rebalancing is just a latency issue (but the
-automatic balancing _is_ the thing that brings on the fact that we call
-rebalance with locks held, so they are certainly related).
+There's nothing new under the sun, and the "zero day warez" people never
+even broke stride dealing with this sort of thing.  All it WILL do is
+annoy people who try to legitimately use the system.  And, of coruse,
+make a lot more people buy SCSI if they sabotage the ATA spec this
+way...
 
-		Linus
+What are they going to do installing one of these programs on a
+non-compliant drive?  (A modern 74 gig drive is likely to last me a
+while, you know.)  Refuse and limit their potential installed base to
+only systems manufactured after 2002?  Yeah, people do that kind of
+thing all the time (requires MMX), and the products don't last that long
+on the shelves, do they?
 
+Has anybody brought up the LEVELS of nested stupidity in this particular
+proposal to the committe?  (Committee iq: average intelligence of
+members, divide by headcount.  Nice to see that holds true.)
+
+I'm not particularly alarmed by it, though.  Disappointed, yes.  But a
+market that refused to buy micro-channel architecture, refused to buy
+rambus memory, and outright laughed at Microsoft BOB, isn't likely to
+let this get shoved down its throat even if it DOES pass as an official
+spec.  And another advantage Open Source has over proprietary software
+(we provide what the users actually WANT, if only 'cause we're the
+users.  A GPLed program isn't likely to depend on this "feature", is
+it?  Or the Intel CPU ID...).
+
+Rob
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

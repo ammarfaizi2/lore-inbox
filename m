@@ -1,59 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263276AbSJOOsa>; Tue, 15 Oct 2002 10:48:30 -0400
+	id <S263135AbSJOPBV>; Tue, 15 Oct 2002 11:01:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262913AbSJOOsa>; Tue, 15 Oct 2002 10:48:30 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:17571 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S263276AbSJOOs3>;
-	Tue, 15 Oct 2002 10:48:29 -0400
-Importance: Normal
-Sensitivity: 
-Subject: Re: [Evms-devel] Re: Linux v2.5.42
-To: Andrew Clausen <clausen@gnu.org>
-Cc: Alexander Viro <viro@math.psu.edu>, Oliver Neukum <oliver@neukum.name>,
-       Shawn <core@enodev.com>, Christoph Hellwig <hch@infradead.org>,
-       Michael Clark <michael@metaparadigm.com>,
-       Mark Peloquin <markpeloquin@hotmail.com>, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com, evms-devel@lists.sourceforge.net
-X-Mailer: Lotus Notes Release 5.0.4  June 8, 2000
-Message-ID: <OF982AE23E.E16B3B93-ON85256C53.004DC696@pok.ibm.com>
-From: "Steve Pratt" <slpratt@us.ibm.com>
-Date: Tue, 15 Oct 2002 09:51:15 -0500
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11  |July 29, 2002) at
- 10/15/2002 10:51:09 AM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S263137AbSJOPBV>; Tue, 15 Oct 2002 11:01:21 -0400
+Received: from f206.pav1.hotmail.com ([64.4.31.206]:55056 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S263135AbSJOPBU>;
+	Tue, 15 Oct 2002 11:01:20 -0400
+X-Originating-IP: [63.229.167.10]
+From: "Anthony Martinez" <i_am_pi_@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: AMD PCNet adapter
+Date: Tue, 15 Oct 2002 09:07:09 -0600
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F206ccSN00ktmzmVBCO00002a2e@hotmail.com>
+X-OriginalArrivalTime: 15 Oct 2002 15:07:10.0217 (UTC) FILETIME=[88E2BF90:01C2745C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello
+Are there modem drivers available for an AMD PCNet adapter, chip AM79C978XC, 
+or is this even the right place to ask?
 
-Andrew Clausen wrote:
+This card has both ethernet and modem ports, and works with the windoze 
+drivers.
 
->On Mon, Oct 14, 2002 at 07:16:22PM -0400, Alexander Viro wrote:
->> If you are willing to help EVMS folks - go ahead and offer them your
-help in
->> cleaning the codebase up.
+I saw some discussion about an AM79C973 in the archives, but that was an 
+ethernet card.
 
->They refused my patches.
-
-Please don't say that. I just searched the EVMS mailing list archives
-dating back to December 2000 and there is not a single patch from you
-Andrew. One or 2 pieces of psuedo-code, but no real patches.  Feel free to
-look yourself, the archives are online.
-
-> Does anyone want me to dig them up?
-
-Sure, if they really exist.
-
-Andrew, just so you are aware, a number of your suggestions did make it
-into EVMS even if you are not aware of it because they did not hapopen
-immediately.  Some that come to mind that I think you originally proposed
-are plug-in progress indicators (from pedtimer), nesting of partitions,
-plug-in record header changes (multiple plug-ins per file).  These are just
-the ones that come to mind, so keep the suggestion (and patches if you can
-find any) coming.
-
-Steve
+Many Thanks
+Pi
 
 
+_________________________________________________________________
+Chat with friends online, try MSN Messenger: http://messenger.msn.com
 

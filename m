@@ -1,50 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262982AbTIGKRo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 06:17:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263011AbTIGKRn
+	id S262947AbTIGKIx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 06:08:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262982AbTIGKIx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 06:17:43 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:51918 "HELO
+	Sun, 7 Sep 2003 06:08:53 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:5071 "HELO
 	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262982AbTIGKRm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 06:17:42 -0400
-Date: Sun, 7 Sep 2003 12:17:35 +0200
+	id S262947AbTIGKIv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 06:08:51 -0400
+Date: Sun, 7 Sep 2003 12:08:43 +0200
 From: Adrian Bunk <bunk@fs.tum.de>
-To: jsimmons@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6: spurious recompiles
-Message-ID: <20030907101735.GN14436@fs.tum.de>
-References: <20030906201417.GI14436@fs.tum.de> <20030907055144.GA1627@mars.ravnborg.org> <20030907070025.GA12822@mars.ravnborg.org>
+To: Andrew Morton <akpm@osdl.org>, Nick Piggin <piggin@cyberone.com.au>,
+       Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: 2.6.0-test4-mm5 and below: Wine and XMMS problems
+Message-ID: <20030907100843.GM14436@fs.tum.de>
+References: <20030902231812.03fae13f.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030907070025.GA12822@mars.ravnborg.org>
+In-Reply-To: <20030902231812.03fae13f.akpm@osdl.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 07, 2003 at 09:00:25AM +0200, Sam Ravnborg wrote:
-> On Sun, Sep 07, 2003 at 07:51:44AM +0200, Sam Ravnborg wrote:
-> > On Sat, Sep 06, 2003 at 10:14:18PM +0200, Adrian Bunk wrote:
-> > > 2. pnmtologo
-> > > The following happens again once, but not when doing a third "make":
-> > >   ./scripts/pnmtologo -t mono -n logo_linux_mono -o drivers/video/logo/logo_linux_mono.c drivers/video/logo/logo_linux_mono.pbm
-> > 
-> > Would you mind to give this patch a spin. Only lightly tested here.
-> Tested it a bit more, it was not good. Corrected patch follows.
-> I had to spell out the dependencies, otherwise make saw them
-> as implicit targets, and deleted the .c files afterwards.
-
-Thanks, this patch seems to fix it.
-
-> Btw the patch contains some general clean-up as well, unrelated to
-> the 'spurious recompile' issue.
-
-These are the places where I got rejects in 2.6.0-test4-mm6 (these 
-changes are already in the -mm tree).
-
-> 	Sam
+On Tue, Sep 02, 2003 at 11:18:12PM -0700, Andrew Morton wrote:
 >...
+> . Dropped out Con's CPU scheduler work, added Nick's.  This is to help us
+>   in evaluating the stability, efficacy and relative performance of Nick's
+>   work.
+> 
+>   We're looking for feedback on the subjective behaviour and on the usual
+>   server benchmarks please.
+>...
+
+Short story:
+
+I'm still using 2.5.72, all of the 2.6.0-test?{,-mm?} kernels have 
+problems
+
+
+Long story:
+
+System:
+K6-2 @ 500 MHz
+128 MB RAM
+1 GB swap
+Debian unstable
+
+Workload:
+XFree86
+FVWM
+XMMS
+Wine running "Master of Orion 2" (a round based space strategy game)
+
+With 2.4 kernels and 2.5.72 everything works fine.
+
+With 2.6.0-test? and 2.6.0-test?-mm? kernels up to 2.6.0-test4-mm4 the
+XMMS sound sometimes skips or sounds slow (like when wou manually retard
+a record). That's much more awful than skips.
+
+RAM usage is low, even after a "swapoff -a" at about half of my RAM
+would be enough.
+
+The problems might be related to the fact that after I start Wine three
+wine.bin processes run and each of them tries to get as much CPU time as
+possible.
+
+It might be part of the problem that although Wine is the interactive 
+task a working XMMS is subjectively more important.
+
+With 2.6.0-test4-mm5 these problems don't occur. Instead, Wine feels 
+slow. I couldn;t test it much since after the first fast mouse movement 
+the X mouse cursor has lost the mouse cursor of the game (this might be 
+a bug in Wine, but it doesnt occur with other kernels).
 
 cu
 Adrian

@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266590AbUHIOKh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266591AbUHIOKh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266590AbUHIOKh (ORCPT <rfc822;willy@w.ods.org>);
+	id S266591AbUHIOKh (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 9 Aug 2004 10:10:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266591AbUHIOJ7
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266584AbUHIOJv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 10:09:59 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:38856 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S266590AbUHIOJS (ORCPT
+	Mon, 9 Aug 2004 10:09:51 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:13001 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S266591AbUHIOH5 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 10:09:18 -0400
-Date: Mon, 9 Aug 2004 16:08:46 +0200
-From: Jens Axboe <axboe@suse.de>
+	Mon, 9 Aug 2004 10:07:57 -0400
+Subject: Re: Linux Kernel bug report (includes fix)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: skraw@ithnet.com, James.Bottomley@steeleye.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Message-ID: <20040809140845.GN10418@suse.de>
-References: <200408091351.i79DpmvZ010434@burner.fokus.fraunhofer.de>
+Cc: vonbrand@inf.utfsm.cl, axboe@suse.de,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200408091203.i79C3fYh009639@burner.fokus.fraunhofer.de>
+References: <200408091203.i79C3fYh009639@burner.fokus.fraunhofer.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1092056719.14144.7.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408091351.i79DpmvZ010434@burner.fokus.fraunhofer.de>
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 09 Aug 2004 14:05:21 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 09 2004, Joerg Schilling wrote:
+On Llu, 2004-08-09 at 13:03, Joerg Schilling wrote:
+> >Jörg Schilling <schilling@fokus.fraunhofer.de> said:
+> >> -	Linux Kernel include files (starting with Linux-2.5) are buggy and 
+> >> 	prevent compilation.
 > 
-> >From: Jens Axboe <axboe@suse.de>
+> >They do not, the kernel compiles just fine. They are _not_ to be used for
+> >random userspace programs.
 > 
-> >Joergs intentions are just as clear as ever - he would much much rather
-> >bash linux than fix whatever issues there might be with it, because if
-> >they get fixed, he would have nothing else to complain about. It's
-> >ironic that Linux is most likely his largest user base.
-> 
-> You could easily prove that you are wrong:
-> 
-> Just fix the bugs from the List I send you and wait some time......
+> As you don't know how kernel/user interfaces are handled, it would be wise for 
+> you to keep quiet.....
 
-Most of them you don't want me to fix. If you truly wanted me to fix the
-problems, I'm sure you would have provided some evidence for them to be
-fixable.
+Linux kernel include files are not meant to be used by user
+applications. He's perfectly correct. Glibc has its own exported set.
+This is intentional to seperate internals from user space.
 
--- 
-Jens Axboe
+Alan
 

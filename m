@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263235AbTDRUr0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Apr 2003 16:47:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263239AbTDRUr0
+	id S263239AbTDRUv0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Apr 2003 16:51:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263241AbTDRUv0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Apr 2003 16:47:26 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:62646 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S263235AbTDRUrZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Apr 2003 16:47:25 -0400
-Date: Fri, 18 Apr 2003 13:49:05 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Reply-To: linux-kernel <linux-kernel@vger.kernel.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 602] New: warnings on hcd rmmod:  "dangling refs(N) to bus B" (fwd)
-Message-ID: <1382940000.1050698945@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Apr 2003 16:51:26 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:34044 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S263239AbTDRUvZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Apr 2003 16:51:25 -0400
+Date: Fri, 18 Apr 2003 16:54:03 -0400
+From: Nick Orlov <bugfixer@list.ru>
+To: Andrei Ivanov <andrei.ivanov@ines.ro>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.67-mm4
+Message-ID: <20030418205403.GA3366@nikolas>
+Mail-Followup-To: Andrei Ivanov <andrei.ivanov@ines.ro>,
+	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.50L0.0304182236480.1931-100000@webdev.ines.ro>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.50L0.0304182236480.1931-100000@webdev.ines.ro>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=602
+On Fri, Apr 18, 2003 at 10:37:19PM +0300, Andrei Ivanov wrote:
+> 
+> 
+> ... and I think there is another problem, but I can't really verify this, 
+> because I'm not near the machine now, so if somebody else could confirm 
+> this, it would be great (I hope I'm not getting paranoid :). It seems I 
+> can't ssh into that machine:
+> 
 
-           Summary: warnings on hcd rmmod:  "dangling refs(N) to bus B"
-    Kernel Version: 2.5.66
-            Status: NEW
-          Severity: low
-             Owner: greg@kroah.com
-         Submitter: dbrownell@users.sourceforge.net
+[[ ... skipped ... ]]
 
+> 
+> Here it hangs... on mm1 I was able to connect with ssh to that machine.
 
-The bus refcounting mechanism is broken, it often produces  warning messages like that one when modules are removed.    The problem appears to be an extremely long-standing one,  at least in terms of the how-to-reproduce I saw:     - connect a device that won't immediately enumerate,     so that setting its address needs to be retried (or     similar error, like set_configuration failing)     - unplug that device ... at this point the refcount     is wrong, but you can't tell until     - rmmod the relevant HCD.    This particular cause of that message is because the bus  refcount isn't released on error.  The fix isn't as  straightforward as it should be because of funky calling  conventions ("longstanding", likely since 2.4), but it's  not
-complicated either.
+In my case sshd was not able to allocate pts...
+Actually it was not possible to allocate pts under 2.5.67-mm4 at all.
+
+Not sure if it's the same problem, but it makes 2.5.67-mm4 pretty useless :(
+
+-- 
+With best wishes,
+	Nick Orlov.
 

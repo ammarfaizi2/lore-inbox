@@ -1,82 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265060AbUAORDA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 12:03:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265128AbUAORDA
+	id S265172AbUAORFo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 12:05:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265173AbUAORFo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 12:03:00 -0500
-Received: from host-64-65-253-246.alb.choiceone.net ([64.65.253.246]:39326
-	"EHLO gaimboi.tmr.com") by vger.kernel.org with ESMTP
-	id S265060AbUAORCz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 12:02:55 -0500
-Message-ID: <4006C76B.3090206@tmr.com>
-Date: Thu, 15 Jan 2004 12:01:31 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Doug Ledford <dledford@redhat.com>
-CC: Jens Axboe <axboe@suse.de>, Arjan Van de Ven <arjanv@redhat.com>,
-       Peter Yao <peter@exavio.com.cn>, linux-kernel@vger.kernel.org,
-       linux-scsi mailing list <linux-scsi@vger.kernel.org>
-Subject: Re: smp dead lock of io_request_lock/queue_lock patch
-References: <20040112092231.GG29177@suse.de> <1073914073.3114.263.camel@compaq.xsintricity.com>
-In-Reply-To: <1073914073.3114.263.camel@compaq.xsintricity.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 15 Jan 2004 12:05:44 -0500
+Received: from [199.103.152.103] ([199.103.152.103]:3717 "EHLO localhost")
+	by vger.kernel.org with ESMTP id S265172AbUAORFf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 12:05:35 -0500
+Subject: Re: VIA and NVIDIA
+From: eddie tejeda <eddie@nailchipper.com>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040115155817.GD25550@widomaker.com>
+References: <1074106424.6839.15.camel@applehead>
+	 <20040114201637.566a9330@Genbox>  <20040115155817.GD25550@widomaker.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-E2Wnxkh+KbLHar9gFO07"
+Message-Id: <1074186528.18190.13.camel@applehead>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 15 Jan 2004 12:08:48 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug Ledford wrote:
-> On Mon, 2004-01-12 at 04:22, Jens Axboe wrote:
-> 
->>On Mon, Jan 12 2004, Arjan van de Ven wrote:
->>
->>>On Mon, Jan 12, 2004 at 10:19:46AM +0100, Jens Axboe wrote:
->>>
->>>>... and still exists in your 2.4.21 based kernel.
->>>
->>>The RHL 2.4.21 kernels don't have the locking patch at all...
->>
->>But RHEL3 does:
->>
->>http://kernelnewbies.org/kernels/rhel3/SOURCES/linux-2.4.21-iorl.patch
->>
->>and the bug is there.
-> 
-> 
-> But in RHEL3 the bug is fixed already (not in a released kernel, but the
-> fix went into our internal kernel some time back and will be in our next
-> update kernel).  From my internal bk tree for this stuff:
 
-"not in a released kernel..." Do I read this right? That you have a fix 
-for a critical bug and it hasn't been pushed to customers yet? How about 
-security bugs, has the fix you pushed in RH-9.0 been push to EL customers?
+--=-E2Wnxkh+KbLHar9gFO07
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> [dledford@compaq RHEL3-scsi]$ bk changes -r1.23
-> ChangeSet@1.23, 2003-11-10 17:19:54-05:00, dledford@compaq.xsintricity.com
->   drivers/scsi/scsi_error.c
->       Don't panic if the eh thread is dead, instead do the same thing that
->       scsi_softirq_handler does and just complete the command as a failed
->       command.
->       Change when we wake the eh thread in scsi_times_out to accomodate
->       the changes to the mlqueue operations.
->       Clear blocked status on the host and all devices in scsi_restart_operations
-> ->    Don't grab the host_lock in scsi_restart_operations, we aren't doing
->       anything that needs it.  Just goose the queues unconditionally,
->       scsi_request_fn() will know to not send commands if they shouldn't
->       go for some reason.
->       Make sure we account SCSI_STATE_MLQUEUE commands as not being failed
->       commands in scsi_unjam_host.
-> 
-> But, Jens is right, it's a real bug.  I just fixed it in a different
-> way.  And my fix is dependent on other changes in our scsi stack as
-> well.
+> I hope nVidia releases real 2.6 drivers soon.
 
-Yes, thanks to Peter for that fix, nice that someone provides timely 
-fixes...
+its not a 2.6 issue.. its a ANY kernel with ANY driver with ANY card i
+can get a hold of..i just it doesn't work.
 
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+> I have tried to get by with the nv driver, but the performance hit is
+> just too much, and I still use 3D apps now and then.
+
+i know the feeling. its like having a porche parked out back (back in
+the AGP slot :o) ) and driving it around like a Kia Sephia. it works,
+gets you around, but its something about having so much power being
+unused that makes me feel back.. ( i dont even do anything 3D, or care,
+this is pretty much for my opengl screen savers.. and the principle of
+it )
+
+luckily... i found  SOLUTION! im selling this NVIDIA card and getting
+myself a ATI radeon 9000... if the close sourced ATI Drivers dont
+work..... i can always fall back on the open ones... even if they are
+not as optimized.. at least i have a choice eh?
+
+-eddie
+
+--=-E2Wnxkh+KbLHar9gFO07
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQBABskfBiLsaFIGFU0RAnoBAJ9GqFDbfo8+Y298hZoYOOyT3Uw9YACghu0J
+EcL++N59segM/dT0mVHT+Ao=
+=i1lO
+-----END PGP SIGNATURE-----
+
+--=-E2Wnxkh+KbLHar9gFO07--
+

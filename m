@@ -1,30 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131274AbRCMXse>; Tue, 13 Mar 2001 18:48:34 -0500
+	id <S131241AbRCNAVx>; Tue, 13 Mar 2001 19:21:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131273AbRCMXsW>; Tue, 13 Mar 2001 18:48:22 -0500
-Received: from smtpnotes.altec.com ([209.149.164.10]:22790 "HELO
-	smtpnotes.altec.com") by vger.kernel.org with SMTP
-	id <S131269AbRCMXsM>; Tue, 13 Mar 2001 18:48:12 -0500
-X-Lotus-FromDomain: ALTEC
-From: Wayne.Brown@altec.com
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux-kernel@vger.kernel.org
-Message-ID: <86256A0E.0082A102.00@smtpnotes.altec.com>
-Date: Tue, 13 Mar 2001 17:46:38 -0600
-Subject: Re: Linux 2.4.2ac20
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S131242AbRCNAVn>; Tue, 13 Mar 2001 19:21:43 -0500
+Received: from dfw-smtpout4.email.verio.net ([129.250.36.44]:52096 "EHLO
+	dfw-smtpout4.email.verio.net") by vger.kernel.org with ESMTP
+	id <S131241AbRCNAVg>; Tue, 13 Mar 2001 19:21:36 -0500
+Message-ID: <3AAEB966.311ECB63@bigfoot.com>
+Date: Tue, 13 Mar 2001 16:20:54 -0800
+From: Tim Moore <timothymoore@bigfoot.com>
+Organization: Yoyodyne Propulsion Systems, Inc.
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.19pre8+IDE i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: VM problem with 2.2.18 ?
+In-Reply-To: <Pine.LNX.4.21.0103132323450.18168-100000@cyrix.home>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> i had a small problem with a program i was running
+> which got stuck in a loop allocing memory by the time i
+> found out it was doing it these were appearing
+> 
+>  VM: do_try_to_free_pages failed for ypbind...
+> ...
+> etc.. etc.. for many more processes
+> then it all ended in a hangup
 
+Patch to 2.2.19pre2 or higher.
+http://www.linuxhq.com/kernel/v2.2/changes/pre-2.2.19.html
 
-I've just noticed with 2.4.2-ac20 that /proc/sys/fs/binfmt_misc is no longer
-being created.  I have CONFIG_BINFMT_MISC=y in my .config.  This was working
-fine in 2.4.3-pre4.
-
-Wayne
-
-
+--

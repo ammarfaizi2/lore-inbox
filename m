@@ -1,68 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315459AbSHFT74>; Tue, 6 Aug 2002 15:59:56 -0400
+	id <S315456AbSHFUAp>; Tue, 6 Aug 2002 16:00:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315463AbSHFT74>; Tue, 6 Aug 2002 15:59:56 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:60427 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S315459AbSHFT7z>;
-	Tue, 6 Aug 2002 15:59:55 -0400
-Date: Tue, 6 Aug 2002 13:01:14 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: Diego Calleja <diegocg@teleline.es>, <linux-kernel@vger.kernel.org>
-Subject: Re: pppd[32497]: Unsupported protocol 'CallBack Control Protocol
- (CBCP)' (0xc029) received
-In-Reply-To: <Pine.LNX.3.95.1020806152633.25149B-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.33L2.0208061257180.10089-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315458AbSHFUAo>; Tue, 6 Aug 2002 16:00:44 -0400
+Received: from ithilien.qualcomm.com ([129.46.51.59]:39296 "EHLO
+	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
+	id <S315456AbSHFUAl>; Tue, 6 Aug 2002 16:00:41 -0400
+Message-Id: <5.1.0.14.2.20020806125053.09751470@mail1.qualcomm.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 06 Aug 2002 13:03:48 -0700
+To: "David S. Miller" <davem@redhat.com>
+From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
+Subject: Re: "new style" netdevice allocation patch for TUN driver
+  (2.4.18 kernel)
+Cc: jajcus@bnet.pl, linux-kernel@vger.kernel.org
+In-Reply-To: <20020806.100749.21530590.davem@redhat.com>
+References: <5.1.0.14.2.20020806094253.09734790@mail1.qualcomm.com>
+ <5.1.0.14.2.20020802164143.04da52f8@mail1.qualcomm.com>
+ <20020803140858.GA5314@nic.nigdzie>
+ <5.1.0.14.2.20020806094253.09734790@mail1.qualcomm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Aug 2002, Richard B. Johnson wrote:
 
-| On Tue, 6 Aug 2002, Diego Calleja wrote:
-|
-| > In different kernels I've seen this message:
-| >
-| > Aug  6 19:10:01 localhost pppd[32497]: Unsupported protocol 'CallBack
-| > Control Protocol (CBCP)' (0xc029) received
-| >
-| > Is pppd who has to handle this protocol, or it's a "ToDo" in ppp in the
-| > kernel? In the last case, will it be implemented?
-| >
-| > and, what's the hell is the "Callback Protocol?"
-|
-| You are connected to a M$ 'server' and it's trying to interrogate
-| your machine with 'Magic Lantern'. I don't think you want it
-| implemented. From what I hear, it's what the US Government decided
-| that M$ must put into everything so that any 'Duly authorized....'
-| can peer into your computer.
-|
-| Check it out. Scary...
+>    From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
+>    Date: Tue, 06 Aug 2002 10:07:49 -0700
+>
+>    Dave, how about this
+>
+>    --- net/core/dev.c.orig Mon Aug  5 21:48:54 2002
+>    +++ net/core/dev.c      Mon Aug  5 21:54:01 2002
+>    @@ -2577,6 +2577,11 @@
+>
+>First, the call-chain notifiers are probably not safe
+>to run without rtnl_lock held.
+Good point.
 
-I've never heard this explanation, but who knows??
+>Second, why not just fix the bug instead of applying band-aids
+>to device unregistry?  I know it's nice in that it allows you
+>to configure devices some more, but it doesn't make the real
+>problem go away.
+I completely agree. However sleeping and holding a lock that you
+don't have to hold is a bug on it's own :).
+Things like sockets drop the lock before calling schedule() and acquire
+it on wakeup. I think we should do the same in unregister_netdevice().
 
-I've heard of callback relating to RAS as a method of preventing
-just anyone calling into a particlar RAS server.
-Using callbacks, the server hangs up and immediately calls the
-originator back to a valid, known telephone number.
-Also allows the server to be billed for it instead of the caller.
+How about this:
 
-At MS web site:
-<quote>
-Callback Negotiation with the Callback Control Protocol
-The Callback Control Protocol (CBCP) is documented in
-ftp://ftp.microsoft.com/developr/rfc/cbcp.txt .
-CBCP negotiates the use of callback where the remote access server,
-after authenticating the remote access client, terminates the physical
-connection, waits a specified amount of time, and then calls the remote
-access client back at either a static or dynamically configured phone
-number. Common CBCP options include the phone number being used by the
-remote access server to call the remote access client back.
-</quote>
+--- dev.c.orig  Tue Aug  6 00:58:46 2002
++++ dev.c       Tue Aug  6 01:00:00 2002
+@@ -2584,9 +2584,12 @@
+                         notifier_call_chain(&netdev_chain, 
+NETDEV_UNREGISTER, dev);
+                 }
 
--- 
-~Randy
++               rtnl_unlock();
+                 current->state = TASK_INTERRUPTIBLE;
+                 schedule_timeout(HZ/4);
+                 current->state = TASK_RUNNING;
++               rtnl_lock();
++
+                 if ((jiffies - warning_time) > 10*HZ) {
+                         printk(KERN_EMERG "unregister_netdevice: waiting 
+for %s to "
+                                         "become free. Usage count = %d\n",
+-----
+
+Max
 

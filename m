@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263661AbUAOFGi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 00:06:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbUAOFGi
+	id S266331AbUAOFYy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 00:24:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266334AbUAOFYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 00:06:38 -0500
-Received: from are.twiddle.net ([64.81.246.98]:7564 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id S263661AbUAOFGh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 00:06:37 -0500
-Date: Wed, 14 Jan 2004 21:05:26 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Adrian Bunk <bunk@fs.tum.de>, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       eike-kernel@sf-tec.de, torvalds@osdl.org
-Subject: Re: [2.6 patch] if ... BUG() -> BUG_ON()
-Message-ID: <20040115050526.GA1883@twiddle.net>
-Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
-	Adrian Bunk <bunk@fs.tum.de>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org, eike-kernel@sf-tec.de,
-	torvalds@osdl.org
-References: <20040113213230.GY9677@fs.tum.de> <20040115102048.4689664e.rusty@rustcorp.com.au>
-Mime-Version: 1.0
+	Thu, 15 Jan 2004 00:24:54 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:42294 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S266331AbUAOFYw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 00:24:52 -0500
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Intel Alder IOAPIC fix
+References: <1073876117.2549.65.camel@mulgrave>
+	<Pine.LNX.4.58.0401121152070.1901@evo.osdl.org>
+	<1073948641.4178.76.camel@mulgrave>
+	<Pine.LNX.4.58.0401121452340.2031@evo.osdl.org>
+	<1073954751.4178.98.camel@mulgrave>
+	<Pine.LNX.4.58.0401121621220.14305@evo.osdl.org>
+	<1074012755.2173.135.camel@mulgrave>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 14 Jan 2004 22:18:49 -0700
+In-Reply-To: <1074012755.2173.135.camel@mulgrave>
+Message-ID: <m1smihg56u.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040115102048.4689664e.rusty@rustcorp.com.au>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 15, 2004 at 10:20:48AM +1100, Rusty Russell wrote:
-> The right fix is to hack gcc to allow functions (in this case, BUG()) to have
-> an "unlikely" attribute, and therefore know that this branch is unlikely.
+James Bottomley <James.Bottomley@steeleye.com> writes:
 
-The minimal change to make this work is some new annotation that says
-that control does not fall through an asm.  Or give up on the keen-o
-diagnostics and use __builtin_trap ().
+> On Mon, 2004-01-12 at 19:25, Linus Torvalds wrote:
+> > I think BARs 1-5 don't exist at all. Being set to all ones is common for
+> > "unused" (it ends up being a normal result of a lazy probe - you set all 
+> > bits to 1 to check for the size of the region, and if you decide not to 
+> > map it and leave it there, you'll get the above behaviour).
+> > 
+> > I suspect only BAR0 is actually real.
+> 
+> OK, I cleaned up the patch to forcibly insert BAR0 and clear BARs 1-5
+> (it still requires changes to insert_resource to work, though).
 
-Either way, branches that lead to dead ends (such as trap or abort or
-any other noreturn function) are automatically predicted not taken.
+When I looked at the ia64 code that uses insert_resource (and I admit I am
+reading between the lines a little) it seems to come along after potentially
+allocating some resources behind some kind of bridge and then realize a bridge
+is there.
 
+Which is totally something different from this case where we just want
+to ignore the BIOS, because we know better.  I have seen a number of
+boxes that reserver the area where apics or ioapics live.  So I think
+we need an IORESOURCE_TENTATIVE thing.  This is the third flavor of
+thing that has shown up, lately.
 
-r~
+Want me to code up a patch?
+
+Eric

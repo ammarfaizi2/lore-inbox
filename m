@@ -1,39 +1,136 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288019AbSAXORn>; Thu, 24 Jan 2002 09:17:43 -0500
+	id <S288047AbSAXOUd>; Thu, 24 Jan 2002 09:20:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288047AbSAXORd>; Thu, 24 Jan 2002 09:17:33 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:49800 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S288019AbSAXOR3>;
-	Thu, 24 Jan 2002 09:17:29 -0500
-Date: Thu, 24 Jan 2002 06:16:05 -0800 (PST)
-Message-Id: <20020124.061605.131916581.davem@redhat.com>
-To: jes@wildopensource.com
-Cc: adam@yggdrasil.com, linux-acenic@sunsite.dk, linux-kernel@vger.kernel.org
-Subject: Re: linux-2.5.3-pre4/drivers/acenic.c: pci_unmap_addr_set not
- defined for x86
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <15440.5902.755260.764642@trained-monkey.org>
-In-Reply-To: <15440.4044.565375.681853@trained-monkey.org>
-	<20020124.054626.15688749.davem@redhat.com>
-	<15440.5902.755260.764642@trained-monkey.org>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S288059AbSAXOUP>; Thu, 24 Jan 2002 09:20:15 -0500
+Received: from aboukir-101-2-1-easter.adsl.nerim.net ([62.4.19.191]:20614 "HELO
+	verveine") by vger.kernel.org with SMTP id <S287862AbSAXOTy>;
+	Thu, 24 Jan 2002 09:19:54 -0500
+Date: Thu, 24 Jan 2002 15:19:35 +0100
+From: Brugier Pascal <pbrugier@easter-eggs.com>
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.14 cpqarray eepro100 ext3
+Message-ID: <20020124151935.A8721@easter-eggs.com>
+In-Reply-To: <20020122145844.A622@easter-eggs.com> <Pine.LNX.4.33.0201221211100.20907-100000@coffee.psychology.mcmaster.ca> <20020124122823.B8063@easter-eggs.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020124122823.B8063@easter-eggs.com>; from pbrugier@easter-eggs.com on Thu, Jan 24, 2002 at 12:28:23PM +0100
+X-Operating-System: Debian Gnu/Linux 2.4.14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Jes Sorensen <jes@wildopensource.com>
-   Date: Thu, 24 Jan 2002 09:15:42 -0500
-   
-   Considering a) it's just a few keystrokes to add a CC: line, b) it's the
-   driver authors who are the first to get the bug reports, then yes it
-   seems like a very reasonable request.
+On Thu, Jan 24, 2002 at 12:28:23PM +0100, Brugier Pascal wrote:
+> On Tue, Jan 22, 2002 at 12:11:52PM -0500, Mark Hahn wrote:
+> > > The server hangs when (it seems) we want to read or cp big 
+> > > file (140 Mo).
+> > 
+> > that's not a large file.
+> > 
+> > > Invalid operand 00000 (i'm not sur about thenumber of 0 because
+> > > someone else read for me and doesn't remember)
+> > 
+> > that's a bug or oops, and you must capture the whole thing,
+> > and run it through ksymoops for it to be meaningful.
+> > 
+> Hi 
+> 
+> Remember i'm not on the mailing list, pleased CC'ed answer to my 
+> message, thank you.
+> 
+> I've best informations:
+> 
+> I've 4 partitions on the server
+> /dev/ida/c0d0 swap
 
-This list actually is the first place the reports typically
-go to.
+I make a mistake: it is: /dev/ida/c0d0p1
 
-I'm a responsible maintainer, when I add a problem, I always go back
-and fix it or revert my changes.  I never disappear after making
-these kinds of changes.
+> /dev/ida/c0d1 /
+
+It is /dev/ida/c0d0p2
+
+> /dev/ida/c0d2 /tmp
+
+It is /dev/ida/c0d0p3
+
+> /dev/ida/c0d3 /var
+
+It is /dev/ida/c0d0p4
+
+> 
+> When  i want to edit a file: /var/log/mylogdir/mylogfile (140 Mb)
+> the server hangs whith this messages:
+> 
+> invalid operand
+> CPU:	0L
+> EIP:	0010:[<c0123154>] Not tainted
+> EFLAGS: 00010046
+> eax: 00000000	ebx: d99a9f60	ecx: 00000002	edx: c1665740
+> esi: 00000002	edi: c1665740	ebp: 00000001	esp: c01fbf18
+> ds: 0018	es: 0018	ss: 0018
+> Process swapper (pid: 0, stackpage=c01fb000)
+> Stack: d99a9f60 c012f92b 00000000 dfa01f48 c1821800 e082a885 d99a9f60
+> 00000001
+>        dfffa680 24000001 00000003 c01fbf94 00000002 c0107f8d 00000003
+>        c1821800
+>        c01fbf94 00000060 c0230960 00000003 c01fbf8c c01080f6 00000003
+>        c01fbf94
+> Call Trace: [<c012f92b>] [<e082a885>] [<c0107f8d>] [<c01080f6>]
+> [<c01053e9>] [<c0105360>] [<c0109ed8>] [<c0105360>] [<c0105360>]
+> [<c0105383>] [<c01053e9<] [<c0105000>] [<c0105027>]
+> 
+> Code: 0f 0b 8d 5a 24 8d 42 28 39 42 28 74 11 b9 01 00 00 00 ba 03
+> <0>Kernel panic: Aiee, killing interrupt handler!
+> In interrupt handler - not syncing
+> 
+> ###############
+> 
+> If i want to copy /var/log/mylogdir/mylogfile
+> 
+> Kernel saya:
+> 
+> invalid request on ida/c0d0 = (cmd=30 sect=837624 cnt=248 sg=1 ret=10)
+> 
+> ###############
+> 
+> After writing this message i will downgrad to a 2.4.13 which is patched
+> for ext3 and runnig whithout any problem on an other server whith the 
+> same hardware. The difference between the 2 servers is that the
+> 2.4.14's one is running on Raid 1 and the 2.4.13 on Raid 5.
+> 
+> I hope i give you enought informations .
+> 
+> Thanks a lot
+> 
+> Best regards
+> 
+> -- 
+> Pascal Brugier
+> ---------------------------------------------------------------
+> Easter-eggs                               Spécialiste GNU/Linux
+> 44-46 rue de l'Ouest  -  75014 Paris  -  France  -  Métro Gaité
+> Phone: +33 (0) 1 43 35 00 37    -    Fax: +33 (0) 1 43 35 00 76
+> mailto:pbrugier@easter-eggs.com  -   http://www.easter-eggs.com
+> ---------------------------------------------------------------
+> 709D77A2 -   ED24 4E29 E5B4 FDE7 56A4  352D F24E 7E68 709D 77A2
+> _______________________________________________________________
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+-- 
+Pascal Brugier
+---------------------------------------------------------------
+Easter-eggs                               Spécialiste GNU/Linux
+44-46 rue de l'Ouest  -  75014 Paris  -  France  -  Métro Gaité
+Phone: +33 (0) 1 43 35 00 37    -    Fax: +33 (0) 1 43 35 00 76
+mailto:pbrugier@easter-eggs.com  -   http://www.easter-eggs.com
+---------------------------------------------------------------
+709D77A2 -   ED24 4E29 E5B4 FDE7 56A4  352D F24E 7E68 709D 77A2
+_______________________________________________________________

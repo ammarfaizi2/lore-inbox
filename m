@@ -1,67 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271683AbRICMhE>; Mon, 3 Sep 2001 08:37:04 -0400
+	id <S271687AbRICMnF>; Mon, 3 Sep 2001 08:43:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271685AbRICMgz>; Mon, 3 Sep 2001 08:36:55 -0400
-Received: from d12lmsgate-3.de.ibm.com ([195.212.91.201]:2743 "EHLO
-	d12lmsgate-3.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S271683AbRICMgf>; Mon, 3 Sep 2001 08:36:35 -0400
-Importance: Normal
-Subject: Re: NFS deadlock explained (on S/390)
-To: "Manfred Spraul" <manfred@colorfullife.com>
-Cc: <linux-kernel@vger.kernel.org>
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OFED05871E.27F0F7FB-ONC1256ABC.0042AF59@de.ibm.com>
-From: "Ulrich Weigand" <Ulrich.Weigand@de.ibm.com>
-Date: Mon, 3 Sep 2001 14:35:43 +0200
-X-MIMETrack: Serialize by Router on D12ML028/12/M/IBM(Release 5.0.8 |June 18, 2001) at
- 03/09/2001 14:35:51
+	id <S271686AbRICMmz>; Mon, 3 Sep 2001 08:42:55 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:30219 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S271685AbRICMmi>;
+	Mon, 3 Sep 2001 08:42:38 -0400
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15251.31040.478167.658461@tango.paulus.ozlabs.org>
+Date: Mon, 3 Sep 2001 22:36:16 +1000 (EST)
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Cc: trini@kernel.crashing.org, benh@kernel.crashing.org
+Subject: [PATCH] [RESEND] remove rubbish from sl82c105.c
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Currently, drivers/ide/sl82c105.c has two sets of code in it: some
+good code done by Russell King, and some old rubbishy code.  Russell's
+code is inside #ifdef CONFIG_ARCH_NETWINDER.  I tried Russell's code
+on my Longtrail CHRP PPC box and it not only compiles and links ok
+(which the old code doesn't), it also works just fine.
 
-Manfred Spraul:
+So the patch below takes out the CONFIG_ARCH_NETWINDER and the old
+code, so we use Russell's code on all platforms.  I put this patch out
+on linux-kernel a couple of weeks ago and no one has complained since.
+The old code won't link at the moment anyway (it references
+ide_special_settings which isn't exported from ide-pci.c).
 
->I think in_irq() and in_interrupt() should check the cpu interrupt flag
->and return TRUE if the per-cpu interrupts are disabled.
->
->The current behavious is just weird:
->    spin_lock_bh();
->    in_interrupt(); --> true
->    spin_unlock_bh();
->    spin_lock_irq();
->    in_interrupt(); --> false
->    spin_unlock_irq();
+Linus, please apply this patch to your tree.
 
-I see.  Instead of checking the interrupt flag in in_irq(), spin_lock_irq
-could also simply increment the local_irq_count, just like spin_lock_bh
-increments the local_bh_count.
+Paul.
 
->> Whether this same situation can explain the deadlocks seen on
->> other platforms depends on whether the drivers used there exhibit
->> similar locking behaviours as the QDIO driver, of course.
->
->It should be possible to detect that automatically: if
->dev_kfree_skb_any() is called outside irq context with disabled per-cpu
->interrupts then it's probably due to a spin_lock_irq() and could
->deadlock.
-
-This would definitely solve the deadlock in our case.  However, I'm not
-sure this doesn't have some adverse effect on other code; e.g. there are
-quite a few routines that use if (!in_interrupt()) as a bug-check, and
-some might possibly be called from inside a spin_lock_irq ...
-
-
-
-Mit freundlichen Gruessen / Best Regards
-
-Ulrich Weigand
-
---
-  Dr. Ulrich Weigand
-  Linux for S/390 Design & Development
-  IBM Deutschland Entwicklung GmbH, Schoenaicher Str. 220, 71032 Boeblingen
-  Phone: +49-7031/16-3727   ---   Email: Ulrich.Weigand@de.ibm.com
+diff -urN linux/drivers/ide/sl82c105.c linuxppc_2_4/drivers/ide/sl82c105.c
+--- linux/drivers/ide/sl82c105.c	Wed Jul  4 14:33:21 2001
++++ linuxppc_2_4/drivers/ide/sl82c105.c	Sun Jul 22 17:58:43 2001
+@@ -28,7 +28,6 @@
+ 
+ extern char *ide_xfer_verbose (byte xfer_rate);
+ 
+-#ifdef CONFIG_ARCH_NETWINDER
+ /*
+  * Convert a PIO mode and cycle time to the required on/off
+  * times for the interface.  This has protection against run-away
+@@ -272,37 +271,4 @@
+ {
+ 	hwif->tuneproc = tune_sl82c105;
+ }
+-
+-#else
+-
+-unsigned int pci_init_sl82c105(struct pci_dev *dev, const char *msg)
+-{
+-	return ide_special_settings(dev, msg);
+-}
+-
+-void dma_init_sl82c105(ide_hwif_t *hwif, unsigned long dma_base)
+-{
+-	ide_setup_dma(hwif, dma_base, 8);
+-}
+-
+-void __init ide_init_sl82c105(ide_hwif_t *hwif)
+-{
+-	struct pci_dev *dev = hwif->pci_dev;
+-	unsigned short t16;
+-	unsigned int t32;
+-	pci_read_config_word(dev, PCI_COMMAND, &t16);
+-	printk("SL82C105 command word: %x\n",t16);
+-        t16 |= PCI_COMMAND_IO;
+-        pci_write_config_word(dev, PCI_COMMAND, t16);
+-	/* IDE timing */
+-	pci_read_config_dword(dev, 0x44, &t32);
+-	printk("IDE timing: %08x, resetting to PIO0 timing\n",t32);
+-	pci_write_config_dword(dev, 0x44, 0x03e4);
+-#ifndef CONFIG_MBX
+-	pci_read_config_dword(dev, 0x40, &t32);
+-	printk("IDE control/status register: %08x\n",t32);
+-	pci_write_config_dword(dev, 0x40, 0x10ff08a1);
+-#endif /* CONFIG_MBX */
+-}
+-#endif
 

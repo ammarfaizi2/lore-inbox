@@ -1,71 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131815AbRAOEQX>; Sun, 14 Jan 2001 23:16:23 -0500
+	id <S131248AbRAOE1g>; Sun, 14 Jan 2001 23:27:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131745AbRAOEQN>; Sun, 14 Jan 2001 23:16:13 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:42826 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S131815AbRAOEQF>; Sun, 14 Jan 2001 23:16:05 -0500
-Date: Mon, 15 Jan 2001 05:16:24 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: "Todd M. Roy" <troy@holstein.com>
-Cc: "Heinz J. Mauelshagen" <Heinz.Mauelshagen@t-online.de>,
-        linux-kernel@vger.kernel.org,
-        Heinz Mauelshagen <mauelshagen@sistina.com>, lvm-devel@sistina.com
-Subject: Re: [lvm-devel] Re: lvm 0.9.1-beta1 still segfaults vgexport
-Message-ID: <20010115051624.C2207@athlon.random>
-In-Reply-To: <3A45192F.8C149F93@softhome.net> <20001227205336.A10446@athlon.random> <200101081918.f08JIrT06681@pcx4168.holstein.com> <20010108234339.F27646@athlon.random> <3A5B3422.F63D7DDD@holstein.com> <20010109170424.A29468@athlon.random> <3A5BBD0E.9F7DA88B@holstein.com> <20010110024743.R29904@athlon.random> <3A61B841.81B1D0F5@holstein.com> <20010114173234.A942@athlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010114173234.A942@athlon.random>; from andrea@suse.de on Sun, Jan 14, 2001 at 05:32:34PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S131519AbRAOE10>; Sun, 14 Jan 2001 23:27:26 -0500
+Received: from asbestos.linuxcare.com.au ([203.17.0.30]:45558 "EHLO halfway")
+	by vger.kernel.org with ESMTP id <S131248AbRAOE1Q>;
+	Sun, 14 Jan 2001 23:27:16 -0500
+From: Rusty Russell <rusty@linuxcare.com.au>
+To: Christian Daudt <csd@redback.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0 compilation error 
+In-Reply-To: Your message of "Fri, 05 Jan 2001 10:58:07 -0800."
+             <3A56193F.F90BE100@redback.com> 
+Date: Mon, 15 Jan 2001 15:26:56 +1100
+Message-Id: <E14I1EQ-0001RD-00@halfway>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 14, 2001 at 05:32:34PM +0100, Andrea Arcangeli wrote:
-> BTW, I can easily reproduce. I was near to go into it yesterday but got
-> interrupted by other issues (like the merging of the 0.9.1-beta1 kernel driver
-> and extraction of the strictly necessary fixes from the 0.9.1-beta1 userspace
-> against 0.9).
+In message <3A56193F.F90BE100@redback.com> you write:
+> I have attached my .config file. I'm not currently subscribed to this
+> mailing list so pls email me directly with any questions.
 
-This looks the right fix for the vgexport segfault trivially reproducible
-on 0.9 and 0.9.1_beta1 lvmtools. Now that I see the details of the bug
-it was possible to reproduce it also with `vgdisplay -D xxxxxxx' where
-xxxxxxx is just a random name of a not existent VG.
+Hi Christian,
 
---- ./tools/lib/pv_read_all_pv_of_vg.c.~1~	Mon Jan 15 03:35:51 2001
-+++ ./tools/lib/pv_read_all_pv_of_vg.c	Mon Jan 15 04:57:00 2001
-@@ -137,6 +137,11 @@
-          while ( pv_this[np] != NULL) np++;
-       }
+	Thanks for the bug report.  Please try the enclosed patch,
+which is pending for 2.4.1.
+
+Cheers,
+Rusty.
+--
+http://linux.conf.au The Linux conference Australia needed.
+
+diff -urN -I \$.*\$ -X /tmp/kerndiff.ObwPZl --minimal linux-2.4.0-official/net/ipv4/netfilter/Config.in working-2.4.0/net/ipv4/netfilter/Config.in
+--- linux-2.4.0-official/net/ipv4/netfilter/Config.in	Tue Mar 28 04:35:56 2000
++++ working-2.4.0/net/ipv4/netfilter/Config.in	Sun Jan  7 16:48:59 2001
+@@ -37,11 +37,20 @@
+   fi
  
-+      if ( np == 0) {
-+         ret = -LVM_EPV_READ_ALL_PV_OF_VG_NP;
-+         goto pv_read_all_pv_of_vg_end;
-+      }
-+
-       /* avoid multiple access pathes */
-       for ( p = 0; pv_this[p] != NULL; p++) {
-             /* avoid multiple access pathes for now (2.4.0-test8)
-
-I also got a reminder from Marco d'Itri to integrate this hack for
-some more non-x86 platform:
-
---- ./tools/lib/pv_get_size.c.~1~	Mon Jan 15 03:35:51 2001
-+++ ./tools/lib/pv_get_size.c	Mon Jan 15 04:04:03 2001
-@@ -58,7 +58,7 @@
- #define read_le(x) (x)
- #endif
+   if [ "$CONFIG_IP_NF_CONNTRACK" != "n" ]; then
+-    dep_tristate '  Full NAT' CONFIG_IP_NF_NAT $CONFIG_IP_NF_IPTABLES 
++    dep_tristate '  Full NAT' CONFIG_IP_NF_NAT $CONFIG_IP_NF_IPTABLES $CONFIG_IP_NF_CONNTRACK
+     if [ "$CONFIG_IP_NF_NAT" != "n" ]; then
+       define_bool CONFIG_IP_NF_NAT_NEEDED y
+       dep_tristate '    MASQUERADE target support' CONFIG_IP_NF_TARGET_MASQUERADE $CONFIG_IP_NF_NAT
+       dep_tristate '    REDIRECT target support' CONFIG_IP_NF_TARGET_REDIRECT $CONFIG_IP_NF_NAT
++      # If they want FTP, set to $CONFIG_IP_NF_NAT (m or y), 
++      # or $CONFIG_IP_NF_FTP (m or y), whichever is weaker.  Argh.
++      if [ "$CONFIG_IP_NF_FTP" = "m" ]; then
++	define_tristate CONFIG_IP_NF_NAT_FTP m
++      else
++	if [ "$CONFIG_IP_NF_FTP" = "y" ]; then
++	  define_tristate CONFIG_IP_NF_NAT_FTP $CONFIG_IP_NF_NAT
++	fi
++      fi
+     fi
+   fi
  
--#if !defined(__alpha__) && !defined(__s390__)
-+#ifdef __i386__
- int pv_get_size ( char *dev_name, struct partition *part_ptr) {
-    int i = 0;
-    int dir_cache_count = 0;
-
-Andrea
+diff -urN -I \$.*\$ -X /tmp/kerndiff.ObwPZl --minimal linux-2.4.0-official/net/ipv4/netfilter/Makefile working-2.4.0/net/ipv4/netfilter/Makefile
+--- linux-2.4.0-official/net/ipv4/netfilter/Makefile	Sat Dec 30 09:07:24 2000
++++ working-2.4.0/net/ipv4/netfilter/Makefile	Sat Jan  6 13:36:25 2001
+@@ -35,7 +35,7 @@
+ obj-$(CONFIG_IP_NF_FTP) += ip_conntrack_ftp.o
+ 
+ # NAT helpers 
+-obj-$(CONFIG_IP_NF_FTP) += ip_nat_ftp.o
++obj-$(CONFIG_IP_NF_NAT_FTP) += ip_nat_ftp.o
+ 
+ # generic IP tables 
+ obj-$(CONFIG_IP_NF_IPTABLES) += ip_tables.o
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

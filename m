@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263487AbTJVP5h (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Oct 2003 11:57:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263539AbTJVP5g
+	id S263700AbTJVQFz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Oct 2003 12:05:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263704AbTJVQFy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Oct 2003 11:57:36 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:5 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S263487AbTJVP5f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Oct 2003 11:57:35 -0400
-Subject: Fix x86 subarch breakage by the patch to allow more APIC irq sources
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: jamesclv@us.ibm.com, Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 22 Oct 2003 10:56:31 -0500
-Message-Id: <1066838206.1781.66.camel@mulgrave>
+	Wed, 22 Oct 2003 12:05:54 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:60033 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263700AbTJVQFv (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Oct 2003 12:05:51 -0400
+Message-Id: <200310221605.h9MG5k37007196@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: andersen@codepoet.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: srfs - a new file system. 
+In-Reply-To: Your message of "Tue, 21 Oct 2003 22:57:09 MDT."
+             <20031022045708.GA5636@codepoet.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.GSO.4.44.0310070757400.4688-100000@sundance.cse.ucsc.edu> <Pine.LNX.4.44_heb2.09.0310201031150.20172-100000@nexus.cs.bgu.ac.il>
+            <20031022045708.GA5636@codepoet.org>
 Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_795287540P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 22 Oct 2003 12:05:46 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The problem with this patch was that it defined a new quantity
-NR_IRQ_VECTORS.  However, the definition of NR_IRQ_VECTORS is only in
-mach-default/irq_vectors.h.  Every subarch which defines it's own
-irq_vectors.h (that's voyager, visws and pc9800) now won't compile.
+--==_Exmh_795287540P
+Content-Type: text/plain; charset=us-ascii
 
-I think the best fix is the attached (although you could clean up
-mach-default/irq_vectors.h with this too).
+On Tue, 21 Oct 2003 22:57:09 MDT, Erik Andersen said:
 
-James
+> Suppose I install srfs on both my laptop and my server.  I then
+> move the CVS repository for my pet project onto the new srfs
+> filesystem and I take off for the weekend with my laptop.   Over
+> the weekend I commit several changes to file X.  Over the weekend
+> my friend also commits several changes to file X.
+> 
+> When I get home and plug in my laptop, presumably the caching
+> daemon will try to stabalize the system by deciding which version
+> of file X was changed last and replicating that latest version.  
 
-===== include/asm-i386/irq.h 1.9 vs edited =====
---- 1.9/include/asm-i386/irq.h	Wed Apr 23 02:49:34 2003
-+++ edited/include/asm-i386/irq.h	Wed Oct 22 10:49:21 2003
-@@ -15,6 +15,10 @@
- /* include comes from machine specific directory */
- #include "irq_vectors.h"
- 
-+#ifndef NR_IRQ_VECTORS
-+#define NR_IRQ_VECTORS NR_IRQS
-+#endif
-+
- static __inline__ int irq_canonicalize(int irq)
- {
- 	return ((irq == 2) ? 9 : irq);
+Hey Larry - potential BitKeeper customer here. :)
 
+--==_Exmh_795287540P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/lqrZcC3lWbTT17ARAvqXAJwJzk5E/d0VGaugg68I6TBwVvxK1wCgx21C
+JXsvo3vNBcy8GDkNmL2gqmk=
+=R3ox
+-----END PGP SIGNATURE-----
+
+--==_Exmh_795287540P--

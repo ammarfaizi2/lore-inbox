@@ -1,56 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285424AbSBUW7n>; Thu, 21 Feb 2002 17:59:43 -0500
+	id <S287134AbSBUXDF>; Thu, 21 Feb 2002 18:03:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286895AbSBUW7e>; Thu, 21 Feb 2002 17:59:34 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:10449 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S285424AbSBUW7M>; Thu, 21 Feb 2002 17:59:12 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: "Lever, Charles" <Charles.Lever@netapp.com>
-Date: Fri, 22 Feb 2002 09:58:50 +1100 (EST)
+	id <S287388AbSBUXCz>; Thu, 21 Feb 2002 18:02:55 -0500
+Received: from berzerk.gpcc.itd.umich.edu ([141.211.2.162]:45530 "EHLO
+	berzerk.gpcc.itd.umich.edu") by vger.kernel.org with ESMTP
+	id <S287134AbSBUXCs>; Thu, 21 Feb 2002 18:02:48 -0500
+Date: Thu, 21 Feb 2002 18:02:47 -0500 (EST)
+From: "Kendrick M. Smith" <kmsmith@umich.edu>
+X-X-Sender: <kmsmith@millipede.gpcc.itd.umich.edu>
+To: "Brian J. Watson" <Brian.J.Watson@compaq.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4.18-pre9, trylock for read/write semaphores
+In-Reply-To: <3C756C7C.29A7C2BD@compaq.com>
+Message-ID: <Pine.SOL.4.33.0202211759410.13345-100000@millipede.gpcc.itd.umich.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15477.31658.527423.667947@notabene.cse.unsw.edu.au>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, phil@off.net,
-        "Peter J. Braam" <braam@clusterfs.com>
-Subject: RE: tmpfs, NFS, file handles
-In-Reply-To: message from Lever, Charles on Thursday February 21
-In-Reply-To: <6440EA1A6AA1D5118C6900902745938E50CD87@black.eng.netapp.com>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday February 21, Charles.Lever@netapp.com wrote:
-> > That means you are only hashing inodes exported by NFS, and you have
-> > a pretty good guarantee of uniqueness (providing time doesn't go
-> > backwards).
-> 
-> this may be obvious... apologies.
-> 
-> don't use the TOD directly -- it can go backwards if ntpd or an admin
-> sets it back.  better to use a monotonically increasing number that
-> you completely control yourself.
-> 
-> also, if your timer resolution isn't good enough, a window opens 
-> where two generated "uniquifiers" can be the same for all intents
-> and purposes.
 
-Certainly timeofday by itself isn't enough for the various reasons you
-mention.  But it does help to avoid accepting filehandles from before
-the last reboot.
-In my proposal there there were three numbers:
-   An address
-   A sequentially assigned inode number
-   A time of day.
+On Thu, 21 Feb 2002, Brian J. Watson wrote:
 
-Any two of these is probably adequate most of the time, but could
-occasionally result in equal filehandles for different files.  Adding
-a third makes collision virtually impossible.
+> "Kendrick M. Smith" wrote:
+> > I just returned from vacation and saw this thread.  I also need trylock()
+> > routines for read-write semaphores for NFS version 4, but you're way ahead
+> > of me: I hadn't even started to implement them yet, and have been working
+> > around the deficiency.  So I would really like to see some variant of this
+> > patch go into the 2.5.x series eventually.  Anything I can do to help out?
+>
+>
+> Can you test it on 2.5? It applies cleanly and builds with 2.5.3, but I
+> was having trouble booting the 2.5 kernel on RedHat 7.2. Not needing to
+> work on 2.5 just yet, I gave up rather quickly and just tested on 2.4.
+>
+> Anyway, I can send you my test patch and a brief description of what I
+> looked for to make sure it was working on 2.4.
 
-NeilBrown
+I have the patch from your original post and will give it a try with
+2.5.  In that post, you also mentioned having some sort of testsuite
+which would place the semaphore under heavy contention, while also
+testing basic semantics of the semaphore.  If you send this along, I
+will give it a try as well...
+
+Cheers,
+ Kendrick
+
+>
+> --
+> Brian Watson                | "Now I don't know, but I been told it's
+> Linux Kernel Developer      |  hard to run with the weight of gold,
+> Open SSI Clustering Project |  Other hand I heard it said, it's
+> Compaq Computer Corp        |  just as hard with the weight of lead."
+> Los Angeles, CA             |     -Robert Hunter, 1970
+>
+> mailto:Brian.J.Watson@compaq.com
+> http://opensource.compaq.com/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+

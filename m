@@ -1,128 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129507AbQKWLqT>; Thu, 23 Nov 2000 06:46:19 -0500
+        id <S131671AbQKWL7l>; Thu, 23 Nov 2000 06:59:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129514AbQKWLqB>; Thu, 23 Nov 2000 06:46:01 -0500
-Received: from 4dyn163.delft.casema.net ([195.96.105.163]:49420 "EHLO
-        abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-        id <S129507AbQKWLpy>; Thu, 23 Nov 2000 06:45:54 -0500
-Message-Id: <200011231115.MAA10903@cave.bitwizard.nl>
-Subject: Re: [NEW DRIVER] firestream
-In-Reply-To: <20001122092356.B53983@sfgoth.com> from Mitchell Blank Jr at "Nov
- 22, 2000 09:23:56 am"
+        id <S131699AbQKWL7b>; Thu, 23 Nov 2000 06:59:31 -0500
+Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:59918 "EHLO
+        almesberger.net") by vger.kernel.org with ESMTP id <S131671AbQKWL7L>;
+        Thu, 23 Nov 2000 06:59:11 -0500
+Date: Thu, 23 Nov 2000 12:28:37 +0100
+From: Werner Almesberger <Werner.Almesberger@epfl.ch>
 To: Mitchell Blank Jr <mitch@sfgoth.com>
-Date: Thu, 23 Nov 2000 12:15:34 +0100 (MET)
-CC: Patrick van de Lageweg <patrick@bitwizard.nl>,
+Cc: Patrick van de Lageweg <patrick@bitwizard.nl>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         Rogier Wolff <wolff@bitwizard.nl>
-From: R.E.Wolff@bitwizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Subject: Re: [NEW DRIVER] firestream
+Message-ID: <20001123122837.E599@almesberger.net>
+In-Reply-To: <Pine.LNX.4.21.0011221031340.995-100000@panoramix.bitwizard.nl> <20001122092356.B53983@sfgoth.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20001122092356.B53983@sfgoth.com>; from mitch@sfgoth.com on Wed, Nov 22, 2000 at 09:23:56AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Mitchell Blank Jr wrote:
-> > +MODULE_PARM(fs_debug, "i");
-> 
-> There's no reason to wrap these "MODULE_PARM"s inside an "#ifdef MODULE".
-                 ^^^^ anymore in 2.4 
+>   * I don't like header files that define the registers of the chip - since
+>     the header file is only included in the driver's .c
 
-OK. 
- 
-> > +#define MIN(a,b) (((a)<(b))?(a):(b))
-> 
-> You don't seem to ever use this definition.
+For a non-hypothetical case why it makes sense to have such things in
+their own header file: if you dig out some older versions of the ATM
+distribution, you'll find the programs called endump.c and zndump.c in
+atm/debug. They run in user space and dump the card status, decoding
+the "interesting" bits. And, of course, they include the register
+headers.
 
-Hmmmm. Used to though.. ;-)
+Since they're strictly for development, it's okay that they include
+things from deep down in /usr/src/linux (i.e. no need to move the
+headers to linux/include/*), but it's important that they can share
+the same definitions (to avoid version conflicts, etc.).
 
-There are spots where the requested bit rate needs to be capped at the
-devices spec. That's where this may come back.
+Besides, using a specific header file for the registers lowers the
+risk that definitions get scattered all over the driver, so it makes
+it easier to look for copy-from-manual bugs.
 
-> > +#else /* DEBUG */
-> > +static void my_hd (void *addr, int len){}
-> > +#endif /* DEBUG */
-> 
-> You might as well make this a null #define in this case.
-
-There was a reason for this one day, long, long ago. I don't remember. 
-
-
-> > +static int fs_send (struct atm_vcc *atm_vcc, struct sk_buff *skb)
-> [...]
-> > +	vcc->last_skb = skb;
-> 
-> I'm really leary of this... it looks to me that if we already had been in
-> the process of sending an skb then sends after that will lose that skb
-> (and leak the associated memory).  Please reference the recent thread on
-> the linux-atm mailing list about how to deal with TX backlog.  also:
-
-The last_skb is not the "one to be freed". The skb's are freed when the
-chips reports them back as "transmitted". 
-
-We have to trust the chip to actually work. If it doesn't we're in
-deep shit anyway. It is really really hard to make a mechanism where
-we detect that hte chip is taking way too long on transmitting a
-packet, so that we could time the packet out and reclaim the memory. 
-
-So I trust the chip to actually report all packets back to us
-eventually. If the chip crashes, you lose some memory. Sorry.
-
-I contributed to that thread. I submitted my solution. At the time
-this was the only solution. Some others have submitted less reliable
-ways of doing the same. I prefer mine. 
-
-So, my philosophy is: We remember the last skb we submitted, and once
-the chip reports that skb back to us, we're allowed to deallocate the
-vcc.
-
-> > +	td = kmalloc (sizeof (struct FS_BPENTRY), GFP_ATOMIC);
-> > +	fs_dprintk (FS_DEBUG_ALLOC, "Alloc transd: %p(%d)\n", td, sizeof (struct FS_BPENTRY));
-> > +	if (!td) {
-> > +		/* Oops out of mem */
-> > +		return -ENOMEM;
-> > +	}
-> 
-> What frees the skb in this case?
-
-I expect the caller to do this. Or to retry the skb. 
-
-I more or less copied this from "ambassador.c". It too just returns
-the errorcode if sending a packet fails for some reason.
-
-> > +{
-> > +	void  *t;
-> > +
-> > +	if (alignment <= 0x10) {
-> > +		t = kmalloc (size, flags);
-> > +		if ((unsigned int)t & (alignment-1)) {
-> > +			printk ("Kmalloc doesn't align things correctly! %p\n", t);
-> > +			kfree (t);
-> > +			return aligned_kmalloc (size, flags, alignment * 4);
-> 
-> Uh, ok....  I'd prefer if you just died here - there shouldn't be any way
-> that kmalloc is going to return something that isn't 16-byte aligned.  It's
-> wise to double check this when it's important but I wouldn't put too much
-> work into fixing this.  And calling ourselves recursively doesn't make
-> much sense to me - especially since it's likely to bomb out because of:
-
-> > +	printk (KERN_ERR "Request for > 0x10 alignment not yet implemented (hard!)\n");
-
-Yes, I thought I was going to implement it, but it turned out to be
-harder than expected. (Actually it'd have been lots easier if kfree
-would allow you to return a pointer to somewhere inside the area
-allocated, instead of requiring the pointer to point to the
-beginning. This was a side-effect of one of the faster kmallocs that
-I've written. However this one never made it into the kernel....)
-
-				Roger. 
+- Werner
 
 -- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+  _________________________________________________________________________
+ / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
+/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,234 +1,148 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130196AbRAIB5K>; Mon, 8 Jan 2001 20:57:10 -0500
+	id <S129267AbRAIB6B>; Mon, 8 Jan 2001 20:58:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130559AbRAIB5G>; Mon, 8 Jan 2001 20:57:06 -0500
-Received: from cm-net-C8B026A1.poa.terra.com.br ([200.176.38.161]:53771 "EHLO
-	dump") by vger.kernel.org with ESMTP id <S130196AbRAIB4z>;
-	Mon, 8 Jan 2001 20:56:55 -0500
-Date: Mon, 8 Jan 2001 23:50:21 +0000 (/etc/localtime)
-From: aris@cathedrallabs.org
-Reply-To: aris@cathedrallabs.org
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH][2.2] eepro 0.12d
-Message-ID: <Pine.LNX.4.21.0101082303290.195-200000@matthew.cathedral.com>
+	id <S130559AbRAIB5n>; Mon, 8 Jan 2001 20:57:43 -0500
+Received: from m11.boston.juno.com ([63.211.172.74]:62083 "EHLO
+	m11.boston.juno.com") by vger.kernel.org with ESMTP
+	id <S129267AbRAIB53>; Mon, 8 Jan 2001 20:57:29 -0500
+To: alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org
+Date: Mon, 8 Jan 2001 20:50:32 -0500
+Subject: [PATCH] 2.4.0-ac4 : Removal of drivers/misc/misc.o
+Message-ID: <20010108.205033.-271095.3.fdavis112@juno.com>
+X-Mailer: Juno 5.0.15
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="852975170-1491362067-978996025=:195"
-Content-ID: <Pine.LNX.4.21.0101082323570.195@matthew.cathedral.com>
+Content-Type: multipart/alternative; boundary=--__JNP_000_1df8.26c9.418f
+X-Juno-Line-Breaks: 9-6,7,10-27,29-34,35-32767
+From: Frank Davis <fdavis112@juno.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+This message is in MIME format.  Since your mail reader does not understand
+this format, some or all of this message may not be legible.
 
---852975170-1491362067-978996025=:195
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.21.0101082323571.195@matthew.cathedral.com>
+----__JNP_000_1df8.26c9.418f
+Content-Type: text/plain; charset=us-ascii  
+Content-Transfer-Encoding: 7bit
 
-ok,
-	as i don't have documentation this is the right thing to be
-done: restore the default path for old cards and keep the new one to these
-blue cards. i hope this finally fixes all problems that my changes (by
-guesses and lot of dosemu) introduced on a stable driver.
-if it doesn't work for you please email me. i won't rest until i restore
-the stability of the old boards and make the blue one supported.
+Hello,
+     The following patch removes drivers/misc/misc.o from the kernel
+build. It appears that drivers/misc isn't used for anything, and should
+be probably be removed.
+Regards,
+Frank
 
-P.S.: (again) if you have any documentation about these boards please send
-to me. it will make my work easy and more decent than guesses by sniffing
-io.
------------------------------------------------------------
-aristeu sergio rozanski filho | www.cathedrallabs.org/~aris
-aris@cathedrallabs.org        | aris@conectiva.com.br     
------------------------------------------------------------
+--- Makefile.old      Sun Jan  7 23:59:37 2001
++++ Makefile      Mon Jan  8 00:24:46 2001
+@@ -121,7 +121,6 @@
+ NETWORKS      =net/network.o
+ DRIVERS          =drivers/block/block.o \
+             drivers/char/char.o \
+-           drivers/misc/misc.o \
+             drivers/net/net.o \
+             drivers/media/media.o
+ LIBS       =$(TOPDIR)/lib/lib.a
 
---852975170-1491362067-978996025=:195
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="eepro-2.2-0.12d.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.21.0101082320250.195@matthew.cathedral.com>
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME="eepro-2.2-0.12d.patch"
+--- drivers/Makefile.old      Sun Jan  7 23:59:48 2001
++++ drivers/Makefile  Mon Jan  8 20:25:57 2001
+@@ -9,7 +9,7 @@
+ mod-subdirs :=    dio mtd sbus video macintosh usb input telephony sgi
+message/i2o message/fusion ide \
+            scsi md ieee1394 pnp isdn atm fc4 net/hamradio i2c acpi
+ 
+-subdir-y :=      block char net parport sound misc media cdrom
++subdir-y :=      block char net parport sound media cdrom
+ subdir-m :=      $(subdir-y)
+ 
+----__JNP_000_1df8.26c9.418f
+Content-Type: text/html; charset=us-ascii  
+Content-Transfer-Encoding: quoted-printable
 
-LS0tIGxpbnV4L2RyaXZlcnMvbmV0L2VlcHJvLmMub2xkCVdlZCBEZWMgMjcg
-MjE6NDQ6MjkgMjAwMA0KKysrIGxpbnV4L2RyaXZlcnMvbmV0L2VlcHJvLmMJ
-CVdlZCBEZWMgMjcgMjI6MTc6NTQgMjAwMA0KQEAgLTIzLDYgKzIzLDggQEAN
-CiAJVGhpcyBpcyBhIGNvbXBhdGliaWxpdHkgaGFyZHdhcmUgcHJvYmxlbS4N
-CiANCiAJVmVyc2lvbnM6DQorCTAuMTJkCXRvdHRhbHkgaXNvbGF0ZWQgb2xk
-IGNvZGUgdG8gbmV3IGNvZGUgKGJsdWUgY2FyZHMpLg0KKwkJKGFyaXMsIDEy
-LzI3LzIwMDApDQogCTAuMTJjCWZpeGVkIG90aGVyIG11bHRpcGxlIGNhcmRz
-IGJ1ZyBhbmQgb3RoZXIgY2xlYW51cHMNCiAJCShhcmlzLCAwOC8yMS8yMDAw
-KQ0KIAkwLjEyYglhZGRlZCByZXNldCB3aGVuIHRoZSB0eCBpbnRlcnJ1cHQg
-aXMgY2FsbGVkIGFuZCBUWCBpc24ndCBkb25lDQpAQCAtMTAzLDcgKzEwNSw3
-IEBADQogKi8NCiANCiBzdGF0aWMgY29uc3QgY2hhciAqdmVyc2lvbiA9DQot
-CSJlZXByby5jOiB2MC4xMmIgMDYvMjAvMjAwMCBhcmlzQGNvbmVjdGl2YS5j
-b20uYnJcbiI7DQorCSJlZXByby5jOiB2MC4xMmQgMTIvMjcvMjAwMCBhcmlz
-QGNvbmVjdGl2YS5jb20uYnJcbiI7DQogDQogI2luY2x1ZGUgPGxpbnV4L21v
-ZHVsZS5oPg0KIA0KQEAgLTE0OSw0NyArMTUxLDI4IEBADQogI2luY2x1ZGUg
-PGxpbnV4L2V0aGVyZGV2aWNlLmg+DQogI2luY2x1ZGUgPGxpbnV4L3NrYnVm
-Zi5oPg0KIA0KLQ0KICNpbmNsdWRlIDxsaW51eC92ZXJzaW9uLmg+DQogDQot
-LyogRm9yIGxpbnV4IDIuMS54eCAqLw0KLSNpZiBkZWZpbmVkIChMSU5VWF9W
-RVJTSU9OX0NPREUpICYmIExJTlVYX1ZFUlNJT05fQ09ERSA+IDB4MjAxNTUN
-Ci0NCiAjaW5jbHVkZSA8YXNtL3NwaW5sb2NrLmg+DQogI2luY2x1ZGUgPGxp
-bnV4L2luaXQuaD4NCiAjaW5jbHVkZSA8bGludXgvZGVsYXkuaD4NCiANCi0j
-ZGVmaW5lIGNvbXBhdF9kZXZfa2ZyZWVfc2tiKCBza2IsIG1vZGUgKSBkZXZf
-a2ZyZWVfc2tiKCAoc2tiKSApDQogLyogSSBoYWQgcmVwb3J0cyBvZiBsb29v
-bmcgZGVsYXlzIHdpdGggU0xPV19ET1dOIGRlZmluZWQgYXMgdWRlbGF5KDIp
-ICovDQogI2RlZmluZSBTTE9XX0RPV04gaW5iKDB4ODApDQotLyogdWRlbGF5
-KDIpICovDQotI2RlZmluZSBjb21wYXRfaW5pdF9mdW5jKFgpICBfX2luaXRm
-dW5jKFgpDQotI2RlZmluZSBjb21wYXRfaW5pdF9kYXRhICAgICBfX2luaXRk
-YXRhDQotDQotI2Vsc2UgDQotLyogZm9yIDIueCAqLw0KLQ0KLSNkZWZpbmUg
-Y29tcGF0X2Rldl9rZnJlZV9za2IoIHNrYiwgbW9kZSApIGRldl9rZnJlZV9z
-a2IoIChza2IpLCAobW9kZSkgKQ0KLSNkZWZpbmUgdGVzdF9hbmRfc2V0X2Jp
-dChhLGIpIHNldF9iaXQoKGEpLChiKSkNCi0jZGVmaW5lIFNMT1dfRE9XTiBT
-TE9XX0RPV05fSU8NCi0jZGVmaW5lIGNvbXBhdF9pbml0X2Z1bmMoWCkgWA0K
-LSNkZWZpbmUgY29tcGF0X2luaXRfZGF0YQ0KLQ0KLSNlbmRpZg0KIA0KLQ0K
-LS8qIEZpcnN0LCBhIGZldyBkZWZpbml0aW9ucyB0aGF0IHRoZSBicmF2ZSBt
-aWdodCBjaGFuZ2UuICovDQotLyogQSB6ZXJvLXRlcm1pbmF0ZWQgbGlzdCBv
-ZiBJL08gYWRkcmVzc2VzIHRvIGJlIHByb2JlZC4gKi8NCi1zdGF0aWMgdW5z
-aWduZWQgaW50IGVlcHJvX3BvcnRsaXN0W10gY29tcGF0X2luaXRfZGF0YSA9
-DQorLyogRmlyc3QsIGEgZmV3IGRlZmluaXRpb25zIHRoYXQgdGhlIGJyYXZl
-IG1pZ2h0IGNoYW5nZS4NCisgKiBBIHplcm8tdGVybWluYXRlZCBsaXN0IG9m
-IEkvTyBhZGRyZXNzZXMgdG8gYmUgcHJvYmVkLg0KKyAqIG5vdGU6IDB4MzAw
-IGlzIGRlZmF1bHQsIHRoZSA1OTVGWCBzdXBwb3J0cyBBTEwgSU8gUG9ydHMg
-DQorICogZnJvbSAweDAwMCB0byAweDNGMCwgc29tZSBvZiB3aGljaCBhcmUg
-cmVzZXJ2ZWQgaW4gUENzDQorICovDQorc3RhdGljIHVuc2lnbmVkIGVlcHJv
-X3BvcnRsaXN0W10gX19pbml0ZGF0YSA9DQogCXsgMHgzMDAsIDB4MjEwLCAw
-eDI0MCwgMHgyODAsIDB4MkMwLCAweDIwMCwgMHgzMjAsIDB4MzQwLCAweDM2
-MCwgMH07DQotLyogbm90ZTogMHgzMDAgaXMgZGVmYXVsdCwgdGhlIDU5NUZY
-IHN1cHBvcnRzIEFMTCBJTyBQb3J0cyANCi0gIGZyb20gMHgwMDAgdG8gMHgz
-RjAsIHNvbWUgb2Ygd2hpY2ggYXJlIHJlc2VydmVkIGluIFBDcyAqLw0KIA0K
-IC8qIHVzZSAwIGZvciBwcm9kdWN0aW9uLCAxIGZvciB2ZXJpZmljYXRpb24s
-ID4yIGZvciBkZWJ1ZyAqLw0KICNpZm5kZWYgTkVUX0RFQlVHDQogI2RlZmlu
-ZSBORVRfREVCVUcgMA0KICNlbmRpZg0KLXN0YXRpYyB1bnNpZ25lZCBpbnQg
-bmV0X2RlYnVnID0gTkVUX0RFQlVHOw0KK3N0YXRpYyB1bnNpZ25lZCBuZXRf
-ZGVidWcgPSBORVRfREVCVUc7DQogDQogLyogVGhlIG51bWJlciBvZiBsb3cg
-SS9PIHBvcnRzIHVzZWQgYnkgdGhlIGV0aGVyY2FyZC4gKi8NCiAjZGVmaW5l
-IEVFUFJPX0lPX0VYVEVOVAkxNg0KQEAgLTIwNCwxNiArMTg3LDE3IEBADQog
-c3RydWN0IGVlcHJvX2xvY2FsIHsNCiAJc3RydWN0IGVuZXRfc3RhdGlzdGlj
-cyBzdGF0czsNCiAJdW5zaWduZWQgcnhfc3RhcnQ7DQotCXVuc2lnbmVkIHR4
-X3N0YXJ0OyAvKiBzdGFydCBvZiB0aGUgdHJhbnNtaXQgY2hhaW4gKi8NCi0J
-aW50IHR4X2xhc3Q7ICAvKiBwb2ludGVyIHRvIGxhc3QgcGFja2V0IGluIHRo
-ZSB0cmFuc21pdCBjaGFpbiAqLw0KLQl1bnNpZ25lZCB0eF9lbmQ7ICAgLyog
-ZW5kIG9mIHRoZSB0cmFuc21pdCBjaGFpbiAocGx1cyAxKSAqLw0KLQlpbnQg
-ZWVwcm87CS8qIDEgZm9yIHRoZSBFdGhlckV4cHJlc3MgUHJvLzEwLA0KLQkJ
-CSAgIDIgZm9yIHRoZSBFdGhlckV4cHJlc3MgUHJvLzEwKywNCi0JCQkgICAw
-IGZvciBvdGhlciA4MjU5NS1iYXNlZCBsYW4gY2FyZHMuICovDQotCWludCB2
-ZXJzaW9uOwkvKiBhIGZsYWcgdG8gaW5kaWNhdGUgaWYgdGhpcyBpcyBhIFRY
-IG9yIEZYDQotCQkJCSAgIHZlcnNpb24gb2YgdGhlIDgyNTk1IGNoaXAuICov
-DQorCXVuc2lnbmVkIHR4X3N0YXJ0OyAJLyogc3RhcnQgb2YgdGhlIHRyYW5z
-bWl0IGNoYWluICovDQorCWludCB0eF9sYXN0OwkJLyogcG9pbnRlciB0byBs
-YXN0IHBhY2tldCBpbiB0aGUgdHJhbnNtaXQgY2hhaW4gKi8NCisJdW5zaWdu
-ZWQgdHhfZW5kOwkvKiBlbmQgb2YgdGhlIHRyYW5zbWl0IGNoYWluIChwbHVz
-IDEpICovDQorCWludCBlZXBybzsJCS8qIDEgZm9yIHRoZSBFdGhlckV4cHJl
-c3MgUHJvLzEwLA0KKwkJCQkgKiAyIGZvciB0aGUgRXRoZXJFeHByZXNzIFBy
-by8xMCssDQorCQkJCSAqIDMgZm9yIHRoZSBibHVlIGNhcmRzLA0KKwkJCQkg
-KiAwIGZvciBvdGhlciA4MjU5NS1iYXNlZCBsYW4gY2FyZHMuICovDQorCWlu
-dCB2ZXJzaW9uOwkJLyogYSBmbGFnIHRvIGluZGljYXRlIGlmIHRoaXMgaXMg
-YSBUWCBvciBGWA0KKwkJCQkgKiB2ZXJzaW9uIG9mIHRoZSA4MjU5NSBjaGlw
-LiAqLw0KIAlpbnQgc3RlcHBpbmc7DQotCXNwaW5sb2NrX3QgbG9jazsgLyog
-U2VyaWFsaXppbmcgbG9jayAgKi8gDQorCXNwaW5sb2NrX3QgbG9jazsJLyog
-U2VyaWFsaXppbmcgbG9jayAgKi8gDQogCXVuc2lnbmVkIHJjdl9yYW07DQog
-CXVuc2lnbmVkIHJjdl9zdGFydDsNCiAJdW5zaWduZWQgeG10X2JhcjsNCkBA
-IC0zMjIsNyArMzA2LDcgQEANCiBzdGF0aWMgdm9pZCAgICAgc2V0X211bHRp
-Y2FzdF9saXN0KHN0cnVjdCBkZXZpY2UgKmRldik7DQogDQogc3RhdGljIGlu
-dCByZWFkX2VlcHJvbShpbnQgaW9hZGRyLCBpbnQgbG9jYXRpb24sIHN0cnVj
-dCBkZXZpY2UgKmRldik7DQotc3RhdGljIHZvaWQgaGFyZHdhcmVfc2VuZF9w
-YWNrZXQoc3RydWN0IGRldmljZSAqZGV2LCB2b2lkICpidWYsIHNob3J0IGxl
-bmd0aCk7DQorc3RhdGljIGludCAJaGFyZHdhcmVfc2VuZF9wYWNrZXQoc3Ry
-dWN0IGRldmljZSAqZGV2LCB2b2lkICpidWYsIHNob3J0IGxlbmd0aCk7DQog
-c3RhdGljIGludAllZXByb19ncmFiX2lycShzdHJ1Y3QgZGV2aWNlICpkZXYp
-Ow0KIA0KIC8qDQpAQCAtNTE4LDggKzUwMiwxMCBAQA0KIC8qIHNldCBkaWFn
-bm9zZSBmbGFnICovDQogI2RlZmluZSBlZXByb19kaWFnKGlvYWRkcikgb3V0
-YihESUFHTk9TRV9DTUQsIGlvYWRkcikNCiANCisjaWZkZWYgQU5TV0VSX1RY
-X0FORF9SWA0KIC8qIGFjayBmb3IgcngvdHggaW50ICovDQogI2RlZmluZSBl
-ZXByb19hY2tfcnh0eChpb2FkZHIpIG91dGIgKFJYX0lOVCB8IFRYX0lOVCwg
-aW9hZGRyICsgU1RBVFVTX1JFRykNCisjZW5kaWYNCiANCiAvKiBhY2sgZm9y
-IHJ4IGludCAqLw0KICNkZWZpbmUgZWVwcm9fYWNrX3J4KGlvYWRkcikgb3V0
-YiAoUlhfSU5ULCBpb2FkZHIgKyBTVEFUVVNfUkVHKQ0KQEAgLTU0OCwxNCAr
-NTM0LDcgQEANCiAgICBJZiBkZXYtPmJhc2VfYWRkciA9PSAyLCBhbGxvY2F0
-ZSBzcGFjZSBmb3IgdGhlIGRldmljZSBhbmQgcmV0dXJuIHN1Y2Nlc3MNCiAg
-ICAoZGV0YWNoYWJsZSBkZXZpY2VzIG9ubHkpLg0KICAgICovDQotI2lmZGVm
-IEhBVkVfREVWTElTVA0KLQkvKiBTdXBwb3J0IGZvciBhbiBhbHRlcm5hdGUg
-cHJvYmUgbWFuYWdlciwgd2hpY2ggd2lsbCBlbGltaW5hdGUgdGhlDQotICAg
-CQkJCQkJCWJvaWxlcnBsYXRlIGJlbG93LiAqLw0KLXN0cnVjdCBuZXRkZXZf
-ZW50cnkgbmV0Y2FyZF9kcnYgPQ0KLQkJeyJlZXBybyIsIGVlcHJvX3Byb2Jl
-MSwgRUVQUk9fSU9fRVhURU5ULCBlZXByb19wb3J0bGlzdH07DQotI2Vsc2UN
-Ci1jb21wYXRfaW5pdF9mdW5jKGludCBlZXByb19wcm9iZShzdHJ1Y3QgZGV2
-aWNlICpkZXYpKQ0KLXsNCitfX2luaXRmdW5jKGludCBlZXByb19wcm9iZShz
-dHJ1Y3QgZGV2aWNlICpkZXYpKSB7DQogCWludCBpOw0KIAlpbnQgYmFzZV9h
-ZGRyID0gZGV2ID8gZGV2LT5iYXNlX2FkZHIgOiAwOw0KIAlpZiAoYmFzZV9h
-ZGRyID4gMHgxZmYpCQkvKiBDaGVjayBhIHNpbmdsZSBzcGVjaWZpZWQgbG9j
-YXRpb24uICovDQpAQCAtNTc1LDcgKzU1NCw2IEBADQogCQ0KIAlyZXR1cm4g
-RU5PREVWOw0KIH0NCi0jZW5kaWYNCiANCiBzdGF0aWMgdm9pZCBwcmludEVF
-UFJPTUluZm8oc2hvcnQgaW9hZGRyLCBzdHJ1Y3QgZGV2aWNlICpkZXYpDQog
-ew0KQEAgLTczMiw2ICs3MTAsNyBAQA0KIA0KIAkJCWRldi0+bWVtX3N0YXJ0
-ID0gKFJDVl9MT1dFUl9MSU1JVCA8PCA4KTsNCiANCisJCQkvKiByZWNlaXZl
-ZCBtZW1fZW5kIGFzIGFyZ3VtZW50ICovDQogCQkJaWYgKChkZXYtPm1lbV9l
-bmQgJiAweDNmKSA8IDMgfHwJLyogUlggYnVmZmVyIG11c3QgYmUgbW9yZSB0
-aGFuIDNLICovDQogCQkJCShkZXYtPm1lbV9lbmQgJiAweDNmKSA+IDI5KQkv
-KiBhbmQgbGVzcyB0aGFuIDI5SyAqLw0KIAkJCQlkZXYtPm1lbV9lbmQgPSAo
-UkNWX1VQUEVSX0xJTUlUIDw8IDgpOw0KQEAgLTEwNTUsNiArMTAzNCw4IEBA
-DQogCX0NCiAJDQogCWVlcHJvX3NlbF9yZXNldChpb2FkZHIpOw0KKwlTTE9X
-X0RPV047DQorCVNMT1dfRE9XTjsNCiANCiAJbHAtPnR4X3N0YXJ0ID0gbHAt
-PnR4X2VuZCA9IChYTVRfTE9XRVJfTElNSVQgPDwgOCk7DQogCWxwLT50eF9s
-YXN0ID0gMDsNCkBAIC0xMTEyLDE5ICsxMDkzLDE2IEBADQogCX0gZWxzZSB7
-DQogCQlzaG9ydCBsZW5ndGggPSBFVEhfWkxFTiA8IHNrYi0+bGVuID8gc2ti
-LT5sZW4gOiBFVEhfWkxFTjsNCiAJCXVuc2lnbmVkIGNoYXIgKmJ1ZiA9IHNr
-Yi0+ZGF0YTsNCi0JCWludCBkaXNjYXJkID0gbHAtPnN0YXRzLnR4X2Ryb3Bw
-ZWQ7DQogDQogCQlscC0+c3RhdHMudHhfYnl0ZXMrPXNrYi0+bGVuOw0KLQkJ
-aGFyZHdhcmVfc2VuZF9wYWNrZXQoZGV2LCBidWYsIGxlbmd0aCk7DQotDQot
-CQlpZiAobHAtPnN0YXRzLnR4X2Ryb3BwZWQgIT0gZGlzY2FyZCkNCisJCWlm
-IChoYXJkd2FyZV9zZW5kX3BhY2tldChkZXYsIGJ1ZiwgbGVuZ3RoKSkNCiAJ
-CQlyZXR1cm4gMTsNCiAJCQ0KIAkJZGV2LT50cmFuc19zdGFydCA9IGppZmZp
-ZXM7DQogDQogCX0NCiANCi0JY29tcGF0X2Rldl9rZnJlZV9za2IgKHNrYiwg
-RlJFRV9XUklURSk7DQorCWRldl9rZnJlZV9za2Ioc2tiKTsNCiANCiAJLyog
-WW91IG1pZ2h0IG5lZWQgdG8gY2xlYW4gdXAgYW5kIHJlY29yZCBUeCBzdGF0
-aXN0aWNzIGhlcmUuICovDQogCS8qIGxwLT5zdGF0cy50eF9hYm9ydGVkX2Vy
-cm9ycysrOyAqLw0KQEAgLTExNzUsOSArMTE1MywxMSBAQA0KIAl3aGlsZSAo
-KChzdGF0dXMgPSBpbmIoaW9hZGRyICsgU1RBVFVTX1JFRykpICYgMHgwNikg
-JiYgKGJvZ3VzY291bnQtLSkpIA0KIAl7DQogCQlzd2l0Y2ggKHN0YXR1cyAm
-IChSWF9JTlQgfCBUWF9JTlQpKSB7DQorI2lmZGVmIEFOU1dFUl9UWF9BTkRf
-UlgNCiAJCQljYXNlIChSWF9JTlQgfCBUWF9JTlQpOg0KIAkJCQllZXByb19h
-Y2tfcnh0eChpb2FkZHIpOw0KIAkJCQlicmVhazsNCisjZW5kaWYNCiAJCQlj
-YXNlIFJYX0lOVDoNCiAJCQkJZWVwcm9fYWNrX3J4KGlvYWRkcik7DQogCQkJ
-CWJyZWFrOw0KQEAgLTExOTAsNiArMTE3MCw5IEBADQogDQogCQkJLyogR2V0
-IHRoZSByZWNlaXZlZCBwYWNrZXRzICovDQogCQkJZWVwcm9fcngoZGV2KTsN
-CisjaWZuZGVmIEFOU1dFUl9UWF9BTkRfUlgNCisJCQljb250aW51ZTsNCisj
-ZW5kaWYNCiAJCX0NCiAJCWlmIChzdGF0dXMgJiBUWF9JTlQpIHsNCiAJCQlp
-ZiAobmV0X2RlYnVnID4gNCkNCkBAIC0xMzg1LDcgKzEzNjgsMTEgQEANCiAJ
-CWVlcHJvX2VuX2ludChpb2FkZHIpOw0KIAkNCiAJfQ0KLQllZXByb19jb21w
-bGV0ZV9zZWxyZXNldChpb2FkZHIpOw0KKwlpZiAobHAtPmVlcHJvID09IExB
-TjU5NUZYXzEwSVNBKSB7DQorCQllZXByb19jb21wbGV0ZV9zZWxyZXNldChp
-b2FkZHIpOw0KKwl9DQorCWVsc2UNCisJCWVlcHJvX2VuX3J4KGlvYWRkcik7
-DQogfQ0KIA0KIC8qIFRoZSBob3JyaWJsZSByb3V0aW5lIHRvIHJlYWQgYSB3
-b3JkIGZyb20gdGhlIHNlcmlhbCBFRVBST00uICovDQpAQCAtMTQ0NSw3ICsx
-NDMyLDcgQEANCiAJcmV0dXJuIHJldHZhbDsNCiB9DQogDQotc3RhdGljIHZv
-aWQNCitzdGF0aWMgaW50DQogaGFyZHdhcmVfc2VuZF9wYWNrZXQoc3RydWN0
-IGRldmljZSAqZGV2LCB2b2lkICpidWYsIHNob3J0IGxlbmd0aCkNCiB7DQog
-CXN0cnVjdCBlZXByb19sb2NhbCAqbHAgPSAoc3RydWN0IGVlcHJvX2xvY2Fs
-ICopZGV2LT5wcml2Ow0KQEAgLTE1NTcsMTMgKzE1NDQsMTYgQEANCiANCiAJ
-CWlmIChuZXRfZGVidWcgPiA1KQ0KIAkJCXByaW50ayhLRVJOX0RFQlVHICIl
-czogZXhpdGluZyBoYXJkd2FyZV9zZW5kX3BhY2tldCByb3V0aW5lLlxuIiwg
-ZGV2LT5uYW1lKTsNCi0JCXJldHVybjsNCi0JfQ0KIA0KLQlkZXYtPnRidXN5
-ID0gMTsNCisJCXJldHVybiAwOw0KKwl9DQorCWlmIChscC0+ZWVwcm8gPT0g
-TEFONTk1RlhfMTBJU0EpDQorCQlkZXYtPnRidXN5ID0gMTsNCiANCiAJaWYg
-KG5ldF9kZWJ1ZyA+IDUpDQogCQlwcmludGsoS0VSTl9ERUJVRyAiJXM6IGV4
-aXRpbmcgaGFyZHdhcmVfc2VuZF9wYWNrZXQgcm91dGluZS5cbiIsIGRldi0+
-bmFtZSk7DQorDQorCXJldHVybiAxOw0KIH0NCiANCiBzdGF0aWMgdm9pZA0K
-QEAgLTE2ODEsOSArMTY3MSwxMyBAQA0KIAkJeG10X3N0YXR1cyA9IGludyhp
-b2FkZHIrSU9fUE9SVCk7DQogDQogCQlpZiAoKHhtdF9zdGF0dXMgJiBUWF9E
-T05FX0JJVCkgPT0gMCkgew0KLQkJCXVkZWxheSg0MCk7DQotCQkJYm9ndXNj
-b3VudC0tOw0KLQkJCWNvbnRpbnVlOw0KKwkJCWlmIChscC0+ZWVwcm8gPT0g
-TEFONTk1RlhfMTBJU0EpIHsNCisJCQkJdWRlbGF5KDQwKTsNCisJCQkJYm9n
-dXNjb3VudC0tOw0KKwkJCQljb250aW51ZTsNCisJCQl9DQorCQkJZWxzZQ0K
-KwkJCQlicmVhazsNCiAJCX0NCiANCiANCkBAIC0xNzU3LDcgKzE3NTEsNyBA
-QA0KIAkgKiBpbnRlcnJ1cHQgYWdhaW4gZm9yIHR4LiBpbiBvdGhlciB3b3Jk
-czogdHggdGltZW91dCB3aGF0IHdpbGwgdGFrZQ0KIAkgKiBhIGxvdCBvZiB0
-aW1lIHRvIGhhcHBlbiwgc28gd2UnbGwgZG8gYSBjb21wbGV0ZSBzZWxyZXNl
-dC4NCiAJICovDQotCWlmICghYm9ndXNjb3VudCkNCisJaWYgKCFib2d1c2Nv
-dW50ICYmIGxwLT5lZXBybyA9PSBMQU41OTVGWF8xMElTQSkNCiAJCWVlcHJv
-X2NvbXBsZXRlX3NlbHJlc2V0KGlvYWRkcik7DQogfQ0KIA0K
---852975170-1491362067-978996025=:195--
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+<META content=3D"text/html; charset=3Dwindows-1252" http-equiv=3DContent-=
+Type>
+<META content=3D"MSHTML 5.00.2314.1000" name=3DGENERATOR></HEAD>
+<BODY bottomMargin=3D0 leftMargin=3D3 rightMargin=3D3 topMargin=3D0>
+<DIV>Hello,</DIV>
+<DIV>&nbsp;&nbsp;&nbsp;&nbsp; The following patch removes drivers/misc/misc=
+.o=20
+from the kernel build. It appears that drivers/misc isn't used for anything=
+, and=20
+should be probably be removed.</DIV>
+<DIV>Regards,</DIV>
+<DIV>Frank</DIV>
+<DIV>&nbsp;</DIV>
+<DIV><SPAN style=3D"mso-fareast-font-family: 'MS Mincho'">--- Makefile.old<=
+SPAN=20
+style=3D"mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </SPAN>Sun Jan<=
+SPAN=20
+style=3D"mso-spacerun: yes">&nbsp; </SPAN>7 23:59:37 2001<BR>+++ Makefile<=
+SPAN=20
+style=3D"mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </SPAN>Mon Jan<=
+SPAN=20
+style=3D"mso-spacerun: yes">&nbsp; </SPAN>8 00:24:46 2001<BR>@@ -121,7 +121=
+,6=20
+@@<BR><SPAN style=3D"mso-spacerun: yes">&nbsp;</SPAN>NETWORKS<SPAN=20
+style=3D"mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=20
+</SPAN>=3Dnet/network.o<BR><SPAN=20
+style=3D"mso-spacerun: yes">&nbsp;</SPAN>DRIVERS<SPAN=20
+style=3D"mso-tab-count: 1">&nbsp;&nbsp;&nbsp; </SPAN><SPAN=20
+style=3D"mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=20
+</SPAN>=3Ddrivers/block/block.o \<BR><SPAN=20
+style=3D"mso-spacerun: yes">&nbsp;</SPAN><SPAN=20
+style=3D"mso-tab-count: 2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;=20
+</SPAN><SPAN style=3D"mso-spacerun: yes">&nbsp;</SPAN>drivers/char/char.o=20
+\<BR>-<SPAN=20
+style=3D"mso-tab-count: 2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;=20
+</SPAN>drivers/misc/misc.o \<BR><SPAN=20
+style=3D"mso-spacerun: yes">&nbsp;</SPAN><SPAN=20
+style=3D"mso-tab-count: 2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;=20
+</SPAN><SPAN style=3D"mso-spacerun: yes">&nbsp;</SPAN>drivers/net/net.o \<=
+BR><SPAN=20
+style=3D"mso-spacerun: yes">&nbsp;</SPAN><SPAN=20
+style=3D"mso-tab-count: 2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=
+&nbsp;&nbsp;=20
+</SPAN><SPAN=20
+style=3D"mso-spacerun: yes">&nbsp;</SPAN>drivers/media/media.o<BR><SPAN=20
+style=3D"mso-spacerun: yes">&nbsp;</SPAN>LIBS<SPAN style=3D"mso-tab-count: =
+1">=20
+</SPAN><SPAN style=3D"mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=20
+</SPAN>=3D$(TOPDIR)/lib/lib.a<BR><BR>--- drivers/Makefile.old<SPAN=20
+style=3D"mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </SPAN>Sun Jan<=
+SPAN=20
+style=3D"mso-spacerun: yes">&nbsp; </SPAN>7 23:59:48 2001<BR>+++=20
+drivers/Makefile<SPAN style=3D"mso-tab-count: 1">&nbsp; </SPAN>Mon Jan<SPAN=
+=20
+style=3D"mso-spacerun: yes">&nbsp; </SPAN>8 20:25:57 2001<BR>@@ -9,7 +9,7=20
+@@<BR><SPAN style=3D"mso-spacerun: yes">&nbsp;</SPAN>mod-subdirs :=3D<SPAN=
+=20
+style=3D"mso-tab-count: 1">&nbsp;&nbsp;&nbsp; </SPAN>dio mtd sbus video =
+macintosh=20
+usb input telephony sgi message/i2o message/fusion ide \<BR><SPAN=20
+style=3D"mso-spacerun: yes">&nbsp;</SPAN><SPAN=20
+style=3D"mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp; </SPAN><SPAN=20
+style=3D"mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </SPAN>scsi md =
+ieee1394=20
+pnp isdn atm fc4 net/hamradio i2c acpi<BR><SPAN=20
+style=3D"mso-spacerun: yes">&nbsp;</SPAN><BR>-subdir-y :=3D<SPAN=20
+style=3D"mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </SPAN>block char=
+ net=20
+parport sound misc media cdrom<BR>+subdir-y :=3D<SPAN=20
+style=3D"mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </SPAN>block char=
+ net=20
+parport sound media cdrom<BR><SPAN=20
+style=3D"mso-spacerun: yes">&nbsp;</SPAN>subdir-m :=3D<SPAN=20
+style=3D"mso-tab-count: 1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=20
+</SPAN>$(subdir-y)<BR><SPAN=20
+style=3D"mso-spacerun: yes">&nbsp;</SPAN><BR></SPAN></DIV>
+<DIV>&nbsp;</DIV></BODY></HTML>
+
+----__JNP_000_1df8.26c9.418f--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

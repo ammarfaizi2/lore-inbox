@@ -1,57 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129097AbQKQLdr>; Fri, 17 Nov 2000 06:33:47 -0500
+	id <S129624AbQKQLkS>; Fri, 17 Nov 2000 06:40:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129624AbQKQLdi>; Fri, 17 Nov 2000 06:33:38 -0500
-Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:17321 "EHLO
-	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S129097AbQKQLd2>; Fri, 17 Nov 2000 06:33:28 -0500
-Message-Id: <5.0.2.1.2.20001117105359.00adbec0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Fri, 17 Nov 2000 11:03:56 +0000
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: How to add a drive to DMA black list?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E13wj7l-0000US-00@the-village.bc.nu>
-In-Reply-To: <5.0.0.25.2.20001116182436.00ab3160@pop.cus.cam.ac.uk>
+	id <S132060AbQKQLkI>; Fri, 17 Nov 2000 06:40:08 -0500
+Received: from d12lmsgate-2.de.ibm.com ([195.212.91.200]:40163 "EHLO
+	d12lmsgate-2.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S129624AbQKQLjw> convert rfc822-to-8bit; Fri, 17 Nov 2000 06:39:52 -0500
+From: schwidefsky@de.ibm.com
+X-Lotus-FromDomain: IBMDE
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Andrea Arcangeli <andrea@suse.de>, mingo@chiara.elte.hu,
+        linux-kernel@vger.kernel.org
+Message-ID: <C125699A.003D4D6A.00@d12mta07.de.ibm.com>
+Date: Fri, 17 Nov 2000 11:41:58 +0100
+Subject: Re: Memory management bug
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 10:52 17/11/2000, Alan Cox wrote:
-> > I tried adding the string that is output for the bad drive by hdparm -i
-> > into drivers/ide/ide-dma.c::drive_blacklist and
-> > drivers/ide/ide-dma.c::bad_dma_drives but the kernel still says that it is
-> > using DMA and the kernel hangs after displaying:
+
+
+>>
+>> If they absolutely needs 4 pages for pmd pagetables due hardware
+constraints
+>> I'd recommend to use _four_ hardware pages for each softpage, not two.
 >
->The black list is for drives with problems, not for controller bugs. 
->Controller bugs in the Linux code just have to be fixed.
+>Yes.
+>
+>However, it definitely is an issue of making trade-offs. Most 64-bit MMU
+>models tend to have some flexibility in how you set up the page tables,
+>and it may be possible to just move bits around too (ie making both the
+>pmd and the pgd twice as large, and getting the expansion of 4 by doing
+>two expand-by-two's, for example, if the hardware has support for doing
+>things like that).
 
-That is obvious. I may be of course wrong, but I would consider this a 
-drive problem, considering that another ide drive on the same controller 
-works fine with DMA enabled (a QUANTUM TRB850A) while the Conner 
-Peripherals 1275MB - CFS1275A fails with DMA enabled. They are in fact both 
-attached simultaneously  to the PIIX controller (on different IDE channels, 
-both being masters) and one works and the other doesn't... - I should 
-probably have stated that when posting but I didn't consider it important 
-at the time (and copying by hand from one screen to another doesn't 
-encourage copying everything but the essentials...). - Am I missing something?
+Unluckly we don't have any flexibility. The segment index (pmd) has 11
+bits,
+pointers are 8 byte. That makes 16K segment table. I have understood that
+this is a problem if the system is really low on memory. But low on memory
+does mean low on real memory + swap space, doesn't it ? The system has
+enough swap space but it isn't using any of it when the BUG hits. I think
+the "if (!order)" statements before the "goto try_again" in __alloc_pages
+have something to do with it. To test this assumption I removed the ifs and
 
-Regards,
+I didn't see any "__alloc_pages: %lu-order allocation failed." message
+before I hit yet another BUG in swap_state.c:60.
+Whats the reasoning behind these ifs ?
 
-Anton
+blue skies,
+   Martin
 
+Linux/390 Design & Development, IBM Deutschland Entwicklung GmbH
+Schönaicherstr. 220, D-71032 Böblingen, Telefon: 49 - (0)7031 - 16-2247
+E-Mail: schwidefsky@de.ibm.com
 
--- 
-      "Education is what remains after one has forgotten everything he 
-learned in school." - Albert Einstein
--- 
-Anton Altaparmakov  Voice: +44-(0)1223-333541(lab) / +44-(0)7712-632205(mobile)
-Christ's College    eMail: AntonA@bigfoot.com / aia21@cam.ac.uk
-Cambridge CB2 3BU    ICQ: 8561279
-United Kingdom       WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

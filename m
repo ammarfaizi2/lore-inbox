@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262080AbTIWRDy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Sep 2003 13:03:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbTIWRDy
+	id S262057AbTIWRVJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Sep 2003 13:21:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbTIWRVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Sep 2003 13:03:54 -0400
-Received: from smtp2.fre.skanova.net ([195.67.227.95]:17118 "EHLO
-	smtp2.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S262080AbTIWRDw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Sep 2003 13:03:52 -0400
-To: Ricardo Galli <gallir@uib.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Synaptics bk8 + patches
-References: <200309221025.59347.gallir@uib.es>
-From: Peter Osterlund <petero2@telia.com>
-Date: 23 Sep 2003 19:03:44 +0200
-In-Reply-To: <200309221025.59347.gallir@uib.es>
-Message-ID: <m2isnjl9n3.fsf@p4.localdomain>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Tue, 23 Sep 2003 13:21:09 -0400
+Received: from lucidpixels.com ([66.45.37.187]:59343 "HELO lucidpixels.com")
+	by vger.kernel.org with SMTP id S262057AbTIWRVH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Sep 2003 13:21:07 -0400
+Date: Tue, 23 Sep 2003 13:21:06 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p500
+To: linux-kernel@vger.kernel.org
+Subject: Spam/LKML
+Message-ID: <Pine.LNX.4.58.0309231318450.11291@p500>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ricardo Galli <gallir@uib.es> writes:
+I noticed last week or so after I sent a message to LKML I got flooded
+with Microsoft Spams.
 
-> Peter,
-> 	I just tried your last patches at http://w1.894.telia.com/~u89404340/
-> patches/touchpad/2.6.0-test5-bk8/v1/.
-> 
-> They not only gives the sync's error:
-> 
-> Synaptics driver lost sync at 4th byte
-> Synaptics driver lost sync at 1st byte
-> Synaptics driver resynced.
-...
-> but also the pointer is almost uncontrollable. 
-> 
-> The pointer's response is not coherent, mainly the speed. Sometimes is 
-> slower, other faster, sometimes the mouse even doesn't move, especially 
-> in the y axis.
-> 
-> Also, most of the time a tap is considered a very short drag.
+However, I sent another email (ide-scsi) issue and I am being inundated
+with Microsoft Spam (that virus).
 
-1. I don't know what's causing the lost sync errors. Someone else
-   reported that disabling ACPI helped on his computer.
+Anyone else take notice of this?
 
-2. Don't apply patch #4 from my web site. It changes the event
-   protocol and requires user space changes that I haven't implemented
-   yet.
+  PINE 4.58   MESSAGE INDEX              Folder: INBOX  Message 151 of 151 NEW
 
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+  N 134 Sep 23 Security Departmen  (160K) New Microsoft Pack
+  N 135 Sep 23 Security Assistanc  (160K) new internet update
+  N 136        Microsoft Security  (160K)
+  N 137 Sep 23 Administrator       (147K) Undeliverable Mail: Returned To Sender
+  N 138 Sep 23 Program Security S  (159K)
+  N 139 Sep 23 Microsoft           (160K)
+  N 140 Sep 23 MS Network Message  (147K) error message
+  N 141 Sep 23 Mail Service        (147K) Bug Notice
+  N 142        Postmaster          (147K) Advice
+  N 143 Sep 23 jhsrsydcs@updates.  (160K) new microsoft critical update
+  N 144 Sep 23 net delivery servi  (147K) Notice
+  N 145        MS Corporation Net  (160K) Microsoft Critical Upgrade
+  N 146        emailengine@aol.co  (147K) message
+  N 147 Sep 23 zcnxteljbrlib@upda  (160K) current net upgrade
+  N 148 Sep 23 ms net email syste  (147K) Message Returned To Sender
+  N 149 Sep 23 ms net message sys  (147K) Abort Announcement
+  N 150 Sep 23 Microsoft Corporat   (14K) Microsoft Critical Update
+  N 151 Sep 23 Microsoft Corporat  (160K) Internet Pack
+
+% ls -lh Mailbox -> 22M Sep 23 13:20 Mailbox
+
+Pure spam.
+
+

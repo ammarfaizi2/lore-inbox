@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265331AbUIOLtu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265222AbUIOLwM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265331AbUIOLtu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 07:49:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265222AbUIOLtu
+	id S265222AbUIOLwM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 07:52:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265847AbUIOLwL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 07:49:50 -0400
-Received: from launch.server101.com ([216.218.196.178]:4804 "EHLO
-	mail-pop3-1.server101.com") by vger.kernel.org with ESMTP
-	id S265331AbUIOLtr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 07:49:47 -0400
-From: Tim Fairchild <tim@bcs4me.com>
-To: Stelian Pop <stelian@popies.net>
-Subject: Re: PWC driver now fully GPL [was Re: [PATCH] PWC driver without binary interface]
-Date: Wed, 15 Sep 2004 21:49:36 +1000
-User-Agent: KMail/1.6.1
-Cc: Linux USB List <linux-usb-devel@lists.sourceforge.net>,
-       LKML <linux-kernel@vger.kernel.org>, Luc Saillard <luc@saillard.org>
-References: <20040914153918.GA7975@sd291.sivit.org> <20040915104852.GB21917@sd291.sivit.org>
-In-Reply-To: <20040915104852.GB21917@sd291.sivit.org>
-MIME-Version: 1.0
+	Wed, 15 Sep 2004 07:52:11 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:4260 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S265222AbUIOLwG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 07:52:06 -0400
+Date: Wed, 15 Sep 2004 13:17:56 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Andrea Arcangeli <andrea@novell.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] sched: fix scheduling latencies for !PREEMPT kernels
+Message-ID: <20040915111756.GA5150@elte.hu>
+References: <20040914114228.GD2804@elte.hu> <4146EA3E.4010804@yahoo.com.au> <20040914132225.GA9310@elte.hu> <4146F33C.9030504@yahoo.com.au> <20040914140905.GM4180@dualathlon.random> <41470021.1030205@yahoo.com.au> <20040914150316.GN4180@dualathlon.random> <1095210126.2406.70.camel@krustophenia.net> <20040915013925.GF9106@holomorphy.com> <1095214289.2406.101.camel@krustophenia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409152149.36360.tim@bcs4me.com>
+In-Reply-To: <1095214289.2406.101.camel@krustophenia.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 15 Sep 2004 20:48, Stelian Pop wrote:
-> On Tue, Sep 14, 2004 at 05:39:18PM +0200, Luc Saillard wrote:
 
-> >  The patch is 300kbytes long, i don't include it in this mail. You can
-> > found a tarball or a patch against the last linux kernel at:
-> >    
-> > http://www.saillard.org/pwc/linux-2.6.9-rc2_pwc-9.0.2-fork0.2.diff.bz2
-> > http://www.saillard.org/pwc/
->
-> Just in case nobody payed attention to the original message and
-> failed to see that almost all the binary pwcx has been succesfully
-> reverse-engineered...
->
-> Unless everybody is just waiting for the next flamewar...
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-Yes, noted the original, but was out tonight. Congratulations and good work!!! 
-I wish I had a phillips cam to test it out on... I'll have to check which 
-makes and models and see if I can find something on ebay to test with...
+> Ingo, if you want to send me a patch set without the more
+> controversial changes, I can compare the performance.  A diff against
+> the latest VP patch would be OK.
 
-tim
+just undo the tty.c changes. (i.e. manually remove the tty.c chunks from
+the -S0 patch and apply the result.)
+
+	Ingo

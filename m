@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267089AbRGJSwq>; Tue, 10 Jul 2001 14:52:46 -0400
+	id <S267096AbRGJTDQ>; Tue, 10 Jul 2001 15:03:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267090AbRGJSwg>; Tue, 10 Jul 2001 14:52:36 -0400
-Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:61172 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S267089AbRGJSw1>; Tue, 10 Jul 2001 14:52:27 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200107101851.f6AIpTV2022429@webber.adilger.int>
-Subject: Re: [Ext2-devel] Re: 2.4.6 and ext3-2.4-0.9.1-246
-In-Reply-To: <018101c1096a$17e2afc0$b6562341@cfl.rr.com> "from Mike Black at
- Jul 10, 2001 01:59:40 pm"
-To: Mike Black <mblack@csihq.com>
-Date: Tue, 10 Jul 2001 12:51:29 -0600 (MDT)
-CC: Andreas Dilger <adilger@turbolinux.com>,
-        "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>,
-        Ext2 development mailing list 
-	<ext2-devel@lists.sourceforge.net>
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+	id <S267095AbRGJTDG>; Tue, 10 Jul 2001 15:03:06 -0400
+Received: from front5m.grolier.fr ([195.36.216.55]:12019 "EHLO
+	front5m.grolier.fr") by vger.kernel.org with ESMTP
+	id <S267094AbRGJTCv> convert rfc822-to-8bit; Tue, 10 Jul 2001 15:02:51 -0400
+Date: Tue, 10 Jul 2001 21:00:35 +0200 (CEST)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@club-internet.fr>
+X-X-Sender: <groudier@>
+To: Tim Hockin <thockin@sun.com>
+cc: <alan@redhat.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH]  sym53c8xx timer rework
+In-Reply-To: <3B4AAC7D.A86AF1F3@sun.com>
+Message-ID: <20010710203327.Q1488-100000@>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Black writes:
-> Also, having it in files allows me to easily add more swap as needed.
 
-But you usually have a base amount of swap, and only add more files as
-needed, right?  Put the base swap into its own partition, and then only
-put "extra" swap into files.
 
-> As far as journalling mode I just used tune2fs to put a journal on with
-> default parameters so I assume that's full journaling.
+On Tue, 10 Jul 2001, Tim Hockin wrote:
 
-The default is metadata-only journaling mode, called ordered data mode.
-This gives the best performance in many cases, and also prevents you
-from getting garbage in new/modified files after a crash.  It does so
-by forcing data writes to the disk before the metadata changes in the
-journal are committed to the filesystem.  This is also good for performance
-because you separate writes to the journal from writes to the fs to avoid
-excess seeking.
+> Gerard (and all)
+>
+> Attached is a small patch to re-work the timer in the sym53c8xx driver.  I
+> submitted this patch against 2.4.5, but don't see it in 2.4.6, so I am
+> re-submitting against 2.4.6.
+>
+> Please let me know if there are any problems with this patch.
 
-There is full data journaling, which slows down all I/O by half, because
-it writes everything once to the journal and then again to the filesystem.
+Hmmm... How much are you sure there isn't any race in your patch ?
 
-There is also writeback journaling mode, which writes all data directly
-to the disk whenever it can, independent of metadata writes to the journal
-and filesystem.  This allows the possibility of bad data in files if a
-change was added to the journal/fs but the data write did not make it to
-disk.  This is the only mode that reiserfs can use right now, but Chris
-Mason is working on getting ordered data mode to work as well.
+If the timer handler is spinning on the lock embedded in the driver
+instance and you free this instance under its knees, it will just
+reference random memory.
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+That was the reason I preferred to leave the timer die by itself prior to
+releasing the HBA instance. The 'release_stage' was the trick, but
+probably some memory barriers or atomic operations were missing.
+
+If you want to delete the timer on HBA instance release, then you also
+want to check if the pointer to the HBA instance is still valid in the
+timer handler and just return if it isn't so.
+
+Btw, is there a simple and clean way to deal with such concurrency (I mean
+a timer embedded in a data structure we want to free concurrently ? Given
+the current sheme of Linux requiring a synchronous HBA instance release, I
+am under the impression that there is no such way.
+
+  Gérard.
+

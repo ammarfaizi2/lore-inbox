@@ -1,55 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289858AbSA2U4e>; Tue, 29 Jan 2002 15:56:34 -0500
+	id <S289877AbSA2VAF>; Tue, 29 Jan 2002 16:00:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289877AbSA2U4Y>; Tue, 29 Jan 2002 15:56:24 -0500
-Received: from rtlab.med.cornell.edu ([140.251.145.175]:35027 "HELO
-	openlab.rtlab.org") by vger.kernel.org with SMTP id <S289858AbSA2U4O>;
-	Tue, 29 Jan 2002 15:56:14 -0500
-Date: Tue, 29 Jan 2002 15:56:14 -0500 (EST)
-From: "Calin A. Culianu" <calin@ajvar.org>
-To: Daniel Nofftz <nofftz@castor.uni-trier.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Steven Hassani <hassani@its.caltech.edu>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Athlon Optimization Problem
-In-Reply-To: <Pine.LNX.4.40.0201290900490.7168-100000@infcip10.uni-trier.de>
-Message-ID: <Pine.LNX.4.30.0201291553360.10200-100000@rtlab.med.cornell.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289882AbSA2U7z>; Tue, 29 Jan 2002 15:59:55 -0500
+Received: from holomorphy.com ([216.36.33.161]:57502 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S289877AbSA2U7p>;
+	Tue, 29 Jan 2002 15:59:45 -0500
+Date: Tue, 29 Jan 2002 13:01:16 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Momchil Velikov <velco@fadata.bg>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Oliver Xymoron <oxymoron@waste.org>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Josh MacDonald <jmacd@CS.Berkeley.EDU>,
+        linux-kernel <linux-kernel@vger.kernel.org>, reiserfs-list@namesys.com,
+        reiserfs-dev@namesys.com
+Subject: Re: Note describing poor dcache utilization under high memory pressure
+Message-ID: <20020129130116.L899@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Momchil Velikov <velco@fadata.bg>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	Oliver Xymoron <oxymoron@waste.org>,
+	Rik van Riel <riel@conectiva.com.br>,
+	Josh MacDonald <jmacd@CS.Berkeley.EDU>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	reiserfs-list@namesys.com, reiserfs-dev@namesys.com
+In-Reply-To: <20020129123932.K899@holomorphy.com> <Pine.LNX.4.33.0201291240180.1223-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <Pine.LNX.4.33.0201291240180.1223-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Jan 29, 2002 at 12:49:24PM -0800
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Jan 2002, Daniel Nofftz wrote:
+On Tue, Jan 29, 2002 at 12:49:24PM -0800, Linus Torvalds wrote:
+> I really isn't a co-incidence. The reason so many architectures have page
+> table trees is that most architects try to make good decisions, and a tree
+> layout is a simple and efficient data structure that maps well to both
+> hardware and to usage patterns.
 
-> On Mon, 28 Jan 2002, Calin A. Culianu wrote:
->
-> > Hmm.  What do you recommend?  I remember seeing a spec sheet and register
-> > 0x95 was the memory write queue timer.. but I could have dreamed it..
-> >
-> > Anyone know what register 0x95 does?
->
-> hmmm ... when i was working on the athlon disconnect patch i found that
-> the pcr files (resorce files) for the wpcredit programm (windows tool for
-> changing the configuration of chipset) are a good source of information.
-> but this register isn't discribed in this file ... sorry
->
-> daniel
-> (i placed the pcr file on the web, if you are interested, have a look at:
-> http://cip.uni-trier.de/nofftz/linux/kt266_pcr.txt ... the webserver is
-> down at the moment, but should be up again in 1-2 hours)
+No debate there.
 
-Thank you kindly, Daniel.  It's strange that register 95 is ommitted.  We
-definitely can conclude that register 55 is not the one to set on the
-kt266 motherboards (whereas on the other via motherboards it *is* the one
-to set...  I even have the spec sheet to prove it! :) )
+On Tue, Jan 29, 2002 at 12:49:24PM -0800, Linus Torvalds wrote:
+> Hashed page tables are incredibly naive, and perform badly for build-up
+> and tear-down (and mostly have horrible cache access patterns). At least
+> in some version of the UltraSparc, the Linux tree-based software TLB fill
+> outperformed the Solaris version, even though the Solaris version was
+> handtuned assembly and used hardware acceleration for the hash
+> computations. That should tell you something.
 
-I really wish VIA were more willing to cooperate with us and give us spec
-sheets.  It's to their advantage to have us make their buggy motherboards
-work well with linux, for crying out loud!  I really don't get what the
-big deal is.  I mean it's not like the concept of setting bytes on a pci
-device to change functionality is so revolutionary it deserves to be
-obfuscated...
+Given this, it appears less useful to play with the representations.
+There also appears to be some other material on this subject which
+you yourself have written. I'll review that for my own enlightenment,
+and regardless, I'll focus on something else.
 
--Calin
-
+Thanks again,
+Bill

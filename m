@@ -1,79 +1,96 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314645AbSEVVr1>; Wed, 22 May 2002 17:47:27 -0400
+	id <S314705AbSEVVue>; Wed, 22 May 2002 17:50:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314755AbSEVVr0>; Wed, 22 May 2002 17:47:26 -0400
-Received: from smtpnotes.altec.com ([209.149.164.10]:49674 "HELO
-	smtpnotes.altec.com") by vger.kernel.org with SMTP
-	id <S314645AbSEVVrX>; Wed, 22 May 2002 17:47:23 -0400
-X-Lotus-FromDomain: ALTEC
-From: Wayne.Brown@altec.com
-To: linux-kernel@vger.kernel.org
-Message-ID: <86256BC1.0076F247.00@smtpnotes.altec.com>
-Date: Wed, 22 May 2002 15:00:15 -0500
-Subject: Re: Linux-2.5.17
+	id <S315162AbSEVVud>; Wed, 22 May 2002 17:50:33 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:42912 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S314705AbSEVVuc>;
+	Wed, 22 May 2002 17:50:32 -0400
+Subject: [PATCH] 2.4.19-pre8 get_pid() hang fix again
+From: Paul Larson <plars@austin.ibm.com>
+To: Marcelo Tosati <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 22 May 2002 16:46:50 -0500
+Message-Id: <1022104010.3429.20.camel@plars.austin.ibm.com>
 Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Marcelo, I originally submitted this patch against 2.4.18-rc2 and I
+noticed that it has not been picked up yet.  I've repatched it against
+2.4.19-pre8 and retested it.  This is to fix the problem where if you
+run out of available pids, get_pid will cause a hang as it loops forever
+through the tasks to try to find an available pid that doesn't exist.
 
+Thanks,
+Paul Larson
 
-Thanks for pointing me in the right direction; I found the same code in my copy
-of libgtop (1.0.9) and see the problem.  Maybe now I can hack something together
-to make it work.
-
-In comparing /proc/meminfo in 2.4.19-pre8 and 2.5.17 I see that there is very
-little difference except that the information gtop relies upon is missing.  The
-lines it needs aren't changed or rearranged, just gone altogether.  Was there
-any particular purpose for that, other than breaking programs like gtop?  I'm a
-firm believer that adding something new to a system should never break existing
-functionality unless absolutely necessary.  Was it necessary in this case, or
-was it done because someone was offended that it wasn't "clean" enough?
-
-
-
-
-
-Nick.Holloway@pyrites.org.uk (Nick Holloway) on 05/22/2002 06:49:59 AM
-
-To:   linux-kernel@vger.kernel.org
-cc:    (bcc: Wayne Brown/Corporate/Altec)
-
-Subject:  Re: Linux-2.5.17
-
-
-
-In <86256BC1.001146A6.00@smtpnotes.altec.com> Wayne.Brown@altec.com writes:
-> I can live with not building, crashing, or even eating filesystems.  Those
-> things will be fixed sooner or later.  But breaking userspace programs -- that
-> may well be permanent.
-
-Looking at the source code to libgtop-1.0.6 (the version I have
-easy access to), the parser used to extract the swap information from
-/proc/meminfo is extremely fragile (read: broken).  Rather than looking
-at the tag at the start of each line for the one it requires, it assumes
-that the "Swap:" details are on the 3rd line (and doesn't even verify
-the label).
-
-You can't expect the kernel to keep compatability for such poor user-space
-code (especially during a development cycle).
-
-The change to /proc/meminfo came about in 2.5.1, and this removed
-the first two lines from the old, inflexible layout (that has been
-deprecated for a while, and should probably been removed during the
-2.1.x development cycle).
-
---
- `O O'  | Nick.Holloway@pyrites.org.uk
-// ^ \\ | http://www.pyrites.org.uk/
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+--- linux-2.4.19-pre8/kernel/fork.c	Mon May 20 10:55:14 2002
++++ linux-getpid/kernel/fork.c	Wed May 22 16:07:29 2002
+@@ -21,6 +21,7 @@
+ #include <linux/completion.h>
+ #include <linux/namespace.h>
+ #include <linux/personality.h>
++#include <linux/compiler.h>
+ 
+ #include <asm/pgtable.h>
+ #include <asm/pgalloc.h>
+@@ -86,12 +87,13 @@
+ {
+ 	static int next_safe = PID_MAX;
+ 	struct task_struct *p;
+-	int pid;
++	int pid, beginpid;
+ 
+ 	if (flags & CLONE_PID)
+ 		return current->pid;
+ 
+ 	spin_lock(&lastpid_lock);
++	beginpid = last_pid;
+ 	if((++last_pid) & 0xffff8000) {
+ 		last_pid = 300;		/* Skip daemons etc. */
+ 		goto inside;
+@@ -111,12 +113,16 @@
+ 						last_pid = 300;
+ 					next_safe = PID_MAX;
+ 				}
++				if(unlikely(last_pid == beginpid))
++					goto nomorepids;
+ 				goto repeat;
+ 			}
+ 			if(p->pid > last_pid && next_safe > p->pid)
+ 				next_safe = p->pid;
+ 			if(p->pgrp > last_pid && next_safe > p->pgrp)
+ 				next_safe = p->pgrp;
++			if(p->tgid > last_pid && next_safe > p->tgid)
++				next_safe = p->tgid;
+ 			if(p->session > last_pid && next_safe > p->session)
+ 				next_safe = p->session;
+ 		}
+@@ -126,6 +132,11 @@
+ 	spin_unlock(&lastpid_lock);
+ 
+ 	return pid;
++
++nomorepids:
++	read_unlock(&tasklist_lock);
++	spin_unlock(&lastpid_lock);
++	return 0;
+ }
+ 
+ static inline int dup_mmap(struct mm_struct * mm)
+@@ -624,6 +635,8 @@
+ 
+ 	copy_flags(clone_flags, p);
+ 	p->pid = get_pid(clone_flags);
++	if (p->pid == 0 && current->pid != 0)
++		goto bad_fork_cleanup;
+ 
+ 	p->run_list.next = NULL;
+ 	p->run_list.prev = NULL;
 
 
 

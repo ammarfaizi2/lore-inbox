@@ -1,52 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S273403AbTG3Tjk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 15:39:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273405AbTG3Tjk
+	id S273376AbTG3T3y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 15:29:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273358AbTG3T1W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 15:39:40 -0400
-Received: from CPE-65-29-19-166.mn.rr.com ([65.29.19.166]:60296 "EHLO
-	www.enodev.com") by vger.kernel.org with ESMTP id S273403AbTG3Tjj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 15:39:39 -0400
-Subject: Re: Buffer I/O error on device hde3, logical block 4429
-From: Shawn <core@enodev.com>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <200307302125.27898.m.c.p@wolk-project.de>
-References: <1059585712.11341.24.camel@localhost>
-	 <1059592520.11341.47.camel@localhost>
-	 <200307302125.27898.m.c.p@wolk-project.de>
-Content-Type: text/plain
+	Wed, 30 Jul 2003 15:27:22 -0400
+Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:28167 "EHLO
+	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
+	id S273357AbTG3T1G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 15:27:06 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+Subject: Re: devfs rescanning?
+Date: Wed, 30 Jul 2003 23:27:25 +0400
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <1059593977.11341.57.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 30 Jul 2003 14:39:38 -0500
+Content-Disposition: inline
+Message-Id: <200307302327.25998.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, my fstab entry seems pretty default
+> I have a system with 4 SCA drives.  Originally they were:
+> 
+> /dev/sda -> scsi/host0/bus0/target0/lun0/disc
+> /dev/sdb -> scsi/host0/bus0/target1/lun0/disc
+> /dev/sdc -> scsi/host1/bus0/target0/lun0/disc
+> /dev/sdd -> scsi/host1/bus0/target1/lun0/disc
+>
+> SDA drive was hot-pulled to test the raid failover and it worked great.
+> Next the box was rebooted after the drive was replaced (these systems
+> can hang or go real stupid when a drive is pulled).  The drives remapped
+> as was expected.  When it came back up the sd? entries had shifted up 1
+> as expected
 
-/dev/hde3	/hdg/3	reiserfs	defaults	1 2
+> /dev/sda -> scsi/host0/bus0/target1/lun0/disc
+> /dev/sdb -> scsi/host1/bus0/target0/lun0/disc
+> /dev/sdc -> scsi/host1/bus0/target1/lun0/disc
+>
+> and when the drive was put back in it came up as sdd.  Other than a
+> reboot is there any known way to get the drives back in the proper
+> order?  Killing devfsd, removing the entries and restarting, etc didn't
+> do any good.
 
-On Wed, 2003-07-30 at 14:25, Marc-Christian Petersen wrote:
-> On Wednesday 30 July 2003 21:15, Shawn wrote:
-> 
-> Hi,
-> 
-> > It appears Mike Galbraith has seen something similar in -vanilla.
-> > http://www.ussg.iu.edu/hypermail/linux/kernel/0307.3/1987.html
-> > Does anyone have any interest at all in pursuing this? Hopefully? I'm
-> > glad to try and be the pig of Guinea. Kill piggy!
-> 
-> > > I am running 2.6.0-test2-mm1, and upon boot have received a gift of many
-> > > "Buffer I/O error on device hde3" messages in my log. After they quit,
-> > > they never seem to come back.
-> hmm, I had the same errors yesterday and the culprit was a "data=writeback" 
-> for a reiserfs partition. 2.6 don't know about data= for reiserfs.
-> 
-> Could it be your problem too?
-> 
-> ciao, Marc
-> 
+devfsd.conf:
+
+REGISTER scsi/host0/bus0/target0/lun0/disc CFUNCTION GLOBAL mksymlink $devname 
+diska 
+REGISTER scsi/host0/bus0/target1/lun0/disc CFUNCTION GLOBAL mksymlink $devname 
+diskb
+REGISTER scsi/host1/bus0/target0/lun0/disc CFUNCTION GLOBAL mksymlink $devname 
+diskc
+REGISTER scsi/host1/bus0/target1/lun0/disc CFUNCTION GLOBAL mksymlink $devname 
+diskd
+
+if you insist on calling them sda etc you may comment out MKOLDCOMPAT but 
+beware of consequences.
+
+but this breaks anyway if SCSI host numbers change (e.g. if you plug in new 
+HBA) and for that there is no solution
+
+-andrey

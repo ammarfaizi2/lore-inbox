@@ -1,67 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129715AbQKHSUW>; Wed, 8 Nov 2000 13:20:22 -0500
+	id <S129745AbQKHSWW>; Wed, 8 Nov 2000 13:22:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129718AbQKHSUM>; Wed, 8 Nov 2000 13:20:12 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:23561 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129715AbQKHSUA>; Wed, 8 Nov 2000 13:20:00 -0500
-Date: Wed, 8 Nov 2000 12:16:20 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Bruce_Holzrichter@infinium.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Installing kernel 2.4
-Message-ID: <20001108121620.B11377@vger.timpanogas.org>
-In-Reply-To: <OFE1DF3190.2EF12079-ON85256991.004BD0EB@infinium.com>
-Mime-Version: 1.0
+	id <S129647AbQKHSWM>; Wed, 8 Nov 2000 13:22:12 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:18482 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129551AbQKHSV4>; Wed, 8 Nov 2000 13:21:56 -0500
+Subject: Re: Pentium 4 and 2.4/2.5
+To: bapper@piratehaven.org (Brian Pomerantz)
+Date: Wed, 8 Nov 2000 18:21:54 +0000 (GMT)
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <20001108101248.A8902@skull.piratehaven.org> from "Brian Pomerantz" at Nov 08, 2000 10:12:48 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <OFE1DF3190.2EF12079-ON85256991.004BD0EB@infinium.com>; from Bruce_Holzrichter@infinium.com on Wed, Nov 08, 2000 at 08:49:15AM -0500
+Content-Transfer-Encoding: 7bit
+Message-Id: <E13tZrA-0000HQ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 08, 2000 at 08:49:15AM -0500, Bruce_Holzrichter@infinium.com wrote:
+> > 		asm volatile("rep ; nop");
+> > 
+> > (there's not much a "rep nop" _can_ do, after all - the most likely CPU
+> > extension would be to raise an "Illegal Opcode" fault).
 > 
-> >
-> > On Wed, Nov 08, 2000 at 03:25:56AM +0000, davej@suse.de wrote:
-> > > On Tue, 7 Nov 2000, Jeff V. Merkey wrote:
-> > >
-> > > > If the compiler always aligned all functions and data on 16 byte
-> > > > boundries (NetWare)  for all i386 code, it would run a lot faster.
-> > >
-> > > Except on architectures where 16 byte alignment isn't optimal.
-> > >
-> > > > Cache line alignment could be an option in the loader .... after all,
-> > > > it's hte loader that locates data in memory.  If Linux were PE based,
-> > > > relocation logic would be a snap with this model (like NT).
-> > >
-> > > Are you suggesting multiple files of differing alignments packed into
-> > > a single kernel image, and have the loader select the correct one at
-> > > runtime ? I really hope I've misinterpreted your intention.
-> >
-> > Or more practically, a smart loader than could select a kernel image
-> > based on arch and auto-detect to load the correct image. I don't really
-> > think it matters much what mechanism is used.
-> >
-> > What makes more sense is to pack multiple segments for different
-> > processor architecures into a single executable package, and have the
-> > loader pick the right one (the NT model).  It could be used for
-> > SMP and non-SMP images, though, as well as i386, i586, i686, etc.
-> 
-> 
-> And this would fit on my 1.4bm floppy so I can boot my hard driveless
-> firewalling system, correct?
+> Just for the curious, this works on Athlons. :)
 
-Hard disks (20GB) are about $100.00 these days.  CD-ROM drives are even 
-cheaper.  A smart loader will certainly fit on a floppy.
+What state does it leave the condition codes ?  That matters. 
 
-Jeff
+Take for example
 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+if (!oldval)
+                asm volatile(
+                        "2:"
+                        "cmpl $-1, %0;"
+                        "rep; nop;"
+                        "je 2b;"
+                        	: :"m" (current->need_resched));
+}
+
+When running SMP with poll_idle enabled. I can't see it changing condition
+codes on an athlon but..
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,49 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272150AbTHRRkK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 13:40:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272153AbTHRRkK
+	id S272169AbTHRRxl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 13:53:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272216AbTHRRxl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 13:40:10 -0400
-Received: from smtp.bitmover.com ([192.132.92.12]:7121 "EHLO smtp.bitmover.com")
-	by vger.kernel.org with ESMTP id S272150AbTHRRkH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 13:40:07 -0400
-Date: Mon, 18 Aug 2003 10:39:56 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: John Bradford <john@grabjohn.com>
-Cc: lm@bitmover.com, alan@lxorguk.ukuu.org.uk, jamie@shareable.org,
-       linux-kernel@vger.kernel.org, rusty@rustcorp.com.au, torvalds@osdl.org
-Subject: Re: [PATCH] use simple_strtoul for unsigned kernel parameters
-Message-ID: <20030818173956.GA14804@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	John Bradford <john@grabjohn.com>, lm@bitmover.com,
-	alan@lxorguk.ukuu.org.uk, jamie@shareable.org,
-	linux-kernel@vger.kernel.org, rusty@rustcorp.com.au,
-	torvalds@osdl.org
-References: <200308181740.h7IHe8CU001995@81-2-122-30.bradfords.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 18 Aug 2003 13:53:41 -0400
+Received: from auth22.inet.co.th ([203.150.14.104]:19207 "EHLO
+	auth22.inet.co.th") by vger.kernel.org with ESMTP id S272169AbTHRRxa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 13:53:30 -0400
+From: Michael Frank <mhf@linuxmail.org>
+To: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: Dumb question: Why are exceptions such as SIGSEGV not logged
+Date: Tue, 19 Aug 2003 01:52:29 +0800
+User-Agent: KMail/1.5.2
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+References: <200308170410.30844.mhf@linuxmail.org> <20030818143146.GV32488@holomorphy.com>
+In-Reply-To: <20030818143146.GV32488@holomorphy.com>
+X-OS: KDE 3 on GNU/Linux
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200308181740.h7IHe8CU001995@81-2-122-30.bradfords.org.uk>
-User-Agent: Mutt/1.4i
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
-	required 7, AWL, DATE_IN_PAST_06_12)
+Message-Id: <200308190152.29370.mhf@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 18, 2003 at 06:40:08PM +0100, John Bradford wrote:
-> > But who cares?  Nobody is going to run a Cray in their home for more than
-> > a few days, the power draw would get too expensive.  So this is well into
-> > "angels in the head of a pin" land.
-> 
-> Far from it - the phase converter info has re-awakened my dream of
-> owning a VAX 11/780, and I'm sure I'm not the only one...
+On Monday 18 August 2003 22:31, William Lee Irwin III wrote:
+> On Sun, Aug 17, 2003 at 04:10:30AM +0800, Michael Frank wrote:
+> > Linux logs almost everything, why not exceptions such as SIGSEGV in
+> > userspace which may be very informative?
+>
+> Such exceptions are part of the normal operation of certain kinds of
+> programs, such as ones using (nowadays unusual) certain garbage
+> collection algorithms. I actually installed such a beast (Lisp system)
+> in no small part so it would exercise "invalid" memory accesses and
+> test various bits of VM code related to such. For other VM people
+> interested in it, there's an sbcl debian package that recompiles a
+> moderately sized chunk of Lisp code and hence runs the system at
+> install-time, and so exercises the SIGSEGV path rather heavily on
+> 32-bit systems and/or systems with <= 2GB of RAM. No particular
+> intervention apart from (re)installing it is required to pound the
+> SIGSEGV path like a wild monkey, so it's actually a very convenient
+> touch test for such things.
 
-Great, then trundle over to comp.sys.dec and have the big fun.  10 seconds
-in google groups would have found you all the info you want.
+I am thinking along the line of "Exceptions" rather than "normal events"
+by specific applications. 
+
+I tend to see segfaults only when something is broken or when my lapse of 
+attention perhaps should be rewarded by said "sucker rod".
+
+The current application to trap SIGSEGV when something is badly broken 
+can be found here: 
+http://marc.theaimsgroup.com/?l=swsusp-devel&m=106121712521861&w=2
+
+Regards
+Michael
+
 -- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Powered by linux-2.6. Compiled with gcc-2.95-3 - mature and rock solid
+
+2.4/2.6 kernel testing: ACPI PCI interrupt routing, PCI IRQ sharing, swsusp
+2.6 kernel testing:     PCMCIA yenta_socket, Suspend to RAM with ACPI S1-S3
+
+More info on swsusp: http://sourceforge.net/projects/swsusp/
+

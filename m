@@ -1,70 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262178AbSJFUas>; Sun, 6 Oct 2002 16:30:48 -0400
+	id <S262176AbSJFUmg>; Sun, 6 Oct 2002 16:42:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262181AbSJFUas>; Sun, 6 Oct 2002 16:30:48 -0400
-Received: from daimi.au.dk ([130.225.16.1]:54193 "EHLO daimi.au.dk")
-	by vger.kernel.org with ESMTP id <S262178AbSJFUar>;
-	Sun, 6 Oct 2002 16:30:47 -0400
-Message-ID: <3DA09EBE.D9E2E148@daimi.au.dk>
-Date: Sun, 06 Oct 2002 22:36:14 +0200
-From: Kasper Dupont <kasperd@daimi.au.dk>
-Organization: daimi.au.dk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.18-10smp i686)
-X-Accept-Language: en
+	id <S262182AbSJFUmg>; Sun, 6 Oct 2002 16:42:36 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:3201 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262176AbSJFUmf>;
+	Sun, 6 Oct 2002 16:42:35 -0400
+Message-ID: <3DA0A144.8070301@us.ibm.com>
+Date: Sun, 06 Oct 2002 13:47:00 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>
-CC: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4: introduce get_cpu() and put_cpu()
-References: <1033933547.743.4472.camel@phantasy>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Andrew Morton <akpm@digeo.com>
+CC: lkml <linux-kernel@vger.kernel.org>,
+       "linux-mm@kvack.org" <linux-mm@kvack.org>,
+       Ingo Molnar <mingo@redhat.com>
+Subject: Re: 2.5.40-mm2
+References: <3DA0854E.CF9080D7@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
-> 
-> diff -urN linux-2.4.20-pre9/arch/i386/kernel/ioport.c linux/arch/i386/kernel/ioport.c
-> --- linux-2.4.20-pre9/arch/i386/kernel/ioport.c 2002-10-06 14:58:01.000000000 -0400
-> +++ linux/arch/i386/kernel/ioport.c     2002-10-06 15:21:04.000000000 -0400
-> @@ -55,12 +55,15 @@
->  asmlinkage int sys_ioperm(unsigned long from, unsigned long num, int turn_on)
->  {
->         struct thread_struct * t = &current->thread;
-> -       struct tss_struct * tss = init_tss + smp_processor_id();
-> +       struct tss_struct * tss;
-> 
->         if ((from + num <= from) || (from + num > IO_BITMAP_SIZE*32))
->                 return -EINVAL;
->         if (turn_on && !capable(CAP_SYS_RAWIO))
->                 return -EPERM;
-> +
-> +       tss = init_tss + get_cpu();
-> +
->         /*
->          * If it's the first ioperm() call in this thread's lifetime, set the
->          * IO bitmap up. ioperm() is much less timing critical than clone(),
+Andrew Morton wrote:
+>   Ingo said that his 2.4-based per-cpu-pages patch was beneficial to
+>   specweb, but nobody has tested these patches with specweb.  Hint.
 
-To me it really looks like you are missing a put_cpu() call somewhere.
-I know it is a no-op, but since you intend to show how to use it, I
-it really ought to be there.
+cc'ing Ingo, because I think this might be related to the timer bh 
+removal.
 
-Does this look right?
+2.5.40 doesn't last very long under Specweb.  It always dies out with 
+one of these oopses after a little while:
 
-diff -Nur linux.old/arch/i386/kernel/ioport.c linux.new/arch/i386/kernel/ioport.c
---- linux.old/arch/i386/kernel/ioport.c	Sun Oct  6 22:33:22 2002
-+++ linux.new/arch/i386/kernel/ioport.c	Sun Oct  6 22:33:53 2002
-@@ -87,6 +87,8 @@
- 	set_bitmap(t->io_bitmap, from, num, !turn_on);
- 	set_bitmap(tss->io_bitmap, from, num, !turn_on);
- 
-+	put_cpu();
-+
- 	return 0;
- }
- 
+CPU:    3
+EIP:    0060:[<801204a9>]    Not tainted
+EFLAGS: 00010006
+EIP is at run_timer_tasklet+0xcd/0x13c
+eax: 00000000   ebx: 802657a8   ecx: e3c640a0   edx: 00000000
+esi: e3c642c0   edi: 8039cae0   ebp: 00000246   esp: 8c3d9f20
+ds: 0068   es: 0068   ss: 0068
+Process swapper (pid: 0, threadinfo=8c3d8000 task=8c3dc760)
+Stack: 8c093188 00000000 8c3d8000 00000001 8011d2e5 00000000 00000001 
+80399960
+        fffffffe 00000060 8037e324 8037e324 8011cfea 80399960 0000000c 
+00000003
+        00000000 00000000 00000046 801111dd 8c3d8000 80105334 00000000 
+80107a8a
+Call Trace:
+  [<8011d2e5>] tasklet_hi_action+0x85/0xe0
+  [<8011cfea>] do_softirq+0x5a/0xac
+  [<801111dd>] smp_apic_timer_interrupt+0x111/0x118
+  [<80105334>] poll_idle+0x0/0x48
+  [<80107a8a>] apic_timer_interrupt+0x1a/0x20
+  [<80105334>] poll_idle+0x0/0x48
+  [<8010535d>] poll_idle+0x29/0x48
+  [<801053b3>] cpu_idle+0x37/0x48
+  [<801183ad>] printk+0x125/0x140
+
+Code: 89 50 04 89 02 c7 06 00 00 00 00 c7 46 04 00 00 00 00 c7 46
+
+I'll get a properly decoded one later.  I think I just wrote over my 
+old vmlinux.  But, it looks to me like this is somewhere inside 
+__run_timers() at kernel/timer.c :329, which looks something like this:
+                         list_del(&timer->entry);
+                         timer->base = NULL;
+#if CONFIG_SMP
+                         base->running_timer = timer;
+#endif
+
+kgdb kills this machine when kjournald is starting up.  Time to try 
+kdb.  I _really_ hate this POS hardware.
 
 -- 
-Kasper Dupont -- der bruger for meget tid på usenet.
-For sending spam use mailto:aaarep@daimi.au.dk
-or mailto:mcxumhvenwblvtl@skrammel.yaboo.dk
+Dave Hansen
+haveblue@us.ibm.com
+

@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262793AbTEAXt6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 19:49:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262797AbTEAXt5
+	id S262816AbTEAX7S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 19:59:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262817AbTEAX7S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 19:49:57 -0400
-Received: from rth.ninka.net ([216.101.162.244]:46553 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S262793AbTEAXtw (ORCPT
+	Thu, 1 May 2003 19:59:18 -0400
+Received: from pat.uio.no ([129.240.130.16]:39041 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262816AbTEAX7R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 19:49:52 -0400
-Subject: Re: must-fix list for 2.6.0
-From: "David S. Miller" <davem@redhat.com>
-To: Florian Weimer <fw@deneb.enyo.de>
-Cc: linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru
-In-Reply-To: <87znm6c3fd.fsf@deneb.enyo.de>
-References: <20030429231009$1e6b@gated-at.bofh.it>
-	 <87k7dcinxg.fsf@deneb.enyo.de> <1051788267.8772.9.camel@rth.ninka.net>
-	 <87znm6c3fd.fsf@deneb.enyo.de>
-Content-Type: text/plain
+	Thu, 1 May 2003 19:59:17 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1051790736.8772.23.camel@rth.ninka.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 01 May 2003 05:05:36 -0700
+Message-ID: <16049.47030.861152.708686@charged.uio.no>
+Date: Fri, 2 May 2003 02:11:34 +0200
+To: Bojan Smojver <bojan@rexursive.com>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.68: NFS3+exported /mnt/cdrom+eject: system lockup
+In-Reply-To: <1051829732.1529.2.camel@coyote.rexursive.com>
+References: <1051754203.3eb07edb09c51@imp.rexursive.com>
+	<shsd6j3gdan.fsf@charged.uio.no>
+	<1051829732.1529.2.camel@coyote.rexursive.com>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-05-01 at 04:27, Florian Weimer wrote:
-> "David S. Miller" <davem@redhat.com> writes:
-> 
-> > On Tue, 2003-04-29 at 21:55, Florian Weimer wrote:
-> >> Andrew Morton <akpm@digeo.com> writes:
-> >> 
-> >> > net/
-> >> > ----
-> >> 
-> >> What about the dst cache DoS attack?
-> >
-> > Thanks for the lack of detailed description of the problem.
-> > Without it nobody can help you.
-> 
-> Shall I post the exploit?
+>>>>> " " == Bojan Smojver <bojan@rexursive.com> writes:
 
-Don't let me stop you.
+     > Anyway, I have observed other strange stuff too, like not being
+     > able to unmount /mnt/cdrom while it's being
+     > exported.
 
-You can't expect us to act on anything based upon vague references
-to "dst cache DoS" and things like that.
+That is *correct* behaviour. If the partition is exported, then it is
+in use.
 
-I also would appreciate it if you'd actually at least add the
-networking maintainers to the CC: list when asking/discussing
-such problems.  Bringing it up on places like linux-net and
-netdev@oss.sgi.com would be a good idea too.
+     > Workaround: stop NFS, unmount, start NFS. Not sure if this is
+     > normal or not...
 
-Random blather on linux-kernel tends to get ignored.
+Either that, or you unexport it, then umount.
 
--- 
-David S. Miller <davem@redhat.com>
+Cheers,
+  Trond

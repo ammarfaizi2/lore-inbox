@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129324AbRAIRy4>; Tue, 9 Jan 2001 12:54:56 -0500
+	id <S131383AbRAIR4f>; Tue, 9 Jan 2001 12:56:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129431AbRAIRyq>; Tue, 9 Jan 2001 12:54:46 -0500
-Received: from ns.caldera.de ([212.34.180.1]:21772 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S129324AbRAIRyc>;
-	Tue, 9 Jan 2001 12:54:32 -0500
-Date: Tue, 9 Jan 2001 18:53:10 +0100
-From: Christoph Hellwig <hch@caldera.de>
-To: "Benjamin C.R. LaHaise" <blah@kvack.org>
-Cc: Ingo Molnar <mingo@elte.hu>, "Stephen C. Tweedie" <sct@redhat.com>,
-        "David S. Miller" <davem@redhat.com>, riel@conectiva.com.br,
-        netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+	id <S129627AbRAIR4Z>; Tue, 9 Jan 2001 12:56:25 -0500
+Received: from ferret.lmh.ox.ac.uk ([163.1.138.204]:9223 "HELO
+	ferret.lmh.ox.ac.uk") by vger.kernel.org with SMTP
+	id <S129431AbRAIR4N>; Tue, 9 Jan 2001 12:56:13 -0500
+Date: Tue, 9 Jan 2001 17:56:11 +0000 (GMT)
+From: Chris Evans <chris@scary.beasts.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: <linux-kernel@vger.kernel.org>
 Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-Message-ID: <20010109185310.C15990@caldera.de>
-Mail-Followup-To: "Benjamin C.R. LaHaise" <blah@kvack.org>,
-	Ingo Molnar <mingo@elte.hu>, "Stephen C. Tweedie" <sct@redhat.com>,
-	"David S. Miller" <davem@redhat.com>, riel@conectiva.com.br,
-	netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0101091547520.4491-100000@e2> <Pine.LNX.3.96.1010109103229.5051A-100000@kanga.kvack.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
-In-Reply-To: <Pine.LNX.3.96.1010109103229.5051A-100000@kanga.kvack.org>; from blah@kvack.org on Tue, Jan 09, 2001 at 10:38:30AM -0500
+In-Reply-To: <Pine.LNX.4.30.0101091743090.5932-100000@e2>
+Message-ID: <Pine.LNX.4.30.0101091755320.25936-100000@ferret.lmh.ox.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 09, 2001 at 10:38:30AM -0500, Benjamin C.R. LaHaise wrote:
-> What you're completely ignoring is that sendpages is lacking a huge amount
-> of functionality that is *needed*.  I can't implement clean async io on
-> top of sendpages -- it'll require keeping 1 task around per outstanding
-> io, which is exactly the bottleneck we're trying to work around.
 
-Yepp.  That's why I proposed to ue rw_kiovec.  Currently Alexy seems
-to have an own hack for socket-only asynch IO with some COW semantics
-for the userlevel buffers, but I would much prefer a generic version...
+On Tue, 9 Jan 2001, Ingo Molnar wrote:
 
-	Christoph
+> This is one of the busiest and most complex block-IO Linux systems i've
+> ever seen, this is why i quoted it - the talk was about block-IO
+> performance, and Stephen said that our block IO sucks. It used to suck,
+> but in 2.4, with the right patch from Jens, it doesnt suck anymore. )
 
-P.S. Any chance to find a new version of your aio-patch somewhere?
--- 
-Of course it doesn't work. We've performed a software upgrade.
+Is this "right patch from Jens" on the radar for 2.4 inclusion?
+
+Cheers
+Chris
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,35 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315259AbSFTQmz>; Thu, 20 Jun 2002 12:42:55 -0400
+	id <S315265AbSFTQul>; Thu, 20 Jun 2002 12:50:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315265AbSFTQmU>; Thu, 20 Jun 2002 12:42:20 -0400
-Received: from hq.fsmlabs.com ([209.155.42.197]:5131 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S315279AbSFTQlz>;
-	Thu, 20 Jun 2002 12:41:55 -0400
-From: Cort Dougan <cort@fsmlabs.com>
-Date: Thu, 20 Jun 2002 10:30:03 -0600
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Benjamin LaHaise <bcrl@redhat.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, Robert Love <rml@tech9.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: latest linus-2.5 BK broken
-Message-ID: <20020620103003.C6243@host110.fsmlabs.com>
-References: <Pine.LNX.4.44.0206191018510.2053-100000@home.transmeta.com> <m1d6umtxe8.fsf@frodo.biederman.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <m1d6umtxe8.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Wed, Jun 19, 2002 at 09:57:35PM -0600
+	id <S315277AbSFTQuk>; Thu, 20 Jun 2002 12:50:40 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:45784 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S315265AbSFTQui>; Thu, 20 Jun 2002 12:50:38 -0400
+Date: Thu, 20 Jun 2002 18:50:12 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Jens Axboe <axboe@suse.de>
+cc: Martin Dalecki <dalecki@evision-ventures.com>,
+       Paul Bristow <paul@paulbristow.net>,
+       Gadi Oxman <gadio@netvision.net.il>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.5.22] simple ide-tape.c and ide-floppy.c cleanup
+In-Reply-To: <20020620164417.GA3893@suse.de>
+Message-ID: <Pine.SOL.4.30.0206201847260.23175-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Beating the SMP horse to death" does make sense for 2 processor SMP
-machines.  When 64 processor machines become commodity (Linux is a
-commodity hardware OS) something will have to be done.  When research
-groups put Linux on 1k processors - it's an experiment.  I don't think they
-have much right to complain that Linux doesn't scale up to that level -
-it's not designed to.
 
-That being said, large clusters are an interesting research area but it is
-_not_ a failing of Linux that it doesn't scale to them.
+On Thu, 20 Jun 2002, Jens Axboe wrote:
+
+> On Thu, Jun 20 2002, Bartlomiej Zolnierkiewicz wrote:
+> >
+> > On Thu, 20 Jun 2002, Martin Dalecki wrote:
+> >
+> > > U?ytkownik Jens Axboe napisa?:
+> > > > On Thu, Jun 20 2002, Martin Dalecki wrote:
+> > > >
+> > > >>U?ytkownik Jens Axboe napisa?:
+> > > >>
+> > > >>>On Wed, Jun 19 2002, Bartlomiej Zolnierkiewicz wrote:
+> > > >>>
+> > > >>>Looks pretty good in general, just one minor detail:
+> > > >>>
+> > > >>>
+> > > >>>
+> > > >>>>+
+> > > >>>>+/*
+> > > >>>>+ *	ATAPI packet commands.
+> > > >>>>+ */
+> > > >>>>+#define ATAPI_FORMAT_UNIT_CMD		0x04
+> > > >>>>+#define ATAPI_INQUIRY_CMD		0x12
+> > > >>>
+> > > >>>
+> > > >>>[snip]
+> > > >>>
+> > > >>>We already have the "full" list in cdrom.h (GPCMD_*), so lets just use
+> > > >>>that. After all, ATAPI_MODE_SELECT10_CMD _is_ the same as the SCSI
+> > > >>>variant (and I think the _CMD post fixing is silly, anyone familiar with
+> > > >>>this is going to know what ATAPI_WRITE10 means just fine)
+> > > >>>
+> > > >>>Same for request_sense, that is already generalized in cdrom.h as well.
+> > > >>
+> > > >>I wonder what FreeBSD is using here? I see no need for invention at
+> > > >>this place.
+> > > >
+> > > >
+> > > > The invention would be adding the ATAPI_* commands, Linux has used the
+> > > > GPCMD_ convention for quite some time now.
+> > >
+> > > Agreed. The ATAPI prefix would be confusing, since those are in reality SCSI
+> > > commands anyway...
+> >
+> > I think we should use scsi.h and get rid of GPCMD_* convention also.
+> > Jens, do you want "corrected" patch?
+>
+> Note that GPCMD_ is exported to user land, and several programs are
+> using them for quite some time. So GPCMD_ stays, and that's final.
+>
+
+There was some discussion that user land should not include linux/ headers
+directly, so in long term user land should be fixed not to use GPCMD_* ...
+
+
+

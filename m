@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272257AbRIRPjN>; Tue, 18 Sep 2001 11:39:13 -0400
+	id <S272295AbRIRPoX>; Tue, 18 Sep 2001 11:44:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272158AbRIRPjD>; Tue, 18 Sep 2001 11:39:03 -0400
-Received: from mail.missioncriticallinux.com ([208.51.139.18]:5386 "EHLO
-	missioncriticallinux.com") by vger.kernel.org with ESMTP
-	id <S272137AbRIRPi7>; Tue, 18 Sep 2001 11:38:59 -0400
-Message-ID: <3BA76AA7.3371FE54@MissionCriticalLinux.com>
-Date: Tue, 18 Sep 2001 08:39:19 -0700
-From: Bruce Blinn <blinn@MissionCriticalLinux.com>
-Organization: Mission Critical Linux
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.6-bcb i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Masoud Sharbiani <masu@cr213096-a.rchrd1.on.wave.home.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Reading Windows CD on Linux 2.4.6
-In-Reply-To: <Pine.LNX.3.95.1010917222328.18866A-100000@chaos.analogic.com>
+	id <S272280AbRIRPoN>; Tue, 18 Sep 2001 11:44:13 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:28266 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S272270AbRIRPoH>; Tue, 18 Sep 2001 11:44:07 -0400
+Date: Tue, 18 Sep 2001 17:44:34 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: jogi@planetzork.ping.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10-pre11: alsaplayer skiping during kernel build (-pre10 did not)
+Message-ID: <20010918174434.I19092@athlon.random>
+In-Reply-To: <20010918171416.A6540@planetzork.spacenet> <20010918172500.F19092@athlon.random> <20010918173515.B6698@planetzork.spacenet>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20010918173515.B6698@planetzork.spacenet>; from jogi@planetzork.ping.de on Tue, Sep 18, 2001 at 05:35:15PM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" wrote:
-> 
-> Okay. That's good. The guy that asked to get the image to find out what
-> was happening can probably use a small piece of that to find out what
-> is going on. It probably is a CD data + Music image where the first
-> readable stuff is data, followed by a music image.
-> 
-> You can try cdda2wav -D0,4,0, -B. You will probably get some *.wav files.
-> 
+On Tue, Sep 18, 2001 at 05:35:15PM +0200, jogi@planetzork.ping.de wrote:
+> Since I am not using md there are not that much changes left between
+> -pre10 and -pre11. Or do you think that it is caused by the console
+> locking changes?
 
-I cannot find the cdda2wav command on my system.  Also, my disks only
-have data on them, not music.
+certainly not from the console locking changes. Can you just go back to
+pre10 and verify you don't get those skips to just to be 100% sure the
+userspace config is the same?
 
-Thanks,
-Bruce
--- 
-Bruce Blinn                               408-615-9100
-Mission Critical Linux, Inc.              blinn@MissionCriticalLinux.com
-www.MissionCriticalLinux.com
+The only scheduler change in pre11 is this one:
+
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.10pre10aa1/00_sched-rt-fix-1
+
+which should be infact a bugfix for rt threads, also discussed on l-k
+recently, so it's not clear how this odd regression happened.
+
+You can try to back it out and see if helps just in case.
+
+Andrea

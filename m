@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264319AbUENXOl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264550AbUENXOk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264319AbUENXOl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 19:14:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264542AbUENXNr
+	id S264550AbUENXOk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 19:14:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264543AbUENXOG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 19:13:47 -0400
-Received: from mail.kroah.org ([65.200.24.183]:59100 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264305AbUENXIN convert rfc822-to-8bit
+	Fri, 14 May 2004 19:14:06 -0400
+Received: from mail.kroah.org ([65.200.24.183]:59868 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264319AbUENXIO convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 19:08:13 -0400
+	Fri, 14 May 2004 19:08:14 -0400
 X-Donotread: and you are reading this why?
 Subject: Re: [PATCH] Driver Core patches for 2.6.6
-In-Reply-To: <10845760432011@kroah.com>
+In-Reply-To: <10845760411194@kroah.com>
 X-Patch: quite boring stuff, it's just source code...
-Date: Fri, 14 May 2004 16:07:23 -0700
-Message-Id: <10845760433004@kroah.com>
+Date: Fri, 14 May 2004 16:07:22 -0700
+Message-Id: <1084576042887@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,114 +23,123 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1587.5.24, 2004/05/11 14:31:21-07:00, hannal@us.ibm.com
+ChangeSet 1.1587.5.14, 2004/05/02 20:28:58-07:00, hannal@us.ibm.com
 
-[PATCH] Add class support to drivers/net/wan/cosa.c
-
-This patch adds sysfs class support to the Cosa driver. I have verified it
-compiles but do not have the hardware to test it. If someone could that
-would be helpful.
+[PATCH] Add class support to drivers/char/ip2main.c
 
 
- drivers/net/wan/cosa.c |   41 ++++++++++++++++++++++++++++++++++-------
- 1 files changed, 34 insertions(+), 7 deletions(-)
+ drivers/char/ip2main.c |   44 +++++++++++++++++++++++++++++++++++++++-----
+ 1 files changed, 39 insertions(+), 5 deletions(-)
 
 
-diff -Nru a/drivers/net/wan/cosa.c b/drivers/net/wan/cosa.c
---- a/drivers/net/wan/cosa.c	Fri May 14 15:56:57 2004
-+++ b/drivers/net/wan/cosa.c	Fri May 14 15:56:57 2004
-@@ -93,6 +93,7 @@
- #include <linux/netdevice.h>
- #include <linux/spinlock.h>
- #include <linux/smp_lock.h>
+diff -Nru a/drivers/char/ip2main.c b/drivers/char/ip2main.c
+--- a/drivers/char/ip2main.c	Fri May 14 15:59:27 2004
++++ b/drivers/char/ip2main.c	Fri May 14 15:59:27 2004
+@@ -99,6 +99,7 @@
+ #include <linux/slab.h>
+ #include <linux/major.h>
+ #include <linux/wait.h>
 +#include <linux/device.h>
  
- #undef COSA_SLOW_IO	/* for testing purposes only */
- #undef REALLY_SLOW_IO
-@@ -233,6 +234,9 @@
- /* IRQ can be safely autoprobed */
- static int irq[MAX_CARDS+1] = { -1, -1, -1, -1, -1, -1, 0, };
+ #include <linux/tty.h>
+ #include <linux/tty_flip.h>
+@@ -301,6 +302,9 @@
+ static char rirqs[IP2_MAX_BOARDS];
+ static int Valid_Irqs[] = { 3, 4, 5, 7, 10, 11, 12, 15, 0};
  
-+/* for class stuff*/
-+static struct class_simple *cosa_class;
++/* for sysfs class support */
++static struct class_simple *ip2_class;
 +
- #ifdef MODULE
- MODULE_PARM(io, "1-" __MODULE_STRING(MAX_CARDS) "i");
- MODULE_PARM_DESC(io, "The I/O bases of the COSA or SRP cards");
-@@ -359,7 +363,7 @@
+ // Some functions to keep track of what irq's we have
  
- static int __init cosa_init(void)
+ static int __init
+@@ -411,7 +415,9 @@
+ 			iiResetDelay( i2BoardPtrTable[i] );
+ 			/* free io addresses and Tibet */
+ 			release_region( ip2config.addr[i], 8 );
++			class_simple_device_remove(MKDEV(IP2_IPL_MAJOR, 4 * i)); 
+ 			devfs_remove("ip2/ipl%d", i);
++			class_simple_device_remove(MKDEV(IP2_IPL_MAJOR, 4 * i + 1));
+ 			devfs_remove("ip2/stat%d", i);
+ 		}
+ 		/* Disable and remove interrupt handler. */
+@@ -420,6 +426,7 @@
+ 			clear_requested_irq( ip2config.irq[i]);
+ 		}
+ 	}
++	class_simple_destroy(ip2_class);
+ 	devfs_remove("ip2");
+ 	if ( ( err = tty_unregister_driver ( ip2_tty_driver ) ) ) {
+ 		printk(KERN_ERR "IP2: failed to unregister tty driver (%d)\n", err);
+@@ -494,7 +501,7 @@
+ ip2_loadmain(int *iop, int *irqp, unsigned char *firmware, int firmsize) 
  {
--	int i;
-+	int i, err = 0;
- 
- 	printk(KERN_INFO "cosa v1.08 (c) 1997-2000 Jan Kasprzak <kas@fi.muni.cz>\n");
- #ifdef CONFIG_SMP
-@@ -369,12 +373,14 @@
- 		if (register_chrdev(cosa_major, "cosa", &cosa_fops)) {
- 			printk(KERN_WARNING "cosa: unable to get major %d\n",
- 				cosa_major);
--			return -EIO;
-+			err = -EIO;
-+			goto out;
- 		}
- 	} else {
- 		if (!(cosa_major=register_chrdev(0, "cosa", &cosa_fops))) {
- 			printk(KERN_WARNING "cosa: unable to register chardev\n");
--			return -EIO;
-+			err = -EIO;
-+			goto out;
- 		}
- 	}
- 	for (i=0; i<MAX_CARDS; i++)
-@@ -384,15 +390,33 @@
- 	if (!nr_cards) {
- 		printk(KERN_WARNING "cosa: no devices found.\n");
- 		unregister_chrdev(cosa_major, "cosa");
--		return -ENODEV;
-+		err = -ENODEV;
-+		goto out;
- 	}
- 	devfs_mk_dir("cosa");
-+	cosa_class = class_simple_create(THIS_MODULE, "cosa");
-+	if (IS_ERR(cosa_class)) {
-+		err = PTR_ERR(cosa_class);
-+		goto out_chrdev;
-+	}
- 	for (i=0; i<nr_cards; i++) {
--		devfs_mk_cdev(MKDEV(cosa_major, i),
-+		class_simple_device_add(cosa_class, MKDEV(cosa_major, i),
-+				NULL, "cosa%d", i);
-+		err = devfs_mk_cdev(MKDEV(cosa_major, i),
- 				S_IFCHR|S_IRUSR|S_IWUSR,
- 				"cosa/%d", i);
-+		if (err) {
-+			class_simple_device_remove(MKDEV(cosa_major, i));
-+			goto out_chrdev;		
+ 	int i, j, box;
+-	int err;
++	int err = 0;
+ 	int status = 0;
+ 	static int loaded;
+ 	i2eBordStrPtr pB = NULL;
+@@ -683,7 +690,14 @@
+ 	/* Register the IPL driver. */
+ 	if ( ( err = register_chrdev ( IP2_IPL_MAJOR, pcIpl, &ip2_ipl ) ) ) {
+ 		printk(KERN_ERR "IP2: failed to register IPL device (%d)\n", err );
+-	} else
++	} else {
++		/* create the sysfs class */
++		ip2_class = class_simple_create(THIS_MODULE, "ip2");
++		if (IS_ERR(ip2_class)) {
++			err = PTR_ERR(ip2_class);
++			goto out_chrdev;	
 +		}
++	}
+ 	/* Register the read_procmem thing */
+ 	if (!create_proc_info_entry("ip2mem",0,&proc_root,ip2_read_procmem)) {
+ 		printk(KERN_ERR "IP2: failed to register read_procmem\n");
+@@ -700,13 +714,27 @@
+ 			}
+ 
+ 			if ( NULL != ( pB = i2BoardPtrTable[i] ) ) {
+-				devfs_mk_cdev(MKDEV(IP2_IPL_MAJOR, 4 * i),
++				class_simple_device_add(ip2_class, MKDEV(IP2_IPL_MAJOR, 
++						4 * i), NULL, "ipl%d", i);
++				err = devfs_mk_cdev(MKDEV(IP2_IPL_MAJOR, 4 * i),
+ 						S_IRUSR | S_IWUSR | S_IRGRP | S_IFCHR,
+ 						"ip2/ipl%d", i);
++				if (err) {
++					class_simple_device_remove(MKDEV(IP2_IPL_MAJOR, 
++						4 * i));
++					goto out_class;
++				}
+ 
+-				devfs_mk_cdev(MKDEV(IP2_IPL_MAJOR, 4 * i + 1),
++				class_simple_device_add(ip2_class, MKDEV(IP2_IPL_MAJOR, 
++						4 * i + 1), NULL, "stat%d", i);
++				err = devfs_mk_cdev(MKDEV(IP2_IPL_MAJOR, 4 * i + 1),
+ 						S_IRUSR | S_IWUSR | S_IRGRP | S_IFCHR,
+ 						"ip2/stat%d", i);
++				if (err) {
++					class_simple_device_remove(MKDEV(IP2_IPL_MAJOR, 
++						4 * i + 1));
++					goto out_class;
++				}
+ 
+ 			    for ( box = 0; box < ABS_MAX_BOXES; ++box )
+ 			    {
+@@ -759,8 +787,14 @@
+ 		}
  	}
--	return 0;
-+	err = 0;
+ 	ip2trace (ITRC_NO_PORT, ITRC_INIT, ITRC_RETURN, 0 );
 +	goto out;
-+	
+ 
+-	return 0;
++out_class:
++	class_simple_destroy(ip2_class);
 +out_chrdev:
-+	unregister_chrdev(cosa_major, "cosa");
++	unregister_chrdev(IP2_IPL_MAJOR, "ip2");
 +out:
 +	return err;
  }
- module_init(cosa_init);
  
-@@ -402,8 +426,11 @@
- 	int i;
- 	printk(KERN_INFO "Unloading the cosa module\n");
- 
--	for (i=0; i<nr_cards; i++)
-+	for (i=0; i<nr_cards; i++) {
-+		class_simple_device_remove(MKDEV(cosa_major, i));
- 		devfs_remove("cosa/%d", i);
-+	}
-+	class_simple_destroy(cosa_class);
- 	devfs_remove("cosa");
- 	for (cosa=cosa_cards; nr_cards--; cosa++) {
- 		/* Clean up the per-channel data */
+ EXPORT_SYMBOL(ip2_loadmain);
 

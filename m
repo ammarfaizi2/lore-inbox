@@ -1,80 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265144AbUH0OOV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265264AbUH0OOy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265144AbUH0OOV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 10:14:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265245AbUH0OOV
+	id S265264AbUH0OOy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 10:14:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265245AbUH0OOy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 10:14:21 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:9909 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S265144AbUH0ON5 (ORCPT
+	Fri, 27 Aug 2004 10:14:54 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:2772 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S265264AbUH0OOn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 10:13:57 -0400
-Date: Fri, 27 Aug 2004 15:13:54 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: drm fixup 2/2 - optimise i8x0 accesses..
-Message-ID: <Pine.LNX.4.58.0408271512330.32411@skynet>
+	Fri, 27 Aug 2004 10:14:43 -0400
+Date: Fri, 27 Aug 2004 10:12:43 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Hans Reiser <reiser@namesys.com>
+cc: David Masover <ninja@slaphack.com>, Linus Torvalds <torvalds@osdl.org>,
+       Diego Calleja <diegocg@teleline.es>, <jamie@shareable.org>,
+       <christophe@saout.de>, <vda@port.imtp.ilyichevsk.odessa.ua>,
+       <christer@weinigel.se>, <spam@tnonline.net>, <akpm@osdl.org>,
+       <wichert@wiggy.net>, <jra@samba.org>, <hch@lst.de>,
+       <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+       <flx@namesys.com>, <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+In-Reply-To: <412EEB75.1030401@namesys.com>
+Message-ID: <Pine.LNX.4.44.0408271010300.10272-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 27 Aug 2004, Hans Reiser wrote:
 
-   the patch below optimises the drm code to not do put_user() on memory the
-   kernel allocated and then mmap-installed to userspace, but instead makes it
-   use the kernel virtual address directly instead.
+> Why are you guys even considering going to any pain at all to distort 
+> semantics for the sake of backup?  tar is easy, we'll fix it and send in 
+> a patch. 
 
-   From: Arjan van de Ven <arjanv@redhat.com>
-   Signed-off-by: Dave Airlie <airlied@linux.ie>
+Because not everybody uses tar.  Quite a few people use a
+network backup system, while others use duplicity, RPM uses
+cpio internally and big companies tend to use proprietary
+network backup suites.
 
+Breaking people's setup is something to worry about.
 
-diff -Nru a/drivers/char/drm/i810_dma.c b/drivers/char/drm/i810_dma.c
---- a/drivers/char/drm/i810_dma.c	Sat Aug 28 00:01:57 2004
-+++ b/drivers/char/drm/i810_dma.c	Sat Aug 28 00:01:57 2004
-@@ -844,13 +844,10 @@
- 	if (buf_priv->currently_mapped == I810_BUF_MAPPED) {
- 		unsigned int prim = (sarea_priv->vertex_prim & PR_MASK);
-
--		put_user((GFX_OP_PRIMITIVE | prim |
--					     ((used/4)-2)),
--		(u32 __user *)buf_priv->virtual);
-+		*(u32 *)buf_priv->kernel_virtual = ((GFX_OP_PRIMITIVE | prim | ((used/4)-2)));
-
- 		if (used & 4) {
--			put_user(0,
--			(u32 __user *)((u32)buf_priv->virtual + used));
-+			*(u32 *)((u32)buf_priv->kernel_virtual + used) = 0;
- 			used += 4;
- 		}
-
-diff -Nru a/drivers/char/drm/i830_dma.c b/drivers/char/drm/i830_dma.c
---- a/drivers/char/drm/i830_dma.c	Sat Aug 28 00:01:57 2004
-+++ b/drivers/char/drm/i830_dma.c	Sat Aug 28 00:01:57 2004
-@@ -1166,19 +1166,19 @@
-    	DRM_DEBUG(  "start + used - 4 : %ld\n", start + used - 4);
-
- 	if (buf_priv->currently_mapped == I830_BUF_MAPPED) {
--		u32  __user *vp = buf_priv->virtual;
-+		u32 *vp = buf_priv->kernel_virtual;
-
--		put_user( (GFX_OP_PRIMITIVE |
--			 sarea_priv->vertex_prim |
--			  ((used/4)-2)), &vp[0]);
-+		vp[0] = (GFX_OP_PRIMITIVE |
-+			sarea_priv->vertex_prim |
-+			((used/4)-2));
-
- 		if (dev_priv->use_mi_batchbuffer_start) {
--			put_user(MI_BATCH_BUFFER_END, &vp[used/4]);
-+			vp[used/4] = MI_BATCH_BUFFER_END;
- 			used += 4;
- 		}
-
- 		if (used & 4) {
--			put_user(0, &vp[used/4]);
-+			vp[used/4] = 0;
- 			used += 4;
- 		}
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

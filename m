@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262796AbTHUUYt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 16:24:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262876AbTHUUYt
+	id S262877AbTHUUbc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 16:31:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262885AbTHUUbb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 16:24:49 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:63244 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S262796AbTHUUYs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 16:24:48 -0400
-Date: Thu, 21 Aug 2003 22:22:20 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: "Bryan O'Sullivan" <bos@serpentine.com>
-Cc: viro@parcelfarce.linux.theplanet.co.uk, Jeff Garzik <jgarzik@pobox.com>,
-       gkajmowi@tbaytel.net, linux-kernel@vger.kernel.org
-Subject: Re: Initramfs
-Message-ID: <20030821202220.GD734@alpha.home.local>
-References: <200308210044.17876.gkajmowi@tbaytel.net> <1061447419.19503.20.camel@camp4.serpentine.com> <3F44D504.7060909@pobox.com> <1061490490.23060.9.camel@serpentine.internal.keyresearch.com> <20030821190358.GF454@parcelfarce.linux.theplanet.co.uk> <1061495854.23060.12.camel@serpentine.internal.keyresearch.com>
+	Thu, 21 Aug 2003 16:31:31 -0400
+Received: from smtp012.mail.yahoo.com ([216.136.173.32]:16134 "HELO
+	smtp012.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262877AbTHUUba convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 16:31:30 -0400
+Date: Thu, 21 Aug 2003 22:31:41 +0200
+From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <aradorlinux@yahoo.es>
+To: Lou Langholtz <ldl@aros.net>
+Cc: jgarzik@pobox.com, willy@debian.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: [PATCH] bio.c: reduce verbosity at boot
+Message-Id: <20030821223141.74ccb89e.aradorlinux@yahoo.es>
+In-Reply-To: <3F44F88F.9010106@aros.net>
+References: <20030821150211.GU19630@parcelfarce.linux.theplanet.co.uk>
+	<3F44E2EB.6020508@pobox.com>
+	<3F44F88F.9010106@aros.net>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1061495854.23060.12.camel@serpentine.internal.keyresearch.com>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 21, 2003 at 12:57:34PM -0700, Bryan O'Sullivan wrote:
-> On Thu, 2003-08-21 at 12:03, viro@parcelfarce.linux.theplanet.co.uk
-> wrote:
-> 
-> > RTFM.  cpio -o -H newc should be used to create an archive; _not_ the
-> > "binary" format that is default.
-> 
-> There is no FM to R in this regard.
+El Thu, 21 Aug 2003 10:51:27 -0600 Lou Langholtz <ldl@aros.net> escribió:
 
-Except if he meant "Reclaim The Future Manual"
-:-)
+> How about using KERN_DEBUG and augmenting the dmesg store so that the 
+> level that is saved is configurable? Even compile time configurable 
+> seems reasonable to start. But axeing out even the possibility of boot 
+> time info seems bad to me.
+
+Like this?
+
+(14) Kernel log buffer size (16 => 64KB, 17 => 128KB)  
+
+Available at least in 2.6.0-test3 under "General setup"
+

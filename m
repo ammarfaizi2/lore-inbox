@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262765AbTKYR3v (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Nov 2003 12:29:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262767AbTKYR3v
+	id S262133AbTKYRdl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Nov 2003 12:33:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262491AbTKYRdl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Nov 2003 12:29:51 -0500
-Received: from home.wiggy.net ([213.84.101.140]:50363 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id S262765AbTKYR3u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Nov 2003 12:29:50 -0500
-Date: Tue, 25 Nov 2003 18:29:49 +0100
-From: Wichert Akkerman <wichert@wiggy.net>
-To: Linux Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch 3/5] dm: make v4 of the ioctl interface the default
-Message-ID: <20031125172949.GE17907@wiggy.net>
-Mail-Followup-To: Linux Mailing List <linux-kernel@vger.kernel.org>
-References: <20031125162451.GA524@reti> <20031125163313.GD524@reti> <3FC387A0.8010600@backtobasicsmgmt.com> <20031125170503.GG524@reti>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031125170503.GG524@reti>
-User-Agent: Mutt/1.5.4i
+	Tue, 25 Nov 2003 12:33:41 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:40199 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262133AbTKYRdk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Nov 2003 12:33:40 -0500
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: What exactly are the issues with 2.6.0-test10 preempt?
+Date: 25 Nov 2003 17:22:43 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bq0353$4m8$1@gatekeeper.tmr.com>
+References: <Pine.LNX.4.58.0311241356420.1473@home.osdl.org> <20031124222652.16351.qmail@web40910.mail.yahoo.com> <yw1xhe0t8k4i.fsf@kth.se> <20031124225112.GA1343@mis-mike-wstn.matchmail.com>
+X-Trace: gatekeeper.tmr.com 1069780963 4808 192.168.12.62 (25 Nov 2003 17:22:43 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously Joe Thornber wrote:
-> For the last few months the tools have supported both v1 and v4
-> interfaces, allowing people to roll back to older kernels.
+In article <20031124225112.GA1343@mis-mike-wstn.matchmail.com>,
+Mike Fedyk  <mfedyk@matchmail.com> wrote:
+| On Mon, Nov 24, 2003 at 11:41:33PM +0100, M?ns Rullg?rd wrote:
+| > I've been running 2.6.0-test10 for a few hours on my P4M Asus laptop.
+| > Playing music, editing files, compiling some things, some web surfing,
+| > no problems.  Nothing unusual reported by the kernel.
+| 
+| Now take your .config and compare it with someone who is getting problems
+| with preempt, and others, and narrow it down.
 
-'last few months' is extremely short for a migration path. Can't we
-ditch the v1 interface in 2.7 and allow people to migrate slowly?
+Just a caution, I suspect that this is related to something happening in
+a small time window, and identical configs might not work the same on
+different machines. Interrupt timing can be changed by disk layout,
+rotational speed of the drive, interrupt priority, maybe even a user
+event like keystroke or mouse action.
 
-Wichert.
-
+Comparing configs will help, but may not be consistent.
 -- 
-Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
-http://www.wiggy.net/                   It is hard to make things simple.
-
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

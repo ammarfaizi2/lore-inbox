@@ -1,53 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261478AbUK2SM7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261467AbUK2SRn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261478AbUK2SM7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 13:12:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbUK2SMm
+	id S261467AbUK2SRn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 13:17:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261469AbUK2SRm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 13:12:42 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45797 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261462AbUK2SMU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 13:12:20 -0500
-Date: Mon, 29 Nov 2004 18:12:12 +0000
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ppcfix.diff
-Message-ID: <20041129181210.GO26051@parcelfarce.linux.theplanet.co.uk>
-References: <20041129154041.GB4616@hugang.soulinfo.com> <20041129172252.GN26051@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.53.0411291843360.9120@yvahk01.tjqt.qr>
+	Mon, 29 Nov 2004 13:17:42 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:63389 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261467AbUK2SRk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 13:17:40 -0500
+Date: Mon, 29 Nov 2004 13:17:19 -0500
+From: Dave Jones <davej@redhat.com>
+To: Gerd Knorr <kraxel@bytesex.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: MTRR vesafb and wrong X performance
+Message-ID: <20041129181718.GA16782@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Gerd Knorr <kraxel@bytesex.org>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <1101338139.1780.9.camel@PC3.dom.pl> <20041124171805.0586a5a1.akpm@osdl.org> <1101419803.1764.23.camel@PC3.dom.pl> <87is7ogb93.fsf@bytesex.org> <20041129154006.GB3898@redhat.com> <20041129162242.GA25668@bytesex> <20041129165701.GA903@redhat.com> <20041129173419.GC26190@bytesex>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0411291843360.9120@yvahk01.tjqt.qr>
+In-Reply-To: <20041129173419.GC26190@bytesex>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 29, 2004 at 06:44:14PM +0100, Jan Engelhardt wrote:
-> >>  	if (!cpus_empty(keepmask)) {
-> >> -		cpumask_t irqdest = { .bits[0] = openpic_read(&ISR[irq]->Destination) };
-> >> +		cpumask_t irqdest;
-> >> +		irqdest.bits[0] = openpic_read(&ISR[irq]->Destination);
-> >
-> >Not an equivalent replacement.  The former means "set irqdest.bits[0] to
-> ><expression> and set the rest of fields/array elements in them to zero/null".
-> 
-> Really? I thought zero'ing only happens for static storage.
+On Mon, Nov 29, 2004 at 06:34:19PM +0100, Gerd Knorr wrote:
+ > > size_total is calculated thus:
+ > > 
+ > >     size_total = screen_info.lfb_size * 65536;
+ > 
+ > That comes almost directly from the BIOS, the screen_info struct is
+ > filled by the real mode boot code (vga.S IIRC).
 
-Two different issues - behaviour when no initializer is given and behaviour
-when initializer does not cover everything.
+ah yes, video.S, (sets PARAM_LFB_SIZE), which is why my grep failed.
 
-IOW,
+ > > or blacklist if there aren't too many perhaps?
+ > 
+ > Hmm, how identify them?  Map the BIOS and poke around there?
+ > screen_info gives next to no info here.
+ > 
+ > Maybe it works better to walk the PCI device list, find the correct
+ > gfx card using the framebuffer start address, then double-check the
+ > size by looking at the PCI ressources?
 
-static int a1[4];		/* all zeroes, since it's non-auto */
-static int a2[4] = {1,0,0,0}	/* 1 0 0 0, we have initialized them all */
-static int a3[4] = {1}		/* 1 0 0 0, missing members are zeroed */
-void f(void)
-{
-	int b1[4];		/* undefined contents */
-	int b2[4] = {1,0,0,0}	/* 1 0 0 0, we have initialized them all */
-	int b3[4] = {1}		/* 1 0 0 0, missing members are zeroed */
+Maybe.
 
-C99 6.7.8(21) and 6.7.8(10) deal with "not covers everything" and
-"no initializer at all" resp.
+Something I toyed with at one point, which only works for AGP cards is..
+search the pci config space for an agp header, and then check the amount
+of prefetchable memory range behind the bridge.
+Even that wasn't foolproof however, and there were a few quirks
+to work around still.  You see all sorts of strange things there,
+like onboard gfx with 16MB advertising 64MB prefetchable ranges.
+
+		Dave
+

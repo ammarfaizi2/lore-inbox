@@ -1,72 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266993AbSLWWcG>; Mon, 23 Dec 2002 17:32:06 -0500
+	id <S266997AbSLWWg5>; Mon, 23 Dec 2002 17:36:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266994AbSLWWcG>; Mon, 23 Dec 2002 17:32:06 -0500
-Received: from cpe-66-1-165-152.az.sprintbbd.net ([66.1.165.152]:55288 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S266993AbSLWWcF>; Mon, 23 Dec 2002 17:32:05 -0500
-Subject: Re: nforce2 and agpgart
-From: "Carl D. Blake" <carl@boeckeler.com>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1040678186.2237.4.camel@localhost.localdomain>
-References: <1040669417.4563.24.camel@vulcan> 
-	<1040678186.2237.4.camel@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 23 Dec 2002 15:40:14 -0700
-Message-Id: <1040683214.4447.7.camel@vulcan>
+	id <S266999AbSLWWg5>; Mon, 23 Dec 2002 17:36:57 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:50190 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S266997AbSLWWg5>;
+	Mon, 23 Dec 2002 17:36:57 -0500
+Date: Mon, 23 Dec 2002 14:41:29 -0800
+From: Greg KH <greg@kroah.com>
+To: mdew <mdew@orcon.net.nz>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.5] [TRIVIAL] USB Joypad quirk
+Message-ID: <20021223224129.GA31917@kroah.com>
+References: <1040556042.9822.17.camel@nirvana> <20021223191232.GA31060@kroah.com> <1040677522.28347.2.camel@nirvana>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1040677522.28347.2.camel@nirvana>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-12-23 at 14:16, Bongani Hlope wrote:
-> On Mon, 2002-12-23 at 20:50, Carl D. Blake wrote:
-> > I'm having trouble getting agpgart support to work with an nforce2
-> > chipset.  Is this supported on any kernels?  I'm running a Redhat 7.1
-> > system with Redhat's 2.4.9-21 kernel.
+On Tue, Dec 24, 2002 at 10:04:30AM +1300, mdew wrote:
+> On Tue, 2002-12-24 at 08:12, Greg KH wrote:
+> > On Mon, Dec 23, 2002 at 12:20:30AM +1300, mdew wrote:
+> > > Orginally from Vojtech Pavlik (16th June 2002 via email), to fix my
+> > > 'broken' USB joypad, Fully tested in both 2.4.x and 2.5.52 (and
+> > > 2.5.52-bk).
+> > 
+> > Applied to my 2.5 tree, thanks.
+> > 
+> > Can you also send a 2.4 version, as this one does not work for that
+> > tree?
 > 
-> Try to use a newer kernel from Redhat, because that kernel was around
-> looong before nforce was released. IIRC support for nforce2 was added
-> around 2.4.19 
-> 
+> sure
 
-I just upgraded to the 2.4.18 kernel provided by Redhat and it didn't
-make any difference.  The message I get in dmesg is:
+Sorry, but this does not apply to 2.4.21-pre2, can you try again?
 
-Linux agpgart interface v0.99 (c) Jeff Hartmann
-agpgart: Maximum main memory to use for agp memory: 439M
-agpgart: unsupported bridge
-agpgart: no supported devices found.
+thanks,
 
-You suggested trying 2.4.19, so I downloaded kernel 2.4.20 from
-kernel.org and compared its agp code (drivers/char/agp) with the code in
-2.4.18.  There are a few differences - such as supporting AMD 8151 - but
-nothing that indicates improved support for agpgart on the nforce2
-chipset.  The changelog for 2.4.20 indicated some added support for the
-nforce2 chipset, but that seems to be support for the audio and network
-portions of the chipset, not agp.  I was able to incorporate the audio
-changes manually for kernel 2.4.18 by using Nvidia's patches, but I
-can't get agp to work.
-
-Any other suggestions?  Thanks for your help.
-> -- 
-> For future reference - don't anybody else try to send patches as vi
-> scripts, please. Yes, it's manly, but let's face it, so is
-> bungee-jumping with the cord tied to your testicles.
-> 
->                 -- Linus
--- 
-Carl D. Blake
-Director of Engineering
-Boeckeler Instruments, Inc.
-4650 S. Butterfield Dr.
-Tucson, AZ  85714
-
-Phone: 520-745-0001
-FAX: 520-745-0004
-email: carl@boeckeler.com
-
-.com
-
+greg k-h

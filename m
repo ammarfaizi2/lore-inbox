@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265366AbUFHWfX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265371AbUFHWfx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265366AbUFHWfX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 18:35:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265373AbUFHWfX
+	id S265371AbUFHWfx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 18:35:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265370AbUFHWfw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 18:35:23 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:16215 "EHLO
-	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S265368AbUFHWfL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 18:35:11 -0400
-Date: Tue, 8 Jun 2004 23:34:56 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@osdl.org>
-cc: arjanv@redhat.com, <joern@wohnheim.fh-wedel.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] stop page_state stack waste
-In-Reply-To: <20040608141106.3c7c3c10.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.44.0406082331470.2556-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Tue, 8 Jun 2004 18:35:52 -0400
+Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:29569 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S265373AbUFHWff (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jun 2004 18:35:35 -0400
+Date: Wed, 9 Jun 2004 00:35:28 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Dave Kleikamp <shaggy@austin.ibm.com>
+Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.26 JFS: cannot mount
+Message-ID: <20040608223528.GA13241@merlin.emma.line.org>
+Mail-Followup-To: Dave Kleikamp <shaggy@austin.ibm.com>,
+	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <20040608195610.GA4757@merlin.emma.line.org> <20040608201446.GA13764@merlin.emma.line.org> <1086727014.26567.20.camel@shaggy.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1086727014.26567.20.camel@shaggy.austin.ibm.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Jun 2004, Andrew Morton wrote:
-> Hugh Dickins <hugh@veritas.com> wrote:
-> >
-> > Replace get_page_state (which memset most of full page_state to 0) by
-> > get_main_page_state, which just sets the small structure needed.  This
-> > helps 4k stacks not to overflow: cuts 224 bytes off try_to_free_pages
-> > and wakeup_bdflush (and sync_inodes_sb) stack usages: wakeup_bdflush
-> > doesn't do much, but is called by try_to_free_pages and mempool_alloc.
-> 
-> Yeah, I was looking at that.  I simply did:
-> -} ____cacheline_aligned;
-> +};
+On Tue, 08 Jun 2004, Dave Kleikamp wrote:
 
-Well, that is a smaller patch; but you're still wasting 124 bytes of
-stack in wakeup_bdflush below 124 bytes wasted in try_to_free_pages.
+> No, all of the code to replay the journal is in user space.  JFS does
+> allow a read-only mount when the superblock is dirty.  This allows
+> fsck.jfs to replay the journal while the root is mounted read-only.  /
+> can then be remounted rw after fsck runs.
 
-Hugh
+So was the mount was refused because a) the read-only
+option was missing while b) the file system needed a journal replay?
 
+Interesting difference. XFS insists on replaying the log in kernel space
+(user space can only zero the log), ext3 and reiserfs can replay the log
+in kernel or user space whichever touches first...
+
+-- 
+Matthias Andree
+
+Encrypted mail welcome: my GnuPG key ID is 0x052E7D95

@@ -1,86 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263781AbUDQKGm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Apr 2004 06:06:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263826AbUDQKE6
+	id S263866AbUDQKHT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Apr 2004 06:07:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263794AbUDQKGs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Apr 2004 06:04:58 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:55425 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263781AbUDQJxh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Apr 2004 05:53:37 -0400
-Subject: Re: Fix UDF-FS potentially dereferencing null
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Dave Jones <davej@redhat.com>, Jeff Garzik <jgarzik@pobox.com>,
-       viro@parcelfarce.linux.theplanet.co.uk,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       bfennema@falcon.csc.calpoly.edu
-In-Reply-To: <Pine.LNX.4.58.0404161720450.3947@ppc970.osdl.org>
-References: <20040416214104.GT20937@redhat.com>
-	 <20040416220014.GI24997@parcelfarce.linux.theplanet.co.uk>
-	 <40806880.1030007@pobox.com> <20040416231823.GZ20937@redhat.com>
-	 <Pine.LNX.4.58.0404161720450.3947@ppc970.osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-REr96fbvowsU0xSMH9IE"
-Organization: Red Hat UK
-Message-Id: <1082195458.4691.1.camel@laptop.fenrus.com>
+	Sat, 17 Apr 2004 06:06:48 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:21772 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S263813AbUDQKGj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Apr 2004 06:06:39 -0400
+Date: Sat, 17 Apr 2004 12:06:30 +0200
+From: Willy Tarreau <w@w.ods.org>
+To: Marc Giger <gigerstyle@gmx.ch>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux on UltraSparcII E450
+Message-ID: <20040417100630.GG596@alpha.home.local>
+References: <20040417105303.7936e413@vaio.gigerstyle.ch>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Sat, 17 Apr 2004 11:50:58 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040417105303.7936e413@vaio.gigerstyle.ch>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hmmm, I believe you forgot to tell which kernel version you used, and how
+you configured it :-)
 
---=-REr96fbvowsU0xSMH9IE
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Willy
 
-On Sat, 2004-04-17 at 02:44, Linus Torvalds wrote:
-> On Sat, 17 Apr 2004, Dave Jones wrote:
-> >=20
-> > And there's a *lot* of them. Those half dozen or so patches earlier wer=
-e
-> > results of just a quick random skim of the list the coverity folks came=
- up with.
-> >=20
-> > It'll take a lot of effort to 'fix' them all, and given the non-severit=
-y
-> > of a lot of them, I'm not convinced it's worth the effort.
->=20
-> Just for the fun of it, I added a "safe" attribute to sparse (hey, it was=
-=20
-> trivial), and made it warn if you test a safe variable.=20
->=20
-> You can do
->=20
-> 	#define __safe __attribute__((safe))
->=20
-> 	static struct denty *
-> 	udf_lookup(struct inode * __safe dir,
-> 			struct dentry * __safe dentry,
-> 			struct nameidata * __safe nd);
->=20
-> or
-
-Hi,
-
-is it maybe a good idea to map this to gcc's "nonnull" attribute in some
-way? That way both sparse and the compiler get this explicit
-knowledge.... (afaics gcc will then also just optimize out the null ptr
-checks)
-
---=-REr96fbvowsU0xSMH9IE
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD4DBQBAgP4BxULwo51rQBIRAlgWAJoCs2VKg55GpmIq2CSII3nFBhWN0wCY3SJr
-GpvTlARW1Csff+p55F9UHg==
-=wLYn
------END PGP SIGNATURE-----
-
---=-REr96fbvowsU0xSMH9IE--
-
+On Sat, Apr 17, 2004 at 10:53:03AM +0200, Marc Giger wrote:
+> Hi All,
+> 
+> Last week I had the honor to install Linux on a E450 with 2 cpu's. All
+> went fine at first. Long compiling sessions were no problem for the
+> machine. Later we installed 16 additional SCSI disks and we built 
+> 4 x Soft-RAID5 groups with 4 disks each.
+> After some time during the sync processes the machine stops responding.
+> Simply dead. The same thing happens after every boot when the sync
+> process is in action.
+> 
+> My question now is: Is it a hardware or a kernel problem? I now it isn't
+> a simple question with the given infos.
+> Is it possible that the 4 parallel sync processes are to much for the
+> SCSI (standard LSI) controllers?
+> I assume that the kernel RAID5 code is stable on sparc?!
+> 
+> Thank you
+> 
+> Regards
+> 
+> Marc
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318320AbSGRSow>; Thu, 18 Jul 2002 14:44:52 -0400
+	id <S318321AbSGRSpd>; Thu, 18 Jul 2002 14:45:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318321AbSGRSov>; Thu, 18 Jul 2002 14:44:51 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:1781 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318320AbSGRSov>; Thu, 18 Jul 2002 14:44:51 -0400
+	id <S318322AbSGRSpd>; Thu, 18 Jul 2002 14:45:33 -0400
+Received: from divine.city.tvnet.hu ([195.38.100.154]:25865 "EHLO
+	divine.city.tvnet.hu") by vger.kernel.org with ESMTP
+	id <S318321AbSGRSp3>; Thu, 18 Jul 2002 14:45:29 -0400
+Date: Thu, 18 Jul 2002 19:50:28 +0200 (MEST)
+From: Szakacsits Szabolcs <szaka@sienet.hu>
+To: Robert Love <rml@tech9.net>
+cc: <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] strict VM overcommit for stock 2.4
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Szakacsits Szabolcs <szaka@sienet.hu>
-Cc: Robert Love <rml@tech9.net>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0207181930170.30902-100000@divine.city.tvnet.hu>
-References: <Pine.LNX.4.30.0207181930170.30902-100000@divine.city.tvnet.hu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 18 Jul 2002 20:58:43 +0100
-Message-Id: <1027022323.8154.38.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+In-Reply-To: <1027016939.1086.127.camel@sinai>
+Message-ID: <Pine.LNX.4.30.0207181942240.30902-100000@divine.city.tvnet.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-07-18 at 18:31, Szakacsits Szabolcs wrote:
-> 
-> On Thu, 18 Jul 2002, Szakacsits Szabolcs wrote:
-> > And my point (you asked for comments) was that, this is only (the
-> > harder) part of the solution making Linux a more reliable (no OOM
-> > killing *and* root always has the control) and cost effective platform
-> > (no need for occasionally very complex and continuous resource limit
-> > setup/adjusting, especially for inexpert home/etc users).
-> 
-> Ahh, I figured out your target, embedded devices. Yes it's good for
-> that but not enough for general purpose.
 
-Adjusting the percentages to have a root only zone is doable. It helps
-in some conceivable cases but not all. Do people think its important, if
-so I'll add it
+On 18 Jul 2002, Robert Love wrote:
+> An orthogonal issue is per-user resource limits and this may need to be
+> coupled with that.  It is not a problem I am trying to solve, however.
+
+About 99% of the people don't know about, don't understand or don't
+care about resource limits. But they do care about cleaning up when
+mess comes. Adding reserved root memory would be a couple of lines,
+you can get ideas from the patch from here,
+	http://mlf.linux.rulez.org/mlf/ezaz/reserved_root_memory.html
+
+Surprisingly visited through google and people are asking for 2.4
+patches, hint ;)
+
+	Szaka
 

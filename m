@@ -1,49 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261981AbUKHRir@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261924AbUKHRis@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261981AbUKHRir (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 12:38:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261924AbUKHRHs
+	id S261924AbUKHRis (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 12:38:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbUKHRHa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 12:07:48 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:18451 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261932AbUKHQbd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 11:31:33 -0500
-Date: Mon, 8 Nov 2004 17:31:01 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] kill IN_STRING_C
-Message-ID: <20041108163101.GA13234@stusta.de>
-References: <20041107142445.GH14308@stusta.de> <20041108134448.GA2456@wotan.suse.de> <20041108153436.GB9783@stusta.de> <20041108161935.GC2456@wotan.suse.de>
+	Mon, 8 Nov 2004 12:07:30 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:19402 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261931AbUKHQ1K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 11:27:10 -0500
+Subject: RE: GPL Violation of 'sveasoft' with GPL Linux Kernel/Busybox +
+	code
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: davids@webmaster.com
+Cc: =?ISO-8859-1?Q?Rapha=EBl?= Rigo LKML <lkml@twilight-hall.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKOENPPJAA.davids@webmaster.com>
+References: <MDEHLPKNGKAHNMBLJOLKOENPPJAA.davids@webmaster.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1099927447.5564.145.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041108161935.GC2456@wotan.suse.de>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 08 Nov 2004 15:24:08 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 08, 2004 at 05:19:35PM +0100, Andi Kleen wrote:
-> > Rethinking it, I don't even understand the sprintf example in your 
-> > changelog entry - shouldn't an inclusion of kernel.h always get it 
-> > right?
-> 
-> Newer gcc rewrites sprintf(buf,"%s",str) to strcpy(buf,str) transparently.
+On Llu, 2004-11-08 at 01:14, David Schwartz wrote:
+> 	For those not familiar, sveasoft revokes your license to receive further
+> updates if you exercise your distribution rights under the GPL. I would
+> argue that conditioning the sale of a GPL'd work on a failure to exercise
+> your rights under the GPL is a "further restriction".
 
-Which gcc is "Newer"?
+I don't see the problem. If I ship you GPL code then you have no "right"
+to updates from me. You are arguing about a right that never existed and
+for good reason. Do you think that if Linus personally emails you a
+snapshot you somehow acquire the right to demand newer updates from him
+? or how about "I bought Red Hat 1.1 so you must send me 9.0". Both
+strike me as a little ridiculous and certainly not GPL granted rights.
 
-My gcc 3.4.2 didn't show this problem.
+As a GPL code provider their duties to you are to the source to the GPL
+code they gave you binaries for (or other variant options in the
+license). They end there. I don't have to give your friend a copy, I
+don't have to give you updates.
 
-> -Andi
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Alan
 

@@ -1,48 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265766AbUEZSYw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265768AbUEZSap@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265766AbUEZSYw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 14:24:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265767AbUEZSYw
+	id S265768AbUEZSap (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 14:30:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265769AbUEZSap
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 14:24:52 -0400
-Received: from colin2.muc.de ([193.149.48.15]:30483 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S265766AbUEZSYv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 14:24:51 -0400
-Date: 26 May 2004 20:24:50 +0200
-Date: Wed, 26 May 2004 20:24:50 +0200
-From: Andi Kleen <ak@muc.de>
-To: hch@infradead.org, Andi Kleen <ak@muc.de>, Ingo Molnar <mingo@elte.hu>,
-       andrea@suse.de, linux-kernel@vger.kernel.org, arjanv@redhat.com
-Subject: Re: 4k stacks in 2.6
-Message-ID: <20040526182450.GA16219@colin2.muc.de>
-References: <1ZQpn-1Rx-1@gated-at.bofh.it> <1ZQz8-1Yh-15@gated-at.bofh.it> <1ZRFf-2Vt-3@gated-at.bofh.it> <203Zu-4aT-15@gated-at.bofh.it> <m3aczvxpe6.fsf@averell.firstfloor.org> <20040526181734.GA30093@infradead.org>
+	Wed, 26 May 2004 14:30:45 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:11516 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S265768AbUEZS37
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 14:29:59 -0400
+Date: Wed, 26 May 2004 11:29:55 -0700
+From: Todd Poynor <tpoynor@mvista.com>
+To: greg@kroah.com, mochel@digitalimplant.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: [PATCH] Device runtime suspend/resume fixes try #2
+Message-ID: <20040526182955.GA7176@slurryseal.ddns.mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040526181734.GA30093@infradead.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 26, 2004 at 02:17:34PM -0400, hch@infradead.org wrote:
-> On Wed, May 26, 2004 at 03:57:05PM +0200, Andi Kleen wrote:
-> > Ingo Molnar <mingo@elte.hu> writes:
-> > >
-> > > do you realize that the 4K stacks feature also adds a separate softirq
-> > > and a separate hardirq stack? So the maximum footprint is 4K+4K+4K, with
-> > 
-> > A nice combination would be 8K process stacks with separate irq stacks on 
-> > i386.
-> > 
-> > Any chance the CONFIGs for those two could be split? 
-> 
-> Any reason not to enable interrupt stacks unconditionally and leave
-> the stack size choice to the user?
+Andrew Morton wrote:
 
-It will probably still break some other patches, like debuggers.
+> err, this function needs a bit of work in the return value department...
 
-Given that the kernel is supposed to be stable I would not change
-it unconditionally in 2.6. Maybe in 2.7.
+Sorry, I'm a moron, try #2 below.
 
--Andi
+--- linux-2.6.6-orig/drivers/base/power/suspend.c	2004-05-10 11:22:58.000000000 -0700
++++ linux-2.6.6-pm/drivers/base/power/suspend.c	2004-05-23 00:07:51.000000000 -0700
+@@ -42,13 +42,6 @@
+ 	if (dev->bus && dev->bus->suspend)
+ 		error = dev->bus->suspend(dev,state);
+ 
+-	if (!error) {
+-		list_del(&dev->power.entry);
+-		list_add(&dev->power.entry,&dpm_off);
+-	} else if (error == -EAGAIN) {
+-		list_del(&dev->power.entry);
+-		list_add(&dev->power.entry,&dpm_off_irq);
+-	}
+ 	return error;
+ }
+ 
+@@ -81,12 +74,16 @@
+ 	while(!list_empty(&dpm_active)) {
+ 		struct list_head * entry = dpm_active.prev;
+ 		struct device * dev = to_device(entry);
+-		if ((error = suspend_device(dev,state))) {
+-			if (error != -EAGAIN)
+-				goto Error;
+-			else
+-				error = 0;
+-		}
++		error = suspend_device(dev,state);
++
++		if (!error) {
++			list_del(&dev->power.entry);
++			list_add(&dev->power.entry,&dpm_off);
++		} else if (error == -EAGAIN) {
++			list_del(&dev->power.entry);
++			list_add(&dev->power.entry,&dpm_off_irq);
++		} else
++			goto Error;
+ 	}
+  Done:
+ 	up(&dpm_sem);
+--- linux-2.6.6-orig/drivers/base/power/runtime.c	2004-05-10 11:22:58.000000000 -0700
++++ linux-2.6.6-pm/drivers/base/power/runtime.c	2004-05-26 10:37:05.193449240 -0700
+@@ -14,7 +14,10 @@
+ {
+ 	if (!dev->power.power_state)
+ 		return;
+-	resume_device(dev);
++	if (! resume_device(dev))
++		dev->power.power_state = 0;
++
++	return;
+ }
+ 
+
+-- 
+Todd

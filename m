@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289096AbSA1CiT>; Sun, 27 Jan 2002 21:38:19 -0500
+	id <S289092AbSA1Cea>; Sun, 27 Jan 2002 21:34:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289097AbSA1Ch7>; Sun, 27 Jan 2002 21:37:59 -0500
-Received: from sushi.toad.net ([162.33.130.105]:51074 "EHLO sushi.toad.net")
-	by vger.kernel.org with ESMTP id <S289096AbSA1Chz>;
-	Sun, 27 Jan 2002 21:37:55 -0500
-Subject: Re: 2.4.18-pre7 slow ... apm problem
-From: Thomas Hood <jdthood@mail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>
-In-Reply-To: <E16Uzie-0003Ba-00@the-village.bc.nu>
-In-Reply-To: <E16Uzie-0003Ba-00@the-village.bc.nu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1 
-Date: 27 Jan 2002 21:37:40 -0500
-Message-Id: <1012185478.2165.73.camel@thanatos>
-Mime-Version: 1.0
+	id <S289094AbSA1CeU>; Sun, 27 Jan 2002 21:34:20 -0500
+Received: from khms.westfalen.de ([62.153.201.243]:14722 "EHLO
+	khms.westfalen.de") by vger.kernel.org with ESMTP
+	id <S289092AbSA1CeR>; Sun, 27 Jan 2002 21:34:17 -0500
+Date: 27 Jan 2002 13:27:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <8Hgy5QjHw-B@khms.westfalen.de>
+In-Reply-To: <20020126004928.A3780@werewolf.able.es>
+Subject: Re: RFC: booleans and the kernel
+X-Mailer: CrossPoint v3.12d.kh8 R/C435
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <Pine.GSO.4.21.0201250244070.23657-100000@weyl.math.psu.edu> <viro@math.psu.edu> <200201250720.g0P7KeL09793@home.ashavan.org.> <Pine.GSO.4.21.0201250244070.23657-100000@weyl.math.psu.edu> <20020126004928.A3780@werewolf.able.es>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The keyboard rate one is curious. The vmware one I can easily
-> believe is caused by Vmware switching in/out of OS's without
-> managing the APM state of the processor (and leaving it in
-> powersave)
+jamagallon@able.es (J.A. Magallon)  wrote on 26.01.02 in <20020126004928.A3780@werewolf.able.es>:
 
-APM idling is done if apm_cpu_idle() is called, and then if
-    DELTA(current->times.tms_stime)
-    -------------------------------
-    DELTA(jiffies)
-is greater than the idle threshold of 0.95.  Could that ratio be
-affected by VMware?  If so, how?
+> On 20020125 Alexander Viro wrote:
+> >
+> >Seriously, learn C.  The fact that you don't understand it is _your_
+> >problem - l-k is not a place to teach you the langauge.
+> >
+>
+> Please, stop with that thing of 'learn C'. C can have bad design points.
+> It is not perfect. Deal with it, but do not make it a god.
 
---
-Thomas
+He's not making it a god. He's saying that if you wish to discuss its  
+design, you first have to learn what that design *is*.
 
+Though personally, I think the problem is less that Tim has problems  
+understanding C, but that he couldn't construct a reasonable argument if  
+his life depended on it. In this discussion, he's consistently come up  
+with code snippets that illustrated different problems than the text he  
+wrote to go with them, and then gone all upset when his meaning wasn't  
+crystal clear to everyone and everyone didn't applaud him.
 
+MfG Kai

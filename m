@@ -1,74 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265236AbTLFT77 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 14:59:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265239AbTLFT77
+	id S265244AbTLFUMz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 15:12:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265246AbTLFUMz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 14:59:59 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.51]:16512 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S265236AbTLFT75 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 14:59:57 -0500
-Date: Sat, 6 Dec 2003 20:59:56 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Ethan Weinstein <lists@stinkfoot.org>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: w83627hf watchdog
-Message-ID: <20031206195955.GA6573@MAIL.13thfloor.at>
-Mail-Followup-To: Ethan Weinstein <lists@stinkfoot.org>,
-	Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <3FCF87C4.2010301@stinkfoot.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FCF87C4.2010301@stinkfoot.org>
-User-Agent: Mutt/1.4.1i
+	Sat, 6 Dec 2003 15:12:55 -0500
+Received: from rly-ip05.mx.aol.com ([64.12.138.9]:36066 "EHLO
+	rly-ip05.mx.aol.com") by vger.kernel.org with ESMTP id S265244AbTLFUMv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Dec 2003 15:12:51 -0500
+Date: Sat, 6 Dec 2003 12:56:04 -0700
+Subject: Re: partially encrypted filesystem
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v553)
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       willy@debian.org, ezk@cs.sunysb.edu, joern@wohnheim.fh-wedel.de,
+       phillip@lougher.demon.co.uk, kbiswas@neoscale.com
+To: maze@cela.pl, valdis.kletnieks@vt.edu
+From: Pat LaVarre <p.lavarre@ieee.org>
+Content-Transfer-Encoding: 7bit
+Message-Id: <39B8D78E-2826-11D8-8D5E-000393A22C62@ieee.org>
+X-Mailer: Apple Mail (2.553)
+X-Apparently-From: PPAATT@aol.com
+X-AOL-IP: 198.81.18.131
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 04, 2003 at 02:15:16PM -0500, Ethan Weinstein wrote:
-> Hi,
-> 
-> My Supermicro X5DPL-iGM-O has a winbond w83627hf chip onboard that 
-> includes a watchdog timer.  I found a driver on freshmeat that points 
-> here: http://www.freestone.net/soft/pkg/w83627hf-wdt.tar.gz
-> but this does not seem to work correctly on 2.4.23, even with my 
-> modifications to the ioports and registers that Supermicro sent me. I 
-> have tried to contact the developer, he hasn't responded.  I also 
-> located a post to linux-kerel quite sometime ago:
-> 
-> http://seclists.org/lists/linux-kernel/2002/Dec/att-4150/w83627hf_wdt.c
-> 
->  I haven't tried this driver just yet. The lm_sensors project seems to 
-> include a driver for this chip as well, but not for the watchdog part. 
-> The specifications Supermicro sent me for the watchdog function are 
-> located here:
-> 
-> http://www.stinkfoot.org/wdt.txt
-> 
-> Any help would greatly be appreciated, I know this particular chip is 
-> included with many motherboards.
+ > > Suppose we wish to encrypt the files on a
+ > > disc or disk or drive that we carry from one
+ > > computer to another.
+ > >
+ > > Where else can the encryption go, if not
+ > > "down to the file system"?
+ >
+ > From: ...maze...
+ > ... sparse feature... of the filesystem ...
+ > ways for which it likely wasn't designed,
+ > thus ... likely ... problems ... slowdowns ...
+ > sparse .... seldom used ... mostly ... static ...
+ > later write access ... better or worse .... fragmentations ...
+ > may ... required ... significant ... making ... work _well_
 
-well, judging from the Super Micro documentation
-(which looks sufficient to me I would say it shouldn't 
-be too hard to code a watchdog driver similar to the 
-one in linux-2.4.23/drivers/char/wdt.c
+Agreed.
 
-the testing will be a little more complicated, as
-as you'll have to do it with the 'reboot' activated
-which will force your system down, if it works
-(in development the actual reset is often replaced
-by a signal light showing that the reset 'would'
-occur)
+ > some other method ....
+ > less likely to cause massive disk fragmentation.
 
-best,
-Herbert
+Such as?
 
-> Ethan
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+ > From: ...valdis...
+ > ... Other ... theoretically ... if not totally workable.
+
+Aye personally I focus on workable application of theory.
+
+ > above ... a la PGP ...
+
+Aye I see "compressed folders" arriving on desktops, and I see 
+commercial encryption using that same approach.
+
+ > below ... a la encrypted loopback ....
+
+I'm guessing encryption raises many/all the same issues as compression.
+
+Frustratingly, I find I can't quite lay hold of why people haven't more 
+widely adopted compression/ encryption in random-access storage.
+
+Personally I mostly ignored storage until 1994, then I dug in, then I 
+felt most shocked to discover nothing like modem compression deployed, 
+not even compression for each concentric track of an HDD.  Conceptually 
+I like e.g. Usenix talk re garbage-collected log-structured 
+filesystems, but nobody's made those real, I'm not yet clear why.
+
+I want compression to trade away time for space, to mess with the 
+phenomenon of people living all life at 95% of quota, and to contradict 
+the theory that no fs works well when more than 50% full.
+
+Pat LaVarre
+
+P.S. Maybe my second deepest culture shock was finding max bytes/cdb 
+choked off near zero e.g. 64 KiB in many places, 128 KiB now rumoured 
+for parts of lk 2.6.  I'm not sure how often quantitative measurements 
+of algorithms wrongly show no improvement because swamped by that limit.
+

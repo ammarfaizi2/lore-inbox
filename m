@@ -1,59 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261341AbVCMCDv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261780AbVCMClG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261341AbVCMCDv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 21:03:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbVCMCDv
+	id S261780AbVCMClG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 21:41:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262587AbVCMClG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 21:03:51 -0500
-Received: from rproxy.gmail.com ([64.233.170.207]:42439 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261341AbVCMCDm (ORCPT
+	Sat, 12 Mar 2005 21:41:06 -0500
+Received: from mail.autoweb.net ([198.172.237.26]:63751 "EHLO mail.autoweb.net")
+	by vger.kernel.org with ESMTP id S261780AbVCMCkv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 21:03:42 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=eP2c+oFSXeldpO0gr6uR6MplR9QI4+Hz5sMuhjWEKt9WhusYV06NUM87fUajHlYd9iLYvJzA5g2SuJPAGsN5KvzimrqPqJLt3/2A57SiOL3cH648f8U1s6w0UrDqos0QzCDYIOdAMImbYCdlgrIfc0t6ydoCigAYn3e4x8W9uSE=
-Message-ID: <9e47339105031218035f323d68@mail.gmail.com>
-Date: Sat, 12 Mar 2005 21:03:39 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: User mode drivers: part 1, interrupt handling (patch for 2.6.11)
-Cc: Peter Chubb <peterc@gelato.unsw.edu.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1110568448.15927.74.camel@localhost.localdomain>
+	Sat, 12 Mar 2005 21:40:51 -0500
+Date: Sat, 12 Mar 2005 21:40:14 -0500
+From: Ryan Anderson <ryan@michonline.com>
+To: Blaisorblade <blaisorblade@yahoo.it>
+Cc: user-mode-linux-devel@lists.sourceforge.net,
+       Ryan Anderson <ryan@michonline.com>, Jeff Dike <jdike@addtoit.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] UML - Restore proper descriptions in make deb-pkg target
+Message-ID: <20050313024014.GZ7828@mythryan2.michonline.com>
+Mail-Followup-To: Blaisorblade <blaisorblade@yahoo.it>,
+	user-mode-linux-devel@lists.sourceforge.net,
+	Ryan Anderson <ryan@michonline.com>, Jeff Dike <jdike@addtoit.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20050307182828.GS7828@mythryan2.michonline.com> <200503091003.02120.blaisorblade@yahoo.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <16945.4650.250558.707666@berry.gelato.unsw.EDU.AU>
-	 <1110568448.15927.74.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200503091003.02120.blaisorblade@yahoo.it>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 11 Mar 2005 19:14:13 +0000, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> I posted a proposal for this sometime ago because X has some uses for
-> it. The idea being you'd pass a struct that describes
+On Wed, Mar 09, 2005 at 10:03:01AM +0100, Blaisorblade wrote:
 > 
-> 1.      What tells you an IRQ occurred on this device
-> 2.      How to clear it
-> 3.      How to enable/disable it.
+> Yes, it must go in... only the Description is a bit problematic, since you'll 
+> get with the below:
+> Description: Linux kernel, version linux-2.6.11
 > 
-> Something like
-> 
->         struct {
->                 u8 type;                /* 8, 16, 32  I/O or MMIO */
->                 u8 bar;                 /* PCI bar to use */
->                 u32 offset;             /* Into bar */
->                 u32 mask;               /* Bits to touch/compare */
->                 u32 value;              /* Value to check against/set */
->         }
->
+> Description: Linux kernel, version user-mode-linux-2.6.11
 
-It might useful to add this to the main kernel API, and then over time
-modify all of the drivers to use it. If a driver does this it would be
-safe to transparently move it to user space like in UML or xen.  I've
-been told that PCI Express and MSI does not have this problem.
+Good point.
+
+This pulls the description from the Debian user-mode-linux package, and
+puts $version back in the appropriate places for both descriptions.
+
+Incremental on top of the previous patch.
+
+Signed-off-by: Ryan Anderson <ryan@michonline.com>
+
+Index: local-quilt/scripts/package/builddeb
+===================================================================
+--- local-quilt.orig/scripts/package/builddeb	2005-03-12 20:36:24.000000000 -0500
++++ local-quilt/scripts/package/builddeb	2005-03-12 20:40:50.000000000 -0500
+@@ -73,6 +73,29 @@
+ EOF
+ 
+ # Generate a control file
++if [ "$ARCH" == "um" ]; then
++
++cat <<EOF > debian/control
++Source: linux
++Section: base
++Priority: optional
++Maintainer: $name
++Standards-Version: 3.6.1
++
++Package: $packagename
++Architecture: any
++Description: User Mode Linux kernel, version $version
++ User-mode Linux is a port of the Linux kernel to its own system call
++ interface.  It provides a kind of virtual machine, which runs Linux
++ as a user process under another Linux kernel.  This is useful for
++ kernel development, sandboxes, jails, experimentation, and
++ many other things.
++ .
++ This package contains the Linux kernel, modules and corresponding other
++ files version $version
++EOF
++
++else
+ cat <<EOF > debian/control
+ Source: linux
+ Section: base
+@@ -82,10 +105,11 @@
+ 
+ Package: $packagename
+ Architecture: any
+-Description: Linux kernel, version $packagename
++Description: Linux kernel, version $version
+  This package contains the Linux kernel, modules and corresponding other
+- files version $packagename
++ files version $version
+ EOF
++fi
+ 
+ # Fix some ownership and permissions
+ chown -R root:root "$tmpdir"
 
 -- 
-Jon Smirl
-jonsmirl@gmail.com
+
+Ryan Anderson
+  sometimes Pug Majere

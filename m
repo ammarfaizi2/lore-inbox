@@ -1,95 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132760AbRDNGa0>; Sat, 14 Apr 2001 02:30:26 -0400
+	id <S132767AbRDNHFM>; Sat, 14 Apr 2001 03:05:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132763AbRDNGaQ>; Sat, 14 Apr 2001 02:30:16 -0400
-Received: from echo.sound.net ([205.242.192.21]:10182 "HELO echo.sound.net")
-	by vger.kernel.org with SMTP id <S132760AbRDNG37>;
-	Sat, 14 Apr 2001 02:29:59 -0400
-Date: Sat, 14 Apr 2001 01:29:27 -0500 (CDT)
-From: Hal Duston <hald@sound.net>
+	id <S132770AbRDNHEw>; Sat, 14 Apr 2001 03:04:52 -0400
+Received: from npt12056206.cts.com ([216.120.56.206]:47113 "HELO
+	forty.greenhydrant.com") by vger.kernel.org with SMTP
+	id <S132767AbRDNHEk>; Sat, 14 Apr 2001 03:04:40 -0400
+Date: Sat, 14 Apr 2001 00:04:33 -0700
+From: David Rees <dbr@greenhydrant.com>
 To: linux-kernel@vger.kernel.org
-cc: alan@lxorguk.ukuu.org.uk
-Subject: PATCH: ps2esdi another one
-Message-ID: <Pine.GSO.4.10.10104140125220.13529-200000@sound.net>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-851401618-987229583=:13529"
-Content-ID: <Pine.GSO.4.10.10104140127050.13529@sound.net>
+Subject: Re: SW-RAID0 Performance problems
+Message-ID: <20010414000433.F4557@greenhydrant.com>
+Mail-Followup-To: David Rees <dbr@greenhydrant.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10104131048550.1669-100000@coffee.psychology.mcmaster.ca> <01041317365500.00665@debian> <20010413090751.E4557@greenhydrant.com> <01041318282003.00665@debian>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <01041318282003.00665@debian>; from ujq7@rz.uni-karlsruhe.de on Fri, Apr 13, 2001 at 06:28:20PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Fri, Apr 13, 2001 at 06:28:20PM +0200, Andreas Peter wrote:
+> Am Freitag, 13. April 2001 18:07 schrieb David Rees:
+> 
+> > Cconfig and setup looks OK.
+> >
+> > What happens if your run hdparm -t /dev/hda and /dev/hdc at the same time?
+> 
+> Good idea!
+> The performance is only ~11MB/sec per disk
+> There is a bottleneck somewhere...
 
----559023410-851401618-987229583=:13529
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.GSO.4.10.10104140127051.13529@sound.net>
+OK, so it's not the RAID setup.  There's two things that can cause this.  
+One is that DMA is turned off  (what does hdparm /dev/hda and hdparm 
+/dev/hdc show?), the second was that the drives are on the same channel 
+(which obviously isn't the case here).  Can you verify that the drives are 
+in DMA mode?
 
-All,
-
-Here is my second patch for ps2esdi.  
-This patch corrects/updates DMA access.  
-In case my mailer mangles it, it is available at 
-http://www.sound.net/projects/ps2esdi/ps2esdi-2.4.3.patch1
-
-Thanks, and not on the list,
-Hal Duston
-hald@sound.net
-
----559023410-851401618-987229583=:13529
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="ps2esdi-2.4.3.patch1"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.10.10104140126230.13529@sound.net>
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME="ps2esdi-2.4.3.patch1"
-
-QnJpbmcgRE1BIHVwIHRvIGRhdGUgd2l0aCBjdXJyZW50IE1DQV9ETUEgYXJj
-aGl0ZWN0dXJlLg0KDQpVc2UgbWNhX2RtYSBmdW5jdGlvbnMgYW5kIG1hY3Jv
-cy4NClJlcGxhY2UgY2xpL3N0aSB3aXRoIHRoZSBETUEgc3BpbmxvY2suDQoN
-Ci0tLSBsaW51eC0yLjQuMy1oZGQwL2RyaXZlcnMvYmxvY2svcHMyZXNkaS5j
-CVR1ZSBBcHIgMTAgMDA6NTA6MjYgMjAwMQ0KKysrIGxpbnV4LTIuNC4zLWhk
-ZDEvZHJpdmVycy9ibG9jay9wczJlc2RpLmMJVHVlIEFwciAxMCAwMDo1MTow
-NSAyMDAxDQpAQCAtNTIsNiArNTIsNyBAQA0KICNpbmNsdWRlIDxhc20vaW8u
-aD4NCiAjaW5jbHVkZSA8YXNtL3NlZ21lbnQuaD4NCiAjaW5jbHVkZSA8YXNt
-L2RtYS5oPg0KKyNpbmNsdWRlIDxhc20vbWNhX2RtYS5oPg0KICNpbmNsdWRl
-IDxhc20vdWFjY2Vzcy5oPg0KIA0KICNkZWZpbmUgUFMyRVNESV9JUlEgMTQN
-CkBAIC02NTcsMzMgKzY1OCwyMyBAQA0KIC8qIHByZXBhcmUgZm9yIGRtYSAt
-IGRvIGFsbCB0aGUgbmVjZXNzYXJ5IHNldHVwICovDQogc3RhdGljIHZvaWQg
-cHMyZXNkaV9wcmVwX2RtYShjaGFyICpidWZmZXIsIHVfc2hvcnQgbGVuZ3Ro
-LCB1X2NoYXIgZG1hX3htb2RlKQ0KIHsNCi0JdV9pbnQgdGM7DQotCQ0KLQli
-dWZmZXI9KGNoYXIgKil2aXJ0X3RvX2J1cyhidWZmZXIpOw0KLQ0KKwl1bnNp
-Z25lZCBsb25nIGZsYWdzOw0KICNpZiAwDQogCXByaW50aygicHMyZXNkaTog
-Yl93YWl0OiAlcFxuIiwgJkNVUlJFTlQtPmJoLT5iX3dhaXQpOw0KICNlbmRp
-Zg0KLQljbGkoKTsNCisJZmxhZ3MgPSBjbGFpbV9kbWFfbG9jaygpOw0KIA0K
-LQlvdXRiKGRtYV9hcmJfbGV2ZWwgfCBETUFfTUFTS19DSEFOLCBQT1JUX0RN
-QV9GTik7DQorCW1jYV9kaXNhYmxlX2RtYShkbWFfYXJiX2xldmVsKTsNCiAN
-Ci0Jb3V0YihkbWFfYXJiX2xldmVsIHwgRE1BX1dSSVRFX0FERFIsIFBPUlRf
-RE1BX0ZOKTsNCi0Jb3V0YigodV9pbnQpIGJ1ZmZlciAmICh1X2ludCkgMHhm
-ZiwgUE9SVF9ETUFfRVgpOw0KLQlvdXRiKCgodV9pbnQpIGJ1ZmZlciA+PiA4
-KSAmICh1X2ludCkgMHhmZiwgUE9SVF9ETUFfRVgpOw0KLQlvdXRiKCgodV9p
-bnQpIGJ1ZmZlciA+PiAxNikgJiAodV9pbnQpIDB4ZmYsIFBPUlRfRE1BX0VY
-KTsNCisJbWNhX3NldF9kbWFfYWRkcihkbWFfYXJiX2xldmVsLCB2aXJ0X3Rv
-X2J1cyhidWZmZXIpKTsNCiANCi0Jb3V0YihkbWFfYXJiX2xldmVsIHwgRE1B
-X1dSSVRFX1RDLCBQT1JUX0RNQV9GTik7DQotCXRjID0gKGxlbmd0aCAqIFNF
-Q1RfU0laRSAvIDIpIC0gMTsNCi0Jb3V0Yih0YyAmIDB4ZmYsIFBPUlRfRE1B
-X0VYKTsNCi0Jb3V0YigodGMgPj4gOCkgJiAweGZmLCBQT1JUX0RNQV9FWCk7
-DQorCW1jYV9zZXRfZG1hX2NvdW50KGRtYV9hcmJfbGV2ZWwsIGxlbmd0aCAq
-IDUxMiAvIDIpOw0KIA0KLQlvdXRiKGRtYV9hcmJfbGV2ZWwgfCBETUFfV1JJ
-VEVfTU9ERSwgUE9SVF9ETUFfRk4pOw0KLQlvdXRiKGRtYV94bW9kZSwgUE9S
-VF9ETUFfRVgpOw0KKwltY2Ffc2V0X2RtYV9tb2RlKGRtYV9hcmJfbGV2ZWws
-IGRtYV94bW9kZSk7DQogDQotCW91dGIoZG1hX2FyYl9sZXZlbCB8IERNQV9V
-Tk1BU0tfQ0hBTiwgUE9SVF9ETUFfRk4pOw0KKwltY2FfZW5hYmxlX2RtYShk
-bWFfYXJiX2xldmVsKTsNCiANCi0Jc3RpKCk7DQorCXJlbGVhc2VfZG1hX2xv
-Y2soZmxhZ3MpOw0KIA0KIH0JCQkJLyogcHJlcGFyZSBmb3IgZG1hICovDQog
-DQpAQCAtODYxLDcgKzg1Miw5IEBADQogCXN3aXRjaCAoaW50X3JldF9jb2Rl
-ICYgMHgwZikgew0KIAljYXNlIElOVF9UUkFOU0ZFUl9SRVE6DQogCQlwczJl
-c2RpX3ByZXBfZG1hKENVUlJFTlQtPmJ1ZmZlciwgQ1VSUkVOVC0+Y3VycmVu
-dF9ucl9zZWN0b3JzLA0KLQkJICAgIChDVVJSRU5ULT5jbWQgPT0gUkVBRCkg
-PyBETUFfUkVBRF8xNiA6IERNQV9XUklURV8xNik7DQorCQkgICAgKENVUlJF
-TlQtPmNtZCA9PSBSRUFEKQ0KKwkJICAgID8gTUNBX0RNQV9NT0RFXzE2IHwg
-TUNBX0RNQV9NT0RFX1dSSVRFIHwgTUNBX0RNQV9NT0RFX1hGRVINCisJCSAg
-ICA6IE1DQV9ETUFfTU9ERV8xNiB8IE1DQV9ETUFfTU9ERV9SRUFEKTsNCiAJ
-CW91dGIoQ1RSTF9FTkFCTEVfRE1BIHwgQ1RSTF9FTkFCTEVfSU5UUiwgRVNE
-SV9DT05UUk9MKTsNCiAJCWVuZGluZyA9IC0xOw0KIAkJYnJlYWs7DQo=
----559023410-851401618-987229583=:13529--
+-Dave

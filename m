@@ -1,48 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261351AbVB0LR7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261381AbVB0Min@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261351AbVB0LR7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 06:17:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbVB0LR6
+	id S261381AbVB0Min (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 07:38:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261382AbVB0Min
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 06:17:58 -0500
-Received: from fire.osdl.org ([65.172.181.4]:11210 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261351AbVB0LR5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 06:17:57 -0500
-Date: Sun, 27 Feb 2005 03:16:55 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: benh@kernel.crashing.org, linuxppc64-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org, nathanl@austin.ibm.com
-Subject: Re: [PATCH] PPC64: Generic hotplug cpu support
-Message-Id: <20050227031655.67233bb5.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.61.0502010009010.3010@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.61.0502010009010.3010@montezuma.fsmlabs.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 27 Feb 2005 07:38:43 -0500
+Received: from science.horizon.com ([192.35.100.1]:12619 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S261381AbVB0Mik
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Feb 2005 07:38:40 -0500
+Date: 27 Feb 2005 12:38:39 -0000
+Message-ID: <20050227123839.13574.qmail@science.horizon.com>
+From: linux@horizon.com
+To: linux-kernel@vger.kernel.org
+Subject: Re: thoughts on kernel security issues
+Cc: linux@horizon.com, torvalds@osdl.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo <zwane@arm.linux.org.uk> wrote:
->
-> Patch provides a generic hotplug cpu implementation, with the only current 
->  user being pmac.
+I followed the start of this thread when it was about security mailing
+lists and bug-disclosure rules, and then lost interest.
 
-BUG: using smp_processor_id() in preemptible [00000001] code: swapper/0
-caller is .native_idle+0x30/0x60
+I just looked in again, and I seem to be seeing discussion of merging
+grsecurity pathes into mainline.  I haven't yet found an message
+where this is proposed explicitly, so if I am inferring incorrectly,
+I apologize.  (And you can ignore the rest of this missive.)
 
---- 25/arch/ppc64/kernel/idle.c~ppc64-generic-hotplug-cpu-support-fix	2005-02-27 11:12:47.000000000 -0700
-+++ 25-akpm/arch/ppc64/kernel/idle.c	2005-02-27 11:13:03.000000000 -0700
-@@ -294,7 +294,7 @@ static int native_idle(void)
- 		if (need_resched())
- 			schedule();
- 
--		if (cpu_is_offline(smp_processor_id()) &&
-+		if (cpu_is_offline(_smp_processor_id()) &&
- 		    system_state == SYSTEM_RUNNING)
- 			cpu_die();
- 	}
-_
+However, I did look carefully at an earlier patch that claimed to be a
+Linux port of some OpenBSD networking randomization code, ostensibly to
+make packet-guessing attacks more difficult.
 
+http://marc.theaimsgroup.com/?l=linux-kernel&m=110693283511865
+
+It was further claimed that this code came via grsecurity.  I did verify
+that the code looked a lot like pieces of OpenBSD, but didn't look at
+grsecurity at all.
+
+However, I did look in some detail at the code itself.
+http://marc.theaimsgroup.com/?l=linux-netdev&m=110736479712671
+
+What I concluded was that it was broken beyond belief, and the effect
+on the networking code varied from (due to putting the IP ID generation
+code in the wrong place) wasting a lot of time randomizing a number that
+could be a constant zero if not for working around a bug in Microsoft's
+PPP stack, to (RPC XID generation) severe protocol violation.
+
+Not to mention race conditions out the wazoo due to porting 
+single-threaded code.
+
+After careful review, I couldn't find a single redeeming feature, or
+even a good idea that was merely implemented badly.  See the posting
+for details and more colorful criticism.
+
+Now, as I said, I have *not* gone to the trouble of seeing if this patch
+really did come from grsecurity, or if it was horribly damaged in the
+process of splitting it out.  So I may be unfairly blaming grsecurity,
+but I didn't feel like seeking out more horrible code to torture my
+sanity with.
+
+My personal, judgemental opinion was that if that was typical of
+grsecurity, it's a festering pile of pus that I'm not going to let
+anywhere near my kernel, thank you very much.
+
+But to the extent that this excerpt constitutes reasonable grounds for
+suspicion, I would like to recommend a particularly careful review of any
+grsecurity patches.  In addition to Linus' dislike of monolithic patches.
+
+Just my $0.02.

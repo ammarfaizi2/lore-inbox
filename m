@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262861AbSJAWVn>; Tue, 1 Oct 2002 18:21:43 -0400
+	id <S262868AbSJAWYI>; Tue, 1 Oct 2002 18:24:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262862AbSJAWUP>; Tue, 1 Oct 2002 18:20:15 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:9988 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262861AbSJAWSH>;
-	Tue, 1 Oct 2002 18:18:07 -0400
-Date: Mon, 30 Sep 2002 02:44:33 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Dominik Brodowski <linux@brodo.de>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, hpa@zytor.com,
-       cpufreq@www.linux.org.uk
-Subject: Re: [2.5.39] (4/5) CPUfreq Documentation
-Message-ID: <20020930024433.F35@toy.ucw.cz>
-References: <20020928112559.F1217@brodo.de>
+	id <S262878AbSJAWXx>; Tue, 1 Oct 2002 18:23:53 -0400
+Received: from adsl-157-199-164.dab.bellsouth.net ([66.157.199.164]:18576 "EHLO
+	midgaard.us") by vger.kernel.org with ESMTP id <S262868AbSJAWWW>;
+	Tue, 1 Oct 2002 18:22:22 -0400
+Date: Tue, 1 Oct 2002 18:12:00 -0400
+From: Andreas Boman <aboman@nerdfest.org>
+To: mec@shout.net
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.5.40 menuconfig crashes when entering sound->alsa menu
+Message-ID: <20021001221200.GA8664@midgaard.us>
+Mail-Followup-To: mec@shout.net, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20020928112559.F1217@brodo.de>; from linux@brodo.de on Sat, Sep 28, 2002 at 11:25:59AM +0200
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+happens with and without the alsa updates from today.
 
-> +--
-> +          minimum CPU frequency  -  maximum CPU frequency  -  policy
-> +CPU  0       1200000 ( 75%)      -     1600000 (100%)      -  performance
-> +--
+Menuconfig has encountered a possible error in one of the kernel's
+configuration files and is unable to continue.  Here is the error
+report:
 
-Ugh, another interce that tries to look nice, this time with "-" as
-separator.... Ugly, ugly. Whats wrong with one-value-per-file?!
+ Q> ./scripts/Menuconfig: line 823: MCmenu74: command not found
 
-								Pavel
+Please report this to the maintainer <mec@shout.net>.  You may also
+send a problem report to <linux-kernel@vger.kernel.org>.
 
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+Please indicate the kernel version you are trying to configure and
+which menu you were trying to enter when this error occurred.
+
+make: *** [menuconfig] Error 1
 

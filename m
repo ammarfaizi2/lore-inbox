@@ -1,35 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261780AbSI2T4z>; Sun, 29 Sep 2002 15:56:55 -0400
+	id <S261696AbSI2TvB>; Sun, 29 Sep 2002 15:51:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261786AbSI2T4y>; Sun, 29 Sep 2002 15:56:54 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:23698 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S261780AbSI2T4p>; Sun, 29 Sep 2002 15:56:45 -0400
-Date: Sun, 29 Sep 2002 16:01:13 -0400
-From: Jakub Jelinek <jakub@redhat.com>
-To: Andi Kleen <ak@muc.de>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Use __attribute__((malloc)) for gcc 3.2
-Message-ID: <20020929160113.K5659@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <20020929152731.GA10631@averell>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020929152731.GA10631@averell>; from ak@muc.de on Sun, Sep 29, 2002 at 05:27:31PM +0200
+	id <S261762AbSI2TvA>; Sun, 29 Sep 2002 15:51:00 -0400
+Received: from spog.gaertner.de ([194.45.135.2]:39315 "EHLO spog.gaertner.de")
+	by vger.kernel.org with ESMTP id <S261696AbSI2TuW>;
+	Sun, 29 Sep 2002 15:50:22 -0400
+Date: Sun, 29 Sep 2002 21:55:42 +0200 (MEST)
+Message-Id: <200209291955.g8TJtgp24880@aunt2.gaertner.de>
+From: Erik Schoenfelder <schoenfr@gaertner.de>
+To: linux-kernel@vger.kernel.org
+CC: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: [2.4.19] small bug plus fix for /proc/net/snmp (Imcp: field count)
+Reply-to: schoenfr@gaertner.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 29, 2002 at 05:27:31PM +0200, Andi Kleen wrote:
-> 
-> gcc 3.2 has an __attribute__((malloc)) function attribute. It tells gcc
-> that a function returns newly allocated memory and that the return pointer
-> cannot alias with any other pointer in the parent function. This often
-> allows gcc to generate better code because the optimizer doesn't need take
-> pointer aliasing in account.
+Hi,
 
-Does this matter when the kernel is compiled with -fno-strict-aliasing?
+i received a bug report plus fix from Gonzalo A. Arana Tagle
+<garana@uolsinectis.com.ar> about a extra dummy value printed for the
+``Icmp:'' values in /proc/net/snmp:
 
-	Jakub
+       # awk '/Icmp/ { print NF; }' /proc/net/snmp 
+       27
+       28
+
+the code in snmp_get_info() from net/ipv4/proc.c prints a dummy value
+present at the end of struct icmp_mib, which should not be included.
+
+from include/net/snmp.h:
+
+>  struct icmp_mib
+>  {
+>   	unsigned long	IcmpInMsgs;
+>  [...]
+>   	unsigned long	IcmpOutAddrMaskReps;
+>  	unsigned long	dummy;
+>  	unsigned long   __pad[0]; 
+>  } ____cacheline_aligned;
+
+
+instead of printing all values before the __pad field, printing the
+values before the dummy field gives the right number of values:
+
+
+--- linux-2.4.19/net/ipv4/proc.c-dist	Wed May 16 19:21:45 2001
++++ linux-2.4.19/net/ipv4/proc.c	Sat Sep 28 22:03:05 2002
+@@ -128,7 +128,7 @@
+ 	len += sprintf (buffer + len,
+ 		"\nIcmp: InMsgs InErrors InDestUnreachs InTimeExcds InParmProbs InSrcQuenchs InRedirects InEchos InEchoReps InTimestamps InTimestampReps InAddrMasks InAddrMaskReps OutMsgs OutErrors OutDestUnreachs OutTimeExcds OutParmProbs OutSrcQuenchs OutRedirects OutEchos OutEchoReps OutTimestamps OutTimestampReps OutAddrMasks OutAddrMaskReps\n"
+ 		  "Icmp:");
+-	for (i=0; i<offsetof(struct icmp_mib, __pad)/sizeof(unsigned long); i++)
++	for (i=0; i<offsetof(struct icmp_mib, dummy)/sizeof(unsigned long); i++)
+ 		len += sprintf(buffer+len, " %lu", fold_field((unsigned long*)icmp_statistics, sizeof(struct icmp_mib), i));
+ 
+ 	len += sprintf (buffer + len,
+
+
+please fix this.  thank's in advance,
+							Erik

@@ -1,62 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266303AbUBLIqG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 03:46:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266307AbUBLIqG
+	id S266307AbUBLIqU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 03:46:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266309AbUBLIqU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 03:46:06 -0500
-Received: from ahriman.bucharest.roedu.net ([141.85.128.71]:9694 "EHLO
-	ahriman.bucharest.roedu.net") by vger.kernel.org with ESMTP
-	id S266303AbUBLIqC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 03:46:02 -0500
-Date: Thu, 12 Feb 2004 10:47:34 +0200 (EET)
-From: Mihai RUSU <dizzy@roedu.net>
-X-X-Sender: dizzy@ahriman.bucharest.roedu.net
-To: Larry McVoy <lm@bitmover.com>
-cc: Bryan Whitehead <driver@jpl.nasa.gov>, M?ns Rullg?rd <mru@kth.se>,
-       linux-kernel@vger.kernel.org
-Subject: Re: reiserfs for bkbits.net?
-In-Reply-To: <20040211191922.GA31404@work.bitmover.com>
-Message-ID: <Pine.LNX.4.58L0.0402121043420.17138@ahriman.bucharest.roedu.net>
-References: <200402111523.i1BFNnOq020225@work.bitmover.com>
- <20040211161358.GA11564@favonius> <yw1xisidino2.fsf@kth.se>
- <402A747C.8020100@jpl.nasa.gov> <20040211191922.GA31404@work.bitmover.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 12 Feb 2004 03:46:20 -0500
+Received: from h80ad25b9.async.vt.edu ([128.173.37.185]:26478 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S266307AbUBLIqO (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 03:46:14 -0500
+Message-Id: <200402120846.i1C8k6x7006645@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.1-mm4 
+In-Reply-To: Your message of "Thu, 12 Feb 2004 08:30:54 +0100."
+             <402B2BAE.9090208@gmx.de> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040115225948.6b994a48.akpm@osdl.org> <4007B03C.4090106@gmx.de> <400EC908.4020801@gmx.de> <200401211920.i0LJKZ2a003504@turing-police.cc.vt.edu> <402AAB2C.8050207@gmx.de> <200402120552.i1C5qAHS024041@turing-police.cc.vt.edu>
+            <402B2BAE.9090208@gmx.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1544958270P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 12 Feb 2004 03:46:06 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+--==_Exmh_1544958270P
+Content-Type: text/plain; charset=us-ascii
 
-On Wed, 11 Feb 2004, Larry McVoy wrote:
+On Thu, 12 Feb 2004 08:30:54 +0100, "Prakash K. Cheemplavam" said:
 
-> On Wed, Feb 11, 2004 at 10:29:16AM -0800, Bryan Whitehead wrote:
-> > http://pcbunn.cacr.caltech.edu/gae/3ware_raid_tests.htm
-> > 
-> > They needed 200MByte/sec disk transfer speed. this is how they got it.
-> 
-> Our workload is MUCH less friendly than bonnie.  We typically have lots
-> of traffic spread over lots of small files.  With 1-3 outstanding 
-> requests (i.e., just at the point where disk sort does you little good).
+> Well, I don't know whether my system actually locks up, it is like it 
+> seems the log gets flooded (when I wait long enough) but I cannot do 
+> anything with the system at that point, ie it seems like frozen.
 
-Hmm, you could try parallel bonnie++ instances then:
+I don't think anybody's going to be able to shoot that bug report without more
+info.  "seems like frozen" doesn't give us much to go on.  Does the machine
+still ping/ssh/etc on the net?  Is it totally locked up?  Any disk activity
+lights left on/flickering, indicating life? Can you get a serial console or
+kgdb-ethernet or something to see if there's an oops/panic?
 
-- - synchronized
-$ bonnie++ -d /path/to/testdir -s0 -n 4096:16000:64000:64 -p 10
-then 10 times of 
-$ bonnie++ -d /path/to/testdir -s0 -n 4096:16000:64000:64 -y
+> Furthermore I am using latest 53.36 drivers and I am not the only one 
+> having this problem if I look into nvnews forums. As I said this is a 
+> problem which came with something changed in the newer kernels. 2.6.1 
+> (and 2.6.2-rc1) works OK for me, 2.6.2-rc2 and later not.
 
-- - or just run them in background unsynchronized
+Well, the 53.36 drivers are rock-solid on my Dell laptop with a GeForce4 440Go
+and the 2.6.3-rc1-mm1 kernel.  There very well may be bugs in there, but
+they're not ones I can replicate or diagnose...
 
-- -- 
-Mihai RUSU                                    Email: dizzy@roedu.net
-GPG : http://dizzy.roedu.net/dizzy-gpg.txt    WWW: http://dizzy.roedu.net
-                       "Linux is obsolete" -- AST
+
+--==_Exmh_1544958270P
+Content-Type: application/pgp-signature
+
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.3 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQFAKz2vPZzOzrZY/1QRAjs5AJ9E9wjayUmvKLrhsZ16KMnrm0OqXgCgqWy9
-jtyLokxSBNvjqz1b8VfaDiM=
-=jHZe
+iD8DBQFAKz1OcC3lWbTT17ARAhICAJ4hqJ8+Z0nYUF/reAx3fAVlsf141QCbByln
+aJmv1oxrr1I3bvek7awiFZo=
+=Pv3f
 -----END PGP SIGNATURE-----
+
+--==_Exmh_1544958270P--

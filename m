@@ -1,1754 +1,630 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261935AbSJDXGo>; Fri, 4 Oct 2002 19:06:44 -0400
+	id <S262006AbSJDXUJ>; Fri, 4 Oct 2002 19:20:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261961AbSJDXGn>; Fri, 4 Oct 2002 19:06:43 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:36737 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S261935AbSJDXFn>;
-	Fri, 4 Oct 2002 19:05:43 -0400
-Message-ID: <3D9E1E7E.5060401@colorfullife.com>
-Date: Sat, 05 Oct 2002 01:04:30 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
-X-Accept-Language: en, de
+	id <S262035AbSJDXUJ>; Fri, 4 Oct 2002 19:20:09 -0400
+Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:36683 "EHLO
+	nakedeye.aparity.com") by vger.kernel.org with ESMTP
+	id <S262006AbSJDXT4>; Fri, 4 Oct 2002 19:19:56 -0400
+Date: Fri, 4 Oct 2002 16:33:52 -0700 (PDT)
+From: "Matt D. Robinson" <yakker@aparity.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.5.40: lkcd (9/9): dump driver and build files (GZIP'D)
+Message-ID: <Pine.LNX.4.44.0210041631440.10063-101000@nakedeye.aparity.com>
 MIME-Version: 1.0
-To: akpm@digeo.com, linux-kernel@vger.kernel.org
-CC: mbligh@aracnet.com
-Subject: [PATCH] patch-slab-split-06-mand-cpuarray
-Content-Type: multipart/mixed;
- boundary="------------020505040104080307070503"
+Content-Type: MULTIPART/MIXED; BOUNDARY="20979877-1200213499-1033774432=:10063"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020505040104080307070503
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-part 6:
+--20979877-1200213499-1033774432=:10063
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-- enable the cpu array for all caches
-- remove the optimized implementations for quick list access - with cpu
-arrays in all caches, the list access is now rare.
-- make the cpu arrays mandatory, this removes 50% of the conditional
-branches from the hot path of kmem_cache_alloc [1]
-- poisoning for objects with constructors
-
-Patch got a bit longer...
-
-I forgot to mention this: head arrays mean that some pages can be
-blocked due to objects in the head arrays, and not returned to
-page_alloc.c. The current kernel never flushes the head arrays, this
-might worsen the behaviour of low memory systems. The hunk that flushes
-the arrays regularly comes next.
-
-Details changelog: [to be read site by side with the patch]
-
-* docu update
-* "growing" is not really needed: races between grow and shrink are
-	handled by retrying. [additionally, the current kernel never
-	shrinks]
-* move the batchcount into the cpu array:
-	the old code contained a race during cpu cache tuning:
-		update batchcount [in cachep] before or after the IPI?
-	And NUMA will need it anyway.
-* bootstrap support: the cpu arrays are really mandatory, nothing works
-	without them. Thus a statically allocated cpu array is needed
-	to for starting the allocators.
-* move the full, partial & free lists into a separate structure,
-	as a preparation for NUMA
-* structure reorganization: now the cpu arrays are the most important
-	part, not the lists.
-* dead code elimination: remove "failures", nowhere read.
-* dead code elimination: remove "OPTIMIZE": not implemented.
-	The idea is to skip the virt_to_page lookup for caches with
-	on-slab slab structures, and use (ptr&PAGE_MASK) instead.
-	The details are in Bonwicks paper. Not fully implemented.
-* remove GROWN: kernel never shrinks a cache, thus grown is meaningless.
-* bootstrap: starting the slab allocator is now a 3 stage process:
-	- nothing works, use the statically allocated cpu arrays.
-	- the smallest kmalloc allocator works, use it to allocate
-		cpu arrays.
-	- all kmalloc allocators work, use the default cpu array size
-* register a cpu nodifier callback, and allocate the needed head arrays
-	if a new cpu arrives
-* always enable head arrays, even for DEBUG builds. Poisoning and
-	red-zoning now happens before an object is added to the arrays.
-	Insert enable_all_cpucaches into cpucache_init, there is no
-	need for seperate function.
-* modifications to the debug checks due to the earlier calls of the
-	dtor for caches with poisoning enabled
-* poison+ctor is now supported
-* squezing 3 objects into a cacheline is hopeless, the FIXME is
-	not solvable and can be removed.
-* add additional debug tests: check_irq_off(), check_irq_on(),
-	check_spinlock_acquired().
-* move do_ccupdate_local nearer to do_tune_cpucache. Should have
-	been part of -04-drain.
-* additional objects checks. red-zoning is tricky: it's implemented
-	by increasing the object size by 2*BYTES_PER_WORD.
-	Thus BYTES_PER_WORD must be added to objp before calling
-	the destructor, constructor or before returing the object
-	from alloc. The poison functions add BYTES_PER_WORD internally.
-* create a flagcheck function, right now the tests are duplicated
-	in cache_grow [always] and alloc_debugcheck_before [DEBUG only]
-* modify slab list updates: all allocs are now bulk allocs that try
-	to get multiple objects at once, update the list pointers
-	only at the end of a bulk alloc, not once per alloc.
-* might_seep was moved into kmem_flagcheck.
-* major hotpath change:
-	- cc always exists, no fallback
-	- cache_alloc_refill is called with disabled interrupts,
-	  and does everything to recover from an empty cpu array.
-	  Far shorter & simpler __cache_alloc [inlined in both
-	  kmalloc and kmem_cache_alloc]
-* __free_block, free_block, cache_flusharray:
-	main implementation of returning objects to the lists.
-	no big changes, diff lost track.
-* new debug check: too early kmalloc or kmem_cache_alloc
-* slightly reduce the sizes of the cpu arrays: keep
-	the size < a power of 2, including batchcount, avail
-	and now limit, for optimal kmalloc memory efficiency.
-
-That's it.
-I even found 2 bugs while reading: dtors and ctors for verify were
-called with wrong parameters, with RED_ZONE enabled, and some checks 
-still assumed that POISON and ctor are incompatible.
-
---
-	Manfred
-[1] there were 2 branches, now only one is left. But 50% sounds better.
+This is the general dump patch which had all Makefile changes,
+additional of all dump driver files, and header files required
+for building dumping.
 
 
+--20979877-1200213499-1033774432=:10063
+Content-Type: APPLICATION/x-gzip; name="dump.patch.gz"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0210041633520.10063@nakedeye.aparity.com>
+Content-Description: 
+Content-Disposition: attachment; filename="dump.patch.gz"
 
---------------020505040104080307070503
-Content-Type: text/plain;
- name="patch-slab-split-06-mand-cpuarray"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-slab-split-06-mand-cpuarray"
-
---- 2.5/mm/slab.c	Fri Oct  4 21:38:29 2002
-+++ build-2.5/mm/slab.c	Sat Oct  5 00:50:40 2002
-@@ -8,6 +8,9 @@
-  * Major cleanup, different bufctl logic, per-cpu arrays
-  *	(c) 2000 Manfred Spraul
-  *
-+ * Cleanup, make the head arrays unconditional, preparation for NUMA
-+ * 	(c) 2002 Manfred Spraul
-+ *
-  * An implementation of the Slab Allocator as described in outline in;
-  *	UNIX Internals: The New Frontiers by Uresh Vahalia
-  *	Pub: Prentice Hall	ISBN 0-13-101908-2
-@@ -16,7 +19,6 @@
-  *	Jeff Bonwick (Sun Microsystems).
-  *	Presented at: USENIX Summer 1994 Technical Conference
-  *
-- *
-  * The memory is organized in caches, one cache for each object type.
-  * (e.g. inode_cache, dentry_cache, buffer_head, vm_area_struct)
-  * Each cache consists out of many slabs (they are small (usually one
-@@ -38,12 +40,14 @@
-  * kmem_cache_destroy() CAN CRASH if you try to allocate from the cache
-  * during kmem_cache_destroy(). The caller must prevent concurrent allocs.
-  *
-- * On SMP systems, each cache has a short per-cpu head array, most allocs
-+ * Each cache has a short per-cpu head array, most allocs
-  * and frees go into that array, and if that array overflows, then 1/2
-  * of the entries in the array are given back into the global cache.
-- * This reduces the number of spinlock operations.
-+ * The head array is strictly LIFO and should improve the cache hit rates.
-+ * On SMP, it additionally reduces the spinlock operations.
-  *
-- * The c_cpuarray may not be read with enabled local interrupts.
-+ * The c_cpuarray may not be read with enabled local interrupts - 
-+ * it's changed with a smp_call_function().
-  *
-  * SMP synchronization:
-  *  constructors and destructors are called without any locking.
-@@ -53,6 +57,10 @@
-  *  	and local interrupts are disabled so slab code is preempt-safe.
-  *  The non-constant members are protected with a per-cache irq spinlock.
-  *
-+ * Many thanks to Mark Hemment, who wrote another per-cpu slab patch
-+ * in 2000 - many ideas in the current implementation are derived from
-+ * his patch.
-+ *
-  * Further notes from the original documentation:
-  *
-  * 11 April '97.  Started multi-threading - markhe
-@@ -61,10 +69,6 @@
-  *	can never happen inside an interrupt (kmem_cache_create(),
-  *	kmem_cache_shrink() and kmem_cache_reap()).
-  *
-- *	To prevent kmem_cache_shrink() trying to shrink a 'growing' cache (which
-- *	maybe be sleeping and therefore not holding the semaphore/lock), the
-- *	growing field is used.  This also prevents reaping from a cache.
-- *
-  *	At present, each engine can be growing a cache.  This should be blocked.
-  *
-  */
-@@ -77,6 +81,7 @@
- #include	<linux/init.h>
- #include	<linux/compiler.h>
- #include	<linux/seq_file.h>
-+#include	<linux/notifier.h>
- #include	<asm/uaccess.h>
- 
- /*
-@@ -170,37 +175,91 @@
-  * cpucache_t
-  *
-  * Per cpu structures
-+ * Purpose:
-+ * - LIFO ordering, to hand out cache-warm objects from _alloc
-+ * - reduce spinlock operations
-+ *
-  * The limit is stored in the per-cpu structure to reduce the data cache
-  * footprint.
-+ * On NUMA systems, 2 per-cpu structures exist: one for the current
-+ * node, one for wrong node free calls.
-+ * Memory from the wrong node is never returned by alloc, it's returned
-+ * to the home node as soon as the cpu cache is filled
-+ *
-  */
- typedef struct cpucache_s {
- 	unsigned int avail;
- 	unsigned int limit;
-+	unsigned int batchcount;
- } cpucache_t;
- 
-+/* bootstrap: The caches do not work without cpuarrays anymore,
-+ * but the cpuarrays are allocated from the generic caches...
-+ */
-+#define BOOT_CPUCACHE_ENTRIES	1
-+struct cpucache_int {
-+	cpucache_t cache;
-+	void * entries[BOOT_CPUCACHE_ENTRIES];
-+};
-+
- #define cc_entry(cpucache) \
- 	((void **)(((cpucache_t*)(cpucache))+1))
- #define cc_data(cachep) \
- 	((cachep)->cpudata[smp_processor_id()])
- /*
-+ * NUMA: check if 'ptr' points into the current node,
-+ * 	use the alternate cpudata cache if wrong
-+ */
-+#define cc_data_ptr(cachep, ptr) \
-+		cc_data(cachep)
-+
-+/*
-+ * The slab lists of all objects.
-+ * Hopefully reduce the internal fragmentation
-+ * NUMA: The spinlock could be moved from the kmem_cache_t
-+ * into this structure, too. Figure out what causes
-+ * fewer cross-node spinlock operations.
-+ */
-+struct kmem_list3 {
-+	struct list_head	slabs_partial;	/* partial list first, better asm code */
-+	struct list_head	slabs_full;
-+	struct list_head	slabs_free;
-+};
-+
-+#define LIST3_INIT(parent) \
-+	{ \
-+		.slabs_full	= LIST_HEAD_INIT(parent.slabs_full), \
-+		.slabs_partial	= LIST_HEAD_INIT(parent.slabs_partial), \
-+		.slabs_free	= LIST_HEAD_INIT(parent.slabs_free) \
-+	}
-+#define list3_data(cachep) \
-+	(&(cachep)->lists)
-+
-+/* NUMA: per-node */
-+#define list3_data_ptr(cachep, ptr) \
-+		list3_data(cachep)
-+
-+/*
-  * kmem_cache_t
-  *
-  * manages a cache.
-  */
--
-+	
- struct kmem_cache_s {
--/* 1) each alloc & free */
--	/* full, partial first, then free */
--	struct list_head	slabs_full;
--	struct list_head	slabs_partial;
--	struct list_head	slabs_free;
-+/* 1) per-cpu data, touched during every alloc/free */
-+	cpucache_t		*cpudata[NR_CPUS];
-+	/* NUMA: cpucache_t	*cpudata_othernode[NR_CPUS]; */
-+	unsigned int		batchcount;
-+	unsigned int		limit;
-+/* 2) touched by every alloc & free from the backend */
-+	struct kmem_list3	lists;
-+	/* NUMA: kmem_3list_t	*nodelists[NR_NODES] */
- 	unsigned int		objsize;
- 	unsigned int	 	flags;	/* constant flags */
- 	unsigned int		num;	/* # of objs per slab */
- 	spinlock_t		spinlock;
--	unsigned int		batchcount;
- 
--/* 2) slab additions /removals */
-+/* 3) cache_grow/shrink */
- 	/* order of pgs per slab (2^n) */
- 	unsigned int		gfporder;
- 
-@@ -211,7 +270,6 @@
- 	unsigned int		colour_off;	/* colour offset */
- 	unsigned int		colour_next;	/* cache colouring */
- 	kmem_cache_t		*slabp_cache;
--	unsigned int		growing;
- 	unsigned int		dflags;		/* dynamic flags */
- 
- 	/* constructor func */
-@@ -220,13 +278,11 @@
- 	/* de-constructor func */
- 	void (*dtor)(void *, kmem_cache_t *, unsigned long);
- 
--	unsigned long		failures;
--
--/* 3) cache creation/removal */
-+/* 4) cache creation/removal */
- 	const char		*name;
- 	struct list_head	next;
--/* 4) per-cpu data */
--	cpucache_t		*cpudata[NR_CPUS];
-+
-+/* 5) statistics */
- #if STATS
- 	unsigned long		num_active;
- 	unsigned long		num_allocations;
-@@ -243,14 +299,8 @@
- 
- /* internal c_flags */
- #define	CFLGS_OFF_SLAB	0x010000UL	/* slab management in own cache */
--#define	CFLGS_OPTIMIZE	0x020000UL	/* optimized slab lookup */
--
--/* c_dflags (dynamic flags). Need to hold the spinlock to access this member */
--#define	DFLGS_GROWN	0x000001UL	/* don't reap a recently grown */
- 
- #define	OFF_SLAB(x)	((x)->flags & CFLGS_OFF_SLAB)
--#define	OPTIMIZE(x)	((x)->flags & CFLGS_OPTIMIZE)
--#define	GROWN(x)	((x)->dlags & DFLGS_GROWN)
- 
- #if STATS
- #define	STATS_INC_ACTIVE(x)	((x)->num_active++)
-@@ -376,11 +426,15 @@
- }; 
- #undef CN
- 
-+struct cpucache_int cpuarray_cache __initdata = { { 0, BOOT_CPUCACHE_ENTRIES, 1} };
-+struct cpucache_int cpuarray_generic __initdata = { { 0, BOOT_CPUCACHE_ENTRIES, 1} };
-+
- /* internal cache of cache description objs */
- static kmem_cache_t cache_cache = {
--	.slabs_full	= LIST_HEAD_INIT(cache_cache.slabs_full),
--	.slabs_partial	= LIST_HEAD_INIT(cache_cache.slabs_partial),
--	.slabs_free	= LIST_HEAD_INIT(cache_cache.slabs_free),
-+	.lists		= LIST3_INIT(cache_cache.lists),
-+	.cpudata	= { [0] = &cpuarray_cache.cache },
-+	.batchcount	= 1,
-+	.limit		= BOOT_CPUCACHE_ENTRIES,
- 	.objsize	= sizeof(kmem_cache_t),
- 	.flags		= SLAB_NO_REAP,
- 	.spinlock	= SPIN_LOCK_UNLOCKED,
-@@ -400,10 +454,13 @@
-  * chicken and egg problem: delay the per-cpu array allocation
-  * until the general caches are up.
-  */
--static int g_cpucache_up;
-+enum {
-+	NONE,
-+	PARTIAL,
-+	FULL
-+} g_cpucache_up;
- 
- static void enable_cpucache (kmem_cache_t *cachep);
--static void enable_all_cpucaches (void);
- 
- /* Cal the num objs, wastage, and bytes left over for a given slab size. */
- static void cache_estimate (unsigned long gfporder, size_t size,
-@@ -433,6 +490,56 @@
- 	*left_over = wastage;
- }
- 
-+#ifdef CONFIG_SMP
-+/*
-+ * Note: if someone calls kmem_cache_alloc() on the new
-+ * cpu before the cpuup callback had a chance to allocate
-+ * the head arrays, it will oops.
-+ * Is CPU_ONLINE early enough?
-+ */
-+static int __devinit cpuup_callback(struct notifier_block *nfb,
-+				  unsigned long action,
-+				  void *hcpu)
-+{
-+	int cpu = (int)hcpu;
-+	if (action == CPU_ONLINE) {
-+		struct list_head *p;
-+		cpucache_t *nc;
-+
-+		down(&cache_chain_sem);
-+
-+		p = &cache_cache.next;
-+		do {
-+			int memsize;
-+
-+			kmem_cache_t* cachep = list_entry(p, kmem_cache_t, next);
-+			memsize = sizeof(void*)*cachep->limit+sizeof(cpucache_t);
-+			nc = kmalloc(memsize, GFP_KERNEL);
-+			if (!nc)
-+				goto bad;
-+			nc->avail = 0;
-+			nc->limit = cachep->limit;
-+			nc->batchcount = cachep->batchcount;
-+
-+			cachep->cpudata[cpu] = nc;
-+
-+			p = cachep->next.next;
-+		} while (p != &cache_cache.next);
-+
-+		if (g_cpucache_up == FULL)
-+			do_cpucall(do_timerstart, NULL, cpu);
-+		up(&cache_chain_sem);
-+	}
-+
-+	return NOTIFY_OK;
-+bad:
-+	up(&cache_chain_sem);
-+	return NOTIFY_BAD;
-+}
-+
-+static struct notifier_block cpucache_notifier = { &cpuup_callback, NULL, 0 };
-+#endif
-+
- /* Initialisation - setup the `cache' cache. */
- void __init kmem_cache_init(void)
- {
-@@ -448,6 +555,13 @@
- 
- 	cache_cache.colour = left_over/cache_cache.colour_off;
- 	cache_cache.colour_next = 0;
-+
-+#ifdef CONFIG_SMP
-+	/* Register a cpu startup notifier callback
-+	 * that initializes cc_data for all new cpus
-+	 */
-+	register_cpu_notifier(&cpucache_notifier);
-+#endif
- }
- 
- 
-@@ -489,12 +603,46 @@
- 			BUG();
- 		sizes++;
- 	} while (sizes->cs_size);
-+	/*
-+	 * The generic caches are running - time to kick out the
-+	 * bootstrap cpucaches.
-+	 */
-+	{
-+		void * ptr;
-+		
-+		ptr = kmalloc(sizeof(struct cpucache_int), GFP_KERNEL);
-+		local_irq_disable();
-+		BUG_ON(cc_data(&cache_cache) != &cpuarray_cache.cache);
-+		memcpy(ptr, cc_data(&cache_cache), sizeof(struct cpucache_int));
-+		cc_data(&cache_cache) = ptr;
-+		local_irq_enable();
-+	
-+		ptr = kmalloc(sizeof(struct cpucache_int), GFP_KERNEL);
-+		local_irq_disable();
-+		BUG_ON(cc_data(cache_sizes[0].cs_cachep) != &cpuarray_generic.cache);
-+		memcpy(ptr, cc_data(cache_sizes[0].cs_cachep),
-+				sizeof(struct cpucache_int));
-+		cc_data(cache_sizes[0].cs_cachep) = ptr;
-+		local_irq_enable();
-+	}
- }
- 
- int __init cpucache_init(void)
- {
--	g_cpucache_up = 1;
--	enable_all_cpucaches();
-+	struct list_head* p;
-+
-+	down(&cache_chain_sem);
-+	g_cpucache_up = FULL;
-+
-+	p = &cache_cache.next;
-+	do {
-+		kmem_cache_t* cachep = list_entry(p, kmem_cache_t, next);
-+		enable_cpucache(cachep);
-+		p = cachep->next.next;
-+	} while (p != &cache_cache.next);
-+	
-+	up(&cache_chain_sem);
-+
- 	return 0;
- }
- 
-@@ -574,37 +722,34 @@
-  */
- static void slab_destroy (kmem_cache_t *cachep, slab_t *slabp)
- {
--	if (cachep->dtor
- #if DEBUG
--		|| cachep->flags & (SLAB_POISON | SLAB_RED_ZONE)
--#endif
--	) {
-+	int i;
-+	for (i = 0; i < cachep->num; i++) {
-+		void* objp = slabp->s_mem+cachep->objsize*i;
-+		if (cachep->flags & SLAB_POISON)
-+			check_poison_obj(cachep, objp);
-+
-+		if (cachep->flags & SLAB_RED_ZONE) {
-+			if (*((unsigned long*)(objp)) != RED_MAGIC1)
-+				BUG();
-+			if (*((unsigned long*)(objp + cachep->objsize -
-+					BYTES_PER_WORD)) != RED_MAGIC1)
-+				BUG();
-+			objp += BYTES_PER_WORD;
-+		}
-+		if (cachep->dtor && !(cachep->flags & SLAB_POISON))
-+			(cachep->dtor)(objp, cachep, 0);
-+	}
-+#else
-+	if (cachep->dtor) {
- 		int i;
- 		for (i = 0; i < cachep->num; i++) {
- 			void* objp = slabp->s_mem+cachep->objsize*i;
--#if DEBUG
--			if (cachep->flags & SLAB_RED_ZONE) {
--				if (*((unsigned long*)(objp)) != RED_MAGIC1)
--					BUG();
--				if (*((unsigned long*)(objp + cachep->objsize
--						-BYTES_PER_WORD)) != RED_MAGIC1)
--					BUG();
--				objp += BYTES_PER_WORD;
--			}
--#endif
--			if (cachep->dtor)
--				(cachep->dtor)(objp, cachep, 0);
--#if DEBUG
--			if (cachep->flags & SLAB_RED_ZONE) {
--				objp -= BYTES_PER_WORD;
--			}	
--			if ((cachep->flags & SLAB_POISON)  &&
--				check_poison_obj(cachep, objp))
--				BUG();
--#endif
-+			(cachep->dtor)(objp, cachep, 0);
- 		}
- 	}
--
-+#endif
-+	
- 	kmem_freepages(cachep, slabp->s_mem-slabp->colouroff);
- 	if (OFF_SLAB(cachep))
- 		kmem_cache_free(cachep->slabp_cache, slabp);
-@@ -670,11 +815,6 @@
- 		flags &= ~SLAB_DEBUG_INITIAL;
- 	}
- 
--	if ((flags & SLAB_POISON) && ctor) {
--		/* request for poisoning, but we can't do that with a constructor */
--		printk("%sPoisoning requested, but con given - %s\n", func_nm, name);
--		flags &= ~SLAB_POISON;
--	}
- #if FORCED_DEBUG
- 	if ((size < (PAGE_SIZE>>3)) && !(flags & SLAB_MUST_HWCACHE_ALIGN))
- 		/*
-@@ -682,8 +822,7 @@
- 		 * fragmentation.
- 		 */
- 		flags |= SLAB_RED_ZONE;
--	if (!ctor)
--		flags |= SLAB_POISON;
-+	flags |= SLAB_POISON;
- #endif
- #endif
- 
-@@ -735,7 +874,6 @@
- 	if (flags & SLAB_HWCACHE_ALIGN) {
- 		/* Need to adjust size so that objs are cache aligned. */
- 		/* Small obj size, can get at least two per cache line. */
--		/* FIXME: only power of 2 supported, was better */
- 		while (size < align/2)
- 			align /= 2;
- 		size = (size+align-1)&(~(align-1));
-@@ -802,19 +940,16 @@
- 	cachep->colour_off = offset;
- 	cachep->colour = left_over/offset;
- 
--	/* init remaining fields */
--	if (!cachep->gfporder && !(flags & CFLGS_OFF_SLAB))
--		flags |= CFLGS_OPTIMIZE;
--
- 	cachep->flags = flags;
- 	cachep->gfpflags = 0;
- 	if (flags & SLAB_CACHE_DMA)
- 		cachep->gfpflags |= GFP_DMA;
- 	spin_lock_init(&cachep->spinlock);
- 	cachep->objsize = size;
--	INIT_LIST_HEAD(&cachep->slabs_full);
--	INIT_LIST_HEAD(&cachep->slabs_partial);
--	INIT_LIST_HEAD(&cachep->slabs_free);
-+	/* NUMA */
-+	INIT_LIST_HEAD(&cachep->lists.slabs_full);
-+	INIT_LIST_HEAD(&cachep->lists.slabs_partial);
-+	INIT_LIST_HEAD(&cachep->lists.slabs_free);
- 
- 	if (flags & CFLGS_OFF_SLAB)
- 		cachep->slabp_cache = kmem_find_general_cachep(slab_size,0);
-@@ -822,8 +957,27 @@
- 	cachep->dtor = dtor;
- 	cachep->name = name;
- 
--	if (g_cpucache_up)
-+	if (g_cpucache_up == FULL) {
- 		enable_cpucache(cachep);
-+	} else {
-+		if (g_cpucache_up == NONE) {
-+			/* Note: the first kmem_cache_create must create
-+			 * the cache that's used by kmalloc(24), otherwise
-+			 * the creation of further caches will BUG().
-+			 */
-+			cc_data(cachep) = &cpuarray_generic.cache;
-+			g_cpucache_up = PARTIAL;
-+		} else {
-+			cc_data(cachep) = kmalloc(sizeof(struct cpucache_int),GFP_KERNEL);
-+		}
-+		BUG_ON(!cc_data(cachep));
-+		cc_data(cachep)->avail = 0;
-+		cc_data(cachep)->limit = BOOT_CPUCACHE_ENTRIES;
-+		cc_data(cachep)->batchcount = 1;
-+		cachep->batchcount = 1;
-+		cachep->limit = BOOT_CPUCACHE_ENTRIES;
-+	} 
-+
- 	/* Need the semaphore to access the chain. */
- 	down(&cache_chain_sem);
- 	{
-@@ -861,32 +1015,27 @@
- 	return cachep;
- }
- 
--
--#if DEBUG
--/*
-- * This check if the kmem_cache_t pointer is chained in the cache_cache
-- * list. -arca
-- */
--static int is_chained_cache(kmem_cache_t * cachep)
-+static inline void check_irq_off(void)
- {
--	struct list_head *p;
--	int ret = 0;
--
--	/* Find the cache in the chain of caches. */
--	down(&cache_chain_sem);
--	list_for_each(p, &cache_chain) {
--		if (p == &cachep->next) {
--			ret = 1;
--			break;
--		}
--	}
--	up(&cache_chain_sem);
-+#if DEBUG
-+	BUG_ON(!irqs_disabled());
-+#endif
-+}
- 
--	return ret;
-+static inline void check_irq_on(void)
-+{
-+#if DEBUG
-+	BUG_ON(irqs_disabled());
-+#endif
- }
--#else
--#define is_chained_cache(x) 1
-+
-+static inline void check_spinlock_acquired(kmem_cache_t *cachep)
-+{
-+#ifdef CONFIG_SMP
-+	check_irq_off();
-+	BUG_ON(spin_trylock(&cachep->spinlock));
- #endif
-+}
- 
- /*
-  * Waits for all CPUs to execute func().
-@@ -900,20 +1049,6 @@
- 	if (smp_call_function(func, arg, 1, 1))
- 		BUG();
- }
--typedef struct ccupdate_struct_s
--{
--	kmem_cache_t *cachep;
--	cpucache_t *new[NR_CPUS];
--} ccupdate_struct_t;
--
--static void do_ccupdate_local(void *info)
--{
--	ccupdate_struct_t *new = (ccupdate_struct_t *)info;
--	cpucache_t *old = cc_data(new->cachep);
--	
--	cc_data(new->cachep) = new->new[smp_processor_id()];
--	new->new[smp_processor_id()] = old;
--}
- 
- static void free_block (kmem_cache_t* cachep, void** objpp, int len);
- 
-@@ -922,6 +1057,7 @@
- 	kmem_cache_t *cachep = (kmem_cache_t*)arg;
- 	cpucache_t *cc;
- 
-+	check_irq_off();
- 	cc = cc_data(cachep);
- 	free_block(cachep, &cc_entry(cc)[0], cc->avail);
- 	cc->avail = 0;
-@@ -932,6 +1068,8 @@
- 	smp_call_function_all_cpus(do_drain, cachep);
- }
- 
-+
-+/* NUMA shrink all list3s */
- static int __cache_shrink(kmem_cache_t *cachep)
- {
- 	slab_t *slabp;
-@@ -939,17 +1077,17 @@
- 
- 	drain_cpu_caches(cachep);
- 
-+	check_irq_on();
- 	spin_lock_irq(&cachep->spinlock);
- 
--	/* If the cache is growing, stop shrinking. */
--	while (!cachep->growing) {
-+	for(;;) {
- 		struct list_head *p;
- 
--		p = cachep->slabs_free.prev;
--		if (p == &cachep->slabs_free)
-+		p = cachep->lists.slabs_free.prev;
-+		if (p == &cachep->lists.slabs_free)
- 			break;
- 
--		slabp = list_entry(cachep->slabs_free.prev, slab_t, list);
-+		slabp = list_entry(cachep->lists.slabs_free.prev, slab_t, list);
- #if DEBUG
- 		if (slabp->inuse)
- 			BUG();
-@@ -960,7 +1098,8 @@
- 		slab_destroy(cachep, slabp);
- 		spin_lock_irq(&cachep->spinlock);
- 	}
--	ret = !list_empty(&cachep->slabs_full) || !list_empty(&cachep->slabs_partial);
-+	ret = !list_empty(&cachep->lists.slabs_full) ||
-+		!list_empty(&cachep->lists.slabs_partial);
- 	spin_unlock_irq(&cachep->spinlock);
- 	return ret;
- }
-@@ -974,7 +1113,7 @@
-  */
- int kmem_cache_shrink(kmem_cache_t *cachep)
- {
--	if (!cachep || in_interrupt() || !is_chained_cache(cachep))
-+	if (!cachep || in_interrupt())
- 		BUG();
- 
- 	return __cache_shrink(cachep);
-@@ -1021,6 +1160,7 @@
- 		int i;
- 		for (i = 0; i < NR_CPUS; i++)
- 			kfree(cachep->cpudata[i]);
-+		/* NUMA: free the list3 structures */
- 	}
- 	kmem_cache_free(&cache_cache, cachep);
- 
-@@ -1039,10 +1179,6 @@
- 		if (!slabp)
- 			return NULL;
- 	} else {
--		/* FIXME: change to
--			slabp = objp
--		 * if you enable OPTIMIZE
--		 */
- 		slabp = objp+colour_off;
- 		colour_off += L1_CACHE_ALIGN(cachep->num *
- 				sizeof(kmem_bufctl_t) + sizeof(slab_t));
-@@ -1062,34 +1198,35 @@
- 	for (i = 0; i < cachep->num; i++) {
- 		void* objp = slabp->s_mem+cachep->objsize*i;
- #if DEBUG
-+		/* need to poison the objs? */
-+		if (cachep->flags & SLAB_POISON)
-+			poison_obj(cachep, objp);
-+
- 		if (cachep->flags & SLAB_RED_ZONE) {
- 			*((unsigned long*)(objp)) = RED_MAGIC1;
- 			*((unsigned long*)(objp + cachep->objsize -
- 					BYTES_PER_WORD)) = RED_MAGIC1;
- 			objp += BYTES_PER_WORD;
- 		}
--#endif
--
- 		/*
- 		 * Constructors are not allowed to allocate memory from
- 		 * the same cache which they are a constructor for.
- 		 * Otherwise, deadlock. They must also be threaded.
- 		 */
--		if (cachep->ctor)
-+		if (cachep->ctor && !(cachep->flags & SLAB_POISON))
- 			cachep->ctor(objp, cachep, ctor_flags);
--#if DEBUG
--		if (cachep->flags & SLAB_RED_ZONE)
--			objp -= BYTES_PER_WORD;
--		if (cachep->flags & SLAB_POISON)
--			/* need to poison the objs */
--			poison_obj(cachep, objp);
-+
- 		if (cachep->flags & SLAB_RED_ZONE) {
-+			objp -= BYTES_PER_WORD;
- 			if (*((unsigned long*)(objp)) != RED_MAGIC1)
- 				BUG();
- 			if (*((unsigned long*)(objp + cachep->objsize -
- 					BYTES_PER_WORD)) != RED_MAGIC1)
- 				BUG();
- 		}
-+#else
-+		if (cachep->ctor)
-+			cachep->ctor(objp, cachep, ctor_flags);
- #endif
- 		slab_bufctl(slabp)[i] = i+1;
- 	}
-@@ -1097,6 +1234,20 @@
- 	slabp->free = 0;
- }
- 
-+static void kmem_flagcheck(kmem_cache_t *cachep, int flags)
-+{
-+	if (flags & __GFP_WAIT)
-+		might_sleep();
-+
-+	if (flags & SLAB_DMA) {
-+		if (!(cachep->gfpflags & GFP_DMA))
-+			BUG();
-+	} else {
-+		if (cachep->gfpflags & GFP_DMA)
-+			BUG();
-+	}
-+}
-+
- /*
-  * Grow (by 1) the number of slabs within a cache.  This is called by
-  * kmem_cache_alloc() when there are no active objs left in a cache.
-@@ -1109,7 +1260,6 @@
- 	size_t		 offset;
- 	unsigned int	 i, local_flags;
- 	unsigned long	 ctor_flags;
--	unsigned long	 save_flags;
- 
- 	/* Be lazy and only check for valid flags here,
-  	 * keeping it out of the critical path in kmem_cache_alloc().
-@@ -1119,15 +1269,6 @@
- 	if (flags & SLAB_NO_GROW)
- 		return 0;
- 
--	/*
--	 * The test for missing atomic flag is performed here, rather than
--	 * the more obvious place, simply to reduce the critical path length
--	 * in kmem_cache_alloc(). If a caller is seriously mis-behaving they
--	 * will eventually be caught here (where it matters).
--	 */
--	if (in_interrupt() && (flags & __GFP_WAIT))
--		BUG();
--
- 	ctor_flags = SLAB_CTOR_CONSTRUCTOR;
- 	local_flags = (flags & SLAB_LEVEL_MASK);
- 	if (!(local_flags & __GFP_WAIT))
-@@ -1138,7 +1279,8 @@
- 		ctor_flags |= SLAB_CTOR_ATOMIC;
- 
- 	/* About to mess with non-constant members - lock. */
--	spin_lock_irqsave(&cachep->spinlock, save_flags);
-+	check_irq_off();
-+	spin_lock(&cachep->spinlock);
- 
- 	/* Get colour for the slab, and cal the next value. */
- 	offset = cachep->colour_next;
-@@ -1146,19 +1288,20 @@
- 	if (cachep->colour_next >= cachep->colour)
- 		cachep->colour_next = 0;
- 	offset *= cachep->colour_off;
--	cachep->dflags |= DFLGS_GROWN;
- 
--	cachep->growing++;
--	spin_unlock_irqrestore(&cachep->spinlock, save_flags);
-+	spin_unlock(&cachep->spinlock);
- 
--	/* A series of memory allocations for a new slab.
--	 * Neither the cache-chain semaphore, or cache-lock, are
--	 * held, but the incrementing c_growing prevents this
--	 * cache from being reaped or shrunk.
--	 * Note: The cache could be selected in for reaping in
--	 * cache_reap(), but when the final test is made the
--	 * growing value will be seen.
-+	if (local_flags & __GFP_WAIT)
-+		local_irq_enable();
-+
-+	/*
-+	 * The test for missing atomic flag is performed here, rather than
-+	 * the more obvious place, simply to reduce the critical path length
-+	 * in kmem_cache_alloc(). If a caller is seriously mis-behaving they
-+	 * will eventually be caught here (where it matters).
- 	 */
-+	kmem_flagcheck(cachep, flags);
-+
- 
- 	/* Get mem for the objs. */
- 	if (!(objp = kmem_getpages(cachep, flags)))
-@@ -1181,62 +1324,117 @@
- 
- 	cache_init_objs(cachep, slabp, ctor_flags);
- 
--	spin_lock_irqsave(&cachep->spinlock, save_flags);
--	cachep->growing--;
-+	if (local_flags & __GFP_WAIT)
-+		local_irq_disable();
-+	check_irq_off();
-+	spin_lock(&cachep->spinlock);
- 
- 	/* Make slab active. */
--	list_add_tail(&slabp->list, &cachep->slabs_free);
-+	list_add_tail(&slabp->list, &(list3_data(cachep)->slabs_free));
- 	STATS_INC_GROWN(cachep);
--	cachep->failures = 0;
--
--	spin_unlock_irqrestore(&cachep->spinlock, save_flags);
-+	spin_unlock(&cachep->spinlock);
- 	return 1;
- opps1:
- 	kmem_freepages(cachep, objp);
- failed:
--	spin_lock_irqsave(&cachep->spinlock, save_flags);
--	cachep->growing--;
--	spin_unlock_irqrestore(&cachep->spinlock, save_flags);
- 	return 0;
- }
- 
- /*
-  * Perform extra freeing checks:
-- * - detect double free
-  * - detect bad pointers.
-- * Called with the cache-lock held.
-+ * - POISON/RED_ZONE checking
-+ * - destructor calls, for caches with POISON+dtor
-  */
--
--#if DEBUG
--static int extra_free_checks (kmem_cache_t * cachep,
--			slab_t *slabp, void * objp)
-+static inline void kfree_debugcheck(const void *objp)
- {
--	int i;
--	unsigned int objnr = (objp-slabp->s_mem)/cachep->objsize;
-+#if DEBUG
-+	struct page *page;
- 
--	if (objnr >= cachep->num)
--		BUG();
--	if (objp != slabp->s_mem + objnr*cachep->objsize)
-+	if (!virt_addr_valid(objp)) {
-+		printk(KERN_ERR "kfree_debugcheck: out of range ptr %lxh.\n",
-+			(unsigned long)objp);	
-+		BUG();	
-+	}
-+	page = virt_to_page(objp);
-+	if (!PageSlab(page)) {
-+		printk(KERN_ERR "kfree_debugcheck: bad ptr %lxh.\n", (unsigned long)objp);
- 		BUG();
--
--	/* Check slab's freelist to see if this obj is there. */
--	for (i = slabp->free; i != BUFCTL_END; i = slab_bufctl(slabp)[i]) {
--		if (i == objnr)
--			BUG();
- 	}
--	return 0;
-+#endif 
- }
--#endif
- 
--static inline void cache_alloc_head(kmem_cache_t *cachep, int flags)
-+static inline void *cache_free_debugcheck (kmem_cache_t * cachep, void * objp)
- {
--	if (flags & SLAB_DMA) {
--		if (!(cachep->gfpflags & GFP_DMA))
-+#if DEBUG
-+	struct page *page;
-+	unsigned int objnr;
-+	slab_t *slabp;
-+
-+	kfree_debugcheck(objp);
-+	page = virt_to_page(objp);
-+
-+	BUG_ON(GET_PAGE_CACHE(page) != cachep);
-+	slabp = GET_PAGE_SLAB(page);
-+
-+	if (cachep->flags & SLAB_RED_ZONE) {
-+		objp -= BYTES_PER_WORD;
-+		if (xchg((unsigned long *)objp, RED_MAGIC1) != RED_MAGIC2)
-+			/* Either write before start, or a double free. */
- 			BUG();
--	} else {
--		if (cachep->gfpflags & GFP_DMA)
-+		if (xchg((unsigned long *)(objp+cachep->objsize -
-+				BYTES_PER_WORD), RED_MAGIC1) != RED_MAGIC2)
-+			/* Either write past end, or a double free. */
- 			BUG();
- 	}
-+
-+	objnr = (objp-slabp->s_mem)/cachep->objsize;
-+
-+	BUG_ON(objnr >= cachep->num);
-+	BUG_ON(objp != slabp->s_mem + objnr*cachep->objsize);
-+
-+	if (cachep->flags & SLAB_DEBUG_INITIAL) {
-+		/* Need to call the slab's constructor so the
-+		 * caller can perform a verify of its state (debugging).
-+		 * Called without the cache-lock held.
-+		 */
-+		if (cachep->flags & SLAB_RED_ZONE) {
-+			cachep->ctor(objp+BYTES_PER_WORD,
-+					cachep, SLAB_CTOR_CONSTRUCTOR|SLAB_CTOR_VERIFY);
-+		} else {
-+			cachep->ctor(objp, cachep, SLAB_CTOR_CONSTRUCTOR|SLAB_CTOR_VERIFY);
-+		}
-+	}
-+	if (cachep->flags & SLAB_POISON && cachep->dtor) {
-+		/* we want to cache poison the object,
-+		 * call the destruction callback
-+		 */
-+		if (cachep->flags & SLAB_RED_ZONE)
-+			cachep->dtor(objp+BYTES_PER_WORD, cachep, 0);
-+		else
-+			cachep->dtor(objp, cachep, 0);
-+	}
-+	if (cachep->flags & SLAB_POISON) {
-+		poison_obj(cachep, objp);
-+	}
-+#endif
-+	return objp;
-+}
-+
-+static inline void check_slabp(kmem_cache_t *cachep, slab_t *slabp)
-+{
-+#if DEBUG
-+	int i;
-+	int entries = 0;
-+	
-+	check_spinlock_acquired(cachep);
-+	/* Check slab's freelist to see if this obj is there. */
-+	for (i = slabp->free; i != BUFCTL_END; i = slab_bufctl(slabp)[i]) {
-+		entries++;
-+		BUG_ON(entries > cachep->num);
-+	}
-+	BUG_ON(entries != cachep->num - slabp->inuse);
-+#endif
- }
- 
- static inline void * cache_alloc_one_tail (kmem_cache_t *cachep,
-@@ -1244,6 +1442,8 @@
- {
- 	void *objp;
- 
-+	check_spinlock_acquired(cachep);
-+
- 	STATS_INC_ALLOCED(cachep);
- 	STATS_INC_ACTIVE(cachep);
- 	STATS_SET_HIGH(cachep);
-@@ -1253,11 +1453,83 @@
- 	objp = slabp->s_mem + slabp->free*cachep->objsize;
- 	slabp->free=slab_bufctl(slabp)[slabp->free];
- 
--	if (unlikely(slabp->free == BUFCTL_END)) {
--		list_del(&slabp->list);
--		list_add(&slabp->list, &cachep->slabs_full);
-+	return objp;
-+}
-+
-+static inline void cache_alloc_listfixup(struct kmem_list3 *l3, slab_t *slabp)
-+{
-+	list_del(&slabp->list);
-+	if (slabp->free == BUFCTL_END) {
-+		list_add(&slabp->list, &l3->slabs_full);
-+	} else {
-+		list_add(&slabp->list, &l3->slabs_partial);
- 	}
-+}
-+
-+static void* cache_alloc_refill(kmem_cache_t* cachep, int flags)
-+{
-+	int batchcount;
-+	struct kmem_list3 *l3;
-+	cpucache_t *cc;
-+
-+	check_irq_off();
-+	cc = cc_data(cachep);
-+retry:
-+	batchcount = cc->batchcount;
-+	l3 = list3_data(cachep);
-+
-+	BUG_ON(cc->avail > 0);
-+	spin_lock(&cachep->spinlock);
-+	while (batchcount > 0) {
-+		struct list_head *entry;
-+		slab_t *slabp;
-+		/* Get slab alloc is to come from. */
-+		entry = l3->slabs_partial.next;
-+		if (entry == &l3->slabs_partial) {
-+			entry = l3->slabs_free.next;
-+			if (entry == &l3->slabs_free)
-+				goto must_grow;
-+		}
-+
-+		slabp = list_entry(entry, slab_t, list);
-+		check_slabp(cachep, slabp);
-+		while (slabp->inuse < cachep->num && batchcount--)
-+			cc_entry(cc)[cc->avail++] =
-+				cache_alloc_one_tail(cachep, slabp);
-+		check_slabp(cachep, slabp);
-+		cache_alloc_listfixup(l3, slabp);
-+	}
-+
-+must_grow:
-+	spin_unlock(&cachep->spinlock);
-+
-+	if (unlikely(!cc->avail)) {
-+		int x;
-+		x = cache_grow(cachep, flags);
-+		
-+		// cache_grow can reenable interrupts, then cc could change.
-+		cc = cc_data(cachep);
-+		if (!x && cc->avail == 0)	// no objects in sight? abort
-+			return NULL;
-+
-+		if (!cc->avail)		// objects refilled by interrupt?
-+			goto retry;
-+	}
-+	return cc_entry(cc)[--cc->avail];
-+}
-+
-+static inline void cache_alloc_debugcheck_before(kmem_cache_t *cachep, int flags)
-+{
- #if DEBUG
-+	kmem_flagcheck(cachep, flags);
-+#endif
-+}
-+
-+static inline void *cache_alloc_debugcheck_after (kmem_cache_t *cachep, unsigned long flags, void *objp)
-+{
-+#if DEBUG
-+	if (!objp)	
-+		return objp;
- 	if (cachep->flags & SLAB_POISON)
- 		if (check_poison_obj(cachep, objp))
- 			BUG();
-@@ -1271,246 +1543,128 @@
- 			BUG();
- 		objp += BYTES_PER_WORD;
- 	}
-+	if (cachep->ctor && cachep->flags & SLAB_POISON) {
-+		unsigned long	ctor_flags = SLAB_CTOR_CONSTRUCTOR;
-+
-+		if (!flags & __GFP_WAIT)
-+			ctor_flags |= SLAB_CTOR_ATOMIC;
-+
-+		cachep->ctor(objp, cachep, ctor_flags);
-+	}	
- #endif
- 	return objp;
- }
- 
--/*
-- * Returns a ptr to an obj in the given cache.
-- * caller must guarantee synchronization
-- * #define for the goto optimization 8-)
-- */
--#define cache_alloc_one(cachep)				\
--({								\
--	struct list_head * slabs_partial, * entry;		\
--	slab_t *slabp;						\
--								\
--	slabs_partial = &(cachep)->slabs_partial;		\
--	entry = slabs_partial->next;				\
--	if (unlikely(entry == slabs_partial)) {			\
--		struct list_head * slabs_free;			\
--		slabs_free = &(cachep)->slabs_free;		\
--		entry = slabs_free->next;			\
--		if (unlikely(entry == slabs_free))		\
--			goto alloc_new_slab;			\
--		list_del(entry);				\
--		list_add(entry, slabs_partial);			\
--	}							\
--								\
--	slabp = list_entry(entry, slab_t, list);		\
--	cache_alloc_one_tail(cachep, slabp);		\
--})
--
--void* cache_alloc_batch(kmem_cache_t* cachep, int flags)
--{
--	int batchcount = cachep->batchcount;
--	cpucache_t* cc = cc_data(cachep);
--
--	spin_lock(&cachep->spinlock);
--	while (batchcount--) {
--		struct list_head * slabs_partial, * entry;
--		slab_t *slabp;
--		/* Get slab alloc is to come from. */
--		slabs_partial = &(cachep)->slabs_partial;
--		entry = slabs_partial->next;
--		if (unlikely(entry == slabs_partial)) {
--			struct list_head * slabs_free;
--			slabs_free = &(cachep)->slabs_free;
--			entry = slabs_free->next;
--			if (unlikely(entry == slabs_free))
--				break;
--			list_del(entry);
--			list_add(entry, slabs_partial);
--		}
--
--		slabp = list_entry(entry, slab_t, list);
--		cc_entry(cc)[cc->avail++] =
--				cache_alloc_one_tail(cachep, slabp);
--	}
--	spin_unlock(&cachep->spinlock);
--
--	if (cc->avail)
--		return cc_entry(cc)[--cc->avail];
--	return NULL;
--}
- 
- static inline void * __cache_alloc (kmem_cache_t *cachep, int flags)
- {
- 	unsigned long save_flags;
- 	void* objp;
-+	cpucache_t *cc;
- 
--	if (flags & __GFP_WAIT)
--		might_sleep();
-+	cache_alloc_debugcheck_before(cachep, flags);
- 
--	cache_alloc_head(cachep, flags);
--try_again:
- 	local_irq_save(save_flags);
--	{
--		cpucache_t *cc = cc_data(cachep);
--
--		if (cc) {
--			if (cc->avail) {
--				STATS_INC_ALLOCHIT(cachep);
--				objp = cc_entry(cc)[--cc->avail];
--			} else {
--				STATS_INC_ALLOCMISS(cachep);
--				objp = cache_alloc_batch(cachep,flags);
--				local_irq_restore(save_flags);
--				if (!objp)
--					goto alloc_new_slab_nolock;
--				return objp;
--			}
--		} else {
--			spin_lock(&cachep->spinlock);
--			objp = cache_alloc_one(cachep);
--			spin_unlock(&cachep->spinlock);
--		}
-+	cc = cc_data(cachep);
-+	if (likely(cc->avail)) {
-+		STATS_INC_ALLOCHIT(cachep);
-+		objp = cc_entry(cc)[--cc->avail];
-+	} else {
-+		STATS_INC_ALLOCMISS(cachep);
-+		objp = cache_alloc_refill(cachep, flags);
- 	}
- 	local_irq_restore(save_flags);
-+	objp = cache_alloc_debugcheck_after(cachep, flags, objp);
- 	return objp;
--alloc_new_slab:
--	spin_unlock(&cachep->spinlock);
--	local_irq_restore(save_flags);
--alloc_new_slab_nolock:
--	if (cache_grow(cachep, flags))
--		/* Someone may have stolen our objs.  Doesn't matter, we'll
--		 * just come back here again.
--		 */
--		goto try_again;
--	return NULL;
- }
- 
--/*
-- * Release an obj back to its cache. If the obj has a constructed
-- * state, it should be in this state _before_ it is released.
-- * - caller is responsible for the synchronization
-+/* 
-+ * NUMA: different approach needed if the spinlock is moved into
-+ * the l3 structure
-  */
- 
--#if DEBUG
--# define CHECK_NR(pg)						\
--	do {							\
--		if (!virt_addr_valid(pg)) {			\
--			printk(KERN_ERR "kfree: out of range ptr %lxh.\n", \
--				(unsigned long)objp);		\
--			BUG();					\
--		} \
--	} while (0)
--# define CHECK_PAGE(addr)					\
--	do {							\
--		struct page *page = virt_to_page(addr);		\
--		CHECK_NR(addr);					\
--		if (!PageSlab(page)) {				\
--			printk(KERN_ERR "kfree: bad ptr %lxh.\n", \
--				(unsigned long)objp);		\
--			BUG();					\
--		}						\
--	} while (0)
--
--#else
--# define CHECK_PAGE(pg)	do { } while (0)
--#endif
--
--static inline void cache_free_one(kmem_cache_t *cachep, void *objp)
-+static inline void __free_block (kmem_cache_t* cachep, void** objpp, int len)
- {
--	slab_t* slabp;
--
--	CHECK_PAGE(objp);
--	/* reduces memory footprint
--	 *
--	if (OPTIMIZE(cachep))
--		slabp = (void*)((unsigned long)objp&(~(PAGE_SIZE-1)));
--	 else
--	 */
--	slabp = GET_PAGE_SLAB(virt_to_page(objp));
-+	check_irq_off();
-+	spin_lock(&cachep->spinlock);
-+	/* NUMA: move add into loop */
- 
--#if DEBUG
--	if (cachep->flags & SLAB_DEBUG_INITIAL)
--		/* Need to call the slab's constructor so the
--		 * caller can perform a verify of its state (debugging).
--		 * Called without the cache-lock held.
--		 */
--		cachep->ctor(objp, cachep, SLAB_CTOR_CONSTRUCTOR|SLAB_CTOR_VERIFY);
-+	for ( ; len > 0; len--, objpp++) {
-+		slab_t* slabp;
-+		void *objp = *objpp;
- 
--	if (cachep->flags & SLAB_RED_ZONE) {
--		objp -= BYTES_PER_WORD;
--		if (xchg((unsigned long *)objp, RED_MAGIC1) != RED_MAGIC2)
--			/* Either write before start, or a double free. */
--			BUG();
--		if (xchg((unsigned long *)(objp+cachep->objsize -
--				BYTES_PER_WORD), RED_MAGIC1) != RED_MAGIC2)
--			/* Either write past end, or a double free. */
--			BUG();
--	}
--	if (cachep->flags & SLAB_POISON)
--		poison_obj(cachep, objp);
--	if (extra_free_checks(cachep, slabp, objp))
--		return;
--#endif
--	{
--		unsigned int objnr = (objp-slabp->s_mem)/cachep->objsize;
-+		slabp = GET_PAGE_SLAB(virt_to_page(objp));
-+		list_del(&slabp->list);
-+		{
-+			unsigned int objnr = (objp-slabp->s_mem)/cachep->objsize;
- 
--		slab_bufctl(slabp)[objnr] = slabp->free;
--		slabp->free = objnr;
--	}
--	STATS_DEC_ACTIVE(cachep);
-+			slab_bufctl(slabp)[objnr] = slabp->free;
-+			slabp->free = objnr;
-+		}
-+		STATS_DEC_ACTIVE(cachep);
- 	
--	/* fixup slab chains */
--	{
--		int inuse = slabp->inuse;
-+		/* fixup slab chains */
- 		if (unlikely(!--slabp->inuse)) {
--			/* Was partial or full, now empty. */
--			list_del(&slabp->list);
--			/* We only buffer a single page */
--			if (list_empty(&cachep->slabs_free))
--				list_add(&slabp->list, &cachep->slabs_free);
--			else
-+			if (list_empty(&list3_data_ptr(cachep, objp)->slabs_free)) {
- 				slab_destroy(cachep, slabp);
--		} else if (unlikely(inuse == cachep->num)) {
--			/* Was full. */
--			list_del(&slabp->list);
--			list_add_tail(&slabp->list, &cachep->slabs_partial);
-+			} else {
-+				list_add(&slabp->list,
-+						&list3_data_ptr(cachep, objp)->slabs_free);
-+			}
-+		} else {
-+			/* Unconditionally move a slab to the end of the
-+			 * partial list on free - maximum time for the
-+			 * other objects to be freed, too.
-+			 */
-+			list_add_tail(&slabp->list, &list3_data_ptr(cachep, objp)->slabs_partial);
- 		}
- 	}
-+	spin_unlock(&cachep->spinlock);
- }
- 
--static inline void __free_block (kmem_cache_t* cachep,
--							void** objpp, int len)
-+static void free_block(kmem_cache_t* cachep, void** objpp, int len)
- {
--	for ( ; len > 0; len--, objpp++)
--		cache_free_one(cachep, *objpp);
-+	__free_block(cachep, objpp, len);
- }
- 
--static void free_block (kmem_cache_t* cachep, void** objpp, int len)
-+static void cache_flusharray (kmem_cache_t* cachep, cpucache_t *cc)
- {
--	spin_lock(&cachep->spinlock);
--	__free_block(cachep, objpp, len);
--	spin_unlock(&cachep->spinlock);
-+	int batchcount;
-+
-+	batchcount = cc->batchcount;
-+#if DEBUG
-+	BUG_ON(!batchcount || batchcount > cc->avail);
-+#endif
-+	check_irq_off();
-+	__free_block(cachep, &cc_entry(cc)[0], batchcount);
-+
-+	cc->avail -= batchcount;
-+	memmove(&cc_entry(cc)[0], &cc_entry(cc)[batchcount],
-+			sizeof(void*)*cc->avail);
- }
- 
- /*
-  * __cache_free
-- * called with disabled ints
-+ * Release an obj back to its cache. If the obj has a constructed
-+ * state, it must be in this state _before_ it is released.
-+ *
-+ * Called with disabled ints.
-  */
- static inline void __cache_free (kmem_cache_t *cachep, void* objp)
- {
--	cpucache_t *cc = cc_data(cachep);
-+	cpucache_t *cc = cc_data_ptr(cachep, objp);
- 
--	CHECK_PAGE(objp);
--	if (cc) {
--		int batchcount;
--		if (cc->avail < cc->limit) {
--			STATS_INC_FREEHIT(cachep);
--			cc_entry(cc)[cc->avail++] = objp;
--			return;
--		}
--		STATS_INC_FREEMISS(cachep);
--		batchcount = cachep->batchcount;
--		cc->avail -= batchcount;
--		free_block(cachep, &cc_entry(cc)[cc->avail], batchcount);
-+	check_irq_off();
-+	objp = cache_free_debugcheck(cachep, objp);
-+
-+	if (likely(cc->avail < cc->limit)) {
-+		STATS_INC_FREEHIT(cachep);
- 		cc_entry(cc)[cc->avail++] = objp;
- 		return;
- 	} else {
--		free_block(cachep, &objp, 1);
-+		STATS_INC_FREEMISS(cachep);
-+		cache_flusharray(cachep, cc);
-+		cc_entry(cc)[cc->avail++] = objp;
- 	}
- }
- 
-@@ -1555,6 +1709,13 @@
- 	for (; csizep->cs_size; csizep++) {
- 		if (size > csizep->cs_size)
- 			continue;
-+#if DEBUG
-+		/* This happens if someone tries to call
-+		 * kmem_cache_create(), or kmalloc(), before
-+		 * the generic caches are initialized.
-+		 */
-+		BUG_ON(csizep->cs_cachep == NULL);
-+#endif
- 		return __cache_alloc(flags & GFP_DMA ?
- 			 csizep->cs_dmacachep : csizep->cs_cachep, flags);
- 	}
-@@ -1572,11 +1733,6 @@
- void kmem_cache_free (kmem_cache_t *cachep, void *objp)
- {
- 	unsigned long flags;
--#if DEBUG
--	CHECK_PAGE(objp);
--	if (cachep != GET_PAGE_CACHE(virt_to_page(objp)))
--		BUG();
--#endif
- 
- 	local_irq_save(flags);
- 	__cache_free(cachep, objp);
-@@ -1598,7 +1754,7 @@
- 	if (!objp)
- 		return;
- 	local_irq_save(flags);
--	CHECK_PAGE(objp);
-+	kfree_debugcheck(objp);
- 	c = GET_PAGE_CACHE(virt_to_page(objp));
- 	__cache_free(c, (void*)objp);
- 	local_irq_restore(flags);
-@@ -1629,47 +1785,54 @@
- 	return (gfpflags & GFP_DMA) ? csizep->cs_dmacachep : csizep->cs_cachep;
- }
- 
--/* called with cache_chain_sem acquired.  */
--static int tune_cpucache (kmem_cache_t* cachep, int limit, int batchcount)
-+struct ccupdate_struct {
-+	kmem_cache_t *cachep;
-+	cpucache_t *new[NR_CPUS];
-+};
-+
-+static void do_ccupdate_local(void *info)
- {
--	ccupdate_struct_t new;
--	int i;
-+	struct ccupdate_struct *new = (struct ccupdate_struct *)info;
-+	cpucache_t *old;
- 
--	/*
--	 * These are admin-provided, so we are more graceful.
--	 */
--	if (limit < 0)
--		return -EINVAL;
--	if (batchcount < 0)
--		return -EINVAL;
--	if (batchcount > limit)
--		return -EINVAL;
--	if (limit != 0 && !batchcount)
--		return -EINVAL;
-+	check_irq_off();
-+	old = cc_data(new->cachep);
-+	
-+	cc_data(new->cachep) = new->new[smp_processor_id()];
-+	new->new[smp_processor_id()] = old;
-+}
-+
-+
-+static int do_tune_cpucache (kmem_cache_t* cachep, int limit, int batchcount)
-+{
-+	struct ccupdate_struct new;
-+	int i;
- 
- 	memset(&new.new,0,sizeof(new.new));
--	if (limit) {
--		for (i = 0; i < NR_CPUS; i++) {
--			cpucache_t* ccnew;
--
--			ccnew = kmalloc(sizeof(void*)*limit+
--					sizeof(cpucache_t), GFP_KERNEL);
--			if (!ccnew) {
--				for (i--; i >= 0; i--) kfree(new.new[i]);
--				return -ENOMEM;
--			}
--			ccnew->limit = limit;
--			ccnew->avail = 0;
--			new.new[i] = ccnew;
-+	for (i = 0; i < NR_CPUS; i++) {
-+		cpucache_t* ccnew;
-+
-+		ccnew = kmalloc(sizeof(void*)*limit+
-+				sizeof(cpucache_t), GFP_KERNEL);
-+		if (!ccnew) {
-+			for (i--; i >= 0; i--) kfree(new.new[i]);
-+			return -ENOMEM;
- 		}
-+		ccnew->avail = 0;
-+		ccnew->limit = limit;
-+		ccnew->batchcount = batchcount;
-+		new.new[i] = ccnew;
- 	}
- 	new.cachep = cachep;
-+
-+	smp_call_function_all_cpus(do_ccupdate_local, (void *)&new);
-+	
-+	check_irq_on();
- 	spin_lock_irq(&cachep->spinlock);
- 	cachep->batchcount = batchcount;
-+	cachep->limit = limit;
- 	spin_unlock_irq(&cachep->spinlock);
- 
--	smp_call_function_all_cpus(do_ccupdate_local, (void *)&new);
--
- 	for (i = 0; i < NR_CPUS; i++) {
- 		cpucache_t* ccold = new.new[i];
- 		if (!ccold)
-@@ -1682,48 +1845,25 @@
- 	return 0;
- }
- 
--/* 
-- * If slab debugging is enabled, don't batch slabs
-- * on the per-cpu lists by defaults.
-- */
-+
- static void enable_cpucache (kmem_cache_t *cachep)
- {
--#ifndef CONFIG_DEBUG_SLAB
- 	int err;
- 	int limit;
- 
--	/* FIXME: optimize */
- 	if (cachep->objsize > PAGE_SIZE)
--		return;
--	if (cachep->objsize > 1024)
--		limit = 60;
-+		limit = 8;
-+	else if (cachep->objsize > 1024)
-+		limit = 54;
- 	else if (cachep->objsize > 256)
--		limit = 124;
-+		limit = 120;
- 	else
--		limit = 252;
-+		limit = 248;
- 
--	err = tune_cpucache(cachep, limit, limit/2);
-+	err = do_tune_cpucache(cachep, limit, limit/2);
- 	if (err)
- 		printk(KERN_ERR "enable_cpucache failed for %s, error %d.\n",
- 					cachep->name, -err);
--#endif
--}
--
--static void enable_all_cpucaches (void)
--{
--	struct list_head* p;
--
--	down(&cache_chain_sem);
--
--	p = &cache_cache.next;
--	do {
--		kmem_cache_t* cachep = list_entry(p, kmem_cache_t, next);
--
--		enable_cpucache(cachep);
--		p = cachep->next.next;
--	} while (p != &cache_cache.next);
--
--	up(&cache_chain_sem);
- }
- 
- /**
-@@ -1762,12 +1902,6 @@
- 		if (searchp->flags & SLAB_NO_REAP)
- 			goto next;
- 		spin_lock_irq(&searchp->spinlock);
--		if (searchp->growing)
--			goto next_unlock;
--		if (searchp->dflags & DFLGS_GROWN) {
--			searchp->dflags &= ~DFLGS_GROWN;
--			goto next_unlock;
--		}
- 		{
- 			cpucache_t *cc = cc_data(searchp);
- 			if (cc && cc->avail) {
-@@ -1777,8 +1911,8 @@
- 		}
- 
- 		full_free = 0;
--		p = searchp->slabs_free.next;
--		while (p != &searchp->slabs_free) {
-+		p = searchp->lists.slabs_free.next;
-+		while (p != &searchp->lists.slabs_free) {
- 			slabp = list_entry(p, slab_t, list);
- #if DEBUG
- 			if (slabp->inuse)
-@@ -1808,7 +1942,6 @@
- 				goto perfect;
- 			}
- 		}
--next_unlock:
- 		spin_unlock_irq(&searchp->spinlock);
- next:
- 		searchp = list_entry(searchp->next.next,kmem_cache_t,next);
-@@ -1827,10 +1960,8 @@
- 	for (scan = 0; scan < best_len; scan++) {
- 		struct list_head *p;
- 
--		if (best_cachep->growing)
--			break;
--		p = best_cachep->slabs_free.prev;
--		if (p == &best_cachep->slabs_free)
-+		p = best_cachep->lists.slabs_free.prev;
-+		if (p == &best_cachep->lists.slabs_free)
- 			break;
- 		slabp = list_entry(p,slab_t,list);
- #if DEBUG
-@@ -1913,23 +2044,24 @@
- 		return 0;
- 	}
- 
-+	check_irq_on();
- 	spin_lock_irq(&cachep->spinlock);
- 	active_objs = 0;
- 	num_slabs = 0;
--	list_for_each(q,&cachep->slabs_full) {
-+	list_for_each(q,&cachep->lists.slabs_full) {
- 		slabp = list_entry(q, slab_t, list);
- 		if (slabp->inuse != cachep->num)
- 			BUG();
- 		active_objs += cachep->num;
- 		active_slabs++;
- 	}
--	list_for_each(q,&cachep->slabs_partial) {
-+	list_for_each(q,&cachep->lists.slabs_partial) {
- 		slabp = list_entry(q, slab_t, list);
- 		BUG_ON(slabp->inuse == cachep->num || !slabp->inuse);
- 		active_objs += slabp->inuse;
- 		active_slabs++;
- 	}
--	list_for_each(q,&cachep->slabs_free) {
-+	list_for_each(q,&cachep->lists.slabs_free) {
- 		slabp = list_entry(q, slab_t, list);
- 		if (slabp->inuse)
- 			BUG();
-@@ -2050,7 +2182,13 @@
- 		kmem_cache_t *cachep = list_entry(p, kmem_cache_t, next);
- 
- 		if (!strcmp(cachep->name, kbuf)) {
--			res = tune_cpucache(cachep, limit, batchcount);
-+			if (limit < 1 ||
-+			    batchcount < 1 ||
-+			    batchcount > limit) {
-+				res = -EINVAL;
-+			} else {
-+				res = do_tune_cpucache(cachep, limit, batchcount);
-+			}
- 			break;
- 		}
- 	}
-
---------------020505040104080307070503--
-
-
+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
+5cbw4YRhQMfheJLKU8N6zC5vFGUi4aG4LZ7XxpbJHUYuf+6LTTTb9dOcgowc
+98ZgXbOnWxKZzQHf0Ug90/bZVlU0X9MiN6NSonBJ8MgwYlr4MGyYPfGQBxOK
+JFiXGBghM3ovOE/tVMpc7b0APSNApqnBVyOjftYbTDQbd4oIG9qz8m7do3Tu
+4bKoizGTgrfIyUkKPTjyOyAx/OiQxex9HdlxeCBaJ2fJssddbSXhqMu0+Nqy
+P/pWsmxCC9jg501NKXbck+LvjDbDO/Wkz0A3Fpmxes22HvaAC+QJLxv2Dz9s
+bNEkNa9oxf1QryCk3I87txoFmCnHoI8nnO+N8lH00hHfKJVI0QS9T9LOe8uW
+0EqRs/M4R377vkuCjwXEysvJNZnQyfeCaf/Z2xP0dyK+PEE8ioN8EvL7L0m3
+MX+YhsGummiMfDiaSeB20qzs+1gX6xrPqBkAYgWkaSKuasbuq33VGta6+oCM
+aTI7g/zaZ42VjaghVKG+4/QGw+9FUThjWbQurVhTGX4op0Lucgcl3dxl2xbI
+OEUC/l0AnOlKnCcx9vXWnqcBNVOYDshGhokWrXXR0+eJgMG9voQKLCnrv8wp
+R1RgS4spwfiaqw14FNkAR9XsOtQJ2OiU2j31eYFCz2Kascx65nkzOCdyx4Sq
+yPhr3peZr8+agtwHN4EoZTT0iE1faXKGz/Q71hww71N7Z5PRAedBOQ6dDcrL
+lcUWKqFFnlUoqpiQk7DEgi4pMo/Ml4CMiJ80BEQVf0krF1649ihZ/+nyku8y
+3/kOCZuVG8e3HshozhhUQ/6tnnNsQg53jDA/yZ884esF8J48gW/tNLdrkcfn
+310yfD8dKJlQECWUC638E169GdLN57yzW4l+Uc1g+Ds9rrz9VuXi3NhnarmZ
+VD6p0q1/irpb3HcqDD0FvA1wGm2WFDzF2il/pUL0KUMuJSyAAyuSYpQPXK4q
+0osyF6yMy5ShiFReUqOBUjmg6TNZ/m2aZ5Nl8hlHyjOk7BKASCJBWhcFUXgF
+U1WGeS9coqDcs2L9Jc+50RSfBNwdzpA7HLeBeVQ0OB84J4G6QfPI+e+JSzFh
+t+0BwhXG2o6TB9a4Gul7DlMfU6rWopMN0nE+TFYoOJaScKC7Xf+O8nFZIBTK
+S7fm0FyNAemdexQuZMdv6vjaft7FuF9kxYbJAwOA0nB8RanOBnnnK864V2p+
+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
+eUF/fUN/dBr+JKuiaNUXLn72/wEo2FpTU4sBAA==
+--20979877-1200213499-1033774432=:10063--

@@ -1,83 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263526AbTIIHCd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 03:02:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263628AbTIIHCd
+	id S263730AbTIIHGb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 03:06:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263965AbTIIHGb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 03:02:33 -0400
-Received: from adsl-67-124-157-90.dsl.pltn13.pacbell.net ([67.124.157.90]:992
-	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
-	id S263526AbTIIHCP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 03:02:15 -0400
-Date: Tue, 9 Sep 2003 00:02:13 -0700
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org, akpm@osdl.org
-Subject: Re: 2.6.0-test5-mm1
-Message-ID: <20030909070213.GF7314@triplehelix.org>
-Mail-Followup-To: joshk@triplehelix.org, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org, akpm@osdl.org
-References: <20030908235028.7dbd321b.akpm@osdl.org>
+	Tue, 9 Sep 2003 03:06:31 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:29624 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S263730AbTIIHFS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 03:05:18 -0400
+Date: Tue, 9 Sep 2003 10:05:07 +0300
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Stephan von Krawczynski <skraw@ithnet.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.22pre8 hangs too (Re: 2.4.21-jam1 solid hangs)
+Message-ID: <20030909070506.GL150921@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Stephan von Krawczynski <skraw@ithnet.com>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.55L.0308291325480.29088@freak.distro.conectiva> <20030829195737.GI150921@niksula.cs.hut.fi>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ylS2wUBXLOxYXZFQ"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030908235028.7dbd321b.akpm@osdl.org>
-User-Agent: Mutt/1.5.4i
-From: Joshua Kwan <joshk@triplehelix.org>
+In-Reply-To: <20030829195737.GI150921@niksula.cs.hut.fi>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Aug 29, 2003 at 10:57:37PM +0300, you [Ville Herva] wrote:
+> On Fri, Aug 29, 2003 at 01:35:25PM -0300, you [Marcelo Tosatti] wrote:
+> > 
+> > So NMI and sysrq doesnt help. I suggest you a few things:
+> > 
+> > Try to make the bug easy to reproduce. Force the Oracle dumps again and
+> > again to crash the box. 
+> 
+> I happened to work towards that direction this morning (before I read your
+> mail). Taking the stance that this very probably had something to do with io
+> stress, I played around with several io loads. Eventually I found out that
+> fsx on scsi disk reliably caused the box to either lock up or the aic7xxx
+> driver to barf. What's more, it took under 15 minutes to trigger.
+> 
+> So I copied the rootfs and everything else from the scsi disk to the ide
+> disk (just barely had enough space), and took all the scsi disk partitions
+> away from fstab. After reboot, I have been unable to lock it up with fsx
+> (scsi disk is not accessed at all), but it will take several weeks before
+> I'm confident that the lock up is cured.
 
---ylS2wUBXLOxYXZFQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+And indeed it did lock even though the scsi disk is not used at all. It just
+took weeks. 
 
-On Mon, Sep 08, 2003 at 11:50:28PM -0700, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test5=
-/2.6.0-test5-mm1/
+At the time no heavy IO was going on afaict (but there might have been some
+io.)
 
-Needs the following patch to compile:
+I'm completely out of ideas here. What the heck is the culprit...? Perhaps a
+faulty motherboard?
 
---- mm/slab.c~	2003-09-08 23:58:31.000000000 -0700
-+++ mm/slab.c	2003-09-08 23:58:33.000000000 -0700
-@@ -2794,11 +2794,13 @@
- 		} else {
- 			kernel_map_pages(virt_to_page(objp), c->objsize/PAGE_SIZE, 1);
-=20
-+#if DEBUG
- 			if (c->flags & SLAB_RED_ZONE)
- 				printk("redzone: 0x%lx/0x%lx.\n", *dbg_redzone1(c, objp), *dbg_redzone=
-2(c, objp));
-=20
- 			if (c->flags & SLAB_STORE_USER)
- 				printk("Last user: %p.\n", *dbg_userword(c, objp));
-+#endif
- 		}
- 		spin_unlock_irqrestore(&c->spinlock, flags);
-=20
---=20
-Joshua Kwan
+> The hw is:
+>  Intel 815EEA2LU (i815 Chipset)
+>  Celeron 1.3GHz (Tualatin)
+>  Adaptec AHA-2940 / AIC-7871 (NOT USED)
+>    - Disk          SEAGATE  Model: ST19171W Rev: 0024 (NOT USED)
+>    - Tape Drive    HP       Model: C1537A Rev: L708
+>  30GB IDE disk  (All fs's here at the moment)
 
---ylS2wUBXLOxYXZFQ
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+ 
+-- v --
 
-iQIVAwUBP1169KOILr94RG8mAQIpNw//V2KYJYMvmqsDNJeud+vFwSzEZ2aZlxIN
-1fan4Y3hFjzdY2ftyi989DFRHvrVxOmDq7Nw59fIQq0VhGkDYrjvmC8RuOh8tae3
-pkfG6UngtqlsJe7GEVaGO+fkQfvCNdlcn5ps74Jaja3Isb2NqFA/pHk3cG8/T34U
-dwz6QunpxA7kQ2joptbqaD5sIUkAQ/bq2wEQHPS1OyV3rTzbPsYICbwqCbsjqPAl
-WwHulOoyqGSbbFxihUYJv9f35odZ8GEsaeD8+kZ/nHkjWbK2MAJyn+xjmE/DM+5h
-qnJFjAjzpCCTHSDZSZhbbvsFV8uukOzjIDiEaYIoPaiGMeaPQF/YR4wOTOfNxoUK
-dDQ3ni5Le8MSR2ewqmLCud22jj579KSv4LOKSTv4kx/sjHerTxe3vHHd8DOPKKY/
-owvr+qKR9aArIEOkBzCFV9hxgzRz52jhAgAlWIhMgFwsL8ScPK1sZ+EHKZossaJe
-5a6Tb3E1//hO2yspiAC1pEPae9+sZMauK8X8Pu73BuiVisfdz66OEcpCMLBViIKn
-u4o3ONg1r+manRq2zLswzgXMsJjCsuC4Tw+vEj/zBg6fkjmNCaWraF+TiKOve+ZY
-p6bP91pMSpeaXppMb9Mfl4EYmXofv3lu8qcPEzHCcSPQuoeSk43KLm+XAW6CuFix
-1EcBiNUfcEg=
-=/7Vh
------END PGP SIGNATURE-----
-
---ylS2wUBXLOxYXZFQ--
+v@iki.fi

@@ -1,57 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263884AbTCUTJt>; Fri, 21 Mar 2003 14:09:49 -0500
+	id <S263900AbTCUTLV>; Fri, 21 Mar 2003 14:11:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263873AbTCUTIy>; Fri, 21 Mar 2003 14:08:54 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:42747 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S263867AbTCUTIZ>;
-	Fri, 21 Mar 2003 14:08:25 -0500
-Message-ID: <3E7B659F.9020407@mvista.com>
-Date: Fri, 21 Mar 2003 11:18:55 -0800
-From: george anzinger <george@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
+	id <S263888AbTCUTJ7>; Fri, 21 Mar 2003 14:09:59 -0500
+Received: from uranus.lan-ks.de ([194.45.71.1]:45830 "EHLO uranus.lan-ks.de")
+	by vger.kernel.org with ESMTP id <S263874AbTCUTJD>;
+	Fri, 21 Mar 2003 14:09:03 -0500
+X-MDaemon-Deliver-To: <linux-kernel@vger.kernel.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [2.5.65] tun not working
+X-Face: ""xJff<P[R~C67]V?J|X^Dr`YigXK|;1wX<rt^>%{>hr-{:QXl"Xk2O@@(+F]e{"%EYQiW@mUuvEsL>=mx96j12qW[%m;|:B^n{J8k?Mz[K1_+H;$v,nYx^1o_=4M,L+]FIU~[[`-w~~xsy-BX,?tAF_.8u&0y*@aCv;a}Y'{w@#*@iwAl?oZpvvv
+X-Message-Flag: This space is intentionally left blank
+X-Noad: Please don't send me ad's by mail.  I'm bored by this type of mail.
+X-Note: sending SPAM is a violation of both german and US law and will
+	at least trigger a complaint at your provider's postmaster.
+X-GPG: 1024D/77D4FC9B 2000-08-12 Jochen Hein (28 Jun 1967, Kassel, Germany) 
+     Key fingerprint = F5C5 1C20 1DFC DEC3 3107  54A4 2332 ADFC 77D4 FC9B
+X-BND-Spook: RAF Taliban BND BKA Bombe Waffen Terror AES GPG
+X-No-Archive: yes
+From: Jochen Hein <jochen@jochen.org>
+Date: Fri, 21 Mar 2003 20:13:08 +0100
+Message-ID: <873clgh6t7.fsf@jupiter.jochen.org>
+User-Agent: Gnus/5.090015 (Oort Gnus v0.15) Emacs/21.2
 MIME-Version: 1.0
-To: Martin Waitz <tali@admingilde.org>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Clock monotonic  a suggestion
-References: <3E7A59CD.8040700@mvista.com> <20030321131744.GL27366@admingilde.org>
-In-Reply-To: <20030321131744.GL27366@admingilde.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Waitz wrote:
-> On Thu, Mar 20, 2003 at 04:16:13PM -0800, george anzinger wrote:
-> 
->>Define CLOCK_MONOTONIC to be the same as
->>(gettimeofday() + wall_to_monotonic).
-> 
-> 
-> why don't you simply use asm("rdtsc") ?
-> (ok, you should make sure that you always ask the same processor and
-> stuff, but using the built in TSC seems to do everything you want...)
-> 
-> 
-I don't really understand how :(
 
-I want a tick on CLOCK_MONOTONIC to be the same size as a tick on 
-gettimeofday() over the life of the system.  I.e. lock step.  The only 
-difference is that CLOCK_MONOTONIC can not be set, so, if we use the 
-above, wall_to_monotonic must be adjusted when the gettimeofday() 
-clock is set (but not when it is "adjusted" by NTP).
+I'm using tun to connect my virtual S/390 from hercules to the local
+machine.  That works pretty well with 2.4, but with 2.5.65 hercules
+fails with:
 
-asm("rdtsc") is, first of all, only useful on x86 platforms, 
-CLOCK_MONOTONIC is in the POSIX clocks and timers code and in all 
-platforms.  Second, each platform has an equivalent, best guess, way 
-of filling in the time information below the 1/HZ level (and yes, some 
-x86 platforms use TSC) already in the gettimeofday() code.  Except 
-that the system settime code is platform dependent, this solution is 
-platform independent.
+root@gswi1164:~# hercules -f /etc/hercules/hercules.cnf
+Hercules Version 2.16.5
+(c)Copyright 1999-2002 by Roger Bowler, Jan Jaeger, and others
+Built on Jul  9 2002 at 23:09:56
+Build information:
+  Debian
+  Modes: S/370 ESA/390 ESAME
+  Using setresuid() for setting privileges
+  HTTP Server support
+
+Running on Linux i686 2.5.65 #1 Thu Mar 20 19:11:34 CET 2003
+ckddasd: /mount/d/hercules/linux.191 cyls=300 heads=15 tracks=4500
+trklen=47616
+HHC894I Error setting MTU for tun: No such device
+HHC897I Error setting driving system IP addr for tun: No such device
+HHC897I Error setting Hercules IP addr for tun: No such device
+HHC897I Error setting netmask for tun: No such device
+HHC898I Error getting flags for tun: No such device
+HHC848I 0400 configuration failed: hercifc rc=4
+HHC038I Initialization failed for device 0400
+
+hercules uses /dev/net/tun to access the tun device.
+
+The module tun is loaded:
+
+dmesg:
+Universal TUN/TAP device driver 1.5 (C)1999-2002 Maxim Krasnyansky
+
+root@gswi1164:~# lsmod | grep tun
+tun                     6240  0
+
+Any idea why this fails?
+
+Jochen
 
 -- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
-
+#include <~/.signature>: permission denied

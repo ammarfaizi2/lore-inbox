@@ -1,71 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264848AbUEPX1t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264849AbUEPXhh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264848AbUEPX1t (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 19:27:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264849AbUEPX1t
+	id S264849AbUEPXhh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 19:37:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264851AbUEPXhh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 19:27:49 -0400
-Received: from fw.osdl.org ([65.172.181.6]:16537 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264848AbUEPX1r (ORCPT
+	Sun, 16 May 2004 19:37:37 -0400
+Received: from mproxy.gmail.com ([216.239.56.240]:13424 "HELO mproxy.gmail.com")
+	by vger.kernel.org with SMTP id S264849AbUEPXhd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 19:27:47 -0400
-Date: Sun, 16 May 2004 16:27:16 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: tmp <skrald@amossen.dk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel OOPS
-Message-Id: <20040516162716.34f3d94a.akpm@osdl.org>
-In-Reply-To: <1084709330.743.8.camel@debian>
-References: <1084709330.743.8.camel@debian>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sun, 16 May 2004 19:37:33 -0400
+Message-ID: <578614370405161637338477ab@mail.gmail.com>
+Date: Sun, 16 May 2004 18:37:32 -0500
+From: Jesus Delgado <jdelgado@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Broken things in kernel 2.6.6-mm2 and 2.6.6-mm3
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tmp <skrald@amossen.dk> wrote:
->
-> I get the attached oops message in syslog on my 2.6.6 kernel. I have
->  also attached the ksymoops output.
-> 
->  When the oops has occured, I cannot open any shell (including a login
->  shell).
-> 
-> 
-> 
-> [oops1.txt  text/plain (2452 bytes)]
->  May 16 13:29:34 debian kernel: Unable to handle kernel paging request at virtual address 1841b518
->  May 16 13:29:34 debian kernel:  printing eip:
->  May 16 13:29:34 debian kernel: c016c02e
->  May 16 13:29:34 debian kernel: *pde = 00000000
->  May 16 13:29:34 debian kernel: Oops: 0000 [#1]
->  May 16 13:29:34 debian kernel: CPU:    0
->  May 16 13:29:34 debian kernel: EIP:    0060:[proc_get_inode+110/272]    Not tainted
->  May 16 13:29:34 debian kernel: EFLAGS: 00010202   (2.6.6) 
->  May 16 13:29:34 debian kernel: EIP is at proc_get_inode+0x6e/0x110
->  May 16 13:29:34 debian kernel: eax: 00000000   ebx: df107850   ecx: 0114df68   edx: 36013bf9
->  May 16 13:29:34 debian kernel: esi: dffec810   edi: dffdee00   ebp: 00000007   esp: d5037e30
->  May 16 13:29:34 debian kernel: ds: 007b   es: 007b   ss: 0068
->  May 16 13:29:35 debian kernel: Process emacs (pid: 743, threadinfo=d5036000 task=d3ec8030)
->  May 16 13:29:35 debian kernel: Stack: df107850 f0000000 df7f19c0 e0820ead dffec810 c5bef353 dffec863 c016e8e3 
->  May 16 13:29:35 debian kernel:        dffdee00 f0000000 dffec810 ffffffea 00000000 dffdddd0 d5037f70 c5bef2d0 
->  May 16 13:29:35 debian kernel:        c5bef2d0 c016c1d1 dffdddd0 c5bef2d0 d5037f70 fffffff4 dffdde38 dffdddd0 
->  May 16 13:29:35 debian kernel: Call Trace:
->  May 16 13:29:35 debian kernel:  [pg0+541367981/1069707264] unix_stream_sendmsg+0x24d/0x3a0 [unix]
->  May 16 13:29:35 debian kernel:  [proc_lookup+179/192] proc_lookup+0xb3/0xc0
->  May 16 13:29:35 debian kernel:  [proc_root_lookup+49/128] proc_root_lookup+0x31/0x80
->  May 16 13:29:35 debian kernel:  [real_lookup+203/240] real_lookup+0xcb/0xf0
->  May 16 13:29:35 debian kernel:  [do_lookup+150/176] do_lookup+0x96/0xb0
->  May 16 13:29:35 debian kernel:  [link_path_walk+1052/2048] link_path_walk+0x41c/0x800
->  May 16 13:29:35 debian kernel:  [path_lookup+105/272] path_lookup+0x69/0x110
->  May 16 13:29:35 debian kernel:  [open_namei+131/1024] open_namei+0x83/0x400
->  May 16 13:29:35 debian kernel:  [__pollwait+0/208] __pollwait+0x0/0xd0
->  May 16 13:29:35 debian kernel:  [filp_open+62/112] filp_open+0x3e/0x70
+Hi:
 
-It's a bit strange that no registers have a value vaguely like
-0x1841b518, but at a guess I'd say that you have a bad ->owner
-pointer in a /proc inode.
+      Kernel's 2.6.6 and previous 2.6.6-rcX-mmX working good with
+modules ATI fglrx 3.7.6 and VMware 4.5.1.
 
-What modules are you using, and had any modules been rmmod'ed prior
-to the crash?
+       When running kernel 2.6.6-mm2 and 2.6.6.-mm3  the modules
+broken in compilation, the messages is:
+
+      VMware 4.5.1
+
+     [root@toshiba root]# vmware-config.pl
+Making sure VMware Workstation's services are stopped.
+ 
+Stopping VMware services:
+   Virtual machine monitor                                 [  OK  ]
+   Bridged networking on /dev/vmnet0                       [  OK  ]
+   DHCP server on /dev/vmnet8                              [  OK  ]
+   NAT service on /dev/vmnet8                              [  OK  ]
+   Host-only networking on /dev/vmnet8                     [  OK  ]
+   Virtual ethernet                                        [  OK  ]
+ 
+Trying to find a suitable vmmon module for your running kernel.
+ 
+None of VMware Workstation's pre-built vmmon modules is suitable for your
+running kernel.  Do you want this program to try to build the vmmon module for
+your system (you need to have a C compiler installed on your system)? [yes]
+ 
+Using compiler "/usr/bin/gcc". Use environment variable CC to override.
+ 
+What is the location of the directory of C header files that match your running
+kernel? [/lib/modules/2.6.6/build/include]
+ 
+Extracting the sources of the vmmon module.
+ 
+Building the vmmon module.
+ 
+Using 2.6.x kernel build system.
+make: Entering directory `/tmp/vmware-config2/vmmon-only'
+make -C /lib/modules/2.6.6/build/include/.. SUBDIRS=$PWD SRCROOT=$PWD/. modules
+make[1]: Entering directory `/usr/src/linux-2.6.6'
+  CC [M]  /tmp/vmware-config2/vmmon-only/linux/driver.o
+/tmp/vmware-config2/vmmon-only/linux/driver.c:131: warning:
+initialization from incompatible pointer type
+/tmp/vmware-config2/vmmon-only/linux/driver.c:135: warning:
+initialization from incompatible pointer type
+  CC [M]  /tmp/vmware-config2/vmmon-only/linux/hostif.o
+/tmp/vmware-config2/vmmon-only/linux/hostif.c: In function
+`HostIF_FreeLockedPages':
+/tmp/vmware-config2/vmmon-only/linux/hostif.c:738: error: structure
+has no member named `count'
+/tmp/vmware-config2/vmmon-only/linux/hostif.c:740: error: structure
+has no member named `count'
+make[2]: *** [/tmp/vmware-config2/vmmon-only/linux/hostif.o] Error 1
+make[1]: *** [/tmp/vmware-config2/vmmon-only] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.6.6'
+make: *** [vmmon.ko] Error 2
+make: Leaving directory `/tmp/vmware-config2/vmmon-only'
+Unable to build the vmmon module.
+ 
+For more information on how to troubleshoot module-related problems, please
+visit our Web site at "http://www.vmware.com/download/modules/modules.html" and
+"http://www.vmware.com/support/reference/linux/prebuilt_modules_linux.html".
+ 
+Execution aborted.
+
+
+   ATI fglrx 3.7.6
+
+[root@toshiba build_mod]# ./make.sh
+ATI module generator V 2.0
+==========================
+initializing...
+cleaning...
+patching 'highmem.h'...
+skipping patch for 'drmP.h', not needed
+skipping patch for 'drm_os_linux.h', not needed
+assuming new VMA API since we do have kernel 2.6.x...
+doing Makefile based build for kernel 2.6.x and higher
+make -C /lib/modules/2.6.6-mm3/build
+SUBDIRS=/lib/modules/fglrx/build_mod/2.6.x modules
+make[1]: Entering directory `/usr/src/linux-2.6.6'
+  CC [M]  /lib/modules/fglrx/build_mod/2.6.x/agp3.o
+  CC [M]  /lib/modules/fglrx/build_mod/2.6.x/nvidia-agp.o
+  CC [M]  /lib/modules/fglrx/build_mod/2.6.x/agpgart_be.o
+/lib/modules/fglrx/build_mod/2.6.x/agpgart_be.c: In function
+`agp_generic_alloc_page':
+/lib/modules/fglrx/build_mod/2.6.x/agpgart_be.c:1405: error: structure
+has no member named `count'
+/lib/modules/fglrx/build_mod/2.6.x/agpgart_be.c: In function `ali_alloc_page':
+/lib/modules/fglrx/build_mod/2.6.x/agpgart_be.c:4416: error: structure
+has no member named `count'
+make[2]: *** [/lib/modules/fglrx/build_mod/2.6.x/agpgart_be.o] Error 1
+make[1]: *** [/lib/modules/fglrx/build_mod/2.6.x] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.6.6'
+make: *** [kmod_build] Error 2
+build failed with return value 2
+
+  
+Helpme please,
+
+Any idea.

@@ -1,127 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262119AbSI3Qwg>; Mon, 30 Sep 2002 12:52:36 -0400
+	id <S262443AbSI3R1q>; Mon, 30 Sep 2002 13:27:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262123AbSI3Qwg>; Mon, 30 Sep 2002 12:52:36 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:55236 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S262119AbSI3Qwf>; Mon, 30 Sep 2002 12:52:35 -0400
-Date: Mon, 30 Sep 2002 18:57:53 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [patch] update SubmittingDrivers
-In-Reply-To: <Pine.NEB.4.44.0209301823020.12605-100000@mimas.fachschaften.tu-muenchen.de>
-Message-ID: <Pine.NEB.4.44.0209301856230.12605-200000@mimas.fachschaften.tu-muenchen.de>
+	id <S262452AbSI3R1q>; Mon, 30 Sep 2002 13:27:46 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:46600 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262443AbSI3R1p>;
+	Mon, 30 Sep 2002 13:27:45 -0400
+Date: Mon, 30 Sep 2002 10:32:48 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel panic/exception dump support in 2.5?
+In-Reply-To: <200209300816.20040.m.c.p@wolk-project.de>
+Message-ID: <Pine.LNX.4.33L2.0209301032140.4649-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1920110659-1228108004-1033405005=:12605"
-Content-ID: <Pine.NEB.4.44.0209301856530.12605@mimas.fachschaften.tu-muenchen.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Mon, 30 Sep 2002, Marc-Christian Petersen wrote:
 
---1920110659-1228108004-1033405005=:12605
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.NEB.4.44.0209301856531.12605@mimas.fachschaften.tu-muenchen.de>
+| Hi Randy,
+|
+| > | On Sun, 2002-09-29 at 21:42, Shawn Starr wrote:
+| > | >
+| > | > It would really be nice if I could capture kernel exceptions/and oopsies
+| > | > on a file, or over a network connection. Redirecting console=lp0 to
+| > | > printer doesnt really let me paste dumps to LKML =)
+| > | >
+| > | > Any solutions? Will we have a way to properly dump kernel failures
+| > | > (exceptions/oopies) somewhere?
+| > |
+| > | The netdump patch can do this, including the actual kernel image
+| > | -
+|
+| > Is this something different from netconsole?
+| > Where can I find netdump?
+| netdump == netconsole.
+|
+| Find it here: http://people.redhat.com/mingo/netconsole-patches/
+|
+| Another work done by Ingo =) ... Works great, is a part of WOLK too.
 
+Yes, I know about netconsole; just confused by the netdump name.
 
-Alan noted that my MUA garbled the patch, so here it's attached.
-
-cu
-Adrian
-
+Thanks.
 -- 
+~Randy
 
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
---1920110659-1228108004-1033405005=:12605
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME=update-submitting-drivers
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.NEB.4.44.0209301856450.12605@mimas.fachschaften.tu-muenchen.de>
-Content-Description: 
-Content-Disposition: ATTACHMENT; FILENAME=update-submitting-drivers
-
-LS0tIGxpbnV4LTIuNC4xOS9Eb2N1bWVudGF0aW9uL1N1Ym1pdHRpbmdEcml2
-ZXJzLm9sZAkyMDAyLTA5LTMwIDE4OjE0OjUxLjAwMDAwMDAwMCArMDIwMA0K
-KysrIGxpbnV4LTIuNC4xOS9Eb2N1bWVudGF0aW9uL1N1Ym1pdHRpbmdEcml2
-ZXJzCTIwMDItMDktMzAgMTg6MzE6MzMuMDAwMDAwMDAwICswMjAwDQpAQCAt
-Miw5ICsyLDggQEANCiAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0NCiANCiBUaGlzIGRvY3VtZW50IGlzIGludGVuZGVkIHRvIGV4
-cGxhaW4gaG93IHRvIHN1Ym1pdCBkZXZpY2UgZHJpdmVycyB0byB0aGUNCi1M
-aW51eCAyLjIgYW5kIDIuNCBrZXJuZWwgdHJlZXMuIE5vdGUgdGhhdCBpZiB5
-b3UgYXJlIGludGVyZXN0ZWQgaW4gdmlkZW8NCi1jYXJkIGRyaXZlcnMgeW91
-IHNob3VsZCBwcm9iYWJseSB0YWxrIHRvIFhGcmVlODYgKGh0dHA6Ly93d3cu
-eGZyZWU4Ni5vcmcpIA0KLWluc3RlYWQuDQordmFyaW91cyBrZXJuZWwgdHJl
-ZXMuIE5vdGUgdGhhdCBpZiB5b3UgYXJlIGludGVyZXN0ZWQgaW4gdmlkZW8g
-Y2FyZCBkcml2ZXJzDQoreW91IHNob3VsZCBwcm9iYWJseSB0YWxrIHRvIFhG
-cmVlODYgKGh0dHA6Ly93d3cueGZyZWU4Ni5vcmcpIGluc3RlYWQuDQogDQog
-QWxzbyByZWFkIHRoZSBEb2N1bWVudGF0aW9uL1N1Ym1pdHRpbmdQYXRjaGVz
-IGRvY3VtZW50Lg0KIA0KQEAgLTM1LDIxICszNCwyMyBAQA0KIAltYWludGFp
-bmVyIHRoZW4gcGxlYXNlIGNvbnRhY3QgQWxhbiBDb3ggPGFsYW5AbHhvcmd1
-ay51a3V1Lm9yZy51az4NCiANCiBMaW51eCAyLjQ6DQotCVRoaXMga2VybmVs
-IHRyZWUgaXMgdW5kZXIgYWN0aXZlIGRldmVsb3BtZW50LiBUaGUgc2FtZSBy
-dWxlcyBhcHBseQ0KLQlhcyAyLjIgYnV0IHlvdSBtYXkgd2lzaCB0byBzdWJt
-aXQgeW91ciBkcml2ZXIgdmlhIGxpbnV4LWtlcm5lbCAoc2VlDQotCXJlc291
-cmNlcykgYW5kIGZvbGxvdyB0aGF0IGxpc3QgdG8gdHJhY2sgY2hhbmdlcyBp
-biBBUEkncy4gVGhlc2UNCi0Jc2hvdWxkIG5vIGxvbmdlciBiZSBvY2N1cmlu
-ZyBhcyB3ZSBhcmUgbm93IGluIGEgY29kZSBmcmVlemUuDQotCVRoZSBmaW5h
-bCBjb250YWN0IHBvaW50IGZvciBMaW51eCAyLjQgc3VibWlzc2lvbnMgaXMg
-CQ0KLQk8dG9ydmFsZHNAdHJhbnNtZXRhLmNvbT4uDQorCVRoZSBzYW1lIHJ1
-bGVzIGFwcGx5IGFzIDIuMiBidXQgdGhpcyBrZXJuZWwgdHJlZSBpcyB1bmRl
-ciBhY3RpdmUNCisJZGV2ZWxvcG1lbnQuIFRoZSBmaW5hbCBjb250YWN0IHBv
-aW50IGZvciBMaW51eCAyLjQgc3VibWlzc2lvbnMgaXMNCisJTWFyY2VsbyBU
-b3NhdHRpIDxtYXJjZWxvQGNvbmVjdGl2YS5jb20uYnI+Lg0KKw0KK0xpbnV4
-IDIuNToNCisJVGhlIHNhbWUgcnVsZXMgYXBwbHkgYXMgMi40IGV4Y2VwdCB0
-aGF0IHlvdSBzaG91bGQgZm9sbG93IGxpbnV4LWtlcm5lbA0KKwl0byB0cmFj
-ayBjaGFuZ2VzIGluIEFQSSdzLiBUaGUgZmluYWwgY29udGFjdCBwb2ludCBm
-b3IgTGludXggMi41DQorCXN1Ym1pc3Npb25zIGlzIExpbnVzIFRvcnZhbGRz
-IDx0b3J2YWxkc0B0cmFuc21ldGEuY29tPi4NCiANCiBXaGF0IENyaXRlcmlh
-IERldGVybWluZSBBY2NlcHRhbmNlDQogLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLQ0KIA0KLUxpY2Vuc2luZzoJVGhlIGNvZGUgbXVzdCBi
-ZSByZWxlYXNlZCB0byB1cyB1bmRlciB0aGUgR05VIEdlbmVyYWwgUHVibGlj
-IExpY2Vuc2UuIA0KLQkJV2UgZG9uJ3QgaW5zaXN0IG9uIGFueSBraW5kIG9m
-IGV4Y2x1c2l2ZWx5IEdQTCBsaWNlbnNpbmcsDQotCQlhbmQgaWYgeW91IHdp
-c2ggdGhlIGRyaXZlciB0byBiZSB1c2VmdWwgdG8gb3RoZXIgY29tbXVuaXRp
-ZXMNCi0JCXN1Y2ggYXMgQlNEIHlvdSBtYXkgd2VsbCB3aXNoIHRvIHJlbGVh
-c2UgdW5kZXIgbXVsdGlwbGUNCi0JCWxpY2Vuc2VzLg0KK0xpY2Vuc2luZzoJ
-VGhlIGNvZGUgbXVzdCBiZSByZWxlYXNlZCB0byB1cyB1bmRlciB0aGUNCisJ
-CUdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlLiBXZSBkb24ndCBpbnNpc3Qg
-b24gYW55IGtpbmQNCisJCW9mIGV4Y2x1c2l2ZWx5IEdQTCBsaWNlbnNpbmcs
-IGFuZCBpZiB5b3Ugd2lzaCB0aGUgZHJpdmVyDQorCQl0byBiZSB1c2VmdWwg
-dG8gb3RoZXIgY29tbXVuaXRpZXMgc3VjaCBhcyBCU0QgeW91IG1heSB3ZWxs
-DQorCQl3aXNoIHRvIHJlbGVhc2UgdW5kZXIgbXVsdGlwbGUgbGljZW5zZXMu
-DQogDQogSW50ZXJmYWNlczoJSWYgeW91ciBkcml2ZXIgdXNlcyBleGlzdGlu
-ZyBpbnRlcmZhY2VzIGFuZCBiZWhhdmVzIGxpa2UNCiAJCW90aGVyIGRyaXZl
-cnMgaW4gdGhlIHNhbWUgY2xhc3MgaXQgd2lsbCBiZSBtdWNoIG1vcmUgbGlr
-ZWx5DQpAQCAtNjQsMTIgKzY1LDEzIEBADQogCQltYWludGFpbiB0aGVtIGp1
-c3Qgb25jZSBzZXBlcmF0ZSB0aGVtIG91dCBuaWNlbHkgYW5kIG5vdGUNCiAJ
-CXRoaXMgZmFjdC4NCiANCi1Qb3J0YWJpbGl0eToJUG9pbnRlcnMgYXJlIG5v
-dCBhbHdheXMgMzJiaXRzLCBwZW9wbGUgZG8gbm90IGFsbCBoYXZlDQotCQlm
-bG9hdGluZyBwb2ludCBhbmQgeW91IHNob3VsZG4ndCB1c2UgaW5saW5lIHg4
-NiBhc3NlbWJsZXIgaW4gDQotCQl5b3VyIGRyaXZlciB3aXRob3V0IGNhcmVm
-dWwgdGhvdWdodC4gUHVyZSB4ODYgZHJpdmVycw0KLQkJZ2VuZXJhbGx5IGFy
-ZSBub3QgcG9wdWxhci4gSWYgeW91IG9ubHkgaGF2ZSB4ODYgaGFyZHdhcmUg
-aXQgDQotCQlpcyBoYXJkIHRvIHRlc3QgcG9ydGFiaWxpdHkgYnV0IGl0IGlz
-IGVhc3kgdG8gbWFrZSBzdXJlIHRoZQ0KLQkJY29kZSBjYW4gZWFzaWx5IGJl
-IG1hZGUgcG9ydGFibGUuDQorUG9ydGFiaWxpdHk6CVBvaW50ZXJzIGFyZSBu
-b3QgYWx3YXlzIDMyYml0cywgbm90IGFsbCBjb21wdXRlcnMgYXJlIGxpdHRs
-ZQ0KKwkJZW5kaWFuLCBwZW9wbGUgZG8gbm90IGFsbCBoYXZlIGZsb2F0aW5n
-IHBvaW50IGFuZCB5b3UNCisJCXNob3VsZG4ndCB1c2UgaW5saW5lIHg4NiBh
-c3NlbWJsZXIgaW4geW91ciBkcml2ZXIgd2l0aG91dA0KKwkJY2FyZWZ1bCB0
-aG91Z2h0LiBQdXJlIHg4NiBkcml2ZXJzIGdlbmVyYWxseSBhcmUgbm90IHBv
-cHVsYXIuDQorCQlJZiB5b3Ugb25seSBoYXZlIHg4NiBoYXJkd2FyZSBpdCBp
-cyBoYXJkIHRvIHRlc3QgcG9ydGFiaWxpdHkNCisJCWJ1dCBpdCBpcyBlYXN5
-IHRvIG1ha2Ugc3VyZSB0aGUgY29kZSBjYW4gZWFzaWx5IGJlIG1hZGUNCisJ
-CXBvcnRhYmxlLg0KIA0KIENsYXJpdHk6CUl0IGhlbHBzIGlmIGFueW9uZSBj
-YW4gc2VlIGhvdyB0byBmaXggdGhlIGRyaXZlci4gSXQgaGVscHMNCiAJCXlv
-dSBiZWNhdXNlIHlvdSBnZXQgcGF0Y2hlcyBub3QgYnVnIHJlcG9ydHMuIElm
-IHlvdSBzdWJtaXQgYQ0K
---1920110659-1228108004-1033405005=:12605--

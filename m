@@ -1,67 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272865AbRIXVfr>; Mon, 24 Sep 2001 17:35:47 -0400
+	id <S272882AbRIXVkR>; Mon, 24 Sep 2001 17:40:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272829AbRIXVfh>; Mon, 24 Sep 2001 17:35:37 -0400
-Received: from gull.mail.pas.earthlink.net ([207.217.121.85]:45560 "EHLO
-	gull.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S272758AbRIXVf1>; Mon, 24 Sep 2001 17:35:27 -0400
-Date: Mon, 24 Sep 2001 16:35:46 -0500
-From: J Troy Piper <jtp@dok.org>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: ext3-2.4-0.9.10
-Message-ID: <20010924163546.C244@dok.org>
-Mime-Version: 1.0
-Content-Type: message/rfc822
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Sender: linux-kernel-owner@vger.kernel.org
-X-Mailing-List: linux-kernel@vger.kernel.org
-
-Date: Mon, 24 Sep 2001 16:18:29 -0500
-From: J Troy Piper <jtp@dok.org>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-	"ext3-users@redhat.com" <ext3-users@redhat.com>
-Subject: Re: ext3-2.4-0.9.10
-Message-ID: <20010924161829.A244@dok.org>
-In-Reply-To: <3BAECC4F.EF25393@zip.com.au>
+	id <S272829AbRIXVkI>; Mon, 24 Sep 2001 17:40:08 -0400
+Received: from adsl-64-164-47-8.dsl.scrm01.pacbell.net ([64.164.47.8]:36859
+	"EHLO satan.diablo.localnet") by vger.kernel.org with ESMTP
+	id <S272795AbRIXVj7>; Mon, 24 Sep 2001 17:39:59 -0400
+Date: Mon, 24 Sep 2001 14:40:06 -0700
+To: linux-kernel@vger.kernel.org
+Subject: report: success with agp_try_unsupported=1
+Message-ID: <20010924144006.A13695@dirac.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3BAECC4F.EF25393@zip.com.au>; from akpm@zip.com.au on Sun, Sep 23, 2001 at 11:01:51PM -0700
-Return-Path: <jtp@dok.org>
+User-Agent: Mutt/1.3.20i
+From: Peter Jay Salzman <p@dirac.org>
+Sender: linux-kernel-owner@vger.kernel.org
+X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 23, 2001 at 11:01:51PM -0700, Andrew Morton wrote:
-> An ext3 patch against linux 2.4.10 is at
-> 
-> 	http://www.uow.edu.au/~andrewm/linux/ext3/
-> 
-> This patch is *lightly tested* - ie, it boots and does stuff.
-> The changes to ext3 are small, but the kernel which it patches
-> has recently changed a lot.  If you're cautious, please wait
-> a couple of days.
-> 
-> The patch retains the buffer-tracing code.  This will soon be
-> broken out into a separate patch to make ext3 suitable for
-> submission for the mainstream kernel.
-> 
+dear all,
+
+i just built a system:
+
+	1.3GHz amd athlon
+	epox 8kha ddr motherboard
+		via kt266 (vt8366, vt8233)
+	768MB ddr ram
+	radeon QD with 64MB video buffer, tvio
+
+i enabled agpgart, and got the message:
 
 
-Hey Andrew,
+  Linux agpgart interface v0.99 (c) Jeff Hartmann
+  agpgart: Maximum main memory to use for agp memory: 690M
+  agpgart: Unsupported Via chipset (device id: 3099), you might want to try
+    agp_try_unsupported=1.
+  agpgart: no supported devices found.
+  [drm] Initialized radeon 1.1.1 20010405 on minor 0
 
-Any more progress on my journal_revoke BUG?  Strangely enough, I've been 
-mounting the drives as ext2 to try and avoid the errors, but I *STILL* hit 
-the BUG when untar'ing a large file, or compiling a large file (ie. kernel 
-source), which is somewhat unnerving.
 
----
+i rebuilt the kernel with agpgart built as a module.  rebooted.  loaded the
+agp module with:
 
-/************************/
-/*    J. Troy Piper     */
-/*    <jtp@dok.org>     */
-/* Ignotum per Ignotius */
-/************************/
+  insmod /usr/src/linux-2.4.9/drivers/char/agp/agpgart.o agp_try_unsupported=1
 
+loaded the radeon driver with:
+
+  insmod /usr/src/linux-2.4.9/drivers/char/drm/radeon.o
+
+this was successful -- DRI was enabled when i started X (and i played quake3
+to reward myself).
+
+i read that success with agp_try_unsupported=1 should be reported here, so
+i'm reporting it.  please feel free to ask further questions if you want to
+know about my hardware.
+
+i do have 2 questions:
+
+1. modprobe didn't seem to know where agpgart.o and radeon.o lives, so i had
+   to resort to insmod.  is there a way of telling modprobe where to look for
+   modules?
+
+2. i recompiled the kernel but built agpgart in rather than loading it as a
+   module.  i then inserted the following line into /etc/lilo.conf:
+
+      append="agp_try_unsupported=1"
+
+   but it didn't seem to work.  someone told me that to get agp work to work
+   for my system, agpgart MUST be built as a module and you MUST pass it the
+   argument agp_try_unsupported=1.  in other words, you can't build it into
+   the kernel and pass the argument as a kernel parameter at boot time.
+
+   is that true?
+
+please cc replies to p@dirac.org.
+
+thanks guys!
+pete
+
+-- 
+"You may not use the Software in connection with any site that disparages
+Microsoft, MSN, MSNBC, Expedia, or their products or services ..."
+                    -- Clause from license for FrontPage 2002

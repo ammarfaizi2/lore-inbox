@@ -1,84 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263200AbTEGN41 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 09:56:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263202AbTEGN41
+	id S263205AbTEGONM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 10:13:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263206AbTEGONM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 09:56:27 -0400
-Received: from mailsrv1-tu0.sanger.ac.uk ([193.62.206.128]:26894 "EHLO
-	mailsrv1.sanger.ac.uk") by vger.kernel.org with ESMTP
-	id S263200AbTEGN4Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 09:56:25 -0400
-Message-ID: <3EB9137A.8050806@thekelleys.org.uk>
-Date: Wed, 07 May 2003 15:08:58 +0100
-From: Simon Kelley <simon@thekelleys.org.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.2.1) Gecko/20030121
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Adam J. Richter" <adam@yggdrasil.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Binary firmware in the kernel - licensing issues.
-References: <200305071159.h47BxBe04974@adam.yggdrasil.com>
-In-Reply-To: <200305071159.h47BxBe04974@adam.yggdrasil.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 7 May 2003 10:13:12 -0400
+Received: from h80ad2763.async.vt.edu ([128.173.39.99]:31137 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S263205AbTEGONL (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 10:13:11 -0400
+Message-Id: <200305071425.h47EPYxg013048@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: Jamie Lokier <jamie@shareable.org>, linux-kernel@vger.kernel.org
+Subject: Re: Using GPL'd Linux drivers with non-GPL, binary-only kernel 
+In-Reply-To: Your message of "Wed, 07 May 2003 02:21:25 MDT."
+             <m1vfwn88vu.fsf@frodo.biederman.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <20030506164252.GA5125@mail.jlokier.co.uk> <m13cjranqb.fsf@frodo.biederman.org> <20030506215552.GA6284@mail.jlokier.co.uk>
+            <m1vfwn88vu.fsf@frodo.biederman.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-940506551P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Wed, 07 May 2003 10:25:34 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam J. Richter wrote:
-> Simon Kelley wrote:
-> 
->>Now Linus could say "I consider that the kernel copyright holders 
->>did/didn't give permission to combine  their work with firmware blobs" 
->>and I contend that practically all the copyright holders would go along
->>with that judgement, just as they went along with Linus's judgement
->>about linking binary-only modules with their work.
-> 
-> 
-> 	I am not a lawyer.  So, please do not rely on this as legal advice.
-> 
-> 	I think you are confusing people having a strong distaste
-> for suing their fellow developers with people agreeing to something.
-> Also, your theory would require explicit unanimous agreement of the
-> contributors of GPL'ed kernel code if you actually want to guarantee
-> anything.
-> 
+--==_Exmh_-940506551P
+Content-Type: text/plain; charset=us-ascii
 
-If many copyright holders don't agree then clearly firmware blobs
-shouldn't go into the kernel. It is difficult to argue that just one is
-enough for a veto, especially since at least one driver (Advansys) has
-been there, complete with its "bucket of bits" since 1.3.x days at 
-least. Any contributor to the kernel since then who cared could have 
-been aware of that as evidence of a de-facto interpretation of the GPL
-source clause as not applying to firmware in Linux.
+On Wed, 07 May 2003 02:21:25 MDT, Eric W. Biederman said:
 
-> 	By the way, there are some additional advantages to not compiling
-> in the firmware that perhaps you might not have contemplated.  Reducing
-> people's perceived legal exposure would most likely help adoption of
-> your driver.  Separate firmware loading also offers more upgradability
-> and, therefore, maintainability and perhaps extensibility if people
-> want to try firmware improvements (for example the WiFi frequencies
-> available for use are different in different countries and there may
-> also be different power limits or other requirements).  Finally, you
-> would avoid the need to keep a copy of the firmware in unswappable
-> kernel memory if your driver supports hot plugging (since a device
-> could be plugged in at any time, not just at driver initialization).
-> 
+> Beyond that the whole closed thing is a turn-off.  Which is likely to
+> reduce interest in your research OS and get you no free feedback on
+> the weird situations.
 
-The technical advantages you give are not compelling for the Atmel 
-driver. The driver has international roaming support built-in and the
-firmware size is than 20k. In general though they may be good points.
+The target kernel doesn't actually *have* to be closed.  What if the
+kernel running the Linux driver was some open-but-incompatible licence?
 
-I suggest that having a driver which "just works" without needing
-extra files and configuration steps would trump minmizing legal
-exposure to the Linux copyright holders, for most people in the real
-world.
+I'll just pause to point out that the single most successful TCP stack
+has to be the BSD one - which started off as DARPA-funded research, and got
+lots of feedback in spite of its license.
 
-Cheers
+--==_Exmh_-940506551P
+Content-Type: application/pgp-signature
 
-Simon.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQE+uRddcC3lWbTT17ARAsBEAKDPVUSkcOmFN61kDkFfwFEo8odQOACgs34L
+B8TeI/0C31q+k1jwPxmnLP8=
+=EjyB
+-----END PGP SIGNATURE-----
 
-
-
-
+--==_Exmh_-940506551P--

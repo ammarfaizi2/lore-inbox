@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272271AbTGYTa6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 15:30:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272272AbTGYTag
+	id S272270AbTGYT2D (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 15:28:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272271AbTGYT2D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 15:30:36 -0400
-Received: from dialpool-210-214-91-218.maa.sify.net ([210.214.91.218]:43166
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S272271AbTGYTa2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 15:30:28 -0400
-Date: Sat, 26 Jul 2003 01:14:50 +0530
-From: Balram Adlakha <b_adlakha@softhome.net>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Has this been fixed yet?
-Message-ID: <20030725194450.GA4724@localhost.localdomain>
-References: <20030725175141.GA3290@localhost.localdomain> <20030725181407.GB2620@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030725181407.GB2620@kroah.com>
-User-Agent: Mutt/1.5.4i
+	Fri, 25 Jul 2003 15:28:03 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:48873 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S272270AbTGYT15 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 15:27:57 -0400
+Date: Fri, 25 Jul 2003 16:39:29 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Jim Gifford <maillist@jg555.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, lkml <linux-kernel@vger.kernel.org>,
+       Marc Heckmann <mh@nadir.org>
+Subject: Re: 2.4.22-pre5 deadlock
+In-Reply-To: <01f001c352e4$9025e6d0$3400a8c0@W2RZ8L4S02>
+Message-ID: <Pine.LNX.4.55L.0307251638590.15120@freak.distro.conectiva>
+References: <Pine.LNX.4.55L.0307100025160.6316@freak.distro.conectiva>
+ <042801c3472c$f4539f80$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307110953370.28177@freak.distro.conectiva>
+ <06e301c347c7$2a779590$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307111405320.29894@freak.distro.conectiva>
+ <002b01c347e9$36a04110$f300a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307111749160.5537@freak.distro.conectiva>
+ <001801c348a0$9dab91e0$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307141145340.23121@freak.distro.conectiva>
+ <008701c34a29$caabb0f0$3400a8c0@W2RZ8L4S02> <20030719172103.GA1971@x30.local>
+ <018101c34f4d$430d5850$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307210943160.25565@freak.distro.conectiva>
+ <005a01c34fed$fea51120$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307220852470.10991@freak.distro.conectiva>
+ <012d01c35066$2c56d400$3400a8c0@W2RZ8L4S02> <Pine.LNX.4.55L.0307221358440.23424@freak.distro.conectiva>
+ <01f001c352e4$9025e6d0$3400a8c0@W2RZ8L4S02>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 25, 2003 at 02:14:07PM -0400, Greg KH wrote:
-> On Fri, Jul 25, 2003 at 11:21:41PM +0530, Balram Adlakha wrote:
-> > I posted before but nobody seems to have read it.
-> > I get his _every_time_ I unload emu10k1 (OSS) module on 2.6.0-test1:
-> > 
-> > Call Trace:
-> > [<c018e261>] devfs_remove+0x9e/0xa0
-> 
-> Nope:
-> 	http://bugme.osdl.org/show_bug.cgi?id=963
-> 
-> Feel free to add your comments to this bug to let people know about it.
-> 
-> thanks,
-> 
-> greg k-h
 
-btw, which part of the kernel is responsible for finding out if devfs is in use or not _even_ when devfs is not compiled in? There seems to be a problem here, why is there any code running in my kernel to find out if devfs "exists" or not even when its not compiled in? Its not available as module is it?
-According to that osdl bug report page it seems this thing is almost unnoticed.
-I really don't like to see error messages even if they are harmless...(a tiny bit of my cpu power was used to remove a virtual device that doesn't exist, and also to display the error message on the screen, and not to mention that it actually increases the kernel image size by a few bytes using a few extra bytes of my precious ram)
+
+On Fri, 25 Jul 2003, Jim Gifford wrote:
+
+> >From talking with others, we are considering this a netfilter issue, is this
+> correct??
+
+It seems you have isolated the problem down to additional netfilter
+patches right ?

@@ -1,71 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264473AbUAHOGP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jan 2004 09:06:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264903AbUAHOGP
+	id S264903AbUAHOJa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jan 2004 09:09:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264917AbUAHOJa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jan 2004 09:06:15 -0500
-Received: from f7.mail.ru ([194.67.57.37]:33297 "EHLO f7.mail.ru")
-	by vger.kernel.org with ESMTP id S264473AbUAHOGO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jan 2004 09:06:14 -0500
-From: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	<arvidjaar@mail.ru>
-To: =?koi8-r?Q?=22?=Greg KH=?koi8-r?Q?=22=20?= <greg@kroah.com>
-Cc: =?koi8-r?Q?=22?=Linus Torvalds=?koi8-r?Q?=22=20?= 
-	<torvalds@osdl.org>,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: removable media revalidation - udev vs. devfs or static /dev
+	Thu, 8 Jan 2004 09:09:30 -0500
+Received: from trinity.webmaking.ms ([213.131.251.60]:26837 "HELO
+	trinity.webmaking.ms") by vger.kernel.org with SMTP id S264903AbUAHOJ0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jan 2004 09:09:26 -0500
+Date: Thu, 8 Jan 2004 15:09:17 +0100
+From: Thomas Fischbach <webmaster@kennygno.net>
+To: davidsen@tmr.com (bill davidsen)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: can't mount encrypted dvd with 2.6.0
+Message-Id: <20040108150917.18537b1e@kyp.intra>
+In-Reply-To: <bti3g1$7lt$1@gatekeeper.tmr.com>
+References: <20040107151948.4376d881@kyp.intra>
+	<bti3g1$7lt$1@gatekeeper.tmr.com>
+X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [212.248.25.26]
-Date: Thu, 08 Jan 2004 17:06:12 +0300
-In-Reply-To: <20040107195032.GB823@kroah.com>
-Reply-To: =?koi8-r?Q?=22?=Andrey Borzenkov=?koi8-r?Q?=22=20?= 
-	  <arvidjaar@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E1Aeanc-000OLT-00.arvidjaar-mail-ru@f7.mail.ru>
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Thu__8_Jan_2004_15_09_17_+0100_7ha/eAozfzUuHURc"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--Signature=_Thu__8_Jan_2004_15_09_17_+0100_7ha/eAozfzUuHURc
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+
+On 7 Jan 2004 23:07:45 GMT
+davidsen@tmr.com (bill davidsen) wrote:
+
+> In article <20040107151948.4376d881@kyp.intra>,
+> Thomas Fischbach  <webmaster@kennygno.net> wrote:
 > 
-> > NOTE! We do have an alternative: if we were to just make block device 
-> > nodes support "readdir" and "lookup", you could just do
-> > 
-> > 	open("/dev/sda/1" ...)
-> > 
-> > and it magically works right. I've wanted to do this for a long time, but 
-> > every time I suggest allowing it, people scream.
-> 
-> Hm, that would be nice.  I don't remember seeing it being proposed
-> before, what are the main complaints people have with this?
->
+> | if I create an encrypted iso image:
+> | dd if=/dev/zero of=/files/image.iso bs=512 count=$((1024*4400))
+> | losetup -e aes -k 256 /dev/loop1 /files/image.iso
+> | mkisofs -r -o /dev/loop1 /files/stuff/*
+> ===> try adding -pad here
 
-this has been in Linux long enough and was called "devfs". Apparently
-somebody decided this was evil and removed it. I too am interested
-what exatcly was wrong with this design (not implementation)?
+[...]
 
-Unfortunately the problem is worse than just that.
+I think -pad is used by default.
 
-The main reason to use udev is to have persistent names for devices.
-Currently my USB may be sda1 and next time I stick it in may be sdb1;
-so I'd like to call it /dev/usb0 and use it.
+I tried the patch from Ben and it works.
+http://testing.lkml.org/slashdot.php?mid=442410
 
-But in this case we do not have even this possibility of revalidating
-media on access to /dev/sda/1 because not only do not we have
-/dev/usb0 as yet - we do not even know what it possibly points at.
+Thanks
 
-Assuming - oh, horror - that we do use devfs, we have LOOKUP event,
-so we can call naming agent for /dev/usb0 - and we can tell it that
-usb0 refers to SCSI device on first port of my USB hub (you usually
-plug it in the same slot do not you?) It can find out that there
-is already block device for it and simply initiate rescan of
-partition. Magically making sda/1 appear and linking usb0 to it.
+-- 
+Thomas Fischbach
+http://www.kennygno.net
+webmaster@kennygno.net
 
-Without some kind of LOOKUP event apparently the only possibility
-is polling :(
+--Signature=_Thu__8_Jan_2004_15_09_17_+0100_7ha/eAozfzUuHURc
+Content-Type: application/pgp-signature
 
-regards
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
--andrey
+iD8DBQE//WSNhty018ANwB4RAr18AJ9YTifHbmGt3cGql4eWWXD+qUANCwCcC7uj
+svUELgyxPMCaHsgKRPhUbzk=
+=xBQG
+-----END PGP SIGNATURE-----
+
+--Signature=_Thu__8_Jan_2004_15_09_17_+0100_7ha/eAozfzUuHURc--

@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265718AbSKAT6G>; Fri, 1 Nov 2002 14:58:06 -0500
+	id <S265726AbSKAUAM>; Fri, 1 Nov 2002 15:00:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265726AbSKAT6G>; Fri, 1 Nov 2002 14:58:06 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:36616 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S265718AbSKAT6B>;
-	Fri, 1 Nov 2002 14:58:01 -0500
-Date: Fri, 1 Nov 2002 21:00:42 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Pawel Kot <pkot@bezsensu.pl>, Rusty Russell <rusty@rustcorp.com.au>,
-       Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
-       Anton Altaparmakov <aia21@cantab.net>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.45: NTFS unresolved symbol
-Message-ID: <20021101200042.GB1832@mars.ravnborg.org>
-Mail-Followup-To: Andrew Morton <akpm@digeo.com>,
-	Pawel Kot <pkot@bezsensu.pl>, Rusty Russell <rusty@rustcorp.com.au>,
-	Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
-	Anton Altaparmakov <aia21@cantab.net>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <200211010431.00941.Dieter.Nuetzel@hamburg.de> <Pine.LNX.4.33.0211011318270.5622-100000@urtica.linuxnews.pl> <3DC2DAA0.A46C5085@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DC2DAA0.A46C5085@digeo.com>
-User-Agent: Mutt/1.4i
+	id <S265739AbSKAUAM>; Fri, 1 Nov 2002 15:00:12 -0500
+Received: from mpls-qmqp-01.inet.qwest.net ([63.231.195.112]:54026 "HELO
+	mpls-qmqp-01.inet.qwest.net") by vger.kernel.org with SMTP
+	id <S265726AbSKAUAB>; Fri, 1 Nov 2002 15:00:01 -0500
+Date: Fri, 1 Nov 2002 12:06:24 -0800
+Message-Id: <02110112062400.01200@rigel>
+From: "Steven King" <sxking@qwest.net>
+To: "Linus Torvalds" <torvalds@transmeta.com>,
+       "Joel Becker" <Joel.Becker@oracle.com>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, "Bill Davidsen" <davidsen@tmr.com>,
+       "Chris Friesen" <cfriesen@nortelnetworks.com>,
+       "Matt D. Robinson" <yakker@aparity.com>,
+       "Rusty Russell" <rusty@rustcorp.com.au>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       lkcd-general@lists.sourceforge.net, lkcd-devel@lists.sourceforge.net
+Content-Type: text/plain; charset=US-ASCII
+Subject: Re: What's left over.
+X-Mailer: KMail [version 1.2]
+References: <Pine.LNX.4.44.0211011107470.4673-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0211011107470.4673-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 01, 2002 at 11:48:48AM -0800, Andrew Morton wrote:
-> We have these magical symbols which describe the offset of
-> a member of the per-cpu storage, which need to be exposed
-> to modules.  So I added an EXPORT_PER_CPU_SYMBOL() helper:
-> 
-> #define EXPORT_PER_CPU_SYMBOL(var) EXPORT_SYMBOL(var##__per_cpu)
-> #define EXPORT_PER_CPU_SYMBOL_GPL(var) EXPORT_SYMBOL_GPL(var##__per_cpu)
+On Friday 01 November 2002 11:18 am, Linus Torvalds wrote:
 
-I would expect the following to work:
-#define EXPORT_SYMBOL_PER_CPU(var) EXPORT_SYMBOL(var##__per_cpu)
-#define EXPORT_SYMBOL_PER_CPU_GPL(var) EXPORT_SYMBOL_GPL(var##__per_cpu)
+> To add insult to injury, you will not be able to actually _test_ any of
+> the real error paths in real life. Sure, you will be able to test forced
+> dumps on _your_ hardware, but while that is fine in the AIX model ("we
+> control the hardware, and charge the user five times what it is worth"),
+> again that doesn't mean _squat_ in the PC hardware space.
 
-In this case the magic "EXPORT_SYMBOL" is still present.
-
-	Sam
+  On the other hand, ISC's system 5 r3 ran on commodity x86 hardware and the 
+crash dumper worked on the various disk hardware I had occasion to use it on 
+(mfm, scsi, ide), although one did need to make sure swap was larger than ram 
+or bad things would happen. 8-{.  

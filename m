@@ -1,25 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261307AbSJ1USs>; Mon, 28 Oct 2002 15:18:48 -0500
+	id <S261304AbSJ1USj>; Mon, 28 Oct 2002 15:18:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261323AbSJ1USs>; Mon, 28 Oct 2002 15:18:48 -0500
-Received: from host-66-81-68-156.rev.o1.com ([66.81.68.156]:19723 "HELO
-	yahoo.com") by vger.kernel.org with SMTP id <S261307AbSJ1USr>;
-	Mon, 28 Oct 2002 15:18:47 -0500
-From: "Profiler Green" <frogslurpy@yahoo.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: bored of life?
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Date: Mon, 28 Oct 2002 12:19:11 -0800
-X-Priority: 1 (Highest)
-Message-Id: <20021028201847Z261307-32598+2842@vger.kernel.org>
+	id <S261307AbSJ1USj>; Mon, 28 Oct 2002 15:18:39 -0500
+Received: from transport.cksoft.de ([62.111.66.27]:17932 "EHLO
+	transport.cksoft.de") by vger.kernel.org with ESMTP
+	id <S261304AbSJ1USj>; Mon, 28 Oct 2002 15:18:39 -0500
+Date: Mon, 28 Oct 2002 20:23:15 +0000 (UTC)
+From: "Bjoern A. Zeeb" <bzeeb-lists@lists.zabbadoz.net>
+X-X-Sender: bz@e0-0.zab2.int.zabbadoz.net
+To: Jochen Heuer <jogi-kernel@planetzork.ping.de>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.44: Compile error in drivers/isdn/i4l/isdn_ppp.o
+In-Reply-To: <20021028194747.GA11383@planetzork.spacenet>
+Message-ID: <Pine.BSF.4.44.0210282021440.638-100000@e0-0.zab2.int.zabbadoz.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://www.geocities.com/tyler2049/index.htm
+On 28 Oct 2002, Jochen Heuer wrote:
 
-visit this website and have all your dreams come true!
+Pong,
 
-http://www.geocities.com/tyler2049/index.htm
+> since the testing for 2.6 should begin I tried to compile 2.5.44 on
+> my system. But I get a compile error in drivers/isdn/i4l/isdn_ppp.c.
+
+please first check the archives. I4l is rewritten and is known not to
+compile. We get complaints here once a day because of that...
+
+-- 
+Bjoern A. Zeeb				bzeeb at Zabbadoz dot NeT
+56 69 73 69 74				http://www.zabbadoz.net/
+

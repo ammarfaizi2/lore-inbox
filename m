@@ -1,76 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311079AbSCMT3J>; Wed, 13 Mar 2002 14:29:09 -0500
+	id <S310990AbSCMTaB>; Wed, 13 Mar 2002 14:30:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311072AbSCMT2x>; Wed, 13 Mar 2002 14:28:53 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:60677 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310990AbSCMT22>; Wed, 13 Mar 2002 14:28:28 -0500
-Subject: Re: your mail
-To: rlievin@free.fr (=?ISO-8859-1?Q?Romain_Li=E9vin?=)
-Date: Wed, 13 Mar 2002 19:43:32 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (Kernel List),
-        torvalds@transmeta.com (Linus Torvalds),
-        alan@lxorguk.ukuu.org.uk (Alan Cox), tim@cyberelk.net (Tim Waugh)
-In-Reply-To: <1016047267.3c8fa6a3660e3@imp3-1.free.fr> from "=?ISO-8859-1?Q?Romain_Li=E9vin?=" at Mar 13, 2002 08:21:07 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S311072AbSCMT3v>; Wed, 13 Mar 2002 14:29:51 -0500
+Received: from [208.179.59.195] ([208.179.59.195]:10535 "EHLO
+	Booterz.killerlabs.com") by vger.kernel.org with ESMTP
+	id <S310990AbSCMT3k>; Wed, 13 Mar 2002 14:29:40 -0500
+Message-ID: <3C8FA87C.70808@blue-labs.org>
+Date: Wed, 13 Mar 2002 14:29:00 -0500
+From: David Ford <david+cert@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9+) Gecko/20020309
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: David Woodhouse <dwmw2@infradead.org>
+CC: Robert Love <rml@tech9.net>, Brian S Queen <bqueen@nas.nasa.gov>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Upgrading Headers?
+In-Reply-To: <1015895241.928.107.camel@phantasy>  <200203120100.RAA00468@marcy.nas.nasa.gov> <6468.1015927347@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16lEeq-0007F3-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It has been tested on x86 for almost 2 years and on Alpha & Sparc too with 
-> various calculators.
+It may be ill-advised, but it hasn't been 'broken' for the last several 
+years.
 
-One oddity - some other comments
+-d
 
-> +static int tipar_open(struct inode *inode, struct file *file)
-> +{
-> +       unsigned int minor = minor(inode->i_rdev) - TIPAR_MINOR_0;
-> +
-> +       if (minor >= PP_NO)
-> +               return -ENXIO;  
-> +       
-> +       init_ti_parallel(minor);
-> +
-> +       MOD_INC_USE_COUNT;
+David Woodhouse wrote:
 
-You should remove these and use in 2.4 + . Also what stops multiple
-simultaneous runs of init_ti_parallel if two people open it at once ?
+>rml@tech9.net said:
+>
+>> You don't.  The headers in /usr/include/linux and /usr/include/asm
+>>(which may be a symlink to /usr/src/linux/include/linux and /usr/src/
+>>linux/include/asm, respectively) should point to the kernel headers
+>>that were present when _glibc_ was compiled. 
+>>
+>
+>No it may not be a symlink. That would be broken.
+>
 
 
-> +static unsigned int tipar_poll(struct file *file, poll_table * wait)
-> +{
-> +       unsigned int mask=0;
-> +       return mask;
-> +}
-
-That seems unfinished ??
-
-> +static int tipar_ioctl(struct inode *inode, struct file *file,
-> +                      unsigned int cmd, unsigned long arg)
-> +       case O_NONBLOCK:
-> +               file->f_flags |= O_NONBLOCK;
-> +               return 0;
-
-O_NDELAY is set by fcntl - your driver never needs this.
-
-> +       default:
-> +               retval = -EINVAL;
-
-SuS says -ENOTTY here (lots of drivers get this wrong still)
-
-> +static long long tipar_lseek(struct file * file, long long offset, int origin)
-> +{
-> +       return -ESPIPE;
-> +}
-
-There is a generic no_llseek function
-
-> +/* Major & minor number for character devices */
-> +#define TIPAR_MAJOR   61
-
-These don't appear to be officially assigned via lanana ?

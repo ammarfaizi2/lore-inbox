@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264238AbUESPbu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264244AbUESPey@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264238AbUESPbu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 11:31:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264228AbUESPbu
+	id S264244AbUESPey (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 11:34:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbUESPey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 11:31:50 -0400
-Received: from phoenix.infradead.org ([213.86.99.234]:3086 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S264238AbUESPbd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 11:31:33 -0400
-Date: Wed, 19 May 2004 16:31:29 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, pfg@sgi.com,
-       Erik Jacobson <erikj@sgi.com>
-Subject: Re: [PATCH] implement TIOCGSERIAL in sn_serial.c
-Message-ID: <20040519163129.A27714@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Jesse Barnes <jbarnes@engr.sgi.com>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org, pfg@sgi.com,
-	Erik Jacobson <erikj@sgi.com>
-References: <200405191109.51751.jbarnes@engr.sgi.com>
+	Wed, 19 May 2004 11:34:54 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58529 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264244AbUESPd7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 May 2004 11:33:59 -0400
+Date: Tue, 18 May 2004 12:48:16 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: Etienne Vogt <etienne.vogt@obspm.fr>, linux-kernel@vger.kernel.org,
+       James.Bottomley@HansenPartnership.com
+Subject: Re: aic79xx trouble
+Message-ID: <20040518154816.GA1918@logos.cnet>
+References: <200405132125.28053.bernd.schubert@pci.uni-heidelberg.de> <200405132136.32703.bernd.schubert@pci.uni-heidelberg.de> <Pine.LNX.4.58.0405161930260.2851@siolinb.obspm.fr> <3436150000.1084731012@aslan.btc.adaptec.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200405191109.51751.jbarnes@engr.sgi.com>; from jbarnes@engr.sgi.com on Wed, May 19, 2004 at 11:09:51AM -0400
+In-Reply-To: <3436150000.1084731012@aslan.btc.adaptec.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 19, 2004 at 11:09:51AM -0400, Jesse Barnes wrote:
-> The sn2 console driver behaves something like a serial port, but was missing 
-> some of the ioctls that userland apps expected.  This patch implements the 
-> TIOCGSERIAL ioctl, which allows applications to identify the console as a 
-> serial port.
+On Sun, May 16, 2004 at 12:10:12PM -0600, Justin T. Gibbs wrote:
+> >  The Adaptec Ultra320 cards (aic79xx) do not work reliably on Tyan Thunder
+> > motherboards.
+> 
+> The U320 chips likely work a lot better now if you use driver version 2.0.12.
+> The AMD chipsets seem to screw up split completions, and this version of
+> the driver avoids the issue for the most common case of triggering the
+> bug (transaction completion DMAs) by never crossing an ADB boundary with
+> a single DMA.
 
-And whats the point for this one?  TIOCGSERIAL is just some messy internals
-of the old serial.c driver (and serial_core now) that's exposed for the
-sake of setserial.  Given that the sn console is quite different I don't
-see the point to emulate all the mess of a real serial driver - and if you
-want to do so use the serial_core framework.
+Hi Justin,
 
+I've seen several reports of what seem to be aic7xxx driver bugs. And
+some of them you have stated that are fixed by your new driver.
+
+I feel we should merge it in v2.4 mainline.  
+
+Do you have any idea of how widely use your newer driver is?
+
+For what reason the changes you made havent been merged in the past
+in mainline?

@@ -1,401 +1,175 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280531AbRKBDOS>; Thu, 1 Nov 2001 22:14:18 -0500
+	id <S279705AbRKBDZ1>; Thu, 1 Nov 2001 22:25:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280533AbRKBDOH>; Thu, 1 Nov 2001 22:14:07 -0500
-Received: from [202.108.44.203] ([202.108.44.203]:64832 "HELO smtp3.163.com")
-	by vger.kernel.org with SMTP id <S280531AbRKBDOA>;
-	Thu, 1 Nov 2001 22:14:00 -0500
-From: "firetiger" <firetiger977@163.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: OOPS: reiserfs panic
-Date: Fri, 2 Nov 2001 11:18:27 +0800
-Message-ID: <PIEMJKECONGJHFMFKFLHEEAGCAAA.firetiger977@163.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="gb2312"
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S280533AbRKBDZS>; Thu, 1 Nov 2001 22:25:18 -0500
+Received: from dsl-64-192-96-25.telocity.com ([64.192.96.25]:8849 "EHLO
+	orr.falooley.org") by vger.kernel.org with ESMTP id <S279705AbRKBDZL>;
+	Thu, 1 Nov 2001 22:25:11 -0500
+Date: Thu, 1 Nov 2001 22:24:55 -0500
+From: Jason Lunz <j@falooley.org>
+To: linux-kernel@vger.kernel.org
+Cc: gibbs@scsiguy.com
+Subject: new aic7xxx bug, 2.4.13/6.2.4
+Message-ID: <20011101222455.A5885@orr.falooley.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 8bit
-X-MIME-Autoconverted: from base64 to 8bit by leeloo.zip.com.au id OAA09613
 
 
-The oops appears when i backup my system to a reiserfs filesystem.
-first report "zam-7001: io error in reiserfs_find_entry", then oops and
-the mounted reiserfs filesystem can't be unmounted, i feel this urly.
+I'm having troubles with the last few revisions of the new Gibbs aic7xxx
+driver that until now has served me well. This is kernel
+2.4.13-preempt-lvmrc4 with the 6.2.4 scsi driver, but I saw it happen on
+2.4.12 with 6.2.1. I haven't tried older versions with this CD.
 
-I have test the disk with tools badblocks (options: -svw -c 320), no problem.
+When trying to rip a particular audio CD with cdrdao 1.1.5, I get this
+error:
 
+?: Input/output error.  : scsi sendcmd: retryable error
+CDB:  42 00 40 03 00 00 03 00 30 00
+status: 0x0 (GOOD STATUS)
+cmd finished after 45.934s timeout 20s
+WARNING: Cannot read ISRC code.
+Track 4...
+?: No such device or address. Cannot send SCSI cmd via ioctl
 
-System:
-=========
+And this appears in the kernel output:
 
-	CPU: Athlon 1.2G
-	Motherboard: Abit KT7A-RAID(HPT370 not enabled)
-	OS: Redhat 7.2
+VFS: Disk change detected on device sr(11,1)
+scsi0:0:3:0: Attempting to queue an ABORT message
+scsi0: Dumping Card State while idle, at SEQADDR 0x7
+ACCUM = 0x16, SINDEX = 0x37, DINDEX = 0x24, ARG_2 = 0x0
+HCNT = 0x0
+SCSISEQ = 0x12, SBLKCTL = 0x0
+ DFCNTRL = 0x0, DFSTATUS = 0x2d
+LASTPHASE = 0x1, SCSISIGI = 0x0, SXFRCTL0 = 0x80
+SSTAT0 = 0x5, SSTAT1 = 0xa
+STACK == 0x3, 0x186, 0x156, 0x0
+SCB count = 4
+Kernel NEXTQSCB = 2
+Card NEXTQSCB = 2
+QINFIFO entries: 
+Waiting Queue entries: 
+Disconnected Queue entries: 0:3 
+QOUTFIFO entries: 
+Sequencer Free SCB List: 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 
+Pending list: 3
+Kernel Free SCB list: 1 0 
+Untagged Q(3): 3 
+DevQ(0:2:0): 0 waiting
+DevQ(0:3:0): 0 waiting
+(scsi0:A:3:0): Queuing a recovery SCB
+scsi0:0:3:0: Device is disconnected, re-queuing SCB
+Recovery code sleeping
+(scsi0:A:3:0): Abort Message Sent
+(scsi0:A:3:0): SCB 3 - Abort Completed.
+Recovery SCB completes
+Recovery code awake
+aic7xxx_abort returns 0x2002
+(scsi0:A:3:0): Unexpected busfree in Command phase
+SEQADDR == 0x15c
+scsi0:0:3:0: Attempting to queue a TARGET RESET message
+scsi0:0:3:0: Command not found
+aic7xxx_dev_reset returns 0x2002
+scsi0:0:3:0: Attempting to queue an ABORT message
+scsi0: Dumping Card State while idle, at SEQADDR 0x7
+ACCUM = 0xf7, SINDEX = 0x37, DINDEX = 0x24, ARG_2 = 0x0
+HCNT = 0x0
+SCSISEQ = 0x12, SBLKCTL = 0x0
+ DFCNTRL = 0x0, DFSTATUS = 0x2d
+LASTPHASE = 0x1, SCSISIGI = 0x0, SXFRCTL0 = 0x80
+SSTAT0 = 0x5, SSTAT1 = 0xa
+STACK == 0x3, 0x186, 0x156, 0x35
+SCB count = 4
+Kernel NEXTQSCB = 2
+Card NEXTQSCB = 2
+QINFIFO entries: 
+Waiting Queue entries: 
+Disconnected Queue entries: 0:3 
+QOUTFIFO entries: 
+Sequencer Free SCB List: 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 
+Pending list: 3
+Kernel Free SCB list: 1 0 
+Untagged Q(3): 3 
+DevQ(0:2:0): 0 waiting
+DevQ(0:3:0): 0 waiting
+(scsi0:A:3:0): Queuing a recovery SCB
+scsi0:0:3:0: Device is disconnected, re-queuing SCB
+Recovery code sleeping
+(scsi0:A:3:0): Abort Message Sent
+(scsi0:A:3:0): SCB 3 - Abort Completed.
+Recovery SCB completes
+Recovery code awake
+aic7xxx_abort returns 0x2002
+scsi: device set offline - not ready or command retry failed after bus reset: host 0 channel 0 id 3 lun 0
 
+After this, subsequent attempts to use that drive fail. Trying to mount
+a data CD, for example, now gives:
 
-kernel config:
-==============
-(Compiler: 2.96-98)
+[orr](0) % mount /cdrom
+mount: No medium found
 
-#
-# Automatically generated by make menuconfig: don't edit
-#
-CONFIG_X86=y
-CONFIG_ISA=y
-CONFIG_UID16=y
+with this in dmesg:
 
-#
-# Code maturity level options
-#
-CONFIG_EXPERIMENTAL=y
+cdrom: open failed.
+VFS: Disk change detected on device sr(11,1)
 
-#
-# Loadable module support
-#
-CONFIG_MODULES=y
-CONFIG_MODVERSIONS=y
-CONFIG_KMOD=y
+Some other information follows.
 
-#
-# Processor type and features
-#
-CONFIG_MK7=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_L1_CACHE_SHIFT=6
-CONFIG_X86_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_USE_3DNOW=y
-CONFIG_X86_PGE=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
+/proc/scsi/scsi:
 
-#
-# General setup
-#
-CONFIG_NET=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_SYSVIPC=y
-CONFIG_BSD_PROCESS_ACCT=y
-CONFIG_SYSCTL=y
-CONFIG_KCORE_ELF=y
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=y
-CONFIG_PM=y
-CONFIG_APM=y
-CONFIG_APM_RTC_IS_GMT=y
-CONFIG_APM_REAL_MODE_POWER_OFF=y
-
-#
-# Memory Technology Devices (MTD)
-#
-# CONFIG_MTD is not set
-
-#
-# Parallel port support
-#
-# CONFIG_PARPORT is not set
-
-#
-# Plug and Play configuration
-#
-CONFIG_PNP=y
-CONFIG_ISAPNP=y
-
-#
-# Block devices
-#
-CONFIG_BLK_DEV_FD=y
-CONFIG_BLK_DEV_LOOP=m
-CONFIG_BLK_DEV_NBD=m
-CONFIG_BLK_DEV_RAM=m
-CONFIG_BLK_DEV_RAM_SIZE=4096
-
-#
-# Networking options
-#
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_NETFILTER=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-
-#
-#   IP: Netfilter Configuration
-#
-CONFIG_IP_NF_CONNTRACK=m
-CONFIG_IP_NF_FTP=m
-CONFIG_IP_NF_IPTABLES=m
-CONFIG_IP_NF_MATCH_LIMIT=m
-CONFIG_IP_NF_MATCH_MAC=m
-CONFIG_IP_NF_MATCH_MARK=m
-CONFIG_IP_NF_MATCH_MULTIPORT=m
-CONFIG_IP_NF_MATCH_TOS=m
-CONFIG_IP_NF_MATCH_TCPMSS=m
-CONFIG_IP_NF_MATCH_STATE=m
-CONFIG_IP_NF_MATCH_UNCLEAN=m
-CONFIG_IP_NF_MATCH_OWNER=m
-CONFIG_IP_NF_FILTER=m
-CONFIG_IP_NF_TARGET_REJECT=m
-CONFIG_IP_NF_TARGET_MIRROR=m
-CONFIG_IP_NF_NAT=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=m
-CONFIG_IP_NF_TARGET_REDIRECT=m
-CONFIG_IP_NF_NAT_FTP=m
-CONFIG_IP_NF_MANGLE=m
-CONFIG_IP_NF_TARGET_TOS=m
-CONFIG_IP_NF_TARGET_MARK=m
-CONFIG_IP_NF_TARGET_LOG=m
-CONFIG_IP_NF_TARGET_TCPMSS=m
-
-#
-# ATA/IDE/MFM/RLL support
-#
-CONFIG_IDE=y
-
-#
-# IDE, ATA and ATAPI Block devices
-#
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_CMD640=y
-CONFIG_BLK_DEV_RZ1000=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_VIA82CXXX=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_IDE_MODES=y
+Attached devices: 
+Host: scsi0 Channel: 00 Id: 02 Lun: 00
+  Vendor: YAMAHA   Model: CRW6416S         Rev: 1.0d
+  Type:   CD-ROM                           ANSI SCSI revision: 02
+Host: scsi0 Channel: 00 Id: 03 Lun: 00
+  Vendor: PIONEER  Model: DVD-ROM DVD-305  Rev: 1.00
+  Type:   CD-ROM                           ANSI SCSI revision: 02
 
 
-#
-# I2O device support
-#
-CONFIG_I2O=m
-CONFIG_I2O_PCI=m
-CONFIG_I2O_BLOCK=m
-CONFIG_I2O_LAN=m
-CONFIG_I2O_PROC=m
+/proc/scsi/aic7xxx/0:
 
-#
-# Network device support
-#
-CONFIG_NETDEVICES=y
-
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_PCI=y
-CONFIG_EEPRO100=y
-CONFIG_PPP=m
-CONFIG_PPP_ASYNC=m
-CONFIG_PPP_SYNC_TTY=m
-CONFIG_PPP_DEFLATE=m
-CONFIG_PPP_BSDCOMP=m
-CONFIG_PPPOE=m
-CONFIG_SLIP=m
-CONFIG_SLIP_COMPRESSED=y
-CONFIG_SLIP_SMART=y
-CONFIG_SLIP_MODE_SLIP6=y
-
-
-#
-# Character devices
-#
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_SERIAL=y
-CONFIG_SERIAL_CONSOLE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-
-#
-# I2C support
-#
-CONFIG_I2C=m
-CONFIG_I2C_ALGOBIT=m
-CONFIG_I2C_ELV=m
-CONFIG_I2C_VELLEMAN=m
-CONFIG_I2C_ALGOPCF=m
-CONFIG_I2C_ELEKTOR=m
-CONFIG_I2C_CHARDEV=m
-CONFIG_I2C_PROC=m
-
-#
-# Mice
-#
-# CONFIG_BUSMOUSE is not set
-CONFIG_MOUSE=y
-CONFIG_PSMOUSE=y
-#
-# Watchdog Cards
-#
-CONFIG_WATCHDOG=y
-CONFIG_SOFT_WATCHDOG=m
-CONFIG_WDT=m
-CONFIG_WDTPCI=m
-CONFIG_WDT_501=y
-CONFIG_WDT_501_FAN=y
-CONFIG_PCWATCHDOG=m
-CONFIG_ACQUIRE_WDT=m
-CONFIG_ADVANTECH_WDT=m
-CONFIG_IB700_WDT=m
-CONFIG_60XX_WDT=m
-CONFIG_W83877F_WDT=m
-CONFIG_MIXCOMWD=m
-CONFIG_I810_TCO=m
-CONFIG_MACHZ_WDT=m
-CONFIG_RTC=y
-CONFIG_AGP=m
-CONFIG_AGP_VIA=y
-CONFIG_DRM=y
-CONFIG_DRM_MGA=m
-
-#
-# File systems
-#
-# CONFIG_QUOTA is not set
-# CONFIG_AUTOFS_FS is not set
-CONFIG_AUTOFS4_FS=y
-CONFIG_REISERFS_FS=y
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-CONFIG_VFAT_FS=m
-CONFIG_TMPFS=y
-CONFIG_ISO9660_FS=y
-CONFIG_NTFS_FS=m
-CONFIG_PROC_FS=y
-CONFIG_DEVPTS_FS=y
-CONFIG_EXT2_FS=y
-CONFIG_UDF_FS=m
-
-#
-# Network File Systems
-#
-CONFIG_NFS_FS=y
-CONFIG_NFSD=y
-CONFIG_SUNRPC=y
-CONFIG_LOCKD=y
-
-#
-# Partition Types
-#
-# CONFIG_PARTITION_ADVANCED is not set
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-
-#
-# Native Language Support
-#
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=m
-CONFIG_NLS_CODEPAGE_936=m
-CONFIG_NLS_CODEPAGE_950=m
-CONFIG_NLS_CODEPAGE_932=m
-CONFIG_NLS_CODEPAGE_949=m
-CONFIG_NLS_CODEPAGE_1251=m
-CONFIG_NLS_ISO8859_1=m
-CONFIG_NLS_ISO8859_4=m
-CONFIG_NLS_UTF8=m
-
-#
-# Console drivers
-#
-CONFIG_VGA_CONSOLE=y
-
-#
-# Sound
-#
-CONFIG_SOUND=m
-CONFIG_SOUND_ES1371=m
-
-#
-# USB support
-#
-CONFIG_USB=m
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_UHCI=m
-CONFIG_USB_UHCI_ALT=m
-CONFIG_USB_OHCI=m
-CONFIG_USB_HID=m
-CONFIG_USB_KBD=m
-CONFIG_USB_MOUSE=m
-CONFIG_USB_WACOM=m
+Adaptec AIC7xxx driver version: 6.2.4
+aic7880: Single Channel A, SCSI Id=7, 16/253 SCBs
+Channel A Target 0 Negotiation Settings
+	User: 10.000MB/s transfers (10.000MHz, offset 255)
+Channel A Target 1 Negotiation Settings
+	User: 8.064MB/s transfers (8.064MHz, offset 255)
+Channel A Target 2 Negotiation Settings
+	User: 10.000MB/s transfers (10.000MHz, offset 255)
+	Goal: 10.000MB/s transfers (10.000MHz, offset 15)
+	Curr: 10.000MB/s transfers (10.000MHz, offset 15)
+	Channel A Target 2 Lun 0 Settings
+		Commands Queued 94
+		Commands Active 0
+		Command Openings 1
+		Max Tagged Openings 0
+		Device Queue Frozen Count 0
+Channel A Target 3 Negotiation Settings
+	User: 10.000MB/s transfers (10.000MHz, offset 255)
+	Goal: 10.000MB/s transfers (10.000MHz, offset 15)
+	Curr: 10.000MB/s transfers (10.000MHz, offset 15)
+	Channel A Target 3 Lun 0 Settings
+		Commands Queued 977404
+		Commands Active 0
+		Command Openings 1
+		Max Tagged Openings 0
+		Device Queue Frozen Count 0
+Channel A Target 4 Negotiation Settings
+	User: 10.000MB/s transfers (10.000MHz, offset 255)
+Channel A Target 5 Negotiation Settings
+	User: 10.000MB/s transfers (10.000MHz, offset 255)
+Channel A Target 6 Negotiation Settings
+	User: 10.000MB/s transfers (10.000MHz, offset 255)
+Channel A Target 7 Negotiation Settings
+	User: 10.000MB/s transfers (10.000MHz, offset 255)
 
 
-ksymoops output:
-================
+I'm happy to help investigate further if there's anything you want to
+try. Let me know if you need any other output or have a patch I can try
+out.
 
-ksymoops 2.4.3 on i686 2.4.14-pre6.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.14-pre6/ (default)
-     -m /usr/src/linux-2.4.14/System.map (specified)
-
-invalid operand: 0000
-CPU:    0
-EIP:    0010:[<c017b239>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010296
-eax: 0000002d   ebx: c02253e0   ecx: d7366000   edx: d7367f64
-esi: d6859600   edi: c322bef4   ebp: c322be5c   esp: c322be38
-ds: 0018   es: 0018   ss: 0018
-Process cp (pid: 3739, stackpage=c322b000)
-Stack: c021b4b7 c02a1e40 c02253e0 c322be5c c322be5c c322beb4 c01707a3 d6859600
-       c02253e0 00004c93 00004fb4 4604187f 000001f4 00000000 00000003 00000000
-       d3e597c0 fffffff4 c322beb4 c322bef4 00000000 c01708ad cec4e500 d3b49b1c
-Call Trace: [<c01707a3>] [<c01708ad>] [<c0141212>] [<c0170840>] [<c013f687>]
-   [<c0137b7e>] [<c013870a>] [<c0138dcd>] [<c0139162>] [<c0106ceb>]
-Code: 0f 0b 85 f6 68 40 1e 2a c0 74 0d 0f b7 46 08 50 e8 72 4d fb
-
->>EIP; c017b238 <reiserfs_panic+28/60>   <=====
-Trace; c01707a2 <reiserfs_find_entry+a2/140>
-Trace; c01708ac <reiserfs_lookup+6c/e0>
-Trace; c0141212 <iget4+b2/c0>
-Trace; c0170840 <reiserfs_lookup+0/e0>
-Trace; c013f686 <d_alloc+16/170>
-Trace; c0137b7e <cached_lookup+e/50>
-Trace; c013870a <lookup_hash+6a/90>
-Trace; c0138dcc <lookup_create+2c/70>
-Trace; c0139162 <sys_mkdir+52/d0>
-Trace; c0106cea <system_call+32/38>
-Code;  c017b238 <reiserfs_panic+28/60>
-00000000 <_EIP>:
-Code;  c017b238 <reiserfs_panic+28/60>   <=====
-   0:   0f 0b                     ud2a      <=====
-Code;  c017b23a <reiserfs_panic+2a/60>
-   2:   85 f6                     test   %esi,%esi
-Code;  c017b23c <reiserfs_panic+2c/60>
-   4:   68 40 1e 2a c0            push   $0xc02a1e40
-Code;  c017b240 <reiserfs_panic+30/60>
-   9:   74 0d                     je     18 <_EIP+0x18> c017b250 <reiserfs_panic+40/60>
-Code;  c017b242 <reiserfs_panic+32/60>
-   b:   0f b7 46 08               movzwl 0x8(%esi),%eax
-Code;  c017b246 <reiserfs_panic+36/60>
-   f:   50                        push   %eax
-Code;  c017b248 <reiserfs_panic+38/60>
-  10:   e8 72 4d fb 00            call   fb4d87 <_EIP+0xfb4d87> c112ffbe <_end+e6f2e2/18573324>˝:.ûÀõ± ‚mÁÎ¢kaä…b≤ﬂÏzwmÖÈbùÔÓûÀõ± ‚mÈbûÏˇëÍÁz_‚ûÿ^nár°ˆ¶zÀÅÎhô®Ë≠⁄&£˚‡zø‰zπﬁó˙+Ä +zf£¢∑höàß~Ü≠Ü€iˇˇÔÅÍˇëÍÁz_ËÆÊj:+vâ®˛)ﬂ£¯möSÂy´≠Êù∂Ö≠Ü€iˇˇ√ÌªËÆÂíi
+Jason

@@ -1,63 +1,31 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <153997-662>; Fri, 9 Oct 1998 10:50:56 -0400
-Received: from twin.uoregon.edu ([128.223.32.106]:1156 "EHLO twin.uoregon.edu" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <156090-662>; Fri, 9 Oct 1998 09:13:49 -0400
-Date: Fri, 9 Oct 1998 11:48:09 -0700 (PDT)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Riley Williams <rhw@bigfoot.com>, simon@koala.ie, linux-kernel@vger.rutgers.edu
+Received: by vger.rutgers.edu id <154785-662>; Fri, 9 Oct 1998 10:08:41 -0400
+Received: from snowcrash.cymru.net ([163.164.160.3]:1643 "EHLO snowcrash.cymru.net" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <156289-662>; Fri, 9 Oct 1998 08:59:09 -0400
+Message-Id: <m0zRiFI-0007U1C@the-village.bc.nu>
+From: alan@lxorguk.ukuu.org.uk (Alan Cox)
 Subject: Re: network nicety
-In-Reply-To: <m0zRfh1-0007U1C@the-village.bc.nu>
-Message-ID: <Pine.LNX.3.96.981009113809.644E-100000@twin.uoregon.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: rhw@bigfoot.com (Riley Williams)
+Date: Fri, 9 Oct 1998 20:30:36 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.rutgers.edu
+In-Reply-To: <Pine.LNX.3.96.981009191551.26970I-100000@ps.cus.umist.ac.uk> from "Riley Williams" at Oct 9, 98 07:20:33 pm
+Content-Type: text
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-On Fri, 9 Oct 1998, Alan Cox wrote:
+>  2. Does Linux apply it automatically when the remote end is also a
+>     Linux system? If not, there's little incentive for others to
+>     also support it.
 
-> > Sure - you're saying that just because you're downloading an
-> > application for a customer, nobody else should be able to use that
-> > link - and I have to say that I disagree with that viewpoint.
-> 
-> TCP/IP doesnt claim to be fair
-> 
-> > IMHO, the fact that an FTP transfer will automatically grab 100% of
-> > the bandwidth of one's primary link given the slightest chance can
-> > only be bad - and the same applies to any other protocol. What I'd
-> > like to see is some form of bandwidth limiting system which prevents
-> > any one protocol from grabbing more than 90% of the bandwidth to
-> > itself, but which allows any protocol to use all otherwise unused
-> > bandwidth if it needs it, but automatically relinquishes the excess
-> > bandwidth as soon as anything else needs it.
+It isnt automatic. CBQ is a policy driven system. You get to set policy
+according to local needs. Thats one of the problems you need to then
+talk to the other end to pass policy (and also potentially along paths
+packets are taking).
 
-If you're running RED enabled router images your tcp connections should
-rate adjust quite well provided they lose enough packets. RED unlike most
-diffserv/qos schemes you might choose to implement is quite cpu efficient
-in terms queue management. Now that Van has moved  from lbnl to cisco
-maybe we'll see some more schemes with wider adoption.
- 
-> Its called CBQ and Linux 2.1.x supports it. Don't expect ISP end user
-> ports to support it in the next 5 years however, $10/month customers arent
-> worth the CPU cost of such things
-> 
-> Alan
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.rutgers.edu
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
+If you control both directions from a routing point then CBQ can
+be a huge help as can other flow control schemes like RED (random
+early drop - a simple scheme that punishes the highest bandwidth
+users when congestion is occuring)
 
--------------------------------------------------------------------------- 
-Joel Jaeggli				       joelja@darkwing.uoregon.edu    
-Academic User Services			     consult@gladstone.uoregon.edu
-     PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E
---------------------------------------------------------------------------
-It is clear that the arm of criticism cannot replace the criticism of
-arms.  Karl Marx -- Introduction to the critique of Hegel's Philosophy of
-the right, 1843.
-
+Alan
 
 
 -

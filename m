@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316882AbSHATFy>; Thu, 1 Aug 2002 15:05:54 -0400
+	id <S316786AbSHATO5>; Thu, 1 Aug 2002 15:14:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316887AbSHATFy>; Thu, 1 Aug 2002 15:05:54 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:27667 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S316882AbSHATFy>; Thu, 1 Aug 2002 15:05:54 -0400
-Date: Thu, 1 Aug 2002 12:09:04 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: David Howells <dhowells@redhat.com>
-cc: <alan@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: manipulating sigmask from filesystems and drivers
-In-Reply-To: <15189.1028116363@warthog.cambridge.redhat.com>
-Message-ID: <Pine.LNX.4.33.0208011203010.3000-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316855AbSHATO5>; Thu, 1 Aug 2002 15:14:57 -0400
+Received: from tapu.f00f.org ([66.60.186.129]:20150 "EHLO tapu.f00f.org")
+	by vger.kernel.org with ESMTP id <S316786AbSHATOz>;
+	Thu, 1 Aug 2002 15:14:55 -0400
+Date: Thu, 1 Aug 2002 12:18:24 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Chris Friesen <cfriesen@nortelnetworks.com>,
+       Benjamin LaHaise <bcrl@redhat.com>, Pavel Machek <pavel@elf.ucw.cz>,
+       Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
+       linux-aio@kvack.org
+Subject: Re: [rfc] aio-core for 2.5.29 (Re: async-io API registration for 2.5.29)
+Message-ID: <20020801191823.GA24428@tapu.f00f.org>
+References: <1028223041.14865.80.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0208010924050.14765-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0208010924050.14765-100000@home.transmeta.com>
+User-Agent: Mutt/1.4i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Aug 01, 2002 at 09:30:04AM -0700, Linus Torvalds wrote:
 
-On Wed, 31 Jul 2002, David Howells wrote:
-> 
-> Can you comment on whether a driver is allowed to block signals like this, and
-> whether they should be waiting in TASK_UNINTERRUPTIBLE?
+    A 2% error may not be a big problem for most people, of course. But it
+    might be a huge problem for others. Those people would have to do their
+    own re-calibration..
 
-They should be waiting in TASK_UNINTERRUPTIBLE, and we should add a flag 
-to distinguish between "increases load average" and "doesn't". So you 
-could have
+How about export the value via a syscall and also export an 'error'
+which for now could just be set to 5% or something conservative and
+refined later if necessary or cleanup on other architectures,
+something like:
 
-	TASK_WAKESIGNAL - wake on all signals
-	TASK_WAKEKILL	- wake on signals that are deadly
-	TASK_NOSIGNAL	- don't wake on signals
-	TASK_LOADAVG	- counts toward loadaverage
+    /* export monotonically increasing nanoseconds since boot to
+       user-space. kt_time is a relative value, it does NOT necessarily
+       imply nanoseconds since boot. kt_err should be greater than
+       1stdev of the error in kt_time */
 
-	#define TASK_UNINTERRUPTIBLE	(TASK_NOSIGNAL | TASK_LOADAVG)
-	#define TASK_INTERRUPTIBLE	TASK_WAKESIGNAL
+    struct kern_time {
+	  __u64 kt_ns;
+	  __u64 kt_err;
+    };
 
-and then people who wanted to could use other combinations. The
-TASK_WAKEKILL thing is useful - there are many loops that cannot exit
-until they have a result, simply because the calling conventions require 
-that. Th emost common example is disk wait.
 
-HOWEVER, if they are killed by a signal, the calling convention doesn't
-matter, and the read() or whatever could just return 0 (knowing that the
-process will never see it), and leave a locked page locked. Things like 
-generic_file_read() could easily use this, and make processes killable 
-even when they are waiting for a hung NFS mount - regardless of any soft 
-mount issues, and without NFS having to have special code.
 
-In the end, I'm too lazy, and I don't care. So I can only tell you how it 
-_should_ be done, and maybe you can tell somebody else until the sucker to 
-actually do it is found.
 
-		Linus
-
+  --cw

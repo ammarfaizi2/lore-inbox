@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265146AbSJPQWS>; Wed, 16 Oct 2002 12:22:18 -0400
+	id <S265163AbSJPQYK>; Wed, 16 Oct 2002 12:24:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265140AbSJPQWS>; Wed, 16 Oct 2002 12:22:18 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:8886 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S265146AbSJPQWR>;
-	Wed, 16 Oct 2002 12:22:17 -0400
-Date: Wed, 16 Oct 2002 18:27:46 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: "David S. Miller" <davem@redhat.com>
-cc: Nikita@Namesys.COM,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-xfs@oss.sgi.com
-Subject: Re: XFS build error on m68k in 2.5.43
-In-Reply-To: <20021016.050031.31945417.davem@redhat.com>
-Message-ID: <Pine.GSO.4.21.0210161827200.9988-100000@vervain.sonytel.be>
+	id <S265164AbSJPQYK>; Wed, 16 Oct 2002 12:24:10 -0400
+Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:7185 "EHLO
+	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id <S265163AbSJPQYG> convert rfc822-to-8bit; Wed, 16 Oct 2002 12:24:06 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: 2.5.43 partition problems?
+Date: Wed, 16 Oct 2002 11:29:57 -0500
+Message-ID: <45B36A38D959B44CB032DA427A6E1064012814E9@cceexc18.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] 2.5.42 cciss partition problem
+Thread-Index: AcJzlzf/NEck1PrSRm+M1G9LBGsm1QBjy3eAAAKfU0A=
+From: "Cameron, Steve" <Steve.Cameron@hp.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <axboe@suse.de>
+X-OriginalArrivalTime: 16 Oct 2002 16:29:57.0642 (UTC) FILETIME=[441D66A0:01C27531]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Oct 2002, David S. Miller wrote:
->    From: Nikita Danilov <Nikita@Namesys.COM>
->    Date: Wed, 16 Oct 2002 15:31:03 +0400
->    
->    Second parameter of xfs_bmbt_disk_set_allf is 0 (zero). Try to replace
->    it with O.
-> 
-> You'll need lots more fixes ever after that, big-endian
-> is pretty broke with the most recent updates.
-> 
-> Here are the fixes I sent to the XFS maintainers.
+I wrote:
+> My patch below works OK for me for 2.5.42.  
+> However, it does NOT work for 2.5.43.  
 
-Thanks!
+Oops.  No, the patch works just fine in 2.5.43.  
+I was just not running the kernel I thought I was running.
 
-With these it compiles again on m68k, too.
+-- steve
 
-Gr{oetje,eeting}s,
 
-						Geert
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+ 

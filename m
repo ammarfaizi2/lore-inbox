@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313617AbSDHNWz>; Mon, 8 Apr 2002 09:22:55 -0400
+	id <S313620AbSDHN26>; Mon, 8 Apr 2002 09:28:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313618AbSDHNWy>; Mon, 8 Apr 2002 09:22:54 -0400
-Received: from [209.202.134.86] ([209.202.134.86]:5395 "EHLO
-	cpemail1.silverbacktech.com") by vger.kernel.org with ESMTP
-	id <S313617AbSDHNWx>; Mon, 8 Apr 2002 09:22:53 -0400
-Message-ID: <E7D41DF26971D51197F100B0D020EFF856076C@kashmir.silverbacktech.com>
-From: Noah White <nwhite@silverbacktech.com>
-To: linux-kernel@vger.kernel.org
-Subject: badblocks, sector/bit copies and other musings
-Date: Mon, 8 Apr 2002 09:19:53 -0400 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	id <S313621AbSDHN25>; Mon, 8 Apr 2002 09:28:57 -0400
+Received: from sv1.valinux.co.jp ([202.221.173.100]:50439 "HELO
+	sv1.valinux.co.jp") by vger.kernel.org with SMTP id <S313620AbSDHN24>;
+	Mon, 8 Apr 2002 09:28:56 -0400
+Date: Mon, 08 Apr 2002 22:29:06 +0900 (JST)
+Message-Id: <20020408.222906.10292799.taka@valinux.co.jp>
+To: nfs@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: [NFS][PATCH] zerocopy NFS
+From: Hirokazu Takahashi <taka@valinux.co.jp>
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello
 
-Greetings,
+I'm tuning knfsd and I implemented zerocopy knfsd.
+Everyone knows knfsd copies file data many times,
+so I tried to reduce the copies. 
+nfsd_read() doesn't copy filedata anymore.
+This works pretty fine and performance is improved.
 
-I had some general questions regarding how the kernel/fs handle bad blocks
-and such and how that relates to various copying techniques such as Norton
-Ghost, hardware disk duplicators (the old octopus's) and such.
+Following patches patches are against linux 2.5.7
 
-Specifically, I'm curious as to how the following situation is handled. If I
-have:
+ftp:/ftp.valinux.co.jp/pub/people/taka/tune/2.5.7/va01-knfsd-zerocopy-vfsread-2.5.7.patch
+ftp:/ftp.valinux.co.jp/pub/people/taka/tune/2.5.7/va02-kmap-multplepages-2.5.7.patch
 
-drive A which is say a 30 GB IDE drive which I've built in a standard
-fashion with the 2.2.12-20 kernel and created two ext-2 partitions and one
-swap partition
+I also have patches against linux 2.4.18
 
-drive b which is also the same model 30 GB IDE drive which is empty and has
-no file system on it OR has a windows file system (FAT or NTFS) 
+ftp:/ftp.valinux.co.jp/pub/people/taka/tune/2.4.18/va01-knfsd-zerocopy-vfsread-2.4.18.patch
+ftp:/ftp.valinux.co.jp/pub/people/taka/tune/2.4.18/va02-kmap-multplepages-2.4.18.patch
 
-Now in the case of copying drive A onto drive B using a sector or bit copy
-technique and I:
 
-1) Use Ghost with sector copy mode OR
-2) Use a hardware harness which does a straight bit copy of the drive (and
-is non-file system aware)
+Now I'm designing new mechanism to send pagecache directly 
+using sendpage.
 
-How will the bad blocks be mapped? From the file system perspective will
-drive B think its bad blocks are the same as drive A thus setting drive B up
-for possible errors because its bad block mappings are incorrect?
+I'm waiting for your comments.
 
-This leads to my ultimate question which is what is the safest and fastest
-way to dup a linux/ext-2 drive? 
 
-Thanks in advance,
-
--Noah
-
+Regards,
+Hirokazu Takahashi
+VP Engineering Dept.
+VA Linux Systems Japan

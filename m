@@ -1,71 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265152AbTFYWzA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 18:55:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265153AbTFYWy7
+	id S265153AbTFYW43 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 18:56:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265157AbTFYW42
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 18:54:59 -0400
-Received: from relay1.enom.com ([66.150.5.205]:30483 "EHLO Relay1.enom.com")
-	by vger.kernel.org with ESMTP id S265152AbTFYWyx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 18:54:53 -0400
-Message-ID: <20030625160902-146400041>
-Message-ID: <3EFA2B83.3090305@homemail.com>
-Date: Thu, 26 Jun 2003 09:08:51 +1000
-From: "D. Sen" <dsen@homemail.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030425
-X-Accept-Language: en-us, en
+	Wed, 25 Jun 2003 18:56:28 -0400
+Received: from msgbas1x.cos.agilent.com ([192.25.240.36]:44777 "EHLO
+	msgbas1x.cos.agilent.com") by vger.kernel.org with ESMTP
+	id S265153AbTFYW4Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 18:56:25 -0400
+Message-ID: <334DD5C2ADAB9245B60F213F49C5EBCD05D551DA@axcs03.cos.agilent.com>
+From: yiding_wang@agilent.com
+To: tony.luck@intel.com
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: 2.5.72 doesn't boot
+Date: Wed, 25 Jun 2003 17:10:31 -0600
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: vaxerdec@frontiernet.net
-Subject: Re: ide-scsi on 2.4.21 (on IBM Thinkpad T30)
-References: <3EF753EC.9080807@homemail.com>
-In-Reply-To: <3EF753EC.9080807@homemail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Jun 2003 23:09:03.0553 (UTC) FILETIME=[C5167310:01C33B6E]
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Do you have ide-scsi built as a module though?
+Tony,
 
-I use hdc=ide-scsi (or hdc=scsi) as a boot parameter too. But the 
-difference seems to be whether you have ide-scsi built as a module or 
-into the kernel. The reason I think I chose to have it as a module all 
-these years (on previous thinkpads as well) was so I could remove the 
-module and swap the dvd/cd-rw for another device.
+It works and great thanks!
 
-I haven't had a problem with this configuration(hdc=ide-scsi and loading 
-the module through modules.conf) with any of the previous stable 
-releases of the kernel (pre 2.4.21.)
+Eddie  
 
-Scott McDermott wrote:
-
- >I probably have the same CD-RW that you do (in the T30) and
- >I just use hdc=ide-scsi on kernel command line, no need for
- >manually loading. Works fine but don't try burning with
- >magicdev running :)
-
-D. Sen wrote:
-> Kernel 2.4.21 causes hangs and/or ooops during boot up if I have a 
-> "probeall scsi_hostadapter ide-scsi" in my /etc/modules.conf. If I take 
-> out that line and manually load the module after the laptop has booted, 
-> everything is fine.
+> -----Original Message-----
+> From: Luck, Tony [mailto:tony.luck@intel.com]
+> Sent: Wednesday, June 25, 2003 11:58 AM
+> To: yiding_wang@agilent.com
+> Subject: Re: 2.5.72 doesn't boot
 > 
-> There were no such problems in 2.4.20 or earlier kernels.
 > 
-> Please cc me any responses as I am not on the mailing list.
+> I was seeing the same issue.  I also tried the CONFIG_INPUT,
+> CONFIG_VGA_CONSOLE etc.  changed that were suggested
+> on this list ... with no effect.
 > 
-> DS
+> A colleague gave me this ".config" file which worked for him, and
+> I made minimal changes using "make menuconfig" to adjust for
+> my machine (just cpu type) ... and got a bootable kernel.
 > 
-
--- 
----------------------------------------
-D. Sen,
-21 Woodmont Drive
-Randolph
-NJ 07869
-Home Email: dsen@homemail.com   Tel: 973 216 2326
-Work Email: dsen@ieee.org       Web: http://www.auditorymodels.org/~dsen
-
-
+> Sadly I forgot to save my original .config file, so I can't see
+> what changed.  But you could try to repeat the experiment.
+> 
+> -Tony Luck  
+> 
+> 

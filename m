@@ -1,96 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131460AbREIUVP>; Wed, 9 May 2001 16:21:15 -0400
+	id <S131481AbREIUXZ>; Wed, 9 May 2001 16:23:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131481AbREIUVG>; Wed, 9 May 2001 16:21:06 -0400
-Received: from Huntington-Beach.Blue-Labs.org ([208.179.59.198]:18773 "EHLO
-	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S131460AbREIUUt>; Wed, 9 May 2001 16:20:49 -0400
-Message-ID: <3AF9A65F.4050208@blue-labs.org>
-Date: Wed, 09 May 2001 13:19:43 -0700
-From: David <david@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.5-pre1 i686; en-US; rv:0.9) Gecko/20010505
+	id <S131497AbREIUXQ>; Wed, 9 May 2001 16:23:16 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:50087 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S131481AbREIUXE>;
+	Wed, 9 May 2001 16:23:04 -0400
+Message-ID: <3AF9A726.BF819B30@mandrakesoft.com>
+Date: Wed, 09 May 2001 16:23:02 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: david chan <cat@waulogy.stanford.edu>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        emu10k1-devel@opensource.creative.com,
-        Ed Okerson <eokerson@quicknet.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fixes for Incorrect kmalloc() Sizes
-In-Reply-To: <Pine.LNX.4.30.0105082303170.23207-100000@waulogy.stanford.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Pavel Roskin <proski@gnu.org>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Patch to make ymfpci legacy address 16 bits
+In-Reply-To: <Pine.LNX.4.33.0105091553530.2104-100000@fonzie.nine.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The kernel ixj.c and associated files are severely out of date and cause 
-hard machine hangs when used (kernel 2.4.n).  I suggest that the files 
-in the telephony directory be brought up to date with the current CVS 
-code.  At least the CVS code only causes an OOPS and doesn't kill the 
-whole machine.
+Pavel Roskin wrote:
+> If you want to play further with APM and ymfpci, I made a stub for proper
+> apm support in the ymfpci driver. It's available here:
+> 
+> http://www.red-bean.com/~proski/linux/ymfpci_pm.diff
 
-David
-
-david chan wrote:
-
->Hi,
->
->These two patches fix silly kmalloc errors that allocate too little space.
->
->
->Thank you,
->David Chan
->
->
->---snip---
->--- drivers/sound/emu10k1/midi.c.orig	Fri Feb  9 11:30:23 2001
->+++ drivers/sound/emu10k1/midi.c	Tue May  8 19:43:43 2001
->@@ -56,7 +56,7 @@
-> {
-> 	struct midi_hdr *midihdr;
->
->-	if ((midihdr = (struct midi_hdr *) kmalloc(sizeof(struct midi_hdr
->*), GFP_KERNEL)) == NULL) {
->+	if ((midihdr = (struct midi_hdr *) kmalloc(sizeof(struct
->midi_hdr), GFP_KERNEL)) == NULL) {
-> 		ERROR();
-> 		return -EINVAL;
-> 	}
->@@ -328,7 +328,7 @@
-> 	if (!access_ok(VERIFY_READ, buffer, count))
-> 		return -EFAULT;
->
->-	if ((midihdr = (struct midi_hdr *) kmalloc(sizeof(struct midi_hdr
->*), GFP_KERNEL)) == NULL)
->+	if ((midihdr = (struct midi_hdr *) kmalloc(sizeof(struct
->midi_hdr), GFP_KERNEL)) == NULL)
-> 		return -EINVAL;
->
-> 	midihdr->bufferlength = count;
->---snip---
->
->---snip---
->--- drivers/telephony/ixj.c.orig	Tue May  8 20:00:07 2001
->+++ drivers/telephony/ixj.c	Tue May  8 20:00:25 2001
->@@ -4475,7 +4475,7 @@
-> {
-> 	IXJ_FILTER_CADENCE *lcp;
->
->-	lcp = kmalloc(sizeof(IXJ_CADENCE), GFP_KERNEL);
->+	lcp = kmalloc(sizeof(IXJ_FILTER_CADENCE), GFP_KERNEL);
-> 	if (lcp == NULL)
-> 		return -ENOMEM;
-> 	if (copy_from_user(lcp, (char *) cp, sizeof(IXJ_FILTER_CADENCE)))
->---snip---
->
->
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
+Why not use pci_driver::{suspend,resume} ?
 
 
+> You may need to save some data in memory when the system goes to suspend
+> and restore them afterwards. I believe that the PCI config space should be
+> saved by BIOS. Everything else is the responsibility of the driver.
+
+In ACPI land the kernel should save and restore the PCI device config
+space and the PCI bus config space.  It is probably that similar is
+necessary under APM.
+
+	Jeff
+
+
+-- 
+Jeff Garzik      | Game called on account of naked chick
+Building 1024    |
+MandrakeSoft     |

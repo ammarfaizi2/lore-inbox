@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261325AbVBNBQp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261329AbVBNBcP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261325AbVBNBQp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Feb 2005 20:16:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbVBNBQp
+	id S261329AbVBNBcP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Feb 2005 20:32:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261330AbVBNBcP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Feb 2005 20:16:45 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:45259 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261325AbVBNBQn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Feb 2005 20:16:43 -0500
-Date: Sun, 13 Feb 2005 20:16:41 -0500
-From: Dave Jones <davej@redhat.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Philippe Elie <phil.el@wanadoo.fr>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Oops with oprofile + RT preempt 2.6.11-rc2-RT-V0.7.37-01
-Message-ID: <20050214011641.GB29408@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Lee Revell <rlrevell@joe-job.com>, Ingo Molnar <mingo@elte.hu>,
-	Philippe Elie <phil.el@wanadoo.fr>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <1108274835.3739.2.camel@krustophenia.net> <20050213130058.GA566@zaniah> <20050213133020.GA16363@elte.hu> <1108342535.25912.20.camel@krustophenia.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 13 Feb 2005 20:32:15 -0500
+Received: from smtp809.mail.sc5.yahoo.com ([66.163.168.188]:17824 "HELO
+	smtp809.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261329AbVBNBcM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Feb 2005 20:32:12 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Stephen Evanchik <evanchsa@gmail.com>
+Subject: Re: PATCH 2.6.11-rc4]: IBM TrackPoint configuration support
+Date: Sun, 13 Feb 2005 20:31:01 -0500
+User-Agent: KMail/1.7.2
+Cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+References: <a71293c2050213163253b9b98f@mail.gmail.com>
+In-Reply-To: <a71293c2050213163253b9b98f@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1108342535.25912.20.camel@krustophenia.net>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200502132031.02214.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 13, 2005 at 07:55:35PM -0500, Lee Revell wrote:
- > On Sun, 2005-02-13 at 14:30 +0100, Ingo Molnar wrote:
- > > * Philippe Elie <phil.el@wanadoo.fr> wrote:
- > > 
- > > > oprofile_ops.cpu_type == NULL, this has been fixed 3 weeks ago, can
- > > > you retry with -rc4 ?
- > > 
- > > i've uploaded an -rc4 port of the -RT tree half an hour ago (-39-00).
- > > 
- > 
- > OK, I will test that.  FWIW I was running with PREEMPT_DESKTOP.
- > 
- > Maybe my CPU being a Cyrix III (VIA EPIA board) has something to do with
- > it.  I noticed that this CPU model is not mentioned on the oprofile web
- > site.
+On Sunday 13 February 2005 19:32, Stephen Evanchik wrote:
+> Here is the latest IBM TrackPoint patch. I believe I made all of the
+> necessary changes in this release including the removal of the
+> middle-to-scroll functionality. One item I didn't address was a
+> comment about checking the return code of ps2_command ..
+> 
+> I looked at other usages and it wasn't clear to me how to actually
+> implement something that is sane. In some places an error causes a
+> return out of the function and in others the return value is ignored.
+> Should I check each return value or the first ?
 
-The C3 doesn't have any performance counters that oprofile can use.
+I would check all 3 ps2_command calls in trackpoint_init and leave
+the rest as is.
 
-		Dave
+One more thing - I'd like to see more descriptive names of sysfs
+attributes, for example I'd change "ptson" to "press_to_select",
+"mb" to "middle_btn", etc.
 
+-- 
+Dmitry

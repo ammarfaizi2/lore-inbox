@@ -1,102 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268089AbUIBQKT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268146AbUIBQNL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268089AbUIBQKT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 12:10:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268220AbUIBQKT
+	id S268146AbUIBQNL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 12:13:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268442AbUIBQNK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 12:10:19 -0400
-Received: from atlrel7.hp.com ([156.153.255.213]:8587 "EHLO atlrel7.hp.com")
-	by vger.kernel.org with ESMTP id S268089AbUIBQJl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 12:09:41 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Vojtech Pavlik <vojtech@suse.cz>, Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] allow i8042 register location override
-Date: Thu, 2 Sep 2004 10:09:23 -0600
-User-Agent: KMail/1.6.2
-Cc: Alessandro Rubini <rubini@ipvvis.unipv.it>, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Thu, 2 Sep 2004 12:13:10 -0400
+Received: from mail.shareable.org ([81.29.64.88]:54986 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S268220AbUIBQMy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 12:12:54 -0400
+Date: Thu, 2 Sep 2004 17:11:30 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
+       Hans Reiser <reiser@namesys.com>,
+       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       linux-fsdevel@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: The argument for fs assistance in handling archives (was: silent semantic changes with reiser4)
+Message-ID: <20040902161130.GA24932@mail.shareable.org>
+References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <1094118362.4847.23.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409021009.23280.bjorn.helgaas@hp.com>
+In-Reply-To: <1094118362.4847.23.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Allow the default i8042 register locations to be changed at run-time.
-This is a prelude to adding discovery via the ACPI namespace.
+Alan Cox wrote:
+> On Mer, 2004-09-01 at 21:50, Linus Torvalds wrote:
+> > and quite frankly, I think you can do the above pretty much totally in
+> > user space with a small library and a daemon (in fact, ignoring security
+> > issues you probably don't even need the daemon). And if you can prototype
+> > it like that, and people actually find it useful, I suspect kernel support
+> > for better performance might be possible.
+> 
+> Gnome already supports this in the gnome-vfs2 layer. "MC" has supported
+> it since the late 1990's.
 
-Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Firstly, if I have to do it from a Gnome program, about the only
+program where looking in a tar file is visibly useful is Nautilus.
+Ironically, clicking on a tar file in Nautilus doesn't work, despite
+having a dependency on gnome-vfs2. :/
 
-diff -u -ur 2.6.9-rc1-mm2/drivers/input/serio/i8042-io.h 2.6.9-rc1-mm2-kbd1/drivers/input/serio/i8042-io.h
---- 2.6.9-rc1-mm2/drivers/input/serio/i8042-io.h	2004-09-02 09:49:05.000000000 -0600
-+++ 2.6.9-rc1-mm2-kbd1/drivers/input/serio/i8042-io.h	2004-09-02 09:50:26.000000000 -0600
-@@ -36,32 +36,36 @@
- #endif
- 
- /*
-- * Register numbers.
-+ * Register numbers (may be overridden)
-  */
- 
- #define I8042_COMMAND_REG	0x64	
- #define I8042_STATUS_REG	0x64	
- #define I8042_DATA_REG		0x60
- 
-+extern unsigned long i8042_command_reg;
-+extern unsigned long i8042_status_reg;
-+extern unsigned long i8042_data_reg;
-+
- static inline int i8042_read_data(void)
- {
--	return inb(I8042_DATA_REG);
-+	return inb(i8042_data_reg);
- }
- 
- static inline int i8042_read_status(void)
- {
--	return inb(I8042_STATUS_REG);
-+	return inb(i8042_status_reg);
- }
- 
- static inline void i8042_write_data(int val)
- {
--	outb(val, I8042_DATA_REG);
-+	outb(val, i8042_data_reg);
- 	return;
- }
- 
- static inline void i8042_write_command(int val)
- {
--	outb(val, I8042_COMMAND_REG);
-+	outb(val, i8042_command_reg);
- 	return;
- }
- 
-diff -u -ur 2.6.9-rc1-mm2/drivers/input/serio/i8042.c 2.6.9-rc1-mm2-kbd1/drivers/input/serio/i8042.c
---- 2.6.9-rc1-mm2/drivers/input/serio/i8042.c	2004-09-02 09:49:05.000000000 -0600
-+++ 2.6.9-rc1-mm2-kbd1/drivers/input/serio/i8042.c	2004-09-02 09:49:50.000000000 -0600
-@@ -106,6 +106,10 @@
- static struct timer_list i8042_timer;
- static struct platform_device *i8042_platform_device;
- 
-+static unsigned long i8042_command_reg = I8042_COMMAND_REG;
-+static unsigned long i8042_status_reg = I8042_STATUS_REG;
-+static unsigned long i8042_data_reg = I8042_DATA_REG;
-+
- /*
-  * Shared IRQ's require a device pointer, but this driver doesn't support
-  * multiple devices
-@@ -650,10 +654,7 @@
- 	}
- 
- 	printk(KERN_INFO "serio: i8042 %s port at %#lx,%#lx irq %d\n",
--	       values->name,
--	       (unsigned long) I8042_DATA_REG,
--	       (unsigned long) I8042_COMMAND_REG,
--	       values->irq);
-+	       values->name, i8042_data_reg, i8042_command_reg, values->irq);
- 
- 	serio_register_port(port);
- 
+Secondly, no, Gnome and MC don't support entering a container file,
+letting you make changes in it, and remembering those changes to
+_lazily_ regenerate the container file when you need it linearized,
+possibly months later or never, by some unrelated program.
+
+Thirdly, you must be referring to the Gnome versions of Bash, Make,
+GCC, coreutils and Perl which I haven't found.  Perhaps we have a
+different idea of what "supports this" means :)
+
+uservfs, which is based on gnome-vfs and getting a bit rusty due to
+disuse, does try to solve the last problem.  Unfortunately it needs
+further work to have a nicer interface, and the second problem is
+still not solved by gnome-vfs.
+
+-- Jamie

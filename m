@@ -1,69 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261305AbTEKMRA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 08:17:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbTEKMRA
+	id S261231AbTEKMUs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 08:20:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbTEKMUs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 08:17:00 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:12778 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261305AbTEKMQ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 08:16:58 -0400
-Date: Sun, 11 May 2003 14:29:35 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Dave Jones <davej@codemonkey.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [patch] 2.5.69-dj1: agp_init shouldn't be static
-Message-ID: <20030511122934.GH1107@fs.tum.de>
-References: <20030510145653.GA26216@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030510145653.GA26216@suse.de>
-User-Agent: Mutt/1.4.1i
+	Sun, 11 May 2003 08:20:48 -0400
+Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:22914
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id S261231AbTEKMUr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 08:20:47 -0400
+Date: Sun, 11 May 2003 08:24:16 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Gregoire Favre <greg@ulima.unil.ch>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.69 and ide-floppy errors
+In-Reply-To: <20030511122503.GA10013@ulima.unil.ch>
+Message-ID: <Pine.LNX.4.50.0305110822360.15337-100000@montezuma.mastecende.com>
+References: <20030511122503.GA10013@ulima.unil.ch>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 11 May 2003, Gregoire Favre wrote:
 
--dj makes agp_init static resulting in the following error at the final 
-linking:
+> May 11 14:19:18 localhost kernel: ide_tcq_intr_timeout: timeout waiting for completion interrupt
+> May 11 14:19:18 localhost kernel: hda: invalidating tag queue (0 commands)
+> May 11 14:19:18 localhost kernel: hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+> May 11 14:19:18 localhost kernel: hda: drive_cmd: error=0x04 { DriveStatusError }
+> May 11 14:19:18 localhost kernel: hdb: status error: status=0x58 { DriveReady SeekComplete DataRequest }
+> May 11 14:19:18 localhost kernel: hdb: drive not ready for command
+> 
+> ???
+> That with my ZIP 250 on a MSI Max2-BLR mother board...
+> Otherwise, it seems to works pretty good ;-)
 
+ide_tcq_intr_timeout with a ZIP disk? Oh my.
 
-<--  snip  -->
-
-...
-386/oprofile/built-in.o  net/built-in.o --end-group  -o .tmp_vmlinux1
-drivers/built-in.o(.init.text+0x6b584): In function `i810fb_init':
-: undefined reference to `agp_init'
-make: *** [.tmp_vmlinux1] Error 1
-
-<--  snip  -->
-
-
-The following patch fixes it:
-
-
---- linux-2.5.69-dj1/drivers/char/agp/backend.c.old	2003-05-11 14:12:29.000000000 +0200
-+++ linux-2.5.69-dj1/drivers/char/agp/backend.c	2003-05-11 14:13:30.000000000 +0200
-@@ -307,7 +307,7 @@
- EXPORT_SYMBOL_GPL(agp_remove_bridge);
- 
- 
--static int __init agp_init(void)
-+int __init agp_init(void)
- {
- 	printk(KERN_INFO "Linux agpgart interface v%d.%d (c) Dave Jones\n",
- 	       AGPGART_VERSION_MAJOR, AGPGART_VERSION_MINOR);
-
-
-
-cu
-Adrian
+CONFIG_BLK_DEV_IDE_TCQ ?
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+function.linuxpower.ca

@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282303AbRKZTFd>; Mon, 26 Nov 2001 14:05:33 -0500
+	id <S282018AbRKZSeO>; Mon, 26 Nov 2001 13:34:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282329AbRKZTDp>; Mon, 26 Nov 2001 14:03:45 -0500
-Received: from host213-123-133-159.in-addr.btopenworld.com ([213.123.133.159]:17158
-	"EHLO ambassador.mathewson.int") by vger.kernel.org with ESMTP
-	id <S282062AbRKZTCP>; Mon, 26 Nov 2001 14:02:15 -0500
-Message-Id: <200111261902.fAQJ27U09373@ambassador.mathewson.int>
-Subject: Loopback sound driver?
-To: linux-kernel@vger.kernel.org
-From: Joseph Mathewson <joe@mathewson.co.uk>
-Reply-to: joe.mathewson@btinternet.com
-Date: Mon, 26 Nov 2001 19:02:06 -0000
-X-Mailer: TiM infinity-ALPHA6-rc0.9-jjm
-X-TiM-Client: 192.168.0.108 [192.168.0.108]
-Content-Transfer-Encoding: quoted-printable
+	id <S282013AbRKZScv>; Mon, 26 Nov 2001 13:32:51 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:14855 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S282011AbRKZScB>; Mon, 26 Nov 2001 13:32:01 -0500
+Date: Mon, 26 Nov 2001 15:14:33 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Olaf Hering <olh@suse.de>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] net/802/Makefile
+In-Reply-To: <20011126140645.B3014@suse.de>
+Message-ID: <Pine.LNX.4.21.0111261514070.13961-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Has anyone yet written a loopback sound driver, that is a module that provides a
-"fake" /dev/dsp that will actually save sound to file on disk rather than
-playing thru a hardware sound card.  Or am I being stupid here?  Is there some
-/dev trick I can play?
 
-If no such module exists, could a kind soul point me at sound module
-documentation/API.  I can find a lot of compatibility lists, but little
-programming reference.  Or is there a very simple sound card driver that could
-be used as a starting point?
+Olaf, 
 
-Thanks
 
-Joe.
+Let the correction come to me through the 802 maintainer, please. 
 
-+-------------------------------------------------+
-| Joseph Mathewson <joe@mathewson.co.uk>          |
-+-------------------------------------------------+
+On Mon, 26 Nov 2001, Olaf Hering wrote:
+
+> Hi,
+> 
+> the build stops when cl2llc.c has no write permissions.
+> 
+> diff -urN linuxppc_2_4/net/802/Makefile.broken linuxppc_2_4/net/802/Makefile
+> --- linuxppc_2_4/net/802/Makefile.broken        Mon Nov 26 13:28:56 2001
+> +++ linuxppc_2_4/net/802/Makefile       Mon Nov 26 13:51:10 2001
+> @@ -57,4 +57,5 @@
+>  include $(TOPDIR)/Rules.make
+>  
+>  cl2llc.c: cl2llc.pre
+> +       chmod u+w cl2llc.c
+>         sed -f ./pseudo/opcd2num.sed cl2llc.pre >cl2llc.c
+> 
+> 
+> 
+> Gruss Olaf
+> 
+> -- 
+>  $ man clone
+> 
+> BUGS
+>        Main feature not yet implemented...
+> 
+

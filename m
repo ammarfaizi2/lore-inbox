@@ -1,66 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264029AbTH1Oyb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 10:54:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263894AbTH1Oya
+	id S264022AbTH1Oz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 10:55:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264025AbTH1Oz3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 10:54:30 -0400
-Received: from port-212-202-185-245.reverse.qdsl-home.de ([212.202.185.245]:7819
-	"EHLO gw.localnet") by vger.kernel.org with ESMTP id S264029AbTH1Oy1
+	Thu, 28 Aug 2003 10:55:29 -0400
+Received: from port-212-202-185-245.reverse.qdsl-home.de ([212.202.185.245]:10379
+	"EHLO gw.localnet") by vger.kernel.org with ESMTP id S264022AbTH1OzT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 10:54:27 -0400
-Message-ID: <3F4E17ED.8070801@trash.net>
-Date: Thu, 28 Aug 2003 16:55:41 +0200
+	Thu, 28 Aug 2003 10:55:19 -0400
+Message-ID: <3F4E1823.7060600@trash.net>
+Date: Thu, 28 Aug 2003 16:56:35 +0200
 From: Patrick McHardy <kaber@trash.net>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030714 Debian/1.4-2
 X-Accept-Language: en
 MIME-Version: 1.0
-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>,
+To: Hans Lambrechts <hans.lambrechts@skynet.be>
+CC: linux-kernel@vger.kernel.org,
        Netfilter Development Mailinglist 
 	<netfilter-devel@lists.netfilter.org>
-Subject: Re: 2.4.22-bk2 and 2.4.23-pre1 broke routing
-References: <20030828140549.GA698@rdlg.net>
-In-Reply-To: <20030828140549.GA698@rdlg.net>
+Subject: Re: Linux 2.4.23-pre1
+References: <pcKD.6BP.19@gated-at.bofh.it> <200308280850.h7S8oxGx001862@pc.skynet.be>
+In-Reply-To: <200308280850.h7S8oxGx001862@pc.skynet.be>
 Content-Type: multipart/mixed;
- boundary="------------020901090604030400000205"
+ boundary="------------010606010609010307090100"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------020901090604030400000205
+--------------010606010609010307090100
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Please try this patch, i think it should fix it.
+Please try this patch.
 
 Regards,
 Patrick
 
-Robert L. Harris wrote:
+Hans Lambrechts wrote:
 
->I'm running 2.4.22 now and have a NAT behind my firewall as well as IPv6
->happily run through unixcore.com.  I upgraded to 2.4.22-bk2 last night
->to fix an odd problem where I can't ssh-6 to one host.  All of a sudden
->it all works within the nat but nothing behind the firewall can get out
->from behind to the real work though the firewall still can.  Recompiled
->trying 2.4.23-pre1 and I get the exact same behavior.  All 3 use the
->same .config file.
+>Greetings,
 >
->The only noticable change I can see is a bunch of messages:
+>  
 >
->Aug 27 22:09:10 wally kernel: MASQUERADE: No route: Rusty's brain broke!
->Aug 27 22:09:16 wally kernel: MASQUERADE: No route: Rusty's brain broke!
->Aug 27 22:09:16 wally kernel: MASQUERADE: No route: Rusty's brain broke!
+>>Harald Welte:
+>>  o [NETFILTER]: Backport iptables AH/ESP fixes from 2.6.x
+>>  o [NETFILTER]: Fix uninitialized return in iptables tftp
+>>  o [NETFILTER]: NAT optimization
+>>  o [NETFILTER]: Conntrack optimization (LIST_DELETE)
+>>
+>>    
+>>
 >
 >
->As soon as I reverted to 2.4.22 everything works great again.  Attaching
->my .config.  Please contact me directly if you need any additional
->testing done.
+>I see this in my log:
+>
+>Aug 28 10:45:44 pc kernel: MASQUERADE: No route: Rusty's brain broke!
+>Aug 28 10:46:10 pc last message repeated 13 times
+>Aug 28 10:48:42 pc kernel: NET: 1 messages suppressed.
+>Aug 28 10:48:42 pc kernel: MASQUERADE: No route: Rusty's brain broke!
+>Aug 28 10:48:43 pc kernel: MASQUERADE: Route sent us somewhere else.
+>
+>Forwarding and masquerading doesn't work anymore.
+>
+>Hans
 >  
 >
 
---------------020901090604030400000205
+--------------010606010609010307090100
 Content-Type: text/plain;
  name="x.diff"
 Content-Transfer-Encoding: 7bit
@@ -79,5 +86,5 @@ Content-Disposition: inline;
                  /* Funky routing can do this. */
                  if (net_ratelimit())
 
---------------020901090604030400000205--
+--------------010606010609010307090100--
 

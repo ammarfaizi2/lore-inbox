@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261945AbVCZDwe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261934AbVCZDw0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261945AbVCZDwe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 22:52:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbVCZDwa
+	id S261934AbVCZDw0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 22:52:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbVCZDwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 22:52:30 -0500
-Received: from stat16.steeleye.com ([209.192.50.48]:23212 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261932AbVCZDwZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 25 Mar 2005 22:52:25 -0500
-Subject: Re: [PATCH 6/7] - MPT FUSION - SPLITTING SCSI HOST DRIVERS
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: "Moore, Eric Dean" <Eric.Moore@lsil.com>
-Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <91888D455306F94EBD4D168954A9457C01B70565@nacos172.co.lsil.com>
-References: <91888D455306F94EBD4D168954A9457C01B70565@nacos172.co.lsil.com>
-Content-Type: text/plain
-Date: Fri, 25 Mar 2005 21:52:17 -0600
-Message-Id: <1111809137.5541.7.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Received: from terminus.zytor.com ([209.128.68.124]:9117 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S261934AbVCZDwX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Mar 2005 22:52:23 -0500
+Message-ID: <4244DC6A.3020304@zytor.com>
+Date: Fri, 25 Mar 2005 19:52:10 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Phil Lougher <phil.lougher@gmail.com>
+CC: Kyle Moffett <mrmacman_g4@mac.com>, linux-kernel@vger.kernel.org,
+       phillip@lougher.demon.co.uk
+Subject: Re: Squashfs without ./..
+References: <Pine.LNX.4.61.0503221645560.25571@yvahk01.tjqt.qr>	 <20050323174925.GA3272@zero>	 <Pine.LNX.4.62.0503241855350.18295@numbat.sonytel.be>	 <20050324133628.196a4c41.Tommy.Reynolds@MegaCoder.com>	 <d1v67l$4dv$1@terminus.zytor.com>	 <3e74c9409b6e383b7b398fe919418d54@mac.com> <cce9e37e0503251948527d322b@mail.gmail.com>
+In-Reply-To: <cce9e37e0503251948527d322b@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-03-24 at 16:57 -0700, Moore, Eric Dean wrote:
-> +static struct device_attribute mptscsih_queue_depth_attr = {
-> +       .attr = {
-> +               .name =         "queue_depth",
-> +               .mode =         S_IWUSR,
-> +       },
-> +       .store = mpt_core_store_queue_depth,
-> +};
+Phil Lougher wrote:
+> 
+> Making readdir return '.' and '..' is trivially easy, as all the
+> required information to fake '.' and '..' entries are present.
+> 
+> The lack of '.' and '..' entries hasn't caused any problems despite
+> cramfs/squashfs being used for a large number of years.  I'm inclined
+> to believe any application that _relies_ on seeing '.' and '..'
+> returned by readdir is broken.  This situation is easily fixed within
+> the application rather than forcing the filesystem to unnecessarily
+> fake '.' and '..' entries which are never used.
+> 
 
-But in the original which you're removing, this was implemented via the
-change_queue_depth API.
+<sarcasm>
 
-It looks like the patches you're posting are actually an older version
-of the fusion driver.   Do you have the split done on a current copy?
+Yeah, let's fix every broken application on the planet instead of fixing 
+it in one place...
 
-Thanks,
+</sarcasm>
 
-James
-
-
+	-hpa

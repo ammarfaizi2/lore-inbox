@@ -1,113 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265661AbUFXVDE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbUFXVCM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265661AbUFXVDE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 17:03:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265676AbUFXVDD
+	id S262380AbUFXVCM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 17:02:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264821AbUFXVAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 17:03:03 -0400
-Received: from digitalimplant.org ([64.62.235.95]:11468 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S263820AbUFXVAY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 24 Jun 2004 17:00:24 -0400
-Date: Thu, 24 Jun 2004 14:00:17 -0700 (PDT)
-From: Patrick Mochel <mochel@digitalimplant.org>
-X-X-Sender: mochel@monsoon.he.net
-To: Pavel Machek <pavel@ucw.cz>
-cc: kernel list <linux-kernel@vger.kernel.org>,
-       Swsusp mailing list <swsusp-devel@lists.sourceforge.net>
-Subject: Re: SMP support for swsusp (this one actually works for me)
-In-Reply-To: <20040623121727.GA26623@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.50.0406241354340.32272-100000@monsoon.he.net>
-References: <20040623121727.GA26623@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Received: from mailhost.tue.nl ([131.155.2.7]:4619 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S262380AbUFXVAI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 17:00:08 -0400
+Date: Thu, 24 Jun 2004 23:00:05 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Marc-Christian Petersen <m.c.p@kernel.linux-systeme.com>
+Cc: Andries Brouwer <Andries.Brouwer@cwi.nl>,
+       Jason Mancini <xorbe@sbcglobal.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fs/isofs/inode.c, 2-4GB files rejected on DVDs
+Message-ID: <20040624210005.GI3072@pclin040.win.tue.nl>
+References: <1088073870.17691.8.camel@xorbe.dyndns.org> <20040624150122.GB5068@apps.cwi.nl> <200406242058.56469@WOLK>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200406242058.56469@WOLK>
+User-Agent: Mutt/1.4.1i
+X-Spam-DCC: : mailhost.tue.nl 1182; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jun 24, 2004 at 08:58:56PM +0200, Marc-Christian Petersen wrote:
 
-> Here's SMP support for swsusp; this one actually works for me [with
-> keyboard hack], but I'd like more testers. If it looks okay, I'll
-> merge simple pieces with andrew.
+> Do we ever get interleaved files support with linux?
 
-This looks cool, but I have some aesthetic nits about it:
+Well, you know how it is: either you implement this yourself, or
+you provide enough details to enable someone else to implement this.
 
-> --- linux.orig/drivers/input/serio/i8042.c	2004-06-22 12:53:19.000000000 +0200
-> +++ linux/drivers/input/serio/i8042.c	2004-06-22 12:38:06.000000000 +0200
-> @@ -841,12 +841,13 @@
->  		return -1;
->  	}
->
-> +#if 0
-...
-> +#endif
-> +#if 0
-...
-> +#endif
+For example, suppose you dd the first megabyte off your DVD,
+and make it available somewhere, or compress and uuencode and email it,
+that might help.
 
-If that's dead code, why not remove it?
+> prolly ;) totally unrelated to this, but what about this:
+> 
+> Jun 24 20:46:01 codeman kernel: ISO 9660 Extensions: Microsoft Joliet Level 1
+> Jun 24 20:46:01 codeman kernel: Interleaved files not (yet) supported.
+> Jun 24 20:46:01 codeman kernel: File unit size != 0 for ISO file (60133376).
+> Jun 24 20:46:01 codeman kernel: ISOFS: changing to secondary root
+> Jun 24 20:46:01 codeman kernel: Interleaved files not (yet) supported.
+> Jun 24 20:46:01 codeman kernel: File unit size != 0 for ISO file (60135424).
+> 
+> It's a 4,5GB ISO, edited with Magic ISO Maker under Windows, saved it, burned 
+> it. Windows can handle the DVD very well. Linux just says the above and do not 
+> give me any listing of the DVD.
 
-> +#ifdef CONFIG_SMP
-> +extern void smp_freeze(void);
-> +extern void smp_restart(void);
-> +#else
-> +static inline void smp_freeze(void) {}
-> +static inline void smp_restart(void) {}
-> +#endif
+You might try to get more details by undefining BEQUIET (in isofs/inode.c).
 
-Could you name those something more explicit, like swsusp_smp_freeze(),
-etc, so you don't have potential namespace conflicts?
+You might try to give the mount option -o nojoliet.
 
-> +#if 1
->  			do_magic(0);
-> +#else
-> +			device_resume();
-> +#endif
-
-What is this? It looks completely gratuitous.
-
-> --- linux.orig/arch/i386/power/cpu.c	2004-06-22 12:53:19.000000000 +0200
-> +++ linux/arch/i386/power/cpu.c	2004-06-09 14:38:54.000000000 +0200
-
-> -void save_processor_state(void)
-> +void __save_processor_state(struct saved_context *ctxt)
-
-> +void save_processor_state(void)
-> +{
-> +	__save_processor_state(&saved_context);
->  }
-
-This also looks completely gratuitous and confusing - if you're not doing
-anything else but calling the __function, then why even create __function?
-
->  EXPORT_SYMBOL(save_processor_state);
->  EXPORT_SYMBOL(restore_processor_state);
-
-And, why are they exported in the first place?
-
-> %diffstat
->  Documentation/power/swsusp.txt   |    5 +
->  Documentation/power/video.txt    |    4 +
->  arch/i386/kernel/cpu/mtrr/main.c |    3 +
->  arch/i386/kernel/signal.c        |    3 -
->  arch/i386/power/cpu.c            |  109 +++++++++++++++++++++------------------
->  arch/i386/power/swsusp.S         |    4 -
->  arch/x86_64/kernel/time.c        |   31 +++++++++--
->  drivers/acpi/event.c             |   24 +++-----
->  drivers/acpi/thermal.c           |   15 +++++
->  drivers/input/power.c            |   12 ++++
->  drivers/input/serio/i8042.c      |    6 +-
->  include/linux/suspend.h          |    8 ++
->  kernel/power/Makefile            |    1
->  kernel/power/process.c           |    1
->  kernel/power/smp.c               |   85 ++++++++++++++++++++++++++++++
->  kernel/power/swsusp.c            |   78 +++++++++++++++++++--------
->  kernel/signal.c                  |    6 +-
->  17 files changed, 293 insertions(+), 102 deletions(-)
-
-Were there more files to the patch? Some of the ones listed here were not
-in the email?
-
-BTW, nice work.
-
-
-	Pat

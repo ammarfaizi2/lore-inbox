@@ -1,27 +1,25 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131705AbQK2QtT>; Wed, 29 Nov 2000 11:49:19 -0500
+        id <S131721AbQK2QxT>; Wed, 29 Nov 2000 11:53:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131704AbQK2Qs7>; Wed, 29 Nov 2000 11:48:59 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:64693 "EHLO math.psu.edu")
-        by vger.kernel.org with ESMTP id <S131701AbQK2Qsz>;
-        Wed, 29 Nov 2000 11:48:55 -0500
-Date: Wed, 29 Nov 2000 11:18:26 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
+        id <S131704AbQK2QxJ>; Wed, 29 Nov 2000 11:53:09 -0500
+Received: from 213-123-77-235.btconnect.com ([213.123.77.235]:7942 "EHLO
+        penguin.homenet") by vger.kernel.org with ESMTP id <S131687AbQK2Qwz>;
+        Wed, 29 Nov 2000 11:52:55 -0500
+Date: Wed, 29 Nov 2000 16:24:18 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
 To: Hugh Dickins <hugh@veritas.com>
-cc: Andries Brouwer <aeb@veritas.com>, linux-kernel@vger.kernel.org
+cc: Alexander Viro <viro@math.psu.edu>, Andries Brouwer <aeb@veritas.com>,
+        linux-kernel@vger.kernel.org
 Subject: Re: access() says EROFS even for device files if /dev is mounted RO
 In-Reply-To: <Pine.LNX.4.21.0011291533340.4535-100000@localhost.localdomain>
-Message-ID: <Pine.GSO.4.21.0011291051010.14112-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.21.0011291612190.1306-100000@penguin.homenet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
 On Wed, 29 Nov 2000, Hugh Dickins wrote:
-
 > Sorry, I missed the point at issue here, and what changed when.
 > Assuming (perhaps wrongly) it's independent of filesystem type,
 > 
@@ -32,22 +30,31 @@ On Wed, 29 Nov 2000, Hugh Dickins wrote:
 > guess UnixWare as Solaris, can report OpenServer tomorrow.
 > But it looks like a Floridan answer.
 
-It looks like
+Hugh,
 
-	AT&T versions up to SysIII (at least), all UCB versions, Ultrix,
-4.4BSD-derived systems, Solaris, pre-2.2.6 Linux, current 2.4.* Linux:
-if access() says EROFS - open() will also fail with EROFS.
+The classical interpretation of the access(2) system call is "do the same
+type of permission check as open(2) would do but using real uid in the
+credentials instead of effective (or on Linux fs) uid". So, the typical
+logic of access() would be:
 
-HP-UX and 2.2.6-2.2.18-pre*: give false alarm on access() even though they
-allow open().
+duplicate credential structure
+replace euid with ruid (or with fsuid on Linux)
+install this tmp credential in the LWP (or task in Linux)
+do the same sort of lookupname() as open() would do
+restore saved credentials back
 
-I would say that the latter group is badly outnumbered _and_ broken. It's one
-thing when standard sets the bogus historical behaviour in stone, but
-here we introduced bogus behaviour due to misreading the vague language
-used in standard. Historically, on systems that allow write access to devices
-on r/o filesystems access() doesn't return EROFS for devices. Moreover, that's
-what one might reasonably expect and there are programs relying on that.
-Principle of minimal surprise and all such...
+All I am saying is that if open on HP/UX allows writing but access denies
+it, it is definitely a bug (in HP/UX). Let's remember why access(2) was
+invented at all -- to allow setuid-privileged programs to do permission
+checks based on real uid instead of relying on open(2) to fail. This
+should make it clear that the two (access(2) and open(2)) should behave
+identically modulo the euid->ruid transformation.
+
+Regards,
+Tigran
+
+PS. This is the sort of dicussion where openly showing snippets of
+proprietary UNIX source code would benefit but, alas, we can't...
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,74 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263370AbTEMHZO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 03:25:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263391AbTEMHZO
+	id S263366AbTEMHWK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 03:22:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263373AbTEMHWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 03:25:14 -0400
-Received: from [193.98.9.7] ([193.98.9.7]:33475 "EHLO mail.provi.de")
-	by vger.kernel.org with ESMTP id S263370AbTEMHZM (ORCPT
+	Tue, 13 May 2003 03:22:10 -0400
+Received: from dp.samba.org ([66.70.73.150]:24461 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S263366AbTEMHWH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 03:25:12 -0400
-Subject: Re: 2.4.21-rc:  lost interrupt wgen usinf atapi cdrom-drive
-From: Michael Reincke <reincke.m@stn-atlas.de>
-To: Andrey Borzenkov <arvidjaar@mail.ru>
+	Tue, 13 May 2003 03:22:07 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com, viro@math.psu.edu
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1052810966.1602.4.camel@pcew80.atlas.de>
-References: <E19FTA7-000Mgw-00.arvidjaar-mail-ru@f15.mail.ru>
-	 <1052810966.1602.4.camel@pcew80.atlas.de>
-Content-Type: text/plain; charset=ISO-8859-15
-Organization: STN ATLAS Elektronik GmbH
-Message-Id: <1052811475.1618.7.camel@pcew80.atlas.de>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 13 May 2003 09:37:55 +0200
-Content-Transfer-Encoding: 8bit
+Subject: [PATCH] loop.c warning removal
+Date: Tue, 13 May 2003 16:03:59 +1000
+Message-Id: <20030513073453.0E45C2C074@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-05-13 at 09:29, Michael Reincke wrote:
-> On Tue, 2003-05-13 at 08:21, Andrey Borzenkov wrote:
-> > > i upgraded the linux kernel of my computer from 2.4.21-pre4 to
-> > > 2.4.21-rc2 and got the following messages in syslog when using my
-> > > atapi-cdrom drive:
-> > > May 12 09:42:52 pcew80 kernel: hdc: DMA interrupt recovery
-> > > May 12 09:42:52 pcew80 kernel: hdc: lost interrupt
-> > > May 12 09:42:52 pcew80 kernel: hdc: status timeout: status=0xd0 { Busy }
-> > > May 12 09:42:52 pcew80 kernel: hdc: status timeout: error=0x00
-> > > May 12 09:42:52 pcew80 kernel: hdc: DMA disabled
-> > > May 12 09:42:52 pcew80 kernel: hdc: drive not ready for command
-> > > May 12 09:42:52 pcew80 kernel: hdc: ATAPI reset complete
-> > 
-> > 
-> > It smells like ide_do_request forgets to enable interrupts when
-> > request queue is empty.
-> > 
-> > drivers/ide/ide-io.c:
-> > 
-> > void ide_do_request (ide_hwgroup_t *hwgroup, int masked_irq)
-> >                         hwgroup->busy = 0;
-> > 
-> > Ironically it does not release ide_intr_lock in this case but we
-> > are not on m68k so we do not care :)
-> > 
-> > Could you please try to add local_irq_enable() before ide_release_lock() above and see if it helps?
-> > It has been reported to have fixed fix problems for other people. OTOH
-> > I did have sevral hard lockups with this so there may be more subtle
-> > problems issues.
-> The hangs and timeouts and total blocking of the cdrom drive seems to be
-> away, but the lost interrupt messages are still there.
-> But have in mind I've only a quick test so far.
+loop.c has one of those places where maniping own refcounts is safe:
+to get into the ioctl handler you need to have the device open, so
+that holds a refcount already (verified that this actually happens).
 
-Bad news the hangs and timeout are still there!
+The compile warning is irritating.
+Rusty.
 
--- 
-Michael Reincke, NUT Team 2 (Software Build Management)
+diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.69-bk7/drivers/block/loop.c working-2.5.69-bk7-mingo/drivers/block/loop.c
+--- linux-2.5.69-bk7/drivers/block/loop.c	2003-05-05 12:36:58.000000000 +1000
++++ working-2.5.69-bk7-mingo/drivers/block/loop.c	2003-05-13 15:59:02.000000000 +1000
+@@ -651,7 +651,8 @@ static int loop_set_fd(struct loop_devic
+ 	int		lo_flags = 0;
+ 	int		error;
+ 
+-	MOD_INC_USE_COUNT;
++	/* This is safe, since we have a reference from open(). */
++	__module_get(THIS_MODULE);
+ 
+ 	error = -EBUSY;
+ 	if (lo->lo_state != Lo_unbound)
+@@ -751,7 +752,8 @@ static int loop_set_fd(struct loop_devic
+  out_putf:
+ 	fput(file);
+  out:
+-	MOD_DEC_USE_COUNT;
++	/* This is safe: open() is still holding a reference. */
++	module_put(THIS_MODULE);
+ 	return error;
+ }
+ 
+@@ -824,7 +826,8 @@ static int loop_clr_fd(struct loop_devic
+ 	filp->f_dentry->d_inode->i_mapping->gfp_mask = gfp;
+ 	lo->lo_state = Lo_unbound;
+ 	fput(filp);
+-	MOD_DEC_USE_COUNT;
++	/* This is safe: open() is still holding a reference. */
++	module_put(THIS_MODULE);
+ 	return 0;
+ }
+ 
 
-STN ATLAS Elektronik GmbH, Bremen (Germany)
-E-mail : reincke.m@stn-atlas.de |  mail: Sebaldsbrücker Heerstr 235    
-phone  : +49-421-457-2302       |        28305 Bremen                  
-fax    : +49-421-457-3913       |
-
-
-
-
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,56 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265622AbUEZPZW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265618AbUEZPqY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265622AbUEZPZW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 11:25:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265628AbUEZPZW
+	id S265618AbUEZPqY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 11:46:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265621AbUEZPqY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 11:25:22 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:17589 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S265622AbUEZPZP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 11:25:15 -0400
-Message-ID: <40B4ADA2.2020604@pobox.com>
-Date: Wed, 26 May 2004 10:45:54 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Arjan van de Ven <arjanv@redhat.com>
-CC: Len Brown <len.brown@intel.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Matthew Wilcox <willy@debian.org>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org,
-       "linux-pci@atrey.karlin.mff.cuni.cz" 
-	<linux-pci@atrey.karlin.mff.cuni.cz>
-Subject: Re: ACPI & 2.4 (Re: [BK PATCH] PCI Express patches for 2.4.27-pre3)
-References: <A6974D8E5F98D511BB910002A50A6647615FC676@hdsmsx403.hd.intel.com> <1085556934.26254.132.camel@dhcppc4> <20040526073752.GF6742@devserv.devel.redhat.com>
-In-Reply-To: <20040526073752.GF6742@devserv.devel.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 26 May 2004 11:46:24 -0400
+Received: from 208.177.141.226.ptr.us.xo.net ([208.177.141.226]:18142 "HELO
+	ash.lnxi.com") by vger.kernel.org with SMTP id S265618AbUEZPqU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 11:46:20 -0400
+Subject: abysmal e1000 performance (DITR)
+From: Thayne Harbaugh <tharbaugh@lnxi.com>
+Reply-To: tharbaugh@lnxi.com
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: Linux Networx
+Message-Id: <1085585749.30156.1161.camel@tubarao>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 26 May 2004 09:35:49 -0600
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Wed, May 26, 2004 at 03:35:34AM -0400, Len Brown wrote:
-> 
->>Yes, the ACPI part to enable MMconfig was pretty small.
->>We parse a table in the standard way and set a global variable --
->>that's about it.
->>
->>I submitted it to 2.4 for the sole purpose
->>to enable Greg to enable native PCIExpress.
->>
->>I expect demand for this in 2.4 as the major distros'
->>enterprise releases are still 2.4 based and the hardware has
->>arrived... 
-> 
-> 
-> yet those enterprise releases won't go to newer 2.4 upstream releases....
+The DITR (Dynamic Interrupt Throttle Rate) introduced in the 5.x version
+of the e1000 driver can limit performance to less than 50% of expected.
+
+I have two machines with secondary e1000 NICs directly connected (no
+switch).  I run a test using Netpipe
+(http://www.scl.ameslab.gov/netpipe/):
+
+flu2:~ # /tmp/NPtcp -h 10.0.0.1
+Send and receive buffers are 16384 and 87380 bytes
+(A bug in Linux doubles the requested buffer sizes)
+Now starting the main loop
+  0:       1 bytes   4999 times -->      0.03 Mbps in     250.03 usec
+  1:       2 bytes    399 times -->      0.06 Mbps in     250.02 usec
+  2:       3 bytes    399 times -->      0.09 Mbps in     250.02 usec
+
+(mostly uninteresting lines)
+
+ 70:   24573 bytes    121 times -->    380.39 Mbps in     492.85 usec
+ 71:   24576 bytes    135 times -->    380.43 Mbps in     492.86 usec
+ 72:   24579 bytes    135 times -->    380.49 Mbps in     492.84 usec
+ 73:   32765 bytes     67 times -->    341.32 Mbps in     732.39 usec
+ 74:   32768 bytes     68 times -->    341.37 Mbps in     732.35 usec
+ 75:   32771 bytes     68 times -->    341.41 Mbps in     732.33 usec
+ 76:   49149 bytes     68 times -->    437.02 Mbps in     858.04 usec
+ 77:   49152 bytes     77 times -->    451.39 Mbps in     830.77 usec
+ 78:   49155 bytes     80 times -->    499.57 Mbps in     750.69 usec
+
+That's the best performance, but it drops back down.
+
+ 79:   65533 bytes     44 times -->    409.48 Mbps in    1221.00 usec
+ 80:   65536 bytes     40 times -->    409.42 Mbps in    1221.24 usec
+ 81:   65539 bytes     40 times -->    409.43 Mbps in    1221.28 usec
+
+Not much different.
+
+121: 8388605 bytes      3 times -->    379.88 Mbps in  168474.49 usec
+122: 8388608 bytes      3 times -->    411.24 Mbps in  155625.68 usec
+123: 8388611 bytes      3 times -->    395.81 Mbps in  161693.50 usec
+
+And there's the end.
+
+I would expect to see ~900 Mbps performance (in fact, a Broadcom tg3 NIC
+in the same machine gives the expected ~900 Mbps performance).  The
+older, 4.x e1000 series of drivers gives the ~900 Mbps performance as
+expected.  I have traced the abysmal performance to the DITR code.  I
+have added some output to the e1000_main.c:e1000_watchdog() section
+where the Dynamic interrupt is calculated and set.  It's interesting to
+note how the goc (good octet count) and the itr oscillate during the
+netpipe run (ritr is the real ITR setting that is written to the e1000
+ITR register):
+
+goc(18=9+9) dif(0) ritr(1953) DITR = 2000
+goc(0=0+0) dif(0) ritr(488) DITR = 8000
+goc(44=22+22) dif(0) ritr(1953) DITR = 2000
+goc(0=0+0) dif(0) ritr(488) DITR = 8000
+goc(54=27+27) dif(0) ritr(1953) DITR = 2000
+
+(many lines of oscillation and increased activity)
+
+goc(0=0+0) dif(0) ritr(488) DITR = 8000
+goc(10558=5299+5258) dif(41) ritr(1930) DITR = 2023
+goc(0=0+0) dif(0) ritr(488) DITR = 8000
+goc(9996=5228+4768) dif(459) ritr(1717) DITR = 2275
+goc(0=0+0) dif(0) ritr(488) DITR = 8000
+goc(11180=5378+5801) dif(422) ritr(1754) DITR = 2226
+goc(0=0+0) dif(0) ritr(488) DITR = 8000
+goc(10817=5304+5512) dif(208) ritr(1846) DITR = 2115
 
 
-Len is right in guessing enterprise releases want PCI Express support 
-though :)
+It is very interesting to note that if the 5.x driver is loaded with
+InterruptThrottleRate=8000 (the default setting of the 4.x e1000 drivers
+- which also disables dynamic adjustment of the ITR) then performance is
+~900 Mbps:
 
-	Jeff
+119: 6291456 bytes      3 times -->    891.33 Mbps in   53851.83 usec
+120: 6291459 bytes      3 times -->    891.34 Mbps in   53851.35 usec
+121: 8388605 bytes      3 times -->    895.99 Mbps in   71429.49 usec
+122: 8388608 bytes      3 times -->    881.12 Mbps in   72634.50 usec
+123: 8388611 bytes      3 times -->    885.65 Mbps in   72263.48 usec
 
+My assessment for the poor performance using is DITR is that this
+reduces load on the box by limiting interrupts while increasing latency
+to service the packets.  The problem is that this is done irrespective
+of the actual load on the system and thus results in gratuitous latency
+being added.  In other words: why limit the interrupts and reduce the
+load on the system when the system isn't loaded and has nothing better
+to do?  This kills performance on systems that have plenty of horsepower
+to handle their load as well as service interrupts.
+
+It would be nice if DITR considered tho load when calculating the ITR
+setting.  Another possibility is to simply disable DITR by default - set
+ITR to the original 4.x value of 8000 - because DITR is redundant with
+NAPI.  It's likely better to use something generic and well known so
+that people can find and fix load problems rather than something obscure
+that causes no-load problems.
+
+--- linux/drivers/net/e1000/e1000_param.c.orig	2004-05-25
+18:05:10.000000000 -0700
++++ linux/drivers/net/e1000/e1000_param.c	2004-05-25 18:05:26.000000000
+-0700
+@@ -224,7 +224,7 @@
+ #define MAX_TXABSDELAY            0xFFFF
+ #define MIN_TXABSDELAY                 0
+ 
+-#define DEFAULT_ITR                    1
++#define DEFAULT_ITR                 8000
+ #define MAX_ITR                   100000
+ #define MIN_ITR                      100
+ 
+
+Maybe the patch would be better with a comment about why DITR is
+disabled by default in favor of NAPI?
+
+-- 
+Thayne Harbaugh
+Linux Networx
 

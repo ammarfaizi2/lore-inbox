@@ -1,73 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316223AbSFZBSo>; Tue, 25 Jun 2002 21:18:44 -0400
+	id <S316213AbSFZBbW>; Tue, 25 Jun 2002 21:31:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316167AbSFZBSn>; Tue, 25 Jun 2002 21:18:43 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:24082 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S316223AbSFZBSm>; Tue, 25 Jun 2002 21:18:42 -0400
-Date: Tue, 25 Jun 2002 21:23:30 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Simon Kirby <sim@netnation.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19-rc1
-In-Reply-To: <20020625230607.GA13960@netnation.com>
-Message-ID: <Pine.LNX.4.44.0206252122520.10492-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316217AbSFZBbV>; Tue, 25 Jun 2002 21:31:21 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:7625 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S316213AbSFZBbV>;
+	Tue, 25 Jun 2002 21:31:21 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: "Calin A. Culianu" <calin@ajvar.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: EXPORT_SYMTAB, or Is "this_object_must_be_defined_as_export_objs_in_the_Makefile" annoying to anyone? 
+In-reply-to: Your message of "Tue, 25 Jun 2002 19:16:58 -0400."
+             <Pine.LNX.4.33L2.0206251914230.28225-100000@rtlab.med.cornell.edu> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 26 Jun 2002 11:31:14 +1000
+Message-ID: <12845.1025055074@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 25 Jun 2002 19:16:58 -0400 (EDT), 
+"Calin A. Culianu" <calin@ajvar.org> wrote:
+>I am not sure for the reasoning behind it, but it seems that newer 2.4
+>kernels require the additional -DEXPORT_SYMTAB be defined for any code one
+>wants to build as a module (if that module exports symbols).  Needless to
+>say this breaks a lot of (non-kernel-tree) modules that would otherwise
+>have been compiling without problems.
+>
+>What is the rationale behind this?
 
-Simon,
+Any code that exports symbols must be compiled with -DEXPORT_SYMTAB.
+That flag is used in module symbol version processing to generate the
+versioned symbols.
 
-This fix is on my BK tree since yesterday.
+It used to be that omitting -DEXPORT_SYMTAB would only cause an error
+when CONFIG_MODVERSIONS=y.  Since most developers did not use
+modversions, entries were being added to the kernel tree without
+correct makefile definitions.  To ensure correct definitions in the
+makefile for all circumstances, the code was changed to always require
+-DEXPORT_SYMTAB for exporting objects, with or without
+CONFIG_MODVERSIONS.
 
-Thanks anyway
-
-
-On Tue, 25 Jun 2002, Simon Kirby wrote:
-
-> Hello,
->
-> This fix did not yet make it in to the tg3 driver as of -rc1.  This patch
-> fixes an occasional crash problem with several of our boxes and the tg3
-> driver (fix from Jes).
->
-> --
->
-> Hi Dave
->
-> Here's another one, tg3_recycle_rx() needs to declare dest_idx_unmasked
-> as unsigned int or it will do funny stuff on modular division once we go
-> above 31 bit values.
->
-> I don't think this is the bug that Scott was hitting, but it is of
-> course possible. It takes about 120 minutes for me with a packet
-> generator, spewing out 64 byte packets, to trigger it.
->
-> Cheers,
-> Jes
->
-> --- ../orig/drivers/net/tg3.c	Tue May 14 07:30:52 2002
-> +++ drivers/net/tg3.c	Fri Jun 14 11:20:48 2002
-> @@ -1689,7 +1669,7 @@
->   * tg3_alloc_rx_skb for full details.
->   */
->  static void tg3_recycle_rx(struct tg3 *tp, u32 opaque_key,
-> -			   int src_idx, int dest_idx_unmasked)
-> +			   int src_idx, u32 dest_idx_unmasked)
->  {
->  	struct tg3_rx_buffer_desc *src_desc, *dest_desc;
->  	struct ring_info *src_map, *dest_map;
->
-> --
->
-> Simon-
->
-> [  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
-> [       sim@stormix.com       ][       sim@netnation.com        ]
-> [ Opinions expressed are not necessarily those of my employers. ]
->
+Bottom line: if you export symbols you must always define -DEXPORT_SYMTAB.
 

@@ -1,29 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317521AbSHBBfm>; Thu, 1 Aug 2002 21:35:42 -0400
+	id <S317491AbSHBBeY>; Thu, 1 Aug 2002 21:34:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317605AbSHBBfm>; Thu, 1 Aug 2002 21:35:42 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25611 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317521AbSHBBfm>;
-	Thu, 1 Aug 2002 21:35:42 -0400
-Message-ID: <3D49E238.3E05FA31@zip.com.au>
-Date: Thu, 01 Aug 2002 18:36:56 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
+	id <S317521AbSHBBeY>; Thu, 1 Aug 2002 21:34:24 -0400
+Received: from ns3.maptuit.com ([204.138.244.3]:34319 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S317491AbSHBBeX>;
+	Thu, 1 Aug 2002 21:34:23 -0400
+Message-ID: <3D49E238.64B48408@torque.net>
+Date: Thu, 01 Aug 2002 21:36:56 -0400
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.29 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>,
-       "Seth, Rohit" <rohit.seth@intel.com>,
-       "Saxena, Sunil" <sunil.saxena@intel.com>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>
-Subject: Re: large page patch
-References: <3D49D45A.D68CCFB4@zip.com.au>
+To: Banai Zoltan <bazooka@emitel.hu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.5.30
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Merged up to 2.5.30.  It compiles.
+Banai Zoltan <bazooka@emitel.hu> wrote:
+On Thu, Aug 01, 2002 at 08:12:34PM -0400, Alexander Viro wrote:
+> > 
+> > Argh.  My fault - it's devfs-only code and it didn't get tested ;-/
+> > 
+> > Fix: replace line 470 with
+> >               p[part].de = NULL;
+> > 
+> Thanks, that help!
+> 
+> But it does not boot,( nor does 2.5.24)
+> with 2.5.30 it panics at PNP BIOS initalisation,
+> without PNPBIOS it freezes after loop device init(no network card)
+> after network card init if configured (Intel e100).
+> No SysRq helps.:(
 
-http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.30/lpp.patch
+Banai,
+Yep, the anti-devfs regime broke it a few versions ago
+with console/tty (serial) driver changes. It sort of defeats
+the purpose, but I can boot with "devfs=nomount" as a
+kernel boot up option. [This worked in lk 2.5.29]
+
+Resistance may be futile, but it is the reason some of
+us use linux.
+
+Doug Gilbert

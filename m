@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264323AbRFGF5m>; Thu, 7 Jun 2001 01:57:42 -0400
+	id <S262288AbRFGFum>; Thu, 7 Jun 2001 01:50:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264325AbRFGF5c>; Thu, 7 Jun 2001 01:57:32 -0400
-Received: from beasley.gator.com ([63.197.87.202]:56836 "EHLO
-	beasley.gator.com") by vger.kernel.org with ESMTP
-	id <S264323AbRFGF5V>; Thu, 7 Jun 2001 01:57:21 -0400
-From: "George Bonser" <george@gator.com>
-To: "David S. Miller" <davem@redhat.com>
+	id <S263412AbRFGFuc>; Thu, 7 Jun 2001 01:50:32 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:49038 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262288AbRFGFuY>;
+	Thu, 7 Jun 2001 01:50:24 -0400
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15135.5661.601195.943992@pizda.ninka.net>
+Date: Wed, 6 Jun 2001 22:50:21 -0700 (PDT)
+To: "George Bonser" <george@gator.com>
 Cc: <linux-kernel@vger.kernel.org>
 Subject: RE: [PATCH] sockreg2.4.5-05 inet[6]_create() register/unregister table
-Date: Wed, 6 Jun 2001 23:00:43 -0700
-Message-ID: <CHEKKPICCNOGICGMDODJEECNDEAA.george@gator.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <15135.5661.601195.943992@pizda.ninka.net>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+In-Reply-To: <CHEKKPICCNOGICGMDODJMECLDEAA.george@gator.com>
+In-Reply-To: <15134.53268.965680.167845@pizda.ninka.net>
+	<CHEKKPICCNOGICGMDODJMECLDEAA.george@gator.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> What matters is the API under which a binary-only module may interface
-> to the kernel.  Linus specifies that only the module exports in his
-> tree fall into this API.
+George Bonser writes:
+ > There is, of course, one basic problem with that argument. While you can say
+ > (and probably rightly so) that such a change would not be included in Linus'
+ > kernel, I think anyone is allowed to post a patch that might make it
+ > possible to add protocols as modules. If anyone chooses to use it is each
+ > individual's decision but you could not prevent ACME from creating a patch
+ > that allows protocol modules as long as they distributed the patch. Also,  I
+ > know that you are allowed to distribute proprietary modules in binary form
+ > but are there any restrictions on what function these modules can perform?
+ > I don't remember seeing any such restrictions.
 
-Ok, I was not aware of that stipulation. So to be very strict in the
-interpretation, if there is a module export that is in the -ac kernels, ACME
-could not make a binary module that depends on it until/if it makes it to
-Linus' tree. Hmmm, Ok.
+People can post whatever patches which do whatever, sure.
+But this isn't what matters.
 
-> As I stated in another email, the allowance of binary-only kernel
-> modules is a special exception to the licensing of the kernel made by
-> Linus.  The GPL by itself, does not allow this at all.
+What matters is the API under which a binary-only module may interface
+to the kernel.  Linus specifies that only the module exports in his
+tree fall into this API.
 
-Right.  The GPL still allows one to "embrace and extend" it :-)
+As I stated in another email, the allowance of binary-only kernel
+modules is a special exception to the licensing of the kernel made by
+Linus.  The GPL by itself, does not allow this at all.
+
+Later,
+David S. Miller
+davem@redhat.com
 

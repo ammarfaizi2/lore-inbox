@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291259AbSBGUKO>; Thu, 7 Feb 2002 15:10:14 -0500
+	id <S291263AbSBGUMO>; Thu, 7 Feb 2002 15:12:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291261AbSBGUJ5>; Thu, 7 Feb 2002 15:09:57 -0500
-Received: from zero.tech9.net ([209.61.188.187]:21008 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S291259AbSBGUJn>;
-	Thu, 7 Feb 2002 15:09:43 -0500
-Subject: Re: [RFC] New locking primitive for 2.5
-From: Robert Love <rml@tech9.net>
-To: yodaiken@fsmlabs.com
-Cc: Martin Wirth <Martin.Wirth@dlr.de>, linux-kernel@vger.kernel.org,
-        akpm@zip.com.au, torvalds@transmet.com, mingo@elte.hu, nigel@nrg.org
-In-Reply-To: <20020207125853.B21354@hq.fsmlabs.com>
-In-Reply-To: <3C629F91.2869CB1F@dlr.de> <1013107259.10430.29.camel@phantasy>
-	 <20020207125853.B21354@hq.fsmlabs.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 07 Feb 2002 15:08:02 -0500
-Message-Id: <1013112523.9534.75.camel@phantasy>
-Mime-Version: 1.0
+	id <S291262AbSBGUL5>; Thu, 7 Feb 2002 15:11:57 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:19987 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S291261AbSBGULf>;
+	Thu, 7 Feb 2002 15:11:35 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Patrick Mochel <mochel@osdl.org>
+Date: Thu, 7 Feb 2002 21:11:10 +0100
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: [PATCH] read() from driverfs files can read more bytes 
+CC: <linux-kernel@vger.kernel.org>
+X-mailer: Pegasus Mail v3.50
+Message-ID: <1126CC346B32@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-02-07 at 14:58, yodaiken@fsmlabs.com wrote:
+On  7 Feb 02 at 10:27, Patrick Mochel wrote:
 
-> On Thu, Feb 07, 2002 at 01:40:59PM -0500, Robert Love wrote:
-> > We shouldn't engage in wholesale changing of spinlocks to semaphores
-> > without a priority-inheritance mechanism.  And _that_ is the bigger
-> > issue ...
+> Concerning reading/writing from offsets, it's up to the drivers for them 
+> to either support it or not. In the files I've done so far, I return 0 if 
+> show() is called with an offset. Which will give different results if you 
+> read byte-by-byte or an entire chunk. 
 > 
-> Cool. We can then have the Solaris "this usually doesn't fail on test" priority
-> inherit read/write lock.  I can hardly wait.
+> It makes the callbacks simpler, but it is not technically correct. 
 
-Or, we could do things right and not.
-
-	Robert Love
-
+What about extremelly nice stuff Al Viro made for us in
+fs/seq_file.c ? It made putting stuff into procfs really easy...
+                                            Petr Vandrovec
+                                            vandrove@vc.cvut.cz
+                                            
+ 

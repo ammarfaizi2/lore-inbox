@@ -1,68 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263652AbTDISKX (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 14:10:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263654AbTDISKX (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 14:10:23 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:47282 "EHLO
-	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
-	id S263652AbTDISKW (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 14:10:22 -0400
-Date: Wed, 9 Apr 2003 19:24:01 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: Andrew Morton <akpm@digeo.com>, Dave McCracken <dmccr@us.ibm.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix obj vma sorting
-In-Reply-To: <192640000.1049908071@[10.10.2.4]>
-Message-ID: <Pine.LNX.4.44.0304091900280.2540-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id S263655AbTDISYz (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 14:24:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263656AbTDISYz (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 14:24:55 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:685 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S263655AbTDISYy (for <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Apr 2003 14:24:54 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Wed, 9 Apr 2003 20:36:32 +0200 (MEST)
+Message-Id: <UTC200304091836.h39IaWE29913.aeb@smtp.cwi.nl>
+To: hpa@zytor.com, zippel@linux-m68k.org
+Subject: Re: 64-bit kdev_t - just for playing
+Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Apr 2003, Martin J. Bligh wrote:
+> Peter and Andries, I would really appreciate it, if
+> you would stop ignoring me
 
-> Hmmm. Something somewhere went wrong. Some semaphore blew up
-> somewhere ... I'm not convinced that this is your patch
-> causing the problem, I just thought that since vma_link seems
-> to have gone up rather in the profile. I'm playing with getting
-> some better data on what actually happened, but in case someone
-> is feeling psychic. 
-> 
-> The main thing I changed here (66-mjb2 -> 67-mjb0.2) was to pick up 
-> Andrew's rmap speedups, and drop the objrmap code I had for the stuff 
+But Roman, I answered a dozen of your letters, and
+it seems to me that further letters would only
+lead to repetition.
 
-I haven't examined it, but I'm guessing 66-mjb2 did not have Dave's
-vma sorting in at all?  Its linear search would certainly raise the
-time spent in __vma_link (notable in your diffprofile), which would
-increase the pressure on i_shared_sem.
+Let me recapitulate.
 
-(Whether it's a worthwhile optimization remains to be seen: like
-rmap generally, it speeds up page_referenced and try_to_unmap at
-the expense of the fast path.  One improvement would be for fork
-to just slot dst vma in next to src vma instead of linear search.)
+(i) On dev_t
+A dev_t is a number. There are three streams:
+mknod sends such a number from user space to the file system,
+stat sends such a number from the file system to user space,
+open and mount send such a number from the file system to the kernel
+where the kernel finds an associated device.
 
-I don't think my fix to the sort order could have slowed it down
-further (though once there are stray entries out of order, it may
-be hard to predict how things will work out).  But without it
-page_referenced and try_to_unmap sometimes couldn't quite find
-all the mappings they were looking for.
+Your questions are about the meaning of this number,
+that is, about the third part. What I am doing is only
+removing certain restrictions on the size of the number.
 
-> he had. *However*, what he had worked fine. I also picked up your 
-> sorting patch here Hugh ... this bit worries me:
-> 
-> +static void move_vma_start(struct vm_area_struct *vma, unsigned long addr)
 
-It does use i_shared_sem where it wasn't used before, yes, but it's
-only called by one case of vma_merge and one case of split_vma:
-unless your tests are doing a lot of vma splitting (e.g. mprotecting
-ranges which break up vmas), I wouldn't expect it to figure highly.
-I can see it's there in the plus part of your diffprofile, but I'm
-too inexperienced at reading these things, without the original
-profiles, to tell whether it's being used a surprising amount.
+(ii) On device naming.
+One can handle device naming in the old-fashioned way,
+as Unix always did, or one can invent one of many possible
+schemes for the future.
+This old-fashioned way has a myriad of problems, but it works,
+people are used to it and know precisely what the problems are,
+and our present software handles it.
+These schemes of the future are not yet crystallized out very well,
+there are several to choose from, we do not yet know very well
+what the problems will be, most of the software to handle such
+new schemes still has to be written.
 
-When you say "*However*, what he had worked fine", are you saying
-you profiled before adding in my patch on top?  The diffprofile of
-the before and after my patch should in that case illuminate.
+[And note that stat is an important system call - even with
+new naming schemes we may need numbers - possibly some hash of
+whatever ID we have found.]
 
-Hugh
+Clearly, there will be a long transition period where these
+schemes will coexist.
 
+Now this old fashioned scheme has run into some limits -
+it ran into them already several years ago, witness the
+introduction of several scsi disk majors. Removing these limits
+is not very difficult, so we do that now.
+
+Your letters carry the tone of "it is forbidden to work on the
+old scheme before you have shown how to solve all device naming
+problems". But I am not going to.
+
+You have opinions and questions about future schemes.
+And so do I. But since time is limited I wrote you
+already a handful of times: "Later".
+
+This number stuff is simple and straightforward, we know precisely
+what has to be done, but of course it needs to be done.
+
+Naming on the other hand is intricate, lots of complications.
+Device naming - but what is a device? Already that is complicated.
+These are good discussions, and maybe sysfs will provide the answer
+in certain cases, but these discussions are independent of dev_t.
+
+Andries

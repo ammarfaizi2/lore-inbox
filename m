@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264319AbTLESFj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 13:05:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264330AbTLESFi
+	id S264261AbTLESQl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 13:16:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264265AbTLESQl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 13:05:38 -0500
-Received: from adsl-216-102-91-59.dsl.snfc21.pacbell.net ([216.102.91.59]:20140
-	"EHLO nasledov.com") by vger.kernel.org with ESMTP id S264319AbTLESFV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 13:05:21 -0500
-Date: Fri, 5 Dec 2003 10:07:21 -0800
-To: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Double-click on touchpad
-Message-ID: <20031205180721.GA1079@nasledov.com>
-References: <1070610304.4328.14.camel@idefix.homelinux.org> <20031205093200.GA8877@nasledov.com> <1070637392.12400.1.camel@idefix.homelinux.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1070637392.12400.1.camel@idefix.homelinux.org>
-User-Agent: Mutt/1.5.4i
-From: Misha Nasledov <misha@nasledov.com>
+	Fri, 5 Dec 2003 13:16:41 -0500
+Received: from wsip-68-14-236-254.ph.ph.cox.net ([68.14.236.254]:61162 "EHLO
+	office.labsysgrp.com") by vger.kernel.org with ESMTP
+	id S264261AbTLESQh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 13:16:37 -0500
+Message-ID: <3FD0CB76.4000202@backtobasicsmgmt.com>
+Date: Fri, 05 Dec 2003 11:16:22 -0700
+From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Organization: Back to Basics Network Management
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20030925
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Serial ATA (SATA) for Linux status report
+References: <20031203204445.GA26987@gtf.org> <20031204081732.GC5376@launay.org> <3FCF4C32.5040101@pobox.com> <200312051842.26599.marchand@kde.org> <3FD0C4B0.8020106@pobox.com>
+In-Reply-To: <3FD0C4B0.8020106@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Under 2.6, this functions as both mice. However, if you go back to 2.4, you
-will have to re-add the other entry to restore original functionality.
+Jeff Garzik wrote:
 
-On Fri, Dec 05, 2003 at 10:16:33AM -0500, Jean-Marc Valin wrote:
-> Le ven 05/12/2003 ? 04:32, Misha Nasledov a ?crit :
-> > Do you have both /dev/psaux and /dev/input/mice in your XF86Config file? In
-> > 2.6, these are the same thing, so it actually opens the same mouse twice and
-> > it can cause such weird issues with it.
+> Yes, a tested patch would be great, thanks!
 > 
-> OK, I removed /dev/input/mice and it now behaves correctly. Now I'm just
-> not sure how I can add a secondary USB mouse in these conditions...
 
--- 
-Misha Nasledov
-misha@nasledov.com
+(hijacking this subthread, sorry)
+
+Jeff, you mentioned in the status report "don't remove an operating disk 
+from an ICH5, hotplug is not supported".
+
+Does this mean hardware damage, or just serious libata/ICH5 confusion? 
+I've got a six-disk server here with two disks on an ICH5 and four on an 
+SATA150 TX4, and I really would like to be able to hot-replace a disk in 
+case of a failure. If the ICH5 cannort support this, I'm going to have 
+to get a 3ware card.
+

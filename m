@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268765AbUIQNrz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268759AbUIQNwT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268765AbUIQNrz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 09:47:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268764AbUIQNrz
+	id S268759AbUIQNwT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 09:52:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268760AbUIQNwT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 09:47:55 -0400
-Received: from holomorphy.com ([207.189.100.168]:29100 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S268757AbUIQNrs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 09:47:48 -0400
-Date: Fri, 17 Sep 2004 06:47:37 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrea Arcangeli <andrea@novell.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>, Lee Revell <rlrevell@joe-job.com>
-Subject: Re: [patch] remove the BKL (Big Kernel Lock), this time for real
-Message-ID: <20040917134737.GS9106@holomorphy.com>
-References: <20040915151815.GA30138@elte.hu> <20040917103945.GA19861@elte.hu> <20040917132641.GR15426@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040917132641.GR15426@dualathlon.random>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Fri, 17 Sep 2004 09:52:19 -0400
+Received: from h66-38-154-67.gtcust.grouptelecom.net ([66.38.154.67]:49316
+	"EHLO pbl.ca") by vger.kernel.org with ESMTP id S268759AbUIQNwG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 09:52:06 -0400
+Message-ID: <414AEC9B.2030807@pbl.ca>
+Date: Fri, 17 Sep 2004 08:54:35 -0500
+From: Aleksandar Milivojevic <amilivojevic@pbl.ca>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: argv null terminated in main()?
+References: <414A04F6.8040106@pbl.ca> <1095368471.23579.0.camel@localhost.localdomain>
+In-Reply-To: <1095368471.23579.0.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 17, 2004 at 12:39:45PM +0200, Ingo Molnar wrote:
->> task not migrating to another CPU within the BLK critical section?
+Alan Cox wrote:
+> On Iau, 2004-09-16 at 22:26, Aleksandar Milivojevic wrote:
+>>The question is, after call to execve() system call, and after new image 
+>>is loaded, is argv (as passed to main() function of new program) NULL 
+>>terminated or not in Linux?
+> 
+> Yes. execve is documented in SuS v3 which you can find on the web. See
+> also info glibc which does have a lot more information on other useful
+> extensions like saved argv0 copies.
 
-On Fri, Sep 17, 2004 at 03:26:41PM +0200, Andrea Arcangeli wrote:
-> I very much doubt, I'd expect this to work, but it really should be a
-> config option if you don't open 2.7. This is the kind of thing that
-> cannot happen in a 2.6.* release without a config option to leave off in
-> production IMHO since it can have implications well outside the mainline
-> kernel (every driver outside the kernel would be affected too).
+Thanks for quick answer.  I didn't know to which degree was Linux SuS v3 
+compliant, so I said better to ask ;-)
 
-IMHO this would be more likely to fix bugs than introduce them so long
-as the BKL is acquired before spinlocks in all instances. There are
-many instances where scheduling under the BKL is inadvertent and thus
-racy, but very few (if any) where the BKL is an inner lock or a holder
-of the BKL yields so something that will wake it can acquire the BKL.
-
-
--- wli
+-- 
+Aleksandar Milivojevic <amilivojevic@pbl.ca>    Pollard Banknote Limited
+Systems Administrator                           1499 Buffalo Place
+Tel: (204) 474-2323 ext 276                     Winnipeg, MB  R3T 1L7

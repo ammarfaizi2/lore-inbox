@@ -1,52 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261301AbVBMUbc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261303AbVBMUeQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261301AbVBMUbc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Feb 2005 15:31:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261303AbVBMUbb
+	id S261303AbVBMUeQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Feb 2005 15:34:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbVBMUeQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Feb 2005 15:31:31 -0500
-Received: from wproxy.gmail.com ([64.233.184.200]:42024 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261301AbVBMUba (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Feb 2005 15:31:30 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=ghIHjo08bHN5HEsdgOm9X/6YXirybKa1kPqibNtICic/0kqD1VuwIAHeXKjRINZLNKm9I07bL+tHwvYlsOnIpTFUx/B7y7SyvukVF3h2YhSvEk7KO0o0yyTlM0q/pQBVBWfhnGYe6LrCWuV2Na7bLHSCwRxWIL+veQChV9nyIC0=
-Message-ID: <a71293c205021312315e9645c5@mail.gmail.com>
-Date: Sun, 13 Feb 2005 15:31:29 -0500
-From: Stephen Evanchik <evanchsa@gmail.com>
-Reply-To: Stephen Evanchik <evanchsa@gmail.com>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH 2.6.11-rc3] IBM Trackpoint support
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050213193149.GA4315@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <a71293c20502031443764fb4e5@mail.gmail.com>
-	 <200502031934.16642.dtor_core@ameritech.net>
-	 <200502032252.45309.dtor_core@ameritech.net>
-	 <a71293c2050213111345d072b0@mail.gmail.com>
-	 <20050213193149.GA4315@ucw.cz>
+	Sun, 13 Feb 2005 15:34:16 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10135 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261303AbVBMUdy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Feb 2005 15:33:54 -0500
+Message-ID: <420FB9A3.1090002@pobox.com>
+Date: Sun, 13 Feb 2005 15:33:39 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
+Subject: [SATA] libata-dev queue updated
+Content-Type: multipart/mixed;
+ boundary="------------060103060109090905030401"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 13 Feb 2005 20:31:49 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
->
-> You're right. The IBM trackpoints unfortunately don't have a 'native'
-> mode, they always do full processing and send classic PS/2 packets.
-> 
-> I think we shouldn't need a handler, since we can use the PS/2 protocol
-> one. We'll need some options to set the trackpoint tap behavior (as far
-> as I know it can only be mapped to a button), and we'll need a safe
-> detection, but that's all.
+This is a multi-part message in MIME format.
+--------------060103060109090905030401
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The tap only sends a button one event. As far as the Press to Select
-qualities are concerned, the necessary options are exposed by the
-driver in the sysfs filesystem now. Understanding their  effects on
-how a press, drag, double press is detected is another matter.
+A minor update since the last post.  Recent changes:
 
-I'll send a 2.6.11-rc4 based patch later today for consideration.
+* updated to 2.6.11-rc4, posted patch (see attached).
 
-Stephen
+* turned on ATAPI by default.  If you got an S/ATAPI DVD burner for 
+Christmas, you'll like this.
+
+WARNING DANGER WARNING:  Some drivers such as sata_promise and ahci have 
+not yet been updated to support ATAPI.
+
+More details on patch/BK/changes attached.
+
+
+--------------060103060109090905030401
+Content-Type: text/plain;
+ name="libata-dev.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="libata-dev.txt"
+
+BK users:
+
+	bk pull bk://gkernel.bkbits.net/libata-dev-2.6
+
+Patch:
+http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/2.6.11-rc4-libata-dev1.patch.bz2
+
+This will update the following files:
+
+ drivers/scsi/Kconfig         |   18 -
+ drivers/scsi/Makefile        |    2 
+ drivers/scsi/ata_adma.c      |  636 ++++++++++++++++++++++++++++++++++++
+ drivers/scsi/libata-core.c   |  174 +++-------
+ drivers/scsi/libata-scsi.c   |  409 +++++++++++++++++++++++
+ drivers/scsi/libata.h        |    6 
+ drivers/scsi/pata_pdc2027x.c |  742 +++++++++++++++++++++++++++++++++++++++++++
+ drivers/scsi/sata_promise.c  |   84 ++++
+ drivers/scsi/sata_via.c      |  202 ++++++++---
+ include/linux/ata.h          |    1 
+ include/linux/libata.h       |    4 
+ include/scsi/scsi.h          |    3 
+ 12 files changed, 2096 insertions(+), 185 deletions(-)
+
+through these ChangeSets:
+
+<andyw:pobox.com>:
+  o [libata scsi] support 12-byte passthru CDB
+  o [libata scsi] passthru CDB check condition processing
+  o T10/04-262 ATA pass thru - patch
+
+<erikbenada:yahoo.ca>:
+  o [libata sata_promise] support PATA ports on SATA controllers
+
+Adam J. Richter:
+  o ata_pci_remove_one used freed memory
+
+Albert Lee:
+  o pdc2027x timing register bug fix
+  o [libata pdc2027x] fix incorrect pio and mwdma masks
+  o [libata pdc2027x] remove quirks and ROM enable
+  o [libata] add driver for Promise PATA 2027x
+
+Brad Campbell:
+  o libata basic detection and errata for PATA->SATA bridges
+
+Jeff Garzik:
+  o [libata] turn on ATAPI support
+  o [libata sata_promise] merge Tobias Lorenz' pdc20619 patch, part 2
+  o [libata] small cleanups
+  o [libata] remove unused execute-device-diagnostic reset method
+  o [libata] add new driver ata_adma
+  o [libata sata_via] add support for VT6421 SATA
+  o [libata sata_via] minor cleanups
+  o [libata pdc2027x] update for upstream struct device conversion
+  o [libata sata_promise] fix merge bugs
+  o [libata] fix build breakage
+  o [libata] fix SATA->PATA bridge detect compile breakage
+  o [libata] fix printk warning
+
+John W. Linville:
+  o libata: SMART support via ATA pass-thru
+
+Tobias Lorenz:
+  o [libata sata_promise] pdc20619 (PATA) support
+  o libata-scsi: get-identity ioctl support
+
+
+--------------060103060109090905030401--

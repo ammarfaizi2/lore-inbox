@@ -1,58 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263749AbTE3PNs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 11:13:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263750AbTE3PNr
+	id S263750AbTE3PRC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 11:17:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263760AbTE3PRB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 11:13:47 -0400
-Received: from almesberger.net ([63.105.73.239]:62481 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S263749AbTE3PNq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 11:13:46 -0400
-Date: Fri, 30 May 2003 12:26:30 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
-       Carl Spalletta <cspalletta@yahoo.com>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Dan Carpenter <d_carpenter@sbcglobal.net>
-Subject: Re: inventing the wheel?
-Message-ID: <20030530122629.C1617@almesberger.net>
-References: <20030527180546.15656.qmail@web41501.mail.yahoo.com> <3ED3E224.1000402@gmx.net> <20030530113009.A1667@almesberger.net> <Pine.LNX.4.53.0305301111160.30122@chaos>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0305301111160.30122@chaos>; from root@chaos.analogic.com on Fri, May 30, 2003 at 11:12:38AM -0400
+	Fri, 30 May 2003 11:17:01 -0400
+Received: from blackbird.intercode.com.au ([203.32.101.10]:34577 "EHLO
+	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
+	id S263750AbTE3PRA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 May 2003 11:17:00 -0400
+Date: Sat, 31 May 2003 01:29:42 +1000 (EST)
+From: James Morris <jmorris@intercode.com.au>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+cc: David Woodhouse <dwmw2@infradead.org>,
+       matsunaga <matsunaga_kazuhisa@yahoo.co.jp>,
+       <linux-mtd@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@redhat.com>
+Subject: Re: [PATCH RFC] 1/2 central workspace for zlib
+In-Reply-To: <20030530144959.GA4736@wohnheim.fh-wedel.de>
+Message-ID: <Mutt.LNX.4.44.0305310101550.30969-100000@excalibur.intercode.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
-> The problem with 'correctness" is in the definition
-> of 'correct'. In many cases there are hundreds of
-> methods that can be used to implement a particular
-> software algorithm.
+On Fri, 30 May 2003, Jörn Engel wrote:
 
-Of course. Your example would probably be too low-level for
-most such checkers, and might better be handled by run-time
-checks (e.g. through something like valgrind).
+> The following creates a central workspace per cpu for the zlib.  The
+> original idea was to save memory for embedded, but this should also
+> improve performance for smp.
+> 
+> Currently, each user of the zlib has to provide a workspace for the
+> zlib to draw memory from.  Each workspace amounts to 400k for deflate
+> or 50k for inflate.  Four users exist, as of 2.4.20:
+> jffs2:	inflate & deflate, initialized once, 450k
+> cramfs:	inflate,	   initialized once,  50k
+> zisofs:	inflate,	   initialized once,  50k
+> ppp:	inflate & deflate, per channel,      450k * n
 
-Also, a template check wouldn't have to cover all equivalent
-coding variants. E.g. if the template just allows one kind
-of loop, it's probably always acceptable to change code that
-uses an equivalent alternative.
+In 2.5 (and soon 2.4), the crypto/deflate.c module makes use of zlib as
+well.  This is typically used in ipsec for ipcomp.  Each ipcomp security
+association has a zlib context, and access to the workspace is serialized 
+by the security association's bh lock.
 
-Furthermore, if someone figures out a way for doing things
-more efficiently, it should be easier to update drivers that
-conform to a well-known status quo ante.
+(Something needs to be done for this particular case in general: a box
+with 1000 tunnels could use use 450MB of atomic kernel memory just for
+zlib workspaces alone.  A solution I've been looking at for this is to
+allow workspaces to be dynamically sized based on the compression
+parameters instead of using worst-case figures.  The memory savings may be
+up to 90% in this case).
 
-> One can, however, create an analysis engine that determines
-> compliance with certain rules and, or, certain templates.
+> This patch creates an extra workspace of 400k per cpu, that is used for
+> both inflate and deflate.  One of the central workspaces is used for
+> users that don't provide their own.  Semaphore protection is done in
+> zlib_(in|de)flateInit() and zlib_(in|de)flateEnd, so the user has to
+> call those functions more often to release the semaphores before
+> returning to userspace.
 
-Yes, that's exactly what I mean.
+This won't work for the bh lock protected case outlined above, and will
+cause contention between different users of zlib.
 
-- Werner
 
+- James
 -- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+James Morris
+<jmorris@intercode.com.au>
+
+
+
+
+
+

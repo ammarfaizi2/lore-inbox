@@ -1,96 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261608AbULBNUn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261612AbULBNWc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261608AbULBNUn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 08:20:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261609AbULBNUn
+	id S261612AbULBNWc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 08:22:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261619AbULBNWb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 08:20:43 -0500
-Received: from smtp2.netcabo.pt ([212.113.174.29]:62096 "EHLO
-	exch01smtp11.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S261608AbULBNUc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 08:20:32 -0500
-Message-ID: <46166.195.245.190.94.1101993536.squirrel@195.245.190.94>
-In-Reply-To: <20041202140612.4c07bca8@mango.fruits.de>
-References: <20041201160632.GA3018@elte.hu> <20041201162034.GA8098@elte.hu>
-    <33059.192.168.1.5.1101927565.squirrel@192.168.1.5>
-    <20041201212925.GA23410@elte.hu> <20041201213023.GA23470@elte.hu>
-    <32788.192.168.1.8.1101938057.squirrel@192.168.1.8>
-    <20041201220916.GA24992@elte.hu>
-    <20041201234355.0dac74cf@mango.fruits.de>
-    <20041202084040.GC7585@elte.hu>
-    <20041202132218.02ea2c48@mango.fruits.de>
-    <20041202122931.GA25357@elte.hu>
-    <20041202140612.4c07bca8@mango.fruits.de>
-Date: Thu, 2 Dec 2004 13:18:56 -0000 (WET)
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-19
-From: "Rui Nuno Capela" <rncbc@rncbc.org>
-To: "Florian Schmidt" <mista.tapas@gmx.net>
-Cc: "Ingo Molnar" <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       "Lee Revell" <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, "Bill Huey" <bhuey@lnxw.com>,
-       "Adam Heath" <doogie@debian.org>,
-       "Thomas Gleixner" <tglx@linutronix.de>,
-       "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>,
-       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>,
-       "Karsten Wiese" <annabellesgarden@yahoo.de>,
-       "Gunther Persoons" <gunther_persoons@spymac.com>, emann@mrv.com,
-       "Shane Shrybman" <shrybman@aei.ca>, "Amit Shah" <amit.shah@codito.com>,
-       "Esben Nielsen" <simlo@phys.au.dk>, "Andrew Morton" <akpm@osdl.org>
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
+	Thu, 2 Dec 2004 08:22:31 -0500
+Received: from smtp07.auna.com ([62.81.186.17]:28353 "EHLO smtp07.retemail.es")
+	by vger.kernel.org with ESMTP id S261612AbULBNWK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 08:22:10 -0500
+Date: Thu, 02 Dec 2004 13:22:08 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: [PATCH] make gconfig work with gtk-2.4
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20041130095045.090de5ea.akpm@osdl.org>
+	<1101949263l.27549l.0l@werewolf.able.es>
+	<Pine.LNX.4.61.0412021356130.1284@scrub.home>
+In-Reply-To: <Pine.LNX.4.61.0412021356130.1284@scrub.home> (from
+	zippel@linux-m68k.org on Thu Dec  2 13:56:51 2004)
+X-Mailer: Balsa 2.2.6
+Message-Id: <1101993728l.19902l.1l@werewolf.able.es>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
-X-OriginalArrivalTime: 02 Dec 2004 13:20:31.0281 (UTC) FILETIME=[B29DDA10:01C4D871]
+Content-Type: multipart/signed; micalg=PGP-SHA1;
+	protocol="application/pgp-signature"; boundary="=-9p9KFa2KlLjMYf/Etapu"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Florian Schmidt wrote:
->
-> Ingo Molnar wrote:
->
->> it's very likely not the simple jack_test client. I've attached the
->> trace in question. Here are the tasks that were running:
->>
->>  gkrellm
->>    IRQ 0
->>   IRQ 14
->>    IRQ 5
->>    jackd
->>  kblockd
->>   korgac
->> ksoftirq
->> qjackctl
->>   qsynth
->>        X
->>     xmms
->>
->> the trace doesnt show what task jackd was waiting on, and it would be
->> hard to establish it, the tracepoint would have to 'discover' all other
->> holders of the pipe fd, which is quite complex.
->
-> I'm not knowledgable enough to read the trace, but what was for example
-> the last thing qsynth was doing? Did it go to sleep? I suppose this was
-> Rui's 9 qsynth's test, right?
->
+--=-9p9KFa2KlLjMYf/Etapu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-No, it wasn't my old 8 fluidsynths test. It was just one normal desktop
-work session. At the time, IIRC, the only jack clients that were running
-were:
 
-    qjackctl (obviously :)
-    qsynth   (3 fluidsynth engines, many soundfonts loaded).
-    xmms     (via xmms-jack output plugin)
+On 2004.12.02, Roman Zippel wrote:
+> Hi,
+>=20
+> On Thu, 2 Dec 2004, J.A. Magallon wrote:
+>=20
+> > - removed unused xpms
+>=20
+> Did you test xconfig?
+>=20
 
-By just taking xmms out from the graph, I can run my desktop environment
-(KDE 3.2) for hours without a single XRUN or noticeable delay. And just
-before RT-V0.9.31-19 had arrived, that was just a dream ;)
+Err, no, i don't have qt.
+A quick grep says 'forget that part of the patch'.
 
-Bye.
--- 
-rncbc aka Rui Nuno Capela
-rncbc@rncbc.org
+Sorry.
 
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like se=
+x:
+werewolf!able!es                         \         It's better when it's fr=
+ee
+Mandrakelinux release 10.2 (Cooker) for i586
+Linux 2.6.10-rc2-jam4 (gcc 3.4.1 (Mandrakelinux 10.1 3.4.1-4mdk)) #2
+
+
+--=-9p9KFa2KlLjMYf/Etapu
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBBrxcARlIHNEGnKMMRAqSWAJ9p2YaL9tH9nfB+KLH4+pheKR+tgwCfWuG0
+fWcZKzXjOOFAIrykcXz1aFE=
+=1WNb
+-----END PGP SIGNATURE-----
+
+--=-9p9KFa2KlLjMYf/Etapu--
 

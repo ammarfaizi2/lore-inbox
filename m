@@ -1,39 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312261AbSC2W4m>; Fri, 29 Mar 2002 17:56:42 -0500
+	id <S312275AbSC2W6L>; Fri, 29 Mar 2002 17:58:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312275AbSC2W4b>; Fri, 29 Mar 2002 17:56:31 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:50311 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S312261AbSC2W4T>;
-	Fri, 29 Mar 2002 17:56:19 -0500
-Date: Fri, 29 Mar 2002 23:35:02 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.7 build breakage around blkpg.c
-Message-ID: <20020329223501.GC9974@elf.ucw.cz>
-In-Reply-To: <20020328035926.GA10467@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S312277AbSC2W6C>; Fri, 29 Mar 2002 17:58:02 -0500
+Received: from tangens.hometree.net ([212.34.181.34]:41868 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S312275AbSC2W5o>; Fri, 29 Mar 2002 17:57:44 -0500
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: Request for 2.4.20 to be a non-trivial-bugfixes-only
+Date: Fri, 29 Mar 2002 22:57:42 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <a82rh6$pu6$1@forge.intermeta.de>
+In-Reply-To: <5.1.0.14.0.20020329205616.00b6ebe0@mailhost.ivimey.org> <5.1.0.14.0.20020329210605.00b5ded8@mailhost.ivimey.org>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1017442662 15432 212.34.181.4 (29 Mar 2002 22:57:42 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Fri, 29 Mar 2002 22:57:42 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org> writes:
 
-> What hit me?
+>fixed bugs I might hit next. Problem is, I have been looking for the 'good' 
+>kernel for a while: trying 2.4.6, 2.4.8, 2.4.15, 2.4.17, 2.4.18rc1 -- I'm 
+>starting to wonder when it might get here.
 
-gcc bug hit you. Workaround by adding volatile's to all local
-variables in affected function.
-							Pavel
+2.4.19-pre4-ac2 is the first kernel since ages that is able to boot up on
+an Intel SC5x00 server with SDS2 board without either
 
-> gcc -D__KERNEL__ -I/home/wli/src/linus/linux-2.5/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i386   -DKBUILD_BASENAME=blkpg  -c -o blkpg.o blkpg.c
-> blkpg.c: In function `blk_ioctl':
-> blkpg.c:311: Internal compiler error:
-> blkpg.c:311: internal error--unrecognizable insn:
-> (insn 898 1478 907 (set (reg/v:SI 3 %ebx)
+- losing one processor
+- losing one gig of RAM
+- locking up in highmem
+- locking up when loading the GDTH driver
 
+2x 1,13GHz PIII Processor, 2 GB RAM, ServerWorks OSB5 chipset, GDTH
+8523RZ controller driving four 36 GB U160 disks). Nice little box for
+kernel compiles (actually it is a java application server running
+apache / tomcat and various webapps, but until our stability issues
+are ironed out I can play with it). 2.4.19pre4ac2 survived the
+stress-kernel test from VA Linux for hours. Something no other kernel
+in the 2.4 series was able to do. Now if I could please get a sensor
+driver for the ADM1026...
+
+	Regards
+		Henning
 -- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

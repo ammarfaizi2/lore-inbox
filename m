@@ -1,73 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291688AbSBAK5N>; Fri, 1 Feb 2002 05:57:13 -0500
+	id <S291689AbSBAKzn>; Fri, 1 Feb 2002 05:55:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291687AbSBAK5D>; Fri, 1 Feb 2002 05:57:03 -0500
-Received: from mail.rotek.ru ([212.30.140.196]:7175 "EHLO rotek.ru")
-	by vger.kernel.org with ESMTP id <S291688AbSBAK4u>;
-	Fri, 1 Feb 2002 05:56:50 -0500
-Message-ID: <001401c1ab0f$1f441820$bd00a8c0@kratkin.ROTEK.RU>
-From: "Kirill Ratkin" <kratkin@yahoo.com>
-To: "Yours Lovingly" <ylovingly@yahoo.co.in>, <linux-kernel@vger.kernel.org>
-Subject: Re: Qn:Linux assembly 
-Date: Fri, 1 Feb 2002 13:56:37 +0300
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 4.72.3110.1
-X-MimeOLE: Produced By Microsoft MimeOLE V4.72.3110.3
+	id <S291688AbSBAKze>; Fri, 1 Feb 2002 05:55:34 -0500
+Received: from smtp.cogeco.net ([216.221.81.25]:36074 "EHLO fep8.cogeco.net")
+	by vger.kernel.org with ESMTP id <S291687AbSBAKzZ>;
+	Fri, 1 Feb 2002 05:55:25 -0500
+Subject: Re: A modest proposal -- We need a patch penguin
+From: "Nix N. Nix" <nix@go-nix.ca>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Troy Benjegerdes <hozer@drgw.net>, Rob Landley <landley@trommello.org>,
+        Alexander Viro <viro@math.psu.edu>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Eli Carter <eli.carter@inet.com>,
+        Georg Nikodym <georgn@somanetworks.com>, Ingo Molnar <mingo@elte.hu>,
+        Rik van Riel <riel@conectiva.com.br>,
+        Tom Rini <trini@kernel.crashing.org>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020131091914.L1519@work.bitmover.com>
+In-Reply-To: <20020130195154.R22323@work.bitmover.com>
+	<20020131002355.X14339@altus.drgw.net>
+	<20020130223711.L18381@work.bitmover.com>
+	<20020131074924.QZMB10685.femail14.sdc1.sfba.home.com@there>
+	<20020131111337.Y14339@altus.drgw.net> 
+	<20020131091914.L1519@work.bitmover.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1.99+cvs.2002.01.14.17.03 (Preview Release)
+Date: 01 Feb 2002 05:55:20 -0500
+Message-Id: <1012560924.1572.7.camel@tux>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are posiblity some pages will be on russian.
-The www.linuxassembly.org contains many links to other linux asm pages.
+On Thu, 2002-01-31 at 12:19, Larry McVoy wrote: 
+> On Thu, Jan 31, 2002 at 11:13:37AM -0600, Troy Benjegerdes wrote:
+> > Can you detect the 'collapsed vs full version' thing, and force it to be 
+> > a merge conflict? That, and working LOD support would probably get most 
+> > of what I want (until I try the new version and find more stuff I want 
+> > :P)
+> 
+> Are you sure you want that?  If so, that would work today, it's about a
+> 20 line script.  You clone the tree, collapse all the stuff into a new
+> changeset, and pull.  It will all automerge.  But now you have the detailed
+> stuff and the non-detailed stuff in the same tree, which I doubt is what
+> you want.  I thought the point was to remove information, not double it.
 
-http://www.pbq.com.au/home/hutch/ - Masm32
-http://biew.sourceforge.net/ru/biew.html BIEW - is Binary vIEW Project
-http://bobrich.lexitech.com/"  PC Assembly Language tutorials and demos
-http://angelcities.com/members/ideasm2/index.html Ultra Ide-asM Home Page
-http://www.geocities.com/SiliconValley/Ridge/2544/asm/Assembly-HOWTO.txt
-Assembly-HOWTO.txt
-http://home.tiscalinet.be/linux-asm/eng.html" Jan's Linux &amp;
-Assembler(x86) HomePage
-http://hi-tech.nsys.by:8101 Hi-Tech - RTFM !!! Russian codepage !!!
-http://linuxassembly.org Linux Assembly
-http://www.whitetown.com/ru/ts Turbo Shell
-http://www.users.qwest.net/~eballen1 Bruce Ediger's web pages
-http://www.gaisler.com/leonmain.html LEON SPARC-Compatible processor
-http://webster.cs.ucr.edu Art of Assembly Language Programming and HLA by
-Randall Hyde        http://webster.cs.ucr.edu/links.htm
-http://www.pbq.com.au/home/hutch/masm.htm MASM32
-http://www.df.lth.se/~john_e/gems.html
-http://www.pbq.com.au/home/hutch hutch's home page
-http://ourworld.compuserve.com/homepages/ernies_world/a.htm Win32 Assembly
-Code
-http://gymnasium.dsb.ru/~Chemist/docs/AOA/ArtofAsm.html
-
------Original Message-----
-From: Yours Lovingly <ylovingly@yahoo.co.in>
-To: linux-kernel@vger.kernel.org <linux-kernel@vger.kernel.org>
-Date: пятница, февраля 01, 2002 1:36
-Subject: Qn:Linux assembly
+Sounds to me like you should have the /option/ to double your info,
+which does not mean that the whole world should start seeing your stuff
+double. You must "fool" the other trees into believing that you are the
+second Mozart (you get everything right the first time around) and only
+to yourself will you admit that it took 15 different tries and you
+dead-ended yourself 15 different ways.  Under these conditions you would
+have all your blunders documented, but only for yourself.
 
 
-Can anyone suggest me some good resource to learn/ get
-idea of linux assembly programming, how linux assembly
-language relates to intel's specification, etc.
 
-thanx
-Abhishek
-abbashake007@yahoo.com
+Regards.
 
-________________________________________________________________________
-Looking for a job?  Visit Yahoo! India Careers
-      Visit http://in.careers.yahoo.com
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+> -- 
+> ---
+> Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
 

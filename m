@@ -1,68 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268688AbUJUSMP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270437AbUJUSMP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268688AbUJUSMP (ORCPT <rfc822;willy@w.ods.org>);
+	id S270437AbUJUSMP (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 21 Oct 2004 14:12:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270775AbUJUSKw
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270782AbUJUSLF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 14:10:52 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:50954 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S270711AbUJUSDV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 14:03:21 -0400
-Message-ID: <4177FCAA.4040907@techsource.com>
-Date: Thu, 21 Oct 2004 14:15:06 -0400
-From: Timothy Miller <miller@techsource.com>
+	Thu, 21 Oct 2004 14:11:05 -0400
+Received: from fire.osdl.org ([65.172.181.4]:14778 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S270773AbUJUSCX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 14:02:23 -0400
+Message-ID: <4177F774.7000207@osdl.org>
+Date: Thu, 21 Oct 2004 10:52:52 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: David Lang <david.lang@digitalinsight.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-References: <4176E08B.2050706@techsource.com> <Pine.LNX.4.60.0410201521310.17443@dlang.diginsite.com> <4177CBD5.2030003@techsource.com> <Pine.LNX.4.60.0410211011150.19286@dlang.diginsite.com>
-In-Reply-To: <Pine.LNX.4.60.0410211011150.19286@dlang.diginsite.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Joshua Kwan <joshk@triplehelix.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: bksvn?
+References: <pan.2004.10.21.05.35.26.253908@triplehelix.org>
+In-Reply-To: <pan.2004.10.21.05.35.26.253908@triplehelix.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-David Lang wrote:
-> On Thu, 21 Oct 2004, Timothy Miller wrote:
+Joshua Kwan wrote:
+> Hi all,
 > 
->> David Lang wrote:
->>
->>> On Wed, 20 Oct 2004, Timothy Miller wrote:
->>>
->>> since nobody has done this yet (for video cards anyeay) there is no 
->>> proof one way or the other.
->>
->>
->> Well, if Tech Source management decides that this project isn't worth 
->> the effort, you'll have a small piece of circumstantial evidence that 
->> leans toward "it's not viable".  I personally want to find a way to 
->> make it work.
->>
->> To the open source community, this is a golden opportunity to directly 
->> influence the design of a piece of hardware which fits their ideals. 
->> For me personally, this is a golden opportunity to work on a project 
->> from which I'll derive an immense amount of enjoyment.  For both 
->> accounts, I'm desperate to find a way to make it work.  :)
->>
+> Whatever happened to bksvn? I'm now using Subversion on a daily basis and
+> remembered about this neat hack, but...
 > 
-> Tim, in this case you are not just testing the openess idea, you are 
-> also testing the low-volume, high-cost, but flexible idea. and that idea 
-> has never had a large market
+> % svn ls svn://kernel.bkbits.net/linux-2.5 
+> svn: Can't connect to host 'kernel.bkbits.net': Connection refused
 > 
-> you are in something of a catch-22 here. due to the risk you can only do 
-> things with a relativly small initial investment, but with a larger 
-> initial investment you could make much cheaper (and therefor much more 
-> popular) cards. where's a billionare looking to Do Good Things (TM) when 
-> you need one ;-)
+> Has it gone elsewhere, or were other problems exposed?
 
+In July/2004, Peter Anvin wrote:
 
-Yeah!  I wonder if there are any rich investors reading this right now 
-who would like to invest in this project.  :)
+Followup to:  <20040718201014.GA8291@admingilde.org>
+By author:    Martin Waitz
+In newsgroup: linux.dev.kernel
+ >
+ > hi :)
+ >
+ > On Sun, Jul 18, 2004 at 11:18:56AM +0200, Kasper Sandberg wrote:
+ > > they are using bitkeeper
+ >
+ > sure, but Larry announced the CVS gateway some months ago...
+ > now that I wanted to give it a try, it doesn't exist anymore :(
+ >
 
-I'm sure the CEO would be elated to have that happen!  :)
+Just rsync the CVS repository from:
 
-Based on past experience, I think a few million dollars would do it.  :)
+rsync://rsync.kernel.org/pub/scm/linux/kernel/bkcvs/
 
+The direct access to the repository was removed due to disuse and
+security problems.  The rsync is a lot nicer anyway.
+
+	-hpa
+
+-- 
+~Randy

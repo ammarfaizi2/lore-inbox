@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265538AbUAGR7C (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 12:59:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266289AbUAGR7A
+	id S265584AbUAGSDg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 13:03:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265608AbUAGSCw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 12:59:00 -0500
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:10219 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S265538AbUAGR6N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 12:58:13 -0500
-Date: Wed, 7 Jan 2004 09:58:02 -0800
-To: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Cc: jeremy@sgi.com
-Subject: [RFC] Relaxed PIO read vs. DMA write ordering
-Message-ID: <20040107175801.GA4642@sgi.com>
-Mail-Followup-To: linux-pci@atrey.karlin.mff.cuni.cz,
-	linux-kernel@vger.kernel.org, jeremy@sgi.com
-Mime-Version: 1.0
+	Wed, 7 Jan 2004 13:02:52 -0500
+Received: from obsidian.spiritone.com ([216.99.193.137]:40641 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S265584AbUAGSCV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 13:02:21 -0500
+Date: Wed, 07 Jan 2004 10:01:34 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: slpratt@us.ibm.com
+Subject: [Bug 1806] New: disks stats not kept for DM (device	mapper) devices 
+Message-ID: <4340000.1073498494@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: jbarnes@sgi.com (Jesse Barnes)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've already talked with Grant a little about this, but I'm having
-second thoughts about the approach we discussed.  PCI-X allows PIO read
-responses to 'pass' DMA writes to system memory when the relaxed
-ordering bit is set in the PCI-X command word _and_ the transaction has
-the relaxed ordering bit set (so called "Relaxed Read Ordering" in
-section 11.2 of the PCI-X addendum).  This effectively 'unserializes'
-PIO vs. DMA transactions so that PIO reads doesn't get stuck behind an
-unrelated DMA writes from the same device; something which can
-potentially take awhile since cacheline ownership has to be acquired,
-etc.
+http://bugme.osdl.org/show_bug.cgi?id=1806
 
-I'd like Linux to support relaxed read ordering in some way since on
-large systems having PIO reads stuck behind DMA writes can end up eating
-into CPU time and limit IOPS (do I have this right, Jeremy?).
+           Summary: disks stats not kept for DM (device mapper) devices
+    Kernel Version: 2.6.0
+            Status: NEW
+          Severity: normal
+             Owner: axboe@suse.de
+         Submitter: slpratt@us.ibm.com
 
-The proposal I gave to Grant added a new readX() variant,
-readX_relaxed(), that drivers could use when they don't need strict
-ordering semantics (this may actually be the majority of cases, but it's
-safer to be strict by default than create a read_ordered and open a
-window for data corruption).  It might be confusing, however, to add yet
-another readX() routine, and there are other ways we might go about it.
-One suggestion was to overload the pci_sync_* calls so that they'd
-explicitly flush DMA writes to system memory, implying that all reads on
-some platforms would use relaxed semantics, but that we'd have to modify
-drivers to add in pci_sync_* calls where needed.
 
-Thoughts?
+Distribution:all
+Hardware Environment:all
+Software Environment:all
+Problem Description:
+Disk stats as reported through sysfs are empty for all DM (device mapper)
+devices.  This appears to be due to the fact that the stats are traced via
+request structs which are not generated until below the device mapper layer.  It
+seems it would be possible to add code to device mapper to track the stats since
+the actual location of the stats is in the gendisk entry which does exsist for
+DM deivices.  Only problem I see is in tracking ticks for IO since in the non DM
+case this is done by storing a start time in the request struct on driving the
+request.  Since DM has no request struct (only the BIO) it has no place to
+record the start time.
 
-Thanks,
-Jesse
+Steps to reproduce:
+create a DM device using dmsetup, lvm2 or EVMS.  Do IO to device, look at
+/sys/block/dm-xxx/stat.
+
+

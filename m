@@ -1,66 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269999AbTGZVVL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 17:21:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269969AbTGZVVL
+	id S270617AbTGZV0j (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 17:26:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270618AbTGZV0i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 17:21:11 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:58857 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S269999AbTGZVUi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 17:20:38 -0400
-Date: Sat, 26 Jul 2003 23:35:37 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp updates
-Message-ID: <20030726213537.GJ266@elf.ucw.cz>
-References: <20030726211310.GG266@elf.ucw.cz> <Pine.LNX.4.44.0307261422080.23977-100000@cherise>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 26 Jul 2003 17:26:38 -0400
+Received: from 015.atlasinternet.net ([212.9.93.15]:33499 "EHLO
+	ponti.gallimedina.net") by vger.kernel.org with ESMTP
+	id S270426AbTGZVY5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 17:24:57 -0400
+From: Ricardo Galli <gallir@uib.es>
+Organization: UIB
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test1: ieee1394/sbp2 plug doesn't work
+Date: Sat, 26 Jul 2003 23:40:04 +0200
+User-Agent: KMail/1.5.2
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0307261422080.23977-100000@cherise>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+Message-Id: <200307262340.04910.gallir@uib.es>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Just trying to  make my firewire CDROM work in 2.6. 
+I found that it only works if the device is attached when
+the machine is booted. 
 
-> > Okay, I killed few trivial hunks, will submit them through trivial
-> > patch monkey. Are you happy now, patrick?
-> 
-> Why do you insist on abusing the trivial patch monkey? Why can't you send 
-> them directly to the maintainers? For instance, you add/remove printk()s 
-> and comments that other people may or may not want in there. 
+If you plug it after booting it gives all the following errors. 
+It doesn't stop until you unplug the device again.
 
-If killing an noisy printk is not an trivial patch, I do not know what
-else is. If you want me to keep some printks, tell me, and we can talk
-about that.
+------------------------------
+ul 26 23:31:10 minime kernel: ieee1394: Node removed: ID:BUS[0-00:1023]  GUID[00065b80040f4934]
+Jul 26 23:31:11 minime kernel: ieee1394: sbp2: Logged out of SBP-2 device
+Jul 26 23:32:10 minime kernel: ieee1394: unsolicited response packet received - np
+Jul 26 23:32:10 minime kernel: ieee1394: contents: ffc0c160 ffc00000 00000000 14f10404
+Jul 26 23:32:11 minime kernel: ieee1394: unsolicited response packet received - np
+Jul 26 23:32:11 minime kernel: ieee1394: contents: ffc0c560 ffc00000 00000000 14f10404
+Jul 26 23:32:11 minime kernel: ieee1394: unsolicited response packet received - np
+Jul 26 23:32:11 minime kernel: ieee1394: contents: ffc0c960 ffc00000 00000000 14f10404
+Jul 26 23:32:12 minime kernel: ieee1394: ConfigROM quadlet transaction error for node 00:1023
+Jul 26 23:32:13 minime kernel: ieee1394: ConfigROM quadlet transaction error for node 01:1023
+Jul 26 23:32:13 minime kernel: ieee1394: The root node is not cycle master capable; selecting a new root node and resetting...
+Jul 26 23:32:13 minime kernel: ieee1394: Node added: ID:BUS[0-00:1023]  GUID[00065b80040f4934]
+Jul 26 23:32:13 minime kernel: ieee1394: unsolicited response packet received - np
+Jul 26 23:32:13 minime kernel: ieee1394: contents: ffc16560 ffc10000 00000000 14f10404
+Jul 26 23:32:13 minime kernel: scsi1 : SCSI emulation for IEEE-1394 SBP-2 Devices
+Jul 26 23:32:13 minime kernel: ieee1394: sbp2: Logged into SBP-2 device
+Jul 26 23:32:13 minime kernel: ieee1394: sbp2: Node[00:1023]: Max speed [S400] - Max payload [2048]
+Jul 26 23:32:13 minime kernel:   Vendor: SAMSUNG   Model: CD-ROM SN-124     Rev: N102
+Jul 26 23:32:13 minime kernel:   Type:   CD-ROM                             ANSI SCSI revision: 02
+Jul 26 23:32:14 minime kernel: sr0: scsi3-mmc drive: 0x/0x caddy
+Jul 26 23:32:14 minime kernel: Attached scsi CD-ROM sr0 at scsi1, channel 0, id 0, lun 0
+Jul 26 23:32:14 minime kernel: ieee1394: unsolicited response packet received - np
+Jul 26 23:32:14 minime kernel: ieee1394: contents: ffc16960 ffc10000 00000000 14f10404
+Jul 26 23:32:14 minime kernel: ieee1394: unsolicited response packet received - np
+Jul 26 23:32:14 minime kernel: ieee1394: contents: ffc16d60 ffc10000 00000000 14f10404
+Jul 26 23:32:15 minime kernel: ieee1394: ConfigROM quadlet transaction error for node 01:1023
+Jul 26 23:32:15 minime kernel: ieee1394: The root node is not cycle master capable; selecting a new root node and resetting...
+Jul 26 23:32:15 minime kernel: ieee1394: sbp2: Reconnected to SBP-2 device
+Jul 26 23:32:15 minime kernel: ieee1394: sbp2: Node[00:1023]: Max speed [S400] - Max payload [2048]
+Jul 26 23:32:15 minime kernel: ieee1394: unsolicited response packet received - np
+Jul 26 23:32:15 minime kernel: ieee1394: contents: ffc17160 ffc10000 00000000 14f10404
+Jul 26 23:32:16 minime kernel: ieee1394: unsolicited response packet received - np
+Jul 26 23:32:16 minime kernel: ieee1394: contents: ffc17560 ffc10000 00000000 14f10404
+Jul 26 23:32:16 minime kernel: ieee1394: unsolicited response packet received - np
+Jul 26 23:32:16 minime kernel: ieee1394: contents: ffc17960 ffc10000 00000000 14f10404
+Jul 26 23:32:16 minime kernel: ieee1394: ConfigROM quadlet transaction error for node 01:1023
+Jul 26 23:32:16 minime kernel: ieee1394: The root node is not cycle master capable; selecting a new root node and resetting...
+Jul 26 23:32:17 minime kernel: ieee1394: sbp2: Reconnected to SBP-2 device
+Jul 26 23:32:17 minime kernel: ieee1394: sbp2: Node[00:1023]: Max speed [S400] - Max payload [2048]
+Jul 26 23:32:17 minime kernel: ieee1394: unsolicited response packet received - np
+Jul 26 23:32:17 minime kernel: ieee1394: contents: ffc17d60 ffc10000 00000000 14f10404
+Jul 26 23:32:17 minime kernel: ieee1394: unsolicited response packet received - np
+Jul 26 23:32:17 minime kernel: ieee1394: contents: ffc18160 ffc10000 00000000 14f10404
+Jul 26 23:32:18 minime kernel: ieee1394: unsolicited response packet received - np
+Jul 26 23:32:18 minime kernel: ieee1394: contents: ffc18560 ffc10000 00000000 14f10404
+Jul 26 23:32:18 minime kernel: ieee1394: ConfigROM quadlet transaction error for node 01:1023
+Jul 26 23:32:18 minime kernel: ieee1394: The root node is not cycle master capable; selecting a new root node and resetting...
+Jul 26 23:32:18 minime kernel: ieee1394: sbp2: Reconnected to SBP-2 device
+Jul 26 23:32:19 minime kernel: ieee1394: sbp2: Node[00:1023]: Max speed [S400] - Max payload [2048]
+Jul 26 23:32:19 minime kernel: ieee1394: unsolicited response packet received - np
+Jul 26 23:32:19 minime kernel: ieee1394: contents: ffc18960 ffc10000 00000000 14f10404
+Jul 26 23:32:19 minime kernel: ieee1394: unsolicited response packet received - np
+Jul 26 23:32:19 minime kernel: ieee1394: contents: ffc18d60 ffc10000 00000000 14f10404
+Jul 26 23:32:19 minime kernel: ieee1394: unsolicited response packet received - np
+Jul 26 23:32:19 minime kernel: ieee1394: contents: ffc19160 ffc10000 00000000 14f10404
+Jul 26 23:32:20 minime kernel: ieee1394: ConfigROM quadlet transaction error for node 01:1023
+Jul 26 23:32:20 minime kernel: ieee1394: The root node is not cycle master capable; selecting a new root node and resetting...
+Jul 26 23:32:20 minime kernel: ieee1394: sbp2: Reconnected to SBP-2 device
+Jul 26 23:32:20 minime kernel: ieee1394: sbp2: Node[00:1023]: Max speed [S400] - Max payload [2048]
+....
 
-> But no, this doesn't make me happy because you insist on munging multiple 
-> patches together that have little to do with each other, besides the fact 
-> they touch the same file. Like I said in private email, it really helps to 
-> track down a problem if each patch and subsequent changeset is as small 
-> and localized as possible. 
 
-> And, that's a real problem with swsusp. It's a huge mess right now. I'd 
-> like to see it work well and reliably for 2.6, and have the source code be 
-> in a state where people can look at it without running away screaming. 
-> Convoluted updates are not going to help the situation. 
 
-Yes, and just now you are contributing for swsusp to stay in the messy
-state. Thanx a lot.
-
-If you want to become swsusp maintainer, say so, and you'll be fed
-nice and split patches *once*. That's okay to do. But I'm not able/do
-not have enough time to produce split patch each time Linus decides to
-drop the mail into the bitbucket.
-
-I really don't like "Linus dropped patch -> resubmit 2 patches merged"
-resulting in you screaming "SPLIT IT UP!" on the lists.
-								Pavel
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+  ricardo galli       GPG id C8114D34
+  http://mnm.uib.es/~gallir/
+

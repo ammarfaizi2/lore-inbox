@@ -1,33 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131362AbRDBWBK>; Mon, 2 Apr 2001 18:01:10 -0400
+	id <S131320AbRDBWAA>; Mon, 2 Apr 2001 18:00:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131376AbRDBWBA>; Mon, 2 Apr 2001 18:01:00 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:35537 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S131362AbRDBWAy>;
-	Mon, 2 Apr 2001 18:00:54 -0400
-Date: Mon, 2 Apr 2001 23:59:35 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200104022159.XAA52100.aeb@vlet.cwi.nl>
-To: Andries.Brouwer@cwi.nl, alan@lxorguk.ukuu.org.uk
-Subject: Re: Larger dev_t
-Cc: hpa@transmeta.com, linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-   tytso@MIT.EDU
+	id <S131362AbRDBV7u>; Mon, 2 Apr 2001 17:59:50 -0400
+Received: from ns.suse.de ([213.95.15.193]:35086 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S131320AbRDBV7l>;
+	Mon, 2 Apr 2001 17:59:41 -0400
+To: "J . A . Magallon" <jamagallon@able.es>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] multiline string cleanup
+In-Reply-To: <20010330234804.A27780@werewolf.able.es>
+From: Andi Kleen <ak@suse.de>
+Date: 02 Apr 2001 23:57:30 +0200
+In-Reply-To: "J . A . Magallon"'s message of "30 Mar 2001 23:53:32 +0200"
+Message-ID: <oupd7avyng5.fsf@pigdrop.muc.suse.de>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Mount NFS device areas with NFSv2. Thats the standard workaround
+"J . A . Magallon" <jamagallon@able.es> writes:
 
-Oh, sure. We survived with 16 bits and we'll survive with 32.
-Nevertheless it is a bad sign that you have to start talking
-about workarounds even before the new system has been implemented.
+> This is one other try to make kernel sources gcc-3.0 friendly. This cleans
+> some muti-line asm strings in checksum.h and floppy.h (this were the only
+> ones reported in my kernel build, perhaps there are more in drivers I do
+> not use).
 
-(And NFSv2 has its quirks as well.
-Solaris will split the 32-bit number (the size given in a CREATE
-request) into 14+18 when it is not a 16-bit value, while it will
-split it into 8+8 if it is. FreeBSD will regard it as a 8+24 dev_t.
-So, in general, different systems will parse the same dev_t in
-different ways, and hence see different (major,minor) for the
-same device.)
+I surely hope the gcc guys will just remove that silly warning again, because
+it makes it impossible to write readable inline assembly now.
 
-Andries
+-Andi

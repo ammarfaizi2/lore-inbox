@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133074AbRECMIA>; Thu, 3 May 2001 08:08:00 -0400
+	id <S135749AbRECMMa>; Thu, 3 May 2001 08:12:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135618AbRECMHu>; Thu, 3 May 2001 08:07:50 -0400
-Received: from rhenium.btinternet.com ([194.73.73.93]:34737 "EHLO rhenium")
-	by vger.kernel.org with ESMTP id <S133074AbRECMHp>;
-	Thu, 3 May 2001 08:07:45 -0400
-Date: Thu, 3 May 2001 13:13:13 +0000 (GMT)
-From: James Stevenson <mistral@stev.org>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4.4 parport compile error
-Message-ID: <Pine.LNX.4.21.0105031312280.20986-100000@linux.home>
-X-mailer: Pine 4.21
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135950AbRECMMU>; Thu, 3 May 2001 08:12:20 -0400
+Received: from ludwig-alpha.unil.ch ([192.42.197.33]:45985 "EHLO
+	ludwig-alpha.unil.ch") by vger.kernel.org with ESMTP
+	id <S135749AbRECMMF>; Thu, 3 May 2001 08:12:05 -0400
+Message-Id: <200105031211.OAA23354@ludwig-alpha.unil.ch>
+X-Mailer: exmh version 2.1.1 10/15/1999
+To: Alexandre Oliva <aoliva@redhat.com>
+cc: gcc@gcc.gnu.org, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.4-ac3, asm problem in asm-i386/rwsem.h using gcc 3.0 CVS 
+In-Reply-To: Message from Alexandre Oliva <aoliva@redhat.com> 
+   of "03 May 2001 08:04:45 -0300." <org0em8zhu.fsf@guarana.lsd.ic.unicamp.br> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 03 May 2001 14:11:58 +0200
+From: Christian Iseli <chris@ludwig-alpha.unil.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-make[3]: Entering directory
-`/home/mistral/data/kernels/SX/drivers/parport'
-gcc -D__KERNEL__ -I/home/mistral/data/kernels/SX/include -Wall
--Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
--march=i486    -c -o parport_pc.o parport_pc.c
-parport_pc.c: In function `parport_pc_find_ports':
-parport_pc.c:2618: too many arguments to function
-`parport_pc_init_superio'
-make[3]: *** [parport_pc.o] Error 1
-make[3]: Leaving directory `/home/mistral/data/kernels/SX/drivers/parport'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/home/mistral/data/kernels/SX/drivers/parport'
-make[1]: *** [_subdir_parport] Error 2
-make[1]: Leaving directory `/home/mistral/data/kernels/SX/drivers'
-make: *** [_dir_drivers] Error 2
+aoliva@redhat.com said:
+> I believe we'd need at least the source code of this function to be
+> able to duplicate the problem with GCC.  Would you please submit a
+> full bug report, following the guidelines at <URL:http://gcc.gnu.org/
+> bugs.html>?  Thanks in advance, 
 
+Ok, I filed a bug report to gcc-gnats, with pre-processed sources: `c/2728'
 
--- 
----------------------------------------------
-Check Out: http://stev.org
-E-Mail: mistral@stev.org
-  1:10pm  up 21:06,  6 users,  load average: 10.81, 13.53, 14.58
+BTW, it is possible to compile sys.c with -O instead of -O2, and the problem 
+is not triggered...
+
+Cheers,
+					Christian
+
 

@@ -1,81 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264791AbRFXV5k>; Sun, 24 Jun 2001 17:57:40 -0400
+	id <S264800AbRFXV5u>; Sun, 24 Jun 2001 17:57:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264797AbRFXV5b>; Sun, 24 Jun 2001 17:57:31 -0400
-Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:28828 "HELO
+	id <S264797AbRFXV5k>; Sun, 24 Jun 2001 17:57:40 -0400
+Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:32924 "HELO
 	tsunami.webofficenow.com") by vger.kernel.org with SMTP
-	id <S264794AbRFXV5T>; Sun, 24 Jun 2001 17:57:19 -0400
+	id <S264801AbRFXV50>; Sun, 24 Jun 2001 17:57:26 -0400
 Content-Type: text/plain; charset=US-ASCII
 From: Rob Landley <landley@webofficenow.com>
 Reply-To: landley@webofficenow.com
-To: "J . A . Magallon" <jamagallon@able.es>, landley@webofficenow.com
-Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
-Date: Sun, 24 Jun 2001 12:55:59 -0400
+To: Mike Castle <dalgoda@ix.netcom.com>, linux-kernel@vger.kernel.org
+Subject: Re: Microsoft and Xenix.
+Date: Sun, 24 Jun 2001 10:44:06 -0400
 X-Mailer: KMail [version 1.2]
-Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-        Timur Tabi <ttabi@interactivesi.com>,
-        "linux-kernel @ vger . kernel . org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.96.1010622162213.32091B-100000@artax.karlin.mff.cuni.cz> <0106220929490F.00692@localhost.localdomain> <20010624234101.A1619@werewolf.able.es>
-In-Reply-To: <20010624234101.A1619@werewolf.able.es>
+In-Reply-To: <20010623200727.A5272@thune.mrc-home.com>
+In-Reply-To: <20010623200727.A5272@thune.mrc-home.com>
 MIME-Version: 1.0
-Message-Id: <01062412555901.03436@localhost.localdomain>
+Message-Id: <0106241044060C.01519@localhost.localdomain>
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 24 June 2001 17:41, J . A . Magallon wrote:
-> On 20010622 Rob Landley wrote:
-> >I still consider the difference between threads and processes with shared
-> >resources (memory, fds, etc) to be largely semantic.
+On Saturday 23 June 2001 23:07, Mike Castle wrote:
+> On Sat, Jun 23, 2001 at 09:41:29PM -0500, Wayne.Brown@altec.com wrote:
+> > Ah, yes, the RT/PC.  That brings back some fond memories.  My first
+> > exposure to Unix was with AIX on the RT.  I still have some of those
+> > weird-sized RT AIX manuals around somewhere...
 >
-> They should not be the same. Processes are processes, and threads were
-> designed for situations where processes are too heavy. Other thing is that
-> in new kernels (for example, Linux) processes are being optimized (ie, vm
-> fast 'cloning' via copy-on-write) or expanded with new features (Linux'
-> clone+ CLONE_VM). But they are different beasts.
+> We always ran AOS on RT's.  Actually, the server was the only RT, the rest
+> were some other model that was basically a PS/2 (286) that booted DOS, then
+> booted the other same chip that the RT used that was on a daughter card.
+>
+> AOS was basically IBM's version of BSD.  Academic Operating System.
 
-This is a bit like like saying that a truck and a train are totally different 
-beasts.  If I'm trying to haul cargo from point A to point B, which is served 
-by both, all I care about is how long it takes and how much it costs.
+Now if somebody here could just point me to a decent reference on A/UX - 
+Apple's mid-80's version of Unix (for the early macintosh, I believe...)
 
-I don't care what it was INTENDED to do.  A rock makes a decent hammer.  So 
-does a crescent wrench.  The question is how good a tool is it for the uses 
-we're trying to put it to?
+A big thing I'm trying to show in my book is that Unix has been, for almost 
+thirty years, the standard against which everything else was compared.  Even 
+when it wasn't what people were directly using it's what the techies were 
+thinking about when they designed their other stuff.  (That and the Xerox 
+Parc work...)
 
-> This remembers on other question I read in this thread (I tried to answer
-> then but I had broke balsa...). Somebody posted some benchmarks of linux
-> fork()+exec() vs Solaris fork()+exec().
+Let's see, the real earthquakes in the computing world (off the top of my 
+head) are:
 
-What programs does this make a difference in?  These are tools meant to be 
-used.  What real-world usage causes them to differ?  If a reasonably 
-competent programmer ported a program from one platform to another, is this 
-the behavior they would expect to see (without a major rewrite of the code)?
+MIT: project whirlwind (which got computing off of vacuum tubes, spawned DEC, 
+and Minsky's hacker lab.  Gurus too numerous to mention.)
 
-> That is comparing apples and oranges.
+Bell Labs: (the transistor, and 20 years later Unix.  Gurus ken thompson, 
+dennis ritchie, the three transistor guys, ).
 
-Show me a real-world program that makes the distinction you're making.  
-Something in actual use.
+DARPA: (Arpanet (BBN), funded project MAC at MIT, and Multics which brought 
+the MIT stuff to bell labs.)
 
-> The clean battle should be linux fork-exec vs vfork-exec in
-> Solaris, because for in linux is really a vfork in solaris.
+Xerox Parc (WIMP interface, WYSIWYG word processing/printing/desktop 
+publishing, object oriented programming, 
 
-But the point of threading is it's a fork WITHOUT an exec.
+The integrated circuit/microchip (Texas Instruments' manufacturing 
+innovation, which led to the Intel 4004, which eventually led to the Altair, 
+which led to the personal computer.  Moore's Law would probably be the theme 
+here...)
 
-So now you're saying the comparison we're making of "using these tools to do 
-goal X" is invalid because you don't like goal X, and you want to do 
-something else with them.
+The whole free software thing (Berkeley in the 70's to early 80's, Stallman 
+and the FSF taking over from there.  And Andrew Tanenbaum's Minix, which 
+spawned Linux...)
 
-I'm not going to comment on the difference between fork and vfork becaue to 
-be honest I've forgotten what the difference is.  Something to do with 
-resource sharing but darned if I can remember it.  I'm not sure I've ever 
-used vfork, last thing I remember were people arguing over the man page for 
-it...
+Huh, I'd have to mention IBM (forget the PC, how about the winchester 
+drive?), and of course the AT&T breakup (a negative earthquake, but big 
+anyway, sort of leading to the commercialization of the software side of 
+things, although Gates was trying that already.  AT&T just removed a lot of 
+the roadblocks by shattering the opposition for a while.)
 
-(Sorry  if I seem a bit snappish, I've had this kind of discussion too many 
-times with ivory tower types at UT who object to the topic of conversation 
-because it's not what they've focused on until now.  Which logical fallacy 
-was this, "begging the question"?  Straw man?  I forget.  I'm tired...)
+Alright, I need to sit down and make an outline and a timeline.   I admit 
+this...  (Collecting the data is the easy part.  ORGANIZING this fermenting 
+heap of disconnected facts and observations is the hard part...)
+
+> mrc
 
 Rob
 

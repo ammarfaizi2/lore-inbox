@@ -1,61 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264396AbTFKMLM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 08:11:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264399AbTFKMLM
+	id S264407AbTFKMV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 08:21:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264412AbTFKMV4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 08:11:12 -0400
-Received: from 216-42-72-151.ppp.netsville.net ([216.42.72.151]:31919 "EHLO
-	tiny.suse.com") by vger.kernel.org with ESMTP id S264396AbTFKMLL
+	Wed, 11 Jun 2003 08:21:56 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:56035 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S264407AbTFKMVz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 08:11:11 -0400
-Subject: Re: [PATCH] io stalls (was: -rc7   Re: Linux 2.4.21-rc6)
-From: Chris Mason <mason@suse.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Nick Piggin <piggin@cyberone.com.au>,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       Jens Axboe <axboe@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Georg Nikodym <georgn@somanetworks.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>
-In-Reply-To: <20030611021030.GQ26270@dualathlon.random>
-References: <200306041235.07832.m.c.p@wolk-project.de>
-	 <20030604104215.GN4853@suse.de> <200306041246.21636.m.c.p@wolk-project.de>
-	 <20030604104825.GR3412@x30.school.suse.de>
-	 <3EDDDEBB.4080209@cyberone.com.au>
-	 <1055194762.23130.370.camel@tiny.suse.com>
-	 <20030611003356.GN26270@dualathlon.random>
-	 <1055292839.24111.180.camel@tiny.suse.com>
-	 <20030611010628.GO26270@dualathlon.random>
-	 <1055296630.23697.195.camel@tiny.suse.com>
-	 <20030611021030.GQ26270@dualathlon.random>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1055334254.24111.209.camel@tiny.suse.com>
+	Wed, 11 Jun 2003 08:21:55 -0400
+Date: Wed, 11 Jun 2003 18:08:18 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <akpm@digeo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       greg@kroah.com
+Subject: Re: Misc 2.5 Fixes: cp-user-vicam
+Message-ID: <20030611123818.GA10840@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20030610100905.GD2194@in.ibm.com> <20030610100950.GE2194@in.ibm.com> <20030610101035.GF2194@in.ibm.com> <20030610101121.GG2194@in.ibm.com> <20030610101318.GH2194@in.ibm.com> <20030610101503.GI2194@in.ibm.com> <20030610101801.GJ2194@in.ibm.com> <20030610102024.GK2194@in.ibm.com> <20030611104823.GB3718@in.ibm.com> <1055333897.2083.5.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 11 Jun 2003 08:24:14 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1055333897.2083.5.camel@dhcp22.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-06-10 at 22:10, Andrea Arcangeli wrote:
-> On Tue, Jun 10, 2003 at 09:57:11PM -0400, Chris Mason wrote:
-> > Ok, I see your point, we don't strictly need the waited check.  I had
-> > added it as an optimization at first, so that those who waited once were
-> > not penalized by further queue_full checks. 
+On Wed, Jun 11, 2003 at 01:18:17PM +0100, Alan Cox wrote:
+> On Mer, 2003-06-11 at 11:48, Dipankar Sarma wrote:
+> > The patch I sent yesterday is bad, turns out I didn't enable vicam
+> > config option while compiling. Here is a replacement patch that
+> > actually compiles.
 > 
-> I could taste the feeling of not penalizing while reading the code but
-> that's just a feeling, in reality if they blocked it means they set full
-> by themself and there was no request so they want to go to sleep no
-> matter ->full or not ;)
+> This looks odd. 2.5 unlike 2.4 video4linux has the wrapper copy the
+> structures in and out
 
-You're completely right, as the patch changed I didn't realize waited
-wasn't needed anymore ;-)
+Which ioctl cmds, gets or sets ? In 2.5, it seems sets are copying
+in and gets are copying the structures out as one would expect.
 
-Are you adding the hunk from yesterday to avoid unplugs when q->rq.count
-!= 0?
+That said, some like VIDIOCSCHAN and VIDIOCSWIN in vicam don't 
+seem to really do anything.
 
--chris
-
-
+Thanks
+Dipankar

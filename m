@@ -1,68 +1,142 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266114AbRF2Q0v>; Fri, 29 Jun 2001 12:26:51 -0400
+	id <S264669AbRF2Q2v>; Fri, 29 Jun 2001 12:28:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266112AbRF2Q0l>; Fri, 29 Jun 2001 12:26:41 -0400
-Received: from max1-69.flint.corecomm.net ([208.40.12.69]:19720 "HELO
-	fire-eyes.yi.org") by vger.kernel.org with SMTP id <S266113AbRF2Q0W>;
-	Fri, 29 Jun 2001 12:26:22 -0400
-Date: Fri, 29 Jun 2001 12:26:18 -0400 (EDT)
-From: sgtphou <sgtphou@fire-eyes.yi.org>
-To: <mec@shout.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: 2.4.5-ac21: make menuconfig errors
-Message-ID: <Pine.LNX.4.30.0106291218200.6225-100000@fire-eyes>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265328AbRF2Q2l>; Fri, 29 Jun 2001 12:28:41 -0400
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:29780 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S264669AbRF2Q2Z>; Fri, 29 Jun 2001 12:28:25 -0400
+Date: Fri, 29 Jun 2001 11:28:19 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200106291628.LAA09466@tomcat.admin.navo.hpc.mil>
+To: caszonyi@yahoo.com, Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Subject: Re: [Re: gcc: internal compiler error: program cc1 got fatal signal 11]
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was trying to configure 2.4.5-ac21 when I ran into some problems. First
-off i noticed this when I went to make menuconfig :
+---------  Received message begins Here  ---------
 
-root@fire-eyes:/usr/src/linux # make menuconfig
-rm -f include/asm
-( cd include ; ln -sf asm-i386 asm)
-make -C scripts/lxdialog all
-make[1]: Entering directory `/usr/src/linux-2.4.5-ac21/scripts/lxdialog'
-make[1]: Leaving directory `/usr/src/linux-2.4.5-ac21/scripts/lxdialog'
-/bin/sh scripts/Menuconfig arch/i386/config.in
-Using defaults found in .config
-Preparing scripts: functions,
-parsing..........................scripts/Menuconfig: ./MCmenu31: line 185:
-syntax error near unexpected token `fi'
-scripts/Menuconfig: ./MCmenu31: line 185: `fi'
-...............make: *** [menuconfig] Error 1
+> 
+> 
+> --- Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+> wrote:
+> > > 
+> > > 
+> > > "This is almost always the result of flakiness in
+> > your hardware - either
+> > > RAM (most likely), or motherboard (less likely). 
+> > "
+> > >                          
+> > >                               I cannot understand
+> > this. There are many other
+> > > stuffs that I compiled with gcc without any
+> > problem. Again compilation is only
+> > > a application. It  only parse and gernerates
+> > object files. How can RAM or
+> > > motherboard makes different
+> > 
+> > It's most likely flackey memory.
+> > 
+> > Remember- a single bit that dropps can cause the
+> > signal 11. It doesn't have
+> > to happen consistently either. I had the same
+> > problem until I slowed down
+> > memory access (that seemd to cover the borderline
+> > chip).
+> > 
+> > The compiler uses different amounts of memory
+> > depending on the source file,
+> > number of symbols defined (via include headers).
+> > When the multiple passes
+> > occur simultaneously, there is higher memory
+> > pressure, and more of the
+> > free space used. One of the pages may flake out.
+> > Compiling the kernel
+> > puts more pressure on memory than compiling most
+> > applications.
+> > 
+> >
+> -------------------------------------------------------------------------
+> > Jesse I Pollard, II
+> > Email: pollard@navo.hpc.mil
+> > 
+> > Any opinions expressed are solely my own.
+> > -
+> > To unsubscribe from this list: send the line
+> > "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at 
+> > http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> Almost always ?
+> It seems like gcc is THE ONLY program which gets
+> signal 11
+> Why the X server doesn't get signal 11 ?
+> Why others programs don't get signal 11 ?
 
-The Error at the end is ONLY BECAUSE I ^c to see the line 185 error,
-otherwise the menu would have popped up and covered it up.
+Load the system down with lots of processes/large
+image windows. Unless the bit in question is in
+a pointer, or data used in pointer arithmetic or function call
+it won't
+segfault. Applications (if an instruction page gets hit)
+may get an illegal instruction.
 
-AFter this the menu comes up.
+> I remember that once Bill Gates was asked about
+> crashes in windows and he said: It's a hardware
+> problem.
+> It was also a joke on that subject:
+> Winerr xxx: Hardware problem (it's not our fault, it's
+> not, it's not, it's not, it's not...)
 
-And here is another problem ..
+Yup - because it crashed VERY frequently when it was obviously a
+software bug.
 
-Network device support  --->
-	Ethernet (10 or 100Mbit)  --->
+> Seems to me like Micro$oft way of handling problems.
+> 
+> We must agree that gcc is full of bugs (xanim does not
+> 
+> run corectly if it is compiled with gcc 2.95.3 
+> and other programs which use floating point
+> calculations do the same (spice 3f5))
 
-Menuconfig has encountered a possible error in one of the kernel's
-configuration files and is unable to continue.  Here is the error
-report:
+Generating wrong code is different than a segfault.
 
- Q> scripts/Menuconfig: MCmenu31: command not found
+Currently I'm using egcs-2.91.66 on a 486, without problems.
+(I don't do floating point on a 486... too slow).
 
-Please report this to the maintainer <mec@shout.net>.  You may also
-send a problem report to <linux-kernel@vger.kernel.org>.
+> Some time ago I installed Linux (Redhat 6.0) on my 
+> pc (Cx486 8M RAM) and gcc had a lot of signal 11 (a
+> couple every hour) I was upgrading
+> the kernel every time there was a new kernel and
+> from 2.2.12(or 14) no more signal 11 (very rare)
+> Is this still a hardware problem ?
+> Was a bug in kernel ?
 
-Please indicate the kernel version you are trying to configure and
-which menu you were trying to enter when this error occurred.
+Not likely - It could just depend on whether all of available
+was used. If the physical page with the problem doesn't get used
+very often, it won't show up. If the bit in question is not part
+of a pointer, or used in pointer arithmetic, again it won't show
+up (actually, any operation on addresses). Wrong, or slightly wrong
+results MAY show up.
 
-make: *** [menuconfig] Error 1
+> I think the last answer is more obvious.(or the gcc
+> had a bug and the kernel -- a workaround).
+> 
+> Sorry for bothering you but in every piece of linux
+> documentation signal 11 seems to be __identic__ with
+> hardware problem.
+> Bye
 
+Only when it appears in random location.
 
- I simply skipped that menu, and now I am attempting to continue with the
-kernel build. I would state here if that failed or not but this is a slow
-system.
+GCC is a fairly well debugged program and doesn't segfault
+unless you run out of memory, or flakey memory.
 
-I am not on the list, I would appreciate anything important being mailed
-to me. Or if I get sub instructions back ill sub.
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
+Any opinions expressed are solely my own.

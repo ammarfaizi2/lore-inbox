@@ -1,67 +1,168 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285516AbRLSVoC>; Wed, 19 Dec 2001 16:44:02 -0500
+	id <S285555AbRLSVuB>; Wed, 19 Dec 2001 16:50:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285517AbRLSVnw>; Wed, 19 Dec 2001 16:43:52 -0500
-Received: from ca-ol-tours-10-196.abo.wanadoo.fr ([80.8.7.196]:24977 "EHLO
-	walhalla.agaha") by vger.kernel.org with ESMTP id <S285516AbRLSVnh>;
-	Wed, 19 Dec 2001 16:43:37 -0500
-To: "M. R. Brown" <mrbrown@0xd6.org>
-Cc: Benoit Poulot-Cazajous <poulot@ifrance.com>, nbecker@fred.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: On K7, -march=k6 is good (Was Re: Why no -march=athlon?)
-In-Reply-To: <x88r8ptki37.fsf@rpppc1.hns.com> <20011217174020.GA24772@0xd6.org>
-	<lnitb3drx6.fsf_-_@walhalla.agaha> <20011219175616.GD19236@0xd6.org>
-From: Benoit Poulot-Cazajous <Benoit.Poulot-Cazajous@Sun.COM>
-Organization: Sun Microsystems
-Date: 19 Dec 2001 22:40:39 +0100
-In-Reply-To: <20011219175616.GD19236@0xd6.org>
-Message-ID: <lnellqevmw.fsf@walhalla.agaha>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S285554AbRLSVtw>; Wed, 19 Dec 2001 16:49:52 -0500
+Received: from mail.cs.tu-berlin.de ([130.149.17.13]:19405 "EHLO
+	mail.cs.tu-berlin.de") by vger.kernel.org with ESMTP
+	id <S285540AbRLSVth>; Wed, 19 Dec 2001 16:49:37 -0500
+Message-ID: <3C210AB9.5000900@suhr.home.cs.tu-berlin.de>
+Date: Wed, 19 Dec 2001 22:46:33 +0100
+From: Gregor Suhr <linuxkernel@suhr.home.cs.tu-berlin.de>
+Reply-To: gregor@suhr.home.cs.tu-berlin.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us, de-de
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: OOPS  at boot in 2.4.17-rc[12]  (kernel BUG at slab.c:815) maybe devfs
+Content-Type: multipart/mixed;
+ boundary="------------040209020005080101070706"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"M. R. Brown" <mrbrown@0xd6.org> writes:
+This is a multi-part message in MIME format.
+--------------040209020005080101070706
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> * Benoit Poulot-Cazajous <poulot@ifrance.com> on Wed, Dec 19, 2001:
-> 
-> > 
-> > But gcc-2.95,x _supports_ "-march=k6", and we should use that instead of
-> > "-march-i686".
-> > 
-> 
-> No, k6 != athlon.  IIRC, the i686 optimization is closer to the Athlon than
-> the k6 opt.
+  Hi,
+I tried to upgrade my system from 2.4.16 to 2.4.17-rc2 but I'am always 
+got the following OOPS:
 
-In theory, you may be right. But gcc-2.95.3 may not follow the theory.
+ksymoops 2.4.3 on i686 2.4.16.  Options used
+     -v /usr/src/linux/vmlinux (specified)
+     -K (specified)
+     -L (specified)
+     -o /lib/modules/2.4.17-rc2 (specified)
+     -m /usr/src/linux/System.map (specified)
 
-> > before the patch :
-> > 1017.92user 261.80system 24:39.89elapsed 86%CPU
-> > 706.33user 160.79system 16:23.61elapsed 88%CPU
-> > 1787.38user 418.76system 43:35.97elapsed 84%CPU
-> > 
-> > after the patch :
-> > 1018.42user 253.85system 24:44.68elapsed 85%CPU
-> > 704.89user 151.76system 16:16.14elapsed 87%CPU
-> > 1786.96user 410.76system 43:05.32elapsed 85%CPU
-> > 
-> > The improvement in system time is nice.
-> > 
-> 
-> Er, there's not much difference...
+No modules in ksyms, skipping objects
+kernel BUG at slab.c:815!
+invalid operand: 0000
+CPU:    0
+EIP:    0010:[<c012960a>]    Not tainted
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00010286
+eax: 0000001a   ebx: dfe38698   ecx: 00000001   edx: 00002a56
+esi: dfe38691   edi: c0324117   ebp: 00000000   esp: c181dee4
+ds: 0018   es: 0018   ss: 0018
+Process swapper (pid: 1, stackpage=c181d000)
+Stack: c0316083 0000032f c181def4 dfe386b8 00000018 c180f368 c180f324 
+c180f324
+       c030c113 c03a7ad4 c032410a 0000001c 00000020 00000000 00000000 
+00000000
+       c03a72f3 c0317020 00000002 00000000 00000000 dfe80e24 00003a00 
+00000009
+Call Trace: [<c0118206>] [<c0118226>] [<c010522c>] [<c0105000>] [<c010525e>]
+   [<c0105000>] [<c0105726>] [<c0105250>]
+Code: 0f 0b 5f 8b 13 5d 89 d3 8b 03 89 c2 0f 18 02 81 fb c8 dc 37
 
->From 261.80 to 253.85 => -3%
->From 160.79 to 151.76 => -6%
->From 418.76 to 410.76 => -2%
+ >>EIP; c012960a <kmem_cache_create+40a/470>   <=====
+Trace; c0118206 <sys_wait4+3a6/3b0>
+Trace; c0118226 <sys_waitpid+16/20>
+Trace; c010522c <prepare_namespace+11c/140>
+Trace; c0105000 <_stext+0/0>
+Trace; c010525e <init+e/140>
+Trace; c0105000 <_stext+0/0>
+Trace; c0105726 <kernel_thread+26/30>
+Trace; c0105250 <init+0/140>
+Code;  c012960a <kmem_cache_create+40a/470>
+00000000 <_EIP>:
+Code;  c012960a <kmem_cache_create+40a/470>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c012960c <kmem_cache_create+40c/470>
+   2:   5f                        pop    %edi
+Code;  c012960c <kmem_cache_create+40c/470>
+   3:   8b 13                     mov    (%ebx),%edx
+Code;  c012960e <kmem_cache_create+40e/470>
+   5:   5d                        pop    %ebp
+Code;  c0129610 <kmem_cache_create+410/470>
+   6:   89 d3                     mov    %edx,%ebx
+Code;  c0129612 <kmem_cache_create+412/470>
+   8:   8b 03                     mov    (%ebx),%eax
+Code;  c0129614 <kmem_cache_create+414/470>
+   a:   89 c2                     mov    %eax,%edx
+Code;  c0129616 <kmem_cache_create+416/470>
+   c:   0f 18 02                  prefetchnta (%edx)
+Code;  c0129618 <kmem_cache_create+418/470>
+   f:   81 fb c8 dc 37 00         cmp    $0x37dcc8,%ebx
 
-So the kernel looks between 2 and 6% faster. Not so bad for a one-line
-patch ;-)
+ <0>Kernel panic: Attempted to kill init!
 
-> Curious, what happens when you compile using gcc 3.0.1 against
-> -march=athlon?
+Before the kernel gives up i get the following error messages while 
+trying to find my LVM drives:
 
-Yep, I will try with gcc 3.0.3.
+Mounted devfs on /dev
+modprobe: Can't open dependencies file 
+/lib/modules/2.4.17-rc2/modules.dep (No such file odevfs: 
+devfs_mk_dir(vg0): using old entry in dir: c1808724 ""
+r directory)
+vgdevfs: devfs_register(group): could not append to parent, err: -17
+scan -- reading devfs: devfs_register(root): could not append to parent, 
+err: -17
+all physical voldevfs: devfs_register(tmp): could not append to parent, 
+err: -17
+umes (this may tdevfs: devfs_register(var): could not append to parent, 
+err: -17
+ake a while...)devfs: devfs_register(squid): could not append to parent, 
+err: -17
 
-  -- Benoit
+vgscan -- founddevfs: devfs_register(usr): could not append to parent, 
+err: -17
+ inactive volumedevfs: devfs_register(home): could not append to parent, 
+err: -17
+ group "vg0"
+vgdevfs: devfs_register(swap): could not append to parent, err: -17
+scan -- "/etc/lvdevfs: devfs_register(redhat): could not append to 
+parent, err: -17
+mtab" and "/etc/devfs: devfs_register(mp3): could not append to parent, 
+err: -17
+lvmtab.d" succesdevfs: devfs_register(appdata): could not append to 
+parent, err: -17
+sfully created
+devfs: devfs_register(oracle): could not append to parent, err: -17
+vgscan -- WARNING: This program does not do a VGDA backup of your volume 
+group
+
+vgchange -- volume group "vg0" successfully activated
+
+
+System Configuration:
+PIII 700
+512MB RAM
+Gnu C                  2.96
+Gnu make               3.79.1
+binutils               2.11.90.0.8
+util-linux             2.11f
+mount                  2.11l
+modutils               2.4.12
+e2fsprogs              1.23
+PPP                    2.4.1
+isdn4k-utils           3.1pre1
+Linux C Library        2.2.4
+Dynamic linker (ldd)   2.2.4
+Procps                 2.0.7
+Net-tools              1.60
+Console-tools          0.3.3
+Sh-utils               2.0.11
+
+All partitions are on  a LVM drive, and should be found by the initrd.
+
+I hope the problem will be solved before 2.4.17.
+
+Best regards,
+
+Gregor Suhr
+
+
+
+--------------040209020005080101070706
+Content-Type: application/x-gzip;
+ name="linuxconfig.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="linuxconfig.gz"
+
+
+--------------040209020005080101070706--
+

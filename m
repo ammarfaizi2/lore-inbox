@@ -1,70 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291223AbSBLWiW>; Tue, 12 Feb 2002 17:38:22 -0500
+	id <S291232AbSBLWyf>; Tue, 12 Feb 2002 17:54:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291225AbSBLWiN>; Tue, 12 Feb 2002 17:38:13 -0500
-Received: from [63.231.122.81] ([63.231.122.81]:31827 "EHLO lynx.adilger.int")
-	by vger.kernel.org with ESMTP id <S291223AbSBLWiG>;
-	Tue, 12 Feb 2002 17:38:06 -0500
-Date: Tue, 12 Feb 2002 15:33:37 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Ville Herva <vherva@twilight.cs.hut.fi>, Bill Davidsen <davidsen@tmr.com>,
-        Padraig Brady <padraig@antefacto.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
+	id <S291233AbSBLWyZ>; Tue, 12 Feb 2002 17:54:25 -0500
+Received: from bitmover.com ([192.132.92.2]:61886 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S291232AbSBLWyN>;
+	Tue, 12 Feb 2002 17:54:13 -0500
+Date: Tue, 12 Feb 2002 14:54:12 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Tom Lord <lord@regexps.com>
+Cc: tytso@mit.edu, lm@bitmover.com, jmacd@CS.Berkeley.EDU, jaharkes@cs.cmu.edu,
         linux-kernel@vger.kernel.org
-Subject: Re: How to check the kernel compile options ?
-Message-ID: <20020212153337.S9826@lynx.turbolabs.com>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	Bill Davidsen <davidsen@tmr.com>,
-	Padraig Brady <padraig@antefacto.com>,
-	Daniel Phillips <phillips@bonn-fries.net>,
+Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
+Message-ID: <20020212145412.E25559@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Tom Lord <lord@regexps.com>, tytso@mit.edu, lm@bitmover.com,
+	jmacd@CS.Berkeley.EDU, jaharkes@cs.cmu.edu,
 	linux-kernel@vger.kernel.org
-In-Reply-To: <3C695035.6040902@antefacto.com> <Pine.LNX.3.96.1020212132711.6082B-100000@gatekeeper.tmr.com> <20020212140624.R9826@lynx.turbolabs.com> <20020212221025.GH1105@niksula.cs.hut.fi>
+In-Reply-To: <Pine.LNX.4.44.0202052328470.32146-100000@ash.penguinppc.org> <20020207165035.GA28384@ravel.coda.cs.cmu.edu> <200202072306.PAA08272@morrowfield.home> <20020207132558.D27932@work.bitmover.com> <20020211002057.A17539@helen.CS.Berkeley.EDU> <20020211070009.S28640@work.bitmover.com> <20020211141404.A21336@work.bitmover.com> <200202120517.VAA21821@morrowfield.home> <20020211225935.B5514@thunk.org> <200202122028.MAA24835@morrowfield.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020212221025.GH1105@niksula.cs.hut.fi>; from vherva@niksula.hut.fi on Wed, Feb 13, 2002 at 12:10:26AM +0200
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+In-Reply-To: <200202122028.MAA24835@morrowfield.home>; from lord@regexps.com on Tue, Feb 12, 2002 at 12:28:54PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 13, 2002  00:10 +0200, Ville Herva wrote:
-> On Tue, Feb 12, 2002 at 02:06:24PM -0700, you [Andreas Dilger] wrote:
-> > 
-> > You can also extract it from an uncompressed kernel (vmlinux) or the
-> > module with "strings <file> | grep '[A-Z]*=[ym]$'".  It is simple
-> > enough to search for the gzip magic (1f 8b 08 00 at about 16-18kB)
-> > in a zImage or bzImage, and then pipe it to gunzip and strings as above.
-
-Just as a clarification, the module configs can be stored in the short form:
-
-EXPERIMENTAL=y
-MODULES=y
-PCI=y
-:
-:
-
-I checked, in my current kernel/modules nothing matches the above regexp,
-and even if it did, having a garbage config value wouldn't be fatal.
-
-> Such script could live in /usr/src/linux/scripts. The same script could
-> perhaps extract the version string as well. Anybody got a clue how to find
-> it reliably? Is this reliable 
+> 	2. On your laptop, store only the repository you'll need for
+>            day to day work, plus a very sparsely populated revision
+>            library
 > 
-> strings /boot/bzImage |
->  egrep '^[0-9]+\.[0-9]\.+.*\(.*@.*\).*[0-9]+:[0-9]+:[0-9]+' | 
->  head -1
+> Having a huge revision library is a win if what you're doing is
+> fielding patches [etc]
 
-This will work for the bzImage, but not the uncompressed kernel.  If you
-remove the "^" (start of line) requirement it works for both:
+I think that the point is that when you put stuff on your laptop, you'd
+dearly love not realize that you forgot something you need when you are
+either not connected or are connected only via a modem.  If you can store
+the kernel history in 80-90MB and you have all the versions you'll ever
+want, that's a win compared to storing a few versions and then realizing
+the one you want isn't there.
 
-egrep '[0-9]+\.[0-9]\.+.*\(.*@.*\).*[0-9]+:[0-9]+:[0-9]+'
+I also think that the term "huge revision library" doesn't make sense
+to all systems.  Some systems can fit that "huge library" in less space
+than the checked out files, so why limit yourself?
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+Note that this is explictly not a BK thing, it's a general thing.
+I want whatever system I use to limit my choices as little as possible.
+No system is perfect, it's more of an optimization over the posssible
+limitations.  In this particular respect, I can say that I've found it
+very useful to carry around all the history when traveling, it means
+there is no difference between working at home or on the road, other
+than performance of my crappy laptop.
 
+And it's not like this makes arch bad, this is one place where it isn't as
+good as some other choices.  But arch has other areas where it is better,
+it is less pedantic than most systems about what it will try and apply.
+It's the uber patch library if you ask me, and that has real value.
+Why the patchbot people haven't picked up on that is beyond me, they're
+off trying to write something "simple", which I think you'll agree is
+a strange, there is nothing simple about this problem space.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130397AbRAaHQZ>; Wed, 31 Jan 2001 02:16:25 -0500
+	id <S130953AbRAaHXf>; Wed, 31 Jan 2001 02:23:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130948AbRAaHQQ>; Wed, 31 Jan 2001 02:16:16 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:44808 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S130397AbRAaHQI>; Wed, 31 Jan 2001 02:16:08 -0500
-Date: Wed, 31 Jan 2001 01:16:02 -0600
-To: David Ford <david@linux.com>
-Cc: Stephen Frost <sfrost@snowman.net>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.x and SMP fails to compile (`current' undefined)
-Message-ID: <20010131011602.F18746@cadcamlab.org>
-In-Reply-To: <3A777E1A.8F124207@linux.com> <20010130220148.Y26953@ns> <3A77966E.444B1160@linux.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <3A77966E.444B1160@linux.com>; from david@linux.com on Tue, Jan 30, 2001 at 08:37:02PM -0800
-From: Peter Samuelson <peter@cadcamlab.org>
+	id <S130966AbRAaHXZ>; Wed, 31 Jan 2001 02:23:25 -0500
+Received: from as3-3-4.ml.g.bonet.se ([194.236.33.69]:26892 "EHLO
+	tellus.mine.nu") by vger.kernel.org with ESMTP id <S130953AbRAaHXM>;
+	Wed, 31 Jan 2001 02:23:12 -0500
+Date: Wed, 31 Jan 2001 08:23:03 +0100 (CET)
+From: Tobias Ringstrom <tori@tellus.mine.nu>
+To: Andrew Morton <andrewm@uow.edu.au>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: WOL and 3c59x (3c905c-tx)
+In-Reply-To: <3A7746E7.B806CA5A@uow.edu.au>
+Message-ID: <Pine.LNX.4.30.0101310812030.13346-100000@svea.tellus>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 31 Jan 2001, Andrew Morton wrote:
+> The code was broken, so I disabled it.
 
-[David Ford]
-> Mhm.  Is it worth the effort to make a dependancy on the CPU type for
-> SMP?
+Because of the loss of state bug with Cyclone, and the "missing" acpi_wake
+workaround, right?
 
-Yes.  'make config' should not allow unsupported configurations, at
-least where convenient.
+> I "fixed" WOL in the 2.2.19-pre candidate driver.  It's
+> at http://www.uow.edu.au/~andrewm/linux/3c59x.c-2.2.19-pre6-1.gz
+>
+> I'd really appreciate it if you could test the WOL in
+> that driver.  Then we can port it into 2.4 and try to
+> fool Linus into thinking it's a bugfix :)
 
-So - are any of the other chip types also incompatible with SMP support
-(the Winchips, maybe)?
+Of course it is a bug-fix!  I'm very bugged by the current behaviour!
+Doesn't that count? :-)
 
-Peter
+Ugh.  Is the 2.2 driver more advanced than the 2.4 one?  Only temporary, I
+hope... :-)
 
---- 2.4.1/arch/i386/config.in~	Tue Jan 30 14:46:04 2001
-+++ 2.4.1/arch/i386/config.in	Wed Jan 31 01:08:00 2001
-@@ -154,7 +154,10 @@
- 
- bool 'Math emulation' CONFIG_MATH_EMULATION
- bool 'MTRR (Memory Type Range Register) support' CONFIG_MTRR
--bool 'Symmetric multi-processing support' CONFIG_SMP
-+# AMD SMP - not yet
-+if [ "$CONFIG_MK6" != "y" -a "$CONFIG_MK7" != "y" ]; then
-+   bool 'Symmetric multi-processing support' CONFIG_SMP
-+fi
- if [ "$CONFIG_SMP" != "y" ]; then
-    bool 'APIC and IO-APIC support on uniprocessors' CONFIG_X86_UP_IOAPIC
-    if [ "$CONFIG_X86_UP_IOAPIC" = "y" ]; then
+But alas, I cannot easily test this patch, since I need 2.4 for my ATA100
+IDE controller, but please send me a patch for 2.4 as soon as you have
+one, and I'll help you test it.
+
+Would it be enough to port the acpi_wake function to 2.4?  If so, I can do
+that myself.  In fact, I think I'll try that right away.  Who needs
+breakfast anyway? :-)
+
+/Tobias, the one smiley per sentence guy :-)
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

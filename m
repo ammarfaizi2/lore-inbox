@@ -1,59 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261530AbSJCBdh>; Wed, 2 Oct 2002 21:33:37 -0400
+	id <S261552AbSJCBub>; Wed, 2 Oct 2002 21:50:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261544AbSJCBdh>; Wed, 2 Oct 2002 21:33:37 -0400
-Received: from pool-129-44-58-33.ny325.east.verizon.net ([129.44.58.33]:62729
-	"EHLO arizona.localdomain") by vger.kernel.org with ESMTP
-	id <S261530AbSJCBdg>; Wed, 2 Oct 2002 21:33:36 -0400
-Date: Wed, 2 Oct 2002 21:38:59 -0400
-From: "Kevin O'Connor" <kevin@koconnor.net>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Workqueue Abstraction, 2.5.40-H7
-Message-ID: <20021002213859.A27014@arizona.localdomain>
-References: <Pine.LNX.4.44.0210012219460.21087-100000@localhost.localdomain>
+	id <S262716AbSJCBub>; Wed, 2 Oct 2002 21:50:31 -0400
+Received: from dp.samba.org ([66.70.73.150]:7895 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S261552AbSJCBub>;
+	Wed, 2 Oct 2002 21:50:31 -0400
+Date: Thu, 3 Oct 2002 11:24:57 +1000
+From: David Gibson <hermes@gibson.dropbear.id.au>
+To: Paul Larson <plars@linuxtestproject.org>
+Cc: pee@erkkila.org, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: compile failure in orinoco_cs.c (from bk pull)
+Message-ID: <20021003012457.GF1102@zax>
+Mail-Followup-To: David Gibson <hermes@gibson.dropbear.id.au>,
+	Paul Larson <plars@linuxtestproject.org>, pee@erkkila.org,
+	lkml <linux-kernel@vger.kernel.org>
+References: <3D9B689B.2040807@erkkila.org> <1033595826.11325.11.camel@plars>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0210012219460.21087-100000@localhost.localdomain>; from mingo@elte.hu on Tue, Oct 01, 2002 at 10:29:02PM +0200
+In-Reply-To: <1033595826.11325.11.camel@plars>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 01, 2002 at 10:29:02PM +0200, Ingo Molnar wrote:
-> On Tue, 1 Oct 2002, Linus Torvalds wrote:
-> > Pease don't introduce more typedefs. They only hide what the hell the
-> > thing is, which is actively _bad_ for structures, since passing a
-[...]
-> Despite all the previous fuss about the problems of typedefs, i've never
-> had *any* problem with using typedefs in various code i wrote. It only
-> ever made things cleaner - to me.
+On Wed, Oct 02, 2002 at 04:57:06PM -0500, Paul Larson wrote:
+> On Wed, 2002-10-02 at 16:43, Paul E. Erkkila wrote:
+> > The orinoco_cs.c wireless driver no longer compiles after yesterdays
+> > tree changes.
+> I think you posted this simultaneous to someone posting a patch for it.
+> Basically just remove the #include <linux/tqueue.h> line and all should
+> be good.
 
-Hi Ingo,
-
-I follow your reasoning, but one thing I don't follow -
-
-+typedef struct work_s {
-+       unsigned long pending;
-+       struct list_head entry;
-+       void (*func)(void *);
-+       void *data;
-+       void *wq_data;
-+       timer_t timer;
-+} work_t;
-
-- why two names for the structure ("struct work_s" and "work_t")?
-
-Either convention will work, but by declaring the structure twice it only
-encourages users to employ their own favorite - thus defeating the purpose
-of a convention.
-
-Just curious,
--Kevin
+Bah!  No sooner do I include tqueue.h to fix compile problems than it
+disappears ;-/
 
 -- 
- ------------------------------------------------------------------------
- | Kevin O'Connor                     "BTW, IMHO we need a FAQ for      |
- | kevin@koconnor.net                  'IMHO', 'FAQ', 'BTW', etc. !"    |
- ------------------------------------------------------------------------
+David Gibson			| For every complex problem there is a
+david@gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

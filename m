@@ -1,64 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261624AbVAHVit@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261661AbVAHVlt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261624AbVAHVit (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 16:38:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbVAHVit
+	id S261661AbVAHVlt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 16:41:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbVAHVlt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 16:38:49 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:29353 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261624AbVAHVir (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 16:38:47 -0500
-Subject: Re: Make pipe data structure be a circular list of pages, rather
-	than
-From: Lee Revell <rlrevell@joe-job.com>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: Mike Waychison <Michael.Waychison@Sun.COM>,
-       Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Oleg Nesterov <oleg@tv-sign.ru>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <41DF1F3D.3030006@nortelnetworks.com>
-References: <41DE9D10.B33ED5E4@tv-sign.ru>
-	 <Pine.LNX.4.58.0501070735000.2272@ppc970.osdl.org>
-	 <1105113998.24187.361.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0501070923590.2272@ppc970.osdl.org>
-	 <Pine.LNX.4.58.0501070936500.2272@ppc970.osdl.org> <41DEF81B.60905@sun.com>
-	 <41DF1F3D.3030006@nortelnetworks.com>
-Content-Type: text/plain
-Date: Sat, 08 Jan 2005 16:38:45 -0500
-Message-Id: <1105220326.24592.98.camel@krustophenia.net>
+	Sat, 8 Jan 2005 16:41:49 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:30212 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261661AbVAHVkO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 16:40:14 -0500
+Date: Sat, 8 Jan 2005 22:40:08 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] ide-scsi.c: make 2 functions static (fwd) (fwd)
+Message-ID: <20050108214008.GT14108@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-01-07 at 17:46 -0600, Chris Friesen wrote:
-> Mike Waychison wrote:
-> 
-> > This got me to thinking about how you can heuristically optimize away
-> > coalescing support and still allow PAGE_SIZE bytes minimum in the
-> > effective buffer.
-> 
-> While coalescing may be a win in some cases, there should also be some 
-> way to tell the kernel to NOT coalesce, to handle the case where you 
-> want minimum latency at the cost of some throughput.
+The patch forwarded below still applies and compiles against 2.6.10-mm2.
 
-Many latency critical apps use (tmpfs mounted) FIFO's for IPC; the Linux
-FIFO being one of the fastest known IPC mechanisms.  Each client in the
-JACK (http://jackit.sf.net) graph wakes the next one by writing a single
-byte to a FIFO.  Ardour's GUI, control, and audio threads interact via a
-similar mechanism.  How would you expect this change to impact the inter
-thread wakeup latency?  It's confusing when people say "performance",
-meaning "increased throughput albeit with more latency".  For many
-people that's a regression.
+Please apply.
 
-These apps *certainly* care about performance, they just don't define it
-in terms of throughput.
 
-And yes we do know futexes are the right tool for this but they weren't
-available at the time and aren't available on 2.4.
+----- Forwarded message from Adrian Bunk <bunk@stusta.de> -----
 
-Lee
+Date:	Tue, 21 Dec 2004 01:41:44 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [2.6 patch] ide-scsi.c: make 2 functions static (fwd)
+
+The patch forwarded below still applies and compiles against 
+2.6.10-rc3-mm1.
+
+Please apply.
+
+
+----- Forwarded message from Adrian Bunk <bunk@stusta.de> -----
+
+Date:	Mon, 15 Nov 2004 03:07:55 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: James.Bottomley@SteelEye.com
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] ide-scsi.c: make 2 functions static
+
+The patch below makes two functions without external users static.
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.10-rc1-mm5-full/drivers/scsi/ide-scsi.c.old	2004-11-13 21:51:26.000000000 +0100
++++ linux-2.6.10-rc1-mm5-full/drivers/scsi/ide-scsi.c	2004-11-13 21:51:41.000000000 +0100
+@@ -301,7 +301,7 @@
+ 	return ide_do_drive_cmd(drive, rq, ide_preempt);
+ }
+ 
+-ide_startstop_t idescsi_atapi_error (ide_drive_t *drive, const char *msg, byte stat)
++static ide_startstop_t idescsi_atapi_error (ide_drive_t *drive, const char *msg, byte stat)
+ {
+ 	struct request *rq;
+ 	byte err;
+@@ -327,7 +327,7 @@
+ 	return ide_stopped;
+ }
+ 
+-ide_startstop_t idescsi_atapi_abort (ide_drive_t *drive, const char *msg)
++static ide_startstop_t idescsi_atapi_abort (ide_drive_t *drive, const char *msg)
+ {
+ 	struct request *rq;
+ 
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+----- End forwarded message -----
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+----- End forwarded message -----
 

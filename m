@@ -1,36 +1,203 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285261AbRLSNA3>; Wed, 19 Dec 2001 08:00:29 -0500
+	id <S285266AbRLSNMT>; Wed, 19 Dec 2001 08:12:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285262AbRLSNAT>; Wed, 19 Dec 2001 08:00:19 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:6930 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S285261AbRLSNAL>;
-	Wed, 19 Dec 2001 08:00:11 -0500
-Date: Wed, 19 Dec 2001 23:59:19 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Marko Kentt?l? <marko.kenttala@teraflops.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel memory usage optimisations?
-Message-ID: <20011219125919.GD24009@krispykreme>
-In-Reply-To: <5.1.0.14.2.20011219144636.03498a10@mail.teraflops.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5.1.0.14.2.20011219144636.03498a10@mail.teraflops.com>
-User-Agent: Mutt/1.3.24i
+	id <S285273AbRLSNML>; Wed, 19 Dec 2001 08:12:11 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:60823 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S285266AbRLSNMB>;
+	Wed, 19 Dec 2001 08:12:01 -0500
+Date: Wed, 19 Dec 2001 16:09:05 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: <linux-raid@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Cc: Jens Axboe <axboe@suse.de>, Linus Torvalds <torvalds@transmeta.com>
+Subject: [patch] raid-2.5.1-I8
+In-Reply-To: <Pine.LNX.4.33.0112181809340.4279-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33.0112191607110.7629-200000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1724977107-1008774488=:7629"
+Content-ID: <Pine.LNX.4.33.0112191608300.7629@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> I understand that best area for saving memory usage is the C-library but 
-> are there any other kernel areas? I'm thinking of dropping swapfile support 
-> and maybe some other subsystems that are not needed in embedded device.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-Check out all the cacheline_aligned usage, in all the cases I could see
-there was no reason to do this on a UP machine. You could probably get
-away with redefining them to do nothing.
+--8323328-1724977107-1008774488=:7629
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.33.0112191608301.7629@localhost.localdomain>
 
-Also you could drop the sizes of the hashes (dentry, inode, mount,
-buffer, page, route) if they are taking up RAM.
 
-Anton
+the -I7 RAID patch did not apply to 2.5.1 cleanly - the attached -I8
+version does.
+
+	Ingo
+
+-I7's Changelog:
+
+ - cleaned up the resync engine. It got much simpler and easier to
+   maintain, while still saturating the disks. Resync doesnt get stuck
+   under heavy load anymore. (this code can be switched to use explicit IO
+   barrier requests in the future.)
+
+ - rewrote the read balancing code to use three estimators: a per-array
+   'next expected sequential IO' position, plus an IRQ-driven 'estimated
+   disk head' position. The head position is now updated from all the IO
+   completion routines: end of READ, end of WRITE, end of resync-READ, end
+   of resync-WRITE. I've added per-disk tracking of pending requests,
+   and the read balancer now detects idle disks and utilizes them before
+   trying to read-balance between busy disks. I've also removed the
+   sector_count limit that artificially switched the current disk. These
+   changes make read balancing more accurate and more effective.
+
+ - the old raid1 code used to have a limitation: it has always read from
+   the first disk until the resync finished. Now the code will
+   read-balance READ requests up to the resync boundary. This should
+   further improve performance during resyncs.
+
+ - added the 'idle IO resync' feature which we used to have in the 2.2
+   patches, but via a different implementation that does not touch the
+   generic block IO code. Resync happens only when there is no normal IO
+   pending on the array. This feature should make resync a more seemless
+   operation. Resync behavior can be tuned via the speed_limit_min and
+   speed_limit_max sysctl tunables. Default for the minimum resync speed
+   is 500 KB/sec, the maximum is 200 MB/sec.
+
+ - fixed a number of sector_t <=> unsigned long bugs still left.
+
+--8323328-1724977107-1008774488=:7629
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME="raid-2.5.1-I8"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.33.0112191608080.7629@localhost.localdomain>
+Content-Description: 
+Content-Disposition: ATTACHMENT; FILENAME="raid-2.5.1-I8"
+
+LS0tIGxpbnV4L2luY2x1ZGUvbGludXgvcmFpZC9yYWlkMS5oLm9yaWcJTW9u
+IERlYyAxNyAxNDoyMjozOCAyMDAxDQorKysgbGludXgvaW5jbHVkZS9saW51
+eC9yYWlkL3JhaWQxLmgJV2VkIERlYyAxOSAxMzo1NjozMCAyMDAxDQpAQCAt
+OSw4ICs5LDggQEANCiAJaW50CQludW1iZXI7DQogCWludAkJcmFpZF9kaXNr
+Ow0KIAlrZGV2X3QJCWRldjsNCi0JaW50CQlzZWN0X2xpbWl0Ow0KLQlpbnQJ
+CWhlYWRfcG9zaXRpb247DQorCXNlY3Rvcl90CWhlYWRfcG9zaXRpb247DQor
+CWF0b21pY190CW5yX3BlbmRpbmc7DQogDQogCS8qDQogCSAqIFN0YXRlIGJp
+dHM6DQpAQCAtMzEsMjMgKzMxLDIxIEBADQogCWludAkJCXJhaWRfZGlza3M7
+DQogCWludAkJCXdvcmtpbmdfZGlza3M7DQogCWludAkJCWxhc3RfdXNlZDsN
+Ci0Jc2VjdG9yX3QJCW5leHRfc2VjdDsNCi0JaW50CQkJc2VjdF9jb3VudDsN
+CisJc2VjdG9yX3QJCW5leHRfc2VxX3NlY3Q7DQogCW1ka190aHJlYWRfdAkJ
+KnRocmVhZCwgKnJlc3luY190aHJlYWQ7DQogCWludAkJCXJlc3luY19taXJy
+b3JzOw0KIAltaXJyb3JfaW5mb190CQkqc3BhcmU7DQogCXNwaW5sb2NrX3QJ
+CWRldmljZV9sb2NrOw0KIA0KIAkvKiBmb3IgdXNlIHdoZW4gc3luY2luZyBt
+aXJyb3JzOiAqLw0KLQl1bnNpZ25lZCBsb25nCXN0YXJ0X2FjdGl2ZSwgc3Rh
+cnRfcmVhZHksDQotCQlzdGFydF9wZW5kaW5nLCBzdGFydF9mdXR1cmU7DQot
+CWludAljbnRfZG9uZSwgY250X2FjdGl2ZSwgY250X3JlYWR5LA0KLQkJY250
+X3BlbmRpbmcsIGNudF9mdXR1cmU7DQotCWludAlwaGFzZTsNCi0JaW50CXdp
+bmRvdzsNCi0Jd2FpdF9xdWV1ZV9oZWFkX3QJd2FpdF9kb25lOw0KLQl3YWl0
+X3F1ZXVlX2hlYWRfdAl3YWl0X3JlYWR5Ow0KLQlzcGlubG9ja190CQlzZWdt
+ZW50X2xvY2s7DQorDQorCXNwaW5sb2NrX3QJCXJlc3luY19sb2NrOw0KKwlp
+bnQgbnJfcGVuZGluZzsNCisJaW50IGJhcnJpZXI7DQorCXNlY3Rvcl90CQlu
+ZXh0X3Jlc3luYzsNCisNCisJd2FpdF9xdWV1ZV9oZWFkX3QJd2FpdF9pZGxl
+Ow0KKwl3YWl0X3F1ZXVlX2hlYWRfdAl3YWl0X3Jlc3VtZTsNCiANCiAJbWVt
+cG9vbF90ICpyMWJpb19wb29sOw0KIAltZW1wb29sX3QgKnIxYnVmX3Bvb2w7
+DQpAQCAtNjIsNyArNjAsOCBAQA0KICNkZWZpbmUgbWRkZXZfdG9fY29uZiht
+ZGRldikgKChjb25mX3QgKikgbWRkZXYtPnByaXZhdGUpDQogDQogLyoNCi0g
+KiB0aGlzIGlzIG91ciAncHJpdmF0ZScgJ2NvbGxlY3RpdmUnIFJBSUQxIGJ1
+ZmZlciBoZWFkLg0KKyAqIHRoaXMgaXMgb3VyICdwcml2YXRlJyBSQUlEMSBi
+aW8uDQorICoNCiAgKiBpdCBjb250YWlucyBpbmZvcm1hdGlvbiBhYm91dCB3
+aGF0IGtpbmQgb2YgSU8gb3BlcmF0aW9ucyB3ZXJlIHN0YXJ0ZWQNCiAgKiBm
+b3IgdGhpcyBSQUlEMSBvcGVyYXRpb24sIGFuZCBhYm91dCB0aGVpciBzdGF0
+dXM6DQogICovDQpAQCAtODMsNiArODIsNyBAQA0KIAkgKiBpZiB0aGUgSU8g
+aXMgaW4gUkVBRCBkaXJlY3Rpb24sIHRoZW4gdGhpcyBiaW8gaXMgdXNlZDoN
+CiAJICovDQogCXN0cnVjdCBiaW8JCSpyZWFkX2JpbzsNCisJaW50CQkJcmVh
+ZF9kaXNrOw0KIAkvKg0KIAkgKiBpZiB0aGUgSU8gaXMgaW4gV1JJVEUgZGly
+ZWN0aW9uLCB0aGVuIG11bHRpcGxlIGJpb3MgYXJlIHVzZWQ6DQogCSAqLw0K
+QEAgLTk0LDUgKzk0LDUgQEANCiANCiAvKiBiaXRzIGZvciByMWJpby5zdGF0
+ZSAqLw0KICNkZWZpbmUJUjFCSU9fVXB0b2RhdGUJMQ0KLSNkZWZpbmUJUjFC
+SU9fU3luY1BoYXNlCTINCisNCiAjZW5kaWYNCi0tLSBsaW51eC9pbmNsdWRl
+L2xpbnV4L3JhaWQvbWRfay5oLm9yaWcJTW9uIERlYyAxNyAyMjoxOTowMiAy
+MDAxDQorKysgbGludXgvaW5jbHVkZS9saW51eC9yYWlkL21kX2suaAlXZWQg
+RGVjIDE5IDEzOjU2OjMwIDIwMDENCkBAIC0yNDAsNyArMjQwLDcgQEANCiAN
+CiAJaW50ICgqc3RvcF9yZXN5bmMpKG1kZGV2X3QgKm1kZGV2KTsNCiAJaW50
+ICgqcmVzdGFydF9yZXN5bmMpKG1kZGV2X3QgKm1kZGV2KTsNCi0JaW50ICgq
+c3luY19yZXF1ZXN0KShtZGRldl90ICptZGRldiwgc2VjdG9yX3Qgc2VjdG9y
+X25yKTsNCisJaW50ICgqc3luY19yZXF1ZXN0KShtZGRldl90ICptZGRldiwg
+c2VjdG9yX3Qgc2VjdG9yX25yLCBpbnQgZ29fZmFzdGVyKTsNCiB9Ow0KIA0K
+IA0KLS0tIGxpbnV4L2RyaXZlcnMvbWQvcmFpZDEuYy5vcmlnCVdlZCBEZWMg
+MTkgMTM6NTY6MjMgMjAwMQ0KKysrIGxpbnV4L2RyaXZlcnMvbWQvcmFpZDEu
+YwlXZWQgRGVjIDE5IDEzOjU2OjMwIDIwMDENCkBAIC05MzUsOSArOTM1LDkg
+QEANCiAJaW50IHVwdG9kYXRlID0gdGVzdF9iaXQoQklPX1VQVE9EQVRFLCAm
+YmlvLT5iaV9mbGFncyk7DQogCXIxYmlvX3QgKiByMV9iaW8gPSAocjFiaW9f
+dCAqKShiaW8tPmJpX3ByaXZhdGUpOw0KIA0KLQljaGVja19hbGxfd19iaW9z
+X2VtcHR5KHIxX2Jpbyk7DQogCWlmIChyMV9iaW8tPnJlYWRfYmlvICE9IGJp
+bykNCiAJCUJVRygpOw0KKwl1cGRhdGVfaGVhZF9wb3MocjFfYmlvLT5yZWFk
+X2Rpc2ssIHIxX2Jpbyk7DQogCS8qDQogCSAqIHdlIGhhdmUgcmVhZCBhIGJs
+b2NrLCBub3cgaXQgbmVlZHMgdG8gYmUgcmUtd3JpdHRlbiwNCiAJICogb3Ig
+cmUtcmVhZCBpZiB0aGUgcmVhZCBmYWlsZWQuDQpAQCAtOTU3LDEzICs5NTcs
+MjEgQEANCiAJaW50IHVwdG9kYXRlID0gdGVzdF9iaXQoQklPX1VQVE9EQVRF
+LCAmYmlvLT5iaV9mbGFncyk7DQogCXIxYmlvX3QgKiByMV9iaW8gPSAocjFi
+aW9fdCAqKShiaW8tPmJpX3ByaXZhdGUpOw0KIAltZGRldl90ICptZGRldiA9
+IHIxX2Jpby0+bWRkZXY7DQorCWludCBpOw0KIA0KIAlpZiAoIXVwdG9kYXRl
+KQ0KIAkJbWRfZXJyb3IobWRkZXYsIGJpby0+YmlfZGV2KTsNCiANCisJZm9y
+IChpID0gMDsgaSA8IE1EX1NCX0RJU0tTOyBpKyspDQorCQlpZiAocjFfYmlv
+LT53cml0ZV9iaW9zW2ldID09IGJpbykgew0KKwkJCXVwZGF0ZV9oZWFkX3Bv
+cyhpLCByMV9iaW8pOw0KKwkJCWJyZWFrOw0KKwkJfQ0KKw0KIAlpZiAoYXRv
+bWljX2RlY19hbmRfdGVzdCgmcjFfYmlvLT5yZW1haW5pbmcpKSB7DQotCQlz
+eW5jX3JlcXVlc3RfZG9uZShyMV9iaW8tPnNlY3RvciwgbWRkZXZfdG9fY29u
+ZihtZGRldikpOw0KKwkJY29uZl90ICpjb25mID0gbWRkZXZfdG9fY29uZiht
+ZGRldik7DQogCQltZF9kb25lX3N5bmMobWRkZXYsIHIxX2Jpby0+bWFzdGVy
+X2Jpby0+Ymlfc2l6ZSA+PiA5LCB1cHRvZGF0ZSk7DQorCQlyZXN1bWVfZGV2
+aWNlKGNvbmYpOw0KIAkJcHV0X2J1ZihyMV9iaW8pOw0KIAl9DQogCXJldHVy
+biAwOw0KQEAgLTEwNzMsOSArMTA4MSw5IEBADQogCQlyMV9iaW8gPSBsaXN0
+X2VudHJ5KGhlYWQtPnByZXYsIHIxYmlvX3QsIHJldHJ5X2xpc3QpOw0KIAkJ
+bGlzdF9kZWwoaGVhZC0+cHJldik7DQogCQlzcGluX3VubG9ja19pcnFyZXN0
+b3JlKCZyZXRyeV9saXN0X2xvY2ssIGZsYWdzKTsNCi0JCWNoZWNrX2FsbF93
+X2Jpb3NfZW1wdHkocjFfYmlvKTsNCiANCiAJCW1kZGV2ID0gcjFfYmlvLT5t
+ZGRldjsNCisJCWNvbmYgPSBtZGRldl90b19jb25mKG1kZGV2KTsNCiAJCWlm
+IChtZGRldi0+c2JfZGlydHkpIHsNCiAJCQlwcmludGsoS0VSTl9JTkZPICJy
+YWlkMTogZGlydHkgc2IgZGV0ZWN0ZWQsIHVwZGF0aW5nLlxuIik7DQogCQkJ
+bWRkZXYtPnNiX2RpcnR5ID0gMDsNCi0tLSBsaW51eC9kcml2ZXJzL21kL21k
+LmMub3JpZwlNb24gRGVjIDE3IDIyOjE4OjQxIDIwMDENCisrKyBsaW51eC9k
+cml2ZXJzL21kL21kLmMJV2VkIERlYyAxOSAxMzo1NjozMCAyMDAxDQpAQCAt
+NjYsNyArNjYsNyBAQA0KIA0KIC8qDQogICogQ3VycmVudCBSQUlELTEsNCw1
+IHBhcmFsbGVsIHJlY29uc3RydWN0aW9uICdndWFyYW50ZWVkIHNwZWVkIGxp
+bWl0Jw0KLSAqIGlzIDEwMCBLQi9zZWMsIHNvIHRoZSBleHRyYSBzeXN0ZW0g
+bG9hZCBkb2VzIG5vdCBzaG93IHVwIHRoYXQgbXVjaC4NCisgKiBpcyAxMDAw
+IEtCL3NlYywgc28gdGhlIGV4dHJhIHN5c3RlbSBsb2FkIGRvZXMgbm90IHNo
+b3cgdXAgdGhhdCBtdWNoLg0KICAqIEluY3JlYXNlIGl0IGlmIHlvdSB3YW50
+IHRvIGhhdmUgbW9yZSBfZ3VhcmFudGVlZF8gc3BlZWQuIE5vdGUgdGhhdA0K
+ICAqIHRoZSBSQUlEIGRyaXZlciB3aWxsIHVzZSB0aGUgbWF4aW11bSBhdmFp
+bGFibGUgYmFuZHdpdGggaWYgdGhlIElPDQogICogc3Vic3lzdGVtIGlzIGlk
+bGUuIFRoZXJlIGlzIGFsc28gYW4gJ2Fic29sdXRlIG1heGltdW0nIHJlY29u
+c3RydWN0aW9uDQpAQCAtNzYsOCArNzYsOCBAQA0KICAqIHlvdSBjYW4gY2hh
+bmdlIGl0IHZpYSAvcHJvYy9zeXMvZGV2L3JhaWQvc3BlZWRfbGltaXRfbWlu
+IGFuZCBfbWF4Lg0KICAqLw0KIA0KLXN0YXRpYyBpbnQgc3lzY3RsX3NwZWVk
+X2xpbWl0X21pbiA9IDEwMDsNCi1zdGF0aWMgaW50IHN5c2N0bF9zcGVlZF9s
+aW1pdF9tYXggPSAxMDAwMDA7DQorc3RhdGljIGludCBzeXNjdGxfc3BlZWRf
+bGltaXRfbWluID0gMTAwMDsNCitzdGF0aWMgaW50IHN5c2N0bF9zcGVlZF9s
+aW1pdF9tYXggPSAyMDAwMDA7DQogDQogc3RhdGljIHN0cnVjdCBjdGxfdGFi
+bGVfaGVhZGVyICpyYWlkX3RhYmxlX2hlYWRlcjsNCiANCkBAIC0zMzM2LDcg
+KzMzMzYsNyBAQA0KIGludCBtZF9kb19zeW5jKG1kZGV2X3QgKm1kZGV2LCBt
+ZHBfZGlza190ICpzcGFyZSkNCiB7DQogCW1kZGV2X3QgKm1kZGV2MjsNCi0J
+dW5zaWduZWQgaW50IG1heF9zZWN0b3JzLCBjdXJyc3BlZWQsDQorCXVuc2ln
+bmVkIGludCBtYXhfc2VjdG9ycywgY3VycnNwZWVkID0gMCwNCiAJCWosIHdp
+bmRvdywgZXJyLCBzZXJpYWxpemU7DQogCXVuc2lnbmVkIGxvbmcgbWFya1tT
+WU5DX01BUktTXTsNCiAJdW5zaWduZWQgbG9uZyBtYXJrX2NudFtTWU5DX01B
+UktTXTsNCkBAIC0zMzc2LDggKzMzNzYsNyBAQA0KIAltYXhfc2VjdG9ycyA9
+IG1kZGV2LT5zYi0+c2l6ZSA8PCAxOw0KIA0KIAlwcmludGsoS0VSTl9JTkZP
+ICJtZDogc3luY2luZyBSQUlEIGFycmF5IG1kJWRcbiIsIG1kaWR4KG1kZGV2
+KSk7DQotCXByaW50ayhLRVJOX0lORk8gIm1kOiBtaW5pbXVtIF9ndWFyYW50
+ZWVkXyByZWNvbnN0cnVjdGlvbiBzcGVlZDogJWQgS0Ivc2VjL2Rpc2MuXG4i
+LA0KLQkJCQkJCXN5c2N0bF9zcGVlZF9saW1pdF9taW4pOw0KKwlwcmludGso
+S0VSTl9JTkZPICJtZDogbWluaW11bSBfZ3VhcmFudGVlZF8gcmVjb25zdHJ1
+Y3Rpb24gc3BlZWQ6ICVkIEtCL3NlYy9kaXNjLlxuIiwgc3lzY3RsX3NwZWVk
+X2xpbWl0X21pbik7DQogCXByaW50ayhLRVJOX0lORk8gIm1kOiB1c2luZyBt
+YXhpbXVtIGF2YWlsYWJsZSBpZGxlIElPIGJhbmR3aXRoICINCiAJICAgICAg
+ICIoYnV0IG5vdCBtb3JlIHRoYW4gJWQgS0Ivc2VjKSBmb3IgcmVjb25zdHJ1
+Y3Rpb24uXG4iLA0KIAkgICAgICAgc3lzY3RsX3NwZWVkX2xpbWl0X21heCk7
+DQpAQCAtMzQwOSw3ICszNDA4LDcgQEANCiAJZm9yIChqID0gMDsgaiA8IG1h
+eF9zZWN0b3JzOykgew0KIAkJaW50IHNlY3RvcnM7DQogDQotCQlzZWN0b3Jz
+ID0gbWRkZXYtPnBlcnMtPnN5bmNfcmVxdWVzdChtZGRldiwgaik7DQorCQlz
+ZWN0b3JzID0gbWRkZXYtPnBlcnMtPnN5bmNfcmVxdWVzdChtZGRldiwgaiwg
+Y3VycnNwZWVkIDwgc3lzY3RsX3NwZWVkX2xpbWl0X21pbik7DQogCQlpZiAo
+c2VjdG9ycyA8IDApIHsNCiAJCQllcnIgPSBzZWN0b3JzOw0KIAkJCWdvdG8g
+b3V0Ow0K
+--8323328-1724977107-1008774488=:7629--

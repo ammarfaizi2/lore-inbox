@@ -1,70 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261247AbVBFWlL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261178AbVBFWz5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261247AbVBFWlL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Feb 2005 17:41:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbVBFWlL
+	id S261178AbVBFWz5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Feb 2005 17:55:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbVBFWz5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Feb 2005 17:41:11 -0500
-Received: from nn4.excitenetwork.com ([207.159.120.58]:35906 "EHLO excite.com")
-	by vger.kernel.org with ESMTP id S261247AbVBFWlG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Feb 2005 17:41:06 -0500
-To: jtwilliams@vt.edu, linux-kernel@vger.kernel.org
-Subject: Re: Problem in accessing executable files
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: ID = 41790ee39c7967bbf4ef314fad615410
-Reply-To: vintya@excite.com
-From: "Vineet Joglekar" <vintya@excite.com>
+	Sun, 6 Feb 2005 17:55:57 -0500
+Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:31730 "EHLO
+	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id S261178AbVBFWzf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Feb 2005 17:55:35 -0500
+Date: Sun, 6 Feb 2005 23:54:11 +0100 (CET)
+From: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
+To: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
+       Tejun Heo <tj@home-tj.org>
+Subject: [rfc][patch] ide: fix unneeded LBA48 taskfile registers access
+Message-ID: <Pine.GSO.4.58.0502062348200.2763@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-X-Mailer: PHP
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Cc: linux-c-programming@vger.kernel.org
-Message-Id: <20050206224101.B1F71B6CB@xprdmailfe15.nwk.excite.com>
-Date: Sun,  6 Feb 2005 17:41:01 -0500 (EST)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi John,
+[ against ide-dev-2.6 tree, boot tested on LBA48 drive ]
 
-Thanks for suggesting the single / few bytes encryption test. I tried doing that, but in vain. Maybe I am going wrong somewhere else.
+This small patch fixes unneeded writes/reads to LBA48 taskfile registers
+on LBA48 capable disks for following cases:
 
-I will briefly tell the functions I have written and the sequence if I am doing any mistake in the logic, please let me know.
-In file.c I have added the info about the functions my_generic_file_read and my_generic_file_write in ext2_file_operations.
+* Power Management requests
+  (WIN_FLUSH_CACHE[_EXT], WIN_STANDBYNOW1, WIN_IDLEIMMEDIATE commands)
+* special commands (WIN_SPECIFY, WIN_RESTORE, WIN_SETMULT)
+* Host Protected Area support (WIN_READ_NATIVE_MAX, WIN_SET_MAX)
+* /proc/ide/ SMART support (WIN_SMART with SMART_ENABLE,
+  SMART_READ_VALUES and SMART_READ_THRESHOLDS subcommands)
+* write cache enabling/disabling in ide-disk
+  (WIN_SETFEATURES with SETFEATURES_{EN,DIS}_WCACHE)
+* write cache flushing in ide-disk (WIN_FLUSH_CACHE[_EXT])
+* acoustic management in ide-disk
+  (WIN_SETFEATURES with SETFEATURES_{EN,DIS}_AAM)
+* door (un)locking in ide-disk (WIN_DOORLOCK, WIN_DOORUNLOCK)
+* /proc/ide/hd?/identify support (WIN_IDENTIFY)
 
-For decrypting, the sequence is:
-my_generic_file_read ---> my_do_generic_file_read ---> my_file_read_actor ---> my_decrypt_data
+Patch adds 'unsinged long flags' to ide_task_t and uses ATA_TFLAG_LBA48
+flag (from <linux/ata.h>) to indicate need of accessing LBA48 taskfile
+registers.
 
-I have not made any changes in my_generic_file_read  and my_do_generic_file_read. In the function my_file_read_actor, I copy the page to my buffer (1 page - allocated at the time of mounting) I decrypt that buffer and pass it to the __copy_to_user() function.
+diff -Nru a/drivers/ide/ide-disk.c b/drivers/ide/ide-disk.c
+--- a/drivers/ide/ide-disk.c	2005-02-06 23:47:44 +01:00
++++ b/drivers/ide/ide-disk.c	2005-02-06 23:47:44 +01:00
+@@ -362,6 +362,9 @@
+ 	args.tfRegister[IDE_COMMAND_OFFSET]	= WIN_READ_NATIVE_MAX_EXT;
+ 	args.command_type			= IDE_DRIVE_TASK_NO_DATA;
+ 	args.handler				= &task_no_data_intr;
++
++	args.flags |= ATA_TFLAG_LBA48;
++
+         /* submit command request */
+         ide_raw_taskfile(drive, &args, NULL);
 
-for encrypting, the sequence is:
-my_generic_file_write ---> my_encrypt_data
+@@ -431,6 +434,9 @@
+ 	args.hobRegister[IDE_CONTROL_OFFSET_HOB]= (drive->ctl|0x80);
+ 	args.command_type			= IDE_DRIVE_TASK_NO_DATA;
+ 	args.handler				= &task_no_data_intr;
++
++	args.flags |= ATA_TFLAG_LBA48;
++
+ 	/* submit command request */
+ 	ide_raw_taskfile(drive, &args, NULL);
+ 	/* if OK, compute maximum address value */
+diff -Nru a/drivers/ide/ide-io.c b/drivers/ide/ide-io.c
+--- a/drivers/ide/ide-io.c	2005-02-06 23:47:44 +01:00
++++ b/drivers/ide/ide-io.c	2005-02-06 23:47:44 +01:00
+@@ -487,7 +487,7 @@
+ 			args->tfRegister[IDE_SELECT_OFFSET]  = hwif->INB(IDE_SELECT_REG);
+ 			args->tfRegister[IDE_STATUS_OFFSET]  = stat;
 
-In function my_generic_file_write, between functions __copy_from_user() and commit_write(), I am calling my_encrypt_data() by passing address of the page that is passed to __copy_from_user()
+-			if (drive->addressing == 1) {
++			if (args->flags & ATA_TFLAG_LBA48) {
+ 				hwif->OUTB(drive->ctl|0x80, IDE_CONTROL_REG);
+ 				args->hobRegister[IDE_FEATURE_OFFSET]	= hwif->INB(IDE_FEATURE_REG);
+ 				args->hobRegister[IDE_NSECTOR_OFFSET]	= hwif->INB(IDE_NSECTOR_REG);
+diff -Nru a/drivers/ide/ide-taskfile.c b/drivers/ide/ide-taskfile.c
+--- a/drivers/ide/ide-taskfile.c	2005-02-06 23:47:44 +01:00
++++ b/drivers/ide/ide-taskfile.c	2005-02-06 23:47:44 +01:00
+@@ -101,7 +101,7 @@
+ 	ide_hwif_t *hwif	= HWIF(drive);
+ 	task_struct_t *taskfile	= (task_struct_t *) task->tfRegister;
+ 	hob_struct_t *hobfile	= (hob_struct_t *) task->hobRegister;
+-	u8 HIHI			= (drive->addressing == 1) ? 0xE0 : 0xEF;
++	u8 HIHI			= (task->flags & ATA_TFLAG_LBA48) ? 0xE0 : 0xEF;
 
-My encrypt / decrypt routine is very basic at this time - just xoring every byte of the page as:
-*to = *to ^ 0xff; *to++;
+ 	/* ALL Command Block Executions SHALL clear nIEN, unless otherwise */
+ 	if (IDE_CONTROL_REG) {
+@@ -110,7 +110,7 @@
+ 	}
+ 	SELECT_MASK(drive, 0);
 
-If I change my encrypt/decrypt routines to encrypt / decrypt just first or last byte of the page, then I get a different error saying the file is not executable - when I try to execute it. I thought there might be a problem with executable header, but I guess when I encrypt last byte of the page, header should have been bypassed.
+-	if (drive->addressing == 1) {
++	if (task->flags & ATA_TFLAG_LBA48) {
+ 		hwif->OUTB(hobfile->feature, IDE_FEATURE_REG);
+ 		hwif->OUTB(hobfile->sector_count, IDE_NSECTOR_REG);
+ 		hwif->OUTB(hobfile->sector_number, IDE_SECTOR_REG);
+@@ -577,6 +577,9 @@
+ 	args.tf_out_flags = req_task->out_flags;
+ 	args.data_phase   = req_task->data_phase;
+ 	args.command_type = req_task->req_cmd;
++
++	if (drive->addressing == 1)
++		args.flags |= ATA_TFLAG_LBA48;
 
-Is it something like, for executables, the data is refered in some other functions - that is, before do_generic_file_read geting called?
-
-Thanks and regards,
-
-Vineet
-
- --- On Tue 02/01, John T. Williams < jtwilliams@vt.edu > wrote:
-From: John T. Williams [mailto: jtwilliams@vt.edu]
-To: vintya@excite.com, linux-kernel@vger.kernel.org
-     Cc: linux-c-programming@vger.kernel.org
-Date: Tue, 1 Feb 2005 10:37:30 -0500
-Subject: Re: Problem in accessing executable files
-
-This is just a thought.<br><br>Text files are better able to handle small faults. ie an extra space or<br>characters or even an unreadable piece of data might not cause the file to<br>become unreadable by most text editors.  Binary files aren't as flexible.<br>Every bit could be an instruction to the processor and might cause a seg<br>fault.<br><br>Just to test the theory, I would start by making the encrypt decrypt<br>function only effect the first byte.  If doing this doesn't cause a seg<br>fault, I would recheck my decrypt encrypt algorithm to make sure it doesn't<br>pad or expand at any point. maybe use them on a regular file and the an<br>md5sum on the file before and after, just to make extra sure.<br><br><br>----- Original Message ----- <br>From: "Vineet Joglekar" <vintya@excite.com><br>To: <linux-kernel@vger.kernel.org><br>Cc: <linux-c-programming@vger.kernel.org><br>Sent: Tuesday, February 01, 2005 8:58 AM<br>Subject: Problem in accessing executable files<br><br><br>><br>> Hi all,<br>><br>> I am trying to add some cryptographic functionality to ext2 file system<br>for my masters project. I am working with kernel 2.4.21<br>><br>> since the routines do_generic_file_read and do_generic_file_write are used<br>in reading and writing, I am decrypting and encrypting the data in the resp.<br>functions. This is working fine for regular data files. If I try to copy /<br>execute executable files, I am getting segmentation fault. In kernel<br>messages, I see same functions (read and write) getting called for the<br>executables also. If I comment encrypt/decrypt functions, its working fine.<br>><br>> Now since it is working for regular text files, I suppose there is not a<br>problem in my encrypt/decrypt routines, then what might be going wrong?<br>><br>> Thanks and regards,<br>><br>> Vineet<br>><br>> _______________________________________________<br>> Join Excite! - http://www.excite.com<br>> The most personalized portal on the Web!<br>> -<br>> To unsubscribe from this list: send the line "unsubscribe<br>l!
- inux-c-p
-rogramming" in<br>> the body of a message to majordomo@vger.kernel.org<br>> More majordomo info at  http://vger.kernel.org/majordomo-info.html<br><br><br>
-
-_______________________________________________
-Join Excite! - http://www.excite.com
-The most personalized portal on the Web!
+ 	drive->io_32bit = 0;
+ 	switch(req_task->data_phase) {
+diff -Nru a/include/linux/ide.h b/include/linux/ide.h
+--- a/include/linux/ide.h	2005-02-06 23:47:44 +01:00
++++ b/include/linux/ide.h	2005-02-06 23:47:44 +01:00
+@@ -1258,6 +1258,7 @@
+  *	struct hd_drive_hob_hdr		hobf;
+  *	hob_struct_t		hobf;
+  */
++	unsigned long		flags;		/* ATA_TFLAG_xxx */
+ 	task_ioreg_t		tfRegister[8];
+ 	task_ioreg_t		hobRegister[8];
+ 	ide_reg_valid_t		tf_out_flags;

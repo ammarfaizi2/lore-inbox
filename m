@@ -1,73 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269026AbUI2Uxk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268998AbUI2Uyl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269026AbUI2Uxk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 16:53:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269029AbUI2Uxj
+	id S268998AbUI2Uyl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 16:54:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269029AbUI2Uyl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 16:53:39 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:2821 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S269026AbUI2Uxg convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 16:53:36 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       "Povolotsky, Alexander" <Alexander.Povolotsky@marconi.com>
-Subject: Re: Linux 2.6.8-rc4 "Kernel panic: Attempted to kill init!" - af ter replacing /fadsroot on the Linux NFSserver with the one from Arabella cdrom
-Date: Wed, 29 Sep 2004 23:53:29 +0300
-User-Agent: KMail/1.5.4
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-References: <313680C9A886D511A06000204840E1CF0A6471D9@whq-msgusr-02.pit.comms.marconi.com> <1096407135.11135.138.camel@lade.trondhjem.org>
-In-Reply-To: <1096407135.11135.138.camel@lade.trondhjem.org>
+	Wed, 29 Sep 2004 16:54:41 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:46582 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S268998AbUI2UyT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 16:54:19 -0400
+Date: Wed, 29 Sep 2004 13:55:22 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+cc: kernel-janitors@lists.osdl.org, greg@kroah.com, hannal@us.ibm.com,
+       kraxel@bytesex.org
+Subject: [PATCH 2.6.9-rc2-mm4 bttv-driver.c][4/8] convert pci_find_device to pci_dev_present
+Message-ID: <15470000.1096491322@w-hlinder.beaverton.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200409292353.29957.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 29 September 2004 00:32, Trond Myklebust wrote:
-> På ty , 28/09/2004 klokka 23:14, skreiv Povolotsky, Alexander:
-> > In my previous e-mail I forgot to mention that on the remote NFS Linux
-> > (Intel PC) server I am running:
-> > 
-> > Red Hat Linux release 9 (Shrike)
-> > Kernel 2.4.20-28.9 on an i686
-> > 
-> > I have another strange problem to report - related to NFS.
-> > To work around my original problem (reported in my previous e-mail),
-> > I am booting with ramdisk as root filesystem server and then trying to
-> > manually mount the /fadsroot exported on the 
-> > above described Linux NFS server - I am getting errors ( but mounting still
-> > works) ...
-> > 
-> > Could anyone on this list determine (guess) what is the reason for errors
-> > (see below) ?
-> 
-> You have to use the "-onolock" option if you are not running the
-> rpc.portmap and rpc.statd daemons.
 
-Or alternatively configure 127.0.0.1 on loopback and
-start portmapper before you mount NFS. You can kill portmapper
-before you pivot_root into "real" root dir.
+As pci_find_device is going away need to replace it. This file did not use the dev returned
+from pci_find_device so is replaceable by pci_dev_present. I was not able to test it
+as I do not have the hardware.
 
->From /linuxrc on my initrd:
+Hanna Linder
+IBM Linux Technology Center
 
-echo "# Configuring interfaces"
-# Optional, for NFS happiness
-ip l set dev lo up
-ip a add 127.0.0.1/8 dev lo
-...
-rpc.portmap             # for statd (which is implicitly started by mount)
-while true; do
-    mount -n -o ro $ROOTFS /new_root \
-    && break
-    echo "mount -n -o ro $ROOTFS /new_root failed (err:$?)"; sleep 2
-done
-killall rpc.portmap     # portmap keeps old root busy
-...
---
-vda
+Signed-off-by: Hanna Linder <hannal@us.ibm.com>
+
+diff -Nrup linux-2.6.9-rc2-mm4cln/drivers/media/video/bttv-driver.c linux-2.6.9-rc2-mm4patch/drivers/media/video/bttv-driver.c
+--- linux-2.6.9-rc2-mm4cln/drivers/media/video/bttv-driver.c	2004-09-28 14:58:35.000000000 -0700
++++ linux-2.6.9-rc2-mm4patch/drivers/media/video/bttv-driver.c	2004-09-29 13:08:59.369697520 -0700
+@@ -4012,6 +4012,10 @@ static int bttv_init_module(void)
+ {
+ 	int rc;
+ 	bttv_num = 0;
++	static struct pci_device_id cx2388x[] {
++		{ PCI_DEVICE(0x14f1, 0x8800) },
++		{ },
++	};
+ 
+ 	printk(KERN_INFO "bttv: driver version %d.%d.%d loaded\n",
+ 	       (BTTV_VERSION_CODE >> 16) & 0xff,
+@@ -4036,7 +4040,7 @@ static int bttv_init_module(void)
+ 	rc = pci_module_init(&bttv_pci_driver);
+ 	if (-ENODEV == rc) {
+ 		/* plenty of people trying to use bttv for the cx2388x ... */
+-		if (NULL != pci_find_device(0x14f1, 0x8800, NULL))
++		if (pci_dev_present(cx2388x))
+ 			printk("bttv doesn't support your Conexant 2388x card.\n");
+ 	}
+ 	return rc;
 

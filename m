@@ -1,38 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261473AbVCRGo1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261414AbVCRGqj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261473AbVCRGo1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 01:44:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261483AbVCRGo0
+	id S261414AbVCRGqj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 01:46:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261483AbVCRGqj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 01:44:26 -0500
-Received: from fire.osdl.org ([65.172.181.4]:58335 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261473AbVCRGoY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 01:44:24 -0500
-Date: Thu, 17 Mar 2005 22:44:09 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
+	Fri, 18 Mar 2005 01:46:39 -0500
+Received: from jade.aracnet.com ([216.99.193.136]:29091 "EHLO
+	jade.spiritone.com") by vger.kernel.org with ESMTP id S261414AbVCRGqa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 01:46:30 -0500
+Date: Thu, 17 Mar 2005 22:46:32 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: ppc64 build broke between 2.6.11-bk6 and 2.6.11-bk7
-Message-Id: <20050317224409.41f0f5c5.akpm@osdl.org>
-In-Reply-To: <445800000.1111127533@[10.10.2.4]>
-References: <445800000.1111127533@[10.10.2.4]>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Message-ID: <446190000.1111128389@[10.10.2.4]>
+In-Reply-To: <20050317224409.41f0f5c5.akpm@osdl.org>
+References: <445800000.1111127533@[10.10.2.4]> <20050317224409.41f0f5c5.akpm@osdl.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> wrote:
->
-> drivers/built-in.o(.text+0x182bc): In function `.matroxfb_probe':
-> : undefined reference to `.mac_vmode_to_var'
-> make: *** [.tmp_vmlinux1] Error 1
+
+
+--Andrew Morton <akpm@osdl.org> wrote (on Thursday, March 17, 2005 22:44:09 -0800):
+
+> "Martin J. Bligh" <mbligh@aracnet.com> wrote:
+>> 
+>> drivers/built-in.o(.text+0x182bc): In function `.matroxfb_probe':
+>> : undefined reference to `.mac_vmode_to_var'
+>> make: *** [.tmp_vmlinux1] Error 1
+>> 
+>> Anyone know what that is?
+>> 
 > 
-> Anyone know what that is?
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11-mm4/broken-out/fbdev-kconfig-fix-for-macmodes-and-ppc.patch
+> 
+> should fix it.
+> 
 > 
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11-mm4/broken-out/fbdev-kconfig-fix-for-macmodes-and-ppc.patch
+Thanks - will retest.
 
-should fix it.
+M.
+

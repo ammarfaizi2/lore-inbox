@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278687AbRJXSHZ>; Wed, 24 Oct 2001 14:07:25 -0400
+	id <S278696AbRJXSIp>; Wed, 24 Oct 2001 14:08:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278690AbRJXSHQ>; Wed, 24 Oct 2001 14:07:16 -0400
-Received: from ns.suse.de ([213.95.15.193]:14351 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S278687AbRJXSHI>;
-	Wed, 24 Oct 2001 14:07:08 -0400
-Date: Wed, 24 Oct 2001 20:07:42 +0200 (CEST)
-From: Dave Jones <davej@suse.de>
-To: Sven Vermeulen <sven.vermeulen@rug.ac.be>
-Cc: Linux-Kernel Development Mailinglist 
-	<linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.13: some compilerwarnings...
-In-Reply-To: <20011024195342.A464@Zenith.starcenter>
-Message-ID: <Pine.LNX.4.30.0110242003430.19308-100000@Appserv.suse.de>
+	id <S278695AbRJXSIi>; Wed, 24 Oct 2001 14:08:38 -0400
+Received: from green.csi.cam.ac.uk ([131.111.8.57]:55537 "EHLO
+	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S278694AbRJXSIT>; Wed, 24 Oct 2001 14:08:19 -0400
+Date: Wed, 24 Oct 2001 19:08:28 +0100 (BST)
+From: James Sutherland <jas88@cam.ac.uk>
+X-X-Sender: <jas88@green.csi.cam.ac.uk>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Jan Kara <jack@suse.cz>, Neil Brown <neilb@cse.unsw.edu.au>,
+        <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: RFC - tree quotas for Linux (2.4.12, ext2)
+In-Reply-To: <Pine.LNX.4.33L.0110241540090.3690-100000@imladris.surriel.com>
+Message-ID: <Pine.SOL.4.33.0110241855590.12478-100000@green.csi.cam.ac.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Oct 2001, Sven Vermeulen wrote:
+On Wed, 24 Oct 2001, Rik van Riel wrote:
+> On Wed, 24 Oct 2001, James Sutherland wrote:
+>
+> > Yep, you're right: you'd need to ascend the target directory tree,
+> > increasing the cumulative size all the way up, then do the move and
+> > decrement the old location's totals in the same way. All wrapped up in a
+> > transaction (on journalled FSs) or have fsck rebuild the totals on a dirty
+> > mount. Fairly clean and painless on a JFS,
+>
+> It's only clean and painless when you have infinite journal
+> space. When your filesystem's journal isn't big enough to
+> keep track of all the quota updates from an arbitrarily deep
+> directory tree, you're in big trouble.
 
-> make[6]: Leaving directory `/home/nitro/src/linux/drivers/isdn/eicon'
-> make -C hisax fastdep
-> md5sum: WARNING: 13 of 13 computed checksums did NOT match
+Good point. You should be able to do it in constant space, though:
+identify the directory being modified, and the "height" to which you have
+ascended so far. That'll allow you to back out or redo the transaction
+later, which is enough I think?
 
-Been there for a while, and should be harmless.
-If you really cared, you could add the new md5sums to the script
-that does the checking. Can't remember why this changed without
-them being updated.  Someone doing Janitor work perhaps?
 
-> {standard input}: Assembler messages:
-> {standard input}:1040: Warning: indirect lcall without `*'
-
-AIUI, fixing these would mean breaking compilation with older versions
-of binutils.
-
-regards,
-
-Dave.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+James.
 

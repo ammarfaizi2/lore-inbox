@@ -1,63 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130413AbRBCAQZ>; Fri, 2 Feb 2001 19:16:25 -0500
+	id <S130263AbRBCARp>; Fri, 2 Feb 2001 19:17:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130450AbRBCAQQ>; Fri, 2 Feb 2001 19:16:16 -0500
-Received: from gaia.euronet.nl ([194.134.0.10]:28405 "HELO pop1.euronet.nl")
-	by vger.kernel.org with SMTP id <S130413AbRBCAQE>;
-	Fri, 2 Feb 2001 19:16:04 -0500
-Message-ID: <008301c08d76$7521ca60$1500a8c0@infernix>
-From: "infernix" <infernix@infernix.nl>
-To: "Kai Germaschewski" <kai@thphy.uni-duesseldorf.de>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.10.10102021816460.15155-100000@chaos.thphy.uni-duesseldorf.de>
-Subject: Re: isdn_ppp.c bug (isdn_lzscomp.c aka STAC compression > oops on 2.4.x)
-Date: Sat, 3 Feb 2001 01:15:45 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S130450AbRBCARf>; Fri, 2 Feb 2001 19:17:35 -0500
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:19997 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S130263AbRBCARY>; Fri, 2 Feb 2001 19:17:24 -0500
+Date: Fri, 2 Feb 2001 19:17:01 -0500
+From: Jakub Jelinek <jakub@redhat.com>
+To: "J . A . Magallon" <jamagallon@able.es>
+Cc: Hans Reiser <reiser@namesys.com>, Alan Cox <alan@redhat.com>,
+        Chris Mason <mason@suse.com>, Jan Kasprzak <kas@informatics.muni.cz>,
+        linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
+        "Yury Yu . Rupasov" <yura@yura.polnet.botik.ru>
+Subject: Re: [reiserfs-list] Re: ReiserFS Oops (2.4.1, deterministic, symlink
+Message-ID: <20010202191701.Y16592@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+In-Reply-To: <200102022213.f12MDCR27812@devserv.devel.redhat.com> <3A7B30FB.C63DBD11@namesys.com> <20010203004003.A2962@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010203004003.A2962@werewolf.able.es>; from jamagallon@able.es on Sat, Feb 03, 2001 at 12:40:03AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, Feb 03, 2001 at 12:40:03AM +0100, J . A . Magallon wrote:
+> Please, do not do so. That depends on the PACKAGE name and version, and there
+> is no standard way of versioning a patched gcc.
+> The -54 is a RH'ism, for example Mandrake Cooker includes patches from
+> different sources, and gcc is versioned like
 
-Unfortunately you are too right. It appears that the "!!!HACK,HACK,HACK!!!
-2048 is only assumed" line is gone in 2.4.1, but is back in 2.4.1-ac1. Can
-this be fixed?
+You can do:
+if [ "$CC" = gcc ]; then
+  echo 'inline void f(unsigned int n){int i,j=-1;for(i=0;i<10&&j<0;i++)if((1UL<<i)==n)j=i;if(j<0)exit(0);}main(){f(64);exit(1);}' > test.c
+  gcc -O2 -o test test.c
+  if ./test; then echo "*** Please don't use this compiler to compile kernel"; fi
+  rm -f test.c test
+fi
 
-Regards,
+(the $CC = gcc test is there e.g. so that the test is not done when
+cross-compiling or when there is a separate kernel compiler and userland
+compiler (e.g. on sparc64). This test will barf on gcc-2.96 up to -67 and
+on 2.97 until end of November or so).
+Similarly a testcase for the reload bug which caused in 2.95.2
+miscompilation of some long long stuff in the kernel could be added as well
+if you want to go that way.
 
-infernix
-
------ Original Message -----
-From: "Kai Germaschewski" <kai@thphy.uni-duesseldorf.de>
-To: "infernix" <infernix@infernix.nl>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Friday, February 02, 2001 6:18 PM
-Subject: Re: isdn_ppp.c bug (isdn_lzscomp.c aka STAC compression > oops on
-2.4.x)
-
-
->
-> On Fri, 2 Feb 2001, infernix wrote:
->
-> > However, the patch hasn't been implemented yet, neither in 2.4.1 or in
-> > 2.4.1-ac1, because the obvious "HACK,HACK,HACK" sentence is still
-present :)
-> > Could someone see to it that this mail reaches the kernel's isdn_ppp.c
-> > maintainer and get this thing moving? Thanks.
->
-> Look again. The patch you quoted is in patch-2.4.1.bz2. Don't know about
-> 2.4.1-ac1. (But I doubt it's reverted there :)
->
-> --Kai
-
-
+	Jakub
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311206AbSCZLGc>; Tue, 26 Mar 2002 06:06:32 -0500
+	id <S311147AbSCZLSI>; Tue, 26 Mar 2002 06:18:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311203AbSCZLGX>; Tue, 26 Mar 2002 06:06:23 -0500
-Received: from samba.sourceforge.net ([198.186.203.85]:3089 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S311147AbSCZLGO>;
-	Tue, 26 Mar 2002 06:06:14 -0500
-From: Paul Mackerras <paulus@samba.org>
+	id <S311203AbSCZLR6>; Tue, 26 Mar 2002 06:17:58 -0500
+Received: from jive.SoftHome.net ([66.54.152.27]:62873 "EHLO softhome.net")
+	by vger.kernel.org with ESMTP id <S311147AbSCZLRl>;
+	Tue, 26 Mar 2002 06:17:41 -0500
+Message-ID: <3CA05A47.9090602@SoftHome.net>
+Date: Tue, 26 Mar 2002 19:23:51 +0800
+From: Jason Xia <jasonxia@SoftHome.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011126 Netscape6/6.2.1
+X-Accept-Language: en-us, zh-cn, zh
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: question about probe_roms
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <15520.21196.511499.316840@argo.ozlabs.ibm.com>
-Date: Tue, 26 Mar 2002 21:51:56 +1100 (EST)
-To: Theodore Tso <tytso@mit.edu>
-Cc: Andrew Morton <akpm@zip.com.au>, "H . J . Lu" <hjl@lucon.org>,
-        linux-mips@oss.sgi.com, linux kernel <linux-kernel@vger.kernel.org>,
-        GNU C Library <libc-alpha@sources.redhat.com>
-Subject: Re: Does e2fsprogs-1.26 work on mips?
-In-Reply-To: <20020326015440.A12162@thunk.org>
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Tso writes:
+Hi:
+      I'm reading linux kernel 2.4 source code and puzzled with
+probe_roms().
+In this function , rom was probed and request_resource was called. but I
+don't understand these codes:
+      for (base = 0xC0000; base < 0xE0000; base+=2048) {
+          romstart = bus_to_virt(base);
+          if (!romsignature(romstart))
+                  continue;
+          request_resource(&iomem_resource, rom_resources+roms);
+          roms++;
+          break;
+      }
+Because whether video rom is start from  0xC000:0000 or not, we request
+a memory
+resource start at 0xC0000 (I don't find any code change the contents of
+rom_resources)
+So I think these codes assume that there is a video rom at 0xc0000,  but
+if this is true,
+why not request_resource as SystemRom?
 
-> 3)  RLIMIT_FILESIZE should not apply to block devices!!!
+Thank you in advance.
 
-Absolutely.
+Best regards !
 
-I would go further and say that it should only apply to writes to a
-regular file that would extend the file past the filesize limit.  At
-the moment the check in generic_file_write is simply whether the file
-offset is greater than the limit, or would be greater than the limit
-after the write.  This doesn't seem right to me.  If, for example, my
-RLIMIT_FILESIZE is 1MB, and I have write access to an existing 100MB
-file, I think I should be able to write anywhere in that file as long
-as I don't try to extend it.
+-- jason --
 
-If we did that then the block device case would fall out, since you
-can't extend block devices (not by writing past the end of them
-anyway).
 
-Paul.
+
+

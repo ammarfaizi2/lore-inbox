@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261966AbUJYPcF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262000AbUJYPhO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261966AbUJYPcF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 11:32:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261968AbUJYP25
+	id S262000AbUJYPhO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 11:37:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbUJYPep
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 11:28:57 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:24525 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261960AbUJYP20 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 11:28:26 -0400
-Message-ID: <417D1B8D.3000709@nortelnetworks.com>
-Date: Mon, 25 Oct 2004 09:28:13 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
+	Mon, 25 Oct 2004 11:34:45 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:56250 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261951AbUJYP3O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 11:29:14 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-mm1: NForce3 problem (IRQ sharing issue?)
+Date: Mon, 25 Oct 2004 17:31:11 +0200
+User-Agent: KMail/1.6.2
+Cc: Zwane Mwaikambo <zwane@linuxpower.ca>, Andrew Morton <akpm@osdl.org>
+References: <200410222354.44563.rjw@sisk.pl> <200410251627.51939.rjw@sisk.pl> <Pine.LNX.4.61.0410251740060.3029@musoma.fsmlabs.com>
+In-Reply-To: <Pine.LNX.4.61.0410251740060.3029@musoma.fsmlabs.com>
 MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Robert Love <rml@novell.com>, "Jack O'Quin" <joq@io.com>
-Subject: Re: How is user space notified of CPU speed changes?
-References: <1098399709.4131.23.camel@krustophenia.net>	 <1098444170.19459.7.camel@localhost.localdomain>	 <1098468316.5580.18.camel@krustophenia.net>	 <4179623C.9050807@nortelnetworks.com> <1098487558.1440.20.camel@krustophenia.net>
-In-Reply-To: <1098487558.1440.20.camel@krustophenia.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200410251731.11445.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-> On Fri, 2004-10-22 at 13:40 -0600, Chris Friesen wrote:
->>x86 really could use an on-die register that increments at 1GHz independent of 
->>clock speed and is synchronized across all CPUs in an SMP box.
+On Monday 25 of October 2004 16:45, Zwane Mwaikambo wrote:
+> On Mon, 25 Oct 2004, Rafael J. Wysocki wrote:
 > 
+> > > So did the system still misbehave? What happened?
+> > 
+> > So far, so good.  The problem has not happened yet, so I think it won't.  
+> > Still, I have no such problems with 2.6.9*, although I do not boot them 
+with 
+> > noapic ...
+> > 
+> > Thanks for your help anyway,
 > 
-> Like this? (posted to jackit-devel):
-> 
-> On Fri, 2004-10-22 at 18:20 -0500, Jack O'Quin wrote: 
->>On PowerPC, JACK uses the lower half of the 64-bit Timebase register,
->>which is accessible from user mode.  This is better then the i386
->>cycle counter, I believe.
+> Ok, perhaps you shouldn't thank me ;) I actually sortof kinda broke your 
+> box... The reason why it worked before was because the kernel defaulted to 
+> disabling the IOAPIC on all nforce3 based systems but we found out that 
+> most nforce3 systems are actually work with the IOAPIC if we just ignore 
+> some bogus ACPI BIOS information. Your system happens to be one of the 
+> more broken ones, i'd actually like to try debug your problem a bit 
+> further, could you open up a bugzilla entry at bugzilla.kernel.org and 
+> email me when you're done. In the meantime, just keep booting with 
+> 'noapic'
 
-Yes, ppc tbr is nice.  It's actually lower resolution than the x86 one, but it 
-might be better for smp and freq changes--not sure.
+OK
+The bugzilla entry is at:
+http://bugzilla.kernel.org/show_bug.cgi?id=3639
 
-Chris
+Greets,
+RJW
+
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

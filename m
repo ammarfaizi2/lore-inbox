@@ -1,106 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132798AbRAFTXR>; Sat, 6 Jan 2001 14:23:17 -0500
+	id <S129823AbRAFTbE>; Sat, 6 Jan 2001 14:31:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131047AbRAFTXD>; Sat, 6 Jan 2001 14:23:03 -0500
-Received: from latt.if.usp.br ([143.107.129.103]:6660 "HELO latt.if.usp.br")
-	by vger.kernel.org with SMTP id <S132798AbRAFTWx>;
-	Sat, 6 Jan 2001 14:22:53 -0500
-Date: Sat, 6 Jan 2001 17:22:50 -0200 (BRST)
-From: "Jorge L. deLyra" <delyra@latt.if.usp.br>
-Reply-To: "Jorge L. deLyra" <delyra@latt.if.usp.br>
-To: Chris Siebenmann <cks@utcc.utoronto.ca>
-cc: Andi Kleen <ak@suse.de>, Neil Brown <neilb@cse.unsw.edu.au>,
-        Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>,
-        Frank.Olsen@stonesoft.com, kernel list <linux-kernel@vger.kernel.org>,
-        Antonio Fernando Correa de Moraes <afmoraes@uol.com.br>,
-        assirati@socrates.if.usp.br
-Subject: Re: Bugs in knfsd -- Problem re-exporting an NFS share
-In-Reply-To: <Pine.LNX.3.96.1010103114120.21947A-100000@latt.if.usp.br>
-Message-ID: <Pine.LNX.3.96.1010106163722.752A-100000@latt.if.usp.br>
+	id <S132739AbRAFTaz>; Sat, 6 Jan 2001 14:30:55 -0500
+Received: from [156.46.206.66] ([156.46.206.66]:60683 "EHLO eagle.netwrx1.com")
+	by vger.kernel.org with ESMTP id <S131047AbRAFTao>;
+	Sat, 6 Jan 2001 14:30:44 -0500
+From: "George R. Kasica" <georgek@netwrx1.com>
+To: linux-kernel@vger.kernel.org
+Subject: Cannot compile 2.2.18
+Date: Sat, 06 Jan 2001 13:30:42 -0600
+Organization: Netwrx Consulting Inc.
+Reply-To: georgek@netwrx1.com
+Message-ID: <pdse5t875jp4agj2e03s2p5mv31eg6cheo@4ax.com>
+X-Mailer: Forte Agent 1.8/32.548
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From cks@utcc.utoronto.ca Sat Jan  6 16:36:57 2001
-> Date: Sat, 6 Jan 2001 00:52:21 -0500
-> From: Chris Siebenmann <cks@utcc.utoronto.ca>
-> To: "Jorge L. deLyra" <delyra@latt.if.usp.br>
-> Subject: Re: Bugs in knfsd -- Problem re-exporting an NFS share
-> 
-> You write:
-> [about re-exporting NFS mounts via NFS:]
-> | Well, I hope some solution is found, since this is an important feature.
-> | It would be nicer in knfsd, I think, but if that proves unpractical for
-> | some reason, your packet filter/forwarder might just be the answer.
-> 
->  This is essentially impossible to do reliably; one way or another you
-> have to make tradeoffs. The basic problem is that of NFS filehandles.
-> NFS filehandles are fixed-size persisent opaque objects that uniquely
-> identify a given file to the server. Now, imagine that you are
-> attempting to re-export NFS partitions (from multiple systems) as well
-> as export some of your own local partitions. How do you come up with the
-> NFS filehandles that you're going to give clients, in general, and keep
-> the result persistent?
-> 
->  You have to somehow add information (what server/filesystem the object
-> is on/for) to an existing, opaque block of information of the same size,
-> all of which may be significant, and that you can't make any assumptions
-> about the format of. There's no place for the information to go, unless
-> you create a potentially unboundedly large mapping table and store it
-> locally, or unless your code is only really going to work with known
-> sources of filehandles so you know how they're put together and thus
-> where you can stuff some extra information in.
-> 
-> (unfsd's NFS filehandles are derived from file name and file location,
-> if I remember correctly, and can erroneously become invalid if the file
-> is moved around in the wrong way. That's the other way out, but it is
-> not 100% reliable, and if what someone wants to do with the server hits
-> this case hard you are truly out of luck.)
+Hello:
 
-OK, I think I got your point, we seem to be dealing with a limitation of
-the NFS protocol. However, Andi Kleen has this idea of a packet filtering
-and relay daemon. Since the packets of the private network cannot appear
-on the Internet, I guess there would have to be some kind of tunneling
-involved. Well, trying to elaborate on that, couldn't you solve the
-file-handling problem by building a local cache on disk in the front-end?
-That would reduce the re-exportation problem to the problem of exporting a
-local ext2 filesystem. I imagine something like this: let's say that
+Since 2.4.0 is being a pig here I thought I'd go back and recompile
+2.2.18 and place the whole tree someplace safe (ie burn a
+CD)....well...now I can't compile 2.2.18 (did a tar xvf so I have a
+fresh source tree) either....here's what I get with a 
 
-	latt.int is one home server on the Internet
-	dfma.int is another home server on the Internet
-	pmcs.int is the front-end, which is on both networks
-	pmcs.prv is the name of the front end in the private network
-	node.prv is any compute node in the private network
+make mrproper
+make dep
+make config
+make bzImage
 
-latt.int:/home <---> mounted as /latt/home on pmcs.int
-dfma.int:/home <---> mounted as /dfma/home on pmcs.int
-                                     ^
-                                     |
-   re-export daemon: files requested | get cached into
-                                     |
-                                     V
-                                   /rexp on pmcs
-                (say, with paths /rexp/latt/home/..., etc)
-                                     ^
-                                     |
-                      pmcs.prv:/rexp +---> mounted as /rexp on node.prv
-
-The re-export daemon on pmcs would have to keep in /rexp the files which
-are required via the mount of /rexp by the nodes, copying them from the
-appropriate Internet mount, and copying back into these mounts new files
-which show up in /rexp/. Would something like this be feasible?
-
-							Cheers,
-
-----------------------------------------------------------------
-        Jorge L. deLyra,  Associate Professor of Physics
-            The University of Sao Paulo,  IFUSP-DFMA
-       For more information: finger delyra@latt.if.usp.br
-----------------------------------------------------------------
+>cc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2 -fomit-fr
+>ame-pointer -fno-strict-aliasing -pipe -fno-strength-reduce -m486 -malign-loops=
+>2 -malign-jumps=2 -malign-functions=2 -DCPU=686   -c -o kmod.o kmod.c
+>rm -f kernel.o
+>ld -m elf_i386  -r -o kernel.o signal.o ksyms.o sched.o dma.o fork.o exec_domain
+>.o panic.o printk.o sys.o module.o exit.o itimer.o info.o time.o softirq.o resou
+>rce.o sysctl.o acct.o capability.o kmod.o
+>ld: cannot open input file elf_i386
+>make[2]: *** [kernel.o] Error 2
+>make[2]: Leaving directory `/usr/src/linux/kernel'
+>make[1]: *** [first_rule] Error 2
+>make[1]: Leaving directory `/usr/src/linux/kernel'
+>make: *** [_dir_kernel] Error 2
 
 
+Any help is urgently needed.
+
+George
+
+===[George R. Kasica]===        +1 262 513 8503
+President                       +1 206 374 6482 FAX 
+Netwrx Consulting Inc.          Waukesha, WI USA 
+http://www.netwrx1.com
+georgek@netwrx1.com
+ICQ #12862186
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

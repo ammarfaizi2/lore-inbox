@@ -1,58 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265840AbUGDX2d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265841AbUGDX3B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265840AbUGDX2d (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jul 2004 19:28:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265841AbUGDX2d
+	id S265841AbUGDX3B (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jul 2004 19:29:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265847AbUGDX3A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jul 2004 19:28:33 -0400
-Received: from send.it.helsinki.fi ([128.214.205.133]:391 "EHLO
-	send.it.helsinki.fi") by vger.kernel.org with ESMTP id S265840AbUGDX2Y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jul 2004 19:28:24 -0400
-Date: Mon, 5 Jul 2004 02:28:15 +0300 (EEST)
-From: Mikael Johansson <mpjohans@pcu.helsinki.fi>
-X-X-Sender: mpjohans@soul.it.helsinki.fi
-To: Martin Knoblauch <knobi@knobisoft.de>
-cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: RAID-0 read perf. decrease after 2.4.20
-In-Reply-To: <20031218143741.25747.qmail@web13908.mail.yahoo.com>
-Message-ID: <Pine.OSF.4.58.0407050216150.208397@soul.it.helsinki.fi>
-References: <20031218143741.25747.qmail@web13908.mail.yahoo.com>
+	Sun, 4 Jul 2004 19:29:00 -0400
+Received: from web51802.mail.yahoo.com ([206.190.38.233]:9611 "HELO
+	web51802.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S265841AbUGDX2x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jul 2004 19:28:53 -0400
+Message-ID: <20040704232852.58634.qmail@web51802.mail.yahoo.com>
+Date: Sun, 4 Jul 2004 16:28:52 -0700 (PDT)
+From: Phy Prabab <phyprabab@yahoo.com>
+Subject: Re: Slow internet access for 2.6.7bk15&16
+To: bert hubert <ahu@ds9a.nl>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040704165743.GD18688@outpost.ds9a.nl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Okay, so, I checked the latest bk (17) and found that
+the fix indicated by the below link has already made
+it in and still I see the slow down in ftp transfers
+in comparison to 2.6.6 and 2.4.x kernels.  Any
+suggestions?
 
-Hello again!
+Dual Opteron
+Broadcom Ge
+using tg3
 
-Finally had time to test this on IDE, "better late than even later"...
-
-On Thu, 18 Dec 2003, Martin Knoblauch wrote:
-
-> > >  Just some feedback:
-> > >
-> > > echo 511 > /proc/sys/vm/max-readahead
-> > >
-> > >  brings back the read performance of my 30 disks on 4 controller
-> > > LVM/RAID0.
-> >
-> > Great.
-> >
+Thanks!
+Phy
+--- bert hubert <ahu@ds9a.nl> wrote:
+> On Sat, Jul 03, 2004 at 07:41:12PM -0700, Phy Prabab
+> wrote:
+> > Heelo,
+> > 
+> > I have been watching a thread concerning the slow
+> down
+> > with accessing some websites but have not found a
+> > resolution to the issue.  
+> 
+> Probably fixed by
 >
->  Indeed :-) Just to clarify - the modification of max-readahead was
-> sufficient to "fix" the observed read performance degradation. I did
-> not apply (or reverse) anything on top of 2.4.22.
->
->  Actually 255 would have been sufficient, 511 proved to be a small bit
-> better :-))
+http://linus.bkbits.net:8080/linux-2.5/cset@40e47ae2tQ_PIxw_HStw3YgsdJFHow?nav=index.html|ChangeSet@-4d
+> 
+> -- 
+> http://www.PowerDNS.com      Open source, database
+> driven DNS Software 
+> http://lartc.org           Linux Advanced Routing &
+> Traffic Control HOWTO
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-The "max-readahead" does not seem to affect IDE-RAID, at least not with
-the 2.4.27-pre6 I just compiled on two machines. So the problem still
-exists, read speed on 2.4.20-ac2 is almost twice as fast as on later
-kernels :-/
 
-Have a nice summer,
-    Mikael J.
-    http://www.helsinki.fi/~mpjohans/
+
+		
+__________________________________
+Do you Yahoo!?
+New and Improved Yahoo! Mail - Send 10MB messages!
+http://promotions.yahoo.com/new_mail 

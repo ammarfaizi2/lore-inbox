@@ -1,40 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264825AbRFXWKu>; Sun, 24 Jun 2001 18:10:50 -0400
+	id <S264827AbRFXWMU>; Sun, 24 Jun 2001 18:12:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264826AbRFXWKk>; Sun, 24 Jun 2001 18:10:40 -0400
-Received: from mx1.sac.fedex.com ([199.81.208.10]:49158 "EHLO
-	mx1.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S264825AbRFXWK0>; Sun, 24 Jun 2001 18:10:26 -0400
-Date: Mon, 25 Jun 2001 06:11:10 +0800 (SGT)
-From: Jeff Chua <jchua@fedex.com>
-X-X-Sender: <root@boston.corp.fedex.com>
+	id <S264828AbRFXWMK>; Sun, 24 Jun 2001 18:12:10 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:12302 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S264827AbRFXWLy>; Sun, 24 Jun 2001 18:11:54 -0400
+Date: Sun, 24 Jun 2001 19:11:44 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: John Nilsson <pzycrow@hotmail.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Some experience of linux on a Laptop
-In-Reply-To: <E15EHkU-0000Wu-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0106250601370.204-100000@boston.corp.fedex.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fix accounting of memory_pressure
+Message-ID: <Pine.LNX.4.33L.0106241910030.23112-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 24 Jun 2001, Alan Cox wrote:
+Hi,
 
-> > 8: A way to change kernel without rebooting. I have no diskdrive or cddrive
-> > in my laptop so I often do drastic things when I install a new distribution.
->
-> Thats actually an incredibly hard problem to solve. The only people who do
-> this level of stuff are some of the telephony folks, and the expensive
-> tandem non-stop boxes.
+the attached patch makes sure to only increase memory_pressure
+in cases we actually found a page, this prevents the inactive
+target from rising to infinite in case we don't have any
+inactive_clean pages in the system...
 
-I use loadlin + initrd on my Toshiba and Ibm notebook. Boot up dos first,
-then to either a test linux or stable linux environment from the C drive.
-I setup a Menu in config.sys under dos to select which linux to boot up.
-If the test kernel doesn't work, I reboot the system to switch to the
-stable one. At least better than carrying a floppy around.
+(observed in testing)
 
-ps. Alan, thanks for replying to my "reiserfs replay" question.
+regards,
 
-Jeff
+Rik
+--
+Executive summary of a recent Microsoft press release:
+   "we are concerned about the GNU General Public License (GPL)"
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
+
+
+--- linux-2.4.5-ac17/mm/page_alloc.c.unlazy	Sun Jun 24 19:03:03 2001
++++ linux-2.4.5-ac17/mm/page_alloc.c	Sun Jun 24 19:05:22 2001
+@@ -440,7 +440,6 @@
+ 		 * 	  the inactive clean list. (done by page_launder)
+ 		 */
+ 		if (gfp_mask & __GFP_WAIT) {
+-			memory_pressure++;
+ 			try_to_free_pages(gfp_mask);
+ 			goto try_again;
+ 		}
+--- linux-2.4.5-ac17/mm/vmscan.c.unlazy	Sun Jun 24 19:03:03 2001
++++ linux-2.4.5-ac17/mm/vmscan.c	Sun Jun 24 19:05:36 2001
+@@ -397,6 +397,7 @@
+ 	goto out;
+
+ found_page:
++	memory_pressure++;
+ 	del_page_from_inactive_clean_list(page);
+ 	UnlockPage(page);
+ 	page->age = PAGE_AGE_START;
+@@ -406,7 +407,6 @@
+ out:
+ 	spin_unlock(&pagemap_lru_lock);
+ 	spin_unlock(&pagecache_lock);
+-	memory_pressure++;
+ 	return page;
+ }
+
 

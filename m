@@ -1,156 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269906AbUJHMil@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269934AbUJHMoO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269906AbUJHMil (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 08:38:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269907AbUJHMil
+	id S269934AbUJHMoO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 08:44:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269929AbUJHMoG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 08:38:41 -0400
-Received: from out010pub.verizon.net ([206.46.170.133]:3252 "EHLO
-	out010.verizon.net") by vger.kernel.org with ESMTP id S269906AbUJHMif
+	Fri, 8 Oct 2004 08:44:06 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25015 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269920AbUJHMn7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 08:38:35 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone
-Date: Fri, 8 Oct 2004 08:38:33 -0400
-User-Agent: KMail/1.7
-Cc: Jon Masters <jonathan@jonmasters.org>, jmerkey@galt.devicelogics.com,
-       Jesper Juhl <juhl-lkml@dif.dk>, "Jeff V. Merkey" <jmerkey@drdos.com>,
-       Dave Jones <davej@redhat.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       "jmerkey@comcast.net" <jmerkey@comcast.net>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <35fb2e590410011509712b7d1@mail.gmail.com> <20041008032034.GD3528@galt.devicelogics.com> <41663E8A.10604@jonmasters.org>
-In-Reply-To: <41663E8A.10604@jonmasters.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 8 Oct 2004 08:43:59 -0400
+Date: Fri, 8 Oct 2004 07:38:02 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: noir@hacman.nu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.26 kernel BUG at dcache.c:653!
+Message-ID: <20041008103801.GE16028@logos.cnet>
+References: <4166655F.3090506@hacman.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200410080838.33268.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out010.verizon.net from [151.205.50.25] at Fri, 8 Oct 2004 07:38:34 -0500
+In-Reply-To: <4166655F.3090506@hacman.nu>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 08 October 2004 03:15, Jon Masters wrote:
->-----BEGIN PGP SIGNED MESSAGE-----
->Hash: SHA1
->
->jmerkey@galt.devicelogics.com wrote:
->
->[ Would you please quite removing the attribution from mailing list
->posts? I know you don't care to keep it in the kernel, but at least
-> let people know who said what in this completely pointless
-> thread... ]
->
->Jesper>>| There are other rewards than money.
->
->jcm>> Al summed it up quite well earlier. Jeff probably wants to get
-> the jcm>> lining on his tinfoil hat thickened to avoid the brain
-> lazers getting in
->jcm>> any further. Check those bushes for Novell snipers too - you
-> never know
->jcm>> when they'll pop out and come to get you, like everyone else
->everywhere.
->
->*Strong medication*. Very strong. Now with added eucalyptus! It'll
-> make removing all that code easier. Ya know, you don't like cdrom
-> support in your kernel (and claim it corrupts memory on your SuSE
-> box...that's cute) but I've never much like memory management or
-> CPU support in my kernel. I say you rip out everything under
-> kernel/ and mm/ just in case. After all, Novell operatives might
-> have secretly corrupted it, eh? ;-).
->
->|>50,000USD is a patheticly small amount to pay for the kernel,
->|> there's nothing wrong with the current licensing model, and
->|> people already make big bucks from Linux. Several of those aren't
->|> just dot-coms that went tits up later either - and most of them
->|> emply core kernel hackers.
->
->I meant that too. Just think about it - with the number of
-> contributors in the kernel you'll have to offer a lot of money
-> before even a few of them start to hear cash register sounds in
-> their head. I expect it is graphable, but I've never actually that
-> eye-rolling-dollar-sign thing that happens in the various cartoons.
-> By the time it's diluted down, is the guy entitled to 0.05 cents
-> really going to be suddenly convinced that all this time he was
-> secretly after money but didn't realize it?
->
->| Not for a license to a single snapshot of a single 2.6.X or 2.4.X
->| version.
->
->I'd argue that the kernel is entirely priceless. It's better than
-> that, more advanced, now extra-caffeinated with added pro-V
-> complex!
->
->| I agree this isn't about money.
->
->...oh but you think this pointless endeavour of yours will actually
-> get you somewhere other than in even more killfiles. I really
-> shouldn't feed the troll but it's oh so hard to resist. I mean, you
-> seem like a fun crazy sort of guy. So far I've seen:
->
->~    *). Intense bitterness at Novell.
->~    *). Signs of paranoid delusion.
->~    *). A fundamental missunderstanding of the GPL.
->~    *). Various other random craziness.
->
->Tell me, Mr Jeff, of various mail domains (does that make you feel
->bigger and better than the rest of us?) are you funded by Microsoft
-> to suggest this stuff or do you truly believe it? Really? Truly? I
-> mean, I'd much rather hear you're being paid to say this shite.
->
->| It's about control and using the GPL to control what happens.
->
->...by undermininging it and opening the floor to bribary. What would
->those damn Novell snipers say about that?
->
->| The offer is for real.
->
->I doubt that greatly. Actually no, I don't. I believe there are
-> crazy people in the US with lots of money who'll think this is a
-> good idea.
->
->Jon.
 
-Yeah there are Jon, and his initials are probably BG.  I've been 
-following this thread, first in amazement, followed by disbelief, 
-since it started yesterday, and the only thing my 6th sense is 
-telling me is that this is an attempt to undermine the GPL by someone 
-like M$ so that they can take it to court and successfully render it 
-moot.
+Hi,
 
-At one point he's talking about $50,000 for a snapshot, then next he's 
-saying $50,000 per copyright holder, and how that would end up being 
-millions.  A new story with almost every message, and coming from 
-several addresses, at one point from drdos.com, so I went over to see 
-if he was actually listed there but couldn't find a reference. Ditto 
-for the *panogas address.  And I haven't looked at comcast as that is 
-an ISP with several million addresses IIRC.
+On Fri, Oct 08, 2004 at 04:01:03AM -0600, noir@hacman.nu wrote:
+> This is my first post ever to a mailing list, so I hope I do alright.
+> The system was idling when it just hung. After a reboot, I get the 
+> following error with seemingly no way to get into my system.
 
-This old (70, and more user than coder now) fart associate member of 
-the FSF is more and more convinced he's a troll, out only to 
-contaminate the GPL and a few million to do that is just chicken feed 
-to his backers.  And make no mistake, the sucessfull contamination of 
-the GPL could be worth many billions of dollars to M$ et all.  Thats 
-the most obvious 'SWAG' candidate as the real source of all this 
-largess.
+So you can't log into the box because it always results in the 
+oops below?
 
-My $0.02: Deal with the likes of him at the peril of the GPL.
-
-Here's another question that needs answered too, why the hell isn't 
-Linus in the To: or Cc: list?  (He is now!) After all, his approval 
-would be the first thing you would need, isn't it Jeff?  Again, one 
-more clue that this looks like the fox, trying to sneak in under the 
-henhouse radar.
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+> kernel BUG at dcache.c:653!
+> invalid operand: 0000
+> CPU:    0
+> EIP:    0010:[<c014a122>]    Not tainted
+> EFLAGS: 00010207
+> eax: 00000000    ebx: 00000000    ecx: d7fbd7e0    edx: 00000000
+> esi: d7fbd7b0    edi: d7fbd7b0    ebp: d7fbd7b0    esp: d7fe5eb4
+> ds: 0018    es: 0018    ss: 0018
+> Process swapper (pid: 1, stackpage=d7fe50000)
+> Stack: d7c2e060 d7fbd7b0 c0173374 d7fbd7b0 00000000 fffffff4 d7c2e0cc 
+> d7c2e060
+>        c014148a d7c2e060 d7fbd7b0 00000000 d7c4100c d7fbd740 d7fe5f74 
+> c0141ae6
+>        d7fbd740 d7fe5f0c 00000000 00000001 d7c2e060 00000000 d7c41005 
+> 00000007
+> Call Trace:    [<c0173374>] [<c014148a>] [<c0141ae6>] [<c0141db9>] 
+> [<c0105000>]
+>   [<c01421c4>] [<c01d8463>] [<c01d781d>] [<c0105000>] [<c01369ae>] 
+> [<c0136d5b>]
+>   [<c0108d73>] [<c0105000>] [<c01050ad>] [<c0107343>] [<c0105060>]
+> 
+> Code: 0f 0b 8d 02 ba d4 2d c0 85 db 74 12 8b 43 10 8d 53 10 89 48
+>  <0>Kernel panic: Attempted to kill init!
+> 
+> If there is any needed information that I have excluded, please let me 
+> know and I will put it up as soon as possible.

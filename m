@@ -1,59 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312488AbSCUUuN>; Thu, 21 Mar 2002 15:50:13 -0500
+	id <S312493AbSCUUwN>; Thu, 21 Mar 2002 15:52:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312491AbSCUUuD>; Thu, 21 Mar 2002 15:50:03 -0500
-Received: from web10103.mail.yahoo.com ([216.136.130.53]:29496 "HELO
-	web10103.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S312488AbSCUUtv>; Thu, 21 Mar 2002 15:49:51 -0500
-Message-ID: <20020321204951.35236.qmail@web10103.mail.yahoo.com>
-Date: Thu, 21 Mar 2002 12:49:51 -0800 (PST)
-From: Ivan Gurdiev <ivangurdiev@yahoo.com>
-Subject: Re: Via-Rhine stalls - transmit errors
-To: Andy Carlson <naclos@andyc.dyndns.org>
-Cc: linux-kernel@vger.kernel.org
+	id <S312492AbSCUUwC>; Thu, 21 Mar 2002 15:52:02 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:51925 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S312491AbSCUUvs>; Thu, 21 Mar 2002 15:51:48 -0500
+Date: Thu, 21 Mar 2002 21:51:30 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: linux-kernel@vger.kernel.org
+Subject: IBM PCI Hotplug driver doesn't compile in 2.4.19-pre4
+Message-ID: <Pine.NEB.4.44.0203212148280.2125-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-if ((intr_status & ~( IntrLinkChange | IntrStatsMax |
- IntrTxAborted ))) {
-   if (debug > 1)
-   	printk(KERN_ERR "%s: Something Wicked happened!
-%4.4x.\n",dev->name, intr_status);
- /* Recovery for other fault sources not known. */
-  writew(CmdTxDemand | np->chip_cmd, dev->base_addr +
-ChipCmd);
-        }
 
-What's classified as "Something Wicked" ?
+Building a kernel with the IBM PCI Hotplug driver statically included
+fails at the final linking stage with a:
 
-Mar 20 21:52:00 cobra kernel: eth0: Something Wicked 
-happened! 0008. 
+<--  snip  -->
 
-This is tx abort isn't it?
+...
+drivers/hotplug/vmlinux-obj.o: In function `ibmphp_configure_card':
+drivers/hotplug/vmlinux-obj.o(.text+0x13734): undefined reference to `ibmphp_pci_root_ops'
+drivers/hotplug/vmlinux-obj.o(.text+0x137a8): undefined reference to `ibmphp_pci_root_ops'
+drivers/hotplug/vmlinux-obj.o(.text+0x137c5): undefined reference to `ibmphp_pci_root_ops'
+drivers/hotplug/vmlinux-obj.o(.text+0x139bf): undefined reference to `ibmphp_pci_root_ops'
+drivers/hotplug/vmlinux-obj.o(.text+0x13beb): undefined reference to `ibmphp_pci_root_ops'
+drivers/hotplug/vmlinux-obj.o(.text+0x14018): more undefined references to `ibmphp_pci_root_ops' follow
+...
 
-Mar 20 21:51:59 cobra kernel: eth0: Something Wicked 
-happened! 001a. 
+<--  snip  -->
 
-...and this should be : tx underrun, tx abort, tx done
-
-are those supposed to be logged as "Wicked"?
-Those interrupts are handled earlier aren't they? 
-        if (intr_status & (underflow | IntrTxAbort))
-	...
-	if (intr_status & IntrTxUnderrun) {
-	...
+cu
+Adrian
 
 
-I'm quite ignorant of all this, but I'm trying to
-learn. I apologize if this is a stupid question.
-
-
-
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Movies - coverage of the 74th Academy Awards®
-http://movies.yahoo.com/

@@ -1,41 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262708AbVAKKyi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262722AbVAKKxd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262708AbVAKKyi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 05:54:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262711AbVAKKxj
+	id S262722AbVAKKxd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 05:53:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262711AbVAKKvz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 05:53:39 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35977 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262717AbVAKKxR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 05:53:17 -0500
-Date: Tue, 11 Jan 2005 05:49:49 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Badari Pulavarty <pbadari@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/6] 2.4.19-rc1 stack reduction patches
-Message-ID: <20050111074949.GE18796@logos.cnet>
-References: <1105378550.4000.132.camel@dyn318077bld.beaverton.ibm.com> <1105429144.3917.0.camel@laptopd505.fenrus.org>
+	Tue, 11 Jan 2005 05:51:55 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:29330
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S262708AbVAKKvp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 05:51:45 -0500
+Subject: Re: User space out of memory approach
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Edjard Souza Mota <edjard@gmail.com>, Mauricio Lin <mauriciolin@gmail.com>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Andrea Arcangeli <andrea@suse.de>
+In-Reply-To: <20050111074230.GB18796@logos.cnet>
+References: <3f250c71050110134337c08ef0@mail.gmail.com>
+	 <20050110192012.GA18531@logos.cnet>
+	 <4d6522b9050110144017d0c075@mail.gmail.com>
+	 <20050110200514.GA18796@logos.cnet>
+	 <1105403747.17853.48.camel@tglx.tec.linutronix.de>
+	 <20050111074230.GB18796@logos.cnet>
+Content-Type: text/plain
+Date: Tue, 11 Jan 2005 11:51:38 +0100
+Message-Id: <1105440698.17853.102.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1105429144.3917.0.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.5.1i
+X-Mailer: Evolution 2.0.3 (2.0.3-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 11, 2005 at 08:39:03AM +0100, Arjan van de Ven wrote:
-> On Mon, 2005-01-10 at 09:35 -0800, Badari Pulavarty wrote:
-> > Hi Marcelo,
+On Tue, 2005-01-11 at 05:42 -0200, Marcelo Tosatti wrote:
+> > are not fixed properly, we don't need to discuss the inclusion of a
+> > userspace provided candidate list.
 > > 
-> > I re-worked all the applicable stack reduction patches for 2.4.19-rc1.
+> > Postpone this until the main problem is fixed. There is a proper
+> > confirmed fix for this available. It was posted more than once.
 > 
-> is it really worth doing this sort of thing for 2.4 still? It's a matter
-> of risk versus gain... not sure this sort of thing is still worth it in
-> the deep-maintenance 2.4 tree
+> Agreed - haven't you and Andrea fixed those recently ?
 
-Well it seems the s390 fellows are seeing stack overflows, which are serious
-enough. Have you noticed that?
+Yep. The fixes are around for quite a while and Andrea is bringing the
+fixes up to kernel current, if I understood one of his previous mails
+correctly.
 
-Moreover this are simple changes, not complex ones.
+tglx
+
+

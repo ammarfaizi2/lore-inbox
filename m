@@ -1,34 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129305AbRBLKLV>; Mon, 12 Feb 2001 05:11:21 -0500
+	id <S129382AbRBLKKb>; Mon, 12 Feb 2001 05:10:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129146AbRBLKLL>; Mon, 12 Feb 2001 05:11:11 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:9233 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129305AbRBLKKb>; Mon, 12 Feb 2001 05:10:31 -0500
-Subject: Re: [OT] Major Clock Drift
-To: freitag@alancoxonachip.com (Andi Kleen)
-Date: Mon, 12 Feb 2001 10:10:29 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <ouplmrckyht.fsf@pigdrop.muc.suse.de> from "Andi Kleen" at Feb 12, 2001 11:05:18 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129146AbRBLKKV>; Mon, 12 Feb 2001 05:10:21 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:7696 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S129305AbRBLKKH>;
+	Mon, 12 Feb 2001 05:10:07 -0500
+Date: Mon, 12 Feb 2001 11:07:38 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+        Ben LaHaise <bcrl@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        kiobuf-io-devel@lists.sourceforge.net, Ingo Molnar <mingo@redhat.com>
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+Message-ID: <20010212110738.B21533@pcep-jamie.cern.ch>
+In-Reply-To: <20010207012710.N1167@redhat.com> <Pine.LNX.4.10.10102061729470.2193-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14SFwF-0006ay-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10102061729470.2193-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Feb 06, 2001 at 05:40:41PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 			queued_writes=1;
-> > 			return;
+Linus Torvalds wrote:
+> Absolutely. This is exactly what I mean by saying that low-level drivers
+> may not actually be able to handle new cases that they've never been asked
+> to do before - they just never saw anything like a 64kB request before or
+> something that crossed its own alignment.
 > 
-> Just what happens when you run out of dmesg ring in an interrupt ?
+> But the _higher_ levels are there. And there's absolutely nothing in the
+> design that is a real problem. But there's no question that you might need
+> to fix up more than one or two low-level drivers.
+> 
+> (The only drivers I know better are the IDE ones, and as far as I can tell
+> they'd have no trouble at all with any of this. Most other normal drivers
+> are likely to be in this same situation. But because I've not had a reason
+> to test, I certainly won't guarantee even that).
 
-You lose a couple of lines. Big deal. I'd rather lose two lines a year on
-a problem (and the dmesg ring buffer is pretty big) than two minutes an hour
-every hour for the entire running life of the machine
+PCI has dma_mask, which distinguishes different device capabilities.
+This nice interface handles 64-bit capable devices, 32-bit ones, ISA
+limitations (the old 16MB limit) and some other strange devices.
 
+This mask appears in block devices one way or another so that bounce
+buffers are used for high addresses.
+
+How about a mask for block devices which indicates the kinds of
+alignment and lengths that the driver can handle?  For old drivers that
+can't be thoroughly tested, we assume the worst.  Some devices have
+hardware limitations.  Newer, tested drivers can relax the limits.
+
+It's probably not difficult to say, "this 64k request can't be handled
+so split it into 1k requests".  It integrates naturally with the
+decision to use bounce buffers -- alignment restrictions cause copying
+just as high addresses causes copying.
+
+-- Jamie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

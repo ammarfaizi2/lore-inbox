@@ -1,67 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132144AbRDMWi1>; Fri, 13 Apr 2001 18:38:27 -0400
+	id <S132226AbRDMWj3>; Fri, 13 Apr 2001 18:39:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132147AbRDMWiR>; Fri, 13 Apr 2001 18:38:17 -0400
-Received: from toscano.org ([64.50.191.142]:29390 "HELO bubba.toscano.org")
-	by vger.kernel.org with SMTP id <S132144AbRDMWiJ>;
-	Fri, 13 Apr 2001 18:38:09 -0400
-Date: Fri, 13 Apr 2001 18:38:06 -0400
-From: Pete Toscano <pete.lkml@toscano.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.3-ac5
-Message-ID: <20010413183806.A4987@bubba.toscano.org>
-Mail-Followup-To: Pete Toscano <pete.lkml@toscano.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <E14njvB-0000xu-00@the-village.bc.nu> <20010413180947.A22533@rochester.rr.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="ZGiS0Q5IWpPtfppv"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010413180947.A22533@rochester.rr.com>; from gnea@rochester.rr.com on Fri, Apr 13, 2001 at 06:09:47PM -0400
-X-Unexpected: The Spanish Inquisition
-X-Uptime: 6:34pm  up 19:20,  3 users,  load average: 0.32, 0.13, 0.08
+	id <S132186AbRDMWjI>; Fri, 13 Apr 2001 18:39:08 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:33159 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S132147AbRDMWjF>; Fri, 13 Apr 2001 18:39:05 -0400
+From: tom_gall@vnet.ibm.com
+Message-ID: <3AD77FBF.874F8305@vnet.ibm.com>
+Date: Fri, 13 Apr 2001 22:37:51 +0000
+Reply-To: tom_gall@vnet.ibm.com
+Organization: IBM
+X-Mailer: Mozilla 4.61 [en] (X11; U; Linux 2.2.10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: pmd_alloc, pte_alloc, Was Re: 2.4.3 and Alpha
+In-Reply-To: <E14oBht-0003dd-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi All, Alan,
 
---ZGiS0Q5IWpPtfppv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+  I realize I don't keep up with the linux kernel mailing list like i should but
+the change to pmd_alloc and pte_alloc has me a little worried.
 
-On Fri, 13 Apr 2001, Scott Prader wrote:
+  I'm working on the ppc64 port (sources soon to be posted) and this change
+affects one of the design attributes that we've had.
 
-> one of the problems i've been having so far with the 2.4.3 series is the
-> fact that USB appears to be futzed.  It just doesn't want to work right.
-> Also, I compile a lot of things as modules and I've been getting lots of
-> unresolved symbols and hence many things (including my nic) don't work,
-> so I am still stuck at 2.4.2-ac4.  So here's some info that should help
-> out whoevers doing the specific work on USB and whatever else decided it
-> wanted to say "ok, you suck, go away" ;)
-[snip]
-> modutils               2.4.2
-[snip]
+  Basically in the pmd, it would seem that the current design in 2.4.3 forces
+you to have pointers in there. Currently in our source we're using offsets
+instead of a 64 bit pointer... this of course saved us from having to alloc 2
+contiguous pages in memory. 
 
-probably a silly question, but have you tried modutils 2.4.5?  these
-won't help with the missing symbol issues, but are you using the latest
-hotplug scripts and the patched version of pci-utils and usb-utils?
-there are links to all of these at the linux-usb site.
+  This isn't the end of the world, we can change over to using pointers but I
+just wanted to confirm that that was the intent or maybe I'm missing something
+and there is still a way out and still have our own arch dependant
+implementations of pte_alloc and pmd_alloc.
 
-hth,
-pete
+  Regards,
 
---ZGiS0Q5IWpPtfppv
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+  Tom
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+Alan Cox wrote:
+> 
+> > `pmd_alloc'
+> > /usr/src/redhat/linux/include/linux/mm.h:412: previous declaration of
+> > `pmd_alloc'
+> > make: *** [init/main.o] Error 1
+> >
+> >
+> > 2.4.1 compiled fine, and as far as I can see, some changes has been made
+> > to mm.h since then. I think these changes was followed up by i386, ppc,
+> > s390 and sparc64 kernels but not on others. Any plans on when this is
+> > done ?
+> 
+> Its fixed in the -ac tree but I've yet to push that set of changes to Linus
 
-iD8DBQE613/OsMikd2rK89sRAu4mAJ9NiY22RsjvhINvqiNBNaBzIfIUTgCggp4W
-NBJs2Uu5UMrzCBcOfF6Xgyc=
-=J9AW
------END PGP SIGNATURE-----
-
---ZGiS0Q5IWpPtfppv--
+-- 
+Tom Gall - PowerPC Linux Team    "Where's the ka-boom? There was
+Linux Technology Center           supposed to be an earth
+(w) tom_gall@vnet.ibm.com         shattering ka-boom!"
+(w) 507-253-4558                 -- Marvin Martian
+(h) tgall@rochcivictheatre.org
+http://oss.software.ibm.com/developerworks/opensource/linux

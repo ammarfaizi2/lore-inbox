@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288967AbSCKTQi>; Mon, 11 Mar 2002 14:16:38 -0500
+	id <S288969AbSCKTSk>; Mon, 11 Mar 2002 14:18:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288969AbSCKTQf>; Mon, 11 Mar 2002 14:16:35 -0500
-Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:8721 "EHLO
-	clueserver.org") by vger.kernel.org with ESMTP id <S288967AbSCKTQW>;
-	Mon, 11 Mar 2002 14:16:22 -0500
-Message-Id: <200203112032.g2BKWgL30536@clueserver.org>
-Content-Type: text/plain; charset=US-ASCII
-From: Alan <alan@clueserver.org>
-Reply-To: alan@clueserver.org
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-Subject: Re: Kernel oops with 2.4.18
-Date: Mon, 11 Mar 2002 09:55:54 -0800
-X-Mailer: KMail [version 1.3.1]
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, <asun@cobaltnet.com>
-In-Reply-To: <Pine.LNX.4.44.0203010850240.26745-100000@netfinity.realnet.co.sz>
-In-Reply-To: <Pine.LNX.4.44.0203010850240.26745-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S289025AbSCKTS3>; Mon, 11 Mar 2002 14:18:29 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:43005 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S288969AbSCKTSX>; Mon, 11 Mar 2002 14:18:23 -0500
+Date: Mon, 11 Mar 2002 14:18:12 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: Re: [bkpatch] do_mmap cleanup
+Message-ID: <20020311141812.A31049@redhat.com>
+In-Reply-To: <20020308185350.E12425@redhat.com> <20020311120818.A38@toy.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020311120818.A38@toy.ucw.cz>; from pavel@suse.cz on Mon, Mar 11, 2002 at 12:08:18PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 28 February 2002 22:59, Zwane Mwaikambo wrote:
-> On Thu, 28 Feb 2002, Alan wrote:
-> > >>EIP; c01344c8 <grow_buffers+38/f0>   <=====
-> >
-> > Trace; c0132767 <getblk+27/40>
-> > Trace; c0132988 <bread+18/80>
-> > Trace; c01e3c0d <scsi_release_command+7d/90>
-> > Trace; c016f1f6 <hfs_buffer_get+26/80>
-> > Trace; c016dd9a <hfs_mdb_get+aa/400>
-> > Trace; c01e5e01 <ioctl_internal_command+151/160>
-> > Trace; c016f0a5 <hfs_read_super+65/190>
-> > Trace; c0135636 <get_sb_bdev+206/270>
-> > Trace; c0122738 <handle_mm_fault+58/c0>
-> > Trace; c0135a28 <do_kern_mount+b8/140>
-> > Trace; c0145173 <do_add_mount+23/d0>
-> > Trace; c01123c0 <do_page_fault+0/4cb>
-> > Trace; c0106ffc <error_code+34/3c>
-> > Trace; c014541b <do_mount+15b/180>
-> > Trace; c014526c <copy_mount_options+4c/a0>
-> > Trace; c01454bc <sys_mount+7c/c0>
-> > Trace; c0106f0b <system_call+33/38>
-> > Code;  c01344c8 <grow_buffers+38/f0>
->
-> Looks like another didnt_consider_other_blocksizes bug (nb. you're
-> using a CDROM which has a block size of 2048). Maintainer CC'd
+On Mon, Mar 11, 2002 at 12:08:18PM +0000, Pavel Machek wrote:
+> Hi!
+> 
+> > Below is a vm cleanup that can be pulled from bk://bcrlbits.bk.net/vm-2.5 .
+> > The bulk of the patch is moving the down/up_write on mmap_sem into do_mmap 
+> > and removing that from all the callers.  The patch also includes a fix for 
+> > do_mmap which caused mapping of the last page in the address space to fail.
+> 
+> Was not that a workaround for CPU bugs?
 
-Was there a patch for this problem yet?  I have not been keeping up with the 
-pile of patches and/or the kernel list.
+Not as far as I recall.  In fact it is just leading to more and more 
+duplicated code as every arch writes their own version of the function 
+to allow mapping that last page.  (Cleaning up all the sys_mmap calls 
+is next.)
 
-Thanks!
+		-ben

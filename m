@@ -1,32 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275990AbRJUMaM>; Sun, 21 Oct 2001 08:30:12 -0400
+	id <S275994AbRJUMex>; Sun, 21 Oct 2001 08:34:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276018AbRJUMaD>; Sun, 21 Oct 2001 08:30:03 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9231 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S275990AbRJUM3s>; Sun, 21 Oct 2001 08:29:48 -0400
-Subject: Re: PATCH: linux-2.4.13-pre5/drivers/message/i2o directory adjustments
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Sun, 21 Oct 2001 13:36:07 +0100 (BST)
-Cc: adam@yggdrasil.com (Adam J. Richter), linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-In-Reply-To: <3BD08458.840944F2@mandrakesoft.com> from "Jeff Garzik" at Oct 19, 2001 03:51:52 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S276032AbRJUMen>; Sun, 21 Oct 2001 08:34:43 -0400
+Received: from eik.ii.uib.no ([129.177.16.3]:61065 "EHLO ii.uib.no")
+	by vger.kernel.org with ESMTP id <S275994AbRJUMej>;
+	Sun, 21 Oct 2001 08:34:39 -0400
+Date: Sun, 21 Oct 2001 14:34:10 +0200
+From: Jan-Frode Myklebust <janfrode@parallab.uib.no>
+To: safemode <safemode@speakeasy.net>
+Cc: Christoph Rohland <cr@sap.com>,
+        ML-linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel Compile in tmpfs crumples in 2.4.12 w/epoll patch
+Message-ID: <20011021143409.A4900@ii.uib.no>
+In-Reply-To: <016a01c15831$ef51c5c0$5c044589@legato.com> <3BD28673.1060302@sap.com> <20011021120755.A1252@parallab.uib.no> <E15vHVx-0001Nc-00@ii.uib.no>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15vHpn-0006Be-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <E15vHVx-0001Nc-00@ii.uib.no>; from safemode@speakeasy.net on Sun, Oct 21, 2001 at 08:15:33AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I prefer this patch:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/jgarzik/patches/2.4.13/i2o-build-2.4.13.5.patch.gz
 > 
-> I missed the drivers/Makefile change though.
+> Like someone said before a while ago.  This is a binutils problem.  Update to 
+> a newer version. 
+> 
 
-I have i2o patches for Linus pending. Please be patient, I ended up dealing
-with builders and being away at a show
+Upgraded to binutils 2.11.92.0.7, but it didn't help.
 
-Alan
+
+  -jf

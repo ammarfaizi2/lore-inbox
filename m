@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276616AbRJCRpy>; Wed, 3 Oct 2001 13:45:54 -0400
+	id <S276622AbRJCRqY>; Wed, 3 Oct 2001 13:46:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276622AbRJCRpf>; Wed, 3 Oct 2001 13:45:35 -0400
-Received: from quechua.inka.de ([212.227.14.2]:2361 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S276616AbRJCRp2>;
-	Wed, 3 Oct 2001 13:45:28 -0400
-From: Bernd Eckenfels <ecki@lina.inka.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Finegrained a/c/mtime was Re: Directory notification problem
-In-Reply-To: <oupitdx9n2m.fsf@pigdrop.muc.suse.de>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.10-xfs (i686))
-Message-Id: <E15oq5j-00056Z-00@calista.inka.de>
-Date: Wed, 03 Oct 2001 19:45:55 +0200
+	id <S276627AbRJCRqP>; Wed, 3 Oct 2001 13:46:15 -0400
+Received: from cc885639-a.flushing1.mi.home.com ([24.182.96.34]:12772 "HELO
+	caesar.lynix.com") by vger.kernel.org with SMTP id <S276622AbRJCRp7>;
+	Wed, 3 Oct 2001 13:45:59 -0400
+Date: Wed, 3 Oct 2001 13:44:23 -0400
+From: Subba Rao <subba9@home.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: bad blocks and rebooting
+Message-ID: <20011003134423.A28512@home.com>
+Reply-To: Subba Rao <subba9@home.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Alex Larsson <alexl@redhat.com> writes:
->> I discovered a problem with the dnotify API while fixing a FAM bug today.
->> 
->> The problem occurs when you want to watch a file in a directory, and that 
->> file is changed several times in the same second. When I get the directory 
->> notify signal on the directory I need to stat the file to see if the 
->> change was actually in the file. If the file already changed in the 
->> current second the stat() result will be identical to the previous stat() 
->> call, since the resolution of mtime and ctime is one second. 
+Hello
 
-If you simply check the mtime and the file size you have the two most
-relevant parts. If neighter of those changes this means that programs using
-the dnotify api most likely do not need to act. After all it is not an
-auditing facility but a notifier for things like reload of directory
-listings. The only thing I could imagine can cause problems is a self
-reloading config file. But in that case dnotify is overkill anyway and a 1
-sec delay could be asumed to be reasonable.
+I have a system setup as a black box. If the system is powered
+off accidentally, and upon powering on the system keeps rebooting 
+after trying to do the file system consistency check. The file 
+system message is to run "ef2fsck -v -y <partition>. Is there
+anyway to force this check at lilo prompt? 
 
-Greetigs
-Bernd
+Thanks for any help.
+-- 
+
+Subba Rao
+subba9@home.com                     http://members.home.net/subba9/
+OpenPGP/GPG public key ID CCB7344E
+
+ => Time is relative. Here is a new way to look at time. <=
+http://www.smcinnovations.com

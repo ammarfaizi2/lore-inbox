@@ -1,61 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286349AbRLUUY4>; Fri, 21 Dec 2001 15:24:56 -0500
+	id <S286272AbRLUUcF>; Fri, 21 Dec 2001 15:32:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285129AbRLUUYn>; Fri, 21 Dec 2001 15:24:43 -0500
-Received: from aldebaran.sra.com ([163.252.31.31]:54717 "EHLO
-	aldebaran.sra.com") by vger.kernel.org with ESMTP
-	id <S285128AbRLUUYf>; Fri, 21 Dec 2001 15:24:35 -0500
-From: David Garfield <garfield@irving.iisd.sra.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15395.39479.366221.613466@irving.iisd.sra.com>
-Date: Fri, 21 Dec 2001 15:23:19 -0500
-To: esr@thyrsus.com
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+	id <S286541AbRLUUbz>; Fri, 21 Dec 2001 15:31:55 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:48852 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S286272AbRLUUbi>; Fri, 21 Dec 2001 15:31:38 -0500
+Date: Fri, 21 Dec 2001 15:31:36 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Chris Wedgwood <cw@f00f.org>
+Cc: "Eric S. Raymond" <esr@thyrsus.com>,
+        David Garfield <garfield@irving.iisd.sra.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
 Subject: Re: Configure.help editorial policy
-In-Reply-To: <20011221134034.B11147@thyrsus.com>
-In-Reply-To: <20011220143247.A19377@thyrsus.com>
-	<15394.29882.361540.200600@irving.iisd.sra.com>
-	<20011220185226.A25080@thyrsus.com>
-	<15395.33489.779730.767039@irving.iisd.sra.com>
-	<20011221134034.B11147@thyrsus.com>
-X-Mailer: VM 6.96 under Emacs 20.7.1
+Message-ID: <20011221153136.G15926@redhat.com>
+In-Reply-To: <20011220143247.A19377@thyrsus.com> <15394.29882.361540.200600@irving.iisd.sra.com> <20011220185226.A25080@thyrsus.com> <15395.33489.779730.767039@irving.iisd.sra.com> <20011221134034.B11147@thyrsus.com> <20011221141847.E15926@redhat.com> <20011221201033.GA32368@weta.f00f.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011221201033.GA32368@weta.f00f.org>; from cw@f00f.org on Sat, Dec 22, 2001 at 09:10:33AM +1300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric S. Raymond writes:
- > What, and *encourage* non-uniform terminology?  No, I won't do that.
- > Better to have a single standard set of abbreviations, no matter how
- > ugly, than this.
+On Sat, Dec 22, 2001 at 09:10:33AM +1300, Chris Wedgwood wrote:
+> And disks by the GB where GB == 1000^3 so I don't see any problem in
+> moving from KB to KiB and friends ESPECIALLY AS THEY ARE STANDARDIZED
+> BEYOND THE KERNEL and nothing will change this.
 
-Valid argument.  I will point out that the current version is
-non-uniform.  Quoting from Configure.help :
+If you think GB == 1000^3, then please go "correct" all the DRAM 
+manufacturers out in the world.  They just sent me 1GB of ram and 
+it's coming up as 1073741824 bytes.  Please help!  They have no 
+option for GiB!!!
 
-
-> # Choice: himem
-> High Memory support
-> CONFIG_NOHIGHMEM
->   Linux can use up to 64 Gigabytes of physical memory on x86 systems.
->   However, the address space of 32-bit x86 processors is only 4
->   Gigabytes large. That means that, if you have a large amount of
->   physical memory, not all of it can be "permanently mapped" by the
->   kernel. The physical memory that's not permanently mapped is called
->   "high memory".
-> 
->   If you are compiling a kernel which will never run on a machine with
->   more than 960 megabytes of total physical RAM, answer "off" here
->   (default choice and suitable for most users). This will result in a
->   "3GiB/1GiB" split: 3GiB are mapped so that each process sees a 3GiB
->   virtual memory space and the remaining part of the 4GiB virtual memory
->   space is used by the kernel to permanently map as much physical memory
->   as possible.
-> 
->   If the machine has between 1 and 4 Gigabytes physical RAM, then
->   answer "4GB" here.
-
-
-Note "3GiB/1GiB" and "4GB".
-
---David
+		-ben
+-- 
+Fish.

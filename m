@@ -1,55 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261233AbUCDAIG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 19:08:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261295AbUCDAIG
+	id S261297AbUCDALm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 19:11:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbUCDALm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 19:08:06 -0500
-Received: from gprs40-129.eurotel.cz ([160.218.40.129]:14985 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261233AbUCDAID (ORCPT
+	Wed, 3 Mar 2004 19:11:42 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:46766 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261303AbUCDALk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 19:08:03 -0500
-Date: Thu, 4 Mar 2004 01:07:54 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Dave Jones <davej@redhat.com>,
-       Cpufreq mailing list <cpufreq@www.linux.org.uk>,
-       kernel list <linux-kernel@vger.kernel.org>, davej@codemonkey.ork.uk,
-       paul.devriendt@amd.com
-Subject: Re: powernow-k8-acpi driver
-Message-ID: <20040304000754.GK222@elf.ucw.cz>
-References: <20040303215435.GA467@elf.ucw.cz> <20040303222712.GA16874@redhat.com> <20040303223510.GE222@elf.ucw.cz> <20040303224841.GB16874@redhat.com> <20040303225405.GF222@elf.ucw.cz> <20040303233603.GA18722@redhat.com>
+	Wed, 3 Mar 2004 19:11:40 -0500
+Subject: [RFC][PATCH] vsyscall-gtod_B3 (0/3)
+From: john stultz <johnstul@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Andrea Arcangeli <andrea@suse.de>, Andi Kleen <ak@suse.de>,
+       Ulrich Drepper <drepper@redhat.com>, Jamie Lokier <jamie@shareable.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Wim Coekaerts <wim.coekaerts@oracle.com>,
+       Joel Becker <Joel.Becker@oracle.com>, Chris McDermott <lcm@us.ibm.com>
+Content-Type: text/plain
+Message-Id: <1078359081.10076.191.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040303233603.GA18722@redhat.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 03 Mar 2004 16:11:22 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+All,
+	This is my port of the x86-64 vsyscall gettimeofday code to i386. This
+patch moves gettimeofday into userspace, so it can be calledwithout the
+syscall overhead, greatly improving performance. This is important for
+any application, like a database, which heavily uses gettimeofday for
+time-stamping. It supports both the TSC and IBM x44X cyclone time
+source.
+	
+Example performance gain (using cyclone timesource):
 
->  > >  > We could make that functionality depend on CONFIG_ACPI, and allow
->  > >  > runtime selection only if its defined... But those two drivers are
->  > >  > pretty different just now and acpi-dependend chunk is pretty big. (It
->  > >  > does funny stuff like polling for AC plug removal if we are in
->  > >  > high-power state  and battery would not handle that. Old driver simply
->  > >  > refused to use high-power states on such machines.)
->  > > 
->  > > you're aware of Dominik/Bruno's work on the 'acpilib'[1] stuff in this
->  > > area right ? We'll need that anyway for Powernow-k7 and maybe longhaul too
->  > > and its senseless duplicating this code.
->  > 
->  > That [1] looks like promise of url, but I don't see that url.
-> 
-> Hmm, cpufreq mailing list archives are your best bet.
-> What I meant to add was..
+int80 gettimeofday:
+gettimeofday ( 1665576us / 1000000runs ) = 1.665574us
 
-Ahha. Unfortunately, cpufreq mailing lists are only available to list
-subscribers. Ouch.
+systenter gettimeofday:
+gettimeofday ( 1239215us / 1000000runs ) = 1.239214us
 
-								Pavel
+vsyscall gettimeofday:
+gettimeofday ( 875876us / 1000000runs ) = 0.875875us
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+
+I've broken the patch into three logical chuncks for clarity and to make
+it easier to cherry pick the desired bits. 
+
+o Part 1: Renames variables in timer_cyclone.c and timer_tsc.c to avoid
+conflicts in the global namespace.
+o Part 2: Core vsyscall-gtod implementation. 
+o Part 3: vDSO hooks to avoid LD_PRELOADing or needing changes to glibc
+
+Please let me know if you have any comments or suggestions.
+
+thanks
+-john
+
+Existing issues:
+----------------
+o Bad pointers cause segfaults, rather then -EFAULT.
+
+Release History:
+----------------
+B2 -> B3:
+o Broke the patch up into 3 chunks
+o Added vsyscall-int80.S hooks (4G disables SEP)
+
+B1 -> B2:
+o No LD_PRELOADing or changes to userspace required!
+o removed hard-coded address in linker script
+
+B0 -> B1:
+o Cleaned up 4/4 split code, so no additional patch is needed.
+o Fixed permissions on fixmapped cyclone pageo Improved
+alternate_instruction workaround 
+o Use NTP variables to avoid related time inconsistencieso minor code
+cleanups
+

@@ -1,73 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269090AbUJTTpY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270292AbUJUFwa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269090AbUJTTpY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 15:45:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270489AbUJTTkG
+	id S270292AbUJUFwa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 01:52:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270586AbUJUFtK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 15:40:06 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:16140 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S270476AbUJTThj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 15:37:39 -0400
-Date: Wed, 20 Oct 2004 14:32:52 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
-       greearb@candelatech.com
-Subject: [patch 2.6.9 11/11] vlan: Add MODULE_VERSION
-Message-ID: <20041020143252.N8775@tuxdriver.com>
-Mail-Followup-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
-	jgarzik@pobox.com, greearb@candelatech.com
-References: <20041020141146.C8775@tuxdriver.com>
+	Thu, 21 Oct 2004 01:49:10 -0400
+Received: from relay01.uchicago.edu ([128.135.12.136]:18593 "EHLO
+	relay01.uchicago.edu") by vger.kernel.org with ESMTP
+	id S269996AbUJUFsr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 01:48:47 -0400
+Date: Thu, 21 Oct 2004 00:48:44 -0500
+From: Ryan Reich <ryanr@uchicago.edu>
+To: linux-kernel@vger.kernel.org
+Subject: OOPS on 2.6.9 while compiling, very reproducible
+Message-ID: <20041021054844.GA3335@ryanr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20041020141146.C8775@tuxdriver.com>; from linville@tuxdriver.com on Wed, Oct 20, 2004 at 02:11:46PM -0400
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add MODULE_VERSION to vlan driver.
+Hey all,
 
-Signed-off-by: John W. Linville <linville@tuxdriver.com>
----
+I get the following OOPS when compiling stuff.  The machine freezes solid if
+I get this while compiling 2.6.9 itself (as I was when it first happened),
+and on top of that the messsages and the call trace run off the screen, but I
+only get this small one when I compile something lesser.
 
- net/8021q/vlan.c |   10 ++++++----
- 1 files changed, 6 insertions(+), 4 deletions(-)
+Oct 21 00:43:38 (none) kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000018
+Oct 21 00:43:38 (none) kernel:  printing eip:
+Oct 21 00:43:38 (none) kernel: c01ad955
+Oct 21 00:43:38 (none) kernel: *pde = 00000000
+Oct 21 00:43:38 (none) kernel: Oops: 0000 [#1]
+Oct 21 00:43:38 (none) kernel: PREEMPT
+Oct 21 00:43:38 (none) kernel: Modules linked in: ipt_ULOG ipt_multiport ipt_state ip_conntrack iptable_filter ip_tables it87 eeprom i2c_sensor i2c_isa i2c_nforce2 eth1394 usblp snd_cmipci snd_pcm snd_page_alloc snd_opl3_lib snd_timer snd_hwdep snd_mpu401_uart snd_rawmidi snd_seq_device snd soundcore ohci1394 ieee1394 forcedeth ehci_hcd ohci_hcd usbcore nvidia_agp agpgart
+Oct 21 00:43:38 (none) kernel: CPU:    0
+Oct 21 00:43:38 (none) kernel: EIP: 0060:[prepare_for_delete_or_cut+37/2064]    Not tainted VLI
+Oct 21 00:43:38 (none) kernel: EFLAGS: 00010282   (2.6.9)
+Oct 21 00:43:38 (none) kernel: EIP is at prepare_for_delete_or_cut+0x25/0x810
+Oct 21 00:43:38 (none) kernel: eax: 00000000   ebx: 00000000   ecx: e9af8e48 edx: 00000000
+Oct 21 00:43:38 (none) kernel: esi: 00000001   edi: 00000000   ebp: 00000000 esp: e9af8b80
+Oct 21 00:43:38 (none) kernel: ds: 007b   es: 007b   ss: 0068
+Oct 21 00:43:38 (none) kernel: Process cc1 (pid: 3331, threadinfo=e9af8000 task=ef461560)
+Oct 21 00:43:38 (none) kernel: Stack: 00000001 00000318 0000ffff e9094758 00000318 00001000 effa5800 0003e8da
+Oct 21 00:43:38 (none) kernel:        0003f186 00001000 20000000 00000001 00000004 eececcec effa5800 0003e8da
+Oct 21 00:43:38 (none) kernel:        0003f186 00000001 20000000 0318ffff 00010bd0 e90947a4 e9af8ec8 00000000
+Oct 21 00:43:38 (none) kernel: Call Trace:
+Oct 21 00:43:38 (none) kernel:  [reiserfs_cut_from_item+207/1488] reiserfs_cut_from_item+0xcf/0x5d0
+Oct 21 00:43:38 (none) kernel:  [reiserfs_do_truncate+827/1488] reiserfs_do_truncate+0x33b/0x5d0
+Oct 21 00:43:38 (none) kernel:  [reiserfs_truncate_file+237/576] reiserfs_truncate_file+0xed/0x240
+Oct 21 00:43:38 (none) kernel:  [reiserfs_file_release+1306/1312] reiserfs_file_release+0x51a/0x520
+Oct 21 00:43:38 (none) kernel:  [do_mmap_pgoff+1199/1904] do_mmap_pgoff+0x4af/0x770
+Oct 21 00:43:38 (none) kernel:  [reiserfs_file_write+0/2016] reiserfs_file_write+0x0/0x7e0
+Oct 21 00:43:38 (none) kernel:  [__fput+286/368] __fput+0x11e/0x170
+Oct 21 00:43:38 (none) kernel:  [filp_close+82/160] filp_close+0x52/0xa0
+Oct 21 00:43:38 (none) kernel:  [sys_close+88/176] sys_close+0x58/0xb0
+Oct 21 00:43:38 (none) kernel:  [sysenter_past_esp+82/113] sysenter_past_esp+0x52/0x71
+Oct 21 00:43:38 (none) kernel: Code: c4 08 c3 8d 76 00 55 57 56 53 83 ec 5c 8b 44 24 74 8b 54 24 78 8b 80 8c 00 00 00 89 d1 89 44 24 38 8b 02 8b 54 c2 08 8b 44 c1 0c <8b> 52 18 8d 04 40 8d 74 c2 18 66 83 7e 16 00 75 43 8b 4e 0c 31
 
---- linux-2.6.9/net/8021q/vlan.c.orig
-+++ linux-2.6.9/net/8021q/vlan.c
-@@ -35,6 +35,8 @@
- #include "vlan.h"
- #include "vlanproc.h"
- 
-+#define DRV_VERSION "1.8"
-+
- /* Global VLAN variables */
- 
- /* Our listing of VLAN group(s) */
-@@ -42,8 +44,7 @@ struct hlist_head vlan_group_hash[VLAN_G
- #define vlan_grp_hashfn(IDX)	((((IDX) >> VLAN_GRP_HASH_SHIFT) ^ (IDX)) & VLAN_GRP_HASH_MASK)
- 
- static char vlan_fullname[] = "802.1Q VLAN Support";
--static unsigned int vlan_version = 1;
--static unsigned int vlan_release = 8;
-+static char vlan_version[] = DRV_VERSION;
- static char vlan_copyright[] = "Ben Greear <greearb@candelatech.com>";
- static char vlan_buggyright[] = "David S. Miller <davem@redhat.com>";
- 
-@@ -84,8 +85,8 @@ static int __init vlan_proto_init(void)
- {
- 	int err;
- 
--	printk(VLAN_INF "%s v%u.%u %s\n",
--	       vlan_fullname, vlan_version, vlan_release, vlan_copyright);
-+	printk(VLAN_INF "%s v%s %s\n",
-+	       vlan_fullname, vlan_version, vlan_copyright);
- 	printk(VLAN_INF "All bugs added by %s\n",
- 	       vlan_buggyright);
- 
-@@ -735,3 +736,4 @@ static int vlan_ioctl_handler(void __use
- }
- 
- MODULE_LICENSE("GPL");
-+MODULE_VERSION(DRV_VERSION);
+Clearly, I use reiserfs.  I also have Gentoo's fbsplash patched in, but
+nothing else.
+
+-- 
+Ryan Reich
+ryanr@uchicago.edu

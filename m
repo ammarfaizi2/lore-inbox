@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265909AbUFDS0M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265910AbUFDS3m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265909AbUFDS0M (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 14:26:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265910AbUFDS0M
+	id S265910AbUFDS3m (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 14:29:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265916AbUFDS3m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 14:26:12 -0400
-Received: from gprs214-121.eurotel.cz ([160.218.214.121]:45441 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S265909AbUFDS0J (ORCPT
+	Fri, 4 Jun 2004 14:29:42 -0400
+Received: from fw.osdl.org ([65.172.181.6]:63366 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265910AbUFDS3k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 14:26:09 -0400
-Date: Fri, 4 Jun 2004 20:26:00 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Driver Core fixes for 2.6.7-rc1
-Message-ID: <20040604182559.GI700@elf.ucw.cz>
-References: <10857795552653@kroah.com> <10857795552130@kroah.com> <20040604122518.GB11950@elf.ucw.cz> <20040604162643.GB9342@kroah.com>
+	Fri, 4 Jun 2004 14:29:40 -0400
+Date: Fri, 4 Jun 2004 11:27:30 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: pj@sgi.com, mikpe@csd.uu.se, nickpiggin@yahoo.com.au,
+       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, ak@muc.de,
+       ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
+       joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
+       Simon.Derr@bull.net
+Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based
+ implementation
+Message-Id: <20040604112730.534cca55.akpm@osdl.org>
+In-Reply-To: <20040604181233.GF21007@holomorphy.com>
+References: <16576.16748.771295.988065@alkaid.it.uu.se>
+	<20040604093712.GU21007@holomorphy.com>
+	<16576.17673.548349.36588@alkaid.it.uu.se>
+	<20040604095929.GX21007@holomorphy.com>
+	<16576.23059.490262.610771@alkaid.it.uu.se>
+	<20040604112744.GZ21007@holomorphy.com>
+	<20040604113252.GA21007@holomorphy.com>
+	<20040604092316.3ab91e36.pj@sgi.com>
+	<20040604162853.GB21007@holomorphy.com>
+	<20040604104756.472fd542.pj@sgi.com>
+	<20040604181233.GF21007@holomorphy.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040604162643.GB9342@kroah.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>
+> _SC_NPROCESSOR_CONF is
+>  unimplementable. NR_CPUS serves as an upper bound on the number of cpus
+>  that may at some time be simultaneously present in the future.
 
-> > > [PATCH] Report which device failed to suspend
-> > > 
-> > > Based on a patch from Nickolai Zeldovich <kolya@MIT.EDU> but put into the
-> > > proper place by me.
-> > 
-> > Seems good.
-> > 
-> > I'm seeing lots of problems with drivers & swsusp these days. Perhaps
-> > even printing names of devices as they are suspended is good idea?
-> 
-> You mean like the current kernel tree does if you enable
-> CONFIG_DEBUG_DRIVER?  :)
+NR_CPUS is arguably the correct thing when it comes to copying per-cpu info
+to and from userspace.
 
-Well, something little less verbose but enabled by default would do
-the trick.
-								Pavel
--- 
-934a471f20d6580d5aad759bf0d97ddc
+Sometimes userspace wants to know NR_CPUS.  Sometimes it wants to know the
+index of the max possible CPU.  Sometimes, perhaps the index of the max
+online CPU.  Sometimes the max index of the CPUs upon which this task is
+eligible to run.  Sometimes (lame) userspace may want to know, at compile
+time, the maximum number of CPUs which a Linux kernel will ever support.
+
+It's not completely trivial.
+
+Which of the above is _SC_NPROCESSOR_CONF supposed to return?

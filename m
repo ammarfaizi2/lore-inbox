@@ -1,33 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261822AbTCQTHU>; Mon, 17 Mar 2003 14:07:20 -0500
+	id <S261842AbTCQTNj>; Mon, 17 Mar 2003 14:13:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261892AbTCQTHT>; Mon, 17 Mar 2003 14:07:19 -0500
-Received: from fed.frb.gov ([132.200.32.32]:46580 "HELO fed.frb.gov")
-	by vger.kernel.org with SMTP id <S261822AbTCQTHT>;
-	Mon, 17 Mar 2003 14:07:19 -0500
-Date: Mon, 17 Mar 2003 14:18:00 -0500
-From: Seth Lepzelter <spl@frb.gov>
-To: linux-kernel@vger.kernel.org
-Subject: dhcp autoconfig and MTU size
-Message-ID: <20030317191800.GB29488@frb.gov>
+	id <S261841AbTCQTNj>; Mon, 17 Mar 2003 14:13:39 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:27264 "EHLO doc.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S261842AbTCQTNi>;
+	Mon, 17 Mar 2003 14:13:38 -0500
+Date: Mon, 17 Mar 2003 11:24:32 -0800
+From: Bob Miller <rem@osdl.org>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.5.64] Add error checking get_disk().
+Message-ID: <20030317192432.GC10775@doc.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.4i
-Organization: Federal Reserve Board of Governors
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+The get_disk() function should check the return value from kobject_get()
+before passing it to to_disk().  This patch fixes this error.
 
-I'm trying to netboot some Xeon machines on a GigE network (and from a 
-server) with mtu size 8k.  everything works hunky-dory until the machine 
-gets its dhcp autoconguration done, at which point, even though the 
-machine responds to a ping, it freezes.  If I set the mtu on the server 
-back to 1500, things unfreeze, but GigE doesn't like small frame sizes, so 
-that's not really an option.  Am I correct in thinking that the kernel ip 
-autoconfig support doesn't set mtu sizes?  
+-- 
+Bob Miller					Email: rem@osdl.org
+Open Source Development Lab			Phone: 503.626.2455 Ext. 17
 
-Thanks,
-Seth Lepzelter
+
+diff -Nru a/drivers/block/genhd.c b/drivers/block/genhd.c
+--- a/drivers/block/genhd.c	Mon Mar 17 11:12:16 2003
++++ b/drivers/block/genhd.c	Mon Mar 17 11:12:16 2003
+@@ -538,12 +538,20 @@
+ struct gendisk *get_disk(struct gendisk *disk)
+ {
+ 	struct module *owner;
++	struct kobject *kobj;
++
+ 	if (!disk->fops)
+ 		return NULL;
+ 	owner = disk->fops->owner;
+ 	if (owner && !try_module_get(owner))
+ 		return NULL;
+-	return to_disk(kobject_get(&disk->kobj));
++	kobj = kobject_get(&disk->kobj);
++	if (kobj == NULL) {
++		module_put(owner);
++		return NULL;
++	}
++	return to_disk(kobj);
++
+ }
+ 
+ void put_disk(struct gendisk *disk)

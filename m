@@ -1,57 +1,139 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265232AbSJWVCF>; Wed, 23 Oct 2002 17:02:05 -0400
+	id <S265233AbSJWVE0>; Wed, 23 Oct 2002 17:04:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265231AbSJWVCF>; Wed, 23 Oct 2002 17:02:05 -0400
-Received: from 213-96-124-18.uc.nombres.ttd.es ([213.96.124.18]:6639 "HELO
-	dardhal.mired.net") by vger.kernel.org with SMTP id <S265232AbSJWVCD>;
-	Wed, 23 Oct 2002 17:02:03 -0400
-Date: Wed, 23 Oct 2002 23:08:08 +0200
-From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.44 fs corruption
-Message-ID: <20021023210808.GC4138@localhost>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20021023144620.GB1317@debill.org> <OAEPKDBINGEGKPCJJAJDKEMDHJAA.chris.newland@emorphia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OAEPKDBINGEGKPCJJAJDKEMDHJAA.chris.newland@emorphia.com>
-User-Agent: Mutt/1.3.28i
+	id <S265236AbSJWVEY>; Wed, 23 Oct 2002 17:04:24 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:8170 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265233AbSJWVEV>;
+	Wed, 23 Oct 2002 17:04:21 -0400
+Message-ID: <3DB70F4F.2000203@us.ibm.com>
+Date: Wed, 23 Oct 2002 14:06:23 -0700
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+Organization: IBM LTC
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@digeo.com>
+CC: Patrick Mochel <mochel@osdl.org>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>
+Subject: Re: [patch] (5/5) create node_online_map 2.5.44
+References: <2699066091.1035310557@[10.10.2.3]> <Pine.LNX.4.44.0210221824430.983-100000@cherise.pdx.osdl.net> <3DB5FCC5.E54808E@digeo.com> <3DB70CDD.8080506@us.ibm.com> <3DB70DC1.204@us.ibm.com> <3DB70E67.9040704@us.ibm.com> <3DB70F01.9050906@us.ibm.com>
+Content-Type: multipart/mixed;
+ boundary="------------010803040507040501000907"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 23 October 2002, at 16:13:52 +0100,
-Chris Newland wrote:
+This is a multi-part message in MIME format.
+--------------010803040507040501000907
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> A good way to test if the problem has gone is to try to 'dd' the contents of
-> an entire partition into /dev/null. This used to have a 100% lockup rate
-> when I had the problem.
-> 
-> dd if=/dev/hda5 of=/dev/null bs=1048576
-> 
-As a side note to this thread, I suffered for months similar lockups
-with a VIA KT266A based motherboard for my AMD Athlon XP1700+. As it was 
-really obvious the problem was hardware (BIOS probably) related, I didn't 
-bothered the list.
+Create and use node_online_map.
 
-In my case (Soltek SL-75DRV2), a "dd" as the above didn't locked up the
-machin (at least, not always), but chances of locking up increased
-dramatically if at the same time I had "xawtv" (or another TV tuner
-program for video4linux compatible cards). As a TV station pumps in the
-order of several MB/s to the PCI bus, plus another ~ 40 MB/s of
-sustained read rates from the IDE ATA100 disk, somehow a bug in the
-BIOS/southbridge was more obvious.
+This patch creates a node_online_map, much like cpu_online_map.  It
+also creates the standard helper functions, ie: node_online(),
+num_online_nodes(), node_set_online(), node_set_offline().
 
-Fortunately the motherboard crashed, and I got a replacement from the
-same manufacturer, but a newer model, namely a SL-75DRV5 (VIA KT333
-based if I remember correctly), with a completely different BIOS version
-number. And since then (10+ days) no lockups, even under high stress.
+This is used by driverFS topology to keep track of which Nodes
+are in the system and online.
 
-Hope this experience helps others with their (maybe hardware caused)
-locks in Linux (when the box hangs, and you have no idea why, you even
-end up blaming Linux :).
+Cheers!
 
--- 
-Jose Luis Domingo Lopez
-Linux Registered User #189436     Debian Linux Woody (Linux 2.4.19-pre6aa1)
+-Matt
+
+--------------010803040507040501000907
+Content-Type: text/plain;
+ name="04-node_online_map.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="04-node_online_map.patch"
+
+diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.44-base/arch/i386/kernel/numaq.c linux-2.5.44-node_online_map/arch/i386/kernel/numaq.c
+--- linux-2.5.44-base/arch/i386/kernel/numaq.c	Fri Oct 18 21:01:17 2002
++++ linux-2.5.44-node_online_map/arch/i386/kernel/numaq.c	Wed Oct 23 12:14:49 2002
+@@ -52,6 +52,7 @@
+ 	numnodes = 0;
+ 	for(node = 0; node < MAX_NUMNODES; node++) {
+ 		if(scd->quads_present31_0 & (1 << node)) {
++			node_set_online(node);
+ 			numnodes++;
+ 			eq = &scd->eq[node];
+ 			/* Convert to pages */
+diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.44-base/arch/i386/mach-generic/topology.c linux-2.5.44-node_online_map/arch/i386/mach-generic/topology.c
+--- linux-2.5.44-base/arch/i386/mach-generic/topology.c	Wed Oct 23 12:13:31 2002
++++ linux-2.5.44-node_online_map/arch/i386/mach-generic/topology.c	Wed Oct 23 12:14:50 2002
+@@ -38,13 +38,11 @@
+ struct i386_node node_devices[MAX_NUMNODES];
+ struct i386_memblk memblk_devices[MAX_NR_MEMBLKS];
+ 
+-extern int numnodes;
+-
+ static int __init topology_init(void)
+ {
+ 	int i;
+ 
+-	for (i = 0; i < numnodes; i++)
++	for (i = 0; i < num_online_nodes(); i++)
+ 		arch_register_node(i);
+ 	for (i = 0; i < num_online_cpus(); i++)
+ 		arch_register_cpu(i);
+diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.44-base/include/linux/mmzone.h linux-2.5.44-node_online_map/include/linux/mmzone.h
+--- linux-2.5.44-base/include/linux/mmzone.h	Wed Oct 23 12:13:31 2002
++++ linux-2.5.44-node_online_map/include/linux/mmzone.h	Wed Oct 23 12:14:50 2002
+@@ -263,10 +263,25 @@
+ #endif /* !CONFIG_DISCONTIGMEM */
+ 
+ 
++extern DECLARE_BITMAP(node_online_map, MAX_NUMNODES);
+ extern DECLARE_BITMAP(memblk_online_map, MAX_NR_MEMBLKS);
+ 
+ #if defined(CONFIG_DISCONTIGMEM) || defined(CONFIG_NUMA)
+ 
++#define node_online(node)	test_bit(node, node_online_map)
++#define node_set_online(node)	set_bit(node, node_online_map)
++#define node_set_offline(node)	clear_bit(node, node_online_map)
++static inline unsigned int num_online_nodes(void)
++{
++	int i, num = 0;
++
++	for(i = 0; i < MAX_NUMNODES; i++){
++		if (node_online(i))
++			num++;
++	}
++	return num;
++}
++
+ #define memblk_online(memblk)		test_bit(memblk, memblk_online_map)
+ #define memblk_set_online(memblk)	set_bit(memblk, memblk_online_map)
+ #define memblk_set_offline(memblk)	clear_bit(memblk, memblk_online_map)
+@@ -283,6 +298,14 @@
+ 
+ #else /* !CONFIG_DISCONTIGMEM && !CONFIG_NUMA */
+ 
++#define node_online(node) \
++	({ BUG_ON((node) != 0); test_bit(node, node_online_map); })
++#define node_set_online(node) \
++	({ BUG_ON((node) != 0); set_bit(node, node_online_map); })
++#define node_set_offline(node) \
++	({ BUG_ON((node) != 0); clear_bit(node, node_online_map); })
++#define num_online_nodes()	1
++
+ #define memblk_online(memblk) \
+ 	({ BUG_ON((memblk) != 0); test_bit(memblk, memblk_online_map); })
+ #define memblk_set_online(memblk) \
+diff -Nur --exclude-from=/usr/src/.dontdiff linux-2.5.44-base/mm/page_alloc.c linux-2.5.44-node_online_map/mm/page_alloc.c
+--- linux-2.5.44-base/mm/page_alloc.c	Wed Oct 23 12:13:31 2002
++++ linux-2.5.44-node_online_map/mm/page_alloc.c	Wed Oct 23 12:14:50 2002
+@@ -28,6 +28,7 @@
+ 
+ #include <asm/topology.h>
+ 
++DECLARE_BITMAP(node_online_map, MAX_NUMNODES);
+ DECLARE_BITMAP(memblk_online_map, MAX_NR_MEMBLKS);
+ struct pglist_data *pgdat_list;
+ unsigned long totalram_pages;
+
+--------------010803040507040501000907--
+

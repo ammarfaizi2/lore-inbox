@@ -1,38 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266281AbUHHUnF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266284AbUHHUqM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266281AbUHHUnF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 16:43:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266284AbUHHUnE
+	id S266284AbUHHUqM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 16:46:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266291AbUHHUqL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 16:43:04 -0400
-Received: from mail.kroah.org ([69.55.234.183]:54204 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266281AbUHHUnD (ORCPT
+	Sun, 8 Aug 2004 16:46:11 -0400
+Received: from fw.osdl.org ([65.172.181.6]:62154 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266284AbUHHUqJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 16:43:03 -0400
-Date: Sun, 8 Aug 2004 13:42:43 -0700
-From: Greg KH <greg@kroah.com>
-To: Albert Cahalan <albert@users.sourceforge.net>
-Cc: Marc Ballarin <Ballarin.Marc@gmx.de>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: dynamic /dev security hole?
-Message-ID: <20040808204242.GA9358@kroah.com>
-References: <1091969260.5759.125.camel@cube> <20040808175834.59758fc0.Ballarin.Marc@gmx.de> <1091977471.5761.144.camel@cube>
+	Sun, 8 Aug 2004 16:46:09 -0400
+Date: Sun, 8 Aug 2004 13:44:32 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Juergen Pabel <jpabel@akkaya.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Masking kernel commandline parameters (2.6.7)
+Message-Id: <20040808134432.678629d0.akpm@osdl.org>
+In-Reply-To: <200408080413.29905.jpabel@akkaya.de>
+References: <200408080413.29905.jpabel@akkaya.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1091977471.5761.144.camel@cube>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 08, 2004 at 11:04:31AM -0400, Albert Cahalan wrote:
-> Perhaps there are other ways to deal with the problem though.
+Juergen Pabel <jpabel@akkaya.de> wrote:
+>
+> my patch allows for kernel commandline parameters (ie: from bootloader) to be masked in order to 
+>  prevent later retrieval (/proc/cmdline for example).
 
-Do what a number of distros do these days, make /dev a ramfs or tmpfs.
-That way no hardlinks outside /dev will work:
-	$ ln /dev/hda /tmp/foo
-	ln: creating hard link `/tmp/foo' to `/dev/hda': Invalid cross-device link
+In recent 2.6 kernels you can simply do a chmod on /proc/cmdline.
 
-thanks,
+bix:/usr/src/bk25> cat /proc/cmdline
+ro root=/dev/sda2 profile=1 vga=extended
+bix:/usr/src/bk25> 0 chmod 0400 /proc/cmdline
+bix:/usr/src/bk25> cat /proc/cmdline         
+cat: /proc/cmdline: Permission denied
 
-greg k-h

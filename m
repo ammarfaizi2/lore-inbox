@@ -1,66 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262884AbTJUEfd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Oct 2003 00:35:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262886AbTJUEfd
+	id S262907AbTJUEXM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Oct 2003 00:23:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262910AbTJUEXM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Oct 2003 00:35:33 -0400
-Received: from adsl-68-120-202-5.dsl.pltn13.pacbell.net ([68.120.202.5]:2016
-	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
-	id S262884AbTJUEfa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Oct 2003 00:35:30 -0400
-Date: Mon, 20 Oct 2003 21:35:28 -0700
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: jonsmirl@yahoo.com
-Subject: Re: linux-gate.so and gdb
-Message-ID: <20031021043528.GB379@triplehelix.org>
-Mail-Followup-To: joshk@triplehelix.org,
-	lkml <linux-kernel@vger.kernel.org>, jonsmirl@yahoo.com
-References: <20031021035624.42271.qmail@web14908.mail.yahoo.com>
+	Tue, 21 Oct 2003 00:23:12 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:3228 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262907AbTJUEWV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Oct 2003 00:22:21 -0400
+Date: Mon, 20 Oct 2003 21:17:06 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Martin Diehl <lists@mdiehl.de>
+Cc: noah@caltech.edu, irda-users@lists.sourceforge.net, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [irda-users] [PATCH] Make VLSI FIR depend on X86
+Message-Id: <20031020211706.5be33474.davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0310201138020.4246-100000@notebook.home.mdiehl.de>
+References: <Pine.GSO.4.58.0310171456080.13905@blinky>
+	<Pine.LNX.4.44.0310201138020.4246-100000@notebook.home.mdiehl.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="y0ulUmNC+osPPQO6"
-Content-Disposition: inline
-In-Reply-To: <20031021035624.42271.qmail@web14908.mail.yahoo.com>
-User-Agent: Mutt/1.5.4i
-From: Joshua Kwan <joshk@triplehelix.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 20 Oct 2003 19:30:33 +0200 (CEST)
+Martin Diehl <lists@mdiehl.de> wrote:
 
---y0ulUmNC+osPPQO6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Well, it would work with any arch, _if_ there was a way to sync the 
+> streaming pci dma buffers before giving them back to hardware.
 
-On Mon, Oct 20, 2003 at 08:56:24PM -0700, Jon Smirl wrote:
-> How can I convince gdb to stop breaking on linux-gate.so?
-
-Dunno, and plus this has nothing to do with the Linux kernel.
-
---=20
-Joshua Kwan
-
---y0ulUmNC+osPPQO6
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iQIVAwUBP5S3j6OILr94RG8mAQKw6xAA2byOu0tV8SjixR77m9ZlAiWLyzS80rGk
-o8PENwnrccyDshfx2pUSWRgLiQrZV4yv4b9TcoU3wjt5UjIlNRPFAo3EWUsGbgN/
-39eNPJhyBfplPUvdjQyRgODpQftR6z9u3/iDxbkttc86Ouicic/LQRMHAc3anbdP
-pSsKuzcuBNHJy7U0Qa8qE2s8PcBJAaDebeMi85s0UMrwAxxFdOt4sW1p6kJfVyuf
-5D2kc8/zfKjU3Cvviqp2obTauWfjcTcycaNB3ES8WWh3MKALoTC1iH5A8FP70bfI
-vxn5njQ6CIgmtJaUryQucpxs6+ykybLPraRcSMU/6IsnP0CPuDptm9ZOLoyKezWG
-bq7XC3BQtZaRVFiwRNNCxQEkHCY716RbKNK/i+G3YWlXFFcdsMmxZZTHahe3Fvgv
-Q9N2NOKwkulg8gWLFnw3BQuxWaShsMHVnSO749nWjHXpLye3bchVwW/jQzBKownN
-V0eXBeCnwQ5WuHQ9lOWvELG5m7ebkwI+76tgDv836JMfDXTzga4SOC6vIrP0ezXq
-e2rrPzUkcsvsmpSMJkMqtPbqeShN28F9QCXttS2uIp6gKBQnRpRj/W/qFmqpKjtC
-23ghywFYl3b7EBSXzP9w+JXcg7WAeMrlj6fcF4KOlX0+zNf8uNMrNE/wg4B5iPY+
-9CIkKjkIGK8=
-=/Xhn
------END PGP SIGNATURE-----
-
---y0ulUmNC+osPPQO6--
+If pci_dma_sync() doesn't perform the operation you want, please
+describe what that operation is.

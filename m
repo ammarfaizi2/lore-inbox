@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269189AbUINHnc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269187AbUINHz1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269189AbUINHnc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 03:43:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269190AbUINHnb
+	id S269187AbUINHz1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 03:55:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269191AbUINHz1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 03:43:31 -0400
-Received: from mxfep01.bredband.com ([195.54.107.70]:29641 "EHLO
-	mxfep01.bredband.com") by vger.kernel.org with ESMTP
-	id S269189AbUINHnZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 03:43:25 -0400
-Subject: Re: segfault and multiple traps on x86_64
-From: Alexander Nyberg <alexn@dsv.su.se>
-To: Leonid Kalmankin <lvk@mashcenter.ru>
+	Tue, 14 Sep 2004 03:55:27 -0400
+Received: from mail.kroah.org ([69.55.234.183]:19382 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269187AbUINHzZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 03:55:25 -0400
+Date: Tue, 14 Sep 2004 00:47:39 -0700
+From: Greg KH <greg@kroah.com>
+To: Borislav Petkov <petkov@uni-muenster.de>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040914013117.3bda812d.lvk@mashcenter.ru>
-References: <20040914013117.3bda812d.lvk@mashcenter.ru>
-Content-Type: text/plain
-Message-Id: <1095147803.701.3.camel@boxen>
+Subject: Re: [PATCH] Re: 2.6.9-rc1-mm4, visor.c, Badness in usb_unlink_urb
+Message-ID: <20040914074739.GA22875@kroah.com>
+References: <20040910082601.GA32746@gamma.logic.tuwien.ac.at> <200409101148.37587.petkov@uni-muenster.de> <20040910140152.GA15589@kroah.com> <200409102024.32082.petkov@uni-muenster.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 14 Sep 2004 09:43:23 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200409102024.32082.petkov@uni-muenster.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-09-13 at 23:31, Leonid Kalmankin wrote:
-> Greetings!
-> 
-> In dmesg I see stuff like:
-> 
-> rpmbuild[3842] trap int3 rip:402d9e rsp:7fbfffb540 error:0
-> rpmbuild[3842] trap int3 rip:4026d1 rsp:7fbfffb538 error:0
-> sh[3843] trap int3 rip:415f39 rsp:7fbffff8c8 error:0
-> sh[3843]: segfault at 0000000000000000 rip 0000000000000000 rsp 0000007fbffff8b8 error 14
-> rpmbuild[3842] trap int3 rip:402dea rsp:7fbfffb540 error:0
-> rpmbuild[3842] trap int3 rip:4025d1 rsp:7fbfffb538 error:0
-> rpmbuild[3842] trap int3 rip:402ced rsp:7fbfffb540 error:0
-> rpmbuild[3842] trap int3 rip:4027c1 rsp:7fbffff688 error:0
-> 
+On Fri, Sep 10, 2004 at 08:24:31PM +0200, Borislav Petkov wrote:
+> Hi Greg,
+> I'll be happy to tackle the other drivers. Question: Does usb_unlink_urb have 
+> to be replaced only for synchronious unlinking
 
-They just chose to show a small message in the log when some program
-behaves badly. Nothing to worry about, more than your programs
-misbehaving.
+Yes.
 
-Alex
+> and if so, is the wrapping function responsible for checking the
+> URB_ASYNC_UNLINK transfer flag? Here's a patch:
 
+The driver should know how to shut down the urb.
+
+> Signed-off-by: Borislav Petkov <petkov@uni-muenster.de>
+> 
+> --- linux-2.6.9-rc1-mm/drivers/usb/class/audio.c.orig 2004-09-10 20:05:17.000000000 +0200
+> +++ linux-2.6.9-rc1-mm/drivers/usb/class/audio.c 2004-09-10 20:23:12.000000000 +0200
+> @@ -635,13 +635,13 @@ static void usbin_stop(struct usb_audiod
+>    spin_unlock_irqrestore(&as->lock, flags);
+>    if (notkilled && signal_pending(current)) {
+>     if (i & FLG_URB0RUNNING)
+> -    usb_unlink_urb(u->durb[0].urb);
+> +    usb_kill_urb(u->durb[0].urb);
+
+Ick, the tabs are stripped out :(
+
+thanks,
+
+greg k-h

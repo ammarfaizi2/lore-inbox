@@ -1,135 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262491AbVBXUoS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262482AbVBXU45@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262491AbVBXUoS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 15:44:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbVBXUnB
+	id S262482AbVBXU45 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 15:56:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262479AbVBXU45
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 15:43:01 -0500
-Received: from postfix4-2.free.fr ([213.228.0.176]:21443 "EHLO
-	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S262506AbVBXUli
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 15:41:38 -0500
-Message-ID: <421E3C30.8080703@free.fr>
-Date: Thu, 24 Feb 2005 21:42:24 +0100
-From: Laurent Riffard <laurent.riffard@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.5) Gecko/20041217
-X-Accept-Language: fr-fr, fr, en
+	Thu, 24 Feb 2005 15:56:57 -0500
+Received: from math.ut.ee ([193.40.36.2]:6097 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S262480AbVBXUzr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 15:55:47 -0500
+Date: Thu, 24 Feb 2005 22:51:45 +0200 (EET)
+From: Meelis Roos <mroos@linux.ee>
+To: Sven Luther <sven.luther@wanadoo.fr>
+cc: Tom Rini <trini@kernel.crashing.org>, linuxppc-dev@ozlabs.org,
+       Sven Hartge <hartge@ds9.gnuu.de>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christian Kujau <evil@g-house.de>
+Subject: Re: [PATCH 2.6.10-rc3][PPC32] Fix Motorola PReP (PowerstackII Utah)
+ PCI IRQ map
+In-Reply-To: <20050224170150.GA7746@pegasos>
+Message-ID: <Pine.SOC.4.61.0502242250050.21289@math.ut.ee>
+References: <20041206185416.GE7153@smtp.west.cox.net>
+ <Pine.SOC.4.61.0502221031230.6097@math.ut.ee> <20050224074728.GA31434@pegasos>
+ <Pine.SOC.4.61.0502241746450.21289@math.ut.ee> <20050224160657.GB11197@pegasos>
+ <Pine.SOC.4.61.0502241832510.21289@math.ut.ee> <20050224170150.GA7746@pegasos>
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Helge Hafting <helge.hafting@aitel.hist.no>
-Subject: Re: 2.6.11-rc4-mm1 : IDE crazy numbers, hdb renumbered to hdq ?
-References: <20050223014233.6710fd73.akpm@osdl.org> <421C7FC2.1090402@aitel.hist.no> <20050223121207.412c7eeb.akpm@osdl.org> <421D0582.9090100@free.fr> <20050223234720.GA7270@kroah.com> <421E099F.1030104@free.fr> <20050224171856.GB9439@kroah.com>
-In-Reply-To: <20050224171856.GB9439@kroah.com>
-X-Enigmail-Version: 0.89.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigE18FAFB3A98D310981B23D4D"
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigE18FAFB3A98D310981B23D4D
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+> Then just dd your /boot/vmlinuz-2.6.10-powerpc to your prep partition, or
+> better yet to a tftp server, and try it out. If the scsi problems are there,
+> can you fill a bug report against kernel-source-2.6.10 ?
 
+Thanks for the new kernel. Just filed a bug report on 
+kernel-source-2.6.10.
 
+> You may probably want also to modify /etc/mkinitrd/mkinitrd:MODULES_DEP to dep
+> instead of MOST, or you may hit size problems with your initrd, i would be
+> interested in knowing that.
 
-Le 24.02.2005 18:18, Greg KH a écrit :
-> On Thu, Feb 24, 2005 at 06:06:39PM +0100, Laurent Riffard wrote:
->
->>
->>Le 24.02.2005 00:47, Greg KH a ?crit :
->>
->>>On Wed, Feb 23, 2005 at 11:36:50PM +0100, Laurent Riffard wrote:
->>>
->>>
->>>>hey, what's this /dev/hds ? digging into /sys/block...
->>>>
->>>>~$ ls -l  /sys/block/hds/device
->>>>lrwxrwxrwx  1 root root 0 f?v 23 22:45 /sys/block/hds/device ->
->>>>../../devices/pci0000:00/0000:00:04.1/ide1/1.1/
->>>>
->>>>/dev/hdq should be /dev/hdd...
->>>>
->>>>~$ ls -l /proc/ide
->>>>total 4
->>>>-r--r--r--  1 root root 0 f?v 23 23:28 drivers
->>>>lrwxrwxrwx  1 root root 8 f?v 23 23:28 hda -> ide0/hda/
->>>>lrwxrwxrwx  1 root root 8 f?v 23 23:28 hdb -> ide0/hdb/
->>>>lrwxrwxrwx  1 root root 8 f?v 23 23:28 hdc -> ide1/hdc/
->>>>lrwxrwxrwx  1 root root 8 f?v 23 23:28 hdd -> ide1/hdd/
->>>>dr-xr-xr-x  4 root root 0 f?v 23 23:28 ide0/
->>>>dr-xr-xr-x  4 root root 0 f?v 23 23:28 ide1/
->>>>-r--r--r--  1 root root 0 f?v 23 23:28 via
->>>>~$ ls -d /sys/block/hd*
->>>>/sys/block/hda/  /sys/block/hdc/  /sys/block/hdq/  /sys/block/hds/
->>>
->>>
->>>What does /proc/devices show?
->>
->>Character devices:
->>  1 mem
->>  4 /dev/vc/0
->>  4 tty
->>  5 /dev/tty
->>  5 /dev/console
->>  5 /dev/ptmx
->>  6 lp
->>  7 vcs
->> 10 misc
->> 13 input
->> 14 sound
->> 29 fb
->>116 alsa
->>128 ptm
->>136 pts
->>171 ieee1394
->>180 usb
->>
->>Block devices:
->>  1 ramdisk
->>  2 fd
->>  3 ide0
->>  7 loop
->> 22 ide1
->>253 pktcdvd
->>254 device-mapper
->>
->>Do you see something strange here  ?
->
->
-> No, ide0 is 3 and ide1 is 22, which is "standard".  Hm, what's that
-> pktcdvd and device-mapper doing there?  Do you need those drivers?  Can
-> you try it without building them and see if that helps?
+It worked without changing the module list, with 5.2M resulting vmlinuz.
 
-I do need device-mapper, since I put /usr and /var on LVM filesystems. I
-use ptkcdvd to copy data to CD-RW. I can remove this one.
-
-Anyway, this patch from Andrew fixed the problem :
-http://lkml.org/lkml/2005/2/23/214.
-
-So I won't try to remove pktcdvd and device-mapper driver (except if you
-_really_ want me to do so).
-
-Thanks for your interest.
---
-laurent
-
---------------enigE18FAFB3A98D310981B23D4D
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFCHjwwUqUFrirTu6IRAr8lAKCIvofqng+cRmGOXWxaNsdbH5WHLACeMXhA
-CQ6nlJiXOVHD6rdxhqjpSaY=
-=bipB
------END PGP SIGNATURE-----
-
---------------enigE18FAFB3A98D310981B23D4D--
+-- 
+Meelis Roos (mroos@linux.ee)

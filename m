@@ -1,57 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281783AbRKVVXx>; Thu, 22 Nov 2001 16:23:53 -0500
+	id <S276369AbRKVVq4>; Thu, 22 Nov 2001 16:46:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281784AbRKVVXd>; Thu, 22 Nov 2001 16:23:33 -0500
-Received: from dorf.wh.uni-dortmund.de ([129.217.255.136]:61707 "HELO
-	mail.dorf.wh.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S281783AbRKVVXW>; Thu, 22 Nov 2001 16:23:22 -0500
-Date: Thu, 22 Nov 2001 22:22:21 +0100
-From: Patrick Mau <mau@oscar.prima.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Question about balance_classzone in mm/page_alloc.c
-Message-ID: <20011122222220.A2355@oscar.dorf.de>
-Reply-To: Patrick Mau <mau@oscar.prima.de>
+	id <S281785AbRKVVqr>; Thu, 22 Nov 2001 16:46:47 -0500
+Received: from sj1-3-1-20.iserver.com ([128.121.122.117]:29712 "EHLO
+	sj1-3-1-20.iserver.com") by vger.kernel.org with ESMTP
+	id <S276369AbRKVVqi>; Thu, 22 Nov 2001 16:46:38 -0500
+Date: Thu, 22 Nov 2001 21:46:36 +0000
+From: Nathan Myers <ncm-nospam@cantrip.org>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] [PATCH] omnibus header cleanup
+Message-ID: <20011122214636.A9790@cantrip.org>
+Mail-Followup-To: Nathan Myers <ncm-nospam@cantrip.org>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+User-Agent: Mutt/1.2.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Kernel Developers,
+Requesting advice...
 
-this question could probably be answered bt Andrea Arcangeli ?
+Last week, I posted [1] patches ([2],[3]) to fix undisciplined macro 
+definitions in 116 header files.  His Linusness has not picked them 
+up, through several preN releases, nor commented.  I see four choices:
 
-I added a prink to balance_classzone in 2.4.15-pre9.
-The message is not accurate because I moved it there,
-but anyway ...
+1. Keep posting the patches until they get picked up, or rot.
 
---- linux-2.4.15-9/mm/page_alloc.c	Thu Nov 22 19:53:46 2001
-+++ work-2.4.15-9/mm/page_alloc.c	Thu Nov 22 22:02:15 2001
-@@ -251,6 +251,8 @@
- 		local_pages = &current->local_pages;
- 
- 		if (likely(__freed)) {
-+                        printk(KERN_DEBUG "zone_balance: %d pages freed\n", current->nr_local_pages);
-+
- 			/* pick from the last inserted so we're lifo */
- 			entry = local_pages->next;
- 			do {
+2. Split them up into four dozen separate patches, and pepper
+   individual maintainers and Linus with them all, and check which 
+   ones get in and which don't, and re-send the latter until they're
+   all in.
 
-I bootet with mem=64M and started KDE/Konqueror and did a
-bonnie++ run with 256M filesize. (I did not let it finish though).
+3. Conclude that Linux maintainers are only interested in fixing 
+   immediate causes of bugs that have already been reported.
 
-The count of current->nr_local_pages from syslog shows always
-'1'. Maybe I don't understand the code, but balance_classzone is
-very often called (>20 times during one second according to syslog).
-I could append syslog output, but it's pretty boring.
+4. Find some credible people willing to scan through the patches and 
+   certify to Linus that they are Safe, Effective, and Not Destabilizing.
 
-My question is, whats the logic behind those nr_local_pages
-and the lifo while loop, when it's always called for one page ?
+Choice (1) is hopeless.  (I have updated the patches for 2.4.15-pre9; 
+the proposals for include/linux/pci.h had been picked up.)  Since 
+choice (2) is about a hundred times as much work as I've already done 
+on them, all of it administrative overhead, any sane person would 
+choose (3) over (2).  
 
-I had to kill bonnie++ and KDE because the box was absolutely
-trashing and did not respond to anything.
+That leaves (4).  Who will scan one or both patches and certify them
+for Linus?
 
-thanks for clarifying.
-Patrick
+There are certainly dozens of more-subtle bug sources (e.g. [4],[5]) in 
+the kernel, and I would love to help smoke them out, but I can't afford 
+to do that if it's a hundred times as much work to get the resulting 
+patches accepted as to find and fix them in the first place.
+
+Advice?  Certifiers?
+
+Nathan Myers
+ncm at cantrip dot org
+
+[1] http://marc.theaimsgroup.com/?l=linux-kernel&m=100587948705950&w=2
+[2] http://cantrip.org/omnibus-linux.diff
+[3] http://cantrip.org/omnibus-includes.diff
+[4] http://marc.theaimsgroup.com/?l=linux-kernel&m=100591078621276&w=2
+[5] http://marc.theaimsgroup.com/?l=linux-kernel&m=100633930427682&w=2
+

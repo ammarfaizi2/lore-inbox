@@ -1,68 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290810AbSARUm5>; Fri, 18 Jan 2002 15:42:57 -0500
+	id <S290816AbSARUwS>; Fri, 18 Jan 2002 15:52:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290815AbSARUms>; Fri, 18 Jan 2002 15:42:48 -0500
-Received: from mta3n.bluewin.ch ([195.186.1.212]:55251 "EHLO mta3n.bluewin.ch")
-	by vger.kernel.org with ESMTP id <S290810AbSARUma>;
-	Fri, 18 Jan 2002 15:42:30 -0500
-Message-ID: <3C4887F4.6B410959@bluewin.ch>
-Date: Fri, 18 Jan 2002 21:39:16 +0100
-From: Nicolas Aspert <Nicolas.Aspert@bluewin.ch>
-Reply-To: Nicolas.Aspert@epfl.ch
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S290817AbSARUwJ>; Fri, 18 Jan 2002 15:52:09 -0500
+Received: from mail.libertysurf.net ([213.36.80.91]:40495 "EHLO
+	mail.libertysurf.net") by vger.kernel.org with ESMTP
+	id <S290816AbSARUv4> convert rfc822-to-8bit; Fri, 18 Jan 2002 15:51:56 -0500
+Date: Fri, 18 Jan 2002 21:50:14 +0100 (CET)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+X-X-Sender: <groudier@gerard>
+To: Dan Malek <dan@embeddededge.com>
+cc: Troy Benjegerdes <hozer@drgw.net>, "David S. Miller" <davem@redhat.com>,
+        <linux-kernel@vger.kernel.org>, <mattl@mvista.com>
+Subject: Re: pci_alloc_consistent from interrupt == BAD
+In-Reply-To: <3C4875DB.9080402@embeddededge.com>
+Message-ID: <20020118213313.R1937-100000@gerard>
 MIME-Version: 1.0
-To: Didier Moens <moensd@xs4all.be>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: OOPS in APM 2.4.18-pre4 with i830MP agpgart
-In-Reply-To: <3C487E68.1000404@xs4all.be>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello again
 
-Here is a small patch (against 2.4.18-pre2 since I don't have the latest
-18-pre at hand) that should fix your the problem. It may not apply
-cleanly but that's all I can do at the moment.
-Sorry again for my mistake.
+On Fri, 18 Jan 2002, Dan Malek wrote:
 
-Best regards
+> Troy Benjegerdes wrote:
+>
+> > Somehow the docs in DMA-mappings.txt say pci_alloc_consistent is allowed from
+> > interrupt, but this is a "bad thing" on at least arm and PPC non-cache
+> > coherent cpus.
+>
+> This isn't unique to PowerPC or ARM, and has nothing to do with allocating
+> page tables.
+>
+> I don't understand how pci_alloc_consistent could ever be claimed to work
+> from an interrupt function because it actually allocates pages of memory
+> for all architectures.  Anytime you call alloc_pages() (or friends) you could
+> potentially block or return an error (out of memory) condition.
+>
+> Either option is undesirable for an interrupt function.  If your software can
+> handle the case of not being able to allocate memory, then why not remove the
+> complexity and do it that way all of the time?
 
-Nicolas.
+I donnot see your point. Any software that tries to allocate from
+interrupt context must be ready to handle failure, but when the allocation
+does not require more than a single page, the failure should not happen
+very often.
 
---- agpgart_be.c        Fri Jan 18 21:37:43 2002
-+++ agpgart_be.c_correct        Fri Jan 18 21:39:02 2002
-@@ -1400,7 +1400,6 @@
-        agp_bridge.free_by_type = intel_i810_free_by_type;
-        agp_bridge.agp_alloc_page = agp_generic_alloc_page;
-        agp_bridge.agp_destroy_page = agp_generic_destroy_page;
--
-        agp_bridge.suspend = agp_generic_suspend;
-        agp_bridge.resume = agp_generic_resume;
-        agp_bridge.cant_use_aperture = 0;
-@@ -1857,7 +1856,10 @@
-        agp_bridge.free_by_type = agp_generic_free_by_type;
-        agp_bridge.agp_alloc_page = agp_generic_alloc_page;
-        agp_bridge.agp_destroy_page = agp_generic_destroy_page;
--
-+       agp_bridge.suspend = agp_generic_suspend;
-+       agp_bridge.resume = agp_generic_resume;
-+       agp_bridge.cant_use_aperture = 0;
-+
-        return 0;
- 
-        (void) pdev; /* unused */
-@@ -1887,7 +1889,9 @@
-        agp_bridge.free_by_type = agp_generic_free_by_type;
-        agp_bridge.agp_alloc_page = agp_generic_alloc_page;
-        agp_bridge.agp_destroy_page = agp_generic_destroy_page;
--
-+       agp_bridge.suspend = agp_generic_suspend;
-+       agp_bridge.resume = agp_generic_resume;
-+       agp_bridge.cant_use_aperture = 0;
-        return 0;
- 
-        (void) pdev; /* unused */
+Not allocating under interrupt requires to pool everything that may be
+ever needed. Speaking about Linux SCSI, you can:
+
+1) Allocate all data structures at initialisation.
+   A driver that can support 1022 IOs per HBA  for example with 2K CCB
+   will allocate 2 MB even if user just uses a single CD/ROM without tagged
+   commands supported.
+
+2) Resize the CCB pool on select_queue_depth() call.
+   This will allocate far less memory when only few devices will be
+   attached to the BUS.
+
+No need to say that 'sym' will never implement #1. At most I may add this
+inside some #ifdef/#endif pair.
+
+For example, on my personnal machine #1 scenario will allocate 8 MB but
+actual need will be about 1 MB.
+
+For now, I am not sure about #2 being cleanly implementable, but it looks
+smarter to me. Note that I would prefer to also be able to free CCBs that
+are no more needed. This will require a driver entry to be called when a
+device goes away.
+
+  Gérard.
+

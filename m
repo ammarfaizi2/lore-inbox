@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267534AbTAGWW2>; Tue, 7 Jan 2003 17:22:28 -0500
+	id <S267530AbTAGWVy>; Tue, 7 Jan 2003 17:21:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267535AbTAGWV4>; Tue, 7 Jan 2003 17:21:56 -0500
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:42511 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S267534AbTAGWVy>; Tue, 7 Jan 2003 17:21:54 -0500
-Message-ID: <3E1B3A49.42F6370E@linux-m68k.org>
-Date: Tue, 07 Jan 2003 21:36:25 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andre Hedrick <andre@pyxtechnologies.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux iSCSI Initiator, OpenSource (fwd) (Re: Gauntlet Set NOW!)
-References: <Pine.LNX.4.10.10301061625150.421-100000@master.linux-ide.org>
+	id <S267535AbTAGWVy>; Tue, 7 Jan 2003 17:21:54 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:10224 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S267530AbTAGWVx>; Tue, 7 Jan 2003 17:21:53 -0500
+Date: Tue, 7 Jan 2003 23:30:25 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: walt <wa1ter@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Why is Nvidia given GPL'd code to use in non-free drivers?
+Message-ID: <20030107223025.GL6626@fs.tum.de>
+References: <fa.ff58bdv.193ou06@ifi.uio.no> <fa.glgbuvv.1m1g1he@ifi.uio.no> <3E18A7AA.9020005@hotmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3E18A7AA.9020005@hotmail.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Jan 05, 2003 at 01:46:18PM -0800, walt wrote:
 
-Andre Hedrick wrote:
+>...  The dinosaurs had their day --
+> we all got our DNA from them -- and now they are gone.
 
-> Please continue to think of TCP checksums as valid for a data transport,
-> you data will be gone soon enough.
-> 
-> Initiator == Controller
-> Target == Disk
-> iSCSI == cable or ribbon
-> 
-> Please turn off the CRC on your disk drive and see if you still have data.
+(completely OT)
 
-This maybe works as PR, but otherwise it's crap.
-With a network protocol you have multiple possibilities to increase the
-reliability. The lower you do it in the network layer the easier is it
-to put it into hardware and to optimize it and the more generically it's
-usable. Doing it in the protocol is only the last resort. The iSCSI
-protocol is a nice protocol - if you ignore all the crap the hardware
-vendors put in (that stuff only makes sense if you want to produce ultra
-cheap hardware).
+This is wrong. We didn't got our DNA from the dinosaurs. The split 
+in the evolution between the ancestors of the dinosaurs and our 
+ancestors happened many million years before the great time of the 
+dinosaurs.
 
-bye, Roman
+cu
+Adrian
 
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

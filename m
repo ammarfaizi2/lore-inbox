@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261678AbSJUUwX>; Mon, 21 Oct 2002 16:52:23 -0400
+	id <S261643AbSJUU6u>; Mon, 21 Oct 2002 16:58:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261679AbSJUUwX>; Mon, 21 Oct 2002 16:52:23 -0400
-Received: from ulima.unil.ch ([130.223.144.143]:3200 "HELO ulima.unil.ch")
-	by vger.kernel.org with SMTP id <S261678AbSJUUwW>;
-	Mon, 21 Oct 2002 16:52:22 -0400
-Date: Mon, 21 Oct 2002 22:58:29 +0200
-From: Gregoire Favre <greg@ulima.unil.ch>
+	id <S261661AbSJUU6u>; Mon, 21 Oct 2002 16:58:50 -0400
+Received: from uucp.cistron.nl ([62.216.30.38]:14090 "EHLO ncc1701.cistron.net")
+	by vger.kernel.org with ESMTP id <S261643AbSJUU6t>;
+	Mon, 21 Oct 2002 16:58:49 -0400
+From: dth@ncc1701.cistron.net (Danny ter Haar)
+Subject: Re: 2.5.44 console keyboard dead
+Date: Mon, 21 Oct 2002 21:04:23 +0000 (UTC)
+Organization: Cistron
+Message-ID: <ap1q4m$dko$1@ncc1701.cistron.net>
+References: <Pine.LNX.4.44.0210220434280.23048-100000@boston.corp.fedex.com>
+X-Trace: ncc1701.cistron.net 1035234263 13976 62.216.30.38 (21 Oct 2002 21:04:23 GMT)
+X-Complaints-To: abuse@cistron.nl
 To: linux-kernel@vger.kernel.org
-Subject: 2.5.44 don't allow ZIP ejection :-((
-Message-ID: <20021021205829.GA6665@ulima.unil.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+In article <Pine.LNX.4.44.0210220434280.23048-100000@boston.corp.fedex.com>,
+Jeff Chua  <jchua@fedex.com> wrote:
+>I can't type anything on the console keyboard on 2.5.44
+>rlogin works ok.
 
-in 2.5.n n<44 the eject command didn't work anymore, but I could
-manually eject my disc...
+Please check the settings of serial support.
+Only then you get the choice of different keyboard support
+at the next question (enable at keyboard)
 
-With 2.5.44 the eject command still don't work, but even worse: I should
-reboot to eject the device:
+Got fooled by it too ;)
 
-Oct 21 16:55:57 ulima kernel:  /dev/ide/host0/bus1/target1/lun0: unknown partition tableOct 21 16:55:57 ulima kernel: ide-floppy: unsupported command in queue: dev 16:40: REQ_NOMERGE REQ_STARTED REQ_BLOCK_PC sector 65680, nr/cnr 8/8
-Oct 21 16:55:57 ulima kernel: bio 00000000, biotail 00000000
-Oct 21 16:55:57 ulima kernel: end_request: I/O error, dev 16:40, sector 65680
+Danny
 
-Thank you,
 
-	Grégoire
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

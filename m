@@ -1,17 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317007AbSFQUxk>; Mon, 17 Jun 2002 16:53:40 -0400
+	id <S317012AbSFQU6E>; Mon, 17 Jun 2002 16:58:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317008AbSFQUxj>; Mon, 17 Jun 2002 16:53:39 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:59121 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S317007AbSFQUxi>; Mon, 17 Jun 2002 16:53:38 -0400
-Date: Mon, 17 Jun 2002 16:53:40 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Dave Jones <davej@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
+	id <S317013AbSFQU6E>; Mon, 17 Jun 2002 16:58:04 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:17793 "EHLO doc.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S317012AbSFQU6C>;
+	Mon, 17 Jun 2002 16:58:02 -0400
+Date: Mon, 17 Jun 2002 13:57:44 -0700
+From: Bob Miller <rem@osdl.org>
+To: Dave Jones <davej@suse.de>, Benjamin LaHaise <bcrl@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
        Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [patch] v2.5.22 - add wait queue function callback support
-Message-ID: <20020617165340.F1457@redhat.com>
+Message-ID: <20020617135744.A24347@doc.pdx.osdl.net>
 References: <20020617161434.D1457@redhat.com> <20020617222812.I758@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -30,34 +31,25 @@ On Mon, Jun 17, 2002 at 10:28:12PM +0200, Dave Jones wrote:
 >  > +		wq_write_lock_irqsave(&(q)->lock, flags);	\
 > 
 > I thought we killed off wq_write_lock_irqsave 1-2 kernels ago ?
+> 
+>         Dave
+> 
+> -- 
+> | Dave Jones.        http://www.codemonkey.org.uk
+> | SuSE Labs
+> -
 
-Ah, I didn't notice that as I've not reached the point of merging 
-everything into a working build -- I'd like to get some feedback 
-and comments on the mergable units as they become available, since 
-I'm rewriting a few portions to fix problems that experience with 
-the code revealed.  Anyways, the patch below changes add_wait_queue_cond 
-to use spin_locks directly.
+Dave,
 
-		-ben
+It depends on what you mean by killed off.  I submitted a patch to Linus back
+at 2.5.3 to clean up the way the completion code called the wait queue
+interface.  This interface got added then.  You picked up those changes at
+that time (and still have them in your kernel tree) but the changes have
+never made it into Linus' tree.
 
-diff -urN wq-func-v2.5.22.diff/include/linux/wait.h wq-func-v2.5.22-b.diff/include/linux/wait.h
---- wq-func-v2.5.22.diff/include/linux/wait.h	Mon Jun 17 15:53:25 2002
-+++ wq-func-v2.5.22-b.diff/include/linux/wait.h	Mon Jun 17 16:46:23 2002
-@@ -106,7 +106,7 @@
- 	({							\
- 		unsigned long flags;				\
- 		int _raced = 0;					\
--		wq_write_lock_irqsave(&(q)->lock, flags);	\
-+		spin_lock_irqsave(&(q)->lock, flags);	\
- 		(wait)->flags = 0;				\
- 		__add_wait_queue((q), (wait));			\
- 		rmb();						\
-@@ -114,7 +114,7 @@
- 			_raced = 1;				\
- 			__remove_wait_queue((q), (wait));	\
- 		}						\
--		wq_write_unlock_irqrestore(&(q)->lock, flags);	\
-+		spin_lock_irqrestore(&(q)->lock, flags);	\
- 		_raced;						\
- 	})
- 
+So, Linus has never had the code to 'kill' and you've never dropped it
+after picking it up.
+
+-- 
+Bob Miller					Email: rem@osdl.org
+Open Source Development Lab			Phone: 503.626.2455 Ext. 17

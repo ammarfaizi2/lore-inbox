@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316619AbSFLLpi>; Wed, 12 Jun 2002 07:45:38 -0400
+	id <S317266AbSFLLwT>; Wed, 12 Jun 2002 07:52:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317258AbSFLLph>; Wed, 12 Jun 2002 07:45:37 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:44550 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316619AbSFLLpg>;
-	Wed, 12 Jun 2002 07:45:36 -0400
-Date: Wed, 12 Jun 2002 12:45:36 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Matthew Wilcox <willy@debian.org>, Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Saurabh Desai <sdesai@austin.ibm.com>,
-        Stephen Rothwell <sfr@canb.auug.org.au>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fs/locks.c: Fix posix locking for threaded tasks
-Message-ID: <20020612124536.T27449@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20020610034843.W27186@parcelfarce.linux.theplanet.co.uk> <E17I4bn-0007Rn-00@the-village.bc.nu>
+	id <S317270AbSFLLwS>; Wed, 12 Jun 2002 07:52:18 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:37328 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S317266AbSFLLwR>;
+	Wed, 12 Jun 2002 07:52:17 -0400
+Date: Wed, 12 Jun 2002 04:47:59 -0700 (PDT)
+Message-Id: <20020612.044759.115989376.davem@redhat.com>
+To: wjhun@ayrnetworks.com
+Cc: paulus@samba.org, roland@topspin.com, linux-kernel@vger.kernel.org
+Subject: Re: PCI DMA to small buffers on cache-incoherent arch
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020610110740.B30336@ayrnetworks.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 12, 2002 at 10:40:07AM +0100, Alan Cox wrote:
-> > SUS v3 does not offer any enlightenment.  But it seems reasonable that
-> > processes which share a files_struct should share locks.  After all,
-> > if one process closes the fd, they'll remove locks belonging to the
-> > other process.
-> > 
-> > Here's a patch generated against 2.4; it also applies to 2.5.
-> > Please apply.
-> 
-> This seems horribly inappropriate for 2.4 as it may break apps
+   From: William Jhun <wjhun@ayrnetworks.com>
+   Date: Mon, 10 Jun 2002 11:07:40 -0700
 
-I have no problem with withdrawing the request for 2.4.  It does mean that
-it's almost impossible to write an M:N threading library implementation.
-This doesn't concern me too much; I just want you to be aware this is
-the tradeoff you're making.
-
-I would still like to see it in 2.5.
-
--- 
-Revolutions do not require corporate support.
+   On Sun, Jun 09, 2002 at 09:27:05PM -0700, David S. Miller wrote:
+   > I'm trying to specify this such that knowledge of cachelines and
+   > whatnot don't escape the arch specific code, ho hum...  Looks like
+   > that isn't possible.
+   
+   Perhaps provide macros in asm/pci.h that will:
+   
+You don't understand, I think.  I want to avoid the drivers doing
+any of the "align this, align that" stuff.  I want the allocation
+to do it for them, that way the code is in one place.

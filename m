@@ -1,100 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262875AbREVWik>; Tue, 22 May 2001 18:38:40 -0400
+	id <S262877AbREVWsl>; Tue, 22 May 2001 18:48:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262877AbREVWiU>; Tue, 22 May 2001 18:38:20 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:21263 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262875AbREVWiT>; Tue, 22 May 2001 18:38:19 -0400
-Date: Tue, 22 May 2001 15:37:54 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andries.Brouwer@cwi.nl
-cc: viro@math.psu.edu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] struct char_device
-In-Reply-To: <UTC200105222054.WAA79836.aeb@vlet.cwi.nl>
-Message-ID: <Pine.LNX.4.21.0105221521330.4332-100000@penguin.transmeta.com>
+	id <S262879AbREVWsb>; Tue, 22 May 2001 18:48:31 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:57604 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S262877AbREVWsR>; Tue, 22 May 2001 18:48:17 -0400
+Message-ID: <3B0AEC76.F5B425F5@evision-ventures.com>
+Date: Wed, 23 May 2001 00:47:18 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andries.Brouwer@cwi.nl
+CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com, viro@math.psu.edu
+Subject: Re: [PATCH] struct char_device
+In-Reply-To: <UTC200105222217.AAA79157.aeb@vlet.cwi.nl>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+And if we are at the topic... Those are the places where blk_size[]
+get's
+abused, since it's in fact a property of a FS in fact and not the
+property of
+a particular device... blksect_size is the array describing the physical
+access limits of a device and blk_size get's usually checked against it.
+However due to the bad naming and the fact that this information is
+associated with major/minor number usage same device driver writers got
+*very* confused as you can see below:
 
-On Tue, 22 May 2001 Andries.Brouwer@cwi.nl wrote:
-> 
-> The operations are different, but all bdev/cdev code is identical.
-> 
-> So the choice is between two uglies:
-> (i) have some not entirely trivial amount of code twice in the kernel
-> (ii) have a union at the point where the struct operations
-> is assigned.
-> 
-> I preferred the union.
+./fs/block_dev.c: Here this information should be passed entierly insice
+the request.
 
-I would much prefer a union of pointers over a pointer to a union.
+./fs/partitions/check.c: Here it basically get's reset or ignored
 
-So I'd much rather have the inode have a
 
-	union {
-		struct block_device *block;
-		struct char_device *char;
-	} dev;
+Here it's serving the purpose of a sector size, which is bogous!
 
-and then have people do
+./mm/swapfile.c:#include <linux/blkdev.h> /* for blk_size */
+./mm/swapfile.c:		if (!dev || (blk_size[MAJOR(dev)] &&
+./mm/swapfile.c:		     !blk_size[MAJOR(dev)][MINOR(dev)]))
+./mm/swapfile.c:		if (blk_size[MAJOR(dev)])
+./mm/swapfile.c:			swapfilesize = blk_size[MAJOR(dev)][MINOR(dev)]
 
-	cdev = inode->dev.char;
 
-to get the right information, than to have 
+Here it shouldn't be needed
+./drivers/block/ll_rw_blk.c: 
 
-	union block_char_union {
-		struct block_device block;
-		struct char_device char;
-	};
 
-	.. with struct inode containing ..
-	union block_char_union *dev;
+./drivers/block/floppy.c:	blk_size[MAJOR_NR] = floppy_sizes;
+./drivers/block/nbd.c:	blk_size[MAJOR_NR] = nbd_sizes;
+./drivers/block/rd.c: * and set blk_size for -ENOSPC,     Werner Fink
+<werner@suse.de>, Apr '99
+./drivers/block/amiflop.c:	blk_size[MAJOR_NR] = floppy_sizes;
+./drivers/block/loop.c:	if (blk_size[MAJOR(lodev)])
+./drivers/block/ataflop.c: *   - Set blk_size for proper size checking
+./drivers/block/ataflop.c:	blk_size[MAJOR_NR] = floppy_sizes;
+./drivers/block/cpqarray.c:				drv->blk_size;
+./drivers/block/z2ram.c:	blk_size[ MAJOR_NR ] = z2_sizes;
+./drivers/block/swim3.c:		blk_size[MAJOR_NR] = floppy_sizes;
+./drivers/block/swim_iop.c:	blk_size[MAJOR_NR] = floppy_sizes;
+./drivers/char/raw.c:	if (blk_size[MAJOR(dev)])
+./drivers/scsi/advansys.c:    ASC_DCNT            blk_size;
+./drivers/scsi/sd.c:		blk_size[SD_MAJOR(i)] = NULL;
+./drivers/scsi/sr.c:	blk_size[MAJOR_NR] = sr_sizes;
+./drivers/scsi/sr.c:	blk_size[MAJOR_NR] = NULL;
+./drivers/sbus/char/jsflash.c:	blk_size[JSFD_MAJOR] = jsfd_sizes;
+./drivers/ide/ide-cd.c:	blk_size[HWIF(drive)->major] =
+HWIF(drive)->gd->sizes;
+./drivers/ide/ide-floppy.c: *	Revalidate the new media. Should set
+blk_size[]
+./drivers/acorn/block/fd1772.c:	blk_size[MAJOR_NR] = floppy_sizes;
+./drivers/i2o/i2o_block.c:	blk_size[MAJOR_NR] = i2ob_sizes;
 
-Why? Because if you have a "struct inode", you also have enough
-information to decide _which_ of the two types of pointers you have, so
-you can do the proper dis-ambiguation of the union and properly select
-either 'inode->dev.char' or 'inode->dev.block' depending on other
-information in the inode.
+In the following they are REALLY confusing it and then compensating for
+this misunderstanding in lvm.h by redefining the corresponding default
+values.
 
-In contrast, if you have a pointer to a union, you don't have information
-of which sub-type it is, and you'd have to carry that along some other way
-(for example, by having common fields at the beginning). Which I think is
-broken.
+./drivers/s390/*
 
-So my suggestion for eventual interfaces:
+And then some minor confusions follow...
 
- - have functions like
+./drivers/mtd/mtdblock.c:	blk_size[MAJOR_NR] = NULL;
+./drivers/md/md.c:	if (blk_size[MAJOR(dev)])
+./arch/m68k/atari/stram.c:    blk_size[STRAM_MAJOR] = stram_sizes;
 
-	struct block_dev *bdget(struct inode *);
-	struct char_dev *cdget(struct inode *);
+Basically one should just stop setting blk_size[][] inside *ANY* driver
+and anything should still work fine unless the driver is broken...
 
-   which populate the "inode->dev" union pointer, which in turn is _only_
-   a cache of the lookup. Right now we do this purely based on "dev_t",
-   and I think that is bogus. We should never pass a "dev_t" around
-   without an inode, I think.
-
-   And we should not depend on the "inode->dev.xxxx" pointer being valid all
-   the time, as there is absolutely zero point in initializing the pointer
-   every time the inode is read just because somebody does a "ls -l /dev".
-   Thus the "cache" part above.
-
- - NO reason to try to make "struct block_dev" and "struct char_dev" look
-   similar. They will have some commonality for lookup purposes (that
-   issue is similar, as Andries points out), and maybe that commonality
-   can be separated out into a sub-structure or something. But apart from
-   that, they have absolutely nothing to do with each other, and I'd
-   rather not have them have even a _superficial_ connection.
-
-   Block devices will have the "request queue" pointer, and the size and
-   partitioning information. Character devices currently would not have
-   much more than the operations pointer and name, but who knows..
-
-But the most important thing is to be able to do this in steps. One of the
-reasons Andries has had patches for a long time is that it was never very
-gradual. Al's patch is gradual, and I like that.
-
-		Linus
-
+Well that's the point for another fine kernel experiment I will do
+and report whatever it works really out like this in reality 8-)

@@ -1,37 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263781AbTDXS2i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 14:28:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263788AbTDXS2i
+	id S261783AbTDXSoo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 14:44:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263709AbTDXSoo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 14:28:38 -0400
-Received: from watch.techsource.com ([209.208.48.130]:21238 "EHLO
-	techsource.com") by vger.kernel.org with ESMTP id S263781AbTDXS2i
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 14:28:38 -0400
-Message-ID: <3EA83396.4040904@techsource.com>
-Date: Thu, 24 Apr 2003 14:57:26 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+	Thu, 24 Apr 2003 14:44:44 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:60059 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S261783AbTDXSoo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 14:44:44 -0400
+Message-ID: <3EA8336F.2000609@colorfullife.com>
+Date: Thu, 24 Apr 2003 20:56:47 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Strange behavior in out-of-memory situation
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: bob <bob@watson.ibm.com>
+CC: linux-kernel@vger.kernel.org
+Subject: RE: [patch] printk subsystems
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm using Red Hat kernel 2.4.18-26.7.x.
+Robert wrote:
 
-I ran a program which is trying to suck up all of memory.  I would like 
-to kill the process, but "top", "vmstat", and "ps" all hang when I try 
-to use them.  Also, pressing ctrl-c in the terminal where I can the 
-program won't kill it.
+>There is both a qualitative difference and quantitative difference in a
+>lockless algorithm as described versus one that uses locking.  Most
+>importantly for Linux, these algorithms in practice have better performance
+>characteristics.
+>
+Do you have benchmark numbers that compare "lockless" and locking 
+algorithms on large MP systems?
 
-To an extent, however, the system was still usable, albeit EXTREMELY 
-unresponsive.  Eventually, the program dumped core, and everything 
-returned to norma.
+For example, how much faster is one 'lock;cmpxchg' compared to 
+'spin_lock();if (x==var) var = y;spin_unlock();'.
 
-Is this a known problem?
+So far I assumed that for spinlock that are only held for a few cycles, 
+the cacheline trashing dominates, and not the spinning.
+I've avoided to replace spin_lock+inc+spin_unlock with atomic_inc(). 
+(Just look at the needed memory barriers: smp_mb__after_clear_bit & friends)
+
+RCU uses per-cpu queues that are really lockless and avoid the cache 
+trashing, that is a real win.
+
+--
+    Manfred
 

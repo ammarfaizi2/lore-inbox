@@ -1,65 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265268AbRF0UZg>; Wed, 27 Jun 2001 16:25:36 -0400
+	id <S265152AbRF0Uuu>; Wed, 27 Jun 2001 16:50:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265242AbRF0UZ0>; Wed, 27 Jun 2001 16:25:26 -0400
-Received: from umail.unify.com ([204.163.170.2]:41891 "EHLO umail.unify.com")
-	by vger.kernel.org with ESMTP id <S265180AbRF0UZR>;
-	Wed, 27 Jun 2001 16:25:17 -0400
-Message-ID: <419E5D46960FD211A2D5006008CAC79902E5C326@pcmailsrv1.sac.unify.com>
-From: "Manuel A. McLure" <mmt@unify.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Oops at boot with 2.4.5
-Date: Wed, 27 Jun 2001 13:25:08 -0700
+	id <S265242AbRF0Uuk>; Wed, 27 Jun 2001 16:50:40 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:14856 "EHLO
+	mailout02.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S265152AbRF0Uu1>; Wed, 27 Jun 2001 16:50:27 -0400
+Message-ID: <3B3A4748.D7B9168C@t-online.de>
+Date: Wed, 27 Jun 2001 22:51:20 +0200
+From: Gunther.Mayer@t-online.de (Gunther Mayer)
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Andre Hedrick <andre@aslab.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Patch(2.4.5): Fix PCMCIA ATA/IDE freeze (w/ PCI add-in cards)
+In-Reply-To: <Pine.LNX.4.04.10106271244130.21460-100000@mail.aslab.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When I use an initrd, sometimes when warm-booting I get an "Unable to handle
-kernel NULL pointer dereference"  OOPS just after the "Trying to unmount old
-root ..." message. I ran gdb on vmlinux and got the following stack trace:
+Andre Hedrick wrote:
+> 
+> PARANIOA.
 
-0xc0180516 <rd_ioctl+118>:      mov    0x10(%eax),%eax
-0xc0137c37 <ioctl_by_bdev+135>: mov    %edi,0xc(%ebx)
-0xc01861a0 <start_request+384>: add    $0xc,%esp
-0xc01864d3 <ide_do_request+659>:        mov    %eax,%ebx
-0xc0112949 <schedule+617>:      pop    %ebp
-0xc0132be1 <__refile_buffer+97>:        pop    %ecx
-0xc018047a <rd_make_request+266>:       xor    %eax,%eax
-0xc01347eb <try_to_free_buffers+267>:   mov    $0x1,%eax
-0xc0133062 <block_flushpage+114>:       test   %eax,%eax
-0xc0123905 <truncate_list_pages+357>:   mov    $0x1,%eax
-0xc01431af <destroy_inode+47>:  pop    %eax
-0xc01447b0 <iput+320>:  pop    %ecx
-0xc0137e46 <blkdev_put+118>:    add    $0xc,%esp
-0xc0135edc <kill_super+236>:    add    $0xc,%esp
-0xc0105000 <do_linuxrc>:        push   %edi
-0xc0117ba3 <sys_waitpid+19>:    add    $0x10,%esp
-0xc0105000 <do_linuxrc>:        push   %edi
-0xc01051e8 <prepare_namespace+264>:     pop    %edx
-0xc010520e <init+14>:   call   0xc0111a60 <free_initmem>
-0xc0105000 <do_linuxrc>:        push   %edi
-0xc01056c6 <kernel_thread+38>:  mov    $0x1,%eax
-0xc0105200 <init>:      push   %ebp
+This is not a valid reason.
 
-A reset at this point usually (but not always) succeeds in booting, and once
-the machine succeeds in booting it is completely stable (for my admittedly
-low load).
+This clearly fixes a bug in linux. Note: the irq disable
+is local to ide-cs. Are you paranoid enough to believe
+enabling the irq by writing globally to the control register that
+existed since ATA will have ill effects? 
 
-Hardware is an Athlon Tbird 900MHz (not overclocked) on an MSI K7T Turbo-R
-motherboard. I've worked around this by building my SCSI driver into the
-kernel and removing the need for an initrd.
+You claim the relevant PCMCIA ATA behaviour is not ATA(>3?) compliant,
+however you didn`t yet give any facts to support this !
 
-Kernel is official 2.4.5 built with Athlon optimizations.
-
---
-Manuel A. McLure - Unify Corp. Technical Support <mmt@unify.com>
-Zathras is used to being beast of burden to other peoples needs. Very sad
-life. Probably have very sad death, but at least there is symmetry.
- 
+You claim this locks the driver, again no facts.
 
 
+> 
+> Remember that ATAPI is generally screwed beyond reality, so adjusting the
+> probe code in general (global) is a bad thing.
+...
+> On Wed, 27 Jun 2001, Alan Cox wrote:
+> 
+> > > obsoleting ATA-2 did their attention at CFA become alarmed.  I agree that
+> > > there needs to be a fix, but not at the price of locking the rest of the
+> > > driver.  Since we now the identity of the device prior to assigned the
+> > > interrupt we can handle the execption, but you do not go around blanket
+> > > wacking the control register of all devices.
 
+The proposed patch is very simple (as per Linus' liking). When considering to
+install an earlier (and  global) irq handler I believe you can see
+this will impose a much greater risk !
+
+> >
+> > I dont see why it locks up the driver ?

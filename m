@@ -1,129 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263280AbTECJWC (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 05:22:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263281AbTECJWC
+	id S263282AbTECJao (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 05:30:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263285AbTECJao
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 05:22:02 -0400
-Received: from AMarseille-201-1-2-221.abo.wanadoo.fr ([193.253.217.221]:34343
-	"EHLO gaston") by vger.kernel.org with ESMTP id S263280AbTECJWA
+	Sat, 3 May 2003 05:30:44 -0400
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:24448 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP id S263282AbTECJam
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 05:22:00 -0400
-Subject: Reserving an ATA interface
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1051954404.4101.30.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 03 May 2003 11:33:24 +0200
+	Sat, 3 May 2003 05:30:42 -0400
+Message-Id: <200305030943.h439h41I015669@post.webmailer.de>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: Compile error kernel 2.4.20-rc1
+To: Anders Karlsson <anders@trudheim.com>, linux-kernel@vger.kernel.org
+Date: Sat, 03 May 2003 11:40:23 +0200
+References: <20030503051007$7bb4@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Bart, Alan !
+Anders Karlsson wrote:
 
-I've been fighting with a problem with both 2.4 and 2.5 for which I
-would have a workaround, but I'd like to have your point of
-view on it first as this code is rather messy.
+> Just tried to compile kernel 2.4.21-rc1 and I get the compile error as
+> per attached file 'compile_error.txt'. The config file used is also
+> attached. This happened while doing 'make rpm'. This is being compiled
+> on SuSE Pro 8.2 which is using GCC 3.3.
+> 
+> I'll happily try out patches.
 
-So the problem is all about deciding if an hwif slot is 'owned' by
-a driver, even after ide_unregister is called, after probe, etc...
-and problems with the way the current scheme works (and differences
-between the way PCI interfaces "pick" free slots vs. ide_register_hw
-does)
+Try this one. Note that you can use 'make -k vmlinux modules' to find
+all the broken files in one run.
 
-So, let's first explain the various cases I have to deal with in the
-context of ide/ppc/pmac.c.
+        Arnd <><
 
-1 - Normal case: interface is non hotswap, drive is present at startup,
-things just work normally
-
-2 - Empty interface: at boot, en empty interface (no drive) is found.
-This happens a lot since Apple's ASIC often have at least one spare
-ATA/33 interface that isn't wired to anything. This hwif is filled
-up for ide/ppc/pmac (MMIO iops, chipset = ide_pmac, etc...).
-hwif->present is cleared by the common probe code
-
-3 - Hotswap interface: This one may or may not have devices plugged
-at boot (laptop media bay). The hwif is filled with MMIO iops etc...
-but since it may not have the CD drive plugged at boot, hwif->present
-may be cleared by the common probe code.
-
-So now, the problems:
-
- - In both case 2 and 3, hwif->present may be cleared. That means
-that something calling ide_register_hw() (like ide-cs for example)
-will eventually pick up that hwif slot and try to use it. However
-the hwif beeing filled for ide/ppc/pmac.c (MMIO iops among other)
-it will usually not work and just crash, since ide_register_hw()
-will _not_ reinit the fields. Also, in the case of the hotswap
-interface (3), It's simply not acceptable for the slot to be re-used
-(while it is for case 2) since you don't want the CD-ROM location
-to change, and because ide-pmac will have internally setup a data
-structure for this hwif that is tied to a given index that was
-obtained at boot.
-
-So that leads to 2 actual needs: One, to deal with case 2 & re-use
-of the hwif by ide-cs (among others) is to have ide_register_hw
-actually clear the interface calling init_hwif_data() at some
-point when picking a "new" slot. The other one is to be able to
-"mark" an interface as "held" by the driver (hotswap bay that
-don't want to change numbering).
-
-The simplest solution I have in mind is to add an hwif flag,
-called "hold" (or whatever better name you find). Drivers like
-ide/ppc/pmac.c would set this flag for the "hotswap" media bay
-interface, and not for others.
-
-The only change to the core code would then be for ide_register_hw
-to 'skip' those when searching for an available slot, and to call
-init_hwif_data when (!hwif->present && !hwif->hold) to handle case 2
-where the iops & other hwif fields (mmio among others) need to be
-reset to initial/legacy state.
-
-That would allow "empty" fixed pmac interfaces to be released for
-use by ide-cs, while the hotswap media bay one stay reserved.
-
-That would give us a patch like that:
-
-===== include/linux/ide.h 1.47 vs edited =====
---- 1.47/include/linux/ide.h	Sun Apr 27 00:11:51 2003
-+++ edited/include/linux/ide.h	Sat May  3 11:30:34 2003
-@@ -1022,6 +1022,7 @@
+--- ./drivers/atm/ambassador.c.bak      2003-05-03 11:31:39.000000000 +0200
++++ ./drivers/atm/ambassador.c  2003-05-03 11:34:57.000000000 +0200
+@@ -290,12 +290,12 @@
+ /********** microcode **********/
  
- 	unsigned	noprobe    : 1;	/* don't probe for this interface */
- 	unsigned	present    : 1;	/* this interface exists */
-+	unsigned	hold       : 1; /* this interface is always present */
- 	unsigned	serialized : 1;	/* serialized all channel operation */
- 	unsigned	sharing_irq: 1;	/* 1 = sharing irq with another hwif */
- 	unsigned	reset      : 1;	/* reset after probe */
-===== drivers/ide/ide.c 1.45 vs edited =====
---- 1.45/drivers/ide/ide.c	Sun Apr 27 00:11:50 2003
-+++ edited/drivers/ide/ide.c	Sat May  3 11:32:35 2003
-@@ -920,8 +920,8 @@
- 		}
- 		for (index = 0; index < MAX_HWIFS; ++index) {
- 			hwif = &ide_hwifs[index];
--			if ((!hwif->present && !hwif->mate && !initializing) ||
--			    (!hwif->hw.io_ports[IDE_DATA_OFFSET] && initializing))
-+			if (!hwif->hold && ((!hwif->present && !hwif->mate && !initializing) ||
-+			    (!hwif->hw.io_ports[IDE_DATA_OFFSET] && initializing)))
- 				goto found;
- 		}
- 		for (index = 0; index < MAX_HWIFS; index++)
-@@ -931,6 +931,8 @@
- found:
- 	if (hwif->present)
- 		ide_unregister(index);
-+	else if (!hwif->hold)
-+		init_hwif_data(index);
- 	if (hwif->present)
- 		return -1;
- 	memcpy(&hwif->hw, hw, sizeof(*hw));
-
-
-
+ #ifdef AMB_NEW_MICROCODE
+-#define UCODE(x) UCODE1(atmsar12.,x)
++#define UCODE(x) UCODE1(atmsar12,x)
+ #else
+-#define UCODE(x) UCODE1(atmsar11.,x)
++#define UCODE(x) UCODE1(atmsar11,x)
+ #endif
+ #define UCODE2(x) #x
+-#define UCODE1(x,y) UCODE2(x ## y)
++#define UCODE1(x,y) UCODE2(x.y)
+ 
+ static u32 __initdata ucode_start = 
+ #include UCODE(start)
+--- ./drivers/net/tokenring/olympic.c.bak       2003-05-03 11:22:36.000000000 +0200
++++ ./drivers/net/tokenring/olympic.c   2003-05-03 11:22:48.000000000 +0200
+@@ -655,8 +655,7 @@
+        printk(" stat_ring[7]: %p\n", &(olympic_priv->olympic_rx_status_ring[7])  );
+ 
+        printk("RXCDA: %x, rx_ring[0]: %p\n",readl(olympic_mmio+RXCDA),&olympic_priv->olympic_rx_ring[0]);
+-       printk("Rx_ring_dma_addr = %08x, rx_status_dma_addr =
+-%08x\n",olympic_priv->rx_ring_dma_addr,olympic_priv->rx_status_ring_dma_addr) ; 
++       printk("Rx_ring_dma_addr = %08x, rx_status_dma_addr = %08x\n",olympic_priv->rx_ring_dma_addr,olympic_priv->rx_status_ring_dma_addr) ; 
+ #endif
+ 
+        writew((((readw(olympic_mmio+RXENQ)) & 0x8000) ^ 0x8000) | i,olympic_mmio+RXENQ);
+diff -ur kernel-source-2.4.20-hammer-orig/drivers/net/irda/ma600.c kernel-source-2.4.20-hammer/drivers/net/irda/ma600.c
+--- kernel-source-2.4.20-hammer-orig/drivers/net/irda/ma600.c   2002-11-29 00:53:13.000000000 +0100
++++ kernel-source-2.4.20-hammer/drivers/net/irda/ma600.c        2003-04-24 11:26:45.000000000 +0200
+@@ -53,7 +53,7 @@
+        if(!(expr)) { \
+                printk( "Assertion failed! %s,%s,%s,line=%d\n",\
+                #expr,__FILE__,__FUNCTION__,__LINE__); \
+-               ##func}
++               func}
+ #endif
+ 
+ /* convert hex value to ascii hex */
+diff -ur kernel-source-2.4.20-hammer-orig/drivers/net/wan/sdla_chdlc.c kernel-source-2.4.20-hammer/drivers/net/wan/sdla_chdlc.c
+--- kernel-source-2.4.20-hammer-orig/drivers/net/wan/sdla_chdlc.c       2002-11-29 00:53:14.000000000 +0100
++++ kernel-source-2.4.20-hammer/drivers/net/wan/sdla_chdlc.c    2003-04-24 11:28:24.000000000 +0200
+@@ -591,8 +591,8 @@
+        
+ 
+                if (chdlc_set_intr_mode(card, APP_INT_ON_TIMER)){
+-                       printk (KERN_INFO "%s: 
+-                               Failed to set interrupt triggers!\n",
++                       printk (KERN_INFO "%s: "
++                               "Failed to set interrupt triggers!\n",
+                                card->devname);
+                        return -EIO;    
+                }
+--- ./drivers/sound/cs46xx.c.orig       2003-04-25 01:53:02.000000000 +0200
++++ ./drivers/sound/cs46xx.c    2003-04-25 01:53:26.000000000 +0200
+@@ -947,8 +947,8 @@
+ 
+ struct InitStruct
+ {
+-    u32 long off;
+-    u32 long val;
++    u32 off;
++    u32 val;
+ } InitArray[] = { {0x00000040, 0x3fc0000f},
+                   {0x0000004c, 0x04800000},
+ 

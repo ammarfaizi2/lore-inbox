@@ -1,42 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313679AbSDPNyS>; Tue, 16 Apr 2002 09:54:18 -0400
+	id <S313681AbSDPNz1>; Tue, 16 Apr 2002 09:55:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313681AbSDPNyR>; Tue, 16 Apr 2002 09:54:17 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:63227 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S313679AbSDPNyR>;
-	Tue, 16 Apr 2002 09:54:17 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Tue, 16 Apr 2002 15:54:15 +0200 (MEST)
-Message-Id: <UTC200204161354.g3GDsFO28323.aeb@smtp.cwi.nl>
-To: akpm@zip.com.au, linux-kernel@vger.kernel.org
-Subject: readahead
+	id <S313682AbSDPNz0>; Tue, 16 Apr 2002 09:55:26 -0400
+Received: from elin.scali.no ([62.70.89.10]:3851 "EHLO elin.scali.no")
+	by vger.kernel.org with ESMTP id <S313681AbSDPNzZ>;
+	Tue, 16 Apr 2002 09:55:25 -0400
+Subject: Re: Why HZ on i386 is 100 ?
+From: Terje Eggestad <terje.eggestad@scali.com>
+To: Mark Mielke <mark@mark.mielke.cc>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+        Liam Girdwood <l_girdwood@bitwise.co.uk>,
+        BALBIR SINGH <balbir.singh@wipro.com>,
+        William Olaf Fraczyk <olaf@navi.pl>,
+        Lee Irwin III <wli@holomorphy.com>
+In-Reply-To: <20020416093824.A4025@mark.mielke.cc>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 16 Apr 2002 15:55:21 +0200
+Message-Id: <1018965321.13507.39.camel@pc-16.office.scali.no>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[readahead.c has badly readable comments, on a standard
-80-column display: many lines have a size just slightly
-over 80 chars]
+On Tue, 2002-04-16 at 15:38, Mark Mielke wrote:
+> On Tue, Apr 16, 2002 at 03:35:19PM +0200, Terje Eggestad wrote:
+> > I seem to recall from theory that the 100HZ is human dependent. Any
+> > higher and you would begin to notice delays from you input until
+> > whatever program you're talking to responds. 
+> 
+> I suspect by "higher" you mean "each tick takes up more of a second".
+> 
+> As in, if the HZ is *less* than 100HZ, you would notice delays when
+> typing, or similar.
+> 
 
-In the good old days we had tunable readahead.
-Very good, especially for special purposes.
+Quote right, my typo.
 
-I recall the days where I tried to get something off
-a bad SCSI disk, and the kernel would die in the retries
-trying to read a bad block, while the data I needed was
-not in the block but just before. Set readahead to zero
-and all was fine.
+> 
+> mark
+> 
+> -- 
+> mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+> .  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+> |\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+> |  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+> 
+>   One ring to rule them all, one ring to find them, one ring to bring them all
+>                        and in the darkness bind them...
+> 
+>                            http://mark.mielke.cc/
+-- 
+_________________________________________________________________________
 
-Yesterday evening I was playing with my sddr09 driver,
-reading SmartMedia cards, and found to my dismay that
-the kernel wants to do a 128 block readahead.
-Not only is that bad on a slow medium, one is waiting
-a noticeable time for unwanted data, but it is worse
-that setting the readahead no longer works.
+Terje Eggestad                  mailto:terje.eggestad@scali.no
+Scali Scalable Linux Systems    http://www.scali.com
 
-[Indeed, it is very desirable to be able to set readahead
-to zero. It is also desirable to be able to set it to a
-small value. Today on 2.5.8 both are impossible, readahead.c
-insists on a minimum readahead of 16 sectors.]
+Olaf Helsets Vei 6              tel:    +47 22 62 89 61 (OFFICE)
+P.O.Box 150, Oppsal                     +47 975 31 574  (MOBILE)
+N-0619 Oslo                     fax:    +47 22 62 89 51
+NORWAY            
+_________________________________________________________________________
 
-Andries

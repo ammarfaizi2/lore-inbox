@@ -1,57 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136493AbREJNiX>; Thu, 10 May 2001 09:38:23 -0400
+	id <S136541AbREJNmy>; Thu, 10 May 2001 09:42:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136505AbREJNiO>; Thu, 10 May 2001 09:38:14 -0400
-Received: from mg03.austin.ibm.com ([192.35.232.20]:12426 "EHLO
-	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S136493AbREJNiE>; Thu, 10 May 2001 09:38:04 -0400
-Message-ID: <3AFA99C5.1920AA2D@austin.ibm.com>
-Date: Thu, 10 May 2001 08:38:13 -0500
-From: "Andrew M. Theurer" <atheurer@austin.ibm.com>
-X-Mailer: Mozilla 4.76 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Bruce Allan <bruce.allan@us.ibm.com>
-CC: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-        samba-technical@samba.org
-Subject: Re: Linux 2.4 Scalability, Samba, and Netbench
-In-Reply-To: <OF59641CC4.CEBD69DC-ON88256A47.007BCFFD@LocalDomain>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S136514AbREJNme>; Thu, 10 May 2001 09:42:34 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:62902 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S136505AbREJNma>; Thu, 10 May 2001 09:42:30 -0400
+Date: Thu, 10 May 2001 14:42:28 +0100
+From: Tim Waugh <twaugh@redhat.com>
+To: Jean-Luc Coulon <jean-luc.coulon@wanadoo.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.2.xx ? messages related to parport printer ?
+Message-ID: <20010510144228.V12569@redhat.com>
+In-Reply-To: <3AF93B78.A55581E9@wanadoo.fr>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="DWqF7Vcvgq9cBwZ0"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3AF93B78.A55581E9@wanadoo.fr>; from jean-luc.coulon@wanadoo.fr on Wed, May 09, 2001 at 02:43:36PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bruce Allan wrote:
-> 
-> Andrew Theurer wrote:
-> > I do have kernprof ACG and lockmeter for a 4P run.  We saw no
-> > significant problems with lockmeter.  csum_partial_copy_generic was the
-> > highest % in profile, at 4.34%.  I'll see if we can get some space on
-> > http://lse.sourceforge.net to post the test data.
-> 
-> The Netfinity system that you are using has two different supported GigE
-> adapters.  I assume you are using one of these types - Netfinity Gigabit
-> Ethernet Adapter (19K4401) and the Netfinity Gigabit Ethernet SX Server
-> Adapter (06P3701); using the acenic.c and e1000.c drivers, respectively.
-> >From what I understand after initial perusal of the two drivers, the former
-> has receive checksumming support on the adapter itself while the latter,
-> the one you are using, does not support hardware checksumming (at least, it
-> is not enabled by the driver).
 
-Bruce,
+--DWqF7Vcvgq9cBwZ0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-According to Intel's driver for Pro/1000, it supports checksum on Rx via
-module option "XsunRX=1".  I have not tried this yet because we are
-waiting on our Gbps switch hardware.  
-> Are you able to re-run your tests with GigE adapters that support
-> checksumming on the hardware instead of doing it in the kernel?  If not, I
-> will be running similar tests in a very similar configuration (with the
-> 19K4401 adapters) in the near future and can share results if you'd like.
+On Wed, May 09, 2001 at 02:43:36PM +0200, Jean-Luc Coulon wrote:
 
-Yes, hopefully we will be running the new setup (64 clients, many Gbps
-adapters) in about 2-3 weeks.  At that point I'd like to get some
-results for 8-way as well.  It would definitely be a good idea to
-compare results.
+> May  9 13:14:59 debian-f5ibh kernel: parport0: Unspecified, EPSON Styl
 
-Andrew Theurer
+Huh.  Does it do the same thing every time you load parport_probe?
+Does it always get truncated in the same place?
+
+> With 2.4.4-ac6 and 2.4.xx, I get :
+> ----------------------------------
+> May  9 14:19:44 debian-f5ibh kernel: parport0: Printer, EPSON Stylus
+> COLOR 500
+
+Well, at least it seems to work in 2.4.x.
+
+I wonder what deviceid makes of it:
+
+<URL:ftp://people.redhat.com/twaugh/parport/deviceid-0.3.tar.gz>
+
+Tim.
+*/
+
+--DWqF7Vcvgq9cBwZ0
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6+prEONXnILZ4yVIRAiwtAJ48UcKNGsT6fGtXnZTFSqLSxhLOsACfe1dj
+udJidCz32JybrbkPBHa0vaM=
+=SYI5
+-----END PGP SIGNATURE-----
+
+--DWqF7Vcvgq9cBwZ0--

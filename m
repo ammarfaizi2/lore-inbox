@@ -1,95 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262359AbUKKSWB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262339AbUKKSaV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262359AbUKKSWB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 13:22:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbUKKSNo
+	id S262339AbUKKSaV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 13:30:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262306AbUKKRhu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 13:13:44 -0500
-Received: from relay01.pair.com ([209.68.5.15]:62224 "HELO relay01.pair.com")
-	by vger.kernel.org with SMTP id S262345AbUKKSM4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 13:12:56 -0500
-X-pair-Authenticated: 24.241.238.70
-Message-ID: <4193ABA5.2070606@cybsft.com>
-Date: Thu, 11 Nov 2004 12:12:53 -0600
-From: "K.R. Foley" <kr@cybsft.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Remi Colinet <remi.colinet@free.fr>
-CC: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm3-V0.7.25-0
-References: <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <20041103105840.GA3992@elte.hu> <20041106155720.GA14950@elte.hu> <20041108091619.GA9897@elte.hu> <20041108165718.GA7741@elte.hu> <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu> <4193D21A.7010809@free.fr>
-In-Reply-To: <4193D21A.7010809@free.fr>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 11 Nov 2004 12:37:50 -0500
+Received: from peabody.ximian.com ([130.57.169.10]:40422 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S262308AbUKKRVu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 12:21:50 -0500
+Subject: Re: mmap vs. O_DIRECT
+From: Robert Love <rml@novell.com>
+To: Avi Kivity <avi@argo.co.il>
+Cc: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <41939F21.2040008@argo.co.il>
+References: <cmtsoo$j55$1@gatekeeper.tmr.com>
+	 <1100121230.4739.1.camel@betsy.boston.ximian.com> <41937C1A.30800@tmr.com>
+		 <1100187716.5358.5.camel@localhost> <1100193219.5358.25.camel@localhost>
+	  <41939F21.2040008@argo.co.il>
+Content-Type: text/plain
+Date: Thu, 11 Nov 2004 12:22:36 -0500
+Message-Id: <1100193756.5358.26.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remi Colinet wrote:
-> Ingo Molnar wrote:
-> 
->> i have released the -V0.7.25-0 Real-Time Preemption patch, which can be
->> downloaded from the usual place:
->>
->>    http://redhat.com/~mingo/realtime-preempt/
->>
->>
->>  
->>
-> Hi,
-> 
-> I'm getting the following warning with V0.7.25-0
-> 
-> INSTALL sound/drivers/opl3/snd-opl3-lib.ko
-> INSTALL sound/drivers/opl3/snd-opl3-synth.ko
-> INSTALL sound/drivers/snd-dummy.ko
-> INSTALL sound/drivers/snd-mtpav.ko
-> INSTALL sound/drivers/snd-serial-u16550.ko
-> INSTALL sound/drivers/snd-virmidi.ko
-> INSTALL sound/pci/snd-sonicvibes.ko
-> if [ -r System.map ]; then /sbin/depmod -ae -F System.map 
-> 2.6.10-rc1-mm3-RT-V0.7.25-0; fi
-> WARNING: 
-> /lib/modules/2.6.10-rc1-mm3-RT-V0.7.25-0/kernel/drivers/char/rtc.ko 
-> needs unknown symbol rtc_close_event
-> WARNING: 
-> /lib/modules/2.6.10-rc1-mm3-RT-V0.7.25-0/kernel/drivers/char/rtc.ko 
-> needs unknown symbol rtc_open_event
-> [root@tigre01 im]#
-> 
-> .config file attached
-> 
-> Remi
-> 
+On Thu, 2004-11-11 at 19:19 +0200, Avi Kivity wrote:
 
-Does the patch below fix this?
+> Or you can use aio with O_DIRECT.
 
-kr
+Ah, indeed.  I was thinking from the kernel's perspective.
 
---- linux-2.6.10-rc1-mm3/drivers/char/rtc.c.orig        2004-11-11 
-11:35:00.898841565 -0600
-+++ linux-2.6.10-rc1-mm3/drivers/char/rtc.c     2004-11-11 
-12:07:54.019642611 -0600
-@@ -863,7 +863,9 @@ 
-                 if(rtc_status & RTC_IS_OPEN)
-                 goto out_busy;
-+#ifdef RTC_IRQ 
-                 rtc_open_event();
-+#endif 
-                 rtc_status |= RTC_IS_OPEN;
- 
-                  rtc_irq_data = 0;
-@@ -920,7 +922,9 @@ 
-                 rtc_irq_data = 0;
-         rtc_status &= ~RTC_IS_OPEN; 
-                  spin_unlock_irq (&rtc_lock);
-+#ifdef RTC_IRQ 
-                 rtc_close_event();
-+#endif 
-                 return 0;
-  }
+	Robert Love
 
 

@@ -1,96 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262114AbUCIUJu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 15:09:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbUCIUJt
+	id S262145AbUCIULe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 15:11:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbUCIUJy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 15:09:49 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:62131 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262114AbUCIUIL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 15:08:11 -0500
-Date: Tue, 9 Mar 2004 21:08:10 +0100
-From: Jan Kara <jack@suse.cz>
-To: Juan Pablo Abuyeres <jpabuyer@tecnoera.com>
-Cc: mason@suse.com,
-       Damian =?iso-8859-2?Q?Wojs=B3aw?= <damian.wojslaw@eltekenergy.pl>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.3 + reiser + quota support
-Message-ID: <20040309200810.GB2222@atrey.karlin.mff.cuni.cz>
-References: <Pine.LNX.4.44.0403051232470.3537-100000@118.eltek> <1078497744.27546.7.camel@blackbird.tecnoera.com> <20040308143612.GA19628@atrey.karlin.mff.cuni.cz> <1078762136.5333.25.camel@blackbird.tecnoera.com> <20040308163552.GA17574@atrey.karlin.mff.cuni.cz> <1078847334.16467.30.camel@blackbird.tecnoera.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1078847334.16467.30.camel@blackbird.tecnoera.com>
-User-Agent: Mutt/1.5.4i
+	Tue, 9 Mar 2004 15:09:54 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:61058 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S262132AbUCIUIt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 15:08:49 -0500
+Message-ID: <404E258E.1030600@tmr.com>
+Date: Tue, 09 Mar 2004 15:14:06 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Len Brown <len.brown@intel.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Hyper-threaded pickle
+References: <1wfBD-6GI-9@gated-at.bofh.it> <1whjQ-8sH-25@gated-at.bofh.it> <1wMeo-Sr-3@gated-at.bofh.it> <1xlbI-6Rl-5@gated-at.bofh.it>
+In-Reply-To: <1xlbI-6Rl-5@gated-at.bofh.it>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, 2004-03-08 at 13:35, Jan Kara wrote:
-> > > On Mon, 2004-03-08 at 11:36, Jan Kara wrote:
-> > > > > On Fri, 2004-03-05 at 08:33, Damian Wojs³aw wrote:
-> > > > > > > [root@test mnt]#
-> > > > > > > and /var/log/messages says:
-> > > > > > > Mar  4 19:15:46 test kernel: reiserfs_getopt: unknown option "usrquota"
-> > > > > > 
-> > > > > > 	If I remember correclty, reiserfs needs an additional patch to
-> > > > > > support quota. I know this patch exists for 2.4.X kernels.
-> > > > > 
-> > > > > Yes, patches to support quota exist for 2.4.x kernels, because 2.4.x is
-> > > > > not supposed to support quota for reiserfs in the vanilla distribution.
-> > > > > Those patches are at
-> > > > > ftp://ftp.suse.com/pub/people/mason/patches/reiserfs/quota-2.4
-> > > > > and work fine.
-> > > > > 
-> > > > > But kernel 2.6.x is supposed to support quota for ext2, ext3 _and_
-> > > > > reiserfs without any patch. So I am doing something wrong (I hope), or
-> > > > > there is a bug around here.
-> > > >   Actually the text in Configure is a bit misleading. In 2.6 you also
-> > > > need an additional patch for ReiserFS. Chris Mason created it a few days
-> > > > ago so it might be available at his FTP..
-> > > > 								Honza
-> > > 
-> > > that would be it
-> > > ftp://ftp.suse.com/pub/people/mason/patches/data-logging/experimental/2.6.3
-> > > 
-> > > Thanks!
-> > > 
-> > > ps: how much should I be intimidated by that "experimental" directory
-> > > name?
-> >   Because the patch was created a few days ago it is not very widely
-> > tested (I mean tested in the real environment..)... That is the reason
-> > why it is in experimental (at least I'd guess :)).
-> > 
-> > 								Honza
+Len Brown wrote:
+>>>Re: old systems -- we use dmi_scan to disable ACPI on systems by default
+>>>on systems older than 1/1/2001.
+>>
+>>What happens for the no-DMI case?
 > 
-> Well, it didn't work. I applied patches and everything, but quota is
-> still non-operative for reiserfs.
 > 
-> [root@test mnt]# mount -o defaults,usrquota /dev/hdc1 test
-> mount: wrong fs type, bad option, bad superblock on /dev/hdc1,
->        or too many mounted file systems
-> [root@test mnt]# tail -1 /var/log/messages
-> Mar 10 12:29:59 test kernel: reiserfs_getopt: unknown option "usrquota"
-> [root@test mnt]#
-> [root@test mnt]# uname -a
-> Linux test.tecnoera.com 2.6.3 #1 SMP Wed Mar 10 11:56:44 CLST 2004 i686
-> i686 i386 GNU/Linux
-> [root@test mnt]# grep -i quota /usr/src/linux-2.6.3/.config
-> # CONFIG_XFS_QUOTA is not set
-> CONFIG_QUOTA=y
-> CONFIG_QUOTACTL=y
-> [root@test mnt]#
+> When DMI is not present, dmi_scan is a no-op -- so ACPI will run in
+> whatever default the system is set to -- eg. "off" for FC1, and "on" for
+> FC2-test1.
 > 
-> If there is any test you want me to perform on this machine, I can do
-> it.
-  ftp.suse.com is currently inaccessible so I cannot look at the patch
-but it seems like patch contains only data-logging changes and not the
-quota ones. I'm giving a CC to Chris so that he can say you what the
-situation actually is.
+> We've found in practice that dmi_scan has been pretty effective at
+> identifying the set of systems new enough to have an ACPI enabled BIOS
+> but old enough that the ACPI implementation is hopeless.  Though we've
+> had many reports of 1/1/2001 being a bit *too* conservative -- disabling
+> ACPI on systems where ACPI works fine.  Indeed, there is a bugzilla
+> requesting a "white-list" to enable exceptions to this date.  I'm not
+> enthusiastic about that plan, however.  I figure there are more 3-year
+> old boxes that have been running Linux w/o ACPI than there are those
+> which have; and I'd rather spend my ergs on the current and upcoming
+> boxes where vendors are more willing to update a broken BIOS...
 
-								Honza
+Even though I have some boxes which are hurt by this, I have to agree, 
+although I wouldn't be unhappy if there were a few more options to 
+enable just parts of ACPI. There are more important things, however, and 
+since I can live with ACPI=force or no acpi at all it's an annoyance 
+rather than an issue.
 
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+I have a few machines which are never going to 2.6 because their ACPI is 
+totally broken and 2.6 APC no longer functions to turn the machine off. 
+Since I expect 2.4 to be viable longer than the machines, I have no 
+issues with that, either. If I don't have time to look at it why should 
+I ask anyone else?

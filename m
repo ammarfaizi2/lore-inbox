@@ -1,39 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261967AbTLLWRi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 17:17:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbTLLWRh
+	id S262446AbTLLW2x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 17:28:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262522AbTLLW2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 17:17:37 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:44444 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261967AbTLLWRd (ORCPT
+	Fri, 12 Dec 2003 17:28:53 -0500
+Received: from fw.osdl.org ([65.172.181.6]:60096 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262446AbTLLW2k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 17:17:33 -0500
-Date: Fri, 12 Dec 2003 14:17:24 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Ken <ken@nova.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.4][PATCH] Xeon HT - SMT+SMP interrupt balancing
-Message-ID: <59800000.1071267444@flay>
-In-Reply-To: <3FDA1B5B.8090506@nova.org>
-References: <3FD89EF5.30101@nova.org> <1316550000.1071163004@[10.10.2.4]> <3FDA1B5B.8090506@nova.org>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Fri, 12 Dec 2003 17:28:40 -0500
+Message-Id: <200312122228.hBCMSOZ28974@mail.osdl.org>
+Date: Fri, 12 Dec 2003 14:28:21 -0800 (PST)
+From: markw@osdl.org
+Subject: more dbt-2 results hyperthreading on linux-2.6.0-test11
+To: piggin@cyberone.com.au
+cc: mingo@redhat.com, linux-kernel@vger.kernel.org,
+       pgsql-hackers@postgresql.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Nitin's patch is in 2.6 - does that work OK for you?
->> 
-> 
-> 	Thanks, Martin -- I wish I could test it.  As of -test11, the Adaptec/DPT I2O driver still doesn't build and I need that on this box.   I think I understand the error messages, but fixing them is beyond me.   It's obviously a known issue, so I don't think I can provide any new info on it.
-> 
-> 	Too bad for me -- I'm really looking forward to trying it and stuff like the NAPI for the e1000!
+Hi Nick,
 
-The code has been in for ages - so you should be able to use test9 
-or test10 just fine, if that works better from a driver point of view.
+Here are the results of the comparisons I said I would do.
 
-M.
+no-hyperthreading:
+	http://developer.osdl.org/markw/dbt2-pgsql/282/
+	- metric 2288.43
+	- baseline
 
+hyperthreading:
+	http://developer.osdl.org/markw/dbt2-pgsql/278/
+	- metric 1944.42
+	- 15% throughput decrease
+	
+hyperthreading w/ Ingo's C1 patch:
+	http://developer.osdl.org/markw/dbt2-pgsql/277/
+	- metric 1978.39
+	- 13.5% throughput decrease
+
+hyperthreading w/ Nick's w26 patch:
+	http://developer.osdl.org/markw/dbt2-pgsql/274/
+	- metric 1955.91
+	- 14.5% throughput decrease
+
+It looks like there is some marginal benefit to your or Ingo's patches
+with a workload like DBT-2.  I probably don't understand enough about
+hyperthreading, but I wonder if there's something PostgreSQL can do to
+take advantage of hyperthreading
+
+Anyway, each link has pointers to readprofile and annotated oprofile
+assembly output (if you find that useful.)  I haven't done enough tests
+to have an idea of the error margin, but I wouldn't be surprised if it's
+at least 1%.
+
+Let me know if there's anything else you'd like me to try.
+
+Thanks,
+Mark

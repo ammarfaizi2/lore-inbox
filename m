@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315198AbSESTo3>; Sun, 19 May 2002 15:44:29 -0400
+	id <S315042AbSESTo2>; Sun, 19 May 2002 15:44:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315210AbSESTnY>; Sun, 19 May 2002 15:43:24 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20740 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314987AbSESTmd>;
-	Sun, 19 May 2002 15:42:33 -0400
-Message-ID: <3CE80102.C0577264@zip.com.au>
-Date: Sun, 19 May 2002 12:46:10 -0700
+	id <S315259AbSESTnP>; Sun, 19 May 2002 15:43:15 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19204 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315210AbSESTl6>;
+	Sun, 19 May 2002 15:41:58 -0400
+Message-ID: <3CE800DF.BDAE210@zip.com.au>
+Date: Sun, 19 May 2002 12:45:35 -0700
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Linus Torvalds <torvalds@transmeta.com>
 CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [patch 15/15] remove PG_launder
+Subject: [patch 14/15] fix ext3 race with writeback
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,106 +22,89 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Removal of PG_launder.
+The ext3-no-steal patch has exposed a long-standing race in ext3.  It
+has been there all the time in 2.4, but never triggered until some
+timing change in the ext3-no-steal patch exposed it.  The race was not
+present in 2.2 because 2.2's bdflush runs inside lock_kernel().
 
-It's not obvious (to me) why this ever existed.  If it's to prevent
-deadlocks then I'd like to know who was performing __GFP_FS allocations
-while holding a page lock?
+The problem is that when ext3 is shuffling a buffer between journalling
+lists there is a small window where the buffer is marked BH_dirty. 
+Aonther CPU can grab it, mark it clean and write it out.  Then ext3
+puts the buffer onto a list of buffers which are expected to be dirty,
+and gets confused later on when the buffer turns out to be clean.
 
-But in 2.5, the only memory allocations which are performed when the
-caller holds PG_writeback against an unsubmitted page are those which
-occur inside submit_bh().  There will be no __GFS_FS allocations in
-that call chain.
-
-Removing PG_launder means that memory allocators can block on any
-PageWriteback() page at all, which reduces the risk of very long list
-walks inside pagemap_lru_lock in shrink_cache().
+The patch from Stephen records the expected dirtiness of the buffer in
+a local variable, so BH_dirty is not transiently set while ext3
+shuffles.
 
 
 =====================================
 
---- 2.5.16/mm/vmscan.c~pg_launder	Sun May 19 11:49:50 2002
-+++ 2.5.16-akpm/mm/vmscan.c	Sun May 19 11:49:50 2002
-@@ -424,11 +424,10 @@ static int shrink_cache(int nr_pages, zo
- 			goto page_mapped;
+--- 2.5.16/fs/jbd/transaction.c~sct-jbddirty	Sun May 19 11:49:50 2002
++++ 2.5.16-akpm/fs/jbd/transaction.c	Sun May 19 11:49:50 2002
+@@ -1941,6 +1941,8 @@ void __journal_file_buffer(struct journa
+ 			transaction_t *transaction, int jlist)
+ {
+ 	struct journal_head **list = 0;
++	int was_dirty = 0;
++	struct buffer_head *bh = jh2bh(jh);
  
- 		/*
--		 * The page is locked. IO in progress?
--		 * Move it to the back of the list.
-+		 * IO in progress? Leave it at the back of the list.
- 		 */
- 		if (unlikely(PageWriteback(page))) {
--			if (PageLaunder(page) && (gfp_mask & __GFP_FS)) {
-+			if (gfp_mask & __GFP_FS) {
- 				page_cache_get(page);
- 				spin_unlock(&pagemap_lru_lock);
- 				wait_on_page_writeback(page);
---- 2.5.16/mm/page-writeback.c~pg_launder	Sun May 19 11:49:50 2002
-+++ 2.5.16-akpm/mm/page-writeback.c	Sun May 19 11:49:50 2002
-@@ -373,8 +373,6 @@ int generic_writeback_mapping(struct add
- 				}
- 				spin_unlock(&pagemap_lru_lock);
- 			}
--			if (current->flags & PF_MEMALLOC)
--				SetPageLaunder(page);
- 			err = writepage(page);
- 			if (!ret)
- 				ret = err;
---- 2.5.16/mm/shmem.c~pg_launder	Sun May 19 11:49:50 2002
-+++ 2.5.16-akpm/mm/shmem.c	Sun May 19 11:49:50 2002
-@@ -438,7 +438,8 @@ static int shmem_writepage(struct page *
+ 	assert_spin_locked(&journal_datalist_lock);
+ 	
+@@ -1951,13 +1953,24 @@ void __journal_file_buffer(struct journa
+ 	J_ASSERT_JH(jh, jh->b_transaction == transaction ||
+ 				jh->b_transaction == 0);
  
- 	if (!PageLocked(page))
- 		BUG();
--	if (!PageLaunder(page))
+-	if (jh->b_transaction) {
+-		if (jh->b_jlist == jlist)
+-			return;
++	if (jh->b_transaction && jh->b_jlist == jlist)
++		return;
++	
++	/* The following list of buffer states needs to be consistent
++	 * with __jbd_unexpected_dirty_buffer()'s handling of dirty
++	 * state. */
 +
-+	if (!(current->flags & PF_MEMALLOC))
- 		return fail_writepage(page);
++	if (jlist == BJ_Metadata || jlist == BJ_Reserved || 
++	    jlist == BJ_Shadow || jlist == BJ_Forget) {
++		if (test_clear_buffer_dirty(bh) ||
++		    test_clear_buffer_jbddirty(bh))
++			was_dirty = 1;
++	}
++
++	if (jh->b_transaction)
+ 		__journal_unfile_buffer(jh);
+-	} else {
++	else
+ 		jh->b_transaction = transaction;
+-	}
  
- 	mapping = page->mapping;
---- 2.5.16/mm/filemap.c~pg_launder	Sun May 19 11:49:50 2002
-+++ 2.5.16-akpm/mm/filemap.c	Sun May 19 11:49:50 2002
-@@ -432,7 +432,7 @@ void invalidate_inode_pages2(struct addr
- int fail_writepage(struct page *page)
+ 	switch (jlist) {
+ 	case BJ_None:
+@@ -1994,12 +2007,8 @@ void __journal_file_buffer(struct journa
+ 	__blist_add_buffer(list, jh);
+ 	jh->b_jlist = jlist;
+ 
+-	if (jlist == BJ_Metadata || jlist == BJ_Reserved || 
+-	    jlist == BJ_Shadow || jlist == BJ_Forget) {
+-		if (test_clear_buffer_dirty(jh2bh(jh))) {
+-			set_bit(BH_JBDDirty, &jh2bh(jh)->b_state);
+-		}
+-	}
++	if (was_dirty)
++		set_buffer_jbddirty(bh);
+ }
+ 
+ void journal_file_buffer(struct journal_head *jh,
+--- 2.5.16/include/linux/jbd.h~sct-jbddirty	Sun May 19 11:49:50 2002
++++ 2.5.16-akpm/include/linux/jbd.h	Sun May 19 11:50:46 2002
+@@ -235,6 +235,7 @@ enum jbd_state_bits {
+ 
+ BUFFER_FNS(JBD, jbd)
+ BUFFER_FNS(JBDDirty, jbddirty)
++TAS_BUFFER_FNS(JBDDirty, jbddirty)
+ 
+ static inline struct buffer_head *jh2bh(struct journal_head *jh)
  {
- 	/* Only activate on memory-pressure, not fsync.. */
--	if (PageLaunder(page)) {
-+	if (current->flags & PF_MEMALLOC) {
- 		activate_page(page);
- 		SetPageReferenced(page);
- 	}
-@@ -652,7 +652,6 @@ void unlock_page(struct page *page)
- void end_page_writeback(struct page *page)
- {
- 	wait_queue_head_t *waitqueue = page_waitqueue(page);
--	ClearPageLaunder(page);
- 	smp_mb__before_clear_bit();
- 	if (!TestClearPageWriteback(page))
- 		BUG();
---- 2.5.16/include/linux/page-flags.h~pg_launder	Sun May 19 11:49:50 2002
-+++ 2.5.16-akpm/include/linux/page-flags.h	Sun May 19 11:49:50 2002
-@@ -62,9 +62,8 @@
- #define PG_arch_1		10
- #define PG_reserved		11
- 
--#define PG_launder		12	/* written out by VM pressure.. */
--#define PG_private		13	/* Has something at ->private */
--#define PG_writeback		14	/* Page is under writeback */
-+#define PG_private		12	/* Has something at ->private */
-+#define PG_writeback		13	/* Page is under writeback */
- 
- /*
-  * Global page accounting.  One instance per CPU.
-@@ -172,10 +171,6 @@ extern void get_page_state(struct page_s
- #define SetPageReserved(page)	set_bit(PG_reserved, &(page)->flags)
- #define ClearPageReserved(page)	clear_bit(PG_reserved, &(page)->flags)
- 
--#define PageLaunder(page)	test_bit(PG_launder, &(page)->flags)
--#define SetPageLaunder(page)	set_bit(PG_launder, &(page)->flags)
--#define ClearPageLaunder(page)	clear_bit(PG_launder, &(page)->flags)
--
- #define SetPagePrivate(page)	set_bit(PG_private, &(page)->flags)
- #define ClearPagePrivate(page)	clear_bit(PG_private, &(page)->flags)
- #define PagePrivate(page)	test_bit(PG_private, &(page)->flags)
 
 -

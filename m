@@ -1,38 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261416AbSKZUms>; Tue, 26 Nov 2002 15:42:48 -0500
+	id <S261173AbSKZUuM>; Tue, 26 Nov 2002 15:50:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262303AbSKZUms>; Tue, 26 Nov 2002 15:42:48 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:7944 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S261416AbSKZUmr>;
-	Tue, 26 Nov 2002 15:42:47 -0500
-Date: Tue, 26 Nov 2002 21:49:32 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Romain Lievin <rlievin@free.fr>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: kconfig (gkc): GTK tool released, please test again...
-Message-ID: <20021126204932.GA14147@mars.ravnborg.org>
-Mail-Followup-To: Romain Lievin <rlievin@free.fr>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20021110132750.GB6256@free.fr> <Pine.LNX.4.44.0211101502460.2113-100000@serv> <20021126202448.GA4072@free.fr>
+	id <S261206AbSKZUuL>; Tue, 26 Nov 2002 15:50:11 -0500
+Received: from smtp.actcom.co.il ([192.114.47.13]:478 "EHLO lmail.actcom.co.il")
+	by vger.kernel.org with ESMTP id <S261173AbSKZUuL>;
+	Tue, 26 Nov 2002 15:50:11 -0500
+Date: Tue, 26 Nov 2002 23:03:15 +0200
+From: Muli Ben-Yehuda <mulix@actcom.co.il>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ANN: syscalltrack 0.80 "Tanned Otter" released
+Message-ID: <20021126210314.GZ6536@alhambra>
+References: <20021123201015.GD6536@alhambra> <20021126181947.GB1376@zaurus>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021126202448.GA4072@free.fr>
+In-Reply-To: <20021126181947.GB1376@zaurus>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 26, 2002 at 09:24:48PM +0100, Romain Lievin wrote:
-> Hi,
+On Tue, Nov 26, 2002 at 07:19:47PM +0100, Pavel Machek wrote:
+> Hi!
 > 
-> I converted gkc to GTK+ 2.0 and improved/fixed it according to your 
-> suggestions.
-> I submit it again for testing... You will find it at 
-> <http://tilp.info/perso/gkc.html>.
-Could you add a patch as well, that makes it much easier to try out.
-No matter it is big, it's still more convinient.
+> > criteria. syscalltrack can operate either in "tweezers mode", where
+> > only very specific operations are tracked, such as "only track and log
+> > attempts to delete /etc/passwd", or in strace(1) compatible mode,
+> > where all of the supported system calls are traced. syscalltrack can
+> > do things that are impossible to do with the ptrace mechanism, because
+> > its core operates in kernel space. 
+> 
+> What stuff can you do that ptrace can't?
 
-	Sam
+Everything that stems from being 1) kernel based and 2) system
+wide. ptrace is inherently process based - "show me what this process
+did". syscalltrack is system wide - "show me *which* process did this
+or that."[1]
+
+syscalltrack also has better filtering than strace, and supports
+actions - fail the system call if it passed that filter, suspend the
+process if it passed that filter, etc. 
+
+Basically, there are things which strace is good for, and there are
+things subterfuge is good for, and there are things syscalltrack is
+good for. Use the right tool for the job. You can see more about
+syscalltrack's capabilities on the website. 
+
+[1] You can probably emulate syscalltrack's system wide behaviour by
+ptracing init and all of its forked children, but your system will
+slow to a crawl. With syscalltrack, you'll barely feel anything. 
+-- 
+Muli Ben-Yehuda				    http://www.mulix.org/
+mulix@mulix.org:~$ sctrace strace /bin/foo  http://syscalltrack.sf.net/
+Quis custodes ipsos custodiet? 

@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261863AbVCEF0W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263386AbVCEF0N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261863AbVCEF0W (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 00:26:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262226AbVCEFQq
+	id S263386AbVCEF0N (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 00:26:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263086AbVCEFRv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 00:16:46 -0500
-Received: from chaos.sr.unh.edu ([132.177.249.105]:37255 "EHLO
-	chaos.sr.unh.edu") by vger.kernel.org with ESMTP id S263538AbVCEFKn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 00:10:43 -0500
-Date: Sat, 5 Mar 2005 00:09:29 -0500 (EST)
-From: Kai Germaschewski <kai.germaschewski@unh.edu>
-X-X-Sender: kai@chaos.sr.unh.edu
-To: Adrian Bunk <bunk@stusta.de>
-cc: Rusty Russell <rusty@rustcorp.com.au>, Andrew Morton <akpm@osdl.org>,
-       Sam Ravnborg <sam@ravnborg.org>,
-       Vincent Vanackere <vincent.vanackere@gmail.com>,
-       <keenanpepper@gmail.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Undefined symbols in 2.6.11-rc5-mm1
-In-Reply-To: <20050304202842.GH3327@stusta.de>
-Message-ID: <Pine.LNX.4.44.0503050004120.20007-100000@chaos.sr.unh.edu>
+	Sat, 5 Mar 2005 00:17:51 -0500
+Received: from de01egw02.freescale.net ([192.88.165.103]:52990 "EHLO
+	de01egw02.freescale.net") by vger.kernel.org with ESMTP
+	id S263583AbVCEFOY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 00:14:24 -0500
+Date: Fri, 4 Mar 2005 23:12:59 -0600 (CST)
+From: Kumar Gala <galak@freescale.com>
+X-X-Sender: galak@blarg.somerset.sps.mot.com
+To: jgarzik@pobox.com
+cc: jaka@activetools.si, linux-kernel@vger.kernel.org,
+       linuxppc-embedded@ozlabs.org, netdev@oss.sgi.com
+Subject: [PATCH] initialize a spin lock in gianfar driver
+Message-ID: <Pine.LNX.4.61.0503042305570.23572@blarg.somerset.sps.mot.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Mar 2005, Adrian Bunk wrote:
+Initialize the mdio_lock spin lock in mii_info struct, which is otherwise 
+accessed prior to initialization.
 
-> > [...] So ld looks into the lib .a archive, determines that none of 
-> > the symbols in that object file are needed to resolve a reference and 
-> > drops the entire .o file.
+Signed-off-by: Jaka Mocnik <jaka@activetools.si>
+Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
 
-> Silly question:
-> What's the advantage of lib-y compared to obj-y?
+---
 
-Basically exactly what I quoted above -- unused object files don't get
-linked into the kernel image and don't take up (wasted) space. On the
-other hand, files in obj-y get linked into the kernel unconditionally.
-
---Kai
-
-
+diff -Nru a/drivers/net/gianfar.c b/drivers/net/gianfar.c
+--- a/drivers/net/gianfar.c	2005-03-04 23:03:27 -06:00
++++ b/drivers/net/gianfar.c	2005-03-04 23:03:27 -06:00
+@@ -377,6 +377,8 @@
+ 			ADVERTISED_1000baseT_Full);
+ 	mii_info->autoneg = 1;
+ 
++	spin_lock_init(&mii_info->mdio_lock);
++
+ 	mii_info->mii_id = priv->einfo->phyid;
+ 
+ 	mii_info->dev = dev;

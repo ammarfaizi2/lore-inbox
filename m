@@ -1,75 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261575AbUAOOoS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 09:44:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262129AbUAOOoS
+	id S262129AbUAOOpU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 09:45:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263571AbUAOOpU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 09:44:18 -0500
-Received: from smtp106.mail.sc5.yahoo.com ([66.163.169.226]:36759 "HELO
-	smtp106.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261575AbUAOOoQ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 09:44:16 -0500
-From: Murilo Pontes <murilo_pontes@yahoo.com.br>
-To: Andy Lutomirski <luto@myrealbox.com>
-Subject: Re: BUG: loop device not work in 2.6.1-mm2 an 2.6.1-mm3
-Date: Thu, 15 Jan 2004 11:43:53 +0000
-User-Agent: KMail/1.5.94
-References: <fa.l6gqnit.t52ubp@ifi.uio.no> <40063A20.9000406@myrealbox.com>
-In-Reply-To: <40063A20.9000406@myrealbox.com>
-Cc: linux-kernel@vger.kernel.org
+	Thu, 15 Jan 2004 09:45:20 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:11904 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S262129AbUAOOpN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 09:45:13 -0500
+Date: Thu, 15 Jan 2004 12:36:21 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Jan-Hinnerk Reichert <jan-hinnerk_reichert@hamburg.de>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.24/25 Missing Changelogs on kernel.org
+In-Reply-To: <200401151341.54948.jan-hinnerk_reichert@hamburg.de>
+Message-ID: <Pine.LNX.4.58L.0401151235300.16886@logos.cnet>
+References: <200401151341.54948.jan-hinnerk_reichert@hamburg.de>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200401151143.53425.murilo_pontes@yahoo.com.br>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Loop work with 2.6.1, but not work with 2.6.1-mm{1,2,3}
-I try apply your patch in 2.6.1-mm3
-
-11:41:50 [root@murilo:/MRX/drivers/linux-2.6.1]#patch -p0 -i /root/download/loop-mm3.diff
-patching file drivers/block/loop.c
-patch: **** malformed patch at line 4:                 blk_queue_merge_bvec(lo->lo_queue, q->merge_bvec_fn);
 
 
-Em Qui 15 Jan 2004 06:58, Andy Lutomirski escreveu:
-> Murilo Pontes wrote:
->  > 21:44:56 [root@murilo:~]#mount -V
->  > mount: mount-2.12
->  >
->  > umount: /tmp/ramdisk_mountdir: não montado
->  > ioctl: LOOP_CLR_FD: No such device or address
->  > mount: será usado o dispositivo de laço /dev/loop/0
->  > ioctl: LOOP_SET_FD: Argumento inválido
->  >
->  >
->  > -
->  > To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
->  >  in
->  > the body of a message to majordomo@vger.kernel.org
->  > More majordomo info at  http://vger.kernel.org/majordomo-info.html
->  > Please read the FAQ at  http://www.tux.org/lkml/
+On Thu, 15 Jan 2004, Jan-Hinnerk Reichert wrote:
+
+> Hi Marcelo,
 >
-> Are you running reiserfs?  If so, this patch (from Ben Slusky) fixed it:
+> I just realized that the ChangeLogs from 2.2.23 to 2.4.24-pre-3 are
+> apparently missing on kernel.org.
 >
-> --- drivers/block/loop.c.old	2004-01-11 13:05:05.000000000 -0500
-> +++ drivers/block/loop.c	2004-01-14 07:49:24.795161024 -0500
-> @@ -853,9 +853,7 @@
->   		blk_queue_merge_bvec(lo->lo_queue, q->merge_bvec_fn);
->   	}
+> They do not appear in /pub/linux/kernel/v2.4/ChangeLog-2.4.24, which
+> is right, AFAIK.
 >
-> -	error = set_blocksize(bdev, lo_blocksize);
-> -	if (error)
-> -		goto out_putf;
-> +	set_blocksize(bdev, lo_blocksize);
+> However, they didn't made it to
+> /pub/linux/kernel/v2.4/testing/patch-2.4.25.log ;-(
 >
->   	kernel_thread(loop_thread, lo, CLONE_KERNEL);
->   	down(&lo->lo_sem);
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Of course, google groups has a copy of the ChangeLogs ;-)
+
+Right, it was my mistake. The 2.4.24-preX changelogs will be in
+"patch-2.4.25.log" as soon as I release -pre6 (later today).

@@ -1,39 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262537AbUJ0RMb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262517AbUJ0RMj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262537AbUJ0RMb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 13:12:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262527AbUJ0RLx
+	id S262517AbUJ0RMj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 13:12:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262525AbUJ0RL7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 13:11:53 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:54480 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262522AbUJ0Q1J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 12:27:09 -0400
-Date: Wed, 27 Oct 2004 09:25:50 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-X-X-Sender: clameter@schroedinger.engr.sgi.com
-To: David Gibson <david@gibson.dropbear.id.au>
-cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Hugepages demand paging V2 [0/8]: Discussion and overview
-In-Reply-To: <20041027052317.GG1676@zax>
-Message-ID: <Pine.LNX.4.58.0410270925350.17538@schroedinger.engr.sgi.com>
-References: <B05667366EE6204181EABE9C1B1C0EB504BFA47C@scsmsx401.amr.corp.intel.com>
- <Pine.LNX.4.58.0410251825020.12962@schroedinger.engr.sgi.com>
- <20041027052317.GG1676@zax>
+	Wed, 27 Oct 2004 13:11:59 -0400
+Received: from build.arklinux.osuosl.org ([128.193.0.51]:53646 "EHLO
+	mail.arklinux.org") by vger.kernel.org with ESMTP id S262517AbUJ0Q03
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 12:26:29 -0400
+From: Bernhard Rosenkraenzer <bero@arklinux.org>
+Organization: LINUX4MEDIA GmbH
+To: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: 2.6.10-rc1-mm1 doesn't compile on x86_64
+Date: Wed, 27 Oct 2004 18:21:36 +0200
+User-Agent: KMail/1.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200410271821.37339.bero@arklinux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Oct 2004, David Gibson wrote:
+arch/x86_64/kernel/built-in.o(.text+0x6265): In function `timer_resume':
+: undefined reference to `is_hpet_enabled'
+arch/x86_64/kernel/built-in.o(.init.text+0x862b): In function 
+`pci_iommu_init':
+: undefined reference to `agp_amd64_init'
+arch/x86_64/kernel/built-in.o(.init.text+0x8639): In function 
+`pci_iommu_init':
+: undefined reference to `agp_copy_info'
+make: *** [.tmp_vmlinux1] Error 1
 
-> I wish we could start calling this "lazy allocation" instead of
-> "demand paging".  "Demand paging" makes people think of swapping
-> hugepages, or mapping files on real filesystems with hugepages, which
-> is not what these patches do, and probably something we don't want to
-> do.
-
-Good idea.
-
+Will debug later unless someone beats me to it.

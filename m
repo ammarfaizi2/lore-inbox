@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313902AbSEHMoD>; Wed, 8 May 2002 08:44:03 -0400
+	id <S312790AbSEHMyt>; Wed, 8 May 2002 08:54:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313904AbSEHMoC>; Wed, 8 May 2002 08:44:02 -0400
-Received: from netfinity.realnet.co.sz ([196.28.7.66]:45991 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S313902AbSEHMoB>; Wed, 8 May 2002 08:44:01 -0400
-Date: Wed, 8 May 2002 14:21:57 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Tomas Szepe <szepe@pinerecords.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] preemptive kernel for 2.4.19-pre7-ac4
-In-Reply-To: <20020508123221.GF22050@louise.pinerecords.com>
-Message-ID: <Pine.LNX.4.44.0205081421020.6271-100000@netfinity.realnet.co.sz>
+	id <S314041AbSEHMys>; Wed, 8 May 2002 08:54:48 -0400
+Received: from [80.120.128.82] ([80.120.128.82]:17157 "EHLO hofr.at")
+	by vger.kernel.org with ESMTP id <S312790AbSEHMyr>;
+	Wed, 8 May 2002 08:54:47 -0400
+From: Der Herr Hofrat <der.herr@mail.hofr.at>
+Message-Id: <200205081200.g48C0a805476@hofr.at>
+Subject: Re: Measure time
+In-Reply-To: <abaokj$ugl$1@news.lucky.net> from "Serguei I. Ivantsov" at "May
+ 8, 2002 11:48:24 am"
+To: "Serguei I. Ivantsov" <administrator@svitonline.com>
+Date: Wed, 8 May 2002 14:00:36 +0200 (CEST)
+CC: linux-gcc@vger.kernel.org, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 May 2002, Tomas Szepe wrote:
-
-> > The preempt-kernel patch for 2.4.19-pre7-ac4 is now available at
-> > 	http://www.kernel.org/pub/linux/kernel/people/rml/preempt-kernel/v2.4/preempt-kernel-rml-2.4.19-pre7-ac4-1.patch
+> Hello!
 > 
-> ... applies to -pre8-ac1 as well. Safe to use?
+> Is there any function for high precision time measuring.
+> time() returns only in second. I need nanoseconds.
+>
+you can directly read the TSC but that will not realy give you nanoseconds
+resolution as the actual read access even on a PIII/1GHz is going to take
+up to a few 100 nanoseconds, and depending on what you want to time
+stamp the overall jitter of that code can easaly be in the
+range of a microsecond. 
 
-I'd presume so, pre8-ac1 is a compilation fixes release, as stated in the 
-changelog.
+There are some hard-realtime patches to the Linux kernel that will
+allow time precission of aprox. 1us (the TSC has a precission of 32ns)
+but I don't think you can get below that without dedicated hardware.
 
--- 
-http://function.linuxpower.ca
-		
+for RTLinux check at ftp://ftp.rtlinux.org/pub/rtlinux/ 
 
+hofrat

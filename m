@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272980AbRIHIUJ>; Sat, 8 Sep 2001 04:20:09 -0400
+	id <S266488AbRIHIcm>; Sat, 8 Sep 2001 04:32:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272981AbRIHIUA>; Sat, 8 Sep 2001 04:20:00 -0400
-Received: from femail48.sdc1.sfba.home.com ([24.254.60.42]:22435 "EHLO
-	femail48.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S272980AbRIHITx>; Sat, 8 Sep 2001 04:19:53 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Nicholas Knight <tegeran@home.com>
-Reply-To: tegeran@home.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.10-pre5
-Date: Sat, 8 Sep 2001 01:19:38 -0700
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <3B99A8C2.56E88CE3@isn.net> <003001c1382d$f483d9d0$010da8c0@uglypunk> <20010908014643.A846@home.com>
-In-Reply-To: <20010908014643.A846@home.com>
+	id <S266688AbRIHIcc>; Sat, 8 Sep 2001 04:32:32 -0400
+Received: from beasley.gator.com ([63.197.87.202]:11525 "EHLO
+	beasley.gator.com") by vger.kernel.org with ESMTP
+	id <S266488AbRIHIc1>; Sat, 8 Sep 2001 04:32:27 -0400
+From: "George Bonser" <george@gator.com>
+To: "Linus Torvalds" <torvalds@transmeta.com>,
+        "Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: 2.4.10-pre5 compile error
+Date: Sat, 8 Sep 2001 01:32:46 -0700
+Message-ID: <CHEKKPICCNOGICGMDODJKEEJEFAA.george@gator.com>
 MIME-Version: 1.0
-Message-Id: <01090801193801.00271@c779218-a>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+In-Reply-To: <Pine.LNX.4.33.0109072117580.1259-100000@penguin.transmeta.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 07 September 2001 11:46 pm, Josh McKinney wrote:
-> On approximately Sat, Sep 08, 2001 at 03:44:31PM +0930, Kingsley 
-Foreman wrote:
-> > Yes i got this too
-> > anyone got a fix
->
-> Don't use gcc-3.0
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -W
+no-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
+ -pipe -mpreferred-stack-boundary=2 -march=i686    -c -o dquot.o
+dquot.c
+dquot.c: In function `add_dquot_ref':
+dquot.c:673: `file' undeclared (first use in this function)
+dquot.c:673: (Each undeclared identifier is reported only once
+dquot.c:673: for each function it appears in.)
+make[3]: *** [dquot.o] Error 1
+make[3]: Leaving directory `/usr/src/linux/fs'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux/fs'
+make[1]: *** [_dir_fs] Error 2
+make[1]: Leaving directory `/usr/src/linux'
+make: *** [stamp-build] Error 2
+:/usr/src/linux#
 
+:/usr/src/linux# gcc --version
+2.95.4
+:/usr/src/linux#
 
-Excuse me, but shouldn't it be a goal to have the kernel compiling 
-cleanly on gcc-3.0 as soon as is reasonable?
-Telling people to use older versions of GCC for the kernel is not really 
-a "good" thing if it can be avoided.
-Personaly I don't use gcc-3.0 yet, but some do, and many will follow, and 
-when they do, it'd be nice to have the kernel compiling cleanly, would it 
-not?
-They want a fix, not a one-line editorial. They're reporting a "bug", so 
-that it may be fixed.

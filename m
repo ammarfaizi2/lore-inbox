@@ -1,58 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264066AbUECVok@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262052AbUECVoQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264066AbUECVok (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 17:44:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264040AbUECVok
+	id S262052AbUECVoQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 17:44:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264039AbUECVoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 17:44:40 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:50429 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264039AbUECVo0
+	Mon, 3 May 2004 17:44:16 -0400
+Received: from topper.inf.ed.ac.uk ([129.215.32.40]:37575 "EHLO
+	topper.inf.ed.ac.uk") by vger.kernel.org with ESMTP id S262052AbUECVoI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 17:44:26 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: "J. Ryan Earl" <heretic@clanhk.org>
-Subject: Re: Booting off of IDE while using different libata drives on same southbridge
-Date: Mon, 3 May 2004 23:44:58 +0200
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
-References: <200403121826.21442.markus.kossmann@inka.de> <200403121902.44371.bzolnier@elka.pw.edu.pl> <4096B752.9050602@clanhk.org>
-In-Reply-To: <4096B752.9050602@clanhk.org>
+	Mon, 3 May 2004 17:44:08 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200405032344.58597.bzolnier@elka.pw.edu.pl>
+Message-ID: <16534.48421.296794.467014@toolo.inf.ed.ac.uk>
+Date: Mon, 3 May 2004 22:44:05 +0100
+From: Julian Bradfield <jcb@inf.ed.ac.uk>
+To: linux-kernel@vger.kernel.org
+Subject: hang with 2.4.26 copying to loopback device
+X-Mailer: VM 7.18 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 03 of May 2004 23:19, J. Ryan Earl wrote:
-> I am having a similar problem to what Markus Kossmann wrote about, but
-> with the VIA Southbridge (Asus K8V).  My situation is similar, but a
-> little different.  I would like to boot off a PATA drive attached to the
-> Southbridge, but use libata for a couple SATA drives attached to the
-> same Southbridge.
->
-> Is this still not possible?  I also tried hde/hdg=noprobe options, but
-> they didn't help the situation.  It appears the only way to get the
-> drives on sata_via is to boot off of them.  Am I correct in thinking
-> this is the only way to go about this?
+I'm running a vanilla 2.4.26 kernel (on a rather old distro, Mandrake
+9.0).
+I have large (6GB) file on a remote NFS server (running 2.4.18), on
+which
+there is a file system that I'm mounting via loopback.
+When I copy to this looped back filesystem, I get a hang after a few
+megabytes. After the copy hangs, I move the cursor around and soon X
+freezes as well. I can, however, reboot via sysrq.
 
-Did you actually tried it (booting off of them)?
-[ I can't see how this can help. ]
-
-Just don't compile-in generic IDE PCI driver which controls your SATA drives
-(or don't load this module if you're using initrd).
-
-> -ryan
->
-> Bartlomiej Zolnierkiewicz wrote:
-> >>Is there any chance to use sata_sil with that kernel configuration ?
-> >>Or is recompiling with CONFIG_BLK_DEV_SIIMAGE=m or with siimage disabled
-> >>the only option ?
-> >
-> >Yep.
-> >
-> >Regards,
-> >Bartlomiej
-
+I've seen several reports a couple of years ago of deadlocks in
+loopback, but nothing recently that I can find via searching.
+Is there anything currently known to be an issue, or should I start
+preparing a proper report?

@@ -1,41 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266545AbSKGNWV>; Thu, 7 Nov 2002 08:22:21 -0500
+	id <S266542AbSKGN3v>; Thu, 7 Nov 2002 08:29:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266544AbSKGNWV>; Thu, 7 Nov 2002 08:22:21 -0500
-Received: from mail.epost.de ([193.28.100.167]:31390 "EHLO mail.epost.de")
-	by vger.kernel.org with ESMTP id <S266542AbSKGNWU>;
-	Thu, 7 Nov 2002 08:22:20 -0500
-From: "Mike Greubel" <mike.greubel1@epost.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: Support for ATARAID-Card with CMD680 chipset
-Date: Thu, 7 Nov 2002 14:30:57 +0100
-Message-ID: <000001c28661$e85ffe30$e664a8c0@mike>
+	id <S266544AbSKGN3u>; Thu, 7 Nov 2002 08:29:50 -0500
+Received: from mailout11.sul.t-online.com ([194.25.134.85]:14291 "EHLO
+	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S266542AbSKGN3u>; Thu, 7 Nov 2002 08:29:50 -0500
+From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.5.46: Filesystem capabilities 0.11
+Date: Thu, 07 Nov 2002 14:36:21 +0100
+Message-ID: <87el9xo622.fsf@goat.bogus.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
+ i386-debian-linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.3416
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+This patch implements filesystem capabilities. It allows to run
+privileged executables without the need for suid root.
 
-I wan't to install Linux on a Raid0-Partition, which is created with a
-Raid-Controller. The chipset is CMD680. This chipset is allready known
-from linux, but it seems there is no way to get an hardware array
-working. Maybe I'm to dumb to do it. I don't know, how to write a driver
-or a patch.
+Changes:
+- fixed reference counting
+- fixed oops at umount
 
-Hope that there is a way to get it work.
+This patch is available at:
+<http://home.t-online.de/home/olaf.dietsche/linux/capability/>
 
-Sorry for my bad english.
-
-You guys are doing a great job!
-
-Mike Greubel
-
+Regards, Olaf.

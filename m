@@ -1,22 +1,23 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129400AbRA0KdG>; Sat, 27 Jan 2001 05:33:06 -0500
+	id <S129444AbRA0KiK>; Sat, 27 Jan 2001 05:38:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129444AbRA0Kc4>; Sat, 27 Jan 2001 05:32:56 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:53470 "EHLO
+	id <S130370AbRA0KiA>; Sat, 27 Jan 2001 05:38:00 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:29418 "EHLO
 	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S129400AbRA0Kcn>; Sat, 27 Jan 2001 05:32:43 -0500
-Message-ID: <3A72A578.28D27AED@uow.edu.au>
-Date: Sat, 27 Jan 2001 21:39:52 +1100
+	id <S129444AbRA0Khy>; Sat, 27 Jan 2001 05:37:54 -0500
+Message-ID: <3A72A6C9.7D085A39@uow.edu.au>
+Date: Sat, 27 Jan 2001 21:45:29 +1100
 From: Andrew Morton <andrewm@uow.edu.au>
 X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Ion Badulescu <ionut@moisil.cs.columbia.edu>
 CC: lkml <linux-kernel@vger.kernel.org>,
-        "netdev@oss.sgi.com" <netdev@oss.sgi.com>
+        "netdev@oss.sgi.com" <netdev@oss.sgi.com>,
+        Aaron Lehmann <aaronl@vitelus.com>
 Subject: Re: sendfile+zerocopy: fairly sexy (nothing to do with ECN)
-In-Reply-To: <3A726087.764CC02E@uow.edu.au> <200101271005.f0RA5DX04357@moisil.dev.hydraweb.com>
+In-Reply-To: <3A728475.34CF841@uow.edu.au> <200101271009.f0RA9fb04363@moisil.dev.hydraweb.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -24,43 +25,24 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Ion Badulescu wrote:
 > 
-> 2.4.1-pre10+zerocopy, using read()/write():     18.3%-29.6% CPU         * why so much variance?
+> On Sat, 27 Jan 2001 19:19:01 +1100, Andrew Morton <andrewm@uow.edu.au> wrote:
+> 
+> > The figures I quoted for the no-hw-checksum case were still
+> > using scatter/gather.  That can be turned off as well and
+> > it makes it a tiny bit quicker.
+> 
+> Hmm. Are you sure the differences are not just noise?
 
-The variance is presumably because of the naive read/write
-implementation.  It sucks in 16 megs and writes out out again.
-With a 100 megabyte file you'll get aliasing effects between
-the sampling interval and the client's activity.
+I don't think so.  It's all pretty repeatable.
 
-You will get more repeatable results using smaller files.  I'm
-just sending /usr/local/bin/* ten times, with
+> Unless you
+> modified the zerocopy patch yourself, it won't use SG without
+> checksums...
 
-./zcc -s otherhost -c /usr/local/bin/* -n10 -N2 -S
-
-Maybe that 16 meg buffer should be shorter...  Yes, making it
-smaller smooths things out.
-
-Heh, look at this.  It's a simple read-some, send-some loop.
-Plot CPU utilisation against the transfer size:
-
-Size           %CPU
-
-
-256             31
-512             25
-1024            22
-2048            18
-4096            17
-8192            16
-16384           18
-32768           19
-65536           21
-128k            22
-256k            22.5
-
-8192 bytes is best.
-
-I've added the `-b' option to zcc to set the transfer size.  Same
-URL.
+I believe it in fact does use SG when hardware tx checksums are unavailable,
+but this capability wil be removed RSN because userspace can scribble
+on the pagecache after the checksum has been calculated, and before
+the frame has hit the wire.
 
 -
 -

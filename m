@@ -1,62 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263763AbTDIUBd (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 16:01:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263764AbTDIUBc (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 16:01:32 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:46737 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263763AbTDIUAz (for <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Apr 2003 16:00:55 -0400
-Date: Wed, 09 Apr 2003 13:02:20 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: CONFIG_INPUT problems
-Message-ID: <85360000.1049918540@flay>
-In-Reply-To: <Pine.LNX.4.44.0304092154320.5042-100000@serv>
-References: <193480000.1049909378@[10.10.2.4]> <Pine.LNX.4.44.0304092154320.5042-100000@serv>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id S263771AbTDIUD0 (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 16:03:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263775AbTDIUD0 (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 16:03:26 -0400
+Received: from dns.toxicfilms.tv ([150.254.37.24]:31105 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S263771AbTDIUDW (for <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Apr 2003 16:03:22 -0400
+Date: Wed, 9 Apr 2003 22:14:55 +0200 (CEST)
+From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
+To: Dominik Brodowski <linux@brodo.de>
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.67-ac1 IDE trouble
+In-Reply-To: <20030409195829.GA4586@brodo.de>
+Message-ID: <Pine.LNX.4.51.0304092206070.1250@dns.toxicfilms.tv>
+References: <20030409195829.GA4586@brodo.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I thought about inverting the logic, and creating CONFIG_HEADLESS
->> which is !CONFIG_INPUT basically ... but changing all the stuff
->> depending on CONFIG_INPUT is rather invasive. So I was thinking of
->> something like
->> 
->> CONFIG_HEADLESS
->> 	bool "headless console support
->> 	default "n"
->> 
->> if HEADLESS = y
->> 	define_bool CONFIG_INPUT = n
->> else
->> 	define_bool CONFIG_INPUT = y
->> endif
-> 
-> config INPUT
-> 	default y if !HEADLESS
+> Hi Alan,
+>
+> In recent 2.5. kernels I see a few messages like this during heavy I/O load:
+I have been getting similar too on non -ac kernels.
 
-I don't see how that'll work ... we already have it defaulting to y,
-but there's a previous setting that's 'n' from the 2.4 config file
-they're upgrading from ... and that overrides the default, right?
+Apr  9 18:59:05 pysiak kernel: hdb: dma_timer_expiry: dma status == 0x64
+Apr  9 18:59:05 pysiak kernel: hdb: lost interrupt
+Apr  9 18:59:05 pysiak kernel: hdb: dma_intr: bad DMA status (dma_stat=70)
+Apr  9 18:59:05 pysiak kernel: hdb: dma_intr: status=0x50 { DriveReady SeekComplete }
 
-I think in general, that's the right behaviour (else you'd override
-your previous settings every time). It's just that in this case, it
-creates a serious user problem that we really need to fix. Personally,
-I'd be happy to just force it to on all the time, but I suspect that'd
-get me lynched ;-)
+Some more info:
 
->> or something vaguely along those lines ... except there doesn't
->> seem to be a way I can see to force a config option on from the
->> new config system? So that's actually a more general question, I guess ;-)
-> 
-> I know, this has been requested a few times, I hope to have something 
-> soon. (It's more a time problem.)
+Linux version 2.5.67 (root@pysiak) (gcc version 3.2.3 20030331 (Debian prerelease)) #4 Tue Apr 8 14:22:49 CEST 2003
+Linux Plug and Play Support v0.96 (c) Adam Belay
+PnPBIOS: Scanning system for PnP BIOS support...
+PnPBIOS: Found PnP BIOS installation structure at 0xc00fbc10
+PnPBIOS: PnP BIOS version 1.0, entry 0xf0000:0xbc40, dseg 0xf0000
+PnPBIOS: 18 nodes reported by PnP BIOS; 18 recorded by driver
+block request queues:
+ 128 requests per read queue
+ 128 requests per write queue
+ 8 requests per batch
+ enter congestion at 15
+ exit congestion at 17
+PCI: Probing PCI hardware (bus 00)
+Transparent bridge - Intel Corp. 82801BA/CA/DB PCI Br
+PCI: Using IRQ router PIIX [8086/2440] at 00:1f.0
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+ICH2: IDE controller at PCI slot 00:1f.1
+ICH2: chipset revision 18
+ICH2: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:DMA, hdb:DMA
+    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:DMA, hdd:pio
+hda: IC35L020AVER07-0, ATA DISK drive
+hdb: WDC WD200BB-00CLB0, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+hdc: CD-950E/TKU, ATAPI CD/DVD-ROM drive
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: host protected area => 1
+hda: 40188960 sectors (20577 MB) w/1916KiB Cache, CHS=39870/16/63, UDMA(100)
+ hda: hda1 hda2 hda3
+hdb: host protected area => 1
+hdb: 39102336 sectors (20020 MB) w/2048KiB Cache, CHS=38792/16/63, UDMA(100)
+ hdb: hdb1
+hdc: ATAPI 50X CD-ROM drive, 128kB Cache, UDMA(33)
+Uniform CD-ROM driver Revision: 3.12
 
-OK, thanks.
+00:00.0 Host bridge: Intel Corp. 82845 845 (Brookdale) Chipset Host Bridge (rev 03)
+00:01.0 PCI bridge: Intel Corp. 82845 845 (Brookdale) Chipset AGP Bridge (rev 03)
+00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB PCI Bridge (rev 12)
+00:1f.0 ISA bridge: Intel Corp. 82801BA ISA Bridge (LPC) (rev 12)
+00:1f.1 IDE interface: Intel Corp. 82801BA IDE U100 (rev 12)
+00:1f.2 USB Controller: Intel Corp. 82801BA/BAM USB (Hub #1) (rev 12)
+00:1f.3 SMBus: Intel Corp. 82801BA/BAM SMBus (rev 12)
+00:1f.4 USB Controller: Intel Corp. 82801BA/BAM USB (Hub #2) (rev 12)
+00:1f.5 Multimedia audio controller: Intel Corp. 82801BA/BAM AC'97 Audio (rev 12)
+01:00.0 VGA compatible controller: nVidia Corporation NV11 [GeForce2 MX/MX 400] (rev b2)
+02:02.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M [Tornado] (rev 74)
+02:03.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M [Tornado] (rev 74)
 
-M.
+Regards,
+Maciej
 

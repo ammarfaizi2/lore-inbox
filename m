@@ -1,101 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264571AbUG2NOz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264561AbUG2NTM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264571AbUG2NOz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 09:14:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264609AbUG2NOz
+	id S264561AbUG2NTM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 09:19:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264638AbUG2NTM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 09:14:55 -0400
-Received: from mail.timesys.com ([65.117.135.102]:19952 "EHLO
-	exchange.timesys.com") by vger.kernel.org with ESMTP
-	id S264571AbUG2NOv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 09:14:51 -0400
-Message-ID: <4108F845.7080305@timesys.com>
-Date: Thu, 29 Jul 2004 09:14:45 -0400
-From: Greg Weeks <greg.weeks@timesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [BUG] PPC math-emu multiply problem
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 29 Jul 2004 13:14:22.0468 (UTC) FILETIME=[F6BCF440:01C4756D]
+	Thu, 29 Jul 2004 09:19:12 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53386 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264609AbUG2NTF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 09:19:05 -0400
+Date: Thu, 29 Jul 2004 09:19:28 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Avi Kivity <avi@exanet.com>, Pavel Machek <pavel@ucw.cz>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Deadlock during heavy write activity to userspace NFS server on local NFS mount
+Message-ID: <20040729121928.GB8629@logos.cnet>
+References: <4107357C.9080108@exanet.com> <410739BD.2040203@yahoo.com.au> <41075034.7080701@exanet.com> <410752BE.80808@yahoo.com.au> <41075986.8020401@exanet.com> <41076C6C.2010401@yahoo.com.au> <41077BB5.7050007@exanet.com> <4107805A.3090609@yahoo.com.au> <4107927E.9070406@exanet.com> <4108B558.2050905@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4108B558.2050905@yahoo.com.au>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm seeing what appears to be a bug in the ppc kernel trap math 
-emulator. An extreme case for multiplies isn't working the way gcc 
-soft-float or hardware floating point is. The value in mindble is the 
-smallest that can be represented in a double. When we try to divide it 
-by two we should see an underflow and a return value of 0. We see this 
-when using soft-float in gcc, or when there is HW floating point 
-support, but it fails when the kernel trap emulator is used.
+On Thu, Jul 29, 2004 at 06:29:12PM +1000, Nick Piggin wrote:
+> Avi Kivity wrote:
+> >Nick Piggin wrote:
+> >
+> >>Avi Kivity wrote:
+> >>
+> >>>Nick Piggin wrote:
+> >>
+> >>
+> >>
+> >>>>>What's stopping the NFS server from ooming the machine then? Every 
+> >>>>>time some bit of memory becomes free, the server will consume it 
+> >>>>>instantly. Eventually ext3 will not be able to write anything out 
+> >>>>>because it is out of memory.
+> >>>>>
+> >>>>The NFS server should do the writeout a page at a time.
+> >>>
+> >>>
+> >>>
+> >>>
+> >>>The NFS server writes not only in response to page reclaim (as a 
+> >>>local NFS client), but also in response to pressure from non-local 
+> >>>clients. If both ext3 and NFS have the same allocation limits, NFS 
+> >>>may starve out ext3.
+> >>>
+> >>
+> >>What do you mean starve out ext3? ext3 gets written to *by the NFS 
+> >>server*
+> >>which is PF_MEMALLOC. 
+> >
+> >
+> >When the NFS server writes, it allocates pagecache and temporary 
+> >objects. When ext3 writes, it allocates temporary objects. If the NFS 
+> >server writes too much, ext3 can't allocate memory, and will never be 
+> >able to allocate memory.
+> >
+> 
+> That is because your NFS server shouldn't hog as much memory as
+> it likes when it is PF_MEMALLOC. The entire writeout path should
+> do a page at a time if it is PF_MEMALLOC. Ie, the server should
+> be doing write, fsync.
+> 
+> But now that I think about it, I guess you may not be able to
+> distinguish that from regular writeout, so doing a page at a time
+> would hurt performance too much.
+> 
+> Hmm so I guess the idea of a per task reserve limit may be the way
+> to do it, yes. Thanks for bearing with me!
 
-If anyone can verify this on a PPC other than an 8560 without hardware 
-floating point I'd appreciate it. I did all of these tests with a 2.6.X 
-based kernels. The x86 was 2.6.6 vanilla, 8560 is 2.6.6 with lots of 
-stuff added and support for 8560. The 8260 was 2.6.0 with changes. I 
-bumped into this with the LSB ldexp test. A simple multiply shows the 
-problem though.
+Hi, 
 
-Greg Weeks
+By reading the discussion I also agree that we need levels of "allowed deepness"
+into the reservations.
 
-mulbug.c file
-------------------------------------------
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <math.h>
-#include <errno.h>
+We could have a global limit for normal allocators, and per-task 
+limit for special "kswapd helpers" (which run with PF_MEMALLOC). 
+And with kswapd being the most "deep" eater, as you guys said.
 
-int main()
-{
-        double  x, rtval;
-        double mindble = 4.9406564584124654418e-324;
+The thing is, those deadlocks are quite uncommon special cases and 
+we will need to change core VM logic to handle them. Well...
 
-        x = mindble;
+We need to come up with a generic way of doing it, as Avi says, 
+otherwise people will have to keep doing "hacks" to make it work.
 
-        printf("x = %.20g\n", x);
+Someone needs to sit down and come up with a design. It shouldnt 
+be that hard.
 
-        errno = 0;
-        rtval = ldexp(x, -1);
-
-        printf("using ldexp(x, -1) ERRNO = %d - %s,  %.20g\n",
-            errno, strerror(errno), rtval);
-
-        printf("using (x * .5) %.20g\n", (x * .5));
-
-   exit(0);
-}
------------------------------------------
-
-compile with:
-gcc mulbug.c -lm -o mulbug
-
-
-on an 8260 ppc with HW float.
-
-x = 4.9406564584124654418e-324
-using ldexp(x, -1) ERRNO = 34 - Numerical result out of range,  0
-using (x * .5) 0
-
-on an x86 with HW float.
-
-x = 4.9406564584124654418e-324
-using ldexp(x, -1) ERRNO = 34 - Numerical result out of range,  0
-using (x * .5) 0
-
-on an 8560 ppc with kernel trap float emulator.
-
-x = 4.9406564584124654418e-324
-using ldexp(x, -1) ERRNO = 0 - Success,  4.9406564584124654418e-324
-using (x * .5) 4.9406564584124654418e-324
-
-on an 8260 with soft-float in the gcc
-
-x = 4.9406564584124654418e-324
-using ldexp(x, -1) ERRNO = 34 - Numerical result out of range,  0
-using (x * .5) 0
-
-
+Just my two pennies...

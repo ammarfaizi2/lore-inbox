@@ -1,32 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263024AbUELWxc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263154AbUELXBD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263024AbUELWxc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 18:53:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263032AbUELWxc
+	id S263154AbUELXBD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 19:01:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263169AbUELXA7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 18:53:32 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:53754 "EHLO
-	falcon10.austin.ibm.com") by vger.kernel.org with ESMTP
-	id S263024AbUELWxa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 18:53:30 -0400
-Message-Id: <200405122253.i4CMrR31014078@falcon10.austin.ibm.com>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ppc64 HDIO_TASK_* ioctls 2.4, 2.6 
+	Wed, 12 May 2004 19:00:59 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:50902 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S263089AbUELXAz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 19:00:55 -0400
+Date: Thu, 13 May 2004 01:00:47 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: How to contact AdvanSys/ConnectCom?
+Message-ID: <20040512230047.GC21408@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 12 May 2004 17:53:27 -0500
-From: Doug Maxey <dwm@austin.ibm.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Thu, 13 May 2004 00:47:49 +0200, Bartlomiej Zolnierkiewicz wrote:
->  HDIO_DRIVE_TASK is _always_ available 
+I tried to contact AdvanSys/ConnectCom regarding a patch (also sent to 
+these lists) a few minutes ago.
 
-Yes, indeed.  Move the line, or eliminate the conditionals entirely?
+The URLs in drivers/scsi/advansys.c as well as the Email address 
+support@connectcom.net listed as contact address in this file no longer 
+exist.
 
-++doug
+The Email address linux@advansys.com in MAINTAINERS doesn't work since 
+they have a broken MTA setup:
 
+<--  snip  -->
+
+Hi. This is the qmail-send program at hermes.fachschaften.tu-muenchen.de.
+I'm afraid I wasn't able to deliver your message to the following addresses.
+This is a permanent error; I've given up. Sorry it didn't work out.
+   
+<linux@advansys.com>:
+Connected to 207.155.252.71 but sender was rejected.
+Remote host said: 550 Invalid domain fs.tum.de
+  
+<--  snip  -->
+
+Does anyone know how to contact them?
+
+TIA
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

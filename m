@@ -1,1130 +1,1657 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265002AbSL0QpG>; Fri, 27 Dec 2002 11:45:06 -0500
+	id <S265039AbSL0QwX>; Fri, 27 Dec 2002 11:52:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265066AbSL0QpG>; Fri, 27 Dec 2002 11:45:06 -0500
-Received: from pop.gmx.net ([213.165.64.20]:31931 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S265002AbSL0Qop>;
-	Fri, 27 Dec 2002 11:44:45 -0500
-Message-ID: <000901c2adc8$0801df00$ce07b1c8@pentiumii>
-From: "Djeizon Barros" <djeizon@gmx.net>
-To: <linux-kernel@vger.kernel.org>
-Cc: <torvalds@transmeta.com>
-Subject: Kernel 2.4.20 Panic Report - Panic + Ksymoops + Config
-Date: Fri, 27 Dec 2002 14:50:10 -0200
+	id <S265051AbSL0QwX>; Fri, 27 Dec 2002 11:52:23 -0500
+Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:13843 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S265039AbSL0QwB> convert rfc822-to-8bit; Fri, 27 Dec 2002 11:52:01 -0500
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+To: torvalds@transmeta.com, marcelo@conectiva.com.br
+Subject: lk-changelog.pl 0.62
+Cc: linux-kernel@vger.kernel.org, matthias.andree@gmx.de
+From: Matthias Andree <matthias.andree@gmx.de>
+Content-ID: <Fri_Dec_27_17_00_10_UTC_2002_0@merlin.emma.line.org>
+Content-type: text/plain
+Content-Description: An object packed by metasend
+Content-Transfer-Encoding: 8BIT
+Message-Id: <20021227170011.7B7C765589@merlin.emma.line.org>
+Date: Fri, 27 Dec 2002 18:00:11 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+This is a semi-automatic announcement.
 
-I never had to fill a kernel bug report in 5 years using linux 
-- so please excuse me if I missed something here.This is kernel 2.4.20
-vanilla and unpatched. Looks like something weird in usb.c.
+lk-changelog.pl aka. shortlog version 0.62 has been released.
+The changes are listed at the end of the script below.
 
-Distro: Conectiva Linux 8.0
-GCC: 2.95.3
-Glibc: 2.2.4
-Kernel config options: See below KSYMOOPS OUTPUT
-Hardware: Toshiba Tecra 8000 PII300 128RAM 10GB
+You can always download this script and GPG signatures from
+http://mandree.home.pages.de/linux/kernel/
 
-Thank you for your attention
-(Specially if you consider that I handwrote the panic coz it couldn't
-reach the disk).
+Note that your mailer must be MIME-capable to save this mail properly,
+because it is in the "quoted-printable" encoding.
 
-Djeizon Barros
+= <- if you see just an equality sign, but no "3D", your mailer is fine.
+= <- if you see 3D on this line, then upgrade your mailer or pipe this mail
+= <- into metamail.
+
+-- 
+A sh script on behalf of Matthias Andree
+-------------------------------------------------------------------------
+Changes since last release:
+
+----------------------------
+revision 0.62
+date: 2002/12/27 16:59:28;  author: emma;  state: Exp;  lines: +14 -1
+Another ten addresses sent by Vitezslav Samel.
+----------------------------
+revision 0.61
+date: 2002/12/14 14:28:49;  author: emma;  state: Exp;  lines: +5 -2
+Bjorn Helgaas only uses the transscribed version of his name himself.
+----------------------------
+revision 0.60
+date: 2002/12/13 14:51:35;  author: emma;  state: Exp;  lines: +18 -1
+Next dozen of addresses digged out by Vita.
+----------------------------
+revision 0.59
+date: 2002/12/11 12:11:51;  author: emma;  state: Exp;  lines: +11 -4
+Workaround: strip trailing [tag] from mail addresses, reported by Marcel
+    Holtmann.
+Add some new addresses.
+=============================================================================
+-------------------------------------------------------------------------
+#! /usr/bin/perl -wT
+
+# This Perl script is meant to simplify/beautify BK ChangeLogs for the linux
+# kernel.
+#
+# (C) Copyright 2002 by Matthias Andree <matthias.andree@gmx.de>
+#			Marcus Alanen <maalanen@abo.fi>
+#			Tomas Szepe <szepe@pinerecords.com>
+#			Vitezslav Samel <samel@mail.cz>
+#
+# $Id: lk-changelog.pl,v 0.62 2002/12/27 16:59:28 emma Exp $
+# ----------------------------------------------------------------------
+# Distribution of this script is permitted under the terms of the
+# GNU General Public License (GNU GPL) v2.
+# ----------------------------------------------------------------------
+
+# This program expects its input in the following format:
+# (E-Mail Addresses MUST NOT bear leading whitespace!)
+#
+# <email@ddr.ess>
+#	changelog text
+#	more changelog text
+# <email@ddr.ess>
+#	yet another changelog
+# <another@add.ress>
+#	changelog #3
+#	more lines
+#
+# and discards all changelog lines but the first after an email address,
+# and groups and sorts the entries by email address:
+#
+# another@add.ress:
+#	changelog #3
+# email@ddr.ess
+#	changelog text
+#	yet another changelog
+
+require 5.005;
+use strict;
+
+use Carp;
+use Getopt::Long;
+use IO::File;
+eval 'use Pod::Usage;';
+if ($@) {
+  eval 'sub pod2usage {
+    print STDERR "Usage information would be presented here if you had Pod::Usage installed.\n"
+      . "Try: perl -MCPAN -e \'install Pod::Usage\'\nAbort.\n";
+    exit 2;
+  }';
+}
+use Text::ParseWords;
+use Text::Tabs;
+use Text::Wrap;
+
+# --------------------------------------------------------------------
+# customize the following line to change the indentation of the change
+# lines, $indent1 is used for the first line of an entry, $indent for
+# all subsequent lines. $indent is auto-generated from $indent1.
+my $indent1 = "  o ";
+my $indent  = " " x length($indent1);
+# change this to enable some debugging stuff:
+my $debug = 0;
+# --------------------------------------------------------------------
+
+# the key is the email address in ALL LOWER CAPS!
+# the value is the real name of the person
+#
+# Unless otherwise noted, the addresses below have been obtained using
+# lbdb.
+my %addresses = (
+'abraham@2d3d.co.za' => 'Abraham van der Merwe',
+'ac9410@attbi.com' => 'Albert Cranford',
+'acher@in.tum.de' => 'Georg Acher',
+'achirica@ttd.net' => 'Javier Achirica',
+'acme@brinquedo.oo.ps' => 'Arnaldo Carvalho de Melo',
+'acme@conectiva.com.br' => 'Arnaldo Carvalho de Melo',
+'acme@dhcp197.conectiva' => 'Arnaldo Carvalho de Melo',
+'adam@mailhost.nmt.edu' => 'Adam Radford', # google
+'adam@nmt.edu' => 'Adam Radford', # google
+'adam@yggdrasil.com' => 'Adam J. Richter',
+'adilger@clusterfs.com' => 'Andreas Dilger',
+'aebr@win.tue.nl' => 'Andries E. Brouwer',
+'agrover@acpi3.(none)' => 'Andy Grover',
+'agrover@acpi3.jf.intel.com' => 'Andy Grover', # guessed
+'agrover@dexter.groveronline.com' => 'Andy Grover',
+'agrover@groveronline.com' => 'Andy Grover',
+'ahaas@airmail.net' => 'Art Haas',
+'ahaas@neosoft.com' => 'Art Haas',
+'aia21@cam.ac.uk' => 'Anton Altaparmakov',
+'aia21@cantab.net' => 'Anton Altaparmakov',
+'aia21@cus.cam.ac.uk' => 'Anton Altaparmakov',
+'ajoshi@shell.unixbox.com' => 'Ani Joshi',
+'ak@muc.de' => 'Andi Kleen',
+'ak@suse.de' => 'Andi Kleen',
+'akpm@digeo.com' => 'Andrew Morton',
+'akpm@zip.com.au' => 'Andrew Morton',
+'akropel1@rochester.rr.com' => 'Adam Kropelin', # lbdb
+'alan@irongate.swansea.linux.org.uk' => 'Alan Cox',
+'alan@lxorguk.ukuu.org.uk' => 'Alan Cox',
+'alan@redhat.com' => 'Alan Cox',
+'alex_williamson@attbi.com' => 'Alex Williamson', # lbdb
+'alex_williamson@hp.com' => 'Alex Williamson', # google
+'alexander.riesen@synopsys.com' => 'Alexander Riesen',
+'alfre@ibd.es' => 'Alfredo Sanjuán',
+'ambx1@neo.rr.com' => 'Adam Belay',
+'amunoz@vmware.com' => 'Alberto Munoz',
+'andersen@codepoet.org' => 'Erik Andersen',
+'andersg@0x63.nu' => 'Anders Gustafsson',
+'andmike@us.ibm.com' => 'Mike Anderson', # lbdb
+'andrea@suse.de' => 'Andrea Arcangeli',
+'andries.brouwer@cwi.nl' => 'Andries E. Brouwer',
+'andros@citi.umich.edu' => 'Andy Adamson',
+'angus.sawyer@dsl.pipex.com' => 'Angus Sawyer',
+'ankry@green.mif.pg.gda.pl' => 'Andrzej Krzysztofowicz',
+'anton@samba.org' => 'Anton Blanchard',
+'aris@cathedrallabs.org' => 'Aristeu Sergio Rozanski Filho',
+'arjan@redhat.com' => 'Arjan van de Ven',
+'arjanv@redhat.com' => 'Arjan van de Ven',
+'arndb@de.ibm.com' => 'Arnd Bergmann',
+'asit.k.mallick@intel.com' => 'Asit K. Mallick', # by Kristian Peters
+'axboe@burns.home.kernel.dk' => 'Jens Axboe', # guessed
+'axboe@hera.kernel.org' => 'Jens Axboe',
+'axboe@suse.de' => 'Jens Axboe',
+'baccala@vger.freesoft.org' => 'Brent Baccala',
+'baldrick@wanadoo.fr' => 'Duncan Sands',
+'ballabio_dario@emc.com' => 'Dario Ballabio',
+'barrow_dj@yahoo.com' => 'D. J. Barrow',
+'barryn@pobox.com' => 'Barry K. Nathan', # lbdb
+'bart.de.schuymer@pandora.be' => 'Bart De Schuymer',
+'bcollins@debian.org' => 'Ben Collins',
+'bcrl@bob.home.kvack.org' => 'Benjamin LaHaise',
+'bcrl@redhat.com' => 'Benjamin LaHaise',
+'bcrl@toomuch.toronto.redhat.com' => 'Benjamin LaHaise', # guessed
+'bdschuym@pandora.be' => 'Bart De Schuymer',
+'beattie@beattie-home.net' => 'Brian Beattie', # from david.nelson
+'benh@kernel.crashing.org' => 'Benjamin Herrenschmidt',
+'bfennema@falcon.csc.calpoly.edu' => 'Ben Fennema',
+'bgerst@didntduck.org' => 'Brian Gerst',
+'bhards@bigpond.net.au' => 'Brad Hards',
+'bhavesh@avaya.com' => 'Bhavesh P. Davda',
+'bheilbrun@paypal.com' => 'Brad Heilbrun', # by himself
+'bjorn.andersson@erc.ericsson.se' => 'Björn Andersson', # google, guessed ö
+'bjorn.wesen@axis.com' => 'Bjorn Wesen',
+'bjorn_helgaas@hp.com' => 'Bjorn Helgaas',
+'bmatheny@purdue.edu' => 'Blake Matheny', # google
+'borisitk@fortunet.com' => 'Boris Itkis', # by Kristian Peters
+'braam@clusterfs.com' => 'Peter Braam',
+'brett@bad-sports.com' => 'Brett Pemberton',
+'brihall@pcisys.net' => 'Brian Hall', # google
+'brownfld@irridia.com' => 'Ken Brownfield',
+'bunk@fs.tum.de' => 'Adrian Bunk',
+'buytenh@gnu.org' => 'Lennert Buytenhek',
+'bzeeb-lists@lists.zabbadoz.net' => 'Björn A. Zeeb', # lbdb
+'c-d.hailfinger.kernel.2002-07@gmx.net' => 'Carl-Daniel Hailfinger',
+'c-d.hailfinger.kernel.2002-q4@gmx.net' => 'Carl-Daniel Hailfinger', # himself
+'cattelan@sgi.com' => 'Russell Cattelan', # google
+'ccaputo@alt.net' => 'Chris Caputo',
+'cel@citi.umich.edu' => 'Chuck Lever',
+'celso@bulma.net' => 'Celso González', # google
+'ch@hpl.hp.com' => 'Christopher Hoover', # by Kristian Peters
+'charles.white@hp.com' => 'Charles White',
+'chessman@tux.org' => 'Samuel S. Chessman',
+'chris@qwirx.com' => 'Chris Wilson',
+'chris@wirex.com' => 'Chris Wright',
+'christer@weinigel.se' => 'Christer Weinigel', # from shortlog
+'christopher.leech@intel.com' => 'Christopher Leech',
+'cip307@cip.physik.uni-wuerzburg.de' => 'Jochen Karrer', # from shortlog
+'ckulesa@as.arizona.edu' => 'Craig Kulesa',
+'colin@gibbs.dhs.org' => 'Colin Gibbs',
+'colpatch@us.ibm.com' => 'Matthew Dobson',
+'cort@fsmlabs.com' => 'Cort Dougan',
+'cph@zurich.ai.mit.edu' => 'Chris Hanson',
+'cr@sap.com' => 'Christoph Rohland',
+'cruault@724.com' => 'Charles-Edouard Ruault',
+'ctindel@cup.hp.com' => 'Chad N. Tindel',
+'cyeoh@samba.org' => 'Christopher Yeoh',
+'da-x@gmx.net' => 'Dan Aloni',
+'daisy@teetime.dynamic.austin.ibm.com' => 'Daisy Chang', # from shortlog
+'dalecki@evision-ventures.com' => 'Martin Dalecki',
+'dalecki@evision.ag' => 'Martin Dalecki',
+'dan.zink@hp.com' => 'Dan Zink',
+'dan@debian.org' => 'Daniel Jacobowitz',
+'dana.lacoste@peregrine.com' => 'Dana Lacoste',
+'danc@mvista.com' => 'Dan Cox', # some CREDITS patch found by google
+'davej@codemonkey.org.uk' => 'Dave Jones',
+'davej@suse.de' => 'Dave Jones',
+'davem@hera.kernel.org' => 'David S. Miller',
+'davem@kernel.bkbits.net' => 'David S. Miller',
+'davem@nuts.ninka.net' => 'David S. Miller',
+'davem@pizda.ninka.net' => 'David S. Miller', # guessed
+'davem@redhat.com' => 'David S. Miller',
+'david-b@pacbell.net' => 'David Brownell',
+'david.nelson@pobox.com' => 'David Nelson',
+'david@gibson.dropbear.id.au' => 'David Gibson',
+'david_jeffery@adaptec.com' => 'David Jeffery',
+'davidel@xmailserver.org' => 'Davide Libenzi',
+'davidm@hpl.hp.com' => 'David Mosberger',
+'davidm@napali.hpl.hp.com' => 'David Mosberger',
+'davidm@tiger.hpl.hp.com' => 'David Mosberger',
+'davidm@wailua.hpl.hp.com' => 'David Mosberger',
+'davids@youknow.youwant.to' => 'David Schwartz', # google
+'dbrownell@users.sourceforge.net' => 'David Brownell',
+'ddstreet@ieee.org' => 'Dan Streetman',
+'ddstreet@us.ibm.com' => 'Dan Streetman',
+'defouwj@purdue.edu' => 'Jeff DeFouw',
+'dent@cosy.sbg.ac.at' => "Thomas 'Dent' Mirlacher",
+'devel@brodo.de' => 'Dominik Brodowski',
+'devik@cdi.cz' => 'Martin Devera',
+'dgibson@samba.org' => 'David Gibson',
+'dhinds@sonic.net' => 'David Hinds', # google
+'dhollis@davehollis.com' => 'Dave Hollis',
+'dhowells@cambridge.redhat.com' => 'David Howells',
+'dhowells@redhat.com' => 'David Howells',
+'dipankar@in.ibm.com' => 'Dipankar Sarma',
+'dirk.uffmann@nokia.com' => 'Dirk Uffmann',
+'dledford@aladin.rdu.redhat.com' => 'Doug Ledford',
+'dledford@dledford.theledfords.org' => 'Doug Ledford',
+'dledford@flossy.devel.redhat.com' => 'Doug Ledford',
+'dledford@redhat.com' => 'Doug Ledford',
+'dmccr@us.ibm.com' => 'Dave McCracken',
+'dok@directfb.org' => 'Denis Oliver Kropp',
+'dougg@torque.net' => 'Douglas Gilbert',
+'driver@huey.jpl.nasa.gov' => 'Bryan B. Whitehead', # google
+'drow@false.org' => 'Daniel Jacobowitz',
+'drow@nevyn.them.org' => 'Daniel Jacobowitz',
+'dsaxena@mvista.com' => 'Deepak Saxena',
+'dwmw2@infradead.org' => 'David Woodhouse',
+'dwmw2@redhat.com' => 'David Woodhouse',
+'dz@cs.unitn.it' => 'Massimo Dal Zotto',
+'ebiederm@xmission.com' => 'Eric Biederman',
+'ebrower@resilience.com' => 'Eric Brower',
+'ebrower@usa.net' => 'Eric Brower',
+'ecd@skynet.be' => 'Eddie C. Dost',
+'edv@macrolink.com' => 'Ed Vance',
+'edward_peng@dlink.com.tw' => 'Edward Peng',
+'efocht@ess.nec.de' => 'Erich Focht',
+'eike@bilbo.math.uni-mannheim.de' => 'Rolf Eike Beer',
+'elenstev@mesatop.com' => 'Steven Cole',
+'engebret@us.ibm.com' => 'Dave Engebretsen',
+'eranian@frankl.hpl.hp.com' => 'Stéphane Eranian',
+'eranian@hpl.hp.com' => 'Stéphane Eranian',
+'erik_habbinga@hp.com' => 'Erik Habbinga',
+'eyal@eyal.emu.id.au' => 'Eyal Lebedinsky', # lbdb
+'fbl@conectiva.com.br' => 'Flávio Bruno Leitner', # google
+'fdavis@si.rr.com' => 'Frank Davis',
+'felipewd@terra.com.br' => 'Felipe Damasio', # by self (did not ask to include the W.)
+'fenghua.yu@intel.com' => 'Fenghua Yu', # google
+'fero@sztalker.hu' => 'Bakonyi Ferenc',
+'fischer@linux-buechse.de' => 'Jürgen E. Fischer',
+'fletch@aracnet.com' => 'Martin J. Bligh',
+'flo@rfc822.org' => 'Florian Lohoff',
+'florian.thiel@gmx.net' => 'Florian Thiel', # from shortlog
+'focht@ess.nec.de' => 'Erich Focht',
+'fokkensr@fokkensr.vertis.nl' => 'Rolf Fokkens',
+'franz.sirl-kernel@lauterbach.com' => 'Franz Sirl',
+'franz.sirl@lauterbach.com' => 'Franz Sirl',
+'fubar@us.ibm.com' => 'Jay Vosburgh',
+'fw@deneb.enyo.de' => 'Florian Weimer', # lbdb
+'fzago@austin.rr.com' => 'Frank Zago', # google
+'ganesh@tuxtop.vxindia.veritas.com' => 'Ganesh Varadarajan',
+'ganesh@veritas.com' => 'Ganesh Varadarajan',
+'ganesh@vxindia.veritas.com' => 'Ganesh Varadarajan',
+'garloff@suse.de' => 'Kurt Garloff',
+'geert@linux-m68k.org' => 'Geert Uytterhoeven',
+'george@mvista.com' => 'George Anzinger',
+'gerg@snapgear.com' => 'Greg Ungerer',
+'ghoz@sympatico.ca' => 'Ghozlane Toumi',
+'gibbs@overdrive.btc.adaptec.com' => 'Justin T. Gibbs',
+'gibbs@scsiguy.com' => 'Justin T. Gibbs',
+'gilbertd@treblig.org' => 'Dr. David Alan Gilbert',
+'gl@dsa-ac.de' => 'Guennadi Liakhovetski',
+'glee@gnupilgrims.org' => 'Geoffrey Lee', # lbdb
+'gnb@alphalink.com.au' => 'Greg Banks',
+'go@turbolinux.co.jp' => 'Go Taniguchi',
+'gone@us.ibm.com' => 'Patricia Guaghen',
+'gotom@debian.or.jp' => 'Goto Masanori', # from shortlog
+'gphat@cafes.net' => 'Cory Watson',
+'greearb@candelatech.com' => 'Ben Greear',
+'green@angband.namesys.com' => 'Oleg Drokin',
+'green@namesys.com' => 'Oleg Drokin',
+'greg@kroah.com' => 'Greg Kroah-Hartman',
+'grundler@cup.hp.com' => 'Grant Grundler',
+'gsromero@alumnos.euitt.upm.es' => 'Guillermo S. Romero',
+'gtoumi@laposte.net' => 'Ghozlane Toumi',
+'hadi@cyberus.ca' => 'Jamal Hadi Salim',
+'hannal@us.ibm.com' => 'Hanna Linder',
+'haveblue@us.ibm.com' => 'Dave Hansen',
+'hch@caldera.de' => 'Christoph Hellwig',
+'hch@dhcp212.munich.sgi.com' => 'Christoph Hellwig',
+'hch@hera.kernel.org' => 'Christoph Hellwig',
+'hch@infradead.org' => 'Christoph Hellwig',
+'hch@lab343.munich.sgi.com' => 'Christoph Hellwig',
+'hch@lst.de' => 'Christoph Hellwig',
+'hch@pentafluge.infradead.org' => 'Christoph Hellwig',
+'hch@sb.bsdonline.org' => 'Christoph Hellwig', # by Kristian Peters
+'hch@sgi.com' => 'Christoph Hellwig',
+'helgaas@fc.hp.com' => 'Bjorn Helgaas', # doesn't want ø/å
+'henning@meier-geinitz.de' => 'Henning Meier-Geinitz',
+'henrique2.gobbi@cyclades.com' => 'Henrique Gobbi',
+'henrique@cyclades.com' => 'Henrique Gobbi',
+'hermes@gibson.dropbear.id.au' => 'David Gibson',
+'hirofumi@mail.parknet.co.jp' => 'Hirofumi Ogawa', # corrected by himself
+'hoho@binbash.net' => 'Colin Slater',
+'hpa@zytor.com' => 'H. Peter Anvin',
+'hugh@veritas.com' => 'Hugh Dickins',
+'ica2_ts@csv.ica.uni-stuttgart.de' => 'Thiemo Seufer', # google
+'info@usblcd.de' =>  'Adams IT Services',
+'ink@jurassic.park.msu.ru' => 'Ivan Kokshaysky',
+'ionut@cs.columbia.edu' => 'Ion Badulescu',
+'ioshadij@hotmail.com' => 'Ishan O. Jayawardena',
+'irohlfs@irohlfs.de' => 'Ingo Rohlfs',
+'ivangurdiev@linuxfreemail.com' => 'Ivan Gyurdiev',
+'jack@suse.cz' => 'Jan Kara',
+'jack_hammer@adaptec.com' => 'Jack Hammer',
+'jaharkes@cs.cmu.edu' => 'Jan Harkes',
+'jakob.kemi@telia.com' => 'Jakob Kemi',
+'jamagallon@able.es' => 'J. A. Magallon',
+'james.bottomley@steeleye.com' => 'James Bottomley',
+'james@cobaltmountain.com' => 'James Mayer',
+'james_mcmechan@hotmail.com' => 'James McMechan',
+'jamey.hicks@hp.com' => 'Jamey Hicks',
+'jamey@crl.dec.com' => 'Jamey Hicks',
+'jani@astechnix.ro' => 'Jani Monoses',
+'jani@iv.ro' => 'Jani Monoses',
+'jb@jblache.org' => 'Julien Blache',
+'jbglaw@lug-owl.de' => 'Jan-Benedict Glaw',
+'jblack@linuxguru.net' => 'James Blackwell',
+'jdavid@farfalle.com' => 'David Ruggiero',
+'jdike@jdike.wstearns.org' => 'Jeff Dike',
+'jdike@karaya.com' => 'Jeff Dike',
+'jdike@uml.karaya.com' => 'Jeff Dike',
+'jdr@farfalle.com' => 'David Ruggiero',
+'jdthood@yahoo.co.uk' => 'Thomas Hood',
+'jeb.j.cramer@intel.com' => 'Jeb J. Cramer',
+'jeffs@accelent.com' => 'Jeff Sutherland', # lbdb
+'jejb@mulgrave.(none)' => 'James Bottomley', # from shortlog
+'jejb@raven.il.steeleye.com' => 'James Bottomley',
+'jenna.s.hall@intel.com' => 'Jenna S. Hall', # google
+'jes@trained-monkey.org' => 'Jes Sorensen',
+'jes@wildopensource.com' => 'Jes Sorensen',
+'jgarzik@fokker2.devel.redhat.com' => 'Jeff Garzik',
+'jgarzik@mandrakesoft.com' => 'Jeff Garzik',
+'jgarzik@pobox.com' => 'Jeff Garzik',
+'jgarzik@redhat.com' => 'Jeff Garzik',
+'jgarzik@rum.normnet.org' => 'Jeff Garzik',
+'jgarzik@tout.normnet.org' => 'Jeff Garzik',
+'jgrimm2@us.ibm.com' => 'Jon Grimm',
+'jgrimm@jgrimm.austin.ibm.com' => 'Jon Grimm', # google
+'jgrimm@touki.austin.ibm.com' => 'Jon Grimm', # google
+'jgrimm@touki.qip.austin.ibm.com' => 'Jon Grimm', # google
+'jhammer@us.ibm.com' => 'Jack Hammer',
+'jmorris@intercode.com.au' => 'James Morris',
+'jo-lkml@suckfuell.net' => 'Jochen Suckfuell',
+'jochen@jochen.org' => 'Jochen Hein',
+'joe@wavicle.org' => 'Joe Burks',
+'johann.deneux@it.uu.se' => 'Johann Deneux',
+'johannes@erdfelt.com' => 'Johannes Erdfelt',
+'john@deater.net' => 'John Clemens',
+'john@larvalstage.com' => 'John Kim',
+'johnpol@2ka.mipt.ru' => 'Evgeniy Polyakov',
+'johnstul@us.ibm.com' => 'John Stultz',
+'jsiemes@web.de' => 'Josef Siemes',
+'jsimmons@heisenberg.transvirtual.com' => 'James Simmons',
+'jsimmons@infradead.org' => 'James Simmons',
+'jsimmons@kozmo.(none)' => 'James Simmons',
+'jsimmons@maxwell.earthlink.net' => 'James Simmons',
+'jsimmons@transvirtual.com' => 'James Simmons',
+'jsm@udlkern.fc.hp.com' => 'John Marvin',
+'jt@bougret.hpl.hp.com' => 'Jean Tourrilhes',
+'jt@hpl.hp.com' => 'Jean Tourrilhes',
+'jtyner@cs.ucr.edu' => 'John Tyner',
+'jun.nakajima@intel.com' => 'Jun Nakajima',
+'jung-ik.lee@intel.com' => 'J.I. Lee',
+'jwoithe@physics.adelaide.edu.au' => 'Jonathan Woithe',
+'k-suganuma@mvj.biglobe.ne.jp' => 'Kimio Suganuma',
+'k.kasprzak@box43.pl' => 'Karol Kasprzak', # by Kristian Peters
+'kaber@trash.net' => 'Patrick McHardy',
+'kai-germaschewski@uiowa.edu' => 'Kai Germaschewski',
+'kai.makisara@kolumbus.fi' => 'Kai Makisara',
+'kai.reichert@udo.edu' => 'Kai Reichert',
+'kai@chaos.tp1.ruhr-uni-bochum.de' => 'Kai Germaschewski',
+'kai@tp1.ruhr-uni-bochum.de' => 'Kai Germaschewski',
+'kanoj@vger.kernel.org' => 'Kanoj Sarcar', # sent by Arnaldo Carvalho de Melo
+'kanojsarcar@yahoo.com' => 'Kanoj Sarcar',
+'kaos@ocs.com.au' => 'Keith Owens',
+'kaos@sgi.com' => 'Keith Owens', # sent by himself
+'kasperd@daimi.au.dk' => 'Kasper Dupont',
+'keithu@parl.clemson.edu' => 'Keith Underwood',
+'kenneth.w.chen@intel.com' => 'Kenneth W. Chen',
+'key@austin.ibm.com' => 'Kent Yoder',
+'khalid@fc.hp.com' => 'Khalid Aziz',
+'khalid_aziz@hp.com' => 'Khalid Aziz',
+'khc@pm.waw.pl' => 'Krzysztof Halasa',
+'kiran@in.ibm.com' => 'Ravikiran G. Thirumalai',
+'kisza@sch.bme.hu' => 'Andras Kis-Szabo', # google (netfilter-ext HOWTO)
+'kkeil@suse.de' => 'Karsten Keil',
+'kmsmith@umich.edu' => 'Kendrick M. Smith',
+'knan@mo.himolde.no' => 'Erik Inge Bolsø',
+'komujun@nifty.com' => 'Jun Komuro', # google
+'kraxel@bytesex.org' => 'Gerd Knorr',
+'kraxel@suse.de' => 'Gerd Knorr',
+'kuba@mareimbrium.org' => 'Kuba Ober',
+'kuebelr@email.uc.edu' => 'Robert Kuebel',
+'kuznet@mops.inr.ac.ru' => 'Alexey Kuznetsov',
+'kuznet@ms2.inr.ac.ru' => 'Alexey Kuznetsov',
+'ladis@psi.cz' => 'Ladislav Michl',
+'laforge@gnumonks.org' => 'Harald Welte',
+'laurent@latil.nom.fr' => 'Laurent Latil',
+'lawrence@the-penguin.otak.com' => 'Lawrence Walton',
+'ldb@ldb.ods.org' => 'Luca Barbieri',
+'ldm@flatcap.org' => 'Richard Russon',
+'lee@compucrew.com' => 'Lee Nash', # lbdb
+'leigh@solinno.co.uk' => 'Leigh Brown', # lbdb
+'levon@movementarian.org' => 'John Levon',
+'linux@brodo.de' => 'Dominik Brodowski',
+'lionel.bouton@inet6.fr' => 'Lionel Bouton',
+'lists@mdiehl.de' => 'Martin Diehl',
+'liyang@nerv.cx' => 'Liyang Hu',
+'lm@bitmover.com' => 'Larry McVoy',
+'lord@sgi.com' => 'Stephen Lord',
+'lowekamp@cs.wm.edu' => 'Bruce B. Lowekamp', # lbdb
+'luc.vanoostenryck@easynet.be' => 'Luc Van Oostenryck', # lbdb
+'lucasvr@terra.com.br' => 'Lucas Correia Villa Real', # google
+'m.c.p@wolk-project.de' => 'Marc-Christian Petersen',
+'maalanen@ra.abo.fi' => 'Marcus Alanen',
+'mac@melware.de' => 'Armin Schindler',
+'macro@ds2.pg.gda.pl' => 'Maciej W. Rozycki',
+'manfred@colorfullife.com' => 'Manfred Spraul',
+'manik@cisco.com' => 'Manik Raina',
+'mannthey@us.ibm.com' => 'Keith Mannthey',
+'marc@mbsi.ca' => 'Marc Boucher',
+'marcel@holtmann.org' => 'Marcel Holtmann', # sent by himself
+'marcelo@conectiva.com.br' => 'Marcelo Tosatti',
+'marcelo@freak.distro.conectiva' => 'Marcelo Tosatti', # guessed
+'marcelo@plucky.distro.conectiva' => 'Marcelo Tosatti',
+'marekm@amelek.gda.pl' => 'Marek Michalkiewicz',
+'mark@alpha.dyndns.org' => 'Mark W. McClelland',
+'mark@hal9000.dyndns.org' => 'Mark W. McClelland',
+'markh@osdl.org' => 'Mark Haverkamp',
+'martin.bligh@us.ibm.com' => 'Martin J. Bligh',
+'martin@bruli.net' => 'Martin Brulisauer',
+'martin@meltin.net' => 'Martin Schwenke',
+'mason@suse.com' => 'Chris Mason',
+'matt_domsch@dell.com' => 'Matt Domsch', # sent by himself
+'matthew@wil.cx' => 'Matthew Wilcox',
+'mauelshagen@sistina.com' => 'Heinz J. Mauelshagen',
+'maxk@qualcomm.com' => 'Maksim Krasnyanskiy',
+'maxk@viper.(none)' => 'Maksim Krasnyanskiy', # from shortlog
+'maxk@viper.qualcomm.com' => 'Maksim Krasnyanskiy',
+'mbligh@aracnet.com' => 'Martin J. Bligh',
+'mcp@linux-systeme.de' => 'Marc-Christian Petersen',
+'mdharm-scsi@one-eyed-alien.net' => 'Matthew Dharm',
+'mdharm-usb@one-eyed-alien.net' => 'Matthew Dharm',
+'mdharm@one-eyed-alien.net' => 'Matthew Dharm',
+'mec@shout.net' => 'Michael Elizabeth Chastain',
+'mgreer@mvista.com' => 'Mark A. Greer', # lbdb
+'michaelw@foldr.org' => 'Michael Weber', # google
+'michal@harddata.com' => 'Michal Jaegermann',
+'mikael.starvik@axis.com' => 'Mikael Starvik',
+'mikep@linuxtr.net' => 'Mike Phillips',
+'mikpe@csd.uu.se' => 'Mikael Pettersson',
+'mikulas@artax.karlin.mff.cuni.cz' => 'Mikulas Patocka',
+'miles@lsi.nec.co.jp' => 'Miles Bader',
+'miles@megapathdsl.net' => 'Miles Lane',
+'miltonm@bga.com' => 'Milton Miller', # by Kristian Peters
+'mingo@elte.hu' => 'Ingo Molnar',
+'mingo@redhat.com' => 'Ingo Molnar',
+'mj@ucw.cz' => 'Martin Mares',
+'mkp@mkp.net' => 'Martin K. Petersen', # lbdb
+'mlang@delysid.org' => 'Mario Lang', # google
+'mlindner@syskonnect.de' => 'Mirko Lindner',
+'mlocke@mvista.com' => 'Montavista Software, Inc.',
+'mmcclell@bigfoot.com' => 'Mark McClelland',
+'mochel@geena.pdx.osdl.net' => 'Patrick Mochel',
+'mochel@osdl.org' => 'Patrick Mochel',
+'mochel@segfault.osdl.org' => 'Patrick Mochel',
+'mostrows@speakeasy.net' => 'Michal Ostrowski',
+'msw@redhat.com' => 'Matt Wilson',
+'mufasa@sis.com.tw' => 'Mufasa Yang', # sent by himself
+'mulix@actcom.co.il' => 'Muli Ben-Yehuda', # sent by himself
+'mw@microdata-pos.de' => 'Michael Westermann',
+'mzyngier@freesurf.fr' => 'Marc Zyngier',
+'n0ano@n0ano.com' => 'Don Dugger',
+'nahshon@actcom.co.il' => 'Itai Nahshon',
+'nathans@sgi.com' => 'Nathan Scott',
+'neilb@cse.unsw.edu.au' => 'Neil Brown',
+'nemosoft@smcc.demon.nl' => 'Nemosoft Unv.',
+'nico@cam.org' => 'Nicolas Pitre',
+'nicolas.aspert@epfl.ch' => 'Nicolas Aspert',
+'nicolas.mailhot@laposte.net' => 'Nicolas Mailhot',
+'nkbj@image.dk' => 'Niels Kristian Bech Jensen',
+'nmiell@attbi.com' => 'Nicholas Miell',
+'okir@suse.de' => 'Olaf Kirch', # lbdb
+'olaf.dietsche#list.linux-kernel@t-online.de' => 'Olaf Dietsche',
+'olaf.dietsche' => 'Olaf Dietsche',
+'oleg@tv-sign.ru' => 'Oleg Nesterov',
+'olh@suse.de' => 'Olaf Hering',
+'oliendm@us.ibm.com' => 'Dave Olien',
+'oliver.neukum@lrz.uni-muenchen.de' => 'Oliver Neukum',
+'oliver@neukum.name' => 'Oliver Neukum',
+'oliver@neukum.org' => 'Oliver Neukum',
+'orjan.friberg@axis.com' => 'Orjan Friberg',
+'os@emlix.com' => 'Oskar Schirmer', # sent by himself
+'osst@riede.org' => 'Willem Riede',
+'otaylor@redhat.com' => 'Owen Taylor',
+'p2@ace.ulyssis.sutdent.kuleuven.ac.be' => 'Peter De Shrijver',
+'p_gortmaker@yahoo.com' => 'Paul Gortmaker',
+'pasky@ucw.cz' => 'Petr Baudis',
+'patmans@us.ibm.com' => 'Patrick Mansfield',
+'paul.mundt@timesys.com' => 'Paul Mundt', # google
+'paulkf@microgate.com' => 'Paul Fulghum',
+'paulus@au1.ibm.com' => 'Paul Mackerras',
+'paulus@nanango.paulus.ozlabs.org' => 'Paul Mackerras',
+'paulus@quango.ozlabs.ibm.com' => 'Paul Mackerras',
+'paulus@samba.org' => 'Paul Mackerras',
+'pavel@janik.cz' => 'Pavel Janík',
+'pavel@suse.cz' => 'Pavel Machek',
+'pavel@ucw.cz' => 'Pavel Machek',
+'pazke@orbita1.ru' => 'Andrey Panin',
+'pbadari@us.ibm.com' => 'Badari Pulavarty',
+'pdelaney@lsil.com' => 'Pam Delaney',
+'pe1rxq@amsat.org' => 'Jeroen Vreeken',
+'pekon@informatics.muni.cz' => 'Petr Konecny',
+'perex@perex.cz' => 'Jaroslav Kysela',
+'perex@pnote.perex-int.cz' => 'Jaroslav Kysela',
+'perex@suse.cz' => 'Jaroslav Kysela',
+'peter@cadcamlab.org' => 'Peter Samuelson',
+'peter@chubb.wattle.id.au' => 'Peter Chubb',
+'peterc@gelato.unsw.edu.au' => 'Peter Chubb',
+'petero2@telia.com' => 'Peter Osterlund',
+'petkan@mastika.dce.bg' => 'Petko Manolov',
+'petkan@rakia.dce.bg' => 'Petko Manolov',
+'petkan@tequila.dce.bg' => 'Petko Manolov',
+'petkan@users.sourceforge.net' => 'Petko Manolov',
+'petr@vandrovec.name' => 'Petr Vandrovec',
+'petri.koistinen@iki.fi' => 'Petri Koistinen',
+'pkot@linuxnews.pl' => 'Pawel Kot',
+'plars@austin.ibm.com' => 'Paul Larson',
+'pmenage@ensim.com' => 'Paul Menage',
+'porter@cox.net' => 'Matt Porter',
+'prom@berlin.ccc.de' => 'Ingo Albrecht',
+'proski@gnu.org' => 'Pavel Roskin',
+'pwaechtler@mac.com' => 'Peter Wächtler',
+'quinlan@transmeta.com' => 'Daniel Quinlan',
+'quintela@mandrakesoft.com' => 'Juan Quintela',
+'r.e.wolff@bitwizard.nl' => 'Rogier Wolff', # lbdbq
+'ralf@dea.linux-mips.net' => 'Ralf Bächle',
+'ralf@linux-mips.org' => 'Ralf Bächle',
+'randy.dunlap@verizon.net' => 'Randy Dunlap',
+'ray-lk@madrabbit.org' => 'Ray Lee',
+'rbh00@utsglobal.com' => 'Richard Hitt', # asked him, he prefers Richard
+'rbt@mtlb.co.uk' => 'Robert Cardell',
+'rct@gherkin.frus.com' => 'Bob Tracy',
+'rddunlap@osdl.org' => 'Randy Dunlap',
+'reality@delusion.de' => 'Udo A. Steinberg',
+'reiser@namesys.com' => 'Hans Reiser',
+'rem@osdl.org' => 'Bob Miller',
+'rgooch@atnf.csiro.au' => 'Richard Gooch',
+'rgooch@ras.ucalgary.ca' => 'Richard Gooch',
+'rgs@linalco.com' => 'Roberto Gordo Saez',
+'rhirst@linuxcare.com' => 'Richard Hirst',
+'rhw@infradead.org' => 'Riley Williams',
+'richard.brunner@amd.com' => 'Richard Brunner',
+'riel@conectiva.com.br' => 'Rik van Riel',
+'rl@hellgate.ch' => 'Roger Luethi',
+'rlievin@free.fr' => 'Romain Lievin',
+'rmk@arm.linux.org.uk' => 'Russell King',
+'rmk@flint.arm.linux.org.uk' => 'Russell King',
+'rml@tech9.net' => 'Robert Love',
+'rob@osinvestor.com' => 'Rob Radez',
+'robert.olsson@data.slu.se' => 'Robert Olsson',
+'rohit.seth@intel.com' => 'Rohit Seth',
+'roland@topspin.com' => 'Roland Dreier',
+'romieu@cogenit.fr' => 'François Romieu',
+'root@viper.(none)' => 'Maxim Krasnyansky',
+'rscott@attbi.com' => 'Rob Scott',
+'rth@are.twiddle.net' => 'Richard Henderson',
+'rth@dorothy.sfbay.redhat.com' => 'Richard Henderson',
+'rth@dot.sfbay.redhat.com' => 'Richard Henderson',
+'rth@splat.sfbay.redhat.com' => 'Richard Henderson',
+'rth@twiddle.net' => 'Richard Henderson',
+'rth@vsop.sfbay.redhat.com' => 'Richard Henderson',
+'rui.sousa@laposte.net' => 'Rui Sousa',
+'rusty@rustcorp.com.au' => 'Rusty Russell',
+'rwhron@earthlink.net' => 'Randy Hron',
+'rz@linux-m68k.org' => 'Richard Zidlicky',
+'sabala@students.uiuc.edu' => 'Michal Sabala', # google
+'sailer@scs.ch' => 'Thomas Sailer',
+'sam@mars.ravnborg.org' => 'Sam Ravnborg',
+'sam@ravnborg.org' => 'Sam Ravnborg',
+'samel@mail.cz' => 'Vitezslav Samel',
+'samuel.thibault@ens-lyon.fr' => 'Samuel Thibault',
+'sandeen@sgi.com' => 'Eric Sandeen',
+'santiago@newphoenix.net' => 'Santiago A. Nullo', # sent by self
+'sarolaht@cs.helsinki.fi' => 'Pasi Sarolahti',
+'sawa@yamamoto.gr.jp' => 'sawa',
+'schoenfr@gaaertner.de' => 'Erik Schoenfelder',
+'schwab@suse.de' => 'Andreas Schwab',
+'schwidefsky@de.ibm.com' => 'Martin Schwidefsky',
+'scott.feldman@intel.com' => 'Scott Feldman',
+'scott_anderson@mvista.com' => 'Scott Anderson',
+'scottm@somanetworks.com' => 'Scott Murray',
+'sct@redhat.com' => 'Stephen C. Tweedie',
+'sds@tislabs.com' => 'Stephen Smalley',
+'sebastian.droege@gmx.de' => 'Sebastian Dröge',
+'sfr@canb.auug.org.au' => 'Stephen Rothwell',
+'shaggy@austin.ibm.com' => 'Dave Kleikamp',
+'shaggy@kleikamp.austin.ibm.com' => 'Dave Kleikamp',
+'shaggy@shaggy.austin.ibm.com' => 'Dave Kleikamp', # lbdb
+'shingchuang@via.com.tw' => 'Shing Chuang',
+'silicon@falcon.sch.bme.hu' => 'Szilárd Pásztor', # google
+'simonb@lipsyncpost.co.uk' => 'Simon Burley',
+'skip.ford@verizon.net' => 'Skip Ford',
+'sl@lineo.com' => 'Stuart Lynne',
+'smurf@osdl.org' => 'Nathan Dabney',
+'snailtalk@linux-mandrake.com' => 'Geoffrey Lee', # by himself
+'solar@openwall.com' => 'Solar Designer',
+'sparker@sun.com' => 'Steven Parker', # by Duncan Laurie
+'spse@secret.org.uk' => 'Simon Evans', # by Kristian Peters
+'sridhar@dyn9-47-18-140.beaverton.ibm.com' => 'Sridhar Samudrala',
+'srompf@isg.de' => 'Stefan Rompf',
+'steiner@sgi.com' => 'Jack Steiner',
+'stelian.pop@fr.alcove.com' => 'Stelian Pop',
+'stelian@popies.net' => 'Stelian Pop',
+'stern@rowland.harvard.edu' => 'Alan Stern',
+'stern@rowland.org' => 'Alan Stern', # lbdb
+'steve.cameron@hp.com' => 'Stephen Cameron',
+'steve@chygwyn.com' => 'Steven Whitehouse',
+'steve@gw.chygwyn.com' => 'Steven Whitehouse',
+'stevef@smfhome1.austin.rr.com' => 'Steve French',
+'stevef@steveft21.ltcsamba' => 'Steve French',
+'stuartm@connecttech.com' => 'Stuart MacDonald',
+'sullivan@austin.ibm.com' => 'Mike Sullivan',
+'suncobalt.adm@hostme.bitkeeper.com' => 'Tim Hockin', # by Duncan Laurie
+'sunil.saxena@intel.com' => 'Sunil Saxena',
+'swanson@uklinux.net' => 'Alan Swanson',
+'szepe@pinerecords.com' => 'Tomas Szepe',
+'t-kouchi@mvf.biglobe.ne.jp' => 'Takayoshi Kouchi',
+'tai@imasy.or.jp' => 'Taisuke Yamada',
+'taka@valinux.co.jp' => 'Hirokazu Takahashi',
+'tao@acc.umu.se' => 'David Weinehall', # by himself
+'tao@kernel.org' => 'David Weinehall', # by himself
+'tcallawa@redhat.com' => 'Tom Callaway',
+'tetapi@utu.fi' => 'Tero Pirkkanen', # by Kristian Peters
+'th122948@scl1.sfbay.sun.com' => 'Tim Hockin', # by Duncan Laurie
+'th122948@scl3.sfbay.sun.com' => 'Tim Hockin', # by Duncan Laurie
+'thiel@ksan.de' => 'Florian Thiel', # lbdb
+'thockin@freakshow.cobalt.com' => 'Tim Hockin',
+'thockin@sun.com' => 'Tim Hockin',
+'tigran@aivazian.name' => 'Tigran Aivazian',
+'tim@physik3.uni-rostock.de' => 'Tim Schmielau',
+'tmolina@cox.net' => 'Thomas Molina',
+'tomita@cinet.co.jp' => 'Osamu Tomita',
+'tomlins@cam.org' => 'Ed Tomlinson',
+'tony.luck@intel.com' => 'Tony Luck',
+'tony@cantech.net.au' => 'Anthony J. Breeds-Taurima',
+'torvalds@athlon.transmeta.com' => 'Linus Torvalds',
+'torvalds@home.transmeta.com' => 'Linus Torvalds',
+'torvalds@kiwi.transmeta.com' => 'Linus Torvalds',
+'torvalds@penguin.transmeta.com' => 'Linus Torvalds',
+'torvalds@tove.transmeta.com' => 'Linus Torvalds',
+'torvalds@transmeta.com' => 'Linus Torvalds',
+'trini@bill-the-cat.bloom.county' => 'Tom Rini',
+'trini@kernel.crashing.org' => 'Tom Rini',
+'trond.myklebust@fys.uio.no' => 'Trond Myklebust',
+'tvignaud@mandrakesoft.com' => 'Thierry Vignaud',
+'twaugh@redhat.com' => 'Tim Waugh',
+'tytso@mit.edu' => "Theodore Ts'o", # web.mit.edu/tytso/www/home.html
+'tytso@snap.thunk.org' => "Theodore Ts'o",
+'tytso@think.thunk.org' => "Theodore Ts'o", # guessed
+'urban@teststation.com' => 'Urban Widmark',
+'uzi@uzix.org' => 'Joshua Uziel',
+'vandrove@vc.cvut.cz' => 'Petr Vandrovec',
+'varenet@parisc-linux.org' => 'Thibaut Varene',
+'venkatesh.pallipadi@intel.com' => 'Venkatesh Pallipadi',
+'viro@math.psu.edu' => 'Alexander Viro',
+'vojta@math.berkeley.edu' => 'Paul Vojta',
+'vojtech@suse.cz' => 'Vojtech Pavlik',
+'vojtech@twilight.ucw.cz' => 'Vojtech Pavlik',
+'vojtech@ucw.cz' => 'Vojtech Pavlik', # added by himself
+'wa@almesberger.net' => 'Werner Almesberger',
+'wahrenbruch@kobil.de' => 'Thomas Wahrenbruch',
+'wes@infosink.com' => 'Wes Schreiner',
+'wg@malloc.de' => 'Wolfram Gloger', # lbdb
+'will@sowerbutts.com' => 'William R. Sowerbutts',
+'willy@debian.org' => 'Matthew Wilcox',
+'willy@w.ods.org' => 'Willy Tarreau',
+'wilsonc@abocom.com.tw' => 'Wilson Chen', # google
+'wim@iguana.be' => 'Wim Van Sebroeck',
+'wli@holomorphy.com' => 'William Lee Irwin III',
+'wolfgang.fritz@gmx.net' => 'Wolfgang Fritz', # by Kristian Peters
+'wolfgang@iksw-muees.de' => 'Wolfgang Muees',
+'wstinson@infonie.fr' => 'William Stinson',
+'wstinson@wanadoo.fr' => 'William Stinson',
+'xkaspa06@stud.fee.vutbr.cz' => 'Tomas Kasparek',
+'yokota@netlab.is.tsukuba.ac.jp' => 'Yokota Hiroshi',
+'yoshfuji@linux-ipv6.org' => 'Hideaki Yoshifuji', # lbdb
+'yuri@acronis.com' => 'Yuri Per', # lbdb
+'zaitcev@redhat.com' => 'Pete Zaitcev',
+'zippel@linux-m68k.org' => 'Roman Zippel',
+'zubarev@us.ibm.com' => 'Irene Zubarev', # google
+'zwane@commfireservices.com' => 'Zwane Mwaikambo',
+'zwane@holomorphy.com' => 'Zwane Mwaikambo',
+'zwane@linuxpower.ca' => 'Zwane Mwaikambo',
+'zwane@mwaikambo.name' => 'Zwane Mwaikambo',
+'~~~~~~thisentrylastforconvenience~~~~~' => 'Cesar Brutus Anonymous'
+);
+
+sub doprint(\%@ ); # forward declaration
+
+my %address_unknown;
+
+# get name associated to an email address
+sub rmap_address {
+  my @o = map {defined $addresses{$_} ? $addresses{$_} :
+		 scalar (($address_unknown{$_} = 1), $_); }
+          map { lc; } @_;
+  return wantarray ? @o : $o[0];
+}
+
+# case insensitive string comparison
+# FIXME: use locale?
+sub caseicmp { uc($a) cmp uc($b) };
+
+# case insensitive string comparison by surname
+# Strings are of the form
+# "Firstname Surname <mailaddress>"
+# or
+# "<mailaddress>"
+sub caseicmpbysurname {
+  my $alast = "";
+  my $blast = "";
+  if ($a =~ m/(\S+)\s*(\s\<|$)/) { $alast = $1; }
+  if ($b =~ m/(\S+)\s*(\s\<|$)/) { $blast = $1; }
+  return uc($alast . $a) cmp uc($blast . $b);
+}
+
+my ($author, $address, $name);
+# * $address is always an email address
+# * $author can be the email address or Joe N. Sixpack II <joe6@example.com>
+#   (ready formatted to print)
+# * $name is the name (Joe N. Sixpack II) or the mail address
+#   (<joe6@example.com>) 
+
+sub get_name()   { return $name; }
+sub get_author() { return $author; }
+
+# This table maps MODE => { myhash }
+# myhash knows the keys "index" and "print" to choose the respective functions
+my %table =
+  (
+   'oneline' => { 'index' => \&get_name,
+		  'print' => \&print_oneline },
+   'terse'   => { 'index' => \&get_name,
+		  'print' => \&print_terse },
+   'grouped' => { 'index' => \&get_author,
+		  'print' => \&print_grouped },
+   'full'    => { 'index' => \&get_author,
+		  'print' => \&print_full }
+  );
+
+# temp store
+my $indexby;
+
+# The sort function we will use
+my $namesortfunc;
+
+# Global store #############
+# We store our options here.
+my %opt;
+
+# As we are parsing, the log is accumulated in the @cur array.  When
+# we are done with one item (end of input or new mail address found),
+# stuff a copy of this @cur array into the %log hash.
+sub append_item(\%@)
+# arguments: reference to hash
+#            array to push
+{
+  my $log = shift;
+  my @cur = @_;
+  return unless @cur;
+  return unless &$indexby;
+  $log->{&$indexby} = () unless defined $log->{&$indexby};
+
+  # strip trailing blank lines
+  my $t;
+  while (($t = pop(@cur)) eq '') { };
+  push @cur, $t;
+
+  # store the array
+  push @{$log->{&$indexby}}, [@cur];
+}
+
+# Remove duplicates from hash, without changing the order.
+# Prefix duplicates with the count.
+sub countdups(@) {
+  my %t;
+  croak "do not call removedups() in scalar context" unless wantarray;
+  my @u = grep (!$t{lc $_}++, @_);
+  return map {
+    $t{lc $_} > 1 ? sprintf("%d x ", $t{lc $_}) . $_ : $_; 
+  } @u;
+}
+
+# Remove duplicates from array, without changing the order. The
+# duplicates need not follow each other, so A B A is properly
+# stripped down to A B
+sub removedups(@) {
+  my %t;
+  croak "do not call removedups() in scalar context" unless wantarray;
+  return grep (!$t{lc $_}++, @_);
+}
+
+# Compress the hash passed in, depending on the --compress and --count
+# options in the %opt hash.
+sub compress(@) {
+  croak "do not call compress() in scalar context" unless wantarray;
+  if ($opt{compress}) {
+    if ($opt{count}) {
+      return countdups(@_);
+    } else {
+      return removedups(@_);
+    }
+  } else {
+    return @_;
+  }
+}
+
+# report write error, exit
+# do not return
+sub write_error() {
+  croak "Write error: $!\nAborting";
+  exit (1);
+}
+
+# implementation of "grouped" output:
+# author:
+#   first line of log1
+#   first line of log2
+sub print_grouped(\%) {
+  my $log = shift;
+  for (sort $namesortfunc keys %$log) {
+    my @lines = compress(map { $_->[0] . "\n"; } @{$log->{$_}});
+    if ($opt{width}) {
+      @lines = map { expand(wrap($indent1, $indent, ($_))); } @lines;
+    } else {
+      @lines = map { "$indent1$_" } @lines;
+    }
+    printtag($_) or write_error();
+    print join("", @lines), "\n" or write_error();
+  }
+}
+
+# implementation of "full" output
+# author:
+#   o log1
+#     more information on changeset1
+#   o log2
+#     more information on changeset2
+sub print_full(\%) {
+  my $log = shift;
+  for (sort $namesortfunc keys %$log) {
+    printtag($_) or write_error();
+    foreach (compress(@{$log->{$_}})) {
+      my @lines = map { s/^\t//; "$_\n"; } @$_;
+      if ($opt{width}) {
+	@lines = expand(wrap($indent1, $indent, @lines));
+      } else {
+	@lines = map { "$indent$_"; } @lines;
+	substr($lines[0], $[, length($indent1)) = $indent1;
+      }
+      print join("", @lines), "\n"  or write_error();
+    }
+  }
+  print "\n"  or write_error();
+}
+
+# implementation of "terse" output
+# with --swap          without --swap
+# author1: log1        log1    (author1)
+# author1: log2        log2    (author2)
+# author2: log3        log3    (author3)
+sub print_terse(\%) {
+  my $log = shift;
+  for (sort $namesortfunc keys %$log) {
+    my $a = $_;
+    if ($opt{width}) {
+      if ($opt{swap}) {
+	foreach (compress(map { $_->[0]; } @{$log->{$_}})) {
+	  my @lines = expand(wrap($indent1, $indent, ("$a: $_")));
+	  print join("\n", @lines), "\n"  or write_error();
+	}
+      } else {
+	# width, but not swap set
+	foreach (compress(map { $_->[0]; } @{$log->{$_}})) {
+	  my @addr = expand(split(/\n/, wrap('', $indent, " ($a)")));
+	  my @lines = expand(split(/\n/, wrap($indent1, $indent, ($_))));
+
+	  if (length($lines[$#lines]) + length($addr[0]) > $opt{width}) {
+	    push @lines, '';
+	  }
+	  $lines[$#lines] .= sprintf("%*s", $opt{width}
+				     - length($lines[$#lines]), $addr[0]);
+	  shift @addr;
+	  print join("\n", @lines), "\n"  or write_error();
+	  foreach (@addr) {
+	    printf "%*s\n", $opt{width}, $_  or write_error();
+	  }
+	}
+      }
+    } else {
+      # using the ?: operator within the map is more maintainable, but
+      # less efficient.
+      if ($opt{swap}) {
+	print join("\n", map { "$indent1$a: $_" }
+		   compress(map { $_->[0]; } @{$log->{$_}})), "\n"
+		     or write_error();
+      } else {
+	print join("\n", map { "$indent1$_ ($a)" } 
+		   compress(map { $_->[0]; } @{$log->{$_}})), "\n"
+		     or write_error();
+      }
+    }
+  }
+}
+
+# implementation of "oneline" output
+# which is similar to terse but reformats to one line exactly
+# with --swap          without --swap
+# author1: log1        log1    (author1)
+# author1: log2        log2    (author2)
+# author2: log3        log3    (author3)
+sub print_oneline(\%) {
+  my $log = shift;
+  for (sort $namesortfunc keys %$log) {
+    my $a = $_;
+    if ($opt{width}) {
+      if ($opt{swap}) {
+	foreach (compress(map { $_->[0]; } @{$log->{$_}})) {
+	  my $str = "$a: $_";
+	  if (length($str) > $opt{width}) {
+	    printf "%-.*s...\n", $opt{width}-3, $indent1 . "$a: $_"
+	      or write_error();
+	  } else {
+	    printf "%-.*s\n", $opt{width}, $indent1 . "$a: $_"
+	      or write_error();
+	  }
+	}
+      } else { # not swapping
+	foreach (compress(map { $_->[0]; } @{$log->{$_}})) {
+	  my $l = $opt{width} - length($indent1) - length($a) - 3;
+	  if (length($_) > $l) {
+	    $l -= 3;
+	    printf "%s%-*.*s... (%s)\n", $indent1, $l, $l, $_, $a;
+	  } else {
+	    printf "%s%-*.*s (%s)\n", $indent1, $l, $l, $_, $a;
+	  }
+	}
+      }
+    } else {
+      # not $opt{width} -> same as print_terse
+      print_terse(%$log);
+    }
+  }
+}
+
+# Abbreviate all components of the name except the last.  If capital
+# Roman numerals form the last component, leave that and the previous
+# component alone.
+sub abbreviate_name($ ) {
+  my @a = split /\s+/, $_[0];
+
+  # treat Roman numerals as last part of name
+  my $off = 0;
+  $off = 1 if ($a[$#a] =~ /^[IVXLCMD]+$/);
+
+  for (my $i = 0; $i < $#a - $off; $i++) {
+    $a[$i] =~ s/^(.).*/$1./;
+  }
+  return join(" ", @a);
+}
+
+# Read a file and parse it into the %log hash.
+sub parse_file(\%$$ ) {
+# arguments: %log hash
+#            file name
+#            file handle (IO::Handle or IO::File)
+  croak unless wantarray;
+  my $log = shift;
+  my $fn = shift;
+  my $fh = shift;
+  my @prolog;
+  local $_;
+
+  # initialize
+  my @cur = ();
+  my $first = 0;
+  my $firstpar = 0;
+  undef $address;
+
+  # now go!
+
+  # NOTE: the first @cur item can consist of multiple lines in the
+  # source file which are joined together. This happens when the first
+  # paragraph is longer than a single line.
+  while($_ = $fh -> getline) {
+    chomp;
+    s/^  (\S)/\t$1/;
+    # expand all tabs but the first
+    $_ = expand($_);
+    s/^        /\t/;
+
+    if (defined $address and $opt{multi}
+	and m{^[^<[:space:]]} and not m{^ChangeSet@}) {
+      # if we are in multi mode, if we encounter a non-address
+      # left-justified line, flush all data and print the header. The
+      # defined $address trick lets this only trigger to switch back
+      # from "log entry" to "prolog" mode
+      append_item(%$log, @cur); @cur = ();
+      doprint(%$log, @prolog);
+      print "\n" or write_error(); # print blank line between changelogs
+      @prolog = ($_);
+      undef %$log;
+      undef $address;
+    } elsif (m{^<([^>]+)>} or m{^ChangeSet@[0-9.]+,\s*[-0-9:+ ]+,\s*(.*)}) {
+      # go figure if a line starts with an address, if so, take it
+      # resolve the address to a name if possible
+      append_item(%$log, @cur); @cur = ();
+      $address = lc($1);
+      $address =~ s/\[[^]]+\]$//;
+      $name = rmap_address($address);
+      if ($name ne $address) {
+	if ($opt{'abbreviate-names'}) {
+	  $name = abbreviate_name($name);
+	}
+	$author = $name . ' <' . $address . '>';
+      } else {
+	$author = '<' . $address . '>';
+      }
+      $first = 1;
+      $firstpar = 1;
+    } elsif ($first) {
+      # we have a "first" line after an address, take it, 
+      # strip common redundant tags
+
+      # kill "PATCH" tag
+      s/^\s*\[PATCH\]//;
+      s/^\s*PATCH//;
+      s/^\s*[-:]+\s*//;
+
+      # strip trailing colon or period, and if we strip one,
+      # we don't parse further lines as part of the first paragraph
+      if (s/[:.]+\s*$//) { $firstpar = 0; }
+
+      # kill leading and trailing whitespace for consistent indentation
+      s/^\s+//; s/\s+$//;
+
+      push @cur, $_;
+      $first = 0;
+    } elsif (defined $address) {
+      # second or subsequent lines -- if in first paragraph,
+      # append this line to the first log line.
+      if (m/^\s*$/) { $firstpar = 0; }
+      elsif (m/^\s*[-*o\#]/) { $firstpar = 0; }
+      if ($firstpar) {
+	s/^\s*/ /;
+	$cur[0] .= $_;
+      } else {
+	push @cur, $_;
+      }
+      # we don't parse further lines as part of the first paragraph
+      if (s/[:.]+\s*$//) { $firstpar = 0; }
+    } else {
+      # store header before a changelog
+      push @prolog, $_;
+    }
+  }
+
+  if ($fh -> error) {
+    die "Error while reading from \"$fn\": $!";
+  }
+
+  # at file end, flush @cur array to %log.
+  append_item(%$log, @cur);
+
+  return @prolog;
+}
+
+# print a word-wrapped name or mail address, followed by a trailing colon.
+# used by print_grouped and print_full
+# passes the return value of print back up
+sub printtag($ ) {
+  my $a = shift;
+  $a .= ':';
+  return print $opt{width} ? expand(wrap("", "", ($a))) : $a, "\n";
+}
+
+# === MAIN PROGRAM ===============================================
+# Command line arguments
+# What options do we support?
+my @opts = ("help|?|h", "man", "mode=s", "compress!", "count!", "width:i",
+	    "swap!", "merge!", "warn!", "multi!", "abbreviate-names!",
+	    "by-surname!");
+#	    "bitkeeper|bk!");
+
+# How do we parse them?
+if ($Getopt::Long::VERSION gt '2.24') {
+  Getopt::Long::Configure("gnu_getopt");
+}
+
+# set default options
+$opt{mode} = 'grouped';
+$opt{warn} = 1;
+
+# Parse from environment, temporarily storing the original @ARGV.
+if (defined $ENV{LINUXKERNEL_BK_FMT}) {
+  my @savedargs = @ARGV;
+  @ARGV = parse_line('\s+', 0, $ENV{LINUXKERNEL_BK_FMT});
+  GetOptions(\%opt, @opts)
+    or pod2usage(-verbose => 0,
+		 -message => $0 . ': error in $LINUXKERNEL_BK_FMT');
+  push @ARGV, @savedargs;
+}
+
+# Parse command line. Handle help, check for errors.
+GetOptions(\%opt, @opts) or pod2usage(-verbose => 0);
+pod2usage(-verbose => 1) if $opt{help};
+pod2usage(-verbose => 2) if $opt{man};
+pod2usage(-verbose => 0,
+	  -message => ("$0: Unknown mode specified.\nValid modes are:\n    "
+		       . join(" ", sort keys %table) . "\n"))
+  unless defined $table{$opt{mode}};
+pod2usage(-verbose => 0,
+	  -message => "$0: No files given, refusing to read from a TTY.")
+  if (not $opt{bitkeeper} and (@ARGV == 0) and (-t STDIN));
+pod2usage(-verbose => 0,
+	  -message => "$0: Must have one or two arguments in --bitkeeper mode.")
+  if ($opt{bitkeeper} && (@ARGV < 1 || @ARGV > 2));
+pod2usage(-verbose => 0,
+	  -message => "$0: You cannot use --merge and --multi at the same time.")
+  if ($opt{merge} and $opt{multi});
+
+# Shortcut for programmer convenience :-)
+$indexby = $table{$opt{mode}}->{'index'};
+
+# --count implies --compress
+if ($opt{count}) { $opt{compress} = 1; }
+
+# Set the sort function
+$namesortfunc = \&caseicmp;
+if ($opt{'by-surname'}) { $namesortfunc = \&caseicmpbysurname; }
+
+# if --width is without argument or the argument is zero,
+# try to figure $COLUMNS or fall back to 80.
+if (exists $opt{width} and not $opt{width}) {
+  $opt{width} = $ENV{COLUMNS} ? $ENV{COLUMNS} : 80;
+}
+
+# Print the passed-in array linewise, checking for write errors
+# Then call the configured function to print %log formatted
+sub doprint(\%@ ) {
+  my $log = shift;
+  print join("\n", @_), "\n" or write_error();
+  $table{$opt{mode}}->{print}->($log);
+}
+
+# --------------------------------------------------------------------
+# Global initializations
+$Text::Tabs::tabstop = 8;
+$Text::Wrap::huge = 'wrap';
+if ($opt{width}) {
+  $Text::Wrap::columns = $opt{width};
+}
+
+if ($debug) {
+  print STDERR "DEBUG: Options summary:\n";
+  while (my ($k, $v) = each %opt) { print STDERR "DEBUG:   '$k' => '$v'\n"; }
+  print STDERR "DEBUG: Arguments summary:\n";
+  foreach (@ARGV) { print STDERR "DEBUG:   '$_'\n"; }
+}
+
+# Main program
+my @prolog;
+my %log;
+
+if($opt{bitkeeper}) {
+  # in Bitkeeper mode, try to figure the change set, and connect the
+  # bk program to our stdin.
+  die "not yet implemented";
+} elsif (@ARGV) {
+  # file names
+  foreach my $fn (@ARGV) {
+    my $fh = new IO::File;
+    $fh->open($fn, "r")
+      or die "cannot open \"$fn\": $!\nAborting";
+    push @prolog, parse_file(%log, $fn, $fh);
+    if (not $opt{merge}) {
+      doprint(%log, @prolog);
+      undef %log;
+    }
+    undef @prolog;
+  }
+
+  if ($opt{merge}) {
+    doprint(%log, ());
+  }
+} else {
+  # stdin
+  my @prolog;
+  my $fh = new IO::Handle;
+  $fh->fdopen(fileno(STDIN), "r")
+    or die "cannot open stdin: $!\nAborting";
+  @prolog = parse_file(%log, "stdin", $fh);
+  doprint(%log, @prolog);
+}
+
+# Flush STDOUT to prevent clobbering STDOUT with 2>&1-style redirections.
+$| = 1;
+
+# Warn about unknown addresses
+if ($opt{warn}) {
+  foreach (sort caseicmp keys %address_unknown) {
+    print STDERR "Warning: unknown address \"$_\"\n" or write_error();
+  }
+}
+
+__END__
+# --------------------------------------------------------------------
+# $Log: lk-changelog.pl,v $
+# Revision 0.62  2002/12/27 16:59:28  emma
+# Another ten addresses sent by Vitezslav Samel.
+#
+# Revision 0.61  2002/12/14 14:28:49  emma
+# Bjorn Helgaas only uses the transscribed version of his name himself.
+#
+# Revision 0.60  2002/12/13 14:51:35  emma
+# Next dozen of addresses digged out by Vita.
+#
+# Revision 0.59  2002/12/11 12:11:51  emma
+# Workaround: strip trailing [tag] from mail addresses, reported by Marcel
+#     Holtmann.
+# Add some new addresses.
+#
+# Revision 0.58  2002/12/07 15:14:57  emma
+# More addresses figured by Vitezslav Samel.
+#
+# Revision 0.57  2002/12/07 15:08:34  emma
+# 3 more addresses.
+#
+# Revision 0.56  2002/11/28 02:32:11  emma
+# List David Weinehall.
+#
+# Revision 0.55  2002/11/27 04:44:54  emma
+# Add kaos@sgi.com for Keith Owens as per his own request.
+#
+# Revision 0.54  2002/11/26 23:27:11  emma
+# Merge changes from Linus' version.
+#
+# Revision 0.53  2002/11/25 17:12:08  emma
+# Add Lee Nash's address
+#
+# Revision 0.52  2002/11/14 14:50:21  emma
+# Bugfix --by-surname for some modes. Add two addresses. Fix Carl-Daniel Hailfinger's address to lower case.
+#
+# Revision 0.51  2002/11/14 14:31:10  emma
+# Add Carl-Daniel Hailfinger's new address. Add TODO item to see if regexp/wildcard match in address list is possible.
+#
+# Revision 0.50  2002/11/09 14:24:21  emma
+# Add comment to Richard Hitt's address.
+#
+# Revision 0.49  2002/11/04 17:13:21  emma
+# Add 4 addresses sent by Duncan Laurie.
+#
+# Revision 0.48  2002/11/04 12:37:38  emma
+# Another four dozen addresses, courtesy of Vitezslav Samel.
+#
+# Revision 0.47  2002/11/04 12:19:17  emma
+# Vitezslav Samel: Merge bugfix to treat addresses with upper-case characters in ChangeSet.
+#
+# Revision 0.46  2002/11/04 11:37:33  emma
+# 7 new addresses.
+#
+# Revision 0.45  2002/11/04 11:26:41  emma
+# 18 new addresses.
+#
+# Revision 0.44  2002/10/04 03:37:51  emma
+# Track BK-kernel-tools changes to Jes Sorensen's name.
+#
+# Revision 0.43  2002/10/04 03:33:47  emma
+# 4 new addresses.
+#
+# Revision 0.42  2002/10/01 20:20:33  emma
+# Another 25 addresses for ChangeLog 2.5.3?, from google and lbdb.
+#
+# Revision 0.41  2002/10/01 19:45:20  emma
+# Some detective work on google found another 19 addresses.
+#
+# Revision 0.40  2002/09/30 01:44:51  emma
+# Drop bogus geert@linux-m68k.org.com address.
+#
+# Revision 0.39  2002/09/26 23:07:13  emma
+# 46 new addresses from lbdb
+#
+# Revision 0.38  2002/09/26 22:37:29  emma
+# 23 new addresses
+#
+# Revision 0.37  2002/09/26 22:27:37  emma
+# Fix --multi mode.
+#
+# Revision 0.36  2002/08/29 09:13:40  emma
+# Correct Vojtech Pavlik's addresses after mail from him.
+#
+# Revision 0.35  2002/08/21 13:49:46  emma
+# Many new addresses and one correction by Vitezslav 'Vita' Samel <samel@mail.cz>
+#
+# Revision 0.34  2002/08/21 13:45:53  emma
+# 2 new names
+#
+# Revision 0.33  2002/08/20 01:29:34  emma
+# The usual set of new addresses.
+#
+# Revision 0.32  2002/08/20 01:14:40  emma
+# Add Marcel Holtmann, who sent a patch.
+#
+# Revision 0.31  2002/08/12 22:34:41  emma
+# Patch by Marcus Alanen <maalanen@ra.abo.fi>:
+# Hi, patch to sort by developer surname, and a couple of more
+# developers. Use if you want to.
+#
+# Revision 0.30  2002/07/20 17:18:28  emma
+# Add one new address
+#
+# Revision 0.29  2002/07/17 23:10:13  emma
+# 23 new addresses.
+#
+# Revision 0.28  2002/06/25 09:46:57  emma
+# New mail addresses.
+#
+# Revision 0.27  2002/06/14 17:05:23  emma
+# three new addresses
+#
+# Revision 0.26  2002/06/06 10:26:51  emma
+# Get rid of global %log, pass it to sub functions by reference.
+# Move IO::Handle/IO::File treatment back into main program.
+# Prepare for integrating Bitkeeper.
+#
+# Revision 0.25  2002/06/04 00:01:23  emma
+# Recognize "bk changes" output format (that is: "ChangeSet@1.234.5.6,
+# date, programmer" tag line and body indented by two spaces). Reported
+# by Marcelo Tosatti <marcelo@conectiva.com.br>. Former versions would
+# only recognize the BK-kernel-tools/changelog format (see
+# http://gkernel.bkbits.net:8080/BK-kernel-tools/anno/changelog@1.5?nav=index.html|src/).
+#
+# Revision 0.24  2002/06/03 13:33:00  emma
+# * Fix 'grouped', 'terse', 'oneline' modes (change to parse_file()). We
+#   now take the first paragraph instead of the first line as log
+#   entry. We also guess where the paragraph ends, it ends at a line with
+#   trailing dot or colon, or if the next line is empty or starts with a
+#   "bullet" (that is -, *, o or #).
+# * New option --abbreviate-names.
+# * Fix 'full' mode indentation, broken in v0.21 by expanding the tabs.
+#   Now, the first tab is unexpanded again.
+# * Enhance 'online' mode: if the log is truncated, append an ellipsis ("...").
+# * Add more mail addresses.
+# * Fix Brian Beattie's name (was "Michael Beattie").
+#
+# Revision 0.23  2002/06/03 12:36:01  emma
+# More e-mail addresses.
+#
+# Revision 0.22  2002/05/29 20:28:20  emma
+# Mail addresses added.
+#
+# Revision 0.21  2002/05/29 11:45:48  emma
+# * Implement --mode=oneline.
+# * Expand tabs in input lines (tab stops are spaced 8 columns away from each other).
+# * Bugfix --multi mode: all append_item to flush @cur before printing.
+# * Restore prolog detection in --multi mode for efficiency.
+# * Undo the "unexpand()" that Text::Wrap does, it breaks our line width
+#   calculation. In the long run, a replacement for Text::Wrap must be
+#   found that does not unexpand().
+#
+# Revision 0.20  2002/05/29 10:44:35  emma
+# New --multi option that states multiple changelogs are in the same file.
+#
+# Revision 0.19  2002/05/29 10:27:21  emma
+# New option: --[no]warn: Warn about unknown addresses. By default
+# enabled, use --nowarn to suppress.
+#
+# Revision 0.18  2002/05/29 10:17:00  emma
+# New addresses.
+#
+# Revision 0.17  2002/05/25 23:32:49  emma
+# Four new addresses.
+#
+# Revision 0.16  2002/05/22 15:52:26  emma
+# Fix deliberate typo in use Pod::Usage that was left over from debugging.
+#
+# Revision 0.15  2002/05/22 14:05:13  emma
+# Sort addresses/names case insensitively (not locale aware).
+# Heed quotes when parsing $ENV{LINUXKERNEL_BK_FMT}. As I don't
+# currently have Perl 5.004 to test the older Text::ParseWords
+# implementation, script now requires Perl 5.005.
+# Do not require Pod::Usage, but warn if it's missing.
+#
+# Revision 0.14  2002/05/22 12:39:59  emma
+# Fold the print function dispatcher into %table.
+# Parse files on command line individually, but allow to treat them as
+# one with a new --merge option.
+# Make @cur local to the parse function.
+# Die on read errors on input files. Use IO::Handle to read files.
+#
+# Revision 0.13  2002/05/21 12:42:46  emma
+# Add 3 mail addresses.
+# Add commentary to the code.
+# Check for write errors on STDOUT and die if one happens.
+#
+# Revision 0.12  2002/05/18 16:54:50  emma
+# Make --compress work in terse mode.
+# New feature: --swap in terse mode swaps address and log entry.
+#
+# Revision 0.11  2002/05/18 16:43:30  emma
+# Support 'terse' mode.
+#
+# Revision 0.10  2002/05/18 16:15:10  emma
+# Another set of addresses.
+#
+# Revision 0.9  2002/05/18 16:06:43  emma
+# Dozens of new addresses.
+#
+# Revision 0.8  2002/05/18 15:46:01  emma
+# 21 new addresses.
+#
+# Revision 0.7  2002/05/16 13:57:37  emma
+# Add some documentation.
+#
+# Revision 0.6  2002/05/16 13:55:24  emma
+# Fix shift ambiguity in printtag().
+#
+# Revision 0.5  2002/05/16 13:51:43  emma
+# Implement grouped and full modes.
+#
+# Revision 0.4  2002/05/16 12:07:17  emma
+# Add some POD.
+# Do options and environment parsing.
+# Prepare multiple output modes (only grouped supported at the moment.)
+#
+# Revision 0.3  2002/05/13 16:11:34  emma
+# Compress identical ChangeLog lines (they need not be subsequent, note
+# this feature has O(n^2) behaviour, where n is the number of stored
+# ChangeLog lines per respective author):
+#   Soft-fp fix:
+#   Soft-fp fix:
+# becomes:
+#   2 x Soft-fp fix:
+#
+# Revision 0.2  2002/05/13 10:40:32  emma
+# Only consider e-mail addresses that are left-justified.
+# Suggested by Greg Kroah-Hartman <greg@kroah.com>.
+#
+=head1 NAME
+
+lk-changelog.pl - Reformat BitKeeper ChangeLog for Linux Kernel
+
+=head1 SYNOPSIS
+
+lk-changelog.pl [options] [file [...]]
+
+Try lk-changelog.pl --help or lk-changelog.pl --man for more information.
+
+=head1 OPTIONS
+
+ -h, --help          print this short help
+     --man           print the manual page for this program
+
+     --[no]compress  if true, suppress duplicate entries
+     --[no]count     if true, fold duplicate entries into one,
+                     prefixing it with the count. Implies --compress.
+     --[no]swap      in terse and oneline mode, swap address and log entry.
+     --[no]merge     treat all files on command line as one big file
+                     and suppress the prolog
+     --[no]multi     states that multiple changelogs are in one file
+     --[no]warn      warn about unknown addresses. Default: set!
+     --[no]abbreviate-names
+                     abbreviate all but the last name
+     --[no]by-surname
+                     sort entries by surname
+
+     --mode=MODE     specify the output format (use --man to find out more)
+     --width[=WIDTH] specify the line length, if omitted: $COLUMNS or 80.
+                     text lines will not exceed this length.
+
+Warning: Neither --compress nor --count are currently functional with
+--mode=full.
+
+=head1 DESCRIPTION
+
+Summarizes or reformats BitKeeper ChangeLogs for Linux Kernel 2.X.
+
+=head1 ENVIRONMENT
+
+=over
+
+=item LINUXKERNEL_BK_FMT
+
+Default options. These have the same meaning and syntax as the command
+line options and are parsed before them, so you can override defaults
+set in this variable on the command line. B<Example:> If you put
+--swap here and --noswap on your command line, --noswap takes
+precedence.
+
+=back
 
 
 
-============= KERNEL 2.4.20 PANIC ==================
+=head1 EXAMPLES
 
+=over
 
-usb.c: Registered new drivers cpia
-Unable to handle kernel NULL pointer dereference at virtual address
-00000000
-printing eip:
-c0113794
-*pde = 00000000
-Oops: 0002
-CPU: 0
-EIP: 0010:[<c0113794>] Not tainted
-EFLAGS: 00010082
-eax: c039d78c ebx: 00000000 ecx: 00000202 edx: c1177fa4
-esi: c1177f9c edi: c1176000 ebp: 0008e000 esp: c1177f84
-ds: 0018 es: 0018 ss:0018
-Process swapper (pid: 1, stackpage=c1177000)
-Stack: c039d780 c1177f9c c0105a39 c0314e60 c034dfd8 00000000 00000001
-c1176000
-c039d78c 00000000 c0105b98 c039d780 c0345560 c0314e70 c02455e7
-c0314e60
-c034dfd8 c0242898 c0368d3c c0359184 c0314e60 c034e687 00010f00
-c034e6c2
-Call trace: [<c0105a39>] [<c0105b98>] [<c02455e7>] [<c0242898>]
-[<c010502f>]
-[<c0105548>]
-Code: 89 13 51 9d 5b 5e c3 90 56 53 89 d6 9c 5a fa 8d 5e 08 8b 4b
-<0>Kernel Panic: Attempt to kill init!
+=item Reformat ChangeLog-2.5.17, displaying all changes grouped by
+  their author (that is the default mode, but we specify it anyways),
+  with 76 character wide lines:
 
+ lk-changelog.pl --mode=grouped --width=76 ChangeLog-2.5.17
 
+=item Reformat ChangeLog-2.5.18, displaying all changes and their
+      author on in "-ac changelog style", with 80 character wide lines:
 
-============= KSYMOOPS OUTPUT ===============
+ lk-changelog.pl --mode=terse --width=80 ChangeLog-2.5.18
 
-ksymoops 2.4.8 on i686 2.4.18-2cl.
+=item Reformat 2.4.19-pre ChangeLogs (several in one file) from your mailer:
 
-usb.c: Registered new drivers cpia
-Unable to handle kernel NULL pointer dereference at virtual address
-00000000
-c0113794
-*pde = 00000000
-Oops: 0002
-CPU: 0
-EIP: 0010:[<c0113794>] Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010082
-eax: c039d78c ebx: 00000000 ecx: 00000202 edx: c1177fa4
-esi: c1177f9c edi: c1176000 ebp: 0008e000 esp: c1177f84
-ds: 0018 es: 0018 ss:0018
-Process swapper (pid: 1, stackpage=c1177000)
-Stack: c039d780 c1177f9c c0105a39 c0314e60 c034dfd8 00000000 00000001
-c1176000
-c039d78c 00000000 c0105b98 c039d780 c0345560 c0314e70 c02455e7
-c0314e60
-c034dfd8 c0242898 c0368d3c c0359184 c0314e60 c034e687 00010f00
-c034e6c2
-Call trace: [<c0105a39>] [<c0105b98>] [<c02455e7>] [<c0242898>]
-[<c010502f>]
-[<c0105548>]
-Code: 89 13 51 9d 5b 5e c3 90 56 53 89 d6 9c 5a fa 8d 5e 08 8b 4b
+Use the pipe command to pipe the mail into:
 
->>EIP; c0113794 <add_wait_queue_exclusive+1c/24> <=====
->>eax; c039d78c <usb_bus_list_lock+c/14>
->>edx; c1177fa4 <_end+dd7244/848e2a0>
->>esi; c1177f9c <_end+dd723c/848e2a0>
->>edi; c1176000 <_end+dd52a0/848e2a0>
->>esp; c1177f84 <_end+dd7224/848e2a0>
-Trace; c0105a39 <__down+41/9c>
-Trace; c0105b98 <__down_failed+8/c>
-Trace; c02455e7 <.text.lock.usb+5/be>
-Trace; c0242898 <usb_register+98/a4>
-Trace; c010502f <init+7/108>
-Trace; c0105548 <kernel_thread+28/38>
-Code; c0113794 <add_wait_queue_exclusive+1c/24>
-00000000 <_EIP>:
-Code; c0113794 <add_wait_queue_exclusive+1c/24> <=====
-0: 89 13 mov %edx,(%ebx) <=====
-Code; c0113796 <add_wait_queue_exclusive+1e/24>
-2: 51 push %ecx
-Code; c0113797 <add_wait_queue_exclusive+1f/24>
-3: 9d popf 
-Code; c0113798 <add_wait_queue_exclusive+20/24>
-4: 5b pop %ebx
-Code; c0113799 <add_wait_queue_exclusive+21/24>
-5: 5e pop %esi
-Code; c011379a <add_wait_queue_exclusive+22/24>
-6: c3 ret 
-Code; c011379b <add_wait_queue_exclusive+23/24>
-7: 90 nop 
-Code; c011379c <remove_wait_queue+0/28>
-8: 56 push %esi
-Code; c011379d <remove_wait_queue+1/28>
-9: 53 push %ebx
-Code; c011379e <remove_wait_queue+2/28>
-a: 89 d6 mov %edx,%esi
-Code; c01137a0 <remove_wait_queue+4/28>
-c: 9c pushf 
-Code; c01137a1 <remove_wait_queue+5/28>
-d: 5a pop %edx
-Code; c01137a2 <remove_wait_queue+6/28>
-e: fa cli 
-Code; c01137a3 <remove_wait_queue+7/28>
-f: 8d 5e 08 lea 0x8(%esi),%ebx
-Code; c01137a6 <remove_wait_queue+a/28>
-12: 8b 4b 00 mov 0x0(%ebx),%ecx
-<0>Kernel Panic: Attempt to kill init!
+ lk-changelog.pl --multi --mode=terse --width=80
 
+=back
 
+=head1 AUTHOR
 
-================ THE CONFIG OPTIONS ===================
+=over
 
+=item * Matthias Andree <matthias.andree@gmx.de>
 
+Main developer
 
-#
-# Automatically generated by make menuconfig: don't edit
-#
-CONFIG_X86=y
-# CONFIG_SBUS is not set
-CONFIG_UID16=y
-#
-# Code maturity level options
-#
-CONFIG_EXPERIMENTAL=y
-#
-# Loadable module support
-#
-CONFIG_MODULES=y
-CONFIG_MODVERSIONS=y
-CONFIG_KMOD=y
-#
-# Processor type and features
-#
-# CONFIG_M386 is not set
-# CONFIG_M486 is not set
-# CONFIG_M586 is not set
-# CONFIG_M586TSC is not set
-# CONFIG_M586MMX is not set
-CONFIG_M686=y
-# CONFIG_MPENTIUMIII is not set
-# CONFIG_MPENTIUM4 is not set
-# CONFIG_MK6 is not set
-# CONFIG_MK7 is not set
-# CONFIG_MELAN is not set
-# CONFIG_MCRUSOE is not set
-# CONFIG_MWINCHIPC6 is not set
-# CONFIG_MWINCHIP2 is not set
-# CONFIG_MWINCHIP3D is not set
-# CONFIG_MCYRIXIII is not set
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-# CONFIG_RWSEM_GENERIC_SPINLOCK is not set
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_X86_HAS_TSC=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_PGE=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_X86_PPRO_FENCE=y
-CONFIG_X86_F00F_WORKS_OK=y
-CONFIG_X86_MCE=y
-CONFIG_TOSHIBA=y
-# CONFIG_I8K is not set
-# CONFIG_MICROCODE is not set
-# CONFIG_X86_MSR is not set
-# CONFIG_X86_CPUID is not set
-CONFIG_NOHIGHMEM=y
-# CONFIG_HIGHMEM4G is not set
-# CONFIG_HIGHMEM64G is not set
-# CONFIG_HIGHMEM is not set
-# CONFIG_MATH_EMULATION is not set
-CONFIG_MTRR=y
-# CONFIG_SMP is not set
-# CONFIG_X86_UP_APIC is not set
-# CONFIG_X86_UP_IOAPIC is not set
-# CONFIG_X86_TSC_DISABLE is not set
-CONFIG_X86_TSC=y
-#
-# General setup
-#
-CONFIG_NET=y
-CONFIG_PCI=y
-# CONFIG_PCI_GOBIOS is not set
-# CONFIG_PCI_GODIRECT is not set
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_ISA=y
-CONFIG_PCI_NAMES=y
-# CONFIG_EISA is not set
-# CONFIG_MCA is not set
-CONFIG_HOTPLUG=y
-#
-# PCMCIA/CardBus support
-#
-CONFIG_PCMCIA=y
-CONFIG_CARDBUS=y
-CONFIG_TCIC=y
-CONFIG_I82092=y
-CONFIG_I82365=y
-#
-# PCI Hotplug Support
-#
-# CONFIG_HOTPLUG_PCI is not set
-# CONFIG_HOTPLUG_PCI_COMPAQ is not set
-# CONFIG_HOTPLUG_PCI_COMPAQ_NVRAM is not set
-# CONFIG_HOTPLUG_PCI_IBM is not set
-# CONFIG_HOTPLUG_PCI_ACPI is not set
-CONFIG_SYSVIPC=y
-# CONFIG_BSD_PROCESS_ACCT is not set
-CONFIG_SYSCTL=y
-CONFIG_KCORE_ELF=y
-# CONFIG_KCORE_AOUT is not set
-CONFIG_BINFMT_AOUT=y
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=y
-CONFIG_PM=y
-# CONFIG_ACPI is not set
-CONFIG_APM=y
-# CONFIG_APM_IGNORE_USER_SUSPEND is not set
-# CONFIG_APM_DO_ENABLE is not set
-# CONFIG_APM_CPU_IDLE is not set
-CONFIG_APM_DISPLAY_BLANK=y
-# CONFIG_APM_RTC_IS_GMT is not set
-# CONFIG_APM_ALLOW_INTS is not set
-# CONFIG_APM_REAL_MODE_POWER_OFF is not set
-#
-# Memory Technology Devices (MTD)
-#
-# CONFIG_MTD is not set
-#
-# Parallel port support
-#
-CONFIG_PARPORT=y
-CONFIG_PARPORT_PC=y
-CONFIG_PARPORT_PC_CML1=y
-# CONFIG_PARPORT_SERIAL is not set
-# CONFIG_PARPORT_PC_FIFO is not set
-# CONFIG_PARPORT_PC_SUPERIO is not set
-# CONFIG_PARPORT_PC_PCMCIA is not set
-# CONFIG_PARPORT_AMIGA is not set
-# CONFIG_PARPORT_MFC3 is not set
-# CONFIG_PARPORT_ATARI is not set
-# CONFIG_PARPORT_GSC is not set
-# CONFIG_PARPORT_SUNBPP is not set
-# CONFIG_PARPORT_OTHER is not set
-CONFIG_PARPORT_1284=y
-#
-# Plug and Play configuration
-#
-# CONFIG_PNP is not set
-# CONFIG_ISAPNP is not set
-#
-# Block devices
-#
-CONFIG_BLK_DEV_FD=y
-# CONFIG_BLK_DEV_XD is not set
-# CONFIG_PARIDE is not set
-# CONFIG_BLK_CPQ_DA is not set
-# CONFIG_BLK_CPQ_CISS_DA is not set
-# CONFIG_CISS_SCSI_TAPE is not set
-# CONFIG_BLK_DEV_DAC960 is not set
-# CONFIG_BLK_DEV_UMEM is not set
-CONFIG_BLK_DEV_LOOP=y
-# CONFIG_BLK_DEV_NBD is not set
-# CONFIG_BLK_DEV_RAM is not set
-# CONFIG_BLK_DEV_INITRD is not set
-CONFIG_BLK_STATS=y
-#
-# Multi-device support (RAID and LVM)
-#
-# CONFIG_MD is not set
-# CONFIG_BLK_DEV_MD is not set
-# CONFIG_MD_LINEAR is not set
-# CONFIG_MD_RAID0 is not set
-# CONFIG_MD_RAID1 is not set
-# CONFIG_MD_RAID5 is not set
-# CONFIG_MD_MULTIPATH is not set
-# CONFIG_BLK_DEV_LVM is not set
-#
-# Networking options
-#
-CONFIG_PACKET=y
-# CONFIG_PACKET_MMAP is not set
-# CONFIG_NETLINK_DEV is not set
-# CONFIG_NETFILTER is not set
-# CONFIG_FILTER is not set
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-# CONFIG_IP_ADVANCED_ROUTER is not set
-# CONFIG_IP_PNP is not set
-# CONFIG_NET_IPIP is not set
-# CONFIG_NET_IPGRE is not set
-# CONFIG_IP_MROUTE is not set
-# CONFIG_ARPD is not set
-# CONFIG_INET_ECN is not set
-# CONFIG_SYN_COOKIES is not set
-# CONFIG_IPV6 is not set
-# CONFIG_KHTTPD is not set
-# CONFIG_ATM is not set
-# CONFIG_VLAN_8021Q is not set
-# CONFIG_IPX is not set
-# CONFIG_ATALK is not set
-#
-# Appletalk devices
-#
-# CONFIG_DEV_APPLETALK is not set
-# CONFIG_DECNET is not set
-# CONFIG_BRIDGE is not set
-# CONFIG_X25 is not set
-# CONFIG_LAPB is not set
-# CONFIG_LLC is not set
-# CONFIG_NET_DIVERT is not set
-# CONFIG_ECONET is not set
-# CONFIG_WAN_ROUTER is not set
-# CONFIG_NET_FASTROUTE is not set
-# CONFIG_NET_HW_FLOWCONTROL is not set
-#
-# QoS and/or fair queueing
-#
-# CONFIG_NET_SCHED is not set
-#
-# Network testing
-#
-# CONFIG_NET_PKTGEN is not set
-#
-# Telephony Support
-#
-# CONFIG_PHONE is not set
-# CONFIG_PHONE_IXJ is not set
-# CONFIG_PHONE_IXJ_PCMCIA is not set
-#
-# ATA/IDE/MFM/RLL support
-#
-CONFIG_IDE=y
-#
-# IDE, ATA and ATAPI Block devices
-#
-CONFIG_BLK_DEV_IDE=y
-# CONFIG_BLK_DEV_HD_IDE is not set
-# CONFIG_BLK_DEV_HD is not set
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-# CONFIG_IDEDISK_STROKE is not set
-# CONFIG_BLK_DEV_IDEDISK_VENDOR is not set
-# CONFIG_BLK_DEV_IDEDISK_FUJITSU is not set
-# CONFIG_BLK_DEV_IDEDISK_IBM is not set
-# CONFIG_BLK_DEV_IDEDISK_MAXTOR is not set
-# CONFIG_BLK_DEV_IDEDISK_QUANTUM is not set
-# CONFIG_BLK_DEV_IDEDISK_SEAGATE is not set
-# CONFIG_BLK_DEV_IDEDISK_WD is not set
-# CONFIG_BLK_DEV_COMMERIAL is not set
-# CONFIG_BLK_DEV_TIVO is not set
-CONFIG_BLK_DEV_IDECS=y
-CONFIG_BLK_DEV_IDECD=y
-# CONFIG_BLK_DEV_IDETAPE is not set
-# CONFIG_BLK_DEV_IDEFLOPPY is not set
-CONFIG_BLK_DEV_IDESCSI=y
-# CONFIG_IDE_TASK_IOCTL is not set
-CONFIG_BLK_DEV_CMD640=y
-# CONFIG_BLK_DEV_CMD640_ENHANCED is not set
-# CONFIG_BLK_DEV_ISAPNP is not set
-CONFIG_BLK_DEV_RZ1000=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-# CONFIG_BLK_DEV_OFFBOARD is not set
-# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-CONFIG_IDEDMA_PCI_AUTO=y
-# CONFIG_IDEDMA_ONLYDISK is not set
-CONFIG_BLK_DEV_IDEDMA=y
-# CONFIG_IDEDMA_PCI_WIP is not set
-# CONFIG_BLK_DEV_IDEDMA_TIMEOUT is not set
-# CONFIG_IDEDMA_NEW_DRIVE_LISTINGS is not set
-CONFIG_BLK_DEV_ADMA=y
-# CONFIG_BLK_DEV_AEC62XX is not set
-# CONFIG_AEC62XX_TUNING is not set
-# CONFIG_BLK_DEV_ALI15X3 is not set
-# CONFIG_WDC_ALI15X3 is not set
-# CONFIG_BLK_DEV_AMD74XX is not set
-# CONFIG_AMD74XX_OVERRIDE is not set
-# CONFIG_BLK_DEV_CMD64X is not set
-# CONFIG_BLK_DEV_CMD680 is not set
-# CONFIG_BLK_DEV_CY82C693 is not set
-# CONFIG_BLK_DEV_CS5530 is not set
-# CONFIG_BLK_DEV_HPT34X is not set
-# CONFIG_HPT34X_AUTODMA is not set
-# CONFIG_BLK_DEV_HPT366 is not set
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_PIIX_TUNING=y
-# CONFIG_BLK_DEV_NS87415 is not set
-# CONFIG_BLK_DEV_OPTI621 is not set
-# CONFIG_BLK_DEV_PDC202XX is not set
-# CONFIG_PDC202XX_BURST is not set
-# CONFIG_PDC202XX_FORCE is not set
-# CONFIG_BLK_DEV_SVWKS is not set
-# CONFIG_BLK_DEV_SIS5513 is not set
-# CONFIG_BLK_DEV_SLC90E66 is not set
-# CONFIG_BLK_DEV_TRM290 is not set
-# CONFIG_BLK_DEV_VIA82CXXX is not set
-# CONFIG_IDE_CHIPSETS is not set
-CONFIG_IDEDMA_AUTO=y
-# CONFIG_IDEDMA_IVB is not set
-# CONFIG_DMA_NONPCI is not set
-CONFIG_BLK_DEV_IDE_MODES=y
-# CONFIG_BLK_DEV_ATARAID is not set
-# CONFIG_BLK_DEV_ATARAID_PDC is not set
-# CONFIG_BLK_DEV_ATARAID_HPT is not set
-#
-# SCSI support
-#
-CONFIG_SCSI=y
-CONFIG_BLK_DEV_SD=y
-CONFIG_SD_EXTRA_DEVS=40
-# CONFIG_CHR_DEV_ST is not set
-# CONFIG_CHR_DEV_OSST is not set
-CONFIG_BLK_DEV_SR=y
-# CONFIG_BLK_DEV_SR_VENDOR is not set
-CONFIG_SR_EXTRA_DEVS=2
-CONFIG_CHR_DEV_SG=y
-# CONFIG_SCSI_DEBUG_QUEUES is not set
-# CONFIG_SCSI_MULTI_LUN is not set
-# CONFIG_SCSI_CONSTANTS is not set
-# CONFIG_SCSI_LOGGING is not set
-#
-# SCSI low-level drivers
-#
-# CONFIG_BLK_DEV_3W_XXXX_RAID is not set
-# CONFIG_SCSI_7000FASST is not set
-# CONFIG_SCSI_ACARD is not set
-# CONFIG_SCSI_AHA152X is not set
-# CONFIG_SCSI_AHA1542 is not set
-# CONFIG_SCSI_AHA1740 is not set
-# CONFIG_SCSI_AACRAID is not set
-# CONFIG_SCSI_AIC7XXX is not set
-# CONFIG_SCSI_AIC7XXX_OLD is not set
-# CONFIG_SCSI_DPT_I2O is not set
-# CONFIG_SCSI_ADVANSYS is not set
-# CONFIG_SCSI_IN2000 is not set
-# CONFIG_SCSI_AM53C974 is not set
-# CONFIG_SCSI_MEGARAID is not set
-# CONFIG_SCSI_BUSLOGIC is not set
-# CONFIG_SCSI_CPQFCTS is not set
-# CONFIG_SCSI_DMX3191D is not set
-# CONFIG_SCSI_DTC3280 is not set
-# CONFIG_SCSI_EATA is not set
-# CONFIG_SCSI_EATA_DMA is not set
-# CONFIG_SCSI_EATA_PIO is not set
-# CONFIG_SCSI_FUTURE_DOMAIN is not set
-# CONFIG_SCSI_GDTH is not set
-# CONFIG_SCSI_GENERIC_NCR5380 is not set
-# CONFIG_SCSI_IPS is not set
-# CONFIG_SCSI_INITIO is not set
-# CONFIG_SCSI_INIA100 is not set
-# CONFIG_SCSI_PPA is not set
-# CONFIG_SCSI_IMM is not set
-# CONFIG_SCSI_NCR53C406A is not set
-# CONFIG_SCSI_NCR53C7xx is not set
-# CONFIG_SCSI_SYM53C8XX_2 is not set
-# CONFIG_SCSI_NCR53C8XX is not set
-# CONFIG_SCSI_SYM53C8XX is not set
-# CONFIG_SCSI_PAS16 is not set
-# CONFIG_SCSI_PCI2000 is not set
-# CONFIG_SCSI_PCI2220I is not set
-# CONFIG_SCSI_PSI240I is not set
-# CONFIG_SCSI_QLOGIC_FAS is not set
-# CONFIG_SCSI_QLOGIC_ISP is not set
-# CONFIG_SCSI_QLOGIC_FC is not set
-# CONFIG_SCSI_QLOGIC_1280 is not set
-# CONFIG_SCSI_SEAGATE is not set
-# CONFIG_SCSI_SIM710 is not set
-# CONFIG_SCSI_SYM53C416 is not set
-# CONFIG_SCSI_DC390T is not set
-# CONFIG_SCSI_T128 is not set
-# CONFIG_SCSI_U14_34F is not set
-# CONFIG_SCSI_ULTRASTOR is not set
-# CONFIG_SCSI_DEBUG is not set
-#
-# PCMCIA SCSI adapter support
-#
-# CONFIG_SCSI_PCMCIA is not set
-#
-# Fusion MPT device support
-#
-# CONFIG_FUSION is not set
-# CONFIG_FUSION_BOOT is not set
-# CONFIG_FUSION_ISENSE is not set
-# CONFIG_FUSION_CTL is not set
-# CONFIG_FUSION_LAN is not set
-#
-# IEEE 1394 (FireWire) support (EXPERIMENTAL)
-#
-# CONFIG_IEEE1394 is not set
-#
-# I2O device support
-#
-# CONFIG_I2O is not set
-# CONFIG_I2O_PCI is not set
-# CONFIG_I2O_BLOCK is not set
-# CONFIG_I2O_LAN is not set
-# CONFIG_I2O_SCSI is not set
-# CONFIG_I2O_PROC is not set
-#
-# Network device support
-#
-CONFIG_NETDEVICES=y
-#
-# ARCnet devices
-#
-# CONFIG_ARCNET is not set
-CONFIG_DUMMY=y
-# CONFIG_BONDING is not set
-# CONFIG_EQUALIZER is not set
-# CONFIG_TUN is not set
-# CONFIG_ETHERTAP is not set
-#
-# Ethernet (10 or 100Mbit)
-#
-CONFIG_NET_ETHERNET=y
-# CONFIG_SUNLANCE is not set
-# CONFIG_HAPPYMEAL is not set
-# CONFIG_SUNBMAC is not set
-# CONFIG_SUNQE is not set
-# CONFIG_SUNGEM is not set
-# CONFIG_NET_VENDOR_3COM is not set
-# CONFIG_LANCE is not set
-# CONFIG_NET_VENDOR_SMC is not set
-# CONFIG_NET_VENDOR_RACAL is not set
-# CONFIG_AT1700 is not set
-# CONFIG_DEPCA is not set
-# CONFIG_HP100 is not set
-# CONFIG_NET_ISA is not set
-CONFIG_NET_PCI=y
-# CONFIG_PCNET32 is not set
-# CONFIG_ADAPTEC_STARFIRE is not set
-# CONFIG_AC3200 is not set
-# CONFIG_APRICOT is not set
-# CONFIG_CS89x0 is not set
-# CONFIG_TULIP is not set
-# CONFIG_DE4X5 is not set
-# CONFIG_DGRS is not set
-# CONFIG_DM9102 is not set
-CONFIG_EEPRO100=y
-# CONFIG_E100 is not set
-# CONFIG_LNE390 is not set
-# CONFIG_FEALNX is not set
-# CONFIG_NATSEMI is not set
-# CONFIG_NE2K_PCI is not set
-# CONFIG_NE3210 is not set
-# CONFIG_ES3210 is not set
-# CONFIG_8139CP is not set
-# CONFIG_8139TOO is not set
-# CONFIG_8139TOO_PIO is not set
-# CONFIG_8139TOO_TUNE_TWISTER is not set
-# CONFIG_8139TOO_8129 is not set
-# CONFIG_8139_OLD_RX_RESET is not set
-# CONFIG_SIS900 is not set
-# CONFIG_EPIC100 is not set
-# CONFIG_SUNDANCE is not set
-# CONFIG_SUNDANCE_MMIO is not set
-# CONFIG_TLAN is not set
-# CONFIG_TC35815 is not set
-# CONFIG_VIA_RHINE is not set
-# CONFIG_VIA_RHINE_MMIO is not set
-# CONFIG_WINBOND_840 is not set
-# CONFIG_NET_POCKET is not set
-#
-# Ethernet (1000 Mbit)
-#
-# CONFIG_ACENIC is not set
-# CONFIG_DL2K is not set
-# CONFIG_E1000 is not set
-# CONFIG_MYRI_SBUS is not set
-# CONFIG_NS83820 is not set
-# CONFIG_HAMACHI is not set
-# CONFIG_YELLOWFIN is not set
-# CONFIG_SK98LIN is not set
-# CONFIG_TIGON3 is not set
-# CONFIG_FDDI is not set
-# CONFIG_HIPPI is not set
-# CONFIG_PLIP is not set
-CONFIG_PPP=y
-# CONFIG_PPP_MULTILINK is not set
-# CONFIG_PPP_FILTER is not set
-CONFIG_PPP_ASYNC=y
-CONFIG_PPP_SYNC_TTY=y
-CONFIG_PPP_DEFLATE=y
-CONFIG_PPP_BSDCOMP=y
-# CONFIG_PPPOE is not set
-# CONFIG_SLIP is not set
-#
-# Wireless LAN (non-hamradio)
-#
-# CONFIG_NET_RADIO is not set
-#
-# Token Ring devices
-#
-# CONFIG_TR is not set
-# CONFIG_NET_FC is not set
-# CONFIG_RCPCI is not set
-# CONFIG_SHAPER is not set
-#
-# Wan interfaces
-#
-# CONFIG_WAN is not set
-#
-# PCMCIA network device support
-#
-CONFIG_NET_PCMCIA=y
-# CONFIG_PCMCIA_3C589 is not set
-# CONFIG_PCMCIA_3C574 is not set
-# CONFIG_PCMCIA_FMVJ18X is not set
-CONFIG_PCMCIA_PCNET=y
-# CONFIG_PCMCIA_AXNET is not set
-# CONFIG_PCMCIA_NMCLAN is not set
-# CONFIG_PCMCIA_SMC91C92 is not set
-# CONFIG_PCMCIA_XIRC2PS is not set
-# CONFIG_ARCNET_COM20020_CS is not set
-# CONFIG_PCMCIA_IBMTR is not set
-# CONFIG_PCMCIA_XIRCOM is not set
-# CONFIG_PCMCIA_XIRTULIP is not set
-CONFIG_NET_PCMCIA_RADIO=y
-CONFIG_PCMCIA_RAYCS=y
-# CONFIG_PCMCIA_NETWAVE is not set
-# CONFIG_PCMCIA_WAVELAN is not set
-# CONFIG_AIRONET4500_CS is not set
-#
-# Amateur Radio support
-#
-# CONFIG_HAMRADIO is not set
-#
-# IrDA (infrared) support
-#
-# CONFIG_IRDA is not set
-#
-# ISDN subsystem
-#
-# CONFIG_ISDN is not set
-#
-# Old CD-ROM drivers (not SCSI, not IDE)
-#
-# CONFIG_CD_NO_IDESCSI is not set
-#
-# Input core support
-#
-# CONFIG_INPUT is not set
-# CONFIG_INPUT_KEYBDEV is not set
-# CONFIG_INPUT_MOUSEDEV is not set
-# CONFIG_INPUT_JOYDEV is not set
-# CONFIG_INPUT_EVDEV is not set
-#
-# Character devices
-#
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_SERIAL=y
-# CONFIG_SERIAL_CONSOLE is not set
-# CONFIG_SERIAL_EXTENDED is not set
-# CONFIG_SERIAL_NONSTANDARD is not set
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_PRINTER=y
-CONFIG_LP_CONSOLE=y
-CONFIG_PPDEV=y
-#
-# I2C support
-#
-CONFIG_I2C=y
-# CONFIG_I2C_ALGOBIT is not set
-# CONFIG_I2C_ALGOPCF is not set
-# CONFIG_I2C_CHARDEV is not set
-CONFIG_I2C_PROC=y
-#
-# Mice
-#
-# CONFIG_BUSMOUSE is not set
-CONFIG_MOUSE=y
-CONFIG_PSMOUSE=y
-# CONFIG_82C710_MOUSE is not set
-# CONFIG_PC110_PAD is not set
-# CONFIG_MK712_MOUSE is not set
-#
-# Joysticks
-#
-# CONFIG_INPUT_GAMEPORT is not set
-# CONFIG_QIC02_TAPE is not set
-#
-# Watchdog Cards
-#
-# CONFIG_WATCHDOG is not set
-# CONFIG_AMD_RNG is not set
-# CONFIG_INTEL_RNG is not set
-# CONFIG_AMD_PM768 is not set
-# CONFIG_NVRAM is not set
-# CONFIG_RTC is not set
-# CONFIG_DTLK is not set
-# CONFIG_R3964 is not set
-# CONFIG_APPLICOM is not set
-# CONFIG_SONYPI is not set
-#
-# Ftape, the floppy tape device driver
-#
-# CONFIG_FTAPE is not set
-CONFIG_AGP=y
-CONFIG_AGP_INTEL=y
-CONFIG_AGP_I810=y
-CONFIG_AGP_VIA=y
-CONFIG_AGP_AMD=y
-# CONFIG_AGP_AMD_8151 is not set
-# CONFIG_AGP_SIS is not set
-# CONFIG_AGP_ALI is not set
-# CONFIG_AGP_SWORKS is not set
-CONFIG_DRM=y
-# CONFIG_DRM_OLD is not set
-CONFIG_DRM_NEW=y
-# CONFIG_DRM_TDFX is not set
-# CONFIG_DRM_R128 is not set
-# CONFIG_DRM_RADEON is not set
-CONFIG_DRM_I810=y
-CONFIG_DRM_I810_XFREE_41=y
-# CONFIG_DRM_I830 is not set
-# CONFIG_DRM_MGA is not set
-# CONFIG_DRM_SIS is not set
-#
-# PCMCIA character devices
-#
-# CONFIG_PCMCIA_SERIAL_CS is not set
-# CONFIG_SYNCLINK_CS is not set
-# CONFIG_MWAVE is not set
-#
-# Multimedia devices
-#
-CONFIG_VIDEO_DEV=y
-#
-# Video For Linux
-#
-CONFIG_VIDEO_PROC_FS=y
-# CONFIG_I2C_PARPORT is not set
-# CONFIG_VIDEO_PMS is not set
-# CONFIG_VIDEO_BWQCAM is not set
-# CONFIG_VIDEO_CQCAM is not set
-# CONFIG_VIDEO_W9966 is not set
-CONFIG_VIDEO_CPIA=y
-CONFIG_VIDEO_CPIA_PP=y
-CONFIG_VIDEO_CPIA_USB=y
-# CONFIG_VIDEO_SAA5249 is not set
-# CONFIG_TUNER_3036 is not set
-# CONFIG_VIDEO_STRADIS is not set
-# CONFIG_VIDEO_ZORAN is not set
-# CONFIG_VIDEO_ZORAN_BUZ is not set
-# CONFIG_VIDEO_ZORAN_DC10 is not set
-# CONFIG_VIDEO_ZORAN_LML33 is not set
-# CONFIG_VIDEO_ZR36120 is not set
-# CONFIG_VIDEO_MEYE is not set
-#
-# Radio Adapters
-#
-# CONFIG_RADIO_CADET is not set
-# CONFIG_RADIO_RTRACK is not set
-# CONFIG_RADIO_RTRACK2 is not set
-# CONFIG_RADIO_AZTECH is not set
-# CONFIG_RADIO_GEMTEK is not set
-# CONFIG_RADIO_GEMTEK_PCI is not set
-# CONFIG_RADIO_MAXIRADIO is not set
-# CONFIG_RADIO_MAESTRO is not set
-# CONFIG_RADIO_MIROPCM20 is not set
-# CONFIG_RADIO_MIROPCM20_RDS is not set
-# CONFIG_RADIO_SF16FMI is not set
-# CONFIG_RADIO_TERRATEC is not set
-# CONFIG_RADIO_TRUST is not set
-# CONFIG_RADIO_TYPHOON is not set
-# CONFIG_RADIO_ZOLTRIX is not set
-#
-# File systems
-#
-# CONFIG_QUOTA is not set
-# CONFIG_AUTOFS_FS is not set
-CONFIG_AUTOFS4_FS=y
-# CONFIG_REISERFS_FS is not set
-# CONFIG_REISERFS_CHECK is not set
-# CONFIG_REISERFS_PROC_INFO is not set
-# CONFIG_ADFS_FS is not set
-# CONFIG_ADFS_FS_RW is not set
-# CONFIG_AFFS_FS is not set
-# CONFIG_HFS_FS is not set
-# CONFIG_BEFS_FS is not set
-# CONFIG_BEFS_DEBUG is not set
-# CONFIG_BFS_FS is not set
-CONFIG_EXT3_FS=y
-CONFIG_JBD=y
-CONFIG_JBD_DEBUG=y
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-# CONFIG_UMSDOS_FS is not set
-CONFIG_VFAT_FS=y
-# CONFIG_EFS_FS is not set
-# CONFIG_JFFS_FS is not set
-# CONFIG_JFFS2_FS is not set
-# CONFIG_CRAMFS is not set
-CONFIG_TMPFS=y
-CONFIG_RAMFS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-# CONFIG_JFS_FS is not set
-# CONFIG_JFS_DEBUG is not set
-# CONFIG_JFS_STATISTICS is not set
-# CONFIG_MINIX_FS is not set
-# CONFIG_VXFS_FS is not set
-CONFIG_NTFS_FS=y
-# CONFIG_NTFS_RW is not set
-# CONFIG_HPFS_FS is not set
-CONFIG_PROC_FS=y
-# CONFIG_DEVFS_FS is not set
-# CONFIG_DEVFS_MOUNT is not set
-# CONFIG_DEVFS_DEBUG is not set
-CONFIG_DEVPTS_FS=y
-# CONFIG_QNX4FS_FS is not set
-# CONFIG_QNX4FS_RW is not set
-# CONFIG_ROMFS_FS is not set
-CONFIG_EXT2_FS=y
-# CONFIG_SYSV_FS is not set
-# CONFIG_UDF_FS is not set
-# CONFIG_UDF_RW is not set
-# CONFIG_UFS_FS is not set
-# CONFIG_UFS_FS_WRITE is not set
-#
-# Network File Systems
-#
-# CONFIG_CODA_FS is not set
-# CONFIG_INTERMEZZO_FS is not set
-CONFIG_NFS_FS=y
-# CONFIG_NFS_V3 is not set
-# CONFIG_ROOT_NFS is not set
-CONFIG_NFSD=y
-# CONFIG_NFSD_V3 is not set
-# CONFIG_NFSD_TCP is not set
-CONFIG_SUNRPC=y
-CONFIG_LOCKD=y
-# CONFIG_SMB_FS is not set
-# CONFIG_NCP_FS is not set
-# CONFIG_NCPFS_PACKET_SIGNING is not set
-# CONFIG_NCPFS_IOCTL_LOCKING is not set
-# CONFIG_NCPFS_STRONG is not set
-# CONFIG_NCPFS_NFS_NS is not set
-# CONFIG_NCPFS_OS2_NS is not set
-# CONFIG_NCPFS_SMALLDOS is not set
-# CONFIG_NCPFS_NLS is not set
-# CONFIG_NCPFS_EXTRAS is not set
-CONFIG_ZISOFS_FS=y
-#
-# Partition Types
-#
-# CONFIG_PARTITION_ADVANCED is not set
-CONFIG_MSDOS_PARTITION=y
-# CONFIG_SMB_NLS is not set
-CONFIG_NLS=y
-#
-# Native Language Support
-#
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=y
-# CONFIG_NLS_CODEPAGE_737 is not set
-# CONFIG_NLS_CODEPAGE_775 is not set
-# CONFIG_NLS_CODEPAGE_850 is not set
-# CONFIG_NLS_CODEPAGE_852 is not set
-# CONFIG_NLS_CODEPAGE_855 is not set
-# CONFIG_NLS_CODEPAGE_857 is not set
-CONFIG_NLS_CODEPAGE_860=y
-# CONFIG_NLS_CODEPAGE_861 is not set
-# CONFIG_NLS_CODEPAGE_862 is not set
-# CONFIG_NLS_CODEPAGE_863 is not set
-# CONFIG_NLS_CODEPAGE_864 is not set
-# CONFIG_NLS_CODEPAGE_865 is not set
-# CONFIG_NLS_CODEPAGE_866 is not set
-# CONFIG_NLS_CODEPAGE_869 is not set
-# CONFIG_NLS_CODEPAGE_936 is not set
-# CONFIG_NLS_CODEPAGE_950 is not set
-# CONFIG_NLS_CODEPAGE_932 is not set
-# CONFIG_NLS_CODEPAGE_949 is not set
-# CONFIG_NLS_CODEPAGE_874 is not set
-# CONFIG_NLS_ISO8859_8 is not set
-# CONFIG_NLS_CODEPAGE_1250 is not set
-# CONFIG_NLS_CODEPAGE_1251 is not set
-CONFIG_NLS_ISO8859_1=y
-# CONFIG_NLS_ISO8859_2 is not set
-# CONFIG_NLS_ISO8859_3 is not set
-# CONFIG_NLS_ISO8859_4 is not set
-# CONFIG_NLS_ISO8859_5 is not set
-# CONFIG_NLS_ISO8859_6 is not set
-# CONFIG_NLS_ISO8859_7 is not set
-# CONFIG_NLS_ISO8859_9 is not set
-# CONFIG_NLS_ISO8859_13 is not set
-# CONFIG_NLS_ISO8859_14 is not set
-CONFIG_NLS_ISO8859_15=y
-# CONFIG_NLS_KOI8_R is not set
-# CONFIG_NLS_KOI8_U is not set
-# CONFIG_NLS_UTF8 is not set
-#
-# Console drivers
-#
-CONFIG_VGA_CONSOLE=y
-CONFIG_VIDEO_SELECT=y
-# CONFIG_MDA_CONSOLE is not set
-#
-# Frame-buffer support
-#
-CONFIG_FB=y
-CONFIG_DUMMY_CONSOLE=y
-# CONFIG_FB_RIVA is not set
-# CONFIG_FB_CLGEN is not set
-# CONFIG_FB_PM2 is not set
-# CONFIG_FB_PM3 is not set
-# CONFIG_FB_CYBER2000 is not set
-CONFIG_FB_VESA=y
-CONFIG_FB_VGA16=y
-# CONFIG_FB_HGA is not set
-CONFIG_VIDEO_SELECT=y
-# CONFIG_FB_MATROX is not set
-# CONFIG_FB_ATY is not set
-# CONFIG_FB_RADEON is not set
-# CONFIG_FB_ATY128 is not set
-# CONFIG_FB_SIS is not set
-# CONFIG_FB_NEOMAGIC is not set
-# CONFIG_FB_3DFX is not set
-# CONFIG_FB_VOODOO1 is not set
-# CONFIG_FB_TRIDENT is not set
-# CONFIG_FB_VIRTUAL is not set
-CONFIG_FBCON_ADVANCED=y
-# CONFIG_FBCON_MFB is not set
-# CONFIG_FBCON_CFB2 is not set
-# CONFIG_FBCON_CFB4 is not set
-# CONFIG_FBCON_CFB8 is not set
-CONFIG_FBCON_CFB16=y
-CONFIG_FBCON_CFB24=y
-CONFIG_FBCON_CFB32=y
-# CONFIG_FBCON_AFB is not set
-# CONFIG_FBCON_ILBM is not set
-# CONFIG_FBCON_IPLAN2P2 is not set
-# CONFIG_FBCON_IPLAN2P4 is not set
-# CONFIG_FBCON_IPLAN2P8 is not set
-# CONFIG_FBCON_MAC is not set
-CONFIG_FBCON_VGA_PLANES=y
-# CONFIG_FBCON_VGA is not set
-# CONFIG_FBCON_HGA is not set
-# CONFIG_FBCON_FONTWIDTH8_ONLY is not set
-# CONFIG_FBCON_FONTS is not set
-CONFIG_FONT_8x8=y
-CONFIG_FONT_8x16=y
-#
-# Sound
-#
-CONFIG_SOUND=y
-# CONFIG_SOUND_ALI5455 is not set
-# CONFIG_SOUND_BT878 is not set
-# CONFIG_SOUND_CMPCI is not set
-# CONFIG_SOUND_EMU10K1 is not set
-# CONFIG_MIDI_EMU10K1 is not set
-# CONFIG_SOUND_FUSION is not set
-# CONFIG_SOUND_CS4281 is not set
-# CONFIG_SOUND_ES1370 is not set
-# CONFIG_SOUND_ES1371 is not set
-# CONFIG_SOUND_ESSSOLO1 is not set
-# CONFIG_SOUND_MAESTRO is not set
-# CONFIG_SOUND_MAESTRO3 is not set
-# CONFIG_SOUND_FORTE is not set
-# CONFIG_SOUND_ICH is not set
-# CONFIG_SOUND_RME96XX is not set
-# CONFIG_SOUND_SONICVIBES is not set
-# CONFIG_SOUND_TRIDENT is not set
-# CONFIG_SOUND_MSNDCLAS is not set
-# CONFIG_SOUND_MSNDPIN is not set
-# CONFIG_SOUND_VIA82CXXX is not set
-# CONFIG_MIDI_VIA82CXXX is not set
-CONFIG_SOUND_OSS=y
-CONFIG_SOUND_TRACEINIT=y
-CONFIG_SOUND_DMAP=y
-# CONFIG_SOUND_AD1816 is not set
-# CONFIG_SOUND_SGALAXY is not set
-# CONFIG_SOUND_ADLIB is not set
-# CONFIG_SOUND_ACI_MIXER is not set
-# CONFIG_SOUND_CS4232 is not set
-# CONFIG_SOUND_SSCAPE is not set
-# CONFIG_SOUND_GUS is not set
-CONFIG_SOUND_VMIDI=y
-# CONFIG_SOUND_TRIX is not set
-CONFIG_SOUND_MSS=y
-# CONFIG_SOUND_MPU401 is not set
-# CONFIG_SOUND_NM256 is not set
-# CONFIG_SOUND_MAD16 is not set
-# CONFIG_SOUND_PAS is not set
-# CONFIG_PAS_JOYSTICK is not set
-# CONFIG_SOUND_PSS is not set
-CONFIG_SOUND_SB=y
-# CONFIG_SOUND_AWE32_SYNTH is not set
-# CONFIG_SOUND_WAVEFRONT is not set
-# CONFIG_SOUND_MAUI is not set
-CONFIG_SOUND_YM3812=y
-CONFIG_SOUND_OPL3SA1=y
-CONFIG_SOUND_OPL3SA2=y
-# CONFIG_SOUND_YMFPCI is not set
-# CONFIG_SOUND_YMFPCI_LEGACY is not set
-# CONFIG_SOUND_UART6850 is not set
-# CONFIG_SOUND_AEDSP16 is not set
-# CONFIG_SOUND_TVMIXER is not set
-#
-# USB support
-#
-CONFIG_USB=y
-# CONFIG_USB_DEBUG is not set
-# CONFIG_USB_DEVICEFS is not set
-# CONFIG_USB_BANDWIDTH is not set
-# CONFIG_USB_LONG_TIMEOUT is not set
-# CONFIG_USB_EHCI_HCD is not set
-CONFIG_USB_UHCI_ALT=y
-# CONFIG_USB_OHCI is not set
-# CONFIG_USB_AUDIO is not set
-# CONFIG_USB_EMI26 is not set
-# CONFIG_USB_BLUETOOTH is not set
-# CONFIG_USB_MIDI is not set
-CONFIG_USB_STORAGE=y
-# CONFIG_USB_STORAGE_DEBUG is not set
-# CONFIG_USB_STORAGE_DATAFAB is not set
-# CONFIG_USB_STORAGE_FREECOM is not set
-# CONFIG_USB_STORAGE_ISD200 is not set
-# CONFIG_USB_STORAGE_DPCM is not set
-# CONFIG_USB_STORAGE_HP8200e is not set
-# CONFIG_USB_STORAGE_SDDR09 is not set
-# CONFIG_USB_STORAGE_SDDR55 is not set
-# CONFIG_USB_STORAGE_JUMPSHOT is not set
-# CONFIG_USB_ACM is not set
-# CONFIG_USB_PRINTER is not set
-# CONFIG_USB_HID is not set
-# CONFIG_USB_HIDINPUT is not set
-# CONFIG_USB_HIDDEV is not set
-# CONFIG_USB_KBD is not set
-# CONFIG_USB_MOUSE is not set
-# CONFIG_USB_AIPTEK is not set
-# CONFIG_USB_WACOM is not set
-# CONFIG_USB_DC2XX is not set
-# CONFIG_USB_MDC800 is not set
-# CONFIG_USB_SCANNER is not set
-# CONFIG_USB_MICROTEK is not set
-# CONFIG_USB_HPUSBSCSI is not set
-# CONFIG_USB_IBMCAM is not set
-# CONFIG_USB_OV511 is not set
-# CONFIG_USB_PWC is not set
-# CONFIG_USB_SE401 is not set
-# CONFIG_USB_STV680 is not set
-# CONFIG_USB_VICAM is not set
-# CONFIG_USB_DSBR is not set
-# CONFIG_USB_DABUSB is not set
-# CONFIG_USB_PEGASUS is not set
-# CONFIG_USB_RTL8150 is not set
-# CONFIG_USB_KAWETH is not set
-# CONFIG_USB_CATC is not set
-# CONFIG_USB_CDCETHER is not set
-# CONFIG_USB_USBNET is not set
-# CONFIG_USB_USS720 is not set
-#
-# USB Serial Converter support
-#
-# CONFIG_USB_SERIAL is not set
-# CONFIG_USB_RIO500 is not set
-# CONFIG_USB_AUERSWALD is not set
-# CONFIG_USB_TIGL is not set
-# CONFIG_USB_BRLVGER is not set
-# CONFIG_USB_LCD is not set
-#
-# Bluetooth support
-#
-# CONFIG_BLUEZ is not set
-#
-# Kernel hacking
-#
-# CONFIG_DEBUG_KERNEL is not set
-#
-# Library routines
-#
-CONFIG_ZLIB_INFLATE=y
-CONFIG_ZLIB_DEFLATE=y
+=item * Marcus Alanen <maalanen@abo.fi>
+
+=item * Tomas Szepe <szepe@pinerecords.com>
+
+=item * Further help from:
+
+Albert D. Cahalan <acahalan@cs.uml.edu>, Robinson Maureira Castillo
+<rmaureira@alumno.inacap.cl>, Greg Kroah-Hartman <greg@kroah.com>.
+
+=back
+
+=head1 BUGS
+
+=over
+
+=item * The header is not wrapped for --width character wide lines.
+
+=item * The implementation is not yet finished.
+
+=item * This manual page is incomplete.
+
+=item * --compress does not currently work with --mode=full.
+
+=item * does not detect if the changelog is already summarized (as in Marcelo's 2.4.19-pre9 announcement on the list)
+
+=back
+
+=head1 TODO
+
+=over
+
+=item * --compress-me-harder
+
+ To merge
+   o iget_locked  [1/6]
+   o iget_locked  [2/6]
+   ...
+   o iget_locked  [6/6]
+ into
+   o iget_locked  [1..6/6]
+
+=item * Integrate Bitkeeper
+
+=item * See if the map can be made to use or accompanied by regexp.
+
+=back
+
+=cut
 

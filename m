@@ -1,46 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262674AbTCTWG5>; Thu, 20 Mar 2003 17:06:57 -0500
+	id <S262665AbTCTWF6>; Thu, 20 Mar 2003 17:05:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262671AbTCTWG5>; Thu, 20 Mar 2003 17:06:57 -0500
-Received: from ishtar.tlinx.org ([64.81.58.33]:35523 "EHLO ishtar.tlinx.org")
-	by vger.kernel.org with ESMTP id <S262672AbTCTWGP>;
-	Thu, 20 Mar 2003 17:06:15 -0500
-From: "LA Walsh" <law@tlinx.org>
-To: "'mirrors'" <mirrors@kernel.org>,
-       "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: RE: Deprecating .gz format on kernel.org
-Date: Thu, 20 Mar 2003 14:17:04 -0800
-Message-ID: <001a01c2ef2e$701f9fd0$1403a8c0@sc.tlinx.org>
-X-Priority: 3 (Normal)
+	id <S262672AbTCTWF6>; Thu, 20 Mar 2003 17:05:58 -0500
+Received: from wg-vm-oavm.inext.cz ([212.111.5.106]:43509 "HELO
+	wg-vm-oavm.inext.cz") by vger.kernel.org with SMTP
+	id <S262665AbTCTWFt>; Thu, 20 Mar 2003 17:05:49 -0500
+Message-ID: <9fz-v7c6-n8m-4$85yl9$2-20-mdalr@d0e.b.yi6ilu>
+From: "Roberto Clarke" <PayOff4u@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Make $3,000+ per day! NO SPONSORING REQUIRED!
+Date: Fri, 21 Mar 03 01:15:51 GMT
+X-Priority: 3
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-Importance: Normal
-In-Reply-To: <20030319213917.GB1030@mars.ravnborg.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+X-Mailer: Microsoft Outlook Express 5.00.2919.6700
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="D.4E__..B6.6"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
 
-'Sam Ravnborg' wrote:
-> It is a convinient feature that I can download the kernel now and then
-> when at work (no linux) - and it makes it a bit simpler to use
-> an archiver that has native support for the format used.
-> Winzip, being the only allowed archiver at work, does not
-> have native bz2 support.
-----
-	I asked WinZip for plugin support so users could add
-arbitrary compressions formats (I specifically mentioned 'bz2').
-I even offered to do it myself if they wanted to give me NDA access
-to the code....  and was told that they have thought about
-extensibility but had no plans to support  it in the forseeable
-future.  Consider it a benefit of a closed source product.
-They control your file format, they control your business and personal decisions...nice.
+--D.4E__..B6.6
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-	Anyone up for writing a Free version of Winzip to replace
-the "cooperative" Winzip authors' version (was was up for making
-minor mod's, but not starting from scratch).
+Nothing like this has ever hit the internet before! Get in early and Reap =
+the Rewards! NO SPONSORING REQUIRED!
 
--linda
+No sponsoring required to get paid(just like GMT but pays quicker)
 
+ * A ton of helpful Information products
+ * No selling
+ * Couple of weeks old
+ * Pays daily
+ * One time payment of $179
+ * can pay you up to $2500 per day
+ * Pays you via debit card (Usually have money on card when you receive it=
+)
+ * International online/offline opportunity
+ * Company uses a million dollar tracking software
+ * Professional self replicating website sells for you
+ * Company has combined experience of 50 years in business
+ * 24 hour information line 212-461-2506
+ * Live conference Calls 
+  
+   This Program will be very well received due to the fact that members ca=
+n be paid without recruiting others. However, those who do share the progr=
+am with others will earn matching bonuses 2 levels deep. This is one of th=
+e very best comp plans I have seen.
+
+Thank You,
+GDP,
+
+
+Need more Information go to:
+
+
+                        .::CLICK ON THE LINK BELOW TO REPLY TO THIS AD BY =
+E-MAIL::.
+                               mailto:frank53@buythebest.us?subject=3DREPL=
+Y_RETURN
+                  
+                  
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+                  
+###################################
+To be removed from this mailing list
+go here: mailto:alice14@buythebest.us?subject=3DREMOVE_ME
+ 
+###################################
+
+      
+kwvuxrgakqu
+qc jhekbf  qyuzvbfx p
+slng k wvscxckefyblxvy
+--D.4E__..B6.6--
 

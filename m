@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314201AbSDZVYC>; Fri, 26 Apr 2002 17:24:02 -0400
+	id <S314211AbSDZVZZ>; Fri, 26 Apr 2002 17:25:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314211AbSDZVYB>; Fri, 26 Apr 2002 17:24:01 -0400
-Received: from air-2.osdl.org ([65.201.151.6]:15620 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S314201AbSDZVYB>;
-	Fri, 26 Apr 2002 17:24:01 -0400
-Date: Fri, 26 Apr 2002 14:17:53 -0700 (PDT)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Wakko Warner <wakko@animx.eu.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 160gb disk showing up as 137gb
-In-Reply-To: <20020426171836.A3160@animx.eu.org>
-Message-ID: <Pine.LNX.4.33L2.0204261416040.14014-100000@dragon.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314213AbSDZVZY>; Fri, 26 Apr 2002 17:25:24 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:47974 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S314211AbSDZVZX>; Fri, 26 Apr 2002 17:25:23 -0400
+Date: Fri, 26 Apr 2002 23:25:41 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Dieter =?iso-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Cc: Marc-Christian Petersen <mcp@linux-systeme.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel 2.4.18 and strange OOM Killer behaveness
+Message-ID: <20020426232541.K19278@dualathlon.random>
+In-Reply-To: <200204261946.14955.Dieter.Nuetzel@hamburg.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.22.1i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 26 Apr 2002, Wakko Warner wrote:
+On Fri, Apr 26, 2002 at 07:46:14PM +0200, Dieter Nützel wrote:
+> Marc-Christian Petersen wrote:
+> 
+> > Apr 26 16:10:56 codeman kernel: Out of Memory: Killed process 26038
+> > (mysqld).
+> > Apr 26 16:11:01 codeman kernel: Out of Memory: Killed process 3914 (pico).
+> > Apr 26 16:11:01 codeman kernel: VM: killing process pico
+> > Apr 26 16:11:04 codeman kernel: Out of Memory: Killed process 20471 (squid).
+> >
+> > So, you guess, apache, mysqld, squid and the causer pico are killed, but NO, 
+> > ONLY, and i mean ONLY pico was killed, all the other Processes listed above 
+> > are running fine, accepting connections, short: works fine!!
+> > And yes, its reproduceable !!
+> >
+> > The above is a kernel without rmap!
+> 
+> Try with -AA (splitted vm33), latest ist 2.4.19pre7aa2.
+> It works for "ages".
 
-| Just bought a maxtor 160gb disk and it shows upt as a 137gb disk.  I thought
-| this might be the system board's ide chipset limitation so I put a scsi->ide
-| adapter on the drive.  Same situation occurs.  I'm looking at what the kernel
-| reports when it finds the drive.  /proc/partitions shows this drive as:
-|    8     0  134217727 sda
-| /proc/scsi/scsi shows:
-| Attached devices:
-| Host: scsi0 Channel: 00 Id: 00 Lun: 00
-|   Vendor: Maxtor 4 Model: G160J8           Rev: GAK8
-|   Type:   Direct-Access                    ANSI SCSI revision: 02
-|
-| I tried kernel 2.4.14 and 2.4.18.  Any ideas?
+I second the suggestion :)
 
-Hi,
-
-There was a thread on this 2-3 months back.
-IDE in 2.4 doesn't have a 48-bit block address interface IIRC,
-although Andre has some patches for this.
-This is necessary to go above 137 GB.
-
--- 
-~Randy
-
+Andrea

@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129137AbRBLXgD>; Mon, 12 Feb 2001 18:36:03 -0500
+	id <S129421AbRBLXiD>; Mon, 12 Feb 2001 18:38:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129601AbRBLXfy>; Mon, 12 Feb 2001 18:35:54 -0500
-Received: from yellow.csi.cam.ac.uk ([131.111.8.67]:28571 "EHLO
-	yellow.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S129436AbRBLXfs>; Mon, 12 Feb 2001 18:35:48 -0500
-Date: Mon, 12 Feb 2001 23:35:00 +0000 (GMT)
-From: James Sutherland <jas88@cam.ac.uk>
-To: "H. Peter Anvin" <hpa@transmeta.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Werner Almesberger <Werner.Almesberger@epfl.ch>,
-        linux-kernel@vger.kernel.org
-Subject: Re: LILO and serial speeds over 9600
-In-Reply-To: <3A886FAC.C47465A7@transmeta.com>
-Message-ID: <Pine.SOL.4.21.0102122331360.21380-100000@yellow.csi.cam.ac.uk>
+	id <S129500AbRBLXhx>; Mon, 12 Feb 2001 18:37:53 -0500
+Received: from front1.grolier.fr ([194.158.96.51]:40436 "EHLO
+	front1.grolier.fr") by vger.kernel.org with ESMTP
+	id <S129421AbRBLXhq>; Mon, 12 Feb 2001 18:37:46 -0500
+Message-ID: <3A8873F3.772D75E7@club-internet.fr>
+Date: Tue, 13 Feb 2001 00:38:27 +0100
+From: Jérôme Augé <jauge@club-internet.fr>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.2-pre3 i586)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Re: opl3sa not detected anymore
+In-Reply-To: <Pine.LNX.4.30.0102122311180.1057-100000@pikachu.bti.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Feb 2001, H. Peter Anvin wrote:
-
-> Alan Cox wrote:
-> > 
-> > > > Explain 'controlled buffer overrun'.
-> > >
-> > > That's probably the ability to send new data even if there's unacked old
-> > > data (e.g. because the receiver can't keep up or because we've had losses).
-> > 
-> > Well let me see, the typical window on the other end of the connection if
-> > its a normal PC class host will be 32K. I think that should be sufficient.
+Chris Funderburg wrote:
+> following in /etc/modules.conf:
 > 
-> Depends on what the client can handle.  For the kernel, that might be
-> true, but for example a boot loader may only have a few K worth of buffer
-> space.
+> alias sound-slot-0 opl3sa2
+> options sound dmabuf=1
+> alias midi opl3
+> options opl3 io=0x388
+> options opl3sa2 mss_io=0x530 irq=5 dma=1 dma2=0 mpu_io=0x330 io=0x370
+> 
+> The midi works fine, but 'modprobe sound' reports:
+> 
+> opl3sa2: No cards found
+> opl3sa2: 0 PnP card(s) found.
+> 
+> If the settings above look ok, then how can help debug it?
 
-Fortunately, the bulky stuff (printk's from the booting kernel) will be
-going from the boot loader to the server, and should be buffered there
-OK until they can be processed. Only the stuff sent to the client will
-need buffering, and that should be simple keystrokes...
+Try to add "isapnp=0" to the opl3sa2 options list :
 
+opl3sa2 mss_io=0x530 irq=5 dma=1 dma2=0 mpu_io=0x330 io=0x370 isapnp=0
 
-James.
+I had the same problem and adding isapnp=0 solved it, but PNP isn't
+supposed to automaticaly detect those options ?
 
+-- 
+Jérôme Augé
+echo cdqgm@vnqb-hklmpkml.yp | tr khplmndvqyc nirtelacufj
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,36 +1,30 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314278AbSE1M1a>; Tue, 28 May 2002 08:27:30 -0400
+	id <S314340AbSE1M2q>; Tue, 28 May 2002 08:28:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314340AbSE1M13>; Tue, 28 May 2002 08:27:29 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:32929 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S314278AbSE1M12>;
-	Tue, 28 May 2002 08:27:28 -0400
-Date: Tue, 28 May 2002 05:11:34 -0700 (PDT)
-Message-Id: <20020528.051134.58832375.davem@redhat.com>
-To: vda@port.imtp.ilyichevsk.odessa.ua
-Cc: szepe@pinerecords.com, linux-kernel@vger.kernel.org
-Subject: Re: [aurora-sparc-devel] Re: 2.4 SRMMU bug revisited
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200205281139.g4SBdSY22504@Port.imtp.ilyichevsk.odessa.ua>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S314389AbSE1M2p>; Tue, 28 May 2002 08:28:45 -0400
+Received: from vena.lwn.net ([206.168.112.25]:30738 "HELO eklektix.com")
+	by vger.kernel.org with SMTP id <S314340AbSE1M2o>;
+	Tue, 28 May 2002 08:28:44 -0400
+Message-ID: <20020528122845.29045.qmail@eklektix.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: business models [was patent stuff] 
+From: corbet-lk@lwn.net (Jonathan Corbet)
+In-Reply-To: Your message of "Mon, 27 May 2002 15:24:52 PDT."
+             <20020527152452.A24502@work.bitmover.com> 
+Date: Tue, 28 May 2002 06:28:45 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-   Date: Tue, 28 May 2002 14:41:20 -0200
-   
-   But he wants some of "%99 of people with sparc32 problems" to move
-   into "%1" category instead.
+> Jumping on the chance to cause more discussion...  This probably ought to
+> be off on some other list, but I don't know what that is.  
 
-Thank you, that is exactly what I meant.
+For what it's worth, something like the Free Software Business List, which
+has a (rather minimalistic) web page at http://www.crynwr.com/fsb/,
+welcomes this sort of discussion.
 
-Look, if someone reports some bug once, that's ok.  You report it
-twice, I'll give you the benefit of the doubt that you're merely
-reminding us.  The third and further time, it's a whine.  Everyone
-here knows there are sun4m problems, and Tom in particular knows it is
-a well known problem because I know he reads this list.  Therefore Tom
-was engaging in what I'd like to term a double-whine.
+jon
+
+Jonathan Corbet
+Executive editor, LWN.net
+corbet@lwn.net

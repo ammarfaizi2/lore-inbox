@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261475AbVACPaA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbVACPep@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261475AbVACPaA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 10:30:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261481AbVACP37
+	id S261477AbVACPep (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 10:34:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261478AbVACPep
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 10:29:59 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:18186 "HELO
+	Mon, 3 Jan 2005 10:34:45 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:35594 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261475AbVACP3y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 10:29:54 -0500
-Date: Mon, 3 Jan 2005 16:29:53 +0100
+	id S261477AbVACPem (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 10:34:42 -0500
+Date: Mon, 3 Jan 2005 16:34:38 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Rik van Riel <riel@redhat.com>
-Cc: William Lee Irwin III <wli@debian.org>, Andries Brouwer <aebr@win.tue.nl>,
+Cc: Andries Brouwer <aebr@win.tue.nl>,
+       William Lee Irwin III <wli@holomorphy.com>,
        Maciej Soltysiak <solt2@dns.toxicfilms.tv>,
        linux-kernel@vger.kernel.org
 Subject: Re: starting with 2.7
-Message-ID: <20050103152953.GE2980@stusta.de>
-References: <1697129508.20050102210332@dns.toxicfilms.tv> <20050102203615.GL29332@holomorphy.com> <20050102212427.GG2818@pclin040.win.tue.nl> <20050102214211.GM29332@holomorphy.com> <20050102221534.GG4183@stusta.de> <Pine.LNX.4.61.0501031019110.25392@chimarrao.boston.redhat.com>
+Message-ID: <20050103153438.GF2980@stusta.de>
+References: <1697129508.20050102210332@dns.toxicfilms.tv> <20050102203615.GL29332@holomorphy.com> <20050102212427.GG2818@pclin040.win.tue.nl> <Pine.LNX.4.61.0501031011410.25392@chimarrao.boston.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0501031019110.25392@chimarrao.boston.redhat.com>
+In-Reply-To: <Pine.LNX.4.61.0501031011410.25392@chimarrao.boston.redhat.com>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 03, 2005 at 10:20:40AM -0500, Rik van Riel wrote:
-> On Sun, 2 Jan 2005, Adrian Bunk wrote:
+On Mon, Jan 03, 2005 at 10:18:47AM -0500, Rik van Riel wrote:
+> On Sun, 2 Jan 2005, Andries Brouwer wrote:
 > 
-> >The main advantage with stable kernels in the good old days (tm) when 4
+> >You change some stuff. The bad mistakes are discovered very soon.
+> >Some subtler things or some things that occur only in special
+> >configurations or under special conditions or just with
+> >very low probability may not be noticed until much later.
 > 
-> >Nowadays in 2.6, every new 2.6 kernel has several regressions compared
-> >to the previous one, and additionally obsolete but used code like
+> Some of these subtle bugs are only discovered a year
+> after the distribution with some particular kernel has
+> been deployed - at which point the kernel has moved on
+> so far that the fix the distro does might no longer
+> apply (even in concept) to the upstream kernel...
 > 
-> 2.2 before 2.2.20 also had this kind of problem, as did
-> the 2.4 kernel before 2.4.20 or thereabouts.
-> 
-> I'm pretty sure 2.6 is actually doing better than the
-> early 2.0, 2.2 and 2.4 kernels...
+> This is especially true when you are talking about really
+> big database servers and bugs that take weeks or months
+> to trigger.
 
-My personal impression was that even the 2.6.0-test kernels were much 
-better than the 2.4.0-test kernels.
+If at this time 2.8 was already released, the 2.8 kernel available at 
+this time will be roughly what 2.6 would have been under the current 
+development model, and 2.6 will be a rock stable kernel.
 
-But 2.6.20 will most likely still have the stability of the early 
-2.6 kernels instead of a greatly increased stability as observed in 
-2.2.20 and 2.4.20 .
+If it was possible to get the 2.7 cycle pretty short, this would give 
+the advantages of the old development model without most of its' 
+disadvantages.
 
 cu
 Adrian

@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284944AbRLLBVr>; Tue, 11 Dec 2001 20:21:47 -0500
+	id <S284849AbRLLBT5>; Tue, 11 Dec 2001 20:19:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284968AbRLLBVa>; Tue, 11 Dec 2001 20:21:30 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:37013 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S284944AbRLLBVR>; Tue, 11 Dec 2001 20:21:17 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Elliot Lee <sopwith@redhat.com>
-Date: Wed, 12 Dec 2001 12:21:28 +1100 (EST)
+	id <S284944AbRLLBTj>; Tue, 11 Dec 2001 20:19:39 -0500
+Received: from roc-24-169-102-121.rochester.rr.com ([24.169.102.121]:59622
+	"EHLO roc-24-169-102-121.rochester.rr.com") by vger.kernel.org
+	with ESMTP id <S284933AbRLLBT1>; Tue, 11 Dec 2001 20:19:27 -0500
+Date: Tue, 11 Dec 2001 20:15:12 -0500
+From: Chris Mason <mason@suse.com>
+To: Johan Ekenberg <johan@ekenberg.se>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: SV: Lockups with 2.4.14 and 2.4.16
+Message-ID: <2545860000.1008119712@tiny>
+In-Reply-To: <001001c182a8$8624a670$050010ac@FUTURE>
+In-Reply-To: <001001c182a8$8624a670$050010ac@FUTURE>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15382.45336.802869.600836@notabene.cse.unsw.edu.au>
-Cc: "David S. Miller" <davem@redhat.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: knfsd and FS_REQUIRES_DEV
-In-Reply-To: message from Elliot Lee on Tuesday December 11
-In-Reply-To: <20011211.162011.21927662.davem@redhat.com>
-	<Pine.LNX.4.33.0112111922100.541-100000@devserv.devel.redhat.com>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday December 11, sopwith@redhat.com wrote:
-> I'm not worried about problems where files mysteriously disappear due to
-> me screwing up inode numbers in my code, only about causing kernel panics
-> or other Bad Things in the server's kernel. If I were to remove the
-> FS_REQUIRES_DEV check (or, more likely, submit a patch adding an nfsd
-> module option to remove the check...), what are the worst things that
-> could theoretically and realistically happen?
 
-If you just removed the check, the worst that would happen is that
-after a server reboot you have to remount everything on your clients.
 
-If you submit a patch to make it an option, the worst that can happen
-is that I jump on you (but I'm not a good long jumper, so you are
-pretty safe).
+On Wednesday, December 12, 2001 02:01:25 AM +0100 Johan Ekenberg
+<johan@ekenberg.se> wrote:
 
-I plan to make a change to knfsd in the near future so that you can
-have an option like:
-   fs=27
-in /etc/exports and the the kernel puts the magic number "27" in the
-filehandle instead of the device number.  Then as long as you export
-each filesystem with a unique and consistant fs number, you won't need
-to worry about the instability of device numbers.
+>> >## Kernel:
+>> >  - 2.4.14 and 2.4.16
+>> >  - Patched for reiserfs-quota with patches found at
+>> >    ftp://ftp.suse.com/pub/people/mason/patches/reiserfs/quota-2.4/
+>> >      ( * 50_quota-patch
+>> >        * dquota_deadlock
+>> >        * nesting
+>> >        * reiserfs-quota )
+>> 
+>> For the 2.4.16 kernel, you used the quota patches from my 2.4.16 dir?
+> 
+> Yes.
+> 
+>> The fastest way to rule out filesystem deadlocks is to hook up a serial
+>> console and send me the decoded output of sysrq-t.
+> 
+> I'll look into this. A bit of a problem since there are 10 servers and you
+> never know which one is going to lockup next time. Do I really need 10 PC's
+> to monitor them simultaneously or could it be done more efficiently? I'm no
+> kernel hacker, any pointers as to what tools to use etc would be most
+> welcome.
 
-NeilBrown
+For this case, it is enough to configure each kernel to allow a serial
+console, wait for a machine to lockup, plugin the serial cable to that one
+machine, and then do the sysrq-t.
+
+But, test that method first ;-)  You can hit sysrq-t at any time without
+breaking things.
+
+-chris
+

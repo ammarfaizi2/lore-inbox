@@ -1,69 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293181AbSCLWtF>; Tue, 12 Mar 2002 17:49:05 -0500
+	id <S293182AbSCLWsm>; Tue, 12 Mar 2002 17:48:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293556AbSCLWsx>; Tue, 12 Mar 2002 17:48:53 -0500
-Received: from red.csi.cam.ac.uk ([131.111.8.70]:16844 "EHLO red.csi.cam.ac.uk")
-	by vger.kernel.org with ESMTP id <S293181AbSCLWss>;
-	Tue, 12 Mar 2002 17:48:48 -0500
-Message-Id: <5.1.0.14.2.20020312224609.04e7aaf0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 12 Mar 2002 22:48:38 +0000
-To: "H. Peter Anvin" <hpa@zytor.com>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: IO stats in /proc/partitions
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <a6lt8j$md6$1@cesium.transmeta.com>
-In-Reply-To: <3C8E1FFF.9090705@linkvest.com>
+	id <S293181AbSCLWsd>; Tue, 12 Mar 2002 17:48:33 -0500
+Received: from jubjub.wizard.com ([209.170.216.9]:61453 "EHLO
+	jubjub.wizard.com") by vger.kernel.org with ESMTP
+	id <S293182AbSCLWs1>; Tue, 12 Mar 2002 17:48:27 -0500
+Date: Tue, 12 Mar 2002 14:47:54 -0800
+From: A Guy Called Tyketto <tyketto@wizard.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.6: make xconfig croaks in with sound/core/Config.in
+Message-ID: <20020312224754.GA32687@wizard.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux/2.5.5 (i686)
+X-uptime: 2:44pm  up 8 days,  9:41,  2 users,  load average: 0.08, 0.04, 0.03
+X-RSA-KeyID: 0xE9DF4D85
+X-DSA-KeyID: 0xE319F0BF
+X-GPG-Keys: see http://www.wizard.com/~tyketto/pgp.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 21:51 12/03/02, H. Peter Anvin wrote:
->Followup to:  <3C8E1FFF.9090705@linkvest.com>
->By author:    Jean-Eric Cuendet <jean-eric.cuendet@linkvest.com>
->In newsgroup: linux.dev.kernel
-> >
-> > Hi,
-> > I use 2.4.19-pre2-ac4.
-> > 2 questions:
-> > - Either MD Raid ot LVM IO devices are not accounted in /proc/partitions
-> > IO data. Is it normal?
-> > - Are the new /proc/partitions IO stats integrated in 2.4.19-pre3?
-> >
->
->If we're adding fields to /proc/partitions, I would like to
->*strongly* recommend that /proc/partitions adds the following
->information:
->
->         offset and length
 
-I had a patch for this already. I can update it and resend if the powers 
-that be want it. Just let me know...
+        Short, but sweet:
 
-Anton
+root@bellicha:/usr/src/linux# head -10 Makefile
+VERSION = 2
+PATCHLEVEL = 5
+SUBLEVEL = 6
+EXTRAVERSION =
 
->         parent device (if applicable)
->
->The latter could also be used to identify parallelizable devices
->(spindles) for things like fsck.
->
->         -hpa
->--
-><hpa@transmeta.com> at work, <hpa@zytor.com> in private!
->"Unix gives you enough rope to shoot yourself in the foot."
->http://www.zytor.com/~hpa/puzzle.txt    <amsp@zytor.com>
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
 
+ARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ -e 
+s/arm.*/arm/ -e s/sa110/arm/)
+KERNELPATH=kernel-$(shell echo $(KERNELRELEASE) | sed -e "s/-//")
+
+root@bellicha:/usr/src/linux# make xconfig &
+[2] 32520
+root@bellicha:/usr/src/linux# rm -f include/asm
+( cd include ; ln -sf asm-i386 asm)
+make -C scripts kconfig.tk
+make[1]: Entering directory `/usr/src/linux-2.5.5/scripts'
+gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o tkparse.o 
+tkparse.c
+gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o tkcond.o tkcond.c
+gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -c -o tkgen.o tkgen.c
+gcc -o tkparse tkparse.o tkcond.o tkgen.o
+cat header.tk >> ./kconfig.tk
+./tkparse < ../arch/i386/config.in >> kconfig.tk
+sound/core/Config.in: 4: can't handle dep_bool/dep_mbool/dep_tristate condition
+make[1]: *** [kconfig.tk] Error 1
+make[1]: Leaving directory `/usr/src/linux-2.5.5/scripts'
+make: *** [xconfig] Error 2
+
+[2]+  Exit 2                  make xconfig
+
+                                                        BL.
 -- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+Brad Littlejohn                         | Email:        tyketto@wizard.com
+Unix Systems Administrator,             |           tyketto@ozemail.com.au
+Web + NewsMaster, BOFH.. Smeghead! :)   |   http://www.wizard.com/~tyketto
+  PGP: 1024D/E319F0BF 6980 AAD6 7329 E9E6 D569  F620 C819 199A E319 F0BF
 

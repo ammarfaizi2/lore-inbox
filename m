@@ -1,16 +1,16 @@
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S268937AbTBWVVK>; Sun, 23 Feb 2003 16:21:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S268943AbTBWVVK>; Sun, 23 Feb 2003 16:21:10 -0500
-Received: from rrcs-nys-24-97-132-21.biz.rr.com ([24.97.132.21]:41977 "EHLO smc-ex2.smc.com") by vger.kernel.org with ESMTP id <S268937AbTBWVVI>; Sun, 23 Feb 2003 16:21:08 -0500
-Date: Sun, 23 Feb 2003 21:30:54 GMT
-From: "Rarwen" <GenerateMoreSalesNow0223@yahoo.com>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S268548AbTBWVUn>; Sun, 23 Feb 2003 16:20:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S268564AbTBWVUn>; Sun, 23 Feb 2003 16:20:43 -0500
+Received: from rrcs-nys-24-97-132-21.biz.rr.com ([24.97.132.21]:25077 "EHLO smc-ex2.smc.com") by vger.kernel.org with ESMTP id <S268548AbTBWVUk>; Sun, 23 Feb 2003 16:20:40 -0500
+Date: Sun, 23 Feb 2003 21:30:33 GMT
+From: "Raulla" <GenerateMoreSalesNow0223@yahoo.com>
 X-Priority: 3
-To: linux-kernel@vger.kernel.org
+To: edmond@cedar-republic.com
 Subject: >>>15.4 MILLION EMAIL ADDRESSES...PLUS OVER $2,000 WORTH OF FREE EMAIL MARKETING SOFTWARE!
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <SMC-EX2hjM8osI5gECk00005657@smc-ex2.smc.com>
-X-OriginalArrivalTime: 23 Feb 2003 21:28:44.0173 (UTC) FILETIME=[8ADC73D0:01C2DB82]
+Message-ID: <SMC-EX2nD7zoJDpz1Pj0000562c@smc-ex2.smc.com>
+X-OriginalArrivalTime: 23 Feb 2003 21:28:17.0674 (UTC) FILETIME=[7B1106A0:01C2DB82]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Return-Path: <linux-kernel-owner+ralf=40linux-mips.org@vger.kernel.org>

@@ -1,90 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263491AbSKYOOi>; Mon, 25 Nov 2002 09:14:38 -0500
+	id <S263333AbSKYOY4>; Mon, 25 Nov 2002 09:24:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263544AbSKYOOi>; Mon, 25 Nov 2002 09:14:38 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:50114 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S263491AbSKYOOf> convert rfc822-to-8bit;
-	Mon, 25 Nov 2002 09:14:35 -0500
-Message-Id: <200211251421.gAPELjB21758@zeus.kernel.org>
-From: "kinsley Eze" <olowoabiola28500@yahoo.com>
-Reply-To: king285@mail.com
+	id <S263544AbSKYOY4>; Mon, 25 Nov 2002 09:24:56 -0500
+Received: from [193.130.228.132] ([193.130.228.132]:32007 "HELO
+	mailessentials.london.csf.co.uk") by vger.kernel.org with SMTP
+	id <S263333AbSKYOYz>; Mon, 25 Nov 2002 09:24:55 -0500
+Message-ID: <C3521D5A224C344284C3666E831BF68021B057@london_exch2>
+From: mark.hodge@xaman.com
 To: linux-kernel@vger.kernel.org
-Date: Tue, 26 Nov 2002 03:23:45 +0000
-Subject: partnership
-X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
+Subject: 2.5.49 Compilation error
+Date: Mon, 25 Nov 2002 14:31:50 -0000
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am Manager in charge of bills and
-exchange of Ecobank Plc, Africa. I have
-urgent and very confidential business proposition for
-you.
+When "CONFIG_INPUT=m" the 2.5.49 kernel falies to compile with
 
-On June 6, 1998, an oil consultant/contractor
-with the Nigerian Mining Corporation, Mr. Charles
-Anderson made a numbered time (Fixed) Deposit for
-twelve calendar months, valued at US$28,500,000.00
-(Twenty- eight Million five hundred thousand Dollars)
-in my branch. Upon
-maturity, I sent a routine notification to his
-forwarding address but got no reply. After a month,
-we sent a reminder and finally we discovered from his
-contract employers, the Nigerian Mining
-Corporation that Mr. Charles Anderson died from an
-automobile accident. On further investigation, I found
-out that he died without making a WILL and all
-attempts to trace his next of kin was fruitless.
+drivers/built-in.o: In function `kd_nosound':
+drivers/built-in.o(.text+0x13140): undefined reference to `input_event'
+drivers/built-in.o(.text+0x1315d): undefined reference to `input_event'
+drivers/built-in.o: In function `kd_mksound':
+drivers/built-in.o(.text+0x1320a): undefined reference to `input_event'
+drivers/built-in.o: In function `kbd_bh':
+drivers/built-in.o(.text+0x1409a): undefined reference to `input_event'
+drivers/built-in.o(.text+0x140a8): undefined reference to `input_event'
+drivers/built-in.o(.text+0x140b9): more undefined references to
+`input_event' follow
+drivers/built-in.o: In function `kbd_connect':
+drivers/built-in.o(.text+0x1454e): undefined reference to
+`input_open_device'
+drivers/built-in.o: In function `kbd_disconnect':
+drivers/built-in.o(.text+0x14567): undefined reference to
+`input_close_device'
+drivers/built-in.o: In function `kbd_init':
+drivers/built-in.o(.init.text+0xdbe): undefined reference to
+`input_register_handler'
 
-I therefore made further investigation and discovered
-that Mr. Charles Anderson did not declare any kin or
-relations in all his official documents, including his
-Bank Deposit paperwork in my Bank. This sum of
-US$28,500,000.00 is still sitting in my Bank and the
-interest is being rolled over with the principal sum
-at the end of each year. No one will ever come
-forward to claim it. According to the bank's
-guidelines and regulations,
-at the expiration of 5 (five) years, the money will
-revert to the ownership of the bank
-if nobody applies to claim the fund.
-Consequently, my proposal is that I will like you to
-stand in as the next of kin to Mr. Charles Anderson so
-that the fruits of this old man's labor will not get
-into the hands of some corrupt government officials.
-This is simple, I will like you to provide immediately
-your full names and address so that the Attorney will
-prepare the necessary documents and affidavits which
-will put you in place as the next of kin. We shall
-employ the service of two Attorneys for drafting and
-notarization of the WILL and to obtain the necessary
-documents and letter of probate/administration in your
-favor for the transfer. A bank account in any part of
-the world, which you will provide, will then
-facilitate
-the transfer of this money to you as the
-beneficiary/next of kin. The money will be paid into
-your account for us to share in the ratio of 60% for
-me and 30% for you. 10% will be left for expenses.
-
-There is no risk at all as all the paperwork for this
-transaction will be done by the Attorney and my
-position as the manager in charge of bills and
-exchange guarantees the
-successful execution of this transaction. If you are
-interested, please reply immediately via the private
-email address below. Upon your response, I shall then
-provide you with more details. .
-
-Please observe utmost confidentiality, and rest
-assured that this transaction would be most profitable
-for both of us because I shall require your assistance
-to invest my share in your country.
-Sincerely
-kinsley Eze
+when "CONFIG_INPUT=y" compilation works fine, diff on working and faulty
+.config file
+--
+952c952
+< CONFIG_INPUT=y
+---
+> CONFIG_INPUT=m
+981c981
+< CONFIG_KEYBOARD_ATKBD=y
+---
+> CONFIG_KEYBOARD_ATKBD=m
+986c986
+< CONFIG_MOUSE_PS2=y
+---
+> CONFIG_MOUSE_PS2=m
 
 
 
+Mark J Hodge					    mark.hodge@xaman.com
+Senior Technical Consultant			 Tel: +44 (0)870 7499739
+Xaman plc						 Fax: +44 (0)870
+7499290
+
+
+This e-mail including any attachments is confidential and may be 
+legally privileged. If you have received it in error please advise the
+sender immediately by return email and then delete it from your 
+system. 
+All electronic communications with the Company may be monitored
+in accordance with the UK Regulation of Investigatory Powers Act,
+Lawful Business Practice Regulations, 2000. 
+If you do not consent to such monitoring, you should contact 
+the sender of the e-mail.
+The unauthorised use, distribution, copying or alteration of this 
+email is strictly forbidden. If you need assistance please contact 
+Head Office on (+44)(0)870 749 9000 between 9:00 am and 5:30 pm GMT

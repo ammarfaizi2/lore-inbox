@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262827AbTENUxT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 16:53:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262834AbTENUxS
+	id S262830AbTENUv4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 16:51:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbTENUv4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 16:53:18 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:62366 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S262827AbTENUxR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 16:53:17 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Wed, 14 May 2003 14:05:07 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: "H. Peter Anvin" <hpa@zytor.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.68 FUTEX support should be optional
-In-Reply-To: <b9uadh$16e$1@cesium.transmeta.com>
-Message-ID: <Pine.LNX.4.55.0305141404100.4539@bigblue.dev.mcafeelabs.com>
-References: <Pine.LNX.4.44.0305141246180.27329-100000@home.transmeta.com>
- <Pine.LNX.4.55.0305141342030.4539@bigblue.dev.mcafeelabs.com>
- <b9uadh$16e$1@cesium.transmeta.com>
+	Wed, 14 May 2003 16:51:56 -0400
+Received: from pengo.systems.pipex.net ([62.241.160.193]:21404 "HELO
+	pengo.systems.pipex.net") by vger.kernel.org with SMTP
+	id S262830AbTENUvy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 May 2003 16:51:54 -0400
+From: shaheed <srhaque@iee.org>
+To: Robert Love <rml@tech9.net>, Felipe Alfaro Solana <yo@felipe-alfaro.com>
+Subject: Re: 2.6 must-fix list, v2
+Date: Wed, 14 May 2003 22:01:59 +0100
+User-Agent: KMail/1.5
+Cc: Andrew Morton <akpm@digeo.com>, LKML <linux-kernel@vger.kernel.org>
+References: <1050146434.3e97f68300fff@netmail.pipex.net> <1052910149.586.3.camel@teapot.felipe-alfaro.com> <1052927975.883.9.camel@icbm>
+In-Reply-To: <1052927975.883.9.camel@icbm>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200305142201.59912.srhaque@iee.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 May 2003, H. Peter Anvin wrote:
+On Wednesday 14 May 2003 4:59 pm, Robert Love wrote:
 
-> Followup to:  <Pine.LNX.4.55.0305141342030.4539@bigblue.dev.mcafeelabs.com>
-> By author:    Davide Libenzi <davidel@xmailserver.org>
-> In newsgroup: linux.dev.kernel
-> >
-> > Not only. Like Ulrich was saying, the config documentation should heavily
-> > warn the wild config guy about the consequences of a 'NO' over there.
-> >
+> You can get exclusive access with mangling the system call, simply by
+> having init  bind itself to the non-exclusive processors on boot.
 >
-> How about creating a master option like we have for experimental?
-> Something like "Allow removal of essential components?" (CONFIG_EMBEDDED)
+> Try it. Every task will then end up on only the non-exclusive
+> processors.  Seems a very simple change to me, and one that can be done
+> in user-space.
+>
+> You do not even have to modify init, if you do not want.  Grab
+> http://tech9.net/rml/schedutils and put a taskset call in your rc.d
 
-I'd agree. Not showing them at all for std configurations is even better.
-
-
-- Davide
-
+Ah. I think I misread your previous note to me on this...that's why my patch 
+modifies init itself (it does not muck with the syscall in any way). I'll try 
+this as soon as I have my 2.5 multiprocessor back. BTW: what are the plans 
+for getting schedutils (and specifically taskset) into a normal 2.6-based 
+distribution? Can I be reasonably sure that this will happen?

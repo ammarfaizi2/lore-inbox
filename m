@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129050AbQKGTYH>; Tue, 7 Nov 2000 14:24:07 -0500
+	id <S129097AbQKGTgV>; Tue, 7 Nov 2000 14:36:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129258AbQKGTXr>; Tue, 7 Nov 2000 14:23:47 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:19729 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129050AbQKGTXc>;
-	Tue, 7 Nov 2000 14:23:32 -0500
-Message-ID: <3A0856A8.11A12A94@mandrakesoft.com>
-Date: Tue, 07 Nov 2000 14:23:20 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: tytso@mit.edu
-CC: david@linux.com, alan@redhat.org, linux-kernel@vger.kernel.org
+	id <S129092AbQKGTgK>; Tue, 7 Nov 2000 14:36:10 -0500
+Received: from TRAMPOLINE.THUNK.ORG ([216.175.175.172]:48645 "EHLO
+	trampoline.thunk.org") by vger.kernel.org with ESMTP
+	id <S129091AbQKGTgA>; Tue, 7 Nov 2000 14:36:00 -0500
+Date: Tue, 7 Nov 2000 15:36:02 -0500
+Message-Id: <200011072036.eA7Ka2K23555@trampoline.thunk.org>
+To: jgarzik@mandrakesoft.com
+CC: linux-kernel@vger.kernel.org, jeremy@goop.org, alan@redhat.com
+In-Reply-To: <3A033A45.D8F6E952@mandrakesoft.com> (message from Jeff Garzik on
+	Fri, 03 Nov 2000 17:20:53 -0500)
 Subject: Re: Linux 2.4 Status / TODO page (Updated as of 2.4.0-test10)
-In-Reply-To: <E13rj9s-0003c4-00@the-village.bc.nu> <3A032828.6B57611F@linux.com> <3A0329DA.38A90824@mandrakesoft.com> <200011072021.eA7KLYG23520@trampoline.thunk.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+From: tytso@mit.edu
+Phone: (781) 391-3464
+In-Reply-To: <200011031509.eA3F9V719729@trampoline.thunk.org> <3A033A45.D8F6E952@mandrakesoft.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tytso@mit.edu wrote:
-> 
->    Date: Fri, 03 Nov 2000 16:10:50 -0500
->    From: Jeff Garzik <jgarzik@mandrakesoft.com>
-> 
->    Part of that might be that serial doesn't support hotplug without
->    patching.
-> 
-> Did the patch which I sent out a few weeks ago actually work?  I haven't
-> had time to get back to it, but I now have a cardbus card, so it's on my
-> todo list....
+   Date: Fri, 03 Nov 2000 17:20:53 -0500
+   From: Jeff Garzik <jgarzik@mandrakesoft.com>
 
-I do not have CardBus card, so I can't test it.  Did you make sure to
-have a pci_driver::remove function?  That is a requirement for PCI
-hotplug.  Otherwise, your driver's probe routine will never be called.
+   > 4. Boot Time Failures
+   > 
+   >      * Crashes on boot on some Compaqs ? (may be fixed)
 
-I have a built-in Xircom modem on my Toshiba laptop, and it works great
-with your patch.
+   compaq laptops?  desktops?  or alphas?
 
-	Jeff
+Absolutely no idea.  This was one I inherited from Alan's list.  If Alan
+or someone else doesn't speak up on this one, I'll remove it from the
+list....  (at a guess, it might be the docking station bug that's
+already been fixed, but without more information I'm only guessing).
 
+   >      * Fixing autofs4 to deal with VFS changes (Jeremy Fitzhardinge)
 
--- 
-Jeff Garzik             | "When I do this, my computer freezes."
-Building 1024           |          -user
-MandrakeSoft            | "Don't do that."
-                        |          -level 1
+   I thought this was complete a long time ago?
+
+Could be.  Jeremy?
+
+					- Ted
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

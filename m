@@ -1,173 +1,152 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266771AbTADJsz>; Sat, 4 Jan 2003 04:48:55 -0500
+	id <S266772AbTADJwx>; Sat, 4 Jan 2003 04:52:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266772AbTADJsy>; Sat, 4 Jan 2003 04:48:54 -0500
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:38713 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S266771AbTADJsw>;
-	Sat, 4 Jan 2003 04:48:52 -0500
-From: <Hell.Surfers@cwctv.net>
-To: andre@linux-ide.org, andrew@indranet.co.nz, ryan@michonline.com,
-       linux-kernel@vger.kernel.org
-Date: Sat, 4 Jan 2003 09:55:48 +0000
-Subject: RE: Gauntlet Set NOW!
+	id <S266777AbTADJwx>; Sat, 4 Jan 2003 04:52:53 -0500
+Received: from falcon.vispa.uk.net ([62.24.228.11]:48392 "EHLO
+	falcon.vispa.com") by vger.kernel.org with ESMTP id <S266772AbTADJwv>;
+	Sat, 4 Jan 2003 04:52:51 -0500
+Message-ID: <3E16B0D3.7060705@walrond.org>
+Date: Sat, 04 Jan 2003 10:00:51 +0000
+From: Andrew Walrond <andrew@walrond.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Liberate TVMail 2.6
-Content-Type: multipart/mixed;
- boundary="1041674148030"
-Message-ID: <063864055090413DTVMAIL1@smtp.cwctv.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: pci problems (was e1000 not detected in 2.5.53
+References: <3E14ABF8.2050304@walrond.org>
+X-Enigmail-Version: 0.63.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Can anyone give me some clues about this or advice about where to start 
+looking? Even informed guesses would be useful....
 
---1041674148030
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-moving the whole thing into firmware? Interesting, got _any_ meat on the bone?
-
-Dean McEwan, If the drugs don't work, [sarcasm] take more...[/sarcasm].
-
-On 	Sat, 4 Jan 2003 01:45:44 -0800 (PST) 	Andre Hedrick <andre@linux-ide.org> wrote:
-
---1041674148030
-Content-Type: message/rfc822
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
-	 Sat, 4 Jan 2003 09:44:50 +0000
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266761AbTADJiF>; Sat, 4 Jan 2003 04:38:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266765AbTADJiF>; Sat, 4 Jan 2003 04:38:05 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:23304
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S266761AbTADJiE>; Sat, 4 Jan 2003 04:38:04 -0500
-Received: from localhost (andre@localhost)
-	by master.linux-ide.org (8.9.3/8.9.3) with ESMTP id BAA14944;
-	Sat, 4 Jan 2003 01:45:44 -0800
-Date: Sat, 4 Jan 2003 01:45:44 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Andrew McGregor <andrew@indranet.co.nz>
-cc: Ryan Anderson <ryan@michonline.com>, linux-kernel@vger.kernel.org
-Subject: Re: Gauntlet Set NOW!
-In-Reply-To: <122810000.1041671690@localhost.localdomain>
-Message-ID: <Pine.LNX.4.10.10301040135420.421-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
-X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
-
-
-There is a solution out there and as soon as I can verify it works,
-gameover for anyone thinking they will get access to soft IP again by
-banging a dead drum.
-
-CAM, Content Addressable Memory on a card.
-
-Usage will be to stuff any binary soft code now reclassified as "firmware"
-into a piece of hardware.  Set the addressable memory hooks for what is
-now called the open source wrapper for binary objects, and game is over.
-
-There is hardware with a software core which is totally embedded for all
-practical purposes.  Use your existing GPL wrapper and call it you new
-driver!  Funny how people come up with ways to thwart the sticky fingers
-to rip off IP and hard work.  Lets see how GPL goes to get soft IP locked
-into hardware.
-
-Force rules and license into places they do not belong, and evolution
-happens to push back and impose the boundaries of IP.
-
-Surprised ?  Not me.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-
-On Sat, 4 Jan 2003, Andrew McGregor wrote:
-
-> I am aware that there was little confirmation from other developers (so far 
-> as I remember, there was some, plus a few dissenting views).
+Andrew Walrond wrote:
+> 2.5.53 and 2.5.54 do not seem to find everything on the pci bus on this 
+> asus pr-dls m/b
 > 
-> I was *only* talking about Linus' position, which I admit was being 
-> selective in that context.
+> With 2.4.20+ I see
 > 
-> My real point was this:  It appears to me that NVIDIA have gone as far as 
-> they can in releasing the code to their driver.  It has certainly been my 
-> own policy to do so with various code, and the result was not GPL because 
-> of legal constraints.
+> hal3 root # cat /proc/pci
+> PCI devices found:
+> ...
 > 
-> Punishing a company who have, with goodwill, opened up their code as far as 
-> they were allowed by preexisting agreements for license issues is not a 
-> smart move, and will only hurt the free software community in the long run.
+>   Bus  0, device   0, function  0:
+>     Host bridge: PCI device 1166:0012 (ServerWorks) (rev 19).
+>   Bus  0, device   0, function  1:
+>     Host bridge: PCI device 1166:0012 (ServerWorks) (rev 0).
+>   Bus  0, device   0, function  2:
+>     Host bridge: PCI device 1166:0000 (ServerWorks) (rev 0).
+>   Bus  0, device   2, function  0:
+>     Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 16).
+>       IRQ 18.
+>       Master Capable.  Latency=32.  Min Gnt=8.Max Lat=56.
+>       Non-prefetchable 32 bit memory at 0xfd800000 [0xfd800fff].
+>       I/O at 0xd800 [0xd83f].
+>       Non-prefetchable 32 bit memory at 0xfd000000 [0xfd01ffff].
+>   Bus  0, device   3, function  0:
+>     VGA compatible controller: ATI Technologies Inc Rage XL (rev 39).
+>       IRQ 46.
+>       Master Capable.  Latency=32.  Min Gnt=8.
+>       Non-prefetchable 32 bit memory at 0xfc000000 [0xfcffffff].
+>       I/O at 0xd400 [0xd4ff].
+>       Non-prefetchable 32 bit memory at 0xfb800000 [0xfb800fff].
+>   Bus  0, device  15, function  0:
+>     ISA bridge: ServerWorks CSB5 South Bridge (rev 147).
+>       Master Capable.  Latency=32.
+>   Bus  0, device  15, function  3:
+>     Host bridge: ServerWorks GCLE Host Bridge (rev 0).
+>   Bus  0, device  16, function  0:
+>     Host bridge: PCI device 1166:0101 (ServerWorks) (rev 3).
+>       Master Capable.  Latency=64.
+>   Bus  0, device  16, function  2:
+>     Host bridge: PCI device 1166:0101 (ServerWorks) (rev 3).
+>       Master Capable.  Latency=64.
+>   Bus  0, device  17, function  0:
+>     Host bridge: PCI device 1166:0101 (ServerWorks) (rev 3).
+>       Master Capable.  Latency=64.
+>   Bus  0, device  17, function  2:
+>     Host bridge: PCI device 1166:0101 (ServerWorks) (rev 3).
+>       Master Capable.  Latency=64.
+>   Bus 14, device   4, function  0:
+>     SCSI storage controller: LSI Logic / Symbios Logic (formerly NCR) 
+> 53c1030 (rev 7).
+>       IRQ 22.
+>       Master Capable.  Latency=32.  Min Gnt=17.Max Lat=18.
+>       I/O at 0xa000 [0xa0ff].
+>       Non-prefetchable 64 bit memory at 0xfa000000 [0xfa00ffff].
+>       Non-prefetchable 64 bit memory at 0xf9800000 [0xf980ffff].
+>   Bus 14, device   4, function  1:
+>     SCSI storage controller: LSI Logic / Symbios Logic (formerly NCR) 
+> 53c1030 (#2) (rev 7).
+>       IRQ 23.
+>       Master Capable.  Latency=32.  Min Gnt=17.Max Lat=18.
+>       I/O at 0x9800 [0x98ff].
+>       Non-prefetchable 64 bit memory at 0xf9000000 [0xf900ffff].
+>       Non-prefetchable 64 bit memory at 0xf8800000 [0xf880ffff].
+>   Bus 18, device   2, function  0:
+>     Ethernet controller: Intel Corp. 82544GC Gigabit Ethernet Controller 
+> (rev 2).
+>       IRQ 19.
+>       Master Capable.  Latency=32.  Min Gnt=255.
+>       Non-prefetchable 64 bit memory at 0xf8000000 [0xf801ffff].
+>       Non-prefetchable 64 bit memory at 0xf7800000 [0xf781ffff].
+>       I/O at 0x9400 [0x941f].
 > 
-> And to those who say 'well, just release the specs':  Quite likely NVIDIA 
-> did not design all the subsystems of their chips, but instead bought 'IP 
-> block' licenses from someone else.  The license NVIDIA have access to those 
-> under probably will not allow that release, whether NVIDIA would like to 
-> release that information or not.
 > 
-> Effectively, the binary part of the driver can be viewed as part of the 
-> hardware, just as much as it can be viewed as part of the kernel.  It is 
-> constrained in hardware-like ways, not much like software at all.
+> But with 2.5.53/2.5.54 bus 14 and bus 18 are missing:
 > 
-> My view, for what it's worth, is that if binary modules are not allowed by 
-> the kernel being GPL, then it is worth going to some trouble to allow 
-> binary hardware drivers by some other mechanism than a module, since it is 
-> effectively impossible to change the license on the kernel now, as you 
-> correctly point out.  Even if they want to, many hardware vendors will not 
-> be able to release full specifications or GPL code for quite some time, and 
-> it is better to allow those that are motivated to to open up as much as 
-> they can, than to require only that hardware for which full information or 
-> GPL-able code is available to be used with Linux.  And saying that the 
-> vendor then has to assume all the maintenance trouble keeps the pressure on 
-> them to evolve toward openness.
+> hal3 root # cat /proc/pci
+> PCI devices found:
+>   Bus  0, device   0, function  0:
+>     Host bridge: PCI device 1166:0012 (ServerWorks) (rev 19).
+>   Bus  0, device   0, function  1:
+>     Host bridge: PCI device 1166:0012 (ServerWorks) (rev 0).
+>   Bus  0, device   0, function  2:
+>     Host bridge: PCI device 1166:0000 (ServerWorks) (rev 0).
+>   Bus  0, device   2, function  0:
+>     Ethernet controller: Intel Corp. 82557/8/9 [Ethernet  (rev 16).
+>       IRQ 18.
+>       Master Capable.  Latency=32.  Min Gnt=8.Max Lat=56.
+>       Non-prefetchable 32 bit memory at 0xfd800000 [0xfd800fff].
+>       I/O at 0xd800 [0xd83f].
+>       Non-prefetchable 32 bit memory at 0xfd000000 [0xfd01ffff].
+>   Bus  0, device   3, function  0:
+>     VGA compatible controller: ATI Technologies Inc Rage XL (rev 39).
+>       IRQ 46.
+>       Master Capable.  Latency=32.  Min Gnt=8.
+>       Non-prefetchable 32 bit memory at 0xfc000000 [0xfcffffff].
+>       I/O at 0xd400 [0xd4ff].
+>       Non-prefetchable 32 bit memory at 0xfb800000 [0xfb800fff].
+>   Bus  0, device  15, function  0:
+>     ISA bridge: ServerWorks CSB5 South Bridge (rev 147).
+>       Master Capable.  Latency=32.
+>   Bus  0, device  15, function  3:
+>     Host bridge: PCI device 1166:0225 (ServerWorks) (rev 0).
+>   Bus  0, device  16, function  0:
+>     Host bridge: PCI device 1166:0101 (ServerWorks) (rev 3).
+>       Master Capable.  Latency=64.
+>   Bus  0, device  16, function  2:
+>     Host bridge: PCI device 1166:0101 (ServerWorks) (rev 3).
+>       Master Capable.  Latency=64.
+>   Bus  0, device  17, function  0:
+>     Host bridge: PCI device 1166:0101 (ServerWorks) (rev 3).
+>       Master Capable.  Latency=64.
+>   Bus  0, device  17, function  2:
+>     Host bridge: PCI device 1166:0101 (ServerWorks) (rev 3).
+>       Master Capable.  Latency=64.
 > 
-> Andrew
 > 
-> --On Saturday, January 04, 2003 02:12:09 -0500 Ryan Anderson 
-> <ryan@michonline.com> wrote:
+> ACPI is enabled in both cases (Won't boot with pci=noacpi)
 > 
-> > On Sat, Jan 04, 2003 at 12:56:53PM +1300, Andrew McGregor wrote:
-> >
-> > [snip]
-> >
-> >> Linus has made it quite clear in the past that his position on binary
-> >> modules is that they are explicitly allowed, but that the maintainers of
-> >> such a thing 'get everything they deserve' in terms of maintenance
-> >> hassle.
-> >
-> > I *really* think you need to do some searches on this list to verify
-> > this statement.
-> >
-> > Let me summarize what I remember from past discussions of this nature.
-> >
-> > Linus put his code under the GPL.  Contributions came in, under the same
-> > license.  At some point, the first binary only module showed up.  When
-> > asked about the legality, Linus said something to the effect of, "I
-> > think they're ok."
-> >
-> > Note the lack of clarification from the other (miriad) copyright
-> > holders?
-> >
-> > In summary - If you want to write binary only modules, you need to talk
-> > to a lawyer that understands the issues involved.  "Linus said they were
-> > ok" doesn't even begin to encompass the number of copyright holders
-> > involved.
-> >
-> >
-> > --
-> >
-> > Ryan Anderson
-> >   sometimes Pug Majere
-> >
-> >
+> Any help solving this apprieciated (Just got a gigabit switch for this 
+> cluster and keen to get it working with 2.5 as I'm using Uli's nptl)
 > 
+> Andrew Walrond
 > 
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
@@ -175,12 +154,5 @@ On Sat, 4 Jan 2003, Andrew McGregor wrote:
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
 > 
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
---1041674148030--
 
 

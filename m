@@ -1,64 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269261AbUJWAIs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269259AbUJWAIr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269261AbUJWAIs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 20:08:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269276AbUJWAG4
+	id S269259AbUJWAIr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 20:08:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269280AbUJWAHK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 20:06:56 -0400
-Received: from holomorphy.com ([207.189.100.168]:30151 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S269313AbUJWAEH (ORCPT
+	Fri, 22 Oct 2004 20:07:10 -0400
+Received: from mail.joq.us ([67.65.12.105]:2027 "EHLO sulphur.joq.us")
+	by vger.kernel.org with ESMTP id S269259AbUJWAAA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 20:04:07 -0400
-Date: Fri, 22 Oct 2004 17:04:01 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: The naming wars continue...
-Message-ID: <20041023000401.GH17038@holomorphy.com>
-References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org>
-Mime-Version: 1.0
+	Fri, 22 Oct 2004 20:00:00 -0400
+To: Chris Wright <chrisw@osdl.org>
+Cc: Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
+       Jody McIntyre <realtime-lsm@modernduck.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, torbenh@gmx.de
+Subject: Re: [PATCH] Realtime LSM
+References: <1097272140.1442.75.camel@krustophenia.net>
+	<20041008145252.M2357@build.pdx.osdl.net>
+	<1097273105.1442.78.camel@krustophenia.net>
+	<20041008151911.Q2357@build.pdx.osdl.net>
+	<20041008152430.R2357@build.pdx.osdl.net>
+	<87zn2wbt7c.fsf@sulphur.joq.us>
+	<20041008221635.V2357@build.pdx.osdl.net>
+	<87is9jc1eb.fsf@sulphur.joq.us>
+	<20041009121141.X2357@build.pdx.osdl.net>
+	<878yafbpsj.fsf@sulphur.joq.us>
+	<20041009155339.Y2357@build.pdx.osdl.net>
+From: "Jack O'Quin" <joq@io.com>
+Date: 22 Oct 2004 18:59:50 -0500
+In-Reply-To: <20041009155339.Y2357@build.pdx.osdl.net>
+Message-ID: <874qkmtibt.fsf@sulphur.joq.us>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 22, 2004 at 03:05:13PM -0700, Linus Torvalds wrote:
->  Linux-2.6.10-rc1 is out there for your pleasure.
-> I thought long and hard about the name of this release (*), since one of
-> the main complaints about 2.6.9 was the apparently release naming scheme. 
-> Should it be "-rc1"? Or "-pre1" to show it's not really considered release
-> quality yet? Or should I make like a rocket scientist, and count _down_
-> instead of up? Should I make names based on which day of the week the
-> release happened? Questions, questions..
-> And the fact is, I can't see the point. I'll just call it all "-rcX",
-> because I (very obviously) have no clue where the cut-over-point from
-> "pre" to "rc" is, or (even more painfully obviously) where it will become
-> the final next release.
-> So to not overtax my poor brain, I'll just call them all -rc releases, and
-> hope that developers see them as a sign that there's been stuff merged,
-> and we should start calming down and seeing to the merged patches being
-> stable soon enough..
+Chris Wright <chrisw@osdl.org> writes:
 
-AFAICT the point is being able to refer to it by name and the only
-relevant property of the name is that it's distinct from all others.
-This does as well as most any other scheme giving each unique names.
-I'd be fine with nightly point releases, though I don't insist.
+> - less generic variable names
+>   - s/any/rt_any/
+>   - s/gid/rt_gid/
+>   - s/mlock/rt_mlock/
 
+Is there a compelling reason for changing all the parameter names?
 
-On Fri, Oct 22, 2004 at 03:05:13PM -0700, Linus Torvalds wrote:
-> So without any further ado, here's 2.6.10-rc1 in testing. A fair number of
-> patches that were waiting for 2.6.9 to be out are in here, ranging all
-> over the map: merges from -mm, network (and net driver) updates, SATA
-> stuff, bluetooth, SCSI, device models, janitorial, you name it.
-> Oh, and the _real_ name did actually change. It's not Zonked Quokka any 
-> more, that's so yesterday. Today we're Woozy Numbat! Get your order in!
-> 		Linus
-> (*) In other words, I had a beer and watched TV. Mmm... Donuts.
+I would prefer not to do that.  It is incompatible for our current
+user base, and really does not seem like an improvement.  Those names
+only appear in the context of `realtime', so the `rt_' is completely
+redundant.  For example...
 
-Sounds like a good way to come up with a new name to me. Cheers!
+ # modprobe realtime gid=29
+ # sysctl -w security/realtime/mlock=0
 
-
--- wli
+Also, you forgot to update the documentation.
+-- 
+  joq

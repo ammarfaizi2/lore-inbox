@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261405AbTCJTCH>; Mon, 10 Mar 2003 14:02:07 -0500
+	id <S261413AbTCJTFL>; Mon, 10 Mar 2003 14:05:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261406AbTCJTCH>; Mon, 10 Mar 2003 14:02:07 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:33033 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S261405AbTCJTCF>;
-	Mon, 10 Mar 2003 14:02:05 -0500
-Date: Mon, 10 Mar 2003 20:12:45 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kconfig update
-Message-ID: <20030310191244.GA1715@mars.ravnborg.org>
-Mail-Followup-To: Roman Zippel <zippel@linux-m68k.org>,
-	Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0303090432200.32518-100000@serv> <20030309190103.GA1170@mars.ravnborg.org> <Pine.LNX.4.44.0303092028020.32518-100000@serv> <20030309193439.GA15837@mars.ravnborg.org> <Pine.LNX.4.44.0303092115310.32518-100000@serv> <20030309211518.GA18087@mars.ravnborg.org> <Pine.LNX.4.44.0303101046590.5042-100000@serv>
+	id <S261415AbTCJTFK>; Mon, 10 Mar 2003 14:05:10 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:42975 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261413AbTCJTFJ>;
+	Mon, 10 Mar 2003 14:05:09 -0500
+Date: Mon, 10 Mar 2003 10:56:59 -0800 (PST)
+Message-Id: <20030310.105659.57012503.davem@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com
+Subject: Re: [BK-2.5] Move "used FPU status" into new non-atomic
+ thread_info->status field.
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200303101905.h2AJ56P00946@hera.kernel.org>
+References: <200303101905.h2AJ56P00946@hera.kernel.org>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0303101046590.5042-100000@serv>
-User-Agent: Mutt/1.4i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 10, 2003 at 11:00:02AM +0100, Roman Zippel wrote:
+   From: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+   Date: Mon, 10 Mar 2003 18:20:35 +0000
+   	
+Linus said, in a recent BK changelog:
 
-> verbose mode. If you skip the oldconfig step, the config tool is called 
-> anyway and checks the configuration and only asks as necessary. The same 
-> mode could be used for oldconfig, but I didn't want to change the 
-> behaviour needlessly.
+   	Also, fix x86 FP state after fork() by making sure the FP is unlazied
+   	_before_ we copy the state information. Otherwise, if a process did a
+   	fork() while holding the FP state lazily in the registers, the child
+   	would incorrectly unlazy bogus state.
+   
+At least on sparc{32,64}, we consider FPU state to be clobbered coming
+into system calls, this eliminates a lot of hair wrt. FPU state
+restoring in cases such as fork().
 
-The reason to respond is that all the output from conf looks useless.
-What is the usage of conf being so verbose?
-If it is required then keep it. But making conf that verbose only
-because configure was that verbose . There is no point in that.
-
-Not a needlessly change, but more in the area - it was about time..
-
-	Sam
+Are you preserving FPU state across fork() on x86?  If so, what do you
+think might rely on this?

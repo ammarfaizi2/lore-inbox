@@ -1,62 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264261AbTLYKKV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Dec 2003 05:10:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264278AbTLYKKV
+	id S264292AbTLYK1e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Dec 2003 05:27:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264294AbTLYK1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Dec 2003 05:10:21 -0500
-Received: from mail.contactel.cz ([212.65.193.3]:35291 "EHLO mail.contactel.cz")
-	by vger.kernel.org with ESMTP id S264261AbTLYKKS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Dec 2003 05:10:18 -0500
-Date: Thu, 25 Dec 2003 11:08:50 +0100
-To: Paul Mackerras <paulus@samba.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Make ppp_async callable from hard interrupt
-Message-ID: <20031225100850.GA6629@penguin.localdomain>
-Mail-Followup-To: Paul Mackerras <paulus@samba.org>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <16356.60597.133074.809551@cargo.ozlabs.ibm.com>
-Mime-Version: 1.0
+	Thu, 25 Dec 2003 05:27:33 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:39389 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S264292AbTLYK1b
+	(ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Thu, 25 Dec 2003 05:27:31 -0500
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16356.60597.133074.809551@cargo.ozlabs.ibm.com>
-User-Agent: Mutt/1.5.4i
-From: sebek64@post.cz (Marcel Sebek)
+Content-Transfer-Encoding: 7bit
+Message-ID: <16362.48018.56337.690901@laputa.namesys.com>
+Date: Thu, 25 Dec 2003 13:27:30 +0300
+To: Hugang <hugang@soulinfo.com>
+Cc: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
+Subject: Re: [PATCH] laptop-mode for 2.6, version 2
+In-Reply-To: <20031225174033.1abb5401.hugang@soulinfo.com>
+References: <3FE92517.1000306@samwel.tk>
+	<20031224215120.66b74f66.hugang@soulinfo.com>
+	<16361.41348.444243.919179@laputa.namesys.com>
+	<20031225105916.67e74599.hugang@soulinfo.com>
+	<16362.43831.569086.825899@laputa.namesys.com>
+	<20031225174033.1abb5401.hugang@soulinfo.com>
+X-Mailer: VM 7.17 under 21.5  (beta16) "celeriac" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 21, 2003 at 11:43:33AM +1100, Paul Mackerras wrote:
->  /* called when a flag is seen - do end-of-packet processing */
-> -static inline void
-> +static void
->  process_input_packet(struct asyncppp *ap)
->  {
->  	struct sk_buff *skb;
->  	unsigned char *p;
->  	unsigned int len, fcs, proto;
-> -	int code = 0;
-> +
-> +	if (ap->state & (SC_TOSS | SC_ESCAPE))
-> +		goto err;
-If this is true, skb will be used uninitialized.
+Hugang writes:
+ > On Thu, 25 Dec 2003 12:17:43 +0300
+ > Nikita Danilov <Nikita@Namesys.COM> wrote:
+ > 
+ > > >    unsigned long blocks;
+ > > >    unsigned long mount_options = REISERFS_SB(s)->s_mount_opt;
+ > > >    unsigned long safe_mask = 0;
+ > > > +  unsigned int commit_max_age = -1;
+ > > 
+ > > Assigning -1 to the unsigned int looks strange. Let's use 0, it is
+ > > invalid anyway.
+ > Yes, must change to -1, fixed.
+ > 
+ > > I think that it would be better to first
+ > > 
+ > > SB_JOURNAL_MAX_COMMIT_AGE(p_s_sb) = val
+ > > 
+ > > in the parse_options() (after checking for validity), and in
+ > > journal_init() do something like
+ > > 
+ > > if (SB_JOURNAL_MAX_COMMIT_AGE(p_s_sb) == 0) {
+ > >   SB_JOURNAL_MAX_COMMIT_AGE(p_s_sb) = le32_to_cpu (jh->jh_journal.jp_journal_max_commit_age);
+ > > }
+ > > 
+ > > This will also get rid of
+ > > 
+ > > +  if(commit_max_age != -1) {
+ > > +	  SB_JOURNAL_MAX_COMMIT_AGE(s) = commit_max_age;
+ > > +  }
+ > > +
+ > > 
+ > > piece in reiserfs_remount.
+ > > 
+ > > Otherwise patch looks ok. Have you tested it?
+ > > 
+ > In the parse_options() can not assigning commit max age to super block, 
+ > the journal memory not malloc, so I pass a it to journal_init.
+ > 
+ > Yes, It works in my laptop for 1 days. Every thinks is fine.
 
->  
->  	skb = ap->rpkt;
-> -	ap->rpkt = 0;
-> -	if ((ap->state & (SC_TOSS | SC_ESCAPE)) || skb == 0) {
-> -		ap->state &= ~(SC_TOSS | SC_ESCAPE);
-> -		if (skb != 0)
-> -			kfree_skb(skb);
-> -		return;
-> -	}
-> +	if (skb == NULL)
-> +		return;		/* 0-length packet */
++		if ( val > 0 ) {
++			*commit_max_age = val;
++		}
 
+here warning should be issued, and mount refused, if val == 0.
 
--- 
-Marcel Sebek
-jabber: sebek@jabber.cz                     ICQ: 279852819
-linux user number: 307850                 GPG ID: 5F88735E
-GPG FP: 0F01 BAB8 3148 94DB B95D  1FCA 8B63 CA06 5F88 735E
+ > 
+ > Thanks.
 
+Nikita.

@@ -1,77 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261417AbTEHMNo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 08:13:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbTEHMNo
+	id S261422AbTEHMOK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 08:14:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbTEHMOK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 08:13:44 -0400
-Received: from pat.uio.no ([129.240.130.16]:1504 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261417AbTEHMNm (ORCPT
+	Thu, 8 May 2003 08:14:10 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:53378 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261449AbTEHMOF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 08:13:42 -0400
-From: Terje Malmedal <terje.malmedal@usit.uio.no>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Terje Eggestad <terje.eggestad@scali.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Arjan van de Ven <arjanv@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       D.A.Fedorov@inp.nsk.su
-Subject: Re: The disappearing sys_call_table export.
-References: <1052122784.2821.4.camel@pc-16.office.scali.no>
-	<20030505092324.A13336@infradead.org>
-	<1052127216.2821.51.camel@pc-16.office.scali.no>
-	<1052133402.29361.2.camel@dhcp22.swansea.linux.org.uk>
-MIME-Version: 1.0
-Message-Id: <E19DkT9-0000Wh-00@aqualene.uio.no>
-Date: Thu, 8 May 2003 14:25:51 +0200
+	Thu, 8 May 2003 08:14:05 -0400
+Date: Thu, 8 May 2003 14:26:41 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5 ide 48-bit usage
+Message-ID: <20030508122641.GW823@suse.de>
+References: <20030508115950.GQ823@suse.de> <Pine.SOL.4.30.0305081406310.12362-100000@mion.elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.SOL.4.30.0305081406310.12362-100000@mion.elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, May 08 2003, Bartlomiej Zolnierkiewicz wrote:
+> 
+> On Thu, 8 May 2003, Jens Axboe wrote:
+> 
+> > On Thu, May 08 2003, Bartlomiej Zolnierkiewicz wrote:
+> > >
+> > > On Thu, 8 May 2003, Jens Axboe wrote:
+> > > > On Wed, May 07 2003, Jens Axboe wrote:
+> > > > > > Jens you your patch sets hwif->rqsize to 65535 in setup-pci.c for all
+> > > > > > PCI hwifs which is simply wrong as not all of them supports LBA48.
+> > > > > > You should check for hwif->addressing and if true set rqsize to 65536
+> > > > > > (not 65535) and not in IDE PCI code but in ide_init_queue() in ide-probe.c.
+> > > > >
+> > > > > Yes you are right, that would be the best way of doing it. As it happens
+> > > > > for that patch, it does not hurt or break anything. But it is certainly
+> > > > > cleaner, I'll fix that up.
+> > > >
+> > > > That part is added, I still kept it at 65535 though akin to how we don't
+> > > > use that last sector in 28-bit commands either. For 48-bit commands this
+> > >
+> > > No, ide_init_queue() sets it to 256, so I want 65536 too.
+> >
+> > Alright, I don't care enough about that 1 sector to argue.
+> >
+> > > Note that it should be done after setting queue max sectors to 256,
+> > > because not only ide-disk depends on this code:
+> > >
+> > > 	max_sectors = 256;
+> > >
+> > > 	(...)
+> > >
+> > > 	/*
+> > > 	 * Added "< max_sectors" check for safety if it will
+> > > 	 * be called again later with rq->size = 65536.
+> > > 	 * I don't believe it ever is.
+> > > 	*/
+> > > 	if (hwif->rqsize < max_sectors)
+> > > 		max_sectors = hwif->rqsize;
+> > > 	blk_queue_max_sectors(q, max_sectors);
+> > > 	if (!hwif->rqsize)
+> > > 		hwif->rqsize = hwif->addressing ? 65536 : 256;
+> >
+> > You have the logic reversed here, the hwif and drive addressing are
+> > reversed. Yeah, it's convoluted, dunno who thought that logic up...
+> 
+> Not me.
+> Logic is to prevent some bugs and actually my comment "I don't believe it
+> ever is." is totally wrong.
+> 
+> ide_init_queue() is called for all drives on hwif.
+> 
+> ie. failure scenario:
+> 1st drive 48-bit: !rqsize -> max_sectors = 256, rqsize = 65536
+> 2nd drive 28-bit: rqsize -> max_sectors = 65536 -> doh!
+> 
+> so "< max_sectors" is really needed.
+>
+> It can look a bit saner:
+> 
+> 	if (!hwif->rqsize)
+> 		hwif->rqsize = hwif->addressing ? 65536 : 256;
+> 	if (hwif->rqsize < max_sectors)
+> 		max_sectors = hwif->rqsize;
+> 	blk_queue_max_sectors(q, max_sectors);
 
-[Alan Cox]
->> 10. kernel patches are impractical, I must be able to do this with std
->> stock, redhat, AND suse kernels.   
+Ugh yeah, that stinks. Your changed version looks better.
 
-> So you want every vendor to screw up their kernels and the base kernel
-> for an obscure (but fun) corner case. Thats not a rational choice is it.
-> You want "performance is everything" you pay the price, don't make
-> everyone suffer.
+> Looks good.
+> Now test/review it for some time, we don't want any bugs to slip in.
+> :-)
 
-Hmm. sys_call_table is gone? That's sad.
-
-How about a
-
-EXPORT_SYMBOL_GPL_AND_DONT_EVEN_THINK_ABOUT_SENDING_A_BUG_REPORT(sys_call_table);
-
-and displaying a nasty warning message on the console whenever a
-module used it?
-
-It is rare that I need to use it, but when I do I need it bad, for instance: 
-
-fsync on large files used to have severe performance problems, I was
-able to just change sys_fsync to be a call to sys_sync without
-rebooting or even restarting the database(Solid) before the problem
-got out of hand.
-
-A server for an online internet game had several months of uptime and
-I needed to rotate the log-files so I made a module which trapped
-sys_write and closed and reopened the file with a new name before
-continuing[1]. 
-
-Even if it is discouraged for normal use it is a very nice thing to
-have to fix up various surprises.
-
-I know I can still use the Phrack technique, but somehow I am not
-convinced that I can rely on it being available.
+I'll give it a test spin.
 
 -- 
- - Terje
-malmedal@usit.uio.no
+Jens Axboe
 
-[1] When I do this kind of thing now I do: 
-(gdb) attach 9597
-(gdb) call close(7)
-(gdb) call open("out.txt",0100 | 01, 0666 ) 
-(gdb) cont
-
-This did not work back then however. 

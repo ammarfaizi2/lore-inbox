@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265128AbUAPBP7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 20:15:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265143AbUAPBP7
+	id S265079AbUAPBOv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 20:14:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265128AbUAPBOv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 20:15:59 -0500
-Received: from waste.org ([209.173.204.2]:192 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S265128AbUAPBPy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 20:15:54 -0500
-Date: Thu, 15 Jan 2004 19:15:10 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Andi Kleen <ak@colin2.muc.de>
-Cc: George Anzinger <george@mvista.com>, Andi Kleen <ak@muc.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [discuss] Re: kgdb for x86_64 2.6 kernels
-Message-ID: <20040116011510.GM28521@waste.org>
-References: <1d3r0-1tw-3@gated-at.bofh.it> <1dbI9-89t-7@gated-at.bofh.it> <1dEqx-F0-1@gated-at.bofh.it> <1dMRc-6DQ-3@gated-at.bofh.it> <1e2Mk-6YA-17@gated-at.bofh.it> <1e2Mo-6YA-31@gated-at.bofh.it> <1e3fi-4nG-5@gated-at.bofh.it> <m3ptdlwsf5.fsf@averell.firstfloor.org> <4006512A.7080002@mvista.com> <20040115085217.GA43298@colin2.muc.de>
+	Thu, 15 Jan 2004 20:14:51 -0500
+Received: from cmsrelay01.mx.net ([165.212.11.110]:30926 "HELO
+	cmsrelay01.mx.net") by vger.kernel.org with SMTP id S265079AbUAPBOu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 20:14:50 -0500
+X-USANET-Auth: 165.212.8.7     AUTO bradtilley@usa.net uwdvg007.cms.usa.net
+Date: Thu, 15 Jan 2004 20:14:40 -0500
+From: Brad Tilley <bradtilley@usa.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: whoops on 2.6.1 download
+X-Mailer: USANET web-mailer (CM.0402.7.03)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040115085217.GA43298@colin2.muc.de>
-User-Agent: Mutt/1.3.28i
+Message-ID: <835iaPBoO9072S07.1074215680@uwdvg007.cms.usa.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 15, 2004 at 09:52:17AM +0100, Andi Kleen wrote:
-> On Thu, Jan 15, 2004 at 12:36:58AM -0800, George Anzinger wrote:
-> > Now that is interesting.  As I read it, the debug port is programed the 
-> > same way in all the USB chips (given it exists at all).  AND it is much 
-> 
-> Yep, it's not PIO, but polled MMIO. Sorry for spreading misinformation.
-> 
-> > easier to use. Anyone care to put together a polling driver that makes it 
-> > look like RS232 on the host end given that we use a controller to 
-> > controller cable?
-> 
-> I suspect all laptop users with kernel bugs will admire whoever does that ;-)
+it's safari on mac os x 10.3... instead of overwriting downloads it increments
+the names:
 
-I've been thinking about doing this, may get around to it eventually.
+MD5 (linux-2.6.1.tar.bz2) = fa82d1e4be518261b2eeb78eabf9cca7
+MD5 (linux-1-2.6.1.tar.bz2) = fa82d1e4be518261b2eeb78eabf9cca7
+MD5 (linux-2-2.6.1.tar.bz2) = fa82d1e4be518261b2eeb78eabf9cca7
 
--- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+sorry
+
+

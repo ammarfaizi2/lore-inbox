@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262832AbULREJb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262833AbULREPu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262832AbULREJb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 23:09:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262837AbULREJa
+	id S262833AbULREPu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 23:15:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262834AbULREPu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 23:09:30 -0500
-Received: from relay01.roc.ny.frontiernet.net ([66.133.131.34]:6092 "EHLO
-	relay01.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
-	id S262832AbULREIh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 23:08:37 -0500
-From: Russell Miller <rmiller@duskglow.com>
-To: linux-kernel@vger.kernel.org
-Subject: [slightly ot] ELF loader process
-Date: Fri, 17 Dec 2004 22:12:56 -0600
-User-Agent: KMail/1.7
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Dec 2004 23:15:50 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29653 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262833AbULREPp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 23:15:45 -0500
+Date: Sat, 18 Dec 2004 04:15:43 +0000
+From: Matthew Wilcox <matthew@wil.cx>
+To: James Nelson <james4765@verizon.net>
+Cc: kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [KJ] [PATCH] lcd: replace cli()/sti() with spin_lock_irqsave()/spin_unlock_irqrestore()
+Message-ID: <20041218041543.GW7113@parcelfarce.linux.theplanet.co.uk>
+References: <20041217235927.17998.75228.61750@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200412172212.56546.rmiller@duskglow.com>
+In-Reply-To: <20041217235927.17998.75228.61750@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, I have a question that isn't directly kernel related, but I can't seem to 
-find a good forum to ask this question, so feel free to point me to a more 
-appropriate place.  Also, this is pretty deep in the linux internals...
+On Fri, Dec 17, 2004 at 05:59:05PM -0600, James Nelson wrote:
+> Remove the cli()/sti() calls in drivers/char/lcd.c
 
-I'm trying to reverse engineer a trojan that some idiot left on a machine 
-after cracking it.  I've run readelf.  It states that the entry point is:
+I'm not sure why anyone would bother ...
 
-  Entry point address:               0x804b06c
+config COBALT_LCD
+        bool "Support for Cobalt LCD"
+        depends on MIPS_COBALT
 
-But that address seems to not be mapped anywhere in the executable.  There is:
+those machines are never SMP.
 
-  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
-  LOAD           0x00406c 0x0804c06c 0x0804c06c 0x001d4 0x00338 RW  0x1000
+However, looking at the driver, it doesn't seem to generate interrupts,
+so I don't see what good disabling interrupts would do.  I think we can
+simply remove the save_flags/cli/restore_flags from this driver.  It needs
+a fair chunk of work though -- should be converted to use writeb instead of
 
-which is exactly 0x1000 above the entry point address.  0x0804c06c is also the 
-location of the _start symbol.
-
-So, my question is (for any of you that will be willing to humor me and answer 
-the question even though it's a little unrelated):  Why does the entry point 
-address not match the _start symbol?  And if this is truly an error, what 
-would happen if you tried to run the binary under linux?
-
-Thanks.  You can feel free to email me privately with an answer if you don't 
-want to post it here.
-
---Russell
+                                        *((volatile unsigned char *)
+                                          burn_addr) =
+                 (volatile unsigned char) rom[index];
 
 -- 
-
-Russell Miller - rmiller@duskglow.com - Le Mars, IA
-Duskglow Consulting - Helping companies just like you to succeed for ~ 10 yrs.
-http://www.duskglow.com - 712-546-5886
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

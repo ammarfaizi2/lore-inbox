@@ -1,23 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261301AbVB0AAi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261303AbVB0ABk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261301AbVB0AAi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Feb 2005 19:00:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261315AbVB0AAh
+	id S261303AbVB0ABk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Feb 2005 19:01:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261315AbVB0ABk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Feb 2005 19:00:37 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:62887
+	Sat, 26 Feb 2005 19:01:40 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:63911
 	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S261301AbVB0AAH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Feb 2005 19:00:07 -0500
-Message-ID: <20050227005956.1.patchmail@tglx>
+	id S261303AbVB0AAJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Feb 2005 19:00:09 -0500
+Message-ID: <20050227010006.2.patchmail@tglx>
+References: <20050227005956.1.patchmail@tglx>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-To: trini@kernel.crashing.org
-Cc: linuxppc-embedded@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 1/10] PPC:  C99 initializers for hw_interrupt_type structures
-Date: Sun, 27 Feb 2005 00:56:16 +0100 (CET)
+To: linux-m32r@ml.linux-m32r.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 2/10] M32R:  C99 initializers for hw_interrupt_type structures
+Date: Sun, 27 Feb 2005 00:56:18 +0100 (CET)
 From: tglx@linutronix.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -27,192 +28,302 @@ Convert the initializers of hw_interrupt_type structures to C99 initializers.
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 
 ---
- platforms/adir_pic.c |   12 ++++--------
- syslib/cpc700_pic.c  |   12 ++++--------
- syslib/cpm2_pic.c    |   13 +++++--------
- syslib/i8259.c       |   13 +++++--------
- syslib/mpc52xx_pic.c |   13 +++++--------
- syslib/open_pic2.c   |   12 +++++-------
- syslib/ppc403_pic.c  |   11 ++++-------
- syslib/xilinx_pic.c  |   13 +++++--------
- 8 files changed, 37 insertions(+), 62 deletions(-)
+ setup_m32700ut.c |   56 +++++++++++++++++++++++++++----------------------------
+ setup_mappi.c    |   14 ++++++-------
+ setup_mappi2.c   |   14 ++++++-------
+ setup_oaks32r.c  |   14 ++++++-------
+ setup_opsput.c   |   56 +++++++++++++++++++++++++++----------------------------
+ setup_usrv.c     |   28 +++++++++++++--------------
+ 6 files changed, 91 insertions(+), 91 deletions(-)
 ---
-diff -urN 2.6.11-rc5.orig/arch/ppc/platforms/adir_pic.c 2.6.11-rc5/arch/ppc/platforms/adir_pic.c
---- 2.6.11-rc5.orig/arch/ppc/platforms/adir_pic.c	2004-12-24 22:33:52.000000000 +0100
-+++ 2.6.11-rc5/arch/ppc/platforms/adir_pic.c	2005-02-26 20:54:19.000000000 +0100
-@@ -73,14 +73,10 @@
- }
+diff -urN 2.6.11-rc5.orig/arch/m32r/kernel/setup_m32700ut.c 2.6.11-rc5/arch/m32r/kernel/setup_m32700ut.c
+--- 2.6.11-rc5.orig/arch/m32r/kernel/setup_m32700ut.c	2004-12-24 22:35:27.000000000 +0100
++++ 2.6.11-rc5/arch/m32r/kernel/setup_m32700ut.c	2005-02-26 20:54:19.000000000 +0100
+@@ -78,13 +78,13 @@
  
- static struct hw_interrupt_type adir_onboard_pic = {
--	" ADIR PIC ",
--	NULL,
--	NULL,
--	adir_onboard_pic_enable,		/* unmask */
--	adir_onboard_pic_disable,		/* mask */
--	adir_onboard_pic_disable,		/* mask and ack */
--	NULL,
--	NULL
-+	.typename = " ADIR PIC ",
-+	.enable = adir_onboard_pic_enable,	/* unmask */
-+	.disable = adir_onboard_pic_disable,	/* mask */
-+	.ack = adir_onboard_pic_disable,	/* mask and ack */
- };
- 
- static struct irqaction noop_action = {
-diff -urN 2.6.11-rc5.orig/arch/ppc/syslib/cpc700_pic.c 2.6.11-rc5/arch/ppc/syslib/cpc700_pic.c
---- 2.6.11-rc5.orig/arch/ppc/syslib/cpc700_pic.c	2004-12-24 22:34:26.000000000 +0100
-+++ 2.6.11-rc5/arch/ppc/syslib/cpc700_pic.c	2005-02-26 20:54:19.000000000 +0100
-@@ -90,14 +90,10 @@
- }
- 
- static struct hw_interrupt_type cpc700_pic = {
--	"CPC700 PIC",
--	NULL,
--	NULL,
--	cpc700_unmask_irq,
--	cpc700_mask_irq,
--	cpc700_mask_and_ack_irq,
--	NULL,
--	NULL
-+	.typename = "CPC700 PIC",
-+	.enable = cpc700_unmask_irq,
-+	.disable = cpc700_mask_irq,
-+	.ack = cpc700_mask_and_ack_irq,
- };
- 
- __init static void
-diff -urN 2.6.11-rc5.orig/arch/ppc/syslib/cpm2_pic.c 2.6.11-rc5/arch/ppc/syslib/cpm2_pic.c
---- 2.6.11-rc5.orig/arch/ppc/syslib/cpm2_pic.c	2004-12-24 22:34:57.000000000 +0100
-+++ 2.6.11-rc5/arch/ppc/syslib/cpm2_pic.c	2005-02-26 20:54:19.000000000 +0100
-@@ -102,14 +102,11 @@
- }
- 
- struct hw_interrupt_type cpm2_pic = {
--	" CPM2 SIU  ",
--	NULL,
--	NULL,
--	cpm2_unmask_irq,
--	cpm2_mask_irq,
--	cpm2_mask_and_ack,
--	cpm2_end_irq,
--	0
-+	.typename = " CPM2 SIU  ",
-+	.enable = cpm2_unmask_irq,
-+	.disable = cpm2_mask_irq,
-+	.ack = cpm2_mask_and_ack,
-+	.end = cpm2_end_irq,
- };
- 
- 
-diff -urN 2.6.11-rc5.orig/arch/ppc/syslib/i8259.c 2.6.11-rc5/arch/ppc/syslib/i8259.c
---- 2.6.11-rc5.orig/arch/ppc/syslib/i8259.c	2005-02-26 20:38:12.000000000 +0100
-+++ 2.6.11-rc5/arch/ppc/syslib/i8259.c	2005-02-26 20:54:19.000000000 +0100
-@@ -129,14 +129,11 @@
- }
- 
- struct hw_interrupt_type i8259_pic = {
--	" i8259    ",
--	NULL,
--	NULL,
--	i8259_unmask_irq,
--	i8259_mask_irq,
--	i8259_mask_and_ack_irq,
--	i8259_end_irq,
--	NULL
-+	.typename = " i8259    ",
-+	.enable = i8259_unmask_irq,
-+	.disable = i8259_mask_irq,
-+	.ack = i8259_mask_and_ack_irq,
-+	.end = i8259_end_irq,
- };
- 
- static struct resource pic1_iores = {
-diff -urN 2.6.11-rc5.orig/arch/ppc/syslib/mpc52xx_pic.c 2.6.11-rc5/arch/ppc/syslib/mpc52xx_pic.c
---- 2.6.11-rc5.orig/arch/ppc/syslib/mpc52xx_pic.c	2004-12-24 22:35:59.000000000 +0100
-+++ 2.6.11-rc5/arch/ppc/syslib/mpc52xx_pic.c	2005-02-26 20:54:19.000000000 +0100
-@@ -166,14 +166,11 @@
- }
- 
- static struct hw_interrupt_type mpc52xx_ic = {
--	"MPC52xx",
--	NULL,				/* startup(irq) */
--	NULL,				/* shutdown(irq) */
--	mpc52xx_ic_enable,		/* enable(irq) */
--	mpc52xx_ic_disable,		/* disable(irq) */
--	mpc52xx_ic_disable_and_ack,	/* disable_and_ack(irq) */
--	mpc52xx_ic_end,			/* end(irq) */
--	0				/* set_affinity(irq, cpumask) SMP. */
-+	.typename = "MPC52xx",
-+	.enable = mpc52xx_ic_enable,		/* enable(irq) */
-+	.disable = mpc52xx_ic_disable,		/* disable(irq) */
-+	.ack = mpc52xx_ic_disable_and_ack,	/* disable_and_ack(irq) */
-+	.end = mpc52xx_ic_end,			/* end(irq) */
- };
- 
- void __init
-diff -urN 2.6.11-rc5.orig/arch/ppc/syslib/open_pic2.c 2.6.11-rc5/arch/ppc/syslib/open_pic2.c
---- 2.6.11-rc5.orig/arch/ppc/syslib/open_pic2.c	2005-01-24 12:25:36.000000000 +0100
-+++ 2.6.11-rc5/arch/ppc/syslib/open_pic2.c	2005-02-26 20:54:19.000000000 +0100
-@@ -83,13 +83,11 @@
- static void openpic2_ack_irq(unsigned int irq_nr);
- 
- struct hw_interrupt_type open_pic2 = {
--	" OpenPIC2 ",
--	NULL,
--	NULL,
--	openpic2_enable_irq,
--	openpic2_disable_irq,
--	openpic2_ack_irq,
--	openpic2_end_irq,
-+	.typename = " OpenPIC2 ",
-+	.enable = openpic2_enable_irq,
-+	.disable = openpic2_disable_irq,
-+	.ack = openpic2_ack_irq,
-+	.end = openpic2_end_irq,
+ static struct hw_interrupt_type m32700ut_irq_type =
+ {
+-	"M32700UT-IRQ",
+-	startup_m32700ut_irq,
+-	shutdown_m32700ut_irq,
+-	enable_m32700ut_irq,
+-	disable_m32700ut_irq,
+-	mask_and_ack_m32700ut,
+-	end_m32700ut_irq
++	.typename = "M32700UT-IRQ",
++	.startup = startup_m32700ut_irq,
++	.shutdown = shutdown_m32700ut_irq,
++	.enable = enable_m32700ut_irq,
++	.disable = disable_m32700ut_irq,
++	.ack = mask_and_ack_m32700ut,
++	.end = end_m32700ut_irq
  };
  
  /*
-diff -urN 2.6.11-rc5.orig/arch/ppc/syslib/ppc403_pic.c 2.6.11-rc5/arch/ppc/syslib/ppc403_pic.c
---- 2.6.11-rc5.orig/arch/ppc/syslib/ppc403_pic.c	2005-01-24 12:25:36.000000000 +0100
-+++ 2.6.11-rc5/arch/ppc/syslib/ppc403_pic.c	2005-02-26 20:54:19.000000000 +0100
-@@ -34,13 +34,10 @@
- static void ppc403_aic_disable_and_ack(unsigned int irq);
+@@ -155,13 +155,13 @@
  
- static struct hw_interrupt_type ppc403_aic = {
--	"403GC AIC",
--	NULL,
--	NULL,
--	ppc403_aic_enable,
--	ppc403_aic_disable,
--	ppc403_aic_disable_and_ack,
--	0
-+	.typename = "403GC AIC",
-+	.enable = ppc403_aic_enable,
-+	.disable = ppc403_aic_disable,
-+	.ack = ppc403_aic_disable_and_ack,
+ static struct hw_interrupt_type m32700ut_pld_irq_type =
+ {
+-	"M32700UT-PLD-IRQ",
+-	startup_m32700ut_pld_irq,
+-	shutdown_m32700ut_pld_irq,
+-	enable_m32700ut_pld_irq,
+-	disable_m32700ut_pld_irq,
+-	mask_and_ack_m32700ut_pld,
+-	end_m32700ut_pld_irq
++	.typename = "M32700UT-PLD-IRQ",
++	.startup = startup_m32700ut_pld_irq,
++	.shutdown = shutdown_m32700ut_pld_irq,
++	.enable = enable_m32700ut_pld_irq,
++	.disable = disable_m32700ut_pld_irq,
++	.ack = mask_and_ack_m32700ut_pld,
++	.end = end_m32700ut_pld_irq
  };
  
- int
-diff -urN 2.6.11-rc5.orig/arch/ppc/syslib/xilinx_pic.c 2.6.11-rc5/arch/ppc/syslib/xilinx_pic.c
---- 2.6.11-rc5.orig/arch/ppc/syslib/xilinx_pic.c	2005-01-24 12:25:36.000000000 +0100
-+++ 2.6.11-rc5/arch/ppc/syslib/xilinx_pic.c	2005-02-26 20:54:19.000000000 +0100
-@@ -79,14 +79,11 @@
- }
+ /*
+@@ -224,13 +224,13 @@
  
- static struct hw_interrupt_type xilinx_intc = {
--	"Xilinx Interrupt Controller",
--	NULL,
--	NULL,
--	xilinx_intc_enable,
--	xilinx_intc_disable,
--	xilinx_intc_disable_and_ack,
--	xilinx_intc_end,
--	0
-+	.typename = "Xilinx Interrupt Controller",
-+	.enable = xilinx_intc_enable,
-+	.disable = xilinx_intc_disable,
-+	.ack = xilinx_intc_disable_and_ack,
-+	.end = xilinx_intc_end,
+ static struct hw_interrupt_type m32700ut_lanpld_irq_type =
+ {
+-	"M32700UT-PLD-LAN-IRQ",
+-	startup_m32700ut_lanpld_irq,
+-	shutdown_m32700ut_lanpld_irq,
+-	enable_m32700ut_lanpld_irq,
+-	disable_m32700ut_lanpld_irq,
+-	mask_and_ack_m32700ut_lanpld,
+-	end_m32700ut_lanpld_irq
++	.typename = "M32700UT-PLD-LAN-IRQ",
++	.startup = startup_m32700ut_lanpld_irq,
++	.shutdown = shutdown_m32700ut_lanpld_irq,
++	.enable = enable_m32700ut_lanpld_irq,
++	.disable = disable_m32700ut_lanpld_irq,
++	.ack = mask_and_ack_m32700ut_lanpld,
++	.end = end_m32700ut_lanpld_irq
  };
  
- int
+ /*
+@@ -293,13 +293,13 @@
+ 
+ static struct hw_interrupt_type m32700ut_lcdpld_irq_type =
+ {
+-	"M32700UT-PLD-LCD-IRQ",
+-	startup_m32700ut_lcdpld_irq,
+-	shutdown_m32700ut_lcdpld_irq,
+-	enable_m32700ut_lcdpld_irq,
+-	disable_m32700ut_lcdpld_irq,
+-	mask_and_ack_m32700ut_lcdpld,
+-	end_m32700ut_lcdpld_irq
++	.typename = "M32700UT-PLD-LCD-IRQ",
++	.startup = startup_m32700ut_lcdpld_irq,
++	.shutdown = shutdown_m32700ut_lcdpld_irq,
++	.enable = enable_m32700ut_lcdpld_irq,
++	.disable = disable_m32700ut_lcdpld_irq,
++	.ack = mask_and_ack_m32700ut_lcdpld,
++	.end = end_m32700ut_lcdpld_irq
+ };
+ 
+ void __init init_IRQ(void)
+diff -urN 2.6.11-rc5.orig/arch/m32r/kernel/setup_mappi2.c 2.6.11-rc5/arch/m32r/kernel/setup_mappi2.c
+--- 2.6.11-rc5.orig/arch/m32r/kernel/setup_mappi2.c	2004-12-24 22:35:50.000000000 +0100
++++ 2.6.11-rc5/arch/m32r/kernel/setup_mappi2.c	2005-02-26 20:54:19.000000000 +0100
+@@ -79,13 +79,13 @@
+ 
+ static struct hw_interrupt_type mappi2_irq_type =
+ {
+-	"MAPPI2-IRQ",
+-	startup_mappi2_irq,
+-	shutdown_mappi2_irq,
+-	enable_mappi2_irq,
+-	disable_mappi2_irq,
+-	mask_and_ack_mappi2,
+-	end_mappi2_irq
++	.typename = "MAPPI2-IRQ",
++	.startup = startup_mappi2_irq,
++	.shutdown = shutdown_mappi2_irq,
++	.enable = enable_mappi2_irq,
++	.disable = disable_mappi2_irq,
++	.ack = mask_and_ack_mappi2,
++	.end = end_mappi2_irq
+ };
+ 
+ void __init init_IRQ(void)
+diff -urN 2.6.11-rc5.orig/arch/m32r/kernel/setup_mappi.c 2.6.11-rc5/arch/m32r/kernel/setup_mappi.c
+--- 2.6.11-rc5.orig/arch/m32r/kernel/setup_mappi.c	2004-12-24 22:35:00.000000000 +0100
++++ 2.6.11-rc5/arch/m32r/kernel/setup_mappi.c	2005-02-26 20:54:19.000000000 +0100
+@@ -70,13 +70,13 @@
+ 
+ static struct hw_interrupt_type mappi_irq_type =
+ {
+-	"MAPPI-IRQ",
+-	startup_mappi_irq,
+-	shutdown_mappi_irq,
+-	enable_mappi_irq,
+-	disable_mappi_irq,
+-	mask_and_ack_mappi,
+-	end_mappi_irq
++	.typename = "MAPPI-IRQ",
++	.startup = startup_mappi_irq,
++	.shutdown = shutdown_mappi_irq,
++	.enable = enable_mappi_irq,
++	.disable = disable_mappi_irq,
++	.ack = mask_and_ack_mappi,
++	.end = end_mappi_irq
+ };
+ 
+ void __init init_IRQ(void)
+diff -urN 2.6.11-rc5.orig/arch/m32r/kernel/setup_oaks32r.c 2.6.11-rc5/arch/m32r/kernel/setup_oaks32r.c
+--- 2.6.11-rc5.orig/arch/m32r/kernel/setup_oaks32r.c	2004-12-24 22:35:40.000000000 +0100
++++ 2.6.11-rc5/arch/m32r/kernel/setup_oaks32r.c	2005-02-26 20:54:19.000000000 +0100
+@@ -70,13 +70,13 @@
+ 
+ static struct hw_interrupt_type oaks32r_irq_type =
+ {
+-	"OAKS32R-IRQ",
+-	startup_oaks32r_irq,
+-	shutdown_oaks32r_irq,
+-	enable_oaks32r_irq,
+-	disable_oaks32r_irq,
+-	mask_and_ack_mappi,
+-	end_oaks32r_irq
++	.typename = "OAKS32R-IRQ",
++	.startup = startup_oaks32r_irq,
++	.shutdown = shutdown_oaks32r_irq,
++	.enable = enable_oaks32r_irq,
++	.disable = disable_oaks32r_irq,
++	.ack = mask_and_ack_mappi,
++	.end = end_oaks32r_irq
+ };
+ 
+ void __init init_IRQ(void)
+diff -urN 2.6.11-rc5.orig/arch/m32r/kernel/setup_opsput.c 2.6.11-rc5/arch/m32r/kernel/setup_opsput.c
+--- 2.6.11-rc5.orig/arch/m32r/kernel/setup_opsput.c	2004-12-24 22:33:48.000000000 +0100
++++ 2.6.11-rc5/arch/m32r/kernel/setup_opsput.c	2005-02-26 20:54:19.000000000 +0100
+@@ -79,13 +79,13 @@
+ 
+ static struct hw_interrupt_type opsput_irq_type =
+ {
+-	"OPSPUT-IRQ",
+-	startup_opsput_irq,
+-	shutdown_opsput_irq,
+-	enable_opsput_irq,
+-	disable_opsput_irq,
+-	mask_and_ack_opsput,
+-	end_opsput_irq
++	.typename = "OPSPUT-IRQ",
++	.startup = startup_opsput_irq,
++	.shutdown = shutdown_opsput_irq,
++	.enable = enable_opsput_irq,
++	.disable = disable_opsput_irq,
++	.ack = mask_and_ack_opsput,
++	.end = end_opsput_irq
+ };
+ 
+ /*
+@@ -156,13 +156,13 @@
+ 
+ static struct hw_interrupt_type opsput_pld_irq_type =
+ {
+-	"OPSPUT-PLD-IRQ",
+-	startup_opsput_pld_irq,
+-	shutdown_opsput_pld_irq,
+-	enable_opsput_pld_irq,
+-	disable_opsput_pld_irq,
+-	mask_and_ack_opsput_pld,
+-	end_opsput_pld_irq
++	.typename = "OPSPUT-PLD-IRQ",
++	.startup = startup_opsput_pld_irq,
++	.shutdown = shutdown_opsput_pld_irq,
++	.enable = enable_opsput_pld_irq,
++	.disable = disable_opsput_pld_irq,
++	.ack = mask_and_ack_opsput_pld,
++	.end = end_opsput_pld_irq
+ };
+ 
+ /*
+@@ -225,13 +225,13 @@
+ 
+ static struct hw_interrupt_type opsput_lanpld_irq_type =
+ {
+-	"OPSPUT-PLD-LAN-IRQ",
+-	startup_opsput_lanpld_irq,
+-	shutdown_opsput_lanpld_irq,
+-	enable_opsput_lanpld_irq,
+-	disable_opsput_lanpld_irq,
+-	mask_and_ack_opsput_lanpld,
+-	end_opsput_lanpld_irq
++	.typename = "OPSPUT-PLD-LAN-IRQ",
++	.startup = startup_opsput_lanpld_irq,
++	.shutdown = shutdown_opsput_lanpld_irq,
++	.enable = enable_opsput_lanpld_irq,
++	.disable = disable_opsput_lanpld_irq,
++	.ack = mask_and_ack_opsput_lanpld,
++	.end = end_opsput_lanpld_irq
+ };
+ 
+ /*
+@@ -294,13 +294,13 @@
+ 
+ static struct hw_interrupt_type opsput_lcdpld_irq_type =
+ {
+-	"OPSPUT-PLD-LCD-IRQ",
+-	startup_opsput_lcdpld_irq,
+-	shutdown_opsput_lcdpld_irq,
+-	enable_opsput_lcdpld_irq,
+-	disable_opsput_lcdpld_irq,
+-	mask_and_ack_opsput_lcdpld,
+-	end_opsput_lcdpld_irq
++	.type = "OPSPUT-PLD-LCD-IRQ",
++	.startup = startup_opsput_lcdpld_irq,
++	.shutdown = shutdown_opsput_lcdpld_irq,
++	.enable = enable_opsput_lcdpld_irq,
++	.disable = disable_opsput_lcdpld_irq,
++	.ack = mask_and_ack_opsput_lcdpld,
++	.end = end_opsput_lcdpld_irq
+ };
+ 
+ void __init init_IRQ(void)
+diff -urN 2.6.11-rc5.orig/arch/m32r/kernel/setup_usrv.c 2.6.11-rc5/arch/m32r/kernel/setup_usrv.c
+--- 2.6.11-rc5.orig/arch/m32r/kernel/setup_usrv.c	2004-12-24 22:35:01.000000000 +0100
++++ 2.6.11-rc5/arch/m32r/kernel/setup_usrv.c	2005-02-26 20:54:19.000000000 +0100
+@@ -70,13 +70,13 @@
+ 
+ static struct hw_interrupt_type mappi_irq_type =
+ {
+-	"M32700-IRQ",
+-	startup_mappi_irq,
+-	shutdown_mappi_irq,
+-	enable_mappi_irq,
+-	disable_mappi_irq,
+-	mask_and_ack_mappi,
+-	end_mappi_irq
++	.typename = "M32700-IRQ",
++	.startup = startup_mappi_irq,
++	.shutdown = shutdown_mappi_irq,
++	.enable = enable_mappi_irq,
++	.disable = disable_mappi_irq,
++	.ack = mask_and_ack_mappi,
++	.end = end_mappi_irq
+ };
+ 
+ /*
+@@ -143,13 +143,13 @@
+ 
+ static struct hw_interrupt_type m32700ut_pld_irq_type =
+ {
+-	"USRV-PLD-IRQ",
+-	startup_m32700ut_pld_irq,
+-	shutdown_m32700ut_pld_irq,
+-	enable_m32700ut_pld_irq,
+-	disable_m32700ut_pld_irq,
+-	mask_and_ack_m32700ut_pld,
+-	end_m32700ut_pld_irq
++	.typename = "USRV-PLD-IRQ",
++	.startup = startup_m32700ut_pld_irq,
++	.shutdown = shutdown_m32700ut_pld_irq,
++	.enable = enable_m32700ut_pld_irq,
++	.disable = disable_m32700ut_pld_irq,
++	.ack = mask_and_ack_m32700ut_pld,
++	.end = end_m32700ut_pld_irq
+ };
+ 
+ void __init init_IRQ(void)

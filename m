@@ -1,55 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129075AbRBNQmQ>; Wed, 14 Feb 2001 11:42:16 -0500
+	id <S129078AbRBNQz7>; Wed, 14 Feb 2001 11:55:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129107AbRBNQmH>; Wed, 14 Feb 2001 11:42:07 -0500
-Received: from smtp.bellnexxia.net ([209.226.175.26]:13736 "EHLO
-	tomts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S129075AbRBNQlu>; Wed, 14 Feb 2001 11:41:50 -0500
-Message-ID: <3A8AB4A3.C12E7E7B@sympatico.ca>
-Date: Wed, 14 Feb 2001 11:38:59 -0500
-From: Jeremy Jackson <jeremy.jackson@sympatico.ca>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: TeknoDragon <andross@ghettobox.dhs.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Destination Loose UDP in 2.4 (net/ipv4/netfilter)
-In-Reply-To: <Pine.LNX.4.32.0102132146560.7508-100000@ghettobox.dhs.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129107AbRBNQzs>; Wed, 14 Feb 2001 11:55:48 -0500
+Received: from jump-isi.interactivesi.com ([207.8.4.2]:51448 "HELO
+	dinero.interactivesi.com") by vger.kernel.org with SMTP
+	id <S129078AbRBNQzp>; Wed, 14 Feb 2001 11:55:45 -0500
+Date: Wed, 14 Feb 2001 10:55:42 -0600
+From: Timur Tabi <ttabi@interactivesi.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <200102140609.f1E69Bc346946@saturn.cs.uml.edu>
+In-Reply-To: <3A89F1A5.7050603@bellsouth.net> from "Louis Garcia" at Feb 13, 2001 09:47:01 PM
+Subject: Re: Video drivers and the kernel
+X-Mailer: The Polarbar Mailer; version=1.19a; build=73
+Message-ID: <X5ggNB.A.j8E.Piri6@dinero.interactivesi.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-TeknoDragon wrote:
+** Reply to message from "Albert D. Cahalan" <acahalan@cs.uml.edu> on Wed, 14
+Feb 2001 01:09:10 -0500 (EST)
 
-> What is the status of "dloose udp" in 2.4.x? From my reading in a few list
-> archives it seems to have been some sort of a hack, yet it is needed for
-> games such as Asheron's Call to be played behind a firewall.
 
-I use Starcraft behind a 2.4.0 (RH7) masq firewall using
-netfilter/nat/iptables and it works fine by default.
+> Both options cause political troubles. Currently the X server is
+> shared with OS/2 and other crummy systems. If the Linux kernel had
+> serious video drivers for PC hardware, then driver support for the
+> other operating systems would mostly go away. Linux would become
+> a better desktop OS, at the expense of various crummy systems.
 
-iptables -t nat -A POSTROUTING -o ppp0 -j MASQUERADE  (or something very
-close)
+First of all, I'm object to calling OS/2 a "crummy system".  There are still
+some things that OS/2 can do better than Linux.  But I don't want to get into a
+flame war.  
 
-Under redhat 6.2, stock kernel, it also worked.  Under 7.0 stock kernel, I
-had to echo 1 to that
-/proc file you mention below.
+More importantly, just because the drivers move into the kernel doesn't mean
+that other OS's can't be supported.  A video driver could be compiled for the
+kernel on Linux, but be compiled as something else for other OS's.  In fact, on
+OS/2, a special driver is provided with XFree86 that effectively allows the X
+Server to run with the same capabilities as an OS/2 device driver.  In fact, by
+strict standards, it's a security and reliability loophole, but it still works
+pretty well.
 
->
->
-> In 2.2.18 the code implementing this seems to be in net/ipv4/ip_masq.c
-> and was controlled by a sysctl "ip_masq_udp_dloose".
->
-> Is there anything in 2.4.x to replace this functionallity? Is there a way
-> to replace it with an iptables rule? Any help would be much appreciated.
->
-> -karl
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+So I wouldn't worry about OS/2.  If we can port your audio drivers, we can port
+anything.
+
+xBSD, on the other hand, ....
+
+
+-- 
+Timur Tabi - ttabi@interactivesi.com
+Interactive Silicon - http://www.interactivesi.com
+
+When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
 

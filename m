@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261162AbTHST1E (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 15:27:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261341AbTHST0s
+	id S261230AbTHST2S (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 15:28:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbTHST2F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 15:26:48 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:2432 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S261317AbTHSTZm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 15:25:42 -0400
-Date: Tue, 19 Aug 2003 20:37:02 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200308191937.h7JJb2M0000234@81-2-122-30.bradfords.org.uk>
-To: aebr@win.tue.nl, macro@ds2.pg.gda.pl
-Subject: Re: Input issues - key down with no key up
-Cc: jamie@shareable.org, linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au,
-       vojtech@suse.cz
+	Tue, 19 Aug 2003 15:28:05 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:59665 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S261230AbTHST1N
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 15:27:13 -0400
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: scheduler interactivity: timeslice calculation seem wrong
+Date: 19 Aug 2003 19:18:59 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <bhtt73$8i4$1@gatekeeper.tmr.com>
+References: <3F41B43D.6000706@cyberone.com.au> <1061276043.6974.33.camel@orbiter>
+X-Trace: gatekeeper.tmr.com 1061320739 8772 192.168.12.62 (19 Aug 2003 19:18:59 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Etc. Set 3 is a pain. Nobody wants it, except the people who have read
-> the spec only and say - look, neat, a single code for a single keystroke.
-> Reality is very different.
+In article <1061276043.6974.33.camel@orbiter>,
+Eric St-Laurent  <ericstl34@sympatico.ca> wrote:
 
-I totally agree that in 99.9% of cases, Set 2 is a more sensible
-choice than Set 3.
+| Well, i was looking at TimeSys scheduler, trying something like that in
+| 2.6 requires modifications to many files and it's a PITA to maintain a
+| diff with frequents kernel releases. having a structure in place to
+| plug-in other schedulers sure helps.
 
-On the other hand, a configuration option to only support Set 3, and
-not implement all of the work-arounds would shrink the kernel by a few
-K, which would be nice.
+I agree. In fact I'm pretty sure I said something similar a while ago.
+Unlike you I didn't do any major changes, certainly none I felt were of
+general interest.
 
-Also, the keyboard I'm using requires Set 3 to operate fully, although
-as it's quite possible that I am the only person on the planet who
-uses this model of keyboard with Linux, that might not be a very valid
-argument :-).
-
-John.
+This could go in 2.7, though, or possibly in 2.6.x depending on how the
+powers that be feel. I think having the scheduler as a plugin is a win
+in terms of having whole special-use algorithms. It would have to be
+done *very* carefully to be sure it didn't add measurable overhead.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

@@ -1,40 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266981AbTBQLKE>; Mon, 17 Feb 2003 06:10:04 -0500
+	id <S266983AbTBQLKl>; Mon, 17 Feb 2003 06:10:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266983AbTBQLKE>; Mon, 17 Feb 2003 06:10:04 -0500
-Received: from cc78409-a.hnglo1.ov.home.nl ([212.120.97.185]:54508 "EHLO
-	dexter.hensema.net") by vger.kernel.org with ESMTP
-	id <S266981AbTBQLKD>; Mon, 17 Feb 2003 06:10:03 -0500
-From: Erik Hensema <usenet@hensema.net>
-Subject: Re: Linux v2.5.61
-Date: Mon, 17 Feb 2003 11:20:00 +0000 (UTC)
-Message-ID: <slrnb51hav.6i0.usenet@bender.home.hensema.net>
-References: <Pine.LNX.4.44.0302141709410.1376-100000@penguin.transmeta.com> <20030215135345.GA16783@merlin.emma.line.org> <87ptptx9z1.wl@ipinfusion.com> <1045389793.2068.39.camel@imladris.demon.co.uk>
-Reply-To: erik@hensema.net
-User-Agent: slrn/0.9.7.4 (Linux)
-To: linux-kernel@vger.kernel.org
+	id <S266987AbTBQLKl>; Mon, 17 Feb 2003 06:10:41 -0500
+Received: from indianer.linux-kernel.at ([62.116.87.200]:7869 "EHLO
+	indianer.linux-kernel.at") by vger.kernel.org with ESMTP
+	id <S266983AbTBQLKk>; Mon, 17 Feb 2003 06:10:40 -0500
+From: "Oliver Pitzeier" <oliver@linux-kernel.at>
+To: <axp-kernel-list@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: 2.5.61 (Yes, there are still Alpha users out there. :-) )
+Date: Mon, 17 Feb 2003 12:19:18 +0100
+Organization: linux-kernel.at
+Message-ID: <000d01c2d676$6d2bfec0$020b10ac@pitzeier.priv.at>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+In-Reply-To: 
+Importance: Normal
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-0.4, required 5, AWL,
+	NOSPAM_INC, QUOTED_EMAIL_TEXT, SPAM_PHRASE_00_01)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse (dwmw2@infradead.org) wrote:
-> On Sun, 2003-02-16 at 01:58, Kunihiro Ishiguro wrote:
->> >Well, the kernel doesn't link for me when IPV6 is compiled as a module (config
->> >below) -- linking IPv6 in is fine.
->> 
->> Here is a fix for xfrm6_get_type() link problem when IPv6 is
->> configured as a module.
-> 
->> +#if defined(CONFIG_IPV6) || defined(CONFIG_IPV6_MODULE)
-> 
-> No. Do not ever use #ifdef CONFIG_xxx_MODULE. You should be able to
-> build modules later by adding them to your config.
+Leslie Donaldson wrote:
+>    Got the new kernel here are my results.
 
-IPv6 has been an exception to this rule for a long time. For at least the
-entire 2.4.x series, you have to recompile the entire kernel when you
-enable the IPv6 module.
+I also downloaded 2.5.61 today. I wasn't able the last 2 days. :-(
 
-And no, I'm not saying I like it ;-)
+>    -) Base kernel now compiles out of box.
 
--- 
-Erik Hensema <erik@hensema.net>
+For me too.
+
+>    -) firewire dma.c no compile. patch was late should be in next rev.
+>       Maintainers already found bug.
+>    -) Sound opl3sa2 no compile. Entered patch today
+
+I don't use firewire, sound and so on, therefor I can't tell you my results
+regarding this.
+
+>    -) make modules_install still has
+>       depmod: Unhandled relocation of type 10 for .text
+
+There were also some problems with make modules_install for me!
+
+> well there you go. For clarification until I get a clean
+> install I'm not going to try and boot this thing. (I like my 
+> raid working.)
+
+I'll let it run now... Let's see. If the machine crashes I don't mind too much.
+It's just an old Compaq AS1000 5/333 only used by me as Alpha-teststation and
+some kind of "fileserver".
+
+If it works well now and hopefully without crashing, I believe 2.6 will also
+work fine... :-)
+
+Best regards,
+ Oliver
+
+

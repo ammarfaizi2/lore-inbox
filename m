@@ -1,51 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264932AbTFCFVU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 01:21:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264934AbTFCFVU
+	id S264929AbTFCFyw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 01:54:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264935AbTFCFyw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 01:21:20 -0400
-Received: from mail.cpt.sahara.co.za ([196.41.29.142]:20723 "EHLO
-	workshop.saharact.lan") by vger.kernel.org with ESMTP
-	id S264932AbTFCFVT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 01:21:19 -0400
-Subject: Re: [RFC PATCH] Re: [OOPS] w83781d during rmmod (2.5.69-bk17)
-From: Martin Schlemmer <azarah@gentoo.org>
-To: Greg KH <greg@kroah.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Sensors <sensors@stimpy.netroedge.com>
-In-Reply-To: <20030602172040.GC4992@kroah.com>
-References: <20030524183748.GA3097@earth.solarsys.private>
-	 <3ED8067E.1050503@paradyne.com>
-	 <20030601143808.GA30177@earth.solarsys.private>
-	 <20030602172040.GC4992@kroah.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1054617753.5269.44.camel@workshop.saharacpt.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3- 
-Date: 03 Jun 2003 07:22:34 +0200
+	Tue, 3 Jun 2003 01:54:52 -0400
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:49562 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP id S264929AbTFCFyw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 01:54:52 -0400
+Message-ID: <3EDC3B52.6030604@attbi.com>
+Date: Mon, 02 Jun 2003 23:08:18 -0700
+From: Miles Lane <miles.lane@attbi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux ppc; en-US; rv:1.3.1) Gecko/20030428
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.70-bk7 -- drivers/net/irda/w83977af_ir.ko needs unknown	symbol
+ setup_dma
+References: <3EDBCC44.8000009@attbi.com> <1054612898.9352.3.camel@rth.ninka.net>
+In-Reply-To: <1054612898.9352.3.camel@rth.ninka.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-06-02 at 19:20, Greg KH wrote:
+David S. Miller wrote:
+> On Mon, 2003-06-02 at 15:14, Miles Lane wrote:
+> 
+>>if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.70-bk7; fi
+>>WARNING: /lib/modules/2.5.70-bk7/kernel/drivers/net/irda/w83977af_ir.ko 
+>>needs unknown symbol setup_dma
+> 
+> 
+> What platform is this?  It needs to set CONFIG_ISA correctly.
 
-Hiya Greg
+It's PPC.
 
-While sorda on the topic ... since I did the w83781d driver some time
-ago, I changed boards for a P4C800 (Intel 875 chipset), that have a
-ICH5 southbridge, and not a ICH4 one ....  I tried to add the ID's
-to the i810 driver, and although it does load (even without the
-ID's added), the I2C bus/sensor does not show in /sys.  The w83781d
-driver also load fine btw.
+CONFIG_PPC=y
+CONFIG_PPC32=y
+CONFIG_6xx=y
 
-Any ideas ? Anybody working on 875 support that I can help test ?
+#
+# General setup
+#
+# CONFIG_HIGHMEM is not set
+# CONFIG_ISA is not set
+CONFIG_PCI=y
 
-
-Thanks,
-
--- 
-Martin Schlemmer
 
 

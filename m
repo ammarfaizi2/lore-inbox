@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261994AbTCYLZm>; Tue, 25 Mar 2003 06:25:42 -0500
+	id <S262059AbTCYLaI>; Tue, 25 Mar 2003 06:30:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261981AbTCYLZm>; Tue, 25 Mar 2003 06:25:42 -0500
-Received: from mail.hometree.net ([212.34.181.120]:41900 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S261994AbTCYLZk>; Tue, 25 Mar 2003 06:25:40 -0500
+	id <S262132AbTCYLaI>; Tue, 25 Mar 2003 06:30:08 -0500
+Received: from [62.75.130.10] ([62.75.130.10]:55314 "EHLO server1.opaia.de")
+	by vger.kernel.org with ESMTP id <S262059AbTCYLaC> convert rfc822-to-8bit;
+	Tue, 25 Mar 2003 06:30:02 -0500
+Date: Tue, 25 Mar 2003 12:41:10 +0100
+Message-Id: <200303251141.h2PBfA0n007798@server1.opaia.de>
+From: imre@molnar.info
 To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: Ptrace hole / Linux 2.2.25
-Date: Tue, 25 Mar 2003 11:36:50 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <b5pf0i$rfu$2@tangens.hometree.net>
-References: <20030323193457.GA14750@atrey.karlin.mff.cuni.cz> <200303231938.h2NJcAq14927@devserv.devel.redhat.com> <20030323194423.GC14750@atrey.karlin.mff.cuni.cz> <1048448838.1486.12.camel@phantasy.awol.org> <20030323195606.GA15904@atrey.karlin.mff.cuni.cz> <1048450211.1486.19.camel@phantasy.awol.org> <402760000.1048451441@[10.10.2.4]>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1048592210 28158 212.34.181.4 (25 Mar 2003 11:36:50 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Tue, 25 Mar 2003 11:36:50 +0000 (UTC)
-X-Copyright: (C) 1996-2003 Henning Schmiedehausen
-X-No-Archive: yes
-User-Agent: nn/6.6.5
+Cc: imre@molnar.info
+Subject: unsupported bridge with intel E7205 chipset 
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> writes:
+After booting with the latest stable kernel (2.4.20):
+-----------------------dmesg---------------------------
+.			 :
+Linux agpgart interface v0.99 (c) Jeff Hartmann
+agpgart: Maximum main memory to use for agp memory: 1919M
+agpgart: Unsupported Intel chipset (device id: 255d), you might want
+to try agp_try_unsupported=1.
+agpgart: no supported devices found.
+........................:............................ 
 
->If that's people's attitude ("you should use a vendor"), then we need a 
->2.4-fixed tree to be run by somebody with an interest in providing 
->critical bugfixes to the community with no distro ties. People may be
->perfectly capable of finding, applying, and collecting their own patches,
->but that's no reason to make it difficult.
+I found a patch under:
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0210.3/0584.html
 
-Get the vendors to pay someone equally for it. That's much more likely
-to succeed. The current 2.4 model is already doomed, IMHO. 
+After patched the kernel:
+-------------------------dmesg------------------------
+.			   :
+Linux agpgart interface v0.99 (c) Jeff Hartmann
+agpgart: Maximum main memory to use for agp memory: 1919M
+agpgart: unsupported bridge
+agpgart: no supported devices found.
+.........................:...........................
 
-	Regards
-		Henning
+The motherboard is from Asus (P4G8X-Deluxe):
+o  North bridge controller: E7205
+o  South bridge controller: ICH4
 
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
-hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
+How is this problem to solve?
 
-Java, perl, Solaris, Linux, xSP Consulting, Web Services 
-freelance consultant -- Jakarta Turbine Development  -- hero for hire
+With best regards
+Imre Molnar
+Heidbuehlstr. 33
+D-88697 BERMATINGEN
+Tel: +49(7544)73165
+Email: imre@molnar.info

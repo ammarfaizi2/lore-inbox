@@ -1,83 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262290AbSJ2UlV>; Tue, 29 Oct 2002 15:41:21 -0500
+	id <S262184AbSJ2UtI>; Tue, 29 Oct 2002 15:49:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262302AbSJ2UlV>; Tue, 29 Oct 2002 15:41:21 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:26241 "EHLO
-	wookie-t23.pdx.osdl.net") by vger.kernel.org with ESMTP
-	id <S262290AbSJ2UlU>; Tue, 29 Oct 2002 15:41:20 -0500
-Subject: Re: [BENCHMARK] AIM Independent Resource Benchmark  results for
-	kernel-2.5.44
-From: "Timothy D. Witham" <wookie@osdl.org>
-To: John Hawkes <hawkes@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <015e01c27f86$a42d4290$9865fea9@PCJohn>
-References: <fa.e2emdkv.j1ksaf@ifi.uio.no> <fa.f6uq3iv.232305@ifi.uio.no>
-	 <015e01c27f86$a42d4290$9865fea9@PCJohn>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Open Source Development Lab, Inc.
-Message-Id: <1035924383.1427.79.camel@wookie-t23.pdx.osdl.net>
+	id <S262302AbSJ2UtI>; Tue, 29 Oct 2002 15:49:08 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:40206 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S262184AbSJ2UtI>; Tue, 29 Oct 2002 15:49:08 -0500
+Date: Tue, 29 Oct 2002 20:55:29 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [BK updates] fbdev changes updates.
+Message-ID: <20021029205529.A2145@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	James Simmons <jsimmons@infradead.org>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linux Fbdev development list <linux-fbdev-devel@lists.sourceforge.net>
+References: <Pine.LNX.4.33.0210291240170.14451-100000@maxwell.earthlink.net> <Pine.LNX.4.33.0210291245410.14451-100000@maxwell.earthlink.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.1.2.99 (Preview Release)
-Date: 29 Oct 2002 12:46:23 -0800
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.33.0210291245410.14451-100000@maxwell.earthlink.net>; from jsimmons@infradead.org on Tue, Oct 29, 2002 at 12:46:16PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  But then I fixed the code with the compile option.  But
-I agree I don't like floating point code that looks for
-equality with zero to end a loop.  I would much rather
-have the code to for a fixed <= number as that prevents
-the issue with "how close to zero" on your system.  
-
-  History lesson.  In the very old days this benchmark
-caused many a math library to be changed because different
-architectures had different ideas as to how close to
-zero you had to be before a floating point number was
-considered zero and some people ran a lot more iterations
-than other folks for the same test.  The response was
-"Well that is an implementation detail and it does
-matter to folks as they write code to test for convergence."
-I guess they went to a cheaper school than I did. :-)
-
-  Of course that was when it took a 20 processor system
-to get over 100 users. :-)
-
-  But if we are looking at this test overall maybe we 
-should be considering how to update it for systems
-that have changed so much over the years. For
-example the fakeh.tar file is only 192 KB.  Heck
-that is the size of some single documents these days.
-
-Tim
-
-On Tue, 2002-10-29 at 12:06, John Hawkes wrote:
-> From: "Jakob Oestergaard" <jakob@unthought.net>
-> ...[snip]...
-> > The correct way to terminate that loop is, like was already suggested,
-> > doing a comparison to see if the residual is "numerically zero" or
-> > "sufficiently zero-ish for the given purpose". Eg.  "delta < 1E-12" or
-> > eventually "fabs(delta) < 1E-12".
+On Tue, Oct 29, 2002 at 12:46:16PM -0800, James Simmons wrote:
 > 
-> Tim Witham at the OSDL told me that he ran some experiments with
-> different convergent deltas:
+> OOps. Forgot the link.
 > 
->   zero Rate (ops/sec) Iteration Rate
->  10-6    331,300    1656.5
->  10-8    315,049    1575.0
->  10-10    302,000    1510.0
->  10-12    292,300    1461.5
->  10-14    285,400    1427.0
-> 
-> Anything smaller than 10-14 didn't converge.
-> 
-> 
-> --
-> John Hawkes
--- 
-Timothy D. Witham - Lab Director - wookie@osdlab.org
-Open Source Development Lab Inc - A non-profit corporation
-15275 SW Koll Parkway - Suite H - Beaverton OR, 97006
-(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
-(503)-626-2436     (fax)
+> bk://fbdev.bkbits.net/fbdev-2.5
+
+Does it still contain the random file movearounds?
 

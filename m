@@ -1,30 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272089AbRHVTDS>; Wed, 22 Aug 2001 15:03:18 -0400
+	id <S272094AbRHVTEi>; Wed, 22 Aug 2001 15:04:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272086AbRHVTDI>; Wed, 22 Aug 2001 15:03:08 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:8208 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S272089AbRHVTCy>; Wed, 22 Aug 2001 15:02:54 -0400
-Subject: Re: Qlogic/FC firmware
-To: jfbeam@bluetopia.net (Ricky Beam)
-Date: Wed, 22 Aug 2001 20:05:56 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), davem@redhat.com (David S. Miller),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.33.0108221431060.6389-100000@sweetums.bluetronic.net> from "Ricky Beam" at Aug 22, 2001 02:46:27 PM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15ZdK8-00025A-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S272086AbRHVTET>; Wed, 22 Aug 2001 15:04:19 -0400
+Received: from trained-monkey.org ([209.217.122.11]:17423 "EHLO
+	trained-monkey.org") by vger.kernel.org with ESMTP
+	id <S272092AbRHVTEH>; Wed, 22 Aug 2001 15:04:07 -0400
+To: Adam Radford <aradford@3WARE.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+        Jens Axboe <axboe@suse.de>
+Subject: Re: [patch] 3Ware 64 bit locking issues
+In-Reply-To: <53B208BD9A7FD311881A009027B6BBFB9EAE47@siamese>
+From: Jes Sorensen <jes@trained-monkey.org>
+Date: 22 Aug 2001 15:04:14 -0400
+In-Reply-To: Adam Radford's message of "Wed, 22 Aug 2001 11:48:07 -0700"
+Message-ID: <m3g0ajncgh.fsf@trained-monkey.org>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -#include "qlogicfc_asm.c"
-> +//#include "qlogicfc_asm.c"
-> 
-> (I will note, that's not even a valid C construct. '//' is a C++ism.)
+>>>>> "Adam" == Adam Radford <aradford@3WARE.com> writes:
 
-Your C standard is as out of date as your architecture ;)
+Adam> Thanks for flags type fix and redundant pushf/popf fix.
+Adam> Regarding your question about the error handling routines, the
+Adam> 3ware driver uses the new style scsi error handling, so looking
+Adam> through scsi_error.c, all calls to
+Adam> hostt->eh_abort_handler() and hostt->eh_host_reset_handler() are
+Adam> wrapped with a spin_lock_irqsave(&io_request_lock, flags) and
+Adam> spin_unlock_irqrestore(&io_request_lock, flags) so they should
+Adam> be okay.
 
+Hmm ok. However, since Jens is working on killing the io_request_lock
+so something will need to get done when that happens.
+
+Jens, what is the strategy for that?
+
+Cheers
+Jes

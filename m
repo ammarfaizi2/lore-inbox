@@ -1,72 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131485AbRAOUuA>; Mon, 15 Jan 2001 15:50:00 -0500
+	id <S131474AbRAOVAB>; Mon, 15 Jan 2001 16:00:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131483AbRAOUtu>; Mon, 15 Jan 2001 15:49:50 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:55824 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131401AbRAOUt3>; Mon, 15 Jan 2001 15:49:29 -0500
-Message-ID: <3A636231.B892D7D2@transmeta.com>
-Date: Mon, 15 Jan 2001 12:48:49 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
-MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-        "H. Peter Anvin" <hpa@zytor.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Andrea Arcangeli <andrea@suse.de>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] i386/setup.c cpuinfo notsc
-In-Reply-To: <Pine.LNX.4.21.0101152017450.1032-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131483AbRAOU7w>; Mon, 15 Jan 2001 15:59:52 -0500
+Received: from heffalump.fnal.gov ([131.225.9.20]:27384 "EHLO fnal.gov")
+	by vger.kernel.org with ESMTP id <S131474AbRAOU7f>;
+	Mon, 15 Jan 2001 15:59:35 -0500
+Date: Mon, 15 Jan 2001 14:59:27 -0600
+From: Paul Hubbard <phubbard@fnal.gov>
+Subject: 4G SGI quad Xeon - memory-related slowdowns
+To: linux-kernel@vger.kernel.org
+Cc: "Richard E. Jetton" <rjetton@fnal.gov>
+Message-id: <3A6364AF.AC4D4081@fnal.gov>
+Organization: Fermilab
+MIME-version: 1.0
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i686)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins wrote:
-> 
-> That's how "notsc" used to behave, but since 2.4.0-test11
-> "notsc" has left "tsc" in /proc/cpuinfo.  setup.c has a bogus
-> "#ifdef CONFIG_TSC" which should be "#ifndef CONFIG_X86_TSC".
-> 
-> HPA, Maciej and I discussed that around 5 Dec 2000; but HPA
-> was of Andrea's persuasion, that we should not mask caps out
-> of (real CPU entries in) /proc/cpuinfo, so we made no change.
-> 
-> In discussion we found a more worrying error in the SMP case:
-> boot_cpu_data is supposed to be left with those x86_capabilities
-> common to all CPUs, but the code to do so was unaware that
-> boot_cpu_data is overwritten in booting each CPU.  Even if all
-> CPUs have the same features, I imagine the Linux-defined ones
-> (CXMMX, K6_MTRR, CYRIX_ARR, CENTAUR_MCR) were unintentionally
-> masked out of the final boot_cpu_data.
-> 
-> The patch below fixes both those issues, and also clears
-> "pse" from /proc/cpuinfo in the same way if "mem=nopentium".
-> Tempted to rename "tsc_disable" to "disable_x86_tsc", but resisted.
-> 
-> I think there are still anomalies in the Cyrix and Centaur TSC
-> handling - shouldn't dodgy_tsc() check Centaur too?  shouldn't
-> we set X86_CR4_TSD wherever we clear X86_FEATURE_TSC? - but I
-> don't have those CPUs to test, I'm wary of disabling TSC since
-> finding RH7.0 installed on i686 needs rdtsc to run /sbin/init,
-> and even if they are wrong then "notsc" corrects the situation:
-> not 2.4.1 material.
-> 
 
-I would personally prefer to export the global flags separately from the
-per-CPU flags.  Not only is it more correct, it would help catch these
-kinds of bugs!!!
+We're having some problems with the 2.4.0 kernel on our SGI 1450, and
+were hoping for some help.
+ The box is a quad Xeon 700/2MB, with 4GB of memory, ServerSet III HE
+chipset, RH6.1 (slightly modified for local configuration) distribution.
 
-	-hpa
+a) If we compile the kernel with no high memory support, /proc/meminfo
+shows 1G of memory and everything works fine.
+
+b) If we compile for 4G of memory, /proc/meminfo shows about 3G, and
+overriding the amount at the lilo prompt causes kernel panics at bootup.
+However, other than missing a quarter of the memory, it works just fine.
+
+c) If we compile the kernel for 64G high memory (PAE mode), we see all
+of the memory but have other problems:
+  i) mkefs -m0 on a 72GB Seagate SCSI disk runs very slowly (about
+5MB/sec instead of 22-25) and the machine hangs after the format
+completes. To be exact, the command prompt returns, but
+     ls or any other command will never return, and you have to reset
+the box. This is a 
+     showstopper for us!
+
+  ii) If I override the amount of memory via lilo, we still get the
+hang, but performance 
+     actually improves! At 1G, it's slow for a few seconds, and then
+runs fine. At 2G, it's 
+     slow, and when I tried to boot 3G I got an odd startup crash that
+I've not had time to
+     replicate.
+
+Other notes: 
+
+1) SCSI is onboard Adaptec 39160 (aic7xxx driver, dual-channel) and
+we've tried different drives, cables, terminators, etc. 
+
+2) Other block I/O output (eg dd if=/dev/zero of=/dev/sdi bs=4M) also
+run very slowly
+3) We are using vmstat 1 to monitor data rates
+4) I tried the format with 2.4 prerelease, and the mkfs was very slow,
+and I got a SCSI reset at the end of the format. Perhaps this is
+related?
+5) If necessary, we can easily load a different distribution on the
+machine if that might be part of the problem.
+
+If necessary, we can setup a login on the machine, or run whatever test
+code is necessary. Other than this, it's a pretty nice box to work on.
+
+Please reply to rjetton and phubbard at fnal.gov, thanks.
+
+-Paul
 
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+Paul Hubbard  phubbard@fnal.gov
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,44 +1,68 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315337AbSELWru>; Sun, 12 May 2002 18:47:50 -0400
+	id <S315451AbSELWsw>; Sun, 12 May 2002 18:48:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315408AbSELWrt>; Sun, 12 May 2002 18:47:49 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:31956 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S315337AbSELWrt>;
-	Sun, 12 May 2002 18:47:49 -0400
-Date: Sun, 12 May 2002 18:47:47 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Thunder from the hill <thunder@ngforever.de>
-cc: Diego Calleja <DiegoCG@teleline.es>, Becki Minich <bminich@earthlink.net>,
-        linux-kernel@vger.kernel.org, johnnyo@mindspring.com
-Subject: Re: Reiserfs has killed my root FS!?!
-In-Reply-To: <Pine.LNX.4.44.0205121613430.4369-100000@hawkeye.luckynet.adm>
-Message-ID: <Pine.GSO.4.21.0205121838230.27629-100000@weyl.math.psu.edu>
+	id <S315449AbSELWsv>; Sun, 12 May 2002 18:48:51 -0400
+Received: from ep09.kernel.pl ([212.87.11.162]:28293 "EHLO ep09.kernel.pl")
+	by vger.kernel.org with ESMTP id <S315426AbSELWss>;
+	Sun, 12 May 2002 18:48:48 -0400
+Message-ID: <007201c1fa07$2d7bd5d0$0201a8c0@witek>
+From: "Witek Krecicki" <adasi@kernel.pl>
+To: "Manfred Spraul" <manfred@colorfullife.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <3CDED21B.3050208@colorfullife.com>
+Subject: Re: [BUG 2.5.X] Hollow processes
+Date: Mon, 13 May 2002 00:48:46 +0200
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+----- Original Message -----
+From: "Manfred Spraul" <manfred@colorfullife.com>
+> > It's impossible to check what the process is (trying to read
+>  > /proc/{pid}/{anyting} causes reading process to hang in the
+>  > same way (so we have now 2 hanging processes).
+>
+> Have you tried SysRQ+showTasks? That dumps the kernel stack. You can
+> convert the numbers to names with ksymoops, or often klogd will convert
+> them and the result is in /var/log/messages.
+>
+> What exactly hangs?
+> Could you run
+>
+> strace ls /proc/1234
+> strace cat /proc/1234/maps
+> strace ls /proc/1234/fd -l
+>
+> Which syscall hangs?
+> SMP or UP?
+It's UP machine with UP kernel. I haven't tried it now strace'ing 'cat
+/proc/1234/cmdline' (on 2.5.15) but as I remember from earlier kernels it
+hanged on file reading processes. I'll try to make some additional tests as
+soon as I'll be back from short vacation
+ls'ing /proc/1234 doesn't hangs but ls -al does.
+BTW: from my earlier post:
+<cut>
+mremap(0x407c5000, 8192, 12288, MREMAP_MAYMOVE) = 0x407c1000
+brk(0x82e5000)                          = 0x82e5000
+brk(0x82e6000)                          = 0x82e6000
+old_mmap(NULL, 135168, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS,
+-1, 0) = 0x407dc000
+mremap(0x407ce000, 8192, 12288, MREMAP_MAYMOVE
+</cut>
+This is strace poldek on 2.5.11 kernel (behaviour is the same)
+WK
+P.S. now I can't reproduce it (on 2.5.15) as it's glibc compilation and it
+takes far too long and has many subprocesses, but poldek issue on 2.5.11/12
+was reproductible.
+WK
 
-
-On Sun, 12 May 2002, Thunder from the hill wrote:
-
-> Hi,
-> 
-> On Sun, 12 May 2002, Diego Calleja wrote:
-> > > attempt to access beyond end of device
-> > > 08:12: rw=0 want=268574776 limit=8747392
-> > 
-> > I'm not an expert, but this perhaps isn't a reiserfs problem.
-> 
-> Nope. It looks much more like the IDE problem Tomas Szepe addressed in 
-> "2.5.15 IDE possibly trying to scribble beyond end of device"
-
-... except that he's using 2.4
-
-BTW, what had caused these reboots?  If it was memory corruption anywhere -
-all bets are off and no journalling will save you.  Contrary to the
-popular myth, journalling filesystems (or soft-updates, or mounting
-everything full-sync) do _NOT_ protect against hardware problems and
-kernel bugs.
 

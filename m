@@ -1,88 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264270AbUDNQZS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 12:25:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264280AbUDNQZR
+	id S264265AbUDNQ2A (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 12:28:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264278AbUDNQ2A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 12:25:17 -0400
-Received: from wombat.indigo.net.au ([202.0.185.19]:57094 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S264270AbUDNQZF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 12:25:05 -0400
-Date: Thu, 15 Apr 2004 00:29:28 +0800 (WST)
-From: raven@themaw.net
-To: viro@parcelfarce.linux.theplanet.co.uk
-cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+	Wed, 14 Apr 2004 12:28:00 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:64984
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S264265AbUDNQ1C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 14 Apr 2004 12:27:02 -0400
+Date: Wed, 14 Apr 2004 18:27:00 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Andrew Morton <akpm@osdl.org>, hugh@veritas.com,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] umount after bad chdir
-In-Reply-To: <20040414152420.GE31500@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.58.0404142352590.1480@donald.themaw.net>
-References: <Pine.LNX.4.44.0404141241450.29568-100000@localhost.localdomain>
- <Pine.LNX.4.58.0404142009500.1537@donald.themaw.net>
- <20040414121026.GD31500@parcelfarce.linux.theplanet.co.uk>
- <Pine.LNX.4.58.0404142023460.1537@donald.themaw.net>
- <Pine.LNX.4.58.0404142308260.20568@donald.themaw.net>
- <20040414152420.GE31500@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-1.7, required 8,
-	EMAIL_ATTRIBUTION, IN_REP_TO, NO_REAL_NAME, QUOTED_EMAIL_TEXT,
-	REFERENCES, REPLY_WITH_QUOTES, USER_AGENT_PINE)
+Subject: Re: Benchmarking objrmap under memory pressure
+Message-ID: <20040414162700.GS2150@dualathlon.random>
+References: <1130000.1081841981@[10.10.2.4]> <20040413005111.71c7716d.akpm@osdl.org> <120240000.1081903082@flay>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <120240000.1081903082@flay>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Apr 2004 viro@parcelfarce.linux.theplanet.co.uk wrote:
-
-> On Wed, Apr 14, 2004 at 11:13:13PM +0800, raven@themaw.net wrote:
-> > On Wed, 14 Apr 2004 raven@themaw.net wrote:
+On Tue, Apr 13, 2004 at 05:38:02PM -0700, Martin J. Bligh wrote:
+> >> UP Athlon 2100+ with 512Mb of RAM. Rebooted clean before each test
+> >> then did "make clean; make vmlinux; make clean". Then I timed a
+> >> "make -j 256 vmlinux" to get some testing under mem pressure. 
+> >> 
+> >> I was trying to test the overhead of objrmap under memory pressure,
+> >> but it seems it's actually distinctly negative overhead - rather pleasing
+> >> really ;-) 
+> >> 
+> >> 2.6.5
+> >> 225.18user 30.05system 6:33.72elapsed 64%CPU (0avgtext+0avgdata 0maxresident)k
+> >> 0inputs+0outputs (37590major+2604444minor)pagefaults 0swaps
+> >> 
+> >> 2.6.5-anon_mm
+> >> 224.53user 26.00system 5:29.08elapsed 76%CPU (0avgtext+0avgdata 0maxresident)k
+> >> 0inputs+0outputs (29127major+2577211minor)pagefaults 0swaps
 > > 
-> > > > Mind you, chdir() patch in -mm is broken in a lot of other ways - e.g.
-> > > > it assumes that another thread sharing ->fs with us won't call chdir()
-> > > > in the wrong moment...
-> > > 
-> > > Thanks for your interest Al.
-> > > 
-> > > I see your point (I think).
-> > > 
-> > > If I understand you correctly (please explain if I don't) I need to lock 
-> > > the ->fs struct.
+> > A four second reduction in system time caused a one minute reduction in
+> > runtime?  Pull the other one ;)
 > > 
-> > Mmm ... doesn't look much good in the light of Als comment.
-> > 
-> > Looks like it's not possible to take the lock for long enough even if I 
-> > could.
-> > 
-> > Lets have some comments, criticisms or suggestions please.
+> > Average of five runs, please...
 > 
-> Why do you need to assign pwd before revalidation?
+> You're right - it's rather variable. Still doesn't look bad though.
 > 
+> 2.6.5
+> Average elapsed = 6:11
+> 224.92user 30.15system 5:44.19elapsed 74%CPU (0avgtext+0avgdata 0maxresident)k
+> 225.04user 30.23system 6:02.49elapsed 70%CPU (0avgtext+0avgdata 0maxresident)k
+> 225.28user 29.60system 5:48.22elapsed 73%CPU (0avgtext+0avgdata 0maxresident)k
+> 225.81user 31.75system 6:42.38elapsed 64%CPU (0avgtext+0avgdata 0maxresident)k
+> 225.23user 30.20system 6:40.48elapsed 63%CPU (0avgtext+0avgdata 0maxresident)k
+> 
+> 2.6.5-anon_mm
+> Average elapsed = 5:43
+> 224.34user 25.43system 4:51.23elapsed 85%CPU (0avgtext+0avgdata 0maxresident)k
+> 224.23user 25.93system 5:00.79elapsed 83%CPU (0avgtext+0avgdata 0maxresident)k
+> 224.39user 26.36system 5:37.71elapsed 74%CPU (0avgtext+0avgdata 0maxresident)k
+> 225.65user 27.13system 6:28.00elapsed 65%CPU (0avgtext+0avgdata 0maxresident)k
+> 225.14user 27.26system 6:39.61elapsed 63%CPU (0avgtext+0avgdata 0maxresident)k
+> 
+> I've kicked off the -aa tree tests - will post them later tonight.
 
-Good question.
+As expected the 6 second difference was nothing compared the the noise,
+though I'd be curious to see an average number.
 
-I'm talking about lazy mounting in autofs version 4 (suprise, suprise).
+the degradation of runtimes is interesting, runtimes should go downs not
+up after more unused stuff is pushed into swap and so more ram is free
+at every new start of the workload.
 
-I think this should be done in the call backs during the path_walk 
-but I couldn't work out how. But see below...
-
-The basic problem this is meant to solve is that I can't tell when a 
-chdir or chroot is to be done from within the revalidate or lookup. To 
-delay mounting until (or correctly trigger a mount at) the proper 
-time I must know if the service request is a chdir or chroot, in which 
-case an automount needs to be done. The chdir and chroot are the only 
-problematic services that I'm aware of atm.
-
-But looking further I see that a LOOKUP_DIRECTORY flag is used only for 
-these two routines (excluding pivot_root) and when a trailing slash is 
-present in the path. I think that the if this flag is present then the 
-request will always want to look into the directory anyway, so if it's 
-an autofs4 mount point it should be mounted then. If this is the case I 
-can get this stuff into the fs module where it belongs.
-
-I'll think about it some more and look around further before I do 
-anything.
-
-Thoughts?
-
-Ian
-
+BTW, I've no idea idea why you used an UP machine for this, (plus if you
+can load kde on it it'd be better because kde is extremely smart at
+optimizing the ram usage with cow anonymous memory, the thing anon-vma
+can optimize and anonmm not, plus kde may use even mremap on this
+anonymous ram, and the very single reason it was impossible for me to
+take anonmm in production is that there's no way I can preodict which
+critical app is using mremap on anonymous COW memory to save ram). You
+definitely should use your 32-way booted with mem=512m to run this test
+or there's no way you'll ever botice the additional boost in scalability
+that anon-vma provides compared to anonmm, and that anonmm will never be
+able to reach.

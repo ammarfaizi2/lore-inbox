@@ -1,66 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279865AbRKRQhq>; Sun, 18 Nov 2001 11:37:46 -0500
+	id <S279891AbRKRQoH>; Sun, 18 Nov 2001 11:44:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279891AbRKRQhg>; Sun, 18 Nov 2001 11:37:36 -0500
-Received: from maile.telia.com ([194.22.190.16]:59377 "EHLO maile.telia.com")
-	by vger.kernel.org with ESMTP id <S279865AbRKRQh0>;
-	Sun, 18 Nov 2001 11:37:26 -0500
-Message-ID: <3BF7E352.5090700@peope.net>
-Date: Sun, 18 Nov 2001 17:35:30 +0100
-From: Per-Olof Pettersson <lkml.lists@peope.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
-X-Accept-Language: en-us
+	id <S279902AbRKRQn6>; Sun, 18 Nov 2001 11:43:58 -0500
+Received: from femail3.sdc1.sfba.home.com ([24.0.95.83]:4777 "EHLO
+	femail3.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S279891AbRKRQnt>; Sun, 18 Nov 2001 11:43:49 -0500
+Date: Sun, 18 Nov 2001 11:42:26 -0500
+From: Matt Cahill <m-cahill@home.com>
+X-Mailer: The Bat! (v1.53d) Business
+Reply-To: Matt Cahill <m-cahill@home.com>
+X-Priority: 3 (Normal)
+Message-ID: <1962142807.20011118114226@home.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re[2]: kernel 2.4.14 breaks NVIDIA-1.0-1541 console switching
+In-Reply-To: <1006100978.891.4.camel@dwarf>
+In-Reply-To: <200111171745.fAHHjnZ02112@mnlpc.dtro.e-technik.tu-darmstadt.de>
+ <1006100978.891.4.camel@dwarf>
 MIME-Version: 1.0
-To: Jamie Lokier <lfs@tantalophile.demon.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Introducing FUSE: Filesystem in USErspace
-In-Reply-To: <200111121128.MAA15119@duna207.danubius> <20011117175253.A5003@kushida.jlokier.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
 
-> Miklos Szeredi wrote:
-> 
->>    - Thin layer in kernel. Minimal caching, predictable behavior.
->>
-> 
-> Minimal caching?  I would hope for maximal caching, for when userspace
-> is able to say "yes the page you have is still valid".  Preferably
-> without a round trip to userspace for every page.
+  I actually just upgraded to 2.4.13 and have been experiencing this
+  problem also. I get 'Waiting for X server to shutdown', forcing me
+  to reboot. I reloaded the Nvidia kernel again (no problems with
+  that), but the GLX driver is coughing and spitting when I try to
+  reinstall it. It can't seem to find or read
+  /usr/X11R6/lib/module/nvdriver.o (filename may be a little
+  different...sorry, I'm in Windows right now), but it's there. This
+  is also nvidia version 1541 (latest stable).
 
-Caching userspace filesystems is dependant of the implimentation. You 
-would need to send some info to the kernel-part saying "Yes this part 
-can be cached this long without a signal to userspace".
+AL> Well I have the same kind of problem. But you don't have to shutdown!
+AL> Just switch again to your X vt, and X should work again.
 
-This would be equal to the caching-mechanism in a Web-server.
+  I'm not sure I follow this... how do I switch to an X vt, and how do
+  you mean 'X should work again'? Just curious if you meant this as a fix or
+  a work-around.
 
-Most often the userspace-part would not know what parts will not change 
-in a certain amount of time.. But then again.. Some implementations could.
+  Thanks for any info,
 
-Another way could be an explicit call to the kernel by the Userspace 
-File System saying "Now this caching is no longer valid".
-
-One implementation with static data could be a fs that is tied to a prog 
-retrieving statistical data eg. Perhaps it is supposed to be run each 
-hour. Then you would know "good enough" that the data has not been 
-changed until next update. But suppose you manually restart the update 
-of data, you would need to tell the kernel that caching of old data is 
-not valid anymore.
-
-Thing is you need the kernel-part to be told what can be cached, what 
-cannot and how long it can be cached.
-
-Then you would need a mechanism for the Userspace-part to make a caching 
-invalid.
-
-There is probably more into this than just these fundamentals.. And a 
-simple working (not buggy) FS is preferred than a complicated (possibly 
-buggy) FS that will never be released and is difficult to write 
-userspace code for IMHO.
-
-Best regards
-Per-Olof Pettersson
+  Matt Cahill
+m-cahill@home.com
 

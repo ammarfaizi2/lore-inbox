@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132959AbRDXKIF>; Tue, 24 Apr 2001 06:08:05 -0400
+	id <S135259AbRDXK0j>; Tue, 24 Apr 2001 06:26:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133012AbRDXKHz>; Tue, 24 Apr 2001 06:07:55 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:23771 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S132959AbRDXKHj>;
-	Tue, 24 Apr 2001 06:07:39 -0400
-Date: Tue, 24 Apr 2001 06:07:36 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Jan Harkes <jaharkes@cs.cmu.edu>,
-        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        Christoph Rohland <cr@sap.com>,
-        "David L. Parsley" <parsley@linuxjedi.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: hundreds of mount --bind mountpoints? 
-In-Reply-To: <27577.988106288@redhat.com>
-Message-ID: <Pine.GSO.4.21.0104240601410.6992-100000@weyl.math.psu.edu>
+	id <S135306AbRDXK0T>; Tue, 24 Apr 2001 06:26:19 -0400
+Received: from pop-mu-8-1-dialup-175.freesurf.ch ([194.230.140.175]:8064 "EHLO
+	playstation.hb9jnx.ampr.org") by vger.kernel.org with ESMTP
+	id <S135259AbRDXK0N>; Tue, 24 Apr 2001 06:26:13 -0400
+Message-ID: <3AE552E8.245B647@alumni.ethz.ch>
+Date: Tue, 24 Apr 2001 12:18:16 +0200
+From: Thomas Sailer <t.sailer@alumni.ethz.ch>
+Organization: IfE
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2jnx i686)
+X-Accept-Language: de-CH, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alex Riesen <a.riesen@traian.de>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: init_rwsem redefinition warning in usbdevice_fs.h
+In-Reply-To: <20010424103607.B5368@traian.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alex Riesen wrote:
 
+> Should it be fixed? And, maybe the other define's around
+> should be fixed too?
 
-On Tue, 24 Apr 2001, David Woodhouse wrote:
+The comment line above actually says it all. The defines
+have been added because at the time of writing this file
+rw semaphores did not work in a module, so they were
+replaced with mutexes using these defines. If rw sems work
+now just delete these defines
 
-> 
-> viro@math.psu.edu said:
-> >  Oh, for crying out loud. All it takes is half an hour per filesystem.
-> 
-> Half an hour? If it takes more than about 5 minutes for JFFS2 I'd be very
-> surprised.
-
-<tone polite> What's stopping you? </tone>
-You _are_ JFFS maintainer, aren't you?
-
+Tom

@@ -1,39 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263551AbUDGNiY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 09:38:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263589AbUDGNiY
+	id S263565AbUDGNiH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 09:38:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263551AbUDGNiH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 09:38:24 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:7153 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S263551AbUDGNiW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 09:38:22 -0400
-Message-ID: <40740438.6080202@nortelnetworks.com>
-Date: Wed, 07 Apr 2004 09:38:00 -0400
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Weinehall <tao@acc.umu.se>
-CC: Sergiy Lozovsky <serge_lozovsky@yahoo.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kernel stack challenge
-References: <200404070102.i3712nDe002647@eeyore.valparaiso.cl> <20040407013450.84365.qmail@web40512.mail.yahoo.com> <20040407085733.GJ8130@khan.acc.umu.se>
-In-Reply-To: <20040407085733.GJ8130@khan.acc.umu.se>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 7 Apr 2004 09:38:07 -0400
+Received: from sea2-f12.sea2.hotmail.com ([207.68.165.12]:10002 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S263565AbUDGNiE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 09:38:04 -0400
+X-Originating-IP: [212.143.127.195]
+X-Originating-Email: [zstingx@hotmail.com]
+From: "sting sting" <zstingx@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: panic when adding root=/LABEL=/  in grub.conf - newbie
+Date: Wed, 07 Apr 2004 16:37:57 +0300
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <Sea2-F121U1x4ykaaEv0001bc59@hotmail.com>
+X-OriginalArrivalTime: 07 Apr 2004 13:37:58.0865 (UTC) FILETIME=[8A4C3C10:01C41CA5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Weinehall wrote:
+Hello,
 
-> Personally, I think this proposal would be worthy for the
-> patch-of-the-month award.
+I am working with kenel 2.4.20 on Intel x86.
+Now I Had downloaded a kernel source to a different folder and build it.
+I added an entry in grub.conf
+When I choose to load that kernel everything is OK.
+It works wth no problem.
+But under /boot I see nothing of the original files (there is only one file 
+there , kernel.h).
 
-I dunno...the proposal to rewrite the kernel and libc in assembly is 
-pretty high up there....
+The output of mount  is :
 
-Chris
+/dev/hda3 on / type ext3 (rw)
+none on /proc type proc (rw)
+none on /dev/pts type devpts (rw,gid=5,mode=620)
+none on /dev/shm type tmpfs (rw)
+
+when I add the following in grub.conf (to the option of choosing to load 
+this kernel)
+
+root=/LABEL=/
+
+I get the the following panic message:
+VFS: cannot open root device = "LABEL=/" or 00:00
+Please append a correct "root= "  boot option.
+Kernel panic : VFS: unable to mount root fs on 00:00
+
+Any idea?
+Any help will be appreciated.
+
+Sting
+
+_________________________________________________________________
+Add photos to your messages with MSN 8. Get 2 months FREE*. 
+http://join.msn.com/?page=features/featuredemail
+

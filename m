@@ -1,75 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312283AbSCTX0l>; Wed, 20 Mar 2002 18:26:41 -0500
+	id <S312284AbSCTXcV>; Wed, 20 Mar 2002 18:32:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312284AbSCTX0c>; Wed, 20 Mar 2002 18:26:32 -0500
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:50009 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S312283AbSCTX0L>; Wed, 20 Mar 2002 18:26:11 -0500
-Date: Thu, 21 Mar 2002 00:26:10 +0100
-From: Kurt Garloff <kurt@garloff.de>
-To: Tom Epperly <tepperly@llnl.gov>
-Cc: Linux kernel list <linux-kernel@vger.kernel.org>
+	id <S312287AbSCTXcM>; Wed, 20 Mar 2002 18:32:12 -0500
+Received: from smtp-2.llnl.gov ([128.115.250.82]:55178 "EHLO smtp-2.llnl.gov")
+	by vger.kernel.org with ESMTP id <S312285AbSCTXb5>;
+	Wed, 20 Mar 2002 18:31:57 -0500
+Message-ID: <3C991BE6.70504@llnl.gov>
+Date: Wed, 20 Mar 2002 15:31:50 -0800
+From: "Tom Epperly" <tepperly@llnl.gov>
+Organization: Lawrence Livermore National Laboratory
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020314
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: linux-kernel@vger.kernel.org
 Subject: Re: Bad Illegal instruction traps on dual-Xeon (p4) Linux Dell box
-Message-ID: <20020321002610.F5052@gum01m.etpnet.phys.tue.nl>
-Mail-Followup-To: Kurt Garloff <kurt@garloff.de>,
-	Tom Epperly <tepperly@llnl.gov>,
-	Linux kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020320213530.87CFE308D@driftcreek.llnl.gov>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="TKYYegg/GYAC5JIZ"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-Operating-System: Linux 2.4.16-schedJ2 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TU/e(NL), SuSE(DE)
+In-Reply-To: <E16npXs-0003el-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
 
---TKYYegg/GYAC5JIZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>>I initiated a support call with Dell at around 3:30pm PST on Friday
+>>15-Mar-2002, and all the feedback I've received from this so far shows
+>>that they are clueless. They are trying to portray this as a Linux
+>>problem.
+>>
+>
+>Well to be honest they aren't the only ones who are totally baffled by it.
+>Do you have the current microcode updates in your BIOS or via the ucode
+>driver ?
+>
+One box, tux06, has the latest Dell BIOS, A05. I don't know how to 
+determine if it has the latest microcode updates. Where can one get the 
+current microcode updates, and how do I install it?
 
-On Wed, Mar 20, 2002 at 01:35:30PM -0800, Tom Epperly wrote:
-> The kernel log showed me that various standard programs such as
-> /bin/sh are generating bogus illegal instruction traps on a legal
-> opcode (0x55) as part of a standard function preamble. After receiving
-> an illegal instruction trap on opcode (0x55), the modified kernel does
-> a wbinvd() to flush the cache and a __flush_tlb() to flush the TLB
-> and then retries the "illegal" opcode. The retry produces a second
-> illegal instruction trap on the same legal opcode (0x55). Information
-> from /var/log/messages is shown below.
+>
+>
+>Do all the problem boxes have the same stepping of CPU ?
+>
+According to cat /proc/cpuinfo, two boxes tux06 & tux34 have stepping 
+10, and tux47 has stepping 2. I have seen the unexplained "Illegal 
+instruction" messages on tux34 and tux47, but I haven't run the modified 
+kernel on them. root access is restricted here.
 
-The CPU is what triggers the exception.
-So this sounds like a defect (or overheated) CPU to me.
+Tom
 
-OTOH, the kernel logs "invalid operand". Could you run ksymoops to get a
-disassembly?
-AFAICS, its a push %ebp instruction, which should not be illegal. So either
-your stack is overflowing or my suspicion with the defect CPU is applicable.
-
-Regards,
---=20
-Kurt Garloff                   <kurt@garloff.de>         [Eindhoven, NL]
-Physics: Plasma simulations  <K.Garloff@Phys.TUE.NL>  [TU Eindhoven, NL]
-Linux: SCSI, Security          <garloff@suse.de>    [SuSE Nuernberg, DE]
- (See mail header or public key servers for PGP2 and GPG public keys.)
-
---TKYYegg/GYAC5JIZ
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8mRqSxmLh6hyYd04RAjseAJ9D9WFchN4IdWbh/rUcJ9C55RT6ngCgl4p9
-HA1QFzDVq2UdL939jr2bu7U=
-=jGsY
------END PGP SIGNATURE-----
-
---TKYYegg/GYAC5JIZ--

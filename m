@@ -1,54 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129733AbRAOR1T>; Mon, 15 Jan 2001 12:27:19 -0500
+	id <S129532AbRAORgv>; Mon, 15 Jan 2001 12:36:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129953AbRAOR1J>; Mon, 15 Jan 2001 12:27:09 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:20219 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S129733AbRAOR0z>; Mon, 15 Jan 2001 12:26:55 -0500
-From: Christoph Rohland <cr@sap.com>
-To: "Dunlap, Randy" <randy.dunlap@intel.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Ingo Molnar <mingo@elte.hu>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch] memparse should return long long
-In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDF19@orsmsx31.jf.intel.com>
-Organisation: SAP LinuxLab
-Date: 15 Jan 2001 18:25:06 +0100
-In-Reply-To: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDF19@orsmsx31.jf.intel.com>
-Message-ID: <qwwlmsciv7x.fsf@sap.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Bryce Canyon)
+	id <S129401AbRAORgl>; Mon, 15 Jan 2001 12:36:41 -0500
+Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:34250 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S129835AbRAORgX>; Mon, 15 Jan 2001 12:36:23 -0500
+Date: Mon, 15 Jan 2001 18:24:12 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+cc: "Dunlap, Randy" <randy.dunlap@intel.com>,
+        "'H. Peter Anvin'" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: The latest instance in the A20 farce
+In-Reply-To: <3A5CF9C2.CE5EFF42@transmeta.com>
+Message-ID: <Pine.GSO.3.96.1010115182005.16619Q-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Randy,
+On Wed, 10 Jan 2001, H. Peter Anvin wrote:
 
-On Mon, 15 Jan 2001, Randy Dunlap wrote:
-> Why not (?):
+> URRRK.  I get a feeling these specs are either there to make life extra
+> difficult for programmers, because the people that design them are too
+> stupid to tie their own shoes, or because they want nothing but M$
+> factory-installed to work.  
 
-Because I did not need it (always used #G or #M) and did not know the
-function. But it's apparently correct to use simple_strtoull.
+ The page is titled "PC DESIGN GUIDE - For the Microsoft Windows Family of
+Operating Systems," so what do you expect? 
 
->> diff -uNr 2.4.0-ac/lib/cmdline.c 2.4.0-ac-memparse/lib/cmdline.c
->> --- 2.4.0-ac/lib/cmdline.c	Mon Aug 28 11:42:45 2000
->> +++ 2.4.0-ac-memparse/lib/cmdline.c	Mon Jan 15 09:06:14 2001
->> @@ -93,9 +93,9 @@
->>   *	megabyte, or one gigabyte, respectively.
->>   */
->>  
->> -unsigned long memparse (char *ptr, char **retptr)
->> +unsigned long long memparse (char *ptr, char **retptr)
->>  {
->> -	unsigned long ret = simple_strtoul (ptr, retptr, 0);
->> +	unsigned long long ret = simple_strtoul (ptr, retptr, 0);
-> ! +	unsigned long long ret = simple_strtoull (ptr, retptr, 0);
-> 
-> ~Randy
-
-Greetings
-		Christoph
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

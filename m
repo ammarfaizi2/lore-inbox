@@ -1,60 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267573AbTBXVyS>; Mon, 24 Feb 2003 16:54:18 -0500
+	id <S267599AbTBXWAv>; Mon, 24 Feb 2003 17:00:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267577AbTBXVyS>; Mon, 24 Feb 2003 16:54:18 -0500
-Received: from sccrmhc02.attbi.com ([204.127.202.62]:48605 "EHLO
-	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
-	id <S267573AbTBXVyR>; Mon, 24 Feb 2003 16:54:17 -0500
-Subject: Re: [PATCH] elapsed times wrap
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel@vger.kernel.org
-Cc: hugh@veritas.com, kai@tp1.ruhr-uni-bochum.de
+	id <S267611AbTBXWAu>; Mon, 24 Feb 2003 17:00:50 -0500
+Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:51717 "HELO
+	yucs.org") by vger.kernel.org with SMTP id <S267599AbTBXWAu>;
+	Mon, 24 Feb 2003 17:00:50 -0500
+Subject: Re: hard lockup on 2.4.20 w/ nfs over frees/wan
+From: Shaya Potter <spotter@cs.columbia.edu>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030220164420.GA9800@gtf.org>
+References: <1045634189.4761.44.camel@zaphod>
+	 <1045686971.8084.2.camel@zaphod> <1045757772.31762.13.camel@zaphod>
+	 <20030220164420.GA9800@gtf.org>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 24 Feb 2003 17:00:45 -0500
-Message-Id: <1046124046.32116.264.camel@cube>
+Organization: 
+Message-Id: <1046124651.10146.1.camel@zaphod>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 24 Feb 2003 17:10:51 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hugh Dickins writes:
-> On Sat, 22 Feb 2003, Kai Germaschewski wrote:
->> On Sat, 22 Feb 2003, Hugh Dickins wrote:
+seems to be stable w/ the 2.4.19 driver.  All the tests that I ran be
+(basically kernel building over nfs over ipsec) that hung it hard
+consistently b4 aren't hanging it now.
 
->>> Userspace shows huge elapsed time across jiffies wrap:
->>> with USER_HZ less then HZ, sys_times needs jiffies_64
->>> to calculate its retval.
->>
->> That makes me wonder, aren't all uses of
->> jiffies_to_clock_t() broken then? 
->
-> I believe you're right, but it's less obvious to me
-> that the other uses really want fixing e.g. would we
-> be happy to maintain utime,stime,cutime,cstime as
-> 64-bit on a 32-bit machine?
->
->> Well, all which take an absolute time as an argument at least.
->
-> Yes, it's much more important to fix those where userspace
-> habitually takes the difference.  That certainly applies
-> to the return value from sys_times, but I don't see any
-> other cases as clear (though userspace may have good reason
-> to take the difference of any of them).
->
-> Perhaps a procps expert can advise?
+shaya
 
-That depends on how much you care about the problems.
-Some that come to mind:
-
-The OOM killer will be more likely to kill the wrong process.
-CPU usage stats will be worthless junk.
-
-On a 4-way box, you can hit troubles with cutime after
-just 2 weeks of usage.
-
-Consider changing just cutime. It's the value most likely
-to wrap. Plain utime would be the second priority.
-
+On Thu, 2003-02-20 at 11:44, Jeff Garzik wrote:
+> On Thu, Feb 20, 2003 at 11:16:13AM -0500, Shaya Potter wrote:
+> > moved from the netfinity's onboard pcnet32 adapter to an IBM branded
+> > Intel epro/100 w/ the intel driver in 2.4.20 and it appears very
+> > stable.  Is it possible the pcnet/32 adapter is broken or the driver is
+> > buggy?
+> 
+> I have gotten reports the 2.4.20 pcnet32 is buggy.
+> 
+> Can you test 2.4.20 with 2.4.19 version of pcnet32.c?
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

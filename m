@@ -1,219 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264295AbUEIHhb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264300AbUEIH4u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264295AbUEIHhb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 May 2004 03:37:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264296AbUEIHhb
+	id S264300AbUEIH4u (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 May 2004 03:56:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264309AbUEIH4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 May 2004 03:37:31 -0400
-Received: from 162.67-18-76.reverse.theplanet.com ([67.18.76.162]:17035 "EHLO
-	ns1.host-hispano.net") by vger.kernel.org with ESMTP
-	id S264295AbUEIHhI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 May 2004 03:37:08 -0400
-Message-ID: <001301c43598$6b7aaf40$6700a8c0@Portatil>
-From: "Rodolfo Guluarte Hale" <rodolfo@host-hispano.net>
-To: <linux-kernel@vger.kernel.org>
-References: <16541.47807.90358.558608@cargo.ozlabs.ibm.com>
-Subject: Re: [PATCH][PPC64] extra barrier in I/O operations
-Date: Sun, 9 May 2004 01:37:02 -0600
+	Sun, 9 May 2004 03:56:50 -0400
+Received: from [62.29.126.126] ([62.29.126.126]:7186 "helo abc.com")
+	by vger.kernel.org with SMTP id S264300AbUEIH4s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 May 2004 03:56:48 -0400
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1409
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns1.host-hispano.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - host-hispano.net
+To: linux-kernel@vger.kernel.org
+From: iletisim@turizmkariyerturk.com
+Subject: Ucretsiz Eleman  =?ISO-8859-1?Q?=20ilan=FD?=  =?ISO-8859-1?Q?=20Yay=FDnlama?=
+Message-Id: <S264300AbUEIH4s/20040509075648Z+9545@vger.kernel.org>
+Date: Sun, 9 May 2004 03:56:48 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-up!
------ Original Message ----- 
-From: "Paul Mackerras" <paulus@samba.org>
-To: <torvalds@osdl.org>; <akpm@osdl.org>; <olh@suse.de>
-Cc: <anton@samba.org>; <benh@kernel.crashing.org>;
-<linux-kernel@vger.kernel.org>
-Sent: Saturday, May 08, 2004 10:59 PM
-Subject: [PATCH][PPC64] extra barrier in I/O operations
+www.TurizmKariyerturk.com
 
+Açýldý...!
 
-> At the moment, on PPC64, the instruction we use for wmb() doesn't
-> order cacheable stores vs. non-cacheable stores.  (It does order
-> cacheable vs. cacheable and non-cacheable vs. non-cacheable.)  This
-> causes problems in the sort of driver code that writes stuff into
-> memory, does a wmb(), then a writel to the device to start a DMA
-> operation to read the stuff it has just written to memory.
->
-> This patch solves the problem by adding a sync instruction before the
-> store in the write* and out* macros.  The sync is a full barrier that
-> orders all loads and stores, cacheable or not.  The patch also moves
-> the eieio instruction that we had after the store to before the load
-> in the read* and in* macros.  With the sync before the store, we don't
-> need an eieio as well in a sequence of stores, but we still need an
-> eieio between a store and a load.
->
-> I think it is better to do this than to turn wmb() into a full memory
-> barrier (a sync instruction) because the full barrier is slow and
-> isn't needed with the sync in the write*/out* macros.  This way,
-> write*/out* are fully ordered with respect to preceding loads and
-> stores, which is what driver writers expect, and we avoid penalizing
-> users of wmb() who are only doing cacheable stores.
->
-> Please apply.
->
-> Paul.
->
-> diff -urN linux-2.5/include/asm-ppc64/io.h g5-ppc64/include/asm-ppc64/io.h
-> --- linux-2.5/include/asm-ppc64/io.h 2004-03-20 08:59:11.000000000 +1100
-> +++ g5-ppc64/include/asm-ppc64/io.h 2004-05-09 13:31:12.607957768 +1000
-> @@ -240,22 +240,23 @@
->  {
->   int ret;
->
-> - __asm__ __volatile__("lbz%U1%X1 %0,%1; twi 0,%0,0; isync" :
-> -      "=r" (ret) : "m" (*addr));
-> + __asm__ __volatile__("eieio; lbz%U1%X1 %0,%1; twi 0,%0,0; isync"
-> +      : "=r" (ret) : "m" (*addr));
->   return ret;
->  }
->
->  static inline void out_8(volatile unsigned char *addr, int val)
->  {
-> - __asm__ __volatile__("stb%U0%X0 %1,%0; eieio" : "=m" (*addr) : "r"
-(val));
-> + __asm__ __volatile__("sync; stb%U0%X0 %1,%0"
-> +      : "=m" (*addr) : "r" (val));
->  }
->
->  static inline int in_le16(volatile unsigned short *addr)
->  {
->   int ret;
->
-> - __asm__ __volatile__("lhbrx %0,0,%1; twi 0,%0,0; isync" :
-> -      "=r" (ret) : "r" (addr), "m" (*addr));
-> + __asm__ __volatile__("eieio; lhbrx %0,0,%1; twi 0,%0,0; isync"
-> +      : "=r" (ret) : "r" (addr), "m" (*addr));
->   return ret;
->  }
->
-> @@ -263,28 +264,29 @@
->  {
->   int ret;
->
-> - __asm__ __volatile__("lhz%U1%X1 %0,%1; twi 0,%0,0; isync" :
-> -      "=r" (ret) : "m" (*addr));
-> + __asm__ __volatile__("eieio; lhz%U1%X1 %0,%1; twi 0,%0,0; isync"
-> +      : "=r" (ret) : "m" (*addr));
->   return ret;
->  }
->
->  static inline void out_le16(volatile unsigned short *addr, int val)
->  {
-> - __asm__ __volatile__("sthbrx %1,0,%2; eieio" : "=m" (*addr) :
-> -       "r" (val), "r" (addr));
-> + __asm__ __volatile__("sync; sthbrx %1,0,%2"
-> +      : "=m" (*addr) : "r" (val), "r" (addr));
->  }
->
->  static inline void out_be16(volatile unsigned short *addr, int val)
->  {
-> - __asm__ __volatile__("sth%U0%X0 %1,%0; eieio" : "=m" (*addr) : "r"
-(val));
-> + __asm__ __volatile__("sync; sth%U0%X0 %1,%0"
-> +      : "=m" (*addr) : "r" (val));
->  }
->
->  static inline unsigned in_le32(volatile unsigned *addr)
->  {
->   unsigned ret;
->
-> - __asm__ __volatile__("lwbrx %0,0,%1; twi 0,%0,0; isync" :
-> -      "=r" (ret) : "r" (addr), "m" (*addr));
-> + __asm__ __volatile__("eieio; lwbrx %0,0,%1; twi 0,%0,0; isync"
-> +      : "=r" (ret) : "r" (addr), "m" (*addr));
->   return ret;
->  }
->
-> @@ -292,20 +294,21 @@
->  {
->   unsigned ret;
->
-> - __asm__ __volatile__("lwz%U1%X1 %0,%1; twi 0,%0,0; isync" :
-> -      "=r" (ret) : "m" (*addr));
-> + __asm__ __volatile__("eieio; lwz%U1%X1 %0,%1; twi 0,%0,0; isync"
-> +      : "=r" (ret) : "m" (*addr));
->   return ret;
->  }
->
->  static inline void out_le32(volatile unsigned *addr, int val)
->  {
-> - __asm__ __volatile__("stwbrx %1,0,%2; eieio" : "=m" (*addr) :
-> -      "r" (val), "r" (addr));
-> + __asm__ __volatile__("sync; stwbrx %1,0,%2" : "=m" (*addr)
-> +      : "r" (val), "r" (addr));
->  }
->
->  static inline void out_be32(volatile unsigned *addr, int val)
->  {
-> - __asm__ __volatile__("stw%U0%X0 %1,%0; eieio" : "=m" (*addr) : "r"
-(val));
-> + __asm__ __volatile__("sync; stw%U0%X0 %1,%0; eieio"
-> +      : "=m" (*addr) : "r" (val));
->  }
->
->  static inline unsigned long in_le64(volatile unsigned long *addr)
-> @@ -313,7 +316,7 @@
->   unsigned long tmp, ret;
->
->   __asm__ __volatile__(
-> -      "ld %1,0(%2)\n"
-> +      "eieio; ld %1,0(%2)\n"
->        "twi 0,%1,0\n"
->        "isync\n"
->        "rldimi %0,%1,5*8,1*8\n"
-> @@ -331,8 +334,8 @@
->  {
->   unsigned long ret;
->
-> - __asm__ __volatile__("ld %0,0(%1); twi 0,%0,0; isync" :
-> -      "=r" (ret) : "m" (*addr));
-> + __asm__ __volatile__("eieio; ld %0,0(%1); twi 0,%0,0; isync"
-> +      : "=r" (ret) : "m" (*addr));
->   return ret;
->  }
->
-> @@ -348,14 +351,13 @@
->        "rldicl %1,%1,32,0\n"
->        "rlwimi %0,%1,8,8,31\n"
->        "rlwimi %0,%1,24,16,23\n"
-> -      "std %0,0(%2)\n"
-> -      "eieio\n"
-> +      "sync; std %0,0(%2)\n"
->        : "=r" (tmp) : "r" (val), "b" (addr) , "m" (*addr));
->  }
->
->  static inline void out_be64(volatile unsigned long *addr, int val)
->  {
-> - __asm__ __volatile__("std %1,0(%0); eieio" : "=m" (*addr) : "r" (val));
-> + __asm__ __volatile__("sync; std %1,0(%0)" : "=m" (*addr) : "r" (val));
->  }
->
->  #ifndef CONFIG_PPC_ISERIES
->
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
->
+15 Mayýs' a kadar üye olan Turizm Kurumsal Üyelere
 
+SINIRSIZ ÜCRETSÝZ ilan yayýnlama hakký ...
+
+DÝGER SEKTÖRLERDEKÝ kurumsal uyelerimizde www.kariyerturk.com ‘a üye olduklarýnda bir yýlda 3 ücretsiz eleman ilaný yayýnlama….
+
+Turizm Sektöründe Ýþ ve Eleman Bulma sitesi www.TurizmKariyerTurk.com
+Siz Turizm Sektöründe Eleman arayanlar ve Kariyerini Turizm
+Sektöründe Yapmak isteyenler için Yayýn Hayatýna Baþladý
+HR TÜRK GROUP iþtiraki olan www.TurizmKariyerTurk.com 'a üye olacak Turizm Sektöründeki Kurumsal Üyelerimize Bir yýl içinde SINIRISIZ ÝLAN YAYINLAMA ve Yine Genel Sektor ilanlarý Yayýnlayan www.KariyerTurk.com ' da da 3 adet Eleman ilanlarý Ücretsiz Yayýnlanacaktýr.
+
+CV inceleme, istediginiz zaman kullanabilmek uzere cv arsivleme,
+
+On-Line toplu veya Tek Tek cevaplama, Basvurulara
+
+On-line mesaj gonderme, Gruplama, ozel listeler hazýrlama
+
+kýsaca Tüm sistemi kullanabilme imkaný
+
+Tek yapmanýz gereken
+
+www.TurizmKariyerTurk.com
+
+' a
+
+girerek Kurumsal üye olmanýz.
+
+Kurumsal Üyelik Ücretsizdir
+------------------------------------------------------------------
+www.TurizmKariyerTurk.com
+
+www.hrturkgroup.com Ýþtirakidir
 

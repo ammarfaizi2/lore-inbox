@@ -1,68 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262710AbTGOFno (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 01:43:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262593AbTGOFno
+	id S263315AbTGOFqK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 01:46:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263355AbTGOFqK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 01:43:44 -0400
-Received: from almesberger.net ([63.105.73.239]:33039 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S262710AbTGOFnc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 01:43:32 -0400
-Date: Tue, 15 Jul 2003 02:58:13 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: David griego <dagriego@hotmail.com>, jgarzik@pobox.com,
-       alan@storlinksemi.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Alan Shih: "TCP IP Offloading Interface"
-Message-ID: <20030715025813.B5608@almesberger.net>
-References: <Sea2-F4kWkKEsEXlwM9000178d9@hotmail.com> <1058213152.561.129.camel@dhcp22.swansea.linux.org.uk>
+	Tue, 15 Jul 2003 01:46:10 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:32464 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S263205AbTGOFp6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 01:45:58 -0400
+Date: Mon, 14 Jul 2003 22:51:33 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: "Jordi Ros" <jros@xiran.com>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       netdev@oss.sgi.com, alan@storlinksemi.com
+Subject: Re: TCP IP Offloading Interface
+Message-Id: <20030714225133.18395b69.davem@redhat.com>
+In-Reply-To: <E3738FB497C72449B0A81AEABE6E713C027A43@STXCHG1.simpletech.com>
+References: <E3738FB497C72449B0A81AEABE6E713C027A43@STXCHG1.simpletech.com>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1058213152.561.129.camel@dhcp22.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Mon, Jul 14, 2003 at 09:05:53PM +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> load balancer. If you want to argue about using gate arrays and hardware
-> to accelerate IP routing, balancing and firewall filter cams then you
-> might get somewhere - but they dont need to talk TCP.
+On Mon, 14 Jul 2003 22:42:55 -0700
+"Jordi Ros" <jros@xiran.com> wrote:
 
-One thing that sounds right about TOE is that per-packet overhead
-is becoming an issue, too. At 10 Gbps, the critters come flying in
-at almost 1 MHz if you're using standard MTU sizes.
+[ Please fix Outlook Express or whatever lame email client you
+  use to put newlines into the emails that you compose.  These
+  excessive long lines make your emails nearly impossible to read ]
 
-On the other hand, replicating the entire infrastructure on some
-non-Linux hardware has several problems, even if we don't consider
-performance:
+> TCP offloading does not necessarily need to be the goal but a MUST
+> if one wants to build a performance-scalable architecture. This
+> vision is in fact introduced by Mogul in his paper. He writes:
+> "Therefore, offloading the transport layer becomes valuable not for
+> its own sake, but rather because that allows offloading of the RDMA
+> [...]".
 
- - where is the configuration interface ? In the kernel or in
-   user space ? What about existing interfaces ?
- - you'll never get exactly the same semantics. Just identifying
-   the differences is a very painful process. And again, what
-   about existing interfaces ?
- - testing has just become a lot harder
+I totally disagree.  It is not a MUST, in fact I have described
+an alternative implementation that requires none of the complexity
+or RDMA, and none of the stupidity of TOE.
 
-What I think would be more promising is to investigate in the
-direction of NUMA-style architectures, where some CPUs are closer
-to NICs and whatever data source/sink those TCP streams go to.
+Read my lips: "We do not need to offload TCP itself to get the
+attributes you desire, therefore we are NOT going to do it."
 
-Licensing issues, the classical reason for using independent
-stacks, can be elegantly avoided on Linux.
+You can choose to ignore my suggestions and likewise I will continue
+to ignore the endless (and frankly, broing after reading it for the
+100th time) spouting from people like you that we somehow "NEED" or
+"MUST" have TOE, which is complete bullshit as exemplified by my
+alternative example scheme.
 
-Another area are network processors. They could help with fancy
-things like Dave's flow cache, but also with fine-grained timing
-needed for traffic control. One problem there is that they're
-locked away behind walls of NDAs and proprietary development
-environments, so one couldn't even begin to properly support them
-in Linux. (What can be done is to treat NP+software as a black
-box, but I wouldn't consider this a satisfying choice.)
+You also ignore the points others have made that the systems HAVE
+SCALED to evolving networks technologies as they have become faster
+and faster.
 
-- Werner
+And when you ignore me, don't be surprised when other companies come
+along, implement my scheme, it gets supported in Linux and
+subsequently the stock of your company effectively becomes toilet
+paper and TOE is an obscure piece of computing history gone wrong :-)
 
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+> TOE is believed to not provide performance. I may agree that TOE by
+> itself may not, but TOE as a means to deliver some other technology
+> (e.g. RDMA, encryption or Direct Path) it does optimize (in some
+> instance dramatically) the overall performance. Let me show you the
+> numbers in our Direct Path technology. 
+
+But our point is that you don't need any of this crap.
+
+My RX receive page accumulation scheme handles all of the
+receive side problems with touching the data and getting
+into the filesystem and then the device.  With my scheme
+you can receive the data, go direct to the device, and the
+cpu never touches one byte.
+
+> Note that Microsoft is considering TOE under its Scalable Networking
+> Program. To keep linux competitive, I would encourage a healthy
+> discussion on this matter
+
+I actually welcome Microsoft falling into this rathole of a
+technology.  Let them have to support that crap and have to field bug
+reports on it, having to wonder who created the packets.  And let them
+deal with the negative effects TOE has on connection rates and things
+like that.
+
+Linux will be competitive, especially if people develop the scheme I
+have described several times into the hardware.  There are vendors
+doing this, will you choose to be different and ignore this?

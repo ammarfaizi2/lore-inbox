@@ -1,62 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266810AbTAOUEw>; Wed, 15 Jan 2003 15:04:52 -0500
+	id <S266986AbTAOUIk>; Wed, 15 Jan 2003 15:08:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266907AbTAOUEw>; Wed, 15 Jan 2003 15:04:52 -0500
-Received: from office-NAT.rockwellfirstpoint.com ([199.191.58.7]:36735 "EHLO
-	ecsmtp01.rockwellfirstpoint.com") by vger.kernel.org with ESMTP
-	id <S266810AbTAOUEv>; Wed, 15 Jan 2003 15:04:51 -0500
-In-Reply-To: <OF4D4BDDD2.8FD534AB-ON86256C91.007B9286-86256C91.007EE995@LocalDomain>
-Subject: Re: i845PE chipset and 20276 Promise Controller boot failure with 2.4.20-ac2
-To: linux-kernel@vger.kernel.org
-Cc: edward.kuns@rockwellfirstpoint.com
-X-Mailer: Lotus Notes Release 6.0 September 26, 2002
-Message-ID: <OF29391214.90AE10FD-ON86256CAF.006DDF61-86256CAF.006F1CFE@rockwellfirstpoint.com>
-From: edward.kuns@rockwellfirstpoint.com
-Date: Wed, 15 Jan 2003 14:11:25 -0600
-X-MIMETrack: Serialize by Router on ECSMTP01/EC/Rockwell(Release 5.0.11  |July 24, 2002) at
- 01/15/2003 02:13:44 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S266987AbTAOUIk>; Wed, 15 Jan 2003 15:08:40 -0500
+Received: from holomorphy.com ([66.224.33.161]:48780 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S266986AbTAOUIi>;
+	Wed, 15 Jan 2003 15:08:38 -0500
+Date: Wed, 15 Jan 2003 12:17:19 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       James Cleverdon <jamesclv@us.ibm.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] (0/7) Finish moving NUMA-Q into subarch, cleanup
+Message-ID: <20030115201719.GM919@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	"Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+	"Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	"Nakajima, Jun" <jun.nakajima@intel.com>,
+	Christoph Hellwig <hch@infradead.org>,
+	James Cleverdon <jamesclv@us.ibm.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <3FAD1088D4556046AEC48D80B47B478C022BD907@usslc-exch-4.slc.unisys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FAD1088D4556046AEC48D80B47B478C022BD907@usslc-exch-4.slc.unisys.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 15, 2003 at 01:30:37PM -0600, Protasevich, Natalie wrote:
+> ... and one more from me: isn't it time to let IO-APIC id be 8 bit in the
+> asm/io_apic.h (make it a union fot both?..)?
+> Look what I have to do in io_apic.h to get around it and ... "mister, have a
+> heart":
 
-FYI:  This problem is resolved at least as of 2.4.21-pre3-ac2.  I suspect
-it is resolved as of 2.4.21-pre3 but I have not specifically tried that
-load.  Specifically, I suspect it is the patch to drivers/pci/quirks.c that
-Alan Cox posted on 16 December for people seeing IDE controllers but no
-disks.  I *do* see output from the printk added in that patch:
-
-      printk(KERN_INFO "PCI: Ignoring BAR%d-%d of IDE controller %s\n",
-      first_bar, last_bar, dev->slot_name);
-
-Alan, Andre, would it be useful to y'all for me to try any different kernel
-versions between 2.4.18 and 2.4.21-pre3-ac2 to pin things down, or are
-y'all satisfied with the information that 2.4.21-pre3 solves this problem?
-Would it be useful if I forwarded the kernel printk's from the boot
-process?
-
-Reminder: This is a Gigabyte GA-8PE667 Ultra motherboard (aka P4 Titan 667
-Ultra) with the i845PE chipset plus a Promise RAID controller (PDC20276).
-I have a single hard drive (hde) as the master drive on the first channel
-of the Promise controller and in the BIOS I have the Promise controller in
-ATA mode, not RAID mode.  On the main IDE controller I have one hard disk
-as the master on one channel (hda) and one CDROM as the slave on the other
-channel (hdd).  (I know I should move the CDROM to be primary on that
-channel but have been too lazy to pull the CDROM out to do this.)
-
-Please CC me on any responses.
-
-      Thanks
-
-      Eddie
-
---
-Edward Kuns
-Technical Staff Member
-Rockwell FirstPoint Contact
-edward.kuns@rockwellfirstpoint.com
-www.rockwellfirstpoint.com
+Point taken; it doesn't burn NUMA-Q, but this probably hits Summit (with
+its much more recent APIC and IO-APIC revisions). I don't see why not.
+The hardware is there, time to drop in the code to handle it.
 
 
+At some point in the past, I wrote:
+>> There are also somewhat deeper issues with vector assignments to
+>> interrupt sources that prevent elevating any of the above to useful
+>> levels and utilizing them. The assumptions based on the vector assignment
+>> algorithm appear to be widely distributed enough to discourage me after
+>> an initial attempt or two to get any kind of useful interrupt routing
+>> for a number of IRQ sources larger than the number of vectors.
+
+On Wed, Jan 15, 2003 at 01:30:37PM -0600, Protasevich, Natalie wrote:
+> I strongly suggest to take a look in IA64 implementation. 
+> They have 1:1 correspondence between IRQ and vector and don't seem to be
+> able to run out of vectors or IRQs.
+
+Given that almost nothing actually cares what the irq numbers are, it
+sounds like a really good idea to encode the node ID in the upper bits
+and the vector in the lower bits (SN2 uses cpuid). I'll try it out.
+
+
+Thanks!
+Bill

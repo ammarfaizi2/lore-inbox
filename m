@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136246AbRAUMt1>; Sun, 21 Jan 2001 07:49:27 -0500
+	id <S129830AbRAUNFB>; Sun, 21 Jan 2001 08:05:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136294AbRAUMtR>; Sun, 21 Jan 2001 07:49:17 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:34317 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S136246AbRAUMtD>;
-	Sun, 21 Jan 2001 07:49:03 -0500
-Date: Sun, 21 Jan 2001 13:54:34 +0100 (CET)
-From: egger@suse.de
-Reply-To: egger@suse.de
-Subject: Re: Ethernet drivers: SiS 900, Netgear FA311
-To: jgarzik@mandrakesoft.com
-Cc: burnus@gmx.de, linux-kernel@vger.kernel.org
-In-Reply-To: <3A6A2D8D.D55655D5@mandrakesoft.com>
-MIME-Version: 1.0
-Content-Type: TEXT/plain; charset=us-ascii
-Message-Id: <20010121134822.A46D4735B@Nicole.muc.suse.de>
+	id <S129896AbRAUNEw>; Sun, 21 Jan 2001 08:04:52 -0500
+Received: from app79.hitnet.RWTH-Aachen.DE ([137.226.181.79]:38920 "EHLO
+	anduin.gondor.com") by vger.kernel.org with ESMTP
+	id <S129830AbRAUNEj>; Sun, 21 Jan 2001 08:04:39 -0500
+Date: Sun, 21 Jan 2001 14:04:33 +0100
+From: Jan Niehusmann <jan@gondor.com>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Andre Hedrick <andre@linux-ide.org>,
+        Alan Chandler <alan@chandlerfamily.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [preview] Latest AMD & VIA IDE drivers with UDMA100 support
+Message-ID: <20010121140433.A1068@gondor.com>
+In-Reply-To: <20010120215641.A1818@suse.cz> <Pine.LNX.4.10.10101201301200.657-100000@master.linux-ide.org> <20010121104606.A398@suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010121104606.A398@suse.cz>; from vojtech@suse.cz on Sun, Jan 21, 2001 at 10:46:06AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20 Jan, Jeff Garzik wrote:
+On Sun, Jan 21, 2001 at 10:46:06AM +0100, Vojtech Pavlik wrote:
+> Ok, the VIA driver from clean 2.2.18 does nothing. It doesn't even use
+> hardcoded timings. It doesn't touch any timing tables. It just blindly
+> enables prefetch and writeback in the chips. The thing works because it
+> relies on BIOS to set things up correctly, and this is often the case,
+> yes.
 
-> Not true, see natsemi.c (in 2.4.x at least).
+If BIOS is often correct: Is it possible to read these values and compare
+them to the values linux calculates? If both match: OK, continue. If they
+are different: Either BIOS or linux is wrong, print a warning and disable
+DMA (or go to some other kind of 'safe mode').
 
- Correct, and the cards really work with it.
+Just an idea, I don't know anything about chipsets and IDE timings ;-)
 
--- 
-
-Servus,
-       Daniel
+Jan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,78 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262328AbUCVTfq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 14:35:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbUCVTfq
+	id S262335AbUCVTgq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 14:36:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262339AbUCVTgq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 14:35:46 -0500
-Received: from [198.247.175.96] ([198.247.175.96]:63399 "EHLO jethro.hick.org")
-	by vger.kernel.org with ESMTP id S262328AbUCVTfc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 14:35:32 -0500
-From: "Matt Miller" <mmiller@hick.org>
-To: <linux-kernel@vger.kernel.org>
-Cc: <mmiller@hick.org>
-Subject: RE: [PATCH] 2.6: mmap complement, fdmap
-Date: Mon, 22 Mar 2004 13:26:01 -0600
-Message-ID: <PFEHKADDODPLDDIJFACJAEJHEAAA.mmiller@hick.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
-In-Reply-To: <20040322190047.GC8366@waste.org>
-Importance: Normal
+	Mon, 22 Mar 2004 14:36:46 -0500
+Received: from mail1.webmaster.com ([216.152.64.168]:46085 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP id S262335AbUCVTgj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 14:36:39 -0500
+Date: Mon, 22 Mar 2004 11:14:37 -0800
+From: "David Schwartz" <davids@webmaster.com>
+To: "Tigran Aivazian" <tigran@veritas.com>,
+       "Timothy Miller" <miller@techsource.com>,
+       "Justin Piszcz" <jpiszcz@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux Kernel Microcode Question
+Message-ID: <WorldClient-F200403221114.AA14370017@webmaster.com>
+X-Mailer: WorldClient 6.8.5
+In-Reply-To: <Pine.GSO.4.58.0403220736480.8694@south.veritas.com>
+References: <Pine.LNX.4.44.0403191721110.3892-100000@einstein.homenet>  <405F0B8D.8040408@techsource.com> <Pine.GSO.4.58.0403220736480.8694@south.veritas.com>
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Mon, 22 Mar 2004 11:14:37 -0800
+	(not processed: message from valid local sender)
+X-MDRemoteIP: 127.0.0.1
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > a) what the hell for?
+
+
+> On Mon, 22 Mar 2004, Timothy Miller wrote:
+> > I don't see anything wrong with what he said.  As I understand it,
+> > Pentium 4 CPUs don't use microcode for much of anything.  If an
+> > instruction which was done entirely in dedicated hardware was buggy,
+> > and
+> > it's replaced by microcode, then it will most certainly be slower.
 > >
-> > It's targetted mainly as a performance enhancer.  Some of the specific
-> > scenarios where it would be useful are:
-> >
-> > a) When one cannot afford to take the performance hit of synchronizing
-> >    a memory range to disk due to disk size limitations or speed
-> >    requirements.
-> > b) Some things can benefit from the ability to interface with
-> memory as a
-> >    file.
-> >
-> > The specific reason for implementing this was to allow for
-> loading dynamic
-> > libraries in the context of a process without having to write them to
-> > disk.
->
-> How about tmpfs/ramfs instead? Open a file on tmpfs and mmap it and
-> you've got the same thing without any of the nasty corner cases.
+> > You seem to have missed where David used terms like "theoretically
+> > possible" and "an operation".
+ 
+> No, that is not what he said and that (what you say) is certainly
+> wrong,
+> namely this bit:
+> 
+>   If an instruction which was done entirely in dedicated hardware was
+>   buggy, and it's replaced by microcode, then it will most certainly be
+>   slower.
+> 
+> All instructions are done by means of microcode of some sort, i.e. the
+> instructions are "compiled" as they are executed into a more primitive
+> instruction set (called "microcode" or "u-code"). If a buggy
+> instruction
+> (or rather the sequence of microcode which corresponds to it) is
+> replaced
+> by a fixed version (i.e. by some other sequence of microcode) then
+> there
+> is no reason to say that the result will "most certainly be slower".
+> For
+> some bugs the fix runs faster than the broken code, for others it may
+> be
+> slower --- there is no way to tell apriori that it will always be
+> slower.
+> 
+> Do you understand now?
 
-Because tmpfs does not allow you to map a file descriptor to a specific
-memory
-range inside a process.  tmpfs allows you to open a file that exists only
-in memory, yes, but it does not accomplish what fdmap tries to accomplish.
-fdmap allows you to access arbitrary memory ranges as if they were a file.
-tmpfs allows you to access a file that happens to only exist in memory.
-You do not control the address range that tmpfs/ramfs map to.
+You are using the word "instruction" to mean something different than 
+what I am using it to mean. I am using "instruction" to mean "the 
+smallest cohesive unit of operation". I do NOT mean "instruction" as 
+in "an operation coded by the programmer".
 
-A few other benefits to fdmap include:
+I am talking about the case where an "operation" performed in buggy 
+hardware is replaced by an "operation" performed in fixed microcode.
 
-1. Transactional operations for MTD storage - if the only "disk"
-   is an MTD, then one would want to avoid writing to it too much
-   (assuming wear-leveling alone isn't enough).  So one can commit
-   tons of changes, then when everything's done, "collapse" to disk.
-2. tmpfs adds swap -- if you don't want it to hit disk, ever (think
-   crypto keys) but need to manipulate it with tools that want files.
-3. ramfs isn't charged to the user process, rather, it rips available
-   memory away from everything.  By using fdmap(), it'd be interesting
-   to allow a "transactional storage" for processes to exist that's
-   automatically beancounted.
+By the way, the recent Intel patent lawsuit had this exact same issue. 
+The word "instruction" can refer to *any* cohesive unit that performs 
+some logical function.
 
-Think of fdmap as the complement to mmap.  You use mmap to map a file
-descriptor to a memory range so that you can operate on it directly by
-memory.  You use fdmap to map a memory range to a file descriptor so that
-you can access the memory as if it were a file on disk.
-
-Matt
+DS
 

@@ -1,50 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273588AbRJDI7v>; Thu, 4 Oct 2001 04:59:51 -0400
+	id <S273992AbRJDJEl>; Thu, 4 Oct 2001 05:04:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273789AbRJDI7l>; Thu, 4 Oct 2001 04:59:41 -0400
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:11153 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S273588AbRJDI7e>; Thu, 4 Oct 2001 04:59:34 -0400
-From: Christoph Rohland <cr@sap.com>
-To: Paul Menage <pmenage@ensim.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] Pollable /proc/<pid>/ - avoid SIGCHLD/poll() races
-In-Reply-To: <E15p3JS-0000ko-00@pmenage-dt.ensim.com>
-Organisation: SAP LinuxLab
-Date: 04 Oct 2001 10:59:07 +0200
-In-Reply-To: <E15p3JS-0000ko-00@pmenage-dt.ensim.com>
-Message-ID: <m34rpfpyqs.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+	id <S273789AbRJDJEb>; Thu, 4 Oct 2001 05:04:31 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:43529 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S274209AbRJDJET>; Thu, 4 Oct 2001 05:04:19 -0400
+Message-ID: <3BBC2603.7C1327AC@idb.hist.no>
+Date: Thu, 04 Oct 2001 11:04:03 +0200
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.4.11-pre2 i686)
+X-Accept-Language: no, en
 MIME-Version: 1.0
+To: Ian Thompson <ithompso@stargateip.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: How can I jump to non-linux address space?
+In-Reply-To: <NFBBIBIEHMPDJNKCIKOBEEGJCAAA.ithompso@stargateip.com>
 Content-Type: text/plain; charset=us-ascii
-X-SAP: out
-X-SAP: out
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Paul,
-
-On Thu, 04 Oct 2001, Paul Menage wrote:
+Ian Thompson wrote:
 > 
-> I've recently run across a problem where a server (in this case,
-> sshd) can deadlock itself if a SIGCHLD arrives just before it calls
-> select(), but after it has checked whether its child_terminated. So
-> when the select() is called, the SIGCHLD signal handler has already
-> run and set the child_terminated flag, and there's nothing to wake
-> the select().
+> Hi all,
 > 
-> The only real user-space solution to this is to have the SIGCHLD
-> handler somehow cause the select() to return immediately
+> I'm sorry if this is off-topic, but I wasn't sure where else to ask...
+> 
+> My kernel is running from RAM, and I want to jump to an address in ROM
+> (which unfortunately, the kernel doesn't seem to know anything about).  I
 
-... or implement pselect:
-http://mesh.eecs.umich.edu/cgi-bin/man2html/usr/share/man/man2/select.2.gz
+The kernel can get to know - all you need is code that maps the
+ROM address range into some available virtual address range.
+Look at device driver code - they do such mapping for ROM and/or
+memory-based io regions.
 
-or use sigsetjmp/siglongjmp
+> don't plan on trying to resume the kernel after doing this.  However, I'm
+> getting a prefetch abort.  If I try and load the data, I get a similar
+> error: "Unable to handle kernel paging request at virtual address 00003000"
+> where 0x3000 is the ROM address I'm trying to jump to / load from.  How can
+> I pass execution to this address?  Do I have to turn off the MMU?  
 
-Both would be portable and not special to child handling.
+How to set up the cpu before jumping to a ROM that won't return
+can be tricky indeed.  This depends on what that ROM code expect!
 
-Greetings
-		Christoph
+Do that ROM code work when the MMU has remapped its adresses so it
+appears at some adress completely different from the bus address?  (only
+if it contains relative jumps only - no absolute addresses.) Does
+it work with 4G segments?  Does it work at all in protected mode,
+with all interrupts routed to the linux kernel instead of the bios?
+Does this code expect to find something (data, device interfaces,
+vga memory) at certain addresses?  If so, this must be mapped too.
+For linux moves all this around.
 
+In practise, existing ROM's tend to assume that the machine is
+in a state close to what the bios initializes it to,
+with 64k segments, no MMU, and a lot of assumptions about
+how interrupts and hw devices are set up.  _All_ of these
+assumptions break after you start linux, and resetting 
+everything is so hard that it is usually done by
+running the bios cold boot code.
 
+Helge Hafting

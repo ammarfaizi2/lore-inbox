@@ -1,140 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267084AbSLXKvC>; Tue, 24 Dec 2002 05:51:02 -0500
+	id <S267085AbSLXLM0>; Tue, 24 Dec 2002 06:12:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267085AbSLXKvC>; Tue, 24 Dec 2002 05:51:02 -0500
-Received: from m3.azalea.se ([217.75.96.207]:43934 "HELO m3.azalea.se")
-	by vger.kernel.org with SMTP id <S267084AbSLXKvA>;
-	Tue, 24 Dec 2002 05:51:00 -0500
-Subject: DMA errors in 2.4.18, 2.4.20 and DMA Ooopses in 2.5.52
-From: Mikael Olenfalk <mikael@netgineers.se>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.50.0212111337270.29848-100000@boston.corp.fedex.com>
-References: <Pine.LNX.4.50.0212111337270.29848-100000@boston.corp.fedex.com>
-Content-Type: text/plain
-Organization: Netgineers
-Message-Id: <1040727285.565.41.camel@devcon-x>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.0 
-Date: 24 Dec 2002 11:54:45 +0100
-Content-Transfer-Encoding: 7bit
+	id <S267086AbSLXLMZ>; Tue, 24 Dec 2002 06:12:25 -0500
+Received: from c16688.thoms1.vic.optusnet.com.au ([210.49.244.54]:5259 "EHLO
+	mail.kolivas.net") by vger.kernel.org with ESMTP id <S267085AbSLXLMY>;
+	Tue, 24 Dec 2002 06:12:24 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Con Kolivas <conman@kolivas.net>
+Reply-To: conman@kolivas.net
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [BENCHMARK] ext2 v ext3 with contest
+Date: Tue, 24 Dec 2002 22:20:22 +1100
+User-Agent: KMail/1.4.3
+Cc: Robert Love <rml@tech9.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200212242220.33049.conman@kolivas.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+Here's a contest run comparing 2.5.52-mm2 on the same osdl hardware with the 
+ext3 partitions mounted ext2 for comparison:
 
-Hi Everybody,
+noload:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.52-mm2 [7]          39.2    181     0       0       1.08
+2552mm2ext2 [5]         39.1    180     0       0       1.08
+not significant
 
-I wish you all a nice Christmas and A Happy New Year!
+cacherun:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.52-mm2 [7]          36.5    194     0       0       1.01
+2552mm2ext2 [5]         36.1    194     0       0       1.00
+slight speedup here. 
 
+process_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.52-mm2 [7]          46.5    152     8       41      1.28
+2552mm2ext2 [5]         48.3    144     10      48      1.33
+slight shift in the balance; no significant change
 
-Now to the stuff that matters (for me 8) ):
+ctar_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.52-mm2 [7]          52.8    154     1       10      1.46
+2552mm2ext2 [5]         47.2    163     1       7       1.30
+speedup with better overall cpu usage with ext2
 
-I recently bought 4 80G IDE disks which I considered to combine into a
-software RAID (RAID5). The four discs are connected via a Promise
-Ultra100 TX2 (driver: PDC202xx, PDC20268 - I believe ;) ). It all works
-fine for me just that the data throughput (i.e. speed) has been very
-varying.
+xtar_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.52-mm2 [7]          76.1    124     1       8       2.10
+2552mm2ext2 [5]         95.6    101     1       5       2.64
+interesting - a shift in the opposite direction here with ext2 much slower 
+(large)
 
-I had an older 80G IDE disc (yet capable of UDMA5) which I wanted to
-make a spare disk.
+io_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.52-mm2 [7]          74.5    112     11      20      2.06
+2552mm2ext2 [5]         77.4    118     11      13      2.14
+same here
 
-This is my configuration:
+io_other:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.52-mm2 [7]          59.9    134     6       18      1.65
+2552mm2ext2 [5]         52.8    137     6       11      1.46
+slightly better with ext2
 
-raiddev /dev/md0
-	raid-level		5
-	nr-raid-disks		4
-	nr-spare-disks		1
-	persistent-superblock	1
-	parity-algorithm	left-symmetric
-	chunk-size		64
+read_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.52-mm2 [7]          50.5    147     5       6       1.39
+2552mm2ext2 [5]         49.3    149     5       6       1.36
+slightly better ext2
 
-	## ALL NEW DISCS :)
-	device			/dev/hde
-	raid-disk		0
-	device			/dev/hdf
-	raid-disk		1
-	device			/dev/hdg
-	raid-disk		2
-	device			/dev/hdh
-	raid-disk		3
+list_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.52-mm2 [7]          43.7    167     0       9       1.21
+2552mm2ext2 [5]         43.4    166     0       9       1.20
 
-	## GOOD, OLD, BRAVE DISC ;)
-	device			/dev/hdc
-	spare-disk		0
-	
+mem_load:
+Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+2.5.52-mm2 [7]          66.0    141     39      3       1.82
+2552mm2ext2 [5]         63.9    145     38      3       1.76
+slightly better here
 
+It seems the (possibly?) faster writing with ext2 causes slowdowns under heavy 
+writing loads on the same disk, but improvements with the other loads.
 
-Now to the funny part:
+Interesting results (not quite what I was expecting)
 
-For some funny reason, a 2.4.20 kernel refuses to set the DMA-level on
-the new disks (all connected to a UDMA5-capable Ultra100 TX2 controller)
-to UDMA5,4,3 and settles it for UDMA2, which is the highest possibility
-for the OLD onboard-controller (but NOT for the promise card). A recent
-2.5.52 gives me :) UDMA5 on the new discs while (correctly) UDMA2 for
-the old drive.
+Enjoy the festive season
 
-This is generally not a very big problem, I can live 8( with my new fine
-discs only being used in UDMA2 (instead of 5).
+Cheers,
+Con
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
 
-After I initialized the array using 'mkraid /dev/md0' I open up 'while
-true; do clear; cat /proc/mdstat; sleep 1; done' on one terminal to
-watch the progress.
-
-The first try I gave it was (very satisfying) giving me 15MB/sec at the
-beginning. After about 30-40% the speed fell down to unsatisfying
-100-200KB/sec (nothing CPU-intensive running besides raid5d).
-
-I have been having problems with the older controller and I was not sure
-about the throughput of the old drive, therefore I stopped the syncing,
-stopped the raid and ran five synced (i.e. with a semaphore) bonnie++
-processes to benchmark the discs, they all performed likely well (the
-old one was a little slower at random seeks, but that was indeed
-expected).
-
-I tried the same thing on a 2.4.18 kernel (bf2.4 flavour from Debian
-SID) but that gave me funny DMA timeout errors (something like DMA
-timeout func 14 only supported) and kicked out one of (sporadic) my
-newer drives from the array.
-
-I wanted to try a 2.5.x kernel and settled for the newest one: 2.5.52
-(vanilla). This wonderful kernel detected the UDMA5 capability of the
-new drives and the new controller (veeery satisfying =) ) and gave me a
-throughput of about 20-22MB/sec in the beginning. Sadly the system
-Ooopsed at 30% percent giving me some DMA errors.
-
-I have been wondering if it could be the powersupply, I have a 360W (max
-load) powersupply, 4 new IBM 80G discs, 1 older 80G SEAGATE, 1 20G
-MAXTOR.
-
-Hmm, there it was again, one of my new drives got kicked out of the
-array before the initial sync was ready.
-
-The errors was (2.4.20):
-
-<DATE> webber kernel: hdg: dma_intr: status=0x51
-<DATE> webber kernel: hdg: end_request: I/O error, dev 22:00 (hdg)
-sector 58033224
-<DATE> webber kernel: hdg: dma_intr: status=0x51
-<DATE> webber kernel: hdg: dma_intr: error=0x40 LBAsect=58033238,
-sector=58033232
-<DATE> webber kernel: end_request: I/O error, dev 22:00 (hdg), sector
-58033232
-
-
-Hmm, what could it be, this didn't happen while running bonnie++ :(
-
-
-
-Any help will be appreciated,
-
-Regards,
-	Mikael
-
-
-
-
--- 
-Mikael Olenfalk <mikael@netgineers.se>
-Netgineers
-
+iD8DBQE+CEL2F6dfvkL3i1gRAq/1AJ4wsVsERAUng6ALtmpnMflpb8co0gCfTYWB
+JzOrStkqsDGV/fC+21N69f8=
+=pUSo
+-----END PGP SIGNATURE-----

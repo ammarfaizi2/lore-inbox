@@ -1,50 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261913AbSIYEyT>; Wed, 25 Sep 2002 00:54:19 -0400
+	id <S261914AbSIYEzb>; Wed, 25 Sep 2002 00:55:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261914AbSIYEyS>; Wed, 25 Sep 2002 00:54:18 -0400
-Received: from rains.umail.ucsb.edu ([128.111.151.216]:34833 "EHLO
-	rains.umail.ucsb.edu") by vger.kernel.org with ESMTP
-	id <S261913AbSIYEyS>; Wed, 25 Sep 2002 00:54:18 -0400
-Message-ID: <1032929970.3d9142b22bc55@webaccess.umail.ucsb.edu>
-Date: Tue, 24 Sep 2002 21:59:30 -0700
-From: Lingli Zhang <lingli_z@umail.ucsb.edu>
-To: linux-kernel@vger.kernel.org
-Subject: mmap() failed on Linux 2.4.18-10smp with 4GB RAM
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1.1-cvs
+	id <S261915AbSIYEzb>; Wed, 25 Sep 2002 00:55:31 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:20849 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S261914AbSIYEza>; Wed, 25 Sep 2002 00:55:30 -0400
+Date: Wed, 25 Sep 2002 01:00:44 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: mingo@redhat.com, torvalds@transmeta.com
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+Subject: cmpxchg in 2.5.38
+Message-ID: <20020925010044.A4464@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+The cmpxchg() is used in kernel/pid.c:next_free_map():
 
-My machine is a 2-Processor Pentium 4 (Xeon) 2.4GHz e7500 Chipset with 4GB RAM.
-I installed Redhat (kernel: Linux 2.4.18-10bigmem) on it. 
+                        if (cmpxchg(&map->page, NULL, (void *) page))
+                                free_page(page);
 
-But when I run following piece of code:
-========================================
-#include <unistd.h>
-#include <sys/mman.h>
-int main(){
-   mmap ((void *) 1090519040, 17000000,
-         PROT_READ | PROT_WRITE | PROT_EXEC,
-         MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED, -1, 0);
-}
-===========================================
-It gives out "segmentation fault". It works well if I change 17000000
-to 16000000.
+It is implemented on alpha, i386, ia64, ppc64, ppc, sparc64,
+x86_64, but not on mips, cris, arm, s390, s390x, sparc, sh, parisc.
+Do all architectures have to have it?
 
-I have tried Linux 2.4.18-10smp kernel, same problem.
-
-Is there anyone have any idea what's going on here? Or do you have any
-recommendation that which version of Linux I should use for my machine to work
-around this problem?
-
-Thanks a lot!
-
-Lingli
--- 
-Lingli Zhang
-lingli_z@umail.ucsb.edu
+-- Pete

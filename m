@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265219AbUFAU54@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265268AbUFAVCc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265219AbUFAU54 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 16:57:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265228AbUFAU5z
+	id S265268AbUFAVCc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 17:02:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265356AbUFAVCA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 16:57:55 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:21515 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265218AbUFAU5d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 16:57:33 -0400
-Date: Tue, 1 Jun 2004 21:57:10 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Dave Jones <davej@redhat.com>
-Subject: Re: [PATCH] 2.6.6 synclinkmp.c
-Message-ID: <20040601215710.F31301@flint.arm.linux.org.uk>
-Mail-Followup-To: Paul Fulghum <paulkf@microgate.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Dave Jones <davej@redhat.com>
-References: <20040527174509.GA1654@quadpro.stupendous.org> <1085769769.2106.23.camel@deimos.microgate.com> <20040528160612.306c22ab.akpm@osdl.org> <1086123061.2171.10.camel@deimos.microgate.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1086123061.2171.10.camel@deimos.microgate.com>; from paulkf@microgate.com on Tue, Jun 01, 2004 at 03:51:02PM -0500
+	Tue, 1 Jun 2004 17:02:00 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:13286 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S265263AbUFAVBQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 17:01:16 -0400
+Date: Tue, 1 Jun 2004 22:01:10 +0100 (BST)
+From: jsimmons@pentafluge.infradead.org
+To: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
+cc: Vojtech Pavlik <vojtech@suse.cz>, linux-kernel@vger.kernel.org
+Subject: Re: keyboard problem with 2.6.6
+In-Reply-To: <xb7aczq9he1.fsf@savona.informatik.uni-freiburg.de>
+Message-ID: <Pine.LNX.4.56.0406012158530.23458@pentafluge.infradead.org>
+References: <xb7r7t2b3mb.fsf@savona.informatik.uni-freiburg.de>
+ <20040530111847.GA1377@ucw.cz> <xb71xl2b0to.fsf@savona.informatik.uni-freiburg.de>
+ <20040530124353.GB1496@ucw.cz> <xb7aczq9he1.fsf@savona.informatik.uni-freiburg.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: 0.3 (/)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (0.3 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 NO_REAL_NAME           From: does not include a real name
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 01, 2004 at 03:51:02PM -0500, Paul Fulghum wrote:
-> In particular, call pci_unregister_driver if driver init fails. This
-> is in response to a bug report by Dave Jones.
 
-If pci_register_driver fails, the driver is not, repeat not left
-registered.  Therefore it must not be unregistered after failure
-to register.
+>     Vojtech> No. I'm just saying - if you want something that's not in
+>     Vojtech> the kernel drivers, just write a driver for it. But the
+>     Vojtech> driver must be able to coexist with the other drivers.
+> 
+> It's easier to write a mouse  driver in userspace than in kernel.  But
+> with the  input system  in 2.6, I  am *forced*  to write it  in kernel
+> space, and  reboot and  reboot and reboot  when it oops.   Writing the
+> driver in kernel  space, I at most get a segfault.   Plus I cannot use
+> everything from glibc.  It simply  takes more time and energy to write
+> a kernel space driver.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Why not use UML (user mode linux). Jon Smirl was using it to work on fbdev 
+drivers in userland. Interrupts where tricky to handle but it might 
+work fine now. I have to give it a try again. Once it is setup you can 
+develope kernel driver in userland.

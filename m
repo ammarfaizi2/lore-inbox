@@ -1,51 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262288AbRGPCwI>; Sun, 15 Jul 2001 22:52:08 -0400
+	id <S266067AbRGPEkU>; Mon, 16 Jul 2001 00:40:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264582AbRGPCv6>; Sun, 15 Jul 2001 22:51:58 -0400
-Received: from 64.5.206.104 ([64.5.206.104]:516 "EHLO
-	terbidium.openservices.net") by vger.kernel.org with ESMTP
-	id <S262288AbRGPCvp>; Sun, 15 Jul 2001 22:51:45 -0400
-Date: Sun, 15 Jul 2001 22:51:45 -0400 (EDT)
-From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
+	id <S266069AbRGPEkJ>; Mon, 16 Jul 2001 00:40:09 -0400
+Received: from femail4.rdc1.on.home.com ([24.2.9.91]:35806 "EHLO
+	femail4.rdc1.on.home.com") by vger.kernel.org with ESMTP
+	id <S266067AbRGPEjz>; Mon, 16 Jul 2001 00:39:55 -0400
+Date: Mon, 16 Jul 2001 00:39:51 -0400 (EDT)
+From: "Mike A. Harris" <mharris@opensourceadvocate.org>
+X-X-Sender: <mharris@asdf.capslock.lan>
 To: <volodya@mindspring.com>
-cc: Aaron Smith <yoda_2002@yahoo.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: "oversized" files
-In-Reply-To: <Pine.LNX.4.20.0107152228060.1650-100000@node2.localnet.net>
-Message-ID: <Pine.LNX.4.33.0107152248380.17437-100000@terbidium.openservices.net>
+cc: Adam Schrotenboer <ajschrotenboer@lycosmail.com>,
+        lkml <linux-kernel@vger.kernel.org>, <reiser@namesys.com>
+Subject: Re: Stability of ReiserFS onj Kernel 2.4.x (sp. 2.4.[56]{-ac*}
+In-Reply-To: <Pine.LNX.4.20.0107151158360.645-100000@node2.localnet.net>
+Message-ID: <Pine.LNX.4.33.0107160000540.1440-100000@asdf.capslock.lan>
+X-Unexpected-Header: The Spanish Inquisition
+X-Spam-To: uce@ftc.gov
+Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Sun, 15 Jul 2001 volodya@mindspring.com wrote:
 
-> On Sun, 15 Jul 2001, Aaron Smith wrote:
+>> I am upgrading to a new 36GB HD, and intend to split it into 3 pieces:
+>> one 7GB vfat, one ~28GB linux data (reiser or ext2), and 1GB swap.
+>>
+>> I need to know if I can trust ReiserFS, as I do believe that I do want
+>> ReiserFS.
 >
-> > I'm really not sure if this is pertinent to Linux Kernel, but I'm asking here anyway, 0 in advance if it's not.
-> >
-> > I have a file that is approximately 3.25GB and my system keeps bitching about "Value too large for defined data type."  Is there any way to stop this?  Since I'm sure you're wondering why I have a file that large, I'm using it via loopback as my MP3 partition, so I can remove it fairly quick if the need should ever arise.
->
-> As was explained to me (just today ;) ) this is an issue of 32bit versus
-> 64bit file sizes (and not filesystem returning junk values as I thought),
-> so to get this working you need a version of fileutils and C library that
-> supports this.
->
-> I still don't know how to upgrade by compiling the source code, but
-> installation of latest (8.0) Slackware packages for C library and
-> fileutils fixed things for me. Be careful while upgrading your C library -
-> things might break.
->
->                            Vladimir Dergachev
-> > --
-> > -Aaron
+>Which is a good point - can ext2 handle more than 4gig partitions ? I have
+>some vague ideas that it doesn't
 
-Actually, in this case it will probably require losetup to be rebuilt.
+Very vague indeed.  ;o)
 
-And as always, the kernel will require LFS support as well.
 
--- 
-Ignacio Vazquez-Abrams  <ignacio@openservices.net>
+/dev/md1 on /mnt/md1 type ext2 (rw,nosuid)
 
+$ df /dev/md1
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/md1             210042576 197033208   2339736  99% /mnt/md1
+
+That is mission critical 210Gb ext2 over software RAID.
+
+
+>(and that it does not handle files more than 2gig long).
+
+pts/0 mharris@devel:~$ ls -o bigfile.dat
+-rw-rw----    1 mharris  6634951680 Jul 16 00:37 bigfile.dat
+
+
+>I am reasonable sure that ReiserFS is better in this
+>regard though I am not certain about this either.
+
+That is a contradition.  ;o)  "Reasonably sure" and "certain" are
+pretty close in meaning IMHO.  I don't see how you can be
+uncertain, but reasonably sure...  ;o)
+
+
+----------------------------------------------------------------------
+    Mike A. Harris  -  Linux advocate  -  Open Source advocate
+       Opinions and viewpoints expressed are solely my own.
+----------------------------------------------------------------------
 

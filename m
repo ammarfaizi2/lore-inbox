@@ -1,85 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261440AbUDSQjg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 12:39:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261443AbUDSQjg
+	id S261443AbUDSQkH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 12:40:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbUDSQkH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 12:39:36 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:38314 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261440AbUDSQjb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 12:39:31 -0400
-Date: Mon, 19 Apr 2004 18:39:23 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Jes Sorensen <jes@trained-monkey.org>,
-       Linux/m68k <linux-m68k@lists.linux-m68k.org>
-Subject: Re: [PATCH] Clean up asm/pgalloc.h include (m68k)
-In-Reply-To: <20040419173046.E29446@flint.arm.linux.org.uk>
-Message-ID: <Pine.GSO.4.58.0404191835140.3430@waterleaf.sonytel.be>
-References: <20040418231720.C12222@flint.arm.linux.org.uk>
- <20040418232314.A2045@flint.arm.linux.org.uk> <E1BFYiF-00055y-3q@dyn-67.arm.linux.org.uk>
- <Pine.GSO.4.58.0404191815100.3430@waterleaf.sonytel.be>
- <20040419173046.E29446@flint.arm.linux.org.uk>
+	Mon, 19 Apr 2004 12:40:07 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25485 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261443AbUDSQj5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 12:39:57 -0400
+Message-ID: <408400CF.6010203@pobox.com>
+Date: Mon, 19 Apr 2004 12:39:43 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dave Jones <davej@redhat.com>
+CC: viro@parcelfarce.linux.theplanet.co.uk,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: baycom_par dereference before check.
+References: <20040416212004.GO20937@redhat.com> <20040416212541.GH24997@parcelfarce.linux.theplanet.co.uk> <20040416212738.GQ20937@redhat.com> <408054C9.5070202@pobox.com> <20040416215319.GW20937@redhat.com>
+In-Reply-To: <20040416215319.GW20937@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Apr 2004, Russell King wrote:
-> On Mon, Apr 19, 2004 at 06:18:41PM +0200, Geert Uytterhoeven wrote:
-> > Do you really need <asm/pgalloc.h> in include/asm-generic/tlb.h?
->
-> Yes it does - tlb.h uses check_pgt_cache().  Also, architecture code
-> makes use of __pmd_free_tlb and __pte_free_tlb, both of which make
-> use of code from asm/pgalloc.h.
->
-> Not including asm/pgalloc.h into asm/tlb.h or asm-generic/tlb.h means
-> that all the generic files have to know that asm/tlb.h needs asm/pgalloc.h,
-> and they also then need to know that asm/pgalloc.h needs asm/pgtable.h,
-> and asm/pgtable.h needs ...
->
-> Is there a reason why:
->
-> static inline void __pte_free_tlb(struct mmu_gather *tlb, struct page *page)
-> {
->         tlb_remove_page(tlb, page);
-> }
->
-> can't be like x86 and others in their pgalloc.h:
+Dave Jones wrote:
+> On Fri, Apr 16, 2004 at 05:48:57PM -0400, Jeff Garzik wrote:
+> 
+>  > >Good point. Still doesn't strike me as particularly nice though.
+>  > I would rather just remove the checks completely.  The success of any of 
+>  > those checks is a BUG() condition that should never occur.
+> 
+> That works for me too. How about this?
+> 
+> 		Dave
+> 
+> --- linux-2.6.5/drivers/net/hamradio/baycom_par.c~	2004-04-16 22:52:35.000000000 +0100
+> +++ linux-2.6.5/drivers/net/hamradio/baycom_par.c	2004-04-16 22:52:53.000000000 +0100
+> @@ -274,8 +274,8 @@
+>  	struct net_device *dev = (struct net_device *)dev_id;
+>  	struct baycom_state *bc = netdev_priv(dev);
+>  
+> -	if (!dev || !bc || bc->hdrv.magic != HDLCDRV_MAGIC)
+> -		return;
+> +	BUG_ON(!bc);
+> +	BUG_ON(bc->hdrv.magic != HDLCDRV_MAGIC);
 
-(because we more like static inline functions than macros?)
 
-> #define __pte_free_tlb(tlb,pte) tlb_remove_page((tlb),(pte))
->
-> (for consistency sake if nothing else) ?
+I applied a patch which simplied removed the checks.
 
-Ah, I didn't look at ia32. That solution is fine for me!
-Here's the additional patch:
+	Jeff
 
---- linux-m68k-2.6.6-rc1-rmk/include/asm-m68k/sun3_pgalloc.h	2004-04-04 11:08:37.000000000 +0200
-+++ linux-m68k-2.6.6-rc1-geert/include/asm-m68k/sun3_pgalloc.h	2004-04-19 18:37:37.000000000 +0200
-@@ -31,10 +31,7 @@
-         __free_page(page);
- }
 
--static inline void __pte_free_tlb(struct mmu_gather *tlb, struct page *page)
--{
--	tlb_remove_page(tlb, page);
--}
-+#define __pte_free_tlb(tlb,pte) tlb_remove_page((tlb),(pte))
 
- static inline pte_t *pte_alloc_one_kernel(struct mm_struct *mm,
- 					  unsigned long address)
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

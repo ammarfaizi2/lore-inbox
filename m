@@ -1,49 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269574AbUJSTEp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270099AbUJSTQX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269574AbUJSTEp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 15:04:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269724AbUJSTBo
+	id S270099AbUJSTQX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 15:16:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270115AbUJSTQQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 15:01:44 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:51890 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S269574AbUJSSTg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 14:19:36 -0400
-Message-ID: <41755A94.8030207@nortelnetworks.com>
-Date: Tue, 19 Oct 2004 12:19:00 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: question on memory map cleanup stuff
-References: <41744A50.3030700@nortelnetworks.com> <20041018231432.GI5607@holomorphy.com>
-In-Reply-To: <20041018231432.GI5607@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Oct 2004 15:16:16 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:30733 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S270099AbUJSTNz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 15:13:55 -0400
+Date: Tue, 19 Oct 2004 20:13:50 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: "Jeff V. Merkey" <jmerkey@drdos.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.9 and GPL Buyout
+Message-ID: <20041019201350.B20243@flint.arm.linux.org.uk>
+Mail-Followup-To: "Jeff V. Merkey" <jmerkey@drdos.com>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> <417550FB.8020404@drdos.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="xHFwDpU9dbj6ez1V"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <417550FB.8020404@drdos.com>; from jmerkey@drdos.com on Tue, Oct 19, 2004 at 11:38:03AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> On Mon, Oct 18, 2004 at 04:57:20PM -0600, Chris Friesen wrote:
-> 
->>I've got a small feature that maps a page of kernel memory to userspace via 
->>a syscall, then uses that page for various things.
->>Currently, I'm marking the page reserved, then exporting it via 
->>remap_page_range().  This means that I need to clean up my mapping whenever 
->>the memory map is destroyed (process death, exec(), daemonize, etc.).
 
-> vma->vm_ops->close() often suffices for such without disturbing the core.
+--xHFwDpU9dbj6ez1V
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I'm running into a problem.
+On Tue, Oct 19, 2004 at 11:38:03AM -0600, Jeff V. Merkey wrote:
+> On a side note, the GPL buyout previously offered has been modified. We=
+=20
+> will be contacting
+> individual contributors and negotiating with each copyright holder for=20
+> the code we wish to
+> convert on a case by case basis. The remaining portions of code will=20
+> remain GPL
+> The 50K per copy offer still stands for the whole thing if you guys can=
+=20
+> ever figure out
+> how to set something like this up.
+> :-)
 
-At the time of close(), I need to figure out which page to unreserve and free. 
-However, when I call
+Don't bother contacting me.  I'll give you my answer now.  Refused for
+all work contributed by myself.
 
-follow_page(vma->vm_mm, vma->vm_start, 0);
+--=20
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core
 
-it returns zero. How do I go from vma to page?
+--xHFwDpU9dbj6ez1V
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Chris
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBdWdtMsXkn0JWU2IRAr/5AJ0bWRI6EfOmggjDZz5j6Hisd9BroQCfYSdq
+bwgdT6fVwrDBfEHpvO379B8=
+=94/q
+-----END PGP SIGNATURE-----
+
+--xHFwDpU9dbj6ez1V--

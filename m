@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132939AbRDUVro>; Sat, 21 Apr 2001 17:47:44 -0400
+	id <S132947AbRDUWAY>; Sat, 21 Apr 2001 18:00:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132940AbRDUVrf>; Sat, 21 Apr 2001 17:47:35 -0400
-Received: from paloma12.e0k.nbg-hannover.de ([62.159.219.12]:56742 "HELO
-	paloma12.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S132939AbRDUVrW>; Sat, 21 Apr 2001 17:47:22 -0400
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Dieter =?iso-8859-1?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Tim Wilson <timwilson@mediaone.net>
-Subject: Re: [PATCH] ppp_generic, kernel 2.4.
-Date: Sun, 22 Apr 2001 00:12:15 +0200
-X-Mailer: KMail [version 1.2]
-Cc: "Linux Kernel List" <linux-kernel@vger.kernel.org>
+	id <S132949AbRDUWAP>; Sat, 21 Apr 2001 18:00:15 -0400
+Received: from filesrv1.baby-dragons.com ([199.33.245.55]:31505 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S132947AbRDUWAJ>; Sat, 21 Apr 2001 18:00:09 -0400
+Date: Sat, 21 Apr 2001 14:59:46 -0700 (PDT)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+cc: <esr@thyrsus.com>, CML2 <linux-kernel@vger.kernel.org>,
+        <kbuild-devel@lists.sourceforge.net>
+Subject: Re: Request for comment -- a better attribution system
+In-Reply-To: <200104212023.f3LKN7P188973@saturn.cs.uml.edu>
+Message-ID: <Pine.LNX.4.32.0104211456540.4237-100000@filesrv1.baby-dragons.com>
 MIME-Version: 1.0
-Message-Id: <01042200121500.01138@SunWave1>
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Tim,
 
-it seems to me to that there is one little commentary close (*/) to much.
+	Hello Eric ,
 
+On Sat, 21 Apr 2001, Albert D. Cahalan wrote:
+> Eric S. Raymond writes:
+> > This is a proposal for an attribution metadata system in the Linux
+> > kernel sources.  The goal of the system is to make it easy for
+> > people reading any given piece of code to identify the responsible
+> > maintainer.  The motivation for this proposal is that the present
+> > system, a single top-level MAINTAINERS file, doesn't seem to be
+> > scaling well.
+> It is nice to have a single file for grep. With the proposed
+> changes one would sometimes need to grep every file.
 
-+   * A ConfReq indicates what the sender would like to receive */
-+   */
+	Find . -name "*Some-Name*" -type f -print | xargs grep 'Some-Info'
+	Hate answering with just one line of credible info , But .
+		Hth ,  JimL
+       +----------------------------------------------------------------+
+       | James   W.   Laferriere | System  Techniques | Give me VMS     |
+       | Network        Engineer | 25416      22nd So |  Give me Linux  |
+       | babydr@baby-dragons.com | DesMoines WA 98198 |   only  on  AXP |
+       +----------------------------------------------------------------+
 
-should be
-
-
-+   * A ConfReq indicates what the sender would like to receive
-+   */
-
-Have a nice weekend.
-
--Dieter
--- 
-Dieter Nützel
-Graduate Student, Computer Science
-
-University of Hamburg
-Department of Computer Science
-Cognitive Systems Group
-Vogt-Kölln-Straße 30
-D-22527 Hamburg, Germany
-
-email: nuetzel@kogs.informatik.uni-hamburg.de
-@home: Dieter.Nuetzel@hamburg.de

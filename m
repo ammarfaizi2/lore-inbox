@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267171AbSLEBPD>; Wed, 4 Dec 2002 20:15:03 -0500
+	id <S267172AbSLEBRG>; Wed, 4 Dec 2002 20:17:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267172AbSLEBPD>; Wed, 4 Dec 2002 20:15:03 -0500
-Received: from h-64-105-35-8.SNVACAID.covad.net ([64.105.35.8]:42633 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S267171AbSLEBPC>; Wed, 4 Dec 2002 20:15:02 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Wed, 4 Dec 2002 17:21:04 -0800
-Message-Id: <200212050121.RAA03254@adam.yggdrasil.com>
-To: jgarzik@pobox.com
-Subject: Re: [RFC] generic device DMA implementation
-Cc: davem@redhat.com, david@gibson.dropbear.id.au,
-       James.Bottomley@SteelEye.com, linux-kernel@vger.kernel.org,
-       miles@gnu.org
+	id <S267174AbSLEBRG>; Wed, 4 Dec 2002 20:17:06 -0500
+Received: from pc1-stoc3-4-cust247.midd.cable.ntl.com ([80.6.253.247]:65040
+	"EHLO buzz.ichilton.co.uk") by vger.kernel.org with ESMTP
+	id <S267172AbSLEBRF>; Wed, 4 Dec 2002 20:17:05 -0500
+Date: Thu, 5 Dec 2002 01:24:32 +0000
+From: Ian Chilton <mailinglist@ichilton.co.uk>
+To: user-mode-linux-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       netfilter-devel@lists.netfilter.org
+Subject: iptables Error - "Memory allocation problem"
+Message-ID: <20021205012432.GB18233@buzz.ichilton.co.uk>
+Reply-To: Ian Chilton <ian@ichilton.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Gibson wrote:
->On Wed, Dec 04, 2002 at 11:47:14AM -0600, James Bottomley wrote:
-[...]
->> The new DMA API allows a driver to advertise its level of consistent memory 
->> compliance to dma_alloc_consistent.  There are essentially two levels:
->> 
->> - I only work with consistent memory, fail if I cannot get it, or
->> - I can work with inconsistent memory, try consistent first but return 
->> inconsistent if it's not available.
->
->Do you have an example of where the second option is useful?
+Hello,
 
-	From a previous discussion, I understand that there are some
-PCI bus parisc machines without consistent memory.
-
->Off hand
->the only places I can think of where you'd use a consistent_alloc()
->rather than map_single() and friends is in cases where the hardware's
->behaviour means you absolutely positively have to have consistent
->memory.
-
-	That would result in big rarely used branches in device
-drivers or lots of ifdef's and the equivalent.  With James's approach,
-porting a driver to support those parisc machines (for example) would
-involve sprinkling in some calls to macros that would compile to
-nothing on the other machines.
-
-	Compare the code clutter involved in allowing those
-inconsistent parisc machines to run, say, the ten most popular
-ethernet controllers and the four most popular scsi controllers.  I
-think the difference in the resulting source code size would already
-be in the hundreds of lines.
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+I have a uml (user mode linux) instance with a debian/testing root
+running on an Intel P200MMX with 96MB RAM. The host is running
+2.4.20-fairsched-skas3 and the uml is 2.4.19-34um.
 
 
+On boot when it loads my firewall, I get this:
+
+Starting Firewall... /scripts/firewall: line 26:   109 Segmentation
+fault      iptables -F
+iptables v1.2.7a: can't initialize iptables table `filter': Memory
+allocation problem
+Perhaps iptables or your kernel needs to be upgraded.
+
+
+The uml then locks solid. Anyone seen this before or have any ideas?
+
+[ Please CC replies to me as well as the list(s) ]
+
+
+Thanks in Advance!
+
+Ian
 

@@ -1,69 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265890AbTBTNL6>; Thu, 20 Feb 2003 08:11:58 -0500
+	id <S265305AbTBTNOg>; Thu, 20 Feb 2003 08:14:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265894AbTBTNL5>; Thu, 20 Feb 2003 08:11:57 -0500
-Received: from 5-077.ctame701-1.telepar.net.br ([200.193.163.77]:48552 "EHLO
-	5-077.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S265890AbTBTNLy>; Thu, 20 Feb 2003 08:11:54 -0500
-Date: Thu, 20 Feb 2003 10:21:50 -0300 (BRT)
-From: Rik van Riel <riel@imladris.surriel.com>
-To: Dejan Muhamedagic <dejan@hello-penguin.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: vm issues on sap app server
-In-Reply-To: <20030220124833.GB4051@lilith.homenet>
-Message-ID: <Pine.LNX.4.50L.0302201019250.2329-100000@imladris.surriel.com>
-References: <20030219171432.A6059@smp.colors.kwc>
- <Pine.LNX.4.50L.0302192004410.2329-100000@imladris.surriel.com>
- <20030220124833.GB4051@lilith.homenet>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265320AbTBTNOg>; Thu, 20 Feb 2003 08:14:36 -0500
+Received: from cal003100.student.utwente.nl ([130.89.160.36]:18887 "EHLO
+	margo.student.utwente.nl") by vger.kernel.org with ESMTP
+	id <S265305AbTBTNOe>; Thu, 20 Feb 2003 08:14:34 -0500
+Date: Thu, 20 Feb 2003 14:24:39 +0100
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.x release process comments
+Message-ID: <20030220132439.GA12010@margo.student.utwente.nl>
+Mail-Followup-To: simon, linux-kernel@vger.kernel.org
+References: <20030220125808.GA11694@margo.student.utwente.nl> <026601c2d8e1$9f2616f0$3f00a8c0@witbe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <026601c2d8e1$9f2616f0$3f00a8c0@witbe>
+User-Agent: Mutt/1.4i
+From: Simon Oosthoek <simon@margo.student.utwente.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 20 Feb 2003, Dejan Muhamedagic wrote:
+On Thu, Feb 20, 2003 at 02:11:46PM +0100, Paul Rolland wrote:
+> Hello,
+> 
+> > I'm not saying it should, but it would be good from a PR 
+> > perspective and as
+> > an element in the reliability feeling vector ;-)
+> Not sure about it... People like it when a product looks stable,
+> and having a -blah or -pre and so on once a week doesn't make
+> me feel I have some stable product...
 
-> > echo 1 10 > /proc/sys/vm/pagecache
->
-> Will that work with rmap15d?  The code seems to support only min
-> and borrow parameters.
+But that's only because the kernel is in public development, it's not a
+black box (which is a Good Thing (tm)). You shouldn't need to run a -pre
+kernel release in 99% of all cases, so having them available shouldn't
+detract from a feeling of stability (regardless of how often they come)
 
-Indeed, only min and borrow are currently supported.
+> > The number of -pre releases shouldn't be limited for its own sake, but
+> > rather in the process of stabilising the kernel for release. 
+> > So I mean after
+> > a couple of -pre releases start focussing on debugging and 
+> > then finish with
+> > a few -rc's before the next cycle starts. That way the diffs 
+> > between full
+> > versions are smaller and upgrading gets easier.
+> So, the question is to choose between :
+>  - less releases with more changes
+> or
+>  - more relaseases with less changes
+> 
+> Is that correct ?
 
->  Correct me if I'm wrong.  This is what it looks like currently:
->
-> # cat /proc/sys/vm/pagecache
-> 1       3       20
-> # mem | grep Cache
-> Cached:        4569128 kB
-> SwapCached:     829668 kB
-> ActiveCache:    136728 kB
+I guess so.
 
-The "problem" here is that a lot of the memory in Cached: is
-mapped into process address space, so in effect it is process
-memory.
+There's probably not a "right" way to choose between the two, but I'd prefer
+the latter option.
 
-This is especially true for executables, libraries and shared
-memory segments, which you REALLY want to have treated as process
-memory and not as cache...
+Cheers
 
-This makes the Cached statistic a bit confusing for administrators.
-
-> > In that case you're probably familiar with the cache size
-> > tuning, since AIX has the exact same tuning knob as rmap ;)
->
-> AIX vmtune -P is equivalent to the Linux cache-max, but cache-max
-> is not implemented.
-
-Doesn't it also have something like the borrow percentage, above
-which AIX will only reclaim from the cache, unless the repaging
-rate of the cache is higher than that of process memory ?
-
-regards,
-
-Rik
--- 
-Engineers don't grow up, they grow sideways.
-http://www.surriel.com/		http://kernelnewbies.org/
+Simon

@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266802AbRGFTKI>; Fri, 6 Jul 2001 15:10:08 -0400
+	id <S266810AbRGFTTV>; Fri, 6 Jul 2001 15:19:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266804AbRGFTJ6>; Fri, 6 Jul 2001 15:09:58 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:18 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S266802AbRGFTJq>; Fri, 6 Jul 2001 15:09:46 -0400
-Date: Fri, 6 Jul 2001 16:09:28 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Xavier Bestel <xavier.bestel@free.fr>, Dan Maas <dmaas@dcine.com>,
-        <linux-kernel@vger.kernel.org>, Tom spaziani <digiphaze@deming-os.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: VM Requirement Document - v0.0
-In-Reply-To: <0107051704000H.03760@starship>
-Message-ID: <Pine.LNX.4.33L.0107061608380.17825-100000@duckman.distro.conectiva>
+	id <S266811AbRGFTTK>; Fri, 6 Jul 2001 15:19:10 -0400
+Received: from shell.ca.us.webchat.org ([216.152.64.152]:55518 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S266810AbRGFTTB>; Fri, 6 Jul 2001 15:19:01 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: Linus vs. AC kernels
+Date: Fri, 6 Jul 2001 12:18:59 -0700
+Message-ID: <NOEJJDACGOHCKNCOGFOMIEHACFAA.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <3B434D24.9050007@nyc.rr.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2479.0006
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Jul 2001, Daniel Phillips wrote:
 
-> Let me comment on this again, having spent a couple of minutes
-> more thinking about it.  Would you be happy paying 1% of your
-> battery life to get 80% less sluggish response after a memory
-> pig exits?
+> Adam wrote:
+>
+> > yeah, read change logs..
+>
+>
+> Some samples.
+>
+> -pre9:
+>   - merge with Alan (including MIPS update)
+>
+> -pre6:
+>   - Alan Cox: merging, merging, merging
 
-Just to pull a few random numbers out of my ass too,
-how about 50% of battery life for the same optimistic
-80% less sluggishness ?
+	It might be helpful if these types of notes could indicate the version from
+the other source tree that these changes come from. For example 'merge with
+Alan (patches mostly in his ac13)'. I do realize that you can't draw exact
+parallels.
 
-How about if it were only 30% of battery life?
-
-Rik
---
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
-
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+	DS
 

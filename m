@@ -1,78 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267902AbUHPTjO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267911AbUHPTnZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267902AbUHPTjO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 15:39:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267911AbUHPTjO
+	id S267911AbUHPTnZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 15:43:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267914AbUHPTnZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 15:39:14 -0400
-Received: from fmr01.intel.com ([192.55.52.18]:49806 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id S267902AbUHPTjL (ORCPT
+	Mon, 16 Aug 2004 15:43:25 -0400
+Received: from fw.osdl.org ([65.172.181.6]:42723 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267911AbUHPTnX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 15:39:11 -0400
-Subject: Re: eth*: transmit timed out since .27
-From: Len Brown <len.brown@intel.com>
-To: Oliver Feiler <kiza@gmx.net>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Marcelo Tosatti <marcelo@hera.kernel.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <41210098.4080904@gmx.net>
-References: <566B962EB122634D86E6EE29E83DD808182C3236@hdsmsx403.hd.intel.com>
-	 <1092678734.23057.18.camel@dhcppc4>  <41210098.4080904@gmx.net>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1092685109.23057.27.camel@dhcppc4>
+	Mon, 16 Aug 2004 15:43:23 -0400
+Date: Mon, 16 Aug 2004 12:41:36 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: albert@users.sourceforge.net, linux-kernel@vger.kernel.org,
+       voland@dmz.com.pl, nicolas.george@ens.fr, kaukasoi@elektroni.ee.tut.fi,
+       tim@physik3.uni-rostock.de, george@mvista.com, johnstul@us.ibm.com,
+       david+powerix@blue-labs.org
+Subject: Re: boot time, process start time, and NOW time
+Message-Id: <20040816124136.27646d14.akpm@osdl.org>
+In-Reply-To: <87smcf5zx7.fsf@devron.myhome.or.jp>
+References: <1087948634.9831.1154.camel@cube>
+	<87smcf5zx7.fsf@devron.myhome.or.jp>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 16 Aug 2004 15:38:29 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-08-16 at 14:44, Oliver Feiler wrote:
-
->   14:       9296    IO-APIC-edge  ide0
->   15:       9078    IO-APIC-edge  ide1
->   17:         24   IO-APIC-level  eth1
->   18:     125085   IO-APIC-level  eth0
->   21:          0   IO-APIC-level  usb-uhci, usb-uhci, usb-uhci
->   22:          0   IO-APIC-level  via82cxxx
->   23:       2976   IO-APIC-level  eth2
-> NMI:          0
-> LOC:     112313
-> ERR:          0
-> MIS:         42
-
-This is unusual.
-MIS is a hardware workaround and should normally be 0.
-
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
+>
+> Albert Cahalan <albert@users.sf.net> writes:
 > 
+> > Even with the 2.6.7 kernel, I'm still getting reports of process
+> > start times wandering. Here is an example:
+> > 
+> >    "About 12 hours since reboot to 2.6.7 there was already a
+> >    difference of about 7 seconds between the real start time
+> >    and the start time reported by ps. Now, 24 hours since reboot
+> >    the difference is 10 seconds."
+> > 
+> > The calculation used is:
+> > 
+> >    now - uptime + time_from_boot_to_process_start
 > 
-> vs.
+> Start-time and uptime is using different source. Looks like the
+> jiffies was added bogus lost counts.
 > 
-> 00:11.1 IDE interface: VIA Technologies, Inc. 
-> VT82C586A/B/VT82C686/A/B/VT823x/A/C/VT8235 PIPC Bus Master IDE (rev
-> 06) 
-> (prog-if 8a [Master SecP PriP])
->          Subsystem: Unknown device 1849:0571
->          Flags: bus master, medium devsel, latency 32, IRQ 255
->          I/O ports at fc00 [size=16]
->          Capabilities: <available only to root>
-> 
-> This probably has to do with this boot message:
-> PCI: No IRQ known for interrupt pin A of device 00:11.1
+> quick hack. Does this change the behavior?
 
-> I have found absolutely nothing that explains if this is an error or 
-> just some sort of debug message one can ignore.
+Where did this all end up?  Complaints about wandering start times are
+persistent, and it'd be nice to get some fix in place...
 
-Yes, ignore it.
-
-This is where that message about 255 came from.
-When ACPI failed to find a PCI-routing-table entry
-for this device, it looked in PCI config space
-and found the 255 you see above.  The only recent
-change is that it dosn't try to use an obviously
-bogus value.  But in either case, with this device
-it is moot as the hardware and the driver are hard-coded.
-
--Len
-
-
+Thanks.

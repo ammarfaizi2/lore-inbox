@@ -1,72 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132050AbRAIW7h>; Tue, 9 Jan 2001 17:59:37 -0500
+	id <S132411AbRAIW7r>; Tue, 9 Jan 2001 17:59:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132414AbRAIW7b>; Tue, 9 Jan 2001 17:59:31 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:10763 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S132050AbRAIW7W>; Tue, 9 Jan 2001 17:59:22 -0500
-Date: Tue, 9 Jan 2001 14:59:07 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Christoph Rohland <cr@sap.com>
-cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        "Sergey E. Volkov" <sve@raiden.bancorp.ru>,
-        linux-kernel@vger.kernel.org
-Subject: Re: VM subsystem bug in 2.4.0 ?
-In-Reply-To: <m3vgroe6qo.fsf@linux.local>
-Message-ID: <Pine.LNX.4.10.10101091447540.2633-100000@penguin.transmeta.com>
+	id <S132414AbRAIW7h>; Tue, 9 Jan 2001 17:59:37 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:38412 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S132411AbRAIW7b>;
+	Tue, 9 Jan 2001 17:59:31 -0500
+Date: Tue, 9 Jan 2001 23:59:13 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Dan Hollis <goemon@anime.net>
+Cc: "David S. Miller" <davem@redhat.com>, <stephenl@zeus.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
+In-Reply-To: <Pine.LNX.4.30.0101091456160.7153-100000@anime.net>
+Message-ID: <Pine.LNX.4.30.0101092358000.9990-100000@e2>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Tue, 9 Jan 2001, Dan Hollis wrote:
 
-On 9 Jan 2001, Christoph Rohland wrote:
+> > This is not what senfile() does, it sends (to a network socket) a
+> > file (from the page cache), nothing more.
+>
+> Ok in any case, it would be nice to have a generic sendfile() which works
+> on any fd's - socket or otherwise.
 
-> Linus Torvalds <torvalds@transmeta.com> writes:
-> > 
-> > Note that this would be solved very cleanly if the SHM code would use the
-> > "VM_LOCKED" flag, and actually lock the pages in the VM, instead of trying
-> > to lock them down for writepage().
-> 
-> here comes the patch. (lightly tested)
+it's a bad name in that case. We dont 'send any file' if we in fact are
+receiving a data stream from a socket and writing it into a file :-)
 
-I'd really like an opinion on whether this is truly legal or not? After
-all, it does change the behaviour to mean "pages are locked only if they
-have been mapped into virtual memory". Which is not what it used to mean.
+(i think Pavel raised this issue before.)
 
-Arguably the new semantics are perfectly valid semantics on their own, but
-I'm not sure they are acceptable.
-
-In contrast, the PG_realdirty approach would give the old behaviour of
-truly locked-down shm segments, with not significantly different
-complexity behaviour.
-
-What do other UNIXes do for shm_lock()?
-
-The Linux man-page explicitly states for SHM_LOCK that
-
-	The user must fault in any pages that are required to be present
-	after locking is enabled.
-
-which kind of implies to me that the VM_LOCKED implementation is ok.
-HOWEVER, looking at the HP-UX man-page, for example, certainly implies
-that the PG_realdirty approach is the correct one. The IRIX man-pages in
-contrast say
-
-				Locking occurs per address space;
-        multiple processes or sprocs mapping the area at different
-        addresses each need to issue the lock (this is primarily an
-        issue with the per-process page tables).
-
-which again implies that they've done something akin to a VM_LOCKED
-implementation.
-
-Does anybody have any better pointers, ideas, or opinions?
-
-		Linus
+	Ingo
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

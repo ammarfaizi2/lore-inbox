@@ -1,37 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267464AbUHXLMj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265127AbUHXLMh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267464AbUHXLMj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 07:12:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267482AbUHXLMj
+	id S265127AbUHXLMh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 07:12:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267482AbUHXLMh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 07:12:39 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:61920 "EHLO
+	Tue, 24 Aug 2004 07:12:37 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:60896 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S267464AbUHXLMe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S265127AbUHXLMe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 24 Aug 2004 07:12:34 -0400
-Date: Tue, 24 Aug 2004 13:00:24 +0200
+Date: Mon, 23 Aug 2004 21:51:49 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Alexander Rauth <Alexander.Rauth@promotion-ie.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: radeonfb problems (console blanking & acpi suspend)
-Message-ID: <20040824110024.GA3502@openzaurus.ucw.cz>
-References: <1093277876.9973.15.camel@pro30.local.promotion-ie.de>
+To: Brunet <Eric.Brunet@lps.ens.fr>
+Cc: Paul Gortmaker <p_gortmaker@yahoo.com>, arekm@pld-linux.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: PATCH swsuspend for ne2k-pci cards
+Message-ID: <20040823195149.GB3013@openzaurus.ucw.cz>
+References: <20040806235438.GA7095@lps.ens.fr> <20040807071346.91641.qmail@web60510.mail.yahoo.com> <20040807140845.GA8353@lps.ens.fr> <20040821121430.GB8826@lps.ens.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1093277876.9973.15.camel@pro30.local.promotion-ie.de>
+In-Reply-To: <20040821121430.GB8826@lps.ens.fr>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> 2) after an acpi suspend the backlight goes back on but there is no data
-> displayed on the screen (no X running nor started since boot)
+> Arkadiusz Miskiewicz had some suggestions to improve my patch which
+> adds suspend/resume support to ne2k-pci.c. Actually, he basically rewrote
+> it.
 > 
-> If more information is needed for diagnosis then please email me.
+> This patch was only tested on my own ne2k clone [Realtek Semiconductor
+> Co., Ltd. RTL-8029(AS)], and it works nicely for me. As 1) it cannot hurt
+> people which are not using swsuspend 2) it can only improve things for
+> people using swsuspend, it would be nice if this patch could go into the
+> kernel.
 
-Known problem for suspend-to-ram, see Ole Rohne's patches.
+Patch looks good to me...
+
+				Pavel
+
+
 -- 
 64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

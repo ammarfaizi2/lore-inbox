@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264265AbUEMPeP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264262AbUEMPhK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264265AbUEMPeP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 11:34:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264260AbUEMPeP
+	id S264262AbUEMPhK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 May 2004 11:37:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264263AbUEMPhK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 11:34:15 -0400
-Received: from adsl-67-117-73-34.dsl.sntc01.pacbell.net ([67.117.73.34]:6666
-	"EHLO muru.com") by vger.kernel.org with ESMTP id S264265AbUEMPd6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 11:33:58 -0400
-Date: Thu, 13 May 2004 08:34:01 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org, pavel@ucw.cz
-Cc: cpufreq@www.linux.org.uk
-Subject: Re: [tony@atomide.com: [PATCH] Powernow-k8 buggy BIOS override for 2.6.6]
-Message-ID: <20040513153401.GB8480@atomide.com>
-References: <20040513001628.GA9388@atomide.com> <20040513140501.GG16687@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040513140501.GG16687@redhat.com>
-User-Agent: Mutt/1.5.6i
+	Thu, 13 May 2004 11:37:10 -0400
+Received: from wombat.indigo.net.au ([202.0.185.19]:61705 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S264262AbUEMPhF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 May 2004 11:37:05 -0400
+Date: Thu, 13 May 2004 23:36:38 +0800 (WST)
+From: raven@themaw.net
+To: John McCutchan <ttb@tentacle.dhs.org>
+cc: linux-kernel@vger.kernel.org, nautilus-list@gnome.org
+Subject: Re: [RFC/PATCH] inotify -- a dnotify replacement
+In-Reply-To: <1084152941.22837.21.camel@vertex>
+Message-ID: <Pine.LNX.4.58.0405132330480.13693@donald.themaw.net>
+References: <1084152941.22837.21.camel@vertex>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-1.2, required 8,
+	EMAIL_ATTRIBUTION, IN_REP_TO, NO_REAL_NAME, REFERENCES,
+	REPLY_WITH_QUOTES, USER_AGENT_PINE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Dave Jones <davej@redhat.com> [040513 07:06]:
-> On Wed, May 12, 2004 at 05:16:28PM -0700, Tony Lindgren wrote:
+
+Hi John.
+
+On Sun, 9 May 2004, John McCutchan wrote:
+
+> Hi,
 > 
->  > Following is the updated patch to make the powernow-k8 driver work on 
->  > machines with buggy BIOS, such as emachines m6805.
->  > 
->  > The patch overrides the PST table only if check_pst_table() fails.
->  > 
->  > The minimum value for the override is 800MHz, which is the lowest value 
->  > on all x86_64 systems AFAIK. The max value is the current running value.
->  > 
->  > This patch should be safe to apply, even if Pavel's ACPI table check is
->  > added to the driver. Or does anybody see a problem with it?
-> 
-> Does the ACPI fallback not do the right thing ?
+> I have been working on inotify a dnotify replacement. 
 
-Does not work for me. But looks like that's because I had to turn off 
-ACPI processor module since 2.6.6 since it would hang my system. It could 
-also be that the hang is caused by the powernow-k8. I will check that.
+I have a rather unusual requirement for notification events.
 
-> I don't really see the point of limping along with a 2-state PST
-> if we can derive the proper info from the ACPI table.
+I've had a brief look at the code but it doesn't look like it would 
+cater for it.
 
-Sure if the ACPI table check works properly. But even with 2-state PST,
-being able to change from 1800MHz to 800MHz on battery increases the 
-battery life quite a bit. And it does not necessarily require ACPI :)
+Would this allow me to receive a notification when a directory is 
+passed over during a path walk?
 
-Regards,
+Could this strategy be adapted to notify an in kernel module?
+Or is this overkill for what I'm asking?
 
-Tony
+Ian
+

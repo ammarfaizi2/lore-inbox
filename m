@@ -1,80 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267380AbUIFBpo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267385AbUIFBtc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267380AbUIFBpo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 21:45:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267388AbUIFBpn
+	id S267385AbUIFBtc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 21:49:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267388AbUIFBtc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 21:45:43 -0400
-Received: from dhcp160178161.columbus.rr.com ([24.160.178.161]:16403 "EHLO
-	nineveh.rivenstone.net") by vger.kernel.org with ESMTP
-	id S267380AbUIFBpl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 21:45:41 -0400
-Date: Sun, 5 Sep 2004 21:43:08 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: Joseph Fannin <jhf@rivenstone.net>, albert_herranz@yahoo.es,
-       roland@redhat.com, linux-kernel@vger.kernel.org,
-       benh@kernel.crashing.org
-Subject: Re: 2.6.9-rc1-mm1 ppc build broken
-Message-ID: <20040906014308.GA2638@samarkand.rivenstone.net>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Joseph Fannin <jhf@rivenstone.net>, albert_herranz@yahoo.es,
-	roland@redhat.com, linux-kernel@vger.kernel.org,
-	benh@kernel.crashing.org
-References: <200408302348.i7UNmvw0006978@magilla.sf.frob.com> <20040831105118.85292.qmail@web52306.mail.yahoo.com> <20040904203715.GA3049@samarkand.rivenstone.net> <20040905145355.0cf48d5c.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040905145355.0cf48d5c.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040818i
-From: jhf@rivenstone.net (Joseph Fannin)
+	Sun, 5 Sep 2004 21:49:32 -0400
+Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:45745 "HELO
+	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S267385AbUIFBta (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 21:49:30 -0400
+Message-ID: <413BC227.2070006@yahoo.com.au>
+Date: Mon, 06 Sep 2004 11:49:27 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.1) Gecko/20040726 Debian/1.7.1-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH 0/3] beat kswapd with the proverbial clue-bat
+References: <413AA7B2.4000907@yahoo.com.au> <Pine.LNX.4.58.0409050911450.2331@ppc970.osdl.org> <413BB55B.9000106@yahoo.com.au>
+In-Reply-To: <413BB55B.9000106@yahoo.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 05, 2004 at 02:53:55PM -0700, Andrew Morton wrote:
-> jhf@rivenstone.net (Joseph Fannin) wrote:
+Nick Piggin wrote:
 
-> >      This is still broken in -mm3.  This fix works for my powermac too,
-> >  except that arch/ppc/syslib/open_pic.c misses errno.h when it does not
-> >  get it through mm.h.  I can't speak for other platforms, but I'll
-> >  include the patch.
-> 
-> OK, now I have an ordering problem.  If I understand you correctly, this
-> patch fixes a ppc problem which was introduced by a patch from the bk-ia64
-> tree, yes?
+>>
+>> Notice how you may need to free 20% of memory to get a 2**3 
+>> allocation, if you have totally depleted your pages. And it's much 
+>> worse if you have very little memory to begin with.
+>>
+>> Anyway. I haven't debugged this program, so it may have serious bugs, 
+>> and be off by an order of magnitude or two. Whatever. If I'm wrong, 
+>> somebody can fix the program/script and see what the real numbers are.
+>>
+>>
+>
+> No, Andrew just recently reported that order-1 allocations were 
+> needing to
+> free 20MB or more (on systems with not really huge memories IIRC). So I
+> think your program could be reasonably close to real life.
+>
+>
 
-   Yes.
- 
-> If so, my options are to ask Tony to add this patch to the bk-ia64 tree so
-> they all go in at the same time, or to merge this patch into Linus's tree
-> prior to the ia64 patch.  To do the latter, I'd need confirmation that your
-> patch is safe against current -linus.  Can you please confirm this?
+But yeah, that is when your memory is completely depleted. A small
+modification to your program to make it just keep scanning until we've
+freed a set amount of memory obviously shows that the more you've freed,
+the easier it becomes to free higher order areas... In this way, having
+kswapd batch up the freeing might possibly make it *more* efficient than
+only freeing the single higher order area when we've absolutely run out
+of areas (and simply failing !wait allocations altogether).
 
-    -rc1-bk12 with this patch applied builds and runs okay on my
-Powermac, so yes.  Thanks!
-
-> +++ 25-akpm/arch/ppc/syslib/open_pic.c	2004-09-05 14:50:54.266081672 -0700
-> @@ -16,6 +16,7 @@
->  #include <linux/irq.h>
->  #include <linux/interrupt.h>
->  #include <linux/sysdev.h>
-> +#include <linux/errno.h>
->  #include <asm/ptrace.h>
->  #include <asm/signal.h>
->  #include <asm/io.h>
-> diff -puN include/asm-ppc/io.h~ppc-build-fix include/asm-ppc/io.h
-> +++ 25-akpm/include/asm-ppc/io.h	2004-09-05 14:50:54.276080152 -0700
-> @@ -4,7 +4,6 @@
->  
->  #include <linux/config.h>
->  #include <linux/types.h>
-> -#include <linux/mm.h>
->  
->  #include <asm/page.h>
->  #include <asm/byteorder.h>
-
--- 
-Joseph Fannin
-jhf@rivenstone.net
-
-"Bull in pure form is rare; there is usually some contamination by data."
-    -- William Graves Perry Jr.

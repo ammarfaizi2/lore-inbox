@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261403AbVC2UNs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261392AbVC2UP4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261403AbVC2UNs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 15:13:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbVC2UNj
+	id S261392AbVC2UP4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 15:15:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbVC2UNy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 15:13:39 -0500
-Received: from gate.ebshome.net ([64.81.67.12]:6800 "EHLO gate.ebshome.net")
-	by vger.kernel.org with ESMTP id S261363AbVC2UMK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 15:12:10 -0500
-Date: Tue, 29 Mar 2005 12:12:09 -0800
-From: Eugene Surovegin <ebs@ebshome.net>
-To: Kumar Gala <galak@freescale.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       linuxppc-embedded <linuxppc-embedded@ozlabs.org>,
-       linux-kernel@vger.kernel.org, shall@mvista.com,
-       Jason McMullan <jason.mcmullan@timesys.com>
-Subject: Re: [PATCH] ppc32: CPM2 PIC cleanup
-Message-ID: <20050329201209.GB30850@gate.ebshome.net>
-Mail-Followup-To: Kumar Gala <galak@freescale.com>,
-	Andrew Morton <akpm@osdl.org>,
-	linuxppc-embedded <linuxppc-embedded@ozlabs.org>,
-	linux-kernel@vger.kernel.org, shall@mvista.com,
-	Jason McMullan <jason.mcmullan@timesys.com>
-References: <Pine.LNX.4.61.0503291039180.15390@blarg.somerset.sps.mot.com>
+	Tue, 29 Mar 2005 15:13:54 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:485 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261350AbVC2ULl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 15:11:41 -0500
+Subject: Re: Mac mini sound woes
+From: Lee Revell <rlrevell@joe-job.com>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <s5hu0mugsg2.wl@alsa2.suse.de>
+References: <1111966920.5409.27.camel@gaston>
+	 <1112067369.19014.24.camel@mindpipe> <s5h8y46kbx7.wl@alsa2.suse.de>
+	 <1112094290.6577.19.camel@gaston> <1112123109.4922.3.camel@mindpipe>
+	 <s5hu0mugsg2.wl@alsa2.suse.de>
+Content-Type: text/plain
+Date: Tue, 29 Mar 2005 15:11:37 -0500
+Message-Id: <1112127097.5141.1.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0503291039180.15390@blarg.somerset.sps.mot.com>
-X-ICQ-UIN: 1193073
-X-Operating-System: Linux i686
-X-PGP-Key: http://www.ebshome.net/pubkey.asc
-User-Agent: Mutt/1.5.5.1i
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 29, 2005 at 10:42:29AM -0600, Kumar Gala wrote:
-> Andrew,
+On Tue, 2005-03-29 at 21:31 +0200, Takashi Iwai wrote:
+> Well I don't remember the discussion thread on alsa-devel about this,
+> but it's a good idea that alsa-lib checks the capability of hw-mixing
+> and apples dmix only if necessary.  (In the case of softvol, it can
+> check the existence of hw control by itself, though.)
 > 
-> Cleaned up the CPM2 interrupt controller code:
-> * Added the ability to offset the IRQs
-> * Refactored common PIC init code out of platform files
-> * Fixed IRQ offsets on MPC85xx so it can handle properly handled multiple 
-> interrupt controllers (i8259, CPM2 PIC, and OpenPIC)
-> 
-> Signed-off-by: Jason McMullan <jason.mcmullan@timesys.com>
-> Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
-> 
+> Currently, dmix is enabled per driver-type base.  That is, dmix is set
+> to default in each driver's configuration which is known to have no hw
+> mixing functionality.
 
-[snip]
+It was not discussed at length.
 
-Guys, while you are at it, could we renumber irq_to_siubit[] array in 
-cpm2_pic.c so we can get rid of "1 << (31 - bit)" expressions and 
-simply use "1 << bit"? I know, it's a minor thing, but you are 
-cleaning this stuff anyway, why not make it super clean :).
+Anyway, I think you can detect hardware mixing support comparing the
+number of substreams to the numebr of streams for a device.  If the
+ratio is greater than 1, hardware mixing is supported.
 
---
-Eugene
+Lee
+

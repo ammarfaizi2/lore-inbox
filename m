@@ -1,30 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262368AbTEUXvL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 19:51:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbTEUXvK
+	id S262367AbTEUXuo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 19:50:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262368AbTEUXuo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 19:51:10 -0400
-Received: from 60.54.252.64.snet.net ([64.252.54.60]:19613 "EHLO
-	jaymale.blue-labs.org") by vger.kernel.org with ESMTP
-	id S262368AbTEUXvJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 19:51:09 -0400
-Message-ID: <3ECC1448.5050700@blue-labs.org>
-Date: Wed, 21 May 2003 20:05:28 -0400
-From: David Ford <david+powerix@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030516
-X-Accept-Language: en-us, en
+	Wed, 21 May 2003 19:50:44 -0400
+Received: from natsmtp00.webmailer.de ([192.67.198.74]:36026 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP id S262367AbTEUXun
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 19:50:43 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: must-fix list, v5
+Date: Thu, 22 May 2003 01:59:08 +0200
+User-Agent: KMail/1.5.1
+Cc: Andrew Morton <akpm@digeo.com>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: nForce2 ethernet support in kernel? (nVidia)
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200305220159.08452.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there any support in 2.5.x for nForce2 (nVidia Corporation) ethernet 
-controllers?
+Here is a list of things we need to do on s390 for 2.6:
 
--d
+arch/s390/
+~~~~~~~~~
 
+o A nastly memory management problem causes random crashes.
+  These appear to be fixed/hidden by the objrmap patch, more
+  investigation is needed.
 
+drivers/s390/
+~~~~~~~~~~~~~
+
+o Early userspace and 64 bit dev_t will allow the removal of most of
+  dasd_devmap.c and dasd_genhd.c.
+
+o The 3270 console driver needs to be replaced with a working one
+  (prototype is there, needs to be finished).
+
+o Minor interface changes are pending in cio/ when the z990 machines
+  are out.
+
+There are some more things being worked on that are either post-2.6.0
+or are likely to remain outside of the official kernel (i.e. not for
+your list):
+
+o Jan Glauber is working on a fix for the timer issues related
+  to running on virtualized CPUs (wall-clock vs. cpu time).
+
+o new zfcp fibre channel driver
+
+o the qeth driver will become GPL soon
+
+o a block device driver for ramdisks shared among virtual
+  machines
+
+o driver for crypto hardware
+
+o 'claw' network device driver
+
+	Arnd <><

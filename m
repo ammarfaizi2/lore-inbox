@@ -1,34 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282242AbRLOKQG>; Sat, 15 Dec 2001 05:16:06 -0500
+	id <S282213AbRLOKOq>; Sat, 15 Dec 2001 05:14:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282329AbRLOKP4>; Sat, 15 Dec 2001 05:15:56 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:25092 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S282242AbRLOKPi>;
-	Sat, 15 Dec 2001 05:15:38 -0500
-Date: Sat, 15 Dec 2001 11:15:25 +0100
+	id <S282242AbRLOKOg>; Sat, 15 Dec 2001 05:14:36 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:20228 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S282213AbRLOKOV>;
+	Sat, 15 Dec 2001 05:14:21 -0500
+Date: Sat, 15 Dec 2001 11:13:57 +0100
 From: Jens Axboe <axboe@suse.de>
-To: James Simmons <jsimmons@transvirtual.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH} IDE modular patch
-Message-ID: <20011215101525.GC4587@suse.de>
-In-Reply-To: <Pine.LNX.4.10.10112141537030.27606-100000@www.transvirtual.com>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Carl Ritson <critson@perlfu.co.uk>, linux-kernel@vger.kernel.org
+Subject: Re: OOPS: 2.5.1-pre8 - cdrecord + ide_scsi
+Message-ID: <20011215101357.GB4587@suse.de>
+In-Reply-To: <20011209153820.GE28729@suse.de> <Pine.LNX.4.10.10112141604430.10899-100000@master.linux-ide.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.10.10112141537030.27606-100000@www.transvirtual.com>
+In-Reply-To: <Pine.LNX.4.10.10112141604430.10899-100000@master.linux-ide.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 14 2001, James Simmons wrote:
+On Fri, Dec 14 2001, Andre Hedrick wrote:
 > 
-> Hi! 
-> 
->   On my system I select IDE to be completely modular. For 2.5.0-pre11 this
-> is broken. The following patch fixes this. 
+> Sorry Jens, you are mis-informed.
+> SCSI is only the packbuilder, but it is excuted by the ATA PacketCommand.
 
-Thanks, these two were indeed missed!
+What on earth are you talking about, this is completely unrelated to
+what this message is about. ide-scsi didn't set the right vec count for
+the submitted bio, so dma transfers barfed on irq timeout.
 
 -- 
 Jens Axboe

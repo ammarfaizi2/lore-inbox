@@ -1,33 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316879AbSEVHX7>; Wed, 22 May 2002 03:23:59 -0400
+	id <S316880AbSEVH3J>; Wed, 22 May 2002 03:29:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316880AbSEVHX6>; Wed, 22 May 2002 03:23:58 -0400
-Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:60130 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
-	id <S316879AbSEVHX6>; Wed, 22 May 2002 03:23:58 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Trivial 2.5.17: DMA-mapping.txt typo fix
-Date: Wed, 22 May 2002 17:26:28 +1000
-Message-Id: <E17AQVx-0007gt-00@wagner.rustcorp.com.au>
+	id <S316881AbSEVH3I>; Wed, 22 May 2002 03:29:08 -0400
+Received: from netfinity.realnet.co.sz ([196.28.7.66]:51616 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S316880AbSEVH3I>; Wed, 22 May 2002 03:29:08 -0400
+Date: Wed, 22 May 2002 09:03:47 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: "Calin A. Culianu" <calin@ajvar.org>
+Cc: Kevin Buhr <buhr@telus.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: Lazy Newbie Question
+In-Reply-To: <Pine.LNX.4.33L2.0205211917110.16426-100000@rtlab.med.cornell.edu>
+Message-ID: <Pine.LNX.4.44.0205220855590.23578-100000@netfinity.realnet.co.sz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roger Luethi <rl@hellgate.ch>: DMA-mapping.txt: sg_dma_length() -> sg_dma_len():
+On Tue, 21 May 2002, Calin A. Culianu wrote:
 
---- trivial-2.5.17/Documentation/DMA-mapping.txt.orig	Wed May 22 17:13:45 2002
-+++ trivial-2.5.17/Documentation/DMA-mapping.txt	Wed May 22 17:13:45 2002
-@@ -484,7 +484,7 @@
- of sg entries it mapped them to.
- 
- Then you should loop count times (note: this can be less than nents times)
--and use sg_dma_address() and sg_dma_length() macros where you previously
-+and use sg_dma_address() and sg_dma_len() macros where you previously
- accessed sg->address and sg->length as shown above.
- 
- To unmap a scatterlist, just call:
+> What the fuck is your problem?  I was merely wondering how to use
+> path_init/path_walk.  I had to go to the newbie irc channel and they were
+> much politer and must more helpful.  None of this fucking attitude of "why
+> do you want to do that that is evil never do that".  Obviously i have a
+> reason to do it and I don't need you lecturing me.
 
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Wow, you didn't get along with the other kids did you? So far i see 
+absolutely no reason why anybody should lend you a hand (no one gets paid 
+for support here), perhaps instead of just blurting out insults at the 
+kind folks trying to help you out, you may have tried putting forward 
+additional questions as to why they consider the proposed methods evil, 
+and wether there are more sane ways of achieving the same result.
+
+Perhaps next time consider using another muscle apart from the one in your 
+sphincter to convey your message...
+
+Regards,
+	Zwane Mwaikambo
+
+ -- 
+http://function.linuxpower.ca
+		
+

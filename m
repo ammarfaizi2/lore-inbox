@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287299AbSACObn>; Thu, 3 Jan 2002 09:31:43 -0500
+	id <S287313AbSACOfD>; Thu, 3 Jan 2002 09:35:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287303AbSACObd>; Thu, 3 Jan 2002 09:31:33 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:10762 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S287299AbSACOb1>; Thu, 3 Jan 2002 09:31:27 -0500
-Message-Id: <200201031431.g03EVLpa021956@pincoya.inf.utfsm.cl>
-To: "Eric S. Raymond" <esr@thyrsus.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA slot detection on PCI systems? 
-In-Reply-To: Message from "Eric S. Raymond" <esr@thyrsus.com> 
-   of "Wed, 02 Jan 2002 22:03:33 CDT." <20020102220333.A26713@thyrsus.com> 
-Date: Thu, 03 Jan 2002 11:31:21 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S287310AbSACOex>; Thu, 3 Jan 2002 09:34:53 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:40716 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S287303AbSACOeu>;
+	Thu, 3 Jan 2002 09:34:50 -0500
+Date: Thu, 3 Jan 2002 15:33:55 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: harald.holzer@eunet.at, linux-kernel@vger.kernel.org, wookie@osdl.org,
+        velco@fadata.bg
+Subject: Re: i686 SMP systems with more then 12 GB ram with 2.4.x kernel ?
+Message-Id: <20020103153355.612bd269.skraw@ithnet.com>
+In-Reply-To: <Pine.LNX.4.33L.0201031106590.24031-100000@imladris.surriel.com>
+In-Reply-To: <1010015450.15492.19.camel@hh2.hhhome.at>
+	<Pine.LNX.4.33L.0201031106590.24031-100000@imladris.surriel.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric S. Raymond" <esr@thyrsus.com> said:
+On Thu, 3 Jan 2002 11:28:45 -0200 (BRST)
+Rik van Riel <riel@conectiva.com.br> wrote:
 
-[...]
+> Another item to look into is removing the page cache hash table
+> and replacing it by a radix tree or hash trie, in the hopes of
+> improving scalability while at the same time saving some space.
 
-> Yes. But *I* want Aunt Tilley to be able to download the latest kernel
-> sources and build/install them herself, without ever feeling that the task 
-> is beyond her capabilities.  
+Ah, didn't we see such a patch lately in LKML? If I remember correct I saw some
+comparison charts too and some people testing it were happy with it. Just
+searched through the list: 24. dec :-) by Momchil Velikov Can someone with big
+mem have a look at the saving? How about 18-pre?
 
-Come on, how many Aunts do you have that even know (or care) what a
-"kernel" is, let alone think of "building the latest from source"?
-
-> Part of the reason I want this is for the capability itself; partly I want
-> it pour encourager les autres -- to demonstrate, by tackling one of the 
-> toughest cases, that much of the complexity and anti-useability of Linux
-> is an artificial and unnecessary creation of the culture that created it,
-> rather than a result of actual technical depth of the problem.
-
-Then do your demonstration on something that is actually useful in real
-life, non? Like making using Linux + Apache + <whatever> easier to use for
-secure websites (I've recently read that MS IIS is doing _large_ inroads
-there). That could make a real difference in "World domination. Fast."
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Regards,
+Stephan

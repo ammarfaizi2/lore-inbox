@@ -1,106 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261718AbUKHATw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261176AbUKHAd1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261718AbUKHATw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Nov 2004 19:19:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261717AbUKHATv
+	id S261176AbUKHAd1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Nov 2004 19:33:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbUKHAd1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Nov 2004 19:19:51 -0500
-Received: from p508EED3F.dip.t-dialin.net ([80.142.237.63]:13955 "EHLO
-	oscar.local.net") by vger.kernel.org with ESMTP id S261718AbUKHATd
+	Sun, 7 Nov 2004 19:33:27 -0500
+Received: from mail2.epfl.ch ([128.178.50.133]:27919 "HELO mail2.epfl.ch")
+	by vger.kernel.org with SMTP id S261176AbUKHAdY convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Nov 2004 19:19:33 -0500
-Date: Mon, 8 Nov 2004 01:19:32 +0100
-From: Patrick Mau <mau@oscar.ping.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Workaround for wrapping loadaverage
-Message-ID: <20041108001932.GA16641@oscar.prima.de>
-Reply-To: Patrick Mau <mau@oscar.ping.de>
+	Sun, 7 Nov 2004 19:33:24 -0500
+Date: Mon, 8 Nov 2004 01:33:23 +0100
+From: Gregoire Favre <Gregoire.Favre@freesurf.ch>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Why my computer freeze completely with xawtv ?
+Message-ID: <20041108003323.GE5360@magma.epfl.ch>
+References: <20041107224621.GB5360@magma.epfl.ch> <418EB58A.7080309@kolivas.org> <20041108000229.GC5360@magma.epfl.ch> <418EB8EB.30405@kolivas.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <418EB8EB.30405@kolivas.org>
+User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo everyone,
+On Mon, Nov 08, 2004 at 11:08:11AM +1100, Con Kolivas wrote:
 
-in a previous message archived at
+> >>>I use DVB with VDR, but I can do the crash all the time without VDR, all
+> >>>I have to do is to have xawtv running and having a process that write
+> >>>fast enough data to an HD (I tested xfs, reiserfs, ext2 and ext3 with
+> >>>same result). If I don't have xawtv running I can't make crashing my
+> >>>system which is rock stable :-)
+> >>
+> >>Is xawtv running as root or with real time privileges? That could do it.
 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0410.2/2950.html
+> What does 'top' show as the PRI for xawtv?
 
-I described a problem with a wrapping load average on my SMP system.
-The following small userspace load simulation exactly matches the
-numbers I am seeing.
-
-We can only account for 1024 runnable processes, since we have 22 bits
-precision, I would like to suggest a patch to calc_load in kernel/timer.c
-that would limit the number of active tasks:
-
-
-if (active_tasks > 1024 * FIXED_1)
-	active_tasks = 1024 * FIXED_1;
-
-
-I am aware that this is not a fix ... The wrapping happens using threaded
-applications (Java/JBoss in my case). Below you'll find a small userspace
-simulation.
-
-I would really like to provide a real fix, but I really couldn't figure
-out what went wrong.
-
-Thanks for any feedback,
-Patrick
-
-
-/* Sample code copied from include/linux/sched.h and kernel/timer.c */
-
-#include <stdio.h>
-
-#define FSHIFT	11		/* 11 bit precision */
-#define FIXED_1	(1 << FSHIFT)	/* 1.0 as fixed-point */
-
-#define EXP_1	1884	/* 1/exp(5sec/1min)  */
-#define EXP_5	2014	/* 1/exp(5sec/5min)  */
-#define EXP_15	2037	/* 1/exp(5sec/15min) */
-
-#define CALC_LOAD(load, exp, n) \
-		load *= exp; \
-		load += n*(FIXED_1-exp); \
-		load >>= FSHIFT;
-
-static unsigned long avenrun[3];
-
-/* normal load spike and one error */
-static unsigned long tasks[8] = {
-	0, 1, 0, ~0, 0, 0, 0
-};
-
-static void calc_load(unsigned long tasks)
-{
-	tasks <<= FSHIFT;
-
-	CALC_LOAD(avenrun[0], EXP_1, tasks);
-	CALC_LOAD(avenrun[1], EXP_5, tasks);
-	CALC_LOAD(avenrun[2], EXP_15, tasks);
-}
-
-int main(int argc, char **argv)
-{
-	int i, j;
-
-	for (i = 0; i < 8; i++) { /* index for tasks[] */
- 		/* 24 calculations per load change */
-
-		for (j = 0; j < 24; j++) {
-			calc_load(tasks[i]);
-
-			printf("%.2f %.2f %.2f\n",
-				   (float) avenrun[0] / FIXED_1, 
-				   (float) avenrun[1] / FIXED_1,
-				   (float) avenrun[2] / FIXED_1);
-		}
-	}
-
-	return 0;
-}
-
+I just started it and see 16 as priority in top. Should I renice it or
+start it another way ?
+-- 
+	Grégoire Favre
+________________________________________________________________________
+http://magma.epfl.ch/greg ICQ:16624071 mailto:Gregoire.Favre@freesurf.ch

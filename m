@@ -1,36 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278423AbRJMVxe>; Sat, 13 Oct 2001 17:53:34 -0400
+	id <S278421AbRJMWIH>; Sat, 13 Oct 2001 18:08:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278426AbRJMVxY>; Sat, 13 Oct 2001 17:53:24 -0400
-Received: from firebird.planetinternet.be ([195.95.34.5]:54533 "EHLO
-	firebird.planetinternet.be") by vger.kernel.org with ESMTP
-	id <S278423AbRJMVxF>; Sat, 13 Oct 2001 17:53:05 -0400
-Date: Sat, 13 Oct 2001 23:55:22 +0200
-From: Leopold Gouverneur <lgouv@planetinternet.be>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem with store fence fixes
-Message-ID: <20011013235522.A4739@loclhost>
-In-Reply-To: <20011013222518.A1559@loclhost> <E15sWiP-0003v9-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S278426AbRJMWH5>; Sat, 13 Oct 2001 18:07:57 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:45891 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S278421AbRJMWHq>; Sat, 13 Oct 2001 18:07:46 -0400
+To: "Pavel Machek" <pavel@suse.cz>
+Cc: "Pavel Machek" <pavel@Elf.ucw.cz>, "Jeremy Elson" <jelson@circlemud.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] FUSD v1.00: Framework for User-Space Devices
+In-Reply-To: <20011002204836.B3026@bug.ucw.cz>
+	<200110022237.f92Mbrk28387@cambot.lecs.cs.ucla.edu>
+	<20011005205136.A1272@elf.ucw.cz> <m1n132x4qg.fsf@frodo.biederman.org>
+	<20011008122013.B38@toy.ucw.cz>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 13 Oct 2001 15:57:32 -0600
+In-Reply-To: <20011008122013.B38@toy.ucw.cz>
+Message-ID: <m1wv1zqk37.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E15sWiP-0003v9-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 13, 2001 at 10:53:05PM +0100, Alan Cox wrote:
-> > 	Unexpected IRQ trap at vector 75
-> > 	Calibrating delay loop ..
-> > Only the reset button helps. 2.4.10-ac8 works perfectly, ac9 also
-> > if I suppress the line "define_bool CONFIG_X86_PPRO_FENCE y".
-> > Since nobody is complaining, I suppose i am doing something wrong.
-> > My system: Abit BP6, 2 Celeron 433( not OC )
-> 
-> I would guess you are using gcc 3.0.*
-> 
-> Alan
-yes :(
+"Pavel Machek" <pavel@suse.cz> writes:
 
+> Hi!
+> 
+> > > Yep. And linmodem driver does signal processing, so it is big and
+> > > ugly. And up till now, it had to be in kernel. With your patches, such
+> > > drivers could be userspace (where they belong!). Of course, it would be 
+> > > very good if your interface did not change...
+> > 
+> > I don't see how linmodem drivers apply.  At least not at the low-level
+> > because you actually have to driver the hardware, respond to interrupts
+> > etc.  On some of this I can see a driver split like there is for the video
+> 
+> You don't actually need interrupts -- you *know* when next sample arrives.
+> And port io is completely fine with iopl() ;-).
+
+But DMA? You are talking about what amounts to a sound card driver.
+And since in the cases that burn cpu time you have to process raw
+sound samples into modem data, you need to shift a fair amount of
+data. inb and outb just don't have the bandwidth.  So you need a
+kernel side component that drives the hardware to some extent.
+
+Additionally you still don't need a FUSD driver for that case.  All
+you need is to have is a ptty.  Because that is what modem drivers
+are now.  And the ptty route has binary and source compatiblity
+to multiple unix platforms.
+
+Eric

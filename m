@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129788AbQJZRDe>; Thu, 26 Oct 2000 13:03:34 -0400
+	id <S129912AbQJZRIp>; Thu, 26 Oct 2000 13:08:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129809AbQJZRDZ>; Thu, 26 Oct 2000 13:03:25 -0400
-Received: from styx.suse.cz ([195.70.145.226]:36337 "EHLO kerberos.suse.cz")
-	by vger.kernel.org with ESMTP id <S129788AbQJZRDO>;
-	Thu, 26 Oct 2000 13:03:14 -0400
-Date: Thu, 26 Oct 2000 19:03:09 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Yoann Vandoorselaere <yoann@mandrakesoft.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Possible critical VIA vt82c686a chip bug (private question)
-Message-ID: <20001026190309.A372@suse.cz>
-In-Reply-To: <m3d7gnd31m.fsf@test1.mandrakesoft.com> <Pine.LNX.3.95.1001026115039.12337A-100000@chaos.analogic.com>
-Mime-Version: 1.0
+	id <S129918AbQJZRIg>; Thu, 26 Oct 2000 13:08:36 -0400
+Received: from [64.64.109.142] ([64.64.109.142]:51729 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S129912AbQJZRIZ>; Thu, 26 Oct 2000 13:08:25 -0400
+Message-ID: <39F864A7.68326F8B@didntduck.org>
+Date: Thu, 26 Oct 2000 13:06:47 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.73 [en] (WinNT; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Mircea Damian <dmircea@linux.kappa.ro>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Kernel OOPS on boot
+In-Reply-To: <20001026165906.A25943@linux.kappa.ro> <39F83DBD.2869EF54@didntduck.org> <20001026191841.A28277@linux.kappa.ro>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.3.95.1001026115039.12337A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Thu, Oct 26, 2000 at 12:04:21PM -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 26, 2000 at 12:04:21PM -0400, Richard B. Johnson wrote:
-
-> ../drivers/block/ide.c, line 162, on version 2.2.17 does bad things
-> to the timer. It writes 0 to the control-word for timer 0. This
-> does the following:
+Mircea Damian wrote:
 > 
-> o	Selects timer 0.
-> o	Latches the timer.
-> o	Selects mode 0.
-> o	Programs it to a 16 bit counter.
+> On Thu, Oct 26, 2000 at 10:20:45AM -0400, Brian Gerst wrote:
+> > Mircea Damian wrote:
+> > >
+> > > Hello,
+> > >
+> > > I'm unable to boot kernel 2.4.0-test10-pre5 on a:
+> >
+> > Upgrade GCC to 2.91.66 (aka egcs-1.1.2)
 > 
-> The result is a latched (stopped) counter. Bits 5 and 4 should have been
-> selected. Then you read bits 0-7 from 0x40, followed by bits 8-15  from
-> the same port.
-> 
-> Also, there is no spin-lock protecting access to these ports. If anybody
-> else is mucking with the timer, all bets are off.
- 
-Well, at least on 2.4.0-test9, the above timing code is #ifed to
-DISK_RECOVERY_TIME > 0, which in turn is #defined to 0 in
-include/linux/ide.h.
+> Ok. I can do that, but there is nowhere written that I should do
+> that. If I remember right gcc-2.7.2.3 was the preferred compiler for all
+> kernels.
 
-So this is not our problem here. Anyway I guess it's time to hunt for
-i8259 accesses in the kernel that lack the necessary spinlock, even when
-they're not probably the cause of the problem we see here.
+The change that broke compiling with 2.7.2.3 was in test10-pre4.  There
+is a patch that should be going in to test10-pre6 that documents this
+and checks the version.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+--
+
+				Brian Gerst
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

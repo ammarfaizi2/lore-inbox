@@ -1,43 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263049AbTCLAzp>; Tue, 11 Mar 2003 19:55:45 -0500
+	id <S262999AbTCLBF3>; Tue, 11 Mar 2003 20:05:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263093AbTCLAzp>; Tue, 11 Mar 2003 19:55:45 -0500
-Received: from ns.splentec.com ([209.47.35.194]:30733 "EHLO pepsi.splentec.com")
-	by vger.kernel.org with ESMTP id <S263049AbTCLAzo>;
-	Tue, 11 Mar 2003 19:55:44 -0500
-Message-ID: <3E6E880F.8050101@splentec.com>
-Date: Tue, 11 Mar 2003 20:06:23 -0500
-From: Luben Tuikov <luben@splentec.com>
-Organization: Splentec Ltd.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S262996AbTCLBF3>; Tue, 11 Mar 2003 20:05:29 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:13800
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S261747AbTCLBF0>; Tue, 11 Mar 2003 20:05:26 -0500
+Date: Tue, 11 Mar 2003 20:13:09 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Stephen Hemminger <shemminger@osdl.org>
+cc: Linus Torvalds <torvalds@transmeta.com>, David Miller <davem@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "" <linux-net@vger.kernel.org>
+Subject: Re: [PATCH] (1/8) Eliminate brlock in psnap
+In-Reply-To: <1047428075.15875.97.camel@dell_ss3.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.50.0303111954080.6957-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.44.0303091831560.2129-100000@home.transmeta.com>
+ <1047428075.15875.97.camel@dell_ss3.pdx.osdl.net>
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] missing header file in asm-i386/xor.h
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Missing include macro for header file asm/i387.h in asm-i386/xor.h
-for kernel_fpu_begin() and kernel_fpu_end().
+On Tue, 11 Mar 2003, Stephen Hemminger wrote:
 
-I get compilation warnings/linkage problems.
+>  void unregister_snap_client(struct datalink_proto *proto)
+>  {
+> -	br_write_lock_bh(BR_NETPROTO_LOCK);
+> +	static RCU_HEAD(snap_rcu);
+>  
+> -	list_del(&proto->node);
+> -	kfree(proto);
+> +	spin_lock_bh(&snap_lock);
+> +	list_del_rcu(&proto->node);
+> +	spin_unlock_bh(&snap_lock);
+>  
+> -	br_write_unlock_bh(BR_NETPROTO_LOCK);
+> +	call_rcu(&snap_rcu, (void (*)(void *)) kfree, proto);
+>  }
 
--- 
-Luben
+Do we need the spin_lock_bh around the list_del_rcu? But also How 
+about. This way we don't change the previous characteristic of block till 
+done unregistering
 
+struct datalink_proto {
+...
+	struct completion registration;
+};
 
---- linux-2.5.64bk6/include/asm-i386/xor.h.orig	2003-03-11 19:15:36.000000000 -0500
-+++ linux-2.5.64bk6/include/asm-i386/xor.h	2003-03-11 17:04:35.000000000 -0500
-@@ -18,6 +18,8 @@
-   * Copyright (C) 1998 Ingo Molnar.
-   */
+void __unregister_snap_client(void *__proto)
+{
+	struct datalink_proto *proto = __proto;
+	complete(&proto->registration);
+}
 
-+#include <asm/i387.h>
-+
-  #define LD(x,y)		"       movq   8*("#x")(%1), %%mm"#y"   ;\n"
-  #define ST(x,y)		"       movq %%mm"#y",   8*("#x")(%1)   ;\n"
-  #define XO1(x,y)	"       pxor   8*("#x")(%2), %%mm"#y"   ;\n"
-
+unregister_snap_client(struct datalink_proto *proto)
+{
+	list_del_rcu(&proto->node);
+	call_rcu(&snap_rcu, __unregister_snap_client, proto);
+	wait_for_completion(&proto->registration);
+	kfree(proto);
+}

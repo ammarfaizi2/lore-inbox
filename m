@@ -1,31 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314287AbSDVRJ4>; Mon, 22 Apr 2002 13:09:56 -0400
+	id <S314288AbSDVRKa>; Mon, 22 Apr 2002 13:10:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314288AbSDVRJz>; Mon, 22 Apr 2002 13:09:55 -0400
-Received: from pc-62-31-74-87-ed.blueyonder.co.uk ([62.31.74.87]:41348 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S314287AbSDVRJy>; Mon, 22 Apr 2002 13:09:54 -0400
-Date: Mon, 22 Apr 2002 18:08:15 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: "Ph. Marek" <marek@bmlv.gv.at>
-Cc: sct@redhat.com, akpm@zip.com.au, adilger@turbolinux.com,
-        linux-kernel@vger.kernel.org, ext3-users@redhat.com
-Subject: Re: [PATCH] open files in kjounald
-Message-ID: <20020422180815.F10370@redhat.com>
-In-Reply-To: <3.0.6.32.20020422065639.0090cd10@pop3.bmlv.gv.at>
+	id <S314280AbSDVRKa>; Mon, 22 Apr 2002 13:10:30 -0400
+Received: from panic.tn.gatech.edu ([130.207.137.62]:62917 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S314288AbSDVRKN>;
+	Mon, 22 Apr 2002 13:10:13 -0400
+Date: Mon, 22 Apr 2002 13:10:11 -0400
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Larry McVoy <lm@bitmover.com>, Linus Torvalds <torvalds@transmeta.com>,
+        Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
+Subject: Re: BK, deltas, snapshots and fate of -pre...
+Message-ID: <20020422131011.D6638@havoc.gtf.org>
+In-Reply-To: <Pine.LNX.4.44.0204202108410.10137-100000@home.transmeta.com> <E16zGq9-0001EW-00@starship> <20020422084421.A17613@work.bitmover.com> <E16zJbd-0001GZ-00@starship>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Apr 21, 2002 at 05:50:25PM +0200, Daniel Phillips wrote:
+> On Monday 22 April 2002 17:44, Larry McVoy wrote:
+> > On Sun, Apr 21, 2002 at 02:53:13PM +0200, Daniel Phillips wrote:
+> > > I hope I made it clear that I believe BK is helping Linux.  Furthermore, I
+> > > don't see why Larry should not collect some advertising for his contribution.
+> > > Within limits.  IMHO, we're on the wrong side of the limit at the moment,
+> > > and moving further with no sign of moderating.
+> > 
+> > Yes, because so many purchasing managers spend their time reading the
+> > Documentation subdirectory of the Linux kernel in order to decide what
+> > SCM system they should use.
+> > 
+> > The existence (or non-existence) of the docs has absolutely no marketing
+> > value to BK.
+> 
+> So you have no problem with moving them to a website, leaving a url in
+> SubmittingPatches?
 
-Which kernel?  I can't reproduce the problem you describe using the
-2.4.18 variant I'm running right now, and the source seems to indicate
-that we're already doing the right thing.  Using your reproducer
-recipe, I see fd 30 being closed in all kjournald contexts.
+Do you have a problem with moving other docs out to Websites, which are
+describing closed-spec hardware?  Such hardware (and their vendors) are
+actively anti-open source, yet we have documents describing those, too.
 
---Stephen
+	Jeff
+
+
+

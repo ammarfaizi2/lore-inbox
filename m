@@ -1,67 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbUEDWxo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261497AbUEDWxK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261654AbUEDWxo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 18:53:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbUEDWxo
+	id S261497AbUEDWxK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 18:53:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbUEDWxK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 18:53:44 -0400
-Received: from stat1.steeleye.com ([65.114.3.130]:27302 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261528AbUEDWxj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 18:53:39 -0400
-Subject: Re: [PATCH] rmap 22 flush_dcache_mmap_lock
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Russell King <rmk@arm.linux.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0405042320100.2156-100000@localhost.localdomain>
-References: <Pine.LNX.4.44.0405042320100.2156-100000@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 04 May 2004 17:53:10 -0500
-Message-Id: <1083711195.1660.3.camel@mulgrave>
+	Tue, 4 May 2004 18:53:10 -0400
+Received: from the.earth.li ([193.201.200.66]:47568 "EHLO the.earth.li")
+	by vger.kernel.org with ESMTP id S261497AbUEDWwz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 18:52:55 -0400
+Date: Tue, 4 May 2004 23:52:54 +0100
+From: Jonathan McDowell <noodles@earth.li>
+To: Mirko Caserta <mirko@mcaserta.com>
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org
+Subject: Re: Initio INI-9X00U/UW error handling in 2.6
+Message-ID: <20040504225254.GQ2360@earth.li>
+References: <opr619y8b4psnffn@mail.mcaserta.com> <20040430183349.GX2360@earth.li> <opr7d7clzzpsnffn@mail.mcaserta.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <opr7d7clzzpsnffn@mail.mcaserta.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-05-04 at 17:22, Hugh Dickins wrote:
-> arm and parisc __flush_dcache_page have been scanning the i_mmap(_shared)
-> list without locking or disabling preemption.  That may be even more
-> unsafe now it's a prio tree instead of a list.
-> 
-> It looks like we cannot use i_shared_lock for this protection: most uses
-> of flush_dcache_page are okay, and only one would need lock ordering
-> fixed (get_user_pages holds page_table_lock across flush_dcache_page);
-> but there's a few (e.g. in net and ntfs) which look as if they're using
-> it in I/O completion - and it would be restrictive to disallow it there.
-> 
-> So, on arm and parisc only, define flush_dcache_mmap_lock(mapping) as
-> spin_lock_irq(&(mapping)->tree_lock); on i386 (and other arches left
-> to the next patch) define it away to nothing; and use where needed.
-> 
-> While updating locking hierarchy in filemap.c, remove two layers of the
-> fossil record from add_to_page_cache comment: no longer used for swap.
-> 
-> I believe all the #includes will work out, but have only built i386.
-> I can see several things about this patch which might cause revulsion:
-> the name flush_dcache_mmap_lock?  the reuse of the page radix_tree's
-> tree_lock for this different purpose?  spin_lock_irqsave instead?
-> can't we somehow get i_shared_lock to handle the problem?
+On Sun, May 02, 2004 at 11:58:59PM +0200, Mirko Caserta wrote:
+> On Fri, 30 Apr 2004 19:33:49 +0100, Jonathan McDowell <noodles@earth.li>  
+> wrote:
+> >On Mon, Apr 26, 2004 at 01:24:34PM +0200, Mirko Caserta wrote:
+> >>I was just wondering if someone is working on a fix for this:
+> >>
+> >>i91u: PCI Base=0xD000, IRQ=11, BIOS=0xFF000, SCSI ID=7
+> >>i91u: Reset SCSI Bus ...
+> >>ERROR: SCSI host `INI9100U' has no error handling
+> >>ERROR: This is not a safe way to run your SCSI host
+> >...
+> >
+> >Try the attached; I wrote it a while back and made a cleanup based on
+> >comments from James Bottomley, but no one else seemed to be using the
+> >driver. It worked for me however.
+> I had to hack it a little bit to make it cleanly patch my 2.6.6-rc2-mm2  
+> and it works great.
 
-Hugh,
+Cool, glad it works for you.
 
-I thought in a prior discussion with Andrea that there was a generic VM
-i_mmap loop that can take rather a long time, and thus we didn't want a
-spinlock for this, but a rwlock.  Since our critical regions in the
-cache flushing are read only, only i_mmap updates (which are short
-critical regions) take the write lock with irqsave, all the rest take
-the shared read lock with irq.
+> Thanks, could you please let this patch make its way upstream?
 
-Unless you've eliminated this long scan from the generic VM, I think the
-idea is still better than a simple spinlock.
+I guess the right people to ask are the folk on linux-scsi; is there
+any chance of it going into the linux-scsi bk patches that akpm is
+pulling into -mm?
 
-James
+J.
 
+-- 
+Revd. Jonathan McDowell, ULC | noodles is criminal
 
+------------
+diff -ruN linux-2.6.5.orig/drivers/scsi/ini9100u.c linux-2.6.5/drivers/scsi/ini9100u.c
+--- linux-2.6.5.orig/drivers/scsi/ini9100u.c	2004-04-30 19:36:05.000000000 +0100
++++ linux-2.6.5/drivers/scsi/ini9100u.c	2004-04-30 19:40:06.000000000 +0100
+@@ -106,6 +106,8 @@
+  *		- Changed the assumption that HZ = 100
+  * 10/17/03 mc	- v1.04
+  *		- added new DMA API support
++ * 06/01/04 jmd	- v1.04a
++ *		- Re-add reset_bus support
+  **************************************************************************/
+ 
+ #define CVT_LINUX_VERSION(V,P,S)        (V * 65536 + P * 256 + S)
+@@ -149,6 +151,7 @@
+ 	.queuecommand	= i91u_queue,
+ //	.abort		= i91u_abort,
+ //	.reset		= i91u_reset,
++	.eh_bus_reset_handler = i91u_bus_reset,
+ 	.bios_param	= i91u_biosparam,
+ 	.can_queue	= 1,
+ 	.this_id	= 1,
+@@ -161,7 +164,7 @@
+ char *i91uCopyright = "Copyright (C) 1996-98";
+ char *i91uInitioName = "by Initio Corporation";
+ char *i91uProductName = "INI-9X00U/UW";
+-char *i91uVersion = "v1.04";
++char *i91uVersion = "v1.04a";
+ 
+ #define TULSZ(sz)     (sizeof(sz) / sizeof(sz[0]))
+ #define TUL_RDWORD(x,y)         (short)(inl((int)((ULONG)((ULONG)x+(UCHAR)y)) ))
+@@ -550,6 +553,15 @@
+ 		return tul_device_reset(pHCB, (ULONG) SCpnt, SCpnt->device->id, reset_flags);
+ }
+ 
++int i91u_bus_reset(Scsi_Cmnd * SCpnt)
++{
++	HCS *pHCB;
++
++	pHCB = (HCS *) SCpnt->device->host->base;
++	tul_reset_scsi(pHCB, 0);
++	return SUCCESS;
++}
++
+ /*
+  * Return the "logical geometry"
+  */
+diff -ruN linux-2.6.5.orig/drivers/scsi/ini9100u.h linux-2.6.5/drivers/scsi/ini9100u.h
+--- linux-2.6.5.orig/drivers/scsi/ini9100u.h	2003-12-18 02:58:56.000000000 +0000
++++ linux-2.6.5/drivers/scsi/ini9100u.h	2004-04-30 19:39:30.000000000 +0100
+@@ -82,10 +82,11 @@
+ extern int i91u_queue(Scsi_Cmnd *, void (*done) (Scsi_Cmnd *));
+ extern int i91u_abort(Scsi_Cmnd *);
+ extern int i91u_reset(Scsi_Cmnd *, unsigned int);
++extern int i91u_bus_reset(Scsi_Cmnd *);
+ extern int i91u_biosparam(struct scsi_device *, struct block_device *,
+ 		sector_t, int *);
+ 
+-#define i91u_REVID "Initio INI-9X00U/UW SCSI device driver; Revision: 1.03g"
++#define i91u_REVID "Initio INI-9X00U/UW SCSI device driver; Revision: 1.04a"
+ 
+ #define VIRT_TO_BUS(i)  (unsigned int) virt_to_bus((void *)(i))
+ #define ULONG   unsigned long

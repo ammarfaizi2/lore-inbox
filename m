@@ -1,131 +1,524 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265649AbTGDB4x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jul 2003 21:56:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265652AbTGDBzq
+	id S265693AbTGDCVt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jul 2003 22:21:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265691AbTGDCVI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jul 2003 21:55:46 -0400
-Received: from granite.he.net ([216.218.226.66]:24590 "EHLO granite.he.net")
-	by vger.kernel.org with ESMTP id S265653AbTGDByv convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jul 2003 21:54:51 -0400
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10572845531561@kroah.com>
-Subject: Re: [PATCH] PCI and sysfs fixes for 2.5.74
-In-Reply-To: <10572845532660@kroah.com>
-From: Greg KH <greg@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Thu, 3 Jul 2003 19:09:13 -0700
-Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	Thu, 3 Jul 2003 22:21:08 -0400
+Received: from mta3.srv.hcvlny.cv.net ([167.206.5.9]:59480 "EHLO
+	mta3.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S265686AbTGDCSM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jul 2003 22:18:12 -0400
+Date: Thu, 03 Jul 2003 22:32:26 -0400
+From: Jeff Sipek <jeffpc@optonline.net>
+Subject: [PATCH - RFC] [4/5] 64-bit network statistics - architecture specific
+ code II.
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@digeo.com>, Dave Jones <davej@codemonkey.org.uk>,
+       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>
+Message-id: <200307032232.34697.jeffpc@optonline.net>
+MIME-version: 1.0
+Content-type: multipart/mixed; boundary="Boundary_(ID_eN7OVBwmm7i7QGRsQMAPeA)"
+User-Agent: KMail/1.5.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1366, 2003/07/03 15:51:30-07:00, willy@debian.org
 
-[PATCH] PCI: Remove pci_bus_exists
-Convert all callers of pci_bus_exists() to call pci_find_bus() instead.
-Since all callers of pci_find_bus() are __init or __devinit, mark it as
-__devinit too.
+--Boundary_(ID_eN7OVBwmm7i7QGRsQMAPeA)
+Content-type: Text/Plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+Content-description: clearsigned data
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+64-bit network statistics:
+	Part 4 of 5 - architecture specific code II.
+
+- -- 
+Failure is not an option,
+It comes bundled with your Microsoft product.
 
 
- arch/i386/pci/legacy.c              |    2 +-
- arch/sh/kernel/cpu/sh4/pci-sh7751.c |    2 +-
- drivers/pci/probe.c                 |   13 +------------
- drivers/pci/search.c                |    5 +++--
- include/linux/pci.h                 |    1 -
- 5 files changed, 6 insertions(+), 17 deletions(-)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
+iD8DBQE/BOc+wFP0+seVj/4RAibpAJ9Wz1kJS9OLt+FFmndoIwARzsYYLgCgm6sw
+NPXJ3m2VtVGMcu8dWrQ0okQ=
+=zr+2
+-----END PGP SIGNATURE-----
 
-diff -Nru a/arch/i386/pci/legacy.c b/arch/i386/pci/legacy.c
---- a/arch/i386/pci/legacy.c	Thu Jul  3 18:16:55 2003
-+++ b/arch/i386/pci/legacy.c	Thu Jul  3 18:16:55 2003
-@@ -28,7 +28,7 @@
- 	}
+--Boundary_(ID_eN7OVBwmm7i7QGRsQMAPeA)
+Content-type: text/x-diff; charset=us-ascii; name=asm_2.diff
+Content-transfer-encoding: 7BIT
+Content-disposition: attachment; filename=asm_2.diff
+
+diff -X dontdiff -Naur linux-2.5.74-vanilla/include/asm-parisc/atomic.h linux-2.5.74-nx/include/asm-parisc/atomic.h
+--- linux-2.5.74-vanilla/include/asm-parisc/atomic.h	2003-07-02 16:45:10.000000000 -0400
++++ linux-2.5.74-nx/include/asm-parisc/atomic.h	2003-07-03 15:11:00.000000000 -0400
+@@ -5,6 +5,7 @@
+ #include <asm/system.h>
  
- 	for (n=0; n <= pcibios_last_bus; n++) {
--		if (pci_bus_exists(&pci_root_buses, n))
-+		if (pci_find_bus(0, n))
- 			continue;
- 		bus->number = n;
- 		bus->ops = &pci_root_ops;
-diff -Nru a/arch/sh/kernel/cpu/sh4/pci-sh7751.c b/arch/sh/kernel/cpu/sh4/pci-sh7751.c
---- a/arch/sh/kernel/cpu/sh4/pci-sh7751.c	Thu Jul  3 18:16:55 2003
-+++ b/arch/sh/kernel/cpu/sh4/pci-sh7751.c	Thu Jul  3 18:16:55 2003
-@@ -200,7 +200,7 @@
- 		return;
- 	PCIDBG(2,"PCI: Peer bridge fixup\n");
- 	for (n=0; n <= pcibios_last_bus; n++) {
--		if (pci_bus_exists(&pci_root_buses, n))
-+		if (pci_find_bus(0, n))
- 			continue;
- 		bus.number = n;
- 		bus.ops = pci_root_ops;
-diff -Nru a/drivers/pci/probe.c b/drivers/pci/probe.c
---- a/drivers/pci/probe.c	Thu Jul  3 18:16:55 2003
-+++ b/drivers/pci/probe.c	Thu Jul  3 18:16:55 2003
-@@ -633,22 +633,11 @@
- 	return max;
- }
+ /* Copyright (C) 2000 Philipp Rumpf <prumpf@tux.org>.  */
++/* Copyright (C) 2003 Josef "Jeff" Sipek <jeffpc@optonline.net>. */
  
--int __devinit pci_bus_exists(const struct list_head *list, int nr)
--{
--	const struct pci_bus *b;
--
--	list_for_each_entry(b, list, node) {
--		if (b->number == nr || pci_bus_exists(&b->children, nr))
--			return 1;
--	}
--	return 0;
--}
--
- struct pci_bus * __devinit pci_scan_bus_parented(struct device *parent, int bus, struct pci_ops *ops, void *sysdata)
- {
- 	struct pci_bus *b;
+ /*
+  * Atomic operations that C can't guarantee us.  Useful for
+@@ -196,4 +197,45 @@
+ #define smp_mb__before_atomic_inc()	smp_mb()
+ #define smp_mb__after_atomic_inc()	smp_mb()
  
--	if (pci_bus_exists(&pci_root_buses, bus)) {
-+	if (pci_find_bus(0, bus)) {
- 		/* If we already got to this bus through a different bridge, ignore it */
- 		DBG("PCI: Bus %02x already known\n", bus);
- 		return NULL;
-diff -Nru a/drivers/pci/search.c b/drivers/pci/search.c
---- a/drivers/pci/search.c	Thu Jul  3 18:16:55 2003
-+++ b/drivers/pci/search.c	Thu Jul  3 18:16:55 2003
-@@ -7,13 +7,14 @@
-  *	Copyright 2003 -- Greg Kroah-Hartman <greg@kroah.com>
++#include <linux/spinlock.h>
++
++static inline void locked_add64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
++{
++#ifdef CONFIG_PARISC64
++	*a += b;	// 64-bit environment
++#else
++	spin_lock(lock);
++	*a += b;
++	spin_lock(unlock);
++	#warning need to check implementation linux/include/asm-parisc/atomic.h: locked_add64() for 32-bit environment
++#endif
++}
++
++static inline void locked_set64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
++{
++#ifdef CONFIG_PARISC64
++	*a = b;	// 64-bit environment
++#else
++	spin_lock(lock);
++	*a = b;
++	spin_unlock(lock);
++	#warning need to check implementation linux/include/asm-parisc/atomic.h: locked_set64() for 32-bit environment
++#endif
++}
++
++static inline u_int64_t locked_get64(u_int64_t* a, spinlock_t* lock)
++{
++#ifdef CONFIG_PARISC64
++	return *a;	// 64-bit environment
++#else
++	u_int64_t tmp;
++
++	spin_lock(lock);
++	tmp = *a;
++	spin_unlock(lock);
++	#warning need to check implementation linux/include/asm-parisc/atomic.h: locked_get64() for 32-bit environment
++	return tmp;
++#endif
++}
++
+ #endif
+diff -X dontdiff -Naur linux-2.5.74-vanilla/include/asm-ppc/atomic.h linux-2.5.74-nx/include/asm-ppc/atomic.h
+--- linux-2.5.74-vanilla/include/asm-ppc/atomic.h	2003-07-02 16:43:39.000000000 -0400
++++ linux-2.5.74-nx/include/asm-ppc/atomic.h	2003-07-03 15:11:00.000000000 -0400
+@@ -1,6 +1,11 @@
+ /*
+  * PowerPC atomic operations
+  */
++ 
++/*
++ * Authors:	?:				?
++ *		Josef "Jeff" Sipek:		<jeffpc@optonline.net>
++ */
+ 
+ #ifndef _ASM_PPC_ATOMIC_H_ 
+ #define _ASM_PPC_ATOMIC_H_
+@@ -200,5 +205,34 @@
+ #define smp_mb__before_atomic_inc()	__MB
+ #define smp_mb__after_atomic_inc()	__MB
+ 
++#include <linux/spinlock.h>
++
++static inline void locked_add64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
++{
++	spin_lock(lock);
++	*a += b;
++	spin_unlock(lock);
++	#warning need to check implementation linux/include/asm/atomic.h: locked_add64()
++}
++
++static inline void locked_set64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
++{
++	spin_lock(lock);
++	*a = b;
++	spin_unlock(lock);
++	#warning need to check implementation linux/include/asm/atomic.h: locked_set64()
++}
++
++static inline u_int64_t locked_get64(u_int64_t* a, spinlock_t* lock)
++{
++	u_int64_t tmp;
++
++	spin_lock(lock);
++	tmp = *a;
++	spin_unlock(lock);
++	#warning need to check implementation linux/include/asm/atomic.h: locked_get64()
++	return tmp;
++}
++
+ #endif /* __KERNEL__ */
+ #endif /* _ASM_PPC_ATOMIC_H_ */
+diff -X dontdiff -Naur linux-2.5.74-vanilla/include/asm-ppc64/atomic.h linux-2.5.74-nx/include/asm-ppc64/atomic.h
+--- linux-2.5.74-vanilla/include/asm-ppc64/atomic.h	2003-07-02 16:57:33.000000000 -0400
++++ linux-2.5.74-nx/include/asm-ppc64/atomic.h	2003-07-03 15:11:00.000000000 -0400
+@@ -10,6 +10,11 @@
+  * 2 of the License, or (at your option) any later version.
   */
  
-+#include <linux/init.h>
- #include <linux/pci.h>
- #include <linux/module.h>
- #include <linux/interrupt.h>
++/*
++ * Authors:	?:				?
++ *		Josef "Jeff" Sipek:		<jeffpc@optonline.net>
++ */
++
+ #ifndef _ASM_PPC64_ATOMIC_H_ 
+ #define _ASM_PPC64_ATOMIC_H_
  
- spinlock_t pci_bus_lock = SPIN_LOCK_UNLOCKED;
+@@ -182,4 +187,33 @@
+ #define smp_mb__before_atomic_inc()     smp_mb()
+ #define smp_mb__after_atomic_inc()      smp_mb()
  
--static struct pci_bus *
-+static struct pci_bus * __devinit
- pci_do_find_bus(struct pci_bus* bus, unsigned char busnr)
- {
- 	struct pci_bus* child;
-@@ -39,7 +40,7 @@
-  * in the global list of PCI buses.  If the bus is found, a pointer to its
-  * data structure is returned.  If no bus is found, %NULL is returned.
++#include <linux/spinlock.h>
++
++static inline void locked_add64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
++{
++	spin_lock(lock);
++	*a += b;
++	spin_unlock(lock);
++	#warning need to check implementation linux/include/asm/atomic.h: locked_add64()
++}
++
++static inline void locked_set64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
++{
++	spin_lock(lock);
++	*a = b;
++	spin_unlock(lock);
++	#warning need to check implementation linux/include/asm/atomic.h: locked_set64()
++}
++
++static inline u_int64_t locked_get64(u_int64_t* a, spinlock_t* lock)
++{
++	u_int64_t tmp;
++
++	spin_lock(lock);
++	tmp = *a;
++	spin_unlock(lock);
++	#warning need to check implementation linux/include/asm/atomic.h: locked_get64()
++	return tmp;
++}
++
+ #endif /* _ASM_PPC64_ATOMIC_H_ */
+diff -X dontdiff -Naur linux-2.5.74-vanilla/include/asm-s390/atomic.h linux-2.5.74-nx/include/asm-s390/atomic.h
+--- linux-2.5.74-vanilla/include/asm-s390/atomic.h	2003-07-02 16:41:06.000000000 -0400
++++ linux-2.5.74-nx/include/asm-s390/atomic.h	2003-07-03 15:11:00.000000000 -0400
+@@ -8,6 +8,8 @@
+  *    Copyright (C) 1999,2000 IBM Deutschland Entwicklung GmbH, IBM Corporation
+  *    Author(s): Martin Schwidefsky (schwidefsky@de.ibm.com),
+  *               Denis Joseph Barrow
++ *  
++ *               Josef "Jeff" Sipek (jeffpc@optonline.net)
+  *
+  *  Derived from "include/asm-i386/bitops.h"
+  *    Copyright (C) 1992, Linus Torvalds
+@@ -165,5 +167,34 @@
+ #define smp_mb__before_atomic_inc()	smp_mb()
+ #define smp_mb__after_atomic_inc()	smp_mb()
+ 
++#include <linux/spinlock.h>
++
++static inline void locked_add64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
++{
++	spin_lock(lock);
++	*a += b;
++	spin_unlock(lock);
++	#warning need to check implementation linux/include/asm/atomic.h: locked_add64()
++}
++
++static inline void locked_set64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
++{
++	spin_lock(lock);
++	*a = b;
++	spin_unlock(lock);
++	#warning need to check implementation linux/include/asm/atomic.h: locked_set64()
++}
++
++static inline u_int64_t locked_get64(u_int64_t* a, spinlock_t* lock)
++{
++	u_int64_t tmp;
++
++	spin_lock(lock);
++	tmp = *a;
++	spin_unlock(lock);
++	#warning need to check implementation linux/include/asm/atomic.h: locked_get64()
++	return tmp;
++}
++
+ #endif                                 /* __ARCH_S390_ATOMIC __            */
+ 
+diff -X dontdiff -Naur linux-2.5.74-vanilla/include/asm-sh/atomic.h linux-2.5.74-nx/include/asm-sh/atomic.h
+--- linux-2.5.74-vanilla/include/asm-sh/atomic.h	2003-07-02 16:53:39.000000000 -0400
++++ linux-2.5.74-nx/include/asm-sh/atomic.h	2003-07-03 15:11:00.000000000 -0400
+@@ -6,6 +6,11 @@
+  * resource counting etc..
+  *
   */
--struct pci_bus * pci_find_bus(int domain, int busnr)
-+struct pci_bus * __devinit pci_find_bus(int domain, int busnr)
- {
- 	struct pci_bus *bus = NULL;
- 	struct pci_bus *tmp_bus;
-diff -Nru a/include/linux/pci.h b/include/linux/pci.h
---- a/include/linux/pci.h	Thu Jul  3 18:16:55 2003
-+++ b/include/linux/pci.h	Thu Jul  3 18:16:55 2003
-@@ -544,7 +544,6 @@
- /* Generic PCI functions used internally */
++ 
++/*
++ * Authors:	?:				?
++ *		Josef "Jeff" Sipek:		<jeffpc@optonline.net>
++ */
  
- extern struct pci_bus *pci_find_bus(int domain, int busnr);
--int pci_bus_exists(const struct list_head *list, int nr);
- struct pci_bus *pci_scan_bus_parented(struct device *parent, int bus, struct pci_ops *ops, void *sysdata);
- static inline struct pci_bus *pci_scan_bus(int bus, struct pci_ops *ops, void *sysdata)
- {
+ typedef struct { volatile int counter; } atomic_t;
+ 
+@@ -99,4 +104,33 @@
+ #define smp_mb__before_atomic_inc()	barrier()
+ #define smp_mb__after_atomic_inc()	barrier()
+ 
++#include <linux/spinlock.h>
++
++static inline void locked_add64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
++{
++	spin_lock(lock);
++	*a += b;
++	spin_unlock(lock);
++	#warning need to check implementation linux/include/asm/atomic.h: locked_add64()
++}
++
++static inline void locked_set64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
++{
++	spin_lock(lock);
++	*a = b;
++	spin_unlock(lock);
++	#warning need to check implementation linux/include/asm/atomic.h: locked_set64()
++}
++
++static inline u_int64_t locked_get64(u_int64_t* a, spinlock_t* lock)
++{
++	u_int64_t tmp;
++
++	spin_lock(lock);
++	tmp = *a;
++	spin_unlock(lock);
++	#warning need to check implementation linux/include/asm/atomic.h: locked_get64()
++	return tmp;
++}
++
+ #endif /* __ASM_SH_ATOMIC_H */
+diff -X dontdiff -Naur linux-2.5.74-vanilla/include/asm-sparc/atomic.h linux-2.5.74-nx/include/asm-sparc/atomic.h
+--- linux-2.5.74-vanilla/include/asm-sparc/atomic.h	2003-07-02 16:50:22.000000000 -0400
++++ linux-2.5.74-nx/include/asm-sparc/atomic.h	2003-07-03 15:11:00.000000000 -0400
+@@ -4,6 +4,11 @@
+  * Copyright (C) 2000 Anton Blanchard (anton@linuxcare.com.au)
+  */
+ 
++/*
++ * Authors:	?:				?
++ *		Josef "Jeff" Sipek:		<jeffpc@optonline.net>
++ */
++
+ #ifndef __ARCH_SPARC_ATOMIC__
+ #define __ARCH_SPARC_ATOMIC__
+ 
+@@ -106,6 +111,35 @@
+ #define smp_mb__before_atomic_inc()	barrier()
+ #define smp_mb__after_atomic_inc()	barrier()
+ 
++#include <linux/spinlock.h>
++
++static inline void locked_add64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
++{
++	spin_lock(lock);
++	*a += b;
++	spin_unlock(lock);
++	#warning need to check implementation linux/include/asm/atomic.h: locked_add64()
++}
++
++static inline void locked_set64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
++{
++	spin_lock(lock);
++	*a = b;
++	spin_unlock(lock);
++	#warning need to check implementation linux/include/asm/atomic.h: locked_set64()
++}
++
++static inline u_int64_t locked_get64(u_int64_t* a, spinlock_t* lock)
++{
++	u_int64_t tmp;
++
++	spin_lock(lock);
++	tmp = *a;
++	spin_unlock(lock);
++	#warning need to check implementation linux/include/asm/atomic.h: locked_get64()
++	return tmp;
++}
++
+ #endif /* !(__KERNEL__) */
+ 
+ #endif /* !(__ARCH_SPARC_ATOMIC__) */
+diff -X dontdiff -Naur linux-2.5.74-vanilla/include/asm-sparc64/atomic.h linux-2.5.74-nx/include/asm-sparc64/atomic.h
+--- linux-2.5.74-vanilla/include/asm-sparc64/atomic.h	2003-07-02 16:56:02.000000000 -0400
++++ linux-2.5.74-nx/include/asm-sparc64/atomic.h	2003-07-03 15:11:00.000000000 -0400
+@@ -3,6 +3,7 @@
+  *           stuff.
+  *
+  * Copyright (C) 1996, 1997, 2000 David S. Miller (davem@redhat.com)
++ * Copyright (C) 2003 Josef "Jeff" Sipek (jeffpc@optonline.net)
+  */
+ 
+ #ifndef __ARCH_SPARC64_ATOMIC__
+@@ -35,4 +36,21 @@
+ #define smp_mb__before_atomic_inc()	barrier()
+ #define smp_mb__after_atomic_inc()	barrier()
+ 
++#include <linux/spinlock.h>
++
++static inline void locked_add64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
++{
++	*a += b;
++}
++
++static inline void locked_set64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
++{
++	*a = b;
++}
++
++static inline u_int64_t locked_get64(u_int64_t* a, spinlock_t* lock)
++{
++	return *a;
++}
++
+ #endif /* !(__ARCH_SPARC64_ATOMIC__) */
+diff -X dontdiff -Naur linux-2.5.74-vanilla/include/asm-um/atomic.h linux-2.5.74-nx/include/asm-um/atomic.h
+--- linux-2.5.74-vanilla/include/asm-um/atomic.h	2003-07-02 16:48:33.000000000 -0400
++++ linux-2.5.74-nx/include/asm-um/atomic.h	2003-07-03 15:11:00.000000000 -0400
+@@ -1,6 +1,40 @@
+ #ifndef __UM_ATOMIC_H
+ #define __UM_ATOMIC_H
+ 
++/*
++ * Authors:	?:				?
++ *		Josef "Jeff" Sipek:		<jeffpc@optonline.net>
++ */
++
+ #include "asm/arch/atomic.h"
+ 
++#include <linux/spinlock.h>
++
++static inline void locked_add64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
++{
++	spin_lock(lock);
++	*a += b;
++	spin_unlock(lock);
++	#warning need to check implementation linux/include/asm/atomic.h: locked_add64()
++}
++
++static inline void locked_set64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
++{
++	spin_lock(lock);
++	*a = b;
++	spin_unlock(lock);
++	#warning need to check implementation linux/include/asm/atomic.h: locked_set64()
++}
++
++static inline u_int64_t locked_get64(u_int64_t* a, spinlock_t* lock)
++{
++	u_int64_t tmp;
++
++	spin_lock(lock);
++	tmp = *a;
++	spin_unlock(lock);
++	#warning need to check implementation linux/include/asm/atomic.h: locked_get64()
++	return tmp;
++}
++
+ #endif
+diff -X dontdiff -Naur linux-2.5.74-vanilla/include/asm-v850/atomic.h linux-2.5.74-nx/include/asm-v850/atomic.h
+--- linux-2.5.74-vanilla/include/asm-v850/atomic.h	2003-07-02 16:49:32.000000000 -0400
++++ linux-2.5.74-nx/include/asm-v850/atomic.h	2003-07-03 15:11:00.000000000 -0400
+@@ -11,6 +11,11 @@
+  * Written by Miles Bader <miles@gnu.org>
+  */
+ 
++/*
++ * Authors:	?:				?
++ *		Josef "Jeff" Sipek:		<jeffpc@optonline.net>
++ */
++
+ #ifndef __V850_ATOMIC_H__
+ #define __V850_ATOMIC_H__
+ 
+@@ -86,4 +91,33 @@
+ #define smp_mb__before_atomic_inc()	barrier()
+ #define smp_mb__after_atomic_inc()	barrier()
+ 
++#include <linux/spinlock.h>
++
++static inline void locked_add64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
++{
++	spin_lock(lock);
++	*a += b;
++	spin_unlock(lock);
++	#warning need to check implementation linux/include/asm/atomic.h: locked_add64()
++}
++
++static inline void locked_set64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
++{
++	spin_lock(lock);
++	*a = b;
++	spin_unlock(lock);
++	#warning need to check implementation linux/include/asm/atomic.h: locked_set64()
++}
++
++static inline u_int64_t locked_get64(u_int64_t* a, spinlock_t* lock)
++{
++	u_int64_t tmp;
++
++	spin_lock(lock);
++	tmp = *a;
++	spin_unlock(lock);
++	#warning need to check implementation linux/include/asm/atomic.h: locked_get64()
++	return tmp;
++}
++
+ #endif /* __V850_ATOMIC_H__ */
+diff -X dontdiff -Naur linux-2.5.74-vanilla/include/asm-x86_64/atomic.h linux-2.5.74-nx/include/asm-x86_64/atomic.h
+--- linux-2.5.74-vanilla/include/asm-x86_64/atomic.h	2003-07-02 16:57:13.000000000 -0400
++++ linux-2.5.74-nx/include/asm-x86_64/atomic.h	2003-07-03 15:11:00.000000000 -0400
+@@ -1,6 +1,11 @@
+ #ifndef __ARCH_X86_64_ATOMIC__
+ #define __ARCH_X86_64_ATOMIC__
+ 
++/*
++ * Authors:	?:				?
++ *		Josef "Jeff" Sipek:		<jeffpc@optonline.net>
++ */
++
+ #include <linux/config.h>
+ 
+ /* atomic_t should be 32 bit signed type */
+@@ -203,4 +208,21 @@
+ #define smp_mb__before_atomic_inc()	barrier()
+ #define smp_mb__after_atomic_inc()	barrier()
+ 
++#include <linux/spinlock.h>
++
++static inline void locked_add64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
++{
++	*a += b;
++}
++
++static inline void locked_set64(u_int64_t* a, u_int64_t b, spinlock_t* lock)
++{
++	*a = b;
++}
++
++static inline u_int64_t locked_get64(u_int64_t* a, spinlock_t* lock)
++{
++	return *a;
++}
++
+ #endif
 
+--Boundary_(ID_eN7OVBwmm7i7QGRsQMAPeA)--

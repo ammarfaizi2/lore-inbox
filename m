@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262280AbVC2Gf5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262455AbVC2Gfg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262280AbVC2Gf5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 01:35:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262348AbVC2GcX
+	id S262455AbVC2Gfg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 01:35:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262280AbVC2Gf3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 01:32:23 -0500
-Received: from wproxy.gmail.com ([64.233.184.199]:3792 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262280AbVC2Gau (ORCPT
+	Tue, 29 Mar 2005 01:35:29 -0500
+Received: from smtp800.mail.sc5.yahoo.com ([66.163.168.179]:61796 "HELO
+	smtp800.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262278AbVC2GeB convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 01:30:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=EGNQIMtpHL5Oux2Y7SqNR1gfi2CiAigapl+AX9dGYr6GaBON7X3yOsDQeh5Zc9aY/+Eqdv1Gq03qEYIZWocgJpnP3k0Hv+Vttvq/6A9fuFMmkKuzMOm8pVGhbxLC92SPXWxp6vp/tCTb3Z34iznBcdvnzX0G8rJjA/vSdgM0j/Y=
-Message-ID: <84144f02050328223017b17746@mail.gmail.com>
-Date: Tue, 29 Mar 2005 09:30:44 +0300
-From: Pekka Enberg <penberg@gmail.com>
-Reply-To: Pekka Enberg <penberg@gmail.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: [PATCH] no need to check for NULL before calling kfree() -fs/ext2/
-Cc: Dave Jones <davej@redhat.com>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       penberg@cs.helsinki.fi
-In-Reply-To: <1112064777.19014.17.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <Pine.LNX.4.62.0503252307010.2498@dragon.hyggekrogen.localhost>
-	 <1111825958.6293.28.camel@laptopd505.fenrus.org>
-	 <Pine.LNX.4.61.0503261811001.9945@chaos.analogic.com>
-	 <Pine.LNX.4.62.0503270044350.3719@dragon.hyggekrogen.localhost>
-	 <1111881955.957.11.camel@mindpipe>
-	 <Pine.LNX.4.62.0503271246420.2443@dragon.hyggekrogen.localhost>
-	 <20050327065655.6474d5d6.pj@engr.sgi.com>
-	 <Pine.LNX.4.61.0503271708350.20909@yvahk01.tjqt.qr>
-	 <20050327174026.GA708@redhat.com> <1112064777.19014.17.camel@mindpipe>
+	Tue, 29 Mar 2005 01:34:01 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-pm@lists.osdl.org
+Subject: Re: [linux-pm] Re: [RFC] Some thoughts on device drivers and sysfs
+Date: Tue, 29 Mar 2005 01:33:58 -0500
+User-Agent: KMail/1.7.2
+Cc: Greg KH <greg@kroah.com>, Adam Belay <abelay@novell.com>,
+       linux-kernel@vger.kernel.org
+References: <1111951499.3503.87.camel@localhost.localdomain> <20050329050345.GB7937@kroah.com>
+In-Reply-To: <20050329050345.GB7937@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200503290133.59002.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 Mar 2005 21:52:57 -0500, Lee Revell <rlrevell@joe-job.com> wrote:
-> I see kfree used in several hot paths.  Check out
-> this /proc/latency_trace excerpt:
+On Tuesday 29 March 2005 00:03, Greg KH wrote:
+> On Sun, Mar 27, 2005 at 02:24:59PM -0500, Adam Belay wrote:
+> > One of the original design goals of sysfs was to provide a standardized
+> > location to keep driver configuration attributes.  Although sysfs
+> > handles this very well for bus devices and class devices, there isn't
+> > currently a method to export attributes for device drivers and their
+> > specific bound device instances to userspace.
+> 
+> Hm, what's device_create_file(), device_remove_file(), and DEVICE_ATTR()
+> for?  A number of drivers use these functions today to add their own
+> driver specific attributes to a device they control.
+> 
+> Then, userspace can just do a simple:
+>         ls /sys/bus/pci/drivers/my_foo_driver/
+> to see all devices on the PCI bus that are controlled by that driver.
+> Then it can go into those directories and cat out the specific
+> information if needed.
 
-Yes, but is the pointer being free'd NULL most of the time? The
-optimization does not help if you are releasing actual memory.
+It probably would be nice if all driver-specific device attributes would be
+grouped under /sys/devices/.../<blah_device>/drvattr/* so their names would
+not clash with names of driver core attributes.
 
-                           Pekka
+Unfortunately that would mean we are breaking userspace again...
+
+-- 
+Dmitry

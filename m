@@ -1,56 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272169AbTG2XP1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 19:15:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272216AbTG2XP1
+	id S272222AbTG2XWm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 19:22:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272382AbTG2XWm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 19:15:27 -0400
-Received: from co239024-a.almel1.ov.home.nl ([217.120.226.100]:6798 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S272169AbTG2XPY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 19:15:24 -0400
-Date: Wed, 30 Jul 2003 01:13:39 +0200 (CEST)
-From: Aschwin Marsman <a.marsman@aYniK.com>
-X-X-Sender: marsman@localhost.localdomain
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: lkml <linux-kernel@vger.kernel.org>
+	Tue, 29 Jul 2003 19:22:42 -0400
+Received: from sunpizz1.rvs.uni-bielefeld.de ([129.70.123.31]:22996 "EHLO
+	mail.rvs.uni-bielefeld.de") by vger.kernel.org with ESMTP
+	id S272222AbTG2XWk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 19:22:40 -0400
 Subject: Re: Linux 2.4.22-pre9
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 In-Reply-To: <Pine.LNX.4.55L.0307291700490.24730@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.44.0307300108390.1819-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+References: <Pine.LNX.4.55L.0307291700490.24730@freak.distro.conectiva>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 30 Jul 2003 01:22:03 +0200
+Message-Id: <1059520929.26914.140.camel@pegasus>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Jul 2003, Marcelo Tosatti wrote:
+Hi Marcelo,
 
-> 
-> Hi,
-> 
 > Here goes -pre9, yet another step in 2.4.22 direction.
-
-Thanks. When using "make oldconfig", every time I have to press
-enter to continue for:
-  BT848 Video For Linux (CONFIG_VIDEO_BT848) [N/m/?] (NEW) 
-This is the case for the last couple of pre releases I tested (currently using
-pre8 & compiling pre9). It looks like the option is not saved in the
-.config file.
-
-Otherwise the compilation with my .config works without human intervention.
-
+> 
 > It contains a bunch of Netfilter fixes, set of IEEE1394 fixes, couple of
 > knfsd fixes amongst others.
 > 
 > Expect -pre10 tomorrow.
- 
-I will reserve some CPU cycles.
 
-Have fun,
- 
-Aschwin Marsman
- 
---
-aYniK Software Solutions         all You need is Knowledge
-P.O. box 134                     NL-7600 AC Almelo - the Netherlands
-a.marsman@aYniK.com              http://www.aYniK.com
+what do you think about including the request_firmware() backport from
+Manuel Estrada Sainz?
+
+ Documentation/Configure.help                          |    6 
+ Documentation/firmware_class/README                   |   58 +
+ Documentation/firmware_class/firmware_sample_driver.c |  121 +++
+ Documentation/firmware_class/hotplug-script           |   16 
+ include/linux/firmware.h                              |   20 
+ lib/Config.in                                         |    4 
+ lib/Makefile                                          |    3 
+ lib/firmware_class.c                                  |  557 ++++++++++++++++++
+ 8 files changed, 784 insertions(+), 1 deletion(-)
+
+I already ported drivers/bluetooth/bfusb.c to use the request_firmware()
+interface and I will port drivers/bluetooth/bt3c_cs.c after this patch
+gets merged.
+
+Regards
+
+Marcel
+
 

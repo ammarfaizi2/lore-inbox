@@ -1,54 +1,1846 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261663AbVCRPaP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261650AbVCRPip@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261663AbVCRPaP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 10:30:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbVCRP0d
+	id S261650AbVCRPip (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 10:38:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbVCRPip
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 10:26:33 -0500
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:45288 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S261639AbVCRP0A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 10:26:00 -0500
-Date: Fri, 18 Mar 2005 10:25:54 -0500
-To: Hong Kong Phoey <hongkongphoey@gmail.com>
-Cc: Sascha Hauer <s.hauer@pengutronix.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] DM9000 network driver
-Message-ID: <20050318152554.GH17865@csclub.uwaterloo.ca>
-References: <20050318133143.GA20838@metis.extern.pengutronix.de> <4f6c1bdf0503180711148b8f02@mail.gmail.com>
+	Fri, 18 Mar 2005 10:38:45 -0500
+Received: from moutng.kundenserver.de ([212.227.126.186]:35024 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S261654AbVCRP36 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 10:29:58 -0500
+Date: Fri, 18 Mar 2005 16:29:45 +0100
+From: lkml@Think-Future.de
+To: Linux Kernel-Liste <linux-kernel@vger.kernel.org>
+Subject: PROBLEM: Buffer I/O error on device hdg1, system freeze.
+Reply-To: lkml@Think-Future.de
+Mail-Followup-To: lkml@Think-Future.de,
+	Linux Kernel-Liste <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BXVAT5kNtrzKuDFl"
 Content-Disposition: inline
-In-Reply-To: <4f6c1bdf0503180711148b8f02@mail.gmail.com>
-User-Agent: Mutt/1.3.28i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+X-Url: http://www.Think-Future.de
+X-Editor: Vi it! http://www.vim.org
+X-Bkp: p2mi
+X-GnuPG-Key: gpg --keyserver search.keyserver.net --recv-keys 06232116
+User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <20050318152952.7657144FBE@service.i-think-future.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:35131867b06e6a502cee335cb348919d
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 18, 2005 at 08:41:52PM +0530, Hong Kong Phoey wrote:
-> Sacrificing readibility a little bit, you could do something useful.
-> Instead of those ugly switch statements you could define function
-> pointer arrays and call appropriate function
-> 
-> switch(foo) {
-> 
->   case 1:
->              f1();
->   case2 :
->              f2();
-> };
-> 
-> could well become
-> 
-> void (*func)[] = { f1, f2 };
-> 
-> func(i);
 
-Ewww!
+--BXVAT5kNtrzKuDFl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-How about sticking with obvious readable code rather than trying to save
-a couple of conditional branches.  If it is an obvious good
-optimization, let the compiler do it.  of course if you ever needed to
-pass different parameters to f1 and/or f2 it would have to be rewritten
-back to the original again.
 
-Len Sorensen
+
+One line summary of the problem:   =20
+Buffer I/O error on device hdg1, system freeze.
+
+
+Full description of the problem/report:
+ the following error showed up in dmesg today:
+
+ hdg: dma_intr: status=3D0x51 { DriveReady SeekComplete Error }
+ hdg: dma_intr: error=3D0x40 { UncorrectableError }, LBAsect=3D262311, high=
+=3D0, low=3D262311, sector=3D262311
+ ide: failed opcode was: unknown
+ end_request: I/O error, dev hdg, sector 262311
+ Buffer I/O error on device hdg1, logical block 131124
+
+  fscking this disk freezes the entire system.
+
+ The disk was remounted ro afterwards.
+ Disk itself is ok. Is a new one.
+
+ Remark: average temperature of the system raised during the last 5 day
+ from 21 deg C to 23 deg C as spring is approaching.
+
+ Last summer there have been a lot of problems with the pdc at even
+ higher temperatures using kernel 2.4.26 to 2.4.xx.=20
+
+
+Keywords (i.e., modules, networking, kernel):
+PDC20269: IDE controller, CONFIG_BLK_DEV_PDC202XX_OLD=3Dy, CONFIG_BLK_DEV_P=
+DC202XX_NEW=3Dy
+
+
+
+/proc/version:
+--------------
+
+Linux version 2.6.11serviceservice (root@service) (gcc version 2.95.4 20011=
+002 (Debian prerelease)) #1 Sat Mar 5 16:31:18 CET 2005
+
+
+Output of Oops.. message:
+see above.
+
+
+A small shell script or example program which triggers the problem:
+
+
+/usr/src/linux/scripts/ver_linux:
+---------------------------------
+
+If some fields are empty or look unusual you may have an old version.
+Compare to the current minimal requirements in Documentation/Changes.
+=20
+Linux service 2.6.11serviceservice #1 Sat Mar 5 16:31:18 CET 2005 i686 GNU/=
+Linux
+=20
+Gnu C                  2.95.4
+Gnu make               3.79.1
+binutils               2.12.90.0.1
+util-linux             2.11n
+mount                  2.12a
+module-init-tools      3.1
+e2fsprogs              1.35
+reiserfsprogs          reiserfsck:
+reiser4progs           fsck.reiser4:
+quota-tools            3.04.
+PPP                    2.4.1
+isdn4k-utils           3.5
+Linux C Library        2.3.2
+Dynamic linker (ldd)   2.3.2
+Procps                 3.2.4
+Net-tools              1.60
+Console-tools          0.2.3
+Sh-utils               5.2.1
+Modules Loaded         usbcore 8250 serial_core parport_pc lp parport bridg=
+e dm_mod hisax_isac hisax isdn 8139too 3c59x mii
+
+
+/proc/cpuinfo:
+--------------
+
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 7
+model name	: Pentium III (Katmai)
+stepping	: 3
+cpu MHz		: 551.398
+cache size	: 512 KB
+fdiv_bug	: no
+hlt_bug		: no
+f00f_bug	: no
+coma_bug	: no
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 2
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36=
+ mmx fxsr sse
+bogomips	: 1089.53
+
+
+
+/proc/modules:
+--------------
+
+usbcore 114504 0 - Live 0xd098f000
+8250 23200 2 - Live 0xd0933000
+serial_core 21664 1 8250, Live 0xd092c000
+parport_pc 39072 1 - Live 0xd08cd000
+lp 12032 0 - Live 0xd0899000
+parport 35776 2 parport_pc,lp, Live 0xd08fc000
+bridge 50900 0 - Live 0xd091e000
+dm_mod 57728 0 - Live 0xd090e000
+hisax_isac 12372 0 - Live 0xd08c8000
+hisax 198272 1 hisax_isac, Live 0xd093a000
+isdn 135872 1 hisax, Live 0xd08d9000
+8139too 25376 0 - Live 0xd08a8000
+3c59x 40392 0 - Live 0xd089d000
+mii 4992 2 8139too,3c59x, Live 0xd088c000
+
+
+/proc/ioports:
+--------------
+
+0000-001f : dma1
+0020-0021 : pic1
+0040-0043 : timer0
+0050-0053 : timer1
+0060-006f : keyboard
+0070-0077 : rtc
+0080-008f : dma page reg
+00a0-00a1 : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+01f0-01f7 : ide0
+0290-0297 : pnp 00:0f
+02f8-02ff : serial
+0376-0376 : ide1
+0378-037a : parport0
+037b-037f : parport0
+03c0-03df : vga+
+03f6-03f6 : ide0
+03f8-03ff : serial
+0778-077a : parport0
+0cf8-0cff : PCI conf1
+9400-9403 : 0000:00:0e.0
+9800-987f : 0000:00:0e.0
+a000-a0ff : 0000:00:0b.0
+  a000-a0ff : 8139too
+a400-a40f : 0000:00:0a.0
+  a400-a407 : ide2
+  a408-a40f : ide3
+a800-a803 : 0000:00:0a.0
+  a802-a802 : ide3
+b000-b007 : 0000:00:0a.0
+  b000-b007 : ide3
+b400-b403 : 0000:00:0a.0
+b800-b807 : 0000:00:0a.0
+d000-d0ff : 0000:00:09.0
+  d000-d0ff : 8139too
+d400-d41f : 0000:00:04.2
+d800-d80f : 0000:00:04.1
+  d800-d807 : ide0
+  d808-d80f : ide1
+e400-e43f : 0000:00:04.3
+  e400-e43f : motherboard
+    e400-e403 : PM1a_EVT_BLK
+    e404-e405 : PM1a_CNT_BLK
+    e408-e40b : PM_TMR
+    e40c-e40f : GPE0_BLK
+e800-e81f : 0000:00:04.3
+  e800-e80f : motherboard
+
+
+/proc/iomem:
+------------
+
+00000000-0009e7ff : System RAM
+0009e800-0009ffff : reserved
+000a0000-000bffff : Video RAM area
+000c0000-000c7fff : Video ROM
+000cc000-000ce7ff : Adapter ROM
+000f0000-000fffff : System ROM
+00100000-0fffbfff : System RAM
+  00100000-0035ecd9 : Kernel code
+  0035ecda-004df71f : Kernel data
+0fffc000-0fffefff : ACPI Tables
+0ffff000-0fffffff : ACPI Non-volatile Storage
+e2800000-e280007f : 0000:00:0e.0
+e3000000-e3ffffff : 0000:00:0c.0
+e4000000-e40000ff : 0000:00:0b.0
+  e4000000-e40000ff : 8139too
+e4800000-e4803fff : 0000:00:0a.0
+e5000000-e50000ff : 0000:00:09.0
+  e5000000-e50000ff : 8139too
+e6000000-e6ffffff : 0000:00:0c.0
+e7800000-e7bfffff : 0000:00:00.0
+ffff0000-ffffffff : reserved
+
+
+lspci -vvv:
+-----------
+
+00:00.0 Host bridge: Intel Corp. 440BX/ZX - 82443BX/ZX Host bridge (rev 03)
+	Subsystem: Asustek Computer, Inc.: Unknown device 8024
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR+ FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort+ >SERR- <PERR-
+	Latency: 64
+	Region 0: Memory at e7800000 (32-bit, prefetchable) [size=3D4M]
+	Capabilities: [a0] AGP version 1.0
+		Status: RQ=3D31 SBA+ 64bit- FW- Rate=3Dx1,x2
+		Command: RQ=3D0 SBA- AGP- 64bit- FW- Rate=3D<none>
+
+00:01.0 PCI bridge: Intel Corp. 440BX/ZX - 82443BX/ZX AGP bridge (rev 03) (=
+prog-if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Steppi=
+ng- SERR+ FastB2B-
+	Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 64
+	Bus: primary=3D00, secondary=3D01, subordinate=3D01, sec-latency=3D64
+	I/O behind bridge: 0000e000-0000dfff
+	Memory behind bridge: e5c00000-e5bfffff
+	Prefetchable memory behind bridge: e7800000-e77fffff
+	BridgeCtl: Parity- SERR- NoISA- VGA- MAbort- >Reset- FastB2B+
+
+00:04.0 ISA bridge: Intel Corp. 82371AB PIIX4 ISA (rev 02)
+	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 0
+
+00:04.1 IDE interface: Intel Corp. 82371AB PIIX4 IDE (rev 01) (prog-if 80 [=
+Master])
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 32
+	Region 4: I/O ports at d800 [size=3D16]
+
+00:04.2 USB Controller: Intel Corp. 82371AB PIIX4 USB (rev 01) (prog-if 00 =
+[UHCI])
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 32
+	Interrupt: pin D routed to IRQ 9
+	Region 4: I/O ports at d400 [size=3D32]
+
+00:04.3 Bridge: Intel Corp. 82371AB PIIX4 ACPI (rev 02)
+	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Interrupt: pin ? routed to IRQ 9
+
+00:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev =
+10)
+	Subsystem: Realtek Semiconductor Co., Ltd. RT8139
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 32 (8000ns min, 16000ns max)
+	Interrupt: pin A routed to IRQ 9
+	Region 0: I/O ports at d000 [size=3D256]
+	Region 1: Memory at e5000000 (32-bit, non-prefetchable) [size=3D256]
+	Capabilities: [50] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=3D375mA PME(D0-,D1-,D2-,D3hot-,D3c=
+old-)
+		Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
+
+00:0a.0 Unknown mass storage controller: Promise Technology, Inc.: Unknown =
+device 4d69 (rev 02) (prog-if 85)
+	Subsystem: Promise Technology, Inc.: Unknown device 4d68
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=3Dslow >TAbort- <TAbort- =
+<MAbort- >SERR- <PERR-
+	Latency: 32 (1000ns min, 4500ns max), cache line size 08
+	Interrupt: pin A routed to IRQ 5
+	Region 0: I/O ports at b800 [size=3D8]
+	Region 1: I/O ports at b400 [size=3D4]
+	Region 2: I/O ports at b000 [size=3D8]
+	Region 3: I/O ports at a800 [size=3D4]
+	Region 4: I/O ports at a400 [size=3D16]
+	Region 5: Memory at e4800000 (32-bit, non-prefetchable) [size=3D16K]
+	Expansion ROM at <unassigned> [disabled] [size=3D16K]
+	Capabilities: [60] Power Management version 1
+		Flags: PMEClk- DSI+ D1+ D2- AuxCurrent=3D0mA PME(D0-,D1-,D2-,D3hot-,D3col=
+d-)
+		Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
+
+00:0b.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev =
+10)
+	Subsystem: Realtek Semiconductor Co., Ltd. RT8139
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 32 (8000ns min, 16000ns max)
+	Interrupt: pin A routed to IRQ 11
+	Region 0: I/O ports at a000 [size=3D256]
+	Region 1: Memory at e4000000 (32-bit, non-prefetchable) [size=3D256]
+	Capabilities: [50] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=3D375mA PME(D0-,D1-,D2-,D3hot-,D3c=
+old-)
+		Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
+
+00:0c.0 VGA compatible controller: NVidia / SGS Thomson (Joint Venture) Riv=
+a128 (rev 10) (prog-if 00 [VGA])
+	Subsystem: Diamond Multimedia Systems Viper V330
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap- 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 32 (750ns min, 250ns max)
+	Interrupt: pin A routed to IRQ 11
+	Region 0: Memory at e3000000 (32-bit, non-prefetchable) [size=3D16M]
+	Region 1: Memory at e6000000 (32-bit, prefetchable) [size=3D16M]
+	Expansion ROM at e5c00000 [disabled] [size=3D4M]
+
+00:0e.0 Network controller: Elsa AG QuickStep 1000 (rev 01)
+	Subsystem: Elsa AG QuickStep 1000
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Interrupt: pin A routed to IRQ 255
+	Region 0: Memory at e2800000 (32-bit, non-prefetchable) [disabled] [size=
+=3D128]
+	Region 1: I/O ports at 9800 [disabled] [size=3D128]
+	Region 3: I/O ports at 9400 [disabled] [size=3D4]
+
+
+
+/proc/scsi/scsi:
+----------------
+
+Attached devices:
+
+
+Other information that might be relevant to the problem:
+# hdparm -I /dev/hdg
+/dev/hdg:
+
+non-removable ATA device, with non-removable media
+	Model Number:		WDC WD1600JB-00GVA0                    =20
+	Serial Number:		WD-WMAL92033559=00=00=00=00=00
+	Firmware Revision:	08.02D08
+Standards:
+	Supported: 1 2 3 4 5 6=20
+	Likely used: 6
+Configuration:
+	Logical		max	current
+	cylinders	16383	65535
+	heads		16	1
+	sectors/track	63	63
+	bytes/track:	57600		(obsolete)
+	bytes/sector:	600		(obsolete)
+	current sector capacity: 4128705
+	LBA user addressable sectors =3D 268435455
+Capabilities:
+	LBA, IORDY(can be disabled)
+	Buffer size: 8192.0kB	ECC bytes: 74	Queue depth: 1
+	Standby timer values: spec'd by standard, with device specific minimum
+	r/w multiple sector transfer: Max =3D 16	Current =3D 0
+	DMA: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 *udma5=20
+	     Cycle time: min=3D120ns recommended=3D120ns
+	PIO: pio0 pio1 pio2 pio3 pio4=20
+	     Cycle time: no flow control=3D120ns  IORDY flow control=3D120ns
+Commands/features:
+	Enabled	Supported:
+	   *	READ BUFFER cmd
+	   *	WRITE BUFFER cmd
+	   *	Host Protected Area feature set
+	   *	look-ahead
+	   *	write cache
+	   *	Power Management feature set
+		Security Mode feature set
+	   *	SMART feature set
+		SET MAX security extension
+	   *	DOWNLOAD MICROCODE cmd
+Security:=20
+		supported
+	not	enabled
+	not	locked
+	not	frozen
+	not	expired: security count
+	not	supported: enhanced erase
+HW reset results:
+	CBLID- above Vih
+	Device num =3D 0 determined by the jumper
+Checksum: correct
+
+
+
+/proc/cmdline:
+--------------
+
+auto BOOT_IMAGE=3Dk2611 ro root=3D301 lp=3Dnone apm=3Doff acpi=3Don debug p=
+anic=3D5
+
+
+/proc/interrupts:
+-----------------
+
+           CPU0      =20
+  0:     105625          XT-PIC  timer
+  1:          7          XT-PIC  i8042
+  2:          0          XT-PIC  cascade
+  3:         95          XT-PIC  serial
+  5:          7          XT-PIC  ide3
+  7:          1          XT-PIC  parport0
+  8:          3          XT-PIC  rtc
+  9:          0          XT-PIC  acpi, eth0
+ 11:        603          XT-PIC  eth1
+ 12:         92          XT-PIC  i8042
+ 14:       7693          XT-PIC  ide0
+ 15:         11          XT-PIC  ide1
+NMI:          0=20
+LOC:          0=20
+ERR:          0
+MIS:          0
+
+
+cat /proc/config.gz | grep "[y|m]":
+-----------------------------------
+
+# Automatically generated make config: don't edit
+CONFIG_X86=3Dy
+CONFIG_MMU=3Dy
+CONFIG_UID16=3Dy
+CONFIG_GENERIC_ISA_DMA=3Dy
+CONFIG_GENERIC_IOMAP=3Dy
+# Code maturity level options
+CONFIG_EXPERIMENTAL=3Dy
+CONFIG_CLEAN_COMPILE=3Dy
+CONFIG_BROKEN_ON_SMP=3Dy
+CONFIG_LOCK_KERNEL=3Dy
+CONFIG_SWAP=3Dy
+CONFIG_SYSVIPC=3Dy
+CONFIG_POSIX_MQUEUE=3Dy
+CONFIG_BSD_PROCESS_ACCT=3Dy
+CONFIG_BSD_PROCESS_ACCT_V3=3Dy
+CONFIG_SYSCTL=3Dy
+CONFIG_AUDIT=3Dy
+CONFIG_AUDITSYSCALL=3Dy
+CONFIG_HOTPLUG=3Dy
+CONFIG_KOBJECT_UEVENT=3Dy
+CONFIG_IKCONFIG=3Dy
+CONFIG_IKCONFIG_PROC=3Dy
+CONFIG_KALLSYMS=3Dy
+CONFIG_KALLSYMS_ALL=3Dy
+CONFIG_KALLSYMS_EXTRA_PASS=3Dy
+CONFIG_FUTEX=3Dy
+CONFIG_EPOLL=3Dy
+CONFIG_SHMEM=3Dy
+# Loadable module support
+CONFIG_MODULES=3Dy
+CONFIG_MODULE_UNLOAD=3Dy
+CONFIG_MODULE_FORCE_UNLOAD=3Dy
+CONFIG_OBSOLETE_MODPARM=3Dy
+CONFIG_MODVERSIONS=3Dy
+CONFIG_MODULE_SRCVERSION_ALL=3Dy
+CONFIG_KMOD=3Dy
+# Processor type and features
+CONFIG_X86_PC=3Dy
+CONFIG_MPENTIUMIII=3Dy
+CONFIG_X86_CMPXCHG=3Dy
+CONFIG_X86_XADD=3Dy
+CONFIG_RWSEM_XCHGADD_ALGORITHM=3Dy
+CONFIG_GENERIC_CALIBRATE_DELAY=3Dy
+CONFIG_X86_WP_WORKS_OK=3Dy
+CONFIG_X86_INVLPG=3Dy
+CONFIG_X86_BSWAP=3Dy
+CONFIG_X86_POPAD_OK=3Dy
+CONFIG_X86_GOOD_APIC=3Dy
+CONFIG_X86_INTEL_USERCOPY=3Dy
+CONFIG_X86_USE_PPRO_CHECKSUM=3Dy
+CONFIG_PREEMPT=3Dy
+CONFIG_PREEMPT_BKL=3Dy
+CONFIG_X86_UP_APIC=3Dy
+CONFIG_X86_UP_IOAPIC=3Dy
+CONFIG_X86_LOCAL_APIC=3Dy
+CONFIG_X86_IO_APIC=3Dy
+CONFIG_X86_TSC=3Dy
+CONFIG_X86_MCE=3Dy
+CONFIG_X86_MCE_NONFATAL=3Dy
+CONFIG_MICROCODE=3Dy
+CONFIG_X86_MSR=3Dy
+CONFIG_X86_CPUID=3Dy
+# Firmware Drivers
+CONFIG_NOHIGHMEM=3Dy
+CONFIG_MTRR=3Dy
+CONFIG_HAVE_DEC_LOCK=3Dy
+# Power management options (ACPI, APM)
+CONFIG_PM=3Dy
+CONFIG_ACPI=3Dy
+CONFIG_ACPI_BOOT=3Dy
+CONFIG_ACPI_INTERPRETER=3Dy
+CONFIG_ACPI_AC=3Dy
+CONFIG_ACPI_BUTTON=3Dm
+CONFIG_ACPI_VIDEO=3Dm
+CONFIG_ACPI_FAN=3Dm
+CONFIG_ACPI_PROCESSOR=3Dm
+CONFIG_ACPI_THERMAL=3Dm
+CONFIG_ACPI_BUS=3Dy
+CONFIG_ACPI_EC=3Dy
+CONFIG_ACPI_POWER=3Dy
+CONFIG_ACPI_PCI=3Dy
+CONFIG_ACPI_SYSTEM=3Dy
+CONFIG_X86_PM_TIMER=3Dy
+# APM (Advanced Power Management) BIOS Support
+CONFIG_APM=3Dm
+CONFIG_APM_CPU_IDLE=3Dy
+CONFIG_APM_RTC_IS_GMT=3Dy
+CONFIG_APM_ALLOW_INTS=3Dy
+CONFIG_APM_REAL_MODE_POWER_OFF=3Dy
+# CPU Frequency scaling
+CONFIG_PCI=3Dy
+CONFIG_PCI_GOANY=3Dy
+CONFIG_PCI_BIOS=3Dy
+CONFIG_PCI_DIRECT=3Dy
+CONFIG_PCI_MMCONFIG=3Dy
+CONFIG_PCI_LEGACY_PROC=3Dy
+CONFIG_PCI_NAMES=3Dy
+CONFIG_ISA=3Dy
+CONFIG_PCMCIA_PROBE=3Dy
+# Executable file formats
+CONFIG_BINFMT_ELF=3Dy
+CONFIG_BINFMT_AOUT=3Dm
+CONFIG_BINFMT_MISC=3Dm
+CONFIG_STANDALONE=3Dy
+CONFIG_PREVENT_FIRMWARE_BUILD=3Dy
+CONFIG_FW_LOADER=3Dm
+# Memory Technology Devices (MTD)
+CONFIG_PARPORT=3Dm
+CONFIG_PARPORT_PC=3Dm
+CONFIG_PARPORT_PC_CML1=3Dm
+CONFIG_PARPORT_PC_FIFO=3Dy
+CONFIG_PARPORT_PC_SUPERIO=3Dy
+CONFIG_PARPORT_1284=3Dy
+# Plug and Play support
+CONFIG_PNP=3Dy
+CONFIG_PNP_DEBUG=3Dy
+CONFIG_ISAPNP=3Dy
+CONFIG_PNPBIOS=3Dy
+CONFIG_PNPBIOS_PROC_FS=3Dy
+CONFIG_BLK_DEV_FD=3Dy
+CONFIG_BLK_DEV_LOOP=3Dy
+CONFIG_BLK_DEV_CRYPTOLOOP=3Dy
+CONFIG_BLK_DEV_NBD=3Dm
+CONFIG_BLK_DEV_SX8=3Dm
+CONFIG_BLK_DEV_RAM=3Dy
+CONFIG_BLK_DEV_INITRD=3Dy
+CONFIG_CDROM_PKTCDVD=3Dm
+CONFIG_IOSCHED_NOOP=3Dy
+CONFIG_IOSCHED_AS=3Dy
+CONFIG_IOSCHED_DEADLINE=3Dy
+CONFIG_IOSCHED_CFQ=3Dy
+CONFIG_IDE=3Dy
+CONFIG_BLK_DEV_IDE=3Dy
+# Please see Documentation/ide.txt for help/info on IDE drives
+CONFIG_BLK_DEV_IDEDISK=3Dy
+CONFIG_BLK_DEV_IDECD=3Dy
+CONFIG_BLK_DEV_IDESCSI=3Dm
+CONFIG_IDE_GENERIC=3Dy
+CONFIG_BLK_DEV_IDEPNP=3Dy
+CONFIG_BLK_DEV_IDEPCI=3Dy
+CONFIG_IDEPCI_SHARE_IRQ=3Dy
+CONFIG_BLK_DEV_OFFBOARD=3Dy
+CONFIG_BLK_DEV_GENERIC=3Dy
+CONFIG_BLK_DEV_IDEDMA_PCI=3Dy
+CONFIG_IDEDMA_PCI_AUTO=3Dy
+CONFIG_BLK_DEV_PIIX=3Dy
+CONFIG_BLK_DEV_PDC202XX_OLD=3Dy
+CONFIG_BLK_DEV_PDC202XX_NEW=3Dy
+CONFIG_PDC202XX_FORCE=3Dy
+CONFIG_BLK_DEV_IDEDMA=3Dy
+CONFIG_IDEDMA_IVB=3Dy
+CONFIG_IDEDMA_AUTO=3Dy
+CONFIG_SCSI=3Dy
+CONFIG_SCSI_PROC_FS=3Dy
+# SCSI support type (disk, tape, CD-ROM)
+CONFIG_BLK_DEV_SD=3Dy
+CONFIG_BLK_DEV_SR=3Dm
+CONFIG_CHR_DEV_SG=3Dm
+# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
+CONFIG_SCSI_MULTI_LUN=3Dy
+CONFIG_SCSI_CONSTANTS=3Dy
+CONFIG_SCSI_LOGGING=3Dy
+CONFIG_SCSI_SPI_ATTRS=3Dm
+CONFIG_SCSI_AIC7XXX_OLD=3Dy
+CONFIG_SCSI_QLA2XXX=3Dy
+CONFIG_MD=3Dy
+CONFIG_BLK_DEV_MD=3Dm
+CONFIG_MD_LINEAR=3Dm
+CONFIG_MD_RAID0=3Dm
+CONFIG_MD_RAID1=3Dm
+CONFIG_MD_RAID5=3Dm
+CONFIG_MD_MULTIPATH=3Dm
+CONFIG_BLK_DEV_DM=3Dm
+CONFIG_DM_CRYPT=3Dm
+CONFIG_IEEE1394=3Dm
+# Subsystem Options
+CONFIG_IEEE1394_OUI_DB=3Dy
+CONFIG_IEEE1394_EXTRA_CONFIG_ROMS=3Dy
+CONFIG_IEEE1394_CONFIG_ROM_IP1394=3Dy
+CONFIG_IEEE1394_OHCI1394=3Dm
+CONFIG_IEEE1394_VIDEO1394=3Dm
+CONFIG_IEEE1394_SBP2=3Dm
+CONFIG_IEEE1394_ETH1394=3Dm
+CONFIG_IEEE1394_DV1394=3Dm
+CONFIG_IEEE1394_RAWIO=3Dm
+CONFIG_IEEE1394_CMP=3Dm
+CONFIG_IEEE1394_AMDTP=3Dm
+CONFIG_NET=3Dy
+CONFIG_PACKET=3Dy
+CONFIG_PACKET_MMAP=3Dy
+CONFIG_NETLINK_DEV=3Dm
+CONFIG_UNIX=3Dy
+CONFIG_NET_KEY=3Dm
+CONFIG_INET=3Dy
+CONFIG_IP_MULTICAST=3Dy
+CONFIG_IP_ADVANCED_ROUTER=3Dy
+CONFIG_IP_MULTIPLE_TABLES=3Dy
+CONFIG_IP_ROUTE_FWMARK=3Dy
+CONFIG_IP_ROUTE_MULTIPATH=3Dy
+CONFIG_IP_ROUTE_VERBOSE=3Dy
+CONFIG_IP_PNP=3Dy
+CONFIG_IP_PNP_DHCP=3Dy
+CONFIG_IP_PNP_BOOTP=3Dy
+CONFIG_IP_PNP_RARP=3Dy
+CONFIG_NET_IPIP=3Dm
+CONFIG_NET_IPGRE=3Dm
+CONFIG_NET_IPGRE_BROADCAST=3Dy
+CONFIG_IP_MROUTE=3Dy
+CONFIG_IP_PIMSM_V1=3Dy
+CONFIG_IP_PIMSM_V2=3Dy
+CONFIG_ARPD=3Dy
+CONFIG_SYN_COOKIES=3Dy
+CONFIG_INET_AH=3Dm
+CONFIG_INET_ESP=3Dm
+CONFIG_INET_IPCOMP=3Dm
+CONFIG_INET_TUNNEL=3Dm
+CONFIG_IP_TCPDIAG=3Dm
+CONFIG_NETFILTER=3Dy
+CONFIG_BRIDGE_NETFILTER=3Dy
+CONFIG_IP_NF_CONNTRACK=3Dm
+CONFIG_IP_NF_CT_ACCT=3Dy
+CONFIG_IP_NF_CONNTRACK_MARK=3Dy
+CONFIG_IP_NF_CT_PROTO_SCTP=3Dm
+CONFIG_IP_NF_FTP=3Dm
+CONFIG_IP_NF_IRC=3Dm
+CONFIG_IP_NF_TFTP=3Dm
+CONFIG_IP_NF_AMANDA=3Dm
+CONFIG_IP_NF_QUEUE=3Dm
+CONFIG_IP_NF_IPTABLES=3Dm
+CONFIG_IP_NF_MATCH_LIMIT=3Dm
+CONFIG_IP_NF_MATCH_IPRANGE=3Dm
+CONFIG_IP_NF_MATCH_MAC=3Dm
+CONFIG_IP_NF_MATCH_PKTTYPE=3Dm
+CONFIG_IP_NF_MATCH_MARK=3Dm
+CONFIG_IP_NF_MATCH_MULTIPORT=3Dm
+CONFIG_IP_NF_MATCH_TOS=3Dm
+CONFIG_IP_NF_MATCH_RECENT=3Dm
+CONFIG_IP_NF_MATCH_ECN=3Dm
+CONFIG_IP_NF_MATCH_DSCP=3Dm
+CONFIG_IP_NF_MATCH_AH_ESP=3Dm
+CONFIG_IP_NF_MATCH_LENGTH=3Dm
+CONFIG_IP_NF_MATCH_TTL=3Dm
+CONFIG_IP_NF_MATCH_TCPMSS=3Dm
+CONFIG_IP_NF_MATCH_HELPER=3Dm
+CONFIG_IP_NF_MATCH_STATE=3Dm
+CONFIG_IP_NF_MATCH_CONNTRACK=3Dm
+CONFIG_IP_NF_MATCH_OWNER=3Dm
+CONFIG_IP_NF_MATCH_PHYSDEV=3Dm
+CONFIG_IP_NF_MATCH_ADDRTYPE=3Dm
+CONFIG_IP_NF_MATCH_REALM=3Dm
+CONFIG_IP_NF_MATCH_SCTP=3Dm
+CONFIG_IP_NF_MATCH_COMMENT=3Dm
+CONFIG_IP_NF_MATCH_CONNMARK=3Dm
+CONFIG_IP_NF_MATCH_HASHLIMIT=3Dm
+CONFIG_IP_NF_FILTER=3Dm
+CONFIG_IP_NF_TARGET_REJECT=3Dm
+CONFIG_IP_NF_TARGET_LOG=3Dm
+CONFIG_IP_NF_TARGET_ULOG=3Dm
+CONFIG_IP_NF_TARGET_TCPMSS=3Dm
+CONFIG_IP_NF_NAT=3Dm
+CONFIG_IP_NF_NAT_NEEDED=3Dy
+CONFIG_IP_NF_TARGET_MASQUERADE=3Dm
+CONFIG_IP_NF_TARGET_REDIRECT=3Dm
+CONFIG_IP_NF_TARGET_NETMAP=3Dm
+CONFIG_IP_NF_TARGET_SAME=3Dm
+CONFIG_IP_NF_NAT_SNMP_BASIC=3Dm
+CONFIG_IP_NF_NAT_IRC=3Dm
+CONFIG_IP_NF_NAT_FTP=3Dm
+CONFIG_IP_NF_NAT_TFTP=3Dm
+CONFIG_IP_NF_NAT_AMANDA=3Dm
+CONFIG_IP_NF_MANGLE=3Dm
+CONFIG_IP_NF_TARGET_TOS=3Dm
+CONFIG_IP_NF_TARGET_ECN=3Dm
+CONFIG_IP_NF_TARGET_DSCP=3Dm
+CONFIG_IP_NF_TARGET_MARK=3Dm
+CONFIG_IP_NF_TARGET_CLASSIFY=3Dm
+CONFIG_IP_NF_TARGET_CONNMARK=3Dm
+CONFIG_IP_NF_ARPTABLES=3Dm
+CONFIG_IP_NF_ARPFILTER=3Dm
+CONFIG_IP_NF_ARP_MANGLE=3Dm
+CONFIG_BRIDGE_NF_EBTABLES=3Dm
+CONFIG_BRIDGE_EBT_BROUTE=3Dm
+CONFIG_BRIDGE_EBT_T_FILTER=3Dm
+CONFIG_BRIDGE_EBT_T_NAT=3Dm
+CONFIG_BRIDGE_EBT_802_3=3Dm
+CONFIG_BRIDGE_EBT_AMONG=3Dm
+CONFIG_BRIDGE_EBT_ARP=3Dm
+CONFIG_BRIDGE_EBT_IP=3Dm
+CONFIG_BRIDGE_EBT_LIMIT=3Dm
+CONFIG_BRIDGE_EBT_MARK=3Dm
+CONFIG_BRIDGE_EBT_PKTTYPE=3Dm
+CONFIG_BRIDGE_EBT_STP=3Dm
+CONFIG_BRIDGE_EBT_VLAN=3Dm
+CONFIG_BRIDGE_EBT_ARPREPLY=3Dm
+CONFIG_BRIDGE_EBT_DNAT=3Dm
+CONFIG_BRIDGE_EBT_MARK_T=3Dm
+CONFIG_BRIDGE_EBT_REDIRECT=3Dm
+CONFIG_BRIDGE_EBT_SNAT=3Dm
+CONFIG_BRIDGE_EBT_LOG=3Dm
+CONFIG_BRIDGE_EBT_ULOG=3Dm
+CONFIG_XFRM=3Dy
+CONFIG_XFRM_USER=3Dm
+CONFIG_BRIDGE=3Dm
+CONFIG_VLAN_8021Q=3Dm
+CONFIG_LLC=3Dm
+CONFIG_IPX=3Dm
+CONFIG_IPX_INTERN=3Dy
+CONFIG_ATALK=3Dm
+CONFIG_DEV_APPLETALK=3Dy
+CONFIG_IPDDP=3Dm
+CONFIG_IPDDP_ENCAP=3Dy
+CONFIG_IPDDP_DECAP=3Dy
+CONFIG_NET_SCHED=3Dy
+CONFIG_NET_SCH_CLK_JIFFIES=3Dy
+CONFIG_NET_SCH_CBQ=3Dm
+CONFIG_NET_SCH_HTB=3Dm
+CONFIG_NET_SCH_HFSC=3Dm
+CONFIG_NET_SCH_PRIO=3Dm
+CONFIG_NET_SCH_RED=3Dm
+CONFIG_NET_SCH_SFQ=3Dm
+CONFIG_NET_SCH_TEQL=3Dm
+CONFIG_NET_SCH_TBF=3Dm
+CONFIG_NET_SCH_GRED=3Dm
+CONFIG_NET_SCH_DSMARK=3Dm
+CONFIG_NET_SCH_NETEM=3Dm
+CONFIG_NET_SCH_INGRESS=3Dm
+CONFIG_NET_QOS=3Dy
+CONFIG_NET_ESTIMATOR=3Dy
+CONFIG_NET_CLS=3Dy
+CONFIG_NET_CLS_TCINDEX=3Dm
+CONFIG_NET_CLS_ROUTE4=3Dm
+CONFIG_NET_CLS_ROUTE=3Dy
+CONFIG_NET_CLS_FW=3Dm
+CONFIG_NET_CLS_U32=3Dm
+CONFIG_CLS_U32_PERF=3Dy
+CONFIG_CLS_U32_MARK=3Dy
+CONFIG_NET_CLS_RSVP=3Dm
+CONFIG_NET_CLS_RSVP6=3Dm
+CONFIG_NET_CLS_POLICE=3Dy
+CONFIG_IRDA=3Dm
+CONFIG_IRLAN=3Dm
+CONFIG_IRNET=3Dm
+CONFIG_IRCOMM=3Dm
+CONFIG_IRDA_ULTRA=3Dy
+CONFIG_IRDA_CACHE_LAST_LSAP=3Dy
+CONFIG_IRDA_FAST_RR=3Dy
+CONFIG_IRDA_DEBUG=3Dy
+CONFIG_IRTTY_SIR=3Dm
+CONFIG_DONGLE=3Dy
+CONFIG_ESI_DONGLE=3Dm
+CONFIG_ACTISYS_DONGLE=3Dm
+CONFIG_TEKRAM_DONGLE=3Dm
+CONFIG_LITELINK_DONGLE=3Dm
+CONFIG_MA600_DONGLE=3Dm
+CONFIG_GIRBIL_DONGLE=3Dm
+CONFIG_MCP2120_DONGLE=3Dm
+CONFIG_OLD_BELKIN_DONGLE=3Dm
+CONFIG_ACT200L_DONGLE=3Dm
+CONFIG_IRPORT_SIR=3Dm
+CONFIG_USB_IRDA=3Dm
+CONFIG_SIGMATEL_FIR=3Dm
+CONFIG_NSC_FIR=3Dm
+CONFIG_WINBOND_FIR=3Dm
+CONFIG_TOSHIBA_FIR=3Dm
+CONFIG_SMC_IRCC_FIR=3Dm
+CONFIG_ALI_FIR=3Dm
+CONFIG_VLSI_FIR=3Dm
+CONFIG_VIA_FIR=3Dm
+CONFIG_BT=3Dm
+CONFIG_BT_L2CAP=3Dm
+CONFIG_BT_SCO=3Dm
+CONFIG_BT_RFCOMM=3Dm
+CONFIG_BT_RFCOMM_TTY=3Dy
+CONFIG_BT_BNEP=3Dm
+CONFIG_BT_BNEP_MC_FILTER=3Dy
+CONFIG_BT_BNEP_PROTO_FILTER=3Dy
+CONFIG_BT_CMTP=3Dm
+CONFIG_BT_HIDP=3Dm
+CONFIG_BT_HCIUSB=3Dm
+CONFIG_BT_HCIUSB_SCO=3Dy
+CONFIG_BT_HCIUART=3Dm
+CONFIG_BT_HCIUART_H4=3Dy
+CONFIG_BT_HCIUART_BCSP=3Dy
+CONFIG_BT_HCIUART_BCSP_TXCRC=3Dy
+CONFIG_BT_HCIBCM203X=3Dm
+CONFIG_BT_HCIBPA10X=3Dm
+CONFIG_BT_HCIBFUSB=3Dm
+CONFIG_BT_HCIVHCI=3Dm
+CONFIG_NETDEVICES=3Dy
+CONFIG_DUMMY=3Dm
+CONFIG_BONDING=3Dm
+CONFIG_TUN=3Dm
+CONFIG_ETHERTAP=3Dm
+CONFIG_NET_ETHERNET=3Dy
+CONFIG_MII=3Dm
+CONFIG_NET_VENDOR_3COM=3Dy
+CONFIG_EL3=3Dm
+CONFIG_3C515=3Dm
+CONFIG_VORTEX=3Dm
+# Tulip family network device support
+CONFIG_NET_ISA=3Dy
+CONFIG_NE2000=3Dm
+CONFIG_NET_PCI=3Dy
+CONFIG_EEPRO100=3Dm
+CONFIG_E100=3Dm
+CONFIG_NE2K_PCI=3Dm
+CONFIG_8139CP=3Dm
+CONFIG_8139TOO=3Dm
+CONFIG_8139TOO_TUNE_TWISTER=3Dy
+CONFIG_8139TOO_8129=3Dy
+# Wireless LAN (non-hamradio)
+CONFIG_NET_RADIO=3Dy
+CONFIG_STRIP=3Dm
+CONFIG_ARLAN=3Dm
+CONFIG_WAVELAN=3Dm
+CONFIG_AIRO=3Dm
+CONFIG_HERMES=3Dm
+CONFIG_PLX_HERMES=3Dm
+CONFIG_TMD_HERMES=3Dm
+CONFIG_PCI_HERMES=3Dm
+CONFIG_ATMEL=3Dm
+CONFIG_PCI_ATMEL=3Dm
+# Prism GT/Duette 802.11(a/b/g) PCI/Cardbus support
+CONFIG_PRISM54=3Dm
+CONFIG_NET_WIRELESS=3Dy
+CONFIG_PLIP=3Dm
+CONFIG_PPP=3Dy
+CONFIG_PPP_FILTER=3Dy
+CONFIG_PPP_ASYNC=3Dm
+CONFIG_PPP_SYNC_TTY=3Dm
+CONFIG_PPP_DEFLATE=3Dm
+CONFIG_PPP_BSDCOMP=3Dm
+CONFIG_PPPOE=3Dm
+CONFIG_SLIP=3Dm
+CONFIG_SLIP_COMPRESSED=3Dy
+CONFIG_SLIP_SMART=3Dy
+CONFIG_SLIP_MODE_SLIP6=3Dy
+# ISDN subsystem
+CONFIG_ISDN=3Dm
+CONFIG_ISDN_I4L=3Dm
+CONFIG_ISDN_PPP=3Dy
+CONFIG_ISDN_PPP_VJ=3Dy
+CONFIG_ISDN_MPP=3Dy
+CONFIG_IPPP_FILTER=3Dy
+CONFIG_ISDN_PPP_BSDCOMP=3Dm
+CONFIG_ISDN_AUDIO=3Dy
+CONFIG_ISDN_TTY_FAX=3Dy
+# ISDN feature submodules
+CONFIG_ISDN_DRV_LOOP=3Dm
+CONFIG_ISDN_DIVERSION=3Dm
+CONFIG_ISDN_DRV_HISAX=3Dm
+CONFIG_HISAX_EURO=3Dy
+CONFIG_DE_AOC=3Dy
+CONFIG_HISAX_NO_KEYPAD=3Dy
+CONFIG_HISAX_1TR6=3Dy
+CONFIG_HISAX_FRITZPCI=3Dy
+CONFIG_HISAX_ELSA=3Dy
+CONFIG_HISAX_DEBUG=3Dy
+# HiSax PCMCIA card service modules
+# HiSax sub driver modules
+CONFIG_HISAX_FRITZ_PCIPNP=3Dm
+CONFIG_ISDN_DRV_ICN=3Dm
+# CAPI subsystem
+CONFIG_ISDN_CAPI=3Dm
+CONFIG_ISDN_DRV_AVMB1_VERBOSE_REASON=3Dy
+CONFIG_ISDN_CAPI_CAPI20=3Dm
+CONFIG_ISDN_CAPI_CAPIDRV=3Dm
+CONFIG_CAPI_AVM=3Dy
+CONFIG_ISDN_DRV_AVMB1_B1PCI=3Dm
+# Telephony Support
+CONFIG_INPUT=3Dy
+CONFIG_INPUT_MOUSEDEV=3Dy
+CONFIG_INPUT_MOUSEDEV_PSAUX=3Dy
+CONFIG_INPUT_JOYDEV=3Dm
+CONFIG_INPUT_EVDEV=3Dm
+CONFIG_SOUND_GAMEPORT=3Dy
+CONFIG_SERIO=3Dy
+CONFIG_SERIO_I8042=3Dy
+CONFIG_SERIO_SERPORT=3Dy
+CONFIG_SERIO_LIBPS2=3Dy
+CONFIG_INPUT_KEYBOARD=3Dy
+CONFIG_KEYBOARD_ATKBD=3Dy
+CONFIG_INPUT_MOUSE=3Dy
+CONFIG_MOUSE_PS2=3Dy
+CONFIG_MOUSE_SERIAL=3Dy
+CONFIG_INPUT_MISC=3Dy
+CONFIG_INPUT_PCSPKR=3Dm
+CONFIG_INPUT_UINPUT=3Dm
+CONFIG_VT=3Dy
+CONFIG_VT_CONSOLE=3Dy
+CONFIG_HW_CONSOLE=3Dy
+CONFIG_SERIAL_8250=3Dm
+CONFIG_SERIAL_CORE=3Dm
+CONFIG_UNIX98_PTYS=3Dy
+CONFIG_LEGACY_PTYS=3Dy
+CONFIG_PRINTER=3Dm
+CONFIG_LP_CONSOLE=3Dy
+CONFIG_PPDEV=3Dm
+CONFIG_NVRAM=3Dy
+CONFIG_RTC=3Dy
+# Ftape, the floppy tape device driver
+CONFIG_AGP=3Dm
+CONFIG_AGP_ALI=3Dm
+CONFIG_AGP_ATI=3Dm
+CONFIG_AGP_INTEL=3Dm
+CONFIG_AGP_SIS=3Dm
+CONFIG_AGP_VIA=3Dm
+CONFIG_DRM=3Dm
+CONFIG_MWAVE=3Dm
+CONFIG_HANGCHECK_TIMER=3Dy
+CONFIG_I2C=3Dm
+CONFIG_I2C_CHARDEV=3Dm
+# I2C Algorithms
+CONFIG_I2C_ALGOBIT=3Dm
+CONFIG_I2C_ALGOPCF=3Dm
+CONFIG_I2C_SENSOR=3Dm
+CONFIG_SENSORS_DS1621=3Dm
+CONFIG_SENSORS_LM77=3Dm
+CONFIG_SENSORS_LM80=3Dm
+CONFIG_W1=3Dm
+CONFIG_W1_DS9490=3Dm
+CONFIG_W1_THERM=3Dm
+# Multimedia devices
+CONFIG_VIDEO_DEV=3Dm
+CONFIG_FB=3Dy
+CONFIG_FB_MODE_HELPERS=3Dy
+CONFIG_FB_VGA16=3Dm
+CONFIG_FB_VESA=3Dy
+CONFIG_VIDEO_SELECT=3Dy
+CONFIG_FB_RIVA=3Dm
+CONFIG_FB_RIVA_I2C=3Dy
+# Console display driver support
+CONFIG_VGA_CONSOLE=3Dy
+CONFIG_DUMMY_CONSOLE=3Dy
+CONFIG_FRAMEBUFFER_CONSOLE=3Dm
+CONFIG_FONTS=3Dy
+CONFIG_FONT_8x8=3Dy
+CONFIG_FONT_8x16=3Dy
+CONFIG_FONT_SUN8x16=3Dy
+CONFIG_FONT_SUN12x22=3Dy
+CONFIG_LOGO=3Dy
+CONFIG_LOGO_LINUX_CLUT224=3Dy
+CONFIG_SOUND=3Dm
+CONFIG_SND=3Dm
+CONFIG_SND_TIMER=3Dm
+CONFIG_SND_PCM=3Dm
+CONFIG_SND_HWDEP=3Dm
+CONFIG_SND_RAWMIDI=3Dm
+CONFIG_SND_SEQUENCER=3Dm
+CONFIG_SND_SEQ_DUMMY=3Dm
+CONFIG_SND_OSSEMUL=3Dy
+CONFIG_SND_MIXER_OSS=3Dm
+CONFIG_SND_PCM_OSS=3Dm
+CONFIG_SND_SEQUENCER_OSS=3Dy
+CONFIG_SND_RTCTIMER=3Dm
+CONFIG_SND_VERBOSE_PRINTK=3Dy
+CONFIG_SND_DEBUG=3Dy
+CONFIG_SND_MPU401_UART=3Dm
+CONFIG_SND_OPL3_LIB=3Dm
+CONFIG_SND_SERIAL_U16550=3Dm
+CONFIG_SND_MPU401=3Dm
+CONFIG_SND_SBAWE=3Dm
+CONFIG_SND_SB16_CSP=3Dy
+CONFIG_SND_AC97_CODEC=3Dm
+CONFIG_SND_ENS1371=3Dm
+# Open Sound System
+CONFIG_SOUND_PRIME=3Dm
+CONFIG_SOUND_ICH=3Dm
+CONFIG_SOUND_OSS=3Dm
+CONFIG_SOUND_TRACEINIT=3Dy
+CONFIG_SOUND_MPU401=3Dm
+CONFIG_SOUND_SB=3Dm
+CONFIG_SOUND_AWE32_SYNTH=3Dm
+CONFIG_USB=3Dm
+CONFIG_USB_DEVICEFS=3Dy
+CONFIG_USB_BANDWIDTH=3Dy
+CONFIG_USB_ARCH_HAS_HCD=3Dy
+CONFIG_USB_ARCH_HAS_OHCI=3Dy
+CONFIG_USB_EHCI_HCD=3Dm
+CONFIG_USB_OHCI_HCD=3Dm
+CONFIG_USB_UHCI_HCD=3Dm
+CONFIG_USB_AUDIO=3Dm
+# USB Bluetooth TTY can only be used with disabled Bluetooth subsystem
+CONFIG_USB_MIDI=3Dm
+CONFIG_USB_ACM=3Dm
+CONFIG_USB_PRINTER=3Dm
+# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support' may also be neede=
+d; see USB_STORAGE Help for more information
+CONFIG_USB_STORAGE=3Dm
+CONFIG_USB_STORAGE_DEBUG=3Dy
+CONFIG_USB_STORAGE_FREECOM=3Dy
+CONFIG_USB_STORAGE_ISD200=3Dy
+CONFIG_USB_STORAGE_DPCM=3Dy
+CONFIG_USB_HID=3Dm
+CONFIG_USB_HIDINPUT=3Dy
+CONFIG_USB_HIDDEV=3Dy
+CONFIG_USB_WACOM=3Dm
+# USB Imaging devices
+CONFIG_USB_MICROTEK=3Dm
+# USB Multimedia devices
+CONFIG_USB_DABUSB=3Dm
+CONFIG_USB_IBMCAM=3Dm
+CONFIG_USB_OV511=3Dm
+CONFIG_USB_SE401=3Dm
+CONFIG_USB_STV680=3Dm
+CONFIG_USB_KAWETH=3Dm
+CONFIG_USB_PEGASUS=3Dm
+CONFIG_USB_USBNET=3Dm
+CONFIG_USB_ALI_M5632=3Dy
+CONFIG_USB_AN2720=3Dy
+CONFIG_USB_BELKIN=3Dy
+CONFIG_USB_GENESYS=3Dy
+CONFIG_USB_NET1080=3Dy
+CONFIG_USB_PL2301=3Dy
+CONFIG_USB_ARMLINUX=3Dy
+CONFIG_USB_EPSON2888=3Dy
+CONFIG_USB_ZAURUS=3Dy
+CONFIG_USB_CDCETHER=3Dy
+CONFIG_USB_USS720=3Dm
+CONFIG_USB_SERIAL=3Dm
+CONFIG_USB_SERIAL_GENERIC=3Dy
+CONFIG_USB_SERIAL_BELKIN=3Dm
+CONFIG_USB_SERIAL_WHITEHEAT=3Dm
+CONFIG_USB_SERIAL_DIGI_ACCELEPORT=3Dm
+CONFIG_USB_SERIAL_EMPEG=3Dm
+CONFIG_USB_SERIAL_FTDI_SIO=3Dm
+CONFIG_USB_SERIAL_VISOR=3Dm
+CONFIG_USB_SERIAL_IPAQ=3Dm
+CONFIG_USB_SERIAL_IR=3Dm
+CONFIG_USB_SERIAL_EDGEPORT=3Dm
+CONFIG_USB_SERIAL_EDGEPORT_TI=3Dm
+CONFIG_USB_SERIAL_KEYSPAN_PDA=3Dm
+CONFIG_USB_SERIAL_KEYSPAN=3Dm
+CONFIG_USB_SERIAL_KLSI=3Dm
+CONFIG_USB_SERIAL_MCT_U232=3Dm
+CONFIG_USB_SERIAL_PL2303=3Dm
+CONFIG_USB_SERIAL_CYBERJACK=3Dm
+CONFIG_USB_SERIAL_XIRCOM=3Dm
+CONFIG_USB_SERIAL_OMNINET=3Dm
+CONFIG_USB_EZUSB=3Dy
+CONFIG_USB_EMI26=3Dm
+CONFIG_USB_LCD=3Dm
+CONFIG_USB_GADGET=3Dm
+CONFIG_USB_GADGET_NET2280=3Dy
+CONFIG_USB_NET2280=3Dm
+CONFIG_USB_GADGET_DUALSPEED=3Dy
+# File systems
+CONFIG_EXT2_FS=3Dy
+CONFIG_EXT2_FS_XATTR=3Dy
+CONFIG_EXT2_FS_POSIX_ACL=3Dy
+CONFIG_EXT2_FS_SECURITY=3Dy
+CONFIG_EXT3_FS=3Dy
+CONFIG_EXT3_FS_XATTR=3Dy
+CONFIG_EXT3_FS_POSIX_ACL=3Dy
+CONFIG_EXT3_FS_SECURITY=3Dy
+CONFIG_JBD=3Dy
+CONFIG_JBD_DEBUG=3Dy
+CONFIG_FS_MBCACHE=3Dy
+CONFIG_REISERFS_FS=3Dy
+CONFIG_REISERFS_PROC_INFO=3Dy
+CONFIG_REISERFS_FS_XATTR=3Dy
+CONFIG_REISERFS_FS_POSIX_ACL=3Dy
+CONFIG_REISERFS_FS_SECURITY=3Dy
+CONFIG_JFS_FS=3Dm
+CONFIG_JFS_POSIX_ACL=3Dy
+CONFIG_JFS_STATISTICS=3Dy
+CONFIG_FS_POSIX_ACL=3Dy
+CONFIG_XFS_FS=3Dm
+CONFIG_XFS_EXPORT=3Dy
+CONFIG_XFS_RT=3Dy
+CONFIG_XFS_QUOTA=3Dy
+CONFIG_XFS_POSIX_ACL=3Dy
+CONFIG_MINIX_FS=3Dm
+CONFIG_ROMFS_FS=3Dm
+CONFIG_QUOTA=3Dy
+CONFIG_QFMT_V1=3Dm
+CONFIG_QFMT_V2=3Dm
+CONFIG_QUOTACTL=3Dy
+CONFIG_DNOTIFY=3Dy
+CONFIG_AUTOFS_FS=3Dm
+CONFIG_AUTOFS4_FS=3Dy
+# CD-ROM/DVD Filesystems
+CONFIG_ISO9660_FS=3Dy
+CONFIG_JOLIET=3Dy
+CONFIG_ZISOFS=3Dy
+CONFIG_ZISOFS_FS=3Dy
+CONFIG_UDF_FS=3Dm
+CONFIG_UDF_NLS=3Dy
+# DOS/FAT/NT Filesystems
+CONFIG_FAT_FS=3Dy
+CONFIG_MSDOS_FS=3Dy
+CONFIG_VFAT_FS=3Dy
+CONFIG_NTFS_FS=3Dm
+CONFIG_NTFS_RW=3Dy
+# Pseudo filesystems
+CONFIG_PROC_FS=3Dy
+CONFIG_PROC_KCORE=3Dy
+CONFIG_SYSFS=3Dy
+CONFIG_DEVFS_FS=3Dy
+CONFIG_TMPFS=3Dy
+CONFIG_RAMFS=3Dy
+# Miscellaneous filesystems
+CONFIG_AFFS_FS=3Dm
+CONFIG_HFS_FS=3Dm
+CONFIG_HFSPLUS_FS=3Dm
+CONFIG_CRAMFS=3Dy
+CONFIG_HPFS_FS=3Dm
+CONFIG_SYSV_FS=3Dm
+CONFIG_UFS_FS=3Dm
+CONFIG_UFS_FS_WRITE=3Dy
+# Network File Systems
+CONFIG_NFS_FS=3Dy
+CONFIG_NFS_V3=3Dy
+CONFIG_NFS_V4=3Dy
+CONFIG_NFSD=3Dm
+CONFIG_NFSD_V3=3Dy
+CONFIG_NFSD_V4=3Dy
+CONFIG_NFSD_TCP=3Dy
+CONFIG_ROOT_NFS=3Dy
+CONFIG_LOCKD=3Dy
+CONFIG_LOCKD_V4=3Dy
+CONFIG_EXPORTFS=3Dm
+CONFIG_SUNRPC=3Dy
+CONFIG_SUNRPC_GSS=3Dy
+CONFIG_RPCSEC_GSS_KRB5=3Dy
+CONFIG_SMB_FS=3Dy
+CONFIG_SMB_NLS_DEFAULT=3Dy
+CONFIG_CIFS=3Dm
+CONFIG_NCP_FS=3Dm
+CONFIG_NCPFS_PACKET_SIGNING=3Dy
+CONFIG_NCPFS_IOCTL_LOCKING=3Dy
+CONFIG_NCPFS_STRONG=3Dy
+CONFIG_NCPFS_NFS_NS=3Dy
+CONFIG_NCPFS_OS2_NS=3Dy
+CONFIG_NCPFS_SMALLDOS=3Dy
+CONFIG_NCPFS_NLS=3Dy
+CONFIG_NCPFS_EXTRAS=3Dy
+CONFIG_AFS_FS=3Dm
+CONFIG_RXRPC=3Dm
+# Partition Types
+CONFIG_PARTITION_ADVANCED=3Dy
+CONFIG_MSDOS_PARTITION=3Dy
+CONFIG_BSD_DISKLABEL=3Dy
+CONFIG_MINIX_SUBPARTITION=3Dy
+CONFIG_SOLARIS_X86_PARTITION=3Dy
+CONFIG_UNIXWARE_DISKLABEL=3Dy
+CONFIG_LDM_PARTITION=3Dy
+CONFIG_SUN_PARTITION=3Dy
+CONFIG_NLS=3Dy
+CONFIG_NLS_CODEPAGE_437=3Dy
+CONFIG_NLS_CODEPAGE_737=3Dm
+CONFIG_NLS_CODEPAGE_775=3Dm
+CONFIG_NLS_CODEPAGE_850=3Dy
+CONFIG_NLS_CODEPAGE_852=3Dm
+CONFIG_NLS_CODEPAGE_855=3Dm
+CONFIG_NLS_CODEPAGE_857=3Dm
+CONFIG_NLS_CODEPAGE_860=3Dm
+CONFIG_NLS_CODEPAGE_861=3Dm
+CONFIG_NLS_CODEPAGE_862=3Dm
+CONFIG_NLS_CODEPAGE_863=3Dm
+CONFIG_NLS_CODEPAGE_864=3Dm
+CONFIG_NLS_CODEPAGE_865=3Dm
+CONFIG_NLS_CODEPAGE_866=3Dm
+CONFIG_NLS_CODEPAGE_869=3Dm
+CONFIG_NLS_CODEPAGE_936=3Dm
+CONFIG_NLS_CODEPAGE_950=3Dm
+CONFIG_NLS_CODEPAGE_932=3Dm
+CONFIG_NLS_CODEPAGE_949=3Dm
+CONFIG_NLS_CODEPAGE_874=3Dm
+CONFIG_NLS_ISO8859_8=3Dm
+CONFIG_NLS_CODEPAGE_1250=3Dy
+CONFIG_NLS_CODEPAGE_1251=3Dm
+CONFIG_NLS_ISO8859_1=3Dy
+CONFIG_NLS_ISO8859_2=3Dm
+CONFIG_NLS_ISO8859_3=3Dm
+CONFIG_NLS_ISO8859_4=3Dm
+CONFIG_NLS_ISO8859_5=3Dm
+CONFIG_NLS_ISO8859_6=3Dm
+CONFIG_NLS_ISO8859_7=3Dm
+CONFIG_NLS_ISO8859_9=3Dm
+CONFIG_NLS_ISO8859_13=3Dm
+CONFIG_NLS_ISO8859_14=3Dm
+CONFIG_NLS_ISO8859_15=3Dy
+CONFIG_NLS_KOI8_R=3Dm
+CONFIG_NLS_KOI8_U=3Dm
+CONFIG_NLS_UTF8=3Dy
+CONFIG_DEBUG_KERNEL=3Dy
+CONFIG_MAGIC_SYSRQ=3Dy
+CONFIG_DEBUG_PREEMPT=3Dy
+CONFIG_DEBUG_BUGVERBOSE=3Dy
+CONFIG_EARLY_PRINTK=3Dy
+CONFIG_X86_FIND_SMP_CONFIG=3Dy
+CONFIG_X86_MPPARSE=3Dy
+# Security options
+# Cryptographic options
+CONFIG_CRYPTO=3Dy
+CONFIG_CRYPTO_HMAC=3Dy
+CONFIG_CRYPTO_NULL=3Dy
+CONFIG_CRYPTO_MD4=3Dy
+CONFIG_CRYPTO_MD5=3Dy
+CONFIG_CRYPTO_SHA1=3Dy
+CONFIG_CRYPTO_SHA256=3Dy
+CONFIG_CRYPTO_SHA512=3Dy
+CONFIG_CRYPTO_WP512=3Dy
+CONFIG_CRYPTO_DES=3Dy
+CONFIG_CRYPTO_BLOWFISH=3Dy
+CONFIG_CRYPTO_TWOFISH=3Dy
+CONFIG_CRYPTO_SERPENT=3Dy
+CONFIG_CRYPTO_AES_586=3Dy
+CONFIG_CRYPTO_CAST5=3Dy
+CONFIG_CRYPTO_CAST6=3Dy
+CONFIG_CRYPTO_TEA=3Dy
+CONFIG_CRYPTO_ARC4=3Dy
+CONFIG_CRYPTO_KHAZAD=3Dy
+CONFIG_CRYPTO_ANUBIS=3Dy
+CONFIG_CRYPTO_DEFLATE=3Dy
+CONFIG_CRYPTO_MICHAEL_MIC=3Dy
+CONFIG_CRYPTO_CRC32C=3Dy
+CONFIG_CRYPTO_TEST=3Dy
+# Hardware crypto devices
+# Library routines
+CONFIG_CRC_CCITT=3Dy
+CONFIG_CRC32=3Dy
+CONFIG_LIBCRC32C=3Dy
+CONFIG_ZLIB_INFLATE=3Dy
+CONFIG_ZLIB_DEFLATE=3Dy
+CONFIG_GENERIC_HARDIRQS=3Dy
+CONFIG_GENERIC_IRQ_PROBE=3Dy
+CONFIG_X86_BIOS_REBOOT=3Dy
+CONFIG_PC=3Dy
+
+
+Other notes, patches, fixes, workarounds:
+
+
+uptime:
+-------
+
+ 16:20:42 up 1 min,  1 user,  load average: 0.81, 0.31, 0.11
+
+
+free:
+-----
+
+             total       used       free     shared    buffers     cached
+Mem:        255044     191172      63872          0      23536     101352
+-/+ buffers/cache:      66284     188760
+Swap:       779112          0     779112
+
+
+dmesg:
+------
+
+efefefefefefefe
+pass
+test 2 (160 bit key):
+03030303030303030303030303030303
+pass
+test 3 (224 bit key):
+24242424242424242424242424242424
+pass
+test 4 (256 bit key):
+25252525252525252525252525252525
+pass
+test 5 (320 bit key):
+35353535353535353535353535353535
+pass
+
+testing anubis ECB decryption across pages (chunking)=20
+
+testing anubis CBC encryption=20
+test 1 (128 bit key):
+6dc5daa2267d626f08b7528e6e6e869086d8b56f985e8a664f1f78a1bb37f1be
+pass
+test 2 (320 bit key):
+a52c856f9cbaa0979ec6840f172107eea2bc0698c64bda752eaabe58ce015bc7
+pass
+
+testing anubis CBC encryption across pages (chunking)=20
+
+testing anubis CBC decryption=20
+test 1 (128 bit key):
+fefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefe
+pass
+test 2 (320 bit key):
+3535353535353535353535353535353535353535353535353535353535353535
+pass
+
+testing anubis CBC decryption across pages (chunking)=20
+
+testing sha384
+test 1:
+cb00753f45a35e8bb5a03d699ac65007272c32ab0eded1631a8b605a43ff5bed8086072ba1e=
+7cc2358baeca134c825a7
+pass
+test 2:
+3391fdddfc8dc7393707a65b1b4709397cf8b1d162af05abfe8f450de5f36bc6b0455a8520b=
+c4e6f5fe95b1fe3c8452b
+pass
+test 3:
+09330c33f71147e83d192fc782cd1b4753111b173b3b05d22fa08086e3b0f712fcc7c71a557=
+e2db966c3e9fa91746039
+pass
+test 4:
+3d208973ab3508dbbd7e2c2862ba290ad3010e4978c198dc4d8fd014e582823a89e16f9b2a7=
+bbc1ac938e2d199e8bea4
+pass
+testing sha384 across pages
+test 1:
+3d208973ab3508dbbd7e2c2862ba290ad3010e4978c198dc4d8fd014e582823a89e16f9b2a7=
+bbc1ac938e2d199e8bea4
+pass
+
+testing sha512
+test 1:
+ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274=
+fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f
+pass
+test 2:
+204a8fc6dda82f0a0ced7beb8e08a41657c16ef468b228a8279be331a703c33596fd15c13b1=
+b07f9aa1d3bea57789ca031ad85c7a71dd70354ec631238ca3445
+pass
+test 3:
+8e959b75dae313da8cf4f72814fc143f8f7779c6eb9f7fa17299aeadb6889018501d289e490=
+0f7e4331b99dec4b5433ac7d329eeb6dd26545e96e55b874be909
+pass
+test 4:
+930d0cefcb30ff1133b6898121f1cf3d27578afcafe8677c5257cf069911f75d8f5831b56eb=
+fda67b278e66dff8b84fe2b2870f742a580d8edb41987232850c9
+pass
+testing sha512 across pages
+test 1:
+930d0cefcb30ff1133b6898121f1cf3d27578afcafe8677c5257cf069911f75d8f5831b56eb=
+fda67b278e66dff8b84fe2b2870f742a580d8edb41987232850c9
+pass
+
+testing wp512
+test 1:
+19fa61d75522a4669b44e39c1d2e1726c530232130d407f89afee0964997f7a73e83be698b2=
+88febcf88e3e03c4f0757ea8964e59b63d93708b138cc42a66eb3
+pass
+test 2:
+8aca2602792aec6f11a67206531fb7d7f0dff59413145e6973c45001d0087b42d11bc645413=
+aeff63a42391a39145a591a92200d560195e53b478584fdae231a
+pass
+test 3:
+4e2448a4c6f486bb16b6562c73b4020bf3043e3a731bce721ae1b303d97e6d4c7181eebdb6c=
+57e277d0e34957114cbd6c797fc9d95d8b582d225292076d4eef5
+pass
+test 4:
+378c84a4126e2dc6e56dcc7458377aac838d00032230f53ce1f5700c0ffb4d3b8421557659e=
+f55c106b4b52ac5a4aaa692ed920052838f3362e86dbd37a8903e
+pass
+test 5:
+f1d754662636ffe92c82ebb9212a484a8d38631ead4238f5442ee13b8054e41b08bf2a9251c=
+30b6a0b8aae86177ab4a6f68f673e7207865d5d9819a3dba4eb3b
+pass
+test 6:
+dc37e008cf9ee69bf11f00ed9aba26901dd7c28cdec066cc6af42e40f82f3a1e08eba266291=
+29d8fb7cb57211b9281a65517cc879d7b962142c65f5a7af01467
+pass
+test 7:
+466ef18babb0154d25b9d38a6414f5c08784372bccb204d6549c4afadb6014294d5bd8df2a6=
+c44e538cd047b2681a51a2c60481e88c5a20b2c2a80cf3a9a083b
+pass
+test 8:
+2a987ea40f917061f5d6f0a0e4644f488a7a5a52deee656207c562f988e95c6916bdc8031bc=
+5be1b7b947639fe050b56939baaa0adff9ae6745b7b181c3be3fd
+pass
+testing wp512 across pages
+
+testing wp384
+test 1:
+19fa61d75522a4669b44e39c1d2e1726c530232130d407f89afee0964997f7a73e83be698b2=
+88febcf88e3e03c4f0757
+pass
+test 2:
+8aca2602792aec6f11a67206531fb7d7f0dff59413145e6973c45001d0087b42d11bc645413=
+aeff63a42391a39145a59
+pass
+test 3:
+4e2448a4c6f486bb16b6562c73b4020bf3043e3a731bce721ae1b303d97e6d4c7181eebdb6c=
+57e277d0e34957114cbd6
+pass
+test 4:
+378c84a4126e2dc6e56dcc7458377aac838d00032230f53ce1f5700c0ffb4d3b8421557659e=
+f55c106b4b52ac5a4aaa6
+pass
+test 5:
+f1d754662636ffe92c82ebb9212a484a8d38631ead4238f5442ee13b8054e41b08bf2a9251c=
+30b6a0b8aae86177ab4a6
+pass
+test 6:
+dc37e008cf9ee69bf11f00ed9aba26901dd7c28cdec066cc6af42e40f82f3a1e08eba266291=
+29d8fb7cb57211b9281a6
+pass
+test 7:
+466ef18babb0154d25b9d38a6414f5c08784372bccb204d6549c4afadb6014294d5bd8df2a6=
+c44e538cd047b2681a51a
+pass
+test 8:
+2a987ea40f917061f5d6f0a0e4644f488a7a5a52deee656207c562f988e95c6916bdc8031bc=
+5be1b7b947639fe050b56
+pass
+testing wp384 across pages
+
+testing wp256
+test 1:
+19fa61d75522a4669b44e39c1d2e1726c530232130d407f89afee0964997f7a7
+pass
+test 2:
+8aca2602792aec6f11a67206531fb7d7f0dff59413145e6973c45001d0087b42
+pass
+test 3:
+4e2448a4c6f486bb16b6562c73b4020bf3043e3a731bce721ae1b303d97e6d4c
+pass
+test 4:
+378c84a4126e2dc6e56dcc7458377aac838d00032230f53ce1f5700c0ffb4d3b
+pass
+test 5:
+f1d754662636ffe92c82ebb9212a484a8d38631ead4238f5442ee13b8054e41b
+pass
+test 6:
+dc37e008cf9ee69bf11f00ed9aba26901dd7c28cdec066cc6af42e40f82f3a1e
+pass
+test 7:
+466ef18babb0154d25b9d38a6414f5c08784372bccb204d6549c4afadb601429
+pass
+test 8:
+2a987ea40f917061f5d6f0a0e4644f488a7a5a52deee656207c562f988e95c69
+pass
+testing wp256 across pages
+
+testing deflate compression
+test 1:
+f3cacfcc53282d56c8cb2f5748cc4b5128ce482c4a5528c9485528ce4f2b290771bc082b0100
+pass (ratio 70:38)
+test 2:
+5d8d310ec2301004bfb22fc81f10040989c2853f70b12ff824db67d947c1ef49681251ae766=
+7d62719881ade85ab21f2085d161e20042dadf318a215852d69c4428323b66c89719befcf8b=
+9fcf33ca2fed62a94c80ff13af5237ed0e526b5902d94ee87a761d0298fe8a8783a34f568ab=
+89e8e5c57d3a079fa02
+pass (ratio 191:122)
+
+testing deflate decompression
+test 1:
+5468697320646f63756d656e7420646573637269626573206120636f6d7072657373696f6e2=
+06d6574686f64206261736564206f6e20746865204445464c415445636f6d7072657373696f=
+6e20616c676f726974686d2e20205468697320646f63756d656e7420646566696e657320746=
+865206170706c69636174696f6e206f6620746865204445464c41544520616c676f72697468=
+6d20746f20746865204950205061796c6f616420436f6d7072657373696f6e2050726f746f6=
+36f6c2e
+pass (ratio 122:191)
+test 2:
+4a6f696e207573206e6f7720616e642073686172652074686520736f667477617265204a6f6=
+96e207573206e6f7720616e642073686172652074686520736f66747761726520
+pass (ratio 38:70)
+
+testing crc32c
+testing crc32c initialized to 00000000: pass
+testing crc32c setkey returns 12345678 : pass
+testing crc32c using update/final:
+ 0e2c157f:OK e980ebf6:OK de74bded:OK d579c862:OK ba979ad0:OK 2b29d913:OK
+testing crc32c using incremental accumulator:
+ 24c5d375:OK
+testing crc32c using digest:
+ 24c5d375:OK
+pass
+crc32c test complete
+
+testing hmac_md5
+test 1:
+9294727a3638bb1c13f48ef8158bfc9d
+pass
+test 2:
+750c783e6ab0b503eaa86e310a5db738
+pass
+test 3:
+56be34521d144c88dbb8c733f0e8b3f6
+pass
+test 4:
+697eaf0aca3a3aea3a75164746ffaa79
+pass
+test 5:
+56461ef2342edc00f9bab995690efd4c
+pass
+test 6:
+6b1ab7fe4bd7bf8f0b62e6ce61b9d0cd
+pass
+test 7:
+6f630fad67cda0ee1fb1f562db3aa53e
+pass
+
+testing hmac_md5 across pages
+test 1:
+750c783e6ab0b503eaa86e310a5db738
+pass
+
+testing hmac_sha1
+test 1:
+b617318655057264e28bc0b6fb378c8ef146be00
+pass
+test 2:
+effcdf6ae5eb2fa2d27416d5f184df9c259a7c79
+pass
+test 3:
+125d7342b9ac11cd91a39af48aa17b4f63f175d3
+pass
+test 4:
+4c9007f4026250c6bc8414f9bf50c86c2d7235da
+pass
+test 5:
+4c1a03424b55e07fe7f27be1d58bb9324a9a5a04
+pass
+test 6:
+aa4ae5e15272d00e95705637ce8a3b55ed402112
+pass
+test 7:
+e8e99d0f45237d786d6bbaa7965c7808bbff1a91
+pass
+
+testing hmac_sha1 across pages
+test 1:
+effcdf6ae5eb2fa2d27416d5f184df9c259a7c79
+pass
+
+testing hmac_sha256
+test 1:
+a21b1f5d4cf4f73a4dd939750f7a066a7f98cc131cb16a6692759021cfab8181
+pass
+test 2:
+104fdc1257328f08184ba73131c53caee698e36119421149ea8c712456697d30
+pass
+test 3:
+470305fc7e40fe34d3eeb3e773d95aab73acf0fd060447a5eb4595bf33a9d1a3
+pass
+test 4:
+198a607eb44bfbc69903a0f1cf2bbdc5ba0aa3f3d9ae3c1c7a3b1696a0b68cf7
+pass
+test 5:
+5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843
+pass
+test 6:
+cdcb1220d1ecccea91e53aba3092f962e549fe6ce9ed7fdc43191fbde45c30b0
+pass
+test 7:
+d4633c17f6fb8d744c66dee0f8f074556ec4af55ef07998541468eb49bd2e917
+pass
+test 8:
+7546af01841fc09b1ab9c3749a5f1c17d4f589668a587b2700a9c97c1193cf42
+pass
+test 9:
+6953025ed96f0c09f80a96f78e6538dbe2e7b820e3dd970e7ddd39091b32352f
+pass
+test 10:
+6355ac22e890d0a3c8481a5ca4825bc884d3e7a1ff98a2fc2ac7d8e064c3b2e6
+pass
+
+testing hmac_sha256 across pages
+test 1:
+5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843
+pass
+
+testing michael_mic
+test 1:
+82925c1ca1d130b8
+pass
+test 2:
+434721ca40639b3f
+pass
+test 3:
+e8f9becae97e5d29
+pass
+test 4:
+90038fc6cf13c1db
+pass
+test 5:
+d55e100510128986
+pass
+test 6:
+0a942b124ecaa546
+pass
+testing michael_mic across pages
+Limiting direct PCI/PCI transfers.
+isapnp: Scanning for PnP cards...
+isapnp: No Plug & Play device found
+Real Time Clock Driver v1.12
+Non-volatile memory driver v1.2
+Hangcheck: starting hangcheck timer 0.5.0 (tick is 180 seconds, margin is 6=
+0 seconds).
+ACPI: PS/2 Keyboard Controller [PS2K] at I/O 0x60, 0x64, irq 1
+ACPI: PS/2 Mouse Controller [PS2M] at irq 12
+serio: i8042 AUX port at 0x60,0x64 irq 12
+serio: i8042 KBD port at 0x60,0x64 irq 1
+io scheduler noop registered
+io scheduler anticipatory registered
+io scheduler deadline registered
+io scheduler cfq registered
+Floppy drive(s): fd0 is 1.44M
+FDC 0 is a post-1991 82077
+RAMDISK driver initialized: 16 RAM disks of 4096K size 1024 blocksize
+loop: loaded (max 8 devices)
+PPP generic driver version 2.4.2
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=3D=
+xx
+PIIX4: IDE controller at PCI slot 0000:00:04.1
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:DMA, hdb:DMA
+    ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:DMA, hdd:pio
+Probing IDE interface ide0...
+hda: IC35L040AVER07-0, ATA DISK drive
+hdb: WDC WD1200JB-00DUA3, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+Probing IDE interface ide1...
+hdc: BCD-16X 1997-03-25, ATAPI CD/DVD-ROM drive
+ide1 at 0x170-0x177,0x376 on irq 15
+PDC20269: IDE controller at PCI slot 0000:00:0a.0
+ACPI: PCI Interrupt Link [LNKC] enabled at IRQ 5
+PCI: setting IRQ 5 as level-triggered
+ACPI: PCI interrupt 0000:00:0a.0[A] -> GSI 5 (level, low) -> IRQ 5
+PDC20269: chipset revision 2
+PDC20269: 100% native mode on irq 5
+    ide2: BM-DMA at 0xa400-0xa407, BIOS settings: hde:pio, hdf:pio
+    ide3: BM-DMA at 0xa408-0xa40f, BIOS settings: hdg:pio, hdh:pio
+Probing IDE interface ide2...
+Probing IDE interface ide3...
+hdg: WDC WD1600JB-00GVA0, ATA DISK drive
+ide3 at 0xb000-0xb007,0xa802 on irq 5
+pnp: the driver 'ide' has been registered
+Probing IDE interface ide2...
+Probing IDE interface ide4...
+Probing IDE interface ide5...
+hda: max request size: 128KiB
+hda: Host Protected Area detected.
+	current capacity is 66055244 sectors (33820 MB)
+	native  capacity is 80418240 sectors (41174 MB)
+hda: Host Protected Area disabled.
+hda: 80418240 sectors (41174 MB) w/1916KiB Cache, CHS=3D65535/16/63, UDMA(3=
+3)
+hda: cache flushes not supported
+ /dev/ide/host0/bus0/target0/lun0: p1
+hdb: max request size: 1024KiB
+hdb: 234441648 sectors (120034 MB) w/8192KiB Cache, CHS=3D16383/255/63, UDM=
+A(33)
+hdb: cache flushes supported
+ /dev/ide/host0/bus0/target1/lun0: p1 p2
+hdg: max request size: 1024KiB
+hdg: 312581808 sectors (160041 MB) w/8192KiB Cache, CHS=3D19457/255/63, UDM=
+A(100)
+hdg: cache flushes supported
+ /dev/ide/host2/bus1/target0/lun0: p1
+hdc: ATAPI 10X CD-ROM drive, 128kB Cache, DMA
+Uniform CD-ROM driver Revision: 3.20
+mice: PS/2 mouse device common for all mice
+input: AT Translated Set 2 keyboard on isa0060/serio0
+input: PS/2 Generic Mouse on isa0060/serio1
+NET: Registered protocol family 2
+IP: routing cache hash table of 2048 buckets, 16Kbytes
+TCP established hash table entries: 16384 (order: 5, 131072 bytes)
+TCP bind hash table entries: 16384 (order: 5, 131072 bytes)
+TCP: Hash tables configured (established 16384 bind 16384)
+NET: Registered protocol family 1
+NET: Registered protocol family 17
+EXT3-fs: INFO: recovery required on readonly filesystem.
+EXT3-fs: write access will be enabled during recovery.
+(fs/jbd/recovery.c, 255): journal_recover: JBD: recovery, exit status 0, re=
+covered transactions 13460949 to 13461122
+(fs/jbd/recovery.c, 257): journal_recover: JBD: Replayed 2353 and revoked 5=
+8/57 blocks
+EXT3-fs: hda1: orphan cleanup on readonly fs
+ext3_orphan_cleanup: deleting unreferenced inode 493136
+ext3_orphan_cleanup: deleting unreferenced inode 493069
+EXT3-fs: hda1: 2 orphan inodes deleted
+EXT3-fs: recovery complete.
+kjournald starting.  Commit interval 5 seconds
+EXT3-fs: mounted filesystem with ordered data mode.
+VFS: Mounted root (ext3 filesystem) readonly.
+Freeing unused kernel memory: 188k freed
+Adding 779112k swap on /dev/hdb1.  Priority:-1 extents:1
+EXT3 FS on hda1, internal journal
+8139too Fast Ethernet driver 0.9.27
+PCI: Enabling device 0000:00:09.0 (0004 -> 0007)
+ACPI: PCI Interrupt Link [LNKD] enabled at IRQ 9
+PCI: setting IRQ 9 as level-triggered
+ACPI: PCI interrupt 0000:00:09.0[A] -> GSI 9 (level, low) -> IRQ 9
+eth0: RealTek RTL8139 at 0xd0890000, 00:e0:7d:ef:8e:69, IRQ 9
+eth0:  Identified 8139 chip type 'RTL-8100B/8139D'
+PCI: Enabling device 0000:00:0b.0 (0004 -> 0007)
+ACPI: PCI Interrupt Link [LNKB] enabled at IRQ 11
+PCI: setting IRQ 11 as level-triggered
+ACPI: PCI interrupt 0000:00:0b.0[A] -> GSI 11 (level, low) -> IRQ 11
+eth1: RealTek RTL8139 at 0xd0892000, 00:e0:7d:ef:8e:4e, IRQ 11
+eth1:  Identified 8139 chip type 'RTL-8100B/8139D'
+ISDN subsystem Rev: 1.1.2.3/1.1.2.3/1.1.2.2/1.1.2.3/1.1.2.2/1.1.2.2 loaded
+HiSax: Linux Driver for passive ISDN cards
+HiSax: Version 3.5 (module)
+HiSax: Layer1 Revision 2.46.2.5
+HiSax: Layer2 Revision 2.30.2.4
+HiSax: TeiMgr Revision 2.20.2.3
+HiSax: Layer3 Revision 2.22.2.3
+HiSax: LinkLayer Revision 2.59.2.4
+hisax_isac: ISAC-S/ISAC-SX ISDN driver v0.1.0
+device-mapper: 4.4.0-ioctl (2005-01-12) initialised: dm-devel@redhat.com
+kjournald starting.  Commit interval 5 seconds
+EXT3 FS on hdb2, internal journal
+EXT3-fs: mounted filesystem with journal data mode.
+Bridge firewalling registered
+device eth0 entered promiscuous mode
+device eth1 entered promiscuous mode
+eth0: link down
+eth0: Promiscuous mode enabled.
+eth0: Promiscuous mode enabled.
+eth0: Promiscuous mode enabled.
+eth0: Promiscuous mode enabled.
+eth0: Promiscuous mode enabled.
+eth1: link up, 10Mbps, half-duplex, lpa 0x0000
+eth1: Promiscuous mode enabled.
+eth1: Promiscuous mode enabled.
+eth1: Promiscuous mode enabled.
+eth1: Promiscuous mode enabled.
+eth1: Promiscuous mode enabled.
+br0: port 2(eth1) entering learning state
+br0: topology change detected, propagating
+br0: port 2(eth1) entering forwarding state
+pnp: the driver 'parport_pc' has been registered
+pnp: match found with the PnP device '00:01' and the driver 'parport_pc'
+parport: PnPBIOS parport detected.
+parport0: PC-style at 0x378 (0x778), irq 7, dma 3 [PCSPP,TRISTATE,COMPAT,EP=
+P,ECP,DMA]
+lp0: using parport0 (interrupt-driven).
+lp0: console ready
+Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing disabled
+ttyS0 at I/O 0x3f8 (irq =3D 4) is a 16550A
+ttyS1 at I/O 0x2f8 (irq =3D 3) is a 16550A
+usbcore: registered new driver usbfs
+usbcore: registered new driver hub
+process `snmpd' is using obsolete setsockopt SO_BSDCOMPAT
+process `snmpwalk' is using obsolete setsockopt SO_BSDCOMPAT
+
+
+### EOF
+### vim:tw=3D256:et:sts=3D2:st=3D2:sw=3D2:com+=3Db\:###:fo+=3Dcqtr:tags=3Dc=
+tags:
+
+--=20
+A+
+* N.Radtke@                 * University of Stuttgart *    icq / lc   *
+*      www.Think-Future.de  *    dep.comp.science     * 9336272/92045 *
+:x                            UTM 32 0515651 5394088                 :)
+   What I want to find out is -- do parrots know much about
+   Astro-Turf?=20
+  =20
+
+--BXVAT5kNtrzKuDFl
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Nils Radtke
+
+iD8DBQFCOvPnX3r3ggYjIRYRAkEUAJ98OAKGgf4hl5qNC565zQOnC51K9wCgj1OM
+eqOfCOy5bzT6zUhtpWVWB9E=
+=CnOx
+-----END PGP SIGNATURE-----
+
+--BXVAT5kNtrzKuDFl--

@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292938AbSB0VdR>; Wed, 27 Feb 2002 16:33:17 -0500
+	id <S292922AbSB0VfH>; Wed, 27 Feb 2002 16:35:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292934AbSB0Vck>; Wed, 27 Feb 2002 16:32:40 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:54026 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S292959AbSB0VcI>; Wed, 27 Feb 2002 16:32:08 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: [Lse-tech] lockmeter results comparing 2.4.17, 2.5.3, and 2.5.5
-Date: Wed, 27 Feb 2002 21:31:17 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <a5jj75$cuk$1@penguin.transmeta.com>
-In-Reply-To: <3C7D374B.4621F9BA@zip.com.au> <3C7D374B.4621F9BA@zip.com.au> <86760000.1014840118@flay> <3C7D3E5A.490D939D@zip.com.au>
-X-Trace: palladium.transmeta.com 1014845492 13122 127.0.0.1 (27 Feb 2002 21:31:32 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 27 Feb 2002 21:31:32 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S292978AbSB0Veq>; Wed, 27 Feb 2002 16:34:46 -0500
+Received: from tapu.f00f.org ([66.60.186.129]:46978 "EHLO tapu.f00f.org")
+	by vger.kernel.org with ESMTP id <S292975AbSB0VeG>;
+	Wed, 27 Feb 2002 16:34:06 -0500
+Date: Wed, 27 Feb 2002 13:33:44 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+Cc: Barubary <barubary@cox.net>, linux-kernel@vger.kernel.org,
+        Rick Stevens <rstevens@vitalstream.com>
+Subject: Re: Big file support\
+Message-ID: <20020227213344.GA23938@tapu.f00f.org>
+In-Reply-To: <3C7D3587.8080609@vitalstream.com> <006301c1bfc9$a5c6de90$a7eb0544@CX535256D> <20020227223426.N23151@mea-ext.zmailer.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020227223426.N23151@mea-ext.zmailer.org>
+User-Agent: Mutt/1.3.27i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3C7D3E5A.490D939D@zip.com.au>,
-Andrew Morton  <akpm@zip.com.au> wrote:
->"Martin J. Bligh" wrote:
->> 
->> Seeing as people seem to be interested ... there are some big holders
->> of BKL around too - do_exit shows up badly (50ms in the data Hanna
->> posted, and I've seen that a lot before).
->
->That'll be where exit() takes down the tasks's address spaces.  
->zap_page_range().  That's a nasty one.
+On Wed, Feb 27, 2002 at 10:34:26PM +0200, Matti Aarnio wrote:
 
-No, lock_kernel happens after exit_mm, and in fact I suspect it's not
-really needed at all any more except for the current "sem_exit()". I
-think most everything else is threaded already.
+    It looks like the LOOP driver lands in between -- it should be LFS
+    capable, but it isn't.
 
-(Hmm.. Maybe disassociate_ctty() too).
+Really?
 
-So minimizing the BLK footprint in do_exit() should be pretty much
-trivial: all the really interesting stuff should be ok already.
+I used to use loop with large lop files all the time, I had to fix the
+utils that mounted/attached the loop device though, as they would fail
+without proper LFS build smarts.
 
-		Linus
+
+   --cw

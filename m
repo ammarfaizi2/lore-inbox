@@ -1,130 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267195AbUJRRaz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267232AbUJRRhx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267195AbUJRRaz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 13:30:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267250AbUJRRay
+	id S267232AbUJRRhx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 13:37:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267235AbUJRRhx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 13:30:54 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:11136 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S267195AbUJRRaR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 13:30:17 -0400
-Date: Mon, 18 Oct 2004 13:28:41 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Greg KH <greg@kroah.com>
-cc: Chris Friesen <cfriesen@nortelnetworks.com>,
-       Lee Revell <rlrevell@joe-job.com>,
-       David Woodhouse <dwmw2@infradead.org>, Josh Boyer <jdub@us.ibm.com>,
-       gene.heskett@verizon.net, Linux kernel <linux-kernel@vger.kernel.org>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       David Howells <dhowells@redhat.com>,
-       "Rusty Russell (IBM)" <rusty@au1.ibm.com>,
-       Arjan van de Ven <arjanv@redhat.com>, Joy Latten <latten@us.ibm.com>
-Subject: Re: Fw: signed kernel modules?
-In-Reply-To: <Pine.LNX.4.61.0410181306030.4196@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.61.0410181322590.4298@chaos.analogic.com>
-References: <200410151153.08527.gene.heskett@verizon.net>
- <1097857049.29988.29.camel@weaponx.rchland.ibm.com>
- <Pine.LNX.4.61.0410151237360.6239@chaos.analogic.com>
- <1097860121.13633.358.camel@hades.cambridge.redhat.com>
- <Pine.LNX.4.61.0410151319460.6877@chaos.analogic.com>
- <1097873791.5119.10.camel@krustophenia.net> <20041015211809.GA27783@kroah.com>
- <4170426E.5070108@nortelnetworks.com> <Pine.LNX.4.61.0410151744220.3651@chaos.analogic.com>
- <Pine.LNX.4.61.0410180845040.3512@chaos.analogic.com> <20041018163346.GB18169@kroah.com>
- <Pine.LNX.4.61.0410181306030.4196@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 18 Oct 2004 13:37:53 -0400
+Received: from mail-relay-3.tiscali.it ([213.205.33.43]:34998 "EHLO
+	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
+	id S267232AbUJRRhw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 13:37:52 -0400
+Date: Mon, 18 Oct 2004 19:38:11 +0200
+From: Andrea Arcangeli <andrea@novell.com>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: Andi Kleen <ak@suse.de>, haveblue@us.ibm.com, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: 4level page tables for Linux
+Message-ID: <20041018173811.GB29298@dualathlon.random>
+References: <20041012135919.GB20992@wotan.suse.de> <1097606902.10652.203.camel@localhost> <20041013184153.GO17849@dualathlon.random> <20041013213558.43b3236c.ak@suse.de> <20041013200414.GP17849@dualathlon.random> <Pine.LNX.4.58.0410180957500.9916@server.graphe.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0410180957500.9916@server.graphe.net>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Oct 2004, Richard B. Johnson wrote:
+On Mon, Oct 18, 2004 at 10:02:20AM -0700, Christoph Lameter wrote:
+> Would it not be best to give up hardcoding these page mapping levels into
+> the kernel? Linux should support N levels. pml4,pgd,pmd,pte needs to
+> disappear and be replaced by
+> 
+> pte_path[N]
 
-> On Mon, 18 Oct 2004, Greg KH wrote:
->
->> On Mon, Oct 18, 2004 at 08:53:46AM -0400, Richard B. Johnson wrote:
->>> +/*
->>> + *  List of acceptable module-license strings.
->>> + */
->>> +static const char *licok[]= {
->>> +    "GPL",
->>> +    "GPL v2",
->>> +    "CPL and additional rights",
->> 
->> The CPL is very different from the GPL and the two are not compatible,
->> so this isn't an acceptable patch.
->> 
->> thanks,
->> 
->> greg k-h
->
-> Right and it wasn't that way when the patch was generated and
-> C and G are so far apart it couldn't be a typo so I don't
-> know why it shows up that way.
->
->
-> Script started on Mon 18 Oct 2004 01:10:46 PM EDT
-> # grep GPL sent-mail
->> MODULE_LICENSE("GPL");
->> If you can reproduce the same problem with some GPL version of
-> iriUIyCrAzt70kZPD/T3qtlHKJ+UwCGrMj1c6GPLs/J0VFvR2NEqY369qAC7
->>>  *   lawyer, and require that a GPL License exist for every kernel
->> GPL licensing. It provides help in understanding what symbols are
->> source or GPL information.
-> a bug report. This whole GPL thing has taken a real stupid
->> MODULE_LICENSE("GPL");
-> iriUIyCrAzt70kZPD/T3qtlHKJ+UwCGrMj1c6GPLs/J0VFvR2NEqY369qAC7
-> +    "GPL",
-> +    "GPL v2",
-> +    "GPL and additional rights",
-> +    "Dual BSD/GPL",
-> +    "Dual MPL/GPL",
-> -	return (strcmp(license, "GPL") == 0
-> -		|| strcmp(license, "GPL v2") == 0
-> -		|| strcmp(license, "GPL and additional rights") == 0
-> -		|| strcmp(license, "Dual BSD/GPL") == 0
-> -		|| strcmp(license, "Dual MPL/GPL") == 0);
-> +    "GPL",
-> +    "GPL v2",
-> +    "GPL and additional rights",
-> +    "Dual BSD/GPL",
-> +    "Dual MPL/GPL",
-> -	return (strcmp(license, "GPL") == 0
-> -		|| strcmp(license, "GPL v2") == 0
-> -		|| strcmp(license, "GPL and additional rights") == 0
-> -		|| strcmp(license, "Dual BSD/GPL") == 0
-> -		|| strcmp(license, "Dual MPL/GPL") == 0);
->>> +    "GPL",
->>> +    "GPL v2",
->>        ^^^  GPL
-> # bye
-> bash: bye: command not found
-> # exit
->
-> Script done on Mon 18 Oct 2004 01:11:05 PM EDT
->
->
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.6.8 on an i686 machine (5537.79 BogoMips).
->            Note 96.31% of all statistics are fiction.
->
-
-Single-bit error somewhere.
-
-G = 0x47
-C = 0x43
-
->>> +    "GPL v2",
->>        ^^^  GPL
-
-... from the 'grep' above.
-
-When somebody sent me a correction, it didn't appear here
-as though it needed correction but I sent it again.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.8 on an i686 machine (5537.79 BogoMips).
-             Note 96.31% of all statistics are fiction.
-
+those aren't the same thing. they may have different
+format and different size, plus as Ingo pointed out we use type checking
+even when they're the same size. Plus they're already an array. It's not
+that simple to remove those duplicate loops, and pte[N] wouldn't mean
+the level but the entry offset in the pagetable. Peraphs it's possible
+to remove the loops but you'd need at least more runtime branches to
+execute in each loop to understand which methods you need to execute
+depending on the level you're running on. I certainly don't like the
+loops myself so I see your point ;).

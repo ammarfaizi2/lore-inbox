@@ -1,70 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311211AbSCPX5l>; Sat, 16 Mar 2002 18:57:41 -0500
+	id <S311212AbSCPX6l>; Sat, 16 Mar 2002 18:58:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311212AbSCPX5V>; Sat, 16 Mar 2002 18:57:21 -0500
-Received: from NEVYN.RES.CMU.EDU ([128.2.145.6]:40832 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id <S311211AbSCPX5S>;
-	Sat, 16 Mar 2002 18:57:18 -0500
-Date: Sat, 16 Mar 2002 18:54:43 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: Paul Menage <pmenage@ensim.com>
-Cc: Paul Gortmaker <p_gortmaker@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Speedup SMP kernel on UP box
-Message-ID: <20020316185443.A2171@nevyn.them.org>
-Mail-Followup-To: Paul Menage <pmenage@ensim.com>,
-	Paul Gortmaker <p_gortmaker@yahoo.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <0C01A29FBAE24448A792F5C68F5EA47D238DE0@nasdaq.ms.ensim.com> <E16mNjq-0002xW-00@pmenage-dt.ensim.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E16mNjq-0002xW-00@pmenage-dt.ensim.com>
-User-Agent: Mutt/1.3.23i
+	id <S311213AbSCPX6c>; Sat, 16 Mar 2002 18:58:32 -0500
+Received: from dsl-213-023-039-132.arcor-ip.net ([213.23.39.132]:22988 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S311212AbSCPX6Q>;
+	Sat, 16 Mar 2002 18:58:16 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, ian@ianduggan.net (Ian Duggan)
+Subject: Re: 2.4.18 Preempt Freezeups
+Date: Sun, 17 Mar 2002 00:51:27 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), rml@tech9.net (Robert Love),
+        linux-kernel@vger.kernel.org (linux kernel)
+In-Reply-To: <E16lshA-0003lX-00@the-village.bc.nu>
+In-Reply-To: <E16lshA-0003lX-00@the-village.bc.nu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16mNxQ-0000mM-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 16, 2002 at 03:37:26PM -0800, Paul Menage wrote:
-> In article <0C01A29FBAE24448A792F5C68F5EA47D238DE0@nasdaq.ms.ensim.com>,
-> you write:
-> >@@ -9,9 +9,15 @@
-> >  */
-> > 
-> > #ifdef CONFIG_SMP
-> >-#define LOCK "lock ; "
-> >+#define LOCK "\n1:\tlock ; "
-> >+#define LOCK_ADDR	"\n" \
-> >+			".section .lock.init,\"a\"\n\t" \
-> >+			".align 4\n\t" \
-> >+			".long 1b\n" \
-> >+			".previous\n"
+On March 15, 2002 03:28 pm, Alan Cox wrote:
+> > What is required for preempt beyond "SMP safe" code? I thought the whole
+> > idea was to make the preemptions transparent to other code by utilizing
+> > the SMP critical regions?
 > 
-> 
-> Why not do:
-> 
-> #define LOCK "1: lock ; \n" \
-> 	 	".section .lock.init,\"a\"\n" \
-> 		".align 4\n"\
-> 		".long 1b\n"\
-> 		".previous\n" 
-> 
-> Then you don't need the LOCK_ADDR macro, so most of atomic.h can be
-> left as is. The assembler doesn't seem to care that there's a section
-> change between the lock prefix and the instruction that it's locking.
+> SMP safe code
+> Actual source code when recompiling modules
+> Reviewing things like driver code use of disable_irq by hand
+> Reviewing driver code for situations where it requires a small timing delay
+> 	and a large one is unacceptable
 
-Local labels work forwards as well as backwards:
+Has anyone found one of those yet?
 
- #define LOCK 
- 	 	".section .lock.init,\"a\"\n" \
- 		".align 4\n"\
- 		".long 1f\n"\
- 		".previous\n" 
-		"1: lock ; \n"
+> Checking anywhere you use the cpu id that you don't do somthing where it
+> 	might change under you (eg per cpu variables)
 
-I recommend not using "1" for your label, though, because probably
-other bits of code that use locks have local loops in them.  It's to be
-expected... just pick a less common number.
+Is per-cpu data the whole list there?
 
 -- 
-Daniel Jacobowitz                           Carnegie Mellon University
-MontaVista Software                         Debian GNU/Linux Developer
+Daniel

@@ -1,62 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129825AbQKHVD6>; Wed, 8 Nov 2000 16:03:58 -0500
+	id <S129880AbQKHVJA>; Wed, 8 Nov 2000 16:09:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129880AbQKHVDs>; Wed, 8 Nov 2000 16:03:48 -0500
-Received: from inet-smtp4.oracle.com ([209.246.15.58]:39616 "EHLO
-	inet-smtp4.us.oracle.com") by vger.kernel.org with ESMTP
-	id <S129825AbQKHVDg>; Wed, 8 Nov 2000 16:03:36 -0500
-Message-ID: <3A09BF8F.6AC771D3@oracle.com>
-Date: Wed, 08 Nov 2000 16:03:11 -0500
-From: "Carey M. Drake" <carey.drake@oracle.com>
-Organization: Oracle Corporation
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: James Simmons <jsimmons@suse.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Network error
-In-Reply-To: <Pine.LNX.4.21.0011081258310.259-100000@euclid.oak.suse.com>
+	id <S129915AbQKHVIv>; Wed, 8 Nov 2000 16:08:51 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:64528 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S129880AbQKHVIi>;
+	Wed, 8 Nov 2000 16:08:38 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Timur Tabi <ttabi@interactivesi.com>
+cc: Linux Kernel Mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: multiple definition of `__module_kernel_version' 
+In-Reply-To: Your message of "Wed, 08 Nov 2000 14:09:43 MDT."
+             <20001108200949Z129150-31179+2040@vger.kernel.org> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Thu, 09 Nov 2000 08:08:31 +1100
+Message-ID: <13202.973717711@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guess: you're using RedHat 7.0 (or somehow else are using a "new"
-version of gcc).
-Either use make cc=kgcc for redhat or downgrade gcc to a supported
-version.
+On Wed, 08 Nov 2000 14:09:43 -0600, 
+Timur Tabi <ttabi@interactivesi.com> wrote:
+>I'm trying to port my driver from 2.4 to 2.2.  When I try to compile it, I get
+>several "multiple definition of `__module_kernel_version'" errors:
 
-James Simmons wrote:
-> 
-> Something I seen on a lug. Anyone have a patch for this?
-> 
-> I'm trying to compile a 2.2.17 kernel.  When I do a make bzImage, I get
-> this error.  It seems to be centering on networking areas (nfs, svclock,
-> tcp, etc.)
-> 
-> tcp_input.c:1393:52: warning: pasting would not give a valid preprocessing
-> token
-> tcp_input.c:1441:85: warning: pasting would not give a valid preprocessing
-> token
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+include/linux/module.h was changed in the 2.3 kernels to define
+__module_kernel_version and __module_using_checksums as static.
+Without that change you get multiple definitions of the variables when
+you link multiple objects into a single module.  In 2.2 you have to
+#define __NO_VERSION__ before including module.h in all of the module
+objects except one.  Search 2.2 drivers for __NO_VERSION__ to see
+examples of this.
 
--- 
-C.
-
-------------------------------------------------------------------------------  
-
-When in doubt, poke it with a stick
-
-Disclaimer: the above is the author's personal opinion and is not the
-opinion
-or policy of his employer or of the little green men that have been
-following
-him all day.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,103 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264526AbTLLL0s (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 06:26:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264532AbTLLL0s
+	id S264532AbTLLLhJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 06:37:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264535AbTLLLhJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 06:26:48 -0500
-Received: from mail.jlokier.co.uk ([81.29.64.88]:9347 "EHLO mail.shareable.org")
-	by vger.kernel.org with ESMTP id S264526AbTLLL0q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 06:26:46 -0500
-Date: Fri, 12 Dec 2003 11:26:36 +0000
+	Fri, 12 Dec 2003 06:37:09 -0500
+Received: from mail.jlokier.co.uk ([81.29.64.88]:10627 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S264532AbTLLLhG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 06:37:06 -0500
+Date: Fri, 12 Dec 2003 11:36:50 +0000
 From: Jamie Lokier <jamie@shareable.org>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Cc: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
-       linux-kernel@vger.kernel.org
-Subject: Re: udev sysfs docs Re: State of devfs in 2.6?
-Message-ID: <20031212112636.GA12727@mail.shareable.org>
-References: <20031208154256.GV19856@holomorphy.com> <3FD4CC7B.8050107@nishanet.com> <20031208233755.GC31370@kroah.com> <20031209061728.28bfaf0f.witukind@nsbm.kicks-ass.org> <20031209075619.GA1698@kroah.com> <1070960433.869.77.camel@nomade> <20031209090815.GA2681@kroah.com> <buoiskqfivq.fsf@mcspd15.ucom.lsi.nec.co.jp> <yw1xd6ayib3f.fsf@kth.se> <3FD5AB6C.3040008@aitel.hist.no>
+To: Craig Milo Rogers <rogers@isi.edu>
+Cc: bill davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux GPL and binary module exception clause?
+Message-ID: <20031212113650.GB12727@mail.shareable.org>
+References: <3FCDE5CA.2543.3E4EE6AA@localhost> <3FCED34B.5050309@opersys.com> <1070669311.8421.35.camel@imladris.demon.co.uk> <3FD4C9C8.6040709@opersys.com> <br5b54$nbj$1@gatekeeper.tmr.com> <20031209214604.GA4542@isi.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3FD5AB6C.3040008@aitel.hist.no>
+In-Reply-To: <20031209214604.GA4542@isi.edu>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting wrote:
-> And if you want to run this way with udev, set it up so device nodes
-> don't get deleted when the device unloads.  That way you keep
-> device nodes for your driverless devices, and when you try to open
-> them the kernel runs modprobe for you.  Devfs isn't needed for that
-> afaik, it is only needed for modprobing devices that doesn't have
-> a /dev entry yet.
-> 
-> Your /dev will contain nodes both for driven and non-driven
-> devices, but not for devices you don't have at all.
+Craig Milo Rogers wrote:
+> On 03.12.09, bill davidsen wrote:
+> > In article <3FD4C9C8.6040709@opersys.com>,
+> > Karim Yaghmour  <karim@opersys.com> wrote:
+> > | I didn't exactly specify how the interfacing would be done because that's
+> > | besides the point I'm trying to make (in fact, it's the later part of my
+> > | email which was most important). But here's two other ways to do it just
+> > | for the sake of discussion:
+> > | a) Hard-wired assembly in the driver that calls on the appropriate address
+> > | with the proper structure offsets etc. No headers used here.
+> > 
+> > Well, the addresses and offset specs came from *somewhere*, and I would
+> > love to hear someone argue that they "just seemed like good values," or
+> > that reading the header file and then using absolute numbers isn't
+> > derivative.
 
+Using the absolute numbers and/or structures (i.e. the interface)
+needed to progam a device seems like a fine example of fair use, even
+when the header file containing them is copyrighted.
 
-If anyone wants to do this _properly_, this is what to do:
+Fair use trumps derivation.
 
-    1. Let hotplug+udev load modules and create devices as they do now.
+> 	INAL.  Observable facts (such as absolute numbers) aren't
+> derivative (in the U.S.) because there's no "creativity"***.  See the
+> famous court decision (... web search ...)  "Feist Publications
+> v. Rural Telephone Serv. Co.", for example.  Of course, the DCMA (or
+> other fell beasts) may have superseded that legal doctrine.
 
-    2. Keep track of when devices are used, and when they are not busy.
-       We already have this, it's the module reference count.
+I guess a hardware manufacturer who feels their programming
+information is worth keeping secret may well argue that they _chose_
+the numbers that needed to be fed to their device, and thus they're creative.
 
-    3. When a device has not been used in a while, convert it to an
-       "inactive" state.  In this state, the hardware device is made
-       quiescent and interrupt handlers are unregistered (perhaps
-       temporarily; the interrupt might still be claimed, but the
-       handler must not be called).
-
-       The power management hooks should be involved, as this is an
-       ideal opportunity to power down a device to a low-power or off
-       state, just like during APM/ACPI suspend.
-
-    4. Make module code pages _demand-pagable_ from the original place
-       where the module was loaded when all devices using the module
-       are in the inactive state.
-
-       This forces the module file to be kept open, so demand paging
-       may be optionally disabled allowing the underlying fs to be
-       unmounted.
-
-
-This will create all the correct device entries for hardware which is
-permanent or plugged in whether used or not; it will remove device
-entries for hardware which is unplugged; it will retain state
-across device opens, and it will save memory.
-
-The traditional problems with making module code swappable are that
-swapping is not safe in critical sections like interrupt handlers, and
-you never know which modules are needed for swapping.  The former is
-solved by locking the code in RAM while the devices are active and
-have registered interrupt handlers (or other callbacks).  The latter
-is obviously likely with the IDE or filesystem modules, but what if
-I'm swapping over a multi-route network where the backup link is
-on-demand PPP over a software modem over my ALSA driven radio card?
-
-That last problem is not solved in general by the current
-/etc/modprobe.conf method of loading whole modules on demand.  However
-any system which works with whole module demand loading, and several
-more, will work automatically with demand-paged modules.
-
-A demand-paged module retains a reference to the filesystem it is
-mounted on, and it may be generally assumed that the filesystem will
-stay accessible e.g. as a local disk, boot-time accessible NFS,
-initramfs, or even an embedded ROM.
-
-If the filesystem's underlying device or network is dependent on a
-module, the mount reference will ensure that device cannot enter the
-inactive state, so the situation of a module being paged out which is
-needed to page it back in won't arise, except in the most contrived
-situations such as modules being loaded over NFS over an on-demand
-network link.  Even then, the failure case is well confined: the
-kernel's attempt to make a device "active" will fail in userspace at
-the point where it tried to open the device, configure the network
-interface or whatever else would cause a module to be demand loaded.
-
-Now that the kernel parses ELF module files itself, this idea is much
-more feasible than it once was.
+But that's silly, and we're in deep shit if ever that argument is
+taken seriously because _lots_ of Linux and BSD open source drivers
+were developed by studying the behaviour or code of another driver.
 
 -- Jamie
+

@@ -1,90 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262384AbSJVJsm>; Tue, 22 Oct 2002 05:48:42 -0400
+	id <S262395AbSJVKA6>; Tue, 22 Oct 2002 06:00:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262400AbSJVJsm>; Tue, 22 Oct 2002 05:48:42 -0400
-Received: from a213-84-34-179.xs4all.nl ([213.84.34.179]:55424 "EHLO
-	defiant.binary-magic.com") by vger.kernel.org with ESMTP
-	id <S262384AbSJVJsh> convert rfc822-to-8bit; Tue, 22 Oct 2002 05:48:37 -0400
-From: Take Vos <Take.Vos@binary-magic.com>
-Organization: Binary Magic
-To: Brad Hards <bhards@bigpond.net.au>, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: USB mouse does not apear in /dev/input
-Date: Tue, 22 Oct 2002 11:48:21 +0200
-User-Agent: KMail/1.4.7
-References: <200210221046.46700.Take.Vos@binary-magic.com> <200210221909.10753.bhards@bigpond.net.au>
-In-Reply-To: <200210221909.10753.bhards@bigpond.net.au>
+	id <S262402AbSJVKA5>; Tue, 22 Oct 2002 06:00:57 -0400
+Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:51524 "EHLO
+	nakedeye.aparity.com") by vger.kernel.org with ESMTP
+	id <S262395AbSJVKA5>; Tue, 22 Oct 2002 06:00:57 -0400
+Date: Tue, 22 Oct 2002 03:15:19 -0700 (PDT)
+From: "Matt D. Robinson" <yakker@aparity.com>
+To: Rob Landley <landley@trommello.org>
+cc: Jeff Garzik <jgarzik@pobox.com>,
+       Guillaume Boissiere <boissiere@adiglobal.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Son of crunch time: the list v1.2.
+In-Reply-To: <200210211642.10435.landley@trommello.org>
+Message-ID: <Pine.LNX.4.44.0210220312180.24156-100000@nakedeye.aparity.com>
 MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200210221148.30286.Take.Vos@binary-magic.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, 21 Oct 2002, Rob Landley wrote:
+|>On Monday 21 October 2002 21:02, Jeff Garzik wrote:
+|>> Rob Landley wrote:
+|>> > 11) Linux Kernel Crash Dumps (Matt Robinson, LKCD team)
+|>> > Announce: http://lists.insecure.org/lists/linux-kernel/2002/Oct/7060.html
+|>> > Code: http://lkcd.sourceforge.net/
+|>>
+|>> I would personally _love_ to see this merged, but I think it's 2.7.x
+|>> material given the recent comments (unless they get fixed up)
+|>
+|>T minus 6 days, and counting... :)
 
-Hello Brad,
+We've incorporated the majority of Christoph's requests, along
+with changes requested by a few other developers.  We'll post the
+next set later tonight after testing a few SMP/UP/IDE/SCSI crashes
+with all of the changes.
 
-> > kernel:	linux-2.5.43
-> > hardware:DELL Inspiron 8100
-> > mouse:	Logitech USB Optical Mouse
-> > config:
-> > 		CONFIG_INPUT_MOUSEDEV
-> > 		CONFIG_INPUT_EVDEV
-> > 		CONFIG_SERIO
-> > 		CONFIG_SERIO_I8042
-> > 		CONFIG_INPUT_MOUSE
-> > 		CONFIG_MOUSE_PS2
-> > 		CONFIG_USB
-> > 		CONFIG_USB_HID
-> > 		CONFIG_USB_HIDINPUT
->
-> Can you show us /proc/bus/usb/devices?
-T:  Bus=01 Lev=00 Prnt=00 Port=00 Cnt=00 Dev#=  1 Spd=12  MxCh= 2
-B:  Alloc=  0/900 us ( 0%), #Int=  0, #Iso=  0
-D:  Ver= 1.10 Cls=09(hub  ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=0000 ProdID=0000 Rev= 2.05
-C:* #Ifs= 1 Cfg#= 1 Atr=40 MxPwr=  0mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=00 Driver=hub
-E:  Ad=81(I) Atr=03(Int.) MxPS=   2 Ivl=255ms
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=1.5 MxCh= 0
-D:  Ver= 1.10 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=046d ProdID=c00c Rev= 6.20
-S:  Manufacturer=Logitech
-S:  Product=USB Mouse
-C:* #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr=100mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=01 Prot=02 Driver=(none)
-E:  Ad=81(I) Atr=03(Int.) MxPS=   4 Ivl=10ms
+There are a couple of things that we didn't change due to the
+nature of the project, which I'll first discuss with Christoph
+off-line to avoid going down a big rathole. :)  Suffice it to
+say that we incorporated almost everything he asked for.
 
-> And also /proc/bus/input/devices?
-I: Bus=0011 Vendor=0002 Product=0001 Version=0000
-N: Name="PS/2 Generic Mouse"
-P: Phys=isa0060/serio1/input0
-H: Handlers=mouse0 event0
-B: EV=7
-B: KEY=70000 0 0 0 0 0 0 0 0
-B: REL=3
+We'll make this deadline.
 
-I: Bus=0011 Vendor=0001 Product=0002 Version=ab02
-N: Name="AT Set 2 keyboard"
-P: Phys=isa0060/serio0/input0
-H: Handlers=kbd event1
-B: EV=120003
-B: KEY=4 2000000 8061f9 fbc9d621 efdfffdf ffefffff ffffffff fffffffe
-B: LED=7
-
-- -- 
-Take Vos <Take.Vos@binary-magic.com>
-GnuPG: 2A5C110609995A378302A27630C962CCFD54AA85
-http://binary-magic.com/~takev/
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9tR7pMMlizP1UqoURAjfaAKCPkAirhn/ktnGbLsFCpcYhbj/LVwCcDxsD
-qGZjZjERntKcms3L6K4guww=
-=SVA6
------END PGP SIGNATURE-----
+--Matt
 

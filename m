@@ -1,96 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262526AbVBXXkP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262577AbVBXXkO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262526AbVBXXkP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 18:40:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262566AbVBXXgc
+	id S262577AbVBXXkO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 18:40:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262559AbVBXXfo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 18:36:32 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:39901 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S262569AbVBXXdz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 18:33:55 -0500
-Message-ID: <421E6462.6070800@acm.org>
-Date: Thu, 24 Feb 2005 17:33:54 -0600
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] I2C patch 6 - Add a block smbus read handler to the I2C core
-Content-Type: multipart/mixed;
- boundary="------------030704030105040505040007"
+	Thu, 24 Feb 2005 18:35:44 -0500
+Received: from fire.osdl.org ([65.172.181.4]:36774 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262564AbVBXXdN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 18:33:13 -0500
+Date: Thu, 24 Feb 2005 15:32:49 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Chris Friesen <cfriesen@nortel.com>
+Cc: chad@tindel.net, helge.hafting@aitel.hist.no, linux-kernel@vger.kernel.org
+Subject: Re: Xterm Hangs - Possible scheduler defect?
+Message-Id: <20050224153249.1bf4db1e.akpm@osdl.org>
+In-Reply-To: <421E61CC.5090302@nortel.com>
+References: <20050223230639.GA33795@calma.pair.com>
+	<20050223183634.31869fa6.akpm@osdl.org>
+	<20050224052630.GA99960@calma.pair.com>
+	<421DD5CC.5060106@aitel.hist.no>
+	<20050224173356.GA11593@calma.pair.com>
+	<20050224150026.69b1862f.akpm@osdl.org>
+	<421E61CC.5090302@nortel.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030704030105040505040007
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Chris Friesen <cfriesen@nortel.com> wrote:
+>
+> Andrew Morton wrote:
+> 
+>  > 	chrt -r 99 -9 $i
 
-This is one in a series of patches for adding a non-blocking interface 
-to the I2C driver for supporting the IPMI SMBus driver.
+Make that
 
---------------030704030105040505040007
-Content-Type: text/plain;
- name="i2c_add_read_block.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="i2c_add_read_block.diff"
-
-This adds back in the i2c_smbus_read_block_data() function
-which is needed by the IPMI SMB driver (coming soon).
-
-Signed-off-by: Corey Minyard <minyard@acm.org>
-
-Index: linux-2.6.11-rc4/drivers/i2c/i2c-core.c
-===================================================================
---- linux-2.6.11-rc4.orig/drivers/i2c/i2c-core.c
-+++ linux-2.6.11-rc4/drivers/i2c/i2c-core.c
-@@ -1247,6 +1247,23 @@
- }
- 
- /* Returns the number of read bytes */
-+s32 i2c_smbus_read_block_data(struct i2c_client *client, u8 command,
-+			      u8 *values)
-+{
-+	union i2c_smbus_data data;
-+	int i;
-+	if (i2c_smbus_xfer(client->adapter,client->addr,client->flags,
-+	                      I2C_SMBUS_READ,command,
-+	                      I2C_SMBUS_BLOCK_DATA,&data))
-+		return -1;
-+	else {
-+		for (i = 1; i <= data.block[0]; i++)
-+			values[i-1] = data.block[i];
-+		return data.block[0];
-+	}
-+}
-+
-+/* Returns the number of read bytes */
- s32 i2c_smbus_read_i2c_block_data(struct i2c_client *client, u8 command, u8 *values)
- {
- 	union i2c_smbus_data data;
-@@ -1734,6 +1751,7 @@
- EXPORT_SYMBOL(i2c_smbus_read_word_data);
- EXPORT_SYMBOL(i2c_smbus_write_word_data);
- EXPORT_SYMBOL(i2c_smbus_write_block_data);
-+EXPORT_SYMBOL(i2c_smbus_read_block_data);
- EXPORT_SYMBOL(i2c_smbus_read_i2c_block_data);
- 
- EXPORT_SYMBOL(i2c_non_blocking_capable);
-Index: linux-2.6.11-rc4/include/linux/i2c.h
-===================================================================
---- linux-2.6.11-rc4.orig/include/linux/i2c.h
-+++ linux-2.6.11-rc4/include/linux/i2c.h
-@@ -98,6 +98,8 @@
- extern s32 i2c_smbus_write_block_data(struct i2c_client * client,
- 				      u8 command, u8 length,
- 				      u8 *values);
-+extern s32 i2c_smbus_read_block_data(struct i2c_client * client,
-+				     u8 command, u8 *values);
- extern s32 i2c_smbus_read_i2c_block_data(struct i2c_client * client,
- 					 u8 command, u8 *values);
- 
-
---------------030704030105040505040007--
+	chrt -r 99 -p $i

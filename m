@@ -1,68 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261391AbSIWVDH>; Mon, 23 Sep 2002 17:03:07 -0400
+	id <S261382AbSIWU4E>; Mon, 23 Sep 2002 16:56:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261392AbSIWVDG>; Mon, 23 Sep 2002 17:03:06 -0400
-Received: from smtpout.mac.com ([204.179.120.85]:19943 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id <S261391AbSIWVDD>;
-	Mon, 23 Sep 2002 17:03:03 -0400
-Message-ID: <3D8F82E5.90A64E8@mac.com>
-Date: Mon, 23 Sep 2002 23:08:53 +0200
-From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@mac.com>
-Organization: B16
-X-Mailer: Mozilla 4.79 [de] (X11; U; Linux 2.4.20-pre7 i686)
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Larry McVoy <lm@bitmover.com>, Bill Davidsen <davidsen@tmr.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-References: <Pine.LNX.4.44.0209232233250.2343-100000@localhost.localdomain>
+	id <S261384AbSIWU4E>; Mon, 23 Sep 2002 16:56:04 -0400
+Received: from 44.231.186.195.dial.bluewin.ch ([195.186.231.44]:913 "EHLO
+	k3.hellgate.ch") by vger.kernel.org with ESMTP id <S261382AbSIWU4D>;
+	Mon, 23 Sep 2002 16:56:03 -0400
+Date: Mon, 23 Sep 2002 23:01:12 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: svetljo <svetljo@lycos.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: via-rhine, VT6103 and VT8235
+Message-ID: <20020923210112.GA423@k3.hellgate.ch>
+Mail-Followup-To: svetljo <svetljo@lycos.com>,
+	linux-kernel@vger.kernel.org
+References: <JOGPEBMEIODLJAAA@mailcity.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <JOGPEBMEIODLJAAA@mailcity.com>
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Linux 2.4.20-pre5 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar schrieb:
+On Mon, 23 Sep 2002 20:17:38 +0100, svetljo wrote:
+> Hi just found previous report about my troubles
+> dating 2002-07-20
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=102718248323184&w=2
 > 
-> On Mon, 23 Sep 2002, Peter Waechtler wrote:
-> 
-> > Getting into kernel is not the same as a context switch. Return EAGAIN
-> > or EWOULDBLOCK is definetly _not_ causing a context switch.
-> 
-> this is a common misunderstanding. When switching from thread to thread in
-> the 1:1 model, most of the cost comes from entering/exiting the kernel. So
-> *once* we are in the kernel the cheapest way is not to piggyback to
-> userspace to do some userspace context-switch - but to do it right in the
-> kernel.
-> 
-> in the kernel we can do much higher quality scheduling decisions than in
-> userspace. SMP affinity, various statistics are right available in
-> kernel-space - userspace does not have any of that. Not to talk about
-> preemption.
-> 
+> ETDEV WATCHDOG: eth1: transmit timed out
+> eth1: Transmit timed out, status 0000, PHY status 786d, resetting...
+[...]
+> mobo EPoX 8K5A-3+ KT333 + VT8235 2.4.19-pre10jam3(with/without the fix) 
+> couldn't find 2.4.20-pre7 with SGI's xfs :( to test
 
-I'm already almost convinced on the NPT way of doing threading.
-But still: the timeslice is per process (and kernel thread).
-You still have other processes running.
-With 1:1 on "hitting" a blocking condition the kernel will
-switch to a different beast (yes, a thread gets a bonus for
-using the same MM and the same cpu).
-But on M:N the "user process" makes some more progress in its
-timeslice (does it get even punished for eating up its 
-timeslice?) I would think that it tends to cause less context
-switches but tends to do more syscalls :-(
+Beautiful. Now that the regular Rhine chips seem to work it's all those VIA
+wonder south bridges. I'm currently swamped with work but I'll hopefully
+have a driver with additional fixes ready in a two or three weeks time
+frame (unless somebody beats me to it).
 
-I already had a closer look at NGPT before reading Ulrich's
-comments on the phil-list and on his website. I already thought
-"puh, that's a complicated beast", and as I saw the
-fcntl(GETFL);fcntl(O_NONBLOCK);write();fcntl(oldflags); thingy..
+> so i wanted to ask whether someone has it working
+> and if there is a newer fix? :)
 
-Well, with an O(1) scheduler, faster thread creation and exit
-NPT has good chances to perform faster.
+The VT823x are still a problem. I added your report to my list. Thx.
 
-Now I'm just curious about the argument about context switch
-times. Is Linux really that much faster than Solaris, Irix etc.?
-
-Do you have numbers (or a hint) on comparable (ideal: identical) 
-hardware? Is LMbench a good starting point?
+Roger

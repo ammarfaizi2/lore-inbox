@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261230AbRESTBW>; Sat, 19 May 2001 15:01:22 -0400
+	id <S261956AbRESTDW>; Sat, 19 May 2001 15:03:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261956AbRESTBC>; Sat, 19 May 2001 15:01:02 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:36626 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261230AbRESTAu>; Sat, 19 May 2001 15:00:50 -0400
-Date: Sat, 19 May 2001 12:00:41 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Pavel Machek <pavel@suse.cz>
-cc: James Simmons <jsimmons@transvirtual.com>,
-        Alexander Viro <viro@math.psu.edu>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: no ioctls for serial ports? [was Re: LANANA: To Pending Device
- Number Registrants]
-In-Reply-To: <20010519122328.C31814@atrey.karlin.mff.cuni.cz>
-Message-ID: <Pine.LNX.4.21.0105191152130.14472-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261967AbRESTDM>; Sat, 19 May 2001 15:03:12 -0400
+Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:39940 "EHLO
+	bug.ucw.cz") by vger.kernel.org with ESMTP id <S261956AbRESTC5>;
+	Sat, 19 May 2001 15:02:57 -0400
+Message-ID: <20010519205848.A18081@bug.ucw.cz>
+Date: Sat, 19 May 2001 20:58:48 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: kernel list <linux-kernel@vger.kernel.org>, viro@math.psu.edu
+Subject: mount misbehaviour?
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-[ Attribution is gone, so I just deleted it.. ]
+I just had small surprise with 2.4.0:
 
-> > > > 	fd = open("/dev/tty00/nonblock,9600,n8", O_RDWR);
-> > >
-> > > Hmm, there might be problem with this. How do you change speed without
-> > > reopening device? [Remember: your mice knows when you close device]
+root@bug:/zip# mount /zip
+root@bug:/zip# ls -al
+total 8
+drwxr-xr-x    2 root     root         4096 Dec  1 08:29 .
+drwxr-xr-x   31 65534    root         4096 Apr 24 20:56 ..
+root@bug:/zip# cd /zip
+root@bug:/zip# ls -al
+total 22182
+drwxr-xr-x    4 root     root        16384 Jan  1  1970 .
+drwxr-xr-x   31 65534    root         4096 Apr 24 20:56 ..
+-rw-r--r--    1 root     root     22687788 May 18 11:48 delme.wav
+drwxr-xr-x    2 root     root         2048 May 18 11:30 karantena
+drwxr-xr-x    5 root     root         2048 May  9 14:15 statnice
 
-The naming scheme is not a replacement for these kinds of ioctl's - it's
-just a way to make them less critical, and get people thinking in other
-directions so that we don't get _more_ ioctl's.
+...Mounting directory under me does not seem healthy. cd fixes
+it... Is that okay?
+								Pavel
+PS: Al, would you please add credit line for yourselves?
 
-Remember, the serial lines we already have legacy support for, that's not
-going away. The termios-based stuff isn't Linux-only, and we'll
-obviously maintain it for the forseeable future.
+pavel@bug:/usr/src/linux$ grep Viro CREDITS
+pavel@bug:/usr/src/linux$ grep Viro MAINTAINERS
+pavel@bug:/usr/src/linux$ 
 
-But if we can use naming to avoid ioctl's in the future, then THAT is
-good. I'm in particular thinking about frame-buffer and similar things,
-where we might be able to avoid making the situation worse.
-
-And remember where this discussion started: not ioctl's, but device
-numbers. The _biggest_ advantage of naming may be to get rid of the need
-for extra major and minor numbers, and cleaning up /dev in the process-
-
-		Linus
-
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

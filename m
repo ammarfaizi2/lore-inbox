@@ -1,89 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbULUKYI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261729AbULUKe4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261728AbULUKYI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 05:24:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261729AbULUKYI
+	id S261729AbULUKe4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 05:34:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbULUKe4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 05:24:08 -0500
-Received: from piglet.wetlettuce.com ([82.68.149.69]:41088 "EHLO
-	piglet.wetlettuce.com") by vger.kernel.org with ESMTP
-	id S261728AbULUKYB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Dec 2004 05:24:01 -0500
-Message-ID: <52121.192.102.214.6.1103624620.squirrel@webmail.wetlettuce.com>
-Date: Tue, 21 Dec 2004 10:23:40 -0000 (GMT)
-Subject: Re: Lockup with 2.6.9-ac15 related to netconsole
-From: "Mark Broadbent" <markb@wetlettuce.com>
-To: <mpm@selenic.com>
-In-Reply-To: <20041221005521.GD5974@waste.org>
-References: <59719.192.102.214.6.1103214002.squirrel@webmail.wetlettuce.com>
-        <20041216211024.GK2767@waste.org>
-        <34721.192.102.214.6.1103274614.squirrel@webmail.wetlettuce.com>
-        <20041217215752.GP2767@waste.org>
-        <20041217233524.GA11202@electric-eye.fr.zoreil.com>
-        <36901.192.102.214.6.1103535728.squirrel@webmail.wetlettuce.com>
-        <20041220211419.GC5974@waste.org>
-        <20041221002218.GA1487@electric-eye.fr.zoreil.com>
-        <20041221005521.GD5974@waste.org>
-X-Priority: 3
-Importance: Normal
-X-MSMail-Priority: Normal
-Cc: <romieu@fr.zoreil.com>, <linux-kernel@vger.kernel.org>,
-       <netdev@oss.sgi.com>
-Reply-To: markb@wetlettuce.com
-X-Mailer: SquirrelMail (version 1.2.6)
+	Tue, 21 Dec 2004 05:34:56 -0500
+Received: from web60603.mail.yahoo.com ([216.109.118.223]:9901 "HELO
+	web60603.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261729AbULUKey (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 05:34:54 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=a5ruYgKLYA1CYa5FkK6Q65IuRpAeQwfdU8L3K/I+3a71ohIYRRntVCJWSRzYOGFKa0fJJ3DpSdfqTJP2LFyDmWYMpNwVSXyS7+qGJ+JB/8WBUq+nqwMkOMVf3pt/dGhbPJ40AVI6xEZedZi5c9/KZvkPCxmf+zUcIUKfWl2Ie/M=  ;
+Message-ID: <20041221103454.22841.qmail@web60603.mail.yahoo.com>
+Date: Tue, 21 Dec 2004 02:34:54 -0800 (PST)
+From: selvakumar nagendran <kernelselva@yahoo.com>
+Subject: Error - Kernel panic - not syncing:VFS:unable to mount root fs on unknown block	(0,0)
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MailScanner: Mail is clear of Viree
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  I installed the latest stable 2.6.9 kernel in my
+system. When I rebooted the system with the kernel it
+showed the following error.
+ 
+     "Kernel panic - not syncing:VFS:unable to mount
+root fs on unknown block (3,1)"
 
-Matt Mackall said:
-> On Tue, Dec 21, 2004 at 01:22:18AM +0100, Francois Romieu wrote:
->> Matt Mackall <mpm@selenic.com> :
->> > On Mon, Dec 20, 2004 at 09:42:08AM -0000, Mark Broadbent wrote:
->> > >
->> > > Exactly the same happens, I still get a 'NMI Watchdog detected
->> > > LOCKUP' with the r8169 device using the above patch on top of
->> > > 2.6.10-rc3-bk10.
->> >
->> > Ok, that suggests a problem localized to netpoll itself. Do you have
->> > spinlock debugging turned on by any chance?
->>
->> Any chance of:
->> 1 dev_queue_xmit
->> 2 dev->xmit_lock taken
->> 3 interruption
->> 4 printk
->> 5 netconsole write
->> 6 dev->xmit_lock again
->> 7 lockup
->>
->> ?
->>
->> This is probably the silly question of the day.
->
-> Maybe, but the answer isn't obvious to me at the moment as I haven't
-> been thinking about such stuff enough lately. Silly response of the
-> day:
->
-> Mark, can you try this (again completely untested, but at least
-> compiles) patch? I'm afraid I don't have a proper test rig to
-> reproduce this at the moment. This will attempt to grab the lock, and
-> if it fails, will check for recursion. Then it will try to print a
-> message on the local console, temporarily disabling netconsole to
-> allow the printk to get through..
+    What is the solution to get rid of this error? 
+    What is the measure to prevent such errors in the
+future?
+     I downloaded the kernel source tar ball from
+kernel.org
+    Can anyone help me regarding this?
 
-OK, patch applied and spinlock debugging enabled.  Testing with eth1
-(r1869) doesn'tyield any additional messages, just the standard 'NMI Watchdog detected
-lockup'.
-Thanks
-Mark
-
--- 
-Mark Broadbent <markb@wetlettuce.com>
-Web: http://www.wetlettuce.com
+Thanks,
+selva
 
 
 
+		
+__________________________________ 
+Do you Yahoo!? 
+All your favorites on one personal page – Try My Yahoo!
+http://my.yahoo.com 

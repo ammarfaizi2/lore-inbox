@@ -1,51 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262402AbRENT2L>; Mon, 14 May 2001 15:28:11 -0400
+	id <S262413AbRENTec>; Mon, 14 May 2001 15:34:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262409AbRENT1v>; Mon, 14 May 2001 15:27:51 -0400
-Received: from penguin.engin.umich.edu ([141.213.33.36]:45577 "EHLO
-	penguin.engin.umich.edu") by vger.kernel.org with ESMTP
-	id <S262402AbRENT1o>; Mon, 14 May 2001 15:27:44 -0400
-Date: Mon, 14 May 2001 15:27:26 -0400 (EDT)
-From: Chris Wing <wingc@engin.umich.edu>
-To: Khachaturov Vassilii <Vassilii.Khachaturov@comverse.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: uid_t and gid_t vs. __kernel_uid_t and __kernel_gid_t
-Message-ID: <Pine.LNX.4.21.0105141518001.30715-100000@penguin.engin.umich.edu>
+	id <S262417AbRENTeW>; Mon, 14 May 2001 15:34:22 -0400
+Received: from fjordland.nl.linux.org ([131.211.28.101]:47625 "EHLO
+	fjordland.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S262413AbRENTeK>; Mon, 14 May 2001 15:34:10 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Andreas Dilger <adilger@turbolinux.com>
+Subject: Re: [PATCH][CFT] (updated) ext2 directories in pagecache
+Date: Mon, 14 May 2001 21:29:34 +0200
+X-Mailer: KMail [version 1.2]
+Cc: Andreas Dilger <adilger@turbolinux.com>,
+        Alexander Viro <viro@math.psu.edu>,
+        Linux kernel development list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200105141833.f4EIXrQs001765@webber.adilger.int>
+In-Reply-To: <200105141833.f4EIXrQs001765@webber.adilger.int>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01051421293401.14979@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vassilii:
+On Monday 14 May 2001 20:33, Andreas Dilger wrote:
+> Danie, you write:
+> > This can go in ext2_bread, which already has dir-specific code in
+> > it (readahead), and ext2_getblk remains generic, for what it's
+> > worth.
+>
+> Note that the dir-specific code in ext2_bread() is not readahead, but
+> rather directory block pre-allocation,
 
-__kernel_uid_t is my fault. The names are confusing, but uid_t and gid_t
-are NOT supposed to be different in kernel and user space.
+oops, yes that's what I meant.
 
-They used to differ, and the junk in /include/linux/highuid.h is there to
-handle all old programs which used the smaller (16-bit) uid_t.
+> which would totally break
+> indexed directory code (because the empty blocks would not be put
+> into the index and would remain unreferenced thereafter).
 
-Kernel code should always use uid_t as a type, except when copying data
-between user and kernel space. In that case, just make sure that whatever
-data structure you use is big enough to contain a Linux uid_t. (as of 2.4,
-Linux uses 32-bit uid_t on all platforms) All new interfaces to user space
-should use 32-bit uids, i.e. type unsigned int.
+The preallocation just does ext2_getblk, it doesn't increase i_size.  
+The indexing code relies on i_size to append a new block, so this 
+should work ok.
 
-Don't use __kernel_uid_t at all in new code. The name is basically there
-only because the older libc5 C library included the kernel headers and we
-have to preserve it so that programs still compile on these old systems.
+> For that matter, I'm not sure whether the dir-prealloc feature even
+> works. The blocks are created/allocated, but are not initialized with
+> the empty dirent data (i.e. set rec_len = blocksize), so it would
+> just create a corrupt directory block.
 
-if you look inside /include/linux/types.h, this is made explicit:
+I guess the lifetime of these blocks is the same as the lifetime of the 
+directory's dcache entry, but I have to go spelunking to be sure.  If 
+that's right then it's probably a good feature.  Having speculated 
+about it, I should test this and see what happens.   
 
-#ifdef __KERNEL__
-typedef __kernel_uid32_t	uid_t;
-typedef __kernel_gid32_t	gid_t;
-...
-...
+> > > ...(later)... I had a look at pulling out the ext2_check_page()
+> > > code so that it can be used for both ext2_get_page() and
+> > > ext2_bread(), but one thing concerns me - if we do checking on
+> > > the whole page/buffer at once, then any error in the page/buffer
+> > > will discard all of the dir entries in that page.  In the old
+> > > code, we would at least return all of the entries up to the bad
+> > > dir entry.  Comments on this?
+> >
+> > For a completely empty page that's the right thing to do, much
+> > better than hanging as it does now.  We don't want to try to repair
+> > damage on the fly do we?
+>
+> What do you mean by hanging?  You refer to new (indexed) code or old
+> code?
 
+I mean the new code, which just loops forever if it gets a zero 
+rec_len.  It would be nice to get rid of this fragility without putting 
+an extra check in the inner loop.  I think it's worth the effort, we 
+are still cycling linearly through an average of roughly 128 directory 
+entires on every directory operation.  I'll try fixing this by method 
+related to what Al does, except instead of using the page flag, the 
+place to do it is where the block gets mapped.
 
-Thanks,
+[...] No repair on the fly: Ack [...]
 
-Chris Wing
-wingc@engin.umich.edu
+> > Now, if the check routine tells us how much good data it found we
+> > could use that to set a limit for the dirent scan, thus keeping the
+> > same robustness as the old code but without having all the checks
+> > in the inner loop.  Or.  We could have separate loops for good
+> > blocks and bad blocks, it's just a very small amount of code.
+>
+> Yes, I was thinking about both of those as well.  I think the latter
+> would be easiest, because we only need to keep a single error bit per
+> buffer.
 
+Heh.  I was going to try the other one first.
+
+By the way, all the code for the directory link limit enhancement was 
+in fact in your last patch, and is included in the patch I uploaded 
+yesterday.  I haven't tested it.  It would be nice to know how fast we 
+can create 1,000,000 empty directories :-)
+
+I noticed that Postfix creates an elaborate directory bucket structure 
+that will be completely obsolete when the directory indexing becomes 
+generally available.
+
+--
+Daniel

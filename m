@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262358AbTFZXRH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 19:17:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262366AbTFZXRH
+	id S262366AbTFZXSe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 19:18:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262367AbTFZXSe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 19:17:07 -0400
-Received: from aneto.able.es ([212.97.163.22]:46997 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S262358AbTFZXRF (ORCPT
+	Thu, 26 Jun 2003 19:18:34 -0400
+Received: from aneto.able.es ([212.97.163.22]:47765 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id S262366AbTFZXSc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 19:17:05 -0400
-Date: Fri, 27 Jun 2003 01:31:17 +0200
+	Thu, 26 Jun 2003 19:18:32 -0400
+Date: Fri, 27 Jun 2003 01:32:44 +0200
 From: "J.A. Magallon" <jamagallon@able.es>
 To: Marcelo Tosatti <marcelo@conectiva.com.br>
 Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] kill extra printk prototype
-Message-ID: <20030626233117.GO3827@werewolf.able.es>
+Subject: [PATCH] kill duplicate pci_id
+Message-ID: <20030626233244.GQ3827@werewolf.able.es>
 References: <Pine.LNX.4.55L.0306261858460.10651@freak.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -37,21 +37,18 @@ On 06.27, Marcelo Tosatti wrote:
 > short.
 > 
 
-Alredy declared in kernel.h.
-
---- linux/include/asm-i386/spinlock.h.orig    2002-10-15 10:12:25.000000000 +0100
-+++ linux/include/asm-i386/spinlock.h 2002-10-15 10:12:35.000000000 +0100
-@@ -6,9 +6,6 @@
- #include <asm/page.h>
- #include <linux/config.h>
- 
--extern int printk(const char * fmt, ...)
--	__attribute__ ((format (printf, 1, 2)));
--
- /* It seems that people are forgetting to
-  * initialize their spinlocks properly, tsk tsk.
-  * Remember to turn this off in 2.4. -ben
-
+--- linux-2.4.20.orig/include/linux/pci_ids.h	2003-05-30 00:43:12.000000000=
+ +0200
++++ linux-2.4.20/include/linux/pci_ids.h	2003-05-30 00:44:37.000000000 +020=
+0
+@@ -1029,7 +1029,6 @@
+ #define PCI_DEVICE_ID_VIA_8233A		0x3147
+ #define PCI_DEVICE_ID_VIA_P4X333   0x3168
+ #define PCI_DEVICE_ID_VIA_8235        0x3177
+-#define PCI_DEVICE_ID_VIA_8377_0  0x3189
+ #define PCI_DEVICE_ID_VIA_8377_0	0x3189
+ #define PCI_DEVICE_ID_VIA_8237     0x3227
+ #define PCI_DEVICE_ID_VIA_86C100A	0x6100
 
 -- 
 J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:

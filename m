@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290322AbSAPBQ1>; Tue, 15 Jan 2002 20:16:27 -0500
+	id <S290324AbSAPBRH>; Tue, 15 Jan 2002 20:17:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290321AbSAPBQR>; Tue, 15 Jan 2002 20:16:17 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:42505 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S290319AbSAPBQE>; Tue, 15 Jan 2002 20:16:04 -0500
-Subject: Re: Oopses in scheduler on Linux-2.4.17-xfs
-To: pwaechtler@loewe-komp.de (Peter =?iso-8859-1?Q?W=E4chtler?=)
-Date: Wed, 16 Jan 2002 01:28:03 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3C44B260.D1FA47BF@loewe-komp.de> from "Peter =?iso-8859-1?Q?W=E4chtler?=" at Jan 15, 2002 11:51:12 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S290319AbSAPBQ6>; Tue, 15 Jan 2002 20:16:58 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:3775 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S290321AbSAPBQn>;
+	Tue, 15 Jan 2002 20:16:43 -0500
+Date: Wed, 16 Jan 2002 02:16:34 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Benjamin LaHaise <bcrl@redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>, John Weber <weber@nyc.rr.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Re: 2.5.3-pre1 compile error
+Message-ID: <20020116021634.F5235@khan.acc.umu.se>
+In-Reply-To: <20020115194425.J17477@redhat.com> <Pine.LNX.4.40.0201151650531.960-100000@blue1.dev.mcafeelabs.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16Qerz-00070o-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <Pine.LNX.4.40.0201151650531.960-100000@blue1.dev.mcafeelabs.com>; from davidel@xmailserver.org on Tue, Jan 15, 2002 at 04:52:23PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I recently get oopses on 2.4.14-xfs and 2.4.17-xfs.
-> box is SMP with old Pentium Pro
-> There were some changes with erratas of the Pro ans something
-> with "cacheline alignment" and a fence.
+On Tue, Jan 15, 2002 at 04:52:23PM -0800, Davide Libenzi wrote:
+> On Tue, 15 Jan 2002, Benjamin LaHaise wrote:
+> 
+> > On Tue, Jan 15, 2002 at 04:46:36PM -0800, Davide Libenzi wrote:
+> > > after that it builds for me ... but it crashes at boot time
+> >
+> > Config?  Arch?  Compiler?
+> 
+> Let me reboot with the crashing kernel for tracing ...
+> 
+> x86 UP Athlon gcc-3.0.3
 
-Unrelated - in fact you have bugs before and after. The fixes in question
-were two sets
+Let me suggest gcc-2.95.3 or gcc-2.96-whatever
 
-1.	In certain bizarre situations the ppro violates store ordering. It
-	needs lock based spin_unlock to avoid that. Ditto locks to ensure
-	stores don't bypass stuff on pci_map interfaces. (This btw is the
-	same errata as the FENCE stuff in libglide is all about)
 
-2.	Certain address ranges must never be cached on the ppro due to an
-	errata. We broke that in two ways - if there was RAM there, and
-	if we mapped a card there and set MTRR's to write combine it.
-
-Alan
+/David Weinehall
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

@@ -1,66 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262168AbTJINaC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 09:30:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262177AbTJINaB
+	id S262158AbTJINWC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 09:22:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262129AbTJINWC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 09:30:01 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:4480 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S262168AbTJIN37 (ORCPT
+	Thu, 9 Oct 2003 09:22:02 -0400
+Received: from ns.suse.de ([195.135.220.2]:37795 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262127AbTJINV5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 09:29:59 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16261.25288.125075.508225@gargle.gargle.HOWL>
-Date: Thu, 9 Oct 2003 15:29:44 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
+	Thu, 9 Oct 2003 09:21:57 -0400
 To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, arun.sharma@intel.com, torvalds@osdl.org
-Subject: 2.6.0-test7 BLK_DEV_FD dependence on ISA breakage
-In-Reply-To: <Pine.LNX.4.44.0310081235280.4017-100000@home.osdl.org>
-References: <Pine.LNX.4.44.0310081235280.4017-100000@home.osdl.org>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Cc: linux-ia64@vger.kernel.org
+Subject: genksyms bug: Warning: "per_cpu__local_per_cpu_offset" [...] has no
+ CRC!
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: Are you still an ALCOHOLIC?
+Date: Thu, 09 Oct 2003 15:21:54 +0200
+Message-ID: <jey8vua6ml.fsf@sykes.suse.de>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As found in ChangeLog-2.6.0-test7:
-><akpm@osdl.org>
->	[PATCH] Disable floppy and the related ioctl32s on some platforms
->	
->	From: Arun Sharma <arun.sharma@intel.com>
->	
->	Based on some earlier discussion:
->	
->	http://marc.theaimsgroup.com/?t=106015010700002&r=1&w=2
->	
->	here's a new patch that attempts to disable BLK_DEV_FD on platforms which
->	don't support it.
+I'm getting this warning when building 2.6.0-test[567] for ia64 with
+MODVERSIONS enabled.  This is a bug in genksyms, it can't cope with some
+arguments of __typeof__.  The following patch will fix that.  Actually the
+argument of __typeof__ is an abstract declarator, but the genksyms parser
+has no production for that; decl_specifier_seq also matches some invalid
+constructs, but I don't think this is a problem in practice, since the
+compiler will reject them.
 
-This patch
+Andreas.
 
---- a/drivers/block/Kconfig	Wed Oct  8 12:24:56 2003
-+++ b/drivers/block/Kconfig	Wed Oct  8 12:24:56 2003
-@@ -6,7 +6,7 @@
+--- linux-2.6.0-test7/scripts/genksyms/parse.y.~1~	2003-10-08 21:24:04.000000000 +0200
++++ linux-2.6.0-test7/scripts/genksyms/parse.y	2003-10-09 15:03:38.000000000 +0200
+@@ -197,7 +197,7 @@ storage_class_specifier:
+ type_specifier:
+ 	simple_type_specifier
+ 	| cvar_qualifier
+-	| TYPEOF_KEYW '(' type_specifier ')'
++	| TYPEOF_KEYW '(' decl_specifier_seq ')'
  
- config BLK_DEV_FD
- 	tristate "Normal floppy disk support"
--	depends on !X86_PC9800 && !ARCH_S390
-+	depends on ISA || M68 || SPARC64
- 	---help---
- 	  If you want to use the floppy disk drive(s) of your PC under Linux,
- 	  say Y. Information about this driver, especially important for IBM
+ 	/* References to s/u/e's defined elsewhere.  Rearrange things
+ 	   so that it is easier to expand the definition fully later.  */
 
-is broken. The help text and de facto definition of CONFIG_ISA only
-refers to devices in ISA _slots_. Since the FDC is not such a device,
-this patch reinterprets CONFIG_ISA to mean any device which is
-accessed via in/out to the low I/O port range.
-
-Well in that case I guess !CONFIG_ISA should also disable keyboards,
-serial ports, dma controllers, timers, etc.
-
-IA64 folks may not want to be asked about BLK_DEV_FD, but this patch
-now forces me to set CONFIG_ISA in my ISA-slot-free machines, which
-also adds a lot of new config options I don't want.
-
-/Mikael
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

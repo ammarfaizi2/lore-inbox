@@ -1,23 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267026AbTCFJMV>; Thu, 6 Mar 2003 04:12:21 -0500
+	id <S267955AbTCFJZg>; Thu, 6 Mar 2003 04:25:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267941AbTCFJMU>; Thu, 6 Mar 2003 04:12:20 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:56787 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S267934AbTCFJMU>;
-	Thu, 6 Mar 2003 04:12:20 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Thu, 6 Mar 2003 10:22:50 +0100 (MET)
-Message-Id: <UTC200303060922.h269MoG29870.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, andmike@us.ibm.com
-Subject: Re: 2.5.63/64 do not boot: loop in scsi_error
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       torvalds@transmeta.com
+	id <S267956AbTCFJZg>; Thu, 6 Mar 2003 04:25:36 -0500
+Received: from as12-5-6.spa.s.bonet.se ([217.215.177.162]:9658 "EHLO
+	www.tnonline.net") by vger.kernel.org with ESMTP id <S267955AbTCFJZf>;
+	Thu, 6 Mar 2003 04:25:35 -0500
+Date: Thu, 6 Mar 2003 10:36:04 +0100
+From: Anders Widman <andewid@tnonline.net>
+X-Mailer: The Bat! (v1.63 Beta/6)
+Reply-To: Anders Widman <andewid@tnonline.net>
+Organization: TNOnline.net
+X-Priority: 3 (Normal)
+Message-ID: <195124534734.20030306103604@tnonline.net>
+To: linux-kernel@vger.kernel.org
+Subject: Entire LAN goes boo  with 2.5.64
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Can you send me your console log.
 
-Patience. Fourteen hours from now I'll look at this some more.
+   Hello,
 
-Andries
+   Trying  out  the  2.5.64  kernel  to try to solve some IDE specific
+   problems  with 2.4.x kernels. Now I have another problem. We have a
+   Windows LAN and a Windows XP with WinRoute Pro as gateway.
+
+   When  booting  the linux-machine with the 2.5.64 kernel the windows
+   machine goes to 100% cpu and the switch (Dlink) goes crazy (loosing
+   link, other machines get 100k/s instead of 10-12MiB/s etc).
+
+   I  compiled  the  2.5.64  with  as  few  options  as  possible,  no
+   netfilter, or IPSec or similar stuff.
+
+   What can be the problem?
+
+
+--------
+PGP public key: https://tnonline.net/secure/pgp_key.txt
+

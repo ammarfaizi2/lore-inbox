@@ -1,36 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267588AbUHaJGU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267548AbUHaJIx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267588AbUHaJGU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 05:06:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267585AbUHaJGU
+	id S267548AbUHaJIx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 05:08:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267614AbUHaJIw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 05:06:20 -0400
-Received: from fw.osdl.org ([65.172.181.6]:57996 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267588AbUHaJFy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 05:05:54 -0400
-Date: Tue, 31 Aug 2004 02:04:03 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Yuval Turgeman <yuvalt@gmail.com>
+	Tue, 31 Aug 2004 05:08:52 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:4793 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S267548AbUHaJHW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 05:07:22 -0400
+Date: Tue, 31 Aug 2004 18:08:45 +0900
+From: Takao Indoh <indou.takao@soft.fujitsu.com>
+Subject: Re: [PATCH 0/4][diskdump] x86-64 support
+In-reply-to: <m3r7prcpvt.fsf@averell.firstfloor.org>
+To: Andi Kleen <ak@muc.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: searching for parameters in 'make menuconfig'
-Message-Id: <20040831020403.7a78492b.akpm@osdl.org>
-In-Reply-To: <9ae345c004083002282ec691a9@mail.gmail.com>
-References: <9ae345c004083002282ec691a9@mail.gmail.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Message-id: <98C48F3A1E8E11indou.takao@soft.fujitsu.com>
+MIME-version: 1.0
+X-Mailer: TuruKame 3.63
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+References: <m3r7prcpvt.fsf@averell.firstfloor.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yuval Turgeman <yuvalt@gmail.com> wrote:
+Hello,
+
+Thanks for comment.
+
+On Sat, 28 Aug 2004 16:13:10 +0200, Andi Kleen wrote:
+
+>> When I tested diskdump on x86-64 machine, I found that memory dump of
+>> the following two areas failed.
+>>
+>> 1) 04000000 - 07ffffff
+>> 2) around last two page
+>>
+>> Memory dump of the area 2) failed because page->flag was broken.
 >
-> I added the ability to search for parameters in make menuconfig (find
->  a given parameter's location in the tree).
+>Broken in what way? That should probably just be fixed in the core
+>kernel.
 
-Well that beats grepping the Kconfig files.  Thanks - I just used it.
+page->flag around last two page is 0.
+I tested on another machine and found all of page->flag is correct.
+So this problem may be dependent on machine.
 
-I extensively reworked your code layout.  Please follow
-Documentation/CodginStyle, and the surrounding code in future.
-
+Regards,
+Takao Indoh

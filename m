@@ -1,62 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133105AbRANV3k>; Sun, 14 Jan 2001 16:29:40 -0500
+	id <S135343AbRANVkY>; Sun, 14 Jan 2001 16:40:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135439AbRANV3a>; Sun, 14 Jan 2001 16:29:30 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:17675 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S133105AbRANV3W>;
-	Sun, 14 Jan 2001 16:29:22 -0500
-Message-ID: <3A621A27.685B985E@mandrakesoft.com>
-Date: Sun, 14 Jan 2001 16:29:11 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre1 i686)
-X-Accept-Language: en
+	id <S135439AbRANVkO>; Sun, 14 Jan 2001 16:40:14 -0500
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:8442 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S135343AbRANVkA>; Sun, 14 Jan 2001 16:40:00 -0500
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SetPageDirty in shmem_nopage
+In-Reply-To: <Pine.LNX.4.10.10101141116550.4086-100000@penguin.transmeta.com>
+From: Christoph Rohland <cr@sap.com>
+In-Reply-To: <Pine.LNX.4.10.10101141116550.4086-100000@penguin.transmeta.com>
+Message-ID: <m3ae8tg6kr.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Capitol Reef)
 MIME-Version: 1.0
-To: Rasmus Andersen <rasmus@jaquet.dk>
-CC: Roman.Hodek@informatik.uni-erlangen.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] make drivers/scsi/atari_scsi.c check request_irq (240p3)
-In-Reply-To: <20010114195323.B602@jaquet.dk>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: 14 Jan 2001 22:44:04 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rasmus Andersen wrote:
-> 
-> Hi.
-> 
-> The following patch makes drivers/scsi/atari_scsi.c check request_irq's
-> return code. It applies cleanly against 240p3 and ac9.
-> 
-> Comments?
-> 
-> --- linux-ac9/drivers/scsi/atari_scsi.c~        Tue Nov 28 02:57:34 2000
-> +++ linux-ac9/drivers/scsi/atari_scsi.c Sun Jan 14 19:28:00 2001
-> @@ -690,19 +690,27 @@
->                 /* This int is actually "pseudo-slow", i.e. it acts like a slow
->                  * interrupt after having cleared the pending flag for the DMA
->                  * interrupt. */
-> -               request_irq(IRQ_TT_MFP_SCSI, scsi_tt_intr, IRQ_TYPE_SLOW,
-> -                           "SCSI NCR5380", scsi_tt_intr);
-> +               if (!request_irq(IRQ_TT_MFP_SCSI, scsi_tt_intr, IRQ_TYPE_SLOW,
-> +                                "SCSI NCR5380", scsi_tt_intr)) {
-> +                       printk(KERN_ERR "atari_scsi_detect: cannot allocate irq %d, aborting",IRQ_TT_MFP_SCSI);
-> +                       atari_stram_free(atari_dma_buffer);
-> +                       atari_dma_buffer = 0;
-> +                       return 0;
-> +               }
+Linus Torvalds <torvalds@transmeta.com> writes:
 
-request_irq returns zero on success, not on failure.  Further, you need
-to return the request_irq error value back to the caller, if possible.
+> On 14 Jan 2001, Christoph Rohland wrote:
+> Why do you increment the use counter at all in nopage?
 
-	Jeff
+First to be able to limit the overall number of pages used by the
+filesystem and second to have the right value for the number of blocks
+in [f]stat.
 
+Show me a way to get the overall number of vm pages in the fs and I
+drop it in a minute.
 
--- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
+> It looks like this code is all historical baggage from when the
+> shm code didn't use the VM page cache?
+
+No, it was introduced with the changes to use the page cache.
+
+Greetings
+                Christoph
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

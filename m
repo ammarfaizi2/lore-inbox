@@ -1,50 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261223AbUCEVou (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 16:44:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbUCEVou
+	id S261187AbUCEVso (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 16:48:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261274AbUCEVso
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 16:44:50 -0500
-Received: from mail.shareable.org ([81.29.64.88]:43911 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261223AbUCEVoq
+	Fri, 5 Mar 2004 16:48:44 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:53379 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261187AbUCEVsj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 16:44:46 -0500
-Date: Fri, 5 Mar 2004 21:44:34 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, peter@mysql.com, riel@redhat.com,
-       mbligh@aracnet.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high end)
-Message-ID: <20040305214434.GD7254@mail.shareable.org>
-References: <Pine.LNX.4.44.0402280950500.1747-100000@chimarrao.boston.redhat.com> <20040229014357.GW8834@dualathlon.random> <1078370073.3403.759.camel@abyss.local> <20040303193343.52226603.akpm@osdl.org> <1078371876.3403.810.camel@abyss.local> <20040303200704.17d81bda.akpm@osdl.org> <20040304045212.GG4922@dualathlon.random> <20040303211042.33cd15ce.akpm@osdl.org> <20040305201954.GB7254@mail.shareable.org> <20040305203340.GU4922@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040305203340.GU4922@dualathlon.random>
-User-Agent: Mutt/1.4.1i
+	Fri, 5 Mar 2004 16:48:39 -0500
+Date: Fri, 5 Mar 2004 16:51:38 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Stuart_Hayes@Dell.com
+cc: linux-kernel@vger.kernel.org, andrew.grover@intel.com
+Subject: Re: ACPI stack overflow
+In-Reply-To: <CE41BFEF2481C246A8DE0D2B4DBACF4F128AA1@ausx2kmpc106.aus.amer.dell.com>
+Message-ID: <Pine.LNX.4.53.0403051638001.398@chaos>
+References: <CE41BFEF2481C246A8DE0D2B4DBACF4F128AA1@ausx2kmpc106.aus.amer.dell.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> > Can you use a read-write lock, so that userspace copies only need to
-> > take the lock for reading?  That doesn't eliminate cacheline bouncing
-> > but does eliminate the serialisation.
-> 
-> normally the bouncing would be the only overhead, but here I also think
-> the serialization is a significant factor of the contention because the
-> critical section is taking lots of time. So I would expect some
-> improvement by using a read/write lock.
+On Fri, 5 Mar 2004 Stuart_Hayes@Dell.com wrote:
 
-For something as significant as user<->kernel data transfers, it might
-be worth eliminating the bouncing as well - by using per-CPU * per-mm
-spinlocks.
+>
+> Hello...
+>
+> I think I am getting a stack overflow when Linux is parsing the ACPI
+> tables (initializing all the devices and running all the _STA methods).
+> I am using the x86_64 architecture.  I would like to try increasing the
+> kernel stack size, but I'm not sure how to go about doing this.
+> Could someone tell me how to increase the kernel stack size?
+> (And, has anyone else seen a problem with stack overflows with ACPI?)
+>
 
-User<->kernel data transfers would take the appropriate per-CPU lock
-for the current mm, and not take page_table_lock.  Everything that
-normally takes page_table_lock would, and also take all of the per-CPU locks.
+Please fix your mailer. In Unix/Linux, we put in a [Enter] ('\n')
+every once in awhile, usually every 79 charcters so that a line
+of text does not exceed 80 characters. We do not let some indefinite
+screen "auto-wrap".
 
-That does require a set of per-CPU spinlocks to be allocated whenever
-a new mm is allocated (although the sets could be cached so it needn't
-be slow).
+> Thanks!
+> Stuart
+> stuart_hayes@dell.com
 
--- Jamie
+There have been continual changes over the years to reduce the
+amount of kernel stack that the kernel uses because kernel stack-
+space is "expensive". It needs to be changed in pages.  I think
+that if you have a stack-overflow, then you are writing poor
+kernel code. In the kernel, do not put arrays on the stack, i.e,
+in "local" space. Use kmalloc()/kfree() instead.
+
+Basically, do not increase the stack size. It just masks problems.
+It does not make them go away. If you need more stack, you
+are doing something wrong.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
+

@@ -1,33 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269987AbTHBSfk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 14:35:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270022AbTHBSfj
+	id S270066AbTHBSiM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 14:38:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270081AbTHBSiM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 14:35:39 -0400
-Received: from smtp.mailbox.co.uk ([195.82.125.32]:44183 "EHLO
-	smtp.mailbox.co.uk") by vger.kernel.org with ESMTP id S269987AbTHBSfj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 14:35:39 -0400
-Date: Sat, 2 Aug 2003 19:26:37 +0100 (BST)
-From: Jon Masters <jonathan@jonmasters.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-cc: Jon Masters <jonathan@jonmasters.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>, jcm@printk.net
-Subject: Re: OpenPIC Specifications
-In-Reply-To: <Pine.GSO.4.21.0308022023360.595-100000@vervain.sonytel.be>
-Message-ID: <Pine.LNX.4.10.10308021925550.9441-100000@router>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 2 Aug 2003 14:38:12 -0400
+Received: from fw.osdl.org ([65.172.181.6]:1427 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270066AbTHBSiK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Aug 2003 14:38:10 -0400
+Date: Sat, 2 Aug 2003 11:39:07 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: oxymoron@waste.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [1/2] random: SMP locking
+Message-Id: <20030802113907.30e1d001.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.53.0308020832520.3473@montezuma.mastecende.com>
+References: <20030802042445.GD22824@waste.org>
+	<20030802040015.0fcafda2.akpm@osdl.org>
+	<Pine.LNX.4.53.0308020832520.3473@montezuma.mastecende.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2 Aug 2003, Geert Uytterhoeven wrote:
+Zwane Mwaikambo <zwane@arm.linux.org.uk> wrote:
+>
+> Perhaps might_sleep() in *_user, copy_* etc is in order?
 
-> I've sent you a copy by private email.
+Probably, with a little care.
 
-Thanks very much indeed. I sent AMD a friendly mail asking them to put the
-specifications back on their website which seem to have dissappeared.
+A userspace copy while in an atomic region is actually legal, on behalf of
+the read() and write() pagecache copy functions: if we take a fault while
+holding an atomic kmap, the fault handler bales and the usercopy returns a
+short copy.
 
-Jon.
+In other words: if you stick a might_sleep() in __copy_from_user() and
+__copy_to_user() you get a false positive on every read() and write().
 
+We could probably add it to copy_to_user() and copy_from_user() though.

@@ -1,55 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268237AbRGWOVC>; Mon, 23 Jul 2001 10:21:02 -0400
+	id <S268235AbRGWOTc>; Mon, 23 Jul 2001 10:19:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268239AbRGWOUw>; Mon, 23 Jul 2001 10:20:52 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:28941 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S268237AbRGWOUe>; Mon, 23 Jul 2001 10:20:34 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Larry McVoy <lm@bitmover.com>
-Subject: Re: Common hash table implementation
-Date: Mon, 23 Jul 2001 16:24:58 +0200
-X-Mailer: KMail [version 1.2]
-Cc: "Brian J. Watson" <Brian.J.Watson@compaq.com>,
-        Larry McVoy <lm@bitmover.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <01071815464209.12129@starship> <01072122255100.02679@starship> <20010722093732.A6000@work.bitmover.com>
-In-Reply-To: <20010722093732.A6000@work.bitmover.com>
-MIME-Version: 1.0
-Message-Id: <01072316245803.00315@starship>
-Content-Transfer-Encoding: 7BIT
+	id <S268237AbRGWOTW>; Mon, 23 Jul 2001 10:19:22 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:32570 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S268235AbRGWOTJ>; Mon, 23 Jul 2001 10:19:09 -0400
+Date: Mon, 23 Jul 2001 16:18:04 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.7 softirq incorrectness.
+Message-ID: <20010723161804.C822@athlon.random>
+In-Reply-To: <20010723013416.B23517@athlon.random> <Pine.LNX.4.33.0107231113150.27373-100000@chaos.tp1.ruhr-uni-bochum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0107231113150.27373-100000@chaos.tp1.ruhr-uni-bochum.de>; from kai@tp1.ruhr-uni-bochum.de on Mon, Jul 23, 2001 at 11:25:23AM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Sunday 22 July 2001 18:37, Larry McVoy wrote:
-> On Sat, Jul 21, 2001 at 10:25:51PM +0200, Daniel Phillips wrote:
-> >   1) How random is the hash
-> >   2) How efficient is it
->
-> The hash is not the only part to consider for performance.  The rest
-> of the code is important as well.  The code I pointed you to has been
-> really carefully tuned for performance.
+On Mon, Jul 23, 2001 at 11:25:23AM +0200, Kai Germaschewski wrote:
+> Hmmh, wait a second. I take it that means calling netif_rx not from 
+> hard-irq context, but e.g. from bh is a bug? (Even if the only consequence 
 
-Yes, I can see that.  The linear congruential hash will be faster than 
-the CRC32 on most modern machines, where we have fast multiplies vs 
-multi-cycle table access.
+No it isn't a bug either, calling it from irq or bh is perfectly fine
+w.r.t. softirq latency. If you post it from softirq ksoftirqd will
+handle the overflow event exactly like in net_rx_action.
 
-If it's true that the CRC32 is actually less random as well, I'd 
-consider dropping the others and just going with the linear 
-congruential hash.
-
-> And it can be made to be MP
-> safe, SGI did that and managed to get 455,000 random fetches/second
-> on an 8 way R4400 (each of these is about the same as the original
-> Pentium at 150Mhz).
-
-Did I mention that your linear congruential hash rated among the best 
-of all I've tested?  It's possible it might be further improved along 
-the lines I suggested.  I'll try this pretty soon.
-
---
-Daniel
-
+Andrea

@@ -1,92 +1,162 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318806AbSIOWjM>; Sun, 15 Sep 2002 18:39:12 -0400
+	id <S318283AbSIOWxI>; Sun, 15 Sep 2002 18:53:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318807AbSIOWjM>; Sun, 15 Sep 2002 18:39:12 -0400
-Received: from sccrmhc01.attbi.com ([204.127.202.61]:20881 "EHLO
-	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
-	id <S318806AbSIOWjJ>; Sun, 15 Sep 2002 18:39:09 -0400
-Date: Sun, 15 Sep 2002 18:43:58 -0400 (EDT)
-From: Albert Cranford <ac9410@attbi.com>
-X-X-Sender: ac9410@home1
-Reply-To: Albert Cranford <ac9410@attbi.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [patch 7/9]Four new i2c drivers and __init/__exit cleanup to i2c
-Message-ID: <Pine.LNX.4.44.0209151842090.7637-200000@home1>
+	id <S318286AbSIOWxI>; Sun, 15 Sep 2002 18:53:08 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23051 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318283AbSIOWxG>;
+	Sun, 15 Sep 2002 18:53:06 -0400
+Message-ID: <3D85105B.8010705@mandrakesoft.com>
+Date: Sun, 15 Sep 2002 18:57:31 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="0-1231093406-1032129838=:7637"
+To: Albert Cranford <ac9410@attbi.com>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+       Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 1/9]Four new i2c drivers and __init/__exit cleanup to
+ i2c
+References: <Pine.LNX.4.44.0209151831540.7637-200000@home1>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Albert Cranford wrote:
+> +static void
+> +cpm_iic_interrupt(void *dev_id, void *regs)
+> +{
+> +	volatile i2c8xx_t *i2c = (i2c8xx_t *)dev_id;
 
---0-1231093406-1032129838=:7637
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+no need for volatile
 
-Hello Linus,
-New I2C drivers that have been adjusted after Russell King comments of August.
-o i2c-algo-8xx.c
-o i2c-pport.c
-o i2c-adap-ibm_ocp.c
-o i2c-pcf-epp.c
-o Add new drivers to Config.in and Makefile.
-o Add new drivers to i2c-core for initialization.
-o Remove EXPORT_NO_SYMBOLS statement from i2c-dev, i2c-elektor and i2c-frodo.
-o Cleanup init_module and cleanup_module adding __init and __exit to most drivers.
-o Adjust i2c-elektor with cli/sti replacement.
--- 
-ac9410@attbi.com
 
---0-1231093406-1032129838=:7637
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=47-i2c-6-patch
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0209151843580.7637@home1>
-Content-Description: 
-Content-Disposition: attachment; filename=47-i2c-6-patch
+> +}
+> +
+> +static void
+> +cpm_iic_init(struct i2c_algo_8xx_data *cpm_adap)
+> +{
+> +	volatile iic_t		*iip = cpm_adap->iip;
+> +	volatile i2c8xx_t	*i2c = cpm_adap->i2c;
 
-LS0tIGxpbnV4L2RyaXZlcnMvaTJjL2kyYy1jb3JlLmMub3JpZwkyMDAyLTA5
-LTEwIDIzOjExOjA0LjAwMDAwMDAwMCAtMDQwMA0KKysrIGxpbnV4LTIuNS4z
-NC9kcml2ZXJzL2kyYy9pMmMtY29yZS5jCTIwMDItMDktMTEgMjI6NTA6Mjku
-MDAwMDAwMDAwIC0wNDAwDQpAQCAtMTUwOCw2ICsxNTA4LDEyIEBADQogI2lm
-ZGVmIENPTkZJR19JMkNfVkVMTEVNQU4NCiAJZXh0ZXJuIGludCBpMmNfYml0
-dmVsbGVfaW5pdCh2b2lkKTsNCiAjZW5kaWYNCisjaWZkZWYgQ09ORklHX0ky
-Q19QUE9SVA0KKwlleHRlcm4gaW50IGkyY19iaXRwcG9ydF9pbml0KHZvaWQp
-Ow0KKyNlbmRpZg0KKyNpZmRlZiBDT05GSUdfSTJDX0ZST0RPDQorCWV4dGVy
-biBpbnQgaTJjX2Zyb2RvX2luaXQodm9pZCk7DQorI2VuZGlmDQogI2lmZGVm
-IENPTkZJR19JMkNfQklUVklBDQogCWV4dGVybiBpbnQgaTJjX2JpdHZpYV9p
-bml0KHZvaWQpOw0KICNlbmRpZg0KQEAgLTE1MTgsNiArMTUyNCw5IEBADQog
-I2lmZGVmIENPTkZJR19JMkNfRUxFS1RPUg0KIAlleHRlcm4gaW50IGkyY19w
-Y2Zpc2FfaW5pdCh2b2lkKTsNCiAjZW5kaWYNCisjaWZkZWYgQ09ORklHX0ky
-Q19QQ0ZFUFANCisJZXh0ZXJuIGludCBpMmNfcGNmZXBwX2luaXQodm9pZCk7
-DQorI2VuZGlmDQogDQogI2lmZGVmIENPTkZJR19JMkNfQUxHTzhYWA0KIAll
-eHRlcm4gaW50IGkyY19hbGdvXzh4eF9pbml0KHZvaWQpOw0KQEAgLTE1MjUs
-NiArMTUzNCwxMiBAQA0KICNpZmRlZiBDT05GSUdfSTJDX1JQWExJVEUNCiAJ
-ZXh0ZXJuIGludCBpMmNfcnB4X2luaXQodm9pZCk7DQogI2VuZGlmDQorI2lm
-ZGVmIENPTkZJR19JMkNfSUJNX09DUF9BTEdPDQorCWV4dGVybiBpbnQgaTJj
-X2FsZ29faWljX2luaXQodm9pZCk7DQorI2VuZGlmDQorI2lmZGVmIENPTkZJ
-R19JMkNfSUJNX09DUF9BREFQDQorCWV4dGVybiBpbnQgaWljX2libW9jcF9p
-bml0KHZvaWQpOw0KKyNlbmRpZg0KICNpZmRlZiBDT05GSUdfSTJDX1BST0MN
-CiAJZXh0ZXJuIGludCBzZW5zb3JzX2luaXQodm9pZCk7DQogI2VuZGlmDQpA
-QCAtMTU1Myw2ICsxNTY4LDE1IEBADQogI2lmZGVmIENPTkZJR19JMkNfVkVM
-TEVNQU4NCiAJaTJjX2JpdHZlbGxlX2luaXQoKTsNCiAjZW5kaWYNCisjaWZk
-ZWYgQ09ORklHX0kyQ19QUE9SVA0KKwlpMmNfYml0cHBvcnRfaW5pdCgpOw0K
-KyNlbmRpZg0KKyNpZmRlZiBDT05GSUdfSTJDX0ZST0RPDQorCWkyY19mcm9k
-b19pbml0KCk7DQorI2VuZGlmDQorI2lmZGVmIENPTkZJR19JMkNfQklUVklB
-DQorCWkyY19iaXR2aWFfaW5pdCgpOw0KKyNlbmRpZg0KIA0KIAkvKiAtLS0t
-LS0tLS0tLS0tLS0tLS0tLS0gcGNmIC0tLS0tLS0tICovDQogI2lmZGVmIENP
-TkZJR19JMkNfQUxHT1BDRg0KQEAgLTE1NjEsNiArMTU4NSw5IEBADQogI2lm
-ZGVmIENPTkZJR19JMkNfRUxFS1RPUg0KIAlpMmNfcGNmaXNhX2luaXQoKTsN
-CiAjZW5kaWYNCisjaWZkZWYgQ09ORklHX0kyQ19QQ0ZFUFANCisJaTJjX3Bj
-ZmVwcF9pbml0KCk7DQorI2VuZGlmDQogDQogCS8qIC0tLS0tLS0tLS0tLS0t
-LS0tLS0tLSA4eHggLS0tLS0tLS0gKi8NCiAjaWZkZWYgQ09ORklHX0kyQ19B
-TEdPOFhYDQpAQCAtMTU2OSw2ICsxNTk2LDEyIEBADQogI2lmZGVmIENPTkZJ
-R19JMkNfUlBYTElURQ0KIAlpMmNfcnB4X2luaXQoKTsNCiAjZW5kaWYNCisj
-aWZkZWYgQ09ORklHX0kyQ19JQk1fT0NQX0FMR08NCisJaTJjX2FsZ29faWlj
-X2luaXQoKTsNCisjZW5kaWYNCisjaWZkZWYgQ09ORklHX0kyQ19JQk1fT0NQ
-X0FEQVANCisJaWljX2libW9jcF9pbml0KCk7DQorI2VuZGlmDQogDQogCS8q
-IC0tLS0tLS0tLS0tLS0tIHByb2MgaW50ZXJmYWNlIC0tLS0gKi8NCiAjaWZk
-ZWYgQ09ORklHX0kyQ19QUk9DDQo=
---0-1231093406-1032129838=:7637--
+no need for volatile.  repeat this comment several times...
+
+
+> +	if (cpm_adap->reloc == 0) {
+> +		volatile cpm8xx_t *cp = cpm_adap->cp;
+> +
+> +		cp->cp_cpcr =
+> +			mk_cr_cmd(CPM_CR_CH_I2C, CPM_CR_INIT_TRX) | CPM_CR_FLG;
+> +		while (cp->cp_cpcr & CPM_CR_FLG)
+> +			cpu_relax(); /* prevent Athlons self-destruct */
+> +	}
+
+don't busy-wait in a context where you can sleep
+
+
+
+> +static void force_close(struct i2c_algo_8xx_data *cpm)
+> +{
+> +	if (cpm->reloc == 0) {
+> +		volatile cpm8xx_t *cp = cpm->cp;
+> +
+> +		if (cpm_debug) printk("force_close()\n");
+> +		cp->cp_cpcr =
+> +			mk_cr_cmd(CPM_CR_CH_I2C, CPM_CR_CLOSE_RXBD) |
+> +			CPM_CR_FLG;
+> +
+> +		while (cp->cp_cpcr & CPM_CR_FLG)
+> +			cpu_relax(); /* prevent Athlons self-destruct */
+> +	}
+
+likewise for volatile and busy-wait
+
+
+
+> +	tbdf->cbd_bufaddr = __pa(tb);
+> +	tbdf->cbd_datlen = count + 1;
+> +	tbdf->cbd_sc =
+> +		BD_SC_READY | BD_SC_INTRPT | BD_SC_LAST |
+> +		BD_SC_WRAP | BD_IIC_START;
+> +
+> +	rbdf->cbd_datlen = 0;
+> +	rbdf->cbd_bufaddr = __pa(buf);
+> +	rbdf->cbd_sc = BD_SC_EMPTY | BD_SC_WRAP;
+> +
+> +	dma_cache_inv((unsigned long) buf, (unsigned long) (buf+count));
+> +
+> +	/* Chip bug, set enable here */
+> +	local_irq_save(flags);
+> +	i2c->i2c_i2cmr = 0x13;	/* Enable some interupts */
+> +	i2c->i2c_i2cer = 0xff;
+> +	i2c->i2c_i2mod = 1;	/* Enable */
+> +	i2c->i2c_i2com = 0x81;	/* Start master */
+
+__pa should very rarely be used in drivers
+
+
+> +	/* Wait for IIC transfer */
+> +	interruptible_sleep_on(&iic_wait);
+> +	local_irq_restore(flags);
+> +	if (signal_pending(current))
+> +		return -EIO;
+
+local_irq_xxx should not be used...
+
+And it is very likely you should be using a semaphore here...
+
+
+
+> +	/* Chip bug, set enable here */
+> +	local_irq_save(flags);
+> +	i2c->i2c_i2cmr = 0x13;	/* Enable some interupts */
+> +	i2c->i2c_i2cer = 0xff;
+> +	i2c->i2c_i2mod = 1;	/* Enable */
+> +	i2c->i2c_i2com = 0x81;	/* Start master */
+> +
+> +	/* Wait for IIC transfer */
+> +	interruptible_sleep_on(&iic_wait);
+> +	local_irq_restore(flags);
+> +	if (signal_pending(current))
+> +		return -EIO;
+
+likewise
+
+
+
+
+> +	printk("i2c-algo-8xx.o: adapter unregistered: %s\n",adap->name);
+> +
+> +#ifdef MODULE
+> +	MOD_DEC_USE_COUNT;
+> +#endif
+> +	return 0;
+
+
+Is this MOD_DEC_USE_COUNT is for a file op, use ->owner instead.
+
+
+> +#ifdef MODULE
+> +MODULE_AUTHOR("Brad Parker <brad@heeltoe.com>");
+> +MODULE_DESCRIPTION("I2C-Bus MPC8XX algorithm");
+> +#ifdef MODULE_LICENSE
+> +MODULE_LICENSE("GPL");
+> +#endif
+> +
+> +int init_module(void) 
+> +{
+> +	return i2c_algo_8xx_init();
+> +}
+> +
+> +void cleanup_module(void) 
+> +{
+> +}
+
+kill ifdef MODULE.
+use module_init, module_exit
+
+
+
+

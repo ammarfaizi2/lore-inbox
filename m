@@ -1,67 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132567AbRAaUBe>; Wed, 31 Jan 2001 15:01:34 -0500
+	id <S132616AbRAaUEE>; Wed, 31 Jan 2001 15:04:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132630AbRAaUB2>; Wed, 31 Jan 2001 15:01:28 -0500
-Received: from mail09.voicenet.com ([207.103.0.35]:37366 "HELO
-	mail09.voicenet.com") by vger.kernel.org with SMTP
-	id <S132567AbRAaUBM>; Wed, 31 Jan 2001 15:01:12 -0500
-Message-ID: <3A786F00.B9248616@voicenet.com>
-Date: Wed, 31 Jan 2001 15:01:04 -0500
-From: safemode <safemode@voicenet.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19pre7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
-CC: David Raufeisen <david@fortyoz.org>, Vojtech Pavlik <vojtech@suse.cz>,
+	id <S132668AbRAaUDy>; Wed, 31 Jan 2001 15:03:54 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:24081
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S132630AbRAaUDk>; Wed, 31 Jan 2001 15:03:40 -0500
+Date: Wed, 31 Jan 2001 12:03:04 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Rupa Schomaker <rupa-list+linux-kernel@rupa.com>
+cc: Andries.Brouwer@cwi.nl, mlord@pobox.com, ole@linpro.no,
         linux-kernel@vger.kernel.org
-Subject: Re: VT82C686A corruption with 2.4.x
-In-Reply-To: <Pine.LNX.4.10.10101310752060.155-100000@coffee.psychology.mcmaster.ca>
+Subject: Re: Problems with Promise IDE controller under 2.4.1
+In-Reply-To: <m3u26ffrej.fsf@localhost.localdomain>
+Message-ID: <Pine.LNX.4.10.10101311201390.13711-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Hahn wrote:
+On 31 Jan 2001, Rupa Schomaker wrote:
 
-> >From what I gather this chipset on 2.4.x is only stable if you cripple just about everything that makes
-> > it worth having (udma, 2nd ide channel  etc etc)  ?    does it even work when all that's done now or is
-> > it fully functional?
->
-> it seems to be fully functional for some or most people,
-> with two, apparently, reporting major problems.
->
-> my via (kt133) is flawless in 2.4.1 (a drive on each channel,
-> udma enabled and in use) and has for all the 2.3's since I got it.
+> Andre Hedrick <andre@linux-ide.org> writes:
+> 
+> 
+> > > But there is no indication of what the problems could be,
+> > > or what he thinks the geometry should be (and why).
+> > > I see nothing very wrong in the posted data.
+> > 
+> > We agree Andries, but the enduser wants to see stuff the same.
+> 
+> In my case, I have two identical Maxtor drives, but they reported
+> different geometry.  How could that be?  Move the "virgin" drive to
+> the motherboard IDE controller and suddenly the geometry is the same.
+> Use fdisk and partition the disk, write it, and then move to the
+> promise controller and the "correct" geometry was used (that is, it is
+> now the same as when hooked up to the motherboard ide controller).
+> 
+> Why was it important to me?  I'm doing RAID1 and it is really nice to
+> have the same geometry so that the partition info is the same between
+> the two drives.   Makes life easier.
 
-I'm wondering... Perhaps it's a problem motherboard specific.  I'm using the KA7 and saw pretty bad
-problems (extreme fs corruption)  and bad latency. Perhaps the K7V and the KT7's dont have this problem.  I
-dont see any of the problems with dma enabled on 2.2.x
+Please read the above and pass the geometry to the kernel.
+Mother boards have to do a translation to use the drive completely.
 
-Output of 2.2.19-pre7 lspci -v
-  00:00.0 Host bridge: VIA Technologies, Inc. VT8371 [KX133] (rev 02)
-        Flags: bus master, medium devsel, latency 0
-        Memory at d0000000 (32-bit, prefetchable)
-        Capabilities: [a0] AGP version 2.0
+Cheers,
 
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8371 [KX133 AGP]  (prog-if 00 [Normal decode])
-        Flags: bus master, 66Mhz, medium devsel, latency 0
-        Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
-        I/O behind bridge: 0000c000-0000cfff
-        Memory behind bridge: d4000000-d7ffffff
-        Prefetchable memory behind bridge: d8000000-d9ffffff
-        Capabilities: [80] Power Management version 2
-
-00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 22)
-        Subsystem: VIA Technologies, Inc. VT82C686/A PCI to ISA Bridge
-        Flags: bus master, stepping, medium devsel, latency 0
-
-00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 10) (prog-if 8a [Master SecP PriP])
-        Flags: bus master, medium devsel, latency 32
-        I/O ports at d000
-        Capabilities: [c0] Power Management version 2
-
-
+Andre Hedrick
+Linux ATA Development
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

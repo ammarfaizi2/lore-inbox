@@ -1,142 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263023AbTFXVXx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 17:23:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262813AbTFXVX0
+	id S263205AbTFXVa0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 17:30:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262543AbTFXV2z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 17:23:26 -0400
-Received: from dclient217-162-108-200.hispeed.ch ([217.162.108.200]:15108 "EHLO
-	ritz.dnsalias.org") by vger.kernel.org with ESMTP id S262568AbTFXVWo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 17:22:44 -0400
-From: Daniel Ritz <daniel.ritz@gmx.ch>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: [PATCH 2.5 3/5] alloc_etherdev for fmvj18x_cs
-Date: Tue, 24 Jun 2003 23:29:12 +0200
-User-Agent: KMail/1.5.2
-Cc: "linux-net" <linux-net@vger.kernel.org>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
+	Tue, 24 Jun 2003 17:28:55 -0400
+Received: from fc.capaccess.org ([151.200.199.53]:12552 "EHLO fc.capaccess.org")
+	by vger.kernel.org with ESMTP id S262830AbTFXV1m (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 17:27:42 -0400
+Message-id: <fc.0010c7b2009359090010c7b200935909.93590f@capaccess.org>
+Date: Tue, 24 Jun 2003 17:43:45 -0400
+Subject: 4 is good. .00000001% is good.
+To: linux-kernel@vger.kernel.org
+From: "Rick A. Hohensee" <rickh@capaccess.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <20030624213659.F18A54FF90@ritz.dnsalias.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-net_device is no longer allocated as part of the driver's private structure,
-instead it's allocated via alloc_netdev. compile tested only since no hardware
-against 2.5.73-bk
+Yes, osimplay is probably for 4 people on the planet. The 4 that don't
+confuse writing an operating system with porting Minix to pmode. All 4 of
+whom have been ostracized from the Linux Kernel Clique, but who probably
+still read l-k occaisionally to see what kind of shenanigans Billy's Free
+Unix Boys are up to, like pretending SMP scales.
+
+By the way, if you don't like the looks of a "bastard offspring of a
+drunken encounter between Intercal and APL" (Smoorenberg), it's a shell
+script, moron, so if you're more comfortable, it shouldn't even take a
+Kernel-cliquer more than a few minutes to make it resemble a cross between
+Alan Cox, Matthew Wilcox, a plate of bad sushi and a couple hundred
+ioctls. With more teeth than Torvalds. Just don't leave it where I might
+get a whiff of it.
 
 
--daniel
+Rick Hohensee
 
-===== fmvj18x_cs.c 1.21 vs edited =====
---- 1.21/drivers/net/pcmcia/fmvj18x_cs.c	Sat May 31 12:50:47 2003
-+++ edited/fmvj18x_cs.c	Tue Jun 24 20:24:32 2003
-@@ -130,7 +130,6 @@
- */
- typedef struct local_info_t {
-     dev_link_t link;
--    struct net_device dev;
-     dev_node_t node;
-     struct net_device_stats stats;
-     long open_time;
-@@ -273,11 +272,12 @@
-     flush_stale_links();
- 
-     /* Make up a FMVJ18x specific data structure */
--    lp = kmalloc(sizeof(*lp), GFP_KERNEL);
--    if (!lp) return NULL;
--    memset(lp, 0, sizeof(*lp));
--    link = &lp->link; dev = &lp->dev;
--    link->priv = dev->priv = link->irq.Instance = lp;
-+    dev = alloc_etherdev(sizeof(local_info_t));
-+    if (!dev)
-+	return NULL;
-+    lp = dev->priv;
-+    link = &lp->link;
-+    link->priv = dev;
- 
-     init_timer(&link->release);
-     link->release.function = &fmvj18x_release;
-@@ -297,6 +297,7 @@
- 	for (i = 0; i < 4; i++)
- 	    link->irq.IRQInfo2 |= 1 << irq_list[i];
-     link->irq.Handler = &fjn_interrupt;
-+    link->irq.Instance = dev;
-     
-     /* General socket configuration */
-     link->conf.Attributes = CONF_ENABLE_IRQ;
-@@ -309,7 +310,6 @@
-     dev->set_config = &fjn_config;
-     dev->get_stats = &fjn_get_stats;
-     dev->set_multicast_list = &set_rx_mode;
--    ether_setup(dev);
-     dev->open = &fjn_open;
-     dev->stop = &fjn_close;
- #ifdef HAVE_TX_TIMEOUT
-@@ -344,7 +344,7 @@
- 
- static void fmvj18x_detach(dev_link_t *link)
- {
--    local_info_t *lp = link->priv;
-+    struct net_device *dev = link->priv;
-     dev_link_t **linkp;
-     
-     DEBUG(0, "fmvj18x_detach(0x%p)\n", link);
-@@ -371,8 +371,8 @@
-     /* Unlink device structure, free pieces */
-     *linkp = link->next;
-     if (link->dev)
--	unregister_netdev(&lp->dev);
--    kfree(lp);
-+	unregister_netdev(dev);
-+    kfree(dev);
-     
- } /* fmvj18x_detach */
- 
-@@ -423,8 +423,8 @@
- static void fmvj18x_config(dev_link_t *link)
- {
-     client_handle_t handle = link->handle;
--    local_info_t *lp = link->priv;
--    struct net_device *dev = &lp->dev;
-+    struct net_device *dev = link->priv;
-+    local_info_t *lp = dev->priv;
-     tuple_t tuple;
-     cisparse_t parse;
-     u_short buf[32];
-@@ -704,8 +704,7 @@
-     memreq_t mem;
-     u_char *base;
-     int i, j;
--    local_info_t *lp = link->priv;
--    struct net_device *dev = &lp->dev;
-+    struct net_device *dev = link->priv;
-     ioaddr_t ioaddr;
- 
-     /* Allocate a small memory window */
-@@ -776,8 +775,7 @@
- 			  event_callback_args_t *args)
- {
-     dev_link_t *link = args->client_data;
--    local_info_t *lp = link->priv;
--    struct net_device *dev = &lp->dev;
-+    struct net_device *dev = link->priv;
- 
-     DEBUG(1, "fmvj18x_event(0x%06x)\n", event);
-     
-@@ -847,8 +845,8 @@
- 
- static irqreturn_t fjn_interrupt(int irq, void *dev_id, struct pt_regs *regs)
- {
--    local_info_t *lp = dev_id;
--    struct net_device *dev = &lp->dev;
-+    struct net_device *dev = dev_id;
-+    local_info_t *lp = dev->priv;
-     ioaddr_t ioaddr;
-     unsigned short tx_stat, rx_stat;
- 
+:; cLIeNUX /dev/tty4  16:34:53   /
+:;d -d */
+Ha3sm/       configure/   enth04/      help/        owner/       suite/
+boot/        dev/         floppy/      log/         source/      temp/
+command/     device/      guest/       mount/       subroutine/
+:; cLIeNUX /dev/tty4  16:46:15   /
+:;
+
 

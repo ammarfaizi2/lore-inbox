@@ -1,77 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262401AbVBLIbR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262385AbVBLKOh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262401AbVBLIbR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Feb 2005 03:31:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262402AbVBLIbQ
+	id S262385AbVBLKOh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Feb 2005 05:14:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262402AbVBLKOh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Feb 2005 03:31:16 -0500
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:30427 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S262401AbVBLIbO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Feb 2005 03:31:14 -0500
-Message-ID: <420DBEBE.1060008@t-online.de>
-Date: Sat, 12 Feb 2005 09:30:54 +0100
-From: Harald Dunkel <harald.dunkel@t-online.de>
-User-Agent: Debian Thunderbird 1.0 (X11/20050119)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-CC: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] hotplug-ng 001 release
-References: <20050211004033.GA26624@suse.de> <420D1050.3080405@t-online.de> <20050211210114.GA21314@suse.de>
-In-Reply-To: <20050211210114.GA21314@suse.de>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig0E1E22F8368F85C4D2DBD4F5"
-X-ID: SgDT-aZEZec3nIFMid1J68rskuVnPpNo2TuHKMFX6KlSUwOgmnCO4K
-X-TOI-MSGID: 36484ad0-6af6-4ce3-baf5-4a25a3702cf1
+	Sat, 12 Feb 2005 05:14:37 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:5137 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S262385AbVBLKOc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Feb 2005 05:14:32 -0500
+Date: Sat, 12 Feb 2005 11:13:49 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: marcelo.tosatti@cyclades.com, davem@davemloft.net
+Cc: linux-kernel@vger.kernel.org, herbert@gondor.apana.org.au
+Subject: [2.4.30-pre1] Sparc SMP build fixes
+Message-ID: <20050212101349.GA22759@alpha.home.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig0E1E22F8368F85C4D2DBD4F5
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi Marcelo and David,
 
-Greg KH wrote:
->
-> Because we don't have an easy way yet to build against a copy of klibc
-> on a system?  For right now, it's the simplest way to ensure that it
-> works for everyone, once klibc moves into the kernel tree I can remove
-> it from udev and hotplug-ng.
->
+The recent addition of an smp_rmb() in kfree_skb() by Herbert Xu
+broke SMP builds on sparc and sparc64, but it's not Herbert's fault,
+it's because of a few extra semi-colons in system.h for both archs.
 
-If it is not possible to use klibc together with a non-Linux
-system (e.g. FreeBSD or Mach), then I would suggest to make
-klibc an optional kernel patch and drop it from udev and
-hotplug.
+The smp_rmb() has been inserted this way :
 
-> Is it causing problems for you?
->
+   if (likely(atomic_read(&skb->users) == 1))
+       smp_rmb();
+   else if (likely(!atomic_dec_and_test(&skb->users)))
+       return;
 
-Some months ago I had contributed a patch to add an install
-target to the klibc Makefiles. I just wonder why it has been
-ignored.
+But it's defined like this on sparc and sparc64 :
+
+   #define smp_rmb()       __asm__ __volatile__("":::"memory");
+
+So you get it :-)
+
+I quickly grepped include/asm-* and found 85 obvious similar cases in
+various files and on various defines. I'm not sure that everything
+builds on every arch.
+
+However, while I was fixing system.h for sparc and sparc64, I also
+fixed a few more defines in the same file which had the same problem.
+In case of sparc64, the use of "mb();" would have resulted in 3
+consecutive semi-colons.
+
+Please consider including this.
+
+Cheers,
+Willy
 
 
-Regards
+--- ./include/asm-sparc/system.h.bad	Sat Sep 18 14:15:43 2004
++++ ./include/asm-sparc/system.h	Sat Feb 12 10:55:05 2005
+@@ -295,9 +295,9 @@
+ #define wmb()	mb()
+ #define set_mb(__var, __value)  do { __var = __value; mb(); } while(0)
+ #define set_wmb(__var, __value) set_mb(__var, __value)
+-#define smp_mb()	__asm__ __volatile__("":::"memory");
+-#define smp_rmb()	__asm__ __volatile__("":::"memory");
+-#define smp_wmb()	__asm__ __volatile__("":::"memory");
++#define smp_mb()	__asm__ __volatile__("":::"memory")
++#define smp_rmb()	__asm__ __volatile__("":::"memory")
++#define smp_wmb()	__asm__ __volatile__("":::"memory")
+ 
+ #define nop() __asm__ __volatile__ ("nop");
+ 
 
-Harri
+--- ./include/asm-sparc64/system.h.bad	Sat Feb 12 10:40:21 2005
++++ ./include/asm-sparc64/system.h	Sat Feb 12 10:54:17 2005
+@@ -106,9 +106,9 @@
+ 
+ #define nop() 		__asm__ __volatile__ ("nop")
+ 
+-#define membar(type)	__asm__ __volatile__ ("membar " type : : : "memory");
++#define membar(type)	__asm__ __volatile__ ("membar " type : : : "memory")
+ #define mb()		\
+-	membar("#LoadLoad | #LoadStore | #StoreStore | #StoreLoad");
++	membar("#LoadLoad | #LoadStore | #StoreStore | #StoreLoad")
+ #define rmb()		membar("#LoadLoad")
+ #define wmb()		membar("#StoreStore")
+ #define set_mb(__var, __value) \
+@@ -121,9 +121,9 @@
+ #define smp_rmb()	rmb()
+ #define smp_wmb()	wmb()
+ #else
+-#define smp_mb()	__asm__ __volatile__("":::"memory");
+-#define smp_rmb()	__asm__ __volatile__("":::"memory");
+-#define smp_wmb()	__asm__ __volatile__("":::"memory");
++#define smp_mb()	__asm__ __volatile__("":::"memory")
++#define smp_rmb()	__asm__ __volatile__("":::"memory")
++#define smp_wmb()	__asm__ __volatile__("":::"memory")
+ #endif
+ 
+ #define flushi(addr)	__asm__ __volatile__ ("flush %0" : : "r" (addr) : "memory")
+@@ -132,7 +132,7 @@
+ 
+ /* Performance counter register access. */
+ #define read_pcr(__p)  __asm__ __volatile__("rd	%%pcr, %0" : "=r" (__p))
+-#define write_pcr(__p) __asm__ __volatile__("wr	%0, 0x0, %%pcr" : : "r" (__p));
++#define write_pcr(__p) __asm__ __volatile__("wr	%0, 0x0, %%pcr" : : "r" (__p))
+ #define read_pic(__p)  __asm__ __volatile__("rd %%pic, %0" : "=r" (__p))
+ 
+ /* Blackbird errata workaround.  See commentary in
 
---------------enig0E1E22F8368F85C4D2DBD4F5
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCDb7DUTlbRTxpHjcRAjy0AJoCK6k9ANY0IKN9RA74hUmr8nCrqgCfc89w
-D9h4zqgd0/FlG07H+6QS43g=
-=azBJ
------END PGP SIGNATURE-----
-
---------------enig0E1E22F8368F85C4D2DBD4F5--

@@ -1,72 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261268AbSI2RC0>; Sun, 29 Sep 2002 13:02:26 -0400
+	id <S261410AbSI2RI4>; Sun, 29 Sep 2002 13:08:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261211AbSI2RCZ>; Sun, 29 Sep 2002 13:02:25 -0400
-Received: from mail.scram.de ([195.226.127.117]:42441 "EHLO mail.scram.de")
-	by vger.kernel.org with ESMTP id <S261268AbSI2RCW>;
-	Sun, 29 Sep 2002 13:02:22 -0400
-Date: Sun, 29 Sep 2002 19:06:06 +0200 (CEST)
-From: Jochen Friedrich <jochen@scram.de>
-X-X-Sender: jochen@alpha.bocc.de
-To: Gerhard Mack <gmack@innerfire.net>
-cc: james <jdickens@ameritech.net>, Linus Torvalds <torvalds@transmeta.com>,
-       Ingo Molnar <mingo@elte.hu>, Jeff Garzik <jgarzik@pobox.com>,
-       Larry Kessler <kessler@us.ibm.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       "Andrew V. Savochkin" <saw@saw.sw.com.sg>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       Richard J Moore <richardj_moore@uk.ibm.com>
-Subject: Re: v2.6 vs v3.0
-In-Reply-To: <Pine.LNX.4.44.0209290858170.22404-100000@innerfire.net>
-Message-ID: <Pine.LNX.4.44.0209291900080.18326-100000@alpha.bocc.de>
+	id <S261343AbSI2RI4>; Sun, 29 Sep 2002 13:08:56 -0400
+Received: from sproxy.gmx.net ([213.165.64.20]:48378 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S261334AbSI2RIz> convert rfc822-to-8bit;
+	Sun, 29 Sep 2002 13:08:55 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Marc-Christian Petersen <m.c.p@gmx.net>
+To: "Theodore Ts'o" <tytso@mit.edu>, "Christopher Li"chrisl@gnuchina.org,
+       "Ryan Cumming" <ryan@completely.kicks-ass.org>
+Date: Sun, 29 Sep 2002 19:12:46 +0200
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org, ext3-users@redhat.com
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200209291903.40423.m.c.p@gmx.net>
+Subject: Re: [PATCH] fix htree dir corrupt after fsck -fD
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Gerhard,
+Hi Ryan,
 
-> Some of us are waiting until it actually compiles for us ;) (see previous
-> bug report)
+>> This is a completely fresh loopback EXT3 filesystem, untouched by fsck -D,
+>> and normally unmounted.
 
-Ack (on Alpha), and waiting that after compiling, it also boots :-)
+> Oh, and I've attached the current version of my test program if anyone is 
+> interested.
+> ...
+> It can corrupt my loopback test filesystems in under 5 minutes. Note that it
+> will completely destroy any data in its working directory, however.
+I am running your program now over an hour without any corruption on the 
+loopback mounted ext3 filesystem.
 
-My Avanti (currently running 2.5.18):
+This is with the latest patch (1) from Theodore + latest small fix from 
+Christoper for the kernel and for latest e2fsprogs.
 
-cat /proc/cpuinfo
-cpu                     : Alpha
-cpu model               : EV4
-cpu variation           : 0
-cpu revision            : 0
-cpu serial number       : Linux_is_Great!
-system type             : Avanti
-system variation        : 0
-system revision         : 0
-system serial number    : MILO-2.2-18
-cycle frequency [Hz]    : 166521620
-timer frequency [Hz]    : 1024.00
-page size [bytes]       : 8192
-phys. address bits      : 34
-max. addr. space #      : 63
-BogoMIPS                : 326.08
-kernel unaligned acc    : 7671003
-(pc=fffffc0000954730,va=fffffc00052da056)
-user unaligned acc      : 252 (pc=120011758,va=12006c7e4)
-platform string         : N/A
-cpus detected           : 0
+I made some debian packages available which includes the latest fixes, can be 
+found here (2).
 
-with
+Anyway, works great for me! :)
 
-CONFIG_FB_ATY=y
-CONFIG_FB_ATY_GX=y
-CONFIG_FB_ATY_CT=y
 
-i just get a black screen with a wild jumping cursor and than a hang. With
-"normal" console, the boot dies with an zero-pointer exception.
+1) http://thunk.org/tytso/linux/ext3-dxdir/
+2) http://wolk.sf.net/e2fsprogs/
 
-I'll try to compile 2.5.39 and send more details about the compile
-failures and boot exceptions...
+-- 
+Kind regards
+        Marc-Christian Petersen
 
---jochen
+http://sourceforge.net/projects/wolk
+
+PGP/GnuPG Key: 1024D/569DE2E3DB441A16
+Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
+Key available at www.keyserver.net. Encrypted e-mail preferred.
+
 

@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266866AbUAXFJN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Jan 2004 00:09:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266865AbUAXFJH
+	id S266863AbUAXFLn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Jan 2004 00:11:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266865AbUAXFLn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Jan 2004 00:09:07 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:22710 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S266862AbUAXFJC (ORCPT
+	Sat, 24 Jan 2004 00:11:43 -0500
+Received: from fw.osdl.org ([65.172.181.6]:44454 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266863AbUAXFLm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Jan 2004 00:09:02 -0500
-Date: Fri, 23 Jan 2004 21:00:23 -0800 (PST)
-Message-Id: <20040123.210023.74723544.davem@redhat.com>
-To: grundler@parisc-linux.org
-Cc: jgarzik@pobox.lackof.org, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org
-Subject: Re: [PATCH] 2.6.1 tg3 DMA engine test failure
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20040124013614.GB1310@colo.lackof.org>
-References: <20040124013614.GB1310@colo.lackof.org>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	Sat, 24 Jan 2004 00:11:42 -0500
+Date: Fri, 23 Jan 2004 21:12:42 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Sid Boyce <sboyce@blueyonder.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.2-rc1-mm2 kernel oops
+Message-Id: <20040123211242.4dc0c770.akpm@osdl.org>
+In-Reply-To: <4011AB0B.4030906@blueyonder.co.uk>
+References: <4011AB0B.4030906@blueyonder.co.uk>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Grant Grundler <grundler@parisc-linux.org>
-   Date: Fri, 23 Jan 2004 18:36:14 -0700
+Sid Boyce <sboyce@blueyonder.co.uk> wrote:
+>
+> I get this on bootup, Athlon XP2200+
+> =====================================
+> Linux version 2.6.2-rc1-mm2 (root@barrabas) (gcc version 3.3.1 (SuSE 
+> ...
+> EIP is at test_wp_bit+0x36/0x90
 
-   3) Broadcom engineer noted the meaning of DMA_RWCTRL_ASSERT_ALL_BE
-      has changed for bcm570[34] and also advised against setting
-      it on BCM570[01] chips. I'm just implementing his advice.
-      Comment below spells out more details.
+oh crap, why does this thing keep breaking?  Please send your .config over,
+thanks.
 
-Setting this bit is absolutely required on many RISC PCI boxes, where
-streaming mappings must have cacheline sized DMA transactions done
-on them with all byte enables on.
-
-In fact, since the later chips don't allow controlling this, some of
-them cause streaming byte hole errors on sparc64 and other RISC
-systems when they do cacheline sized DMA to streaming DMA mappings
-with not all the byte enables on.
-
-So I'm not going to add this part of your changes.

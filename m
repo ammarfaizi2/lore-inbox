@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266124AbUAGEHO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 23:07:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266130AbUAGEHN
+	id S266130AbUAGEVs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 23:21:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266131AbUAGEVs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 23:07:13 -0500
-Received: from fw.osdl.org ([65.172.181.6]:63961 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266124AbUAGEHM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 23:07:12 -0500
-Date: Tue, 6 Jan 2004 20:06:42 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Adam Belay <ambx1@neo.rr.com>
-cc: Andi Kleen <ak@colin2.muc.de>, Mika Penttil? <mika.penttila@kolumbus.fi>,
-       Andi Kleen <ak@muc.de>, David Hinds <dhinds@sonic.net>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       "Grover, Andrew" <andrew.grover@intel.com>
-Subject: Re: PCI memory allocation bug with CONFIG_HIGHMEM
-In-Reply-To: <20040106222959.GA3188@neo.rr.com>
-Message-ID: <Pine.LNX.4.58.0401062000490.12602@home.osdl.org>
-References: <m37k054uqu.fsf@averell.firstfloor.org>
- <Pine.LNX.4.58.0401051937510.2653@home.osdl.org> <20040106040546.GA77287@colin2.muc.de>
- <Pine.LNX.4.58.0401052100380.2653@home.osdl.org> <20040106081203.GA44540@colin2.muc.de>
- <3FFA7BB9.1030803@kolumbus.fi> <20040106094442.GB44540@colin2.muc.de>
- <Pine.LNX.4.58.0401060726450.2653@home.osdl.org> <20040106153706.GA63471@colin2.muc.de>
- <Pine.LNX.4.58.0401060744240.2653@home.osdl.org> <20040106222959.GA3188@neo.rr.com>
+	Tue, 6 Jan 2004 23:21:48 -0500
+Received: from pD9E560BB.dip.t-dialin.net ([217.229.96.187]:39332 "EHLO
+	averell.firstfloor.org") by vger.kernel.org with ESMTP
+	id S266130AbUAGEVr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 23:21:47 -0500
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: linux-kernel@vger.kernel.org, Michael.Waychison@Sun.COM
+Subject: Re: [autofs] [RFC] Towards a Modern Autofs
+From: Andi Kleen <ak@muc.de>
+Date: Wed, 07 Jan 2004 05:21:37 +0100
+In-Reply-To: <1b6CO-3v0-15@gated-at.bofh.it> ("H. Peter Anvin"'s message of
+ "Tue, 06 Jan 2004 22:10:14 +0100")
+Message-ID: <m3ad50tmlq.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
+References: <1b5GC-29h-1@gated-at.bofh.it> <1b6CO-3v0-15@gated-at.bofh.it>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"H. Peter Anvin" <hpa@zytor.com> writes:
 
+>  A dead daemon is a
+> painful recovery, admitted.  It is also a THIS SHOULD NOT HAPPEN
+> condition.  By cramming it into the kernel, you're in fact making the
+> system less stable, not more, because the kernel being tainted with
+> faulty code is a total system malfunction; a crashed userspace daemon is
+> "merely" a messy cleanup.  In practice, the autofs daemon/ does not die
+> unless a careless system administrator kills it.  It is a non-problem.
 
-On Tue, 6 Jan 2004, Adam Belay wrote:
->
-> 5.) Look into other ways of finding out if the PnPBIOS might be buggy,
-> currently we only have DMI.
-> 
-> Any others?
+I personally would be in favour of doing it all in the kernel because
+autofs3 and autofs4 are not fully compatible and break in subtle ways
+when not matching and in my experience when you have autofs3 compiled
+into the kernel the system happens to have an autofs 4 daemon
+installed and vice versa. Doing it in the kernel would avoid this
+nasty dependency problem.
 
-We could use the exception mechanism, and try to fix up any BIOS errors. 
-That would require:
+Also when /home or other important fs are mounted via autofs there is
+not much practical difference between a hung kernel and a hung
+daemon. You have to reboot the system anyways.
 
- - make the BIOS calls save all important registers just before entry (esp 
-   in particular, and the "after-call EIP") and set a flag saying "fix me 
-   up". Do this per-CPU. Clear the flags after exit.
-
- - add magic knowledge to "fixup_exception()" path that looks at the 
-   per-cpu fix-me-up flag, and if it is set, restore all the segments 
-   (which the BIOS may have crapped on), %esp and %eip to the magic fixup 
-   values.
-
- - test it with a bogus trap (on purpose) which has reset all the x86 
-   registers, including an offset %esp.
-
-This could make us recover from some (most?) BIOS bugs and at least 
-dynamically notice when the BIOS does bad bad things.
-
-		Linus
+-Andi

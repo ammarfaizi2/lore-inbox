@@ -1,60 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314394AbSESMio>; Sun, 19 May 2002 08:38:44 -0400
+	id <S314381AbSESMsX>; Sun, 19 May 2002 08:48:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314403AbSESMio>; Sun, 19 May 2002 08:38:44 -0400
-Received: from mail.sonytel.be ([193.74.243.200]:40666 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S314394AbSESMin>;
-	Sun, 19 May 2002 08:38:43 -0400
-Date: Sun, 19 May 2002 14:38:36 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4/2.5 SCSI considerably slower than FreeBSD
-In-Reply-To: <20020517115319.GA3204@merlin.emma.line.org>
-Message-ID: <Pine.GSO.4.21.0205191435340.27746-100000@vervain.sonytel.be>
+	id <S314403AbSESMsW>; Sun, 19 May 2002 08:48:22 -0400
+Received: from e.kth.se ([130.237.48.5]:43021 "EHLO elixir.e.kth.se")
+	by vger.kernel.org with ESMTP id <S314381AbSESMsV>;
+	Sun, 19 May 2002 08:48:21 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: ide cd/dvd with 2.4.19-pre8
+In-Reply-To: <yw1x1ycak586.fsf@gladiusit.e.kth.se>
+	<200205191219.g4JCJ7Y25884@Port.imtp.ilyichevsk.odessa.ua>
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Date: 19 May 2002 14:48:19 +0200
+Message-ID: <yw1xn0uwz4ks.fsf@spirello.e.kth.se>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 May 2002, Matthias Andree wrote:
-> Marco Flohrer has posted an inquiry to de.comp.os.unix.linux.hardware
-> [German] <slrnae8q66.go4.marco.flohrer@diamond.csn.tu-chemnitz.de> that his
-> Seagate 36ES2 was slow with a DawiControl 2976UW (SYM53C875), only
-> around 25 MB/s. I have the same observation with a Fujitsu MAH3182MP
-> with an Adaptec 2940UW Pro which is not much faster. Either bus has an
-> active LVD/SE terminator.
+Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> writes:
+
+> On 17 May 2002 16:18, M?ns Rullg?rd wrote:
+> > I just noticed that reading from both my cdrom and dvd is a lot slower
+> > with 2.4.19-pre8 than 2.4.18. Now hdparm reports ~800 kbytes/s compared to
+> > 1.7 MBytes/s for CD and >2 MBytes/s for DVD with 2.4.18. It is even
+> > impossible to play DVDs. Any ideas?
 > 
-> Single-user mode,
-> time dd if=/dev/XXX of=/dev/null bs=65536 count=10240
-> (671,1 MB) linear read.
-> 
-> Table shows throughput in decimal MB/s (M = 1,000,000)
-> 
->                                2.5  2.4  FBSD        max.
-> UWSCSI Fuj MAH3182MP  7200/min 32,1 29,4 35,1 TQ     40
-> UDMA66 Max 4W060H4    5400/min 27,1 26,7 25,7        66
-> UDMA66 IBM DTLA307045 7200/min 37,2 37,5 37,2 TQ 2.5 66
-> UDMA66 WDC AC420400D  5400/min 15,5 15,5 15,5 TQ 2.5 66
->                                --------------
-> table is in decimal MB/s.
+> Do you know at which preN this has happened?
 
-I used to get 17 MiB/s with a Quantum Viking II U2W connected to the wide chain
-of a DawiControl 2976UW (SYM53C875) on my PPC box. This was using the old
-sym53c8xx driver (don't remember whether I ever rerun the test with sym2).
+No, and really don't have the time to try them all just to find out.
+I do suspect it is related to the major changes in the ide drivers and
+particularly pdc202xx.c.
 
-I just reran the test (both dd and hdparm) using my current kernel
-(2.4.17-pre2, using sym2) and I got only 12 MiB/s.
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+-- 
+Måns Rullgård
+mru@users.sf.net

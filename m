@@ -1,47 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262445AbRFNMwU>; Thu, 14 Jun 2001 08:52:20 -0400
+	id <S262568AbRFNNBC>; Thu, 14 Jun 2001 09:01:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262485AbRFNMwK>; Thu, 14 Jun 2001 08:52:10 -0400
-Received: from [217.89.38.238] ([217.89.38.238]:59379 "HELO schottelius.org")
-	by vger.kernel.org with SMTP id <S262445AbRFNMwG>;
-	Thu, 14 Jun 2001 08:52:06 -0400
-Message-ID: <3B28B345.583B9632@pcsystems.de>
-Date: Thu, 14 Jun 2001 14:51:17 +0200
-From: Nico Schottelius <nicos@pcsystems.de>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en
+	id <S262580AbRFNNAx>; Thu, 14 Jun 2001 09:00:53 -0400
+Received: from Expansa.sns.it ([192.167.206.189]:49926 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S262568AbRFNNAm>;
+	Thu, 14 Jun 2001 09:00:42 -0400
+Date: Thu, 14 Jun 2001 15:00:25 +0200 (CEST)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Udo Wolter <uwp@dicke-aersche.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: EXT2FS problems & 2.2.19 & 3ware RAID
+In-Reply-To: <Pine.SOL.4.10.10106141420580.20645-100000@blasuarr>
+Message-ID: <Pine.LNX.4.33.0106141454440.28405-100000@Expansa.sns.it>
 MIME-Version: 1.0
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: scsi disk defect or kernel driver defect ?
-In-Reply-To: <Pine.LNX.4.05.10106102029390.24376-100000@callisto.of.borg>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The manual for my C1536A says:
->
-> | The C1536A does not support termination on the device itself. Normally, the
-> | unit will not be placed at the end of a bus. However, if this is
-> | unavoidable, we recommend the use of an additional length of cable with a
-> | terminator attached. (Lack of space does not allow for a feed-through
-> | connector to be used to the drive.)
->
-> | Terminator: Methode Active SCSI Terminator DM1050-02-R
-> |             Methode Passive SCSI Terminator DM1050-02-0
->
-> So you should get a terminator (or an addtional SCSI device that does have a
-> termination dipswitch/jumper, like my CD-ROM drive :-)
->
-> This also explains why it works without the C1536: in that case your SCSI host
-> adapter will auto-terminate the empty narrow chain.
 
-Thank you Geert!
 
-That was the informations I needed all the time!
-So I ordered an active terminator yesterday.
+On Thu, 14 Jun 2001, Udo Wolter wrote:
 
-Nico
+> Hi !
+>
+> I'm hosting a server with 120 GB disk space. This disk space consists of
+> a RAID10 via a 3ware Escalade 6800 controller. As you can see, the disks are
+> IDE disks (4 x 60 GB) but the controller maps it as scsi-devices to
+> the system. It runs fine but from time to time I get those errors:
+>
+> kernel: EXT2-fs warning (device sd(8,6)): ext2_free_inode: bit already cleared for inode 885312
+> kernel: EXT2-fs warning (device sd(8,6)): ext2_free_inode: bit already cleared for inode 885258
+>
+when i saw something similar, with a configuration really similar to your,
+but on scsi disks, it was because a disc was near to break.
+I had to change the disk and everything went ok.
+
+It also happened to me after a crash on a disk due to eathing
+problems, last august. Same messages,
+and thanx God the disk was not really damnaged, so low level formatted
+the disk, rebuilt partition table, then I rebuilt the fs to restore my
+backup and everything went ok.
+So my suggestion is to loock for HW problems.
+
+> etc.
+>
+> The messages are coming almost once a week. As long as those messages are not
+> harming the filesystem, I had no problems with them (in fact, they say, they
+> are warnings and no errors). But the last times I tried to do a du over the
+> full partition, I got 2 or 3 files and directories which say that that they
+> can't be accessed -> I/O-Error. Neither I can't delete them nor I can
+> access them in any way, not even list.
+>
+> After using debugfs (read only mode during the mount) I can see the files
+> in the listing but even here they are not accessible.
+>
+> I shut the machine down for 2 hours to do a fsck and the errors had been
+> gone but after some days the errors came back (different files and directories,
+> not the same). At this time it's not possible to shut it down because
+> more than 5000 users use it at the moment. Anyway before doing a fsck again
+> I'd like to solve the problem so that the system couldn't get corrupted again.
+>
+exactly, that what I saw myself on the soon to get broken disk.
+
+bests
+
+Luigi Genoni
+
+
+
 

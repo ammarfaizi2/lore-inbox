@@ -1,61 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264004AbSLMNjT>; Fri, 13 Dec 2002 08:39:19 -0500
+	id <S262913AbSLMNhL>; Fri, 13 Dec 2002 08:37:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264622AbSLMNjS>; Fri, 13 Dec 2002 08:39:18 -0500
-Received: from [213.196.40.44] ([213.196.40.44]:25491 "EHLO blackstar.nl")
-	by vger.kernel.org with ESMTP id <S264004AbSLMNjG>;
-	Fri, 13 Dec 2002 08:39:06 -0500
-Date: Fri, 13 Dec 2002 13:53:06 +0100 (CET)
-From: Bas Vermeulen <bvermeul@blackstar.nl>
-To: Take Vos <Take.Vos@binary-magic.com>
-cc: Vojtech Pavlik <vojtech@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: PS/2 keyboard and mouse not available/working/weird
-In-Reply-To: <200212122036.18595.Take.Vos@binary-magic.com>
-Message-ID: <Pine.LNX.4.33.0212131351230.8757-100000@devel.blackstar.nl>
+	id <S263291AbSLMNhL>; Fri, 13 Dec 2002 08:37:11 -0500
+Received: from darkwing.uoregon.edu ([128.223.142.13]:40591 "EHLO
+	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
+	id <S262913AbSLMNhK>; Fri, 13 Dec 2002 08:37:10 -0500
+Date: Fri, 13 Dec 2002 05:45:28 -0800 (PST)
+From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
+X-X-Sender: joelja@twin.uoregon.edu
+To: =?iso-8859-1?q?Jo=E3o=20Seabra?= <seabra@aac.uc.pt>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Local APIC(?)+PIII mobile 
+In-Reply-To: <200212131156.11262.seabra@aac.uc.pt>
+Message-ID: <Pine.LNX.4.44.0212130537080.13166-100000@twin.uoregon.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Dec 2002, Take Vos wrote:
+the intel 440mx chipset that the asus is based on doesn't include an apic. 
+an apic is for doing multiprocessor interupt managemnet. across multiple 
+I/O subsystem each can have it own set of interupts...
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+On Fri, 13 Dec 2002, João Seabra wrote:
+
+> Hi all
 > 
-> On Tuesday 22 October 2002 16:34, Vojtech Pavlik wrote:
-> > On Tue, Oct 22, 2002 at 04:03:49PM +0200, Take Vos wrote:
-> > > In 2.5.44 both my PS/2 mice are not available, neither is my keyboard,
-> > > although after sufficient keystrokes, sometimes 5, sometimes more, the
-> > > keyboard is found, this is with Xfree.
-> I am now using 2.5.51 and I still have the problem when I reboot from a 2.5.51 
-> kernel to a 2.5.51 or 2.4.19 kernel both my internal keyboard and mouse (DELL 
-> Inspiron 8100) are not working anymore. The strange thing is the keyboard 
-> does work in grub.
+>  I have an Asus S8600. 
+>  Mobile PIII 800Mhz + 192M RAM.
+>  If i select "Local APIC support on uniprocessors" the kernel while booting 
+> says there's no APIC present.Why?
+>  I know the same problem with some other laptops.
+>  Others detect it.
+>  
 > 
-> relevant dmesg output:
-> 	device class 'input': registering
-> 	register interface 'mouse' with class 'input'
-> 	mice: PS/2 mouse device common for all mice
-> 	register interface 'joystick' with class 'input'
-> 	register interface 'event' with class 'input'
-> 	input: PS/2 Synaptics TouchPad on isa0060/serio1
-> 	serio: i8042 AUX port at 0x60,0x64 irq 12
-> 	input: AT Set 2 keyboard on isa0060/serio0
-> 	serio: i8042 KBD port at 0x60,0x64 irq 1
-
-I have exactly the same problem on an Inspiron 8000. Been that way since 
-2.5.4x (7 or 8), but cannot get a working 2.5.51 to test at this point.
-
-Just to add another data point. :)
-
-Bas Vermeulen
+>  At home my Athlon Tunderbird + Asus A7V133-C with local APIC enabled detects 
+> it but doesn seem to use it ... 
+> 
+>  cat /proc/interrupts
+>            CPU0
+>   0:     375529          XT-PIC  timer
+>   1:       7452          XT-PIC  keyboard
+>   2:          0          XT-PIC  cascade
+>   5:     113246          XT-PIC  bttv, eth0
+>   8:          2          XT-PIC  rtc
+>  10:     144373          XT-PIC  EMU10K1
+>  11:     382444          XT-PIC  nvidia
+>  12:     153864          XT-PIC  PS/2 Mouse
+>  14:      12346          XT-PIC  ide0
+>  15:         12          XT-PIC  ide1
+> NMI:          0
+> ERR:          0
+> 
+> Anyway why do I need local APIC :) ?What are the advantages?Links?
+> 
+> Thank you very much for your kindness
+> 
+>  Best Regards,
+> 
+>  João Seabra
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 -- 
-"God, root, what is difference?" 
-	-- Pitr, User Friendly
+-------------------------------------------------------------------------- 
+Joel Jaeggli	      Academic User Services   joelja@darkwing.uoregon.edu    
+--    PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E      --
+  In Dr. Johnson's famous dictionary patriotism is defined as the last
+  resort of the scoundrel.  With all due respect to an enlightened but
+  inferior lexicographer I beg to submit that it is the first.
+	   	            -- Ambrose Bierce, "The Devil's Dictionary"
 
-"God is more forgiving." 
-	-- Dave Aronson
 

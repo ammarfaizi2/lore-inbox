@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133092AbRANTA3>; Sun, 14 Jan 2001 14:00:29 -0500
+	id <S133046AbRANTDt>; Sun, 14 Jan 2001 14:03:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133110AbRANTAN>; Sun, 14 Jan 2001 14:00:13 -0500
-Received: from as3-3-4.ml.g.bonet.se ([194.236.33.69]:52740 "EHLO
-	tellus.mine.nu") by vger.kernel.org with ESMTP id <S133089AbRANS7w>;
-	Sun, 14 Jan 2001 13:59:52 -0500
-Date: Sun, 14 Jan 2001 18:59:57 +0100 (CET)
-From: Tobias Ringstrom <tori@tellus.mine.nu>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4 ate my filesystem on rw-mount, getting closer
-In-Reply-To: <Pine.LNX.4.30.0101141636350.6714-301000@svea.tellus>
-Message-ID: <Pine.LNX.4.30.0101141848330.7031-100000@svea.tellus>
+	id <S133094AbRANTDj>; Sun, 14 Jan 2001 14:03:39 -0500
+Received: from shell.cyberus.ca ([209.195.95.7]:63912 "EHLO shell.cyberus.ca")
+	by vger.kernel.org with ESMTP id <S133046AbRANTD3>;
+	Sun, 14 Jan 2001 14:03:29 -0500
+Date: Sun, 14 Jan 2001 14:02:40 -0500 (EST)
+From: jamal <hadi@cyberus.ca>
+To: Ingo Molnar <mingo@elte.hu>
+cc: <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>
+Subject: Re: Is sendfile all that sexy?
+In-Reply-To: <Pine.LNX.4.30.0101141945520.3103-100000@e2>
+Message-ID: <Pine.GSO.4.30.0101141356050.12354-100000@shell.cyberus.ca>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I should also add that the 3.11 driver seems to make things better, but
-not yet perfect.  My intuition tells me that I get CRC errors much sooner
-with 2.1e than with 3.11.
 
-Has the timings changed from 2.1e to 3.11, and would it be easy to modify
-3.11 to get extra safe/paranoid, but less high performance, timings?
 
-Some extra data:
-* B seems to work in 2 with udma2
-* A seems to work in 2 with udma1, but not with udma2.
+On Sun, 14 Jan 2001, Ingo Molnar wrote:
 
-I wouldn't say it's rock solid, and I would not trust my data to any of
-these combinations, but at least it not break immmediately (i.e. for less
-than 1 GB written).
+>
+> i believe what you are seeing here is the overhead of the pagecache. When
+> using sendmsg() only, you do not read() the file every time, right? Is
 
-The worst combination is 2.4.0 with VIA 2.1e and A in 1.  Going from 2.1e
-to 3.11 helps, but it is still very bad.
+In that case just a user space buffer is sent i.e no file association.
 
-I'd really like to be more precise, but there are too many combinations to
-try to try them all, and sometimes it fails right away, and sometimes
-after several hundred megabytes.
+> ttcp using multiple threads?
 
-/Tobias
+Only a single thread, single flow setup. Very primitive but simple.
+
+> In that case if the sendfile() is using the
+> *same* file all the time, creating SMP locking overhead.
+>
+> if this is the case, what result do you get if you use a separate,
+> isolated file per process? (And i bet that with DaveM's pagecache
+> scalability patch the situation would also get much better - the global
+> pagecache_lock hurts.)
+>
+
+Already doing the single file, single process. However, i do run by time
+which means i could read the file from the begining(offset 0) to the end
+then re-do it for as many times as 15secs would allow. Does this affect
+it? I tried one 1.5 GB file, it was oopsing and given my setup right now i
+cant trace it. So i am using about 170M which is read about 8 times in
+the 15 secs
+
+cheers,
+jamal
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

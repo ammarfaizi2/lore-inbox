@@ -1,90 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313472AbSEJUhB>; Fri, 10 May 2002 16:37:01 -0400
+	id <S316081AbSEJUsD>; Fri, 10 May 2002 16:48:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316116AbSEJUhA>; Fri, 10 May 2002 16:37:00 -0400
-Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:20365 "EHLO
-	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S313472AbSEJUhA>; Fri, 10 May 2002 16:37:00 -0400
-Date: Fri, 10 May 2002 16:36:58 -0400
-To: Alexander Viro <viro@math.psu.edu>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] iget_locked [1/6]
-Message-ID: <20020510203658.GA23583@ravel.coda.cs.cmu.edu>
-Mail-Followup-To: Alexander Viro <viro@math.psu.edu>,
-	torvalds@transmeta.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20020510160741.GD18065@ravel.coda.cs.cmu.edu> <Pine.GSO.4.21.0205101557380.19226-100000@weyl.math.psu.edu> <20020510160719.GB18065@ravel.coda.cs.cmu.edu> <Pine.GSO.4.21.0205101550290.19226-100000@weyl.math.psu.edu>
+	id <S316090AbSEJUsC>; Fri, 10 May 2002 16:48:02 -0400
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:58559 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S316081AbSEJUsC>; Fri, 10 May 2002 16:48:02 -0400
+Date: Fri, 10 May 2002 22:47:58 +0200
+From: Jan Hudec <bulb@ucw.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Re: kill task in TASK_UNINTERRUPTIBLE
+Message-ID: <20020510204758.GA19106@artax.karlin.mff.cuni.cz>
+Mail-Followup-To: Jan Hudec <bulb@ucw.cz>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <3CD9B44F.4A023A70@mvista.com> <Pine.LNX.4.21.0205090140240.32715-100000@serv>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.3.28i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 10, 2002 at 03:53:17PM -0400, Alexander Viro wrote:
-> On Fri, 10 May 2002, Jan Harkes wrote:
-> > +			if (set)
-> > +				err = set(inode, data);
-> > +			if (!err) {
-> > +				inodes_stat.nr_inodes++;
-> > +				list_add(&inode->i_list, &inode_in_use);
-> > +				list_add(&inode->i_hash, head);
-> > +				inode->i_state = I_LOCK;
-> > +			}
-> >  			spin_unlock(&inode_lock);
-> >  
-> > +			if (err) {
-> > +				destroy_inode(inode);
-> > +				return NULL;
-> > +			}
+On Thu, May 09, 2002 at 01:49:35AM +0200, Roman Zippel wrote:
+> > > Except for processes accessing NFS files while the NFS server is down:
+> > > they will be stuck in TASK_UNINTERRUPTIBLE until the NFS server comes
+> > > back up again.
+> > 
+> > A REALLY good argument for puting timeouts on your NSF mounts!  Don't
+> > leave home without them.
 > 
-> Please, take that code out of the path - will be cleaner that way.
+> Use "mount -o intr" and you can kill the process.
 
-Ok, a later patch already makes 'set' required, and I was only using the
-failure path in Coda. I'll change this so that set never fails.
+Could someone please explain to me how this works? IIRC NFS uses
+generic_file_read as most other filesystems. And whe WaitOnPage in there
+sleeps in uninterruptible state. I was told, that though it would be
+easy to change here, it's almost impossible in page-fault, because
+trying to handle a signal might trigger the very same page-fault again.
 
-
-On Fri, May 10, 2002 at 04:00:54PM -0400, Alexander Viro wrote:
-> On Fri, 10 May 2002, Jan Harkes wrote:
-> > +	*inode = iget_locked(sb, CTL_INO);
-> > +	if ( *inode && ((*inode)->i_state & I_NEW) ) {
-> >  		(*inode)->i_op = &coda_ioctl_inode_operations;
-> >  		(*inode)->i_fop = &coda_ioctl_operations;
-> >  		(*inode)->i_mode = 0444;
-> > +		unlock_new_inode(*inode);
-> 
-> Ehhh....  Do we need this guy hashed, in the first place?
-
-Actually we really don't want this guy hashed, I'll use new_inode(sb)
-for this one.
-
-
-> >    destroy_inode: reiserfs_destroy_inode,
-> >    read_inode: reiserfs_read_inode,
-> > -  read_inode2: reiserfs_read_inode2,
-> 
-> Why do we keep ->read_inode() here?
-
-Just in case someone outside of reiser calls 'iget' on a reiserfs inode.
-I guess it's not really necessary to have it around.
-
-
-> > Here we simply add an argument to insert_inode_hash. If at some
-> > point a FS specific getattr method is implemented it will be possible to
-> > completely remove all uses of i_ino in the VFS.
->
-> How about
-> 
-> static inline void insert_inode_hash(struct inode *inode)
-> { 
->         __insert_inode_hash(inode, inode->i_hash);
-
-Ok, will do that.
-
-Should I create one patch that goes in relative to iget_locked-6, or
-resubmit updated patches for each step? I guess an additional patch is
-the easiest. Or a -6a that replaces the existing -6.
-
-Jan
-
+--------------------------------------------------------------------------------
+                  				- Jan Hudec `Bulb' <bulb@ucw.cz>

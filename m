@@ -1,80 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261158AbVBDLzk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVBDMFR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261158AbVBDLzk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 06:55:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261153AbVBDLzk
+	id S261165AbVBDMFR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 07:05:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbVBDMFM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 06:55:40 -0500
-Received: from ns9.hostinglmi.net ([213.194.149.146]:40407 "EHLO
-	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S261166AbVBDLu5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 06:50:57 -0500
-Date: Fri, 4 Feb 2005 12:51:54 +0100
-From: DervishD <lkml@dervishd.net>
-To: jerome lacoste <jerome.lacoste@gmail.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Huge unreliability - does Linux have something to do with it?
-Message-ID: <20050204115154.GB625@DervishD>
-Mail-Followup-To: jerome lacoste <jerome.lacoste@gmail.com>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <5a2cf1f605020401037aa610b9@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <5a2cf1f605020401037aa610b9@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
-Organization: DervishD
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - dervishd.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Fri, 4 Feb 2005 07:05:12 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:49286 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261153AbVBDME7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Feb 2005 07:04:59 -0500
+To: Hirokazu Takahashi <taka@valinux.co.jp>, akpm@osdl.org, suparna@in.ibm.com,
+       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] [PATCH] Reserving backup region for kexec based crashdumps.
+References: <m1zmym6m6z.fsf@ebiederm.dsl.xmission.com>
+	<20050203.191039.39155205.taka@valinux.co.jp>
+	<m18y666i6u.fsf@ebiederm.dsl.xmission.com>
+	<20050204.190509.112624049.taka@valinux.co.jp>
+	<m1hdks60cr.fsf@ebiederm.dsl.xmission.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 04 Feb 2005 05:02:42 -0700
+In-Reply-To: <m1hdks60cr.fsf@ebiederm.dsl.xmission.com>
+Message-ID: <m13bwc5y8t.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Jerome :)
+ebiederm@xmission.com (Eric W. Biederman) writes:
 
- * jerome lacoste <jerome.lacoste@gmail.com> dixit:
-> [Sorry for the sensational title]
+> Hirokazu Takahashi <taka@valinux.co.jp> writes:
+> > > Most of this just results in easier management between the pieces.
+> > > Which is a good thing.  However at the moment I don't think it
+> > > simplifies any of the core problems.  I still need to reserve
+> > > a large hunk of physical address space early on before any
+> > > DMA transactions are setup to hold the new kernel.
+> > 
+> > I agree that my idea is not essential at the moment.
+> > 
+> > > So while I am happy to see patches that improve this I don't
+> > > actually care right now.
+> > 
+> > ok.
 
-    It catched my attention ;)))
- 
-> I halted the machine correctly yesterday night. I never dropped the
-> box in 3 years. Am I just being unlucky? Or could the fact that I am
-> using Linux on the box affect the reliability in some ways on that
-> particular hardware (Dell Inspiron 8100)? I run Linux on 3 other
-> computers and never had single problems with them.
+Thinking about this some more this does have a significant aspect
+on the design.  For architectures that support this, on the
+primary kernel the command line option becomes:
+crashkernel=size instead of crashkernel=size@location.
+Which means the kernel needs to call alloc_bootmem instead
+of reserve_bootmem.  So it results in a primary kernel implementation
+difference.
 
-    Well, Linux may stress the hardware more than other operating
-systems because it tries to optimize usage and performance. But in
-this particular case I will think you are very unlucky O:) I've seen
-that before, unfortunately.
- 
-> Could a hardware failure look like bad sectors to fsck?
+In addition if we really can push all of the dump specific
+functionality into user space as it appears we can, this allows a
+generic kernel to be used for the crash dump process.  It will
+probably still be a special hardened build where reliability is
+more important than performance.  So that any micro hit we take in
+performance by modifying __pa() and __va() will be irrelevant.
 
-    Yes, depending on the hardware failure.
+I like it.
 
-> (*) I accept tips on discovering and maybe recovering which files have
-> been taken out of my system...
+I have already demonstrated that there is a general technique that
+any architecture can use to build a kernel that runs at a non-default
+address.  So for the architectures that cannot build a PIC kernel
+there is still a proven solution available, it simply will not
+be as nice to manage.
 
-    You should use 'integrit' (http://integrit.sourceforge.net). I
-use it to know whether a file whose contents shouldn't change has
-changed, but it has more usages. And use memtest86 (there are two
-versions out there) to check your RAM, just in case. Bad RAM can
-cause 'apparent' hardware failures. A bad RAM chip can cause disk
-errors (if you write to disk from *bad* RAM, you'll write *bad* data)
-and other failures. Use 'integrit', read the documentation for
-details.
+x86_64 should pretty straight forward.  i386 will be a little more
+difficult but doable.
 
-    Good luck, you'll need it with that laptop :(
+Patches are still welcome.
 
-    Raúl Núñez de Arenas Coronado
-
--- 
-Linux Registered User 88736
-http://www.dervishd.net & http://www.pleyades.net/
-It's my PC and I'll cry if I want to...
+Eric

@@ -1,75 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129703AbRAWKBU>; Tue, 23 Jan 2001 05:01:20 -0500
+	id <S129601AbRAWKDk>; Tue, 23 Jan 2001 05:03:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129601AbRAWKBL>; Tue, 23 Jan 2001 05:01:11 -0500
-Received: from mail.mojomofo.com ([208.248.233.19]:51728 "EHLO mojomofo.com")
-	by vger.kernel.org with ESMTP id <S129485AbRAWKA4>;
-	Tue, 23 Jan 2001 05:00:56 -0500
-Message-ID: <01e901c08523$5b6af660$0300a8c0@methusela>
-From: "Aaron Tiensivu" <mojomofo@mojomofo.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <linux-ppp@vger.kernel.org>
-Subject: [2.4.1-p10] Multilink PPP crash fix
-Date: Tue, 23 Jan 2001 04:59:20 -0500
+	id <S130092AbRAWKDU>; Tue, 23 Jan 2001 05:03:20 -0500
+Received: from mail.digitalme.com ([193.97.97.75]:17673 "EHLO digitalme.com")
+	by vger.kernel.org with ESMTP id <S129601AbRAWKDR>;
+	Tue, 23 Jan 2001 05:03:17 -0500
+Message-ID: <3A6D56EE.2070003@bigfoot.com>
+Date: Tue, 23 Jan 2001 05:03:26 -0500
+From: "Trever L. Adams" <trever_Adams@bigfoot.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0 i686; en-US; m18) Gecko/20010119
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_01E6_01C084F9.3ECF4CB0"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+To: "Mike A. Harris" <mharris@opensourceadvocate.org>
+CC: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Total loss with 2.4.0 (release)
+In-Reply-To: <Pine.LNX.4.32.0101230026490.7610-100000@asdf.capslock.lan>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Mike A. Harris wrote:
 
-------=_NextPart_000_01E6_01C084F9.3ECF4CB0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+> On Mon, 15 Jan 2001, Trever Adams wrote:
+> 
+> I don't see how Windows 9x can be at fault in any way shape or
+> form, if you can boot between 2.2.x kernel and 9x no problem, but
+> lose your disk if you boot Win98 and then 2.3.x/2.4.x and lose
+> everything.  Windows does not touch your Linux fs's, so if there
+> is a problem, it most likely is a kernel bug of some kind that
+> doesn't initialize something properly.
 
-I took out my can of RAID and went bug hunting.
-The kernel was always crashing in this subroutine and the comment near the
-list walk clued me in.
-I've run this fixed kernel all night and can no longer make it OOPS from a
-racy list walk.
+Well, I boot into Linux, all is fine, rebooted into a different version 
+of Linux for some testing, all is fine (this was an older version, I 
+believe it was 2.2.14 or .15)  Try to install ME and run it, seems ok. 
+Go back to Linux, and my drive was fried with Windows files all over it, 
+etc.
 
-It may be overkill to use ppp_lock instead of the finer grained locks but it
-works great so far
-and I don't believe this routine gets called a lot.
+I know Windows shouldn't touch a Linux partition.  But, apparently it 
+did.  Or else Linux and/or Fdisk are fried and made a bad partition table.
 
----
-Life is like a box of chocolates: Mass produced and usually stale.
+> Windows sucks, and I hate it as much (probably more) than the
+> next guy.  It's not fair to blame every computer problem on it
+> though unless you KNOW that Windows directly caused the problem.
 
+I said what I did, because it seems the evidence said Windows did do it. 
+  If it didn't, oops.  I have talked with others and they had a similar 
+experience, so I am not alone.
 
+> Pick one of the 1000000000 good reasons to say Windows sucks
+> instead...
+> 
+> For what it is worth, I have a similar problem where if I boot
+> Windows (to show people what "multicrashing" is), if I boot back
+> into Linux, my network card no longer works (via-rhine).  Most
+> definitely a Linux bug.  In this case, "via-rhine.o" sucks.
+> 
+> ;o)
 
-------=_NextPart_000_01E6_01C084F9.3ECF4CB0
-Content-Type: application/octet-stream;
-	name="2.4.1-p10-mppp-fix.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="2.4.1-p10-mppp-fix.patch"
+Well, this is actually the second time I have had Windows write all over 
+my Linux partition.  The first time I think it was not a bug in either, 
+but a bug in hardware.  However, I no longer have that hardware as my 
+desktop.
 
---- linux/drivers/net/ppp_generic.c.virgin	Mon Jan 22 02:37:42 2001=0A=
-+++ linux/drivers/net/ppp_generic.c	Tue Jan 23 04:36:48 2001=0A=
-@@ -1569,11 +1569,12 @@=0A=
- 	struct sk_buff_head *list =3D &ppp->mrq;=0A=
- 	u32 seq =3D skb->sequence;=0A=
- =0A=
--	/* N.B. we don't need to lock the list lock because we have the=0A=
--	   ppp unit receive-side lock. */=0A=
-+	ppp_lock(ppp);=0A=
- 	for (p =3D list->next; p !=3D (struct sk_buff *)list; p =3D p->next)=0A=
- 		if (seq_before(seq, p->sequence))=0A=
- 			break;=0A=
-+	ppp_unlock(ppp);=0A=
-+=0A=
- 	__skb_insert(skb, p->prev, p, list);=0A=
- }=0A=
- =0A=
-
-------=_NextPart_000_01E6_01C084F9.3ECF4CB0--
+Trever
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

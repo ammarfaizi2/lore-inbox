@@ -1,85 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262790AbTLJDvm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Dec 2003 22:51:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263281AbTLJDvm
+	id S262375AbTLJEWs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Dec 2003 23:22:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262878AbTLJEWs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Dec 2003 22:51:42 -0500
-Received: from k-kdom.nishanet.com ([65.125.12.2]:46091 "EHLO
-	mail2k.k-kdom.nishanet.com") by vger.kernel.org with ESMTP
-	id S262790AbTLJDvk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Dec 2003 22:51:40 -0500
-Message-ID: <3FD69CB3.8080308@nishanet.com>
-Date: Tue, 09 Dec 2003 23:10:27 -0500
-From: Bob <recbo@nishanet.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: State of devfs in 2.6?
-References: <200312081536.26022.andrew@walrond.org> <20031208154256.GV19856@holomorphy.com> <pan.2003.12.08.23.04.07.111640@dungeon.inka.de> <20031208233428.GA31370@kroah.com> <1070953338.7668.6.camel@simulacron> <20031209083228.GC1698@kroah.com> <3FD681D0.1090600@tequila.co.jp>
-In-Reply-To: <3FD681D0.1090600@tequila.co.jp>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Dec 2003 23:22:48 -0500
+Received: from smtp1.clear.net.nz ([203.97.33.27]:12454 "EHLO
+	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S262375AbTLJEWp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Dec 2003 23:22:45 -0500
+Date: Wed, 10 Dec 2003 17:22:54 +1300
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Announce: Software Suspend 2.0rc3 for 2.4 and 2.6.
+To: swsusp-devel <swsusp-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1071030171.3344.29.camel@laptop-linux>
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.4.4-8mdk
+Content-type: text/plain
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Skip to Bottom line: Does devfs do devpts on 2.6? Didn't for me.
+Hi all.
 
-Clemens Schwaighofer wrote:
+This is to announce 2.0-rc3, now being uploaded to swsusp.sf.net.
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
->
-> Greg KH wrote:
->
-> |
-> | I don't think that all 4 users of devfs on 2.6 are all that vocal :)
-> | Either way, I haven't been paying attention, as I really don't care.
->
-> well ... I think there are more devfs users out there. eg, all the
-> Gentoo freaks (me included) are sort of forced into devfs. If they want
-> or not. And they will stick to it, until sysfs/udev/hotplug/foobarfs is
-> so solid it can replace devfs. 
+A number of small but significant user-visible changes have been made
+with this release, so please read these notes carefully.
 
-I'm using devfs on 2.6.0-test11. I have never run into the
-impossible to fix problems. I run devfs with very little
-old compatible naming. I edited /etc/devfs/compat_symlinks
-to give me /dev/sd* /dev/hd* and weirdly ln -s /dev/dsp2 /dev/dsp
-since all sound apps only seem to look for /dev/dsp which is only
-a dummy with nforce2.
+1) New format. There is now one 'core' patch which should be applied
+regardless of your kernel version. In addition to the core patch, a
+version-specific patch should be applied. These are available for both
+2.4 and 2.6 series kernels. Core and version-specific patches should be
+able to be updated independently.
 
-In 2.6 devfs would not do devpts for X so I put devpts back in the
-kernel and instantly got on with my work. I'm not sure if that means
-devfs can't do devpts in 2.6. I don't care.
+PARTICULARLY IN THE CASE OF 2.6, THE VERSION SPECIFIC PATCH SHOULD BE
+APPLIED FIRST. Otherwise, rejects will occur.
 
-I see no devfs devices for a 32-bit cardbus pcmcia controller pci card
-which is id'd by yenta and cardmgr(pcmcia-cs v3.2.5), so I am switching
-to sysfs udev hotplug to see if that helps. Actually I can mount sysfs
-to /sys now and look around first but proc and var agree there is nada
-but there are two cards in slots.
+2) Changed kernel command line parameters. Instead of resume=,
+resume_block= and resume_blocksize=, there is now a single resume2=
+command line parameter. Note that that's RESUME2, not RESUME. The format
+for this parameter is:
 
-In the cdrecord thread Linus said some things about target/bus/lun
-naming and I must admit that it is nice to get back where ls /dev
-shows what drives there are without having to tree out into
-/dev/scsi/host/bus/target/lun/* to see how drives are recognized.
-That can be improved in most configurations by using compat
-symlinks instructions for /dev/sd* in /etc/devfs/compat_symlinks
-but as Linus explained iscsi handled better by sysfs udev /dev/s??
-and not 0,0,0 targbuslun cdrecord-style.
+resume2=[writer]:[writer-specific-parameters]
 
-I like devfs and haven't ever had an error burning cd's with ide-scsi
-but I'm switching to udev and ide-cd to suck up to Linus before
-I start plaguing him about my pcmcia controller and yenta not
-working together--udev might work better with hotplug than
-devfs so I should try that first.
+At the moment, there is only one method of storing images - the
+swapwriter. It is envisaged, that NFS support will be implemented
+sometime in the future. (After I do the work of merging with Patrick).
+For now, then, you will want to replace
 
-It seems dubious that Gooch isn't maintaining devfs and syfs
-could be moving away from compatibility with devfs, and
-there are proven impossibilities about the devfs way. Devfs
-is a lot less broken than windows, though. Devfs might
-be good enough to Walmart-Microsoft pretty good alright
-rip the guts out of userland, but that's not good enough for the
-os that runs the internet.
+resume=/dev/hda1 resume_block=0x560 resume_blocksize=1024
 
--Bob
+with
+
+resume2=swap:/dev/hda1:0x560@1024
+
+Later, you'll hopefully end up being able to have
+resume2=nfs:192.168.1.1/images/laptop.
+
+3) /proc/sys/kernel/swsusp is now deprecated. It is still in this
+version, but I'd appreciate it if scripts could be changed to use the
+new /proc/swsusp/all_settings entry instead. The functionality is
+exactly the same. Only the location has changed.
+
+In addition, a ton of user-invisible changes have been made. This
+accounts for the size of the patch. A new internal API implements two
+new kinds of 'plugins', designed to make adding new methods of
+transforming the data to be stored ('transformers') and saving the data
+('writers') easier to implement. This has allowed me to separate out the
+swap specific code and the compression code as part of the big cleanup
+I've also done. The /proc code has also been enhanced, so that plugins
+can dynamically register new entries. This will also form a foundation
+for kobject support in the 2.6 kernel. (That is to say, 2.6 swsusp will
+soon stop using proc, and will use sysfs instead).
+
+4) Compatibility with other 2.6 implementations.
+
+This version should play nicely with the existing software suspend
+implementations in the 2.6 kernel. Patrick's pmdisk implementation can
+be activated as always using the sysfs interface, and Pavel's using echo
+4 > /proc/acpi/sleep. This patch does replace the freezer implementation
+those versions use, and Pavel's suspend will initialise but not use the
+nice display. Apart from these minor changes, no differences should be
+seen.
+
+For those who simply with to upgrade from rc2, an incremental patch is
+also available from Sourceforge. I've put it there rather than attaching
+it because of its size.
+
+Apart from the kobject changes mentioned above, this should be the last
+set of big changes to the code base. Unless something has slipped my
+mind, I believe I've just about implemented all the functionality we
+need. From now on, then, I'll only be looking to update/improve the
+documentation and clean and further document the code, to implement
+kobject support and perhaps also SMP support (which should be a minor
+changeset).
+
+As always, I look forward to feedback.
+
+Regards,
+
+Nigel
+-- 
+Nigel Cunningham
+495 St Georges Road South, Hastings 4201, New Zealand
+
+Evolution (n): A hypothetical process whereby infinitely improbable events occur 
+with alarming frequency, order arises from chaos, and no one is given credit.
+

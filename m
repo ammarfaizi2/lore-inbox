@@ -1,31 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261404AbREVMIj>; Tue, 22 May 2001 08:08:39 -0400
+	id <S261417AbREVMeP>; Tue, 22 May 2001 08:34:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261411AbREVMI3>; Tue, 22 May 2001 08:08:29 -0400
-Received: from barnowl.demon.co.uk ([158.152.23.247]:1029 "EHLO
-	barnowl.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S261404AbREVMIP>; Tue, 22 May 2001 08:08:15 -0400
-Mail-Copies-To: nobody
+	id <S261423AbREVMeF>; Tue, 22 May 2001 08:34:05 -0400
+Received: from community9.interfree.it ([213.158.72.64]:35847 "HELO
+	community9.interfree.it") by vger.kernel.org with SMTP
+	id <S261417AbREVMeC>; Tue, 22 May 2001 08:34:02 -0400
+Message-Id: <990534823.30@interfree.it>
+Date: Tue, 22 May 2001 14:33:43 0200
 To: linux-kernel@vger.kernel.org
-Subject: Re: ECN is on!
-In-Reply-To: <20010522131031.C5947@mea-ext.zmailer.org>
-From: Graham Murray <graham@barnowl.demon.co.uk>
-Date: 22 May 2001 12:07:34 +0000
-In-Reply-To: <20010522131031.C5947@mea-ext.zmailer.org> (Matti Aarnio's message of "Tue, 22 May 2001 13:10:31 +0300")
-Message-ID: <m28zjpsi2h.fsf@barnowl.demon.co.uk>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) Emacs/20.7
+From: daria73it@yahoo.it (Daria)
+Subject: Messaggio
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matti Aarnio <matti.aarnio@zmailer.org> writes:
+Messaggio promozionale
 
-> ... and immediately I have been able to verify a bunch of
-> domains/servers which won't get thru when incoming connection
-> has ECN.
 
-As a matter of interest, are you also noting how many actually
-negotiate ECN rather than simply responding with a "plain" SYN ACK? 
+La societa' DOPLAND srl e' ora presente anche in Internet con oltre 14000 articoli,all'indirizzo
+http://www.dopland.com
+
+Articoli da regalo
+Orologi
+Occhiali da sole
+Articoli sportivi
+Telefonia
+
+Tutto scontato fino al 60%.Consegne entro 24/48 ore con formula "soddisfatti o rimborsati".
+
+Nell' invitarVi a visitare il nostro sito,ci scusiamo per l'eventuale disturbo e porgiamo 
+i piu' cordiali saluti!
+
+Dara L.
+
+http://www.dopland.com
+
+--------------------------------------------------------------------------
+Ai sensi della  legge  675/96,  La  informiamo  che  la  sua e-mail è stata
+trovata su internet  che è  un ambito  pubblico. E' Sua facoltà  esercitare
+i diritti di cui  all'art.13 della suddetta legge. Se non desidera ricevere 
+nostre  ulteriori  e-mail risponda  inserendo  il  messaggio   "recessione"
+nell'oggetto. Il  suo  indirizzo verra' in ogni caso cancellato dalla lista
+dopo questo invio.
+--------------------------------------------------------------------------
+
+Promozione a cura dell'agenzia pubblicitaria A&M - Milano tel. 02700403659
 

@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264005AbRFEPAP>; Tue, 5 Jun 2001 11:00:15 -0400
+	id <S264007AbRFEPEQ>; Tue, 5 Jun 2001 11:04:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264007AbRFEPAG>; Tue, 5 Jun 2001 11:00:06 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:5 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S264005AbRFEO7w>;
-	Tue, 5 Jun 2001 10:59:52 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Stephen Wille Padnos <stephenwp@adelphia.net>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Exporting new functions from kernel 2.2.14 
-In-Reply-To: Your message of "Tue, 05 Jun 2001 10:32:41 MST."
-             <3B1D17B9.92D046A1@adelphia.net> 
+	id <S264008AbRFEPEG>; Tue, 5 Jun 2001 11:04:06 -0400
+Received: from sundiver.zdv.Uni-Mainz.DE ([134.93.174.136]:39684 "HELO
+	gateway.intern.kubla.de") by vger.kernel.org with SMTP
+	id <S264007AbRFEPD4>; Tue, 5 Jun 2001 11:03:56 -0400
+Date: Tue, 5 Jun 2001 17:03:27 +0200
+From: Dominik Kubla <dominik.kubla@uni-mainz.de>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, green@linuxhacker.ru,
+        Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.5-ac7
+Message-ID: <20010605170327.A13375@intern.kubla.de>
+In-Reply-To: <mailman.991555081.25242.linux-kernel2news@redhat.com> <200106032051.f53Kpgg10681@devserv.devel.redhat.com> <20010604122708.B33@toy.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 06 Jun 2001 00:59:39 +1000
-Message-ID: <18174.991753179@ocs3.ocs-net>
+Content-Disposition: inline
+In-Reply-To: <20010604122708.B33@toy.ucw.cz>
+User-Agent: Mutt/1.3.18i
+X-No-Archive: yes
+Restrict: no-external-archive
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 05 Jun 2001 10:32:41 -0700, 
-Stephen Wille Padnos <stephenwp@adelphia.net> wrote:
->Unfortunately, the printk warning was still there.
->
->I replaced the unconditional #define MODVERSIONS with
->#include <linux/config.h>
->#ifdef CONFIG_MODVERSIONS
->#define MODVERSIONS
->#include <linux/modversions.h>
->#endif
->
->this is at the top of my source file. (before module.h and linux.h)
->
->(as seen somewhere on the web)
+On Mon, Jun 04, 2001 at 12:27:11PM +0000, Pavel Machek wrote:
+> Hi!
+> 
+> > > How about ISA USB host controllers?
+> > 
+> > Those, unfortunately, do not exist. I was shopping for one
+> > in vain for a long time. One formiddable difficulty is that
+> > USB bandwidth is larger than ISA, so the only feasible way
+> > to make a HC is to have all TD's in its onboard memory,
+> > as in VGA.
+> 
+> USB is 1.2MB/sec while 8-bit ISA is 4MB/sec (memory-mapped).
+> 
+> ...and OHCI does use board memory, anyway.
 
-And like many things on the web, it is wrong.  Do not put anything in
-the source code expect #include <linux/module.h> as the first include.
-In particular do not include modversions.h yourself, it will break in
-2.5.  You compile a module with these gcc flags
+And strangely enough a couple of vendors offer USB-to-ISA bridges:
+passive ISA backplanes that you can connect to your system using
+USB.  Just search for "USB ISA" with google.com ...
 
-(1) -DMODULE
-(2) -DMODVERSIONS -include $(TOPDIR)/include/linux/modversions.h
-(3) -DEXPORT_SYMTAB
-
-All modules get flag (1).
-All modules get flags (2) but only if .config contains
-CONFIG_MODVERSIONS, otherwise omit these flags.
-Only modules that export symbols get flag (3).
-
-That is what the standard kernel Makefiles do and is the only correct
-way to compile modules.
-
-Keith Owens, kernel build and modutils maintainer.
-
+Dominik
+-- 
+          A lovely thing to see:                   Kobayashi Issa
+     through the paper window's holes               (1763-1828)
+                the galaxy.               [taken from: David Brin - Sundiver]

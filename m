@@ -1,63 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318622AbSIEWVF>; Thu, 5 Sep 2002 18:21:05 -0400
+	id <S318361AbSIEWMw>; Thu, 5 Sep 2002 18:12:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318626AbSIEWVF>; Thu, 5 Sep 2002 18:21:05 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:17678 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S318622AbSIEWVE>; Thu, 5 Sep 2002 18:21:04 -0400
-Message-ID: <3D77D960.12558B54@zip.com.au>
-Date: Thu, 05 Sep 2002 15:23:28 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Chuck Lever <cel@citi.umich.edu>
-CC: trond.myklebust@fys.uio.no,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: invalidate_inode_pages in 2.5.32/3
-References: <3D77C0A7.F74A89D0@zip.com.au> <15735.50124.304510.10612@charged.uio.no> <3D77C8B7.1534A2DB@zip.com.au> <3D77D44C.8060109@citi.umich.edu>
+	id <S318345AbSIEWMt>; Thu, 5 Sep 2002 18:12:49 -0400
+Received: from crack.them.org ([65.125.64.184]:65028 "EHLO crack.them.org")
+	by vger.kernel.org with ESMTP id <S318275AbSIEWLX>;
+	Thu, 5 Sep 2002 18:11:23 -0400
+Date: Thu, 5 Sep 2002 18:15:58 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] ptrace-fix-2.5.33-A1
+Message-ID: <20020905221558.GA12837@nevyn.them.org>
+Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
+	OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0209060009280.11747-100000@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0209060009280.11747-100000@localhost.localdomain>
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chuck Lever wrote:
+On Fri, Sep 06, 2002 at 12:09:51AM +0200, Ingo Molnar wrote:
 > 
-> Andrew Morton wrote:
+> On Thu, 5 Sep 2002, Daniel Jacobowitz wrote:
 > 
-> > Trond, there are very good reasons why it broke.  Those pages are
-> > visible to the whole world via global data structures - both the
-> > page LRUs and via the superblocks->inodes walk.  Those things exist
-> > for legitimate purposes, and it is legitimate for async threads
-> > of control to take a reference on those pages while playing with them.
-> >
-> > It just "happened to work" in earlier kernels.
-> >
-> > I suspect we can just remove the page_count() test from invalidate
-> > and that will fix everything up.  That will give stronger invalidate
-> > and anything which doesn't like that is probably buggy wrt truncate anyway.
-> >
-> > Could you test that?
+> > There's definitely still something wrong... let me just run through my
+> > understanding of these lists, to make sure we're on the same page.
+> > 
+> > tsk->children: tsk's children, which are either untraced or traced by
+> > 	tsk.  They have p->parent == p->real_parent == tsk.
+> > 	Chained in p->sibling.
 > 
-> removing that test from invalidate_inode_pages allows test6 to run to
+> no - the way i wrote it originally was that only untraced children should
+> be on the tsk->children list. Traced tasks will be on the debugger's
+> ->children list, plus will be on the real parent's ->ptrace_children list.
+
+Right - let me rephrase.  Tasks which are either:
+  - untraced, normal
+  - traced, but traced _by their parent_
+are on the sibling/children list.
+
+Tasks which are traced by some not-my-parent process go on the
+ptrace_children list.  So I think we agree.
+
+> > tsk->ptrace_children: tsk's children, which are traced by some other
+> > 	process.  They have p->real_parent == tsk and p->parent != tsk.
+> > 	Chained in p->ptrace_list.
 > 
-> completion.
-
-OK, thanks.  I bet adding an lru_cache_drain() fixes it too.
- 
-> however, i don't see why the reference counts should be higher in
+> yes. This means that the sum of the two lists gives the real, total set of
+> children.
 > 
-> 2.5.32 than they were in 2.5.31.
+> this splitup of the lists makes it possible for the debugger to do a wait4
+> that will get events from the debugged task, and for the debugged task to
+> also be available to the real parent.
 
-Those pages are sitting in the cpu-local "to be added to the LRU soon"
-queue, with their refcount elevated.
+Great.  I'm not exactly sure on how this works right now: sys_wait4
+only iterates over ->children, with the exception of the special code
+in TASK_ZOMBIE.  I'm not quite sure when events from a traced process
+get to the normal parent of that process, or when they're supposed to.
 
-That queue really only makes sense for SMP, but it's enabled on UP so
-we pick up any weird effects.  Voila.
+> is this really what we want?
+> 
+> (note that the meaning of the lists is not necesserily cleanly expressed
+> via the code, all deviations are most likely bugs.)
 
->  is there a good way to test that
-> these pages do not become orphaned?
-
-Not that I know of - just run the test for ages and see if the box
-runs out of memory.
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer

@@ -1,29 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277144AbRJ2Rzm>; Mon, 29 Oct 2001 12:55:42 -0500
+	id <S278697AbRJ2R7m>; Mon, 29 Oct 2001 12:59:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279343AbRJ2Rzc>; Mon, 29 Oct 2001 12:55:32 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:3080 "EHLO
+	id <S278690AbRJ2R7c>; Mon, 29 Oct 2001 12:59:32 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:4872 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S279338AbRJ2RzU>; Mon, 29 Oct 2001 12:55:20 -0500
+	id <S278697AbRJ2R7Q>; Mon, 29 Oct 2001 12:59:16 -0500
 Subject: Re: eepro100.c & Intel integrated MBs
 To: greearb@candelatech.com (Ben Greear)
-Date: Mon, 29 Oct 2001 18:01:59 +0000 (GMT)
-Cc: arjanv@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <3BDD9699.1F448A54@candelatech.com> from "Ben Greear" at Oct 29, 2001 10:49:13 AM
+Date: Mon, 29 Oct 2001 18:05:56 +0000 (GMT)
+Cc: jurgen@botz.org (Jurgen Botz), linux-kernel@vger.kernel.org
+In-Reply-To: <3BDD8EEC.6DFE6BA5@candelatech.com> from "Ben Greear" at Oct 29, 2001 10:16:28 AM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15yGjX-0003S1-00@the-village.bc.nu>
+Message-Id: <E15yGnN-0003UO-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I wish Intel would help fix eepro100 for the last few remaining issues
-> > it has....
-> 
-> Perhaps that was only 7.0, or just my particular NICs...  I would
-> definately prefer a fully functional eepro100 driver in the kernel too...
+> The Scyld drivers have only recently started working with the 2.4 series,
+> and there is some unholly war between Becker and the rest of the kernel
 
-Older RH used e100 for some chipsets.
+Hardly that. Donald does things his way, and then other folks pick up his
+changes where good (most of the time in fact) and merge them into the
+kernel drivers.
+
+If someone can figure why Don's driver sorts out the 815E hangs then thats
+stuff we want in the main stream.
+
+> instead of the eepro100.  The e100's license is close to compatible
+> with the kernel, and I've heard rumors that the remaining issues may
+> be worked out...  I've also heard the code is ugly as hell...but it
+
+The patent grant thing got sort of sorted out (last I saw it was seems ok
+now ask vendor legal people). Unfortunately it seems the intel people want
+to force e100.c into the kernel by refusing to work on eepro100.c. 
+
+As anyone can tell you trying to force things on Linux developers generally
+works out pretty badly. Other bits of Intel are being quite sane (eg most
+of the ACPI stuff except for the speedstop mobile stuff).
+
+Alan
+

@@ -1,104 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281913AbRKUPmS>; Wed, 21 Nov 2001 10:42:18 -0500
+	id <S281914AbRKUPmS>; Wed, 21 Nov 2001 10:42:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281912AbRKUPmJ>; Wed, 21 Nov 2001 10:42:09 -0500
-Received: from sdsl-64-32-181-131.dsl.lax.megapath.net ([64.32.181.131]:63624
-	"EHLO brigadier.ontimesupport.com") by vger.kernel.org with ESMTP
-	id <S281909AbRKUPlv>; Wed, 21 Nov 2001 10:41:51 -0500
-Message-Id: <5.1.0.14.0.20011121093412.00a92e78@127.0.0.1>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 21 Nov 2001 09:41:47 -0600
-To: <linux-kernel@vger.kernel.org>
-From: Matthew Sell <msell@ontimesupport.com>
-Subject: Re: Athlon /proc/cpuinfo anomaly [minor]
-In-Reply-To: <Pine.LNX.4.33.0111211316220.4080-100000@Appserv.suse.de>
-In-Reply-To: <20011121130838.D9978@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S281909AbRKUPmK>; Wed, 21 Nov 2001 10:42:10 -0500
+Received: from sun.fadata.bg ([80.72.64.67]:13062 "HELO fadata.bg")
+	by vger.kernel.org with SMTP id <S281910AbRKUPlz>;
+	Wed, 21 Nov 2001 10:41:55 -0500
+To: Andreas Schwab <schwab@suse.de>
+Cc: root@chaos.analogic.com, Jan Hudec <bulb@ucw.cz>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [BUG] Bad #define, nonportable C, missing {}
+In-Reply-To: <Pine.LNX.3.95.1011121085737.21389A-100000@chaos.analogic.com>
+	<jelmh09nkt.fsf@sykes.suse.de>
+From: Momchil Velikov <velco@fadata.bg>
+In-Reply-To: <jelmh09nkt.fsf@sykes.suse.de>
+Date: 21 Nov 2001 17:48:25 +0200
+Message-ID: <87u1voyvjq.fsf@fadata.bg>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "Andreas" == Andreas Schwab <schwab@suse.de> writes:
 
-The results of "dmesg" on my dual-Athlon show a (rather comical) 
-discrepancy, it's not a big deal - just funny (to me)....
+Andreas> "Richard B. Johnson" <root@chaos.analogic.com> writes:
+Andreas> |> On Wed, 21 Nov 2001, Jan Hudec wrote:
+Andreas> |> 
+Andreas> |> > > >     *a++ = byte_rev[*a]
+Andreas> |> > > It looks perferctly okay to me. Anyway, whenever would you listen to a
+Andreas> |> > > C++ book talking about good C coding :p
+Andreas> |> > 
+Andreas> |> 
+Andreas> |> It's simple. If any object is modified twice without an intervening
+Andreas> |> sequence point, the results are undefined. The sequence-point in
+Andreas> |> 
+Andreas> |> 	*a++ = byte_rev[*a];
+Andreas> |> 
+Andreas> |> ... is the ';'.
+Andreas> |> 
+Andreas> |> So, we look at 'a' and see if it's modified twice.
 
-I was just wondering if this was a similar behavior to the earlier posts on 
-this topic:
+Andreas> No, the rule much stricter. 
 
+Andreas>          -- Between two sequence points, an object is modified more
+Andreas>             than once, or  is  modified  and  the  prior  value  is
+Andreas>             accessed other than to determine the value to be stored
+Andreas>             (6.5).
 
-Intel MultiProcessor Specification v1.4
-     Virtual Wire compatibility mode.
-OEM ID: TYAN     Product ID: GUINNESS     APIC at: 0xFEE00000
-Processor #1 Pentium(tm) Pro APIC version 16
-Processor #0 Pentium(tm) Pro APIC version 16
-I/O APIC #2 Version 17 at 0xFEC00000.
-Processors: 2
+Hmm, I guess some context is missing here. Let's make it
 
+      Between the previous and next sequence point an object shall
+      have its stored value modified at most once by the evaluation of
+      an expression. Furthermore, the prior value shall be accessed
+      only to determine the value to be stored.
 
-Intel machine check reporting enabled on CPU#0.
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 256K (64 bytes/line)
-CPU: After vendor init, caps: 0183fbff c1c7fbff 00000000 00000000
-CPU:     After generic, caps: 0183fbff c1c7fbff 00000000 00000000
-CPU:             Common caps: 0183fbff c1c7fbff 00000000 00000000
-CPU0: AMD Athlon(tm) Processor stepping 04
-per-CPU timeslice cutoff: 731.77 usecs.
+So, the above ``*a++ = byte_rev[*a]'' is undefined, because the value
+of ``a'' is accessed other than to determine the value to be stored in
+``a'' (as Andreas pointed out).  The side effect of ``a++'' can take
+place anywhere before the next sequence point (``;''), that's before
+or after the array access, i.e. the statement can be evaluated as
 
+       tmp = *a;
+       *a++ = byte_rev[tmp];
 
-Intel machine check reporting enabled on CPU#1.
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 256K (64 bytes/line)
-CPU: After vendor init, caps: 0183fbff c1c7fbff 00000000 00000000
-CPU:     After generic, caps: 0183fbff c1c7fbff 00000000 00000000
-CPU:             Common caps: 0183fbff c1c7fbff 00000000 00000000
-CPU1: AMD Athlon(tm) Processor stepping 04
-Total of 2 processors activated (5564.00 BogoMIPS).
+ or as 
 
+       tmp = *(a+1);
+       *a++ = byte_rev [tmp];
 
-         - Matt
-
-
-
-At 01:19 PM 11/21/2001 +0100, Dave Jones wrote:
->On Wed, 21 Nov 2001, Jens Axboe wrote:
->
-> > Strange, I was pretty sure that earlier 2.4.x got it right. Oh well.
->
->*shrug* As we don't do any setting of this string, all I can guess
->at is that the new seqfile based /proc/cpuinfo code is stricter
->about getting the info from the right CPU than the older code was.
->
->Though I'm not sure why, as the older code just read from the
->per-CPU structs anyway.  Most odd.
->
->regards,
->Dave.
->
->--
->| Dave Jones.        http://www.codemonkey.org.uk
->| SuSE Labs
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
-
-
-
-Matthew Sell
-Programmer
-On Time Support, Inc.
-www.ontimesupport.com
-(281) 296-6066
-
-Join the Metrology Software discussion group METLIST!
-http://www.ontimesupport.com/cgi-bin/mojo/mojo.cgi
-
-
-"One World, One Web, One Program" - Microsoft Promotional Ad
-"Ein Volk, Ein Reich, Ein Fuhrer" - Adolf Hitler
-
-Many thanks for this tagline to a fellow RGVAC'er...
+Regards,
+-velco
 

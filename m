@@ -1,30 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265155AbUETNst@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265135AbUETNsn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265155AbUETNst (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 May 2004 09:48:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265156AbUETNst
+	id S265135AbUETNsn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 May 2004 09:48:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265156AbUETNsn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 May 2004 09:48:49 -0400
-Received: from mail1.asahi-net.or.jp ([202.224.39.197]:36763 "EHLO
+	Thu, 20 May 2004 09:48:43 -0400
+Received: from mail2.asahi-net.or.jp ([202.224.39.198]:42333 "EHLO
 	mail.asahi-net.or.jp") by vger.kernel.org with ESMTP
-	id S265155AbUETNsl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 May 2004 09:48:41 -0400
-Message-ID: <40ACB4D5.4060801@ThinRope.net>
-Date: Thu, 20 May 2004 22:38:29 +0900
+	id S265135AbUETNsk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 May 2004 09:48:40 -0400
+Message-ID: <40AC0EB4.1020501@ThinRope.net>
+Date: Thu, 20 May 2004 10:49:40 +0900
 From: Kalin KOZHUHAROV <kalin@ThinRope.net>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040121
 X-Accept-Language: bg, en, ja, ru, de
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Lots of "ICMPv6 checksum failed" in the log (resending)
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Tons of "ICMPv6 checksum failed" in the logs
 X-Enigmail-Version: 0.83.0.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This didn't turn out in the ML, so I am resending...
 
 I hope this is the right ML to post, if not please enlighten me where to ask :-)
 

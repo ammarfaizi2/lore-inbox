@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130881AbQLGXVo>; Thu, 7 Dec 2000 18:21:44 -0500
+	id <S131569AbQLGXWo>; Thu, 7 Dec 2000 18:22:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131414AbQLGXVZ>; Thu, 7 Dec 2000 18:21:25 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1806 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S130881AbQLGXVR>;
-	Thu, 7 Dec 2000 18:21:17 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200012072250.eB7Moc813396@flint.arm.linux.org.uk>
-Subject: Re: Oops while assigning PCI resources
-To: rmk@arm.linux.org.uk (Russell King)
-Date: Thu, 7 Dec 2000 22:50:37 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200012071922.TAA09634@raistlin.arm.linux.org.uk> from "Russell King" at Dec 07, 2000 07:22:24 PM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S131564AbQLGXWe>; Thu, 7 Dec 2000 18:22:34 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:23570 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S131557AbQLGXWW>;
+	Thu, 7 Dec 2000 18:22:22 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: georgn@somanetworks.com
+cc: linux-kernel@vger.kernel.org, greg@wind.enjellic.com, sct@redhat.com
+Subject: Re: linux-2.4.0-test11 and sysklogd-1.3-31 
+In-Reply-To: Your message of "Thu, 07 Dec 2000 12:36:01 CDT."
+             <14895.51841.431444.405949@somanetworks.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Fri, 08 Dec 2000 09:51:48 +1100
+Message-ID: <5597.976229508@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King writes:
-> I'm seeing an oops while assigning PCI resources on an ARM board.  This
-> board as a PCI to PCI bridge on board without any devices on the second
-> bus.
+On Thu, 7 Dec 2000 12:36:01 -0500 (EST), 
+"Georg Nikodym" <georgn@somanetworks.com> wrote:
+>>>>>> "KO" == Keith Owens <kaos@ocs.com.au> writes:
+>
+> KO> I would prefer to see the oops decoding completely removed from
+> KO> klogd.
+>
+>Since nobody else has weighed in on this issue, I quickly did the
+>necessary to effect Keith's suggestion.  What follows is a patch to
+>sysklogd-1.3-31 (which after applying, ksym_mod.c can be removed):
 
-I've solved this one, sorry for the noise.
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
-  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
+You only removed the module symbol handling.  The problem is that the
+entire klogd oops handling is out of date and broken.  I recommend
+removing all oops processing from klogd, which means that klogd does
+not need any symbols nor System.map.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

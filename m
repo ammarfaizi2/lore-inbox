@@ -1,81 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262291AbUDAFNQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 00:13:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262292AbUDAFNQ
+	id S262143AbUDAFRz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 00:17:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262406AbUDAFRy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 00:13:16 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:22936 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262291AbUDAFNN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 00:13:13 -0500
-Date: Thu, 1 Apr 2004 10:47:40 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>, greg@kroah.com,
-       torvalds@osdl.org, david-b@pacbell.net, viro@math.psu.edu,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] [PATCH] back out sysfs reference count change
-Message-ID: <20040401051740.GA1291@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <20040331092631.GA21484@in.ibm.com> <Pine.LNX.4.44L0.0403311001440.1752-100000@ida.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0403311001440.1752-100000@ida.rowland.org>
-User-Agent: Mutt/1.4.1i
+	Thu, 1 Apr 2004 00:17:54 -0500
+Received: from adelaide.maptek.com.au ([202.174.40.42]:61316 "EHLO
+	mail.adelaide.maptek.com.au") by vger.kernel.org with ESMTP
+	id S262143AbUDAFRx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 00:17:53 -0500
+Message-ID: <406BA62A.2090503@maptek.com.au>
+Date: Thu, 01 Apr 2004 14:48:34 +0930
+From: Malcolm Blaney <malcolm.blaney@maptek.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.1) Gecko/20031030
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: mark_offset_tsc() hangs usb
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-5.3, required 5,
+	BAYES_01 -5.40, TW_UH 0.08, USER_AGENT_MOZILLA_UA 0.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 31, 2004 at 10:11:37AM -0500, Alan Stern wrote:
-> On Wed, 31 Mar 2004, Maneesh Soni wrote:
-> 
-> > For convenience I will explain the race here..
-> > 
-> > cpu 0							cpu 1
-> > kobject_unregister()				   sysfs_open_file()
-> >   kobject_del()					     check_perm()
-> >     sysfs_remove_dir()					   :
-> >      (dentry remains alive due to ref. taken 		   :
-> >       on the way to sysfs_open_file)			   :
-> >   kobject_put()					   	   :
-> >     kobject_cleanup()					kobject_get(->d_fsdata)
-> > 
-> > cpu 1 could end up referring to a freed kobject through dentry->d_fsdata or
-> > starts spitting Badness in kobject_get at lib/kobject.c:429. For triggering 
-> > this race try running these two loops simultaneously on SMP 
-> > 
-> > # while true; do insmod drivers/net/dummy.ko; rmmod dummy; done
-> > # while true; do find /sys/class/net | xargs cat; done
-> > 
-> > Probably it can be solved by making sure that when sysfs file is 
-> > opened/read/written some _race_ free check is done and fail if kobject if gone. 
-> > 
-> > Maneesh
-> 
-> Here's a suggestion.  At the start of check_perm() grab the dentry 
-> semaphore, then check whether d_fsdata is NULL, if it isn't then do the 
-> kobject_get(), then unlock the semaphore.
-> 
+Hi all,
 
-I have tried this with no luck. I still get 
-(Badness in kobject_get at lib/kobject.c:42) which means it is not correct fix.
+I have been trying to fix a problem related to usb, with the help of the 
+usb-dev list. Plugging in a usb device hangs my computer when bandwidth 
+reclamation (fsbr) is turned on in the uhci-hcd driver.
 
-I am out of any more ideas except something like making sysfs single threaded 
-or requesting people to try my sysfs backing store patch set. It does not
-suffer from the negative dentries problem as it does not create any negative
-dentries. I have to re-diff the patch set again to take recent changes into
-account.
+I have found though, that when an interrupt is triggered by plugging in 
+a usb device, the timer_interrupt() function in arch/i386/kernel/time.c 
+is reached, and the computer hangs in mark_offset_tsc() in 
+timers/timer_tsc.c. I removed the call to this function in 
+timer_interrupt() and then usb worked as normal. I'm hoping there's a 
+better way to get usb working than this though! This doesn't happen when 
+fsbr is switched off.
 
-Maneesh
+The computer has a Crusoe TM5400 cpu and a VIA VT82C686A controller.
+
+Thanks,
+Malcolm.
 
 
-
--- 
-Maneesh Soni
-Linux Technology Center, 
-IBM Software Lab, Bangalore, India
-email: maneesh@in.ibm.com
-Phone: 91-80-25044999 Fax: 91-80-25268553
-T/L : 9243696

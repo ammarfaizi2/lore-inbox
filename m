@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263290AbTLACV7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 21:21:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263292AbTLACV7
+	id S263106AbTLACmG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 21:42:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263107AbTLACmG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 21:21:59 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:57016 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S263290AbTLACV6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 21:21:58 -0500
-Date: Sun, 30 Nov 2003 18:21:58 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: bkbits.net down for cleaning
-Message-ID: <20031201022158.GB8598@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	linux-kernel@vger.kernel.org
-References: <20031201004422.GA8598@work.bitmover.com>
+	Sun, 30 Nov 2003 21:42:06 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:45504 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S263106AbTLACmE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Nov 2003 21:42:04 -0500
+Date: Mon, 1 Dec 2003 03:42:01 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Ryan Reich <ryanr@uchicago.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.22] Error: fs/fs.o: undefined reference to `atomic_dec_and_lock'
+Message-ID: <20031201024200.GB24883@fs.tum.de>
+References: <Pine.LNX.4.58.0311301925180.31444@ryanr.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031201004422.GA8598@work.bitmover.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <Pine.LNX.4.58.0311301925180.31444@ryanr.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All clean, it's back.
+On Sun, Nov 30, 2003 at 07:28:03PM -0600, Ryan Reich wrote:
 
-On Sun, Nov 30, 2003 at 04:44:23PM -0800, Larry McVoy wrote:
-> It's that time of the month, time to get the dust out of the machine and do
-> a disk check.  We're off the air for maybe an hour or two.
-> -- 
-> ---
-> Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> I'm building a kernel with everything compiled in to serve as a boot image to
+> install Mandrake on my laptop, and I get the following error:
+>...
+>         --end-group \
+>         -o vmlinux
+> fs/fs.o: In function `dput':
+> fs/fs.o(.text+0x15f1c): undefined reference to `atomic_dec_and_lock'
+> make: *** [vmlinux] Error 1
+
+Does this problem still occur in 2.4.23?
+
+If yes, please send your .config .
+
+> Ryan Reich
+
+cu
+Adrian
 
 -- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262598AbTJ3P7u (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 10:59:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262601AbTJ3P7u
+	id S262608AbTJ3QEb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 11:04:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262609AbTJ3QEb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 10:59:50 -0500
-Received: from janus1.ktb.net ([198.175.228.34]:48146 "EHLO janus1.ktb.net")
-	by vger.kernel.org with ESMTP id S262598AbTJ3P7t (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 10:59:49 -0500
-Date: Thu, 30 Oct 2003 07:59:45 -0800
-From: ashley@alumni.caltech.edu
-To: linux-kernel@vger.kernel.org
-Subject: 2.6 crashes when IP-forwarding
-Message-ID: <3FA13571.nail4NJ12O97N@alumni.caltech.edu>
-User-Agent: nail 10.5 4/27/03
+	Thu, 30 Oct 2003 11:04:31 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:37583 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262608AbTJ3QEa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 11:04:30 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Jeff Garzik <jgarzik@pobox.com>, Shaheed <srhaque@iee.org>
+Subject: Re: WG:  EIO DM-8401H ATA133 IDE Controller Card ( Silicon Image Chip ?!?)
+Date: Thu, 30 Oct 2003 17:08:54 +0100
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org, michael@labuschke.de
+References: <200310301312.52793.srhaque@iee.org> <3FA11F00.9020000@pobox.com>
+In-Reply-To: <3FA11F00.9020000@pobox.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200310301708.54529.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am sorry that I can't be more specific now, but I have spent
-the last several days trying to track down a kernel-panic problem.
-I first thought it was hardware and I swapped it all out.
+On Thursday 30 of October 2003 15:24, Jeff Garzik wrote:
+> Shaheed wrote:
+> > Interestingly, EXACTLY the same thing happened to me. I actually bought a
+> > vanilla IDE controller for a spare disk, and in what showed up the
+> > documentation claimed it was a DM-8401R, but lspci shows what you see:
+> > and IT8212.
+> >
+> > The answer was to get the good stuff from here:
+> >
+> > http://www.iteusa.com/productInfo/Download.html#IT8212%20ATA133%20Control
+> >ler
+> >
+> > The driver install was a doddle (well documented, and easy to apply
+> > Mandrake 9.1 instructions to 9.2). For heavens sake: these guys even
+> > provide the specs online. And the driver seems to work, though I am not
+> > stressing it.
+>
+> Neat.  Even though it's a SCSI driver, it's very definitely a standard
+> IDE controller, which should be easy for Bart or somebody to add to
+> drivers/ide ...
 
-System:
-1.33 MHz Athlon
-Asus mb
-1Gb memory
-either tulip or 8139too ethernet card.
+I even have one such controller,
+I just need to find some time and spare drives...
 
-Symptom: system works perfectly with a ppp dialup until
-a second machine on the net routes IP requests through
-the this machine. Then this machine either crashes with
-a kernel panic or simply locks up completely.
-
-I started with the 2.6 test4 kernel which had been working
-for several weeks. Then I applied the sequence of patches
-all the way up to test9. The system was stable with test4
-but unstable with test9.
-
-Then I went back to test4 and applied the patches up
-to test7, and the lockup/kernel-panic problem exists
-for test7.
-
-Along the way I downloaded all the patches a second time
-and tried to verify that the downloads were valid. I
-noted that the patch8 is now different from what it was
-when I originally downloaded it.
+--bartlomiej
 

@@ -1,69 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265481AbSKARu1>; Fri, 1 Nov 2002 12:50:27 -0500
+	id <S265629AbSKAR4V>; Fri, 1 Nov 2002 12:56:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265587AbSKARu0>; Fri, 1 Nov 2002 12:50:26 -0500
-Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:3233
-	"EHLO xanadu.home") by vger.kernel.org with ESMTP
-	id <S265481AbSKARu0>; Fri, 1 Nov 2002 12:50:26 -0500
-Date: Fri, 1 Nov 2002 12:56:44 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: nico@xanadu.home
-To: Patrick Finnegan <pat@purdueriots.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: What's left over.
-In-Reply-To: <Pine.LNX.4.44.0211011108320.10880-100000@ibm-ps850.purdueriots.com>
-Message-ID: <Pine.LNX.4.44.0211011224200.3978-100000@xanadu.home>
+	id <S265635AbSKAR4V>; Fri, 1 Nov 2002 12:56:21 -0500
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:52638 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
+	id <S265629AbSKAR4U>; Fri, 1 Nov 2002 12:56:20 -0500
+Message-ID: <3DC2C587.5080706@kegel.com>
+Date: Fri, 01 Nov 2002 10:18:47 -0800
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: de-de, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Davide Libenzi <davidel@xmailserver.org>
+CC: "Matthew D. Hall" <mhall@free-market.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-aio@kvack.org, lse-tech@lists.sourceforge.net
+Subject: Re: Unifying epoll,aio,futexes etc. (What I really want from epoll)
+References: <Pine.LNX.4.44.0210311838060.972-100000@blue1.dev.mcafeelabs.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Nov 2002, Patrick Finnegan wrote:
-
-> What I'm going to say may not be popular, and probably won't win me
-> friends, but here it is anyhow:
+Davide Libenzi wrote:
+>>*  I'm sure everyone would agree that passing an opaque "user context"
+>>pointer is necessary with each event.
 > 
-> On Fri, 1 Nov 2002, Alexander Viro wrote:
-> 
-> > On Fri, 1 Nov 2002, Patrick Finnegan wrote:
-> >
-> > > No, vendor == people who sold or gave us the softare.  Right now, Linus is
-> > > acting like he's a big evil corporation that won't add the change no
-> > > matter what we say:
-> >
-> > ... to his tree.  Geez, why could that be?  Maybe because you don't have
-> > any rights to decide what patches does anybody else apply to their trees?
-> >
-> > It's not a fscking public service.  Linus has full control over his
-> > tree.  You have equally full control over your tree.  Linus can't
-> > tell you what patches to apply in your tree.  You can't tell Linus
-> > what patches he should apply to his.
-> 
-> I'm sorry it _is_ a public service.  Once tens of people started
-> contributing to it, it became one.  This is like saying that the
-> Washington Monument belongs to the peole that maintain it, any building
-> belongs to the repair crews and janitors.  
+> I asked this about a week ago. It's _trivial_ to do in epoll. I did not
+> receive any feedback, so I didn't implement it. Feedback will be very much
+> appreciated here ...
 
-But then would you agree seeing anybody, and I mean anybody, coming along 
-with a "good idea" for alteration to the Washington Monument and let them do 
-what they want?
+If it's cheap, do it!  It relieves the programmer of having
+to manage a fd to object lookup table.
+- Dan
 
-> I'm not saying that Linus is
-> necessarily a janitor, but when you consider how much of the Linux kernel
-> that he didn't write, you may relize that it's not just his kernel.  It
-> also belongs to every single person that has written even a single
-> line of code in it.
-
-It is _his_ copy of the kernel, just as you have your own copy.
-
-Linus' tree is known to be the main reference tree, no more.
-
-If your patch is so valuable (and I don't mean it's not), you should be able
-to convince vendors to include it in their own tree.  If _then_ it happens
-to be a major feature with a large user base I'm sure it'll make the
-reference tree.  But in the mean time a few scattered users isn't enough.
-
-
-Nicolas
 

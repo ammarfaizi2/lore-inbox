@@ -1,100 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267320AbSLKWJl>; Wed, 11 Dec 2002 17:09:41 -0500
+	id <S267321AbSLKWU1>; Wed, 11 Dec 2002 17:20:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267321AbSLKWJl>; Wed, 11 Dec 2002 17:09:41 -0500
-Received: from smtp-out-2.wanadoo.fr ([193.252.19.254]:13034 "EHLO
-	mel-rto2.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S267320AbSLKWJk>; Wed, 11 Dec 2002 17:09:40 -0500
-Message-ID: <3DF7BABF.6080008@wanadoo.fr>
-Date: Wed, 11 Dec 2002 23:22:55 +0100
-From: abindus@wanadoo.fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: compilation failure
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S267322AbSLKWU1>; Wed, 11 Dec 2002 17:20:27 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:3456 "EHLO doc.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S267321AbSLKWU1>;
+	Wed, 11 Dec 2002 17:20:27 -0500
+Date: Wed, 11 Dec 2002 14:28:10 -0800
+From: Bob Miller <rem@osdl.org>
+To: trivial@rustcorp.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: [TRIVIAL PATCH 2.5.51] Remove compile warning from  drivers/ide/pci/cs5520.c
+Message-ID: <20021211222810.GA1067@doc.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm sorry for the disturbance as I feel that it's a very simple 
-configuration problem but I'm completely stuc with the compilation of 
-the kernel. I used to do this without problem but after installing 
-RedHat 8.0 nothing is possible. However I'm still able to compile other 
-programs in c/c++/gtk+
+The function, cs5520_tune_chipset() is declared to return an int.
+Added a return statement instead of just falling of off the bottom.
 
-It seems to complain of not founding some libraries
-After the make dep, make bzImage gives (I'm sorry but it's in french) :
+diff -Nru a/drivers/ide/pci/cs5520.c b/drivers/ide/pci/cs5520.c
+--- a/drivers/ide/pci/cs5520.c	Wed Dec 11 13:41:51 2002
++++ b/drivers/ide/pci/cs5520.c	Wed Dec 11 13:41:51 2002
+@@ -166,6 +166,8 @@
+ 	/* ATAPI is harder so leave it for now */
+ 	if(!error && drive->media == ide_disk)
+ 		error = hwif->ide_dma_on(drive);
++
++	return error;
+ }	
+ 	
+ static void cs5520_tune_drive(ide_drive_t *drive, u8 pio)
 
-make -r -f tmp_include_depends all
-make[1]: Entre dans le répertoire `/usr/src/linux-2.4.18-18.8.0'
-make[1]: Rien à faire pour `all'.
-make[1]: Quitte le répertoire `/usr/src/linux-2.4.18-18.8.0'
-. scripts/mkversion > .tmpversion
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.18-18.8.0/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 
--malign-functions=4   -DUTS_MACHINE='"i386"' -DKBUILD_BASENAME=version 
--c -o init/version.o init/version.c
-cc1: AVERTISSEMENT: -malign-functions est obsolète, utiliser -falign-loops
-make CFLAGS="-D__KERNEL__ -I/usr/src/linux-2.4.18-18.8.0/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 
--malign-functions=4  " -C  kernel
-make[1]: Entre dans le répertoire `/usr/src/linux-2.4.18-18.8.0/kernel'
-make all_targets
-make[2]: Entre dans le répertoire `/usr/src/linux-2.4.18-18.8.0/kernel'
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.18-18.8.0/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 
--malign-functions=4    -nostdinc  -DKBUILD_BASENAME=sched  
--fno-omit-frame-pointer -O2 -c -o sched.o sched.c
-cc1: AVERTISSEMENT: -malign-functions est obsolète, utiliser -falign-loops
-Dans le fichier inclus à partir de 
-/usr/src/linux-2.4.18-18.8.0/include/linux/wait.h:13,
-          à partir de /usr/src/linux-2.4.18-18.8.0/include/linux/fs.h:12,
-          à partir de 
-/usr/src/linux-2.4.18-18.8.0/include/linux/capability.h:17,
-          à partir de 
-/usr/src/linux-2.4.18-18.8.0/include/linux/binfmts.h:5,
-          à partir de /usr/src/linux-2.4.18-18.8.0/include/linux/sched.h:9,
-          à partir de /usr/src/linux-2.4.18-18.8.0/include/linux/mm.h:4,
-          à partir de sched.c:19:
-/usr/src/linux-2.4.18-18.8.0/include/linux/kernel.h:10:20: stdarg.h: 
-Aucun fichier ou répertoire de ce type
-Dans le fichier inclus à partir de 
-/usr/src/linux-2.4.18-18.8.0/include/linux/wait.h:13,
-          à partir de /usr/src/linux-2.4.18-18.8.0/include/linux/fs.h:12,
-          à partir de 
-/usr/src/linux-2.4.18-18.8.0/include/linux/capability.h:17,
-          à partir de 
-/usr/src/linux-2.4.18-18.8.0/include/linux/binfmts.h:5,
-          à partir de /usr/src/linux-2.4.18-18.8.0/include/linux/sched.h:9,
-          à partir de /usr/src/linux-2.4.18-18.8.0/include/linux/mm.h:4,
-          à partir de sched.c:19:
-/usr/src/linux-2.4.18-18.8.0/include/linux/kernel.h:73: erreur d'analyse 
-syntaxique avant « va_list »
-/usr/src/linux-2.4.18-18.8.0/include/linux/kernel.h:73: AVERTISSEMENT: 
-déclaration de fonction n'est pas un prototype
-/usr/src/linux-2.4.18-18.8.0/include/linux/kernel.h:76: erreur d'analyse 
-syntaxique avant « va_list »
-/usr/src/linux-2.4.18-18.8.0/include/linux/kernel.h:76: AVERTISSEMENT: 
-déclaration de fonction n'est pas un prototype
-/usr/src/linux-2.4.18-18.8.0/include/linux/kernel.h:80: erreur d'analyse 
-syntaxique avant « va_list »
-/usr/src/linux-2.4.18-18.8.0/include/linux/kernel.h:80: AVERTISSEMENT: 
-déclaration de fonction n'est pas un prototype
-sched.c: Dans la fonction « sys_sched_yield »:
-sched.c:1374: AVERTISSEMENT: variable inutilisée « rq »
-make[2]: *** [sched.o] Erreur 1
-make[2]: Quitte le répertoire `/usr/src/linux-2.4.18-18.8.0/kernel'
-make[1]: *** [first_rule] Erreur 2
-make[1]: Quitte le répertoire `/usr/src/linux-2.4.18-18.8.0/kernel'
-make: *** [_dir_kernel] Erreur 2
-
-Many thanks in advance.
-
-Pascal Bonfils / abindus@wanadoo.fr
-
+-- 
+Bob Miller					Email: rem@osdl.org
+Open Source Development Lab			Phone: 503.626.2455 Ext. 17

@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261497AbVBNRZ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261493AbVBNR2j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261497AbVBNRZ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 12:25:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261496AbVBNRZ3
+	id S261493AbVBNR2j (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 12:28:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261496AbVBNR2j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 12:25:29 -0500
-Received: from ds01.webmacher.de ([213.239.192.226]:19908 "EHLO
-	ds01.webmacher.de") by vger.kernel.org with ESMTP id S261497AbVBNRZO
+	Mon, 14 Feb 2005 12:28:39 -0500
+Received: from ns9.hostinglmi.net ([213.194.149.146]:33239 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S261493AbVBNR2e
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 12:25:14 -0500
-In-Reply-To: <20050214160027.GA8381@bitmover.com>
-References: <20050214020802.GA3047@bitmover.com> <200502141413.36066.mws@twisted-brains.org> <1108393425.8413.9.camel@localhost.localdomain> <20050214160027.GA8381@bitmover.com>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <cba7cc998ce536c60869029967f566cf@dalecki.de>
-Content-Transfer-Encoding: 7bit
-Cc: LKML <linux-kernel@vger.kernel.org>
-From: Marcin Dalecki <martin@dalecki.de>
-Subject: Re: [BK] upgrade will be needed
-Date: Mon, 14 Feb 2005 18:21:57 +0100
-To: lm@bitmover.com (Larry McVoy)
-X-Mailer: Apple Mail (2.619.2)
+	Mon, 14 Feb 2005 12:28:34 -0500
+Date: Mon, 14 Feb 2005 18:29:44 +0100
+From: DervishD <lkml@dervishd.net>
+To: "Srinivas G." <srinivasg@esntechnologies.co.in>,
+       linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: How to get the maximum output from dmesg command
+Message-ID: <20050214172944.GA17334@DervishD>
+Mail-Followup-To: "Srinivas G." <srinivasg@esntechnologies.co.in>,
+	linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>
+References: <4EE0CBA31942E547B99B3D4BFAB3481134E2AE@mail.esn.co.in> <20050214161950.GA10253@DervishD> <20050214164810.GA12738@ime.usp.br>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050214164810.GA12738@ime.usp.br>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    Hi Rogério :)
 
-On 2005-02-14, at 17:00, Larry McVoy wrote:
+ * Rogério Brito <rbrito@ime.usp.br> dixit:
+> Srinivas G. <srinivasg@esntechnologies.co.in> wrote:
+> > I saw in printk.c file under source directory. There I found LOG_BUF_LEN
+> > is 16384.
+> Sorry if this is obvious, but have you considered using the -s option of
+> dmesg?
 
-> On Mon, Feb 14, 2005 at 10:03:45AM -0500, Steven Rostedt wrote:
->> Can you see Ford Motors telling
->> someone that you can't go work for GM if you drive a Ford?
->
-> You paid for the Ford.  Suppose Ford offered to give you the car but
-> said if you take it then you can't go work at GM because this car is
-> ahead of their technology.
->
-> See the difference?  It's one thing if you plunked your money down and
-> took the standard license or a negotiated license.  You are getting
-> an expensive product and not paying any money for it.  The payment is
-> the terms you agree to in the license and the obligations of those
-> terms.  That payment may be unacceptable to you, which is your choice.
+    Of course, there is no point in making your LOG_BUF larger in the
+kernel if dmesg is going to present just 2^14 bytes at most. You have
+to use -s, Srinivas.
 
-More and more you are simply giving yourself the image of dishonesty.
-Yours supposed "license terms" sound somehow like the advertisement 
-where you are
-supposed to be entitled for a "big prize", which you will be
-able to receive immediately after you order some additional crap for 
-real
-money.
+    Raúl Núñez de Arenas Coronado
 
+-- 
+Linux Registered User 88736
+http://www.dervishd.net & http://www.pleyades.net/
+It's my PC and I'll cry if I want to...

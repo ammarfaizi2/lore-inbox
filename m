@@ -1,62 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131487AbQKQKxg>; Fri, 17 Nov 2000 05:53:36 -0500
+	id <S131904AbQKQKyr>; Fri, 17 Nov 2000 05:54:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131881AbQKQKxZ>; Fri, 17 Nov 2000 05:53:25 -0500
-Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:35235 "EHLO
-	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S131487AbQKQKxV>; Fri, 17 Nov 2000 05:53:21 -0500
-Message-Id: <5.0.2.1.2.20001117102102.00af3a30@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Fri, 17 Nov 2000 10:23:46 +0000
-To: Alexander Viro <viro@math.psu.edu>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: 2.4.0-test11-pre6 ntfs compile error
-Cc: Frank Davis <fdavis112@juno.com>, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-In-Reply-To: <Pine.GSO.4.21.0011170037010.14822-100000@weyl.math.psu.edu
- >
-In-Reply-To: <384606296.974438172647.JavaMail.root@web395-wra.mail.com>
+	id <S131933AbQKQKy3>; Fri, 17 Nov 2000 05:54:29 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:46169 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S131904AbQKQKyN>; Fri, 17 Nov 2000 05:54:13 -0500
+Date: Fri, 17 Nov 2000 10:24:11 +0000
+From: Tim Waugh <twaugh@redhat.com>
+To: John Cavan <johncavan@home.com>
+Cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] (new for ppa and imm) Re: [PATCH] Re: Patch to fix lockup on ppa insert
+Message-ID: <20001117102411.S6735@redhat.com>
+In-Reply-To: <3A13D4BA.AD4A580B@home.com> <3A13D8D6.8C12E31A@home.com> <20001116162027.C597@suse.de> <3A149D00.9D38FA24@home.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="hEarWVD7htqb1VxP"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3A149D00.9D38FA24@home.com>; from johncavan@home.com on Thu, Nov 16, 2000 at 09:50:40PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 05:38 17/11/2000, Alexander Viro wrote:
->On Fri, 17 Nov 2000, Frank Davis wrote:
-> > Hello,
-> >   I just try to compile 2.4.0-test11-pre6, and received the following 
-> error (make modules):
-> >
-> > inode.c:1054 conflicting types for 'new_inode'
-> > /usr/src/liunux/include/linux/fs.h:1153 previous declaration of 'new_inode'
->
->My fault. Hell knows how that part of patch didn't get into the posting
->(damnit, it was described there)...
->
->Fix:
->
->ed fs/ntfs/inode.c <<EOF
->%s/new_inode/ntfs_&/g
->w
->q
->EOF
 
-Not fix enough, I am afraid. You are forgetting fs/ntfs/fs.c. - See the 
-patch I just posted.
+--hEarWVD7htqb1VxP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Anton
+On Thu, Nov 16, 2000 at 09:50:40PM -0500, John Cavan wrote:
 
+> [...] This patch unlocks, allows the lowlevel driver to do it's
+> probes, and then relocks. It could probably be more granular in the
+> parport_pc code, but my own home tests show it to be working fine.
 
--- 
-      "Education is what remains after one has forgotten everything he 
-learned in school." - Albert Einstein
--- 
-Anton Altaparmakov  Voice: +44-(0)1223-333541(lab) / +44-(0)7712-632205(mobile)
-Christ's College    eMail: AntonA@bigfoot.com / aia21@cam.ac.uk
-Cambridge CB2 3BU    ICQ: 8561279
-United Kingdom       WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+Is that safe?
 
+Also, what bit of the parport code is tripping over the lock?
+Request_module or something?
+
+A nicer fix would probably be to use parport_register_driver, but
+that's likely to be too big a change right now.
+
+Tim.
+*/
+
+--hEarWVD7htqb1VxP
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6FQdKONXnILZ4yVIRAkW4AJwOQcf0NHM5QxP7WnuMnhUccMhybwCgnE9/
+Z6nvx1dOdzbfsPy91pgWwmk=
+=WSVc
+-----END PGP SIGNATURE-----
+
+--hEarWVD7htqb1VxP--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,68 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268664AbUIXKOU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268663AbUIXKQt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268664AbUIXKOU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 06:14:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268663AbUIXKOH
+	id S268663AbUIXKQt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 06:16:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268665AbUIXKQt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 06:14:07 -0400
-Received: from secure.isolservers.com ([66.98.204.49]:44252 "EHLO
-	secure.isolservers.com") by vger.kernel.org with ESMTP
-	id S268646AbUIXKN4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 06:13:56 -0400
-Subject: strange behavior creating and deleting files
-From: Mpourtounis Dimitris <db@wless.gr>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1096020827.4089.7.camel@WLESS>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Fri, 24 Sep 2004 13:13:47 +0300
+	Fri, 24 Sep 2004 06:16:49 -0400
+Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:24716 "HELO
+	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S268663AbUIXKQR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 06:16:17 -0400
+Message-ID: <4153F3C7.7050900@yahoo.com.au>
+Date: Fri, 24 Sep 2004 20:15:35 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Michal Rokos <michal@rokos.info>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc2-mm3
+References: <20040924014643.484470b1.akpm@osdl.org> <4153EED2.1050508@yahoo.com.au> <200409241205.31735.michal@rokos.info>
+In-Reply-To: <200409241205.31735.michal@rokos.info>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Michal Rokos wrote:
+> On Friday 24 of September 2004 11:54, Nick Piggin wrote:
+> 
+>>Andrew Morton wrote:
+>>
+>>>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9
+>>>-rc2/2.6.9-rc2-mm3/
+>>>
+>>>
+>>>+natsemi-remove-compilation-warnings.patch
+>>>
+>>> natsemi.c warning fixes
+>>
+>>My card fails to work unless this change is backed out.
+> 
+> 
+> Yeah - very true.
+> 
+> I didn't have time to find out why... The change looked very innocent.
+> 
+> Michal
+> 
+> PS: I warned about it yesterday.
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=109594207116846&w=4
+> 
+> 
 
-there seems to be a strange behaviour in the way my system creates and
-deletes files, as long as memory allocation is concerned.
-
-running a simple script that continuously creates and deletes files on
-tmpfs filesystem, a got the following results:
-
-files created		free memory on system 
--------------		---------------------
-0			48180
-+6000			47936
-+6000			47372
-+6000			47372
-+6000			47936
-+6000			47936
-+6000			47936
-+6000			47936		(seems stable)
-+9000			46976		(what on earth?)
-+30000			45084
-+80000			45084		(again stable)
-+70000			39156		(not again...:( )
-
-and sometime in the morning 25000 MB free RAM, and my system running too
-slow
-
-I am sure these are a lot a files and under normal conditions, there
-will never be made and deleted so many.
-
-It is that misbehavior of being stable for a long time and then again
-allocating memory that concerns me.
-
-I am running linux 2.4.26 on an x86 platform (gcc 3.2.3 uclib 0.9.20) 
-
-Simple sh file:
-i=0
-while [ 1 ] do
-echo "dont allocate more memory please" > $i
-rm $i
-let i=$i+1
-done
-
-Any clue???
-
-
+That's OK, no harm done :)

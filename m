@@ -1,45 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261900AbUERBEZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261865AbUERBew@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261900AbUERBEZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 21:04:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbUERBEZ
+	id S261865AbUERBew (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 21:34:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbUERBew
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 21:04:25 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56253 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261900AbUERBEX
+	Mon, 17 May 2004 21:34:52 -0400
+Received: from ipcop.bitmover.com ([192.132.92.15]:21171 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S261865AbUERBeu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 21:04:23 -0400
-Date: Tue, 18 May 2004 02:04:19 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Norman Diamond <ndiamond@despammed.com>
-Cc: Roland Dreier <roland@topspin.com>, Adrian Bunk <bunk@fs.tum.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] kill off PC9800
-Message-ID: <20040518010419.GX17014@parcelfarce.linux.theplanet.co.uk>
-References: <5265auu3i1.fsf@topspin.com> <05af01c43c5a$786e6340$b7ee4ca5@DIAMONDLX60>
+	Mon, 17 May 2004 21:34:50 -0400
+Date: Mon, 17 May 2004 18:34:39 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Steven Cole <elenstev@mesatop.com>, mason@suse.com, torvalds@osdl.org,
+       lm@bitmover.com, wli@holomorphy.com, hugh@veritas.com, adi@bitmover.com,
+       support@bitmover.com, linux-kernel@vger.kernel.org
+Subject: Re: 1352 NUL bytes at the end of a page? (was Re: Assertion `s && s->tree' failed: The saga continues.)
+Message-ID: <20040518013439.GA23497@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Andrew Morton <akpm@osdl.org>, Steven Cole <elenstev@mesatop.com>,
+	mason@suse.com, torvalds@osdl.org, lm@bitmover.com,
+	wli@holomorphy.com, hugh@veritas.com, adi@bitmover.com,
+	support@bitmover.com, linux-kernel@vger.kernel.org
+References: <200405132232.01484.elenstev@mesatop.com> <1084828124.26340.22.camel@spc0.esa.lanl.gov> <20040517142946.571a3e91.akpm@osdl.org> <200405171752.08400.elenstev@mesatop.com> <20040517171330.7d594eb1.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <05af01c43c5a$786e6340$b7ee4ca5@DIAMONDLX60>
+In-Reply-To: <20040517171330.7d594eb1.akpm@osdl.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 18, 2004 at 06:59:49AM +0900, Norman Diamond wrote:
- 
-> Do you realize that Apple's market share is still less than NEC's?  And if
-> you want to go back 10 years, NEC had about 90% of the PC market and they
-> were all 9800 series.
+On Mon, May 17, 2004 at 05:13:30PM -0700, Andrew Morton wrote:
+> I guess it would be interesting to run it on a filesystem which has 2k or
+> even 1k blocksize.  If the corruption then terminates on a 2k- or
+> 1k-boundary then that will rule out a few culprits.
 
-So are you volunteering to maintain the port?  Maintainers are MIA; the
-damn thing doesn't compile; all patches it gets are basically blind
-ones ("we have that API change, this ought to take care of those drivers
-and let's hope that possible mistakes will be caught by testers").
-Considering the lack of testers (kinda hard to test something that
-refuses to build), the above actually spells in one word: "bitrot".
+Does anyone have a theory that accounts for the fact that the zeroed 
+section is always tail aligned and seems to be the same length?  The
+data seems to be
 
-Either somebody shows up and takes over the damn thing, or it's just a
-dead weight that could as well be left in linux-2.6.6.tar.bz2 on
-kernel.org and not propagated any further.  If at some later point
-somebody will decide to resurrected, they can always pick it from
-said tarball.
+[ good page ] [ GGGB ] [ more good pages ] [ GGGB ] etc.
+
+where the GGG is the first 2817 bytes and the B is the last 1279 (decimal)
+bytes.  That's just too weird to be random, right?
+
+> I'd really like to see this happen on some other machine though.  It'd be
+> funny if you have a dud disk drive or something.
+
+We can easily rule that out.  Steven, do a 
+
+	dd if=/dev/zero of=USE_SOME_SPACE bs=1048576 count=500
+
+which will eat up 500 MB and should eat up any bad blocks.  I _really_
+doubt it is a bad disk.
+
+Steven, if you have a copy of lmbench then use lmdd from that like so
+
+	lmdd of=XXX opat=1 
+
+and that will write non-zero data to the disk, you then remove that file
+and if we are getting random crud from the disk then we won't have nulls.
+-- 
+---
+Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com

@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129031AbRBHT4X>; Thu, 8 Feb 2001 14:56:23 -0500
+	id <S129098AbRBHT6n>; Thu, 8 Feb 2001 14:58:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129649AbRBHT4O>; Thu, 8 Feb 2001 14:56:14 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:37075 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S129031AbRBHT4I>;
-	Thu, 8 Feb 2001 14:56:08 -0500
-Date: Thu, 8 Feb 2001 19:50:32 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Cc: Pavel Machek <pavel@suse.cz>, Linus Torvalds <torvalds@transmeta.com>,
-        Jens Axboe <axboe@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Manfred Spraul <manfred@colorfullife.com>,
-        Ben LaHaise <bcrl@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-        "Stephen C. Tweedie" <sct@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Steve Lord <lord@sgi.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        kiobuf-io-devel@lists.sourceforge.net, Ingo Molnar <mingo@redhat.com>
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
-Message-ID: <20010208195032.H9130@redhat.com>
-In-Reply-To: <20010208001513.B189@bug.ucw.cz> <Pine.LNX.3.96.1010208145857.24587C-100000@artax.karlin.mff.cuni.cz>
-Mime-Version: 1.0
+	id <S131037AbRBHT6X>; Thu, 8 Feb 2001 14:58:23 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:55049 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129098AbRBHT6U>;
+	Thu, 8 Feb 2001 14:58:20 -0500
+Message-ID: <3A82F9BF.5A680E37@mandrakesoft.com>
+Date: Thu, 08 Feb 2001 14:55:43 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-pre1 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Martin Braun <braun@itwm.fhg.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: No sound on GA-7ZX (2.4.1-ac6, via audio)
+In-Reply-To: <3A82F427.916F8F0C@itwm.fhg.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.3.96.1010208145857.24587C-100000@artax.karlin.mff.cuni.cz>; from mikulas@artax.karlin.mff.cuni.cz on Thu, Feb 08, 2001 at 03:52:35PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Martin Braun wrote:
+> I can not get sound working on a computer with a Gigabyte
+> GA-7ZX mainboard (KT133 chipset). Is this a known problem?
+> I have attached some config info. Mail me for further details.
 
-On Thu, Feb 08, 2001 at 03:52:35PM +0100, Mikulas Patocka wrote:
-> 
-> > How do you write high-performance ftp server without threads if select
-> > on regular file always returns "ready"?
-> 
-> No, it's not really possible on Linux. Use SYS$QIO call on VMS :-)
+> $ cat /proc/driver/via/0/*
+> Vendor name      : SigmaTel STAC????
+> Vendor id        : 8384 7600
 
-Ahh, but even VMS SYS$QIO is synchronous at doing opens, allocation of
-the IO request packets, and mapping file location to disk blocks.
-Only the data IO is ever async (and Ben's async IO stuff for Linux
-provides that too).
+1) Have you turned the master volume and PCM volume -way- up?
 
---Stephen
+2) Does 2.4.1-ac5 work for you?  (ie. did 2.4.1-ac6 break something?)
+
+	Jeff
+
+
+
+-- 
+Jeff Garzik       | "You see, in this world there's two kinds of
+Building 1024     |  people, my friend: Those with loaded guns
+MandrakeSoft      |  and those who dig. You dig."  --Blondie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,62 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262171AbTFTCjL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 22:39:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262174AbTFTCjL
+	id S262174AbTFTCs0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 22:48:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbTFTCs0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 22:39:11 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:16884 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262171AbTFTCjK convert rfc822-to-8bit (ORCPT
+	Thu, 19 Jun 2003 22:48:26 -0400
+Received: from dp.samba.org ([66.70.73.150]:10201 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S262174AbTFTCsZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 22:39:10 -0400
-Message-ID: <A46BBDB345A7D5118EC90002A5072C780E040A14@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'george anzinger'" <george@mvista.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'mingo@elte.hu'" <mingo@elte.hu>, "Li, Adam" <adam.li@intel.com>,
-       "'Robert Love'" <rml@mvista.com>
-Subject: RE: O(1) scheduler seems to lock up on sched_FIFO and sched_RR ta
-	 sks
-Date: Thu, 19 Jun 2003 19:53:08 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Thu, 19 Jun 2003 22:48:25 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: torvalds@transmeta.com, akpm@zip.com.au, linux-kernel@vger.kernel.org,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Subject: Re: [PATCH] Make gcc3.3 Eliminate Unused Static Functions 
+In-reply-to: Your message of "Thu, 19 Jun 2003 14:17:33 +0200."
+             <20030619121732.GQ29247@fs.tum.de> 
+Date: Fri, 20 Jun 2003 12:28:36 +1000
+Message-Id: <20030620030225.8EC742C053@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: george anzinger [mailto:george@mvista.com]
-> Perez-Gonzalez, Inaky wrote:
-> > ...
-> > My point here is: I am trying to trace where this program
-> > is making use of workqueues inside of the kernel, and I
-> > can find none. ...<snip>...
+In message <20030619121732.GQ29247@fs.tum.de> you write:
+> On Fri, Jun 13, 2003 at 11:03:43AM +1000, Rusty Russell wrote:
+> > Argh, bogus line pasted into Makefile turned up in patch.
+> > 
+> > This should be better...
+> >...
+> > +# Needs gcc 3.3 or above to understand max-inline-insns-auto.
+> > +INLINE_OPTS	:= $(shell $(CC) -o /non/existent/file -c --param max-i
+nline-insns-auto=0 -xc /dev/null 2>&1 | grep /non/existent/file >/dev/null && e
+cho -finline-functions --param max-inline-insns-auto=0)
+> >...
 > 
-> Hm!  I wonder.  Robert is working on a fix for schedsetschedule()
-> where it fails to actually tell the scheduler to switch to a process
-> that it just made higher priority or away from one it just lowered.
-> 
-> The net result is that the caller keeps running (FIFO for all in this
-> case) when, in fact it should have been switched out.  Next time
-> schedule() actually switches, it is all sorted out again.  Could the
-> elavation of the events/0 thread cause this needed switch?
+> You have to add a -Wno-unused-function or you'll get a warning for every
+> eliminated function.
 
-Maybe it was that, as with Robert's patch, the hang goes
-away ... gee, weirdo. Doing a brute-force grep of who is doing
-anything that could wake up the event daemon (by calling
-{queue,schedule}_[delayed_]work() or flush_{workqueue,delayed_work})
-shows that arch/i386/kernel/cpu/mcheck:mce_timerfunc() is 
-scheduling work every MCE_RATE seconds, so that could wake up
-the event daemon and cause the thing to be sorted out. However,
-that's each 15 seconds ... too slow?
+No, suppressing warnings like that would be bad.  Instead, you write
+functions like this:
 
-The VT code does too (as a callback mechanism for setting the
-console, and seems like scrolling), but none seems to be
-periodic so that they'd fix it. Others are at too unclear too.
+	#ifdef CONFIG_FOO
+	extern int register_foo(foo_fn myfunction);
+	#else
+	static inline int register_foo(foo_fn myfunction)
+	{
+		return 0;
+	}
+	#endif /* CONFIG_FOO */
 
-Oh well ... it works, so it goes to the bin :]
+That way, there's no unused warning, but gcc knows enough to discard
+the function.
 
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
-(and my fault)
+Hope that clarifies!
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

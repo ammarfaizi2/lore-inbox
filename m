@@ -1,60 +1,181 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262569AbUCEMZv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 07:25:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262571AbUCEMZv
+	id S262571AbUCEM1d (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 07:27:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbUCEM1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 07:25:51 -0500
-Received: from gruby.cs.net.pl ([62.233.142.99]:59908 "EHLO gruby.cs.net.pl")
-	by vger.kernel.org with ESMTP id S262569AbUCEMZr (ORCPT
+	Fri, 5 Mar 2004 07:27:33 -0500
+Received: from [202.125.86.130] ([202.125.86.130]:49125 "EHLO
+	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
+	id S262571AbUCEM1X convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 07:25:47 -0500
-Date: Fri, 5 Mar 2004 13:25:44 +0100
-From: Jakub Bogusz <qboosh@pld-linux.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6] missing <linux/mm.h> include in drivers/sbus/char/vfc_dev.c
-Message-ID: <20040305122544.GF29693@gruby.cs.net.pl>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="y0ulUmNC+osPPQO6"
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Fri, 5 Mar 2004 07:27:23 -0500
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: INIT_REQUEST & CURRENT undeclared!
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Date: Fri, 5 Mar 2004 17:54:44 +0530
+Message-ID: <1118873EE1755348B4812EA29C55A9721286EB@esnmail.esntechnologies.co.in>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: INIT_REQUEST & CURRENT undeclared!
+Thread-Index: AcQCrNeUSpNfqGwOSmiURaUHQiKhqw==
+From: "Jinu M." <jinum@esntechnologies.co.in>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello All!
 
---y0ulUmNC+osPPQO6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I am studying the block device driver. I just tried the request function (blk_init_queue).
+Even though I included linux/blk.h on compiling I get "INIT_REQUEST" & "CURRENT" undeclared.
 
-drivers/sbus/char/vfc_dev (SUN_VIDEOPIX option) build stopped on:
+Below are the code and the cc command I use to compile it.
+I would like to know what the problem is.
 
-drivers/sbus/char/vfc_dev.c: In function `vfc_mmap':
-drivers/sbus/char/vfc_dev.c:623: error: dereferencing pointer to incomplete type
-drivers/sbus/char/vfc_dev.c:623: error: dereferencing pointer to incomplete type
-drivers/sbus/char/vfc_dev.c:627: error: dereferencing pointer to incomplete type
-drivers/sbus/char/vfc_dev.c:628: error: `VM_SHM' undeclared (first use in this function)
-[...and so on]
-
-Fix attached.
+Thanks in advance,
+-Joy
 
 
--- 
-Jakub Bogusz    http://cyber.cs.net.pl/~qboosh/
-PLD Team        http://www.pld-linux.org/
+*** simple.c ***
+/* kernel headers */
+#include <linux/module.h>
+#include <linux/pci.h>
+#include <linux/init.h>
+#include <linux/blk.h>
 
---y0ulUmNC+osPPQO6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="linux-vfc_dev-include.patch"
+#define DEV_NAME "jdev"
+#define MAJOR_NR 220
 
---- linux-2.6.4-rc2/drivers/sbus/char/vfc_dev.c.orig	2004-03-04 06:16:48.000000000 +0000
-+++ linux-2.6.4-rc2/drivers/sbus/char/vfc_dev.c	2004-03-05 12:00:34.000000000 +0000
-@@ -24,6 +24,7 @@
- #include <linux/smp_lock.h>
- #include <linux/delay.h>
- #include <linux/spinlock.h>
-+#include <linux/mm.h>
- 
- #include <asm/openprom.h>
- #include <asm/oplib.h>
+/* GPL Licensed */
+MODULE_LICENSE("GPL");
 
---y0ulUmNC+osPPQO6--
+/* version information */
+static char version[]="Block Driver 0.1\n";
+
+/*
+ * ioctl() entry point
+ */
+static int
+simple_ioctl(struct inode *inode, struct file *filp, unsigned int cmd, unsigned long arg)
+{
+	int minor = MINOR(inode->i_rdev);
+
+	printk("device number = %d\n",minor);
+
+	return 0;
+}
+
+
+/* 
+ * open() entry point
+ */
+static int
+simple_open(struct inode *inode, struct file *filp)
+{
+	int minor = MINOR(inode->i_rdev);
+	
+	printk("device number = %d\n",minor);
+
+	return 0;
+}
+
+
+/*
+ * close() entry point
+ */
+static int
+simple_close(struct inode *inode, struct file *filp)
+{
+	int minor = MINOR(inode->i_rdev);
+	
+	printk("device number = %d\n",minor);
+
+	return 0;
+}
+
+static struct block_device_operations ji_bd_op = {
+	owner:	THIS_MODULE,
+	open:		simple_open,
+	ioctl:	simple_ioctl,
+	release:	simple_close,
+};
+
+
+/*
+ * Initializations from here!
+ */
+static int 
+simple_start(void)
+{
+	/* register device */
+	if(devfs_register_blkdev(MAJOR_NR, DEV_NAME, &ji_bd_op)) {
+		printk("ERROR| Could not register major %d!\n", MAJOR_NR);
+		return -EIO;
+	}
+
+	return 0;
+}
+
+
+/*
+ * Read/Write interface function.
+ */
+static void simple_do_request(request_queue_t *q)
+{
+	while(1) {
+		INIT_REQUEST; /* do some checking on the request function */
+		
+		PRINTK("request %p cmd %i sec %li (nr. %li)\n",	CURRENT, CURRENT->cmd, CURRENT->sector, CURRENT->current_nr_sectors);
+
+		end_request(1);
+	}
+}
+
+
+/* 
+ * This is the module entry point.
+ */
+static int __init 
+simple_init(void)
+{
+	int status = 0;
+	
+#ifdef MODULE
+	printk(version);
+#endif
+	
+	/* device/driver init */
+	if((status=simple_start()) != 0)
+		return status;
+
+	/* register request queue */
+	blk_init_queue(BLK_DEFAULT_QUEUE(MAJOR_NR), simple_do_request);
+	
+	return 0;
+}
+
+
+/*
+ * This is the module exit point.
+ */
+static void __exit 
+simple_exit(void)
+{
+	/* unregister device */
+	devfs_unregister_blkdev(MAJOR_NR, DEV_NAME);
+
+	blk_cleanup_queue(BLK_DEFAULT_QUEUE(MAJOR_NR));
+}
+
+/* module entry/exit points */
+module_init(simple_init);
+module_exit(simple_exit);
+
+
+
+Compiling is done using the following command.
+#cc -D__KERNEL__ -I/usr/src/linux-2.4/include -O2 -DMODULE -c simple.c
+

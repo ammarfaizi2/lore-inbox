@@ -1,78 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262210AbSLJOzf>; Tue, 10 Dec 2002 09:55:35 -0500
+	id <S262215AbSLJPAG>; Tue, 10 Dec 2002 10:00:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262215AbSLJOzf>; Tue, 10 Dec 2002 09:55:35 -0500
-Received: from mail106.mail.bellsouth.net ([205.152.58.46]:17269 "EHLO
-	imf06bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S262210AbSLJOze>; Tue, 10 Dec 2002 09:55:34 -0500
-Date: Tue, 10 Dec 2002 10:02:21 -0500 (EST)
-From: Burton Windle <bwindle@fint.org>
-X-X-Sender: bwindle@morpheus
-To: linux-kernel@vger.kernel.org
-cc: adam@yggdrasil.com
-Subject: [2.5.51] unknown field 'driver_data' compiling cs4243
-Message-ID: <Pine.LNX.4.43.0212100956320.18580-100000@morpheus>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262258AbSLJPAG>; Tue, 10 Dec 2002 10:00:06 -0500
+Received: from ulima.unil.ch ([130.223.144.143]:49563 "EHLO ulima.unil.ch")
+	by vger.kernel.org with ESMTP id <S262215AbSLJPAE>;
+	Tue, 10 Dec 2002 10:00:04 -0500
+Date: Tue, 10 Dec 2002 16:07:48 +0100
+From: Gregoire Favre <greg@ulima.unil.ch>
+To: linux-kernel@vger.kernel.org, linux-dvb@linuxtv.org
+Subject: 2.5.51 don't compil with dvb
+Message-ID: <20021210150748.GB20411@ulima.unil.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting an error compiling cs4232 in 2.5.51. It built fine in 50-bk6.
+Hello,
 
-  gcc -Wp,-MD,sound/oss/.cs4232.o.d -D__KERNEL__ -Iinclude -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-al
-iasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686
--Iarch/i386/mach-generic -nostdinc -iwithprefix incl
-ude    -DKBUILD_BASENAME=cs4232 -DKBUILD_MODNAME=cs4232   -c -o
-sound/oss/cs4232.o sound/oss/cs4232.c
-sound/oss/cs4232.c:361: unknown field `driver_data' specified in initializer
-sound/oss/cs4232.c:362: unknown field `driver_data' specified in initializer
-sound/oss/cs4232.c:365: unknown field `driver_data' specified in initializer
-sound/oss/cs4232.c: In function `cs4232_pnp_probe':
-sound/oss/cs4232.c:389: warning: passing arg 1 of `pci_set_drvdata' from incompatible pointer type
-sound/oss/cs4232.c: In function `cs4232_pnp_remove':
-sound/oss/cs4232.c:395: structure has no member named `driver_data'
-sound/oss/cs4232.c: At top level:
-sound/oss/cs4232.c:402: unknown field `card_id_table' specified in initializer
-sound/oss/cs4232.c:403: duplicate initializer
-sound/oss/cs4232.c:403: (near initialization for `cs4232_driver.id_table')
-sound/oss/cs4232.c:404: warning: initialization from incompatible pointer type
-sound/oss/cs4232.c:327: warning: `synthirq' defined but not used
-make[2]: *** [sound/oss/cs4232.o] Error 1
-make[1]: *** [sound/oss] Error 2
-make: *** [sound] Error 2
+I got:
 
+   ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o init/do_mounts.o init/initramfs.o
+  	ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o --start-group  usr/built-in.o  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o  arch/i386/mach-generic/built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o  net/built-in.o --end-group  -o vmlinux
+drivers/built-in.o(.text+0x38655): In function `try_attach_device':
+: undefined reference to `MOD_CAN_QUERY'
+make: *** [vmlinux] Error 1
 
-CONFIG_PNP=y
-CONFIG_PNP_NAMES=y
-CONFIG_PNPBIOS=y
+And in the src:
 
-CONFIG_SOUND=y
-CONFIG_SOUND_PRIME=y
-CONFIG_SOUND_OSS=y
-CONFIG_SOUND_TRACEINIT=y
-CONFIG_SOUND_CS4232=y
+rgrep -r -l try_attach_device * gives:
 
-Gnu C                  2.95.4
-Gnu make               3.79.1
-util-linux             2.11n
-mount                  2.11n
-modutils               2.4.19
-e2fsprogs              1.30-WIP
-Linux C Library        2.2.5
-Dynamic linker (ldd)   2.2.5
-Procps                 2.0.7
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               4.5.2
-Modules Loaded
+drivers/media/dvb/built-in.o
+drivers/media/dvb/dvb-core/dvb-core.o
+drivers/media/dvb/dvb-core/dvb_i2c.c
+drivers/media/dvb/dvb-core/dvb_i2c.o
+drivers/media/dvb/dvb-core/built-in.o
+drivers/media/built-in.o
+drivers/built-in.o
 
+That's with the original 2.5.51 and with the CVS from yesterday evening
+I got exactly the same...
 
+>From my .config:
 
---
-Burton Windle                           burton@fint.org
-Linux: the "grim reaper of innocent orphaned children."
-          from /usr/src/linux-2.4.18/init/main.c:461
+CONFIG_DVB=y
+CONFIG_DVB_CORE=y
+CONFIG_DVB_DEVFS_ONLY=y
+CONFIG_DVB_ALPS_BSRV2=m
+CONFIG_DVB_AV7110=m
+CONFIG_DVB_AV7110_OSD=y
 
+Thank you very much,
 
+	Grégoire
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261706AbULZQpy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261709AbULZQuQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261706AbULZQpy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Dec 2004 11:45:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbULZQpL
+	id S261709AbULZQuQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Dec 2004 11:50:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbULZQuP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Dec 2004 11:45:11 -0500
-Received: from cimice4.lam.cz ([212.71.168.94]:14466 "EHLO beton.cybernet.src")
-	by vger.kernel.org with ESMTP id S261706AbULZQo6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Dec 2004 11:44:58 -0500
-Date: Sun, 26 Dec 2004 16:45:21 +0000
-From: Karel Kulhavy <clock@twibright.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: How to hang 2.6.9 using serial port and FB console
-Message-ID: <20041226164521.GB5529@beton.cybernet.src>
-References: <20041226143118.GA5169@beton.cybernet.src> <20041226145334.GC1668@gallifrey> <20041226162426.GC5859@beton.cybernet.src>
+	Sun, 26 Dec 2004 11:50:15 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:50840 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261709AbULZQt5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Dec 2004 11:49:57 -0500
+Subject: Re: Ho ho ho - Linux v2.6.10
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1103977161.22646.6.camel@localhost.localdomain>
+References: <Pine.LNX.4.58.0412241434110.17285@ppc970.osdl.org>
+	 <1103977161.22646.6.camel@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1104075953.23660.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041226162426.GC5859@beton.cybernet.src>
-User-Agent: Mutt/1.4.2.1i
-X-Orientation: Gay
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 26 Dec 2004 15:45:53 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I found out another bit of information:
+On Sad, 2004-12-25 at 12:19, Alan Cox wrote:
+> - It seems the security hole inducing exec_id change was not reverted
+> and I've not yet found any other changes that fix the same problem
+> (setuid_app >/proc/self/mem) in 2.6.10. It was actually quite nasty as a
+> hole because you can seek the fd to the right target address before
+> execing. With the other /proc changes did I miss something on this one
 
-When the kernel is hanged up and I remove the infra dongle (so that
-nothing is sent towards the computer anymore for sure), the kernel stays
-hanging.
+Thankfully I missed something as the test app shows
 
-This is therefore a final proof that it is not caused by sending breaks.
-Dongle that is not present can't send breaks anymore ;-)
+static char foo[5]="GOOD";
 
-Cl<
-On Sun, Dec 26, 2004 at 04:24:26PM +0000, Karel Kulhavy wrote:
-> On Sun, Dec 26, 2004 at 02:53:35PM +0000, Dr. David Alan Gilbert wrote:
-> > Hi Karel,
-> >   I wonder - is the board sending a 'break' signal to the PC? I just
-> > remember years ago you could almsot lock machines up by constantly
-> > sending break.
-> 
-> But in this case the kernel doesn't care if you run it on a console without
-> a fancy background picture and hangs when you run it on a fancy background
-> picture.
-> 
-> The picture is what seems to be evil here.
-> 
-> Cl<
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+int main(int argc, char *argv[])
+{
+  lseek(1, (unsigned long) foo, 0);
+  if(write(1, "BAD!", 4) != 4)
+    perror("write");
+  write(2, foo, 4);
+}
+
+
+Running ./a.out >/proc/self/mem produces the desired write error still
+in 2.6.10
+

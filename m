@@ -1,70 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319037AbSHFJ6S>; Tue, 6 Aug 2002 05:58:18 -0400
+	id <S319036AbSHFJ50>; Tue, 6 Aug 2002 05:57:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319039AbSHFJ6R>; Tue, 6 Aug 2002 05:58:17 -0400
-Received: from axp01.e18.physik.tu-muenchen.de ([129.187.154.129]:23311 "EHLO
-	axp01.e18.physik.tu-muenchen.de") by vger.kernel.org with ESMTP
-	id <S319037AbSHFJ6Q>; Tue, 6 Aug 2002 05:58:16 -0400
-Date: Tue, 6 Aug 2002 12:01:52 +0200 (CEST)
-From: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
-To: Chris Mason <mason@suse.com>
-Cc: Oleg Drokin <green@namesys.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: reiserfs blocks long on getdents64() during concurrent write
-In-Reply-To: <1028594875.27694.350.camel@tiny>
-Message-ID: <Pine.LNX.4.44.0208061153450.2135-100000@pc40.e18.physik.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319037AbSHFJ50>; Tue, 6 Aug 2002 05:57:26 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:19215 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id <S319036AbSHFJ5Z>;
+	Tue, 6 Aug 2002 05:57:25 -0400
+Date: Tue, 6 Aug 2002 12:01:01 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Thomas Mierau <tmi@wikon.de>
+Cc: Willy Tarreau <willy@w.ods.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19-ac4 IRQ messup?
+Message-ID: <20020806100101.GA20758@alpha.home.local>
+References: <Pine.LNX.4.44.0208052251170.21076-100000@korben.citd.de> <200208061014.13619.tmi@wikon.de> <20020806083943.GA32229@alpha.home.local> <200208061139.35323.tmi@wikon.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200208061139.35323.tmi@wikon.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5 Aug 2002, Chris Mason wrote:
+On Tue, Aug 06, 2002 at 11:39:43AM +0200, Thomas Mierau wrote:
+> Thanks,
+> I looked it up its called watchdog (what else). It was set to 5000ms and I 
+> changed it to 300ms. But the result is : no change!
 
-> On Mon, 2002-08-05 at 18:46, Roland Kuhn wrote:
-> > 
-> > But more important: the hiccups are more seldom and sometimes shorter than 
-> > before. With plain 2.4.19 I would hit it about twice per minute (I have 
-> > not measured it), now it happens only after two minutes when writing 1M 
-> > chunks at 20MB/s. The longest seen so far was also about 4 seconds, 
-> > though.
-> 
-> This is harder to guess at ;-)  But I'll try 2 things I know I've fixed.
-> 
-> #1 I've made the metadata writeback code much more efficient, especially
-> for smaller transactions.  A dd to a large file won't generate lots of
-> log traffic, writing 700M only changes about 160 blocks in 30 seconds. 
-> Anyway, 03-data-logging-24 might make a big difference.
-> 
-It is hard to get precise numbers, but I have the feeling that with atime 
-enabled the ls-hiccups have at least not decreased, and there has been a 
-rather long one of about 13 seconds, frequency is about one per minute, 
-usually taking 2-4 seconds.
+by "no change", you mean "still loss of 5s" ?
+If this is the case, are you sure the switch port you are connected to is
+in full duplex too ? does it detect receive errors or carrier lost ? I
+believe that cisco switches in "spanning tree portfast" mode block the port
+during 5s after a renegociation. It's easy to detect because the port's led
+becomes orange.
 
-With noatime this of course doesn't happen, but with the patch the file 
-size does not increase smoothly any more, it sometimes stays the same for 
-some ten seconds and then jumps a few hundred MBs. However, the throughput 
-is roughly the same as without the patch (compatible within the errors of 
-about 10%).
+perhaps you can switch the 2 NIC's cables to check if the problem follows the 
+cable or the NIC.
 
-> #2 During an ls, the current code ends up reading the directory more or
-> less one block at a time.  Try 05-search_reada-4.diff, which will read
-> more tree nodes at once.
-> 
-Unfortunately I'm ordered to do something now, so I won't have the time to
-check the performance of this one during the next few hours. The
-combination of 01+02+04 seemed more stable (concerning sustained
-throughput), so I will test it on all 12 machines and tell you what
-happens.
+else I have no other clue ...
 
-Thanks very much for your help! I appreciate that!
-
-Ciao,
-					Roland
-
-+---------------------------+-------------------------+
-|    TU Muenchen            |                         |
-|    Physik-Department E18  |  Raum    3558           |
-|    James-Franck-Str.      |  Telefon 089/289-12592  |
-|    85747 Garching         |                         |
-+---------------------------+-------------------------+
+Regards,
+Willy
 

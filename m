@@ -1,107 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262797AbTJTVBM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 17:01:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262783AbTJTU77
+	id S262746AbTJTU7f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 16:59:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262782AbTJTU7f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 16:59:59 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:56547 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262782AbTJTU7n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 16:59:43 -0400
-Date: Mon, 20 Oct 2003 22:59:33 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Donald Becker <becker@scyld.com>, linux-net@vger.kernel.org,
-       jgarzik@pobox.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Problem with 2.4.22 and SMC EtherPower II 9432
-Message-ID: <20031020205933.GS23191@fs.tum.de>
+	Mon, 20 Oct 2003 16:59:35 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:37506 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262746AbTJTU7e
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 16:59:34 -0400
+Subject: Re: RH7.3 can't compile 2.6.0-test8
+From: Paul Larson <plars@linuxtestproject.org>
+To: Marco Roeland <marco.roeland@xs4all.nl>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031020164349.GA12986@localhost>
+References: <0c1101c396f4$00bfeaf0$24ee4ca5@DIAMONDLX60>
+	<3F93EABF.5000805@g-house.de>  <20031020164349.GA12986@localhost>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 20 Oct 2003 15:58:58 -0500
+Message-Id: <1066683539.8376.21.camel@plars>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 2003-10-20 at 11:43, Marco Roeland wrote:
+> No, you just need to upgrade binutils to version 2.12 or higher, as mentioned
+> in Documentation/Changes. The gcc version is fine.
+Apparently that's not quite enough.  I have a machine on binutils
+2.12.90.0.9 and I'm still getting the same failure.
 
-on two different machines the ethernet card works with kernel 2.2.20 but 
-not with kernel 2.4.22 (both contain machines contain the same card).
+-Paul Larson
 
-Card:
-
-lspci:
-00:0b.0 Ethernet controller: Standard Microsystems Corp [SMC] 83C170QF (rev 08)
-
-cat /proc/pci:
-  Bus  0, device  11, function  0:
-    Ethernet controller: SMC 9432 TX (rev 8).
-      Fast devsel.  Fast back-to-back capable.  IRQ 10.  Master Capable.  
-Latency=32.  Min Gnt=8.Max Lat=28.
-      I/O at 0xb000 [0xb001].
-      Non-prefetchable 32 bit memory at 0xde800000 [0xde800000].
-
-
-Kernel 2.2.20 (working):
-kernel: eth0: SMSC EPIC/100 83c170 at 0xb000, IRQ 10, 00:e0:29:3d:e4:6f.
-kernel: eth0: MII transceiver #3 control 3000 status 7809.
-kernel: eth0:  Autonegotiation advertising 01e1 link partner 0001.
-...
-kernel: eth0: Setting full-duplex based on MII #3 link partner capability of 45e1.
-
-
-kernel 2.4.22 (not working):
-kernel: epic100.c:v1.11 1/7/2001 Written by Donald Becker 
-<becker@scyld.com>
-kernel:   http://www.scyld.com/network/epic100.html
-kernel:   (unofficial 2.4.x kernel port, version 1.11+LK1.1.14, Aug 4, 
-2002)
-kernel: epic100(00:0b.0): MII transceiver #3 control 3000 status 7809.
-kernel: epic100(00:0b.0): Autonegotiation advertising 01e1 link partner 
-0001.
-kernel: eth0: SMSC EPIC/100 83c170 at 0xb000, IRQ 10, 00:e0:29:3d:e4:6f.
-...
-kernel: eth0: Setting full-duplex based on MII #3 link partner capability of 45e1.
-kernel: NETDEV WATCHDOG: eth0: transmit timed out
-kernel: eth0: Transmit timeout using MII device, Tx status 4003.
-kernel: eth0: Restarting the EPIC chip, Rx 1/1 Tx 2/12.
-kernel: eth0: epic_restart() done, cmd status 000a, ctl 0512 interrupt 240000.
-kernel: eth0: Setting half-duplex based on MII #3 link partner 
-capability of 0001.
-kernel: NETDEV WATCHDOG: eth0: transmit timed out
-kernel: eth0: Transmit timeout using MII device, Tx status 0003.
-kernel: eth0: Restarting the EPIC chip, Rx 1/1 Tx 3/12.
-kernel: eth0: epic_restart() done, cmd status 000a, ctl 0512 interrupt 240000.
-kernel: NETDEV WATCHDOG: eth0: transmit timed out
-kernel: eth0: Transmit timeout using MII device, Tx status 000b.
-kernel: eth0: Restarting the EPIC chip, Rx 1/1 Tx 4/12.
-kernel: eth0: epic_restart() done, cmd status 000a, ctl 0512 interrupt 240000.
-kernel: NETDEV WATCHDOG: eth0: transmit timed out
-kernel: eth0: Transmit timeout using MII device, Tx status 000b.
-kernel: eth0: Restarting the EPIC chip, Rx 1/1 Tx 5/12.
-kernel: eth0: epic_restart() done, cmd status 000a, ctl 0512 interrupt 240000.
-kernel: NETDEV WATCHDOG: eth0: transmit timed out
-kernel: eth0: Transmit timeout using MII device, Tx status 000b.
-kernel: eth0: Restarting the EPIC chip, Rx 1/1 Tx 6/12.
-kernel: eth0: epic_restart() done, cmd status 000a, ctl 0512 interrupt 240000.
-kernel: eth0: Too much work at interrupt, IntrStatus=0x008d0004.
-kernel: NETDEV WATCHDOG: eth0: transmit timed out
-kernel: eth0: Transmit timeout using MII device, Tx status 000b.
-kernel: eth0: Restarting the EPIC chip, Rx 1/1 Tx 7/17.
-kernel: eth0: epic_restart() done, cmd status 000a, ctl 0512 interrupt 240000.
-
-
-
-Does anyone have an idea what's going wrong in 2.4.22?
-
-
-TIA
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313738AbSDHTIY>; Mon, 8 Apr 2002 15:08:24 -0400
+	id <S313739AbSDHTIr>; Mon, 8 Apr 2002 15:08:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313739AbSDHTIX>; Mon, 8 Apr 2002 15:08:23 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:36495 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S313738AbSDHTIX>; Mon, 8 Apr 2002 15:08:23 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Bill Davidsen <davidsen@tmr.com>, Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Date: Mon, 8 Apr 2002 12:06:44 -0700 (PDT)
-Subject: Re: faster boots?
-In-Reply-To: <Pine.LNX.3.95.1020408145504.1153A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.44.0204081205330.27634-100000@dlang.diginsite.com>
+	id <S313740AbSDHTIq>; Mon, 8 Apr 2002 15:08:46 -0400
+Received: from mail.gmx.net ([213.165.64.20]:9752 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S313739AbSDHTIq>;
+	Mon, 8 Apr 2002 15:08:46 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Felix Seeger <felix.seeger@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: usb problems (no /dev/usb)
+Date: Mon, 8 Apr 2002 21:06:33 +0200
+X-Mailer: KMail [version 1.4]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Message-Id: <200204082106.33705.felix.seeger@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Apr 2002, Richard B. Johnson wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> On Mon, 8 Apr 2002, David Lang wrote:
->
-> > watch out for the write cycle limits of your flash. they're pretty low
-> > power (at least compared to anything mechanical) but if you're not careful
-> > you can go through their write capability pretty fast.
-> >
-> > David Lang
-> >
-> >
-> >
->
-> Upon boot, you can mount a ram-disk off from /tmp. That will reduce
-> the activity when using the usual editors, vi, vim, emacs, and pico,
-> which all create temp files on /tmp.
+Hi
 
-yes, you also need to mount the flash with noatime. even then you want to
-be careful about things like autosave.
+I have tried to install a usb printer but I have no /dev/usb.
 
-David Lang
+Usb drivers / usb printer installed (in kernel / module)
+
+Do I have to create the folders /dev/usb and the things that are in there ?
+Why ? ;)
+
+
+thanks
+have fun
+Felix
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8seo5S0DOrvdnsewRAmjEAJwJfGIHjTSfX9IQEDk0qswQnPUq5gCeKj/3
+pWRFGiU6pmViP0A+1zhFQto=
+=fUQz
+-----END PGP SIGNATURE-----
+

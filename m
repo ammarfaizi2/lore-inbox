@@ -1,80 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136182AbRECH5J>; Thu, 3 May 2001 03:57:09 -0400
+	id <S136186AbRECH73>; Thu, 3 May 2001 03:59:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136186AbRECH44>; Thu, 3 May 2001 03:56:56 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:31652 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S136182AbRECH4h>;
-	Thu, 3 May 2001 03:56:37 -0400
-Message-ID: <1FF17ADDAC64D0119A6E0000F830C9EA04B3CDCC@aeoexc1.aeo.cpqcorp.net>
-From: "Cabaniols, Sebastien" <Sebastien.Cabaniols@compaq.com>
-To: "'Bogdan Costescu'" <bogdan.costescu@iwr.uni-heidelberg.de>
-Cc: "'andrewm@uow.edu.au'" <andrewm@uow.edu.au>,
-        "'netdev@oss.sgi.com'" <netdev@oss.sgi.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: [3com905b freeze Alpha SMP 2.4.2] FullDuplex issue ?
-Date: Thu, 3 May 2001 09:28:35 +0200 
+	id <S136196AbRECH7U>; Thu, 3 May 2001 03:59:20 -0400
+Received: from aeon.tvd.be ([195.162.196.20]:16097 "EHLO aeon.tvd.be")
+	by vger.kernel.org with ESMTP id <S136186AbRECH7G>;
+	Thu, 3 May 2001 03:59:06 -0400
+Date: Thu, 3 May 2001 09:57:51 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jonathan Lundell <jlundell@pobox.com>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        "David S. Miller" <davem@redhat.com>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: unsigned long ioremap()?
+In-Reply-To: <p05100308b716bb9ed170@[207.213.214.37]>
+Message-ID: <Pine.LNX.4.05.10105030956290.9438-100000@callisto.of.borg>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 3 May 2001, Jonathan Lundell wrote:
+> At 3:18 AM -0400 2001-05-03, Jeff Garzik wrote:
+> >"David S. Miller" wrote:
+> >>  There is a school of thought which believes that:
+> >>
+> >  > struct xdev_regs {
+> >>          u32 reg1;
+> >>          u32 reg2;
+> >>  };
+> >  >
+> >>          val = readl(&regs->reg2);
+> >>
+> >>  is cleaner than:
+> >>
+> >>  #define REG1 0x00
+> >>  #define REG2 0x04
+> >>
+> >>          val = readl(regs + REG2);
+> >>
+> >>  I'm personally ambivalent and believe that both cases should be allowed.
+> >
+> >Agreed...  Tangent a bit, I wanted to plug using macros which IMHO make
+> >code even more readable:
+> >
+> >	val = RTL_R32(REG2);
+> >	RTL_W32(REG2, val);
+> >
+> >Since these are driver-private, if you are only dealing with one chip
+> >you could even shorten things to "R32" and "W32", if that doesn't offend
+> >any sensibilities :)
+> 
+> With a little arithmetic behind the scenes and a NULL pointer to the 
+> struct xdev, you could have:
+> 
+> struct xdev_regs {
+>          u32 reg1;
+>          u32 reg2;
+> } *xdr = 0;
+> 
+> #define RTL_R32(REG) readl(cookie+(unsigned long)(&xdr->REG))
 
+You can easily get rid of the xdr variable by s/xdr/((struct xdev_regs *)0)/.
 
-> -----Original Message-----
-> From: Bogdan Costescu [mailto:bogdan.costescu@iwr.uni-heidelberg.de]
-> Sent: mercredi 2 mai 2001 17:14
-> To: Cabaniols, Sebastien
-> Cc: 'andrewm@uow.edu.au'; 'netdev@oss.sgi.com';
-> 'linux-kernel@vger.kernel.org'
-> Subject: Re: [3com905b freeze Alpha SMP 2.4.2] FullDuplex issue ?
+> cookie = ioremap(blah, blah);
 > 
+> val = RTL_R32(reg2);
 > 
-> On Wed, 2 May 2001, Cabaniols, Sebastien wrote:
-> 
-> > I insert the 3c59x module with debug=7.
-> 
-> Why ? debug=7 is the highest debug level and produces _lots_ 
-> of debug data
-> for high network activity. Do you have problems when 
-> insmod-ing without
-> any option and use a higher debug level just to see what's going on?
+> ...and have the benefits of the R32 macro as well as the use of 
+> structure members.
 
-It is only to produce verbose logs. (See attached file in original email)
+Gr{oetje,eeting}s,
 
+						Geert
 
-> 
-> > The first of the above machines launching the get freezes.
-> 
-> Why do you believe that the card/driver is responsible for 
-> the freeze ?
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Excellent question: I don't know, should I suspect the wu-ftpd daemon ?
-Since the machine is crashed I guess I can suspect some code doing
-system stuff, drivers/kernel or daemons ?
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 
-
-> The outputs that you provided show no problems to me.
-> 
-> A duplex mismatch would not freeze a computer. You would get crappy
-> transfer rates, usually some error messages from the driver, but
-> everything should otherwise work. To verify the media 
-> settings, you might
-> want to use mii-diag (from ftp.scyld.com).
-
-Ok, let me see how we compile this and send you the output.
-
-
-> 
-> Sincerely,
-> 
-> Bogdan Costescu
-> 
-> IWR - Interdisziplinaeres Zentrum fuer Wissenschaftliches Rechnen
-> Universitaet Heidelberg, INF 368, D-69120 Heidelberg, GERMANY
-> Telephone: +49 6221 54 8869, Telefax: +49 6221 54 8868
-> E-mail: Bogdan.Costescu@IWR.Uni-Heidelberg.De
-> 
-> 

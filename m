@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261265AbULHRCb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261266AbULHREn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261265AbULHRCb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Dec 2004 12:02:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbULHRCb
+	id S261266AbULHREn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Dec 2004 12:04:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261268AbULHREn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Dec 2004 12:02:31 -0500
-Received: from fw.osdl.org ([65.172.181.6]:12749 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261265AbULHRCV (ORCPT
+	Wed, 8 Dec 2004 12:04:43 -0500
+Received: from rproxy.gmail.com ([64.233.170.204]:86 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261266AbULHREd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Dec 2004 12:02:21 -0500
-Date: Wed, 8 Dec 2004 09:02:16 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Chris Wright <chrisw@osdl.org>, dave@sr71.net,
-       linux-kernel@vger.kernel.org, Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: oops in proc_pid_stat() on task->real_parent?
-Message-ID: <20041208090216.N2357@build.pdx.osdl.net>
-References: <1102467332.19465.197.camel@localhost> <20041207220016.6917ee6f.akpm@osdl.org> <20041207220753.E469@build.pdx.osdl.net> <20041207221821.068568f4.akpm@osdl.org>
+	Wed, 8 Dec 2004 12:04:33 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=lBwDEb7fQnBtspyfx+Esz0luB8vhy0iOOLf8MUNGIsrgHt9gOAEv3RKhghK0lh7kAjdbn5BJ1DewUYDGdVSQAMTp+xf2Pm+Ptg0X6vRkKWm4vNzC8K17UKbKfuAdIdEKqMkoEDqhNtayqPNYfaSEncwWd6VOflR7NPUgRqp2pcI=
+Message-ID: <c25b2532041208090412b4bf54@mail.gmail.com>
+Date: Wed, 8 Dec 2004 09:04:32 -0800
+From: Richard Hubbell <richard.hubbell@gmail.com>
+Reply-To: Richard Hubbell <richard.hubbell@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: large number of minor faults 2.6.10-rc1
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20041207221821.068568f4.akpm@osdl.org>; from akpm@osdl.org on Tue, Dec 07, 2004 at 10:18:21PM -0800
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andrew Morton (akpm@osdl.org) wrote:
-> Chris Wright <chrisw@osdl.org> wrote:
-> >
-> > * Andrew Morton (akpm@osdl.org) wrote:
-> > > yup, we fixed that one.
-> > 
-> > I thought the same thing, but this oops is from proc_pid_stat, not
-> > proc_pid_status.  The code is now in do_task_stat(), and the oops is
-> > within the orignal tasklist lock (instead of dropping and reaquiring the
-> > lock).  So, might be fixed, but if so, I think for a different reason.
-> > 
-> 
-> Ah, thanks.
-> 
-> I'm not sure that the holding of tasklist_lock is going to save us there. 
-> But then, Manfred recently did an audit, so I'm probably missing something.
-> 
-> Manfred, should we do this?
+I've noticed with the X process and with seti@home that they are
+generating a large
+number of minor faults. 
 
-Yeah, I wondered the same.  Although I don't see why pid_alive() check
-would be useful if it's the real_parent that's gone.  Dave mentioned
-that he's got slab poisoning enabled, and the real_parent pointer was
-valid (i.e. not 6b6b6b6b).  So wouldn't tasklist_lock serialize against
-exiting real_parent?
+I fiddled around with these thinking it was all glibc's fault.  And
+that reduced the number
+(for seti, but didn't try with X)
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+setenv MALLOC_MMAP_MAX_ 0
+setenv MALLOC_TRIM_THRESHOLD_ -1
+
+I do see improved efficiencies after changing those glibc settings so
+I am betting
+that to reduce the number of minor faults even further will improve
+efficiencies further.
+
+I don't have any history of data to look at for previous kernels, so
+would like to know
+if anyone might like to try an educated guess as to what's going on.
+
+I'll have to find some time to try with a previous kernel and see if it changes.
+Or maybe it's purely an application problem
+
+Thanks,
+Richard

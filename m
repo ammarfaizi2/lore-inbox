@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310769AbSD1OiY>; Sun, 28 Apr 2002 10:38:24 -0400
+	id <S310835AbSD1O6Q>; Sun, 28 Apr 2002 10:58:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310835AbSD1OiX>; Sun, 28 Apr 2002 10:38:23 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:14597 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S310769AbSD1OiW>; Sun, 28 Apr 2002 10:38:22 -0400
-Message-ID: <3CCBFAB6.7060607@evision-ventures.com>
-Date: Sun, 28 Apr 2002 15:35:50 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
+	id <S310917AbSD1O6P>; Sun, 28 Apr 2002 10:58:15 -0400
+Received: from nextgeneration.speedroad.net ([195.139.232.50]:44430 "HELO
+	nextgeneration.speedroad.net") by vger.kernel.org with SMTP
+	id <S310835AbSD1O6P>; Sun, 28 Apr 2002 10:58:15 -0400
+Date: Sun, 28 Apr 2002 16:58:13 +0200
+From: Arnvid Karstad <arnvid@karstad.org>
+To: linux-kernel@vger.kernel.org
+Subject: Problems with HTP 370 and Linux 2.4.18?
+Organization: Int
+Message-Id: <20020428164005.01F4.ARNVID@karstad.org>
 MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [bk+patch] Let (WIP) be replaced with (EXPERIMENTAL)
-In-Reply-To: <20020428142415.A10747@ucw.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Becky! ver. 2.00.08
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Vojtech Pavlik napisa?:
-> ChangeSet@1.571, 2002-04-28 14:22:33+02:00, vojtech@twilight.ucw.cz
->   This removes the CONFIG_IDEDMA_PCI_WIP option, replacing it with
->   the more common CONFIG_EXPERIMENTAL. It also adds a depencency
->   on $CONFIG_EXPERIMENTAL where missing.
+Hiya, 
+
+I tried to install Linux on one of my desktop's and got into a small
+icky situation..
+
+The harddrives on this machine are all attached to the HPT370 ata-100
+controller.. The internal controller has an cd-r only.
+
+After installing and rebooting with ata100 kernel was shipped with
+slackware 8 it worked fine, but after I tried to upgrade the kernel to
+2.4.18 it seems not to enjoy my configuration
+
+I'm getting these alot.:
+EXT2-fs error (device ide2(33,3)): ext2_write_inode: unable to read inode block - inode=65549, block=131077
+
+and when I do the only cure is to power cycle :(
+
+The Motherboard is an Abit VP6 with VIA chipset... and dual cpu's.
+
+I tested the configuration in win2k and the drive seems fine there.
+Reinstalled linux again and voila.. a few of these again :(
+
+Is there some magical kernel parameter that can be set to help out here?
+;-) since and older kernel did work.. or is there any patches worth
+testing? ;)
 
 
-All fine and all will be taken. However please note that
-I don't use BK and I don't intend too. My rejection of
-it isn't based on any idiotic policy - I found it just ugly to
-use and I was confused about the beta-alpha versions
-offered on the web site - too much work in progress for my taste.
-Finally I don't entrust source code to programmers who even don't know
-the difference between TCP and UDP and use TCP becouse they don't know better.
-I preferr a classical diff -urN ;-).
+Mvh/Best regards,
+
+Arnvid L. Karstad
 
 

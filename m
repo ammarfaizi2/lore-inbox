@@ -1,42 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261345AbVALTgi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbVALS42@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261345AbVALTgi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 14:36:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbVALT3H
+	id S261315AbVALS42 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 13:56:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbVALSzA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 14:29:07 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:39605 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261350AbVALT1r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 14:27:47 -0500
-From: David Howells <dhowells@redhat.com>
-To: torvalds@osdl.org, akpm@osdl.org
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] FRV: Excess whitespace cleanup
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
-Date: Wed, 12 Jan 2005 19:27:43 +0000
-Message-ID: <16108.1105558063@redhat.com>
+	Wed, 12 Jan 2005 13:55:00 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51616 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261265AbVALSwD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 13:52:03 -0500
+Date: Wed, 12 Jan 2005 13:27:08 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] do_brk() needs mmap_sem write-locked
+Message-ID: <20050112152708.GE32024@logos.cnet>
+References: <20050112002117.GA27653@logos.cnet> <Pine.LNX.4.58.0501120800500.2373@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0501120800500.2373@ppc970.osdl.org>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 12, 2005 at 08:03:44AM -0800, Linus Torvalds wrote:
+> 
+> 
+> Looks good, except for a small nit:
+> 
+> On Tue, 11 Jan 2005, Marcelo Tosatti wrote:
+> > diff -Nur linux-2.6-curr.orig/mm/mmap.c linux-2.6-curr/mm/mmap.c
+> > --- linux-2.6-curr.orig/mm/mmap.c	2005-01-11 22:48:49.000000000 -0200
+> > +++ linux-2.6-curr/mm/mmap.c	2005-01-11 23:43:10.704800272 -0200
+> > @@ -1891,6 +1891,12 @@
+> >  	}
+> >  
+> >  	/*
+> > +	 * mm->mmap_sem is required to protect against another thread
+> > +	 * changing the mappings in case we sleep.
+> > +	 */
+> > +	WARN_ON(down_read_trylock(&mm->mmap_sem));
+> > +
+> > +	/*
+> >  	 * Clear old maps.  this also does some error checking for us
+> >  	 */
+> >   munmap_back:
+> > 
+> 
+> if that warning ever triggers, mmap_sem will now be locked, and that will 
+> cause problems. So I suspect it's better to do
+> 
+> 	if (down_read_trylock(&mm->mmap_sem)) {
+> 		WARN_ON(1);
+> 		up_read(&mm->mmap_sem);
+> 	}
+> 
+> and move that into a helper function of its own (something like
+> "verify_mmap_write_lock_held()").
 
-The attached patch cleans up some excess whitespace from the FRV entry.S.
+OK - I've seen you just committed a fix.
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
-warthog>diffstat -p1 frv-cleanup-2611rc1.diff 
- arch/frv/kernel/entry.S |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -uNrp /warthog/kernels/linux-2.6.11-rc1/arch/frv/kernel/entry.S linux-2.6.11-rc1-frv/arch/frv/kernel/entry.S
---- /warthog/kernels/linux-2.6.11-rc1/arch/frv/kernel/entry.S	2005-01-12 19:08:31.000000000 +0000
-+++ linux-2.6.11-rc1-frv/arch/frv/kernel/entry.S	2005-01-12 19:12:00.125483158 +0000
-@@ -1075,7 +1075,7 @@ __entry_work_resched:
- 	andicc		gr4,#_TIF_NEED_RESCHED,gr0,icc0
- 	bne		icc0,#1,__entry_work_resched
- 
-- __entry_work_notifysig:
-+__entry_work_notifysig:
- 	LEDS		0x6410
- 	ori.p		gr4,#0,gr8
- 	call		do_notify_resume
+I've fixed v2.4 version.

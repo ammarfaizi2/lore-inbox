@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263895AbTJ1JXN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 04:23:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263897AbTJ1JXM
+	id S263893AbTJ1JRL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 04:17:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263897AbTJ1JRL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 04:23:12 -0500
-Received: from gprs197-51.eurotel.cz ([160.218.197.51]:61826 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263895AbTJ1JXM (ORCPT
+	Tue, 28 Oct 2003 04:17:11 -0500
+Received: from main.gmane.org ([80.91.224.249]:38320 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263893AbTJ1JRK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 04:23:12 -0500
-Date: Tue, 28 Oct 2003 10:20:27 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Andi Kleen <ak@suse.de>
-Cc: John Levon <levon@movementarian.org>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [AMD64 1/3] fix C99-style declarations
-Message-ID: <20031028092026.GA1167@elf.ucw.cz>
-References: <20031025182824.GA12117@gtf.org> <20031025202750.GC27754@wotan.suse.de> <20031025204717.GA78345@compsoc.man.ac.uk> <20031025205617.GD27754@wotan.suse.de>
+	Tue, 28 Oct 2003 04:17:10 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: SiS900 driver multicast problems and patch.
+Date: Tue, 28 Oct 2003 10:17:08 +0100
+Message-ID: <yw1xd6ch67sb.fsf@kth.se>
+References: <3F9E2B6C.30000@revicon.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031025205617.GD27754@wotan.suse.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:jQHUvUXtULLMYg5FcyolnTWQ5y4=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Lars Knudsen <gandalf@revicon.com> writes:
 
-> > This has happened more than once in the tree.
-> > 
-> > When all the architectures have a minimum gcc requirement that accepts
-> > mixed code and declarations by default, it can be removed ...
-> 
-> Would be my prefered solution. Discourage 2.95.
-> 
-> Sooner or later we have to do that anyways when a bug in 2.95 
-> is found that breaks code (has happened with all gccs so far). 
-> Sooner would be better, as supporting 2.95 seems to be already
-> a significant mainteance burden.
+> After upgrading to kernel 2.4.22 we discovered that multicast was no
+> longer handled properly by the SiS900. Examining the changes between
+> 2.4.19 and 2.4.22 it is clear that the handling of multicast was
+> changed but a bug was introduced.
 
-Well.. except that 2.95 is still two times faster than gcc 3.3 :-(.
+Your patch is broken.  Long lines are wrapped, tabs are converted to
+spaces and it is reversed.
 
-								Pavel
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Måns Rullgård
+mru@kth.se
+

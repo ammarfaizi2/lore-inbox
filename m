@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317935AbSGPTCM>; Tue, 16 Jul 2002 15:02:12 -0400
+	id <S317939AbSGPTHQ>; Tue, 16 Jul 2002 15:07:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317939AbSGPTCL>; Tue, 16 Jul 2002 15:02:11 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:2693 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S317935AbSGPTCL>;
-	Tue, 16 Jul 2002 15:02:11 -0400
-Date: Tue, 16 Jul 2002 12:03:52 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>, Andi Kleen <ak@suse.de>
-cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>
-Subject: Re: [patch[ Simple Topology API
-Message-ID: <1394120000.1026846232@flay>
-In-Reply-To: <Pine.LNX.4.44.0207141156540.19060-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0207141156540.19060-100000@home.transmeta.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	id <S317944AbSGPTHQ>; Tue, 16 Jul 2002 15:07:16 -0400
+Received: from dsl-65-188-226-101.telocity.com ([65.188.226.101]:44682 "EHLO
+	crown.reflexsecurity.com") by vger.kernel.org with ESMTP
+	id <S317939AbSGPTHP>; Tue, 16 Jul 2002 15:07:15 -0400
+Date: Tue, 16 Jul 2002 15:10:17 -0400
+To: "Filip Sneppe (Yucom)" <filip.sneppe@yucom.be>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: how to improve the throughput of linux network
+Message-ID: <20020716191017.GA26500@reflexsecurity.com>
+References: <200207160915391.SM00792@zhengcb> <slrnaj8b8s.p4m.lunz@stoli.localnet> <1026838787.401.15.camel@xbox>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <1026838787.401.15.camel@xbox>
+User-Agent: Mutt/1.3.28i
+From: Jason Lunz <lunz@reflexsecurity.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The whole "node" concept sounds broken. There is no such thing as a node,
-> since even within nodes latencies will easily differ for different CPU's
-> if you have local memories for CPU's within a node (which is clearly the
-> only sane thing to do).
+On Tue, Jul 16, 2002 at  6:59PM +0200, Filip Sneppe (Yucom) wrote:
+> Hey, that's funny. I downloaded NAPI patches from:
+> ftp://robur.slu.se/pub/Linux/net-development/NAPI/
 
-Define a node as a group of CPUs with the same set of latencies to memory.
-Then you get something that makes sense for everyone, and reduces the 
-storage of duplicated data. If your latencies for each CPU are different, 
-define a 1-1 mapping between nodes and CPUs. If you really want to store
-everthing for each CPU, that's fine.
+Yes, that's where the NAPI stuff originates. The core patch from that
+site is what made it into 2.5, and I backported it to 2.4 from there.
+There are no substantial differences between the three.
 
-> If you want to model memory behaviour, you should have memory descriptors
-> (in linux parlance, "zone_t") have an array of latencies to each CPU. That
-> latency is _not_ a "is this memory local to this CPU" kind of number, that
-> simply doesn't make any sense. The fact is, what matters is the number of
-> hops. Maybe you want to allow one hop, but not five.
+> How different are those patches from yours ? Did you just make
+> sure they all applied cleanly ?
 
-I can't help thinking that we'd be better off making the mechanism as generic
-as possible, and not trying to predict all the wierd and wonderful things people
-might want to do (eg striping), then implement what you describe as a policy 
-decision.
+While the core is mostly a matter of changing patch offsets, the driver
+patches are still a moving target. There are two different flavors of
+the e1000 NAPI patch, for example. The most recent tulip patch from the
+above FTP site is missing tulip_misc.c, so it must be replaced with a
+version from another patch.  That file really is only code to report
+stats in /proc, though. There's yet another napified tulip driver that
+jamal posted a link to; I have yet to investigate that one.
 
-M.
+But to answer your question, yes. I just found the most recent versions
+of various napi efforts and made them apply to a recent 2.4 kernel so
+people can easily try out the new net core.
 
+Jason

@@ -1,99 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262676AbVA0RHa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262667AbVA0RMO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262676AbVA0RHa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 12:07:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262678AbVA0RG4
+	id S262667AbVA0RMO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 12:12:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262663AbVA0RMN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 12:06:56 -0500
-Received: from lists.us.dell.com ([143.166.224.162]:45219 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S262665AbVA0RES
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 12:04:18 -0500
-Date: Thu, 27 Jan 2005 11:03:41 -0600
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, Greg KH <greg@kroah.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.11-rc2] modules: add version and srcversion to sysfs
-Message-ID: <20050127170341.GA10491@lists.us.dell.com>
-References: <20050119171357.GA16136@lst.de> <20050119234219.GA6294@kroah.com> <20050126060541.GA16017@lists.us.dell.com> <200501261022.30292.agruen@suse.de> <20050126140935.GA27641@lists.us.dell.com> <1106757530.13004.220.camel@winden.suse.de>
+	Thu, 27 Jan 2005 12:12:13 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:57010 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S262671AbVA0RKu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 12:10:50 -0500
+Date: Thu, 27 Jan 2005 20:33:10 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: dtor_core@ameritech.net
+Cc: dmitry.torokhov@gmail.com, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, greg@kroah.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc2-mm1
+Message-ID: <20050127203310.11dedefc@zanzibar.2ka.mipt.ru>
+In-Reply-To: <d120d50005012612226401eed2@mail.gmail.com>
+References: <20050124021516.5d1ee686.akpm@osdl.org>
+	<1106751547.5257.162.camel@uganda>
+	<d120d5000501260726714e8251@mail.gmail.com>
+	<1106754848.5257.189.camel@uganda>
+	<d120d500050126082515bd68f9@mail.gmail.com>
+	<1106757974.5257.229.camel@uganda>
+	<d120d50005012608556ab05a96@mail.gmail.com>
+	<1106761176.5257.246.camel@uganda>
+	<d120d5000501261026700e37c0@mail.gmail.com>
+	<20050126230712.1dd63589@zanzibar.2ka.mipt.ru>
+	<d120d50005012612226401eed2@mail.gmail.com>
+Reply-To: johnpol@2ka.mipt.ru
+Organization: MIPT
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1106757530.13004.220.camel@winden.suse.de>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 26, 2005 at 05:38:51PM +0100, Andreas Gruenbacher wrote:
-> > The autoinstaller feature,
-> > for example, which determines if your system has a "good" version of a
-> > driver (i.e. if the one provided by DKMS has a newer verson than that
-> > provided by the kernel package installed), and to automatically
-> > compile and install a newer version if DKMS has it but your kernel
-> > doesn't yet have that version.
+On Wed, 26 Jan 2005 15:22:52 -0500
+Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+
+> On Wed, 26 Jan 2005 23:07:12 +0300, Evgeniy Polyakov
+> <johnpol@2ka.mipt.ru> wrote:
+> > 
+> > Chip driver provides access methods to the attached logical devices.
+> > It probes and activates them, if appropriate module is loaded.
+> > 
+> > Your example again is not suitable for superio case.
+> > 
+> > With superio you have several identical logical devices, access to which
+> > is absolutely standard in second level(logic befind access),
+> > but in first one(physicall access) it can differ.
+> > 
+> > So here is the real example of superio usage:
+> > 
+> >     userspace
+> >        |
+> >    superio core
+> >      ......
+> > 
+> >       GPIO
+> >  |----|  |--|
+> > pc87366     sc1100
+> >  |----| |---|
+> >       WDT
+> > 
+> > Logical device GPIO is accessed by read/write methods, which only have
+> > pin number(it is not how this methods are exactly implemeted though)
+> > as parameter.
+> > 
+> > For example userspace accesses GPIO at sc1100 - it will be translated
+> > into read methods called from appropriate superio chip with appropriate
+> > parameters.
+> > 
+> > When we have multiple GPIO logical devices(each in it's own superio chip)
+> > it is more convenient to use just the same object.
 > 
-> I find the autoinstaller feature quite scary.
-
-The autoinstaller itself is mechanism.  When it's invoked is a policy
-decision.  I described the policies that Dell employs with it in my
-OLS paper last summer.  For non-distribution-provided drivers
-(ppp_mppe, ALSA in some cases, 3rd party video), the autoinstaller is
-enabled, and it rebuilds and installs those drivers at new kernel boot
-time.
-
-For distribution-provided drivers, we default the autoinstaller
-off.  But, this has bitten us.  RHEL3 Update 2 and Update 3 both
-shipped with an aacraid (boot storage) driver that crashed the kernel
-on insmod.  As fate would have it, Dell provided an updated driver
-source package in DKMS format to solve this.  An intelligent
-autoinstaller could have looked at the version fields and determined
-that what was in the "newest" Update kernel was in fact older than
-what DKMS had available to it, and used that instead.  Which is why
-we've been pushing for MODULE_VERSION() fields in all the drivers, and
-why the srcversion field can exist for all drivers now.
-
- 
-> > b) Because tools like DKMS can switch out modules, you can't count on
-> > 'modinfo foo.ko', which looks at
-> > /lib/modules/${kernelver}/... actually matching what is loaded into
-> > the kernel already.  Hence asking sysfs for this.
+> I take an exception to that. I think useroace is not concerned with
+> topology and ownership of logical devices, the data is more important.
+> I.e. you need to know that some pin respons to CPU temperature but you
+> don't really care that it connected to it87 as opposed to some other
+> chip. Therefore I think that ldev should translate to exactly the same
+> underlying object. Consider the picture below:
 > 
-> DKMS doesn't manage loading modules, does it? If it does, then at least
-> it shouldn't; that's even more scary than the autoinstaller. From the
-> point of view of the kernel, the modules relevant for the running kernel
-> are those below /lib/modules/$(uname -r)/. If DKMS replaces things
-> there, it'd better keep proper track of what it did.
+>         GPIO0     GPIO1   GPIO2 GPIO3
+>           |         |       |     |
+>        pc87266   sc1100     blah123
+>           |         |
+>          WDT0      WDT1
+> 
+> This will allow:
+> - map every hardware piece (not entire chip, separate functions) to a
+> device file to userspace can use standard read/write/select/poll if
+> choses so.
+> - easily represent them in sysfs and also allow userspace access to
+> individual bits through sysfs attributes.
+> - will not give headaches with poer management when half of device is
+> powered down and half is active.
+> - provided that there are alternative interfaces outlined above
+> superio can be decoupled from the connector.
 
-It does keep track, quite well.
- 
-> I never want to see DKMS try to remove a module from the running kernel
-> or insmod a new one.
+With presented design we already have above links.
+Each superio chip has a list of chain objects, each of which points to
+the connected logical device.
+Logical device usage must be done using provided logical device methods
+(like read/write/control).
+>From that point of view noone even knows, that above GPIO0 and GPIO1 
+(on the picture) are actually the same object(if they are not clones,
+but if they are, then picture becomes 100% real).
 
-Ahh, but that's a policy decision to be made.  I don't have a
-production example of needing to do this yet, so it doesn't.  But I
-wouldn't rule out the future need for such.  (i.e. wanting to
-automate upgrading a NIC driver without rebooting the server).
+> I wonder if it should be called "gpio" bus as opposed to superio
+> because only chips are "super", the bus consists of very simple
+> devices and drivers.
+
+I can not agree that it is a bus.
+Bus abstraction can be _only_ applied to hierarchy in the only one
+superio chip.
+
+> > I did not understand you from the beginning...
+> 
+> We are getting there I believe ;) 
+> 
+> -- 
+> Dmitry
 
 
-> > c) as the unbind-driver-from-device work takes shape, it will be
-> > possible to rebind a driver that's built-in (no .ko to modinfo for the
-> > version) to a newly loaded module.  sysfs will have the
-> > currently-built-in version info, for comparison.
+	Evgeniy Polyakov
 
-As it happens, right now built-in modules don't have modinfo sections,
-so this piece doesn't work.  There's no way to ask the kernel for the
-version of built-in modules then, it doesn't know.  But with unbind
-happening, that will be useful information to have, I'll have to look
-into building parts of that section in.  Thanks for pointing this
-deficiency out.
-
-Thanks,
-Matt
-
--- 
-Matt Domsch
-Software Architect
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+Only failure makes us experts. -- Theo de Raadt

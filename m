@@ -1,44 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262049AbVADAUm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262035AbVADAUn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262049AbVADAUm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 19:20:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbVADAUL
+	id S262035AbVADAUn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 19:20:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262013AbVADAL2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 19:20:11 -0500
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:24968 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S262010AbVADASE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 19:18:04 -0500
-Date: Tue, 4 Jan 2005 01:14:54 +0100
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org
-Subject: Re: [ide] clean up error path in do_ide_setup_pci_device()
-Message-ID: <20050104001454.GA7655@electric-eye.fr.zoreil.com>
-References: <200412310343.iBV3hqvd015595@hera.kernel.org> <1104773262.13302.3.camel@localhost.localdomain> <58cb370e050103142269e1f67f@mail.gmail.com> <1104788671.13302.63.camel@localhost.localdomain>
-Mime-Version: 1.0
+	Mon, 3 Jan 2005 19:11:28 -0500
+Received: from dp.samba.org ([66.70.73.150]:32681 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S262011AbVADAIM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 19:08:12 -0500
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1104788671.13302.63.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+Content-Transfer-Encoding: 7bit
+Message-ID: <16857.56805.501880.446082@samba.org>
+Date: Tue, 4 Jan 2005 11:05:57 +1100
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: sfrench@samba.org, linux-ntfs-dev@lists.sourceforge.net,
+       samba-technical@lists.samba.org, aia21@cantab.net,
+       hirofumi@mail.parknet.co.jp,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: FAT, NTFS, CIFS and DOS attributes
+In-Reply-To: <41D9C635.1090703@zytor.com>
+References: <41D9C635.1090703@zytor.com>
+X-Mailer: VM 7.19 under Emacs 21.3.1
+Reply-To: tridge@samba.org
+From: tridge@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> :
-[...]
-> One example where the weird design makes it obvious is the CS5520. Here
-> the 5520 bridge has the IDE in one BAR and all sorts of other logic
-> (including the xBUS virtual ISA environment) in the same PCI function.
-> On that chip a pci_disable_device on the IDE pci_dev turns off mundane
-> things like the timer chips keyboard and mouse 8).
+ > I noticed that CIFS has a placeholder "user.DosAttrib" in cifs/xattr.c, 
+ > although it doesn't seem to be implemented.
 
-/me looks at the comments in drivers/ide/pci/cs5520.c
+Thats taken from Samba4, where it is fully implemented. I guess Steve
+is planning on integrating cifsfs with the Samba4 way of handling EAs,
+NT ACLs, attribs, streams etc at some stage.
 
-Is it worth the pain to remember if ide_setup_pci_device() did enable a
-specific bar or not in order to balance it more accurately ?
+See 
+  http://samba.org/ftp/unpacked/samba4/source/librpc/idl/xattr.idl 
+for a full definition of the structures we use. 
 
---
-Ueimor
+I used a NDR encoding in each of the xattrs to provide a well defined
+architecture independent encoding, and an easy way to extend the
+structure in the future (thats why DosAttrib is a union with a version
+switch). 
+
+The place where this will really interact a lot with the kernel is in
+the Samba LSM module that tpot and myself have been looking at
+writing. That module will provide the in-kernel implementation of
+these attributes that is needed to make them raceless (especially for
+NT ACLs).
+
+These xattr structures are also the key to solving the
+case-insensitivity problem that has been plaguing Samba for so
+long. We have come up with a very simple scheme for making
+case-insensiitive filenames work very efficiently on any filesystem
+that supports xattrs. It requires no additional kernel support beyond
+xattrs, and gets rid of the need for a large user-space name
+cache.
+
+Cheers, Tridge

@@ -1,45 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbVCTXGO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbVCTXKe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbVCTXGO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 18:06:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbVCTXGN
+	id S261343AbVCTXKe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 18:10:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbVCTXIV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 18:06:13 -0500
-Received: from ns3.dataphone.se ([212.37.0.170]:22483 "EHLO
+	Sun, 20 Mar 2005 18:08:21 -0500
+Received: from ns3.dataphone.se ([212.37.0.170]:36563 "EHLO
 	mail-slave.dataphone.se") by vger.kernel.org with ESMTP
-	id S261326AbVCTXGH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 18:06:07 -0500
+	id S261342AbVCTXG1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Mar 2005 18:06:27 -0500
 From: Magnus Damm <damm@opensource.se>
 To: linux-kernel@vger.kernel.org
 Cc: Magnus Damm <damm@opensource.se>
-Message-Id: <20050320223814.25305.52695.65404@clementine.local>
-Subject: [PATCH 0/5] autoparam
-Date: Mon, 21 Mar 2005 00:06:06 +0100 (CET)
+Message-Id: <20050320223835.25305.25668.76404@clementine.local>
+In-Reply-To: <20050320223814.25305.52695.65404@clementine.local>
+References: <20050320223814.25305.52695.65404@clementine.local>
+Subject: [PATCH 4/5] autoparam: ide workarounds
+Date: Mon, 21 Mar 2005 00:06:27 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are a set of patches that makes it possible to autogenerate kernel command
-line documentation from the source code. The approach is rather straightforward
-- the parameter name, the type and the description are stored in a section 
-called __param_strings. After vmlinux is built this section is extracted using
-objcopy and a script is used to generate a primitive - but up to date - 
-document.
+This patch contains quick fixes that prevents KBUILD_MODNAME conflicts.
 
-Right now the section is left in the kernel binary. The document is currently
-not generated from the Makefile, so the curious user should perform:
+Signed-off-by: Magnus Damm <damm@opensource.se>
 
-$ objcopy -j __param_strings vmlinux -O binary foo
-$ chmod a+x scripts/section2text.rb
-$ cat foo | ./scripts/section2text.rb
-
-And yeah, you need to install ruby to run the script.
-
-The ruby script section2text.rb does some checks to see if MODULE_PARM_DESC()
-is used without module_param(). You will find interesting typos.
-
-Future work that extends this idea could include replacing __setup(name) with 
-__setup(name, descr). And storing the documentation somewhere to make it easy
-for the end user to look up the generated parameter list from the boot loader.
-
-/ magnus
-
+diff -urN linux-2.6.12-rc1/drivers/ide/ide-disk.c linux-2.6.12-rc1-autoparam/drivers/ide/ide-disk.c
+--- linux-2.6.12-rc1/drivers/ide/ide-disk.c	2005-03-20 18:20:16.000000000 +0100
++++ linux-2.6.12-rc1-autoparam/drivers/ide/ide-disk.c	2005-03-20 22:19:34.917938632 +0100
+@@ -1179,6 +1179,8 @@
+ 	return ide_register_driver(&idedisk_driver);
+ }
+ 
++#undef ide_disk
++
+ module_init(idedisk_init);
+ module_exit(idedisk_exit);
+ MODULE_LICENSE("GPL");
+diff -urN linux-2.6.12-rc1/drivers/ide/ide-floppy.c linux-2.6.12-rc1-autoparam/drivers/ide/ide-floppy.c
+--- linux-2.6.12-rc1/drivers/ide/ide-floppy.c	2005-03-20 18:20:16.000000000 +0100
++++ linux-2.6.12-rc1-autoparam/drivers/ide/ide-floppy.c	2005-03-20 22:19:34.920938176 +0100
+@@ -2117,6 +2117,8 @@
+ 	return 0;
+ }
+ 
++#undef ide_floppy
++
+ module_init(idefloppy_init);
+ module_exit(idefloppy_exit);
+ MODULE_LICENSE("GPL");
+diff -urN linux-2.6.12-rc1/drivers/ide/ide-tape.c linux-2.6.12-rc1-autoparam/drivers/ide/ide-tape.c
+--- linux-2.6.12-rc1/drivers/ide/ide-tape.c	2005-03-20 18:20:16.000000000 +0100
++++ linux-2.6.12-rc1-autoparam/drivers/ide/ide-tape.c	2005-03-20 22:19:34.944934528 +0100
+@@ -4818,6 +4818,8 @@
+ 	return 0;
+ }
+ 
++#undef ide_tape
++
+ module_init(idetape_init);
+ module_exit(idetape_exit);
+ MODULE_ALIAS_CHARDEV_MAJOR(IDETAPE_MAJOR);
+diff -urN linux-2.6.12-rc1/drivers/scsi/ide-scsi.c linux-2.6.12-rc1-autoparam/drivers/scsi/ide-scsi.c
+--- linux-2.6.12-rc1/drivers/scsi/ide-scsi.c	2005-03-20 18:20:17.000000000 +0100
++++ linux-2.6.12-rc1-autoparam/drivers/scsi/ide-scsi.c	2005-03-20 22:19:34.946934224 +0100
+@@ -1097,6 +1097,8 @@
+ 	ide_unregister_driver(&idescsi_driver);
+ }
+ 
++#undef ide_scsi
++
+ module_init(init_idescsi_module);
+ module_exit(exit_idescsi_module);
+ MODULE_LICENSE("GPL");

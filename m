@@ -1,67 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261483AbUJXN0z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261476AbUJXN3p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261483AbUJXN0z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 09:26:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261489AbUJXNZr
+	id S261476AbUJXN3p (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 09:29:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbUJXNWi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 09:25:47 -0400
-Received: from verein.lst.de ([213.95.11.210]:18598 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S261483AbUJXNXR (ORCPT
+	Sun, 24 Oct 2004 09:22:38 -0400
+Received: from holomorphy.com ([207.189.100.168]:6355 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261476AbUJXNVl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 09:23:17 -0400
-Date: Sun, 24 Oct 2004 15:23:10 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] remove page_follow_link
-Message-ID: <20041024132310.GB19927@lst.de>
+	Sun, 24 Oct 2004 09:21:41 -0400
+Date: Sun, 24 Oct 2004 06:21:28 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Peter Osterlund <petero2@telia.com>, linux-kernel@vger.kernel.org,
+       axboe@suse.de
+Subject: Re: [PATCH] Fix incorrect kunmap_atomic in pktcdvd
+Message-ID: <20041024132128.GQ17038@holomorphy.com>
+References: <m3wtxhibo9.fsf@telia.com> <20041024032546.52314e23.akpm@osdl.org> <m3oeisz7uh.fsf@telia.com> <20041024041827.664845da.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+In-Reply-To: <20041024041827.664845da.akpm@osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-all filesystems have been switched to page_follow_link_light
+Peter Osterlund <petero2@telia.com> wrote:
+>> Why was the interface made different from kmap()/kunmap() in the first
+>> place? Wouldn't it have made more sense to let kunmap_atomic() take a
+>> page pointer as the first parameter?
+
+On Sun, Oct 24, 2004 at 04:18:27AM -0700, Andrew Morton wrote:
+> No, kmap-atomic() maps a single page into the CPU's address space by making
+> a pte point at the page.  To unmap that page we need to get at the pte, not
+> at the page.  If kmap_atomic() were to take a pageframe address we'd need
+> to search the whole fixmap space for the corresponding page - a reverse
+> lookup.
+
+I don't recall anything truly ancient, but fixmap indices should be
+enough to recover the virtual address and pte. I think the virtual
+address is primarily for checking purposes. The same kind of check
+could be done by checking the pfn derived from the page structure
+against the contents of the pte at the fixmap index, but I suspect
+more damage would ensue from changing the calling convention than
+aligning it with common expectations.
 
 
---- 1.113/fs/namei.c	2004-10-19 11:40:20 +02:00
-+++ edited/fs/namei.c	2004-10-23 14:44:12 +02:00
-@@ -2388,18 +2403,6 @@
- 	}
- }
- 
--int page_follow_link(struct dentry *dentry, struct nameidata *nd)
--{
--	struct page *page = NULL;
--	char *s = page_getlink(dentry, &page);
--	int res = __vfs_follow_link(nd, s);
--	if (page) {
--		kunmap(page);
--		page_cache_release(page);
--	}
--	return res;
--}
--
- int page_symlink(struct inode *inode, const char *symname, int len)
- {
- 	struct address_space *mapping = inode->i_mapping;
-@@ -2455,7 +2458,6 @@
- EXPORT_SYMBOL(lock_rename);
- EXPORT_SYMBOL(lookup_hash);
- EXPORT_SYMBOL(lookup_one_len);
--EXPORT_SYMBOL(page_follow_link);
- EXPORT_SYMBOL(page_follow_link_light);
- EXPORT_SYMBOL(page_put_link);
- EXPORT_SYMBOL(page_readlink);
---- 1.358/include/linux/fs.h	2004-10-20 10:37:21 +02:00
-+++ edited/include/linux/fs.h	2004-10-23 14:43:40 +02:00
-@@ -1524,7 +1524,6 @@
- extern int vfs_readlink(struct dentry *, char __user *, int, const char *);
- extern int vfs_follow_link(struct nameidata *, const char *);
- extern int page_readlink(struct dentry *, char __user *, int);
--extern int page_follow_link(struct dentry *, struct nameidata *);
- extern int page_follow_link_light(struct dentry *, struct nameidata *);
- extern void page_put_link(struct dentry *, struct nameidata *);
- extern int page_symlink(struct inode *inode, const char *symname, int len);
+-- wli

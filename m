@@ -1,47 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268335AbUJDRXJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268336AbUJDRgn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268335AbUJDRXJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 13:23:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268336AbUJDRXJ
+	id S268336AbUJDRgn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 13:36:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268339AbUJDRgn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 13:23:09 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:11738 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S268335AbUJDRXA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 13:23:00 -0400
-Date: Mon, 4 Oct 2004 10:22:20 -0700
-From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Josef 'Jeff' Sipek" <jeffpc@optonline.net>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, trivial@rustcorp.com.au, rusty@rustcorp.com.au
-Subject: Re: [PATCH 2.6][resend] Add DEVPATH env variable to hotplug helper call
-Message-ID: <20041004102220.A3304@unix-os.sc.intel.com>
-Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-References: <20041003100857.GB5804@optonline.net> <20041003162012.79296b37.akpm@osdl.org>
+	Mon, 4 Oct 2004 13:36:43 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:13199 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S268336AbUJDRgl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 13:36:41 -0400
+Date: Mon, 4 Oct 2004 19:36:21 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Borislav Petkov <petkov@uni-muenster.de>
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>,
+       Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Fw: Re: 2.6.9-rc2-mm4
+Message-ID: <20041004173620.GA5707@suse.de>
+References: <20040929214637.44e5882f.akpm@osdl.org> <200410012042.02628.petkov@uni-muenster.de> <200410030951.44040.petkov@uni-muenster.de> <200410041754.25677.petkov@uni-muenster.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20041003162012.79296b37.akpm@osdl.org>; from akpm@osdl.org on Sun, Oct 03, 2004 at 04:20:12PM -0700
+In-Reply-To: <200410041754.25677.petkov@uni-muenster.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 03, 2004 at 04:20:12PM -0700, Andrew Morton wrote:
-> Does CPU hotplug behave correctly wrt /sys/devices/system/cpu?  Given that
-> register_cpu() is still marked __init, I assume not.
+On Mon, Oct 04 2004, Borislav Petkov wrote:
+> Ok here we go,
+> 
+> final results:
+> 
+>  2.6.8-rc1: OK
+>  2.6.8-rc2: OK
+>  2.6.8-rc3: OK
+>  2.6.8-rc3-bk1: OK
+>  2.6.8-rc3-bk2: OK
+>  2.6.8-rc3-bk3: OK
+>  2.6.8-rc3-bk4: OK
+>  2.6.8-rc4: BUG!
+> 
+> So, assuming that everything went fine during testing, the bug got introduced 
+> in the transition between 2.6.8-rc3-bk4 and 2.6.8-rc4.
 
-Currently what we have in the kernel is logical cpu hotplug, i.e once the
-cpu is registered via register_cpu() that cpu can only go offline and still
-the entry for that cpu will be present in the /sys/devices/system/cpu/cpuX/online.
+That's some nice testing, thank you. Try backing out this hunk:
 
-So __init register_cpu() is fine untill we support unregister_cpu()
-which is required for physical cpu hotplug case.
+diff -urp linux-2.6.8-rc3-bk4/drivers/block/scsi_ioctl.c linux-2.6.8-rc4/drivers/block/scsi_ioctl.c
+--- linux-2.6.8-rc3-bk4/drivers/block/scsi_ioctl.c	2004-08-03 23:28:51.000000000 +0200
++++ linux-2.6.8-rc4/drivers/block/scsi_ioctl.c	2004-08-10 04:24:08.000000000 +0200
+@@ -90,7 +90,7 @@ static int sg_set_reserved_size(request_
+ 	if (size < 0)
+ 		return -EINVAL;
+ 	if (size > (q->max_sectors << 9))
+-		return -EINVAL;
++		size = q->max_sectors << 9;
+ 
+ 	q->sg_reserved_size = size;
+ 	return 0;
 
-I have submitted ACPI based physical cpu hotplug patches and waiting to here from
-ACPI mainitainer Len Brown, there I have taken care to support unregister_cpu()
-and register_cpu() is marked as __devinit in those patches.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+It's the only thing that sticks out, and it could easily explain it if
+your cd ripper starts issuing requests that are too big. Maybe even add
+a printk() here, so it will look like this in the kernel you test:
+
+	if (size > (q->sectors << 9)) {
+		printk("%u rejected\n", size);
+		return -EINVAL;
+	}
+
+to verify.
+
+-- 
+Jens Axboe
+

@@ -1,64 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269135AbUJQOP7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269136AbUJQORX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269135AbUJQOP7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 10:15:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269136AbUJQOP7
+	id S269136AbUJQORX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 10:17:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269142AbUJQORW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 10:15:59 -0400
-Received: from out006pub.verizon.net ([206.46.170.106]:35239 "EHLO
-	out006.verizon.net") by vger.kernel.org with ESMTP id S269135AbUJQOP5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 10:15:57 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: I/O card vs linux
-Date: Sun, 17 Oct 2004 10:15:55 -0400
-User-Agent: KMail/1.7
-Cc: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-References: <200410160423.43597.gene.heskett@verizon.net> <20041017121831.GH5033@lug-owl.de>
-In-Reply-To: <20041017121831.GH5033@lug-owl.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sun, 17 Oct 2004 10:17:22 -0400
+Received: from rproxy.gmail.com ([64.233.170.203]:52207 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S269136AbUJQORK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Oct 2004 10:17:10 -0400
+DomainKey-Signature: a=rsa-sha1; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=fZvIpU/xRTzsyn+Au4EW5qamd3KfsIV/R0ig5ZRIMB6vjnWXkpw+DKyKi3YFFgYlwHBMcyI8SUAKcpCYmQWND2w6mvl1sbTOqTh3Q4dOTb1AuQIRXly0XUU0KMU1HbXdbwe3SSHgwt9r0DxhwRsoYGNPPOqnBHTtvyOBF1kLJt4
+Message-ID: <5d6b657504101707175aab0fcb@mail.gmail.com>
+Date: Sun, 17 Oct 2004 16:17:06 +0200
+From: Buddy Lucas <buddy.lucas@gmail.com>
+Reply-To: Buddy Lucas <buddy.lucas@gmail.com>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+Cc: David Schwartz <davids@webmaster.com>,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041017133537.GL7468@marowsky-bree.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410171015.55605.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out006.verizon.net from [151.205.58.180] at Sun, 17 Oct 2004 09:15:56 -0500
+References: <20041016062512.GA17971@mark.mielke.cc>
+	 <MDEHLPKNGKAHNMBLJOLKMEONPAAA.davids@webmaster.com>
+	 <20041017133537.GL7468@marowsky-bree.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 17 October 2004 08:18, Jan-Benedict Glaw wrote:
->On Sat, 2004-10-16 04:23:43 -0400, Gene Heskett
-> <gene.heskett@verizon.net>
->
->wrote in message <200410160423.43597.gene.heskett@verizon.net>:
->> Greetings;
->>
->> This may be OT, but can anyone advise me on a pci card thats
->> basicly an 8255 with a 34 pin or greater port on the card or back
->> panel to bring out all 3 ports, and a suitable linux compatible
->> driver for it?
->
->For input? Output? Both? In the output-only with low "bandwith"
-> being okay, just think about attaching a number of
-> serial-in-parallel-out shift registers to your parport. I use
-> something like that for switching on and off computers...
->
->MfG, JBG
+On Sun, 17 Oct 2004 15:35:37 +0200, Lars Marowsky-Bree <lmb@suse.de> wrote:
+> On 2004-10-16T17:28:24, David Schwartz <davids@webmaster.com> wrote:
+> 
+> > The kernel elects to drop the packet on the call to 'recvmsg'. This is its
+> > right -- it can drop a UDP packet at any time. POSIX is careful not to imply
+> > that 'select' guarantees future behavior because this is not possible in
+> > principle.
+> 
+> I'm sorry, but according to my reading of POSIX and the Austin spec,
+> this is exactly what select() returning 'ready to read' implies.
+> 
+> The SuV spec is actually quite detailed about the options here:
+> 
+>         A descriptor shall be considered ready for reading when a call
+>         to an input function with O_NONBLOCK clear would not block,
+>         whether or not the function would transfer data successfully.
+>         (The function might return data, an end-of-file indication, or
+>         an error other than one indicating that it is blocked, and in
+>         each of these cases the descriptor shall be considered ready for
+>         reading.)
 
-Both, to drive a small homemade cnc milling machine. I found a pci 
-card with 3 each 8255's on it for about 75$, but I don't think it 
-meets the pci std, I don't think there's a bios on it.  We'll see 
-when it gets here.
+But it says nowhere that the select()/recvmsg() operation is atomic, right?
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+
+Cheers,
+Buddy

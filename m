@@ -1,89 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261316AbTHXVBY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 17:01:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbTHXVBY
+	id S261318AbTHXVZG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Aug 2003 17:25:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261319AbTHXVZG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 17:01:24 -0400
-Received: from tudela.mad.ttd.net ([194.179.1.233]:40908 "EHLO
-	tudela.mad.ttd.net") by vger.kernel.org with ESMTP id S261316AbTHXVBO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 17:01:14 -0400
-Date: Sun, 24 Aug 2003 23:00:51 +0200 (MEST)
-From: Javier Achirica <achirica@telefonica.net>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] airo (was: Re: Linux 2.6.0-test4)
-In-Reply-To: <Pine.GSO.4.21.0308241249210.14076-100000@waterleaf.sonytel.be>
-Message-ID: <Pine.SOL.4.30.0308242300100.9561-100000@tudela.mad.ttd.net>
+	Sun, 24 Aug 2003 17:25:06 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:32520 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261318AbTHXVZC (ORCPT
+	<rfc822;linux-kernel@vger.redhat.com>);
+	Sun, 24 Aug 2003 17:25:02 -0400
+Message-ID: <3F492DC7.6040307@sbcglobal.net>
+Date: Sun, 24 Aug 2003 16:27:35 -0500
+From: Wes Janzen <superchkn@sbcglobal.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Tomasz Torcz <zdzichu@irc.pl>
+CC: LKML <linux-kernel@vger.redhat.com>
+Subject: Re: 2.6.0-test4 - lost ACPI
+References: <20030823105243.GA1245@irc.pl> <20030823145545.2b7d6ec9.akpm@osdl.org> <20030823220438.GB1155@irc.pl>
+In-Reply-To: <20030823220438.GB1155@irc.pl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I don't recall seeing the ACPI disabled line, but mine had the same 
+problem halting between PS/2 init and serio.  The change I noticed was 
+that IRQ's were being allocated differently, and that is what I 
+attributed this failure to.  My motherboard worked with 2.6.0-test3-mm2, 
+but has not worked since 2.6.0-test3-mm3 (when the new ACPI code was 
+added). 
 
-Thank you. There's also another small PCI bug. I'll submit a patch to
-Jeff.
+I'll have to try this acpi=force and pci=noacpi, otherwise I have to 
+disable USB and sound to get it to boot. 
 
-Javier Achirica
+Wes
 
-On Sun, 24 Aug 2003, Geert Uytterhoeven wrote:
+Tomasz Torcz wrote:
 
-> On Fri, 22 Aug 2003, Linus Torvalds wrote:
-> > Javier Achirica:
-> >   o [wireless airo] Fix PCI unregister code
+>On Sat, Aug 23, 2003 at 02:55:45PM -0700, Andrew Morton wrote:
+>  
 >
-> This patch causes a regression: if CONFIG_PCI is not set, it doesn't compile
-> anymore. Here's a fix. I also killed a dead variable and its corresponding
-> warning:
+>>Tomasz Torcz <zdzichu@irc.pl> wrote:
+>>
+>>    
+>>
+>>> ACPI disabled because your bios is from 00 and too old
+>>> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>>>      
+>>>
+>>Add "acpi=force" to your kernel boot command line and everything should work
+>>as before.
+>>    
+>>
 >
-> --- linux-2.6.0-test4/drivers/net/wireless/airo.c	Sun Aug 24 09:49:30 2003
-> +++ linux-m68k-2.6.0-test4/drivers/net/wireless/airo.c	Sun Aug 24 13:03:56 2003
-> @@ -4156,7 +4156,7 @@
+>It does not work. It halts in beetween ps/2 mouse init and serio init.
+>Adding "acpi=force pci=noacpi" solves that.
 >
->  static int __init airo_init_module( void )
->  {
-> -	int i, rc = 0, have_isa_dev = 0;
-> +	int i, have_isa_dev = 0;
->
->  	airo_entry = create_proc_entry("aironet",
->  				       S_IFDIR | airo_perm,
-> @@ -4174,7 +4174,7 @@
->
->  #ifdef CONFIG_PCI
->  	printk( KERN_INFO "airo:  Probing for PCI adapters\n" );
-> -	rc = pci_module_init(&airo_driver);
-> +	pci_module_init(&airo_driver);
->  	printk( KERN_INFO "airo:  Finished probing for PCI adapters\n" );
->  #endif
->
-> @@ -4197,8 +4197,11 @@
->  	}
->  	remove_proc_entry("aironet", proc_root_driver);
->
-> -	if (is_pci)
-> +	if (is_pci) {
-> +#ifdef CONFIG_PCI
->  		pci_unregister_driver(&airo_driver);
-> +#endif
-> +	}
->  }
->
->  #ifdef WIRELESS_EXT
->
-> Gr{oetje,eeting}s,
->
-> 						Geert
->
-> --
-> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
->
-> In personal conversations with technical people, I call myself a hacker. But
-> when I'm talking to journalists I just say "programmer" or something like that.
-> 							    -- Linus Torvalds
->
->
->
+>  
 >
 

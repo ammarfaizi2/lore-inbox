@@ -1,90 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261784AbSJZBw1>; Fri, 25 Oct 2002 21:52:27 -0400
+	id <S261801AbSJZBzR>; Fri, 25 Oct 2002 21:55:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261799AbSJZBw0>; Fri, 25 Oct 2002 21:52:26 -0400
-Received: from fmr02.intel.com ([192.55.52.25]:12028 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S261784AbSJZBwY>; Fri, 25 Oct 2002 21:52:24 -0400
-Message-ID: <F2DBA543B89AD51184B600508B68D4000ECE70ED@fmsmsx103.fm.intel.com>
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "Nakajima, Jun" <jun.nakajima@intel.com>,
-       Rik van Riel <riel@conectiva.com.br>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Robert Love <rml@tech9.net>, "'Dave Jones'" <davej@codemonkey.org.uk>,
-       "'akpm@digeo.com'" <akpm@digeo.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'chrisl@vmware.com'" <chrisl@vmware.com>,
-       "'Martin J. Bligh'" <mbligh@aracnet.com>
-Subject: RE: [PATCH] hyper-threading information in /proc/cpuinfo
-Date: Fri, 25 Oct 2002 18:58:37 -0700
+	id <S261802AbSJZBzR>; Fri, 25 Oct 2002 21:55:17 -0400
+Received: from radium.jvb.tudelft.nl ([130.161.82.13]:64680 "EHLO
+	radium.jvb.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S261801AbSJZBzQ>; Fri, 25 Oct 2002 21:55:16 -0400
+From: "Robbert Kouprie" <robbert@radium.jvb.tudelft.nl>
+To: "'Cajoline'" <cajoline@andaxin.gau.hu>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: ASUS TUSL2-C and Promise Ultra100 TX2
+Date: Sat, 26 Oct 2002 03:59:27 +0200
+Message-ID: <008701c27c93$50d9c140$020da8c0@nitemare>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
-	charset="iso-8859-1"
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4024
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+In-reply-to: <008601c27c91$17671950$020da8c0@nitemare>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I mean what you were referring to is called Chip-Multiprocessor (CMP),
-architecturally. And probably, this is the cause of the confusion in the
-discussions.
+Cajoline writes:
+ 
+> I recently setup a box with the following components:
+> Intel Celeron 1300 MHz
+> ASUS TUSL2-C motherboard
+> 2 x Promise Ultra100 TX2 controllers
 
-SMT is an orthogonal to it, and it is an established notion. You can have
-SMT CMP, for example. So using "thread" for the cores in CMP is not proper
-wording. It sounds something like "core" to me.  
+I have a CUSL2-C board, P3-800 Coppermine and a Ultra133TX2 controller.
 
-In my mind, the processor hierarchy looks like:
-	node    
-	package (chip die)	
-	core			
-	thread
+> Any 2.4 kernel I have tried on this machine displays this strange
+> a
+> behavior: any drives attached to the PDC controllers only work at udma
+> mode 2 (UDMA33).
 
-Jun
------Original Message-----
-From: Nakajima, Jun 
-Sent: Friday, October 25, 2002 5:54 PM
-To: 'Rik van Riel'; Alan Cox
-Cc: Nakajima, Jun; Robert Love; 'Dave Jones'; 'akpm@digeo.com';
-'linux-kernel@vger.kernel.org'; 'chrisl@vmware.com'; 'Martin J. Bligh'
-Subject: RE: [PATCH] hyper-threading information in /proc/cpuinfo
+I have the same problem. This is a known problem in the vanilla kernels
+(still in 2.4.20-pre11). You can force the right UDMA setting by giving
+a "ideX=ata66" kernel boot parameter, where the "X" is your interface
+number. This is fixed in recent -ac kernels (I tested with
+2.4.20-pre10-ac2).
 
+> What's even funnier is that if I try to copy files from a 
+> filesystem on
+> a
+> 
+> drive attached to a PDC20268 and a drive attached to the motherboard
+> controller (PIIX4 chipset), the system eventually locks up 
+> (after about
+> 3
+> GB).
+> What I mean by this is that there are no errors whatsoever, from the
+> kernel ide driver, from the filesystem, nothing at all. It just stops
+> responding to anything: login at the console, shell commands, network
+> daemons, everything stops working. You can't even reboot it - a hard
+> reset
+> is required.
 
-I don't understand. HT is one implementaion of (true) SMT. 
+This is nasty, I experience this too. This is different from the problem
+you describe earlier. I already checked different recent kernels, BIOS
+versions, NICs, memory, processors, and still it hangs. I suspect it's a
+unknown bug in the driver or a hardware bug in the controller. The
+problem is that it hangs completely dead, giving no information to start
+debugging. :(
 
-Thanks,
-Jun
+> So I have come to the conclusion there must be some rather bizarre
+> 
+> incompatibility between the PDCs and this motherboard.
+> Let me note that the PDC controllers do work just fine with 
+> other older
+> motherboards.
 
------Original Message-----
-From: Rik van Riel [mailto:riel@conectiva.com.br]
-Sent: Friday, October 25, 2002 5:49 PM
-To: Alan Cox
-Cc: Nakajima, Jun; Robert Love; 'Dave Jones'; 'akpm@digeo.com';
-'linux-kernel@vger.kernel.org'; 'chrisl@vmware.com'; 'Martin J. Bligh'
-Subject: RE: [PATCH] hyper-threading information in /proc/cpuinfo
+Like you, I also have other boxes with Promise Ultra66/100/133
+controllers, with _different_ motherboards, which indeed don't have such
+problem, so the combination of motherboard <-> controller looks
+important here.
 
+> And another thing, during boot-up, the PDCs do show the
+> drives attached to it, detected at the right udma mode.
 
-On 25 Oct 2002, Alan Cox wrote:
-> On Fri, 2002-10-25 at 22:50, Nakajima, Jun wrote:
+Ditto.
+ 
+> I was wondering if anyone has come across this specific problem. I
+> browsed
+> 
+> thoroughly through the list archives, but I didn't find any mention of
+> the
+> specific motherboard, or even the PIIX4 chipset and these controllers.
+> I know there is probably no way I can get this hardware to work
+> together,
+> yet I'm curious to know if this has occurred to someone else as well.
 
-> > Can you please change "siblings\t" to "threads\t\t". SuSE 8.1, for
-example,
-> > is already doing it:
+Well, it has. And I'm still hoping to solve this one. I an open to any
+suggestions, patches or tests.
 
-> Im just wondering what we would then use to describe a true multiple cpu
-> on a die x86. Im curious what the powerpc people think since they have
-> this kind of stuff - is there a generic terminology they prefer ?
+Regards,
+- Robbert Kouprie
 
-Agreed.  Siblings is probably best for HT stuff and threads
-are probably best reserved for true SMT CPUs.
-
-Then there's the SMP-on-a-chip, but we should probably just
-call those CPUs.
-
-regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://distro.conectiva.com/
-Current spamtrap:  <a
-href=mailto:"october@surriel.com">october@surriel.com</a>

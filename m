@@ -1,76 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264502AbTH2Kef (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 06:34:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264512AbTH2Kef
+	id S264521AbTH2Kh6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 06:37:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264522AbTH2Kh6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 06:34:35 -0400
-Received: from nessie.weebeastie.net ([61.8.7.205]:17891 "EHLO
-	nessie.weebeastie.net") by vger.kernel.org with ESMTP
-	id S264502AbTH2Ked (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 06:34:33 -0400
-Date: Fri, 29 Aug 2003 20:34:48 +1000
-From: CaT <cat@zip.com.au>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: linux-kernel@vger.kernel.org
+	Fri, 29 Aug 2003 06:37:58 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:22954 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264521AbTH2Kh4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Aug 2003 06:37:56 -0400
 Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
-Message-ID: <20030829103447.GA568@zip.com.au>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Jamie Lokier <jamie@shareable.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030829100348.GA5417@werewolf.able.es>
 References: <20030829053510.GA12663@mail.jlokier.co.uk>
+	 <20030829100348.GA5417@werewolf.able.es>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1062153389.26754.14.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030829053510.GA12663@mail.jlokier.co.uk>
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
+Date: 29 Aug 2003 11:36:31 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 29, 2003 at 06:35:10AM +0100, Jamie Lokier wrote:
-> 	gcc -o test test.c -O2
-> 	time ./test
-> 	cat /proc/cpuinfo
+On Gwe, 2003-08-29 at 11:03, J.A. Magallon wrote:
+> Sorry if this is a stupid question, but have you heard about 64K-aliasing ?
+> We have seen it in P3/P4, do not know if Athlons also suffer it.
+> In short, x86 is crap. It slows like a dog when accessing two memory
+> positions sparated by 2^n (address decoder has two 16 bits adders, instead
+> of 1 32 bits..., cache is 16 bit tagged, etc...)
 
-16 [20:33:33] hogarth@theirongiant:/home/hogarth>> time ./coherencytest
-Test separation: 4096 bytes: pass
-Test separation: 8192 bytes: pass
-Test separation: 16384 bytes: pass
-Test separation: 32768 bytes: pass
-Test separation: 65536 bytes: pass
-Test separation: 131072 bytes: pass
-Test separation: 262144 bytes: pass
-Test separation: 524288 bytes: pass
-Test separation: 1048576 bytes: pass
-Test separation: 2097152 bytes: pass
-Test separation: 4194304 bytes: pass
-Test separation: 8388608 bytes: pass
-Test separation: 16777216 bytes: pass
-VM page alias coherency test: all sizes passed
+Pretty much all processors are bad at handling memory accesses on the
+same alignment within powers of two. Thats one of the reasons for slab
+and for things like the old kernel code putting skb structs at the end
+of the skbuff data.
 
-real    0m0.206s
-user    0m0.135s
-sys     0m0.027s
-16 [20:33:44] hogarth@theirongiant:/home/hogarth>> cat /proc/cpuinfo
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 8
-model name      : Pentium III (Coppermine)
-stepping        : 3
-cpu MHz         : 701.641
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 mmx fxsr sse
-bogomips        : 1388.54
+Grab a copy of "Unix systems for modern architectures".
 
 
--- 
-"How can I not love the Americans? They helped me with a flat tire the
-other day," he said.
-	- http://tinyurl.com/h6fo

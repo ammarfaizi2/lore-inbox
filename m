@@ -1,39 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261776AbUJYMtm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261787AbUJYMxz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261776AbUJYMtm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 08:49:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbUJYMtm
+	id S261787AbUJYMxz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 08:53:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261789AbUJYMxz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 08:49:42 -0400
-Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:55720 "HELO
-	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261776AbUJYMtg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 08:49:36 -0400
-Message-ID: <417CF65C.4040008@yahoo.com.au>
-Date: Mon, 25 Oct 2004 22:49:32 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@novell.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: ZONE_PADDING wastes 4 bytes of the new cacheline
-References: <20041021224533.GB8756@dualathlon.random> <41785585.6030809@yahoo.com.au> <20041022011057.GC14325@dualathlon.random> <41787840.3060807@yahoo.com.au> <20041022165809.GH14325@dualathlon.random> <4179DF23.4030402@yahoo.com.au> <20041023095955.GR14325@dualathlon.random> <417A30EE.1030205@yahoo.com.au> <20041023110334.GS14325@dualathlon.random> <417A86AC.2080505@yahoo.com.au> <20041025124443.GV14325@dualathlon.random>
-In-Reply-To: <20041025124443.GV14325@dualathlon.random>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 25 Oct 2004 08:53:55 -0400
+Received: from dsl-kpogw5jd0.dial.inet.fi ([80.223.105.208]:14037 "EHLO
+	safari.iki.fi") by vger.kernel.org with ESMTP id S261787AbUJYMxv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 08:53:51 -0400
+Date: Mon, 25 Oct 2004 15:53:47 +0300
+From: Sami Farin <7atbggg02@sneakemail.com>
+To: linux-kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.9 latencies: scheduler bug?
+Message-ID: <20041025125346.GC9917@m.safari.iki.fi>
+Mail-Followup-To: linux-kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20041024212618.GA19377@m.safari.iki.fi> <20041025120021.GA9917@m.safari.iki.fi> <417CF50A.6080702@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <417CF50A.6080702@yahoo.com.au>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
+On Mon, Oct 25, 2004 at 10:43:54PM +1000, Nick Piggin wrote:
+...
+> Don't think I've tried rtc_latency test. A quick search didn't turn
+> up its source code...
 
-> I'll adapt the rest of the code to deal with this and test it in a few
-> more minutes.
-> 
+it's in package latencytest-0.42-png.tar.gz
+and homepage seems to be http://www.gardena.net/benno/linux/audio/
+http://www.gardena.net/benno/linux/latencytest-0.42-png.tar.gz
 
-The current stuff is pretty crufty. I think your changes are
-far better (aside from the minor fact they won't compile!).
+code hasn't changed since 2001, it seems.
+ 
+> So... stupid question, is rtc_latencytest running with a realtime
+> scheduling policy?
 
-Also, switching to a calculation that has seen some real-world
-use would be a good idea before we think about turning it on
-by default.
+yes, it also does mlockall().
+
+-- 

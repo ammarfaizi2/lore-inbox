@@ -1,34 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267495AbTALURn>; Sun, 12 Jan 2003 15:17:43 -0500
+	id <S267516AbTALUXX>; Sun, 12 Jan 2003 15:23:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267499AbTALURn>; Sun, 12 Jan 2003 15:17:43 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:57485 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S267495AbTALURn>; Sun, 12 Jan 2003 15:17:43 -0500
-Date: Sun, 12 Jan 2003 21:26:31 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: any chance of 2.6.0-test*?
-Message-ID: <20030112202631.GC7132@louise.pinerecords.com>
-References: <Pine.LNX.4.44.0301121134340.14031-100000@home.transmeta.com> <1042401596.1209.51.camel@RobsPC.RobertWilkens.com> <200301122018.h0CKIcWN004203@turing-police.cc.vt.edu>
+	id <S267510AbTALUXR>; Sun, 12 Jan 2003 15:23:17 -0500
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:13829 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S267505AbTALUXE>; Sun, 12 Jan 2003 15:23:04 -0500
+Date: Sun, 12 Jan 2003 20:31:50 +0000
+From: John Levon <levon@movementarian.org>
+To: linux-kernel@vger.kernel.org
+Cc: Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: make xconfig broken in bk current
+Message-ID: <20030112203150.GA53199@compsoc.man.ac.uk>
+References: <200301121512.59840.tomlins@cam.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200301122018.h0CKIcWN004203@turing-police.cc.vt.edu>
+In-Reply-To: <200301121512.59840.tomlins@cam.org>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18Xolq-000KXM-00*j/6yatInkdw*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [Valdis.Kletnieks@vt.edu]
-> 
-> The real problem is that C doesn't have a good multi-level "break" construct.
-> On the other hand, I don't know of any language that has a good one - some
-> allow "break 3;" to break 3 levels- but that's still bad because you get
-> screwed if somebody adds an 'if' clause....
+On Sun, Jan 12, 2003 at 03:12:59PM -0500, Ed Tomlinson wrote:
 
-Not necessarily.  A good multilevel break/continue implementation will
-only work on loop blocks, not conditionals.
+> > Which distribution do you use?
+> > It looks like you try to use a different g++ version than qt was
+> > compiled with.
+> 
+> This makes sense.  Debian has changed its default compiler to 3.2 in
+> sid...  Suspect we will get quite a few reports like this one.
+
+Can I just repeat my request to move this Qt stuff entirely out of the
+kernel package, where it belongs ?
+
+The current detection doesn't even start to get things working
+correctly.
+
+regards
+john
 
 -- 
-Tomas Szepe <szepe@pinerecords.com>
+Khendon's Law: If the same point is made twice by the same person,
+the thread is over.

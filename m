@@ -1,62 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314984AbSEHTzP>; Wed, 8 May 2002 15:55:15 -0400
+	id <S314987AbSEHTz5>; Wed, 8 May 2002 15:55:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314987AbSEHTzO>; Wed, 8 May 2002 15:55:14 -0400
-Received: from 212.Red-80-35-44.pooles.rima-tde.net ([80.35.44.212]:37248 "EHLO
-	DervishD.viadomus.com") by vger.kernel.org with ESMTP
-	id <S314984AbSEHTzN>; Wed, 8 May 2002 15:55:13 -0400
-Date: Wed, 08 May 2002 22:00:05 +0200
-Organization: ViaDomus
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: mmap() doesn't like certain value...
-Message-ID: <3CD983C5.mail1K71EX1NG@viadomus.com>
-User-Agent: nail 9.29 12/10/01
+	id <S315048AbSEHTzz>; Wed, 8 May 2002 15:55:55 -0400
+Received: from w007.z208177141.sjc-ca.dsl.cnc.net ([208.177.141.7]:56977 "HELO
+	mail.gurulabs.com") by vger.kernel.org with SMTP id <S314987AbSEHTzw>;
+	Wed, 8 May 2002 15:55:52 -0400
+Date: Wed, 8 May 2002 13:55:51 -0600 (MDT)
+From: Dax Kelson <dax@gurulabs.com>
+X-X-Sender: dkelson@mooru.gurulabs.com
+To: "chris@scary.beasts.org" <chris@scary.beasts.org>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "marcelo@conectiva.com.br" <marcelo@conectiva.com.br>
+Subject: Re: [PATCH] Completely honor prctl(PR_SET_KEEPCAPS, 1)
+In-Reply-To: <Pine.LNX.4.33.0205082029060.14553-100000@sphinx.mythic-beasts.com>
+Message-ID: <Pine.LNX.4.44.0205081341160.10496-100000@mooru.gurulabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-From: DervishD <raul@viadomus.com>
-Reply-To: DervishD <raul@viadomus.com>
-X-Mailer: DervishD TWiSTiNG Mailer
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hello all :))
+On Wed, 8 May 2002, chris@scary.beasts.org wrote:
 
-    While writing a test program I used mmap using SIZE_MAX (which is
-the maximum value storeable in a size_t variable) as the length, just
-to see when mmap starts failing with EINVAL or ENOMEM.
+> This is a change of behaviour in a fairly security sensitive area, so I'd
+> like us to step back and ask - should we fix the code or the comment?
+> 
+> An application using prctl()[1] is capability aware. I think it is fair
+> (and more secure) if we require these applications to explicitly request
+> raising capabilities in the effective set, after the switch from euid == 0
+> to euid != 0.
+> 
+> Comments?
 
-    Well, mmap() acted quite good and reasonable and gave me the
-values I was searching for... except when a value of SIZE_MAX-4095 or
-higher is passed to it.
+With the current behaviour an app has to link against libcap and do:
 
-    I've taken a look at the kernel sources and in the file
-mm/mmap.c, in the function do_mmap_pgoff, the length supplied is page
-aligned (thru the macro PAGE_ALIGN). But this macro correctly says
-that when we are at address SIZE_MAX-4095 or higher the next page in
-the addressable space is the page at address 0. But we are dealing
-with *sizes*, not addresses.
+prtctl(PR_SET_KEEPCAPS, 1)
+pre_caps = (capgetp(0, cap_init())  // save our caps into a struct
+setuid(uid)  
+setgid(gid)
+capsetp(0,pre_caps)  // Restore them
 
-    The matter is that mmap() doesn't fail with values of
-SIZE_MAX-4095 and higher (as it should do), but succeeds returning
-'0' as the address... This is due the calculus that PAGE_ALIGN does
-with the enormous length passed (namely 4294963200 or higher, up to
-the limit marked by SIZE_MAX: 2^32-1). This macro cannot be used with
-numbers near to the limit. mmap() should return -1 and set errno to
-EINVAL, as properly does when the enormous length is less than
-2^32-4096.
+With this patch, the app does:
 
-    I know: this lengths are enormous, nobody uses them, etc... but I
-think that mmap shouldn't behave as bad just because nobody will use
-the entire domain of the function. If the length domain is [0, 2^32)
-the function should behave correctly, returning errors as
-appropriate, not succeeding falsely. So please consider correcting
-the problem (should suffice with eliminating the use of PAGE_ALIGN or
-adding special cases to the test prior to its use).
+prtctl(PR_SET_KEEPCAPS, 1)
+setuid(uid)
+setgid(gid)
 
-    If this is not a bug, but an intended behaviour please excuse me.
-Moreover, I can provide a patch (I suppose) against the 2.4.18 tree.
+The end result is exactly the same.  I'm trying to envision how this patch
+would change security in a negative way.  I keep coming back to the Unix
+idea of "don't be smarter than the admin; don't try to protect root from
+himself". 
 
-    Thanks a lot for reading this :)
-    Raúl
+Maybe we could enchance PR_SET_KEEPCAPS so that:
+
+prtctl(PR_SET_KEEPCAPS, 2) kept both the permitted and the effective caps.
+
+Dax Kelson
+Guru Labs
+

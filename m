@@ -1,124 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261258AbVAaQ1O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261257AbVAaQ0x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261258AbVAaQ1O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 11:27:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbVAaQ1N
+	id S261257AbVAaQ0x (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 11:26:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbVAaQ0x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 11:27:13 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:24735 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261258AbVAaQ0q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 11:26:46 -0500
-From: Tom Zanussi <zanussi@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 31 Jan 2005 11:26:53 -0500
+Received: from smtp6.wanadoo.fr ([193.252.22.25]:276 "EHLO smtp6.wanadoo.fr")
+	by vger.kernel.org with ESMTP id S261257AbVAaQ0p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 11:26:45 -0500
+X-ME-UUID: 20050131162643627.991FE1C0024A@mwinf0606.wanadoo.fr
+Subject: [Oops] 2.6.10: PREEMPT SMP
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Mon, 31 Jan 2005 17:27:48 +0100
+Message-Id: <1107188868.6675.29.camel@gonzales>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
-Message-ID: <16894.23610.315929.805524@tut.ibm.com>
-Date: Mon, 31 Jan 2005 10:26:34 -0600
-To: Andi Kleen <ak@muc.de>
-Cc: Tom Zanussi <zanussi@us.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Roman Zippel <zippel@linux-m68k.org>,
-       Robert Wisniewski <bob@watson.ibm.com>, Tim Bird <tim.bird@AM.SONY.COM>,
-       karim@opersys.com
-Subject: Re: [PATCH] relayfs redux, part 2
-In-Reply-To: <20050131125758.GA23172@muc.de>
-References: <16890.38062.477373.644205@tut.ibm.com>
-	<m1d5volksx.fsf@muc.de>
-	<16892.26990.319480.917561@tut.ibm.com>
-	<20050131125758.GA23172@muc.de>
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen writes:
- > On Sat, Jan 29, 2005 at 10:58:22PM -0600, Tom Zanussi wrote:
- > >  > The logging fast path seems still a bit slow to me. I would like
- > >  > to have a logging macro that is not much worse than a stdio putc,
- > >  > basically something like
- > >  > 
- > >  >           get_cpu();
- > >  >           if (buffer space > N) { 
- > >  >               memcpy(buffer, input, N);
- > >  >               buffer pointer += N;
- > >  >           } else { 
- > >  >               FreeBuffer(input, N); 
- > >  >           }    
- > >  >           put_cpu();
- > >  > 
- > > 
- > > I think what we have now is somewhat similar, except that we wanted to
- > 
- > It's doing a complicated function call which does who knows what in
- > the logging fast path (I stopped reading after some point)  
- > It definitely is not putc !
- > 
+Hi,
 
-I agree with your suggestions below, but I just wanted to point out
-that the only function called in the fast path is local_add_return(),
-which is just a few lines - the more complicated stuff in
-switch_buffer() is only called when crossing buffer boundaries.
+I just got this Oops with 2.6.10 (debian/sid stock kernel).
 
- > > separate grabbing a slot in the buffer from the memcpy because some
- > > applications such as ltt want to be able to directly write into the
- > > slot without having to copy it into another buffer first.  How about
- > 
- > If the inline function to log was fast enough it wouldn't need 
- > any such hacks.
- > 
- > Note that gcc is quite good at optimizing memcpy, so essentially
- > when you e.g. do log(singleint) it should be roughly equivalent
- > to a int store into the buffer + the check if there is enough
- > buffer space.
- > 
- > > something like this for relay reserve, with the local_add_return()
- > > gone since we're assuming the client protects the buffer properly for
- > > whatever it's doing:
- > 
- > I think relay_reserve shouldn't be in the fast path at all.
- > 
- > The simple write should simple be the traditional stdio putc pattern
- > 
- > 	if (buffer + datalen < bufferend) { 
- > 		memcpy(buffer, data, datalen);
- > 		buffer += datalen;
- > 	} else {
- > 		flush(buffer, datalen); /* flush takes care of the slow path */
- > 	}
- > 
- > This is quite fast for the fast path and expands to reasonably compact 
- > inline code too.
- > 
- > The only interesting part is how to protect this against interrupts.
- > For that you need an local_irq_save(); local_irq_restore() which
- > can be unfortunately quite costly (P4 is really slow at PUSHF) 
- > 
- > That is why I would provide a __ variant of the simple
- > where the caller guarantees no disruption by interrupts.
- > 
- > On preemptive kernel the local_irq_save takes care of CPU 
- > preemption, the __ variant should probably disable preemption
- > to avoid mistakes. For non __ it is not needed.
+Kernel is tainted by VMWare, but it wasn't used (machine powered on
+remotely and used just to run gaim though ssh). I can perhaps try to
+reproduce it without it though if you need.
 
-OK, makes sense to me - I'll get rid of relay_reserve and replace it
-with the simple putc write and variant.
+	Xav
 
- > 
- > >  > This would need interrupt protection only if interrupts can access
- > >  > it, best you use separate buffers for that too.
- > > 
- > > Not sure what you mean by separate buffers for that too.  Can you
- > > expand on that a little?
- > 
- > You could avoid the local_irq_save() if you use separate interrupt
- > buffers that are only accessed in non nesting interrupt context 
- > (like softirqs) That would require a sorting step at output though. Not
- > sure if it's worth it. The problem is that hardirqs can nest anyways,
- > so it wouldn't work for them. However a lot of important code runs
- > in softirq (like the network stack) where this is true.
+Jan 31 14:08:01 bip kernel: c01c1447
+Jan 31 14:08:01 bip kernel: PREEMPT SMP
+Jan 31 14:08:01 bip kernel: Modules linked in: vmnet vmmon ipv6 lp thermal fan button processor ac battery nfs lockd sunrpc eth1394 af_packet eepro100 e100 ohci1394 ieee1394 snd_ens1371 snd_rawmidi snd_seq_device snd_ac97_codec snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd soundcore snd_page_alloc gameport uhci_hcd usbcore pci_hotplug
+via_agp agpgart parport_pc parport floppy pcspkr rtc ext2 reiserfs tsdev mousedev evdev capability commoncap ide_cd cdrom psmouse via686a eeprom i2c_sensor i2c_isa i2c_viapro i2c_core 8139too mii ext3 jbd mbcache ide_generic via82cxxx trm290 triflex slc90e66 sis5513 siimage serverworks sc1200 rz1000 piix pdc202xx_old opti621 ns87415 hpt366 ide_disk hpt34x generic cy82c693 cs5530 cs5520 cmd64x atiixp amd74xx alim15x3 aec62xx pdc202xx_new ide_core unix fbcon font bitblit vesafb cfbcopyarea cfbimgblt cfbfillrect
+Jan 31 14:08:01 bip kernel: CPU:    1
+Jan 31 14:08:01 bip kernel: EIP:    0060:[__rb_rotate_left+7/64]    Tainted: P      VLI
+Jan 31 14:08:01 bip kernel: EFLAGS: 00010286   (2.6.10-1-686-smp)
+Jan 31 14:08:01 bip kernel: EIP is at __rb_rotate_left+0x7/0x40
+Jan 31 14:08:01 bip kernel: eax: f1b8da60   ebx: da7f38e0   ecx: f58864a0   edx: 00000000
+Jan 31 14:08:01 bip kernel: esi: f58864a0   edi: f1b8da60   ebp: c03b17a4   esp: eaa93ea0
+Jan 31 14:08:01 bip kernel: ds: 007b   es: 007b   ss: 0068
+Jan 31 14:08:01 bip kernel: Process cron (pid: 8568, threadinfo=eaa92000 task=f5b65a20)
+Jan 31 14:08:01 bip kernel: Stack: c01c154f f58864a0 c03b17a4 da7f38e0 f1b8da6c f1b8da60 da7f38e0 c01a6d07
+Jan 31 14:08:01 bip kernel:        da7f38e0 c03b17a4 eaa93f40 00000008 eaa93f4b ffffffea c01a6dfc 00000008
+Jan 31 14:08:01 bip kernel:        ffffffff 00000000 0000000b 00000013 00000000 eaa93f40 ffffffff f60d20e0
+Jan 31 14:08:01 bip kernel: Call Trace:
+Jan 31 14:08:01 bip kernel:  [rb_insert_color+143/240] rb_insert_color+0x8f/0xf0
+Jan 31 14:08:01 bip kernel:  [key_user_lookup+215/272] key_user_lookup+0xd7/0x110
+Jan 31 14:08:01 bip kernel:  [key_alloc+92/800] key_alloc+0x5c/0x320
+Jan 31 14:08:01 bip kernel:  [keyring_alloc+64/144] keyring_alloc+0x40/0x90
+Jan 31 14:08:01 bip kernel:  [alloc_uid_keyring+74/192] alloc_uid_keyring+0x4a/0xc0
+Jan 31 14:08:01 bip kernel:  [alloc_uid+199/384] alloc_uid+0xc7/0x180
+Jan 31 14:08:01 bip kernel:  [set_user+19/144] set_user+0x13/0x90
+Jan 31 14:08:01 bip kernel:  [sys_setuid+179/336] sys_setuid+0xb3/0x150
+Jan 31 14:08:01 bip kernel:  [sysenter_past_esp+82/117] sysenter_past_esp+0x52/0x75
 
-You could just create and log into a separate relayfs channel, if you
-wanted to.  Not sure we need to add anything special to support that.
 
-Tom
 

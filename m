@@ -1,38 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268947AbUINFHG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268975AbUINFJt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268947AbUINFHG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 01:07:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268972AbUINFHF
+	id S268975AbUINFJt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 01:09:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268999AbUINFIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 01:07:05 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:30634
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S268947AbUINFHC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 01:07:02 -0400
-Date: Mon, 13 Sep 2004 22:05:07 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: akpm@osdl.org, raybry@sgi.com, jbarnes@engr.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [profile] amortize atomic hit count increments
-Message-Id: <20040913220507.1a269816.davem@davemloft.net>
-In-Reply-To: <20040914044748.GZ9106@holomorphy.com>
-References: <20040913015003.5406abae.akpm@osdl.org>
-	<20040914044748.GZ9106@holomorphy.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 14 Sep 2004 01:08:48 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:7906 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268975AbUINFHl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 01:07:41 -0400
+Date: Tue, 14 Sep 2004 01:07:29 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: "David S. Miller" <davem@davemloft.net>
+cc: Herbert Xu <herbert@gondor.apana.org.au>, <akpm@osdl.org>,
+       <linux-kernel@vger.kernel.org>, <netdev@oss.sgi.com>
+Subject: Re: 2.6.9-rc1-mm5: TCP oopses
+In-Reply-To: <20040913215556.73026adf.davem@davemloft.net>
+Message-ID: <Xine.LNX.4.44.0409140107140.23093-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 13 Sep 2004, David S. Miller wrote:
 
-William, any reason not to fully per-cpu the profile buffer
-and then only traverse the array when the user attempts to
-capture the counters?
+> James, does this make your problem go away?
 
-Then we can undo the atomics altogether, as well as the cacheline
-traffic, for the extremely common case.
+Looks like it.
 
-Are there space concerns?
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
+

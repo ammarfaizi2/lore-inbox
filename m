@@ -1,68 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129543AbQLMWyS>; Wed, 13 Dec 2000 17:54:18 -0500
+	id <S131552AbQLMW6H>; Wed, 13 Dec 2000 17:58:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130522AbQLMWyI>; Wed, 13 Dec 2000 17:54:08 -0500
-Received: from [209.143.110.29] ([209.143.110.29]:34055 "HELO
+	id <S130522AbQLMW57>; Wed, 13 Dec 2000 17:57:59 -0500
+Received: from [209.143.110.29] ([209.143.110.29]:35079 "HELO
 	mail.the-rileys.net") by vger.kernel.org with SMTP
-	id <S129543AbQLMWxs>; Wed, 13 Dec 2000 17:53:48 -0500
-Message-ID: <3A37F6BF.5ABAAE95@the-rileys.net>
-Date: Wed, 13 Dec 2000 17:22:55 -0500
+	id <S129803AbQLMW5m>; Wed, 13 Dec 2000 17:57:42 -0500
+Message-ID: <3A37F7B7.1A207AB7@the-rileys.net>
+Date: Wed, 13 Dec 2000 17:27:03 -0500
 From: David Riley <oscar@the-rileys.net>
 Organization: The Riley Family
 X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0-test12 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Paul Jakma <paul@clubi.ie>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: via82cxxx_audio - bad latency
-In-Reply-To: <Pine.LNX.4.30.0012130244140.1326-100000@fogarty.jakma.org>
+To: Martin Macok <martin.macok@underground.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.0-test12 randomly hangs up
+In-Reply-To: <20001213105153.A6624@sarah.kolej.mff.cuni.cz>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jakma wrote:
+Martin Macok wrote:
 > 
-> hi,
+> Hi,
+> after 1-3 hours with -test12 system hangs up with
+>  - no response from mouse
+>  - no response from keyboard (no sysrq, only sysrq+'b' works ...)
+>  - no response from network (ICMP, TCP)
+>  - nothing on console, nothing in logs (ie. nothing interesting or relevant
+>    to crash).
 > 
-> i think somethings gone wrong with via82cxxx_audio. Playing anything
-> through it seems to cause massive latency in apps like xmms, esd,
-> asmixer, etc.. anything to do with playing or mixer levels suddenly
-> takes a minute or more to respond.
+> System was not under load (1 user, X, no swapping ...)
 > 
-> It didn't always do this, and when it started happening i assumed it
-> was either something bad in esd or xmms (which i tend to upgrade a
-> lot). However it still happens when esd is disabled. eg, i use mpg123
-> to play an mp3 file, and asmixer doesn't change the volume till a
-> minute or two after i moused it.
+> ( -test11 was up for 3 weeks with no problems and so do 2.2.17 ... )
 > 
-> if i SIGSTOP mpg123, asmixer immediately becomes responsive again and
-> implements the pending volume change, as soon i SIGCONT mpg123,
-> asmixer becomes very unresponsive again.
+> slightly modified Red Hat 7.0:
 > 
-> same thing with esd, if i STOP mpg123, other apps like esd and
-> non-esd mixers become responsive, soon as i start playing again they
-> go unresponsive.
+> Linux sarah.xxxxxxxxxxxxxxxxx 2.4.0-test11 #4 Sat Dec 9 14:24:20 CET
+> 2000 i586 unknown
+> Kernel modules         2.3.21
+> Gnu C                  2.96
+> Gnu Make               3.79.1
+> Binutils               2.10.0.18
+> Linux C Library        > libc.2.2
+> Dynamic linker         ldd (GNU libc) 2.2
+> Procps                 2.0.7
+> Mount                  2.10m
+> Net-tools              1.56
+> Console-tools          0.3.3
+> Sh-utils               2.0
+> Modules Loaded         nls_iso8859-2 nls_cp852 vfat mad16 ad1848 sb_lib
+>                         uart401
 > 
-> same thing with playing from esd applications, everything inlcuding
-> the playing app itself (eg xmms) is unresponsive, if i STOP it, the
-> mixers instantly become responsive, soon as i CONT the playing app
-> everything is "dead" again.
-> 
-> kernel is test12-final. AMD K7, Asus K7M board
-> 
-> the via is sharing an interrupt, though normally the buslogic is not
-> being used. (the interrupt sharing has been there a lot longer than
-> this problem)
+> DMESG:   http://kocour.ms.mff.cuni.cz/~macok/kernel/dmesg
+> (Abit PX5, P166 (ovrclckd to 166), 128MB RAM, 2x IDE HDD, 3com509b ISA, Opti931)
 
-I ran into the same problems with the same driver.  Sharing an interrupt
-isn't the problem, it's just a really young driver.  The ALSA driver
-works fine, but I switched to an Ensoniq/Creative PCI card because I
-found that the chipset just clipped like mad anyway (just cheapness, I
-suppose, or maybe I'm doing something wrong) when mixing sounds together
-(as in Quake3 or esd).  If you want to use it, though, I'd suggest using
-ALSA.  It works.  Alternatively, you could fix the OSS driver.
+Overclocking is a guaranteed way to get random hangups.  Put it back to
+its recommended clock and it might work fine.  Keep in mind that while
+this may not have shown up before, overclocking gradually degrades a
+processor's stability (trust me, I ran several 486 and pentiums and even
+a k6-2 down to where they wouldn't even work at the normal clock).  Try
+sticking it back to normal.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

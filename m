@@ -1,48 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbTJMBuI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 21:50:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbTJMBuI
+	id S261346AbTJMBpq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 21:45:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbTJMBpq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 21:50:08 -0400
-Received: from fw.osdl.org ([65.172.181.6]:42693 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261326AbTJMBuF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 21:50:05 -0400
-Date: Sun, 12 Oct 2003 18:49:56 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Roland McGrath <roland@redhat.com>
-cc: Andrew Morton <akpm@osdl.org>, <mingo@redhat.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] report user-readable fixmap area in /proc/PID/maps
-In-Reply-To: <200310130135.h9D1Zajj008309@magilla.sf.frob.com>
-Message-ID: <Pine.LNX.4.44.0310121845100.12190-100000@home.osdl.org>
+	Sun, 12 Oct 2003 21:45:46 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:50073 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S261346AbTJMBpo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Oct 2003 21:45:44 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Date: Mon, 13 Oct 2003 11:45:17 +1000
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16266.941.353643.513207@notabene.cse.unsw.edu.au>
+Cc: Peter Osterlund <petero2@telia.com>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Johan Braennlund <spahmtrahp@yahoo.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH - ALPS glidepoint/dualpoint driver for 2.5.7x
+In-Reply-To: message from Vojtech Pavlik on Sunday October 5
+References: <16123.44602.150927.280989@gargle.gargle.HOWL>
+	<1056699687.599.2.camel@teapot.felipe-alfaro.com>
+	<16124.2893.587755.586343@gargle.gargle.HOWL>
+	<m2smm7oc8s.fsf@p4.localdomain>
+	<20031005171724.GA13141@ucw.cz>
+X-Mailer: VM 7.17 under Emacs 21.3.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sun, 12 Oct 2003, Roland McGrath wrote:
+On Sunday October 5, vojtech@suse.cz wrote:
+> On Sun, Oct 05, 2003 at 06:55:31PM +0200, Peter Osterlund wrote:
+>  
+> > Hi!
+> > 
+> > I have updated your patch for kernel 2.6.0-test6-bk6 and made it
+> > report events compatible with the synaptics touchpad kernel driver.
+> > This should make it possible to use an ALPS device with the XFree86
+> > synaptics driver:
+> > 
+> >         http://w1.894.telia.com/~u89404340/touchpad/index.html
+> > 
+> > Using this driver will give you edge scrolling and similar things.
+> > 
+> > I don't have an ALPS GlidePoint so I haven't been able to test this
+> > patch at all. Test reports are appreciated. You probably need to
+> > change a few parameters in the X configuration, like edge parameters
+> > and finger pressure thresholds. Also note that the auto detection will
+> > not work with an ALPS device, so you have to use Protocol="event" and
+> > Device="/dev/input/eventN" for some value of N.
 > 
-> I always assumed that people (i.e. Linus) wouldn't like it because of
-> the overhead in memory and setup time for an extra vma that is identical
-> in every process.  Given the constraint that the fixmap area is the last
-> thing in the address space, I imagine that can be mitigated by some
-> magic using a single shared fixmap_vma at the end of everybody's chain.
+> Very nice. Could you also make it a separate file? I think it's enough
+> code to make that worth it ...
 
-That would be a nice trick and works fine for the regular sorted list, but
-it would be nasty for the rb-tree handling.
+I would actually much rather not have this code in the kernel at all.
+Given that I cannot find any documentation of the ALPS interface and
+have no confidence of being able to detect an ALPS device or that
+different ALPS devices behave the same way, I simply don't think this
+stuff belongs in the kernel.
 
-If you really want /proc/PID/maps to look right, add a new vm_area_struct,
-see if you can allocate it as part of the "struct mm_struct" so that we
-don't get yet another (unnecessary) allocation on fork time. I hate how
-fork()  has slowed down due to other issues (mainly rmap).
+What I would much rather do is have /dev/psaux really be a char-dev
+interface to the PS2 AUX port on the computer (rather than a faked
+ps-aux look alike sythesised from all available mice) and have a
+user-space program read that device, interpret it in a
+user-configurable way, and send mouse events into /dev/input/uinput so
+that other parts of the system see the appropriate moouse events.
 
-Being _guaranteed_ to always have a "end marker" on the vma list would 
-potentially actually simplify some of the code, but since this would be 
-architecture-dependent, it wouldn't help right now. How ugly does the code 
-end up being?
+I have code that does this but haven't had time to sort out a few
+remaining little issues.
 
-		Linus
+What I would *really* like to do is change /dev/psaux so that:
+  If it is opened by user-space, it gets all chars from the AUX port,
+  and input/mousedev doesn't see them.
+  If it is not open, chars from /dev/psaux would bet processed by the
+  current mouse driver.
 
+Is there any chance that this might be accepted?
+
+NeilBrown

@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263444AbTEPWY6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 May 2003 18:24:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263759AbTEPWY6
+	id S263062AbTEPWln (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 May 2003 18:41:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263246AbTEPWln
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 May 2003 18:24:58 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:22262 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S263444AbTEPWY5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 May 2003 18:24:57 -0400
-Date: Fri, 16 May 2003 15:39:08 -0700
-From: Greg KH <greg@kroah.com>
-To: Pavel Roskin <proski@gnu.org>
-Cc: Manuel Estrada Sainz <ranty@debian.org>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Simon Kelley <simon@thekelleys.org.uk>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Downing, Thomas" <Thomas.Downing@ipc.com>,
-       Jean Tourrilhes <jt@hpl.hp.com>
-Subject: Re: request_firmware() hotplug interface, third round.
-Message-ID: <20030516223908.GA16870@kroah.com>
-References: <20030515200324.GB12949@ranty.ddts.net> <Pine.LNX.4.55.0305151623520.2885@marabou.research.att.com>
+	Fri, 16 May 2003 18:41:43 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:63399
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S263062AbTEPWlm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 May 2003 18:41:42 -0400
+Subject: RE: [PATCH] 2.5.68 FUTEX support should be optional
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Christopher Hoover <ch@murgatroid.com>, "'Andrew Morton'" <akpm@digeo.com>,
+       "'Perez-Gonzalez, Inaky'" <inaky.perez-gonzalez@intel.com>,
+       hch@infradead.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0305141758070.28007-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0305141758070.28007-100000@home.transmeta.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1053122141.5589.45.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.55.0305151623520.2885@marabou.research.att.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 16 May 2003 22:55:42 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 15, 2003 at 04:38:58PM -0400, Pavel Roskin wrote:
-> I wrote this private already, but it needs to be said now.  It's not
-> _caching_ that is needed.  What is needed is a filesystem that can be
-> populated in the kernel binary.
+On Iau, 2003-05-15 at 02:00, Linus Torvalds wrote:
+> I will strongly argue against making futexes conditional, simply because I 
+> _want_ people to be able to depend on them in modern kernels. I do not 
+> want developers to fall back on SysV semaphores just because it's too 
+> painful for them to use the faster alternatives.
 
-initramfs can do this today.  It isn't the issue for this firmware
-interface to solve.  Same thing goes for the "resume the sleeping
-device" arguement.  That's not this code's issue.
+In the embedded space being able to chop stuff out makes a lot of sense.
+It also encourages people to get modularity right. These are the same
+people who already turn SYS5 IPC off as well, as as for glibc, well its
+cute but its frequently bigger than the entire flash of the device.
 
-> Can I use this code to replace broken ACPI table (DSDT) I have in some of
-> my systems?
+There are arguments in some cases for avoiding the selections (notably
+adding a zillion ifdefs to remove something thats utterly trivial) but
+providing most users see only
 
-Hm, don't know the ACPI startup point in reference to when initramfs
-gets uncompressed.  But I think you might be safe.
+	Remove kernel features for embedded systems (Y/N)
 
-> Can I use this code to load firmware into my SCSI adapter if
-> I need it to access the only disk in the system?
+its no more dangerous/hassle than the kernel debug menu
 
-With initramfs, yes.
 
-> Can I use this code to program a network interface I'm going to use
-> for root over NFS?
-
-Again, with initramfs, yes.
-
-thanks,
-
-greg k-h

@@ -1,47 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285130AbRLLJjU>; Wed, 12 Dec 2001 04:39:20 -0500
+	id <S285127AbRLLJqc>; Wed, 12 Dec 2001 04:46:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285127AbRLLJjK>; Wed, 12 Dec 2001 04:39:10 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:40719 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S285129AbRLLJi6>;
-	Wed, 12 Dec 2001 04:38:58 -0500
-Date: Wed, 12 Dec 2001 10:38:52 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Carl Ritson <critson@perlfu.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: OOPS: 2.5.1-pre8 - cdrecord + ide_scsi
-Message-ID: <20011212093852.GB13498@suse.de>
-In-Reply-To: <20011211142831.GV13498@suse.de> <Pine.LNX.4.33.0112120754240.1679-100000@eden.lincnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0112120754240.1679-100000@eden.lincnet>
+	id <S285129AbRLLJqV>; Wed, 12 Dec 2001 04:46:21 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:53006 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S285127AbRLLJqI>;
+	Wed, 12 Dec 2001 04:46:08 -0500
+Date: Wed, 12 Dec 2001 07:45:45 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Andrew Morton <akpm@zip.com.au>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.16 & OOM killer screw up (fwd)
+In-Reply-To: <20011212102141.Q4801@athlon.random>
+Message-ID: <Pine.LNX.4.33L.0112120739380.20576-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 12 2001, Carl Ritson wrote:
-> On Tue, 11 Dec 2001, Jens Axboe wrote:
-> 
-> > On Sun, Dec 09 2001, Jens Axboe wrote:
-> > > > Ok works with DMA off, so I expect that this new error is due to my resent
-> > > > memory upgrade (36 Hours ago) and the switch to using HIGHMEM(4GB)..
-> > > > So am I to believe that DMA is a problem with HIGHMEM(4GB) enabled ?
-> > >
-> > > No it's probably still an ide-scsi bug, I'm not suspecting your
-> > > hardware. The reason I ask is because until -pre8 (since bio merge in
-> > > -pre2), ide-scsi never used DMA even though it was set for the drive.
+On Wed, 12 Dec 2001, Andrea Arcangeli wrote:
+> On Wed, Dec 12, 2001 at 12:44:17AM -0800, Andrew Morton wrote:
+> > Oh.  Maybe the core design (whatever it is :)) is not finished,
+> > because it retains the bone-headed, dumb-to-the-point-of-astonishing
+> > misfeature which Linux VM has always had:
 > >
-> > Ok finally had a chance to look some more at this -- it was a bit more
-> > hairy than I had hoped. Please try this ide-scsi one liner, it should
-> > cure it. (the bug fix is the bio->bi_vcnt = 1 change only)
-> >
-> >
-> This Patch appears to work fine.  Tested with DMA on and DMA off, no
-> Errors.. :)
+> > If someone is linearly writing (or reading) a gigabyte file on a 64
+> > megabyte box they *don't* want the VM to evict every last little scrap
+> > of cache on behalf of data which they *obviously* do not want
+> > cached.
+>
+> The current design tries to detect this, at least much much better than
+> 2.2. This is why I disagree with Rik's patch of yesterday.  detecting
+> cache pollution is good also on the lowmem boxes (not only for DB).
 
-Super, thanks for testing.
+Oh, absolutely. The problem just is that the current design
+has even worse problems where it doesn't put any pressure on
+pages which were touched twice an hour ago.
 
+This leads to the situation that applications get OOM-killed
+to preserve buffer cache memory which hasn't been touched
+since bootup time.
+
+There are ways to both have good behaviour on bulk IO and
+flush out old data which was in active use but no longer is.
+I believe these are called page aging and drop-behind.
+I've been thinking about achieving the wanted behaviour
+without these two, but haven't been able to come up with
+any algorithm which doesn't have some very bad side effects.
+
+If you know a way of doing bulk IO properly and flushing out
+an old working set correctly, please let us know.
+
+regards,
+
+Rik
 -- 
-Jens Axboe
+Shortwave goes a long way:  irc.starchat.net  #swl
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

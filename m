@@ -1,70 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317012AbSHAUca>; Thu, 1 Aug 2002 16:32:30 -0400
+	id <S317114AbSHAU14>; Thu, 1 Aug 2002 16:27:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317022AbSHAUca>; Thu, 1 Aug 2002 16:32:30 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2579 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317012AbSHAUc2>;
-	Thu, 1 Aug 2002 16:32:28 -0400
-Message-ID: <3D499B28.242D07B8@zip.com.au>
-Date: Thu, 01 Aug 2002 13:33:44 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
-X-Accept-Language: en
+	id <S317115AbSHAU14>; Thu, 1 Aug 2002 16:27:56 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:29123 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S317114AbSHAU1x>;
+	Thu, 1 Aug 2002 16:27:53 -0400
+Date: Thu, 1 Aug 2002 16:31:20 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Thunder from the hill <thunder@ngforever.de>
+cc: Peter Chubb <peter@chubb.wattle.id.au>, Pavel Machek <pavel@ucw.cz>,
+       Matt_Domsch@Dell.com, Andries.Brouwer@cwi.nl,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5.28 and partitions
+In-Reply-To: <Pine.LNX.4.44.0208011328240.5119-100000@hawkeye.luckynet.adm>
+Message-ID: <Pine.GSO.4.21.0208011610020.12627-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: "Peter J. Braam" <braam@clusterfs.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: BIG files & file systems
-References: <20020731131620.M15238@lustre.cfs>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Peter J. Braam" wrote:
-> 
+
+
+On Thu, 1 Aug 2002, Thunder from the hill wrote:
+
 > Hi,
 > 
-> I've just been told that some "limitations" of the following kind will
-> remain:
->   page index = unsigned long
->   ino_t      = unsigned long
+> On Wed, 31 Jul 2002, Alexander Viro wrote:
+> > What the bleedin' hell is wrong with <name> <start> <len>\n - all in ASCII?  
+> > Terminated by \0.  No need for flags, no need for endianness crap, no
+> > need to worry about field becoming too narrow...
 > 
-> Lustre has definitely been asked to support much larger files than
-> 16TB.  Also file systems with a trillion files have been requested by
-> one of our supporters (you don't want to know who, besides I've no
-> idea how many bits go in a trillion, but it's more than 32).
-> 
-> I understand why people don't want to sprinkle the kernel with u64's,
-> and arguably we can wait a year or two and use 64 bit architectures,
-> so I'm probably not going to kick up a fuss about it.
-> 
-> However, I thought I'd let you know that there are organizations that
-> _really_ want to have such big files and file systems and get quite
-> dismayed about "small integers".  And we will fail to deliver on a
-> requirement to write a 50TB file because of this.
+> Well, why not long[] fields? Might be more powerful, and possibly not any 
+> slower than ASCII.
 
-I don't know about the ino_t thing, but as far as the pagecache
-indices goes it's simply a matter of
+More powerful in which way?  I see where it's less powerful - sizeof(long)
+is platform-dependent and so is endianness.  More powerful?  Maybe, if
+you have integers that do not have decimal representation.  I've never
+heard of such beasts, but sure would appreciate some examples.
 
-- s/unsigned long/pgoff_t/ in a zillion places
-- modify the radix tree code a bit
-- implement CONFIG_LL_PAGECACHE_INDEX
-- make it all work
-- convince Linus
+As for the Martin's comments...  Martin, if you can't write a function
+that checks whether array of characters has a contents fitting the
+description above - stand up and say so.  Aloud.  In public.
 
-Linus's objections are threefold:  it expands struct page, 64 bit
-arith is slow and gcc tends to get it wrong.  And I would add "most
-developers won't test 64-bit pgoff_t, and it'll get broken regularly".
+The fact that thousands of selfstyled "programmers" manage to screw that
+up says only one thing - that they should not be allowed anywhere near
+programming.  Because the same guys screw up in _anything_ they do,
+no matter what data types are involved.  ASCII is tough?  Make it "arithmetics
+is tough".  Examples on demand, including real gems like
+	fread(&foo, sizeof(foo), 1, fp);
+	if (foo.x >= 100000 || foo.y >= 100000)
+		/* fail and exit */
+	p = (char *)malloc(foo.x * foo.y);
+	if (!p)
+		/* fail and exit */
+	for (i = 0; i < foo.x; i++)
+		fread(p + i*foo.y. 1, foo.y, fp);
+and similar wonders (if anybody wonders what's wrong with the code above,
+you need to learn how multiplication is defined on int and compare 10^10 with
+2^32).  And yes, it's real-life code, from often-used programs.  Used on
+untrusted data, at that.
 
-The expansion of struct page and the performance impact is just a
-cost which you'll have to balance against the benefits.  For a few
-people, 32-bit pagecache index is a showstopper and they'll accept that
-tradeoff.
+Should we declare that arithmetics is dangerous?
 
-Sprinkling `pgoff_t' everywhere is, IMO, not a bad thing - it aids code
-readability because it tells you what the variable is used for.
-
-As for broken gcc, well, the proponents of 64-bit pgoff_t would have
-to work to identify the correct gcc version and generally get gcc
-doing the right thing.

@@ -1,43 +1,180 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283040AbRK1Pjq>; Wed, 28 Nov 2001 10:39:46 -0500
+	id <S282156AbRK1PpG>; Wed, 28 Nov 2001 10:45:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282996AbRK1Pjg>; Wed, 28 Nov 2001 10:39:36 -0500
-Received: from denise.shiny.it ([194.20.232.1]:53690 "EHLO denise.shiny.it")
-	by vger.kernel.org with ESMTP id <S282167AbRK1PjT>;
-	Wed, 28 Nov 2001 10:39:19 -0500
-Message-ID: <XFMail.20011128163916.pochini@shiny.it>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S283062AbRK1Pot>; Wed, 28 Nov 2001 10:44:49 -0500
+Received: from cx97923-a.phnx3.az.home.com ([24.1.197.194]:56264 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S282156AbRK1Pof>;
+	Wed, 28 Nov 2001 10:44:35 -0500
+Message-ID: <3C05065D.7050308@candelatech.com>
+Date: Wed, 28 Nov 2001 08:44:29 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
 MIME-Version: 1.0
-In-Reply-To: <01112814012701.00944@manta>
-Date: Wed, 28 Nov 2001 16:39:16 +0100 (CET)
-From: Giuliano Pochini <pochini@shiny.it>
-To: linux-kernel@vger.kernel.org
-Subject: Small security bug with misconfigured access rights
+To: "David S. Miller" <davem@redhat.com>
+CC: vlan@Scry.WANfear.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] VLAN 1.6 against 2.4.16
+In-Reply-To: <3C0491DA.9040602@candelatech.com> <20011127.233925.66707993.davem@redhat.com>
+Content-Type: multipart/mixed;
+ boundary="------------020809070104090500040508"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------020809070104090500040508
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Well, I don't know if it is really a bug.
-
-Create a directory like this:
-
-# ls -la
-total 12
-drwxr-sr-x   2 pochini  root         4096 Nov 28 16:33 .
-drwxr-xr-x  32 pochini  users        8192 Nov 28 16:25 ..
-
-Sgid bit is set and the directory is owned by me and the
-group is root (yes, it shouldn't be).
-
-When I create a file here, it gets the root group even
-if I don't belong to it.
-
-[kernel 2.4.5]
+It's attached this time, hopefully that will cause less problems for
+people.
 
 
-Bye.
+David S. Miller wrote:
+
+>    From: Ben Greear <greearb@candelatech.com>
+>    Date: Wed, 28 Nov 2001 00:27:22 -0700
+> 
+>    +        struct vlan_group* nextgroup;
+>    + 
+>    for (grp = p802_1Q_vlan_list; (grp != NULL);) {
+> 
+> Your mail agent wraps lines, this patch isn't going to apply
+> for anyone.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+
+
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
+
+--------------020809070104090500040508
+Content-Type: text/plain;
+ name="patch.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch.txt"
+
+diff -u -r -N -X /home/greear/exclude.list linux/net/8021q/vlan.c linux.dev/net/8021q/vlan.c
+--- linux/net/8021q/vlan.c	Tue Oct 30 16:08:12 2001
++++ linux.dev/net/8021q/vlan.c	Tue Nov 27 21:34:11 2001
+@@ -1,11 +1,10 @@
+ /*
+- * INET		An implementation of the TCP/IP protocol suite for the LINUX
+- *		operating system.  INET is implemented using the  BSD Socket
+- *		interface as the means of communication with the user level.
+- *
++ * INET		802.1Q VLAN
+  *		Ethernet-type device handling.
+  *
+- * Authors:	Ben Greear <greearb@candelatech.com>, <greearb@agcs.com>
++ * Authors:	Ben Greear <greearb@candelatech.com>
++ *              Please send support related email to: vlan@scry.wanfear.com
++ *              VLAN Home Page: http://www.candelatech.com/~greear/vlan.html
+  * 
+  * Fixes:
+  *              Fix for packet capture - Nick Eggleston <nick@dccinc.com>;
+@@ -42,7 +41,7 @@
+ 
+ static char vlan_fullname[] = "802.1Q VLAN Support";
+ static unsigned int vlan_version = 1;
+-static unsigned int vlan_release = 5;
++static unsigned int vlan_release = 6;
+ static char vlan_copyright[] = " Ben Greear <greearb@candelatech.com>";
+ 
+ static int vlan_device_event(struct notifier_block *, unsigned long, void *);
+@@ -105,6 +104,24 @@
+ 	return 0;
+ }
+ 
++
++/*
++ * Cleanup of groups before exit
++ */
++
++static void vlan_group_cleanup(void)
++{
++	struct vlan_group* grp = NULL;
++        struct vlan_group* nextgroup;
++	for (grp = p802_1Q_vlan_list; (grp != NULL);) {
++		nextgroup = grp->next;
++		kfree(grp);
++		grp = nextgroup;
++	}
++        p802_1Q_vlan_list = NULL;
++}/* vlan_group_cleanup */
++
++
+ /*
+  *     Module 'remove' entry point.
+  *     o delete /proc/net/router directory and static entries.
+@@ -116,7 +133,7 @@
+ 
+ 	dev_remove_pack(&vlan_packet_type);
+ 	vlan_proc_cleanup();
+-
++        vlan_group_cleanup();
+ 	vlan_ioctl_hook = NULL;
+ }
+ 
+diff -u -r -N -X /home/greear/exclude.list linux/net/8021q/vlan_dev.c linux.dev/net/8021q/vlan_dev.c
+--- linux/net/8021q/vlan_dev.c	Tue Oct 30 16:08:12 2001
++++ linux.dev/net/8021q/vlan_dev.c	Tue Nov 27 21:28:34 2001
+@@ -1,11 +1,10 @@
+ /*
+- * INET		An implementation of the TCP/IP protocol suite for the LINUX
+- *		operating system.  INET is implemented using the  BSD Socket
+- *		interface as the means of communication with the user level.
+- *
++ * INET		802.1Q VLAN
+  *		Ethernet-type device handling.
+  *
+- * Authors:	Ben Greear <greearb@candelatech.com>, <greearb@agcs.com>
++ * Authors:	Ben Greear <greearb@candelatech.com>
++ *              Please send support related email to: vlan@scry.wanfear.com
++ *              VLAN Home Page: http://www.candelatech.com/~greear/vlan.html
+  * 
+  * Fixes:       Mar 22 2001: Martin Bokaemper <mbokaemper@unispherenetworks.com>
+  *                - reset skb->pkt_type on incoming packets when MAC was changed
+diff -u -r -N -X /home/greear/exclude.list linux/net/8021q/vlanproc.c linux.dev/net/8021q/vlanproc.c
+--- linux/net/8021q/vlanproc.c	Tue Nov 13 10:19:41 2001
++++ linux.dev/net/8021q/vlanproc.c	Tue Nov 27 16:32:30 2001
+@@ -116,7 +116,7 @@
+  *	Clean up /proc/net/vlan entries
+  */
+ 
+-void __exit vlan_proc_cleanup(void)
++void vlan_proc_cleanup(void)
+ {
+ 	if (proc_vlan_conf)
+ 		remove_proc_entry(name_conf, proc_vlan_dir);
+@@ -462,7 +462,7 @@
+ 	return 0;
+ }
+ 
+-void __exit vlan_proc_cleanup(void)
++void vlan_proc_cleanup(void)
+ {
+ 	return;
+ }
+diff -u -r -N -X /home/greear/exclude.list linux/net/README linux.dev/net/README
+--- linux/net/README	Mon Jun 11 19:15:27 2001
++++ linux.dev/net/README	Tue Nov 27 21:30:35 2001
+@@ -23,4 +23,4 @@
+ unix			alan@lxorguk.ukuu.org.uk
+ x25			g4klx@g4klx.demon.co.uk
+ bluetooth		maxk@qualcomm.com
+-
++8021q                   greearb@candelatech.com, vlan@scry.wanfear.com
+
+--------------020809070104090500040508--
 

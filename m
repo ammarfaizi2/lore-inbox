@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129242AbRCPAeq>; Thu, 15 Mar 2001 19:34:46 -0500
+	id <S129344AbRCPAh4>; Thu, 15 Mar 2001 19:37:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129250AbRCPAeg>; Thu, 15 Mar 2001 19:34:36 -0500
-Received: from isc4.tn.cornell.edu ([128.84.242.21]:31409 "EHLO
-	isc4.tn.cornell.edu") by vger.kernel.org with ESMTP
-	id <S129242AbRCPAed>; Thu, 15 Mar 2001 19:34:33 -0500
-Date: Thu, 15 Mar 2001 19:33:24 -0500 (EST)
-From: "Donald J. Barry" <don@astro.cornell.edu>
-Message-Id: <200103160033.TAA09549@isc4.tn.cornell.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Write throttling problem in 2.4.2?
+	id <S129292AbRCPAhq>; Thu, 15 Mar 2001 19:37:46 -0500
+Received: from aic.ee.ndhu.edu.tw ([203.64.105.113]:23693 "EHLO
+	aic.ee.ndhu.edu.tw") by vger.kernel.org with ESMTP
+	id <S129250AbRCPAhf>; Thu, 15 Mar 2001 19:37:35 -0500
+Date: Fri, 16 Mar 2001 08:36:56 +0800
+From: ³¯¤ý®i <cwz@aic.ee.ndhu.edu.tw>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: About DC-315U SCSI driver
+Message-Id: <20010316083656.3e3a0c66.cwz@aic.ee.ndhu.edu.tw>
+X-Mailer: Sylpheed version 0.4.9 (GTK+ 1.2.8; Linux 2.4.2-ac17; i686)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
-Dear Developers:
+ At last night, I changed my scsi card from a pci slot to another,to avoided the IRQ
+sharing between on-board USB and SCSI.
 
-More on my 2.4.2 oopses concerning the "Unable to handle kernel paging
-request"
+ And burned a cdr to test. It's so magic. The burned files which are not the same
+with origin ones is much less than before. Why? Can not use IRQ sharing between 
+SCSI&USB?  I used Win98 & kernel 2.2.x,and no errors.
 
-These only take place during ENORMOUS write pressure, and I'm curious
-as to whether write throttling is an issue here.  Since this is on 
-a reiserfs atop lvm, some of the previously conceived solutions 
-may not apply.  
+ I burned two cdr with kernel insmoded dc395x_trm.o and another scsi driver 
+integrated kernel. CDR burned with the former has two different files with origin
+ones. And the latter has six ones. I have no idea about the difference.
+Maybe I can burn more cdr to test.
 
-It's not a major problem, as it only occurs I can start a tars transferring 
-tens of gigabytes.  But if I also then launch a task doing enormous activity 
-on the vfs, such as a simultaneous "du -s ." on the directories in 
-question, I can pretty reliably create the kernel paging fault.
+  When I have time, I would like to testing with lowered syncspeed. I hope it will
+be a temp solution.
 
-Cheers,
-
-Don Barry
-Cornell Astronomy
-
--- 2.4.2 vanilla kernel + Brown's NFS patches, pretty minimal otherwise
--- problem first seen on 256M ram, still persists at 392M ram
--- LVM atop hda/hdb (60g) (motherboard via kt133 chipset) plus promise ultra66
-   controller driving 80 gig drive on hde
-
-
-
-
-
+Best Regards,cwz

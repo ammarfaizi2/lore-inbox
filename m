@@ -1,61 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266238AbUAGQQ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 11:16:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266242AbUAGQQx
+	id S266233AbUAGQNu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 11:13:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266238AbUAGQNu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 11:16:53 -0500
-Received: from ltgp.iram.es ([150.214.224.138]:45443 "EHLO ltgp.iram.es")
-	by vger.kernel.org with ESMTP id S266238AbUAGQOA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 11:14:00 -0500
-From: Gabriel Paubert <paubert@iram.es>
-Date: Wed, 7 Jan 2004 17:04:44 +0100
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.23-BK9 and DC21142/3
-Message-ID: <20040107160444.GA4723@iram.es>
-References: <20040102160640.GA3453@rdlg.net>
+	Wed, 7 Jan 2004 11:13:50 -0500
+Received: from user-12hcje4.cable.mindspring.com ([69.22.77.196]:60844 "EHLO
+	bender.davehollis.com") by vger.kernel.org with ESMTP
+	id S266233AbUAGQNN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 11:13:13 -0500
+Subject: Re: Slow receive with AX8817 USB2 ethernet adapter
+From: David T Hollis <dhollis@davehollis.com>
+To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1073490614.5634.31.camel@dhollis-lnx.kpmg.com>
+References: <yw1xr7ybvpv0.fsf@ford.guide>  <yw1xisjnvp9e.fsf@ford.guide>
+	 <1073490614.5634.31.camel@dhollis-lnx.kpmg.com>
+Content-Type: text/plain; charset=
+Message-Id: <1073491990.5634.36.camel@dhollis-lnx.kpmg.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040102160640.GA3453@rdlg.net>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
+Date: Wed, 07 Jan 2004 11:13:10 -0500
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 02, 2004 at 11:06:41AM -0500, Robert L. Harris wrote:
+On Wed, 2004-01-07 at 10:54, David T Hollis wrote:
+> On Wed, 2004-01-07 at 08:53, Måns Rullgård wrote:
+> > mru@kth.se (Måns Rullgård) writes:
+> > 
+> > > I'm getting very bad receive rates with a Netgear FA-120 USB2 Ethernet
+> > > adapter under Linux 2.6.0.  Timing an incoming TCP stream, I get only
+> > > 600 kB/s.  Sending works properly at 10 MB/s.  I first reported this
+> > > problem some time in July or August.  Is it just me having this issue?
+> > > Can I get any helpful information somehow?
+> > 
+> Hmm, I am seeing the same results using ttcp:
 > 
-> 
->   I just installed 2.4.23-bk9 on a system with a ethernet card that
-> lscpi reports as DC21142 which is a quad port card.  When the machine
-> came up it auto negotiated half duplex instead of full.  On 2.4.21-ac4
-> it negotiated Full.
+Some more results.  This time I walked away for a few minutes, came back
+and ran the test again and started getting the 10MB numbers again.  No
+driver unload, etc.  Interesting thing is the I/O calls and time per
+call.  I'm curious as to whether  the varying results are tied to memory
+allocation, locking, or what.
 
-What driver are you using? 
+[root@dhollis-lnx 2.6.0]# ttcp -r -s -D
+ttcp-r: buflen=8192, nbuf=2048, align=16384/0, port=5001  tcp
+ttcp-r: socket
+ttcp-r: accept from 192.168.5.1
+ttcp-r: 16777216 bytes in 24.33 real seconds = 673.40 KB/sec +++
+ttcp-r: 7523 I/O calls, msec/call = 3.31, calls/sec = 309.20
+ttcp-r: 0.0user 0.1sys 0:24real 0% 0i+0d 0maxrss 0+2pf 10348+204csw
+[root@dhollis-lnx 2.6.0]# ttcp -r -s -D
+ttcp-r: buflen=8192, nbuf=2048, align=16384/0, port=5001  tcp
+ttcp-r: socket
+ttcp-r: accept from 192.168.5.1
+ttcp-r: 16777216 bytes in 26.47 real seconds = 618.95 KB/sec +++
+ttcp-r: 7623 I/O calls, msec/call = 3.56, calls/sec = 287.98
+ttcp-r: 0.0user 0.2sys 0:26real 0% 0i+0d 0maxrss 0+2pf 10502+218csw
+[root@dhollis-lnx 2.6.0]# ttcp -r -s -D
+ttcp-r: buflen=8192, nbuf=2048, align=16384/0, port=5001  tcp
+ttcp-r: socket
+ttcp-r: accept from 192.168.5.1
+ttcp-r: 16777216 bytes in 1.49 real seconds = 11011.40 KB/sec +++
+ttcp-r: 10862 I/O calls, msec/call = 0.14, calls/sec = 7300.16
+ttcp-r: 0.0user 0.1sys 0:01real 8% 0i+0d 0maxrss 0+2pf 10685+712csw
+[root@dhollis-lnx 2.6.0]# ttcp -r -s -D
+ttcp-r: buflen=8192, nbuf=2048, align=16384/0, port=5001  tcp
+ttcp-r: socket
+ttcp-r: accept from 192.168.5.1
+ttcp-r: 16777216 bytes in 1.49 real seconds = 10994.16 KB/sec +++
+ttcp-r: 10722 I/O calls, msec/call = 0.14, calls/sec = 7194.79
+ttcp-r: 0.0user 0.0sys 0:01real 6% 0i+0d 0maxrss 0+2pf 10467+1568csw
+[root@dhollis-lnx 2.6.0]# ttcp -r -s -D
+ttcp-r: buflen=8192, nbuf=2048, align=16384/0, port=5001  tcp
+ttcp-r: socket
+ttcp-r: accept from 192.168.5.1
+ttcp-r: 67108864 bytes in 5.86 real seconds = 11183.02 KB/sec +++
+ttcp-r: 42708 I/O calls, msec/call = 0.14, calls/sec = 7287.66
+ttcp-r: 0.0user 0.4sys 0:05real 8% 0i+0d 0maxrss 0+2pf 41508+8406csw
 
-I've had some similar problems recently and had to increase the 
-autonegotiation timeout in a network driver to make the result of the 
-autonegotiation stable, otherwise sometimes it would be HD sometimes FD.
-The reason was apparently that the driver would fall back to another
-method of determining the link speed and this other method limited
-itself to half duplex. I even seem to remember that it occasionally 
-decided to fall back to 10Mb/s half duplex...
-
-It also may depend on the switches and the MII transceiver brand 
-you use, the combinations I have now seems especially slow at 
-autonegotiation. I have 2 sets of very similar systems, 6 of one
-kind and 4 of another. The first 6 have the same exact components 
-(DC21140 with National MII transceiver) AFAICT but a slightly 
-different PCB revision it seems, the slightly older ones are more 
-affected than later revisions. The last 4 are strictly identical:
-DC21143 with Level One (now Intel AFAIR) transceivers, and all 4
-behave identically.
-
-At least it does not seem to depend on the phase of the moon :-)
-
-I'm still using 2.2 with de4x5 driver, but there were very few 
-differences with the 2.4 version of the driver last time I looked.
-
-	Gabriel
-
+-- 
+David T Hollis <dhollis@davehollis.com>
 

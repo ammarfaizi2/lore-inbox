@@ -1,59 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269034AbUIXW6H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269032AbUIXW5y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269034AbUIXW6H (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 18:58:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269038AbUIXW6H
+	id S269032AbUIXW5y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 18:57:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269034AbUIXW5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 18:58:07 -0400
-Received: from fw.osdl.org ([65.172.181.6]:56978 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269034AbUIXW56 (ORCPT
+	Fri, 24 Sep 2004 18:57:53 -0400
+Received: from rproxy.gmail.com ([64.233.170.200]:20299 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S269032AbUIXW5q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 18:57:58 -0400
-Date: Fri, 24 Sep 2004 16:01:47 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Steven Pratt <slpratt@austin.ibm.com>
+	Fri, 24 Sep 2004 18:57:46 -0400
+Message-ID: <35fb2e5904092415572e58ee66@mail.gmail.com>
+Date: Fri, 24 Sep 2004 23:57:40 +0100
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: Andries Brouwer <aebr@win.tue.nl>
+Subject: Re: [PATCH] oom_pardon, aka don't kill my xlock
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH/RFC] Simplified Readahead
-Message-Id: <20040924160147.27dbc589.akpm@osdl.org>
-In-Reply-To: <4154A2F7.1050909@austin.ibm.com>
-References: <4152F46D.1060200@austin.ibm.com>
-	<20040923194216.1f2b7b05.akpm@osdl.org>
-	<41543FE2.5040807@austin.ibm.com>
-	<20040924150523.4853465b.akpm@osdl.org>
-	<4154A2F7.1050909@austin.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+In-Reply-To: <20040923234520.GA7303@pclin040.win.tue.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <200409230123.30858.thomas@habets.pp.se>
+	 <20040923234520.GA7303@pclin040.win.tue.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Pratt <slpratt@austin.ibm.com> wrote:
->
-> >It's an application-specified readahead hint.  It should ideally be
-> >asynchronous so the application can get some I/O underway while it's
-> >crunching on something else.  If the queue is contested then the
-> >application will accidentally block when launching the readahead, which
-> >kinda defeats the purpose.
-> >  
-> >
-> Well if the app really does this asynchronously, does it matter that we 
-> block?
+On Fri, 24 Sep 2004 01:45:20 +0200, Andries Brouwer <aebr@win.tue.nl> wrote:
 
-??  Not sure what you mean.
+> On Thu, Sep 23, 2004 at 01:23:08AM +0200, Thomas Habets wrote:
 
-posix_fadvise(POSIX_FADV_WILLNEED) is used by applications to tell the
-kernel that the application will need that part of the file in the future. 
-Presumably, the application has something else to be going on with
-meanwhile.  Hence the application doesn't want to block.
+> > How about a sysctl that does "for the love of kbaek, don't ever kill these
+> > processes when OOM. If nothing else can be killed, I'd rather you panic"?
 
-> >Yes, the application will block when it does the subsequent read() anyway,
-> >but applications expect to block in read().  Seems saner this way.
-> >
-> Just to be sure I have this correct, the readahead code will be invoked 
-> once on the POSIX_FADV_WILLNEED request, but this looks mostly like a 
-> regular read, and then again for the same pages on a real read?
+> An aircraft company discovered that it was cheaper to fly its planes
+> with less fuel on board. The planes would be lighter and use less fuel
+> and money was saved. On rare occasions however the amount of fuel was
+> insufficient, and the plane would crash. This problem was solved by
+> the engineers of the company by the development of a special OOF
+> (out-of-fuel) mechanism.
 
+For the curious I have recently been reading about this (I'm a nervous
+flyer, you wouldn't believe the kind of statistics I scare myself
+with) and discovered the term RAT - RAM Air Turbine. In the event of
+fuel running out, modern aircraft automatically drop this turbine and
+generate sufficient power for navigation (and hopefully safe landing).
+There's a famous early 1980s case in Canada known as the Gimli Glider
+in which this actually ended up happing after a computer that
+performed imperial/metric conversion failed and the manual calculation
+was wrong - they coined a popular Canadian phrase because of this.
 
-yup.  POSIX_FADV_WILLNEED should just populate pagecache and should launch
-asynchronous I/O.
+What we need is a mechanism to have a giant brainstraw emerge from the
+front casing of the machine and suck the brains out of the guy running
+a server with overcommit issues.
+
+[ Alan has a working model super drinking straw from OLS - pity you
+destroyed it. ]
+
+Jon.

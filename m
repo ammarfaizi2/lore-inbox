@@ -1,83 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266574AbUJNHu4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269946AbUJNIBm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266574AbUJNHu4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 03:50:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269992AbUJNHu4
+	id S269946AbUJNIBm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 04:01:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269994AbUJNIBm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 03:50:56 -0400
-Received: from lug-owl.de ([195.71.106.12]:32462 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S266574AbUJNHux (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 03:50:53 -0400
-Date: Thu, 14 Oct 2004 09:50:53 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Alexander Wigen <alex@wigen.net>
-Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: pl2303/usb-serial driver problem in 2.4.27-pre6
-Message-ID: <20041014075052.GV5033@lug-owl.de>
-Mail-Followup-To: Alexander Wigen <alex@wigen.net>,
-	Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>
-References: <416A6CF8.5050106@kharkiv.com.ua> <200410131932.28896.alex@wigen.net> <20041013174251.GB17291@kroah.com> <200410141406.58960.alex@wigen.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Efvj0OqvPr19h3JK"
-Content-Disposition: inline
-In-Reply-To: <200410141406.58960.alex@wigen.net>
-X-Operating-System: Linux mail 2.6.8-rc4 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.6i
+	Thu, 14 Oct 2004 04:01:42 -0400
+Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:64607 "HELO
+	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S269946AbUJNIBk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 04:01:40 -0400
+Message-ID: <416E2B6F.5040803@yahoo.com.au>
+Date: Thu, 14 Oct 2004 17:31:59 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Nathan Scott <nathans@sgi.com>
+CC: Andrew Morton <akpm@osdl.org>, piggin@cyberone.com.au,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-xfs@oss.sgi.com
+Subject: Re: Page cache write performance issue
+References: <20041013054452.GB1618@frodo> <20041012231945.2aff9a00.akpm@osdl.org> <20041013063955.GA2079@frodo> <20041013000206.680132ad.akpm@osdl.org> <20041013172352.B4917536@wobbly.melbourne.sgi.com> <416CE423.3000607@cyberone.com.au> <20041013013941.49693816.akpm@osdl.org> <20041014005300.GA716@frodo> <20041013202041.2e7066af.akpm@osdl.org> <20041014071659.GB1768@frodo>
+In-Reply-To: <20041014071659.GB1768@frodo>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nathan Scott wrote:
+> On Wed, Oct 13, 2004 at 08:20:41PM -0700, Andrew Morton wrote:
+> 
+>>Nathan Scott <nathans@sgi.com> wrote:
+>>
+>>> I just tried switching CONFIG_HIGHMEM off, and so running the
+>>> machine with 512MB; then adjusted the test to write 256M into
+>>> the page cache, again in 1K sequential chunks.  A similar mis-
+>>> behaviour happens, though the numbers are slightly better (up
+>>> from ~4 to ~6.5MB/sec).  Both ext2 and xfs see this.  When I
+>>> drop the file size down to 128M with this kernel, I see good
+>>> results again (as we'd expect).
+>>
+>>No such problem here, with
+>>
+>>	dd if=/dev/zero of=x bs=1k count=128k
+>>
+>>on a 256MB machine.  xfs and ext2.
+> 
+> 
+> Yup, rebooted with mem=128M and on my box, & that crawls.
+> Maybe its just this old hunk 'o junk, I suppose; odd that
+> 2.6.8 was OK with this though.
+> 
 
---Efvj0OqvPr19h3JK
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, 2004-10-14 14:06:58 +0000, Alexander Wigen <alex@wigen.net>
-wrote in message <200410141406.58960.alex@wigen.net>:
-> On Wednesday 13 October 2004 17:42, Greg KH wrote:
-> > On Wed, Oct 13, 2004 at 07:32:28PM +0000, Alexander Wigen wrote:
-
-> I had the problem on two laptops and a stationary machine running 2.4.20.=
- I=20
-> dug out the old gps device and am happy to say the problem is gone on=20
-> 2.6.8.1. I don't have a 2.4 kernel handy so I can't say if the problem is=
-=20
-> still present in the 2.4 branch.
-
-2.4.20 is quite old; additionally, the pl2303 driver has known problems
-(Oops on device removal while the device node is opened for example...).
-2.6.x just works (last famous words, I know...) but I suggest you just
-upgrade to 2.6.x. I'm using this driver basically each day (for GPS
-receiver and a number of serial links for serial console) and never
-had a problem with it (except on 2.4.x).
-
-MfG, JBG
-
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Irak! =
-  O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
-
---Efvj0OqvPr19h3JK
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFBbi/cHb1edYOZ4bsRAktCAJ4+hCe2tRgPoaS57QxMJ8YNpgNNVwCfWZc4
-XepNpykDQwAlnHhPbcQE70k=
-=rH7D
------END PGP SIGNATURE-----
-
---Efvj0OqvPr19h3JK--
+Just out of interest, can you get profiles and a few lines
+of vmstat 1 from 2.6.8 and 2.6.9-rc, please?

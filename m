@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266227AbUFPJ4Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266232AbUFPJ5k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266227AbUFPJ4Z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 05:56:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266233AbUFPJ4Z
+	id S266232AbUFPJ5k (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 05:57:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266236AbUFPJ5k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 05:56:25 -0400
-Received: from ipx-98-250-190-80.ipxserver.de ([80.190.250.98]:61704 "EHLO
-	taytron.net") by vger.kernel.org with ESMTP id S266227AbUFPJ4N
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 05:56:13 -0400
-Message-ID: <40D01928.1080309@tuxbox.org>
-Date: Wed, 16 Jun 2004 11:55:52 +0200
-From: Florian Schirmer <jolt@tuxbox.org>
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
-CC: "Randy.Dunlap" <rddunlap@osdl.org>, akpm <akpm@osdl.org>,
-       B.Zolnierkiewicz@elka.pw.edu.pl, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [STACK] >3k call path in ide
-References: <20040609122921.GG21168@wohnheim.fh-wedel.de> <20040615163445.6b886383.rddunlap@osdl.org> <200406160911.11985.jolt@tuxbox.org> <20040616094737.GA2548@wohnheim.fh-wedel.de>
-In-Reply-To: <20040616094737.GA2548@wohnheim.fh-wedel.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Jun 2004 05:57:40 -0400
+Received: from holomorphy.com ([207.189.100.168]:52908 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266232AbUFPJ5O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 05:57:14 -0400
+Date: Wed, 16 Jun 2004 02:57:09 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Zoltan.Menyhart@bull.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: VM validation question
+Message-ID: <20040616095709.GF1444@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Zoltan.Menyhart@bull.net, linux-kernel@vger.kernel.org
+References: <40C090DE.55A6C699@nospam.org> <40D014B4.BBE895DB@nospam.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40D014B4.BBE895DB@nospam.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Jun 16, 2004 at 11:36:52AM +0200, Zoltan Menyhart wrote:
+> I do "some" modification to the virtual memory subsystem.
+> How can I make sure that the compatibility is kept ?
+> Have you got some VM validation packages, stress tests, etc. ?
+> Could you please, indicate how I can pick up to these tests ?
 
->Leak memory.  I also tend to depend on the fact that kfree(NULL) works
->just fine:
->
->err_kfree:
->	kfree(cfginfo);
->	kfree(def_cte);
->	kfree(tbuf);
->	printk(KERN_NOTICE "ide-cs: ide_config failed memory allocation\n");
->	goto failed;
->
->Makes the error path a little simpler.
->  
->
+There are few, if any ABI compatibility test suites. By and large,
+important breakages are almost immediately observable, and the less
+important ones can be fixed up afterward, so I'd encourage you to
+proceed with testing by means of targeted testcases when a specific
+area is in doubt, and general benchmarks and stress tests for the rest.
 
-Nope. It will deadlock just like the original patch because failed falls 
-through to err_kfree which then will jump to failed...
 
-Regards,
-    Florian
-
+-- wli

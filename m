@@ -1,42 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269620AbUICKBy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269672AbUICKQs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269620AbUICKBy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 06:01:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269464AbUICJ5X
+	id S269672AbUICKQs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 06:16:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269635AbUICKN3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 05:57:23 -0400
-Received: from gsecone.com ([61.95.227.64]:61825 "EHLO gateway.gsecone.com")
-	by vger.kernel.org with ESMTP id S269617AbUICJxt (ORCPT
+	Fri, 3 Sep 2004 06:13:29 -0400
+Received: from lucidpixels.com ([66.45.37.187]:53722 "HELO lucidpixels.com")
+	by vger.kernel.org with SMTP id S269676AbUICKLE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 05:53:49 -0400
-Subject: [2.6.8+][TRIVIAL] linux/mm.h compilation fix
-From: Vinay K Nallamothu <vinay.nallamothu@gsecone.com>
-To: akpm@digeo.com
-Cc: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: Global Security One
-Message-Id: <1094204918.5476.35.camel@vinay.gsecone.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 03 Sep 2004 15:18:39 +0530
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Sep 2004 06:11:04 -0400
+Date: Fri, 3 Sep 2004 06:11:00 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p500
+To: Alexander Lyamin <flx@msu.ru>
+cc: bzolnier@milosz.na.pl, zam@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re:  A few filesystem benchmarks w/ReiserFS4 vs Other Filesystems
+In-Reply-To: <20040903100812.GA32387@alias>
+Message-ID: <Pine.LNX.4.61.0409030610450.29454@p500>
+References: <Pine.LNX.4.61.0408271037080.15499@p500> <200408271745.41722.bzolnier@elka.pw.edu.pl>
+ <20040903100812.GA32387@alias>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trivial compilation fix when shared memory is not enabled.
+Thanks for the feedback.
 
-Signed-off-by: Vinay K Nallamothu <vinay.nallamothu@gsecone.com>
+On Fri, 3 Sep 2004, Alexander Lyamin wrote:
 
---- linux-2.6.9-rc1-mm2/include/linux/mm.h	2004-09-03 13:01:52.000000000 +0530
-+++ linux-2.6.9-rc1-mm2-nvk/include/linux/mm.h	2004-09-03 15:20:59.000000000 +0530
-@@ -528,7 +528,7 @@
- int shmem_lock(struct file *file, int lock, struct user_struct *user);
- #else
- #define shmem_nopage filemap_nopage
--#define shmem_lock(a, b) /* always in memory, no need to lock */
-+#define shmem_lock(a, b, c) /* always in memory, no need to lock */
- #define shmem_set_policy(a, b) (0)
- #define shmem_get_policy(a, b) (NULL)
- #endif
-
-
+> Fri, Aug 27, 2004 at 05:45:41PM +0200, Bartlomiej Zolnierkiewicz wrote:
+>>
+>> Hi,
+>>> Execute rm -rf linux-2.6.8.1 on each file system.
+>>> # -------------------------------------------------------------------- #
+>>> ext2 | 10.26 sec @ 22% cpu
+>>> ext3 | 10.02 sec @ 25% cpu
+>>>   jfs | 26.67 sec @ 27% cpu
+>>>   rs3 | 03.22 sec @ 74% cpu
+>>>   rs4 | 25.58 sec @ 50% cpu <- What happened to reiserfs4 here?
+>>>   xfs | 12.51 sec @ 47% cpu
+>>> # -------------------------------------------------------------------- #
+>>> Create a 500MB file with dd to each filesystem with 1MB blocks.
+>>> # -------------------------------------------------------------------- #
+>>> ext2 | 15.72 sec @ 26% cpu
+>>> ext3 | 17.04 sec @ 31% cpu
+>>>   jfs | 29.57 sec @ 25% cpu
+>>>   rs3 | 15.21 sec @ 27% cpu
+>>>   rs4 | 23.96 sec @ 23% cpu <- What happened to reiserfs4 here?
+>>>   xfs | 19.07 sec @ 29% cpu
+>
+> Your answers somewhere in HCH's "silent semantics" thread.
+>
+> Basically reiserfs team aware that they do suck at file DELETES
+> and OVERWRITES.  There seem to be a way to rectify this perfomance
+> issues in future (dynamic repacker?). Altough i was somewhat surprised
+> with this  dd file benchmark... probably Alexander Zarochentsev knows
+> the answer.
+> -- 
+> "the liberation loophole will make it clear.."
+> lex lyamin
+>

@@ -1,56 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262182AbSJJUAj>; Thu, 10 Oct 2002 16:00:39 -0400
+	id <S262188AbSJJTx7>; Thu, 10 Oct 2002 15:53:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262197AbSJJUAi>; Thu, 10 Oct 2002 16:00:38 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:47627 "EHLO
-	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
-	id <S262182AbSJJT6c>; Thu, 10 Oct 2002 15:58:32 -0400
-Date: Thu, 10 Oct 2002 21:05:07 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Sampsa Ranta <sampsa@netsonic.fi>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Oops with?2.5.40
-In-Reply-To: <20021010194950.GU10722@holomorphy.com>
-Message-ID: <Pine.LNX.4.44.0210102102190.9566-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S262191AbSJJTx7>; Thu, 10 Oct 2002 15:53:59 -0400
+Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:12878 "EHLO
+	nakedeye.aparity.com") by vger.kernel.org with ESMTP
+	id <S262188AbSJJTu3>; Thu, 10 Oct 2002 15:50:29 -0400
+Date: Thu, 10 Oct 2002 13:04:36 -0700
+From: "Matt D. Robinson" <yakker@aparity.com>
+Message-Id: <200210102004.g9AK4ae29589@nakedeye.aparity.com>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com, yakker@aparity.com
+Subject: [PATCH] 2.5.41: lkcd (7/8): dump configuration
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Oct 2002, William Lee Irwin III wrote:
-> On Thu, Oct 10, 2002 at 10:46:02PM +0300, Sampsa Ranta wrote:
-> > Call Trace:
-> >  [<c013897f>]change_protection+0x1af/0x200
-> >  [<c0138af3>]mprotect_attempt_merge+0x123/0x1e0
-> >  [<c0138d3d>]mprotect_fixup+0x18d/0x1b0
-> >  [<c0138ec4>]sys_mprotect+0x164/0x2f3
-> >  [<c014d541>]sys_write+0x31/0x40
-> >  [<c010786f>]syscall_call+0x7/0xb
-> > Code: 23 53 7c 39 58 60 75 38 8b 40 5c 85 c0 74 08 0f 20 d8 0f 22
-> >  <6>note: java[11999] exited with preempt_count 2
-> 
-> Fixed by Hugh in:
-> 
-> ChangeSet@1.750, 2002-10-10 11:03:56-07:00, akpm@digeo.com
->   [PATCH] mremap use-after-free bugfix
+This patch adds the ability to configure crash dumps in the
+kernel, including optional compression mechanisms and loading
+of network crash dump capabilities.
 
-Actually no: similar, but this one was fixed by Hugh in 2.5.41:
 
---- 2.5.40/mm/mprotect.c	Fri Sep 27 23:56:45 2002
-+++ 2.5.41/mm/mprotect.c	Mon Oct  7 20:37:50 2002
-@@ -186,8 +186,10 @@
- 		/*
- 		 * Try to merge with the previous vma.
- 		 */
--		if (mprotect_attempt_merge(vma, *pprev, end, newflags))
-+		if (mprotect_attempt_merge(vma, *pprev, end, newflags)) {
-+			vma = *pprev;
- 			goto success;
-+		}
- 	} else {
- 		error = split_vma(mm, vma, start, 1);
- 		if (error)
+ arch/i386/config.in |    7 +++++++
+ lib/Config.in       |    2 ++
+ 2 files changed, 9 insertions(+)
 
+
+diff -Naur linux-2.5.41.orig/arch/i386/config.in linux-2.5.41.lkcd/arch/i386/config.in
+--- linux-2.5.41.orig/arch/i386/config.in	Mon Oct  7 11:24:02 2002
++++ linux-2.5.41.lkcd/arch/i386/config.in	Tue Oct  8 01:15:13 2002
+@@ -445,6 +445,13 @@
+    dep_bool 'Software Suspend (EXPERIMENTAL)' CONFIG_SOFTWARE_SUSPEND $CONFIG_PM
+ fi
+ 
++tristate 'Linux Kernel Crash Dump (LKCD) Support' CONFIG_CRASH_DUMP
++if [ "$CONFIG_CRASH_DUMP" != "n" ]; then
++   dep_tristate '  LKCD Block Device Driver' CONFIG_CRASH_DUMP_BLOCKDEV $CONFIG_CRASH_DUMP
++   dep_tristate '  LKCD RLE compression' CONFIG_CRASH_DUMP_COMPRESS_RLE $CONFIG_CRASH_DUMP
++   dep_tristate '  LKCD GZIP compression' CONFIG_CRASH_DUMP_COMPRESS_GZIP $CONFIG_CRASH_DUMP
++fi
++
+ bool 'Kernel debugging' CONFIG_DEBUG_KERNEL
+ if [ "$CONFIG_DEBUG_KERNEL" != "n" ]; then
+    bool '  Debug memory allocations' CONFIG_DEBUG_SLAB
+diff -Naur linux-2.5.41.orig/lib/Config.in linux-2.5.41.lkcd/lib/Config.in
+--- linux-2.5.41.orig/lib/Config.in	Mon Oct  7 11:23:24 2002
++++ linux-2.5.41.lkcd/lib/Config.in	Tue Oct  8 01:15:13 2002
+@@ -26,10 +26,12 @@
+ fi
+ 
+ if [ "$CONFIG_PPP_DEFLATE" = "y" -o \
++     "$CONFIG_CRASH_DUMP_COMPRESS_GZIP" = "y" -o \
+      "$CONFIG_JFFS2_FS" = "y" ]; then
+    define_tristate CONFIG_ZLIB_DEFLATE y
+ else
+   if [ "$CONFIG_PPP_DEFLATE" = "m" -o \
++       "$CONFIG_CRASH_DUMP_COMPRESS_GZIP" = "m" -o \
+        "$CONFIG_JFFS2_FS" = "m" ]; then
+      define_tristate CONFIG_ZLIB_DEFLATE m
+   else

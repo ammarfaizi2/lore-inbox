@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274097AbRIXSAg>; Mon, 24 Sep 2001 14:00:36 -0400
+	id <S274106AbRIXSDQ>; Mon, 24 Sep 2001 14:03:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274102AbRIXSA1>; Mon, 24 Sep 2001 14:00:27 -0400
-Received: from unused ([12.150.234.220]:35071 "EHLO one.isilinux.com")
-	by vger.kernel.org with ESMTP id <S274097AbRIXSAM>;
-	Mon, 24 Sep 2001 14:00:12 -0400
-Message-ID: <3BAF74B8.6070102@interactivesi.com>
-Date: Mon, 24 Sep 2001 13:00:24 -0500
-From: Timur Tabi <ttabi@interactivesi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
+	id <S274105AbRIXSDH>; Mon, 24 Sep 2001 14:03:07 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:28156 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S274103AbRIXSDB>; Mon, 24 Sep 2001 14:03:01 -0400
+Message-ID: <3BAF7557.1A0ADF57@mvista.com>
+Date: Mon, 24 Sep 2001 11:03:03 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Tainting kernels for non-GPL or forced modules
-In-Reply-To: <27975.1001164529@ocs3.intra.ocs.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: POSIX process signals with threads- anyone working on this?
+Content-Type: text/plain; charset=iso-8859-15
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
+As I understand it, process asynchronous signals are to be delivered to
+"any thread that is not blocking the signal".  This, of course, implies
+a process wide mask that keeps track of thread masks in such a way that
+one can determine when a thread is available for a particular signal.
 
-> I have started work on the patch for /proc/sys/kernel/tainted with the
-> corresponding modutils and ksymoops changes.  insmod of a non-GPL
-> module ORs /proc/sys/kernel/tainted with 1, insmod -f ORs with 2.
+Before I start doing the needed code:
 
+a.) Is anybody already doing this?
 
-Where can I find more information about this?  The word "tainted" doesn't 
-appear in my kernel source code (I guess 2.4.2 is too old), and a search on 
-google didn't reveal anything.
+b.) Are there any comments on this issue.
 
-The reason I ask is because I'm working on a closed-source (unfortunately) 
-driver for Linux, and I'd really like to make it behave as well as possible.
-
+George

@@ -1,37 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266477AbUIWQMj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266488AbUIWQMk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266477AbUIWQMj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 12:12:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266488AbUIWQMS
+	id S266488AbUIWQMk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 12:12:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267650AbUIWQMi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 12:12:18 -0400
-Received: from symbion.srrc.usda.gov ([199.133.86.40]:22152 "EHLO
-	node1.cluster.srrc.usda.gov") by vger.kernel.org with ESMTP
-	id S266517AbUIWQJH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 12:09:07 -0400
-Subject: 2.6.9-rc2-mm2: 3ware card info not in /proc/scsi
-From: Glenn Johnson <gjohnson@srrc.ars.usda.gov>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: USDA, ARS, SRRC
-Message-Id: <1095955746.11943.7.camel@node1.cluster.srrc.usda.gov>
+	Thu, 23 Sep 2004 12:12:38 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.51]:7312 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S266477AbUIWQI6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 12:08:58 -0400
+Date: Thu, 23 Sep 2004 18:08:57 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Linas Vepstas <linas@austin.ibm.com>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       linux-kernel@vger.kernel.org, anton@samba.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] [PPC64] [TRIVIAL] Janitor whitespace in pSeries_pci.c
+Message-ID: <20040923160857.GB12071@MAIL.13thfloor.at>
+Mail-Followup-To: Paul Mackerras <paulus@samba.org>,
+	Linas Vepstas <linas@austin.ibm.com>,
+	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+	linux-kernel@vger.kernel.org, anton@samba.org,
+	Andrew Morton <akpm@osdl.org>
+References: <20040920221933.GB1872@austin.ibm.com> <20040920223121.GC1872@austin.ibm.com> <200409211407.09764.vda@port.imtp.ilyichevsk.odessa.ua> <20040921161216.GD1872@austin.ibm.com> <20040922231700.GE30109@MAIL.13thfloor.at> <16722.60814.732208.93234@cargo.ozlabs.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 23 Sep 2004 11:09:06 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16722.60814.732208.93234@cargo.ozlabs.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a 3Ware-7500 series card.  I was trying the 2.6.9-rc2-mm2 kernel
-and discovered that the 3dmd utility was not working.  A little poking
-around revealed that the cause was because the 3Ware directory was not
-in /proc/scsi, even though I have CONFIG_SCSI_PROC_FS=y in my config
-file.  The 3dmd utility works fine with mainline 2.6.9-rc2 and it worked
-with the 2.6.8-mm series of kernels.  Those kernels have a 3w-xxxx
-directory in /proc/scsi.
+On Thu, Sep 23, 2004 at 08:36:46AM -0700, Paul Mackerras wrote:
+> Herbert Poetzl writes:
+> 
+> > well, I'd like to know if full whitespace cleanup
+> > (trailing and indentation) _is_ something which
+> > is interesting for linux mainline ...
+> 
+> It's like this... you get to clean up the white space in a file (if
+> you want) IF you are also doing some useful work on the file - but the
+> whitespace cleanup and the useful work need to be separate patches in
+> order to ease later tracking of what changed.
 
-Thanks.
+ah, okay, so a larger patch cleaning up the
+whitespace issues in let's say linux/kernel or
+linux/fs would not be appreciated ...
 
--- 
-Glenn Johnson
+thanks for the info,
+Herbert
 
+> Paul.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262782AbTLSMOw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 07:14:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262784AbTLSMOw
+	id S262761AbTLSMRy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 07:17:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262762AbTLSMRy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 07:14:52 -0500
-Received: from pa208.myslowice.sdi.tpnet.pl ([213.76.228.208]:52353 "EHLO
-	finwe.eu.org") by vger.kernel.org with ESMTP id S262782AbTLSMOv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 07:14:51 -0500
-Date: Fri, 19 Dec 2003 13:14:46 +0100
-From: Jacek Kawa <jfk@zeus.polsl.gliwice.pl>
-To: Brian Walker <walkerbm@charter.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: auto load modules
-Message-ID: <20031219121446.GA10741@finwe.eu.org>
-Mail-Followup-To: Brian Walker <walkerbm@charter.net>,
-	linux-kernel@vger.kernel.org
-References: <3FE276FA.2030509@charter.net>
+	Fri, 19 Dec 2003 07:17:54 -0500
+Received: from smtp06.ya.com ([62.151.11.163]:50630 "EHLO smtp.ya.com")
+	by vger.kernel.org with ESMTP id S262761AbTLSMRw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Dec 2003 07:17:52 -0500
+Subject: Re: UHCI-HCD && mosedev on 2.6.0-test11
+From: Carlos =?ISO-8859-1?Q?Jim=E9nez?= <lordeath@linuxspain.net>
+Reply-To: lordeath@linuxspain.net
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031217005552.GA8753@kroah.com>
+References: <1071536070.12406.5.camel@localhost>
+	 <20031216174639.GD2716@kroah.com> <1071621227.11193.69.camel@localhost>
+	 <20031217005552.GA8753@kroah.com>
+Content-Type: text/plain
+Organization: Torrejon Wireless
+Message-Id: <1071835994.12921.6.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3FE276FA.2030509@charter.net>
-Organization: Kreatorzy Kreacji Bialej
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 19 Dec 2003 13:13:14 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jak podaj± anonimowe ¼ród³a, przepowiedziano, ¿e Brian Walker napisze:
+More about UHCI && mousedev.
 
-> Hello. I've just upgraded to 2.6.0 from 2.6.0-test6. When I boot my 
-> system, modules that used to load automatically like those for my 
-> soundcard,bttv, and serial ports(aka /dev/ttyS*) are no longer loading. 
-> I've gone as far as upgrading to module-init-tools-0.9.15-pre4 but 
-> nothing makes these modules load automatically anymore. Any ideas?
+I have compiled 2.6.0 final release, and This compilation was using
+EMBEDDED(to get tristate on mousedev) and mousedev as a module.
 
-as for /dev/ttyS* you will need patch, see: 
+Without inserting module mousedev uhci-hcd hangs when I remove the
+device.
 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0312.0/0012.html
+So mousedev module probably is ok. 
 
-bye
+If u have any code to solve it, and u need probe it email me and I'll
+compile it and probe for u.
 
--- 
-Jacek Kawa

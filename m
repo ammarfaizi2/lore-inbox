@@ -1,71 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262506AbSJ3Ajt>; Tue, 29 Oct 2002 19:39:49 -0500
+	id <S262525AbSJ3BCZ>; Tue, 29 Oct 2002 20:02:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262510AbSJ3Ajt>; Tue, 29 Oct 2002 19:39:49 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:15019 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S262506AbSJ3Ajs>;
-	Tue, 29 Oct 2002 19:39:48 -0500
-Date: Wed, 30 Oct 2002 00:44:57 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Andreas Dilger <adilger@clusterfs.com>, Andi Kleen <ak@muc.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: New nanosecond stat patch for 2.5.44
-Message-ID: <20021030004457.GC22170@bjl1.asuk.net>
-References: <20021029163052.GH28982@clusterfs.com> <Pine.LNX.3.96.1021029151551.8154A-100000@gatekeeper.tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1021029151551.8154A-100000@gatekeeper.tmr.com>
-User-Agent: Mutt/1.4i
+	id <S262547AbSJ3BCZ>; Tue, 29 Oct 2002 20:02:25 -0500
+Received: from [207.224.39.108] ([207.224.39.108]:18440 "EHLO
+	detroit.freenet.org") by vger.kernel.org with ESMTP
+	id <S262525AbSJ3BCY>; Tue, 29 Oct 2002 20:02:24 -0500
+Date: Tue, 29 Oct 2002 20:08:20 -0500 (EST)
+Message-Id: <200210300108.UAA17536@detroit.freenet.org>
+From: av556@detroit.freenet.org (Kenneth M. Howlett)
+To: linux-kernel@vger.kernel.org, mnalis-umsdos@voyager.hr,
+       chaffee@cs.berkeley.edu, bsg@uniyar.ac.ru
+Subject: PROBLEM: dos filesystem timestamps and daylight savings time
+Reply-To: av556@detroit.freenet.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
-> I admit to being one of the "thousands" people, and even if I have 100k
-> inodes (more likely to be 10% of that) it's in the order of a MB, and any
-> machine which has 100k inodes open is likely to be large enough to ignore
-> a MB. One advantage of keeping the HRT in the in-core inode is that it
-> allows parallel make to work correctly even on a filesystem which doesn't
-> have space to save that information.
-> 
-> Feel free to tell me if that last isn't true.
 
-It isn't true if the parallel make actually uses your RAM for
-something, thus flushing some of the inodes from RAM.
 
-Admittedly it is no worse than we have at the moment.  However, at the
-moment it is possible, to construct a "make" or other program of that
-ilk which can always make a safe decision: if it's ambiguous whether a
-file needs to be remade, then remake the file.
 
-As soon as we have inodes time stamp resolution being spontanously
-lowered (because some of the inodes are flushed from RAM and some
-aren't), then it's not possible to make a safe program like that
-anymore, unless you simply ignore the high resolution time stamps
-_all_ the time, even when they are present.
+A few days ago, daylight savings time ended, and now
+ls --full-time says the timestamps of all the files on
+my dos partition have increased by one hour.
 
-You can just do that - it's correct behaviour.  But it would be better
-to use the high precision when available, as that reduces the number
-of unnecessary remakes.
+For example, ls --full-time says the timestamp of command.com is:
+last week: Tue Apr 07 06:00:00 1992
+this week: Tue Apr 07 07:00:00 1992
 
-> 4 - the time could be stored in register values, ticks, or whatever else,
-> avoiding any conversion to ns. Then the time could be converted only when
-> the inode was read, written out, etc. 
-> 
-> I'd really like your comments on these, you probably see things I've
-> missed.
+I think the timestamps of a dos filesystem are stored in local
+time. So the dos filesystem driver needs to convert the local
+time to unix standard time, and then ls converts back to local
+time, and displays the timestamp in local time.
 
-I know of exactly one application which depends on atime information:
-checking whether you have new mail in your inbox.  That's done by
-comparing atime and mtime on the mailbox.  Mail readers read the file
-after writing it, MTAs will simply write it.
+I think that the problem is that the dos filesystem driver's
+local time to unix standard time algorithm is compensating for
+whether or not daylight savings time is in effect NOW. It should
+be compensating for whether or not daylight savings time was in
+effect at the time of the timestamp.
 
-For this to function correctly, what's important is that the atime is
-updated to be at least the mtime.  So for nanosecond atime updates, it
-makes sense that the _first_ read following a write should update the
-atime -- if not using the current clock, then simply copying the mtime
-value.
+The time conversion algorithm is function date_dos2unix in file
+/usr/src/linux-2.4.19/fs/fat/misc.c. Is there a way to use
+tz_minuteswest from the the time of the timestamp instead of the
+current tz_minuteswest?
 
--- Jamie
+Or before returning the number of seconds, function date_dos2unix
+could determine if daylight savings time is in effect now, and if
+daylight savings time was in effect at the time of the timestamp.
+These determinations could return 0 or 1. Then subtract the two
+determinations, which will give us -1, 0, or 1. Multiply by 3600
+and add to the number of seconds.
+
+Function fat_date_unix2dos in file
+/usr/src/linux-2.4.19/fs/fat/misc.c should have a similar fix.
+
+ls appears to convert unix standard time to local time correctly,
+adjusting for whether or not daylight savings time was in effect
+at the time being converted. Maybe we should look at the source
+for ls, to see how ls converts time.
+
+I am running redhat 7.2 on a pcchips741lmrt/pentiumII, with a
+custom 2.4.19 kernel, compiled with gcc version 2.96. My dos
+partition is plain dos, not vfat or umsdos.
+

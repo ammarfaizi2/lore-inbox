@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262230AbTIMWKe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 18:10:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262233AbTIMWKd
+	id S262229AbTIMWPm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 18:15:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262231AbTIMWPm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 18:10:33 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:22686 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262230AbTIMWK2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 18:10:28 -0400
-Subject: RE: People, not GPL  [was: Re: Driver Model]
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: David Schwartz <davids@webmaster.com>
-Cc: Pascal Schmidt <der.eremit@email.de>, Andre Hedrick <andre@linux-ide.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKEEGEGIAA.davids@webmaster.com>
-References: <MDEHLPKNGKAHNMBLJOLKEEGEGIAA.davids@webmaster.com>
-Content-Type: text/plain
+	Sat, 13 Sep 2003 18:15:42 -0400
+Received: from keetweej.xs4all.nl ([213.84.46.114]:10435 "EHLO
+	keetweej.vanheusden.com") by vger.kernel.org with ESMTP
+	id S262229AbTIMWPl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 18:15:41 -0400
+From: Folkert van Heusden <folkert@vanheusden.com>
+Reply-To: folkert@vanheusden.com
+Organization: vanheusdendotcom
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0test-1 error while writing files to loopback UDF filesystem UDF-fs DEBUG fs/udf/balloc.c:192:udf_
+bitmap_free_blocks: bit 3128 already set
+Date: Sun, 14 Sep 2003 00:15:40 +0200
+User-Agent: KMail/1.5.3
+WebSite: http://www.vanheusden.com/
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <1063490941.9402.14.camel@dhcp23.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-6) 
-Date: Sat, 13 Sep 2003 23:09:02 +0100
+Content-Disposition: inline
+Message-Id: <200309140015.40063.folkert@vanheusden.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2003-09-13 at 22:19, David Schwartz wrote:
->  
-> > If people put GPL_ONLY symbol exports in their code, that's their call
-> > to make, is it not? It's their code and they're free to say "well, this
-> > is my code, and if you use this symbol, I consider your stuff to be a
-> > derived work". Once again it's up to the lawyers to decide whether
-> > this has legal value or not.
-> 
-> 	If it has legal value, then it's an additional restriction.
+Hi,
 
-If it has legal value in showing the work is derivative thats not an
-additional restriction. Its merely showing the intent of the author. If 
-someone creates a work and its found to be derivative and they didnt
-make it GPL compatible they get sued, thats also not an additional
-restriction its what the GPL says anyway.
+I created an UDF filesystem (dd of=file if=... && mkudffs file && mount -o 
+loop -t udf /mnt) and then added some files to it (tar cf - * | (cd /mnt ; 
+tar xvpf -)).
+That went well for a while, but after aprox 2GB (beware: no file was longer 
+then +/- 1GB), I got these errors in syslog:
+Sep 14 00:04:38 boemboem kernel: UDF-fs DEBUG fs/udf/balloc.c:192:udf_
+bitmap_free_blocks: bit 3125 already set
+Sep 14 00:04:38 boemboem kernel: UDF-fs DEBUG fs/udf/balloc.c:193:udf_
+bitmap_free_blocks: byte=20
+Sep 14 00:04:38 boemboem kernel: UDF-fs DEBUG fs/udf/balloc.c:192:udf_
+bitmap_free_blocks: bit 3125 already set
+Sep 14 00:04:38 boemboem kernel: UDF-fs DEBUG fs/udf/balloc.c:193:udf_
+bitmap_free_blocks: byte=60
+etc.
+I then did a compare (cmp -l) and found that the copied file was different 
+from the original one, so it seems something is going wrong while writing to 
+the UDF filesystem.
+As I wrote in the subjectline, I'm using 2.6.0-test1.
 
-That is the whole point of EXPORT_SYMBOL_GPL, it doesn't enforce
-anything and Linus was absolutely specific it should not do the
-enforcing. Its a hint and a support filter.
+
+Folkert van Heusden
+
++--------------------------------------------------------------------------+
+| UNIX sysop? Then give MultiTail ( http://www.vanheusden.com/multitail/ ) |
+| a try, it brings monitoring logfiles (and such) to a different level!    |
++---------------------------------------------------= www.vanheusden.com =-+
 

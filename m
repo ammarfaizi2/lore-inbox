@@ -1,45 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280293AbRKSRRZ>; Mon, 19 Nov 2001 12:17:25 -0500
+	id <S280251AbRKSRPQ>; Mon, 19 Nov 2001 12:15:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280254AbRKSRRT>; Mon, 19 Nov 2001 12:17:19 -0500
-Received: from james.kalifornia.com ([208.179.59.2]:42110 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S280293AbRKSRRG>; Mon, 19 Nov 2001 12:17:06 -0500
-Message-ID: <3BF93E36.5040603@blue-labs.org>
-Date: Mon, 19 Nov 2001 12:15:34 -0500
-From: David Ford <david@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6+) Gecko/20011119
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-CC: vda@port.imtp.ilyichevsk.odessa.ua, James A Sutherland <jas88@cam.ac.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: x bit for dirs: misfeature?
-In-Reply-To: <200111191647.KAA36330@tomcat.admin.navo.hpc.mil>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S280254AbRKSRPF>; Mon, 19 Nov 2001 12:15:05 -0500
+Received: from 66-108-76-7.nyc.rr.com ([66.108.76.7]:36082 "EHLO
+	localhost.galis.org") by vger.kernel.org with ESMTP
+	id <S280251AbRKSROy>; Mon, 19 Nov 2001 12:14:54 -0500
+Date: Mon, 19 Nov 2001 12:14:50 -0500
+From: George Georgalis <george@galis.org>
+To: "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>
+Subject: Re: Buslogic SCSI hangs with cdrecord
+Message-ID: <20011119121450.C10861@localhost.localdomain>
+In-Reply-To: <20011114002513.D676@trot>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011114002513.D676@trot>; from george@galis.org on Wed, Nov 14, 2001 at 12:25:13AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The problem it turns out was a failing CPU, which got worse but is now better.
+
+// George
+
+On Wed, Nov 14, 2001 at 12:25:13AM -0500, George Georgalis wrote:
+>Hi All,
+>
+>Haven't posted or been around in a while so I hope this isn't a rehash.
+>I didn't find anything in a quick goggle search...
+>
+>I'm having trouble writing CDs. I'll get from 0% to 75% (varies)
+>through the process and the whole machine locks up, no oops and nothing
+>in the log after a restart.
+>
+>I've been running a 2.2.19-6.2.12 kernel (RH 6.2 updated rpm). And today
+>I tried using a monolithic vmlinuz-2.2.20 with identical results.
+>
+>Here is a typical record command, I've tried it at 2, 4 and 8 speed.
+>
+>cdrecord -v speed=8 dev=0,3,0  -data ~ftp/pub/ISOs/enigma-i386-disc1.iso 
+>
+>I'm running an AMD Athlon Processor at 1200MHz on a Soyo SY-K7VTA PRO   
+>board with lots of ram and no other responsibilities.                   
+>
+>below is the scsi details, has anyone heard of similar problems?
+>
+>Host: scsi0 Channel: 00 Id: 03 Lun: 00
+>  Vendor: YAMAHA   Model: CRW8424S         Rev: 1.0j
+>  Type:   CD-ROM                           ANSI SCSI revision: 02
 >
 >
->>I know. I'd like to hear anybody who have a directory with r!=x
->>on purpose (and quite curious on that purpose). UNIX gugus, anybody?
->>
+>***** BusLogic SCSI Driver Version 2.1.15 of 17 August 1998 *****
+>Copyright 1995-1998 by Leonard N. Zubkoff <lnz@dandelion.com>
+>Configuring BusLogic Model BT-930 PCI Ultra SCSI Host Adapter
+>  Firmware Version: 5.02, I/O Address: 0xD800, IRQ Channel: 11/Level
+>  PCI Bus: 0, Device: 9, Address: 0xD5000000, Host Adapter SCSI ID: 7
+>  Parity Checking: Enabled, Extended Translation: Enabled
+>  Synchronous Negotiation: Fast, Wide Negotiation: Disabled
+>  Disconnect/Reconnect: Enabled, Tagged Queuing: Enabled
+>  Driver Queue Depth: 255, Scatter/Gather Limit: 128 segments
+>  Tagged Queue Depth: Automatic, Untagged Queue Depth: 3
+>  Error Recovery Strategy: Default, SCSI Bus Reset: Enabled
+>  SCSI Bus Termination: Enabled, SCAM: Disabled
+>*** BusLogic BT-930 Initialized Successfully ***
 >
->It's used to hide files in anonymous FTP for for one. It prevents you from
->retrieving files that you don't know the name of. Yes, a brute force attempt
->to open MAY work to find the unknown file, it will take a long time, and you
->are most likely to be detected. The anonymous FTP use is usually in an incoming
->directory - the files are put there from remote individuals, and are hidden
->(unless someone is a good guesser/or a poor name chosen) until the
->administrator examines/moves them.
+>
+>// George
+>
+>(comments on Soyo SY-K7VTA PRO built in sound are also welcome)
+>
+>-- 
+>GEORGE GEORGALIS, Principal        http://www.galis.org/george 
+>System Administration Services      email: george@galis.org 
+>PGP Key ID: 98311631                  cell: 347-451-8229
 >
 
-I use it for more than just ftp.  I chmod 710 ~ and have ~ in the 
-web/email groups.  It stops prying eyes unless they know what the 
-filename is.
-
-David
-
+-- 
+GEORGE GEORGALIS, Principal        http://www.galis.org/george 
+System Administration Services      email: george@galis.org 
+PGP Key ID: 98311631                  cell: 347-451-8229

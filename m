@@ -1,51 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280823AbRKBUml>; Fri, 2 Nov 2001 15:42:41 -0500
+	id <S280824AbRKBUqb>; Fri, 2 Nov 2001 15:46:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280825AbRKBUma>; Fri, 2 Nov 2001 15:42:30 -0500
-Received: from [212.34.128.4] ([212.34.128.4]:17962 "EHLO mailer.ran.es")
-	by vger.kernel.org with ESMTP id <S280824AbRKBUmT>;
-	Fri, 2 Nov 2001 15:42:19 -0500
-Date: Fri, 2 Nov 2001 21:42:25 +0100
-From: victor <ixnay@infonegocio.com>
-X-Mailer: The Bat! (v1.53d)
-Reply-To: victor <ixnay@infonegocio.com>
-X-Priority: 3 (Normal)
-Message-ID: <10487549890.20011102214225@infonegocio.com>
-To: linux-kernel@vger.kernel.org
-Subject: kernel 2.2.20 falis on alpha
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S280826AbRKBUqV>; Fri, 2 Nov 2001 15:46:21 -0500
+Received: from smtp6.mindspring.com ([207.69.200.110]:24854 "EHLO
+	smtp6.mindspring.com") by vger.kernel.org with ESMTP
+	id <S280824AbRKBUqL>; Fri, 2 Nov 2001 15:46:11 -0500
+Date: Fri, 2 Nov 2001 14:46:04 -0600
+From: Tim Walberg <twalberg@mindspring.com>
+To: Ville Herva <vherva@niksula.hut.fi>
+Cc: John Adams <johna@onevista.com>, linux-kernel@vger.kernel.org
+Subject: Re: Need blocking /dev/null
+Message-ID: <20011102144604.E8312@mindspring.com>
+Reply-To: Tim Walberg <twalberg@mindspring.com>
+Mail-Followup-To: Tim Walberg <twalberg@mindspring.com>,
+	Ville Herva <vherva@niksula.hut.fi>,
+	John Adams <johna@onevista.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0111012322310.14742-100000@Consulate.UFP.CX> <01110215041301.01066@flash> <20011102223209.D26218@niksula.cs.hut.fi>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="f61P+fpdnY2FZS1u"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011102223209.D26218@niksula.cs.hut.fi> from Ville Herva on 11/02/2001 14:32
+X-PGP-RSA-Key: 0x0C8BA2FD at www.pgp.com (pgp.ai.mit.edu)
+X-PGP-RSA-Fingerprint: FC08 4026 8A62 C72F 90A9 FA33 6EEA 542D
+X-PGP-DSS-Key: 0x6DAB2566 at www.pgp.com (pgp.ai.mit.edu)
+X-PGP-DSS-Fingerprint: 4E1B CD33 46D0 F383 1579  1CCA C3E5 9C8F 6DAB 2566
+X-URL: http://www.concentric.net/~twalberg
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
 
-2.2.19 compiles me perfectly but 2.2.20 fails ...
+--f61P+fpdnY2FZS1u
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-alpha:/usr/src/linux# uname -a
-Linux alpha 2.2.18pre21 #1 Wed Nov 22 05:08:09 CST 2000 alpha unknown
-alpha:/usr/src/linux# make
-make: Circular /usr/src/linux/include/asm/smp.h <- /usr/src/linux/include/linux/sched.h dependency dropped.
-make: Circular /usr/src/linux/include/asm/pci.h <- /usr/src/linux/include/linux/pci.h dependency dropped.
-cc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mno-fp-regs -ffixed-8  -c -o init/main.o init/main.c
-In file included from /usr/src/linux/include/linux/pci.h:1448,
-                 from init/main.c:35:
-/usr/src/linux/include/asm/pci.h: In function `pci_controller_num':
-/usr/src/linux/include/asm/pci.h:62: structure has no member named `pci_host_index'
-/usr/src/linux/include/asm/pci.h:63: warning: control reaches end of non-void function
-make: *** [init/main.o] Error 1
-alpha:/usr/src/linux# dpkg -la |grep libc
-ii  libc6.1        2.2.4-4        GNU C Library: Shared libraries and Timezone
-ii  libc6.1-dbg    2.2.4-4        GNU C Library: Libraries with debugging symb
-ii  libc6.1-dev    2.2.4-4        GNU C Library: Development Libraries and Hea
-ii  libc6.1-pic    2.2.4-4        GNU C Library: PIC archive library
-ii  libc6.1-prof   2.2.4-4        GNU C Library: Profiling Libraries.
-ii  libgpmg1       1.17.8-18      General Purpose Mouse Library [libc6]
-alpha:/usr/src/linux# exit  
+I think that
 
--- 
-Best regards,
- victor                          mailto:ixnay@infonegocio.com
+find / -name foo 2>&-
 
+should do the trick (under ksh, anyway, and
+probably zsh or bash as well). Csh variants
+IIRC don't have the concept of closing a
+file descriptor...
+
+		tw
+
+>>=09
+>>	The initial question was how to do
+>>=09
+>>	find / -name foo 2> /dev/null=20
+>>=09
+>>	or similar if /dev/null is not present. (Eat is a place holder for a
+>>	imaginary progrom acting as /dev/null replacement).
+>>=09
+>>	I guess=20
+>>=09
+>>	find / -name foo 2>/dev/stdout 1>/dev/stderr | eat
+>>=09
+>>	would (kinda) work, but it fails if you want to do
+>>=09
+>>	find / -name foo 2> /dev/null | less
+>>=09
+>>	Can be done with named pipes, though.
+>>=09
+>>=09
+>>	-- v --
+>>=09
+>>	v@iki.fi
+>>	-
+>>	To unsubscribe from this list: send the line "unsubscribe linux-kernel" =
+in
+>>	the body of a message to majordomo@vger.kernel.org
+>>	More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>	Please read the FAQ at  http://www.tux.org/lkml/
+End of included message
+
+
+
+--=20
++--------------------------+------------------------------+
+| Tim Walberg              | twalberg@mindspring.com      |
+| 830 Carriage Dr.         | www.concentric.net/~twalberg |
+| Algonquin, IL 60102      |                              |
++--------------------------+------------------------------+
+
+--f61P+fpdnY2FZS1u
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: PGP 6.5.1i
+
+iQA/AwUBO+MGCsPlnI9tqyVmEQKIUQCeOCga8wGJsn3RTVkMQ+eXpiX8QJIAnjlQ
+xToXQYxQqC+6mU4ZRvv+AIOi
+=Bn6+
+-----END PGP SIGNATURE-----
+
+--f61P+fpdnY2FZS1u--

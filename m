@@ -1,111 +1,141 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262169AbTEHWLL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 18:11:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbTEHWLL
+	id S262179AbTEHWOj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 18:14:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbTEHWOi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 18:11:11 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:21895 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262169AbTEHWLJ
+	Thu, 8 May 2003 18:14:38 -0400
+Received: from [198.70.193.2] ([198.70.193.2]:3390 "EHLO AVEXCH01.qlogic.org")
+	by vger.kernel.org with ESMTP id S262170AbTEHWOd convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 18:11:09 -0400
-Date: Fri, 9 May 2003 00:22:50 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Felix von Leitner <felix-kernel@fefe.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.69: VIA IDE still broken
-In-Reply-To: <20030508220910.GA1070@codeblau.de>
-Message-ID: <Pine.SOL.4.30.0305090020480.9466-200000@mion.elka.pw.edu.pl>
+	Thu, 8 May 2003 18:14:33 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-851401618-1052432570=:9466"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: [ANNOUNCE] QLogic FC Driver for Linux kernel 2.5 available.
+Date: Thu, 8 May 2003 15:25:52 -0700
+Message-ID: <B179AE41C1147041AA1121F44614F0B05989EA@AVEXCH02.qlogic.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [ANNOUNCE] QLogic FC Driver for Linux kernel 2.5 available.
+Thread-Index: AcMVsUen4WtRv4AGEde2IwCw0FRShg==
+From: "Andrew Vasquez" <andrew.vasquez@qlogic.com>
+To: <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>
+X-OriginalArrivalTime: 08 May 2003 22:25:53.0363 (UTC) FILETIME=[C962D230:01C315B0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+All,
 
----559023410-851401618-1052432570=:9466
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+QLogic is pleased to announce the availability of a completely new
+version of the QLogic FC driver (8.00.00b1) for its
+ISP21xx/ISP22xx/ISP23xx chips and HBAs.  Our desire after community
+review and continued driver development is inclusion of this work into
+the Linux 2.5 kernel tree.
 
+This driver contains support for Linux kernels 2.5.x and above *only*
+(all 2.4.x support has been removed).  It's based on the QLogic 6.x
+driver which is qualified with a number of OEMs and is functionally
+equivalent to the 6.05.00b9 driver.
 
-Apply patch.
+The new driver contains a number of key functional changes,
+initialization (device scanning), I/O handling -- command queuing
+refinements (front-end), ISR rewrite (backend).  The last two notables
+should assist in a reasonable performance improvement.  Details
+pertaining to the these changes and the development direction of this
+work can be found towards the end of this email.
 
-On Fri, 9 May 2003, Felix von Leitner wrote:
+Driver tar-balls are available in two-forms from our SourceForge site:
 
-> I can't believe this still isn't fixed!
->
->  hda: dma_timer_expiry: dma status == 0x24
->  hda: lost interrupt
->  hda: dma_intr: bad DMA status (dma_stat=30)
->  hda: dma_intr: status=0x50 { DriveReady SeekComplete }
->
->  hda: dma_timer_expiry: dma status == 0x24
->  hda: lost interrupt
->  hda: dma_intr: bad DMA status (dma_stat=30)
->  hda: dma_intr: status=0x50 { DriveReady SeekComplete }
->
-> My hda is in perfect health and this does not happen on the same
-> hardware with 2.4.* or 2.5.63.  I reported this before and got the
-> answer that to fix this, recent changes in the IDE code would have to be
-> reverted.  Apparently I was unreasonably hasty in assuming that that
-> would be done now that the need to do it has been established.
->
-> I would appreciate it if the fix would be integrated into 2.5.70.
->
-> Amazing: the only hardware components in my machine that actually work
-> as expected with recent Linux 2.5 kernels are the network cards, the RAM
-> and the keyboard, and I had to replace a tulip card with an eepro100 for
-> that.  Even the CPU appears to run too hot with Linux, causing the
-> system to boot spontaneously under load, and because ACPI is terminally
-> broken in Linux and has been every time I tried it, I can't do much
-> about it.  Firewire does not like me (modprobe eth1394 -> oops), IDE
-> loses interrupts (see above), my USB mouse stops working as soon as I
-> plug in my USB hard disk (which works fine on my notebook and under
-> Windows), using my IDE CD-R causes the machine to freeze while cdrecord
-> does OTP, finalizing or eject.  The nvidia graphics card takes major
-> patching to work at all with X, and all of these components are
-> well-known brand components from tier 1 suppliers that were chosen for
-> reliability and market penetration over price.  I envy people who can
-> still evangelize Linux under circumstances like this.  I sure as hell
-> can not.
->
-> Felix
+	http://sourceforge.net/projects/linux-qla2xxx/
 
-So what are you waiting for? Stop whining and start hacking now!
---
-Bartlomiej
+   o Kernel tree drop-in tarball (synced with 2.5.69):
 
----559023410-851401618-1052432570=:9466
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="ide_masked_irq.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.SOL.4.30.0305090022500.9466@mion.elka.pw.edu.pl>
-Content-Description: 
-Content-Disposition: attachment; filename="ide_masked_irq.patch"
+	qla2xxx-kernel-v8.00.00b1.tar.bz2
 
-DQojIEZpeCBtYXNrZWRfaXJxIGFyZyBoYW5kbGluZyBmb3IgaWRlX2RvX3Jl
-cXVlc3QoKS4NCiMgU29sdmVzICJoZHg6IGxvc3QgaW50ZXJydXB0IiBidWcu
-DQojDQojIEJhcnRsb21pZWogWm9sbmllcmtpZXdpY3ogPGJ6b2xuaWVyQGVs
-a2EucHcuZWR1LnBsPg0KDQogZHJpdmVycy9pZGUvaWRlLWlvLmMgfCAgICA0
-ICsrLS0NCiAxIGZpbGVzIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKSwgMiBk
-ZWxldGlvbnMoLSkNCg0KZGlmZiAtcHVOIGRyaXZlcnMvaWRlL2lkZS1pby5j
-fmlkZV9tYXNrZWRfaXJxIGRyaXZlcnMvaWRlL2lkZS1pby5jDQotLS0gbGlu
-dXgtMi41LjY5L2RyaXZlcnMvaWRlL2lkZS1pby5jfmlkZV9tYXNrZWRfaXJx
-CVRodSBNYXkgIDggMTc6MTY6MjcgMjAwMw0KKysrIGxpbnV4LTIuNS42OS1y
-b290L2RyaXZlcnMvaWRlL2lkZS1pby5jCVRodSBNYXkgIDggMTc6MTY6Mjcg
-MjAwMw0KQEAgLTg1MCwxNCArODUwLDE0IEBAIHF1ZXVlX25leHQ6DQogCQkg
-KiBoYXBwZW5zIGFueXdheSB3aGVuIGFueSBpbnRlcnJ1cHQgY29tZXMgaW4s
-IElERSBvciBvdGhlcndpc2UNCiAJCSAqICAtLSB0aGUga2VybmVsIG1hc2tz
-IHRoZSBJUlEgd2hpbGUgaXQgaXMgYmVpbmcgaGFuZGxlZC4NCiAJCSAqLw0K
-LQkJaWYgKGh3aWYtPmlycSAhPSBtYXNrZWRfaXJxKQ0KKwkJaWYgKG1hc2tl
-ZF9pcnEgIT0gSURFX05PX0lSUSAmJiBod2lmLT5pcnEgIT0gbWFza2VkX2ly
-cSkNCiAJCQlkaXNhYmxlX2lycV9ub3N5bmMoaHdpZi0+aXJxKTsNCiAJCXNw
-aW5fdW5sb2NrKCZpZGVfbG9jayk7DQogCQlsb2NhbF9pcnFfZW5hYmxlKCk7
-DQogCQkJLyogYWxsb3cgb3RoZXIgSVJRcyB3aGlsZSB3ZSBzdGFydCB0aGlz
-IHJlcXVlc3QgKi8NCiAJCXN0YXJ0c3RvcCA9IHN0YXJ0X3JlcXVlc3QoZHJp
-dmUsIHJxKTsNCiAJCXNwaW5fbG9ja19pcnEoJmlkZV9sb2NrKTsNCi0JCWlm
-IChod2lmLT5pcnEgIT0gbWFza2VkX2lycSkNCisJCWlmIChtYXNrZWRfaXJx
-ICE9IElERV9OT19JUlEgJiYgaHdpZi0+aXJxICE9IG1hc2tlZF9pcnEpDQog
-CQkJZW5hYmxlX2lycShod2lmLT5pcnEpOw0KIAkJaWYgKHN0YXJ0c3RvcCA9
-PSBpZGVfcmVsZWFzZWQpDQogCQkJZ290byBxdWV1ZV9uZXh0Ow0KDQpfDQo=
----559023410-851401618-1052432570=:9466--
+	Extract the contents directly in the kernel tree:
+
+		# cd /usr/src/linux-2.5.69
+		# tar xvfj /tmp/qla2xxx-kernel-v8.00.00b1.tar.bz2
+		# make config
+		# ...
+
+   o External build tarball:
+
+	qla2xxx-src-v8.00.00b1.tar.bz2
+
+	Extract the contents to your build directory:
+
+		# mkdir /tmp/qla-8.00.00b1
+		# cd /tmp/qla-8.00.00b1
+		# tar xvfj /tmp/qla2xxx-src-v8.00.00b1.tar.bz2
+		# make -C /usr/src/linux-2.5.69 SUBDIRS=$PWD modules
+
+Please note, this is a (pre)beta release.  Testing has been performed
+against a number of storage devices (JBODs, and FC raid boxes), but
+certainly has not received the level of test coverage present with the
+6.x series code -- basic error injection (cable-pulls and recovery).
+
+NOTE: The driver group will try to address any issues with this work
+within the linux-scsi and linux-kernel mailing lists.  Please do not 
+contact QLogic technical support regarding this driver.
+
+Details:
+
+This driver is and will continue to be in a very fluid state.  Changes
+thus far include basic infrastructure and semantic rewrites of some core
+components of the driver:
+
+	o Initialization:
+	  - pci_driver scanning.
+	  - Fabric scanning:
+	    - GID_PT (if not supported, fallback to GA_NXT).
+	    - SNS registration - RFT_ID, RFF_ID RNN_ID, RSNN_ID.
+	  - ISP abstractions:
+	    - Firmware loading mechanism.
+	    - NVRAM configuration.
+	  - 2k port login support (ISP23xx only).
+	  - SRB pool allocations.
+
+	o Queuing mechanisms:
+	  - Rewrite command IOCB handling.
+
+	o Command response handling:
+	  - Rewrite ISR -- simplification.
+	  - Bottom-half handling via work queues.
+
+	o Code restructuring.
+
+	o Kernel 2.5 support -- currently in sync with 2.5.69.
+	
+Additional work to be done include:
+
+	o Further fabric scanning refinements:
+	  - Minimizing SNS queries.
+	  - Asynchronous fabric logins.
+
+	o Review Locking mechanisms -- there are still a number of
+	  structures which depend on our high-level hardware lock for
+	  mutual exclusion.
+
+	o Internal device-list management unification.
+
+	o Rework mailbox and IOCTL request handling:
+	  - To use wait queues.
+
+	o Logging mechanisms.  The current debugging requirement is to
+	  recompile the driver in 'debug' mode.  Once included in the
+	  kernel tree, recompilation is not a guaranteed option.
+	  Make use of 'Extended error logging' NVRAM parameter to enable
+	  additional debug statements.
+	
+	o Kernel 2.5 support:
+	  - module_param() interface.
+
+Any feedback (comments, suggestions, criticisms) would be appreciated.
+
+Regards,
+Andrew Vasquez
+QLogic Corporation

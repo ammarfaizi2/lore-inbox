@@ -1,40 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262571AbVAPTNz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262572AbVAPTTY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262571AbVAPTNz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 14:13:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262572AbVAPTNz
+	id S262572AbVAPTTY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 14:19:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262579AbVAPTTX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 14:13:55 -0500
-Received: from main.gmane.org ([80.91.229.2]:13719 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262571AbVAPTNw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 14:13:52 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Sergey Vlasov <vsu@altlinux.ru>
-Subject: Re: permissions of /proc/tty/driver
-Date: Sun, 16 Jan 2005 22:13:45 +0300
-Message-ID: <pan.2005.01.16.19.13.45.210905@altlinux.ru>
-References: <41E80535.1060309@beamnet.de> <20050116120436.GA13906@lst.de> <41EA688A.6050305@beamnet.de>
+	Sun, 16 Jan 2005 14:19:23 -0500
+Received: from willy.net1.nerim.net ([62.212.114.60]:55311 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S262572AbVAPTTQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 14:19:16 -0500
+Date: Sun, 16 Jan 2005 20:07:42 +0100
+From: Willy Tarreau <willy@w.ods.org>
+To: Bill Pringlemeir <bpringle@sympatico.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Process system call access list.
+Message-ID: <20050116190742.GL7048@alpha.home.local>
+References: <m2wtudqjw9.fsf@sympatico.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 213.177.124.23
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity.)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m2wtudqjw9.fsf@sympatico.ca>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 16 Jan 2005 14:13:46 +0100, Thomas Viehmann wrote:
+Hi,
 
-> Christoph Hellwig wrote:
->> Counter-question:  What information is available in
->> /proc/tty/driver/usbserial but not in sysfs?
+On Sun, Jan 16, 2005 at 02:00:22PM -0500, Bill Pringlemeir wrote:
 > 
-> Thanks for this hint, is there a way of finding vendor and product ids 
-> of all ttyUSB devices better than
-> looking for /sys/bus/usb/devices/*-*/*-*:*/ttyUSB* and then ckecking the 
-> obvious files in the grandparent directory?
+> [please CC me.]
+> 
+> I was looking at phrack and many of the remote exploits rely on
+> injecting some arbitrary code.  Generally is is something like
+> 'exec("/bin/sh")' or something like that.
+> 
+> I was wondering if a section could be added to the link phase of a
+> user application that would keep a list/bit mask of all kernel calls
+> that the compiler had encountered in some section.
+> 
+> When the kernel loaded a process, it would keep a copy of the bit mask
+> and perform a comparison to see if the process was intended to make
+> the system call (perhaps only a sub-set of the entire system calls are
+> needed).
 
-/sys/bus/usb-serial/devices/* looks like what you need...
+A friend of mine worked on something a bit like this for kernel 2.2. He
+had a module which accepted syscall-based sets of rules based on prog
+name, pid, uid, argument size and values, etc... He could even execute
+code before and after the syscall (he could use it to keep an image of
+what 'make install' touches). The goal was to identify all syscalls
+needed from opensource programs through code reviewing, and try to
+identify them using strace for closed-source programs (or simply let
+them be vulnerable). We found it useful to protect against some attacks
+on network-only programs; For example, a reverse-proxy has no reason to
+either fork, exec, mount, mknod, etc... We did not have time to port this
+to 2.4. However, now that the syscall_table is unexported, this is history.
+
+There are other programs which do more or less the same (systrace comes
+to mind). But in your case where the compiler gives the syscall list itself,
+I have no knowledge of any similar tool. But I fear that if the bitmask is
+kept within an ELF section, the attacker would first have to rewrite the
+mask before using syscalls again (or put it in an RO section ?).
+
+Regards,
+Willy
 

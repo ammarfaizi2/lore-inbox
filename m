@@ -1,67 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264148AbTDJSIP (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 14:08:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264150AbTDJSIP (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 14:08:15 -0400
-Received: from WARSL401PIP6.highway.telekom.at ([195.3.96.93]:36665 "HELO
-	email03.aon.at") by vger.kernel.org with SMTP id S264148AbTDJSIM (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Apr 2003 14:08:12 -0400
-From: Hermann Himmelbauer <dusty@violin.dyndns.org>
-To: Nuno Silva <nuno.silva@vgertech.com>
-Subject: Re: Linux-2.4.20 on a 4 MB Laptop
-Date: Thu, 10 Apr 2003 20:19:31 +0200
-User-Agent: KMail/1.5
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200304091601.55821.dusty@violin.dyndns.org> <3E94DCA1.5020106@vgertech.com>
-In-Reply-To: <3E94DCA1.5020106@vgertech.com>
+	id S264146AbTDJSHz (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 14:07:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264148AbTDJSHz (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 14:07:55 -0400
+Received: from mx01.cyberus.ca ([216.191.240.22]:35590 "EHLO mx01.cyberus.ca")
+	by vger.kernel.org with ESMTP id S264146AbTDJSHx (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 14:07:53 -0400
+Date: Thu, 10 Apr 2003 13:57:46 -0400 (EDT)
+From: jamal <hadi@cyberus.ca>
+To: "Dimitry V. Ketov" <Dimitry.Ketov@avalon.ru>
+cc: netdev@oss.sgi.com, "" <linux-kernel@vger.kernel.org>,
+       "" <kuznet@ms2.inr.ac.ru>
+Subject: Re: [PATCH] [2.4.20] filter_list destroy fix in net/sched/sch_prio.c
+In-Reply-To: <E1B7C89B8DCB084C809A22D7FEB90B381773AD@frodo.avalon.ru>
+Message-ID: <20030410135727.M86925@shell.cyberus.ca>
+References: <E1B7C89B8DCB084C809A22D7FEB90B381773AD@frodo.avalon.ru>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304102019.32019.dusty@violin.dyndns.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 10 April 2003 04:53, Nuno Silva wrote:
-> Hermann Himmelbauer wrote:
-> > Well - anyway, the kernel boots but right stops after:
-> > INIT: Entering runlevel:3
-> >
-> > The next line is:
-> > INIT: open(/dev/console): Input/output error
-> > INIT: Id "2" respawning too fast: disabled for 5 minutes
-> > ...
-> >
-> > That's it.
+
+
+Looks good to me.
+
+cheers,
+jamal
+
+On Thu, 10 Apr 2003, Dimitry V. Ketov wrote:
+
+> The prio qdisc does not destroy its filter list, when someone deletes
+> qdisc from interface without explicit filter deleting.
+> This patch fixes that behavior.
 >
-> Maybe you striped too much and didn't include *any* console type
-> (serial, vga or framebuffer)? :)
-
-No, I thought of this - in menuconfig I use this:
-[*] Virtual terminal
-[*]   Support for console on virtual terminal
-
-Moreover the exact same kernel boots in another notebook (P-II, 333 Mhz, 144MB 
-Ram) - I simply put the 2.5'' Harddisk in the other Laptop.
-
-Anyway, I'll try the following:
-
-1) Try to get more RAM ( + 8MB, 12MB should be enough - but maybe I'll never 
-get this IBM specific DRAM-cards for this old laptop.
-2) Kick out ext3 - this could save more memory
-3) Try init=/bin/sh and "swapon" manually
-4) Use an older or memory optimized kernel
-
-Booting with "mem=4" will probably also help with testing.
-
-Many thanks for your helpful replies!
-
-		Best Regards,
-		Hermann
-
---
-x1@aon.at
-GPG key ID: 299893C7 (on keyservers)
-FP: 0124 2584 8809 EF2A DBF9  4902 64B4 D16B 2998 93C7
-
+> --- linux-2.4.20/net/sched/sch_prio.c	Sat Aug  3 04:39:46 2002
+> +++ linux/net/sched/sch_prio.c	Thu Apr 10 17:52:55 2003
+> @@ -158,11 +158,19 @@
+>  {
+>  	int prio;
+>  	struct prio_sched_data *q = (struct prio_sched_data *)sch->data;
+> +	struct tcf_proto *tp;
+>
+>  	for (prio=0; prio<q->bands; prio++) {
+>  		qdisc_destroy(q->queues[prio]);
+>  		q->queues[prio] = &noop_qdisc;
+>  	}
+> +
+> +	while((tp = q->filter_list) != NULL)
+> +	{
+> +		q->filter_list = tp->next;
+> +		tp->ops->destroy(tp);
+> +	}
+> +
+>  	MOD_DEC_USE_COUNT;
+>  }
+>
+>
+>
+>

@@ -1,44 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262254AbTEVD34 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 23:29:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262470AbTEVD34
+	id S262470AbTEVDpD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 23:45:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbTEVDpD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 23:29:56 -0400
-Received: from main.gmane.org ([80.91.224.249]:28606 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262254AbTEVD3z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 23:29:55 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Kevin Puetz <puetzk@puetzk.org>
-Subject: Re: 2.5.69-mm7 build problem in sound/oss/cs46xx.c
-Date: Wed, 21 May 2003 22:33:15 -0500
-Message-ID: <bahgaf$71t$1@main.gmane.org>
-References: <20030519012336.44d0083a.akpm@digeo.com>
-Mime-Version: 1.0
+	Wed, 21 May 2003 23:45:03 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:55937 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S262470AbTEVDpC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 23:45:02 -0400
+Date: Wed, 21 May 2003 20:57:51 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Gerrit Huizenga <gh@us.ibm.com>
+cc: "Nakajima, Jun" <jun.nakajima@intel.com>, jamesclv@us.ibm.com,
+       haveblue@us.ibm.com, pbadari@us.ibm.com, linux-kernel@vger.kernel.org,
+       johnstul@us.ibm.com, mannthey@us.ibm.com
+Subject: Re: userspace irq balancer
+Message-ID: <60830000.1053575867@[10.10.2.4]>
+In-Reply-To: <20030522020443.GN2444@holomorphy.com>
+References: <3014AAAC8E0930438FD38EBF6DCEB5640204334F@fmsmsx407.fm.intel.com> <E19Idxq-0001LD-00@w-gerrit2> <20030522020443.GN2444@holomorphy.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: KNode/0.7.6
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-looks like a janitor change gone awry, easy fix though
+> The task scheduler, the io scheduler, and memory entitlement policies
+> are very different issues. They deal entirely with managing software
+> constructs and resource allocation. 
 
---- sound/oss/cs46xx.c.bak      2003-05-21 22:29:20.000000000 -0500
-+++ sound/oss/cs46xx.c  2003-05-21 22:29:25.000000000 -0500
-@@ -946,8 +946,8 @@
+So we should expose low-level hardware stuff to userspace to manage, 
+but not higher level software constructs? I fail to see the abiding 
+logic there. If anything, the inverse ought to be true.
 
- struct InitStruct
- {
--    u32 long off;
--    u32 long val;
-+    u32 off;
-+    u32 val;
- } InitArray[] = { {0x00000040, 0x3fc0000f},
-                   {0x0000004c, 0x04800000},
+> IMHO Linux on Pentium IV should use the TPR in conjunction with _very_
+> simplistic interrupt load accounting by default and all more
+> sophisticated logic should be punted straight to userspace as an
+> administrative API.
 
+I'd be happy with that - sounds to me like you're arguing for the same 
+thing. Sane default in kernel, can override from userspace if you like. 
+However, I've yet to see an implementation of the TPR usage that got
+good performance numbers ... I'd love to see that happen.
 
-
-
+M.

@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264984AbUISXyN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264997AbUITAEj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264984AbUISXyN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 19:54:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264997AbUISXyN
+	id S264997AbUITAEj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 20:04:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265051AbUITAEj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 19:54:13 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:64207 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S264984AbUISXyJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 19:54:09 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: =?ISO-8859-1?Q?Rapha=EBl_Rigo?= <raphael.rigo@twilight-hall.net>
-Date: Mon, 20 Sep 2004 09:53:49 +1000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 19 Sep 2004 20:04:39 -0400
+Received: from gate.crashing.org ([63.228.1.57]:27580 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S264997AbUITAEh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Sep 2004 20:04:37 -0400
+Subject: Re: udev is too slow creating devices
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "Ihar 'Philips' Filipau" <filia@softhome.net>
+Cc: Marc Ballarin <Ballarin.Marc@gmx.de>, Greg KH <greg@kroah.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <414D96EF.6030302@softhome.net>
+References: <414C9003.9070707@softhome.net>
+	 <1095568704.6545.17.camel@gaston>	<414D42F6.5010609@softhome.net>
+	 <20040919140034.2257b342.Ballarin.Marc@gmx.de>
+	 <414D96EF.6030302@softhome.net>
+Content-Type: text/plain
+Message-Id: <1095638602.18431.15.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 20 Sep 2004 10:03:22 +1000
 Content-Transfer-Encoding: 7bit
-Message-ID: <16718.7181.394343.887783@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RAID1 Bug] bio too big device md0 (248 > 200) (2.6.9-rc2-mm1)
-In-Reply-To: message from  =?ISO-8859-1?Q?=20Rapha=EBl?= Rigo on Monday September 20
-References: <414E076F.5010801@twilight-hall.net>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday September 20, raphael.rigo@twilight-hall.net wrote:
-> Hello,
-> kernel version : 2.6.9-rc2-mm1
-> i'm using a RAID1 array over 2 disks : one ATA, and another one in 
-> "SATA" (if we can call the ICH5 a real SATA controller).
-> During array synchronisation, I get "bio too big device md0 (248 > 200)" 
-> error, which I fixed in doing
-> //#define RESYNC_BLOCK_SIZE (64*1024)
-> #define RESYNC_BLOCK_SIZE PAGE_SIZE
-> in raid1.c, following the instruction on an old thread (for kernel 2.6.0).
-> I would like to know if there is any better fix now, else then this mail 
->   will act as a remainder ;)
+On Mon, 2004-09-20 at 00:25, Ihar 'Philips' Filipau wrote:
 
-This is not (as far as I can tell) a raid1 bug.
+>    Well, can then anyone explain by which mean (black magic?) kernel 
+> mounts root file system? block device might appear any time, file system 
+> might take ages to load.
+> 
+>    Hu? How is init/do_mounts.c still works then? Or it is needs to be 
+> fixed with messages a-la "root file system will be available shortly, we 
+> do hope" and "please plug in again your hard-wired IDE drive"?
 
-   bio too big device md0
+Mounting of the root device is a fragile process that happens to work
+by chance on current setups, but there is a reason while distributions
+are now moving to a model where an initrd/initramfs is loaded as the
+root device first, which then can do the proper selection of a real
+root device, eventually waiting for one to show up, and then pivot to
+it. The kernel "built-in" root selection already fails most of the
+time with usb-storage or sbp2 (ieee1394)
 
-means that someone sent a request to md0 that was too large. (124K
-instead of the max 100K).
+>    People, you must learn doing abstractions carefully. If device is 
+> hard-wired - user *will* expect (as kernel itself does) that it is 
+> available all the time after modprobe'ing driver.
 
-raid1 never does that.  It send requests to the underlying devices.
-So if you make your raid1 from hde and sda, then a message like
-   bio to big device sda
-might indicate a problem with raid1.
+Arrogance will lead you nowhere here, so step down from your pedestal
+and try accepting that your view on things might not be the right one.
 
-Are you sure you quoted the error message correctly?
-If you, how was the array being used? What filesystem?
+Ben.
 
-NeilBrown
+

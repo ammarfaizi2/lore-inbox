@@ -1,66 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261425AbVBGOWa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261427AbVBGOXK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261425AbVBGOWa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 09:22:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbVBGOWa
+	id S261427AbVBGOXK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 09:23:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbVBGOXK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 09:22:30 -0500
-Received: from rproxy.gmail.com ([64.233.170.193]:17333 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261425AbVBGOWY (ORCPT
+	Mon, 7 Feb 2005 09:23:10 -0500
+Received: from gprs215-44.eurotel.cz ([160.218.215.44]:8101 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261427AbVBGOWq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 09:22:24 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=MTRvKeLwJdVtDZrdvWtwTH/0Bu+nkDeDX65f65fQJJEoCg8/+bNyoPdhJ7M9/FCkgYtIJ+s1QdyUEn3mXvrr3KLYnf/a6EnY50TCk7wVO8x3FFHeJ4Q5Me7p/ddYA3pgXRSS0rFPCEXyEVQeSXwrlhBiLtP6EkVUlXb6wUHCTng=
-Message-ID: <d120d500050207062257490ae2@mail.gmail.com>
-Date: Mon, 7 Feb 2005 09:22:19 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH] Linux joydev joystick disconnect patch 2.6.11-rc2
-Cc: Vojtech Pavlik <vojtech@suse.de>, David Fries <dfries@mail.win.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050207122033.GA16959@ucw.cz>
+	Mon, 7 Feb 2005 09:22:46 -0500
+Date: Mon, 7 Feb 2005 15:22:19 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Helge Hafting <helge.hafting@hist.no>
+Cc: Jon Smirl <jonsmirl@gmail.com>,
+       Stefan =?iso-8859-1?Q?D=F6singer?= <stefandoesinger@gmx.at>,
+       acpi-devel@lists.sourceforge.net,
+       Ondrej Zary <linux@rainbow-software.org>,
+       Matthew Garrett <mjg59@srcf.ucam.org>,
+       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
+       ncunningham@linuxmail.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [ACPI] Re: [RFC] Reliable video POSTing on resume
+Message-ID: <20050207142219.GC8040@elf.ucw.cz>
+References: <20050122134205.GA9354@wsc-gmbh.de> <4204B3C1.80706@rainbow-software.org> <9e473391050205074769e4f10@mail.gmail.com> <200502051748.43547.stefandoesinger@gmx.at> <9e47339105020509382adbbf39@mail.gmail.com> <420740F1.5050609@hist.no>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20041123212813.GA3196@spacedout.fries.net>
-	 <d120d500050201072413193c62@mail.gmail.com>
-	 <20050206131241.GA19564@ucw.cz>
-	 <200502062021.13726.dtor_core@ameritech.net>
-	 <20050207122033.GA16959@ucw.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <420740F1.5050609@hist.no>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Feb 2005 13:20:33 +0100, Vojtech Pavlik <vojtech@suse.cz> wrote:
-> On Sun, Feb 06, 2005 at 08:21:13PM -0500, Dmitry Torokhov wrote:
-> > > > Opening braces should go on the same line as the statement (if (...) {).
-> > >  
-> > > How about this patch?
+Hi!
+
+> >The problem with the radeon reset code is that there are many, many
+> >variations of the radeon chips, including different steppings of the
+> >same part. The ROM is matched to the paticular bugs of the chip. From
+> >what I know ATI doesn't even have a universal radeon reset program.
+> > 
 > >
-> > Looks fine now. Hmm, wait a sec... Don't we also need kill_fasync calls in
-> > disconnect routines as well?
+> Maybe they could provide such a program, if asked?
+> Basically, a chip detect and a switch statement containing all
+> the bios reset sequences they have.
 > 
-> This should do it:
-> 
+> They may want to protect "trade secrets" about innovative
+> 3D-pipelines and such.  But the bios reset is probably not that
+> high-end, so perhaps they could provide source code for it?
 
-Not quite...
+Try asking them, then ;-)....
 
-> +               list_for_each_entry(list, &evdev->list, node)
-> +                       kill_fasync(&list->fasync, SIGIO, POLLHUP | POLLERR);
+Asked the right way, they might even tell you. I believe right way is
+"I'd like to buy 10000 cards, but I need suspend-to-RAM to work".
 
-Wrong band constants - for SIGIO POLL_HUP and POLL_ERR should be used.
-
-/*
- * SIGPOLL si_codes
- */
-#define POLL_IN         (__SI_POLL|1)   /* data input available */
-#define POLL_OUT        (__SI_POLL|2)   /* output buffers available */
-#define POLL_MSG        (__SI_POLL|3)   /* input message available */
-#define POLL_ERR        (__SI_POLL|4)   /* i/o error */
-#define POLL_PRI        (__SI_POLL|5)   /* high priority input available */
-#define POLL_HUP        (__SI_POLL|6)   /* device disconnected */
-
+								Pavel
 -- 
-Dmitry
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,56 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262291AbUDDJ2H (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Apr 2004 05:28:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbUDDJ2H
+	id S262286AbUDDKKf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Apr 2004 06:10:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262304AbUDDKKf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Apr 2004 05:28:07 -0400
-Received: from holomorphy.com ([207.189.100.168]:52410 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S262291AbUDDJ2F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Apr 2004 05:28:05 -0400
-Date: Sun, 4 Apr 2004 01:27:50 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Andrew Morton <akpm@osdl.org>, Neil Brown <neilb@cse.unsw.edu.au>,
-       Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.6-mm] setup_identity_mappings depends on zone init.
-Message-ID: <20040404092750.GA791@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Zwane Mwaikambo <zwane@linuxpower.ca>,
-	Andrew Morton <akpm@osdl.org>, Neil Brown <neilb@cse.unsw.edu.au>,
-	Ingo Molnar <mingo@elte.hu>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <16465.3163.999977.302378@notabene.cse.unsw.edu.au> <20040311172244.3ae0587f.akpm@osdl.org> <16465.20264.563965.518274@notabene.cse.unsw.edu.au> <20040311235009.212d69f2.akpm@osdl.org> <16466.57738.590102.717396@notabene.cse.unsw.edu.au> <16469.2797.130561.885788@notabene.cse.unsw.edu.au> <20040315091843.GA21587@elte.hu> <16470.22982.831048.924954@notabene.cse.unsw.edu.au> <20040315205201.7699e1c1.akpm@osdl.org> <Pine.LNX.4.58.0404040437190.16677@montezuma.fsmlabs.com>
+	Sun, 4 Apr 2004 06:10:35 -0400
+Received: from mail.gmx.de ([213.165.64.20]:33998 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262286AbUDDKKd convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Apr 2004 06:10:33 -0400
+X-Authenticated: #1226656
+Date: Sun, 4 Apr 2004 12:10:32 +0200
+From: Marc Giger <gigerstyle@gmx.ch>
+To: Marc Giger <gigerstyle@gmx.ch>
+Cc: mru@kth.se (=?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?=),
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       linux-kernel@vger.kernel.org
+Subject: Re: status of Linux on Alpha?
+Message-Id: <20040404121032.7bb42b35@vaio.gigerstyle.ch>
+In-Reply-To: <20040329205233.5b7905aa@vaio.gigerstyle.ch>
+References: <yw1xsmftnons.fsf@ford.guide>
+	<20040328201719.A14868@jurassic.park.msu.ru>
+	<yw1xoeqhndvl.fsf@ford.guide>
+	<20040328204308.C14868@jurassic.park.msu.ru>
+	<20040328221806.7fa20502@vaio.gigerstyle.ch>
+	<yw1xr7vcn1z2.fsf@ford.guide>
+	<20040329205233.5b7905aa@vaio.gigerstyle.ch>
+X-Mailer: Sylpheed version 0.9.9claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0404040437190.16677@montezuma.fsmlabs.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 15 Mar 2004, Andrew Morton wrote:
->> Calling page_address_init() earlier isn't the fix though - pmd pages aren't
->> in highmem so we should never have got that far.  Looks like the pgd or the
->> pmd page contains garbage.  Did you try it without CONFIG_DEBUG_SLAB?
->> Nick was seeing slab 0x6b patterns on the NUMAQ, inside the pmd, so there's
->> some consistency there.  We do have one early setup fix from Manfred, but
->> it's unlikely to cure this.
->> I'll have a play with your .config, see if I can reproduce it.  If not I'll
->> squeeze off -mm3 and would ask you to retest on that if poss.
+Hi Ivan, Hi Måns
 
-On Sun, Apr 04, 2004 at 05:07:36AM -0400, Zwane Mwaikambo wrote:
-> I spent a bit of time on this today, and the problem appears to be
-> that we haven't done mem_map or zone initialisation, so
-> mem_map[pfn]->flags is also wrong (e.g. PG_highmem tests). This is
-> still triple faulting on 2.6.5-rc3-mm4 on my boxes. CONFIG_HIGHMEM
-> and any setup without 4MB pages should do it. The following patch got
-> an approving nod from Bill.
+I've tested 2.6.3 on my alpha. It seems to be working fine. I couldn't
+trigger the problems that I had with 2.6.4.
 
-A nicer fix, though with potentially too high a "cleanup factor", would
-be a pte_bootmem_alloc_map() or some such equivalent of pte_alloc_map().
+So I will revert some patches witch I think could be the reason.
 
+greets
 
--- wli
+Marc
+
+On Mon, 29 Mar 2004 20:52:33 +0200
+Marc Giger <gigerstyle@gmx.ch> wrote:
+
+> > 
+> > We could start by comparing .config files.  Mine is attached.  I've
+> > been running a 2.6.3 kernel with that configuration since it was
+> > released.  I compiled a gentoo installation using that kernel, so
+> > I'd say it's quite stable.
+> 
+> Ok, I've attached my config. I will take some time this week to debug
+> this problem.
+> Firstly, I will try out 2.6.3 and see what happens. I think that's the
+> best thing that I can do ATM. If the problem doesn't exist with 2.6.3
+> on my alpha then we know where to search for.
+> 
+> Regards from Switzerland
+> 
+> Marc
+> 

@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265706AbSKFPRD>; Wed, 6 Nov 2002 10:17:03 -0500
+	id <S265716AbSKFPUR>; Wed, 6 Nov 2002 10:20:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265707AbSKFPRD>; Wed, 6 Nov 2002 10:17:03 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:63241 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S265706AbSKFPRC>; Wed, 6 Nov 2002 10:17:02 -0500
-Date: Wed, 6 Nov 2002 16:10:12 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] kconfig: Move config targets and lxdialog
-In-Reply-To: <20021104201442.GA8542@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.44.0211061607150.6949-100000@serv>
-References: <20021104201442.GA8542@mars.ravnborg.org>
+	id <S265719AbSKFPUR>; Wed, 6 Nov 2002 10:20:17 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:15597 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S265716AbSKFPUC>; Wed, 6 Nov 2002 10:20:02 -0500
+Date: Wed, 6 Nov 2002 10:27:21 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Khalid Aziz <khalid@fc.hp.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andre Hedrick <andre@linux-ide.org>
+Subject: Re: [PATCH] ide-scsi driver starts DMA too soon
+In-Reply-To: <1036199633.14825.2.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44L.0211061026500.27268-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Mon, 4 Nov 2002, Sam Ravnborg wrote:
 
-> Played with the idea to shuffle a little around with stuff.
-> 1) lxdialog is solely used for kconfig, so move it below scripts/kconfig
-> 2) Move handling of all config targets to scripts/kconfig/Makefile
-> 	This simplifies top-level makefile,
-> 	and the actual rules is nicer as a side effect.
+On 2 Nov 2002, Alan Cox wrote:
 
-I like 2), but I'm not sure about 1). Using $(obj)/../lxdialog/
-shoudn't be a problem either?
+> On Fri, 2002-11-01 at 23:39, Khalid Aziz wrote:
+> > ide-scsi driver starts DMA as soon as it writes the ATAPI PACKET command
+> > in command register and before sending the ATAPI command. This will
+> > cause problems on many drives. Right way to do it is to start DMA after
+> > sending the ATAPI command. I am attaching a patch that fixes this. This
+> > patch will allow many more CD-RW drives to work reliably in DMA mode
+> > than do today.
+> >
+> > Marcelo, please apply.
+>
+> Marcelo this is in 2.5, and 2.4-ac. Khalid is certainly correct although
+> making such a change in -rc rather than a pre does mean it wants extra
+> thought
 
-bye, Roman
+I prefer being safe and saving this one for 2.4.21-pre.
+
+Thanks Khalid!
 

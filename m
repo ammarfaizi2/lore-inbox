@@ -1,39 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262234AbVDFPre@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262235AbVDFPqv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262234AbVDFPre (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 11:47:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262238AbVDFPre
+	id S262235AbVDFPqv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 11:46:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262233AbVDFPqu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 11:47:34 -0400
-Received: from mail.kroah.org ([69.55.234.183]:10627 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262234AbVDFPr3 (ORCPT
+	Wed, 6 Apr 2005 11:46:50 -0400
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:16105 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S262231AbVDFPqd convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 11:47:29 -0400
-Date: Wed, 6 Apr 2005 08:46:49 -0700
-From: Greg KH <gregkh@suse.de>
-To: J?rn Engel <joern@wohnheim.fh-wedel.de>
-Cc: Renate Meijer <kleuske@xs4all.nl>, jdike@karaya.com,
-       Blaisorblade <blaisorblade@yahoo.it>, Greg KH <gregkh@suse.de>,
-       linux-kernel@vger.kernel.org, stable@kernel.org
-Subject: Re: [stable] Re: [08/08] uml: va_copy fix
-Message-ID: <20050406154648.GA28638@kroah.com>
-References: <20050405164539.GA17299@kroah.com> <20050405164815.GI17299@kroah.com> <c8cb775b8f5507cbac1fb17b1028cffc@xs4all.nl> <200504052053.20078.blaisorblade@yahoo.it> <7aa6252d5a294282396836b1a27783e8@xs4all.nl> <20050406113233.GD7031@wohnheim.fh-wedel.de> <14410feafdb3a83e1ae457b93e593b81@xs4all.nl> <20050406122750.GE7031@wohnheim.fh-wedel.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050406122750.GE7031@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.5.8i
+	Wed, 6 Apr 2005 11:46:33 -0400
+Subject: Re: HELP:(VIPER BOARD)AC'97 controller driver for rtlinux(rtlinux core driver) 
+From: "nitin ahuja" <nitin2ahuja@myrealbox.com>
+To: nobin_matthew@yahoo.com
+CC: kernelnewbies@nl.linux.org, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org, linux-arm-kernel@lists.arm.linux.org.uk
+Date: Wed, 06 Apr 2005 09:46:16 -0600
+X-Mailer: NetMail ModWeb Module
+MIME-Version: 1.0
+Message-ID: <1112802376.8c7c3afcnitin2ahuja@myrealbox.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 06, 2005 at 02:27:51PM +0200, J?rn Engel wrote:
-> 
-> Is it worth the effort?  Not sure.  But the "it's old, drop support
-> for it" argument just doesn't cut it and it doesn't get any better by
-> repetition.
+Hi,
 
-Exactly, that's why this patch is valid.
+>
+> I am trying to develop a codec driver (rtlinux 
+> driver) from scratch. In Viper board (PXA255) 
+> physical memory range 0x40000000-0x43FFFFFF is used 
+> by the PXA255 peripherals.In that address range
+> 0x40500000-0x405005FC is needed for AC'97 controller
+> registers. Is this memory range is already mapped to
+> virtual address space, else How to map this to 
+> virtual address space.
+>
 
-thanks,
+You have to map this address range using "ioremap()". Data at address returned by ioremap can be accessed by calling readl(), writel() et al
 
-greg k-h
+>
+> When i tried ioremap() it is giving same virtual
+> address with different physical address(i tried
+> ioremap with another driver(same board)with different
+> physical memory address)
+>
+
+Same virtual address can point to different physical addresses depending upon how it is mapped.
+
+Nitin
+

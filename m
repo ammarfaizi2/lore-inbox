@@ -1,43 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269092AbUHXWrv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269093AbUHXWwT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269092AbUHXWrv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 18:47:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269093AbUHXWrv
+	id S269093AbUHXWwT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 18:52:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269094AbUHXWwT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 18:47:51 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:47789 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S269092AbUHXWrt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 18:47:49 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P9
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Scott Wood <scott@timesys.com>, manas.saksena@timesys.com,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040824061459.GA29630@elte.hu>
-References: <20040823221816.GA31671@yoda.timesys>
-	 <20040824061459.GA29630@elte.hu>
-Content-Type: text/plain
-Message-Id: <1093387668.841.1.camel@krustophenia.net>
+	Tue, 24 Aug 2004 18:52:19 -0400
+Received: from hera.kernel.org ([63.209.29.2]:56522 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S269093AbUHXWwN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 18:52:13 -0400
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: Linux 2.6.9-rc1
+Date: Tue, 24 Aug 2004 22:52:02 +0000 (UTC)
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <cgggqi$c78$1@terminus.zytor.com>
+References: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org> <20040824184245.GE5414@waste.org> <Pine.LNX.4.58.0408241221390.17766@ppc970.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 24 Aug 2004 18:47:48 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1093387922 12521 127.0.0.1 (24 Aug 2004 22:52:02 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Tue, 24 Aug 2004 22:52:02 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-24 at 02:14, Ingo Molnar wrote:
->   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P9
+Followup to:  <Pine.LNX.4.58.0408241221390.17766@ppc970.osdl.org>
+By author:    Linus Torvalds <torvalds@osdl.org>
+In newsgroup: linux.dev.kernel
+> 
+> Hmm.. I have no strong preferences. There _is_ obviously a well-defined 
+> ordering from x.y.z.1 -> x.y.z.2 (unlike the -rcX releases that don't have 
+> any ordering wrt the bugfixes), so either interdiffs or whole new full 
+> diffs are totally "logical". We just have to chose one way or the other, 
+> and I don't actually much care.
+> 
+> Any reason for your preference? 
 > 
 
-modprobe'ing causes this latency:
+I concur with this preference, and for this reason:
 
-http://krustophenia.net/testresults.php?dataset=2.6.8.1-P9#/var/www/2.6.8.1-P9/trace1.txt
+Right now I'm treating x.y.z.w as a strange form of -pre, -rc, or
+-test kernels.
 
-This one is caused by flood pinging the broadcast address (ping -s 65507
--f $BROADCAST_ADDRESS):
+Dealing with the various forms of the kernel naming scheme would
+become even more complex if point releases were handled differently.
 
-http://krustophenia.net/testresults.php?dataset=2.6.8.1-P9#/var/www/2.6.8.1-P9/trace2.txt
-
-Lee
+	-hpa
 

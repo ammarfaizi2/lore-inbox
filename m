@@ -1,62 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267533AbUBTEiZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 23:38:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267536AbUBTEiY
+	id S267548AbUBTFLG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 00:11:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267541AbUBTFLF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 23:38:24 -0500
-Received: from florence.buici.com ([206.124.142.26]:45216 "HELO
-	florence.buici.com") by vger.kernel.org with SMTP id S267533AbUBTEiU
+	Fri, 20 Feb 2004 00:11:05 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43196 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267479AbUBTFLC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 23:38:20 -0500
-Date: Thu, 19 Feb 2004 20:38:19 -0800
-From: Marc Singer <elf@buici.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-arm <linux-arm@lists.arm.linux.org.uk>
-Subject: New 2.6 port: why would kernel not start /sbin/init?
-Message-ID: <20040220043819.GA9592@buici.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Fri, 20 Feb 2004 00:11:02 -0500
+Message-ID: <403596D8.8020509@pobox.com>
+Date: Fri, 20 Feb 2004 00:10:48 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Paul Wagland <paul@kungfoocoder.org>
+CC: Linux SCSI mailing list <linux-scsi@vger.kernel.org>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>, akpm@osdl.org,
+       torvalds@osdl.org, James.Bottomley@HansenPartnership.com,
+       atulm@lsil.com
+Subject: Re: [PATCH][BUGFIX] : Megaraid patch for 2.6 1/5
+References: <1077242738.12567.76.camel@morsel.kungfoocoder.org>
+In-Reply-To: <1077242738.12567.76.camel@morsel.kungfoocoder.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've got a port to a new chip (ARM920 core) that is very close to
-booting.  There appears to be something keeping the /sbin/init process
-from starting.
+Patches 1-5 look OK to me.
 
-In this setup, I'm running a patched 2.6.2 kernel from flash memory.
-The root filesystem is a JFFS2 partition in flash.  The
-run_init_process() call appears to succeed because it doesn't return.
+If you are attempting to follow LSI's megaraid (in 2.4 only, sigh), 
+patch #4 may wind up causing you grief in the future.  Hopefully Atul 
+will pick it up, though :)
 
-The sysrq-task list shows that there is an init task, but there seems
-to be something wrong with the stack.
+	Jeff
 
-                         free                        sibling
-  task             PC    stack   pid father child younger older
-init          R current      0     1      0     2               (NOTLB)
-[<c0021a88>] (show_state+0x44/0xac) from [<c0309e70>] (0xc0309e70)
-Backtrace aborted due to bad frame pointer <c0308000>
 
-I've traced through the elf binary loader and gotten to the point
-where it does a start_thread().  The only odd thing I see is that that
-the interpreter, elf_entry=0x400015f0, refers to an address that
-doesn't appear to have any code there.  (I'm using gdb to debug the
-kernel through a JTAG emulator.)
 
-(gdb) x/20 elf_entry
-0x400015f0:     0x00000000      0x00000000      0x00000000      0x00000000
-0x40001600:     0x00000000      0x00000000      0x00000000      0x00000000
-0x40001610:     0x00000000      0x00000000      0x00000000      0x00000000
-0x40001620:     0x00000000      0x00000000      0x00000000      0x00000000
-0x40001630:     0x00000000      0x00000000      0x00000000      0x00000000
 
-My hardware debugger complains of a 'data abort' when I look at that
-address which usually means that the CPU returned a page fault.
-
-Should I expect that these pages be mapped already?  Can you offer any
-suggestions as to where in the kernel to look for this kind of
-failure?
-
-Cheers.

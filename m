@@ -1,84 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261302AbSJHTee>; Tue, 8 Oct 2002 15:34:34 -0400
+	id <S261381AbSJHTNn>; Tue, 8 Oct 2002 15:13:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263442AbSJHTdk>; Tue, 8 Oct 2002 15:33:40 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:63449 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261485AbSJHTcA>;
-	Tue, 8 Oct 2002 15:32:00 -0400
-Subject: [ANNOUNCE] Linux Test Project October Release Available
-To: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OFFD6D99D7.513F8BA0-ON85256C4C.006B8A1F@pok.ibm.com>
-From: "Robert Williamson" <robbiew@us.ibm.com>
-Date: Tue, 8 Oct 2002 14:37:30 -0500
-X-MIMETrack: Serialize by Router on D01ML076/01/M/IBM(Release 5.0.11  |July 29, 2002) at
- 10/08/2002 03:37:35 PM
+	id <S261472AbSJHTNc>; Tue, 8 Oct 2002 15:13:32 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:26384 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S263254AbSJHTHr>; Tue, 8 Oct 2002 15:07:47 -0400
+Subject: PATCH: fix t128 for new NCR5380
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Date: Tue, 8 Oct 2002 20:04:42 +0100 (BST)
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17yzes-0004uk-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Linux Test Project test suite LTP-20021008.tgz has been released. Visit
-our website (http://ltp.sourceforge.net) to download the latest version of
-the testsuite, and for information on test results on pre-releases, release
-candidates & stable releases of the kernel. There is also a list of test
-cases that are expected to fail, please find the list at (
-http://ltp.sourceforge.net/expected-errors.php)
-
-The highlights of this release are:
-
-- Updated the STAX LTP driver. You can now specify client and server
-logging paths.  The ability to define how long a single test is allowed run
-has been added. Plus, hardware information is now included in the logs for
-each client. The HowTo has been updated as well.
-
-- Updated the Database Opensource Test Suite (DOTS) with added
-functionality to allow the use of MySQL and PostreSQL databases,
-complementing the existing features that allow the use of DB2, Oracle, and
-Sybase databases.  Additionally, DOTS is now available as an on-demand test
-suite at the Open Source Development Lab's Linux Kernel Scalable Test
-Platform. (http://www.osdl.org/stp)
-
-- An additional shared memory control test has been added (shmctl04), that
-tests the SHM_INFO command.
-
-We encourage the community to post results, patches, or new tests on our
-mailing list, and to use the CVS bug tracking facility to report problems
-that you might encounter. More details available at our web-site.
-
-
-Change Log
-------------
-- Added "shmctl04" to test the SHM_INFO command  ( Mingming Cao )
-- Fix for improper child exit in "execve02"      ( Colin Gibbs )
-- Fix for "nanosleep02" to eliminate false       ( Andreas Arcangeli )
-  positives
-- Fix for "personality01 to undef the personality( Marcus Meissner )
-  macro before calling personality()
-- Fix for "sendfile02" that adds a waitpid() call( Susanne Wintenberger )
-  to guarantee child exit before the test ends
-- Fix for /tools/rand_lines.c that eliminates an ( Nathan Straz )
-  IA64 compile time warning
-- Added "shmctl04" to the "syscalls" runtest file( Paul Larson )
-- Removed test 8 from "diotest4". Opening a      ( Paul Larson )
-  directory for direct I/O is not allowed.
-- Fix for PPC cross compile issues applied to:   ( Paul Larson )
-    "mmap01"
-    "pth_str01"
-    "pth_str03"
-    "shmem_test_04"
-- Fix for "fcntl01" to allow it to run without   ( Paul Larson )
-  predefining the file descriptors
-- Fix for "readv02" to check for EINVAL on       ( Paul Larson )
-  2.5.35 and above kernels
-- Fix for "stime01" to allow the checked time to ( Paul Larson )
-  be off +1 second
-- Fix for "writev01" to check for EINVAL on      ( Paul Larson )
-  2.5.35 and above kernels
-
-Robbie  Williamson <robbiew@us.ibm.com>
-Linux Test Project
-http://ltp.sourceforge.net
-
-
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.2.5.41/drivers/scsi/t128.h linux.2.5.41-ac1/drivers/scsi/t128.h
+--- linux.2.5.41/drivers/scsi/t128.h	2002-10-02 21:32:55.000000000 +0100
++++ linux.2.5.41-ac1/drivers/scsi/t128.h	2002-10-06 23:17:50.000000000 +0100
+@@ -95,7 +95,9 @@
+ int t128_biosparam(Disk *, struct block_device *, int*);
+ int t128_detect(Scsi_Host_Template *);
+ int t128_queue_command(Scsi_Cmnd *, void (*done)(Scsi_Cmnd *));
+-int t128_reset(Scsi_Cmnd *, unsigned int reset_flags);
++int t128_host_reset(Scsi_Cmnd *);
++int t128_bus_reset(Scsi_Cmnd *);
++int t128_device_reset(Scsi_Cmnd *);
+ int t128_proc_info (char *buffer, char **start, off_t offset,
+ 		   int length, int hostno, int inout);
+ 
+@@ -121,8 +123,10 @@
+ 	name:           "Trantor T128/T128F/T228",	\
+ 	detect:         t128_detect,			\
+ 	queuecommand:   t128_queue_command,		\
+-	abort:          t128_abort,			\
+-	reset:          t128_reset,			\
++	eh_abort_handler: t128_abort,			\
++	eh_bus_reset_handler:    t128_bus_reset,	\
++	eh_host_reset_handler:   t128_host_reset,	\
++	eh_device_reset_handler: t128_device_reset,	\
+ 	bios_param:     t128_biosparam,			\
+ 	can_queue:      CAN_QUEUE,			\
+         this_id:        7,				\
+@@ -162,7 +166,9 @@
+ #define do_NCR5380_intr do_t128_intr
+ #define NCR5380_queue_command t128_queue_command
+ #define NCR5380_abort t128_abort
+-#define NCR5380_reset t128_reset
++#define NCR5380_host_reset t128_hostreset
++#define NCR5380_device_reset t128_device_reset
++#define NCR5380_bus_reset t128_bus_reset
+ #define NCR5380_proc_info t128_proc_info
+ 
+ /* 15 14 12 10 7 5 3 

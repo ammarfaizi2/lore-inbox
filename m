@@ -1,37 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263334AbSIPXNQ>; Mon, 16 Sep 2002 19:13:16 -0400
+	id <S263344AbSIPXZW>; Mon, 16 Sep 2002 19:25:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263344AbSIPXNQ>; Mon, 16 Sep 2002 19:13:16 -0400
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:46864 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S263334AbSIPXNN>; Mon, 16 Sep 2002 19:13:13 -0400
-Message-ID: <3D866667.1EBFDF31@linux-m68k.org>
-Date: Tue, 17 Sep 2002 01:16:55 +0200
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.19 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-       kbuild-devel <kbuild-devel@lists.sourceforge.net>
-Subject: linux kernel conf 0.6
-Content-Type: text/plain; charset=us-ascii
+	id <S263346AbSIPXZW>; Mon, 16 Sep 2002 19:25:22 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:24040 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S263344AbSIPXZW>;
+	Mon, 16 Sep 2002 19:25:22 -0400
+Date: Mon, 16 Sep 2002 16:21:23 -0700 (PDT)
+Message-Id: <20020916.162123.116935622.davem@redhat.com>
+To: bart.de.schuymer@pandora.be
+Cc: buytenh@math.leidenuniv.nl, linux-kernel@vger.kernel.org
+Subject: Re: bridge-netfilter patch
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200209162341.17032.bart.de.schuymer@pandora.be>
+References: <200209140905.40816.bart.de.schuymer@pandora.be>
+	<20020915.203528.08097520.davem@redhat.com>
+	<200209162341.17032.bart.de.schuymer@pandora.be>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+   From: Bart De Schuymer <bart.de.schuymer@pandora.be>
+   Date: Mon, 16 Sep 2002 23:41:17 +0200
 
-At http://www.xs4all.nl/~zippel/lc/lkc-0.6.tar.gz you can find the
-latest version of the new config system. Changes this time:
-- update to 2.5.35
-- I included my convert script and prepare/fixup patch to convert all
-archs
-- qconf got a split screen mode
-- the save bug is fixed
-- the converter mostly ignores "define_bool CONFIG_FOO n" now, they are
-only used for type definitions. They were only needed to keep the old
-config system working, but shouldn't be needed anymore, this allows to
-generate slightly better dependencies in the generated configs.
+   net/ipv4/ip_output.c:ip_fragment()
+   In this function the copy of the Ethernet frame is added for each fragment (by 
+   the br-nf patch).
 
-bye, Roman
+'output' callback arg to ip_fragment() must generate correct hardware
+headers when necessary.  This hack usage of it via netfilter, in this
+weird bridging case, is violating this requirement.
+
+Normally ip_finish_output2() is going to make this.
+
+If it can't do the job properly, pass instead a routine that can do
+what netfilter needs.
+
+Lennert says:
+
+   So if we postpone FORWARD and POST_ROUTING until after br_dev_xmit,
+   we effectively reverse refragmentation and neighbor resolution.
+   But refragmentation messes up the hardware header.
+
+   The 16byte hardware header copy fixes this by copying to each
+   fragment the hardware header that was tacked onto or was already
+   present on the bigger packet.  It's ugly, I admit.  There's
+   currently no better way though.
+
+I don't understand why you can't add on the hardware header some other
+way.
+
+If ip_finish_output doesn't put the right hardware header on there,
+you have to use as 'okfn' (what netfilter sends down as 'output' to
+ip_fragment) some routine which will do it correctly.

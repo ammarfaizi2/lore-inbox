@@ -1,57 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261466AbVB0SHl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261463AbVB0RqW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261466AbVB0SHl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 13:07:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbVB0SGq
+	id S261463AbVB0RqW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 12:46:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261474AbVB0RpJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 13:06:46 -0500
-Received: from cantor.suse.de ([195.135.220.2]:15551 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261497AbVB0SEO (ORCPT
+	Sun, 27 Feb 2005 12:45:09 -0500
+Received: from mail-ex.suse.de ([195.135.220.2]:12963 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261463AbVB0RXF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 13:04:14 -0500
-Message-ID: <42220B96.30301@suse.de>
-Date: Sun, 27 Feb 2005 19:04:06 +0100
-From: Stefan Seyfried <seife@suse.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-Cc: Norbert Preining <preining@logic.at>,
-       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       kernel list <linux-kernel@vger.kernel.org>, rjw@sisk.pl
-Subject: Re: [ACPI] Call for help: list of machines with working S3
-References: <20050214211105.GA12808@elf.ucw.cz> <20050215125555.GD16394@gamma.logic.tuwien.ac.at> <42121EC5.8000004@gmx.net> <20050215170837.GA6336@gamma.logic.tuwien.ac.at> <20050222220828.GB538@hell.org.pl> <20050224123716.GD28961@gamma.logic.tuwien.ac.at> <20050227165701.GE1441@elf.ucw.cz>
-In-Reply-To: <20050227165701.GE1441@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Sun, 27 Feb 2005 12:23:05 -0500
+Message-Id: <20050227170312.569436000@blunzn.suse.de>
+References: <20050227165954.566746000@blunzn.suse.de>
+Date: Sun, 27 Feb 2005 17:59:59 +0100
+From: Andreas Gruenbacher <agruen@suse.de>
+To: linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Olaf Kirch <okir@suse.de>, "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [nfsacl v2 05/16] Allow multiple programs to listen on the same port
+Content-Disposition: inline; filename=nfsacl-allow-multiple-programs-to-listen-on-the-same-port.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
+The NFS and NFSACL programs run on the same RPC transport.  This patch adds
+support for this by converting svc_program into a chained list of programs
+(server-side).
 
->> 	this server crashes when switching to the console or shutting
->> 	down (crashing is sometimes, not always), very nice screen which
->> 	slowly turns white
-> 
-> Hmm, it would be nice to be able to trigger "go white" on purpose --
-> it looks like screen is burning and could scare quite  a lot of people
-> :-).
+Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
+Signed-off-by: Olaf Kirch <okir@suse.de>
 
-BTW: turning white does not necessarily mean "screen is dying" but can
-also mean "LCD is powered off and slowly turning transparent but the
-backlight is still on" which brings me back to the original subject:
+Index: linux-2.6.11-rc5/include/linux/sunrpc/svc.h
+===================================================================
+--- linux-2.6.11-rc5.orig/include/linux/sunrpc/svc.h
++++ linux-2.6.11-rc5/include/linux/sunrpc/svc.h
+@@ -240,9 +240,10 @@ struct svc_deferred_req {
+ };
+ 
+ /*
+- * RPC program
++ * List of RPC programs on the same transport endpoint
+  */
+ struct svc_program {
++	struct svc_program *	pg_next;	/* other programs (same xprt) */
+ 	u32			pg_prog;	/* program number */
+ 	unsigned int		pg_lovers;	/* lowest version */
+ 	unsigned int		pg_hivers;	/* lowest version */
+Index: linux-2.6.11-rc5/net/sunrpc/svc.c
+===================================================================
+--- linux-2.6.11-rc5.orig/net/sunrpc/svc.c
++++ linux-2.6.11-rc5/net/sunrpc/svc.c
+@@ -35,20 +35,24 @@ svc_create(struct svc_program *prog, uns
+ 	if (!(serv = (struct svc_serv *) kmalloc(sizeof(*serv), GFP_KERNEL)))
+ 		return NULL;
+ 	memset(serv, 0, sizeof(*serv));
++	serv->sv_name      = prog->pg_name;
+ 	serv->sv_program   = prog;
+ 	serv->sv_nrthreads = 1;
+ 	serv->sv_stats     = prog->pg_stats;
+ 	serv->sv_bufsz	   = bufsize? bufsize : 4096;
+-	prog->pg_lovers = prog->pg_nvers-1;
+ 	xdrsize = 0;
+-	for (vers=0; vers<prog->pg_nvers ; vers++)
+-		if (prog->pg_vers[vers]) {
+-			prog->pg_hivers = vers;
+-			if (prog->pg_lovers > vers)
+-				prog->pg_lovers = vers;
+-			if (prog->pg_vers[vers]->vs_xdrsize > xdrsize)
+-				xdrsize = prog->pg_vers[vers]->vs_xdrsize;
+-		}
++	while (prog) {
++		prog->pg_lovers = prog->pg_nvers-1;
++		for (vers=0; vers<prog->pg_nvers ; vers++)
++			if (prog->pg_vers[vers]) {
++				prog->pg_hivers = vers;
++				if (prog->pg_lovers > vers)
++					prog->pg_lovers = vers;
++				if (prog->pg_vers[vers]->vs_xdrsize > xdrsize)
++					xdrsize = prog->pg_vers[vers]->vs_xdrsize;
++			}
++		prog = prog->pg_next;
++	}
+ 	serv->sv_xdrsize   = xdrsize;
+ 	INIT_LIST_HEAD(&serv->sv_threads);
+ 	INIT_LIST_HEAD(&serv->sv_sockets);
+@@ -56,8 +60,6 @@ svc_create(struct svc_program *prog, uns
+ 	INIT_LIST_HEAD(&serv->sv_permsocks);
+ 	spin_lock_init(&serv->sv_lock);
+ 
+-	serv->sv_name      = prog->pg_name;
+-
+ 	/* Remove any stale portmap registrations */
+ 	svc_register(serv, 0, 0);
+ 
+@@ -332,7 +334,10 @@ svc_process(struct svc_serv *serv, struc
+ 		goto sendit;
+ 	}
+ 		
+-	if (prog != progp->pg_prog)
++	for (progp = serv->sv_program; progp; progp = progp->pg_next)
++		if (prog == progp->pg_prog)
++			break;
++	if (progp == NULL)
+ 		goto err_bad_prog;
+ 
+ 	if (vers >= progp->pg_nvers ||
+@@ -444,11 +449,7 @@ err_bad_auth:
+ 	goto sendit;
+ 
+ err_bad_prog:
+-#ifdef RPC_PARANOIA
+-	if (prog != 100227 || progp->pg_prog != 100003)
+-		printk("svc: unknown program %d (me %d)\n", prog, progp->pg_prog);
+-	/* else it is just a Solaris client seeing if ACLs are supported */
+-#endif
++	dprintk("svc: unknown program %d\n", prog);
+ 	serv->sv_stats->rpcbadfmt++;
+ 	svc_putu32(resv, rpc_prog_unavail);
+ 	goto sendit;
 
-Sharp PC-AR10 (ATI rage mobility P/M AGP 2x), which is sort of the
-crappiest hardware i have ever seen, has working S3 without any tricks.
-The backlight is not turned off at S3 but in fact it is explicitly
-turned on (if i do "xset dpms force off" before suspend, it turns back
-on after  or shortly before entering suspend) and the screen slowly goes
-white (because TFT power is turned off), but if you enter S3 via
-lidswitch this does not matter since the lidswitch turns off the
-backlight :-)
--- 
-Stefan Seyfried, QA / R&D Team Mobile Devices, SUSE LINUX, Nürnberg.
+--
+Andreas Gruenbacher <agruen@suse.de>
+SUSE Labs, SUSE LINUX PRODUCTS GMBH
 
-"Any ideas, John?"
-"Well, surrounding them's out."

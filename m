@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131650AbRCUSNK>; Wed, 21 Mar 2001 13:13:10 -0500
+	id <S131715AbRCUSPL>; Wed, 21 Mar 2001 13:15:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131669AbRCUSNB>; Wed, 21 Mar 2001 13:13:01 -0500
-Received: from www.wen-online.de ([212.223.88.39]:21508 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S131650AbRCUSMx>;
-	Wed, 21 Mar 2001 13:12:53 -0500
-Date: Wed, 21 Mar 2001 19:11:51 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-cc: Rik van Riel <riel@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: kswapd deadlock 2.4.3-pre6
-Message-ID: <Pine.LNX.4.33.0103211853420.2398-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131669AbRCUSPC>; Wed, 21 Mar 2001 13:15:02 -0500
+Received: from smtp.primusdsl.net ([209.225.164.93]:19464 "EHLO
+	mailhost.digitalselect.net") by vger.kernel.org with ESMTP
+	id <S131707AbRCUSOx>; Wed, 21 Mar 2001 13:14:53 -0500
+Date: Wed, 21 Mar 2001 13:15:59 -0500
+From: James Lewis Nance <jlnance@intrex.net>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: spinlock usage - ext2_get_block, lru_list_lock
+Message-ID: <20010321131559.A28454@bessie.dyndns.org>
+In-Reply-To: <99am8l$8mk$1@penguin.transmeta.com> <Pine.GSO.4.21.0103211203090.739-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.21.0103211203090.739-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Wed, Mar 21, 2001 at 12:16:47PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Mar 21, 2001 at 12:16:47PM -0500, Alexander Viro wrote:
 
-I have a repeatable deadlock when SMP is enabled on my UP box.
+> Obext2: <plug>
+> Guys, help with testing directories-in-pagecache patch. It works fine
+> here and I would really like it to get serious beating.
+> Patch is on ftp.math.psu.edu/pub/viro/ext2-dir-patch-b-S2.gz (against
+> 2.4.2, but applies to 2.4.3-pre* too).
+> </plug>
 
->>EIP; c021e29a <stext_lock+1556/677b>   <=====
-Trace; c012dc58 <swap_out+b0/c8>
-Trace; c012ebe2 <refill_inactive+72/98>
-Trace; c012ec51 <do_try_to_free_pages+49/7c>
-Trace; c012eceb <kswapd+67/f4>
-Trace; c01074c4 <kernel_thread+28/38>
+I would love to test this patch, but I really dont want it touching my other
+ext2 file systems (like /).  I assume it would be possible to copy the ext2
+code over to something like linux/fs/extnew, patch that, and then mount my
+scratch partitions as extnew.  I can try an cook something like this up, but
+I thought you might already have it, so I am posting here to see.
 
-Will try to chase it down.
+Thanks,
 
-ac20+2.4.2-ac20-rwmmap_sem3 does not deadlock doing the same
-churn/burn via make -j30 bzImage.
-
-(I get darn funny looking time numbers though..
-real    9m45.641s
-user    14m55.710s
-sys     1m25.010s)
-
-	-Mike
-
+Jim

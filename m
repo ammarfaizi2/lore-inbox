@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272357AbTHINsJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 09:48:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272358AbTHINsJ
+	id S272362AbTHIOEz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 10:04:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272363AbTHIOEz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 09:48:09 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:58117 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S272357AbTHINsH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 09:48:07 -0400
-Subject: Re: 2.6.0-test3 cannot mount root fs
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Norbert Preining <preining@logic.at>
-Cc: gaxt <gaxt@rogers.com>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030809104024.GA12316@gamma.logic.tuwien.ac.at>
-References: <3F34D0EA.8040006@rogers.com>
-	 <20030809104024.GA12316@gamma.logic.tuwien.ac.at>
-Content-Type: text/plain
-Message-Id: <1060436885.467.0.camel@teapot.felipe-alfaro.com>
+	Sat, 9 Aug 2003 10:04:55 -0400
+Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:28632
+	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S272362AbTHIOEx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 10:04:53 -0400
+Date: Sat, 9 Aug 2003 10:04:52 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: PATCH 2.6: fix X86_VENDOR_ID offset in head.S
+Message-ID: <20030809140452.GA5268@gtf.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Sat, 09 Aug 2003 15:48:05 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-08-09 at 12:40, Norbert Preining wrote:
-> On Sam, 09 Aug 2003, gaxt wrote:
-> > Try changing in your bootloader root=/dev/hdb1 to root=341
+While reviewing my 2.4 backport of the 2.6 cpu capabilities (including
+the Via RNG support), Mikael Pettersson noticed a bug in both my
+backport, and 2.6:  when NCAPINTS (x86_capability array size) is
+increased, one must adjust the offset in arch/i386/kernel/head.S also.
 
-Justa stupid guess, but the format has been changed. Instead, try
+Contributed by Mikael Pettersson.
 
-root=03:41
+
+===== arch/i386/kernel/head.S 1.27 vs edited =====
+--- 1.27/arch/i386/kernel/head.S	Mon May 12 21:59:20 2003
++++ edited/arch/i386/kernel/head.S	Sat Aug  9 09:59:50 2003
+@@ -35,7 +35,7 @@
+ #define X86_HARD_MATH	CPU_PARAMS+6
+ #define X86_CPUID	CPU_PARAMS+8
+ #define X86_CAPABILITY	CPU_PARAMS+12
+-#define X86_VENDOR_ID	CPU_PARAMS+28
++#define X86_VENDOR_ID	CPU_PARAMS+36
+ 
+ /*
+  * Initialize page tables
 

@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317759AbSGKEmz>; Thu, 11 Jul 2002 00:42:55 -0400
+	id <S317763AbSGKEqm>; Thu, 11 Jul 2002 00:46:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317760AbSGKEmy>; Thu, 11 Jul 2002 00:42:54 -0400
-Received: from dsl-213-023-020-124.arcor-ip.net ([213.23.20.124]:32491 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S317759AbSGKEmx>;
-	Thu, 11 Jul 2002 00:42:53 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Andreas Dilger <adilger@clusterfs.com>,
-       Marc-Christian Petersen <mcp@linux-systeme.de>
-Subject: Re: htree directory indexing 2.4.18-2 BUG with highmem and also high i/o
-Date: Thu, 11 Jul 2002 00:46:23 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org
-References: <200207092333.01130.mcp@linux-systeme.de> <20020710210153.GA1045@clusterfs.com>
-In-Reply-To: <20020710210153.GA1045@clusterfs.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17SQE4-00029R-00@starship>
+	id <S317762AbSGKEql>; Thu, 11 Jul 2002 00:46:41 -0400
+Received: from hq.fsmlabs.com ([209.155.42.197]:40106 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S317761AbSGKEqj>;
+	Thu, 11 Jul 2002 00:46:39 -0400
+From: Cort Dougan <cort@fsmlabs.com>
+Date: Wed, 10 Jul 2002 22:46:40 -0600
+To: "David S. Miller" <davem@redhat.com>
+Cc: rusty@rustcorp.com.au, adam@yggdrasil.com, R.E.Wolff@BitWizard.nl,
+       linux-kernel@vger.kernel.org
+Subject: Re: Rusty's module talk at the Kernel Summit
+Message-ID: <20020710224640.S18791@host110.fsmlabs.com>
+References: <200207041724.KAA06758@adam.yggdrasil.com> <20020711124830.26e2388b.rusty@rustcorp.com.au> <20020710.194555.88475708.davem@redhat.com> <20020710220244.K18791@host110.fsmlabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020710220244.K18791@host110.fsmlabs.com>; from cort@fsmlabs.com on Wed, Jul 10, 2002 at 10:02:44PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 10 July 2002 23:01, Andreas Dilger wrote:
-> On Jul 09, 2002  23:33 +0200, Marc-Christian Petersen wrote:
-> > Hi Daniel,
-> > 
-> > I've found a bug with htree directory indexing patch and
-> > highmem enabled (64GB). This is with 2.4.18 and htree patch
-> > 2.4.18-2. Oops appears if accessing an ext2 partition with ls
-> > or doing "who/w" in the directory of the ext2 partition.
-> 
-> The ext2 htree patch probably needs to add a "kmap()" and "kunmap()"
-> in the function that reads a page and scans the directory for the
-> name it is looking for.  I can't be any more specific than this
-> right now since I only have the ext3 version of this patch, and it
-> does not have page-cache based directories (it is still using the
-> buffer cache).
+I checked out the sparc64 PTE structure.  It's not a bozo-design which I
+thought it was (like some PPC's).  If you can select powers of 2 sizes my
+concern is meaningless there since you can pick the appropriate
+granularity.
 
-Hi Andreas,
+A genuine Bershad-esque superpages design would be perfect there.
 
-Yes, kmap is utterly not-there for the Ext2 version of the patch.
-This is one of those uninteresting but altogether essential chores
-that just needs doing.  Sigh.
-
-See you tomorrow.
-
--- 
-Daniel
+} Large PTE's aren't free either, though.  Cheap enough to implement but
+} there's some fragmentation that isn't easy to deal with in some
+} pathological cases.  The virtual space is pretty tight on some archs
+} already.
+} 
+} A lot of stock distributions load most drivers as modules so a machine well
+} stocked with devices may run into trouble.
+} 
+} } Modules can be mapped using a large PTE mapping.
+} } I've been meaning to do this on sparc64 for a long
+} } time.
+} } 
+} } So this TLB argument alone is not sufficient :-)
+} } I do concur on the "ipv4 as module is difficult to
+} } get correct" argument however.
+} } -
+} } To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+} } the body of a message to majordomo@vger.kernel.org
+} } More majordomo info at  http://vger.kernel.org/majordomo-info.html
+} } Please read the FAQ at  http://www.tux.org/lkml/
+} -
+} To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+} the body of a message to majordomo@vger.kernel.org
+} More majordomo info at  http://vger.kernel.org/majordomo-info.html
+} Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262186AbRENQFJ>; Mon, 14 May 2001 12:05:09 -0400
+	id <S262179AbRENQC7>; Mon, 14 May 2001 12:02:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262193AbRENQE7>; Mon, 14 May 2001 12:04:59 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:33033 "EHLO
+	id <S262181AbRENQCu>; Mon, 14 May 2001 12:02:50 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:26377 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262186AbRENQEx>; Mon, 14 May 2001 12:04:53 -0400
+	id <S262179AbRENQCl>; Mon, 14 May 2001 12:02:41 -0400
 To: linux-kernel@vger.kernel.org
 From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [Re: Inodes]
-Date: 14 May 2001 09:04:46 -0700
+Subject: Re: Minor numbers
+Date: 14 May 2001 09:02:36 -0700
 Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9dovmu$eqj$1@cesium.transmeta.com>
-In-Reply-To: <20010514073547.12678.qmail@nwcst284.netaddress.usa.net>
+Message-ID: <9dovis$epg$1@cesium.transmeta.com>
+In-Reply-To: <200105141302.PAA14005@cave.bitwizard.nl> <E14zJmj-0000p3-00@the-village.bc.nu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
@@ -21,21 +21,22 @@ Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20010514073547.12678.qmail@nwcst284.netaddress.usa.net>
-By author:    Blesson Paul <blessonpaul@usa.net>
+Followup to:  <E14zJmj-0000p3-00@the-village.bc.nu>
+By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
 In newsgroup: linux.dev.kernel
 >
-> Hi J
->                   You misunderstood my question. Let take an example.
-> Let I have a msdos partition. No msdos files has inode numbers, right. Let I
-> mount that msdos partition. Then what happens, That is my question. Will the
-> inode numbers are assigned to all msdos files at mounting time itself
+> > > 20:12 is more common
+> > 
+> > Which is major, which is minor?
+> 
+> 20bit major
 > 
 
-The inode numbers are "invented" by the MS-DOS filesystem driver.  In
-the particular case of the "msdos" driver I believe it uses the
-location of the directory entry (the functional equivalent of the
-inode) on disk.
+Surely you're jesting?
+
+12 bit major, 20 bit minor is the only logical split.  The need for
+minors (think individual disks) is much greater than the need for
+majors.
 
 	-hpa
 -- 

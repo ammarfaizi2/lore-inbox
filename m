@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262913AbSJAWqF>; Tue, 1 Oct 2002 18:46:05 -0400
+	id <S262894AbSJAWcj>; Tue, 1 Oct 2002 18:32:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262916AbSJAWqF>; Tue, 1 Oct 2002 18:46:05 -0400
-Received: from jalon.able.es ([212.97.163.2]:12235 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S262913AbSJAWqE>;
-	Tue, 1 Oct 2002 18:46:04 -0400
-Date: Wed, 2 Oct 2002 00:51:25 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: bad function ptrs - is it dangerous ?
-Message-ID: <20021001225125.GD3927@werewolf.able.es>
+	id <S262873AbSJAWTz>; Tue, 1 Oct 2002 18:19:55 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:18180 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S262866AbSJAWS1>;
+	Tue, 1 Oct 2002 18:18:27 -0400
+Date: Mon, 30 Sep 2002 07:45:20 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] deadline io scheduler
+Message-ID: <20020930074519.B159@toy.ucw.cz>
+References: <20020925172024.GH15479@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.4.1
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20020925172024.GH15479@suse.de>; from axboe@suse.de on Wed, Sep 25, 2002 at 07:20:24PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi al...
+Hi!
 
-I have a little question. Let's suppose you have this:
+> Due to recent "problems" (well the vm being just too damn good at keep
+> disks busy these days), it's become even more apparent that our current
+> io scheduler just cannot cope with some work loads. Repeated starvartion
+> of reads is the most important one. The Andrew Morton Interactive
+> Workload (AMIW) [1] rates the current kernel poorly, on my test machine
+> it completes in 1-2 minutes depending on your luck. 2.5.38-BK does a lot
+> better, but mainly because it's being extremely unfair. This deadline io
+> scheduler finishes the AMIW in anywhere from ~0.5 seconds to ~3-4
+> seconds, depending on the io load.
 
-int (*pf)(data *);
-int f(data*);
+would it be possible to make deadlines per-process to introduce ionice?
 
-so you can:
+ionice -n -5 mpg123 foo.mp3
+ionice make
 
-pf = f;
-pf(data).
-
-Fine. But what happens if:
-
-void (*pf)(data *);
-int f(data*);
-
-pf = f; // gcc happily swallows, gcc-3.2 gives a warning.
-pf(data).
-
-??
-
-In C calling convention, the callee kills the stack so nothing should
-happen... or it should ?
-
-The (in)famous graphics driver all you know is doing this with the
-copy_info op for gart...
-
-TIA
+?								Pavel
 
 -- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.0 (dolphin) for i586
-Linux 2.4.20-pre8-jam1 (gcc 3.2 (Mandrake Linux 9.0 3.2-1mdk))
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+

@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287310AbSAGWcN>; Mon, 7 Jan 2002 17:32:13 -0500
+	id <S287319AbSAGWkN>; Mon, 7 Jan 2002 17:40:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287297AbSAGWcD>; Mon, 7 Jan 2002 17:32:03 -0500
-Received: from peebles.phys.ualberta.ca ([129.128.7.18]:25472 "EHLO
-	peebles.phys.ualberta.ca") by vger.kernel.org with ESMTP
-	id <S287310AbSAGWcB>; Mon, 7 Jan 2002 17:32:01 -0500
-Message-ID: <3C3A21DF.434B8AA8@phys.ualberta.ca>
-Date: Mon, 07 Jan 2002 15:31:59 -0700
-From: Dmitri Pogosyan <pogosyan@phys.ualberta.ca>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.16-0.13 i686)
-X-Accept-Language: en
+	id <S287320AbSAGWkD>; Mon, 7 Jan 2002 17:40:03 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:44296 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S287319AbSAGWjz>; Mon, 7 Jan 2002 17:39:55 -0500
+Date: Mon, 7 Jan 2002 14:38:45 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Matthew Kirkwood <matthew@hairy.beasts.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] Lightweight user-level semaphores
+In-Reply-To: <Pine.LNX.4.33.0201072144110.8813-100000@sphinx.mythic-beasts.com>
+Message-ID: <Pine.LNX.4.33.0201071412110.1064-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-CC: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: Two hdds on one channel - why so slow?
-In-Reply-To: <Pine.LNX.4.33.0201022010340.10236-100000@coffee.psychology.mcmaster.ca> <5.1.0.14.2.20020107031026.01c72940@whisper.qrpff.net> <20020107201938.GB1227@auctionwatch.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, Jan 07, 2002 at 03:11:22AM -0500, Stevie O wrote:
-> > You're all DEAD WRONG.
-> > IDE and SCSI both suck!
-> > The way of the future is punch cards!
 
-I wonder what will survive time to serve as a record of our epoch for
-future historians.   Punch cards may have better chance than magnetica
-carrier.
-I can still read my programs on punch cards from early eighties (you know,
-program lines were printed on top of the card,  they just need some sorting
-to be operational :) ),  but were are all my floppies from later times ??
+On Mon, 7 Jan 2002, Matthew Kirkwood wrote:
+> >
+> > Yes, I was going to just attach to the vma,
+>
+> Wouldn't that have to be an address_space, so separate maps
+> of the same object will use the same count?  Or (not unlikely)
+> am I misunderstanding the way these structures are laid out?
 
-So we still may be know in the future as the punch card civilization !  :)
+I would just mke the creator be special. The guy who creates the semaphore
+owns it, and if he unmaps it, it's gone.
 
-                    DMITRI
+Note that there are other, potentially cleaner solutions. In particular,
+some people like the "semaphore as file descriptor" approach, and I have
+to say that I think they may be right. Then you just pass the file
+descriptor along as the cookie, and you can do dup()/close() etc on it.
+
+Mind trying that approach instead? It's not all that far off from your
+current setup, and it would certainly have none of the security
+implications..
+
+		Linus
 

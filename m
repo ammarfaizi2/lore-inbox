@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263403AbTDGNEt (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 09:04:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263407AbTDGNEt (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 09:04:49 -0400
-Received: from wotug.org ([194.106.52.201]:50043 "EHLO gatemaster.ivimey.org")
-	by vger.kernel.org with ESMTP id S263403AbTDGNEs (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 09:04:48 -0400
-Message-Id: <5.2.0.9.0.20030407141330.00b346c0@mailhost.ivimey.org>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Mon, 07 Apr 2003 14:16:23 +0100
-To: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-From: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
-Subject: Re: Problems booting PDC20276 with new IDE setup code.
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3E90E3C5.80109@gmx.net>
-References: <Pine.LNX.4.44.0304070201420.8701-100000@sharra.ivimey.org>
- <Pine.LNX.4.44.0304070201420.8701-100000@sharra.ivimey.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id S263416AbTDGNHz (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 09:07:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263407AbTDGNHz (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 09:07:55 -0400
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:35081 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id S263416AbTDGNHy (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 09:07:54 -0400
+Date: Mon, 7 Apr 2003 15:19:19 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Andreas Schwab <schwab@suse.de>
+cc: Olivier Galibert <galibert@pobox.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] new syscall: flink
+In-Reply-To: <je8yumo4by.fsf@sykes.suse.de>
+Message-ID: <Pine.LNX.4.44.0304071511010.12110-100000@serv>
+References: <Pine.BSO.4.44.0304062250250.9407-100000@kwalitee.nolab.conman.org>
+ <b6qruf$elf$1@cesium.transmeta.com> <b6r9cv$jof$1@news.cistron.nl>
+ <20030407081800.GA48052@dspnet.fr.eu.org> <20030407043555.G13397@devserv.devel.redhat.com>
+ <20030407091120.GA50075@dspnet.fr.eu.org> <Pine.LNX.4.44.0304071422580.12110-100000@serv>
+ <je8yumo4by.fsf@sykes.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 03:34 07/04/2003, Carl-Daniel Hailfinger wrote:
->Could you please try 2.4.21-pre7 (this has another batch of IDE updates) 
->and enable the option
->"Special FastTrak Feature"?
->In your .config, the option would be
->CONFIG_PDC202XX_FORCE=y
->and report back to the list?
+Hi,
 
+On Mon, 7 Apr 2003, Andreas Schwab wrote:
 
-For reasons reported in another mail (ac97 fails to build) my attempt at 
-pre7 failed. Also, as far as I know, the FastTrak feature enables the 
-Promise RAID mode: I am not using that. Instead, I just want 4 IDE disks 
-which will be bound using Linux raid5.
+> |> I wouldn't rely on this functionality, not all filesystems might like it 
+> |> to have to recreate a deleted fs entry. Most filesystems should be able to 
+> |> do this, but all fs drivers have to be checked, that they do the right 
+> |> thing.
+> 
+> All filesystems already have to cope with unlinking of an open file
+> anyway, so relinking should not be a problem.
 
-Are you saying you want to know if the Promise mode works (independent of 
-whether I wish to use it?)
+I know, but creating a new dir entry and linking to an existing dir entry 
+is not always the same, e.g. filesystems, where a dir entry is not simply 
+a pointer to an inode table, have to update other entries as well to 
+create a new link. So far filesystems could assume that source dentry was 
+a valid dir entry, this patch changes this.
 
-Ruth 
+bye, Roman
 

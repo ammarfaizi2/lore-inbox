@@ -1,63 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292386AbSBBUwJ>; Sat, 2 Feb 2002 15:52:09 -0500
+	id <S292384AbSBBVDL>; Sat, 2 Feb 2002 16:03:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292384AbSBBUvx>; Sat, 2 Feb 2002 15:51:53 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:22999 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S292385AbSBBUvq>; Sat, 2 Feb 2002 15:51:46 -0500
-Date: Sat, 2 Feb 2002 21:49:17 +0100 (CET)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Problem building the kernel with CONFIG_AIC7XXX_BUILD_FIRMWARE
-Message-ID: <Pine.NEB.4.44.0202022137300.9676-100000@mimas.fachschaften.tu-muenchen.de>
+	id <S292385AbSBBVDB>; Sat, 2 Feb 2002 16:03:01 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:54277 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S292384AbSBBVC6>; Sat, 2 Feb 2002 16:02:58 -0500
+Message-ID: <3C5C53F5.1030401@evision-ventures.com>
+Date: Sat, 02 Feb 2002 22:02:45 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020129
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: David Wagner <daw@mozart.cs.berkeley.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Continuing /dev/random problems with 2.4
+In-Reply-To: <20020201031744.A32127@asooo.flowerfire.com> <1012582401.813.1.camel@phantasy> <a3enf3$93p$1@cesium.transmeta.com> <20020201202334.72F921C5@www.pmonta.com> <a3fhh9$u87$1@abraham.cs.berkeley.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+David Wagner wrote:
 
-building kernel 2.5.3-dj1 fails with CONFIG_AIC7XXX_BUILD_FIRMWARE enabled
-with the following error (but it seems that this problem also exists in
-the 2.4 kernels):
-
-<--  snip  -->
-
-...
-make[5]: Entering directory
-`/home/bunk/linux/kernel-2.5/linux/drivers/scsi/aic7xxx/aicasm'
-yacc -d aicasm_gram.y
-mv y.tab.c aicasm_gram.c
-lex  -t aicasm_scan.l > aicasm_scan.c
-gcc -I/usr/include -I. -ldb aicasm_gram.c aicasm_scan.c aicasm.c
-aicasm_symbol.c
- -o aicasm
-aicasm_gram.y:1485: warning: type mismatch with previous implicit declaration
-/usr/share/bison/bison.simple:946: warning: previous implicit declaration
-of `yyerror'
-aicasm_gram.y:1485: warning: `yyerror' was previously implicitly declared
-to return `int'
-In file included from aicasm_symbol.c:47:
-aicdb.h:1: db3/db_185.h: No such file or directory
-make[5]: *** [aicasm] Error 1
-
-<--  snip  -->
-
-The problem is that the -dj1 patch ships with a
-drivers/scsi/aic7xxx/aicasm/aicdb.h file although this is a generated
-file.
-
-The real problem is that there's a "clean" target in the Makefile in this
-directory that removed this file - unfortunately this "clean" target never
-gets executed because in the Linux kernel the "clean" target in one
-directory doesn't execute call the "clean" target in the Makefiles in the
-subdirectories.
-
-cu
-Adrian
-
-
+>Peter Monta  wrote:
+>
+>>Many motherboards have on-board sound.  Why not turn the mic
+>>gain all the way up and use the noise---surely there will be
+>>a few bits' worth?
+>>
+>
+>That may be reasonable, but beware: there are some potential pitfalls.
+>For instance, is there a risk that the audio data you read is strongly
+>correlated to 60Hz mains noise in some scenarios?  Also, my understanding
+>is that the quality of randomness you get can depend on which sound card
+>you have, and moreover that the left and right channels can be strongly
+>correlated (audio-entropyd takes the difference between the two).
+>I think there are some things you can do, but it seems that one might
+>want to be a bit careful here.
+>
+There is no need to speculate here - just please do aan autocorrelation 
+of the signal with grace for example and
+laugh at the idea ;-).
 
 

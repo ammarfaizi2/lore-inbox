@@ -1,61 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262019AbSI3LGd>; Mon, 30 Sep 2002 07:06:33 -0400
+	id <S262022AbSI3LMN>; Mon, 30 Sep 2002 07:12:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262022AbSI3LGd>; Mon, 30 Sep 2002 07:06:33 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:3534 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262019AbSI3LG3>;
-	Mon, 30 Sep 2002 07:06:29 -0400
-Date: Mon, 30 Sep 2002 16:47:38 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.39-mm1 fixes 3/3
-Message-ID: <20020930164738.C27121@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20020930164314.A27121@in.ibm.com> <20020930164547.B27121@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020930164547.B27121@in.ibm.com>; from dipankar@in.ibm.com on Mon, Sep 30, 2002 at 04:45:47PM +0530
+	id <S262023AbSI3LMN>; Mon, 30 Sep 2002 07:12:13 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:30925 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S262022AbSI3LMN>; Mon, 30 Sep 2002 07:12:13 -0400
+Date: Mon, 30 Sep 2002 13:17:34 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Tomas Szepe <szepe@pinerecords.com>
+cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH-RFC] 4 of 4 - New problem logging macros, SCSI RAIDdevice
+ driver
+In-Reply-To: <20020930102228.GB28157@louise.pinerecords.com>
+Message-ID: <Pine.NEB.4.44.0209301313160.12605-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The dcache_rcu patch should use the RCU list macros which make sure
-of the barrier requirements. Fix against 2.5.39-mm1.
+On Mon, 30 Sep 2002, Tomas Szepe wrote:
 
-Thanks
+> > Technically correct. Major version jump should be made when there is
+> > a binary incompatibility. It can be made without, but it is usually
+> > done for marketing reasons. I hope we'll never have marketing reasons
+> > for lk. :-) We can be actually _proud_ to have 2.$BIGNUM instead of
+> > 3.0
+>
+> ... and go Solaris, as in 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 7, 8, 9.  :D
+
+NetBSD still has sane version numbers:  :-)
+
+0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6
+
+> T.
+
+
+cu
+Adrian
+
 -- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
 
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
 
---- fs/dcache.c.orig	Mon Sep 30 14:00:40 2002
-+++ fs/dcache.c	Mon Sep 30 14:05:33 2002
-@@ -869,14 +869,8 @@
- 	struct dentry *found = NULL;
- 
- 	rcu_read_lock();
--	tmp = head->next;
--	for (;;) {
--		struct dentry * dentry;
--		read_barrier_depends();
--	       	dentry = list_entry(tmp, struct dentry, d_hash);
--		if (tmp == head)
--			break;
--		tmp = tmp->next;
-+	list_for_each_rcu(tmp, head) {
-+		struct dentry * dentry = list_entry(tmp, struct dentry, d_hash);
- 		if (dentry->d_name.hash != hash)
- 			continue;
- 		if (dentry->d_parent != parent)
-@@ -999,7 +993,7 @@
- 	struct list_head *list = d_hash(entry->d_parent, entry->d_name.hash);
- 	spin_lock(&dcache_lock);
- 	if (!list_empty(&entry->d_hash) && !d_unhashed(entry)) BUG();
--	list_add(&entry->d_hash, list);
-+	list_add_rcu(&entry->d_hash, list);
- 	entry->d_vfs_flags &= ~DCACHE_UNHASHED;
- 	spin_unlock(&dcache_lock);
- }

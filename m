@@ -1,43 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316878AbSEVHCj>; Wed, 22 May 2002 03:02:39 -0400
+	id <S316879AbSEVHX7>; Wed, 22 May 2002 03:23:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316882AbSEVHCi>; Wed, 22 May 2002 03:02:38 -0400
-Received: from mail012.syd.optusnet.com.au ([210.49.20.170]:47554 "EHLO
-	mail012.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id <S316878AbSEVHCh>; Wed, 22 May 2002 03:02:37 -0400
-Date: Wed, 22 May 2002 17:05:40 +1000
-From: Andrew Pam <xanni@glasswings.com.au>
-To: Andre Hedrick <andre@linux-ide.org>
+	id <S316880AbSEVHX6>; Wed, 22 May 2002 03:23:58 -0400
+Received: from ausmtp01.au.ibm.COM ([202.135.136.97]:60130 "EHLO
+	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S316879AbSEVHX6>; Wed, 22 May 2002 03:23:58 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Initialisation bug in IDE patch
-Message-ID: <20020522170539.L2437@kira.glasswings.com.au>
-In-Reply-To: <20020522165709.K2437@kira.glasswings.com.au> <Pine.LNX.4.10.10205212356360.19403-100000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Subject: [PATCH] Trivial 2.5.17: DMA-mapping.txt typo fix
+Date: Wed, 22 May 2002 17:26:28 +1000
+Message-Id: <E17AQVx-0007gt-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 21, 2002 at 11:59:35PM -0700, Andre Hedrick wrote:
-> 
-> First question for 2.2.X, in your .config is "CONFIG_BLK_DEV_QD6580" set ?
-> If not then ide0=qd6580 will yield "-- BAD OPTION"
-> 
-> Second question for 2.4.X in your .config is "CONFIG_BLK_DEV_QD65XX" set ?
-> If not then ide0=qd65xx will yield "-- BAD OPTION"
-> 
-> Please check those first.
+Roger Luethi <rl@hellgate.ch>: DMA-mapping.txt: sg_dma_length() -> sg_dma_len():
 
-Yes, they are set.
+--- trivial-2.5.17/Documentation/DMA-mapping.txt.orig	Wed May 22 17:13:45 2002
++++ trivial-2.5.17/Documentation/DMA-mapping.txt	Wed May 22 17:13:45 2002
+@@ -484,7 +484,7 @@
+ of sg entries it mapped them to.
+ 
+ Then you should loop count times (note: this can be less than nents times)
+-and use sg_dma_address() and sg_dma_length() macros where you previously
++and use sg_dma_address() and sg_dma_len() macros where you previously
+ accessed sg->address and sg->length as shown above.
+ 
+ To unmap a scatterlist, just call:
 
-Regards,
-	Andrew Pam
--- 
-mailto:xanni@xanadu.net                         Andrew Pam
-http://www.xanadu.com.au/                       Chief Scientist, Xanadu
-http://www.glasswings.com.au/                   Technology Manager, Glass Wings
-http://www.sericyb.com.au/                      Manager, Serious Cybernetics
-http://two-cents-worth.com/?105347&EG		Donate two cents to our work!
-P.O. Box 477, Blackburn VIC 3130 Australia	Phone +61 401 258 915
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

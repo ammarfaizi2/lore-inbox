@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285850AbSBOBH5>; Thu, 14 Feb 2002 20:07:57 -0500
+	id <S282902AbSBOB0Y>; Thu, 14 Feb 2002 20:26:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285589AbSBOBHu>; Thu, 14 Feb 2002 20:07:50 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:44553 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S282902AbSBOBHd>; Thu, 14 Feb 2002 20:07:33 -0500
-Subject: Re: [PATCH] write barriers for 2.4.x
-To: mason@suse.com (Chris Mason)
-Date: Fri, 15 Feb 2002 01:21:20 +0000 (GMT)
-Cc: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org, axboe@suse.de
-In-Reply-To: <3728070000.1013734612@tiny> from "Chris Mason" at Feb 14, 2002 07:56:52 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16bX3x-0001nu-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S285498AbSBOB0O>; Thu, 14 Feb 2002 20:26:14 -0500
+Received: from 200-221-100-65.dsl-sp.uol.com.br ([200.221.100.65]:18187 "HELO
+	user") by vger.kernel.org with SMTP id <S282902AbSBOB0L>;
+	Thu, 14 Feb 2002 20:26:11 -0500
+From: "Distribuidora de equipamentos e suprimentos para
+	=?ISO-8859-1?Q?inform=E1tica" ?= <lehugo@lehugo.com.br>
+To: <linux-kernel@vger.kernel.org>
+Subject: =?ISO-8859-1?Q?PROMO=C7=C3O?= =?ISO-8859-1?Q?IMPERD=CDVEL?= ! ! !
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Date: Thu, 14 Feb 2002 23:22:55
+Message-Id: <20020215012612Z282902-13996+23554@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> sure we only try to use tag commands when they are turned on for the
-> target, otherwise we can safely assume the drive won't do
-> other writes first.
+Quer economizar dinheiro?
+Então está no caminho certo...
 
-Is this guaranteed by the SCSI standards or do you need to issue some
-kind of cache flush as with IDE ?
+Visite agora mesmo o mais novo Shopping Virtual e confira nossos preços...
 
-> With -o barrier, this is now:
-> 
-> write X log blocks
-> write 1 commit block
-> wait.
+WWW.LEHUGO.COM.BR
 
-That will work nicely with the I2O controllers, and possibly (if its
-in the firmware as well as the .h file) the aacraid cards. In those
-cases I can often commit to battery backed ram rather than physical
-media.
+Confira algumas de nossas promoções:
+ 
+CALCULADORA FINANCEIRA HP 12C					R$198.75 
 
-Do you have any idea of driving the cache write through rather than write
-back is likely to help here by evening out the commit wait for a flush?
+GRAVADOR CD LG 16X10X40                  					R$253.29
+
+
+"Se não desejar receber mais este e-mail, responda este com o assunto REMOVER"

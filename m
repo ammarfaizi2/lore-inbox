@@ -1,38 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267631AbSLSKmw>; Thu, 19 Dec 2002 05:42:52 -0500
+	id <S267642AbSLSKpa>; Thu, 19 Dec 2002 05:45:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267632AbSLSKmv>; Thu, 19 Dec 2002 05:42:51 -0500
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:60420 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S267631AbSLSKmv>; Thu, 19 Dec 2002 05:42:51 -0500
-Message-Id: <200212191024.gBJAOqs28377@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Andre Hedrick <andre@linux-ide.org>
-Subject: Re: 2.4.19, don't "hdparm -I /dev/hde" if hde is on a Asus A7V133  Promise ctrlr, or...
-Date: Thu, 19 Dec 2002 13:14:01 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "D.A.M. Revok" <marvin@synapse.net>,
-       Manish Lachwani <manish@Zambeel.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.10.10212190217240.8350-100000@master.linux-ide.org>
-In-Reply-To: <Pine.LNX.4.10.10212190217240.8350-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S267643AbSLSKp3>; Thu, 19 Dec 2002 05:45:29 -0500
+Received: from cerebus.wirex.com ([65.102.14.138]:53235 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S267642AbSLSKo5>; Thu, 19 Dec 2002 05:44:57 -0500
+Date: Thu, 19 Dec 2002 02:51:23 -0800
+From: Chris Wright <chris@wirex.com>
+To: linux-security-module@wirex.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] 2.5.52-lsm1
+Message-ID: <20021219025123.A23371@figure1.int.wirex.com>
+Mail-Followup-To: linux-security-module@wirex.com,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 19 December 2002 08:19, Andre Hedrick wrote:
-> Promise knows this point.
-> Thus they moved the setting to a push/pull in the vendor space in the
-> dma_base+1 and dma_base+3 respectively.
-> lspci -vvvxxx fails when the content is located in bar4 io space.
+The Linux Security Modules project provides a lightweight, general
+purpose framework for access control.  The LSM interface enables
+security policies to be developed as loadable kernel modules.
+See http://lsm.immunix.org for more information.
 
-Neither I nor original bug reporter (I think) did understand
-a bit what you said. Can we plead for IDE -> English translation?
-;)
-If lspci is of no help, what can we use instead?
---
-vda
+2.5.52-lsm1 patch released.  This is a rebase up to 2.5.52 as well as
+numerous module updates and bugfixes.  The interface has changed, and
+the hooks are controlled with CONFIG_SECURITY now.  Currently LIDS and
+DTE will not compile.
+
+Full lsm-2.5 patch (LSM + all modules) is available at:
+	http://lsm.immunix.org/patches/2.5/2.5.52/patch-2.5.52-lsm1.gz
+
+The whole ChangeLog for this release is at:
+	http://lsm.immunix.org/patches/2.5/2.5.52/ChangeLog-2.5.52-lsm1
+
+The LSM 2.5 BK tree can be pulled from:
+        bk://lsm.bkbits.net/lsm-2.5
+
+2.5.52-lsm1
+ - merge with 2.5.36-52					(GregKH and me)
+ - Owlsm module updates					(GregKH)
+ - Makefile and Kconfig cleanups			(GregKH)
+ - SELinux: Assign an initial SID to SCMP packets.	(Wayne Salamon)
+ - dummy module cleanups				(GregKH)
+ - convert hooks to new format				(GregKH)
+ 							(Stephen Smalley)
+ - add CONFIG_SECURITY					(GregKH)
+ - SELinux: Handles inodes allocated by AFS		(Stephen Smalley)
+ - SELinux: kill uses of i_dev				(Stephen Smalley)
+ - LIDS 2.0.2pre2 update				(Huagang Xie)
+ - Add hook to init_private_file/release_private_file	(Stephen Smalley)
+ - remove sys_security					(Christoph Hellwig)
+ - LIDS fix __FUNCTION__ pasting			(me)
+ - Kconfig updates					(me)
+ - LIDS workqueue conversion and bug fix		(Huagang Xie)
+ - IPC hooks cleanup					(Stephen Smalley)
+ - Selopt __exit fixups					(Stephen Smalley)
+ - remove file_llseek					(Christoph Hellwig)
+ - SELinux: remove inode_preconditions			(Stephen Smalley)
+ - Added gfp_mask param to skb_alloc_security() hook	(James Morris)
+ - SELinux: pivot_root, connect revalidation bug fixes
+   kbd ioctl fix, signull perm, remove old perm.	(Stephen Smalley)
+ - LIDS update to for_each_process			(me)
+
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

@@ -1,30 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275611AbRIZVS2>; Wed, 26 Sep 2001 17:18:28 -0400
+	id <S275610AbRIZVZH>; Wed, 26 Sep 2001 17:25:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275609AbRIZVSR>; Wed, 26 Sep 2001 17:18:17 -0400
-Received: from shell.cyberus.ca ([209.195.95.7]:63403 "EHLO shell.cyberus.ca")
-	by vger.kernel.org with ESMTP id <S275608AbRIZVSL>;
-	Wed, 26 Sep 2001 17:18:11 -0400
-Date: Wed, 26 Sep 2001 17:15:40 -0400 (EDT)
-From: jamal <hadi@cyberus.ca>
-To: Ingo Molnar <mingo@elte.hu>
-cc: <linux-kernel@vger.kernel.org>, <linux-net@vger.kernel.org>,
-        <netdev@oss.sgi.com>
-Subject: Re: [patch] netconsole - log kernel messages over the network.
- 2.4.10.
-In-Reply-To: <Pine.LNX.4.21.0109261635190.957-100000@freak.distro.conectiva>
-Message-ID: <Pine.GSO.4.30.0109261713500.6825-100000@shell.cyberus.ca>
+	id <S275614AbRIZVY6>; Wed, 26 Sep 2001 17:24:58 -0400
+Received: from pixar.pixar.com ([138.72.10.20]:18370 "EHLO pixar.pixar.com")
+	by vger.kernel.org with ESMTP id <S275610AbRIZVYq>;
+	Wed, 26 Sep 2001 17:24:46 -0400
+Date: Wed, 26 Sep 2001 14:25:05 -0700 (PDT)
+From: Kiril Vidimce <vkire@pixar.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: max arguments for exec
+Message-ID: <Pine.LNX.4.21.0109261417110.24013-100000@nevena>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Is there any way to reconfigure the kernel at runtime to change the
+limit for arguments passed during an exec? I guess I am looking for
+something similar to systune ncargs under IRIX. I found this thread
+in the archives:
 
-Is there any reason you are not using dev_queue_xmit()?
-(side benefits, you could hack this into using scatter gather schemes etc)
+http://uwsg.iu.edu/hypermail/linux/kernel/0003.0/0160.html
 
-cheers,
-jamal
+The only suggestion was to patch and recompile the kernel. I looked
+into sysctl and I couldn't find an appropriate argument to tweak.
+
+Thanks for any info,
+KV
+--
+  ___________________________________________________________________
+  Studio Tools                                        vkire@pixar.com
+  Pixar Animation Studios                        http://www.pixar.com/
 

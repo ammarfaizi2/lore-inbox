@@ -1,71 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313300AbSEESfC>; Sun, 5 May 2002 14:35:02 -0400
+	id <S313304AbSEETFI>; Sun, 5 May 2002 15:05:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313304AbSEESfB>; Sun, 5 May 2002 14:35:01 -0400
-Received: from web14102.mail.yahoo.com ([216.136.172.132]:53044 "HELO
-	web14102.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S313300AbSEESe7>; Sun, 5 May 2002 14:34:59 -0400
-Message-ID: <20020505183451.98763.qmail@web14102.mail.yahoo.com>
-Date: Sun, 5 May 2002 20:34:51 +0200 (CEST)
-From: =?iso-8859-1?q?william=20stinson?= <wstinsonfr@yahoo.fr>
-Subject: vanilla 2.5.13 severe file system corruption experienced follozing e2fsck ...
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S313305AbSEETFH>; Sun, 5 May 2002 15:05:07 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:16915 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S313304AbSEETFG>; Sun, 5 May 2002 15:05:06 -0400
+Date: Sun, 5 May 2002 21:05:08 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: hugang <gang_hu@soul.com.cn>
+Cc: jdike@karaya.com, glonnon@ridgerun.com, Pavel Machek <pavel@suse.cz>,
+        seasons@fornax.hu, linux-kernel@vger.kernel.org
+Subject: Re: [PATH] Port software to UML.
+Message-ID: <20020505190508.GA2526@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20020505214819.19cb9a86.gang_hu@soul.com.cn>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Hi!
 
-as vanilla linux 2.5.13 compiled beautifully for me
-last night one I couldn't resist the temptation to
-boot it up and give it a whirl on my workstation (a
-monoprocessor AMD  ATHLON on VIA motherboard with
-recent 20GB IDE disk and EXT2 file system, NVIDIA
-video card). 
+>   Now I try port software to UML(user mode linux).
+> This patch is for the 2.4.18 + uml-patch-2.4.18-22.
 
-Boot went OK until a message something like "checking
-filesystems - check forced -mounted  31 times without
-verification - verifying now". Shortly afterwards I
-got an OOPS message. 
+Hmm, I had same idea myself few hours ago (but no time :-( ).
+> 
+> -- Now the patch is make the kernek can suspend, BUT can not resume.
+> 
+> Here is the error message.
+> 
+> Ther problem in bread. I check the ubd drivers, in ubd_user.c the do_io is lseek64 the descriptor is error, The right descriptor is swap.a, But in here it is an socket. I think problem possbile in ubd, because in ide disk it can works fine.
+> 
 
-
-EIP : 0010: [<c01d59cb> Not Tainted
-....
-<0> Kernel Panic: Aiee, killing interrupt handler! In
-interrupt handler - not syncing
-
-Not to worry I try to reboot my stable kernel - this
-fails at the mount command (library's needed by mount
-command are missing). Impossible to login (password
-file must be corrupted too). 
-
-With the rescue disk I run e2fsck and home partition
-is  dead (bad superblocks) and nothing recoverable.
-The root file system is also corrupted (bad
-superblocks but not as badly as home). I have some
-other partitions which I haven't checked yet - maybe
-some of them survived. 
-
-As I am not subscribed to the list please CC me in any
-response. If I can recover the kernel compile I will
-try to give some configuration options and try to
-decode the full oops message. More details available
-on request.
-
-Best regards
-William Stinson (wstinsonfr@yahoo.fr.nospam)
- 
-P.S. 
-
- The hard disk is using VIA bus master PCI IDE and the
-distribution is a "vanilla" mandrake 8.1. I have a
-REALTEK  RTL8029 Ethernet Adaptor. USB is with VIA
-VT83C572/VT82C586 PCI to VIA Universal Host
-controller. 
-
-___________________________________________________________
-Do You Yahoo!? -- Une adresse @yahoo.fr gratuite et en français !
-Yahoo! Mail : http://fr.mail.yahoo.com
+Swap file should not be a socket, right?
+									Pavel
+-- 
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

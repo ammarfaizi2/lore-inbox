@@ -1,36 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269007AbUJKOWU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269028AbUJKOYz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269007AbUJKOWU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 10:22:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268993AbUJKOWT
+	id S269028AbUJKOYz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 10:24:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269013AbUJKOWr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 10:22:19 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:26817 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S269007AbUJKOVm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 10:21:42 -0400
-Subject: Re: MMC performance
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Pierre Ossman <drzeus-list@drzeus.cx>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041011131919.B19175@flint.arm.linux.org.uk>
-References: <416A68E5.6080608@drzeus.cx>
-	 <20041011131919.B19175@flint.arm.linux.org.uk>
-Content-Type: text/plain
+	Mon, 11 Oct 2004 10:22:47 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:28121 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S268989AbUJKOVd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 10:21:33 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc4-mm1
+Date: Mon, 11 Oct 2004 16:23:08 +0200
+User-Agent: KMail/1.6.2
+Cc: "J.A. Magallon" <jamagallon@able.es>, Andi Kleen <ak@muc.de>,
+       Tim Cambrant <cambrant@acc.umu.se>, akpm@digeo.com
+References: <2O5L3-5Jq-11@gated-at.bofh.it> <200410111538.33299.rjw@sisk.pl> <1097503960l.6177l.0l@werewolf.able.es>
+In-Reply-To: <1097503960l.6177l.0l@werewolf.able.es>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <1097500722.31259.17.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 11 Oct 2004 14:18:45 +0100
+Message-Id: <200410111623.08848.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-10-11 at 13:19, Russell King wrote:
-> Only if you can reliably know how many bytes you've tranferred when
-> an error occurs.  Without that, the only safe way to do a write is
-> sector by sector.
+On Monday 11 of October 2004 16:12, J.A. Magallon wrote:
+> 
+> On 2004.10.11, Rafael J. Wysocki wrote:
+> > On Monday 11 of October 2004 14:40, Andi Kleen wrote:
+> > > Tim Cambrant <cambrant@acc.umu.se> writes:
+> > > 
+> > > > On Mon, Oct 11, 2004 at 03:25:02AM -0700, Andrew Morton wrote:
+> > > >>
+> > > >> optimize-profile-path-slightly.patch
+> > > >>   Optimize profile path slightly
+> > > >>
+> > > >
+> > > > I'm still getting an oops at startup with this patch. After reversing
+> > > > it, everything is fine. Weren't you supposed to remove that from your
+> > > > tree until it was fixed?
+> > > 
+> > > There's a fixed version around. I thought Andrew had merged that one?
+> > [-- snip --]
+> > 
+> > This one does not apply to -mm.
+> > 
+> 
+> Use this:
+[-- snip --]
 
-Only on retries. You can try and blast the lot out the first time then
-on retries you write sector by sector.
+This one does not apply too.
 
+Greets,
+RJW
 
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

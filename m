@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269929AbUJHMu7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269935AbUJHMxn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269929AbUJHMu7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 08:50:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269935AbUJHMu6
+	id S269935AbUJHMxn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 08:53:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269956AbUJHMxn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 08:50:58 -0400
-Received: from out005pub.verizon.net ([206.46.170.143]:15539 "EHLO
-	out005.verizon.net") by vger.kernel.org with ESMTP id S269929AbUJHMuk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 08:50:40 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
+	Fri, 8 Oct 2004 08:53:43 -0400
+Received: from open.hands.com ([195.224.53.39]:40396 "EHLO open.hands.com")
+	by vger.kernel.org with ESMTP id S269935AbUJHMxe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 08:53:34 -0400
+Date: Fri, 8 Oct 2004 14:04:42 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone
-Date: Fri, 8 Oct 2004 08:50:33 -0400
-User-Agent: KMail/1.7
-Cc: Linus Torvalds <torvalds@osdl.org>, Jon Masters <jonathan@jonmasters.org>,
-       Jesper Juhl <juhl-lkml@dif.dk>, "Jeff V. Merkey" <jmerkey@drdos.com>,
-       Dave Jones <davej@redhat.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       "jmerkey@comcast.net" <jmerkey@comcast.net>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-References: <35fb2e590410011509712b7d1@mail.gmail.com> <41663E8A.10604@jonmasters.org> <200410080838.33268.gene.heskett@verizon.net>
-In-Reply-To: <200410080838.33268.gene.heskett@verizon.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Subject: how do you call userspace syscalls (e.g. sys_rename) from inside kernel
+Message-ID: <20041008130442.GE5551@lkcl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200410080850.34029.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out005.verizon.net from [151.205.50.25] at Fri, 8 Oct 2004 07:50:34 -0500
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-hands-com-MailScanner: Found to be clean
+X-hands-com-MailScanner-SpamScore: s
+X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 08 October 2004 08:38, Gene Heskett wrote:
->On Friday 08 October 2004 03:15, Jon Masters wrote:
->>-----BEGIN PGP SIGNED MESSAGE-----
->>Hash: SHA1
->>
->>jmerkey@galt.devicelogics.com wrote:
+could someone kindly advise me on the location of some example code in
+the kernel which calls one of the userspace system calls from inside the
+kernel?
 
-Interesting too, that address just changed its name to Duncan, it 
-bounced like a yo-yo.  One more clue that this is the fox, trying to 
-sneak into the penguinhouse for a killing.  I just took him out of 
-the Cc: list...
+alternatively if this has never been considered before, please could
+someone advise me as to how it might be achieved?
 
-I repeat:
->My $0.02: Deal with the likes of him at the peril of the GPL.
+thank you,
+
+l.
+
+[p.s. i found asm/unistd.h, i found the macros syscall012345
+etc., i believe i don't quite understand what these are for, and
+may be on the wrong track.]
 
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+--
+Truth, honesty and respect are rare commodities that all spring from
+the same well: Love.  If you love yourself and everyone and everything
+around you, funnily and coincidentally enough, life gets a lot better.
+--
+<a href="http://lkcl.net">      lkcl.net      </a> <br />
+<a href="mailto:lkcl@lkcl.net"> lkcl@lkcl.net </a> <br />
+

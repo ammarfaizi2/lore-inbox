@@ -1,50 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267437AbTACGej>; Fri, 3 Jan 2003 01:34:39 -0500
+	id <S267443AbTACGbs>; Fri, 3 Jan 2003 01:31:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267439AbTACGej>; Fri, 3 Jan 2003 01:34:39 -0500
-Received: from mta05ps.bigpond.com ([144.135.25.137]:17649 "EHLO
-	mta05ps.bigpond.com") by vger.kernel.org with ESMTP
-	id <S267437AbTACGeG>; Fri, 3 Jan 2003 01:34:06 -0500
-From: Brad Hards <bhards@bigpond.net.au>
-To: Mike Galbraith <efault@gmx.de>
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source  drivers?
-Date: Fri, 3 Jan 2003 17:29:36 +1100
-User-Agent: KMail/1.4.5
-Cc: linux-kernel@vger.kernel.org
-References: <E18UIZS-0006Cr-00@fencepost.gnu.org> <5.1.1.6.2.20030103063451.00c7e750@pop.gmx.net>
-In-Reply-To: <5.1.1.6.2.20030103063451.00c7e750@pop.gmx.net>
-MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200301031729.36696.bhards@bigpond.net.au>
+	id <S267444AbTACGbs>; Fri, 3 Jan 2003 01:31:48 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:27822 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S267443AbTACGbp>;
+	Fri, 3 Jan 2003 01:31:45 -0500
+Date: Fri, 3 Jan 2003 17:39:58 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: ralf@gnu.org
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: [PATCH][COMPAT] move struct flock32 7/8 mips64
+Message-Id: <20030103173958.4e6b85e1.sfr@canb.auug.org.au>
+In-Reply-To: <20030103164106.21e65093.sfr@canb.auug.org.au>
+References: <20030103164106.21e65093.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.8.8 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi Ralf,
 
-On Fri, 3 Jan 2003 17:04, Mike Galbraith wrote:
-> Seriously though, just what is it that graphic CPU makers are
-> protecting?  I can't imagine "how to program our spiffy CPU'" docs exposing
-> anything important to their competition.  Imagine Intel or AMD trying that
-> tactic for _their_ next CPU.  What makes graphics CPUs so special?
-Giving away the technical detail probably shows where they are infringing 
-other people's patents.
+Here is the mips64 part of the patch. This patch is against Linus' recent
+2.5.54 BK tree plus the previous patch I sent you.
 
-I _hate_ intellectual property.
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-Brad
-- -- 
-http://linux.conf.au. 22-25Jan2003. Perth, Aust. I'm registered. Are you?
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE+FS3QW6pHgIdAuOMRAijcAJ4yMN+FzR3O/XoVOh2mfoVvvw0j1QCgoOOB
-+IouTHjgefoy0BMxUvyQhWc=
-=YLWT
------END PGP SIGNATURE-----
-
+diff -ruN 2.5.54-200301031304-32bit.1/arch/mips64/kernel/linux32.c 2.5.54-200301031304-32bit.2/arch/mips64/kernel/linux32.c
+--- 2.5.54-200301031304-32bit.1/arch/mips64/kernel/linux32.c	2003-01-03 16:24:15.000000000 +1100
++++ 2.5.54-200301031304-32bit.2/arch/mips64/kernel/linux32.c	2003-01-03 16:24:56.000000000 +1100
+@@ -1135,39 +1135,6 @@
+ 	return sys_setsockopt(fd, level, optname, optval, optlen);
+ }
+ 
+-struct flock32 {
+-	short l_type;
+-	short l_whence;
+-	compat_off_t l_start;
+-	compat_off_t l_len;
+-	compat_pid_t l_pid;
+-	short __unused;
+-};
+-
+-static inline int get_flock(struct flock *kfl, struct flock32 *ufl)
+-{
+-	int err;
+-	
+-	err = get_user(kfl->l_type, &ufl->l_type);
+-	err |= __get_user(kfl->l_whence, &ufl->l_whence);
+-	err |= __get_user(kfl->l_start, &ufl->l_start);
+-	err |= __get_user(kfl->l_len, &ufl->l_len);
+-	err |= __get_user(kfl->l_pid, &ufl->l_pid);
+-	return err;
+-}
+-
+-static inline int put_flock(struct flock *kfl, struct flock32 *ufl)
+-{
+-	int err;
+-	
+-	err = __put_user(kfl->l_type, &ufl->l_type);
+-	err |= __put_user(kfl->l_whence, &ufl->l_whence);
+-	err |= __put_user(kfl->l_start, &ufl->l_start);
+-	err |= __put_user(kfl->l_len, &ufl->l_len);
+-	err |= __put_user(kfl->l_pid, &ufl->l_pid);
+-	return err;
+-}
+-
+ extern asmlinkage long
+ sys_fcntl(unsigned int fd, unsigned int cmd, unsigned long arg);
+ 
+@@ -1183,12 +1150,12 @@
+ 			mm_segment_t old_fs;
+ 			long ret;
+ 			
+-			if (get_flock(&f, (struct flock32 *)arg))
++			if (get_compat_flock(&f, (struct compat_flock *)arg))
+ 				return -EFAULT;
+ 			old_fs = get_fs(); set_fs (KERNEL_DS);
+ 			ret = sys_fcntl(fd, cmd, (unsigned long)&f);
+ 			set_fs (old_fs);
+-			if (put_flock(&f, (struct flock32 *)arg))
++			if (put_compat_flock(&f, (struct compat_flock *)arg))
+ 				return -EFAULT;
+ 			return ret;
+ 		}
+diff -ruN 2.5.54-200301031304-32bit.1/include/asm-mips64/compat.h 2.5.54-200301031304-32bit.2/include/asm-mips64/compat.h
+--- 2.5.54-200301031304-32bit.1/include/asm-mips64/compat.h	2003-01-03 16:24:15.000000000 +1100
++++ 2.5.54-200301031304-32bit.2/include/asm-mips64/compat.h	2003-01-03 16:24:56.000000000 +1100
+@@ -57,4 +57,13 @@
+ 	s32		st_pad4[14];
+ };
+ 
++struct compat_flock {
++	short		l_type;
++	short		l_whence;
++	compat_off_t	l_start;
++	compat_off_t	l_len;
++	compat_pid_t	l_pid;
++	short		__unused;
++};
++
+ #endif /* _ASM_MIPS64_COMPAT_H */

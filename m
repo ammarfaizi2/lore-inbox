@@ -1,82 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267681AbUIGGz1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267483AbUIGHGi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267681AbUIGGz1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 02:55:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267682AbUIGGz1
+	id S267483AbUIGHGi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 03:06:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267519AbUIGHGi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 02:55:27 -0400
-Received: from ns3.phade.de ([62.67.209.1]:5271 "EHLO pc6.berlin3.powerweb.de")
-	by vger.kernel.org with ESMTP id S267681AbUIGGzP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 02:55:15 -0400
-Message-ID: <413D5B41.4040500@powerweb.de>
-Date: Tue, 07 Sep 2004 08:54:57 +0200
-From: Frank Gadegast <frank@powerweb.de>
-Reply-To: frank@powerweb.de
-Organization: PHADE Software - PowerWeb
-User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
-X-Accept-Language: en-us, en
+	Tue, 7 Sep 2004 03:06:38 -0400
+Received: from web11906.mail.yahoo.com ([216.136.172.190]:15882 "HELO
+	web11906.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S267483AbUIGHGf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 03:06:35 -0400
+Message-ID: <20040907070635.7268.qmail@web11906.mail.yahoo.com>
+Date: Tue, 7 Sep 2004 00:06:35 -0700 (PDT)
+From: Mike Mestnik <cheako911@yahoo.com>
+Subject: Re: [BUG] r200 dri driver deadlocks
+To: Dave Airlie <airlied@gmail.com>
+Cc: Felix =?ISO-8859-1?Q?=20=22K=FChling=22?= <fxkuehl@gmx.de>,
+       Lee Revell <rlrevell@joe-job.com>, diablod3@gmail.com,
+       dri-devel@lists.sf.net, linux-kernel@vger.kernel.org
+In-Reply-To: <21d7e99704090623544c6ecaf5@mail.gmail.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: kernel BUG at transaction.c
-X-Enigmail-Version: 0.76.8.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Most IMPORTANT is that some-one some-where there is a list of ALL of
+these.  These are best in the form of code comments so the the respective
+places in the code can be changed.
 
-Hi,
+--- Dave Airlie <airlied@gmail.com> wrote:
 
-found the following bug with kernel 2.4.26 on a SMP machine with
-Redhat 9.0, is there already a fix ?
+> > Dose the DRM varify that the cmds are in this order?  Why not just
+> have
+> > the DRM 'sort' the cmds?  A simple bouble sort would have no more
+> overhead
+> > then the check for correct order, but it would fix missordered cmd
+> > streams.
+> > 
+> > Once this is done the statement holds true, userland stuff should
+> never...
+> > 
+> 
+> Feel free to implement it and profile it, but there are so many ways
+> to lock up a radeon chip it is scary, the above was just one example,
+> some days if you look at it funny it can lockup :-), it is accepted
+> that userland can crap out 3D chips, the Intel ones are fairly easy to
+> hangup also..
+> 
+I'd love to, where do I start?  The problem he is that I have no-idea...
+1. What values I'd neet to test for and sort.
+2. The order of the sorting(probly documented in DRI-client code).
+3. Where in the DRM I can proform the needed test and sort.
 
-EXT3-fs error (device sd(8,3)): ext3_free_blocks: bit already cleared 
-for block 67110304
-EXT3-fs error (device sd(8,3)): ext3_free_blocks: Freeing block in 
-system zone - block = 16777216
-EXT3-fs error (device sd(8,3)): ext3_free_blocks: Freeing blocks not in 
-datazone - block = 873594880, count = 1
-Assertion failure in journal_forget_Rsmp_57aea4d2() at 
-transaction.c:1257: "!jh->b_committed_data"
-kernel BUG at transaction.c:1257!
-invalid operand: 0000
-CPU:    1
-EIP:    0010:[<f880e469>]    Not tainted
-EFLAGS: 00010296
-eax: 00000066   ebx: f4eca460   ecx: 00000092   edx: 00000001
-esi: f50cdb60   edi: f5d90694   ebp: f5d90600   esp: f5977c38
-ds: 0018   es: 0018   ss: 0018
-Process imageFolio.cgi (pid: 1049, stackpage=f5977000)
-Stack: f8814460 f88162d9 f881615a 000004e9 f88162f6 f59ceda0 01000000 
-f5a24e60
-        f5942aa0 f5942aa0 f881e0b3 f5a24e60 f50cdb60 00000000 f5a24e80 
-f5977ce8
-        f3464860 f8821661 f5a24e80 f5977cbc 00000001 00000000 f5977cd0 
-f881ec0b
-Call Trace:    [<f8814460>] [<f88162d9>] [<f881615a>] [<f88162f6>] 
-[<f881e0b3>]
-   [<f8821661>] [<f881ec0b>] [<f882023f>] [<c02283c0>] [<c02518fb>] 
-[<f880dd3f>]
-   [<f8820363>] [<f880d288>] [<f880d39d>] [<f88207a5>] [<c012e88b>] 
-[<f8821661>]
-   [<f88230bf>] [<f8820630>] [<c012c3fa>] [<c01574d6>] [<f8821505>] 
-[<f8821606>]
-   [<c0157679>] [<c0153bbc>] [<c014a4e0>] [<c013e1f0>] [<c0153bbc>] 
-[<c014bc74>]
-   [<c0153bbc>] [<c01300f0>] [<c013f1b6>] [<c013f504>] [<c0108b6f>]
+I would also love a list of ALL of these so I can fix them one by one.  A
+good project for a new DRI developer, no.
 
-Code: 0f 0b e9 04 5a 61 81 f8 83 c4 14 53 e8 56 03 00 00 8b 4b 24
-
-Kind regards, Frank
--- 
---
-PHADE Software - PowerWeb                       http://www.powerweb.de
-Inh. Dipl.-Inform. Frank Gadegast             mailto:frank@powerweb.de
-Otto-Nagel-Str. 1a                                fon: +49 331 2370780
-14467 Potsdam, Germany                            fax: +49 331 2370781
-======================================================================
-Public PGP Key available for frank@powerweb.de
+> Dave.
+> 
 
 
+
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Mail Address AutoComplete - You start. We finish.
+http://promotions.yahoo.com/new_mail 

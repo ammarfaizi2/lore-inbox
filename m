@@ -1,26 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313747AbSDICKs>; Mon, 8 Apr 2002 22:10:48 -0400
+	id <S313575AbSDICPs>; Mon, 8 Apr 2002 22:15:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313749AbSDICKs>; Mon, 8 Apr 2002 22:10:48 -0400
-Received: from sitemail3.everyone.net ([216.200.145.37]:32924 "HELO
-	omta01.mta.everyone.net") by vger.kernel.org with SMTP
-	id <S313747AbSDICKr>; Mon, 8 Apr 2002 22:10:47 -0400
-Content-Type: text/plain
-Content-Disposition: inline
+	id <S313596AbSDICPr>; Mon, 8 Apr 2002 22:15:47 -0400
+Received: from mail3.aracnet.com ([216.99.193.38]:33700 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S313575AbSDICPq>; Mon, 8 Apr 2002 22:15:46 -0400
+Date: Mon, 08 Apr 2002 19:14:44 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Andrew Morton <akpm@zip.com.au>
+cc: linux-kernel@vger.kernel.org, Tony.P.Lee@nokia.com, kessler@us.ibm.com,
+        alan@lxorguk.ukuu.org.uk, Dave Jones <davej@suse.de>
+Subject: Re: Event logging vs enhancing printk
+Message-ID: <1934841354.1018293283@[10.10.2.3]>
+In-Reply-To: <3CB222AB.64005F3B@zip.com.au>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Mime-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-Date: Mon, 8 Apr 2002 19:10:47 -0700 (PDT)
-From: mark manning <mark.manning@computermail.net>
-To: linux-kernel@vger.kernel.org
-Subject: syscals
-Reply-To: mark.manning@computermail.net
-X-Originating-Ip: [67.241.61.154]
-Message-Id: <20020409021047.518A53ECC@sitemail.everyone.net>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ok - according to unistd.h we now have exactly 256 syscalls allocated (unless im missing something).  my code needs to be able to account for every single possible syscall and so i need to be able to store the syscall number in a standard way.  not all syscalls are catered for on the outset by at any time the user can say "i need to use syscall x which takes y parameters" and the code will be able to take care of it.
+> Ah.  Yes, that will definitely happen.  We only have atomicity
+> at the level of a single printk call.
+> 
+> It would be feasible to introduce additional locking so that
+> multiple printks can be made atomic.  This should be resisted
+> though - printk needs to be really robust, and needs to have
+> a good chance of working even when the machine is having hysterics.
+> It's already rather complex.
+> 
+> For the rare cases which you cite we can use a local staging
+> buffer and sprintf, or just live with it, I suspect.
 
-the problem is that i am currently reserving only 8 bits for the syscall number.  this is ok for now but if we ever get another syscall its going to be unuseable by my existing code :) - should i be reserving 16 bits now in preperation for some new syscalls being added ?
+Right - what I'm proposing would be a generic equivalent of the
+local staging buffer and sprintf - basically just a little wrapper
+that does this for you, keeping a per task buffer somewhere.
+
+The reason I want to do it like this, rather than what you suggest,
+is that there are over 5000 of these "rare cases" of a printk without
+a newline, according to the IBM RAS group's code search ;-) I don't
+fancy changing that for 5000 instances (obviously some of those are
+grouped together, but the count is definitely non-trivial). I'd 
+attach the report they sent me, but it's 657K long ;-) 
+
+M.
+

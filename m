@@ -1,63 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275852AbRJYRMO>; Thu, 25 Oct 2001 13:12:14 -0400
+	id <S273904AbRJYRNy>; Thu, 25 Oct 2001 13:13:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275822AbRJYRME>; Thu, 25 Oct 2001 13:12:04 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:23306 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S275778AbRJYRLy>; Thu, 25 Oct 2001 13:11:54 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: Kernel PCMCIA
-Date: 25 Oct 2001 10:12:06 -0700
-Organization: Transmeta Corporation
-Message-ID: <9r9h56$2ai$1@cesium.transmeta.com>
-In-Reply-To: <3BD843DE.6FD5AF2D@nyc.rr.com>
+	id <S275680AbRJYRNo>; Thu, 25 Oct 2001 13:13:44 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:21265 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S273904AbRJYRNf>; Thu, 25 Oct 2001 13:13:35 -0400
+Subject: Re: 2.4.13-pre5-aa1 O_DIRECT drastic HIGHMEM performance hit
+To: Mjustice@boxxtech.com (Marvin Justice)
+Date: Thu, 25 Oct 2001 18:20:35 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3B6867E6CB09B24385A73719A50C7C9A01797E@athena.boxxtech.com> from "Marvin Justice" at Oct 25, 2001 11:57:08 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15woBH-0005U4-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <3BD843DE.6FD5AF2D@nyc.rr.com>,
-John Weber  <weber@nyc.rr.com> wrote:
->
->Why are hotplug and cardmgr needed?  As I understand it, cardbus uses
->hotplug for config/init, and other pcmcia cards use cardmgr for init and
->/etc/pcmcia/* for config.  This seems like a big, smelly mess.
+> Are we stuck with a low mem configuration or are there workarounds that
+> would allow us to stick with the initial 2GB of RAM and still get ~200
+> MB/sec.
 
-I'd personally love to get rid of cardmgr, and in fact you do not need
-it with true 32-bit cards and proper PCI drivers, because the drivers
-have sane plug/unplug semantics.
-
-In fact, with CardBus cards, you don't strictly need /sbin/hotplug
-either: /sbin/hotplug is nothing but a _notification_ thing, and as such
-you can easily for example just compile the proper PCI driver into the
-kernel, and the driver will automatically find and configure the card,
-and if you don't insert/remove it at run-time you can consider the
-CardBus slot just another PCI slot. 
-
-So the "/sbin/hotplug" is really not a cardbus thing at all: it's just
-the kernels way of telling user space that "hey, you might want to load
-a driver" (if the kernel didn't find one pre-loaded) or "hey, I just got
-a new network card, maybe you should set up routing etc?"
-
-In fact /sbin/hotplug works well for non-CardBus events too, like USB.
-
-  Now comes the ugly part.
-
-When I wrote the new CardBus code I didn't want to know about how 16-bit
-PCMCIA works (I still mostly don't, but the pain of having to have
-cardmgr might some day push me over the edge), so 16-bit PCMCIA cards
-are handled with all the old legacy stuff, and they don't understand
-about /sbin/hotplug and friends. 
-
-If somebody who knows 16-bit PCMCIA wants to change the "hey, I need a
-driver" code to use /sbin/hotplug and not need cardmgr, I'd be thrilled.
-
->I don't use modules, so I don't use cardmgr for anything except to tell
->the kernel that there is a card in the socket.
-
-You shouldn't even need that, if the 16-bit PCMCIA drivers weren't too
-damn helpless..
-
-		Linus
-
-
+Jens has patches for doing direct DMA I/O from highmem pages. That should
+basically nullify that hit. Doing that mainstream is a 2.5 thing really

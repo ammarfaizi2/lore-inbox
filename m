@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129495AbRBLN6Q>; Mon, 12 Feb 2001 08:58:16 -0500
+	id <S130252AbRBLOG1>; Mon, 12 Feb 2001 09:06:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130252AbRBLN5z>; Mon, 12 Feb 2001 08:57:55 -0500
-Received: from limes.hometree.net ([194.231.17.49]:33088 "EHLO
-	limes.hometree.net") by vger.kernel.org with ESMTP
-	id <S129495AbRBLN5x>; Mon, 12 Feb 2001 08:57:53 -0500
-To: linux-kernel@vger.kernel.org
-Date: Mon, 12 Feb 2001 13:39:41 +0000 (UTC)
-From: "Henning P. Schmiedehausen" <hps@tanstaafl.de>
-Message-ID: <968p2t$lfh$1@forge.intermeta.de>
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-In-Reply-To: <E14S01O-0004Su-00@the-village.bc.nu>, <oupvgqhkn8f.fsf@pigdrop.muc.suse.de>
-Reply-To: hps@tanstaafl.de
-Subject: Re: [reiserfs-list] Re: Apparent instability of reiserfs on 2.4.1
+	id <S131096AbRBLOGR>; Mon, 12 Feb 2001 09:06:17 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:41792 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S130252AbRBLOGB>; Mon, 12 Feb 2001 09:06:01 -0500
+Date: Mon, 12 Feb 2001 16:05:41 +0200
+From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
+To: Martin Josefsson <gandalf@wlug.westbo.se>, Colonel <klink@clouddancer.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.2-pre2(&3) loopback fs hang
+Message-ID: <20010212160540.C11083@niksula.cs.hut.fi>
+In-Reply-To: <20010212153452.B11083@niksula.cs.hut.fi> <Pine.LNX.4.21.0102121435150.16301-100000@tux.rsn.hk-r.se> <20010212154549.D12722@niksula.cs.hut.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010212154549.D12722@niksula.cs.hut.fi>; from vherva@niksula.hut.fi on Mon, Feb 12, 2001 at 03:45:49PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ak@suse.de (Andi Kleen) writes:
+On Mon, Feb 12, 2001 at 03:45:49PM +0200, you [Ville Herva] claimed:
+> 
+> Ok, then I just fumbled with my ftp client - I notice the 2.4.2-pre1 dir.
 
->to the low level file system for efficient lookup (actually is all not 
->too difficult to implement, just requires very uncodefreezefriendly changes
->to nfsd) 
+Should've been                                'I didn't notice'
 
-Well, at least I would really prefer a change for 2.4.x the sooner the
-better as I will never ever want to repeat the NFS nightmare from
-2.2. I prefer a working NFS on Reiser over a non working, but
-codefreezed at any time. ;-)
+Looks like I can't get anything right, I already rue I answered the question
+in the first place...
 
-	Regards
-		Henning
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
 
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+-- v --
+
+v@iki.fi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

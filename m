@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265568AbSKYTtt>; Mon, 25 Nov 2002 14:49:49 -0500
+	id <S265608AbSKYTwN>; Mon, 25 Nov 2002 14:52:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265589AbSKYTtt>; Mon, 25 Nov 2002 14:49:49 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:2294 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S265568AbSKYTts>;
-	Mon, 25 Nov 2002 14:49:48 -0500
-Message-ID: <3DE28074.25F40711@mvista.com>
-Date: Mon, 25 Nov 2002 11:56:36 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: arun4linux <arun4linux@indiatimes.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GUI based kernel Debugger
-References: <200211242202.DAA10643@WS0005.indiatimes.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S265589AbSKYTwN>; Mon, 25 Nov 2002 14:52:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org
+	id <S265608AbSKYTwN>; Mon, 25 Nov 2002 14:52:13 -0500
+To: linux-kernel@vger.kernel.org
+From: Majordomo@vger.kernel.org
+Subject: Confirmation for subscribe linux-kernel
+Reply-To: Majordomo@vger.kernel.org
+Message-Id: <20021125195213Z265608-22911+2282@vger.kernel.org>
+Date: Mon, 25 Nov 2002 14:52:13 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-arun4linux wrote:
-> 
-> Hello,
-> 
->   I need some info on GUI based kernel debuggers.
-> 
->   I'd like to know whether any GUI based kernel debugger available? preferablly free ware one :-)
-> 
->   Anybody tried cygwin on windows to debug linux target machine?
+--
 
-AFAIK you will be using gdb/ kgdb.  There are several (well
-a couple, at least) GUI wrappers for gdb...  Haven't used
-them myself, preferring the emacs wrapper.
+Someone (possibly you) has requested that your email address be added
+to or deleted from the mailing list "linux-kernel@vger.kernel.org".
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+If you really want this action to be taken, please send the following
+commands (exactly as shown) back to "Majordomo@vger.kernel.org":
+
+	auth 27467a8e subscribe linux-kernel linux-kernel@vger.kernel.org
+
+If you do not want this action to be taken, simply ignore this message
+and the request will be disregarded.
+
+If your mailer will not allow you to send the entire command as a single
+line, you may split it using backslashes, like so:
+
+        auth 27467a8e subscribe linux-kernel \
+        linux-kernel@vger.kernel.org
+
+If you have any questions about the policy of the list owner, please
+contact "linux-kernel-approval@vger.kernel.org".
+
+Thanks!
+
+Majordomo@vger.kernel.org

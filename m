@@ -1,39 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290063AbSAQRGO>; Thu, 17 Jan 2002 12:06:14 -0500
+	id <S290069AbSAQRKo>; Thu, 17 Jan 2002 12:10:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290072AbSAQRGJ>; Thu, 17 Jan 2002 12:06:09 -0500
-Received: from ns.suse.de ([213.95.15.193]:27655 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S290063AbSAQRFz>;
-	Thu, 17 Jan 2002 12:05:55 -0500
-Date: Thu, 17 Jan 2002 18:05:53 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Jes Sorensen <jes@wildopensource.com>
-Cc: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [patch] VAIO irq assignment fix
-In-Reply-To: <15430.65012.734810.776663@trained-monkey.org>
-Message-ID: <Pine.LNX.4.33.0201171804510.23659-100000@Appserv.suse.de>
+	id <S290070AbSAQRKe>; Thu, 17 Jan 2002 12:10:34 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:40965 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S290069AbSAQRKY>; Thu, 17 Jan 2002 12:10:24 -0500
+Message-ID: <3C47055C.3010103@zytor.com>
+Date: Thu, 17 Jan 2002 09:09:48 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us, en, sv
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: vda@port.imtp.ilyichevsk.odessa.ua
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [ANNC] Linld 0.94 available
+In-Reply-To: <200201171432.g0HEW4E17589@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Jan 2002, Jes Sorensen wrote:
+Denis Vlasenko wrote:
 
-> Tried it and I can report your patch works as well. I guess I'll need to
-> modify my patch to not mangle things if your patch is installed, or at
-> least we should keep my patch in place until the latest ACPI gets
-> integrated.
+> 
+> Ok, I brought old Turbo Debugger from home...
+> 
+> It is not true on this box I type this message right now. 128 MB RAM.
+> Under DOS:
+> INT 15 AX=E801 returns carry set and AH=86 (have no BIOS manual here to look 
+> up this error code), other registers unchanged.
 
-Your patch is also useful for the case of CONFIG_ACPI=n
-Worth keeping for that alone. I think it needs mangling a little
-to look a bit more like the similar HP workaround though,
-but thats a minor nit.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+AH=86 is function not supported.
+
+However, once again, you're running UNDER DOS.  You probably should 
+query HIMEM.SYS for the memory size,
+
+
+> INT 15 AH=88 returns AX=0.
+> INT 15 AX=E820 - not tested, but obviously not working (or else kernels would 
+> boot fine without linld/loadlin kludge or kernel patch)
+> 
+> So we have "triple-0" failure extracting mem size info from INT 15.
+
+
+... because you're running under DOS.
+
+> 
+> Just imagine old lovely 486 box never tested by manufacturer to work well 
+> with 64 MB of RAM. Joe Random Hacker plays Meg-o-Rama, but BIOS does not 
+> understand how that can be: int 15 fn 88 does not fit in 16-bit reg?!
+> DOS does not boot, Joe says: well, Linux rulez, it will boot! but no...
+> 
+> OTOH, CMOS reading hack most probably would not work either... memscan time?
+> 
+
+
+By the time 64 MB RAM became supported, INT 15 AX=E801 was already 
+common.  For pathological cases like you describe, it's "mem=" time.
+
+	-hpa
+
 

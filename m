@@ -1,33 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289297AbSBDXng>; Mon, 4 Feb 2002 18:43:36 -0500
+	id <S289291AbSBDX63>; Mon, 4 Feb 2002 18:58:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289291AbSBDXn3>; Mon, 4 Feb 2002 18:43:29 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:63928 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S289297AbSBDXnR>;
-	Mon, 4 Feb 2002 18:43:17 -0500
-Date: Tue, 5 Feb 2002 02:41:03 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Jussi Laako <jussi.laako@kolumbus.fi>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] improving O(1)-J9 in heavily threaded situations
-In-Reply-To: <3C5F1B0A.DD38E4D0@kolumbus.fi>
-Message-ID: <Pine.LNX.4.33.0202050239050.21719-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289298AbSBDX6T>; Mon, 4 Feb 2002 18:58:19 -0500
+Received: from hermes.toad.net ([162.33.130.251]:15770 "EHLO hermes.toad.net")
+	by vger.kernel.org with ESMTP id <S289291AbSBDX6B>;
+	Mon, 4 Feb 2002 18:58:01 -0500
+Subject: Re: modular floppy broken in 2.5.3
+From: Thomas Hood <jdthood@mail.com>
+To: Gunther Mayer <gunther.mayer@gmx.net>
+Cc: Alessandro Suardi <alessandro.suardi@oracle.com>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <3C5EC4E4.B5A6E84F@gmx.net>
+In-Reply-To: <E16XU69-0005MJ-00@the-village.bc.nu> 
+	<3C5EC4E4.B5A6E84F@gmx.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 04 Feb 2002 18:58:10 -0500
+Message-Id: <1012867092.3534.213.camel@thanatos>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
+> ... PnPBIOS should register the resource as not in use ..
 
-On Tue, 5 Feb 2002, Jussi Laako wrote:
+I believe that this is what it currently does.
 
-> I can renice this only for testing purposes. Normally these are not
-> run as root so I can't do negative renice.
-
-by the way, i'm thinking about allowing unpriviledged tasks to go back to
-nice -5. But i fear it will be abused and people will just put a renice
-into their .bashrc which defeats the purpose of this.
-
-	Ingo
 

@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312991AbSDJMgT>; Wed, 10 Apr 2002 08:36:19 -0400
+	id <S312883AbSDJMhJ>; Wed, 10 Apr 2002 08:37:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312883AbSDJMfl>; Wed, 10 Apr 2002 08:35:41 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:2316 "EHLO
+	id <S312998AbSDJMgo>; Wed, 10 Apr 2002 08:36:44 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:5132 "EHLO
 	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S312991AbSDJMfR>; Wed, 10 Apr 2002 08:35:17 -0400
+	id <S312997AbSDJMf2>; Wed, 10 Apr 2002 08:35:28 -0400
 X-Envelope-From: kraxel@bytesex.org
-Date: Wed, 10 Apr 2002 13:04:28 +0200
+Date: Wed, 10 Apr 2002 13:13:40 +0200
 From: Gerd Knorr <kraxel@bytesex.org>
 To: Linus Torvalds <torvalds@transmeta.com>,
         Kernel List <linux-kernel@vger.kernel.org>
-Subject: [patch] 2.5.8-pre video driver fixes
-Message-ID: <20020410130428.C26389@bytesex.org>
+Subject: [patch] 2.5.8-pre v4l usb cam fixes
+Message-ID: <20020410131340.B26486@bytesex.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,499 +22,368 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
   Hi,
 
-This patch adapts the v4l video drivers to the -pre1 videodev fix and
-makes them compile again.
+This patch adapts most (all but usbvideo) v4l usb drivers to the
+2.5.8-pre1 videodev fixes.
 
   Gerd
 
 ==============================[ cut here ]==============================
+#   drivers/usb/media/vicam.c
+#     1.14 02/04/08 12:18:56 kraxel@bytesex.org +9 -4
+#     adapt v4l usb cam drivers to 2.4.8-pre1 videodev fixes.
+# 
+#   drivers/usb/media/stv680.c
+#     1.12 02/04/08 12:18:56 kraxel@bytesex.org +9 -4
+#     adapt v4l usb cam drivers to 2.4.8-pre1 videodev fixes.
+# 
+#   drivers/usb/media/se401.c
+#     1.16 02/04/08 12:18:56 kraxel@bytesex.org +9 -4
+#     adapt v4l usb cam drivers to 2.4.8-pre1 videodev fixes.
+# 
+#   drivers/usb/media/pwc-if.c
+#     1.20 02/04/08 12:18:56 kraxel@bytesex.org +11 -5
+#     adapt v4l usb cam drivers to 2.4.8-pre1 videodev fixes.
+# 
+#   drivers/usb/media/ov511.c
+#     1.24 02/04/08 12:18:56 kraxel@bytesex.org +7 -6
+#     adapt v4l usb cam drivers to 2.4.8-pre1 videodev fixes.
+# 
+#   drivers/usb/media/dsbr100.c
+#     1.10 02/04/08 12:18:56 kraxel@bytesex.org +9 -5
+#     adapt v4l usb cam drivers to 2.4.8-pre1 videodev fixes.
+# 
 # ChangeSet
-#   1.586 02/04/08 10:05:09 kraxel@bytesex.org +8 -0
-#   adapt v4l video drivers to 2.5.8-pre1 videodev fixes.
-# 
-#   drivers/media/video/w9966.c
-#     1.5 02/03/19 18:24:12 kraxel@bytesex.org +10 -5
-#     adapt v4l video drivers to 2.5.8-pre1 videodev fixes.
-# 
-#   drivers/media/video/saa5249.c
-#     1.8 02/03/19 18:24:12 kraxel@bytesex.org +7 -6
-#     adapt v4l video drivers to 2.5.8-pre1 videodev fixes.
-# 
-#   drivers/media/video/pms.c
-#     1.8 02/03/19 18:24:12 kraxel@bytesex.org +9 -4
-#     adapt v4l video drivers to 2.5.8-pre1 videodev fixes.
-# 
-#   drivers/media/video/cpia.c
-#     1.15 02/03/19 18:24:12 kraxel@bytesex.org +9 -4
-#     adapt v4l video drivers to 2.5.8-pre1 videodev fixes.
-# 
-#   drivers/media/video/c-qcam.c
-#     1.8 02/03/19 18:24:12 kraxel@bytesex.org +9 -4
-#     adapt v4l video drivers to 2.5.8-pre1 videodev fixes.
-# 
-#   drivers/media/video/bw-qcam.c
-#     1.8 02/03/19 18:24:12 kraxel@bytesex.org +9 -4
-#     adapt v4l video drivers to 2.5.8-pre1 videodev fixes.
-# 
-#   drivers/media/video/bttv-vbi.c
-#     1.2 02/03/19 18:24:12 kraxel@bytesex.org +9 -4
-#     adapt v4l video drivers to 2.5.8-pre1 videodev fixes.
-# 
-#   drivers/media/video/bttv-driver.c
-#     1.17 02/03/19 18:24:12 kraxel@bytesex.org +18 -8
-#     adapt v4l video drivers to 2.5.8-pre1 videodev fixes.
+#   1.586 02/04/08 11:32:47 kraxel@bytesex.org +6 -0
+#   adapt v4l usb cam drivers to 2.4.8-pre1 videodev fixes.
 # 
 ======================================================================
-diff -Nru a/drivers/media/video/bttv-driver.c b/drivers/media/video/bttv-driver.c
---- a/drivers/media/video/bttv-driver.c	Mon Apr  8 10:18:25 2002
-+++ b/drivers/media/video/bttv-driver.c	Mon Apr  8 10:18:25 2002
-@@ -1650,8 +1650,8 @@
- 	bttv_dma_free(fh->btv,buf);
- }
+diff -Nru a/drivers/usb/media/dsbr100.c b/drivers/usb/media/dsbr100.c
+--- a/drivers/usb/media/dsbr100.c	Mon Apr  8 11:47:55 2002
++++ b/drivers/usb/media/dsbr100.c	Mon Apr  8 11:47:55 2002
+@@ -82,7 +82,7 @@
+ 			 const struct usb_device_id *id);
+ static void usb_dsbr100_disconnect(struct usb_device *dev, void *ptr);
+ static int usb_dsbr100_ioctl(struct inode *inode, struct file *file,
+-			     unsigned int cmd, void *arg);
++			     unsigned int cmd, unsigned long arg);
+ static int usb_dsbr100_open(struct inode *inode, struct file *file);
+ static int usb_dsbr100_close(struct inode *inode, struct file *file);
  
--static int bttv_ioctl(struct inode *inode, struct file *file,
--		      unsigned int cmd, void *arg)
-+static int bttv_do_ioctl(struct inode *inode, struct file *file,
-+			 unsigned int cmd, void *arg)
- {
- 	struct bttv_fh *fh  = file->private_data;
- 	struct bttv    *btv = fh->btv;
-@@ -2432,6 +2432,12 @@
- 	return retval;
- }
- 
-+static int bttv_ioctl(struct inode *inode, struct file *file,
-+		      unsigned int cmd, unsigned long arg)
-+{
-+	return video_usercopy(inode, file, cmd, arg, bttv_do_ioctl);
-+}
-+
- /* start capture to a kernel bounce buffer */
- static int bttv_read_capture(struct bttv_fh *fh)
- {
-@@ -2647,7 +2653,7 @@
- 	owner:	  THIS_MODULE,
- 	open:	  bttv_open,
- 	release:  bttv_release,
--	ioctl:	  video_generic_ioctl,
-+	ioctl:	  bttv_ioctl,
- 	llseek:	  no_llseek,
- 	read:	  bttv_read,
- 	mmap:	  bttv_mmap,
-@@ -2661,7 +2667,6 @@
- 	          VID_TYPE_CLIPPING|VID_TYPE_SCALES,
- 	hardware: VID_HARDWARE_BT848,
- 	fops:     &bttv_fops,
--	kernel_ioctl: bttv_ioctl,
- 	minor:    -1,
+@@ -103,7 +103,7 @@
+ 	owner:		THIS_MODULE,
+ 	open:		usb_dsbr100_open,
+ 	release:       	usb_dsbr100_close,
+-	ioctl:          video_generic_ioctl,
++	ioctl:          usb_dsbr100_ioctl,
+ 	llseek:         no_llseek,
+ };
+ static struct video_device usb_dsbr100_radio=
+@@ -113,7 +113,6 @@
+ 	type:		VID_TYPE_TUNER,
+ 	hardware:	VID_HARDWARE_AZTECH,
+ 	fops:           &usb_dsbr100_fops,
+-	kernel_ioctl:  	usb_dsbr100_ioctl,
  };
  
-@@ -2712,8 +2717,8 @@
- 	return 0;
+ static int users = 0;
+@@ -212,8 +211,8 @@
+ 	unlock_kernel();
  }
  
--static int radio_ioctl(struct inode *inode, struct file *file,
--		       unsigned int cmd, void *arg)
-+static int radio_do_ioctl(struct inode *inode, struct file *file,
+-static int usb_dsbr100_ioctl(struct inode *inode, struct file *file,
+-			     unsigned int cmd, void *arg)
++static int usb_dsbr100_do_ioctl(struct inode *inode, struct file *file,
++				unsigned int cmd, void *arg)
+ {
+ 	struct video_device *dev = video_devdata(file);
+ 	usb_dsbr100 *radio=dev->priv;
+@@ -299,6 +298,11 @@
+ 	}
+ }
+ 
++static int usb_dsbr100_ioctl(struct inode *inode, struct file *file,
++			     unsigned int cmd, unsigned long arg)
++{
++	return video_usercopy(inode, file, cmd, arg, usb_dsbr100_do_ioctl);
++}
+ 
+ static int usb_dsbr100_open(struct inode *inode, struct file *file)
+ {
+diff -Nru a/drivers/usb/media/ov511.c b/drivers/usb/media/ov511.c
+--- a/drivers/usb/media/ov511.c	Mon Apr  8 11:47:55 2002
++++ b/drivers/usb/media/ov511.c	Mon Apr  8 11:47:55 2002
+@@ -4555,9 +4555,11 @@
+ 
+ /* Do not call this function directly! */
+ static int 
+-ov51x_v4l1_ioctl_internal(struct usb_ov511 *ov, unsigned int cmd,
+-			  void *arg)
++ov51x_v4l1_ioctl_internal(struct inode *inode, struct file *file,
 +			  unsigned int cmd, void *arg)
  {
- 	struct bttv    *btv = file->private_data;
++	struct video_device *vdev = file->private_data;
++	struct usb_ov511 *ov = vdev->priv;
+ 	PDEBUG(5, "IOCtl: 0x%X", cmd);
  
-@@ -2763,12 +2768,18 @@
- 	return 0;
- }
+ 	if (!ov->dev)
+@@ -5067,7 +5069,7 @@
  
-+static int radio_ioctl(struct inode *inode, struct file *file,
-+		       unsigned int cmd, unsigned long arg)
-+{
-+	return video_usercopy(inode, file, cmd, arg, radio_do_ioctl);
-+}
-+
- static struct file_operations radio_fops =
+ static int 
+ ov51x_v4l1_ioctl(struct inode *inode, struct file *file,
+-		 unsigned int cmd, void *arg)
++		 unsigned int cmd, unsigned long arg)
  {
- 	owner:	  THIS_MODULE,
- 	open:	  radio_open,
- 	release:  radio_release,
--	ioctl:	  video_generic_ioctl,
-+	ioctl:	  radio_ioctl,
- 	llseek:	  no_llseek,
- };
+ 	struct video_device *vdev = file->private_data;
+ 	struct usb_ov511 *ov = vdev->priv;
+@@ -5076,7 +5078,7 @@
+ 	if (down_interruptible(&ov->lock))
+ 		return -EINTR;
  
-@@ -2778,7 +2789,6 @@
- 	type:     VID_TYPE_TUNER|VID_TYPE_TELETEXT,
- 	hardware: VID_HARDWARE_BT848,
- 	fops:     &radio_fops,
--	kernel_ioctl: radio_ioctl,
- 	minor:    -1,
- };
+-	rc = ov51x_v4l1_ioctl_internal(ov, cmd, arg);
++	rc = video_usercopy(inode, file, cmd, arg, ov51x_v4l1_ioctl_internal);
  
-diff -Nru a/drivers/media/video/bttv-vbi.c b/drivers/media/video/bttv-vbi.c
---- a/drivers/media/video/bttv-vbi.c	Mon Apr  8 10:18:25 2002
-+++ b/drivers/media/video/bttv-vbi.c	Mon Apr  8 10:18:25 2002
-@@ -276,8 +276,8 @@
- 	return 0;
- }
- 
--static int vbi_ioctl(struct inode *inode, struct file *file,
--		     unsigned int cmd, void *arg)
-+static int vbi_do_ioctl(struct inode *inode, struct file *file,
-+			unsigned int cmd, void *arg)
- {
- 	struct bttv *btv = file->private_data;
- #ifdef HAVE_V4L2
-@@ -507,6 +507,12 @@
- #endif
- }
- 
-+static int vbi_ioctl(struct inode *inode, struct file *file,
-+		     unsigned int cmd, unsigned long arg)
-+{
-+	return video_usercopy(inode, file, cmd, arg, vbi_do_ioctl);
-+}
-+
- static ssize_t vbi_read(struct file *file, char *data,
- 			size_t count, loff_t *ppos)
- {
-@@ -634,7 +640,7 @@
- 	owner:	  THIS_MODULE,
- 	open:	  vbi_open,
- 	release:  vbi_release,
--	ioctl:	  video_generic_ioctl,
-+	ioctl:	  vbi_ioctl,
- 	llseek:	  no_llseek,
- 	read:	  vbi_read,
- 	poll:	  vbi_poll,
-@@ -647,7 +653,6 @@
- 	type:     VID_TYPE_TUNER|VID_TYPE_TELETEXT,
- 	hardware: VID_HARDWARE_BT848,
- 	fops:     &vbi_fops,
--	kernel_ioctl: vbi_ioctl,
- 	minor:    -1,
- };
- 
-diff -Nru a/drivers/media/video/bw-qcam.c b/drivers/media/video/bw-qcam.c
---- a/drivers/media/video/bw-qcam.c	Mon Apr  8 10:18:25 2002
-+++ b/drivers/media/video/bw-qcam.c	Mon Apr  8 10:18:25 2002
-@@ -694,8 +694,8 @@
-  *	Video4linux interfacing
-  */
- 
--static int qcam_ioctl(struct inode *inode, struct file *file,
--		      unsigned int cmd, void *arg)
-+static int qcam_do_ioctl(struct inode *inode, struct file *file,
-+			 unsigned int cmd, void *arg)
- {
- 	struct video_device *dev = video_devdata(file);
- 	struct qcam_device *qcam=(struct qcam_device *)dev;
-@@ -854,6 +854,12 @@
- 	return 0;
- }
- 
-+static int qcam_ioctl(struct inode *inode, struct file *file,
-+		     unsigned int cmd, unsigned long arg)
-+{
-+	return video_usercopy(inode, file, cmd, arg, qcam_do_ioctl);
-+}
-+
- static int qcam_read(struct file *file, char *buf,
- 		     size_t count, loff_t *ppos)
- {
-@@ -882,7 +888,7 @@
- 	owner:		THIS_MODULE,
- 	open:           video_exclusive_open,
- 	release:        video_exclusive_release,
+ 	up(&ov->lock);
+ 	return rc;
+@@ -5284,7 +5286,7 @@
+ 	release:       	ov51x_v4l1_close,
+ 	read:		ov51x_v4l1_read,
+ 	mmap:		ov51x_v4l1_mmap,
 -	ioctl:          video_generic_ioctl,
-+	ioctl:          qcam_ioctl,
- 	read:		qcam_read,
++	ioctl:          ov51x_v4l1_ioctl,
  	llseek:         no_llseek,
  };
-@@ -893,7 +899,6 @@
+ 
+@@ -5294,7 +5296,6 @@
  	type:		VID_TYPE_CAPTURE,
- 	hardware:	VID_HARDWARE_QCAM_BW,
- 	fops:           &qcam_fops,
--	kernel_ioctl:	qcam_ioctl,
+ 	hardware:	VID_HARDWARE_OV511,
+ 	fops:           &ov511_fops,
+-	kernel_ioctl:	ov51x_v4l1_ioctl,
  };
  
- #define MAX_CAMS 4
-diff -Nru a/drivers/media/video/c-qcam.c b/drivers/media/video/c-qcam.c
---- a/drivers/media/video/c-qcam.c	Mon Apr  8 10:18:25 2002
-+++ b/drivers/media/video/c-qcam.c	Mon Apr  8 10:18:25 2002
-@@ -496,8 +496,8 @@
-  *	Video4linux interfacing
-  */
- 
--static int qcam_ioctl(struct inode *inode, struct file *file,
--		      unsigned int cmd, void *arg)
-+static int qcam_do_ioctl(struct inode *inode, struct file *file,
-+			 unsigned int cmd, void *arg)
- {
- 	struct video_device *dev = video_devdata(file);
- 	struct qcam_device *qcam=(struct qcam_device *)dev;
-@@ -662,6 +662,12 @@
- 	return 0;
- }
- 
-+static int qcam_ioctl(struct inode *inode, struct file *file,
-+		     unsigned int cmd, unsigned long arg)
-+{
-+	return video_usercopy(inode, file, cmd, arg, qcam_do_ioctl);
-+}
-+
- static int qcam_read(struct file *file, char *buf,
- 		     size_t count, loff_t *ppos)
- {
-@@ -683,7 +689,7 @@
- 	owner:		THIS_MODULE,
- 	open:           video_exclusive_open,
- 	release:        video_exclusive_release,
--	ioctl:          video_generic_ioctl,
-+	ioctl:          qcam_ioctl,
- 	read:		qcam_read,
- 	llseek:         no_llseek,
- };
-@@ -695,7 +701,6 @@
- 	type:		VID_TYPE_CAPTURE,
- 	hardware:	VID_HARDWARE_QCAM_C,
- 	fops:           &qcam_fops,
--	kernel_ioctl:	qcam_ioctl,
- };
- 
- /* Initialize the QuickCam driver control structure. */
-diff -Nru a/drivers/media/video/cpia.c b/drivers/media/video/cpia.c
---- a/drivers/media/video/cpia.c	Mon Apr  8 10:18:25 2002
-+++ b/drivers/media/video/cpia.c	Mon Apr  8 10:18:25 2002
-@@ -2572,8 +2572,8 @@
- 	return cam->decompressed_frame.count;
- }
- 
--static int cpia_ioctl(struct inode *inode, struct file *file,
--		      unsigned int ioctlnr, void *arg)
-+static int cpia_do_ioctl(struct inode *inode, struct file *file,
-+			 unsigned int ioctlnr, void *arg)
- {
- 	struct video_device *dev = file->private_data;
- 	struct cam_data *cam = dev->priv;
-@@ -2874,6 +2874,12 @@
- 	return retval;
- } 
- 
-+static int cpia_ioctl(struct inode *inode, struct file *file,
-+		     unsigned int cmd, unsigned long arg)
-+{
-+	return video_usercopy(inode, file, cmd, arg, cpia_do_ioctl);
-+}
-+
- /* FIXME */
- static int cpia_mmap(struct file *file, struct vm_area_struct *vma)
- {
-@@ -2933,7 +2939,7 @@
- 	release:       	cpia_close,
- 	read:		cpia_read,
- 	mmap:		cpia_mmap,
--	ioctl:          video_generic_ioctl,
-+	ioctl:          cpia_ioctl,
- 	llseek:         no_llseek,
- };
- 
-@@ -2943,7 +2949,6 @@
- 	type:		VID_TYPE_CAPTURE,
- 	hardware:	VID_HARDWARE_CPIA,      /* FIXME */
- 	fops:           &cpia_fops,
--	kernel_ioctl:	cpia_ioctl,
- };
- 
- /* initialise cam_data structure  */
-diff -Nru a/drivers/media/video/pms.c b/drivers/media/video/pms.c
---- a/drivers/media/video/pms.c	Mon Apr  8 10:18:25 2002
-+++ b/drivers/media/video/pms.c	Mon Apr  8 10:18:25 2002
-@@ -672,8 +672,8 @@
-  *	Video4linux interfacing
-  */
- 
--static int pms_ioctl(struct inode *inode, struct file *file,
--		     unsigned int cmd, void *arg)
-+static int pms_do_ioctl(struct inode *inode, struct file *file,
-+			unsigned int cmd, void *arg)
- {
- 	struct video_device *dev = video_devdata(file);
- 	struct pms_device *pd=(struct pms_device *)dev;
-@@ -855,6 +855,12 @@
- 	return 0;
- }
- 
-+static int pms_ioctl(struct inode *inode, struct file *file,
-+		     unsigned int cmd, unsigned long arg)
-+{
-+	return video_usercopy(inode, file, cmd, arg, pms_do_ioctl);
-+}
-+
- static int pms_read(struct file *file, char *buf,
- 		    size_t count, loff_t *ppos)
- {
-@@ -872,7 +878,7 @@
- 	owner:		THIS_MODULE,
- 	open:           video_exclusive_open,
- 	release:        video_exclusive_release,
--	ioctl:          video_generic_ioctl,
-+	ioctl:          pms_ioctl,
- 	read:           pms_read,
- 	llseek:         no_llseek,
- };
-@@ -884,7 +890,6 @@
- 	type:		VID_TYPE_CAPTURE,
- 	hardware:	VID_HARDWARE_PMS,
- 	fops:           &pms_fops,
--	kernel_ioctl:	pms_ioctl,
- };
- 
- struct pms_device pms_device;
-diff -Nru a/drivers/media/video/saa5249.c b/drivers/media/video/saa5249.c
---- a/drivers/media/video/saa5249.c	Mon Apr  8 10:18:25 2002
-+++ b/drivers/media/video/saa5249.c	Mon Apr  8 10:18:25 2002
-@@ -341,9 +341,12 @@
-  *	Standard character-device-driver functions
-  */
- 
--static int do_saa5249_ioctl(struct saa5249_device *t, unsigned int cmd, void *arg) 
-+static int do_saa5249_ioctl(struct inode *inode, struct file *file,
-+			    unsigned int cmd, void *arg)
- {
- 	static int virtual_mode = FALSE;
-+	struct video_device *vd = video_devdata(file);
-+	struct saa5249_device *t=vd->priv;
- 
- 	switch(cmd) 
- 	{
-@@ -591,16 +594,15 @@
-  */
-  
- static int saa5249_ioctl(struct inode *inode, struct file *file,
--			 unsigned int cmd, void *arg) 
-+			 unsigned int cmd, unsigned long arg) 
- {
- 	struct video_device *vd = video_devdata(file);
- 	struct saa5249_device *t=vd->priv;
- 	int err;
- 	
- 	down(&t->lock);
--	err = do_saa5249_ioctl(t, cmd, arg);
-+	err = video_usercopy(inode,file,cmd,arg,do_saa5249_ioctl);
- 	up(&t->lock);
--
- 	return err;
- }
- 
-@@ -679,7 +681,7 @@
- 	owner:		THIS_MODULE,
- 	open:		saa5249_open,
- 	release:       	saa5249_release,
--	ioctl:          video_generic_ioctl,
-+	ioctl:          saa5249_ioctl,
- 	llseek:         no_llseek,
- };
- 
-@@ -690,7 +692,6 @@
- 	type:		VID_TYPE_TELETEXT,	/*| VID_TYPE_TUNER ?? */
- 	hardware:	VID_HARDWARE_SAA5249,
- 	fops:           &saa_fops,
--	kernel_ioctl:  	saa5249_ioctl,
- };
- 
- MODULE_LICENSE("GPL");
-diff -Nru a/drivers/media/video/w9966.c b/drivers/media/video/w9966.c
---- a/drivers/media/video/w9966.c	Mon Apr  8 10:18:25 2002
-+++ b/drivers/media/video/w9966.c	Mon Apr  8 10:18:25 2002
-@@ -174,7 +174,7 @@
- static int w9966_i2c_rbyte(struct w9966_dev* cam);
- 
- static int w9966_v4l_ioctl(struct inode *inode, struct file *file,
--			   unsigned int cmd, void *arg);
-+			   unsigned int cmd, unsigned long arg);
- static int w9966_v4l_read(struct file *file, char *buf,
+ #if defined(CONFIG_PROC_FS) && defined(CONFIG_VIDEO_PROC_FS)
+diff -Nru a/drivers/usb/media/pwc-if.c b/drivers/usb/media/pwc-if.c
+--- a/drivers/usb/media/pwc-if.c	Mon Apr  8 11:47:55 2002
++++ b/drivers/usb/media/pwc-if.c	Mon Apr  8 11:47:55 2002
+@@ -126,7 +126,7 @@
  			  size_t count, loff_t *ppos);
+ static unsigned int pwc_video_poll(struct file *file, poll_table *wait);
+ static int  pwc_video_ioctl(struct inode *inode, struct file *file,
+-			    unsigned int ioctlnr, void *arg);
++			    unsigned int ioctlnr, unsigned long arg);
+ static int  pwc_video_mmap(struct file *file, struct vm_area_struct *vma);
  
-@@ -182,7 +182,7 @@
- 	owner:		THIS_MODULE,
- 	open:           video_exclusive_open,
- 	release:        video_exclusive_release,
+ static struct file_operations pwc_fops = {
+@@ -136,7 +136,7 @@
+ 	read:		pwc_video_read,
+ 	poll:		pwc_video_poll,
+ 	mmap:		pwc_video_mmap,
 -	ioctl:          video_generic_ioctl,
-+	ioctl:          w9966_v4l_ioctl,
- 	read:           w9966_v4l_read,
++	ioctl:          pwc_video_ioctl,
  	llseek:         no_llseek,
  };
-@@ -192,7 +192,6 @@
- 	type:           VID_TYPE_CAPTURE | VID_TYPE_SCALES,
- 	hardware:       VID_HARDWARE_W9966,
- 	fops:           &w9966_fops,
--	kernel_ioctl:   w9966_v4l_ioctl,
+ static struct video_device pwc_template = {
+@@ -145,7 +145,6 @@
+ 	type:		VID_TYPE_CAPTURE,
+ 	hardware:	VID_HARDWARE_PWC,
+ 	fops:           &pwc_fops,
+-	kernel_ioctl:	pwc_video_ioctl,
  };
  
- /*
-@@ -700,8 +699,8 @@
-  *	Video4linux interfacing
-  */
- 
--static int w9966_v4l_ioctl(struct inode *inode, struct file *file,
+ /***************************************************************************/
+@@ -1171,8 +1170,8 @@
+ 	return 0;
+ }
+         
+-static int pwc_video_ioctl(struct inode *inode, struct file *file,
 -			   unsigned int cmd, void *arg)
-+static int w9966_v4l_do_ioctl(struct inode *inode, struct file *file,
++static int pwc_video_do_ioctl(struct inode *inode, struct file *file,
 +			      unsigned int cmd, void *arg)
  {
- 	struct video_device *vdev = video_devdata(file);
- 	struct w9966_dev *cam = (struct w9966_dev*)vdev->priv;
-@@ -851,6 +850,12 @@
- 		return -ENOIOCTLCMD;
- 	}
+ 	struct video_device *vdev = file->private_data;
+ 	struct pwc_device *pdev;
+@@ -1493,6 +1492,13 @@
+ 	} /* ..switch */
  	return 0;
-+}
+ }	
 +
-+static int w9966_v4l_ioctl(struct inode *inode, struct file *file,
++static int pwc_video_ioctl(struct inode *inode, struct file *file,
 +			   unsigned int cmd, unsigned long arg)
 +{
-+	return video_usercopy(inode, file, cmd, arg, w9966_v4l_do_ioctl);
++	return video_usercopy(inode, file, cmd, arg, pwc_video_do_ioctl);
++}
++
+ 
+ static int pwc_video_mmap(struct file *file, struct vm_area_struct *vma)
+ {
+diff -Nru a/drivers/usb/media/se401.c b/drivers/usb/media/se401.c
+--- a/drivers/usb/media/se401.c	Mon Apr  8 11:47:55 2002
++++ b/drivers/usb/media/se401.c	Mon Apr  8 11:47:55 2002
+@@ -1046,8 +1046,8 @@
+ 	return 0;
  }
  
- // Capture data
+-static int se401_ioctl(struct inode *inode, struct file *file,
+-		       unsigned int cmd, void *arg)
++static int se401_do_ioctl(struct inode *inode, struct file *file,
++			  unsigned int cmd, void *arg)
+ {
+ 	struct video_device *vdev = file->private_data;
+         struct usb_se401 *se401 = (struct usb_se401 *)vdev;
+@@ -1210,6 +1210,12 @@
+         return 0;
+ }
+ 
++static int se401_ioctl(struct inode *inode, struct file *file,
++		       unsigned int cmd, unsigned long arg)
++{
++	return video_usercopy(inode, file, cmd, arg, se401_do_ioctl);
++}
++
+ static int se401_read(struct file *file, char *buf,
+ 		     size_t count, loff_t *ppos)
+ {
+@@ -1294,7 +1300,7 @@
+         release:        se401_close,
+         read:           se401_read,
+         mmap:           se401_mmap,
+-	ioctl:          video_generic_ioctl,
++	ioctl:          se401_ioctl,
+ 	llseek:         no_llseek,
+ };
+ static struct video_device se401_template = {
+@@ -1303,7 +1309,6 @@
+         type:           VID_TYPE_CAPTURE,
+         hardware:       VID_HARDWARE_SE401,
+ 	fops:           &se401_fops,
+-        kernel_ioctl:   se401_ioctl,
+ };
+ 
+ 
+diff -Nru a/drivers/usb/media/stv680.c b/drivers/usb/media/stv680.c
+--- a/drivers/usb/media/stv680.c	Mon Apr  8 11:47:55 2002
++++ b/drivers/usb/media/stv680.c	Mon Apr  8 11:47:55 2002
+@@ -1171,8 +1171,8 @@
+ 	return 0;
+ }
+ 
+-static int stv680_ioctl (struct inode *inode, struct file *file,
+-			 unsigned int cmd, void *arg)
++static int stv680_do_ioctl (struct inode *inode, struct file *file,
++			    unsigned int cmd, void *arg)
+ {
+ 	struct video_device *vdev = file->private_data;
+ 	struct usb_stv *stv680 = (struct usb_stv *) vdev;
+@@ -1342,6 +1342,12 @@
+ 	return 0;
+ }
+ 
++static int stv680_ioctl(struct inode *inode, struct file *file,
++			unsigned int cmd, unsigned long arg)
++{
++	return video_usercopy(inode, file, cmd, arg, stv680_do_ioctl);
++}
++
+ static int stv680_mmap (struct file *file, struct vm_area_struct *vma)
+ {
+ 	struct video_device *dev = file->private_data;
+@@ -1434,7 +1440,7 @@
+ 	release:       	stv_close,
+ 	read:		stv680_read,
+ 	mmap:		stv680_mmap,
+-	ioctl:          video_generic_ioctl,
++	ioctl:          stv680_ioctl,
+ 	llseek:         no_llseek,
+ };
+ static struct video_device stv680_template = {
+@@ -1443,7 +1449,6 @@
+ 	type:		VID_TYPE_CAPTURE,
+ 	hardware:	VID_HARDWARE_SE401,
+ 	fops:           &stv680_fops,
+-	kernel_ioctl:	stv680_ioctl,
+ };
+ 
+ static void *__devinit stv680_probe (struct usb_device *dev, unsigned int ifnum, const struct usb_device_id *id)
+diff -Nru a/drivers/usb/media/vicam.c b/drivers/usb/media/vicam.c
+--- a/drivers/usb/media/vicam.c	Mon Apr  8 11:47:55 2002
++++ b/drivers/usb/media/vicam.c	Mon Apr  8 11:47:55 2002
+@@ -483,8 +483,8 @@
+ 	return buflen;
+ }
+ 
+-static int vicam_v4l_ioctl(struct inode *inode, struct file *file,
+-			   unsigned int cmd, void *arg)
++static int vicam_v4l_do_ioctl(struct inode *inode, struct file *file,
++			      unsigned int cmd, void *arg)
+ {
+ 	struct video_device *vdev = file->private_data;
+ 	struct usb_vicam *vicam = (struct usb_vicam *)vdev;
+@@ -593,6 +593,12 @@
+         return ret;
+ }
+ 
++static int vicam_v4l_ioctl(struct inode *inode, struct file *file,
++			   unsigned int cmd, unsigned long arg)
++{
++	return video_usercopy(inode, file, cmd, arg, vicam_v4l_do_ioctl);
++}
++
+ static int vicam_v4l_mmap(struct file *file, struct vm_area_struct *vma)
+ {
+ 	struct video_device *vdev = file->private_data;
+@@ -639,7 +645,7 @@
+ 	release:       	vicam_v4l_close,
+ 	read:		vicam_v4l_read,
+ 	mmap:		vicam_v4l_mmap,
+-	ioctl:		video_generic_ioctl,
++	ioctl:		vicam_v4l_ioctl,
+ 	llseek:         no_llseek,
+ };
+ static struct video_device vicam_template = {
+@@ -648,7 +654,6 @@
+ 	type:		VID_TYPE_CAPTURE,
+ 	hardware:	VID_HARDWARE_SE401, /* need to ask for own id */
+ 	fops:           &vicam_fops,
+-	kernel_ioctl:	vicam_v4l_ioctl,
+ };
+ 
+ /******************************************************************************
 ======================================================================
 This BitKeeper patch contains the following changesets:
 1.586
 ## Wrapped with gzip_uu ##
 
 
-begin 664 bkpatch4871
-M'XL(`%%2L3P``]V:6V_;-A3'GZU/0:`OO<0V[Q<7+KHUNP0;L*)#WP8$E$0E
-M0N++9,5I-^V[CZ1L67(<1U;KP:L=F``E'OYYQ!_/(95GX./"9*/>3:8_F=O@
-M&?AYMLA'O?!S;A;FTV"67=FZ#[.9K1O>S[*;87@SQ`,V3-)/_64:FUE@K[_7
-M>70-EB9;C'IH0*J:_//<C'H??OCIXZ_??0B"\1B\N];3*_.[R<%X'.2S;*EO
-MX\5;G5_?SJ:#/-/3Q<3D>A#-)D5U:X$AQ/;+D""0\0)Q2$41H1@A39&)(::2
-MTT#?S"=O_TKGKO%`WVVWIY!#0CGF!554XN`<H`&3'$`\A'0()4!P!-D(JE<0
-MCR`$I4/>UAP!7DG0A\'WX.OJ?A=$0,=ZGH,EO07>IR#.4N=-VQ.PSA[(_CPS
-MJ+P6FR6PSC>+0?`+H(HQ'KS?N#7H'_@)`JAA\.:),:WT#"<F3O70ZQ@NM&:8
-MJD%4&R>%2!6V4O""F3`6AILX9`RC4.QP:!NS%$K[I404A"*$.BD-\WS9+R\\
-M5(NPQ*B@6H30\`1IQ!*3R+9J=YBN*6;*/ITW8.Y@:"_W7BG.ZT(E<M,6(BY9
-M$5%D]26Q]5$L0J[;"FT8W4AD"DO6R:E1_\](3W;X4S!!"VQG=R(HDR$R5J]J
-M*[-I=:,34DIY-YWS5.]0*2U\121Q9'2"9&@?%,*M1=9,UB3:0G62.)\L=E%$
-MH*6(22R%QCP,8:Q@TE9BS61=(>.D&T'WCSUM3K`H0JJ,X3`B""9:T;@U/?>/
-M/&[*A))6Z2$4+L-T;8@@@A0A$!=VR>"R$)`F/":<::DX35A7NS6!'"KF(]K^
-M=B[,'6D07VJ7V!65(NH#(?9AD`R1`DB.,!TA_`JBQ\*@`GUZ0F'P1X"XHA0S
-M%Q#]<_D-]+-[_V<#W/LG'E&'D'F.A0(XN,`2VF*1ZSR-0#JUTL/T,IY=IK,H
-MOWV^R+.[*+?U5BQXZ8LSL*I,TEM;YW[/@EZO=S==I%=3$WLCT20^`\M9&H.7
-M.KMZ$5PPJ`#?[N;0/H#[/.RGJK%/\`KX_OX.>IG)[[)IZ>G+.YL@1K/YY^<K
-M\]YBV=K>?]88](O7P3_!'\$Y)P*@X*(L>O[2R$JHA)_96QBTUQY#:!6O'#_'
-M#)]M(6H8+0G"!-IU2E)4II('$80@Z+,31:A,"5H@M/))%WZ0\-.C+'I^<K:9
-MFJ]M2\E\2U^L)A:H/E[2I1U]-<N0<C>>"T@<L'8-;0*[:=`%6_`(5'5X)2,6
-M7@?%SFZ[]'D4BA]ZPKI[;X!;I[U/;^6^4E)^4,1KFJX'4TG*W1\2AS%K=W_R
-M1)DM=QIMP][:-9W(Y<R39,LME)SI;A3M!\@FPK09_GQ/G>+?<=!IC'P=`7$9
-MWRY6Y28&;M2?N;LX=>L3%HCYC$(@WG1KIN-TUG%U>L*Q@K.F8\N^NGGV.*YM
-MCK[RK1#(^[8L-[ZM#<`Y5TBT)\6H=A\=%[##]D2M%Z^FV7+A0DP6A"@(_<(E
-MOYELW6_SVBQ;:Z=T6;*X$@XMKF23+&?Q&`N6W64WL?(=G4Z^WACW&BE9YE5R
-M=UZU&8'%RFX_]U`5?1%4AYTJM64J>@0I9K?S]!M#RIV3M2`J^@*@J/*[7P;A
-M?P.4BY'_.Z"XY'X'[(O]0+F5:0]0_K2Q(T[M#S];LU0SN2*)D(+;&2C*K/JP
-MG?`)H^3/<]N@Y#W2Z1B)B3+K8V(KZW,VOP)*OODTV\K[I-@*4+ZWT^&I,?@J
-MYU/$`[4J'Q"U&8/+_!3=%Z/\Z7@WH@XXJV]+5,WDZF0)LX)CPMFW%9K\VX<6
-M/'E_=$KT2IKX-DS6X!%.924338I<-Z<#47W059(GRB1/[$SR*OTNQY-B#S_5
-M.]IN#!WXYK@M1UMF5RQ!4F#&$.K`D@!]?J(LE2_#6\!4.:4+4(2ZPXD+5S2`
-MLO-J9;?;F>E^L`AU_/96S<O9;MV01M;,,@;C356L<_W<6;83?'W_6MBZ13Y>
-MQOTW<^N:U\$Y4WY`9;$[\7R('K`K"_3G#671,UE6J=C"T`_3V7$,;KO)G5]S
-K2-QY#Y>XS`[Q+A(;K7R"Z!I5_U8379OH9G$W&2<H=+`DP;^(/U6IQB,`````
+begin 664 bkpatch16951
+M'XL(`$MGL3P``]69VV[C-A"&KZVG(+`WVZP/)$52E!=>I-T4;=`"#5+L70&#
+MIFA'<&P9DNPDK?KN'5**SXXM-P&R2F`&,F?X<\AO>,@']"TS:;<Q3M6CN?<^
+MH%^3+.\V!D^YR<QC.TE'\.XV2>!=YR%)QYW!N$/;O#.,'UOS;.#!MS<JUW=H
+M8=*LVR!M?_DF?YJ9;N/VYU^^_?[CK>?U>NCKG9J.S)\F1[V>ER?I0MU'V:7*
+M[^Z3:3M/U32;F%RU=3(IEE4+BC&%'TX"'W-1$(%94&@2$:(8,1&F3`KFJ?%L
+M<OEW/+/&;37?MF=88)\)*@H6,DF]*T3:7`J$:0>S#I:(D*Y/NRSXA&D78U2&
+MXW(M#.B30"WL_81>5_=73R,5J5F.%NP>04215A,4I;&-)[2%:)NU96N6&H(6
+M<622R"P0!-]D;>\WQ*D?,N]F%5BO5?/Q/*RP]P7-[)#M[U(EI@/B.EF^$!*W
+M];)WU.<A"PM,<$@*0H9&#"-IAK[0(J1[PKCA;6*B6&WY9%@23"1$C/EA&(*T
+MEP.^[B]9<$+6Q)&`81+`D`<A+H09!D&@1<24AI$_2=J&PY4R/PQ\OT;0#,A8
+MER69)&'A,R)%$6E%C0XH>)9#I4X,V;K'E2X>P)^GZYH]Z%8\W!!&!`\+PH@@
+MA6!T(`D71`^IHN0T89LNUY4)5D/9(@8*]LVR@-/"ETI0'D1&#`8^&\C3E&VX
+M7!M*[`M9:Y)%V2`E&.].,X%%"`ZUPDKI@4_"P`STB>JVG*[T81$(ZI+GX6#;
+M;/H60^Z-4C.Z'*>)NMMQM'^X&:4,?!8^EQR[)$OQ6HZE72*[7+R08PE!+?[>
+MDJR;NW^@5OK@?B%IWKPP&F>DX"M"0T2\Z[)H-!H(GODTBT=3$Z%XFJ,XT?G]
+M-&VNWD)41DBEHQ\^@[E?FKNBX>IVT?(!87W7J[[[I@GU&0P&%#!Q$04[P`K*
+M+%=YK%US*Y.HLOJ8Y>E<@Y`I!`==N**)JI?#^![>V<_FL_HM_7H2-=$BB2-T
+M835#FRSD*/#^VM_J.4WNMK<;*^\?KY&:?)Y.RW'NSV'SHY/9T\?*NW-86D/]
+MYIY`0+S_!=G[B:SR<@T@ZZP-QWG<6A<LCH3+@H<A*7$DHA:.(6JQ=T>C7>..
+MTEA%XBP8,0L=%ICC32R<TS.1.((#)12)W;;J-H0.L?<*+&SVON+`IJZ@REW!
+MONRSU@^;>7PLH-8!>JJ-8!U\:NU'3P!H:R_J%C3&P1^'6><(HM\[0>6^^CA!
+M52C.0NC@RE)Z7<XB5'==.8*1S]@61F5[M8%]&X(V.[]$B/DE0F6YB]!:']SJ
+MS0XS5&US:R!4:Z]]G*"M?;8#R"<%!=6R!(A][P"59X:C`%61.(<?$&GQ83+8
+MI,>Y[(/F-]N7<=B6B?U-OIM-V6X4GDF"`XP%J2PJCAJ-K2X`0H*3@P0MCV+'
+M+ZG^Q['P.$@[1T*+$H.U2#!)RQLL4N]P%;Z_LY4[W1XE:1F*<UB2W$X)]_G,
+MP"FSTAZKW%[ENBQVLC+(ZU?"5JF9V*I7E-A5[YH2L8GONLDY`.]9E=;9]3%!
+M_%![YV6+-^%W7Q@<P?N!K"[AZN%8XRKP.(I;UX#E+4=0^#C$07G+46]-"U!+
+MO#,0RRO-HR16D3AK3>-<ND6-<WN\LIX>;5*N#@=]F&$FG:I7/58Q+NP1KE%9
+M5R=Y`PL">%G8`/2<R]:7&715Y:8?J5Q]7AK8F>JZC"X26]>:E'4A/7`<8)L?
+MJA+4G$2+M0LK.W=?DVKK^21R#@;-IBM.I=M&5N5.PMHV;EH3=VA;_LM&WQD]
+3SN:3'L5"1S(RWG_'"A)-(!H`````
 `
 end

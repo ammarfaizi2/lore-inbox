@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268667AbSISNen>; Thu, 19 Sep 2002 09:34:43 -0400
+	id <S269330AbSISNtx>; Thu, 19 Sep 2002 09:49:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269223AbSISNem>; Thu, 19 Sep 2002 09:34:42 -0400
-Received: from kim.it.uu.se ([130.238.12.178]:26798 "EHLO kim.it.uu.se")
-	by vger.kernel.org with ESMTP id <S268667AbSISNem>;
-	Thu, 19 Sep 2002 09:34:42 -0400
-From: Mikael Pettersson <mikpe@csd.uu.se>
+	id <S269456AbSISNtx>; Thu, 19 Sep 2002 09:49:53 -0400
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:59653 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S269330AbSISNtw>; Thu, 19 Sep 2002 09:49:52 -0400
+Date: Thu, 19 Sep 2002 15:54:40 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: kaos@ocs.com.au, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] In-kernel module loader 1/7 
+In-Reply-To: <20020919125906.21DEA2C22A@lists.samba.org>
+Message-ID: <Pine.LNX.4.44.0209191532110.8911-100000@serv>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15753.54167.111587.38417@kim.it.uu.se>
-Date: Thu, 19 Sep 2002 15:39:35 +0200
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>, Andi Kleen <ak@suse.de>,
-       "David S. Miller" <davem@redhat.com>, johnstul@us.ibm.com,
-       James Cleverdon <jamesclv@us.ibm.com>, linux-kernel@vger.kernel.org,
-       anton.wilson@camotion.com
-Subject: Re: do_gettimeofday vs. rdtsc in the scheduler
-In-Reply-To: <1032442039.26712.32.camel@irongate.swansea.linux.org.uk>
-References: <1032305535.7481.204.camel@cog>
-	<20020917.163246.113965700.davem@redhat.com>
-	<20020918015209.B31263@wotan.suse.de>
-	<20020917.164649.110499262.davem@redhat.com>
-	<20020918015838.A6684@wotan.suse.de>
-	<15753.45833.702405.2357@kim.it.uu.se>
-	<1032442039.26712.32.camel@irongate.swansea.linux.org.uk>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
- > On Thu, 2002-09-19 at 12:20, Mikael Pettersson wrote:
- > >  > The local APIC timer is specified in the Intel Manual volume 3 for example.
- > >  > It's an optional feature (CPUID), but pretty much everyone has it.
- > > 
- > > Except that like everything else related to the local APIC, you're at
- > > the mercy of the competence (or lack thereof) of the BIOS implementors.
- > > - There are plenty of laptops whose CPUs have local APICs but whose
- > >   BIOSen go berserk if you enable it. There are also plenty of laptops
- > 
- > Frequently because we don't disable it again before any APM calls I
- > suspect. When a CPU goes into sleep mode you must disable PMC and local
- > apic timer interrupts.
+Hi,
 
-We do on sane boxes where the APM BIOS informs us before suspending.
-E.g., on my ASUS P3B-F & P4T-E suspend works with local APIC enabled
-because I hooked both the NMI watchdog and local APIC to the
-PM system, so we disable before suspending and restore afterwards.
+On Thu, 19 Sep 2002, Rusty Russell wrote:
 
-The problem is that some BIOSen don't post the suspend event to
-our APM driver, so we fail to disable before suspend, and some BIOSen
-(like the utter crap Dell put in the Inspiron) die on all entries to
-the BIOS: pull the power cord -> #SMM event -> box crashes.
+> If every single object in the kernel is reference counted, *yes* you
+> can do this.  But they're not, and they will never be.  Changing them
+> over to use try_module_get() is feasible, though.
 
-/Mikael
+Rusty, slowly I'm pissed. :(
+I already said often enough, a module has only to answer the simple
+question: Is it safe to unload the module? Reference counts is the
+simplest way, but I'm sure even you can come up with other methods.
+On the other hand you force on _everyone_ to use try_module_get(), which
+are nothing else than reference counts. As I already wrote in my last
+mail:
+This is simple resource management, everyone writing kernel code has to do
+this anyway, adding modules to this picture doesn't change it much. As
+long as you have control over all your objects, you also know easily
+whether it's safe to unload or not, but only the driver knows this, the
+module code can only guess or it has to be told explicitely via
+try_module_get().
+In other words: If you get it right with try_module_get(), you will more
+easily get it right with reference counts.
+
+bye, Roman
+
+

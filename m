@@ -1,85 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262324AbVAOVbu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262326AbVAOVfZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262324AbVAOVbu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 16:31:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbVAOVbt
+	id S262326AbVAOVfZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 16:35:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbVAOVfZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 16:31:49 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:176 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262324AbVAOVbq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 16:31:46 -0500
-Date: Sat, 15 Jan 2005 16:31:41 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.29-rc2
-Message-ID: <20050115183141.GE7397@logos.cnet>
-References: <20050112151334.GC32024@logos.cnet> <20050114225555.GA17714@steffen-moser.de> <20050115052050.GF4274@stusta.de> <20050115114309.GA7397@logos.cnet> <20050115205002.GO4274@stusta.de>
+	Sat, 15 Jan 2005 16:35:25 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2065 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262326AbVAOVfT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jan 2005 16:35:19 -0500
+Date: Sat, 15 Jan 2005 22:35:15 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Arjan van de Ven <arjan@infradead.org>, viro@zenII.uk.linux.org,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: make flock_lock_file_wait static
+Message-ID: <20050115213515.GQ4274@stusta.de>
+References: <20050109194209.GA7588@infradead.org> <1105310650.11315.19.camel@lade.trondhjem.org> <1105345168.4171.11.camel@laptopd505.fenrus.org> <1105346324.4171.16.camel@laptopd505.fenrus.org> <1105367014.11462.13.camel@lade.trondhjem.org> <1105432299.3917.11.camel@laptopd505.fenrus.org> <1105471004.12005.46.camel@lade.trondhjem.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050115205002.GO4274@stusta.de>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <1105471004.12005.46.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 15, 2005 at 09:50:02PM +0100, Adrian Bunk wrote:
-> On Sat, Jan 15, 2005 at 09:43:09AM -0200, Marcelo Tosatti wrote:
+On Tue, Jan 11, 2005 at 02:16:44PM -0500, Trond Myklebust wrote:
+> ty den 11.01.2005 Klokka 09:31 (+0100) skreiv Arjan van de Ven:
+>...
+> > If it is going to take a LOT longer though I still feel it's wrong to
+> > bloat *everyones* kernel with this stuff.
 > > 
-> > Hi Adrian!
-> > 
-> > On Sat, Jan 15, 2005 at 06:20:50AM +0100, Adrian Bunk wrote:
-> > > On Fri, Jan 14, 2005 at 11:55:55PM +0100, Steffen Moser wrote:
-> > > 
-> > > >...
-> > > >  - fsa01 (problem occurs):
-> > > >...
-> > > >  | modutils               2.4.5
-> > > >...
-> > > >  - gateway (no problem):
-> > > >...
-> > > >  | modutils               2.4.12
-> > > >....
-> > > 
-> > > OK, this seems to be the problem:
-> > > modutils before 2.4.10 don't know about EXPORT_SYMBOL_GPL.
-> > > 
-> > > Please upgrade modutils on fsa01 and report whether it fixes the 
-> > > problem.
-> > 
-> > Yes, thats the right solution - however I think it might be worth to have 
-> > the non-GPL versions. Several old distros ship modutils older than 2.4.10
-> > - eg SuSE Linux 7.1 (Oct 2001).
-> >...
+> > (you may think "it's only 100 bytes", well, there are 700+ other such
+> > functions, total that makes over at least 70Kb of unswappable, wasted
+> > memory if not more.)
 > 
-> Do a grep for EXPORT_SYMBOL_GPL in the 2.4.29-rc2 sources.
-> 
-> It seems for some reason people didn't scream in older 2.4 releases that 
-> already had the same problem in several places.
-> 
-> I see you have applied both my patch documenting modutils 2.4.10 was 
-> required and the EXPORT_SYMBOL_GPL -> EXPORT_SYMBOL patch for tty_io.c .
-> 
-> I don't like this mixed approach. IMHO, there are two clean solutions:
-> 1. document modutils 2.4.10 was required, undo the EXPORT_SYMBOL_GPL -> 
->    EXPORT_SYMBOL changes in tty_io.c
-> 2. undo the EXPORT_SYMBOL_GPL -> EXPORT_SYMBOL changes in tty_io.c and
->    change module.h to #define EXPORT_SYMBOL_GPL to EXPORT_SYMBOL
-> 
-> Both approaches have their obvious advantages and disadvantages, but 
-> they don't have the flaw that they special case tty_io.c .
+> A list of these 700+ unused exported APIs would be very useful so that
+> we can deprecate and/or get rid of them.
+>...
 
-Adrian,
+Patches are already sent for each one that is found (the one by Arjan in 
+this discusison is one of them).
 
-I know of the other GPL exports but no one complained about problems with them. :)
+My figures in [1] show, any kind of deprecation would mean _much_ extra 
+work within the current 2.6 development model.
 
-Yes, you are right, to be orthogonal and clean it would be necessary to do 
-require modutils-2.4.10 and have EXPORT_SYMBOL_GPL.
+> Trond
 
-I just dont want to break existing user setups - due to the security problems
-many might upgrade.
+cu
+Adrian
 
-I'm just trying to be user-friendly. 
+[1] http://www.ussg.iu.edu/hypermail/linux/kernel/0501.0/2036.html
 
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

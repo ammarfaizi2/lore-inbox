@@ -1,64 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314019AbSDQBxV>; Tue, 16 Apr 2002 21:53:21 -0400
+	id <S314024AbSDQBze>; Tue, 16 Apr 2002 21:55:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314022AbSDQBxU>; Tue, 16 Apr 2002 21:53:20 -0400
-Received: from rwcrmhc52.attbi.com ([216.148.227.88]:5843 "EHLO
-	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
-	id <S314019AbSDQBxT>; Tue, 16 Apr 2002 21:53:19 -0400
-Subject: Re: Why HZ on i386 is 100 ?
-From: Dan Mann <mainlylinux@attbi.com>
+	id <S314025AbSDQBzd>; Tue, 16 Apr 2002 21:55:33 -0400
+Received: from smtp.comcast.net ([24.153.64.2]:491 "EHLO smtp.comcast.net")
+	by vger.kernel.org with ESMTP id <S314024AbSDQBzc>;
+	Tue, 16 Apr 2002 21:55:32 -0400
+Date: Tue, 16 Apr 2002 20:55:25 -0500
+From: Josh McKinney <forming@comcast.net>
+Subject: Re: AMD Athlon + VIA Crashing On Disk I/O
+In-Reply-To: <200204161843.g3GIhSX26862@Port.imtp.ilyichevsk.odessa.ua>
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <1019005044.1670.16.camel@phantasy>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1019094667.1435.20.camel@hermes>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 17 Apr 2002 21:51:24 -0400
+Mail-followup-to: linux-kernel@vger.kernel.org
+Message-id: <20020417015525.GA3118@cy599856-a>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Editor: GNU Emacs 21.1
+X-Operating-System: Debian GNU/Linux 2.4.19-pre6 i686
+X-Processor: Athlon XP 2000+
+X-Uptime: 20:49:56 up  3:09,  2 users,  load average: 1.00, 0.99, 0.91
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Why not just try and modify the time slice scale?  wouldn't this then
-help with what you are trying to gain, while leaving other values alone
-that rely on 100HZ?
-
-Doesn't an unmodified TICK_SCALE negate most of the lowered time slice
-effect you'd gain from raising HZ anyway?
-
-Seems like Ingo did a bunch of work on trying to get the "sweet spot"
-time slice quanta value already, and I don't think he did it with the HZ
-value, but I could be wrong. 
-
-And if it is Xwindows performance you are trying for, it's not the
-kernel (flying by the seat of my pants here).  I can have crappy X
-performance and yet my audio never skips a beat, running at exactly the
-same priority as X(though my X perf problems seem to stem from multiple
-clients rendering on screen at the same time.;-)(No disrespect to the X
-developers, since it does a lot of thing very nicely :-)
-
-Dan
-
-On Tue, 2002-04-16 at 20:57, Robert Love wrote:
-> On Tue, 2002-04-16 at 20:49, David Mosberger wrote:
+On approximately Tue, Apr 16, 2002 at 09:45:43PM -0200, Denis Vlasenko wrote:
+> >
+> > I get (when FSCK):
+> >
+> > spurious 8259A IRQ7
 > 
-> > But since it's popular, I did measure it quickly on a relatively
-> > slow (old) Itanium box: with 100Hz, the kernel compile was about
-> > 0.6% faster than with 1024Hz (2.4.18 UP kernel).
+> cat /proc/interrupts, is ther lots of ERR: interrupts?
 > 
-> One question I have always had is why 1024 and not 1000 ?
 
-> Because that is what Alpha does?  It seems to me there is no reason for
-> a power-of-two timer value, and using 1024 vs 1000 just makes the math
-> and rounding more difficult.
-> 
-> 	Robert Love
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I also get the spurious 8259A messages upon booting my Soyo Dragon+ board, KT266A chipset.
+Here is the output of /proc/interrupts:
 
+         CPU0
+  0:    1146449          XT-PIC  timer
+  1:       1258          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  8:          1          XT-PIC  rtc
+ 10:      10584          XT-PIC  eth0
+ 11:          0          XT-PIC  es1370
+ 12:         20          XT-PIC  PS/2 Mouse
+ 14:         17          XT-PIC  ide0
+ 15:      15193          XT-PIC  ide1
+NMI:          0
+LOC:    1146346
+ERR:         78
+MIS:          0
+
+I am just curious as to what this means, I haven't seen any real problems with the board,
+except for everything wanting to go to IRQ 11, but that isn't a kernel issue.
+
+Josh
 

@@ -1,32 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316258AbSE3ER7>; Thu, 30 May 2002 00:17:59 -0400
+	id <S316300AbSE3EgG>; Thu, 30 May 2002 00:36:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316261AbSE3ER6>; Thu, 30 May 2002 00:17:58 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:19954 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S316258AbSE3ER5>; Thu, 30 May 2002 00:17:57 -0400
-Date: Thu, 30 May 2002 00:17:57 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: "Todd R. Eigenschink" <todd@tekinteractive.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: interrupt count (/proc/stat) change in 2.4.19-pre9
-Message-ID: <20020530001757.A26137@redhat.com>
-In-Reply-To: <15605.42173.758778.408074@rtfm.ofc.tekinteractive.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S316309AbSE3EgF>; Thu, 30 May 2002 00:36:05 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27146 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316300AbSE3EgF>;
+	Thu, 30 May 2002 00:36:05 -0400
+Message-ID: <3CF5ABBF.2070109@mandrakesoft.com>
+Date: Thu, 30 May 2002 00:34:07 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/00200205
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+CC: Dave Jones <davej@suse.de>, "J.A. Magallon" <jamagallon@able.es>,
+        Lista Linux-Kernel <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] intel-x86 model config cleanup
+In-Reply-To: <200205300243.g4U2hIZ369399@saturn.cs.uml.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 29, 2002 at 11:04:13PM -0500, Todd R. Eigenschink wrote:
-> Is it trying to induce some sort of intentional overflow in the
-> interrupt count, or is there some other big-picture change that
-> requires this?  I see the comment from the BK changeset, but I still
-> don't understand the purpose.
+Albert D. Cahalan wrote:
 
-It's a brown paper bag.  By making the counts 9 digits long, the bug in 
-the old code that the patch fixed was triggered.
+>  
+>
+>I want one kernel. I have a Pentium-MMX and a Pentium Pro.
+>I don't need support for a 386, 486, Athlon, or Xeon.
+>  
+>
 
-		-ben
+
+It depends on how much work the patch author wants to do.  This is a 
+perfectly reasonable request, but increases the complexity of the 
+overall problem somewhat.
+
+Your current solution, whatever it is, should map directly onto one of 
+the 'generic kernel' selections, hopefully.  So, what you are really 
+asking for is an RFE to add on to this RFE currently being discussed :)
+
+    Jeff
+
+
+
+

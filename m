@@ -1,62 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261698AbUKCQch@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261701AbUKCQdF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261698AbUKCQch (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 11:32:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbUKCQch
+	id S261701AbUKCQdF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 11:33:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbUKCQdE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 11:32:37 -0500
-Received: from c7ns3.center7.com ([216.250.142.14]:54940 "EHLO
-	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
-	id S261698AbUKCQcV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 11:32:21 -0500
-Message-ID: <41890D5F.4000006@drdos.com>
-Date: Wed, 03 Nov 2004 09:54:55 -0700
-From: "Jeff V. Merkey" <jmerkey@drdos.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Brad Campbell <brad@wasp.net.au>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: nfs stale filehandle issues with 2.6.10-rc1 in-kernel server
-References: <41877751.502@wasp.net.au>	 <1099413424.7582.5.camel@lade.trondhjem.org> <4187E4E1.5080304@pobox.com>	 <4187F69E.9020604@drdos.com> <1099431477.7854.21.camel@lade.trondhjem.org>	 <20041102225304.GA11441@galt.devicelogics.com> <41882414.2070003@drdos.com> <1099444402.9957.8.camel@lade.trondhjem.org>
-In-Reply-To: <1099444402.9957.8.camel@lade.trondhjem.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 3 Nov 2004 11:33:04 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:7433 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S261699AbUKCQc7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 11:32:59 -0500
+Subject: Re: [patch] remove direct mem_map refs for x86-64
+From: Arjan van de Ven <arjan@infradead.org>
+To: Matt Tolentino <metolent@snoqualmie.dp.intel.com>
+Cc: ak@suse.de, linux-kernel@vger.kernel.org
+In-Reply-To: <200411031647.iA3GlmBm016951@snoqualmie.dp.intel.com>
+References: <200411031647.iA3GlmBm016951@snoqualmie.dp.intel.com>
+Content-Type: text/plain
+Message-Id: <1099499567.2813.24.camel@laptop.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Wed, 03 Nov 2004 17:32:47 +0100
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.6 (++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (2.6 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[62.195.31.207 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[62.195.31.207 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust wrote:
+On Wed, 2004-11-03 at 08:47 -0800, Matt Tolentino wrote:
+> -                       page = pgdat->node_mem_map + i;
+> -		total++;
+> +			page = pfn_to_page(pgdat->node_start_pfn + i);
+> +			total++;
 
->ty den 02.11.2004 Klokka 17:19 (-0700) skreiv Jeff V. Merkey:
->
->  
->
->>>Connect 2.4.18 and 2.6.9 with NFS 3 enabled.  I am seeing problems 
->>>connecting and file size mismatches.  I also see errors with zero
->>>length files (host side) that get opened and populated with data
->>>and the remote side is unable to read them -- keeps seeing 
->>>them as zero length.  
->>>      
->>>
->
->That's entirely expected. NFS has always been forced to use a polling
->model for attribute cache consistency. "man 5 nfs" and read all about
->the "actimeo" mount options that control this behaviour.
->
->Cheers,
->  Trond
->
->  
->
-Trond,
-
-Thanks for the update.  I noticed from another post on this thread that 
-the problems with
-/etc/exports are being addressed.  This was the other problem I was 
-seeing but it appears
-to be getting fixed.
-
-Jeff
+this can't be correct... pfn_to_page starts to count from address 0
+while the original code starts from the start of the node..
 
 

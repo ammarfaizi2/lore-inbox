@@ -1,45 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261773AbUCCMxd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 07:53:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261644AbUCCMva
+	id S261685AbUCCNHn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 08:07:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbUCCNHn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 07:51:30 -0500
-Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:19722 "EHLO
-	ford.pronto.tv") by vger.kernel.org with ESMTP id S261788AbUCCMt5 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 07:49:57 -0500
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: Chris Friesen <cfriesen@nortelnetworks.com>, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.3.0
-References: <200402291942.45392.mmazur@kernel.pl>
-	<200402292130.55743.mmazur@kernel.pl>
-	<c1tk26$c1o$1@terminus.zytor.com>
-	<200402292221.41977.mmazur@kernel.pl> <yw1xn0711sgw.fsf@kth.se>
-	<40434BD7.9060301@nortelnetworks.com>
-	<m37jy4cuaw.fsf@defiant.pm.waw.pl>
-From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Date: Wed, 03 Mar 2004 13:49:31 +0100
-In-Reply-To: <m37jy4cuaw.fsf@defiant.pm.waw.pl> (Krzysztof Halasa's message
- of "Mon, 01 Mar 2004 19:10:31 +0100")
-Message-ID: <yw1x8yiiksdg.fsf@kth.se>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 3 Mar 2004 08:07:43 -0500
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:64774 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S261685AbUCCNHm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 08:07:42 -0500
+Subject: Re: Desktop Filesystem Benchmarks in 2.6.3
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Olaf =?iso-8859-2?Q?Fr=B1czyk?= <olaf@cbk.poznan.pl>
+Cc: Robin Rosenberg <robin.rosenberg.lists@dewire.com>,
+       David Weinehall <david@southpole.se>,
+       Andrew Ho <andrewho@animezone.org>, Dax Kelson <dax@gurulabs.com>,
+       Peter Nelson <pnelson@andrew.cmu.edu>, Hans Reiser <reiser@namesys.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net, ext3-users@redhat.com,
+       jfs-discussion@www-124.southbury.usf.ibm.com, reiserfs-list@namesys.com,
+       linux-xfs@oss.sgi.com
+In-Reply-To: <1078308797.2641.14.camel@venus.local.navi.pl>
+References: <4044119D.6050502@andrew.cmu.edu>
+	 <40453538.8050103@animezone.org> <20040303014115.GP19111@khan.acc.umu.se>
+	 <200403030700.57164.robin.rosenberg.lists@dewire.com>
+	 <1078307033.904.1.camel@teapot.felipe-alfaro.com>
+	 <1078308797.2641.14.camel@venus.local.navi.pl>
+Content-Type: text/plain; charset=UTF-8
+Message-Id: <1078319235.1113.2.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
+Date: Wed, 03 Mar 2004 14:07:16 +0100
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Krzysztof Halasa <khc@pm.waw.pl> writes:
+On Wed, 2004-03-03 at 11:13, Olaf FrÄ…czyk wrote:
+> > > Recoverability matters to me. The driver could be 10 megabyte and
+> > > *I* would not care. XFS seems to stand no matter how rudely the OS
+> > > is knocked down.
 
-> The "non-problem" here is, IMHO, that the cleaning of kernel headers
-> is quite trivial, and thus nobody is interested :-)
+> > But XFS easily breaks down due to media defects. Once ago I used XFS,
+> > but I lost all data on one of my volumes due to a bad block on my hard
+> > disk. XFS was unable to recover from the error, and the XFS recovery
+> > tools were unable to deal with the error.
 
-It usually is.  I guess I'll start sending patches whenever I need to
-change one to get something compiled.  Usually it's so trivial that I
-think I must have made a mistake somewhere else.
+> You lost all data? Or you just had to restore them from backup? If you
+> didn't have a backup it is your fault not XFS one :)
 
--- 
-Måns Rullgård
-mru@kth.se
+Well, it was a testing machine with no important data, so I could just
+afford to lose everything, as it was the case.
+
+> But even if you had no backup, why didn't you move your data (using dd
+> or something else) to another (without defects) drive, and run recovery
+> on new drive?
+
+I tried, but it proved more difficult than expected, since the computer
+was a laptop and I couldn't move the HDD to another computer. Using the
+distro rescue CD was useless as it's kernel didn't have XFS support. All
+in all, XFS recovery was a nightmare compared to ext3 recovery, for
+example.
+

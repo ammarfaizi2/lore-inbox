@@ -1,39 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265642AbUANBdk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jan 2004 20:33:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265649AbUANBdk
+	id S265667AbUANBeg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jan 2004 20:34:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265767AbUANBeg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jan 2004 20:33:40 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:20886 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S265642AbUANBdj convert rfc822-to-8bit (ORCPT
+	Tue, 13 Jan 2004 20:34:36 -0500
+Received: from fw.osdl.org ([65.172.181.6]:48861 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265667AbUANBec (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jan 2004 20:33:39 -0500
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: [ACPI] ACPI directories still exist with acpi off
-Date: Wed, 14 Jan 2004 09:33:32 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F8401720CC8@PDSMSX403.ccr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [ACPI] ACPI directories still exist with acpi off
-Thread-Index: AcPaJBxkw0K7QeMIRAm/gfvjnyiZwgAGhthg
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Pavel Machek" <pavel@ucw.cz>,
-       "ACPI mailing list" <acpi-devel@lists.sourceforge.net>,
-       "kernel list" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 14 Jan 2004 01:33:32.0732 (UTC) FILETIME=[6BC3AFC0:01C3DA3E]
+	Tue, 13 Jan 2004 20:34:32 -0500
+Date: Tue, 13 Jan 2004 17:31:13 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Steve Youngs <sryoungs@bigpond.net.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: modprobe failed: digest_null
+Message-Id: <20040113173113.0bed1edc.rddunlap@osdl.org>
+In-Reply-To: <microsoft-free.87isjffhhz.fsf@eicq.dnsalias.org>
+References: <20040113215355.GA3882@piper.madduck.net>
+	<20040113143053.1c44b97d.rddunlap@osdl.org>
+	<20040113223739.GA6268@piper.madduck.net>
+	<20040113144141.1d695c3d.rddunlap@osdl.org>
+	<20040113225047.GA6891@piper.madduck.net>
+	<20040113150319.1e309dcb.rddunlap@osdl.org>
+	<microsoft-free.87isjffhhz.fsf@eicq.dnsalias.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> Include acpi support into the kernel, but pass acpi=off on the command
-> line. Somehow, acpi still manages to create its directories, but not
-> in /proc/acpi but in /proc directly. Ouch.
-How about this one:
-http://bugme.osdl.org/attachment.cgi?id=1696&action=view
+On Wed, 14 Jan 2004 11:26:00 +1000 Steve Youngs <sryoungs@bigpond.net.au> wrote:
+
+| * Randy Dunlap <Randy.Dunlap> writes:
+| 
+|   > The message:
+|   > kernel: request_module: failed /sbin/modprobe -- digest_null. error = 256
+|   > is from modutils and not from module-init-tools according to my
+|   > source files.
+| 
+| Your correct about where this message _doesn't_ come from, but not
+| about where it _does_ come from...
+| 
+| ,----[ ./kernel/kmod.c -- lines 113 - 115 ]
+| | printk(KERN_DEBUG
+| |        "request_module: failed %s -- %s. error = %d\n",
+| |        modprobe_path, module_name, ret);
+| `----
+
+Yes, I found that and am digging into it, but I'm close to end-of-day,
+so someone else can pick it up soon...
+
+
+--
+~Randy
+MOTD:  Always include version info.

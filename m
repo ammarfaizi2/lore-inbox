@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135927AbREDInd>; Fri, 4 May 2001 04:43:33 -0400
+	id <S135952AbREDIrd>; Fri, 4 May 2001 04:47:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135946AbREDInX>; Fri, 4 May 2001 04:43:23 -0400
-Received: from 20dyn25.com21.casema.net ([213.17.90.25]:17162 "HELO
-	home.ds9a.nl") by vger.kernel.org with SMTP id <S135927AbREDInL>;
-	Fri, 4 May 2001 04:43:11 -0400
-Date: Fri, 4 May 2001 10:43:04 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: X15 alpha release: as fast as TUX but in user space (fwd)
-Message-ID: <20010504104303.A28839@home.ds9a.nl>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010503210904.B9715@bug.ucw.cz> <E14vPZF-00069W-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre4i
-In-Reply-To: <E14vPZF-00069W-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, May 03, 2001 at 09:19:15PM +0100
+	id <S135985AbREDIrY>; Fri, 4 May 2001 04:47:24 -0400
+Received: from aeon.tvd.be ([195.162.196.20]:22492 "EHLO aeon.tvd.be")
+	by vger.kernel.org with ESMTP id <S135952AbREDIrN>;
+	Fri, 4 May 2001 04:47:13 -0400
+Date: Fri, 4 May 2001 10:44:15 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+        Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [Linux-fbdev-devel] Re: [PATCH] Penguin logos
+In-Reply-To: <Pine.LNX.4.05.10105032105310.28685-100000@callisto.of.borg>
+Message-ID: <Pine.LNX.4.05.10105041043380.2886-100000@callisto.of.borg>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 03, 2001 at 09:19:15PM +0100, Alan Cox wrote:
+On Thu, 3 May 2001, Geert Uytterhoeven wrote:
+> Finally I found some time to incorporate the very nice logos contributed by
+> Simon Budig. Thank you Simon!
+> 
+> Patches (for both 2.4.5-pre1 and 2.4.4-ac4) can be downloaded from:
+> 
+>     http://home.tvd.be/cr26864/Linux/fbdev/logo.html
 
-> If they are using glibc then you have the right to the object to link
-> with the library and the library source under the LGPL. I dont know of any
-> app using its own C lib
+Sorry, I had forgotten to upload the new logo for SPARC. Fixed.
 
-qmail is nearly there.
+Gr{oetje,eeting}s,
 
--- 
-http://www.PowerDNS.com      Versatile DNS Services  
-Trilab                       The Technology People   
-'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

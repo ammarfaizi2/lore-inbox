@@ -1,55 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262179AbTD3N5s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 09:57:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262182AbTD3N5r
+	id S261244AbTD3OHg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 10:07:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbTD3OHg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 09:57:47 -0400
-Received: from post2.inre.asu.edu ([129.219.110.73]:54256 "EHLO
-	post2.inre.asu.edu") by vger.kernel.org with ESMTP id S262179AbTD3N5q
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 09:57:46 -0400
-Date: Wed, 30 Apr 2003 07:10:04 -0700 (MST)
-From: Shesha@asu.edu
-Subject: Why throughput increases as MTU size is increased
-To: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-Message-id: <Pine.GSO.4.21.0304300706400.28571-100000@general2.asu.edu>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 30 Apr 2003 10:07:36 -0400
+Received: from pixpat.austin.ibm.com ([192.35.232.241]:54740 "EHLO
+	dyn95394153.austin.ibm.com") by vger.kernel.org with ESMTP
+	id S261244AbTD3OHf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 10:07:35 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: viro@parcelfarce.linux.theplanet.co.uk, "Randy.Dunlap" <rddunlap@osdl.org>
+Subject: Re: [PATCH] KernelJanitor: Convert remaining error returns to return -E Linux 2.5.68
+Date: Wed, 30 Apr 2003 09:19:45 -0500
+User-Agent: KMail/1.4.3
+Cc: lkml <linux-kernel@vger.kernel.org>
+References: <20030429161128.3b8c762b.rddunlap@osdl.org> <20030430000236.GS10374@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20030430000236.GS10374@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200304300919.45404.shaggy@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
- I have a question which I am not able to answer myself.I request you all to
-give
-me some input.
- When I measure the performance of iSCSI on XScale with MTU size = 1500 bytes,
-a throughput of 32 Mbps was observed. As the MTU size was increased, the
-throughput also increased.
-1500 -> 32 Mbps
-3000 -> 56
-4500 -> 80
-6000 -> 100
-7500 -> 108
-9000 -> 108
+On Tuesday 29 April 2003 19:02, viro@parcelfarce.linux.theplanet.co.uk 
+wrote:
 
-Actually the throughput saturates. I thought, the per-packet overhead
-decreases as the MTU
-size increases. This contributes to the performance improvement. And the
-saturation is achieved because, the iSCSI max PDU size is 8k. Even if
-we increase the MTU size beyond 8k, we will not see any change because,
-iSCSI
-devivers a max of 8K PDU to TCP. Therefore a saturation in throughput is
-observed.
+> 	* ditto for JFS - again, a bunch of functions use positive error
+> values.
 
-But  the question is, Am I thinking correctly?
-secondly, if yes,does the per-packet over head decrease the performance so
-much. we are observing, somewhere like 4 times improvement in throughput. Can
-there be any other reason for this observation. 
+Yeah, we've changed some of this from the way it was in OS/2, but we 
+haven't gone through everything.  I'll put it on my todo list.
 
-Thanking you 
-Shesha
-
-
-
+Thanks,
+Shaggy
+-- 
+David Kleikamp
+IBM Linux Technology Center
 

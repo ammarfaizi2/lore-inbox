@@ -1,58 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261769AbTFBULV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 16:11:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261845AbTFBULV
+	id S261710AbTFBUHk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 16:07:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbTFBUHk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 16:11:21 -0400
-Received: from 12-208-246-150.client.attbi.com ([12.208.246.150]:35849 "EHLO
-	archimedes.mayer") by vger.kernel.org with ESMTP id S261769AbTFBULU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 16:11:20 -0400
-Date: Mon, 2 Jun 2003 14:24:44 -0600
-To: Jocelyn Mayer <jma@netgem.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] radeonfb doesn't compile in 2.4.21-rc6
-Message-ID: <20030602202444.GA9876@galileo>
-Mail-Followup-To: James Mayer <james@cobaltmountain.com>,
-	Jocelyn Mayer <jma@netgem.com>, linux-kernel@vger.kernel.org
-References: <1054578295.4951.34.camel@jma1.dev.netgem.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1054578295.4951.34.camel@jma1.dev.netgem.com>
-User-Agent: Mutt/1.5.4i
-From: James Mayer <james@cobaltmountain.com>
+	Mon, 2 Jun 2003 16:07:40 -0400
+Received: from [62.75.136.201] ([62.75.136.201]:652 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S261710AbTFBUHj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Jun 2003 16:07:39 -0400
+Message-ID: <3EDBB1B2.3000600@g-house.de>
+Date: Mon, 02 Jun 2003 22:21:06 +0200
+From: Christian Kujau <evil@g-house.de>
+Reply-To: evil@g-house.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; de-AT; rv:1.4b) Gecko/20030507
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: weird keyboard with 2.5.70
+References: <20030602082333.GA12502@synertronixx3> <20030602192443.GA31555@sexmachine.doom>
+In-Reply-To: <20030602192443.GA31555@sexmachine.doom>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 02, 2003 at 08:24:56PM +0200, Jocelyn Mayer wrote:
-> It seems to me that this was already reported for previous
-> 2.4.21-rc's, but never applied.
-> Here's the patch that make radeonfb compile (and work)
-> on my Ibook:
->
->
-> 19:06:04.0000
-> 00000 +0200
-> +++ linux-2.4.21-rc6-fixed/drivers/video/radeonfb.c    2003-06-01
-> 20:58:42.0000
-> 00000 +0200
-> @@ -1001,8 +1001,8 @@
->         /* According to XFree86 4.2.0, some production M6's return 0
->            for 8MB. */
->         if (rinfo->video_ram == 0 &&
-> -           (pdev->device == PCI_DEVICE_ID_RADEON_LY ||
-> -            pdev->device == PCI_DEVICE_ID_RADEON_LZ)) {
-> +           (pdev->device == PCI_DEVICE_ID_ATI_RADEON_LY ||
-> +            pdev->device == PCI_DEVICE_ID_ATI_RADEON_LZ)) {
->             rinfo->video_ram = 8192 * 1024;
->           }
+thank you all for your replies, but i'll give up on this.
+i still don't have a useable error-message, so i hope that this 
+weirdness will disapear, just as on linux/alpha.
 
-Hi,
+i noticed that i do not reboot the very workstation that often, so 
+unpluggin/replugging the kbds a few times a week is ok for now 8-)
 
-I can't seem to find PCI_DEVICE_ID_ATI_RADEON_LY or
-PCI_DEVICE_ID_ATI_RADEON_LZ defined *anywhere* in 2.4.21-rc6, and the
-2.4.21-rc6 version of radeonfb.c compiled just fine for me.
+thank you,
+Christian.
 
- - James

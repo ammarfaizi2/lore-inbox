@@ -1,81 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbTIBXvd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 19:51:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbTIBXvd
+	id S261325AbTIBX7q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 19:59:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbTIBX7q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 19:51:33 -0400
-Received: from platane.lps.ens.fr ([129.199.121.28]:25986 "EHLO
-	platane.lps.ens.fr") by vger.kernel.org with ESMTP id S261326AbTIBXv3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 19:51:29 -0400
-Date: Wed, 3 Sep 2003 01:50:24 +0200
-From: =?iso-8859-1?Q?=C9ric?= Brunet <Eric.Brunet@lps.ens.fr>
-To: Patrick Mochel <mochel@osdl.org>, benh@kernel.crashing.org
-Cc: Mathieu LESNIAK <maverick@eskuel.com>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Power Management Update
-Message-ID: <20030902235023.GA21645@lps.ens.fr>
-References: <3F51F274.9050300@eskuel.com> <Pine.LNX.4.44.0309021108040.5614-100000@cherise>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.44.0309021108040.5614-100000@cherise>
-User-Agent: Mutt/1.3.25i
+	Tue, 2 Sep 2003 19:59:46 -0400
+Received: from hoemail2.lucent.com ([192.11.226.163]:13257 "EHLO
+	hoemail2.firewall.lucent.com") by vger.kernel.org with ESMTP
+	id S261325AbTIBX7m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 19:59:42 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16213.12008.527588.874265@gargle.gargle.HOWL>
+Date: Tue, 2 Sep 2003 19:59:36 -0400
+From: "John Stoffel" <stoffel@lucent.com>
+To: Greg KH <greg@kroah.com>
+Cc: John Stoffel <stoffel@lucent.com>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: 2.6.0-test4-mm4 - USD disconnect oops
+In-Reply-To: <20030901065928.GB22647@kroah.com>
+References: <16210.44543.579049.520185@gargle.gargle.HOWL>
+	<20030901065928.GB22647@kroah.com>
+X-Mailer: VM 7.14 under Emacs 20.6.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 02, 2003 at 11:13:24AM -0700, Patrick Mochel wrote:
-> I encountered this problem by having an IDE CD-ROM, but not having the 
-> ide-cd drier compiled in. The patch below is from Benh, who wrote the IDE 
-> power managment handlers. 
-> 
-> He mentioned producing a cleaner patch, but this should at least fix the 
-> Oops. Please give it a try and report if it helps or not.
+>>>>> "Greg" == Greg KH <greg@kroah.com> writes:
 
-I was waiting for Ben's « new patch later today », but I finally gave a
-try to this one
-> ===== drivers/ide/ide-io.c 1.21 vs edited =====
-> --- 1.21/drivers/ide/ide-io.c	Mon Sep  1 10:21:10 2003
-> +++ edited/drivers/ide/ide-io.c	Tue Sep  2 09:58:19 2003
-> @@ -609,6 +609,22 @@
->  EXPORT_SYMBOL(execute_drive_cmd);
->  
->  /**
-> + *	do_start_power_step	- wrapper on subdriver start_power_step()
-> + *
-> + *	This is called by start_request instead of directly calling
-> + *	the subdriver's start_power_step() to deal with either no
-> + *	subdriver or no start_power_step method in the subdriver
-> + *	properly.
-> + */
-[snip]
+>> Here's the backtrace, my .config is at the end.  It's a PIII Xeon 2 x
+>> 550mhz, Dell Precision 610 motherboard/system, 768mb of RAM.  The only
+>> USB devices are the controllers and the CompactFlash reader, which
+>> works great under 2.4.  
 
-The result is a panic at different place when resuming from suspend to
-disk. Hand written partial debugging info:
+Greg> Does this happen on 2.6.0-test4?  (no -mm).
 
-EIP is at swsusp_arch_suspend
-eax: 07200720 ebx: 07200720 ecx: c1700000 edx=esi=edi=ebp=0 esp=df793fac
-Process swapper 
-Call trace:
-	swsusp_restore
-	pm_resume
-	do_initcalls
-	init_workqueues
-	init
-	init
-	kernel_thread_helper
-Code: 8a 04 02 88 04 1a 0f 20 d8 0f 22 d8 a1 18 70 37 c0 8d 50 01
-Panic: attempted to kill init !
+Well, I can now use the usb-storage device under 2.6.0-test4 without
+any problems, but I just did a quick test.  So there's something in
+-mm4 which is messing me and usb in general up.  I've made the
+following changes though, so I should go back and check:
 
-Complete (?) information on my computer and kernel logs at 
-http://perso.nerim.net/~tudia/bug-reports
+- upgrade to module-init-tools-0.9.13
+- upgrade to hotplug-2003_08_05-1
+	     hotplug-base-2003_08_05-1
 
-By the way, how comes the computer suspends when echoing 4 to
-/proc/acpi/sleep, and nothing happens when echoing disk to
-/sys/power/state ? Aren't those two things supposed to be equivalent ?
-Regards,
+I'll see if I can figure out what changed in the -mm4 patch to cause
+this problem.  Could it be the kobject patch Akpm posted?  It looks
+like the oops I've gotten.
 
-	Éric Brunet
+The next big thing to do is to get my Dell Precision 610 to recognize
+it's CS4236B ISA sound card properly with ALSA in 2.6.0-t4...
+
+Thanks Greg!
+
+John
+

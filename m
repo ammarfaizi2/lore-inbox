@@ -1,63 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263578AbUDBKYv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Apr 2004 05:24:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263587AbUDBKYv
+	id S263584AbUDBKjf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Apr 2004 05:39:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263585AbUDBKjf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Apr 2004 05:24:51 -0500
-Received: from lindsey.linux-systeme.com ([62.241.33.80]:41737 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S263578AbUDBKYt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Apr 2004 05:24:49 -0500
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity fix
-Date: Fri, 2 Apr 2004 12:21:15 +0200
-User-Agent: KMail/1.6.1
-Cc: Christoph Hellwig <hch@infradead.org>, Andrea Arcangeli <andrea@suse.de>,
-       Andrew Morton <akpm@osdl.org>, hugh@veritas.com, vrajesh@umich.edu,
-       linux-mm@kvack.org
-References: <20040402001535.GG18585@dualathlon.random> <20040402020022.GN18585@dualathlon.random> <20040402104334.A871@infradead.org>
-In-Reply-To: <20040402104334.A871@infradead.org>
-X-Operating-System: Linux 2.6.4-wolk2.3 i686 GNU/Linux
-MIME-Version: 1.0
+	Fri, 2 Apr 2004 05:39:35 -0500
+Received: from gprs212-243.eurotel.cz ([160.218.212.243]:8322 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263584AbUDBKjd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Apr 2004 05:39:33 -0500
+Date: Fri, 2 Apr 2004 12:39:23 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com
+Subject: Re: disable-cap-mlock
+Message-ID: <20040402103923.GB677@elf.ucw.cz>
+References: <20040401135920.GF18585@dualathlon.random> <20040401164825.GD791@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200404021221.15197@WOLK>
+In-Reply-To: <20040401164825.GD791@holomorphy.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 02 April 2004 11:43, Christoph Hellwig wrote:
+Hi!
 
-Hi Christoph,
+> > Oracle needs this sysctl, I designed it and Ken Chen implemented it. I
+> > guess google also won't dislike it.
+> > This is a lot simpler than the mlock rlimit and this is people really
+> > need (not the rlimit). The rlimit thing can still be applied on top of
+> > this. This should be more efficient too (besides its simplicity).
+> > can you apply to mainline?
+> > 	http://www.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.6/2.6.5-rc3-aa1/disable-cap-mlock-1
+> 
+> Something like this would have the minor advantage of zero core impact.
+> Testbooted only. vs. 2.6.5-rc3-mm4
 
-> I got lots of the following OOPSEs with 2.6.5-rc3aa2 on a powerpc running
-> the xfs testsuite (with the truncate fix applied):
-
-What truncate fix? Sorry if I missed that.
-
-dunno if the below is causing your trouble, but is that intentional that 
-page_cache_release(page) is called twice?
-
-diff -urNp --exclude CVS --exclude BitKeeper --exclude {arch} 
---exclude .arch-ids 2.6.5-rc3/mm/page_io.c xx/mm/page_io.c
---- 2.6.5-rc3/mm/page_io.c      2002-12-15 04:18:17.000000000 +0100
-+++ xx/mm/page_io.c     2004-04-02 05:32:57.381688904 +0200
-@@ -161,7 +176,13 @@ int rw_swap_page_sync(int rw, swp_entry_
-                ret = swap_writepage(page, &swap_wbc);
-                wait_on_page_writeback(page);
-        }
--       page->mapping = NULL;
-+
-+       lock_page(page);
-+       remove_from_page_cache(page);
-+       unlock_page(page);
-+       page_cache_release(page);
-+       page_cache_release(page);       /* For add_to_page_cache() */
-
-
-
-ciao, Marc
+I thought this is what setpcap in init is for?
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

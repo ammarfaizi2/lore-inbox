@@ -1,52 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261249AbTIKO3M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 10:29:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbTIKO3M
+	id S261308AbTIKOe4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 10:34:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261312AbTIKOe4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 10:29:12 -0400
-Received: from ns.suse.de ([195.135.220.2]:36762 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261249AbTIKO3I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 10:29:08 -0400
-Date: Thu, 11 Sep 2003 16:29:03 +0200
-From: Andi Kleen <ak@suse.de>
-To: Dave Jones <davej@redhat.com>
-Cc: torvalds@osdl.org, richard.brunner@amd.com, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
+	Thu, 11 Sep 2003 10:34:56 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59569 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261308AbTIKOeu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 10:34:50 -0400
+Message-ID: <3F6087FC.7090508@pobox.com>
+Date: Thu, 11 Sep 2003 10:34:36 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: akpm@osdl.org, richard.brunner@amd.com, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
 Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
-Message-Id: <20030911162903.669f16d4.ak@suse.de>
-In-Reply-To: <20030911141451.GA20434@redhat.com>
-References: <20030911012708.GD3134@wotan.suse.de>
-	<Pine.LNX.4.44.0309110650390.28410-100000@home.osdl.org>
-	<20030911160108.5678113b.ak@suse.de>
-	<20030911141451.GA20434@redhat.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <99F2150714F93F448942F9A9F112634C0638B196@txexmtae.amd.com>	<20030911012708.GD3134@wotan.suse.de>	<20030910184414.7850be57.akpm@osdl.org>	<20030911014716.GG3134@wotan.suse.de>	<3F60837D.7000209@pobox.com> <20030911162634.64438c7d.ak@suse.de>
+In-Reply-To: <20030911162634.64438c7d.ak@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Sep 2003 15:14:51 +0100
-Dave Jones <davej@redhat.com> wrote:
+Andi Kleen wrote:
+> It was not created for that (I know that because I created it ;-)
 
-> On Thu, Sep 11, 2003 at 04:01:08PM +0200, Andi Kleen wrote:
+hehe
+
+
+> X86_GENERIC is merely an optimization hint (currently it only changes the cache
+> line size hint) It does not change anything related to correctness. Everything
+> that handles correctness is checked unconditionally.
+
+When, building non-Pentium4-related code when CONFIG_MPENTIUM4 && 
+!CONFIG_X86_GENERIC, it's OK that the code is incorrect for (picking 
+example) AMD processors.
+
+It would be a user bug to boot that on an AMD box, just like it would be 
+user bug to boot a CONFIG_M586 kernel on an ancient 386.
+
+
+> is_prefetch is a correctness thing.
+
+When we know at compile time it's not needed, it should not be enabled.
+
+
+>>If I disabled CONFIG_X86_GENERIC and select CONFIG_MPENTIUM4, I darned 
+>>well better not get any Athlon code.  The cpu setup code in particular I 
+>>want to conditionalize, and there are other bits that need work... but 
+>>for the most part it works as intended.
 > 
->  > > What's wrong with the current status quo that just says "Athlon prefetch
->  > > is broken"?
->  > It doesn't fix user space for once.
 > 
-> And for another, it cripples the earlier athlons which don't have this
-> errata. Andi's fix at least makes prefetch work again on those boxes.
-> It's also arguable that prefetch() helps the older K7's more than the
-> affected ones.
+> Now that's becomming silly. It's alttogether only a few KB and all
+> __init code anyways.
 
-All Athlons have this Errata. I can trigger it on an old
-900Mhz pre XP Athlon too. You just have to use 3dnow prefetch
-instead of SSE prefetch.
 
-BTW the older Athlons currently don't use prefetch because the alternative
-patcher does not handle 3dnow style prefetch.
+If you're doing crazy LinuxBIOS stuff where flash size is limited, it 
+makes a lot of sense.  (and I do such crazy things)  The core 2.6 kernel 
+has really bloated with optional features, IMO.
 
--Andi
+	Jeff
+
+
+

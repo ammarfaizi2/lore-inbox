@@ -1,122 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313268AbSC1W2o>; Thu, 28 Mar 2002 17:28:44 -0500
+	id <S313273AbSC1WrN>; Thu, 28 Mar 2002 17:47:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313269AbSC1W2e>; Thu, 28 Mar 2002 17:28:34 -0500
-Received: from orinoco.cisco.com ([64.101.176.25]:28361 "EHLO cisco.com")
-	by vger.kernel.org with ESMTP id <S313268AbSC1W2W>;
-	Thu, 28 Mar 2002 17:28:22 -0500
-Message-ID: <3CA39732.2050209@cisco.com>
-Date: Thu, 28 Mar 2002 16:20:34 -0600
-From: Stephen Baker <stbaker@cisco.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: en-us
+	id <S313272AbSC1WrD>; Thu, 28 Mar 2002 17:47:03 -0500
+Received: from rwcrmhc54.attbi.com ([216.148.227.87]:38537 "EHLO
+	rwcrmhc54.attbi.com") by vger.kernel.org with ESMTP
+	id <S313271AbSC1Wqp>; Thu, 28 Mar 2002 17:46:45 -0500
+Message-ID: <3CA39D1A.4050106@didntduck.org>
+Date: Thu, 28 Mar 2002 17:45:46 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: Chris Wright <chris@wirex.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux Kernel Patch; setpriority
-In-Reply-To: <Pine.LNX.3.96.1020328161615.18779D-200000@gatekeeper.tmr.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Andrew Morton <akpm@zip.com.au>
+CC: lkml <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>, davej@suse.de
+Subject: Re: [patch] ext2_fill_super breakage
+In-Reply-To: <3CA2C68E.5B8C4176@zip.com.au>
+Content-Type: multipart/mixed;
+ boundary="------------070004080607050603040801"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill,
+This is a multi-part message in MIME format.
+--------------070004080607050603040801
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-You correct, I have tried this approach before and it seem like doubling 
-the work on the system.  For one your create a thread which is really a 
-process to create another process; that's ok for a small app but not a 
-very scalable solution considering all the code in glibc used for 
-pthread_create.   This is a bigger problem is when you only have one 
-thread at nice value 0 and all other are higher value.  Now you have to 
-have the main thread do it's work and the check flags to see if it needs 
-to create the new thread so it can have a nice value you can change.
+Andrew Morton wrote:
+> In 2.5.7 there is a thinko in the allocation and initialisation
+> of the fs-private superblock for ext2.  It's passing the wrong type
+> to the sizeof operator (which of course gives the wrong size)
+> when allocating and clearing the memory. 
 
-All this is really just pigeon dancing around the fact that Linux 
-doesn't implement the PTHREAD_SCOPE_PROCESS which is all I want .  I t 
-would make Linux match Solaris and BSD model for POSIX threads.  I guess 
-it wouldn't be POSIX if everyone implemented it the same set of 
-supported features.  That's why I resorted to changing the nice value in 
-hopes of have some say in how things get scheduled without all the 
-superuser / capabilities hacks.
+Same bug with bfs patch (only in -dj tree so far).
 
-After all this info I will go back and try to find a work around. 
- Thanks Bill and Chris for the help.
-SB
+-- 
 
-Bill Davidsen wrote:
+						Brian Gerst
 
->  Rather than expect people who have been following this to reread I'll
->put this here. I believe the capability of nice(2) setting and restoring
->is (a) very seldom useful given the new scheduler, and (b) can be done
->with a bit of effort and no assult on SUS by doing the nice work in a nice
->thread. 
->
->  Code is attached.
->
->On Wed, 27 Mar 2002, Chris Wright wrote:
->
->>* Stephen Baker (stbaker@cisco.com) wrote:
->>
->>>This patch will allow a process or thread to changes it's priority 
->>>dynamically based on it's capabilities.  In our case we wanted to use 
->>>threads with Linux.  To have true priorities we need root to use 
->>>SCHED_FIFO or SCHED_RR; in many case root access is not allowed but we 
->>>still wanted priorities.  So we started using setpriority to change a 
->>>threads priority.  Now we used nice values from 19 to 0 which did not 
->>>require root access.  In some cases a thread need to raise it's nice 
->>>level and this would fail.  I also saw a note man renice(8) that said 
->>>this bug exists.
->>>
->>hmm, SUS v3 seems to disagree.
->>
->>"Only a process with appropriate privileges can lower its nice value."
->>
->>and with this patch setpriority(2) is now inconsistent with nice(2)
->>(albeit i don't know how much longer that interface will persist in arch
->>independent portion of the kernel based on the comments surrounding it).
->>
->
->
->------------------------------------------------------------------------
->
->/* try changing nice(2) for a single thread */
->
->#include <stdio.h>
->#include <unistd.h>
->#include <pthread.h>
->
->int pid;
->void part1(int *);
->pthread_mutex_t print_lock = PTHREAD_MUTEX_INITIALIZER;
->#define MAX_LOOP		100
->
->main(int argc, char *argv[])
->{
->	int j, stat;
->	volatile int i = 0;
->	pthread_t thrd1;
->
->	pid = getpid();
->	fprintf(stderr, "parent pid: %d\n", pid);
->	pthread_create(&thrd1, NULL, (void *)part1, (void *)&i);
->	/* note that I am not doing a damn thing here */
->	pthread_join(thrd1, NULL);
->
->	fprintf(stderr, "Normal termination\n");
->	exit(0);
->}
->
->void
->part1(int *ix)
->{
->	/* do one ps before nice(2) call */
->	system("ps l");
->	/* now be nice and try again */
->	fprintf(stderr, "\n--> nice\n");
->	nice(6);
->	system("ps l");
->}
->
+--------------070004080607050603040801
+Content-Type: text/plain;
+ name="sb-bfs-2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sb-bfs-2"
 
+diff -urN linux-2.5.7-dj2/fs/bfs/inode.c linux/fs/bfs/inode.c
+--- linux-2.5.7-dj2/fs/bfs/inode.c	Thu Mar 28 16:34:37 2002
++++ linux/fs/bfs/inode.c	Thu Mar 28 16:35:43 2002
+@@ -292,11 +292,11 @@
+ 	int i, imap_len;
+ 	struct bfs_sb_info * info;
+ 
+-	info = kmalloc(sizeof(struct bfs_super_block), GFP_KERNEL);
++	info = kmalloc(sizeof(*info), GFP_KERNEL);
+ 	if (!info)
+ 		return -ENOMEM;
+ 	s->u.generic_sbp = info;
+-	memset(info, 0, sizeof(struct bfs_super_block));
++	memset(info, 0, sizeof(*info));
+ 
+ 	sb_set_blocksize(s, BFS_BSIZE);
+ 
+
+--------------070004080607050603040801--
 

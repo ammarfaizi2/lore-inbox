@@ -1,63 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262273AbTHJKlI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 06:41:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262290AbTHJKlI
+	id S262439AbTHJKuP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 06:50:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263152AbTHJKuP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 06:41:08 -0400
-Received: from mail2.sonytel.be ([195.0.45.172]:41923 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262273AbTHJKlF (ORCPT
+	Sun, 10 Aug 2003 06:50:15 -0400
+Received: from coderock.org ([193.77.147.115]:5386 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S262439AbTHJKuM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 06:41:05 -0400
-Date: Sun, 10 Aug 2003 12:40:49 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Stephen Smalley <sds@epoch.ncsc.mil>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.0-test3
-In-Reply-To: <Pine.LNX.4.44.0308082228470.1852-100000@home.osdl.org>
-Message-ID: <Pine.GSO.4.21.0308101238570.19901-100000@vervain.sonytel.be>
+	Sun, 10 Aug 2003 06:50:12 -0400
+From: Domen Puncer <domen@coderock.org>
+To: gerhard@gjaeger.de
+Subject: [PATCH] Plustek scanner driver (pt_drv) port to 2.6
+Date: Sun, 10 Aug 2003 12:50:12 +0200
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308101250.12481.domen@coderock.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Aug 2003, Linus Torvalds wrote:
-> Merging the SELinux security architecture also ends up growing the patch, 
-> even though it may not be all that noticeable for most normal users.
+Hi.
 
-I need these patches to make it compile for m68k:
+I have a Plustek scanner, so i "ported" scanner driver
+http://www.gjaeger.de/scanner/plustek.html to 2.6.0-test2 kernel.
 
---- linux-2.6.0-test3/security/selinux/avc.c	Sat Aug  9 21:43:41 2003
-+++ linux-m68k-2.6.0-test3/security/selinux/avc.c	Sun Aug 10 11:09:44 2003
-@@ -16,6 +16,7 @@
- #include <linux/slab.h>
- #include <linux/fs.h>
- #include <linux/dcache.h>
-+#include <linux/init.h>
- #include <linux/skbuff.h>
- #include <net/sock.h>
- #include <linux/un.h>
---- linux-2.6.0-test3/security/selinux/ss/global.h	Sat Aug  9 21:43:41 2003
-+++ linux-m68k-2.6.0-test3/security/selinux/ss/global.h	Sun Aug 10 11:22:59 2003
-@@ -7,7 +7,7 @@
- #include <linux/ctype.h>
- #include <linux/in.h>
- #include <linux/spinlock.h>
--#include <asm/semaphore.h>
-+#include <linux/sched.h>
- 
- #include "flask.h"
- #include "avc.h"
+The patch is at:
+http://coderock.org/kernel/plustek-0.45-2.6.0-test2.diff
 
-Gr{oetje,eeting}s,
+Usage:
+wget http://www.gjaeger.de/scanner/current/plustek-sane-0.45-5.tar.gz
+tar xvzf plustek-sane-0.45-5.tar.gz
+cd backend/plustek_driver
+wget http://coderock.org/kernel/plustek-0.45-2.6.0-test2.diff
+patch -p2 -i plustek-0.45-2.6.0-test2.diff
+make
 
-						Geert
+Tip: you can still use old makefile with make -f Makefile.old
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+TODO:
+Someone who knows Makefiles should make a user friendly one (or port the old 
+Makefile).
 
+
+	Domen

@@ -1,45 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267232AbUIRJyx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269170AbUIRJzH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267232AbUIRJyx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Sep 2004 05:54:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269168AbUIRJyx
+	id S269170AbUIRJzH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Sep 2004 05:55:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269168AbUIRJzH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Sep 2004 05:54:53 -0400
-Received: from a26.t1.student.liu.se ([130.236.221.26]:22147 "EHLO
-	mail.drzeus.cx") by vger.kernel.org with ESMTP id S267232AbUIRJyw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Sep 2004 05:54:52 -0400
-Message-ID: <414C05F0.8040401@drzeus.cx>
-Date: Sat, 18 Sep 2004 11:54:56 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040704)
-X-Accept-Language: en-us, en
+	Sat, 18 Sep 2004 05:55:07 -0400
+Received: from bart.webpack.hosteurope.de ([217.115.142.76]:40388 "EHLO
+	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
+	id S269170AbUIRJy7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Sep 2004 05:54:59 -0400
+Date: Sat, 18 Sep 2004 11:55:04 +0200 (CEST)
+From: Martin Diehl <lists@mdiehl.de>
+X-X-Sender: martin@notebook.home.mdiehl.de
+To: Gene Heskett <gene.heskett@verizon.net>
+cc: linux-kernel@vger.kernel.org, <Valdis.Kletnieks@vt.edu>,
+       "Stephen C. Tweedie" <sct@redhat.com>
+Subject: Re: journal aborted, system read-only
+In-Reply-To: <200409171319.43806.gene.heskett@verizon.net>
+Message-ID: <Pine.LNX.4.44.0409181128540.22468-100000@notebook.home.mdiehl.de>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: [PATCH 0/3] MMC compatibility fix
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-HE-MXrcvd: no
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following three patches resolve the issues with some MMC cards 
-failing to work with the current MMC layer.
+On Fri, 17 Sep 2004, Gene Heskett wrote:
 
-Some of the issues are because of cards failing to comply with 
-standards. But since we cannot fix the cards we have to deal with the 
-problems on our side.
+> Thats the same conclusion I've since come to, Valdis.  And, now that 
+> I've moved my /var to its own partition on another disk, that may 
+> have reduced the thrashing of that drive enough to stop the problem.  
+> At least I've had no more such occurances since I moved /var off 
+> of /.  About 30.5 hours now according to the uptime display in 
+> gkrellm.
 
-All three patches solve initialisation problems:
+I've just experienced a very similar situation: I/O error, journal abort, 
+partition went read-only. Maybe it's completely unrelated, but by chance, 
+do you have some clipping jumper set on this disk so you depend on the 
+ide-stroke feature?
 
-- Standard requires a GO_IDLE before changing the OCR mask.
+In my case this was the culprit. It's a 120GB disk in a box with old 
+crashing Award BIOS, so I've clipped it to 32GB. However I've missed the 
+fact since about 2.6.7 one has to set hda=stroke kernel parameter in order 
+to get the host protected area disabled. Therefore partitions starting 
+behind 32GB failed to mount.
 
-- Standard doesn't define how long to wait for cards to power up. The 
-current time as been shown to be too short.
+In contrast, the partition which crosses the 32GB barrier was mounted 
+succesfully but later when trying to access beyond the limit I was seeing:
 
-- Empty OCR mask causes some cards to fail (even though an empty OCR is 
-ok according to the standard).
+ide0: reset: success
+hda: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
+hda: read_intr: error=0x10 { SectorIdNotFound }, LBAsect=110291109, high=6, low=9627813, sector=110291109
+ide: failed opcode was: unknown
+end_request: I/O error, dev hda, sector 110291109
+EXT3-fs error (device hda7): ext3_get_inode_loc: unable to read inode block - inode=3883009, block=7766022
+Aborting journal on device hda7.
+ext3_abort called.
+EXT3-fs error (device hda7): ext3_journal_start: Detected aborted journal
+Remounting filesystem read-only
 
---
-Pierre Ossman
+Adding the hda=stroke kernel parameter solved the issue - forced fsck 
+showed no damage happened to the fs.
+
+HTH,
+Martin
+

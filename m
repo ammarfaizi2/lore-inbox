@@ -1,44 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267026AbTAaNru>; Fri, 31 Jan 2003 08:47:50 -0500
+	id <S266473AbTAaN7G>; Fri, 31 Jan 2003 08:59:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267158AbTAaNru>; Fri, 31 Jan 2003 08:47:50 -0500
-Received: from [198.149.18.6] ([198.149.18.6]:42721 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S267026AbTAaNrs>;
-	Fri, 31 Jan 2003 08:47:48 -0500
-Date: Fri, 31 Jan 2003 07:52:30 -0600 (CST)
-From: Eric Sandeen <sandeen@sgi.com>
-X-X-Sender: sandeen@stout.americas.sgi.com
-To: linux-kernel@vger.kernel.org
-cc: viro@math.psu.edu, <marcelo@conectiva.com.br>
-Subject: [PATCH] 2.4.21-pre4 seq_read() fix backport
-Message-ID: <Pine.LNX.4.44.0301310739560.1221-100000@stout.americas.sgi.com>
+	id <S267158AbTAaN7G>; Fri, 31 Jan 2003 08:59:06 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:34183 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S266473AbTAaN7F>; Fri, 31 Jan 2003 08:59:05 -0500
+Date: Fri, 31 Jan 2003 09:09:04 -0500 (EST)
+From: "Mike A. Harris" <mharris@redhat.com>
+X-X-Sender: mharris@devel.capslock.lan
+To: Con Kolivas <conman@kolivas.net>
+cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [BENCHMARK] ext3, reiser, jfs, xfs effect on contest
+In-Reply-To: <200302010020.34119.conman@kolivas.net>
+Message-ID: <Pine.LNX.4.44.0301310907250.893-100000@devel.capslock.lan>
+Organization: Red Hat Inc.
+X-Unexpected-Header: The Spanish Inquisition
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro fixed a bug in seq_read for 2.5.31, still needs to be
-backported to 2.4.x.  Allows uninitialized data to be read, I think.
+On Sat, 1 Feb 2003, Con Kolivas wrote:
 
-You can observe this by adding many (75+, I think) lvm volumes
-and do a cat of "/proc/partitions" with slab debugging turned on.
+>Using the osdl hardware (http://www.osdl.org) with contest 
+>(http://contest.kolivas.net) I've conducted a set of benchmarks with 
+>different filesystems. Note that contest does not claim to be a throughput 
+>benchmark.
+>
+>All of these use kernel 2.5.59
+>
+>First a set of contest benchmarks with the io load on a different hard disk 
+>containing each of the four filesystems:
+>
+>io_other:
+>Kernel [runs]   Time    CPU%    Loads   LCPU%   Ratio
+>2559ext3    3   89      84.3    2       5.5     1.13
+>2559reiser  3   87      86.2    2       5.7     1.10
+>2559jfs     3   87      86.2    3       5.7     1.10
+>2559xfs     3   87      86.2    2       4.5     1.10
+>
+>I found it interesting that there is virtually no difference in kernel 
+>compilation time with all fs. However jfs consistently wrote more during the 
+>io load than the other fs.
+>
+>
+>This is a set of benchmarks with the kernel compilation and load all performed 
+>on each of the fs:
 
-http://linux.bkbits.net:8080/linux-2.5/diffs/fs/seq_file.c@1.5?nav=index.html|src/|src/fs|hist/fs/seq_file.c
-
---- 1.4/fs/seq_file.c	Wed May 22 05:44:20 2002
-+++ 1.5/fs/seq_file.c	Thu Aug  8 23:46:33 2002
-@@ -94,8 +94,10 @@
- 		m->buf = kmalloc(m->size <<= 1, GFP_KERNEL);
- 		if (!m->buf)
- 			goto Enomem;
-+		m->count = 0;
- 	}
- 	m->op->stop(m, p);
-+	m->count = 0;
- 	goto Done;
- Fill:
- 	/* they want more? let's try to get some more */
+Compilation is inherently CPU bound, not disk I/O bound, so 
+compiling the kernel (or anything for that matter) isn't going to 
+show any difference really because the CPU Mhz and L1/L2 cache 
+are the bottleneck.
 
 
+-- 
+Mike A. Harris     ftp://people.redhat.com/mharris
+OS Systems Engineer - XFree86 maintainer - Red Hat
 

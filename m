@@ -1,143 +1,109 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261764AbTCPAGU>; Sat, 15 Mar 2003 19:06:20 -0500
+	id <S261855AbTCPAIG>; Sat, 15 Mar 2003 19:08:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261808AbTCPAGU>; Sat, 15 Mar 2003 19:06:20 -0500
-Received: from chii.cinet.co.jp ([61.197.228.217]:22400 "EHLO
-	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S261764AbTCPAGS>; Sat, 15 Mar 2003 19:06:18 -0500
-Date: Sun, 16 Mar 2003 09:16:22 +0900
-From: Osamu Tomita <tomita@cinet.co.jp>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Complete support PC-9800 for 2.5.64-ac4 (0/11) summary
-Message-ID: <20030316001622.GA1061@yuzuki.cinet.co.jp>
+	id <S261857AbTCPAIG>; Sat, 15 Mar 2003 19:08:06 -0500
+Received: from pasky.ji.cz ([62.44.12.54]:46077 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id <S261855AbTCPAIE>;
+	Sat, 15 Mar 2003 19:08:04 -0500
+Date: Sun, 16 Mar 2003 01:18:40 +0100
+From: Petr Baudis <pasky@ucw.cz>
+To: Robert Anderson <rwa@alumni.princeton.edu>
+Cc: Daniel Phillips <phillips@arcor.de>, lkml <linux-kernel@vger.kernel.org>,
+       arch <arch-users@lists.fifthvision.net>
+Subject: Re: BitBucket: GPL-ed KitBeeper clone
+Message-ID: <20030316001840.GB11761@pasky.ji.cz>
+Mail-Followup-To: Robert Anderson <rwa@alumni.princeton.edu>,
+	Daniel Phillips <phillips@arcor.de>,
+	lkml <linux-kernel@vger.kernel.org>,
+	arch <arch-users@lists.fifthvision.net>
+References: <200303151621.h2FGLgaD003246@eeyore.valparaiso.cl> <20030315212205.CDE923D979@mx01.nexgo.de> <1047765218.9619.124.camel@lan1>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <1047765218.9619.124.camel@lan1>
 User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the patchset to support NEC PC-9800 subarchitecture
-against 2.5.64-ac4.
+Dear diary, on Sat, Mar 15, 2003 at 10:53:34PM CET, I got a letter,
+where Robert Anderson <rwa@alumni.princeton.edu> told me, that...
+> On Sat, 2003-03-15 at 13:25, Daniel Phillips wrote:
+> > On Sat 15 Mar 03 17:21, Horst von Brand wrote:
+> > > Daniel Phillips <phillips@arcor.de> said:
+> > > > On Thu 13 Mar 03 01:52, Horst von Brand wrote:
+..snip..
+> > > > Does anybody have a convenient mailing list for this design discussion?
+> > >
+> > > Good idea to move this off LKML
+> > 
+> > Yup, but nobody has offered one yet, so...
+> 
+> I think the arch-users@lists.fifthvision.net list would be happy to host
+> continuing discussion in this vein.  Considering Larry's repeated
+> attempts to get people to look at arch as a "better fit," it seems
+> particularly appropriate.
+> 
+> Of course, you'd have to tolerate "arch community" views on a lot of
+> these issues, but I suspect that might help focus the discussion.
 
-Thanks for many advices and merging.
-PC-9800 works fine with this patchset.
-I put archived patchset URL bellow.
-http://downloads.sourceforge.jp/linux98/2638/linux98-2.5.64-ac4.patch.tar.bz2
+I'm not sure if arch is the right thing to base on. Its concepts are surely
+interesting, however there are several problems (some of them may be
+subjective):
 
-Comments and test reports are wellcome.
+* Terrible interface. Work with arch involves much more typing out of long
+commands (and sequences of these), subcommands and parameters to get
+functionality equivalent to the one provided much simpler by other SCMs. I see
+it is in sake of genericity and sometimes more sophisticated usage scheme, but
+I fear it can be PITA in practice for daily work.
 
-Description:
- o console.patch (1/11)
-   PC98 Standard console support (without japanese kanji character).
+* Awful revision names (just unique ids format). Again, it involves much more
+typing and after some hours of work, the dashes will start to dance around and
+regroup at random places in front of your eyes. The concepts behind (like
+seamless division to multiple archives; I can't say I see sense in categories)
+are intriguing, but the result again doesn't seem very practical.
 
- drivers/video/console/Kconfig  |   14 ++
- drivers/char/Makefile          |    4 
- drivers/char/vt.c              |   63 +++++++--
- drivers/char/console_macros.h  |    4 
- drivers/char/console_pc9800.h  |   14 ++
- drivers/char/consolemap.c      |   58 ++++++++-
- drivers/char/pc9800.uni        |  260 +++++++++++++++++++++++++++++++++++++++++
- drivers/char/vt_ioctl.c        |   19 ++
- include/linux/console.h        |   11 +
- include/linux/console_struct.h |   13 +-
- include/linux/tty.h            |    4 
- include/linux/vt.h             |    1 
- include/linux/vt_buffer.h      |    4 
- 13 files changed, 450 insertions(+), 19 deletions(-)
+* Evil directory naming. {arch} seems much more visible than CVS/ and SCCS/,
+particularly as it gets sorted as last in a directory, thus you see it at the
+bottom of ls output. Also it's a PITA with bash, as the stuff starting by '='
+(arch likes to spawn that as well) is. The files starting by '+' are problem
+for vi, which is kind of flaw when they are probably the only arch files
+dedicated for editting by user (they are supposed to contain log messages).
 
- o core-misc.patch (2/11)
-   Small patches for PC98 support core.
+* Cloud of shell scripts. It poses a lot of limitations which are pain to work
+around (including speed, two-fields version numbers [eek] and I can imagine
+several others; I'm not sure about these though, so I won't name further; you
+can possibly imagine something by yourself).
 
- include/asm-i386/io.h     |    6 ++++++
- include/asm-i386/irq.h    |    4 ++++
- include/asm-i386/pc9800.h |   27 +++++++++++++++++++++++++++
- include/linux/kernel.h    |    6 ++++++
- 4 files changed, 43 insertions(+)
+* Absence of sufficient merging ability, at least impression I got from the
+documentation. Merging on the *.rej files level I cannot call sufficient ;-).
+Also, history is not preserved during merging, which is quite fatal.  And it
+looks to me at least from the documentation that arch is still in the
+update-before-commit stage.
 
- o dma.patch (3/11)
-   DMA support for PC98.
+* Absence of checkin/commit distinction. File revisions and changesets seem to
+be tied together, losing some of the cute flexibility BK has.
 
- include/asm-i386/dma.h         |    7 +
- include/asm-i386/pc9800_dma.h  |  238 +++++++++++++++++++++++++++++++++++++++++
- include/asm-i386/scatterlist.h |    6 +
- kernel/dma.c                   |    3 
- 4 files changed, 254 insertions(+)
+I must have missed terribly something in the documentation given how arch is
+being recommended, please feel encouraged to correct me. But as I see it, most
+of the juicy stuff is missing (altough I really like the concept of
+configurations and especially the concept of caching --- mainly that you do not
+_have_ to pull all the stuff from the clonee repository, which can be a pain
+with more poor internet connection; then also if you aren't doing any that big
+changes and you're confident that the remote repository is going to stay there,
+it is less expensive to talk with the repository over network) and the existing
+stuff is mostly in the form of shell scripts, which it has to leave and be
+rewritten sooner or later anyway. The backend history format doesn't appear to
+be particularily great as well. Dunno. What's so special about arch then?
 
- o ide.patch (4/11)
-   PC98 standard IDE I/F support.
+Kind regards,
 
- drivers/ide/ide-disk.c  |   67 ++++++++++++++++++++++++++++++++++++++++++++++++
- drivers/ide/ide.c       |    9 +++++-
- drivers/ide/ide-probe.c |   16 +++++++++--
- include/linux/hdreg.h   |   19 +++++++++++++
- 4 files changed, 107 insertions(+), 4 deletions(-)
-
- o kanji.patch (5/11)
-   japanese kanji character support for PC98 console.
-
- drivers/char/console_macros.h  |   10 +
- drivers/char/vt.c              |  393 +++++++++++++++++++++++++++++++++++------
- drivers/video/console/Kconfig  |    4 
- include/linux/console_struct.h |   12 +
- include/linux/consolemap.h     |    1 
- 5 files changed, 369 insertions(+), 51 deletions(-)
-
- o kconfig.patch (6/11)
-   Add selection for CONFIG_X86_PC9800.
-
- arch/i386/Kconfig |   10 ++++++++--
- 1 files changed, 8 insertions(+), 2 deletions(-)
-
- o network_card.patch (7/11)
-   C-bus(PC98's legacy bus like ISA) network cards support.
-
- drivers/net/8390.h       |    3 
- drivers/net/Makefile.lib |    1 
- drivers/net/ne2k_cbus.h  |  481 +++++++++++++++++++++++++
- drivers/net/Kconfig      |   55 ++
- drivers/net/Space.c      |    2 
- drivers/net/3c509.c      |   44 +-
- drivers/net/Makefile     |    1 
- drivers/net/at1700.c     |  120 +++++-
- drivers/net/ne2k_cbus.c  |  879 +++++++++++++++++++++++++++++++++++++++++++++++
- 9 files changed, 1557 insertions(+), 29 deletions(-)
-
- o parport.patch (8/11)
-   Parallel port support.
-
- drivers/parport/parport_pc.c |   28 +++++++++++++++++++++++++++-
- 1 files changed, 27 insertions(+), 1 deletion(-)
-
- o pci.patch (9/11)
-   Small changes for PCI support.
-
- arch/i386/pci/irq.c    |   27 +++++++++++++++++++++++++++
- drivers/pcmcia/yenta.c |    6 ++++++
- include/asm-i386/pci.h |    4 ++++
- 3 files changed, 37 insertions(+)
-
- o pcmcia.patch (10/11)
-   Small change for PCMCIA (16bits) support.
-
- drivers/pcmcia/i82365.c |    4 ++++
- 1 files changed, 4 insertions(+)
-
- o scsi.patch (11/11)
-   SCSI host adapter support.
-
- drivers/scsi/Kconfig     |    5 
- drivers/scsi/Makefile    |    1 
- drivers/scsi/pc980155.c  |  299 +++++++++++++++++++++++++++++++++++++++++++++++
- drivers/scsi/pc980155.h  |   52 ++++++++
- drivers/scsi/scsi_pc98.c |    2 
- drivers/scsi/sd.c        |    9 +
- drivers/scsi/wd33c93.c   |   49 +++----
- drivers/scsi/wd33c93.h   |    7 -
- 8 files changed, 398 insertions(+), 26 deletions(-)
-
-
-Osamu Tomita <tomita@cinet.co.jp>
-
+-- 
+ 
+				Petr "Pasky" Baudis
+.
+The pure and simple truth is rarely pure and never simple.
+		-- Oscar Wilde
+.
+Stuff: http://pasky.ji.cz/

@@ -1,38 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262222AbUK3SGb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262083AbUK3SKo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262222AbUK3SGb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 13:06:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262223AbUK3R76
+	id S262083AbUK3SKo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 13:10:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262238AbUK3SGw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 12:59:58 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39088 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262222AbUK3RzW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 12:55:22 -0500
-Date: Tue, 30 Nov 2004 17:55:18 +0000
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: David Woodhouse <dwmw2@infradead.org>, Alexandre Oliva <aoliva@redhat.com>,
-       Paul Mackerras <paulus@samba.org>, Greg KH <greg@kroah.com>,
-       Matthew Wilcox <matthew@wil.cx>, David Howells <dhowells@redhat.com>,
-       hch@infradead.org, linux-kernel@vger.kernel.org,
-       libc-hacker@sources.redhat.com
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-Message-ID: <20041130175518.GW26051@parcelfarce.linux.theplanet.co.uk>
-References: <1101406661.8191.9390.camel@hades.cambridge.redhat.com> <20041127032403.GB10536@kroah.com> <16810.24893.747522.656073@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0411281710490.22796@ppc970.osdl.org> <ord5xwvay2.fsf@livre.redhat.lsd.ic.unicamp.br> <Pine.LNX.4.58.0411290926160.22796@ppc970.osdl.org> <1101828924.26071.172.camel@hades.cambridge.redhat.com> <Pine.LNX.4.58.0411300751570.22796@ppc970.osdl.org> <1101832116.26071.236.camel@hades.cambridge.redhat.com> <Pine.LNX.4.58.0411300846190.22796@ppc970.osdl.org>
+	Tue, 30 Nov 2004 13:06:52 -0500
+Received: from mail-relay-3.tiscali.it ([213.205.33.43]:31632 "EHLO
+	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
+	id S262083AbUK3SEN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 13:04:13 -0500
+Date: Tue, 30 Nov 2004 19:03:37 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org,
+       Steven.Hand@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk,
+       Keir.Fraser@cl.cam.ac.uk, "David S. Miller" <davem@redhat.com>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: [4/7] Xen VMM patch set : /dev/mem io_remap_page_range for CONFIG_XEN
+Message-ID: <20041130180337.GT4365@dualathlon.random>
+References: <1101816850.2640.43.camel@laptop.fenrus.org> <E1CZ7sH-0006Si-00@mta1.cl.cam.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0411300846190.22796@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <E1CZ7sH-0006Si-00@mta1.cl.cam.ac.uk>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 30, 2004 at 08:53:34AM -0800, Linus Torvalds wrote:
-> then I might listen. Notice how the only really constructive thing to come 
-> out of this flame-fest has been a patch by Al that looked perfectly 
-> reasonable, but that got totally drowned out by the arguing?
+On Tue, Nov 30, 2004 at 01:16:56PM +0000, Ian Pratt wrote:
+> point it would solve our problem. I'm not sure what this would
+> mean for architectures other than i386.
 
-Frankly, I suspect that amount of effort that went into postings made in
-that thread is approaching what it would take to clean the damn thing
-up for good.  I wasn't kidding about 10 minutes work to do that patch...
+Only sparc implements io_remap_page_range differently from
+remap_pte_range and from Wli answer I understand it's probably ok for
+sparc to use io_remap_page_range outside ram.

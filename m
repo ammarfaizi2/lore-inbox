@@ -1,131 +1,405 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264787AbSJVRT5>; Tue, 22 Oct 2002 13:19:57 -0400
+	id <S264793AbSJVRVx>; Tue, 22 Oct 2002 13:21:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264791AbSJVRT4>; Tue, 22 Oct 2002 13:19:56 -0400
-Received: from mercury.linuxguru.net ([209.173.6.49]:18821 "EHLO
-	comet.linuxguru.net") by vger.kernel.org with ESMTP
-	id <S264787AbSJVRSj>; Tue, 22 Oct 2002 13:18:39 -0400
+	id <S264792AbSJVRVw>; Tue, 22 Oct 2002 13:21:52 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:15712 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S264793AbSJVRU5>; Tue, 22 Oct 2002 13:20:57 -0400
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200210221727.g9MHR6128999@devserv.devel.redhat.com>
+Subject: Linux 2.5.44-ac1
 To: linux-kernel@vger.kernel.org
-Cc: lm@bitmover.com (Larry McVoy)
-Subject: Re: Listmaster request: Do not blacklist rms@gnu.org
-In-Reply-To: <20021022080037.A1500@work.bitmover.com>
-References: <20021021182737.A23371@infradead.org> <20021022014015.GB23958@Master.Wizards> <3DB4AEC1.1060906@pobox.com> <3DB4B455.921467D3@digeo.com> <20021021193131.G20688@work.bitmover.com> <E183sO7-0003td-00@comet.linuxguru.net> <20021022080037.A1500@work.bitmover.com>
-Date: Tue, 22 Oct 2002 13:24:48 -0400
-Message-Id: <E1842ls-0000yJ-00@comet.linuxguru.net>
-From: James Blackwell <jblack@linuxguru.net>
+Date: Tue, 22 Oct 2002 13:27:06 -0400 (EDT)
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In lists.linux.kernel.development, you wrote:
-> On Tue, Oct 22, 2002 at 02:19:35AM -0400, James Blackwell wrote:
->> [Larry is evil and is just trying to get rich]
+** I strongly recommend saying N to IDE TCQ options otherwise this
+   should hopefully build and run happily.
 
-I make no moral claims as to whether or not you are a good person.
-Frankly, the question is immaterial.  No. That's not what I said. 
-I reserve terms for evil for people like hitler and puppy killers. 
-No. I think you're a guy trying to make money.  Nothing wrong that. 
-That's how the great majority (if not all) of the world works. 
+   Doug's scsi changes broke mptfusion. I've not looked into that yet
+   also u14f/u34f, and the host changes broke all 5380 based devices
 
-The point I was making was that you and Richard Stallman do not have the
-same goal in mind. His goal is to alleviate what he percieves as an ill
-in society. Your goal is to run a business. You have stated so yourself. 
+   This one builds, its not yet had any measurable testing
 
-> I'm sorry you feel that way.  I don't agree at all with what you are
-> saying.  If what you are saying was true we would have shut down the
-> free version of the product long ago.  That fact that we don't now,
-> given attacks such as yours, is perhaps the strongest indicator of our
-> commitment to Linux.
+Linux 2.5.44-ac1
+-	Resync with Linus 2.5.43/44
+o	Fix net/ipv4/raw.c build problem		(me)
+o	Fix bluetooth pcmcia builds			(me)
+o	Fix dm includes					(me)
+	| I've not merged any of the DM updates yet
+o	Fix 3c515, fealnx printk type warnings		(me)
+o	Fix multi-line string literal in olympic driver	(me)
+o	Fix printk type warnings in tulip		(me)
+o	Document core naming sysctl			(Randy Dunlap)
+o	Fix hd_struct size/offset bugs			(Mark Lord)
+o	Further sym53c416 updates			(Bjoern Zeeb)
+o	Fix ramdisk cache flush 			(Paul Mundt)
+o	Fix pnp config.in for make Xconfig		(Roman Zippel)
+o	Correct ncpfs marking of executables		(Petr Vandrovec)
+o	Small matroxfb fixes				(Petr Vandrovec)
+o	Small cleanups for i2o_block so Al can clean	(Al Viro)
+	up the core block code
+o	Fix hang at shutdown with offlined disk		(Mike Anderson)
+o	Fix error reporting on scsi offline		(Mike Anderson)
+o	Fix hang on power off with scsi			(Mike Anderson)
+o	Fix typo in pnp.h				(Martin Dahl)
+o	Remove tqueue.h from cycx_main			(Adrian Bunk)
+o	Fix vlsi irda compile				(Adrian Bunk)
+o	Fix hamradio makefile breakage			(Adrian Bunk)
+o	Fix inia100 build				(John Fort)
+o	Fix AX.25 build for ip_proc			(Dave Miller)
+o	Fix aic7xxx Makefile				(Inaky Perez-Gonzalez)
+o	Fix vga16fb					(Ben Pfaff)
+o	Optimise spinlock to Intel recommendation	(Manfred Spraul)
+o	Fix pipe wakeup bug				(Manfred Spraul)
+o	Fix semop 32bit pid handling			(Manfred Spraul)
+o	Fix qlogic1280 build				(Jens Axboe)
+o	Merge BeOS fs (already in 2.4)			(Will Dyson,
+							 Sergey Kostyliov)
+o	Clean up wan ioctl structures			(Krzysztof Halasa)
+o	Some trident audio takes a long time to		(Kenneth Sumrall)
+	come up (Hitachi webpad)
+o	Add DVB api and core				(Holger Waechtler)
+o	Add one DVB driver so people can see how it	(Holger Waechtler)
+	all fits together
+	| This wants further review. There are known things to do yet
+	| but its important to get the stuff in since Digital TV is 
+	| becoming the norm in western europe.
+o	Print something clueful if menuconfig explodes	(Russell King)
+o	Move BUG() into asm/bug.h			(Russell King)
+o	Report errors unzipping ramdisks		(Russell King)
+o	Support extra weird numeric key on ARM boxes	(Russell King)
+o	Fix missing devexit_p in tulip			(Andrey Panin)
+o	Kill sr_host 					(Patrick Mansfield)
+o	S/390 Makefile and Config updates		(Martin Scwidefsky)
+o	S/390 user access fixes				(Martin Scwidefsky)
+o	31bit emulation fixes for S/390			(Martin Scwidefsky)
+o	Make S/390 possible cpu map volatile		(Martin Scwidefsky)
+o	Update dasd drivers for S/390 series		(Martin Scwidefsky)
+o	Update ver_linux				(Steven Cole)
+o	Fix blk ioctls on aacraid			(Mark Haverkamp)
+o	Fix SiS IDE build without procfs		(Lionel Bouton)
+o	i386 verify write fixes				(Brian Gerst)
+o	iphase ATM updates				(Francois Romieu)
+o	Update i810-tco to C99 initializers		(Wim Van Sebroeck)
+o	IDE updates for ARM platform			(Russell King)
+o	Fix megaraid build				(Mike Anderson)
+	| This may change the device order for some folks but it works
+	| at least
+o	Fix in2000 to handle scsi host list change	(me)
+o	Fix ncr53c8xx build				(me)
+o	Fix atp870u build				(me)
+o	Fix nsp32 build					(me)
+o	Fix firewire prototypes				(me)
 
-I'm glad that you don't agree that I think you're evil since I don't
-think that way at all. 
+Linux 2.5.42-ac1
+	Merge with Linus 2.5.42
+o	Merge the LVM2 device mapper			(Joe Thornber)
+-	Drop uid16 S/390 bits pending resolution	(me)
+*	Fix iphase build				(Adrian Bunk)
+*	Fix UML build					(Kai Germaschewski)
+*	Fix cpufreq compile				(Adrian Bunk)
+o	Move dead verify_area code from sh port		(Brian Gerst)
+*	Fix missing AIO symbols				(Ben LaHaise)
+o	Fix ATM makefile				(Sam Ravnborg)
+*	Fix esp build					(Andres Salmon)
+*	Fix cifs/jfs symbol name collision		(Steve F)
+*	Update CPIA to match 2.4 tree			(Duncan Haldane)
+*	Fix cifs 64bit and cifs scsi name collision	(Steve F)
+*	Fix a compile of missing sysrq updates		(James Simmons)
+*	Fix sparc timer build				(Pete Zaitcev)
+*	Fix comile without networking			(Miles Bader)
+*	Remove some left over _ret functions		(SL Baur)
+*	Update syncppp code				(Paul Fulghum)
+*	Fix n_hdlc leak					(Paul Fulghum)
+*	Make synclink_cs build again			(Paul Fulghum)
+*	Make synclinkmp build again			(Paul Fulghum)
+*	Make synclink build again			(Paul Fulghum)
+o	Fix NFS symbols for NFS as a module		(Olaf Dietsche)
+*	Fix problem with scsidriver docbook		(Joaquim Fellmann)
+*	Kill dead suspend code in IDE			(Pavel Machek)
+*	Kill unreferenced workqueue define		(Pavel Machek)
+*	Fix swsuspend with discontiguous memory bits	(Pavel Machek)
+*	Fix cpqfc ioctl sense buffer handling		(Francis Wiran)
+*	Sym53c416 from cli to real locking		(Bjoern Zeeb)
+*	Fix a case where sd uses freed memory		(Patrick Mansfield)
+o	Fix p4-clockmod on HT processors		(Dominic Brodowski)
+o	CPUfreq interface update			(Dominic Brodowski)
+*	Fix eicon build					(me)
+*	Restore disconnect field in devices for		(me)
+	driver use
 
-My arguments are that you and your software are causing more damage to
-free software development than they are worth and that you and Richard
-do not have the same goals. 
+Linux 2.5.41-ac2
+*	Fix jffs/jffs2 properly this time (bpbb)	(me)
+*	Fix jffs2 for workqueues			(me)
+*	Next set of i2o_scsi update work		(me)
+*	Do the 2.5 checkup pass on the 3c501 driver	(me)
+o	Add missing exports for file system modules	(Nikita Danilov)
+	on UML
+*	Fix ipx proc permission bogosity	(Arnaldo Carvalho de Melo)
+*	Switch appletalk spinlocks to rwlocks	(Arnaldo Carvalho de Melo)
+*	Correct sys_getpid docs				(Robert Love)
+*	SubmittingPatches indent fix			(John Levon)
+*	cciss, cpqarray. rd. hd fixes			(Al Viro)
+*	Fix cpia with gcc 3.2				(Randy Dunlap)
+*	Use C99 structure initializers in IDE		(Art Haas)
+*	Use C99 structure initializers in HFS		(Art Haas)
+*	Update DMI scanner				(Jean Delvare)
+*	Fix bogus types in ide-cd.h			(Skip Ford)
+*	ns83820 updates					(Ben LaHaise)
+*	AIO updates					(Ben LaHaise)
+*	Beeping and sysrq on m68k			(Vojtech Pavlik)
+*	Improve hid naming				(Vojtech Pavlik)
+*	LSM docs					(Greg Kroah-Hartmann)
+*	Merge UML updates				(Jeff Dike)
+*	Final superblock union cleanup			(Brian Gerst)
+-	Fix atm build/makefile breakage			(Adrian Bunk)
+*	Brlock optimisation				(Robert Love)
+*	Miscellaneous USB updates			(Greg Kroah-Hartmann)
+*	MPT Fusion update				(Pam Delaney)
+-	Back out sched.c change - seem,s to cause hangs	(me)
+*	Serial compile fix				(Russell King)
+*	S/390 compile fixes				(Martin Schwidefsky)
+*	S/390 workqueue updates				(Martin Schwidefsky)
+*	Switch 3215/3270 from work queue to tasklet	(Martin Schwidefsky)
+*	Update S/390 link scripts			(Martin Schwidefsky)
+*	Remove duplicate S/390 memset			(Martin Schwidefsky)
+*	Fix S/390 syscall tracing			(Martin Schwidefsky)
+*	Multiple 3270 fixes				(Martin Schwidefsky)
+*	Configurable core names				(Jes Rahbek Klinke)
+X	Clean up s/390x 16bit uid calls			(Martin Schwidefsky)
+*	Fix EH locking on NCR5380			(me)
+	| Should now work on SMP boxes (badly admittedly)
+*	Indent wd7000 (no code changes)			(me)
+*	First pass at the in2000 scsi driver		(me)
+	| New locking, new_eh, address conversion
 
-> I did a little digging to figure out who you are and I'm a bit confused.
+Linux 2.5.41-ac1
+-	Merge with Linus 2.5.41
+	- Drop S/390 drivers subtree for Linus
+	- Drop task queue fixes for schedule_work
+	- TODO: merge two sets of conflicting UML changes
+	- TODO: double check bluetooth merge
+*	Fix aacraid makefile				(Mark Haverkamp)
+*	Fix ips compile					(Paul Larson)
+*	Fix aha152x compile				(Michel Eyckmans)
+*	Fix orinoco_cs compile		(Wichert Akkerman, Martin Waitz)
+*	Fix i2o_core compiler				(Gregoire Favre)
+*	Fix missing exports for netfilter
+*	Fix compile failure in jffs			(me)
+*	Fix compile failure in jffs2			(me)
+*	Fix Divas_Mod compile				(me)
+*	Fix hisax compile				(me)
+*	Fix ipacx compile				(me)
+*	Fix pcbit compile				(me)
+*	Fix tpam compile				(me)
+*	Fix i2o_lan build				(me)
+*	Fix i2o_proc build				(me)
+*	Fix ppa compile					(me)
+*	Fix imm compile					(me)
+*	Fix ipv6 compile				(me)
 
-Ok. I started back in early 1996 and since then I've spent somewhere
-around 12,000 hours helping people use linux and other free software
-(such as RMS's gnu system). I spend a large amount of my time assisting
-people using Linux productively via #Linux on dalnet, which I preside
-over. I've submitted a moderate number of small patches to various
-projects such as the kernel, freeciv, sac, linuxtrade, gnunet etc, 
-which are usually turned down for one good reason or another. I run a 
-small website that focuses on free software news. Recently, I paid a
-undisclosed amount of money for the rights to have Linuxtrade relicensed
-under a free software license. I'm a firm supporter of the precepts of
-free software because I believe that as software becomes more pervasive
-in society, the rights for the individual to patch a program should
-exist just as the right exists to repair a car rather than return it to
-the dealer.
 
 
-> My Linux involvement predates yours by only a few years, we've both
-> been here for a long time.  Unless you are saying that 10 years ago
-> I hatched this evil plot to hijack the Linux kernel, your statements
+Linux 2.5.40-ac6
+*	Cadet_wake can be static			(me)
+*	Bluetooth configuration cleanups		(Marcel Holtmann)
+o	Hardwired empty bar handling fix take two	(Ivan Kokshaysky)
+*	Use kernel crc32 lib for bluetooth		(Marcel Holtmann)
+*	Make scsi cdrom honour passed timeouts		(Peter Osterlund)
+*	Make aironet4500_cs compile			(me)
+*	Fix bugs where ibmtr unmapped the wrong address	(me)
+*	Fix crash problem in oss dmabuf.c		(me)
+	| Its still very broken but ALSA should replace it
+*	Fix opl3sa2 warnings				(me)
+*	Make tcic compile again				(me)
+*	Make i82365 also use del_timer_sync		(me)
+*	Fix warnings in fpu emulator			(me)
+*	Fix t128 for NCR5380 changes			(me)
+*	Fix pas16 for NCR5380 changes			(me)
+*	Fix dmx3191 for NCR538 changes			(me)
+*	First pass seagate st02 cleanups		(me)
+*	Clean up de600 driver. Switch to spinlocks	(me)
+	remove crud, formatting junk etc
+	| Still needs rewriting to use parport
+o	Remove extra unlock in wd7000			(Matthew Wilcox)
+*	First basic pass at qlogicgas			(me)
+*	Clean up the fdomain isa scsi			(me)
+*	Clean up max_thread setting limits		(Matthew Wilcox)
+*	Ricoh cardbus performance fix			(KOMURO)
+*	Switch appletalk to seq_file /proc	(Arnaldo Carvalho de Melo)
+*	Switch X.25 to seq_file			(Arnaldo Carvalho de Melo)
+*	Fix bugs in the above			(Arnaldo Carvalho de Melo)
 
-Of course I'm not accusing you of some conspiracy. You have been quite
-clear and up front on what you do, what you offer and how you profit.
+Linux 2.5.40-ac5
+*	Rework S/390 driver init sequences		(Martin Schwidefsky)
+*	Swap immediate_bh for tasklets for s/390 3215	(Martin Schwidefsky)
+*	UML updates - crash fixes, driver cleanup	(Jeff Dike)
+	pcap transport
+*	Switch fmi radio card to sleeping waits		(me)
+*	Fixing missing printk \n in fmi radio		(me)
+o	Update to newer uclinux patch			(Greg Ungerer)
+	| Unresolved now:
+	| fs/exec.c kernel/fork.c procfs sysctl
+	| can nommu be folded in (Hch)
+*	Remove surplus irq_disable from mpt fusion	(Carlos Gorges)
+*	Export gdt for APM				(Carlos Gorges)
+	| Marked as _GPL because its deep internals stuff
+*	Merge the add/put disk gendisk changes for i2o	(Al Viro)
+*	Switch NCR5380/g_NCR5380 to new_eh		(me)
+*	Fix cs89x0 netdevice init as module		(me)
+*	Change some of the wd7000 code to use
+	udelay and do other cleanups
+*	Switch wd7000 to new_eh				(me)
+*	Serial driver updates				(Russell King)
+*	Sync bluetooth with 2.4, fix SMP, hotplug	(Maksim Krasnyanskiy)
+	support L2CAP, BNEP, HCI filter etc
+*	Move firmwareloading to hotplug for bluetooth	(Maksim Krasnyanskiy)
+*	Pull hpfs out of shared struct superblock	(Brian Gerst)
+X	Fix sleep with pre-empt disabled in 		(Manfred Spraul)
+	set_cpus_allowed
 
-Though I'm sure you remember what you've said, I'll summarize for those
-that somehow managed to slip into this thread out of context. You write a
-proprietary source code revision system by the name of bitkeeper. You
-offered free licences to linux kernel developers among others. Your
-motivation is that you can use linux kernel development as a showcase
-example when you hunt down people that are willing to pay you. This
-isn't something that I have any issue with.
+Linux 2.5.40-ac4
+*	Make ibm partition code compile again		(Martin Schwidefsky)
+*	Remove unneeded config options on S/390		(Martin Schwidefsky)
+*	Update DASD drivers				(Martin Schwidefsky)
+*	Update S/390 xpram driver			(Martin Schwidefsky)
+*	Replace S/390 BH code by tasklets		(Martin Schwidefsky)
+*	Fix S/390 bitops bugs				(Martin Schwidefsky)
+*	S/390x 31bit emulation fixes			(Martin Schwidefsky)
+*	Update S/390 link scripts			(Martin Schwidefsky)
+*	Add S/390 pre-empt support			(Martin Schwidefsky)
+*	Inline some S/390 old compilers couldnt handle	(Martin Schwidefsky)
+*	Use diag 44 for S/390x spinlocks		(Martin Schwidefsky)
+*	Better S/390 timer handling			(Martin Schwidefsky)
+*	S/390 code cleanups				(Martin Schwidefsky)
+*	Clean up S/390 fpu load/stores			(Martin Schwidefsky)
+*	DECnet updates for testing			(Steve Whitehouse)
+*	Add console shutdown handling to S/390		(Martin Schwidefsky)
+*	Remove some bogus S/390 sanity checks		(Martin Schwidefsky)
+*	Clean up S/390 process irq			(Martin Schwidefsky)
+*	Fix/simplify chpids handling on S/390		(Martin Schwidefsky)
+*	No /proc/interrupts on S/390			(Martin Schwidefsky)
+*	Remove now unneeded S/390 hack in init/main.c	(Martin Schwidefsky)
+*	Clean up all the S/390 ptrace handling		(Martin Schwidefsky)
+o	Fix build with local apic enabled		(James Bottomley)
+*	Initial i2o_block merge of 2.4/2.5 code		(me)
+	| Not yet functional
+*	Initial i2o_scsi merge of 2.4/2.5 code		(me)
+	| Needs dma mapping, 64bit, be and new_eh
+-	Revert Ivan's pci change (breaks serverworks)
+*	PCI serial oops fix				(William Irwin)
+*	Remove dead wood from unistd.h			(Brian Gerst)
+o	Fix bug in capget 				(Chris Wright)
+*	Switch qnxfs to new style initializers		(Art Haas)
+o	Recongize qnx v6 file systems			(Anders Larsen)
+*	Kill off remaining pcibios_ users   (Greg "Ninja Turtle" Kroah-Hartmann)
+*	Fix scsi debug for scsi scan changes		(Mike Anderson)
+*	Fix some bugs in scsi error handling		(Mike Andersen)
+*	Forward port RMK's 2.4 scsi fixes		(Mike Andersen)
+*	Allow longer settle times for scsi reset	(Mike Andersen)
+*	Hopefully improve error policies a bit		(Mike Andersen)
 
-To make the issues I bring up more clear, I'll list them here:
+Linux 2.5.40-ac3
+*	Resync telephony drivers with 2.4		(me)
+	| Forward port security and other minor fixes
+*	Fix aironet4500 build for tq changes		(me)
+*	Fix keyspan USB warnings with gcc 3		(me)
+*	Switch to the newer 2.4 depca driver		(me)
+*	Re-merge depca fixes from 2.5.0->2.5.40]
+*	Fix depca spinning waiting for irq probe	(me)
+*	Fix depca copy with interrupts off		(me)
+*	Fix depca clash with other ALIGN macros		(me)
+*	Initial port of NCR5380/g_NCR5380 to new locks	(me)
+	| This still needs new_eh, further clean up
+	| and possibly making NCR5380_main a thread
+*	Initial locking rework for the wd7000 scsi	(me)
+	| Still needs new_eh
+*	Update jffs to the dequeue_signal changes	(me)
+*	Update jffs2 to the dequeue_signal changes	(me)
+*	Fix shpnt misuse in NCR53c406a, wrong free_irq	(me)
+*	Update NCR53c406a to new style sglist		(me)
+	| Still needs new_eh
+*	Architecture updates for S/390			(Martin Schwidefsky)
+*	Include updates for S/390			(Martin Schwidefsky)
+*	Base S/390 driver updates			(Martin Schwidefsky)
+*	Add the new syscalls to S/390			(Martin Schwidefsky)
+*	Fix sleeping with locks in sound_core		(Jaroslav Kysela)
+*	Fix oops on shutdown of cs4281			(Suresh Siddha)
+*	Fix cdrom paths in devfs			(Jordan Breeding)
+*	Fix missing cache tag entry in intel cpu table	(Jean Delvare)
+*	Remove old 2.2 compatibility pci functions	(Greg Kroah-Hartmann)
+*	Clean up some dead devfs bits			(Greg Kroah-Hartmann)
+*	Fix an oops in the hugetblpage stuff		(Andrew Morton)
+	| Its still a stupid idea but now it doesnt oops
+o	Handle read only BARs with type bits set	(Ivan Kokshaysky)
 
-1. You are anticompetitive wrt source code revision systems. 
+Linux 2.5.40-ac2
+*	Fix a cut and paste error in the amd rng docs	(Troels Hansen)
+*	Forward port OSS maestro3 fixes for toughbook
+o	Forward port ramdisk cache coherency
+*	RTL8150 USB updates				(Petko Manalov)
+*	Fix corega USB ident				(Petko Manalov)
+*	USB keyboard driver fix				(Dave Miller)
+*	USB prototype fix				(Luc Vanoostenryck)
+*	USB string fixes		(cip307@cip.physik.uni-wuerzburg.de)
+*	USB test driver					(David Brownell)
+*	Speedtouch USB driver fixes			(Greg Kroah-Hartmann)
+*	Clean environment for hotplug			(Greg Kroah-Hartmann)
+*	Fix mprotect oops				(Hugh Dickins)
+o	NUMA-Q cleanups					(Martin Dobson)
+*	Split timers into one x86 timer type per file	(John Stultz)
+*	Cyclone timer support for x440 etc		(John Stultz)
+*	Fix sleeping from illegal context for ioperm	(Andrew Morton)
+*	Fix imm compile				(bonganilinux@mweb.co.za)
+*	Fix irda for tq changes				(Carlos Gorges)
+*	Fix xjack telephony build			(Carlos Gorges)
+*	Fix ppa compile					(Carlos Gorges)
+*	Fix aha152x compile for tq changes		(Carlos Gorges)
+*	Fix hamradio drivers for tq changes		(Carlos Gorges)
+*	Fix plip driver for tq changes			(Carlos Gorges)
+*	Fix mpt fusion for tq changes			(Carlos Gorges)
+*	Fix isdn for tq changes				(Carlos Gorges)
+*	Fix ieee1394 for tq changes			(Carlos Gorges)
+*	Fix new timer code to build with cpufreq on	(me)
+*	Fix capi build for new tq_ code			(me)
+	| ISDN still needs moving to real locks
+	| this just cleans up one item
+*	Fix missing header in mtdblock_ro		(Carlos Gorges)
+*	Fix a typo and other header			(me)
+*	Fix up ixj_pcmcia for 2.5			(me)
+	| Note for janitors - it looks like a lot of the pcmcia release
+	| code people "fixed" should be using del_timer_sync not del_timer
+*	Fix missing header in longhaul cpu speed driver	(me)
+*	Pipe read/write cleanup				(Manfred Spraul)
+*	Make IDE PCI config text clearer	(Andrzej Krzysztofowicz)
 
-You are attempting to leverage the free licenses you give kernel developers 
-to slow down/halt the development of free software code revision systems
-such as subversion. Though process may or may not be beneficial to the
-linux kernel (I leave this argument for others with more experience),
-one thing is clear: This process is clearly not beneficial to free
-software that potentially competes with yours. I don't make any claim as
-to whether or not you are doing the right thing. I only make the claim
-that there is damage to free software occuring.  
-
-Even more clearly: you are trying to impede development of free software
-such as subversion and that affects me in a negative way. The slower
-that projects such as subversion and an sccs for reiserfs develop, the
-longer I'm stuck with cvs.
-
-2. Your goals are not those of Richard Stallman's. 
-
-The goal of the FSF (established 1985 or so by Richard Stallman and run
-by the same to this day) are very clear and can be read at 
-http://www.fsf.org/philosophy/philosophy.html. When you get right 
-down to it, the goals of the FSF are to give people the
-freedom to escape people who say things such as "If you develop
-subversion, then you can't use bitkeeper to work on the kernel". Instead
-of dealing with this issue head on, you try and convince others "to keep
-their eye on the ball" and to go chase microsoft?
-
-3. Your software is responsible for a growing rift between developers
-
-If you wish, I can go through all 500 or 600 emails and try and list
-which people seem to be on which side of the issue, but I'd rather
-assume that you and others can see for themselves. The only question
-regarding this issue is whether this rift were to grow deep enough to
-cause a fork. Hypothetically speaking here... wouldn't you agree it 
-would be a shame if we ended up with a Linux-A lead by Linus Torvalds 
-and a Linux-B lead by Alan Cox (Alan works at Redhat, which I understand 
-supports amongst other things, subversion)?
-
-> simply are not supported by history.  Which anyone can check out, thanks
-> to Google groups.
-
-My thoughts and position on many things have changed over the years and
-I have no doubts that you could probably manage to drag up something
-embarassing about me. Surely we are both adult enough that we wouldn't 
-stoop to something so low as an ad hominem attack, so I don't think its
-an issue. 
-
--- 
-GnuPG fingerprint AAE4 8C76 58DA 5902 761D  247A 8A55 DA73 0635 7400
-James Blackwell  --  Director http://www.linuxguru.net
+Linux 2.5.40-ac1
+*	Initial port of aacraid driver to 2.5		(me)
+*	vfat corruption fix				(Petr Vandrovec)
+*	Clean up firestream warnings			(Francois Romieu)
++	Voyager support					(James Bottomley)
+*	Fix split_vma					(Hugh Dickins)
++	Fix config in video subdirectory		(John Levon)
+*	Update olympic driver to 2.5			(Mike Phillips)
+*	Fix sg init error				(Mike Anderson)
+*	Fix Rules.make
+o	Merge most of ucLinux stuff			(Greg Ungerer)
+	| It needs putting somewhere so we can pick over the
+	| hard bits left
+	| Q: Wouldn't drivers/char/mem-nommu.c be better
+	| Q: How to do the procfs stuff tidily
+	| Q: Wouldn't it be nicer to move all mm or mmnommu specific ksyms
+	|    int the relevant mm/*.c file area instead of kernel/ksyms
+	| Q: Why ifdef out overcommit -  its even easier to account on 
+	|    MMUless and useful info
+*	Stick tulip back under 10/100 ethernet		(me)
+*	Correct docs for IBM touchpad back to how	(me)
+	they were before
+o	Fix abuse of set_bit in winbond-840		(me)
+*	Fix abuse of set_bit in atp			(me)

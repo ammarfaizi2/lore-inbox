@@ -1,76 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261754AbUB0Kpq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 05:45:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbUB0Kpq
+	id S261780AbUB0KoM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 05:44:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbUB0KoM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 05:45:46 -0500
-Received: from barclay.balt.net ([195.14.162.78]:48235 "EHLO barclay.balt.net")
-	by vger.kernel.org with ESMTP id S261754AbUB0Kpn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 05:45:43 -0500
-Date: Fri, 27 Feb 2004 12:45:28 +0200
-From: Zilvinas Valinskas <zilvinas@gemtek.lt>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: arief# <arief_m_utama@telkomsel.co.id>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Radeon Framebuffer Driver in 2.6.3?
-Message-ID: <20040227104528.GB31552@gemtek.lt>
-Reply-To: Zilvinas Valinskas <zilvinas@gemtek.lt>
-References: <1077863238.2522.6.camel@damai.telkomsel.co.id> <1077865490.22215.217.camel@gaston> <1077876373.843.3.camel@damai.telkomsel.co.id> <1077875802.22215.267.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1077875802.22215.267.camel@gaston>
-X-Attribution: Zilvinas
-X-Url: http://www.gemtek.lt/
-User-Agent: Mutt/1.5.4i
+	Fri, 27 Feb 2004 05:44:12 -0500
+Received: from smtp.virgilio.it ([212.216.176.142]:26256 "EHLO
+	vsmtp2alice.tin.it") by vger.kernel.org with ESMTP id S261780AbUB0KoJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 05:44:09 -0500
+Message-ID: <403F1F5E.9000704@futuretg.com>
+Date: Fri, 27 Feb 2004 11:43:42 +0100
+From: "Dr. Giovanni A. Orlando" <gorlando@futuretg.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040217
+X-Accept-Language: en-us, en, it
+MIME-Version: 1.0
+CC: markw@osdl.org, Carl Johnson <cjohnson@osdl.org>,
+       Hans Reiser <reiser@namesys.com>, reiserfs-list@namesys.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: AS performance with reiser4 on 2.6.3
+References: <200402261748.i1QHmJE12429@mail.osdl.org> <16446.13520.5837.193556@laputa.namesys.com> <403EBB87.2070504@namesys.com>
+In-Reply-To: <403EBB87.2070504@namesys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 27, 2004 at 08:56:42PM +1100, Benjamin Herrenschmidt wrote:
-> On Fri, 2004-02-27 at 21:06, arief# wrote:
-> > Dear all.
-> > 
-> > 
-> > This patch from Benjamin solved my problem.
-> > 
-> > To Zilvinas <zilvinas@gemtek.lt>, I've tried your suggestion to change
-> > my XF86Config-4 file to include UseFBDev line. But it doesnt work. It
-> > made my Xserver wont even start. But I'm not sure, it could be X problem
-> > (Debian Unstable got some updated X package that I haven't got a chance
-> > to upgrade to).
-> 
-> There is a problem with recent radeonfb's an X + UseFBDev. I think the
-> problem is that XFree is claiming a mode whose virtual resolution is very
-> large. I have to verify that (it works for me here). Radeonfb has
-> limitations on what it allows on the virtual resolution in recent
-> version to limit the ioremap'ing done in the kernel. Unfortunately,
-> there is no simple way to "detach" one from the other at this point. 
-> 
-> I should modify radeonfb to crop the virtual resolution instead of
-> failing though...
-> 
-> Can you try hacking in drivers/video/aty/radeon_base.c, function
-> check_mode() and see why it fails ? (I think it's that function
-> that is failing).
+Dear Mark,
 
-Not sure what was failing on Arief# laptop, here it works perfectly
-fine. Hardware: Compaq EVO N800v, kernel 2.6.3 , frambuffer and 
-UseFBDev "true" just fine. 
+    I appreciate the OSDL efforts and graphs you offer for ReiserFS 4, 
+but I will
+    appreciate a lot more if you adopt a distro that adopt ReiserFS 
+like: SuSE, Lindows or our FTOSX.
 
-Without UseFBDev console had almost the same effects Arief has reported.
-After "clear screen" ^L in console with X running in background, I see a
-lot of artifacts ... UseFBDev made it go away.
+    For us ReiserFS is important for RedHat really don't.
 
-BR
+    So, I don't want to see again the RedHat 9, name here:
+       http://developer.osdl.org/markw/fs/dbt2_stp_results.html
 
-> 
-> Ben.
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Thanks very much,
+Giovanni
+
+> Nikita Danilov wrote:
+>
+>> markw@osdl.org writes:
+>> > Hi Nick,
+>> > > I started getting some results with dbt-2 on 2.6.3 and saw that 
+>> reiser4
+>> > is doing a bit worse with the AS elevator.  Although reiser4 wasn't
+>> > doing well to begin with, compared to the other filesystems.  I have
+>> > links to the STP results on our 4-ways and 8-ways here:
+>> >     http://developer.osdl.org/markw/fs/dbt2_stp_results.html
+>>
+>> There were no changes between 2.6.2 and 2.6.3 that could affect reiser4
+>> performance, so it is not clear why numbers are so different. Probably
+>> results should be averaged over several runs.
+>>
+> The differences don't "feel" like testing error, and in any event 
+> something is seriously wrong.  That something is either poor fsync 
+> performance, or poor scalability.  In any event, please investigate, 
+> and please try such things as using capture on copy.  Mark, does this 
+> benchmark like to use fsync?
+>
+> Thanks much mark for bringing this to our attention.
+>
+>> Also can you run test with
+>>
+>> http://www.namesys.com/snapshots/2004.02.25/extra/e_05-proc-sleep.patch
+>>
+>> applied? To use it turn CONFIG_PROC_SLEEP on (depends on
+>> CONFIG_FRAME_POINTER), and do "cat /proc/sleep" before and after test
+>> run.
+>>
+>> > > -- > Mark Wong - - markw@osdl.org
+>>
+>> Nikita.
+>> -
+>> To unsubscribe from this list: send the line "unsubscribe 
+>> linux-kernel" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/
+>>
+>>
+>>  
+>>
+>
+>
+

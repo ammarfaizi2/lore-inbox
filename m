@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316591AbSGYRwD>; Thu, 25 Jul 2002 13:52:03 -0400
+	id <S316573AbSGYRqt>; Thu, 25 Jul 2002 13:46:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316592AbSGYRwC>; Thu, 25 Jul 2002 13:52:02 -0400
-Received: from dsl-213-023-043-040.arcor-ip.net ([213.23.43.40]:8405 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S316591AbSGYRwB>;
-	Thu, 25 Jul 2002 13:52:01 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Thomas Molina <tmolina@cox.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5 Problem Reports Status
-Date: Thu, 25 Jul 2002 19:46:52 +0200
-X-Mailer: KMail [version 1.3.2]
-References: <Pine.LNX.4.44.0207241401570.26254-100000@dad.molina>
-In-Reply-To: <Pine.LNX.4.44.0207241401570.26254-100000@dad.molina>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17XmhT-0007jC-00@starship>
+	id <S316578AbSGYRqt>; Thu, 25 Jul 2002 13:46:49 -0400
+Received: from ns.suse.de ([213.95.15.193]:36105 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S316573AbSGYRqr>;
+	Thu, 25 Jul 2002 13:46:47 -0400
+Date: Thu, 25 Jul 2002 19:50:00 +0200
+From: Dave Jones <davej@suse.de>
+To: Shawn Starr <spstarr@sh0n.net>
+Cc: linux-kernel@vger.kernel.org, rgooch@atnf.csiro.au
+Subject: Re: MTRR Problems - 2.4.19-rc3
+Message-ID: <20020725195000.A8672@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Shawn Starr <spstarr@sh0n.net>, linux-kernel@vger.kernel.org,
+	rgooch@atnf.csiro.au
+References: <200207250303.20809.spstarr@sh0n.net> <20020725150538.U16446@suse.de> <200207251341.24933.spstarr@sh0n.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200207251341.24933.spstarr@sh0n.net>; from spstarr@sh0n.net on Thu, Jul 25, 2002 at 01:41:24PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 24 July 2002 21:40, Thomas Molina wrote:
-> Kernel Problem Reports as of 24 Jul 1900 Zulu
-> 
-> Software Suspend Failure -- open
-> big IRQ lock removal     -- proposed fix 
-> CPU Detection            -- proposed fix
-> Swapper oops             -- open
-> Time jump/kernel freeze  -- open
-> IDE problem              -- open
-> RAID initialization      -- open
-> free_pages_ok            -- proposed fix
-> console lockup           -- open
-> slab page problem        -- proposed fix 
-> tcp_v6_get_port          -- proposed fix
-> RAID shutdown            -- open
-> Broken flock             -- proposed fix 
-> odd memory corruption    -- proposed fix
-> Broken Floppy            -- open
+On Thu, Jul 25, 2002 at 01:41:24PM -0400, Shawn Starr wrote:
+ > > > mtrr: no MTRR for e0000000,4000000 found
+ > Fair enough, but that doesn't explain the broken MTRR :)
 
-- Broken DAC960
+Something in userspace tried to delete an MTRR that didn't exist.
+The only time I've seen this happen personally has been with
+a dual-head card for which the BIOS set up one MTRR to cover
+the video ram used by both heads, and then iirc X did something
+silly and tried to remove separate MTRRs for each head on exit.
 
-Re your project: so long as you have the energy, go for it.
+        Dave
 
 -- 
-Daniel
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268849AbUHLWcE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268861AbUHLWhS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268849AbUHLWcE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 18:32:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268837AbUHLWcD
+	id S268861AbUHLWhS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 18:37:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268872AbUHLWhR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 18:32:03 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:11396 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S268870AbUHLWbR
+	Thu, 12 Aug 2004 18:37:17 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:14468 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S268861AbUHLWhB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 18:31:17 -0400
-Message-ID: <411BF083.8060406@tmr.com>
-Date: Thu, 12 Aug 2004 18:34:43 -0400
+	Thu, 12 Aug 2004 18:37:01 -0400
+Message-ID: <411BF1E6.5060309@tmr.com>
+Date: Thu, 12 Aug 2004 18:40:38 -0400
 From: Bill Davidsen <davidsen@tmr.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Newsgroups: mail.linux-kernel
-To: Con Kolivas <kernel@kolivas.org>
-CC: Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       alan@lxorguk.ukuu.org.uk, dwmw2@infradead.org,
-       schilling@fokus.fraunhofer.de, axboe@suse.de
+To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+CC: linux-kernel@vger.kernel.org
 Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-References: <1092099669.5759.283.camel@cube> <cone.1092113232.42936.29067.502@pc.kolivas.org>
-In-Reply-To: <cone.1092113232.42936.29067.502@pc.kolivas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <1092124796.1438.3695.camel@imladris.demon.co.uk> <yw1x7js79vn3.fsf@kth.se>
+In-Reply-To: <yw1x7js79vn3.fsf@kth.se>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
+Måns Rullgård wrote:
+> David Woodhouse <dwmw2@infradead.org> writes:
 
-> It was a hard lockup and randomly happened during a cd write, creating 
-> my first coaster in a long time... in rt mode ironically which is how it 
-> is recommended to be run. So I removed the foolish superuser bit and 
-> have had no problem since. Yes it was unaltered cdrecord source and it 
-> was the so-called alpha branch and... Not much else I can say about it 
-> really?
+>>That seems reasonable, but _only_ if burnfree is not enabled. If the
+>>hardware _supports_ burnfree but it's disabled, the warning should also
+>>recommend turning it on.
+> 
+> 
+> I'm also wondering why cdrecord disables it by default.  Can it ever
+> do any harm being enabled?
+> 
 
-I said I'd never seen this (true), but it could happen if you were 
-burning an audio CD using the ide-scsi or ATA: interface. In 2.6 the 
-ATAPI: interface uses DMA. I don't know what the program does if you 
-just say dev=/dev/hdx, I don't normally use it that way (I got into the 
-habit of using ATAPI:). Given a fast burner and the interface using PIO, 
-I guess you could slow the system down some!
+In theory, yes. It makes the track longer, so it could in theory make 
+something large not fit. In practice, there really are some readers 
+which skip on audio when they see the blanks. As Joerg which ones, but 
+other people have agreed that it does happen.
+
+I have noted that even with it off my recent burners don't mind running 
+out of data, so in most cases it won't hurt. Burning off NFS I see 7-10 
+underruns typically.
 
 -- 
     -bill davidsen (davidsen@tmr.com)

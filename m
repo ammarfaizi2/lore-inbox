@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264290AbTDKBht (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 21:37:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264253AbTDKBht (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 21:37:49 -0400
-Received: from [12.47.58.73] ([12.47.58.73]:8038 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S264290AbTDKBhs (for <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Apr 2003 21:37:48 -0400
-Date: Thu, 10 Apr 2003 18:50:06 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Hanna Linder <hannal@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Lockmeter 2.5] BKL with 51ms hold time, prove me wrong
-Message-Id: <20030410185006.5fd88c30.akpm@digeo.com>
-In-Reply-To: <46950000.1050023701@w-hlinder>
-References: <46950000.1050023701@w-hlinder>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id S264288AbTDKCA4 (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 22:00:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264289AbTDKCA4 (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 22:00:56 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:4518
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S264288AbTDKCA4 (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 10 Apr 2003 22:00:56 -0400
+Subject: Re: Painlessly shrinking kernel messages (Re: kernel support for
+	non-english user messages)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Timothy Miller <miller@techsource.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3E960536.5010900@techsource.com>
+References: <3E95EB6D.4020004@techsource.com>
+	 <1050010963.12494.132.camel@dhcp22.swansea.linux.org.uk>
+	 <3E960536.5010900@techsource.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Apr 2003 01:49:24.0140 (UTC) FILETIME=[940286C0:01C2FFCC]
+Organization: 
+Message-Id: <1050023659.13456.2.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 11 Apr 2003 02:14:20 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hanna Linder <hannal@us.ibm.com> wrote:
->
-> 
-> My original purpose was to verify my lockmeter port is producing 
-> valid data so I was comparing to readprofile results. However, I saw 
-> these high hold times and wanted to show them to you. Here is the 
-> whole lockmeter output file: 
-> http://prdownloads.sourceforge.net/lse/lockmeter.rmapm
-> 
-> Below is a snippet of lockmeter data from running Andrew Morton's
-> rmap-test -m -i 10 -n 50 -s 600 -t 100 foo
-> on a 2-way PIII 256MB RAM 500MHz System
+On Fri, 2003-04-11 at 00:58, Timothy Miller wrote:
+> My google search for '5pack' didn't come up with anything relevant. 
+>  Things that come to mind include converting to a character set which 
 
-I'm a bit surprised that even slow machine like that would take 50
-milliseconds to truncate 128MB of file, but it's not impossible I guess. 
-Truncate is not really a fastpath.  ext3 in -mm doesn't have any lock_kernels
-in it.
+Its a thing from the old 8bit gaming world.  You code in 5bit chunks
+with a leading length marker. 5bits is enough for a-z and some bits
+of punctuation, plus capital implying space and 'escape' for an 8bit
+sequence block.
+
+Gets you a bit under 40% compression with real life data and takes about
+200 bytes to decode
+
 

@@ -1,53 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262083AbTCRBMU>; Mon, 17 Mar 2003 20:12:20 -0500
+	id <S262055AbTCRBQ1>; Mon, 17 Mar 2003 20:16:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262084AbTCRBMT>; Mon, 17 Mar 2003 20:12:19 -0500
-Received: from holomorphy.com ([66.224.33.161]:46556 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S262083AbTCRBMS>;
-	Mon, 17 Mar 2003 20:12:18 -0500
-Date: Mon, 17 Mar 2003 17:22:47 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Manfred Spraul <manfred@colorfullife.com>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] O(1) proc_pid_readdir
-Message-ID: <20030318012247.GU20188@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Manfred Spraul <manfred@colorfullife.com>,
-	Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-References: <20030316213516.GM20188@holomorphy.com> <Pine.LNX.4.44.0303170719410.15476-100000@localhost.localdomain> <20030317070334.GO20188@holomorphy.com> <3E761124.8060402@colorfullife.com> <20030318001405.GS20188@holomorphy.com> <20030318004850.GT20188@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030318004850.GT20188@holomorphy.com>
-User-Agent: Mutt/1.3.28i
-Organization: The Domain of Holomorphy
+	id <S262070AbTCRBQ1>; Mon, 17 Mar 2003 20:16:27 -0500
+Received: from mail.gmx.de ([213.165.65.60]:21572 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S262055AbTCRBQ1>;
+	Mon, 17 Mar 2003 20:16:27 -0500
+From: "Marijn Kruisselbrink" <marijnk@gmx.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: (2.5.65) Unresolved symbols in modules?
+Date: Tue, 18 Mar 2003 02:27:20 +0100
+Message-ID: <HJEOKOJLKINBOCDGFDOOMEOBCCAA.marijnk@gmx.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+In-Reply-To: <1047950384.12620.18.camel@rohan.arnor.net>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 17, 2003 at 07:17:08PM +0100, Manfred Spraul wrote:
->>> Could you check if the attached test app triggers the NMI oopser?
+> - module-init-tools documentation stated if it is or is not backward
+> compatible for the 2.4 kernels  (is it?)
+If you have a new enough version of modutils, and you rename these to
+depmod.old modprobe.old etcetera, they are backwards-compatible...
 
-On Mon, Mar 17, 2003 at 04:14:05PM -0800, William Lee Irwin III wrote:
->> Sure, no problem.
+> - The kernel makefile used the module tools under /usr/local/sbin if
+> they exist.
+I totally agree with this.
 
-On Mon, Mar 17, 2003 at 04:48:50PM -0800, William Lee Irwin III wrote:
-> Gee, this is bright. I think I remember why I haven't done testing of
-> tasklist_lock NMI oopses for several releases now.
-[...]
-> timer doesn't work through the IO-APIC - disabling NMI Watchdog!
-> ...trying to set up timer as Virtual Wire IRQ...Uhhuh. NMI received for unknown reason 35 on CPU 0.
-
-NMI_LOCAL_APIC should not care whether the timer works through IO-APIC's.
-
---- linux-2.5.64/arch/i386/kernel/io_apic.c.orig	Mon Mar 17 17:19:02 2003
-+++ linux-2.5.64/arch/i386/kernel/io_apic.c	Mon Mar 17 17:19:08 2003
-@@ -1990,7 +1990,7 @@ static inline void check_timer(void)
- 	}
- 	printk(" failed.\n");
- 
--	if (nmi_watchdog) {
-+	if (nmi_watchdog == NMI_IO_APIC) {
- 		printk(KERN_WARNING "timer doesn't work through the IO-APIC - disabling NMI Watchdog!\n");
- 		nmi_watchdog = 0;
- 	}

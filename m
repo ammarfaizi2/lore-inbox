@@ -1,50 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269298AbUJQUbz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269312AbUJQU3v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269298AbUJQUbz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 16:31:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269290AbUJQUaU
+	id S269312AbUJQU3v (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 16:29:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269296AbUJQU1y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 16:30:20 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:9428 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S269289AbUJQU3p (ORCPT
+	Sun, 17 Oct 2004 16:27:54 -0400
+Received: from zero.aec.at ([193.170.194.10]:49680 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S269290AbUJQU0Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 16:29:45 -0400
-Date: Sun, 17 Oct 2004 22:30:55 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Albert Cahalan <albert@users.sf.net>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] exec-shield-nx-2.6.9-A1
-Message-ID: <20041017203055.GA10403@elte.hu>
-References: <1098043886.2674.14320.camel@cube>
-Mime-Version: 1.0
+	Sun, 17 Oct 2004 16:26:25 -0400
+To: Ingo Molnar <mingo@elte.hu>
+cc: auouo@tin.it, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/8] replacing/fixing printk with pr_debug/pr_info in
+ arch/i386 - intro
+References: <2QlVm-7u4-13@gated-at.bofh.it> <2Qmok-7KK-1@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Sun, 17 Oct 2004 22:26:21 +0200
+In-Reply-To: <2Qmok-7KK-1@gated-at.bofh.it> (Ingo Molnar's message of "Sun,
+ 17 Oct 2004 18:50:04 +0200")
+Message-ID: <m3ekjxxf9u.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1098043886.2674.14320.camel@cube>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Molnar <mingo@elte.hu> writes:
+>
+> 2) i dont like the pr_print name at all. What's wrong with Dprintk or
+> dprintk? Just define them in kernel.h, this will also make your patch
+> much smaller.
 
-* Albert Cahalan <albert@users.sf.net> wrote:
+I prefer to declare them in subsystem specific files. This way you
+can easily enable/disable debugging for only specific files, 
+not for everything.
 
-> You have some bits in this patch that don't belong.
-> They aren't even conditional on a config option or
-> sysctl value.
+-Andi
 
-maybe you misunderstood my mail. This was an announcement for
-exec-shield users. You can safely ignore it.
-
-> [...] One might guess from CAP_SYS_NICE that the feature has now
-> become hopelessly slow. [...]
-
-(thank you for the kind words, it is always heartening to read your
-mails! I too wish you good luck with your projects.)
-
-	Ingo

@@ -1,173 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266009AbUFUFJa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266042AbUFUFNf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266009AbUFUFJa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 01:09:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266013AbUFUFJ3
+	id S266042AbUFUFNf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 01:13:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266055AbUFUFNf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 01:09:29 -0400
-Received: from mta10.adelphia.net ([68.168.78.202]:64685 "EHLO
-	mta10.adelphia.net") by vger.kernel.org with ESMTP id S266009AbUFUFJL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 01:09:11 -0400
-Subject: Re: 2.6.7-bk way too fast
-From: Aubin LaBrosse <arl8778@rit.edu>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <40D64DF7.5040601@pobox.com>
-References: <40D64DF7.5040601@pobox.com>
-Content-Type: multipart/mixed; boundary="=-k+znf4d2m/GIVO45Dt/l"
-Message-Id: <1087794512.20661.12.camel@lhosts>
+	Mon, 21 Jun 2004 01:13:35 -0400
+Received: from fw.osdl.org ([65.172.181.6]:49092 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266042AbUFUFMq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 01:12:46 -0400
+Date: Sun, 20 Jun 2004 22:11:47 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Joris van Rantwijk <joris@eljakim.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7 Oops in signal handling with ptrace
+Message-Id: <20040620221147.7c3086b7.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0406191611450.12748@eljakim.netsystem.nl>
+References: <Pine.LNX.4.58.0406191611450.12748@eljakim.netsystem.nl>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 21 Jun 2004 01:08:32 -0400
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Joris van Rantwijk <joris@eljakim.nl> wrote:
+>
+> Linux 2.6.7 (and 2.6.6) gives an Oops in specific situations
+>  related to signal handling and ptracing. The Oops is triggered when
+>  a process which is being ptraced with TRACESYSGOOD, receives signals
+>  in a very specific pattern. This Oops is perfectly reproducable.
 
---=-k+znf4d2m/GIVO45Dt/l
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-I hate to make this harder to track down but the extra keyboard
-characters happens to me very rarely on 2.6.3-rc2-mm1 as well (been lazy
-and haven't updated in a while...ok so i really should.)  - it isn't
-happening now but every once in a while when i boot it will happen, and
-usually it's very difficult to do anything at all because it will also
-"super repeat" keys like the backspace key.  so i reboot it and all is
-usually well.  it sounds like jeff's problem is much more prominent and
-repeatable, i just wanted to make you guys aware that it could be
-something that went in as early as 2.6.3, not just recent changes - it
-definitely sounds as though it has been compounded now, though. it could
-be totally unrelated to my issue too though because while my repeat rate
-is hosed, i'm not noticing any other timer related breakage like the
-system clock or anything.  
-
-to advance the cause in whatever small way i can, i'm attaching the
-config for this box
+Joris, Linus has merged a patch similar to yours which should address this
+problem.  Many thanks for tracking this down.
 
 
-On Sun, 2004-06-20 at 22:54, Jeff Garzik wrote:
-> Something is definitely screwy with the latest -bk.  I updated from a 
-> kernel ~1 week ago, and all timer-related stuff is moving at a vastly 
-> increased rate.  My guess is twice as fast.  Most annoying is the system 
-> clock advances at twice normal rate, and keyboard repeat is so sensitive 
-> I am spending quite a bit of time typing this message, what with having 
-> to delettte (<== example) extra characters.  Double-clicking is also 
-> broken :(
-> 
-> dmesg and config attached.
-> 
-> My guess would be someone broke HPET, but maybe not judging from other 
-> lkml reports.
-> 
-> This is the _first_ 2.6 kernel that has been obviously and wildly broken 
-> for me :(
-> 
-> 	Jeff
-> 
-> 
-> 
 
---=-k+znf4d2m/GIVO45Dt/l
-Content-Disposition: attachment; filename=laptop-config.bz2
-Content-Type: application/x-bzip; name=laptop-config.bz2
-Content-Transfer-Encoding: base64
+From: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: bk-commits-head@vger.kernel.org
+Subject: Follow 2.4.x semantics for in-kernel signal sending.
+Date: Sun, 20 Jun 2004 16:56:58 +0000
+Sender: bk-commits-head-owner@vger.kernel.org
 
-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
-dvcNr89CAT/4u5IpwoSADNRcMA==
+ ChangeSet 1.1769, 2004/06/20 09:56:58-07:00, torvalds@ppc970.osdl.org
 
---=-k+znf4d2m/GIVO45Dt/l--
+ 	Follow 2.4.x semantics for in-kernel signal sending.
 
+
+
+  signal.c |    7 +++++++
+  1 files changed, 7 insertions(+)
+
+
+ diff -Nru a/kernel/signal.c b/kernel/signal.c
+ --- a/kernel/signal.c	2004-06-20 11:07:49 -07:00
+ +++ b/kernel/signal.c	2004-06-20 11:07:49 -07:00
+ @@ -1197,6 +1197,13 @@
+  	unsigned long flags;
+  
+  	/*
+ +	 * Make sure legacy kernel users don't send in bad values
+ +	 * (normal paths check this in check_kill_permission).
+ +	 */
+ +	if (sig < 0 || sig > _NSIG)
+ +		return -EINVAL;
+ +
+ +	/*
+  	 * We need the tasklist lock even for the specific
+  	 * thread case (when we don't need to follow the group
+  	 * lists) in order to avoid races with "p->sighand"
+ -
+ To unsubscribe from this list: send the line "unsubscribe bk-commits-head" in
+ the body of a message to majordomo@vger.kernel.org
+ More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,53 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264752AbSJUGlD>; Mon, 21 Oct 2002 02:41:03 -0400
+	id <S264750AbSJUGpf>; Mon, 21 Oct 2002 02:45:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264753AbSJUGlD>; Mon, 21 Oct 2002 02:41:03 -0400
-Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:24050 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S264752AbSJUGlD>; Mon, 21 Oct 2002 02:41:03 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Mon, 21 Oct 2002 00:43:08 -0600
-To: Rob Landley <landley@trommello.org>
-Cc: karim@opersys.com, linux-kernel@vger.kernel.org, boissiere@nl.linux.org
-Subject: Re: Crunch time -- Final merge candidates for 3.0 (the list).
-Message-ID: <20021021064308.GA17430@clusterfs.com>
-Mail-Followup-To: Rob Landley <landley@trommello.org>, karim@opersys.com,
-	linux-kernel@vger.kernel.org, boissiere@nl.linux.org
-References: <200210201849.23667.landley@trommello.org> <3DB398C4.6DB5CB0B@opersys.com> <200210202037.54370.landley@trommello.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200210202037.54370.landley@trommello.org>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S264751AbSJUGpf>; Mon, 21 Oct 2002 02:45:35 -0400
+Received: from sccrmhc01.attbi.com ([204.127.202.61]:16556 "EHLO
+	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
+	id <S264750AbSJUGpe>; Mon, 21 Oct 2002 02:45:34 -0400
+Message-ID: <3DB3A732.2080405@kegel.com>
+Date: Mon, 21 Oct 2002 00:05:22 -0700
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: de-de, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+       Davide Libenzi <davidel@xmailserver.org>
+Subject: re: [patch] sys_epoll ...
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 20, 2002  20:37 -0500, Rob Landley wrote:
-> Ted Tso has also been posting new ext2/ext3 code with extended attributes and 
-> access control lists.
-> 
-> Announcement:
-> http://lists.insecure.org/lists/linux-kernel/2002/Oct/6787.html
-> Code (chooe your poison):
-> bk://extfs.bkbits.net/extfs-2.5-update 
-> http://thunk.org/tytso/linux/extfs-2.5
-> 
-> Apparently generic ACL support went into 2.5.3 (the status list again), but I 
-> guess it wasn't added to EXT2.  I suppose this makes this a good candidate 
-> for inclusion then. :)
-> 
-> So, 11 items from the 2.5 status list (in -aa, in -mm, and "ready"), plus 
-> kexec, kernelconfig, and ACL for EXT3.  I believe this brings the total 
-> number of pending patchsets still hoping for 2.5 inclusion to 14.
+Davide wrote:
+ >asmlinkage int sys_epoll_create(int maxfds);
+ >asmlinkage int sys_epoll_ctl(int epfd, int op, int fd, unsigned int events);
+ >asmlinkage int sys_epoll_wait(int epfd, struct pollfd **events, int timeout);
 
-I belive that the ext3 EA+ACL stuff is now in -mm.
+Hey Davide,
+I've always been a bit bothered by the need to specify maxfds in
+advance.  What's the preferred way to handle the situation
+where you guess wrong on the value of maxfds?  Create a new
+epoll and register all the old fds with it?  (Sounds like
+a good job for a userspace wrapper library.)
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+Regardless, thanks for pushing /dev/epoll along towards inclusion
+in 2.5.  I'm looking forward to seeing it it integrated.
+Even if the interface doesn't please everyone, the performance
+should...
+- Dan
 

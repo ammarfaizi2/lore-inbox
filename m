@@ -1,131 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273796AbRJTRV2>; Sat, 20 Oct 2001 13:21:28 -0400
+	id <S273836AbRJTRnD>; Sat, 20 Oct 2001 13:43:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273831AbRJTRVS>; Sat, 20 Oct 2001 13:21:18 -0400
-Received: from osc.edu ([192.148.249.4]:21709 "EHLO osc.edu")
-	by vger.kernel.org with ESMTP id <S273796AbRJTRVH>;
-	Sat, 20 Oct 2001 13:21:07 -0400
-Date: Sat, 20 Oct 2001 13:18:54 -0400 (EDT)
-From: Jan Labanowski <jkl@osc.edu>
-To: linux-kernel@vger.kernel.org
-cc: Jan Labanowski <jkl@osc.edu>
-Subject: 2.4.12 IEEE1284_PH_DIR_UNKNOWN undeclared in ./drivers/parport/ieee1284_ops.c
-Message-ID: <Pine.GSO.4.21.0110201316470.16747-100000@arlen.osc.edu>
+	id <S273854AbRJTRmw>; Sat, 20 Oct 2001 13:42:52 -0400
+Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:50706 "EHLO
+	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
+	id <S273836AbRJTRme>; Sat, 20 Oct 2001 13:42:34 -0400
+Date: Sat, 20 Oct 2001 13:42:58 -0400 (EDT)
+From: Mark Hahn <hahn@physics.mcmaster.ca>
+To: Krzysztof Oledzki <ole@ans.pl>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: bug in "raid5: measuring checksumming speed"
+In-Reply-To: <Pine.LNX.4.33.0110201342410.19999-100000@dark.pcgames.pl>
+Message-ID: <Pine.LNX.4.10.10110201337350.7732-100000@coffee.psychology.mcmaster.ca>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[1.] One line summary of the problem:
-2.4.12: IEEE1284_PH_DIR_UNKNOWN undeclared in ./drivers/parport/ieee1284_ops.c
+> on my two P3 boxes linux chooses pIII_sse but pII_mmx and p5_mmx are
+> reported as faster instructions:
 
-[2.] Full description of the problem/report:
+tail of linux/include/asm-i386/xor.h:
 
-When I run 
-   make modules
-I get:
+| /* We force the use of the SSE xor block because it can write around L2.
+|    We may also be able to load into the L1 only depending on how the cpu
+|    deals with a load to a line that is being prefetched.  */
+| #define XOR_SELECT_TEMPLATE(FASTEST) \
+|         (cpu_has_xmm ? &xor_block_pIII_sse : FASTEST)
 
-make[2]: Entering directory `/usr/src/linux-2.4.12/drivers/parport'
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.12/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i586 -DMODULE -DMODVERSIONS -include /usr/src/linux-2.4.12/include/linux/modversions.h   -c -o ieee1284_ops.o ieee1284_ops.c
-ieee1284_ops.c: In function `ecp_forward_to_reverse':
-ieee1284_ops.c:365: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first use in this function)
-ieee1284_ops.c:365: (Each undeclared identifier is reported only once
-ieee1284_ops.c:365: for each function it appears in.)
-ieee1284_ops.c: In function `ecp_reverse_to_forward':
-ieee1284_ops.c:397: `IEEE1284_PH_DIR_UNKNOWN' undeclared (first use in this function)
-make[2]: *** [ieee1284_ops.o] Error 1
-make[2]: Leaving directory `/usr/src/linux-2.4.12/drivers/parport'
-make[1]: *** [_modsubdir_parport] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.12/drivers'
-make: *** [_mod_drivers] Error 2
+this code should probably be generalized to test for K7 feature flags, as well.
 
-======================================
-The ieee1284_ops.c wants IEEE1284_PH_DIR_UNKNOWN but
-/usr/include/local/parport.h has IEEE1284_PH_ECP_DIR_UNKNOWN
-
-I changed IEEE1284_PH_DIR_UNKNOWN -> IEEE1284_PH_ECP_DIR_UNKNOWN
-on lines  365 and 367, and it compiled, but I am not sure if it fixes it.
-
-[3.] Keywords (i.e., modules, networking, kernel): modules
-
-[4.] Kernel version (from /proc/version): 
-Linux version 2.4.2-2 (root@porky.devel.redhat.com) (gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-79)) #1 Sun Apr 8 19:37:14 EDT 2001
-
-[5.] N/A
-
-[6.] N/A
-
-[7.] Environment
-
-[7.1.] Software (add the output of the ver_linux script here) 
-
-If some fields are empty or look unusual you may have an old version.
-Compare to the current minimal requirements in Documentation/Changes.
- 
-Linux dhcp065-024-066-066.columbus.rr.com 2.4.2-2 #1 Sun Apr 8 19:37:14 EDT 2001 i586 unknown
- 
-Gnu C                  2.96
-Gnu make               3.79.1
-binutils               2.10.91.0.2
-util-linux             2.10s
-mount                  2.11b
-modutils               2.4.2
-e2fsprogs              1.19
-PPP                    2.4.0
-isdn4k-utils           3.1pre1
-Linux C Library        2.2.2
-Dynamic linker (ldd)   2.2.2
-Procps                 2.0.7
-Net-tools              1.57
-Console-tools          0.3.3
-Sh-utils               2.0
-Modules Loaded         sb sb_lib uart401 sound soundcore autofs eepro100 3c509 BusLogic sd_mod scsi_mod
-
-[7.2.] Processor information (from /proc/cpuinfo): 
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 5
-model           : 4
-model name      : Pentium MMX
-stepping        : 3
-cpu MHz         : 233.867
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : yes
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr mce cx8 mmx
-bogomips        : 466.94
-
-[7.3.] Module information (from /proc/modules): 
-autofs                 11136   1 (autoclean)
-eepro100               16688   1 (autoclean)
-3c509                   7696   1 (autoclean)
-BusLogic               87296   0 (unused)
-sd_mod                 11808   0 (unused)
-scsi_mod               94304   2 [BusLogic sd_mod]
-
-[X.] Yes, I do point to right include files 
-cd /usr/include
-mv asm asm-2.4,2
-mv linux linux-2.4.2
-mv scsi scsi-2.4.2
-ln -s /usr/src/linux-2.4/include/asm-i386 asm
-ln -s /usr/src/linux-2.4/include/linux linux
-ln -s /usr/src/linux-2.4/include/scsi scsifil
-
-and my /usr/src/linux-2.4 and /usr/src/linus is
-lrwxrwxrwx 1 root root 12 Oct 20 02:13 /usr/src/linux-2.4 -> lnux-2.4.12
-
-
-
-
-Jan K. Labanowski            |    phone: 614-292-9279,  FAX: 614-292-7168
-Ohio Supercomputer Center    |    Internet: jkl@osc.edu 
-1224 Kinnear Rd,             |    http://www.ccl.net/chemistry.html
-Columbus, OH 43212-1163      |    http://www.osc.edu/
 

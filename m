@@ -1,52 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131861AbRAJDxi>; Tue, 9 Jan 2001 22:53:38 -0500
+	id <S130548AbRAJECV>; Tue, 9 Jan 2001 23:02:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132208AbRAJDx2>; Tue, 9 Jan 2001 22:53:28 -0500
-Received: from smtp.mountain.net ([198.77.1.35]:45830 "EHLO riker.mountain.net")
-	by vger.kernel.org with ESMTP id <S131861AbRAJDxM>;
-	Tue, 9 Jan 2001 22:53:12 -0500
-Message-ID: <3A5BDC9C.B2A05BC5@mountain.net>
-Date: Tue, 09 Jan 2001 22:53:00 -0500
-From: Tom Leete <tleete@mountain.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0 i486)
-X-Accept-Language: en-US,en-GB,en,fr,es,it,de,ru
+	id <S131933AbRAJECM>; Tue, 9 Jan 2001 23:02:12 -0500
+Received: from cs2732-110.austin.rr.com ([24.27.32.110]:2545 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S130548AbRAJEB6>; Tue, 9 Jan 2001 23:01:58 -0500
+Message-ID: <3A5B9B9E.E38A810C@flash.net>
+Date: Tue, 09 Jan 2001 17:15:42 -0600
+From: Rob Landley <landley@flash.net>
+Organization: Boundaries Unlimited
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: rob@sysgo.de
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Anybody got 2.4.0 running on a 386 ?
-In-Reply-To: <01010922090000.02630@rob>
+To: linux-kernel@vger.kernel.org
+Subject: Learn from minix: fork ramfs.
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Kaiser wrote:
-> 
-> Hi list,
-> 
-> I can't seem to get the new 2.4.0 kernel running on a 386 CPU.
-> The kernel was built for a 386 Processor, Math emulation has been enabled.
-> I tried three different 386 boards. Execution seems to get as far as
-> pagetable_init() in arch/i386/mm/init.c, then it falls back into the BIOS as
-> if someone had pressed the reset button. The same kernel boots fine on
-> 486 and Pentium Systems.
-  ^^^
-> 
-> Any ideas/suggestions ?
-> 
-> Rob
-> 
+(Argh!  Linus replies to my post and my cc: to the linux-kernel was to
+rutgers.edu.  Teach me to post on three hours of sleep, it's like
+getting a hole-in-one with nobody around...)
 
-This may be off the wall, but since the 386 is diskless the kernel was
-obviously built elsewhere. Had that tree previously been used for a 486
-build? You might decompile vmlinux and look for non-386 instructions at or
-prior to the crash point.
+Linus said in Re: Patch (repost): cramfs memory corruption fix
 
-It might be faster to recompile from 'make mrproper' and see if it works
-then.
+> I wonder what to do about this - the limits are obviously useful,
+> as would the "use swap-space as a backing store" thing be. At the
+> same time I'd really hate to lose the lean-mean-clean ramfs. 
 
-Tom
+So fork ramfs already.  Copy the snapshot you like as an educational
+tool, call it skeletonfs.c or some such, and let the current code evolve
+into something more useful.
+
+Seems to me a dude named Andrew was in a similar situation a decade or
+so back, and decided to resist all change in the name of having a clear
+educational example.  Patch pressure built up past the "reimplementation
+from scratch threshold event horizon thingy" (the tanenbaum-torvalds
+barrier), at which point the code forked under its own weight anyway.
+
+Saves a lot of bother to do it now, if you ask me.  You'll wind up with
+a new ramfs one way or the other.  People will keep writing it as long
+as it's not there.  (The whole "why climb mount everest" thing, you
+know.)
+
+I could, of course, be totally wrong about this...
+
+Rob
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266420AbUAVTwv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 14:52:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266422AbUAVTwv
+	id S266253AbUAVMAh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 07:00:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266262AbUAVMAg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 14:52:51 -0500
-Received: from ore.jhcloos.com ([64.240.156.239]:41220 "EHLO ore.jhcloos.com")
-	by vger.kernel.org with ESMTP id S266420AbUAVTws (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 14:52:48 -0500
-To: ncunningham@users.sourceforge.net
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: Shutdown IDE before powering off.
-From: "James H. Cloos Jr." <cloos@jhcloos.com>
-In-Reply-To: <1074800199.12771.110.camel@laptop-linux> (Nigel Cunningham's
- message of "Fri, 23 Jan 2004 08:36:40 +1300")
-References: <1074735774.31963.82.camel@laptop-linux>
-	<20040121234956.557d8a40.akpm@osdl.org>
-	<200401220813.i0M8DX4Q000511@81-2-122-30.bradfords.org.uk>
-	<m3y8rzlrj5.fsf@lugabout.jhcloos.org>
-	<1074800199.12771.110.camel@laptop-linux>
-Date: Thu, 22 Jan 2004 14:52:33 -0500
-Message-ID: <m3r7xrlq0u.fsf@lugabout.jhcloos.org>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 22 Jan 2004 07:00:36 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:38664 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S266253AbUAVMAf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 07:00:35 -0500
+Date: Thu, 22 Jan 2004 12:00:29 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Jeff Dike <jdike@addtoit.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.2-rc1-mm1
+Message-ID: <20040122120029.A9758@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jeff Dike <jdike@addtoit.com>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <20040122013501.2251e65e.akpm@osdl.org> <20040122110731.A9319@infradead.org> <200401221217.i0MCHmeS001953@ccure.user-mode-linux.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200401221217.i0MCHmeS001953@ccure.user-mode-linux.org>; from jdike@addtoit.com on Thu, Jan 22, 2004 at 07:17:48AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Nigel" == Nigel Cunningham <ncunningham@users.sourceforge.net> writes:
+On Thu, Jan 22, 2004 at 07:17:48AM -0500, Jeff Dike wrote:
+> hch@infradead.org said:
+> > And this one brings in perfectly broken 2.4 block drivers.
+> 
+> Can you be specific?
 
-Nigel> Actually, we wouldn't want to call sync
-Nigel> anyway for reasons I won't go into here
-
-Sorry for the confusion; I didn't mean call sync so much as flush
-synchronously (ie wait for the drive to ack) thrice before the reboot.
-
--JimC
+Try compiling the cow driver.  Or look at the utter devfs mess in ubd.
+In fact I wonder why the mail on that devfs abuse that I sent to uml-devel
+about half a year ago is still unanswered.
 

@@ -1,121 +1,68 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315653AbSECS6T>; Fri, 3 May 2002 14:58:19 -0400
+	id <S315101AbSECS6K>; Fri, 3 May 2002 14:58:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315654AbSECS6T>; Fri, 3 May 2002 14:58:19 -0400
-Received: from [62.47.201.188] ([62.47.201.188]:52997 "EHLO Goucho")
-	by vger.kernel.org with ESMTP id <S315653AbSECS6R>;
-	Fri, 3 May 2002 14:58:17 -0400
-Message-ID: <001501c1f2d4$79ca63a0$1401000a@GOD>
-From: "Andreas Beham" <atahualpa@gmx.at>
-To: "Christian Koenig" <"ChristianK."@t-online.de>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <001d01c1f2b4$18b00b30$1401000a@GOD> <173hFh-0Mpsp6C@fwd04.sul.t-online.com>
-Subject: Re: 2.4.18 NAT Problems with udp packets; kernel doesnt care about changed rules
-Date: Fri, 3 May 2002 20:58:12 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S315653AbSECS6J>; Fri, 3 May 2002 14:58:09 -0400
+Received: from revdns.flarg.info ([213.152.47.19]:36755 "EHLO noodles.internal")
+	by vger.kernel.org with ESMTP id <S315101AbSECS6J>;
+	Fri, 3 May 2002 14:58:09 -0400
+Date: Fri, 3 May 2002 19:58:11 +0100
+From: Dave Jones <davej@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Linux 2.5.13-dj1
+Message-ID: <20020503185811.GA4846@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "Christian Koenig" <"ChristianK."@t-online.de>
-To: "Andreas Beham" <atahualpa@gmx.at>
-Sent: Friday, May 03, 2002 8:54 PM
-Subject: Re: 2.4.18 NAT Problems with udp packets; kernel doesnt care about
-changed rules
+Back up to date with the other trees of the day, clear out some more
+of the pending queue, some more shrinkage, and drop some more silly bits
+that were spotted during patch splitting.
+
+Size seems to be creeping up dramatically, but this is largely
+due to large updates like the IDE bits (which will show up in .14 anyway)
+Other big chunks are on their way to Linus later..
+
+As usual,..
+Patch against 2.5.13 vanilla is available from:
+ftp://ftp.kernel.org/pub/linux/kernel/people/davej/patches/2.5/
+
+Merged patch archive: http://www.codemonkey.org.uk/patches/merged/
+
+Check http://www.codemonkey.org.uk/Linux-2.5.html before reporting
+known bugs that are also in mainline.
+
+ -- Davej.
+ 
+2.5.13-dj1
+o   Merge 2.4.19pre7 & pre8
+    | drop non-x86 archs, cpqarray update, watchdog bits, LARGE ips update
+o   Back out bogus ext2_setup_super() change.
+o   EFI RTC region handling cleanup.			(William Stinson)
+o   Create stub for thermal_interrupt.			(Brian Gerst)
+o   ADFS super_block cleanup.				(Brian Gerst)
+o   UFS super_block cleanup.				(Brian Gerst)
+o   IDE-49 changes.					(Martin Dalecki)
+o   hpt34x compile fix.					(Martin Dalecki)
+o   Add some missing MODULE_LICENSE tags to fs/		(Tomas Szepe)
+o   Check request_irq in atari_lance			(William Stinson)
+o   Update error handling for AHA1542			(Douglas Gilbert)
+o   Small umem fixes/cleanup.				(Neil Brown)
+o   Small ALSA compilation fix.				(Jaroslav Kysela)
+o   Missing includes in sd/scsi_debug			(Russell King)
+o   Add missing NIPQUAD conversion to nfsroot.		(Trond Myklebust)
+o   IDE-50 and IDE-51.					(Martin Dalecki)
+o   Missing MODULE_LICENSE for sisfb.			(John Tyner)
+o   request_region cleanup for AHA1542			(William Stinson)
+o   Sync framebuffer code with mainline.		(James Simmons)
 
 
-> Hi,
->
-> > Hi,
-> >
-> > I have a Linux Box configured as Router for my Network. Behind my
-Network
-> > are several Win/Mac/Linux Clients. Today I tried to play Dungeon Siege
-(DS)
-> > on my Notebook (WinXP) which is behind my router with my friend.
-> > so the connection looks like the following (did tcpdump, dont have the
-> > actual data available though):
-> > myNotebook.2302 -> myRouter.someport
-> > myRouter.2302 -> Friend.6073 udp blah blah
-> > Friend.6073 -> myRouter.2302 udp blah blah
-> > myRouter.2302 -> Friend.6073 icmp udp port 2302 unreachable
-> >
-> > the following line in my fw script does masquerading:
-> > $FILTER = /sbin/iptables
-> > $EXTINT = ppp0 (most of the time, but it happened under 2.2.x that the
-> > kernel went crazy and started naming them ppp0 ppp1 ppp2 ppp3..., hasnt
-> > happened in a while)
-> > $FILTER -t nat -A POSTROUTING -o $EXTINT -j MASQUERADE
-> >
-> > Playing DS over the internet ONLY works with this line added (10.0.1.20
-is
-> > my notebook):
-> > $FILTER -t nat -A PREROUTING -i $EXTINT -p udp -d $EXTIP --dport
-> > 2300:2400 -j DNAT --to 10.0.1.20
-> > no else changes need to be made
-> >
-> > And here comes the next trouble. Flushing all rules and loading again
-all
-> > my previous rules + this new one did not change a thing! I had to
-> > disconnect from the internet for some seconds and then reconnect and
-load
-> > the script again. Only then did the kernel get the changes and route
-> > correctly. If I just flushed the rules and reloaded them, the kernel
-gives
-> > a damn about it and ignores the new rules. For example I had udp
-2300:2400
-> > directed to 10.0.1.50. I changed it in the script (so that it directs
-them
-> > to 10.0.1.20) and reloaded it. Still on tcpdump I could see that the
-> > packets went to 10.0.1.50 and not 10.0.1.20 where they should be going
-now!
->
-> This is completly normal, because of connection tracking.
-> Only the first udp packet is adjusted by the DNAT rule, after this every
-> packet, after this the kernel "remembers" that there is a connection
-between
-> 10.0.1.20 and the (DS) server on the internet, and routes every packet
-> automatically to your machine.
->
-> copy & paste out off the iptables man page:
->
->    DNAT
->        This  target is only valid in the nat table, in the PREROUTING and
-> OUTPUT chains, and user-defined chains which are only
->        called from those chains.  It specifies that the destination
-address
-> of the packet should be modified  (and  all  future
->        packets in this connection will also be mangled), and rules should
-> cease being examined.  It takes one option:
->
-> sorry, but i don't have any idea what you could do about it.
->
-> cu, Christian Koenig.
 
-Hi,
-
-Thanks for your explanation.
-Still I think masquerading has to be automatically done without specifying
-DNAT rules, because an outgoing connection was already established.
-When the kernel routes 10.0.1.20.2302 to myfriend.6073 then actually packets
-from myfriend.6073 should be routed to 10.0.1.20.2302, not?
-If it werent so I could not surf the net from my lan because basically its
-the same. 10.0.1.20.someport is routed to wwwserver.80 and back without
-problems.
-I can play other games just fine aswell over the internet.
-
-Besides, I think the thing with connection tracking isnt all that good when
-the kernel doesnt recognize changed rules. Shouldnt changed rules lead to
-changed behaviour?
-
-Sincerely,
-Andreas
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

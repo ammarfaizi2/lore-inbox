@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264648AbUISWAP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264531AbUISWEZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264648AbUISWAP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 18:00:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264639AbUISWAP
+	id S264531AbUISWEZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 18:04:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264571AbUISWEZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 18:00:15 -0400
-Received: from rproxy.gmail.com ([64.233.170.195]:38058 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S264531AbUISWAD (ORCPT
+	Sun, 19 Sep 2004 18:04:25 -0400
+Received: from mail.dif.dk ([193.138.115.101]:37541 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S264531AbUISWEW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 18:00:03 -0400
-Message-ID: <35fb2e5904091915007c02c4b8@mail.gmail.com>
-Date: Sun, 19 Sep 2004 23:00:00 +0100
-From: Jon Masters <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: Sergei Haller <sergei.haller@math.uni-giessen.de>
-Subject: Re: lost memory on a 4GB amd64
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0409200737010.3644@fb07-calculator.math.uni-giessen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <Pine.LNX.4.58.0409161445110.1290@magvis2.maths.usyd.edu.au>
-	 <200409161528.19409.andrew@walrond.org>
-	 <Pine.LNX.4.58.0409170051200.26494@fb07-calculator.math.uni-giessen.de>
-	 <200409161619.28742.andrew@walrond.org>
-	 <Pine.LNX.4.58.0409170147320.26494@fb07-calculator.math.uni-giessen.de>
-	 <Pine.LNX.4.58.0409190007530.31971@fb07-calculator.math.uni-giessen.de>
-	 <35fb2e59040919130154966337@mail.gmail.com>
-	 <Pine.LNX.4.58.0409200737010.3644@fb07-calculator.math.uni-giessen.de>
+	Sun, 19 Sep 2004 18:04:22 -0400
+Date: Mon, 20 Sep 2004 00:11:03 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Jesper Juhl <juhl-lkml@dif.dk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       linux-scsi <linux-scsi@vger.kernel.org>
+Subject: Re: [PATCH] fix inlining trouble causing build failure in
+ drivers/scsi/qla2xxx/qla_os.c
+In-Reply-To: <1095631123.1717.20.camel@mulgrave>
+Message-ID: <Pine.LNX.4.61.0409200008340.2758@dragon.hygekrogen.localhost>
+References: <Pine.LNX.4.61.0409192346490.2758@dragon.hygekrogen.localhost>
+ <1095631123.1717.20.camel@mulgrave>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Sep 2004 07:47:20 +1000 (EST), Sergei Haller 
+On Sun, 19 Sep 2004, James Bottomley wrote:
 
-> I guess I should write a simple C-program using malloc or something to
-> reproduce the crash in the simplest possible way, shouldn't I?
+> On Sun, 2004-09-19 at 17:58, Jesper Juhl wrote:
+> > 
+> > 2.6.9-rc2-bk5 allyesconfig fails to build for me with gcc 3.4.1 with the 
+> > following error : 
+> 
+> Actually, Adrian Bunk got there ahead of you.  The fix is in both the
+> scsi-misc-2.6 tree and 2.6.9-rc2-mm1
+> 
+So I see. I didn't have 2.6.9-rc2-mm1 handy to check - I need to make that 
+a habit.
+Ohh well, as long as it gets fixed, that's the main thing. :)
 
-You've answered your own question Sergei. Thing is - you mentioned the
-AGP aperature settings in your original post and then got tied up
-thinking there's a bug in the kernel but we have to rule out stuff
-like X getting very unhappy trying to play in the wrong place or
-something. Try a simple test case and then see if you can give any
-other handy details on your situation.
+/Jesper
 
-Jon.

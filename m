@@ -1,34 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279852AbRKAXCH>; Thu, 1 Nov 2001 18:02:07 -0500
+	id <S279845AbRKAXDg>; Thu, 1 Nov 2001 18:03:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279845AbRKAXBr>; Thu, 1 Nov 2001 18:01:47 -0500
-Received: from thebsh.namesys.com ([212.16.0.238]:64007 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S279846AbRKAXBl>; Thu, 1 Nov 2001 18:01:41 -0500
-Message-ID: <3BE1D439.8A5C81AE@namesys.com>
-Date: Fri, 02 Nov 2001 02:01:13 +0300
-From: Hans Reiser <reiser@namesys.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-4GB i686)
-X-Accept-Language: en, ru
+	id <S279853AbRKAXD0>; Thu, 1 Nov 2001 18:03:26 -0500
+Received: from punt-2.aladdin.de ([212.14.90.2]:39343 "HELO punt.aladdin.de")
+	by vger.kernel.org with SMTP id <S279845AbRKAXDV>;
+	Thu, 1 Nov 2001 18:03:21 -0500
+To: linux-kernel@vger.kernel.org
+Cc: cpg@aladdin.de
+Subject: Alphastation stopped booting with 2.4.10+
+From: Christian Groessler <cpg@aladdin.de>
+Date: 02 Nov 2001 00:02:34 +0100
+Message-ID: <87wv1a5c39.fsf@gibbon.cnet.aladdin.de>
 MIME-Version: 1.0
-To: Andreas Dilger <adilger@turbolabs.com>
-CC: Roy Sigurd Karlsbakk <roy@karlsbakk.net>, linux-kernel@vger.kernel.org
-Subject: Re: writing a plugin for reiserfs compression
-In-Reply-To: <Pine.LNX.4.30.0111011754580.2106-100000@mustard.heime.net> <20011101130721.D16554@lynx.no>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Dilger wrote:
+Hi,
 
-> As a note to whoever at namesys created the reiserfs patch to add the
-> "notail" flag (overloading the "nodump" flag).  I would much rather
-> that a new "notail" flag be allocated for this.  I will contact Ted
-> Ted Ts'o to get a flag assigned.  This will avoid any problems in the
-> future, and may also be useful at some time for ext2.
+2.4.9 worked fine, but starting with 2.4.10 my Alphastation 200
+stopped booting. It simply halts immediately after being called by
+aboot:
 
-Sounds correct to do to me.
 
-Hans
+------------
+aboot> 6
+aboot: loading compressed boot/srm-vmlinux-2.4.10.gz...
+aboot: zero-filling 147840 bytes at 0xfffffc0000a82520
+aboot: starting kernel boot/srm-vmlinux-2.4.10.gz with arguments root=/dev/sda5 video=tga:font:SUN12x22,mode:1024x768-76 console=ttyS0
+
+halted CPU 0
+
+halt code = 5
+HALT instruction executed
+PC = fffffc00009b0cc0
+>>>
+------------
+
+
+I think the problem is the newly introduced opDEC_check, if I do the
+following change 
+
+
+------------
+--- arch/alpha/kernel/traps.c   Thu Nov  1 02:48:15 2001
++++ arch/alpha/kernel/traps.c.good      Thu Nov  1 23:07:32 2001
+@@ -998,6 +998,6 @@ trap_init(void)
+         * a bug in the handling of the opDEC fault.  Fix it up if so.
+         */
+        if (implver() == IMPLVER_EV4) {
+-               opDEC_check();
++               /*opDEC_check();*/
+        }
+ }
+------------
+
+
+the computer boots OK.
+I'm using SRM V7.0-9 and aboot 0.8 on an AlphaStation 200 4/100
+
+regards,
+chris
+

@@ -1,50 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135651AbRBET07>; Mon, 5 Feb 2001 14:26:59 -0500
+	id <S135667AbRBET3J>; Mon, 5 Feb 2001 14:29:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135650AbRBET0s>; Mon, 5 Feb 2001 14:26:48 -0500
-Received: from [212.150.53.130] ([212.150.53.130]:32018 "EHLO
-	marcellos.corky.net") by vger.kernel.org with ESMTP
-	id <S135614AbRBET0d>; Mon, 5 Feb 2001 14:26:33 -0500
-Date: Mon, 5 Feb 2001 21:26:11 +0200
-From: Marc Esipovich <marc@corky.net>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH]: The CREDITS file.
-Message-ID: <20010205212611.A27631@marcellos.corky.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S135668AbRBET27>; Mon, 5 Feb 2001 14:28:59 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:54801 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S135667AbRBET2r>; Mon, 5 Feb 2001 14:28:47 -0500
+Date: Mon, 5 Feb 2001 11:28:17 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: "Stephen C. Tweedie" <sct@redhat.com>,
+        Manfred Spraul <manfred@colorfullife.com>,
+        Christoph Hellwig <hch@caldera.de>, Steve Lord <lord@sgi.com>,
+        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+In-Reply-To: <E14Pr8G-0003zV-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10102051118210.31206-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- We've detected a serious bug in the CREDITS file, under normal circumstances
-it does not produce visible side effects but may trigger unpredictable results
-as soon as Leonard N. Zubkoff (lnz@dandelion.com) sets his eyes on it.
 
- Patch stream follows:
 
---- linux-2.4.1/CREDITS Tue Feb  6 04:17:16 2001
-+++ linux-2.4.1/CREDITS.orig    Tue Feb  6 04:17:05 2001
-@@ -3015,5 +3015,5 @@
- # Don't add your name here, unless you really _are_ after Marc
- # alphabetically. Leonard used to be very proud of being the
- # last entry, and he'll get positively pissed if he can't even
--# be second-to-last.  (and this file really _is_ supposed to be
-+# be third-to-last.  (and this file really _is_ supposed to be
- # in alphabetic order)
+On Mon, 5 Feb 2001, Alan Cox wrote:
 
- bye,
-	Marc.
+> > Stop this idiocy, Stephen. You're _this_ close to be the first person I
+> > ever blacklist from my mailbox. 
+> 
+> I think I've just figured out what the miscommunication is around here
+> 
+> kiovecs can describe arbitary scatter gather
 
---
-marc @ corky.net
+I know. But they are entirely useless for anything that requires low
+latency handling. They are big, bloated, and slow. 
 
-fingerprint = D1F0 5689 967F B87A 98EB  C64D 256A D6BF 80DE 6D3C
+It is also an example of layering gone horribly horribly wrong.
 
-          /"\
-          \ /     ASCII Ribbon Campaign
-           X      Against HTML Mail
-          / \
+The _vectors_ are needed at the very lowest levels: the levels that do not
+necessarily have to worry at all about completion notification etc. You
+want the arbitrary scatter-gather vectors passed down to the stuff that
+sets up the SG arrays etc, the stuff that doesn't care AT ALL about the
+high-level semantics.
+
+This all proves that the lowest level of layering should be pretty much
+noting but the vectors. No callbacks, no crap like that. That's already a
+level of abstraction away, and should not get tacked on. Your lowest level
+of abstraction should be just the "area". Something like
+
+	struct buffer {
+		struct page *page;
+		u16 offset, length;
+	};
+
+	int nr_buffers:
+	struct buffer *array;
+
+should be the low-level abstraction. 
+
+And on top of _that_ you build a more complex entity (so a "kiobuf" would
+be defined not just by the memory area, but by the operation you want to
+do on it, adn the callback on completion etc).
+
+Currently kiobufs do it the other way around: you can build up an array,
+but only by having the overhead of passing kiovec's around - ie you have
+to pass the _highest_ level of abstraction around just to get the lowest
+level of details. That's wrong.
+
+And that wrongness comes _exactly_ from Stephens opinion that the
+fundamental IO entity is an array of contiguous pages. 
+
+And, btw, this is why the networking layer will never be able to use
+kiobufs.
+
+Which makes kiobufs as they stand now basically useless for anything but
+some direct disk stuff. And I'd rather work on making the low-level disk
+drivers use something saner.
+
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267557AbSKQStd>; Sun, 17 Nov 2002 13:49:33 -0500
+	id <S267552AbSKQSrp>; Sun, 17 Nov 2002 13:47:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267558AbSKQStc>; Sun, 17 Nov 2002 13:49:32 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:56494 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S267557AbSKQStb>;
-	Sun, 17 Nov 2002 13:49:31 -0500
-Date: Sun, 17 Nov 2002 21:13:00 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org, Luca Barbieri <ldb@ldb.ods.org>,
-       Ulrich Drepper <drepper@redhat.com>
+	id <S267553AbSKQSrp>; Sun, 17 Nov 2002 13:47:45 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:13062 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267552AbSKQSro>; Sun, 17 Nov 2002 13:47:44 -0500
+Date: Sun, 17 Nov 2002 10:54:42 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Ulrich Drepper <drepper@redhat.com>
+cc: Ingo Molnar <mingo@elte.hu>, Luca Barbieri <ldb@ldb.ods.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [patch] threading fix, tid-2.5.47-A3
-In-Reply-To: <Pine.LNX.4.44.0211171023060.4425-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0211172111030.12699-100000@localhost.localdomain>
+In-Reply-To: <3DD7E3E7.6040403@redhat.com>
+Message-ID: <Pine.LNX.4.44.0211171047160.22525-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-this is the first patch, the introduction of the sys_set_thread_address()  
-syscall. It returns the PID so that the newly initialized 'initial thread'
-does not have to do an additional sys_gettid() call.
+On Sun, 17 Nov 2002, Ulrich Drepper wrote:
+> 
+> It doesn't do this.  Ingo's description simply wasn't right.
+> 
+> The syscall is used in one place and this is when the thread library
+> gets initialized.  I never gets used unconditionally and in situations
+> where the process is not prepared.
 
-	Ingo
+Ok, good. That means that "sys_set_userpid()" is fine with me.
 
---- linux/arch/i386/kernel/entry.S.orig	2002-11-17 20:53:52.000000000 +0100
-+++ linux/arch/i386/kernel/entry.S	2002-11-17 20:54:55.000000000 +0100
-@@ -767,6 +767,7 @@
- 	.long sys_epoll_ctl	/* 255 */
- 	.long sys_epoll_wait
-  	.long sys_remap_file_pages
-+ 	.long sys_set_tid_address
- 
- 
- 	.rept NR_syscalls-(.-sys_call_table)/4
---- linux/kernel/fork.c.orig	2002-11-17 20:53:52.000000000 +0100
-+++ linux/kernel/fork.c	2002-11-17 20:54:55.000000000 +0100
-@@ -676,6 +676,13 @@
- 	p->flags = new_flags;
- }
- 
-+asmlinkage int sys_set_tid_address(int *user_tid)
-+{
-+	current->user_tid = user_tid;
-+
-+	return current->pid;
-+}
-+
- /*
-  * This creates a new process as a copy of the old one,
-  * but does not actually start it yet.
+That still leaves the other part of the patch. I do not think that SETTID
+and CLEARTID should be mixed together. There are perfectly valid reasons
+why a parent wants SETTID even when it _doesn't_ want CLEARTID.
+
+In fact, SETTID is clearly useful even without threads, and exactly for
+the case that Ingo apparently broke with his patch: the parent wants to
+atomically save the TID of the child in the _parents_ address space (so
+that a immediate SIGCHLD won't be racy with saving off the pid by the
+parent).
+
+So Ingo, please send me just the sys_set_userpid() parts, and revert your 
+broken code that made SETTID do bad things and only work for threads.
+
+There's no reason to make SETTID/CLEARTID be one flag, since they are
+clearly different things, and NPTL can just always set both bits if that
+is the behaviour glibc wants (and I agree with that behaviour, of course. 
+I just disagree with not allowing others to do different things).
+
+			Linus
+
 

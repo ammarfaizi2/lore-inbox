@@ -1,52 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266181AbUBCXiW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 18:38:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266215AbUBCXiW
+	id S266174AbUBCXnp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 18:43:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266194AbUBCXnp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 18:38:22 -0500
-Received: from gotroot.insekure.com ([207.254.222.218]:64264 "EHLO
-	speedy.insekure.com") by vger.kernel.org with ESMTP id S266181AbUBCXiM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 18:38:12 -0500
-Date: Tue, 3 Feb 2004 17:45:25 -0600 (CST)
-From: James Schmidt <james@JamesSchmidt.Com>
-X-X-Sender: james@speedy.insekure.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: broken maxcpus in 2.4.24
-In-Reply-To: <1075765034.17943.79.camel@reactor.us.proofpoint.com>
-Message-ID: <20040203150930.W17910@speedy.insekure.com>
-References: <1075765034.17943.79.camel@reactor.us.proofpoint.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 3 Feb 2004 18:43:45 -0500
+Received: from fw.osdl.org ([65.172.181.6]:53225 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266174AbUBCXni (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 18:43:38 -0500
+Date: Tue, 3 Feb 2004 15:36:06 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: stelian@popies.net, akpm <akpm@osdl.org>
+Subject: [PATCH] meye: correct printk of dma_addr_t
+Message-Id: <20040203153606.76442b9c.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hope this hasn't been posted already.
 
-Not sure if I am right or not on this but this seems to be related, at
-least on my box, to the APIC IDs of the CPUs.  I am using an Intel
-SE7500CW, populated with 2x XEONs.  The APIC ID's of the CPUs are 0 & 1
-for the first physical CPU, and 6 & 7 for the second physical CPU (don't
-ask me why).  If I don't use NR_CPUs = 8, I don't seem to see the second
-physical CPU.  Someone correct me if I'm wrong.
+description:	fix dma_addr_t type error with CONFIG_HIGHMEM64G=y;
+product_versions: linux-262-rc3
 
--James
+diffstat:=
+ drivers/media/video/meye.c |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
 
-On Mon, 2 Feb 2004, Dan Christian wrote:
+diff -Naurp ./drivers/media/video/meye.c~meye_dma ./drivers/media/video/meye.c
+--- ./drivers/media/video/meye.c~meye_dma	2004-01-08 22:59:44.000000000 -0800
++++ ./drivers/media/video/meye.c	2004-02-03 14:43:42.000000000 -0800
+@@ -162,7 +162,7 @@ static void rvfree(void * mem, unsigned 
+ 
+ /* return a page table pointing to N pages of locked memory */
+ static int ptable_alloc(void) {
+-	u32 *pt;
++	dma_addr_t *pt;
+ 	int i;
+ 
+ 	memset(meye.mchip_ptable, 0, sizeof(meye.mchip_ptable));
+@@ -176,7 +176,7 @@ static int ptable_alloc(void) {
+ 		return -1;
+ 	}
+ 
+-	pt = (u32 *)meye.mchip_ptable[MCHIP_NB_PAGES];
++	pt = (dma_addr_t *)meye.mchip_ptable[MCHIP_NB_PAGES];
+ 	for (i = 0; i < MCHIP_NB_PAGES; i++) {
+ 		meye.mchip_ptable[i] = dma_alloc_coherent(&meye.mchip_dev->dev, 
+ 							  PAGE_SIZE,
+@@ -184,7 +184,7 @@ static int ptable_alloc(void) {
+ 							  GFP_KERNEL);
+ 		if (!meye.mchip_ptable[i]) {
+ 			int j;
+-			pt = (u32 *)meye.mchip_ptable[MCHIP_NB_PAGES];
++			pt = (dma_addr_t *)meye.mchip_ptable[MCHIP_NB_PAGES];
+ 			for (j = 0; j < i; ++j) {
+ 				dma_free_coherent(&meye.mchip_dev->dev,
+ 						  PAGE_SIZE,
+@@ -200,10 +200,10 @@ static int ptable_alloc(void) {
+ }
+ 
+ static void ptable_free(void) {
+-	u32 *pt;
++	dma_addr_t *pt;
+ 	int i;
+ 
+-	pt = (u32 *)meye.mchip_ptable[MCHIP_NB_PAGES];
++	pt = (dma_addr_t *)meye.mchip_ptable[MCHIP_NB_PAGES];
+ 	for (i = 0; i < MCHIP_NB_PAGES; i++) {
+ 		if (meye.mchip_ptable[i])
+ 			dma_free_coherent(&meye.mchip_dev->dev, 
 
-> I compiled a vanilla 2.4.24 for a 2 processor Xeon.
->
-> I set CONFIG_NR_CPUS to 4 (2 CPUs x 2 hyperthreads each).
->
-> When I boot the kernel, /proc/cpuinfo only shows 2 cpus (0-1) and
-> performance is bad.
->
-> I reconfigure CONFIG_NR_CPUS back to 32.  Now it shows 4 cpus (0-3) and
-> performance is normal.
->
-> Is this a bug or am misunderstanding how to set this configuration
-> variable?
->
-> -Dan Christian
->
+
+--
+~Randy

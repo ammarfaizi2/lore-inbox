@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267666AbSLFXzx>; Fri, 6 Dec 2002 18:55:53 -0500
+	id <S267665AbSLFXxx>; Fri, 6 Dec 2002 18:53:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267668AbSLFXzx>; Fri, 6 Dec 2002 18:55:53 -0500
-Received: from imrelay-2.zambeel.com ([209.240.48.8]:8721 "EHLO
-	imrelay-2.zambeel.com") by vger.kernel.org with ESMTP
-	id <S267666AbSLFXzw>; Fri, 6 Dec 2002 18:55:52 -0500
-Message-ID: <233C89823A37714D95B1A891DE3BCE5202AB1AD2@xch-a.win.zambeel.com>
-From: Manish Lachwani <manish@Zambeel.com>
-To: linux-kernel@vger.kernel.org
-Cc: Manish Lachwani <manish@Zambeel.com>
-Subject: CSB5 support for UDMA 6 ...
-Date: Fri, 6 Dec 2002 16:03:18 -0800 
+	id <S267666AbSLFXxx>; Fri, 6 Dec 2002 18:53:53 -0500
+Received: from packet.digeo.com ([12.110.80.53]:57290 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S267665AbSLFXxx>;
+	Fri, 6 Dec 2002 18:53:53 -0500
+Message-ID: <3DF13A54.927C04C1@digeo.com>
+Date: Fri, 06 Dec 2002 16:01:24 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.50 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: Andrea Arcangeli <andrea@suse.de>, Norman Gaywood <norm@turing.une.edu.au>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Maybe a VM bug in 2.4.18-18 from RH 8.0?
+References: <20021206111326.B7232@turing.une.edu.au> <3DEFF69F.481AB823@digeo.com> <20021206011733.GF1567@dualathlon.random> <3DEFFEAA.6B386051@digeo.com> <20021206014429.GI1567@dualathlon.random> <20021206021559.GK9882@holomorphy.com> <20021206022853.GJ1567@dualathlon.random> <20021206024140.GL9882@holomorphy.com> <20021206222852.GF4335@dualathlon.random> <20021206232125.GR9882@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Dec 2002 00:01:24.0059 (UTC) FILETIME=[C7F1E2B0:01C29D83]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have made changes to serverworks.c to support UDMA 6 and tested on CSB5.
-It works fine and the Maxtor 160 GB drives are detected in the UDMA 6 mode
-both in the kernel log messages on bootup and in the IDENTIFY information
-from the drive.
+William Lee Irwin III wrote:
+> 
+> ...
+> A 16KB or 64KB kernel allocation unit would then annihilate
 
-Following changes in in config_chipset_for_dma(..)
+You want to be careful about this:
 
-        if ( (id->dma_ultra & 0x0040) || (ultra100)) {
-                speed = XFER_UDMA_6;
-        }
+	CPU: L1 I cache: 16K, L1 D cache: 16K
 
-and 
+Because instantiating a 16k page into user pagetables in
+one hit means that it must all be zeroed.  With these large
+pagesizes that means that the application is likely to get
+100% L1 misses against the new page, whereas it currently
+gets 100% hits.
 
-        return ((int)   ((id->dma_ultra >> 14) & 3) ? ide_dma_on :
-                        ((id->dma_ultra >> 11) & 7) ? ide_dma_on :
-                        ((id->dma_ultra >> 8) & 7) ? ide_dma_on :
-                        ((id->dma_mword >> 8) & 7) ? ide_dma_on :
-                        ((id->dma_1word >> 8) & 7) ? ide_dma_on :
-                                                     ide_dma_off_quietly);
+I'd expect this performance dropoff to occur when going from 8k
+to 16k.  By the time you get to 32k it would be quite bad.
 
+One way to address this could be to find a way of making the
+pages present, but still cause a fault on first access.  Then
+have a special-case fastpath in the fault handler to really wipe
+the page just before it is used.  I don't know how though - maybe
+_PAGE_USER?
 
-We can also set the UDMA speed successfully from hdparm and the changes show
-UDMA 6. I have add long runs with these changes and the controller/drive
-seem to work fine. 
-
-hdparm -x70 /dev/hdX
-
-
-Thanks
-Manish
-
-
+get_user_pages() would need attention too - you don't want to
+allow the user to perform O_DIRECT writes of uninitialised
+pages to their files...

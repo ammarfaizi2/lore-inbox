@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262937AbSLBBBN>; Sun, 1 Dec 2002 20:01:13 -0500
+	id <S262981AbSLBBS0>; Sun, 1 Dec 2002 20:18:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262959AbSLBBBN>; Sun, 1 Dec 2002 20:01:13 -0500
-Received: from supreme.pcug.org.au ([203.10.76.34]:51693 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S262937AbSLBBBN>;
-	Sun, 1 Dec 2002 20:01:13 -0500
-Date: Mon, 2 Dec 2002 12:08:35 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Maximum Physical Memory on 2.4 and ia32
-Message-Id: <20021202120835.4ecb87fd.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S263105AbSLBBS0>; Sun, 1 Dec 2002 20:18:26 -0500
+Received: from web14506.mail.yahoo.com ([216.136.224.69]:19026 "HELO
+	web14506.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S262981AbSLBBSZ>; Sun, 1 Dec 2002 20:18:25 -0500
+Message-ID: <20021202012552.47909.qmail@web14506.mail.yahoo.com>
+Date: Sun, 1 Dec 2002 17:25:52 -0800 (PST)
+From: Arun Prasad Velu <arun_linux@yahoo.com>
+Subject: kgdb - compilation fails for i386_ksyms.c 
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Hello,
 
-This may be a FAQ (but I did search).
+I was trying to use kgdb.
+But I get the following error while trying to create
+the kernel image after applying kgdb patch.
+I couldn't copy paste the error and so typed the same
+here.
 
-Given this statement by RedHat:
+"
+i386_ksyms.c:172: 'do_BUG' undeclared here (not in a
+function)
+i386_ksyms.c:172: initializaer element is not a
+constant
+i386_ksyms.c:172: (near initialization for
+'__ksymtab_do_BUG.value')
+make[1]: *** [ie86_ksyms.o] Error 1
+make *** [_dir_arch/i386/kernel] Error 2
+"
 
-"RAM Limitations on IA32
+Your earlier response would ne of great help.
 
-Red Hat Linux releases based on the 2.4 kernel -- including Red Hat Linux
-7.1, 7.2, 7.3 and Red Hat Linux Advanced Server 2.1 -- support a maximum
-of 16GB of RAM. Previous product announcements from Red Hat suggested that
-Red Hat Linux 7.1 (and by extension, other releases based on the 2.4
-kernel) supported up to 64GB of RAM. A more accurate statement is the
-2.4-based kernels included in Red Hat Linux 7.1, 7.2, 7.3 and Red Hat
-Linux Advanced Server 2.1 support the hardware extensions that support up
-to 64GB of RAM. This is an important distinction: while the hardware will
-indeed support up to 64GB of physical memory, the operating system design
-limits the supported physical memory to approximately 16GB."
+Have a nice time.
+Warm Regards
+Arun
 
-(http://www.redhat.com/services/techsupport/production/GSS_caveat.html)
-What are the "operating system design limits" that restrict the amount of
-supported memory to 16GB?
--- 
-Cheers, Stephen Rothwell                   sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+
+__________________________________________________
+Do you Yahoo!?
+Yahoo! Mail Plus - Powerful. Affordable. Sign up now.
+http://mailplus.yahoo.com

@@ -1,42 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288666AbSADPfr>; Fri, 4 Jan 2002 10:35:47 -0500
+	id <S288672AbSADPjr>; Fri, 4 Jan 2002 10:39:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288674AbSADPfh>; Fri, 4 Jan 2002 10:35:37 -0500
-Received: from Expansa.sns.it ([192.167.206.189]:52754 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S288666AbSADPf2>;
-	Fri, 4 Jan 2002 10:35:28 -0500
-Date: Fri, 4 Jan 2002 16:34:53 +0100 (CET)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: "Eric S. Raymond" <esr@thyrsus.com>
-cc: Andreas Schwab <schwab@suse.de>, Erik Andersen <andersen@codepoet.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: LSB1.1: /proc/cpuinfo
-In-Reply-To: <20020104080358.A11215@thyrsus.com>
-Message-ID: <Pine.LNX.4.33.0201041629420.31357-100000@Expansa.sns.it>
+	id <S288676AbSADPjh>; Fri, 4 Jan 2002 10:39:37 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:37125 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S288672AbSADPjb>; Fri, 4 Jan 2002 10:39:31 -0500
+Message-ID: <3C35CCB1.8040900@redhat.com>
+Date: Fri, 04 Jan 2002 10:39:29 -0500
+From: Doug Ledford <dledford@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020103
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ben Clifford <benc@hawaga.org.uk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: i810_audio]
+In-Reply-To: <Pine.LNX.4.33.0201032122510.505-100000@barbarella.hawaga.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ben Clifford wrote:
+
+> I took have problems recording. I'm using the i810 driver
+> in 2.4.16
+> 
+> I can do:
+> 
+> cat < /dev/sound/dsp > /dev/sound/dsp
+> 
+> and get a few seconds delayed echo of what is going on, as I would expect.
+> 
+> However, if I try to use anything more complicated, it locks up my system
+> - no keyboard, no network, needs to be hard booted.
+> 
+> The programs I have tried are "rec" which comes with sox-12.17.1 and a
+> downloaded utility called voice chat.
+> 
+> What happens is: the recording happens, but when the program ends, either
+> by itself or by being killed, the system locks up.
+> 
+> So maybe this is something to do with restoring settings at the end of the
+> recording?
+> 
+> Playback happens with no problem.
+> 
+> Below is the lspci output for the sound system, if it is of any use.
+> 
+> If there is any more info anyone wants, please ask.
 
 
-On Fri, 4 Jan 2002, Eric S. Raymond wrote:
+Your particular report sounds like the recording bugs that have already been 
+fixed by my 0.13 version of the driver.  Please download that and see if 
+recording works better for you.  It can be found at 
+http://people.redhat.com/dledford/i810_audio.c.gz
 
-> Andreas Schwab <schwab@suse.de>:
-> > |> I'm not very worried about this.  On modern machines int == long
-> >
-> > You mean alpha, ia64, ppc64, s390x, x68-64 are not modern machines?
->
-> Well, S390 certainly isn't! :-)
->
-> If the PPC etc. have 32-bit ints then I stand corrected, but I thought the
-> compiler ports on those machines used the native register size same as
-> everybody else.
-No, and the last troubles I had with reiserFS on sparc64 were exaclty
-because of this.
-in 2.4.17 s_properties is declared as unsigned int, while it should be
-an unsigned long. On x86 that is not aproblem at all, on all 64 bits CPUs
-reiserFS is unusable if you do not make a little patch.
+ 
 
+
+
+-- 
+
+  Doug Ledford <dledford@redhat.com>  http://people.redhat.com/dledford
+       Please check my web site for aic7xxx updates/answers before
+                       e-mailing me about problems
 

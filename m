@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261295AbTAIBn0>; Wed, 8 Jan 2003 20:43:26 -0500
+	id <S261330AbTAIBvl>; Wed, 8 Jan 2003 20:51:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261305AbTAIBn0>; Wed, 8 Jan 2003 20:43:26 -0500
-Received: from ftp.tpi.com ([198.107.51.136]:30225 "EHLO mailgate.tpi.com")
-	by vger.kernel.org with ESMTP id <S261295AbTAIBnZ> convert rfc822-to-8bit;
-	Wed, 8 Jan 2003 20:43:25 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Tim Gardner <timg@tpi.com> (by way of Tim Gardner <timg@tpi.com>)
-Reply-To: timg@tpi.com
-Organization: TriplePoint, Inc
-Subject: 2.4.19 ICMP redirects erroneously ignored
-Date: Wed, 8 Jan 2003 18:52:05 -0700
-User-Agent: KMail/1.4.3
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200301081852.05547.rtg@tim.rtg.net>
+	id <S261333AbTAIBvk>; Wed, 8 Jan 2003 20:51:40 -0500
+Received: from [213.228.128.56] ([213.228.128.56]:24465 "HELO
+	front1.netvisao.pt") by vger.kernel.org with SMTP
+	id <S261330AbTAIBvk>; Wed, 8 Jan 2003 20:51:40 -0500
+Subject: Re: free software
+From: "Paulo Andre'" <fscked@netvisao.pt>
+To: Billy Rose <passive_induction@sbcglobal.net>
+Cc: rms@gnu.org, lm@bitmover.com, linux-kernel@vger.kernel.org
+In-Reply-To: <5.2.0.9.0.20030108181618.00b28100@pop.sbcglobal.yahoo.com>
+References: <5.2.0.9.0.20030108181618.00b28100@pop.sbcglobal.yahoo.com>
+Content-Type: text/plain
+Organization: Corleone Hacking Corp.
+Message-Id: <1042077617.28496.13.camel@nostromo.orion.int>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 09 Jan 2003 02:00:18 +0000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting pounded by ICMP redirects from my Nortel router. The
-setup is a SuSE 8.1 (2.4.19) standard client with fixed IP and netmask.
-The client is configured with a default route. However, there are
-several routers on the subnet that the default router knows about.
-Hence, the reason that the Nortel router emits ICMP redirects
-which my client steadfastly ignores.
+On Thu, 2003-01-09 at 01:52, Billy Rose wrote:
+> after growing tired of trying to sift through the emails for tidbits of 
+> useful code, i have come to the conclusion that this thread should be 
+> geared towards something more constructive, otherwise i fear people will 
+> begin to find `open source' and `free software' distasteful.
 
-I've RTFM, read the kernel source, and checked the relevant settings 
-(/proc/sys/net/ipv4/conf/all/*). I find in /proc/net/rt_cache that there are 
-2 entries, one of which is marked RTCF_REDIRECTED.
+<snip>
 
-Why isn't this redirected route being used? 
+You're not RMS in disguise are you? I'm sorry but after all that Nvidia
+noise I can believe in nearly anything.
 
-This seems like a problem that ought to be common to anyone that
-has multiple routers on the same subnet. What am I missing?
+-- 
+	Paulo Andre'
 
-rtg

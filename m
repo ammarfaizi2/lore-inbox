@@ -1,171 +1,123 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261791AbTILTdf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 15:33:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbTILTdf
+	id S261809AbTILTci (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 15:32:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbTILTci
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 15:33:35 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:24068 "HELO
-	kinesis.swishmail.com") by vger.kernel.org with SMTP
-	id S261791AbTILTdU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 15:33:20 -0400
-Message-ID: <3F6224C6.1020305@techsource.com>
-Date: Fri, 12 Sep 2003 15:55:50 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Schwartz <davids@webmaster.com>
-CC: Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org
-Subject: Re: People, not GPL  [was: Re: Driver Model]
-References: <MDEHLPKNGKAHNMBLJOLKAEHGGHAA.davids@webmaster.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 12 Sep 2003 15:32:38 -0400
+Received: from ns.suse.de ([195.135.220.2]:12962 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261809AbTILTcf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 15:32:35 -0400
+Date: Fri, 12 Sep 2003 21:30:16 +0200
+From: Andi Kleen <ak@suse.de>
+To: Martin Schlemmer <azarah@gentoo.org>
+Cc: bunk@fs.tum.de, jgarzik@pobox.com, ebiederm@xmission.com, akpm@osdl.org,
+       richard.brunner@amd.com, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
+Message-Id: <20030912213016.47a4e5de.ak@suse.de>
+In-Reply-To: <1063393505.3371.207.camel@workshop.saharacpt.lan>
+References: <99F2150714F93F448942F9A9F112634C0638B196@txexmtae.amd.com>
+	<20030911012708.GD3134@wotan.suse.de>
+	<20030910184414.7850be57.akpm@osdl.org>
+	<20030911014716.GG3134@wotan.suse.de>
+	<3F60837D.7000209@pobox.com>
+	<20030911162634.64438c7d.ak@suse.de>
+	<3F6087FC.7090508@pobox.com>
+	<m1vfrxlxol.fsf@ebiederm.dsl.xmission.com>
+	<20030912195606.24e73086.ak@suse.de>
+	<3F62098F.9030300@pobox.com>
+	<20030912182216.GK27368@fs.tum.de>
+	<20030912202851.3529e7e7.ak@suse.de>
+	<1063393505.3371.207.camel@workshop.saharacpt.lan>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 12 Sep 2003 21:05:06 +0200
+Martin Schlemmer <azarah@gentoo.org> wrote:
 
 
-David Schwartz wrote:
->>But I have another point.  You are not dealing with a license here.  The
->>license is there to satisfy lawyers and make clear the INTENT of the
->>authors.  The keyword here is INTENT in that someone who has developed
->>something is telling you how they feel about the use of their work
->>which, under many circumstances, they could have chosen not to share
->>with you.  What you are dealing with is real people who have put an
->>incredible amount of time and effort into developing Linux.  Those
->>people, to whom you owe much respect for sharing their contributions,
->>have decided that their software should be used with certain
->>restrictions, that being the GPL.  If you abuse Linux, it is not the GPL
->>that you are insulting, but the people who developed Linux.
-> 
-> 
-> 	In other words, information does not want to be free. You shouldn't use
-> code the way you want to use it but the way the authors want you to use it.
-> After all, they didn't have to give it to you if they didn't want to.
+> Ok, so how many instructions was added by this ?  Or is it
 
-EXACTLY.  Fortunately in this case, the authors place few restrictions 
-on your usage.  Indeed, the "restrictions" are more a matter of being 
-nice to the people who made the stuff you're using.
+None at all, Mr Inquisitor. It is all patched at early boot time.
 
-You're stuck thinking about "law" and "rules".  I'm thinking instead 
-about "honor".
+> Ok, so maybe my opinion about X86_GENERIC is not as intended, but
+> then IMHO, it should be 'fixed'.  I could not care less if my kernel
+> only boot just on my box, never mind on another P4 - I just want
+> the most optimised on possible.  Sure, some guys want a more generic
+> kernel - get X86_GENERIC to work for them.  Same for distro's.
 
-One of the (unresolved) discussions I had with RMS involved the role of 
-the author.  He believes that the user is more important than the 
-author.  I believe the author is more important, because had the author 
-not written what the user has, then the user would not have it! 
-Actually, he partially agrees with me but does not feel that the author 
-should be able to apply restrictions (IF the work is PUBLISHED).
+X86_GENERIC has nothing to do with all this. All it does is 
+to always force the cache line padding to 128 byte. 
 
+This means that when you have an SMP kernel, no matter compiled
+for what CPU, it will not run like crap on a P4 Xeon based SMP system.
+The cost is some more memory usage for more padding (Athlon is fine 
+with 64 byte padding, P3 is fine with 32byte padding). If you don't
+want that just don't enable it.
+ 
+> I have long wondered if everything in arch/i386/kernel/cpu/ is
+> really linked in (meaning with no #ifdef as it now looks to be
+> at a quick peek), or if it was just easier to link them all,
+> but have non generic stuff (amd/cyrix/whatever specific code)
+> filtered by ifdef's.
 
-> 	However, Richard Stallman does not agree with this view. It's his view that
-> if the authors chose to give you the code, you can use it any way you want
-> to, regardless of how the authors feel about that type of usage. This is why
-> he created the GPL.
+It is (in MTRR drivers etc.), but the resulting overhead is small.
 
-But it seems clear to me that the GPL places some very strong 
-restrictions on your usage.  Those restrictions are that although your 
-specific usage of the code doesn't matter, anything (published) that you 
-derive from GPL work MUST also be published under GPL.
+Currently I even link in Intel and Cyrix specific MTRR drivers on x86-64
+just to keep the common code common and clean.
 
-So my point is that when someone publishes something under GPL that you 
-find useful, give respect to the person who wrote it by obeying the 
-spirit of the license.  But it is not the license that is important as 
-that the author chose to release his work under those terms.  People, 
-not rules; honor, not law.
+Really, when you want to save code size you should look elsewhere. All the 
+CPU support code is pretty lean and in many cases is __init code anyways
+(= is discarded after boot time) 
 
-There are other licenses besides the GPL.  When authors release under 
-those terms, you should respect those terms as well.  The thing that 
-sets the GPL apart from, say, closed-source licensing is that the GPL is 
-based on a system of honor, while proprietary systems can (and often do) 
-become unfairly restrictive to the users.
+I can offer my old bloat-o-meter tool (ftp://ftp.firstfloor.org/pub/ak/perl/bloat-o-meter)
+It is great to look for bloat. Just run it with a 2.4 kernel and 2.6 kernel and compare
+the results. Then look at the top 50 bloat increasers. I bet with you that 
+you won't find anything touched in this thread among them.
 
-> 
-> 
->>So, the discussions about finding ways to make a non-GPL driver look
->>like a GPL driver and get away with it legally are all moot.  The reason
->>you should not violate this is because the architects of Linux do not
->>want you to.
-> 
-> 
-> 	If you really believe that the Linux authors wished to continue to control
-> how their code was used, you have to think that they were stupid to release
-> the code under the GPL. After all, the whole point of the GPL is to prohibit
-> such restrictions. The reason Linux is under the GPL is so that developers
-> *can't* put restrictions on how the package can be used. That's the "open"
-> in open source.
+I suspect for example if you just worked on making sysfs optional you would
+save a lot more.
+ 
+> This is just me, but why then don't we then just drop the specific
+> arch selection, and just have generics instead of pulling a sock
+> over the user's eyes ?
 
-The restrictions they are applying are the only ones in the GPL.  It was 
-smart for them to use the GPL because it is compatible with their 
-wishes.  Follow the GPL not because the GPL is a copyright license, but 
-because you are grateful for the efforts of those who published under GPL.
+It is doing a lot of optimizations for the specific CPU. For example
+it tells gcc to compile for that CPU which can make a big difference (P4 prefers
+very different code compared to P3 or Athlon). Or it sets the paddings correctly
+for the CPU, which can make a very big difference in .text size. So when you
+select CONFIG_MPENTIUM4 you will get a kernel that will perform optimally for P4.
 
-Furthermore, if someone publishes under GPL, and your insult them, they 
-may become less willing to release under GPL, thereby limiting your 
-ability to rip them off.
+To give a bit of perspective:
 
-Also, just to be pedantic, because you mentioned RMS, "open source" and 
-"free software" are not the same thing.
+On 2.4 the situation was: 
 
-> 
->>If you choose to violate that, you are being unethical,
->>pure and simple.  Or more to the point, you're being an asshole to a lot
->>of hard-working people who have chosen to freely share their work with
->>you.
-> 
-> 
-> 	The person who tries to put other people's GPL'd works under his license
-> restrictions is the asshole. I have contributed code to the Linux kernel
-> under the GPL license (bonus points to anyone who can find my 25 lines of
-> code or so). It is nobody else's right to add code to my code and add usage
-> restrictions to it. The GPL expressly forbids this.
+- Athlon kernel would only boot on Athlon/K6 due to 3dnow prefetches
+- P4 kernel would boot everywhere
+- P3 kernel would boot everywhere
 
-And I completely agree with all of this.  I'm getting the feeling that 
-you and I don't actually disagree on any of this.  :)
+(ignoring really old CPUs or oddballs like C3 without CMOV support) 
 
-The point of divergence is with regard to modules and the symbol 
-restrictions for non-GPL drivers.  Here is a gray area where the GPL may 
-not apply really.  These gray areas are where ethics and honor must come 
-into play.
+(also note booting just means booting without oops, not being optimal for the specific CPU.
+Being optimal is very different)
 
-> 
->>Since they are the authors and you are not, their feelings about
->>their softare are more important than yours.
-> 
-> 
-> 	I'm just baffled. You don't seem to understand at all why the Linux kernel
-> is organized under the GPL. It's precisely so that some developers can't
-> hijack the project and encumber the growing source base with usage and
-> distribution restrictions.
+Then 2.6 added SSE1 prefetch support which made the P4 kernel not boot on
+anything that didn't support SSE1 (like older Athlon before XP). I fixed
+that then with dynamically patching the prefetches. The overhead at runtime
+is zero because it is patched at boot, the .text overhead for the patch 
+tables is minimal.
 
-Which is precisely why those authors placed Linux under the GPL.  If 
-they didn't like that, they would be working on proprietary OS's.  I'm 
-saying that people should respect the authors by honoring the GPL.
+So basically the 2.6 alternative() stuff just restored the 2.4 de-facto situation 
+in 2.6, and improved it slightly because the Athlon kernel also now works everywhere.
 
-> 
->>You may be able to screw
->>them over and get away with it -- people do that sort of thing all the
->>time -- but the fact that you may find a legal loophole doesn't make you
->>any less of an abject asshole.
-> 
-> 
-> 	The asshole is the person who thinks that they have the right to change the
-> express wishes of all the other contributors to the kernel who chose to
-> contribute to a project that operates under the GPL license. The GPL license
-> is about there being no restrictions on usage.
+I think it's useful to keep kernels booting everywhere, it makes it a lot easier
+to test a single kernel on multiple systems.
 
-Well, aside from the "it must remain free clause" (which I interpret as 
-an important restriction), I agree with you.  That is to say, the 
-"contributor" who hijacks the work of other contributors is being 
-dishonorable, because he is not respecting the other contributors.
-
-> 
->>In short:  Be honorable.
-> 
-> 
-> 	I am. The hijackers are not.
-
-Agreed.
-
+-Andi
 

@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273691AbRI0Q42>; Thu, 27 Sep 2001 12:56:28 -0400
+	id <S273702AbRI0RKb>; Thu, 27 Sep 2001 13:10:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273693AbRI0Q4T>; Thu, 27 Sep 2001 12:56:19 -0400
-Received: from pixar.pixar.com ([138.72.10.20]:10460 "EHLO pixar.pixar.com")
-	by vger.kernel.org with ESMTP id <S273688AbRI0Q4B>;
-	Thu, 27 Sep 2001 12:56:01 -0400
-Date: Thu, 27 Sep 2001 09:53:09 -0700
-From: Kiril Vidimce <vkire@pixar.com>
-To: Carl Spalletta <cspalletta@nectarsystems.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: max arguments for exec
-In-Reply-To: <20010927154840.74967.qmail@web13307.mail.yahoo.com>
-Message-ID: <Pine.SGI.4.21.0109270952060.37081-100000@eclipse>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S273703AbRI0RKU>; Thu, 27 Sep 2001 13:10:20 -0400
+Received: from mailout5-0.nyroc.rr.com ([24.92.226.122]:12120 "EHLO
+	mailout5.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S273702AbRI0RKO>; Thu, 27 Sep 2001 13:10:14 -0400
+Date: Thu, 27 Sep 2001 13:10:30 -0400
+To: LINUX-KERNEL <linux-kernel@vger.kernel.org>
+Subject: Re: status of nfs and tcp with 2.4
+Message-ID: <20010927131030.A15669@rochester.rr.com>
+In-Reply-To: <20010927105321.A15128@rochester.rr.com> <shssnd88xae.fsf@charged.uio.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <shssnd88xae.fsf@charged.uio.no>
+User-Agent: Mutt/1.3.20i
+From: jstrand1@rochester.rr.com (James D Strandboge)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Sep 2001, Carl Spalletta wrote:
-> kiril, 
-> 
-> I am guessing that you want to avoid a custom kernel
-> in order that your programs shall be portable.
-> 
-> So, I am having a hard time understanding why putting
-> the command line args into a file instead of on the
-> command line, in a way similar to grep and many other
-> programs:
->  
-> "fgrep -F patternfile"
-> 
-> would not answer the case.
-> 
-> Is there any absolute need to have so many args passed
-> to exec from the command line?
+On Thu, Sep 27, 2001 at 05:32:09PM +0200 or thereabouts, Trond Myklebust wrote:
+> None: AFAIK nobody has yet written any code that works for the server.
 
-We are using third party software over which we have no 
-control. So, it's not up to us.
+In your opinion, how involved would it be to write the tcp code since
+the udp is already written?  I haven't actually looked into it much,
+and thought you might have some ideas, or perhaps pointers.
 
-KV
+Jamie
+-- 
+GPG/PGP Info
+Email:        jstrand1@rochester.rr.com
+ID:           26384A3A
+Fingerprint:  D9FF DF4A 2D46 A353 A289  E8F5 AA75 DCBE 2638 4A3A
 --
-  ___________________________________________________________________
-  Studio Tools                                        vkire@pixar.com
-  Pixar Animation Studios                        http://www.pixar.com/
-

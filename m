@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315388AbSFYLxI>; Tue, 25 Jun 2002 07:53:08 -0400
+	id <S314080AbSFYMa4>; Tue, 25 Jun 2002 08:30:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315454AbSFYLxH>; Tue, 25 Jun 2002 07:53:07 -0400
-Received: from mta06bw.bigpond.com ([139.134.6.96]:13530 "EHLO
-	mta06bw.bigpond.com") by vger.kernel.org with ESMTP
-	id <S315388AbSFYLxG>; Tue, 25 Jun 2002 07:53:06 -0400
-From: Brad Hards <bhards@bigpond.net.au>
-To: root@chaos.analogic.com
-Subject: Re: gettimeofday problem
-Date: Tue, 25 Jun 2002 21:50:10 +1000
-User-Agent: KMail/1.4.5
-Cc: Christian Robert <xtian-test@sympatico.ca>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.3.95.1020625074319.18426B-100000@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.3.95.1020625074319.18426B-100000@chaos.analogic.com>
+	id <S315454AbSFYMaz>; Tue, 25 Jun 2002 08:30:55 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:42445 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S314080AbSFYMay>; Tue, 25 Jun 2002 08:30:54 -0400
+Date: Tue, 25 Jun 2002 14:30:51 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Denis Oliver Kropp <dok@convergence.de>
+cc: linux-kernel@vger.kernel.org
+Subject: [patch] fix .text.exit error in neofb.c
+Message-ID: <Pine.NEB.4.44.0206251426180.14220-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-Message-Id: <200206252150.10271.bhards@bigpond.net.au>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 25 Jun 2002 21:45, Richard B. Johnson wrote:
-> On Tue, 25 Jun 2002, Brad Hards wrote:
-> > On Tue, 25 Jun 2002 10:37, Christian Robert wrote:
-> > >   gettimeofday (&tv, NULL);
-> >
-> > How about checking the return value of the function call?
-> >
-> > Brad
-> > --
-> > http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
->
-> I think the only possible error returned would relate to the time-zone
-> being invalid. The time-zone pointer being a NULL is valid so it isn't
-> going to return EINVAL.
-It was just a thought - it just seemed a reasonable thing to test for, since 
-the call can fail. 
 
-I didn't check the lib code, so I imagined that their might be some glibc 
-munging of the syscall output. man gettimeofday sez, inter alia:
-       EINVAL Timezone (or something else) is invalid.
+The following error occured at the final linking of 2.4.19-rc:
 
-       EFAULT One of tv or tz  pointed  outside  your  accessible
-              address space.
+<--  snip  -->
 
-As you pointed out, EINVAL doesn't seem too likely, and I can't see a pointer 
-problem. So it looks like something else.
+...
+drivers/video/video.o(.data+0x46b4): more undefined references to
+`local symbols in discarded section .text.exit' follow
+...
 
-Brad
+<--  snip  -->
+
+The following patch fixes it (neofb_remove is __devexit but the pointer to
+it didn't use __devexit_p):
+
+
+--- drivers/video/neofb.c.old	Tue Jun 25 12:53:45 2002
++++ drivers/video/neofb.c	Tue Jun 25 12:54:28 2002
+@@ -2330,7 +2330,7 @@
+   name:      "neofb",
+   id_table:  neofb_devices,
+   probe:     neofb_probe,
+-  remove:    neofb_remove
++  remove:    __devexit_p(neofb_remove)
+ };
+
+ /* **************************** init-time only **************************** */
+
+cu
+Adrian
 
 -- 
-http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+
+

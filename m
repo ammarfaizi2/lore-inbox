@@ -1,90 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262171AbTEUIaf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 May 2003 04:30:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbTEUIaf
+	id S261858AbTEUItS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 04:49:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbTEUItS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 May 2003 04:30:35 -0400
-Received: from smtp3.wanadoo.fr ([193.252.22.25]:61852 "EHLO
-	mwinf0602.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S262171AbTEUIab convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 May 2003 04:30:31 -0400
-Date: Wed, 21 May 2003 10:43:30 +0200
-Subject: Re: PATCH: usb-uhci: interrupt out with urb->interval 0  [linux-usb-devel]
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Mime-Version: 1.0 (Apple Message framework v552)
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-To: Pete Zaitcev <zaitcev@redhat.com>
-From: Frode Isaksen <fisaksen@bewan.com>
-In-Reply-To: <20030430180050.A17797@devserv.devel.redhat.com>
-Message-Id: <4C4FDF7A-8B68-11D7-A60F-003065EF6010@bewan.com>
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Apple Mail (2.552)
+	Wed, 21 May 2003 04:49:18 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:62190 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S261858AbTEUItR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 04:49:17 -0400
+Subject: Re: web page on O(1) scheduler
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: davidm@hpl.hp.com
+Cc: linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org
+In-Reply-To: <16075.8557.309002.866895@napali.hpl.hp.com>
+References: <16075.8557.309002.866895@napali.hpl.hp.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-jdn4kkStXG9zAFTHIY0R"
+Organization: Red Hat, Inc.
+Message-Id: <1053507692.1301.1.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
+Date: 21 May 2003 11:01:33 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Le jeudi, 1 mai 2003, à 00:00 Europe/Paris, Pete Zaitcev a écrit :
+--=-jdn4kkStXG9zAFTHIY0R
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
->> Date: Wed, 30 Apr 2003 14:38:58 +0200
->> From: Frode Isaksen <fisaksen@bewan.com>
->
->> I have tested the patch with the Unicorn (ST70137) adsl usb chip and 
->> it
->> is ok. Thanks...
->
->> Do you think it will be in the official 2.4.21 kernel ?
->
-> This is a question to Greg Kroah. He wanted to put brakes on
-> it due to insufficient testing. Personally, I do not agree.
-> I think we should put it into -rc2 and see if anything breaks
-> (which is unlikely in this case). But ultimately it's his call.
+On Wed, 2003-05-21 at 08:49, David Mosberger wrote:
 
-I just downloaded 2.4.21-rc2, and the patch is not in...
-Is it any hope for it to be in the official 2.4.21 kernel at all ???
-For your information, my router with an adsl usb modem has run with 
-this patch for weeks now.
+>=20
+> I think the web pages should be most relevant to the HPTC (high
+> performance technical computing) community, since this is the
+> community that is most likely affected by some of the performance
+> oddities of the O(1) scheduler.  Certainly anyone using OpenMP on
+> Intel platforms (x86 and ia64) may want to take a look.
 
-Thanks,
+oh you mean the OpenMP broken behavior of calling sched_yield() in a
+tight loop to implement spinlocks ?
 
-Frode
+I'd guess that instead of second guessing the runtime, they should use
+the pthreads primitives which are the fastest for the platform one would
+hope.. (eg futexes nowadays)
 
->
-> -- Pete
->
->
+--=-jdn4kkStXG9zAFTHIY0R
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-diff -urN -X dontdiff linux-2.4.21-rc1/drivers/usb/host/usb-uhci.c 
-linux-2.4.21-rc1-nip/drivers/usb/host/usb-uhci.c
---- linux-2.4.21-rc1/drivers/usb/host/usb-uhci.c	2003-04-24 
-10:52:56.000000000 -0700
-+++ linux-2.4.21-rc1-nip/drivers/usb/host/usb-uhci.c	2003-04-29 
-12:43:28.000000000 -0700
-@@ -2430,9 +2430,9 @@
+iD8DBQA+y0BsxULwo51rQBIRArOMAJ9yAk3Z9IroEHYebopZJURFBSCi6ACgny4i
+qyZcXObrE3j3F9UpJ3B1uEo=
+=l5W7
+-----END PGP SIGNATURE-----
 
-  _static int process_interrupt (uhci_t *s, struct urb *urb)
-  {
--	int i, ret = -EINPROGRESS;
-+	int ret = -EINPROGRESS;
-  	urb_priv_t *urb_priv = urb->hcpriv;
--	struct list_head *p = urb_priv->desc_list.next;
-+	struct list_head *p;
-  	uhci_desc_t *desc = list_entry (urb_priv->desc_list.prev, 
-uhci_desc_t, desc_list);
-
-  	int actual_length;
-@@ -2440,8 +2440,8 @@
-
-  	//dbg("urb contains interrupt request");
-
--	for (i = 0; p != &urb_priv->desc_list; p = p->next, i++)	// Maybe we 
-allow more than one TD later ;-)
--	{
-+	// Maybe we allow more than one TD later ;-)
-+	while ((p = urb_priv->desc_list.next) != &urb_priv->desc_list) {
-  		desc = list_entry (p, uhci_desc_t, desc_list);
-
-  		if (is_td_active(desc)) {
-
+--=-jdn4kkStXG9zAFTHIY0R--

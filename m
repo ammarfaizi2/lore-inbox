@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314680AbSGMPdq>; Sat, 13 Jul 2002 11:33:46 -0400
+	id <S314811AbSGMPgA>; Sat, 13 Jul 2002 11:36:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314707AbSGMPdp>; Sat, 13 Jul 2002 11:33:45 -0400
-Received: from 213-96-124-18.uc.nombres.ttd.es ([213.96.124.18]:52718 "HELO
-	dardhal.mired.net") by vger.kernel.org with SMTP id <S314680AbSGMPdo>;
-	Sat, 13 Jul 2002 11:33:44 -0400
-Date: Sat, 13 Jul 2002 17:36:29 +0200
-From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Future of Kernel tree 2.0 ............
-Message-ID: <20020713153629.GA17657@localhost>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <E17TUXf-0000Ow-00@ited.yingwa.edu.hk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E17TUXf-0000Ow-00@ited.yingwa.edu.hk>
-User-Agent: Mutt/1.3.28i
+	id <S314835AbSGMPf7>; Sat, 13 Jul 2002 11:35:59 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:5844 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S314811AbSGMPf5>; Sat, 13 Jul 2002 11:35:57 -0400
+Date: Sat, 13 Jul 2002 17:38:32 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+cc: <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: IDE/ATAPI in 2.5
+In-Reply-To: <200207131446.HAA24611@adam.yggdrasil.com>
+Message-ID: <Pine.SOL.4.30.0207131736480.75-100000@mion.elka.pw.edu.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday, 13 July 2002, at 21:35:03 +0000,
-c0330 wrote:
 
->   Will kernel tree 2.0 stop developing and regard historical after the 
-> release of 2.6?  I think we would put our focus on much more newer kernel. 
-> And I found this may confuse the newbies, because they don't know much 
-> about versioning in Kernel.
-> 
-Newbies should trust their Linux vendor and keep using the kernel
-versions they provide. At least while they are still newbies ;-)
+On Sat, 13 Jul 2002, Adam J. Richter wrote:
 
--- 
-Jose Luis Domingo Lopez
-Linux Registered User #189436     Debian Linux Woody (Linux 2.4.19-pre6aa1)
+> Alan Cox writes:
+> |o       Not all ide cdrom devices are ATAPI capable
+> [...]
+>
+> 	Are there some non-ATAPI IDE CDROM's that
+> linux-2.5.25/drivers/ide/ide-cdrom.c supports?   I was under
+> the impression that ide-cdrom.c operated only through ATAPI.
+
+Wrong impression. ;)
+Hint: look for STANDARD_ATAPI macro usage.
+
+--
+Bartlomiej
+
+> Adam J. Richter     __     ______________   575 Oroville Road
+> adam@yggdrasil.com     \ /                  Milpitas, California 95035
+> +1 408 309-6081         | g g d r a s i l   United States of America
+>                          "Free Software For The Rest Of Us."
+

@@ -1,39 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267433AbUJBR2F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267415AbUJBRYp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267433AbUJBR2F (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Oct 2004 13:28:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267423AbUJBRYy
+	id S267415AbUJBRYp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Oct 2004 13:24:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267466AbUJBRVF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Oct 2004 13:24:54 -0400
-Received: from cenn.mc.mpls.visi.com ([208.42.156.9]:12497 "EHLO
-	cenn.mc.mpls.visi.com") by vger.kernel.org with ESMTP
-	id S267433AbUJBRXE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Oct 2004 13:23:04 -0400
-Message-ID: <415EE33A.5030103@steinerpoint.com>
-Date: Sat, 02 Oct 2004 12:19:54 -0500
-From: Al Borchers <alborchers@steinerpoint.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030716
+	Sat, 2 Oct 2004 13:21:05 -0400
+Received: from pyramid-02.kattare.com ([69.59.195.3]:35270 "EHLO
+	pyramid-02.kattare.com") by vger.kernel.org with ESMTP
+	id S267438AbUJBRQX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 2 Oct 2004 13:16:23 -0400
+Message-ID: <415EE25D.5090200@sherman.ca>
+Date: Sat, 02 Oct 2004 13:16:13 -0400
+From: Adam Sherman <adam@sherman.ca>
+User-Agent: Mozilla Thunderbird 0.8 (Macintosh/20040913)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-usb-devel <linux-usb-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] Re: new locking in change_termios breaks USB
- serial drivers
-References: <415D3408.8070201@steinerpoint.com>	 <1096630567.21871.4.camel@localhost.localdomain>	 <415D84A3.6010105@steinerpoint.com>	 <1096645773.21958.54.camel@localhost.localdomain>	 <415D9E96.1030207@steinerpoint.com> <1096729712.25129.8.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Newsgroups: gmane.linux.kernel
+To: linux-kernel@vger.kernel.org
+Subject: Re: DMA timeout error
+References: <cjmk3s$gjs$1@sea.gmane.org> <58cb370e04100209432ec9c9ee@mail.gmail.com>
+In-Reply-To: <58cb370e04100209432ec9c9ee@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Gwe, 2004-10-01 at 19:14, Al Borchers wrote:
->>* The tty layer could use a semaphore so the USB serial set_termios could
->>   sleep until the new termios settings have taken effect before returning.
+Bartlomiej Zolnierkiewicz wrote:
+>>I have a VIA M6000 board with an ATA CompactFlash adaptor containing a
+>>512MB SanDisk card.
+>>
+>>I get the following error during boot:
+>>
+>>hdb: dma_timer_expiry: dma status == 0x41
+>>hdb: DMA timeout error
+>>hdb: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest }
 > 
-> This seems to be the right choice and is the change I will implement.
+> 
+> If this is a new CF capable of DMA but CF-to-IDE adapter doesn't support
+> DMA (most don't) then "ide=nodma" kernel command line parameter should
+> do the job.  It might be also bug in via82cxxx host driver.
+> 
+> Maybe DMA should be off by default for CF but it requires fixing almost
+> every IDE host driver and why punish good hardware.
 
-Great!  Thanks.
+This makes quite a bit of sense seeing as it's a SanDisk "Ultra II" card.
 
--- Al
+beber@setibzh.com writes:
+> add pci=noapic to your boot option
 
+Since the hardware is not reachable from here, I can not test it until 
+Monday. I'll note my results though.
+
+Thanks,
+
+A.

@@ -1,55 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132623AbRDBIE0>; Mon, 2 Apr 2001 04:04:26 -0400
+	id <S132626AbRDBH4n>; Mon, 2 Apr 2001 03:56:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132640AbRDBIEP>; Mon, 2 Apr 2001 04:04:15 -0400
-Received: from quechua.inka.de ([212.227.14.2]:39290 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S132623AbRDBIEC>;
-	Mon, 2 Apr 2001 04:04:02 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: bug database braindump from the kernel summit
-In-Reply-To: <4.3.2.7.2.20010401153355.00b5d630@mail.fluent-access.com>
-Organization: private Linux site, southern Germany
-Date: Mon, 02 Apr 2001 10:00:21 +0200
-From: Olaf Titz <olaf@bigred.inka.de>
-Message-Id: <E14jzGJ-0002wR-00@g212.hadiko.de>
+	id <S132629AbRDBH4e>; Mon, 2 Apr 2001 03:56:34 -0400
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:28421
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S132626AbRDBH4W>; Mon, 2 Apr 2001 03:56:22 -0400
+Date: Sun, 1 Apr 2001 23:55:05 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Steffen Grunewald <steffen@gfz-potsdam.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Cool Road Runner
+In-Reply-To: <20010402085549.A27499@dss19>
+Message-ID: <Pine.LNX.4.10.10104012348210.12531-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 1)  The idea of letting a bug "expire" is a good one.  One way to do this
-> is to incorporate some form of user-base moderation into the bug
-> database.  Unlike some of the forum systems, there's no reason why we can't
-> have tiers of moderators:  "maintainers" are the clearinghouse people for
-> certain portions of the Linux kernel source tree and should have a larger
-> voice as to whether a bug is important, redundant, or completely off
+On Mon, 2 Apr 2001, Steffen Grunewald wrote:
 
-As everyone thinking about this perhaps should know, this moderation
-system is already used by Bugzilla: A bug report starts out as
-"unconfirmed", and people who volunteer to triage bugs and are given
-appropriate permission may elevate them to "new" status or resolve
-them as invalid. The actual maintainers query the database only for
-"new" bugs.
+> And BTW: Isn't Andre's writing style very lovely ?
 
-Experience in the Mozilla development community has shown, however,
-that this is not as simple as it sounds. There are bug reports which
-remain unconfirmed for weeks. People submitting reports have that
-nasty feeling that they are being ignored. Really, I don't think it is
-a good idea to stamp any bug report as "not to be taken seriously" by
-default. It puts off people who know better.
+DGD, and who made you a grammer teacher of english on LKML?
+Never claimed to be an "English Major" soooooo WTF is the price of eggs in
+Germany today?  This is no different to trying an orthoginal rotation to
+one's person.
 
-With automatic expiry of unconfirmed reports that would be absolutely
-devastating. Hopefully it is clear why. (Any pre-triaging process,
-even without expiry, must be done quickly and have enough people who
-do this unrewarding work, or it will introduce delays which make the
-submissions increasingly worthless.)
+> Steffen, starting with fresh hope into a new week
 
-I think that some sort of expiry is in order, but perhaps better the
-other way around: any report with no progress in a certain amount of
-time gets _higher_ priority, so that someone (perhaps a triager) is
-"forced" to do _something_ about it (and if it's only to close an
-issue which has long been fixed or is invalid from the start).
+Later..
 
-Bugzilla also does address some of the other issues presented here.
-(No, I don't think it's perfect :-)
+Andre Hedrick
+Linux ATA Development
 
-Olaf

@@ -1,97 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268186AbUIBQer@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268203AbUIBQgt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268186AbUIBQer (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 12:34:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268203AbUIBQer
+	id S268203AbUIBQgt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 12:36:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268341AbUIBQgt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 12:34:47 -0400
-Received: from [212.227.36.84] ([212.227.36.84]:11187 "EHLO
-	email.convergence2.de") by vger.kernel.org with ESMTP
-	id S268186AbUIBQem (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 12:34:42 -0400
-Message-ID: <41374B9F.6000404@convergence.de>
-Date: Thu, 02 Sep 2004 18:34:39 +0200
-From: Michael Hunold <hunold@convergence.de>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Jeff Garzik <jgarzik@pobox.com>
-Subject: Dual-Ethernet DECchip 21142/43 doesn't like cold boots 
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Sep 2004 12:36:49 -0400
+Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:39896 "EHLO linux.local")
+	by vger.kernel.org with ESMTP id S268203AbUIBQft (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 12:35:49 -0400
+Date: Thu, 2 Sep 2004 09:31:50 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: vatsa@in.ibm.com, netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
+       dipankar@in.ibm.com
+Subject: Re: [RFC] Use RCU for tcp_ehash lookup
+Message-ID: <20040902163149.GB1258@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20040831125941.GA5534@in.ibm.com> <20040901224108.3b2d692d.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040901224108.3b2d692d.davem@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Sep 01, 2004 at 10:41:08PM -0700, David S. Miller wrote:
+> On Tue, 31 Aug 2004 18:29:41 +0530
+> Srivatsa Vaddagiri <vatsa@in.ibm.com> wrote:
+> > - Biggest problem I had converting over to RCU was the refcount race between
+> >   sock_put and sock_hold. sock_put might see the refcount go to zero and decide
+> >   to free the object, while on some other CPU, sock_get's are pending against
+> >   the same object. The patch handles the race by deciding to free the object
+> >   only from the RCU callback.
+> 
+> That's exactly what I was concerned about when I saw that you had attempted
+> this change.  It is incredibly important for state changes and updates to
+> be seen as atomic by the packet input processing engine.  It would be illegal
+> for a cpu running TCP input to see a socket in two tables at the same time
+> (for example, in the main established area and in the second half for TIME_WAIT
+> buckets).
+> 
+> If the visibility of the socket is wrong, sockets could be erroneously
+> be reset during the transition from established to TIME_WAIT state.
+> Beware!
 
-I have a dual-ethernet DECchip 21142/43 based card in my system. The 
-problem is, that the device doesn't work after a cold boot.
+If the usages is too write-intensive, then RCU will certainly be less
+likely to work well.  But there is nothing quite like actually trying
+it to see how it works.  ;-)
 
-After I have powered up my system, the syslog shows the following 
-message and the device doesn't work.
+That aside, it -is- possible to make such state changes appear atomic,
+even when moving elements from one list to another.  One way of doing
+this is to atomically replace the element with a "tombstone" element.
+Normal pointer writes suffice.  The "tombstone" is set up so that searches
+for the outgoing element will stall (e.g., spin or sleep, depending
+on the environment).  The element is moved to its destination list.
+At this point, searches for the element in the old list will still
+stall, while searches for the element in the new list will succeed.
+The tombstone is now marked so that CPUs stall on it now resume, but
+indicating failure to find the element in the old list.
 
------------------------------schnipp------------------------------------
-Linux Tulip driver version 1.1.13 (May 11, 2002)
-ACPI: PCI interrupt 0000:02:04.0[A] -> GSI 11 (level, low) -> IRQ 11
-tulip0:  EEPROM default media type Autosense.
-tulip0:  Index #0 - Media MII (#11) described by a 21142 MII PHY (3) block.
-tulip0: ***WARNING***: No MII transceiver found!
-eth0: Digital DS21143 Tulip rev 33 at 0xe280ff80, 00:00:D1:1B:EF:2E, IRQ 11.
-ACPI: PCI interrupt 0000:02:08.0[A] -> GSI 11 (level, low) -> IRQ 11
-tulip1:  Controller 1 of multiport board.
-tulip1:  EEPROM default media type Autosense.
-tulip1:  Index #0 - Media MII (#11) described by a 21142 MII PHY (3) block.
-tulip1: ***WARNING***: No MII transceiver found!
-eth1: Digital DS21143 Tulip rev 33 at 0xe2811f00, EEPROM not present, 
-00:00:D1:1B:EF:2F, IRQ 11.
------------------------------schnipp------------------------------------
+Of course, this approach makes writes more expensive than they otherwise
+would be, so, again, RCU is best for read-intensive uses.  ;-)
 
-A simple shutdown and warm boot gives the desired result:
+The fact that this data structure is not very read-intensive is due
+to the fact that short-lived TCP connections are quite common, right?
+Or am I missing the finer points of this data structure's workings?
 
------------------------------schnipp------------------------------------
-Linux Tulip driver version 1.1.13 (May 11, 2002)
-ACPI: PCI interrupt 0000:02:04.0[A] -> GSI 11 (level, low) -> IRQ 11
-tulip0:  EEPROM default media type Autosense.
-tulip0:  Index #0 - Media MII (#11) described by a 21142 MII PHY (3) block.
-tulip0:  MII transceiver #1 config 3100 status 7849 advertising 01e1.
-eth0: Digital DS21143 Tulip rev 33 at 0xe280ff80, 00:00:D1:1B:EF:2E, IRQ 11.
-ACPI: PCI interrupt 0000:02:08.0[A] -> GSI 11 (level, low) -> IRQ 11
-tulip1:  Controller 1 of multiport board.
-tulip1:  EEPROM default media type Autosense.
-tulip1:  Index #0 - Media MII (#11) described by a 21142 MII PHY (3) block.
-tulip1:  MII transceiver #1 config 3100 status 7849 advertising 01e1.
-eth1: Digital DS21143 Tulip rev 33 at 0xe2811f00, EEPROM not present, 
-00:00:D1:1B:EF:2F, IRQ 11.
------------------------------schnipp------------------------------------
-
-Any other warm reboots works as well.
-
-"lspci -v" says the following about this card:
-
------------------------------schnipp------------------------------------
-02:04.0 Ethernet controller: Digital Equipment Corporation DECchip 
-21142/43 (rev 21)
-Subsystem: Cogent Data Technologies, Inc. ANA-6922/TX Fast Ethernet
-Flags: bus master, medium devsel, latency 64, IRQ 11
-I/O ports at bc00 [size=128]
-Memory at cfefff80 (32-bit, non-prefetchable) [size=128]
-Expansion ROM at cfe80000 [disabled] [size=256K]
-
-02:08.0 Ethernet controller: Digital Equipment Corporation DECchip 
-21142/43 (rev 21)
-Flags: bus master, medium devsel, latency 64, IRQ 11
-I/O ports at b800 [size=128]
-Memory at cfefff00 (32-bit, non-prefetchable) [size=128]
-Expansion ROM at cfe40000 [disabled] [size=256K]
------------------------------schnipp------------------------------------
-
-The same problem exists with 2.4.26 w/o ACPI. As you can imagine it's 
-quite annoying to restart the system once everytime after a cold startup.
-
-Is anyone interested in this bug report? All comments or hints 
-appreciated, because I haven't worked with the Linux network code up to 
-now. 8-)
-
-CU
-Michael.
+						Thanx, Paul

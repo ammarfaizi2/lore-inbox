@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264866AbTFLPhU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 11:37:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264871AbTFLPhU
+	id S264868AbTFLPml (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 11:42:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264869AbTFLPml
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 11:37:20 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:4083 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264866AbTFLPhP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 11:37:15 -0400
-Date: Thu, 12 Jun 2003 21:23:45 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: John M Flinchbaugh <glynis@butterfly.hjsoft.com>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-       Maneesh Soni <maneesh@in.ibm.com>
-Subject: Re: 2.5.70-bk16: nfs crash
-Message-ID: <20030612155345.GB1438@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20030612125630.GA19842@butterfly.hjsoft.com> <20030612135254.GA2482@in.ibm.com> <16104.40370.828325.379995@charged.uio.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16104.40370.828325.379995@charged.uio.no>
-User-Agent: Mutt/1.4i
+	Thu, 12 Jun 2003 11:42:41 -0400
+Received: from windsormachine.com ([206.48.122.28]:2059 "EHLO
+	router.windsormachine.com") by vger.kernel.org with ESMTP
+	id S264868AbTFLPmk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 11:42:40 -0400
+Date: Thu, 12 Jun 2003 11:56:11 -0400 (EDT)
+From: Mike Dresser <mdresser_l@windsormachine.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: 3ware and two drive hardware raid1
+Message-ID: <Pine.LNX.4.33.0306121148340.22835-100000@router.windsormachine.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 12, 2003 at 08:35:14AM -0700, Trond Myklebust wrote:
-> >>>>> " " == Dipankar Sarma <dipankar@in.ibm.com> writes:
->      > __d_drop() *must not* initialize d_hash fields. Lockfree lookup
->      > depends on that. If __d_drop() needs to be allowed on an
->      > unhashed dentry, the right thing to do would be to check for
->      > DCACHE_UNHASHED before unhashing. I will submit a patch a
->      > little later to do this.
-> 
-> Can you please remind us exactly what the benefits of all this are? 
-> Why can't d_free() immediately free the memory instead of relying on
-> the RCU mechanism?
+If i have a hardware raid1 array of two 120 gig Maxtor DiamondMax 9 drives
+on a 3ware 7000-2.  Failure of one disk should not go all the way up to
+the OS and cause the OS to report hard errors, and remount the drive as
+read-only, right?
 
-Because we no longer hold the dcache_lock while doing a d_lookup().
-With the dentry still around (RCU wouldn't happen until all CPUs
-do a context switch or execute user-level code), lookup can continue
-to traverse the hash list while another CPU deletes the currrent
-dentry. Once RCU happens, it is guranteed that no other CPU
-could be in that dentry during hash list traversal. That is why
-we have _rcu versions of the list deletion macros.
-Lockfree d_lookup() gives us significant benefits in larger
-SMP machines.
+My understanding of raid1 was that if there was a disk failure it would
+note it, mark the drive as bad, and switch to running off the other drive.
+Software raid on Linux does that.
 
-Does my patch meet the requirements that you had for __d_drop() ?
+This certainly isn't that!
 
-Thanks
-Dipankar
+Jun 12 04:00:00 x kernel: 3w-xxxx: scsi1: Command failed: status = 0xc7, flags = 0x40, unit #0.
+Jun 12 04:00:25 x last message repeated 4 times
+Jun 12 04:00:25 x kernel: scsi1: ERROR on channel 0, id 0, lun 0, CDB: 0x28 00 00 86 b8 aa 00 00 08 00
+Jun 12 04:00:25 x kernel: Info fld=0x0, Current sd08:06: sns = f0  3
+Jun 12 04:00:25 x kernel: ASC=11 ASCQ= 0
+Jun 12 04:00:25 x kernel: Raw sense data:0xf0 0x00 0x03 0x00 0x00 0x00 0x00 0x0a 0x00 0x00 0x00 0x00 0x11 0x00 0x00 0x00 0x00 0x00
+Jun 12 04:00:25 x kernel:  I/O error: dev 08:06, sector 41480
+Jun 12 04:00:25 x kernel: journal_bmap: journal block not found at offset 5132 on sd(8,6)
+Jun 12 04:00:25 x kernel: Aborting journal on device sd(8,6).
+Jun 12 04:00:29 x kernel: ext3_abort called.
+Jun 12 04:00:29 x kernel: EXT3-fs abort (device sd(8,6)): ext3_journal_start: Detected aborted journal
+Jun 12 04:00:29 x kernel: Remounting filesystem read-only
+
+I'll be out at the facility tomorrow to replace the dead drive(appears to
+be unit #0), but am extremely curious why the 3ware unit did what it did!
+
+I'm running a badblocks on the partition that was mounted readonly to see
+if the filesystem is corrupted.(luckily it's all .tar files, so any
+corruption will hopefully be easy to see.)
+
+Running kernel 2.4.20 on Debian Stable.
+
+Mike
+

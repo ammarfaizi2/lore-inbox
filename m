@@ -1,44 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317269AbSGIADE>; Mon, 8 Jul 2002 20:03:04 -0400
+	id <S317270AbSGIAHJ>; Mon, 8 Jul 2002 20:07:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317270AbSGIADD>; Mon, 8 Jul 2002 20:03:03 -0400
-Received: from pD9E238F8.dip.t-dialin.net ([217.226.56.248]:26074 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317269AbSGIADB>; Mon, 8 Jul 2002 20:03:01 -0400
-Date: Mon, 8 Jul 2002 18:05:17 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: 2.4.19-rc1 doesn't link
-In-Reply-To: <200207082330.g68NUtH01899@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.LNX.4.44.0207081803250.10105-100000@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317271AbSGIAHI>; Mon, 8 Jul 2002 20:07:08 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:14866 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S317270AbSGIAHH>;
+	Mon, 8 Jul 2002 20:07:07 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Thunder from the hill <thunder@ngforever.de>
+Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Driverfs updates 
+In-reply-to: Your message of "Mon, 08 Jul 2002 17:52:13 CST."
+             <Pine.LNX.4.44.0207081745150.10105-100000@hawkeye.luckynet.adm> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 09 Jul 2002 10:09:37 +1000
+Message-ID: <22049.1026173377@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 8 Jul 2002 17:52:13 -0600 (MDT), 
+Thunder from the hill <thunder@ngforever.de> wrote:
+>Hi,
+>
+>On Tue, 9 Jul 2002, Keith Owens wrote:
+>> struct device_driver * get_driver(struct device_driver * drv)
+>> {
+> +        struct device_driver *ret = NULL;
+> +
+> +        if (!drv)
+> +                goto out;
+> +        lock_somehow(drv->lock);
+> +        if (drv->owner)
+>>                 if (!try_inc_mod_count(drv->owner))
+> +                        goto out;
+> +
+> +        ret = drv;
+> + out:
+> +        unlock_somehow(drv->lock);
+> +        return ret;
+>> }
+>> 
+>> I suggest you add a global driverfs_lock.
+>
+>Better than locking all kernel threads, isn't it?
 
-On Mon, 8 Jul 2002, Richard Gooch wrote:
-> init/do_mounts.o: In function `rd_load_image':
-> init/do_mounts.o(.text.init+0x941): undefined reference to `change_floppy'
-> init/do_mounts.o: In function `rd_load_disk':
-> init/do_mounts.o(.text.init+0xa9b): undefined reference to `change_floppy'
-> make: *** [vmlinux] Error 1
+What protects drv in that code?  drv is a dynamically registered object
+and can be dynamically unregistered and freed at any time from another
+cpu, or even the same cpu with preempt.  Any reference to drv without
+an external lock or a reference count on the module that registered drv
+is racy.  In particular, you cannot use drv->anything to protect drv!
 
-Strange thing. All three are #ifdef CONFIG_BLK_DEV_RAM, so if you enable 
-BLK_DEV_RAM, you get all three. Do you have CONFIG_BLK_DEV_FD enabled?
+The global driverfs_lock is required to protect the bus/drv list
+against changes while you are processing an entry on the list AND that
+entry is in a module with a use count of 0.  In that state, you have an
+uncounted reference to module data which must be protected until you
+can set the use count, at which point the use count will take over and
+protect the structure.
 
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
+Did I mention that this method is complex and fragile?
 

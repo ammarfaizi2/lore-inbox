@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264335AbTEZKYR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 06:24:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264339AbTEZKYR
+	id S264336AbTEZKYP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 06:24:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264339AbTEZKYP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 06:24:17 -0400
+	Mon, 26 May 2003 06:24:15 -0400
 Received: from lindsey.linux-systeme.com ([80.190.48.67]:45829 "EHLO
 	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S264335AbTEZKYP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 06:24:15 -0400
+	id S264336AbTEZKYO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 06:24:14 -0400
 From: Marc-Christian Petersen <m.c.p@wolk-project.de>
 Organization: Working Overloaded Linux Kernel
-To: "David S. Miller" <davem@redhat.com>, Willy Tarreau <willy@w.ods.org>
-Subject: Re: Aix7xxx unstable in 2.4.21-rc2? (RE: Linux 2.4.21-rc2)
-Date: Mon, 26 May 2003 10:47:39 +0200
+To: linux-kernel@vger.kernel.org
+Subject: Re: Menuconfig abort error report with mdk 9.1 +skas patch
+Date: Mon, 26 May 2003 12:09:54 +0200
 User-Agent: KMail/1.5.1
-Cc: James Bottomley <James.Bottomley@steeleye.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>, gibbs@scsiguy.com,
-       acme@conectiva.com.br
-References: <1053732598.1951.13.camel@mulgrave> <20030524064340.GA1451@alpha.home.local> <1053923112.14018.16.camel@rth.ninka.net>
-In-Reply-To: <1053923112.14018.16.camel@rth.ninka.net>
+Cc: Andrew Steele <fozzy@zip.com.au>, mec@shout.net
+References: <20030526100150.GC29649@zipworld.com.au>
+In-Reply-To: <20030526100150.GC29649@zipworld.com.au>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200305261045.08217.m.c.p@wolk-project.de>
 Content-Type: text/plain;
-  charset="iso-8859-15"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200305261209.54293.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 26 May 2003 06:25, David S. Miller wrote:
+On Monday 26 May 2003 12:01, Andrew Steele wrote:
 
-Hi David,
+Hi Andrew,
 
-> I really think 2.4.x development is becoming almost non-existent
-> lately.
-_full_ ack!
+> I'm trying to build a kernel using the kernel source from Mandrake 9.1
+> When I try and go into the ALSA selection off the sound menu
+> menuconfig aborts with the following message:
+please bug Mandrake about this. ALSA is not part of 2.4 mainstream _yet_.
 
-> If Conectiva needs to task Marcelo to so much work that he can only
-> really put 1 or 2 days a week into 2.4.x, this needs be rethought at
-> either one end (Conectiva finding a way to give him more 2.4.x time) or
-> another (Marcelo splits up the work with someone else or we simply find
-> another 2.4.x maintainer).
-Just in case if there will ever be a new election ...
-
-... */ME stretches his hands up*
+If you don't get a response from Mandrake, tell me and I'll download the 
+kernel and fix it up.
 
 ciao, Marc

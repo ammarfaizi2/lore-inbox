@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263174AbRFGVJK>; Thu, 7 Jun 2001 17:09:10 -0400
+	id <S263193AbRFGVLU>; Thu, 7 Jun 2001 17:11:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263173AbRFGVJA>; Thu, 7 Jun 2001 17:09:00 -0400
-Received: from turnover.lancs.ac.uk ([148.88.17.220]:24827 "EHLO
-	helium.chromatix.org.uk") by vger.kernel.org with ESMTP
-	id <S263160AbRFGVIu>; Thu, 7 Jun 2001 17:08:50 -0400
-Message-Id: <l03130320b7459cd17e98@[192.168.239.105]>
-In-Reply-To: <Pine.LNX.4.21.0106071345190.6604-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.21.0106071330060.6510-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Thu, 7 Jun 2001 22:08:00 +0100
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: Background scanning change on 2.4.6-pre1
-Cc: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+	id <S263175AbRFGVLN>; Thu, 7 Jun 2001 17:11:13 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:25087 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S263173AbRFGVKz>;
+	Thu, 7 Jun 2001 17:10:55 -0400
+Date: Thu, 7 Jun 2001 23:10:52 +0200 (MET DST)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200106072110.XAA227393.aeb@vlet.cwi.nl>
+To: COTTE@de.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: BUG: race-cond with partition-check and ll_rw_blk (all platforms, 2.4.*!)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > This is going to make all pages have age 0 on an idle system after some
->> > time (the old code from Rik which has been replaced by this code tried to
->> > avoid that)
->
->There's another reason why I think the patch may be ok even without any
->added logic: not only does it simplify the code and remove a illogical
->heuristic, but there is nothing that really says that "age 0" is
->necessarily very bad.
+    From: COTTE@de.ibm.com
 
-Here's my take on it.  The point of ageing is twofold - to age down pages
-that aren't in use, and to age up pages that *are* in use.  So, pages that
-are in use will remain with high ages even when background scanning is
-being done, and pages that aren't in use will decay to zero age.
+    We just had a problem when running some formatting-utils on
+    a large amount of disks synchronously: We got a NULL-pointer
+    violation when accessig blk_size[major] for our major number.
+    Further research showed, that grok_partitions was running at
+    that time, which has been called by register_disk, which our
+    device driver issues after a disk has been formatted.
+    Grok_partitions first initializes blk_size[major] with a NULL
+    pointer, detects the partitions and then assigns the original
+    value to blk_size[major] again.
+    Here's the interresting code from these functions, I cut some
+    irrelevant things out:
+    From grok_paritions:
+         blk_size[dev->major] = NULL;
+         check_partition(dev, MKDEV(dev->major, first_minor), 1 + first_minor);
+         if (dev->sizes != NULL) {
+              blk_size[dev->major] = dev->sizes;
+         };
+    From generic_make_request:
+         if (blk_size[major]) {
+                   if (blk_size[major][MINOR(bh->b_rdev)]) {
 
-I can't see what's wrong with that.  When we need more memory, it's a Very
-Good Thing to know that most of the pages in the system haven't been
-accessed in yonks - we know exactly which ones we want to throw out first.
+    Can anyone explain to me, why grok_partitions has to clear
+    this pointer?
 
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
+Well, among the irrelevant details you left out is the fact that
+it is not
+	blk_size[dev->major] = NULL;
+but
+	if(!dev->sizes)
+		blk_size[dev->major] = NULL;
+	...
+	if (dev->sizes)
+		blk_size[dev->major] = dev->sizes;
 
-The key to knowledge is not to rely on people to teach you it.
+So, the idea is that either this major has an array with sizes,
+and then one can find it in blk_size[dev->major], or it hasn't.
+You seem to have a situation where dev->sizes is NULL but
+blk_size[dev->major] is not? What device is this?
 
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
-
-
+Andries

@@ -1,35 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267859AbUG3Whs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267861AbUG3WjN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267859AbUG3Whs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 18:37:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267842AbUG3Whs
+	id S267861AbUG3WjN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 18:39:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264538AbUG3WjM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 18:37:48 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:38596 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267859AbUG3WhU (ORCPT
+	Fri, 30 Jul 2004 18:39:12 -0400
+Received: from waste.org ([209.173.204.2]:50397 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S267861AbUG3Wib (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 18:37:20 -0400
-Date: Fri, 30 Jul 2004 15:37:00 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: "Robert White" <rwhite@casabyte.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: tcp_push_pending_frames() without TCP_CORK or TCP_NODELAY
-Message-Id: <20040730153700.2bb46976.davem@redhat.com>
-In-Reply-To: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAto7TSbyGCEOKEjP4Tiu9VgEAAAAA@casabyte.com>
-References: <20040729193637.36d018a5.davem@redhat.com>
-	<!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAto7TSbyGCEOKEjP4Tiu9VgEAAAAA@casabyte.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Fri, 30 Jul 2004 18:38:31 -0400
+Date: Fri, 30 Jul 2004 17:38:23 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 1/3] vprintk support
+Message-ID: <20040730223823.GW16310@waste.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Jul 2004 15:02:33 -0700
-"Robert White" <rwhite@casabyte.com> wrote:
+Add vprintk call. This lets us directly pass varargs stuff to the
+console without using vsnprintf to an intermediate buffer.
 
-> 4) Cork-then-uncork would still end up with two syscalls instead of one.
+Signed-off-by: Matt Mackall <mpm@selenic.com>
 
-Syscalls are incredible cheap, this is not an argument for not
-using cork'ing.
+ tiny-mpm/include/linux/kernel.h |    1 +
+ tiny-mpm/kernel/printk.c        |   14 ++++++++++++--
+ 2 files changed, 13 insertions(+), 2 deletions(-)
+
+Index: tiny/include/linux/kernel.h
+===================================================================
+--- tiny.orig/include/linux/kernel.h	2004-04-15 14:18:37.000000000 -0500
++++ tiny/include/linux/kernel.h	2004-04-19 13:29:39.000000000 -0500
+@@ -87,6 +87,7 @@
+ extern int kernel_text_address(unsigned long addr);
+ extern int session_of_pgrp(int pgrp);
+ 
++asmlinkage int vprintk(const char *fmt, va_list args);
+ asmlinkage int printk(const char * fmt, ...)
+ 	__attribute__ ((format (printf, 1, 2)));
+ 
+Index: tiny/kernel/printk.c
+===================================================================
+--- tiny.orig/kernel/printk.c	2004-04-15 14:18:37.000000000 -0500
++++ tiny/kernel/printk.c	2004-04-19 13:29:39.000000000 -0500
+@@ -483,6 +483,17 @@
+ asmlinkage int printk(const char *fmt, ...)
+ {
+ 	va_list args;
++	int r;
++
++	va_start(args, fmt);
++	r = vprintk(fmt, args);
++	va_end(args);
++
++	return r;
++}
++
++asmlinkage int vprintk(const char *fmt, va_list args)
++{
+ 	unsigned long flags;
+ 	int printed_len;
+ 	char *p;
+@@ -500,9 +511,7 @@
+ 	spin_lock_irqsave(&logbuf_lock, flags);
+ 
+ 	/* Emit the output into the temporary buffer */
+-	va_start(args, fmt);
+ 	printed_len = vscnprintf(printk_buf, sizeof(printk_buf), fmt, args);
+-	va_end(args);
+ 
+ 	/*
+ 	 * Copy the output into log_buf.  If the caller didn't provide
+@@ -554,6 +563,7 @@
+ 	return printed_len;
+ }
+ EXPORT_SYMBOL(printk);
++EXPORT_SYMBOL(vprintk);
+ 
+ /**
+  * acquire_console_sem - lock the console system for exclusive use.
+
+
+-- 
+Mathematics is the supreme nostalgia of our time.

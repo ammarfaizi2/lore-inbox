@@ -1,58 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265587AbUATPjy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 10:39:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265586AbUATPia
+	id S265169AbUATQEF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 11:04:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265437AbUATQEE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 10:38:30 -0500
-Received: from mail.ccur.com ([208.248.32.212]:29702 "EHLO exchange.ccur.com")
-	by vger.kernel.org with ESMTP id S265583AbUATPhY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 10:37:24 -0500
-Date: Tue, 20 Jan 2004 10:36:55 -0500
-From: Joe Korty <joe.korty@ccur.com>
-To: Matthew Dobson <colpatch@us.ibm.com>
-Cc: Paul Jackson <pj@sgi.com>, akpm@osdl.org, paulus@samba.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] bitmap parsing/printing routines, version 4
-Message-ID: <20040120153655.GA18483@tsunami.ccur.com>
-Reply-To: joe.korty@ccur.com
-References: <20040114204009.3dc4c225.pj@sgi.com> <20040115081533.63c61d7f.akpm@osdl.org> <20040115181525.GA31086@tsunami.ccur.com> <20040115161732.458159f5.pj@sgi.com> <400873EC.2000406@us.ibm.com> <20040117063618.GA14829@tsunami.ccur.com> <20040117183929.GA24185@tsunami.ccur.com> <400C4966.2030803@us.ibm.com> <20040120035756.GA15703@tsunami.ccur.com> <400CD2CF.6030506@us.ibm.com>
+	Tue, 20 Jan 2004 11:04:04 -0500
+Received: from h192n2fls310o1003.telia.com ([81.224.187.192]:22146 "EHLO
+	cambrant.com") by vger.kernel.org with ESMTP id S265169AbUATQEB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 11:04:01 -0500
+Date: Tue, 20 Jan 2004 17:03:57 +0100
+From: Tim Cambrant <tim@cambrant.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.1-mm5 [Compile error]
+Message-ID: <20040120160357.GA10881@cambrant.com>
+References: <20040120000535.7fb8e683.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="KsGdsel6WgEHnImy"
 Content-Disposition: inline
-In-Reply-To: <400CD2CF.6030506@us.ibm.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040120000535.7fb8e683.akpm@osdl.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>However, IMHO you added too many comments.  Unlike Andrew, I do believe
->>one can have too many comments.  Comments become 'too many' when they
->>dilute to the point that the code can no longer be clearly read.
->>
->>If you reduce the comments to just those that say something not easily
->>deduced from the code, then they would be acceptable to me, and would
->>make a useful addition IMO.  That would be all but three, or perhaps four,
->>of them.
->>
->>Andrew, if you do like the fully commented version, then please remove
->>my name from the comment in the patch.  The dilute style of coding is
->>not one I wish to have my name associated with.
->>
->>Thanks,
->>Joe
-> 
-> I'm sorry you feel that way, Joe.  I had no intention of "diluting" your 
-> code, and I certainly don't want you to remove your name from good code 
-> you spent significant time & effort on.  I'm just about to go to sleep, 
-> so I made this patch pretty quickly.  I think the 4 comments I kept are 
-> the most useful and non-obvious.  Let me know if this looks acceptable 
-> to you.  As I said, I have no desire to have you pull your name from the 
-> code, especially since I feel it is good code!
-> 
-> Andrew, once Joe and I work out an acceptable patch, we'll make sure you 
-> get a copy.
 
-Much better, Matthew.  I can live with this latest patch:)
-Thanks,
-Joe
+--KsGdsel6WgEHnImy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi Andrew,
+
+When compiling 2.6.1-mm5 i get these errors:
+
+  CC	drivers/net/net_init.o
+In file included from drivers/net/net_init.c:53:
+include/net/neighbour.h:216: parse error before `proc_handler'
+include/net/neighbour.h:216: warning: function declaration isn't a prototype
+make[2]: *** [drivers/net/net_init.o] Error 1
+make[1]: *** [drivers/net] Error 2
+make: *** [drivers] Error 2
+
+=46rom what I'm able to see, nothing is wrong with the function declaration,
+so I really cannot guess why this error show up. Then again, I'm no
+programmer/developer, so someone else ought to take a look at this to
+see what's causing these problems. This error is new in 2.6.1-mm5.
+2.6.1-mm4 compiles cleanly and works beautifully.
+
+I'd be happy to test any patches to help fixing the error.
+
+                Tim Cambrant
+
+--KsGdsel6WgEHnImy
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFADVFt+p4C2FlRhwIRAvpGAJ99ny8lPlt5Gyia6bZEJ6esF2xIwwCgjMHI
+woh0JFZQdJkt/6xd8886sCg=
+=wvxI
+-----END PGP SIGNATURE-----
+
+--KsGdsel6WgEHnImy--

@@ -1,28 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310329AbSCBGf6>; Sat, 2 Mar 2002 01:35:58 -0500
+	id <S310331AbSCBHFP>; Sat, 2 Mar 2002 02:05:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310330AbSCBGft>; Sat, 2 Mar 2002 01:35:49 -0500
-Received: from 12-253-30-32.client.attbi.com ([12.253.30.32]:21699 "EHLO
-	lunar.radom.org") by vger.kernel.org with ESMTP id <S310329AbSCBGfg>;
-	Sat, 2 Mar 2002 01:35:36 -0500
-Date: Fri, 1 Mar 2002 23:35:34 -0700
-From: dan radom <dan@radom.org>
-To: linux-kernel@vger.kernel.org
-Subject: nfs task foo can't get a requested slot client errors
-Message-ID: <20020302063533.GH6260@lunar.radom.org>
-Reply-To: "dan@radom.org" <dan@radom.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+	id <S310332AbSCBHEz>; Sat, 2 Mar 2002 02:04:55 -0500
+Received: from h24-71-223-13.cg.shawcable.net ([24.71.223.13]:21819 "EHLO
+	pd5mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id <S310331AbSCBHEq>; Sat, 2 Mar 2002 02:04:46 -0500
+Date: Fri, 01 Mar 2002 22:38:51 -0800 (PST)
+From: Daniel Bertrand <d.bertrand@ieee.org>
+Subject: 64bit dma_addr_t (was: Emu10k1 SPDIF ...)
+In-Reply-To: <20020228.170317.70477069.davem@redhat.com>
+X-X-Sender: d_bertra@kilrogg
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <Pine.LNX.4.44.0203012156540.5276-100000@kilrogg>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please cc me in any replies, as I'm not subscribed to this list.
+Hi,
 
-With recent kernel releases (2.4.17 and 18) I've had nfs client problems (nfs task foo can't get a requested slot).  I've read what I can about this error, but don't see anything pertaining to recent kernels.  Anything with a rsize or wsize greater than 3072 dies under what I'm guessing are RPC problems.  Server load isn't an issue here.  What can this be?  The nfsd is running 2.4.17, and several other 2.4.17 clients can nfs with default rsize and wsize of 8192.  I'm using a xircom 10/100/56K cardbus ethernet adapter.  Client kernel nfs config includes both CONFIG_NFS_FS=m and  CONFIG_NFS_V3=y
+Sorry to beat a dead horse, but wouldn't it be better if sizes didn't
+change within the same CPU arch? I don't see how binary-only modules can
+ever work reliably if the size of types change depending on people's
+.config file. (not that I use any binary-only modules :-).
 
-Thanks in advance,
+Is this a common thing done in the kernel? For dma_addr_t, why not just
+have it always be 64bit?
 
-dan
+
+On Thu, 28 Feb 2002, David S. Miller wrote:
+
+>    From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+>    Date: Fri, 1 Mar 2002 01:07:27 +0000 (GMT)
+>    
+>    The cast befor ethe cpu_to_ is safe if its 32bit I/O only. Maybe we should
+>    have cpu_to_le_dma_addr_t 8)
+> 
+> Actually, the cast to 32-bit is safe if you've set your DMA mask
+> properly :-)
+> 
+
+-- 
+Daniel Bertrand
+
+

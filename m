@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261257AbTD1TwS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Apr 2003 15:52:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbTD1TwS
+	id S261260AbTD1TxF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Apr 2003 15:53:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261261AbTD1TxF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Apr 2003 15:52:18 -0400
-Received: from pdbn-d9bb874a.pool.mediaWays.net ([217.187.135.74]:33805 "EHLO
-	citd.de") by vger.kernel.org with ESMTP id S261257AbTD1TwR (ORCPT
+	Mon, 28 Apr 2003 15:53:05 -0400
+Received: from bgp01015244bgs.rosvle01.mi.comcast.net ([68.41.215.65]:52023
+	"EHLO bgp01015244bgs.rosvle01.mi.comcast.net") by vger.kernel.org
+	with ESMTP id S261260AbTD1TxD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Apr 2003 15:52:17 -0400
-Date: Mon, 28 Apr 2003 22:04:24 +0200
-From: Matthias Schniedermeyer <ms@citd.de>
-To: Larry McVoy <lm@work.bitmover.com>,
-       Ross Vandegrift <ross@willow.seitz.com>, Larry McVoy <lm@bitmover.com>,
-       Chris Adams <cmadams@hiwaay.net>, linux-kernel@vger.kernel.org
-Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
-Message-ID: <20030428200424.GA9252@citd.de>
-References: <fa.ivrgub8.1ci079c@ifi.uio.no> <20030427183553.GA955879@hiwaay.net> <20030427185037.GA23581@work.bitmover.com> <20030427220717.GA24991@willow.seitz.com> <20030427223255.GH23068@work.bitmover.com>
+	Mon, 28 Apr 2003 15:53:03 -0400
+Subject: Re: Question regarding Intel i845 chipset.
+From: Chris Smith <chris@realcomputerguy.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1051560315.13295.5.camel@neitsche.realcomputerguy.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030427223255.GH23068@work.bitmover.com>
-User-Agent: Mutt/1.3.27i
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 28 Apr 2003 16:05:15 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 27, 2003 at 03:32:55PM -0700, Larry McVoy wrote:
+On Fri, 11 Apr 2003 19:30:20 +0200, Alan Cox wrote:
 
-> I don't think it is exclusively the open source folks that have the 
-> business guys worried, they are also worried about the illegal wholesale
-> replication of the software which occurs in places like China.
+> No.
+> 
+> Not all BIOS vendors get the tables right however.
 
-apples? pears?
+Recently compiled 2.4.21-rc1 on two systems with Intel boards, one an
+i850 based board where there were no problems with the APIC being
+enabled (as it was also with an earlier kernel) but an i845 based board
+(Intel D845PT, latest BIOS) would not enable the APIC (all XT-PIC in
+/proc/interrupts) until I applied the -ac3 patch, even though the APIC
+has worked fine under that other OS.
 
-100% copy or "binary clone" of a software is illegal, thats correct.
-
-Reimplementing the "ideas" behind a software is legal.
-
-Otherweise there wouldn't be Bitkeeper. "100% original invention" is
-impossibel today. At least for a "nontrivial" software. And i guess
-Bitkeeper isn't "trivial" (-> it's more than a oneliner).
-
+Chris Smith
 
 
-
-Bis denn
-
--- 
-Real Programmers consider "what you see is what you get" to be just as 
-bad a concept in Text Editors as it is in women. No, the Real Programmer
-wants a "you asked for it, you got it" text editor -- complicated, 
-cryptic, powerful, unforgiving, dangerous.
 

@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132531AbRDHKm4>; Sun, 8 Apr 2001 06:42:56 -0400
+	id <S132533AbRDHKxG>; Sun, 8 Apr 2001 06:53:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132534AbRDHKmr>; Sun, 8 Apr 2001 06:42:47 -0400
-Received: from smtp3.xs4all.nl ([194.109.127.132]:13577 "EHLO smtp3.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S132531AbRDHKmh>;
-	Sun, 8 Apr 2001 06:42:37 -0400
-Date: Sun, 8 Apr 2001 10:42:11 +0000
-From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.2 ac2x & 2.4.3. loss of VC displays
-Message-ID: <20010408104211.A2095@grobbebol.xs4all.nl>
-Mime-Version: 1.0
+	id <S132534AbRDHKw5>; Sun, 8 Apr 2001 06:52:57 -0400
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:54546 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S132533AbRDHKwl>; Sun, 8 Apr 2001 06:52:41 -0400
+Date: 08 Apr 2001 12:25:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: twaugh@redhat.com
+cc: jgarzik@mandrakesoft.com
+cc: linux-kernel@vger.kernel.org
+Message-ID: <7zSF$ISHw-B@khms.westfalen.de>
+In-Reply-To: <20010407200856.E3280@redhat.com>
+Subject: Re: Multi-function PCI devices
+X-Mailer: CrossPoint v3.12d.kh5 R/C435
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-X-OS: Linux grobbebol 2.4.3 
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <20010407200856.E3280@redhat.com>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi all
+twaugh@redhat.com (Tim Waugh)  wrote on 07.04.01 in <20010407200856.E3280@redhat.com>:
 
-regently I see weird things with X.
+> On Sat, Apr 07, 2001 at 01:23:27PM -0400, Jeff Garzik wrote:
+>
+> > You asked in your last message to show you code, here is a short
+> > example.  Note that I would love to rip out the SUPERIO code in parport
+> > and make it a separate driver like this short, contrived example.  Much
+> > more modular than the existing solution.
+>
+> (The superio code is on its way out anyway, for different reasons..)
+>
+> More modular?  Yes, it adds another module to support a card, so yes
+> there are more modules.
+>
+> But with the multifunction_quirks approach, support is a question of
+> adding two lines in a table.
 
-XFree86 Version 4.0.2 / X Window System
-(protocol Version 11, revision 0, vendor release 6400)
-Release Date: 18 December 2000
+So why not make Jeff's example use a multifunction board table to do it's  
+job?
 
-(II) NV: driver for NVIDIA chipsets: RIVA128, RIVATNT, RIVATNT2,
-        RIVATNT2 (Ultra), RIVATNT2 (Vanta), RIVATNT2 M64,
-        RIVATNT2 (Integrated), GeForce 256, GeForce DDR, Quadro,
-        GeForce2 GTS, GeForce2 GTS (rev 1), GeForce2 ultra, Quadro 2 Pro,
-        GeForce2 MX, GeForce2 MX DDR, Quadro 2 MXR, GeForce 2 Go
-(--) Chipset RIVATNT found
-
-this is a SuSE 7.0 std X thing. no specific NVIDIA obfuscated source
-binary or something.
-
-what happens is that after some time, I switch back & forth from and to
-X. sometimes, most within a day of work, switching from X to a VC, the
-VC's blank. it reacts to commands but display is blank.
-
-I don't have special modules launched and no patches to the kernel
-except the lm_sensors / i2c stuff. removed it for test and still
-happens.
-
-someone an idea ?
-
-
--- 
-Grobbebol's Home                   |  Don't give in to spammers.   -o)
-http://www.xs4all.nl/~bengel       | Use your real e-mail address   /\
-Linux 2.2.16 SMP 2x466MHz / 256 MB |        on Usenet.             _\_v  
+MfG Kai

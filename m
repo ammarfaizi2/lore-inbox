@@ -1,84 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269571AbUINRCt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269507AbUINROd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269571AbUINRCt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 13:02:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269574AbUINQ5A
+	id S269507AbUINROd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 13:14:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269524AbUINRNg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 12:57:00 -0400
-Received: from moraine.clusterfs.com ([66.246.132.190]:64949 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S269595AbUINQds (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 12:33:48 -0400
-Date: Tue, 14 Sep 2004 10:33:47 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org, Trond Myklebust <trond.myklebust@fys.uio.no>,
-       netdev@oss.sgi.com
-Subject: Re: Kernel stack overflow on 2.6.9-rc2
-Message-ID: <20040914163347.GE3197@schnapps.adilger.int>
-Mail-Followup-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-	linux-kernel@vger.kernel.org,
-	Trond Myklebust <trond.myklebust@fys.uio.no>, netdev@oss.sgi.com
-References: <200409141723.35009.vda@port.imtp.ilyichevsk.odessa.ua>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gDGSpKKIBgtShtf+"
-Content-Disposition: inline
-In-Reply-To: <200409141723.35009.vda@port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	Tue, 14 Sep 2004 13:13:36 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:7809 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S269580AbUINRDv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 13:03:51 -0400
+Date: Tue, 14 Sep 2004 13:03:17 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: James Roper <u3205097@anu.edu.au>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel semaphores
+In-Reply-To: <20040914090512.7236a6da@lembas.zaitcev.lan>
+Message-ID: <Pine.LNX.4.53.0409141250350.4132@chaos>
+References: <mailman.1095139743.24686.linux-kernel2news@redhat.com>
+ <20040914090512.7236a6da@lembas.zaitcev.lan>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---gDGSpKKIBgtShtf+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Tue, 14 Sep 2004 15:25:24 +1000
+James Roper <u3205097@anu.edu.au> wrote:
+>
+> [] So my question is, if my semaphore is
+> causing that error, what possible things could be triggering it?
+> Could it be an interrupt while waiting to acquire the semaphore?
+> I'm using the down_interruptible() to acquire and up() to release.
+>
 
-On Sep 14, 2004  17:23 +0300, Denis Vlasenko wrote:
-> I am putting to use an ancient box. Pentium 66.
-> It gives me stack overflow errors on 2.6.9-rc2:
->=20
-> To save you filtering out functions with less than 100
-> bytes of stack:
->=20
-> udp_sendmsg+0x35e/0x61a [220]
-> sock_sendmsg+0x88/0xa3 [208]
-> __nfs_revalidate_inode+0xc7/0x308 [152]
-> nfs_lookup_revalidate+0x257/0x4ed [312]
-> load_elf_binary+0xc4f/0xcc8 [268]
-> load_script+0x1ea/0x220 [136]
-> do_execve+0x153/0x1b9 [336]
+You use downXXX() and upXXX() to serialize user-access to your
+driver in the usual APIs like read() and write().
 
-do_execve() can be trivially fixed to allocate bprm (328 bytes) instead=20
-putting it on the stack.  Given the frequency of exec and the odd size
-it should probably be in its own slab (and fix the goofy prototype
-indenting while you're there too ;-).
+You need to use spin-locks to protect critical sections
+from being changed by interrupts. You need to do this
+even if you are using downXXX() and upXXX(). Basically
+downXXX() will cause a semaphore-contender to sleep. You
+can't do this in an interrupt.
 
-load_elf_binary() on the other hand is a big mess, 132 bytes of int/long
-variables.
+Any code in an ISR or on the timer-queue must never
+execute downXXX(). It is possible, under extremely
+strange circumstances to execute upXXX() from an
+interrupt because it doesn't sleep, only releases
+the lock (if the resource is locked). You don't
+design anything to do this, though. It can be used
+as a work-around to release a resource that was acquired
+by a task that hung or died.
 
-nfs_lookup_revalidate() has 2 large structs on the stack, fhandle and fattr.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://members.shaw.ca/adilger/             http://members.shaw.ca/golinux/
-
-
---gDGSpKKIBgtShtf+
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFBRx1qpIg59Q01vtYRAlyQAKCsBAF7suX4kERQPLicYhoDRWplLACfW2ZZ
-f1CYZH/pNdU19NpgsQO9aaw=
-=pk5q
------END PGP SIGNATURE-----
-
---gDGSpKKIBgtShtf+--

@@ -1,67 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbVC3UPo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262469AbVC3USF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262453AbVC3UPo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 15:15:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262469AbVC3UOX
+	id S262469AbVC3USF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 15:18:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbVC3UQM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 15:14:23 -0500
-Received: from smtp9.poczta.onet.pl ([213.180.130.49]:29649 "EHLO
-	smtp9.poczta.onet.pl") by vger.kernel.org with ESMTP
-	id S262453AbVC3UNn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 15:13:43 -0500
-Message-ID: <424B090F.3090508@poczta.onet.pl>
-Date: Wed, 30 Mar 2005 22:16:15 +0200
-From: Wiktor <victorjan@poczta.onet.pl>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
+	Wed, 30 Mar 2005 15:16:12 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:4549 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261823AbVC3UOr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 15:14:47 -0500
+From: Jeff Moyer <jmoyer@redhat.com>
 MIME-Version: 1.0
-To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [RFD] 'nice' attribute for executable files
-References: <fa.ed33rit.1e148rh@ifi.uio.no>	<E1DGNaV-0005LG-9m@be1.7eggert.dyndns.org>	<424ACEA9.6070401@poczta.onet.pl>	<yw1xpsxhvzsz.fsf@ford.inprovide.com>	<424AE18B.1080009@poczta.onet.pl> <yw1xll85vtva.fsf@ford.inprovide.com>
-In-Reply-To: <yw1xll85vtva.fsf@ford.inprovide.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16971.2290.29297.636175@segfault.boston.redhat.com>
+Date: Wed, 30 Mar 2005 15:15:46 -0500
+To: linux-kernel@vger.kernel.org
+Subject: [patch] filemap_getpage can block when MAP_NONBLOCK specified
+X-Mailer: VM 7.19 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
+Reply-To: jmoyer@redhat.com
+X-PGP-KeyID: 1F78E1B4
+X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
+X-PCLoadLetter: What the f**k does that mean?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Måns Rullgård wrote:
->
-> You could wrap /lib/ld-linux.so, and get all dynamically linked
-> programs done in one sweep.
->
-That's mad idea - keep similar things in one place! starting programs is 
-done in kernel and nice-value-support is also done in kernel!!
+Hello,
 
-> 
-> Using a shell to run external programs is quite common.  The system()
-> and popen() functions both invoke the shell.
-> 
-Yes, but compexity of 'sh -c /some/command' is uncomparable to one of 
-shell-level-program-renicing system. such system should keep database of 
-reniced processes, parse it (using awk or sed, i'm afraid...) and then 
-renice process (what also takes two files[!, they are in fact 
-one-liners, but it is needed to gain root privileges to renice 
-process]). sorry, but linux works smoothly on 386, and such mess would 
-surely change it.
+We will return NULL from filemap_getpage when a page does not exist in the
+page cache and MAP_NONBLOCK is specified, here:
 
-> 
-> I'm not so sure it belongs at all.  The can of worms it opens up is a
-> bit too big, IMHO.
-> 
-What can? the only account that have access to renicing field is root. 
-if some-malicious-person can gain access to root account, he does not 
-need renicing field, because he can renice processes by snice tool! for 
-normal user, this field is unchangeable. of course, if root is so <....> 
-to set inpropertly nice field, he is propably also about to set setuid 
-to /bin/[ba]sh and set root's password to '123'... I really do not see 
-any dangers of providing such feature in kernel (b[u]y the way - 
-renicing in user space requires root privileges, so [from security point 
-of view] it doesn't really matter where renicing is done - both in 
-kernel and userland it has full-access to the system)
+	page = find_get_page(mapping, pgoff);
+	if (!page) {
+		if (nonblock)
+			return NULL;
+		goto no_cached_page;
+	}
 
-thx for replies
+But we forget to do so when the page in the cache is not uptodate.  The
+following could result in a blocking call:
 
---
-wixor
-May the Source be with you.
+	/*
+	 * Ok, found a page in the page cache, now we need to check
+	 * that it's up-to-date.
+	 */
+	if (!PageUptodate(page))
+		goto page_not_uptodate;
+
+Patch attached.
+
+Thanks,
+
+Jeff
+
+--- linux-2.6.11/mm/filemap.c.orig	2005-03-30 14:57:02.252975936 -0500
++++ linux-2.6.11/mm/filemap.c	2005-03-30 15:02:51.808835368 -0500
+@@ -1379,8 +1379,13 @@ retry_find:
+ 	 * Ok, found a page in the page cache, now we need to check
+ 	 * that it's up-to-date.
+ 	 */
+-	if (!PageUptodate(page))
++	if (!PageUptodate(page)) {
++		if (nonblock) {
++			page_cache_release(page);
++			return NULL;
++		}
+ 		goto page_not_uptodate;
++	}
+ 
+ success:
+ 	/*

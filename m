@@ -1,56 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291291AbSB0BkL>; Tue, 26 Feb 2002 20:40:11 -0500
+	id <S291355AbSB0BmV>; Tue, 26 Feb 2002 20:42:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291308AbSB0BkC>; Tue, 26 Feb 2002 20:40:02 -0500
-Received: from [202.135.142.194] ([202.135.142.194]:50962 "EHLO
-	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
-	id <S291291AbSB0Bjv>; Tue, 26 Feb 2002 20:39:51 -0500
-Date: Fri, 1 Jan 1904 00:19:53 +1000
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Paul Jackson <pj@engr.sgi.com>
-Cc: dipankar@in.ibm.com, k-suganuma@mvj.biglobe.ne.jp, focht@ess.nec.de,
-        rml@tech9.net, linux-kernel@vger.kernel.org, mingo@elte.hu,
-        colpatch@us.ibm.com, lse-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] Re: [PATCH] O(1) scheduler set_cpus_allowed for non-current tasks
-Message-Id: <19040101001954.51000b1d.rusty@rustcorp.com.au>
-In-Reply-To: <Pine.SGI.4.21.0202251948150.592622-100000@sam.engr.sgi.com>
-In-Reply-To: <20020225175853.B15397@in.ibm.com>
-	<Pine.SGI.4.21.0202251948150.592622-100000@sam.engr.sgi.com>
-X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+	id <S291348AbSB0BmN>; Tue, 26 Feb 2002 20:42:13 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:62710
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S291372AbSB0BmA>; Tue, 26 Feb 2002 20:42:00 -0500
+Date: Tue, 26 Feb 2002 17:42:35 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Nicholas Kirsch <nkirsch@insynq.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Reproducible freeze on 2.4.18
+Message-ID: <20020227014235.GT4393@matchmail.com>
+Mail-Followup-To: Nicholas Kirsch <nkirsch@insynq.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <E16fsnE-0005RR-00@ark.dev.insynq.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E16fsnE-0005RR-00@ark.dev.insynq.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Feb 2002 19:59:49 -0800
-Paul Jackson <pj@engr.sgi.com> wrote:
+On Tue, Feb 26, 2002 at 05:22:04PM -0800, Nicholas Kirsch wrote:
+> Help! Using 2.4.18 (and verified as far back as .9) - I am getting a process freeze when an application does an fsync. Turning off HIGHMEM (the box has 2GB ram) solves the issue. Is there anyone who is interested in learning more about this situation? Please CC to nkirsch@insynq.com. 
 
-> On Mon, 25 Feb 2002, Dipankar Sarma wrote:
-> >
-> > If these are processes that are bound to the CPU to be shut down,
-> > wouldn't it make sense to fail the CPU shut down operation ? If you
-> > are giving enough control to the user to make CPU affinity decisions,
-> > they better know how to cleanup before shutting down a CPU.
-> 
-> I can imagine some users (applications) wanting to insist on
-> staying on a particular CPU (Pike's Peak or Bust), and some
-> content to be migrated automatically, and some wanting to
-> receive and act on requests to migrate.
-> 
-> One of these policies might be default, with others as options.
-> 
-> Some CPU shut down operations _can't_ fail ... if they are motivated
-> say by hardware about to fail.
+Please try the -aa kernel patch series.
 
-Exactly.  If I run the RC5 challenge, one per cpu (using a mythical
-oncpu(1) program, say), I'd be very upset if my whole machine dies because
-it don't take down a faulty CPU!
+Also, many people including myself have had better responce from -rmap, but
+you should probably give -aa a try first.
 
-I think SIGPWR is appropriate here.  If that doesn't work, then SIGKILL.
-Of course, ksoftirqd is a special case, etc.
-
-Rusty.
--- 
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Mike

@@ -1,114 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289867AbSBEXi7>; Tue, 5 Feb 2002 18:38:59 -0500
+	id <S289772AbSBEX4a>; Tue, 5 Feb 2002 18:56:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289871AbSBEXit>; Tue, 5 Feb 2002 18:38:49 -0500
-Received: from bdsl.66.13.29.10.gte.net ([66.13.29.10]:20610 "EHLO
-	Bluesong.NET") by vger.kernel.org with ESMTP id <S289867AbSBEXid>;
-	Tue, 5 Feb 2002 18:38:33 -0500
-Message-Id: <200202052343.g15NhQF17775@Bluesong.NET>
-From: "Jack F. Vogel" <jfv@trane.bluesong.net>
-Reply-To: jfv@bluesong.net
-To: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: [PATCH]: O(1) 2.5.3-K2 Tuneable Parameters
-Date: Tue, 5 Feb 2002 15:43:25 -0800
-X-Mailer: KMail [version 1.3.1]
-Cc: jstultz@us.ibm.com
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_D833TL295ENL4E63IU9F"
+	id <S289871AbSBEX4U>; Tue, 5 Feb 2002 18:56:20 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:3223 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S289772AbSBEX4E>;
+	Tue, 5 Feb 2002 18:56:04 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Wed, 6 Feb 2002 00:56:01 +0100 (MET)
+Message-Id: <UTC200202052356.g15Nu1w00794.aeb@apps.cwi.nl>
+To: hpa@zytor.com
+Subject: Re: How to check the kernel compile options ?
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    > I would be surprised if there is anyone on this list
+    > who has not lost at some point either the .config, the
+    > ksyms, or something similar associated with at least
+    > one build they've made.
 
---------------Boundary-00=_D833TL295ENL4E63IU9F
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+    Sure.  And people have lost their root filesystems due to "rm -rf /".
+    That doesn't mean we build the entire (real) root filesystem into
+    the kernel.
 
-Here is the resynch of the tuneable parameters patch to Ingo's
-current delta for 2.5.3. The 2.4.17 will be forthcoming shortly...
+	-hpa
 
-Cheers,
+Peter, in my eyes this is an unreasonable answer.
 
--- 
-Jack F. Vogel
-IBM  Linux Solutions
-jfv@us.ibm.com  (work)
-jfv@Bluesong.NET (home)
+For debugging and other purposes it is good to have some
+information. One may wish to know about a certain kernel image
+what Linux kernel version that was, with what patches, compiled
+with what options, by which compiler. Or one may want to know
+such things about the currently running kernel. Even user-space
+programs (like mount) may want to know (what NFS version? do we
+have CONFIG_JOLIET?).
 
---------------Boundary-00=_D833TL295ENL4E63IU9F
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="schedtune-O1-2.5.3-K2"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="schedtune-O1-2.5.3-K2"
+Today we supply a little of this information.
+For example, /proc/version supplies information on version
+and compiler and date. Why? One might as well keep this compiler
+info in a separate file. What a waste of unswappable kernel memory!
 
-ZGlmZiAtTmF1ciBsaW51eC9pbmNsdWRlL2xpbnV4L3N5c2N0bC5oIGxpbnV4Lmpmdi9pbmNsdWRl
-L2xpbnV4L3N5c2N0bC5oCi0tLSBsaW51eC9pbmNsdWRlL2xpbnV4L3N5c2N0bC5oCVR1ZSBKYW4g
-MjkgMjE6NDE6MTAgMjAwMgorKysgbGludXguamZ2L2luY2x1ZGUvbGludXgvc3lzY3RsLmgJVHVl
-IEZlYiAgNSAxNDoxMzozNSAyMDAyCkBAIC03Miw2ICs3MiwyMCBAQAogCUJVU19JU0E9MQkJLyog
-SVNBICovCiB9OwogCisvLyBUdW5lYWJsZSBzY2hlZHVsZXIgbmFtZXM6CitlbnVtCit7CisJTUFY
-X1NMSUNFPTEsICAgIC8qIFRpbWVzbGljZSBzY2FsaW5nICovCisJTUlOX1NMSUNFPTIsCisJQ0hJ
-TERfUEVOQUxUWT0zLAorCVBBUkVOVF9QRU5BTFRZPTQsCisJRVdFSUdIVD01LAorCUJPTlVTX1JB
-VElPPTYsCisJSU5UX0RFTFRBPTcsCisJTUFYX1NMRUVQPTgsCisJU1RBUlZFX0xJTT05Cit9Owor
-CiAvKiBDVExfS0VSTiBuYW1lczogKi8KIGVudW0KIHsKZGlmZiAtTmF1ciBsaW51eC9rZXJuZWwv
-c2NoZWQuYyBsaW51eC5qZnYva2VybmVsL3NjaGVkLmMKLS0tIGxpbnV4L2tlcm5lbC9zY2hlZC5j
-CVR1ZSBGZWIgIDUgMTU6MTY6NDYgMjAwMgorKysgbGludXguamZ2L2tlcm5lbC9zY2hlZC5jCVR1
-ZSBGZWIgIDUgMTU6MDA6NDkgMjAwMgpAQCAtNTUsNiArNTUsNyBAQAogICogbWF4aW11bSB0aW1l
-c2xpY2UgaXMgMzAwIG1zZWNzLiBUaW1lc2xpY2VzIGdldCByZWZpbGxlZCBhZnRlcgogICogdGhl
-eSBleHBpcmUuCiAgKi8KKyNpZmRlZiBDT05GSUdfU0NIRURUVU5FCS8vIEhlcmUganVzdCB0byBt
-YWtlIHBhdGNoIGNsZWFuCiAjZGVmaW5lIE1JTl9USU1FU0xJQ0UJCSggMTAgKiBIWiAvIDEwMDAp
-CiAjZGVmaW5lIE1BWF9USU1FU0xJQ0UJCSgzMDAgKiBIWiAvIDEwMDApCiAjZGVmaW5lIENISUxE
-X1BFTkFMVFkJCTk1CkBAIC02NCw2ICs2NSwyOSBAQAogI2RlZmluZSBJTlRFUkFDVElWRV9ERUxU
-QQkyCiAjZGVmaW5lIE1BWF9TTEVFUF9BVkcJCSgyKkhaKQogI2RlZmluZSBTVEFSVkFUSU9OX0xJ
-TUlUCSgyKkhaKQorI2Vsc2UJLy8gTWFrZSBwYXJhbWV0ZXJzIHR1bmVhYmxlIGF0IHJ1bnRpbWUK
-KworaW50IG1pbl90aW1lc2xpY2UgPSAoIDEwICogSFogLyAxMDAwKTsKK2ludCBtYXhfdGltZXNs
-aWNlID0gKDMwMCAqIEhaIC8gMTAwMCk7CitpbnQgY2hpbGRfcGVuYWx0eSA9IDk1OworaW50IHBh
-cmVudF9wZW5hbHR5ID0gMTAwOworaW50IGV4aXRfd2VpZ2h0ID0gMzsKK2ludCBwcmlvX2JvbnVz
-X3JhdGlvID0gMjU7CitpbnQgaW50ZXJhY3RpdmVfZGVsdGEgPSAyOworaW50IG1heF9zbGVlcF9h
-dmcgPSAoMipIWik7CitpbnQgc3RhcnZhdGlvbl9saW1pdCA9ICgyKkhaKTsKKworI2RlZmluZSBN
-SU5fVElNRVNMSUNFCQkobWluX3RpbWVzbGljZSkKKyNkZWZpbmUgTUFYX1RJTUVTTElDRQkJKG1h
-eF90aW1lc2xpY2UpCisjZGVmaW5lIENISUxEX1BFTkFMVFkJCShjaGlsZF9wZW5hbHR5KQorI2Rl
-ZmluZSBQQVJFTlRfUEVOQUxUWQkJKHBhcmVudF9wZW5hbHR5KQorI2RlZmluZSBFWElUX1dFSUdI
-VAkJKGV4aXRfd2VpZ2h0KQorI2RlZmluZSBQUklPX0JPTlVTX1JBVElPCShwcmlvX2JvbnVzX3Jh
-dGlvKQorI2RlZmluZSBJTlRFUkFDVElWRV9ERUxUQQkoaW50ZXJhY3RpdmVfZGVsdGEpCisjZGVm
-aW5lIE1BWF9TTEVFUF9BVkcJCShtYXhfc2xlZXBfYXZnKQorI2RlZmluZSBTVEFSVkFUSU9OX0xJ
-TUlUCShzdGFydmF0aW9uX2xpbWl0KQorCisjZW5kaWYKIAogLyoKICAqIElmIGEgdGFzayBpcyAn
-aW50ZXJhY3RpdmUnIHRoZW4gd2UgcmVpbnNlcnQgaXQgaW4gdGhlIGFjdGl2ZQpkaWZmIC1OYXVy
-IGxpbnV4L2tlcm5lbC9zeXNjdGwuYyBsaW51eC5qZnYva2VybmVsL3N5c2N0bC5jCi0tLSBsaW51
-eC9rZXJuZWwvc3lzY3RsLmMJU2F0IERlYyAyOSAxNzozMDowNyAyMDAxCisrKyBsaW51eC5qZnYv
-a2VybmVsL3N5c2N0bC5jCVR1ZSBGZWIgIDUgMTQ6NTE6MjcgMjAwMgpAQCAtNTIsNiArNTIsMTAg
-QEAKIGV4dGVybiBpbnQgY29yZV91c2VzX3BpZDsKIGV4dGVybiBpbnQgY2FkX3BpZDsKIAorZXh0
-ZXJuIGludCBtaW5fdGltZXNsaWNlLCBtYXhfdGltZXNsaWNlLCBjaGlsZF9wZW5hbHR5LCBwYXJl
-bnRfcGVuYWx0eTsKK2V4dGVybiBpbnQgcHJpb19ib251c19yYXRpbywgaW50ZXJhY3RpdmVfZGVs
-dGE7CitleHRlcm4gaW50IGV4aXRfd2VpZ2h0LCBtYXhfc2xlZXBfYXZnLCBzdGFydmF0aW9uX2xp
-bWl0OworCiAvKiB0aGlzIGlzIG5lZWRlZCBmb3IgdGhlIHByb2NfZG9pbnR2ZWNfbWlubWF4IGZv
-ciBbZnNfXW92ZXJmbG93IFVJRCBhbmQgR0lEICovCiBzdGF0aWMgaW50IG1heG9sZHVpZCA9IDY1
-NTM1Owogc3RhdGljIGludCBtaW5vbGR1aWQ7CkBAIC0xMTAsNiArMTE0LDcgQEAKIAogc3RhdGlj
-IGN0bF90YWJsZSBrZXJuX3RhYmxlW107CiBzdGF0aWMgY3RsX3RhYmxlIHZtX3RhYmxlW107Citz
-dGF0aWMgY3RsX3RhYmxlIHNjaGVkX3RhYmxlW107CiAjaWZkZWYgQ09ORklHX05FVAogZXh0ZXJu
-IGN0bF90YWJsZSBuZXRfdGFibGVbXTsKICNlbmRpZgpAQCAtMTU0LDYgKzE1OSw3IEBACiAJe0NU
-TF9GUywgImZzIiwgTlVMTCwgMCwgMDU1NSwgZnNfdGFibGV9LAogCXtDVExfREVCVUcsICJkZWJ1
-ZyIsIE5VTEwsIDAsIDA1NTUsIGRlYnVnX3RhYmxlfSwKICAgICAgICAge0NUTF9ERVYsICJkZXYi
-LCBOVUxMLCAwLCAwNTU1LCBkZXZfdGFibGV9LAorICAgICAgICB7Q1RMX0tFUk4sICJzY2hlZCIs
-IE5VTEwsIDAsIDA1NTUsIHNjaGVkX3RhYmxlfSwKIAl7MH0KIH07CiAKQEAgLTI3NSw2ICsyODEs
-MjggQEAKIAl7MH0KIH07CiAKK3N0YXRpYyBjdGxfdGFibGUgc2NoZWRfdGFibGVbXSA9IHsKKwl7
-TUFYX1NMSUNFLCAiTUFYX1RJTUVTTElDRSIsCisJJm1heF90aW1lc2xpY2UsIHNpemVvZihpbnQp
-LCAwNjQ0LCBOVUxMLCAmcHJvY19kb2ludHZlY30sCisJe01JTl9TTElDRSwgIk1JTl9USU1FU0xJ
-Q0UiLAorCSZtaW5fdGltZXNsaWNlLCBzaXplb2YoaW50KSwgMDY0NCwgTlVMTCwgJnByb2NfZG9p
-bnR2ZWN9LAorCXtDSElMRF9QRU5BTFRZLCAiQ0hJTERfRk9SS19QRU5BTFRZIiwKKwkmY2hpbGRf
-cGVuYWx0eSwgc2l6ZW9mKGludCksIDA2NDQsIE5VTEwsICZwcm9jX2RvaW50dmVjfSwKKwl7UEFS
-RU5UX1BFTkFMVFksICJQQVJFTlRfRk9SS19QRU5BTFRZIiwKKwkmcGFyZW50X3BlbmFsdHksIHNp
-emVvZihpbnQpLCAwNjQ0LCBOVUxMLCAmcHJvY19kb2ludHZlY30sCisJe0VXRUlHSFQsICJFWElU
-X1dFSUdIVCIsCisJJmV4aXRfd2VpZ2h0LCBzaXplb2YoaW50KSwgMDY0NCwgTlVMTCwgJnByb2Nf
-ZG9pbnR2ZWN9LAorCXtCT05VU19SQVRJTywgIlBSSU9fQk9OVVNfUkFUSU8iLAorCSZwcmlvX2Jv
-bnVzX3JhdGlvLCBzaXplb2YoaW50KSwgMDY0NCwgTlVMTCwgJnByb2NfZG9pbnR2ZWN9LAorCXtJ
-TlRfREVMVEEsICJJTlRFUkFDVElWRV9ERUxUQSIsCisJJmludGVyYWN0aXZlX2RlbHRhLCBzaXpl
-b2YoaW50KSwgMDY0NCwgTlVMTCwgJnByb2NfZG9pbnR2ZWN9LAorCXtNQVhfU0xFRVAsICJNQVhf
-U0xFRVBfQVZHIiwKKwkmbWF4X3NsZWVwX2F2Zywgc2l6ZW9mKGludCksIDA2NDQsIE5VTEwsICZw
-cm9jX2RvaW50dmVjfSwKKwl7U1RBUlZFX0xJTSwgIlNUQVJWQVRJT05fTElNSVQiLAorCSZzdGFy
-dmF0aW9uX2xpbWl0LCBzaXplb2YoaW50KSwgMDY0NCwgTlVMTCwgJnByb2NfZG9pbnR2ZWN9LAor
-CXswfQorfTsKKwogc3RhdGljIGN0bF90YWJsZSBwcm9jX3RhYmxlW10gPSB7CiAJezB9CiB9Owo=
+You see - this is not a matter of absolutes.
+In the good old days, when an operating system had to fit in 4k
+and a device driver in 128 words, putting a 100-char text like
+the one found in /proc/version into the system would be ridiculous.
+Today nobody worries about a hundred bytes paid for some useful info.
 
---------------Boundary-00=_D833TL295ENL4E63IU9F--
+So, the question is: how useful is the information, and how expensive
+is it to store it. Consider the config options. How much space do they
+take? Typically 1-5 kB (compressed). If this is stored at the end of
+a kernel image file, and not loaded into memory, then the kernel memory
+cost is zero. If this is made part of the kernel itself, say accessible
+via /proc, then the cost is 1-5 kB.
+
+So, you should ponder whether it is worthwhile to pay this cost of zero,
+and ponder whether it is worthwhile to pay this cost of 5 kB.
+
+Andries

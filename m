@@ -1,40 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264909AbUEYPPn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264921AbUEYPUW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264909AbUEYPPn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 11:15:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264912AbUEYPPn
+	id S264921AbUEYPUW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 11:20:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264912AbUEYPUW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 11:15:43 -0400
-Received: from imap.gmx.net ([213.165.64.20]:44462 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264909AbUEYPPl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 11:15:41 -0400
-X-Authenticated: #1269185
-From: Manuel Kasten <kasten.m@gmx.de>
-To: Bruno Ducrot <poup@poupinou.org>, linux-kernel@vger.kernel.org
-Subject: Re: [speedste-centrino] couldn't enable Enhanced SpeedStep
-Date: Tue, 25 May 2004 17:15:40 +0200
-User-Agent: KMail/1.6.2
-References: <200405231126.11815.kasten.m@gmx.de> <20040525145259.GA10063@poupinou.org>
-In-Reply-To: <20040525145259.GA10063@poupinou.org>
+	Tue, 25 May 2004 11:20:22 -0400
+Received: from host-65-117-135-105.timesys.com ([65.117.135.105]:45203 "EHLO
+	kartuli.timesys") by vger.kernel.org with ESMTP id S264921AbUEYPTw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 11:19:52 -0400
+Message-ID: <40B3642C.3070504@timesys.com>
+Date: Tue, 25 May 2004 11:20:12 -0400
+From: "La Monte H.P. Yarroll" <piggy@timesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en, de-de
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Davide Libenzi <davidel@xmailserver.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFD] Explicitly documenting patch submission
+References: <Pine.LNX.4.58.0405222341380.18601@ppc970.osdl.org> <Pine.LNX.4.58.0405231159240.512@bigblue.dev.mdolabs.com> <Pine.LNX.4.58.0405231218110.25502@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0405231218110.25502@ppc970.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200405251715.40529.kasten.m@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Linus Torvalds wrote:
 
-> Could you please try with CONFIG_X86_SPEEDSTEP_CENTRINO_ACPI
-> enabled?  Sometimes, the BIOS would require that the OS take
-> ownership of the performance stuff..
+>On Sun, 23 May 2004, Davide Libenzi wrote:
+>  
+>
+>>Andrew already puts the "From:" thing in the patch comment, so this should 
+>>be simply a matter of replacing "From:" with "Signed-off-by:", preserving 
+>>it in logs, and documenting the thing in the patch submission doc. No?
+>>    
+>>
+>
+>Yes and no.
+>
+>Right now it is _Andrew_ that does the From: line from you. In the 
+>sign-off procedure, it would be _you_ who add the "Signed-off-by:" line 
+>for yourself.
+>
+>(And then Andrew would sign off on the fact that you signed off).
+>
+>Not a big difference, I agree. 
+>  
+>
+Andrew's From comment is already a little lossy, e.g. most LKSCTP patches
+show up as from Sridhar or DaveM even though there's a whole subproject
+of developers working behind Sridhar.
 
-I have done that already. The only change is, that he won't report 
-"found: Intel(R) Pentium(R) M processor 1500MHz". The line with 
-"couldn't enable Enhanced SpeedStep" remains unchanged.
+I think the proposed process will increase the amount of explicit credit
+being recognized--a very good thing IMHO, since this is the core currency
+of our gift culture.
 
-MfG
-	Manuel Kasten
+-- 
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell's sig
+

@@ -1,35 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268902AbRHBMAn>; Thu, 2 Aug 2001 08:00:43 -0400
+	id <S268900AbRHBL5d>; Thu, 2 Aug 2001 07:57:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268903AbRHBMAd>; Thu, 2 Aug 2001 08:00:33 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39184 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S268902AbRHBMA2>;
-	Thu, 2 Aug 2001 08:00:28 -0400
-Date: Thu, 2 Aug 2001 13:00:35 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Andrey Panin <pazke@orbita1.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] move SIIG parallel/serial combo cards to parport-serial.c
-Message-ID: <20010802130035.A29643@flint.arm.linux.org.uk>
-In-Reply-To: <20010802155331.A6072@orbita1.ru>
+	id <S268899AbRHBL5N>; Thu, 2 Aug 2001 07:57:13 -0400
+Received: from [193.45.212.82] ([193.45.212.82]:60932 "EHLO levi.aronsson.se")
+	by vger.kernel.org with ESMTP id <S268900AbRHBL5D>;
+	Thu, 2 Aug 2001 07:57:03 -0400
+Date: Thu, 2 Aug 2001 13:57:27 +0200
+Message-Id: <200108021157.f72BvRh01898@levi.aronsson.se>
+From: Lars Aronsson <lars@aronsson.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010802155331.A6072@orbita1.ru>; from pazke@orbita1.ru on Thu, Aug 02, 2001 at 03:53:31PM +0400
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+To: linux-kernel@vger.kernel.org
+Subject: Oops in dmi_table() from Linux 2.4.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 02, 2001 at 03:53:31PM +0400, Andrey Panin wrote:
-> attached patch moves SIIG serial/parallel combo card support from
-> serail and parport_pc drivers to parport_serial.
+Hi guys,
 
-Please CC: me with any comments on this patch.
+I tried to compile and boot a fresh linux-2.4.7 kernel, and I got an
+"Unable to handle kernel paging request" during boot, at EIP
+0010:[<c02491d1>].  The docs tell me to run "nm vmlinux" to find the
+address, but I didn't get this to work on my "bzImage", so instead I
+looked in System.map, which indicates the problem is in dmi_table():
 
-Thanks.
+    c0249090 t winchip_mcheck_init
+    c02490cc T mcheck_init
+    c0249110 t mcheck_disable
+    c0249120 t dmi_string
+    c0249160 t dmi_table
+    c0249210 T dmi_iterate
+    c02492f0 t dmi_save_ident
+    c024936c t disable_ide_dma
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+The "Call Trace: [<c0105037>][<c0105454>]" seems to indicate init()
+and kernel_thread(), respectively, which I geuss is not very helpful.
 
+dmi_table() is in arch/i386/kernel/dmi_scan.c which was not present in
+my old 2.2.16 kernel.  The file doesn't have any comments indicating
+who wrote it.
+
+Hope you can use this for something.  Will you be helped if I enable
+dmi_printk() and try this again?
+
+This happened on a Toshiba Portege 7020CT with a Pentium II processor.
+
+
+Lars Aronsson.
+-- 
+  Aronsson Datateknik
+  Teknikringen 1e              tel +46-70-7891609     lars@aronsson.se
+  SE-583 30 Linköping, Sweden  fax +46-13-211820    http://aronsson.se

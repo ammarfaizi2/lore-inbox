@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264748AbUFGOvu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264726AbUFGO5K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264748AbUFGOvu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 10:51:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264746AbUFGOvc
+	id S264726AbUFGO5K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 10:57:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264746AbUFGO5K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 10:51:32 -0400
-Received: from gprs214-178.eurotel.cz ([160.218.214.178]:43648 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S264733AbUFGOv0 (ORCPT
+	Mon, 7 Jun 2004 10:57:10 -0400
+Received: from fw.osdl.org ([65.172.181.6]:6027 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264726AbUFGO5G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 10:51:26 -0400
-Date: Mon, 7 Jun 2004 16:51:16 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Sebastian Kloska <kloska@scienion.de>
-Cc: Keith Duthie <psycho@albatross.co.nz>, linux-kernel@vger.kernel.org
-Subject: Re: APM realy sucks on 2.6.x
-Message-ID: <20040607145116.GE1467@elf.ucw.cz>
-References: <40C0E91D.9070900@scienion.de> <20040607123839.GC11860@elf.ucw.cz> <40C46F7F.7060703@scienion.de> <Pine.LNX.4.53.0406080228110.27816@loki.albatross.co.nz> <40C47FEE.6080505@scienion.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40C47FEE.6080505@scienion.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Mon, 7 Jun 2004 10:57:06 -0400
+Date: Mon, 7 Jun 2004 07:56:48 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Paul Mackerras <paulus@samba.org>
+cc: linuxppc64-dev@lists.linuxppc.org,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>, anton@samba.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: PREEMPT for ppc64
+In-Reply-To: <16580.7953.94871.281986@cargo.ozlabs.ibm.com>
+Message-ID: <Pine.LNX.4.58.0406070737240.1730@ppc970.osdl.org>
+References: <16580.7953.94871.281986@cargo.ozlabs.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
->  The pure ALSA system with PCI Cirrus Logic CS4281
->  (my configuration) just dropped of my list of
->  the 'bad' one ....
-> 
->  Does this bug freeze the machine ? Or just block
->  the outputting program ?
-> 
->  PCM will be the next to look at...
 
-Drop all non-important hw. That's everything but keyboard, VGA and
-harddrive...
+On Mon, 7 Jun 2004, Paul Mackerras wrote:
+>
+> Here is a patch that implements CONFIG_PREEMPT for ppc64.  Aside from
+> the entry.S changes to check the _TIF_NEED_RESCHED bit when returning
+> from an exception, most of the changes are to add preempt/{dis,en}able
+> in various places.  Undoubtedly I have missed some though.
 
->  +-compile->reboot->check->-+
->  ^                          |
->  |                          |
->  +---<----------------------+
-> 
->  Kind of feel like in the old days where
->  a decend 'printf(stderr,....)' was THE
->  state of the art debugging tool ....
+I would really suggest you push these into the "enable_kernel_fp()" thing, 
+for example, rather than open-coding them. Also, code like
 
-Its *still* state of the art debugging tool for kernel.
-								Pavel
--- 
-934a471f20d6580d5aad759bf0d97ddc
+	+     preempt_disable();
+	      if (regs->msr & MSR_VEC)
+	              giveup_altivec(current);
+	+     preempt_enable();
+
+doesn't seem to make much sense, since "regs->msr" certainly isn't 
+changing, so clearly the above is equivalent to just pushing the whole 
+preempt disable into "giveup_altivec()".
+
+The most _common_ bug (and the one I don't see any code for at all in your
+patch) is stuff that knows which CPU it is on, or that reads actual
+special CPU registers and acts on them. The other thing to look out for is
+anything that gets the CPU number: use "get_cpu() + put_cpu()" rather than
+"smp_processor_id()".
+
+		Linus

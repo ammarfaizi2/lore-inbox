@@ -1,39 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266187AbUHVFZl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266198AbUHVF0K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266187AbUHVFZl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 01:25:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266193AbUHVFZl
+	id S266198AbUHVF0K (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 01:26:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266193AbUHVF0K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 01:25:41 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:22168 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266187AbUHVFZk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 01:25:40 -0400
-Date: Sat, 21 Aug 2004 22:25:03 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Nuno Silva <nuno.silva@vgertech.com>
-Cc: linux-kernel@vger.kernel.org, master@sectorb.msk.ru, netdev@oss.sgi.com
-Subject: Re: 2.6.8-rc4-bk1 problem: unregister_netdevice: waiting for ppp0
- to become free. Usage count = 1
-Message-Id: <20040821222503.51268490.davem@redhat.com>
-In-Reply-To: <41280163.1050508@vgertech.com>
-References: <411BC284.6080807@vgertech.com>
-	<20040813080334.GA13337@tentacle.sectorb.msk.ru>
-	<411D2625.2070908@vgertech.com>
-	<41280163.1050508@vgertech.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 22 Aug 2004 01:26:10 -0400
+Received: from S010600105aa6e9d5.gv.shawcable.net ([24.68.24.66]:51082 "EHLO
+	spitfire.gotdns.org") by vger.kernel.org with ESMTP id S266198AbUHVF0E
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 01:26:04 -0400
+From: Ryan Cumming <ryan@spitfire.gotdns.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: [PATCH 2/2] use hlist for pid hash
+Date: Sat, 21 Aug 2004 22:25:51 -0700
+User-Agent: KMail/1.7
+References: <412824BE.4040801@yahoo.com.au> <4128252E.1080002@yahoo.com.au>
+In-Reply-To: <4128252E.1080002@yahoo.com.au>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1740015.xUvjn0iEAI";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200408212225.58536.ryan@spitfire.gotdns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 22 Aug 2004 03:13:55 +0100
-Nuno Silva <nuno.silva@vgertech.com> wrote:
+--nextPart1740015.xUvjn0iEAI
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> This problem was introduced between 2.6.8-rc2-bk11 and 2.6.8-rc4-bk1 and 
-> always happens. Right now I'm testing with 2.6.8.1 with a patch from Mr. 
-> Miller -- "cacheline-align qdisc data in qdisc_create()" (attached).
+On Saturday 21 August 2004 21:46, you wrote:
+> This comes at the "expense" of
+> 1. reintroducing the memory  prefetch into the hash traversal loop;
+> 2. adding new pids to the head of the list instead of the tail. I
+>    suspect that if this was a big problem then the hash isn't sized
+>    well or could benefit from moving hot entries to the head.
 
-Does that patch fix the problem?
+It looks like the current code is already adding PIDs to the head: list_add=
+()=20
+adds to the head of a list and list_add_tail() adds to the tail.
+
+=2DRyan
+
+--nextPart1740015.xUvjn0iEAI
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBKC5mW4yVCW5p+qYRAiSzAKCuz/AI9nFLv+ISWd1lHoiKJUJvIQCfd0Vw
+SaQNi+MAYrDTzW890dflUoU=
+=dNoB
+-----END PGP SIGNATURE-----
+
+--nextPart1740015.xUvjn0iEAI--

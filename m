@@ -1,47 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261600AbSKCEUS>; Sat, 2 Nov 2002 23:20:18 -0500
+	id <S261607AbSKCEP7>; Sat, 2 Nov 2002 23:15:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261609AbSKCEUS>; Sat, 2 Nov 2002 23:20:18 -0500
-Received: from pop018pub.verizon.net ([206.46.170.212]:9656 "EHLO
-	pop018.verizon.net") by vger.kernel.org with ESMTP
-	id <S261600AbSKCEUR>; Sat, 2 Nov 2002 23:20:17 -0500
-Date: Sat, 02 Nov 2002 22:26:13 -0500
-From: Akira Tsukamoto <akira-t@suna-asobi.com>
-To: Andrew Kanaber <akanaber@chiark.greenend.org.uk>
-Subject: Re: [PATCH] Athlon cache-line fix
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20021102230945.A5273@chiark.greenend.org.uk>
-References: <20021102005122.2205.AKIRA-T@suna-asobi.com> <20021102230945.A5273@chiark.greenend.org.uk>
-Message-Id: <20021102222313.37A8.AKIRA-T@suna-asobi.com>
+	id <S261609AbSKCEP7>; Sat, 2 Nov 2002 23:15:59 -0500
+Received: from sccrmhc02.attbi.com ([204.127.202.62]:17113 "EHLO
+	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
+	id <S261607AbSKCEP5>; Sat, 2 Nov 2002 23:15:57 -0500
+Message-ID: <3DC4A479.A0D90C21@attbi.com>
+Date: Sat, 02 Nov 2002 20:22:17 -0800
+From: C Sanjayan Rosenmund <gnuman@attbi.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+To: linux-kernel@vger.kernel.org
+Subject: ultracam distorted image
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.05.06
-X-Authentication-Info: Submitted using SMTP AUTH LOGIN at pop018.verizon.net from [138.89.32.225] at Sat, 2 Nov 2002 22:26:41 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2 Nov 2002 23:09:45 +0000
-Andrew Kanaber <akanaber@chiark.greenend.org.uk> mentioned:
-> Akira Tsukamoto wrote:
-> > For Athlon CPU, CONFIG_X86_MK7,
-> > the X86_L1_CACHE_SHIFT is set to 6, 128 Bytes
-> 
-> Eh? L1_CACHE_BYTES is defined as (1 << L1_CACHE_SHIFT) in
-> include/asm-i386/cache.h, which makes for a cache line size of 64 bytes
-> which is right. Perhaps you were assuming the cache line size was
-> 2 << L1_CACHE_SHIFT ?
+Using Kernel 2.4.19, IBM UltraPort Camera (I), ultracam, usbvideo,
+videodev compiled in and as modules (neither works). . .
+I looked at the MAINTAINERS file, and this device is not even listed so
+I have no options left but to bug you (sorry).
+when using the gqcam app, I get a distorted image (a sample can be found
+on http://home.attbi.com/~gnuman/webcam.html ) and the error
+ioctl (VIDIOCSWIN): Invalid argument
+which seems to point to autoscaling brightness. . .
+the image looks like it is not synching properly and the brightness does
+not matter that much to me.
 
-Yes, it is 32bytes. :)
-I think I was not sleeping right.
+When I use the CVS usbvideo package (the module is named ultradrv
+instead of ultracam), I get a smaller black screen and "error reading
+image. . ."
 
-> Interesting that it increases
-> performance (on at least one benchmark) though.
+when using the 2.5.45 kernel, I get a white one, with the same results.
 
-I also tried many times and it increases performace.
+Having done a Google search on UltraPort Camera and Linux, as well as
+one on the error, I found Karl Gutwins page (where I got the CVS
+package), and quite a bit of discussion that stopped a over a year ago,
+about things not working. I found no one that could give me any more
+advice on how to get this working for me. I get the same results when
+I'm using the camera from the ultraport or USB.
 
+hasciicam works, but that is useless to me as I need to use this with a
+webcam and several other v4l applications.  I have run out of places to
+look for information and clues, and I cannot find the author for the
+kernel driver (not listed in the code, or the maintainers file). It
+seems to me that *someone* must have gotten this running, but they seem
+to want to keep that info to themselves?
+
+Please reply to me personally as well as the list, to ensure that I see
+any response.
+Thank you for all your efforts in making Linux so great!
+
+PS: is there any work being done on a DRM for the S3 Savage IX chipset?
+That is the only other thing not working right on my laptop.
 -- 
-Akira Tsukamoto <akira-t@suna-asobi.com, at541@columbia.edu>
-
-
+Sanjay
+gnuman@attbi.com
+I'm pretty sure that for a 747, IFR actually doesn't mean "I Follow
+Roads."

@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132500AbRD1NbS>; Sat, 28 Apr 2001 09:31:18 -0400
+	id <S132527AbRD1Nc7>; Sat, 28 Apr 2001 09:32:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132479AbRD1NbI>; Sat, 28 Apr 2001 09:31:08 -0400
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:33296
-	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
-	id <S132562AbRD1Nay>; Sat, 28 Apr 2001 09:30:54 -0400
-Date: Sat, 28 Apr 2001 09:37:22 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
-Cc: Xavier Bestel <xavier.bestel@free.fr>,
-        Goswin Brederlow <goswin.brederlow@student.uni-tuebingen.de>,
-        William T Wilson <fluffy@snurgle.org>, Matt_Domsch@Dell.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4 and 2GB swap partition limit
-Message-ID: <20010428093722.A17218@animx.eu.org>
-In-Reply-To: <20010427182228.D9778@animx.eu.org> <200104281317.PAA04172@cave.bitwizard.nl>
-Mime-Version: 1.0
+	id <S132511AbRD1Nck>; Sat, 28 Apr 2001 09:32:40 -0400
+Received: from tomts8.bellnexxia.net ([209.226.175.52]:13184 "EHLO
+	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S132479AbRD1NcX>; Sat, 28 Apr 2001 09:32:23 -0400
+Message-ID: <3AEAC65F.72836B77@coplanar.net>
+Date: Sat, 28 Apr 2001 09:32:16 -0400
+From: Jeremy Jackson <jerj@coplanar.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: daniel sheltraw <l5gibson@hotmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: busmaster question
+In-Reply-To: <F50IEAOeIiGXix4A2Dr00010c13@hotmail.com>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
-In-Reply-To: <200104281317.PAA04172@cave.bitwizard.nl>; from Rogier Wolff on Sat, Apr 28, 2001 at 03:17:01PM +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So you've spent almost $200 for RAM, and refuse to spend $4 for 1Gb of
-> swap space. Fine with me. 
+daniel sheltraw wrote:
 
-I put this much ram into the system to keep from having swap.  I still say
-swap=2x ram is a stupid idea.  I fail to see the logic in that.  Disk is
-much much slower than ram and if you're writing all ram to disk that's also
-slow.
+> Hello kernel listees
+>
+> I have a busmaster question I am hoping you can help me with.
+> If a PCI device is acting as a busmaster and the processor initiates a
+> read/write to another device on the PCI bus while the busmater-device is in
+> control of the bus what happens to the instructions initiated by the
+> processor? Are they never seen by the device that the processor
+> is trying to read/write?
 
-I have a machine with 256mb of ram and no disk.  It runs just fine w/o swap. 
-Only reason I even had swap here is if I ran something that used up all my
-memory and it has happened.
+An excellent book about PCI is Mindshare's "PCI System Architecture"
+Third (or later?) Edition.
 
-Since when has linux started to be like windows "our way or no way"?
+In the scenerio you outlined, the device currently holding the bus
+would continue until it's latency timer expired (if it already hadn't),
+stalling the CPU,
+then the master which has been granted access next to the bus would
+start it's access.  If the only other master requesting access is the CPU,
+then it will get it.  If there are others, then it is implementation dependent
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+who has highest arbitration priority.
+
+Note that since main memory is not on the PCI bus, the CPU can cary on
+unless it tries to access video memory, IDE registers, etc. for IO.
+

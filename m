@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281084AbRKOVst>; Thu, 15 Nov 2001 16:48:49 -0500
+	id <S281075AbRKOVvt>; Thu, 15 Nov 2001 16:51:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281091AbRKOVs3>; Thu, 15 Nov 2001 16:48:29 -0500
-Received: from apollo.wizard.ca ([204.244.205.22]:31245 "HELO apollo.wizard.ca")
-	by vger.kernel.org with SMTP id <S281084AbRKOVsY>;
-	Thu, 15 Nov 2001 16:48:24 -0500
-Subject: Problem with 2.4.14 mounting i2o device as root device Adaptec 3200
-	RAID controller?
-From: Michael Peddemors <michael@wizard.ca>
+	id <S281094AbRKOVvj>; Thu, 15 Nov 2001 16:51:39 -0500
+Received: from adsl-212-59-30-243.takas.lt ([212.59.30.243]:58872 "EHLO
+	gintaras.vetrunge.lt.eu.org") by vger.kernel.org with ESMTP
+	id <S281075AbRKOVvY>; Thu, 15 Nov 2001 16:51:24 -0500
+Date: Thu, 15 Nov 2001 23:51:21 +0200
+From: Marius Gedminas <mgedmin@centras.lt>
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.13 (Preview Release)
-Date: 15 Nov 2001 13:53:54 -0800
-Message-Id: <1005861234.9918.806.camel@mistress>
+Subject: Re: /proc/stat description for proc.txt
+Message-ID: <20011115235121.B4624@gintaras>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <15347.57175.887835.525156@abasin.nj.nec.com> <20011115115939.I5739@lynx.no> <15348.8974.587924.655924@abasin.nj.nec.com> <20011115133734.P5739@lynx.no> <15348.10494.577151.173831@abasin.nj.nec.com> <je7ksriwah.fsf@sykes.suse.de> <15348.12126.264831.627333@abasin.nj.nec.com>
 Mime-Version: 1.0
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15348.12126.264831.627333@abasin.nj.nec.com>
+User-Agent: Mutt/1.3.23i
+X-URL: http://ice.dammit.lt/~mgedmin/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It may be an esoteric problem in my config, but I installed a RedHat 7.2
-onto an Adaptec (It was strange, I could install one out of 3 tries, but
-rebooting into the 2.4.7-pre that ships with RedHat it got to unloading
-free memory, paused about 2 minutes, the the screen rolls with unable to
-read device messages) 3200s/quantum combination, but it gives me read
-problems on the device, with anything more than 512 MG RAM.  Thought it
-might be kernel related so tried a freshly rolled 2.4.14 kernel, and it
-fails to mount the root point /dev/i2o/hda1 (kernel panic, cannot mount
-5001)
-Hardware has mostly been ruled out, as we replaced the motherboard/and
-controller as well as the mundane cables and terminators...
+On Thu, Nov 15, 2001 at 04:10:54PM -0500, Sven Heinicke wrote:
+> +"ctxt" the contest switches.
 
-Is anyone successfully using 2.4.14 on an Adaptec 3200s controller?
-This could be a PCI issue, because just we see a lot of interrrupt
-activity on the card just before it dies..
+The number of _context_ switches since boot, IIUC.
 
-Am not using modules, compiled the i20 support directly into 2.4.14
+> +"processes" is the number of processes that have run since boot.  This
+> +includes forks, don't know if it includes threads.
 
-Wanted to get some serious 2.4.14 testing on this platform.. so no
-suggestions about rolling back to 2.2 series.. :)
+It counts the number of successful fork(), vfork() and clone() system
+calls (and other in-kernel calls of do_fork(), which are, e.g. used to
+create idle tasks for all CPUs on SMP systems).  So, yes, it does
+include (kernel level) threads.
 
+(The above is obtained from several greps on 2.4.12 source tree)
+
+Marius Gedminas
 -- 
-"Catch the Magic of Linux..."
---------------------------------------------------------
-Michael Peddemors - Senior Consultant
-LinuxAdministration - Internet Services
-NetworkServices - Programming - Security
-Wizard IT Services http://www.wizard.ca
-Linux Support Specialist - http://www.linuxmagic.com
---------------------------------------------------------
-(604)589-0037 Beautiful British Columbia, Canada
-
+main(k){float i,j,r,x,y=-16;while(puts(""),y++<15)for(x
+=0;x++<84;putchar(" .:-;!/>)|&IH%*#"[k&15]))for(i=k=r=0;
+j=r*r-i*i-2+x/25,i=2*r*i+y/10,j*j+i*i<11&&k++<111;r=j);}
+/* Mandelbrot in ASCII. */

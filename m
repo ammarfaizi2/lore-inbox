@@ -1,41 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267263AbTA0SN5>; Mon, 27 Jan 2003 13:13:57 -0500
+	id <S267271AbTA0SYG>; Mon, 27 Jan 2003 13:24:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267264AbTA0SN5>; Mon, 27 Jan 2003 13:13:57 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:16017 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S267263AbTA0SN4>;
-	Mon, 27 Jan 2003 13:13:56 -0500
-Date: Mon, 27 Jan 2003 10:11:28 -0800 (PST)
-Message-Id: <20030127.101128.104592362.davem@redhat.com>
-To: lkernel2003@tuxers.net
-Cc: linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru
-Subject: Re: SSH Hangs in 2.5.59 and 2.5.55 but not 2.4.x, through Cisco PIX
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0301270920150.5267-100000@harappa.oldtrail.reston.va.us>
-References: <Pine.LNX.4.44.0301241237160.29548-100000@harappa.oldtrail.reston.va.us>
-	<Pine.LNX.4.44.0301270920150.5267-100000@harappa.oldtrail.reston.va.us>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S267274AbTA0SYF>; Mon, 27 Jan 2003 13:24:05 -0500
+Received: from 216-42-72-148.ppp.netsville.net ([216.42.72.148]:53643 "EHLO
+	tiny.suse.com") by vger.kernel.org with ESMTP id <S267271AbTA0SYC>;
+	Mon, 27 Jan 2003 13:24:02 -0500
+Subject: Re: [PATCH] data logging patches available for 2.4.21-preX
+From: Chris Mason <mason@suse.com>
+To: Dieter =?ISO-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>,
+       Manuel Krause <manuel.krause@mb.tu-ilmenau.de>,
+       "J.A. Magallon" <jamagallon@able.es>
+In-Reply-To: <200301271914.26312.Dieter.Nuetzel@hamburg.de>
+References: <200301271914.26312.Dieter.Nuetzel@hamburg.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Organization: 
+Message-Id: <1043692402.15680.58.camel@tiny.suse.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 27 Jan 2003 13:33:22 -0500
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: David C Niemi <lkernel2003@tuxers.net>
-   Date: Mon, 27 Jan 2003 09:27:25 -0500 (EST)
+On Mon, 2003-01-27 at 13:14, Dieter Nützel wrote:
 
-   On Fri, 24 Jan 2003, David S. Miller wrote:
-   > What happens if you comment out the enabling of
-   > NETIF_F_TSO in drivers/net/e1000/e1000_main.c around
-   > line 428? Does the problem persist? 
-   
-   Yes, the problem persists.
-   
-   Interesting that it seems to happen on a variety of Ethernet cards,
-   I wonder if the problem's in the TCP area.
+> Hello Chris,
+> 
+> as always very nice work!
+> I have it now running fine on top of 2.4.21-pre3-jam3 (2.4.21-pre3aa1).
+> Some fiddling was necessary but went smooth after all.
+> My /home partition is mounted with -o data=ordered and the performance is 
+> great. Sorry, no real benchmarks, yet.
+> 
 
-I think the clue in this thread is the TCP_NODELAY socket option.
-The one post claimed that by turning this on in telnet, it made
-telnet exhibit the same problems SSH shows.
+Thanks for trying them out.
+
+> But some question stay open:
+> Where is 01-akpm-sync_fs-fix-2.diff
+
+01-akpm-sync_fs-fix-2.diff is in the 2.4.21 data logging directory you
+linked to below.
+
+>  and 01-iput-deadlock-fix.diff?
+
+This is in the namesys pending directory, but doesn't apply cleanly
+yet.  I'm rediffing both the quota code and the data logging code on top
+of 01-iput-deadlock-fix (or I might just steal Manuel's rediff, which is
+still in my linuxworld backlog).  
+
+> Isn't it needed anylonger 'cause you merged them and SuSE's ftp isn't updated 
+> yet? All files are the "old" one's from 15. January.
+> ftp://ftp.suse.com/pub/people/mason/patches/data-logging/2.4.21
+> 
+> What about patch-2.4.20.rfs.06.05-transaction-overflow-fix-0.diff?
+> Should I put it on top, too?
+
+That is included in 05-data-logging-33.
+
+-chris
+

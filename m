@@ -1,41 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262526AbTDANya>; Tue, 1 Apr 2003 08:54:30 -0500
+	id <S262543AbTDAOFC>; Tue, 1 Apr 2003 09:05:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262536AbTDANya>; Tue, 1 Apr 2003 08:54:30 -0500
-Received: from h214n1fls32o988.telia.com ([62.20.176.214]:57615 "EHLO
-	sirius.nix.badanka.com") by vger.kernel.org with ESMTP
-	id <S262526AbTDANy3>; Tue, 1 Apr 2003 08:54:29 -0500
-Message-Id: <200304011405.h31E5RAx049853@sirius.nix.badanka.com>
-Date: Tue, 1 Apr 2003 16:05:23 +0200
-From: Henrik Persson <nix@socialism.nu>
-To: linux-kernel@vger.kernel.org
-Cc: brad@seme.com.au
-Subject: Re: via-rhine problem on EPIAV-1Ghz 2.4.21-pre6
-In-Reply-To: <20030401063841.GA2894@cy599856-a>
-References: <3E88FA24.7040406@seme.com.au>
-	<20030401042734.GA21273@gtf.org>
-	<3E89171A.8010506@seme.com.au>
-	<20030401063841.GA2894@cy599856-a>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S262545AbTDAOFC>; Tue, 1 Apr 2003 09:05:02 -0500
+Received: from nessie.weebeastie.net ([61.8.7.205]:46549 "EHLO
+	nessie.weebeastie.net") by vger.kernel.org with ESMTP
+	id <S262543AbTDAOE7>; Tue, 1 Apr 2003 09:04:59 -0500
+Date: Wed, 2 Apr 2003 00:18:16 +1000
+From: CaT <cat@zip.com.au>
+To: Ed Tomlinson <tomlins@cam.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH: allow percentile size of tmpfs (2.5.66 / 2.4.20-pre2)
+Message-ID: <20030401141815.GB459@zip.com.au>
+References: <fa.eagpkml.m3elbd@ifi.uio.no> <20030401133833.6C71DF3D@oscar.casa.dyndns.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030401133833.6C71DF3D@oscar.casa.dyndns.org>
+User-Agent: Mutt/1.3.28i
+Organisation: Furball Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 1 Apr 2003 01:38:41 -0500
-Josh McKinney <forming@charter.net> wrote:
+On Tue, Apr 01, 2003 at 08:38:32AM -0500, Ed Tomlinson wrote:
+> CaT wrote:
+> > tmpfs      /dev/shm tmpfs  rw,size=63%,noauto            0 0
+> > 
+> > This is taken from my working system and sets the tmpfs size to 63% of
+> > my real RAM (256MB). The end result is:
+> > 
+> > Filesystem           1k-blocks      Used Available Use% Mounted on
+> > /dev/shm/tmp            160868      6776    154092   5% /tmp
+> 
+> What does tmpfs have to do with ram size?  Its swappable.  This _might_ be
+> useful for ramfs but for tmpfs, IMHO, its not a good idea.
 
-> There have been a lot of work done on the 2.5 tree for this driver so if
-> possible you could try that.  I seem to remember that there was some
-> patches posted here to so maybe you could dig them out of the archives.
+Basically:
 
-When the patches sent to Marcello is applied to 2.4 the 2.5 and the 2.4
-drivers should not differ at all, so you could just copy via-rhine.c from
-the 2.5 source tree into your tree if you don't want to browse alot of
-archives and find all the patches that are needed.
+tmpfs size < ram size + swap size
+
+now, lets say a fair bit of your ram dies. you can't repolace it but the
+box will manage to run with your new ram size. if the tmpfs size is
+static then you get
+
+tmpfs size > new ram size + swap size
+
+and so any process can fill up your ram+swap by writing to tmpfs when
+you use tmpfs for /tmp.
+
+By having the tmpfs size be a function of your ram size (as it is by
+default at 50%) you wont get that. Currently my tmpfs size is 63%. If
+half my ram dies I can still happily use my laptop without any fiddling
+because its new size will by 63% of the new ram size (so it'll be around
+80MB rather then 160MB). Now, it does mean my /tmp is smaller but
+everything is still functional and it's bigger then my root partition,
+which I'd rather nto be actively writing to and only has 20MB free by
+design.
 
 -- 
-Henrik Persson  nix@socialism.nu  http://nix.badanka.com
-PGP-key: http://nix.badanka.com/pgp  PGP-KeyID: 0x43B68116  
+"Other countries of course, bear the same risk. But there's no doubt his
+hatred is mainly directed at us. After all this is the guy who tried to
+kill my dad."
+        - George W. Bush Jr, Leader of the United States Regime
+          September 26, 2002 (from a political fundraiser in Houston, Texas)

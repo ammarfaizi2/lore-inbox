@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266805AbTATTil>; Mon, 20 Jan 2003 14:38:41 -0500
+	id <S266749AbTATTqx>; Mon, 20 Jan 2003 14:46:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266839AbTATTik>; Mon, 20 Jan 2003 14:38:40 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:6148 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S266805AbTATTib>;
-	Mon, 20 Jan 2003 14:38:31 -0500
-Date: Sun, 19 Jan 2003 23:04:21 +0100
+	id <S266844AbTATTp1>; Mon, 20 Jan 2003 14:45:27 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:26376 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S266749AbTATTpP>; Mon, 20 Jan 2003 14:45:15 -0500
+Date: Mon, 20 Jan 2003 20:54:19 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Theurer <habanero@us.ibm.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       Linus Torvalds <torvalds@transmeta.com>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] (0/3) NUMA aware scheduler
-Message-ID: <20030119220421.GA27317@elf.ucw.cz>
-References: <2050000.1042741643@flay> <004001c2bd98$3854dec0$645e2909@atheurer>
+To: john stultz <johnstul@us.ibm.com>
+Cc: Pavel Machek <pavel@ucw.cz>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Fwd: Re: [PATCH] linux-2.5.54_delay-cleanup_A0
+Message-ID: <20030120195418.GA4694@atrey.karlin.mff.cuni.cz>
+References: <200301180325.h0I3PGa07081@eng2.beaverton.ibm.com> <1042860792.32477.36.camel@w-jstultz2.beaverton.ibm.com> <20030118135408.GA22669@atrey.karlin.mff.cuni.cz> <1043090602.32478.54.camel@w-jstultz2.beaverton.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <004001c2bd98$3854dec0$645e2909@atheurer>
-User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
+In-Reply-To: <1043090602.32478.54.camel@w-jstultz2.beaverton.ibm.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> One of the reasons we probably have not had much interest in numa patches is
-> that numa systems are not that prevailent.  However, numa-like qualites are
-> showing up in commonly available systems, and I believe we can take
-> advantage of policies that these patches, such as numa scheduler provide.
-> Does anyone have any other ideas where numa like qualities lie?  x86-64?
+> > Well, loop_delay() was big (fatal!) problem -- it can actaully wait
+> > for *less* time than told to. That happens if notebook boots during
+> > "battery low" and than goes to AC power. Thinkpad 560X is example of
+> > such behaviour. Slow (but working!) PIT seems to be only option on
+> > such machine.
+> 
+> I need to look more at the cpu_freq code, but I suspect it could it help
+> solve or lessen the problem (if we can detect the event on those
+> > older
+> systems). Regardless, you make a good point, so if I get the time
+> > I'll
 
-Yep, x86-64 SMP systems are in fact NUMA systems that don't penalize
-remote memory *that* badly.
-								Pavel
+It is possible to lessen the problem by measuring speed and
+recalibrating if it changes, but due to delay between measuring and
+recalibrating it is still not 100% reliable.
+
+> look into a real PIT based delay. 
+> 
+
 -- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+Casualities in World Trade Center: ~3k dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

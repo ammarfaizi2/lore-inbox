@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263529AbUEGKbm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263107AbUEGKoQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263529AbUEGKbm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 06:31:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263540AbUEGKbm
+	id S263107AbUEGKoQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 06:44:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263149AbUEGKoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 06:31:42 -0400
-Received: from madrid10.amenworld.com ([62.193.203.32]:64009 "EHLO
-	madrid10.amenworld.com") by vger.kernel.org with ESMTP
-	id S263529AbUEGKbB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 06:31:01 -0400
-Date: Fri, 7 May 2004 12:28:28 +0200
-From: DervishD <raul@pleyades.net>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Oliver Pitzeier <oliver@linux-kernel.at>, linux-kernel@vger.kernel.org
-Subject: Re: Strange Linux behaviour!?
-Message-ID: <20040507102828.GF11768@DervishD>
-Mail-Followup-To: Keith Owens <kaos@ocs.com.au>,
-	Oliver Pitzeier <oliver@linux-kernel.at>,
+	Fri, 7 May 2004 06:44:16 -0400
+Received: from verein.lst.de ([212.34.189.10]:47310 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S263107AbUEGKoO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 May 2004 06:44:14 -0400
+Date: Fri, 7 May 2004 12:44:06 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] kill useless MOD_{INC,DEC}_USE_COUNT in sound/oss/msnd.c
+Message-ID: <20040507104406.GB10873@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch>, akpm@osdl.org,
 	linux-kernel@vger.kernel.org
-References: <013001c4340d$e9860470$d50110ac@sbp.uptime.at> <13183.1083919405@kao2.melbourne.sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <13183.1083919405@kao2.melbourne.sgi.com>
-User-Agent: Mutt/1.4.2.1i
-Organization: Pleyades
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Keith :)
+callers are exported register/unregister handlers so the module is
+locked in core by users of said exports.
 
- * Keith Owens <kaos@ocs.com.au> dixit:
-> On Fri, 7 May 2004 10:33:02 +0200, 
-> "Oliver Pitzeier" <oliver@linux-kernel.at> wrote:
-> >We have a machine with five partitions mounted. One of those partitions
-> >is /usr. We can created files on /usr, but we cannot created
-> >directories. mkdir says, that there is no space left on device, but
-> >there actually IS space as you can see and files can be created, so why
-> >NO directories?
-> df -i, you have run out of inodes.
 
-    But if you have run out of inodes, you cannot create files
-neither, am I wrong? Olives states clearly in his message that files
-can be created, but no directories :?
-
-    Raúl Núñez de Arenas Coronado
-
--- 
-Linux Registered User 88736
-http://www.pleyades.net & http://raul.pleyades.net/
+--- 1.7/sound/oss/msnd.c	Thu Feb 19 04:42:59 2004
++++ edited/sound/oss/msnd.c	Mon May  3 13:30:22 2004
+@@ -59,9 +59,6 @@
+ 
+ 	devs[i] = dev;
+ 	++num_devs;
+-
+-	MOD_INC_USE_COUNT;
+-
+ 	return 0;
+ }
+ 
+@@ -80,8 +77,6 @@
+ 
+ 	devs[i] = NULL;
+ 	--num_devs;
+-
+-	MOD_DEC_USE_COUNT;
+ }
+ 
+ int msnd_get_num_devs(void)

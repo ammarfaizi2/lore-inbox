@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271945AbRIDLED>; Tue, 4 Sep 2001 07:04:03 -0400
+	id <S271947AbRIDLPD>; Tue, 4 Sep 2001 07:15:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271943AbRIDLDx>; Tue, 4 Sep 2001 07:03:53 -0400
-Received: from d179.dhcp212-198-121.noos.fr ([212.198.121.179]:52742 "EHLO
-	microsoft.com") by vger.kernel.org with ESMTP id <S271941AbRIDLDf>;
-	Tue, 4 Sep 2001 07:03:35 -0400
-Subject: Re: [RFD] readonly/read-write semantics
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Jean-Marc Saffroy <saffroy@ri.silicomp.fr>,
-        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        Bryan Henderson <hbryan@us.ibm.com>, linux-fsdevel@vger.kernel.org,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <Pine.GSO.4.21.0109040628070.26423-100000@weyl.math.psu.edu>
-In-Reply-To: <Pine.GSO.4.21.0109040628070.26423-100000@weyl.math.psu.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12.99+cvs.2001.08.22.00.33 (Preview Release)
-Date: 04 Sep 2001 12:59:10 +0200
-Message-Id: <999601150.11170.11.camel@nomade>
-Mime-Version: 1.0
+	id <S271946AbRIDLOx>; Tue, 4 Sep 2001 07:14:53 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:18448 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S271943AbRIDLOh>;
+	Tue, 4 Sep 2001 07:14:37 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Benjamin Gilbert <bgilbert@backtick.net>
+Date: Tue, 4 Sep 2001 13:14:16 MET-1
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: matroxfb problems with dualhead G400
+CC: Ghozlane Toumi <gtoumi@messel.emse.fr>, linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <27DB1B1012B@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On mar, 2001-09-04 at 12:28, Alexander Viro wrote:
-
-> > Sorry, I meant journal replaying ... AFAIK, this operation will
-write on
-> > the media even if mounted r/o.
+On  3 Sep 01 at 22:31, Benjamin Gilbert wrote:
+> On Mon, Sep 03, 2001 at 02:51:44PM +0000, Petr Vandrovec (VANDROVE@vc.cvut.cz) wrote:
+> > You must boot your kernel with 'video=scrollback:0'. Otherwise your
+> > kernel die sooner or later... JJ's scrollback code does not cope with
+> > more than one visible console, so you must disable it if you have more
+> > than one display in the box.
 > 
-> Ditto - NFS client has no idea of that operation.
+> That doesn't fix it.  Shift-PgUp no longer works (of course), and
+> it's not immediately oopsing on me, but I still have the same type of
+> intrusion onto the secondary display.
 
-Another client mounting the same fs at the same time will have a rather
-weird idea of that operation.
-
-
+And did you run 'fbset <anymode>' on first head after secondary head
+was registered? You have to... After bootup first head uses all 16MB
+for picture. When you load secondary head module, videoram is split
+8MB for first head/8MB for second. And because of for correct
+checking driver have to scan all your VCs for picture size, and refuse
+to load if any resolution is over 8MB, I just decided to put this
+task on user - run 'fbset -a -depth 8' after you load secondary head
+module. It will shrink '-vyres' values for primary head displays
+from their current value to maximum value possible for new memory
+configuration.
+                                            Petr Vandrovec
+                                            vandrove@vc.cvut.cz
+                                            

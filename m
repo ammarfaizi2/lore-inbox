@@ -1,35 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278632AbRJXURt>; Wed, 24 Oct 2001 16:17:49 -0400
+	id <S279590AbRJXUWa>; Wed, 24 Oct 2001 16:22:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279583AbRJXURj>; Wed, 24 Oct 2001 16:17:39 -0400
-Received: from piggy.rz.tu-ilmenau.de ([141.24.4.8]:43136 "EHLO
-	piggy.rz.tu-ilmenau.de") by vger.kernel.org with ESMTP
-	id <S279595AbRJXUR0> convert rfc822-to-8bit; Wed, 24 Oct 2001 16:17:26 -0400
-Message-Id: <200110242017.WAA04381@piggy.rz.tu-ilmenau.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Christian =?iso-8859-1?q?Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>
-To: Shawn Walker <swalker@fs1.theiqgroup.com>
-Subject: Re: status of supermount?
-Date: Wed, 24 Oct 2001 22:17:27 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011024200049.A20340@niksula.hut.fi>
-In-Reply-To: <20011024200049.A20340@niksula.hut.fi>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
+	id <S279589AbRJXUWU>; Wed, 24 Oct 2001 16:22:20 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:27776 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S279583AbRJXUWK>;
+	Wed, 24 Oct 2001 16:22:10 -0400
+Date: Wed, 24 Oct 2001 13:22:34 -0700 (PDT)
+Message-Id: <20011024.132234.115909128.davem@redhat.com>
+To: ian@penguinhosting.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux-2.4.12-ac6 compile errors on sparc64
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20011024201110.A3536@penguinhosting.net>
+In-Reply-To: <20011024201110.A3536@penguinhosting.net>
+X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> I have no idea if anyone else has done anything similar. Personally I
-> initially found this patch as a part of the standard kernel provided by
-> mandrake 7.2 (most likely), but I don't know whether they have it in there
+We've said repeatedly that AC kernels will not compile, please use
+the standard Linus kernels on sparc64.
 
-Mandrake has supermount in their 2.4.8 kernel from Mandrake 8.1.
-
-greetings
-
-Christian Bornträger
+Franks a lot,
+David S. Miller
+davem@redhat.com

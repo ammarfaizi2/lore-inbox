@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265564AbTFMWgk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 18:36:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265567AbTFMWgk
+	id S265567AbTFMWlq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 18:41:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265571AbTFMWlq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 18:36:40 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:15802 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S265564AbTFMWgj (ORCPT
+	Fri, 13 Jun 2003 18:41:46 -0400
+Received: from imf.math.ku.dk ([130.225.103.32]:49867 "EHLO imf.math.ku.dk")
+	by vger.kernel.org with ESMTP id S265567AbTFMWlp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 18:36:39 -0400
-Date: Fri, 13 Jun 2003 15:46:34 -0700 (PDT)
-Message-Id: <20030613.154634.74748085.davem@redhat.com>
-To: anton@samba.org
-Cc: haveblue@us.ibm.com, hdierks@us.ibm.com, scott.feldman@intel.com,
-       dwg@au1.ibm.com, linux-kernel@vger.kernel.org, milliner@us.ibm.com,
-       ricardoz@us.ibm.com, twichell@us.ibm.com, netdev@oss.sgi.com
-Subject: Re: e1000 performance hack for ppc64 (Power4)
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030613223841.GB32097@krispykreme>
-References: <OF0078342A.E131D4B1-ON85256D44.0051F7C0@pok.ibm.com>
-	<1055521263.3531.2055.camel@nighthawk>
-	<20030613223841.GB32097@krispykreme>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Fri, 13 Jun 2003 18:41:45 -0400
+Date: Sat, 14 Jun 2003 00:55:32 +0200 (CEST)
+From: Peter Berg Larsen <pebl@math.ku.dk>
+To: Vojtech Pavlik <vojtech@ucw.cz>
+Cc: Peter Osterlund <petero2@telia.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Synaptics TouchPad driver for 2.5.70
+In-Reply-To: <20030614000810.A10851@ucw.cz>
+Message-ID: <Pine.LNX.4.40.0306140028350.27605-100000@shannon.math.ku.dk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Anton Blanchard <anton@samba.org>
-   Date: Sat, 14 Jun 2003 08:38:41 +1000
-   
-   This is only worth it if most packets will have the same sized header.
-   Networking guys: is this a valid assumption?
 
-Not really... one retransmit and the TCP header size grows
-due to the SACK options.
+On Sat, 14 Jun 2003, Vojtech Pavlik wrote:
 
-I find it truly bletcherous what you're trying to do here.
+> > What do we call these things? ABS_FINGER_WIDTH and ABS_NR_FINGERS
+> > maybe?
 
-Why not instead find out if it's possible to have the e1000
-fetch the entire cache line where the first byte of the packet
-resides?  Even ancient designes like SunHME do that.
+> Could work. Or as James Simmons suggested ABS_AREA.
+
+ABS_NR_FINGERS and ABS_AREA ? I find ABS_FINGER_WIDTH to more telling.
+
+The important part is that the driver must know when there is added or
+removed a finger as touchpads sends the avarage positions of the fingers.
+Adding or removing a finger moves the mouse if the driver does nothing.
+
+There are other questions, if the API is to be used by a general user
+touchpad driver. Is there a way to communicate the resolution of the x,y
+and z coordinates to the user driver? (not only min/max). How do I tell
+that the y coordinate is reversed (gliderpointer) ?
+
+
+Peter
+
+
+
+
+
+

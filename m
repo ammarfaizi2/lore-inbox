@@ -1,32 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262349AbRERPnn>; Fri, 18 May 2001 11:43:43 -0400
+	id <S262355AbRERPpO>; Fri, 18 May 2001 11:45:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262350AbRERPnd>; Fri, 18 May 2001 11:43:33 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:19725 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262349AbRERPnW>; Fri, 18 May 2001 11:43:22 -0400
+	id <S262350AbRERPpD>; Fri, 18 May 2001 11:45:03 -0400
+Received: from pobox.sibyte.com ([208.12.96.20]:64777 "HELO pobox.sibyte.com")
+	by vger.kernel.org with SMTP id <S262356AbRERPot>;
+	Fri, 18 May 2001 11:44:49 -0400
+From: Justin Carlson <carlson@sibyte.com>
+Reply-To: carlson@sibyte.com
+Organization: Sibyte
+To: Jes Sorensen <jes@sunsite.dk>
 Subject: Re: CML2 design philosophy heads-up
-To: kaos@ocs.com.au (Keith Owens)
-Date: Fri, 18 May 2001 16:39:57 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (CML2), kbuild-devel@lists.sourceforge.net
-In-Reply-To: <1694.990198581@ocs3.ocs-net> from "Keith Owens" at May 19, 2001 01:09:41 AM
-X-Mailer: ELM [version 2.5 PL3]
+Date: Fri, 18 May 2001 08:37:30 -0700
+X-Mailer: KMail [version 1.0.29]
+Content-Type: text/plain; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010505192731.A2374@thyrsus.com> <20010515173316.A8308@thyrsus.com> <d3wv7eptuz.fsf@lxplus015.cern.ch>
+In-Reply-To: <d3wv7eptuz.fsf@lxplus015.cern.ch>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E150mM9-0007Fg-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <01051808442800.27946@plugh.sibyte.com>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >   (c) Decide not to support this case and document the fact in the
-> >       rulesfile.  If you're going put gunge on the VME bus that replaces
-> >       the SBC's on-board facilities, you can hand-hack your own configs.
-> 
-> In general this is the best option, if you create a non-standard
-> configuration for machine foo then it is your problem, not everybody
-> else's.
+On Fri, 18 May 2001, Jes Sorensen wrote:
 
-Which makes CML2 inferior to CML1 again. Now if it could parse CML1 rulesets
-this whole discussion wouldn't be needed. 
+> Oh I don't, on the other hand I see you consistently ignoring the
+> needs and requirements of the users. So far I haven't heard a single
+> developer say something positive about CML2, the most positive I have
+> heard so far has been "whatever", "it's his choice", "I don't care",
+> "I want to hack". The majority are of the "NO!" and "you got to be
+> kiddin'".
+
+Perhaps your hearing has gone more than a bit selective.  Please, allow
+me to be the first to get through:
+
+I think CML2 looks very interesting, and while it's not quite primetime yet,
+it's definitely a movement in the right direction.  I'd even go sofar as to 
+say I think CML2 is a GOOD THING.
+
+Or perhaps you have a more selective definition of developer?
+
+-Justin
+carlson@sibyte.com

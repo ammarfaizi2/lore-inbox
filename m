@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319523AbSIGVta>; Sat, 7 Sep 2002 17:49:30 -0400
+	id <S319528AbSIGWBj>; Sat, 7 Sep 2002 18:01:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319528AbSIGVta>; Sat, 7 Sep 2002 17:49:30 -0400
-Received: from 62-190-217-49.pdu.pipex.net ([62.190.217.49]:63754 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S319523AbSIGVt3>; Sat, 7 Sep 2002 17:49:29 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200209072200.g87M0V6A002476@darkstar.example.net>
+	id <S319529AbSIGWBj>; Sat, 7 Sep 2002 18:01:39 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:44297
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S319528AbSIGWBj>; Sat, 7 Sep 2002 18:01:39 -0400
+Date: Sat, 7 Sep 2002 15:05:12 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Daniel Egger <degger@fhm.edu>
+cc: jbradford@dial.pipex.com, linux-kernel@vger.kernel.org
 Subject: Re: ide drive dying?
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Sat, 7 Sep 2002 23:00:31 +0100 (BST)
-Cc: degger@fhm.edu, linux-kernel@vger.kernel.org
-In-Reply-To: <1031434870.14391.10.camel@irongate.swansea.linux.org.uk> from "Alan Cox" at Sep 07, 2002 10:41:10 PM
-X-Mailer: ELM [version 2.5 PL6]
+In-Reply-To: <1031429984.2723.29.camel@sonja.de.interearth.com>
+Message-ID: <Pine.LNX.4.10.10209071458540.16589-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sat, 2002-09-07 at 21:19, Daniel Egger wrote:
-> > Am Sam, 2002-09-07 um 17.02 schrieb jbradford@dial.pipex.com:
-> > 
-> > > No, but you've upgraded the firmware, right?
-> > 
-> > Not exactly. According to IBM technical support there is no such thing
-> > as a new firmware. The drives are alright, the OS is broken.
+On 7 Sep 2002, Daniel Egger wrote:
+
+> Am Sam, 2002-09-07 um 17.02 schrieb jbradford@dial.pipex.com:
 > 
-> The IBM technical support I dealt with not only confirmed there was new
-> firmware, the tools updated it and said they had 8)
+> > No, but you've upgraded the firmware, right?
+> 
+> Not exactly. According to IBM technical support there is no such thing
+> as a new firmware. The drives are alright, the OS is broken.
 
-Here is the URL:
+They are full of CRAP!
 
-http://www-1.ibm.com/support/docview.wss?uid=psg1MIGR-39082
+IBM ran TASKFILE IO throught there bus analyzers and it came up clean.
+IBM also introduced FLAGGED versions of the diagnostic TASKFILE transport
+for eventual use of their DFT (Drive Fitness Test).
 
-it expressly states that the firmware is intended for the DTLA-307060.
+You tell the service tech he is smoking crack.
+The kernel passed with flying colors in their disk labs. If you read
+in ide-taskfile.c version 0.33 and above, you will see they did some work
+on the driver and verified issues.
 
-The page mentions that is it enhances stability and SMART data collection.
+Now earlier I published a method of how to stablize the drive once you
+back up all the data you can off of it.  Since I do not yet have a source
+verison of DFT-Linux, or binary yet, I can not offer much more native.
 
-John.
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+

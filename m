@@ -1,192 +1,188 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319127AbSH2HXs>; Thu, 29 Aug 2002 03:23:48 -0400
+	id <S319128AbSH2HbO>; Thu, 29 Aug 2002 03:31:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319128AbSH2HXr>; Thu, 29 Aug 2002 03:23:47 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:12212 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S319127AbSH2HXp>;
-	Thu, 29 Aug 2002 03:23:45 -0400
-Date: Thu, 29 Aug 2002 09:27:52 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: [IDE patch] Support for VIA vt8235 IDE for 2.5
-Message-ID: <20020829092752.A806@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S319130AbSH2HbO>; Thu, 29 Aug 2002 03:31:14 -0400
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:20465 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
+	id <S319128AbSH2HbM>; Thu, 29 Aug 2002 03:31:12 -0400
+Message-ID: <3D6DCEC1.7020102@attbi.com>
+Date: Thu, 29 Aug 2002 02:35:29 -0500
+From: Jordan Breeding <jordan.breeding@attbi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020809
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Problems with 2.5.23-mm1
+Content-Type: multipart/mixed;
+ boundary="------------080603020205090800040109"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+This is a multi-part message in MIME format.
+--------------080603020205090800040109
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
+Hello,
 
-===================================================================
+   I am trying to run 2.5.32-mm1.  The first problem that I have is that 
+if SMP, Preempt and Highmem are all turned on I get lots of problems at 
+boot including a BUG in highmem.c, I can get the line number later if 
+someone wants it (later tomorrow night).  I then disabled highmem and 
+got the system to boot.  I have a few weird problems, one is that every 
+once in a while I see the message "bad: schedule() with irqs disabled!" 
+and then there is a code trace.  I am attaching the decoded output of 
+some of the traces.  Another problem I am having is that I get this 
+message on bootup: "mtrr: SMP support incomplete for this vendor".  It 
+seems that this would be a problem however the box works fine as far as 
+I can tell.  Thanks for any light anyone can shed on any of this and 
+please let me know whether anyone needs to know more about this box or 
+about the highmem line number to figure and of these problems out.
 
+Jordan Breeding
 
-ChangeSet@1.554, 2002-08-29 09:26:21+02:00, vojtech@suse.cz
-  Add support for the VIA vt8235 IDE, already approved by Alan.
+--------------080603020205090800040109
+Content-Type: text/plain;
+ name="error.processed"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="error.processed"
 
+ksymoops 2.4.5 on i686 2.5.32.  Options used
+     -V (specified)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.5.32 (specified)
+     -m /boot/System.map-2.5.32-mm1 (specified)
 
- drivers/ide/via82cxxx.c |   67 ++++++++++--------------------------------------
- include/linux/pci_ids.h |    1 
- 2 files changed, 16 insertions(+), 52 deletions(-)
-
-
-diff -Nru a/drivers/ide/via82cxxx.c b/drivers/ide/via82cxxx.c
---- a/drivers/ide/via82cxxx.c	Thu Aug 29 09:26:48 2002
-+++ b/drivers/ide/via82cxxx.c	Thu Aug 29 09:26:48 2002
-@@ -1,61 +1,24 @@
- /*
-- * $Id: via82cxxx.c,v 3.34 2002/02/12 11:26:11 vojtech Exp $
-+ * Version 3.35
-  *
-- *  Copyright (c) 2000-2001 Vojtech Pavlik
-- *
-- *  Based on the work of:
-- *	Michel Aubry
-- *	Jeff Garzik
-- *	Andre Hedrick
-- */
--
--/*
-- * VIA IDE driver for Linux. Supports
-+ * VIA IDE driver for Linux. Supported southbridges:
-  *
-  *   vt82c576, vt82c586, vt82c586a, vt82c586b, vt82c596a, vt82c596b,
-- *   vt82c686, vt82c686a, vt82c686b, vt8231, vt8233, vt8233c, vt8233a
-- *
-- * southbridges, which can be found in
-- *
-- *  VIA Apollo Master, VP, VP2, VP2/97, VP3, VPX, VPX/97, MVP3, MVP4, P6, Pro,
-- *    ProII, ProPlus, Pro133, Pro133+, Pro133A, Pro133A Dual, Pro133T, Pro133Z,
-- *    PLE133, PLE133T, Pro266, Pro266T, ProP4X266, PM601, PM133, PN133, PL133T,
-- *    PX266, PM266, KX133, KT133, KT133A, KT133E, KLE133, KT266, KX266, KM133,
-- *    KM133A, KL133, KN133, KM266
-- *  PC-Chips VXPro, VXPro+, VXTwo, TXPro-III, TXPro-AGP, AGPPro, ViaGra, BXToo,
-- *    BXTel, BXpert
-- *  AMD 640, 640 AGP, 750 IronGate, 760, 760MP
-- *  ETEQ 6618, 6628, 6629, 6638
-- *  Micron Samurai
-+ *   vt82c686, vt82c686a, vt82c686b, vt8231, vt8233, vt8233c, vt8233a,
-+ *   vt8235
-  *
-- * chipsets. Supports
-+ * Copyright (c) 2000-2002 Vojtech Pavlik
-  *
-- *   PIO 0-5, MWDMA 0-2, SWDMA 0-2 and UDMA 0-6
-- *
-- * (this includes UDMA33, 66, 100 and 133) modes. UDMA66 and higher modes are
-- * autoenabled only in case the BIOS has detected a 80 wire cable. To ignore
-- * the BIOS data and assume the cable is present, use 'ide0=ata66' or
-- * 'ide1=ata66' on the kernel command line.
-+ * Based on the work of:
-+ *	Michel Aubry
-+ *	Jeff Garzik
-+ *	Andre Hedrick
-  */
- 
- /*
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation; either version 2 of the License, or
-- * (at your option) any later version.
-- *
-- * This program is distributed in the hope that it will be useful,
-- * but WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- * GNU General Public License for more details.
-- *
-- * You should have received a copy of the GNU General Public License
-- * along with this program; if not, write to the Free Software
-- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-- *
-- * Should you need to contact me, the author, you can do so either by
-- * e-mail - mail your message to <vojtech@ucw.cz>, or by paper mail:
-- * Vojtech Pavlik, Simunkova 1594, Prague 8, 182 00 Czech Republic
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License version 2 as published by
-+ * the Free Software Foundation.
-  */
- 
- #include <linux/config.h>
-@@ -105,8 +68,8 @@
- } via_isa_bridges[] = {
- #ifdef FUTURE_BRIDGES
- 	{ "vt8237",	PCI_DEVICE_ID_VIA_8237,     0x00, 0x2f, VIA_UDMA_133 },
--	{ "vt8235",	PCI_DEVICE_ID_VIA_8235,     0x00, 0x2f, VIA_UDMA_133 },
- #endif
-+	{ "vt8235",	PCI_DEVICE_ID_VIA_8235,     0x00, 0x2f, VIA_UDMA_133 },
- 	{ "vt8233a",	PCI_DEVICE_ID_VIA_8233A,    0x00, 0x2f, VIA_UDMA_133 },
- 	{ "vt8233c",	PCI_DEVICE_ID_VIA_8233C_0,  0x00, 0x2f, VIA_UDMA_100 },
- 	{ "vt8233",	PCI_DEVICE_ID_VIA_8233_0,   0x00, 0x2f, VIA_UDMA_100 },
-@@ -163,7 +126,7 @@
- 
- 	via_print("----------VIA BusMastering IDE Configuration----------------");
- 
--	via_print("Driver Version:                     3.34");
-+	via_print("Driver Version:                     3.35");
- 	via_print("South Bridge:                       VIA %s", via_config->name);
- 
- 	pci_read_config_byte(isa_dev, PCI_REVISION_ID, &t);
-@@ -414,7 +377,7 @@
- 		}
- 
- 	if (!via_config->id) {
--		printk(KERN_WARNING "VP_IDE: Unknown VIA SouthBridge, contact Vojtech Pavlik <vojtech@ucw.cz>\n");
-+		printk(KERN_WARNING "VP_IDE: Unknown VIA SouthBridge, disabling DMA.\n");
- 		return -ENODEV;
- 	}
- 
-diff -Nru a/include/linux/pci_ids.h b/include/linux/pci_ids.h
---- a/include/linux/pci_ids.h	Thu Aug 29 09:26:48 2002
-+++ b/include/linux/pci_ids.h	Thu Aug 29 09:26:48 2002
-@@ -987,6 +987,7 @@
- #define PCI_DEVICE_ID_VIA_8233C_0	0x3109
- #define PCI_DEVICE_ID_VIA_8361		0x3112 
- #define PCI_DEVICE_ID_VIA_8233A		0x3147
-+#define PCI_DEVICE_ID_VIA_8235		0x3177
- #define PCI_DEVICE_ID_VIA_86C100A	0x6100
- #define PCI_DEVICE_ID_VIA_8231		0x8231
- #define PCI_DEVICE_ID_VIA_8231_4	0x8235
-
-===================================================================
+Aug 29 01:54:04 ledzep kernel: f1e07df8 00000000 f1e07e28 c0141452 c18ce500 ebd92000 c18ce524 c04fa680 
+Aug 29 01:54:04 ledzep kernel:        00000002 f7f5c7bc c16cf678 eb95c000 f1e07e48 c0142997 c18ce500 f7f5c83c 
+Aug 29 01:54:04 ledzep kernel:        0000001e c16cf678 eb95c000 006cf660 f1e07e68 c01415cc c18ce500 eb95c000 
+Aug 29 01:54:04 ledzep kernel: Call Trace: [<c0141452>] [<c0142997>] [<c01415cc>] [<c035caf7>] [<c035b561>] 
+Aug 29 01:54:04 ledzep kernel:    [<c035cc22>] [<c03b06ad>] [<c035893f>] [<c0358a70>] [<c0151fb9>] [<c012b5c0>] 
+Aug 29 01:54:04 ledzep kernel:    [<c015213c>] [<c0109e6b>] 
+Aug 29 01:58:26 ledzep kernel: f4ca5da4 f4ca4000 f4ca5dd8 c0142669 c18ce940 f6c8965c c18ce964 00003246 
+Aug 29 01:58:26 ledzep kernel:        00000000 f4ca5dec f6d5d1b4 f6d5d1b4 00003246 f4ca5df4 c035c8d6 c18ce940 
+Aug 29 01:58:26 ledzep kernel:        000001d0 ffffffe0 00000000 f6cd2ab4 f4ca5e1c c035b8a5 00003fc0 000001d0 
+Aug 29 01:58:26 ledzep kernel: Call Trace: [<c0142669>] [<c035c8d6>] [<c035b8a5>] [<c035b9ce>] [<c03aff87>] 
+Aug 29 01:58:26 ledzep kernel:    [<c03588b9>] [<c0358c11>] [<c0358cef>] [<c01523c8>] [<c012c052>] [<c012b5c0>] 
+Aug 29 01:58:26 ledzep kernel:    [<c01525ff>] [<c0109e6b>] 
+Aug 29 01:58:26 ledzep kernel: f4ca5da4 f4ca4000 f4ca5dd8 c0142669 c18ce940 f6c8965c c18ce964 00003246 
+Aug 29 01:58:26 ledzep kernel:        00000000 f4ca5dec efbe4c64 efbe4c64 00003246 f4ca5df4 c035c8d6 c18ce940 
+Aug 29 01:58:26 ledzep kernel:        000001d0 ffffffe0 00000000 f6cd2ab4 f4ca5e1c c035b8a5 00003fc0 000001d0 
+Aug 29 01:58:26 ledzep kernel: Call Trace: [<c0142669>] [<c035c8d6>] [<c035b8a5>] [<c035b9ce>] [<c03aff87>] 
+Aug 29 01:58:26 ledzep kernel:    [<c03588b9>] [<c0358c11>] [<c0358cef>] [<c01523c8>] [<c012c052>] [<c012b5c0>] 
+Aug 29 01:58:26 ledzep kernel:    [<c01525ff>] [<c0109e6b>] 
+Aug 29 02:09:41 ledzep kernel: e24b7e84 00000000 e24b7eb4 c0141452 c18dfe50 e6396878 c18dfe74 f7b14400 
+Aug 29 02:09:41 ledzep kernel:        e24b7eb4 f7f0a000 c15f8f88 e6396a48 e24b7ed4 c0142997 c18dfe50 f7f0a200 
+Aug 29 02:09:41 ledzep kernel:        0000007e 00000246 005f8f70 e6396a48 e24b7ef0 c0141526 c18dfe50 e6396a48 
+Aug 29 02:09:41 ledzep kernel: Call Trace: [<c0141452>] [<c0142997>] [<c0141526>] [<c016a743>] [<c011b403>] 
+Aug 29 02:09:41 ledzep kernel:    [<c016aca4>] [<c0161fef>] [<c011b660>] [<c0162189>] [<c01623e9>] [<c0109e6b>] 
+Aug 29 02:09:41 ledzep kernel: e24b7e80 00000000 e24b7eb0 c0141452 c18cf080 f2f1a5fc c18cf0a4 c18dfe74 
+Aug 29 02:09:41 ledzep kernel:        e24b7edc f7efd800 c17f5c28 f2f1a5d4 e24b7ed0 c0142997 c18cf080 f7efda00 
+Aug 29 02:09:41 ledzep kernel:        0000007e c17f5c28 f2f1a5d4 007f5c10 e24b7ef0 c01415cc c18cf080 f2f1a5d4 
+Aug 29 02:09:41 ledzep kernel: Call Trace: [<c0141452>] [<c0142997>] [<c01415cc>] [<c016a7f2>] [<c016aca4>] 
+Aug 29 02:09:41 ledzep kernel:    [<c0161fef>] [<c015fa1f>] [<c0162189>] [<c01623e9>] [<c0109e6b>] 
+Aug 29 02:10:00 ledzep kernel: e081fe84 00000000 e081feb4 c0141452 c18dfe50 f048fe5c c18dfe74 0058fe58 
+Aug 29 02:10:00 ledzep kernel:        e081ff84 f7f0b400 c16e0158 ec008220 e081fed4 c0142997 c18dfe50 f7f0b600 
+Aug 29 02:10:00 ledzep kernel:        0000007e 00000246 006e0140 ec008220 e081fef0 c0141526 c18dfe50 ec008220 
+Aug 29 02:10:00 ledzep kernel: Call Trace: [<c0141452>] [<c0142997>] [<c0141526>] [<c016a743>] [<c016aca4>] 
+Aug 29 02:10:00 ledzep kernel:    [<c0161fef>] [<c015fa1f>] [<c0162189>] [<c01623e9>] [<c0109e6b>] 
+Aug 29 02:25:10 ledzep kernel: f1e07df8 00000000 f1e07e28 c0141452 c18ce500 ec21d000 c18ce524 00000000 
+Aug 29 02:25:10 ledzep kernel:        00000001 f7f5c8c4 c16873c8 e9c7e000 f1e07e48 c0142997 c18ce500 f7f5c944 
+Aug 29 02:25:10 ledzep kernel:        0000001e c16873c8 e9c7e000 006873b0 f1e07e68 c01415cc c18ce500 e9c7e000 
+Aug 29 02:25:10 ledzep kernel: Call Trace: [<c0141452>] [<c0142997>] [<c01415cc>] [<c035caf7>] [<c035b561>] 
+Aug 29 02:25:10 ledzep kernel:    [<c035cc22>] [<c03b06ad>] [<c035893f>] [<c0358a70>] [<c0151fb9>] [<c015213c>] 
+Aug 29 02:25:10 ledzep kernel:    [<c0109e6b>] 
+Warning (Oops_read): Code line not seen, dumping what data is available
 
 
-This BitKeeper patch contains the following changesets:
-+
-## Wrapped with gzip_uu ##
+Trace; c0141452 <free_block+b2/c0>
+Trace; c0142997 <__kmem_cache_free+97/f2>
+Trace; c01415cc <kfree+5c/a0>
+Trace; c035caf7 <kfree_skbmem+17/80>
+Trace; c035b561 <sock_wfree+41/50>
+Trace; c035cc22 <__kfree_skb+c2/110>
+Trace; c03b06ad <unix_stream_recvmsg+1bd/330>
+Trace; c035893f <sock_recvmsg+4f/f0>
+Trace; c0358a70 <sock_read+90/a0>
+Trace; c0151fb9 <vfs_read+b9/100>
+Trace; c012b5c0 <update_process_times+40/50>
+Trace; c015213c <sys_read+3c/50>
+Trace; c0109e6b <syscall_call+7/b>
+Trace; c0142669 <__kmem_cache_alloc+139/1d0>
+Trace; c035c8d6 <alloc_skb+b6/1c0>
+Trace; c035b8a5 <sock_alloc_send_pskb+d5/1d0>
+Trace; c035b9ce <sock_alloc_send_skb+2e/30>
+Trace; c03aff87 <unix_stream_sendmsg+107/330>
+Trace; c03588b9 <sock_sendmsg+79/b0>
+Trace; c0358c11 <sock_readv_writev+71/a0>
+Trace; c0358cef <sock_writev+4f/60>
+Trace; c01523c8 <do_readv_writev+148/250>
+Trace; c012c052 <update_times+112/117>
+Trace; c012b5c0 <update_process_times+40/50>
+Trace; c01525ff <sys_writev+8f/a0>
+Trace; c0109e6b <syscall_call+7/b>
+Trace; c0142669 <__kmem_cache_alloc+139/1d0>
+Trace; c035c8d6 <alloc_skb+b6/1c0>
+Trace; c035b8a5 <sock_alloc_send_pskb+d5/1d0>
+Trace; c035b9ce <sock_alloc_send_skb+2e/30>
+Trace; c03aff87 <unix_stream_sendmsg+107/330>
+Trace; c03588b9 <sock_sendmsg+79/b0>
+Trace; c0358c11 <sock_readv_writev+71/a0>
+Trace; c0358cef <sock_writev+4f/60>
+Trace; c01523c8 <do_readv_writev+148/250>
+Trace; c012c052 <update_times+112/117>
+Trace; c012b5c0 <update_process_times+40/50>
+Trace; c01525ff <sys_writev+8f/a0>
+Trace; c0109e6b <syscall_call+7/b>
+Trace; c0141452 <free_block+b2/c0>
+Trace; c0142997 <__kmem_cache_free+97/f2>
+Trace; c0141526 <kmem_cache_free+66/b0>
+Trace; c016a743 <prune_dcache+103/1f0>
+Trace; c011b403 <schedule+1b3/3e0>
+Trace; c016aca4 <shrink_dcache_parent+24/30>
+Trace; c0161fef <d_unhash+af/160>
+Trace; c011b660 <preempt_schedule+30/70>
+Trace; c0162189 <vfs_rmdir+e9/270>
+Trace; c01623e9 <sys_rmdir+d9/100>
+Trace; c0109e6b <syscall_call+7/b>
+Trace; c0141452 <free_block+b2/c0>
+Trace; c0142997 <__kmem_cache_free+97/f2>
+Trace; c01415cc <kfree+5c/a0>
+Trace; c016a7f2 <prune_dcache+1b2/1f0>
+Trace; c016aca4 <shrink_dcache_parent+24/30>
+Trace; c0161fef <d_unhash+af/160>
+Trace; c015fa1f <permission+4f/60>
+Trace; c0162189 <vfs_rmdir+e9/270>
+Trace; c01623e9 <sys_rmdir+d9/100>
+Trace; c0109e6b <syscall_call+7/b>
+Trace; c0141452 <free_block+b2/c0>
+Trace; c0142997 <__kmem_cache_free+97/f2>
+Trace; c0141526 <kmem_cache_free+66/b0>
+Trace; c016a743 <prune_dcache+103/1f0>
+Trace; c016aca4 <shrink_dcache_parent+24/30>
+Trace; c0161fef <d_unhash+af/160>
+Trace; c015fa1f <permission+4f/60>
+Trace; c0162189 <vfs_rmdir+e9/270>
+Trace; c01623e9 <sys_rmdir+d9/100>
+Trace; c0109e6b <syscall_call+7/b>
+Trace; c0141452 <free_block+b2/c0>
+Trace; c0142997 <__kmem_cache_free+97/f2>
+Trace; c01415cc <kfree+5c/a0>
+Trace; c035caf7 <kfree_skbmem+17/80>
+Trace; c035b561 <sock_wfree+41/50>
+Trace; c035cc22 <__kfree_skb+c2/110>
+Trace; c03b06ad <unix_stream_recvmsg+1bd/330>
+Trace; c035893f <sock_recvmsg+4f/f0>
+Trace; c0358a70 <sock_read+90/a0>
+Trace; c0151fb9 <vfs_read+b9/100>
+Trace; c015213c <sys_read+3c/50>
+Trace; c0109e6b <syscall_call+7/b>
 
 
-begin 664 bkpatch797
-M'XL(`+C,;3T``[U676_;-A1]EG[%1?*2KHY,4I]6D2%.[*9>V]1(ENQE@$%1
-M5*19E@Q*<NQ.^^^]E-UXZYH4;=?)ADB*XO'AN>=>^A!N*JE"8U7^44N1FH?P
-MJJSJT*B:2EKB/8ZORA+'_;1<R/[NK7XT[V>Q-'%VRFN1PDJJ*C2H93\\J3=+
-M&1I7XXN;-\,KTSPY@?.4%W?R6M9P<F+6I5KQ/*Y.>9WF96'5BA?50M;<$N6B
-M?7BU980P_+C4MXGKM=0CCM\*&E/*'2ICPIS`<_9HFN336`$;8..0H+5]RJ@Y
-M`FJYK@.$]4G09P,@@Y!Y(://"0L)@=V.3W=ZP',&Q\0\@_]V`^>F@&$<0]4L
-MEZ6J(2D5U*F$V\D05G7`;!<FHW$/>*XDCS?`ETM5KF0,T0:&.2\L\S78+AD,
-MS.E>9_/X*R_3))R8/P-?1Z4\C1I55%:GZ%RJ0N96/&]CE>E8Z^CW5QD/F%BO
-MUY;8:4L]RHA/_=;U_2!H6>P&#F<2-VOC-J-/Q?P"&D;*9Z[CMAZS`P]Y/:UY
-M5HB\0:`\*YIU?RFR618C_[]'8.#8+8I$22L2[@=4)+[+?.$'_V+V)-B>F4TH
-M,M/N?F0KVNL_2L[O!@Y:CQ#*NAQ@_\P`-W3<QS*`NG#LLO\M![;^UP[?^N`=
-M'*O[[HN.G3XF_#>8?\2`FA-]@Y_@%C&SL@#;LEUSY``EYH3:NSG,2DS'W4]W
-M1-]HGUAPO>6.B5F539U&*HOO9!6:(^H!=1!\`$PC0+<KX05>[Z'']]UHV[7I
-MKK4_MN)CA_?V,)J@337W[H[/S\OE1F5W:0U'XAF@_.18QP!NMZ'$$KW*LSFN
-MLL'#50$X>M49KY`X[EFK?E^J.91)B!/&VTRD,H=A$ZF-'O\BDP0NN'J/&#@<
-M%K&2\$JB'`)!'530-R=N`+9&_37-*L!J=:?X`K";*"E1G:2^YTJ^@$W9@.`%
-M*!EG5:VRJ*DE9#7P(NZCKHLRSI(-/M!031'+K2=JJ185TNL&%Y<W<"$+J7@.
-MTR;*,X'A$+*H9'<NZ2@RX$A"SU5I5S4UG%[[4K.YWK&!ER7^!*]QA84A(X'6
-ME)(!-L:?<+#5^J!G3,\GL]'X=G(^GDU&,W3#3$_T0%]D34@/[RSI:9_,;D9O
-MAS.*0O_5TR[P.LBN,="MLZ7*BOKH8+1UTLYT(7SNTDX\>/8"!::^1MDVAM%!
-MS(]>CZ\N9[\-KRXGEQ=P<#M%:N,0;HIY4=X7G66OM27/.DOV`-7F*$=Q!TC0
-M^KW0R+J./5+XOGQF?T_Y?:J2/5V)NTH6X&G.?"?PMZ>Y\Q6E[$<>YOOB!5G<
-MG=#=:?%)_7ID?]]0OR:#0%OU,)9)5DCXO$L-@ZQMZOO[_VZ8VV)>-8L3YD<B
--'CC4_`"-`75Y%`H`````
-`
-end
--- 
-Vojtech Pavlik
-SuSE Labs
+1 warning issued.  Results may not be reliable.
+
+--------------080603020205090800040109--
+

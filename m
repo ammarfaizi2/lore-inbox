@@ -1,36 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293186AbSCWOYZ>; Sat, 23 Mar 2002 09:24:25 -0500
+	id <S293187AbSCWO1Z>; Sat, 23 Mar 2002 09:27:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293187AbSCWOYP>; Sat, 23 Mar 2002 09:24:15 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:56082 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S293186AbSCWOX4>; Sat, 23 Mar 2002 09:23:56 -0500
-Message-ID: <3C9C8FA2.4090204@evision-ventures.com>
-Date: Sat, 23 Mar 2002 15:22:26 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: John Langford <jcl@cs.cmu.edu>
-CC: Dave Zarzycki <dave@zarzycki.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org, ahaas@neosoft.com
-Subject: Re: BUG: 2.4.18 & ALI15X3 DMA hang on boot
-In-Reply-To: <200203231419.g2NEJuV01771@gs176.sp.cs.cmu.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S293201AbSCWO1P>; Sat, 23 Mar 2002 09:27:15 -0500
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:32775 "EHLO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S293187AbSCWO1G>; Sat, 23 Mar 2002 09:27:06 -0500
+Date: Sat, 23 Mar 2002 15:26:56 +0100
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ORBZ is dead, don't use it...
+Message-ID: <20020323142656.GA22388@merlin.emma.line.org>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020322225305.B27741@mea-ext.zmailer.org> <Pine.LNX.4.44.0203221303400.1434-100000@blue1.dev.mcafeelabs.com> <20020322231851.C27741@mea-ext.zmailer.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Langford wrote:
->>But before could you just tell the m5229_revision value
->>on your system?
-> 
-> 
-> I'm not sure what you mean.  Certainly, lspci says:
-> 
-> 
->>00:0f.0 IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev c3)
+On Fri, 22 Mar 2002, Matti Aarnio wrote:
 
-That's it. Thank you.
+>   Teach sendmail to differentiate the cases...
+>   (and qmail, and ...)
 
+qmail has no native RBL support, that's instead provided by third-party
+software (and that software is broken by design in that it rejects the
+connection, without letting postmaster complaints through...)
+
+-- 
+Matthias Andree

@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267350AbSLKWis>; Wed, 11 Dec 2002 17:38:48 -0500
+	id <S267348AbSLKWkx>; Wed, 11 Dec 2002 17:40:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267349AbSLKWiT>; Wed, 11 Dec 2002 17:38:19 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:10244 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S267348AbSLKWhm>;
-	Wed, 11 Dec 2002 17:37:42 -0500
-Date: Wed, 11 Dec 2002 23:44:22 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>, greg@kroah.com
-Subject: Confusing help texts?
-Message-ID: <20021211224422.GA461@elf.ucw.cz>
+	id <S267351AbSLKWkr>; Wed, 11 Dec 2002 17:40:47 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:266 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S267348AbSLKWjv>; Wed, 11 Dec 2002 17:39:51 -0500
+Date: Wed, 11 Dec 2002 22:47:34 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
+Subject: Re: Kill TRUE/FALSE from hp100.c
+Message-ID: <20021211224734.A7023@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Pavel Machek <pavel@ucw.cz>,
+	Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
+	kernel list <linux-kernel@vger.kernel.org>, jgarzik@pobox.com
+References: <20021210215612.GA514@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021210215612.GA514@elf.ucw.cz>; from pavel@ucw.cz on Tue, Dec 10, 2002 at 10:56:12PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, Dec 10, 2002 at 10:56:12PM +0100, Pavel Machek wrote:
+> Hi!
+> 
+> Kernel coding style does not like TRUE/FALSE, AFAICS. Please apply,
 
-+ * Prevents any programs running with egid == 0 if a specific USB device
-+ * is not present in the system.  Yes, it can be gotten around, but is a
-+ * nice starting point for people to play with, and learn the LSM
-+ * interface.
+What's even more interesting:  were did the defintions of TRUE/FALSE
+as used by hp100.c come from?
 
-How can you "prevent any program"?
-
-+         It enables control over processes being created by root users
-+         if a specific USB device is not present in the system.
-
-Enables control over processes?
-
-Confused,
-								Pavel
-
--- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?

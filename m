@@ -1,48 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269959AbUJND75@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269957AbUJNEK5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269959AbUJND75 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 23:59:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269960AbUJND75
+	id S269957AbUJNEK5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 00:10:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269960AbUJNEK5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 23:59:57 -0400
-Received: from relay.pair.com ([209.68.1.20]:36873 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id S269959AbUJND74 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 23:59:56 -0400
-X-pair-Authenticated: 66.190.53.4
-Message-ID: <416DF9BA.6010206@cybsft.com>
-Date: Wed, 13 Oct 2004 22:59:54 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Thu, 14 Oct 2004 00:10:57 -0400
+Received: from virt10p.secure-wi.com ([209.216.203.97]:30897 "EHLO
+	virt10p.secure-wi.com") by vger.kernel.org with ESMTP
+	id S269957AbUJNEKw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 00:10:52 -0400
+Message-ID: <011c01c4b721$b7fd96b0$41c8a8c0@Eshwar>
+From: "eshwar" <eshwar@moschip.com>
+To: "Raj" <inguva@gmail.com>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+References: <005101c4b763$5e3cba60$41c8a8c0@Eshwar> <b2fa632f0410122315753f8886@mail.gmail.com> <001401c4b796$abcddfb0$41c8a8c0@Eshwar> <1097663878.4440.0.camel@localhost.localdomain> <004f01c4b8a1$9ee2b6c0$41c8a8c0@Eshwar> <b2fa632f041013203968418d9f@mail.gmail.com>
+Subject: Re: Write USB Device Driver entry not called
+Date: Thu, 21 Oct 2004 09:24:52 +0530
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       Daniel Walker <dwalker@mvista.com>, Bill Huey <bhuey@lnxw.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U0
-References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com> <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu> <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu>
-In-Reply-To: <20041014002433.GA19399@elte.hu>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> i'm pleased to announce a significantly improved version of the
-> Real-Time Preemption (PREEMPT_REALTIME) feature that i have been working
-> towards in the past couple of weeks.
-> 
-> the patch (against 2.6.9-rc4-mm1) can be downloaded from:
-> 
->   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-U0
-> 
+if I modify the code like this
 
-Don't try to debug spinlocks as in CONFIG_DEBUG_SPINLOCK and 
-CONFIG_PREEMPT_REALTIME at the same time. The two are currently 
-incompatible.
+char abc;
+                 if(read(fd,&abc,1) < 0)
+                         perror("read to bar failed: ");
+                 close(fd);
 
-kr
+Which will be sucess... This intern states that my file descriptor is right
+.... but write returns EBADF... both are contradicting statements....
+
+Eshwar
+
+----- Original Message -----
+From: "Raj" <inguva@gmail.com>
+To: "eshwar" <eshwar@moschip.com>
+Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>; "Linux Kernel Mailing List"
+<linux-kernel@vger.kernel.org>
+Sent: Thursday, October 14, 2004 9:09 AM
+Subject: Re: Write USB Device Driver entry not called
+
+
+> On Sat, 23 Oct 2004 07:12:56 +0530, eshwar <eshwar@moschip.com> wrote:
+> > I agree but the return value from the vfs_write should not be the -EBADF
+> > (Bad File descriptor) it might be -EACCES (premission denied)... Correct
+me
+> > if I am wrong...
+> >
+> > this can be code in fs/read_write.c vfs_write()
+> >
+> >  if (!(file->f_mode & FMODE_WRITE))
+> >   return -EACCES;
+>
+> Wrong. You are confused between file perms & mode of access to files.
+> If you cannot open a file due to insufficient perms, then EACCESS is
+> what you get.
+> If you opened a file for reading, but you tried to write, the you get a
+EBADF.
+>
+> Run the following code, after you create two files, 'foo' ( perms 0400
+> ) and 'bar' ( 0700 ).
+>
+> #include <fcntl.h>
+>
+> int main()
+> {
+>         int fd;
+>
+>         fd = open("foo",O_WRONLY);
+>
+>         if(fd < 0)
+>                 perror("Opening foo:");
+>         else
+>                 close (fd);
+>
+>         fd = open("bar",O_RDONLY);
+>
+>         if(fd < 0)
+>                 perror("Opening bar: ");
+>         else {
+>                 if(write(fd,'a',1) < 0)
+>                         perror("Write to bar failed: ");
+>                 close(fd);
+>         }
+>
+> }
+>
+> Output would be:
+> Opening foo:: Permission denied
+> Write to bar failed: : Bad file descriptor
+> --
+> ######
+> raj
+> ######
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

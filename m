@@ -1,66 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271226AbRHXMpY>; Fri, 24 Aug 2001 08:45:24 -0400
+	id <S271265AbRHXMvZ>; Fri, 24 Aug 2001 08:51:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271242AbRHXMpP>; Fri, 24 Aug 2001 08:45:15 -0400
-Received: from 20dyn245.com21.casema.net ([213.17.90.245]:33298 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S271226AbRHXMpK>; Fri, 24 Aug 2001 08:45:10 -0400
-Message-Id: <200108241245.OAA31998@cave.bitwizard.nl>
-Subject: Re: Swap size for a machine with 2GB of memory
-In-Reply-To: <200108200008.AAA157827@vlet.cwi.nl> from "Andries.Brouwer@cwi.nl"
- at "Aug 20, 2001 00:08:40 am"
-To: Andries.Brouwer@cwi.nl
-Date: Fri, 24 Aug 2001 14:45:22 +0200 (MEST)
-CC: ebiederm@xmission.com, esr@thyrsus.com, sct@redhat.com, gars@lanm-pc.com,
-        linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
+	id <S271277AbRHXMvP>; Fri, 24 Aug 2001 08:51:15 -0400
+Received: from ns.ithnet.com ([217.64.64.10]:18951 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S271265AbRHXMvC>;
+	Fri, 24 Aug 2001 08:51:02 -0400
+Date: Fri, 24 Aug 2001 14:50:51 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Upd: [PATCH NG] alloc_pages_limit & pages_min
+Message-Id: <20010824145051.76f7859e.skraw@ithnet.com>
+In-Reply-To: <200108241034.f7OAYPA07047@mailf.telia.com>
+In-Reply-To: <Pine.LNX.4.33L.0108231600020.31410-100000@duckman.distro.conectiva>
+	<200108231933.f7NJX8j21551@mailc.telia.com>
+	<20010824112520.5f01626f.skraw@ithnet.com>
+	<200108241034.f7OAYPA07047@mailf.telia.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.5.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl wrote:
->     From: ebiederm@xmission.com (Eric W. Biederman)
->     Date:     19 Aug 2001 14:49:23 -0600
-> 
->     "Eric S. Raymond" <esr@thyrsus.com> writes:
-> 
->     > The Red Hat installation manual claims that the size of the
->     > swap partition should be twice the size of physical memory,
->     > but no more than 128MB.
->     > 
->     > Should I believe the above formula?
-> 
-> You give two statements. The 128 MB bound was claimed by Microsoft
-> and we screamed loudly that that was a lie - now it is claimed
-> by both SuSE and RedHat. Funny.
-> No, the bound is not 128 MB. See mkswap(8).
+On Fri, 24 Aug 2001 12:28:13 +0200
+Roger Larsson <roger.larsson@skelleftea.mail.telia.com> wrote:
 
-I think that red hat means: 
+> Another thing to try is to run with non kernel nfs...
 
-	recoomended swap (machine) = min (128M, 2 * RAM(machine));
+Sorry, probably can't do that. As far as I read the docs from reiser there is a problem with unfs on large reiser disks. If I got that right, it will not work anyway, even without this specific problem.
 
-My personal recommendation is: 
-
-	recoomended swap (machine) = 2 * RAM(machine);
-           (unless you know what you're doing). 
-
-I run three machines with 0Mb swap: I know what I'm doing. If you know
-you're going to run VERY VERY large simulations which have sort of
-linear memory access patterns, it may pay to have LOTS more swap than
-normally recommended.
-
-Also, You spend just a few percent on "recommended swap" in relation
-to what you just spent on "RAM (machine)". So even if you're never
-going to use it, it's still usefull.
-
-				Roger. 
-
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+Regards, Stephan

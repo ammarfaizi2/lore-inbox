@@ -1,41 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276569AbRJKQru>; Thu, 11 Oct 2001 12:47:50 -0400
+	id <S276318AbRJKQuu>; Thu, 11 Oct 2001 12:50:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276562AbRJKQrl>; Thu, 11 Oct 2001 12:47:41 -0400
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:22945 "EHLO
-	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id <S276576AbRJKQr2>; Thu, 11 Oct 2001 12:47:28 -0400
-Message-ID: <3BC5CD56.2E69C578@nortelnetworks.com>
-Date: Thu, 11 Oct 2001 12:48:22 -0400
-From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
-X-Accept-Language: en
+	id <S276587AbRJKQub>; Thu, 11 Oct 2001 12:50:31 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:16886 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S276558AbRJKQuJ>;
+	Thu, 11 Oct 2001 12:50:09 -0400
+Date: Thu, 11 Oct 2001 12:50:40 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Ignacio Vazquez-Abrams <ignacio@openservices.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.11 loses sda9
+In-Reply-To: <Pine.LNX.4.33.0110111245490.25209-100000@terbidium.openservices.net>
+Message-ID: <Pine.GSO.4.21.0110111248550.22698-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: unkillable process in R state?
-In-Reply-To: <Pine.SOL.4.33.0110111645410.18253-100000@yellow.csi.cam.ac.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Orig: <cfriesen@nortelnetworks.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I have a process (an instance of a find command) that seems to be unkillable (ie
-kill -9 <pid> as root doesn't work).
 
-Top shows it's status as R.
+On Thu, 11 Oct 2001, Ignacio Vazquez-Abrams wrote:
 
-Is there anything I can do to kill the thing? It's taking up all unused cpu
-cycles (currently at 97.4%).
+> Ouch. You may have to use partedit from PartitionMagic (or some other
+> low-level partition editor) to manually change the partition type.
 
-Thanks,
+Like, say it, dd(1).  However, partitioning code doesn't give a damn for
+entry type - "empty" means "zero number of sectors" for it.  Something
+very screwy is going on.
 
-Chris
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com

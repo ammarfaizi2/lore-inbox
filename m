@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268614AbRG3OTU>; Mon, 30 Jul 2001 10:19:20 -0400
+	id <S268763AbRG3OXA>; Mon, 30 Jul 2001 10:23:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268724AbRG3OTK>; Mon, 30 Jul 2001 10:19:10 -0400
-Received: from pixie.isr.ist.utl.pt ([193.136.138.97]:16390 "EHLO
+	id <S268618AbRG3OWu>; Mon, 30 Jul 2001 10:22:50 -0400
+Received: from pixie.isr.ist.utl.pt ([193.136.138.97]:16902 "EHLO
 	pixie.isr.ist.utl.pt") by vger.kernel.org with ESMTP
-	id <S268614AbRG3OTD>; Mon, 30 Jul 2001 10:19:03 -0400
+	id <S268612AbRG3OWk>; Mon, 30 Jul 2001 10:22:40 -0400
 To: linux-kernel@vger.kernel.org
 Subject: Re: Problems with 2.4.7 and VIA IDE
-In-Reply-To: <E15QWqv-0007qf-00@the-village.bc.nu>
+In-Reply-To: <lxvgkddrsh.fsf@pixie.isr.ist.utl.pt>
+	<lxn15pdr5p.fsf@pixie.isr.ist.utl.pt>
+	<20010729034452.A2685@weta.f00f.org>
 Content-Type: text/plain; charset=US-ASCII
 From: Rodrigo Ventura <yoda@isr.ist.utl.pt>
-Date: 30 Jul 2001 15:18:56 +0100
-In-Reply-To: Alan Cox's message of "Sat, 28 Jul 2001 17:22:09 +0100 (BST)"
-Message-ID: <lxn15mts8f.fsf@pixie.isr.ist.utl.pt>
+Date: 30 Jul 2001 15:22:44 +0100
+In-Reply-To: Chris Wedgwood's message of "Sun, 29 Jul 2001 03:44:52 +1200"
+Message-ID: <lxitgats23.fsf@pixie.isr.ist.utl.pt>
 User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
 MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
->>>>> "Alan" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+>>>>> "Chris" == Chris Wedgwood <cw@f00f.org> writes:
 
-    >> This is sort of a continuation of my last msg. I tried a rpm
-    >> -Va on one xterm and a tar cf /dev/null / on another, and I got
-    >> another dma error:
-    >> 
-    >> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-    >> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
+    Chris>             I also have errors from the ethernet devices,
+    Chris> e.g.
+    
+    Chris>     eth0: Transmit error, Tx status register 82.  Probably
+    Chris> a duplex mismatch.  See Documentation/networking/vortex.txt
 
-    Alan> BadCRC is normally a cable error, but I'm suspicious that
-    Alan> its also one of the things caused by PCI bus problems on the
-    Alan> VIA stuff
-
-        Bull's eye! I just replaced the cable, which in fact was sort
-of long, by a shorter one, and it seems OK now.
+        Right, I should have read the vortex.txt file before. But now,
+let me ask something that is not explained in that file: how can I
+track down the misconfigured NIC?
 
         Cheers,
 

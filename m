@@ -1,63 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311925AbSCOEBG>; Thu, 14 Mar 2002 23:01:06 -0500
+	id <S311928AbSCOETv>; Thu, 14 Mar 2002 23:19:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311926AbSCOEA5>; Thu, 14 Mar 2002 23:00:57 -0500
-Received: from mail.parknet.co.jp ([210.134.213.6]:38408 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S311925AbSCOEAj>; Thu, 14 Mar 2002 23:00:39 -0500
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] struct super_block cleanup - msdos/vfat
-In-Reply-To: <3C8FE8E3.2040204@didntduck.org>
-	<87k7sfoi8c.fsf@devron.myhome.or.jp>
-	<87bsdrohu3.fsf@devron.myhome.or.jp> <3C90A9C4.4030801@didntduck.org>
-	<874rjjnp5t.fsf@devron.myhome.or.jp> <3C913DFE.9020306@didntduck.org>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Fri, 15 Mar 2002 13:00:09 +0900
-In-Reply-To: <3C913DFE.9020306@didntduck.org>
-Message-ID: <87wuwemqeu.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S311929AbSCOETc>; Thu, 14 Mar 2002 23:19:32 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:33264 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S311928AbSCOETZ>;
+	Thu, 14 Mar 2002 23:19:25 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15505.30281.414005.400815@napali.hpl.hp.com>
+Date: Thu, 14 Mar 2002 20:19:21 -0800
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Andi Kleen <ak@suse.de>, davidm@hpl.hp.com, linux-kernel@vger.kernel.org,
+        rth@twiddle.net
+Subject: Re: [PATCH] 2.5.1-pre5: per-cpu areas 
+In-Reply-To: <E16lj03-0007Zm-00@wagner.rustcorp.com.au>
+In-Reply-To: <20020314195122.A30566@wotan.suse.de>
+	<E16lj03-0007Zm-00@wagner.rustcorp.com.au>
+X-Mailer: VM 7.01 under Emacs 21.1.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brian Gerst <bgerst@didntduck.org> writes:
+>>>>> On Fri, 15 Mar 2002 15:07:27 +1100, Rusty Russell <rusty@rustcorp.com.au> said:
 
-> Patch attached.
-> 
-> -- 
-> 
-> 						Brian Gerst
+  Rusty> Sorry, after thought, I've reverted to my original position.  the
+  Rusty> original SMP per_cpu()/this_cpu() implementations were broken.
 
-Thanks a lot!
+  Rusty> They must return an lvalue, otherwise they're useless for 50% of cases
+  Rusty> (ie. assignment).  x86_64 can still use its own mechanism for
+  Rusty> arch-specific per-cpu data, of course.
 
-> diff -urN linux/fs/msdos/namei.c linux2/fs/msdos/namei.c
-> --- linux/fs/msdos/namei.c	Thu Mar 14 10:53:20 2002
-> +++ linux2/fs/msdos/namei.c	Thu Mar 14 10:54:53 2002
-> @@ -607,7 +607,7 @@
->  
->  	res = fat_fill_super(sb, data, silent, &msdos_dir_inode_operations, 0);
->  	if (res) {
-> -		if (!silent)
-> +		if (res == -EINVAL && !silent)
->  			printk(KERN_INFO "VFS: Can't find a valid"
->  			       " MSDOS filesystem on dev %s.\n", sb->s_id);
->  		return res;
-> diff -urN linux/fs/vfat/namei.c linux2/fs/vfat/namei.c
-> --- linux/fs/vfat/namei.c	Thu Mar 14 10:53:20 2002
-> +++ linux2/fs/vfat/namei.c	Thu Mar 14 10:55:20 2002
-> @@ -1290,7 +1290,7 @@
->    
->  	res = fat_fill_super(sb, data, silent, &vfat_dir_inode_operations, 1);
->  	if (res) {
-> -		if (!silent)
-> +		if (res == -EINVAL && !silent)
->  			printk(KERN_INFO "VFS: Can't find a valid"
->  			       " VFAT filesystem on dev %s.\n", sb->s_id);
->  		return res;
+What's your position about someone taking the address of this_cpu(foo)
+and passing it to another CPU?  IMO, the effect of this should be
+allowed to be implementation-dependent.  If you agree, perhaps it
+would be good to add a comment to this effect?
 
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+	--david

@@ -1,47 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279033AbRJVWmk>; Mon, 22 Oct 2001 18:42:40 -0400
+	id <S279031AbRJVWok>; Mon, 22 Oct 2001 18:44:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279029AbRJVWmc>; Mon, 22 Oct 2001 18:42:32 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:48513 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S279034AbRJVWjQ>;
-	Mon, 22 Oct 2001 18:39:16 -0400
-Date: Mon, 22 Oct 2001 15:39:47 -0700 (PDT)
-Message-Id: <20011022.153947.48529984.davem@redhat.com>
-To: sten@blinkenlights.nl
+	id <S279034AbRJVWoc>; Mon, 22 Oct 2001 18:44:32 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9489 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S279032AbRJVWoA>; Mon, 22 Oct 2001 18:44:00 -0400
+Subject: Re: 2.4.13-pre6 breaks Nvidia's kernel module
+To: drevil@warpcore.org
+Date: Mon, 22 Oct 2001 23:50:59 +0100 (BST)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: INIT_MMAP on sparc64
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.40-blink.0110230044400.20416-100000@deepthought.blinkenlights.nl>
-In-Reply-To: <20011022.152800.59654230.davem@redhat.com>
-	<Pine.LNX.4.40-blink.0110230044400.20416-100000@deepthought.blinkenlights.nl>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+In-Reply-To: <20011022172742.B445@virtucon.warpcore.org> from "drevil@warpcore.org" at Oct 22, 2001 05:27:42 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15vnuN-0003jW-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Sten <sten@blinkenlights.nl>
-   Date: Tue, 23 Oct 2001 00:50:42 +0200 (CEST)
+> > Only Nvidia can help you 
+> 
+> With a problem caused by someone else and not them? Interesting viewpoint. I
+> also find it interesting that people think NVidia is the sole company in control
+> of whether or not ther drivers are opened considering SGI and other 3rd parties
+> own code in the 'driver pie'. This is a simplistic naive view IMHO....
 
-   Well the thing is that I like todo evil things,
-   like connecting sgi flatpanels to creator3d's, using
-   non sun blessed ( aka sub 1000$ ) ethernet cards or
-   sticking in wierd raid cards.
-   
-   Which is why I like linux ;)
-   
-   Having source is great because I can break it,
-   and maybe learn something in the process.
+I can't debug Nvidia's code even to see why it might have broken. Its as
+simple as that - no politics, no agenda on them opening it, simple technical
+statement of fact.
 
-All of this is irrelevant to going over the 3.5MB mark,
-I contend that your machine simply does not need it no matter
-what obscure stuff you stick into it :-)
-
-Turn off the PCI device names, that is usually what eats up a
-lot of space and lspci provides the same info anyways...
-
-Franks a lot,
-David S. Miller
-davem@redhat.com
+I really doubt Nvidia will open their driver code. I've heard them explain
+some of the reasons they don't and in part they make complete sense.

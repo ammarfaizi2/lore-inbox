@@ -1,32 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318038AbSIESns>; Thu, 5 Sep 2002 14:43:48 -0400
+	id <S318060AbSIEStO>; Thu, 5 Sep 2002 14:49:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318047AbSIESns>; Thu, 5 Sep 2002 14:43:48 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:11015 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S318038AbSIESnr>; Thu, 5 Sep 2002 14:43:47 -0400
-Date: Thu, 5 Sep 2002 19:48:24 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org, lord@sgi.com
-Subject: Re: 2.4.20pre5aa1
-Message-ID: <20020905194824.A11974@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
-	lord@sgi.com
-References: <20020904233528.GA1238@dualathlon.random> <20020905134414.A1784@infradead.org> <20020905165307.GC1254@dualathlon.random> <20020905180904.A8406@infradead.org> <20020905184125.GA1657@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020905184125.GA1657@dualathlon.random>; from andrea@suse.de on Thu, Sep 05, 2002 at 08:41:25PM +0200
+	id <S318061AbSIEStO>; Thu, 5 Sep 2002 14:49:14 -0400
+Received: from citi.umich.edu ([141.211.92.141]:50576 "HELO citi.umich.edu")
+	by vger.kernel.org with SMTP id <S318060AbSIEStM>;
+	Thu, 5 Sep 2002 14:49:12 -0400
+Date: Thu, 5 Sep 2002 14:53:48 -0400 (EDT)
+From: Chuck Lever <cel@citi.umich.edu>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: invalidate_inode_pages in 2.5.32/3
+In-Reply-To: <3D77A22A.DC3F4D1@zip.com.au>
+Message-ID: <Pine.BSO.4.33.0209051439540.12826-100000@citi.umich.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 05, 2002 at 08:41:25PM +0200, Andrea Arcangeli wrote:
-> other fs, if you're not holding the i_sem (and you certainly aren't
-> holding the i_sem that frequently, you don't even for writes).
+On Thu, 5 Sep 2002, Andrew Morton wrote:
 
-Except of O_DIRECT writes we _do_ hold i_sem, btw.
+> That all assumes SMP/preempt.  If you're seeing these problems on
+> uniproc/non-preempt then something fishy may be happening.
+
+sorry, forgot to mention:  the system is UP, non-preemptible, high mem.
+
+invalidate_inode_pages isn't freeing these pages because the page count is
+two.  perhaps the page count semantics of one of the page cache helper
+functions has changed slightly.  i'm still diagnosing.
+
+fortunately the problem is deterministically reproducible.  basic test6,
+the readdir test, of 2002 connectathon test suite, fails -- either a
+duplicate file entry or a missing file entry appears after some standard
+file creation and removal processing in that directory.  the incorrect
+entries occur because the NFS client zaps the directory's page cache to
+force the next reader to re-read the directory from the server.  but
+invalidate_inode_pages decides to leave the pages in the cache, so the
+next reader gets stale cached data instead.
+
+> But be aware that invalidate_inode_pages has always been best-effort.
+> If someone is reading, or writing one of those pages then it
+> certainly will not be removed.  If you need assurances that the
+> pagecache has been taken down then we'll need something stronger
+> in there.
+
+right, i've always wondered why the NFS client doesn't use
+truncate_inode_pages, or something like it, instead.  that can wait for
+another day, though.  :-)
+
+	- Chuck Lever
+--
+corporate:	<cel at netapp dot com>
+personal:	<chucklever at bigfoot dot com>
 

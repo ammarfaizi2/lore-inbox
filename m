@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269593AbUJFXCM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269607AbUJFXCM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269593AbUJFXCM (ORCPT <rfc822;willy@w.ods.org>);
+	id S269607AbUJFXCM (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 6 Oct 2004 19:02:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269607AbUJFXAT
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269617AbUJFW7k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 19:00:19 -0400
-Received: from web11204.mail.yahoo.com ([216.136.131.186]:32664 "HELO
-	web11204.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S269593AbUJFW4q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 18:56:46 -0400
-Message-ID: <20041006225645.43733.qmail@web11204.mail.yahoo.com>
-Date: Wed, 6 Oct 2004 15:56:45 -0700 (PDT)
+	Wed, 6 Oct 2004 18:59:40 -0400
+Received: from web11207.mail.yahoo.com ([216.136.131.189]:11302 "HELO
+	web11207.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S269607AbUJFW4x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 18:56:53 -0400
+Message-ID: <20041006225653.44008.qmail@web11207.mail.yahoo.com>
+Date: Wed, 6 Oct 2004 15:56:53 -0700 (PDT)
 From: todd nguyen <toddnguyen@yahoo.com>
 Subject: Oops in loading cardbus bridge drivers in kernel version 2.6.9-rc1
 To: linux-kernel@vger.kernel.org

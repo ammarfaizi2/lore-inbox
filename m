@@ -1,66 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274205AbRIXWQT>; Mon, 24 Sep 2001 18:16:19 -0400
+	id <S274209AbRIXWRi>; Mon, 24 Sep 2001 18:17:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274203AbRIXWQI>; Mon, 24 Sep 2001 18:16:08 -0400
-Received: from [208.129.208.52] ([208.129.208.52]:54535 "EHLO xmailserver.org")
-	by vger.kernel.org with ESMTP id <S274207AbRIXWP4>;
-	Mon, 24 Sep 2001 18:15:56 -0400
-Message-ID: <XFMail.20010924152011.davidel@xmailserver.org>
-X-Mailer: XFMail 1.5.0 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S274206AbRIXWR2>; Mon, 24 Sep 2001 18:17:28 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:23271 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S274210AbRIXWRS>; Mon, 24 Sep 2001 18:17:18 -0400
+Message-ID: <3BAFB108.22D81127@redhat.com>
+Date: Mon, 24 Sep 2001 18:17:44 -0400
+From: Bob Matthews <bmatthews@redhat.com>
+Organization: Red Hat, Inc.
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-12smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-In-Reply-To: <20010924230909.A10253@kushida.jlokier.co.uk>
-Date: Mon, 24 Sep 2001 15:20:11 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Subject: Re: [PATCH] /dev/epoll update ...
-Cc: Gordon Oliver <gordo@pincoya.com>
-Cc: Gordon Oliver <gordo@pincoya.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Dan Kegel <dank@kegel.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
+To: linux-kernel@vger.kernel.org
+CC: torvalds@transmeta.com
+Subject: Preliminary testing results for 2.4.10
+In-Reply-To: <mailman.1000842780.25404.linux-kernel2news@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 24-Sep-2001 Jamie Lokier wrote:
-> Davide Libenzi wrote:
->> > Well, memory move consists of 2 words: (a) file descriptor; (b) poll
->> > state/edge flags.
->> 
->> 2-words * number-of-ready-fds == pretty-high-cache-drain
+Arjan van de Ven wrote:
 > 
-> Perhaps there is a cache issue, but note it is the number of _new_ ready
-> fds (since the last sample), not the number currently ready.
+> Hi.
 > 
->> > That will be completely swamped by the system calls and so on needed to
->> > processes each of the file descriptors.  I.e. no scalability problem here.
->> 
->> The other issue is that by keeping infos in file* you'll have to scan each fd
->> to report the ready ones, that will make the method to fall back in O(n).
-> 
-> No, that would be silly.  You would queue signals exactly as they are
-> queued now (but collapsing multiple signals per fd into one).
-> 
->> Anyway there's a pretty good patch ( http://www.luban.org/GPL/gpl.html ),
->> that has been tested here :
->> 
->> http://www.xmailserver.org/linux-patches/nio-improve.html
->> 
->> that implement the signal-per-fd mechanism and it achieves a very good
->> scalability too.
-> 
-> It has the bonus of requiring no userspace changes too.  Lovely!
+> In the Red Hat testlab, Bob Matthews has run the stress-test part of our
+> normal "release signoff tests" on 2.4.10pre11 to evaluate the new VM for
+> stability.
 
-Sure you can avoid the scan, if you pick up one event at a time.
-To be compared to /dev/epoll you need the signal-per-fd patch plus a method to
-collect the whole event-set in a single system call ( see perfs ).
+I've just finished a quick test cycle with 2.4.10.  Here are the results
+we observed:
 
+There are two tests running, both with HIMEM set to 64G.  
 
+machine test1:  2xPIII, 2G RAM/4G Swap.  Appears to be in a memory
+related deadlock.  All test related processes save one are in D state. 
+Vmstat indicates no swapping activity.  Top says both processors are
+~95% idle.  The exception is the TTCP test, which has a very small
+memory footprint and is running normally.
 
+machine test4:  4xPIII, 1G/2G.  Appears to be running normally, but top
+indicates frequent stalls with CPU idle times shooting up to 90% on all
+processors for brief, but recurring periods.
 
-- Davide
-
+No processes have been killed by OOM at this point.
+-- 
+Bob Matthews
+Red Hat, Inc.

@@ -1,54 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313867AbSE2RFe>; Wed, 29 May 2002 13:05:34 -0400
+	id <S314077AbSE2RQC>; Wed, 29 May 2002 13:16:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314077AbSE2RFd>; Wed, 29 May 2002 13:05:33 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:38800 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S313867AbSE2RFc>;
-	Wed, 29 May 2002 13:05:32 -0400
-Date: Wed, 29 May 2002 19:05:17 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Gerald Champagne <gerald@io.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.18 IDE 73
-Message-ID: <20020529190517.A19854@ucw.cz>
-In-Reply-To: <1022680784.2945.24.camel@wiley> <3CF4D19F.9080402@evision-ventures.com> <20020529183343.A19610@ucw.cz> <1022694938.9255.269.camel@irongate.swansea.linux.org.uk> <20020529190135.A19776@ucw.cz> <3CF4FC52.7080406@evision-ventures.com>
+	id <S314082AbSE2RQC>; Wed, 29 May 2002 13:16:02 -0400
+Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:50180 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S314077AbSE2RQB>;
+	Wed, 29 May 2002 13:16:01 -0400
+Date: Wed, 29 May 2002 10:14:37 -0700
+From: Greg KH <greg@kroah.com>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19-pre9, still USB freeze
+Message-ID: <20020529171437.GB18466@kroah.com>
+In-Reply-To: <Pine.LNX.4.21.0205281905260.7798-100000@freak.distro.conectiva> <20020529053732.GH6521@marowsky-bree.de> <20020529060608.GB15260@kroah.com> <20020529145010.21d01e80.skraw@ithnet.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Wed, 01 May 2002 15:30:15 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 29, 2002 at 06:05:38PM +0200, Martin Dalecki wrote:
-> Vojtech Pavlik wrote:
-> > On Wed, May 29, 2002 at 06:55:38PM +0100, Alan Cox wrote:
-> > 
-> > 
-> >>>Also for black/whitelists. And we're going to need those, though maybe
-> >>>the current data in them is not worth much.
-> >>
-> >>I'm hopeful they still are. The early drives with DMA problems won't
-> >>have changed over time, and I've been updating the others when I get
-> >>data from vendors. Promise for example recently sent me a couple to add
-> > 
-> > 
-> > The early drives haven't changed, but the drivers for the controllers
-> > which they were tested on changed (or will change soon). Namely the
-> > lists of PIO mode limits were wrong very often. This is mainly because
-> > some of the (now almost unused) drivers program the timings incorrectly
-> > into the controller registers.
-> > 
-> > I can't say much about the more recent entries, except for that it'd be
-> > nice to add a date when the entry was last tested and with what result
-> > to each of them over time.
+On Wed, May 29, 2002 at 02:50:10PM +0200, Stephan von Krawczynski wrote:
+> Hello,
 > 
-> And plese note as well that we don't need the whole id struct, but just
-> the name of the drive as well. Which is much less of a hassle anyway.
+> as noted for pre8, pre9 freezes still, when connecting a sandisk SDDR-05 to USB
+> (only device attached), and trying to mount some compact-flash. Or, as an
+> alternative test, even with no compact flash inserted, when starting up
+> xcdroast. Both completely freezes the machine.
 
-Correct. And the manufacturer and the revision.
+Does 2.5.18 show this same freeze?
 
--- 
-Vojtech Pavlik
-SuSE Labs
+thanks,
+
+greg k-h

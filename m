@@ -1,80 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262236AbTJIQgy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 12:36:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262241AbTJIQgy
+	id S262283AbTJIQiF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 12:38:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262285AbTJIQiF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 12:36:54 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:6533 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262236AbTJIQgu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 12:36:50 -0400
-Date: Thu, 9 Oct 2003 18:36:49 +0200
-From: Jan Kara <jack@suse.cz>
-To: Youza Youzovic <youza@post.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Data writting over the quota chage inote time
-Message-ID: <20031009163648.GF25594@atrey.karlin.mff.cuni.cz>
-References: <fc5f185ffdd49f6f4444747a24368d79@www4.mail.post.cz>
-Mime-Version: 1.0
+	Thu, 9 Oct 2003 12:38:05 -0400
+Received: from pat.uio.no ([129.240.130.16]:53196 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262283AbTJIQh7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 12:37:59 -0400
+To: Paul Mundt <lethal@linux-sh.org>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] net/sunrpc/clnt.c compile fix
+References: <20031009161350.GA9170@linux-sh.org>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 09 Oct 2003 12:37:49 -0400
+In-Reply-To: <20031009161350.GA9170@linux-sh.org>
+Message-ID: <shsr81mnz8i.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <fc5f185ffdd49f6f4444747a24368d79@www4.mail.post.cz>
-User-Agent: Mutt/1.3.28i
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning.
+X-UiO-MailScanner: No virus found
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi,
+>>>>> " " == Paul Mundt <lethal@linux-sh.org> writes:
 
-  the problem actually isn't in quota but in VFS layer (you'd get same
-result if you just run out of empty space on disk).  I actually also
-looked into fixing this but it showed up to require rewriting of code on
-a lot of places and so I postponed the problem because I find the
-problem more or less cosmetic... Or do you have some application failing
-on this?
+     > Not sure if anyone has submitted this already, but as the
+     > subject implies, net/sunrpc/clnt.c does not compile in either
+     > stock test7 or in current BK:
 
-								Honza 
+Only if you do not also set CONFIG_SYSCTL.
 
+     >   CC net/sunrpc/clnt.o net/sunrpc/clnt.c: In function
+     >   `call_verify': net/sunrpc/clnt.c:965: structure has no member
+     >   named `tk_pid' net/sunrpc/clnt.c:970: structure has no member
+     >   named `tk_pid' net/sunrpc/clnt.c:976: structure has no member
+     >   named `tk_pid' make[1]: *** [net/sunrpc/clnt.o] Error 1 make:
+     >   *** [net/sunrpc/clnt.o] Error 2
 
-> I find this "small" problem:
-> 
-> I set quota fo user "test" to 204 blocks.
-> and store one big file "test" with full size ( 204 blocks).
-> quota -v test
-> Disk quotas for user test (uid 1010): 
-> Filesystem blocks quota limit grace files quota limit grace
-> /dev/sdb1 204* 204 204 1 0 0 
-> 
-> and run command "stat test":
-> File: "test"
-> Size: 204800 Blocks: 408 IO Block: 
-> 121234234 Regular File
-> Device: 811h/2065d Inode: 6300 Links: 1 
-> Access: (0644/-rw-r--r--) Uid:(1010/test) Gid:(0/root)
-> Access: Wed Aug 13 16:10:21 2003
-> Modify: Wed Aug 13 16:12:43 2003
-> Change: Wed Aug 13 16:12:43 2003
-> 
-> next I run command
-> 
-> echo "s" >> test; stat test 
-> File: "test"
-> Size: 204800 Blocks: 408 IO Block: 
-> 121234234 Regular File
-> Device: 811h/2065d Inode: 6300 Links: 1 
-> Access: (0644/-rw-r--r--) Uid: (1010/test) Gid:(0/root)
-> Access: Wed Aug 13 16:10:21 2003
-> Modify: Wed Aug 13 16:14:38 2003
-> Change: Wed Aug 13 16:14:38 2003
-> 
-> the size is not change - this is OK !!
-> But Modify, and Change time is modified !!!
-> 
-> My system:
-> Linux kernel 2.4.21 from www.kernel.org
-> 
-> Thanx
-> youza
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+     > This is due to the fact that tk_pid is protected by
+     > RPC_DEBUG. Wrapping through dprintk() fixes this.
+
+No... You are suppressing legitimate warning messages that inform the
+user of a client/server mismatch!
+
+Better then to remove the tk_pid from the warning messages...
+
+Cheers
+  Trond

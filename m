@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263365AbUEKS4S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263338AbUEKS4K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263365AbUEKS4S (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 14:56:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263340AbUEKS4R
+	id S263338AbUEKS4K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 14:56:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263370AbUEKSzy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 14:56:17 -0400
-Received: from fw.osdl.org ([65.172.181.6]:22722 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263380AbUEKS4E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 14:56:04 -0400
-Date: Tue, 11 May 2004 11:55:39 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Neil Schemenauer <nas@arctrix.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-mm1
-Message-Id: <20040511115539.3c840ebc.akpm@osdl.org>
-In-Reply-To: <20040511144918.GA4764@mems-exchange.org>
-References: <20040511144918.GA4764@mems-exchange.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 11 May 2004 14:55:54 -0400
+Received: from 10.69-93-172.reverse.theplanet.com ([69.93.172.10]:57059 "EHLO
+	gsf.ironcreek.net") by vger.kernel.org with ESMTP id S263338AbUEKSzr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 14:55:47 -0400
+From: Andre Eisenbach <andre@eisenbach.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Athlon Mobile XP CPU speed problem
+Date: Tue, 11 May 2004 11:54:27 -0700
+User-Agent: KMail/1.6.2
+References: <200404091723.55628.andre@ironcreek.net>
+In-Reply-To: <200404091723.55628.andre@ironcreek.net>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200405111154.27631.andre@eisenbach.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Schemenauer <nas@arctrix.com> wrote:
->
-> Have you seen my capwrap[1] module?  I wouldn't call it elegant but
->  it is very simple and flexible.
+Here some additional information I picked up on the HP support forums:
 
-It is.
+> However HP seems to be adding a further amount of throttling when under
+> battery power using 'Stop Clock' techniques. When minimal levels of power 
+> management are applied the processor is only running 1/3 of the time 
+> reducing to 1/6 of the time when using more stringent power settings (eg Max 
+> Battery)    
 
-But if the application which you run does execve(), the capabilties are
-dropped.  And if it does setuid() without first doing
+Does that help in any way fixing this problem?
+Short of a BIOS update, is there a way to work around this?
 
-	prctl(PR_SET_KEEPCAPS, 1);
+Please also see this recent LKLM email for reference:
+http://lkml.org/lkml/2004/5/9/100
 
-then setuid() also drops capabilities.
-
+Thanks,
+   André

@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-thread-index: AcQVpPiI0oxcpm3bT6G30VdSBI6Hhw==
+thread-index: AcQVpHYZlOSr+3BSTo+wOm1P4z1XJQ==
 Envelope-to: paul@sumlocktest.fsnet.co.uk
-Delivery-date: Tue, 06 Jan 2004 03:35:30 +0000
-Message-ID: <046301c415a4$f8882bb0$d100000a@sbs2003.local>
+Delivery-date: Sun, 04 Jan 2004 13:17:11 +0000
+Message-ID: <01d601c415a4$7619aaf0$d100000a@sbs2003.local>
+Content-Transfer-Encoding: 7bit
 X-Mailer: Microsoft CDO for Exchange 2000
+Date: Mon, 29 Mar 2004 16:42:37 +0100
 Content-Class: urn:content-classes:message
 Importance: normal
 Priority: normal
+From: "Andi Kleen" <ak@muc.de>
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
-Date: Mon, 29 Mar 2004 16:46:16 +0100
-From: "Zhu, Yi" <yi.zhu@intel.com>
-X-X-Sender: chuyee@mazda.sh.intel.com
-Reply-To: "Zhu, Yi" <yi.zhu@intel.com>
 To: <Administrator@smtp.paston.co.uk>
-Cc: "Zhu, Yi" <yi.zhu@intel.com>, "Andrew Morton" <akpm@osdl.org>,
-        "Ingo Molnar" <mingo@elte.hu>, <linux-kernel@vger.kernel.org>
-Subject: Re: [Bugfix] Set more than 32K pid_max (reformatted)
-In-Reply-To: <3ACA40606221794F80A5670F0AF15F840254C8C3@PDSMSX403.ccr.corp.intel.com>
+Cc: <linux-kernel@vger.kernel.org>, <akpm@osdl.org>
+Subject: [PATCH] Remove Intel check in i386 HPET code
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN;
-	charset="ISO-8859-1"
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: <linux-kernel-owner@vger.kernel.org>
 X-Mailing-List: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 29 Mar 2004 15:46:17.0078 (UTC) FILETIME=[F9129160:01C415A4]
-Content-Transfer-Encoding: 8bit
-X-MIME-Autoconverted: from quoted-printable to 8bit by mail.osdl.org id i2TGQw204322
+X-OriginalArrivalTime: 29 Mar 2004 15:42:38.0046 (UTC) FILETIME=[7684EFE0:01C415A4]
 
-On Tue, 6 Jan 2004, Marcos D. Marado Torres wrote:
 
-> >         if (!offset || !atomic_read(&map->nr_free)) {
-> > +               if (!offser)
-> 
-> I suppose it should be "if (!offset)"...
+The i386 HPET time setup code would explicitely check for the Intel
+vendor ID. That is bogus because other chipset vendors (like AMD) 
+are implementing HPET too. 
 
-Yes, my mistake. Thanks!
+Remove this check.
 
+-Andi
+
+diff -u linux-2.6.1rc1-bk3-ia32/arch/i386/kernel/time_hpet.c~ linux-2.6.1rc1-bk3-ia32/arch/i386/kernel/time_hpet.c
+--- linux-2.6.1rc1-bk3-ia32/arch/i386/kernel/time_hpet.c~	2004-01-04 14:10:59.000000000 +0100
++++ linux-2.6.1rc1-bk3-ia32/arch/i386/kernel/time_hpet.c	2004-01-04 14:10:59.000000000 +0100
+@@ -91,10 +91,6 @@
+ 	    !(id & HPET_ID_LEGSUP))
+ 		return -1;
+ 
+-	if (((id & HPET_ID_VENDOR) >> HPET_ID_VENDOR_SHIFT) !=
+-				HPET_ID_VENDOR_8086)
+-		return -1;
+-
+ 	hpet_period = hpet_readl(HPET_PERIOD);
+ 	if ((hpet_period < HPET_MIN_PERIOD) || (hpet_period > HPET_MAX_PERIOD))
+ 		return -1;

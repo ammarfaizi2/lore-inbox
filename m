@@ -1,44 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284088AbRLFPcP>; Thu, 6 Dec 2001 10:32:15 -0500
+	id <S284122AbRLFPnp>; Thu, 6 Dec 2001 10:43:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284090AbRLFPby>; Thu, 6 Dec 2001 10:31:54 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:15632 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S284088AbRLFPbq>; Thu, 6 Dec 2001 10:31:46 -0500
-Date: Thu, 6 Dec 2001 12:15:08 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Paul Bristow <paul@paulbristow.net>
-Cc: joeja@mindspring.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.x 2.5.x wishlist
-In-Reply-To: <3C0EAB5C.4040802@paulbristow.net>
-Message-ID: <Pine.LNX.4.21.0112061213170.20750-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S284124AbRLFPnf>; Thu, 6 Dec 2001 10:43:35 -0500
+Received: from tomts8.bellnexxia.net ([209.226.175.52]:61137 "EHLO
+	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S284122AbRLFPnX>; Thu, 6 Dec 2001 10:43:23 -0500
+Date: Thu, 6 Dec 2001 10:43:17 -0500
+From: Eric-Olivier Lamey <eric.olivier.lamey@savoirfairelinux.com>
+To: linux-kernel@vger.kernel.org
+Cc: Cyrille =?iso-8859-1?Q?B=E9raud?= 
+	<cyrille.beraud@savoirfairelinux.com>,
+        Jeff Dike <jdike@karaya.com>, Tim Walberg <twalberg@mindspring.com>,
+        Brian Gerst <bgerst@didntduck.org>
+Subject: Re: Removing an executable while it runs
+Message-ID: <20011206154317.GB14780@192.168.1.1>
+In-Reply-To: <20011205145442.A12034@mindspring.com> <200112060025.TAA04538@ccure.karaya.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200112060025.TAA04538@ccure.karaya.com>
+User-Agent: Mutt/1.3.24i
+X-Operating-System: Debian GNU/Linux
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 6 Dec 2001, Paul Bristow wrote:
-
-> joeja@mindspring.com wrote:
+On Wed, Dec 05, 2001 at 07:25, Jeff Dike wrote:
+> twalberg@mindspring.com said:
+> > mlockall() only locks those pages that are **currently** paged in, or
+> > optionally those that will be paged in in the future. Unless you have
+> > a way to make sure that all pages of the binary are actually in memory
+> > before you call mlockall(), this gains you nothing.
 > 
-> > Well now that 2.5 is open I thought I'd add this to the wish list.  
-> > 
-> > 1) I wish that ECC/ECP/IEEE 1294 would be fixed in 2.4 and 2.5 and work right as this is causing problems in some webcams that worked in 2.2.x but now no longer work in 2.4.  And since just about every major distribution is shipping 2.4 it makes it a little harder to use a 2.2 kernel if you get a dsitro as many are tuned to 2.4 and often don't work right with 2.2.  This actually killed my web cam somewhere around 2.4.10~13.14?
-> > 
-> > 2) The nasty VIA ide-floppy / iomega zip 100 drive bugs would get fixed as well as this prevents people from using their zip drives under Linux   and forces them to use them under another OS.
+> No, mlockall will page in the entire process before returning if you ask it to.
 > 
+> See this snippet in mlock_fixup:
 > 
-> I have a patch out, and am trying to convince Marcelo to include it.  I 
-> *DO* know about this as I get lots of the mail complaining about it.  If 
-> you are suffering, please try with the patch
+> 		if (newflags & VM_LOCKED) {
+> 			pages = -pages;
+> 			make_pages_present(start, end);
+> 		}
 > 
-> Marcelo, can we put the ide-floppy patch in the next 2.4.17-pre?  I'll 
-> happily send you the patch again.
+> VM_LOCKED comes in through the mlockall system call.
+> 
+> 				Jeff
 
-Send it again together with a full description of what the patch
-changes, please.
+  Well, according to the man page, mister Walberg is right. How can I
+  force mlockall to page in the entire process ? And if it is possible,
+  I guess it won't resolve my problem since it is the filesystem which
+  refuses to release the blocks, right ?
+  To be more precise, here is my situation: the executable file is
+  located on a ramfs filesystem. Once it is started, I would like to get
+  the space back so that the RAM can be used. Is there a clean solution ?
 
+  P.S: on behalf of Cyrille (who made the first post), I would like to
+  thank you for your answers, it is greatly appreciated.
 
+  P.P.S: is it required to include the people involved in the thread in
+  the Cc: field ? I have looked in the mailing list FAQ and have not
+  found the reason.
+
+-- 
+Eric-Olivier Lamey

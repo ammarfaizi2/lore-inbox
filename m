@@ -1,52 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263893AbUAZI2L (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 03:28:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264392AbUAZI2L
+	id S264954AbUAZIfv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 03:35:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265100AbUAZIfv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 03:28:11 -0500
-Received: from mail-01.iinet.net.au ([203.59.3.33]:53674 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S263893AbUAZI2K
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 03:28:10 -0500
-Message-ID: <4014CF39.50209@cyberone.com.au>
-Date: Mon, 26 Jan 2004 19:26:33 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: New NUMA scheduler and hotplug CPU
-References: <20040125235431.7BC192C0FF@lists.samba.org>
-In-Reply-To: <20040125235431.7BC192C0FF@lists.samba.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 26 Jan 2004 03:35:51 -0500
+Received: from Hell.WH8.tu-dresden.de ([141.30.225.3]:52655 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id S264954AbUAZIfs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jan 2004 03:35:48 -0500
+Date: Mon, 26 Jan 2004 09:35:22 +0100
+From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+To: Hugang <hugang@soulinfo.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OOPS] Linux-2.6.1 suspend/resume
+Message-Id: <20040126093522.3731d69b@argon.inf.tu-dresden.de>
+In-Reply-To: <20040126121632.70097914@localhost>
+References: <20040126022540.315c4f8c@argon.inf.tu-dresden.de>
+	<20040126121632.70097914@localhost>
+Organization: Fiasco Core Team
+X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
+X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
+X-Mailer: X-Mailer 5.0 Gold
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Mon__26_Jan_2004_09_35_22_+0100_weyqKp0PKn=Aqkv+"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--Signature=_Mon__26_Jan_2004_09_35_22_+0100_weyqKp0PKn=Aqkv+
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
+On Mon, 26 Jan 2004 12:16:31 +0800 Hugang (H) wrote:
 
-Rusty Russell wrote:
+H> I think if you can let usb, e100 as module, before suspend rmmod it, 
+H> resume will be ok.
+H> 
+H> pls try.
 
->Hi Nick!
->
->	Looking at your new scheduler in -mm, it uses cpu_online_map
->alot in arch_init_sched_domains.  This means with hotplug CPU that it
->would need to be modified: certainly possible to do, but messy.
->
->	The other option is to use cpu_possible_map to create the full
->topology up front, and then it need never change.  AFAICT, no other
->changes are neccessary: you already check against moving tasks to
->offline cpus.
->
->Anyway, I was just porting the hotplug CPU patches over to -mm, and
->came across this, so I thought I'd ask.
->
+The kernel is monolithic. I'm not using any modules.
 
-Hi Rusty,
-Yes I'd like to use the cpu_possible_map to create the full
-topology straight up. Martin?
+-Udo.
 
+--Signature=_Mon__26_Jan_2004_09_35_22_+0100_weyqKp0PKn=Aqkv+
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFAFNFKnhRzXSM7nSkRApT4AJ9SwkwibOJkAmcQ9ghmnrUEgetEaQCeMy5l
+u8askq4UJBNdcdBnkCfLGTk=
+=9QER
+-----END PGP SIGNATURE-----
+
+--Signature=_Mon__26_Jan_2004_09_35_22_+0100_weyqKp0PKn=Aqkv+--

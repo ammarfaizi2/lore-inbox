@@ -1,58 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265061AbUBOPxO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 10:53:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265062AbUBOPxO
+	id S261931AbUBOPr6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 10:47:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264974AbUBOPr6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 10:53:14 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:25841 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S265061AbUBOPxD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 10:53:03 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: chip@pobox.com (Chip Salzenberg)
-Subject: Re: Linux 2.6.3-rc3 - missing IDE hunk from bk4; good or bad?
-Date: Sun, 15 Feb 2004 16:58:57 +0100
-User-Agent: KMail/1.5.3
-References: <E1AsO6X-0003hW-1u@tytlal>
-In-Reply-To: <E1AsO6X-0003hW-1u@tytlal>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+	Sun, 15 Feb 2004 10:47:58 -0500
+Received: from smtp004.mail.ukl.yahoo.com ([217.12.11.35]:25682 "HELO
+	smtp004.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261931AbUBOPr4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 10:47:56 -0500
+From: BlaisorBlade <blaisorblade_spam@yahoo.it>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] Trivial -critical : BUG()gy behaviour on OOM
+Date: Sun, 15 Feb 2004 16:47:39 +0100
+User-Agent: KMail/1.5
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402151658.57710.bzolnier@elka.pw.edu.pl>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_bS5LAK3TteeQCAD"
+Message-Id: <200402151647.39907.blaisorblade_spam@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Bad.
+--Boundary-00=_bS5LAK3TteeQCAD
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-On Sunday 15 of February 2004 16:22, Chip Salzenberg wrote:
-> Linus writes:
-> >More merges, although most of them are architecture updates. IA64,
-> >ppc32/64, SuperH and ARM.
->
-> One non-arch difference between rc3 and bk4 seems to involve IDE DMA.
+In short: in vanilla 2.6.3-rc2 (and also 2.6.2-mm1) do_swap_page() can return 
+-ENOMEM while value return values are VM_FAULT_*; invalid return values can 
+result in BUG() being called, so this patch (or a better fix) should go in 
+soon. This patch corrects this by returning VM_FAULT_OOM in that case.
 
-There are no IDE DMA related changes (except build fix) between rc3 and bk4.
+CC me on replies, please, as I'm not subscribed. Thanks.
 
-> When I ran briefly ran bk4 I got a few IDE DMA errors (ThinkPad A30,
-> TOSHIBA MK8025GAS).  Makes one wonder.  Thus:
+In detail: do_swap_page returns -ENOMEM when memory allocation fails; the 
+return value will in turn be returned by handle_pte_fault and handle_mm_fault 
+to this code in do_page_fault:
 
-Please send dmesg command output and your config kernel config
-if you want anybody to look at IDE problems...
+switch (handle_mm_fault(mm, vma, address, write)) {
+	case VM_FAULT_MINOR:
+		tsk->min_flt++;
+		break;
+	case VM_FAULT_MAJOR:
+		tsk->maj_flt++;
+		break;
+	case VM_FAULT_SIGBUS:
+		goto do_sigbus;
+	case VM_FAULT_OOM:
+		goto out_of_memory;
+	default:
+		BUG();
+}
 
-> Is the IDE patch in bk4 (that's missing from rc3) going to be in
-> 2.6.3?  Does it only come into play with SCSI, as it seems to, or
-> does it affect a non-SCSI setup?
+So on OOM we can get a BUG. Since do_file_page does this:
 
-This was in SATA libata driver and was reverted because caused problems.
-[ libata is independent of IDE drivers from linux/drivers/ide/ ]
+         if (err == -ENOMEM)
+                return VM_FAULT_OOM;
 
-If you don't use libata this chunk shouldn't affect you.
+and other code shows similar behaviour, I think that the attached fix is the 
+correct one.
+-- 
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729
 
-Cheers,
---bart
+--Boundary-00=_bS5LAK3TteeQCAD
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="Fix-mm-return.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline; filename="Fix-mm-return.patch"
+
+--- ./mm/memory.c.fix	2004-02-04 20:48:15.000000000 +0100
++++ ./mm/memory.c	2004-02-14 17:59:42.000000000 +0100
+@@ -1250,7 +1250,7 @@
+ 	mark_page_accessed(page);
+ 	pte_chain = pte_chain_alloc(GFP_KERNEL);
+ 	if (!pte_chain) {
+-		ret = -ENOMEM;
++		ret = VM_FAULT_OOM;
+ 		goto out;
+ 	}
+ 	lock_page(page);
+
+--Boundary-00=_bS5LAK3TteeQCAD--
 

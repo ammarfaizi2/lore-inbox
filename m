@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267396AbUJRUyG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267353AbUJRU6i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267396AbUJRUyG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 16:54:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267301AbUJRUxz
+	id S267353AbUJRU6i (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 16:58:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267352AbUJRU6i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 16:53:55 -0400
-Received: from phoenix.infradead.org ([81.187.226.98]:61191 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S267377AbUJRUw4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 16:52:56 -0400
-Date: Mon, 18 Oct 2004 21:52:39 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Enough with the ad-hoc naming schemes, please
-Message-ID: <20041018205239.GA2282@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Matt Mackall <mpm@selenic.com>, Linus Torvalds <torvalds@osdl.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <20041018180851.GA28904@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041018180851.GA28904@waste.org>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 18 Oct 2004 16:58:38 -0400
+Received: from brown.brainfood.com ([146.82.138.61]:44928 "EHLO
+	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
+	id S267360AbUJRU63 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 16:58:29 -0400
+Date: Mon, 18 Oct 2004 15:58:22 -0500 (CDT)
+From: Adam Heath <doogie@debian.org>
+X-X-Sender: adam@gradall.private.brainfood.com
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U5
+In-Reply-To: <20041018181826.GC2899@elte.hu>
+Message-ID: <Pine.LNX.4.58.0410181557190.1218@gradall.private.brainfood.com>
+References: <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu>
+ <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu>
+ <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu>
+ <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu>
+ <20041018145008.GA25707@elte.hu> <Pine.LNX.4.58.0410181249150.1218@gradall.private.brainfood.com>
+ <20041018181826.GC2899@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 18, 2004 at 01:08:51PM -0500, Matt Mackall wrote:
-> Dear Linus,
-> 
-> I can't help but notice you've broken all the tools that rely on a
-> stable naming scheme TWICE in the span of LESS THAN ONE POINT RELEASE.
-> 
-> In both cases, this could have been avoided by using Marcello's 2.4
-> naming scheme. It's very simple: when you think something is "final",
-> you call it a "release candidate" and tag it "-rcX". If it works out,
-> you rename it _unmodified_ and everyone can trust that it hasn't
-> broken again in the interval. If it's not "final" and you're accepting
-> more than bugfixes, you call it a "pre-release" and tag it "-pre".
-> Then developers and testers and automated tools all know what to
-> expect.
+On Mon, 18 Oct 2004, Ingo Molnar wrote:
 
-indeed, the current -rc are really the good old -pre, and -final ir just
-a completely stupid name for -rc.  Please try to get some sanity back into
-the release naming.
+> > However, after I reset the threshold to 50(and got a few small traces), I got
+> > this whopper.
+> >
+> > (XFree86/1129/CPU#0): new 4692 us maximum-latency critical section.
+> >  => started at timestamp 358506933: <call_console_drivers+0x76/0x140>
+> >  =>   ended at timestamp 358511625: <finish_task_switch+0x43/0xa0>
+> >  [<c0132480>] sub_preempt_count+0x60/0x90
+>
+> interesting - this could be a printk (trace) done in a critical section
+> though. What does /proc/latency_trace tell, is it full of console code
+> functions?
+
+Too late, it's gone.  It'd be nice if there was some way to have history on
+that file.

@@ -1,54 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262735AbVBBQxb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262455AbVBBQ4F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262735AbVBBQxb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 11:53:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262641AbVBBQwu
+	id S262455AbVBBQ4F (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 11:56:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262412AbVBBQ4E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 11:52:50 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:43677 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262299AbVBBQwg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 11:52:36 -0500
-Date: Wed, 2 Feb 2005 17:51:51 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: pageexec@freemail.hu
-Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjanv@redhat.com>,
-       "Theodore Ts'o" <tytso@mit.edu>
-Subject: Re: Sabotaged PaXtest (was: Re: Patch 4/6  randomize the stack pointer)
-Message-ID: <20050202165151.GA1804@elte.hu>
+	Wed, 2 Feb 2005 11:56:04 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:4819 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262586AbVBBQzz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 11:55:55 -0500
+Date: Wed, 2 Feb 2005 16:55:49 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: linux-kernel@vger.kernel.org, Chris Mason <mason@suse.de>
+Subject: Re: [RFC][PATCH 0/3] Access Control Lists for tmpfs and /dev/pts
+Message-ID: <20050202165549.GA17924@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andreas Gruenbacher <agruen@suse.de>, linux-kernel@vger.kernel.org,
+	Chris Mason <mason@suse.de>
+References: <20050202161340.660712000@blunzn.suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20050202161340.660712000@blunzn.suse.de>
 User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Feb 02, 2005 at 05:13:40PM +0100, Andreas Gruenbacher wrote:
+> Here is a set of three patches which implement some general
+> infrastructure and on top of that, acls for tmpfs and /dev/pts files.
 
-* pageexec@freemail.hu <pageexec@freemail.hu> wrote:
+Why would you want ACLs on /dev/pts?
 
-> your concerns would be valid if this was impossible to achieve by an
-> exploit, sadly, you'd be wrong too, it's possible to force an
-> exploited application to call something like
-> dl_make_stack_executable() and then execute the shellcode. [...]
-
-and how do you force a program to call that function and then to execute
-your shellcode? In other words: i challenge you to show a working
-(simulated) exploit on Fedora (on the latest fc4 devel version, etc.) 
-that does that. 
-
-You can simulate the overflow itself so no need to find any real
-application vulnerability, but show me _working code_ (or a convincing
-description) that can call glibc's do_make_stack_executable() (or the
-'many ways of doing this'), _and_ will end up executing your shell code
-as well.
-
-if you can do this i fully accept there's a problem.
-
-	Ingo

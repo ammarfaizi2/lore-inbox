@@ -1,45 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266631AbUHaU4Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267614AbUHaU5b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266631AbUHaU4Y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 16:56:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269150AbUHaUes
+	id S267614AbUHaU5b (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 16:57:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269029AbUHaU4o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 16:34:48 -0400
-Received: from c002781a.fit.bostream.se ([217.215.235.8]:44751 "EHLO
-	mail.tnonline.net") by vger.kernel.org with ESMTP id S269008AbUHaUcD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 16:32:03 -0400
-Date: Tue, 31 Aug 2004 22:31:54 +0200
-From: Spam <spam@tnonline.net>
-Reply-To: Spam <spam@tnonline.net>
-X-Priority: 3 (Normal)
-Message-ID: <1125457632.20040831223154@tnonline.net>
-To: Hubert Chan <hubert@uhoreg.ca>
-CC: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
-Subject: Re: silent semantic changes in reiser4 (brief attempt to document the idea of what reiser4 wants to do with metafiles and why
-In-Reply-To: <874qmjm51g.fsf@uhoreg.ca>
-References: <41323AD8.7040103@namesys.com> <200408312055.56335.v13@priest.com>
- <36793180.20040831201736@tnonline.net> <200408312235.35733.v13@priest.com>
- <874qmjm51g.fsf@uhoreg.ca>
-MIME-Version: 1.0
+	Tue, 31 Aug 2004 16:56:44 -0400
+Received: from gprs214-69.eurotel.cz ([160.218.214.69]:39554 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S267650AbUHaUy5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 16:54:57 -0400
+Date: Tue, 31 Aug 2004 22:54:23 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+       David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
+       Chris Wedgwood <cw@f00f.org>, viro@parcelfarce.linux.theplanet.co.uk,
+       Christoph Hellwig <hch@lst.de>, Hans Reiser <reiser@namesys.com>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040831205422.GD16110@elf.ucw.cz>
+References: <200408311931.i7VJV8kt028102@laptop11.inf.utfsm.cl> <Pine.LNX.4.58.0408311252150.2295@ppc970.osdl.org> <20040831203226.GB16110@elf.ucw.cz> <Pine.LNX.4.58.0408311336580.2295@ppc970.osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0408311336580.2295@ppc970.osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-V13>> The only thing that changes (from the userland POV) is the way
-V13>> someone can enter the 'metadata directory'. This way you don't have
-V13>> to have a special name, just a special function and no existing
-V13>> application (like tar) can possibly break because it will not know
-V13>> how to enter this 'metadata directory'.
+> > It buys me caching.
+> 
+> I'll actually buy into that. If only because I consider caching to be one 
+> of the more important things that the kernel does (caches are a _classic_ 
+> case of "shared data that needs synchronization").
+> 
+> However, that said, user space can trivially cache things in the 
+> filesystem, so while this may be a convenient feature, I think you should 
+> look at perhaps doing it in the _shell_ instead..
 
-> tar won't be able to backup the metadata.  That's the major breakage of
-> tar that we're worried about.
+That cache should disappear as soon as I need disk
+space. I.e. userspace should never see -ENOSPC because of this kind of
+caching. This need some kernel support. Ouch and cached file should
+atomically go away as soon as main file changes, otherwise I do not
+see how multiple processes could cooperate on caching...
 
-  However,  if  we do a "cp fileA fileB" then the metadata and streams
-  ought  to be copied too, even if "cp" does not support them. This is
-  the  real  challenge. Backup tools like tar can be patched just like
-  it has so many times before.
+chattr +kill-this-file-when-low-on-disk-space patch.bz2...ubz 
 
+would solve first problem. Not sure how to do the second one.
 
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

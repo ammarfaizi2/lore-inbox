@@ -1,40 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272755AbRIGQNm>; Fri, 7 Sep 2001 12:13:42 -0400
+	id <S272763AbRIGQaz>; Fri, 7 Sep 2001 12:30:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272756AbRIGQNc>; Fri, 7 Sep 2001 12:13:32 -0400
-Received: from infinity.ciit.y12.doe.gov ([134.167.144.20]:64786 "EHLO
-	infinity.ciit.y12.doe.gov") by vger.kernel.org with ESMTP
-	id <S272755AbRIGQNP>; Fri, 7 Sep 2001 12:13:15 -0400
-Message-ID: <3B98F22A.4CA459F3@ciit.y12.doe.gov>
-Date: Fri, 07 Sep 2001 12:13:30 -0400
-From: Lawrence MacIntyre <lpz@ciit.y12.doe.gov>
-Organization: Center for Information Infrastructure Technology
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-SGI_XFS_1.0 i686)
-X-Accept-Language: en
+	id <S272764AbRIGQap>; Fri, 7 Sep 2001 12:30:45 -0400
+Received: from mx-outgoing.delfi.lt ([213.197.128.109]:5138 "HELO
+	mx-outgoing.delfi.lt") by vger.kernel.org with SMTP
+	id <S272763AbRIGQac>; Fri, 7 Sep 2001 12:30:32 -0400
+Date: Fri, 7 Sep 2001 18:26:21 +0200 (EET)
+From: Nerijus Baliunas <nerijus@users.sourceforge.net>
+Subject: Re: Basic reiserfs question
+To: Hans Reiser <reiser@namesys.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: hamachi (GNIC-II) and 2.4.9-ac9
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-Disposition: INLINE
+In-Reply-To: <F45bR99kQgkV07DPT1p00005d9e@hotmail.com>
+	 <3B97729B.1F49AACA@namesys.com> <20010907000239.26A738F91C@mail.delfi.lt>
+ <3B987C2E.DDDDAA0D@namesys.com>
+In-Reply-To: <3B987C2E.DDDDAA0D@namesys.com>
+X-Mailer: Mahogany, 0.63 'Saugus', compiled for Linux 2.4.7 i686
+Message-Id: <20010907163043.87D038F8D7@mail.delfi.lt>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan:
+On Fri, 07 Sep 2001 11:50:06 +0400 Hans Reiser <reiser@namesys.com> wrote:
 
-2.4.3-12 is the kernel in the RH7.1 alpha distribution.  I'll get 2.4.4
-- 2.4.8 and see where the changes occurred.
+HR> I only have secondhand reports from users who patch RedHat boot scripts as
+HR> described at the end of www.namesys.com/faq.html, so your statement leaves me
+HR> puzzled as to whether the secondhand reports were from persons who didn't
+HR> understand the boot scripts.  Comments are welcome.
 
-> except that the hamachi won't work.  ifconfig shows no packets received,
-> but some errors, there are no strange messages in /var/log/messages.  I
-> then built the same kernel on the intel box, and the same thing
+Hello,
 
-Curious. There are no hamachi driver differences between 2.4.9 and
-2.4.9-ac
-so the obvious question is which was the last version it did work ?
--- 
-                                 Lawrence
-                                    ~
-------------------------------------------------------------------------
- Lawrence MacIntyre    Center for Information Infrastructure Technology
- 865.574.8696   lpz@ciit.y12.doe.gov   http://www.ciit.y12.doe.gov/~lpz
+I took time to read FAQ, and here are few comments.
+
+1 - I understand you don't like RedHat, but instead of ranting, you could
+just say that gcc-2.96 from RH updates or RH 7.1 is OK (Alan Cox even
+recommends it for compiling recent 2.4 kernels).
+
+16 - also "df -i" shows that there are no used inodes on reiserfs partitions.
+
+36 - Can I use /sbin/badblocks -b <reiserfs-block-size> on existing
+reiserfs partition?
+
+39 - a link to "I'm not using RedHat's special release of a buggy compiler"
+(http://www.namesys.com/gcc-2.96) is not found.
+
+40 - spelling error "ResierFS".
+
+41 - there is nothing about how to solve it.
+
+Regards,
+Nerijus
+
+

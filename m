@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262080AbUD2Kob@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264147AbUD2LEa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262080AbUD2Kob (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 06:44:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264134AbUD2Kob
+	id S264147AbUD2LEa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 07:04:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264155AbUD2LEa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 06:44:31 -0400
-Received: from smtp017.mail.yahoo.com ([216.136.174.114]:57718 "HELO
-	smtp017.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262080AbUD2Ko3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 06:44:29 -0400
-Message-ID: <4090DC89.6060603@yahoo.com.au>
-Date: Thu, 29 Apr 2004 20:44:25 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-CC: Marc Singer <elf@buici.com>, Jeff Garzik <jgarzik@pobox.com>,
+	Thu, 29 Apr 2004 07:04:30 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:49682 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264147AbUD2LE1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 07:04:27 -0400
+Date: Thu, 29 Apr 2004 12:04:19 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Marc Singer <elf@buici.com>, Jeff Garzik <jgarzik@pobox.com>,
        Andrew Morton <akpm@osdl.org>, brettspamacct@fastclick.com,
        linux-kernel@vger.kernel.org
 Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
-References: <409021D3.4060305@fastclick.com> <20040428170106.122fd94e.akpm@osdl.org> <409047E6.5000505@pobox.com> <40904A84.2030307@yahoo.com.au> <20040429005801.GA21978@buici.com> <40907AF2.2020501@yahoo.com.au> <20040429042047.GB26845@buici.com> <20040429083608.A8169@flint.arm.linux.org.uk>
-In-Reply-To: <20040429083608.A8169@flint.arm.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20040429120419.A15866@flint.arm.linux.org.uk>
+Mail-Followup-To: Nick Piggin <nickpiggin@yahoo.com.au>,
+	Marc Singer <elf@buici.com>, Jeff Garzik <jgarzik@pobox.com>,
+	Andrew Morton <akpm@osdl.org>, brettspamacct@fastclick.com,
+	linux-kernel@vger.kernel.org
+References: <409021D3.4060305@fastclick.com> <20040428170106.122fd94e.akpm@osdl.org> <409047E6.5000505@pobox.com> <40904A84.2030307@yahoo.com.au> <20040429005801.GA21978@buici.com> <40907AF2.2020501@yahoo.com.au> <20040429042047.GB26845@buici.com> <20040429083608.A8169@flint.arm.linux.org.uk> <4090DC89.6060603@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <4090DC89.6060603@yahoo.com.au>; from nickpiggin@yahoo.com.au on Thu, Apr 29, 2004 at 08:44:25PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> On Wed, Apr 28, 2004 at 09:20:47PM -0700, Marc Singer wrote:
-> 
->>Russell King is working on a lot of things for the MMU code in ARM.
->>I'm waiting to see where he ends up.  I believe he's planning on
->>removing the lazy PTE release logic.
-> 
-> 
-> Essentially it came to a grinding halt due to the shere size of the
-> task of sorting out the crappy includes, which is far to large for a
-> stable kernel.
-> 
-> I may go back to the original problem and sort it a different way,
-> but for the time being, I'm occupied in other areas.
-> 
+On Thu, Apr 29, 2004 at 08:44:25PM +1000, Nick Piggin wrote:
+> Anyway, Marc said he tried flushing the tlb and that didn't
+> solve his problem.
 
-Anyway, Marc said he tried flushing the tlb and that didn't
-solve his problem.
+Nevertheless, when you have a TLB with ASIDs, there will be even less
+pressure to flush these entries from the TLB, so in effect we might
+as well save the expense of implementing the page aging in the first
+place.
 
-The problem might be the one identified in the thread:
-2.6.6-rc{1,2} bad VM/NFS interaction in case of dirty page writeback
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,74 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbVCEJ2p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261388AbVCEJlj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbVCEJ2p (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Mar 2005 04:28:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbVCEJ2p
+	id S261388AbVCEJlj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Mar 2005 04:41:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbVCEJlj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Mar 2005 04:28:45 -0500
-Received: from wasp.net.au ([203.190.192.17]:59338 "EHLO wasp.net.au")
-	by vger.kernel.org with ESMTP id S261159AbVCEJ2m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Mar 2005 04:28:42 -0500
-Message-ID: <42297BB9.5040608@wasp.net.au>
-Date: Sat, 05 Mar 2005 13:28:25 +0400
-From: Brad Campbell <brad@wasp.net.au>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050115)
-X-Accept-Language: en-us, en
+	Sat, 5 Mar 2005 04:41:39 -0500
+Received: from office.icomedias.com ([62.99.232.80]:3989 "EHLO
+	relay.icomedias.com") by vger.kernel.org with ESMTP id S261388AbVCEJlf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Mar 2005 04:41:35 -0500
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Florian Engelhardt <flo@dotbox.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: freezes with reiser4 in a raid1 with 2.6.11-rc5-mm1
-References: <1109758204.422590fca7872@domainfactory-webmail.de>	<422597C3.5020207@wasp.net.au> <20050305100637.3aa6e1b8@discovery.hal.lan>
-In-Reply-To: <20050305100637.3aa6e1b8@discovery.hal.lan>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: ipmi in kernel 2.6.11
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Date: Sat, 5 Mar 2005 10:41:31 +0100
+Message-ID: <FA095C015271B64E99B197937712FD02510ACF@freedom.grz.icomedias.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: ipmi in kernel 2.6.11
+Thread-Index: AcUhZ4LM8GSip/5cQXG54EnLbIoPHw==
+From: "Bene Martin" <martin.bene@icomedias.com>
+To: <bunk@stusta.de>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Florian Engelhardt wrote:
+Hi Adrian,
 
->>Neat trick which I only discovered in desparation last week when
->>battling a RAID lockup on the -rc4-mm1 kernel on a remote box.
->>
->>I was also having hard lockup issues, but reseating all my PCI cards
->>appear to have rectified that one.
-> 
-> 
-> Well, there are not much PCI-Cards in this server and reseating them
-> didnt fix it.
+bmcsensors package (reading hardware sensors provided by intel boards
+via ipmi) used to work fine with 2.6.10; no longer works with 2.6.11
+because of removal of the ipmi_request function (+ exported symbol).
 
-Sorry, I was just pointing out what "appeared" to solve my hard-lock problems, I was not suggesting 
-it as a cure for yours.
+correct fix would be to use ipmi_request_settime with retries=-1 and
+retry_time_ms=0?
 
->>As root. echo b > /proc/sysrq-trigger
->>
->>Of course only if you have alt-sysrq built in.
-> 
-> 
-> Thanks for that, i was able to reboot the machine with that trick, but
-> i couldnt find anything bad in the messages file.
-> 
-> I made some further tests with the server:
-> Deactivating the raid, and formating the hd´s (hdc and hdd) with
-> reiser4, mounting them and sharing them via nfs and ftp worked great, no
-> freezes, no reboots, everything perfect, even the performance.
-> But as soon, as i activated the raid, the server freezed, or rebooted.
-> 
-
-A complete hard lock appears to be very rare these days with kernel bugs. It may be tickling a 
-hardware bug somewhere. My machine was only hard-locking when I was writing to the array. A complete 
-lock-up or reboot really does sound more hardware like. Have you tried running something like memtest86?
-I found after a couple of hours of memtest86 my box would lock solid, which eliminated the linux 
-kernel from the equation completely.
-
-I'm running ext3 on all my machines, so I can't help with reiser at all.
-I'm running a largish raid5 on 2.6.10-bk10 and a fairly large raid6 on 2.6.11-rc5-bk3. I had 
-problems with raid6 on 2.6.11-rc4-mm1 causing raid subsystem lockups, but nothing that precluded me 
-from rebooting with the sysrq-trigger.
-
-Regards,
-Brad
--- 
-"Human beings, who are almost unique in having the ability
-to learn from the experience of others, are also remarkable
-for their apparent disinclination to do so." -- Douglas Adams
+Thanks, Martin

@@ -1,118 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261192AbUL1RVD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbUL1RXx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261192AbUL1RVD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 12:21:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbUL1RVD
+	id S261193AbUL1RXx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 12:23:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbUL1RXx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 12:21:03 -0500
-Received: from smtp-102-tuesday.nerim.net ([62.4.16.102]:38930 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S261192AbUL1RUt
+	Tue, 28 Dec 2004 12:23:53 -0500
+Received: from build.arklinux.osuosl.org ([140.211.166.26]:3713 "EHLO
+	mail.arklinux.org") by vger.kernel.org with ESMTP id S261193AbUL1RXv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Dec 2004 12:20:49 -0500
-Date: Tue, 28 Dec 2004 18:22:29 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Philip Pokorny <ppokorny@penguincomputing.com>
-Cc: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
-Subject: Re: [RFC] I2C: Remove the i2c_client id field
-Message-Id: <20041228182229.67fc14e8.khali@linux-fr.org>
-In-Reply-To: <41D18B9E.2080706@penguincomputing.com>
-References: <20041227230402.272fafd0.khali@linux-fr.org>
-	<41D0942B.8020109@penguincomputing.com>
-	<20041228114258.35e9b5b7.khali@linux-fr.org>
-	<41D18B9E.2080706@penguincomputing.com>
-Reply-To: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 28 Dec 2004 12:23:51 -0500
+From: Bernhard Rosenkraenzer <bero@arklinux.org>
+Organization: LINUX4MEDIA GmbH
+To: kraxel@bytesex.org, linux-kernel@vger.kernel.org
+Subject: Current saa7134 driver breaks KNC One Tv-Station DVR (card=24)
+Date: Tue, 28 Dec 2004 18:21:53 +0100
+User-Agent: KMail/1.7.2
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200412281821.53919.bero@arklinux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Philip,
+Trying to modprobe saa7134 with this card results in a hanging modprobe 
+process.
 
-> > Although this is a real use of the id, it only
-> > matters if you use the module parameters for GPIO pins
-> > reconfiguration and actually have more than one ADM1026 chip (a
-> > quite rare chip if you remember).
->
-> Not for me.  We ship hundreds of systems each month with a
-> motherboard with that chip on it.  I think it's actually on two
-> different motherboards we sell.
+dmesg gets:
+saa7130/34: v4l2 driver version 0.2.12 loaded
+ACPI: PCI interrupt 0000:00:06.0[A] -> GSI 17 (level, low) -> IRQ 177
+saa7134[0]: found at 0000:00:06.0, rev: 1, irq: 177, latency: 64, mmio: 
+0xdfff9c00
+saa7134[0]: subsystem: 1894:a006, board: KNC One TV-Station DVR 
+[card=24,autodetected]
+saa7134[0]: board init: gpio is 830000
+saa7134[0]: i2c eeprom 00: 94 18 06 a0 06 80 00 01 00 00 00 00 00 00 01 00
+saa7134[0]: i2c eeprom 10: 00 ff 86 0e ff 20 ff ff ff ff ff ff ff ff ff ff
+saa7134[0]: i2c eeprom 20: 01 40 01 02 02 03 01 03 06 ff 01 df ff ff ff ff
+saa7134[0]: i2c eeprom 30: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+tuner: chip found at addr 0xc0 i2c-bus saa7134[0]
+tuner: type set to 38 (Philips PAL/SECAM multi (FM1216ME MK3)) by saa7134[0]
+tda9885/6/7: chip found @ 0x86
+saa7134[0]/irq[10,-133081]: r=0x20 s=0x00 PE
+saa7134[0]/irq: looping -- clearing PE (parity error!) enable bit
 
-The two motherboards with ADM1026 I know of are (actually thanks to the
-MBM site):
-Iwill DK8S2
-Accelertech HDAMA
+At that point, modprobe hangs; I can still use the box in other ttys, but [of 
+course] the saa7134 card doesn't work.
 
-I think I remember you ship HDAMA boards, right? Well, there must be a
-reason why you (Penguin Computing) wrote the driver in the first place
-and recently ported it to 2.6.
+This is reproducable at least with with 2.6.10-rc3-mm1, 2.6.10 and 2.6.10-ac1; 
+the card used to work with earlier releases (I can't remember the last 
+version that worked though, haven't used it for a while).
 
-What I want to insist on is that, contrary to other chips which are used
-on a wide range of different boards, the ADM1026 isn't so we can
-concentrate of the specific use it has on these boards instead of
-writing a full-featured driver.
-
-> Wouldn't a force_xxx parameter cause a specific bus/id to be probed
-> and  assigned first?
-
-Ah, good question. Checking...
-
-Hm, no it doesn't. The module parameters change the decision taken by
-i2c_detect on each adapter/address combination, but doesn't affect the
-order in which the chips are detected.
-
-> > and I am not sure why one would want to reprogram only the
-> > first chip. Unless someone comes with such a specific hardware setup
-> > so that we can examine what is really needed,
-> >
-
-> Well, that's exactly the problem that I had.  The motherboard vendor's
-> BIOS didn't set the chip up and I had to program it myself.  I got the
-> schematics from the vendor for the part of the motherboard attached to
-> the chip so that I could program it correctly.
-
-Side note, it would probably be better to insist that the vendor should
-fix the BIOS instead. Especially if you ship hundreds of these chips
-each months, I guess you have some weight when asking them something.
-
-Does you board really have 2 ADM1026 chips and only one needed
-reprogramming?
-
-> > I think we can get rid of the
-> >"id == 0" test and reconfigure "all" ADM1026 chips (which really is
-> > only one for the two known boards using an ADM1026).
->
-> I think that would be a bad idea.  Reprogramming any chip is generally
-> a  bad idea (as we can see from the recent removal of all the init
-> code) and forcing any specified config to apply to all chips found in
-> the system would be an even worse idea.
-
-Agreed, but...
-
-> I think a better idea that addresses your concerns about bus ordering 
-> would be to add an additional parameter that is a bus/chip number
-> pair which is the chip to initialize.  Something like:
-> 
-> static int gpio_target[2] = { -1, -1 }
-> MODULE_PARM(gpio_target, "2i");
-> MODULE_PARM_DESC(gpio_target,"Address of chip to whose GPIO is to be 
-> programmed");
-> 
-> This would be similar to the bus/address pairs used in the 
-> force_subclient parameters to the w83781d driver.
-
-True. But again, do you have boards with *2* ADM1026 chips? Until
-someone points out one boards which does, I see no benefit in
-implementing this module parameter.
-
-One question BTW, why don't you simply reprogram the chip(s) with i2cset
-before loading the driver? That would save some kernel memory, and
-solves the problem altogether.
-
-Thanks,
--- 
-Jean Delvare
-http://khali.linux-fr.org/

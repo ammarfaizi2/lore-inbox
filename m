@@ -1,68 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316903AbSHBWqU>; Fri, 2 Aug 2002 18:46:20 -0400
+	id <S316673AbSHBWrN>; Fri, 2 Aug 2002 18:47:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316541AbSHBWqU>; Fri, 2 Aug 2002 18:46:20 -0400
-Received: from [64.105.35.211] ([64.105.35.211]:62889 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S314078AbSHBWqT>; Fri, 2 Aug 2002 18:46:19 -0400
-Date: Fri, 2 Aug 2002 15:49:24 -0700
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: tytso@mit.edu
-Cc: linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org, axel@hh59.org,
-       rmk@arm.linux.org.uk
-Subject: Re: Linux 2.5.30: [SERIAL] build fails at 8250.c
-Message-ID: <20020802154924.A5505@baldur.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="d6Gm4EdcadzBjdND"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+	id <S317251AbSHBWrN>; Fri, 2 Aug 2002 18:47:13 -0400
+Received: from smtprelay6.dc2.adelphia.net ([64.8.50.38]:55504 "EHLO
+	smtprelay6.dc2.adelphia.net") by vger.kernel.org with ESMTP
+	id <S316673AbSHBWrL>; Fri, 2 Aug 2002 18:47:11 -0400
+Message-ID: <000e01c23a77$03a43e90$6a01a8c0@wa1hco>
+From: "jeff millar" <wa1hco@adelphia.net>
+To: "Jose Luis Domingo Lopez" <linux-kernel@24x7linux.org>,
+       <linux-kernel@vger.kernel.org>
+References: <20020802.012040.105531210.davem@redhat.com> <008701c23a28$958ca300$6a01a8c0@wa1hco> <20020802135218.GA15211@localhost>
+Subject: Re: What does this error mean? "local symbols in discarded section .text.exit"
+Date: Fri, 2 Aug 2002 18:50:34 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jose...
 
---d6Gm4EdcadzBjdND
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+thanks for the reply.  This link error happens with 2.5.27-2.5.30.  Are you
+sure the kernel people are working on this?
 
-	linux-2.5.30/include/linux/serialP.h needs struct async_icount,
-which is defined in <linux/serial.h>, causing
-linux-2.5.30/drivers/serial/8250.c not to compile, among other problems.
-In linux-2.5.30, you cannot compile a file that includes <linux/serialP.h>
-without including <linux/serial.h>.  So, I think the solution is for
-serialP.h to #include serial.h.  I have attached a patch that does this.
+jeff
 
-	From the comments in serialP.h, it looks like there was some
-effort in linux-2.2 to allow inclusion of serialP.h without serial.h,
-but I see no indication of what benefit that was supposed to provide.
+----- Original Message -----
+From: "Jose Luis Domingo Lopez" <linux-kernel@24x7linux.org>
 
-	Ted (or whowever gathers drivers/serial patches for Linus), do
-you want to shepherd this change to Linus, do you want me to submit it
-directly, or do you want to do something else?
+> On Friday, 02 August 2002, at 09:29:09 -0400,
+> jeff millar wrote:
+>
+> > I need some help debugging this kernel build problem.
+> >
+> > drivers/built-in.o(.data+0x80f4): undefined reference to `local symbols
+in
+> > discarded section .te
+> > xt.exit'
+> > make: *** [vmlinux] Error 1
+> >
+> A know problem with some combinations of binutils and kernel sources. As
+> Debian bintuils package says:
+>
+> x You may experience problems linking older (and some newer) kernels with
+x
+> x this version of binutils.  This is not because of a bug in the linker,
+x
+> x but rather a bug in the kernel source.  This is being worked out and
+x
+> x fixed by the upstream kernel group in newer kernels, but not all of the
+x
+> x problems may have been fixed at this time.  Older kernel versions will
+x
+> x almost always exhibit the problem, however, and no attempts are being
+x
+> x made to fix those that we know of.
+x
 
--- 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
 
---d6Gm4EdcadzBjdND
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="serialP.diff"
-
---- linux-2.5.30/include/linux/serialP.h	2002-08-01 14:16:07.000000000 -0700
-+++ linux/include/linux/serialP.h	2002-08-02 14:51:03.000000000 -0700
-@@ -24,11 +24,7 @@
- #include <linux/tqueue.h>
- #include <linux/circ_buf.h>
- #include <linux/wait.h>
--#if (LINUX_VERSION_CODE < 0x020300)
--/* Unfortunate, but Linux 2.2 needs async_icount defined here and
-- * it got moved in 2.3 */
- #include <linux/serial.h>
--#endif
- 
- struct serial_state {
- 	int	magic;
-
---d6Gm4EdcadzBjdND--

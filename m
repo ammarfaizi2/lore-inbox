@@ -1,89 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266965AbUBRAmE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 19:42:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266902AbUBRAmB
+	id S266955AbUBRApo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 19:45:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266968AbUBRAmX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 19:42:01 -0500
-Received: from mailbox8.ucsd.edu ([132.239.1.60]:8466 "EHLO mailbox8.ucsd.edu")
-	by vger.kernel.org with ESMTP id S266965AbUBRAk4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 19:40:56 -0500
-From: Athanasios Leontaris <aleontar@ucsd.edu>
-To: Thomas Weich <weicht@in.tum.de>
-Subject: Re: 2.6.2 Kernel Badness with 1.0-5336 NVIDIA driver
-Date: Tue, 17 Feb 2004 16:40:38 -0800
-User-Agent: KMail/1.6
-Cc: s0348365@sms.ed.ac.uk, linux-kernel@vger.kernel.org
-References: <200402170808.21530.aleontar@ucsd.edu> <200402170957.51875.aleontar@ucsd.edu> <200402172131.52993.weicht@in.tum.de>
-In-Reply-To: <200402172131.52993.weicht@in.tum.de>
-MIME-Version: 1.0
+	Tue, 17 Feb 2004 19:42:23 -0500
+Received: from fed1mtao05.cox.net ([68.6.19.126]:17607 "EHLO
+	fed1mtao05.cox.net") by vger.kernel.org with ESMTP id S266152AbUBRAjY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 19:39:24 -0500
+Date: Tue, 17 Feb 2004 17:39:17 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][1/6] A different KGDB stub
+Message-ID: <20040218003917.GO16881@smtp.west.cox.net>
+References: <20040217220249.GB16881@smtp.west.cox.net> <20040217155036.33e37c67.akpm@osdl.org> <20040218000315.GN16881@smtp.west.cox.net> <20040217163312.729c951f.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-7"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200402171640.39177.aleontar@ucsd.edu>
-X-MailScanner: PASSED (v1.2.8 32906 i1I0eg8x065275 mailbox8.ucsd.edu)
+In-Reply-To: <20040217163312.729c951f.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Indeed it shows up on my /var/log/messages* on two other occasions without 
-hanging the system then. _But_ I had 5328 then. At least this badness shows 
-up through 5328 and 5336, if that could provide a pointer to somebody (NVIDIA 
-are you listening?)...
+On Tue, Feb 17, 2004 at 04:33:12PM -0800, Andrew Morton wrote:
+> Tom Rini <trini@kernel.crashing.org> wrote:
+> >
+> > By my read of Andi's email, the kern_do_schedule() gunk is "I really
+> > don't like this change. It is completely useless because you can get the
+> > pt_regs as well from the stack.  Please don't add it. George's stub also
+> > didn't need it."
+> > 
+> > But I don't see how it does.  But I'll look again tomorrow.
+> 
+> OK, thanks.  That would be appreciated, if only because the sched.c and
+> entry.S changes have caused significant patch-conflict hassles in the past,
+> and they're pretty ugly.
+> 
+> Plus the little fact that the patch which you sent broke all other
+> architectures: they call schedule() from assembly code, and schedule()
+> ain't there any more.
 
-On Tuesday 17 February 2004 12:31 pm, Thomas Weich wrote:
-> I had the same problems with NVidia 1.0-5336 but there was no hint
-> in /var/log/* that the NVidia driver caused the freeze. It wasn't necessary
-> that X  was running, loading the nvidia Module was sufficient to freeze the
-> complete system after an unspecified amount of time.
->
-> For me, it worked to use the 1.0-5328 version with patches from
-> www.minion.de. Since then, everything is working without problems.
->
-> I'm not on the list.
->
-> Thomas
->
-> > I checked it. "RenderAccel" is not set.
-> > Maybe FW and SBA have something to do with it, but that's just a guess.
-> > Thanks.
-> >
-> > On Tuesday 17 February 2004 09:54 am, Alistair John Strachan wrote:
-> > > On Tuesday 17 February 2004 16:08, you wrote:
-> > > > Hi to all,
-> > > >
-> > > > Pls cc me as I am not subscribing.
-> > > > I know that the kernel is tainted so pls don't flame ;)
-> > > > The kernel is 2.6.2 from www.kernel.org and I use AGPGART for AGP
-> > > > (_not_ NvAGP). Fast Writes and SBA are enabled. FC1 is the distro.
-> > > > The mobo is Abit KG7 and the video card an FX5600.
-> > > >
-> > > > X stopped responding out of the blue, at a KDE 3.2 desktop, and it
-> > > > could not be killed either. The following messages were uncovered in
-> > > > my /var/log/messages:
-> > >
-> > > [snip]
-> > >
-> > > Please first check to see if /etc/X11/XF86Config or
-> > > /etc/X11/XF86Config-4 contains the string:
-> > >
-> > > Option "RenderAccel" "1"
-> > >
-> > > If it does, either remove the line or replace it with:
-> > >
-> > > Option "RenderAccel" "0"
-> > >
-> > > Render acceleration is still not working with the proprietary driver.
-> > > I'm not saying it's definitely this, it just might not be related to
-> > > the messages in syslog.
-> > >
-> > > I occasionally see these badness messages in syslog, but my machine
-> > > never locks up. I was under the impression that these were only
-> > > warnings.
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> > in the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
+Oh yeah, that, damnit.
+
+> I'll have a play with the patches which you sent, and if they don't break
+> I'll add them to -mm and I'll kludgily fix ppc64 and ia64 (if needed).  Be
+> aware that I removed the (large amount of) trailing whitespace which they
+> added.
+
+I guess I forgot to Lindent everything.  I'll probably have new drop-in
+patches a few more times (as opposed to incremental to the previous) a
+few more times, so I'll make sure to fix that for next time.
+
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

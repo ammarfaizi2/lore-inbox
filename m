@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288102AbSBRWMr>; Mon, 18 Feb 2002 17:12:47 -0500
+	id <S288473AbSBRWPS>; Mon, 18 Feb 2002 17:15:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288174AbSBRWMi>; Mon, 18 Feb 2002 17:12:38 -0500
-Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:8964 "EHLO
-	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id <S288102AbSBRWMb>; Mon, 18 Feb 2002 17:12:31 -0500
-Date: Mon, 18 Feb 2002 23:12:29 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Oliver Hillmann <oh@novaville.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: jiffies rollover, uptime etc.
-In-Reply-To: <Pine.LNX.4.10.10202182040260.11179-100000@rimini.novaville.de>
-Message-ID: <Pine.LNX.4.33.0202182305390.10354-100000@gans.physik3.uni-rostock.de>
+	id <S288174AbSBRWO6>; Mon, 18 Feb 2002 17:14:58 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51466 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S288308AbSBRWOq>;
+	Mon, 18 Feb 2002 17:14:46 -0500
+Message-ID: <3C717C72.72A994D3@zip.com.au>
+Date: Mon, 18 Feb 2002 14:13:06 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rc1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: john <john@zlilo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: kupdated using all CPU
+In-Reply-To: <20020218134041.A2586@doom.sfo.covalent.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Feb 2002, Oliver Hillmann wrote:
-
-> Hello,
+john wrote:
 > 
-> yes, I know this is defenitely no new issue (maybe its none to you
-> anyway), since I found posts about this dating from 1998: the
-> jiffies counter rolls over after approx. 497 days uptime, which
-> causes the uptime to roll over as well, and seems to cause some
-> other irretation in the system itself (my pc speaker starting
-> beeping constantely...)
+> hi,
+> ive searched all over and found many references to this problem, but
+> never found an actual solution.  the problem is that during heavy
+> disk I/O, kupdated will periodically take up ALL the cpu.  
 
-See 
-http://www.lib.uaa.alaska.edu/linux-kernel/archive/2001-Week-47/0736.html
-for a patch.
-I intend to submit this for 2.4.19pre after some more testing and 
-feedback.
+I've seen a couple of reports of this, nothing to indicate that it's
+a common problem?
 
-Also note that several patches for jiffies rollover bugs have gone into 
-2.4.18pre, maybe one of them fixes the speaker driver.
+In the other reports, it was related to extremely low disk throughput.
+What does `hdparm -t /dev/hda' say?
 
-Tim
-
+-

@@ -1,61 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261370AbVDEDdb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbVDEDtS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261370AbVDEDdb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 23:33:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261385AbVDEDdb
+	id S261385AbVDEDtS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 23:49:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbVDEDtS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 23:33:31 -0400
-Received: from [24.24.2.57] ([24.24.2.57]:36847 "EHLO ms-smtp-03.nyroc.rr.com")
-	by vger.kernel.org with ESMTP id S261370AbVDEDd0 (ORCPT
+	Mon, 4 Apr 2005 23:49:18 -0400
+Received: from fire.osdl.org ([65.172.181.4]:41862 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261385AbVDEDtQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 23:33:26 -0400
-Subject: Re: scheduler/SCHED_FIFO behaviour
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Arun Srinivas <getarunsri@hotmail.com>
-Cc: juhl-lkml@dif.dk, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <BAY10-F20EDF8B5558E2E8945A4DAD93C0@phx.gbl>
-References: <BAY10-F20EDF8B5558E2E8945A4DAD93C0@phx.gbl>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Mon, 04 Apr 2005 23:33:05 -0400
-Message-Id: <1112671985.5147.50.camel@localhost.localdomain>
+	Mon, 4 Apr 2005 23:49:16 -0400
+Date: Mon, 4 Apr 2005 19:48:55 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: James Morris <jmorris@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Crash during boot for 2.6.12-rc2.
+Message-Id: <20050404194855.150b5363.akpm@osdl.org>
+In-Reply-To: <Xine.LNX.4.44.0504042326280.9133-100000@thoron.boston.redhat.com>
+References: <Xine.LNX.4.44.0504042326280.9133-100000@thoron.boston.redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-04-05 at 07:46 +0530, Arun Srinivas wrote:
-
+James Morris <jmorris@redhat.com> wrote:
+>
+> I got this on a dual P4 Xeon with HT.  If anyone wants more information, 
+>  let me know.
 > 
-> So, what I want from the above code is whenever process1 or process2 is 
-> being scheduled measure the time and print the timedifference. But, when I 
-> run my 2 processes as SCHED_FIFO processes i get only one set of 
-> readings....indicating they have been scheduled only once and run till 
-> completion.
-> 
-> But, as we saw above if interrupts have been processed they must have been 
-> scheduled several times(i.e., schedule() called several times). Is my 
-> measurement procedure not correct?
 
-No! Interrupts are not scheduled. When an interrupt goes off, the
-interrupt service routine (ISR) is executed. It doesn't need to be
-scheduled. It runs right where it interrupted the CPU. That's why you
-need to be careful about protecting data that ISRs manipulate with
-spin_lock_irqsave. This not only protects against multiple CPUs, but
-turns off interrupts so that an interrupt wont be called and one of the
-ISRs modify the data you need to be atomic.
-
-Your tasks are running and will be interrupted by an ISR, on return from
-the routine, a check is made to see if your tasks should be preempted.
-But since they are the highest running tasks and in FIFO mode, the check
-determines that schedule should not be called.  So you will not see any
-schedules while your tasks are running.
-
-Now, if you where running Ingo's RT patch with PREEMPT_HARDIRQ enabled,
-and your tasks were of lower priority than the ISR thread handlers, then
-you would see the scheduling. Maybe that is what you want?
-
--- Steve
-
-
+.config, please..

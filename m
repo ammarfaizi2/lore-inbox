@@ -1,95 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269648AbUJAAuO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269645AbUJAA6v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269648AbUJAAuO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 20:50:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269649AbUJAAuN
+	id S269645AbUJAA6v (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 20:58:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269650AbUJAA6v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 20:50:13 -0400
-Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:14457 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S269654AbUJAAsZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 20:48:25 -0400
-Subject: Re: Serial driver hangs
-From: Paul Fulghum <paulkf@microgate.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
-       Roland =?ISO-8859-1?Q?Ca=DFebohm?= 
-	<roland.cassebohm@VisionSystems.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1096579503.1938.166.camel@deimos.microgate.com>
-References: <200409281734.38781.roland.cassebohm@visionsystems.de>
-	 <200409291607.07493.roland.cassebohm@visionsystems.de>
-	 <1096467951.1964.22.camel@deimos.microgate.com>
-	 <200409301816.44649.roland.cassebohm@visionsystems.de>
-	 <1096571398.1938.112.camel@deimos.microgate.com>
-	 <1096569273.19487.46.camel@localhost.localdomain>
-	 <1096573912.1938.136.camel@deimos.microgate.com>
-	 <20040930205922.F5892@flint.arm.linux.org.uk>
-	 <1096574739.1938.142.camel@deimos.microgate.com>
-	 <1096576200.1938.154.camel@deimos.microgate.com>
-	 <1096575030.19487.50.camel@localhost.localdomain>
-	 <1096579503.1938.166.camel@deimos.microgate.com>
-Content-Type: text/plain
-Message-Id: <1096591676.6000.25.camel@at2.pipehead.org>
+	Thu, 30 Sep 2004 20:58:51 -0400
+Received: from fw.osdl.org ([65.172.181.6]:34009 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269645AbUJAA6s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 20:58:48 -0400
+Date: Thu, 30 Sep 2004 17:58:46 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/4] mlockall(MCL_FUTURE) unlocks currently locked mappings
+Message-ID: <20040930175846.Z1924@build.pdx.osdl.net>
+References: <20040929114244.Q1924@build.pdx.osdl.net> <20040930164744.30db3fdc.akpm@osdl.org> <20040930172259.Y1924@build.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 30 Sep 2004 19:47:56 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040930172259.Y1924@build.pdx.osdl.net>; from chrisw@osdl.org on Thu, Sep 30, 2004 at 05:22:59PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-09-30 at 16:25, Paul Fulghum wrote:
-> > flush_to_ldisc was ok, then someone added the low latency
-> > flag. In the current 2.6.9rc3 patch flush_to_ldisc honours
-> > TTY_DONT_FLIP also
+* Chris Wright (chrisw@osdl.org) wrote:
+> * Andrew Morton (akpm@osdl.org) wrote:
+> > I've always assumed that mlockall(MCL_FUTURE) pins all your current pages
+> > as well as future ones.  But no, that's what MCL_CURRENT|MCL_FUTURE does.
+> > 
+> > So when we fix this bug, we'll break my buggy test apps.
+> > 
+> > I wonder what other apps we'll break?
 > 
-> In the cases I described the low latency flag
-> does not come into play because flush_to_ldisc()
-> is called directly instead of
-> through tty_flip_buffer_push().
-> 
-> TTY_DONT_FLIP is only set in read_chan().
-> If read_chan() is not running, TTY_DONT_FLIP is not
-> set and does not prevent buffers from flipping
-> if the ISR calls flush_to_ldisc() directly
-> while ldisc->receive_buf() is running.
-> 
-> The answer seems to be: don't call
-> flush_to_ldisc directly like the current
-> serial driver does.
+> I don't think it will break apps.  The only difference is that it won't
+> unlock already locked mappings.
 
-I've looked at this more on 2.6
+For example, I have a test that locks some pages, then calls
+mlockall(MCL_FUTURE).  Resutls in unlocking all locked pages.
 
-If a driver only calls tty_flip_buffer_push(),
-with low_latency cleared, it is still possible for
-flush_to_ldisc() to run concurrently on SMP machines.
+# pages locked, before MCL_FUTURE
+$ cat /proc/`pidof mlockall`/status | grep VmLck
+VmLck:      1244 kB
+# after MCL_FUTURE
+$ cat /proc/`pidof mlockall`/status | grep VmLck
+VmLck:         0 kB
 
-* IRQ on proc 0, flush_to_ldisc work queued for events/0
-* events/0 processes work item:
-   1) work->pending cleared (work can now be queued again)
-   2) work function runs on proc 0
+And, with just a simple call to MCL_FUTURE:
+# before MCL_FUTURE
+$ cat /proc/`pidof mlockall`/status | grep VmLck
+VmLck:         0 kB
+# after MCL_FUTURE
+$ cat /proc/`pidof mlockall`/status | grep VmLck
+VmLck:         0 kB
 
-While work function is running on proc 0:
+Now with the patch:
 
-* IRQ on proc 1, flush_to_ldisc work queued for events/1
-* events/1 processes work item:
-   1) work->pending cleared (work can now be queued again)
-   2) work function runs on proc 1
+# pages locked, before MCL_FUTURE
+$ cat /proc/`pidof mlockall`/status | grep VmLck
+VmLck:      1244 kB
+# after MCL_FUTURE
+$ cat /proc/`pidof mlockall`/status | grep VmLck
+VmLck:      1244 kB
+	    ^^^^^^^
+That's the only differenece, and I believe fixes a real bug whose
+existance is more likely to surprise apps than it's squashing ;-)
 
-flush_to_ldisc/ldisc->receive_buf do not set TTY_DONT_FLIP
-and I see no other mechanism to serialize flush_to_ldisc
+And, again (unchanged) with just a simple call to MCL_FUTURE:
+# before MCL_FUTURE
+$ cat /proc/`pidof mlockall`/status | grep VmLck
+VmLck:         0 kB
+# after MCL_FUTURE
+$ cat /proc/`pidof mlockall`/status | grep VmLck
+VmLck:         0 kB
 
-That means the buffers can flip while running in
-ldisc->receive_buf() which reads from the buffers.
+The crux of the problem is in do_mlockall() in the for loop:
 
-This is contrived, and timing may prevent
-this from actually occurring in practice, but it
-seems to indicate a hole that needs to be plugged.
+                newflags = vma->vm_flags | VM_LOCKED;
+                if (!(flags & MCL_CURRENT))
+                        newflags &= ~VM_LOCKED;
+                mlock_fixup(vma, vma->vm_start, vma->vm_end, newflags);
 
-I wrong in my reading of the code?
+So, for flags == MCL_FUTURE only, might as well bail out before the loop,
+since MCL_FUTURE does nothing w.r.t. current mappings.
 
+thanks,
+-chris
 -- 
-Paul Fulghum
-paulkf@microgate.com
-
-
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

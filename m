@@ -1,74 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266016AbUAVI7p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 03:59:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266150AbUAVI7p
+	id S265994AbUAVJHP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 04:07:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266194AbUAVJHP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 03:59:45 -0500
-Received: from smtp1.clear.net.nz ([203.97.33.27]:34694 "EHLO
-	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S266016AbUAVI7m
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 03:59:42 -0500
-Date: Thu, 22 Jan 2004 22:02:30 +1300
-From: Nigel Cunningham <ncunningham@users.sourceforge.net>
-Subject: Re: PATCH: Export console functions for use by Software Suspend	nice
- display
-In-reply-to: <20040122082809.A7699@infradead.org>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Reply-to: ncunningham@users.sourceforge.net
-Message-id: <1074762149.12773.24.camel@laptop-linux>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.4-8mdk
-Content-type: multipart/signed; boundary="=-9Sw4wz4WJBTLWlgyScZB";
- protocol="application/pgp-signature"; micalg=pgp-sha1
-References: <1074757083.1943.37.camel@laptop-linux>
- <20040122082809.A7699@infradead.org>
+	Thu, 22 Jan 2004 04:07:15 -0500
+Received: from dp.samba.org ([66.70.73.150]:1477 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S265994AbUAVJHN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 04:07:13 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Remove kstat cpu notifiers
+Date: Thu, 22 Jan 2004 19:52:27 +1100
+Message-Id: <20040122090728.814B02C242@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew, please take.
 
---=-9Sw4wz4WJBTLWlgyScZB
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Some well-meaning person put a notifier in for CPUs to update the
+kstat structures in sched.c.  However, it does nothing, and even
+with the full hotplug CPU patch, it still does nothing.
 
-Hi.
+Simple counters very rarely need anything done when CPUs come up
+or go down.  If you have per-cpu caches, or per-cpu threads, you
+need to do something.  But very rarely for stats.
 
-'Nice display' means that it gives a simple, clean display with progress
-bar etc. Al(?) Viro has informed me of the write call. I'll look it up
-and see how I can improve things. As I said to Mr Viro, I'm just a user
-who wanted Suspend to work better and ended up just about rewriting the
-thing. Please forgive my ignorance!
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .31530-linux-2.6.1-bk6/kernel/sched.c .31530-linux-2.6.1-bk6.updated/kernel/sched.c
+--- .31530-linux-2.6.1-bk6/kernel/sched.c	2004-01-21 10:02:33.000000000 +1100
++++ .31530-linux-2.6.1-bk6.updated/kernel/sched.c	2004-01-21 10:07:44.000000000 +1100
+@@ -2848,45 +2999,11 @@ spinlock_t kernel_flag __cacheline_align
+ EXPORT_SYMBOL(kernel_flag);
+ #endif
+ 
+-static void kstat_init_cpu(int cpu)
+-{
+-	/* Add any initialisation to kstat here */
+-	/* Useful when cpu offlining logic is added.. */
+-}
+-
+-static int __devinit kstat_cpu_notify(struct notifier_block *self,
+-				      unsigned long action, void *hcpu)
+-{
+-	int cpu = (unsigned long)hcpu;
+-	switch(action) {
+-	case CPU_UP_PREPARE:
+-		kstat_init_cpu(cpu);
+-		break;
+-	default:
+-		break;
+-	}
+-	return NOTIFY_OK;
+-}
+-
+-static struct notifier_block __devinitdata kstat_nb = {
+-	.notifier_call	= kstat_cpu_notify,
+-	.next		= NULL,
+-};
+-
+-__init static void init_kstat(void)
+-{
+-	kstat_cpu_notify(&kstat_nb, (unsigned long)CPU_UP_PREPARE,
+-			 (void *)(long)smp_processor_id());
+-	register_cpu_notifier(&kstat_nb);
+-}
+-
+ void __init sched_init(void)
+ {
+ 	runqueue_t *rq;
+ 	int i, j, k;
+ 
+-	/* Init the kstat counters */
+-	init_kstat();
+ 	for (i = 0; i < NR_CPUS; i++) {
+ 		prio_array_t *array;
+ 
 
-Regards,
-
-Nigel
-
-On Thu, 2004-01-22 at 21:28, Christoph Hellwig wrote:
-> On Thu, Jan 22, 2004 at 09:12:00PM +1300, Nigel Cunningham wrote:
-> > Hi.
-> >=20
-> > Here's a second patch; this exports gotoxy, reset_terminal, hide_cursor=
-,
-> > getconsxy and putconsxy for use in Software Suspend's nice display.
->=20
-> Really, swsusp shouldn't mess with console internals.  And you don't even
-> explain what "nice display" is supposed to mean.
---=20
-My work on Software Suspend is graciously brought to you by
-LinuxFund.org.
-
---=-9Sw4wz4WJBTLWlgyScZB
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQBAD5GlVfpQGcyBBWkRAtu5AJ9183NYfBGzHjdqOxbI+G++jbE5pwCdEkIB
-a0IxsYNKLG9haeNxBTCn/G4=
-=T7P7
------END PGP SIGNATURE-----
-
---=-9Sw4wz4WJBTLWlgyScZB--
-
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

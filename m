@@ -1,62 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130387AbRAKDNL>; Wed, 10 Jan 2001 22:13:11 -0500
+	id <S129939AbRAKDVM>; Wed, 10 Jan 2001 22:21:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130766AbRAKDNB>; Wed, 10 Jan 2001 22:13:01 -0500
-Received: from client1154.sedona.net ([208.48.157.101]:41477 "EHLO
-	toltec.metran.cx") by vger.kernel.org with ESMTP id <S130387AbRAKDMq>;
-	Wed, 10 Jan 2001 22:12:46 -0500
-From: Jay Ts <jay@toltec.metran.cx>
-Message-Id: <200101110312.UAA06343@toltec.metran.cx>
-Subject: Re: [linux-audio-dev] low-latency scheduling patch for 2.4.0
-To: andrewm@uow.edu.au (Andrew Morton)
-Date: Wed, 10 Jan 2001 20:12:18 -0700 (MST)
-Cc: linux-kernel@vger.kernel.org (lkml),
-        linux-audio-dev@ginette.musique.umontreal.ca (lad)
-In-Reply-To: <3A57DA3E.6AB70887@uow.edu.au> from "Andrew Morton" at Jan 07, 2001 01:53:50 PM
-Reply-To: jayts@bigfoot.com
-X-Mailer: ELM [version 2.5 PL1]
+	id <S130340AbRAKDVD>; Wed, 10 Jan 2001 22:21:03 -0500
+Received: from [24.65.192.120] ([24.65.192.120]:63734 "EHLO webber.adilger.net")
+	by vger.kernel.org with ESMTP id <S129939AbRAKDUu>;
+	Wed, 10 Jan 2001 22:20:50 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200101110320.f0B3Klc09014@webber.adilger.net>
+Subject: Re: [linux-lvm] Oops in 2.4.0 (@ LVM)
+In-Reply-To: <3A5D1AA5.FED4D37E@zacarias.com.ar> "from Gustavo Zacarias at Jan
+ 10, 2001 11:29:57 pm"
+To: linux-lvm@sistina.com
+Date: Wed, 10 Jan 2001 20:20:47 -0700 (MST)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> A patch against kernel 2.4.0 final which provides low-latency
-> scheduling is at
+Gustavo Zacarias writes:
+> I was just trying LVM's vgextend, maybe i'm missing something??
+> LVM works as long as i don't try to extend the VG.
+> I can do testing/patching without trouble here...
+
+There is a patch to the LVM kernel code which should help:
+ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.4/2.4.0ac4/lvm-fix-2
+
+You should also get the LVM user tools from CVS (with TAG LVM_0-9-patches)
+to solve this problem.  There will hopefully be a new LVM release soon.
+
+> # pvcreate /dev/hdb1
+> pvcreate -- physical volume "/dev/hdb1" successfully created
 > 
-> 	http://www.uow.edu.au/~andrewm/linux/schedlat.html#downloads
+> # pvcreate /dev/hdb2
+> pvcreate -- physical volume "/dev/hdb2" successfully created
 > 
-> Some notes:
-> 
-> - Worst-case scheduling latency with *very* intense workloads is now
->   0.8 milliseconds on a 500MHz uniprocessor.
+> # pvcreate /dev/hdb3
+> pvcreate -- physical volume "/dev/hdb3" successfully created
 
-Wow!  That's super.  Now about the only thing left is to get it included
-in the standard kernel.  Do you think Linus Torvalds is more likely
-to accept these patches than Ingo's?  I sure hope this one works out.
+Actually, unless you are simply doing this for testing, it is best to
+have only 1 partition for the whole disk.  It wastes less space.
 
->   This is one to
->   three orders of magnitude better than BeOS, MacOS and the Windowses.
-
-** salivates **
-
-> - Low latency will probably only be achieved when using the ext2 and
->   NFS filesystems.
-
-Well it's extremely nice to see NFS included at least.  I was really
-worried about that one.  What about Samba?  (Keeping in mind that
-serious "professional" musicians will likely have their Linux systems
-networked to a Windows box, at least until they have all the necessary
-tools on Linux.
-
-> - If you care about latency, be *very* cautious about upgrading to
->   XFree86 4.x.  I'll cover this issue in a separate email, copied
->   to the XFree team.
-
-Did that email pass by me unnoticed?  What's the prob with XF86 4.0?
-
-- Jay Ts
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

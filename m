@@ -1,58 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129534AbRBHR6S>; Thu, 8 Feb 2001 12:58:18 -0500
+	id <S130457AbRBHSA1>; Thu, 8 Feb 2001 13:00:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129709AbRBHR6G>; Thu, 8 Feb 2001 12:58:06 -0500
-Received: from limes.hometree.net ([194.231.17.49]:29796 "EHLO
-	limes.hometree.net") by vger.kernel.org with ESMTP
-	id <S129534AbRBHR5z>; Thu, 8 Feb 2001 12:57:55 -0500
-To: linux-kernel@vger.kernel.org
-Date: Thu, 8 Feb 2001 17:50:40 +0000 (UTC)
-From: "Henning P. Schmiedehausen" <hps@tanstaafl.de>
-Message-ID: <95um9g$ajl$1@forge.intermeta.de>
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-In-Reply-To: <20010208094957.6478.OGAWAOSM@bs.mmk.fst.pb.nttdata.co.jp>, <Pine.LNX.4.21.0102081426350.2378-100000@duckman.distro.conectiva>
-Reply-To: hps@tanstaafl.de
-Subject: [OFF-TOPIC] sendmail (was: Re: someone knows a good sendmail mailing list ?)
+	id <S130472AbRBHSAR>; Thu, 8 Feb 2001 13:00:17 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:15876 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S130457AbRBHSAG>; Thu, 8 Feb 2001 13:00:06 -0500
+Date: Thu, 8 Feb 2001 09:59:22 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+cc: Ben LaHaise <bcrl@redhat.com>, "Stephen C. Tweedie" <sct@redhat.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
+        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net,
+        Ingo Molnar <mingo@redhat.com>
+Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
+In-Reply-To: <3A82A8FA.CB9B2F29@evision-ventures.com>
+Message-ID: <Pine.LNX.4.10.10102080952550.6741-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-riel@conectiva.com.br (Rik van Riel) writes:
 
->On Thu, 8 Feb 2001, osamu wrote:
 
->> someone knows a good sendmail mailing list ? active like this one ?
+On Thu, 8 Feb 2001, Martin Dalecki wrote:
+> > 
+> > But you'll have a bitch of a time trying to merge multiple
+> > threads/processes reading from the same area on disk at roughly the same
+> > time. Your higher levels won't even _know_ that there is merging to be
+> > done until the IO requests hit the wall in waiting for the disk.
+> 
+> Merging is a hardware tighted optimization, so it should happen, there we you
+> really have full "knowlendge" and controll of the hardware -> namely the
+> device driver. 
 
->I doubt it, if only because sendmail wouldn't be able to
->handle the load.
+Or, in many cases, the device itself. There are valid reasons for not
+doing merging in the driver, but they all tend to boil down to "even lower
+layers can do a better job of it". They basically _never_ boil down to
+"upper layers already did it for us".
 
-Why does this lie gets repeated over and over again? This is as wrong
-as the again and again posted "threads is salt" quote of davem.
+That said, there tend to be advantages to doing "appropriate" clustering
+at each level. Upper layers can (and do) use read-ahead to help the lower
+levels. The write-out can (and currently does not) try to sort the
+requests for better elevator behaviour.
 
-There are lots of badly set up sendmail sites, just because sendmail
-is ubiquitous. Maybe it's because of this.
+The driver level can (and does) further cluster the requests - even if the
+low-level device does a perfect job of orderign and merging on its own
+it's usually advantageous to have fewer (and bigger) commands in-flight in
+order to have fewer completion interrupts and less command traffic on the
+bus.
 
-But a well set up sendmail handles almost any load that you throw at
-it. I've set up sites handling an OC-3 load of E-Mail with just a few
-boxes fine.
+So it's obviously not entirely black-and-white. Upper layers can help, but
+it's a mistake to think that they should "do the work".
 
-Ok, admittedly not on Linux. If this gets repeated again and again on
-LKM, maybe it should read "sendmail on Linux can not handle the load" [1].
+(Note: a lot of people seem to think that "layering" means that the
+complexity is in upper layers, and that lower layers should be simple and
+"stupid". This is not true. A well-balanced layering would have all layers
+doing potentially equally complex things - but the complexity should be
+_independent_. Complex interactions are bad. But it's also bad to thin
+kthat lower levels shouldn't be allowed to optimize because they should be
+"simple".).
 
->(yeah, I know it's off-topic; but I couldn't resist this one)
+		Linus
 
-Well, at least in this point, you're not enlightened. ;-)
-
-	Regards
-		Henning
-
-[1] And davem maybe meant "Threads on Linux", too. =:-)
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

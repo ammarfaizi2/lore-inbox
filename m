@@ -1,40 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129444AbRBGMR2>; Wed, 7 Feb 2001 07:17:28 -0500
+	id <S129072AbRBGMYJ>; Wed, 7 Feb 2001 07:24:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129462AbRBGMRR>; Wed, 7 Feb 2001 07:17:17 -0500
-Received: from passion.cambridge.redhat.com ([172.16.18.67]:44673 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S129110AbRBGMRD>; Wed, 7 Feb 2001 07:17:03 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <200102071212.f17CC3518463@mail006.syd.optusnet.com.au> 
-In-Reply-To: <200102071212.f17CC3518463@mail006.syd.optusnet.com.au> 
-To: "BaRT" <bart11@dingoblue.net.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.1 Kernel Crash 
+	id <S129331AbRBGMX6>; Wed, 7 Feb 2001 07:23:58 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:516 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S129072AbRBGMXu>;
+	Wed, 7 Feb 2001 07:23:50 -0500
+Message-ID: <20010207115738.A218@bug.ucw.cz>
+Date: Wed, 7 Feb 2001 11:57:38 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: Enabling ACPI and APM at same time?
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Date: Wed, 07 Feb 2001 12:16:35 +0000
-Message-ID: <8078.981548195@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-bart11@dingoblue.net.au said:
->  On one of my linux boxen, that is used as an ISDN router after a 3
-> days of up time I get this: 
+Is it possible to have _both_ ACPI and APM enabled?
 
-Read http://www.tux.org/lkml/#s4-3
-
-Particularly the "Don't even bother..." part.
-
---
-dwmw2
-
-
+I really need APM on my notebook (so that machine suspends when it
+runs out of batteries, not powers off), but having /proc/power/*
+information would be *very* handy.
+								Pavel
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

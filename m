@@ -1,57 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135266AbRDRTgT>; Wed, 18 Apr 2001 15:36:19 -0400
+	id <S135273AbRDRTku>; Wed, 18 Apr 2001 15:40:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135268AbRDRTgA>; Wed, 18 Apr 2001 15:36:00 -0400
-Received: from granada.iram.es ([150.214.224.100]:1298 "EHLO granada.iram.es")
-	by vger.kernel.org with ESMTP id <S135266AbRDRTf5>;
-	Wed, 18 Apr 2001 15:35:57 -0400
-Date: Wed, 18 Apr 2001 21:35:48 +0200 (METDST)
-From: Gabriel Paubert <paubert@iram.es>
+	id <S135274AbRDRTkl>; Wed, 18 Apr 2001 15:40:41 -0400
+Received: from mailout00.sul.t-online.com ([194.25.134.16]:26373 "EHLO
+	mailout00.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S135273AbRDRTkX>; Wed, 18 Apr 2001 15:40:23 -0400
 To: Grant Erickson <erick205@umn.edu>
-cc: Linux I2C Mailing List <linux-i2c@pelican.tk.uni-linz.ac.at>,
+Cc: Linux I2C Mailing List <linux-i2c@pelican.tk.uni-linz.ac.at>,
         Linux/PPC Embedded Mailing List 
 	<linuxppc-embedded@lists.linuxppc.org>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel Real Time Clock (RTC) Support for I2C Devices
-In-Reply-To: <Pine.SOL.4.20.0104181408540.10793-100000@garnet.tc.umn.edu>
-Message-ID: <Pine.HPX.4.10.10104182129390.11443-100000@gra-ux1.iram.es>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Wolfgang Denk <wd@denx.de>
+Subject: Re: Kernel Real Time Clock (RTC) Support for I2C Devices 
+X-Mailer: exmh version 2.2
+Mime-version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: Your message of "Wed, 18 Apr 2001 14:13:33 CDT."
+             <Pine.SOL.4.20.0104181408540.10793-100000@garnet.tc.umn.edu> 
+Date: Wed, 18 Apr 2001 21:40:32 +0200
+Message-Id: <20010418194037.C55DB2792B@denx.denx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear Grant,
 
-
-On Wed, 18 Apr 2001, Grant Erickson wrote:
-
+in message <Pine.SOL.4.20.0104181408540.10793-100000@garnet.tc.umn.edu> you wrote:
+> 
 > >From the looks of drivers/char/rtc.c it would appear that this kernel
 > driver only supports bus-attached RTCs such as the mentioned MC146818. Is
 > this correct?
 
-I think so. 
+This is correct; however, you can replace this driver by one of  your
+own  (see for instance drivers/char/ip860_rtc.c in our version of the
+2.4.x Linux sources which implements the RTC driver for a  V3021  RTC
+on a IP860 VMEBus system [MPC860 based]).
 
-> 
+Right now I'm writing another driver for  the  Philips  PCF8563  RTC,
+which is much closer to what you have in mind.
+
 > What is the correct access method / kernel tie-in for supporting such an
 > I2C-based RTC device using the "standard" interfaces?
 
-Adding a new kind of clock to the kernel and setting the correct pointers
-in ppc_md seems the right (if not necessarily simple) solution to your
-problem.  
+Assuming you have a working I2C driver, just add the necessary "glue"
+code to provide the same interface as that of drivers/char/rtc.c .
 
-I wonder how you calibrate the decrementer frequency on this machine, I2C
-is too slow to get any precision, unless you accept to wait for one minute
-or so at boot. I still have problems of reproducibility of clock frequency
-measurements with bus attached RTC (on machines on which the RTC is the
-only moderately precise timing source and its interrupt line is
-unfortunately not connected).
-
-> 
 > My hope is to use 'hwclock' from util-linux w/o modification. Is this
 > reasonable?
 
-No.
+Yes, this will work (it does for me on the MPC8xx).
 
-	Regards,
-	Gabriel.
+Hope this helps,
 
+Wolfgang Denk
+
+-- 
+Software Engineering:  Embedded and Realtime Systems,  Embedded Linux
+Phone: (+49)-8142-4596-87  Fax: (+49)-8142-4596-88  Email: wd@denx.de
+The universe does not have laws - it has habits, and  habits  can  be
+broken.

@@ -1,83 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266111AbRF2QVb>; Fri, 29 Jun 2001 12:21:31 -0400
+	id <S266114AbRF2Q0v>; Fri, 29 Jun 2001 12:26:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266112AbRF2QVV>; Fri, 29 Jun 2001 12:21:21 -0400
-Received: from mail.ece.umn.edu ([128.101.168.129]:38791 "EHLO
-	mail.ece.umn.edu") by vger.kernel.org with ESMTP id <S266111AbRF2QVF>;
-	Fri, 29 Jun 2001 12:21:05 -0400
-Date: Fri, 29 Jun 2001 11:21:00 -0500
-From: Bob Glamm <glamm@mail.ece.umn.edu>
-To: linux-kernel@vger.kernel.org
-Subject: [SMP] 2.4.5-ac13 through ac18 dcache/NFS conflict
-Message-ID: <20010629112100.B2932@kittpeak.ece.umn.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
+	id <S266112AbRF2Q0l>; Fri, 29 Jun 2001 12:26:41 -0400
+Received: from max1-69.flint.corecomm.net ([208.40.12.69]:19720 "HELO
+	fire-eyes.yi.org") by vger.kernel.org with SMTP id <S266113AbRF2Q0W>;
+	Fri, 29 Jun 2001 12:26:22 -0400
+Date: Fri, 29 Jun 2001 12:26:18 -0400 (EDT)
+From: sgtphou <sgtphou@fire-eyes.yi.org>
+To: <mec@shout.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: 2.4.5-ac21: make menuconfig errors
+Message-ID: <Pine.LNX.4.30.0106291218200.6225-100000@fire-eyes>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just to follow up on this situation, I think I've tracked it down
-to a problem arising from a combination of SMP, the directory entry
-cache, and NFS client code.  After several 24-hour runs of 10 copies
-of
+I was trying to configure 2.4.5-ac21 when I ran into some problems. First
+off i noticed this when I went to make menuconfig :
 
-  'find /nfs-mounted-directory -print > /dev/null' 
+root@fire-eyes:/usr/src/linux # make menuconfig
+rm -f include/asm
+( cd include ; ln -sf asm-i386 asm)
+make -C scripts/lxdialog all
+make[1]: Entering directory `/usr/src/linux-2.4.5-ac21/scripts/lxdialog'
+make[1]: Leaving directory `/usr/src/linux-2.4.5-ac21/scripts/lxdialog'
+/bin/sh scripts/Menuconfig arch/i386/config.in
+Using defaults found in .config
+Preparing scripts: functions,
+parsing..........................scripts/Menuconfig: ./MCmenu31: line 185:
+syntax error near unexpected token `fi'
+scripts/Menuconfig: ./MCmenu31: line 185: `fi'
+...............make: *** [menuconfig] Error 1
 
-running simultaneously, the kernel stops or dies in fs/dcache.c
-(in dput() or d_lookup(), and it triggered the BUG() on
-line 129 once).
+The Error at the end is ONLY BECAUSE I ^c to see the line 185 error,
+otherwise the menu would have popped up and covered it up.
 
-Performing the same 10 finds on a locally mounted ext2 filesystem
-produces no lockups or hangs.
+AFter this the menu comes up.
 
--Bob
+And here is another problem ..
 
-> I've got a strange situation, and I'm looking for a little direction.
-> Quick summary: I get sporadic lockups running 2.4.5-ac13 on a
-> ServerWorks HE-SL board (SuperMicro 370DE6), 2 800MHz Coppermine CPUs,
-> 512M RAM, 512M+ swap.  Machine has 8 active disks, two as RAID 1,
-> 6 as RAID 5.  Swap is on RAID 1.  Machine also has a 100Mbit Netgear
-> FA310TX and an Intel 82559-based 100Mbit card.  SCSI controllers
-> are AIC-7899 (2) and AIC-7895 (1).  RAM is PC-133 ECC RAM; two
-> identical machines display these problems.
-> 
-> I've seen three variations of symptoms:
-> 
->   1) Almost complete lockout - machine responds to interrupts (indeed,
->      it can even complete a TCP connection) but no userspace code gets
->      executed.  Alt-SysRq-* still works, console scrollback does not;
->   2) Partial lockout - lock_kernel() seems to be getting called without
->      a corresponding unlock_kernel().  This manifested as programs such
->      as 'ps' and 'top' getting stuck in kernel space;
->   3) Unkillable programs - a test program that allocates 512M of memory
->      and touches every page; running two copies of this simultaneously
->      repeatedly results in at least one of the copies getting stuck
->      in 'raid1_alloc_r1bh'.
-> 
-> Symptom number 1 was present in 2.4.2-ac20 as well; symptoms 2 and 3
-> were observed under 2.4.5-ac13 only.  I never get any PANICs, only
-> these variety of deadlocks.  A reboot is the only way to resolve the
-> problem.
-> 
-> There seem to be two ways to manifest the problem.  As alluded to in
-> (3), running two copies of the memory eater simultaneously along with
-> calls to 'ps' and 'top' trigger the bug fairly quickly (within a minute
-> or two).  Another method to manifest the problem is to run multiple
-> copies of this script (I run 10 simultaneous copies):
-> 
->   #!/bin/sh
-> 
->   while /bin/true; do
->     ssh remote-machine 'sleep 1'
->   done
-> 
-> This script causes (1) in about a day or two.
-> 
-> If anyone has any suggestions about how to proceed to figure out what
-> the problem is (or if there is already a fix), please let me know.
-> I would be more than willing to provide a wide range of cooperation on
-> this problem.  I don't have a feel for where to go from here, and I'm
-> hoping that someone with more experience can give me some
-> assistance..
+Network device support  --->
+	Ethernet (10 or 100Mbit)  --->
+
+Menuconfig has encountered a possible error in one of the kernel's
+configuration files and is unable to continue.  Here is the error
+report:
+
+ Q> scripts/Menuconfig: MCmenu31: command not found
+
+Please report this to the maintainer <mec@shout.net>.  You may also
+send a problem report to <linux-kernel@vger.kernel.org>.
+
+Please indicate the kernel version you are trying to configure and
+which menu you were trying to enter when this error occurred.
+
+make: *** [menuconfig] Error 1
+
+
+ I simply skipped that menu, and now I am attempting to continue with the
+kernel build. I would state here if that failed or not but this is a slow
+system.
+
+I am not on the list, I would appreciate anything important being mailed
+to me. Or if I get sub instructions back ill sub.
+

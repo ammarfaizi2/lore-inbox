@@ -1,42 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276594AbRI2TX5>; Sat, 29 Sep 2001 15:23:57 -0400
+	id <S276599AbRI2ToV>; Sat, 29 Sep 2001 15:44:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276596AbRI2TXr>; Sat, 29 Sep 2001 15:23:47 -0400
-Received: from cmailg4.svr.pol.co.uk ([195.92.195.174]:20774 "EHLO
-	cmailg4.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S276594AbRI2TXg>; Sat, 29 Sep 2001 15:23:36 -0400
-Date: Sat, 29 Sep 2001 20:27:52 +0100
-From: Steve Maughan <saxm@dcs.ed.ac.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: George Garvey <tmwg-linuxknl@inxservices.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.9-ac10 IDE access slows as uptime increases
-Message-ID: <20010929202752.A25602@ummagumma>
-In-Reply-To: <20010928204612.A911@inxservices.com> <E15nLB7-00027t-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E15nLB7-00027t-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sat, Sep 29, 2001 at 03:33:17PM +0100
-X-Editor: Vim http://www.vim.org/
-X-Operating-System: Linux/2.4.9-ac16 (i686)
+	id <S276601AbRI2ToM>; Sat, 29 Sep 2001 15:44:12 -0400
+Received: from nycsmtp2fb.rdc-nyc.rr.com ([24.29.99.78]:11026 "EHLO si.rr.com")
+	by vger.kernel.org with ESMTP id <S276599AbRI2Tny>;
+	Sat, 29 Sep 2001 15:43:54 -0400
+Message-ID: <3BB624D9.4080705@si.rr.com>
+Date: Sat, 29 Sep 2001 15:45:29 -0400
+From: Frank Davis <fdavis@si.rr.com>
+Reply-To: fdavis@si.rr.com
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: alan@lxorguk.ukuu.org.uk
+Subject: [PATCH] 2.4.9-ac17: jffs and jffs2 MODULE_LICENSE
+Content-Type: multipart/mixed;
+ boundary="------------030109020100020604030904"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Alan Cox (alan@lxorguk.ukuu.org.uk) wrote:
-> Second question is what is in your IDE logs. The IDE layer will change
-> down speeds when it hits a repeated problem (eg a DMA timeout) so if
-> need be will switch back to PIO or to MWDMA.
+This is a multi-part message in MIME format.
+--------------030109020100020604030904
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I have what sounds like a similar problem - assuming it is a problem
-with the IDE layer dropping the speed - except mine is with my CD or
-DVD drive. They run a lot slower under the 2.4.x kernels than under
-2.2.19 (looking at 2-3megs/s under 2.4.x, 5-7megs/s under 2.2.19).
+Hello,
+     The attached files add the MODULE_LICENSE statement to the jffs and 
+jffs2.
+Regards,
+Frank
 
-Also when using 2.4.x, the kernel has a habit of disabling DMA and
-performance plummets. Yet it is fine with 2.2.19.
+--------------030109020100020604030904
+Content-Type: text/plain;
+ name="JFFS_MOD"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="JFFS_MOD"
 
-Is this a related issue? Is there a fix for this?
+--- fs/jffs/inode-v23.c.old	Fri Sep 28 21:21:39 2001
++++ fs/jffs/inode-v23.c	Sat Sep 29 15:18:22 2001
+@@ -1749,3 +1749,4 @@
+ 
+ module_init(init_jffs_fs)
+ module_exit(exit_jffs_fs)
++MODULE_LICENSE("GPL");
 
-Steve Maughan
+--------------030109020100020604030904
+Content-Type: text/plain;
+ name="JFFS2_MO"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="JFFS2_MO"
+
+--- fs/jffs2/super.c.old	Fri Sep 28 21:21:40 2001
++++ fs/jffs2/super.c	Sat Sep 29 15:26:26 2001
+@@ -353,3 +353,4 @@
+ 
+ module_init(init_jffs2_fs);
+ module_exit(exit_jffs2_fs);
++MODULE_LICENSE("GPL"); // Also uses the RHEPL
+
+--------------030109020100020604030904--
+

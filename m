@@ -1,41 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315372AbSGIOGV>; Tue, 9 Jul 2002 10:06:21 -0400
+	id <S315370AbSGIOFW>; Tue, 9 Jul 2002 10:05:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315374AbSGIOGU>; Tue, 9 Jul 2002 10:06:20 -0400
-Received: from pat.uio.no ([129.240.130.16]:59874 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S315372AbSGIOGT>;
-	Tue, 9 Jul 2002 10:06:19 -0400
-MIME-Version: 1.0
+	id <S315372AbSGIOFU>; Tue, 9 Jul 2002 10:05:20 -0400
+Received: from avocet.mail.pas.earthlink.net ([207.217.120.50]:49314 "EHLO
+	avocet.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S315370AbSGIOFT>; Tue, 9 Jul 2002 10:05:19 -0400
+Date: Tue, 9 Jul 2002 10:05:58 -0400
+To: zwane@linuxpower.ca, jamagallon@able.es
+Cc: andrea@suse.de, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net
+Subject: Re: pipe and af/unix latency differences between aa and jam on smp
+Message-ID: <20020709140558.GA21293@rushmore>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15658.61035.450205.832652@charged.uio.no>
-Date: Tue, 9 Jul 2002 16:08:43 +0200
-To: root@chaos.analogic.com
-Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.19-rc1/2.5.25 provide dummy fsync() routine for directories on NFS mounts
-In-Reply-To: <Pine.LNX.3.95.1020709095544.27285A-100000@chaos.analogic.com>
-References: <200207091549.15913.trond.myklebust@fys.uio.no>
-	<Pine.LNX.3.95.1020709095544.27285A-100000@chaos.analogic.com>
-X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Richard B Johnson <root@chaos.analogic.com> writes:
+> *Local* Communication latencies in microseconds - smaller is better
 
-     > I think code that opens a directory as a file is broken. We
-     > have opendir() for that and it returns a DIR pointer, not a
-     > file descriptor.  If the directory was properly opened, one
-     > would never attempt to fsync() it.
+> kernel                          Pipe    AF/Unix
+> -----------------------------  -------  -------
+> 2.4.19-pre7-jam6                29.513   42.369
+> 2.4.19-pre8-jam2                 7.697   15.274
+> 2.4.19-pre8-jam2-nowuos          7.739   14.929
 
- fsync() is supported on directories on local filesystems as a way of
-ensuring that changes (due to file creation etc) are committed to
-disk. Where is the POSIX violation in that?
+> (last line says that wake-up-sync is not responsible...)
 
- There is no reason why NFS, which ensures this anyway, should
-not adhere to this convention.
+> Main changes between first two were irqbalance and ide6->ide10.
 
-Cheers,
-  Trond
+The system is scsi only.  pre7-jam6 and pre8-jam2 .config's were 
+identical.
+
+> Could you try latest -rc1-aa2 ? It includes also irqbalance,
+
+Based on Andrea'a diff logs, irqbalance appeared in 2.4.19pre10aa3.
+There are small differences between the pre10-jam2 and aa irqbalance
+patches.  One new datapoint with pre10-jam3:
+
+*Local* Communication latencies in microseconds - smaller is better
+-------------------------------------------------------------------
+kernel                          Pipe    AF/Unix
+-----------------------------  -------  -------
+2.4.19-pre10-jam2                7.877   16.699
+2.4.19-pre10-jam3               33.133   66.825
+2.4.19-pre10-aa2                34.208   62.732
+2.4.19-pre10-aa4                33.941   70.216
+2.4.19-rc1-aa1-1g-nio           34.989   52.704
+
+A config difference between pre10-jam2 and pre10-jam3 is:
+CONFIG_X86_SFENCE=y	# pre10-jam2
+pre10-jam2 was compiled with -Os and pre10-jam3 with -O2.
+
+> Out of interest, is that a P4/Xeon?
+
+Quad P3/Xeon 700 mhz with 1MB cache.
+
+-- 
+Randy Hron
+http://home.earthlink.net/~rwhron/kernel/bigbox.html
+

@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318088AbSGMDTG>; Fri, 12 Jul 2002 23:19:06 -0400
+	id <S318086AbSGMD26>; Fri, 12 Jul 2002 23:28:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318089AbSGMDTF>; Fri, 12 Jul 2002 23:19:05 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:44769 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S318088AbSGMDTC>;
-	Fri, 12 Jul 2002 23:19:02 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: "Saurabh Desai" <sdesai@us.ibm.com>
-Cc: torvalds@transmeta.com, bcrl@redhat.com, linux-kernel@vger.kernel.org,
-       trivial@rustcorp.com.au
-Subject: Re: A fix for futex patch 
-In-reply-to: Your message of "Fri, 12 Jul 2002 11:08:47 EST."
-             <OFE0524400.39220EE3-ON85256BF4.0057F3F7@raleigh.ibm.com> 
-Date: Sat, 13 Jul 2002 13:26:11 +1000
-Message-Id: <20020713032213.CD682422D@lists.samba.org>
+	id <S318089AbSGMD25>; Fri, 12 Jul 2002 23:28:57 -0400
+Received: from pD952ACB5.dip.t-dialin.net ([217.82.172.181]:25225 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S318086AbSGMD2z>; Fri, 12 Jul 2002 23:28:55 -0400
+Date: Fri, 12 Jul 2002 21:31:34 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Further madness in fs/partitions/check.c?
+Message-ID: <Pine.LNX.4.44.0207122128400.3421-100000@hawkeye.luckynet.adm>
+X-Location: Potsdam; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <OFE0524400.39220EE3-ON85256BF4.0057F3F7@raleigh.ibm.com> you write:
-> I looked in latest 2.5.25 futex.c and at line # 278, the f_owner.pid is
-> back to "current->pid".
-> Last month, I'd send you this fix to work correctly with cloned task.
-> I thought at one point you had changed this to "current->tgid", and now
-> it's back to pid.
-> The pid should be tgid to work for all cases.
+Hi,
 
-Oops.  Good catch.  My mistake.
+struct device contains a void * driver_data. It should certainly point to 
+a couple of bytes where the driver data was saved.
 
-Linus, "getpid()" returns "tgid" not "pid", so this is correct.
+In line 288, we have this:
 
-Thanks!
-Rusty.
+current_driverfs_dev->driver_data = (void *)__mkdev(hd->major, minor+part);
 
-diff -urN -I $.*$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.25/kernel/futex.c working-2.5.25-futex/kernel/futex.c
---- linux-2.5.25/kernel/futex.c	Fri Jun 21 09:41:56 2002
-+++ working-2.5.25-futex/kernel/futex.c	Sat Jul 13 13:24:43 2002
-@@ -275,7 +275,7 @@
- 	filp->f_dentry = dget(futex_dentry);
- 
- 	if (signal) {
--		filp->f_owner.pid = current->pid;
-+		filp->f_owner.pid = current->tgid;
- 		filp->f_owner.uid = current->uid;
- 		filp->f_owner.euid = current->euid;
- 		filp->f_owner.signum = signal;
+What kind of pointer should we get here? ;-)
 
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Can the author please explain what was intented here?
+
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
+

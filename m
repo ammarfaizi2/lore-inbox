@@ -1,98 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266831AbUGVRbA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266853AbUGVRex@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266831AbUGVRbA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 13:31:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266853AbUGVRbA
+	id S266853AbUGVRex (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 13:34:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266855AbUGVRex
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 13:31:00 -0400
-Received: from lakermmtao11.cox.net ([68.230.240.28]:55734 "EHLO
-	lakermmtao11.cox.net") by vger.kernel.org with ESMTP
-	id S266831AbUGVRa5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 13:30:57 -0400
-Message-ID: <40FFBC8B.5050407@cox.net>
-Date: Thu, 22 Jul 2004 08:09:31 -0500
-From: "Will S." <willgs00@cox.net>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040718)
+	Thu, 22 Jul 2004 13:34:53 -0400
+Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:48593 "EHLO
+	blue-labs.org") by vger.kernel.org with ESMTP id S266853AbUGVRer
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 13:34:47 -0400
+Message-ID: <40FFFB00.3030704@blue-labs.org>
+Date: Thu, 22 Jul 2004 13:36:00 -0400
+From: David Ford <david+challenge-response@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a3) Gecko/20040721
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: monty@xiph.org
-Subject: Re: large, spurious[?] TSC skews on AMD 760MPX boards
-References: <20040721204050.GA4913@xiph.org>
-In-Reply-To: <20040721204050.GA4913@xiph.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Pavel Machek <pavel@ucw.cz>
+CC: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
+Subject: Re: Video memory corruption during suspend
+References: <20040718225247.GA30971@hell.org.pl> <20040722161047.GB15145@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <20040722161047.GB15145@atrey.karlin.mff.cuni.cz>
+Content-Type: multipart/mixed;
+ boundary="------------010103020408090008010006"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Monty wrote:
+This is a multi-part message in MIME format.
+--------------010103020408090008010006
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
->[Please keep me in the CC: I apologize for the lack of netiquette in
->not subbing to the list but I have enough trouble keeping up with the
->deluge of user support on my own lists ;-]
+Just as a side note, all of the notebooks I have owned or worked on have 
+had suspend issues.  Linux just doesn't handle it very well.  The common 
+problems on resume are:
+
+1. the screen is somehow switched to the external VGA port or port other 
+than the LCD
+2. the screen is 50% rolled; i.e. the whole screen has been shifted 
+halfway down the screen with the bottom wrapping back up to the top
+3. on a text console, the characters are garbage/high ascii/blocks
+4. the back light is off and can't be turned back on
+
+Of these I'm currently dealing with #1, 2, and 3.  I can fix #1 by using 
+the Function-Display key to step through displays until I have selected 
+the LCD display again.  I fix #2 by ctrl-alt-f1 and then back to X tty.  
+I fix #3 by running setfont.  I haven't had to deal with #4 in over a 
+year, but I no longer have that notebook.
+
+Chris root # lspci -vvv -s 0:00.0
+00:00.0 Host bridge: Intel Corp. 82845 845 (Brookdale) Chipset Host 
+Bridge (rev 04)
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 
+ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=fast >TAbort- 
+<TAbort- <MAbort+ >SERR- <PERR-
+        Latency: 0
+        Region 0: Memory at e8000000 (32-bit, prefetchable) [size=64M]
+        Capabilities: [e4] #09 [d104]
+        Capabilities: [a0] AGP version 2.0
+                Status: RQ=32 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- 
+HTrans- 64bit- FW+ AGP3- Rate=x1,x2,x4
+                Command: RQ=1 ArqSz=0 Cal=0 SBA- AGP- GART64- 64bit- FW- 
+Rate=<none>
+
+Chris root # lspci -vvv -s 01:00.0
+01:00.0 VGA compatible controller: nVidia Corporation NV17 [GeForce4 440 
+Go] (rev a3) (prog-if 00 [VGA])
+        Subsystem: Dell Computer Corporation: Unknown device 00d4
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop+ 
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (1250ns min, 250ns max)
+        Interrupt: pin A routed to IRQ 11
+        Region 0: Memory at fc000000 (32-bit, non-prefetchable) [size=16M]
+        Region 1: Memory at e0000000 (32-bit, prefetchable) [size=128M]
+        Region 2: Memory at dff80000 (32-bit, prefetchable) [size=512K]
+        Expansion ROM at 80000000 [disabled] [size=128K]
+        Capabilities: [60] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+        Capabilities: [44] AGP version 2.0
+                Status: RQ=32 Iso- ArqSz=0 Cal=0 SBA- ITACoh- GART64- 
+HTrans- 64bit- FW+ AGP3- Rate=x1,x2,x4
+                Command: RQ=1 ArqSz=0 Cal=0 SBA- AGP- GART64- 64bit- FW- 
+Rate=<none>
+
+no DRI/FB.
+
+David
+
+Pavel Machek wrote:
+
+>Hi!
 >
->Hello folks,
+>  
 >
->short background: 
+>>My setup is:
+>>ASUS L3800C laptop, Radeon M7, i845 chipset, using DRI and radeonfb.
+>>
+>>Note that this is not specific to the kernel used, as I've been seeing 
+>>similar corruption every now and then, most recently under 2.6.7 +
+>>ACPICA20040715 + swsusp2.0.0.100 (S3, S4), but also under 2.4 with S1 (but 
+>>not with S4/swsusp2).
+>>
+>>I have a very simple script I use to suspend (i.e. basically echo $arg >
+>>/proc/acpi/sleep), which is usually started by acpid. Once the script is
+>>triggered (by pressing power / sleep button) and an X session is running, 
+>>various red and green patches appear on the screen (the background image
+>>and the tinted terminal emulator), followed by the VT switch the PM code
+>>does. After resume and subsequent VT switch by the PM code the corruption
+>>is still visible. The screen is properly restored by a manual VT switch.
+>>The corruption is clearly related to the existing background pixmap, as
+>>moving the windows does not change its pattern. Oddly enough, starting a GL
+>>app such as glxgears and moving it into and out of focus also properly
+>>restores the screen.
+>>    
+>>
 >
->Ever since getting my first dual Athlon, the system timer was 'not
->quite right' when running at stock speed.  Selects, alarms, etc, had a
->strange way of firing fractions of a second or several seconds 'too
->late'.  I discovered that overclocking by about 10% made the problem
->magically go away.  I've never been entirely comfortable doing that,
->but three dual athlons later (all 760MPX-B2 based boards of different
->makes), it was always the only way to make the problem disappear and I
->didn't think more about it.
+>So what happens on 2.6.7 with swsusp1? Can you try vesafb (and fbdev
+>Xserver)?
 >
->Now that I'm on #3, it is not stable at the overclock I need to make
->the system timer problem disappear, so I finally started hunting for
->the cause.  Whenever I run the system stock, I see:
->
->Jul 20 21:48:26 Snotfish kernel: checking TSC synchronization across CPUs: 
->Jul 20 21:48:26 Snotfish kernel: BIOS BUG: CPU#0 improperly initialized, has 6282588 usecs TSC skew! FIXED.
->Jul 20 21:48:26 Snotfish kernel: BIOS BUG: CPU#1 improperly initialized, has -6282588 usecs TSC skew! FIXED.
->
->When the system is running 'properly', that is to say, overclocked:
->
->Jul 21 22:08:01 Snotfish kernel: checking TSC synchronization across CPUs: passed.
->
->This behavior is reproducable on all three of my 760MPX systems (One
->Gigabyte GA-7DPXDW-P, and two MSI K7D Master-L).  The amount of the
->reported skew varies in the stock case, but it's always large.  Note
->that once in a blue moon, the system will come up with no TSC skew at
->stock timings, and the system timer issues seem to disappear.
->
->What is the proper route to go about debugging this problem, as I have
->it bottled up here in a reproducability cage?
->
->I'm attaching the syslog from a 'bad' and a 'good' boot (the good boot
->manufactured from a multiplier/FSB combo that AMD would not approve
->of) as well as /proc/cpu info from this 'good' boot.
->
->(BTW, these are true and correct Athlon MPs; no cheapo XP-modding
->going on here.  Also, all motherboards in question are running most
->recent BIOSes and officially support the CPUs they're using.  The K7Ds
->are using MP2400s, the Gigabyte is running MP2800s)
->
->Thanks,
->Monty
+>								Pavel
+>  
 >
 
-I'm seeing a similar problem on some very different hardware. ECS 
-P6LX2-A slot 1 motherboard, matched pair of Pentium-II 333s. This ECS 
-board has been reported to work perfectly since something like 2.1.38, 
-although it has a lazy BIOS that doesn't initialize the second CPU.
+--------------010103020408090008010006
+Content-Type: text/x-vcard; charset=utf-8;
+ name="david+challenge-response.vcf"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="david+challenge-response.vcf"
 
-2.6 kernels show +-7 usecs TSC skew and exhibit very jumpy timers, while 
-2.4 kernels are OK and show matched TSCs. I have no idea where to start, 
-as the system is working perfectly otherwise (it's stable with either 
-kernel series). Every 10 seconds or so the timers go haywire. 
-Overclocking which mysteriously gets rid of your problem doesn't work 
-for me, my system doesn't POST at a ~3% speed bump (which is the 
-smallest I can do), and my CPUs are multiplier-locked.
+begin:vcard
+fn:David Ford
+n:Ford;David
+email;internet:david@blue-labs.org
+title:Industrial Geek
+tel;home:Ask please
+tel;cell:(203) 650-3611
+x-mozilla-html:TRUE
+version:2.1
+end:vcard
 
-Kernel bug? If anyone would like me to trace anything, go ahead and ask, 
-it's not a production system by all means (read: toy at home).
 
--- Will S.
-willgs00@cox.net
+--------------010103020408090008010006--

@@ -1,64 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265776AbUHIBPX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265789AbUHIBzb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265776AbUHIBPX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 21:15:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265784AbUHIBPX
+	id S265789AbUHIBzb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 21:55:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265792AbUHIBzb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 21:15:23 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:48039 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265776AbUHIBPT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 21:15:19 -0400
-Date: Sun, 8 Aug 2004 21:14:49 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@dhcp83-76.boston.redhat.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: David Howells <dhowells@redhat.com>, <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>, <arjanv@redhat.com>,
-       <dwmw2@infradead.org>, <greg@kroah.com>, Chris Wright <chrisw@osdl.org>,
-       <sfrench@samba.org>, <mike@halcrow.us>,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [PATCH] implement in-kernel keys & keyring management
-In-Reply-To: <Pine.LNX.4.58.0408072221480.1793@ppc970.osdl.org>
-Message-ID: <Xine.LNX.4.44.0408082041010.1123-100000@dhcp83-76.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 8 Aug 2004 21:55:31 -0400
+Received: from [61.155.114.21] ([61.155.114.21]:1042 "EHLO
+	mail.mobilesoft.com.cn") by vger.kernel.org with ESMTP
+	id S265789AbUHIBza (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Aug 2004 21:55:30 -0400
+Date: Mon, 9 Aug 2004 09:59:51 +0800
+From: Wu Jian Feng <jianfengw@mobilesoft.com.cn>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       linux-mtd@lists.infradead.org, Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [BUG] 2.6.8-rc3 slab corruption (jffs2?)
+Message-ID: <20040809015950.GA20408@mobilesoft.com.cn>
+Mail-Followup-To: David Woodhouse <dwmw2@infradead.org>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>,
+	linux-mtd@lists.infradead.org,
+	Russell King <rmk+lkml@arm.linux.org.uk>
+References: <20040807150458.E2805@flint.arm.linux.org.uk> <20040808061206.GA5417@mobilesoft.com.cn> <1091962414.1438.977.camel@imladris.demon.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1091962414.1438.977.camel@imladris.demon.co.uk>
+User-Agent: Mutt/1.5.6+20040803i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Aug 2004, Linus Torvalds wrote:
-
-> On Sun, 8 Aug 2004, James Morris wrote:
-> > 
-> > I would suggest that the /sbin/request-key interface be done via Netlink
-> > messaging instead.  
-
-> I really disagree. 
+On Sun, Aug 08, 2004 at 11:53:34AM +0100, David Woodhouse wrote:
+> On Sun, 2004-08-08 at 14:12 +0800, Wu Jian Feng wrote:
+> > Can't figure out why but have a quick workaround for this:
 > 
-> If you want to use netlink, do so. But do it from the /sbin/request-key
-> script or binary.
+> Erases are permitted to be asynchronous -- if the erase was submitted
+> sucessfully, you may not free the object until the callback is called.
+> You _may_ free the object from the callback, and we do.
 > 
-> I've never seen a good binary deamon listening for things. It's a horrible 
-> interface. It's undebuggable, it's inflexible, and it's just plain nasty. 
+> Can I infer from this that you've actually seen the same problem? Could
+> you reproduce it? What arch, compiler, etc?
 > 
-> I'm just looking at how _well_ /sbin/hotplug has worked out. I believe 
-> that it would have been a disaster done with a binary messaging setup.
+> -- 
+> dwmw2
+> 
+> 
 
-I'm not disagreeing with the above, but what about performance?  Part of
-the reason I suggested Netlink is that it's likely to be more efficient to
-send messages over a socket than to exec a program for each key request
-from the kernel.
-
-It's difficult to know if performance will actually be an issue without
-understanding the potential workload more.  What if many thousands of
-clients are connected to a fileserver?  Would calling /sbin/request-key
-for each key request be likely to cause performance problems?
-
-
-- James
--- 
-James Morris
-<jmorris@redhat.com>
-
-
+I see the same thing as rmk, used both gcc-3.3.2 and 3.4.0,
+on a OMAP730 (arm926ejs).

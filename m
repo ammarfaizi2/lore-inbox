@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129532AbQLARQN>; Fri, 1 Dec 2000 12:16:13 -0500
+	id <S129248AbQLARUN>; Fri, 1 Dec 2000 12:20:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129524AbQLARQD>; Fri, 1 Dec 2000 12:16:03 -0500
-Received: from mailhost.lanl.gov ([128.165.3.12]:26952 "EHLO mailhost.lanl.gov")
-	by vger.kernel.org with ESMTP id <S129532AbQLARPu>;
-	Fri, 1 Dec 2000 12:15:50 -0500
-Message-ID: <3A27D4D6.4DA47346@lanl.gov>
-Date: Fri, 01 Dec 2000 09:41:58 -0700
-From: Roger Crandell <rwc@lanl.gov>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S129257AbQLARTy>; Fri, 1 Dec 2000 12:19:54 -0500
+Received: from mailhub2.shef.ac.uk ([143.167.2.154]:49560 "EHLO
+	mailhub2.shef.ac.uk") by vger.kernel.org with ESMTP
+	id <S129248AbQLARTs>; Fri, 1 Dec 2000 12:19:48 -0500
+Date: Fri, 1 Dec 2000 16:47:40 +0000 (GMT)
+From: "Guennadi V. Liakhovetski" <G.Liakhovetski@sheffield.ac.uk>
 To: linux-kernel@vger.kernel.org
-Subject: multiprocessor kernel problem
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Re: PCI support in kernel
+Message-ID: <Pine.GSO.4.21.0012011646050.12071-100000@acms23>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+...forgot to mention - I DID try to play with
+CONFIG_PCI_GOBIOS
+CONFIG_PCI_GODIRECT
+CONFIG_PCI_GOANY
+in the kernel configuration - no use
 
-I have 2.4.0  test 10 and test 11 installed on a multiprocessor (Intel)
-machine.  I have tried both test versions of the kernel.  I configured
-the kernel for single
-and multi processor.  When I boot single processor, iptables will run
-fine.  When I boot the machine with the multiprocessor kernel and run
-iptables, the kernel dumps several pages of hex and the final two lines
-of output are:
+Guennadi
+___
 
-Killing interrupt handler
-scheduling in interrupt
+Dr. Guennadi V. Liakhovetski
+Department of Applied Mathematics
+University of Sheffield, U.K.
+email: G.Liakhovetski@sheffield.ac.uk
 
-The kernel logs nothing and you must reset the machine to bring it back
-up.  I believe this is a kernel issue rather than an iptables
-issue.
-
-Does anyone have experience with iptables on a multiprocessor machine?
-
-I am not currently subscribed to this list, so may I please be
-personally CC'ed with the
-answers/comments posted to the list?  I have also submitted this to the
-netfilter list of which I am
-a member.
-
-
-Roger Crandell
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,60 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262292AbUKDRFZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262304AbUKDRNZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262292AbUKDRFZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 12:05:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262299AbUKDRFZ
+	id S262304AbUKDRNZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 12:13:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbUKDRNY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 12:05:25 -0500
-Received: from brown.brainfood.com ([146.82.138.61]:24711 "EHLO
-	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
-	id S262292AbUKDRFP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 12:05:15 -0500
-Date: Thu, 4 Nov 2004 10:59:34 -0600 (CST)
-From: Adam Heath <doogie@debian.org>
-X-X-Sender: adam@gradall.private.brainfood.com
-To: "Catalin(ux aka Dino) BOIE" <util@deuroconsult.ro>
-cc: jdike@karaya.com, blaisorblade_spam@yahoo.it, linux-kernel@vger.kernel.org,
-       user-mode-linux-user@lists.sourceforge.net
-Subject: Re: [PATCH] extend the limits for command line 
-In-Reply-To: <Pine.LNX.4.61.0411040859130.18123@webhosting.rdsbv.ro>
-Message-ID: <Pine.LNX.4.58.0411041059120.1229@gradall.private.brainfood.com>
-References: <Pine.LNX.4.61.0411040859130.18123@webhosting.rdsbv.ro>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 4 Nov 2004 12:13:24 -0500
+Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:44447 "EHLO
+	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S262304AbUKDRGf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 12:06:35 -0500
+Date: Thu, 4 Nov 2004 18:06:32 +0100
+From: Martin Waitz <tali@admingilde.org>
+To: Stelian Pop <stelian@popies.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] kfifo_alloc buffer
+Message-ID: <20041104170632.GX3618@admingilde.org>
+Mail-Followup-To: Stelian Pop <stelian@popies.net>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="8R/sMIKPJVD0CT2D"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Nov 2004, Catalin(ux aka Dino) BOIE wrote:
 
-> Hello!
->
-> (I resend this because I get no feedback.)
->
-> Testing UML on my project, I hit the limit for command line with something like
-> this:
->
-> default \
->          mem=64M \
->          ubda=COW,/data/UML4/roots/ROOT1 \
->          ubdb=SWAP \
->          ubdc=CONF.tar \
->          ${HSSTR} \
->          eth0=daemon,fe:fd:39:bd:cc:d7,,/data/UML4/conf/example1/socks/SW1
-> eth1=daemon,fe:fd:01:01:01:12,,/data/UML4/conf/example1/socks/SW2
-> eth2=daemon,fe:fd:01:01:01:99,,/data/UML4/conf/example1/socks/SW4
-> eth3=daemon,fe:fd:01:01:01:03,,/data/UML4/conf/example1/socks/SW5
-> eth4=daemon,fe:fd:01:01:01:04,,/data/UML4/conf/example1/socks/SW6
-> eth5=daemon,fe:fd:01:01:01:81,,/data/UML4/conf/example1/socks/SW8p1
-> eth6=daemon,fe:fd:3f:a9:35:e2,,/data/UML4/conf/EXTERN/E1  \
->          con=null \
->          ssl0=port:9101 \
->          umid=example1-pc1 \
->          @pc1@
->
->
-> Patch to extend the limits (buffer and number of args/envs) is attached.
-> Please consider including it because UML is intended to be run with such
-> long lines.
-> I'm open to other alternatives as a Kconfig entry for this.
+--8R/sMIKPJVD0CT2D
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Actually, I should redo/update my patch that lets uml parse a config file.
+hi :)
+
+kfifo_alloc tries to round up the buffer size to the next power of two.
+But it accidently uses the original size when calling kfifo_init,
+which will BUG.
+
+Signed-off-by: Martin Waitz <tali@admingilde.org>
+
+Index: kernel/kfifo.c
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+RCS file: /home/inf3/mnwaitz/src/linux-cvs/linux-2.5/kernel/kfifo.c,v
+retrieving revision 1.2
+diff -u -p -r1.2 kfifo.c
+--- kernel/kfifo.c	19 Oct 2004 15:12:21 -0000	1.2
++++ kernel/kfifo.c	4 Nov 2004 17:00:34 -0000
+@@ -66,7 +66,6 @@ EXPORT_SYMBOL(kfifo_init);
+  */
+ struct kfifo *kfifo_alloc(unsigned int size, int gfp_mask, spinlock_t *loc=
+k)
+ {
+-	unsigned int newsize;
+ 	unsigned char *buffer;
+ 	struct kfifo *ret;
+=20
+@@ -74,13 +73,12 @@ struct kfifo *kfifo_alloc(unsigned int s
+ 	 * round up to the next power of 2, since our 'let the indices
+ 	 * wrap' tachnique works only in this case.
+ 	 */
+-	newsize =3D size;
+ 	if (size & (size - 1)) {
+ 		BUG_ON(size > 0x80000000);
+-		newsize =3D roundup_pow_of_two(size);
++		size =3D roundup_pow_of_two(size);
+ 	}
+=20
+-	buffer =3D kmalloc(newsize, gfp_mask);
++	buffer =3D kmalloc(size, gfp_mask);
+ 	if (!buffer)
+ 		return ERR_PTR(-ENOMEM);
+=20
+
+--=20
+Martin Waitz
+
+--8R/sMIKPJVD0CT2D
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQFBimGXj/Eaxd/oD7IRArp0AJ4peAdoyRK4uAWCjZddGcCLigSZngCfVlqE
+Xur8TvjQHm/JHZaRPtSG9J4=
+=V/Re
+-----END PGP SIGNATURE-----
+
+--8R/sMIKPJVD0CT2D--

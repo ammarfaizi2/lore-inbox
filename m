@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267622AbUBTAyY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 19:54:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267641AbUBTAwB
+	id S267649AbUBTAzE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 19:55:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267636AbUBTAvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 19:52:01 -0500
-Received: from mail.kroah.org ([65.200.24.183]:36001 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S267622AbUBTAv3 (ORCPT
+	Thu, 19 Feb 2004 19:51:54 -0500
+Received: from mail.kroah.org ([65.200.24.183]:38049 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S267626AbUBTAvb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 19:51:29 -0500
-Date: Thu, 19 Feb 2004 16:20:47 -0800
+	Thu, 19 Feb 2004 19:51:31 -0500
+Date: Thu, 19 Feb 2004 16:23:28 -0800
 From: Greg KH <greg@kroah.com>
-To: Kianusch Sayah Karadji <kianusch@sk-tech.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PCI-Scan Hangup ...
-Message-ID: <20040220002047.GB16267@kroah.com>
-References: <Pine.LNX.4.58.0402191426360.27436@kryx.sk-tech.net>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Tommi Virtanen <tv@tv.debian.net>, Leann Ogasawara <ogasawara@osdl.org>,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] propogate errors from misc_register to caller
+Message-ID: <20040220002328.GE16267@kroah.com>
+References: <20040213102755.27cf4fcd.shemminger@osdl.org> <20040213112100.4f42abc2@dell_ss3.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0402191426360.27436@kryx.sk-tech.net>
+In-Reply-To: <20040213112100.4f42abc2@dell_ss3.pdx.osdl.net>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 19, 2004 at 02:35:59PM +0100, Kianusch Sayah Karadji wrote:
-> Hi!
-> 
-> There I have a Soekris bord with some weird PCI Handup while booting
-> Linux during PCI-Scan .
+On Fri, Feb 13, 2004 at 11:21:00AM -0800, Stephen Hemminger wrote:
+> The patch to check for / in class_device is not enough.
+> The misc_register function needs to check return value of the things it calls!
 
-Can you try to determine what is hanging in a non-modified 2.6.3 kernel?
-
-thanks,
+Applied to my trees, thanks.
 
 greg k-h

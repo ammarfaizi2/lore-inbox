@@ -1,32 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290666AbSBTAiV>; Tue, 19 Feb 2002 19:38:21 -0500
+	id <S290664AbSBTAdV>; Tue, 19 Feb 2002 19:33:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290669AbSBTAiB>; Tue, 19 Feb 2002 19:38:01 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:49026 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S290666AbSBTAiA>;
-	Tue, 19 Feb 2002 19:38:00 -0500
-Date: Tue, 19 Feb 2002 19:37:55 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Jakob Kemi <jakob.kemi@telia.com>
-cc: Andreas Dilger <adilger@turbolabs.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] hex <-> int conve
-In-Reply-To: <02022001122600.01789@jakob>
-Message-ID: <Pine.GSO.4.21.0202191935530.9938-100000@weyl.math.psu.edu>
+	id <S290666AbSBTAdM>; Tue, 19 Feb 2002 19:33:12 -0500
+Received: from defiant.secureone.com.au ([203.55.158.195]:10980 "EHLO
+	defiant.secureone.com.au") by vger.kernel.org with ESMTP
+	id <S290664AbSBTAc4>; Tue, 19 Feb 2002 19:32:56 -0500
+Posted-Date: Wed, 20 Feb 2002 10:33:23 +1000
+X-URL: SecureONE SecureSentry - http://www.secureone.com.au/
+Message-ID: <007b01c1b9a6$ab4351b0$0f01000a@brisbane.hatfields.com.au>
+Reply-To: "Andrew Hatfield" <lkml@secureone.com.au>
+From: "Andrew Hatfield" <lkml@secureone.com.au>
+To: "Linux Kernel" <linux-kernel@vger.kernel.org>
+Subject: Dlink DSL PCI Card
+Date: Wed, 20 Feb 2002 10:36:42 +1000
+Organization: SecureONE
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Does anyone know if the D-Link DSL-100D PCI card will work in linux?
 
+URL : http://www.dlink.com.au/products/broadband/dsl100/
 
-On Wed, 20 Feb 2002, Jakob Kemi wrote:
+Regards
 
-> this one. Not that speed really matters in this context. I also found a dozen
-> or so of different int to hex implementations. In order to reduce code
-> duplication and increase the homogeneity of the kernel I think it's a good
-> idea to use _one_ implementation.
+  --
 
-In that case it will have to be sprintf/sscanf/strtoul, since this stuff is
-not going away...
+  Andrew Hatfield
+  SecureONE - http://www.secureone.com.au/
+  President - South East Brisbane Linux Users Group  http://www.seblug.org/
+
+  Kernel work available at http://development.secureone.com.au/kernel/
+
 

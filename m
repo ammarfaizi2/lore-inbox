@@ -1,207 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264855AbTE1UGd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 16:06:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264859AbTE1UGd
+	id S264856AbTE1UQL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 16:16:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264858AbTE1UQL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 16:06:33 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:51335 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264855AbTE1UGT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 16:06:19 -0400
-Date: Wed, 28 May 2003 16:22:47 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4 bug: fifo-write causes diskwrites to read-only fs ! 
-In-Reply-To: <200305281934.h4SJYHtX015646@verdi.et.tudelft.nl>
-Message-ID: <Pine.LNX.4.53.0305281612160.13968@chaos>
-References: <200305281934.h4SJYHtX015646@verdi.et.tudelft.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 28 May 2003 16:16:11 -0400
+Received: from 213-0-201-232.dialup.nuria.telefonica-data.net ([213.0.201.232]:37761
+	"EHLO dardhal.mired.net") by vger.kernel.org with ESMTP
+	id S264856AbTE1UQK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 16:16:10 -0400
+Date: Wed, 28 May 2003 22:29:21 +0200
+From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: what happened to i2c-proc
+Message-ID: <20030528202921.GA8349@localhost>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <m3d6i3avnk.fsf@ccs.covici.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m3d6i3avnk.fsf@ccs.covici.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 28 May 2003, Rob van Nieuwkerk wrote:
+On Wednesday, 28 May 2003, at 12:22:23 -0400,
+John Covici wrote:
 
-> > On Wed, 28 May 2003, Rob van Nieuwkerk wrote:
-> >
-> > >
-> > > I wrote:
-> > > > It turns out that Linux is updating inode timestamps of fifos (named
-> > > > pipes) that are written to while residing on a read-only filesystem.
-> > > > It is not only updating in-ram info, but it will issue *physical*
-> > > > writes to the read-only fs on the disk !
-> > > 	.
-> > > 	.
-> > > 	.
-> > > > Sysinfo:
-> > > > --------
-> > > > - various 2.4 kernels including RH-2.4.20-13.9,
-> > > >   but also straight 2.4(ac) ones.
-> > > > - CompactFlash (= IDE disk)
-> > > > - Geode GX1 CPU (i586 compatible)
-> > >
-> > > Forgot to mention: I use an ext2 fs, but maybe it's a generic,
-> > > fs-independant problem.
-> > >
-> > > 	greetings,
-> > > 	Rob van Nieuwkerk
-> >
-> > How does it 'know' it's a R/O file-system? Have you mounted it
-> > R/O, mounted it noatime, or just taken whatever you get when
-> > you boot from a ramdisk?
->
-> Hi Richard,
->
-> The kernel has the "ro" commandline-parameter.
-> There is no remount after the system boots.
-> "touch /bla" gives a read-only fs error.
->
-> > FYI, I created a FIFO with mkfifo, remounted the file-system
-> > R/O, executed `cat` with it's input coming from the FIFO, and
-> > then waited for a few minutes. I then wrote to the FIFO.
-> > The atime did not change with 2.4.20.
->
-> Just did the same here (on my workstation).  And the times *did* change ..
-> More precisely: the "modification" & "change" were updated, the "access"
-> time remained unchanged.
->
+> I am trying to compile appropriate modules for lm sensors in 2.5.70,
+> but there seems to be no way to configure i2c-proc -- it seems to be
+> there for other architectures, but not for i386.
+> 
+And this is probably the cause of my hardware sensors (it87.ko) not
+working :-). Here is what modules.dep for my 2.4.20 kernel says:
+/lib/modules/2.4.20-xfsip/kernel/drivers/sensors/it87.o:
+    /lib/modules/2.4.20-xfsip/kernel/drivers/i2c/i2c-core.o \
+    /lib/modules/2.4.20-xfsip/kernel/drivers/i2c/i2c-proc.o
 
-Okay. I can now verify the problem. There are two problems as this
-script will show:
+And here what it says for my 2.5.70 kernel:
+/lib/modules/2.5.70/kernel/drivers/i2c/chips/it87.ko: /lib/modules/2.5.70/kernel/drivers/i2c/i2c-sensor.ko /lib/modules/2.5.70/kernel/drivers/i2c/i2c-core.ko
 
-Script started on Wed May 28 16:10:13 2003
-# cat xxx.c
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <signal.h>
-#include <sys/fcntl.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
+Or maybe something changed in the meantime, and problems are in
+user-space, the fact is it doesn't work:
 
-int main(void);
-static const char fifo[]="/alt/FIFO";
-void reaper(int unused)
-{
-    while(wait3(&unused, WNOHANG, NULL) > 0)
-        ;
-}
-int main()
-{
-    int fd;
-    int i;
-    char buf[0x1000];
-    struct stat sb;
+server:~# sensors -v
+sensors version 2.6.5
 
-    (void)mkfifo(fifo, 0644);
-    (void)signal(SIGCHLD, reaper);
-    if((fd = open(fifo, O_RDWR)) < 0)
-        exit(EXIT_FAILURE);
-    switch(fork())
-    {
-    case 0:
-        for(;;)
-        {
-            if(read(fd, buf, sizeof(buf)) < 0)
-                exit(EXIT_FAILURE);
-            if(*buf == (char) 0xa5) exit(EXIT_SUCCESS);
-        }
-        break;  /* Not reached */
-    case -1:
-        fprintf(stderr, "Can't fork()\n");
-        exit(EXIT_FAILURE);
-        break; /* Not reached */
-    default:
-        break; /* Now required */
-    }
-    memset(buf, 0x00, sizeof(buf));
-    for(i=0; i< 0x10; i++)
-    {
-        (void)write(fd, buf, sizeof(buf));
-        (void)fstat(fd, &sb);
-        printf("atime = %08lx\n", sb.st_atime);
-        printf("mtime = %08lx\n", sb.st_mtime);
-        printf("ctime = %08lx\n", sb.st_ctime);
-        sleep(1);
-    }
-    *buf = (char)0xa5;
-    (void)write(fd, buf, 0x01);
-    (void)close(fd);
-//    (void)unlink(fifo);
-    return 0;
-}
+As seen on lm_sensors' home page, it seems the are still porting i2c and
+lm_sensors to recent 2.5.x kernels, so maybe the problem is there. They
+advise against trying to compile both i2c and lm_sensors for 2.5.x
+kernels, because probably they won't work.
 
-# gcc -O2 -o xxx -Wall xxx.c
-# ./xxx
-atime = 3ed51750
-mtime = 3ed517c5
-ctime = 3ed517c5
-atime = 3ed51750
-mtime = 3ed517c6
-ctime = 3ed517c6
-atime = 3ed51750
-mtime = 3ed517c7
-ctime = 3ed517c7
-atime = 3ed51750
-mtime = 3ed517c8
-ctime = 3ed517c8
-atime = 3ed51750
-mtime = 3ed517c9
-ctime = 3ed517c9
-atime = 3ed51750
-mtime = 3ed517ca
-ctime = 3ed517ca
-atime = 3ed51750
-mtime = 3ed517cb
-ctime = 3ed517cb
-atime = 3ed51750
-mtime = 3ed517cc
-ctime = 3ed517cc
-atime = 3ed51750
-mtime = 3ed517cd
-ctime = 3ed517cd
-atime = 3ed51750
-mtime = 3ed517ce
-ctime = 3ed517ce
-atime = 3ed51750
-mtime = 3ed517cf
-ctime = 3ed517cf
-atime = 3ed51750
-mtime = 3ed517d0
-ctime = 3ed517d0
-atime = 3ed51750
-mtime = 3ed517d1
-ctime = 3ed517d1
-atime = 3ed51750
-mtime = 3ed517d2
-ctime = 3ed517d2
-atime = 3ed51750
-mtime = 3ed517d3
-ctime = 3ed517d3
-atime = 3ed51750
-mtime = 3ed517d4
-ctime = 3ed517d4
-# >/alt/foo
-bash: /alt/foo: Read-only file system
-# exit
-exit
-Script done on Wed May 28 16:11:12 2003
+Hope this helps.
 
-As you can clearly see, access time (atime) is not changed.
-However, both ctime and mtime are both changed with every
-FIFO access. Since this FIFO is provably on a R/O file system,
-nothing should change.
-
-Now, somebody will probably claim that this is the correct
-POSIX defined behavior <sigh> so you might have to make some
-work-around like use a pipe or socket instead of the FIFO??
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
+-- 
+Jose Luis Domingo Lopez
+Linux Registered User #189436     Debian Linux Sid (Linux 2.5.70)

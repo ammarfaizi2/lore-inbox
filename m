@@ -1,74 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264364AbTLKGMP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 01:12:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264366AbTLKGMP
+	id S264359AbTLKGTE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 01:19:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264360AbTLKGTE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 01:12:15 -0500
-Received: from mail-04.iinet.net.au ([203.59.3.36]:7853 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S264364AbTLKGMM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 01:12:12 -0500
-Message-ID: <3FD80AB7.3010909@cyberone.com.au>
-Date: Thu, 11 Dec 2003 17:12:07 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
+	Thu, 11 Dec 2003 01:19:04 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:57064
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S264359AbTLKGTB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 01:19:01 -0500
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: <hzhong@cisco.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Is there a "make hole" (truncate in middle) syscall?
+Date: Thu, 11 Dec 2003 00:19:28 -0600
+User-Agent: KMail/1.5
+References: <011e01c3bfa5$8fb5a0e0$d43147ab@amer.cisco.com>
+In-Reply-To: <011e01c3bfa5$8fb5a0e0$d43147ab@amer.cisco.com>
 MIME-Version: 1.0
-To: Raul Miller <moth@magenta.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Linux 2.6.0-test11 only lets me use 1GB out of 2GB ram.
-References: <C033B4C3E96AF74A89582654DEC664DB0672F1@aruba.maner.org> <3FD7FCF5.7030109@cyberone.com.au> <3FD801B3.7080604@wmich.edu> <20031211054111.GX8039@holomorphy.com> <C033B4C3E96AF74A89582654DEC664DB0672F1@aruba.maner.org> <3FD7FCF5.7030109@cyberone.com.au> <3FD801B3.7080604@wmich.edu> <C033B4C3E96AF74A89582654DEC664DB0672F1@aruba.maner.org> <3FD7FCF5.7030109@cyberone.com.au> <C033B4C3E96AF74A89582654DEC664DB0672F1@aruba.maner.org> <20031211010132.F28449@links.magenta.com>
-In-Reply-To: <20031211010132.F28449@links.magenta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312110019.29080.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 10 December 2003 23:13, Hua Zhong wrote:
+> Sorry for digging out this old discussion.
+>
+> This would be a tremendous enhancement to Linux filesystems, and one of
+> my current projects actually needs this capability badly.
+>
+> The project is a lightweight user-space library which implements a
+> file-based database. Each database has several files. The files are all
+> block-based, and each block is always a multiple of 512 byte (and we
+> could make it a multiple of 4K, in case this feature existed).
+>
+> Blocks are organized as a B+ tree, so we have a root block, which points
+> to its child blocks, and in turn they point to the next level. There is
+> a free block list too.
+>
+> The problem is with a lot of add/delete, there are a lot of free blocks
+> inside the file. So essentially we'd have to manually shrink these files
+> when it grows too big and eats up too much space. If we could just "dig
+> a hole", it would be trivial to return those blocks to the filesystem
+> without doing an expensive defragmentation.
 
+It could be worse.  Java didn't have a "truncate file" command at all until I 
+yelled at Sun about it.  (It was too late to get it into 1.1, but they added 
+it to 1.2.  Of course, that was back when I cared about Java... :)
 
-Raul Miller wrote:
+Al Viro mentioned that making hole creation play nice with mmap would be evil.  
+I suspect that having the "punch hole" call simply fail if any part of the 
+range you're trying to zap is currently mmaped is probably good enough for a 
+first pass.  (Maybe some fallback code could write zeroes into the range so 
+the behavior was sort of similar in the failure case...)  But I haven't 
+looked at the code enough to even know what the issues are, and I certainly 
+won't have time this week...
 
->On Wed, Dec 10, 2003 at 11:06:46PM -0600, Donald Maner wrote:
->
->>The kernel you're using WAS compiled with CONFIG_HIGHMEM4G=y, correct?
->>
->
->No.
->
->
->On Thu, Dec 11, 2003 at 04:13:25PM +1100, Nick Piggin wrote:
->
->>Or ARCH=x86_64 ?
->>
->
->Yes.  Well, no... I don't see that option in my .config.  I
->did specify the amd64 bit archictecture, but I don't know
->what that means in .config terms.  Here's what's set under
->"# Processor type and features":
->
-
-This optimises the kernel for your chip when its in 32-bit mode.
-make 'ARCH=x64_64' to make a 64-bit kernel, however you would
-need a cross compiler.
-
->
->On Thu, Dec 11, 2003 at 04:48:51PM +1100, Nick Piggin wrote:
->
->>At any rate, Raul, highmem shouldn't hurt your performance significantly
->>with the 2.6 kernel. If it does then send a note to the list.
->>
->
->Ok, I guess I'll try that (tomorrow, unless I hear any better suggestions
->before then).
->
->[I thought highmem was something completely different -- that it declared
->a watermark and memory above that watermark was treated differently.
->However, I guess I understand that this might have the side effect of
->bumping things around such that I get access to the memory.]
->
-
-No you're right, but the kernel tries not to use highmem for data it
-accesses a lot. cache and anonymous memory for example.
-
-
+Rob

@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbVASDf6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261554AbVASD66@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261552AbVASDf6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 22:35:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261550AbVASDf6
+	id S261554AbVASD66 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 22:58:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbVASD66
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 22:35:58 -0500
-Received: from terminus.zytor.com ([209.128.68.124]:53937 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S261552AbVASDfy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 22:35:54 -0500
-Message-ID: <41EDD584.8080307@zytor.com>
-Date: Tue, 18 Jan 2005 19:35:32 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matt Mackall <mpm@selenic.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kbuild: Implicit dependence on the C compiler
-References: <cshbd7$nff$1@terminus.zytor.com> <20050117220052.GB18293@mars.ravnborg.org> <41EC363D.1090106@zytor.com> <20050118190513.GA16120@mars.ravnborg.org> <csjoef$gkt$1@terminus.zytor.com> <20050119012612.GD3867@waste.org>
-In-Reply-To: <20050119012612.GD3867@waste.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 18 Jan 2005 22:58:58 -0500
+Received: from ozlabs.org ([203.10.76.45]:41638 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261554AbVASD64 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 22:58:56 -0500
+Subject: Re: [BUG] MODULE_PARM conversions introduces bug in Wavelan driver
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: jt@hpl.hp.com
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       netdev@oss.sgi.com
+In-Reply-To: <20050119004722.GA26468@bougret.hpl.hp.com>
+References: <20050119004722.GA26468@bougret.hpl.hp.com>
+Content-Type: text/plain
+Date: Wed, 19 Jan 2005 13:42:33 +1100
+Message-Id: <1106102553.20879.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Mackall wrote:
->>
->>I would argue that "name of gcc has changed" is possibly a condition
->>that does more harm than good.  It is just as frequently used to have
->>wrappers, like distcc, as it is to have different versions.
+On Tue, 2005-01-18 at 16:47 -0800, Jean Tourrilhes wrote:
+> 	Hi Rusty,
 > 
-> Disagree. I switch compilers all the time and kbuild does the right
-> thing for me.
-> 
-> I do occassionally feel your 'make install' pain and some sort of
-> 'make __install' might be called for.
-> 
+> 	(If you are not the culprit, please forward to the guilty party).
 
-As I said, I don't mind the default being there, it's certainly 
-consistent with the default being safe.  However, not being able to 
-override it is bad.
+Almost certainly me.  We gave people warning, we even marked MODULE_PARM
+deprecated, but eventually I had to roll through and try to autoconvert.
 
-	-hpa
+> 	I personally introduced the "double char array" module
+> parameter, 'c', to fix that. I even sent you the patch to add 'c'
+> support in your new module loader (see set_obsolete()). Would it be
+> possible to carry this feature with the new module_param_array ?
+> 	Thanks in advance...
+
+Actually, it's designed so you can extend it yourself: at its base,
+module_param_call() is just a callback mechanism.
+
+Thanks!
+Rusty.
+-- 
+A bad analogy is like a leaky screwdriver -- Richard Braakman
+

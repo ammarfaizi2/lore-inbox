@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268049AbUIHOIy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269160AbUIHOOS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268049AbUIHOIy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 10:08:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267856AbUIHOHk
+	id S269160AbUIHOOS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 10:14:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267928AbUIHOHV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 10:07:40 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:1192 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268049AbUIHOC5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 10:02:57 -0400
-Subject: Re: silent semantic changes with reiser4
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Tonnerre <tonnerre@thundrix.ch>
-Cc: Pavel Machek <pavel@ucw.cz>, Christer Weinigel <christer@weinigel.se>,
-       Spam <spam@tnonline.net>, Linus Torvalds <torvalds@osdl.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>,
-       David Masover <ninja@slaphack.com>, Jamie Lokier <jamie@shareable.org>,
-       Chris Wedgwood <cw@f00f.org>, viro@parcelfarce.linux.theplanet.co.uk,
-       Christoph Hellwig <hch@lst.de>, Hans Reiser <reiser@namesys.com>,
-       linux-fsdevel@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <20040908061159.GC1630@thundrix.ch>
-References: <20040905111743.GC26560@thundrix.ch>
-	 <1215700165.20040905135749@tnonline.net>
-	 <20040905115854.GH26560@thundrix.ch>
-	 <1819110960.20040905143012@tnonline.net>
-	 <20040906105018.GB28111@atrey.karlin.mff.cuni.cz>
-	 <6010544610.20040906143222@tnonline.net> <m3wtz7h2l6.fsf@zoo.weinigel.se>
-	 <826067315.20040906171320@tnonline.net> <m3sm9vh06b.fsf@zoo.weinigel.se>
-	 <20040906155456.GC13539@atrey.karlin.mff.cuni.cz>
-	 <20040908061159.GC1630@thundrix.ch>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1094648265.11680.9.camel@localhost.localdomain>
+	Wed, 8 Sep 2004 10:07:21 -0400
+Received: from cantor.suse.de ([195.135.220.2]:55681 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S269168AbUIHODX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 10:03:23 -0400
+Date: Wed, 8 Sep 2004 16:03:23 +0200
+From: Olaf Hering <olh@suse.de>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] CONFIG_CMDLINE broken on ppc
+Message-ID: <20040908140323.GA15309@suse.de>
+References: <20040908134028.GB15209@suse.de> <20040908135211.GA26381@smtp.west.cox.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 08 Sep 2004 13:57:48 +0100
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040908135211.GA26381@smtp.west.cox.net>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-09-08 at 07:11, Tonnerre wrote:
-> This  has   been  discussed  along   with  the  HAL  people   a  while
-> ago. Actually, file systems can  introduce a refcount, where we need a
-> decrement function  which automatically unmounts the  filesystem if we
-> decrement the use count to zero. Kind of an automatic umount.
+ On Wed, Sep 08, Tom Rini wrote:
 
-We've supported file system garbage collection when they become unused
-since umm about 2.4.10 I think.
+> On Wed, Sep 08, 2004 at 03:40:28PM +0200, Olaf Hering wrote:
+> 
+> > CONFIG_CMDLINE can not work on ppc.
+> > machine_init() copies the string to cmd_line, then platform_init() is
+> > called. It truncates the string to length zero.
+> 
+> This has come up before, actually.  What happens if CMDLINE isn't set,
+> and we don't terminate cmd_line here?  It's part of the BSS and is
+> zero'd out anyways?
 
+strlcpy generates a null-terminated string, if size != 0. Looks like
+that line can go. Or move it at the start of machine_init().
+
+-- 
+USB is for mice, FireWire is for men!
+
+sUse lINUX ag, nÜRNBERG

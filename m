@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130458AbRAaSx6>; Wed, 31 Jan 2001 13:53:58 -0500
+	id <S130140AbRAaSyi>; Wed, 31 Jan 2001 13:54:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131099AbRAaSxi>; Wed, 31 Jan 2001 13:53:38 -0500
-Received: from www.topmail.de ([212.255.16.226]:55976 "HELO www.topmail.de")
-	by vger.kernel.org with SMTP id <S130972AbRAaSxc> convert rfc822-to-8bit;
-	Wed, 31 Jan 2001 13:53:32 -0500
-Message-ID: <021501c08bb7$1a786df0$0100a8c0@homeip.net>
-From: "mirabilos" <eccesys@topmail.de>
-To: "Linux-Kernel ML" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.95.1010130164236.3322A-100000@chaos.analogic.com>
-Subject: Re: Version 2.4.1 cannot be built. 
-Date: Wed, 31 Jan 2001 18:37:27 -0000
-Organization: eccesys.net Linux Distribution Development
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S131049AbRAaSy2>; Wed, 31 Jan 2001 13:54:28 -0500
+Received: from mta5.snfc21.pbi.net ([206.13.28.241]:64714 "EHLO
+	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S130140AbRAaSxw>; Wed, 31 Jan 2001 13:53:52 -0500
+Date: Wed, 31 Jan 2001 10:38:50 -0800
+From: Dan Kegel <dank@alumni.caltech.edu>
+Subject: Re: [Kiobuf-io-devel] Re: RFC: Kernel mechanism: Compound event
+ wait/notify + callback chains
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Reply-to: dank@alumni.caltech.edu
+Message-id: <3A785BBA.55AC2B65@alumni.caltech.edu>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Did you a make clean/mrproper before?
-I usually do, and the kernel runs fine.
+sct wrote:
 
--mirabilos
+> On Wed, Jan 31, 2001 at 04:12:11PM +0530, bsuparna@in.ibm.com wrote: 
+> > 
+> > Thanks for mentioning this. I didn't know about it earlier. I've been 
+> > going through the 4/00 kqueue patch on freebsd ... 
+> 
+> Linus has already denounced them as massively over-engineered... 
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12+(proprietary extensions) # Updated:20010129 nick=mirabilos
-GO/S d@ s--: a--- C++ UL++++ P--- L++$(-^lang) E----(joe) W+(++) loc=.de
-N? o K? w-(+$) O+>+++ M-- V- PS+++@ PE(--) Y+ PGP t+ 5? X+ R+ !tv(silly)
-b++++* DI- D+ G(>++) e(^age) h! r(-) y--(!y+) /* lang=NASM;GW-BASIC;C */
-------END GEEK CODE BLOCK------
-
-
+That shouldn't stop anyone from looking at them and learning, though.
+There might be a good idea or two hiding in there somewhere.
+- Dan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

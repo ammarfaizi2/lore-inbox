@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282640AbRKZXPq>; Mon, 26 Nov 2001 18:15:46 -0500
+	id <S282646AbRKZXSg>; Mon, 26 Nov 2001 18:18:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282643AbRKZXPg>; Mon, 26 Nov 2001 18:15:36 -0500
-Received: from jalon.able.es ([212.97.163.2]:43231 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S282640AbRKZXP3>;
-	Mon, 26 Nov 2001 18:15:29 -0500
-Date: Tue, 27 Nov 2001 00:15:18 +0100
-From: "J.A. Magallon" <jamagallon@able.es>
-To: "Bjoern A. Zeeb" <bzeeb+linuxkernel@zabbadoz.net>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Release Policy [was: Linux 2.4.16  ]
-Message-ID: <20011127001518.A1546@werewolf.able.es>
-In-Reply-To: <Pine.LNX.4.40.0111261216500.88-100000@rc.priv.hereintown.net> <Pine.BSF.4.30.0111261836000.77704-100000@noc.zabbadoz.net>
+	id <S282642AbRKZXS0>; Mon, 26 Nov 2001 18:18:26 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:42960 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S282646AbRKZXSS>;
+	Mon, 26 Nov 2001 18:18:18 -0500
+Date: Tue, 27 Nov 2001 00:18:04 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: n0ano@indstorage.com
+Cc: =?iso-8859-1?Q?Achim_Kr=FCmmel?= <akruemmel@dohle.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Intel I860
+Message-ID: <20011127001804.U5770@khan.acc.umu.se>
+In-Reply-To: <3BFD0F19.86D23BEB@dohle.com> <20011126152803.A8684@tlaloc.indstorage.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <Pine.BSF.4.30.0111261836000.77704-100000@noc.zabbadoz.net>; from bzeeb+linuxkernel@zabbadoz.net on Mon, Nov 26, 2001 at 19:48:12 +0100
-X-Mailer: Balsa 1.2.3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <20011126152803.A8684@tlaloc.indstorage.com>; from n0ano@indstorage.com on Mon, Nov 26, 2001 at 03:28:03PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Nov 26, 2001 at 03:28:03PM -0700, n0ano@indstorage.com wrote:
+> Achim-
+> 
+> Uh, what exactly do you think you have here?  The I860 was a
+> completely new architecture that Intel dropped over 5 years
+> ago.  I've got one running Unix SVR4 in my basement but you
+> can't buy an I860 motherboard today.
+> 
+> (For the record the 860 was a great architecture for the time
+> and I'm still bitter that Intel dropped it but that's a different
+> story.)
 
-On 20011126 Bjoern A. Zeeb wrote:
->
->The problem is that you kernel hackers out there fetch the pre stuff
->and test it that others run test cycles on them ... .  But the
->lot of people out there will never fetch anything else than
->a "release" ; no -pre no -rc no -ac no whatever prefix or suffix.
->You will not get them just because somebody 's changing the name
->to something else.
->
+Uh? You're using the word i860 (the processor, I gather) and great
+in the same sentence, and not in combination with disaster?! That's
+a first... The i960 is fully ok, but the i860 was a pile of crap.
 
-The problem is the fear of people about -ac or -pre series. What should
-be done is to teach people that what they think is kernel 2.4.8 from
-RedHat or Mandrake is really 2.4.8-ac7 or the like. They are shipping
--ac versions (beacuse of preferences and driver update, usually are
--ac series and not -pre series). So your 'distro rock solid kernel'
-is an -ac kernel (and I do not say that an -ac kernel is not rock
-solid, I have run -ac's until 13-ac7).
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.2 (Cooker) for i586
-Linux werewolf 2.4.16-pre1 #1 SMP Sun Nov 25 02:06:34 CET 2001 i686
+/David Weinehall
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

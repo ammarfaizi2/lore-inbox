@@ -1,100 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266708AbTAOQIL>; Wed, 15 Jan 2003 11:08:11 -0500
+	id <S266665AbTAOQYP>; Wed, 15 Jan 2003 11:24:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266712AbTAOQIL>; Wed, 15 Jan 2003 11:08:11 -0500
-Received: from in02-fes1.whowhere.com ([209.202.220.218]:54184 "HELO
-	whowhere.com") by vger.kernel.org with SMTP id <S266708AbTAOQII>;
-	Wed, 15 Jan 2003 11:08:08 -0500
-To: "Dean McEwan" <dean.mcewan@eudoramail.com>,
-       "Andre Hedrick" <andre@linux-ide.org>
-Date: Wed, 15 Jan 2003 16:16:47  0000
-From: "Dean McEwan" <dean.mcewan@eudoramail.com>
-Message-ID: <JEHOKGJDGFNJKAAA@whowhere.com>
+	id <S266682AbTAOQYP>; Wed, 15 Jan 2003 11:24:15 -0500
+Received: from [66.70.28.20] ([66.70.28.20]:28165 "EHLO
+	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
+	id <S266665AbTAOQYJ>; Wed, 15 Jan 2003 11:24:09 -0500
+Date: Wed, 15 Jan 2003 17:22:19 +0100
+From: DervishD <raul@pleyades.net>
+To: Jakob Oestergaard <jakob@unthought.net>, jw schultz <jw@pegasys.ws>,
+       Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Changing argv[0] under Linux.
+Message-ID: <20030115162219.GB86@DervishD>
+References: <Pine.LNX.3.95.1030114140811.13496A-100000@chaos.analogic.com> <87iswrzdf1.fsf@ceramic.fifi.org> <20030114220401.GB241@DervishD> <20030114230418.GB4603@doc.pdx.osdl.net> <20030114231141.GC4603@doc.pdx.osdl.net> <20030115044644.GA18608@mark.mielke.cc> <20030115082527.GA22689@pegasys.ws> <20030115114130.GD66@DervishD> <20030115131617.GA8621@unthought.net>
 Mime-Version: 1.0
-Cc: linux-kernel@vger.kernel.org, abramo.bagnara@libero.it,
-       "Richard Stallman" <rms@gnu.org>
-X-Sent-Mail: off
-Reply-To: dean.mcewan@eudoramail.com
-X-Mailer: MailCity Service
-X-Priority: 3
-Subject: Re: [V. OFFTOPIC] RMS and reactions to him (MARMITE?)
-X-Sender-Ip: 213.120.56.45
-Organization: Lycos Mail  (http://www.mail.eudoramail.com)
-Content-Type: text/plain; charset=us-ascii
-Content-Language: en
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030115131617.GA8621@unthought.net>
+User-Agent: Mutt/1.4i
+Organization: Pleyades
+User-Agent: Mutt/1.4i <http://www.mutt.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick "who won't say whether he prefers marmite or peanut butter" wrote:
+    Hi Jakob :)
 
->Dean,
->Is it because OSL has some
->meaningful terms understood by the courts?  Is it because the folks at OSI
->understand a bigger picture?
+> >     Really, I'm thinking seriously about not rewritting argv[0] at
+> > all. The problem is that may confuse the user when issuing 'ps' or
+> > looking at /proc :((
+> What about
+[...]
 
-OSL?/OSI? Oregon State Library? :-)
+    Mmm, interesting idea. A simpler solution is just copy the needed
+argv0. In your example, about 500 bytes are wasted ;))) By using the
+needed size at argv0, we have the space needed.
 
->See I found it worthy enough to go and investigate.
->
->What I found, I like.
+    If execv doesn't do any magic with the supplied argv array, then
+this should work.
 
-What I found made me think of renewing my library books :)
+> For the same effect without the --very-magic argument, you could simply
+> do an "if (argc != 2 || strlen(argv[0]) != 511)" instead.
 
->	Richard, is there a way to make OSL and GPL compatable ?
+    No, because the len of argv[0] being 'my proggy' is 9, that is not
+511 ;)) We cannot tell the allocated space, I'm afraid O:)
+ 
+> Am I smoking crack, or could the above work?
 
-No because Oregons library is a bit diferent... :)
+    I should smoke crack, definitely. That way I would not mess with
+that argv thing XDDDD
 
->	Richard, will you allow OSL and GPL to coexist ?
-
-Yes because he wouldn't sue a fly.
-
-
->My concern is that vision and ideas started by RMS, are being clouded.
-
-I aggree. Perhaps for the first time, So do you like marmite? :-)
-
-"offending party" is required to pay
->an alteration royality fee.
-
-An injustice against true FS. I like to alter my code ;)
-
->I do not know the what the best answer is today.
-Must be your new cereal.
-
->However, I am willing to put my money down (if I ever make any now) 
-Im sure you will.
-
-
->I like may other developers have/know/seen their work altered and not
->returned, yet without having a license with some teeth based in law
-
-As Kurt Cobain said "its all about the music", I don't care if I see
-my code again, just if others who want to see it can.
-
-
->What we all hear is one person promoting one agenda with one idea, and the
->idea has clouded the vision
-
-the vision is sometimes clouded, even Jesus was challenged in the
-desert.
-
->I have had enough of the mud slinging.
->Oh, I think your address should be restored, regardless.
->Did you know you can remove GPL from your work, but you can not take >back
->what is out there now?
-
-YYYAAAAAAAAAAAYYYYYYY! Nah I like whats out there, cue X files theme...
-
----
-Dean, prefers Quorn Pat'e. ;-)
-
-
-
-
-
-
-Need a new email address that people can remember
-Check out the new EudoraMail at
-http://www.eudoramail.com
+    Thanks :)
+    Raúl

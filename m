@@ -1,54 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262675AbTDMBGE (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 21:06:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262685AbTDMBGE (for <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Apr 2003 21:06:04 -0400
-Received: from [12.47.58.73] ([12.47.58.73]:14974 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id S262675AbTDMBGD (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Apr 2003 21:06:03 -0400
-Date: Sat, 12 Apr 2003 18:18:05 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: J Sloan <joe@tmsusa.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Bug: slab corruption in 2.5.67-mm1
-Message-Id: <20030412181805.1b90bee8.akpm@digeo.com>
-In-Reply-To: <3E988DA2.4080600@tmsusa.com>
-References: <3E988DA2.4080600@tmsusa.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id S262693AbTDMBll (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 21:41:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262701AbTDMBll (for <rfc822;linux-kernel-outgoing>);
+	Sat, 12 Apr 2003 21:41:41 -0400
+Received: from ms-smtp-02.tampabay.rr.com ([65.32.1.39]:24493 "EHLO
+	ms-smtp-02.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id S262693AbTDMBlk (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 12 Apr 2003 21:41:40 -0400
+Message-ID: <001101c30160$5a9ca790$6801a8c0@epimetheus>
+From: "Timothy Miller" <tmiller10@cfl.rr.com>
+To: "Jan Knutar" <jk-lkml@sci.fi>, <linux-kernel@vger.kernel.org>
+References: <000d01c30143$ccf54ad0$6801a8c0@epimetheus> <03041303065500.26409@polaris>
+Subject: Re: Page compression in lieu of swap?
+Date: Sat, 12 Apr 2003 21:59:43 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Apr 2003 01:17:44.0954 (UTC) FILETIME=[7CD53DA0:01C3015A]
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2720.3000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J Sloan <joe@tmsusa.com> wrote:
-> 
-> This may be of interest -
-> 
-> kernel: 2.5.67-mm1
-> 
-> Linux distro: Red Hat 8.0 + updates
-> 
-> Hardware:
-> Celeron 1.2 Ghz on Intel Motherboard
-> 512 MB RAM, 2x e100 ethernet
 
-whoa.  Uniprocessor.
+From: "Jan Knutar" <jk-lkml@sci.fi>
 
-> ---- snip ----
-> Freeing unused kernel memory: 312k freed
-> EXT3 FS 2.4-0.9.16, 02 Dec 2001 on ide0(3,3), internal journal
-> Adding 514072k swap on /dev/hda2.  Priority:42 extents:1
-> kjournald starting.  Commit interval 5 seconds
-> EXT3 FS 2.4-0.9.16, 02 Dec 2001 on ide0(3,1), internal journal
-> EXT3-fs: mounted filesystem with ordered data mode.
-> Slab corruption: start=dfa2f320, expend=dfa2f97f, problemat=dfa2f328
-> Data: ********6A 
+> On Sunday 13 April 2003 01:35, Timothy Miller wrote:
+> > I did some searching of the kernel archives and the only things
+> > related to the forthcoming idea had to do with compressing pages when
+> > writing to swap and doing compressed disks.  Here's a different
+> > idea...
+>
+> http://linuxcompressed.sourceforge.net/
+>
+> This the same thing?
+>
 
-Yes, this means that someone ran put_task_struct() against an already-freed
-task_struct.  There's some deubg code in -mm which is supposed to trap this,
-but it obviously didn't trigger for some reason.
 
-Until someone finds a way to reproduce this we're a bit stuck.  A code audit
-may find it.
+I believe it is!
+
+Anyone on the list checked it out?  Is it good?  Any benchmarks performed?
+Do we want it?
+
+If it doesn't introduce instability, then it could be a very good addition.
+Perhaps at the beginning of the 2.7 phase?  If were to be in a develoment
+kernel for its entire life, it would certainly get all the bugs worked out.
+
+Does Linus have an opinion on it?
+
+One of the things that makes me like Linux the best is that the contributors
+really seem to push the envelope.  Of course, I don't know really how well
+other OS's do in that regard, but I wouldn't be surprised if we were leaving
+other OS's like Windows, Solaris, and MacOS in the dust with some of the
+cool things being worked on like the O(1) scheduler, the anticipatory I/O
+scheduler, etc.  Maybe others have such things.  <shrug>
+
+Sorry about the rambling.
+
+
+

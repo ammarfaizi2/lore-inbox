@@ -1,51 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263895AbTIIOq1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Sep 2003 10:46:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263915AbTIIOq1
+	id S263915AbTIIOyF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Sep 2003 10:54:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263666AbTIIOyF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Sep 2003 10:46:27 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:62732 "HELO
-	kinesis.swishmail.com") by vger.kernel.org with SMTP
-	id S263895AbTIIOq0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Sep 2003 10:46:26 -0400
-Message-ID: <3F5DECD7.9040403@techsource.com>
-Date: Tue, 09 Sep 2003 11:08:07 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
+	Tue, 9 Sep 2003 10:54:05 -0400
+Received: from mail.cs.tu-berlin.de ([130.149.17.13]:1187 "EHLO
+	mail.cs.tu-berlin.de") by vger.kernel.org with ESMTP
+	id S264170AbTIIOx6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Sep 2003 10:53:58 -0400
+Date: Tue, 9 Sep 2003 16:49:06 +0200 (MEST)
+From: Peter Daum <gator@cs.tu-berlin.de>
+Reply-To: Peter Daum <gator@cs.tu-berlin.de>
+To: Manfred Spraul <manfred@colorfullife.com>
+cc: Jeff Garzik <jgarzik@pobox.com>, Jamie Lokier <jamie@shareable.org>,
+       Adrian Bunk <bunk@fs.tum.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4 patch] fix CONFIG_X86_L1_CACHE_SHIFT
+In-Reply-To: <3F5CDC65.6060409@colorfullife.com>
+Message-ID: <Pine.LNX.4.30.0309091528380.13877-100000@swamp.bayern.net>
 MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Use of AI for process scheduling
-References: <3F5CD863.4020605@techsource.com> <20030908225749.GJ4306@holomorphy.com> <20030908230621.GC17441@matchmail.com> <20030908231439.GK4306@holomorphy.com> <3F5D1D32.7020704@techsource.com> <20030909010504.GE1715@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 8 Sep 2003, Manfred Spraul wrote:
 
+> Context: Peter experiences very bad network performance with 2.4.22 - it
+> looks like 99% packet drop or something like that. The packet drop
+> disappears if CONFIG_L1_CACHE_SHIFT is set to 7 (i.e. 128 byte cache
+> line size). 2.4.21 works.
+> The network cards are some kind of atm cards. Several systems are
+> affected - at least Pentium II and PPro systems.
+>
+> Peter: what's the exact brand and nic driver that you use? Could you try
+> to figure out what exactly breaks? I'd use "ping -f -s 1500", perhaps
+> together with "tcpdump -s 1500 -x" on both ends.
 
-William Lee Irwin III wrote:
-> I thought better of sending this as it seemed perhaps too unfriendly,
-> but after pasting a few lines of it on IRC, it appears some people
-> found it humorous. So, on with the diatribe^Wshow:
+Meanwhile, I could verify that the problems do not occur, when I use
+an ethernet network adapter. All the machines have Marconi/Fore Systems
+Forerunner LE ATM cards (/proc/pci: ATM network controller: Integrated
+Device Tech IDT77211 ATM Adapter (rev 3)) with LAN emulation.
 
+To figure out what exactly breaks, is the hard part: There is no general
+malfunction, I only found some particular test cases. The easiest of these
+is: "wget ftp://ftp.nai.com/pub/datfiles/english/dat-4291.zip". With a
+vanilla 2.4.22 kernel, the data connection dies with a timeout after
+transferring some kbytes. When capturing the connection with tcpdump, the
+only thing unusual I can discover is that the time interval between 2
+data packets coming in is unusually hight. I don't have the slightest
+idea, what is really going wrong. Transferring data from some other ftp
+server (e.g. ftp.kernel.org) works as usual.
 
-Well, despite the fact that you have a somewhat offensive tone, I do 
-take what you're saying seriously.  Not to say that I'm ENTIRELY 
-discouraged, but your point that I need to have something a lot more 
-solid is well taken.
+As esoterical as it sounds, the whole issue is 100% reproducible and
+disappears with CONFIG_L1_CACHE_SHIFT set to 7. (The example with wget
+is only the easiest test I could find - for my purposes, the fact that
+sendmail and samba don't work correctly makes the kernel almost useless).
+"Ping" doesn't show anything unusual (no dropped packets). Since the
+problem did not occur with older kernels, the "CONFIG_L1_CACHE_SHIFT"
+setting can hardly be the real problem.
 
-Fortunately, my post has had the intended effect:  other people have 
-responded with specific good ideas, ones which can possibly be used to 
-produce something more concretely useful than the vague notion I posited.
+Regards,
+               Peter
 
-I don't believe I will completely give up my habit of suggesting vague 
-ideas, because it has been a successful approach in the past.  Other 
-intelligent people naturally fill in the holes with knowedge and ideas 
-of their own.  On the other hand, before I go off with something too 
-vague, perhaps I will flesh it out with more thought on my own.  I hope 
-adding too many of my own ideas won't bias others or prevent people from 
-suggesting alternatives.
 

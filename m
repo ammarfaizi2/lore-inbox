@@ -1,30 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313012AbSDGXl7>; Sun, 7 Apr 2002 19:41:59 -0400
+	id <S313512AbSDHAt0>; Sun, 7 Apr 2002 20:49:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313329AbSDGXl6>; Sun, 7 Apr 2002 19:41:58 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:15374 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S313012AbSDGXl5>;
-	Sun, 7 Apr 2002 19:41:57 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Matt_Domsch@Dell.com
-Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19-pre6 dead Makefile entries 
-In-Reply-To: Your message of "Sun, 07 Apr 2002 12:52:50 EST."
-             <71714C04806CD51193520090272892170452B5C0@ausxmrr502.us.dell.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 08 Apr 2002 09:41:42 +1000
-Message-ID: <30449.1018222902@ocs3.intra.ocs.com.au>
+	id <S313514AbSDHAtZ>; Sun, 7 Apr 2002 20:49:25 -0400
+Received: from lmail.actcom.co.il ([192.114.47.13]:11145 "EHLO
+	lmail.actcom.co.il") by vger.kernel.org with ESMTP
+	id <S313512AbSDHAtY>; Sun, 7 Apr 2002 20:49:24 -0400
+Message-Id: <200204080048.g380mt514749@lmail.actcom.co.il>
+Content-Type: text/plain; charset=US-ASCII
+From: Itai Nahshon <nahshon@actcom.co.il>
+Reply-To: nahshon@actcom.co.il
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: faster boots?
+Date: Mon, 8 Apr 2002 03:48:42 +0300
+X-Mailer: KMail [version 1.3.2]
+Cc: Benjamin LaHaise <bcrl@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Andrew Morton <akpm@zip.com.au>, joeja@mindspring.com,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <E16tTAF-0008F2-00@the-village.bc.nu> <200204060007.g3607I525699@lmail.actcom.co.il> <20020407144246.C46@toy.ucw.cz>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Apr 2002 12:52:50 -0500 , 
-Matt_Domsch@Dell.com wrote:
->> >On Sun, Apr 07, 2002 at 09:01:39PM +1000, Keith Owens wrote:
->> >> lib/Makefile                    crc32.o
+On Sunday 07 April 2002 17:42 pm, Pavel Machek wrote:
+> Hi!
+>
+> > I'm curios, how much work can you accomplish on your laptop
+> > without any disk access (but you still need to save files - keeping
+> > them in buffers until it's time to actually write them).
+>
+> Debugging session (emacs/gcc/gdb) for half an hour with disks stopped is
+> easy to accomplish.
+> 								Pavel
 
-Forget crc32, the file is not referenced in base lib/Makefile.
-Spurious bug report caused by another change.
+My suggestion was: there should _never_ be dirty blocks for disks that
+are not spinning. Flush all dirty buffers before spinning down, and spin-up
+on any operation that writes to the disk (and block that operation).
 
+The opposite to that (which I do not like) processes create as many
+dirty buffers as they want and disk spins up only on sync() or when
+the system is starving for usable memory.
+
+An aletrnate ides (more drastic) is that fle systems can mount internally
+read-only when a disk is spinned-down. Means - you cannot spin
+down when there is a file handle open for writing. Other than this there
+are advantages.
+
+I don't see how any of these will stop you from doing emacs/gcc/gdb
+with the disk stopped, as long as you are not trying to write to the
+disk or read from files that are not cached.
+
+-- Itai

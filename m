@@ -1,77 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262835AbUJ1I5k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262841AbUJ1JC3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262835AbUJ1I5k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 04:57:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262837AbUJ1I5k
+	id S262841AbUJ1JC3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 05:02:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262839AbUJ1JC3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 04:57:40 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:10122 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262835AbUJ1I5c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 04:57:32 -0400
-Date: Thu, 28 Oct 2004 10:56:56 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4
-Message-ID: <20041028085656.GA21535@elte.hu>
-References: <20041025104023.GA1960@elte.hu> <20041027001542.GA29295@elte.hu> <5225.195.245.190.94.1098880980.squirrel@195.245.190.94> <20041027135309.GA8090@elte.hu> <12917.195.245.190.94.1098890763.squirrel@195.245.190.94> <20041027205126.GA25091@elte.hu> <20041027211957.GA28571@elte.hu> <33083.192.168.1.5.1098919913.squirrel@192.168.1.5> <20041028063630.GD9781@elte.hu> <20668.195.245.190.93.1098952275.squirrel@195.245.190.93>
+	Thu, 28 Oct 2004 05:02:29 -0400
+Received: from hermine.aitel.hist.no ([158.38.50.15]:23562 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S262842AbUJ1JBN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 05:01:13 -0400
+Date: Thu, 28 Oct 2004 11:07:07 +0200
+To: Timothy Miller <miller@techsource.com>
+Cc: Helge Hafting <helgehaf@aitel.hist.no>,
+       Geert Uytterhoeven <geert@linux-m68k.org>,
+       Jon Smirl <jonsmirl@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
+Message-ID: <20041028090707.GA13523@hh.idb.hist.no>
+References: <4176E08B.2050706@techsource.com> <9e4733910410201808c0796c8@mail.gmail.com> <Pine.GSO.4.61.0410222209410.11567@waterleaf.sonytel.be> <417984A9.2070305@techsource.com> <20041024104520.GB12665@hh.idb.hist.no> <417D2027.5000306@techsource.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20668.195.245.190.93.1098952275.squirrel@195.245.190.93>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9, BAYES_00 -4.90,
-	UPPERCASE_25_50 0.00
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <417D2027.5000306@techsource.com>
+User-Agent: Mutt/1.5.6+20040722i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Rui Nuno Capela <rncbc@rncbc.org> wrote:
-
-> The following table compares the state between my RT-U3 and RT-V0.4.3
-> configurations, regarding only the mentioned options:
+On Mon, Oct 25, 2004 at 11:47:51AM -0400, Timothy Miller wrote:
 > 
->   option                       RT-U3.0    RT-V0.4.3
->   ---------------------------- ---------- ---------
->   CONFIG_DEBUG_SLAB              n          n
->   CONFIG_DEBUG_PREEMPT           y          y
->   CONFIG_DEBUG_SPINLOCK_SLEEP    n          -
->   CONFIG_PREEMPT_TIMING          n          n
->   CONFIG_RWSEM_DEADLOCK_DETECT   -          y
->   CONFIG_FRAME_POINTER           y          y
->   CONFIG_DEBUG_STACKOVERFLOW     y          y
->   CONFIG_DEBUG_STACK_USAGE       n          n
->   CONFIG_DEBUG_PAGEALLOC         n          n
+> >I can't see how it is "vital", or even makes a difference at all.
+> >Other than upping the price a bit.  The pc doesn't need VGA compatibility
+> >to boot - because you supply a video bios.  The mainboard bios
+> >uses the video bios. (There have been pc's with ibm-incompatible
+> >displays before)
+> >Linux d(and other open os'es) doesn�'t need VGA at all, because 
+> >you supply docs.  You probably won't even have to write the driver
+> >yourself.
+> >Windows doesn't need VGA - if you supply a windows driver.  That
+> >shouldn�'t be hard to do.  
 > 
-> (dash "-" means that the option is not available in the config).
 > 
-> As you can see, it can only be CONFIG_RWSEM_DEADLOCK_DETECT, being new
-> in RT-V0.4.3, that is probably affecting on RT-V0.4.3. I'll try to
-> rebuild and test all over without it, and see if it gets any better.
+> We have a number of cards which do not support VGA, and a few years ago, 
+> I experimented with the idea of writing a VGA BIOS which emulated the 
+> VGA text screen in software.
+> 
+> What I discovered was that absolutely everything, including the DOS 
+> shell, expects there to be REAL VGA (or CGA or whatever) hardware there, 
 
-note that DEBUG_PREEMPT got more expensive in the -V kernels. I'd
-suggest to disable all the 'y' ones in both the -U and -V kernel and
-compare them then.
+Remember who you're talking to. :-)
+VGA, (or at least CGA) may indeed be necessary to run dos.
+(Well, dos 2.11 ran fine on the incomptaible DEC rainbow...)
+So if you need dos compatibility - sure.  
 
-but especially the userspace overhead seems to be significantly higher
-in the -V kernel so i'm not quite sure it can all be attributed to
-debugging overhead. We'll see.
+But this is the linux kernel list - you asked what the
+open source community want.  We _really_ don't care about dos.
+And I believe this is true for many others too - dos _is_ dead.
+Even the microsoft fans use windows exclusively.
+So don't worry about dos - it is such a niche os today.
 
-also, how does the context-switching rate compare between the two tests? 
-This test is pretty steady when it's running, so the context-switch
-rates can be directly compared, correct?
+> so hooking int 10 just did not do the job... it practically never got 
+> called.  What I ended up doing was hooking the timer interrupt and 
+> comparing the text screen against a shadow copy.  That worked very well 
+> for most DOS applications... except for those which tried to do anything 
+> in protected mode.  The instant an OS switched to protected mode, the 
+> interrupt handler got blown away and the display froze.
 
-	Ingo
+Sure - but who's running dos these days?  Is there any market share
+in _dos_?  And there is freedos, for which the source code is
+available and free.  So if you really need dos for something,
+(such as flashing mainboard bioses?) then add the necessary support
+to freedos. 
+ 
+> Then we though we'd put a proper driver into the OS, but the problem is 
+> that in Windows and Solaris, the console driver doesn't kick in until 
+> WAY late in the boot process, so you end up with a useless console for 
+> THE MAJORITY of the boot process.
+> 
+> For Windows, there is a requirement for 640x480x4 and some 320x480x?? 
+> mode to be supported by the hardware using the standard VGA IO space 
+> registers.  That is, IF you want a console.  Yes, you can boot without 
+> VGA, but your screen is blank until the driver kicks in, so if there's a 
+> PROBLEM, you're hosed.
+
+Sure - that could be a problem.  This depends on how much you want to
+sell to windows users.  We linux users, and other open source users,
+don't worry that much about windows console deficiencies.  
+Particularly considering how the common windows user doesn't use his
+console anyway - ms hides everything behind a pretty "Please wait,
+windows is starting" screen. And they reinstall if something goes wrong :-/
+
+You are sure that an "early boot" console driver for windows is impossible?
+Ms provides no clue about replacing this thing?  Rendering text onto vga
+must be done somewhere, possibly in a library that could be replaced.
+
+> 
+> VGA is so "expected" that pretty much everything just assumes it's there 
+> and bangs on the hardware directly.
+
+So it is a question of what you want to support, and how numerous
+these VGA users are.  Perhaps you won't have to implement _all_
+of VGA though - that might save space in your FPGA.  Full VGA have some
+rarely used oddball modes and features - and backwards compatibility
+cruft.  Who needs the EGA modes or ability to load textmode
+fonts for example - when all the user need is to see some
+boot messages before the real driver takes over.
+
+If you go for VGA, then I hope the VGA bits will be
+somewhat optional or possible to disable, so the VGA bits
+doesn�'t get in the way when trying to use several cards
+simultaneously.  You may make cards that cooperate nicely with
+each other - but there may be other card(s) in the machine
+too that also mess with VGA registers at strange times.
+
+If VGA is implemented entirely in the FPGA then perhaps there
+will be alternate FPGA firmwares for different purposes. (Surely
+cheaper than making different boards).  One variant could
+be VGA-less, the space may then be used for other purposes. An 
+extra 3D-unit of some sort perhaps. :-)
+
+Helge Hafting
+

@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281450AbRKZD3m>; Sun, 25 Nov 2001 22:29:42 -0500
+	id <S281161AbRKZDfw>; Sun, 25 Nov 2001 22:35:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281161AbRKZD3d>; Sun, 25 Nov 2001 22:29:33 -0500
-Received: from [199.247.156.30] ([199.247.156.30]:5054 "HELO
-	whitehorse.blackwire.com") by vger.kernel.org with SMTP
-	id <S281450AbRKZD3P>; Sun, 25 Nov 2001 22:29:15 -0500
-From: pjordan@whitehorse.blackwire.com
-Date: Sun, 25 Nov 2001 19:23:42 -0800
-To: linux-kernel@vger.kernel.org
-Cc: ja@ssi.bg
-Subject: Re: net/ipv4/arp.c: arp_rcv, rfc2131 BREAKS communication
-Message-ID: <20011125192342.A16939@panama>
-In-Reply-To: <Pine.LNX.4.33.0111251117310.823-100000@u.domain.uli> <20011125181921.A16765@panama>
-Mime-Version: 1.0
+	id <S281455AbRKZDfm>; Sun, 25 Nov 2001 22:35:42 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:12812 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S281161AbRKZDfe>; Sun, 25 Nov 2001 22:35:34 -0500
+Message-ID: <3C01B845.33314F49@zip.com.au>
+Date: Sun, 25 Nov 2001 19:34:29 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Oliver Xymoron <oxymoron@waste.org>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ext3: kjournald and spun-down disks
+In-Reply-To: <3BFF06CA.71B99D3C@zip.com.au> <Pine.LNX.4.40.0111252110490.2207-100000@waste.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011125181921.A16765@panama>
-User-Agent: Mutt/1.3.22i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> When an address resolution packet is received, the receiving Ethernet module gives the packet to the Address Resolution module which goes through an
-> algorithm similar to the following. Negative conditionals indicate an end of processing and a discarding of the packet. 
- 
->     ?Am I the target protocol address?
->     Yes:
+Oliver Xymoron wrote:
+> 
+> Ok, so what's the theory behind the journal timer? Why would we want
+> ext3 journal flushed more or less often than ext2 metadata given that
+> they're of equivalent importance?
 
-> Maybe the right fix then is to set DHA to all ones. ffffffffffff. ?
+umm, err..  If your machine crashes, ext3 will restore its state
+to that which pertained between zero and five seconds before the crash.
 
-No. Shake my head, the above is a reference to TIP, not THA.
-and DHA is already set correctly anyway. (what was I drinking..)
+With ext2+fsck, things are not as clear.  Your data will be restored
+to that which pertained from zero to thirty seconds prior to crash.
+inodes and superblock to that which pertained from zero to thirty
+five seconds before the crash, stuff like that.
 
-Anyway.. RFC2131 only talks about the format of the arp request and not of
-the arp reply.  I will test again to see if OF is testing THA or TIP.
- My guess is TIP.
+A five second window is short enough for you to be confident that
+everything you want is still there.   With thirty seconds, uncertainty
+creeps in.
 
-So how to get the fix incorporated into the kernel though.
-I don't see why it would break anything else.
+Yes, it needs to be configurable.
 
-Peter
+-

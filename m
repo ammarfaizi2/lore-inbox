@@ -1,46 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290597AbSA3VIS>; Wed, 30 Jan 2002 16:08:18 -0500
+	id <S290598AbSA3VKs>; Wed, 30 Jan 2002 16:10:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290601AbSA3VIL>; Wed, 30 Jan 2002 16:08:11 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:48132 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S290597AbSA3VIF>;
-	Wed, 30 Jan 2002 16:08:05 -0500
-Date: Wed, 30 Jan 2002 22:06:59 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: "Robbert Kouprie" <robbert@jvb.tudelft.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NIC lockup in 2.4.17 (SMP/APIC/Intel 82557)
-Message-Id: <20020130220659.29bd66f5.skraw@ithnet.com>
-In-Reply-To: <001701c1a9c4$673dc4b0$020da8c0@nitemare>
-In-Reply-To: <Pine.LNX.4.33.0201220746440.13692-100000@jbourne2.mtroyal.ab.ca>
-	<001701c1a9c4$673dc4b0$020da8c0@nitemare>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S290603AbSA3VKj>; Wed, 30 Jan 2002 16:10:39 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:25003 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S290598AbSA3VKV>; Wed, 30 Jan 2002 16:10:21 -0500
+Message-ID: <3C586135.2020304@us.ibm.com>
+Date: Wed, 30 Jan 2002 13:10:13 -0800
+From: "David C. Hansen" <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8+) Gecko/20020126
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Robert Love <rml@tech9.net>
+CC: Alex Khripin <akhripin@mit.edu>, linux-kernel@vger.kernel.org
+Subject: Re: BKL in tty code?
+In-Reply-To: <20020130184950.GA22442@morgoth.mit.edu> <1012418760.3219.43.camel@phantasy>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 Jan 2002 20:29:15 +0100
-"Robbert Kouprie" <robbert@jvb.tudelft.nl> wrote:
+Robert Love wrote:
 
-> Not much new, but still:
-> 
-> Today I got the same problem again with 2.4.18-pre3-ac2. Network
-> connections stuck, NFS mounts stuck. Bringing down/up the interface
-> doesn't help. Seems like the NIC is really in trouble here. Only a
-> reboot would bring the nick back in use.
-> 
-> Still no testcase though, and I have no idea on how to investigate this
-> :(
-> Can anyone give a hint as where to seek?
+>On Wed, 2002-01-30 at 13:49, Alex Khripin wrote:
+>
+>>I'm very much a newbie, and I'm wondering about the big kernel locks
+>>in tty_io.c. What exactly are the locks in the read and write for? Is the
+>>tty device that contested? Couldn't a finer grained lock be used?
+>>
+>There is probably some cleanup that is possible, but really getting the
+>thing in gear (which means no BKL, which is probably the hardest part to
+>rip out) require some level of rewrite.
+>
+People working on BKL removal tend to ignore these types of things (I 
+know I do).  We concentrate on scalability and performance and the tty 
+code isn't exactly a high point of lock contention.
 
-How about www.kernel.org? Download _latest_ kernel-patch (-pre7) and tell us
-about it. As long as you are trying only old pre's there is not much of
-a chance any important brain will listen to you.
 
-Regards,
-Stephan
-(no important brain)

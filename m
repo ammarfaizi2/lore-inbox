@@ -1,42 +1,170 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261858AbREYUjL>; Fri, 25 May 2001 16:39:11 -0400
+	id <S261824AbREYUse>; Fri, 25 May 2001 16:48:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261855AbREYUiw>; Fri, 25 May 2001 16:38:52 -0400
-Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:53933 "EHLO
-	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S261840AbREYUio>; Fri, 25 May 2001 16:38:44 -0400
-Date: Fri, 25 May 2001 22:38:41 +0200
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Randy <randys@evcom.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Dedicated Interrupt handling on SMP
-Message-ID: <20010525223841.V754@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <3B0E8B9F.CFBEAC59@evcom.net>
-Mime-Version: 1.0
+	id <S261840AbREYUsY>; Fri, 25 May 2001 16:48:24 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:31422 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S261824AbREYUsV>;
+	Fri, 25 May 2001 16:48:21 -0400
+Date: Fri, 25 May 2001 13:47:52 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Rasmus Andersen <rasmus@jaquet.dk>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] kmalloc checks for drivers/ide/ide-probe.c (244ac16)
+In-Reply-To: <20010525221813.F851@jaquet.dk>
+Message-ID: <Pine.LNX.4.10.10105251343240.2098-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <3B0E8B9F.CFBEAC59@evcom.net>; from randys@evcom.net on Fri, May 25, 2001 at 12:43:11PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 25, 2001 at 12:43:11PM -0400, Randy wrote:
-> I'm trying to find the easiest way to to deidcate one CPU to responding
-> to a specific Interrupt request.
-> That CPU should only listen for that request while all other CPU should
-> ignore the interrupt.
 
-cat /proc/irq/*/smp_affinity
+Not valid because the jump to that part of the code is protected.
+If a polling response for a valid status and no timeout, is detected then
+it attempts to the command for real only after success or a test.
 
-There you can select on which if the 32 CPUs Linux should handle
-this IRQ.
+Otherwise it would be valid.
 
-Read Documentation/IRQ-affinity.txt for more.
+Cheers,
 
-Regards
+On Fri, 25 May 2001, Rasmus Andersen wrote:
 
-Ingo Oeser
--- 
-To the systems programmer,
-users and applications serve only to provide a test load.
+> Date: Fri, 25 May 2001 22:18:13 +0200
+> From: Rasmus Andersen <rasmus@jaquet.dk>
+> To: andre@linux-ide.org
+> Cc: linux-kernel@vger.kernel.org
+> Subject: [PATCH] kmalloc checks for drivers/ide/ide-probe.c (244ac16)
+> 
+> Hi.
+> 
+> The following patch adds a number of checks for kmalloc returns
+> to drivers/ide/ide-probe.c. It applies against ac16.
+> 
+> One comment: This patch adds 'drive-present = 0' to the
+> code path for the EXABYTE case. I could not discern if this was a
+> shortcoming of the original code or not. Please comment.
+> 
+> 
+> --- linux-244-ac16-clean/drivers/ide/ide-probe.c	Fri May 25 21:11:08 2001
+> +++ linux-244-ac16/drivers/ide/ide-probe.c	Fri May 25 21:51:08 2001
+> @@ -58,6 +58,11 @@
+>  	struct hd_driveid *id;
+>  
+>  	id = drive->id = kmalloc (SECTOR_WORDS*4, GFP_ATOMIC);	/* called with interrupts disabled! */
+> +        if (!id) {
+> +                printk(KERN_WARNING "(ide-probe::do_identify) Out of memory.\n");
+> +                goto err_kmalloc;
+> +        }
+> +
+>  	ide_input_data(drive, id, SECTOR_WORDS);		/* read 512 bytes of id info */
+>  	ide__sti();	/* local CPU only */
+>  	ide_fix_driveid(id);
+> @@ -76,8 +81,7 @@
+>  	if ((id->model[0] == 'P' && id->model[1] == 'M')
+>  	 || (id->model[0] == 'S' && id->model[1] == 'K')) {
+>  		printk("%s: EATA SCSI HBA %.10s\n", drive->name, id->model);
+> -		drive->present = 0;
+> -		return;
+> +                goto err_misc;
+>  	}
+>  #endif /* CONFIG_SCSI_EATA_DMA || CONFIG_SCSI_EATA_PIO */
+>  
+> @@ -96,7 +100,7 @@
+>  	ide_fixstring (id->serial_no, sizeof(id->serial_no), bswap);
+>  
+>  	if (strstr(id->model, "E X A B Y T E N E S T"))
+> -		return;
+> +                goto err_misc;
+>  
+>  	id->model[sizeof(id->model)-1] = '\0';	/* we depend on this a lot! */
+>  	printk("%s: %s, ", drive->name, id->model);
+> @@ -111,8 +115,7 @@
+>  #ifdef CONFIG_BLK_DEV_PDC4030
+>  		if (HWIF(drive)->channel == 1 && HWIF(drive)->chipset == ide_pdc4030) {
+>  			printk(" -- not supported on 2nd Promise port\n");
+> -			drive->present = 0;
+> -			return;
+> +                        goto err_misc;
+>  		}
+>  #endif /* CONFIG_BLK_DEV_PDC4030 */
+>  		switch (type) {
+> @@ -174,6 +177,12 @@
+>  	printk("ATA DISK drive\n");
+>  	QUIRK_LIST(HWIF(drive),drive);
+>  	return;
+> +
+> +err_misc:
+> +        kfree(id);
+> +err_kmalloc:
+> +        drive->present = 0;
+> +        return;
+>  }
+>  
+>  /*
+> @@ -759,11 +768,23 @@
+>  	}
+>  	minors    = units * (1<<PARTN_BITS);
+>  	gd        = kmalloc (sizeof(struct gendisk), GFP_KERNEL);
+> -	gd->sizes = kmalloc (minors * sizeof(int), GFP_KERNEL);
+> -	gd->part  = kmalloc (minors * sizeof(struct hd_struct), GFP_KERNEL);
+> -	bs        = kmalloc (minors*sizeof(int), GFP_KERNEL);
+> -	max_sect  = kmalloc (minors*sizeof(int), GFP_KERNEL);
+> -	max_ra    = kmalloc (minors*sizeof(int), GFP_KERNEL);
+> +        if (!gd)
+> +                goto err_kmalloc_gd;
+> +        gd->sizes = kmalloc (minors * sizeof(int), GFP_KERNEL);
+> +        if (!gd->sizes)
+> +                goto err_kmalloc_gd_sizes;
+> +        gd->part  = kmalloc (minors * sizeof(struct hd_struct), GFP_KERNEL);
+> +        if (!gd->part)
+> +                goto err_kmalloc_gd_part;
+> +        bs        = kmalloc (minors*sizeof(int), GFP_KERNEL);
+> +        if (!bs)
+> +                goto err_kmalloc_gs;
+> +        max_sect  = kmalloc (minors*sizeof(int), GFP_KERNEL);
+> +        if (!max_sect)
+> +                goto err_kmalloc_max_sect;
+> +        max_ra    = kmalloc (minors*sizeof(int), GFP_KERNEL);
+> +        if (!max_ra)
+> +                goto err_kmalloc_max_ra;
+>  
+>  	memset(gd->part, 0, minors * sizeof(struct hd_struct));
+>  
+> @@ -816,6 +837,21 @@
+>  				devfs_mk_dir (ide_devfs_handle, name, NULL);
+>  		}
+>  	}
+> +        return;
+> +
+> +err_kmalloc_max_ra:
+> +        kfree(max_sect);
+> +err_kmalloc_max_sect:
+> +        kfree(bs);
+> +err_kmalloc_gs:
+> +        kfree(gd->part);
+> +err_kmalloc_gd_part:
+> +        kfree(gd->sizes);
+> +err_kmalloc_gd_sizes:
+> +        kfree(gd);
+> +err_kmalloc_gd:
+> +        printk(KERN_WARNING "(ide::init_gendisk) Out of memory\n");
+> +        return;
+>  }
+>  
+>  static int hwif_init (ide_hwif_t *hwif)
+> -- 
+> regards,
+>         Rasmus(rasmus@jaquet.dk)
+> 
+> An Emacs reference mug is what I want. It would hold ten gallons of
+> coffee. -- Steve VanDevender 
+> 
+
+Andre Hedrick
+Linux ATA Development
+ASL Kernel Development
+-----------------------------------------------------------------------------
+ASL, Inc.                                     Toll free: 1-877-ASL-3535
+1757 Houret Court                             Fax: 1-408-941-2071
+Milpitas, CA 95035                            Web: www.aslab.com
+

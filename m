@@ -1,36 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263441AbRFFHyS>; Wed, 6 Jun 2001 03:54:18 -0400
+	id <S263406AbRFFHyi>; Wed, 6 Jun 2001 03:54:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263435AbRFFHyJ>; Wed, 6 Jun 2001 03:54:09 -0400
-Received: from turnover.lancs.ac.uk ([148.88.17.220]:58105 "EHLO
+	id <S263435AbRFFHyS>; Wed, 6 Jun 2001 03:54:18 -0400
+Received: from turnover.lancs.ac.uk ([148.88.17.220]:2810 "EHLO
 	helium.chromatix.org.uk") by vger.kernel.org with ESMTP
-	id <S263406AbRFFHx5>; Wed, 6 Jun 2001 03:53:57 -0400
-Message-Id: <l03130307b74390373d82@[192.168.239.105]>
-In-Reply-To: <20010606081416.B15199@dev.sportingbet.com>
-In-Reply-To: <3B1D8A82.63FA138C@247media.com>; from
- russell.leighton@247media.com on Tue, Jun 05, 2001 at 09:42:26PM -0400
- <Pine.LNX.4.33.0106051634540.8311-100000@heat.gghcwest.com>
- <3B1D8A82.63FA138C@247media.com>
+	id <S263406AbRFFHyK>; Wed, 6 Jun 2001 03:54:10 -0400
+Message-Id: <l03130306b7438fa51b18@[192.168.239.105]>
+In-Reply-To: <3B1DD68A.17C8FD52@TeraPort.de>
+In-Reply-To: <E157KV1-00077L-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Date: Wed, 6 Jun 2001 08:47:37 +0100
-To: Sean Hunter <sean@dev.sportingbet.com>,
-        Russell Leighton <russell.leighton@247media.com>
+Date: Wed, 6 Jun 2001 08:45:25 +0100
+To: "Martin.Knoblauch" <Martin.Knoblauch@TeraPort.de>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
 From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: Break 2.4 VM in five easy steps
-Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.5 VM
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->It seems bizarre that a 4GB machine with a working set _far_ lower than that
->should be dying from OOM and swapping itself to death, but that's life in 2.4
->land.
+> On a side question: does Linux support swap-files in addition to
+>sawp-partitions? Even if that has a performance penalty, when the system
+>is swapping performance is dead anyway.
 
-I posted a fix for the OOM problem long ago, and it didn't get integrated
-(even after I sent Alan a separated-out version from the larger patch it
-was embedded in).  I'm going to re-introduce it soon, and hope that it gets
-a better hearing this time.
+Yes.  Simply use mkswap and swapon/off on a regular file instead of a
+partition device.  I don't notice any significant performance penalty (a
+swapfile on a SCSI disk is faster than a swap-partition on an IDE disk),
+although you'd be advised to attempt to keep the file unfragmented.
 
 --------------------------------------------------------------
 from:     Jonathan "Chromatix" Morton

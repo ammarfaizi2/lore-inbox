@@ -1,71 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268944AbUHaTgk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266835AbUHaTps@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268944AbUHaTgk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 15:36:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267263AbUHaTcY
+	id S266835AbUHaTps (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 15:45:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269035AbUHaTmy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 15:32:24 -0400
-Received: from fw.osdl.org ([65.172.181.6]:46753 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269046AbUHaT3q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 15:29:46 -0400
-Date: Tue, 31 Aug 2004 12:27:56 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel@vger.kernel.org, linux-acpi@intel.com
-Subject: Re: CONFIG_ACPI totally broken (2.6.9-rc1-mm2)
-Message-Id: <20040831122756.675eaa86.akpm@osdl.org>
-In-Reply-To: <233310000.1093979634@flay>
-References: <231570000.1093979338@flay>
-	<233310000.1093979634@flay>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 31 Aug 2004 15:42:54 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:59975 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S266835AbUHaTjh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 15:39:37 -0400
+Date: Tue, 31 Aug 2004 21:41:35 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.9-rc1-mm2
+Message-ID: <20040831194135.GB19724@mars.ravnborg.org>
+Mail-Followup-To: Gene Heskett <gene.heskett@verizon.net>,
+	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+References: <20040830235426.441f5b51.akpm@osdl.org> <200408311454.48673.gene.heskett@verizon.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200408311454.48673.gene.heskett@verizon.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> wrote:
->
-> > OK, not only does it not compile in -mm2, you also can't disable it.
-> 
-> The exact same config file works fine in -mm1 ... it's just the -mm2
-> one that's broken.
->  
-> > Moreover, if you try you get this:
-> > 
-> > scripts/kconfig/mconf arch/i386/Kconfig
-> > Warning! Found recursive dependency: ACPI PCI_MMCONFIG ACPI ACPI_AC
-> > Warning! Found recursive dependency: ACPI PCI_MMCONFIG ACPI ACPI_PROCESSOR X86_POWERNOW_K7_ACPI
-> > Warning! Found recursive dependency: ACPI PCI_MMCONFIG ACPI ACPI_PROCESSOR X86_POWERNOW_K8_ACPI
-> > Warning! Found recursive dependency: ACPI PCI_MMCONFIG ACPI ACPI_EC
-> > Warning! Found recursive dependency: ACPI PCI_MMCONFIG ACPI ACPI_PROCESSOR X86_SPEEDSTEP_CENTRINO_ACPI
-> > Warning! Found recursive dependency: DRM_I830 DRM_I915 DRM_I830
+On Tue, Aug 31, 2004 at 02:54:48PM -0400, Gene Heskett wrote:
+> make modules_install
+> /usr/src/linux-2.6.9-rc1-mm2/scripts/Makefile.modinst:24: target 
+> `fs/nls/nls_koi8-r.ko' given more than once in the same rule.
+> /usr/src/linux-2.6.9-rc1-mm2/scripts/Makefile.modinst:24: target 
+> `fs/nls/nls_koi8-ru.ko' given more than once in the same rule.
+> /usr/src/linux-2.6.9-rc1-mm2/scripts/Makefile.modinst:24: target 
+> `fs/nls/nls_koi8-u.ko' given more than once in the same rule.
 
-Yeah, that one.  I bugged Len the other day, but perhaps he's
-out of town or something.
+Thanks!
+Know issue (reported off-list) - can be fixed with below patch.
 
-> > larry:~/linux/2.6.9-rc1-mm2# egrep '(HT|MMCONFIG|HPET)' .config
-> ># CONFIG_HPET_TIMER is not set
-> ># CONFIG_X86_HT is not set
-> ># CONFIG_PCI_GOMMCONFIG is not set
-> ># CONFIG_HPET is not set
-> > 
-> > larry:~/linux/2.6.9-rc1-mm2# grep ACPI .config
-> ># Power management options (ACPI, APM)
-> ># ACPI (Advanced Configuration and Power Interface) Support
-> > CONFIG_ACPI=y
-> ># CONFIG_ACPI_AC is not set
-> ># CONFIG_ACPI_BATTERY is not set
-> ># CONFIG_ACPI_BUTTON is not set
-> ># CONFIG_ACPI_FAN is not set
-> ># CONFIG_ACPI_PROCESSOR is not set
-> ># CONFIG_ACPI_ASUS is not set
-> ># CONFIG_ACPI_TOSHIBA is not set
-> ># CONFIG_ACPI_DEBUG is not set
-> > CONFIG_ACPI_EC=y
-> > CONFIG_ACPI_PCI=y
-> > 
-> > How the hell do you turn this stuff off?
-> > 
-> > M.
+	Sam
+
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/08/31 21:36:26+02:00 sam@mars.ravnborg.org 
+#   kbuild: Fix modules_install
+#   
+#   modules_install failed for modules with 'ko' in their name.
+#   Fixes this.
+#   
+#   Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+# 
+# scripts/Makefile.modinst
+#   2004/08/31 21:36:09+02:00 sam@mars.ravnborg.org +1 -1
+#   Fix installing of modules with ko in their name - do not find too many filenames in $(MODVERDIR)
+# 
+diff -Nru a/scripts/Makefile.modinst b/scripts/Makefile.modinst
+--- a/scripts/Makefile.modinst	2004-08-31 21:40:31 +02:00
++++ b/scripts/Makefile.modinst	2004-08-31 21:40:31 +02:00
+@@ -9,7 +9,7 @@
+ 
+ #
+ 
+-__modules := $(sort $(shell grep -h .ko /dev/null $(wildcard $(MODVERDIR)/*.mod)))
++__modules := $(sort $(shell grep -h '\.ko' /dev/null $(wildcard $(MODVERDIR)/*.mod)))
+ modules := $(patsubst %.o,%.ko,$(wildcard $(__modules:.ko=.o)))
+ 
+ .PHONY: $(modules)

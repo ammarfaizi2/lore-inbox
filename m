@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267198AbTAOUUx>; Wed, 15 Jan 2003 15:20:53 -0500
+	id <S266987AbTAOUZb>; Wed, 15 Jan 2003 15:25:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267221AbTAOUUx>; Wed, 15 Jan 2003 15:20:53 -0500
-Received: from postfix3-1.free.fr ([213.228.0.44]:21136 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP
-	id <S267198AbTAOUUw>; Wed, 15 Jan 2003 15:20:52 -0500
-Message-ID: <3E25C433.2080303@free.fr>
-Date: Wed, 15 Jan 2003 21:27:31 +0100
-From: Arnaud Quette <arnaud.quette@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Kernel-ml <linux-kernel@vger.kernel.org>
-Subject: 2.5.58: headers fbcon[*].h are missing in include/video/
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S266996AbTAOUZb>; Wed, 15 Jan 2003 15:25:31 -0500
+Received: from pop-ls-7-1-dialup-5.freesurf.ch ([194.230.245.5]:3200 "EHLO
+	valsheda.taprogge.wh") by vger.kernel.org with ESMTP
+	id <S266987AbTAOUZa>; Wed, 15 Jan 2003 15:25:30 -0500
+Date: Wed, 15 Jan 2003 21:31:34 +0100
+From: jens.taprogge@rwth-aachen.de
+To: Yaacov Akiba Slama <ya@slamail.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: [BUG] cardbus/hotplugging still broken in 2.5.56
+Message-ID: <20030115203134.GA2215@valsheda.taprogge.wh>
+Mail-Followup-To: jens.taprogge@rwth-aachen.de,
+	Yaacov Akiba Slama <ya@slamail.org>, linux-kernel@vger.kernel.org
+References: <3E25C0F3.9000208@slamail.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E25C0F3.9000208@slamail.org>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+I am not sure if you have seen the patch I posted on l-k. It should fix
+both issues. 
 
-when compiling 2.5.58, I get hosts of
-"drivers/video/sis/sis_main.c:XX:YY: video/fbcon[*].h: no such file or 
-dir" !
+Jens
 
-Investigatig a bit, I found that several FB headers are missing in
-"include/video/" since 2.5.48 (the last one I have that has those 
-missing files):
-fbcon.h, fbcon-cfb8.h, fbcon-cfb16.h, fbcon-cfb24.h, fbcon-cfb32.h, 
-fbcon-accel.h, ...
+On Wed, Jan 15, 2003 at 10:13:39PM +0200, Yaacov Akiba Slama wrote:
+> Jens Taprogge wrote :
+> 
+> >You are not freeing the possibly already allocated resources in case of
+> >a failure of either pci_assign_resource() or pca_enable_device(). In
+> >fact you are not even checking if pci_assign_resource() fails. That
+> >seems wrong to me.
+> 
+> There are two separate issues :
+> 1) Fix the "ressource collisions" problem (and irq not known).
+> 2) Freeing ressources in case of failure of some functions.
+> 
+> My patch solves the first issue only in order to make cardbus with rom work.
+> The point 2 is a janitor work.
+> 
+> Thanks,
+> Yaacov Akiba Slama
 
-I've of course [re-re-re-re]checked with different archives and 
-different versions...
-Am I in the 4th dimension, or have I missed something ?
-
-Arnaud
-
-
+-- 
+Jens Taprogge

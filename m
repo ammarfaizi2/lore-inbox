@@ -1,71 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274198AbRISVcg>; Wed, 19 Sep 2001 17:32:36 -0400
+	id <S272865AbRISVc4>; Wed, 19 Sep 2001 17:32:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274197AbRISVc1>; Wed, 19 Sep 2001 17:32:27 -0400
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:45969 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S272865AbRISVcK>;
-	Wed, 19 Sep 2001 17:32:10 -0400
-Message-ID: <3BA90EF2.527C9A50@candelatech.com>
-Date: Wed, 19 Sep 2001 14:32:34 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-12 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Replace the eepro100 driver with the e100 driver??
+	id <S274197AbRISVcq>; Wed, 19 Sep 2001 17:32:46 -0400
+Received: from [195.223.140.107] ([195.223.140.107]:23547 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S272865AbRISVc3>;
+	Wed, 19 Sep 2001 17:32:29 -0400
+Date: Wed, 19 Sep 2001 23:28:18 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        linux-kernel@vger.kernel.org
+Subject: Re: pre12 VM doubts and patch
+Message-ID: <20010919232818.T720@athlon.random>
+In-Reply-To: <Pine.LNX.4.21.0109191850370.1133-100000@localhost.localdomain> <Pine.LNX.4.21.0109192026280.1502-100000@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0109192026280.1502-100000@localhost.localdomain>; from hugh@veritas.com on Wed, Sep 19, 2001 at 08:42:39PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The e100 license appears to be compatible, and it has some nice features, like
-interrupt-cooelescing that I don't think are supported in the eepro100..
+On Wed, Sep 19, 2001 at 08:42:39PM +0100, Hugh Dickins wrote:
+> --- 2.4.10-pre12/mm/swap_state.c	Wed Sep 19 14:05:54 2001
+> +++ linux/mm/swap_state.c	Mon Sep 17 06:30:26 2001
+> @@ -23,6 +23,17 @@
+>   */
+>  static int swap_writepage(struct page *page)
+>  {
+> +	/* One for the page cache, one for this user, one for page->buffers */
+> +	if (page_count(page) > 2 + !!page->buffers)
 
-I keep thinking that if everyone could get behind a single driver,
-especially one with corporate support, we may have a more stable
-result...
+this is racy, you have to spin_lock(&pagecache_lock) before you can
+expect the page_count() stays constant. then after you checked the page
+has count == 1, you must atomically drop it from the pagecache so it's
+not visible anymore to the swapin lookups.
 
-Here's the license:
+Another way to fix the race is to change lookup_swap_cache to do
+find_lock_page instead of find_get_page, and then check the page is
+still a swapcachepage after you got it locked (that was the old way,
+somebody changed it and introduced the race, I like lookup_swap_cache to
+use find_get_page so I dropped such check to fix it, it was a minor
+optimization but yes probably worthwhile to reintroduce after addressing
+this race in one of the two ways described).
 
-[root@lanf2 e100-1.6.13]# more LICENSE 
-Copyright (c) 1999-2001, Intel Corporation 
+It is also buggy, if something it should be "page_count(page) != 1" (not
+!= 2).
 
-All rights reserved.
+> +		goto in_use;
+> +	if (swap_count(page) > 1)
+> +		goto in_use;
+> +
+> +	delete_from_swap_cache_nolock(page);
+> +	UnlockPage(page);
+> +	return 0;
+> +
+> +in_use:
+>  	rw_swap_page(WRITE, page);
+>  	return 0;
+>  }
 
-Redistribution and use in source and binary forms, with or without 
-modification, are permitted provided that the following conditions are met:
 
- 1. Redistributions of source code must retain the above copyright notice, 
-    this list of conditions and the following disclaimer.
-
- 2. Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation 
-    and/or other materials provided with the distribution.
-
- 3. Neither the name of Intel Corporation nor the names of its contributors 
-    may be used to endorse or promote products derived from this software 
-    without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS''
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
-LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
-NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
-EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
-
-[root@lanf2 e100-1.6.13]# 
-
-Opinions?
-
-Ben
-
--- 
-Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+Andrea

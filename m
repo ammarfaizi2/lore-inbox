@@ -1,51 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272296AbRHXSnJ>; Fri, 24 Aug 2001 14:43:09 -0400
+	id <S272298AbRHXSsk>; Fri, 24 Aug 2001 14:48:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272297AbRHXSm7>; Fri, 24 Aug 2001 14:42:59 -0400
-Received: from [209.10.41.242] ([209.10.41.242]:65510 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S272296AbRHXSmw>;
-	Fri, 24 Aug 2001 14:42:52 -0400
-Date: Fri, 24 Aug 2001 20:37:42 +0200
-From: Andi Kleen <ak@suse.de>
-To: discuss@x86-64.org, announce@x86-64.org, linux-kernel@vger.kernel.org
-Subject: 2.4.9 based x86-64 kernel snapshot released.
-Message-ID: <20010824203742.A4931@gruyere.muc.suse.de>
+	id <S272299AbRHXSsb>; Fri, 24 Aug 2001 14:48:31 -0400
+Received: from dryline-fw.yyz.somanetworks.com ([216.126.67.45]:36957 "EHLO
+	dryline-fw.wireless-sys.com") by vger.kernel.org with ESMTP
+	id <S272298AbRHXSs1>; Fri, 24 Aug 2001 14:48:27 -0400
+Date: Fri, 24 Aug 2001 14:48:42 -0400
+From: Mark Frazer <mark@somanetworks.com>
+To: Nicolas Pitre <nico@cam.org>
+Cc: Daniel Phillips <phillips@bonn-fries.net>, Anwar P <anwarp@mail.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: What version of the kernel fixes these VM issues?
+Message-ID: <20010824144842.A9414@somanetworks.com>
+Mail-Followup-To: Nicolas Pitre <nico@cam.org>,
+	Daniel Phillips <phillips@bonn-fries.net>,
+	Anwar P <anwarp@mail.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0108241354520.25240-100000@xanadu.home> <Pine.LNX.4.33.0108241425190.25240-100000@xanadu.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0108241425190.25240-100000@xanadu.home>; from nico@cam.org on Fri, Aug 24, 2001 at 02:25:55PM -0400
+Organization: Detectable, well, not really
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Nicolas.  You should run vmstat and watch the paging activity.
+We've seen our ARM boards get driven to a standstill by paging when
+they run out of RAM.  We have no swap either.  To make things worse,
+our flash loads are compressed, so we burn all our CPU in decompression
+when paging back in.  If you have no swap, the only thing that can be
+booted out are executable pages.
 
-A new x86_64 linux kernel snapshot is available. 
+Kernel folk:  do /proc/sys/vm/{pagecache,buffermem} still do anything?
+Could Nicolas still limit the pagecache using these?
 
-Changes against the previous snapshot:
-- Now based on linux 2.4.9
-- Some files merged with the i386 port.
-- ACPI is enabled again
-- Many driver fixes
-- A floating signal stack frame bug in the i386 emulation has been fixed.
-- Some bug fixes to the i386 emulation
-- Some minor cleanups.
+cheers
+-mark
 
-Caveats: 
-- SMP currently still non functional
-
-Tar file with the complete tree: 
-
-ftp://ftp.x86-64.org/pub/linux-x86_64/v2.4/linux-x86_64-2.4.9-1.tar.bz2
-
-Patch file against official Linux 2.4.9:
-
-ftp://ftp.x86-64.org/pub/linux-x86_64/v2.4/x86_64-2.4.9-1.bz2
-
-Compiling it requires a newer gcc 3.1 snapshot and recent binutils
-configured for x86_64. 
-For more information on x86-64 see also http://www.x86-64.org
-The development is done in a public CVS tree at cvs.x86-64.org. See the
-web site for more details.
-Feedback please to discuss@x86-64.org or bugs@x86-64.org.
-
--Andi
+Nicolas Pitre <nico@cam.org> [01/08/24 14:38]:
+> 
+> 
+> On Fri, 24 Aug 2001, Nicolas Pitre wrote:
+> 
+> > I have a totally different setup but I can reproduce the same behavior on
+> > the system I have here:
+> >
+> > ARM board with 32 MB RAM, no flash, NFS root.
+> 
+> Sorry I meant no swap.
+> 
+> 
+> Nicolas
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261679AbTICE2H (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 00:28:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261884AbTICE2H
+	id S261717AbTICEVA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 00:21:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261978AbTICEVA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 00:28:07 -0400
-Received: from paiol.terra.com.br ([200.176.3.18]:8352 "EHLO
-	paiol.terra.com.br") by vger.kernel.org with ESMTP id S261679AbTICE2F
+	Wed, 3 Sep 2003 00:21:00 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:24255 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S261717AbTICEU5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 00:28:05 -0400
-Message-ID: <3F556DD1.2070707@terra.com.br>
-Date: Wed, 03 Sep 2003 01:28:01 -0300
-From: Marcelo Abreu <skewer@terra.com.br>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: pt-br, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Insert a Propreitary Encapsulation module to PPP
-References: <01C3713C.0DACA2E0.vanitha@agilis.st.com.sg>
-In-Reply-To: <01C3713C.0DACA2E0.vanitha@agilis.st.com.sg>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 3 Sep 2003 00:20:57 -0400
+Date: Tue, 2 Sep 2003 21:20:51 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Roland Dreier <roland@topspin.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Scaling noise
+Message-ID: <20030903042051.GB10257@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Roland Dreier <roland@topspin.com>, linux-kernel@vger.kernel.org
+References: <20030903040327.GA10257@work.bitmover.com> <52wucqeci3.fsf@topspin.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <52wucqeci3.fsf@topspin.com>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vanitha wrote:
-> I want to insert a module which will add a proprietary encapsulation header
-> (specific to our systems) and then send out the ppp packet over serial
-> interface (it will either be a High speed serial interface or a V.35
-> interface).
+And here I thought that real data was interesting.  My mistake.
 
-	You could create a new module based on hdlc_ppp.c, changing the
-following line in hdlc_ppp_ioctl():
-
-dev->hard_start_xmit = hdlc->xmit;
-
-	to:
-
-dev->hard_start_xmit = my_new_xmit;
-
-	Then you implement my_new_xmit() that adds the encapsulation and
-calls hdlc->xmit() at the end.
-
-	See also hdlc_raw_eth.c on 2.6. It does exactly this.
-
-
-	Marcelo
-
+On Tue, Sep 02, 2003 at 09:12:36PM -0700, Roland Dreier wrote:
+> +--------------+
+> |  Don't feed  |
+> |  the trolls  |
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

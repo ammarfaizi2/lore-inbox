@@ -1,124 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262452AbSJPMtk>; Wed, 16 Oct 2002 08:49:40 -0400
+	id <S261177AbSJPMwJ>; Wed, 16 Oct 2002 08:52:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262453AbSJPMtk>; Wed, 16 Oct 2002 08:49:40 -0400
-Received: from ulima.unil.ch ([130.223.144.143]:1920 "HELO ulima.unil.ch")
-	by vger.kernel.org with SMTP id <S262452AbSJPMti>;
-	Wed, 16 Oct 2002 08:49:38 -0400
-Date: Wed, 16 Oct 2002 14:55:32 +0200
-From: Gregoire Favre <greg@ulima.unil.ch>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.43-mm1 Oops (nfs)
-Message-ID: <20021016125532.GA3140@ulima.unil.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4i
+	id <S262451AbSJPMwJ>; Wed, 16 Oct 2002 08:52:09 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:53120 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S261177AbSJPMwI>; Wed, 16 Oct 2002 08:52:08 -0400
+Date: Wed, 16 Oct 2002 08:59:36 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Vadim Lebedev <vadim@7chips.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Fast data acquisition
+In-Reply-To: <030701c274b5$ad424820$0200000a@LAP>
+Message-ID: <Pine.LNX.3.95.1021016083034.3145A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Wed, 16 Oct 2002, Vadim Lebedev wrote:
 
-I got this:
+> Hello,
+> 
+> I'm designing a solution for high speed data acquisition. The solution will
+> be based on a Pentium class processor running Linux 2.4.x
+> The data will be acquired over ISA bus using DMA at the rate of 52Mbit per
+> second and then sent over TCP/IP on Ethernet 100MB connecttion to host
+> computer.
+> 
 
-dmesg |ksymoops -m /usr/src/linux/System.map -v /usr/src/linux/vmlinux 
-ksymoops 2.3.5 on i686 2.5.43.  Options used
-     -v /usr/src/linux/vmlinux (specified)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.5.43/ (default)
-     -m /usr/src/linux/System.map (specified)
+You are not serious. the ISA bus cannot transfer data at this rate. You
+need to use the PCI bus. The ISA bus transfers data at about 1.5 megabytes
+per second. The GP bus (ISA without any slots, using a bridge), transfers
+data at up to 3.0 megabytes per second. You can purchase standard PCI
+interface chips for a dollar or so. You don't need to design your own.
+You also need a serial EEPROM to load its required info upon power-up.
+This is all standard, inexpensive stuff.
 
-Warning (compare_maps): ksyms_base symbol GPLONLY_balance_dirty_pages not found in vmlinux.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_cpu_gdt_table not found in vmlinux.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_cpufreq_notify_transition not found in vmlinux.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_cpufreq_register not found in vmlinux.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_cpufreq_unregister not found in vmlinux.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_create_workqueue not found in vmlinux.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_def_blk_aops not found in vmlinux.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_dequeue_signal not found in vmlinux.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_destroy_workqueue not found in vmlinux.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_flush_workqueue not found in vmlinux.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_generic_file_direct_IO not found in vmlinux.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_ide_build_dmatable not found in vmlinux.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_ide_destroy_dmatable not found in vmlinux.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_ide_dma_intr not found in vmlinux.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_ide_get_best_pio_mode not found in vmlinux.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_ide_pci_register_driver not found in vmlinux.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_ide_pci_unregister_driver not found in vmlinux.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_ide_pio_timings not found in vmlinux.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_ide_setup_dma not found in vmlinux.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_ide_setup_pci_device not found in vmlinux.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_ide_setup_pci_devices not found in vmlinux.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_idle_cpu not found in vmlinux.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_invalidate_inode_pages2 not found in vmlinux.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_profile_event_register not found in vmlinux.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_profile_event_unregister not found in vmlinux.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_queue_delayed_work not found in vmlinux.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_queue_work not found in vmlinux.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_register_profile_notifier not found in vmlinux.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_set_nmi_callback not found in vmlinux.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_unregister_profile_notifier not found in vmlinux.  Ignoring ksyms_base entry
-Warning (compare_maps): ksyms_base symbol GPLONLY_unset_nmi_callback not found in vmlinux.  Ignoring ksyms_base entry
-3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
-Unable to handle kernel paging request at virtual address 00002004
-c018532d
-*pde = 00000000
-Oops: 0002
-CPU:    0
-EIP:    0060:[<c018532d>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010246
-eax: 00002000   ebx: 00000000   ecx: 00000000   edx: 00000000
-esi: d14c4400   edi: d1fef4e0   ebp: d0bc2ed0   esp: d0be5d4c
-ds: 0068   es: 0068   ss: 0068
-Stack: d1ff9a60 d0be5d58 00000000 00000011 d1fef544 d0be5d98 00000000 c015f04c 
-       d0c461e0 d0bc2ed0 c030b35c 00000001 00000000 d1fef544 d1fef544 d1fef544 
-       c017fe7c d1fef4e0 d1fef544 00002000 00001000 0015fffb 00022b29 00022b29 
-Call Trace: [<c015f04c>]  [<c017fe7c>]  [<c0116ff7>]  [<c01172e2>]  [<c01171c0>]  [<c010663c>]  [<c02f5f09>]  [<c01805a9>]  [<c011af08>]  [<c014eabd>]  [<c01821ec>]  [<c014f55b>]  [<c0163a90>]  [<c0163dd1>]  [<c0163c08>]  [<c01641b8>]  [<c0107723>] 
-Code: c7 40 04 00 20 00 00 8b 54 24 1c 8b 44 24 4c 89 50 08 8b 54 
+Search 'PCI bus interface' on your Web-Crawler.
+http://www.interfacebus.com/Design_Connector_PCI.html documents some
+'cores' and interface chips.
 
->>EIP; c018532d <nfs_proc_fsinfo+6d/110>   <=====
-Trace; c015f04c <d_alloc_root+5c/70>
-Trace; c017fe7c <nfs_sb_init+11c/530>
-Trace; c0116ff7 <do_schedule+1a7/320>
-Trace; c01172e2 <__wake_up_locked+22/30>
-Trace; c01171c0 <default_wake_function+0/40>
-Trace; c010663c <__down_failed+8/c>
-Trace; c02f5f09 <.text.lock.sched+19/40>
-Trace; c01805a9 <nfs_fill_super+319/3c0>
-Trace; c011af08 <printk+118/180>
-Trace; c014eabd <sget+11d/160>
-Trace; c01821ec <nfs_get_sb+1ac/240>
-Trace; c014f55b <do_kern_mount+5b/d0>
-Trace; c0163a90 <do_add_mount+90/190>
-Trace; c0163dd1 <do_mount+181/1d0>
-Trace; c0163c08 <copy_mount_options+78/c0>
-Trace; c01641b8 <sys_mount+c8/100>
-Trace; c0107723 <syscall_call+7/b>
-Code;  c018532d <nfs_proc_fsinfo+6d/110>
-00000000 <_EIP>:
-Code;  c018532d <nfs_proc_fsinfo+6d/110>   <=====
-   0:   c7 40 04 00 20 00 00      movl   $0x2000,0x4(%eax)   <=====
-Code;  c0185334 <nfs_proc_fsinfo+74/110>
-   7:   8b 54 24 1c               mov    0x1c(%esp,1),%edx
-Code;  c0185338 <nfs_proc_fsinfo+78/110>
-   b:   8b 44 24 4c               mov    0x4c(%esp,1),%eax
-Code;  c018533c <nfs_proc_fsinfo+7c/110>
-   f:   89 50 08                  mov    %edx,0x8(%eax)
-Code;  c018533f <nfs_proc_fsinfo+7f/110>
-  12:   8b 54 00 00               mov    0x0(%eax,%eax,1),%edx
+> 
+> I wonder how to design a driver for the data acquistion bord that will
+> minimize data copying.
+> I have 2 ideas:
+> 
 
+Data gets copied very quickly on 400 MHz or greater Pentium-Class
+machines (about 1,500 megabytes per second). This should not be your
+concern.
 
-31 warnings issued.  Results may not be reliable.
+> 1) the application will open the driver and use a sendfile(devicefd,
+> socketfd, ....) call
 
-I have already posted several lspci and so one, if needed they could be
-found under http://ulima.unil.ch/greg/linux
+This works if you correctly implement read() in your driver.
 
-Have a great day,
+> 2) To have the driver DMA data into the kernel buffer and then calling
+> sock_sendpage directly from the driver.
+> 
+> 
 
-	Grégoire
-________________________________________________________________
-http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+If the hardware can do Bus Mastering, by all means use it. You need
+to use a TCP/IP "connection" to guarantee that the receiver gets your
+data. Using a piece of kernel code may send a packet, but there's
+a lot more to networking than that. 
+
+> 
+> Do i need to implement some special functionality in the driver to realize
+> 1) or a sendfile will work with an fd to any character device as source?
+>
+
+If the driver properly impliments read(). It should work with sendfile.
+ 
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
+

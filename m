@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129444AbRAYK6v>; Thu, 25 Jan 2001 05:58:51 -0500
+	id <S129511AbRAYLCm>; Thu, 25 Jan 2001 06:02:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131429AbRAYK6l>; Thu, 25 Jan 2001 05:58:41 -0500
-Received: from p3EE3C7D3.dip.t-dialin.net ([62.227.199.211]:13572 "HELO
+	id <S131133AbRAYLCd>; Thu, 25 Jan 2001 06:02:33 -0500
+Received: from p3EE3C7D3.dip.t-dialin.net ([62.227.199.211]:13828 "HELO
 	emma1.emma.line.org") by vger.kernel.org with SMTP
-	id <S129444AbRAYK6g>; Thu, 25 Jan 2001 05:58:36 -0500
-Date: Thu, 25 Jan 2001 11:58:28 +0100
+	id <S129511AbRAYLCX>; Thu, 25 Jan 2001 06:02:23 -0500
+Date: Thu, 25 Jan 2001 12:02:16 +0100
 From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.16 through 2.2.18preX TCP hang bug triggered by rsync
-Message-ID: <20010125115827.A1483@emma1.emma.line.org>
+Subject: Re: Linux 2.4.0ac11
+Message-ID: <20010125120216.B1483@emma1.emma.line.org>
 Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <3A6E02E6.B3261E1@colorfullife.com> <200101242003.XAA21040@ms2.inr.ac.ru> <20010124215634.A2992@gruyere.muc.suse.de>
+In-Reply-To: <Pine.LNX.4.31ksi3.0101241721470.605-100000@nomad.cyberbills.com> <Pine.LNX.4.10.10101242117570.15419-100000@master.linux-ide.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010124215634.A2992@gruyere.muc.suse.de>; from ak@suse.de on Wed, Jan 24, 2001 at 21:56:34 +0100
+In-Reply-To: <Pine.LNX.4.10.10101242117570.15419-100000@master.linux-ide.org>; from andre@linux-ide.org on Wed, Jan 24, 2001 at 21:18:17 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Jan 2001, Andi Kleen wrote:
+On Wed, 24 Jan 2001, Andre Hedrick wrote:
 
-> It's mostly for security to make it more difficult to nuke connections
-> without knowing the sequence number.
 > 
-> Remember RFC is from a very different internet with much less DoS attacks.
+> Working to clean all the modular natures of ATA/IDE now
+> 
+> On Wed, 24 Jan 2001, Sergey Kubushin wrote:
+> 
+> > On Wed, 24 Jan 2001, Alan Cox wrote:
+> > 
+> > Modules don't load. I do usually compile heavily modular kernels, with ide
+> > and ext2fs being also modular. When trying to load them from initrd, I have
+> > the following output:
 
-If you're deliberately breaking compatibility by violating the specs,
-you're making your own DoS if your machines can't chat to each other. If
-you insist on breaking the RFC, make a sysctl for this behaviour that
-defaults to "off".
+[>1100 lines snipped].
 
--- 
-Matthias Andree
+Wow. That was a mail. 1200 lines for only one own line.
+
+Is dG (vi: delete until end of file) so difficult to nuke the rest of
+the mail?
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

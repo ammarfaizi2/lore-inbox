@@ -1,55 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278633AbRKFIPh>; Tue, 6 Nov 2001 03:15:37 -0500
+	id <S278630AbRKFIP1>; Tue, 6 Nov 2001 03:15:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278642AbRKFIP2>; Tue, 6 Nov 2001 03:15:28 -0500
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:56016 "EHLO
-	mailout06.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S278633AbRKFIPQ>; Tue, 6 Nov 2001 03:15:16 -0500
-Date: 06 Nov 2001 09:23:00 +0200
+	id <S278642AbRKFIPR>; Tue, 6 Nov 2001 03:15:17 -0500
+Received: from mailout00.sul.t-online.com ([194.25.134.16]:37259 "EHLO
+	mailout00.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S278630AbRKFIPM>; Tue, 6 Nov 2001 03:15:12 -0500
+Date: 06 Nov 2001 09:10:00 +0200
 From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <8CKC8L1Hw-B@khms.westfalen.de>
-In-Reply-To: <20011104210936.T14001@unthought.net>
-Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Message-ID: <8CKC7-AHw-B@khms.westfalen.de>
+In-Reply-To: <3BE77599.9CFB5CA9@zip.com.au>
+Subject: Re: [Ext2-devel] disk throughput
 X-Mailer: CrossPoint v3.12d.kh7 R/C435
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <Pine.GSO.4.21.0111041453230.21449-100000@weyl.math.psu.edu> <viro@math.psu.edu> <20011104205030.P14001@unthought.net> <Pine.GSO.4.21.0111041453230.21449-100000@weyl.math.psu.edu> <20011104210936.T14001@unthought.net>
+In-Reply-To: <3BE77599.9CFB5CA9@zip.com.au>
 X-No-Junk-Mail: I do not want to get *any* junk mail.
 Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
 X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jakob@unthought.net (Jakob ¥stergaard)  wrote on 04.11.01 in <20011104210936.T14001@unthought.net>:
+akpm@zip.com.au (Andrew Morton)  wrote on 05.11.01 in <3BE77599.9CFB5CA9@zip.com.au>:
 
-> On Sun, Nov 04, 2001 at 03:01:12PM -0500, Alexander Viro wrote:
+> Linus Torvalds wrote:
 > >
-> >
-> > On Sun, 4 Nov 2001, [iso-8859-1] Jakob %stergaard wrote:
-> >
-> > > Strong type information (in one form or the other) is absolutely
-> > > fundamental for achieving correctness in this kind of software.
-> >
-> > Like, say it, all shell programming?  Or the whole idea of "file as stream
-> > of characters"?  Or pipes, for that matter...
-> >
->
-> Shell programming is great for small programs. You don't need type
-> information in the language when you can fit it all in your head.
->
-> Now, go write 100K lines of shell, something that does something that is not
-> just shoveling lines from one app into a grep and into another app.  Let's
-> say, a database.  Go implement the next Oracle replacement in bash, and tell
-> me you don't care about types in your language.
+> > I do believe that there are probably more "high-level" heuristics that can
+> > be useful, though. Looking at man common big trees, the ownership issue is
+> > one obvious clue. Sadly the trees obviously end up being _created_ without
+> > owner information, and the chown/chgrp happens later, but it might still
+> > be useable for some clues.
 
-And now look at how large typical /proc-using code parts are. Do they  
-match better with your first or your second paragraph?
+Size of the parent directory might be another clue.
 
-The first?
+> I didn't understand your objection to the heuristic "was the
+> parent directory created within the past 30 seconds?". If the
+> parent and child were created at the same time, chances are that
+> they'll be accessed at the same time?
 
-I thought so.
+Thought experiment:
+
+Put stuff on a disk the usual slow way.
+
+Backup. Mkfs. Restore.
+
+Should the allocation pattern now be different? Why?
+
+> And there's always the `chattr' cop-out, to alter the allocation
+> policy at a chosen point in the tree by administrative act.
+
+Much help that's going to be in the above scenario, given how tar calls  
+chattr ... not.
+
+> Any change in ext2 allocation policy at this point in time really,
+> really worries me.  If it screws up we'll have 10,000,000 linux
+> boxes running like dead dogs in a year. So if we _do_ make a change, I'd
+> suggest that it be opt-in.  Call me a wimp.
+
+Well, with Alex' cleanups, switchable policies might just become possible.
 
 MfG Kai

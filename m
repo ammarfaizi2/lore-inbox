@@ -1,202 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273354AbRIRKok>; Tue, 18 Sep 2001 06:44:40 -0400
+	id <S273360AbRIRKtU>; Tue, 18 Sep 2001 06:49:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273360AbRIRKob>; Tue, 18 Sep 2001 06:44:31 -0400
-Received: from ns.suse.de ([213.95.15.193]:33034 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S273354AbRIRKoZ>;
-	Tue, 18 Sep 2001 06:44:25 -0400
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: Linux 2.4.10-pre11 -- __builtin_expect
-In-Reply-To: <20010918031813.57E1062ABC@oscar.casa.dyndns.org.suse.lists.linux.kernel> <E15jBLy-0008UF-00@the-village.bc.nu.suse.lists.linux.kernel> <9o6j9l$461$1@cesium.transmeta.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 18 Sep 2001 12:44:47 +0200
-In-Reply-To: "H. Peter Anvin"'s message of "18 Sep 2001 06:47:46 +0200"
-Message-ID: <oup4rq0bwww.fsf_-_@pigdrop.muc.suse.de>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S273361AbRIRKtK>; Tue, 18 Sep 2001 06:49:10 -0400
+Received: from vega.digitel2002.hu ([213.163.0.181]:13490 "EHLO
+	vega.digitel2002.hu") by vger.kernel.org with ESMTP
+	id <S273360AbRIRKs5>; Tue, 18 Sep 2001 06:48:57 -0400
+Date: Tue, 18 Sep 2001 12:49:13 +0200
+From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Whats in the wings for 2.5 (when it opens)
+Message-ID: <20010918124913.A6103@vega.digitel2002.hu>
+Reply-To: lgb@lgb.hu
+In-Reply-To: <20010918001826.7D118A0E5@oscar.casa.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20010918001826.7D118A0E5@oscar.casa.dyndns.org>
+User-Agent: Mutt/1.3.20i
+X-Operating-System: vega Linux 2.4.9 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" <hpa@zytor.com> writes:
-
-> Followup to:  <E15jBLy-0008UF-00@the-village.bc.nu>
-> By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
-> In newsgroup: linux.dev.kernel
-> > 
-> > You need gcc 2.96 or higher to build the pre11 tree. I doubt that was
-> > intentional. Basically rip out all use of __builtin_expect
-> > 
+On Mon, Sep 17, 2001 at 08:18:25PM -0400, Ed Tomlinson wrote:
+> Hi,
 > 
-> Perhaps we should have a header which does #define __builtin_expect(X)
-> if your gcc version is 2.91-95?
+> Seems like there is a lot of code "ready" for consideration in a 2.5 kernel.
+> I can think of:
+> 
+> premptable kernel option
+> user mode kernel 
+> jfs
+> xfs (maybe)
+> rc2
+> reverse maping vm
+> ide driver rewrite
+> 32bit dma
+> LTT (maybe)
+> LVM update to 1.01
+> ELVM (maybe)
+> module security stuff
+> UP friendly SMP scheduler
 
-__builtin_expect() is ugly to use directly. In x86-64 I'm using slightly
-higher level primitives (likely() and unlikely()), which make the intend
-more clear.
+What about:
 
-I sent Linus a patch to move them into generic code some time ago, but it 
-was ignored. Here is it again for 2.4.10pre11 with the generic code changed 
-to use them. Please consider applying.
+SCSI layer rewrite
+common fs journaling API in kernel
+integrating ALSA
+and of course clean, fast, etc VM
 
-More comments:
+Sorry if I'm wrong but AFAIK these were planned or at least were mentioned
+on this list too ...
 
-For kernel debugging I can only recommend to compile with 
--fno-reorder-blocks. Gcc output gone through the basic block reordering pass
-is *really* unreadable.
-
-A lot of the unlikely()s seem to be in front of BUGs. If BUG was moved out 
-of line and marked __attribute__((noreturn)) this could be avoided, because
-the reordering pass would already do the right thing. I didn't do that 
-change yet.
-
-
-
-
-
--Andi
-
-
---- mm/slab.c-LIKELY	Tue Sep 18 03:37:30 2001
-+++ mm/slab.c	Tue Sep 18 11:26:43 2001
-@@ -1230,7 +1230,7 @@
- 	objp = slabp->s_mem + slabp->free*cachep->objsize;
- 	slabp->free=slab_bufctl(slabp)[slabp->free];
- 
--	if (__builtin_expect(slabp->free == BUFCTL_END, 0)) {
-+	if (unlikely(slabp->free == BUFCTL_END)) {
- 		list_del(&slabp->list);
- 		list_add(&slabp->list, &cachep->slabs_full);
- 	}
-@@ -1264,11 +1264,11 @@
- 								\
- 	slabs_partial = &(cachep)->slabs_partial;		\
- 	entry = slabs_partial->next;				\
--	if (__builtin_expect(entry == slabs_partial, 0)) {	\
-+	if (unlikely(entry == slabs_partial)) {	\
- 		struct list_head * slabs_free;			\
- 		slabs_free = &(cachep)->slabs_free;		\
- 		entry = slabs_free->next;			\
--		if (__builtin_expect(entry == slabs_free, 0))	\
-+		if (unlikely(entry == slabs_free))	\
- 			goto alloc_new_slab;			\
- 		list_del(entry);				\
- 		list_add(entry, slabs_partial);			\
-@@ -1291,11 +1291,11 @@
- 		/* Get slab alloc is to come from. */
- 		slabs_partial = &(cachep)->slabs_partial;
- 		entry = slabs_partial->next;
--		if (__builtin_expect(entry == slabs_partial, 0)) {
-+		if (unlikely(entry == slabs_partial)) {
- 			struct list_head * slabs_free;
- 			slabs_free = &(cachep)->slabs_free;
- 			entry = slabs_free->next;
--			if (__builtin_expect(entry == slabs_free, 0))
-+			if (unlikely(entry == slabs_free))
- 				break;
- 			list_del(entry);
- 			list_add(entry, slabs_partial);
-@@ -1436,11 +1436,11 @@
- 	/* fixup slab chains */
- 	{
- 		int inuse = slabp->inuse;
--		if (__builtin_expect(!--slabp->inuse, 0)) {
-+		if (unlikely(!--slabp->inuse)) {
- 			/* Was partial or full, now empty. */
- 			list_del(&slabp->list);
- 			list_add(&slabp->list, &cachep->slabs_free);
--		} else if (__builtin_expect(inuse == cachep->num, 0)) {
-+		} else if (unlikely(inuse == cachep->num)) {
- 			/* Was full. */
- 			list_del(&slabp->list);
- 			list_add(&slabp->list, &cachep->slabs_partial);
---- mm/vmscan.c-LIKELY	Tue Sep 18 03:37:30 2001
-+++ mm/vmscan.c	Tue Sep 18 11:22:09 2001
-@@ -335,7 +335,7 @@
- 	while (__max_scan && (entry = lru->prev) != lru) {
- 		struct page * page;
- 
--		if (__builtin_expect(current->need_resched, 0)) {
-+		if (unlikely(current->need_resched)) {
- 			spin_unlock(&pagemap_lru_lock);
- 			schedule();
- 			spin_lock(&pagemap_lru_lock);
-@@ -344,7 +344,7 @@
- 
- 		page = list_entry(entry, struct page, lru);
- 
--		if (__builtin_expect(!PageInactive(page) && !PageActive(page), 0))
-+		if (unlikely(!PageInactive(page) && !PageActive(page)))
- 			BUG();
- 
- 		if (PageTestandClearReferenced(page)) {
-@@ -363,7 +363,7 @@
- 		list_del(entry);
- 		list_add_tail(entry, &inactive_local_lru);
- 
--		if (__builtin_expect(!memclass(page->zone, classzone), 0))
-+		if (unlikely(!memclass(page->zone, classzone)))
- 			continue;
- 
- 		__max_scan--;
-@@ -380,7 +380,7 @@
- 		 * The page is locked. IO in progress?
- 		 * Move it to the back of the list.
- 		 */
--		if (__builtin_expect(TryLockPage(page), 0))
-+		if (unlikely(TryLockPage(page)))
- 			continue;
- 
- 		if (PageDirty(page) && is_page_cache_freeable(page)) {
-@@ -456,10 +456,10 @@
- 			}
- 		}
- 
--		if (__builtin_expect(!page->mapping, 0))
-+		if (unlikely(!page->mapping))
- 			BUG();
- 
--		if (__builtin_expect(!spin_trylock(&pagecache_lock), 0)) {
-+		if (unlikely(!spin_trylock(&pagecache_lock))) {
- 			/* we hold the page lock so the page cannot go away from under us */
- 			spin_unlock(&pagemap_lru_lock);
- 
-@@ -479,7 +479,7 @@
- 		}
- 
- 		/* point of no return */
--		if (__builtin_expect(!PageSwapCache(page), 1))
-+		if (likely(!PageSwapCache(page)))
- 			__remove_inode_page(page);
- 		else
- 			__delete_from_swap_cache(page);
---- mm/page_alloc.c-LIKELY	Tue Sep 18 03:37:30 2001
-+++ mm/page_alloc.c	Tue Sep 18 11:26:44 2001
-@@ -372,7 +372,7 @@
- 		return page;
- 
- 	zone = zonelist->zones;
--	if (__builtin_expect(freed, 1)) {
-+	if (likely(freed)) {
- 		for (;;) {
- 			zone_t *z = *(zone++);
- 			if (!z)
---- include/linux/kernel.h-LIKELY	Tue Sep 18 11:12:20 2001
-+++ include/linux/kernel.h	Tue Sep 18 11:30:58 2001
-@@ -171,4 +171,14 @@
- 	char _f[20-2*sizeof(long)-sizeof(int)];	/* Padding: libc5 uses this.. */
- };
- 
-+
-+/* This loses on a few early 2.96 snapshots, but hopefully nobody uses them anymore. */ 
-+#if __GNUC__ > 2 || (__GNUC__ == 2 && _GNUC_MINOR__ == 96)
-+#define likely(x)  __builtin_expect((x), !0) 
-+#define unlikely(x)  __builtin_expect((x), 0) 
-+#else
-+#define likely(x) (x)
-+#define unlikely(x) (x)
-+#endif
-+
- #endif
+-- 
+ --[ Gábor Lénárt ]---[ Vivendi Telecom Hungary ]---------[ lgb@lgb.hu ]--
+ U have 8 bit comp or chip of them and it's unused or to be sold? Call me!
+ -------[ +36 30 2270823 ]------> LGB <-----[ Linux/UNIX/8bit 4ever ]-----

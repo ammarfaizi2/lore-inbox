@@ -1,60 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbVBSNQ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261710AbVBSN0N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261595AbVBSNQ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Feb 2005 08:16:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261707AbVBSNQ5
+	id S261710AbVBSN0N (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Feb 2005 08:26:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbVBSN0N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Feb 2005 08:16:57 -0500
-Received: from twilight.ucw.cz ([81.30.235.3]:50052 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S261595AbVBSNQz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Feb 2005 08:16:55 -0500
-Date: Sat, 19 Feb 2005 14:16:39 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Kenan Esau <kenan.esau@conan.de>
-Cc: harald.hoyer@redhat.de, dtor_core@ameritech.net,
-       linux-input@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: [rfc/rft] Fujitsu B-Series Lifebook PS/2 TouchScreen driver
-Message-ID: <20050219131639.GA4922@ucw.cz>
-References: <20050211201013.GA6937@ucw.cz> <1108457880.2843.5.camel@localhost> <20050215134308.GE7250@ucw.cz> <1108578892.2994.2.camel@localhost> <20050216213508.GD3001@ucw.cz> <1108649993.2994.18.camel@localhost> <20050217150455.GA1723@ucw.cz> <20050217194217.GA2458@ucw.cz> <1108817681.5774.44.camel@localhost>
+	Sat, 19 Feb 2005 08:26:13 -0500
+Received: from faui03.informatik.uni-erlangen.de ([131.188.30.103]:43166 "EHLO
+	faui03.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S261710AbVBSN0K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Feb 2005 08:26:10 -0500
+Date: Sat, 19 Feb 2005 14:26:07 +0100
+From: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: FAUmachine: Looking for a good documented DMA bus master capable PCI IDE Controller card
+Message-ID: <20050219132606.GH16858@cip.informatik.uni-erlangen.de>
+Mail-Followup-To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+	Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+	linux-kernel@vger.kernel.org
+References: <20050219102410.GD16858@cip.informatik.uni-erlangen.de> <58cb370e05021903481de251df@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1108817681.5774.44.camel@localhost>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <58cb370e05021903481de251df@mail.gmail.com>
+X-URL: http://wwwcip.informatik.uni-erlangen.de/~sithglan/
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 19, 2005 at 01:54:41PM +0100, Kenan Esau wrote:
+Hello Bartlomiej,
 
-> > > But this return code is _very_ unusual. 0xfc means 'basic assurance test
-> > > failure' and should be reported only as a response to the 0xff command.
-> > 
-> > Kenan, can you check whether the 0xfc response is there even if you
-> > don't do the setres 7 command before this one?
-> 
-> Yes OK -- I will check. But as far as I know the 0xfe-answer from the
-> touchscreen means: "Please resend the last command".
+> In IDE you have 2 devices per port and usually 2 ports per PCI device.
+> There are some controller cards with 4 ports but they don't have public
+> available documentation etc. I really wonder what are you trying to
+> achieve and why just can't you use more than 1 "virtual" PIIX crontoller.
 
-In theory, it should mean that even with the PS/2 spec. But it only
-works so in the other direction - when the PC doesn't get the bytes
-right.
+we implemented the PIIX controller as part of an Intel Southbridge
+82371AB[1] Chip so I didn't thought that it was also available as
+seperate PCI Device. Do you have any pointers to products or better
+sepcification of this products?
 
-The devices use this error code for any problem, and this of course
-would lead to infinite loops if the system did always resend.
+If this is the case that would be the best solution for our problem.
 
-> And 0xfc means:
-> "Error I didn't get that".
+[1] Intel(R) 82371AB PCI-TO-ISA/IDE Xcelerator (PIIX4) Datasheet
 
-Why wouldn't it?
+	http://www.intel.com/design/intarch/datashts/290562.htm
+	ftp://download.intel.com/design/intarch/datashts/29056201.pdf
 
-> I also checked my original standalone-driver: Because of this behaviour
-> I always retried the last command 3 times if the responce from the
-> device was 0xfe or 0xfc.
-
-And did it actually help? Did the touchscreen ever respond with a 0xfa
-"ACK, OK" response to these commands?
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Greetings,
+	Thomas

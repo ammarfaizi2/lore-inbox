@@ -1,51 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262578AbULPBT3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262577AbULPBVE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262578AbULPBT3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 20:19:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbULPBTQ
+	id S262577AbULPBVE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 20:21:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262593AbULPBUB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 20:19:16 -0500
-Received: from gprs215-43.eurotel.cz ([160.218.215.43]:44930 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262577AbULPBAb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 20:00:31 -0500
-Date: Thu, 16 Dec 2004 02:00:12 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Linux Kernel Trivial Patch Monkey <trivial@rustcorp.com.au>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 0/30] return statement cleanup - kill pointless parentheses
-Message-ID: <20041216010012.GB6285@elf.ucw.cz>
-References: <Pine.LNX.4.61.0412160010550.3864@dragon.hygekrogen.localhost>
+	Wed, 15 Dec 2004 20:20:01 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:39297 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262545AbULPBB1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Dec 2004 20:01:27 -0500
+Subject: Re: [2.6 patch] net/lapb/lapb_iface.c: remove unused code
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Jonathan Naylor <g4klx@g4klx.demon.co.uk>, netdev@oss.sgi.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041215010745.GB12937@stusta.de>
+References: <20041215010745.GB12937@stusta.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1103155101.3585.26.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0412160010550.3864@dragon.hygekrogen.localhost>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 15 Dec 2004 23:58:22 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> Ok, here's the first batch of return statement cleanups (*many* to go).
+On Mer, 2004-12-15 at 01:07, Adrian Bunk wrote:
+> The patch below removes the following unused code:
+> - EXPORT_SYMBOL'ed functions lapb_getparms and lapb_setparms
+> - struct lapb_parms_struct
 > 
-> The following patches clean up return statements of the forms
-> 	return(foo);
-> 	return ( fn() );
-> 	return (123);
-> 	return(a + b);
-> etc. To be instead
-> 	return foo;
-> 	return fn();
-> 	return 123
-> 	return a + b;
+> Please review whether it's correct or conflicts with pending changes.
 
-Yes, I like that. Please also go through drivers/acpi -- there's lot
-of annoying parenthesis there ;-).
-								Pavel
+Please keep these, they are used by out of kernel code and they are also
+required in order to run test sets on the full code functionality.
 
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

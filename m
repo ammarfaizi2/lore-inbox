@@ -1,58 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267343AbSLRTWn>; Wed, 18 Dec 2002 14:22:43 -0500
+	id <S267418AbSLRTZl>; Wed, 18 Dec 2002 14:25:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267344AbSLRTWn>; Wed, 18 Dec 2002 14:22:43 -0500
-Received: from mrelay1.cc.umr.edu ([131.151.1.120]:45035 "EHLO smtp.umr.edu")
-	by vger.kernel.org with ESMTP id <S267343AbSLRTWm> convert rfc822-to-8bit;
-	Wed, 18 Dec 2002 14:22:42 -0500
-X-MIMEOLE: Produced By Microsoft Exchange V6.0.6249.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: 3ware driver in 2.4.x and 2.5.x not compatible with 6x00 seriescards
-Date: Wed, 18 Dec 2002 13:30:36 -0600
-Message-ID: <B578DAA4FD40684793C953B491D487913F0FA3@umr-mail7.umr.edu>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 3ware driver in 2.4.x and 2.5.x not compatible with 6x00 seriescards
-Thread-Index: AcKmy4k8YhuTqn7xSqaqJlF/Pnw3jAAAE71g
-From: "Neulinger, Nathan" <nneul@umr.edu>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+	id <S267429AbSLRTZh>; Wed, 18 Dec 2002 14:25:37 -0500
+Received: from bitmover.com ([192.132.92.2]:42664 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S267418AbSLRTZa>;
+	Wed, 18 Dec 2002 14:25:30 -0500
+Date: Wed, 18 Dec 2002 11:33:24 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Alan Cox <alan@redhat.com>
+Cc: Larry McVoy <lm@bitmover.com>, Linus Torvalds <torvalds@transmeta.com>,
+       Dave Jones <davej@codemonkey.org.uk>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: Freezing.. (was Re: Intel P6 vs P7 system call performance)
+Message-ID: <20021218113324.I7976@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Alan Cox <alan@redhat.com>, Larry McVoy <lm@bitmover.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Dave Jones <davej@codemonkey.org.uk>,
+	Horst von Brand <vonbrand@inf.utfsm.cl>,
+	linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>
+References: <20021218112351.H7976@work.bitmover.com> <200212181930.gBIJUmg13378@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200212181930.gBIJUmg13378@devserv.devel.redhat.com>; from alan@redhat.com on Wed, Dec 18, 2002 at 02:30:48PM -0500
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I gave it to Adam Radford and am talking to him directly on this now.
+On Wed, Dec 18, 2002 at 02:30:48PM -0500, Alan Cox wrote:
+> We've got one - its called linux-kernel.
 
--- Nathan
+Huh?  That's like saying "we don't need a bug database, we have a mailing
+list".  That's patently wrong and so is your statement.  If you want 
+reviews you need some place to store them.  A mailing list isn't storage.
 
-------------------------------------------------------------
-Nathan Neulinger                       EMail:  nneul@umr.edu
-University of Missouri - Rolla         Phone: (573) 341-4841
-Computing Services                       Fax: (573) 341-4216
-
-
-> -----Original Message-----
-> From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk] 
-> Sent: Wednesday, December 18, 2002 2:08 PM
-> To: Neulinger, Nathan
-> Cc: Linux Kernel Mailing List; Uetrecht, Daniel J.
-> Subject: Re: 3ware driver in 2.4.x and 2.5.x not compatible 
-> with 6x00 seriescards
-> 
-> 
-> On Wed, 2002-12-18 at 18:10, Nathan Neulinger wrote:
-> > According to 3Ware, the driver in the 2.4.x and (I assume) 
-> 2.5.x is no
-> > longer compatible with the 6xxx series cards. 
-> 
-> Please give the name of your 3ware contact so someone 
-> competent in 3ware
-> so they can be 're-educated'
-> 
-> I use the new driver with an old card, it works.
-> 
-> 
+You'll do it however you want of course, but you are being stupid about it.
+Why is that?
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,62 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262320AbUCCJyw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 04:54:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbUCCJyw
+	id S262366AbUCCJ7b (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 04:59:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbUCCJ7b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 04:54:52 -0500
-Received: from fw.osdl.org ([65.172.181.6]:64991 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262320AbUCCJyu (ORCPT
+	Wed, 3 Mar 2004 04:59:31 -0500
+Received: from [212.28.208.94] ([212.28.208.94]:16904 "HELO dewire.com")
+	by vger.kernel.org with SMTP id S262366AbUCCJ73 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 04:54:50 -0500
-Date: Wed, 3 Mar 2004 01:54:48 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Miquel van Smoorenburg <miquels@cistron.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: per-cpu blk_plug_list
-Message-Id: <20040303015448.749a87d2.akpm@osdl.org>
-In-Reply-To: <20040303094509.GA8779@cistron.nl>
-References: <cistron.B05667366EE6204181EABE9C1B1C0EB50211E5C8@scsmsx401.sc.intel.com>
-	<cistron.20040302211309.500f43fb.akpm@osdl.org>
-	<20040303094509.GA8779@cistron.nl>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 3 Mar 2004 04:59:29 -0500
+From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: Desktop Filesystem Benchmarks in 2.6.3
+Date: Wed, 3 Mar 2004 10:59:26 +0100
+User-Agent: KMail/1.6.1
+Cc: David Weinehall <david@southpole.se>, Andrew Ho <andrewho@animezone.org>,
+       Dax Kelson <dax@gurulabs.com>, Peter Nelson <pnelson@andrew.cmu.edu>,
+       Hans Reiser <reiser@namesys.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net, ext3-users@redhat.com,
+       jfs-discussion@www-124.southbury.usf.ibm.com, reiserfs-list@namesys.com,
+       linux-xfs@oss.sgi.com
+References: <4044119D.6050502@andrew.cmu.edu> <200403030700.57164.robin.rosenberg.lists@dewire.com> <1078307033.904.1.camel@teapot.felipe-alfaro.com>
+In-Reply-To: <1078307033.904.1.camel@teapot.felipe-alfaro.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200403031059.26483.robin.rosenberg.lists@dewire.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miquel van Smoorenburg <miquels@cistron.nl> wrote:
->
-> According to Andrew Morton:
->  >  And also having looked at Miquel's (currently slightly defective)
->  >  implementation of the any_congested() API for devicemapper:
->  > 
->  >  ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.4-rc1/2.6.4-rc1-mm1/broken-out/queue-congestion-dm-implementation.patch
->  > 
->  >  I am thinking that an appropriate way of solving the blk_run_queues() lock
->  >  contention problem is to nuke the global plug list altogther and make the
->  >  unplug function a method in struct backing_device_info.
->  > 
->  >  This is conceptually the appropriate place to put it - it is almost always
->  >  the case that when we run blk_run_queues() it is on behalf of an
->  >  address_space, and the few remaining case can be simply deleted -
->  >  mm/mempool.c is the last one I think.
->  > 
->  >  The implementation of backing_dev_info.unplug() would have to run the
->  >  unplug_fn of every queue which contributes to the top-level queue (the
->  >  thing which the address_space is sitting on top of).
-> 
->  But then you need a pointer to the queue. In that case,
->  you might as well put the congested_fn pointer in the request_queue
->  too.
+On Wednesday 03 March 2004 10:43, Felipe Alfaro Solana wrote:
+> But XFS easily breaks down due to media defects. Once ago I used XFS,
+> but I lost all data on one of my volumes due to a bad block on my hard
+> disk. XFS was unable to recover from the error, and the XFS recovery
+> tools were unable to deal with the error.
 
-It already is.  backing_dev_info is a member of struct request_queue.
+What file systems work on defect media? 
 
-> Then you get something like
->  https://www.redhat.com/archives/linux-lvm/2004-February/msg00203.html
->  (though I'd replace "rw" with "bdi_bits" like in the current patch).
+As for crashed disks I rarely bothered trying to "fix" them anymore. I save
+what I can and restore what's backed up and recovery tools (other than
+the undo-delete ones) usually destroy what's left, but that's not unique to
+XFS. Depending on how good my backups are I sometimes try the recovery
+tools just to see, but that has never helped so far.
 
-Sure.  This is all nice and simple stuff, except for the locking, which
-needs serious work.
-
+-- robin

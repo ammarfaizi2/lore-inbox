@@ -1,56 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277114AbRJQTp1>; Wed, 17 Oct 2001 15:45:27 -0400
+	id <S277123AbRJQTq5>; Wed, 17 Oct 2001 15:46:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277115AbRJQTpR>; Wed, 17 Oct 2001 15:45:17 -0400
-Received: from ns.caldera.de ([212.34.180.1]:47749 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S277114AbRJQTpC>;
-	Wed, 17 Oct 2001 15:45:02 -0400
-Date: Wed, 17 Oct 2001 21:45:22 +0200
-From: Christoph Hellwig <hch@caldera.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] maintainers entry for personality handling
-Message-ID: <20011017214522.A18316@caldera.de>
-Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S277132AbRJQTqs>; Wed, 17 Oct 2001 15:46:48 -0400
+Received: from mail4.home.nl ([213.51.129.228]:25076 "EHLO mail4.home.nl")
+	by vger.kernel.org with ESMTP id <S277123AbRJQTq3>;
+	Wed, 17 Oct 2001 15:46:29 -0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: elko <elko@home.nl>
+To: =?iso-8859-1?q?Jos=E9=20Luis=20Domingo=20L=F3pez?= 
+	<jdomingo@internautas.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: looking for a preempt-patch for 2.4.10-ac12
+Date: Wed, 17 Oct 2001 21:47:18 +0200
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <01101619524411.00955@ElkOS> <20011016204753.B1472@dardhal.mired.net>
+In-Reply-To: <20011016204753.B1472@dardhal.mired.net>
+X-Owner: ElkOS
+MIME-Version: 1.0
+Message-Id: <01101721471803.00726@ElkOS>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+On Tuesday 16 October 2001 22:47, José Luis Domingo López wrote:
+> On Tuesday, 16 October 2001, at 19:52:44 +0200,
+>
+> elko wrote:
+> > Where can I find a preempt-patch for Linux-2.4.10-ac12 ?
+>
+> http://tech9.net/rml/linux
+>
+> But there isn't a patch for this specific kernel version, so you will
+> have to download the most similar one and apply it in the hope of not
+> getting too much and complex .rej
 
-the appended patch adds myself to MATINAINERS for the personality
-handling.  The code was orphaned for a long time and I did a rewrite
-that got into 2.4.11.  I also maintain linux-abi, the patch to support
-foreign personalities under i386 (more architectures to come).
 
-If someone wants to take the role instead speak up NOW or remain silent
-forever :)
+the patch is there, I applied it together with the stats-patch
+and my system is running like a charm right now, never have seen
+this kind of response in X.
 
 
-	Christoph
+the only thing is, the perl-script at:
+http://www.tech9.net/rml/linux/top-latencies
+
+shows something this:
+
+----[ SNIP ]----
+n   min  avg  max  cause   mask start line/file address end line/file
+  14 9512 9590 9711  spin_lock 5 2111/tcp_ipv4.c c0226736119/softirq.c
+  89 9454 9559 9682  spin_lock 9 2111/tcp_ipv4.c c0226736119/softirq.c
+   2 9540 9551 9563  spin_lock 3 2111/tcp_ipv4.c c0226736119/softirq.c
+3895 7708 9532 14296 spin_lock 1 2111/tcp_ipv4.c c0226736119/softirq.c
+   1 9513 9513 9513  spin_lock 1 2111/tcp_ipv4.c c02267362152/tcp_ipv4.c
+ 363 3594 6166 9512  spin_lock 0 2111/tcp_ipv4.c c02267362152/tcp_ipv4.c
+----[ SNIP ]----
+
+that 3895 number for '2111/tcp_ipv4.c c0226736119/softirq.c'
+keeps adding up, how should I translate that? big network
+latency, is that what it means? if so, any idea on how
+can I fix that??
 
 -- 
-Of course it doesn't work. We've performed a software upgrade.
-
-
---- ../master/linux-2.4.13-pre3/MAINTAINERS	Wed Oct 17 00:33:22 2001
-+++ linux-2.4.13-pre3/MAINTAINERS	Wed Oct 17 21:40:13 2001
-@@ -1121,6 +1121,12 @@
- W:	http://www.torque.net/linux-pp.html
- S:	Maintained
- 
-+PERSONALITY HANDLING
-+P:	Christoph Hellwig
-+M:	hch@caldera.de
-+L:	linux-abi-devel@lists.sourceforge.net
-+S:	Supported
-+
- PCI ID DATABASE
- P:	Jens Maurer
- M:	jmaurer@cck.uni-kl.de
+ElkOS: 9:18pm up 1:08, 3 users, load average: 2.40, 2.38, 2.28
+bofhX: overflow error in /dev/null
+

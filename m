@@ -1,77 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285448AbRLSUMK>; Wed, 19 Dec 2001 15:12:10 -0500
+	id <S285471AbRLSUTa>; Wed, 19 Dec 2001 15:19:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285450AbRLSUMA>; Wed, 19 Dec 2001 15:12:00 -0500
-Received: from fepD.post.tele.dk ([195.41.46.149]:16374 "EHLO
-	fepD.post.tele.dk") by vger.kernel.org with ESMTP
-	id <S285448AbRLSUL5>; Wed, 19 Dec 2001 15:11:57 -0500
-Message-ID: <001f01c18911$b2cfd9a0$0b00a8c0@runner>
-From: "Rune Petersen" <rune.mail-list@mail.tele.dk>
-To: "Eli" <eli@pflash.com>, <linux-kernel@vger.kernel.org>
-Cc: <eli@pflash.com>, <arjanv@redhat.com>
-In-Reply-To: <E16Glz1-0005mt-00@pintail.mail.pas.earthlink.net>
-Subject: Re: 2.4.x WinBookXL mouse & keyboard freeze (and on Uniwill 340S2)
-Date: Wed, 19 Dec 2001 20:49:24 -0800
+	id <S285467AbRLSUTZ>; Wed, 19 Dec 2001 15:19:25 -0500
+Received: from mail.xmailserver.org ([208.129.208.52]:49419 "EHLO
+	mail.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S285466AbRLSUSt>; Wed, 19 Dec 2001 15:18:49 -0500
+Date: Wed, 19 Dec 2001 12:21:39 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Ben LaHaise <bcrl@redhat.com>
+cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
+        <linux-aio@kvack.org>
+Subject: Re: aio
+In-Reply-To: <20011219135708.A12608@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.40.0112191157030.1529-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2615.200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have the same Problem on My Uniwill 340S2, it uses a Synaptics touchpad
-and I can unlock it by pressing the power-key.
+On Wed, 19 Dec 2001, Ben LaHaise wrote:
 
-There were some drivers (kernelpatch + config-utility) for the Synaptics
-touch pad, but it havent been updated for some time:
-http://compass.com/synaptics/
+> Thanks for the useful feedback on the userland interface then.  Evidently
+> nobody cares within the community about improving functionality on a
+> reasonable timescale.  If this doesn't change soon, Linux is doomed.
 
-you might want to take a look.
+Ben, maybe it's true, nobody cares :( This could be either bad or good.
+On one side it could be good because this means that everyone is happy
+with the kernel performance level and this could be due the fact that real
+world loads does not put their applications under stress. It could be bad
+because it's possible that exist applications that are currently under
+stress ( yes ), but their developers do not understand that by using
+different interfaces they can improve their software ( or they simply do
+not understand that the application is under stress ). Or maybe application
+developers are not in lk. Or maybe they're not willing to rewrite/experiment
+new APIs. On one side i understand that you can have an intrinsic attitude
+to push/defend your patch, while one the other side i can agree with the
+Linus point to have some kind of broad discussion/adoption about it.
+But if applications developers are not in this list there won't be a broad
+discussion and if the patch does not go inside the mainstream kernel
+"external" applications developers are not going to use it. The Linus
+point could be: "why do i have to merge a new api that has had a so cold
+discussion/adoption inside lk ?".
+Yes egg-chicken draws the picture very well.
 
-Rune Petersen
------ Original Message -----
-From: Eli <eli@pflash.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <eli@pflash.com>; <arjanv@redhat.com>
-Sent: Wednesday, December 19, 2001 10:54 AM
-Subject: Re: 2.4.x WinBookXL mouse & keyboard freeze
 
 
-> On Wednesday 19 December 2001 12:33 pm, Eli wrote:
-> > When running any 2.4.x kernel, if gpm is running, touching the mouse
-ends
-> > all keyboard input.  Starting X without touching the mouse does the same
-> > thing. The mouse in this case is the built-in trackpad thing common in
-> > notebooks. 2.2.x works just fine.
-> >
-> > I don't know quite where to start on this... I've tried changing gpm
-> > configuration, but that doesn't seem to help.
-> > (I'm running RedHat 7.2.)
-> >
-> > Any ideas on where I should start looking?
->
-> Ok, I found discussion of this bug here:
-> https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=37812
->
-> I'll start playing with some of the ideas listed, but I don't see a good
-> conclusion on it.  What kind of a fix would be accepted into the mainline?
->
-> TIA,
->
-> Eli
-> ---------------.
-> Eli Carter      \
-> eli(a)pflash.com `-------------------------------------------------------
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+- Davide
+
 
 

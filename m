@@ -1,42 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131930AbQKZX6D>; Sun, 26 Nov 2000 18:58:03 -0500
+        id <S132097AbQK0AAo>; Sun, 26 Nov 2000 19:00:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132097AbQKZX5z>; Sun, 26 Nov 2000 18:57:55 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:41487 "EHLO
-        neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-        id <S131930AbQKZX5m>; Sun, 26 Nov 2000 18:57:42 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [PATCH] modutils 2.3.20 and beyond
-Date: 26 Nov 2000 15:27:33 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8vs695$oht$1@cesium.transmeta.com>
-In-Reply-To: <20001126163655.A1637@vger.timpanogas.org> <E140AZB-0002Qh-00@the-village.bc.nu>
+        id <S133072AbQK0AAe>; Sun, 26 Nov 2000 19:00:34 -0500
+Received: from www.ylenurme.ee ([193.40.6.1]:23036 "EHLO ylenurme.ee")
+        by vger.kernel.org with ESMTP id <S132097AbQK0AA2>;
+        Sun, 26 Nov 2000 19:00:28 -0500
+Date: Mon, 27 Nov 2000 01:30:06 +0200 (GMT-2)
+From: Elmer Joandi <elmer@ylenurme.ee>
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+cc: linux-kernel@vger.kernel.org
+Subject: Universal debug macros.
+In-Reply-To: <200011262249.XAA10540@cave.bitwizard.nl>
+Message-ID: <Pine.LNX.4.10.10011270109020.11180-100000@yle-server.ylenurme.sise>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <E140AZB-0002Qh-00@the-village.bc.nu>
-By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
-In newsgroup: linux.dev.kernel
->
-> > +		{"ignore-versions", 0, 0, 'i'},
-> 
-> I dont think we should encourage anyone to ignore symbol versions
-> 
 
-No, but sometimes you really want to be able to.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+On Sun, 26 Nov 2000, Rogier Wolff wrote:
+> Sure it will slow the driver down a bit, because of all those bit-test
+> instructions in the driver. If it bothers you, you get to turn it
+> off. If you are capable of that, you are also capable enough to turn
+> it back on when neccesary.
+
+Now if there would be simple _unified_ system for switching debug code
+on/off, it would be a real win. That  recompilation-capable enduser would
+not need much knowledge to go "General Setup" or newly created
+"Optimization" section and switch debugging off/on for _all_ network
+drivers or ide drivers for example.
+
+
+> The debug asserts that trigger during normal operation are what make
+> the Linux kernel stable. Problems get spotted at an early
+> stage. Problems get fixed.
+
+Yess
+
+
+Lets say LDBG_* namespace, 
+macros being in general form:
+ LDBG_OPERATION(OPTIMIZATION_LEVEL,SUBSYSTEM,MODULE,ACTION, operation params..)
+
+OPERATIONS would be first likely:
+	ASSERT_PRINT, PRINT, ASSERT_PANIC
+
+OPTIMIZATION_LEVELs would be first:
+	DEVELOP, ALPHA, BETA, TEST, RELEASE, PRODUCTION, FINETUNED, EMBEDDED 
+
+SUBSYSTEMS:
+	memory, fs, network, drivers(network, fs,...), 
+	divided to about 20 sections or so.
+MODULE: would be current module
+
+ACTION: division inside module :
+	DATA_UP, DATA_DOWN, INIT, CLEANUP, CONFIGURE, ToUserpace,FromUserSpace
+	... etc. about 15-25 divisions.
+
+LDBG_DECLARE_DEBUG_VAR(OPTIMIZATION_LEVEL, SUBSYSTEM, MODULE)
+woudl declare a global unsigned int subsystem_module_debug = 0 and
+also sysctl interface to change it.
+the var would have ACTION bitfields, so user can control debug output
+runtime for the module.
+
+
+elmer.
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

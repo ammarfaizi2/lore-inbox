@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287048AbSBKFEl>; Mon, 11 Feb 2002 00:04:41 -0500
+	id <S287244AbSBKFML>; Mon, 11 Feb 2002 00:12:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287193AbSBKFEc>; Mon, 11 Feb 2002 00:04:32 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7434 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S287048AbSBKFER>;
-	Mon, 11 Feb 2002 00:04:17 -0500
-Message-ID: <3C6750CD.46575DAA@mandrakesoft.com>
-Date: Mon, 11 Feb 2002 00:04:13 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre8 i686)
-X-Accept-Language: en
+	id <S287212AbSBKFMB>; Mon, 11 Feb 2002 00:12:01 -0500
+Received: from 24.213.60.124.up.mi.chartermi.net ([24.213.60.124]:33188 "EHLO
+	front2.chartermi.net") by vger.kernel.org with ESMTP
+	id <S287208AbSBKFLq>; Mon, 11 Feb 2002 00:11:46 -0500
+From: reddog83 <reddog83@chartermi.net>
+Reply-To: reddog83@chartermi.net
+To: davej@suse.de
+Subject: [PATCH] 2.5.3-dj5 synclink.c fix so that it compiles
+Date: Mon, 11 Feb 2002 00:12:49 -0500
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+X-PRIORITY: 2 (High)
 MIME-Version: 1.0
-To: John Weber <weber@nyc.rr.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.4 Compile Error
-In-Reply-To: <3C674CFA.2030107@nyc.rr.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_DTRCZ3GLLGEH5FEV2RRA"
+Message-ID: <auto-000058815980@front2.chartermi.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Weber wrote:
-> /usr/src/linux-2.5.4/include/asm/processor.h: In function `thread_saved_pc':
-> /usr/src/linux-2.5.4/include/asm/processor.h:444: dereferencing pointer
-> to incomplete type
-> make: *** [init/main.o] Error 1
 
-since it's just for /usr/bin/ps, ie. not a fast path, I just un-inlined
-it in my alpha hacking.  Same approach might work for here, too.
+--------------Boundary-00=_DTRCZ3GLLGEH5FEV2RRA
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-The basic problem, I'm guessing, is that asm/processor.h wants to know
-about the internals of task struct, but it can't yet.
+This is a temp fix for thje synclink.c file in drivers/char it work's for me 
+so DJ will you please apply this patch.
+Thank you Victor Torres.
+All it does it removes the #error please convert me to 
+Documentation/DMA-mapping.txt 
+it compiles and work's great for me.
+Please apply
+--------------Boundary-00=_DTRCZ3GLLGEH5FEV2RRA
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="synclink.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="synclink.diff"
 
-	Jeff
+ZGlmZiAtdXJOIGxpbnV4LTIuNS5vcmlnL2RyaXZlcnMvY2hhci9zeW5jbGluay5jLm9yaWcgbGlu
+dXgvZHJpdmVycy9jaGFyL3N5bmNsaW5rLmMKLS0tIHN5bmNsaW5rLmMub3JpZwlTdW4gRmViIDEw
+IDIzOjUxOjUwIDIwMDIKKysrIHN5bmNsaW5rLmMJU3VuIEZlYiAxMCAyMzo1MzoxNCAyMDAyCkBA
+IC02MCw2ICs2MCw4IEBACiAjICBkZWZpbmUgQlJFQUtQT0lOVCgpIHsgfQogI2VuZGlmCiAKLSNl
+cnJvciBQbGVhc2UgY29udmVydCBtZSB0byBEb2N1bWVudGF0aW9uL0RNQS1tYXBwaW5nLnR4dAot
+CiAjZGVmaW5lIE1BWF9JU0FfREVWSUNFUyAxMAogI2RlZmluZSBNQVhfUENJX0RFVklDRVMgMTAK
+ICNkZWZpbmUgTUFYX1RPVEFMX0RFVklDRVMgMjAK
 
-
-
-
--- 
-Jeff Garzik      | "I went through my candy like hot oatmeal
-Building 1024    |  through an internally-buttered weasel."
-MandrakeSoft     |             - goats.com
+--------------Boundary-00=_DTRCZ3GLLGEH5FEV2RRA--

@@ -1,125 +1,439 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316821AbSFQHBe>; Mon, 17 Jun 2002 03:01:34 -0400
+	id <S316824AbSFQGv7>; Mon, 17 Jun 2002 02:51:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316827AbSFQHAs>; Mon, 17 Jun 2002 03:00:48 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:1674 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S316778AbSFQG7P>;
-	Mon, 17 Jun 2002 02:59:15 -0400
-Date: Mon, 17 Jun 2002 12:31:47 +0530
-From: Ravikiran G Thirumalai <kiran@in.ibm.com>
-To: kernprof <kernprof@oss.sgi.com>
-Cc: lse <lse-tech@lists.sourceforge.net>, linux-kernel@vger.kernel.org
-Subject: [RFC - Patch] Kernprof kernel profiling in NMI mode
-Message-ID: <20020617123147.F1319@in.ibm.com>
+	id <S316822AbSFQGtv>; Mon, 17 Jun 2002 02:49:51 -0400
+Received: from supreme.pcug.org.au ([203.10.76.34]:6787 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S316782AbSFQGs0>;
+	Mon, 17 Jun 2002 02:48:26 -0400
+Date: Mon, 17 Jun 2002 16:47:20 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Linus <torvalds@transmeta.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, ralf@gnu.org, engebret@us.ibm.com,
+       schwidefsky@de.ibm.com, linux390@de.ibm.com, davem@redhat.com,
+       ak@suse.de, davidm@hpl.hp.com, anton@samba.org, paulus@samba.org
+Subject: [PATCH] Consolidate sys32_utime
+Message-Id: <20020617164720.143c4035.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.7.8 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a patch to enable SGI kernprof kernel profiling in NMI mode 
-(x86 only).  This patch sets the PMC overflow apic interrupt 
-delivery mode to NMI, and gathers profile data in the NMI handler. This
-will enable PMC domain profiling to happen in NMI mode. NMI mode equivalent 
-of time domain profiling can be carried out by doing a PMC domain 
-profiling with CPU_CLKS_UNHALTED event (P6 family).
+Hi Linus,
 
-With this patch kernprof can:
-* Profile routines/code paths  which run with on-chip interrupts disabled
-* Give accurate and indicative 'verbose' output - in the sense
-  events/ticks in interrput disabled code-paths show up at the actual
-  event generating locations (unlike, say all L2 misses/profile ticks
-  showing up after sti)
+This patch implements a generic sys32_utime for those architectures
+that need it.  The relevant architecture maintainers have seen this
+and the only comments caused the creation of the previous patch
+(creating compat32.h).
 
-This patch adds an extra call to the profiling path (That can be made inline
-on the next patch release).  Also, a config option is provided to enable
-NMI based profiling.
+This patch depends on the patch that creates compat32.h.
 
-This patch applies neatly on top of SGI kernprof version 0.12, patch for 2.5.8
-profile-0.12.1-2.5.8.patch, and requires no changes to the user level kernprof
-command tool. Patch has been tested on a 4way PIII Xeon box.
+Please apply.  More to come.
 
-Request comments on usefulness, improvements, potential breakages :).....
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
-Kiran
-
-
-diff -ruN -X dontdiff linux-2.5.8/arch/i386/Config.help nmi-kern/arch/i386/Config.help
---- linux-2.5.8/arch/i386/Config.help	Thu Jun 13 18:23:22 2002
-+++ nmi-kern/arch/i386/Config.help	Thu Jun 13 19:22:47 2002
-@@ -946,6 +946,12 @@
-   The module will be called profile.o. If you want to compile it as a
-   module, say M here and read Documentation/modules.txt.
+diff -ruN 2.5.22-sfr.3/arch/ia64/ia32/sys_ia32.c 2.5.22-sfr.4/arch/ia64/ia32/sys_ia32.c
+--- 2.5.22-sfr.3/arch/ia64/ia32/sys_ia32.c	Mon Jun 17 16:09:22 2002
++++ 2.5.22-sfr.4/arch/ia64/ia32/sys_ia32.c	Fri Jun 14 16:56:47 2002
+@@ -20,7 +20,6 @@
+ #include <linux/fs.h>
+ #include <linux/file.h>
+ #include <linux/signal.h>
+-#include <linux/utime.h>
+ #include <linux/resource.h>
+ #include <linux/times.h>
+ #include <linux/utsname.h>
+@@ -802,36 +801,7 @@
+ /* Translations due to time_t size differences.  Which affects all
+    sorts of things, like timeval and itimerval.  */
  
-+CONFIG_NMI_PROFILING
-+  Saying Y here will set the interrupt delivery mode for PMC domain
-+  profiling to NMI. This is useful if you want to profile kernel code
-+  paths which mask interrputs (eg. code between spin_lock_irq and
-+  spin_unlock_irq).
-+
- CONFIG_MCOUNT
-   This will instrument the kernel with calls to mcount(), which enables 
-   call-graph and call-count profiling.  Because mcount() is called at 
-diff -ruN -X dontdiff linux-2.5.8/arch/i386/config.in nmi-kern/arch/i386/config.in
---- linux-2.5.8/arch/i386/config.in	Thu Jun 13 18:23:22 2002
-+++ nmi-kern/arch/i386/config.in	Thu Jun 13 19:12:22 2002
-@@ -423,6 +423,7 @@
- tristate 'Kernel Profiling Support' CONFIG_PROFILING
- if [ "$CONFIG_PROFILING" != "n" ]; then
-    define_bool CONFIG_FRAME_POINTER y
-+   bool '  Use NMI delivery for PMC events profiling' CONFIG_NMI_PROFILING
- fi
- bool 'Instrument kernel at entry to all C functions' CONFIG_MCOUNT
- if [ "$CONFIG_MCOUNT" = "y" ]; then
-diff -ruN -X dontdiff linux-2.5.8/arch/i386/kernel/apic.c nmi-kern/arch/i386/kernel/apic.c
---- linux-2.5.8/arch/i386/kernel/apic.c	Thu Jun 13 18:23:22 2002
-+++ nmi-kern/arch/i386/kernel/apic.c	Thu Jun 13 19:48:04 2002
-@@ -30,6 +30,7 @@
- #include <asm/mtrr.h>
- #include <asm/mpspec.h>
- #include <asm/pgalloc.h>
-+#include <asm/profile.h>
+-struct utimbuf_32 {
+-	int	atime;
+-	int	mtime;
+-};
+-
+-extern asmlinkage long sys_utimes(char * filename, struct timeval * utimes);
+ extern asmlinkage long sys_gettimeofday (struct timeval *tv, struct timezone *tz);
+-
+-asmlinkage long
+-sys32_utime (char *filename, struct utimbuf_32 *times32)
+-{
+-	mm_segment_t old_fs = get_fs();
+-	struct timeval tv[2], *tvp;
+-	long ret;
+-
+-	if (times32) {
+-		if (get_user(tv[0].tv_sec, &times32->atime))
+-			return -EFAULT;
+-		tv[0].tv_usec = 0;
+-		if (get_user(tv[1].tv_sec, &times32->mtime))
+-			return -EFAULT;
+-		tv[1].tv_usec = 0;
+-		set_fs(KERNEL_DS);
+-		tvp = tv;
+-	} else
+-		tvp = NULL;
+-	ret = sys_utimes(filename, tvp);
+-	set_fs(old_fs);
+-	return ret;
+-}
  
- /* Using APIC to generate smp_local_timer_interrupt? */
- int using_apic_timer = 0;
-@@ -971,7 +972,7 @@
- void __init setup_APIC_perfctr_vector(void *unused)
- {
- 	(void) apic_read(APIC_LVTPC);
--	apic_write(APIC_LVTPC, PERFCTR_OVFL_VECTOR);
-+	apic_write(APIC_LVTPC, PERFCTR_OVFL_VECTOR_MODE);
+ extern struct timezone sys_tz;
+ extern int do_sys_settimeofday (struct timeval *tv, struct timezone *tz);
+diff -ruN 2.5.22-sfr.3/arch/mips64/kernel/linux32.c 2.5.22-sfr.4/arch/mips64/kernel/linux32.c
+--- 2.5.22-sfr.3/arch/mips64/kernel/linux32.c	Mon Jun 17 16:10:14 2002
++++ 2.5.22-sfr.4/arch/mips64/kernel/linux32.c	Fri Jun 14 16:57:30 2002
+@@ -22,7 +22,6 @@
+ #include <linux/sem.h>
+ #include <linux/msg.h>
+ #include <linux/sysctl.h>
+-#include <linux/utime.h>
+ #include <linux/utsname.h>
+ #include <linux/personality.h>
+ #include <linux/timex.h>
+@@ -115,36 +114,6 @@
+ 	if ((int)high < 0)
+ 		return -EINVAL;
+ 	return sys_ftruncate(fd, ((long) high << 32) | low);
+-}
+-
+-extern asmlinkage int sys_utime(char * filename, struct utimbuf * times);
+-
+-struct utimbuf32 {
+-	__kernel_time_t32 actime, modtime;
+-};
+-
+-asmlinkage int sys32_utime(char * filename, struct utimbuf32 *times)
+-{
+-	struct utimbuf t;
+-	mm_segment_t old_fs;
+-	int ret;
+-	char *filenam;
+-	
+-	if (!times)
+-		return sys_utime(filename, NULL);
+-	if (get_user (t.actime, &times->actime) ||
+-	    __get_user (t.modtime, &times->modtime))
+-		return -EFAULT;
+-	filenam = getname (filename);
+-	ret = PTR_ERR(filenam);
+-	if (!IS_ERR(filenam)) {
+-		old_fs = get_fs();
+-		set_fs (KERNEL_DS); 
+-		ret = sys_utime(filenam, &t);
+-		set_fs (old_fs);
+-		putname (filenam);
+-	}
+-	return ret;
  }
-  
- void __init setup_APIC_perfctr(void)
-diff -ruN -X dontdiff linux-2.5.8/arch/i386/kernel/traps.c nmi-kern/arch/i386/kernel/traps.c
---- linux-2.5.8/arch/i386/kernel/traps.c	Mon Apr 15 00:48:46 2002
-+++ nmi-kern/arch/i386/kernel/traps.c	Thu Jun 13 19:03:42 2002
-@@ -491,6 +491,10 @@
- 			return;
+ 
+ #if 0
+diff -ruN 2.5.22-sfr.3/arch/ppc64/kernel/sys_ppc32.c 2.5.22-sfr.4/arch/ppc64/kernel/sys_ppc32.c
+--- 2.5.22-sfr.3/arch/ppc64/kernel/sys_ppc32.c	Mon Jun 17 16:11:03 2002
++++ 2.5.22-sfr.4/arch/ppc64/kernel/sys_ppc32.c	Fri Jun 14 17:05:46 2002
+@@ -22,7 +22,6 @@
+ #include <linux/mm.h> 
+ #include <linux/file.h> 
+ #include <linux/signal.h>
+-#include <linux/utime.h>
+ #include <linux/resource.h>
+ #include <linux/times.h>
+ #include <linux/utsname.h>
+@@ -120,41 +119,6 @@
  		}
- #endif
-+#if 	CONFIG_NMI_PROFILING
-+		smp_apic_perfctr_overflow_interrupt(*regs);
-+		return;
-+#endif
- 		unknown_nmi_error(reason, regs);
- 		return;
  	}
-diff -ruN -X dontdiff linux-2.5.8/include/asm-i386/profile.h nmi-kern/include/asm-i386/profile.h
---- linux-2.5.8/include/asm-i386/profile.h	Thu Jun 13 18:23:22 2002
-+++ nmi-kern/include/asm-i386/profile.h	Thu Jun 13 20:18:15 2002
-@@ -137,6 +137,12 @@
- 	wrmsr(MSR_P6_EVNTSEL1, 0, 0);
- 	wrmsr(MSR_P6_EVNTSEL0, EVENTSEL0_ENABLE_MASK | (evt), 0);
+ 	return result;
+-}
+-
+-
+-
+-extern asmlinkage long sys_utime(char * filename, struct utimbuf * times);
+-
+-struct utimbuf32 {
+-	__kernel_time_t32 actime, modtime;
+-};
+-
+-asmlinkage long sys32_utime(char * filename, struct utimbuf32 *times)
+-{
+-	struct utimbuf t;
+-	mm_segment_t old_fs;
+-	int ret;
+-	char *filenam;
+-	
+-	PPCDBG(PPCDBG_SYS32NI, "sys32_utime - running - filename=%s, times=%p - pid=%ld, comm=%s \n", filename, times, current->pid, current->comm);
+-
+-	if (!times)
+-		return sys_utime(filename, NULL);
+-	if (get_user(t.actime, &times->actime) || __get_user(t.modtime, &times->modtime))
+-		return -EFAULT;
+-	filenam = getname32(filename);
+-
+-	ret = PTR_ERR(filenam);
+-	if (!IS_ERR(filenam)) {
+-		old_fs = get_fs();
+-		set_fs (KERNEL_DS); 
+-		ret = sys_utime(filenam, &t);
+-		set_fs (old_fs);
+-		putname (filenam);
+-	}
+-
+-	return ret;
  }
-+#ifdef CONFIG_NMI_PROFILING
-+#define PERFCTR_OVFL_VECTOR_MODE                                        \
-+        SET_APIC_DELIVERY_MODE(PERFCTR_OVFL_VECTOR, APIC_MODE_NMI)
-+#else
-+#define PERFCTR_OVFL_VECTOR_MODE        PERFCTR_OVFL_VECTOR
-+#endif
- #else
- #define have_perfctr()		0
- #define valid_perfctr_event(e)	0
+ 
+ 
+diff -ruN 2.5.22-sfr.3/arch/s390x/kernel/linux32.c 2.5.22-sfr.4/arch/s390x/kernel/linux32.c
+--- 2.5.22-sfr.3/arch/s390x/kernel/linux32.c	Mon Jun 17 16:11:33 2002
++++ 2.5.22-sfr.4/arch/s390x/kernel/linux32.c	Fri Jun 14 16:59:11 2002
+@@ -22,7 +22,6 @@
+ #include <linux/mm.h> 
+ #include <linux/file.h> 
+ #include <linux/signal.h>
+-#include <linux/utime.h>
+ #include <linux/resource.h>
+ #include <linux/times.h>
+ #include <linux/utsname.h>
+@@ -1010,36 +1009,6 @@
+ 		return -EINVAL;
+ 	else
+ 		return sys_ftruncate(fd, (high << 32) | low);
+-}
+-
+-extern asmlinkage int sys_utime(char * filename, struct utimbuf * times);
+-
+-struct utimbuf32 {
+-	__kernel_time_t32 actime, modtime;
+-};
+-
+-asmlinkage int sys32_utime(char * filename, struct utimbuf32 *times)
+-{
+-	struct utimbuf t;
+-	mm_segment_t old_fs;
+-	int ret;
+-	char *filenam;
+-	
+-	if (!times)
+-		return sys_utime(filename, NULL);
+-	if (get_user (t.actime, &times->actime) ||
+-	    __get_user (t.modtime, &times->modtime))
+-		return -EFAULT;
+-	filenam = getname (filename);
+-	ret = PTR_ERR(filenam);
+-	if (!IS_ERR(filenam)) {
+-		old_fs = get_fs();
+-		set_fs (KERNEL_DS); 
+-		ret = sys_utime(filenam, &t);
+-		set_fs (old_fs);
+-		putname (filenam);
+-	}
+-	return ret;
+ }
+ 
+ struct iovec32 { u32 iov_base; __kernel_size_t32 iov_len; };
+diff -ruN 2.5.22-sfr.3/arch/sparc64/kernel/sys_sparc32.c 2.5.22-sfr.4/arch/sparc64/kernel/sys_sparc32.c
+--- 2.5.22-sfr.3/arch/sparc64/kernel/sys_sparc32.c	Mon Jun 17 16:13:02 2002
++++ 2.5.22-sfr.4/arch/sparc64/kernel/sys_sparc32.c	Mon Jun 17 16:38:51 2002
+@@ -15,7 +15,6 @@
+ #include <linux/mm.h> 
+ #include <linux/file.h> 
+ #include <linux/signal.h>
+-#include <linux/utime.h>
+ #include <linux/resource.h>
+ #include <linux/times.h>
+ #include <linux/utsname.h>
+@@ -962,36 +961,6 @@
+ 		return -EINVAL;
+ 	else
+ 		return sys_ftruncate(fd, (high << 32) | low);
+-}
+-
+-extern asmlinkage int sys_utime(char * filename, struct utimbuf * times);
+-
+-struct utimbuf32 {
+-	__kernel_time_t32 actime, modtime;
+-};
+-
+-asmlinkage int sys32_utime(char * filename, struct utimbuf32 *times)
+-{
+-	struct utimbuf t;
+-	mm_segment_t old_fs;
+-	int ret;
+-	char *filenam;
+-	
+-	if (!times)
+-		return sys_utime(filename, NULL);
+-	if (get_user (t.actime, &times->actime) ||
+-	    __get_user (t.modtime, &times->modtime))
+-		return -EFAULT;
+-	filenam = getname (filename);
+-	ret = PTR_ERR(filenam);
+-	if (!IS_ERR(filenam)) {
+-		old_fs = get_fs();
+-		set_fs (KERNEL_DS); 
+-		ret = sys_utime(filenam, &t);
+-		set_fs (old_fs);
+-		putname (filenam);
+-	}
+-	return ret;
+ }
+ 
+ struct iovec32 { u32 iov_base; __kernel_size_t32 iov_len; };
+diff -ruN 2.5.22-sfr.3/arch/x86_64/ia32/sys_ia32.c 2.5.22-sfr.4/arch/x86_64/ia32/sys_ia32.c
+--- 2.5.22-sfr.3/arch/x86_64/ia32/sys_ia32.c	Mon Jun 17 16:16:22 2002
++++ 2.5.22-sfr.4/arch/x86_64/ia32/sys_ia32.c	Mon Jun 17 16:39:55 2002
+@@ -26,7 +26,6 @@
+ #include <linux/fs.h> 
+ #include <linux/file.h> 
+ #include <linux/signal.h>
+-#include <linux/utime.h>
+ #include <linux/resource.h>
+ #include <linux/times.h>
+ #include <linux/utsname.h>
+@@ -613,40 +612,8 @@
+ /* Translations due to time_t size differences.  Which affects all
+    sorts of things, like timeval and itimerval.  */
+ 
+-struct utimbuf_32 {
+-	int	atime;
+-	int	mtime;
+-};
+-
+-extern asmlinkage long sys_utimes(char * filename, struct timeval * utimes);
+ extern asmlinkage long sys_gettimeofday (struct timeval *tv, struct timezone *tz);
+ 
+-asmlinkage long
+-ia32_utime(char * filename, struct utimbuf_32 *times32)
+-{
+-	mm_segment_t old_fs = get_fs();
+-	struct timeval tv[2];
+-	long ret;
+-
+-	if (times32) {
+-		get_user(tv[0].tv_sec, &times32->atime);
+-		tv[0].tv_usec = 0;
+-		get_user(tv[1].tv_sec, &times32->mtime);
+-		tv[1].tv_usec = 0;
+-		set_fs (KERNEL_DS);
+-	} else {
+-		set_fs (KERNEL_DS);
+-		ret = sys_gettimeofday(&tv[0], 0);
+-		if (ret < 0)
+-			goto out;
+-		tv[1] = tv[0];
+-	}
+-	ret = sys_utimes(filename, tv);
+-  out:
+-	set_fs (old_fs);
+-	return ret;
+-}
+-
+ extern struct timezone sys_tz;
+ extern int do_sys_settimeofday(struct timeval *tv, struct timezone *tz);
+ 
+@@ -1746,38 +1713,6 @@
+ } 
+ 
+ /* 32-bit timeval and related flotsam.  */
+-
+-extern asmlinkage long sys_utime(char * filename, struct utimbuf * times);
+-
+-struct utimbuf32 {
+-	__kernel_time_t32 actime, modtime;
+-};
+-
+-asmlinkage long
+-sys32_utime(char * filename, struct utimbuf32 *times)
+-{
+-	struct utimbuf t;
+-	mm_segment_t old_fs;
+-	int ret;
+-	char *filenam;
+-	
+-	if (!times)
+-		return sys_utime(filename, NULL);
+-	if (verify_area(VERIFY_READ, times, sizeof(struct utimbuf32)) ||
+-	    __get_user (t.actime, &times->actime) ||
+-	    __get_user (t.modtime, &times->modtime))
+-		return -EFAULT;
+-	filenam = getname (filename);
+-	ret = PTR_ERR(filenam);
+-	if (!IS_ERR(filenam)) {
+-		old_fs = get_fs();
+-		set_fs (KERNEL_DS); 
+-		ret = sys_utime(filenam, &t);
+-		set_fs (old_fs);
+-		putname(filenam);
+-	}
+-	return ret;
+-}
+ 
+ /*
+  * Ooo, nasty.  We need here to frob 32-bit unsigned longs to
+diff -ruN 2.5.22-sfr.3/fs/open.c 2.5.22-sfr.4/fs/open.c
+--- 2.5.22-sfr.3/fs/open.c	Mon Jun 17 14:09:56 2002
++++ 2.5.22-sfr.4/fs/open.c	Mon Jun 17 16:40:42 2002
+@@ -4,6 +4,7 @@
+  *  Copyright (C) 1991, 1992  Linus Torvalds
+  */
+ 
++#include <linux/config.h>
+ #include <linux/string.h>
+ #include <linux/mm.h>
+ #include <linux/utime.h>
+@@ -316,6 +317,52 @@
+ out:
+ 	return error;
+ }
++
++#ifdef CONFIG_32BIT_COMPAT
++
++#include <asm/compat32.h>
++
++/*
++ * 32 bit compatibility version of sys_utime.  We implement this
++ * int terms of sys_utimes since ia64 does not have a sys_utime.
++ */
++struct utimbuf32 {
++	__kernel_time_t32 actime, modtime;
++};
++
++asmlinkage long sys32_utime(char * filename, struct utimbuf32 *times)
++{
++	mm_segment_t old_fs;
++	struct timeval tv[2];
++	struct utimbuf32 ktimes;
++	int ret;
++	char *filenam;
++
++	if (!times)
++		/*
++		 * utime() and utimes() have the same effect if
++		 * their second argument is NULL.
++		 */
++		return sys_utimes(filename, NULL);
++	if (copy_from_user(&ktimes, times, sizeof(*times)))
++		return -EFAULT;
++	tv[0].tv_sec = ktimes.actime;
++	tv[0].tv_usec = 0;
++	tv[1].tv_sec = ktimes.modtime;
++	tv[1].tv_usec = 0;
++	filenam = getname(filename);
++	ret = PTR_ERR(filenam);
++	if (!IS_ERR(filenam)) {
++		old_fs = get_fs();
++		set_fs(KERNEL_DS); 
++		ret = sys_utime(filenam, tv);
++		set_fs(old_fs);
++		putname(filenam);
++	}
++	return ret;
++}
++
++#endif /* CONFIG_32BIT_COMPAT  */
+ 
+ /*
+  * access() needs to use the real uid/gid, not the effective uid/gid.

@@ -1,90 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265207AbUIOLiv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265817AbUIOLkw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265207AbUIOLiv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 07:38:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265230AbUIOLiu
+	id S265817AbUIOLkw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 07:40:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265331AbUIOLku
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 07:38:50 -0400
-Received: from fw.osdl.org ([65.172.181.6]:56462 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265207AbUIOLin (ORCPT
+	Wed, 15 Sep 2004 07:40:50 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:26812 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S265222AbUIOLkr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 07:38:43 -0400
-Date: Wed, 15 Sep 2004 04:36:44 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: Re: Untangle code in bio.c
-Message-Id: <20040915043644.4fb58787.akpm@osdl.org>
-In-Reply-To: <20040915111802.GA20222@elf.ucw.cz>
-References: <20040915111802.GA20222@elf.ucw.cz>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 15 Sep 2004 07:40:47 -0400
+Date: Wed, 15 Sep 2004 13:38:34 +0200
+From: Jens Axboe <axboe@suse.de>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc1-mm5
+Message-ID: <20040915113833.GA4111@suse.de>
+References: <20040913015003.5406abae.akpm@osdl.org> <20040915113635.GO9106@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040915113635.GO9106@holomorphy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> wrote:
->
-> Hi!
+On Wed, Sep 15 2004, William Lee Irwin III wrote:
+> On Mon, Sep 13, 2004 at 01:50:03AM -0700, Andrew Morton wrote:
+> > +cfq-iosched-v2.patch
+> >  Major revamp of the CFQ IO scheduler
 > 
-> bio.c uses quite ugly code with goto's, completely
-> unneccessarily. Please apply,
-
-I wouldn't describe this as an improvement, really.  Multiple return
-statements give me hysterics.
-
+> While editing some files while booted into 2.6.9-rc1-mm5:
 > 
-> --- clean-mm/fs/bio.c	2004-09-15 12:58:10.000000000 +0200
-> +++ linux-mm/fs/bio.c	2004-09-15 13:00:51.000000000 +0200
-> @@ -143,7 +143,7 @@
->  
->  	bio = mempool_alloc(bio_pool, gfp_mask);
->  	if (unlikely(!bio))
-> -		goto out;
-> +		return NULL;
->  
->  	bio_init(bio);
->  
-> @@ -157,13 +157,11 @@
->  noiovec:
->  		bio->bi_io_vec = bvl;
->  		bio->bi_destructor = bio_destructor;
-> -out:
->  		return bio;
->  	}
->  
->  	mempool_free(bio, bio_pool);
-> -	bio = NULL;
-> -	goto out;
-> +	return NULL;
->  }
+> # ----------- [cut here ] --------- [please bite here ] ---------
+> Kernel BUG at cfq_iosched:1359
 
-How's this look?
+Hmm, ->allocated is unbalanced. What is your io setup like (adapter,
+etc)?
 
-struct bio *bio_alloc(int gfp_mask, int nr_iovecs)
-{
-	struct bio *bio = mempool_alloc(bio_pool, gfp_mask);
-
-	if (likely(bio)) {
-		struct bio_vec *bvl = NULL;
-
-		bio_init(bio);
-		if (likely(nr_iovecs)) {
-			unsigned long idx;
-
-			bvl = bvec_alloc(gfp_mask, nr_iovecs, &idx);
-			if (unlikely(!bvl)) {
-				mempool_free(bio, bio_pool);
-				bio = NULL;
-				goto out;
-			}
-			bio->bi_flags |= idx << BIO_POOL_OFFSET;
-		}
-		bio->bi_io_vec = bvl;
-		bio->bi_destructor = bio_destructor;
-	}
-out:
-	return bio;
-}
+-- 
+Jens Axboe
 

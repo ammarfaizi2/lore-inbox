@@ -1,49 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266469AbUHVVl1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267380AbUHVVtv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266469AbUHVVl1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 17:41:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266319AbUHVVjm
+	id S267380AbUHVVtv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 17:49:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267381AbUHVVth
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 17:39:42 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:13712 "EHLO
+	Sun, 22 Aug 2004 17:49:37 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:17552 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S266351AbUHVViy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 17:38:54 -0400
-Subject: RE: Cursed Checksums
+	id S266775AbUHVVrj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 17:47:39 -0400
+Subject: Re: Linux Incompatibility List
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Josan Kadett <corporate@superonline.com>
+To: "David N. Welton" <davidw@dedasys.com>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <S268085AbUHVUD4/20040822200356Z+207@vger.kernel.org>
-References: <S268085AbUHVUD4/20040822200356Z+207@vger.kernel.org>
+In-Reply-To: <87vffaq4p1.fsf@dedasys.com>
+References: <87r7q0th2n.fsf@dedasys.com>
+	 <1093173291.24341.40.camel@localhost.localdomain>
+	 <87vffaq4p1.fsf@dedasys.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1093206990.25041.3.camel@localhost.localdomain>
+Message-Id: <1093207525.25067.12.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 22 Aug 2004 21:36:30 +0100
+Date: Sun, 22 Aug 2004 21:45:27 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2004-08-22 at 22:03, Josan Kadett wrote:
-> Perhaps there is a way to recompute IP header checksums before they get into
-> the interface? As I outlined, I have found a way to manipulate IP source
-> address before the packet is flushed to system, but a means of recalculating
-> the IP header checksum after that manipulation should be found. Because even
-> if I ignore IP header CRC in one system, all other boxes connected to this
-> machine has to be patched the same. That is impossible anyway.
-> 
-> Only if I could find a way to recalculate the checksum in IP headers by
-> doing a simple hack to the kernel, everything would be alright. 
+On Sul, 2004-08-22 at 21:48, David N. Welton wrote:
+> A "compatibility list" is going to be pretty big, and hard to keep up
+> to date.  My thinking is that keeping track of a few notable things
+> that don't work is easier than running after all the stuff that does.
 
-Providing your hardware isn't doing the checksums then you can do 
-this. Each ethernet packet driver with pass packets up to the 
-layer above (netif_rx()). Something like
+Its already been kicked around on the Fedora list to actually build such
+a database automatically. I've seen similar Debian proposals a long time
+ago. That means some time post install you'd let the user
+fire up a system report tool which would ask things like
 
-	skb->protocol = eth_type_trans(...)
-	/* Check packet here */
-	whack_packet(skb->h.raw skb->len);
-	netif_rx(skb);
+	"Does sound work"
 
-in the driver. Before the netif_rx you can validly mangle the bits
+and then fire off PCI id/rating info to a central site. That would help
+deal with the data collection much as the Debian folks collect package
+popularity statistics.
 
+> I suppose some sort of vote system could be put in place so that the 1
+> guy who didn't get the hardware to work gets outvoted by the 10 who
+> did, but there is more incentive to hit the button when you are
+> irritated than when everything 'just worked'.
+
+If you get enough data then the deviation tells you how varied and how
+reliable the opinions are likely to be, all this implies databases not
+WIki however
+
+
+Alan
 

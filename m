@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLKJoi>; Mon, 11 Dec 2000 04:44:38 -0500
+	id <S129314AbQLKJqt>; Mon, 11 Dec 2000 04:46:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129314AbQLKJo2>; Mon, 11 Dec 2000 04:44:28 -0500
-Received: from rmx602-mta.mail.com ([165.251.48.51]:53419 "EHLO
-	rmx602-mta.mail.com") by vger.kernel.org with ESMTP
-	id <S129183AbQLKJoT>; Mon, 11 Dec 2000 04:44:19 -0500
-Message-ID: <389221443.976526021983.JavaMail.root@web114-wra.mail.com>
-Date: Mon, 11 Dec 2000 04:13:41 -0500 (EST)
-From: Frank Davis <fdavis112@juno.com>
-To: Bill Maidment <bill@maidment.com.au>
-Subject: Re: Trouble with 2.4.0-test12-pre8
-CC: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S130460AbQLKJqj>; Mon, 11 Dec 2000 04:46:39 -0500
+Received: from [203.116.59.242] ([203.116.59.242]:33296 "HELO
+	pisces.starnet.gov.sg") by vger.kernel.org with SMTP
+	id <S129314AbQLKJqa>; Mon, 11 Dec 2000 04:46:30 -0500
+Message-ID: <004b01c06352$f6e8e4a0$050010ac@starnet.gov.sg>
+From: "Corisen" <csyap@starnet.gov.sg>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <E13xJ14-0002Do-00@the-village.bc.nu> <3A17A667.EED80785@marxmeier.com>
+Subject: warning during make modules
+Date: Mon, 11 Dec 2000 17:15:53 +0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: mail.com
-X-Originating-IP: 151.201.242.214
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2615.200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
- > There is also a problem building fs/smbfs/inode.c at line 166
-> 
-> Is there a fix or have I got something really screwed up?
+i'm compiling kernel 2.4.0-test11 uder RH7. i've changed the CC= line to use
+kgcc, executed "make clean" and "make mrproper". "make menuconfig" and "make
+dep" went smoothly. however during the "make modules" process, several
+warning messages (shown below) appeared:
 
-If you are referring to 'next' is not a member of the structure? If so, known issue.
+{standard input}: Assembler messages:
+{standard input}:8: Warning: Ignoring changed section attributes for
+.modinfo
 
-Regards,
--Frank
+pls kindly advise how can i resolve the warning messages, or can i can
+safely igonre the warning messages?
+
+thanks.
 
 
 -

@@ -1,52 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266879AbUHOUmc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266890AbUHOUqJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266879AbUHOUmc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 16:42:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266891AbUHOUmc
+	id S266890AbUHOUqJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 16:46:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266891AbUHOUqJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 16:42:32 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:37512 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266879AbUHOUma
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 16:42:30 -0400
-Date: Sun, 15 Aug 2004 21:42:29 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: kbuild + kconfig: Updates
-Message-ID: <20040815204229.GJ12308@parcelfarce.linux.theplanet.co.uk>
-References: <20040815201224.GI7682@mars.ravnborg.org>
+	Sun, 15 Aug 2004 16:46:09 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:25800 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S266890AbUHOUqD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Aug 2004 16:46:03 -0400
+Date: Sun, 15 Aug 2004 22:45:55 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Roman Zippel <zippel@linux-m68k.org>, Sam Ravnborg <sam@ravnborg.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: menuconfig displays dependencies [Was: select FW_LOADER -> depends HOTPLUG]
+Message-ID: <20040815204555.GS1387@fs.tum.de>
+References: <20040809203840.GB19748@mars.ravnborg.org> <Pine.LNX.4.58.0408100130470.20634@scrub.home> <20040810084411.GI26174@fs.tum.de> <20040810211656.GA7221@mars.ravnborg.org> <Pine.LNX.4.58.0408120027330.20634@scrub.home> <20040814074953.GA20123@mars.ravnborg.org> <20040814210523.GG1387@fs.tum.de> <20040814223749.GA7243@mars.ravnborg.org> <20040815202111.GR1387@fs.tum.de> <20040815203245.GA14336@mars.ravnborg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040815201224.GI7682@mars.ravnborg.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040815203245.GA14336@mars.ravnborg.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 15, 2004 at 10:12:24PM +0200, Sam Ravnborg wrote:
-> A number of kbuild updates and Randy's Kconfig.debug
-> 
-> Most important stuff is:
-> o Get rid og bogus "has no CRC" when building external modules
-> o Rename *.lds.s to *.lds (*)
-> o Allow external modules to use host-progs
-> 
-> (*) The renaming of the *.lds file has been doen to allow the kernel to
-> be build with for example Cygwin.
-> The major outstanding issue with Cygwin/Solaris are availability of
-> certain .h files for the tools in scripts/* and spread in the tree.
-> Tested patches that allows the tools to be build under Cygwin/Solaris
-> are appreciated.
-> 
-> Patches follows this mail.
+On Sun, Aug 15, 2004 at 10:32:45PM +0200, Sam Ravnborg wrote:
+> On Sun, Aug 15, 2004 at 10:21:11PM +0200, Adrian Bunk wrote:
+> > > CONFIG_FOO
+> > > 
+> > > Depends on:
+> > > CONFIG_BAR: [ ] "Prompt for BAR"
+> > 
+> > 
+> > Assuming I'm configuring a kernel for i386, what should I see when 
+> > pressing 'd' on the following driver?
+> > 
+> > 
+> > config OAKNET
+> >         tristate "National DP83902AV (Oak ethernet) support"
+> >         depends on NET_ETHERNET && PPC && BROKEN
+> >         select CRC32
+> > 
+> What about:
+> Depends on:
+>   [ ] "Prompt for NET_ETHERNET"	(CONFIG_NET_ETHERNET)
+>   --- "Promt ..." (CONFIG_PPC)
+>   --- " Prompt ... " (CONFIG_BROKEN)
 
-Speaking of kbuild, is there any reasonable way to do check-only runs?
-Simple "set CC et.al. to scripts that will create target and do nothing
-else" doesn't work for obvious reasons - we have some stuff that really
-has to be compiled (e.g. empty.c + some arch-dependent files).  Same
-goes for make -n C=1 | grep sparse | ... variants.
+CONFIG_BROKEN is available.
 
-Another thing that would be very nice to have: analog of allmodconfig with
-some options pre-set.  Trivial cases can be hanlded by patching Kconfig
-(basically, adding depends on BROKEN), but IWBN to have something like
-make allmodconfig PRESET=<file that looks like a subset of .config>...
+And in other cases, e.g. I2C_ALGOBIT might be a dependency, but depends 
+itself on I2C which might be disabled.
+
+> Selects
+>   "Prompt for CRC32)" (CONFIG_CRC32)
+> 
+> That would make sense to me at least.
+
+Showing all !i386 drivers on i386 will make it harder for people to find 
+the drivers they actually need.
+
+> If I ever look into it I will touch upon the corner cases for sure.
+
+Thanks.
+
+BTW:
+"make oldconfig" will need a similar treatment before we can start 
+changing selects to depends.
+
+> 	Sam
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

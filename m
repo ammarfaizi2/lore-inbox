@@ -1,49 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317278AbSHHSD4>; Thu, 8 Aug 2002 14:03:56 -0400
+	id <S317672AbSHHSCl>; Thu, 8 Aug 2002 14:02:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315277AbSHHSD4>; Thu, 8 Aug 2002 14:03:56 -0400
-Received: from holomorphy.com ([66.224.33.161]:27290 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S317278AbSHHSDy>;
-	Thu, 8 Aug 2002 14:03:54 -0400
-Date: Thu, 8 Aug 2002 11:07:43 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: further IO-APIC oddities
-Message-ID: <20020808180743.GD15685@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-	linux-kernel@vger.kernel.org
-References: <20020808162856.GD6256@holomorphy.com> <70720000.1028829388@flay>
-Mime-Version: 1.0
+	id <S317743AbSHHSCl>; Thu, 8 Aug 2002 14:02:41 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:45489 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S317672AbSHHSCk>;
+	Thu, 8 Aug 2002 14:02:40 -0400
+Date: Thu, 08 Aug 2002 13:05:02 -0500
+From: Dave McCracken <dmccr@us.ibm.com>
+To: trond.myklebust@fys.uio.no
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.5.30+] Second attempt at a shared credentials patch
+Message-ID: <52960000.1028829902@baldur.austin.ibm.com>
+In-Reply-To: <15698.41542.250846.334946@charged.uio.no>
+References: <23130000.1028818693@baldur.austin.ibm.com>
+ <shsofcdfjt6.fsf@charged.uio.no><44050000.1028823650@baldur.austin.ibm.com>
+ <15698.41542.250846.334946@charged.uio.no>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <70720000.1028829388@flay>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At some point in the past, I wrote:
->> Strange thing happened when I booted the latest x86 discontigmem stuff.
->> The stuff where the IO-APIC ID's showed up as zeroed out went away,
->> and io_apic.c just bitched about the MPC table entries because it
->> doesn't realize that physid's of IO-APIC's mean squat on this box.
->> *AND* whatever was scribbling over that table & zeroing it out went
->> away. That bug is reproducible on more garden variety machines too.
->> If someone who knows how to read the IO-APIC map dumps is around,
->> I've included the boot log below.
 
-On Thu, Aug 08, 2002 at 10:56:28AM -0700, Martin J. Bligh wrote:
-> I can kind of read them if I really squint, but what are you trying
-> to see / fix?
+--On Thursday, August 08, 2002 06:54:30 PM +0200 Trond Myklebust
+<trond.myklebust@fys.uio.no> wrote:
 
-It's different from 2.5.29, I can follow up with that. 2.5.29 saw all 0's,
-so whatever it was that was scribbling over the MPC table and making the
-ID's all 0, it's scribbling on something else now (probably mem_map).
+> Why? Macros (and inlined functions) have the advantage that they
+> enforce good policy. Doing 'task->cred->uid = a' on tasks other than
+> 'current' is in general not a very safe thing to do. This sort of
+> issue w.r.t. safe policies should in particular be worrying you when
+> you start adding CRED_CLONE...
+> There are good precedents for this sort of argument: see
+> 'set_current_state()' & friends.
 
+I don't really see the benefit.  The macros you're talking about are only
+there to provide different behavior for MP and UP.  There aren't macros for
+any of the other shareable structures hanging off the task struct.
 
-Cheers,
-Bill
+> In addition, those macros would allow you to set up compatibility with
+> 2.4.x and simplify patch backports.
+
+I don't see this one either.  A patch to change everything to macros + a
+patch for my changes is no smaller than my current patch, and I don't see
+this as something that'll need changing again, or at least not any more
+likely than any of the other structures.  Having macros for elements of a
+structure should have more reason than to hide a dereference, in my opinion.
+ 
+> As for changing the structure: As I said previously I'd like to unify
+> all those { fsuid, fsgid, group } things into a proper ucred, so that
+> we can share these objects around the VFS, and cache them...
+> Your 'struct cred' as it stands will not suffice to do all that since
+> it does not provide the necessary Copy On Write protection. (For
+> instance if some thread temporarily raises my process privileges, I
+> will *not* want all my already opened 'struct file's to suddenly gain
+> root access).
+
+I'm not opposed to enhancing the cred structure so it can be used like you
+describe.  It's not a job I want to tackle, but I'd think my change would
+be a step in the right direction.
+
+I'm confused by your example, though.  If a thread makes a system call to
+change its credentials, all other threads should see it.  That's POSIX
+behavior, and the whole point of the patch.  If you're talking about kernel
+code that assumes another identity under the covers, then yes, that's
+interesting.  And could be achieved by allocating a temporary cred
+structure and attaching it to the task for the duration of the operation.
+
+Dave McCracken
+
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
+

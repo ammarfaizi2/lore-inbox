@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262332AbTJODll (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 23:41:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262344AbTJODll
+	id S261916AbTJOD6U (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 23:58:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbTJOD6U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 23:41:41 -0400
-Received: from dci.doncaster.on.ca ([66.11.168.194]:913 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S262332AbTJODlk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 23:41:40 -0400
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ide write barrier support
-References: <20031013140858.GU1107@suse.de>
-In-Reply-To: <20031013140858.GU1107@suse.de>
-From: Greg Stark <gsstark@mit.edu>
-Organization: The Emacs Conspiracy; member since 1992
-Date: 14 Oct 2003 23:40:42 -0400
-Message-ID: <871xtfjhhh.fsf@stark.dyndns.tv>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 14 Oct 2003 23:58:20 -0400
+Received: from fw.osdl.org ([65.172.181.6]:12473 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261916AbTJOD6T convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 23:58:19 -0400
+Date: Tue, 14 Oct 2003 20:57:02 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>, clock@twibright.com
+Subject: Re: Vortex 3c900 passing driver parameters
+Message-Id: <20031014205702.140b6476.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
+| Karel Kulhavý <clock@twibright.com> wrote:
+| >
+| > Hello
+| > 
+| > How do I do a ether=... (kernel boot-time) equivalent of
+| > insmod 3c59x.o options=0x201 full_duplex=1 ?
+| 
+| Unfortunately you cannot.  `ether=' is broken for all drivers which use the
+| new(ish) alloc_etherdev() API.
+| 
+| It is due to ordering problems: the name of the interface is not known at
+| the time of parsing the setup info and nobody has got down and worked out
+| how to fix it.
 
-Jens Axboe <axboe@suse.de> writes:
+Does this ordering problem apply to both 2.4.current and 2.6.0-test?
 
-> Hi,
-> 
-> Forward ported and tested today (with the dummy ext3 patch included),
-> works for me. Some todo's left, but I thought I'd send it out to gauge
-> interest. TODO:
-
-
-Is there a user-space interface planned for this? 
-
-
-One possibility may be just to hang it off fsync(2) so fsync doesn't return
-until until all the buffers it flushed are actually synced to disk. That's its
-documented semantics anyways.
-
-
-There's also the case of files opened with O_SYNC. Would inserting a write
-barrier after every write to such a file destroy performance?
-
-
--- 
-greg
-
+--
+~Randy

@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283302AbRK2QTA>; Thu, 29 Nov 2001 11:19:00 -0500
+	id <S283304AbRK2QSa>; Thu, 29 Nov 2001 11:18:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283306AbRK2QSw>; Thu, 29 Nov 2001 11:18:52 -0500
-Received: from twilight.cs.hut.fi ([130.233.40.5]:13987 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S283302AbRK2QSi>; Thu, 29 Nov 2001 11:18:38 -0500
-Date: Thu, 29 Nov 2001 18:18:17 +0200
-From: Ville Herva <vherva@niksula.hut.fi>
-To: =?iso-8859-1?Q?Peter_W=E4chtler?= <pwaechtler@loewe-komp.de>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: e2compr on 2.4
-Message-ID: <20011129181817.A31769@niksula.cs.hut.fi>
-In-Reply-To: <3C0656A4.93D3B1F5@loewe-komp.de>
+	id <S283302AbRK2QSU>; Thu, 29 Nov 2001 11:18:20 -0500
+Received: from [212.18.232.186] ([212.18.232.186]:48911 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S283294AbRK2QSJ>; Thu, 29 Nov 2001 11:18:09 -0500
+Date: Thu, 29 Nov 2001 16:17:56 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Balbir Singh <balbir_soni@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Patch: Fix serial module use count (2.4.16 _and_ 2.5)
+Message-ID: <20011129161756.D6214@flint.arm.linux.org.uk>
+In-Reply-To: <20011129160637.50471.qmail@web13606.mail.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C0656A4.93D3B1F5@loewe-komp.de>; from pwaechtler@loewe-komp.de on Thu, Nov 29, 2001 at 04:39:16PM +0100
+In-Reply-To: <20011129160637.50471.qmail@web13606.mail.yahoo.com>; from balbir_soni@yahoo.com on Thu, Nov 29, 2001 at 08:06:37AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 29, 2001 at 04:39:16PM +0100, you [Peter Wächtler] claimed:
-> Hi,
+On Thu, Nov 29, 2001 at 08:06:37AM -0800, Balbir Singh wrote:
+> Let me make it clearer to you,
 > 
-> browsing through the archives I read a discussion in February 2000
-> about e2compr and integrating it into 2.3^H4
+> lets say I call rs_open() on /dev/ttyS0 and if it
+> fails then I should not call rs_close() after a failed
+> rs_open().
+
+You don't call rs_open.  The tty layer does that for you.  The tty layer
+also cleans up on close by calling the driver specific close function.
+
+Yes I agree with you that it might not, but that is a 2.5 kernel issue,
+not a 2.4 "lets do a massive change" issue.  The tty layer is complex
+and messy, and we shouldn't go around randomly changing it in 2.4.
+
+> Lets see what happens with your approach
 > 
-> Is anyone working on it or willing to help?
+> 1. I call rs_open(), it fails, ref_count set to 1
 
-Well, at early 2.3 times, Riley Williams announced he'd be willing
-to take the maintainership as Peter Moulder (who did good job btw) 
-had said he had no more time to do it. There was talk about porting it
-to 2.3:
+Ok, so you're poking around in kernel code calling kernel functions that
+were previously declared static and not visible to anything but the tty
+layer.  That immediately makes your example invalid because you're not
+following the rules that the tty layers lays down for opening tty devices.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=94985828506070&w=2
-                                                                                
-Then on October, Pierre Peiffer asked for directorions to port e2compr to        
-2.4, and people like Eric Biederman replied. See: 
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=100209862820677&w=2
-
-(I have stared at the code long enough to know I'm not up to the task        
-(that was when I tracked down a lock up bug that happened with samba, and       
-Peter later fixed.) ;)
-
-That said, it would be cool if e2compr would be ported to 2.[45].
-
-
--- v --
-
-v@iki.fi

@@ -1,91 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263358AbTHWFtD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 01:49:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263384AbTHWFtD
+	id S262789AbTHWGMe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 02:12:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263056AbTHWGMd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 01:49:03 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:37795
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S263358AbTHWFs4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 01:48:56 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH]O18.1int
-Date: Sat, 23 Aug 2003 15:55:14 +1000
-User-Agent: KMail/1.5.3
-Cc: Andrew Morton <akpm@osdl.org>
+	Sat, 23 Aug 2003 02:12:33 -0400
+Received: from smtp7.hy.skanova.net ([195.67.199.140]:25287 "EHLO
+	smtp7.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S262789AbTHWGMb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Aug 2003 02:12:31 -0400
+To: Eugene Teo <eugene.teo@eugeneteo.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Random hangs in 2.6.0-test3-mm3
+References: <20030821045444.GA465@eugeneteo.net>
+From: Peter Osterlund <petero2@telia.com>
+Date: 23 Aug 2003 08:12:12 +0200
+In-Reply-To: <20030821045444.GA465@eugeneteo.net>
+Message-ID: <m2r83cykar.fsf@p4.localdomain>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_CHwR/7W16E8wd3A"
-Message-Id: <200308231555.24530.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Eugene Teo <eugene.teo@eugeneteo.net> writes:
 
---Boundary-00=_CHwR/7W16E8wd3A
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Description: clearsigned data
-Content-Disposition: inline
+> I am back. This time, I built a new box. It's an
+> AMD XP 2400+ on ASUS A7N8X. I tried the same 2.6.0
+> configuration as my Fujitsu E-7010 laptop, and again,
+> I experienced random hangs. I have done memtest86
+> on both, and there are no errors. I am very sure that
+> my new box is working fine, same goes to my laptop.
+> This time, I am unable to get any debugging messages,
+> but will do so the next time I experience the same
+> problem again.
+...
+> CONFIG_INPUT_MOUSE=y
+> CONFIG_MOUSE_PS2=y
+> CONFIG_MOUSE_PS2_SYNAPTICS=y
 
-=2D----BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Note that early versions of the XFree86 synaptics driver had a bug
+that could make the X server lock up. I'm not sure if this has
+anything to do with your problem, but I have seen at least one lockup
+report on the list that turned out to be caused by this bug.
 
-Some high credit tasks were being missed due to their prolonged cpu burn at=
-=20
-startup flagging them as low credit tasks.
+The bug was fixed in version 0.11.3p5.
 
-Low credit tasks can now recover to become high credit.
-
-Con
-=2D----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE/RwHDZUg7+tp6mRURAie7AJ43egdTeSapoX1D0aJQcEksBTkKdwCfcyHZ
-cD1TMt7oFNXvmSrqnJe7Z+E=3D
-=3D41zp
-=2D----END PGP SIGNATURE-----
-
---Boundary-00=_CHwR/7W16E8wd3A
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="patch-O18-O18.1int"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline; filename="patch-O18-O18.1int"
-
---- linux-2.6.0-test3-mm3-O18/kernel/sched.c	2003-08-23 15:28:47.000000000 +1000
-+++ linux-2.6.0-test3-mm3/kernel/sched.c	2003-08-23 15:30:16.000000000 +1000
-@@ -140,9 +140,6 @@
- #define LOW_CREDIT(p) \
- 	((p)->interactive_credit < -MAX_SLEEP_AVG)
- 
--#define VARYING_CREDIT(p) \
--	(!(HIGH_CREDIT(p) || LOW_CREDIT(p)))
--
- #define TASK_PREEMPTS_CURR(p, rq) \
- 	((p)->prio < (rq)->curr->prio)
- 
-@@ -434,7 +431,7 @@ static void recalc_task_prio(task_t *p, 
- 
- 			if (p->sleep_avg > NS_MAX_SLEEP_AVG){
- 				p->sleep_avg = NS_MAX_SLEEP_AVG;
--				p->interactive_credit += VARYING_CREDIT(p);
-+				p->interactive_credit += !(HIGH_CREDIT(p));
- 			}
- 		}
- 	}
-@@ -1548,7 +1545,8 @@ switch_tasks:
- 	prev->sleep_avg -= run_time;
- 	if ((long)prev->sleep_avg <= 0){
- 		prev->sleep_avg = 0;
--		prev->interactive_credit -= VARYING_CREDIT(prev);
-+		prev->interactive_credit -=
-+			!(HIGH_CREDIT(prev) || LOW_CREDIT(prev));
- 	}
- 	prev->timestamp = now;
- 
-
---Boundary-00=_CHwR/7W16E8wd3A--
-
+-- 
+Peter Osterlund - petero2@telia.com
+http://w1.894.telia.com/~u89404340

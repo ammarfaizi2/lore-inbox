@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129583AbRCPCp4>; Thu, 15 Mar 2001 21:45:56 -0500
+	id <S129598AbRCPC5G>; Thu, 15 Mar 2001 21:57:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129598AbRCPCpg>; Thu, 15 Mar 2001 21:45:36 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:44427 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129583AbRCPCpc>;
-	Thu, 15 Mar 2001 21:45:32 -0500
-Date: Thu, 15 Mar 2001 21:44:48 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: David <david@blue-labs.org>
-cc: Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] report
-In-Reply-To: <3AB17547.9020507@blue-labs.org>
-Message-ID: <Pine.GSO.4.21.0103152131230.10709-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129624AbRCPC44>; Thu, 15 Mar 2001 21:56:56 -0500
+Received: from [198.99.130.100] ([198.99.130.100]:29447 "EHLO karaya.com")
+	by vger.kernel.org with ESMTP id <S129598AbRCPC4m>;
+	Thu, 15 Mar 2001 21:56:42 -0500
+Message-Id: <200103160256.VAA02335@karaya.com>
+X-Mailer: exmh version 2.1.1 10/15/1999
+To: Dawson Engler <engler@csl.Stanford.EDU>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [CHECKER] big stack variables 
+In-Reply-To: Your message of "Thu, 15 Mar 2001 18:34:33 PST."
+             <200103160234.SAA03961@csl.Stanford.EDU> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 15 Mar 2001 21:56:10 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+engler@csl.Stanford.EDU said:
+> As usual, please report any false positives so we can fix our
+> checkers.
 
+Not a false positive, but a false negative:
 
-On Thu, 15 Mar 2001, David wrote:
+the tty_struct locals at lines 1994 and 2029 in tty_register_devfs and 
+tty_unregister_devfs, respectively, in the 2.4.2 drivers/char/tty_io.c.
 
-> 2.4.2-ac4
-> 
-> Mar 15 18:02:49 Huntington-Beach kernel: end_request: I/O error, dev 
-> 16:41 (hdd), sector 9512
-> Mar 15 18:02:49 Huntington-Beach kernel: hdd: drive not ready for command
-> Mar 15 18:02:48 Huntington-Beach kernel: hdd: drive not ready for command
-> Mar 15 18:02:49 Huntington-Beach kernel: hdd: status error: status=0x00 { }
-> Mar 15 18:02:49 Huntington-Beach kernel: hdd: drive not ready for command
-> Mar 15 18:02:49 Huntington-Beach kernel: journal-601, buffer write failed
-> Mar 15 18:02:49 Huntington-Beach kernel: kernel BUG at prints.c:332!
+Nice work, BTW.
 
-Umm... Chris, I really don't think that panic() (or BUG(), for that matter)
-is an appropriate reaction to IO errors. They are expected events, after
-all...
+				Jeff
 
-ObReiserfs_panic: what the hell is that ->s_lock bit about? panic() _never_
-tries to do any block IO. It looks like a rudiment of something that hadn't
-been there for 5 years, if not longer. The same goes for ext2_panic() and
-ufs_panic(), BTW... I would suggest crapectomey here.
-							Cheers,
-								Al
 

@@ -1,50 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288767AbSAVQkg>; Tue, 22 Jan 2002 11:40:36 -0500
+	id <S289100AbSAVQk0>; Tue, 22 Jan 2002 11:40:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288814AbSAVQk0>; Tue, 22 Jan 2002 11:40:26 -0500
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:7947 "HELO mail.pha.ha-vel.cz")
-	by vger.kernel.org with SMTP id <S288767AbSAVQkV>;
-	Tue, 22 Jan 2002 11:40:21 -0500
-Date: Tue, 22 Jan 2002 17:40:17 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.2-dj4
-Message-ID: <20020122174017.A14033@suse.cz>
-In-Reply-To: <20020122141609.A3379@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020122141609.A3379@suse.de>; from davej@suse.de on Tue, Jan 22, 2002 at 02:16:09PM +0000
+	id <S288814AbSAVQkR>; Tue, 22 Jan 2002 11:40:17 -0500
+Received: from oker.escape.de ([194.120.234.254]:13856 "EHLO oker.escape.de")
+	by vger.kernel.org with ESMTP id <S288944AbSAVQkH>;
+	Tue, 22 Jan 2002 11:40:07 -0500
+To: lkml <linux-kernel@vger.kernel.org>, Fritz Elfert <fritz@isdn4linux.de>
+Subject: PATCH: Undefined behavior in ISDN code
+From: Urs Thuermann <urs@isnogud.escape.de>
+Date: 22 Jan 2002 17:39:04 +0100
+Message-ID: <m2k7uamjbr.fsf@isnogud.escape.de>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 22, 2002 at 02:16:09PM +0000, Dave Jones wrote:
+I've already sent this patch a couple of years ago.  Obviously, it got
+lost, since the code in 2.4.17 still has the undefined behavior in it.
 
-> This syncs up to pre2 (pre3 next time), and includes Vojtech's (and others)
-> input layer reworking to get it some more testing before it goes Linuswards.
-> Anyone with any input device (yes, even just a keyboard)
-> now has to enable this, and the relevant keyboard driver.
+urs
 
-To extend this a little further, for a normal PS/2 keyboard and mouse
-setup you need to enable the following options (or load the appropriate
-modules):
 
-Input device support  --->
-	Input core support			(input.o)	
-	  Keyboard interface			(keybdev.o)
-	  Mouse interface			(mousedev.o)
-	Serial i/o support			(serio.o)
-	  i8042 PC Keyboard controller		(i8042.o)
-	Keyboards
-	  AT keyboard support			(atkbd.o)
-	Mice
-	  PS/2 mouse				(psmouse.o)
 
-Note that you also have to change XF86Config and GPM to use /dev/input/mice
-instead of /dev/psaux.
-
--- 
-Vojtech Pavlik
-SuSE Labs
+diff -ru linux-2.4.17/drivers/isdn/isdn_audio.c linux/drivers/isdn/isdn_audio.c
+--- linux-2.4.17/drivers/isdn/isdn_audio.c	Sat Dec 22 07:54:42 2001
++++ linux/drivers/isdn/isdn_audio.c	Tue Jan 22 16:31:53 2002
+@@ -228,7 +228,7 @@
+ 	:	"memory", "ax");
+ #else
+ 	while (n--)
+-		*buff++ = table[*(unsigned char *)buff];
++		*buff = table[*(unsigned char *)buff], buff++;
+ #endif
+ }
+ 

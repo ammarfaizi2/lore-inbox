@@ -1,62 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129534AbRAXHqY>; Wed, 24 Jan 2001 02:46:24 -0500
+	id <S129742AbRAXHvr>; Wed, 24 Jan 2001 02:51:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129953AbRAXHqO>; Wed, 24 Jan 2001 02:46:14 -0500
-Received: from dial-pool33.vega.bg ([62.176.76.33]:260 "EHLO u.domain.uli")
-	by vger.kernel.org with ESMTP id <S129534AbRAXHqH>;
-	Wed, 24 Jan 2001 02:46:07 -0500
-Date: Wed, 24 Jan 2001 09:21:02 +0000 (GMT)
-From: Julian Anastasov <ja@ssi.bg>
-To: Pete Elton <elton@iqs.net>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Turning off ARP in linux-2.4.0
-Message-ID: <Pine.LNX.4.30.0101240857420.1024-100000@u.domain.uli>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129776AbRAXHvh>; Wed, 24 Jan 2001 02:51:37 -0500
+Received: from piglet.twiddle.net ([207.104.6.26]:2565 "EHLO
+	piglet.twiddle.net") by vger.kernel.org with ESMTP
+	id <S129742AbRAXHv1>; Wed, 24 Jan 2001 02:51:27 -0500
+Date: Tue, 23 Jan 2001 23:51:15 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Russell King <rmk@arm.linux.org.uk>, Hubert Mantel <mantel@suse.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Compatibility issue with 2.2.19pre7
+Message-ID: <20010123235115.A14786@twiddle.net>
+In-Reply-To: <20010110163158.F19503@athlon.random> <200101102209.f0AM9N803486@flint.arm.linux.org.uk> <20010111005924.L29093@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <20010111005924.L29093@athlon.random>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 11, 2001 at 12:59:24AM +0100, Andrea Arcangeli wrote:
+> What I said is that I can write this C code:
+> 
+> 	int x[2], * p = (int *) (((char *) &x)+1);
+> 	main()
+> 	{
+> 		*p = 0;
+> 	}
+> 
+> This is legal C code.
 
-	Hello,
+Err, no.  This is not "legal" by any stretch of the imagination.
+This code has undefined behaviour.
 
-On 22 Jan 2001, Pete Elton wrote:
+As such, it may work, it may sigbus, it may write data at some
+address unrelated to "x", or it may start World War III (with
+appropriate hardware attached).
 
-> In the 2.2 kernel, I could do the following:
-> echo 1 > /proc/sys/net/ipv4/conf/all/hidden
-> echo 1 > /proc/sys/net/ipv4/conf/lo/hidden
->
-> The 2.4 kernel does not have these sysctl files any more.  Why was
-> this functionality taken out?  or was it simply moved to another place
-> in the proc filesystem?  How can I accomplish the same thing I was
-> doing in the 2.2 kernel in the 2.4 kernel?
-
-	You can use this temporary solution (the same patch ported to
-2.3.41+):
-
-http://www.linuxvirtualserver.org/arp.html
-http://www.linuxvirtualserver.org/hidden-2.3.41-1.diff
-
-	It is not ported to 2.4 because it touches code in the
-IP address autoselection that is in the fast path. This
-autoselection code is going to be changed and the required support
-can't be ported.
-
-	The problem is complex and can't be solved with ifconfig -arp
-
-	The needs for clusters with shared addresses include:
-
-1. block ARP replies for such addresses
-2. don't announce these addresses in the ARP probes (can be achieved
-using ip addr add IP brd + dev lo scope host)
-3. don't autoselect such addresses (for source addresses)
+We aren't even obliged to allow this to compile.
 
 
-Regards
-
---
-Julian Anastasov <ja@ssi.bg>
-
+r~
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

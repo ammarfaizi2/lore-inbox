@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267521AbUG2XJI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267537AbUG2XJK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267521AbUG2XJI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 19:09:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267537AbUG2XIB
+	id S267537AbUG2XJK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 19:09:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267538AbUG2XIU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 19:08:01 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:31148 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S267517AbUG2XDU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 19:03:20 -0400
-Subject: Re: [patch] IRQ threads
-From: Albert Cahalan <albert@users.sf.net>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: rlrevell@joe-job.com
+	Thu, 29 Jul 2004 19:08:20 -0400
+Received: from mail5.tpgi.com.au ([203.12.160.101]:42459 "EHLO
+	mail5.tpgi.com.au") by vger.kernel.org with ESMTP id S267521AbUG2XEK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 19:04:10 -0400
+Subject: Re: [Patch] Per kthread freezer flags
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1091141832.2114.2.camel@teapot.felipe-alfaro.com>
+References: <1090999301.8316.12.camel@laptop.cunninghams>
+	 <20040728142026.79860177.akpm@osdl.org>
+	 <1091053822.1844.4.camel@teapot.felipe-alfaro.com>
+	 <1091054194.8867.26.camel@laptop.cunninghams>
+	 <1091056916.1844.14.camel@teapot.felipe-alfaro.com>
+	 <1091061983.8867.95.camel@laptop.cunninghams>
+	 <1091141832.2114.2.camel@teapot.felipe-alfaro.com>
 Content-Type: text/plain
-Organization: 
-Message-Id: <1091133199.1232.1384.camel@cube>
+Message-Id: <1091142091.2703.54.camel@desktop.cunninghams>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 29 Jul 2004 16:33:20 -0400
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 30 Jul 2004 09:01:31 +1000
 Content-Transfer-Encoding: 7bit
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell writes:
+Hi.
 
-> As I understand it there will still be a place for the
-> current hard-RT Linux solutions, because even if I can
-> get five nines latency better than N, this is not good
-> enough for hard RT, as you need to be able to mathematically
-> demonstrate that you can *never* miss a deadline.
+On Fri, 2004-07-30 at 08:57, Felipe Alfaro Solana wrote:
+> Well, I've tried the kthread freezer patch against 2.6.8-rc2-mm1 and it
+> works fine. However, with kthread freezer applied, suspending and
+> resuming is much slower (around 5 seconds slower). Thus, I guess all my
+> problems must be related to some specific patch I'm applying against the
+> current -bk tree.
 
-Nah, that's academic theory. There is no such thing
-as hard-RT in the real world.
+Okay. That might be due to the treatment of ksoftirqd, which Pavel and I
+have agreed needs changing.
 
-In reality, there's no point in making the software far
-more reliable than the hardware, power supply, and so on.
-Somebody may pour a can of Mountain Dew into the vent holes.
+> I'll keep investigating this issue, but I think voluntary-preempt might
+> have some strange interactions with these kthread changes.
 
-Your software is OK as long as other causes of failure
-are much more likely. One might even say you spent too
-much of your budget perfecting the software! In the end it
-all comes down to $$$ (or Euros, or Yen...), doesn't it?
+Me too, when I get a chance. I'm running rc2-mm1 now, and it seems okay.
+Especially since I turned off USB 2 support in the BIOS :>
 
-People don't mathematically demonstrate anything about
-modern systems, at least not while being honest. Modern
-systems have cache memory, interrupts. compiled code...
-Use an Intel 4004 if you want mathematical proofs, and
-even then, remember the can of Mountain Dew. (and bugs!)
-Heh, your proof could be buggy. Then what?
-
-Math problem:
-
-The cost of the system is inversly proportional to the
-likelyhood of failure. Set the likelyhood of failure
-to zero and solve for the cost. :-)
-
-That won't make the customer happy.
-
+Nigel
 

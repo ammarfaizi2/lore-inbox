@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262052AbTL1Utb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Dec 2003 15:49:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262055AbTL1Uta
+	id S262055AbTL1U53 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Dec 2003 15:57:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbTL1U53
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Dec 2003 15:49:30 -0500
-Received: from fw.osdl.org ([65.172.181.6]:59847 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262052AbTL1Uta (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Dec 2003 15:49:30 -0500
-Date: Sun, 28 Dec 2003 12:49:21 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@redhat.com>
-Subject: Re: 2.6.0-test6: APM unable to suspend (the 2.6.0-test2 saga continues)
-In-Reply-To: <20031228182545.B20278@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.58.0312281248190.11299@home.osdl.org>
-References: <20031005171055.A21478@flint.arm.linux.org.uk>
- <20031228174622.A20278@flint.arm.linux.org.uk> <20031228182545.B20278@flint.arm.linux.org.uk>
+	Sun, 28 Dec 2003 15:57:29 -0500
+Received: from obsidian.spiritone.com ([216.99.193.137]:41154 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S262055AbTL1U52 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Dec 2003 15:57:28 -0500
+Date: Sun, 28 Dec 2003 12:57:20 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Subject: Re: 2.6.0-mjb2
+Message-ID: <8320000.1072645039@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.58.0312281901170.28882@student.dei.uc.pt>
+References: <3810000.1072581535@[10.10.2.4]> <Pine.LNX.4.58.0312281901170.28882@student.dei.uc.pt>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Sun, 28 Dec 2003, Russell King wrote:
+--"Marcos D. Marado Torres" <marado@student.dei.uc.pt> wrote (on Sunday, December 28, 2003 19:13:39 +0000):
+
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> Would it be possible to switch LDT/GDT to whatever the APM BIOS expects
-> just before calling the APM BIOS to suspend/hibernate, and restore them
-> to whatever Linux requires after the APM BIOS returns from resume?
+> On Sat, 27 Dec 2003, Martin J. Bligh wrote:
+> 
+>> ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.6.0/patch-2.6.0-mjb2.bz2
+> 
+> Why don't you consider doing an incremental patch from mjb1 to mjb2?
 
-Possible, yes. But it would help a lot to know what's wrong with the 
-current segments - we did leave most of them with exactly the same layout 
-as before, and I thought we explicitly left the ones that APM cares about 
-that way..
+I guess it has got a bit bulky nowadays:
 
-		Linus
+ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.6.0/patch-2.6.0-mjb1-mjb2.bz2
+
+M.
+

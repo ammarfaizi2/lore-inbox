@@ -1,53 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267066AbUBSIQq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 03:16:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267064AbUBSIQn
+	id S267056AbUBSIRI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 03:17:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267052AbUBSIQy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 03:16:43 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:11970 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267052AbUBSIQj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 03:16:39 -0500
-Date: Thu, 19 Feb 2004 03:16:33 -0500 (EST)
-From: Ingo Molnar <mingo@redhat.com>
-X-X-Sender: mingo@devserv.devel.redhat.com
-To: Andrew Morton <akpm@osdl.org>
-cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
-Subject: Re: keventd_create_kthread
-In-Reply-To: <20040219001011.6245f163.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0402190310550.10411@devserv.devel.redhat.com>
-References: <20040218231322.35EE92C05F@lists.samba.org>
- <Pine.LNX.4.58.0402190205040.16515@devserv.devel.redhat.com>
- <20040219001011.6245f163.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 19 Feb 2004 03:16:54 -0500
+Received: from ns.schottelius.org ([213.146.113.242]:25003 "HELO
+	ns.schottelius.org") by vger.kernel.org with SMTP id S267057AbUBSIQk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 03:16:40 -0500
+Date: Thu, 19 Feb 2004 09:16:42 +0100
+From: Nico Schottelius <nico-kernel@schottelius.org>
+To: Steve Bromwich <kernel@fop.ns.ca>
+Cc: Bruce Allen <ballen@gravity.phys.uwm.edu>, linux-kernel@vger.kernel.org
+Subject: Re: harddisk or kernel problem?
+Message-ID: <20040219081642.GE25184@schottelius.org>
+References: <Pine.GSO.4.21.0402181039520.8134-100000@dirac.phys.uwm.edu> <Pine.LNX.4.58.0402182002180.11305@brain.fop.ns.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0402182002180.11305@brain.fop.ns.ca>
+X-Linux-Info: http://linux.schottelius.org/
+X-Operating-System: Linux bruehe 2.6.1
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 19 Feb 2004, Andrew Morton wrote:
-
-> >  i'd strongly advise against using wait_task_inactive() in
-> >  keventd_create_kthread() - it's _polling_. We must not do any polling like
-> >  that in any modern interface. Why does keventd_create_kthread() need
-> >  wait_task_inactive()?
+Steve Bromwich [Wed, Feb 18, 2004 at 08:06:47PM -0400]:
+> On Wed, 18 Feb 2004, Bruce Allen wrote:
 > 
-> The way it's designed, we _have_ to wait until the new kthread has gone
-> to sleep, because we poke him again with wake_up_process().
+> > > 194 Temperature_Celsius     0x0022   100   050   000    Old_age   Always
+> > > -       48 (Lifetime Min/Max 14/65)
+> > >
+> > > If I'm reading this correctly, you've been running the drive when it's
+> > > extremely cold and extremely hot (Min/Max 14/65, I'm guessing that's
+> > > either Fahrenheit or a raw unconverted reading from the thermistor).
+> >
+> > Neither.  Fujitsu uses Celsuis: 14, 48, and 65 are all in Celsuis.
 > 
-> However, if that wake_up_process() comes too early we'll just flip the
-> new thread out of TASK_INTERUPTIBLE into TASK_RUNNING and the schedule()
-> in kthread() will fall straight through.  So perhaps we can simply
-> remove the wait_task_inactive()?
+> Good grief... I'm not surprised the drive's dying, then! I've seen drives
+> lock up around 35C, I'm quite impressed the drive is still chugging along
+> (to some extent, at least) at 48C - and a max of 65C? Looking at a few of
+> Fujitsu's pages (eg,
+> http://www.fujitsu.ca/products/mobile_hdd/mht_ah/physical_specs.html),
+> ambient operating temperature is 5C to 55C - perhaps that's the cause of
+> the drive dying?
+> 
+> Just out of curiosity, Nico, what're you doing with these drives that
+> they're running so hot?
 
-yep. There's almost never any good reason to use wait_task_inactive().
+You won't believe it.
+It ran in a standard ECS Elitebook A530 Notebook. 
+I always waited some time (30 Minutes up to some hours), when it was
+cold outside.
+I am working with this laptop about 10-20 hours a day, it runs several
+compile runs, etc.
 
-The only excusable special case is ptrace: there are some inherent
-assumptions in the ptrace framework that need the task to unschedule at
-least once before the parent can modify the user state. (eg. on x86 the
-lazy FPU state and the fs/gs selectors need to be saved before the parent
-can read/write them, plus changed debug registers need a real
-context-switch to take effect, etc.)
+Mostly the same things I did on my Acer Travelmate..well this hard disk
+died, too..
 
-	Ingo
+Well, currently I am wondering why two disks died, too.
+
+Sincerly,
+
+Nico

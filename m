@@ -1,133 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317464AbSGEPP6>; Fri, 5 Jul 2002 11:15:58 -0400
+	id <S317466AbSGEPQW>; Fri, 5 Jul 2002 11:16:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317466AbSGEPP5>; Fri, 5 Jul 2002 11:15:57 -0400
-Received: from mg02.austin.ibm.com ([192.35.232.12]:33784 "EHLO
-	mg02.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S317464AbSGEPPz>; Fri, 5 Jul 2002 11:15:55 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Kevin Corry <corryk@us.ibm.com>
-Organization: IBM
-To: evms-devel@lists.sourceforge.net
-Subject: [ANNOUNCE] EVMS Release 1.1.0-pre4
-Date: Fri, 5 Jul 2002 10:03:41 -0500
-X-Mailer: KMail [version 1.2]
-Cc: evms-announce@lists.sourceforge.net, linux-kernel@vger.kernel.org
+	id <S317472AbSGEPQW>; Fri, 5 Jul 2002 11:16:22 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:31888 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S317466AbSGEPQT>; Fri, 5 Jul 2002 11:16:19 -0400
+Date: Fri, 5 Jul 2002 17:18:20 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Thunder from the hill <thunder@ngforever.de>
+cc: Daniel Egger <degger@fhm.edu>, <venom@sns.it>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: IBM Desktar disk problem?
+In-Reply-To: <Pine.LNX.4.44.0207050801190.10105-100000@hawkeye.luckynet.adm>
+Message-ID: <Pine.SOL.4.30.0207051716180.1465-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-Message-Id: <02070510034100.11652@boiler>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The EVMS team is announcing the next development release of the Enterprise 
-Volume Management System, which will eventually become EVMS 2.0. Package 
-1.1.0-pre4 is now available for download at the project web site:
-http://www.sf.net/projects/evms
 
-As with the previous pre-releases, only the source tarball is available for 
-download. RPM files will be available when 1.1.0 is released. 
+On Fri, 5 Jul 2002, Thunder from the hill wrote:
 
-Also, please use the appropriate level of caution when using this version! 
-There are several very new features which have not yet undergone extensive 
-testing! In other words, you probably shouldn't run this version on any 
-critical systems.
+> Hi,
+>
+> On 5 Jul 2002, Daniel Egger wrote:
+> > <advise>
+> > Buy decent drives, then get DriveFitnessTest (DFT) from their website
+> > and check the harddrives, note the TRC number, request an RMA on their
+> > website and ship the drives as soon as possible to IBM. Wait for the
+> > replacement drives and sell them ASAP on Ebay to some freaks who don't
+> > give a dime about data security.
+> > </advise>
+>
+> ...and tell all the people who got a DTLA (because it's not as expensive
+> as others in some countries, mind France, USA, Germany) to drop their
+> disks if they want to use Linux, because we're too lazy to find a
+> solution. That might be cool to you, but we want HARDWARE SUPPORT for
+> Linux! That's why we're here.
+>
+> There _is_ a solution, we just have to find it.
 
-*** Important Note ***
+Hmm... Would you be so kind to find it? ;-)
 
-As of this release, EVMS has been assigned a new, permanent major number: 
-117. The previous major number, 63, was reserved for experimental drivers. 
-Before using -pre4, please read the README_Upgrade_To_1.1.0 file included in 
-the source package for details on how you might be affected by the major 
-number change. You can also view these instructions on the EVMS web site at 
-http://evms.sf.net/new_major.html.
+--
+Bartlomiej
 
+>
+> 							Regards,
+> 							Thunder
+> --
+> (Use http://www.ebb.org/ungeek if you can't decode)
+> ------BEGIN GEEK CODE BLOCK------
+> Version: 3.12
+> GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+> N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+> e++++ h* r--- y-
+> ------END GEEK CODE BLOCK------
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-Please report any problems or bugs to the EVMS mailing list: 
-evms-devel@lists.sf.net.
-
-
-Highlights for version 1.1.0-pre4 include:
-v1.1.0-pre4 - 7/5/02
-- New EVMS major number
-  - Assigned 117 as permanent major number (had been using experimental 63).
-  - Please see README_Upgrade_To_1.1.0 or http://evms.sf.net/new_major.html
-    for additional details.
-  - Updated LILO patches.
-- Snapshotting
-  - Bug fixes in async, sync, and rollback I/O code.
-- Kernel
-  - Bug fixes in a few older common-files patches.
-
-
-v1.1.0-pre3 - 6/21/02
-- Command Line
-  - Support for plugin-specific tasks.
-  - Improvements to the query system.
-- Text-Mode UI (ncurses)
-  - Display improvements.
-- Filesystem Interface Modules (FSIMs)
-  - More endian-neutrality fixes for ReiserFS and Ext2/3.
-- S390 Plugin
-  - Updated ioctl handling in kernel plugin.
-- LVM Plugin
-  - Fixed a bug in kernel discovery that was causing strange interactions
-    with the MD plugin when using RAID-5 on top of LVM LVs.
-
-
-v1.1.0-pre2 - 6/20/02
-- Command Line
-  - Added readline support (patch from Matt Zimmerman)
-- Snapshotting
-  - Improved performance in asynchronous mode.
-  - Bug fixes in writeable snapshots.
-- Filesystem Interface Modules (FSIMs)
-  - Support for external logs in JFS.
-  - Endian-neutrality fixes for JFS and ReiserFS.
-
-
-v1.1.0-pre1 - 6/7/02
-- Engine Core
-  - Volume converting
-    - Automatically changing a compatibility volume to an EVMS volume, and
-      converting an EVMS volume to compatibility.
-  - Add-A-Feature
-    - Adding a new feature to an existing EVMS volume.
-  - Plug-in-specific tasks
-    - Currently used by RAID-1, RAID-5, and Snapshotting for certain actions.
-  - Progress Indicators
-    - Plug-ins can use this to indicate progress of long-running operations.
-- GUI
-  - Support for plug-in-specific tasks.
-  - Support for converting compatibility volumes to EVMS volumes.
-  - Support for adding a new feature to an existing EVMS volume.
-  - Support for progress indicators (used by plug-ins).
-- Command Line
-  - Improved query system with new filters.
-  - Support for converting compatibility volumes to EVMS volumes.
-  - Support for adding a new feature to an existing EVMS volume.
-- Filesystem Interface Modules (FSIMs)
-  - Four new FSIM plug-ins
-    - Ext2/Ext3
-    - JFS
-    - ReiserFS
-    - Swap
-- Snapshotting
-  - Rollback - can revert all changes saved to the snapshot back to the
-    original volume.
-  - Asynchronous - choice of using asynchronous Copy-On-Writes for better
-    performance, or synchronous COWs for better reliability.
-- Software RAID
-  - Improved method for handling incomplete RAID objects.
-  - Improved I/O path.
-- S/390 Segment Manager
-  - Added multi-path I/O support in kernel.
-  - Improved engine support.
-- GPT Segment Manager
-  - New segment manager for IA-64, GUID-Partition-Table partitions.
-
-
-Kevin Corry
-corryk@us.ibm.com
-Enterprise Volume Management System
-http://evms.sourceforge.net/

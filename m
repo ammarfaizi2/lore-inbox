@@ -1,41 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262095AbVAOBo2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262141AbVAOBsR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262095AbVAOBo2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 20:44:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbVAOBmE
+	id S262141AbVAOBsR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 20:48:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbVAOBlH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 20:42:04 -0500
-Received: from [81.2.110.250] ([81.2.110.250]:34793 "EHLO
+	Fri, 14 Jan 2005 20:41:07 -0500
+Received: from [81.2.110.250] ([81.2.110.250]:44521 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262095AbVAOBiD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 20:38:03 -0500
-Subject: Re: Linux 2.6.10-ac9
+	id S262118AbVAOBir (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 20:38:47 -0500
+Subject: Re: usb key oddities with 2.6.10-ac9
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Sami Farin <7atbggg02@sneakemail.com>
+To: Jack Howarth <howarth@bromo.msbb.uc.edu>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050114030135.GA6032@m.safari.iki.fi>
-References: <1105636996.4644.70.camel@localhost.localdomain>
-	 <20050114030135.GA6032@m.safari.iki.fi>
+In-Reply-To: <20050114145837.6AB211DC357@bromo.msbb.uc.edu>
+References: <20050114145837.6AB211DC357@bromo.msbb.uc.edu>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1105743716.9839.29.camel@localhost.localdomain>
+Message-Id: <1105745243.9838.51.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 15 Jan 2005 00:32:59 +0000
+Date: Sat, 15 Jan 2005 00:33:41 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2005-01-14 at 03:01, Sami Farin wrote:
-> at this spot I have no /dev/dsp etc.
-> then I reload snd_ens1371:
+On Gwe, 2005-01-14 at 14:58, Jack Howarth wrote:
+> does appear in the Gnome desktop's Computer folder. However if one
+> removes and reinserts the key it disappears and doesn't come back.
+> I see the same kernel messages as I did under 2.6.7 when I insert
+> the memory key...
 
-That sounds like the new udev rather than kernel side. The changes from
-ac8 to ac9 are tiny on the audio side and don't involve driver setup
-stuff.
+Make sure you have the hotplug notification stuff all enabled in the
+kernel. Missing that can produce the symptoms you describe
 
-> also, with 2.6.10 I can't disable write cache...
-> I could do it in 2.6.9.
-
-Works for me in 2.6.10-ac. Are there any diagnostics on dmesg when you
-try and turn the cache off ?
- 

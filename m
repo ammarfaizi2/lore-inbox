@@ -1,82 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261929AbSIYHPV>; Wed, 25 Sep 2002 03:15:21 -0400
+	id <S261933AbSIYHWI>; Wed, 25 Sep 2002 03:22:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261930AbSIYHPU>; Wed, 25 Sep 2002 03:15:20 -0400
-Received: from h24-87-160-169.vn.shawcable.net ([24.87.160.169]:42370 "EHLO
-	oof.localnet") by vger.kernel.org with ESMTP id <S261929AbSIYHPT>;
-	Wed, 25 Sep 2002 03:15:19 -0400
-Date: Wed, 25 Sep 2002 00:20:26 -0700
-From: Simon Kirby <sim@netnation.com>
-To: Adam Goldstein <Whitewlf@Whitewlf.net>
-Cc: linux-kernel@vger.kernel.org, Adam Bernau <adam.bernau@itacsecurity.com>,
-       Adam Taylor <iris@servercity.com>
-Subject: Re: Very High Load, kernel 2.4.18, apache/mysql
-Message-ID: <20020925072026.GA9670@netnation.com>
-References: <20020925052411.GA8951@netnation.com> <E46487E7-D053-11D6-BCD3-000502C90EA3@Whitewlf.net>
-Mime-Version: 1.0
+	id <S261934AbSIYHWI>; Wed, 25 Sep 2002 03:22:08 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:60763 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S261933AbSIYHWH>; Wed, 25 Sep 2002 03:22:07 -0400
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       "Gustafson, Geoffrey R" <geoffrey.r.gustafson@intel.com>,
+       "'Andy Pfiffer'" <andyp@osdl.org>, cgl_discussion@osdl.org,
+       "Rhoads, Rob" <rob.rhoads@intel.com>,
+       hardeneddrivers-discuss@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Hardeneddrivers-discuss] RE: [cgl_discussion] Some Initial Comments on DDH-Spec-0.5h.pdf
+References: <Pine.LNX.4.10.10209242018450.6896-100000@master.linux-ide.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 25 Sep 2002 01:12:14 -0600
+In-Reply-To: <Pine.LNX.4.10.10209242018450.6896-100000@master.linux-ide.org>
+Message-ID: <m13cryk0fl.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E46487E7-D053-11D6-BCD3-000502C90EA3@Whitewlf.net>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 25, 2002 at 02:56:18AM -0400, Adam Goldstein wrote:
+Andre Hedrick <andre@linux-ide.org> writes:
 
-> Have added nodiratime, missed that one, and switched to ext2 for 
-> testing... ;)
-> It is still running high load, but seems only slightly better , but, i 
-> will know more later.
 
-Yes, nodiratime will only make a tiny difference.
+> Jeff, 
+> 
+> You know that every hardware vendor will clam it works well under
+> MicroSoft, so why does it fail under Linux.  This is the classic one-liner
+> we all have gotten.   The reality is closed software is used to hide all
+> the flaws and failures of made by the ASIC people.  I would love to shove
+> the brain dead asic designer of the original PIIX4 AB/EB off a cliff on
+> fire for being absolutely "stupid".  Sorry this is as nice an clean as I
+> can say this and not dust off the flame thrower.
 
-> Using postfix on new server, not sure how to disable locking?
+Right.  So we need to get to a situation where ASIC designers are not afraid
+to admit they messed up.  I have seen this from all vendors.  More than
+anything this is the reason we have a documentation shortage.  Just when
+we really need more documentation, and more code review to make certain
+that the drivers are solid in the face of hardware bugs the vendors
+stop talking.
 
-It's not locking you'd want to disable.  If anything, it's the
-synchronous writes to disk of data which may or may not even need to go
-to disk (eg: an email that gets delivered almost instantly and
-subsequently removed from disk just after it was written).  The idea with
-a journal, however, is that it can keep track of such emails sequentually
-on disk rather than seeking all over the place, and write the ones that
-will stick around later.  Your output rate is too low to be bounded by a
-sequential write limit alone, especially on software RAID, so it's most
-likely doing a lot of seeking while writing.
+As for ``It works well under windows so why does it fail under
+Linux?'' line of arguing that is just a first reflex from people that
+aren't used to dealing with Linux.  Putting it in a business case and
+saying noting that the vendors can ship X million more in volume, or
+become part of Y prestigious system.  People stop knee jerking and
+start helping.
 
-> Same with mysql.. can locking be disabled? how? safe?
+Getting those channels open through the business side takes time.  And
+the more independent software developers don't always have access to
+those kinds of arguments.  So we really need a way to shame a vendor
+on a driver by driver basis that makes it worse to hide their
+documentation than to admit to their bugs.  
 
-Again, not locking, but fsync().  It's safe providing your machine never
-crashes. :)  Of course, there's still a chance it can be corrupted
-_with_ fsync() anyway, but the difference is the clients will get a
-result beore it guarantees the data will be on disk.
+Being able to say we could not ``harden'' the vendors driver because
+the vendor did not give us the real specification, and errata
+information, might be enough to shame change that.  If not we can try
+other methods.
 
-First narrow down what is causing most of the writing activity.
+> > I don't see driver hardening being very feasible on such drivers, where 
+> > the vendor refuses to allow kernel engineers access needed to get their 
+> > hardware working and stable.  [why vendors want crappy Linux support, 
+> > I'll never know]
+> 
+> Worse is getting a spec that says, "no work around".
+> When the reality is the OEM hardware vendor will not take ownership of 
+> their errors and disclose a good proper work-around.
 
-> The site uses php heavily, everypage has php includes and mysql lookups
-> (multiple languages, banner rotation, article rotation, etc...)
+If the vendor has not figured out a work around this is understandable
+if undesirable.  
 
-I see.  The cause of your CPU-wise load appears to be mostly the PHP under
-mod_php (unless something else is running).  Those processes you showed
-in top were running for so long that they were probably never going to
-output anything (or at least the client wouldn't be there anymore), so it
-looks like a code bug.  You should debug this.
+As for what can be done about it to get good Linux drivers, it is best
+to remember that businesses do not have clear and consistent
+policies.  Instead businesses are susceptible to the attack of many
+pokes, and enticements by people waving cash.  So by pure persistence
+and repetition we should be able to get the word out.
 
-> You can take a look at the site (ok netiquette?) http://delcampe.com 
+We just need to come up with arguments that are just as persistent as
+the ip lawyers who say you need secret ``ip''.   And some
+embarrassement that is stronger than the embarrassement at the quality
+of their work.
 
-It definitely seems slow. :)
 
-> I will assume the combination of diratime, journaling, software raid, 
-> mail locking and logging are a
-> bad combination.... however, I have been finding many instances online 
-
-Software RAID won't slow it down.  diratime won't make any noticeable
-difference.  Logging is usually sequential.  Journalling _with_ mail
-locking might be a concern, but more than likely you're just seeing the
-result of fsync().  What sort of mail load do you have?  What about the
-MySQL write load?
-
-Simon-
-
-[        Simon Kirby        ][        Network Operations        ]
-[     sim@netnation.com     ][     NetNation Communications     ]
-[  Opinions expressed are not necessarily those of my employer. ]
+Eric

@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266649AbSKLRfx>; Tue, 12 Nov 2002 12:35:53 -0500
+	id <S266643AbSKLRft>; Tue, 12 Nov 2002 12:35:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266645AbSKLRfx>; Tue, 12 Nov 2002 12:35:53 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:30376 "EHLO
-	mtvmime01.veritas.com") by vger.kernel.org with ESMTP
-	id <S266649AbSKLRfu>; Tue, 12 Nov 2002 12:35:50 -0500
-Date: Tue, 12 Nov 2002 17:43:40 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: "David S. Miller" <davem@redhat.com>
-cc: akpm@digeo.com, <dmccr@us.ibm.com>, <riel@conectiva.com.br>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] flush_cache_page while pte valid 
-In-Reply-To: <20021111.225333.122204472.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44.0211121732170.1187-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S266645AbSKLRft>; Tue, 12 Nov 2002 12:35:49 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:9988 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S266643AbSKLRfr>;
+	Tue, 12 Nov 2002 12:35:47 -0500
+Date: Tue, 12 Nov 2002 18:42:08 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Heusden van, FJJ   (Folkert)" <F.J.J.Heusden@rn.rabobank.nl>,
+       Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: random PID patch
+Message-ID: <20021112174207.GB187@elf.ucw.cz>
+References: <11D18E6D1073547-1319@_rabobank.nl_> <1037020203.2919.26.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1037020203.2919.26.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Nov 2002, David S. Miller wrote:
->    From: Hugh Dickins <hugh@veritas.com>
->    Date: Tue, 12 Nov 2002 06:53:04 +0000 (GMT)
->    
->    Thanks for shedding light on that; but I'm still wondering if there
->    might be data loss if userspace modifies the page in the tiny window
->    between correctly positioned flush_cache_page and pte invalidation?
+Hi!
+
+> > Sometimes, (well; frequently) programs that create temporary
+> > files let the filename depend on their PID. A hacker could use
+> > that knowledge. So if you know that the application that
 > 
-> The flush merely writes back the data, a copy-back operation, fully L2
-> cache coherent.  All cpus will see correct data if an intermittant
-> store occurs.
+> Still can if its random. The attacker can be the one who exec's the
+> vulnerable app. The attacker can use dnotify
+> 
+> > things it's not supposed to. Like forcing suid apps to create
+> > a file in the startup-scripts dir. or something.
+> 
+> Just use namespaces and give every login their own /tmp
 
-Sorry, I still don't get it.  If the flush_cache_page is doing something
-necessary, then won't a user access in between it and invalidating pte
-undo what was necessary?  And if it's not necessary, why do we do it?
-(For better performance would be a very good reason.)
+Use namespaces? I thought export TMPDIR= was the solution ;-).
 
-But don't worry about me: I may well have some fundamental misconception
-which emailing back and forth will fail to resolve, would just waste your
-time and expose my ignorance.  (I think Andrew has sometimes protested
-that "flush" can mean too many different things.)  So I'm trying to
-understand it better from over here - but glad to see Rik seems
-to understand my concern.
-
-Hugh
-
+							Pavel
+-- 
+When do you have heart between your knees?

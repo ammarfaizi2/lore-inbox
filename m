@@ -1,91 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262358AbUKDSgj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262323AbUKDSgi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262358AbUKDSgj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 13:36:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262355AbUKDSem
+	id S262323AbUKDSgi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 13:36:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262358AbUKDSeu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 13:34:42 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:38075 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S262363AbUKDSaA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 13:30:00 -0500
-Subject: [patch] kobject_uevent: fix init ordering
-From: Robert Love <rml@novell.com>
-To: Greg KH <greg@kroah.com>
-Cc: Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org,
-       davem@redhat.com, herbert@gondor.apana.org.au,
-       Kay Sievers <kay.sievers@vrfy.org>
-In-Reply-To: <20041104180550.GA16744@kroah.com>
-References: <20041104154317.GA1268@krispykreme.ozlabs.ibm.com>
-	 <20041104180550.GA16744@kroah.com>
-Content-Type: text/plain
-Date: Thu, 04 Nov 2004 13:27:31 -0500
-Message-Id: <1099592851.31022.145.camel@betsy.boston.ximian.com>
+	Thu, 4 Nov 2004 13:34:50 -0500
+Received: from mail.kroah.org ([69.55.234.183]:18067 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262323AbUKDRoX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 12:44:23 -0500
+Date: Thu, 4 Nov 2004 09:44:11 -0800
+From: Greg KH <greg@kroah.com>
+To: Roland Dreier <roland@topspin.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Germano <germano.barreiro@cyclades.com>, Scott_Kilau@digi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: patch for sysfs in the cyclades driver
+Message-ID: <20041104174411.GE16389@kroah.com>
+References: <1099487348.1428.16.camel@tsthost> <20041104102505.GA8379@logos.cnet> <52fz3po8k2.fsf@topspin.com> <20041104142925.GB9431@logos.cnet> <523bzpo6m2.fsf@topspin.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <523bzpo6m2.fsf@topspin.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg!
+On Thu, Nov 04, 2004 at 09:40:21AM -0800, Roland Dreier wrote:
+>     Marcelo> ------ Greg answer was:
+> 
+>     Greg> For a driver only attribute, you want them to show up in the
+>     Greg> place for the driver (like under
+>     Greg> /sys/bus/pci/driver/MY_FOO_DRIVER/).  To do that use the
+>     Greg> DRIVER_ATTR() and the driver_add_file() functions.  For
+>     Greg> examples, see the other drivers that use these functions.
+> 
+> I think Greg may have misunderstood the question and told you how to
+> expose per-driver attributes.  But I think the attributes you want
+> really are per-device and should be attached to the class_device, not
+> the driver.
 
-Looks like kobject_uevent_init is executed before netlink_proto_init and
-consequently always fails.  Not cool.
+Heh, yes.  Per-driver attributes go in the driver's directory.  Per port
+attributes go in the port's directory.  Simple as that :)
 
-Attached patch switches the initialization over from core_initcall (init
-level 1) to postcore_initcall (init level 2).  Netlink's initialization
-is done in core_initcall, so this should fix the problem.  We should be
-fine waiting until postcore_initcall.
+thanks,
 
-Also a couple white space changes mixed in, because I am anal.
-
-	Robert Love
-
-
-fix kobject_uevent init ordering
-
- lib/kobject_uevent.c |    8 +++-----
- 1 files changed, 3 insertions(+), 5 deletions(-)
-
-diff -urN linux-2.6.10-rc1/lib/kobject_uevent.c linux/lib/kobject_uevent.c
---- linux-2.6.10-rc1/lib/kobject_uevent.c	2004-10-25 16:17:09.000000000 -0400
-+++ linux/lib/kobject_uevent.c	2004-11-04 13:20:32.731836880 -0500
-@@ -54,7 +54,7 @@
-  * gfp_mask:
-  */
- static int send_uevent(const char *signal, const char *obj, const void *buf,
--			int buflen, int gfp_mask)
-+		       int buflen, int gfp_mask)
- {
- 	struct sk_buff *skb;
- 	char *pos;
-@@ -105,9 +105,8 @@
- 		sprintf(attrpath, "%s/%s", path, attr->name);
- 		rc = send_uevent(signal, attrpath, NULL, 0, gfp_mask);
- 		kfree(attrpath);
--	} else {
-+	} else
- 		rc = send_uevent(signal, path, NULL, 0, gfp_mask);
--	}
- 
- exit:
- 	kfree(path);
-@@ -133,7 +132,6 @@
- {
- 	return do_kobject_uevent(kobj, action, attr, GFP_ATOMIC);
- }
--
- EXPORT_SYMBOL_GPL(kobject_uevent_atomic);
- 
- static int __init kobject_uevent_init(void)
-@@ -149,7 +147,7 @@
- 	return 0;
- }
- 
--core_initcall(kobject_uevent_init);
-+postcore_initcall(kobject_uevent_init);
- 
- #else
- static inline int send_uevent(const char *signal, const char *obj,
-
-
+greg k-h

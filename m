@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283733AbRLEEhR>; Tue, 4 Dec 2001 23:37:17 -0500
+	id <S283740AbRLEEk5>; Tue, 4 Dec 2001 23:40:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283736AbRLEEhH>; Tue, 4 Dec 2001 23:37:07 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:41716
+	id <S283748AbRLEEkr>; Tue, 4 Dec 2001 23:40:47 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:47860
 	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S283733AbRLEEg4>; Tue, 4 Dec 2001 23:36:56 -0500
-Date: Tue, 4 Dec 2001 20:36:49 -0800
+	id <S283740AbRLEEk0>; Tue, 4 Dec 2001 23:40:26 -0500
+Date: Tue, 4 Dec 2001 20:40:19 -0800
 From: Mike Fedyk <mfedyk@matchmail.com>
-To: John Cowan <cowan@mercury.ccil.org>
-Cc: root@chaos.analogic.com, Dave Jones <davej@suse.de>,
-        "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org,
-        Christoph Hellwig <hch@caldera.de>, Keith Owens <kaos@ocs.com.au>,
-        kbuild-devel@lists.sourceforge.net, torvalds@transmeta.com
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-Message-ID: <20011204203649.E25292@mikef-linux.matchmail.com>
-Mail-Followup-To: John Cowan <cowan@mercury.ccil.org>,
-	root@chaos.analogic.com, Dave Jones <davej@suse.de>,
-	"Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org,
-	Christoph Hellwig <hch@caldera.de>, Keith Owens <kaos@ocs.com.au>,
-	kbuild-devel@lists.sourceforge.net, torvalds@transmeta.com
-In-Reply-To: <Pine.LNX.3.95.1011204151449.1672A-100000@chaos.analogic.com> <E16BSWQ-0004W3-00@mercury.ccil.org>
+To: Rasmus B?g Hansen <moffe@amagerkollegiet.dk>
+Cc: Erik Tews <erik.tews@gmx.net>, Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: tuning ext2 or ReiserFS to avoid fragmentation with large files?
+Message-ID: <20011204204019.F25292@mikef-linux.matchmail.com>
+Mail-Followup-To: Rasmus B?g Hansen <moffe@amagerkollegiet.dk>,
+	Erik Tews <erik.tews@gmx.net>,
+	Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011204142047.N11967@no-maam.dyndns.org> <Pine.LNX.4.33.0112050315450.2930-100000@grignard.amagerkollegiet.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E16BSWQ-0004W3-00@mercury.ccil.org>
+In-Reply-To: <Pine.LNX.4.33.0112050315450.2930-100000@grignard.amagerkollegiet.dk>
 User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 04, 2001 at 10:14:58PM -0500, John Cowan wrote:
-> Richard B. Johnson scripsit:
+On Wed, Dec 05, 2001 at 03:17:17AM +0100, Rasmus B?g Hansen wrote:
+> On Tue, 4 Dec 2001, Erik Tews wrote:
 > 
-> > FYI, I have never known a problem that python has solved, only
-> > changed.
+> > If I remember right xfs has got a online-defragmentation utility. So
+> > have a look at xfs.
+> > 
+> > I think xfs works different from reiserfs and ext2 when writing files to
+> > disk which helps avoiding fragmentation. This feature is called
+> > allocation groups.
 > 
-> The same can be said of computers in general.
-> 
+> I *might* be wrong, but isn't the allocation-group thing exactly what 
+> ext2/ext3 does?
+>
 
-There are just too many things that computers have allowed us to do that we
-*could not* do before.  If you step back and think for a while, you'll
-probably find at least five things that would be impossible without
-computers (excluding computer specific topics).
+Basically, yes.  They both have the name "group" in some of their feature
+lists.  What really matters is *what* they encompass, and *how* they're used.
+
+Can someone in the know comment about the similarity of the ext[23] and xfs
+groups?

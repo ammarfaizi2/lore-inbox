@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271685AbTHMLRX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 07:17:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271743AbTHMLRW
+	id S271756AbTHMLE6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 07:04:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271758AbTHMLE6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 07:17:22 -0400
-Received: from mail.suse.de ([213.95.15.193]:38148 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S271685AbTHMLRV (ORCPT
+	Wed, 13 Aug 2003 07:04:58 -0400
+Received: from colin2.muc.de ([193.149.48.15]:7944 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S271756AbTHMLE5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 07:17:21 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test3-mm1: scheduling while atomic (ext3?)
-References: <20030813045638.GA9713@middle.of.nowhere.suse.lists.linux.kernel>
-	<20030813014746.412660ae.akpm@osdl.org.suse.lists.linux.kernel>
-	<20030813091958.GA30746@gates.of.nowhere.suse.lists.linux.kernel>
-	<20030813025542.32429718.akpm@osdl.org.suse.lists.linux.kernel>
-	<1060772769.8009.4.camel@localhost.localdomain.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 13 Aug 2003 13:17:18 +0200
-In-Reply-To: <1060772769.8009.4.camel@localhost.localdomain.suse.lists.linux.kernel>
-Message-ID: <p73adad7qo1.fsf@oldwotan.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	Wed, 13 Aug 2003 07:04:57 -0400
+Date: 13 Aug 2003 13:04:53 +0200
+Date: Wed, 13 Aug 2003 13:04:53 +0200
+From: Andi Kleen <ak@colin2.muc.de>
+To: Martin Pool <mbp@sourcefrog.net>
+Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
+Subject: Re: KDB in the mainstream 2.4.x kernels?
+Message-ID: <20030813110453.GA26019@colin2.muc.de>
+References: <aJIn.3mj.15@gated-at.bofh.it> <m3smp3y38y.fsf@averell.firstfloor.org> <pan.2003.08.13.04.40.27.59654@sourcefrog.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <pan.2003.08.13.04.40.27.59654@sourcefrog.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+On Wed, Aug 13, 2003 at 02:40:31PM +1000, Martin Pool wrote:
+> On Fri, 18 Jul 2003 22:43:57 +0200, Andi Kleen wrote:
+> 
+> > KDB is usually not useful for debugging hangs on desktop boxes (and even
+> > many servers) because you have usually X running. When the machine crashes
+> > and goes in KDB you cannot see the text output and debug anything. I
+> > learned to type "go<return>" blind when I had still an KDB aware kernel,
+> > but it's not very useful overall.
+> 
+> Perhaps in the case where the console is on a vt, kdb could try to
+> switch to the right vc before presenting its prompt?  I realize calling into
+> the vc code might be risky but it seems like there's not much to lose.  
+> (If you do have a bug in say the agp driver then you need a serial
+> console...)   If it works, you'll be able to debug and continue.
 
-> Put the likely(pos) in the asm/prefetch for Athlon until someone can
- out what is going on with some specific Athlons, 2.6 and certain
-> kernels (notably 4G/4G)
+Only the X server can switch away, because only it knows how 
+to talk to the graphic chipset. And running user space here is 
+far too risky.
 
-You can use the same workaround as x86-64. add an exception handler and
-just jump back. Advantage is that it is completely outside the fast path.
-
-But note you also have to add runtime sorting of __ex_table when you
-do this, otherwise the __ex_table becomes unsorted when someone uses
-list_for_each (which does prefetch) in a __init function
-
-(all code is available in x86-64, just needs to be ported over)
+It's possible when the resolutions are controlled by the kernel
+in fbcon. That's the case on linux/ppc and you can indeed debug on
+top of an X server there. But it's unlikely to happen for linux/x86, the
+xfree86 people don't want to move parts of their drivers into the kernel.
 
 -Andi
+

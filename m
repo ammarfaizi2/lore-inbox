@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263655AbREYIjt>; Fri, 25 May 2001 04:39:49 -0400
+	id <S263657AbREYIo7>; Fri, 25 May 2001 04:44:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263656AbREYIjj>; Fri, 25 May 2001 04:39:39 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:40712 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S263655AbREYIjb>; Fri, 25 May 2001 04:39:31 -0400
-Date: Fri, 25 May 2001 10:39:07 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: David Weinehall <tao@acc.umu.se>, Mike Galbraith <mikeg@wen-online.de>,
-        "Stephen C. Tweedie" <sct@redhat.com>,
-        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [RFC][PATCH] Re: Linux 2.4.4-ac10
-Message-ID: <20010525103907.H29793@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20010521223212.C4934@khan.acc.umu.se> <Pine.LNX.4.33.0105231233070.311-100000@duckman.distro.conectiva>
+	id <S263658AbREYIou>; Fri, 25 May 2001 04:44:50 -0400
+Received: from t2.redhat.com ([199.183.24.243]:58103 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S263657AbREYIoe>; Fri, 25 May 2001 04:44:34 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20010525005253.A16005@bug.ucw.cz> 
+In-Reply-To: <20010525005253.A16005@bug.ucw.cz> 
+To: Pavel Machek <pavel@suse.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>, jffs-dev@axis.com
+Subject: Re: jffs on non-MTD device? 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <Pine.LNX.4.33.0105231233070.311-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Wed, May 23, 2001 at 12:34:04PM -0300
+Date: Fri, 25 May 2001 09:44:10 +0100
+Message-ID: <24676.990780250@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > IMVHO every developer involved in memory-management (and indeed, any
-> > software development; the authors of ntpd comes in mind here) should
-> > have a 386 with 4MB of RAM and some 16MB of swap. Nowadays I have the
-> > luxury of a 486 with 8MB of RAM and 32MB of swap as a firewall, but it's
-> > still a pain to work with.
-> 
-> You're absolutely right. The smallest thing I'm testing with
-> on a regular basis is my dual pentium machine, booted with
-> mem=8m or mem=16m.
-> 
-> Time to hunt around for a 386 or 486 which is limited to such
-> a small amount of RAM ;)
+pavel@suse.cz said:
+> I'm trying to run jffs on my ATA-flash disk (running ext2 could kill
+> some flash cells too soon, right?) but it refuses:
 
-Buy agenda handheld: 16MB flash, 8MB ram, X, size of palm. It is
-definitely more sexy machine than average 486. [Or get philips velo 1,
-if you want keyboard ;-)]
-								Pavel
--- 
-The best software in life is free (not shareware)!		Pavel
-GCM d? s-: !g p?:+ au- a--@ w+ v- C++@ UL+++ L++ N++ E++ W--- M- Y- R+
+CompactFlash does wear levelling internally. 
+
+>         if (MAJOR(dev) != MTD_BLOCK_MAJOR) {
+>                 printk(KERN_WARNING "JFFS: Trying to mount a "
+>                        "non-mtd device.\n");
+>                 return 0;
+>         }
+
+> What are reasons for this check? 
+
+JFFS doesn't actually use the block device interface. Specifying it in the 
+mount command is simply a hack to make life easier, which nobody's yet 
+managed to obsolete. We actually use the underlying MTD device:
+
+        mtd = get_mtd_device(NULL, MINOR(dev));
+
+If you want JFFS (or JFFS2) on a CF device - in the apparent absence of any 
+other relatively low overhead, compressing, journalling file system to use 
+on it - then you need to provide a translation driver similar to the mtdram 
+one which fakes an MTD device, using a block device as backing store.
+
+--
+dwmw2
+
+

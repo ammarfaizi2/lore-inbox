@@ -1,55 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314441AbSDRTyC>; Thu, 18 Apr 2002 15:54:02 -0400
+	id <S314445AbSDRUEs>; Thu, 18 Apr 2002 16:04:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314442AbSDRTyB>; Thu, 18 Apr 2002 15:54:01 -0400
-Received: from codepoet.org ([166.70.14.212]:62637 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S314441AbSDRTyA>;
-	Thu, 18 Apr 2002 15:54:00 -0400
-Date: Thu, 18 Apr 2002 13:53:46 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCHSET] Linux 2.4.19-pre7-jam1
-Message-ID: <20020418195345.GA1309@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Andre Hedrick <andre@linux-ide.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020418192728.GA1891@werewolf.able.es> <Pine.LNX.4.10.10204181232090.17538-100000@master.linux-ide.org>
+	id <S314446AbSDRUEr>; Thu, 18 Apr 2002 16:04:47 -0400
+Received: from w226.z064000207.nyc-ny.dsl.cnc.net ([64.0.207.226]:2098 "EHLO
+	carey-server.stronghold.to") by vger.kernel.org with ESMTP
+	id <S314445AbSDRUEq>; Thu, 18 Apr 2002 16:04:46 -0400
+Message-Id: <4.3.2.7.2.20020418153151.019a98e0@mail.qrts.com>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Thu, 18 Apr 2002 16:06:36 -0400
+To: linux-kernel@vger.kernel.org
+From: "Nicolae P. Costescu" <nick@strongholdtech.com>
+Subject: CPU scheduler question: processes created faster than
+  destroyed?
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Operating-System: Linux 2.4.18-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu Apr 18, 2002 at 12:34:29PM -0700, Andre Hedrick wrote:
-> 
-> Thanks for the positive feedback!
+First, thanks to all for doing a great job with the Linux kernel. We 
+appreciate your work!
 
-FYI, I have tried it as well (ide-2.4.19-p6.all.convert.3a.patch
-on 2.4.19-p7 plus your recommended #if 0 change) and it has been
-working nicely for me as well on a number of machines.  This
-certainly seems to be a nice improvement.
+I've been seeing this behavior on our servers (2.4.2 and 2.4.18 kernel) and 
+would like to ask your opinion. I have read the linux internals doc. 
+section on the scheduler, and have read through the sched.c source code.
 
-> About to add and test HPT372 final and then complete the MMIO operations.
-> Next will be to make the driver do the error recovery path that block does
+I have a certain # of client processes on various machines that connect to 
+a linux server box. A forking server (DAServer.t) waits for client 
+connections, then forks a copy to handle the client request. Each forked 
+DAServer.t connects to three database server back ends (postgres), all of 
+which fork from a postmaster process.
 
-Can you go into a little detail on your plans for error handling?
+So each client connection causes 4 forks on the server.
 
-I think the currently error handling for the ide-subsystem,
-especially in the presence of sequences of bad sectors, is not
-especially robust (and is quite slow)...  In one case I tested
-yesterday (with 2.4.19-p7 plus your patch) using a 340 MB
-microdrive with a big chunk of bad sectors on it (the device
-admittedly is in pretty sorry shape but makes an excellent
-ide-subsystem tester ;-), the kernel wedged solid while trying to
-read from it...
+The forked server does some work for the client, communicating with the 3 
+database backends, then replies to the client, and the client disconnects. 
+Now the server does some cleanup and exist.
 
- -Erik
+At the point where the server replied to the client, the client disconnects 
+and is ready to send another message to the master server, which will cause 
+another 4 forks, etc.
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+Given a fixed # of clients (say 14) I'd expect the # of processes to have 
+some upper bound, but what I see is that sometimes the # of sleeping 
+processes will grow unbounded (limited only by the 512 limit on the # of 
+database backends).
+
+I've logged load average, # of processes, # of DAServer.t processes, # of 
+database server and plotted these at
+
+http://www.strongholdtech.com/plots/
+
+The # of sleeping processes will grow to say 900, and then suddenly 140 or 
+them will become ready to run, run for a few seconds (driving load avg to 
+around 100) and then disappear. Then shortly the system returns to normal.
+
+Swap is not an issue, we have 1 gig RAM and 2 gig swap, and the swap isn't 
+used, we usually only have about 400 meg in use when we hit the 900 process 
+mark.
+
+Is this just bad design on our part, or is there something in the CPU 
+scheduler that leads to this behavior - where processes are started quicker 
+than they die?
+
+This problem is only exacerbated on a dual CPU box (goes unstable quicker).
+
+Any suggestions?
+
+We're going to try throttling the forked DAServer.t when the # of sleeping 
+processes is large, making it sleep so that hopefully the other processes 
+(some of which hang around in the sleeping state for 30 minutes or longer) 
+will be able to run and die.
+
+Thanks for your help,
+Nick
+****************************************************
+Nicolae P. Costescu, Ph.D.  / Senior Developer
+Stronghold Technologies
+46040 Center Oak Plaza, Suite 160 / Sterling, Va 20166
+Tel: 571-434-1472 / Fax: 571-434-1478
+

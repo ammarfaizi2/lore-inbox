@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263724AbTJORYd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 13:24:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263726AbTJORYd
+	id S263714AbTJORUf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 13:20:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263715AbTJORUf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 13:24:33 -0400
-Received: from fw.osdl.org ([65.172.181.6]:38072 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263724AbTJORYa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 13:24:30 -0400
-Date: Wed, 15 Oct 2003 10:28:10 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Bradley Chapman <kakadu_croc@yahoo.com>
-Cc: linux-kernel@vger.kernel.org, linux1394-devel@lists.sourceforge.net
-Subject: Re: 2.6.0-test7-mm1
-Message-Id: <20031015102810.4017950f.akpm@osdl.org>
-In-Reply-To: <20031015123444.46223.qmail@web40904.mail.yahoo.com>
-References: <20031015032215.58d832c1.akpm@osdl.org>
-	<20031015123444.46223.qmail@web40904.mail.yahoo.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 15 Oct 2003 13:20:35 -0400
+Received: from 224.Red-217-125-129.pooles.rima-tde.net ([217.125.129.224]:12530
+	"HELO cocodriloo.com") by vger.kernel.org with SMTP id S263714AbTJORUd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 13:20:33 -0400
+Date: Wed, 15 Oct 2003 19:20:30 +0200
+From: Antonio Vargas <wind@cocodriloo.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Antonio Vargas <wind@cocodriloo.com>,
+       Daniel Blueman <daniel.blueman@gmx.net>, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] [2.4.21] 8139too 'too much work at interrupt'...
+Message-ID: <20031015172030.GA20098@wind.cocodriloo.com>
+References: <16084.1065694106@www3.gmx.net> <20031009163530.GA7001@wind.cocodriloo.com> <3F8C3A48.5090703@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F8C3A48.5090703@pobox.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bradley Chapman <kakadu_croc@yahoo.com> wrote:
->
-> You're welcome. Unfortunately I got this non-fatal Oops when I first booted:
+On Tue, Oct 14, 2003 at 02:02:48PM -0400, Jeff Garzik wrote:
+> Antonio Vargas wrote:
+> >This happens to me also on 2.4.18 and 2.4.19 (yes, I know they are old).
+> >
+> >Happens about once every 5 months, with the box running at
+> >about 1 month uptime per reboot (home server, there is no UPS)
 > 
->  ohci1394: $Rev: 1045 $ Ben Collins <bcollins@debian.org>
->  ohci1394_0: OHCI-1394 1.1 (PCI): IRQ=[10]  MMIO=[e8207000-e82077ff]  Max
->  Packet=[2048]
->  Debug: sleeping function called from invalid context at mm/slab.c:1869
->  in_atomic():1, irqs_disabled():0
->  Call Trace:
->   [<c0123fc6>] __might_sleep+0xa0/0xc2
->   [<c0156bc4>] __kmalloc+0x204/0x216
->   [<e08a9ed4>] hpsb_create_hostinfo+0x6b/0xe8 [ieee1394]
->   [<e08af0e6>] nodemgr_add_host+0x23/0x1d2 [ieee1394]
->   [<c0216bd4>] sprintf+0x1f/0x23
->   [<e08aa789>] highlevel_add_host+0x6b/0x6f [ieee1394]
->   [<e08a9cce>] hpsb_add_host+0x6d/0x95 [ieee1394]
+> 
+> It's fairly normal for this event to occur.  It's due to the 8139 
+> hardware..  sometimes (perhaps during a DoS or ping flood) you can 
+> receive far more tiny packets than the driver wishes to deal with in a 
+> single interrupt.
+> 
+> The real solution is to convert the driver to NAPI...
+> 
+> 	Jeff
 
-highlevel_add_host() does read_lock() and then proceeds to do things like
-starting kernel threads under that lock.  The locking is pretty broken
-in there :(
+NAPI is the method where you block hardware interrupts and
+then handle the data by periodic polling? I wonder how could
+I get this error, given that my network is a 10Mbit one ;)
 
+-- 
+winden/network
 
+1. Dado un programa, siempre tiene al menos un fallo.
+2. Dadas varias lineas de codigo, siempre se pueden acortar a menos lineas.
+3. Por induccion, todos los programas se pueden
+   reducir a una linea que no funciona.

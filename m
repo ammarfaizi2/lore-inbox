@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271112AbRHOJYt>; Wed, 15 Aug 2001 05:24:49 -0400
+	id <S271113AbRHOJbJ>; Wed, 15 Aug 2001 05:31:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271113AbRHOJYk>; Wed, 15 Aug 2001 05:24:40 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:19328 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S271112AbRHOJYa>;
-	Wed, 15 Aug 2001 05:24:30 -0400
-Date: Wed, 15 Aug 2001 02:23:19 -0700 (PDT)
-Message-Id: <20010815.022319.97294855.davem@redhat.com>
-To: chrisc@shad0w.org.uk
-Cc: goemon@anime.net, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+	id <S271114AbRHOJa7>; Wed, 15 Aug 2001 05:30:59 -0400
+Received: from shad0w.dial.nildram.co.uk ([195.112.18.51]:18954 "EHLO
+	mail.shad0w.org.uk") by vger.kernel.org with ESMTP
+	id <S271113AbRHOJaq>; Wed, 15 Aug 2001 05:30:46 -0400
+Date: Wed, 15 Aug 2001 10:32:53 +0100 (BST)
+From: Chris Crowther <chrisc@shad0w.org.uk>
+To: "David S. Miller" <davem@redhat.com>
+cc: <goemon@anime.net>, <alan@lxorguk.ukuu.org.uk>,
+        <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] CDP handler for linux
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.33.0108151011100.2889-100000@monolith.shad0w.org.uk>
-In-Reply-To: <20010814.154609.99205977.davem@redhat.com>
-	<Pine.LNX.4.33.0108151011100.2889-100000@monolith.shad0w.org.uk>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20010815.022319.97294855.davem@redhat.com>
+Message-ID: <Pine.LNX.4.33.0108151031220.2997-100000@monolith.shad0w.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Chris Crowther <chrisc@shad0w.org.uk>
-   Date: Wed, 15 Aug 2001 10:13:15 +0100 (BST)
+On Wed, 15 Aug 2001, David S. Miller wrote:
 
-   On Tue, 14 Aug 2001, David S. Miller wrote:
-   
-   >    Except that as userspace daemon if cdpd goes splat the kernel generally
-   >    doesnt go splat either.
-   
+> Please watch your attributions, I did not say this :-)
 
-Please watch your attributions, I did not say this :-)
+	Ahh, yes - sorry about that, it was intended but not >'d - threw
+me slightly (I indent my paragraphs so I don't always register it as a
+reply).
 
-Later,
-David S. Miller
-davem@redhat.com
+-- 
+Chris "_Shad0w_" Crowther
+chrisc@shad0w.org.uk
+http://www.shad0w.org.uk/
+

@@ -1,95 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261438AbULVT0I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262022AbULVTsM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261438AbULVT0I (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 14:26:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbULVT0I
+	id S262022AbULVTsM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 14:48:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262023AbULVTsM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 14:26:08 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7595 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261438AbULVTZ7
+	Wed, 22 Dec 2004 14:48:12 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9648 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262022AbULVTsH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 14:25:59 -0500
-Date: Wed, 22 Dec 2004 15:02:35 -0200
+	Wed, 22 Dec 2004 14:48:07 -0500
+Date: Wed, 22 Dec 2004 15:24:29 -0200
 From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.29-pre3
-Message-ID: <20041222170235.GH3088@logos.cnet>
+To: Nish Aravamudan <nish.aravamudan@gmail.com>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, greg@kroah.com,
+       linux-usb-devel@lists.sourceforge.net, rwhite@casabyte.com,
+       linux-kernel@vger.kernel.org, kingst@eecs.umich.edu,
+       paulkf@microgate.com, oleksiy@kharkiv.com.ua, reg@dwf.com,
+       clemens@dwf.com
+Subject: Re: Little rework of usbserial in 2.4\
+Message-ID: <20041222172429.GK3088@logos.cnet>
+References: <20041127173558.4011b177@lembas.zaitcev.lan> <29495f1d0412121547c0c644d@mail.gmail.com> <20041221125222.5754cdb2@lembas.zaitcev.lan> <29495f1d04122208073d71914b@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <29495f1d04122208073d71914b@mail.gmail.com>
 User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Dec 22, 2004 at 11:07:08AM -0500, Nish Aravamudan wrote:
+> On Tue, 21 Dec 2004 12:52:22 -0800, Pete Zaitcev <zaitcev@redhat.com> wrote:
+> > On Sun, 12 Dec 2004 15:47:44 -0800, Nish Aravamudan <nish.aravamudan@gmail.com> wrote:
+> > 
+> > > > diff -urpN -X dontdiff linux-2.4.28-bk3/drivers/usb/serial/usbserial.c linux-2.4.28-bk3-sx4/drivers/usb/serial/usbserial.c
+> > > > --- linux-2.4.28-bk3/drivers/usb/serial/usbserial.c     2004-11-22 23:04:19.000000000 -0800
+> > 
+> > > > @@ -1803,6 +1820,12 @@ static void __exit usb_serial_exit(void)
+> > > >
+> > > >         usb_deregister(&usb_serial_driver);
+> > > >         tty_unregister_driver(&serial_tty_driver);
+> > > > +
+> > > > +       while (!list_empty(&usb_serial_driver_list)) {
+> > > > +               err("%s - module is in use, hanging...\n", __FUNCTION__);
+> > > > +               set_current_state(TASK_UNINTERRUPTIBLE);
+> > > > +               schedule_timeout(5*HZ);
+> > > > +       }
+> > 
+> > > Please consider using msleep() here instead of schedule_timeout().
+> > 
+> > No, Nish, it's 2.4. There's no msleep here. I can create something like
+> > "drivers/usb/serial/compat26.h", similar to include/linux/libata-compat.h,
+> > but I do not think it's worth the trouble at present juncture.
+> 
+> I agree that it's not worth the trouble. Sorry, I was under the
+> impression that Kernel-Janitors had pushed a series of patches to
+> backport msleep(). Maybe they haven't made it to mainline yet. Sorry
+> for the noise.
 
-Here goes the third -pre of 2.4.29.
+Nish, Pete,
 
-More importantly this release contains a correction for the "int 0x80 hole" 
-security problem in AMD64 port (CAN-2004-1144).
+msleep() is now in the generic headers, megaraid2 wants it to fix a EH busywait
+condition which triggers the NMI watchdog (the EH path doesnt yield the CPU as it should), 
+plus libata and forcedeth already had their own msleep() definitions which now have
+been removed.
 
-It also contains a few important v2.6 backports (tty/ldisc and pty races), 
-some hardening patches from Solar (none of those are exploitable bugs, just 
-paranoic/early error detection), and a few networking updates.
+Patches to change current handcoded yields to msleep() wont be accepted (cleanups), those
+belong to v2.6.
 
-This release should also fix the "NFS hang on unlink" issues present in v2.4.28.
-
-It should appear in the kernel.org mirrors in a few minutes.
-
-
-
-Summary of changes from v2.4.29-pre2 to v2.4.29-pre3
-============================================
-
-<baris:idealteknoloji.com>:
-  o Remove msleep() definitions from sx8.c and forcedeth.c: it is generic now
-
-Andi Kleen:
-  o x86_64: fix signal restart bug
-  o [CAN-2004-1144] Fix int 0x80 hole in 2.4 x86-64 linux kernels
-
-Andries E. Brouwer:
-  o do not use CONFIG_BLK_STATS
-
-Chris Wright:
-  o a.out: error check on set_brk
-  o Backport of 2.6 fix to insert_vm_struct to make it return an error rather than BUG()
-
-David S. Miller:
-  o [SPARC]: Adjust 32-bit ELF_ET_DYN_BASE
-
-Geert Uytterhoeven:
-  o m68k: fix incorrect config comment in check_bugs()
-
-H. J. Lu:
-  o backport v2.6: Fix pty race condition
-
-Ian Abbott:
-  o serial closing_wait and close_delay used from wrong data structure
-
-Marcelo Tosatti:
-  o Solar Designer: Fix do_follow_link() comment
-  o Jason Baron: Backport v2.6 tty/ldisc locking fixes
-  o Move msleep() from libata-compat.h to generic headers
-  o Cset exclude: akpm@osdl.org|ChangeSet|20041218001750|00972
-  o Changed EXTRAVERSION to -pre3
-  o Cset exclude: trond.myklebust@fys.uio.no|ChangeSet|20040521160141|29598
-  o Fix NFS hang on unlink problems: cset exclude: trond.myklebust@fys.uio.no|ChangeSet|20041110174036|20706
-
-Simon Horman:
-  o binfmt_elf force_sig arguments fix
-
-Solar Designer:
-  o Fix booting off USB CD-ROMs (do_mounts.c)
-  o binfmt_elf fix return error codes and early corrupt binary detection
-  o procfs enhanced error reporting
-  o sysctl: block bogus argument earlier
-  o stronger (paranoic) mremap argument checking
-
-Stephen Hemminger:
-  o [TCP]: Missing newline character in printk
-  o [PKT_SCHED]: netem: restart device after inserting packets
-
-Thomas Graf:
-  o [PKT_SCHED]: Fix double locking in tcindex destroy path
-
+Thanks

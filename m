@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130636AbRC0HLw>; Tue, 27 Mar 2001 02:11:52 -0500
+	id <S130660AbRC0HWn>; Tue, 27 Mar 2001 02:22:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130660AbRC0HLm>; Tue, 27 Mar 2001 02:11:42 -0500
-Received: from [164.164.83.132] ([164.164.83.132]:7183 "EHLO
-	arianne.in.ishoni.com") by vger.kernel.org with ESMTP
-	id <S130636AbRC0HLd>; Tue, 27 Mar 2001 02:11:33 -0500
-Reply-To: <nazimk@ishoni.com>
-From: "Nazim Khan" <nazimk@ishoni.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Nazim Khan" <Nazimk@ishoni.com>
-Subject: Building linux kernel 2.4.0 for MIPS.
-Date: Tue, 27 Mar 2001 12:41:36 +0530
-Message-ID: <C182A5918209D41190DE00C04F0CCD2501108215@leonoid.in.ishoni.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2314.1300
+	id <S130683AbRC0HWf>; Tue, 27 Mar 2001 02:22:35 -0500
+Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:16659 "EHLO
+	almesberger.net") by vger.kernel.org with ESMTP id <S130660AbRC0HWY>;
+	Tue, 27 Mar 2001 02:22:24 -0500
+Date: Tue, 27 Mar 2001 09:21:15 +0200
+From: Werner Almesberger <Werner.Almesberger@epfl.ch>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: regression testing
+Message-ID: <20010327092115.A3974@almesberger.net>
+In-Reply-To: <x88zoeeeyh8.fsf@adglinux1.hns.com> <m1wv9g23t5.fsf@frodo.biederman.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1wv9g23t5.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Fri, Mar 23, 2001 at 03:11:02AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Eric W. Biederman wrote:
+> Yes user-mode linux
+> could help here (you could stress test the core kernel without worry
+> that when it crashes your machine will crash as well).  
 
-Can I build the linux kernel 2.4.0 for MIPS(R3000) processor.
-I have cross compiler and binutils intstalled on my host m/c (x86).
+A similar approach can be used for very detailed tests of specific
+subsystems. E.g. that's what we've started doing, kind of as a by-product
+of some other work, with tcsim, which runs most of the traffic control
+subsystem in user space. (ftp://icaftp.epfl.ch/pub/linux/tcng/)
 
-Will it compile ?
-Do I need to do any extra patche for MIPS ?
-Does the built image work ?
+The advantage over using UML is that we have a much simpler environment,
+allowing for more straightforward integration, and we can exercise tight
+control over infrastructure parts like timers or network events. Once
+UML is part of the mainstream kernel, it would be interesting to try to
+obtain the same functionality with UML too.
 
-Any input or suggestion are welcome.
+Some added goodies include the ability to run kernel code with malloc
+debuggers like Electric Fence, which has already helped to find a few
+real bugs. (Does EFence work with UML ?)
 
-</// Pls reply to me personally as I am not the member of this mailing list.
-///>
+- Werner
 
-Thanks and regards,
-Nazim
-
-
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
+/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/

@@ -1,72 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129716AbRAWNvI>; Tue, 23 Jan 2001 08:51:08 -0500
+	id <S129610AbRAWN4a>; Tue, 23 Jan 2001 08:56:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129610AbRAWNut>; Tue, 23 Jan 2001 08:50:49 -0500
-Received: from mout03.kundenserver.de ([195.20.224.218]:55076 "EHLO
-	mout03.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S129759AbRAWNui>; Tue, 23 Jan 2001 08:50:38 -0500
-X-Sieve: cmu-sieve 1.3
-From: Thomas Kerpe <kerpe@schlund.de>
-To: netfilter@us5.samba.org
-Subject: Masquerading Portrange in 2.4.0 
-Message-ID: <20010123143440.A535@schlund.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="SLDf9lqlvOQaIe6s"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-BeenThere: netfilter@lists.samba.org
-X-Mailman-Version: 2.0beta6
-List-Help: <mailto:netfilter-request@lists.samba.org?subject=help>
-List-Post: <mailto:netfilter@lists.samba.org>
-List-Subscribe: <http://lists.samba.org/listinfo/netfilter>, <mailto:netfilter-request@lists.samba.org?subject=subscribe>
-List-Id: Netfilter discussions <netfilter.lists.samba.org>
-List-Unsubscribe: <http://lists.samba.org/listinfo/netfilter>, <mailto:netfilter-request@lists.samba.org?subject=unsubscribe>
-List-Archive: http://lists.samba.org/pipermail/netfilter/
-Date: Tue, 23 Jan 2001 14:34:40 +0100
+	id <S130759AbRAWN4U>; Tue, 23 Jan 2001 08:56:20 -0500
+Received: from duck.doc.ic.ac.uk ([146.169.1.46]:41232 "EHLO duck.doc.ic.ac.uk")
+	by vger.kernel.org with ESMTP id <S129610AbRAWN4E>;
+	Tue, 23 Jan 2001 08:56:04 -0500
+To: linux-kernel@vger.kernel.org
+Subject: limit on number of kmapped pages
+From: David Wragg <dpw@doc.ic.ac.uk>
+Date: 23 Jan 2001 13:56:00 +0000
+Message-ID: <y7rsnmav0cv.fsf@sytry.doc.ic.ac.uk>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+While testing some kernel code of mine on a machine with
+CONFIG_HIGHMEM enabled, I've run into the limit on the number of pages
+that can be kmapped at once.  I was surprised to find it was so low --
+only 2MB/4MB of address space for kmap (according to the value of
+LAST_PKMAP; vmalloc gets a much more generous 128MB!).
 
---SLDf9lqlvOQaIe6s
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+My code allocates a large number of pages (4MB-worth would be typical)
+to act as a buffer; interrupt handlers/BHs copy data into this buffer,
+then a kernel thread moves filled pages into the page cache and
+replaces them with newly allocated pages.  To avoid overhead on
+IRQs/BHs, all the pages in the buffer are kmapped.  But with
+CONFIG_HIGHMEM if I try to kmap 512 pages or more at once, the kernel
+locks up (fork() starts blocking inside kmap(), etc.).
 
-Hello!
+There are ways I could work around this (either by using kmap_atomic,
+or by adding another kernel thread that maintains a window of kmapped
+pages within the buffer).  But I'd prefer not to have to add a lot of
+code specific to the CONFIG_HIGHMEM case.
 
-I am wondering about the hard-coded Masquerading Port-Range
-in net/ipv4/netfilter/ip_fw_compat_masq.c (kernel 2.4.0)=20
-In the 2.2.x Kernel hirarchy the Masquerading Ports could be=20
-changed in an include file. It doesnt look so pretty...
+So why is LAST_PKMAP so low, and what would the consequences of
+raising it be?
 
- range =3D ((struct ip_nat_multi_range)
-                         { 1,
-                           {{IP_NAT_RANGE_MAP_IPS|IP_NAT_RANGE_PROTO_SPECIF=
-IED,
-                             newsrc, newsrc,
-                             { htons(61000) }, { htons(65095) } } } });
-
-Greets...=20
-Thomas Kerpe
+(I don't think kernel address space is that scarce in the
+CONFIG_HIGHMEM case, so I suspect that the main reason is to limit the
+amount of searching needed for kmap to find a free slot.  Is this
+right?)
 
 
---SLDf9lqlvOQaIe6s
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6bYhw9jrn3C9VwiMRAjCsAJ0TLIn1WxiEzRhfcGK6Q4Edh6MefwCfUvAz
-dcLmwU4XzdVZDS5JVPvkuoc=
-=CdOp
------END PGP SIGNATURE-----
-
---SLDf9lqlvOQaIe6s--
-
+David Wragg
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

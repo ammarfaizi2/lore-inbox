@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276766AbRJ2RWM>; Mon, 29 Oct 2001 12:22:12 -0500
+	id <S276832AbRJ2RUM>; Mon, 29 Oct 2001 12:20:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276831AbRJ2RWC>; Mon, 29 Oct 2001 12:22:02 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:30727 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S276766AbRJ2RVu>; Mon, 29 Oct 2001 12:21:50 -0500
-Subject: Re: eepro100.c & Intel integrated MBs
-To: jurgen@botz.org (Jurgen Botz)
-Date: Mon, 29 Oct 2001 17:29:01 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <11361.1004374395@nova.botz.org> from "Jurgen Botz" at Oct 29, 2001 08:53:15 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S276831AbRJ2RUC>; Mon, 29 Oct 2001 12:20:02 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:32479 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S279307AbRJ2RTu>;
+	Mon, 29 Oct 2001 12:19:50 -0500
+Date: Mon, 29 Oct 2001 12:20:25 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Christoph Hellwig <hch@caldera.de>
+cc: Linus Torvalds <torvalds@transmeta.com>, alan@redhat.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ufs byteswapping cleanup
+In-Reply-To: <20011029173950.D24272@caldera.de>
+Message-ID: <Pine.GSO.4.21.0110291219310.28051-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15yGDe-0003Lt-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm now using the e100 driver from the Intel web site, which works
-> perfectly, and light testing shows the Scyld (Don Becker) driver
-> to work as well.  The Intel driver seems to have an incompatible
-> license (noxious advertising clause?), but the Scyld drivers don't...
-> at least there isn't any license mentioned and of course many=20
-> of the net drivers in the current kernel are just earlier versions
-> of the Scyld drivers.
 
-Its not quite that simple - they are branches. If the Becker driver works
-and the -ac driver doesn't then that is good news and it would be very
-interesting to figure out which change mattered.
 
-The -ac kernel on my i810/i815 boxes works reliably providing I dont turn
-on the ACPI stuff
+On Mon, 29 Oct 2001, Christoph Hellwig wrote:
+
+> Hi Linus,
+> 
+> the appended patch cleans up ufs to use sane inlines
+> for byteswapping instead of the current macros that
+> use variables from the enviroment (yuck!).
+> 
+> Older version already was in -ac.
+> 
+> Please apply,
+
+Seconded.
+

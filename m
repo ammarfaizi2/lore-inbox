@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264296AbTJOU1M (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 16:27:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264297AbTJOU1M
+	id S264298AbTJOU3A (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 16:29:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264299AbTJOU2z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 16:27:12 -0400
-Received: from web21307.mail.yahoo.com ([216.136.128.232]:9335 "HELO
-	web21307.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S264296AbTJOU1K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 16:27:10 -0400
-Message-ID: <20031015202709.38652.qmail@web21307.mail.yahoo.com>
-Date: Wed, 15 Oct 2003 13:27:09 -0700 (PDT)
-From: George R Goffe <grgoffe@yahoo.com>
-Subject: A problem I'm having with mkinitrd for linux-2.6-test7
-To: linux-kernel@vger.kernel.org
+	Wed, 15 Oct 2003 16:28:55 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:52835 "EHLO
+	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
+	id S264298AbTJOU2x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 16:28:53 -0400
+Date: Wed, 15 Oct 2003 21:18:40 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: viro@parcelfarce.linux.theplanet.co.uk
+cc: Andrew Morton <akpm@osdl.org>, Christoph Rohland <cr@sap.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] tmpfs 2/7 LTP S_ISGID dir
+In-Reply-To: <20031015195553.GU7665@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.44.0310152112210.7007-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Howdy,
+On Wed, 15 Oct 2003 viro@parcelfarce.linux.theplanet.co.uk wrote:
+> On Wed, Oct 15, 2003 at 08:48:59PM +0100, Hugh Dickins wrote:
+> > On Wed, 15 Oct 2003 viro@parcelfarce.linux.theplanet.co.uk wrote:
+> > > On Wed, Oct 15, 2003 at 07:19:46PM +0100, Hugh Dickins wrote:
+> > > > LTP tests the filesystem on /tmp: many failures when tmpfs because
+> > > > it missed the way giddy directories hand down their gid.  Also fix
+> > > > ramfs and hugetlbfs.
+> > > 
+> > > *the* way?  I can think of at least two...
+> > 
+> > You mean, the way they do directories and the way they do non-directories?
+> > Or, the way they do it if they do it, and the way they do it if they don't?
+> > Or something else?  Please, share your thought!
+> 
+> "We always inherit parents gid, sgid is ignored" and "we do that only
+> if parent is sgid and children that happen to be directories inherit
+> sgid from parent".  Yes, ramfs et.al. follow neither of those, but which
+> way to change that is an interesting question...
 
-I have built a linux 2.6-test7 kernel on my redhat 8.0 system and am trying to
-use mkinitrd. I am getting this message relating to a module not being found
-(see command and error message below).
+The patch chooses the second, which I see as merely fixing an oversight
+(in the exceptional S_ISGID case); to choose the first convention would
+be a significant change in behaviour (or a feature request for the option).
 
-I'm not sure what to do at this point. The make modules produced no problems
-but make modules_install had a bunch of depmod problems. I have been using the
-module-init-tools-0.9.15-pre2 tools from Rusty's site.
+Hugh
 
-Any/all help/tips/hints/suggestions would be greatly appreciated.
-
-Regards,
-
-George...
-
-2.4.20-20.8smp root->server3# mkinitrd /boot/initrd-2.6.0-test7.img
-2.6.0-test7
-No module mptbase found for kernel 2.6.0-test7
-
-
-=====
-=====
-    _/_/_/_/ _/_/_/_/ _/_/_/_/ _/_/_/_/ _/_/_/_/ _/_/_/_/ -----
-   _/       _/       _/    _/ _/    _/ _/       _/
-  _/  _/_/ _/_/_/_/ _/    _/ _/_/_/_/ _/  _/_/ _/_/_/_/ -----
- _/    _/ _/       _/    _/ _/    _/ _/    _/ _/
-_/_/_/_/ _/_/_/_/ _/_/_/_/ _/    _/ _/_/_/_/ _/_/_/_/ -----
-"It's not what you know that hurts you, It's what you know that ain't so." Wil Rogers
-
-__________________________________
-Do you Yahoo!?
-The New Yahoo! Shopping - with improved product search
-http://shopping.yahoo.com

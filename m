@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269013AbUJEM5z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269015AbUJENCb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269013AbUJEM5z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 08:57:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269014AbUJEM5y
+	id S269015AbUJENCb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 09:02:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269014AbUJENCb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 08:57:54 -0400
-Received: from iPass.cambridge.arm.com ([193.131.176.58]:17646 "EHLO
+	Tue, 5 Oct 2004 09:02:31 -0400
+Received: from iPass.cambridge.arm.com ([193.131.176.58]:23279 "EHLO
 	cam-admin0.cambridge.arm.com") by vger.kernel.org with ESMTP
-	id S269013AbUJEM5t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 08:57:49 -0400
+	id S269017AbUJENC0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 09:02:26 -0400
 Subject: Re: [RFC] ARM binutils feature churn causing kernel problems
 From: Richard Earnshaw <Richard.Earnshaw@arm.com>
 To: Russell King <rmk+lkml@arm.linux.org.uk>
@@ -22,13 +22,14 @@ References: <20040927210305.A26680@flint.arm.linux.org.uk>
 	 <20041005125324.A6910@flint.arm.linux.org.uk>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1096981035.14574.20.camel@pc960.cambridge.arm.com>
+Message-Id: <1096981338.14574.23.camel@pc960.cambridge.arm.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 05 Oct 2004 13:57:15 +0100
+Date: Tue, 05 Oct 2004 14:02:18 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[Let me try this again, without the corporate boilerplate on the bottom]
 On Tue, 2004-10-05 at 12:53, Russell King wrote:
 > On Tue, Oct 05, 2004 at 11:10:46AM +0000, Richard Earnshaw wrote:
 > > Rusty Russell <rusty <at> rustcorp.com.au> writes:
@@ -48,7 +49,7 @@ On Tue, 2004-10-05 at 12:53, Russell King wrote:
 > > be dropped on that basis.
 > 
 > (Richard - your mailer appears to have dropped people from the CC: list...)
-> 
+
 
 Not by me, I don't subscribe to the list in question and was pointed to
 gmane.linux.kernel newsgroup by Phillipe.  I simply followed up to that
@@ -107,24 +108,3 @@ Why don't you pass s to is_arm_mapping_symbol and have it do the same
 thing as you've done in get_ksymbol?
 
 R.
--- 
-Richard Earnshaw             Email: Richard.Earnshaw@arm.com
-ARM Ltd                      Phone: +44 1223 400569 (Direct + VoiceMail)
-110 Fulbourn Road            Switchboard: +44 1223 400400
-Cherry Hinton                Fax: +44 1223 400410
-Cambridge CB1 9NJ            Web: http://www.arm.com/
-UK
-----------------------------------------------------------------
-This e-mail message is intended for the addressee(s) only and may
-contain information that is the property of, and/or subject to a
-confidentiality agreement between the intended recipient(s), their
-organisation and/or the ARM Group of Companies. If you are not an
-intended recipient of this e-mail message, you should not read, copy,
-forward or otherwise distribute or further disclose the information in
-it; misuse of the contents of this e-mail message may violate various
-laws in your state, country or jurisdiction. If you have received this
-e-mail message in error, please contact the originator of this e-mail
-message via e-mail and delete all copies of this message from your
-computer or network, thank you.
-----------------------------------------------------------------
-

@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261642AbTILBSD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 21:18:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261645AbTILBSD
+	id S261615AbTILBNS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 21:13:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261622AbTILBNS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 21:18:03 -0400
-Received: from quechua.inka.de ([193.197.184.2]:48048 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S261642AbTILBSA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 21:18:00 -0400
-From: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Reiser3/4 & Ext2/3 was: First impressions of reiserfs4
-In-Reply-To: <20030911171513.GA18399@matchmail.com>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.5.19-20030610 ("Darts") (UNIX) (Linux/2.4.20-xfs (i686))
-Message-Id: <E19xcZR-0000e4-00@calista.inka.de>
-Date: Fri, 12 Sep 2003 03:17:57 +0200
+	Thu, 11 Sep 2003 21:13:18 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:35985 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S261615AbTILBNR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 21:13:17 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Thu, 11 Sep 2003 18:08:02 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Rick Lindsley <ricklind@us.ibm.com>
+cc: akpm@osdl.org, kernel@kolivas.org, piggin@cyberone.com.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] schedstat-2.6.0-test5-A1 measuring process scheduling
+ latency
+In-Reply-To: <200309112235.h8BMZcM03839@owlet.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.56.0309111803270.1889@bigblue.dev.mdolabs.com>
+References: <200309112235.h8BMZcM03839@owlet.beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20030911171513.GA18399@matchmail.com> you wrote:
->> Well, in fact empty files do not need this block.
->> 
-> 
-> True.  Do you know if ext2/3 allocates the block even for empty files?  So
-> if you create the file, it should be sparse until you write something to it,
-> right?  Does the touch command do this?
+On Thu, 11 Sep 2003, Rick Lindsley wrote:
 
-At least it reserves an inode, and:
+> All the tweaking of the scheduler for interactive processes is still
+> rather reliant on "when I run X, Y, and Z, and wiggle the mouse, it feels
+> slower."  At best, we might get a more concrete "the music skips every
+> now and then."  It's very hard to develop changes for an environment I
+> don't have in front of me and can't ever seem to precisely duplicate.
+>
+> It's my contention that what we're seeing is scheduler latency: processes
+> want to run but end up waiting for some period of time.  There's currently
+> no way to capture that short of the descriptions above.  This patch adds
+> counters at various places to measure, among other things, the scheduler
+> latency.  That is, we can now measure the time processes spend waiting
+> to run after being made runnable.  We can also see on average how long
+> a process runs before giving up (or being kicked off) the cpu.
 
-> touch /bla
-> ls -lis bla
-62    0 -rw-rw-r--    1 ecki     ecki            0 Sep 12 03:13 bla
-> echo -n 1 >> /bla
-> ls -lis bla
-62    1 -rw-rw-r--    1 ecki     ecki            1 Sep 12 03:13 bla
+When I was working on it, I wrote a patch that at every context switch
+used to register cycle counter timestamp, pid and other things (this per
+CPU), with the number of samples configurable. This helped me a lot not
+only to understand latencies, but also process migrations (usefull for
+balancing thingies). There was a /dev/something where you could collect
+samples and analyze them. It'd nice to have something like that for 2.6.
 
-looks like it reserves no data blocks until first written.
 
-On XFS btw it starts with 4 blocks (2k?)
 
-> ls -lis ~ecki/bla
-7641042    4 -rw-rw-r--    1 ecki     ecki            1 Sep 12 03:13 bla
+- Davide
 
-Greetings
-Bernd
--- 
-eckes privat - http://www.eckes.org/
-Project Freefire - http://www.freefire.org/

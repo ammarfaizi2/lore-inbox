@@ -1,43 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132057AbRBNM5L>; Wed, 14 Feb 2001 07:57:11 -0500
+	id <S131988AbRBNM7V>; Wed, 14 Feb 2001 07:59:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132103AbRBNM5B>; Wed, 14 Feb 2001 07:57:01 -0500
-Received: from kashiwa8-89.ppp-1.dion.ne.jp ([210.157.148.89]:18949 "EHLO
-	ask.ne.jp") by vger.kernel.org with ESMTP id <S132057AbRBNM4y>;
-	Wed, 14 Feb 2001 07:56:54 -0500
-Date: Wed, 14 Feb 2001 21:56:34 +0900
-From: Bruce Harada <bruce@ask.ne.jp>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Driver for Casio Cassiopia Fiva touchscreen, help with conversion
-Message-Id: <20010214215634.79cf25e6.bruce@ask.ne.jp>
-In-Reply-To: <E14T0fr-0004iq-00@the-village.bc.nu>
-In-Reply-To: <Pine.LNX.4.32.0102132034540.20720-100000@devserv.devel.redhat.com>
-	<E14T0fr-0004iq-00@the-village.bc.nu>
-X-Mailer: Sylpheed version 0.4.9 (GTK+ 1.2.6; Linux 2.2.18; i686)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S132136AbRBNM7L>; Wed, 14 Feb 2001 07:59:11 -0500
+Received: from anchor-post-31.mail.demon.net ([194.217.242.89]:35600 "EHLO
+	anchor-post-31.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S131988AbRBNM7D>; Wed, 14 Feb 2001 07:59:03 -0500
+From: "" <simon@baydel.com>
+To: linux-kernel@vger.kernel.org
+Date: Wed, 14 Feb 2001 12:47:52 +0000
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: File IO performance
+Message-ID: <46C587D9403D@baydel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Feb 2001 12:04:41 +0000 (GMT)
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+I have been performing some IO tests under Linux on SCSI disks.
+I noticed gaps between the commands and decided to investigate.
+I am new to the kernel and do not profess to underatand what 
+actually happens. My observations suggest that the file 
+structured part of the io consists of the following file phases 
+which mainly reside in mm/filemap.c . The user read call ends up in
+a generic file read routine. If the requested buffer is not in
+the file cache then the data is requested from disk via the disk 
+readahead routine. When this routine completes the data is copied 
+to user space. I have been looking at these phases on an analyzer
+and it seems that none of them overlap for a single user process. 
 
-> Thats pretty much how we did the pc110 pad driver too.
+This creates gaps in the scsi commands which significantly reduce
+bandwidth, particularly at todays disk speeds. 
 
-This is getting off-topic, but I was wondering - does the pc110 pad driver
-still work? I seem to recall trying it around 2.2.9 or so, and eventually
-giving up. (Not that it's vital or anything, but I have three of the
-little things lying around here that I keep on telling myself I'm going to
-use one day...)
+I am interested in making changes to the readahead routine. In this 
+routine there is a loop
 
-And while we're on the topic, toy.cabi.net is still listed in
-Configure.help as the location for the pc110 pad driver docs, but it
-doesn't resolve for me...
 
---
-Bruce Harada
-bruce@ask.ne.jp
+ /* Try to read ahead pages.
+  * We hope that ll_rw_blk() plug/unplug, coalescence, requests sort
+  * and the scheduler, will work enough for us to avoid too bad 
+  * actuals IO requests. 
+  */ 
 
+ while (ahead < max_ahead) {
+  ahead ++;
+  if ((raend + ahead) >= end_index)
+   break;
+  if (page_cache_read(filp, raend + ahead) < 0)
+ }
+
+
+this whole loop completes before the disk command starts. If the 
+commands are large and it is for a maximum read ahead this loops 
+takes some time and is followed by disk commands. 
+
+It seems that the performance could be improved if the disk commands 
+were overlapped in some way with the time taken in this loop. I have 
+not traced page_cache_read so I have no idea what is happening but I 
+guess this is some page location and entry onto the specific device 
+buffer queues ?
+
+I am really looking for some help in underatanding what is happening 
+here and suggestions in ways which operations may be overlapped.
+__________________________
+
+Simon Haynes - Baydel 
+Phone : 44 (0) 1372 378811
+Email : simon@baydel.com
+__________________________

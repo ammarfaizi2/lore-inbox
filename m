@@ -1,54 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129267AbRAEAe3>; Thu, 4 Jan 2001 19:34:29 -0500
+	id <S129415AbRAEAfT>; Thu, 4 Jan 2001 19:35:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129415AbRAEAeT>; Thu, 4 Jan 2001 19:34:19 -0500
-Received: from hermes.mixx.net ([212.84.196.2]:37894 "HELO hermes.mixx.net")
-	by vger.kernel.org with SMTP id <S129348AbRAEAeD>;
-	Thu, 4 Jan 2001 19:34:03 -0500
-Message-ID: <3A5515D0.7F21E668@innominate.de>
-Date: Fri, 05 Jan 2001 01:31:12 +0100
-From: Daniel Phillips <phillips@innominate.de>
-Organization: innominate
-X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-prerelease i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Journaling: Surviving or allowing unclean shutdown?
-In-Reply-To: <Pine.LNX.4.30.0101031253130.6567-100000@springhead.px.uk.com> <Pine.LNX.4.21.0101031325270.1403-100000@duckman.distro.conectiva> <3A5352ED.A263672D@innominate.de> <20010104192104.C2034@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S130195AbRAEAfA>; Thu, 4 Jan 2001 19:35:00 -0500
+Received: from fep04.swip.net ([130.244.199.132]:33466 "EHLO
+	fep04-svc.swip.net") by vger.kernel.org with ESMTP
+	id <S129415AbRAEAeq>; Thu, 4 Jan 2001 19:34:46 -0500
+To: Tim Waugh <twaugh@redhat.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: Printing to off-line printer in 2.4.0-prerelease
+In-Reply-To: <m2k88czda4.fsf@ppro.localdomain> <20010104112027.G23469@redhat.com> <20010104145229.E17640@athlon.random> <20010104142043.N23469@redhat.com> <m21yujuoew.fsf@ppro.localdomain> <20010104215210.D1148@redhat.com>
+From: Peter Osterlund <peter.osterlund@mailbox.swipnet.se>
+Date: 05 Jan 2001 01:33:52 +0100
+In-Reply-To: Tim Waugh's message of "Thu, 4 Jan 2001 21:52:10 +0000"
+Message-ID: <m2vgruu9an.fsf@ppro.localdomain>
+X-Mailer: Gnus v5.7/Emacs 20.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Stephen C. Tweedie" wrote:
+Tim Waugh <twaugh@redhat.com> writes:
+
+> On Thu, Jan 04, 2001 at 08:07:19PM +0100, Peter Osterlund wrote:
 > 
-> On Wed, Jan 03, 2001 at 05:27:25PM +0100, Daniel Phillips wrote:
-> >
-> > Tux2 is explicitly designed to legitimize pulling the plug as a valid
-> > way of shutting down.  Metadata-only journalling filesystems are not
-> > designed to be used this way, and even with full-data journalling you
-> > should bear in mind that your on-disk filesystem image remains in an
-> > invalid state until the journal recovery program has run successfully.
+> > If you do this, you should probably also return -EAGAIN if the printer
+> > is out of paper, otherwise I would still lose data when the printer
+> > goes out of paper. Currently it returns -ENOSPC in this situation. I
+> > suppose the different return codes were meant as a way for user space
+> > to be able to know why printing failed, so that it could take
+> > appropriate actions, but maybe this is not used by any programs.
 > 
-> ext3 does the recovery automatically during mount(8), so user space
-> will never see an unrecovered filesystem.  (There are filesystem flags
-> set by the journal code to make sure that an unrecovered filesystem
-> never gets mounted by a kernel which doesn't know how to do the
-> appropriate recovery.)
+> They were intended for that, yes, but it's probably better to stick
+> with the 2.2 return codes.  Here's a patch to do that.  Look okay?
 
-Hi Stephen.
+I assume you meant to return -EAGAIN, not -EIO. However, it doesn't
+work if the printer is powered off and LP_ABORT is false. In that case
+lp_write calls lp_check_status, which detects the error, waits 10
+seconds, but then returns 0. lp_write then calls parport_write which
+will happily send the data to the powered off printer, then return
+success to user space and the data is lost.
 
-Yes, and so long as your journal is not on another partition/disk things
-will eventually be set right.  The combination of a partially updated
-filesystem and its journal is in some sense a complete, consistent
-filesystem.
+> 
+> Tim.
+> */
+> 
+> 2001-01-04  Tim Waugh  <twaugh@redhat.com>
+> 
+> 	* drivers/char/lp.c: Follow 2.2 behaviour more closely.
+> 
+> --- linux-2.4.0-prerelease/drivers/char/lp.c.offline	Thu Jan  4 21:13:02 2001
+> +++ linux-2.4.0-prerelease/drivers/char/lp.c	Thu Jan  4 21:42:19 2001
+> @@ -207,7 +207,7 @@
+>  			last = LP_POUTPA;
+>  			printk(KERN_INFO "lp%d out of paper\n", minor);
+>  		}
+> -		error = -ENOSPC;
+> +		error = -EIO;
+>  	} else if (!(status & LP_PSELECD)) {
+>  		if (last != LP_PSELECD) {
+>  			last = LP_PSELECD;
+> @@ -230,7 +230,10 @@
+>  	if (last != 0)
+>  		lp_error(minor);
+>  
+> -	return error;
+> +	if (LP_F (minor) & LP_ABORT)
+> +		return error;
+> +
+> +	return 0;
+>  }
+>  
+>  static ssize_t lp_write(struct file * file, const char * buf,
+> @@ -292,7 +295,7 @@
+>  			/* incomplete write -> check error ! */
+>  			int error = lp_check_status (minor);
+>  
+> -			if (LP_F(minor) & LP_ABORT) {
+> +			if (error) {
+>  				if (retv == 0)
+>  					retv = error;
+>  				break;
 
-I'm curious - how does ext3 handle the possibility of a crash during
-journal recovery?
+-- 
+Peter Österlund             peter.osterlund@mailbox.swipnet.se
+Sköndalsvägen 35            http://home1.swipnet.se/~w-15919
+S-128 66 Sköndal            +46 8 942647
+Sweden
 
---
-Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

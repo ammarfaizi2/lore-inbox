@@ -1,45 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261818AbTCQStV>; Mon, 17 Mar 2003 13:49:21 -0500
+	id <S261860AbTCQTA0>; Mon, 17 Mar 2003 14:00:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261822AbTCQStV>; Mon, 17 Mar 2003 13:49:21 -0500
-Received: from [80.190.48.67] ([80.190.48.67]:18695 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id <S261818AbTCQStU> convert rfc822-to-8bit; Mon, 17 Mar 2003 13:49:20 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: wind-lkml@cocodriloo.com, Alex Tomas <bzzz@tmi.comex.ru>
-Subject: Re: 2.4 vm, program load, page faulting, ...
-Date: Mon, 17 Mar 2003 19:57:49 +0100
-User-Agent: KMail/1.4.3
-Cc: riel@surriel.com, akpm@digeo.com, linux-kernel@vger.kernel.org
-References: <20030317151004.GR20188@holomorphy.com> <20030317171246.GB11526@wind.cocodriloo.com> <20030317173851.GC11526@wind.cocodriloo.com>
-In-Reply-To: <20030317173851.GC11526@wind.cocodriloo.com>
+	id <S261862AbTCQTAZ>; Mon, 17 Mar 2003 14:00:25 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:1003 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S261860AbTCQTAY>;
+	Mon, 17 Mar 2003 14:00:24 -0500
+Message-ID: <3E761DCA.9080005@colorfullife.com>
+Date: Mon, 17 Mar 2003 20:11:06 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200303171957.49233.m.c.p@wolk-project.de>
+To: Jakub Jelinek <jakub@redhat.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Why is get_current() not const function?
+Content-Type: multipart/mixed;
+ boundary="------------010105050108000803040706"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 17 March 2003 18:38, wind-lkml@cocodriloo.com wrote:
+This is a multi-part message in MIME format.
+--------------010105050108000803040706
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hi Wind,
+Is it possible to use __attribute__((const) with inline functions?
+I tried that, but it seems that gcc ignores __attribute__((const) and 
+looks at the contents of the function instead.
 
-> > I wonder if this could be done by walking and faulting
-> > all pages at fs/binfmt_elf.c::elf_map just after do_mmap...
-> > will try it just now :)
->
-> OK, this is not tested, since I'm compiling it now... feel free
-> to correct :)
+I've tried the attached test app: With gcc-3.2.1 (gcc -O3), and 
+"inlconst" was called 10 times, constfnc only once.
 
-mm/mmap.c:
+--
+    Manfred
 
-unsigned long do_mmap_pgoff(struct file * file, unsigned long addr, unsigned 
-long len,
-        unsigned long prot, unsigned long flags, unsigned long pgoff)
+--------------010105050108000803040706
+Content-Type: text/plain;
+ name="consttest.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="consttest.c"
+
+#include <stdio.h>
+#include <stdlib.h>
+
+static int constfnc(int x) __attribute__((const));
+
+static inline int inlconst(int x) __attribute__((const));
+
+static void dummy(int i);
+
+static inline int inlconst(int x)
 {
+	printf("in inlconst.\n");
+	return 2;
+}
 
-your "do_mmap_pgoff" calls 7 arguments. Obviously it cannot compile 8-)
+int main(void)
+{
+	int i;
+	for(i=0;i<10;i++) {
+		dummy(constfnc(0));
+	}
+	for (i=0;i<10;i++) {
+		dummy(inlconst(0));
+	}
+}
 
-ciao, Marc
+int constfnc(int x)
+{
+	printf("in const.\n");
+	return 1;
+}
+
+
+void dummy(int i)
+{
+}
+
+
+--------------010105050108000803040706--
+

@@ -1,72 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261681AbUL3Ro2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbUL3Rxa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261681AbUL3Ro2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 12:44:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbUL3Ro2
+	id S261684AbUL3Rxa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 12:53:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261687AbUL3Rxa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 12:44:28 -0500
-Received: from [61.49.235.157] ([61.49.235.157]:16883 "EHLO adam.yggdrasil.com")
-	by vger.kernel.org with ESMTP id S261681AbUL3RoW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 12:44:22 -0500
-Date: Thu, 30 Dec 2004 09:33:32 -0800
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Message-Id: <200412301733.iBUHXW719876@adam.yggdrasil.com>
-To: maneesh@in.ibm.com
-Subject: Re: [Patch] Do not allocate sysfs_dirent.s_children for non-directories
-Cc: akpm@osdl.org, chrisw@osdl.org, greg@kroah.com,
-       linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
+	Thu, 30 Dec 2004 12:53:30 -0500
+Received: from adsl-161-130.38-151.net24.it ([151.38.130.161]:62095 "EHLO
+	casa.e-den.it") by vger.kernel.org with ESMTP id S261684AbUL3Rx0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Dec 2004 12:53:26 -0500
+Date: Thu, 30 Dec 2004 18:53:19 +0100
+From: Sandro Dentella <sandro@e-den.it>
+To: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: Kernel 2.6.10 crashing repeatedly and hard
+Message-ID: <20041230175319.GA2448@bluff>
+Mail-Followup-To: linux-raid@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <m3is6k4oeu.fsf@reason.gnu-hamburg> <m38y7fn4ay.fsf@reason.gnu-hamburg> <v3rda2-hjn.ln1@news.it.uc3m.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <v3rda2-hjn.ln1@news.it.uc3m.es>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Dec 2004 19:05:29 +0530, Maneesh Soni wrote:
->On Thu, Dec 02, 2004 at 07:20:35PM -0800, Adam J. Richter wrote:
->> 	The following patch, against a heavily hacked 2.6.10-rc2-bk15
->> sysfs tree, removes the s_children field from sysfs_dirent and
->> creates a new structure just for directories named sysfs_dir, which
->> embeds a sysfs_dirent and also adds s_children.  Directories allocate
->> a sysfs_dir; non-directories allocate a sysfs_dirent.  There are
->> two separate kmem caches for the different data types.
->> 
->> 	Not allocating s_children from each non-directory saves
->> two pointers (8 bytes) for each of the 2573 non-directory nodes
->> in my sysfs tree, or about 20kB on unswappable memory, but
->> having another kmem cache probably wastes an average of half
->> a page in memory fragmentation and then there is are few
->> bytes from the new code and the additional kmem_cache_t
->> structure, so I would guess it probably saves about 16kB in
->> practice.
->> 
->> 	In the future, I hope to make a similar change for symbolic
->> links.
->> 
->> 	By the way, this patch will also make it easier for me to
->> try to unpin sysfs directories because there are a few other
->> fields specific to directories that I would want to store
->> in sysfs_dir.
->> 
+> Yes, well, don't put the journal on the raid partition. Put it
+> elsewhere (anyway, journalling and raid do not mix, as write ordering
+> is not - deliberately - preserved in raid, as far as I can tell).
+
+???, do you mean it? which filesystem would you use for a 2TB RAID5 array? I
+always used reiserfs for raid1/raid5 arrays...
+
+sandro
+*:-)
 
 
->Apart from a couple of diff'ing related comments, I feel the code looks 
->some what complicated. I think we can directly link sysfs_dir to 
->directory dentries and sysfs_dirent to non-directory dentries instead 
->of always linking sysfs_dirent to d_fsdata. To differentiate between the
->two types of structures linked to dentry's d_fsdata field, we can use
->S_ISDIR(dentry->d_inode->i_mode). This will avoid using container_of() and 
->the dentry_to_sysfs_dir() conversions.
-
->Most of the places we may not need to find what type of struct d_fsdata points
->to. Like in sysfs_make_dirent(), first param has to be sysfs_dir as the parent
->dentry corresponds to a sysfs directory.
-
->In sysfs_lookup() also, we know parent dentry corresponds to sysfs directory
->so dentry's d_fsdata will point to sysfs_dir instead of sysfs_dirent.
-
-	In the future, I want to make a change so that attributes in
-a named struct attribute_group do not each have a struct dirent.
-In that case, it is possible that the attribute_group will only need
-a struct sysfs_dirent, not a struct sysfs_dir.
-
-                    __     ______________
-Adam J. Richter        \ /
-adam@yggdrasil.com      | g g d r a s i l
+-- 
+Sandro Dentella  *:-)
+e-mail: sandro@e-den.it 
+http://www.tksql.org                    TkSQL Home page - My GPL work

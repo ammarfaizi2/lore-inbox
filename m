@@ -1,52 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264788AbSLPLIf>; Mon, 16 Dec 2002 06:08:35 -0500
+	id <S261544AbSLPLKK>; Mon, 16 Dec 2002 06:10:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264938AbSLPLIf>; Mon, 16 Dec 2002 06:08:35 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:44552 "EHLO
+	id <S266369AbSLPLKJ>; Mon, 16 Dec 2002 06:10:09 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:48904 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S264788AbSLPLIe>; Mon, 16 Dec 2002 06:08:34 -0500
-Date: Mon, 16 Dec 2002 12:16:29 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Eric Altendorf <EricAltendorf@orst.edu>
-Cc: Jochen Hein <jochen@jochen.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.5.50, ACPI] link error
-Message-ID: <20021216111629.GF19038@atrey.karlin.mff.cuni.cz>
-References: <E18Ix71-0003ik-00@gswi1164.jochen.org> <200212062150.06350.EricAltendorf@orst.edu> <20021209072911.GA2934@zaurus> <200212151940.25024.EricAltendorf@orst.edu>
+	id <S261544AbSLPLKE>; Mon, 16 Dec 2002 06:10:04 -0500
+Date: Mon, 16 Dec 2002 12:17:59 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Cc: linux-kernel@vger.kernel.org, hpa@zytor.com, terje.eggestad@scali.com
+Subject: Re: Intel P6 vs P7 system call performance
+Message-ID: <20021216111759.GA24196@atrey.karlin.mff.cuni.cz>
+References: <20021215220132.GB6347@elf.ucw.cz> <200212160733.gBG7XhD67922@saturn.cs.uml.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200212151940.25024.EricAltendorf@orst.edu>
+In-Reply-To: <200212160733.gBG7XhD67922@saturn.cs.uml.edu>
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
+
+> >> Have apps enter kernel mode via Intel's purposely undefined
+> >> instruction, plus a few bytes of padding and identification.
+> >> Require that this not cross a page boundry. When it faults,
+> >> write the SYSENTER, INT 0x80, or SYSCALL as needed. Leave
+> >> the page marked clean so it doesn't need to hit swap; if it
+> >> gets paged in again it gets patched again.
 > >
-> > > > > Right ... I'm no kernel hacker so I don't know why, but I can
-> > > > > only get the recent kernels to compile with sleep states if I
-> > > > > turn *ON* software suspend as well.  However, as soon as I
-> > > > > turn on swsusp and get a compiled kernel, it oops'es on boot.
-> > > >
-> > > > Can you mail me decoded oops?
-> > > > 								Pavel
-> > >
-> > > This is the first time I've decoded an oops, and since I had to
-> > > decode it on a different kernel (2.5.25) than the one I'm
-> > > debugging (2.5.50 + Dec 6 ACPI patch), and I couldn't
-> >
-> > Can you try passing
-> > "resume=hda5_or_whatever_your_swap_partition_is"?
+> > Thats *very* dirty hack. vsyscalls seem cleaner than that.
 > 
-> Well, I've had "resume=/dev/hda6" in there the whole time (same as it 
-> was on prior kernels that booted).  I tried passing "resume=hda6" 
-> instead just for kicks and got the same result, though...  (This is 
-> still on the 2.5.50 + Dec6ACPI kernel)
+> Sure it's dirty. It's also fast, with the only overhead being
+> a few NOPs that could get skipped on syscall return anyway.
+> Patching overhead is negligible, since it only happens when a
+> page is brought in fresh from the disk.
 
-Strange... Can you report if it is still broken with 2.5.51?
+Yes but "read only" code changing under you... Should better be
+avoided.
 
-								Pavel
+> The vsyscall stuff costs you on every syscall. It's nice for
+
+Well, the cost is basically one call. That's not *that* big cost.
+
+							Pavel
 -- 
 Casualities in World Trade Center: ~3k dead inside the building,
 cryptography in U.S.A. and free speech in Czech Republic.

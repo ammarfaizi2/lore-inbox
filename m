@@ -1,72 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261348AbUJ3VoQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbUJ3Vpg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261348AbUJ3VoQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 17:44:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261342AbUJ3Vmt
+	id S261354AbUJ3Vpg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 17:45:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbUJ3VpK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 17:42:49 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:10765 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261338AbUJ3Vlm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 17:41:42 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] efs: make a struct static
-Date: Sun, 31 Oct 2004 00:41:25 +0300
-User-Agent: KMail/1.5.4
-References: <20041030175636.GP4374@stusta.de>
-In-Reply-To: <20041030175636.GP4374@stusta.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+	Sat, 30 Oct 2004 17:45:10 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:8083 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S261339AbUJ3Vma
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 17:42:30 -0400
+Date: Sun, 31 Oct 2004 01:43:18 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: "Martin Schlemmer [c]" <azarah@nosferatu.za.org>
+Cc: Sam Ravnborg <sam@ravnborg.org>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6.9-bk7] Select cpio_list or source directory for initramfs image updates [u]
+Message-ID: <20041030234318.GI9592@mars.ravnborg.org>
+Mail-Followup-To: "Martin Schlemmer [c]" <azarah@nosferatu.za.org>,
+	Sam Ravnborg <sam@ravnborg.org>, Andrew Morton <akpm@osdl.org>,
+	torvalds@osdl.org,
+	Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+References: <200410200849.i9K8n5921516@mail.osdl.org> <1098533188.668.9.camel@nosferatu.lan> <20041026221216.GA30918@mars.ravnborg.org> <1098824849.12420.60.camel@nosferatu.lan> <20041026231514.GA3285@mars.ravnborg.org> <1098902645.12420.75.camel@nosferatu.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200410310041.25152.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <1098902645.12420.75.camel@nosferatu.lan>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 30 October 2004 20:56, Adrian Bunk wrote:
-> The patch below makes a struct in the efs code static.
+On Wed, Oct 27, 2004 at 08:44:05PM +0200, Martin Schlemmer [c] wrote:
+> > 
 > 
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> --- linux-2.6.10-rc1-mm2-full/include/linux/efs_vh.h.old	2004-10-30 14:03:58.000000000 +0200
-> +++ linux-2.6.10-rc1-mm2-full/include/linux/efs_vh.h	2004-10-30 14:04:13.000000000 +0200
-> @@ -44,7 +44,7 @@
->  #define SGI_EFS		0x07
->  #define IS_EFS(x)	(((x) == SGI_EFS) || ((x) == SGI_SYSV))
->  
-> -struct pt_types {
-> +static struct pt_types {
->  	int	pt_type;
->  	char	*pt_name;
->  } sgi_pt_types[] = {
+> How about below?  Works as expected.  I am open to suggestions short of
+> coding a util to print numeric mtimes besides find, but for the life of
+> me could not think of another way ...
 
-You made a variable in .h file static. This is a no-no.
+Looks good.
+Please send me a version that is not whitespace damaged and with a
+proper changelog.
+The changelog shall be descriptive in itself without relying on context
+from privious patch or comments in a mail.
 
-Only fs/efs/super.c includes linux/efs_vh.h now, but if
-it will be ever included into another files, you
-will get silent data duplication.
-
-Unless I miss something, you really wanted to do:
-
-.h file:
-
-struct pt_types {
-	int     pt_type;
-	char    *pt_name;
-};
-extern struct pt_types sgi_pt_types[];
-
-.c file:
-
-struct pt_types sgi_pt_types[] = {
-	{0x00,          "SGI vh"},
-....
-	{0,             NULL}
-};
-
---
-vda
-
+	Sam

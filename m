@@ -1,59 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbVC2QfJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbVC2Qig@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261201AbVC2QfJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 11:35:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbVC2QfJ
+	id S261210AbVC2Qig (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 11:38:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261217AbVC2Qig
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 11:35:09 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:57555 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S261201AbVC2Qel (ORCPT
+	Tue, 29 Mar 2005 11:38:36 -0500
+Received: from digitalimplant.org ([64.62.235.95]:945 "HELO digitalimplant.org")
+	by vger.kernel.org with SMTP id S261210AbVC2QiV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 11:34:41 -0500
-Message-Id: <200503291631.j2TGVgUH023709@laptop11.inf.utfsm.cl>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-cc: Steven Rostedt <rostedt@goodmis.org>, floam@sh.nu,
-       LKML <linux-kernel@vger.kernel.org>, arjan@infradead.org,
-       Paul Jackson <pj@engr.sgi.com>, gilbertd@treblig.org,
-       vonbrand@inf.utfsm.cl, bunk@stusta.de
-Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!. 
-In-Reply-To: Message from Kyle Moffett <mrmacman_g4@mac.com> 
-   of "Mon, 28 Mar 2005 19:56:09 EST." <c4ce304162b3d2a3ad78dc9e0bc455f5@mac.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Tue, 29 Mar 2005 12:31:42 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b2 (inti.inf.utfsm.cl [200.1.21.155]); Tue, 29 Mar 2005 12:31:58 -0400 (CLT)
+	Tue, 29 Mar 2005 11:38:21 -0500
+Date: Tue, 29 Mar 2005 08:38:11 -0800 (PST)
+From: Patrick Mochel <mochel@digitalimplant.org>
+X-X-Sender: mochel@monsoon.he.net
+To: Alan Stern <stern@rowland.harvard.edu>
+cc: David Brownell <david-b@pacbell.net>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: klists and struct device semaphores
+In-Reply-To: <Pine.LNX.4.44L0.0503281417370.1185-100000@ida.rowland.org>
+Message-ID: <Pine.LNX.4.50.0503290823170.9904-100000@monsoon.he.net>
+References: <Pine.LNX.4.44L0.0503281417370.1185-100000@ida.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kyle Moffett <mrmacman_g4@mac.com> said:
 
-[...]
+On Mon, 28 Mar 2005, Alan Stern wrote:
 
-> I think it really depends on the APIs implemented.  Anything based
-> on the sysfs code, even if only using the APIs, will probably be
-> found to be a derivative work (NOTE: IANAL) because the sysfs API
-> is so very different from everything else.  Other interfaces like
-> PCI management, memory management, etc, may not be so protectable,
-> because they are standard across many systems.  If Linux got a
-> new and unique memory hotplug API, however, that might be a very
-> different story.  Similar things could be said about integration
-> between drivers and the new Unified Driver Model, which appears to
-> be quite original.
+> On Mon, 28 Mar 2005, Patrick Mochel wrote:
 
-Sorry, but an /interfase/ is there to do exactly that. It can be placed
-under copyright protection as code, but /using/ it just can't be considered
-a derived work. It makes no sense that if I get a description (docu,
-example code, whatever) and learn from that how it is used, and then go and
-write my own, that my code it should be a derived work of what is at the
-other side of the interfase. 
+> > Do you have suggestions about an alternative (with code)?
+>
+> Here's something a little better than pseudocode but not as good as a
+> patch... :-)
 
-If this was true, Linux would be a ripoff from Unix (same system calls),
-and any program ever written for Unix would belong to Novell (or SCOXE, or
-UCB, depending on whom you believe in the current mess). Note that this is
-quite similar to the gargabe SCOXE tried claiming against Linux/IBM, and
-had to take back.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+> To fill the first field in correctly requires that klist creation use a
+> macro; the details are unimportant.  What is important is that during
+> klist_node_init you add:
+
+In principle, you're right. Kind of. We need to tie the "usage" reference
+count of the klist_node to the containing objects' "lifetime" count. But,
+there is no need to confuscate the klist code to do it. At least not at
+this point.
+
+The subsystems that use the code must be sure to appropriately manage the
+lifetime rules of the containing objects. That is true no matter what.
+When they add a node, they should increment the reference count of the
+containing object and decrement when the node is removed. If practice
+shows that there is more that can be rolled into the model, then we can
+revisit it later.
+
+[ Sidebar: Perhaps we can add a callback parameter to klist_remove() to
+call when the node has been removed, instead of the struct completion. ]
+
+
+	Pat

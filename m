@@ -1,68 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267765AbTGTTBr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 15:01:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267712AbTGTTBr
+	id S267770AbTGTTFM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 15:05:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267771AbTGTTFM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 15:01:47 -0400
-Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:15885
-	"EHLO gw.goop.org") by vger.kernel.org with ESMTP id S267765AbTGTTBq
+	Sun, 20 Jul 2003 15:05:12 -0400
+Received: from mail.szintezis.hu ([195.56.253.241]:46675 "HELO
+	hold.szintezis.hu") by vger.kernel.org with SMTP id S267770AbTGTTFG convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 15:01:46 -0400
-Subject: [PATCH] (resend) support for 900MHz Pentium M for
-	speedstep-centrino.c
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-       cpufreq list <cpufreq@www.linux.org.uk>
-Content-Type: text/plain
-Message-Id: <1058728605.5980.41.camel@localhost.localdomain>
+	Sun, 20 Jul 2003 15:05:06 -0400
+Subject: Re: Tried to run 2.6.0-test1
+From: Gabor MICSKO <gmicsko@szintezis.hu>
+To: Norman Diamond <ndiamond@wta.att.ne.jp>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <08be01c34ed6$702dbf40$64ee4ca5@DIAMONDLX60>
+References: <081701c34ed0$5be60070$64ee4ca5@DIAMONDLX60>
+	<200307201526.h6KFQs9K003972@turing-police.cc.vt.edu> 
+	<08be01c34ed6$702dbf40$64ee4ca5@DIAMONDLX60>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 20 Jul 2003 21:20:23 +0200
+Message-Id: <1058728824.509.17.camel@sunshine>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 20 Jul 2003 12:16:45 -0700
-Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 20 Jul 2003 19:20:05.0534 (UTC) FILETIME=[ECEADBE0:01C34EF3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The 900MHz Pentium M has two spaces before the frequency:
-"Intel(R) Pentium(R) M processor  900MHz"
+2003-07-20, v keltezéssel Norman Diamond ezt írta:
 
-This patch adds a 2nd CPU macro (_CPU) which also takes the
-stringified speed so that extra spacing can be added.
+> > And read http://www.codemonkey.org.uk/post-halloween-2.5.txt for
+> > all the OTHER stuff you might need...
+> 
+> DNS error.
 
-	J
+http://portal.fsn.hu/old/post-halloween/post-halloween-2.5.txt
 
- i386/kernel/cpu/cpufreq/speedstep-centrino.c |    7 ++++---
- 1 files changed, 4 insertions(+), 3 deletions(-)
-
-diff -puN
-arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c~centrino-900MHz
-arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c
----
-local-2.5/arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c~centrino-900MHz	2003-07-12 16:38:45.000000000 -0700
-+++
-local-2.5-jeremy/arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c	2003-07-13 00:37:31.000000000 -0700
-@@ -156,14 +156,15 @@ static struct cpufreq_frequency_table op
- };
- #undef OP
- 
--#define CPU(max)	\
--	{ "Intel(R) Pentium(R) M processor " #max "MHz", (max)*1000, op_##max
-}
-+#define _CPU(max, name)	\
-+	{ "Intel(R) Pentium(R) M processor " name "MHz", (max)*1000, op_##max
-}
-+#define CPU(max)	_CPU(max, #max)
- 
- /* CPU models, their operating frequency range, and freq/voltage
-    operating points */
- static const struct cpu_model models[] = 
- {
--	CPU( 900),
-+       _CPU( 900, " 900"),
- 	CPU(1100),
- 	CPU(1200),
- 	CPU(1300),
-
-_
-
+-- 
+Windows not found
+(C)heers, (P)arty or (D)ance?
+-----------------------------------
+Micskó Gábor
+Compaq Accredited Platform Specialist, System Engineer (APS, ASE)
+Szintézis Computer Rendszerház Kft.      
+H-9021 Gyor, Tihanyi Árpád út. 2.
+Tel: +36-96-502-216
+Fax: +36-96-318-658
+E-mail: gmicsko@szintezis.hu
+Web: http://www.hup.hu
 

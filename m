@@ -1,88 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263558AbTEDIg6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 May 2003 04:36:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263567AbTEDIg6
+	id S263567AbTEDIkX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 May 2003 04:40:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263568AbTEDIkX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 May 2003 04:36:58 -0400
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:20974 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S263558AbTEDIg4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 May 2003 04:36:56 -0400
-Subject: Re: [Announcement] "Exec Shield", new Linux security feature
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
+	Sun, 4 May 2003 04:40:23 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:40777 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S263567AbTEDIkW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 May 2003 04:40:22 -0400
+Date: Sun, 4 May 2003 04:52:49 -0400 (EDT)
+From: Ingo Molnar <mingo@redhat.com>
+X-X-Sender: mingo@devserv.devel.redhat.com
 To: "Calin A. Culianu" <calin@ajvar.org>
-Cc: Valdis.Kletnieks@vt.edu, linux@horizon.com, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L2.0305040301001.6490-100000@rtlab.med.cornell.edu>
-References: <Pine.LNX.4.33L2.0305040301001.6490-100000@rtlab.med.cornell.edu>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-eHCPjQLbPTQfeGlBhRD6"
-Organization: Red Hat, Inc.
-Message-Id: <1052038157.1645.1.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 (1.2.4-2) 
-Date: 04 May 2003 10:49:17 +0200
+cc: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [Announcement] "Exec Shield", new Linux security feature
+In-Reply-To: <Pine.LNX.4.44.0305040404300.12757-100000@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.44.0305040448250.24497-100000@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-eHCPjQLbPTQfeGlBhRD6
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Sun, 4 May 2003, Ingo Molnar wrote:
 
-On Sun, 2003-05-04 at 09:03, Calin A. Culianu wrote:
-> On Sat, 3 May 2003 Valdis.Kletnieks@vt.edu wrote:
->=20
-> > On Sat, 03 May 2003 13:19:52 -0000, linux@horizon.com  said:
-> >
-> > > An interesting question arises: is the number of useful interpreter
-> > > functions (system, popen, exec*) sufficiently low that they could be
-> > > removed from libc.so entirely and only staticly linked, so processes
-> > > that didn't use them wouldn't even have them in their address space,
-> > > and ones that did would have them at less predictible addresses?
-> > >
-> > > Right now, I'm thinking only of functions that end up calling execve(=
-);
-> > > are there any other sufficiently powerful interpreters hiding in comm=
-on
-> > > system libraries?  regexec()?
-> >
-> > This does absolutely nothing to stop an exploit from providing its own
-> > inline version of execve().  There's nothing in libc that a process can=
-'t
-> > do itself, inline.
-> >
-> > A better bet is using an LSM module that prohibits exec() calls from an=
-y
-> > unauthorized combinations of running program/user/etc.
->=20
-> Is that practical?  I can see how with some daemons it would definitely b=
-e
-> useful to prohibit exec calls (maybe things like BIND don't need to exec
-> anything).. but some daemons do need to exec.  An SMTPD may need to exec(=
-)
-> some helper processes (postfix for instance has a whole slew of helper
-> programs it uses).. and things like sshd need to exec a shell, etc..
->=20
-> It's still a good idea though, since some daemons don't need to exec,
-> ever.  I guess this is one extra layer of protection.  As Ingo said in hi=
-s
-> announcement, the more layers of protection you have, the better.. and th=
-e
-> more difficult a cracker's job is.
+> > IIRC, x86 ints have the high-order byte _last_ (ie the fourth byte).
+> > What's to stop someone from, say, smashing a buffer (and consequently
+> > return-address) on the stack using something like {0x01, 0x01, 0x01,
+> > 0x00} which is really address '65793' in base-10.  The above is a valid
+> > ASCII string (3 1's followed by a NUL) which could conceivably end up on
+> > the stack as the result of an errant strcpy() or gets() or whatever...
+> 
+> you are right, it is possible to use the enclosing \0 to generate an
+> address into the first 16MB, but how do you get any arguments passed to
+> that function?
 
-would be easier to make a CAP_EXEC capability that bind can drop then ;)
+ie. if the binary anywhere has code that does:
 
---=-eHCPjQLbPTQfeGlBhRD6
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+	system("/bin/sh")
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+then this address can be jumped to and an exploit becomes possible. Also,
+in the case of non-ASCII overflows the attacker has a much higher degree
+of freedom to create a proper stackframe.
 
-iD8DBQA+tNQNxULwo51rQBIRAi1sAJ9VPm1wPeERlpUJH1BuBgD62sko/ACaA6ch
-D019dfHTV5/9tg4uratjS7E=
-=u7Gw
------END PGP SIGNATURE-----
+wrt. address-space randomization, "prelink -R" already provides quite good
+randomization of the shared library addresses, which should give some
+statistical protection against remote attacks, i dont think we'll need
+kernel support for that.
 
---=-eHCPjQLbPTQfeGlBhRD6--
+	Ingo
+

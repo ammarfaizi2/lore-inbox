@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130159AbQKRITd>; Sat, 18 Nov 2000 03:19:33 -0500
+	id <S130992AbQKRIYN>; Sat, 18 Nov 2000 03:24:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130992AbQKRITY>; Sat, 18 Nov 2000 03:19:24 -0500
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:41484 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S130159AbQKRITG>; Sat, 18 Nov 2000 03:19:06 -0500
-Message-ID: <3A16346B.CF99DF5F@Hell.WH8.TU-Dresden.De>
-Date: Sat, 18 Nov 2000 08:48:59 +0100
-From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
-Organization: Dept. Of Computer Science, Dresden University Of Technology
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en, de-DE
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Freeze on FPU exception with Athlon
-In-Reply-To: <20001118014019.18006.qmail@web3404.mail.yahoo.com> <8v4vep$15d$1@penguin.transmeta.com>
+	id <S131533AbQKRIYF>; Sat, 18 Nov 2000 03:24:05 -0500
+Received: from saw.sw.com.sg ([203.120.9.98]:17795 "HELO saw.sw.com.sg")
+	by vger.kernel.org with SMTP id <S130992AbQKRIXv>;
+	Sat, 18 Nov 2000 03:23:51 -0500
+Message-ID: <20001118155342.A30637@saw.sw.com.sg>
+Date: Sat, 18 Nov 2000 15:53:42 +0800
+From: Andrey Savochkin <saw@saw.sw.com.sg>
+To: Admin Mailing Lists <mlist@intergrafix.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: eepro100 timeout errors - 2.2.18pre20
+In-Reply-To: <Pine.LNX.4.10.10011160921250.7962-200000@athena.intergrafix.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 0.93.2i
+In-Reply-To: <Pine.LNX.4.10.10011160921250.7962-200000@athena.intergrafix.net>; from "Admin Mailing Lists" on Thu, Nov 16, 2000 at 09:28:44AM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> I sure as hell hope this isn't an Athlon issue.  Can other people try
-> the test-program and see if we have a pattern (ie "it happens only on
-> Athlons", or "Linus is on drugs and it happens for everybody else").
+Hello,
 
-I've tried both variants (fesetenv and inline-asm) with glibc-2.1.3,
-2.4.0-test11pre7 and an AMD Thunderbird. Neither does freeze, but
-both yield:
+On Thu, Nov 16, 2000 at 09:28:44AM -0500, Admin Mailing Lists wrote:
+> Was running 2.2.15pre18 with no eepro problems.
+> Upgraded to 2.2.18pre20 and started experiencing transmit timed out errors
+> a day into the boot. eth0 was unresponsive in/out. down/uping the
+> interface had no effect. System was not under any big network load.
+> See attached text file for related kernel messages.
+> System is Intel PR440FX mobo, SMP, glibc 2.1.3, gcc 2.95.2
 
-Floating point exception (core dumped)
+The problem isn't in the kernel version.
+The bug just shows not with 100% frequency.
+Investigations are in progress.
 
--Udo.
+Best regards
+					Andrey V.
+					Savochkin
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,121 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262914AbUD2CB5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261832AbUD2CEL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262914AbUD2CB5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 22:01:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262850AbUD2CB5
+	id S261832AbUD2CEL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 22:04:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262850AbUD2CEL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 22:01:57 -0400
-Received: from 82-168-177-147-bbxl.xdsl.tiscali.nl ([82.168.177.147]:41857
-	"EHLO behemoth.pad.mess.org") by vger.kernel.org with ESMTP
-	id S262920AbUD2B74 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 21:59:56 -0400
-Date: Thu, 29 Apr 2004 03:59:51 +0200
-From: Sean Young <sean@mess.org>
-To: Greg KH <greg@kroah.com>
-Cc: Chester <fitchett@phidgets.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] USB: add new USB PhidgetServo driver
-Message-ID: <20040429015951.GA4135@behemoth.pad.mess.org>
-References: <20040428181806.GA36322@atlantis.8hz.com> <20040428184138.GA17275@kroah.com>
+	Wed, 28 Apr 2004 22:04:11 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32218 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261832AbUD2CDK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 22:03:10 -0400
+Date: Thu, 29 Apr 2004 03:03:09 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Tim Hockin <thockin@sun.com>
+Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: BUG: might_sleep in /proc/swaps code
+Message-ID: <20040429020309.GF17014@parcelfarce.linux.theplanet.co.uk>
+References: <20040428232457.GB1483@sun.com> <20040429005333.GE17014@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040428184138.GA17275@kroah.com>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20040429005333.GE17014@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 28, 2004 at 11:41:38AM -0700, Greg KH wrote:
-> On Wed, Apr 28, 2004 at 08:18:06PM +0200, Sean Young wrote:
-> > Here is a driver for the usb servo controllers from Phidgets 
-> > <http://www.phidgets.com/>, using sysfs. 
+On Thu, Apr 29, 2004 at 01:53:35AM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
+> On Wed, Apr 28, 2004 at 04:24:58PM -0700, Tim Hockin wrote:
+> > * /proc/swaps uses seq_file code, calling seq_path() with swaplock held
+> > * seq_path() calls d_path()
+> > * d_path() calls mntput() which might_sleep()
 > > 
-> > Note that the devices claim to be hid devices, so I've added them to the 
-> > hid_blacklist (HID_QUIRK_IGNORE). A servo controller isn't really an hid
-> > device (or is it?).
-> > 
-> > diff against 2.6.6-rc2.
+> > Is this worth trying to solve?  
 > 
-> Nice, I like tiny clean drivers like this :)
+> Hrm...  Yes, it is - we could have chroot(2) called from another thread
+> while traversing the path to current root and have e.g. umount -l trigger
+> final umount when d_path() is finished.
 > 
-> I've applied it to my trees, and it will make it into the next -mm tree,
-> and show up in the 2.6.7 release whenever it happens.
+> Note that we have another blocking function called there anyway - dput()
+> will happily block under similar conditions (s/umount -l/rm/).
+> 
+> Lovely...  So we need yet another semaphore in swapfile.c (we can't turn
+> swaplock into semaphore *and* can't reuse swaps_bdev_sem, since dput()
+> et.al. are not just blocking but can cause any IO and memory allocations).
+> 
+> I'll try to put together something not too revolting; will post the patch
+> in a followup...
 
-Great! Thanks.
+OK, here comes.  New semaphore protecting insertions/removals in the
+set of swap components + switch of ->start()/->stop() to the same
+semaphore [fixes deadlocks] + trivial cleanup of ->next().
 
-Somehow I managed to send the wrong version. Here is a patch which fixes
-that. (Remove a dev_info() which wasn't supposed to be there, and make sure 
-that everything is still consistent in the unlikely event that kmalloc()
-fails). Just minor cleanups.
+See if it works for you...
 
-
-Sean
-
-diff -Nur linux-2.6.0/drivers/usb/misc/phidgetservo.c /usr/src/linux-2.6.0/drivers/usb/misc/phidgetservo.c
---- linux-2.6.0/drivers/usb/misc/phidgetservo.c	2004-04-29 02:35:19.000000000 +0200
-+++ /usr/src/linux-2.6.0/drivers/usb/misc/phidgetservo.c	2004-04-29 02:35:09.000000000 +0200
-@@ -67,6 +67,13 @@
- 	int retval;
- 	unsigned char *buffer;
+diff -urN RC6-rc3/mm/swapfile.c RC6-rc3-current/mm/swapfile.c
+--- RC6-rc3/mm/swapfile.c	Tue Apr 27 23:17:39 2004
++++ RC6-rc3-current/mm/swapfile.c	Wed Apr 28 21:34:30 2004
+@@ -45,6 +45,8 @@
  
-+	buffer = kmalloc(6, GFP_KERNEL);
-+	if (!buffer) {
-+		dev_err(&servo->udev->dev, "%s - out of memory\n",
-+			__FUNCTION__);
-+		return;
-+	}
+ struct swap_info_struct swap_info[MAX_SWAPFILES];
+ 
++static DECLARE_MUTEX(swapon_sem);
 +
- 	/*
- 	 * pulse = 0 - 4095
- 	 * angle = 0 - 180 degrees
-@@ -77,13 +84,6 @@
- 	servo->degrees[servo_no]= degrees;
- 	servo->minutes[servo_no]= minutes;	
+ /*
+  * Array of backing blockdevs, for swap_unplug_fn.  We need this because the
+  * bdev->unplug_fn can sleep and we cannot hold swap_list_lock while calling
+@@ -1158,6 +1160,7 @@
+ 		swap_list_unlock();
+ 		goto out_dput;
+ 	}
++	down(&swapon_sem);
+ 	down(&swap_bdevs_sem);
+ 	swap_list_lock();
+ 	swap_device_lock(p);
+@@ -1172,6 +1175,7 @@
+ 	swap_list_unlock();
+ 	remove_swap_bdev(p->bdev);
+ 	up(&swap_bdevs_sem);
++	up(&swapon_sem);
+ 	vfree(swap_map);
+ 	if (S_ISBLK(mapping->host->i_mode)) {
+ 		struct block_device *bdev = I_BDEV(mapping->host);
+@@ -1197,7 +1201,7 @@
+ 	int i;
+ 	loff_t l = *pos;
  
--	buffer = kmalloc(6, GFP_KERNEL);
--	if (!buffer) {
--		dev_err(&servo->udev->dev, "%s - out of memory\n",
--			__FUNCTION__);
--		return;
--	}
--
- 	/* 
- 	 * The PhidgetServo v3.0 is controlled by sending 6 bytes,
- 	 * 4 * 12 bits for each servo.
-@@ -136,6 +136,13 @@
- 	int retval;
- 	unsigned char *buffer;
+-	swap_list_lock();
++	down(&swapon_sem);
  
-+	buffer = kmalloc(2, GFP_KERNEL);
-+	if (!buffer) {
-+		dev_err(&servo->udev->dev, "%s - out of memory\n",
-+			__FUNCTION__);
-+		return;
-+	}
-+
- 	/*
- 	 * angle = 0 - 180 degrees
- 	 * pulse = angle + 23
-@@ -144,13 +151,6 @@
- 	servo->degrees[servo_no]= degrees;
- 	servo->minutes[servo_no]= 0;
+ 	for (i = 0; i < nr_swapfiles; i++, ptr++) {
+ 		if (!(ptr->flags & SWP_USED) || !ptr->swap_map)
+@@ -1212,9 +1216,9 @@
+ static void *swap_next(struct seq_file *swap, void *v, loff_t *pos)
+ {
+ 	struct swap_info_struct *ptr = v;
+-	void *endptr = (void *) swap_info + nr_swapfiles * sizeof(struct swap_info_struct);
++	struct swap_info_struct *endptr = swap_info + nr_swapfiles;
  
--	buffer = kmalloc(2, GFP_KERNEL);
--	if (!buffer) {
--		dev_err(&servo->udev->dev, "%s - out of memory\n",
--			__FUNCTION__);
--		return;
--	}
--
- 	/*
- 	 * The PhidgetServo v2.0 is controlled by sending two bytes. The
- 	 * first byte is the servo number xor'ed with 2:
-@@ -291,9 +291,6 @@
+-	for (++ptr; ptr < (struct swap_info_struct *) endptr; ptr++) {
++	for (++ptr; ptr < endptr; ptr++) {
+ 		if (!(ptr->flags & SWP_USED) || !ptr->swap_map)
+ 			continue;
+ 		++*pos;
+@@ -1226,7 +1230,7 @@
  
- 	dev_info(&interface->dev, "USB %d-Motor PhidgetServo v%d.0 detached\n",
- 		 dev->quad_servo ? 4 : 1, dev->version);
--
--	dev_info(&interface->dev,
--		 "WARNING: version 2.0 not tested. Please report if this works.\n");
+ static void swap_stop(struct seq_file *swap, void *v)
+ {
+-	swap_list_unlock();
++	up(&swapon_sem);
  }
  
- static struct usb_driver servo_driver = {
+ static int swap_show(struct seq_file *swap, void *v)
+@@ -1513,6 +1517,7 @@
+ 	if (error)
+ 		goto bad_swap;
+ 
++	down(&swapon_sem);
+ 	down(&swap_bdevs_sem);
+ 	swap_list_lock();
+ 	swap_device_lock(p);
+@@ -1541,6 +1546,7 @@
+ 	swap_list_unlock();
+ 	install_swap_bdev(p->bdev);
+ 	up(&swap_bdevs_sem);
++	up(&swapon_sem);
+ 	error = 0;
+ 	goto out;
+ bad_swap:

@@ -1,65 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129699AbRBBSYK>; Fri, 2 Feb 2001 13:24:10 -0500
+	id <S129689AbRBBS0B>; Fri, 2 Feb 2001 13:26:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129750AbRBBSYB>; Fri, 2 Feb 2001 13:24:01 -0500
-Received: from [62.172.234.2] ([62.172.234.2]:47990 "EHLO penguin.homenet")
-	by vger.kernel.org with ESMTP id <S129699AbRBBSXw>;
-	Fri, 2 Feb 2001 13:23:52 -0500
-Date: Fri, 2 Feb 2001 18:24:36 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: Daniel Phillips <phillips@innominate.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: SMP Race in brelse
-In-Reply-To: <0102021907250D.15914@gimli>
-Message-ID: <Pine.LNX.4.21.0102021824030.716-100000@penguin.homenet>
+	id <S129976AbRBBSZu>; Fri, 2 Feb 2001 13:25:50 -0500
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:31562 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S129689AbRBBSZh>; Fri, 2 Feb 2001 13:25:37 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200102021825.f12IPCu20705@devserv.devel.redhat.com>
+Subject: Re: ReiserFS Oops (2.4.1, deterministic, symlink
+To: reiser@namesys.com (Hans Reiser)
+Date: Fri, 2 Feb 2001 13:25:12 -0500 (EST)
+Cc: mason@suse.com (Chris Mason), alan@redhat.com (Alan Cox),
+        kas@informatics.muni.cz (Jan Kasprzak), linux-kernel@vger.kernel.org,
+        reiserfs-list@namesys.com
+In-Reply-To: <3A7AEFBF.2FBA5822@namesys.com> from "Hans Reiser" at Feb 02, 2001 08:34:55 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Daniel,
+> So, did Linus say no?  If not, let's ask him with a patch.  Quite simply,
+> neither we nor the users should be burdened with this, and the patch removes
+> the burden.
 
-That is very well known (I posted about it many years ago :) but, as Ingo
-(or someone else? maybe sct or Alan? actually, I think it was Andrea)
-explained it is not a bug -- for that if() is only for purpose of catching
-bad callers (which, in perfect world, shouldn't exist). The whole brelse()
-could just contain a single atomic_dec() and that is all.
+Since egcs-1.1.2 and gcc 2.95 miscompile the kernel strstr code dont forget
+to stop those being used as well. Oh look you'll need CVS gcc to build the
+kernel... ah but wait that misbuilds DAC960.c...
 
-Regards,
-Tigran
+Oh look nothing compiles the kernel.
 
-PS. Having thought about it -- it was neither sct, nor Alan, nor even
-Andrea -- it was Linus who explained it :)
+Congratulations 8)
 
-
-On Fri, 2 Feb 2001, Daniel Phillips wrote:
-
-> There is a rare SMP race in brelse:
-> 
-> 1138 void __brelse(struct buffer_head * buf)
-> 1139 {
-> 1140         if (atomic_read(&buf->b_count)) {
-> 1141                 atomic_dec(&buf->b_count);
-> 1142                 return;
-> 1143         }
-> 1144         printk("VFS: brelse: Trying to free free buffer\n");
-> 1145 }
-> 
->                 cpu1                                 cpu2
-> 
-> Starting with buf->b_count = 1, if we have:
-> 
->    if (atomic_read(&buf->b_count))
-> 					 if (atomic_read(&buf->b_count))
->        atomic_dec(&buf->b_count);
-> 					      atomic_dec(&buf->b_count);
-> 
-> buf->b_count is now 0, but it should be -1, we fail to to report
-> an erroneous extra brelse.
-> 
-> 
-
+Alan
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

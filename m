@@ -1,165 +1,235 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262458AbVCXPGJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262517AbVCXPJu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262458AbVCXPGJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 10:06:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262517AbVCXPGJ
+	id S262517AbVCXPJu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 10:09:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262548AbVCXPJr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 10:06:09 -0500
-Received: from bay10-f3.bay10.hotmail.com ([64.4.37.3]:43627 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id S262458AbVCXPFu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 10:05:50 -0500
-Message-ID: <BAY10-F346FCB94AAE3D59115210D6400@phx.gbl>
-X-Originating-IP: [61.246.101.86]
-X-Originating-Email: [agovinda04@hotmail.com]
-From: "govind raj" <agovinda04@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel crash problem and Madwifi
-Date: Thu, 24 Mar 2005 20:35:49 +0530
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 24 Mar 2005 15:05:49.0559 (UTC) FILETIME=[F6DE9070:01C53082]
+	Thu, 24 Mar 2005 10:09:47 -0500
+Received: from mailwasher.lanl.gov ([192.65.95.54]:6885 "EHLO
+	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
+	id S262517AbVCXPJZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 10:09:25 -0500
+Message-ID: <4242D820.8070801@mesatop.com>
+Date: Thu, 24 Mar 2005 08:09:20 -0700
+From: Steven Cole <elenstev@mesatop.com>
+User-Agent: Thunderbird 1.0 (Multics)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc1-mm2 (build error In function `zft_init')
+References: <20050324044114.5aa5b166.akpm@osdl.org>
+In-Reply-To: <20050324044114.5aa5b166.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-PMX-Version: 4.7.0.111621
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+I'm getting the following build error with 2.6.12-rc1-mm2:
 
-kernel version:2.4.29
-board :net4521
-wireless card : Atheros-5212
-diriver  madwifi-cvs-current.tar.bz2(v 1.30 2005/02/22)
+   CC      init/version.o
+   LD      init/built-in.o
+   LD      .tmp_vmlinux1
+drivers/built-in.o(.init.text+0x4323): In function `zft_init':
+: undefined reference to `class_device_creat'
+make: *** [.tmp_vmlinux1] Error 1
 
-I built the customized image  from 2.4.29 and  booted from this image
+2.6.12-rc1-mm1 built and is running just fine.  I used the
+-rc1-mm1 .config, did make oldconfig, make bzImage.  Here is
+the .config:
 
-The following sequence restarts the board
+[steven@spc1 linux-2.6.12-rc1-mm2]$ grep ^CONFIG .config
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_GENERIC_IOMAP=y
+CONFIG_CLEAR_PAGES=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_CLEAN_COMPILE=y
+CONFIG_BROKEN_ON_SMP=y
+CONFIG_INIT_ENV_ARG_LIMIT=32
+CONFIG_LOCALVERSION="-GX110"
+CONFIG_SWAP=y
+CONFIG_SYSVIPC=y
+CONFIG_BSD_PROCESS_ACCT=y
+CONFIG_SYSCTL=y
+CONFIG_KALLSYMS=y
+CONFIG_BASE_FULL=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_SHMEM=y
+CONFIG_CC_ALIGN_FUNCTIONS=0
+CONFIG_CC_ALIGN_LABELS=0
+CONFIG_CC_ALIGN_LOOPS=0
+CONFIG_CC_ALIGN_JUMPS=0
+CONFIG_BASE_SMALL=0
+CONFIG_X86_PC=y
+CONFIG_MPENTIUMIII=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=5
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_GENERIC_CALIBRATE_DELAY=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_HPET_TIMER=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_TSC=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MCE_P4THERMAL=y
+CONFIG_MICROCODE=y
+CONFIG_X86_MSR=y
+CONFIG_X86_CPUID=y
+CONFIG_EDD=y
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_PHYSICAL_START=0x100000
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_LEGACY_PROC=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BINFMT_MISC=y
+CONFIG_PREVENT_FIRMWARE_BUILD=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_BLK_DEV_RAM=y
+CONFIG_BLK_DEV_RAM_COUNT=16
+CONFIG_BLK_DEV_RAM_SIZE=32000
+CONFIG_BLK_DEV_INITRD=y
+CONFIG_INITRAMFS_SOURCE=""
+CONFIG_IOSCHED_NOOP=y
+CONFIG_IOSCHED_AS=y
+CONFIG_AOE_PARTITIONS=16
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_IDE_GENERIC=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_UNIX=y
+CONFIG_NET_KEY=y
+CONFIG_INET=y
+CONFIG_IP_TCPDIAG=y
+CONFIG_XFRM=y
+CONFIG_NETDEVICES=y
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+CONFIG_NET_VENDOR_3COM=y
+CONFIG_VORTEX=y
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_MOUSEDEV_PSAUX=y
+CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_INPUT_MOUSE=y
+CONFIG_MOUSE_PS2=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_SERIO_SERPORT=y
+CONFIG_SERIO_LIBPS2=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_CONSOLE=y
+CONFIG_SERIAL_8250_NR_UARTS=4
+CONFIG_SERIAL_8250_EXTENDED=y
+CONFIG_SERIAL_8250_SHARE_IRQ=y
+CONFIG_SERIAL_CORE=y
+CONFIG_SERIAL_CORE_CONSOLE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_FTAPE=y
+CONFIG_ZFTAPE=y
+CONFIG_ZFT_DFLT_BLK_SZ=10240
+CONFIG_ZFT_COMPRESSOR=y
+CONFIG_FT_NR_BUFFERS=3
+CONFIG_FT_PROC_FS=y
+CONFIG_FT_NORMAL_DEBUG=y
+CONFIG_FT_STD_FDC=y
+CONFIG_FT_FDC_THR=8
+CONFIG_FT_FDC_MAX_RATE=2000
+CONFIG_FT_ALPHA_CLOCK=0
+CONFIG_AGP=y
+CONFIG_AGP_INTEL=y
+CONFIG_VIDEO_DEV=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_USB_ARCH_HAS_HCD=y
+CONFIG_USB_ARCH_HAS_OHCI=y
+CONFIG_EXT2_FS=y
+CONFIG_EXT2_FS_XATTR=y
+CONFIG_EXT3_FS=y
+CONFIG_JBD=y
+CONFIG_FS_MBCACHE=y
+CONFIG_REISER4_FS=y
+CONFIG_REISERFS_FS=y
+CONFIG_DNOTIFY=y
+CONFIG_ISO9660_FS=y
+CONFIG_FAT_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_FAT_DEFAULT_CODEPAGE=437
+CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
+CONFIG_NTFS_FS=y
+CONFIG_NTFS_RW=y
+CONFIG_PROC_FS=y
+CONFIG_PROC_KCORE=y
+CONFIG_SYSFS=y
+CONFIG_DEVFS_FS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_PARTITION_ADVANCED=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_DEFAULT="iso8859-1"
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_CODEPAGE_850=y
+CONFIG_NLS_ASCII=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_NLS_UTF8=y
+CONFIG_PRINTK_TIME=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_LOG_BUF_SHIFT=14
+CONFIG_DEBUG_BUGVERBOSE=y
+CONFIG_FRAME_POINTER=y
+CONFIG_EARLY_PRINTK=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+CONFIG_SECURITY=y
+CONFIG_SECURITY_NETWORK=y
+CONFIG_SECURITY_CAPABILITIES=y
+CONFIG_CRC_CCITT=y
+CONFIG_CRC32=y
+CONFIG_LIBCRC32C=y
+CONFIG_GENERIC_HARDIRQS=y
+CONFIG_GENERIC_IRQ_PROBE=y
+CONFIG_X86_BIOS_REBOOT=y
+CONFIG_PC=y
 
-insmod wlan
-insmod wlan_wep
-insmod ath_rate-onoe
-insmod ath_hal
-insmod ath_pci xchanmode=0
-ifup ath0
-ifdown ath0
-The board and Atheros work fine up to this point. After this once we give
-the
-command
 
-ifup ath0
-
-the system printed  error message
-___________________________________________________________________________
-Unable to handle kernel paging request at virtual address e49aac30
-printing eip:
-c4878019
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c4878019>]    Tainted: P
-EFLAGS: 00010246
-eax: 0804ab74   ebx: c3d76000   ecx: 00000000   edx: 00000000
-esi: c3d76000   edi: c3d76348   ebp: c3d76000   esp: c3c09ed0
-ds: 0018   es: 0018   ss: 0018
-Process ifconfig (pid: 116, stackpage=c3c09000)
-Stack: 0804ab74 c3d7615c 00000000 c3c54000 0804ab74 c3d76000 00000000 
-00001043
-      00000000 c01a5484 c3d76000 c3d76000 00001002 c01a66c1 c3d76000 
-c3c09f54
-      c3c09f59 c3c2b144 bffffa10 c01dd219 c3d76000 00001043 00000000 
-00000000
-Call Trace:    [<c01a5484>] [<c01a66c1>] [<c01dd219>] [<c019eeca>] 
-[<c014163e>]
-[<c0106dc3>]
-
-Code: 8b 3c 85 60 fe 87 c4 57 55 68 20 f3 87 c4 e8 34 d5 89 fb c7
-_______________________________________________________________________________
-bash-2.05a#
-my dmesg output
-___________________________________________________________________________________
-bash-2.05a# dmesg
-BIOS-provided physical RAM map:
-BIOS-e801: 0000000000000000 - 000000000009f000 (usable)
-BIOS-e801: 0000000000100000 - 0000000004000000 (usable)
-64MB LOWMEM available.
-Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ 
-SERIAL_PCI enabled
-ttyS00 at 0x03f8 (irq = 4) is a 16550A
-ttyS01 at 0x02f8 (irq = 3) is a 16550A
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hda: attached ide-disk driver.
-
-hda: hda1
-NET4: Linux TCP/IP 1.0 for NET4.0
-IP Protocols: ICMP, UDP, TCP, IGMP
-IP: routing cache hash table of 512 buckets, 4Kbytes
-TCP: Hash tables configured (established 4096 bind 8192)
-Linux IP multicast router 0.06 plus PIM-SM
-NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-hda: hda1
-hda: hda1
-Freeing unused kernel memory: 260k freed
-EXT2-fs warning: mounting unchecked fs, running e2fsck is recommended
-VFS: busy inodes on changed media.
-natsemi dp8381x driver, version 1.07+LK1.0.17, Sep 27, 2002
-originally by Donald Becker <becker@scyld.com>
-http://www.scyld.com/network/natsemi.html
-2.4.x kernel port by Jeff Garzik, Tjeerd Mulder
-eth%d: EEPROM did not reload in 20000 usec.
-eth0: NatSemi DP8381[56] at 0xc4809000, 00:00:24:c2:0e:f8, IRQ 5.
-eth%d: EEPROM did not reload in 20000 usec.
-eth1: NatSemi DP8381[56] at 0xc480b000, 00:00:24:c2:0e:f9, IRQ 9.
-ip_tables: (C) 2000-2002 Netfilter core team
-ip_conntrack version 2.1 (512 buckets, 4096 max) - 288 bytes per conntrack
-eth0: link up.
-eth0: Setting full-duplex based on negotiated link capability.
-wlan: 0.8.4.5 (EXPERIMENTAL)
-ath_hal: 0.9.14.9 (AR5210, AR5211, AR5212, RF5111, RF5112, RF2413)
-ath_rate_onoe: 1.0
-ath_pci: 0.9.4.12 (EXPERIMENTAL)
-ath0: 11a rates: 6Mbps 9Mbps 12Mbps 18Mbps 24Mbps 36Mbps 48Mbps 54Mbps
-ath0: 11b rates: 1Mbps 2Mbps 5.5Mbps 11Mbps
-ath0: 11g rates: 1Mbps 2Mbps 5.5Mbps 11Mbps 6Mbps 9Mbps 12Mbps 18Mbps 24Mbps 
-36Mbps 48Mbps 54Mbps
-ath0: turbo rates: 6Mbps 9Mbps 12Mbps 18Mbps 24Mbps 36Mbps 48Mbps 54Mbps
-ath0: mac 5.6 phy 4.1 5ghz radio 1.7 2ghz radio 2.3
-ath0: 802.11 address: 00:02:6f:20:f9:ae
-ath0: Use hw queue 0 for WME_AC_BE traffic
-ath0: Use hw queue 1 for WME_AC_BK traffic
-ath0: Use hw queue 2 for WME_AC_VI traffic
-ath0: Use hw queue 3 for WME_AC_VO traffic
-ath0: Atheros 5212: mem=0xa0000000, irq=10
-Unable to handle kernel paging request at virtual address e49aac30
-printing eip:
-c4878019
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c4878019>]    Tainted: P
-EFLAGS: 00010246
-eax: 0804ab74   ebx: c3d76000   ecx: 00000000   edx: 00000000
-esi: c3d76000   edi: c3d76348   ebp: c3d76000   esp: c3c09ed0
-ds: 0018   es: 0018   ss: 0018
-Process ifconfig (pid: 116, stackpage=c3c09000)
-Stack: 0804ab74 c3d7615c 00000000 c3c54000 0804ab74 c3d76000 00000000 
-00001043
-      00000000 c01a5484 c3d76000 c3d76000 00001002 c01a66c1 c3d76000 
-c3c09f54
-      c3c09f59 c3c2b144 bffffa10 c01dd219 c3d76000 00001043 00000000 
-00000000
-Call Trace:    [<c01a5484>] [<c01a66c1>] [<c01dd219>] [<c019eeca>] 
-[<c014163e>]
-[<c0106dc3>]
-
-Code: 8b 3c 85 60 fe 87 c4 57 55 68 20 f3 87 c4 e8 34 d5 89 fb c7
-__________________________________________________________________________________
-Has any one faced this problem before?
-
-What could be the possible cause?
-
-
-Thanks in advance
-Govind
-
-_________________________________________________________________
-News, views and gossip. http://www.msn.co.in/Cinema/ Get it all at MSN 
-Cinema!
-
+Steven

@@ -1,95 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262571AbTHZEa0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 00:30:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262537AbTHZEa0
+	id S262610AbTHZEqN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 00:46:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262604AbTHZEqN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 00:30:26 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:41227 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S262571AbTHZEaR
+	Tue, 26 Aug 2003 00:46:13 -0400
+Received: from magic-mail.adaptec.com ([216.52.22.10]:50925 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP id S262610AbTHZEqI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 00:30:17 -0400
-Date: Tue, 26 Aug 2003 06:25:50 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH-2.4] make log buffer length selectable
-Message-ID: <20030826042550.GJ734@alpha.home.local>
-References: <200308251148.h7PBmU8B027700@hera.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200308251148.h7PBmU8B027700@hera.kernel.org>
-User-Agent: Mutt/1.4i
+	Tue, 26 Aug 2003 00:46:08 -0400
+Date: Mon, 25 Aug 2003 22:14:12 +0530 (IST)
+From: Nagendra Singh Tomar <nagendra_tomar@adaptec.com>
+X-X-Sender: tomar@localhost.localdomain
+Reply-To: nagendra_tomar@adaptec.com
+To: Marcel Sebek <sebek64@post.cz>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [OOPS] less /proc/net/igmp
+In-Reply-To: <20030825163206.GA1340@penguin.penguin>
+Message-ID: <Pine.LNX.4.44.0308252204270.31393-100000@localhost.localdomain>
+Organization: Adaptec
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 25, 2003 at 04:48:30AM -0700, Marcelo Tosatti wrote:
-> final:
+Hi Marcel,
+	 I don't have the kernel, I didn't try it also, but I have faced 
+a similar problem sometimes back so I feel that it might be the same 
+problem. I have posted a similar question sometimes back on this list.
+If you do an strace of both 'cat' and 'less' you will see that 'cat' does 
+not maintain the offset into the file in the application. It just believes 
+that subsequent reads will give data after the point it has read, 'less'( 
+as well as brother 'more') 
+on the other hand does an lseek(fd, last_read_return_value, SEEK_SET) 
+after every read, then it issues a read call. 
+Now if you see proc_file_read() in the kernel source, you will see that to 
+support proc files which are more than PAGE_SIZE long, they have a hack 
+that it allows the caller to interpret the offset not as byte offsets but 
+as anything, mostly number of records read ..
+I feel ur /proc/net/igmp file is more than a PAGE_SIZE long, because that 
+is when this problem is more likely to happen, but it can happen otherwise 
+also if things are not handled properly.
+The problem is probably in  the proc_read function of /proc/net/igmp
+
+Thanx
+tomar
+
+
+
+
+ On Mon, 25 Aug 2003, Marcel Sebek wrote:
+
+> This Oops appears on 2.5.74+ kernels (including 2.6.0-test4) when
+> I'm trying to read /proc/net/igmp with 'less', 'cat' displays
+> the file content without oops:
 > 
-> - 2.4.22-rc4 was released as 2.4.22 with no changes.
+> LILO boot: linux init=/bin/bash
+>  ...
+> [snip]
+>  ...
+> bash# mount /proc
+> bash# cat /proc/net/igmp
+> Idx	Device    : Count Querier	Group    Users Timer	Reporter
+> bash# less /proc/net/igmp
+> Idx	Device    : Count Querier	Group    Users Timer	Reporter
+> bash# ifup -a
+> bash# cat /proc/net/igmp
+> Idx	Device    : Count Querier	Group    Users Timer	Reporter
+> 1	lo        :     0      V2
+> 				010000E0     1 0:FFFA22F0
+> 0
+> bash# less /proc/net/igmp
+> Unable to handle kernel paging request at virtual address 08051be0
+>  printing eip:
+> 08051be0
+> *pde = 0fb66067
+> *pfe = 00000000
+> Oops: 0004 [#1]
+> CPU:    0
+> EIP:    0073:[<08051be0>]    Not tainted
+> EFLAGS: 00010246
+> EIP is at 0x8051be0
+> eax: 0805fb68   ebx: 00000001   ecx: 00000000   edx: 00000019
+> esi: 08060649   edi: 08057543   ebp: bffffd8c   esp: bfffda50
+> ds: 007b   es: 007b   ss: 007b
+> Process less (pid 20, threadinfo = cfab6000 task = c13560cd)
+>  <0>Kernel panic: Fatal exception in interrupt
+> In interrupt handler - not syncing
+> 
+> 
+> EIP points to the begin of the function clr_linenum() in
+> less-374/linenum.c:78 (instruction 'push %ebp').
+> 
+> Kernel is compiled by gcc-2.95.4 (20011002) from Debian woody.
+> Less is from woody and also from the original sources.
+> 
+> 
+> 
 
-Hi Marcelo,
-
-as you requested, here is the log_buf_len patch for inclusion in 23-pre.
-
-Cheers,
-Willy
-
-
-diff -urN wt10-pre3/Documentation/Configure.help wt10-pre3-log-buf-len/Documentation/Configure.help
---- wt10-pre3/Documentation/Configure.help	Wed Mar 19 09:58:25 2003
-+++ wt10-pre3-log-buf-len/Documentation/Configure.help	Tue Mar 25 08:20:35 2003
-@@ -25231,6 +25231,19 @@
-   output to the second serial port on these devices.  Saying N will
-   cause the debug messages to appear on the first serial port.
- 
-+Kernel log buffer length shift
-+CONFIG_LOG_BUF_SHIFT
-+  The kernel log buffer has a fixed size of :
-+      64 kB (2^16) on MULTIQUAD and IA64,
-+     128 kB (2^17) on S390
-+      32 kB (2^15) on SMP systems
-+      16 kB (2^14) on UP systems
-+
-+  You have the ability to change this size with this paramter which
-+  fixes the bit shift of to get the buffer length (which must be a
-+  power of 2). Eg: a value of 16 sets the buffer to 64 kB (2^16).
-+  The default value of 0 uses standard values above.
-+
- Disable pgtable cache
- CONFIG_NO_PGT_CACHE
-   Normally the kernel maintains a `quicklist' of preallocated
-diff -urN wt10-pre3/arch/i386/config.in wt10-pre3-log-buf-len/arch/i386/config.in
---- wt10-pre3/arch/i386/config.in	Wed Mar 19 09:58:25 2003
-+++ wt10-pre3-log-buf-len/arch/i386/config.in	Tue Mar 25 08:25:12 2003
-@@ -508,6 +508,8 @@
-     string '   Initial kernel command line' CONFIG_CMDLINE "root=301 ro"
- fi
- 
-+int 'Kernel messages buffer length shift (0 = default)' CONFIG_LOG_BUF_SHIFT 0
-+
- endmenu
- 
- source lib/Config.in
-diff -urN wt10-pre3/kernel/printk.c wt10-pre3-log-buf-len/kernel/printk.c
---- wt10-pre3/kernel/printk.c	Wed Mar 19 09:58:20 2003
-+++ wt10-pre3-log-buf-len/kernel/printk.c	Tue Mar 25 08:14:55 2003
-@@ -29,6 +29,7 @@
- 
- #include <asm/uaccess.h>
- 
-+#if !defined(CONFIG_LOG_BUF_SHIFT) || (CONFIG_LOG_BUF_SHIFT - 0 == 0)
- #if defined(CONFIG_MULTIQUAD) || defined(CONFIG_IA64)
- #define LOG_BUF_LEN	(65536)
- #elif defined(CONFIG_ARCH_S390)
-@@ -37,6 +38,9 @@
- #define LOG_BUF_LEN	(32768)
- #else	
- #define LOG_BUF_LEN	(16384)			/* This must be a power of two */
-+#endif
-+#else /* CONFIG_LOG_BUF_SHIFT */
-+#define LOG_BUF_LEN (1 << CONFIG_LOG_BUF_SHIFT)
- #endif
- 
- #define LOG_BUF_MASK	(LOG_BUF_LEN-1)

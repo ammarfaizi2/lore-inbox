@@ -1,36 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261856AbRESQUD>; Sat, 19 May 2001 12:20:03 -0400
+	id <S261874AbRESQbH>; Sat, 19 May 2001 12:31:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261858AbRESQTy>; Sat, 19 May 2001 12:19:54 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:6916 "EHLO
+	id <S261860AbRESQa5>; Sat, 19 May 2001 12:30:57 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:15876 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S261856AbRESQTm>; Sat, 19 May 2001 12:19:42 -0400
-Subject: Re: CML2 design philosophy heads-up
-To: ben@kalifornia.com (Ben Ford)
-Date: Sat, 19 May 2001 17:13:36 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3B064690.2040803@kalifornia.com> from "Ben Ford" at May 19, 2001 03:10:24 AM
+	id <S261858AbRESQao>; Sat, 19 May 2001 12:30:44 -0400
+Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
+To: bcrl@redhat.com (Ben LaHaise)
+Date: Sat, 19 May 2001 17:25:22 +0100 (BST)
+Cc: viro@math.psu.edu (Alexander Viro), andrewm@uow.edu.au (Andrew Morton),
+        Andries.Brouwer@cwi.nl, torvalds@transmeta.com,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0105191153400.5829-100000@devserv.devel.redhat.com> from "Ben LaHaise" at May 19, 2001 11:56:26 AM
 X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E1519MG-0008W3-00@the-village.bc.nu>
+Message-Id: <E1519Xe-00005c-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Second, how many kernels does Redhat ship in order to have one for 
-> 386/486/586/k6/Athlon . . . .
-> Quite a pain in the ass.  And look at how much shit has to be built in 
-> in order to get a kernel that works for everybody!  People bitch at 
-> Microsoft for doing it, then turn around and do the same thing.
+> Now that I'm awake and refreshed, yeah, that's awful.  But
+> echo "hot-add,slot=5,device=/dev/sda" >/dev/md0/control *is* sane.  Heck,
+> the system can even send back result codes that way.
 
-No people bitch at microsoft for precisely the opposite - not including a
-way to build fully optimised setups for each cpu type - not including all the
-stuff that is needed (try a generic win2k install on a vaio one day)
-
-I think you have your facts backwards
-
-Alan
-
+Only to an English speaker. I suspect Quebec City canadians would prefer a
+different command set.

@@ -1,97 +1,124 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270219AbTHFQcu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 12:32:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270206AbTHFQct
+	id S270650AbTHFQxv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 12:53:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270677AbTHFQxv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 12:32:49 -0400
-Received: from caipirinha.heise.de ([193.99.145.36]:40915 "EHLO
-	caipirinha.heise.de") by vger.kernel.org with ESMTP id S270219AbTHFQbn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 12:31:43 -0400
-Date: Wed, 6 Aug 2003 18:31:31 +0200 (CEST)
-From: Juergen Schmidt <ju@heisec.de>
-X-X-Sender: ju@loki.ct.heise.de
-To: linux-kernel@vger.kernel.org
-Subject: security advisories for the kernel
-Message-ID: <Pine.LNX.4.44.0308060934480.3262-100000@loki.ct.heise.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19kRCG-0006lX-00*RL4IEhCj6iE*
+	Wed, 6 Aug 2003 12:53:51 -0400
+Received: from pool-141-155-151-209.ny5030.east.verizon.net ([141.155.151.209]:3549
+	"EHLO mail.blazebox.homeip.net") by vger.kernel.org with ESMTP
+	id S270650AbTHFQxm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 12:53:42 -0400
+Subject: Re: Badness in device_release at drivers/base/core.c:84
+From: Paul Blazejowski <paulb@blazebox.homeip.net>
+To: wb <dead_email@nospam.com>
+Cc: "Justin T. Gibbs" <gibbs@scsiguy.com>,
+       Patrick Mansfield <patmans@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+In-Reply-To: <3F2F84D2.8000202@nospam.com>
+References: <20030801182207.GA3759@blazebox.homeip.net>
+	 <20030801144455.450d8e52.akpm@osdl.org>
+	 <20030803015510.GB4696@blazebox.homeip.net>
+	 <20030802190737.3c41d4d8.akpm@osdl.org>
+	 <20030803214755.GA1010@blazebox.homeip.net>
+	 <20030803145211.29eb5e7c.akpm@osdl.org>
+	 <20030803222313.GA1090@blazebox.homeip.net>
+	 <20030803223115.GA1132@blazebox.homeip.net>
+	 <20030804093035.A24860@beaverton.ibm.com>
+	 <1060021614.889.6.camel@blaze.homeip.net>
+	 <1352160000.1060025773@aslan.btc.adaptec.com>
+	 <5793.199.181.174.146.1060050091.squirrel@www.blazebox.homeip.net>
+	 <3F2F84D2.8000202@nospam.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-TK340b1uLg/3LuHCo1Ra"
+Message-Id: <1060188955.887.3.camel@blaze.homeip.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (Slackware Linux)
+Date: Wed, 06 Aug 2003 12:55:55 -0400
+X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.14; AVE: 6.21.0.0; VDF: 6.21.0.5; host: blazebox.homeip.net)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-please regard the following as a request for discussion.
+--=-TK340b1uLg/3LuHCo1Ra
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I lately run into a lot of security advisories for the linux kernel 2.4.21
-that appeared significantly *after* the release of the kernel itself.
-There were
+On Tue, 2003-08-05 at 06:20, wb wrote:
+> >=20
+> > I'll look into serial console and try to set it up.Do i need extra
+> > hardware or cables to run serial console? any poniters or setup
+> > suggestions would be welcome as i never used serial consoles before.
+> > Regards,
+> >=20
+> > Paul
+> > -
+>=20
+>   Your need a NULL modem serial cable available
+>   from any computer store.
+>=20
+> Install uucp - I use on the HOST :
+>=20
+> uucp-1.06.1-33.7.2.
+>=20
+> Also , LILO is broken on some machines and ignores
+> serial input so make sure you use at least
+>=20
+> lilo-21.6-71
+>=20
+> On the TARGET
+>=20
+> 1. Connect the serial ports together ( COM1->COM1 ) with
+>     the serial cable .
+>=20
+> 2. Modify LILO to use serial line on the TARGET
+>     add to lilo.conf:
+>        append=3D"console=3DttyS0,9600n8  console=3Dtty0 "
+>        serial=3D0,9600N8
+>=20
+>     Run lilo
+>=20
+> 3. Add to /etc/inittab on the HOST
+>=20
+>        S0:s12345:respawn:/sbin/agetty 9600 ttyS0
+>=20
+> 4. To see ALL THE CONSOLE MESSAGES during boot on the TARGET
+>=20
+>     mv /dev/console /dev/console.org
+>     ln  /dev/ttyS0 /dev/console
+>=20
+> 5. Start uucp on the HOST:
+>=20
+>      cu -l /dev/ttyS0 -s 9600
+>=20
+> 6. Boot your target
+>=20
+> ///
+>=20
+> John Donnelly AT HP DOT com
+>=20
 
-- the problem with the kernel nfsd (DoS, published 29.7.03, fixed in 2.4.21)
+John,
 
-- a whole bunch of minor problems (/proc/tty/driver/serial, spoofing
-forwarding tables, reuse flag,... published ~20.7.03, fixed in 2.4.21?)
+I appreciate your writing short and sweet howto :-).
 
-- 2 problems in the netfilter code (DoS, published 2.8.03, fixed in
-2.4.21)
+I was able to get it going from FreeBSD 5.1 box with cu -l /dev/ttyd0
+2&<1 > log to my Linux machine.
 
-AFAIK none of them was announced by an advisory at the time 2.4.21 was
-released in June. imho this is a bad thing !
+Thank you for helping.
 
+Paul B.
 
-When 2.4.21 was released, I decided not to upgrade, because I saw no need.
-A look in the Changelog didn't reveal anything important to me. After
-those advisories, the situation has changed dramatically: systems
-administrated by me were vulnerable to at least two DoS attacks.
-As the fixed code has been released in June, those problems have to be
-considered as known (at least to the bad guys). So those systems were
-vulnerable to a known attack for months and  I could have avoided this
-easily be upgrading to the latest kernel. I did not, because I did not
-have the necessary information to make the right decision. I know that
-I'm not the only one, who was caught by this, because people do not
-upgrade the kernel of a production system, if they don't see the need
-i.e. normally security issues.
+--=-TK340b1uLg/3LuHCo1Ra
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-The latest possible time for publishing an advisory, is when the fixed
-code or patches are released. At this time, the issue *is* public and
-admins depend on being "advised".
-So my suggestion is, to release a security advisory with each new kernel
-version, that summarizes the security issues, that are fixed with it.
-The Changelogs as they are now do not provide sufficient information on
-security issues.
+iD8DBQA/MTMbIymMQsXoRDARAqycAJ9AnaoHxwqVzQN7UHdEs1gom4kfVgCfTeqA
+lCRHDXnINmQK4Yn99dCV1cg=
+=bPyK
+-----END PGP SIGNATURE-----
 
-This would also avoid situations like the problem with the netfilter
-advisory: Harald Welte from the netfilter core team admitted, that they
-had the advisory ready in April and scheduled its release for the release
-of 2.4.21 final. The problem was: they just forgot to release it :-(
-
-The way things are handled now is not only annoying administrators (I got
-a couple of quite angry mails after my comment on this subject on
-http://www.heise.de/security/artikel/39164 -- german only). It is
-damaging the public image of the kernel and the people maintaining it.
-
-
-I know, that some of you think, it's the task of the distributors, to
-issue security advisories. I disagree: You publish code on kernel.org that
-people use. That code contains security related bugs. You fix them and
-publish corrected code. People expect from you, to issue an advisory
-about the security bugs you have fixed - and imho they are right...
-
-bye, ju
-
-PS: Please CC any comments on this to me, because I do not subscribe to
-this list.
-
--- 
-Juergen Schmidt    Chefredakteur  heise Security   www.heisec.de
-Heise Zeitschriften Verlag,  Helstorferstr. 7,  D-30625 Hannover
-Tel. +49 511 5352 300 FAX +49 511 5352 417    EMail ju@heisec.de
-
-
-
-
-
+--=-TK340b1uLg/3LuHCo1Ra--
 

@@ -1,39 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316038AbSEJPxE>; Fri, 10 May 2002 11:53:04 -0400
+	id <S316041AbSEJPzY>; Fri, 10 May 2002 11:55:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316040AbSEJPxD>; Fri, 10 May 2002 11:53:03 -0400
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:23763 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S316038AbSEJPxB>; Fri, 10 May 2002 11:53:01 -0400
-Date: Fri, 10 May 2002 17:53:21 +0200 (MET DST)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: "David S. Miller" <davem@redhat.com>
-cc: dizzy@roedu.net, linux-kernel@vger.kernel.org
-Subject: Re: mmap, SIGBUS, and handling it
-In-Reply-To: <20020510.083050.55863714.davem@redhat.com>
-Message-ID: <Pine.GSO.3.96.1020510174846.12571A-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S316044AbSEJPzX>; Fri, 10 May 2002 11:55:23 -0400
+Received: from fiona.siteprotect.com ([66.113.135.14]:32263 "HELO
+	fiona.siteprotect.com") by vger.kernel.org with SMTP
+	id <S316041AbSEJPzU>; Fri, 10 May 2002 11:55:20 -0400
+Message-ID: <3CDBEC6A.9020600@hostway.net>
+Date: Fri, 10 May 2002 10:51:06 -0500
+From: Nicholas Harring <nharring@hostway.net>
+Reply-To: nharring@hostway.net
+Organization: Hostway Corporation
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020313
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: "Pedro M. Rodrigues" <pmanuel@myrealbox.com>, chen_xiangping@emc.com,
+        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Tcp/ip offload card driver
+In-Reply-To: <FA2F59D0E55B4B4892EA076FF8704F553D1A42@srgraham.eng.emc.com> <3CDBFF5B.32550.1364FB2@localhost> <3CDBE7EB.9060605@mandrakesoft.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 May 2002, David S. Miller wrote:
+And how about when an SMP system isn't enough? Should I have to 
+re-engineer my network storage architecture when hardware exists that'll 
+increase throughput if a simple device driver gets written? Don't forget 
+that with 64 bit PCI that the limit of the bus has been raised, and with 
+impending technologies like Infiniband and Hypertransport that limit 
+will be raised again. At that point devoting main processor resources to 
+something better handled by specialty hardware really stops making 
+sense, if that specialty hardware is low-cost (oughta be) and effective 
+(still debatable).
 
->    PS: why signal(SIGBUS,SIG_IGN) doesnt work, but a user handler its called
->    if set with signal(SIGBUS,handle_sigbus) ?
+Nicholas Harring
+Hostway Corporation
+
+
+Jeff Garzik wrote:
+> Pedro M. Rodrigues wrote:
 > 
-> How would you like the kernel to "ignore" a page fault that cannot be
-> serviced?
+>>   Actually there is. Think iSCSI. Have a look at this article at 
+>> LinuxJournal - http://linuxjournal.com/article.php?sid=4896 .
+>>
+> 
+> Ug...  why bother?  Just buy an SMP system at that point...
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
- I would expect it to return from the handler with no action, possibly
-re-executing the faulting instruction (if the reason was synchronous) and
-causing an infinite loop.  For consistency, whether it makes sense, or not
-(ditto for SIGSEGV, etc.). 
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

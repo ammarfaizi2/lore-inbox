@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266336AbUAGUAJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 15:00:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266339AbUAGUAJ
+	id S266327AbUAGT4r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 14:56:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266330AbUAGT4r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 15:00:09 -0500
-Received: from 217-124-44-236.dialup.nuria.telefonica-data.net ([217.124.44.236]:46214
-	"EHLO dardhal.mired.net") by vger.kernel.org with ESMTP
-	id S266336AbUAGUAB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 15:00:01 -0500
-Date: Wed, 7 Jan 2004 20:59:57 +0100
-From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
-To: Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: sensors, again
-Message-ID: <20040107195956.GA5143@localhost>
-Mail-Followup-To: Kernel development list <linux-kernel@vger.kernel.org>
-References: <200401071316.33984.gene.heskett@verizon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200401071316.33984.gene.heskett@verizon.net>
-User-Agent: Mutt/1.5.4i
+	Wed, 7 Jan 2004 14:56:47 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:64417 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S266327AbUAGT4p
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 14:56:45 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 7 Jan 2004 11:56:59 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Jochen Hein <jochen@jochen.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.0] Thinkpad 390E hangs after some time
+In-Reply-To: <87ptdv60r5.fsf@echidna.jochen.org>
+Message-ID: <Pine.LNX.4.44.0401071146140.2266-100000@bigblue.dev.mdolabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 07 January 2004, at 13:16:33 -0500,
-Gene Heskett wrote:
+On Wed, 7 Jan 2004, Jochen Hein wrote:
 
-> Is there a utility that can scan the kernel and tell me what has 
-> actually been builtin?
 > 
-Just a "zcat /proc/config.gz" if you compiled the kernel with support
-for it ("Enable access to .config through /proc/config.gz").
+> I'm running 2.6.0 (and .1-rc1) on an IBM Thinkpad 390E with 196MB RAM.
+> After some time - sometimes an hour or more, sometimes after a few
+> minutes, performance suffers, the machine feels sluggish.  After some
+> more minutes, the machine hangs.  No NMI-oopser, no ping, no panic
+> LEDs blinking.
 
-> I ask because there is no trace of the ic2_algobit in /sys, its one of 
-> the errors sensors reports, and it is (supposedly, thats why I ask 
-> this question) compiled in.  No errors were noted during any of the 
-> about 20 or more kernel compiles I've done trying everyones ideas 
-> out.
-> 
-The name of the driver is now "i2c-algo-bit.ko", not "ic2_algobit" :-)
-You can find this driver under "I2C Algorithms" with the name of 
-"I2C bit-banging interfaces".
+I had a very similar problem on two of my machines (CPQ laptop and IBM 
+NetVista). The beast was completely random and it could have taken from 1 
+hour to 48 hours to show up. Also, it seemed to be dependent on modules 
+compiled in, even if not used. I couldn't get a decent oops log using NMI, 
+serial console, lkcd of kgdb. Symptoms were about the same, there were a 
+really short time where the machine was responsive and really sluggish 
+(2-5 seconds), then absolute freeze. One time a have been able to get a 
+partial SysRq+T, but the partial dump (only three tasks) did not show 
+anything abnormal. Now, I cannot say that this is the cause, but building 
+with 2.95.3 made my machines stable. But again, the thing was so random 
+and so dependent on apparently unrelated things, that I am not sure than 
+this is the cure. I was also thinking to be X related, but in my case it 
+was not.
 
-> Also, from a thread earlier today, I assume 2.6.1-rc2 is out, but 
-> ANAICT no announcement was made here on this list.  Did I miss it, 
-> and if so can it be reposted?  Everything that falls out of a kmail 
-> search has  RE: in front of it.
-> 
-It is out, but no official announcement has been done.
 
-Greetings.
 
--- 
-Jose Luis Domingo Lopez
-Linux Registered User #189436     Debian Linux Sid (Linux 2.6.1-rc2)
+
+- Davide
+
+
+

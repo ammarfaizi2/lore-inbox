@@ -1,74 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265116AbTLKPcC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 10:32:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265125AbTLKPcC
+	id S265132AbTLKPjh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 10:39:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265134AbTLKPjh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 10:32:02 -0500
-Received: from 101.24.177.216.inaddr.g4.Net ([216.177.24.101]:32698 "EHLO
-	sparrow.stearns.org") by vger.kernel.org with ESMTP id S265116AbTLKPby
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 10:31:54 -0500
-Date: Thu, 11 Dec 2003 10:31:43 -0500 (EST)
-From: William Stearns <wstearns@pobox.com>
-X-X-Sender: wstearns@sparrow
-Reply-To: William Stearns <wstearns@pobox.com>
-To: Willy Tarreau <willy@w.ods.org>
-cc: dual_bereta_r0x <dual_bereta_r0x@arenanetwork.com.br>,
-       ML-linux-kernel <linux-kernel@vger.kernel.org>,
-       William Stearns <wstearns@pobox.com>
+	Thu, 11 Dec 2003 10:39:37 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:36147 "EHLO
+	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S265132AbTLKPjf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 10:39:35 -0500
+Date: Thu, 11 Dec 2003 15:39:36 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: "Mario 'BitKoenig' Holbe" <Mario.Holbe@RZ.TU-Ilmenau.DE>
+cc: dual_bereta_r0x@arenanetwork.com.br, <linux-kernel@vger.kernel.org>
 Subject: Re: 2.4.23 + tmpfs: where's my mem?!
-In-Reply-To: <20031211133124.GA18161@alpha.home.local>
-Message-ID: <Pine.LNX.4.44.0312111027300.23867-100000@sparrow>
+In-Reply-To: <bra0rj$qai$1@sea.gmane.org>
+Message-ID: <Pine.LNX.4.44.0312111535400.1454-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good morning, Alexandre,
-
-On Thu, 11 Dec 2003, Willy Tarreau wrote:
-
-> On Thu, Dec 11, 2003 at 10:54:28AM -0200, dual_bereta_r0x wrote:
-> > root@hquest:/tmp# cat /etc/slackware-version
-> > Slackware 9.1.0
-> > root@hquest:/tmp# uname -a
-> > Linux hquest 2.4.23 #6 Sat Nov 29 22:47:03 PST 2003 i686 unknown unknown 
-> > GNU/Linux
-> > root@hquest:/tmp# df /tmp
-> > Filesystem           1K-blocks      Used Available Use% Mounted on
-> > tmpfs                   124024    112388     11636  91% /tmp
-> > root@hquest:/tmp# du -s .
-> > 32      .
-> > root@hquest:/tmp# _
+On Thu, 11 Dec 2003, Mario 'BitKoenig' Holbe wrote:
+> > Hugh Dickins <hugh@veritas.com> writes:
+> >> But the strange thing is that df's Used does not match du: they should
+> >> be identical, though arrived at from different directions.  I've not
 > 
-> maybe you have a process which creates a temporary file in /tmp, and deletes
-> the entry while keeping the fd open. vmware 1.2 did that, and probably more
-> recent ones still do. It's a very clever way to automatically remove temp
-> files when the process terminates.
+> No, they are not identical and should not be.
+> 
+> Unlike df, which reads the used counter from the filesystem
+> meta information, du iterates over files within directories.
+> 
+> If you have a file without a name (created, still open, all
+> links removed), it does not exist in any directory but it
+> does exist in the filesystem. So df should show the space
+> used for it, while du should not.
 
-	Agreed - very likely.  User-Mode Linux does the same for its UML 
-memory images.
-	To see what process is doing this, try looking at:
+Yes, of course, you and Willy are right, and the only mystery is
+how I could make a mystery of it while already knowing what you've
+explained well here.  Thanks!
 
-ls -Al /proc/[0-9]*/fd/* | grep ' /tmp/'
-
-	Which will show you all open files in /tmp, deleted or not.
-
-lr-x------    1 wstearns wstearns       64 Dec 11 10:23 /proc/10370/fd/6 -> /tmp/sfs8eEBBc (deleted)
-
-	The pid following /proc/ (10370 in this case) is the process 
-holding this file open.
-	Cheers,
-	- Bill
-
----------------------------------------------------------------------------
-	"Any sufficiently advanced technology is indistinguishable from
-magic." 
-	-- Arthur C. Clark (?)
---------------------------------------------------------------------------
-William Stearns (wstearns@pobox.com).  Mason, Buildkernel, freedups, p0f,
-rsync-backup, ssh-keyinstall, dns-check, more at:   http://www.stearns.org
-Linux articles at:                         http://www.opensourcedigest.com
---------------------------------------------------------------------------
+Hugh
 

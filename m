@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261960AbUJYPhP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261950AbUJYP1q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261960AbUJYPhP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 11:37:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbUJYPeb
+	id S261950AbUJYP1q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 11:27:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbUJYPY2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 11:34:31 -0400
-Received: from sd291.sivit.org ([194.146.225.122]:29635 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S261960AbUJYP3X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 11:29:23 -0400
-Date: Mon, 25 Oct 2004 17:30:38 +0200
-From: Stelian Pop <stelian@popies.net>
-To: Dominik Brodowski <linux@dominikbrodowski.de>
-Cc: jgarzik@pobox.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] pcmcia network drivers cleanup
-Message-ID: <20041025153038.GF3161@crusoe.alcove-fr>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	Dominik Brodowski <linux@dominikbrodowski.de>, jgarzik@pobox.com,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20041025152121.GA7647@dominikbrodowski.de>
-Mime-Version: 1.0
+	Mon, 25 Oct 2004 11:24:28 -0400
+Received: from web81303.mail.yahoo.com ([206.190.37.78]:11421 "HELO
+	web81303.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261979AbUJYPUd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 11:20:33 -0400
+Message-ID: <20041025152029.4788.qmail@web81303.mail.yahoo.com>
+Date: Mon, 25 Oct 2004 08:20:29 -0700 (PDT)
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: [PATCH 0/5] Sonypi driver model & PM changes
+To: Stelian Pop <stelian@popies.net>
+Cc: LKML <linux-kernel@vger.kernel.org>, Vojtech Pavlik <vojtech@suse.cz>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041025152121.GA7647@dominikbrodowski.de>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[lkml added back in CC: list]
+Apologies for breaking the threading...
 
-On Mon, Oct 25, 2004 at 05:21:21PM +0200, Dominik Brodowski wrote:
+Stelian Pop wrote:
+> On Mon, Oct 25, 2004 at 03:57:43PM +0200, Vojtech Pavlik wrote:
+> 
+> > The number is 240 and it's the number of possible PS/2 scancode
+> > combinations, and since at this time X can only understand the PS/2
+> > protocol (and not native Linux events), this is the only way how to pass
+> > keypresses to X.
+> >
+> > I believe that although this way may be easier, it leads to madness.
+> 
+> It is also impossible for me to go this way because there is no way
+> to put 20+ events between 226 and 240...
+> 
 
-> I'd prefer if the irq_ module parameters weren't defined in one header with
-> the nasty INTER_MODULE_PARAM(), but be kept per-module / per-device, i.e.
-> the 
-> 
-> #define INT_MODULE_PARM(n, v) static int n = v; MODULE_PARM(n, "i")
-> 
-> static int irq_list[4] = { -1 };
-> MODULE_PARM(irq_list, "1-4i");
-> INT_MODULE_PARM(irq_mask,	0xdeb8);
-> 
-> block being replaced with
-> 
-> 
-> static int irq_list[4] = { -1 };
-> static int irq_mask irq_mask = 0xdeb8;
-> 
-> module_parm(irq_mask, int, 0444};
+I'd say just allocate brand new events for all combinations and do not
+worry that the default X keyboard drivers to not get them. There are
+already patches in Gentoo adding both keyboard and mouse event support
+to X [1] and it is only matter of time ofr other duistributions to pick
+it up as well.
 
-Sure, it is probably saner, but INT_MODULE_PARM is used for quite a
-few other parameters in each driver, and I didn't want to touch
-all of them.
+I think it is sensible for an supplemental driver (sonypi) to require
+some additional support form userspace and not to force itself into
+boundaries of a legacy protocol.
 
-Would a patch modifying all occurences of INT_MODULE_PARM be accepted
-by whoever maintains those drivers ?
-
-Stelian.
 -- 
-Stelian Pop <stelian@popies.net>    
+Dmitry
+
+[1] 
+http://csociety-ftp.ecn.purdue.edu/pub/gentoo/distfiles/xorg-x11-6.8.0-patches-0.2.5.tar.bz2
+Extract patches 9000, 9001 and 9002. Btw, these are not mine - I have
+Not even tries them myself but I have read several success stories.
+

@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316683AbSHVUZe>; Thu, 22 Aug 2002 16:25:34 -0400
+	id <S316789AbSHVUgz>; Thu, 22 Aug 2002 16:36:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316684AbSHVUZe>; Thu, 22 Aug 2002 16:25:34 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:39396 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S316683AbSHVUZd>;
-	Thu, 22 Aug 2002 16:25:33 -0400
-Subject: netperf3 results on 2.5.25 kernel
-To: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-       lse-tech-admin@lists.sourceforge.net
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF6730039C.D83F58EB-ON87256C1D.005F8EC7@boulder.ibm.com>
-From: "Mala Anand" <manand@us.ibm.com>
-Date: Thu, 22 Aug 2002 15:28:54 -0500
-X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 5.0.10 |March 22, 2002) at
- 08/22/2002 02:28:55 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S316957AbSHVUgz>; Thu, 22 Aug 2002 16:36:55 -0400
+Received: from kweetal.tue.nl ([131.155.2.7]:28863 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S316789AbSHVUgz>;
+	Thu, 22 Aug 2002 16:36:55 -0400
+Date: Thu, 22 Aug 2002 22:39:42 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Alan Stern <stern@rowland.harvard.edu>, Dave Jones <davej@suse.de>,
+       James Simmons <jsimmons@transvirtual.com>, linux-kernel@vger.kernel.org
+Subject: Re: Patch for PC keyboard driver's autorepeat-rate handling
+Message-ID: <20020822203942.GA5471@win.tue.nl>
+References: <Pine.LNX.4.33L2.0208221153210.672-100000@ida.rowland.org> <1030037462.3090.1.camel@irongate.swansea.linux.org.uk> <20020822193743.GA5448@win.tue.nl> <1030047374.3161.60.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1030047374.3161.60.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I did a comparison test on 2.4.17, 2.5.25 stock kernels and on 2.5.25
-with NAPI enabled e1000 driver using netperf3, tcp_stream 1 adapter
-test using UNI kernels. The test setup/results can be found at:
-http://www-124.ibm.com/developerworks/opensource/linuxperf/netperf/results/july_02/netperf2.5.25results.htm
+On Thu, Aug 22, 2002 at 09:16:14PM +0100, Alan Cox wrote:
+> On Thu, 2002-08-22 at 20:37, Andries Brouwer wrote:
+> > What it does for KDKBDREP is conform the text of kd.h, and I think
+> > conform what m68k has done for years (but I've never seen the m68k patch).
+> > Alan Stern is entirely right that the current 2.4 kernels and the
+> > current kbdrate program have different ideas about what KDKBDREP does.
+> 
+> XFree86 assumes the existing m68k behaviour from the base m68k tree
 
+A good pointer. And indeed,
 
-Regards,
-    Mala
+  xc/programs/Xserver/hw/xfree86/os-support/linux/lnx_io.c
 
+has code virtually identical to the kbdrate code (indeed, most likely
+taken from kbdrate). So, it seems the kernel has to change, and
+(although I have not checked it) Alan Stern's patch may be the right thing.
 
-   Mala Anand
-   IBM Linux Technology Center - Kernel Performance
-   E-mail:manand@us.ibm.com
-   http://www-124.ibm.com/developerworks/opensource/linuxperf
-   http://www-124.ibm.com/developerworks/projects/linuxperf
-   Phone:838-8088; Tie-line:678-8088
-
-
+Andries
 
 

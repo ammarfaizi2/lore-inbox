@@ -1,59 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133101AbRDWNz4>; Mon, 23 Apr 2001 09:55:56 -0400
+	id <S133083AbRDWNzg>; Mon, 23 Apr 2001 09:55:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133120AbRDWNzq>; Mon, 23 Apr 2001 09:55:46 -0400
-Received: from penguin.roanoke.edu ([199.111.154.8]:44042 "EHLO
-	penguin.roanoke.edu") by vger.kernel.org with ESMTP
-	id <S133101AbRDWNzh>; Mon, 23 Apr 2001 09:55:37 -0400
-Message-ID: <3AE4374D.F3A60F95@linuxjedi.org>
-Date: Mon, 23 Apr 2001 10:08:13 -0400
-From: "David L. Parsley" <parsley@linuxjedi.org>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre7 i686)
-X-Accept-Language: en
+	id <S133101AbRDWNz1>; Mon, 23 Apr 2001 09:55:27 -0400
+Received: from office.mandrakesoft.com ([195.68.114.34]:30454 "HELO
+	giants.mandrakesoft.com") by vger.kernel.org with SMTP
+	id <S133083AbRDWNzR>; Mon, 23 Apr 2001 09:55:17 -0400
+To: Michael J Clark <clarkmic@pobox.upenn.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: P4 problem with 2.4.3
+In-Reply-To: <200104231340.f3NDeJu29169@pobox.upenn.edu>
+From: Chmouel Boudjnah <chmouel@mandrakesoft.com>
+Date: 23 Apr 2001 15:53:48 +0100
+In-Reply-To: <200104231340.f3NDeJu29169@pobox.upenn.edu> (Michael J Clark's message of "Mon, 23 Apr 2001 09:40:19 -0400 (EDT)")
+Message-ID: <m3pue31xc3.fsf@giants.mandrakesoft.com>
+User-Agent: Gnus/5.090002 (Oort Gnus v0.02) Emacs/21.0.100
 MIME-Version: 1.0
-To: Christoph Rohland <cr@sap.com>
-CC: linux-kernel@vger.kernel.org, ingo.oeser@informatik.tu-chemnitz.de,
-        viro@math.psu.edu
-Subject: Re: hundreds of mount --bind mountpoints?
-In-Reply-To: <3AE307AD.821AB47C@linuxjedi.org> <m3r8yjrgdc.fsf@linux.local>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Rohland wrote:
-> 
-> Hi David,
-> 
-> On Sun, 22 Apr 2001, David L. Parsley wrote:
-> > I'm still working on a packaging system for diskless
-> > (quasi-embedded) devices.  The root filesystem is all tmpfs, and I
-> > attach packages inside it.  Since symlinks in a tmpfs filesystem
-> > cost 4k each (ouch!), I'm considering using mount --bind for
-> > everything.
-> 
-> What about fixing tmpfs instead?
+Michael J Clark <clarkmic@pobox.upenn.edu> writes:
 
-That would be great - are you volunteering? ;-)  Seriously - I might be
-able to look at what ramfs does and port that to tmpfs for my needs, but
-that's about the extent of my kernel hacking skills.  For now, mount
---bind looks like it'll work just fine.  If somebody wants to fix tmpfs,
-I'll be happy to test patches; it'll just change a couple of lines in my
-package loading logic (mount --bind x y -> ln -s x y).
+> "wierd, boot kernel (CPU#0) not found in BIOS. "  There is also a message 
 
-What I'm not sure of is which solution is actually 'better' - I'm
-guessing that performance-wise, neither will make a noticable
-difference, so I guess memory usage would be the deciding factor.  If I
-can get a lot closer to the size of a symlink (10-20 bytes) that would
-be best.  The issue with /proc/mounts really shouldn't hurt anything - I
-could almost get by without mounting /proc anyway, it's mainly a
-convenience.
-
-regards,
-	David
+do you have SMP or APIC enabled ?
 
 -- 
-David L. Parsley
-Network Administrator
-Roanoke College
+MandrakeSoft Inc                     http://www.chmouel.org
+                      --Chmouel

@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315285AbSFIXDo>; Sun, 9 Jun 2002 19:03:44 -0400
+	id <S315334AbSFIX0k>; Sun, 9 Jun 2002 19:26:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315293AbSFIXDn>; Sun, 9 Jun 2002 19:03:43 -0400
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:19393 "EHLO
-	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
-	id <S315285AbSFIXDn>; Sun, 9 Jun 2002 19:03:43 -0400
-Subject: Re: vfat patch for shortcut display as symlinks for 2.4.18
-From: Nicholas Miell <nmiell@attbi.com>
-To: Thunder from the hill <thunder@ngforever.de>
-Cc: christoph@lameter.com, "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Jan Pazdziora <adelton@informatics.muni.cz>,
-        linux-kernel@vger.kernel.org, adelton@fi.muni.cz
-In-Reply-To: <Pine.LNX.4.44.0206091643120.8715-100000@hawkeye.luckynet.adm>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 09 Jun 2002 16:03:38 -0700
-Message-Id: <1023663819.1511.35.camel@entropy>
-Mime-Version: 1.0
+	id <S315337AbSFIX0j>; Sun, 9 Jun 2002 19:26:39 -0400
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:16006 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S315334AbSFIX0i> convert rfc822-to-8bit; Sun, 9 Jun 2002 19:26:38 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <oliver@neukum.name>
+To: Russell King <rmk@arm.linux.org.uk>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Subject: Re: PCI DMA to small buffers on cache-incoherent arch
+Date: Mon, 10 Jun 2002 01:26:15 +0200
+X-Mailer: KMail [version 1.4]
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020608.222942.111546622.davem@redhat.com> <200206090633.g596XZI472183@saturn.cs.uml.edu> <20020609094849.A30062@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200206100126.15133.oliver@neukum.name>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-06-09 at 15:49, Thunder from the hill wrote:
-> Hi,
-> 
-> On 9 Jun 2002, Nicholas Miell wrote:
-> > Note that there's nothing stopping you from unpacking the tarball in
-> > cygwin, with it's own (nicely contained, and not nearly as ugly) symlink
-> > hack.
-> 
-> That's a hack in the cygwin libc, isn't it? It's the lib which opens 
-> another file instead of the original, isn't it?
- 
-Yeah, and it uses the native IShellLink COM interface to do it, which
-guarantees future (Windows) compatibility. Misusing the comment field to
-store the path is a bit questionable, though.
+Am Sonntag, 9. Juni 2002 10:48 schrieb Russell King:
+> On Sun, Jun 09, 2002 at 02:33:35AM -0400, Albert D. Cahalan wrote:
+> > For device --> memory DMA:
+> >
+> > 1. write back cache lines that cross unaligned boundries
+>
+> What if some of the cache lines inside the DMA region are dirty and...
+>
+> > 2. start the DMA
+>
+> get evicted now when the CPU is doing something else?
+>
+> > 3. invalidate the above cache lines
+> > 4. invalidate cache lines that are fully inside the DMA
+>
+> You really need to:
+>
+>  1. write back cache lines that cross unaligned boundries
+>  3. invalidate the above cache lines
+>  2. start the DMA
+>  4. invalidate cache lines that are fully inside the DMA
 
-Actually, if people are so hell-bent on making symlinks work on VFAT,
-I'd suggest that they make a LD_PRELOAD'd shared library that intercepts
-the open, lstat, symlink, etc. calls and Does The Right Thing on VFAT
-filesystems. Much cleaner than putting it in the kernel or in all the
-apps that might be used on a VFAT filesystem.
- 
-> I think VFAT is really the only real flexible transport fs for 
-> linux->windows.
+Starting DMA has to be the very last step.
 
-Yeah, I'd agree with that (until NTFS can do writing, anyway). I was
-just pointing out that there are lots of filesystems that Windows can
-use, not just VFAT.
-
-- Nicholas
-
+	Regards
+		Oliver
 

@@ -1,53 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288141AbSAHPlC>; Tue, 8 Jan 2002 10:41:02 -0500
+	id <S288130AbSAHPnM>; Tue, 8 Jan 2002 10:43:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288135AbSAHPkx>; Tue, 8 Jan 2002 10:40:53 -0500
-Received: from gate.mesa.nl ([194.151.5.70]:44811 "EHLO joshua.mesa.nl")
-	by vger.kernel.org with ESMTP id <S288130AbSAHPkk>;
-	Tue, 8 Jan 2002 10:40:40 -0500
-Date: Tue, 8 Jan 2002 16:40:35 +0100
-From: "Marcel J.E. Mol" <marcel@mesa.nl>
-To: Dan Chen <crimsun@email.unc.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE Patch (fwd)
-Message-ID: <20020108164035.D22535@joshua.mesa.nl>
-Reply-To: marcel@mesa.nl
-In-Reply-To: <20020108150346.GA24479@infodancer.org> <Pine.LNX.4.10.10201080709060.991-100000@master.linux-ide.org> <20020108152736.GB347@opeth.ath.cx>
-Mime-Version: 1.0
+	id <S288143AbSAHPnJ>; Tue, 8 Jan 2002 10:43:09 -0500
+Received: from pop.gmx.net ([213.165.64.20]:63867 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S288130AbSAHPlW>;
+	Tue, 8 Jan 2002 10:41:22 -0500
+Message-ID: <3C3B130A.19A579E6@gmx.net>
+Date: Tue, 08 Jan 2002 16:40:58 +0100
+From: Mike <maneman@gmx.net>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+CC: lcchang@sis.com.tw
+Subject: Re: SiS900 driver after v.1.07.11 (==Linux 2.4.5) won't allow connect.
+In-Reply-To: <3C3B0007.5B1020B2@gmx.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020108152736.GB347@opeth.ath.cx>; from crimsun@email.unc.edu on Tue, Jan 08, 2002 at 10:27:36AM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-the -ac tree had the patch in until at least 2.4.13-ac,
-which I run on my laptop because it is the latest kernel
-that flushes the ide-drive writecache at shutdown.
-Before that I had regular filesystem corruptions...
+Heh, just read about the 2.4.18pre1 sis900 patch, I wonder if that'll be
+what it takes...I'm compiling it now.
+Will reply with results.
+Gtreets, Mike
 
--Marcel
+I wrote:
 
-On Tue, Jan 08, 2002 at 10:27:36AM -0500, Dan Chen wrote:
-> On Tue, Jan 08, 2002 at 07:12:14AM -0800, Andre Hedrick wrote:
-> > Thanks for the feedback, but lkml needs it or it will not be adopted.
-> > I know the driver is stable and effectively perfect in operations.
-> > So I do not understand the total ignore I receive about it.
-> 
-> Andre's ide.2.4.16.12102001.patch works great here. I strongly recommend
-> it be considered for 2.5 if not also for 2.4.
-> 
-> -- 
-> Dan Chen                 crimsun@email.unc.edu
-> GPG key:   www.unc.edu/~crimsun/pubkey.gpg.asc
+> Hello,
+>
+> I've got this weird problem, I know the problem is mine 'cuz the latest
+> in 2.4.17 doesn't work either, and I don't think Linus would keep a bad
+> copy of widely-used code in his kernel, right?  ;-)
+> Anyway, the hardware in question is an ECS K7S5A motherboard with a
+> SiS735 chipset and on-board LAN. The only Realtek chip I see on the
+> mainboard is one marked "RTL8201L".
+>
+> WHAT HAPPENS WHEN IT WORKS (flawlessly):
+> With a modular kernel 2.4.5 I simply 'modprobe sis900' and presto...I
+> follow that with 'dhcpcd' and I'm on the 'net. Here's what syslog says:
+> SiS900.c: v.1.07.11 4/10/2001
+> PCI: Assigned IRQ3 for device 00:03.0
+> eth0: Unknown PHY transceiver found at address 1 <<<-------!!!!
+> eth0: Using transceiver found at address1 as default
+> eth0: SiS900 PCI Fast Ethernet at 0xdc00, IRQ3, <MAC-address here>
+> logger: (dhcpcd) IP changed to <IP-address here>
+>
+> WHAT HAPPENS WHEN IT FAILS:
+> With a modular kernel 2.4.6 or 2.4.13 or 2.4.17 I 'modprobe sis900' and
+> get:
+> SiS900.c: v.1.08.01 9/25/2001 <<<--------Some kernels differ accordingly
+> in version and date. All >=1.08 fail.
+> PCI: Assigned IRQ3 for device 00:03.0
+> eth0: Realtek RTL8201 PHY transceiver found at address 1
+> eth0: Using transceiver found at address1 as default
+> eth0: SiS900 PCI Fast Ethernet at 0xdc00, IRQ3, <MAC-address here>
+>
+> I follow this with 'dhcpcd' and syslog says:
+> Media Link ON 10mbps half-duplex
+> ....And my prompt hangs there until dhcpcd time-outs after 3 or 5
+> minutes...
+>
+> What am I missing here? Should I add some stuff to the 'modprobe sis900'
+> string now??
+> And yeah, I've read all the relevant (?!) docs in the kernel sources.
+> Also, linux-2.4.17/Documentation/networking/sis900.txt only goes up to
+> v.1.07, shouldn't it reflect the current revision (1.08.01)??
+>
+> I hope it's possible to just copy the old 2.4.5 source into the 2.4.17
+> dir (as you can tell: I've never done this) and compile.
+> TIA for any help and greets!
+> -Mike
 
-
-
--- 
-     ======--------         Marcel J.E. Mol                MESA Consulting B.V.
-    =======---------        ph. +31-(0)6-54724868          P.O. Box 112
-    =======---------        marcel@mesa.nl                 2630 AC  Nootdorp
-__==== www.mesa.nl ---____U_n_i_x______I_n_t_e_r_n_e_t____ The Netherlands ____
- They couldn't think of a number,           Linux user 1148  --  counter.li.org
-    so they gave me a name!  -- Rupert Hine  --  www.ruperthine.com

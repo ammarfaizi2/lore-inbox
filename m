@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265322AbUFBCk3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265328AbUFBCoO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265322AbUFBCk3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jun 2004 22:40:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265332AbUFBCk3
+	id S265328AbUFBCoO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jun 2004 22:44:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265332AbUFBCoO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jun 2004 22:40:29 -0400
-Received: from TYO202.gate.nec.co.jp ([202.32.8.202]:62392 "EHLO
-	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S265322AbUFBCk2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jun 2004 22:40:28 -0400
-To: Hirokazu Takata <takata@linux-m32r.org>
-Cc: linux-kernel@vger.kernel.org, Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [PATCH] m32r - Upgrade to v2.6.6 kernel
-References: <20040528.131611.28785624.takata.hirokazu@renesas.com>
-	<20040528072336.GD7499@pazke> <swfy8ncirnv.wl@renesas.com>
-From: Miles Bader <miles@lsi.nec.co.jp>
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-Blat: Foop
-Date: Wed, 02 Jun 2004 11:40:18 +0900
-In-Reply-To: <swfy8ncirnv.wl@renesas.com> (Hirokazu Takata's message of
- "Fri, 28 May 2004 22:53:56 +0900")
-Message-ID: <buozn7mfzsd.fsf@mctpc71.ucom.lsi.nec.co.jp>
-MIME-Version: 1.0
+	Tue, 1 Jun 2004 22:44:14 -0400
+Received: from holomorphy.com ([207.189.100.168]:19604 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S265328AbUFBCoM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jun 2004 22:44:12 -0400
+Date: Tue, 1 Jun 2004 19:43:58 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: David Gibson <david@gibson.dropbear.id.au>, Andrew Morton <akpm@osdl.org>,
+       apw@shadowen.org, linux-kernel@vger.kernel.org
+Subject: Re: Hugepage bugfix
+Message-ID: <20040602024358.GX2093@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	David Gibson <david@gibson.dropbear.id.au>,
+	Andrew Morton <akpm@osdl.org>, apw@shadowen.org,
+	linux-kernel@vger.kernel.org
+References: <20040602022312.GB2042@zax>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040602022312.GB2042@zax>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hirokazu Takata <takata@linux-m32r.org> writes:
->> We're currently working with Jeff Garzik to merge a SMC91x driver which
->> which can drive SMC91C111 chips from Nicolas Pitre.  It would be good
->> if m32r could use this driver as well.
->
-> It is a good news. 
-> We would like to try your SMC91x driver.
+On Wed, Jun 02, 2004 at 12:23:12PM +1000, David Gibson wrote:
+> Currently the hugepage code stores the hugepage destructor in the
+> mapping field of the second of the compound pages.  However, this
+> field is never cleared again, which causes tracebacks from
+> free_pages_check() if the hugepage is later destroyed by reducing the
+> number in /proc/sys/vm/nr_hugepages.  This patch fixes the bug by
+> clearing the mapping field when the hugepage is freed.
 
-Me too!
+Good catch; thanks.
 
-uClinux has an SMC9111 driver which I now use, but it would be good if
-the base kernel worked (I _think_ that driver's the only reason it
-doesn't on this platform).
 
-[Hmmm, uClinux also contains patches to the SMC9194 driver; I wonder if
-they should be merged?  Some of the changes seem kind of ugly though
-(lots of platform-specific #ifdefs).]
-
--Miles
--- 
-A zen-buddhist walked into a pizza shop and
-said, "Make me one with everything."
+-- wli

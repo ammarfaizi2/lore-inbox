@@ -1,68 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270057AbTGNPMg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 11:12:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270133AbTGNPLI
+	id S270664AbTGNPXc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 11:23:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270663AbTGNPXc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 11:11:08 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:261 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S270465AbTGNPKP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 11:10:15 -0400
-Subject: Re: [PATCH] O5int for interactivity
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+	Mon, 14 Jul 2003 11:23:32 -0400
+Received: from nice-1-a7-62-147-78-165.dial.proxad.net ([62.147.78.165]:21253
+	"EHLO monpc") by vger.kernel.org with ESMTP id S270687AbTGNPXZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 11:23:25 -0400
+From: Guillaume Chazarain <gfc@altern.org>
 To: Con Kolivas <kernel@kolivas.org>
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Daniel Phillips <phillips@arcor.de>,
-       Mike Galbraith <efault@gmx.de>
-In-Reply-To: <200307142232.05782.kernel@kolivas.org>
-References: <200307142232.05782.kernel@kolivas.org>
-Content-Type: text/plain
-Message-Id: <1058196300.582.5.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 14 Jul 2003 17:25:01 +0200
-Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org, phillips@arcor.de, smiler@lanil.mine.nu
+Date: Mon, 14 Jul 2003 17:40:04 +0200
+X-Priority: 3 (Normal)
+Message-Id: <WRGA0805JD97A7A6YTZT94KB0B0JI65.3f12ced4@monpc>
+Subject: Re: [RFC][PATCH] SCHED_ISO for interactivity
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-15"
+X-Mailer: Opera 6.06 build 1145
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-07-14 at 14:32, Con Kolivas wrote:
-> More interactivity work for audio and X smoothness. I have fixed all my test
->  cases and need feedback about others to develop beyond this.
-> 
-> Changes
-> The idle code now gives just under interactive state based on the runtime
->  instead of min_sleep_avg - minor startup speed improvement.
-> 
-> Tasks that drop their priority while running are now put to the end of the
->  queue to continue their timeslice. Fixes a little flutter when tasks are
-> cpu hogs for short periods (eg mozilla).
-> 
-> Tasks that are complete cpu hogs are put on the expired array every time they
->  run out of timeslice.
+14/07/03 02:07:34, Con Kolivas <kernel@kolivas.org> wrote:
+>On Mon, 14 Jul 2003 00:54, Guillaume Chazarain wrote:
+>> Good, with ISO_PENALTY == 2, I can smoothly move big windows (with
+>> ISO_PENALTY == 5 it was smooth only with very small windows), but it lets
+>> me move them smoothly during less time than stock :(
+>
+>Less time than stock? I don't understand you. You can only move them smoothly 
+>for a small time or they move faster or... ?
 
-Hmmm... Starvation is back for me (Pentium III 700Mhz + ACPI):
+With the previous SCHED_ISO, moving big windows was smooth for a short time,
+but then it became jerky.  Unlike with stock where it was smooth all the time.
 
-1. Log on to X/KDE
-2. Launch Konqueror
-3. Launch XMMS
-4. Make XMMS play a song
-5. Move the Konqueror window all over the desktop.
+>Indeed it is artificial, and probably never a real world condition unless it 
+>was specifically an attack, but it would never bring the system to a halt, 
+>just some minor audio hiccups while it adjusted. 
 
-Step 5 causes XMMS to completely starve for exactly 5 seconds. After
-those 5 seconds, the XMMS priority gets adjusted and sound comes back
-from my speakers.
+This is also true for stock.
 
-Another way to starve XMMS for 5 seconds:
+>> >The logical conclusion of this idea where there is a dynamic policy
+>> > assigned to interactive tasks is a dynamic policy assigned to non
+>> > interactive tasks that get treated in the opposite way. I'll code
+>> > something for that soon, now that I've had more feedback on the first
+>> > part.
+>>
+>> Interesting, let's see :)
+>> But as the interactive bonus can already be negative I wonder what use
+>> will have another variable.
+>
+>As it is, the penalty will be no different to what it currently gets to (in 
+>the same way sched_iso get the same bonus they normally would). The 
+>difference is once they are moved to the different policy it is much harder 
+>for them to change from that state, always getting the maximum penalty, and 
+>being expired each time they run out of timeslice instead of getting a chance 
+>to be put onto the active array. Neither of these new states is very 
+>different to what normal policy tasks get except for the fact they dont 
+>change interactive state without a lot more effort.
 
-1. Launch XMMS
-2. Make it play
-3. Run a standard CPU hogger: "while true; do a=2; done"
+OK, the latest SCHED_ISO fixed my problem, but now I am afraid of the scheduler
+trying to be too intelligent, because if it makes the wrong choice the bad result
+will be much more noticeable.
+I like the simplicity of stock, the interactivity bonus is given in a simple and
+understandable way, and if it's not given to the process you want, you can always
+renice it or make it RT.
 
-Step 3 will make XMMS starve for exactly 5 seconds. Also, during those 5
-seconds, X is completely jerky and moving the mouse makes the pointer
-goes jumping all over the screen.
+I have to admit that
+p->sleep_avg = MIN_SLEEP_AVG * (MAX_BONUS - INTERACTIVE_DELTA - 1) / MAX_BONUS;
+and
+if ((runtime - MIN_SLEEP_AVG < MAX_SLEEP_AVG) && (runtime * JUST_INTERACTIVE > p->sleep_avg))
+	p->sleep_avg += (runtime * JUST_INTERACTIVE - p->sleep_avg) *
+	                (MAX_SLEEP_AVG + MIN_SLEEP_AVG - runtime) / MAX_SLEEP_AVG;
 
-Do you want additional information? Any patch trying?
-Thanks!
+are quite obscure to me.
+
+Also, I don't understand your MAX_BONUS definition:
+((MAX_USER_PRIO - MAX_RT_PRIO) * PRIO_BONUS_RATIO / 100) it evaluates to -15
+
+I would use ((MAX_PRIO - MAX_RT_PRIO) * PRIO_BONUS_RATIO / 100 / 2) since it gives 5.
+
+
+Guillaume
+
+
+
+
+
 

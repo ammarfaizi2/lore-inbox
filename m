@@ -1,89 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270682AbTGUTyt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 15:54:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270688AbTGUTyt
+	id S270707AbTGUT5p (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 15:57:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270711AbTGUT5p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 15:54:49 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:4736 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S270682AbTGUTyq convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 15:54:46 -0400
-Date: Mon, 21 Jul 2003 16:09:43 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
-cc: Michael Bernstein <michael@seven-angels.net>, gmicsko@szintezis.hu,
-       linux-kernel@vger.kernel.org
-Subject: Re: SCO offers UnixWare licenses for Linux
-In-Reply-To: <20030721205940.7190f845.diegocg@teleline.es>
-Message-ID: <Pine.LNX.4.53.0307211518420.421@chaos>
-References: <1058807414.513.4.camel@sunshine> <141DFFFA-BBA4-11D7-A61F-000A95773C00@seven-angels.net>
- <20030721205940.7190f845.diegocg@teleline.es>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+	Mon, 21 Jul 2003 15:57:45 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:413 "HELO heather-ng.ithnet.com")
+	by vger.kernel.org with SMTP id S270707AbTGUT5o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 15:57:44 -0400
+X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
+Date: Mon, 21 Jul 2003 22:12:45 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: andrea@suse.de, mason@suse.com, riel@redhat.com,
+       linux-kernel@vger.kernel.org, maillist@jg555.com
+Subject: Re: Bug Report: 2.4.22-pre5: BUG in page_alloc (fwd)
+Message-Id: <20030721221245.1a2d423a.skraw@ithnet.com>
+In-Reply-To: <Pine.LNX.4.55L.0307211624410.26518@freak.distro.conectiva>
+References: <Pine.LNX.4.55L.0307150859130.5146@freak.distro.conectiva>
+	<1058297936.4016.86.camel@tiny.suse.com>
+	<Pine.LNX.4.55L.0307160836270.30825@freak.distro.conectiva>
+	<20030718112758.1da7ab03.skraw@ithnet.com>
+	<20030721162033.GA4677@x30.linuxsymposium.org>
+	<20030721212453.4139a217.skraw@ithnet.com>
+	<Pine.LNX.4.55L.0307211624410.26518@freak.distro.conectiva>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Jul 2003, Diego Calleja [ISO-8859-15] García wrote:
+On Mon, 21 Jul 2003 16:40:27 -0300 (BRT)
+Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
 
-> El Mon, 21 Jul 2003 13:52:21 -0400 Michael Bernstein <michael@seven-angels.net> escribió:
->
-> > To put it simply, just because they "may,"  - and I say may here simply
-> > because we have no evidence to prove their claims but cannot flatly
-> > deny them - own the rights to Sys V, does NOT mean they own the right
->
-> So they want to sell us something that still hasn't proved....cool.
->
+> If that doesnt make us spot the problem, can you PLEASE find out in which
+> -pre the problem starts ?
 
-No. They want to sell you something you already own. SCO is the
-owner of a non-exclusive license to a 30 year-old operating
-system. There are many others who have such a license including
-the University of California in Berkeley. Much of Linux was designed
-to interface with the API that they published, in a method that
-minimizes the changes to a 'C' runtime library. This made porting
-of various Unix utilities developed by the students at Berkeley,
-relatively easy.  The actual Unix API used by Berkeley, was published
-by AT&T in December 1983. It is Called "Unix System V, Release 2.0,
-User Reference Manual Including BTL Computer Center Standard and
-Local Commands". I have a copy of that two volume ring-bound book.
+Right away I can tell you there was no problem up to the pre that did not boot
+on my box, I thing it was pre3, right? Meaing pre1 and pre2 work.
 
-A "non-exclusive license" means that you you are not the only
-person who has been licensed. It's just that simple. In my opinion
-there is no way that SCO will ever convince any court that their version
-of "non-exclusive" is any different than all the others including,
-but not limited to, BSD, Digital, Interactive, Sun, IBM, Microsoft,
-Novell, etc. I have read the complaint and they allege that somebody
-must have stolen their secrets because nobody could make a version
-of Unix good enough for "the enterprise" without their secrets.
-So, they contend that they are the only people smart enough to write
-software for "the enterprise", whatever that is. Nice trick.
+pre5 was the first one that booted again - and the first I can tell has the
+problem.
 
-Note that in the complaint against IBM, SCO seeks a jury trial.
-I guess they think it's easier to snow a jury than a judge. We'll
-see. I think SCO thinks juries are stupid and will treat them
-as David and Goliath. I think a jury will treat them like
-thieves, instead.
+I can "port" the mini-patch from chris back to pre3 and try this one as next
+step...
 
-It is instructive to read the annual reports, filed with the
-United States Security and Exchange Commission, by many
-of the companies that produce software. These reports are
-available on the "Web" and the various company's Web Pages
-usually have links to recent filings. A quote from a portion
-of Novel's 2002 Annual report goes like this; " The software
-industry is characterized by frequent litigation regarding
-copyright, patent, and other intellectual property rights."
-
-The fact that somebody sues somebody else in the Software
-Industry is kind of like having the sun rise in the East.
-You get to expect it. Now, back to writing some software
-that somebody may claim I stole.............
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+Regards,
+Stephan

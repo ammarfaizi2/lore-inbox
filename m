@@ -1,76 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265620AbRGCInw>; Tue, 3 Jul 2001 04:43:52 -0400
+	id <S265635AbRGCIqm>; Tue, 3 Jul 2001 04:46:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265624AbRGCInm>; Tue, 3 Jul 2001 04:43:42 -0400
-Received: from asooo.flowerfire.com ([63.104.96.247]:41484 "EHLO
-	asooo.flowerfire.com") by vger.kernel.org with ESMTP
-	id <S265620AbRGCIng>; Tue, 3 Jul 2001 04:43:36 -0400
-Date: Tue, 3 Jul 2001 03:43:35 -0500
-From: Ken Brownfield <brownfld@irridia.com>
-To: linux-kernel@vger.kernel.org
-Subject: Recent change in directory g+s behavior (bug?)
-Message-ID: <20010703034335.A3735@asooo.flowerfire.com>
+	id <S265629AbRGCIqc>; Tue, 3 Jul 2001 04:46:32 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:44003 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S265624AbRGCIqY>; Tue, 3 Jul 2001 04:46:24 -0400
+Date: Tue, 3 Jul 2001 04:46:15 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix kernel linker scripts
+Message-ID: <20010703044615.P32061@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+In-Reply-To: <20010702115351.B11623@devserv.devel.redhat.com> <813.994133208@kao2.melbourne.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <813.994133208@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Tue, Jul 03, 2001 at 02:06:48PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Somewhere between 2.4.5-pre1 and 2.4.6-pre3, the behavior of the setgid
-bit on directories has changed:
+On Tue, Jul 03, 2001 at 02:06:48PM +1000, Keith Owens wrote:
+> On Mon, 2 Jul 2001 11:53:51 -0400, 
+> Jakub Jelinek <jakub@redhat.com> wrote:
+> >Apparently all kernel scripts only have .rodata and not also .rodata.* input
+> >sections in it.
+> >-  .rodata : { *(.rodata) }
+> >+  .rodata : { *(.rodata) *(.rodata.*) }
+> 
+> Any reason not to use *(.rodata*) to cover all rodata sections?  I see
+> no need for two input definitions, one works for me.
 
-2.4.5-pre1:
-# mkdir foo
-# chgrp adm foo
-# chmod 2775 foo
-# cd foo
-# ls -las
-total 12
-   4 drwxrwsr-x    3 root     adm          4096 Jul  3 01:11 .
-   4 drwxr-xr-x    6 root     adm          4096 Jul  3 00:23 ..
-# mkdir bar
-# ls -las
-total 12
-   4 drwxrwsr-x    3 root     adm          4096 Jul  3 01:11 .
-   4 drwxrwxrwt    6 root     root         4096 Jul  3 00:23 ..
-   4 drwxr-sr-x    2 root     adm          4096 Jul  3 01:11 bar
+The reason why I wrote it this way is so that it matches default ld linker
+scripts:
+...
+  .rodata   : { *(.rodata) *(.rodata.*) *(.gnu.linkonce.r.*) }
+  .rodata1   : { *(.rodata1) }
+...
+Of course, *(.rodata*) would work as well and provided nobody creates
+sections like .rodatafoo, the behaviour would be the same as well.
 
-2.4.6-pre3 and later, including pre9:
-# mkdir foo
-# chgrp adm foo 
-# chmod 2775 foo
-# cd foo
-# ls -las 
-total 12
-   4 drwxrwsr-x    3 root     adm          4096 Jul  3 01:23 .
-   4 drwxr-xr-x    6 root     adm          4096 Jul  3 00:38 ..
-# mkdir bar
-# ls -las
-total 12
-   4 drwxrwsr-x    3 root     adm          4096 Jul  3 01:23 .
-   4 drwxrwxrwt    6 root     root         4096 Jul  3 00:38 ..
-   4 drwxr-xr-x    2 root     adm          4096 Jul  3 01:23 bar
-
-The setgid bit on directories created within g+s directories is no
-longer being set, which is a marked change of behavior that breaks quite
-a few things here, most notably shared CVS trees.  The group ownership
-does however still seem to be inherited properly for both directories
-and files.
-
-I'm seeing a lot of VFS and ext2 work in the ChangeLog during this
-kernel interval, but nothing specific to this problem.  Because of that,
-I'm assuming this isn't expected behavior since it breaks many
-real-world systems that I'm familiar with and differs from other Unixes
-(Unices?).
-
-I apologize for not being able to narrow down the specific kernel
-revision at the moment, but I will be able to do this soon.  Is anyone
-else seeing this?  Also, who would be the best person to talk to about
-these issues right now (if they're not on lkml)?
-
-Thanks very much,
--- 
-Ken.
-brownfld@irridia.com
-
+	Jakub

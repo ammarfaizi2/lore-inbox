@@ -1,27 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266839AbTATUIg>; Mon, 20 Jan 2003 15:08:36 -0500
+	id <S267024AbTATUBa>; Mon, 20 Jan 2003 15:01:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266840AbTATUIf>; Mon, 20 Jan 2003 15:08:35 -0500
-Received: from quechua.inka.de ([193.197.184.2]:37779 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id <S266839AbTATUIe>;
-	Mon, 20 Jan 2003 15:08:34 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: ANN: LKMB (Linux Kernel Module Builder) version 0.1.16
-References: <25160.1042809144@passion.cambridge.redhat.com> <Pine.LNX.4.33L2.0301171857230.25073-100000@vipe.technion.ac.il> <E18a1aZ-0006mL-00@bigred.inka.de> <20030119001256.GA11575@compsoc.man.ac.uk> <E18aEyl-0006O0-00@bigred.inka.de> <1042981591.1479.5.camel@laptop.fenrus.com>
-Organization: private Linux site, southern Germany
-Date: Mon, 20 Jan 2003 21:16:21 +0100
-From: Olaf Titz <olaf@bigred.inka.de>
-Message-Id: <E18aiLF-00034c-00@bigred.inka.de>
+	id <S267778AbTATUBa>; Mon, 20 Jan 2003 15:01:30 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:18436 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S267024AbTATUB3>;
+	Mon, 20 Jan 2003 15:01:29 -0500
+Date: Mon, 20 Jan 2003 00:37:50 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
+       trivial@rustcorp.com.au, Neil Brown <neilb@cse.unsw.edu.au>,
+       dwmw2@redhat.com
+Subject: Re: [PATCH] [TRIVIAL] kstrdup
+Message-ID: <20030119233750.GA674@elf.ucw.cz>
+References: <20030114025452.656612C385@lists.samba.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030114025452.656612C385@lists.samba.org>
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yes it breaks if you move around your source after doing make
-> modules_install. Yes it breaks if you don't have the tree at all. But
-> both situations are "invalid" wrt the decree, and need a fixed symlink.
+Hi!
 
-This means the decree also rules out compiling a kernel for one box on
-another?
+> Everyone loves reimplementing strdup.  Give them a kstrdup (basically
+> from drivers/md).
 
-Olaf
+I believe it would be better to call it strdup.
 
+*Or* you might want kstrdup( "foo", GFP_ATOMIC ); But if you are
+hard-coding GFP_KERNEL, I believe there's no point in calling it
+*k*strdup.
+
+								Pavel
+> +char *kstrdup(const char *s, int gfp)
+> +{
+> +	char *buf = kmalloc(strlen(s)+1, gfp);
+> +	if (buf)
+> +		strcpy(buf, s);
+> +	return buf;
+> +}
+
+
+
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

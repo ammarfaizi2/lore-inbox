@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264897AbTGKS7s (ORCPT <rfc822;willy@w.ods.org>);
+	id S265061AbTGKS7s (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 11 Jul 2003 14:59:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265036AbTGKS6k
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264897AbTGKS6r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 14:58:40 -0400
-Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:29963 "EHLO
-	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
-	id S264897AbTGKSdW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 14:33:22 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: devfs@oss.sgi.com
-Subject: devfsd hangs on restart - is_devfsd_or_child() problem
-Date: Fri, 11 Jul 2003 22:47:12 +0400
-User-Agent: KMail/1.5
-Cc: linux-kernel@vger.kernel.org, Thierry Vignaud <tvignaud@mandrakesoft.com>
+	Fri, 11 Jul 2003 14:58:47 -0400
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:59028 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S265072AbTGKSuL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 14:50:11 -0400
+Date: Fri, 11 Jul 2003 21:04:53 +0200 (CEST)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Sound updating, security of strlcpy and a question on pci v
+ unload
+In-Reply-To: <1057943137.20637.27.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0307112100240.843-100000@artax.karlin.mff.cuni.cz>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307112247.12646.arvidjaar@mail.ru>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I cannot believe it is so fragile ...
+> I'm currently updating the prehistoric OSS audio code in 2.5 to include
+> all the new 2.4 drivers and 2.4 work. While some of them overlap ALSA
+> drivers others are not in ALSA yet either.
+>
+> Firstly someone turned half the kernel into using strlcpy. Every single
+> change I looked at bar two in the sound layer introduced a security
+> hole. It looks like whoever did it just fired up a perl macro without
+> realising the strncpy properties matter for data copied to user space.
+> Looks like the rest wants auditing
 
-is_devfsd_or_child() simplemindedly checks for pgrp:
+What's the difference there? strlcpy always creates null-terminated
+string, strncpy doesn't. strncpy in kernel (unlike user strncpy) does not
+pad the whole destination buffer with zeros (see comment and
+implementation in lib/string.c), so I don't see any point why strncpy
+should be more secure.
 
-static int is_devfsd_or_child (struct fs_info *fs_info)
-{
-    if (current == fs_info->devfsd_task) return (TRUE);
-    if (current->pgrp == fs_info->devfsd_pgrp) return (TRUE);
-    return (FALSE);
-}   /*  End Function is_devfsd_or_child  */
+Mikulas
 
-unfortunately, bash (I do not know if it does it always or not) resets pgrp on 
-startup. I.e. if your action is using shell it is no more considered devfsd 
-descendant ... and it will attempt in turn start devfsd action while devfsd 
-is waiting for it ot finish.
-
-Thierry, i refer mostly to dynamics scripts currently. Every time I update 
-devfsd it hangs in one of them. And actually it is enough to do service 
-devfsd restart to trigger this. It may be 2.5 specific again in that it is 
-not as easily seen under 2.4.
-
-I have no idea what can be done. Is there any way in kernel to find out if one 
-task is descendant of other task? Even rewriting devfsd to use non-blocking 
-calls and request queue does not help as it apprently just results in endless 
-loop (action triggering action triggering action ...)
-
--andrey

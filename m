@@ -1,77 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263356AbUAIRk2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 12:40:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263370AbUAIRk1
+	id S262164AbUAISBJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 13:01:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262446AbUAISBJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 12:40:27 -0500
-Received: from [68.114.43.143] ([68.114.43.143]:49365 "EHLO wally.rdlg.net")
-	by vger.kernel.org with ESMTP id S263356AbUAIRkM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 12:40:12 -0500
-Date: Fri, 9 Jan 2004 12:40:09 -0500
-From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-To: "Dave Gilbert (Home)" <gilbertd@treblig.org>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: What SCSI in the IBM?
-Message-ID: <20040109174009.GQ24295@rdlg.net>
-Mail-Followup-To: "Dave Gilbert (Home)" <gilbertd@treblig.org>,
-	Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <20040109150512.GF24295@rdlg.net> <200401091515.i09FFSDM030918@turing-police.cc.vt.edu> <20040109152016.GH24295@rdlg.net> <3FFEDC73.6080104@treblig.org> <20040109171242.GM24295@rdlg.net> <3FFEE4DE.3010109@treblig.org>
+	Fri, 9 Jan 2004 13:01:09 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:55974 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S262164AbUAISBG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jan 2004 13:01:06 -0500
+Date: Fri, 9 Jan 2004 10:00:54 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Cc: linux-kernel@vger.kernel.org, Sam Vilain <sam@hydro.gen.nz>
+Subject: Re: 2.6.0 NFS-server low to 0 performance
+Message-ID: <20040109180054.GV1882@matchmail.com>
+Mail-Followup-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
+	linux-kernel@vger.kernel.org, Sam Vilain <sam@hydro.gen.nz>
+References: <Pine.LNX.4.44.0401071947270.2922-100000@poirot.grange> <Pine.LNX.4.44.0401091031010.18195-100000@poirot.grange>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="oCBD0SPT9UHZkBMO"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3FFEE4DE.3010109@treblig.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+In-Reply-To: <Pine.LNX.4.44.0401091031010.18195-100000@poirot.grange>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jan 09, 2004 at 11:08:29AM +0100, Guennadi Liakhovetski wrote:
+> On Wed, 7 Jan 2004, Mike Fedyk wrote:
+> 
+> > Just post a few samples of the lines that differ.  Any files should be sent
+> > off-list.
+> 
+> Ok, This is the problem:
+> 
+> 10:38:30.867306 0:40:f4:23:ac:91 0:50:bf:a4:59:71 ip 590: tuxscreen.grange > poirot.grange: icmp: ip reassembly time exceeded [tos 0xc0]
+> 
+> A similar effect was reported in 1999 with kernel 2.3.13, also between 2
+> 100mbps cards. It also was occurring with UDP NFS:
+> 
+> http://www.ussg.iu.edu/hypermail/linux/net/9908.2/0039.html
+> 
+> But there were no answers, so, I am CC-ing Sam, hoping to hear, if he's
+> found the reason and a cure for his problem. Apart from this message I
+> didn't find any other relevant hits with Google.
+> 
+> Is it some physical network problem, which somehow only becomes visible
+> under 2.6 now, with UDP (NFS) with 100mbps?
 
---oCBD0SPT9UHZkBMO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Find out how many packets are being dropped on your two hosts with 2.4 and
+2.6.
 
-
-
-On the money.  Thank you.
-
-Robert
-
-Thus spake Dave Gilbert (Home) (gilbertd@treblig.org):
-
-> Robert L. Harris wrote:
-> >
-> >So this is the "Fusion MPT" that's off the main menu?
->=20
-> Yep thats the one.  Works a treat!
->=20
-> Dave
->=20
-
-:wq!
----------------------------------------------------------------------------
-Robert L. Harris                     | GPG Key ID: E344DA3B
-                                         @ x-hkp://pgp.mit.edu
-DISCLAIMER:
-      These are MY OPINIONS ALONE.  I speak for no-one else.
-
-Life is not a destination, it's a journey.
-  Microsoft produces 15 car pileups on the highway.
-    Don't stop traffic to stand and gawk at the tragedy.
-
---oCBD0SPT9UHZkBMO
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQE//ud58+1vMONE2jsRAsXiAKDLPNkepfszHRm+H6UXbP96K06KJACfff4+
-3uh1In74SuMbPsxKgjDsrnM=
-=ltXF
------END PGP SIGNATURE-----
-
---oCBD0SPT9UHZkBMO--
+If they're not dropping packets, maybe the ordering with a large backlog has
+chagned between 2.4 and 2.6 that would keep some of the fragments from being
+sent in time...

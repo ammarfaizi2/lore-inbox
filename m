@@ -1,106 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272926AbRIRJCG>; Tue, 18 Sep 2001 05:02:06 -0400
+	id <S273230AbRIRJI0>; Tue, 18 Sep 2001 05:08:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272942AbRIRJB4>; Tue, 18 Sep 2001 05:01:56 -0400
-Received: from ftp.dobrich-sat.net ([212.72.216.33]:20486 "EHLO
-	dobrich-sat.net") by vger.kernel.org with ESMTP id <S272926AbRIRJBq>;
-	Tue, 18 Sep 2001 05:01:46 -0400
-Date: Tue, 18 Sep 2001 12:05:05 +0300 (EEST)
-From: Javor Dimitrov <logix@dobrich-sat.net>
-To: linux-kernel@vger.kernel.org
-Subject: UDP over unix domain socket
-Message-ID: <Pine.LNX.4.20.0109181204350.10719-300000@dobrich-sat.net>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1221861848-575233476-1000803905=:10719"
+	id <S273236AbRIRJIH>; Tue, 18 Sep 2001 05:08:07 -0400
+Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:11281 "HELO
+	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
+	id <S273230AbRIRJHy>; Tue, 18 Sep 2001 05:07:54 -0400
+Date: Tue, 18 Sep 2001 11:08:15 +0200
+From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
+        Alex Stewart <alex@foogod.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] lazy umount (1/4)
+Message-ID: <20010918110815.B16592@emma1.emma.line.org>
+Mail-Followup-To: Alexander Viro <viro@math.psu.edu>,
+	Alex Stewart <alex@foogod.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010918023942.A28179@emma1.emma.line.org> <Pine.GSO.4.21.0109180453270.25323-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0109180453270.25323-100000@weyl.math.psu.edu>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Tue, 18 Sep 2001, Alexander Viro wrote:
 
---1221861848-575233476-1000803905=:10719
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+> > Well, you cannot tell your local power plant "you must not fail this
+> > very moment" either. Of course, data will be lost when a process is
+> > killed from "D" state, but if the admin can tell the data will be lost
+> > either way, ... 
+> 
+> Gaack... Just how do you kill a process that holds a bunch of semaphores
+> and got blocked on attempt to take one more?  It's not about lost data,
+> it's about completely screwed kernel.
 
+Well, if that process holds processes and blocks getting one more,
+something is wrong with the process and it's prone to deadlocks. Even if
+kill -9 just means "fail this all further syscalls instantly" in such
+cases, that'd be fine. Something like an "BEING KILLED" state for
+processes.
 
- the attached files are client and server. they simply have to send a
-string each other in UDP packets via unix domain socket. i'm wondered,
-because every time when the server receives a string with recvfrom(),
-'*fromlen' is 2 and 'from' points to some unknown structure.
- i am using slackware linux with kernel 2.2.19
+-- 
+Matthias Andree
 
-
---1221861848-575233476-1000803905=:10719
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="unixudpcli.c"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.20.0109181205050.10719@dobrich-sat.net>
-Content-Description: 
-Content-Disposition: attachment; filename="unixudpcli.c"
-
-I2luY2x1ZGUgPHN5cy9zb2NrZXQuaD4NCiNpbmNsdWRlIDxzeXMvdW4uaD4N
-CiNpbmNsdWRlIDx1bmlzdGQuaD4NCiNpbmNsdWRlIDxzdHJpbmcuaD4NCg0K
-I2RlZmluZSAgU09DS1BBVEgJImxvY2Fsc29ja2V0Ig0KDQp2b2lkIGVycl9z
-eXMoIGNvbnN0IGNoYXIgKiBjb25zdCApOw0KDQoNCg0KaW50IG1haW4oKQ0K
-ew0KICBzdHJ1Y3Qgc29ja2FkZHJfdW4gICB1YWRkciwgY2FkZHI7DQogIGlu
-dCAgICAgICAgICAgICAgICAgIHVzb2NrLCByZXM7DQogIGNoYXIgICAgICAg
-ICAgICAgICAgIGJ1ZmZlclszMl0gPSAiIjsNCiAgc29ja2xlbl90ICAgICAg
-ICAgICAgbGVuOw0KDQogIG1lbXNldCggJnVhZGRyLCAwLCBzaXplb2YodWFk
-ZHIpICk7DQogIHVhZGRyLnN1bl9mYW1pbHkgPSBBRl9MT0NBTDsNCiAgc3Ry
-Y3B5KCB1YWRkci5zdW5fcGF0aCwgU09DS1BBVEggKTsNCg0KICBpZiggKCB1
-c29jayA9IHNvY2tldCggUEZfTE9DQUwsIFNPQ0tfREdSQU0sIDAgKSApID09
-IC0xICkNCiAgICBlcnJfc3lzKCAic29ja2V0KCkiICk7DQogIHByaW50Zigg
-IlVzZXIgRGF0YWdyYW0gU29ja2V0ICVkXG4iLCB1c29jayApOw0KDQogIHBy
-aW50ZiggInVhZGRyIHNvY2thZGRyX3VuIGhhcyAlZCBieXRlc1xuIiwgKGxl
-bj1TVU5fTEVOKCZ1YWRkcikpICk7DQogIGlmKCBzZW5kdG8oIHVzb2NrLCAi
-SGFpbCIsIDQsIDAsIChzdHJ1Y3Qgc29ja2FkZHIqKSZ1YWRkciwgbGVuICkg
-PT0gLTEgKQ0KICAgIGVycl9zeXMoICJzZW5kdG8oKSIgKTsNCg0KICBwcmlu
-dGYoICJjYWRkciBzb2NrYWRkcl91biBoYXMgJWQgYnl0ZXNcbiIsIChsZW49
-U1VOX0xFTigmY2FkZHIpKSApOw0KICBpZiggcmVjdmZyb20oIHVzb2NrLCBi
-dWZmZXIsIHNpemVvZihidWZmZXIpLCAwLA0KICAgIChzdHJ1Y3Qgc29ja2Fk
-ZHIqKSZjYWRkciwgJmxlbiApID09IC0xICkNCiAgICBlcnJfc3lzKCAicmVj
-dmZyb20oKSIgKTsNCg0KICBwcmludGYoICJSZWNlaXZlZCAlZCBieXRlc1xu
-IiwgcmVzICk7DQogIHByaW50ZiggIkJ1ZmZlciBub3cgaXMgXCIlc1wiXG4i
-LCBidWZmZXIgKTsNCn0NCg0KDQoNCnZvaWQgZXJyX3N5cyggY29uc3QgY2hh
-ciAqIGNvbnN0IG1lc2cgKQ0Kew0KICBwZXJyb3IoIG1lc2cgKTsNCiAgZXhp
-dCggLTEgKTsNCn0=
---1221861848-575233476-1000803905=:10719
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="unixudpsvr.c"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.20.0109181205051.10719@dobrich-sat.net>
-Content-Description: 
-Content-Disposition: attachment; filename="unixudpsvr.c"
-
-I2luY2x1ZGUgPHN5cy9zb2NrZXQuaD4NCiNpbmNsdWRlIDxzeXMvdW4uaD4N
-CiNpbmNsdWRlIDx1bmlzdGQuaD4NCiNpbmNsdWRlIDxzdHJpbmcuaD4NCg0K
-DQoNCiNkZWZpbmUgIFNPQ0tQQVRICSJsb2NhbHNvY2tldCINCg0KDQoNCnZv
-aWQgZXJyX3N5cyggY29uc3QgY2hhciAqIGNvbnN0ICk7DQoNCg0KDQppbnQg
-bWFpbigpDQp7DQogIHN0cnVjdCBzb2NrYWRkcl91biAgIHVhZGRyLCBjYWRk
-cjsNCiAgaW50ICAgICAgICAgICAgICAgICAgdXNvY2ssIHJlczsNCiAgc29j
-a2xlbl90ICAgICAgICAgICAgdWxlbjsNCiAgY2hhciAgICAgICAgICAgICAg
-ICAgYnVmZmVyWyAxMjggXTsNCg0KICB1c29jayA9IHNvY2tldCggUEZfTE9D
-QUwsIFNPQ0tfREdSQU0sIDAgKTsNCiAgaWYoIHVzb2NrID09IC0xICkNCiAg
-ICBlcnJfc3lzKCAic29ja2V0KCkiICk7DQoNCiAgbWVtc2V0KCAmdWFkZHIs
-IDAsIHNpemVvZih1YWRkcikgKTsNCiAgdWFkZHIuc3VuX2ZhbWlseSA9IEFG
-X0xPQ0FMOw0KICBzdHJjcHkoIHVhZGRyLnN1bl9wYXRoLCBTT0NLUEFUSCAp
-Ow0KDQogIHVubGluayggU09DS1BBVEggKTsNCiAgcmVzID0gYmluZCggdXNv
-Y2ssIChzdHJ1Y3Qgc29ja2FkZHIqKSZ1YWRkciwgU1VOX0xFTigmdWFkZHIp
-ICk7DQogIGlmKCByZXMgPT0gLTEgKQ0KICAgIGVycl9zeXMoICJiaW5kKCki
-ICk7DQogIHByaW50ZiggIlNvY2tldCBiaW5kKClcbiIgKTsNCg0KICBmb3Io
-IDsgOyApDQogICAgew0KICAgIHVsZW4gPSBTVU5fTEVOKCZ1YWRkcik7DQog
-ICAgdWxlbiA9IDA7DQoNCiAgICBwcmludGYoICJ1YWRkciBzb2NrYWRkcl91
-biBoYXMgJWRcbiIsIHVsZW4gKTsNCiAgICByZXMgPSByZWN2ZnJvbSggdXNv
-Y2ssIGJ1ZmZlciwgc2l6ZW9mKGJ1ZmZlciksIDAsDQogICAgICAoc3RydWN0
-IHNvY2thZGRyKikmY2FkZHIsICZ1bGVuICk7DQogICAgaWYoIHJlcyA9PSAt
-MSApDQogICAgICBlcnJfc3lzKCAicmVjdmZyb20oKSIgKTsNCg0KICAgIGJ1
-ZmZlcltyZXNdID0gJ1wwJzsNCiAgICBwcmludGYoICJSZWNlaXZlZCAlZCBi
-eXRlc1xuIiwgcmVzICk7DQogICAgcHJpbnRmKCAiUmVtb3RlIHN0cnVjdHVy
-ZSBoYXMgJWQgYnl0ZXNcbiIsIHVsZW4gKTsNCi8qICAgICAgKHVuc2lnbmVk
-KShodG9ucygqKChzaG9ydCopY2FkZHIuc3VuX3BhdGgpKSkgKTsgKi8NCg0K
-ICAgIHJlcyA9IHNlbmR0byggdXNvY2ssICJIZWxsb1xyXG4iLCA3LCAwLA0K
-ICAgICAgKHN0cnVjdCBzb2NrYWRkciopJmNhZGRyLCB1bGVuICk7DQogICAg
-aWYoIHJlcyA9PSAtMSApDQogICAgICBlcnJfc3lzKCAic2VuZHRvKCkiICk7
-DQogICAgfQ0KfQ0KDQoNCg0Kdm9pZCBlcnJfc3lzKCBjb25zdCBjaGFyICog
-Y29uc3QgbWVzZyApDQp7DQogIHBlcnJvciggbWVzZyApOw0KICBleGl0KCAt
-MSApOw0KfQ==
---1221861848-575233476-1000803905=:10719--
+"Those who give up essential liberties for temporary safety deserve
+neither liberty nor safety." - Benjamin Franklin

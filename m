@@ -1,61 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270576AbUJTWT4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270352AbUJTWIa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270576AbUJTWT4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 18:19:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270374AbUJTWSk
+	id S270352AbUJTWIa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 18:08:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270296AbUJTWHa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 18:18:40 -0400
-Received: from rproxy.gmail.com ([64.233.170.196]:55198 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S270563AbUJTWRF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 18:17:05 -0400
-DomainKey-Signature: a=rsa-sha1; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=j0AkqcXk03qiRG22S97yDOkhIBDoI3mMyk5s4Lwf9JLhnNwEH2++matpentyyC868N4lktI5JzqPwodrmWFZrfIu2oCoLkvKNFYFeDXow0zSPCXzzCJxTF/neB7NTXwBCPaPxgw5Y/C2hOe6V044OcsJ7ByInVoVc0AMPQFHJRw
-Message-ID: <7f800d9f04102015174e7356a@mail.gmail.com>
-Date: Wed, 20 Oct 2004 15:17:05 -0700
-From: Andre Eisenbach <int2str@gmail.com>
-Reply-To: Andre Eisenbach <int2str@gmail.com>
-To: Timothy Miller <miller@techsource.com>
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4176E08B.2050706@techsource.com>
+	Wed, 20 Oct 2004 18:07:30 -0400
+Received: from phoenix.infradead.org ([81.187.226.98]:38665 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S269013AbUJTWHB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 18:07:01 -0400
+Date: Wed, 20 Oct 2004 23:06:38 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Hanna Linder <hannal@us.ibm.com>, davej@codemonkey.org.uk,
+       kernel-janitors <kernel-janitors@lists.osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, greg@kroah.com
+Subject: Re: [KJ] [RFT 2.6] intel-agp.c: replace pci_find_device with pci_get_device
+Message-ID: <20041020220638.GA26465@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Matthew Wilcox <matthew@wil.cx>, Hanna Linder <hannal@us.ibm.com>,
+	davej@codemonkey.org.uk,
+	kernel-janitors <kernel-janitors@lists.osdl.org>,
+	lkml <linux-kernel@vger.kernel.org>, greg@kroah.com
+References: <17420000.1098298334@w-hlinder.beaverton.ibm.com> <20041020220347.GZ16153@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <4176E08B.2050706@techsource.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041020220347.GZ16153@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Oct 2004 18:02:51 -0400, Timothy Miller
-<miller@techsource.com> wrote:
-> In short, what I have been proposing to my superiors is the development
-> of a graphics card specifically for open source systems. 
+On Wed, Oct 20, 2004 at 11:03:47PM +0100, Matthew Wilcox wrote:
+> On Wed, Oct 20, 2004 at 11:52:14AM -0700, Hanna Linder wrote:
+> > 
+> > As pci_find_device is going away soon I have converted this file to use
+> > pci_get_device instead. I have compile tested it. If anyone has this hardware
+> > and could test it that would be great.
+> 
+> Should be converted to the pci_driver API.
 
-That sounds truly great! However...
+No.  It's already using the pci_driver API, but the same device can be
+handled differently depending on the presence of another one.  Maybe
+pci_dev_present would fit here.
 
-If the graphics card mostly supports 2D initially, it's really not
-much better then just about any off the shelf graphics card with VESA
-drivers. As in, the hardware doesn't need to be open for just that.
-Most (all?) the frustration in Linux graphics card land comes from
-unsupported/closed 3D drivers.
-
-I obviously understand that it would be very costly to try to catch up
-with ATI/NVidia in 3D land, but if you manage to get an open platform
-out there which has great 3D potential (hardware wise) and is easily
-programmable, I am sure the open source community would _love_ to try
-to jointly develop fast 3D firmware (and drivers). That way Techsource
-won't have to front the cost (other than for hardware).
-
-So a open, programmable 3D hardware platform would open the door for
-open source 3D engine innovation.
-
-If you get this off the road, that would be very impressive and most
-exciting to watch.
-
-However, if you're only going to focus on 2D, I don't see the
-excitement. 2D works pretty much for everyone, no?
-
-Cheers,
-    Andre

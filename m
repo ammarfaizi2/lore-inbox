@@ -1,57 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbVCCIzm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261660AbVCCI70@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261654AbVCCIzm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 03:55:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261657AbVCCIzm
+	id S261660AbVCCI70 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 03:59:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261665AbVCCI70
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 03:55:42 -0500
-Received: from mail.kroah.org ([69.55.234.183]:959 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261654AbVCCIzg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 03:55:36 -0500
-Date: Thu, 3 Mar 2005 00:53:53 -0800
-From: Greg KH <greg@kroah.com>
-To: Jes Sorensen <jes@wildopensource.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, "David S. Miller" <davem@davemloft.net>,
-       torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+	Thu, 3 Mar 2005 03:59:26 -0500
+Received: from web21324.mail.yahoo.com ([216.136.175.210]:46752 "HELO
+	web21324.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261660AbVCCI7T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 03:59:19 -0500
+Message-ID: <20050303085918.92037.qmail@web21324.mail.yahoo.com>
+Date: Thu, 3 Mar 2005 00:59:18 -0800 (PST)
+From: Matthew Frost <artusemrys@sbcglobal.net>
 Subject: Re: RFD: Kernel release numbering
-Message-ID: <20050303085352.GA29955@kroah.com>
-References: <422674A4.9080209@pobox.com> <Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org> <42268749.4010504@pobox.com> <20050302200214.3e4f0015.davem@davemloft.net> <42268F93.6060504@pobox.com> <4226969E.5020101@pobox.com> <20050302205826.523b9144.davem@davemloft.net> <4226C235.1070609@pobox.com> <20050303080459.GA29235@kroah.com> <yq0y8d5dtg9.fsf@jaguar.mkp.net>
-Mime-Version: 1.0
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050302231231.GA30106@alpha.home.local>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <yq0y8d5dtg9.fsf@jaguar.mkp.net>
-User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 03, 2005 at 03:28:22AM -0500, Jes Sorensen wrote:
+
+--- Willy Tarreau <willy@w.ods.org> wrote:
+
+> Hi Linus,
 > 
-> Greg> So, while I like the _idea_ of the 2.6.x.y type releases, having
-> Greg> those releases contain anything but a handful of patches will
-> Greg> quickly get quite messy.
+> For a long time, I've been hoping/asking for a more frequent
+> stable/unstable cycle, so clearly you can count my vote on this one 
+> (eventhough it might count for close to zero). This is a very good step
+
+> towards a better stability IMHO.
 > 
-> Wouldn't this actually happen automatically simply by Linus switching
-> to being a lot more picky about whats accepted into an even release. I
-> agree that if it becomes too formal it could probably turn into an
-> unmaintainable mess. However, by simply making it a golden rule, then
-> developers can just continue pushing their patches and the people
-> above can just shift things to -mm that aren't deemed suitable for the
-> even release.
+> However, I have a comment :
 > 
-> I think this would work quite well.
+> >  - 2.6.<odd>: still a stable kernel, but accept bigger changes
+> >    leading up to it (timeframe: a month or two).
+> >  - 2.<odd>.x: aim for big changes that may destabilize the kernel for
+> >    several releases (timeframe: a year or two)
+> >  - <odd>.x.x: Linus went crazy, broke absolutely _everything_, and
+> >    rewrote the kernel to be a microkernel using a special
+> >    message-passing version  of Visual Basic. (timeframe: "we expect 
+> >    that he will be released from the mental institution in a decade
+or
+> >    two").
+> 
+> I don't agree with you on this last one (not the fact that you don't
+> want an mk+mp+vb combination :-)). The VERSION number (in the makefile
+> meaning of the term) only gets updated every 10 years or so. So it does
 
-Sure, but the point about people not testing the odd release would still
-stand.  As it is today, we've been pretty good about only allowing
-bugfixes into the later -rc releases.  But I know I start queuing
-"bigger" fixes at that point in time, allowing them to get more testing
-in -mm release, and generally trying to be conserative.  
+> not need to jump. PATCHLEVEL increments are rare enough to justify lots
 
-And sometimes, people really want those "big" fixes, and they switch to
-using the bk-usb patchset, or the bk-scsi patchset.  That happens a lot
-for when distros work to stabilize their release kernels.  But that is
-quite different from trying to do that for a 2.6.x.y release.
+> of breaking.  I certainly can imagine people laughing at your OS when 
+> you jump from v2.6.X to v4.0.X, it will have a smell of slowaris 
+> (remember 2.6 - 2.7 - 7 - 8 that confused everyone ?). On the other 
+> side, the openbsd numbering scheme is far simpler to understand, and I 
+> sincerely think that we should enter 3.0 after 2.8.
 
-thanks,
+I hate to point out the obvious to someone of longer standing, but
+according to the current system, since we increment integrally, 2.10.0
+would be the successor release to the 2.9.X dev series, unless you know
+something about a severe and profound internals shakeup scheduled for 2.9
+that we don't.  :)
 
-greg k-h
+OT, 3.0.0 is an even-numbered release, therefore stable.  So what do you
+call the odd-numbered unstable series that produces it?  ;)
+
+> As a side note, I've
+> always wondered why we would not swap odds and evens, so that we can 
+> keep the same major number between devel and release (eg: devel 2.8, 
+> release 2.9 ; not devel 2.9, release 3.0). Anyway, people have got used
+
+> to stay away from the '.0' releases of any product on the planet.
+> 
+> Regards
+> Willy
+> 
+
+Matt
+
+Yes, I have too much free time.

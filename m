@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311229AbSCLPLq>; Tue, 12 Mar 2002 10:11:46 -0500
+	id <S311231AbSCLPQG>; Tue, 12 Mar 2002 10:16:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311230AbSCLPLg>; Tue, 12 Mar 2002 10:11:36 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:25916 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S311229AbSCLPL0>; Tue, 12 Mar 2002 10:11:26 -0500
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Kurt Garloff <garloff@suse.de>,
-        Linux kernel list <linux-kernel@vger.kernel.org>,
-        "S. Chandra Sekharan" <sekharan@us.ibm.com>
-Subject: Re: [PATCH] Support for assymmetric SMP
-In-Reply-To: <20020311043421.D2346@nbkurt.etpnet.phys.tue.nl>
-	<20020311052954.R8949@dualathlon.random>
-	<20020311122549.I2346@nbkurt.etpnet.phys.tue.nl>
-	<20020311132053.G10413@dualathlon.random>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 12 Mar 2002 08:05:51 -0700
-In-Reply-To: <20020311132053.G10413@dualathlon.random>
-Message-ID: <m13cz5zv00.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S311232AbSCLPP4>; Tue, 12 Mar 2002 10:15:56 -0500
+Received: from mail.rpi.edu ([128.113.22.40]:43944 "EHLO mail.rpi.edu")
+	by vger.kernel.org with ESMTP id <S311231AbSCLPPn>;
+	Tue, 12 Mar 2002 10:15:43 -0500
+Date: Tue, 12 Mar 2002 10:12:12 -0500 (EST)
+Message-Id: <20020312.101212.25466030.obatan@rpi.edu>
+To: lk@tantalophile.demon.co.uk
+Cc: greearb@candelatech.com, linux-kernel@vger.kernel.org
+Subject: Re: a faster way to gettimeofday?
+From: OBATA Noboru <noboru@ylug.org>
+In-Reply-To: <20020312130635.C4281@kushida.apsleyroad.org>
+In-Reply-To: <20020312130635.C4281@kushida.apsleyroad.org>
+X-Mailer: Mew version 3.0.54 on Emacs 20.7 / Mule 4.0 (HANANOEN)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> writes:
-
-> On Mon, Mar 11, 2002 at 12:25:49PM +0100, Kurt Garloff wrote:
-> > Hi Andrea,
-> > 
-> > On Mon, Mar 11, 2002 at 05:29:54AM +0100, Andrea Arcangeli wrote:
-> > > the only problem is if you happen to get the timer irq always in the
-> > > same cpu for a few seconds, then the last_tsc_low will wrap around and
-> > > gettimeofday will be wrong. And even if you snapshot the full 64bit of the
-> > > tsc you'll run into some trouble if the timer irq will be delivered only
-> > > to the same cpu for a long time (for example if you use irq bindings).
-> > > you'd lose precision and you'll run into the measuration errors of
-> > > fast_gettimeoffset_quotient. The right support for asynchronous TSC
-> > > handling is a bit more complicated unfortunately.
-> > 
-> > If your APIC works, your CPUs should get the timer IRQs in alternating order.
+> If you run NTP (synchronisation with atomic clock standards over the
+> network), you get really good real world clock times.  It continually
+> adjust gettimeofday() but not the rdtsc clock.  That may highlight any
+> drift due to thermal effects in the PC.
 > 
-> Maybe I remeber wrong, but AFIK the io-apic isn't required to scale the
-> irq load in alternating order, it is perfectly allowed to deliver the
-> irq always to the same cpu for several seconds. I know the probability
-> for that to happen is low but it can happen.
+> I would guess you're not running NTP?
 
-Actually I know of at least one dual P4 Xeon board where I haven't seen anything
-except IPI go to the second cpu.
+You are right.  I'm not running NTP.  Actually, I was using
+clockspeed (http://cr.yp.to/clockspeed.html) before, which
+adjusts system clock using RDTSC, but I have stopped it to
+observe pure system clock.
 
-Eric
+In the first version my userland gettimeofday, I'm more
+interested in how RDTSC could be configured to synchronize with
+the system clock, rather than the real world clock time.
+
+To atapt the system clock change, userland gettimeofday should
+issue real gettimeofday system call occasionally, as Terje
+suggests early in this thread, and adjust calibration
+parameters.  I'll call it "adaptive userland gettimeofday."
+
+You may not need calibration any longer since it is adaptive.
+However, it will be slower and less effective because much
+adjusting code should be implemented.  So I'm hesitating to
+implement adaptive userland gettimeofday :-).
+
+-- 
+OBATA Noboru (noboru@ylug.org)

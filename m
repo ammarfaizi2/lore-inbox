@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268088AbUBRVBo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 16:01:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268082AbUBRVA6
+	id S267867AbUBRTZB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 14:25:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267908AbUBRTZB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 16:00:58 -0500
-Received: from mail.kroah.org ([65.200.24.183]:14296 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S268087AbUBRVAv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 16:00:51 -0500
-Date: Wed, 18 Feb 2004 12:57:41 -0800
-From: Greg KH <greg@kroah.com>
-To: johnrose@austin.ibm.com
-Cc: linux-kernel@vger.kernel.org, gregkh@us.ibm.com, lxie@us.ibm.com,
-       wortman@us.ibm.com, scheel@us.ibm.com,
-       pcihpd-discuss@lists.sourceforge.net
-Subject: Re: [PATCH] PPC64 PCI Hotplug Driver for RPA
-Message-ID: <20040218205741.GB5175@kroah.com>
-References: <200402110112.i1B1CToT022755@localhost.localdomain>
-Mime-Version: 1.0
+	Wed, 18 Feb 2004 14:25:01 -0500
+Received: from pileup.ihatent.com ([217.13.24.22]:58851 "EHLO
+	pileup.ihatent.com") by vger.kernel.org with ESMTP id S267867AbUBRTYK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 14:24:10 -0500
+To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Cc: Zoltan NAGY <nagyz@nefty.hu>, linux-kernel@vger.kernel.org
+Subject: Re: v2.6 in vmware?
+References: <10ADD433537@vcnet.vc.cvut.cz>
+From: Alexander Hoogerhuis <alexh@ihatent.com>
+Date: 18 Feb 2004 20:23:34 +0100
+In-Reply-To: <10ADD433537@vcnet.vc.cvut.cz>
+Message-ID: <8765e4fayx.fsf@lapper.ihatent.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200402110112.i1B1CToT022755@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 10, 2004 at 07:12:29PM -0600, johnrose@austin.ibm.com wrote:
-> Please consider the following patch for submission.  This patch contains the
-> implementation of the I/O Slot DLPAR Drivers for PPC64 RISC Platform
-> Architecture.  This module depends on the RPA PCI Hotplug Module in the
-> previous post.  The patch is made against kernel version 2.6.3-rc2.  
+"Petr Vandrovec" <VANDROVE@vc.cvut.cz> writes:
+
+> On 18 Feb 04 at 14:37, Zoltan NAGY wrote:
+> > I've been trying to get 2.6.x working in vmware4, but it drops some
+> > oopses during init... I cannot provide details, but I'm sure that it
+> > does not just me who are having problems with it..
 > 
-> The Dynamic Logical Partitioning Module allows the runtime movement of I/O
-> Slots between logical partitions.  An administrator can logically add/remove
-> PCI Buses to/from a PPC64 partition at runtime.  These operations are initiated
-> using interface files located at:
-> /sys/bus/pci/pci_hotplug_slots/control/
-> Development contact for this module is John Rose (johnrose@austin.ibm.com).
+> Definitely you are... I do not know about any problems with running
+> 2.6.x as a guest under VMware. 
+> 
 
-Applied, thanks.
+There was something about sysenter support or something in that
+general direction; I had Zwane Mwaikambo send me a patch that worked
+around this for pre 4.0.5 vmware, but never got around to test it as I
+upgraded the vmware software.
 
-greg k-h
+Grep the archives for "[PATCH][2.5] VMWare doesn't like sysenter" and
+"2.6.0 under vmware ?", and look here:
+http://www.ussg.iu.edu/hypermail/linux/kernel/0401.0/1254.html
+
+mvh,
+A
+
+-- 
+Alexander Hoogerhuis                               | alexh@ihatent.com
+CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
+"You have zero privacy anyway. Get over it."  --Scott McNealy

@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281544AbRKUEZH>; Tue, 20 Nov 2001 23:25:07 -0500
+	id <S281569AbRKUFFn>; Wed, 21 Nov 2001 00:05:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281555AbRKUEY5>; Tue, 20 Nov 2001 23:24:57 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:53753 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S281544AbRKUEYs>;
-	Tue, 20 Nov 2001 23:24:48 -0500
-Date: Tue, 20 Nov 2001 21:23:36 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: =?iso-8859-1?Q?H=E5vard_Kv=E5len?= <havardk@netcom.no>
-Cc: Dan Maas <dmaas@dcine.com>, Rik van Riel <riel@conectiva.com.br>,
-        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: Swap
-Message-ID: <20011120212336.H1308@lynx.no>
-Mail-Followup-To: =?iso-8859-1?Q?H=E5vard_Kv=E5len?= <havardk@netcom.no>,
-	Dan Maas <dmaas@dcine.com>, Rik van Riel <riel@conectiva.com.br>,
-	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L.0111202019170.4079-100000@imladris.surriel.com> <03bb01c17213$887ccd30$1a01a8c0@allyourbase> <fa.jc73ejv.1s6e80t@ifi.uio.no> <m3wv0knbgs.fsf@athlon.kvaalen.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <m3wv0knbgs.fsf@athlon.kvaalen.no>; from havardk@netcom.no on Wed, Nov 21, 2001 at 02:45:23AM +0100
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S281570AbRKUFFc>; Wed, 21 Nov 2001 00:05:32 -0500
+Received: from gear.torque.net ([204.138.244.1]:28175 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S281569AbRKUFFR>;
+	Wed, 21 Nov 2001 00:05:17 -0500
+Message-ID: <3BFB3566.A74C7A14@torque.net>
+Date: Wed, 21 Nov 2001 00:02:30 -0500
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: mmap-ing __get_free_pages(), order > 0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 21, 2001  02:45 +0100, Håvard Kvålen wrote:
-> > (I just tried looking at XMMS and Freeamp - I *think* they are using
-> > read(), but strace seems to do bad things with threaded programs,
-> > argh...)
-> 
-> You are right about XMMS, it uses read().  I'm not sure about Freeamp.
+I'm trying to mmap a scatter gather list to the user space.
+[The scatter gather list has the same lifetime as a
+file descriptor to a device.] Each element of the scatter 
+gather list is obtained from __get_free_pages() 
+[typically order == 3].
 
-When I was hacking on mpg123, it was using mmap by default unless it was
-unable to mmap the file (e.g. stdin) where it uses read.  You could turn
-this off at compile time, so it only uses read.  I found that to work
-better on low memory machines.
+In LDD2, Rubini & Corbett limit their "scullp" driver
+example to order 0. There is a bit of arm waving in
+the text (page 392) about some manipulation of page
+counts being required when the order is > 0.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+Could someone please elaborate what the rules are
+(for the "nopage" callback)?
+[The DEBUG_LRU_PAGE() at line 206 of page_alloc.c 
+disapproves of my attempts to date.]
+
+Is there any driver out there that solves this
+particular problem?
+
+Doug Gilbert
 

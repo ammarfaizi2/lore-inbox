@@ -1,77 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271505AbRHPGsb>; Thu, 16 Aug 2001 02:48:31 -0400
+	id <S271514AbRHPHO3>; Thu, 16 Aug 2001 03:14:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271506AbRHPGsW>; Thu, 16 Aug 2001 02:48:22 -0400
-Received: from fe090.worldonline.dk ([212.54.64.152]:26633 "HELO
-	fe090.worldonline.dk") by vger.kernel.org with SMTP
-	id <S271505AbRHPGsG>; Thu, 16 Aug 2001 02:48:06 -0400
-Date: Thu, 16 Aug 2001 08:50:25 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Hisaaki Shibata <shibata@luky.org>
+	id <S271513AbRHPHOU>; Thu, 16 Aug 2001 03:14:20 -0400
+Received: from [211.100.83.239] ([211.100.83.239]:14601 "HELO linux.tcpip.cxm")
+	by vger.kernel.org with SMTP id <S271510AbRHPHON>;
+	Thu, 16 Aug 2001 03:14:13 -0400
+Date: Mon, 13 Aug 2001 21:46:38 +0800
+From: hugang <linuxbest@soul.com.cn>
+To: PinkFreud <pf-kernel@mirkwood.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 4.7GB DVD-RAM geometry wrong?
-Message-ID: <20010816085025.M4352@suse.de>
-In-Reply-To: <20010815111030Z271139-761+1405@vger.kernel.org> <20010815131733.I545@suse.de> <20010815233424P.shibata@luky.org> <20010816114439K.shibata@luky.org>
+Subject: Re: Are we going too fast?
+Message-Id: <20010813214638.3596b83a.linuxbest@soul.com.cn>
+In-Reply-To: <Pine.LNX.4.20.0108130303120.1037-100000@eriador.mirkwood.net>
+In-Reply-To: <Pine.LNX.4.20.0108130303120.1037-100000@eriador.mirkwood.net>
+Organization: soul
+X-Mailer: Sylpheed version 0.5.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010816114439K.shibata@luky.org>
+Content-Type: text/plain; charset=GB2312
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 16 2001, Hisaaki Shibata wrote:
-> Hi again.
+On Mon, 13 Aug 2001 03:43:05 -0400 (EDT)
+PinkFreud <pf-kernel@mirkwood.net> wrote:
+
 > 
-> > > > I have a Panasonic DVD-RAM, LF-D201 (SCSI 4.7/9.4GB).  I put in a
-> > > > 4.7GB type II cartridge (that's a single-sided disk), did 'mkfs 
-> > > > /dev/scd0' and then mounted it, and ... I have a 2.2GB disk!
-> > 
-> > Almost the same problem here w/ 5.2GB HITACHI DVD-RAM Drive, GF-2050.
+> I have installed various 2.4.x kernels on 3 seperate systems here.  *ALL*
+> of them have suffered from one malady or another - from the dual PIII with
+> the VIA chipset and Matrox G400 card, which locks up nicely when I switch
+> from X to a text console and back to X (but NOT under a uniprocessor
+> kernel!), to the system with the NCR 53c810 SCSI board, which suffered
+> random kernel panics anywhere from 2 hours to 5 days after booting, due to
+> the ncr53c8xx driver, to YET ANOTHER system which has shown a penchant for
+> crashing (read: no response on console, can use magic sysrq, but fails to
+> emergency sync) when attempting to use 'ls' on a mounted QNX filesystem
+> (ls comes up fine, then system crashes - nothing sent to syslog, no errors
+> on screen, nothing!) - and this latest is with 2.4.8!
 > 
-> Sorry, My 5.2GB SCSI DVD-RAM drive's correct name is GF-1050.
+
+> sauron@rivendell:~$ uptime
+>  3:17AM  up 12 days, 15:20, 2 users, load averages: 1.48, 0.66, 0.31
+> sauron@rivendell:~$ uname -a
+> NetBSD rivendell 1.5.1 NetBSD 1.5.1 (RIVENDELL) #0: Tue Jul 31 22:58:54
+> EDT 2001     root@rivendell:/usr/src/sys/arch/i386/compile/RIVENDELL i386
+> sauron@rivendell:~$ dmesg | grep -i sym
+> siop0 at pci0 dev 6 function 0: Symbios Logic 53c810 (fast scsi)
 > 
-> > > Attached patch should fix it, Linus please apply.
-> > 
-> > The patch with 2.4.8-ac5 fixed my problem.
+> (The controller is old - it was made by NCR before it became Symbios Logic
+> - hence, why I was using the NCR driver for it, rather than the Symbios
+> driver, in Linux.)
 > 
-> The geometry problem is sloved.
-
-Good
-
-> But other problem has come with 4.7GB(9.4GB) ATAPI(IDE) DVD-RAM drive
-> named HITACHI GF-2000.
+> Working on 13 days uptime.  That's well over twice the uptime for Linux on
+> that box.  That's what happens when the kernel has bugs.
 > 
-> Here is my dmesg.
-> While I did "cp -auv DIR/ /mnt/floppy/", segv has happend.
-> file system on DVD-RAM is UDF.
-
-Please run that through ksymoops, the trace is worthless without it. See
-below.
-
-> Warning only 896MB will be used.
-> Use a HIGHMEM enabled kernel.
-
-Hint :-)
-
-> invalid operand: 0000
-> CPU:    0
-> EIP:    0010:[<c01440f8>]
-> EFLAGS: 00010202
-> eax: ffffffff   ebx: d26f53a0   ecx: d26f53a0   edx: 00000001
-> esi: fad31120   edi: de1c96c0   ebp: d26f53a0   esp: de159e60
-> ds: 0018   es: 0018   ss: 0018
-> Process cp (pid: 930, stackpage=de159000)
-> Stack: d26f53a0 de159ed4 fad272e3 d26f53a0 fffffffb f7cd6000 c0143d97 00000000 
->        f5dbe8a0 de1c96c0 de159f8c 00000000 fad2651d f5dbe8a0 f5dbe8a0 00000000 
->        c1f22700 00020101 000100a8 00349be2 000c8066 1b000001 00000800 000c82c9 
-> Call Trace: [<fad272e3>] [<c0143d97>] [<fad2651d>] [<c013b585>] [<c013b41a>] 
->    [<c013b70c>] [<c0130113>] [<c0130026>] [<c0130314>] [<c0106ccb>] 
+> Take this rant for what you will.  Personally, I switched from Windows to
+> Linux 5 years ago for the stability.  If I need to switch OSs again to
+> continue to have stability, I will.  Somehow, I suspect, if kernel
+> development continues down this path, many others will wind up switching
+> to other OSs as well.
 > 
-> Code: 0f 0b e9 86 00 00 00 90 39 1b 74 3c f6 83 08 01 00 00 0f 75 
 
-This part.
+	I think this problem can fix if your can report the crash message . (Oops,...)
+Beacuse the netbsd can work fine on it , So I true the linux kernel also can  work fine on it.
 
 -- 
-Jens Axboe
+Best Regard!
+礼！
+----------------------------------------------------
+hugang : 胡刚 	GNU/Linux User
+email  : gang_hu@soul.com.cn linuxbest@soul.com.cn
+Tel    : +861068425741/2/3/4
+Web    : http://www.soul.com.cn
 
+	Beijing Soul technology Co.Ltd.
+	   北京众志和达科技有限公司
+----------------------------------------------------

@@ -1,35 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129809AbRBKUNl>; Sun, 11 Feb 2001 15:13:41 -0500
+	id <S129617AbRBKUPv>; Sun, 11 Feb 2001 15:15:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130004AbRBKUNb>; Sun, 11 Feb 2001 15:13:31 -0500
-Received: from tazenda.demon.co.uk ([158.152.220.239]:55302 "EHLO
-	tazenda.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S129853AbRBKUNQ>; Sun, 11 Feb 2001 15:13:16 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999 (debian)
-To: linux-kernel@vger.kernel.org
-Subject: small patch for unsigned char breakage in rtl8129 driver
-Mime-Version: 1.0
+	id <S130004AbRBKUPl>; Sun, 11 Feb 2001 15:15:41 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:18694 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129617AbRBKUP3>;
+	Sun, 11 Feb 2001 15:15:29 -0500
+Message-ID: <3A86F2BA.1B50360C@mandrakesoft.com>
+Date: Sun, 11 Feb 2001 15:14:50 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-pre3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: David Weinehall <tao@acc.umu.se>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Nick Urbanik <nicku@vtc.edu.hk>,
+        Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.2-pre3 compile error in 6pack.c
+In-Reply-To: <E14S04y-0004Tb-00@the-village.bc.nu> <3A86EF11.20C17FD8@mandrakesoft.com> <20010211210826.D20267@khan.acc.umu.se>
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 11 Feb 2001 20:12:54 +0000
-From: Philip Blundell <philb@gnu.org>
-Message-Id: <E14S2rf-0003or-00@kings-cross.london.uk.eu.org>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- linux/drivers/net/rtl8129.c	Sat Nov  4 16:42:22 2000
-+++ linux/drivers/net/rtl8129.c	Sat Nov  4 16:48:21 2000
-@@ -271,7 +271,7 @@ struct rtl8129_private {
- 	unsigned char *tx_bufs;				/* Tx bounce buffer region. */
- 	dma_addr_t rx_ring_dma;
- 	dma_addr_t tx_bufs_dma;
--	char phys[4];						/* MII device addresses. */
-+	signed char phys[4];				/* MII device addresses. */
- 	char twistie, twist_cnt;			/* Twister tune state. */
- 	unsigned int tx_full:1;				/* The Tx queue is full. */
- 	unsigned int full_duplex:1;			/* Full-duplex operation requested. */
+David Weinehall wrote:
+> 
+> On Sun, Feb 11, 2001 at 02:59:13PM -0500, Jeff Garzik wrote:
+> > Alan Cox wrote:
+> > >
+> > > > 2.4.2-pre3 doesn't compile with 6pack as a module; I had to disable it;
+> > > > now it compiles (and so far, works fine).
+> > >
+> > > It has a slight dependancy on -ac right now.
+> > >
+> > > KMALLOC_MAXSIZE is the alloc size limit - 131072. It checks this as kmalloc
+> > > now panics if called with an oversize request
+> >
+> > Would it be costly/reasonable to have kmalloc -not- panic if given a
+> > too-large size?  Principle of Least Surprises says it should return NULL
+> > at the very least.
+> 
+> It's on purpose; to find the erroneous drivers.
+
+Oh good grief.  You will never find all such drivers.  Dynamic memory
+allocation is by its definition dynamic.  Alloc size is often selected
+at runtime based on a variety of factors.
+
+printk a message and fail the call.  Don't panic.
+
+We have a system in place to notify calls when kmalloc fails -- return
+value.  Use that, it's what its there for...
+
+	Jeff
 
 
+-- 
+Jeff Garzik       | "You see, in this world there's two kinds of
+Building 1024     |  people, my friend: Those with loaded guns
+MandrakeSoft      |  and those who dig. You dig."  --Blondie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

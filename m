@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbRAEQVj>; Fri, 5 Jan 2001 11:21:39 -0500
+	id <S129406AbRAEQ0c>; Fri, 5 Jan 2001 11:26:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129406AbRAEQV3>; Fri, 5 Jan 2001 11:21:29 -0500
-Received: from thick.mail.pipex.net ([158.43.192.95]:30115 "HELO
-	thick.mail.pipex.net") by vger.kernel.org with SMTP
-	id <S129267AbRAEQVJ>; Fri, 5 Jan 2001 11:21:09 -0500
-From: Chris Rankin <rankinc@zip.com.au>
-Message-Id: <200101051413.f05EDu405677@wittsend.ukgateway.net>
-Subject: Looking for maintainer of ENSONIQ SoundScape driver
-To: linux-kernel@vger.kernel.org
-Date: Fri, 5 Jan 2001 14:13:55 +0000 (GMT)
-Cc: linux-sound@vger.kernel.org
-Reply-To: rankinc@zip.com.au
+	id <S129806AbRAEQ0X>; Fri, 5 Jan 2001 11:26:23 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:22278 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129406AbRAEQ0K>; Fri, 5 Jan 2001 11:26:10 -0500
+Subject: Re: Looking for maintainer of ENSONIQ SoundScape driver
+To: rankinc@zipworld.com.au
+Date: Fri, 5 Jan 2001 16:27:30 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, linux-sound@vger.kernel.org
+In-Reply-To: <200101051413.f05EDu405677@wittsend.ukgateway.net> from "Chris Rankin" at Jan 05, 2001 02:13:55 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14EZiH-0007yy-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> would like to discuss with its maintainer, please. For instance,
+> although /dev/mixer does not use sscape.o (the mixer driver is in the
+> ad1848.o module), unloading sscape.o while a mixer application is
 
-I have an ENSONIQ SoundScape PNP sound card, and I am noticing
-problems with it under linux-2.4.0-prerelease and linux-2.4.0. I have
-created 2 diffs which solve the most pressing problem (and sort a few
-messages out), but the driver seems to have deeper issues which I
-would like to discuss with its maintainer, please. For instance,
-although /dev/mixer does not use sscape.o (the mixer driver is in the
-ad1848.o module), unloading sscape.o while a mixer application is
-running causes a kernel oops when the application exits. The way that
-sscape.o allocates IO ports is also suspicious, and causes these
-messages to be logged every time the sound modules are loaded:
+That sounds like the mixer calls sscape code and there is a locking error
+somewhere that should have prevented the unload
 
-Jan 5 14:08:31 wittsend kernel: Trying to free nonexistent resource <00000338-00000339>
-Jan 5 14:08:31 wittsend kernel: Trying to free nonexistent resource <00000330-00000337>
+> sscape.o allocates IO ports is also suspicious, and causes these
+> messages to be logged every time the sound modules are loaded:
+> 
+> Jan 5 14:08:31 wittsend kernel: Trying to free nonexistent resource <00000338-00000339>
+> Jan 5 14:08:31 wittsend kernel: Trying to free nonexistent resource <00000330-00000337>
+> 
 
-There is no specific person mentioned in the MAINTAINERS file for this
-ISA PNP card, and I have received no response from the linux-sound
-mailing list.
+Look for request_resource/free_resource mismatches 
 
-Is there anybody out there? 
-Cheers,
-Chris
+> There is no specific person mentioned in the MAINTAINERS file for this
+> ISA PNP card, and I have received no response from the linux-sound
+> mailing list.
+> 
+> Is there anybody out there? 
+
+I dont think so.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

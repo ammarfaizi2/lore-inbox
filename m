@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbVARJvN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261212AbVARK3g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261211AbVARJvN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 04:51:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbVARJvN
+	id S261212AbVARK3g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 05:29:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbVARK3g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 04:51:13 -0500
-Received: from colin2.muc.de ([193.149.48.15]:34063 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S261211AbVARJvK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 04:51:10 -0500
-Date: 18 Jan 2005 10:51:09 +0100
-Date: Tue, 18 Jan 2005 10:51:09 +0100
-From: Andi Kleen <ak@muc.de>
-To: Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [PATCH] Support compat_ioctl for block devices
-Message-ID: <20050118095109.GA22705@muc.de>
-References: <20050118075602.GD76018@muc.de> <20050118091927.GA24768@infradead.org> <20050118093158.GB20002@muc.de> <20050118093645.GA24935@infradead.org>
+	Tue, 18 Jan 2005 05:29:36 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:63239 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261212AbVARK3e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 05:29:34 -0500
+Date: Tue, 18 Jan 2005 11:29:32 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: netdev@oss.sgi.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] unexport xfrm_policy_delete
+Message-ID: <20050118102932.GD4274@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050118093645.GA24935@infradead.org>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 18, 2005 at 09:36:45AM +0000, Christoph Hellwig wrote:
-> On Tue, Jan 18, 2005 at 10:31:58AM +0100, Andi Kleen wrote:
-> > >  - please don't introduce a new API with the BKL held.
-> > 
-> > Nope, I'm not going to audit zillions of low level functions for this.
-> 
-> So just stick a lock_kernel() unlock_kernel() into the handler, it's
-> not like there's more than a handfull of them.
+I haven't found any way how xfrm_policy_delete could be called from 
+modular code in 2.6.11-rc1-mm1.
 
-Hmm, possible, although it tends to be quite ugly (requiring
-either gotos or wrappers). But ok.
+Unless I'm wrong or a patch for a modular usage is pending, I'm 
+therefore suggesting this patch for removing the EXPORT_SYMBOL.
 
-> 
-> > >  - prototype isn't nice.  just passing the gendisk for block_device
-> > >    should be enough.
-> > 
-> > No, it isn't, the compat handler needs cmd and arg, and file is useful
-> > when you pass it to an existing ioctl handler.
-> 
-> cmd/arg is needed, file shouldn't.  If you care for the underlying handler
-> add a version that doesn't take the file * either.
 
-Sorry, that didn't make any sense.  
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
--Andi
+--- linux-2.6.11-rc1-mm1-full/net/xfrm/xfrm_policy.c.old	2005-01-18 11:11:34.000000000 +0100
++++ linux-2.6.11-rc1-mm1-full/net/xfrm/xfrm_policy.c	2005-01-18 11:11:39.000000000 +0100
+@@ -549,8 +549,6 @@
+ 	}
+ }
+ 
+-EXPORT_SYMBOL(xfrm_policy_delete);
+-
+ int xfrm_sk_policy_insert(struct sock *sk, int dir, struct xfrm_policy *pol)
+ {
+ 	struct xfrm_policy *old_pol;
+

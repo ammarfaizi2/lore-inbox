@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272220AbRIKAOJ>; Mon, 10 Sep 2001 20:14:09 -0400
+	id <S272209AbRIKAQV>; Mon, 10 Sep 2001 20:16:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272219AbRIKAN7>; Mon, 10 Sep 2001 20:13:59 -0400
-Received: from 212-170-187-103.uc.nombres.ttd.es ([212.170.187.103]:33540 "EHLO
-	femto") by vger.kernel.org with ESMTP id <S272209AbRIKANw>;
-	Mon, 10 Sep 2001 20:13:52 -0400
-Date: Tue, 11 Sep 2001 02:13:42 +0200
-From: Eric Van Buggenhaut <ericvb@debian.org>
-To: linux-kernel@vger.kernel.org
-Subject: CONFIG_PCMCIA_APA1480 not linked to any code ?
-Message-ID: <20010911021342.A2682@eric.ath.cx>
-Reply-To: Eric.VanBuggenhaut@AdValvas.be
+	id <S272219AbRIKAQM>; Mon, 10 Sep 2001 20:16:12 -0400
+Received: from quattro.sventech.com ([205.252.248.110]:22536 "HELO
+	quattro.sventech.com") by vger.kernel.org with SMTP
+	id <S272209AbRIKAQH>; Mon, 10 Sep 2001 20:16:07 -0400
+Date: Mon, 10 Sep 2001 20:16:28 -0400
+From: Johannes Erdfelt <johannes@erdfelt.com>
+To: "David C. Hansen" <haveblue@us.ibm.com>
+Cc: Peter.Pregler@risc.uni-linz.ac.at, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] broken locking in CPiA driver
+Message-ID: <20010910201628.D32532@sventech.com>
+In-Reply-To: <3B9D477F.CABAFD79@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.20i
-X-Echelon: FBI CIA NSA Handgun Assault Atomic Bomb Heroin Drug Terrorism
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <3B9D477F.CABAFD79@us.ibm.com>; from haveblue@us.ibm.com on Mon, Sep 10, 2001 at 04:06:39PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm with 2.4.9 source tree.
+On Mon, Sep 10, 2001, David C. Hansen <haveblue@us.ibm.com> wrote:
+> This patch fixes a locking issue with the CPiA driver, and cleans up the
+> locking.  There is a potential race condition in cpia_pp_detach().  The
+> REMOVE_FROM_LIST macro uses the BKL to provide protection for the
+> cam_list.  However, the BKL is not held during the whole for loop, only
+> during the macro.  
+>  
+> This patch does several things:
+> 1.  rename REMOVE_FROM_LIST and ADD_TO_LIST to cpia_remove_from_list and
+> cpia_add_to_list, respectively
+> 2. make them "static inline" functions instead of #define macros. (take
+> a look at this, they probably should be functions)
+> 3.  add one static spinlock cam_list_lock_{pp|usb} for each of the pp
+> and usb drivers to replace BKL
+> 4.  do locking around all cam_list references to replace BKL locking
+> from the macros
+> 5.  fix race condition
+> 6.  initialize cam_list to NULL in pp driver, just like the usb driver.
 
-Documentation/Configure.help documents a CONFIG_PCMCIA_APA1480 but this option
-doesn't lead to any code ?!
+Technically this isn't a problem with USB since all connects and
+disconnects are serialized, but it's probably worth the effort to
+maintain consistency.
 
-femto:/usr/src/linux-2.4.9[0]# grep -r CONFIG_PCMCIA_APA1480 *
-Documentation/Configure.help:CONFIG_PCMCIA_APA1480
-femto:/usr/src/linux-2.4.9[0]#
+One lock for both PP and USB is probably sufficient.
 
-Am I missing something ?
+They should also probably use the generic list.h routines.
 
-Thanks.
+JE
 
-Please CC me any answer/comment.
-
--- 
-Eric VAN BUGGENHAUT
-
-Eric.VanBuggenhaut@AdValvas.be

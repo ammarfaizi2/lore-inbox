@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261702AbUK2McN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261708AbUK2MeN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261702AbUK2McN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 07:32:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbUK2MaX
+	id S261708AbUK2MeN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 07:34:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbUK2Mcq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 07:30:23 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:52242 "HELO
+	Mon, 29 Nov 2004 07:32:46 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:64530 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261701AbUK2M30 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 07:29:26 -0500
-Date: Mon, 29 Nov 2004 13:29:24 +0100
+	id S261701AbUK2Mbh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 07:31:37 -0500
+Date: Mon, 29 Nov 2004 13:31:35 +0100
 From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/block/nbd.c: make some functions static
-Message-ID: <20041129122924.GL9722@stusta.de>
+To: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] noop-iosched.c: make some functions static
+Message-ID: <20041129123135.GM9722@stusta.de>
 References: <20041124231055.GN19873@stusta.de> <20041125101220.GC29539@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,43 +23,65 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below makes three needlessly global functions static.
+The patch below makes some needlessly global functions static.
 
 
 diffstat output:
- drivers/block/nbd.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/block/noop-iosched.c |   12 ++++++------
+ 1 files changed, 6 insertions(+), 6 deletions(-)
 
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
---- linux-2.6.10-rc1-mm3-full/drivers/block/nbd.c.old	2004-11-06 20:09:39.000000000 +0100
-+++ linux-2.6.10-rc1-mm3-full/drivers/block/nbd.c	2004-11-06 20:10:16.000000000 +0100
-@@ -315,7 +315,7 @@
+--- linux-2.6.10-rc1-mm3-full/drivers/block/noop-iosched.c.old	2004-11-06 20:10:24.000000000 +0100
++++ linux-2.6.10-rc1-mm3-full/drivers/block/noop-iosched.c	2004-11-06 20:11:23.000000000 +0100
+@@ -17,7 +17,7 @@
+ /*
+  * See if we can find a request that this buffer can be coalesced with.
+  */
+-int elevator_noop_merge(request_queue_t *q, struct request **req,
++static int elevator_noop_merge(request_queue_t *q, struct request **req,
+ 			struct bio *bio)
+ {
+ 	struct list_head *entry = &q->queue_head;
+@@ -50,13 +50,13 @@
+ 	return ELEVATOR_NO_MERGE;
  }
  
- /* NULL returned = something went wrong, inform userspace */
--struct request *nbd_read_stat(struct nbd_device *lo)
-+static struct request *nbd_read_stat(struct nbd_device *lo)
+-void elevator_noop_merge_requests(request_queue_t *q, struct request *req,
++static void elevator_noop_merge_requests(request_queue_t *q, struct request *req,
+ 				  struct request *next)
  {
- 	int result;
- 	struct nbd_reply reply;
-@@ -377,7 +377,7 @@
- 	return NULL;
+ 	list_del_init(&next->queuelist);
  }
  
--void nbd_do_it(struct nbd_device *lo)
-+static void nbd_do_it(struct nbd_device *lo)
+-void elevator_noop_add_request(request_queue_t *q, struct request *rq,
++static void elevator_noop_add_request(request_queue_t *q, struct request *rq,
+ 			       int where)
  {
- 	struct request *req;
- 
-@@ -388,7 +388,7 @@
- 	return;
+ 	struct list_head *insert = q->queue_head.prev;
+@@ -75,7 +75,7 @@
+ 		q->last_merge = rq;
  }
  
--void nbd_clear_que(struct nbd_device *lo)
-+static void nbd_clear_que(struct nbd_device *lo)
+-struct request *elevator_noop_next_request(request_queue_t *q)
++static struct request *elevator_noop_next_request(request_queue_t *q)
  {
- 	struct request *req;
+ 	if (!list_empty(&q->queue_head))
+ 		return list_entry_rq(q->queue_head.next);
+@@ -94,12 +94,12 @@
+ 	.elevator_owner = THIS_MODULE,
+ };
  
+-int noop_init(void)
++static int noop_init(void)
+ {
+ 	return elv_register(&elevator_noop);
+ }
+ 
+-void noop_exit(void)
++static void noop_exit(void)
+ {
+ 	elv_unregister(&elevator_noop);
+ }
 

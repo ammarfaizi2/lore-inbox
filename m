@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265369AbSJXKWI>; Thu, 24 Oct 2002 06:22:08 -0400
+	id <S265381AbSJXK30>; Thu, 24 Oct 2002 06:29:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265377AbSJXKWI>; Thu, 24 Oct 2002 06:22:08 -0400
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:56002 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265369AbSJXKWH>; Thu, 24 Oct 2002 06:22:07 -0400
-Subject: Re: [RFC][PATCHSET] PC-9800 architecture (CORE only)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Osamu Tomita <tomita@cinet.co.jp>, Andrey Panin <pazke@orbita1.ru>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021024110927.A2733@ucw.cz>
-References: <20021022065028.GA304@pazke.ipt>
-	<3DB5706A.9D3915F0@cinet.co.jp>
-	<1035374538.4033.40.camel@irongate.swansea.linux.org.uk>
-	<3DB6A212.74D592D0@cinet.co.jp>  <20021024110927.A2733@ucw.cz>
+	id <S265382AbSJXK3Z>; Thu, 24 Oct 2002 06:29:25 -0400
+Received: from rth.ninka.net ([216.101.162.244]:10397 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S265381AbSJXK3Y>;
+	Thu, 24 Oct 2002 06:29:24 -0400
+Subject: Re: sendfile64() anyone? (was [RESEND] tuning linux for high
+	network performance?)
+From: "David S. Miller" <davem@rth.ninka.net>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: bert hubert <ahu@ds9a.nl>, netdev@oss.sgi.com,
+       Kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <200210241230.46848.roy@karlsbakk.net>
+References: <200210231218.18733.roy@karlsbakk.net>
+	<200210231542.48673.roy@karlsbakk.net>
+	<1035432669.9628.1.camel@rth.ninka.net> 
+	<200210241230.46848.roy@karlsbakk.net>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 24 Oct 2002 11:45:08 +0100
-Message-Id: <1035456308.8675.36.camel@irongate.swansea.linux.org.uk>
+Date: 24 Oct 2002 03:47:43 -0700
+Message-Id: <1035456463.10555.7.camel@rth.ninka.net>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-24 at 10:09, Vojtech Pavlik wrote:
-> For system resources you simply could allocate 0x00-0x2f and be done
-> without the sparse flag, but if there are any other devices that have
-> overlapping resources, which need separate drivers (IDE, sound, network,
-> ...) then the sparse ioresource flag is indeed needed. Is it so?
+On Thu, 2002-10-24 at 03:30, Roy Sigurd Karlsbakk wrote:
+> Are there any plans of implementing sendfile64() or sendfile() support for 
+> -D_FILE_OFFSET_BITS=64?
 
-Possibly although this is not an entirely unique problem. The other way
-would be (post 2.6) to add a mask. That will also let us properly handle
-the PCI/ISA partial decode for example.
-
+This is old hat, and appears in every current vendor kernel I am
+aware of and is in 2.5.x as well.
 

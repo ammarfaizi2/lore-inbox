@@ -1,85 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289092AbSANWOy>; Mon, 14 Jan 2002 17:14:54 -0500
+	id <S289093AbSANWTO>; Mon, 14 Jan 2002 17:19:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289096AbSANWOp>; Mon, 14 Jan 2002 17:14:45 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:4231
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S289092AbSANWO2>; Mon, 14 Jan 2002 17:14:28 -0500
-Date: Mon, 14 Jan 2002 16:59:09 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: linux-kernel@vger.kernel.org
-Subject: Penelope builds a kernel
-Message-ID: <20020114165909.A20808@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S289099AbSANWTE>; Mon, 14 Jan 2002 17:19:04 -0500
+Received: from waste.org ([209.173.204.2]:3736 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S289098AbSANWTC>;
+	Mon, 14 Jan 2002 17:19:02 -0500
+Date: Mon, 14 Jan 2002 16:18:41 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+cc: Alexander Viro <viro@math.psu.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Mr. James W. Laferriere" <babydr@baby-dragons.com>,
+        Giacomo Catenazzi <cate@debian.org>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Hardwired drivers are going away?
+In-Reply-To: <20020114151748.B19776@thyrsus.com>
+Message-ID: <Pine.LNX.4.43.0201141613580.31316-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Scenario #3: Penelope goes where the geeks are surfing.
+On Mon, 14 Jan 2002, Eric S. Raymond wrote:
 
-The girl geek Melvin noticed over at the computer lab is named
-Penelope.  She's studying proteomics, and runs Linux on the laptop she
-just bought because Linux supports the best software she can afford
-for modeling protein folding.
+> Alexander Viro <viro@math.psu.edu>:
+> > But it still leaves you with tristate - instead of yes/module/no it's
+> > yes/yes, but don't put it on initramfs/no.  However, dependencies become
+> > simpler - all you need is "I want this, that and that on initramfs" and
+> > the rest can be found by depmod (i.e. configurator doesn't have to deal
+> > with "FOO goes on initramfs (== old Y), so BAR and BAZ must go there
+> > (== can't be M)").
+>
+> Actually I think we may no longer be in tristate-land.  Instead, some
+> devices have the property "This belongs in initramfs if it's configured
+> at all" -- specifically, drivers for potential boot devices.  Everything
+> else can dynamic-load after boot time.
 
-Penelope is what the trade rags call a "power user".  She's pretty
-bright, and likes computers, but she's got more important things to
-think about than the details of how to configure a kernel.  Like
-getting a better handle on the effect of van der Waals forces on alpha
-sheets, or the latest paper on ribosomal electron transport, or why
-she can't seem to meet men who don't bore the crap out of her even in
-a fair-sized college town.
+The knowledge of what's required to boot can and should be moved out of
+the kernel to distro land. 'make install' should call the distro's install
+script that sez /boot and /lib are on ext3 on /dev/sd?, ergo I need to
+include the ext3 and relevant SCSI modules.
 
-She's just heard about a PCMCIA card that has a MEMS array of chemical
-sensors on it.  The thing could replace the bulky, balky
-gel-chromatography setup she's using now, and make it unnecessary for
-her to fight other students for bench time.  There's even a Linux
-driver for the card (and user-space utilities to talk to it) on one of
-the bio sites she uses -- way too specialized an item for her distro
-to carry, and anyway she doesn't want to wait for the next release.
-
-Penelope needs to build a kernel to support her exotic driver, but she
-hasn't got more than the vaguest idea how to go about it.  The
-instructions with the driver source patch tell her to apply it at the
-top level of a current Linux source tree and then just say "build the
-kernel" before getting off into technicalia about the user-space
-tools.
-
-She could ask that guy who's been eyeing her over at the computer lab
-for help; Penelope knows what a penguin T-shirt means, and he's not
-too bad-looking, if a bit on the skinny side.  On the other hand, she
-knows that guys like that tend to take over the whole process when
-they're trying to be helpful; they can't help displaying their prowess
-and doing more than you asked for, it's biologically wired in.  And
-she's learned that letting someone else take over maintaining your
-equipment properly in a way you don't understand is a good way to have
-it flake out on you just short of a deadline.
-
-On the third hand, she really *doesn't* want to spend her think time
-absorbing a bunch of irrelevant hardware details just to get the one
-driver she needs up and running.  What she needs is some fast,
-hassle-free technological empowerment, not Yet Another Learning
-Experience. (And a boyfriend would be nice too, while she's wishing.)
-
-If Penelope learns from the README file that all *she* has to do is
-type "configure; make" to build a kernel that supports her hardware,
-she can apply that MEMS card patch and build with confidence that the
-effort is unlikely to turn into an infinite time sink.
-
-Autoconfigure saves the day again.  That guy in the penguin T-shirt
-might even be impressed...
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 
-"Guard with jealous attention the public liberty.  Suspect every one
-who approaches that jewel.  Unfortunately, nothing will preserve it
-but downright force.  Whenever you give up that force, you are
-inevitably ruined."	-- Patrick Henry, speech of June 5 1788
